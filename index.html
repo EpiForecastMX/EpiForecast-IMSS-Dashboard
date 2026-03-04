@@ -1670,20 +1670,20 @@
       <h1>Inteligencia Epidemiológica<br>para <span class="accent">México</span></h1>
 
       <p class="hero-sub">
-        312 modelos Prophet con cross-validation temporal, modo híbrido de fallback regional y métrica MASE.
-        Pronósticos a 52 semanas con <strong style="color:var(--cream)">100% cobertura estatal</strong>.
+        333 modelos de producción con selección automática entre 4 motores (DeepAR, Prophet, Ensemble, Stacking)
+        optimizados por SMAPE, MASE y RMSE. Pronósticos a 52 semanas con <strong style="color:var(--cream)">100% cobertura estatal</strong>.
         Una colaboración entre el <strong style="color:var(--cream)">Tecnológico de Monterrey</strong>
         y el <strong style="color:var(--cream)">IMSS</strong>.
       </p>
 
       <div class="hero-stats" id="heroStats">
         <div class="hero-stat">
-          <div class="hero-stat-value" data-target="312" data-suffix="">0</div>
-          <div class="hero-stat-label">Modelos Prophet</div>
+          <div class="hero-stat-value" data-target="333" data-suffix="">0</div>
+          <div class="hero-stat-label">Modelos Producción</div>
         </div>
         <div class="hero-stat">
-          <div class="hero-stat-value" data-target="100" data-suffix="%">0%</div>
-          <div class="hero-stat-label">Cobertura Estatal</div>
+          <div class="hero-stat-value" data-target="4" data-suffix="">0</div>
+          <div class="hero-stat-label">Motores de IA</div>
         </div>
         <div class="hero-stat">
           <div class="hero-stat-value" data-target="3" data-suffix="">0</div>
@@ -1745,7 +1745,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
           </div>
           <div class="cta-card-title">Galería de Pronósticos</div>
-          <div class="cta-card-desc">312 gráficos con filtros, lightbox y búsqueda.</div>
+          <div class="cta-card-desc">333 gráficos con filtros, lightbox y búsqueda.</div>
           <a href="Reports/index.html" class="cta-card-btn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
             Ver Pronósticos
@@ -2077,12 +2077,13 @@
           <div class="step-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 4-10"/></svg>
           </div>
-          <h4>Modelado Prophet</h4>
-          <p>312 modelos con CV temporal, modo híbrido (fallback regional), grids por padecimiento y protección anti-Newton. Tasa por 100K + log-transform.</p>
+          <h4>Modelado Multi-Motor</h4>
+          <p>333 modelos con 4 motores (DeepAR, Prophet, Ensemble, Stacking). Selección automática por SMAPE + MASE + RMSE. Fallback regional para series insuficientes.</p>
           <div class="step-tech">
+            <span>DeepAR</span>
             <span>Prophet</span>
-            <span>Híbrido</span>
-            <span>MASE</span>
+            <span>Ensemble</span>
+            <span>Stacking</span>
           </div>
         </div>
 
@@ -2140,7 +2141,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
         </div>
         <h3>Fase II — Pipeline Unificado</h3>
-        <p>Arquitectura modular con Prophet para pronósticos multi-step. 297 modelos baseline validados con cross-validation temporal. Matriz: 3 padecimientos x 33 entidades x 3 sexos.</p>
+        <p>Arquitectura modular con Prophet para pronósticos multi-step. 297 modelos baseline validados con cross-validation temporal. Matriz: 3 padecimientos x 37 combinaciones x 3 sexos.</p>
       </div>
 
       <div class="method-card reveal reveal-delay-1" data-phase="III">
@@ -2193,16 +2194,16 @@
        ═══════════════════════════════════════════════════════════════ -->
   <section class="results-bg" id="results">
     <div class="section">
-      <div class="section-label reveal">Entrega Final — Resultados v6</div>
-      <div class="section-title reveal">312 modelos optimizados con<br>100% cobertura estatal</div>
+      <div class="section-label reveal">Entrega Final — Producción Multi-Modelo</div>
+      <div class="section-title reveal">333 modelos optimizados con<br>4 motores de IA</div>
       <div class="section-desc reveal">
-        Cross-validation temporal con 4 folds y pesos progresivos. Métricas: RMSE, MAE, MAPE y MASE (escala-independiente). Modo híbrido con fallback regional para estados insuficientes. Pronóstico a 52 semanas.
+        Selección automática entre DeepAR (244), Prophet (55), Ensemble (32) y Stacking (2) por SMAPE + MASE + RMSE. Cross-validation temporal, fallback regional y pronóstico a 52 semanas con 100% cobertura.
       </div>
 
       <div class="results-summary reveal">
-        <div class="results-summary-pill">Modelos totales <strong>312</strong></div>
+        <div class="results-summary-pill">Modelos producción <strong>333</strong></div>
+        <div class="results-summary-pill">Motores <strong>4 (DeepAR, Prophet, Ensemble, Stacking)</strong></div>
         <div class="results-summary-pill">Horizonte <strong>52 semanas</strong></div>
-        <div class="results-summary-pill">Cobertura <strong>100% estatal</strong></div>
         <div class="results-summary-pill">MASE <strong>&lt; 1.0 (3/3)</strong></div>
       </div>
 
@@ -2211,7 +2212,7 @@
         <div class="result-card result-card--dep reveal reveal-delay-1">
           <div class="result-card-header">
             <h3>Depresión</h3>
-            <span class="result-card-tag">F32 · 99 modelos</span>
+            <span class="result-card-tag">F32 · 111 modelos · DeepAR 108, Ensemble 2, Prophet 1</span>
           </div>
           <div class="result-kpis">
             <div class="result-kpi">
@@ -2252,7 +2253,7 @@
         <div class="result-card result-card--par reveal reveal-delay-2">
           <div class="result-card-header">
             <h3>Parkinson</h3>
-            <span class="result-card-tag">G20 · 99 + 6 regionales</span>
+            <span class="result-card-tag">G20 · 111 modelos · DeepAR 89, Ensemble 12, Prophet 10</span>
           </div>
           <div class="result-kpis">
             <div class="result-kpi">
@@ -2294,7 +2295,7 @@
         <div class="result-card result-card--alz reveal reveal-delay-3">
           <div class="result-card-header">
             <h3>Alzheimer</h3>
-            <span class="result-card-tag">G30 · 99 + 9 regionales</span>
+            <span class="result-card-tag">G30 · 111 modelos · DeepAR 47, Prophet 44, Ensemble 18, Stacking 2</span>
           </div>
           <div class="result-kpis">
             <div class="result-kpi">
@@ -2351,7 +2352,7 @@
 
       <div style="text-align:center; margin-top:2.5rem;" class="reveal">
         <a href="Reports/index.html" style="display:inline-block; padding:1rem 2.5rem; background:var(--teal); color:var(--cream); font-family:var(--font-body); font-weight:700; font-size:0.95rem; text-transform:uppercase; letter-spacing:0.08em; border-radius:8px; transition:background .2s, transform .2s; text-decoration:none;" onmouseover="this.style.background='var(--burgundy)';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='var(--teal)';this.style.transform='none'">
-          Ver Galería de 312 Pronósticos
+          Ver Galería de 333 Pronósticos
         </a>
       </div>
     </div>
@@ -2469,9 +2470,9 @@
           <div class="scope-stat-sub">Cobertura nacional completa</div>
         </div>
         <div class="scope-stat reveal reveal-delay-4">
-          <div class="scope-stat-value scope-stat-value--dark" data-target="312" data-suffix="">0</div>
-          <div class="scope-stat-label">Modelos Prophet</div>
-          <div class="scope-stat-sub">297 estatales + 15 regionales · CV temporal</div>
+          <div class="scope-stat-value scope-stat-value--dark" data-target="333" data-suffix="">0</div>
+          <div class="scope-stat-label">Modelos Producción</div>
+          <div class="scope-stat-sub">4 motores: DeepAR 244, Prophet 55, Ensemble 32, Stacking 2</div>
         </div>
       </div>
     </div>
