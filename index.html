@@ -1959,8 +1959,8 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5-2 4-2 4 2 4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
         </div>
         <h3>Depresión</h3>
-        <p>Mayor volumen de casos y mejor predecibilidad. MASE medio de 0.80 (supera baseline naive). 100% de modelos con datos suficientes — el padecimiento más robusto del portafolio.</p>
-        <span class="disease-tag">CIE-10: F32 · MASE 0.80 · RMSE 0.183 · 99 modelos</span>
+        <p>Mayor volumen de casos y mejor predecibilidad. SMAPE mediano del 6.0% y MASE de 0.17 — el pronóstico más preciso del portafolio. DeepAR domina con 108 de 111 modelos. 100% datos suficientes.</p>
+        <span class="disease-tag">CIE-10: F32 · SMAPE 6.0% · MASE 0.17 · RMSE 4.79 · 111 modelos</span>
       </div>
 
       <!-- Parkinson -->
@@ -1969,8 +1969,8 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><path d="M12 8v4l3 3"/></svg>
         </div>
         <h3>Parkinson</h3>
-        <p>Escenario desafiante con baja incidencia. 5 estados insuficientes resueltos con fallback regional (6 modelos regionales). MASE 0.75 — supera baseline naive estacional en todos los modelos.</p>
-        <span class="disease-tag">CIE-10: G20 · MASE 0.75 · RMSE 0.057 · 99+6 modelos</span>
+        <p>Escenario desafiante con baja incidencia. SMAPE mediano del 35.2% y MASE de 0.26 — supera baseline naive. Solo 1 modelo regional (Campeche). DeepAR 89, Ensemble 12, Prophet 10.</p>
+        <span class="disease-tag">CIE-10: G20 · SMAPE 35.2% · MASE 0.26 · RMSE 1.00 · 111 modelos</span>
       </div>
 
       <!-- Alzheimer -->
@@ -1979,8 +1979,8 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg>
         </div>
         <h3>Alzheimer</h3>
-        <p>Mayor cantidad de estados insuficientes (36), todos resueltos con modo híbrido (9 modelos regionales por región INEGI). MASE 0.74 — el mejor del portafolio. 100% cobertura estatal vs 65% en v5.</p>
-        <span class="disease-tag">CIE-10: G30 · MASE 0.74 · RMSE 0.027 · 99+9 modelos</span>
+        <p>Ultra-baja incidencia donde un caso de diferencia genera alto SMAPE. MASE de 0.63 — supera baseline naive. Mayor diversidad de motores (DeepAR 47, Prophet 44, Ensemble 18, Stacking 2). 7 modelos regionales.</p>
+        <span class="disease-tag">CIE-10: G30 · SMAPE 107.6% · MASE 0.63 · RMSE 0.78 · 111 modelos</span>
       </div>
     </div>
   </section>
@@ -2216,25 +2216,25 @@
           </div>
           <div class="result-kpis">
             <div class="result-kpi">
-              <div class="result-kpi-value">0.80</div>
-              <div class="result-kpi-label">MASE medio</div>
+              <div class="result-kpi-value">6.0%</div>
+              <div class="result-kpi-label">SMAPE mediano</div>
             </div>
             <div class="result-kpi">
-              <div class="result-kpi-value">0.183</div>
-              <div class="result-kpi-label">RMSE medio</div>
+              <div class="result-kpi-value">0.17</div>
+              <div class="result-kpi-label">MASE mediano</div>
+            </div>
+            <div class="result-kpi">
+              <div class="result-kpi-value">4.79</div>
+              <div class="result-kpi-label">RMSE mediano</div>
             </div>
             <div class="result-kpi">
               <div class="result-kpi-value">0</div>
               <div class="result-kpi-label">Insuficientes</div>
             </div>
-            <div class="result-kpi">
-              <div class="result-kpi-value">~28 min</div>
-              <div class="result-kpi-label">Tiempo entreno</div>
-            </div>
           </div>
 
           <div class="result-semaphore">
-            <div class="result-semaphore-seg seg-exc" style="flex:99" data-label="99 Normal"></div>
+            <div class="result-semaphore-seg seg-exc" style="flex:111" data-label="111 Normal"></div>
           </div>
 
           <div class="result-states">
@@ -2243,8 +2243,8 @@
               <span class="result-state-name">100%</span> · <span class="result-state-val">0 fallback</span>
             </div>
             <div class="result-state result-state--worst">
-              <span class="result-state-label">Mayor reto</span>
-              <span class="result-state-name">Nayarit</span> · <span class="result-state-val">RMSE 0.39</span>
+              <span class="result-state-label">Mejor SMAPE</span>
+              <span class="result-state-name">Michoacán</span> · <span class="result-state-val">1.03%</span>
             </div>
           </div>
         </div>
@@ -2257,36 +2257,36 @@
           </div>
           <div class="result-kpis">
             <div class="result-kpi">
-              <div class="result-kpi-value">0.75</div>
-              <div class="result-kpi-label">MASE medio</div>
+              <div class="result-kpi-value">35.2%</div>
+              <div class="result-kpi-label">SMAPE mediano</div>
             </div>
             <div class="result-kpi">
-              <div class="result-kpi-value">0.057</div>
-              <div class="result-kpi-label">RMSE medio</div>
+              <div class="result-kpi-value">0.26</div>
+              <div class="result-kpi-label">MASE mediano</div>
             </div>
             <div class="result-kpi">
-              <div class="result-kpi-value">5</div>
+              <div class="result-kpi-value">1.00</div>
+              <div class="result-kpi-label">RMSE mediano</div>
+            </div>
+            <div class="result-kpi">
+              <div class="result-kpi-value">1</div>
               <div class="result-kpi-label">Insuficientes</div>
-            </div>
-            <div class="result-kpi">
-              <div class="result-kpi-value">~14 min</div>
-              <div class="result-kpi-label">Tiempo entreno</div>
             </div>
           </div>
 
           <div class="result-semaphore">
-            <div class="result-semaphore-seg seg-exc" style="flex:94" data-label="94 Normal"></div>
-            <div class="result-semaphore-seg seg-acep" style="flex:5" data-label="5 Fallback"></div>
+            <div class="result-semaphore-seg seg-exc" style="flex:110" data-label="110 Normal"></div>
+            <div class="result-semaphore-seg seg-acep" style="flex:1" data-label="1 Fallback"></div>
           </div>
 
           <div class="result-states">
             <div class="result-state result-state--best">
               <span class="result-state-label">Cobertura</span>
-              <span class="result-state-name">100%</span> · <span class="result-state-val">6 regionales</span>
+              <span class="result-state-name">100%</span> · <span class="result-state-val">1 regional</span>
             </div>
             <div class="result-state result-state--worst">
-              <span class="result-state-label">v5 cobertura</span>
-              <span class="result-state-name">95%</span> · <span class="result-state-val">→ 100%</span>
+              <span class="result-state-label">Mejor SMAPE</span>
+              <span class="result-state-name">Urbana media</span> · <span class="result-state-val">1.95%</span>
             </div>
           </div>
         </div>
@@ -2299,36 +2299,36 @@
           </div>
           <div class="result-kpis">
             <div class="result-kpi">
-              <div class="result-kpi-value">0.74</div>
-              <div class="result-kpi-label">MASE medio</div>
+              <div class="result-kpi-value">107.6%</div>
+              <div class="result-kpi-label">SMAPE mediano</div>
             </div>
             <div class="result-kpi">
-              <div class="result-kpi-value">0.027</div>
-              <div class="result-kpi-label">RMSE medio</div>
+              <div class="result-kpi-value">0.63</div>
+              <div class="result-kpi-label">MASE mediano</div>
             </div>
             <div class="result-kpi">
-              <div class="result-kpi-value">36</div>
+              <div class="result-kpi-value">0.78</div>
+              <div class="result-kpi-label">RMSE mediano</div>
+            </div>
+            <div class="result-kpi">
+              <div class="result-kpi-value">7</div>
               <div class="result-kpi-label">Insuficientes</div>
-            </div>
-            <div class="result-kpi">
-              <div class="result-kpi-value">~2 min</div>
-              <div class="result-kpi-label">Tiempo entreno</div>
             </div>
           </div>
 
           <div class="result-semaphore">
-            <div class="result-semaphore-seg seg-exc" style="flex:63" data-label="63 Normal"></div>
-            <div class="result-semaphore-seg seg-acep" style="flex:36" data-label="36 Fallback"></div>
+            <div class="result-semaphore-seg seg-exc" style="flex:104" data-label="104 Normal"></div>
+            <div class="result-semaphore-seg seg-acep" style="flex:7" data-label="7 Fallback"></div>
           </div>
 
           <div class="result-states">
             <div class="result-state result-state--best">
               <span class="result-state-label">Cobertura</span>
-              <span class="result-state-name">100%</span> · <span class="result-state-val">9 regionales</span>
+              <span class="result-state-name">100%</span> · <span class="result-state-val">7 regionales</span>
             </div>
             <div class="result-state result-state--worst">
-              <span class="result-state-label">v5 cobertura</span>
-              <span class="result-state-name">65%</span> · <span class="result-state-val">→ 100%</span>
+              <span class="result-state-label">Mejor SMAPE</span>
+              <span class="result-state-name">BCS</span> · <span class="result-state-val">0.00%</span>
             </div>
           </div>
         </div>
