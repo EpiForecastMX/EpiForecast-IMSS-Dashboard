@@ -1902,7 +1902,7 @@
             El proyecto busca generar <strong>pronósticos confiables con intervalos de predicción</strong> para tres padecimientos neurológicos y de salud mental — Depresión, Enfermedad de Parkinson y Enfermedad de Alzheimer — a nivel nacional y subnacional (32 entidades federativas), facilitando la <strong>planificación estratégica de recursos sanitarios</strong> y la toma de decisiones informada.
           </p>
           <p>
-            Utilizamos datos semanales de los boletines epidemiológicos del <strong>SINAVE</strong> (Sistema Nacional de Vigilancia Epidemiológica) que abarcan el período 2014–2026, incorporando variables previamente no consideradas como género y entidad geográfica para mejorar la capacidad predictiva.
+            Utilizamos datos semanales de los boletines epidemiológicos del <strong>SINAVE</strong> (Sistema Nacional de Vigilancia Epidemiológica) que abarcan el período 2012–2026, incorporando variables previamente no consideradas como género y entidad geográfica para mejorar la capacidad predictiva.
           </p>
         </div>
 
@@ -2048,9 +2048,9 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 11h10l-3-3"/><path d="M17 13H7l3 3"/></svg>
           </div>
           <h4>Transformación</h4>
-          <p>Corrimiento de semanas epidemiológicas, conversión acumulados→incrementos, tratamiento IQR de outliers y asignación de regiones.</p>
+          <p>Feature engineering con datos INEGI demográficos, corrimiento de semanas epidemiológicas, conversión acumulados a incrementos, tratamiento IQR de outliers y asignación de regiones.</p>
           <div class="step-tech">
-            <span>Incrementos</span>
+            <span>INEGI</span>
             <span>IQR</span>
             <span>ISO-8601</span>
           </div>
@@ -2108,12 +2108,12 @@
           <div class="step-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="16,18 22,12 16,6"/><polyline points="8,6 2,12 8,18"/></svg>
           </div>
-          <h4>MLOps</h4>
-          <p>Infraestructura reproducible con Makefile, Git workflows, versionado de datos y entornos consistentes para todo el equipo.</p>
+          <h4>MLOps y CI/CD</h4>
+          <p>Infraestructura reproducible con Makefile (~55 targets), GitHub Actions con scraping diario automatizado de boletines, versionado de datos con DVC y validación semanal con datos reales.</p>
           <div class="step-tech">
-            <span>Git</span>
+            <span>GitHub Actions</span>
             <span>Make</span>
-            <span>CI/CD</span>
+            <span>MLflow</span>
           </div>
         </div>
       </div>
@@ -2125,7 +2125,7 @@
        ═══════════════════════════════════════════════════════════════ -->
   <section class="section" id="methodology">
     <div class="section-label reveal">Metodología</div>
-    <div class="section-title reveal">De silos aislados a un pipeline<br>optimizado y escalable</div>
+    <div class="section-title reveal">De silos aislados a producción<br>multi-modelo validada</div>
 
     <div class="method-grid">
       <div class="method-card reveal reveal-delay-1" data-phase="I">
@@ -2152,37 +2152,53 @@
         <p>Grids diferenciados por padecimiento, normalización a tasa por 100K + log-transform, protección anti-Newton (3 capas), modo híbrido con fallback regional, MASE como métrica. De 87% a 100% cobertura estatal.</p>
       </div>
 
-      <div class="method-card method-highlight reveal reveal-delay-3" data-phase="v6">
+      <div class="method-card reveal reveal-delay-2" data-phase="IV">
+        <div class="method-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 4-10"/></svg>
+        </div>
+        <h3>Fase IV — Multi-Motor (Avance 5)</h3>
+        <p>Incorporación de DeepAR (GluonTS + PyTorch en SageMaker GPU), Ensemble (Prophet + XGBoost) y Stacking (Prophet + ETS + LightGBM + Ridge meta-learner). Selección automática del mejor motor por SMAPE + MASE + RMSE para cada una de las 333 combinaciones.</p>
+      </div>
+
+      <div class="method-card reveal reveal-delay-1" data-phase="V">
+        <div class="method-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        </div>
+        <h3>Fase V — Validación y Producción</h3>
+        <p>Validación semanal con datos reales del boletín SINAVE que los modelos nunca vieron. Auditoría de calidad del código (849 tests), diagnósticos de overfitting y leakage, y tabla de 333 modelos de producción con métricas comparativas.</p>
+      </div>
+
+      <div class="method-card method-highlight reveal reveal-delay-3" data-phase="final">
         <div class="method-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
           </div>
-        <h3>Innovaciones Clave v6</h3>
-        <p>Optimizaciones que llevan el pipeline de 87% a 100% de cobertura estatal, con métricas escala-independientes y protección contra timeouts del optimizador.</p>
+        <h3>Innovaciones Clave</h3>
+        <p>Evolución completa desde un prototipo monolítico hasta un sistema multi-modelo validado en producción con 4 motores de IA.</p>
 
         <div class="method-features">
           <div class="method-feature">
             <div class="method-feature-dot"></div>
-            <span>Modo híbrido: fallback regional para 41 estados insuficientes</span>
+            <span>4 motores: DeepAR (GPU), Prophet, Ensemble (Prophet+XGBoost), Stacking (Prophet+ETS+LightGBM+Ridge)</span>
           </div>
           <div class="method-feature">
             <div class="method-feature-dot"></div>
-            <span>MASE: métrica que compara vs baseline naive estacional (lag-52)</span>
+            <span>Selección automática por SMAPE primario, MASE como desempate, RMSE como segundo desempate</span>
           </div>
           <div class="method-feature">
             <div class="method-feature-dot"></div>
-            <span>Tasa por 100K + log-transform para normalizar escala entre estados</span>
+            <span>Modo híbrido: fallback regional para series con datos insuficientes (&lt;5 casos/52 semanas)</span>
           </div>
           <div class="method-feature">
             <div class="method-feature-dot"></div>
-            <span>Anti-Newton: 3 capas de protección (sort + timeout + threshold)</span>
+            <span>Diagnósticos automáticos: detección de overfitting (ratio test/train) y leakage (train SMAPE sospechoso)</span>
           </div>
           <div class="method-feature">
             <div class="method-feature-dot"></div>
-            <span>Grids diferenciados: hiperparámetros optimizados por padecimiento</span>
+            <span>Validación semanal con datos reales del boletín que los modelos nunca vieron durante entrenamiento</span>
           </div>
           <div class="method-feature">
             <div class="method-feature-dot"></div>
-            <span>Entrenamiento final con serie completa para máxima precisión</span>
+            <span>CI/CD: scraping diario de boletines, 849 tests automatizados, MLflow para tracking de experimentos</span>
           </div>
         </div>
       </div>
@@ -2338,15 +2354,15 @@
       <div class="results-cv-bar reveal">
         <div class="cv-detail">
           <div class="cv-detail-value">4 folds</div>
-          <div class="cv-detail-label">CV con pesos progresivos [0.5, 0.75, 1.0, 1.25]</div>
+          <div class="cv-detail-label">CV temporal con pesos progresivos</div>
         </div>
         <div class="cv-detail">
           <div class="cv-detail-value">MASE &lt; 1</div>
           <div class="cv-detail-label">Todos superan baseline naive lag-52</div>
         </div>
         <div class="cv-detail">
-          <div class="cv-detail-value">~45 min</div>
-          <div class="cv-detail-label">Tiempo total (n_jobs=-2, joblib loky)</div>
+          <div class="cv-detail-value">849 tests</div>
+          <div class="cv-detail-label">Suite de calidad automatizada (70%+ cobertura)</div>
         </div>
       </div>
 
@@ -2376,13 +2392,13 @@
         <div class="team-card reveal reveal-delay-2">
           <img class="team-avatar" src="JARCOS2026.png" alt="Juan Carlos Pérez Nava" style="object-fit:cover;">
           <h4>Juan Carlos Pérez Nava</h4>
-          <div class="team-role">IT Professional & Data Pipeline</div>
+          <div class="team-role">EDA, Feature Engineering & Prophet Base</div>
           <div class="team-org">IMSS</div>
         </div>
         <div class="team-card reveal reveal-delay-3">
           <img class="team-avatar" src="LUIS2026.jpg" alt="Luis Gerardo Sánchez" style="object-fit:cover;">
           <h4>Luis Gerardo Sánchez</h4>
-          <div class="team-role">Sr. Controls Engineer</div>
+          <div class="team-role">Dashboard Design & Development</div>
           <div class="team-org">Tesla</div>
         </div>
       </div>
@@ -2423,24 +2439,30 @@
     <div class="stack-grid reveal">
       <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--lang"></span>Python 3.12</div>
       <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ml"></span>Prophet</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ml"></span>joblib</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ops"></span>DVC</div>
+      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ml"></span>DeepAR / GluonTS</div>
+      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ml"></span>PyTorch</div>
+      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ml"></span>XGBoost</div>
+      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ml"></span>LightGBM</div>
+      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ml"></span>scikit-learn</div>
+      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ml"></span>statsmodels</div>
+      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--cloud"></span>AWS SageMaker</div>
       <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--cloud"></span>AWS S3</div>
+      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ops"></span>DVC</div>
+      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ops"></span>MLflow</div>
       <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--lang"></span>Pandas</div>
       <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--lang"></span>NumPy</div>
+      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--lang"></span>OmegaConf</div>
       <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--viz"></span>Matplotlib</div>
       <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--viz"></span>Seaborn</div>
       <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--viz"></span>Plotly</div>
+      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--viz"></span>Rich</div>
+      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--viz"></span>Tableau Public</div>
       <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ops"></span>Git / GitHub</div>
+      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ops"></span>GitHub Actions</div>
       <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ops"></span>Makefile</div>
       <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--lang"></span>camelot-py</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--lang"></span>OpenCV</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ops"></span>Jupyter</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ops"></span>VS Code</div>
       <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ml"></span>Claude Code</div>
       <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ops"></span>LaTeX</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--viz"></span>Tableau Public</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ops"></span>GitHub Actions</div>
       <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--cloud"></span>Netlify</div>
     </div>
   </section>
