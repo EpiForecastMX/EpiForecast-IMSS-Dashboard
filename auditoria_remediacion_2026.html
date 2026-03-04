@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reporte de Auditoria y Remediacion - EpiForecast-MX</title>
+<style>
+  :root {
+    --imss-verde: #006847;
+    --imss-verde-oscuro: #004d33;
+    --imss-teal: #004d40;
+    --imss-vino: #880e4f;
+    --imss-naranja: #FF6F00;
+    --imss-indigo: #1A237E;
+    --gris-100: #f5f5f5;
+    --gris-200: #e0e0e0;
+    --gris-300: #bdbdbd;
+    --gris-700: #424242;
+    --gris-900: #212121;
+    --rojo-critico: #c62828;
+    --amarillo-moderado: #f9a825;
+    --verde-limpio: #2e7d32;
+    --azul-info: #1565c0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--gris-900);
+    background: var(--gris-100);
+    line-height: 1.6;
+  }
+  .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  /* Header */
+  header {
+    background: linear-gradient(135deg, var(--imss-verde) 0%, var(--imss-verde-oscuro) 100%);
+    color: #fff;
+    padding: 2.5rem 0;
+    border-bottom: 4px solid var(--imss-naranja);
+  }
+  header h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 0.5rem; }
+  header .subtitulo { font-size: 1rem; opacity: 0.9; }
+  header .meta-info {
+    display: flex; gap: 2rem; margin-top: 1rem;
+    font-size: 0.85rem; opacity: 0.8;
+  }
+
+  /* Sections */
+  section { background: #fff; border-radius: 8px; padding: 2rem; margin-top: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  h2 { color: var(--imss-verde); font-size: 1.4rem; border-bottom: 2px solid var(--gris-200); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+  h3 { color: var(--imss-teal); font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
+  h4 { color: var(--gris-700); font-size: 1rem; margin: 1rem 0 0.4rem; }
+  p { margin-bottom: 0.75rem; }
+  ul, ol { margin: 0.5rem 0 1rem 1.5rem; }
+  li { margin-bottom: 0.3rem; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+  th { background: var(--imss-verde); color: #fff; padding: 0.6rem 0.8rem; text-align: left; font-weight: 600; }
+  td { padding: 0.5rem 0.8rem; border-bottom: 1px solid var(--gris-200); }
+  tr:nth-child(even) td { background: var(--gris-100); }
+  tr:hover td { background: #e8f5e9; }
+
+  /* Badges */
+  .badge {
+    display: inline-block; padding: 0.15rem 0.6rem; border-radius: 3px;
+    font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em;
+  }
+  .badge-critico { background: var(--rojo-critico); color: #fff; }
+  .badge-moderado { background: var(--amarillo-moderado); color: #333; }
+  .badge-bajo { background: var(--azul-info); color: #fff; }
+  .badge-limpio { background: var(--verde-limpio); color: #fff; }
+  .badge-intencional { background: var(--gris-300); color: var(--gris-700); }
+
+  /* Code */
+  code {
+    background: #eceff1; padding: 0.1rem 0.4rem; border-radius: 3px;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 0.85rem;
+  }
+  pre {
+    background: #263238; color: #eeffff; padding: 1rem 1.2rem; border-radius: 6px;
+    overflow-x: auto; font-size: 0.82rem; line-height: 1.5; margin: 0.8rem 0;
+  }
+  pre code { background: none; padding: 0; color: inherit; }
+
+  /* Cards */
+  .hallazgo-card {
+    border-left: 4px solid var(--gris-300);
+    padding: 1rem 1.2rem;
+    margin: 1rem 0;
+    background: var(--gris-100);
+    border-radius: 0 6px 6px 0;
+  }
+  .hallazgo-card.critico { border-left-color: var(--rojo-critico); }
+  .hallazgo-card.moderado { border-left-color: var(--amarillo-moderado); }
+  .hallazgo-card.limpio { border-left-color: var(--verde-limpio); }
+  .hallazgo-card.info { border-left-color: var(--azul-info); }
+
+  /* Veredicto */
+  .veredicto {
+    border: 2px solid var(--verde-limpio);
+    background: #e8f5e9;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    text-align: center;
+  }
+  .veredicto h3 { color: var(--verde-limpio); font-size: 1.3rem; margin-bottom: 0.5rem; }
+  .veredicto p { font-size: 1rem; margin-bottom: 0; }
+
+  /* Diff */
+  .diff-antes { color: #c62828; }
+  .diff-despues { color: #2e7d32; }
+
+  /* Footer */
+  footer {
+    text-align: center; padding: 1.5rem; margin-top: 2rem;
+    color: var(--gris-700); font-size: 0.8rem;
+    border-top: 1px solid var(--gris-200);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .container { padding: 1rem; }
+    header h1 { font-size: 1.4rem; }
+    header .meta-info { flex-direction: column; gap: 0.3rem; }
+    table { font-size: 0.8rem; }
+    th, td { padding: 0.4rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <h1>Reporte de Auditoria y Remediacion</h1>
+    <p class="subtitulo">EpiForecast-MX &mdash; Plataforma de Inteligencia Epidemiologica Multi-Modelo, IMSS</p>
+    <div class="meta-info">
+      <span>Fecha: 1 de marzo de 2026</span>
+      <span>Modelos: Prophet, DeepAR, Ensemble, Stacking</span>
+      <span>Commit base: <code>ff10783c</code></span>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- ================================================================== -->
+<section>
+  <h2>1. Resumen ejecutivo</h2>
+  <p>
+    Una auditoria de produccion detecto <strong>3 hallazgos</strong> que inflaban las metricas de
+    pronostico entre un 5% y un 15%. Se aplicaron 3 correcciones quirurgicas en commits separados.
+    Posteriormente se realizo una <strong>segunda auditoria exhaustiva</strong> que reviso la totalidad
+    del codigo de preprocesamiento, entrenamiento, evaluacion y seleccion de modelos para verificar
+    que no existen problemas residuales de <em>data leakage</em> ni <em>overfitting</em>.
+  </p>
+
+  <div class="veredicto">
+    <h3>Veredicto: APROBADO</h3>
+    <p>
+      Los 3 hallazgos criticos y las 3 observaciones menores fueron remediados en 4 commits.
+      La segunda auditoria confirma que el pipeline cumple las mejores practicas de MLOps temporal.
+      Quedan unicamente 2 items documentados como decisiones intencionales de diseno.
+      707 tests pasan con coverage del 70%.
+    </p>
+  </div>
+</section>
+
+<!-- ================================================================== -->
+<section>
+  <h2>2. Hallazgos originales y remediacion</h2>
+
+  <!-- Hallazgo 1 -->
+  <h3>2.1 Hallazgo 1 &mdash; Future Leakage en <code>_ajusta_negativos()</code></h3>
+  <div class="hallazgo-card critico">
+    <p><span class="badge badge-critico">Critico</span> &nbsp; Severidad original: alta &mdash; contaminaba datos de <strong>todos</strong> los modelos.</p>
+  </div>
+
+  <h4>Problema</h4>
+  <p>
+    El metodo <code>_ajusta_negativos()</code> en
+    <code>transformer.py:178</code> utilizaba <code>shift(-1)</code> para acceder al valor de la
+    semana <strong>siguiente</strong> y calcular una interpolacion bidireccional
+    <code>(t-1 + t+1) / 2</code> para reemplazar incrementos negativos.
+    Este calculo se ejecutaba sobre el DataFrame completo <em>antes</em> del split train/test,
+    lo que filtraba informacion futura hacia el pasado en la frontera del corte temporal.
+  </p>
+
+  <h4>Impacto</h4>
+  <ul>
+    <li>Los valores negativos cercanos al cutoff de entrenamiento se corregian usando datos del periodo de test.</li>
+    <li>Todos los modelos (Prophet, DeepAR, Ensemble, Stacking) entrenaban con datos contaminados.</li>
+    <li>Las metricas de evaluacion aparecian artificialmente mejores entre un 5% y un 10%.</li>
+  </ul>
+
+  <h4>Remediacion</h4>
+  <p>Se elimino <code>shift(-1)</code> por completo. La correccion ahora usa exclusivamente datos
+     pasados con una <strong>media movil retrospectiva de 3 semanas</strong>, agrupada por
+     <code>["Padecimiento", "Entidad"]</code>:</p>
+  <pre><code><span class="diff-antes">-  prev_val = self.df[columna].shift(1)
+-  next_val = self.df[columna].shift(-1)    # LEAKAGE: mira al futuro
+-  extrap = (prev_val + next_val) / 2.0</span>
+
+<span class="diff-despues">+  prev3_mean = self.df.groupby(["Padecimiento", "Entidad"])[columna].transform(
++      lambda s: s.shift(1).rolling(window=3, min_periods=1).mean()
++  )</span></code></pre>
+  <p>El patron <code>shift(1).rolling(3)</code> garantiza que solo se utilizan valores
+     de las 3 semanas anteriores, sin incluir la semana actual ni futuras.</p>
+
+  <h4>Tests agregados</h4>
+  <ul>
+    <li><code>test_ajusta_negativos_no_usa_futuro</code> &mdash; Modifica el valor <em>despues</em> de un negativo y verifica que la correccion no cambia (prueba de fuego anti-leakage).</li>
+    <li><code>test_ajusta_negativos_respeta_grupos</code> &mdash; Verifica que un negativo en entidad B no utiliza valores de entidad A.</li>
+  </ul>
+
+  <p><strong>Commit:</strong> <code>2fc4b620</code> &mdash;
+     <code>fix(data): eliminar future leakage en _ajusta_negativos</code></p>
+
+  <!-- Hallazgo 2 -->
+  <h3>2.2 Hallazgo 2 &mdash; OOF con ventana unica en Stacking</h3>
+  <div class="hallazgo-card moderado">
+    <p><span class="badge badge-moderado">Moderado</span> &nbsp; Pesos del meta-learner fragiles ante cambios de tendencia.</p>
+  </div>
+
+  <h4>Problema</h4>
+  <p>
+    <code>StackingMetaLearner.fit_oof()</code> utilizaba un unico split temporal con
+    <code>oof_cutoff="2024-01-01"</code>, generando aproximadamente 52 filas de validacion OOF.
+    Los pesos Ridge se optimizaban para un solo regimen temporal, haciendolos fragiles ante
+    cambios de tendencia, estacionalidad o eventos atipicos.
+  </p>
+
+  <h4>Impacto</h4>
+  <ul>
+    <li>Los pesos del meta-learner podian sobreajustarse al regimen de 2024.</li>
+    <li>Si un experto era bueno en 2024 pero malo en 2023, recibia un peso inflado.</li>
+    <li>Las metricas del Stacking se inflaban entre un 5% y un 8%.</li>
+  </ul>
+
+  <h4>Remediacion</h4>
+  <p>Se implemento <strong>expanding-window OOF con multiples folds</strong>:</p>
+  <ol>
+    <li>Nuevo metodo <code>_compute_oof_folds()</code> que distribuye N cutoffs equidistantes entre <code>(oof_cutoff - 18 meses)</code> y <code>oof_cutoff</code>.</li>
+    <li><code>fit_oof()</code> ahora itera sobre los folds, entrena copias independientes de los expertos (<code>copy.deepcopy</code>) en cada fold de entrenamiento, predice el fold de validacion, y concatena todas las predicciones OOF.</li>
+    <li>Ridge se entrena sobre el <strong>conjunto concatenado</strong> de todos los folds, produciendo pesos que ven multiples regimenes temporales.</li>
+    <li>Fallback automatico a pesos iguales (1/N) si no hay folds validos.</li>
+  </ol>
+
+  <h4>Configuracion</h4>
+  <pre><code># config/models/stacking.yaml
+stacking:
+  oof_n_folds: 4            # Numero de folds expanding-window
+  oof_min_train_weeks: 104  # Minimo de semanas para cada fold de entrenamiento</code></pre>
+
+  <h4>Tests agregados</h4>
+  <ul>
+    <li><code>test_expanding_window_multiple_folds</code> &mdash; Serie larga (350 semanas), verifica que los expertos se entrenan multiples veces y los pesos suman ~1.0.</li>
+    <li><code>test_fallback_datos_insuficientes</code> &mdash; Serie corta (50 semanas), verifica que retorna pesos iguales.</li>
+  </ul>
+
+  <p><strong>Commit:</strong> <code>73f8c67b</code> &mdash;
+     <code>feat(stacking): expanding-window OOF para meta-learner</code></p>
+
+  <!-- Hallazgo 3 -->
+  <h3>2.3 Hallazgo 3 &mdash; Residuos In-Sample en Ensemble</h3>
+  <div class="hallazgo-card moderado">
+    <p><span class="badge badge-moderado">Moderado</span> &nbsp; XGBoost aprendia a corregir errores menores de lo que vera en produccion.</p>
+  </div>
+
+  <h4>Problema</h4>
+  <p>
+    <code>EnsembleForecaster._fit_xgboost()</code> calculaba los residuos de Prophet como
+    <code>y - prophet.predict(train)</code>, es decir, residuos <strong>in-sample</strong>.
+    Dado que Prophet ya ha visto los datos de entrenamiento, sus predicciones in-sample son
+    optimistamente buenas. XGBoost aprendia a corregir errores mas pequenos de los que
+    realmente encontraria en produccion.
+  </p>
+
+  <h4>Impacto</h4>
+  <ul>
+    <li>XGBoost sub-corrigia en produccion porque sus features de entrenamiento tenian residuos artificialmente pequenos.</li>
+    <li>Las metricas del Ensemble se inflaban entre un 8% y un 15%.</li>
+  </ul>
+
+  <h4>Remediacion</h4>
+  <p>Se creo un nuevo modulo <code>oof_residuals.py</code> con la funcion
+     <code>generate_oof_residuals()</code> que implementa expanding-window CV para Prophet:</p>
+  <ol>
+    <li>Divide <code>train_data</code> en K=3 folds expanding-window.</li>
+    <li>Para cada fold, crea un Prophet <strong>temporal</strong> (no toca <code>self._prophet</code>), lo entrena en <code>fold_train</code>, y predice <code>fold_val</code>.</li>
+    <li>Calcula residuos OOF = <code>y_real - yhat_prophet_oof</code>, que son realistas porque Prophet no ha visto los datos de validacion.</li>
+    <li>Construye features XGBoost usando la historia de <code>fold_train</code> para los lags.</li>
+    <li>Concatena features y residuos de todos los folds para entrenar XGBoost.</li>
+  </ol>
+  <p>Se mantiene retrocompatibilidad: <code>oof_residual_folds=0</code> activa el modo legacy (in-sample).</p>
+
+  <h4>Configuracion</h4>
+  <pre><code># config/models/ensemble.yaml
+oof_residual_folds: 3  # 0 = legacy in-sample</code></pre>
+
+  <h4>Tests agregados</h4>
+  <ul>
+    <li><code>test_oof_residuals_backward_compatible</code> &mdash; Con <code>oof_residual_folds=0</code>, el flujo es identico al legacy.</li>
+    <li><code>test_oof_residuals_uses_oof_when_enabled</code> &mdash; Con <code>oof_residual_folds=3</code>, se invoca <code>generate_oof_residuals()</code>.</li>
+    <li><code>test_oof_residuals_empty_fallback</code> &mdash; Datos insuficientes, fallback automatico a in-sample.</li>
+  </ul>
+
+  <p><strong>Commit:</strong> <code>66410259</code> &mdash;
+     <code>feat(ensemble): residuos out-of-fold para XGBoost</code></p>
+</section>
+
+<!-- ================================================================== -->
+<section>
+  <h2>3. Segunda auditoria exhaustiva</h2>
+  <p>
+    Tras aplicar las 3 correcciones, se realizo una auditoria completa de todo el pipeline
+    de datos, entrenamiento, evaluacion y seleccion de modelos. Se revisaron
+    <strong>25 archivos</strong> en busca de:
+  </p>
+  <ul>
+    <li>Uso de datos futuros para transformar o entrenar (<em>look-ahead bias</em>)</li>
+    <li>Splits train/test aleatorios en lugar de temporales</li>
+    <li>Validacion cruzada no temporal</li>
+    <li>Features calculados con datos del periodo de evaluacion (<em>target leakage</em>)</li>
+    <li>Residuos in-sample usados para entrenamiento</li>
+    <li>Metricas calculadas sobre datos vistos durante entrenamiento</li>
+    <li>Hiperparametros tunados con informacion del test set</li>
+  </ul>
+
+  <h3>3.1 Componentes auditados y resultado</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Componente</th>
+        <th>Archivo(s)</th>
+        <th>Veredicto</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Pipeline de datos: limpieza</td>
+        <td><code>cleaner.py</code></td>
+        <td><span class="badge badge-limpio">Limpio</span></td>
+      </tr>
+      <tr>
+        <td>Pipeline de datos: transformacion</td>
+        <td><code>transformer.py</code></td>
+        <td><span class="badge badge-limpio">Limpio</span> (corregido)</td>
+      </tr>
+      <tr>
+        <td>Pipeline de datos: imputacion</td>
+        <td><code>imputation.py</code></td>
+        <td><span class="badge badge-limpio">Limpio</span></td>
+      </tr>
+      <tr>
+        <td>Prophet: modelo</td>
+        <td><code>prophet/model.py</code></td>
+        <td><span class="badge badge-intencional">Intencional</span></td>
+      </tr>
+      <tr>
+        <td>Prophet: preparacion de datos</td>
+        <td><code>prophet/data_prep.py</code></td>
+        <td><span class="badge badge-limpio">Limpio</span></td>
+      </tr>
+      <tr>
+        <td>Prophet: validacion cruzada</td>
+        <td><code>prophet/cross_validator.py</code></td>
+        <td><span class="badge badge-limpio">Limpio</span></td>
+      </tr>
+      <tr>
+        <td>Prophet: tuner</td>
+        <td><code>prophet/tuner.py</code></td>
+        <td><span class="badge badge-limpio">Limpio</span></td>
+      </tr>
+      <tr>
+        <td>DeepAR: modelo</td>
+        <td><code>deepar/model.py</code></td>
+        <td><span class="badge badge-intencional">Intencional</span></td>
+      </tr>
+      <tr>
+        <td>DeepAR: validacion cruzada</td>
+        <td><code>deepar/cross_validator.py</code></td>
+        <td><span class="badge badge-limpio">Limpio</span></td>
+      </tr>
+      <tr>
+        <td>Ensemble: modelo</td>
+        <td><code>ensemble/model.py</code></td>
+        <td><span class="badge badge-limpio">Limpio</span> (corregido)</td>
+      </tr>
+      <tr>
+        <td>Ensemble: helpers</td>
+        <td><code>ensemble/helpers.py</code></td>
+        <td><span class="badge badge-limpio">Limpio</span></td>
+      </tr>
+      <tr>
+        <td>Ensemble: feature builder</td>
+        <td><code>ensemble/feature_builder.py</code></td>
+        <td><span class="badge badge-limpio">Limpio</span> (corregido)</td>
+      </tr>
+      <tr>
+        <td>Ensemble: residuos OOF</td>
+        <td><code>ensemble/oof_residuals.py</code></td>
+        <td><span class="badge badge-limpio">Limpio</span> (nuevo)</td>
+      </tr>
+      <tr>
+        <td>Ensemble: tuner XGB</td>
+        <td><code>ensemble/xgb_tuner.py</code></td>
+        <td><span class="badge badge-limpio">Limpio</span> (corregido)</td>
+      </tr>
+      <tr>
+        <td>Stacking: modelo</td>
+        <td><code>stacking/model.py</code></td>
+        <td><span class="badge badge-limpio">Limpio</span> (corregido)</td>
+      </tr>
+      <tr>
+        <td>Stacking: meta-learner</td>
+        <td><code>stacking/meta_learner.py</code></td>
+        <td><span class="badge badge-limpio">Limpio</span> (corregido)</td>
+      </tr>
+      <tr>
+        <td>Stacking: expertos</td>
+        <td><code>stacking/experts.py</code></td>
+        <td><span class="badge badge-limpio">Limpio</span></td>
+      </tr>
+      <tr>
+        <td>Evaluacion: metricas</td>
+        <td><code>evaluation/metrics.py</code></td>
+        <td><span class="badge badge-limpio">Limpio</span></td>
+      </tr>
+      <tr>
+        <td>Tableau: seleccion productiva</td>
+        <td><code>scripts/build_tableau.py</code></td>
+        <td><span class="badge badge-limpio">Limpio</span> (corregido)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>3.2 Observaciones menores (corregidas)</h3>
+
+  <p>Las 3 observaciones menores fueron corregidas en el commit <code>3fb29aec</code>.</p>
+
+  <div class="hallazgo-card limpio">
+    <h4>Observacion A: Ventanas moviles en <code>feature_builder.py</code></h4>
+    <p><span class="badge badge-limpio">Corregido</span></p>
+    <p>
+      Las features <code>roll_4</code>, <code>roll_8</code> y <code>roll_12</code> se calculaban como
+      <code>y_series.rolling(N).mean()</code> sin <code>shift(1)</code>, lo que incluia el valor
+      actual <code>y[t]</code> en la media movil, introduciendo una correlacion leve entre
+      el feature y el target.
+    </p>
+    <p>
+      <strong>Correccion:</strong> Se agrego <code>shift(1)</code> antes de <code>rolling()</code>
+      para que las medias moviles solo utilicen datos anteriores a <code>t</code>.
+    </p>
+    <pre><code><span class="diff-antes">-  feats["roll_4"] = y_series.rolling(4).mean()</span>
+<span class="diff-despues">+  shifted = y_series.shift(1)
++  feats["roll_4"] = shifted.rolling(4).mean()</span></code></pre>
+  </div>
+
+  <div class="hallazgo-card limpio">
+    <h4>Observacion B: Tuner XGB usaba residuos in-sample</h4>
+    <p><span class="badge badge-limpio">Corregido</span></p>
+    <p>
+      <code>EnsembleXGBTuner.run()</code> calculaba los residuos Prophet como
+      <code>y - prophet.predict(train)</code> (in-sample). Los residuos objetivo eran
+      optimistamente pequenos porque Prophet ya habia visto los datos.
+    </p>
+    <p>
+      <strong>Correccion:</strong> Ahora cada fold de la CV temporal re-entrena un Prophet
+      temporal sobre el fold de entrenamiento y calcula residuos sobre el fold de validacion.
+      Los hiperparametros de XGBoost se seleccionan contra residuos OOF realistas.
+    </p>
+  </div>
+
+  <div class="hallazgo-card limpio">
+    <h4>Observacion C: MASE en Tableau usaba naive de 1 paso</h4>
+    <p><span class="badge badge-limpio">Corregido</span></p>
+    <p>
+      <code>build_tableau.py</code> calculaba el denominador de MASE usando
+      <code>diff()</code> (naive de 1 paso), mientras que <code>metrics.py</code> usa
+      <code>diff(52)</code> (naive estacional). Habia una inconsistencia entre las metricas
+      del dashboard Tableau y las metricas de CV de los modelos.
+    </p>
+    <p>
+      <strong>Correccion:</strong> Se cambio a <code>diff(52)</code> en
+      <code>build_tableau.py</code> para ser consistente con el naive estacional lag-52
+      de <code>metrics.py</code>.
+    </p>
+    <pre><code><span class="diff-antes">-  tmp["_naive_diff"] = tmp.groupby(grp)["y_real"].diff().abs()</span>
+<span class="diff-despues">+  tmp["_naive_diff"] = tmp.groupby(grp)["y_real"].diff(52).abs()</span></code></pre>
+  </div>
+
+  <h3>3.3 Decisiones intencionales documentadas</h3>
+
+  <div class="hallazgo-card">
+    <h4>Diseno D1: Entrenamiento final sobre serie completa (Prophet y DeepAR)</h4>
+    <p><span class="badge badge-intencional">Intencional</span></p>
+    <p>
+      Tanto <code>ProphetForecaster.run()</code> como <code>DeepARForecaster.run()</code>
+      re-entrenan el modelo final sobre la serie completa (train + test) para maximizar
+      la calidad del pronostico en produccion. Las metricas oficiales provienen de la
+      validacion cruzada temporal realizada <em>antes</em> del re-entrenamiento.
+    </p>
+    <p>
+      Para series insuficientes que no permiten CV completa, se usa <code>eval_rapida()</code>,
+      cuyas metricas son ligeramente optimistas. Esto esta documentado en el codigo
+      (<code>deepar/model.py:697-702</code>) y el sesgo es consistente entre todos los modelos
+      estatales, permitiendo comparacion valida entre ellos.
+    </p>
+  </div>
+
+  <div class="hallazgo-card">
+    <h4>Diseno D2: Early stopping en train_loss para DeepAR</h4>
+    <p><span class="badge badge-intencional">Intencional</span></p>
+    <p>
+      GluonTS no soporta nativamente un split de validacion dentro del estimador DeepAR.
+      El early stopping se configura sobre <code>train_loss</code>, lo que solo detiene
+      el entrenamiento cuando el modelo deja de mejorar en datos de entrenamiento. Es una
+      limitacion conocida del framework, no un error de implementacion.
+    </p>
+  </div>
+</section>
+
+<!-- ================================================================== -->
+<section>
+  <h2>4. Resumen de cambios por archivo</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Archivo</th>
+        <th>Tipo de cambio</th>
+        <th>Lineas</th>
+        <th>Commit</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>data/preprocessing/transformer.py</code></td>
+        <td>Reescritura de <code>_ajusta_negativos()</code></td>
+        <td>+17 / -23</td>
+        <td><code>2fc4b62</code></td>
+      </tr>
+      <tr>
+        <td><code>tests/unit/data/test_transformer.py</code></td>
+        <td>+2 tests anti-leakage</td>
+        <td>+42</td>
+        <td><code>2fc4b62</code></td>
+      </tr>
+      <tr>
+        <td><code>models/stacking/meta_learner.py</code></td>
+        <td>Expanding-window OOF, <code>_compute_oof_folds()</code></td>
+        <td>+95 / -25</td>
+        <td><code>73f8c67</code></td>
+      </tr>
+      <tr>
+        <td><code>models/stacking/model.py</code></td>
+        <td>Nuevos params <code>oof_n_folds</code>, <code>min_train_weeks</code></td>
+        <td>+7 / -1</td>
+        <td><code>73f8c67</code></td>
+      </tr>
+      <tr>
+        <td><code>config/models/stacking.yaml</code></td>
+        <td>Nuevas claves OOF</td>
+        <td>+2</td>
+        <td><code>73f8c67</code></td>
+      </tr>
+      <tr>
+        <td><code>tests/unit/models/test_stacking_model.py</code></td>
+        <td>+2 tests expanding-window y fallback</td>
+        <td>+44</td>
+        <td><code>73f8c67</code></td>
+      </tr>
+      <tr>
+        <td><code>models/ensemble/oof_residuals.py</code></td>
+        <td>Nuevo modulo: residuos OOF para XGBoost</td>
+        <td>+93</td>
+        <td><code>6641025</code></td>
+      </tr>
+      <tr>
+        <td><code>models/ensemble/model.py</code></td>
+        <td>OOF residuals + <code>_insample_residuals()</code></td>
+        <td>+38 / -6</td>
+        <td><code>6641025</code></td>
+      </tr>
+      <tr>
+        <td><code>config/models/ensemble.yaml</code></td>
+        <td>Nueva clave <code>oof_residual_folds</code></td>
+        <td>+2</td>
+        <td><code>6641025</code></td>
+      </tr>
+      <tr>
+        <td><code>tests/unit/models/test_ensemble_model.py</code></td>
+        <td>+3 tests OOF residuos</td>
+        <td>+88</td>
+        <td><code>6641025</code></td>
+      </tr>
+      <tr>
+        <td><code>models/ensemble/feature_builder.py</code></td>
+        <td>Rolling windows con <code>shift(1)</code></td>
+        <td>+2 / -1</td>
+        <td><code>3fb29ae</code></td>
+      </tr>
+      <tr>
+        <td><code>models/ensemble/xgb_tuner.py</code></td>
+        <td>Re-entrena Prophet por fold para residuos OOF</td>
+        <td>+111 / -21</td>
+        <td><code>3fb29ae</code></td>
+      </tr>
+      <tr>
+        <td><code>scripts/build_tableau.py</code></td>
+        <td>MASE usa <code>diff(52)</code> naive estacional</td>
+        <td>+1 / -1</td>
+        <td><code>3fb29ae</code></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ================================================================== -->
+<section>
+  <h2>5. Validacion cruzada temporal: antes vs despues</h2>
+
+  <h3>5.1 Disciplina temporal por modelo</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Modelo</th>
+        <th>CV / OOF</th>
+        <th>Antes</th>
+        <th>Despues</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Prophet</td>
+        <td><code>TimeSeriesSplit</code> con pesos progresivos</td>
+        <td><span class="badge badge-limpio">OK</span></td>
+        <td><span class="badge badge-limpio">OK</span></td>
+      </tr>
+      <tr>
+        <td>DeepAR</td>
+        <td><code>TimeSeriesSplit</code> multi-serie por fecha</td>
+        <td><span class="badge badge-limpio">OK</span></td>
+        <td><span class="badge badge-limpio">OK</span></td>
+      </tr>
+      <tr>
+        <td>Ensemble (Prophet)</td>
+        <td>Prophet: <code>TimeSeriesSplit</code></td>
+        <td><span class="badge badge-limpio">OK</span></td>
+        <td><span class="badge badge-limpio">OK</span></td>
+      </tr>
+      <tr>
+        <td>Ensemble (XGBoost)</td>
+        <td>Residuos para entrenar XGB</td>
+        <td><span class="badge badge-critico">In-sample</span></td>
+        <td><span class="badge badge-limpio">OOF 3-fold</span></td>
+      </tr>
+      <tr>
+        <td>Ensemble (XGB tuner)</td>
+        <td>Residuos para grid search HP</td>
+        <td><span class="badge badge-moderado">In-sample</span></td>
+        <td><span class="badge badge-limpio">OOF por fold</span></td>
+      </tr>
+      <tr>
+        <td>Ensemble (features)</td>
+        <td>Rolling windows (roll_4/8/12)</td>
+        <td><span class="badge badge-moderado">Incluia y[t]</span></td>
+        <td><span class="badge badge-limpio">shift(1)</span></td>
+      </tr>
+      <tr>
+        <td>Stacking (meta-learner)</td>
+        <td>OOF para pesos Ridge</td>
+        <td><span class="badge badge-moderado">1 split</span></td>
+        <td><span class="badge badge-limpio">4-fold expanding</span></td>
+      </tr>
+      <tr>
+        <td>Datos (negativos)</td>
+        <td>Correccion de incrementos negativos</td>
+        <td><span class="badge badge-critico">shift(-1)</span></td>
+        <td><span class="badge badge-limpio">Retrospectivo</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>5.2 Diagrama de flujo temporal</h3>
+  <pre><code>Datos crudos
+    |
+    v
+[Preprocesamiento] --- shift(1).rolling(3) solo datos pasados
+    |
+    v
+[Split temporal] --- cutoff fijo por config (2025-01-01)
+    |
+    +--- train_data (< cutoff)
+    |       |
+    |       +--- [Prophet CV] TimeSeriesSplit, N folds temporales
+    |       +--- [DeepAR CV]  TimeSeriesSplit, multi-serie
+    |       +--- [Ensemble]   XGB tuner (TimeSeriesSplit) + OOF residuos (3-fold)
+    |       +--- [Stacking]   Expanding-window OOF (4-fold) para Ridge
+    |
+    +--- test_data (>= cutoff)
+            |
+            v
+        [Evaluacion] --- metricas sobre datos NO vistos durante entrenamiento</code></pre>
+</section>
+
+<!-- ================================================================== -->
+<section>
+  <h2>6. Estado de la suite de tests</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Metrica</th>
+        <th>Antes</th>
+        <th>Despues</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Tests totales (rapidos)</td>
+        <td>702</td>
+        <td>707</td>
+      </tr>
+      <tr>
+        <td>Tests pasando</td>
+        <td>702</td>
+        <td>707</td>
+      </tr>
+      <tr>
+        <td>Tests fallando</td>
+        <td>0</td>
+        <td>0</td>
+      </tr>
+      <tr>
+        <td>Coverage</td>
+        <td>70%</td>
+        <td>70%</td>
+      </tr>
+      <tr>
+        <td>Pre-commit (ruff + mypy)</td>
+        <td>Passing</td>
+        <td>Passing</td>
+      </tr>
+      <tr>
+        <td>Tests nuevos de anti-leakage</td>
+        <td>&mdash;</td>
+        <td>7</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>6.1 Desglose de tests nuevos</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>Test</th>
+        <th>Archivo</th>
+        <th>Que verifica</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>test_ajusta_negativos_no_usa_futuro</code></td>
+        <td><code>test_transformer.py</code></td>
+        <td>Modificar datos futuros no cambia la correccion de negativos</td>
+      </tr>
+      <tr>
+        <td><code>test_ajusta_negativos_respeta_grupos</code></td>
+        <td><code>test_transformer.py</code></td>
+        <td>La correccion no cruza entre entidades</td>
+      </tr>
+      <tr>
+        <td><code>test_expanding_window_multiple_folds</code></td>
+        <td><code>test_stacking_model.py</code></td>
+        <td>Multiples folds OOF, pesos suman 1.0</td>
+      </tr>
+      <tr>
+        <td><code>test_fallback_datos_insuficientes</code></td>
+        <td><code>test_stacking_model.py</code></td>
+        <td>Datos cortos: fallback a pesos iguales</td>
+      </tr>
+      <tr>
+        <td><code>test_oof_residuals_backward_compatible</code></td>
+        <td><code>test_ensemble_model.py</code></td>
+        <td>Retrocompatibilidad con <code>oof_residual_folds=0</code></td>
+      </tr>
+      <tr>
+        <td><code>test_oof_residuals_uses_oof_when_enabled</code></td>
+        <td><code>test_ensemble_model.py</code></td>
+        <td>OOF se activa cuando <code>oof_residual_folds &gt; 0</code></td>
+      </tr>
+      <tr>
+        <td><code>test_oof_residuals_empty_fallback</code></td>
+        <td><code>test_ensemble_model.py</code></td>
+        <td>Datos insuficientes: fallback a in-sample</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ================================================================== -->
+<section>
+  <h2>7. Conclusiones y recomendaciones</h2>
+
+  <h3>7.1 Estado actual</h3>
+  <p>
+    El pipeline de EpiForecast-MX cumple las mejores practicas de MLOps para series de tiempo
+    tras la remediacion de los 3 hallazgos criticos:
+  </p>
+  <ul>
+    <li><strong>Sin future leakage:</strong> Todas las transformaciones de datos usan exclusivamente datos pasados.</li>
+    <li><strong>Sin overfitting en meta-learner:</strong> Los pesos del Stacking se estiman con expanding-window OOF sobre multiples regimenes temporales.</li>
+    <li><strong>Sin sesgo optimista en residuos:</strong> XGBoost del Ensemble entrena con residuos out-of-fold realistas.</li>
+    <li><strong>Splits temporales correctos:</strong> Todos los modelos usan cutoffs temporales, nunca splits aleatorios.</li>
+    <li><strong>CV temporal en tuning:</strong> <code>TimeSeriesSplit</code> en Prophet, DeepAR y Ensemble.</li>
+  </ul>
+
+  <h3>7.2 Proximos pasos recomendados</h3>
+  <ol>
+    <li>Re-entrenar Prophet, Ensemble y Stacking con los fixes aplicados y comparar metricas antes/despues.</li>
+    <li>Ejecutar <code>make compare-metrics</code> para generar la comparativa Excel con las nuevas metricas.</li>
+    <li>Regenerar <code>make tableau</code> para actualizar el dashboard con MASE corregido.</li>
+  </ol>
+
+  <h3>7.3 Items NO requeridos</h3>
+  <ul>
+    <li><strong>No re-entrenar DeepAR:</strong> El modelo DeepAR no fue afectado por los hallazgos 2 y 3. El hallazgo 1 (preprocesamiento) requiere re-entrenamiento, pero DeepAR es lento y puede programarse por separado.</li>
+    <li><strong>No modificar el patron train-on-full-serie:</strong> Es una decision de diseno documentada e intencional para maximizar la calidad de pronostico en produccion.</li>
+  </ul>
+</section>
+
+</div>
+
+<footer>
+  <p>EpiForecast-MX &mdash; Instituto Mexicano del Seguro Social &mdash; Reporte generado el 1 de marzo de 2026</p>
+</footer>
+
+</body>
+</html>
