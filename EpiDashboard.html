@@ -461,8 +461,8 @@
       </div>
       <div class="dash-nav-pills">
         <a href="#pred-nacional" class="dash-pill">Predicción nacional</a>
-        <a href="#pred-estados" class="dash-pill">Predicciones por estado</a>
         <a href="#pred-region" class="dash-pill">Predicción por región</a>
+        <a href="#pred-estados" class="dash-pill">Predicciones por estado</a>
         <a href="#dashgeneral" class="dash-pill">Dashboard general</a>
       </div>
     </section>
@@ -634,51 +634,10 @@
 
     <div class="viz-divider"></div>
 
-    <!-- 02 & 03. Predicciones por estado -->
-    <section class="viz-section reveal" id="pred-estados">
-      <div class="viz-section-header">
-        <div class="viz-number">02</div>
-        <h2>Predicciones por estado</h2>
-      </div>
-      <p>
-        Esta visualización muestra el pronóstico desagregado por entidad federativa. Al seleccionar
-        una entidad, un padecimiento y un género a través de los filtros, se despliega la serie de
-        tiempo histórica junto con el pronóstico del mejor modelo disponible para esa combinación.
-      </p>
-      <p>
-        Se incluye también la vista de las últimas 52 semanas observadas y las 52 semanas proyectadas,
-        facilitando la evaluación de tendencias locales y su proyección a corto plazo.
-      </p>
-
-      <div class="tableau-wrap">
-<div class='tableauPlaceholder' id='viz1772521423851' style='position: relative'><noscript><a href='#'><img alt='DashDesempeno ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx&#47;DashDesempeno&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='viz_epiforecastmx&#47;DashDesempeno' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx&#47;DashDesempeno&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='en-US' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1772521423851');                    var vizElement = divElement.getElementsByTagName('object')[0];                    if ( divElement.offsetWidth > 800 ) { vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';} else if ( divElement.offsetWidth > 500 ) { vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';} else { vizElement.style.width='100%';vizElement.style.height='1127px';}                     var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
-      </div>
-
-      <div class="viz-section-header" style="margin-top:2.5rem;">
-        <div class="viz-number">03</div>
-        <h2>Predicciones por estado — Banda de confianza al 80%</h2>
-      </div>
-      <p>
-        Esta visualización complementa la anterior mostrando el mismo pronóstico por entidad
-        federativa, pero con la banda de confianza al 80% superpuesta sobre la serie proyectada.
-      </p>
-      <p>
-        El intervalo de confianza permite cuantificar la incertidumbre asociada a cada pronóstico
-        estatal, ofreciendo una referencia clara del rango esperado de variación en el horizonte
-        de proyección.
-      </p>
-
-      <div class="tableau-wrap">
-<div class='tableauPlaceholder' id='viz1772521258204' style='position: relative'><noscript><a href='#'><img alt='Predicciones ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx&#47;Predicciones&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='viz_epiforecastmx&#47;Predicciones' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx&#47;Predicciones&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='en-US' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1772521258204');                    var vizElement = divElement.getElementsByTagName('object')[0];                    vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';                    var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
-      </div>
-    </section>
-
-    <div class="viz-divider"></div>
-
-    <!-- 04. Predicción por región -->
+    <!-- 02. Predicción por región -->
     <section class="viz-section reveal" id="pred-region">
       <div class="viz-section-header">
-        <div class="viz-number">04</div>
+        <div class="viz-number">02</div>
         <h2>Predicción por región</h2>
       </div>
       <p>
@@ -696,6 +655,47 @@
 <div class='tableauPlaceholder' id='viz1772521315571' style='position: relative'><noscript><a href='#'><img alt='DashRegional ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx&#47;DashRegional&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='viz_epiforecastmx&#47;DashRegional' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx&#47;DashRegional&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='en-US' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1772521315571');                    var vizElement = divElement.getElementsByTagName('object')[0];                    if ( divElement.offsetWidth > 800 ) { vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';} else if ( divElement.offsetWidth > 500 ) { vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';} else { vizElement.style.width='100%';vizElement.style.height='1077px';}                     var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
       </div>
     </section>
+
+    <div class="viz-divider"></div>
+
+    <!-- 03. Predicciones por estado -->
+    <section class="viz-section reveal" id="pred-estados">
+      <div class="viz-section-header">
+        <div class="viz-number">03</div>
+        <h2>Predicciones por estado</h2>
+      </div>
+      <p>
+        Esta visualización muestra el pronóstico desagregado por entidad federativa. Al seleccionar
+        una entidad, un padecimiento y un género a través de los filtros, se despliega la serie de
+        tiempo histórica junto con el pronóstico del mejor modelo disponible para esa combinación.
+      </p>
+      <p>
+        Se incluye también la vista de las últimas 52 semanas observadas y las 52 semanas proyectadas,
+        facilitando la evaluación de tendencias locales y su proyección a corto plazo.
+      </p>
+
+      <div class="tableau-wrap">
+<div class='tableauPlaceholder' id='viz1772521423851' style='position: relative'><noscript><a href='#'><img alt='DashDesempeno ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx&#47;DashDesempeno&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='viz_epiforecastmx&#47;DashDesempeno' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx&#47;DashDesempeno&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='en-US' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1772521423851');                    var vizElement = divElement.getElementsByTagName('object')[0];                    if ( divElement.offsetWidth > 800 ) { vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';} else if ( divElement.offsetWidth > 500 ) { vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';} else { vizElement.style.width='100%';vizElement.style.height='1127px';}                     var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
+      </div>
+
+      <div class="viz-section-header" style="margin-top:2.5rem;">
+        <h2>Predicciones por estado — Banda de confianza al 80%</h2>
+      </div>
+      <p>
+        Esta visualización complementa la anterior mostrando el mismo pronóstico por entidad
+        federativa, pero con la banda de confianza al 80% superpuesta sobre la serie proyectada.
+      </p>
+      <p>
+        El intervalo de confianza permite cuantificar la incertidumbre asociada a cada pronóstico
+        estatal, ofreciendo una referencia clara del rango esperado de variación en el horizonte
+        de proyección.
+      </p>
+
+      <div class="tableau-wrap">
+<div class='tableauPlaceholder' id='viz1772521258204' style='position: relative'><noscript><a href='#'><img alt='Predicciones ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx&#47;Predicciones&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='viz_epiforecastmx&#47;Predicciones' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx&#47;Predicciones&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='en-US' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1772521258204');                    var vizElement = divElement.getElementsByTagName('object')[0];                    vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';                    var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
+      </div>
+    </section>
+
 
     <!-- =========================
             DASHBOARDS
