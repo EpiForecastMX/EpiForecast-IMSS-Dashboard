@@ -159,6 +159,20 @@ function getISOWeek(date) {
 }
 
 // ---------------------------------------------------------------------------
+// Detecta si la query requiere razonamiento temporal fino (diario)
+// ---------------------------------------------------------------------------
+
+function needsGeminiReasoning(q) {
+  const dailyMarkers = [
+    'ayer', 'hoy', 'manana', 'anteayer', 'pasado manana',
+    'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo',
+    'dia de', 'al dia', 'por dia', 'diario', 'diaria', 'diariamente',
+  ];
+  const dataContext = ['caso', 'pronostico', 'forecast', 'prediccion', 'cuanto', 'estimacion'];
+  return dailyMarkers.some(m => q.includes(m)) && dataContext.some(w => q.includes(w));
+}
+
+// ---------------------------------------------------------------------------
 // Guard: padecimiento no modelado → retorna null para caer a Gemini
 // ---------------------------------------------------------------------------
 
@@ -1432,6 +1446,9 @@ export async function answer(query) {
   const s = d.stats || {};
   const q = norm(query);
   const ent = detectEntities(query);
+
+  // Si requiere razonamiento temporal fino (diario), ceder a Gemini
+  if (needsGeminiReasoning(q)) return null;
 
   // Pre-calcular corrección fuzzy
   const corrected = fuzzyCorrect(q);
