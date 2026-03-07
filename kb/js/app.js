@@ -6,8 +6,8 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=13';
-import { detectEntities, norm } from './entities.js?v=11';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=14';
+import { detectEntities, norm } from './entities.js?v=12';
 
 // ---------------------------------------------------------------------------
 // DOM refs
@@ -554,6 +554,109 @@ function extractChartData(markdown, query) {
           }],
         };
       }
+    }
+  }
+
+  // General "grafico" trigger — user explicitly asks for a chart
+  const wantsChart = (qn.includes('grafico') || qn.includes('grafica') || qn.includes('chart') ||
+                      qn.includes('visualiza') || qn.includes('graficame') || qn.includes('dibuja') ||
+                      qn.includes('muestra grafico') || qn.includes('genera grafico'));
+  if (wantsChart) {
+    const ent = detectEntities(query);
+    const models = data.prod_models || [];
+    const anual = data.boletin?.anual_por_pad;
+
+    // Historical year(s) → line chart from boletin
+    if (anual && ent._years && ent._years.length) {
+      const pads = Object.keys(anual);
+      const datasets = [];
+      let allYears = new Set();
+      pads.forEach(y => { Object.keys(anual[y]).forEach(yr => allYears.add(yr)); });
+      allYears = [...allYears].sort();
+      pads.forEach((pad, i) => {
+        const padNorm = pad.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        if (ent.padecimiento && norm(ent.padecimiento) !== padNorm) return;
+        datasets.push({
+          label: pad,
+          data: allYears.map(y => anual[pad][y] || 0),
+          borderColor: CHART_COLORS[i],
+          backgroundColor: CHART_COLORS[i] + '22',
+          fill: true, tension: 0.4, borderWidth: 3,
+          pointRadius: allYears.map(y => ent._years.includes(Number(y)) ? 7 : 3),
+          pointBackgroundColor: allYears.map(y => ent._years.includes(Number(y)) ? '#9F2241' : CHART_COLORS[i]),
+        });
+      });
+      if (datasets.length) {
+        const titulo = ent.padecimiento
+          ? `${ent.padecimiento}: incidencia historica (${ent._years.join(', ')} destacado)`
+          : `Incidencia historica (${ent._years.join(', ')} destacado)`;
+        return { type: 'line', title: titulo, labels: allYears, datasets };
+      }
+    }
+
+    // Pad + Estado → bar por sexo
+    if (ent.padecimiento && ent.estado) {
+      const matches = models.filter(m =>
+        m.padecimiento === ent.padecimiento && norm(m.entidad || '') === norm(ent.estado));
+      if (matches.length) {
+        return {
+          type: 'bar',
+          title: `${ent.padecimiento} en ${ent.estado}: pronostico 52 sem`,
+          labels: matches.map(m => m.sexo.charAt(0).toUpperCase() + m.sexo.slice(1)),
+          datasets: [{ label: 'Casos pronosticados', data: matches.map(m => m.casos_52_semanas_futuro || 0),
+            backgroundColor: ['#4A5D23', '#BC955C', '#5B8A8A'], borderRadius: 6 }],
+        };
+      }
+    }
+
+    // Solo Padecimiento → bar top 12 entidades
+    if (ent.padecimiento) {
+      const padModels = models
+        .filter(m => m.padecimiento === ent.padecimiento && m.sexo === 'general' && m.casos_52_semanas_futuro > 0)
+        .sort((a, b) => b.casos_52_semanas_futuro - a.casos_52_semanas_futuro);
+      if (padModels.length) {
+        const top = padModels.slice(0, 12);
+        return {
+          type: 'bar', title: `Pronostico 52 sem: ${ent.padecimiento} por entidad`,
+          labels: top.map(m => m.entidad),
+          datasets: [{ label: 'Casos pronosticados', data: top.map(m => m.casos_52_semanas_futuro),
+            backgroundColor: CHART_COLORS.slice(0, top.length), borderRadius: 6 }],
+        };
+      }
+    }
+
+    // Solo Estado → bar por padecimiento
+    if (ent.estado) {
+      const estModels = models
+        .filter(m => norm(m.entidad || '') === norm(ent.estado) && m.sexo === 'general')
+        .sort((a, b) => (b.casos_52_semanas_futuro || 0) - (a.casos_52_semanas_futuro || 0));
+      if (estModels.length) {
+        return {
+          type: 'bar', title: `Pronostico 52 semanas: ${ent.estado}`,
+          labels: estModels.map(m => m.padecimiento),
+          datasets: [{ label: 'Casos pronosticados', data: estModels.map(m => m.casos_52_semanas_futuro || 0),
+            backgroundColor: CHART_COLORS.slice(0, estModels.length), borderRadius: 6 }],
+        };
+      }
+    }
+
+    // General sin entidades → tendencia historica completa
+    if (anual) {
+      const pads = Object.keys(anual);
+      const datasets = [];
+      let allYears = new Set();
+      pads.forEach(y => { Object.keys(anual[y]).forEach(yr => allYears.add(yr)); });
+      allYears = [...allYears].sort();
+      pads.forEach((pad, i) => {
+        datasets.push({
+          label: pad,
+          data: allYears.map(y => anual[pad][y] || 0),
+          borderColor: CHART_COLORS[i], backgroundColor: CHART_COLORS[i] + '22',
+          fill: true, tension: 0.4, borderWidth: 3, pointRadius: 4,
+          pointBackgroundColor: CHART_COLORS[i],
+        });
+      });
+      if (datasets.length) return { type: 'line', title: 'Evolucion historica de incidencia', labels: allYears, datasets };
     }
   }
 

@@ -1438,7 +1438,48 @@ function runHandlers(q, ent, s, d) {
   return null;
 }
 
-// Contexto conversacional: entidades de la última pregunta exitosa
+// ---------------------------------------------------------------------------
+// Guard: tema fuera de alcance → ceder a Gemini
+// ---------------------------------------------------------------------------
+
+function isOffTopic(q, ent) {
+  // Si detectamos entidades del dominio, no es off-topic
+  if (ent.padecimiento || ent.estado || ent.modelo) return false;
+
+  // Palabras clave que indican que hablan de algo ajeno a epidemiologia
+  const offTopicTerms = [
+    'weather', 'clima', 'temperatura', 'lluvia', 'sol', 'nublado',
+    'futbol', 'soccer', 'basket', 'deporte', 'olimpi',
+    'pelicula', 'serie', 'netflix', 'musica', 'cancion',
+    'receta', 'cocina', 'comida', 'restaurante',
+    'politica', 'eleccion', 'presidente', 'partido',
+    'bitcoin', 'crypto', 'bolsa', 'acciones', 'inversion',
+    'viaje', 'vuelo', 'hotel', 'turismo',
+    'programacion', 'javascript', 'python', 'codigo', 'software',
+    'matematica', 'fisica', 'quimica',
+    'mascota', 'perro', 'gato',
+    'translate', 'traducir', 'ingles', 'english',
+    'chiste', 'joke', 'broma', 'meme',
+  ];
+
+  // Preguntas que usan disparadores del KB pero en contexto ajeno
+  const ambiguousTriggers = ['pronostico', 'forecast', 'prediccion', 'cuantos', 'cuantas'];
+  const hasAmbiguous = ambiguousTriggers.some(t => q.includes(t));
+
+  if (hasAmbiguous && offTopicTerms.some(t => q.includes(t))) return true;
+
+  // Preguntas completamente fuera de contexto epidemiologico
+  const pureOffTopic = [
+    'quien gano', 'como se hace', 'donde queda', 'cuanto cuesta', 'que hora es',
+    'dime un chiste', 'cuenta un chiste', 'hola como estas', 'que opinas de',
+    'que piensas de', 'cuentame sobre', 'como funciona un', 'por que el cielo',
+  ];
+  if (pureOffTopic.some(t => q.includes(t)) && !ent.padecimiento) return true;
+
+  return false;
+}
+
+// Contexto conversacional: entidades de la ultima pregunta exitosa
 let lastEntities = {};
 
 export async function answer(query) {
@@ -1449,6 +1490,9 @@ export async function answer(query) {
 
   // Si requiere razonamiento temporal fino (diario), ceder a Gemini
   if (needsGeminiReasoning(q)) return null;
+
+  // Guard: tema fuera de alcance → ceder a Gemini
+  if (isOffTopic(q, ent)) return null;
 
   // Detectar follow-ups conversacionales
   const followUpPrefixes = [
