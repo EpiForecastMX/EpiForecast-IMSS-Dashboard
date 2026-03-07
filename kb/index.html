@@ -178,6 +178,53 @@
 
     .site-footer-links a:hover { color: var(--nav-gold); }
 
+    /* ========== GEMINI BADGE ========== */
+
+    .badge-gemini {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 12px;
+      border-radius: 9999px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      transition: all 0.3s ease;
+    }
+
+    .badge-gemini--checking {
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .badge-gemini--ok {
+      background: rgba(110, 231, 183, 0.15);
+      color: #6EE7B7;
+      border: 1px solid rgba(110, 231, 183, 0.25);
+    }
+
+    .badge-gemini--off {
+      background: rgba(248, 113, 113, 0.15);
+      color: #F87171;
+      border: 1px solid rgba(248, 113, 113, 0.25);
+    }
+
+    .status-dot.status-ok {
+      background: #6EE7B7;
+      box-shadow: 0 0 8px rgba(110, 231, 183, 0.6);
+    }
+
+    .status-dot.status-off {
+      background: #F87171;
+      box-shadow: 0 0 8px rgba(248, 113, 113, 0.5);
+      animation: none;
+    }
+
+    @media (max-width: 600px) {
+      .badge-gemini { display: none; }
+    }
+
     /* ========== RESET BUTTON ========== */
 
     .reset-btn {
@@ -291,9 +338,10 @@
           </svg>
           <span class="reset-label">Nueva</span>
         </button>
+        <span class="badge-gemini badge-gemini--checking" id="geminiBadge">Verificando IA...</span>
         <div class="status-indicator">
-          <div class="status-dot"></div>
-          <span class="status-text">En línea</span>
+          <div class="status-dot" id="statusDot"></div>
+          <span class="status-text" id="statusText">Verificando...</span>
         </div>
         <span class="badge badge-build" id="buildBadge">Cargando...</span>
       </div>

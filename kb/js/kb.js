@@ -129,8 +129,8 @@ function getISOWeek(date) {
 
 function answerSaludo(q, ent, s, d) {
   const triggers = [
-    'hola', 'buenos dias', 'buenas tardes', 'buenas noches', 'hey',
-    'hello', 'saludos', 'buen dia', 'que tal', 'como estas', 'que onda',
+    'hola', 'buenos dias', 'buenas tardes', 'buenas noches',
+    'hello', 'saludos', 'buen dia',
   ];
   if (!any(q, triggers)) return null;
 

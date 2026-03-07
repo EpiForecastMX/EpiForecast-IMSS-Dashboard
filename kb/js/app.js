@@ -19,6 +19,7 @@ const sendBtn = document.getElementById('sendBtn');
 const history = [];
 const MAX_HISTORY = 6;
 let chartCounter = 0;
+let geminiConnected = false;
 
 // Paleta mejorada basada en el logo
 const CHART_COLORS = [
@@ -33,6 +34,32 @@ const CHART_COLORS = [
   '#5C7A2A', // verde medio
   '#D4A574', // dorado claro
 ];
+
+// ---------------------------------------------------------------------------
+// Gemini connectivity check
+// ---------------------------------------------------------------------------
+
+async function checkGemini() {
+  const dot = document.getElementById('statusDot');
+  const text = document.getElementById('statusText');
+  const badge = document.getElementById('geminiBadge');
+  try {
+    const resp = await fetch('/.netlify/functions/ask', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: 'ping' }),
+    });
+    geminiConnected = resp.ok || resp.status === 400;
+  } catch {
+    geminiConnected = false;
+  }
+  if (dot) dot.className = geminiConnected ? 'status-dot status-ok' : 'status-dot status-off';
+  if (text) text.textContent = geminiConnected ? 'IA conectada' : 'Solo datos locales';
+  if (badge) {
+    badge.textContent = geminiConnected ? 'Gemini' : 'Sin IA';
+    badge.className = geminiConnected ? 'badge-gemini badge-gemini--ok' : 'badge-gemini badge-gemini--off';
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Init
@@ -52,6 +79,8 @@ async function init() {
         Error al cargar la base de conocimiento: ${err.message}</div>`;
     }
   }
+
+  checkGemini();
 
   document.querySelectorAll('.quick-btn').forEach(btn => {
     btn.addEventListener('click', () => {
