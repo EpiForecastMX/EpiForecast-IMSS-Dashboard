@@ -6,8 +6,8 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=16';
-import { detectEntities, norm } from './entities.js?v=14';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=17';
+import { detectEntities, norm } from './entities.js?v=15';
 
 // ---------------------------------------------------------------------------
 // DOM refs
@@ -560,11 +560,18 @@ function extractChartData(markdown, query) {
   // General "grafico" trigger — user explicitly asks for a chart
   const wantsChart = (qn.includes('grafico') || qn.includes('grafica') || qn.includes('chart') ||
                       qn.includes('visualiza') || qn.includes('graficame') || qn.includes('dibuja') ||
-                      qn.includes('muestra grafico') || qn.includes('genera grafico'));
+                      qn.includes('mostrar en un') || qn.includes('como se ve') ||
+                      qn.includes('muestra') && qn.includes('grafico'));
   if (wantsChart) {
     const ent = detectEntities(query);
     const models = data.prod_models || [];
     const anual = data.boletin?.anual_por_pad;
+
+    // COVID / pandemia → inject years 2019-2023 for context
+    const covidQuery = (qn.includes('covid') || qn.includes('pandemia') || qn.includes('confinamiento'));
+    if (covidQuery && !(ent._years && ent._years.length)) {
+      ent._years = [2019, 2020, 2021, 2022, 2023];
+    }
 
     // Historical year(s) → line chart from boletin
     if (ent._years && ent._years.length) {
@@ -602,9 +609,12 @@ function extractChartData(markdown, query) {
         if (datasets.length) {
           const yrLabel = ent._years.filter(y => allYears.includes(String(y)));
           const lugarLabel = fallbackNacional ? `Nacional (sin datos historicos para ${ent.estado})` : lugar;
+          let suffix = '';
+          if (covidQuery) suffix = ' — impacto COVID-19';
+          else if (yrLabel.length) suffix = ` (${yrLabel.join(', ')} destacado)`;
           const titulo = ent.padecimiento
-            ? `${ent.padecimiento} — ${lugarLabel}` + (yrLabel.length ? ` (${yrLabel.join(', ')} destacado)` : '')
-            : `Incidencia historica — ${lugarLabel}` + (yrLabel.length ? ` (${yrLabel.join(', ')} destacado)` : '');
+            ? `${ent.padecimiento} — ${lugarLabel}${suffix}`
+            : `Incidencia historica — ${lugarLabel}${suffix}`;
           return { type: 'line', title: titulo, labels: allYears, datasets };
         }
       }

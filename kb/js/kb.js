@@ -1476,12 +1476,27 @@ const VOCAB = [
  * Intenta corregir cada palabra del query comparando con VOCAB.
  * Retorna el query corregido si hubo cambios, o null si no.
  */
+// Palabras comunes del espanol que NO deben corregirse a entidades
+const STOP_WORDS = new Set([
+  'durante', 'despues', 'antes', 'entre', 'desde', 'hasta', 'sobre',
+  'contra', 'hacia', 'para', 'como', 'cuando', 'donde', 'quien',
+  'porque', 'aunque', 'mientras', 'siempre', 'nunca', 'apenas',
+  'bien', 'mejor', 'peor', 'mayor', 'menor', 'mucho', 'poco',
+  'todo', 'nada', 'algo', 'cada', 'otro', 'mismo', 'solo',
+  'puede', 'puedo', 'puedes', 'quiero', 'tiene', 'hacer', 'haber',
+  'sido', 'sera', 'esta', 'estan', 'fueron', 'siendo',
+  'grafico', 'graficos', 'mostrar', 'muestra', 'comportaron',
+  'padecimientos', 'padecimiento', 'casos', 'datos', 'numero',
+  'anos', 'anno', 'meses', 'semanas', 'dias',
+]);
+
 function fuzzyCorrect(q) {
   const words = q.split(' ');
   let changed = false;
   const fixed = words.map(w => {
     if (w.length < 3) return w;          // No corregir palabras muy cortas
-    if (VOCAB.includes(w)) return w;     // Ya est\u00e1 bien
+    if (VOCAB.includes(w)) return w;     // Ya esta bien
+    if (STOP_WORDS.has(w)) return w;     // Palabra comun, no corregir
     // Buscar la palabra m\u00e1s cercana en el vocabulario
     let best = w, bestDist = Infinity;
     for (const known of VOCAB) {
