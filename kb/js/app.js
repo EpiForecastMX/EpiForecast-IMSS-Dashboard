@@ -6,8 +6,8 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=15';
-import { detectEntities, norm } from './entities.js?v=13';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=16';
+import { detectEntities, norm } from './entities.js?v=14';
 
 // ---------------------------------------------------------------------------
 // DOM refs
@@ -572,10 +572,11 @@ function extractChartData(markdown, query) {
       // Use state-level data if estado detected, else national
       let source = null;
       let lugar = 'Nacional';
+      let fallbackNacional = false;
       if (ent.estado && anualEstPad) {
-        // Find the estado key (case-insensitive)
         const estKey = Object.keys(anualEstPad).find(k => norm(k) === norm(ent.estado));
         if (estKey) { source = anualEstPad[estKey]; lugar = estKey; }
+        else { fallbackNacional = true; }
       }
       if (!source && anual) { source = anual; }
 
@@ -600,9 +601,10 @@ function extractChartData(markdown, query) {
         });
         if (datasets.length) {
           const yrLabel = ent._years.filter(y => allYears.includes(String(y)));
+          const lugarLabel = fallbackNacional ? `Nacional (sin datos historicos para ${ent.estado})` : lugar;
           const titulo = ent.padecimiento
-            ? `${ent.padecimiento} en ${lugar}: incidencia historica` + (yrLabel.length ? ` (${yrLabel.join(', ')} destacado)` : '')
-            : `Incidencia historica en ${lugar}` + (yrLabel.length ? ` (${yrLabel.join(', ')} destacado)` : '');
+            ? `${ent.padecimiento} — ${lugarLabel}` + (yrLabel.length ? ` (${yrLabel.join(', ')} destacado)` : '')
+            : `Incidencia historica — ${lugarLabel}` + (yrLabel.length ? ` (${yrLabel.join(', ')} destacado)` : '');
           return { type: 'line', title: titulo, labels: allYears, datasets };
         }
       }

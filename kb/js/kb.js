@@ -743,6 +743,117 @@ function answerBoletin(q, ent, s, d) {
 }
 
 // ---------------------------------------------------------------------------
+// HISTORICO — prioriza años pasados sobre pronóstico
+// ---------------------------------------------------------------------------
+
+function answerHistorico(q, ent, s, d) {
+  const years = ent._years || [];
+  if (!years.length) return null;
+
+  const currentYear = new Date().getFullYear();
+  const pastYears = years.filter(y => y <= currentYear);
+  if (!pastYears.length) return null;
+
+  // Solo activar si hay contexto de datos historicos o grafico
+  const histTriggers = ['grafico', 'grafica', 'historico', 'historica', 'como se ve',
+    'datos de', 'cuantos caso', 'que paso', 'cuantos hubo', 'reportaron',
+    'incidencia', 'tendencia', 'evolucion', 'chart'];
+  if (!histTriggers.some(t => q.includes(t)) && !ent.padecimiento) return null;
+
+  const bol = d.boletin || {};
+  const anualNac = bol.anual_por_pad || {};
+  const anualEst = bol.anual_por_estado_pad || {};
+  const pad = ent.padecimiento;
+  const estado = ent.estado;
+
+  const lines = [];
+
+  for (const year of pastYears) {
+    const ys = String(year);
+
+    // Intentar estado primero
+    if (estado) {
+      const estKey = Object.keys(anualEst).find(k => norm(k) === norm(estado));
+      if (estKey && pad) {
+        const val = anualEst[estKey]?.[pad]?.[ys];
+        if (val != null) {
+          lines.push(`En **${year}**, se reportaron **${fmt(val)} casos de ${pad}** en ${estKey}.`);
+          // Variacion vs año anterior
+          const prev = anualEst[estKey]?.[pad]?.[String(year - 1)];
+          if (prev != null && prev > 0) {
+            const pctChg = (((val - prev) / prev) * 100).toFixed(1);
+            const arrow = pctChg > 0 ? 'aumento' : 'disminucion';
+            lines.push(`Esto representa un **${arrow} del ${Math.abs(pctChg)}%** respecto a ${year - 1} (${fmt(prev)} casos).`);
+          }
+          continue;
+        }
+      }
+      // Estado sin datos → avisar y usar nacional
+      if (pad) {
+        const nacVal = anualNac[pad]?.[ys];
+        if (nacVal != null) {
+          lines.push(`No tengo datos historicos anuales desglosados para **${estado}**. A nivel **nacional**, en ${year} se reportaron **${fmt(nacVal)} casos de ${pad}**.`);
+          const prev = anualNac[pad]?.[String(year - 1)];
+          if (prev != null && prev > 0) {
+            const pctChg = (((nacVal - prev) / prev) * 100).toFixed(1);
+            const arrow = pctChg > 0 ? 'aumento' : 'disminucion';
+            lines.push(`Variacion: **${arrow} del ${Math.abs(pctChg)}%** vs ${year - 1}.`);
+          }
+          continue;
+        }
+      }
+    }
+
+    // Sin estado, datos nacionales
+    if (pad) {
+      const nacVal = anualNac[pad]?.[ys];
+      if (nacVal != null) {
+        lines.push(`En **${year}**, a nivel nacional se reportaron **${fmt(nacVal)} casos de ${pad}**.`);
+        const prev = anualNac[pad]?.[String(year - 1)];
+        if (prev != null && prev > 0) {
+          const pctChg = (((nacVal - prev) / prev) * 100).toFixed(1);
+          const arrow = pctChg > 0 ? 'aumento' : 'disminucion';
+          lines.push(`Variacion: **${arrow} del ${Math.abs(pctChg)}%** vs ${year - 1}.`);
+        }
+        continue;
+      }
+    }
+
+    // Sin padecimiento, resumen de todos
+    if (!pad) {
+      const pads = Object.keys(anualNac);
+      const found = pads.filter(p => anualNac[p]?.[ys] != null);
+      if (found.length) {
+        lines.push(`**Incidencia nacional en ${year}:**`);
+        for (const p of found) {
+          lines.push(`- ${p}: **${fmt(anualNac[p][ys])} casos**`);
+        }
+        continue;
+      }
+    }
+
+    lines.push(`No tengo datos para el año ${year}. Los datos disponibles van de 2014 a ${currentYear}.`);
+  }
+
+  if (!lines.length) return null;
+
+  // Agregar contexto de tendencia si hay múltiples años disponibles
+  if (pad && pastYears.length === 1) {
+    const allYears = Object.keys(anualNac[pad] || {}).map(Number).sort();
+    if (allYears.length > 3) {
+      const first = anualNac[pad][String(allYears[0])];
+      const last = anualNac[pad][String(allYears[allYears.length - 1])];
+      if (first && last) {
+        const trend = last > first ? 'creciente' : 'decreciente';
+        lines.push(`\nLa tendencia general de ${pad} entre ${allYears[0]} y ${allYears[allYears.length - 1]} es **${trend}**.`);
+      }
+    }
+  }
+
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
 // SERIES ESPEC\u00cdFICAS (pad + estado) — respuesta directa e inteligente
 // ---------------------------------------------------------------------------
 
@@ -1424,7 +1535,7 @@ function fuzzyCorrect(q) {
 const HANDLERS = [
   answerSaludo, answerPadecimientoNoModelado, answerEquipo, answerTemporal, answerProyectoMeta,
   answerTrainingConfig, answerSemanaActual, answerQueEsPadecimiento,
-  answerBoletin, answerSpecificSeries, answerEstado, answerPadecimiento,
+  answerBoletin, answerHistorico, answerSpecificSeries, answerEstado, answerPadecimiento,
   answerMotor, answerDemografica, answerSexo, answerMetricaGlobal,
   answerRanking, answerDiagnosticos, answerValidacion, answerInfra,
   answerConteo, answerPronostico, answerDefinicion,
