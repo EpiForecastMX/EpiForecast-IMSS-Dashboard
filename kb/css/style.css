@@ -98,7 +98,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 28px;
+  padding: 10px 28px;
   background: linear-gradient(135deg, var(--verde-olivo) 0%, var(--verde-olivo-dark) 100%);
   color: #fff;
   box-shadow: var(--shadow-md), 0 4px 20px rgba(74, 93, 35, 0.2);
@@ -128,8 +128,8 @@ body {
 }
 
 .header-logo {
-  width: 72px;
-  height: 72px;
+  width: 52px;
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -150,23 +150,26 @@ body {
 
 .header-info {
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: baseline;
 }
 
-.header h1 { 
-  font-size: 20px; 
-  font-weight: 800; 
-  letter-spacing: -0.5px; 
-  line-height: 1.2;
+.header h1 {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  line-height: 1;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
 }
 
-.header-sub { 
-  font-size: 12px; 
-  opacity: 0.85; 
-  font-weight: 500; 
-  letter-spacing: 0.2px;
+.header-sub {
+  font-size: 13px;
+  opacity: 0.6;
+  font-weight: 400;
+  letter-spacing: 0.1px;
+  margin-left: 10px;
+  padding-left: 10px;
+  border-left: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .header-right { 
