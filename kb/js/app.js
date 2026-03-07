@@ -40,24 +40,32 @@ const CHART_COLORS = [
 // ---------------------------------------------------------------------------
 
 async function checkGemini() {
-  const dot = document.getElementById('statusDot');
-  const text = document.getElementById('statusText');
-  const badge = document.getElementById('geminiBadge');
+  const indicator = document.getElementById('geminiStatus');
+  if (!indicator) return;
   try {
     const resp = await fetch('/.netlify/functions/ask', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query: 'ping' }),
+      body: JSON.stringify({ health: true }),
     });
-    geminiConnected = resp.ok || resp.status === 400;
-  } catch {
+    if (resp.ok) {
+      const data = await resp.json();
+      geminiConnected = data.gemini === true;
+    }
+  } catch (err) {
+    console.warn('Gemini health check failed:', err);
     geminiConnected = false;
   }
-  if (dot) dot.className = geminiConnected ? 'status-dot status-ok' : 'status-dot status-off';
-  if (text) text.textContent = geminiConnected ? 'IA conectada' : 'Solo datos locales';
-  if (badge) {
-    badge.textContent = geminiConnected ? 'Gemini' : 'Sin IA';
-    badge.className = geminiConnected ? 'badge-gemini badge-gemini--ok' : 'badge-gemini badge-gemini--off';
+  if (geminiConnected) {
+    indicator.className = 'gemini-status gemini-ok';
+    indicator.innerHTML = `
+      <span class="gemini-dot"></span>
+      <span>Gemini activo</span>`;
+  } else {
+    indicator.className = 'gemini-status gemini-off';
+    indicator.innerHTML = `
+      <span class="gemini-dot"></span>
+      <span>Solo datos locales</span>`;
   }
 }
 

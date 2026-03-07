@@ -178,51 +178,60 @@
 
     .site-footer-links a:hover { color: var(--nav-gold); }
 
-    /* ========== GEMINI BADGE ========== */
+    /* ========== GEMINI STATUS ========== */
 
-    .badge-gemini {
+    .gemini-status {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 5px 12px;
+      gap: 7px;
+      padding: 5px 14px;
       border-radius: 9999px;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.4px;
-      text-transform: uppercase;
-      transition: all 0.3s ease;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      transition: all 0.4s ease;
     }
 
-    .badge-gemini--checking {
-      background: rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.6);
+    .gemini-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      transition: all 0.4s ease;
     }
 
-    .badge-gemini--ok {
-      background: rgba(110, 231, 183, 0.15);
+    .gemini-checking {
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(255, 255, 255, 0.5);
+    }
+    .gemini-checking .gemini-dot {
+      background: rgba(255, 255, 255, 0.4);
+      animation: pulse-dot 1.5s infinite;
+    }
+
+    .gemini-ok {
+      background: rgba(110, 231, 183, 0.12);
       color: #6EE7B7;
-      border: 1px solid rgba(110, 231, 183, 0.25);
     }
-
-    .badge-gemini--off {
-      background: rgba(248, 113, 113, 0.15);
-      color: #F87171;
-      border: 1px solid rgba(248, 113, 113, 0.25);
-    }
-
-    .status-dot.status-ok {
+    .gemini-ok .gemini-dot {
       background: #6EE7B7;
       box-shadow: 0 0 8px rgba(110, 231, 183, 0.6);
+      animation: pulse-dot 2.5s infinite;
     }
 
-    .status-dot.status-off {
-      background: #F87171;
-      box-shadow: 0 0 8px rgba(248, 113, 113, 0.5);
+    .gemini-off {
+      background: rgba(251, 191, 36, 0.12);
+      color: #FCD34D;
+    }
+    .gemini-off .gemini-dot {
+      background: #FBBF24;
+      box-shadow: 0 0 6px rgba(251, 191, 36, 0.4);
       animation: none;
     }
 
-    @media (max-width: 600px) {
-      .badge-gemini { display: none; }
+    @media (max-width: 520px) {
+      .gemini-status span:last-child { display: none; }
+      .gemini-status { padding: 5px 8px; }
     }
 
     /* ========== RESET BUTTON ========== */
@@ -332,16 +341,15 @@
         </div>
       </div>
       <div class="header-right">
-        <button id="resetBtn" class="reset-btn" title="Nueva conversación">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-            <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+        <button id="resetBtn" class="reset-btn" title="Limpiar conversación y empezar de nuevo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+            <path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
           </svg>
-          <span class="reset-label">Nueva</span>
+          <span class="reset-label">Limpiar chat</span>
         </button>
-        <span class="badge-gemini badge-gemini--checking" id="geminiBadge">Verificando IA...</span>
-        <div class="status-indicator">
-          <div class="status-dot" id="statusDot"></div>
-          <span class="status-text" id="statusText">Verificando...</span>
+        <div class="gemini-status gemini-checking" id="geminiStatus">
+          <span class="gemini-dot"></span>
+          <span>Conectando...</span>
         </div>
         <span class="badge badge-build" id="buildBadge">Cargando...</span>
       </div>

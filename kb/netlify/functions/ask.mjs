@@ -99,41 +99,50 @@ function buildContext(data, query) {
   return parts.join('\n');
 }
 
+const CORS = {
+  'Content-Type': 'application/json',
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+};
+
+function json(data, status = 200) {
+  return new Response(JSON.stringify(data), { status, headers: CORS });
+}
+
 export default async function handler(req) {
-  // Only POST
+  // CORS preflight
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: CORS });
+  }
+
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Metodo no permitido' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return json({ error: 'Metodo no permitido' }, 405);
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return new Response(JSON.stringify({ error: 'GEMINI_API_KEY no configurada' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
 
   let body;
   try {
     body = await req.json();
   } catch {
-    return new Response(JSON.stringify({ error: 'Body invalido' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return json({ error: 'Body invalido' }, 400);
+  }
+
+  // Health check - returns API key status without calling Gemini
+  if (body.health === true) {
+    return json({ ok: true, gemini: !!apiKey });
+  }
+
+  if (!apiKey) {
+    return json({ error: 'GEMINI_API_KEY no configurada' }, 500);
   }
 
   const query = body.query || '';
   const history = body.history || [];
 
   if (!query.trim()) {
-    return new Response(JSON.stringify({ error: 'Pregunta vacia' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return json({ error: 'Pregunta vacia' }, 400);
   }
 
   const data = loadKnowledge();
@@ -178,18 +187,9 @@ REGLAS:
     const result = await model.generateContent({ contents });
     const text = result.response.text();
 
-    return new Response(JSON.stringify({ answer: text }), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-      },
-    });
+    return json({ answer: text });
   } catch (err) {
     console.error('Gemini error:', err.message);
-    return new Response(JSON.stringify({ error: 'Error al consultar Gemini', detail: err.message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return json({ error: 'Error al consultar Gemini', detail: err.message }, 500);
   }
 }
