@@ -1545,7 +1545,7 @@
             <a href="#hero"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>Inicio</a>
             <a href="EpiDashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
             <a href="Reports/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Pronósticos</a>
-            <a href="kb/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>Base de Conocimiento</a>
+            <a href="kb/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>EPI Chatbot</a>
           </div>
         </li>
 
@@ -1580,9 +1580,9 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
           Dashboard
         </a>
-        <a href="kb/index.html" class="nav-cta nav-cta--secondary">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-          EPI
+        <a href="kb/index.html" class="nav-cta nav-cta--primary" style="background: linear-gradient(135deg, #4A5D23, #5C7A2A); color: #fff;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          EPI Chatbot
         </a>
         <a href="https://github.com/IntegradorIMSS2026Team01" target="_blank" rel="noopener" class="nav-cta nav-cta--secondary" style="padding:0.4rem 0.6rem" title="GitHub">
           <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
@@ -1602,7 +1602,7 @@
           <a href="#hero">Inicio</a>
           <a href="EpiDashboard.html">Dashboard</a>
           <a href="Reports/index.html">Pronósticos</a>
-          <a href="kb/index.html">Base de Conocimiento</a>
+          <a href="kb/index.html">EPI Chatbot</a>
         </div>
       </div>
       <div class="nav-mobile-group">
@@ -1741,17 +1741,32 @@
           </a>
         </div>
 
-        <!-- 2. EPI — Bot de Conocimiento — FEATURED -->
-        <div class="cta-card cta-card--featured reveal reveal-delay-2" style="background: linear-gradient(160deg, #2D3B1A 0%, #4A5D23 50%, #3A4A1C 100%);">
-          <div class="cta-card-icon" style="background: rgba(255,255,255,0.1); width: 56px; height: 56px; border-radius: 14px; overflow: hidden; padding: 0;">
-            <img src="kb/EPI.jpg" alt="EPI" style="width:100%;height:100%;object-fit:contain;">
+        <!-- 2. EPI CHATBOT — HERO CARD full-width -->
+        <div class="cta-card reveal reveal-delay-2" style="grid-column: 1 / -1; background: linear-gradient(135deg, #1A2E0D 0%, #2D3B1A 25%, #4A5D23 55%, #3A4A1C 100%); border: 1px solid rgba(188,149,92,0.2); padding: 0; overflow: hidden; display: grid; grid-template-columns: auto 1fr; gap: 0;">
+          <!-- EPI image -->
+          <div style="display: flex; align-items: center; justify-content: center; padding: 2.5rem 2rem 2.5rem 2.5rem;">
+            <img src="kb/EPI.jpg" alt="EPI Chatbot" style="width: 140px; height: 140px; object-fit: contain; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.4)); border-radius: 20px;">
           </div>
-          <div class="cta-card-title">EPI - Base de Conocimiento</div>
-          <div class="cta-card-desc">Asistente inteligente con acceso a los datos de 333 modelos de producción. Pregunta sobre métricas, pronósticos, padecimientos, tendencias históricas y más.</div>
-          <a href="kb/index.html" class="cta-card-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            Consultar a EPI
-          </a>
+          <!-- Content -->
+          <div style="padding: 2.5rem 2.5rem 2.5rem 0.5rem; display: flex; flex-direction: column; justify-content: center;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+              <span style="font-family: var(--font-display); font-size: 1.8rem; color: var(--cream); letter-spacing: 0.01em;">EPI Chatbot</span>
+              <span style="background: var(--gold); color: var(--dark-teal); font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.2rem 0.7rem; border-radius: 100px;">Nuevo</span>
+            </div>
+            <p style="color: rgba(232,213,181,0.75); font-size: 1rem; line-height: 1.7; max-width: 600px; margin-bottom: 1.5rem;">
+              Asistente inteligente con acceso en tiempo real a <strong style="color: var(--cream);">333 modelos de producci&oacute;n</strong>. Preg&uacute;ntale sobre m&eacute;tricas, pron&oacute;sticos, padecimientos, tendencias hist&oacute;ricas, el equipo y m&aacute;s. Respuestas instant&aacute;neas basadas en datos reales del proyecto.
+            </p>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+              <a href="kb/index.html" class="cta-card-btn" style="padding: 0.7rem 1.6rem; font-size: 0.85rem;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Hablar con EPI
+              </a>
+              <span style="display: inline-flex; align-items: center; gap: 0.5rem; color: rgba(232,213,181,0.45); font-size: 0.78rem; font-weight: 500; letter-spacing: 0.02em;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" style="opacity:0.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                22 handlers &middot; Fuzzy matching &middot; Gr&aacute;ficas en vivo
+              </span>
+            </div>
+          </div>
         </div>
 
         <!-- 3. Galería de Pronósticos -->
@@ -2539,7 +2554,7 @@
       <a href="auditoria_remediacion_2026.html">Auditoría</a>
       <a href="conclusiones.html">Conclusiones</a>
       <a href="referencias.html">Referencias</a>
-      <a href="kb/index.html">Base de Conocimiento</a>
+      <a href="kb/index.html">EPI Chatbot</a>
       <a href="https://github.com/IntegradorIMSS2026Team01" target="_blank" rel="noopener">GitHub</a>
     </div>
     <p style="margin-top:1.5rem; font-size:0.75rem; opacity:0.5;">
