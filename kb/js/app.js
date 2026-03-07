@@ -64,6 +64,19 @@ async function init() {
   inputField.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
   });
+
+  const resetBtn = document.getElementById('resetBtn');
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      history.length = 0;
+      chatArea.innerHTML = '';
+      chartCounter = 0;
+      const data = getData();
+      if (data) addWelcome(data);
+      inputField.focus();
+    });
+  }
+
   inputField.focus();
 }
 

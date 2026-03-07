@@ -132,6 +132,11 @@
       flex-shrink: 0;
     }
 
+    .site-footer-inner {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
     .site-footer-brand {
       font-family: var(--font-display);
       font-size: 1.2rem;
@@ -172,6 +177,41 @@
     }
 
     .site-footer-links a:hover { color: var(--nav-gold); }
+
+    /* ========== RESET BUTTON ========== */
+
+    .reset-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.1);
+      color: rgba(255, 255, 255, 0.85);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(8px);
+    }
+
+    .reset-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.35);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .reset-btn:active {
+      transform: translateY(0);
+    }
+
+    @media (max-width: 480px) {
+      .reset-label { display: none; }
+      .reset-btn { padding: 6px 8px; }
+    }
 
     /* ========== LAYOUT: Nav + App + Footer ========== */
 
@@ -245,6 +285,12 @@
         </div>
       </div>
       <div class="header-right">
+        <button id="resetBtn" class="reset-btn" title="Nueva conversación">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+            <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+          </svg>
+          <span class="reset-label">Nueva</span>
+        </button>
         <div class="status-indicator">
           <div class="status-dot"></div>
           <span class="status-text">En línea</span>
@@ -396,26 +442,28 @@
 
   <!-- ========== FOOTER INSTITUCIONAL ========== -->
   <footer class="site-footer">
-    <div class="site-footer-brand">EpiForecast<span>-MX</span></div>
-    <div class="site-footer-divider"></div>
-    <p>
-      Proyecto capstone de la Maestría en Inteligencia Artificial Aplicada<br>
-      Tecnológico de Monterrey x Instituto Mexicano del Seguro Social
-    </p>
-    <div class="site-footer-links">
-      <a href="../index.html">Inicio</a>
-      <a href="../EpiDashboard.html">Dashboard</a>
-      <a href="../Reports/index.html">Pronósticos</a>
-      <a href="../reporte_resultados.html">Resultados</a>
-      <a href="../comparacion_modelos.html">Comparación</a>
-      <a href="../validacion_semanal.html">Validación Semanal</a>
-      <a href="../conclusiones.html">Conclusiones</a>
-      <a href="https://github.com/IntegradorIMSS2026Team01" target="_blank" rel="noopener">GitHub</a>
+    <div class="site-footer-inner">
+      <div class="site-footer-brand">EpiForecast<span>-MX</span></div>
+      <div class="site-footer-divider"></div>
+      <p>
+        Proyecto capstone de la Maestría en Inteligencia Artificial Aplicada<br>
+        Tecnológico de Monterrey x Instituto Mexicano del Seguro Social
+      </p>
+      <div class="site-footer-links">
+        <a href="../index.html">Inicio</a>
+        <a href="../EpiDashboard.html">Dashboard</a>
+        <a href="../Reports/index.html">Pronósticos</a>
+        <a href="../reporte_resultados.html">Resultados</a>
+        <a href="../comparacion_modelos.html">Comparación</a>
+        <a href="../validacion_semanal.html">Validación Semanal</a>
+        <a href="../conclusiones.html">Conclusiones</a>
+        <a href="https://github.com/IntegradorIMSS2026Team01" target="_blank" rel="noopener">GitHub</a>
+      </div>
+      <p style="margin-top:1.2rem; font-size:0.72rem; opacity:0.5;">
+        &copy; 2026 EpiForecast-MX. Todos los derechos reservados.<br>
+        Guía Cromática Institucional del IMSS aplicada.
+      </p>
     </div>
-    <p style="margin-top:1.2rem; font-size:0.72rem; opacity:0.5;">
-      &copy; 2026 EpiForecast-MX. Todos los derechos reservados.<br>
-      Guía Cromática Institucional del IMSS aplicada.
-    </p>
   </footer>
 
   <script type="module" src="js/app.js"></script>
