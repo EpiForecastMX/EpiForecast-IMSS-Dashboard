@@ -47,21 +47,56 @@ function estimateMonthly(annualCases, monthNum) {
   return Math.round(weeklyRate * (DAYS_IN_MONTH[monthNum - 1] / 7));
 }
 
-/** Genera texto con estimaciones mensuales. */
-function monthEstimateText(total, months, years, pad, lugar) {
+/** Genera texto con estimaciones mensuales, distinguiendo pasado vs futuro. */
+function monthEstimateText(total, months, years, pad, lugar, data) {
   if (!months.length || !total) return null;
   const lines = [];
   const year = years.length ? years[0] : new Date().getFullYear();
+  const currentYear = new Date().getFullYear();
+  const isPast = year < currentYear;
+
+  // Si es fecha pasada, intentar usar datos hist\u00f3ricos del bolet\u00edn
+  if (isPast && data) {
+    const bol = data.boletin || {};
+    let annualHist = null;
+    const padKey = pad || null;
+    const estKey = lugar || null;
+
+    if (estKey && padKey) {
+      annualHist = bol.anual_por_estado_pad?.[estKey]?.[padKey]?.[String(year)];
+    }
+    if (annualHist == null && padKey) {
+      annualHist = bol.anual_por_pad?.[padKey]?.[String(year)];
+    }
+
+    if (annualHist != null) {
+      for (const m of months) {
+        const est = estimateMonthly(annualHist, m);
+        lines.push(
+          `En **${MONTH_NAMES[m - 1]} ${year}** se reportaron aproximadamente **~${fmt(est)} casos` +
+          (pad ? ` de ${pad}` : '') +
+          (lugar ? ` en ${lugar}` : '') +
+          `**, bas\u00e1ndose en el total anual real de **${fmt(annualHist)} casos** registrados ese a\u00f1o.`
+        );
+      }
+      lines.push('\n*Estimado proporcional a partir del total anual del bolet\u00edn (no disponemos de desglose mensual exacto).*');
+      return lines.join('\n');
+    }
+  }
+
+  // Futuro o sin datos hist\u00f3ricos: usar pron\u00f3stico
+  const verb = isPast ? 'se reportaron aproximadamente' : 'se estiman';
+  const source = isPast ? 'datos disponibles' : 'pron\u00f3stico anual';
   for (const m of months) {
     const est = estimateMonthly(total, m);
     lines.push(
-      `Para **${MONTH_NAMES[m - 1]} ${year}** se estiman **~${fmt(est)} casos` +
+      `Para **${MONTH_NAMES[m - 1]} ${year}** ${verb} **~${fmt(est)} casos` +
       (pad ? ` de ${pad}` : '') +
       (lugar ? ` en ${lugar}` : '') +
-      `**, bas\u00e1ndose en el pron\u00f3stico anual de ${fmt(total)} casos.`
+      `**, bas\u00e1ndose en ${source} de ${fmt(total)} casos.`
     );
   }
-  lines.push('\n*Estimado proporcional (pron\u00f3stico 52 sem / 12 meses ajustado por d\u00edas).*');
+  lines.push(`\n*Estimado proporcional (${source} / 12 meses ajustado por d\u00edas).*`);
   return lines.join('\n');
 }
 
@@ -677,7 +712,7 @@ function answerSpecificSeries(q, ent, s, d) {
 
   // Si pregunta por un mes espec\u00edfico → respuesta directa con estimaci\u00f3n
   if (months.length > 0) {
-    const mText = monthEstimateText(total, months, years, pad, estado);
+    const mText = monthEstimateText(total, months, years, pad, estado, d);
     if (mText) lines.push(mText);
     lines.push(`\nModelo: **${primary.modelo_produccion}** | Confianza: **${conf}** (SMAPE: ${primary.smape_prod}%)`);
     if (primary.precision_historica) lines.push(`Precisi\u00f3n hist\u00f3rica: **${primary.precision_historica}**`);
@@ -755,7 +790,7 @@ function answerEstado(q, ent, s, d) {
 
   // Estimaci\u00f3n mensual
   if (months.length > 0 && estStats.casos_futuro) {
-    const mText = monthEstimateText(estStats.casos_futuro, months, years, null, estado);
+    const mText = monthEstimateText(estStats.casos_futuro, months, years, null, estado, d);
     if (mText) lines.push(mText + '\n');
   }
 
@@ -813,7 +848,7 @@ function answerPadecimiento(q, ent, s, d) {
 
   // Estimaci\u00f3n mensual
   if (months.length > 0 && ps.casos_futuro_total) {
-    const mText = monthEstimateText(ps.casos_futuro_total, months, years, pad, null);
+    const mText = monthEstimateText(ps.casos_futuro_total, months, years, pad, null, d);
     if (mText) lines.push(mText + '\n');
   }
 
@@ -1175,7 +1210,7 @@ function answerPronostico(q, ent, s, d) {
     );
 
     if (months.length) {
-      const mText = monthEstimateText(ps.casos_futuro_total, months, years, pad, null);
+      const mText = monthEstimateText(ps.casos_futuro_total, months, years, pad, null, d);
       if (mText) lines.push(mText);
     }
 
@@ -1196,7 +1231,7 @@ function answerPronostico(q, ent, s, d) {
     );
 
     if (months.length) {
-      const mText = monthEstimateText(es.casos_futuro, months, years, null, estado);
+      const mText = monthEstimateText(es.casos_futuro, months, years, null, estado, d);
       if (mText) lines.push(mText);
     }
 
@@ -1205,7 +1240,7 @@ function answerPronostico(q, ent, s, d) {
     lines.push(`**Pron\u00f3stico total**: **${fmt(s.pronostico_total)} casos** en las pr\u00f3ximas 52 semanas.\n`);
 
     if (months.length) {
-      const mText = monthEstimateText(s.pronostico_total, months, years, null, null);
+      const mText = monthEstimateText(s.pronostico_total, months, years, null, null, d);
       if (mText) lines.push(mText + '\n');
     }
 
