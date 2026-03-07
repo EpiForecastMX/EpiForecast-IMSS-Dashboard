@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Base de Conocimiento - EpiForecast-MX</title>
+  <link rel="icon" href="EPI.jpg" type="image/jpeg">
+  <link rel="apple-touch-icon" href="EPI.jpg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <style>
+    /* ========== NAV INSTITUCIONAL (hereda del dashboard principal) ========== */
+    :root {
+      --nav-teal: #00524E;
+      --nav-dark-teal: #173F35;
+      --nav-cream: #E8D5B5;
+      --nav-gold: #B58500;
+      --nav-burgundy: #9B2242;
+      --nav-black: #231F20;
+      --font-display: 'DM Serif Display', Georgia, serif;
+      --font-body: 'Source Sans 3', 'Source Sans Pro', sans-serif;
+    }
+
+    .site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(23, 63, 53, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(232, 213, 181, 0.08);
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .site-nav-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      height: 56px;
+      gap: 1rem;
+    }
+
+    .site-nav-brand {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      color: var(--nav-cream);
+      text-decoration: none;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .site-nav-brand span { color: var(--nav-gold); }
+
+    .site-nav-brand img {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+    }
+
+    .site-nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      flex: 1;
+      justify-content: center;
+    }
+
+    .site-nav-links a {
+      color: rgba(232, 213, 181, 0.6);
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.45rem 0.75rem;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: color 0.2s, background 0.2s;
+      white-space: nowrap;
+    }
+
+    .site-nav-links a:hover {
+      color: var(--nav-cream);
+      background: rgba(232, 213, 181, 0.06);
+    }
+
+    .site-nav-links a.active {
+      color: var(--nav-gold);
+      background: rgba(181, 133, 0, 0.12);
+    }
+
+    .site-nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.9rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-radius: 100px;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+      white-space: nowrap;
+      background: var(--nav-gold);
+      color: var(--nav-dark-teal);
+      flex-shrink: 0;
+    }
+
+    .site-nav-cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(181, 133, 0, 0.3);
+      color: var(--nav-dark-teal);
+    }
+
+    .site-nav-cta svg { width: 14px; height: 14px; }
+
+    /* ========== FOOTER INSTITUCIONAL ========== */
+
+    .site-footer {
+      background: var(--nav-black);
+      color: rgba(232, 213, 181, 0.5);
+      text-align: center;
+      padding: 2.5rem 2rem;
+      flex-shrink: 0;
+    }
+
+    .site-footer-brand {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      color: var(--nav-cream);
+      margin-bottom: 0.4rem;
+    }
+
+    .site-footer-brand span { color: var(--nav-gold); }
+
+    .site-footer-divider {
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--nav-burgundy), var(--nav-gold));
+      margin: 1.2rem auto;
+    }
+
+    .site-footer p {
+      font-size: 0.82rem;
+      font-family: var(--font-body);
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .site-footer-links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-top: 1rem;
+      font-size: 0.78rem;
+    }
+
+    .site-footer-links a {
+      color: rgba(232, 213, 181, 0.4);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .site-footer-links a:hover { color: var(--nav-gold); }
+
+    /* ========== LAYOUT: Nav + App + Footer ========== */
+
+    html, body { height: auto; }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .kb-app {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* Override chat area to be flexible within kb-app */
+    .kb-app .chat-area {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    /* ========== RESPONSIVE NAV ========== */
+
+    @media (max-width: 768px) {
+      .site-nav-links { display: none; }
+      .site-nav-inner { justify-content: space-between; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========== NAV INSTITUCIONAL ========== -->
+  <nav class="site-nav">
+    <div class="site-nav-inner">
+      <a href="../index.html" class="site-nav-brand">
+        <img src="EPI.jpg" alt="EPI">
+        EpiForecast<span>-MX</span>
+      </a>
+      <div class="site-nav-links">
+        <a href="../index.html">Inicio</a>
+        <a href="../EpiDashboard.html">Dashboard</a>
+        <a href="../Reports/index.html">Pronósticos</a>
+        <a href="../reporte_resultados.html">Resultados</a>
+        <a href="../comparacion_modelos.html">Comparación</a>
+        <a href="../validacion_semanal.html">Validación</a>
+        <a href="../conclusiones.html">Conclusiones</a>
+        <a href="index.html" class="active">Base de Conocimiento</a>
+      </div>
+      <a href="../EpiDashboard.html" class="site-nav-cta">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Dashboard
+      </a>
+    </div>
+  </nav>
+
+  <!-- ========== KB APP ========== -->
+  <div class="kb-app">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <div class="header-logo">
+          <img src="EPI.jpg" alt="EpiForecast-MX Logo">
+        </div>
+        <div class="header-info">
+          <h1>Base de Conocimiento</h1>
+          <span class="header-sub">Inteligencia Epidemiológica IMSS</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="status-indicator">
+          <div class="status-dot"></div>
+          <span class="status-text">En línea</span>
+        </div>
+        <span class="badge badge-build" id="buildBadge">Cargando...</span>
+      </div>
+    </header>
+
+    <!-- Stats cards -->
+    <section class="stats-row" id="statsRow">
+      <div class="stat-card stat-card--verde">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value" id="statModelos">--</div>
+          <div class="stat-label">Modelos en producción</div>
+        </div>
+      </div>
+      <div class="stat-card stat-card--dorado">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+            <path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value" id="statSmape">--</div>
+          <div class="stat-label">SMAPE mediano</div>
+        </div>
+      </div>
+      <div class="stat-card stat-card--guinda">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value" id="statMotor">--</div>
+          <div class="stat-label">Motor ganador</div>
+        </div>
+      </div>
+      <div class="stat-card stat-card--teal">
+        <div class="stat-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+        </div>
+        <div class="stat-content">
+          <div class="stat-value" id="statForecast">--</div>
+          <div class="stat-label">Pronóstico 52 semanas</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick queries -->
+    <section class="quick-section" id="quickSection">
+      <div class="quick-group">
+        <span class="quick-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+            <path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/>
+          </svg>
+          Métricas
+        </span>
+        <button class="quick-btn" data-q="metricas globales">Globales</button>
+        <button class="quick-btn" data-q="ranking mejores modelos">Ranking</button>
+        <button class="quick-btn" data-q="diagnosticos de calidad">Diagnósticos</button>
+      </div>
+      <div class="quick-group">
+        <span class="quick-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+            <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+          </svg>
+          Modelos
+        </span>
+        <button class="quick-btn" data-q="comparativa de motores">Comparativa</button>
+        <button class="quick-btn" data-q="configuracion de entrenamiento">Entrenamiento</button>
+        <button class="quick-btn" data-q="validacion semanal">Validación</button>
+      </div>
+      <div class="quick-group">
+        <span class="quick-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+          Padecimientos
+        </span>
+        <button class="quick-btn" data-q="que es la depresion">Depresión</button>
+        <button class="quick-btn" data-q="que es el parkinson">Parkinson</button>
+        <button class="quick-btn" data-q="que es el alzheimer">Alzheimer</button>
+      </div>
+      <div class="quick-group">
+        <span class="quick-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+            <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+          </svg>
+          Histórico
+        </span>
+        <button class="quick-btn" data-q="tendencia historica de depresion">Tendencia</button>
+        <button class="quick-btn" data-q="ranking entidades por incidencia">Top entidades</button>
+        <button class="quick-btn" data-q="resumen epidemiologico 2024">Resumen 2024</button>
+      </div>
+      <div class="quick-group">
+        <span class="quick-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+          Proyecto
+        </span>
+        <button class="quick-btn" data-q="equipo del proyecto">Equipo</button>
+        <button class="quick-btn" data-q="infraestructura del proyecto">Infraestructura</button>
+        <button class="quick-btn" data-q="que padecimientos modela">Alcance</button>
+      </div>
+    </section>
+
+    <!-- Chat area -->
+    <main class="chat-area" id="chatArea">
+      <!-- Welcome injected by JS -->
+    </main>
+
+    <!-- Input -->
+    <footer class="input-bar">
+      <div class="input-wrapper">
+        <div class="input-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+        </div>
+        <input type="text" id="inputField" placeholder="Escribe tu pregunta sobre el proyecto..." autocomplete="off">
+        <button id="sendBtn" title="Enviar">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+          </svg>
+        </button>
+      </div>
+      <div class="input-hint">
+        <span class="hint-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+            <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </span>
+        Prueba: "métricas globales", "depresión en Jalisco", "equipo del proyecto"
+      </div>
+    </footer>
+
+  </div><!-- /kb-app -->
+
+  <!-- ========== FOOTER INSTITUCIONAL ========== -->
+  <footer class="site-footer">
+    <div class="site-footer-brand">EpiForecast<span>-MX</span></div>
+    <div class="site-footer-divider"></div>
+    <p>
+      Proyecto capstone de la Maestría en Inteligencia Artificial Aplicada<br>
+      Tecnológico de Monterrey x Instituto Mexicano del Seguro Social
+    </p>
+    <div class="site-footer-links">
+      <a href="../index.html">Inicio</a>
+      <a href="../EpiDashboard.html">Dashboard</a>
+      <a href="../Reports/index.html">Pronósticos</a>
+      <a href="../reporte_resultados.html">Resultados</a>
+      <a href="../comparacion_modelos.html">Comparación</a>
+      <a href="../validacion_semanal.html">Validación Semanal</a>
+      <a href="../conclusiones.html">Conclusiones</a>
+      <a href="https://github.com/IntegradorIMSS2026Team01" target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <p style="margin-top:1.2rem; font-size:0.72rem; opacity:0.5;">
+      &copy; 2026 EpiForecast-MX. Todos los derechos reservados.<br>
+      Guía Cromática Institucional del IMSS aplicada.
+    </p>
+  </footer>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

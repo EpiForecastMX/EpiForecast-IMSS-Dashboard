@@ -1,0 +1,21 @@
+[build]
+  publish = "."
+  functions = "kb/netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+[[headers]]
+  for = "/kb/knowledge.json"
+  [headers.values]
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/kb/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/kb/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
