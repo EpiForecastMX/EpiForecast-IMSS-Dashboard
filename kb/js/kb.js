@@ -1450,18 +1450,52 @@ export async function answer(query) {
   // Si requiere razonamiento temporal fino (diario), ceder a Gemini
   if (needsGeminiReasoning(q)) return null;
 
+  // Detectar follow-ups conversacionales
+  const followUpPrefixes = [
+    'y en ', 'y el ', 'y la ', 'y los ', 'y las ', 'y que ',
+    'pero ', 'pero en ', 'pero de ',
+    'y para ', 'y del ', 'tambien en ', 'que hay de ', 'ahora ',
+  ];
+  const isFollowUp = (lastEntities.padecimiento || lastEntities.estado) &&
+    (followUpPrefixes.some(p => q.startsWith(p)) || /^y \w/.test(q));
+
+  // Merge de contexto conversacional
+  function mergeWithContext(baseEnt) {
+    const merged = { ...baseEnt };
+    if (!merged.padecimiento && lastEntities.padecimiento) merged.padecimiento = lastEntities.padecimiento;
+    if (!merged.estado && lastEntities.estado) merged.estado = lastEntities.estado;
+    if (!merged.sexo && lastEntities.sexo) merged.sexo = lastEntities.sexo;
+    if (!(merged._months || []).length && (lastEntities._months || []).length) merged._months = lastEntities._months;
+    if (!(merged._years || []).length && (lastEntities._years || []).length) merged._years = lastEntities._years;
+    return merged;
+  }
+
   // Pre-calcular corrección fuzzy
   const corrected = fuzzyCorrect(q);
   const hasFuzzy = corrected && corrected !== q;
 
-  // Si hay corrección fuzzy, verificar si detecta más entidades
+  // Si es follow-up, intentar con contexto heredado PRIMERO
+  if (isFollowUp) {
+    const merged = mergeWithContext(ent);
+    const hasExtra = merged.padecimiento !== ent.padecimiento || merged.estado !== ent.estado ||
+                     (merged._months || []).length !== (ent._months || []).length;
+    if (hasExtra) {
+      const resultCtx = runHandlers(q, merged, s, d);
+      if (resultCtx) {
+        const ctx = [merged.padecimiento, merged.estado].filter(Boolean).join(' en ');
+        lastEntities = merged;
+        return `*(Contexto: ${ctx})*\n\n${resultCtx}`;
+      }
+    }
+  }
+
+  // Corrección fuzzy con más entidades
   if (hasFuzzy) {
     const entFixed = detectEntities(corrected);
     const moreEntities =
       (!ent.padecimiento && entFixed.padecimiento) ||
       (!ent.estado && entFixed.estado) ||
       (!ent.modelo && entFixed.modelo);
-
     if (moreEntities) {
       const resultFixed = runHandlers(corrected, entFixed, s, d);
       if (resultFixed) {
@@ -1471,14 +1505,14 @@ export async function answer(query) {
     }
   }
 
-  // Intento 1: query original
+  // Intento normal: query original
   const result = runHandlers(q, ent, s, d);
   if (result) {
     lastEntities = ent;
     return result;
   }
 
-  // Intento 2: corrección fuzzy
+  // Corrección fuzzy completa
   if (hasFuzzy) {
     const entFixed = detectEntities(corrected);
     const resultFixed = runHandlers(corrected, entFixed, s, d);
@@ -1488,15 +1522,11 @@ export async function answer(query) {
     }
   }
 
-  // Intento 3: heredar contexto de la pregunta anterior
-  if (lastEntities.padecimiento || lastEntities.estado) {
-    const merged = { ...ent };
-    if (!merged.padecimiento && lastEntities.padecimiento) merged.padecimiento = lastEntities.padecimiento;
-    if (!merged.estado && lastEntities.estado) merged.estado = lastEntities.estado;
-    if (!merged.sexo && lastEntities.sexo) merged.sexo = lastEntities.sexo;
-
-    const hasNewContext = merged.padecimiento !== ent.padecimiento || merged.estado !== ent.estado;
-    if (hasNewContext) {
+  // Último intento: heredar contexto (para queries sin prefijo de follow-up)
+  if (!isFollowUp && (lastEntities.padecimiento || lastEntities.estado)) {
+    const merged = mergeWithContext(ent);
+    const hasExtra = merged.padecimiento !== ent.padecimiento || merged.estado !== ent.estado;
+    if (hasExtra) {
       const resultCtx = runHandlers(q, merged, s, d);
       if (resultCtx) {
         const ctx = [merged.padecimiento, merged.estado].filter(Boolean).join(' en ');
