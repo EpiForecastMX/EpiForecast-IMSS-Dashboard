@@ -1024,6 +1024,10 @@ function answerMotor(q, ent, s, d) {
   const motorTriggers = ['modelo', 'motor', 'gana', 'ganador', 'cual gana', 'que modelo'];
   if (!any(q, motorTriggers) && !ent.modelo) return null;
 
+  // "que es [motor]" → ceder a Gemini para explicacion conceptual + datos
+  const conceptual = any(q, ['que es', 'como funciona', 'explicame', 'explicar', 'describe']);
+  if (conceptual && ent.modelo) return null;
+
   const motor = ent.modelo;
   if (motor) {
     const ms = s.por_motor?.[motor];
