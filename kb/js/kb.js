@@ -1151,7 +1151,7 @@ function answerConteo(q, ent, s, d) {
 
 function answerPronostico(q, ent, s, d) {
   const triggers = [
-    'pronostico', 'futuro', '52 semanas', 'proximas', 'forecast',
+    'pronostico', 'casos futuro', 'futuro 52', '52 semanas', 'proximas', 'forecast',
     'prediccion total', 'casos esperado', 'se esperan', 'se espera',
     'se pronostica', 'se estima', 'se estiman', 'habra', 'va a haber',
   ];
