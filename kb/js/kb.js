@@ -159,6 +159,49 @@ function getISOWeek(date) {
 }
 
 // ---------------------------------------------------------------------------
+// Guard: padecimiento no modelado → retorna null para caer a Gemini
+// ---------------------------------------------------------------------------
+
+function answerPadecimientoNoModelado(q, ent, s, d) {
+  // Si ya detectamos un padecimiento conocido, no aplicamos este guard
+  if (ent.padecimiento) return null;
+
+  // Palabras que indican que el usuario pregunta sobre una enfermedad específica
+  const diseaseContext = [
+    'caso', 'casos', 'paciente', 'enfermo', 'diagnostico', 'diagnosticaron',
+    'incidencia', 'prevalencia', 'morbilidad', 'mortalidad', 'defunciones',
+    'contagio', 'infectados', 'hubo', 'habra', 'hay', 'tiene', 'cuantos',
+  ];
+
+  if (!diseaseContext.some(w => q.includes(w))) return null;
+
+  // Enfermedades comunes que NO modelamos
+  const unmodeled = [
+    'sida', 'vih', 'diabetes', 'cancer', 'influenza', 'dengue', 'covid',
+    'tuberculosis', 'hepatitis', 'zika', 'chikungunya', 'colera', 'malaria',
+    'sarampion', 'varicela', 'rubeola', 'meningitis', 'neumonia', 'asma',
+    'obesidad', 'hipertension', 'infarto', 'leucemia', 'linfoma', 'anemia',
+    'epilepsia', 'esclerosis', 'lupus', 'artritis', 'fibromialgia', 'autismo',
+    'esquizofrenia', 'bipolar', 'ansiedad', 'tdah', 'down', 'chagas',
+    'rabia', 'lepra', 'ebola', 'viruela', 'gripe', 'resfriado', 'tos',
+  ];
+
+  const mentioned = unmodeled.find(w => q.includes(w));
+  if (!mentioned) return null;
+
+  return (
+    `**EpiForecast-MX** actualmente solo modela tres padecimientos:\n\n` +
+    `- **Depresion** (CIE-10: F32)\n` +
+    `- **Parkinson** (CIE-10: G20)\n` +
+    `- **Alzheimer** (CIE-10: G30)\n\n` +
+    `No tengo datos sobre **${mentioned}** en la base de conocimiento.\n\n` +
+    `Si necesitas informacion sobre ${mentioned}, te sugiero consultar el ` +
+    `**Boletin Epidemiologico** de la Direccion General de Epidemiologia (DGE) ` +
+    `o el Sistema Nacional de Vigilancia Epidemiologica (SINAVE).`
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Handlers (respuestas directas y conversacionales)
 // ---------------------------------------------------------------------------
 
@@ -1155,13 +1198,6 @@ function answerConteo(q, ent, s, d) {
   // Si tiene pad+estado o meses, dejar que otros handlers se encarguen
   if ((ent.padecimiento && ent.estado) || (ent._months || []).length > 0) return null;
 
-  // Si pregunta "cuantos casos" sin padecimiento detectado,
-  // probablemente pregunta por una enfermedad que no modelamos -> Gemini
-  if (!ent.padecimiento && (q.includes('caso') || q.includes('enferm') || q.includes('paciente'))) {
-    // Verificar que no sea "cuantos modelos" o similar
-    if (!q.includes('modelo') && !q.includes('motor') && !q.includes('serie')) return null;
-  }
-
   const pad = ent.padecimiento, estado = ent.estado;
   const lines = [];
 
@@ -1372,7 +1408,7 @@ function fuzzyCorrect(q) {
 // ---------------------------------------------------------------------------
 
 const HANDLERS = [
-  answerSaludo, answerEquipo, answerTemporal, answerProyectoMeta,
+  answerSaludo, answerPadecimientoNoModelado, answerEquipo, answerTemporal, answerProyectoMeta,
   answerTrainingConfig, answerSemanaActual, answerQueEsPadecimiento,
   answerBoletin, answerSpecificSeries, answerEstado, answerPadecimiento,
   answerMotor, answerDemografica, answerSexo, answerMetricaGlobal,
