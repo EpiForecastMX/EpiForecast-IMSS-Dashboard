@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=8">
+  <link rel="stylesheet" href="css/style.css?v=9">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <style>
@@ -178,6 +178,46 @@
 
     .site-footer-links a:hover { color: var(--nav-gold); }
 
+    /* ========== HEADER INLINE STATS ========== */
+
+    .header-stats {
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      margin: 0 auto 0 2rem;
+    }
+
+    .hstat {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 4px 14px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.07);
+      min-width: 70px;
+    }
+
+    .hstat-val {
+      font-size: 15px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+      letter-spacing: -0.3px;
+    }
+
+    .hstat-lbl {
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      opacity: 0.5;
+      color: #fff;
+    }
+
+    @media (max-width: 900px) {
+      .header-stats { display: none; }
+    }
+
     /* ========== GEMINI STATUS ========== */
 
     .gemini-status {
@@ -292,7 +332,6 @@
     }
 
     .kb-app .header,
-    .kb-app .stats-row,
     .kb-app .quick-section,
     .kb-app .input-bar {
       flex-shrink: 0;
@@ -353,6 +392,12 @@
           <h1>Base de Conocimiento <span class="header-sub">Inteligencia Epidemiológica IMSS</span></h1>
         </div>
       </div>
+      <div class="header-stats">
+        <div class="hstat"><span class="hstat-val" id="statModelos">--</span><span class="hstat-lbl">Modelos</span></div>
+        <div class="hstat"><span class="hstat-val" id="statSmape">--</span><span class="hstat-lbl">SMAPE</span></div>
+        <div class="hstat"><span class="hstat-val" id="statMotor">--</span><span class="hstat-lbl">Motor</span></div>
+        <div class="hstat"><span class="hstat-val" id="statForecast">--</span><span class="hstat-lbl">52 sem</span></div>
+      </div>
       <div class="header-right">
         <button id="resetBtn" class="reset-btn" title="Limpiar conversación y empezar de nuevo">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
@@ -364,58 +409,11 @@
           <span class="gemini-dot"></span>
           <span>Conectando...</span>
         </div>
-        <span class="badge badge-build" id="buildBadge">Cargando...</span>
+        <span class="badge badge-build" id="buildBadge"></span>
       </div>
     </header>
 
-    <!-- Stats cards -->
-    <section class="stats-row" id="statsRow">
-      <div class="stat-card stat-card--verde">
-        <div class="stat-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
-            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
-          </svg>
-        </div>
-        <div class="stat-content">
-          <div class="stat-value" id="statModelos">--</div>
-          <div class="stat-label">Modelos en producción</div>
-        </div>
-      </div>
-      <div class="stat-card stat-card--dorado">
-        <div class="stat-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-            <path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/>
-          </svg>
-        </div>
-        <div class="stat-content">
-          <div class="stat-value" id="statSmape">--</div>
-          <div class="stat-label">SMAPE mediano</div>
-        </div>
-      </div>
-      <div class="stat-card stat-card--guinda">
-        <div class="stat-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-          </svg>
-        </div>
-        <div class="stat-content">
-          <div class="stat-value" id="statMotor">--</div>
-          <div class="stat-label">Motor ganador</div>
-        </div>
-      </div>
-      <div class="stat-card stat-card--teal">
-        <div class="stat-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-          </svg>
-        </div>
-        <div class="stat-content">
-          <div class="stat-value" id="statForecast">--</div>
-          <div class="stat-label">Pronóstico 52 semanas</div>
-        </div>
-      </div>
-    </section>
+    <!-- Stats are now inline in the header -->
 
     <!-- Quick queries -->
     <section class="quick-section" id="quickSection">
@@ -535,6 +533,6 @@
     </div>
   </footer>
 
-  <script type="module" src="js/app.js?v=8"></script>
+  <script type="module" src="js/app.js?v=9"></script>
 </body>
 </html>
