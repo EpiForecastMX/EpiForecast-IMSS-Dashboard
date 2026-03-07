@@ -101,9 +101,9 @@ const MODELO_ALIAS = {
 // ---------------------------------------------------------------------------
 
 function extractYears(q) {
-  const matches = q.match(/\b(20[12]\d)\b/g) || [];
+  const matches = q.match(/\b(20[0-3]\d)\b/g) || [];
   return [...new Set(matches.map(Number))]
-    .filter(y => y >= 2014 && y <= 2030)
+    .filter(y => y >= 2010 && y <= 2030)
     .sort((a, b) => a - b);
 }
 

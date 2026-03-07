@@ -6,8 +6,8 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=14';
-import { detectEntities, norm } from './entities.js?v=12';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=15';
+import { detectEntities, norm } from './entities.js?v=13';
 
 // ---------------------------------------------------------------------------
 // DOM refs
@@ -567,30 +567,44 @@ function extractChartData(markdown, query) {
     const anual = data.boletin?.anual_por_pad;
 
     // Historical year(s) → line chart from boletin
-    if (anual && ent._years && ent._years.length) {
-      const pads = Object.keys(anual);
-      const datasets = [];
-      let allYears = new Set();
-      pads.forEach(y => { Object.keys(anual[y]).forEach(yr => allYears.add(yr)); });
-      allYears = [...allYears].sort();
-      pads.forEach((pad, i) => {
-        const padNorm = pad.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-        if (ent.padecimiento && norm(ent.padecimiento) !== padNorm) return;
-        datasets.push({
-          label: pad,
-          data: allYears.map(y => anual[pad][y] || 0),
-          borderColor: CHART_COLORS[i],
-          backgroundColor: CHART_COLORS[i] + '22',
-          fill: true, tension: 0.4, borderWidth: 3,
-          pointRadius: allYears.map(y => ent._years.includes(Number(y)) ? 7 : 3),
-          pointBackgroundColor: allYears.map(y => ent._years.includes(Number(y)) ? '#9F2241' : CHART_COLORS[i]),
+    if (ent._years && ent._years.length) {
+      const anualEstPad = data.boletin?.anual_por_estado_pad;
+      // Use state-level data if estado detected, else national
+      let source = null;
+      let lugar = 'Nacional';
+      if (ent.estado && anualEstPad) {
+        // Find the estado key (case-insensitive)
+        const estKey = Object.keys(anualEstPad).find(k => norm(k) === norm(ent.estado));
+        if (estKey) { source = anualEstPad[estKey]; lugar = estKey; }
+      }
+      if (!source && anual) { source = anual; }
+
+      if (source) {
+        const pads = Object.keys(source);
+        const datasets = [];
+        let allYears = new Set();
+        pads.forEach(p => { Object.keys(source[p]).forEach(yr => allYears.add(yr)); });
+        allYears = [...allYears].sort();
+        pads.forEach((pad, i) => {
+          const padNorm = pad.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+          if (ent.padecimiento && norm(ent.padecimiento) !== padNorm) return;
+          datasets.push({
+            label: pad,
+            data: allYears.map(y => source[pad][y] || 0),
+            borderColor: CHART_COLORS[i],
+            backgroundColor: CHART_COLORS[i] + '22',
+            fill: true, tension: 0.4, borderWidth: 3,
+            pointRadius: allYears.map(y => ent._years.includes(Number(y)) ? 7 : 3),
+            pointBackgroundColor: allYears.map(y => ent._years.includes(Number(y)) ? '#9F2241' : CHART_COLORS[i]),
+          });
         });
-      });
-      if (datasets.length) {
-        const titulo = ent.padecimiento
-          ? `${ent.padecimiento}: incidencia historica (${ent._years.join(', ')} destacado)`
-          : `Incidencia historica (${ent._years.join(', ')} destacado)`;
-        return { type: 'line', title: titulo, labels: allYears, datasets };
+        if (datasets.length) {
+          const yrLabel = ent._years.filter(y => allYears.includes(String(y)));
+          const titulo = ent.padecimiento
+            ? `${ent.padecimiento} en ${lugar}: incidencia historica` + (yrLabel.length ? ` (${yrLabel.join(', ')} destacado)` : '')
+            : `Incidencia historica en ${lugar}` + (yrLabel.length ? ` (${yrLabel.join(', ')} destacado)` : '');
+          return { type: 'line', title: titulo, labels: allYears, datasets };
+        }
       }
     }
 
