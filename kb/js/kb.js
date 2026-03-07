@@ -177,42 +177,14 @@ function needsGeminiReasoning(q) {
 // ---------------------------------------------------------------------------
 
 function answerPadecimientoNoModelado(q, ent, s, d) {
-  // Si ya detectamos un padecimiento conocido, no aplicamos este guard
+  // Si ya detectamos un padecimiento conocido, no es off-scope
   if (ent.padecimiento) return null;
 
-  // Palabras que indican que el usuario pregunta sobre una enfermedad específica
-  const diseaseContext = [
-    'caso', 'casos', 'paciente', 'enfermo', 'diagnostico', 'diagnosticaron',
-    'incidencia', 'prevalencia', 'morbilidad', 'mortalidad', 'defunciones',
-    'contagio', 'infectados', 'hubo', 'habra', 'hay', 'tiene', 'cuantos',
-  ];
-
-  if (!diseaseContext.some(w => q.includes(w))) return null;
-
-  // Enfermedades comunes que NO modelamos
-  const unmodeled = [
-    'sida', 'vih', 'diabetes', 'cancer', 'influenza', 'dengue', 'covid',
-    'tuberculosis', 'hepatitis', 'zika', 'chikungunya', 'colera', 'malaria',
-    'sarampion', 'varicela', 'rubeola', 'meningitis', 'neumonia', 'asma',
-    'obesidad', 'hipertension', 'infarto', 'leucemia', 'linfoma', 'anemia',
-    'epilepsia', 'esclerosis', 'lupus', 'artritis', 'fibromialgia', 'autismo',
-    'esquizofrenia', 'bipolar', 'ansiedad', 'tdah', 'down', 'chagas',
-    'rabia', 'lepra', 'ebola', 'viruela', 'gripe', 'resfriado', 'tos',
-  ];
-
-  const mentioned = unmodeled.find(w => q.includes(w));
-  if (!mentioned) return null;
-
-  return (
-    `**EpiForecast-MX** actualmente solo modela tres padecimientos:\n\n` +
-    `- **Depresion** (CIE-10: F32)\n` +
-    `- **Parkinson** (CIE-10: G20)\n` +
-    `- **Alzheimer** (CIE-10: G30)\n\n` +
-    `No tengo datos sobre **${mentioned}** en la base de conocimiento.\n\n` +
-    `Si necesitas informacion sobre ${mentioned}, te sugiero consultar el ` +
-    `**Boletin Epidemiologico** de la Direccion General de Epidemiologia (DGE) ` +
-    `o el Sistema Nacional de Vigilancia Epidemiologica (SINAVE).`
-  );
+  // Preguntas cuantitativas sobre enfermedades no modeladas → ceder a Gemini
+  // (Gemini puede dar contexto general sobre salud en Mexico)
+  // Solo retornar null para que caiga al flujo normal y si ningun handler
+  // local responde, Gemini lo atenderá
+  return null;
 }
 
 // ---------------------------------------------------------------------------
@@ -1557,35 +1529,61 @@ function isOffTopic(q, ent) {
   // Si detectamos entidades del dominio, no es off-topic
   if (ent.padecimiento || ent.estado || ent.modelo) return false;
 
-  // Palabras clave que indican que hablan de algo ajeno a epidemiologia
-  const offTopicTerms = [
-    'weather', 'clima', 'temperatura', 'lluvia', 'sol', 'nublado',
-    'futbol', 'soccer', 'basket', 'deporte', 'olimpi',
-    'pelicula', 'serie', 'netflix', 'musica', 'cancion',
-    'receta', 'cocina', 'comida', 'restaurante',
-    'politica', 'eleccion', 'presidente', 'partido',
-    'bitcoin', 'crypto', 'bolsa', 'acciones', 'inversion',
-    'viaje', 'vuelo', 'hotel', 'turismo',
-    'programacion', 'javascript', 'python', 'codigo', 'software',
-    'matematica', 'fisica', 'quimica',
+  // Temas PERMITIDOS que Gemini puede responder (no bloquear):
+  // - AI/ML: deep learning, redes neuronales, prophet, deepar, smape, etc.
+  // - Salud: depresion, parkinson, alzheimer, imss, epidemiologia, etc.
+  // - Ciencia de datos: python, modelos, metricas, overfitting, etc.
+  const allowedTerms = [
+    // AI / ML / Data Science
+    'inteligencia artificial', 'machine learning', 'deep learning', 'red neuronal',
+    'redes neuronales', 'modelo', 'algoritmo', 'entrenamiento', 'epoch', 'batch',
+    'overfitting', 'underfitting', 'cross validation', 'validacion cruzada',
+    'smape', 'rmse', 'mae', 'mase', 'mape', 'metrica', 'accuracy', 'precision',
+    'prophet', 'deepar', 'xgboost', 'lightgbm', 'ridge', 'ensemble', 'stacking',
+    'serie temporal', 'series de tiempo', 'time series', 'forecast', 'pronostico',
+    'transformer', 'lstm', 'gru', 'autoregresivo', 'estacionari',
+    'feature', 'hiperparametro', 'regularizacion', 'dropout', 'learning rate',
+    'gradient', 'backpropagation', 'loss', 'optimizador', 'adam', 'sgd',
+    'pytorch', 'tensorflow', 'gluonts', 'scikit', 'pandas', 'numpy',
+    'python', 'sagemaker', 'aws', 'mlflow', 'mlops', 'pipeline',
+    'regression', 'clasificacion', 'clustering', 'nlp', 'rag',
+    // Salud / Epidemiologia / IMSS
+    'salud', 'epidemiologia', 'epidemiologico', 'boletin', 'sinave',
+    'imss', 'seguro social', 'ssa', 'secretaria de salud',
+    'enfermedad', 'padecimiento', 'diagnostico', 'cie-10', 'cie10',
+    'incidencia', 'prevalencia', 'mortalidad', 'morbilidad',
+    'vacuna', 'tratamiento', 'terapia', 'farmaco', 'medicamento',
+    'neurologia', 'psiquiatria', 'neurodegenerativ', 'mental',
+    'sintoma', 'factor de riesgo', 'prevencion', 'deteccion',
+    'semana epidemiologica', 'vigilancia', 'brote', 'pandemia',
+    'diabetes', 'cancer', 'covid', 'influenza', 'dengue', 'obesidad',
+    'hipertension', 'ansiedad', 'esquizofrenia',
+  ];
+  if (allowedTerms.some(t => q.includes(t))) return false;
+
+  // Solo bloquear temas claramente irrelevantes al proyecto
+  const blockedTerms = [
+    'weather', 'futbol', 'soccer', 'basket', 'deporte', 'olimpi',
+    'pelicula', 'netflix', 'musica', 'cancion', 'concierto',
+    'receta', 'cocina', 'restaurante',
+    'bitcoin', 'crypto', 'bolsa de valores', 'acciones de',
+    'vuelo', 'hotel', 'turismo', 'airbnb',
     'mascota', 'perro', 'gato',
-    'translate', 'traducir', 'ingles', 'english',
     'chiste', 'joke', 'broma', 'meme',
+    'horoscopo', 'signo zodiacal', 'tarot',
   ];
 
-  // Preguntas que usan disparadores del KB pero en contexto ajeno
-  const ambiguousTriggers = ['pronostico', 'forecast', 'prediccion', 'cuantos', 'cuantas'];
+  // Solo bloquear si usan triggers ambiguos con temas bloqueados
+  const ambiguousTriggers = ['pronostico', 'prediccion', 'cuantos', 'cuantas'];
   const hasAmbiguous = ambiguousTriggers.some(t => q.includes(t));
+  if (hasAmbiguous && blockedTerms.some(t => q.includes(t))) return true;
 
-  if (hasAmbiguous && offTopicTerms.some(t => q.includes(t))) return true;
-
-  // Preguntas completamente fuera de contexto epidemiologico
-  const pureOffTopic = [
-    'quien gano', 'como se hace', 'donde queda', 'cuanto cuesta', 'que hora es',
-    'dime un chiste', 'cuenta un chiste', 'hola como estas', 'que opinas de',
-    'que piensas de', 'cuentame sobre', 'como funciona un', 'por que el cielo',
+  // Preguntas puramente triviales
+  const trivial = [
+    'dime un chiste', 'cuenta un chiste', 'que hora es',
+    'horoscopo', 'signo zodiacal',
   ];
-  if (pureOffTopic.some(t => q.includes(t)) && !ent.padecimiento) return true;
+  if (trivial.some(t => q.includes(t))) return true;
 
   return false;
 }
