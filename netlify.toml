@@ -13,9 +13,9 @@
 [[headers]]
   for = "/kb/css/*"
   [headers.values]
-    Cache-Control = "public, max-age=86400"
+    Cache-Control = "public, max-age=300"
 
 [[headers]]
   for = "/kb/js/*"
   [headers.values]
-    Cache-Control = "public, max-age=86400"
+    Cache-Control = "public, max-age=300"
