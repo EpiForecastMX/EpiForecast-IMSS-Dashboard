@@ -104,16 +104,16 @@ async function init() {
 
   const resetBtn = document.getElementById('resetBtn');
   if (resetBtn) {
-    resetBtn.addEventListener('click', () => {
-      history.length = 0;
-      chatArea.innerHTML = '';
-      chartCounter = 0;
-      const data = getData();
-      if (data) addWelcome(data);
-      inputField.focus();
-    });
+    resetBtn.addEventListener('click', resetChat);
   }
+}
 
+function resetChat() {
+  history.length = 0;
+  chartCounter = 0;
+  while (chatArea.firstChild) chatArea.removeChild(chatArea.firstChild);
+  const data = getData();
+  if (data) addWelcome(data);
   inputField.focus();
 }
 
