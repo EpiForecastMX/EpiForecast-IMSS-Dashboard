@@ -1381,18 +1381,20 @@ function runHandlers(q, ent, s, d) {
   return null;
 }
 
+// Contexto conversacional: entidades de la última pregunta exitosa
+let lastEntities = {};
+
 export async function answer(query) {
   const d = await loadKnowledge();
   const s = d.stats || {};
   const q = norm(query);
   const ent = detectEntities(query);
 
-  // Pre-calcular correcci\u00f3n fuzzy
+  // Pre-calcular corrección fuzzy
   const corrected = fuzzyCorrect(q);
   const hasFuzzy = corrected && corrected !== q;
 
-  // Si hay correcci\u00f3n fuzzy, verificar si detecta m\u00e1s entidades
-  // (e.g., "depresoin" -> "depresion" detecta padecimiento)
+  // Si hay corrección fuzzy, verificar si detecta más entidades
   if (hasFuzzy) {
     const entFixed = detectEntities(corrected);
     const moreEntities =
@@ -1401,24 +1403,46 @@ export async function answer(query) {
       (!ent.modelo && entFixed.modelo);
 
     if (moreEntities) {
-      // La correcci\u00f3n encontr\u00f3 entidades que el original no: preferir corregida
       const resultFixed = runHandlers(corrected, entFixed, s, d);
       if (resultFixed) {
-        return `*(\u00bfQuisiste decir \u00ab${corrected}\u00bb?)*\n\n${resultFixed}`;
+        lastEntities = entFixed;
+        return `*(¿Quisiste decir «${corrected}»?)*\n\n${resultFixed}`;
       }
     }
   }
 
   // Intento 1: query original
   const result = runHandlers(q, ent, s, d);
-  if (result) return result;
+  if (result) {
+    lastEntities = ent;
+    return result;
+  }
 
-  // Intento 2: correcci\u00f3n fuzzy de typos (para triggers, no solo entidades)
+  // Intento 2: corrección fuzzy
   if (hasFuzzy) {
     const entFixed = detectEntities(corrected);
     const resultFixed = runHandlers(corrected, entFixed, s, d);
     if (resultFixed) {
-      return `*(\u00bfQuisiste decir \u00ab${corrected}\u00bb?)*\n\n${resultFixed}`;
+      lastEntities = entFixed;
+      return `*(¿Quisiste decir «${corrected}»?)*\n\n${resultFixed}`;
+    }
+  }
+
+  // Intento 3: heredar contexto de la pregunta anterior
+  if (lastEntities.padecimiento || lastEntities.estado) {
+    const merged = { ...ent };
+    if (!merged.padecimiento && lastEntities.padecimiento) merged.padecimiento = lastEntities.padecimiento;
+    if (!merged.estado && lastEntities.estado) merged.estado = lastEntities.estado;
+    if (!merged.sexo && lastEntities.sexo) merged.sexo = lastEntities.sexo;
+
+    const hasNewContext = merged.padecimiento !== ent.padecimiento || merged.estado !== ent.estado;
+    if (hasNewContext) {
+      const resultCtx = runHandlers(q, merged, s, d);
+      if (resultCtx) {
+        const ctx = [merged.padecimiento, merged.estado].filter(Boolean).join(' en ');
+        lastEntities = merged;
+        return `*(Contexto: ${ctx})*\n\n${resultCtx}`;
+      }
     }
   }
 
