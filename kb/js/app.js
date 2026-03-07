@@ -213,11 +213,26 @@ async function handleSend() {
       addBotMessage(data.answer || 'Sin respuesta.', 'ai');
       pushHistory(text, data.answer || '');
     } else {
-      addBotMessage(noMatchMessage(), 'local');
+      const errData = await resp.json().catch(() => ({}));
+      console.warn('Gemini response error:', resp.status, errData);
+      if (resp.status === 500 && errData.detail) {
+        addBotMessage(
+          `No pude consultar la IA en este momento.\n\n**Error:** ${errData.detail}\n\n` +
+          'Mientras tanto, prueba con preguntas sobre el proyecto como "metricas globales" o "equipo del proyecto".',
+          'error'
+        );
+      } else {
+        addBotMessage(noMatchMessage(), 'local');
+      }
     }
-  } catch {
+  } catch (err) {
     removeTyping(typingEl);
-    addBotMessage(noMatchMessage(), 'local');
+    console.warn('Gemini fetch error:', err);
+    addBotMessage(
+      'No pude conectar con el servicio de IA.\n\n' +
+      'Puedo responder preguntas sobre datos del proyecto. Prueba: "metricas globales", "equipo" o "depresion en Jalisco".',
+      'error'
+    );
   }
 }
 

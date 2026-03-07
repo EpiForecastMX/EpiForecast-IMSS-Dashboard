@@ -271,26 +271,40 @@
 
     /* ========== LAYOUT: Nav + App + Footer ========== */
 
-    html, body { height: auto; }
+    html { height: 100%; }
 
     body {
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
     }
+
+    .site-nav { flex-shrink: 0; }
 
     .kb-app {
       flex: 1;
       display: flex;
       flex-direction: column;
+      min-height: 0;
       overflow: hidden;
     }
 
-    /* Override chat area to be flexible within kb-app */
+    .kb-app .header,
+    .kb-app .stats-row,
+    .kb-app .quick-section,
+    .kb-app .input-bar {
+      flex-shrink: 0;
+    }
+
     .kb-app .chat-area {
       flex: 1;
+      min-height: 0;
       overflow-y: auto;
     }
+
+    .site-footer { flex-shrink: 0; }
 
     /* ========== RESPONSIVE NAV ========== */
 
