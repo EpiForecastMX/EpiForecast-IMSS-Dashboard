@@ -6,7 +6,8 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=10';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=11';
+import { detectEntities, norm } from './entities.js?v=11';
 
 // ---------------------------------------------------------------------------
 // DOM refs
@@ -468,28 +469,64 @@ function extractChartData(markdown, query) {
     }
   }
 
-  // Pronostico / forecast -> bar o donut
+  // Pronostico / forecast -> contextual chart
   if (qn.includes('pronostico') || qn.includes('forecast') || qn.includes('prediccion') ||
       (qn.includes('grafico') && (qn.includes('caso') || qn.includes('semana')))) {
 
-    // Detectar padecimiento específico
-    const padMap = { depresion: 'Depresion', parkinson: 'Parkinson', alzheimer: 'Alzheimer' };
-    let detectedPad = null;
-    for (const [key, val] of Object.entries(padMap)) {
-      if (qn.includes(key)) { detectedPad = val; break; }
+    const ent = detectEntities(query);
+    const models = data.prod_models || [];
+
+    // Pad + Estado -> bar por sexo de esa combinación
+    if (ent.padecimiento && ent.estado) {
+      const matches = models.filter(m =>
+        m.padecimiento === ent.padecimiento && norm(m.entidad || '') === norm(ent.estado)
+      );
+      if (matches.length) {
+        const labels = matches.map(m => m.sexo.charAt(0).toUpperCase() + m.sexo.slice(1));
+        return {
+          type: 'bar',
+          title: `${ent.padecimiento} en ${ent.estado}: pronostico 52 sem`,
+          labels,
+          datasets: [{
+            label: 'Casos pronosticados',
+            data: matches.map(m => m.casos_52_semanas_futuro || 0),
+            backgroundColor: ['#4A5D23', '#BC955C', '#5B8A8A'],
+            borderRadius: 6,
+          }],
+        };
+      }
     }
 
-    // Si es un padecimiento específico -> bar chart top 10 entidades
-    if (detectedPad) {
-      const models = data.prod_models || [];
+    // Solo Estado -> bar por padecimiento en esa entidad
+    if (ent.estado && !ent.padecimiento) {
+      const estModels = models
+        .filter(m => norm(m.entidad || '') === norm(ent.estado) && m.sexo === 'general')
+        .sort((a, b) => (b.casos_52_semanas_futuro || 0) - (a.casos_52_semanas_futuro || 0));
+      if (estModels.length) {
+        return {
+          type: 'bar',
+          title: `Pronostico 52 semanas: ${ent.estado}`,
+          labels: estModels.map(m => m.padecimiento),
+          datasets: [{
+            label: 'Casos pronosticados',
+            data: estModels.map(m => m.casos_52_semanas_futuro || 0),
+            backgroundColor: CHART_COLORS.slice(0, estModels.length),
+            borderRadius: 6,
+          }],
+        };
+      }
+    }
+
+    // Solo Padecimiento -> bar top 12 entidades
+    if (ent.padecimiento) {
       const padModels = models
-        .filter(m => m.padecimiento === detectedPad && m.sexo === 'general' && m.casos_52_semanas_futuro > 0)
+        .filter(m => m.padecimiento === ent.padecimiento && m.sexo === 'general' && m.casos_52_semanas_futuro > 0)
         .sort((a, b) => b.casos_52_semanas_futuro - a.casos_52_semanas_futuro);
       if (padModels.length) {
         const top = padModels.slice(0, 12);
         return {
           type: 'bar',
-          title: `Pronostico 52 semanas: ${detectedPad} por entidad`,
+          title: `Pronostico 52 semanas: ${ent.padecimiento} por entidad`,
           labels: top.map(m => m.entidad),
           datasets: [{
             label: 'Casos pronosticados',
