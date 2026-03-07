@@ -1155,6 +1155,13 @@ function answerConteo(q, ent, s, d) {
   // Si tiene pad+estado o meses, dejar que otros handlers se encarguen
   if ((ent.padecimiento && ent.estado) || (ent._months || []).length > 0) return null;
 
+  // Si pregunta "cuantos casos" sin padecimiento detectado,
+  // probablemente pregunta por una enfermedad que no modelamos -> Gemini
+  if (!ent.padecimiento && (q.includes('caso') || q.includes('enferm') || q.includes('paciente'))) {
+    // Verificar que no sea "cuantos modelos" o similar
+    if (!q.includes('modelo') && !q.includes('motor') && !q.includes('serie')) return null;
+  }
+
   const pad = ent.padecimiento, estado = ent.estado;
   const lines = [];
 
