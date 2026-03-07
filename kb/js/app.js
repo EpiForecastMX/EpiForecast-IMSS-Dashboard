@@ -6,7 +6,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=6';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=7';
 
 // ---------------------------------------------------------------------------
 // DOM refs
@@ -468,8 +468,40 @@ function extractChartData(markdown, query) {
     }
   }
 
-  // Pronostico por padecimiento -> donut
-  if (qn.includes('pronostico') && !qn.includes('semana')) {
+  // Pronostico / forecast -> bar o donut
+  if (qn.includes('pronostico') || qn.includes('forecast') || qn.includes('prediccion') ||
+      (qn.includes('grafico') && (qn.includes('caso') || qn.includes('semana')))) {
+
+    // Detectar padecimiento específico
+    const padMap = { depresion: 'Depresion', parkinson: 'Parkinson', alzheimer: 'Alzheimer' };
+    let detectedPad = null;
+    for (const [key, val] of Object.entries(padMap)) {
+      if (qn.includes(key)) { detectedPad = val; break; }
+    }
+
+    // Si es un padecimiento específico -> bar chart top 10 entidades
+    if (detectedPad) {
+      const models = data.prod_models || [];
+      const padModels = models
+        .filter(m => m.padecimiento === detectedPad && m.sexo === 'general' && m.casos_52_semanas_futuro > 0)
+        .sort((a, b) => b.casos_52_semanas_futuro - a.casos_52_semanas_futuro);
+      if (padModels.length) {
+        const top = padModels.slice(0, 12);
+        return {
+          type: 'bar',
+          title: `Pronostico 52 semanas: ${detectedPad} por entidad`,
+          labels: top.map(m => m.entidad),
+          datasets: [{
+            label: 'Casos pronosticados',
+            data: top.map(m => m.casos_52_semanas_futuro),
+            backgroundColor: CHART_COLORS.slice(0, top.length),
+            borderRadius: 6,
+          }],
+        };
+      }
+    }
+
+    // General -> donut por padecimiento
     const pp = s.por_pad;
     if (pp) {
       const entries = Object.entries(pp).filter(([, v]) => v.casos_futuro_total);
