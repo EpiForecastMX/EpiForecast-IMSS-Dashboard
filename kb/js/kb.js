@@ -484,8 +484,42 @@ function answerEquipo(q, ent, s, d) {
     'quien es', 'quien fue', 'que hace', 'que hizo', 'conoces a',
     'dime de', 'dime sobre', 'hablame de', 'cuentame de', 'cuentame sobre',
   ];
+  // Detectar claims sobre participacion/desarrollo del equipo
+  const participationKw = [
+    'no participo', 'no desarrollo', 'no trabajo', 'no hizo',
+    'participo en', 'desarrollo en', 'trabajo en',
+    'si participo', 'contribuyo', 'tu desarrollo', 'tu implementacion',
+    'dicen que', 'no es parte', 'no formo parte', 'formo parte',
+  ];
   const isPerson = any(q, personTriggers);
-  if (!isPerson && q.split(' ').length > 3) return null;
+  const isParticipation = any(q, participationKw);
+
+  // Count how many team members are mentioned
+  let mentionedMembers = 0;
+  for (const m of (d.equipo || [])) {
+    for (const alias of (m.aliases || [])) {
+      if (q.includes(alias)) { mentionedMembers++; break; }
+    }
+  }
+
+  // If 2+ team members mentioned with participation context → show full team
+  if (isParticipation && mentionedMembers >= 2) {
+    const eq = d.equipo || [];
+    const lines = [
+      'Los **3 integrantes** del equipo de desarrollo participaron activamente en el proyecto:\n',
+    ];
+    for (const m of eq) {
+      lines.push(
+        `- **${m.nombre}** (${m.apodo}) \u00b7 ${m.commits} commits \u00b7 ${m.rol}`
+      );
+    }
+    lines.push(
+      '\nTodos los integrantes contribuyeron al dise\u00f1o, desarrollo, entrenamiento de modelos y despliegue de la plataforma EpiForecast-MX.'
+    );
+    return lines.join('\n');
+  }
+
+  if (!isPerson && !isParticipation && q.split(' ').length > 3) return null;
 
   let bestInfo = null, bestLen = 0;
   for (const m of (d.equipo || [])) {

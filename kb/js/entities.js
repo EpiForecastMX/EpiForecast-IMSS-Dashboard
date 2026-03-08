@@ -245,7 +245,12 @@ export function detectEntities(query) {
         'hombres', 'mujeres', 'masculino', 'femenino'];
       const alsoNoLugar = ['personas', 'mayores', 'menores', 'adultos', 'jovenes',
         'pacientes', 'ninos', 'ancianos', 'edad', 'anos', 'semanas'];
-      if (!noLugar.includes(lugar) && !alsoNoLugar.includes(lugar) && lugar.length > 2) {
+      // Excluir si empieza con pronombre posesivo o palabra no-lugar
+      const lugarStart = lugar.split(' ')[0];
+      const noStart = ['tu', 'mi', 'su', 'sus', 'mis', 'tus', 'nuestro', 'nuestra',
+        'este', 'esta', 'ese', 'esa', 'aquel', 'donde', 'como', 'cual', 'todo'];
+      if (!noLugar.includes(lugar) && !alsoNoLugar.includes(lugar) &&
+          !noLugar.includes(lugarStart) && !noStart.includes(lugarStart) && lugar.length > 2) {
         result._lugarDesconocido = lugar;
       }
     }

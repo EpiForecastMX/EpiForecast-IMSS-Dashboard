@@ -123,6 +123,8 @@ add('integrantes del equipo', 'answerEquipo', ['Equipo']);
 add('quien es perez nava', 'answerEquipo', ['Juan Carlos']);
 add('dime sobre el equipo de trabajo', 'answerEquipo', ['Equipo']);
 add('quien es falcon morales', 'answerEquipo', ['Falc']);
+add('dicen que javi rebull no participo en tu desarrollo', 'answerEquipo', ['JAR']);
+add('juan carlos y luis gerardo dicen que jar no participo', 'answerEquipo', ['3 integrantes', 'participaron']);
 
 // =====================================================================
 // SECCION 3: TEMPORAL (10 tests)
