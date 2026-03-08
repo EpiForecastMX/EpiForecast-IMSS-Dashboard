@@ -596,17 +596,25 @@ function answerBoletin(q, ent, s, d) {
   if (isRanking) {
     const ranking = bol.ranking_entidades || [];
     if (!ranking.length) return null;
+
+    const wantsLeast = any(q, ['menor', 'menos', 'bajo', 'baja', 'pocas', 'pocos', 'ultima', 'ultimas', 'ultimos']);
+    const sorted = wantsLeast ? [...ranking].reverse() : ranking;
+    const orderLabel = wantsLeast ? 'menor' : 'mayor';
     const padLabel = pad ? ` de ${pad}` : '';
     const total = ranking.reduce((sum, r) => sum + (r.casos || 0), 0);
-    const lines = [`**Ranking de entidades por incidencia${padLabel}** (acumulado hist\u00f3rico):\n`];
+    const lines = [`**Entidades con ${orderLabel} incidencia${padLabel}** (acumulado historico):\n`];
     lines.push('| # | Entidad | Casos | % del total |');
-    lines.push('|---|---------|-------|-------------|');
-    ranking.slice(0, 15).forEach((r, i) => {
+    lines.push('|---|---------|------:|-------------|');
+    sorted.slice(0, 15).forEach((r, i) => {
       const p = total > 0 ? ((r.casos / total) * 100).toFixed(1) : '?';
       lines.push(`| ${i + 1} | ${r.entidad} | ${fmt(r.casos)} | ${p}% |`);
     });
-    if (ranking.length > 15) lines.push(`\n*... y ${ranking.length - 15} entidades m\u00e1s.*`);
-    lines.push(`\n**Total acumulado**: ${fmt(total)} casos. Las 5 entidades principales concentran el ${total > 0 ? ((ranking.slice(0, 5).reduce((s, r) => s + (r.casos || 0), 0) / total) * 100).toFixed(1) : '?'}% del total.`);
+    if (sorted.length > 15) lines.push(`\n*... y ${sorted.length - 15} entidades mas.*`);
+    if (wantsLeast) {
+      lines.push(`\nLas entidades con menor incidencia suelen tener menor poblacion o menor cobertura de deteccion.`);
+    } else {
+      lines.push(`\n**Total acumulado**: ${fmt(total)} casos. Las 5 entidades principales concentran el ${total > 0 ? ((ranking.slice(0, 5).reduce((s, r) => s + (r.casos || 0), 0) / total) * 100).toFixed(1) : '?'}% del total.`);
+    }
     return lines.join('\n');
   }
 
