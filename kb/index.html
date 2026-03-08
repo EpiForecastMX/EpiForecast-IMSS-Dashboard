@@ -122,62 +122,6 @@
 
     .site-nav-cta svg { width: 14px; height: 14px; }
 
-    /* ========== FOOTER INSTITUCIONAL ========== */
-
-    .site-footer {
-      background: var(--nav-black);
-      color: rgba(232, 213, 181, 0.5);
-      text-align: center;
-      padding: 2.5rem 2rem;
-      flex-shrink: 0;
-    }
-
-    .site-footer-inner {
-      max-width: 680px;
-      margin: 0 auto;
-    }
-
-    .site-footer-brand {
-      font-family: var(--font-display);
-      font-size: 1.2rem;
-      color: var(--nav-cream);
-      margin-bottom: 0.4rem;
-    }
-
-    .site-footer-brand span { color: var(--nav-gold); }
-
-    .site-footer-divider {
-      width: 60px;
-      height: 2px;
-      background: linear-gradient(90deg, var(--nav-burgundy), var(--nav-gold));
-      margin: 1.2rem auto;
-    }
-
-    .site-footer p {
-      font-size: 0.82rem;
-      font-family: var(--font-body);
-      max-width: 600px;
-      margin: 0 auto;
-      line-height: 1.6;
-    }
-
-    .site-footer-links {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 1.5rem;
-      margin-top: 1rem;
-      font-size: 0.78rem;
-    }
-
-    .site-footer-links a {
-      color: rgba(232, 213, 181, 0.4);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-
-    .site-footer-links a:hover { color: var(--nav-gold); }
-
     /* ========== HEADER INLINE STATS ========== */
 
     .header-stats {
@@ -343,8 +287,6 @@
       overflow-y: auto;
     }
 
-    .site-footer { flex-shrink: 0; }
-
     /* ========== RESPONSIVE NAV ========== */
 
     @media (max-width: 768px) {
@@ -352,11 +294,9 @@
       .site-nav-inner { justify-content: space-between; }
     }
 
-    /* ========== MOBILE: hide footer, compact layout ========== */
+    /* ========== MOBILE: compact layout ========== */
 
     @media (max-width: 480px) {
-      .site-footer { display: none; }
-
       .site-nav-inner { height: 44px; padding: 0 12px; }
       .site-nav-brand { font-size: 0.95rem; gap: 0.4rem; }
       .site-nav-brand img { width: 28px; height: 28px; }
@@ -523,30 +463,6 @@
   </div><!-- /kb-app -->
 
   <!-- ========== FOOTER INSTITUCIONAL ========== -->
-  <footer class="site-footer">
-    <div class="site-footer-inner">
-      <div class="site-footer-brand">EpiForecast<span>-MX</span></div>
-      <div class="site-footer-divider"></div>
-      <p>
-        Proyecto capstone de la Maestría en Inteligencia Artificial Aplicada<br>
-        Tecnológico de Monterrey x Instituto Mexicano del Seguro Social
-      </p>
-      <div class="site-footer-links">
-        <a href="../index.html">Inicio</a>
-        <a href="../EpiDashboard.html">Dashboard</a>
-        <a href="../Reports/index.html">Pronósticos</a>
-        <a href="../reporte_resultados.html">Resultados</a>
-        <a href="../comparacion_modelos.html">Comparación</a>
-        <a href="../validacion_semanal.html">Validación Semanal</a>
-        <a href="../conclusiones.html">Conclusiones</a>
-        <a href="https://github.com/IntegradorIMSS2026Team01" target="_blank" rel="noopener">GitHub</a>
-      </div>
-      <p style="margin-top:1.2rem; font-size:0.72rem; opacity:0.5;">
-        &copy; 2026 EpiForecast-MX. Todos los derechos reservados.<br>
-        Guía Cromática Institucional del IMSS aplicada.
-      </p>
-    </div>
-  </footer>
 
   <script type="module" src="js/app.js?v=28"></script>
 </body>
