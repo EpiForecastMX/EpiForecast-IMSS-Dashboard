@@ -356,7 +356,7 @@ function answerSaludo(q, ent, s, d) {
   // Nombre del sistema: respuesta corta "ordename"
   const nameOnly = ['epiforecast', 'epiforecast mx', 'epiforecast-mx', 'epiforecastmx'];
   if (nameOnly.some(n => q === n || q === n + '?')) {
-    return 'Presente. Ordename, \u00bfqu\u00e9 necesitas saber?';
+    return '**Generalizaci\u00f3n de modelos nacionales de pron\u00f3stico epidemiol\u00f3gico hacia un enfoque modular con desagregaci\u00f3n por sexo y entidad federativa en M\u00e9xico** (EpiForecast-MX).\n\nPresente. Ordename, \u00bfqu\u00e9 necesitas saber?';
   }
 
   const triggers = [
@@ -458,8 +458,9 @@ function answerEquipo(q, ent, s, d) {
       );
     }
     lines.push(
-      '\nProyecto integrador para el IMSS: pron\u00f3stico epidemiol\u00f3gico ' +
-      'multi-modelo de Depresi\u00f3n (F32), Parkinson (G20) y Alzheimer (G30).'
+      '\n**Proyecto:** Generalizaci\u00f3n de modelos nacionales de pron\u00f3stico epidemiol\u00f3gico ' +
+      'hacia un enfoque modular con desagregaci\u00f3n por sexo y entidad federativa en M\u00e9xico (EpiForecast-MX). ' +
+      'Pron\u00f3stico multi-modelo de Depresi\u00f3n (F32), Parkinson (G20) y Alzheimer (G30) para el IMSS.'
     );
     return lines.join('\n');
   }
@@ -603,6 +604,21 @@ function answerTemporal(q, ent, s, d) {
 }
 
 function answerProyectoMeta(q, ent, s, d) {
+  // Nombre completo del proyecto
+  const nameTriggers = ['nombre del proyecto', 'nombre completo del proyecto', 'como se llama el proyecto',
+    'como se llama este proyecto', 'titulo del proyecto', 'nombre oficial'];
+  if (any(q, nameTriggers)) {
+    return (
+      '**Generalizaci\u00f3n de modelos nacionales de pron\u00f3stico epidemiol\u00f3gico ' +
+      'hacia un enfoque modular con desagregaci\u00f3n por sexo y entidad federativa en M\u00e9xico** ' +
+      '(EpiForecast-MX).\n\n' +
+      'Proyecto integrador de la **Maestr\u00eda en Inteligencia Artificial Aplicada** ' +
+      'del Tecnol\u00f3gico de Monterrey, desarrollado para el **IMSS**.\n\n' +
+      'Pron\u00f3stico multi-modelo de Depresi\u00f3n (F32), Parkinson (G20) y Alzheimer (G30) ' +
+      `con **${s.total_modelos || 333} modelos** de producci\u00f3n.`
+    );
+  }
+
   const padTriggers = [
     'que padecimiento', 'cuales padecimiento', 'de que padecimiento',
     'padecimiento sabes', 'padecimiento manejas', 'padecimiento modela',

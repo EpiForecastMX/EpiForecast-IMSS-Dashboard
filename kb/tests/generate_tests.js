@@ -80,8 +80,8 @@ add('hola buenos dias', 'answerSaludo', ['EpiForecast-MX']);
 add('que onda', 'answerSaludo', ['EpiForecast-MX']);
 add('buenas noches', 'answerSaludo', ['EpiForecast-MX']);
 add('hola como estas', 'answerSaludo', ['EpiForecast-MX']);
-add('EpiForecast-MX', 'answerSaludo', ['Ordename']);
-add('epiforecast', 'answerSaludo', ['Ordename']);
+add('EpiForecast-MX', 'answerSaludo', ['Ordename', 'Generalizaci']);
+add('epiforecast', 'answerSaludo', ['Ordename', 'Generalizaci']);
 
 // =====================================================================
 // SECCION 2a: PREGUNTA PERSONAL (7 tests)
@@ -106,6 +106,7 @@ add('quien te hizo', 'answerEquipo', ['Equipo']);
 add('te crearon', 'answerEquipo', ['Equipo']);
 add('quien es javier rebull', 'answerEquipo', ['Javier', 'Rebull']);
 add('quien es jar', 'answerEquipo', ['Javier']);
+add('quien es jars', 'answerEquipo', ['Javier', 'JARS']);
 add('quien es juan carlos', 'answerEquipo', ['Juan Carlos']);
 add('quien es jarcos', 'answerEquipo', ['Juan Carlos']);
 add('quien es jerry', 'answerEquipo', ['Luis Gerardo']);
@@ -123,7 +124,7 @@ add('integrantes del equipo', 'answerEquipo', ['Equipo']);
 add('quien es perez nava', 'answerEquipo', ['Juan Carlos']);
 add('dime sobre el equipo de trabajo', 'answerEquipo', ['Equipo']);
 add('quien es falcon morales', 'answerEquipo', ['Falc']);
-add('dicen que javi rebull no participo en tu desarrollo', 'answerEquipo', ['JAR']);
+add('dicen que javi rebull no participo en tu desarrollo', 'answerEquipo', ['JARS']);
 add('juan carlos y luis gerardo dicen que jar no participo', 'answerEquipo', ['3 integrantes', 'participaron']);
 
 // =====================================================================
@@ -666,6 +667,9 @@ add('parkinson en la atlantida', '*', [], []);
 // SECCION 31: ARTICULO / PUBLICACION (5 tests)
 // =====================================================================
 
+add('como se llama el proyecto', 'answerProyectoMeta', ['Generalizaci', 'EpiForecast-MX']);
+add('nombre completo del proyecto', 'answerProyectoMeta', ['Generalizaci', 'modular']);
+add('nombre del proyecto', 'answerProyectoMeta', ['Generalizaci']);
 add('tienen articulo publicado', 'answerProyectoMeta', ['art']);
 add('publicacion del proyecto', 'answerProyectoMeta', ['art']);
 add('hay paper del proyecto', 'answerProyectoMeta', ['art']);
