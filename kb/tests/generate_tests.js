@@ -212,6 +212,8 @@ add('top estados por casos', 'answerBoletin', ['Entidad']);
 add('que estado tiene mas parkinson', 'answerBoletin', ['#']);
 add('estados con mayor incidencia de alzheimer', 'answerBoletin', ['#']);
 add('estados con menos casos', 'answerBoletin', ['menor']);
+add('datos historicos', 'answerBoletin', ['Boletin', 'Periodo']);
+add('dame datos historicos del proyecto', 'answerBoletin', ['Boletin', 'Periodo']);
 
 // =====================================================================
 // SECCION 8: PRONOSTICO (12 tests)
@@ -544,7 +546,7 @@ add('composicion demografica de depresion', 'answerDemografica', ['Depresi']);
 add('composicion demografica por sexo', 'answerDemografica', ['hombres']);
 add('desglose demografico de parkinson', 'answerDemografica', ['Parkinson']);
 add('composicion por sexo y padecimiento', 'answerDemografica', ['hombres']);
-add('proporcion demografica historica', null, []);
+add('proporcion demografica historica', 'answerBoletin', ['Boletin']);
 
 // =====================================================================
 // SECCION 27: PADECIMIENTO NO MODELADO (5 tests)

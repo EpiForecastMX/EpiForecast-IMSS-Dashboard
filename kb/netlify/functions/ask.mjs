@@ -21,11 +21,33 @@ function loadKnowledge() {
     const jsonPath = resolve(__dirname, '../../knowledge.json');
     const raw = readFileSync(jsonPath, 'utf-8');
     knowledgeCache = JSON.parse(raw);
+    fixForecastTotals(knowledgeCache);
   } catch (err) {
     console.error('Error cargando knowledge.json:', err.message);
     knowledgeCache = {};
   }
   return knowledgeCache;
+}
+
+function fixForecastTotals(data) {
+  const models = data?.prod_models;
+  const stats = data?.stats;
+  if (!models || !stats) return;
+  const pp = stats.por_pad || {};
+  let grandTotal = 0;
+  for (const pad of Object.keys(pp)) {
+    const stateGenerals = models.filter(m =>
+      m.padecimiento === pad &&
+      m.sexo === 'general' &&
+      m.entidad !== 'Nacional' &&
+      !String(m.entidad || '').startsWith('Region') &&
+      !String(m.entidad || '').startsWith('region')
+    );
+    const corrected = stateGenerals.reduce((sum, m) => sum + (m.casos_52_semanas_futuro || 0), 0);
+    pp[pad].casos_futuro_total = corrected;
+    grandTotal += corrected;
+  }
+  stats.pronostico_total = grandTotal;
 }
 
 function buildContext(data, query) {

@@ -1073,6 +1073,59 @@ function answerBoletin(q, ent, s, d) {
     return lines.join('\n');
   }
 
+  // Resumen general de datos historicos (sin padecimiento, sin estado, sin ano)
+  // Requiere triggers explicitos de historico/boletin (no solo "caso" o "semanal")
+  const genericHistKw = ['historico', 'historica', 'datos historicos', 'boletin',
+    'sinave', 'evolucion historica', 'serie de tiempo', 'acumulado'];
+  const isGenericHist = any(q, genericHistKw);
+  if (!pad && !estado && !hasYear && !ent.sexo && isGenericHist) {
+    const anualPad = bol.anual_por_pad || {};
+    const meta = bol.meta || {};
+    const pads = Object.keys(anualPad);
+    if (!pads.length) return null;
+
+    const lines = [`**Datos historicos del Boletin Epidemiologico SINAVE**\n`];
+    lines.push(`- Periodo: **${meta.min_anio || 2014}** a **${meta.max_anio || 2026}** (semana ${meta.max_semana || '?'})`);
+    lines.push(`- Registros totales: **${fmt(meta.total_registros || 0)}**`);
+    lines.push(`- Padecimientos: ${pads.map(p => `**${p}**`).join(', ')}`);
+    lines.push(`- Entidades: 32 estados + Nacional\n`);
+
+    const currentYear = new Date().getFullYear();
+    const maxWeek = meta.max_semana || 52;
+    const isPartial = (meta.max_anio === currentYear) && maxWeek < 48;
+
+    for (const p of pads) {
+      const data = anualPad[p];
+      const allYrs = Object.keys(data).sort();
+      // Excluir ano parcial de pico/valle/crecimiento
+      const fullYrs = isPartial ? allYrs.filter(y => Number(y) !== currentYear) : allYrs;
+      if (!fullYrs.length) continue;
+      const totalFull = fullYrs.reduce((s, y) => s + (data[y] || 0), 0);
+      const maxY = fullYrs.reduce((best, y) => (data[y] > data[best] ? y : best), fullYrs[0]);
+      const minY = fullYrs.reduce((best, y) => (data[y] < data[best] ? y : best), fullYrs[0]);
+      const lastY = fullYrs[fullYrs.length - 1];
+      const firstY = fullYrs[0];
+      const growth = data[firstY] > 0 ? (((data[lastY] - data[firstY]) / data[firstY]) * 100).toFixed(1) : '?';
+
+      lines.push(`**${p}**:`);
+      lines.push(`- Total acumulado (${firstY}-${lastY}): **${fmt(totalFull)} casos**`);
+      lines.push(`- Pico: **${maxY}** con ${fmt(data[maxY])} casos`);
+      lines.push(`- Valle: **${minY}** con ${fmt(data[minY])} casos`);
+      lines.push(`- Crecimiento ${firstY} vs ${lastY}: **${growth}%**`);
+      if (isPartial && data[String(currentYear)] != null) {
+        lines.push(`- ${currentYear} *(parcial, semana ${maxWeek})*: ${fmt(data[String(currentYear)])} casos`);
+      }
+      lines.push('');
+    }
+
+    lines.push(`Puedes consultar datos por padecimiento, estado o rango de anos. Ejemplos:`);
+    lines.push(`- "casos de depresion en 2020"`);
+    lines.push(`- "tendencia de parkinson ultimos 5 anos"`);
+    lines.push(`- "que estado tiene mas casos de alzheimer"`);
+
+    return lines.join('\n');
+  }
+
   return null;
 }
 
