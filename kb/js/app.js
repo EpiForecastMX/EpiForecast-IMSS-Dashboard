@@ -479,8 +479,12 @@ function extractChartData(markdown, query) {
   }
 
   // Pronostico / forecast -> contextual chart
+  // Skip if user is asking for historical/weekly data with a specific year
+  const entPre = detectEntities(query);
+  const hasHistYear = entPre._years && entPre._years.length > 0;
+  const isWeeklyReq = qn.includes('por semana') || qn.includes('semanal');
   if (qn.includes('pronostico') || qn.includes('forecast') || qn.includes('prediccion') ||
-      (qn.includes('grafico') && (qn.includes('caso') || qn.includes('semana')))) {
+      (qn.includes('grafico') && (qn.includes('caso') || qn.includes('semana')) && !hasHistYear && !isWeeklyReq)) {
 
     const ent = detectEntities(query);
     const models = data.prod_models || [];
