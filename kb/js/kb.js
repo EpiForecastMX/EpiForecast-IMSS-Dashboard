@@ -386,21 +386,21 @@ function answerProyectoMeta(q, ent, s, d) {
   if (any(q, compTriggers) || (q.includes('333') && any(q, ['que es', 'que son', 'como', 'por que', 'porque', 'explica', 'de donde']))) {
     const pp = s.por_pad || {};
     const lines = [
-      '**Composicion de los 333 modelos de produccion**\n',
-      'EpiForecast-MX genera modelos para **cada combinacion unica** de padecimiento, geografia y sexo:\n',
-      '| Dimension | Valores | Cantidad |',
+      '**Composición de los 333 modelos de producción**\n',
+      'EpiForecast-MX genera modelos para **cada combinación única** de padecimiento, geografía y sexo:\n',
+      '| Dimensión | Valores | Cantidad |',
       '|-----------|---------|:--------:|',
-      '| Padecimientos | Depresion (F32), Parkinson (G20), Alzheimer (G30) | **3** |',
-      '| Geografias | 32 entidades + 4 regiones INEGI + Nacional | **37** |',
+      '| Padecimientos | Depresión (F32), Parkinson (G20), Alzheimer (G30) | **3** |',
+      '| Geografías | 32 entidades + 4 regiones INEGI + Nacional | **37** |',
       '| Sexo | General, Hombres, Mujeres | **3** |',
       '',
-      '**3 padecimientos x 37 geografias x 3 sexos = 333 modelos**\n',
-      'Cada modelo es una serie de tiempo independiente con su propio motor de prediccion (DeepAR, Prophet, Ensemble o Stacking) seleccionado por menor SMAPE en cross-validation.\n',
+      '**3 padecimientos x 37 geografías x 3 sexos = 333 modelos**\n',
+      'Cada modelo es una serie de tiempo independiente con su propio motor de predicción (DeepAR, Prophet, Ensemble o Stacking) seleccionado por menor SMAPE en cross-validation.\n',
       '**Desglose por padecimiento:**',
     ];
-    for (const [nombre, key] of [['Depresion', 'Depresion'], ['Parkinson', 'Parkinson'], ['Alzheimer', 'Alzheimer']]) {
+    for (const [nombre, key] of [['Depresión', 'Depresion'], ['Parkinson', 'Parkinson'], ['Alzheimer', 'Alzheimer']]) {
       const ps = pp[key] || {};
-      lines.push(`- **${nombre}**: ${ps.n || 111} modelos | Motor ganador: ${ps.motor_ganador || '—'} | Pronostico: ${fmt(ps.casos_futuro_total)} casos`);
+      lines.push(`- **${nombre}**: ${ps.n || 111} modelos | Motor ganador: ${ps.motor_ganador || '—'} | Pronóstico: ${fmt(ps.casos_futuro_total)} casos`);
     }
     return lines.join('\n');
   }
@@ -632,16 +632,16 @@ function answerBoletin(q, ent, s, d) {
     const orderLabel = wantsLeast ? 'menor' : 'mayor';
     const padLabel = pad ? ` de ${pad}` : '';
     const total = ranking.reduce((sum, r) => sum + (r.casos || 0), 0);
-    const lines = [`**Entidades con ${orderLabel} incidencia${padLabel}** (acumulado historico):\n`];
+    const lines = [`**Entidades con ${orderLabel} incidencia${padLabel}** (acumulado histórico):\n`];
     lines.push('| # | Entidad | Casos | % del total |');
     lines.push('|---|---------|------:|-------------|');
     sorted.slice(0, 15).forEach((r, i) => {
       const p = total > 0 ? ((r.casos / total) * 100).toFixed(1) : '?';
       lines.push(`| ${i + 1} | ${r.entidad} | ${fmt(r.casos)} | ${p}% |`);
     });
-    if (sorted.length > 15) lines.push(`\n*... y ${sorted.length - 15} entidades mas.*`);
+    if (sorted.length > 15) lines.push(`\n*... y ${sorted.length - 15} entidades más.*`);
     if (wantsLeast) {
-      lines.push(`\nLas entidades con menor incidencia suelen tener menor poblacion o menor cobertura de deteccion.`);
+      lines.push(`\nLas entidades con menor incidencia suelen tener menor población o menor cobertura de detección.`);
     } else {
       lines.push(`\n**Total acumulado**: ${fmt(total)} casos. Las 5 entidades principales concentran el ${total > 0 ? ((ranking.slice(0, 5).reduce((s, r) => s + (r.casos || 0), 0) / total) * 100).toFixed(1) : '?'}% del total.`);
     }
@@ -672,7 +672,7 @@ function answerBoletin(q, ent, s, d) {
       }
     }
     if (missing.length) {
-      lines.push(`\nNo tengo datos para ${missing.length === 1 ? 'el ano' : 'los anos'} **${missing.join(', ')}**. Los datos disponibles del boletin van de **${minY}** a **${maxY}**.`);
+      lines.push(`\nNo tengo datos para ${missing.length === 1 ? 'el año' : 'los años'} **${missing.join(', ')}**. Los datos disponibles del boletín van de **${minY}** a **${maxY}**.`);
     }
     return lines.join('\n');
   }
@@ -699,7 +699,7 @@ function answerBoletin(q, ent, s, d) {
       }
     }
     if (missing.length) {
-      lines.push(`\nNo tengo datos de ${estado} para ${missing.length === 1 ? 'el ano' : 'los anos'} **${missing.join(', ')}**. Los datos disponibles van de **2014** a **2026**.`);
+      lines.push(`\nNo tengo datos de ${estado} para ${missing.length === 1 ? 'el año' : 'los años'} **${missing.join(', ')}**. Los datos disponibles van de **2014** a **2026**.`);
     }
     return lines.join('\n');
   }
@@ -808,7 +808,7 @@ function answerHistorico(q, ent, s, d) {
           const prev = anualEst[estKey]?.[pad]?.[String(year - 1)];
           if (prev != null && prev > 0) {
             const pctChg = (((val - prev) / prev) * 100).toFixed(1);
-            const arrow = pctChg > 0 ? 'aumento' : 'disminucion';
+            const arrow = pctChg > 0 ? 'aumento' : 'disminución';
             lines.push(`Esto representa un **${arrow} del ${Math.abs(pctChg)}%** respecto a ${year - 1} (${fmt(prev)} casos).`);
           }
           continue;
@@ -818,12 +818,12 @@ function answerHistorico(q, ent, s, d) {
       if (pad) {
         const nacVal = anualNac[pad]?.[ys];
         if (nacVal != null) {
-          lines.push(`No tengo datos historicos anuales desglosados para **${estado}**. A nivel **nacional**, en ${year} se reportaron **${fmt(nacVal)} casos de ${pad}**.`);
+          lines.push(`No tengo datos históricos anuales desglosados para **${estado}**. A nivel **nacional**, en ${year} se reportaron **${fmt(nacVal)} casos de ${pad}**.`);
           const prev = anualNac[pad]?.[String(year - 1)];
           if (prev != null && prev > 0) {
             const pctChg = (((nacVal - prev) / prev) * 100).toFixed(1);
-            const arrow = pctChg > 0 ? 'aumento' : 'disminucion';
-            lines.push(`Variacion: **${arrow} del ${Math.abs(pctChg)}%** vs ${year - 1}.`);
+            const arrow = pctChg > 0 ? 'aumento' : 'disminución';
+            lines.push(`Variación: **${arrow} del ${Math.abs(pctChg)}%** vs ${year - 1}.`);
           }
           continue;
         }
@@ -838,8 +838,8 @@ function answerHistorico(q, ent, s, d) {
         const prev = anualNac[pad]?.[String(year - 1)];
         if (prev != null && prev > 0) {
           const pctChg = (((nacVal - prev) / prev) * 100).toFixed(1);
-          const arrow = pctChg > 0 ? 'aumento' : 'disminucion';
-          lines.push(`Variacion: **${arrow} del ${Math.abs(pctChg)}%** vs ${year - 1}.`);
+          const arrow = pctChg > 0 ? 'aumento' : 'disminución';
+          lines.push(`Variación: **${arrow} del ${Math.abs(pctChg)}%** vs ${year - 1}.`);
         }
         continue;
       }
@@ -1050,7 +1050,7 @@ function answerPadecimiento(q, ent, s, d) {
 
     if (padModels.length) {
       const label = isLeast ? 'menor' : 'mayor';
-      lines.push(`**Entidades con ${label} pronostico de ${pad}** (52 semanas):\n`);
+      lines.push(`**Entidades con ${label} pronóstico de ${pad}** (52 semanas):\n`);
       lines.push('| # | Entidad | Casos pronosticados | Motor | SMAPE |');
       lines.push('|---|---------|--------------------:|-------|-------|');
       const top10 = padModels.slice(0, 10);
@@ -1061,7 +1061,7 @@ function answerPadecimiento(q, ent, s, d) {
       const first = padModels[0];
       const total = ps.casos_futuro_total || 0;
       const pctFirst = total > 0 ? ((first.casos_52_semanas_futuro / total) * 100).toFixed(1) : '?';
-      lines.push(`\n**${first.entidad}** concentra el **${pctFirst}%** del pronostico nacional de ${pad} con **${fmt(first.casos_52_semanas_futuro)} casos**.`);
+      lines.push(`\n**${first.entidad}** concentra el **${pctFirst}%** del pronóstico nacional de ${pad} con **${fmt(first.casos_52_semanas_futuro)} casos**.`);
 
       return lines.join('\n');
     }
@@ -1071,10 +1071,10 @@ function answerPadecimiento(q, ent, s, d) {
   if (ps.casos_futuro_total) {
     lines.push(
       `Se pronostican **${fmt(ps.casos_futuro_total)} casos de ${pad}** a nivel nacional ` +
-      `en las proximas 52 semanas (${ps.n} modelos).\n`
+      `en las próximas 52 semanas (${ps.n} modelos).\n`
     );
   } else {
-    lines.push(`**${pad}**: ${ps.n} modelos de produccion.\n`);
+    lines.push(`**${pad}**: ${ps.n} modelos de producción.\n`);
   }
 
   // Estimacion mensual
@@ -1094,7 +1094,7 @@ function answerPadecimiento(q, ent, s, d) {
   // Distribucion de motores
   const dist = ps.dist_motor;
   if (dist) {
-    lines.push('\n**Distribucion de motores:**');
+    lines.push('\n**Distribución de motores:**');
     for (const [motor, n] of Object.entries(dist)) {
       lines.push(`- ${motor}: ${n} series (${((n / ps.n) * 100).toFixed(1)}%)`);
     }
@@ -1104,7 +1104,7 @@ function answerPadecimiento(q, ent, s, d) {
   const wantsSex = any(q, ['sexo', 'genero', 'hombre', 'mujer', 'distribucion']);
   const psx = ps.por_sexo || {};
   if (wantsSex && Object.keys(psx).length) {
-    lines.push('\n**Distribucion por sexo:**\n');
+    lines.push('\n**Distribución por sexo:**\n');
     lines.push('| Sexo | Modelos | Casos pronosticados | SMAPE promedio | SMAPE mediana |');
     lines.push('|------|--------:|--------------------:|---------------:|--------------:|');
     for (const [sx, info] of Object.entries(psx)) {
@@ -1127,7 +1127,7 @@ function answerPadecimiento(q, ent, s, d) {
 
   // Contexto historico
   const hist = getHistContext(d, pad, null);
-  if (hist) lines.push(`\n**Contexto historico**: ${hist}`);
+  if (hist) lines.push(`\n**Contexto histórico**: ${hist}`);
 
   return lines.join('\n');
 }
@@ -1281,7 +1281,7 @@ function answerRanking(q, ent, s, d) {
   // Filtrar series triviales (SMAPE ~0% = incidencia cercana a cero, no precision real)
   const top = (s.top5_smape || []).filter(m => m.smape > 0.5);
   if (top.length) {
-    lines.push('**Los modelos mas precisos** (menor error, excluyendo series con ~0 casos):\n');
+    lines.push('**Los modelos más precisos** (menor error, excluyendo series con ~0 casos):\n');
     lines.push('| # | Serie | SMAPE | Motor |');
     lines.push('|---|-------|-------|-------|');
     top.forEach((m, i) => {
@@ -1290,7 +1290,7 @@ function answerRanking(q, ent, s, d) {
   }
   const bottom = s.bottom5_smape || [];
   if (bottom.length) {
-    lines.push('\n**Los 5 modelos con mayor error** (requieren atencion):\n');
+    lines.push('\n**Los 5 modelos con mayor error** (requieren atención):\n');
     lines.push('| # | Serie | SMAPE | Motor |');
     lines.push('|---|-------|-------|-------|');
     bottom.forEach((m, i) => {
@@ -1301,11 +1301,11 @@ function answerRanking(q, ent, s, d) {
   // Insight
   if (top.length && bottom.length) {
     lines.push(
-      `\nLos mejores modelos con casos reales alcanzan SMAPE de **${top[0].smape}%** mientras los mas dificiles llegan a **${bottom[bottom.length - 1].smape}%**. ` +
-      `Las series con mayor error suelen corresponder a Alzheimer en estados con muy baja incidencia, donde pequenas variaciones generan errores porcentuales altos.`
+      `\nLos mejores modelos con casos reales alcanzan SMAPE de **${top[0].smape}%** mientras los más difíciles llegan a **${bottom[bottom.length - 1].smape}%**. ` +
+      `Las series con mayor error suelen corresponder a Alzheimer en estados con muy baja incidencia, donde pequeñas variaciones generan errores porcentuales altos.`
     );
   }
-  lines.push('\n*Nota: Series con SMAPE=0% (ej. Alzheimer en BCS) corresponden a entidades con incidencia cercana a cero — no representan precision excepcional sino predicciones triviales.*');
+  lines.push('\n*Nota: Series con SMAPE=0% (ej. Alzheimer en BCS) corresponden a entidades con incidencia cercana a cero — no representan precisión excepcional sino predicciones triviales.*');
 
   return lines.length ? lines.join('\n') : null;
 }
