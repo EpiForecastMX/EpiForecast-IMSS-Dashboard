@@ -994,6 +994,11 @@ function answerHistorico(q, ent, s, d) {
   const years = ent._years || [];
   if (!years.length) return null;
 
+  // Si pide pron\u00f3sticos, dejar que answerPronostico se encargue
+  const futureKw = ['pronostic', 'forecast', 'prediccion', 'predice', 'predecir',
+    'se espera', 'se esperan', 'estima', 'estiman', 'habra', 'va a haber'];
+  if (futureKw.some(t => q.includes(t))) return null;
+
   const currentYear = new Date().getFullYear();
   const pastYears = years.filter(y => y <= currentYear);
   if (!pastYears.length) return null;
@@ -1010,10 +1015,17 @@ function answerHistorico(q, ent, s, d) {
   const pad = ent.padecimiento;
   const estado = ent.estado;
 
+  // A\u00f1o parcial
+  const maxWeek = bol.meta?.max_semana || 52;
+  const maxAnio = bol.meta?.max_anio || currentYear;
+  const isPartialYear = (y) => y === currentYear && maxAnio === currentYear && maxWeek < 48;
+
   const lines = [];
 
   for (const year of pastYears) {
     const ys = String(year);
+    const partial = isPartialYear(year);
+    const partialNote = partial ? ` *(parcial, semana ${maxWeek} de 52)*` : '';
 
     // Intentar estado primero
     if (estado) {
@@ -1021,13 +1033,14 @@ function answerHistorico(q, ent, s, d) {
       if (estKey && pad) {
         const val = anualEst[estKey]?.[pad]?.[ys];
         if (val != null) {
-          lines.push(`En **${year}**, se reportaron **${fmt(val)} casos de ${pad}** en ${estKey}.`);
-          // Variacion vs año anterior
-          const prev = anualEst[estKey]?.[pad]?.[String(year - 1)];
-          if (prev != null && prev > 0) {
-            const pctChg = (((val - prev) / prev) * 100).toFixed(1);
-            const arrow = pctChg > 0 ? 'aumento' : 'disminución';
-            lines.push(`Esto representa un **${arrow} del ${Math.abs(pctChg)}%** respecto a ${year - 1} (${fmt(prev)} casos).`);
+          lines.push(`En **${year}**, se reportaron **${fmt(val)} casos de ${pad}** en ${estKey}.${partialNote}`);
+          if (!partial) {
+            const prev = anualEst[estKey]?.[pad]?.[String(year - 1)];
+            if (prev != null && prev > 0) {
+              const pctChg = (((val - prev) / prev) * 100).toFixed(1);
+              const arrow = pctChg > 0 ? 'aumento' : 'disminuci\u00f3n';
+              lines.push(`Esto representa un **${arrow} del ${Math.abs(pctChg)}%** respecto a ${year - 1} (${fmt(prev)} casos).`);
+            }
           }
           continue;
         }
@@ -1036,12 +1049,14 @@ function answerHistorico(q, ent, s, d) {
       if (pad) {
         const nacVal = anualNac[pad]?.[ys];
         if (nacVal != null) {
-          lines.push(`El Boletín Epidemiológico SINAVE no incluye desglose histórico para **${estado}**. Solo ${Object.keys(anualEst).length} entidades tienen datos anuales desglosados.\n\nA nivel **nacional**, en ${year} se reportaron **${fmt(nacVal)} casos de ${pad}**.`);
-          const prev = anualNac[pad]?.[String(year - 1)];
-          if (prev != null && prev > 0) {
-            const pctChg = (((nacVal - prev) / prev) * 100).toFixed(1);
-            const arrow = pctChg > 0 ? 'aumento' : 'disminución';
-            lines.push(`Variación: **${arrow} del ${Math.abs(pctChg)}%** vs ${year - 1}.`);
+          lines.push(`El Bolet\u00edn Epidemiol\u00f3gico SINAVE no incluye desglose hist\u00f3rico para **${estado}**. Solo ${Object.keys(anualEst).length} entidades tienen datos anuales desglosados.\n\nA nivel **nacional**, en ${year} se reportaron **${fmt(nacVal)} casos de ${pad}**.${partialNote}`);
+          if (!partial) {
+            const prev = anualNac[pad]?.[String(year - 1)];
+            if (prev != null && prev > 0) {
+              const pctChg = (((nacVal - prev) / prev) * 100).toFixed(1);
+              const arrow = pctChg > 0 ? 'aumento' : 'disminuci\u00f3n';
+              lines.push(`Variaci\u00f3n: **${arrow} del ${Math.abs(pctChg)}%** vs ${year - 1}.`);
+            }
           }
           continue;
         }
@@ -1052,12 +1067,14 @@ function answerHistorico(q, ent, s, d) {
     if (pad) {
       const nacVal = anualNac[pad]?.[ys];
       if (nacVal != null) {
-        lines.push(`En **${year}**, a nivel nacional se reportaron **${fmt(nacVal)} casos de ${pad}**.`);
-        const prev = anualNac[pad]?.[String(year - 1)];
-        if (prev != null && prev > 0) {
-          const pctChg = (((nacVal - prev) / prev) * 100).toFixed(1);
-          const arrow = pctChg > 0 ? 'aumento' : 'disminución';
-          lines.push(`Variación: **${arrow} del ${Math.abs(pctChg)}%** vs ${year - 1}.`);
+        lines.push(`En **${year}**, a nivel nacional se reportaron **${fmt(nacVal)} casos de ${pad}**.${partialNote}`);
+        if (!partial) {
+          const prev = anualNac[pad]?.[String(year - 1)];
+          if (prev != null && prev > 0) {
+            const pctChg = (((nacVal - prev) / prev) * 100).toFixed(1);
+            const arrow = pctChg > 0 ? 'aumento' : 'disminuci\u00f3n';
+            lines.push(`Variaci\u00f3n: **${arrow} del ${Math.abs(pctChg)}%** vs ${year - 1}.`);
+          }
         }
         continue;
       }
@@ -1786,9 +1803,9 @@ function answerConteo(q, ent, s, d) {
 
 function answerPronostico(q, ent, s, d) {
   const triggers = [
-    'pronostico', 'casos futuro', 'futuro 52', '52 semanas', 'proximas', 'forecast',
-    'prediccion total', 'casos esperado', 'se esperan', 'se espera',
-    'se pronostica', 'se estima', 'se estiman', 'habra', 'va a haber',
+    'pronostic', 'casos futuro', 'futuro 52', '52 semanas', 'proximas', 'forecast',
+    'prediccion', 'predice', 'predecir', 'casos esperado', 'se esperan', 'se espera',
+    'se estima', 'se estiman', 'habra', 'va a haber',
   ];
   if (!any(q, triggers)) return null;
 
