@@ -796,14 +796,14 @@ function renderChart(canvasId, chartData) {
         },
       },
       scales: chartData.type === 'doughnut' ? {} : {
-        x: { 
-          grid: { display: false }, 
-          ticks: { font: { size: 11, family: 'Inter' }, color: '#5C5650' },
+        x: {
+          grid: { display: false },
+          ticks: { font: { size: 11, family: 'Outfit' }, color: '#8FA99D' },
           border: { display: false }
         },
-        y: { 
-          grid: { color: '#E5E2DA', drawBorder: false }, 
-          ticks: { font: { size: 11, family: 'Inter' }, color: '#5C5650' },
+        y: {
+          grid: { color: 'rgba(46, 196, 168, 0.1)', drawBorder: false },
+          ticks: { font: { size: 11, family: 'Outfit' }, color: '#8FA99D' },
           border: { display: false }
         },
       },
