@@ -827,7 +827,7 @@ function answerBoletin(q, ent, s, d) {
     const yrStr = years.join(', ');
     const lines = [];
     if (ent._ageFilter) {
-      lines.push(`*No contamos con datos desglosados por grupo etario (${ent._ageFilter} a\u00f1os). Los datos del Bolet\u00edn SINAVE son agregados por entidad y sexo. Se muestran los totales:*\n`);
+      lines.push(`**Variable no disponible**: nuestros modelos segmentan por **sexo** y **entidad federativa**, no por edad. Se muestran los totales:\n`);
     }
     lines.push(`**${pad}** (${yrStr}):\n`);
     const currentYear = new Date().getFullYear();
@@ -912,13 +912,24 @@ function answerBoletin(q, ent, s, d) {
     return lines.join('\n');
   }
 
-  // Filtro por sexo en datos hist\u00f3ricos: el bolet\u00edn SINAVE no tiene desglose
-  if (pad && ent.sexo && (hasHist || hasLastN || hasYear) && !estado) {
+  // Filtro por sexo (y/o edad) en datos hist\u00f3ricos
+  if (pad && (ent.sexo || ent._ageFilter) && (hasHist || hasLastN || hasYear) && !estado) {
     const sexoLabel = ent.sexo === 'hombres' ? 'hombres' : ent.sexo === 'mujeres' ? 'mujeres' : null;
+    const articuloSexo = ent.sexo === 'hombres' ? 'Los' : 'Las';
+    const lines = [];
+
+    // Aviso de variable ex\u00f3gena no soportada (edad, etc.)
+    if (ent._ageFilter) {
+      lines.push(`**Variable no disponible**: nuestros modelos de pron\u00f3stico segmentan \u00fanicamente por **sexo** (hombres, mujeres, general) y **entidad federativa** (32 estados + Nacional). No manejamos edad, grupo etario ni otras variables ex\u00f3genas.\n`);
+    }
+
     if (sexoLabel) {
       const ps = s.por_pad?.[pad]?.por_sexo?.[ent.sexo];
-      const lines = [];
-      lines.push(`*El Bolet\u00edn Epidemiol\u00f3gico SINAVE no incluye desglose por sexo en los datos hist\u00f3ricos anuales. Sin embargo, los modelos de pron\u00f3stico s\u00ed est\u00e1n diferenciados por sexo:*\n`);
+      if (!ent._ageFilter) {
+        lines.push(`*El Bolet\u00edn Epidemiol\u00f3gico SINAVE no incluye desglose por sexo en los datos hist\u00f3ricos anuales. Los modelos de pron\u00f3stico s\u00ed est\u00e1n diferenciados por sexo:*\n`);
+      } else {
+        lines.push(`Sin embargo, s\u00ed contamos con pron\u00f3sticos diferenciados por **sexo**:\n`);
+      }
       if (ps) {
         const models = (d.prod_models || []).filter(m =>
           m.padecimiento === pad && m.sexo === ent.sexo &&
@@ -927,23 +938,29 @@ function answerBoletin(q, ent, s, d) {
           !String(m.entidad || '').startsWith('region')
         );
         const totalCasos = models.reduce((sum, m) => sum + (m.casos_52_semanas_futuro || 0), 0);
-        lines.push(`**Pron\u00f3stico de ${pad} (${sexoLabel})** — pr\u00f3ximas 52 semanas:\n`);
+        lines.push(`**Pron\u00f3stico de ${pad} (${sexoLabel})** \u2014 pr\u00f3ximas 52 semanas:\n`);
         lines.push(`- Casos pronosticados: **${fmt(totalCasos)}**`);
         lines.push(`- Modelos: ${ps.n} series`);
         lines.push(`- SMAPE: ${ps.smape_prod_mean}% (media) / ${ps.smape_prod_median}% (mediana)`);
         if (ps.casos_nacional) lines.push(`- Nacional: **${fmt(ps.casos_nacional)} casos**`);
 
-        // Comparar con general
         const psGen = s.por_pad?.[pad]?.por_sexo?.general;
         if (psGen?.casos_nacional && ps.casos_nacional) {
           const pct = ((ps.casos_nacional / psGen.casos_nacional) * 100).toFixed(1);
-          lines.push(`\nLas ${sexoLabel} representan el **${pct}%** del pron\u00f3stico nacional de ${pad}.`);
+          lines.push(`\n${articuloSexo} ${sexoLabel} representan el **${pct}%** del pron\u00f3stico nacional de ${pad}.`);
         }
       } else {
         lines.push(`No tengo datos de pron\u00f3stico para ${pad} filtrado por ${sexoLabel}.`);
       }
-      return lines.join('\n');
+    } else if (ent._ageFilter && !sexoLabel) {
+      // Solo edad, sin sexo
+      const ps = s.por_pad?.[pad];
+      if (ps?.casos_futuro_total) {
+        lines.push(`**Pron\u00f3stico de ${pad} (general)** \u2014 pr\u00f3ximas 52 semanas: **${fmt(ps.casos_futuro_total)} casos**`);
+        lines.push(`\nPuedes filtrar por **sexo** (hombres/mujeres) o por **entidad federativa**.`);
+      }
     }
+    return lines.join('\n');
   }
 
   // Tendencia hist\u00f3rica de un padecimiento (sin a\u00f1o espec\u00edfico, sin estado)
@@ -975,7 +992,7 @@ function answerBoletin(q, ent, s, d) {
 
     // Aviso de filtro de edad no disponible
     if (ent._ageFilter) {
-      lines.push(`*No contamos con datos desglosados por grupo etario (${ent._ageFilter} a\u00f1os). Los datos del Bolet\u00edn Epidemiol\u00f3gico SINAVE son agregados por entidad y sexo. Se muestran los totales disponibles:*\n`);
+      lines.push(`**Variable no disponible**: nuestros modelos segmentan por **sexo** y **entidad federativa**, no por edad. Se muestran los totales disponibles:\n`);
     }
 
     // Lead with the trend summary
