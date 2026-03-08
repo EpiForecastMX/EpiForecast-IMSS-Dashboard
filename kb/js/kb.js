@@ -2138,12 +2138,112 @@ function fuzzyCorrect(q) {
 }
 
 // ---------------------------------------------------------------------------
+// Handler: Comparacion semanal Real vs Pronostico 2026
+// ---------------------------------------------------------------------------
+
+function answerComparacionSemanal(q, ent, s, d) {
+  const triggers = [
+    'real vs pronostico', 'real vs prediccion', 'real vs forecast',
+    'pronostico vs real', 'prediccion vs real', 'forecast vs real',
+    'como va el modelo', 'como van los modelo', 'como se comporta el modelo',
+    'compara semana', 'comparar semana', 'comparacion semanal',
+    'comparativa semanal', 'semana a semana',
+    'que tan bien pronostic', 'que tan bien predic',
+    'acierto semanal', 'acierto por semana',
+    'cuantos casos van en', 'cuantos llevamos',
+    'acumulado 2026', 'acumulado vs',
+  ];
+
+  // Also match: "compara real" / "compara pronostico" / "como va depresion 2026"
+  const hasCompare = any(q, triggers) ||
+    (any(q, ['compara', 'comparar', 'comparativa', 'como va', 'como van']) &&
+     any(q, ['real', 'pronostico', 'prediccion', 'forecast', 'modelo', '2026']));
+
+  if (!hasCompare) return null;
+
+  const wc = d?.weekly_comparison;
+  if (!wc || !Object.keys(wc).length) return null;
+
+  // Determine which padecimiento(s) to show
+  const pad = ent.padecimiento;
+  const padsToShow = pad ? [pad] : Object.keys(wc);
+
+  const lines = [];
+
+  for (const p of padsToShow) {
+    const info = wc[p];
+    if (!info || !info.semanas) continue;
+
+    const weeks = info.semanas;
+    const realWeeks = weeks.filter(w => w.real != null);
+    const modelo = info.modelo_productivo || '?';
+    const anio = info.anio || 2026;
+
+    if (!realWeeks.length) continue;
+
+    // Acumulados
+    const acumReal = realWeeks.reduce((s, w) => s + w.real, 0);
+    const acumPron = realWeeks.reduce((s, w) => s + w.pronostico, 0);
+    const diffPct = acumReal > 0 ? ((acumPron - acumReal) / acumReal * 100).toFixed(1) : '?';
+    const diffSign = Number(diffPct) > 0 ? '+' : '';
+
+    lines.push(`**${p} — Real vs Pronostico ${anio}** (modelo productivo: ${modelo})\n`);
+    lines.push('| Semana | Real | Pronostico | Diferencia |');
+    lines.push('|--------|-----:|----------:|-----------:|');
+
+    for (const w of realWeeks) {
+      const diff = w.pronostico - w.real;
+      const sign = diff > 0 ? '+' : '';
+      const pctStr = w.error_pct != null ? ` (${w.error_pct}%)` : '';
+      lines.push(`| Sem ${w.semana} | ${fmt(w.real)} | ${fmt(w.pronostico)} | ${sign}${fmt(diff)}${pctStr} |`);
+    }
+
+    lines.push('');
+    lines.push(`**Acumulado ${realWeeks.length} semanas:** Real **${fmt(acumReal)}** vs Pronostico **${fmt(acumPron)}** (${diffSign}${diffPct}%)`);
+
+    // SMAPE promedio
+    const smapes = realWeeks.filter(w => w.error_pct != null && w.real > 0).map(w => {
+      const r = w.real, f = w.pronostico;
+      return 200 * Math.abs(f - r) / (Math.abs(f) + Math.abs(r));
+    });
+    if (smapes.length) {
+      const avgSmape = (smapes.reduce((a, b) => a + b, 0) / smapes.length).toFixed(1);
+      lines.push(`**SMAPE promedio semanal:** ${avgSmape}%`);
+    }
+
+    // Upcoming weeks preview
+    const futureWeeks = weeks.filter(w => w.real == null).slice(0, 4);
+    if (futureWeeks.length) {
+      lines.push(`\nProximas semanas pronosticadas:`);
+      for (const w of futureWeeks) {
+        lines.push(`- Sem ${w.semana}: **${fmt(w.pronostico)}** casos`);
+      }
+    }
+
+    // Embed chart data for app.js
+    const chartPayload = JSON.stringify({
+      pad: p,
+      modelo,
+      anio,
+      semanas: weeks.filter(w => w.real != null || w.semana <= (realWeeks.length + 4))
+        .map(w => ({ s: w.semana, r: w.real ?? null, p: w.pronostico })),
+    });
+    lines.push(`\n<!--WEEKLY:${chartPayload}-->`);
+
+    if (padsToShow.length > 1) lines.push('\n---\n');
+  }
+
+  return lines.length > 2 ? lines.join('\n') : null;
+}
+
+// ---------------------------------------------------------------------------
 // Cadena de handlers (orden de prioridad)
 // ---------------------------------------------------------------------------
 
 const HANDLERS = [
   answerSaludo, answerPadecimientoNoModelado, answerLugarDesconocido, answerEdadNoDisponible, answerEquipo, answerTemporal, answerProyectoMeta,
   answerTrainingConfig, answerSemanaActual, answerQueEsPadecimiento,
+  answerComparacionSemanal,
   answerBoletin, answerHistorico, answerComparativaEstados, answerSpecificSeries, answerEstado, answerPadecimiento,
   answerMotor, answerDemografica, answerSexo, answerMetricaGlobal,
   answerRanking, answerDiagnosticos, answerValidacion, answerInfra,

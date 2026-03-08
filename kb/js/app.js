@@ -6,7 +6,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=44';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=45';
 import { detectEntities, norm } from './entities.js?v=23';
 
 // ---------------------------------------------------------------------------
@@ -380,6 +380,44 @@ function extractChartData(markdown, query) {
   if (!data) return null;
   const s = data.stats || {};
   const qn = query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  // Comparacion semanal Real vs Pronostico (embedded from answerComparacionSemanal)
+  const weeklyMatch = markdown.match(/<!--WEEKLY:(.*?)-->/);
+  if (weeklyMatch) {
+    try {
+      const wk = JSON.parse(weeklyMatch[1]);
+      const semanas = wk.semanas || [];
+      const labels = semanas.map(w => `Sem ${w.s}`);
+      const realData = semanas.map(w => w.r);
+      const pronData = semanas.map(w => w.p);
+      const datasets = [
+        {
+          label: 'Real (Boletin)',
+          data: realData,
+          backgroundColor: '#2EC4A8CC',
+          borderColor: '#2EC4A8',
+          borderWidth: 2,
+          borderRadius: 4,
+          order: 1,
+        },
+        {
+          label: `Pronostico (${wk.modelo})`,
+          data: pronData,
+          backgroundColor: '#D4A84BCC',
+          borderColor: '#D4A84B',
+          borderWidth: 2,
+          borderRadius: 4,
+          order: 2,
+        },
+      ];
+      return {
+        type: 'bar',
+        title: `${dn(wk.pad)} ${wk.anio}: Real vs Pronostico`,
+        labels,
+        datasets,
+      };
+    } catch (e) { console.warn('Weekly parse error:', e); }
+  }
 
   // Comparativa de estados (embedded data from handler)
   const compareMatch = markdown.match(/<!--COMPARE:(.*?)-->/);

@@ -216,6 +216,19 @@ add('datos historicos', 'answerBoletin', ['Boletin', 'Periodo']);
 add('dame datos historicos del proyecto', 'answerBoletin', ['Boletin', 'Periodo']);
 
 // =====================================================================
+// SECCION 7b: COMPARACION SEMANAL Real vs Pronostico (8 tests)
+// =====================================================================
+
+add('como va el modelo de depresion en 2026', 'answerComparacionSemanal', ['Real', 'Pronostico', 'Depresion']);
+add('real vs pronostico depresion', 'answerComparacionSemanal', ['Acumulado', 'SMAPE']);
+add('cuantos casos van en 2026 de depresion', 'answerComparacionSemanal', ['Real', 'Pronostico']);
+add('comparacion semanal', 'answerComparacionSemanal', ['Sem 1', 'Sem 7']);
+add('como se comporta el modelo de parkinson', 'answerComparacionSemanal', ['Parkinson', 'Real']);
+add('compara real vs pronostico', 'answerComparacionSemanal', ['Acumulado']);
+add('acierto semanal de depresion', 'answerComparacionSemanal', ['Depresion', 'SMAPE']);
+add('cuantos llevamos de alzheimer en 2026', 'answerComparacionSemanal', ['Alzheimer', 'Real']);
+
+// =====================================================================
 // SECCION 8: PRONOSTICO (12 tests)
 // =====================================================================
 
@@ -464,7 +477,7 @@ add('modelos menos precisos', '*', []);
 add('validacion semanal', 'answerValidacion', ['validaci']);
 add('como se validan los modelos', null, []);
 add('precision de la ultima semana', '*', ['semana']);
-add('validacion del pronostico vs real', 'answerValidacion', ['validaci']);
+add('validacion del pronostico vs real', 'answerComparacionSemanal', ['Real', 'Pronostico']);
 add('diferencia pronostico vs realidad', '*', ['caso']);
 
 // =====================================================================
