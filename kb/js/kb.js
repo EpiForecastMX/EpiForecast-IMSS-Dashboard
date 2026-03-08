@@ -1915,7 +1915,7 @@ function fuzzyCorrect(q) {
 const HANDLERS = [
   answerSaludo, answerPadecimientoNoModelado, answerLugarDesconocido, answerEquipo, answerTemporal, answerProyectoMeta,
   answerTrainingConfig, answerSemanaActual, answerQueEsPadecimiento,
-  answerBoletin, answerHistorico, answerSpecificSeries, answerComparativaEstados, answerEstado, answerPadecimiento,
+  answerBoletin, answerHistorico, answerComparativaEstados, answerSpecificSeries, answerEstado, answerPadecimiento,
   answerMotor, answerDemografica, answerSexo, answerMetricaGlobal,
   answerRanking, answerDiagnosticos, answerValidacion, answerInfra,
   answerConteo, answerPronostico, answerDefinicion,
