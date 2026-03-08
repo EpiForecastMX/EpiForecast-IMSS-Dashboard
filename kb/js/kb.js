@@ -424,6 +424,11 @@ function answerEquipo(q, ent, s, d) {
     'equipo', 'integrantes', 'miembros', 'quienes son', 'quienes hicieron',
     'quienes crearon', 'quienes desarrollaron', 'quien desarrollo', 'quien dirigio',
     'quien dirige', 'autores', 'creadores',
+    'quien te creo', 'quien te hizo', 'quien te desarrollo', 'quien te programo',
+    'quien te diseno', 'quien te construyo',
+    'fuiste creado', 'fuiste desarrollado', 'fuiste hecho', 'fuiste programado',
+    'te crearon', 'te desarrollaron', 'te hicieron', 'te programaron',
+    'te creo', 'te hizo', 'te desarrollo',
   ];
   if (any(q, equipoTriggers)) {
     const eq = d.equipo || [];
@@ -2370,7 +2375,7 @@ function answerComparacionSemanal(q, ent, s, d) {
 
 function answerPreguntaPersonal(q, ent, s, d) {
   const selfPatterns = [
-    'a ti te puede', 'te puede dar', 'tu puedes tener', 'tu puedes enfermarte',
+    'a ti te puede', 'te puede dar', 'tepuede dar', 'tu puedes tener', 'tu puedes enfermarte',
     'puedes enfermarte', 'puedes tener', 'te puedes enfermar', 'te va a dar',
     'te dara', 'te dio', 'tienes depresion', 'tienes parkinson', 'tienes alzheimer',
     'una ia puede tener', 'un robot puede tener', 'las maquinas se enferman',

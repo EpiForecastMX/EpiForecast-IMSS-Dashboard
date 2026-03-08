@@ -79,6 +79,7 @@ add('hola como estas', 'answerSaludo', ['EpiForecast-MX']);
 // =====================================================================
 
 add('a ti te puede dar parkinson', 'answerPreguntaPersonal', ['inteligencia artificial', 'Parkinson']);
+add('a ti tepuede dar parkinson', 'answerPreguntaPersonal', ['inteligencia artificial', 'Parkinson']);
 add('puedes enfermarte de depresion', 'answerPreguntaPersonal', ['inteligencia artificial', 'F32']);
 add('eres humano', 'answerPreguntaPersonal', ['inteligencia artificial']);
 add('tienes sentimientos', 'answerPreguntaPersonal', ['inteligencia artificial']);
@@ -90,6 +91,10 @@ add('las maquinas se enferman', 'answerPreguntaPersonal', ['inteligencia artific
 // =====================================================================
 
 add('quienes son el equipo', 'answerEquipo', ['Equipo']);
+add('quien te creo', 'answerEquipo', ['Equipo']);
+add('fuiste desarrollado por google', 'answerEquipo', ['Equipo']);
+add('quien te hizo', 'answerEquipo', ['Equipo']);
+add('te crearon', 'answerEquipo', ['Equipo']);
 add('quien es javier rebull', 'answerEquipo', ['Javier', 'Rebull']);
 add('quien es jar', 'answerEquipo', ['Javier']);
 add('quien es juan carlos', 'answerEquipo', ['Juan Carlos']);
