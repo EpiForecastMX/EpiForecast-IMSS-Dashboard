@@ -175,6 +175,20 @@ export function detectEntities(query) {
     result.estado = 'Nacional';
   }
 
+  // Detectar lugar no reconocido: "en [lugar]" que no matcheó ningún estado
+  if (!result.estado) {
+    const enMatch = qn.match(/\ben\s+([a-z][a-z ]{2,20}?)(?:\s+en|\s+el|\s+la|\s+del|\s+de|\s+los|\s+las|\s*$|\s*\?)/);
+    if (enMatch) {
+      const lugar = enMatch[1].trim();
+      // Excluir palabras comunes que no son lugares
+      const noLugar = ['el', 'la', 'los', 'las', 'un', 'una', 'que', 'general', 'total',
+        'produccion', 'promedio', 'detalle', 'mexico', 'cuenta', 'salud'];
+      if (!noLugar.includes(lugar) && lugar.length > 2) {
+        result._lugarDesconocido = lugar;
+      }
+    }
+  }
+
   // Sexo
   for (const [alias, canon] of Object.entries(SEXO_ALIAS)) {
     if (qn.includes(alias)) {

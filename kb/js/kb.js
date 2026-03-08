@@ -212,6 +212,17 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
   return null;
 }
 
+function answerLugarDesconocido(q, ent, s, d) {
+  if (!ent._lugarDesconocido || ent.estado) return null;
+  const lugar = ent._lugarDesconocido;
+  return (
+    `**${lugar.charAt(0).toUpperCase() + lugar.slice(1)}** no es una entidad federativa de M\u00e9xico.\n\n` +
+    'EpiForecast-MX cubre \u00fanicamente las **32 entidades federativas** de M\u00e9xico, ' +
+    '4 macrorregiones INEGI y el nivel Nacional.\n\n' +
+    'Ejemplos: "Parkinson en Jalisco", "Depresi\u00f3n en CDMX", "Alzheimer en Nuevo Le\u00f3n".'
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Handlers (respuestas directas y conversacionales)
 // ---------------------------------------------------------------------------
@@ -1697,7 +1708,7 @@ function fuzzyCorrect(q) {
 // ---------------------------------------------------------------------------
 
 const HANDLERS = [
-  answerSaludo, answerPadecimientoNoModelado, answerEquipo, answerTemporal, answerProyectoMeta,
+  answerSaludo, answerPadecimientoNoModelado, answerLugarDesconocido, answerEquipo, answerTemporal, answerProyectoMeta,
   answerTrainingConfig, answerSemanaActual, answerQueEsPadecimiento,
   answerBoletin, answerHistorico, answerSpecificSeries, answerEstado, answerPadecimiento,
   answerMotor, answerDemografica, answerSexo, answerMetricaGlobal,
