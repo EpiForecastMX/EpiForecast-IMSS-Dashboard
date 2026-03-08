@@ -70,7 +70,7 @@ async function checkGemini() {
     indicator.className = 'gemini-status gemini-ok';
     indicator.innerHTML = `
       <span class="gemini-dot"></span>
-      <span>Gemini activo</span>`;
+      <span>Powered by AI</span>`;
   } else {
     indicator.className = 'gemini-status gemini-off';
     indicator.innerHTML = `
