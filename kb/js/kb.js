@@ -350,6 +350,12 @@ function answerEdadNoDisponible(q, ent, s, d) {
 // ---------------------------------------------------------------------------
 
 function answerSaludo(q, ent, s, d) {
+  // Nombre del sistema: respuesta corta "ordename"
+  const nameOnly = ['epiforecast', 'epiforecast mx', 'epiforecast-mx', 'epiforecastmx'];
+  if (nameOnly.some(n => q === n || q === n + '?')) {
+    return 'Presente. Ordename, \u00bfqu\u00e9 necesitas saber?';
+  }
+
   const triggers = [
     'hola', 'buenos dias', 'buenas tardes', 'buenas noches',
     'hello', 'saludos', 'buen dia', 'que onda', 'que tal', 'hey',

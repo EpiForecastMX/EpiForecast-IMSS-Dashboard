@@ -73,9 +73,11 @@ add('hola buenos dias', 'answerSaludo', ['EpiForecast-MX']);
 add('que onda', 'answerSaludo', ['EpiForecast-MX']);
 add('buenas noches', 'answerSaludo', ['EpiForecast-MX']);
 add('hola como estas', 'answerSaludo', ['EpiForecast-MX']);
+add('EpiForecast-MX', 'answerSaludo', ['Ordename']);
+add('epiforecast', 'answerSaludo', ['Ordename']);
 
 // =====================================================================
-// SECCION 2a: PREGUNTA PERSONAL (6 tests)
+// SECCION 2a: PREGUNTA PERSONAL (7 tests)
 // =====================================================================
 
 add('a ti te puede dar parkinson', 'answerPreguntaPersonal', ['inteligencia artificial', 'Parkinson']);
