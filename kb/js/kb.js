@@ -214,7 +214,7 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
 }
 
 function answerLugarDesconocido(q, ent, s, d) {
-  if (!ent._lugarDesconocido || ent.estado) return null;
+  if (!ent._lugarDesconocido || ent.estado || ent.padecimiento) return null;
   const lugar = ent._lugarDesconocido;
   return (
     `**${lugar.charAt(0).toUpperCase() + lugar.slice(1)}** no es una entidad federativa de M\u00e9xico.\n\n` +
@@ -255,6 +255,41 @@ function answerSaludo(q, ent, s, d) {
   );
 }
 
+// Profesores y asesores del proyecto (no están en knowledge.json)
+const PROFESORES = [
+  {
+    nombre: 'Ruth P\u00e9rez-Hern\u00e1ndez, PhD',
+    aliases: ['ruth', 'dra ruth', 'perez hernandez', 'ruth perez'],
+    rol: 'Investigadora principal',
+    institucion: 'Instituto Mexicano del Seguro Social (IMSS)',
+    ubicacion: 'Acapulco, Guerrero, M\u00e9xico',
+    orcid: 'https://orcid.org/0000-0003-3261-1220',
+  },
+  {
+    nombre: 'Grettel Barcel\u00f3 Alonso, PhD',
+    aliases: ['grettel', 'dra grettel', 'barcelo', 'grettel barcelo'],
+    rol: 'Directora acad\u00e9mica de la Maestr\u00eda en IA Aplicada',
+    institucion: 'Tecnol\u00f3gico de Monterrey (ITESM \u2014 Hidalgo)',
+    ubicacion: 'M\u00e9xico',
+    contacto: 'gbarcelo@tec.mx',
+  },
+  {
+    nombre: 'Lina D\u00edaz-Castro, PhD',
+    aliases: ['lina', 'dra lina', 'diaz castro', 'lina diaz'],
+    rol: 'Investigadora en Psiquiatr\u00eda, Ciencias M\u00e9dicas "D"',
+    institucion: 'Instituto Nacional de Psiquiatr\u00eda Ram\u00f3n de la Fuente Mu\u00f1iz',
+    ubicacion: 'M\u00e9xico',
+    contacto: 'dralina@inprf.gob.mx',
+  },
+  {
+    nombre: 'Mar\u00eda Jes\u00fas R\u00edos Blancas, PhD',
+    aliases: ['maria jesus', 'rios blancas', 'dra rios', 'dra maria'],
+    rol: 'Coautora del art\u00edculo',
+    institucion: '',
+    ubicacion: '',
+  },
+];
+
 function answerEquipo(q, ent, s, d) {
   const equipoTriggers = [
     'equipo', 'integrantes', 'miembros', 'quienes son', 'quienes hicieron',
@@ -265,7 +300,12 @@ function answerEquipo(q, ent, s, d) {
     const lines = [
       '**Equipo EpiForecast-MX (Equipo 01)**\n',
       'Maestr\u00eda en Inteligencia Artificial Aplicada \u00b7 Tecnol\u00f3gico de Monterrey\n',
+      '**Asesoras y coautoras:**\n',
     ];
+    for (const p of PROFESORES) {
+      lines.push(`- **${p.nombre}** \u00b7 ${p.rol}${p.institucion ? ` \u00b7 ${p.institucion}` : ''}`);
+    }
+    lines.push('\n**Equipo de desarrollo:**\n');
     for (const m of eq) {
       lines.push(
         `- **${m.nombre}** (${m.apodo}) \u00b7 ${m.matricula}\n` +
@@ -280,6 +320,21 @@ function answerEquipo(q, ent, s, d) {
     return lines.join('\n');
   }
 
+  // Buscar profesores por alias
+  for (const p of PROFESORES) {
+    if (p.aliases.some(a => q.includes(a))) {
+      const lines = [`**${p.nombre}**\n`];
+      lines.push(`- **Rol:** ${p.rol}`);
+      if (p.institucion) lines.push(`- **Instituci\u00f3n:** ${p.institucion}`);
+      if (p.ubicacion) lines.push(`- **Ubicaci\u00f3n:** ${p.ubicacion}`);
+      if (p.orcid) lines.push(`- **ORCID:** ${p.orcid}`);
+      if (p.contacto) lines.push(`- **Contacto:** ${p.contacto}`);
+      lines.push(`\nCoautora del art\u00edculo *"De los datos a la predicci\u00f3n: un marco metodol\u00f3gico para la salud digital basado en la inteligencia artificial"*.`);
+      return lines.join('\n');
+    }
+  }
+
+  // Buscar miembros del equipo por alias
   const personTriggers = [
     'quien es', 'quien fue', 'que hace', 'que hizo', 'conoces a',
     'dime de', 'dime sobre', 'hablame de', 'cuentame de', 'cuentame sobre',
@@ -1239,6 +1294,7 @@ function answerPadecimiento(q, ent, s, d) {
     'que ciudad', 'que estado', 'que entidad', 'donde se', 'mayor incidencia',
     'mayor indice', 'mas casos', 'mas incidencia', 'primer lugar', 'ranking',
     'top', 'menor', 'menos casos',
+    'quien gana', 'quien ganara', 'ganara', 'ganar', 'ganando', 'lidera', 'lider',
   ]);
 
   if (wantsRanking) {
