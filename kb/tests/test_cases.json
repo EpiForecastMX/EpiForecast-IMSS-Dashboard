@@ -5851,7 +5851,7 @@
   },
   {
     "id": 548,
-    "query": "historia del parkinson",
+    "query": "yo puedo ser uno de esos pacientes",
     "expectedHandler": null,
     "mustContain": [],
     "mustNotContain": [],
@@ -5859,7 +5859,7 @@
   },
   {
     "id": 549,
-    "query": "origen de la depresion",
+    "query": "yo puedo tener depresion",
     "expectedHandler": null,
     "mustContain": [],
     "mustNotContain": [],
@@ -5867,7 +5867,7 @@
   },
   {
     "id": 550,
-    "query": "quien descubrio el alzheimer",
+    "query": "me puede dar parkinson",
     "expectedHandler": null,
     "mustContain": [],
     "mustNotContain": [],
@@ -5875,7 +5875,7 @@
   },
   {
     "id": 551,
-    "query": "de donde viene el nombre parkinson",
+    "query": "como se si tengo alzheimer",
     "expectedHandler": null,
     "mustContain": [],
     "mustNotContain": [],
@@ -5883,7 +5883,7 @@
   },
   {
     "id": 552,
-    "query": "parkinson viene de pakistan",
+    "query": "estoy en riesgo de depresion",
     "expectedHandler": null,
     "mustContain": [],
     "mustNotContain": [],
@@ -5891,7 +5891,7 @@
   },
   {
     "id": 553,
-    "query": "historia de la depresion en el mundo",
+    "query": "creo que tengo parkinson",
     "expectedHandler": null,
     "mustContain": [],
     "mustNotContain": [],
@@ -5899,7 +5899,7 @@
   },
   {
     "id": 554,
-    "query": "de donde viene el alzheimer",
+    "query": "historia del parkinson",
     "expectedHandler": null,
     "mustContain": [],
     "mustNotContain": [],
@@ -5907,7 +5907,7 @@
   },
   {
     "id": 555,
-    "query": "como se descubrio la depresion",
+    "query": "origen de la depresion",
     "expectedHandler": null,
     "mustContain": [],
     "mustNotContain": [],
@@ -5915,6 +5915,54 @@
   },
   {
     "id": 556,
+    "query": "quien descubrio el alzheimer",
+    "expectedHandler": null,
+    "mustContain": [],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 557,
+    "query": "de donde viene el nombre parkinson",
+    "expectedHandler": null,
+    "mustContain": [],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 558,
+    "query": "parkinson viene de pakistan",
+    "expectedHandler": null,
+    "mustContain": [],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 559,
+    "query": "historia de la depresion en el mundo",
+    "expectedHandler": null,
+    "mustContain": [],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 560,
+    "query": "de donde viene el alzheimer",
+    "expectedHandler": null,
+    "mustContain": [],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 561,
+    "query": "como se descubrio la depresion",
+    "expectedHandler": null,
+    "mustContain": [],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 562,
     "query": "cuando se identifico el parkinson",
     "expectedHandler": null,
     "mustContain": [],

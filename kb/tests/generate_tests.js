@@ -898,6 +898,13 @@ add('como se cura el parkinson', null, []);
 add('tratamiento para la depresion', null, []);
 add('se puede prevenir el alzheimer', null, []);
 add('que medicamento tomar para depresion', null, []);
+// Preguntas personales de salud (conversacionales)
+add('yo puedo ser uno de esos pacientes', null, []);
+add('yo puedo tener depresion', null, []);
+add('me puede dar parkinson', null, []);
+add('como se si tengo alzheimer', null, []);
+add('estoy en riesgo de depresion', null, []);
+add('creo que tengo parkinson', null, []);
 
 // =====================================================================
 // SECCION 37b: HISTORIA/ORIGEN → Gemini (6 tests)

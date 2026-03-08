@@ -243,6 +243,17 @@ function needsGeneralKnowledge(q) {
     'estado', 'entidad', 'region', 'nacional', 'incidencia', 'dato'];
   if (any(q, personalDiseaseVerbs) && !any(q, dataKwCheck)) return true;
 
+  // Preguntas personales de salud ("yo puedo ser paciente?", "me puede dar?")
+  const personalHealthKw = [
+    'yo puedo tener', 'yo puedo ser paciente', 'puedo ser paciente',
+    'puedo ser uno de esos', 'me puede dar', 'me puedo enfermar',
+    'puedo enfermarme', 'estoy en riesgo', 'tengo riesgo',
+    'soy propenso', 'soy propensa', 'como se si tengo',
+    'como saber si tengo', 'tengo sintomas', 'creo que tengo',
+    'yo tengo', 'me da miedo tener', 'me preocupa tener',
+  ];
+  if (any(q, personalHealthKw)) return true;
+
   // Consejos medicos, tratamientos, curas
   const medicalKw = [
     'cura para', 'tiene cura', 'se puede curar', 'como se cura',
@@ -2292,7 +2303,7 @@ function answerPronostico(q, ent, s, d) {
 }
 
 function answerDefinicion(q, ent, s, d) {
-  const triggers = ['que significa', 'definicion', 'cie', 'codigo', 'que quiere decir', 'como se define', 'a que se refiere'];
+  const triggers = ['que significa', 'definicion', ' cie', 'cie-10', 'cie 10', 'codigo', 'que quiere decir', 'como se define', 'a que se refiere'];
   if (!any(q, triggers)) return null;
 
   const defs = d.definiciones || {};
