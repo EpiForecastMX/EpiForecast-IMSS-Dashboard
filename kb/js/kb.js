@@ -405,6 +405,23 @@ function answerProyectoMeta(q, ent, s, d) {
     return lines.join('\n');
   }
 
+  const fuenteTriggers = ['fuente de datos', 'fuente de informacion', 'de donde vienen los datos', 'de donde salen los datos', 'de donde obtienen', 'de donde sacan', 'origen de los datos', 'origen de dato', 'cual es la fuente', 'que fuente', 'donde consiguen los datos', 'como obtienen los datos', 'base de datos original', 'datos originales', 'fuente oficial'];
+  if (any(q, fuenteTriggers)) {
+    const meta = d.boletin?.meta;
+    return (
+      '**Fuente de datos de EpiForecast-MX**\n\n' +
+      'Los datos históricos provienen del **Boletín Epidemiológico del Sistema Nacional de Vigilancia Epidemiológica (SINAVE)**, ' +
+      'publicado semanalmente por la **Secretaría de Salud** de México y reportado por el **IMSS**.\n\n' +
+      '**Características del boletín:**\n' +
+      `- **Cobertura temporal**: ${meta ? `semana 1 de ${meta.min_anio} a semana ${meta.max_semana} de ${meta.max_anio}` : '2014 a 2026'}\n` +
+      '- **Frecuencia**: semanal (52 semanas epidemiológicas por año)\n' +
+      '- **Granularidad**: por entidad federativa, padecimiento y sexo\n' +
+      '- **Padecimientos cubiertos**: Depresión (F32), Parkinson (G20), Alzheimer (G30)\n' +
+      '- **Desglose geográfico**: 32 entidades federativas de México\n\n' +
+      'Los datos se extraen mediante scraping automatizado de los PDF del boletín y se procesan con Camelot (CI/CD en GitHub Actions).'
+    );
+  }
+
   const alcanceTriggers = ['que sabe', 'que puede', 'de que sabe', 'que conoce', 'que informacion tiene', 'que datos tiene', 'que cubre', 'alcance', 'capacidad', 'sobre que me puede'];
   if (any(q, alcanceTriggers)) {
     return (
@@ -672,7 +689,7 @@ function answerBoletin(q, ent, s, d) {
       }
     }
     if (missing.length) {
-      lines.push(`\nNo tengo datos para ${missing.length === 1 ? 'el año' : 'los años'} **${missing.join(', ')}**. Los datos disponibles del boletín van de **${minY}** a **${maxY}**.`);
+      lines.push(`\nNo tengo datos para ${missing.length === 1 ? 'el año' : 'los años'} **${missing.join(', ')}**. El Boletín Epidemiológico SINAVE (nuestra fuente de datos) cubre de **${minY}** a **${maxY}**.`);
     }
     return lines.join('\n');
   }
@@ -699,7 +716,7 @@ function answerBoletin(q, ent, s, d) {
       }
     }
     if (missing.length) {
-      lines.push(`\nNo tengo datos de ${estado} para ${missing.length === 1 ? 'el año' : 'los años'} **${missing.join(', ')}**. Los datos disponibles van de **2014** a **2026**.`);
+      lines.push(`\nNo tengo datos de ${estado} para ${missing.length === 1 ? 'el año' : 'los años'} **${missing.join(', ')}**. El Boletín Epidemiológico SINAVE cubre de **2014** a **2026**.`);
     }
     return lines.join('\n');
   }
@@ -858,7 +875,7 @@ function answerHistorico(q, ent, s, d) {
       }
     }
 
-    lines.push(`No tengo datos para el año ${year}. Los datos disponibles van de 2014 a ${currentYear}.`);
+    lines.push(`No tengo datos para el año ${year}. El Boletín Epidemiológico SINAVE (nuestra fuente) cubre de 2014 a ${currentYear}.`);
   }
 
   if (!lines.length) return null;
