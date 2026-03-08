@@ -161,7 +161,7 @@ function extractLastNYears(q) {
   return null;
 }
 
-/** Detecta filtros de edad: "entre X y Y anos", "de X a Y anos", "mayores de X". */
+/** Detecta filtros de edad: "entre X y Y anos", "mujeres de 30 anos", "mayores de X". */
 function extractAgeFilter(q) {
   // "entre 40 y 45 anos", "de 40 a 45 anos"
   let m = q.match(/(?:entre|de)\s+(\d{1,3})\s+(?:y|a)\s+(\d{1,3})\s+a[n~]os?/);
@@ -172,7 +172,10 @@ function extractAgeFilter(q) {
   // "mayores de 60 anos", "menores de 18"
   m = q.match(/(mayores?|menores?)\s+de\s+(\d{1,3})\s*a[n~]os?/);
   if (m) return `${m[1]} de ${m[2]}`;
-  // "de X anos"
+  // "mujeres de 30 anos", "hombres de 50 anos", "personas de 40 anos"
+  m = q.match(/(?:hombres?|mujeres?|personas?|adultos?|ninos?|jovenes?|pacientes?)\s+de\s+(\d{1,3})\s+a[n~]os?/);
+  if (m) { const age = parseInt(m[1], 10); if (age >= 1 && age <= 120) return String(age); }
+  // "de X anos de edad"
   m = q.match(/de\s+(\d{1,3})\s+a[n~]os?\s+de\s+edad/);
   if (m) return m[1];
   return null;

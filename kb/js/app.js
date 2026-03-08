@@ -7,7 +7,7 @@
  */
 
 import { loadKnowledge, getStats, getData, answer } from './kb.js?v=42';
-import { detectEntities, norm } from './entities.js?v=22';
+import { detectEntities, norm } from './entities.js?v=23';
 
 // ---------------------------------------------------------------------------
 // DOM refs
