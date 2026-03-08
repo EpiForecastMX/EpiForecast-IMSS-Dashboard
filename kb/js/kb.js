@@ -773,7 +773,8 @@ function answerProyectoMeta(q, ent, s, d) {
   }
 
   const alcanceTriggers = ['que sabe', 'que puede', 'de que sabe', 'que conoce', 'que informacion tiene', 'que datos tiene', 'que cubre', 'alcance', 'capacidad', 'sobre que me puede'];
-  if (any(q, alcanceTriggers)) {
+  // No disparar si preguntan por un padecimiento/estado/ano especifico ("que sabes del parkinson en 2017")
+  if (any(q, alcanceTriggers) && !ent.padecimiento && !ent.estado && !(ent._years || []).length) {
     return (
       '**Puedo responder sobre el proyecto EpiForecast-MX**:\n\n' +
       '- **Padecimientos**: Depresi\u00f3n (F32), Parkinson (G20), Alzheimer (G30)\n' +

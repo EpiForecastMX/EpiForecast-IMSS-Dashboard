@@ -803,6 +803,9 @@ add('parkinson en veracruz 2024', 'answerBoletin', ['2024', 'Veracruz']);
 add('alzheimer en yucatan 2019', 'answerBoletin', ['2019', 'Yucatan']);
 add('depresion en coahuila del 2020 al 2024', 'answerBoletin', ['2020', '2021', '2022', '2023', '2024', 'Coahuila']);
 add('historico de alzheimer en tamaulipas', 'answerBoletin', ['Tamaulipas']);
+add('que sabes del parkinson en el 2017', 'answerBoletin', ['2017', 'Parkinson']);
+add('que sabes de la depresion en 2020', 'answerBoletin', ['2020', 'Depresion']);
+add('que sabes del alzheimer en jalisco', 'answerSpecificSeries', ['Alzheimer', 'Jalisco']);
 
 // =====================================================================
 // SECCION 36: PROYECTO META — en que te basas (10 tests)
