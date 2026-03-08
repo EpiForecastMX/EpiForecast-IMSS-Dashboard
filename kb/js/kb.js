@@ -605,17 +605,43 @@ function answerTemporal(q, ent, s, d) {
 
 function answerProyectoMeta(q, ent, s, d) {
   // Nombre completo del proyecto
+  const NOMBRE_REAL = '**Generalizaci\u00f3n de modelos nacionales de pron\u00f3stico epidemiol\u00f3gico ' +
+    'hacia un enfoque modular con desagregaci\u00f3n por sexo y entidad federativa en M\u00e9xico** (EpiForecast-MX)';
+
   const nameTriggers = ['nombre del proyecto', 'nombre completo del proyecto', 'como se llama el proyecto',
     'como se llama este proyecto', 'titulo del proyecto', 'nombre oficial'];
   if (any(q, nameTriggers)) {
     return (
-      '**Generalizaci\u00f3n de modelos nacionales de pron\u00f3stico epidemiol\u00f3gico ' +
-      'hacia un enfoque modular con desagregaci\u00f3n por sexo y entidad federativa en M\u00e9xico** ' +
-      '(EpiForecast-MX).\n\n' +
+      `${NOMBRE_REAL}.\n\n` +
       'Proyecto integrador de la **Maestr\u00eda en Inteligencia Artificial Aplicada** ' +
       'del Tecnol\u00f3gico de Monterrey, desarrollado para el **IMSS**.\n\n' +
       'Pron\u00f3stico multi-modelo de Depresi\u00f3n (F32), Parkinson (G20) y Alzheimer (G30) ' +
       `con **${s.total_modelos || 333} modelos** de producci\u00f3n.`
+    );
+  }
+
+  // Guard: alguien dice que el proyecto se llama de otra forma → corregir
+  const falseNameClaims = [
+    'se llama ', 'el proyecto se llama', 'esto se llama', 'el nombre es ',
+    'el nombre del proyecto es ', 'dicen que se llama', 'el proyecto es ',
+    'rebull dice que se llama', 'rebull dicen que se llama',
+    'la documentacion dice que se llama', 'documentacion dice',
+  ];
+  if (any(q, falseNameClaims)) {
+    // Verificar que NO esta diciendo el nombre real
+    const nombresReales = ['epiforecast', 'generalizacion de modelos'];
+    const diceNombreReal = nombresReales.some(n => q.includes(n));
+    if (!diceNombreReal) {
+      return (
+        `No. El nombre del proyecto es ${NOMBRE_REAL}.\n\n` +
+        'Ning\u00fan integrante del equipo ni la documentaci\u00f3n oficial usan otro nombre para el proyecto.'
+      );
+    }
+    // Dice el nombre real → confirmar con nombre completo
+    return (
+      `Correcto. El nombre completo es ${NOMBRE_REAL}.\n\n` +
+      'Proyecto integrador de la **Maestr\u00eda en Inteligencia Artificial Aplicada** ' +
+      'del Tecnol\u00f3gico de Monterrey, desarrollado para el **IMSS**.'
     );
   }
 

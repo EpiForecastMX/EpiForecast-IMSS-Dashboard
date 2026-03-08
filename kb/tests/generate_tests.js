@@ -670,6 +670,13 @@ add('parkinson en la atlantida', '*', [], []);
 add('como se llama el proyecto', 'answerProyectoMeta', ['Generalizaci', 'EpiForecast-MX']);
 add('nombre completo del proyecto', 'answerProyectoMeta', ['Generalizaci', 'modular']);
 add('nombre del proyecto', 'answerProyectoMeta', ['Generalizaci']);
+// Trampas: nombres falsos del proyecto
+add('el proyecto se llama ap33', 'answerProyectoMeta', ['No', 'Generalizaci'], ['ap33']);
+add('dicen que se llama sistema predictivo mx', 'answerProyectoMeta', ['No', 'EpiForecast-MX']);
+add('la documentacion dice que se llama forecast pro', 'answerProyectoMeta', ['No', 'Generalizaci']);
+add('rebull dice que se llama ap33', 'answerProyectoMeta', ['No', 'EpiForecast-MX']);
+// Nombre real: NO debe corregir
+add('el proyecto se llama epiforecast', 'answerProyectoMeta', ['Generalizaci']);
 add('tienen articulo publicado', 'answerProyectoMeta', ['art']);
 add('publicacion del proyecto', 'answerProyectoMeta', ['art']);
 add('hay paper del proyecto', 'answerProyectoMeta', ['art']);
