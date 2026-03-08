@@ -6,8 +6,8 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=32';
-import { detectEntities, norm } from './entities.js?v=17';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=33';
+import { detectEntities, norm } from './entities.js?v=18';
 
 // ---------------------------------------------------------------------------
 // DOM refs
@@ -205,15 +205,19 @@ async function handleSend() {
   try { result = await answer(text); } catch (err) { console.error('KB error:', err); }
 
   if (result) {
-    let chartData = extractChartData(result, text);
-    // If no chart but we had a previous chart query, try merging context
-    if (!chartData && lastChartQuery) {
-      const ent = detectEntities(text);
-      if (ent._years && ent._years.length) {
-        // Replace years in last chart query with new years
-        const merged = lastChartQuery.replace(/\b20[0-3]\d\b/g, '') + ' ' + text;
-        chartData = extractChartData(result, merged);
+    let chartData = null;
+    try {
+      chartData = extractChartData(result, text);
+      // If no chart but we had a previous chart query, try merging context
+      if (!chartData && lastChartQuery) {
+        const ent = detectEntities(text);
+        if (ent._years && ent._years.length) {
+          const merged = lastChartQuery.replace(/\b20[0-3]\d\b/g, '') + ' ' + text;
+          chartData = extractChartData(result, merged);
+        }
       }
+    } catch (err) {
+      console.error('extractChartData error:', err);
     }
     if (chartData) lastChartQuery = text;
     const suggestions = getSuggestions(text);

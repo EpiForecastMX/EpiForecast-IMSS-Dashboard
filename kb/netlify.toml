@@ -8,14 +8,14 @@
 [[headers]]
   for = "/knowledge.json"
   [headers.values]
-    Cache-Control = "public, max-age=3600"
+    Cache-Control = "no-cache"
 
 [[headers]]
   for = "/css/*"
   [headers.values]
-    Cache-Control = "public, max-age=86400"
+    Cache-Control = "public, max-age=3600"
 
 [[headers]]
   for = "/js/*"
   [headers.values]
-    Cache-Control = "public, max-age=86400"
+    Cache-Control = "public, max-age=3600"

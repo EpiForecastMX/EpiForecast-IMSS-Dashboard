@@ -12,7 +12,8 @@ let DATA = null;
 
 export async function loadKnowledge() {
   if (DATA) return DATA;
-  const resp = await fetch('./knowledge.json');
+  const cacheBust = `?t=${Date.now()}`;
+  const resp = await fetch(`./knowledge.json${cacheBust}`);
   if (!resp.ok) throw new Error('No se pudo cargar knowledge.json');
   DATA = await resp.json();
   return DATA;
