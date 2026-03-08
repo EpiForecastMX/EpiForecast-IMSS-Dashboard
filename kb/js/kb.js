@@ -230,7 +230,8 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
     'prediccion', 'modelo', 'grafica', 'tendencia'];
 
   const matchedDisease = enfermedades.find(e => q.includes(e));
-  if (matchedDisease && any(q, dataKw)) {
+  // Activar si tiene data keywords, O si menciona un estado/entidad (implica pedir datos)
+  if (matchedDisease && (any(q, dataKw) || ent.estado)) {
     return (
       `EpiForecast-MX **no modela ${matchedDisease}**. ` +
       'Nuestro proyecto se enfoca exclusivamente en 3 padecimientos del Bolet\u00edn Epidemiol\u00f3gico SINAVE:\n\n' +
@@ -256,13 +257,49 @@ function answerLugarDesconocido(q, ent, s, d) {
 }
 
 // ---------------------------------------------------------------------------
+// Guard: edad como variable exogena no disponible
+// ---------------------------------------------------------------------------
+
+function answerEdadNoDisponible(q, ent, s, d) {
+  if (!ent._ageFilter || !ent.padecimiento) return null;
+  // Si tiene estado, dejar que answerSpecificSeries maneje
+  if (ent.estado) return null;
+
+  const pad = ent.padecimiento;
+  const sexoLabel = ent.sexo === 'hombres' ? 'hombres' : ent.sexo === 'mujeres' ? 'mujeres' : null;
+  const lines = [
+    `**Variable no disponible**: nuestros modelos de pronostico segmentan unicamente por **sexo** (hombres, mujeres, general) y **entidad federativa** (32 estados + Nacional). No manejamos edad, grupo etario ni otras variables exogenas.\n`,
+  ];
+
+  if (sexoLabel) {
+    const articuloSexo = ent.sexo === 'hombres' ? 'Los' : 'Las';
+    const ps = s.por_pad?.[pad]?.por_sexo?.[ent.sexo];
+    lines.push(`Sin embargo, si contamos con pronosticos diferenciados por **sexo**:\n`);
+    if (ps) {
+      lines.push(`${articuloSexo} **${sexoLabel}** representan el **${ps.pct_series}** de las series de ${pad}.`);
+      lines.push(`- Pronostico: **${fmt(ps.casos_futuro)}** casos en 52 semanas`);
+      lines.push(`- SMAPE promedio: **${ps.smape_mean}%**`);
+    }
+  } else {
+    const ps = s.por_pad?.[pad];
+    if (ps?.casos_futuro_total) {
+      lines.push(`Datos generales de **${pad}**:`);
+      lines.push(`- Pronostico total: **${fmt(ps.casos_futuro_total)}** casos en 52 semanas`);
+      lines.push(`- SMAPE mediano: **${ps.smape_median}%**`);
+    }
+  }
+
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
 // Handlers (respuestas directas y conversacionales)
 // ---------------------------------------------------------------------------
 
 function answerSaludo(q, ent, s, d) {
   const triggers = [
     'hola', 'buenos dias', 'buenas tardes', 'buenas noches',
-    'hello', 'saludos', 'buen dia',
+    'hello', 'saludos', 'buen dia', 'que onda', 'que tal', 'hey',
   ];
   if (!any(q, triggers)) return null;
 
@@ -332,7 +369,8 @@ const PROFESORES = [
 function answerEquipo(q, ent, s, d) {
   const equipoTriggers = [
     'equipo', 'integrantes', 'miembros', 'quienes son', 'quienes hicieron',
-    'quienes crearon', 'quienes desarrollaron', 'autores', 'creadores',
+    'quienes crearon', 'quienes desarrollaron', 'quien desarrollo', 'quien dirigio',
+    'quien dirige', 'autores', 'creadores',
   ];
   if (any(q, equipoTriggers)) {
     const eq = d.equipo || [];
@@ -403,8 +441,9 @@ function answerEquipo(q, ent, s, d) {
 
 function answerTemporal(q, ent, s, d) {
   const triggers = [
-    'que dia es', 'fecha de hoy', 'dia de hoy', 'fecha actual',
-    'semana epidemiologica', 'semana epi', 'en que semana', 'que semana es',
+    'que dia es', 'que fecha es', 'fecha de hoy', 'dia de hoy', 'fecha actual',
+    'que ano es', 'que semana es',
+    'semana epidemiologica', 'semana epi', 'en que semana',
     'que semana estamos', 'semana estamos', 'ultima semana', 'ultimo dato',
     'hasta cuando', 'hasta que fecha', 'hasta que semana', 'cobertura temporal',
     'rango de fecha', 'periodo de dato', 'desde cuando', 'cuando inicia',
@@ -420,7 +459,7 @@ function answerTemporal(q, ent, s, d) {
   const iso = getISOWeek(now);
   const lines = [];
 
-  const isDateQ = any(q, ['que dia es', 'fecha de hoy', 'dia de hoy', 'fecha actual']);
+  const isDateQ = any(q, ['que dia es', 'que fecha es', 'fecha de hoy', 'dia de hoy', 'fecha actual', 'que ano es']);
   if (isDateQ) {
     const dias = ['domingo', 'lunes', 'martes', 'mi\u00e9rcoles', 'jueves', 'viernes', 's\u00e1bado'];
     const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
@@ -2050,7 +2089,7 @@ function fuzzyCorrect(q) {
 // ---------------------------------------------------------------------------
 
 const HANDLERS = [
-  answerSaludo, answerPadecimientoNoModelado, answerLugarDesconocido, answerEquipo, answerTemporal, answerProyectoMeta,
+  answerSaludo, answerPadecimientoNoModelado, answerLugarDesconocido, answerEdadNoDisponible, answerEquipo, answerTemporal, answerProyectoMeta,
   answerTrainingConfig, answerSemanaActual, answerQueEsPadecimiento,
   answerBoletin, answerHistorico, answerComparativaEstados, answerSpecificSeries, answerEstado, answerPadecimiento,
   answerMotor, answerDemografica, answerSexo, answerMetricaGlobal,
@@ -2103,6 +2142,13 @@ function isOffTopic(q, ent) {
     'semana epidemiologica', 'vigilancia', 'brote', 'pandemia',
     'diabetes', 'cancer', 'covid', 'influenza', 'dengue', 'obesidad',
     'hipertension', 'ansiedad', 'esquizofrenia',
+    // Proyecto / Temporalidad / Equipo (handlers propios)
+    'equipo', 'integrante', 'quien es', 'quienes', 'proyecto',
+    'fecha', 'semana', 'que dia', 'que ano', 'cobertura', 'periodo',
+    'dato', 'caso', 'cuantos', 'cuantas', 'ranking', 'mejor', 'peor',
+    'sexo', 'hombre', 'mujer', 'genero',
+    'validacion', 'test', 'infraestructura', 'arquitectura',
+    'definicion', 'que significa', 'que quiere decir',
   ];
   if (allowedTerms.some(t => q.includes(t))) return false;
 
@@ -2142,6 +2188,9 @@ function isOffTopic(q, ent) {
 
 // Contexto conversacional: entidades de la ultima pregunta exitosa
 let lastEntities = {};
+
+/** Reset conversacional — solo para tests. */
+export function _resetContext() { lastEntities = {}; }
 
 export async function answer(query) {
   const d = await loadKnowledge();
