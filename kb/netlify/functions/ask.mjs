@@ -40,13 +40,13 @@ function buildContext(data, query) {
 
   // Motor distribution
   const dist = s.dist_motor || {};
-  parts.push('\nDistribucion de motores:');
+  parts.push('\nDistribución de motores:');
   for (const [motor, n] of Object.entries(dist)) {
     parts.push(`  ${motor}: ${n} series`);
   }
 
   // Global metrics
-  parts.push('\nMetricas globales:');
+  parts.push('\nMétricas globales:');
   for (const met of ['smape_prod', 'mase_prod', 'rmse_prod', 'mae_prod']) {
     const mean = s[`${met}_mean`];
     const median = s[`${met}_median`];
@@ -76,16 +76,16 @@ function buildContext(data, query) {
 
   // Forecast total
   if (s.pronostico_total) {
-    parts.push(`\nPronostico total 52 semanas: ${s.pronostico_total} casos`);
+    parts.push(`\nPronóstico total 52 semanas: ${s.pronostico_total} casos`);
   }
 
   // Precision
   if (s.precision_historica_mean) {
-    parts.push(`Precision historica: mean=${s.precision_historica_mean}%, median=${s.precision_historica_median}%`);
+    parts.push(`Precisión histórica: mean=${s.precision_historica_mean}%, median=${s.precision_historica_median}%`);
   }
 
   // Infrastructure
-  parts.push(`\nTests: ${s.tests || 849}, Lineas: ~${s.lineas_codigo || 13000}, Cobertura: >${s.cobertura || 92}%`);
+  parts.push(`\nTests: ${s.tests || 849}, Líneas: ~${s.lineas_codigo || 13000}, Cobertura: >${s.cobertura || 92}%`);
 
   // Top/bottom (filtrar 0% SMAPE — son series con ~0 casos, no precision real)
   const top = (s.top5_smape || []).filter(m => m.smape > 0.5);
@@ -95,7 +95,7 @@ function buildContext(data, query) {
       parts.push(`  ${m.padecimiento} - ${m.entidad} (${m.sexo}): ${m.smape}% [${m.motor}]`);
     }
   }
-  parts.push('\nNOTA: Series con SMAPE=0% corresponden a entidades con incidencia cercana a cero (ej. Alzheimer en BCS). No son modelos "perfectos", sino predicciones triviales. Excluirlas al hablar de precision.');
+  parts.push('\nNOTA: Series con SMAPE=0% corresponden a entidades con incidencia cercana a cero (ej. Alzheimer en BCS). No son modelos "perfectos", sino predicciones triviales. Excluirlas al hablar de precisión.');
 
   return parts.join('\n');
 }
@@ -118,7 +118,7 @@ export default async function handler(req) {
   }
 
   if (req.method !== 'POST') {
-    return json({ error: 'Metodo no permitido' }, 405);
+    return json({ error: 'Método no permitido' }, 405);
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
@@ -127,7 +127,7 @@ export default async function handler(req) {
   try {
     body = await req.json();
   } catch {
-    return json({ error: 'Body invalido' }, 400);
+    return json({ error: 'Body inválido' }, 400);
   }
 
   // Health check - returns API key status without calling Gemini
@@ -143,35 +143,35 @@ export default async function handler(req) {
   const history = body.history || [];
 
   if (!query.trim()) {
-    return json({ error: 'Pregunta vacia' }, 400);
+    return json({ error: 'Pregunta vacía' }, 400);
   }
 
   const data = loadKnowledge();
   const context = buildContext(data, query);
 
-  const systemMsg = `Eres el asistente de EpiForecast-MX, una plataforma de inteligencia epidemiologica del IMSS (Instituto Mexicano del Seguro Social).
+  const systemMsg = `Eres el asistente de EpiForecast-MX, una plataforma de inteligencia epidemiológica del IMSS (Instituto Mexicano del Seguro Social).
 
 Tu perfil de conocimiento:
-1. DATOS DEL PROYECTO: Usa las metricas exactas del contexto de abajo. NUNCA inventes cifras del proyecto.
+1. DATOS DEL PROYECTO: Usa las métricas exactas del contexto de abajo. NUNCA inventes cifras del proyecto.
 2. CONOCIMIENTO GENERAL: Puedes usar tu conocimiento general para responder sobre:
    - Inteligencia Artificial, Machine Learning, Deep Learning, ciencia de datos
    - Algoritmos: DeepAR, Prophet, XGBoost, LightGBM, redes neuronales, LSTM, transformers
-   - Metricas: SMAPE, RMSE, MAE, MASE, cross-validation, overfitting
-   - Salud en Mexico: IMSS, SSA, SINAVE, sistema de salud mexicano
-   - Epidemiologia: depresion, Parkinson, Alzheimer, enfermedades neurologicas/psiquiatricas
-   - Series de tiempo, pronostico, MLOps, AWS SageMaker, infraestructura ML
-3. COMBINACION: Cuando puedas, relaciona tu respuesta general con el contexto del proyecto.
+   - Métricas: SMAPE, RMSE, MAE, MASE, cross-validation, overfitting
+   - Salud en México: IMSS, SSA, SINAVE, sistema de salud mexicano
+   - Epidemiología: depresión, Parkinson, Alzheimer, enfermedades neurológicas/psiquiátricas
+   - Series de tiempo, pronóstico, MLOps, AWS SageMaker, infraestructura ML
+3. COMBINACIÓN: Cuando puedas, relaciona tu respuesta general con el contexto del proyecto.
 
-Respondes en espanol. Usa Markdown para formatear. NO uses emojis.
+Respondes en español. Usa Markdown para formatear. NO uses emojis.
 
 ${context}
 
 REGLAS:
-- Para datos del proyecto (metricas, modelos, pronosticos), usa SOLO el contexto de arriba.
-- Para conocimiento general (que es IA, que es el IMSS, como funciona DeepAR), usa tu conocimiento.
+- Para datos del proyecto (métricas, modelos, pronósticos), usa SOLO el contexto de arriba.
+- Para conocimiento general (qué es IA, qué es el IMSS, cómo funciona DeepAR), usa tu conocimiento.
 - Si combinas ambos, distingue claramente: "En general, DeepAR es... En nuestro proyecto, DeepAR gana..."
-- Responde de forma concisa y directa (3-5 parrafos maximo).
-- Si la pregunta es completamente ajena al proyecto y a tus areas de conocimiento, di que no puedes ayudar.`;
+- Responde de forma concisa y directa (3-5 párrafos máximo).
+- Si la pregunta es completamente ajena al proyecto y a tus áreas de conocimiento, di que no puedes ayudar.`;
 
   // Build conversation
   const contents = [];

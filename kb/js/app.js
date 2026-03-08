@@ -6,7 +6,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=27';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=28';
 import { detectEntities, norm } from './entities.js?v=15';
 
 // ---------------------------------------------------------------------------
@@ -21,6 +21,15 @@ const history = [];
 const MAX_HISTORY = 6;
 let chartCounter = 0;
 let geminiConnected = false;
+
+// Mapa de corrección ortográfica para nombres de entidades/padecimientos en títulos
+const DISPLAY_NAMES = {
+  'Depresion': 'Depresión', 'Ciudad de Mexico': 'Ciudad de México',
+  'Nuevo Leon': 'Nuevo León', 'San Luis Potosi': 'San Luis Potosí',
+  'Mexico': 'México', 'Leon': 'León', 'Michoacan': 'Michoacán',
+  'Queretaro': 'Querétaro', 'Yucatan': 'Yucatán',
+};
+function dn(s) { return s ? (DISPLAY_NAMES[s] || s) : s; }
 
 // Paleta mejorada basada en el logo
 const CHART_COLORS = [
@@ -166,13 +175,13 @@ function addWelcome(data) {
   const motor = s.motor_ganador || 'DeepAR';
 
   const md =
-    `Hola! Soy el asistente de la **Base de Conocimiento EpiForecast-MX**. ` +
+    `¡Hola! Soy el asistente de la **Base de Conocimiento EpiForecast-MX**. ` +
     `Tengo acceso a los datos de **${total} modelos** de producción.\n\n` +
     `Pregúntame sobre métricas, padecimientos, pronósticos, el equipo o datos históricos del boletín epidemiológico.`;
 
   const suggestions = [
     { text: 'Métricas globales', q: 'metricas globales' },
-    { text: 'Qué es la depresión?', q: 'que es la depresion' },
+    { text: '¿Qué es la depresión?', q: 'que es la depresion' },
     { text: 'Ranking de modelos', q: 'ranking mejores modelos' },
     { text: 'Equipo del proyecto', q: 'equipo del proyecto' },
   ];
@@ -255,7 +264,7 @@ function addUserMessage(text) {
     </div>
     <div class="msg-body">
       <div class="msg-meta">
-        <span class="msg-name">Tu</span>
+        <span class="msg-name">Tú</span>
         <span class="msg-time">${timeStr}</span>
       </div>
       <div class="msg-bubble"><div class="msg-content">${escapeHtml(text)}</div></div>
@@ -379,7 +388,7 @@ function extractChartData(markdown, query) {
     if (pm && Object.keys(pm).length) {
       return {
         type: 'bar',
-        title: 'SMAPE por motor de prediccion',
+        title: 'SMAPE por motor de predicción',
         labels: Object.keys(pm),
         datasets: [
           { label: 'SMAPE medio', data: Object.values(pm).map(v => v.smape_mean), backgroundColor: '#4A5D23CC', borderRadius: 6 },
@@ -414,7 +423,7 @@ function extractChartData(markdown, query) {
     if (s.overfitting_ok != null) {
       return {
         type: 'doughnut',
-        title: 'Diagnostico de overfitting',
+        title: 'Diagnóstico de overfitting',
         labels: ['OK', 'Moderado', 'Alto'],
         datasets: [{
           data: [s.overfitting_ok || 0, s.overfitting_moderado || 0, s.overfitting_alto || 0],
@@ -461,7 +470,7 @@ function extractChartData(markdown, query) {
         });
         return {
           type: 'line',
-          title: 'Evolucion historica de incidencia',
+          title: 'Evolución histórica de incidencia',
           labels: allYears,
           datasets,
         };
@@ -485,7 +494,7 @@ function extractChartData(markdown, query) {
         const labels = matches.map(m => m.sexo.charAt(0).toUpperCase() + m.sexo.slice(1));
         return {
           type: 'bar',
-          title: `${ent.padecimiento} en ${ent.estado}: pronostico 52 sem`,
+          title: `${dn(ent.padecimiento)} en ${dn(ent.estado)}: pronóstico 52 sem`,
           labels,
           datasets: [{
             label: 'Casos pronosticados',
@@ -505,7 +514,7 @@ function extractChartData(markdown, query) {
       if (estModels.length) {
         return {
           type: 'bar',
-          title: `Pronostico 52 semanas: ${ent.estado}`,
+          title: `Pronóstico 52 semanas: ${dn(ent.estado)}`,
           labels: estModels.map(m => m.padecimiento),
           datasets: [{
             label: 'Casos pronosticados',
@@ -526,7 +535,7 @@ function extractChartData(markdown, query) {
         const top = padModels.slice(0, 12);
         return {
           type: 'bar',
-          title: `Pronostico 52 semanas: ${ent.padecimiento} por entidad`,
+          title: `Pronóstico 52 semanas: ${dn(ent.padecimiento)} por entidad`,
           labels: top.map(m => m.entidad),
           datasets: [{
             label: 'Casos pronosticados',
@@ -545,7 +554,7 @@ function extractChartData(markdown, query) {
       if (entries.length) {
         return {
           type: 'doughnut',
-          title: 'Pronostico 52 semanas por padecimiento',
+          title: 'Pronóstico 52 semanas por padecimiento',
           labels: entries.map(([k]) => k),
           datasets: [{
             data: entries.map(([, v]) => v.casos_futuro_total),
@@ -608,13 +617,13 @@ function extractChartData(markdown, query) {
         });
         if (datasets.length) {
           const yrLabel = ent._years.filter(y => allYears.includes(String(y)));
-          const lugarLabel = fallbackNacional ? `Nacional (sin datos historicos para ${ent.estado})` : lugar;
+          const lugarLabel = fallbackNacional ? `Nacional (sin datos históricos para ${dn(ent.estado)})` : lugar;
           let suffix = '';
           if (covidQuery) suffix = ' — impacto COVID-19';
           else if (yrLabel.length) suffix = ` (${yrLabel.join(', ')} destacado)`;
           const titulo = ent.padecimiento
-            ? `${ent.padecimiento} — ${lugarLabel}${suffix}`
-            : `Incidencia historica — ${lugarLabel}${suffix}`;
+            ? `${dn(ent.padecimiento)} — ${lugarLabel}${suffix}`
+            : `Incidencia histórica — ${lugarLabel}${suffix}`;
           return { type: 'line', title: titulo, labels: allYears, datasets };
         }
       }
@@ -627,7 +636,7 @@ function extractChartData(markdown, query) {
       if (matches.length) {
         return {
           type: 'bar',
-          title: `${ent.padecimiento} en ${ent.estado}: pronostico 52 sem`,
+          title: `${dn(ent.padecimiento)} en ${dn(ent.estado)}: pronóstico 52 sem`,
           labels: matches.map(m => m.sexo.charAt(0).toUpperCase() + m.sexo.slice(1)),
           datasets: [{ label: 'Casos pronosticados', data: matches.map(m => m.casos_52_semanas_futuro || 0),
             backgroundColor: ['#4A5D23', '#BC955C', '#5B8A8A'], borderRadius: 6 }],
@@ -643,7 +652,7 @@ function extractChartData(markdown, query) {
       if (padModels.length) {
         const top = padModels.slice(0, 12);
         return {
-          type: 'bar', title: `Pronostico 52 sem: ${ent.padecimiento} por entidad`,
+          type: 'bar', title: `Pronóstico 52 sem: ${dn(ent.padecimiento)} por entidad`,
           labels: top.map(m => m.entidad),
           datasets: [{ label: 'Casos pronosticados', data: top.map(m => m.casos_52_semanas_futuro),
             backgroundColor: CHART_COLORS.slice(0, top.length), borderRadius: 6 }],
@@ -658,7 +667,7 @@ function extractChartData(markdown, query) {
         .sort((a, b) => (b.casos_52_semanas_futuro || 0) - (a.casos_52_semanas_futuro || 0));
       if (estModels.length) {
         return {
-          type: 'bar', title: `Pronostico 52 semanas: ${ent.estado}`,
+          type: 'bar', title: `Pronóstico 52 semanas: ${dn(ent.estado)}`,
           labels: estModels.map(m => m.padecimiento),
           datasets: [{ label: 'Casos pronosticados', data: estModels.map(m => m.casos_52_semanas_futuro || 0),
             backgroundColor: CHART_COLORS.slice(0, estModels.length), borderRadius: 6 }],
@@ -682,7 +691,7 @@ function extractChartData(markdown, query) {
           pointBackgroundColor: CHART_COLORS[i],
         });
       });
-      if (datasets.length) return { type: 'line', title: 'Evolucion historica de incidencia', labels: allYears, datasets };
+      if (datasets.length) return { type: 'line', title: 'Evolución histórica de incidencia', labels: allYears, datasets };
     }
   }
 
@@ -702,7 +711,7 @@ function extractChartData(markdown, query) {
       if (labels.length) {
         return {
           type: 'bar',
-          title: `${pad}: casos pronosticados por sexo (52 sem)`,
+          title: `${dn(pad)}: casos pronosticados por sexo (52 sem)`,
           labels,
           datasets: [{
             label: 'Casos pronosticados',
@@ -725,7 +734,7 @@ function extractChartData(markdown, query) {
       if (labels.length) {
         return {
           type: 'bar',
-          title: 'Modelos de produccion por sexo',
+          title: 'Modelos de producción por sexo',
           labels,
           datasets: [{
             label: 'Modelos',
@@ -738,11 +747,11 @@ function extractChartData(markdown, query) {
     }
   }
 
-  // Distribucion de motores -> donut (excluir si pregunta por sexo)
+  // Distribución de motores -> donut (excluir si pregunta por sexo)
   if (s.dist_motor && !sexTrigger && (qn.includes('distribucion') || qn.includes('conteo') || qn.includes('cuantos modelo'))) {
     return {
       type: 'doughnut',
-      title: 'Distribucion de motores',
+      title: 'Distribución de motores',
       labels: Object.keys(s.dist_motor),
       datasets: [{
         data: Object.values(s.dist_motor),
