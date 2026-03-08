@@ -976,17 +976,54 @@ function answerPadecimiento(q, ent, s, d) {
   const years = ent._years || [];
   const lines = [];
 
+  // Detectar si pregunta por ranking de entidades
+  const wantsRanking = any(q, [
+    'mayor', 'mas', 'donde hay', 'cual ciudad', 'cual estado', 'cual entidad',
+    'que ciudad', 'que estado', 'que entidad', 'donde se', 'mayor incidencia',
+    'mayor indice', 'mas casos', 'mas incidencia', 'primer lugar', 'ranking',
+    'top', 'menor', 'menos casos',
+  ]);
+
+  if (wantsRanking) {
+    const models = d.prod_models || [];
+    const isLeast = any(q, ['menor', 'menos', 'bajo', 'pocas']);
+    const padModels = models
+      .filter(m => m.padecimiento === pad && m.sexo === 'general' &&
+        !String(m.entidad || '').startsWith('region_') && m.entidad !== 'Nacional')
+      .sort((a, b) => isLeast
+        ? (a.casos_52_semanas_futuro || 0) - (b.casos_52_semanas_futuro || 0)
+        : (b.casos_52_semanas_futuro || 0) - (a.casos_52_semanas_futuro || 0));
+
+    if (padModels.length) {
+      const label = isLeast ? 'menor' : 'mayor';
+      lines.push(`**Entidades con ${label} pronostico de ${pad}** (52 semanas):\n`);
+      lines.push('| # | Entidad | Casos pronosticados | Motor | SMAPE |');
+      lines.push('|---|---------|--------------------:|-------|-------|');
+      const top10 = padModels.slice(0, 10);
+      top10.forEach((m, i) => {
+        lines.push(`| ${i + 1} | ${m.entidad} | ${fmt(m.casos_52_semanas_futuro)} | ${m.modelo_produccion} | ${m.smape_prod}% |`);
+      });
+
+      const first = padModels[0];
+      const total = ps.casos_futuro_total || 0;
+      const pctFirst = total > 0 ? ((first.casos_52_semanas_futuro / total) * 100).toFixed(1) : '?';
+      lines.push(`\n**${first.entidad}** concentra el **${pctFirst}%** del pronostico nacional de ${pad} con **${fmt(first.casos_52_semanas_futuro)} casos**.`);
+
+      return lines.join('\n');
+    }
+  }
+
   // Lead con hallazgo principal
   if (ps.casos_futuro_total) {
     lines.push(
       `Se pronostican **${fmt(ps.casos_futuro_total)} casos de ${pad}** a nivel nacional ` +
-      `en las pr\u00f3ximas 52 semanas (${ps.n} modelos).\n`
+      `en las proximas 52 semanas (${ps.n} modelos).\n`
     );
   } else {
-    lines.push(`**${pad}**: ${ps.n} modelos de producci\u00f3n.\n`);
+    lines.push(`**${pad}**: ${ps.n} modelos de produccion.\n`);
   }
 
-  // Estimaci\u00f3n mensual
+  // Estimacion mensual
   if (months.length > 0 && ps.casos_futuro_total) {
     const mText = monthEstimateText(ps.casos_futuro_total, months, years, pad, null, d);
     if (mText) lines.push(mText + '\n');
@@ -994,24 +1031,24 @@ function answerPadecimiento(q, ent, s, d) {
 
   // Rendimiento
   if (ps.smape_prod_mean != null) {
-    lines.push(`Rendimiento: SMAPE promedio **${ps.smape_prod_mean}%** (mediana: ${ps.smape_prod_median}%) \u2014 confianza **${confidence(ps.smape_prod_median)}**`);
+    lines.push(`Rendimiento: SMAPE promedio **${ps.smape_prod_mean}%** (mediana: ${ps.smape_prod_median}%) — confianza **${confidence(ps.smape_prod_median)}**`);
   }
   if (ps.motor_ganador) {
     lines.push(`Motor ganador: **${ps.motor_ganador}** (${ps.motor_ganador_n} de ${ps.n} series, ${((ps.motor_ganador_n / ps.n) * 100).toFixed(0)}%)`);
   }
 
-  // Distribuci\u00f3n de motores
+  // Distribucion de motores
   const dist = ps.dist_motor;
   if (dist) {
-    lines.push('\n**Distribuci\u00f3n de motores:**');
+    lines.push('\n**Distribucion de motores:**');
     for (const [motor, n] of Object.entries(dist)) {
       lines.push(`- ${motor}: ${n} series (${((n / ps.n) * 100).toFixed(1)}%)`);
     }
   }
 
-  // Contexto hist\u00f3rico
+  // Contexto historico
   const hist = getHistContext(d, pad, null);
-  if (hist) lines.push(`\n**Contexto hist\u00f3rico**: ${hist}`);
+  if (hist) lines.push(`\n**Contexto historico**: ${hist}`);
 
   return lines.join('\n');
 }
