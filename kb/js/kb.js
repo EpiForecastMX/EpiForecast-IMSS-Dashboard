@@ -520,6 +520,10 @@ function answerEquipo(q, ent, s, d) {
     return lines.join('\n');
   }
 
+  // Guard: mencionan a un integrante pero la pregunta es sobre el NOMBRE del proyecto → dejar pasar
+  const aboutProjectName = any(q, ['se llama ', 'el nombre es ', 'el nombre del proyecto', 'el proyecto se llama', 'esto se llama']);
+  if (aboutProjectName) return null;
+
   if (!isPerson && !isParticipation && q.split(' ').length > 3) return null;
 
   let bestInfo = null, bestLen = 0;
