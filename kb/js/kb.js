@@ -912,6 +912,40 @@ function answerBoletin(q, ent, s, d) {
     return lines.join('\n');
   }
 
+  // Filtro por sexo en datos hist\u00f3ricos: el bolet\u00edn SINAVE no tiene desglose
+  if (pad && ent.sexo && (hasHist || hasLastN || hasYear) && !estado) {
+    const sexoLabel = ent.sexo === 'hombres' ? 'hombres' : ent.sexo === 'mujeres' ? 'mujeres' : null;
+    if (sexoLabel) {
+      const ps = s.por_pad?.[pad]?.por_sexo?.[ent.sexo];
+      const lines = [];
+      lines.push(`*El Bolet\u00edn Epidemiol\u00f3gico SINAVE no incluye desglose por sexo en los datos hist\u00f3ricos anuales. Sin embargo, los modelos de pron\u00f3stico s\u00ed est\u00e1n diferenciados por sexo:*\n`);
+      if (ps) {
+        const models = (d.prod_models || []).filter(m =>
+          m.padecimiento === pad && m.sexo === ent.sexo &&
+          m.entidad !== 'Nacional' &&
+          !String(m.entidad || '').startsWith('Region') &&
+          !String(m.entidad || '').startsWith('region')
+        );
+        const totalCasos = models.reduce((sum, m) => sum + (m.casos_52_semanas_futuro || 0), 0);
+        lines.push(`**Pron\u00f3stico de ${pad} (${sexoLabel})** — pr\u00f3ximas 52 semanas:\n`);
+        lines.push(`- Casos pronosticados: **${fmt(totalCasos)}**`);
+        lines.push(`- Modelos: ${ps.n} series`);
+        lines.push(`- SMAPE: ${ps.smape_prod_mean}% (media) / ${ps.smape_prod_median}% (mediana)`);
+        if (ps.casos_nacional) lines.push(`- Nacional: **${fmt(ps.casos_nacional)} casos**`);
+
+        // Comparar con general
+        const psGen = s.por_pad?.[pad]?.por_sexo?.general;
+        if (psGen?.casos_nacional && ps.casos_nacional) {
+          const pct = ((ps.casos_nacional / psGen.casos_nacional) * 100).toFixed(1);
+          lines.push(`\nLas ${sexoLabel} representan el **${pct}%** del pron\u00f3stico nacional de ${pad}.`);
+        }
+      } else {
+        lines.push(`No tengo datos de pron\u00f3stico para ${pad} filtrado por ${sexoLabel}.`);
+      }
+      return lines.join('\n');
+    }
+  }
+
   // Tendencia hist\u00f3rica de un padecimiento (sin a\u00f1o espec\u00edfico, sin estado)
   if (pad && !hasYear && (hasHist || hasLastN) && !estado) {
     const anual = bol.anual_por_pad?.[pad];
@@ -2121,8 +2155,10 @@ export async function answer(query) {
     if (!merged.sexo && lastEntities.sexo) merged.sexo = lastEntities.sexo;
     if (!(merged._months || []).length && (lastEntities._months || []).length) merged._months = lastEntities._months;
     if (!(merged._years || []).length && (lastEntities._years || []).length) merged._years = lastEntities._years;
-    // Heredar múltiples estados para comparativas
+    // Heredar m\u00faltiples estados para comparativas
     if (!merged._estados && lastEntities._estados) merged._estados = lastEntities._estados;
+    // Heredar contexto de \u00faltimos N a\u00f1os
+    if (merged._lastNYears == null && lastEntities._lastNYears != null) merged._lastNYears = lastEntities._lastNYears;
     return merged;
   }
 
@@ -2134,12 +2170,14 @@ export async function answer(query) {
   if (isFollowUp) {
     const merged = mergeWithContext(ent);
     const hasExtra = merged.padecimiento !== ent.padecimiento || merged.estado !== ent.estado ||
+                     merged.sexo !== ent.sexo ||
                      (merged._months || []).length !== (ent._months || []).length ||
-                     (merged._estados && !ent._estados);
+                     (merged._estados && !ent._estados) ||
+                     (merged._lastNYears != null && ent._lastNYears == null);
     if (hasExtra) {
       const resultCtx = runHandlers(q, merged, s, d);
       if (resultCtx) {
-        const ctx = [merged.padecimiento, merged.estado].filter(Boolean).join(' en ');
+        const ctx = [merged.padecimiento, merged.estado, merged.sexo].filter(Boolean).join(' / ');
         lastEntities = merged;
         return `*(Contexto: ${ctx})*\n\n${resultCtx}`;
       }
@@ -2203,11 +2241,13 @@ export async function answer(query) {
     if (hasDataContext) {
       const merged = mergeWithContext(ent);
       const hasExtra = merged.padecimiento !== ent.padecimiento || merged.estado !== ent.estado ||
-                       (merged._estados && !ent._estados);
+                       merged.sexo !== ent.sexo ||
+                       (merged._estados && !ent._estados) ||
+                       (merged._lastNYears != null && ent._lastNYears == null);
       if (hasExtra) {
         const resultCtx = runHandlers(q, merged, s, d);
         if (resultCtx) {
-          const ctx = [merged.padecimiento, merged.estado].filter(Boolean).join(' en ');
+          const ctx = [merged.padecimiento, merged.estado, merged.sexo].filter(Boolean).join(' / ');
           lastEntities = merged;
           return `*(Contexto: ${ctx})*\n\n${resultCtx}`;
         }
