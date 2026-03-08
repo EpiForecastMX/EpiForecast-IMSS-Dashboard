@@ -6,8 +6,8 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=38';
-import { detectEntities, norm } from './entities.js?v=20';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=39';
+import { detectEntities, norm } from './entities.js?v=21';
 
 // ---------------------------------------------------------------------------
 // DOM refs

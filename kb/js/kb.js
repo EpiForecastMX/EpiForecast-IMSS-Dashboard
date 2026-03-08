@@ -772,8 +772,9 @@ function answerBoletin(q, ent, s, d) {
   const hasYear = years.length > 0;
   const hasHist = any(q, histTriggers);
   const isRanking = any(q, rankingKw);
+  const hasLastN = ent._lastNYears != null;
 
-  if (!hasYear && !hasHist && !isRanking) return null;
+  if (!hasYear && !hasHist && !isRanking && !hasLastN) return null;
 
   // Si la pregunta es sobre pron\u00f3sticos futuros, dejar que los handlers
   // de forecast se encarguen (answerSpecificSeries, answerPronostico, etc.)
@@ -824,24 +825,32 @@ function answerBoletin(q, ent, s, d) {
     const availYears = Object.keys(anual).map(Number).sort();
     const minY = availYears[0], maxY = availYears[availYears.length - 1];
     const yrStr = years.join(', ');
-    const lines = [`**${pad}** (${yrStr}):\n`];
+    const lines = [];
+    if (ent._ageFilter) {
+      lines.push(`*No contamos con datos desglosados por grupo etario (${ent._ageFilter} a\u00f1os). Los datos del Bolet\u00edn SINAVE son agregados por entidad y sexo. Se muestran los totales:*\n`);
+    }
+    lines.push(`**${pad}** (${yrStr}):\n`);
+    const currentYear = new Date().getFullYear();
+    const partialWeek = bol.meta?.max_semana || 52;
+    const isPartialYear = (y) => y === currentYear && bol.meta?.max_anio === currentYear && partialWeek < 48;
     const missing = [];
     for (const y of years) {
       const c = anual[String(y)];
       if (c != null) {
+        const partial = isPartialYear(y) ? ` *(parcial, semana ${partialWeek} de 52)*` : '';
         const prev = anual[String(y - 1)];
         let change = '';
-        if (prev && prev > 0) {
+        if (prev && prev > 0 && !isPartialYear(y)) {
           const pc = ((c - prev) / prev * 100).toFixed(1);
           change = ` (${Number(pc) >= 0 ? '+' : ''}${pc}% vs ${y - 1})`;
         }
-        lines.push(`- **${y}**: ${fmt(c)} casos${change}`);
+        lines.push(`- **${y}**: ${fmt(c)} casos${change}${partial}`);
       } else {
         missing.push(y);
       }
     }
     if (missing.length) {
-      lines.push(`\nNo tengo datos para ${missing.length === 1 ? 'el año' : 'los años'} **${missing.join(', ')}**. El Boletín Epidemiológico SINAVE (nuestra fuente de datos) cubre de **${minY}** a **${maxY}**.`);
+      lines.push(`\nNo tengo datos para ${missing.length === 1 ? 'el a\u00f1o' : 'los a\u00f1os'} **${missing.join(', ')}**. El Bolet\u00edn Epidemiol\u00f3gico SINAVE (nuestra fuente de datos) cubre de **${minY}** a **${maxY}**.`);
     }
     return lines.join('\n');
   }
@@ -904,14 +913,37 @@ function answerBoletin(q, ent, s, d) {
   }
 
   // Tendencia hist\u00f3rica de un padecimiento (sin a\u00f1o espec\u00edfico, sin estado)
-  if (pad && !hasYear && hasHist && !estado) {
+  if (pad && !hasYear && (hasHist || hasLastN) && !estado) {
     const anual = bol.anual_por_pad?.[pad];
     if (!anual) return null;
-    const sortedYears = Object.keys(anual).sort();
-    const first = sortedYears[0], last = sortedYears[sortedYears.length - 1];
+
+    // Detectar a\u00f1o parcial (actual) y excluirlo de tendencia/comparativas
+    const currentYear = new Date().getFullYear();
+    const maxWeek = bol.meta?.max_semana || 52;
+    const maxAnio = bol.meta?.max_anio || currentYear;
+    const isPartial = maxAnio === currentYear && maxWeek < 48;
+
+    let sortedYears = Object.keys(anual).sort();
+    // Excluir a\u00f1o parcial de la lista principal de tendencia
+    const partialYear = isPartial ? String(currentYear) : null;
+    const fullYears = partialYear ? sortedYears.filter(y => y !== partialYear) : sortedYears;
+
+    // Limitar a "ultimos N anos" si se detect\u00f3
+    const lastN = ent._lastNYears;
+    const displayYears = lastN && lastN < fullYears.length
+      ? fullYears.slice(-lastN)
+      : fullYears;
+
+    const first = displayYears[0], last = displayYears[displayYears.length - 1];
     const firstC = anual[first], lastC = anual[last];
 
     const lines = [];
+
+    // Aviso de filtro de edad no disponible
+    if (ent._ageFilter) {
+      lines.push(`*No contamos con datos desglosados por grupo etario (${ent._ageFilter} a\u00f1os). Los datos del Bolet\u00edn Epidemiol\u00f3gico SINAVE son agregados por entidad y sexo. Se muestran los totales disponibles:*\n`);
+    }
+
     // Lead with the trend summary
     if (firstC && lastC && firstC > 0) {
       const totalGrowth = ((lastC - firstC) / firstC * 100).toFixed(0);
@@ -922,7 +954,7 @@ function answerBoletin(q, ent, s, d) {
     }
 
     let prev = null, maxY = null, maxC = 0, minY = null, minC = Infinity;
-    for (const y of sortedYears) {
+    for (const y of displayYears) {
       const c = anual[y];
       let change = '';
       if (prev != null && prev > 0) { const pc = (c - prev) / prev * 100; change = ` (${pc >= 0 ? '+' : ''}${pc.toFixed(1)}%)`; }
@@ -931,6 +963,12 @@ function answerBoletin(q, ent, s, d) {
       if (c < minC) { minC = c; minY = y; }
       prev = c;
     }
+
+    // A\u00f1o parcial como nota al pie
+    if (partialYear && anual[partialYear] != null) {
+      lines.push(`- ${partialYear}: ${fmt(anual[partialYear])} casos *(parcial, semana ${maxWeek} de 52)*`);
+    }
+
     lines.push(`\n**Pico**: ${maxY} con ${fmt(maxC)} casos`);
     lines.push(`**Valle**: ${minY} con ${fmt(minC)} casos`);
 

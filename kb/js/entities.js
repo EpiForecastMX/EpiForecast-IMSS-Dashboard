@@ -135,6 +135,33 @@ function extractMonths(q) {
   return [...new Set(months)].sort((a, b) => a - b);
 }
 
+/** Detecta "ultimos N anos" o "ultimo N anos". */
+function extractLastNYears(q) {
+  const m = q.match(/ultimos?\s+(\d{1,2})\s+a[n~]os?/);
+  if (m) return parseInt(m[1], 10);
+  // "de los 10 anos"
+  const m2 = q.match(/(?:de los|los)\s+(\d{1,2})\s+a[n~]os?\s+(?:reciente|anterior|pasado|ultimo)/);
+  if (m2) return parseInt(m2[1], 10);
+  return null;
+}
+
+/** Detecta filtros de edad: "entre X y Y anos", "de X a Y anos", "mayores de X". */
+function extractAgeFilter(q) {
+  // "entre 40 y 45 anos", "de 40 a 45 anos"
+  let m = q.match(/(?:entre|de)\s+(\d{1,3})\s+(?:y|a)\s+(\d{1,3})\s+a[n~]os?/);
+  if (m) {
+    const lo = parseInt(m[1], 10), hi = parseInt(m[2], 10);
+    if (lo >= 0 && lo <= 120 && hi >= 0 && hi <= 120) return `${lo}-${hi}`;
+  }
+  // "mayores de 60 anos", "menores de 18"
+  m = q.match(/(mayores?|menores?)\s+de\s+(\d{1,3})\s*a[n~]os?/);
+  if (m) return `${m[1]} de ${m[2]}`;
+  // "de X anos"
+  m = q.match(/de\s+(\d{1,3})\s+a[n~]os?\s+de\s+edad/);
+  if (m) return m[1];
+  return null;
+}
+
 // ---------------------------------------------------------------------------
 // Deteccion principal
 // ---------------------------------------------------------------------------
@@ -149,6 +176,8 @@ export function detectEntities(query) {
     _years: extractYears(qn),
     _weeks: extractWeeks(qn),
     _months: extractMonths(qn),
+    _lastNYears: extractLastNYears(qn),
+    _ageFilter: extractAgeFilter(qn),
   };
 
   // Padecimiento
