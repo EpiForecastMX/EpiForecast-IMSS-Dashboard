@@ -1142,7 +1142,7 @@ body::after {
 
   /* Input */
   .input-bar {
-    padding: 8px 10px 12px;
+    padding: 8px 10px calc(8px + env(safe-area-inset-bottom, 0px));
   }
 
   .input-hint { display: none; }
@@ -1153,7 +1153,7 @@ body::after {
 
   .input-wrapper input {
     padding: 10px 6px;
-    font-size: 14px;
+    font-size: 16px; /* prevents iOS zoom on focus */
   }
 
   .input-wrapper button {
@@ -1163,6 +1163,16 @@ body::after {
   }
 
   .input-icon { padding: 0 10px 0 12px; }
+
+  /* When virtual keyboard is open, hide non-essential elements */
+  body.keyboard-open .site-nav { display: none; }
+  body.keyboard-open .header { display: none; }
+  body.keyboard-open .quick-section { display: none; }
+
+  body.keyboard-open .chat-area {
+    flex: 1;
+    min-height: 120px;
+  }
 }
 
 /* Small phone */

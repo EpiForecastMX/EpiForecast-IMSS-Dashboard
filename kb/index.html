@@ -520,6 +520,24 @@
     })();
   </script>
 
+  <!-- ═══════════ VIRTUAL KEYBOARD DETECTION ═══════════ -->
+  <script>
+    (function() {
+      if (!window.visualViewport) return;
+      const threshold = 150;
+      let initial = window.visualViewport.height;
+      window.visualViewport.addEventListener('resize', function() {
+        const diff = initial - window.visualViewport.height;
+        if (diff > threshold) {
+          document.body.classList.add('keyboard-open');
+        } else {
+          document.body.classList.remove('keyboard-open');
+          initial = window.visualViewport.height;
+        }
+      });
+    })();
+  </script>
+
   <script type="module" src="js/app.js?v=33"></script>
 </body>
 </html>
