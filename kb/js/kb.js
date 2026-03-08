@@ -288,6 +288,14 @@ const PROFESORES = [
     institucion: '',
     ubicacion: '',
   },
+  {
+    nombre: 'Luis Eduardo Falc\u00f3n-Morales, PhD',
+    aliases: ['falcon', 'dr falcon', 'falcon morales', 'luis falcon', 'luis eduardo falcon'],
+    rol: 'Director de la Maestr\u00eda en Inteligencia Artificial Aplicada (MNA)',
+    institucion: 'Tecnol\u00f3gico de Monterrey (ITESM)',
+    ubicacion: 'M\u00e9xico',
+    bio: 'Matem\u00e1tico con l\u00edneas de investigaci\u00f3n en \u00c1lgebra Geom\u00e9trica Conforme y Machine Learning aplicado a visi\u00f3n rob\u00f3tica, im\u00e1genes omnidireccionales, im\u00e1genes m\u00e9dicas y sistemas de recomendaci\u00f3n en redes sociales. En a\u00f1os recientes, investiga algoritmos de Deep Learning para problemas de seguridad social, generaci\u00f3n de texto (NLP) e im\u00e1genes m\u00e9dicas, generando m\u00faltiples tesis de posgrado y propuestas de innovaci\u00f3n. Ha participado en proyectos CONACYT con PYMES de Jalisco.',
+  },
 ];
 
 function answerEquipo(q, ent, s, d) {
@@ -300,7 +308,7 @@ function answerEquipo(q, ent, s, d) {
     const lines = [
       '**Equipo EpiForecast-MX (Equipo 01)**\n',
       'Maestr\u00eda en Inteligencia Artificial Aplicada \u00b7 Tecnol\u00f3gico de Monterrey\n',
-      '**Asesoras y coautoras:**\n',
+      '**Directivos, asesores y coautores:**\n',
     ];
     for (const p of PROFESORES) {
       lines.push(`- **${p.nombre}** \u00b7 ${p.rol}${p.institucion ? ` \u00b7 ${p.institucion}` : ''}`);
@@ -329,7 +337,8 @@ function answerEquipo(q, ent, s, d) {
       if (p.ubicacion) lines.push(`- **Ubicaci\u00f3n:** ${p.ubicacion}`);
       if (p.orcid) lines.push(`- **ORCID:** ${p.orcid}`);
       if (p.contacto) lines.push(`- **Contacto:** ${p.contacto}`);
-      lines.push(`\nCoautora del art\u00edculo *"De los datos a la predicci\u00f3n: un marco metodol\u00f3gico para la salud digital basado en la inteligencia artificial"*.`);
+      if (p.bio) lines.push(`\n${p.bio}`);
+      lines.push(`\nParticipa en el proyecto EpiForecast-MX y el art\u00edculo *"De los datos a la predicci\u00f3n: un marco metodol\u00f3gico para la salud digital basado en la inteligencia artificial"*.`);
       return lines.join('\n');
     }
   }
