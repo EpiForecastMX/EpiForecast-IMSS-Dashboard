@@ -75,7 +75,18 @@ add('buenas noches', 'answerSaludo', ['EpiForecast-MX']);
 add('hola como estas', 'answerSaludo', ['EpiForecast-MX']);
 
 // =====================================================================
-// SECCION 2: EQUIPO (20 tests)
+// SECCION 2a: PREGUNTA PERSONAL (6 tests)
+// =====================================================================
+
+add('a ti te puede dar parkinson', 'answerPreguntaPersonal', ['inteligencia artificial', 'Parkinson']);
+add('puedes enfermarte de depresion', 'answerPreguntaPersonal', ['inteligencia artificial', 'F32']);
+add('eres humano', 'answerPreguntaPersonal', ['inteligencia artificial']);
+add('tienes sentimientos', 'answerPreguntaPersonal', ['inteligencia artificial']);
+add('te puede dar alzheimer', 'answerPreguntaPersonal', ['inteligencia artificial', 'Alzheimer']);
+add('las maquinas se enferman', 'answerPreguntaPersonal', ['inteligencia artificial']);
+
+// =====================================================================
+// SECCION 2b: EQUIPO (20 tests)
 // =====================================================================
 
 add('quienes son el equipo', 'answerEquipo', ['Equipo']);

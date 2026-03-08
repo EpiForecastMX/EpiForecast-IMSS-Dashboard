@@ -2365,11 +2365,52 @@ function answerComparacionSemanal(q, ent, s, d) {
 }
 
 // ---------------------------------------------------------------------------
+// Guard: pregunta personal/identidad dirigida al bot
+// ---------------------------------------------------------------------------
+
+function answerPreguntaPersonal(q, ent, s, d) {
+  const selfPatterns = [
+    'a ti te puede', 'te puede dar', 'tu puedes tener', 'tu puedes enfermarte',
+    'puedes enfermarte', 'puedes tener', 'te puedes enfermar', 'te va a dar',
+    'te dara', 'te dio', 'tienes depresion', 'tienes parkinson', 'tienes alzheimer',
+    'una ia puede tener', 'un robot puede tener', 'las maquinas se enferman',
+    'te enfermas', 'sufres de', 'padeces de', 'padeces',
+    'tu sientes', 'tu siente', 'sientes dolor', 'te duele',
+    'eres humano', 'eres una persona', 'eres real', 'estas vivo',
+    'tienes sentimiento', 'tienes emocione',
+  ];
+  if (!any(q, selfPatterns)) return null;
+
+  const pad = ent.padecimiento;
+  const lines = [
+    'Soy un asistente de inteligencia artificial, asi que no puedo enfermarme, sentir dolor ni padecer enfermedades.',
+    '',
+  ];
+
+  if (pad) {
+    const info = d.padecimiento_info?.[pad];
+    const ps = s.por_pad?.[pad];
+    if (info) {
+      lines.push(`Pero puedo contarte sobre **${info.nombre_completo || pad}** (CIE-10: ${info.cie}):\n`);
+      lines.push(info.descripcion);
+      if (info.nota_mexico) lines.push(`\n**En Mexico (IMSS):** ${info.nota_mexico}`);
+    }
+    if (ps && ps.casos_futuro_total) {
+      lines.push(`\n**En nuestro proyecto:** se pronostican **${fmt(ps.casos_futuro_total)} casos** en 52 semanas (SMAPE: ${ps.smape_prod_median}%, motor: ${ps.motor_ganador}).`);
+    }
+  } else {
+    lines.push('Pero puedo ayudarte con informacion sobre **Depresion**, **Parkinson** y **Alzheimer**: pronosticos, datos historicos, metricas de los modelos y mas.');
+  }
+
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
 // Cadena de handlers (orden de prioridad)
 // ---------------------------------------------------------------------------
 
 const HANDLERS = [
-  answerSaludo, answerPadecimientoNoModelado, answerLugarDesconocido, answerEdadNoDisponible, answerEquipo, answerTemporal, answerProyectoMeta,
+  answerSaludo, answerPadecimientoNoModelado, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerTemporal, answerProyectoMeta,
   answerTrainingConfig, answerSemanaActual, answerQueEsPadecimiento,
   answerComparacionSemanal,
   answerBoletin, answerHistorico, answerComparativaEstados, answerSpecificSeries, answerEstado, answerPadecimiento,
