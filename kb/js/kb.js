@@ -755,6 +755,14 @@ function answerSemanaActual(q, ent, s, d) {
 }
 
 function answerQueEsPadecimiento(q, ent, s, d) {
+  // Historia / origen / descubrimiento → ceder a Gemini (conocimiento general)
+  const historyKw = [
+    'historia', 'origen', 'descubri', 'quien fue', 'de donde viene',
+    'por que se llama', 'como se descubri', 'cuando se descubri',
+    'nombr', 'bautiz', 'pakistan', 'inventor', 'creador',
+  ];
+  if (any(q, historyKw)) return null;
+
   const regexTriggers = [
     /\bque es\b/, /\bque significa\b/, /\bdime sobre\b/, /\bcuentame sobre\b/,
     /\bexplicame\b/, /\binformacion sobre\b/, /\bhablame de\b/, /\bdescribe\b/,
@@ -1519,6 +1527,14 @@ function answerPadecimiento(q, ent, s, d) {
   const pad = ent.padecimiento;
   if (!pad || ent.estado) return null;
 
+  // Historia / origen / descubrimiento → ceder a Gemini (conocimiento general)
+  const historyKw = [
+    'historia', 'origen', 'descubri', 'quien fue', 'de donde viene',
+    'por que se llama', 'como se descubri', 'cuando se descubri',
+    'nombr', 'bautiz', 'pakistan', 'inventor', 'creador',
+  ];
+  if (any(q, historyKw)) return null;
+
   const ps = s.por_pad?.[pad];
   if (!ps) return null;
 
@@ -2110,6 +2126,7 @@ const STOP_WORDS = new Set([
   'padecimientos', 'padecimiento', 'casos', 'datos', 'numero',
   'anos', 'anno', 'meses', 'semanas', 'dias',
   'mas', 'menos', 'preciso', 'precisos', 'distribucion',
+  'historia', 'origen', 'descubrio', 'nombre', 'inventor', 'creador',
 ]);
 
 function fuzzyCorrect(q) {
