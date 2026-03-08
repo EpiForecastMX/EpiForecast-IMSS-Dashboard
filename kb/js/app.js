@@ -6,7 +6,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=55';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=56';
 import { detectEntities, norm } from './entities.js?v=25';
 
 // ---------------------------------------------------------------------------
@@ -298,7 +298,7 @@ function addBotMessage(markdown, source, suggestions, chartData) {
   if (source === 'ai') { badgeClass = 'badge-ai'; badgeText = 'IA'; }
   else if (source === 'error') { badgeClass = 'badge-ai'; badgeText = 'Error'; }
 
-  const cleanMarkdown = markdown.replace(/<!--COMPARE:.*?-->/g, '').replace(/<!--DISTRIB:.*?-->/g, '');
+  const cleanMarkdown = markdown.replace(/<!--COMPARE:.*?-->/g, '').replace(/<!--DISTRIB:.*?-->/g, '').replace(/<!--GENCHART:.*?-->/g, '');
   const html = marked.parse(cleanMarkdown, { breaks: true });
   const now = new Date();
   const timeStr = now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
@@ -445,6 +445,14 @@ function extractChartData(markdown, query) {
         },
       };
     } catch (e) { console.warn('Distrib parse error:', e); }
+  }
+
+  // Grafico generico embebido (from answerGraficoAleatorio)
+  const genChartMatch = markdown.match(/<!--GENCHART:(.*?)-->/);
+  if (genChartMatch) {
+    try {
+      return JSON.parse(genChartMatch[1]);
+    } catch (e) { console.warn('GenChart parse error:', e); }
   }
 
   // Comparativa de estados (embedded data from handler)

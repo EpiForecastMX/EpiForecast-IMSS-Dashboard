@@ -2462,11 +2462,19 @@ function answerDistribucion(q, ent, s, d) {
   const chartKw = ['violin', 'violine', 'boxplot', 'box plot', 'histograma', 'distribucion de'];
   const metricKw = ['smape', 'mase', 'rmse', 'mae'];
 
-  if (!any(q, chartKw) && !(any(q, ['grafico', 'grafica', 'chart', 'plot']) && any(q, metricKw))) return null;
+  // Follow-up: "solo de la depresion" despues de un grafico de distribucion
+  const filterKw = ['solo', 'solamente', 'nada mas', 'unicamente', 'filtra', 'filtrar'];
+  const isDistribFollowUp = _lastDistribMetric && !any(q, chartKw) &&
+    (ent.padecimiento || ent.estado) && any(q, filterKw);
 
-  // Detect which metric
+  if (!any(q, chartKw) && !(any(q, ['grafico', 'grafica', 'chart', 'plot']) && any(q, metricKw)) && !isDistribFollowUp) return null;
+
+  // Detect which metric (use stored for follow-ups)
   let metric = null, metricLabel = '';
-  if (q.includes('mase')) { metric = 'mase_prod'; metricLabel = 'MASE'; }
+  if (isDistribFollowUp) {
+    metric = _lastDistribMetric.metric;
+    metricLabel = _lastDistribMetric.label;
+  } else if (q.includes('mase')) { metric = 'mase_prod'; metricLabel = 'MASE'; }
   else if (q.includes('smape')) { metric = 'smape_prod'; metricLabel = 'SMAPE (%)'; }
   else if (q.includes('rmse')) { metric = 'rmse_prod'; metricLabel = 'RMSE'; }
   else if (q.includes('mae') && !q.includes('smape')) { metric = 'mae_prod'; metricLabel = 'MAE'; }
@@ -2475,11 +2483,15 @@ function answerDistribucion(q, ent, s, d) {
   const models = d.prod_models || [];
   if (!models.length) return null;
 
-  // Group values by padecimiento
+  // Filter by padecimiento if detected
+  const filterPad = ent.padecimiento;
+
+  // Group values by padecimiento (or single group if filtered)
   const byPad = {};
   for (const m of models) {
     if (m.sexo !== 'general') continue; // Avoid triple-counting
     const pad = m.padecimiento || 'Otro';
+    if (filterPad && pad !== filterPad) continue;
     if (!byPad[pad]) byPad[pad] = [];
     const val = m[metric];
     if (val != null && isFinite(val)) byPad[pad].push(val);
@@ -2514,7 +2526,8 @@ function answerDistribucion(q, ent, s, d) {
   });
 
   // Stats per padecimiento
-  const lines = [`**Distribucion de ${metricLabel}** (modelos de produccion, sexo=general)\n`];
+  const filterNote = filterPad ? ` — ${filterPad}` : '';
+  const lines = [`**Distribucion de ${metricLabel}${filterNote}** (modelos de produccion, sexo=general)\n`];
   lines.push('| Padecimiento | N | Min | Q1 | Mediana | Q3 | Max | Promedio |');
   lines.push('|---|--:|--:|--:|--:|--:|--:|--:|');
   for (const pad of padNames) {
@@ -2533,7 +2546,200 @@ function answerDistribucion(q, ent, s, d) {
   const chartData = { metric: metricLabel, bins: binLabels, datasets };
   lines.push(`\n<!--DISTRIB:${JSON.stringify(chartData)}-->`);
 
+  _lastDistribMetric = { metric, label: metricLabel };
+  _lastChartHandler = 'distribucion';
   return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// Handler: Grafico aleatorio / interesante
+// ---------------------------------------------------------------------------
+
+function answerGraficoAleatorio(q, ent, s, d) {
+  const randomKw = [
+    'grafico interesante', 'grafica interesante', 'grafico aleatorio', 'grafica aleatoria',
+    'sorprendeme', 'sorprendeme con', 'dame un grafico', 'dame una grafica',
+    'grafico random', 'muestrame algo', 'algo interesante', 'visualizacion interesante',
+  ];
+  const isOtro = /^(otro|otra|uno mas|una mas|dame otro|dame otra|siguiente)(\s|$|\?)/.test(q);
+  const isRandomReq = any(q, randomKw) || (isOtro && _lastChartHandler);
+
+  if (!isRandomReq) return null;
+
+  const models = d.prod_models || [];
+  const anual = d.boletin?.anual_por_pad;
+  if (!models.length) return null;
+
+  // Catalogo de generadores de graficos
+  const generators = [];
+
+  // 1. Distribucion de metrica aleatoria
+  const metrics = [
+    { metric: 'smape_prod', label: 'SMAPE (%)' },
+    { metric: 'mase_prod', label: 'MASE' },
+    { metric: 'rmse_prod', label: 'RMSE' },
+    { metric: 'mae_prod', label: 'MAE' },
+  ];
+  for (const m of metrics) {
+    generators.push(() => _genDistribChart(models, m.metric, m.label));
+  }
+
+  // 2. Top 10 modelos por SMAPE (mejores)
+  generators.push(() => {
+    const top = models.filter(m => m.sexo === 'general' && m.smape_prod != null)
+      .sort((a, b) => a.smape_prod - b.smape_prod).slice(0, 10);
+    if (!top.length) return null;
+    const labels = top.map(m => `${m.padecimiento.slice(0, 3)}-${(m.entidad || '').slice(0, 8)}`);
+    const chart = { type: 'bar', title: 'Top 10 modelos: mejor SMAPE', labels,
+      datasets: [{ label: 'SMAPE (%)', data: top.map(m => m.smape_prod), backgroundColor: '#2EC4A8CC', borderColor: '#2EC4A8', borderWidth: 1, borderRadius: 4 }] };
+    const md = `**Top 10 modelos con mejor SMAPE** (sexo=general)\n\n| # | Padecimiento | Entidad | Motor | SMAPE |\n|--:|---|---|---|--:|\n` +
+      top.map((m, i) => `| ${i + 1} | ${m.padecimiento} | ${m.entidad} | ${m.modelo_produccion} | ${m.smape_prod.toFixed(2)}% |`).join('\n');
+    return { md, chart };
+  });
+
+  // 3. Top 10 peores modelos por SMAPE
+  generators.push(() => {
+    const worst = models.filter(m => m.sexo === 'general' && m.smape_prod != null)
+      .sort((a, b) => b.smape_prod - a.smape_prod).slice(0, 10);
+    if (!worst.length) return null;
+    const labels = worst.map(m => `${m.padecimiento.slice(0, 3)}-${(m.entidad || '').slice(0, 8)}`);
+    const chart = { type: 'bar', title: 'Top 10 modelos: peor SMAPE', labels,
+      datasets: [{ label: 'SMAPE (%)', data: worst.map(m => m.smape_prod), backgroundColor: '#C83A5ACC', borderColor: '#C83A5A', borderWidth: 1, borderRadius: 4 }] };
+    const md = `**Top 10 modelos con peor SMAPE** (sexo=general)\n\n| # | Padecimiento | Entidad | Motor | SMAPE |\n|--:|---|---|---|--:|\n` +
+      worst.map((m, i) => `| ${i + 1} | ${m.padecimiento} | ${m.entidad} | ${m.modelo_produccion} | ${m.smape_prod.toFixed(2)}% |`).join('\n');
+    return { md, chart };
+  });
+
+  // 4. Composicion de motores (donut)
+  generators.push(() => {
+    const dist = {};
+    for (const m of models) { if (m.sexo === 'general') dist[m.modelo_produccion] = (dist[m.modelo_produccion] || 0) + 1; }
+    const entries = Object.entries(dist).sort((a, b) => b[1] - a[1]);
+    if (!entries.length) return null;
+    const chart = { type: 'doughnut', title: 'Motores de produccion: composicion', labels: entries.map(e => e[0]),
+      datasets: [{ data: entries.map(e => e[1]), backgroundColor: ['#2EC4A8', '#D4A84B', '#C83A5A', '#6366F1'], borderWidth: 0 }] };
+    const total = entries.reduce((a, b) => a + b[1], 0);
+    const md = `**Composicion de motores de produccion** (${total} modelos, sexo=general)\n\n` +
+      entries.map(([motor, n]) => `- **${motor}**: ${n} modelos (${(n / total * 100).toFixed(1)}%)`).join('\n');
+    return { md, chart };
+  });
+
+  // 5. Pronostico total por padecimiento (donut)
+  generators.push(() => {
+    const byPad = {};
+    for (const m of models) {
+      if (m.sexo !== 'general') continue;
+      byPad[m.padecimiento] = (byPad[m.padecimiento] || 0) + (m.casos_52_semanas_futuro || 0);
+    }
+    const entries = Object.entries(byPad).sort((a, b) => b[1] - a[1]);
+    if (!entries.length) return null;
+    const total = entries.reduce((a, b) => a + b[1], 0);
+    const chart = { type: 'doughnut', title: 'Pronostico 52 semanas por padecimiento', labels: entries.map(e => e[0]),
+      datasets: [{ data: entries.map(e => e[1]), backgroundColor: ['#2EC4A8', '#D4A84B', '#C83A5A'], borderWidth: 0 }] };
+    const md = `**Pronostico total a 52 semanas por padecimiento** (sexo=general)\n\n` +
+      entries.map(([pad, n]) => `- **${pad}**: ${n.toLocaleString('es-MX')} casos (${(n / total * 100).toFixed(1)}%)`).join('\n') +
+      `\n- **Total**: ${total.toLocaleString('es-MX')} casos`;
+    return { md, chart };
+  });
+
+  // 6. Tendencia historica (line)
+  if (anual) {
+    generators.push(() => {
+      const pads = Object.keys(anual);
+      let allYears = new Set();
+      pads.forEach(p => Object.keys(anual[p]).forEach(y => allYears.add(y)));
+      allYears = [...allYears].sort();
+      const datasets = pads.map((pad, i) => ({
+        pad, data: allYears.map(y => anual[pad][y] || 0),
+      }));
+      const chart = { type: 'line', title: 'Evolucion historica de incidencia', labels: [...allYears],
+        datasets: datasets.map((ds, i) => ({ label: ds.pad, data: ds.data,
+          borderColor: ['#2EC4A8', '#D4A84B', '#C83A5A'][i], backgroundColor: ['#2EC4A8', '#D4A84B', '#C83A5A'][i] + '22',
+          fill: true, tension: 0.4, borderWidth: 3, pointRadius: 4 })) };
+      const md = `**Evolucion historica de incidencia** (${allYears[0]}–${allYears[allYears.length - 1]})\n\n` +
+        pads.map(pad => {
+          const vals = Object.values(anual[pad]);
+          const total = vals.reduce((a, b) => a + b, 0);
+          return `- **${pad}**: ${total.toLocaleString('es-MX')} casos acumulados`;
+        }).join('\n');
+      return { md, chart };
+    });
+  }
+
+  // 7. Top 5 entidades por pronostico (por padecimiento aleatorio)
+  const padNames = [...new Set(models.map(m => m.padecimiento))];
+  for (const pad of padNames) {
+    generators.push(() => {
+      const padModels = models.filter(m => m.padecimiento === pad && m.sexo === 'general' && m.casos_52_semanas_futuro > 0)
+        .sort((a, b) => b.casos_52_semanas_futuro - a.casos_52_semanas_futuro).slice(0, 8);
+      if (padModels.length < 3) return null;
+      const chart = { type: 'bar', title: `${pad}: top entidades por pronostico`, labels: padModels.map(m => m.entidad),
+        datasets: [{ label: 'Casos (52 sem)', data: padModels.map(m => m.casos_52_semanas_futuro),
+          backgroundColor: '#D4A84BCC', borderColor: '#D4A84B', borderWidth: 1, borderRadius: 4 }] };
+      const md = `**${pad} — Entidades con mayor pronostico** (52 semanas)\n\n| # | Entidad | Casos | Motor |\n|--:|---|--:|---|\n` +
+        padModels.map((m, i) => `| ${i + 1} | ${m.entidad} | ${(m.casos_52_semanas_futuro || 0).toLocaleString('es-MX')} | ${m.modelo_produccion} |`).join('\n');
+      return { md, chart };
+    });
+  }
+
+  // Pick random generator (avoid repeating the same as last time)
+  let result = null;
+  const tried = new Set();
+  for (let attempt = 0; attempt < 5 && !result; attempt++) {
+    const idx = Math.floor(Math.random() * generators.length);
+    if (tried.has(idx)) continue;
+    tried.add(idx);
+    result = generators[idx]();
+  }
+  // Fallback: try all
+  if (!result) {
+    for (let i = 0; i < generators.length && !result; i++) {
+      result = generators[i]();
+    }
+  }
+  if (!result) return null;
+
+  _lastChartHandler = 'aleatorio';
+  return `${result.md}\n\n<!--GENCHART:${JSON.stringify(result.chart)}-->`;
+}
+
+/** Genera datos de distribucion como DISTRIB chart. */
+function _genDistribChart(models, metric, metricLabel) {
+  const byPad = {};
+  for (const m of models) {
+    if (m.sexo !== 'general') continue;
+    const pad = m.padecimiento || 'Otro';
+    if (!byPad[pad]) byPad[pad] = [];
+    const val = m[metric];
+    if (val != null && isFinite(val)) byPad[pad].push(val);
+  }
+  const allVals = Object.values(byPad).flat();
+  if (!allVals.length) return null;
+  const sorted = [...allVals].sort((a, b) => a - b);
+  const p95 = sorted[Math.floor(sorted.length * 0.95)];
+  const maxBin = Math.ceil(p95 * 1.1);
+  const numBins = Math.min(20, Math.max(8, Math.ceil(maxBin / 5) * 2));
+  const binSize = maxBin / numBins;
+  const binLabels = [];
+  for (let i = 0; i < numBins; i++) binLabels.push(`${(i * binSize).toFixed(1)}-${((i + 1) * binSize).toFixed(1)}`);
+  const padNames = Object.keys(byPad).sort();
+  const datasets = padNames.map(pad => {
+    const counts = new Array(numBins).fill(0);
+    for (const v of byPad[pad]) { counts[Math.min(Math.floor(v / binSize), numBins - 1)]++; }
+    return { pad, counts };
+  });
+  const chart = { type: 'bar', title: `Distribucion de ${metricLabel} por padecimiento`, labels: binLabels,
+    datasets: datasets.map((ds, i) => ({ label: ds.pad, data: ds.counts,
+      backgroundColor: ['#2EC4A8', '#D4A84B', '#C83A5A'][i] + '99', borderColor: ['#2EC4A8', '#D4A84B', '#C83A5A'][i],
+      borderWidth: 2, borderRadius: 3 })),
+    options: { scales: { x: { title: { display: true, text: metricLabel } }, y: { title: { display: true, text: 'Modelos' } } } } };
+  const md = `**Distribucion de ${metricLabel}** (modelos de produccion, sexo=general)\n\n| Padecimiento | N | Min | Mediana | Max | Promedio |\n|---|--:|--:|--:|--:|--:|\n` +
+    padNames.map(pad => {
+      const vals = [...byPad[pad]].sort((a, b) => a - b);
+      const n = vals.length;
+      return `| ${pad} | ${n} | ${vals[0].toFixed(2)} | ${vals[Math.floor(n / 2)].toFixed(2)} | ${vals[n - 1].toFixed(2)} | ${(vals.reduce((a, b) => a + b, 0) / n).toFixed(2)} |`;
+    }).join('\n');
+  return { md, chart };
 }
 
 // ---------------------------------------------------------------------------
@@ -2545,7 +2751,7 @@ const HANDLERS = [
   answerTrainingConfig, answerSemanaActual, answerQueEsPadecimiento,
   answerComparacionSemanal,
   answerBoletin, answerHistorico, answerComparativaEstados, answerSpecificSeries, answerEstado, answerPadecimiento,
-  answerMotor, answerDemografica, answerSexo, answerDistribucion, answerMetricaGlobal,
+  answerMotor, answerDemografica, answerSexo, answerDistribucion, answerGraficoAleatorio, answerMetricaGlobal,
   answerRanking, answerDiagnosticos, answerValidacion, answerInfra,
   answerConteo, answerPronostico, answerDefinicion,
 ];
@@ -2553,7 +2759,14 @@ const HANDLERS = [
 function runHandlers(q, ent, s, d) {
   for (const handler of HANDLERS) {
     const result = handler(q, ent, s, d);
-    if (result) return result;
+    if (result) {
+      // Reset chart context when a non-chart handler answers
+      if (handler !== answerDistribucion && handler !== answerGraficoAleatorio) {
+        _lastDistribMetric = null;
+        _lastChartHandler = null;
+      }
+      return result;
+    }
   }
   return null;
 }
@@ -2641,9 +2854,11 @@ function isOffTopic(q, ent) {
 
 // Contexto conversacional: entidades de la ultima pregunta exitosa
 let lastEntities = {};
+let _lastDistribMetric = null;   // {metric, label} de la ultima distribucion
+let _lastChartHandler = null;    // nombre del ultimo handler que genero grafico
 
 /** Reset conversacional — solo para tests. */
-export function _resetContext() { lastEntities = {}; }
+export function _resetContext() { lastEntities = {}; _lastDistribMetric = null; _lastChartHandler = null; }
 
 export async function answer(query) {
   const d = await loadKnowledge();
@@ -2659,6 +2874,18 @@ export async function answer(query) {
 
   // Guard: tema fuera de alcance → ceder a Gemini
   if (isOffTopic(q, ent)) return null;
+
+  // Prioridad: follow-up de distribucion ("solo de la depresion" tras un violin/histograma)
+  if (_lastDistribMetric) {
+    const filterKw = ['solo', 'solamente', 'nada mas', 'unicamente', 'filtra', 'filtrar'];
+    if ((ent.padecimiento || ent.estado) && any(q, filterKw)) {
+      const distribResult = answerDistribucion(q, ent, s, d);
+      if (distribResult) {
+        lastEntities = ent;
+        return distribResult;
+      }
+    }
+  }
 
   // Detectar follow-ups conversacionales
   const followUpPrefixes = [

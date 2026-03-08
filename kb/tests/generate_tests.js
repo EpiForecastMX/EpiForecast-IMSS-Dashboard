@@ -836,6 +836,32 @@ add('distribucion de mae', 'answerDistribucion', ['MAE', 'Distribucion', 'DISTRI
 add('grafica de distribucion del rmse', 'answerDistribucion', ['RMSE', 'DISTRIB']);
 
 // =====================================================================
+// SECCION 37c: DISTRIBUCION — follow-up con filtro (6 tests)
+// =====================================================================
+
+addCtx('violin del smape', 'solo de la depresion', 'answerDistribucion', ['SMAPE', 'Depresion', 'DISTRIB']);
+addCtx('histograma del mase', 'solo del parkinson', 'answerDistribucion', ['MASE', 'Parkinson', 'DISTRIB']);
+addCtx('distribucion de rmse', 'solo del alzheimer', 'answerDistribucion', ['RMSE', 'Alzheimer', 'DISTRIB']);
+addCtx('violin del smape', 'solamente depresion', 'answerDistribucion', ['SMAPE', 'Depresion', 'DISTRIB']);
+addCtx('distribucion de mae', 'filtra por parkinson', 'answerDistribucion', ['MAE', 'Parkinson', 'DISTRIB']);
+addCtx('violin del smape', 'nada mas alzheimer', 'answerDistribucion', ['SMAPE', 'Alzheimer', 'DISTRIB']);
+
+// =====================================================================
+// SECCION 37d: GRAFICO ALEATORIO / INTERESANTE (10 tests)
+// =====================================================================
+
+add('dame un grafico interesante', 'answerGraficoAleatorio', ['GENCHART']);
+add('sorprendeme con un grafico', 'answerGraficoAleatorio', ['GENCHART']);
+add('grafico aleatorio', 'answerGraficoAleatorio', ['GENCHART']);
+add('dame una grafica interesante', 'answerGraficoAleatorio', ['GENCHART']);
+add('muestrame algo interesante', 'answerGraficoAleatorio', ['GENCHART']);
+add('visualizacion interesante', 'answerGraficoAleatorio', ['GENCHART']);
+addCtx('dame un grafico interesante', 'otro', 'answerGraficoAleatorio', ['GENCHART']);
+addCtx('dame un grafico interesante', 'dame otro', 'answerGraficoAleatorio', ['GENCHART']);
+addCtx('dame un grafico interesante', 'uno mas', 'answerGraficoAleatorio', ['GENCHART']);
+addCtx('sorprendeme con un grafico', 'siguiente', 'answerGraficoAleatorio', ['GENCHART']);
+
+// =====================================================================
 // SECCION 37b: HISTORIA/ORIGEN → Gemini (6 tests)
 // =====================================================================
 
