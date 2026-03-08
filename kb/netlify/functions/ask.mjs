@@ -87,14 +87,15 @@ function buildContext(data, query) {
   // Infrastructure
   parts.push(`\nTests: ${s.tests || 849}, Lineas: ~${s.lineas_codigo || 13000}, Cobertura: >${s.cobertura || 92}%`);
 
-  // Top/bottom
-  const top = s.top5_smape || [];
+  // Top/bottom (filtrar 0% SMAPE — son series con ~0 casos, no precision real)
+  const top = (s.top5_smape || []).filter(m => m.smape > 0.5);
   if (top.length) {
-    parts.push('\nTop 5 mejores (SMAPE):');
+    parts.push('\nTop 5 mejores modelos (SMAPE, excluyendo series triviales con ~0 casos):');
     for (const m of top) {
       parts.push(`  ${m.padecimiento} - ${m.entidad} (${m.sexo}): ${m.smape}% [${m.motor}]`);
     }
   }
+  parts.push('\nNOTA: Series con SMAPE=0% corresponden a entidades con incidencia cercana a cero (ej. Alzheimer en BCS). No son modelos "perfectos", sino predicciones triviales. Excluirlas al hablar de precision.');
 
   return parts.join('\n');
 }

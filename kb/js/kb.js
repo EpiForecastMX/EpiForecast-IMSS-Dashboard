@@ -1210,32 +1210,34 @@ function answerRanking(q, ent, s, d) {
   if (!any(q, triggers)) return null;
 
   const lines = [];
-  const top = s.top5_smape || [];
+  // Filtrar series triviales (SMAPE ~0% = incidencia cercana a cero, no precision real)
+  const top = (s.top5_smape || []).filter(m => m.smape > 0.5);
   if (top.length) {
-    lines.push('**Los 5 modelos m\u00e1s precisos** (menor error):\n');
+    lines.push('**Los modelos mas precisos** (menor error, excluyendo series con ~0 casos):\n');
     lines.push('| # | Serie | SMAPE | Motor |');
     lines.push('|---|-------|-------|-------|');
     top.forEach((m, i) => {
-      lines.push(`| ${i + 1} | ${m.padecimiento} \u2014 ${m.entidad} (${m.sexo}) | ${m.smape}% | ${m.motor} |`);
+      lines.push(`| ${i + 1} | ${m.padecimiento} — ${m.entidad} (${m.sexo}) | ${m.smape}% | ${m.motor} |`);
     });
   }
   const bottom = s.bottom5_smape || [];
   if (bottom.length) {
-    lines.push('\n**Los 5 modelos con mayor error** (requieren atenci\u00f3n):\n');
+    lines.push('\n**Los 5 modelos con mayor error** (requieren atencion):\n');
     lines.push('| # | Serie | SMAPE | Motor |');
     lines.push('|---|-------|-------|-------|');
     bottom.forEach((m, i) => {
-      lines.push(`| ${i + 1} | ${m.padecimiento} \u2014 ${m.entidad} (${m.sexo}) | ${m.smape}% | ${m.motor} |`);
+      lines.push(`| ${i + 1} | ${m.padecimiento} — ${m.entidad} (${m.sexo}) | ${m.smape}% | ${m.motor} |`);
     });
   }
 
   // Insight
   if (top.length && bottom.length) {
     lines.push(
-      `\nLos mejores modelos alcanzan SMAPE de **${top[0].smape}%** mientras los m\u00e1s dif\u00edciles llegan a **${bottom[bottom.length - 1].smape}%**. ` +
-      `Las series con mayor error suelen corresponder a Alzheimer en estados con muy baja incidencia, donde peque\u00f1as variaciones generan errores porcentuales altos.`
+      `\nLos mejores modelos con casos reales alcanzan SMAPE de **${top[0].smape}%** mientras los mas dificiles llegan a **${bottom[bottom.length - 1].smape}%**. ` +
+      `Las series con mayor error suelen corresponder a Alzheimer en estados con muy baja incidencia, donde pequenas variaciones generan errores porcentuales altos.`
     );
   }
+  lines.push('\n*Nota: Series con SMAPE=0% (ej. Alzheimer en BCS) corresponden a entidades con incidencia cercana a cero — no representan precision excepcional sino predicciones triviales.*');
 
   return lines.length ? lines.join('\n') : null;
 }
