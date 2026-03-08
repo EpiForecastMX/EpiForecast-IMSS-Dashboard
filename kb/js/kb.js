@@ -459,6 +459,26 @@ function answerProyectoMeta(q, ent, s, d) {
     );
   }
 
+  const articuloTriggers = ['articulo', 'publicacion', 'paper', 'manuscrito', 'draft', 'titulo del articulo', 'nombre del articulo', 'como se llama el articulo', 'que se va a publicar', 'articulo cientifico', 'journal'];
+  if (any(q, articuloTriggers)) {
+    return (
+      '**Artículo del proyecto EpiForecast-MX**\n\n' +
+      '**Título**: *De los datos a la predicción: un marco metodológico para la salud digital basado en la inteligencia artificial*\n\n' +
+      '**Subtítulo**: Modelado predictivo basado en inteligencia artificial en salud digital: un marco metodológico con aplicaciones clínicas\n\n' +
+      '**Título en inglés**: *A methodological framework for artificial intelligence-based predictive modelling in digital health*\n\n' +
+      '**Autores principales**:\n' +
+      '- **Ruth Pérez-Hernández, PhD** — IMSS (investigadora principal)\n' +
+      '- **Grettel Barceló Alonso, PhD** — Tecnológico de Monterrey (directora académica)\n' +
+      '- **Lina Díaz-Castro, PhD** — Instituto Nacional de Psiquiatría Ramón de la Fuente Muñiz\n' +
+      '- **María Jesús Ríos Blancas, PhD**\n' +
+      '- **Javier Augusto Rebull Saucedo** — Santander Bank US\n' +
+      '- **Juan Carlos Pérez Nava** — IMSS\n' +
+      '- **Luis Gerardo Sánchez Salazar** — Tesla, Inc.\n\n' +
+      '**Estado**: Draft v3 (en preparación para publicación)\n\n' +
+      'El artículo documenta el marco metodológico completo del proyecto: desde la extracción de datos SINAVE hasta la predicción a 52 semanas usando los 4 motores (Prophet, DeepAR, Ensemble, Stacking).'
+    );
+  }
+
   const alcanceTriggers = ['que sabe', 'que puede', 'de que sabe', 'que conoce', 'que informacion tiene', 'que datos tiene', 'que cubre', 'alcance', 'capacidad', 'sobre que me puede'];
   if (any(q, alcanceTriggers)) {
     return (
@@ -1773,24 +1793,31 @@ function isOffTopic(q, ent) {
   // Solo bloquear temas claramente irrelevantes al proyecto
   const blockedTerms = [
     'weather', 'futbol', 'soccer', 'basket', 'deporte', 'olimpi',
-    'pelicula', 'netflix', 'musica', 'cancion', 'concierto',
+    'formula 1', 'formula uno', ' f1 ', 'la f1', 'nascar', 'motogp',
+    'champions', 'mundial', 'liga mx', 'premier league', 'nba', 'nfl', 'mlb',
+    'pelicula', 'netflix', 'musica', 'cancion', 'concierto', 'serie de tv',
     'receta', 'cocina', 'restaurante',
     'bitcoin', 'crypto', 'bolsa de valores', 'acciones de',
     'vuelo', 'hotel', 'turismo', 'airbnb',
     'mascota', 'perro', 'gato',
     'chiste', 'joke', 'broma', 'meme',
     'horoscopo', 'signo zodiacal', 'tarot',
+    'pokemon', 'videojuego', 'playstation', 'xbox', 'nintendo',
   ];
 
-  // Solo bloquear si usan triggers ambiguos con temas bloqueados
-  const ambiguousTriggers = ['pronostico', 'prediccion', 'cuantos', 'cuantas'];
+  // Bloquear si usan triggers ambiguos con temas bloqueados
+  const ambiguousTriggers = ['pronostico', 'prediccion', 'cuantos', 'cuantas', 'quien gana', 'quien va a ganar', 'quien ganara', 'va a ganar'];
   const hasAmbiguous = ambiguousTriggers.some(t => q.includes(t));
   if (hasAmbiguous && blockedTerms.some(t => q.includes(t))) return true;
 
-  // Preguntas puramente triviales
+  // Detectar "f1" como Formula 1 (no confundir con codigos CIE F1x)
+  if (/\bf1\b/.test(q) && any(q, ['gana', 'campeon', 'carrera', 'piloto', 'constructor', 'temporada', 'verstappen', 'hamilton'])) return true;
+
+  // Preguntas puramente triviales o de entretenimiento
   const trivial = [
     'dime un chiste', 'cuenta un chiste', 'que hora es',
     'horoscopo', 'signo zodiacal',
+    'quien va a ganar', 'quien ganara',
   ];
   if (trivial.some(t => q.includes(t))) return true;
 
@@ -1885,15 +1912,36 @@ export async function answer(query) {
   }
 
   // Último intento: heredar contexto (para queries sin prefijo de follow-up)
-  if (!isFollowUp && (lastEntities.padecimiento || lastEntities.estado)) {
-    const merged = mergeWithContext(ent);
-    const hasExtra = merged.padecimiento !== ent.padecimiento || merged.estado !== ent.estado;
-    if (hasExtra) {
-      const resultCtx = runHandlers(q, merged, s, d);
-      if (resultCtx) {
-        const ctx = [merged.padecimiento, merged.estado].filter(Boolean).join(' en ');
-        lastEntities = merged;
-        return `*(Contexto: ${ctx})*\n\n${resultCtx}`;
+  // NO heredar si la pregunta es claramente sobre otro tema (proyecto, equipo, etc.)
+  const newTopicSignals = [
+    'articulo', 'publicacion', 'paper', 'equipo', 'integrante', 'quien hizo',
+    'infraestructura', 'arquitectura', 'pipeline', 'fuente de datos', 'fuente de informacion',
+    'como funciona', 'que es epiforecast', 'que sabe', 'que puede', 'alcance',
+    'configuracion', 'entrenamiento', 'region', 'macroregion',
+    'composicion', '333', 'por que 333', 'covid', 'pandemia',
+    'que padecimiento', 'cuales padecimiento', 'ayuda', 'hola', 'buenos dias',
+    'que hora', 'quien gana', 'formula', ' f1',
+  ];
+  const isNewTopic = newTopicSignals.some(t => q.includes(t));
+
+  if (!isFollowUp && !isNewTopic && (lastEntities.padecimiento || lastEntities.estado)) {
+    // Solo heredar si la query tiene keywords de datos/epidemiologia
+    const dataKeywords = ['caso', 'cuantos', 'cuantas', 'incidencia', 'dato', 'grafico', 'grafica',
+      'pronostico', 'prediccion', 'historico', 'historica', 'tendencia', 'semana', 'ano',
+      'boletin', 'metrica', 'smape', 'modelo', 'ranking', 'validacion', 'desglose',
+      'comparar', 'motor', 'sexo', 'hombre', 'mujer', 'general', 'nacional'];
+    const hasDataContext = dataKeywords.some(t => q.includes(t));
+
+    if (hasDataContext) {
+      const merged = mergeWithContext(ent);
+      const hasExtra = merged.padecimiento !== ent.padecimiento || merged.estado !== ent.estado;
+      if (hasExtra) {
+        const resultCtx = runHandlers(q, merged, s, d);
+        if (resultCtx) {
+          const ctx = [merged.padecimiento, merged.estado].filter(Boolean).join(' en ');
+          lastEntities = merged;
+          return `*(Contexto: ${ctx})*\n\n${resultCtx}`;
+        }
       }
     }
   }
