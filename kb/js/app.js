@@ -6,7 +6,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=23';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=24';
 import { detectEntities, norm } from './entities.js?v=15';
 
 // ---------------------------------------------------------------------------
@@ -686,8 +686,60 @@ function extractChartData(markdown, query) {
     }
   }
 
-  // Distribucion de motores -> donut
-  if (s.dist_motor && (qn.includes('distribucion') || qn.includes('conteo') || qn.includes('cuantos modelo'))) {
+  // Distribucion por sexo -> bar (cuando hay padecimiento + "sexo"/"genero"/"distribucion")
+  const sexTrigger = qn.includes('sexo') || qn.includes('genero') || qn.includes('hombre') || qn.includes('mujer');
+  if (sexTrigger) {
+    const ent = detectEntities(query);
+    const pad = ent.padecimiento;
+    const psx = pad && s.por_pad?.[pad]?.por_sexo;
+    if (psx) {
+      const labels = []; const vals = [];
+      for (const [sx, info] of Object.entries(psx)) {
+        if (sx === 'general') continue;
+        labels.push(sx === 'hombres' ? 'Hombres' : 'Mujeres');
+        vals.push(info.casos_total || 0);
+      }
+      if (labels.length) {
+        return {
+          type: 'bar',
+          title: `${pad}: casos pronosticados por sexo (52 sem)`,
+          labels,
+          datasets: [{
+            label: 'Casos pronosticados',
+            data: vals,
+            backgroundColor: ['#4A5D23', '#BC955C'],
+            borderRadius: 6,
+          }],
+        };
+      }
+    }
+    // Global sex distribution (sin padecimiento)
+    const globalSex = s.por_sexo;
+    if (globalSex) {
+      const labels = []; const vals = [];
+      for (const [sx, info] of Object.entries(globalSex)) {
+        if (sx === 'general') continue;
+        labels.push(sx === 'hombres' ? 'Hombres' : 'Mujeres');
+        vals.push(info.n || 0);
+      }
+      if (labels.length) {
+        return {
+          type: 'bar',
+          title: 'Modelos de produccion por sexo',
+          labels,
+          datasets: [{
+            label: 'Modelos',
+            data: vals,
+            backgroundColor: ['#4A5D23', '#BC955C'],
+            borderRadius: 6,
+          }],
+        };
+      }
+    }
+  }
+
+  // Distribucion de motores -> donut (excluir si pregunta por sexo)
+  if (s.dist_motor && !sexTrigger && (qn.includes('distribucion') || qn.includes('conteo') || qn.includes('cuantos modelo'))) {
     return {
       type: 'doughnut',
       title: 'Distribucion de motores',
