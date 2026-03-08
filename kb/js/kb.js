@@ -882,7 +882,7 @@ function answerHistorico(q, ent, s, d) {
       if (pad) {
         const nacVal = anualNac[pad]?.[ys];
         if (nacVal != null) {
-          lines.push(`No tengo datos históricos anuales desglosados para **${estado}**. A nivel **nacional**, en ${year} se reportaron **${fmt(nacVal)} casos de ${pad}**.`);
+          lines.push(`El Boletín Epidemiológico SINAVE no incluye desglose histórico para **${estado}**. Solo ${Object.keys(anualEst).length} entidades tienen datos anuales desglosados.\n\nA nivel **nacional**, en ${year} se reportaron **${fmt(nacVal)} casos de ${pad}**.`);
           const prev = anualNac[pad]?.[String(year - 1)];
           if (prev != null && prev > 0) {
             const pctChg = (((nacVal - prev) / prev) * 100).toFixed(1);
@@ -940,8 +940,13 @@ function answerHistorico(q, ent, s, d) {
     }
   }
 
+  // Si pidieron desglose semanal, avisar que no tenemos esa granularidad histórica
+  if (any(q, ['por semana', 'semanal', 'semana a semana', 'cada semana', 'desglose semanal'])) {
+    lines.push('\n**Nota:** los datos históricos del boletín están disponibles solo como acumulado anual. No contamos con desglose semanal por entidad para años anteriores.');
+  }
+
   return lines.join('\n');
-}
+}  // answerHistorico
 
 // ---------------------------------------------------------------------------
 // SERIES ESPEC\u00cdFICAS (pad + estado) — respuesta directa e inteligente
