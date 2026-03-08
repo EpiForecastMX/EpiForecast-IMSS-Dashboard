@@ -379,6 +379,32 @@ function answerProyectoMeta(q, ent, s, d) {
     );
   }
 
+  // Composicion de los 333 modelos
+  const compTriggers = ['composicion', 'de donde salen', 'por que 333', 'porque 333', 'como se compone',
+    'de donde vienen', 'que son los 333', 'como se forman', 'como se calculan los 333',
+    'explicame los 333', 'explica los 333', 'desglose de modelo'];
+  if (any(q, compTriggers) || (q.includes('333') && any(q, ['que es', 'que son', 'como', 'por que', 'porque', 'explica', 'de donde']))) {
+    const pp = s.por_pad || {};
+    const lines = [
+      '**Composicion de los 333 modelos de produccion**\n',
+      'EpiForecast-MX genera modelos para **cada combinacion unica** de padecimiento, geografia y sexo:\n',
+      '| Dimension | Valores | Cantidad |',
+      '|-----------|---------|:--------:|',
+      '| Padecimientos | Depresion (F32), Parkinson (G20), Alzheimer (G30) | **3** |',
+      '| Geografias | 32 entidades + 4 regiones INEGI + Nacional | **37** |',
+      '| Sexo | General, Hombres, Mujeres | **3** |',
+      '',
+      '**3 padecimientos x 37 geografias x 3 sexos = 333 modelos**\n',
+      'Cada modelo es una serie de tiempo independiente con su propio motor de prediccion (DeepAR, Prophet, Ensemble o Stacking) seleccionado por menor SMAPE en cross-validation.\n',
+      '**Desglose por padecimiento:**',
+    ];
+    for (const [nombre, key] of [['Depresion', 'Depresion'], ['Parkinson', 'Parkinson'], ['Alzheimer', 'Alzheimer']]) {
+      const ps = pp[key] || {};
+      lines.push(`- **${nombre}**: ${ps.n || 111} modelos | Motor ganador: ${ps.motor_ganador || '—'} | Pronostico: ${fmt(ps.casos_futuro_total)} casos`);
+    }
+    return lines.join('\n');
+  }
+
   const alcanceTriggers = ['que sabe', 'que puede', 'de que sabe', 'que conoce', 'que informacion tiene', 'que datos tiene', 'que cubre', 'alcance', 'capacidad', 'sobre que me puede'];
   if (any(q, alcanceTriggers)) {
     return (
