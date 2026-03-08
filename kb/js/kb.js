@@ -205,6 +205,46 @@ function needsGeminiReasoning(q) {
 }
 
 // ---------------------------------------------------------------------------
+// Guard: prompt injection / roleplay → rechazar con mensaje
+// ---------------------------------------------------------------------------
+
+function answerInjectionGuard(q) {
+  const injectionPatterns = [
+    // Roleplay / cambio de identidad
+    'roleplay', 'role play', 'actua como', 'finge ser', 'finge que eres',
+    'eres ahora', 'ahora eres', 'de ahora en adelante eres',
+    'comportate como', 'pretend to be', 'you are now', 'act as',
+    'simulate being', 'imagina que eres', 'juega a ser',
+    // Manipulacion de instrucciones
+    'ignora tus instrucciones', 'olvida tus reglas', 'ignore your instructions',
+    'forget your', 'override your', 'bypass your', 'disregard your',
+    'ignore previous', 'ignore all previous', 'new instructions',
+    'nuevas instrucciones', 'cambia tus reglas', 'ignora las reglas',
+    // Extraccion de prompt / secretos
+    'dime tu prompt', 'show me your prompt', 'reveal your prompt',
+    'dame tu system prompt', 'system prompt', 'tell me your instructions',
+    'share the password', 'dame las contrasena', 'dame las claves',
+    'leaking secrets', 'filtra secretos', 'dime tus secretos',
+    // Codificacion / evasion
+    'DAN mode', 'jailbreak', 'developer mode', 'modo desarrollador',
+    // Respuestas condicionadas
+    'si la respuesta es si responde', 'responde solo con',
+    'a partir de ahora responde', 'usa solo emojis',
+  ];
+  return injectionPatterns.some(p => q.includes(p));
+}
+
+const INJECTION_RESPONSE =
+  'Soy el asistente de **EpiForecast-MX**, una plataforma de inteligencia ' +
+  'epidemiologica del IMSS. No puedo asumir otros roles, compartir informacion ' +
+  'confidencial ni modificar mis instrucciones.\n\n' +
+  'Puedo ayudarte con:\n' +
+  '- Datos y pronosticos de **Depresion**, **Parkinson** y **Alzheimer**\n' +
+  '- Metricas de los modelos de ML (SMAPE, MASE, RMSE)\n' +
+  '- Datos historicos del boletin epidemiologico SINAVE\n' +
+  '- Informacion del equipo, metodologia e infraestructura';
+
+// ---------------------------------------------------------------------------
 // Guard: padecimiento no modelado → retorna null para caer a Gemini
 // ---------------------------------------------------------------------------
 
@@ -246,17 +286,27 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
 }
 
 function answerLugarDesconocido(q, ent, s, d) {
-  if (!ent._lugarDesconocido || ent.estado || ent.padecimiento) return null;
+  if (!ent._lugarDesconocido || ent.estado) return null;
   // No interceptar preguntas sobre metodologia/fuentes que contienen falsos positivos
   const skipKw = ['basado', 'basas', 'basa', 'funciona', 'metodologia', 'sacas', 'obtienes', 'sabes'];
   if (any(q, skipKw)) return null;
   const lugar = ent._lugarDesconocido;
-  return (
-    `**${lugar.charAt(0).toUpperCase() + lugar.slice(1)}** no es una entidad federativa de M\u00e9xico.\n\n` +
-    'EpiForecast-MX cubre \u00fanicamente las **32 entidades federativas** de M\u00e9xico, ' +
-    '4 macrorregiones INEGI y el nivel Nacional.\n\n' +
-    'Ejemplos: "Parkinson en Jalisco", "Depresi\u00f3n en CDMX", "Alzheimer en Nuevo Le\u00f3n".'
-  );
+  const cap = lugar.charAt(0).toUpperCase() + lugar.slice(1);
+  const lines = [
+    `**${cap}** no es una entidad federativa de Mexico.\n`,
+    'EpiForecast-MX cubre unicamente las **32 entidades federativas** de Mexico, ' +
+    '4 macrorregiones INEGI y el nivel Nacional.\n',
+  ];
+  if (ent.padecimiento) {
+    const ps = s.por_pad?.[ent.padecimiento];
+    if (ps && ps.casos_futuro_total) {
+      lines.push(`A nivel **Nacional**, se pronostican **${fmt(ps.casos_futuro_total)} casos de ${ent.padecimiento}** en 52 semanas (SMAPE: ${ps.smape_prod_median}%).`);
+    }
+    lines.push(`\nPrueba con una entidad valida: "${ent.padecimiento} en Jalisco", "${ent.padecimiento} en CDMX".`);
+  } else {
+    lines.push('Ejemplos: "Parkinson en Jalisco", "Depresion en CDMX", "Alzheimer en Nuevo Leon".');
+  }
+  return lines.join('\n');
 }
 
 // ---------------------------------------------------------------------------
@@ -596,7 +646,7 @@ function answerProyectoMeta(q, ent, s, d) {
     );
   }
 
-  const articuloTriggers = ['articulo', 'publicacion', 'paper', 'manuscrito', 'draft', 'titulo del articulo', 'nombre del articulo', 'como se llama el articulo', 'que se va a publicar', 'articulo cientifico', 'journal'];
+  const articuloTriggers = ['articulo', 'publicacion', 'paper ', 'manuscrito', 'draft', 'titulo del articulo', 'nombre del articulo', 'como se llama el articulo', 'que se va a publicar', 'articulo cientifico', 'revista cientifica', 'en que journal', 'que journal'];
   if (any(q, articuloTriggers)) {
     return (
       '**Artículo del proyecto EpiForecast-MX**\n\n' +
@@ -2428,6 +2478,9 @@ export async function answer(query) {
   const s = d.stats || {};
   const q = norm(query);
   const ent = detectEntities(query);
+
+  // Guard: prompt injection / roleplay → rechazar inmediatamente
+  if (answerInjectionGuard(q)) return INJECTION_RESPONSE;
 
   // Si requiere razonamiento temporal fino (diario), ceder a Gemini
   if (needsGeminiReasoning(q)) return null;

@@ -231,16 +231,34 @@ export function detectEntities(query) {
 
   // Detectar lugar no reconocido: "en [lugar]" que no matcheó ningún estado
   if (!result.estado) {
+    // Patron 1: "en [lugar]" directo
     const enMatch = qn.match(/\ben\s+([a-z][a-z ]{2,20}?)(?:\s+en|\s+el|\s+la|\s+del|\s+de|\s+los|\s+las|\s*$|\s*\?)/);
-    if (enMatch) {
-      const lugar = enMatch[1].trim();
+    // Patron 2: "en el estado de [lugar]" / "en la ciudad de [lugar]"
+    const enDeMatch = qn.match(/\ben\s+(?:el\s+estado|la\s+ciudad|la\s+region)\s+de\s+([a-z][a-z ]{2,20}?)(?:\s|,|$)/);
+    const matched = enDeMatch || enMatch;
+    if (matched) {
+      const lugar = matched[1].trim();
       // Excluir palabras comunes y padecimientos que no son lugares
       const noLugar = ['el', 'la', 'los', 'las', 'un', 'una', 'que', 'general', 'total',
         'produccion', 'promedio', 'detalle', 'mexico', 'cuenta', 'salud',
         'depresion', 'parkinson', 'alzheimer', 'este ano', 'el ano',
         'hombres', 'mujeres', 'masculino', 'femenino'];
-      if (!noLugar.includes(lugar) && lugar.length > 2 && !result.padecimiento) {
+      const alsoNoLugar = ['personas', 'mayores', 'menores', 'adultos', 'jovenes',
+        'pacientes', 'ninos', 'ancianos', 'edad', 'anos', 'semanas'];
+      if (!noLugar.includes(lugar) && !alsoNoLugar.includes(lugar) && lugar.length > 2) {
         result._lugarDesconocido = lugar;
+      }
+    }
+
+    // Lugares comunes no mexicanos que se confunden (sin "baja" = no es Baja California)
+    const confusionPlaces = ['california', 'texas', 'florida', 'nueva york', 'los angeles',
+      'colombia', 'argentina', 'peru', 'chile', 'espana', 'pakistan', 'india', 'china',
+      'brasil', 'canada', 'estados unidos', 'eeuu'];
+    for (const place of confusionPlaces) {
+      if (!result._lugarDesconocido && new RegExp(`\\b${place}\\b`).test(qn)) {
+        // "california" solo si no es "baja california"
+        if (place === 'california' && qn.includes('baja california')) continue;
+        result._lugarDesconocido = place;
       }
     }
   }
