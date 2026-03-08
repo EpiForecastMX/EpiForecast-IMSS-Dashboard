@@ -16,7 +16,38 @@ export async function loadKnowledge() {
   const resp = await fetch(`./knowledge.json${cacheBust}`);
   if (!resp.ok) throw new Error('No se pudo cargar knowledge.json');
   DATA = await resp.json();
+  _fixForecastTotals();
   return DATA;
+}
+
+/**
+ * Corrige pronostico_total y casos_futuro_total para evitar conteo multiple.
+ * El build original suma todas las filas (general+hombres+mujeres, Nacional+regiones+estados).
+ * Lo correcto es usar solo sexo=general, excluyendo Nacional y regiones (evitar doble conteo).
+ */
+function _fixForecastTotals() {
+  const models = DATA?.prod_models;
+  const stats = DATA?.stats;
+  if (!models || !stats) return;
+
+  const pp = stats.por_pad || {};
+  let grandTotal = 0;
+
+  for (const pad of Object.keys(pp)) {
+    // Sumar solo 32 estados individuales con sexo=general (sin Nacional ni regiones)
+    const stateGenerals = models.filter(m =>
+      m.padecimiento === pad &&
+      m.sexo === 'general' &&
+      m.entidad !== 'Nacional' &&
+      !String(m.entidad || '').startsWith('Region') &&
+      !String(m.entidad || '').startsWith('region')
+    );
+    const corrected = stateGenerals.reduce((sum, m) => sum + (m.casos_52_semanas_futuro || 0), 0);
+    pp[pad].casos_futuro_total = corrected;
+    grandTotal += corrected;
+  }
+
+  stats.pronostico_total = grandTotal;
 }
 
 export function getStats() { return DATA?.stats || {}; }
