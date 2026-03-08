@@ -33,16 +33,16 @@ function dn(s) { return s ? (DISPLAY_NAMES[s] || s) : s; }
 
 // Paleta mejorada basada en el logo
 const CHART_COLORS = [
-  '#4A5D23', // verde olivo
-  '#BC955C', // dorado
-  '#C07850', // terracota
-  '#5B8A8A', // teal
-  '#7D9A4C', // verde claro
-  '#9A7A4A', // dorado oscuro
-  '#8B6E5A', // marron
-  '#6B8E8E', // teal claro
-  '#5C7A2A', // verde medio
-  '#D4A574', // dorado claro
+  '#2EC4A8', // teal
+  '#D4A84B', // gold
+  '#C83A5A', // burgundy
+  '#6DD6C2', // teal claro
+  '#E8C56D', // gold claro
+  '#E06080', // burgundy claro
+  '#1DA88E', // teal oscuro
+  '#8FA99D', // sage
+  '#A8D8C8', // mint
+  '#F0D090', // cream gold
 ];
 
 // ---------------------------------------------------------------------------
@@ -391,8 +391,8 @@ function extractChartData(markdown, query) {
         title: 'SMAPE por motor de predicción',
         labels: Object.keys(pm),
         datasets: [
-          { label: 'SMAPE medio', data: Object.values(pm).map(v => v.smape_mean), backgroundColor: '#4A5D23CC', borderRadius: 6 },
-          { label: 'SMAPE mediano', data: Object.values(pm).map(v => v.smape_median), backgroundColor: '#BC955CCC', borderRadius: 6 },
+          { label: 'SMAPE medio', data: Object.values(pm).map(v => v.smape_mean), backgroundColor: '#2EC4A8CC', borderRadius: 6 },
+          { label: 'SMAPE mediano', data: Object.values(pm).map(v => v.smape_median), backgroundColor: '#D4A84BCC', borderRadius: 6 },
         ],
       };
     }
@@ -427,7 +427,7 @@ function extractChartData(markdown, query) {
         labels: ['OK', 'Moderado', 'Alto'],
         datasets: [{
           data: [s.overfitting_ok || 0, s.overfitting_moderado || 0, s.overfitting_alto || 0],
-          backgroundColor: ['#4A5D23', '#BC955C', '#C07850'],
+          backgroundColor: ['#2EC4A8', '#D4A84B', '#C83A5A'],
           borderWidth: 0,
         }],
       };
@@ -499,7 +499,7 @@ function extractChartData(markdown, query) {
           datasets: [{
             label: 'Casos pronosticados',
             data: matches.map(m => m.casos_52_semanas_futuro || 0),
-            backgroundColor: ['#4A5D23', '#BC955C', '#5B8A8A'],
+            backgroundColor: ['#2EC4A8', '#D4A84B', '#C83A5A'],
             borderRadius: 6,
           }],
         };
@@ -612,7 +612,7 @@ function extractChartData(markdown, query) {
             backgroundColor: CHART_COLORS[i] + '22',
             fill: true, tension: 0.4, borderWidth: 3,
             pointRadius: allYears.map(y => ent._years.includes(Number(y)) ? 7 : 3),
-            pointBackgroundColor: allYears.map(y => ent._years.includes(Number(y)) ? '#9F2241' : CHART_COLORS[i]),
+            pointBackgroundColor: allYears.map(y => ent._years.includes(Number(y)) ? '#C83A5A' : CHART_COLORS[i]),
           });
         });
         if (datasets.length) {
@@ -639,7 +639,7 @@ function extractChartData(markdown, query) {
           title: `${dn(ent.padecimiento)} en ${dn(ent.estado)}: pronóstico 52 sem`,
           labels: matches.map(m => m.sexo.charAt(0).toUpperCase() + m.sexo.slice(1)),
           datasets: [{ label: 'Casos pronosticados', data: matches.map(m => m.casos_52_semanas_futuro || 0),
-            backgroundColor: ['#4A5D23', '#BC955C', '#5B8A8A'], borderRadius: 6 }],
+            backgroundColor: ['#2EC4A8', '#D4A84B', '#C83A5A'], borderRadius: 6 }],
         };
       }
     }
@@ -716,7 +716,7 @@ function extractChartData(markdown, query) {
           datasets: [{
             label: 'Casos pronosticados',
             data: vals,
-            backgroundColor: ['#4A5D23', '#BC955C'],
+            backgroundColor: ['#2EC4A8', '#D4A84B'],
             borderRadius: 6,
           }],
         };
@@ -739,7 +739,7 @@ function extractChartData(markdown, query) {
           datasets: [{
             label: 'Modelos',
             data: vals,
-            backgroundColor: ['#4A5D23', '#BC955C'],
+            backgroundColor: ['#2EC4A8', '#D4A84B'],
             borderRadius: 6,
           }],
         };
