@@ -875,6 +875,26 @@ addCtx('dame un grafico interesante', 'uno mas', 'answerGraficoAleatorio', ['GEN
 addCtx('sorprendeme con un grafico', 'siguiente', 'answerGraficoAleatorio', ['GENCHART']);
 
 // =====================================================================
+// SECCION 37e: CONOCIMIENTO GENERAL → Gemini (12 tests)
+// =====================================================================
+
+// Personajes famosos
+add('dime 3 personajes famosos con parkinson', null, []);
+add('que celebridades tienen alzheimer', null, []);
+add('que artistas han tenido depresion', null, []);
+add('alguien famoso con parkinson', null, []);
+// Paises / mundial
+add('que pais tiene mas indices de depresion', null, []);
+add('paises con mas parkinson en el mundo', null, []);
+add('depresion a nivel mundial', null, []);
+add('alzheimer en estados unidos', null, []);
+// Consejos medicos
+add('como se cura el parkinson', null, []);
+add('tratamiento para la depresion', null, []);
+add('se puede prevenir el alzheimer', null, []);
+add('que medicamento tomar para depresion', null, []);
+
+// =====================================================================
 // SECCION 37b: HISTORIA/ORIGEN → Gemini (6 tests)
 // =====================================================================
 

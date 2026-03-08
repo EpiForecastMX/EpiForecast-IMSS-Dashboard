@@ -5723,7 +5723,7 @@
   },
   {
     "id": 532,
-    "query": "historia del parkinson",
+    "query": "dime 3 personajes famosos con parkinson",
     "expectedHandler": null,
     "mustContain": [],
     "mustNotContain": [],
@@ -5731,7 +5731,7 @@
   },
   {
     "id": 533,
-    "query": "origen de la depresion",
+    "query": "que celebridades tienen alzheimer",
     "expectedHandler": null,
     "mustContain": [],
     "mustNotContain": [],
@@ -5739,7 +5739,7 @@
   },
   {
     "id": 534,
-    "query": "quien descubrio el alzheimer",
+    "query": "que artistas han tenido depresion",
     "expectedHandler": null,
     "mustContain": [],
     "mustNotContain": [],
@@ -5747,7 +5747,7 @@
   },
   {
     "id": 535,
-    "query": "de donde viene el nombre parkinson",
+    "query": "alguien famoso con parkinson",
     "expectedHandler": null,
     "mustContain": [],
     "mustNotContain": [],
@@ -5755,7 +5755,7 @@
   },
   {
     "id": 536,
-    "query": "parkinson viene de pakistan",
+    "query": "que pais tiene mas indices de depresion",
     "expectedHandler": null,
     "mustContain": [],
     "mustNotContain": [],
@@ -5763,7 +5763,7 @@
   },
   {
     "id": 537,
-    "query": "historia de la depresion en el mundo",
+    "query": "paises con mas parkinson en el mundo",
     "expectedHandler": null,
     "mustContain": [],
     "mustNotContain": [],
@@ -5771,7 +5771,7 @@
   },
   {
     "id": 538,
-    "query": "de donde viene el alzheimer",
+    "query": "depresion a nivel mundial",
     "expectedHandler": null,
     "mustContain": [],
     "mustNotContain": [],
@@ -5779,7 +5779,7 @@
   },
   {
     "id": 539,
-    "query": "como se descubrio la depresion",
+    "query": "alzheimer en estados unidos",
     "expectedHandler": null,
     "mustContain": [],
     "mustNotContain": [],
@@ -5787,6 +5787,102 @@
   },
   {
     "id": 540,
+    "query": "como se cura el parkinson",
+    "expectedHandler": null,
+    "mustContain": [],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 541,
+    "query": "tratamiento para la depresion",
+    "expectedHandler": null,
+    "mustContain": [],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 542,
+    "query": "se puede prevenir el alzheimer",
+    "expectedHandler": null,
+    "mustContain": [],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 543,
+    "query": "que medicamento tomar para depresion",
+    "expectedHandler": null,
+    "mustContain": [],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 544,
+    "query": "historia del parkinson",
+    "expectedHandler": null,
+    "mustContain": [],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 545,
+    "query": "origen de la depresion",
+    "expectedHandler": null,
+    "mustContain": [],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 546,
+    "query": "quien descubrio el alzheimer",
+    "expectedHandler": null,
+    "mustContain": [],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 547,
+    "query": "de donde viene el nombre parkinson",
+    "expectedHandler": null,
+    "mustContain": [],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 548,
+    "query": "parkinson viene de pakistan",
+    "expectedHandler": null,
+    "mustContain": [],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 549,
+    "query": "historia de la depresion en el mundo",
+    "expectedHandler": null,
+    "mustContain": [],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 550,
+    "query": "de donde viene el alzheimer",
+    "expectedHandler": null,
+    "mustContain": [],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 551,
+    "query": "como se descubrio la depresion",
+    "expectedHandler": null,
+    "mustContain": [],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 552,
     "query": "cuando se identifico el parkinson",
     "expectedHandler": null,
     "mustContain": [],

@@ -205,6 +205,46 @@ function needsGeminiReasoning(q) {
 }
 
 // ---------------------------------------------------------------------------
+// Detecta preguntas de conocimiento general sobre padecimientos
+// que el proyecto NO puede responder (ceder a Gemini)
+// ---------------------------------------------------------------------------
+
+function needsGeneralKnowledge(q) {
+  // Personajes famosos, celebridades
+  const famousKw = [
+    'famoso', 'famosa', 'celebridad', 'celebridades', 'personaje',
+    'persona conocida', 'gente conocida', 'artista', 'actor', 'actriz',
+    'cantante', 'deportista', 'politico', 'presidente',
+    'quien tiene', 'quien padece', 'quien sufre', 'quien tuvo',
+    'quien ha tenido', 'alguien famoso',
+  ];
+  if (any(q, famousKw)) return true;
+
+  // Preguntas sobre paises (el proyecto solo cubre Mexico)
+  const countryKw = [
+    'que pais', 'paises', 'pais con mas', 'pais tiene', 'a nivel mundial',
+    'en el mundo', 'mundial', 'globalmente', 'global',
+    'latinoamerica', 'europa', 'asia', 'africa', 'norteamerica', 'sudamerica',
+    'estados unidos', 'espana', 'argentina', 'colombia', 'chile', 'peru',
+    'canada', 'brasil', 'francia', 'alemania', 'china', 'india', 'japon',
+  ];
+  if (any(q, countryKw)) return true;
+
+  // Consejos medicos, tratamientos, curas
+  const medicalKw = [
+    'cura para', 'tiene cura', 'se puede curar', 'como se cura',
+    'como tratar', 'como se trata', 'tratamiento para',
+    'medicamento para', 'medicina para', 'farmaco para',
+    'que tomar', 'medicamento', 'como prevenir', 'se puede prevenir',
+    'como evitar', 'como detectar', 'como diagnosticar',
+    'donde atender', 'donde tratan', 'a que medico', 'que doctor',
+  ];
+  if (any(q, medicalKw)) return true;
+
+  return false;
+}
+
+// ---------------------------------------------------------------------------
 // Guard: prompt injection / roleplay → rechazar con mensaje
 // ---------------------------------------------------------------------------
 
@@ -2919,6 +2959,10 @@ export async function answer(query) {
 
   // Guard: tema fuera de alcance → ceder a Gemini
   if (isOffTopic(q, ent)) return null;
+
+  // Guard: conocimiento general sobre padecimientos → ceder a Gemini
+  // (el proyecto solo tiene datos epidemiologicos de Mexico, no info general)
+  if (ent.padecimiento && needsGeneralKnowledge(q)) return null;
 
   // Prioridad: follow-up de distribucion ("solo de la depresion" tras un violin/histograma)
   if (_lastDistribMetric) {
