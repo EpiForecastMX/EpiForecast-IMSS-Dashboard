@@ -180,10 +180,35 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
   // Si ya detectamos un padecimiento conocido, no es off-scope
   if (ent.padecimiento) return null;
 
-  // Preguntas cuantitativas sobre enfermedades no modeladas → ceder a Gemini
-  // (Gemini puede dar contexto general sobre salud en Mexico)
-  // Solo retornar null para que caiga al flujo normal y si ningun handler
-  // local responde, Gemini lo atenderá
+  // Detectar enfermedades/padecimientos mencionados que NO modelamos
+  const enfermedades = [
+    'cancer', 'diabetes', 'hipertension', 'obesidad', 'asma', 'epilepsia',
+    'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah', 'demencia',
+    'influenza', 'dengue', 'covid', 'tuberculosis', 'vih', 'sida', 'colera',
+    'sarampion', 'rubeola', 'hepatitis', 'zika', 'chikungunya', 'malaria',
+    'leucemia', 'linfoma', 'tumor', 'neoplasia', 'cardiop', 'infarto',
+    'embolia', 'neumonia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
+    'lupus', 'fibromialgia', 'esclerosis', 'huntington', 'ela ',
+    'insuficiencia renal', 'insuficiencia cardiaca',
+  ];
+
+  // Solo activar si la pregunta parece pedir datos (casos, incidencia, etc.)
+  const dataKw = ['caso', 'cuanto', 'incidencia', 'dato', 'estadistica',
+    'numero', 'cifra', 'hubo', 'reporta', 'registro', 'pronostic',
+    'prediccion', 'modelo', 'grafica', 'tendencia'];
+
+  const matchedDisease = enfermedades.find(e => q.includes(e));
+  if (matchedDisease && any(q, dataKw)) {
+    return (
+      `EpiForecast-MX **no modela ${matchedDisease}**. ` +
+      'Nuestro proyecto se enfoca exclusivamente en 3 padecimientos del Bolet\u00edn Epidemiol\u00f3gico SINAVE:\n\n' +
+      '- **Depresi\u00f3n** (CIE-10: F32)\n' +
+      '- **Parkinson** (CIE-10: G20)\n' +
+      '- **Alzheimer** (CIE-10: G30)\n\n' +
+      '\u00bfTe gustar\u00eda consultar datos de alguno de estos padecimientos?'
+    );
+  }
+
   return null;
 }
 
@@ -726,6 +751,10 @@ function answerBoletin(q, ent, s, d) {
     const yrStr = years.join(', ');
     const lines = [`**Resumen epidemiol\u00f3gico ${yrStr}**:\n`];
     const anualPad = bol.anual_por_pad || {};
+    const allAvailYears = Object.values(anualPad).flatMap(d => Object.keys(d).map(Number));
+    const minY = Math.min(...allAvailYears);
+    const maxY = Math.max(...allAvailYears);
+    const missing = [];
     for (const y of years) {
       let total = 0;
       const parts = [];
@@ -733,9 +762,16 @@ function answerBoletin(q, ent, s, d) {
         const c = data[String(y)];
         if (c != null) { total += c; parts.push(`  - ${p}: ${fmt(c)}`); }
       }
-      lines.push(`**${y}**: ${fmt(total)} casos totales`);
-      lines.push(...parts);
-      if (years.length > 1) lines.push('');
+      if (parts.length > 0) {
+        lines.push(`**${y}**: ${fmt(total)} casos totales`);
+        lines.push(...parts);
+        if (years.length > 1) lines.push('');
+      } else {
+        missing.push(y);
+      }
+    }
+    if (missing.length) {
+      lines.push(`\nNo tengo datos para ${missing.length === 1 ? 'el a\u00f1o' : 'los a\u00f1os'} **${missing.join(', ')}**. El Bolet\u00edn Epidemiol\u00f3gico SINAVE (nuestra fuente) cubre de **${minY}** a **${maxY}**.`);
     }
     return lines.join('\n');
   }
