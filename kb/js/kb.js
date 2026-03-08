@@ -271,7 +271,7 @@ function answerEquipo(q, ent, s, d) {
 
 function answerTemporal(q, ent, s, d) {
   const triggers = [
-    'que dia', 'que fecha', 'fecha de hoy', 'dia de hoy', 'fecha actual',
+    'que dia es', 'fecha de hoy', 'dia de hoy', 'fecha actual',
     'semana epidemiologica', 'semana epi', 'en que semana', 'que semana es',
     'que semana estamos', 'semana estamos', 'ultima semana', 'ultimo dato',
     'hasta cuando', 'hasta que fecha', 'hasta que semana', 'cobertura temporal',
@@ -280,11 +280,15 @@ function answerTemporal(q, ent, s, d) {
   ];
   if (!any(q, triggers)) return null;
 
+  // Si mencionan un evento historico, no dar la fecha actual
+  const historicalContext = ['ocurrio', 'fue', 'paso', 'inicio', 'empezo', 'surgio', 'covid', 'pandemia'];
+  if (historicalContext.some(w => q.includes(w))) return null;
+
   const now = new Date();
   const iso = getISOWeek(now);
   const lines = [];
 
-  const isDateQ = any(q, ['que dia', 'que fecha', 'fecha de hoy', 'dia de hoy', 'fecha actual']);
+  const isDateQ = any(q, ['que dia es', 'fecha de hoy', 'dia de hoy', 'fecha actual']);
   if (isDateQ) {
     const dias = ['domingo', 'lunes', 'martes', 'mi\u00e9rcoles', 'jueves', 'viernes', 's\u00e1bado'];
     const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
