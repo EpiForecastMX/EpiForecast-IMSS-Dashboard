@@ -888,6 +888,11 @@ add('que pais tiene mas indices de depresion', null, []);
 add('paises con mas parkinson en el mundo', null, []);
 add('depresion a nivel mundial', null, []);
 add('alzheimer en estados unidos', null, []);
+// Personas especificas con enfermedad
+add('rocky tenia parkinson', null, []);
+add('mohamed ali tuvo parkinson', null, []);
+add('mi abuelo tiene alzheimer', null, []);
+add('a robin williams le diagnosticaron parkinson', null, []);
 // Consejos medicos
 add('como se cura el parkinson', null, []);
 add('tratamiento para la depresion', null, []);

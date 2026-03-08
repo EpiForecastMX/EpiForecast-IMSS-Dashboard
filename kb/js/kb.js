@@ -230,6 +230,19 @@ function needsGeneralKnowledge(q) {
   ];
   if (any(q, countryKw)) return true;
 
+  // Preguntas sobre si alguien tuvo/tiene una enfermedad (persona especifica)
+  // "rocky tenia parkinson", "mohamed ali tuvo parkinson", "mi abuelo tiene alzheimer"
+  const personalDiseaseVerbs = [
+    'tuvo ', 'tenia ', 'tiene ', 'padecio ', 'padecia ', 'sufrio ',
+    'sufria ', 'murio de ', 'murio por ', 'fallecio de ', 'fallecio por ',
+    'le diagnosticaron', 'le dieron', 'le detectaron',
+  ];
+  // Solo aplicar si NO hay keywords de datos/proyecto
+  const dataKwCheck = ['caso', 'cuanto', 'pronostico', 'metrica', 'smape', 'modelo', 'semana',
+    'boletin', 'historico', 'tendencia', 'ranking', 'motor', 'grafico',
+    'estado', 'entidad', 'region', 'nacional', 'incidencia', 'dato'];
+  if (any(q, personalDiseaseVerbs) && !any(q, dataKwCheck)) return true;
+
   // Consejos medicos, tratamientos, curas
   const medicalKw = [
     'cura para', 'tiene cura', 'se puede curar', 'como se cura',
