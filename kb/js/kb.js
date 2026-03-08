@@ -652,8 +652,11 @@ function answerBoletin(q, ent, s, d) {
   if (hasYear && pad && !estado) {
     const anual = bol.anual_por_pad?.[pad];
     if (!anual) return null;
+    const availYears = Object.keys(anual).map(Number).sort();
+    const minY = availYears[0], maxY = availYears[availYears.length - 1];
     const yrStr = years.join(', ');
     const lines = [`**${pad}** (${yrStr}):\n`];
+    const missing = [];
     for (const y of years) {
       const c = anual[String(y)];
       if (c != null) {
@@ -664,9 +667,14 @@ function answerBoletin(q, ent, s, d) {
           change = ` (${Number(pc) >= 0 ? '+' : ''}${pc}% vs ${y - 1})`;
         }
         lines.push(`- **${y}**: ${fmt(c)} casos${change}`);
+      } else {
+        missing.push(y);
       }
     }
-    return lines.length > 1 ? lines.join('\n') : null;
+    if (missing.length) {
+      lines.push(`\nNo tengo datos para ${missing.length === 1 ? 'el ano' : 'los anos'} **${missing.join(', ')}**. Los datos disponibles del boletin van de **${minY}** a **${maxY}**.`);
+    }
+    return lines.join('\n');
   }
 
   // A\u00f1o + estado
@@ -675,17 +683,25 @@ function answerBoletin(q, ent, s, d) {
     if (!estData) return null;
     const yrStr = years.join(', ');
     const lines = [`**${estado}** (${yrStr}):\n`];
+    const missing = [];
     if (pad) {
       const padData = estData[pad];
       if (!padData) return null;
-      for (const y of years) { const c = padData[String(y)]; if (c != null) lines.push(`- ${y}: ${fmt(c)} casos`); }
+      for (const y of years) {
+        const c = padData[String(y)];
+        if (c != null) lines.push(`- ${y}: ${fmt(c)} casos`);
+        else missing.push(y);
+      }
     } else {
       for (const [p, padData] of Object.entries(estData)) {
         lines.push(`\n**${p}**:`);
         for (const y of years) { const c = padData[String(y)]; if (c != null) lines.push(`- ${y}: ${fmt(c)} casos`); }
       }
     }
-    return lines.length > 1 ? lines.join('\n') : null;
+    if (missing.length) {
+      lines.push(`\nNo tengo datos de ${estado} para ${missing.length === 1 ? 'el ano' : 'los anos'} **${missing.join(', ')}**. Los datos disponibles van de **2014** a **2026**.`);
+    }
+    return lines.join('\n');
   }
 
   // A\u00f1o sin padecimiento ni estado → resumen del a\u00f1o
