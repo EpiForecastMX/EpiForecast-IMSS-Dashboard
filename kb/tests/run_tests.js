@@ -68,6 +68,11 @@ for (const t of testCases) {
   // Reset conversational context between tests to avoid contamination
   _resetContext();
 
+  // 0. Run setup query to establish context (for follow-up tests)
+  if (t.setupQuery) {
+    try { await answer(t.setupQuery); } catch {}
+  }
+
   // 1. Entity detection validation
   if (checkEntities && Object.keys(checkEntities).length > 0) {
     const ent = detectEntities(query);

@@ -226,7 +226,7 @@ function answerInjectionGuard(q) {
     'share the password', 'dame las contrasena', 'dame las claves',
     'leaking secrets', 'filtra secretos', 'dime tus secretos',
     // Codificacion / evasion
-    'DAN mode', 'jailbreak', 'developer mode', 'modo desarrollador',
+    'dan mode', 'jailbreak', 'developer mode', 'modo desarrollador',
     // Respuestas condicionadas
     'si la respuesta es si responde', 'responde solo con',
     'a partir de ahora responde', 'usa solo emojis',
@@ -270,8 +270,9 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
     'prediccion', 'modelo', 'grafica', 'tendencia'];
 
   const matchedDisease = enfermedades.find(e => q.includes(e));
-  // Activar si tiene data keywords, O si menciona un estado/entidad (implica pedir datos)
-  if (matchedDisease && (any(q, dataKw) || ent.estado)) {
+  // Activar si tiene data keywords, menciona un estado, o es un follow-up corto ("y del cancer")
+  const isShortFollowUp = q.split(' ').length <= 5 && /^(y |y del |y de |y la |y el )/.test(q);
+  if (matchedDisease && (any(q, dataKw) || ent.estado || isShortFollowUp)) {
     return (
       `EpiForecast-MX **no modela ${matchedDisease}**. ` +
       'Nuestro proyecto se enfoca exclusivamente en 3 padecimientos del Bolet\u00edn Epidemiol\u00f3gico SINAVE:\n\n' +
@@ -287,8 +288,10 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
 
 function answerLugarDesconocido(q, ent, s, d) {
   if (!ent._lugarDesconocido || ent.estado) return null;
-  // No interceptar preguntas sobre metodologia/fuentes que contienen falsos positivos
-  const skipKw = ['basado', 'basas', 'basa', 'funciona', 'metodologia', 'sacas', 'obtienes', 'sabes'];
+  // No interceptar preguntas sobre metodologia/fuentes o historia/origen
+  const skipKw = ['basado', 'basas', 'basa', 'funciona', 'metodologia', 'sacas', 'obtienes', 'sabes',
+    'historia', 'origen', 'descubri', 'viene de', 'por que se llama', 'inventor', 'creador',
+    'en el mundo', 'mundial', 'global'];
   if (any(q, skipKw)) return null;
   const lugar = ent._lugarDesconocido;
   const cap = lugar.charAt(0).toUpperCase() + lugar.slice(1);
@@ -881,7 +884,7 @@ function answerQueEsPadecimiento(q, ent, s, d) {
   const historyKw = [
     'historia', 'origen', 'descubri', 'quien fue', 'de donde viene',
     'por que se llama', 'como se descubri', 'cuando se descubri',
-    'nombr', 'bautiz', 'pakistan', 'inventor', 'creador',
+    'nombr', 'bautiz', 'pakistan', 'inventor', 'creador', 'identifico', 'identificar',
   ];
   if (any(q, historyKw)) return null;
 
@@ -1653,7 +1656,7 @@ function answerPadecimiento(q, ent, s, d) {
   const historyKw = [
     'historia', 'origen', 'descubri', 'quien fue', 'de donde viene',
     'por que se llama', 'como se descubri', 'cuando se descubri',
-    'nombr', 'bautiz', 'pakistan', 'inventor', 'creador',
+    'nombr', 'bautiz', 'pakistan', 'inventor', 'creador', 'identifico', 'identificar',
   ];
   if (any(q, historyKw)) return null;
 
@@ -2569,19 +2572,35 @@ export async function answer(query) {
   const hasFuzzy = corrected && corrected !== q;
 
   // Si es follow-up, intentar con contexto heredado PRIMERO
+  // PERO: si la query menciona un padecimiento no modelado, NO heredar — dejar que
+  // answerPadecimientoNoModelado lo maneje con el query original
   if (isFollowUp) {
-    const merged = mergeWithContext(ent);
-    const hasExtra = merged.padecimiento !== ent.padecimiento || merged.estado !== ent.estado ||
-                     merged.sexo !== ent.sexo ||
-                     (merged._months || []).length !== (ent._months || []).length ||
-                     (merged._estados && !ent._estados) ||
-                     (merged._lastNYears != null && ent._lastNYears == null);
-    if (hasExtra) {
-      const resultCtx = runHandlers(q, merged, s, d);
-      if (resultCtx) {
-        const ctx = [merged.padecimiento, merged.estado, merged.sexo].filter(Boolean).join(' / ');
-        lastEntities = merged;
-        return `*(Contexto: ${ctx})*\n\n${resultCtx}`;
+    const noModelado = [
+      'cancer', 'diabetes', 'hipertension', 'obesidad', 'asma', 'epilepsia',
+      'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah', 'demencia',
+      'influenza', 'dengue', 'covid', 'tuberculosis', 'vih', 'sida', 'colera',
+      'sarampion', 'rubeola', 'hepatitis', 'zika', 'chikungunya', 'malaria',
+      'leucemia', 'linfoma', 'tumor', 'neoplasia', 'cardiop', 'infarto',
+      'embolia', 'neumonia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
+      'lupus', 'fibromialgia', 'esclerosis', 'huntington', 'ela ',
+      'insuficiencia renal', 'insuficiencia cardiaca',
+    ];
+    const mentionsUnmodeled = noModelado.some(e => q.includes(e));
+
+    if (!mentionsUnmodeled) {
+      const merged = mergeWithContext(ent);
+      const hasExtra = merged.padecimiento !== ent.padecimiento || merged.estado !== ent.estado ||
+                       merged.sexo !== ent.sexo ||
+                       (merged._months || []).length !== (ent._months || []).length ||
+                       (merged._estados && !ent._estados) ||
+                       (merged._lastNYears != null && ent._lastNYears == null);
+      if (hasExtra) {
+        const resultCtx = runHandlers(q, merged, s, d);
+        if (resultCtx) {
+          const ctx = [merged.padecimiento, merged.estado, merged.sexo].filter(Boolean).join(' / ');
+          lastEntities = merged;
+          return `*(Contexto: ${ctx})*\n\n${resultCtx}`;
+        }
       }
     }
   }
@@ -2632,7 +2651,18 @@ export async function answer(query) {
   ];
   const isNewTopic = newTopicSignals.some(t => q.includes(t));
 
-  if (!isFollowUp && !isNewTopic && (lastEntities.padecimiento || lastEntities.estado)) {
+  // No heredar contexto si menciona un padecimiento no modelado
+  const noModeladoCtx = [
+    'cancer', 'diabetes', 'hipertension', 'obesidad', 'asma', 'epilepsia',
+    'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah', 'demencia',
+    'influenza', 'dengue', 'tuberculosis', 'vih', 'sida', 'colera',
+    'sarampion', 'hepatitis', 'zika', 'malaria', 'leucemia', 'linfoma',
+    'tumor', 'neoplasia', 'infarto', 'neumonia', 'artritis', 'lupus',
+    'esclerosis', 'huntington',
+  ];
+  const mentionsUnmodeledCtx = noModeladoCtx.some(e => q.includes(e));
+
+  if (!isFollowUp && !isNewTopic && !mentionsUnmodeledCtx && (lastEntities.padecimiento || lastEntities.estado)) {
     // Solo heredar si la query tiene keywords de datos/epidemiologia
     const dataKeywords = ['caso', 'cuantos', 'cuantas', 'incidencia', 'dato', 'grafico', 'grafica',
       'pronostico', 'prediccion', 'historico', 'historica', 'tendencia', 'semana', 'ano',
