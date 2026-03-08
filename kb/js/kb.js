@@ -1058,6 +1058,31 @@ function answerPadecimiento(q, ent, s, d) {
     }
   }
 
+  // Distribucion por sexo (si se pide o siempre como dato complementario)
+  const wantsSex = any(q, ['sexo', 'genero', 'hombre', 'mujer', 'distribucion']);
+  const psx = ps.por_sexo || {};
+  if (wantsSex && Object.keys(psx).length) {
+    lines.push('\n**Distribucion por sexo:**\n');
+    lines.push('| Sexo | Modelos | Casos pronosticados | SMAPE promedio | SMAPE mediana |');
+    lines.push('|------|--------:|--------------------:|---------------:|--------------:|');
+    for (const [sx, info] of Object.entries(psx)) {
+      const label = sx === 'general' ? 'General' : sx === 'hombres' ? 'Hombres' : 'Mujeres';
+      lines.push(`| ${label} | ${info.n} | ${fmt(info.casos_total)} | ${info.smape_prod_mean}% | ${info.smape_prod_median}% |`);
+    }
+    // Insight
+    const h = psx.hombres, m = psx.mujeres;
+    if (h && m) {
+      const totalHM = (h.casos_total || 0) + (m.casos_total || 0);
+      if (totalHM > 0) {
+        const pctM = ((m.casos_total / totalHM) * 100).toFixed(1);
+        const pctH = ((h.casos_total / totalHM) * 100).toFixed(1);
+        const dominant = m.casos_total > h.casos_total ? 'mujeres' : 'hombres';
+        const pctDom = m.casos_total > h.casos_total ? pctM : pctH;
+        lines.push(`\nEl **${pctDom}%** de los casos pronosticados de ${pad} corresponden a **${dominant}**.`);
+      }
+    }
+  }
+
   // Contexto historico
   const hist = getHistContext(d, pad, null);
   if (hist) lines.push(`\n**Contexto historico**: ${hist}`);
@@ -1206,7 +1231,8 @@ function answerMetricaGlobal(q, ent, s, d) {
 // ---------------------------------------------------------------------------
 
 function answerRanking(q, ent, s, d) {
-  const triggers = ['mejor', 'peor', 'top', 'ranking', 'mejores modelo', 'peores modelo'];
+  const triggers = ['mejor', 'peor', 'top', 'ranking', 'mejores modelo', 'peores modelo',
+    'mas preciso', 'mas precisos', 'mayor precision', 'menor error'];
   if (!any(q, triggers)) return null;
 
   const lines = [];
@@ -1543,6 +1569,7 @@ const STOP_WORDS = new Set([
   'grafico', 'graficos', 'mostrar', 'muestra', 'comportaron',
   'padecimientos', 'padecimiento', 'casos', 'datos', 'numero',
   'anos', 'anno', 'meses', 'semanas', 'dias',
+  'mas', 'menos', 'preciso', 'precisos', 'distribucion',
 ]);
 
 function fuzzyCorrect(q) {
