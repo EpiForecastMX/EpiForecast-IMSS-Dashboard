@@ -242,7 +242,9 @@ export function detectEntities(query) {
       const noLugar = ['el', 'la', 'los', 'las', 'un', 'una', 'que', 'general', 'total',
         'produccion', 'promedio', 'detalle', 'mexico', 'cuenta', 'salud',
         'depresion', 'parkinson', 'alzheimer', 'este ano', 'el ano',
-        'hombres', 'mujeres', 'masculino', 'femenino'];
+        'hombres', 'mujeres', 'masculino', 'femenino',
+        'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
       const alsoNoLugar = ['personas', 'mayores', 'menores', 'adultos', 'jovenes',
         'pacientes', 'ninos', 'ancianos', 'edad', 'anos', 'semanas'];
       // Excluir si empieza con pronombre posesivo o palabra no-lugar

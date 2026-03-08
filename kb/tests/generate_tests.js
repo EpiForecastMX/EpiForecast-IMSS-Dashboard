@@ -906,6 +906,11 @@ add('como se si tengo alzheimer', null, []);
 add('estoy en riesgo de depresion', null, []);
 add('creo que tengo parkinson', null, []);
 
+// Meses no son lugares desconocidos — deben dar estimacion mensual
+add('depresion en marzo 2025', 'answerHistorico', ['marzo', '2025']);
+add('depresion en enero 2026', 'answerPadecimiento', ['enero', '2026']);
+add('alzheimer en diciembre 2024', 'answerHistorico', ['diciembre', '2024']);
+
 // =====================================================================
 // SECCION 37b: HISTORIA/ORIGEN → Gemini (6 tests)
 // =====================================================================

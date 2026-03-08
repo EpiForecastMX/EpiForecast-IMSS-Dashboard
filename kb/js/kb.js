@@ -1440,6 +1440,7 @@ function answerHistorico(q, ent, s, d) {
   const maxAnio = bol.meta?.max_anio || currentYear;
   const isPartialYear = (y) => y === currentYear && maxAnio === currentYear && maxWeek < 48;
 
+  const months = ent._months || [];
   const lines = [];
 
   for (const year of pastYears) {
@@ -1453,6 +1454,10 @@ function answerHistorico(q, ent, s, d) {
       if (estKey && pad) {
         const val = anualEst[estKey]?.[pad]?.[ys];
         if (val != null) {
+          if (months.length > 0) {
+            const mText = monthEstimateText(val, months, [year], pad, estKey, d);
+            if (mText) { lines.push(mText); continue; }
+          }
           lines.push(`En **${year}**, se reportaron **${fmt(val)} casos de ${pad}** en ${estKey}.${partialNote}`);
           if (!partial) {
             const prev = anualEst[estKey]?.[pad]?.[String(year - 1)];
@@ -1469,6 +1474,10 @@ function answerHistorico(q, ent, s, d) {
       if (pad) {
         const nacVal = anualNac[pad]?.[ys];
         if (nacVal != null) {
+          if (months.length > 0) {
+            const mText = monthEstimateText(nacVal, months, [year], pad, null, d);
+            if (mText) { lines.push(mText); continue; }
+          }
           lines.push(`El Bolet\u00edn Epidemiol\u00f3gico SINAVE no incluye desglose hist\u00f3rico para **${estado}**. Solo ${Object.keys(anualEst).length} entidades tienen datos anuales desglosados.\n\nA nivel **nacional**, en ${year} se reportaron **${fmt(nacVal)} casos de ${pad}**.${partialNote}`);
           if (!partial) {
             const prev = anualNac[pad]?.[String(year - 1)];
@@ -1487,6 +1496,10 @@ function answerHistorico(q, ent, s, d) {
     if (pad) {
       const nacVal = anualNac[pad]?.[ys];
       if (nacVal != null) {
+        if (months.length > 0) {
+          const mText = monthEstimateText(nacVal, months, [year], pad, null, d);
+          if (mText) { lines.push(mText); continue; }
+        }
         lines.push(`En **${year}**, a nivel nacional se reportaron **${fmt(nacVal)} casos de ${pad}**.${partialNote}`);
         if (!partial) {
           const prev = anualNac[pad]?.[String(year - 1)];

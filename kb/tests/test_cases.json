@@ -5899,6 +5899,39 @@
   },
   {
     "id": 554,
+    "query": "depresion en marzo 2025",
+    "expectedHandler": "answerHistorico",
+    "mustContain": [
+      "marzo",
+      "2025"
+    ],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 555,
+    "query": "depresion en enero 2026",
+    "expectedHandler": "answerPadecimiento",
+    "mustContain": [
+      "enero",
+      "2026"
+    ],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 556,
+    "query": "alzheimer en diciembre 2024",
+    "expectedHandler": "answerHistorico",
+    "mustContain": [
+      "diciembre",
+      "2024"
+    ],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 557,
     "query": "historia del parkinson",
     "expectedHandler": null,
     "mustContain": [],
@@ -5906,7 +5939,7 @@
     "checkEntities": {}
   },
   {
-    "id": 555,
+    "id": 558,
     "query": "origen de la depresion",
     "expectedHandler": null,
     "mustContain": [],
@@ -5914,7 +5947,7 @@
     "checkEntities": {}
   },
   {
-    "id": 556,
+    "id": 559,
     "query": "quien descubrio el alzheimer",
     "expectedHandler": null,
     "mustContain": [],
@@ -5922,7 +5955,7 @@
     "checkEntities": {}
   },
   {
-    "id": 557,
+    "id": 560,
     "query": "de donde viene el nombre parkinson",
     "expectedHandler": null,
     "mustContain": [],
@@ -5930,7 +5963,7 @@
     "checkEntities": {}
   },
   {
-    "id": 558,
+    "id": 561,
     "query": "parkinson viene de pakistan",
     "expectedHandler": null,
     "mustContain": [],
@@ -5938,7 +5971,7 @@
     "checkEntities": {}
   },
   {
-    "id": 559,
+    "id": 562,
     "query": "historia de la depresion en el mundo",
     "expectedHandler": null,
     "mustContain": [],
@@ -5946,7 +5979,7 @@
     "checkEntities": {}
   },
   {
-    "id": 560,
+    "id": 563,
     "query": "de donde viene el alzheimer",
     "expectedHandler": null,
     "mustContain": [],
@@ -5954,7 +5987,7 @@
     "checkEntities": {}
   },
   {
-    "id": 561,
+    "id": 564,
     "query": "como se descubrio la depresion",
     "expectedHandler": null,
     "mustContain": [],
@@ -5962,7 +5995,7 @@
     "checkEntities": {}
   },
   {
-    "id": 562,
+    "id": 565,
     "query": "cuando se identifico el parkinson",
     "expectedHandler": null,
     "mustContain": [],
