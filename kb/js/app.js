@@ -193,6 +193,8 @@ function addWelcome(data) {
 // Chat
 // ---------------------------------------------------------------------------
 
+let lastChartQuery = '';
+
 async function handleSend() {
   const text = inputField.value.trim();
   if (!text) return;
@@ -203,7 +205,17 @@ async function handleSend() {
   try { result = await answer(text); } catch (err) { console.error('KB error:', err); }
 
   if (result) {
-    const chartData = extractChartData(result, text);
+    let chartData = extractChartData(result, text);
+    // If no chart but we had a previous chart query, try merging context
+    if (!chartData && lastChartQuery) {
+      const ent = detectEntities(text);
+      if (ent._years && ent._years.length) {
+        // Replace years in last chart query with new years
+        const merged = lastChartQuery.replace(/\b20[0-3]\d\b/g, '') + ' ' + text;
+        chartData = extractChartData(result, merged);
+      }
+    }
+    if (chartData) lastChartQuery = text;
     const suggestions = getSuggestions(text);
     addBotMessage(result, 'local', suggestions, chartData);
     pushHistory(text, result);
