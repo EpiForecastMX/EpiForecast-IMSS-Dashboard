@@ -105,9 +105,25 @@ const MODELO_ALIAS = {
 
 function extractYears(q) {
   const matches = q.match(/\b(20[0-3]\d)\b/g) || [];
-  return [...new Set(matches.map(Number))]
+  let years = [...new Set(matches.map(Number))]
     .filter(y => y >= 2010 && y <= 2030)
     .sort((a, b) => a - b);
+
+  // Expandir rangos: "entre 2014 y 2019", "de 2014 a 2019", "del 2014 al 2019"
+  if (years.length === 2) {
+    const rangeRe = /(?:entre\s+(20[0-3]\d)\s+y\s+(20[0-3]\d)|de[l]?\s+(20[0-3]\d)\s+a[l]?\s+(20[0-3]\d))/;
+    const rm = q.match(rangeRe);
+    if (rm) {
+      const lo = Math.min(Number(rm[1] || rm[3]), Number(rm[2] || rm[4]));
+      const hi = Math.max(Number(rm[1] || rm[3]), Number(rm[2] || rm[4]));
+      if (hi - lo <= 20) {
+        years = [];
+        for (let y = lo; y <= hi; y++) years.push(y);
+      }
+    }
+  }
+
+  return years;
 }
 
 function extractWeeks(q) {
