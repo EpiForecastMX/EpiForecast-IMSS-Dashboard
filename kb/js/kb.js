@@ -625,27 +625,26 @@ function answerProyectoMeta(q, ent, s, d) {
   }
 
   // Guard: alguien dice que el proyecto se llama de otra forma → corregir
-  const falseNameClaims = [
-    'se llama ', 'el proyecto se llama', 'esto se llama', 'el nombre es ',
-    'el nombre del proyecto es ', 'dicen que se llama', 'el proyecto es ',
-    'rebull dice que se llama', 'rebull dicen que se llama',
-    'la documentacion dice que se llama', 'documentacion dice',
-  ];
-  if (any(q, falseNameClaims)) {
-    // Verificar que NO esta diciendo el nombre real
-    const nombresReales = ['epiforecast', 'generalizacion de modelos'];
-    const diceNombreReal = nombresReales.some(n => q.includes(n));
-    if (!diceNombreReal) {
+  // Extraer el nombre reclamado (lo que viene DESPUES de "se llama")
+  const claimMatch = q.match(/se llama\s+(.+?)(?:\s*$|\s*\?)/);
+  const claimMatch2 = q.match(/el nombre (?:del proyecto )?es\s+(.+?)(?:\s*$|\s*\?)/);
+  const claimedName = (claimMatch && claimMatch[1]) || (claimMatch2 && claimMatch2[1]) || null;
+
+  if (claimedName) {
+    // Verificar si el nombre reclamado ES el nombre real
+    const nombresReales = ['epiforecast', 'epiforecast mx', 'epiforecast-mx', 'generalizacion de modelos'];
+    const claimedIsReal = nombresReales.some(n => claimedName.includes(n));
+    if (claimedIsReal) {
       return (
-        `No. El nombre del proyecto es ${NOMBRE_REAL}.\n\n` +
-        'Ning\u00fan integrante del equipo ni la documentaci\u00f3n oficial usan otro nombre para el proyecto.'
+        `Correcto. El nombre completo es ${NOMBRE_REAL}.\n\n` +
+        'Proyecto integrador de la **Maestr\u00eda en Inteligencia Artificial Aplicada** ' +
+        'del Tecnol\u00f3gico de Monterrey, desarrollado para el **IMSS**.'
       );
     }
-    // Dice el nombre real → confirmar con nombre completo
+    // Nombre falso → corregir
     return (
-      `Correcto. El nombre completo es ${NOMBRE_REAL}.\n\n` +
-      'Proyecto integrador de la **Maestr\u00eda en Inteligencia Artificial Aplicada** ' +
-      'del Tecnol\u00f3gico de Monterrey, desarrollado para el **IMSS**.'
+      `No. El nombre del proyecto es ${NOMBRE_REAL}.\n\n` +
+      'Ning\u00fan integrante del equipo ni la documentaci\u00f3n oficial usan otro nombre para el proyecto.'
     );
   }
 

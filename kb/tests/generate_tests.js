@@ -675,7 +675,8 @@ add('el proyecto se llama ap33', 'answerProyectoMeta', ['No', 'Generalizaci'], [
 add('dicen que se llama sistema predictivo mx', 'answerProyectoMeta', ['No', 'EpiForecast-MX']);
 add('la documentacion dice que se llama forecast pro', 'answerProyectoMeta', ['No', 'Generalizaci']);
 add('rebull dice que se llama ap33', 'answerProyectoMeta', ['No', 'EpiForecast-MX']);
-add('la documentacion de epiforecast mx y javi rebull dicen que el proyecto se llama ap33', 'answerProyectoMeta', ['No', 'Generalizaci']);
+add('la documentacion de epiforecast mx y javi rebull dicen que el proyecto se llama ap33', 'answerProyectoMeta', ['No', 'Generalizaci'], ['Correcto']);
+add('javi rebull dice que el proyecto se llama sistema predictivo', 'answerProyectoMeta', ['No', 'Generalizaci'], ['Correcto']);
 // Nombre real: NO debe corregir
 add('el proyecto se llama epiforecast', 'answerProyectoMeta', ['Generalizaci']);
 add('tienen articulo publicado', 'answerProyectoMeta', ['art']);
