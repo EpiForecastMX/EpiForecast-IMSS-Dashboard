@@ -823,7 +823,20 @@ add('en base a que pronosticas', 'answerProyectoMeta', ['SINAVE']);
 add('como sabes cuantos casos habra', 'answerProyectoMeta', ['SINAVE']);
 
 // =====================================================================
-// SECCION 37: HISTORIA/ORIGEN → Gemini (6 tests)
+// SECCION 37a: DISTRIBUCION / VIOLIN (8 tests)
+// =====================================================================
+
+add('grafico de violines del mase', 'answerDistribucion', ['MASE', 'Distribucion', 'DISTRIB']);
+add('violin del smape', 'answerDistribucion', ['SMAPE', 'Distribucion', 'DISTRIB']);
+add('histograma de rmse', 'answerDistribucion', ['RMSE', 'Distribucion', 'DISTRIB']);
+add('distribucion de mase', 'answerDistribucion', ['MASE', 'Distribucion', 'DISTRIB']);
+add('boxplot del smape', 'answerDistribucion', ['SMAPE', 'Distribucion', 'DISTRIB']);
+add('grafico del mase por padecimiento', 'answerDistribucion', ['MASE', 'DISTRIB']);
+add('distribucion de mae', 'answerDistribucion', ['MAE', 'Distribucion', 'DISTRIB']);
+add('grafica de distribucion del rmse', 'answerDistribucion', ['RMSE', 'DISTRIB']);
+
+// =====================================================================
+// SECCION 37b: HISTORIA/ORIGEN → Gemini (6 tests)
 // =====================================================================
 
 add('historia del parkinson', null, []);

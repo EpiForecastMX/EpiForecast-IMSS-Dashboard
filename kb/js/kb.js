@@ -2455,6 +2455,88 @@ function answerPreguntaPersonal(q, ent, s, d) {
 }
 
 // ---------------------------------------------------------------------------
+// Handler: Distribucion / violin / histograma de metricas
+// ---------------------------------------------------------------------------
+
+function answerDistribucion(q, ent, s, d) {
+  const chartKw = ['violin', 'violine', 'boxplot', 'box plot', 'histograma', 'distribucion de'];
+  const metricKw = ['smape', 'mase', 'rmse', 'mae'];
+
+  if (!any(q, chartKw) && !(any(q, ['grafico', 'grafica', 'chart', 'plot']) && any(q, metricKw))) return null;
+
+  // Detect which metric
+  let metric = null, metricLabel = '';
+  if (q.includes('mase')) { metric = 'mase_prod'; metricLabel = 'MASE'; }
+  else if (q.includes('smape')) { metric = 'smape_prod'; metricLabel = 'SMAPE (%)'; }
+  else if (q.includes('rmse')) { metric = 'rmse_prod'; metricLabel = 'RMSE'; }
+  else if (q.includes('mae') && !q.includes('smape')) { metric = 'mae_prod'; metricLabel = 'MAE'; }
+  else { metric = 'smape_prod'; metricLabel = 'SMAPE (%)'; }
+
+  const models = d.prod_models || [];
+  if (!models.length) return null;
+
+  // Group values by padecimiento
+  const byPad = {};
+  for (const m of models) {
+    if (m.sexo !== 'general') continue; // Avoid triple-counting
+    const pad = m.padecimiento || 'Otro';
+    if (!byPad[pad]) byPad[pad] = [];
+    const val = m[metric];
+    if (val != null && isFinite(val)) byPad[pad].push(val);
+  }
+
+  // Build histogram bins per padecimiento
+  const allVals = Object.values(byPad).flat();
+  if (!allVals.length) return null;
+
+  // Determine bin range
+  const sorted = [...allVals].sort((a, b) => a - b);
+  const p95 = sorted[Math.floor(sorted.length * 0.95)];
+  const maxBin = Math.ceil(p95 * 1.1);
+  const numBins = Math.min(20, Math.max(8, Math.ceil(maxBin / 5) * 2));
+  const binSize = maxBin / numBins;
+
+  const binLabels = [];
+  for (let i = 0; i < numBins; i++) {
+    const lo = (i * binSize).toFixed(1);
+    const hi = ((i + 1) * binSize).toFixed(1);
+    binLabels.push(`${lo}-${hi}`);
+  }
+
+  const padNames = Object.keys(byPad).sort();
+  const datasets = padNames.map(pad => {
+    const counts = new Array(numBins).fill(0);
+    for (const v of byPad[pad]) {
+      const bin = Math.min(Math.floor(v / binSize), numBins - 1);
+      counts[bin]++;
+    }
+    return { pad, counts };
+  });
+
+  // Stats per padecimiento
+  const lines = [`**Distribucion de ${metricLabel}** (modelos de produccion, sexo=general)\n`];
+  lines.push('| Padecimiento | N | Min | Q1 | Mediana | Q3 | Max | Promedio |');
+  lines.push('|---|--:|--:|--:|--:|--:|--:|--:|');
+  for (const pad of padNames) {
+    const vals = [...byPad[pad]].sort((a, b) => a - b);
+    const n = vals.length;
+    const min = vals[0].toFixed(2);
+    const max = vals[n - 1].toFixed(2);
+    const q1 = vals[Math.floor(n * 0.25)].toFixed(2);
+    const med = vals[Math.floor(n * 0.5)].toFixed(2);
+    const q3 = vals[Math.floor(n * 0.75)].toFixed(2);
+    const mean = (vals.reduce((a, b) => a + b, 0) / n).toFixed(2);
+    lines.push(`| ${pad} | ${n} | ${min} | ${q1} | ${med} | ${q3} | ${max} | ${mean} |`);
+  }
+
+  // Embed chart data
+  const chartData = { metric: metricLabel, bins: binLabels, datasets };
+  lines.push(`\n<!--DISTRIB:${JSON.stringify(chartData)}-->`);
+
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
 // Cadena de handlers (orden de prioridad)
 // ---------------------------------------------------------------------------
 
@@ -2463,7 +2545,7 @@ const HANDLERS = [
   answerTrainingConfig, answerSemanaActual, answerQueEsPadecimiento,
   answerComparacionSemanal,
   answerBoletin, answerHistorico, answerComparativaEstados, answerSpecificSeries, answerEstado, answerPadecimiento,
-  answerMotor, answerDemografica, answerSexo, answerMetricaGlobal,
+  answerMotor, answerDemografica, answerSexo, answerDistribucion, answerMetricaGlobal,
   answerRanking, answerDiagnosticos, answerValidacion, answerInfra,
   answerConteo, answerPronostico, answerDefinicion,
 ];

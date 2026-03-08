@@ -6,7 +6,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=54';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=55';
 import { detectEntities, norm } from './entities.js?v=25';
 
 // ---------------------------------------------------------------------------
@@ -298,7 +298,7 @@ function addBotMessage(markdown, source, suggestions, chartData) {
   if (source === 'ai') { badgeClass = 'badge-ai'; badgeText = 'IA'; }
   else if (source === 'error') { badgeClass = 'badge-ai'; badgeText = 'Error'; }
 
-  const cleanMarkdown = markdown.replace(/<!--COMPARE:.*?-->/g, '');
+  const cleanMarkdown = markdown.replace(/<!--COMPARE:.*?-->/g, '').replace(/<!--DISTRIB:.*?-->/g, '');
   const html = marked.parse(cleanMarkdown, { breaks: true });
   const now = new Date();
   const timeStr = now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
@@ -417,6 +417,34 @@ function extractChartData(markdown, query) {
         datasets,
       };
     } catch (e) { console.warn('Weekly parse error:', e); }
+  }
+
+  // Distribucion de metricas (embedded from answerDistribucion)
+  const distribMatch = markdown.match(/<!--DISTRIB:(.*?)-->/);
+  if (distribMatch) {
+    try {
+      const dist = JSON.parse(distribMatch[1]);
+      const datasets = (dist.datasets || []).map((ds, i) => ({
+        label: dn(ds.pad),
+        data: ds.counts,
+        backgroundColor: CHART_COLORS[i] + '99',
+        borderColor: CHART_COLORS[i],
+        borderWidth: 2,
+        borderRadius: 3,
+      }));
+      return {
+        type: 'bar',
+        title: `Distribucion de ${dist.metric} por padecimiento`,
+        labels: dist.bins,
+        datasets,
+        options: {
+          scales: {
+            x: { title: { display: true, text: dist.metric } },
+            y: { title: { display: true, text: 'Modelos' } },
+          },
+        },
+      };
+    } catch (e) { console.warn('Distrib parse error:', e); }
   }
 
   // Comparativa de estados (embedded data from handler)
@@ -949,6 +977,23 @@ function renderChart(canvasId, chartData) {
       },
     },
   };
+
+  // Merge custom options (e.g. axis titles from distribution charts)
+  if (chartData.options?.scales) {
+    for (const [axis, opts] of Object.entries(chartData.options.scales)) {
+      if (config.options.scales[axis]) {
+        Object.assign(config.options.scales[axis], opts);
+        // Style axis titles
+        if (opts.title) {
+          config.options.scales[axis].title = {
+            ...opts.title,
+            font: { size: 12, family: 'Outfit' },
+            color: '#8FA99D',
+          };
+        }
+      }
+    }
+  }
 
   new Chart(canvas, config);
 }
