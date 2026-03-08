@@ -1119,9 +1119,9 @@ function answerComparativaEstados(q, ent, s, d) {
   const estados = ent._estados;
   if (!estados || estados.length < 2) return null;
 
-  const compTriggers = ['compara', 'comparar', 'comparativ', 'diferencia', 'contrasta',
+  const compTriggers = ['compara', 'comparar', 'comparativ', 'comparalo', 'diferencia', 'contrasta',
     ' vs ', 'versus', 'contra ', 'frente a'];
-  // Also trigger if 2+ states detected with connectors
+  // Also trigger if 2+ states detected with connectors, or inherited from context
   const hasConnector = q.includes(' y ') || q.includes(' vs ') || q.includes(' con ');
   if (!any(q, compTriggers) && !hasConnector) return null;
 
@@ -2024,7 +2024,7 @@ export async function answer(query) {
     'pero ', 'pero en ', 'pero de ',
     'y para ', 'y del ', 'tambien en ', 'que hay de ', 'ahora ',
   ];
-  const isFollowUp = (lastEntities.padecimiento || lastEntities.estado) &&
+  const isFollowUp = (lastEntities.padecimiento || lastEntities.estado || lastEntities._estados) &&
     (followUpPrefixes.some(p => q.startsWith(p)) || /^y \w/.test(q));
 
   // Merge de contexto conversacional
@@ -2035,6 +2035,8 @@ export async function answer(query) {
     if (!merged.sexo && lastEntities.sexo) merged.sexo = lastEntities.sexo;
     if (!(merged._months || []).length && (lastEntities._months || []).length) merged._months = lastEntities._months;
     if (!(merged._years || []).length && (lastEntities._years || []).length) merged._years = lastEntities._years;
+    // Heredar múltiples estados para comparativas
+    if (!merged._estados && lastEntities._estados) merged._estados = lastEntities._estados;
     return merged;
   }
 
@@ -2046,7 +2048,8 @@ export async function answer(query) {
   if (isFollowUp) {
     const merged = mergeWithContext(ent);
     const hasExtra = merged.padecimiento !== ent.padecimiento || merged.estado !== ent.estado ||
-                     (merged._months || []).length !== (ent._months || []).length;
+                     (merged._months || []).length !== (ent._months || []).length ||
+                     (merged._estados && !ent._estados);
     if (hasExtra) {
       const resultCtx = runHandlers(q, merged, s, d);
       if (resultCtx) {
@@ -2113,7 +2116,8 @@ export async function answer(query) {
 
     if (hasDataContext) {
       const merged = mergeWithContext(ent);
-      const hasExtra = merged.padecimiento !== ent.padecimiento || merged.estado !== ent.estado;
+      const hasExtra = merged.padecimiento !== ent.padecimiento || merged.estado !== ent.estado ||
+                       (merged._estados && !ent._estados);
       if (hasExtra) {
         const resultCtx = runHandlers(q, merged, s, d);
         if (resultCtx) {
