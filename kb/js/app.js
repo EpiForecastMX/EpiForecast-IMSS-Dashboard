@@ -582,6 +582,42 @@ function extractChartData(markdown, query) {
       ent._years = [2019, 2020, 2021, 2022, 2023];
     }
 
+    // Weekly chart from boletin semanal (current year only)
+    const weeklyTrigger = qn.includes('por semana') || qn.includes('semanal') || qn.includes('semana a semana');
+    const semData = data.boletin?.semanal;
+    const metaBol = data.boletin?.meta;
+    if (weeklyTrigger && semData && semData.length) {
+      const currentYear = metaBol?.max_anio || new Date().getFullYear();
+      const requestedYear = ent._years && ent._years.length ? ent._years[0] : currentYear;
+      if (requestedYear === currentYear) {
+        const labels = semData.map(s => `Sem ${s.semana}`);
+        const datasets = [];
+        const pads = ['Depresion', 'Parkinson', 'Alzheimer'];
+        pads.forEach((pad, i) => {
+          if (ent.padecimiento && norm(ent.padecimiento) !== norm(pad)) return;
+          const vals = semData.map(s => s[pad] || 0);
+          if (vals.some(v => v > 0)) {
+            datasets.push({
+              label: dn(pad),
+              data: vals,
+              borderColor: CHART_COLORS[i],
+              backgroundColor: CHART_COLORS[i] + '22',
+              fill: true, tension: 0.3, borderWidth: 2.5,
+              pointRadius: 4, pointBackgroundColor: CHART_COLORS[i],
+            });
+          }
+        });
+        if (datasets.length) {
+          const padLabel = ent.padecimiento ? dn(ent.padecimiento) : 'Todos los padecimientos';
+          return {
+            type: 'line',
+            title: `${padLabel} — semanas ${currentYear} (sem 1–${semData.length})`,
+            labels, datasets,
+          };
+        }
+      }
+    }
+
     // Historical year(s) → line chart from boletin
     if (ent._years && ent._years.length) {
       const anualEstPad = data.boletin?.anual_por_estado_pad;
