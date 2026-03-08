@@ -247,6 +247,9 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
 
 function answerLugarDesconocido(q, ent, s, d) {
   if (!ent._lugarDesconocido || ent.estado || ent.padecimiento) return null;
+  // No interceptar preguntas sobre metodologia/fuentes que contienen falsos positivos
+  const skipKw = ['basado', 'basas', 'basa', 'funciona', 'metodologia', 'sacas', 'obtienes', 'sabes'];
+  if (any(q, skipKw)) return null;
   const lugar = ent._lugarDesconocido;
   return (
     `**${lugar.charAt(0).toUpperCase() + lugar.slice(1)}** no es una entidad federativa de M\u00e9xico.\n\n` +
@@ -611,6 +614,64 @@ function answerProyectoMeta(q, ent, s, d) {
       '**Estado**: Draft v3 (en preparación para publicación)\n\n' +
       'El artículo documenta el marco metodológico completo del proyecto: desde la extracción de datos SINAVE hasta la predicción a 52 semanas usando los 4 motores (Prophet, DeepAR, Ensemble, Stacking).'
     );
+  }
+
+  // Metodologia / En que te basas / Como funcionas
+  const basisTriggers = [
+    'en que te basa', 'en que estas basado', 'en que se basa', 'en que esta basado',
+    'como funciona', 'como funcionas', 'como trabaja', 'como opera',
+    'cual es la metodologia', 'metodologia', 'metodo que usa',
+    'de donde sacas', 'de donde saca', 'de donde obtienes', 'de donde obtiene',
+    'como sabes', 'como sabe', 'de donde sale',
+    'que tecnologia', 'que modelos usa', 'que algoritmo',
+    'como genera', 'como se genera', 'como pronostica', 'como predice',
+    'como hace las prediccion', 'en base a que',
+  ];
+  if (any(q, basisTriggers)) {
+    const meta = d.boletin?.meta;
+    const dist = s.dist_motor || {};
+    const tc = d.training_config || {};
+    const lines = [
+      '**Metodologia de EpiForecast-MX**\n',
+      '**1. Fuente de datos**',
+      'Los datos provienen del **Boletin Epidemiologico del SINAVE** (Sistema Nacional de Vigilancia Epidemiologica), publicado semanalmente por la Secretaria de Salud de Mexico.',
+    ];
+    if (meta) {
+      lines.push(`- Periodo: **${meta.min_anio}** a **${meta.max_anio}** (semana ${meta.max_semana})`);
+      lines.push(`- Registros: **${fmt(meta.total_registros)}** observaciones semanales`);
+    }
+    lines.push('- Padecimientos: **Depresion** (F32), **Parkinson** (G20), **Alzheimer** (G30)');
+    lines.push('- Cobertura: 32 entidades federativas + 4 regiones INEGI + Nacional\n');
+
+    lines.push('**2. Modelos de Machine Learning**');
+    lines.push(`Se entrenan **${s.total_modelos || 333} modelos** (3 padecimientos x 37 geografias x 3 sexos), cada uno evaluado con 4 motores:\n`);
+    lines.push('| Motor | Tipo | Descripcion |');
+    lines.push('|-------|------|-------------|');
+    lines.push('| **Prophet** | Aditivo/multiplicativo | Modelo de Meta (Facebook) para series de tiempo con estacionalidad y cambios de tendencia |');
+    lines.push('| **DeepAR** | Red neuronal recurrente | Modelo de Amazon (GluonTS + PyTorch) que aprende patrones complejos de multiples series |');
+    lines.push('| **Ensemble** | Hibrido | Combinacion de Prophet + XGBoost con features temporales |');
+    lines.push('| **Stacking** | Meta-learner | Prophet + ETS + LightGBM apilados con Ridge como meta-modelo |\n');
+
+    // Distribucion actual
+    if (Object.keys(dist).length) {
+      lines.push('**Distribucion actual de motores ganadores:**');
+      for (const [motor, n] of Object.entries(dist)) {
+        const pct = s.total_modelos ? (n / s.total_modelos * 100).toFixed(1) : '?';
+        lines.push(`- ${motor}: **${n}** series (${pct}%)`);
+      }
+      lines.push('');
+    }
+
+    lines.push('**3. Seleccion del modelo productivo**');
+    lines.push('Para cada serie, se elige el motor con menor **SMAPE** (error porcentual simetrico) en validacion cruzada temporal. MASE y RMSE se usan como desempate.\n');
+
+    lines.push('**4. Pronostico**');
+    lines.push(`Horizonte de **${tc.horizonte || 52} semanas** hacia adelante (corte: ${tc.fecha_corte || '2025-01-01'}).`);
+    if (s.smape_prod_median != null) {
+      lines.push(`Precision global: SMAPE mediano **${s.smape_prod_median}%**.`);
+    }
+
+    return lines.join('\n');
   }
 
   const alcanceTriggers = ['que sabe', 'que puede', 'de que sabe', 'que conoce', 'que informacion tiene', 'que datos tiene', 'que cubre', 'alcance', 'capacidad', 'sobre que me puede'];
