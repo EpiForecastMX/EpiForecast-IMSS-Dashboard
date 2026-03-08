@@ -777,19 +777,20 @@ function renderChart(canvasId, chartData) {
       maintainAspectRatio: true,
       indexAxis: isHorizontal ? 'y' : 'x',
       plugins: {
-        title: { 
-          display: true, 
-          text: chartData.title, 
-          font: { size: 14, weight: '700', family: 'Inter' }, 
-          color: '#2D2A26',
+        title: {
+          display: true,
+          text: chartData.title,
+          font: { size: 14, weight: '700', family: 'Outfit' },
+          color: '#E8F0EC',
           padding: { bottom: 16 }
         },
         legend: {
           display: chartData.datasets.length > 1 || chartData.type === 'doughnut',
           position: chartData.type === 'doughnut' ? 'right' : 'top',
-          labels: { 
-            font: { size: 12, family: 'Inter' }, 
-            usePointStyle: true, 
+          labels: {
+            font: { size: 12, family: 'Outfit' },
+            color: '#8FA99D',
+            usePointStyle: true,
             padding: 16,
             boxWidth: 8,
           },
