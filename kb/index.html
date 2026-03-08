@@ -2,268 +2,270 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Base de Conocimiento - EpiForecast-MX</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#060A09">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="description" content="Base de Conocimiento EpiForecast-MX — Inteligencia Epidemiologica IMSS">
+  <title>Base de Conocimiento — EpiForecast-MX</title>
   <link rel="icon" href="EPI.jpg" type="image/jpeg">
   <link rel="apple-touch-icon" href="EPI.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=16">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css?v=30">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <style>
-    /* ========== NAV INSTITUCIONAL (hereda del dashboard principal) ========== */
-    :root {
-      --nav-teal: #00524E;
-      --nav-dark-teal: #173F35;
-      --nav-cream: #E8D5B5;
-      --nav-gold: #B58500;
-      --nav-burgundy: #9B2242;
-      --nav-black: #231F20;
-      --font-display: 'DM Serif Display', Georgia, serif;
-      --font-body: 'Source Sans 3', 'Source Sans Pro', sans-serif;
-    }
+    /* ═══════════ NAV INSTITUCIONAL ═══════════ */
 
     .site-nav {
       position: sticky;
       top: 0;
       z-index: 1000;
-      background: rgba(23, 63, 53, 0.95);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(232, 213, 181, 0.08);
-      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.15);
+      background: rgba(6, 10, 9, 0.92);
+      backdrop-filter: blur(20px) saturate(1.5);
+      -webkit-backdrop-filter: blur(20px) saturate(1.5);
+      border-bottom: 1px solid rgba(46, 196, 168, 0.08);
+    }
+
+    .site-nav::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(46, 196, 168, 0.3) 20%,
+        rgba(212, 168, 75, 0.3) 50%,
+        rgba(200, 58, 90, 0.3) 80%,
+        transparent 100%
+      );
     }
 
     .site-nav-inner {
-      max-width: 1400px;
+      max-width: 1600px;
       margin: 0 auto;
       padding: 0 1.5rem;
       display: flex;
       align-items: center;
-      height: 56px;
+      height: 52px;
       gap: 1rem;
     }
 
     .site-nav-brand {
-      font-family: var(--font-display);
-      font-size: 1.15rem;
-      color: var(--nav-cream);
+      font-family: 'Outfit', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #E8F0EC;
       text-decoration: none;
       flex-shrink: 0;
       display: flex;
       align-items: center;
-      gap: 0.6rem;
+      gap: 0.5rem;
+      letter-spacing: -0.3px;
+      transition: opacity 0.2s;
     }
 
-    .site-nav-brand span { color: var(--nav-gold); }
+    .site-nav-brand:hover { opacity: 0.85; }
+
+    .site-nav-brand span {
+      background: linear-gradient(135deg, #2EC4A8, #D4A84B);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-weight: 800;
+    }
 
     .site-nav-brand img {
-      width: 36px;
-      height: 36px;
+      width: 30px;
+      height: 30px;
       object-fit: contain;
+      border-radius: 6px;
     }
 
     .site-nav-links {
       display: flex;
       align-items: center;
-      gap: 0.25rem;
+      gap: 2px;
       flex: 1;
       justify-content: center;
     }
 
     .site-nav-links a {
-      color: rgba(232, 213, 181, 0.6);
-      font-size: 0.78rem;
+      color: rgba(143, 169, 157, 0.7);
+      font-size: 0.72rem;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
-      padding: 0.45rem 0.75rem;
-      border-radius: 6px;
+      letter-spacing: 0.08em;
+      padding: 0.4rem 0.65rem;
+      border-radius: 8px;
       text-decoration: none;
-      transition: color 0.2s, background 0.2s;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       white-space: nowrap;
+      position: relative;
     }
 
     .site-nav-links a:hover {
-      color: var(--nav-cream);
-      background: rgba(232, 213, 181, 0.06);
+      color: #E8F0EC;
+      background: rgba(46, 196, 168, 0.06);
     }
 
     .site-nav-links a.active {
-      color: var(--nav-gold);
-      background: rgba(181, 133, 0, 0.12);
+      color: #2EC4A8;
+      background: rgba(46, 196, 168, 0.1);
+    }
+
+    .site-nav-links a.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 30%;
+      right: 30%;
+      height: 2px;
+      background: #2EC4A8;
+      border-radius: 2px;
+      box-shadow: 0 0 8px rgba(46, 196, 168, 0.5);
     }
 
     .site-nav-cta {
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
-      padding: 0.35rem 0.9rem;
-      font-size: 0.72rem;
+      gap: 0.35rem;
+      padding: 0.3rem 0.85rem;
+      font-size: 0.68rem;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
       border-radius: 100px;
       text-decoration: none;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
       white-space: nowrap;
-      background: var(--nav-gold);
-      color: var(--nav-dark-teal);
+      background: linear-gradient(135deg, #2EC4A8, #1DA88E);
+      color: #060A09;
       flex-shrink: 0;
+      box-shadow: 0 2px 10px rgba(46, 196, 168, 0.2);
     }
 
     .site-nav-cta:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 16px rgba(181, 133, 0, 0.3);
-      color: var(--nav-dark-teal);
+      box-shadow: 0 4px 20px rgba(46, 196, 168, 0.35);
+      color: #060A09;
     }
 
-    .site-nav-cta svg { width: 14px; height: 14px; }
+    .site-nav-cta svg { width: 13px; height: 13px; }
 
-    /* ========== HEADER INLINE STATS ========== */
+    /* ─── Mobile hamburger ─── */
 
-    .header-stats {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-      margin: 0 auto 0 2rem;
-    }
-
-    .hstat {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 4px 14px;
+    .nav-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: #8FA99D;
+      cursor: pointer;
+      padding: 6px;
       border-radius: 8px;
-      background: rgba(255, 255, 255, 0.07);
-      min-width: 70px;
+      transition: all 0.2s;
     }
 
-    .hstat-val {
-      font-size: 15px;
-      font-weight: 800;
-      color: #fff;
-      line-height: 1.2;
-      letter-spacing: -0.3px;
+    .nav-toggle:hover {
+      color: #E8F0EC;
+      background: rgba(46, 196, 168, 0.08);
     }
 
-    .hstat-lbl {
-      font-size: 9px;
+    .nav-mobile-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: rgba(6, 10, 9, 0.85);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .nav-mobile-overlay.open {
+      opacity: 1;
+    }
+
+    .nav-mobile-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: min(280px, 80vw);
+      z-index: 1001;
+      background: rgba(16, 27, 23, 0.98);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-left: 1px solid rgba(46, 196, 168, 0.1);
+      transform: translateX(100%);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      display: none;
+      flex-direction: column;
+      padding: 20px;
+      gap: 6px;
+      overflow-y: auto;
+    }
+
+    .nav-mobile-panel.open {
+      transform: translateX(0);
+    }
+
+    .nav-mobile-panel a {
+      display: block;
+      color: rgba(143, 169, 157, 0.8);
+      font-size: 0.85rem;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      opacity: 0.5;
-      color: #fff;
+      padding: 10px 14px;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .nav-mobile-panel a:hover,
+    .nav-mobile-panel a.active {
+      color: #2EC4A8;
+      background: rgba(46, 196, 168, 0.08);
+    }
+
+    .nav-mobile-close {
+      align-self: flex-end;
+      background: none;
+      border: none;
+      color: #5A7168;
+      cursor: pointer;
+      padding: 6px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    .nav-mobile-close:hover {
+      color: #E8F0EC;
+      background: rgba(255,255,255,0.05);
     }
 
     @media (max-width: 900px) {
-      .header-stats { display: none; }
-    }
-
-    /* ========== GEMINI STATUS ========== */
-
-    .gemini-status {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 5px 14px;
-      border-radius: 9999px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.2px;
-      transition: all 0.4s ease;
-    }
-
-    .gemini-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-      transition: all 0.4s ease;
-    }
-
-    .gemini-checking {
-      background: rgba(255, 255, 255, 0.08);
-      color: rgba(255, 255, 255, 0.5);
-    }
-    .gemini-checking .gemini-dot {
-      background: rgba(255, 255, 255, 0.4);
-      animation: pulse-dot 1.5s infinite;
-    }
-
-    .gemini-ok {
-      background: rgba(110, 231, 183, 0.12);
-      color: #6EE7B7;
-    }
-    .gemini-ok .gemini-dot {
-      background: #6EE7B7;
-      box-shadow: 0 0 8px rgba(110, 231, 183, 0.6);
-      animation: pulse-dot 2.5s infinite;
-    }
-
-    .gemini-off {
-      background: rgba(251, 191, 36, 0.12);
-      color: #FCD34D;
-    }
-    .gemini-off .gemini-dot {
-      background: #FBBF24;
-      box-shadow: 0 0 6px rgba(251, 191, 36, 0.4);
-      animation: none;
-    }
-
-    @media (max-width: 520px) {
-      .gemini-status span:last-child { display: none; }
-      .gemini-status { padding: 5px 8px; }
-    }
-
-    /* ========== RESET BUTTON ========== */
-
-    .reset-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 14px;
-      border-radius: 9999px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(255, 255, 255, 0.1);
-      color: rgba(255, 255, 255, 0.85);
-      font-size: 12px;
-      font-weight: 600;
-      font-family: inherit;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      backdrop-filter: blur(8px);
-    }
-
-    .reset-btn:hover {
-      background: rgba(255, 255, 255, 0.18);
-      border-color: rgba(255, 255, 255, 0.35);
-      color: #fff;
-      transform: translateY(-1px);
-    }
-
-    .reset-btn:active {
-      transform: translateY(0);
+      .site-nav-links { display: none; }
+      .nav-toggle { display: flex; }
+      .nav-mobile-overlay { display: block; pointer-events: none; }
+      .nav-mobile-overlay.open { pointer-events: auto; }
+      .nav-mobile-panel { display: flex; }
+      .site-nav-inner { justify-content: space-between; }
     }
 
     @media (max-width: 480px) {
-      .reset-label { display: none; }
-      .reset-btn { padding: 6px 8px; }
+      .site-nav-inner { height: 44px; padding: 0 12px; }
+      .site-nav-brand { font-size: 0.88rem; gap: 0.35rem; }
+      .site-nav-brand img { width: 24px; height: 24px; }
+      .site-nav-cta { font-size: 0.62rem; padding: 0.25rem 0.65rem; }
+      .site-nav-cta svg { width: 11px; height: 11px; }
     }
 
-    /* ========== LAYOUT: Nav + App + Footer ========== */
-
-    html { height: 100%; }
-
-    body {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      height: 100dvh;
-      overflow: hidden;
-    }
+    /* ═══════════ LAYOUT STRUCTURE ═══════════ */
 
     .site-nav { flex-shrink: 0; }
 
@@ -273,6 +275,8 @@
       flex-direction: column;
       min-height: 0;
       overflow: hidden;
+      position: relative;
+      z-index: 1;
     }
 
     .kb-app .header,
@@ -287,30 +291,13 @@
       overflow-y: auto;
     }
 
-    /* ========== RESPONSIVE NAV ========== */
-
-    @media (max-width: 768px) {
-      .site-nav-links { display: none; }
-      .site-nav-inner { justify-content: space-between; }
-    }
-
-    /* ========== MOBILE: compact layout ========== */
-
-    @media (max-width: 480px) {
-      .site-nav-inner { height: 44px; padding: 0 12px; }
-      .site-nav-brand { font-size: 0.95rem; gap: 0.4rem; }
-      .site-nav-brand img { width: 28px; height: 28px; }
-      .site-nav-cta { font-size: 0.65rem; padding: 0.3rem 0.7rem; }
-      .site-nav-cta svg { width: 12px; height: 12px; }
-
-      .header-right { gap: 8px; }
-      .badge-build { font-size: 9px; padding: 4px 8px; }
-    }
+    /* ═══════════ CHART.JS DARK OVERRIDE ═══════════ */
+    /* Applied via JS but we set canvas defaults */
   </style>
 </head>
 <body>
 
-  <!-- ========== NAV INSTITUCIONAL ========== -->
+  <!-- ═══════════ SITE NAV ═══════════ -->
   <nav class="site-nav">
     <div class="site-nav-inner">
       <a href="../index.html" class="site-nav-brand">
@@ -320,21 +307,49 @@
       <div class="site-nav-links">
         <a href="../index.html">Inicio</a>
         <a href="../EpiDashboard.html">Dashboard</a>
-        <a href="../Reports/index.html">Pronósticos</a>
+        <a href="../Reports/index.html">Pronosticos</a>
         <a href="../reporte_resultados.html">Resultados</a>
-        <a href="../comparacion_modelos.html">Comparación</a>
-        <a href="../validacion_semanal.html">Validación</a>
+        <a href="../comparacion_modelos.html">Comparacion</a>
+        <a href="../validacion_semanal.html">Validacion</a>
         <a href="../conclusiones.html">Conclusiones</a>
         <a href="index.html" class="active">Base de Conocimiento</a>
       </div>
+
       <a href="../EpiDashboard.html" class="site-nav-cta">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         Dashboard
       </a>
+
+      <button class="nav-toggle" id="navToggle" aria-label="Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="22" height="22">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
     </div>
   </nav>
 
-  <!-- ========== KB APP ========== -->
+  <!-- Mobile nav overlay + panel -->
+  <div class="nav-mobile-overlay" id="navOverlay"></div>
+  <div class="nav-mobile-panel" id="navPanel">
+    <button class="nav-mobile-close" id="navClose" aria-label="Cerrar menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="22" height="22">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+    <a href="../index.html">Inicio</a>
+    <a href="../EpiDashboard.html">Dashboard</a>
+    <a href="../Reports/index.html">Pronosticos</a>
+    <a href="../reporte_resultados.html">Resultados</a>
+    <a href="../comparacion_modelos.html">Comparacion</a>
+    <a href="../validacion_semanal.html">Validacion</a>
+    <a href="../conclusiones.html">Conclusiones</a>
+    <a href="index.html" class="active">Base de Conocimiento</a>
+  </div>
+
+  <!-- ═══════════ KB APP ═══════════ -->
   <div class="kb-app">
 
     <!-- Header -->
@@ -344,7 +359,7 @@
           <img src="EPI.jpg" alt="EpiForecast-MX Logo">
         </div>
         <div class="header-info">
-          <h1>Base de Conocimiento <span class="header-sub">Inteligencia Epidemiológica IMSS</span></h1>
+          <h1>Base de Conocimiento <span class="header-sub">Inteligencia Epidemiologica IMSS</span></h1>
         </div>
       </div>
       <div class="header-stats">
@@ -354,11 +369,11 @@
         <div class="hstat"><span class="hstat-val" id="statForecast">--</span><span class="hstat-lbl">52 sem</span></div>
       </div>
       <div class="header-right">
-        <button id="resetBtn" class="reset-btn" title="Limpiar conversación y empezar de nuevo">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+        <button id="resetBtn" class="reset-btn" title="Limpiar conversacion y empezar de nuevo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
             <path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
           </svg>
-          <span class="reset-label">Limpiar chat</span>
+          <span class="reset-label">Limpiar</span>
         </button>
         <div class="gemini-status gemini-checking" id="geminiStatus">
           <span class="gemini-dot"></span>
@@ -368,24 +383,22 @@
       </div>
     </header>
 
-    <!-- Stats are now inline in the header -->
-
     <!-- Quick queries -->
     <section class="quick-section" id="quickSection">
       <div class="quick-group">
         <span class="quick-label">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11">
             <path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/>
           </svg>
-          Métricas
+          Metricas
         </span>
         <button class="quick-btn" data-q="metricas globales">Globales</button>
         <button class="quick-btn" data-q="ranking mejores modelos">Ranking</button>
-        <button class="quick-btn" data-q="diagnosticos de calidad">Diagnósticos</button>
+        <button class="quick-btn" data-q="diagnosticos de calidad">Diagnosticos</button>
       </div>
       <div class="quick-group">
         <span class="quick-label">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11">
             <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
             <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
           </svg>
@@ -393,25 +406,25 @@
         </span>
         <button class="quick-btn" data-q="comparativa de motores">Comparativa</button>
         <button class="quick-btn" data-q="configuracion de entrenamiento">Entrenamiento</button>
-        <button class="quick-btn" data-q="validacion semanal">Validación</button>
+        <button class="quick-btn" data-q="validacion semanal">Validacion</button>
       </div>
       <div class="quick-group">
         <span class="quick-label">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11">
             <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
           </svg>
           Padecimientos
         </span>
-        <button class="quick-btn" data-q="que es la depresion">Depresión</button>
+        <button class="quick-btn" data-q="que es la depresion">Depresion</button>
         <button class="quick-btn" data-q="que es el parkinson">Parkinson</button>
         <button class="quick-btn" data-q="que es el alzheimer">Alzheimer</button>
       </div>
       <div class="quick-group">
         <span class="quick-label">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11">
             <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
           </svg>
-          Histórico
+          Historico
         </span>
         <button class="quick-btn" data-q="tendencia historica de depresion">Tendencia</button>
         <button class="quick-btn" data-q="ranking entidades por incidencia">Top entidades</button>
@@ -419,7 +432,7 @@
       </div>
       <div class="quick-group">
         <span class="quick-label">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11">
             <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
           </svg>
           Proyecto
@@ -439,30 +452,73 @@
     <footer class="input-bar">
       <div class="input-wrapper">
         <div class="input-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17">
             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
           </svg>
         </div>
         <input type="text" id="inputField" placeholder="Escribe tu pregunta sobre el proyecto..." autocomplete="off">
         <button id="sendBtn" title="Enviar">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="17" height="17">
             <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
           </svg>
         </button>
       </div>
       <div class="input-hint">
         <span class="hint-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11">
             <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
           </svg>
         </span>
-        Prueba: "métricas globales", "depresión en Jalisco", "equipo del proyecto"
+        Prueba: "metricas globales", "depresion en Jalisco", "equipo del proyecto"
       </div>
     </footer>
 
   </div><!-- /kb-app -->
 
-  <!-- ========== FOOTER INSTITUCIONAL ========== -->
+  <!-- ═══════════ CHART.JS DARK THEME DEFAULTS ═══════════ -->
+  <script>
+    // Override Chart.js defaults for dark theme
+    if (typeof Chart !== 'undefined') {
+      Chart.defaults.color = '#8FA99D';
+      Chart.defaults.borderColor = 'rgba(46, 196, 168, 0.08)';
+      Chart.defaults.plugins.title.color = '#E8F0EC';
+      Chart.defaults.plugins.legend.labels.color = '#8FA99D';
+      Chart.defaults.scale = Chart.defaults.scale || {};
+    }
+  </script>
+
+  <!-- ═══════════ MOBILE NAV LOGIC ═══════════ -->
+  <script>
+    (function() {
+      const toggle = document.getElementById('navToggle');
+      const overlay = document.getElementById('navOverlay');
+      const panel = document.getElementById('navPanel');
+      const close = document.getElementById('navClose');
+
+      function openNav() {
+        overlay.classList.add('open');
+        panel.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+      function closeNav() {
+        overlay.classList.remove('open');
+        panel.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+
+      if (toggle) toggle.addEventListener('click', openNav);
+      if (overlay) overlay.addEventListener('click', closeNav);
+      if (close) close.addEventListener('click', closeNav);
+
+      // Close on link click
+      panel.querySelectorAll('a').forEach(a => a.addEventListener('click', closeNav));
+
+      // Close on Escape
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && panel.classList.contains('open')) closeNav();
+      });
+    })();
+  </script>
 
   <script type="module" src="js/app.js?v=28"></script>
 </body>
