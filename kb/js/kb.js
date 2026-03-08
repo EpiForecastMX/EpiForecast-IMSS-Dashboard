@@ -1048,6 +1048,119 @@ function answerSpecificSeries(q, ent, s, d) {
 }
 
 // ---------------------------------------------------------------------------
+// COMPARATIVA DE ESTADOS — tabla + gráfico lado a lado
+// ---------------------------------------------------------------------------
+
+function answerComparativaEstados(q, ent, s, d) {
+  const estados = ent._estados;
+  if (!estados || estados.length < 2) return null;
+
+  const compTriggers = ['compara', 'comparar', 'comparativ', 'diferencia', 'contrasta',
+    ' vs ', 'versus', 'contra ', 'frente a'];
+  // Also trigger if 2+ states detected with connectors
+  const hasConnector = q.includes(' y ') || q.includes(' vs ') || q.includes(' con ');
+  if (!any(q, compTriggers) && !hasConnector) return null;
+
+  const models = d.prod_models || [];
+  const pad = ent.padecimiento;
+  const bol = d.boletin || {};
+  const anualNac = bol.anual_por_pad || {};
+  const anualEst = bol.anual_por_estado_pad || {};
+  const years = ent._years || [];
+
+  const lines = [];
+  const padLabel = pad ? ` — ${pad}` : '';
+  lines.push(`**Comparativa de ${estados.length} entidades${padLabel}**\n`);
+
+  // Build comparison data per state
+  const comparisons = [];
+  for (const estado of estados) {
+    const estModels = models.filter(m =>
+      norm(m.entidad || '') === norm(estado) && m.sexo === 'general' &&
+      (!pad || m.padecimiento === pad)
+    );
+    const estStats = s.por_estado?.[estado] || {};
+    const totalCasos = estModels.reduce((sum, m) => sum + (m.casos_52_semanas_futuro || 0), 0);
+    const smapeVals = estModels.filter(m => m.smape_prod != null).map(m => m.smape_prod);
+    const avgSmape = smapeVals.length ? (smapeVals.reduce((a, b) => a + b, 0) / smapeVals.length).toFixed(1) : null;
+    const motors = {};
+    estModels.forEach(m => { motors[m.modelo_produccion] = (motors[m.modelo_produccion] || 0) + 1; });
+    const topMotor = Object.entries(motors).sort((a, b) => b[1] - a[1])[0];
+
+    // Historical data
+    let histTotal = null;
+    if (years.length) {
+      const yr = String(years[0]);
+      if (pad) {
+        histTotal = anualEst[estado]?.[pad]?.[yr] ?? anualNac[pad]?.[yr];
+      } else {
+        const pads = Object.keys(anualEst[estado] || anualNac);
+        histTotal = 0;
+        for (const p of pads) {
+          histTotal += (anualEst[estado]?.[p]?.[yr] ?? 0);
+        }
+        if (histTotal === 0) histTotal = null;
+      }
+    }
+
+    comparisons.push({
+      estado, totalCasos, avgSmape, topMotor, histTotal,
+      nModelos: estModels.length,
+      models: estModels,
+    });
+  }
+
+  // Table header
+  if (pad) {
+    lines.push('| Entidad | Pronóstico 52 sem | SMAPE | Motor | Confianza |');
+    lines.push('|---------|------------------:|------:|-------|-----------|');
+    for (const c of comparisons) {
+      const conf = c.avgSmape != null ? confidence(Number(c.avgSmape)) : '—';
+      lines.push(`| **${c.estado}** | ${fmt(c.totalCasos)} casos | ${c.avgSmape ?? '—'}% | ${c.topMotor ? c.topMotor[0] : '—'} | ${conf} |`);
+    }
+  } else {
+    lines.push('| Entidad | Pronóstico total | Modelos | SMAPE prom. | Motor principal |');
+    lines.push('|---------|-----------------:|:-------:|------------:|-----------------|');
+    for (const c of comparisons) {
+      lines.push(`| **${c.estado}** | ${fmt(c.totalCasos)} casos | ${c.nModelos} | ${c.avgSmape ?? '—'}% | ${c.topMotor ? c.topMotor[0] : '—'} |`);
+    }
+  }
+
+  // Historical comparison if years requested
+  if (years.length && comparisons.some(c => c.histTotal != null)) {
+    lines.push(`\n**Datos históricos (${years[0]}):**`);
+    for (const c of comparisons) {
+      if (c.histTotal != null) {
+        lines.push(`- ${c.estado}: **${fmt(c.histTotal)} casos** registrados`);
+      } else {
+        lines.push(`- ${c.estado}: sin datos para ${years[0]}`);
+      }
+    }
+  }
+
+  // Insights
+  lines.push('\n**Hallazgos:**');
+  const sorted = [...comparisons].sort((a, b) => b.totalCasos - a.totalCasos);
+  lines.push(`- Mayor incidencia pronosticada: **${sorted[0].estado}** (${fmt(sorted[0].totalCasos)} casos)`);
+  lines.push(`- Menor incidencia pronosticada: **${sorted[sorted.length - 1].estado}** (${fmt(sorted[sorted.length - 1].totalCasos)} casos)`);
+
+  if (sorted[0].totalCasos > 0 && sorted[sorted.length - 1].totalCasos > 0) {
+    const ratio = (sorted[0].totalCasos / sorted[sorted.length - 1].totalCasos).toFixed(1);
+    lines.push(`- Ratio: ${sorted[0].estado} tiene **${ratio}x** más casos que ${sorted[sorted.length - 1].estado}`);
+  }
+
+  const bestSmape = [...comparisons].filter(c => c.avgSmape != null).sort((a, b) => a.avgSmape - b.avgSmape);
+  if (bestSmape.length) {
+    lines.push(`- Mejor precisión: **${bestSmape[0].estado}** (SMAPE ${bestSmape[0].avgSmape}%)`);
+  }
+
+  // Store chart data for extractChartData to pick up
+  lines.push(`\n<!--COMPARE:${JSON.stringify(comparisons.map(c => ({ estado: c.estado, total: c.totalCasos, smape: c.avgSmape, models: c.models.map(m => ({ pad: m.padecimiento, casos: m.casos_52_semanas_futuro, smape: m.smape_prod })) })))}-->`);
+
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
 // ESTADO (sin padecimiento espec\u00edfico) — resumen conversacional
 // ---------------------------------------------------------------------------
 
@@ -1699,6 +1812,7 @@ const STOP_WORDS = new Set([
   'puede', 'puedo', 'puedes', 'quiero', 'tiene', 'hacer', 'haber',
   'sido', 'sera', 'esta', 'estan', 'fueron', 'siendo',
   'grafico', 'graficos', 'mostrar', 'muestra', 'comportaron',
+  'compara', 'comparar', 'comparativa', 'diferencia', 'versus',
   'padecimientos', 'padecimiento', 'casos', 'datos', 'numero',
   'anos', 'anno', 'meses', 'semanas', 'dias',
   'mas', 'menos', 'preciso', 'precisos', 'distribucion',
@@ -1736,7 +1850,7 @@ function fuzzyCorrect(q) {
 const HANDLERS = [
   answerSaludo, answerPadecimientoNoModelado, answerLugarDesconocido, answerEquipo, answerTemporal, answerProyectoMeta,
   answerTrainingConfig, answerSemanaActual, answerQueEsPadecimiento,
-  answerBoletin, answerHistorico, answerSpecificSeries, answerEstado, answerPadecimiento,
+  answerBoletin, answerHistorico, answerSpecificSeries, answerComparativaEstados, answerEstado, answerPadecimiento,
   answerMotor, answerDemografica, answerSexo, answerMetricaGlobal,
   answerRanking, answerDiagnosticos, answerValidacion, answerInfra,
   answerConteo, answerPronostico, answerDefinicion,

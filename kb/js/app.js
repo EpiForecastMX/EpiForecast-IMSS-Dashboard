@@ -6,8 +6,8 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=34';
-import { detectEntities, norm } from './entities.js?v=18';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=35';
+import { detectEntities, norm } from './entities.js?v=19';
 
 // ---------------------------------------------------------------------------
 // DOM refs
@@ -298,7 +298,8 @@ function addBotMessage(markdown, source, suggestions, chartData) {
   if (source === 'ai') { badgeClass = 'badge-ai'; badgeText = 'IA'; }
   else if (source === 'error') { badgeClass = 'badge-ai'; badgeText = 'Error'; }
 
-  const html = marked.parse(markdown, { breaks: true });
+  const cleanMarkdown = markdown.replace(/<!--COMPARE:.*?-->/g, '');
+  const html = marked.parse(cleanMarkdown, { breaks: true });
   const now = new Date();
   const timeStr = now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
 
@@ -379,6 +380,50 @@ function extractChartData(markdown, query) {
   if (!data) return null;
   const s = data.stats || {};
   const qn = query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  // Comparativa de estados (embedded data from handler)
+  const compareMatch = markdown.match(/<!--COMPARE:(.*?)-->/);
+  if (compareMatch) {
+    try {
+      const cmp = JSON.parse(compareMatch[1]);
+      if (cmp.length >= 2) {
+        // Check if all states have per-padecimiento breakdown
+        const hasPadBreakdown = cmp.some(c => c.models && c.models.length > 1);
+        if (hasPadBreakdown) {
+          // Grouped bar: each state, one bar per padecimiento
+          const pads = [...new Set(cmp.flatMap(c => c.models.map(m => m.pad)))];
+          return {
+            type: 'bar',
+            title: `Comparativa: ${cmp.map(c => c.estado).join(' vs ')}`,
+            labels: cmp.map(c => c.estado),
+            datasets: pads.map((pad, i) => ({
+              label: dn(pad),
+              data: cmp.map(c => { const m = c.models.find(x => x.pad === pad); return m ? m.casos : 0; }),
+              backgroundColor: CHART_COLORS[i] + 'CC',
+              borderColor: CHART_COLORS[i],
+              borderWidth: 1,
+              borderRadius: 4,
+            })),
+          };
+        } else {
+          // Simple bar: total per state
+          return {
+            type: 'bar',
+            title: `Comparativa: ${cmp.map(c => c.estado).join(' vs ')}`,
+            labels: cmp.map(c => c.estado),
+            datasets: [{
+              label: 'Casos pronosticados (52 sem)',
+              data: cmp.map(c => c.total),
+              backgroundColor: CHART_COLORS.slice(0, cmp.length).map(c => c + 'CC'),
+              borderColor: CHART_COLORS.slice(0, cmp.length),
+              borderWidth: 1,
+              borderRadius: 4,
+            }],
+          };
+        }
+      }
+    } catch (e) { console.warn('Compare parse error:', e); }
+  }
 
   // Comparativa de motores -> bar chart
   if (qn.includes('comparativa') || qn.includes('motor') && (qn.includes('gana') || qn.includes('comparar'))) {

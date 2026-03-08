@@ -159,24 +159,27 @@ export function detectEntities(query) {
     }
   }
 
-  // Estado (sorted by length desc)
+  // Estado (sorted by length desc) — detectar TODOS los estados mencionados
+  const allEstados = [];
+  let qnTemp = qn;
   for (const [alias, canon] of ESTADOS_SORTED) {
-    if (qn.includes(alias)) {
-      result.estado = canon;
-      break;
+    if (qnTemp.includes(alias)) {
+      if (!allEstados.includes(canon)) allEstados.push(canon);
+      qnTemp = qnTemp.replace(alias, '___');
     }
   }
-  if (!result.estado) {
-    for (const est of ESTADOS_32) {
-      if (qn.includes(est)) {
-        result.estado = est.replace(/\b\w/g, c => c.toUpperCase());
-        break;
-      }
+  for (const est of ESTADOS_32) {
+    if (qnTemp.includes(est)) {
+      const cap = est.replace(/\b\w/g, c => c.toUpperCase());
+      if (!allEstados.includes(cap)) allEstados.push(cap);
+      qnTemp = qnTemp.replace(est, '___');
     }
   }
-  if (!result.estado && qn.includes('nacional')) {
-    result.estado = 'Nacional';
+  if (!allEstados.length && qn.includes('nacional')) {
+    allEstados.push('Nacional');
   }
+  result.estado = allEstados.length ? allEstados[0] : null;
+  if (allEstados.length > 1) result._estados = allEstados;
 
   // Detectar lugar no reconocido: "en [lugar]" que no matcheó ningún estado
   if (!result.estado) {
