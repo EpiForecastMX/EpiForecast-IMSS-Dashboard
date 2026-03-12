@@ -524,15 +524,21 @@ function buildCorridorChart(data, qn) {
     });
     const avgSpread = (spreads.reduce((a, v) => a + v, 0) / spreads.length).toFixed(0);
 
+    // Calcular rango Y con padding para que los datos llenen el grafico
+    const allVals = [...minData, ...maxData, ...prodData, ...realData.filter(v => v != null)];
+    const yMin = Math.min(...allVals);
+    const yMax = Math.max(...allVals);
+    const yPad = Math.max(1, Math.round((yMax - yMin) * 0.15));
+
     charts.push({
       type: 'line',
-      title: `${pad} — corredor de confianza (4 modelos, dispersion prom: ${avgSpread})`,
+      title: `${dn(pad)} — corredor de confianza (4 modelos, dispersion prom: ${avgSpread})`,
       labels,
       datasets,
       options: {
         scales: {
           x: { ticks: { maxRotation: 90, font: { size: 9 }, autoSkip: true, maxTicksLimit: 20 } },
-          y: { beginAtZero: true },
+          y: { min: Math.max(0, yMin - yPad), max: yMax + yPad },
         },
       },
     });
