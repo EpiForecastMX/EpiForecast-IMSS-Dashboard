@@ -428,15 +428,13 @@ function buildTrendChart(data, qn) {
   // Semanas reales disponibles en 2026
   const semsReales = Object.values(wc)[0]?.semanas?.filter(s => s.real != null).length || 0;
 
-  // Labels: 2014...2025, "2026 (S08)", "2026 (proy.)", "Ene 2027"
+  // Labels: 2014...2025, "2026 (proy.)", "Ene 2027"
   const yearsComplete = hasProjection ? allYears.slice(0, -1) : [...allYears];
   const labels = hasProjection
-    ? [...yearsComplete, `S${String(semsReales).padStart(2,'0')}-2026`, '2026 (proy.)', 'Ene 2027']
+    ? [...yearsComplete, `2026 (vamos S${String(semsReales).padStart(2,'0')})`, 'Ene 2027']
     : [...allYears];
-  // Indices de los 3 puntos extra
-  const iReal26 = yearsComplete.length;     // "S08-2026"
-  const iProj26 = yearsComplete.length + 1; // "2026 (proy.)"
-  const iEnd27  = yearsComplete.length + 2; // "Ene 2027"
+  const iProj26 = yearsComplete.length;     // "2026 (vamos S08)"
+  const iEnd27  = yearsComplete.length + 1; // "Ene 2027"
   const nLabels = labels.length;
 
   const datasets = [];
@@ -446,16 +444,15 @@ function buildTrendChart(data, qn) {
     const padData = anual[pad];
 
     if (hasProjection) {
-      const real2026 = padData['2026'] || 0;
       const proj2026 = projected2026[pad] || 0;
-      const last2025 = padData[yearsComplete[yearsComplete.length - 1]] || 0;
+      const last2025Val = padData[yearsComplete[yearsComplete.length - 1]] || 0;
 
-      // Dataset 1: linea solida — TERMINA en 2025 (sin caida)
+      // Dataset 1: linea solida "Real" — 2014 a 2025
       const solidData = new Array(nLabels).fill(null);
       yearsComplete.forEach((y, j) => { solidData[j] = padData[y] || 0; });
 
       datasets.push({
-        label: pad,
+        label: pad + ' (real)',
         data: solidData,
         borderColor: color,
         backgroundColor: color + '22',
@@ -467,48 +464,25 @@ function buildTrendChart(data, qn) {
         spanGaps: false,
       });
 
-      // Dataset 2: punto aislado — dato real parcial 2026 (S08)
-      const realPointData = new Array(nLabels).fill(null);
-      realPointData[iReal26] = real2026;
-
-      datasets.push({
-        label: `${pad} (real S${String(semsReales).padStart(2,'0')})`,
-        data: realPointData,
-        borderColor: color,
-        backgroundColor: 'transparent',
-        showLine: false,
-        pointRadius: 7,
-        pointBorderColor: color,
-        pointBorderWidth: 3,
-        pointBackgroundColor: 'transparent',
-        pointStyle: 'circle',
-      });
-
-      // Dataset 3: linea punteada — proyeccion 2025 -> 2026 proy -> Ene 2027
+      // Dataset 2: linea punteada "Pronostico" — continua desde 2025
       const dashedData = new Array(nLabels).fill(null);
-      dashedData[yearsComplete.length - 1] = last2025;
+      dashedData[yearsComplete.length - 1] = last2025Val; // empalma con 2025
       dashedData[iProj26] = proj2026;
       dashedData[iEnd27] = proj2026;
 
       datasets.push({
-        label: idx === 0 ? 'Proyectado' : `${pad} (proyectado)`,
+        label: pad + ' (pronostico)',
         data: dashedData,
-        borderColor: color + 'AA',
-        backgroundColor: color + '08',
-        fill: false,
+        borderColor: color,
+        backgroundColor: color + '0A',
+        fill: '-1',
         tension: 0.3,
-        borderWidth: 2.5,
-        borderDash: [8, 5],
+        borderWidth: 3,
+        borderDash: [10, 6],
         pointRadius: dashedData.map((v, j) => {
-          if (v == null || j === yearsComplete.length - 1) return 0;
-          if (j === iProj26) return 7;
-          if (j === iEnd27) return 6;
+          if (j === iProj26) return 6;
+          if (j === iEnd27) return 5;
           return 0;
-        }),
-        pointStyle: dashedData.map((v, j) => {
-          if (j === iProj26) return 'rectRot';
-          if (j === iEnd27) return 'triangle';
-          return 'circle';
         }),
         pointBackgroundColor: color + '88',
         pointBorderColor: color,
@@ -1106,11 +1080,7 @@ function renderChart(canvasId, chartData) {
             usePointStyle: true,
             padding: 16,
             boxWidth: 8,
-            filter: (item, chart) => {
-              // Hide duplicate "Pad (proyectado)" entries, keep only "Proyectado"
-              if (item.text.includes('(proyectado)')) return false;
-              return true;
-            },
+            filter: () => true,
           },
         },
       },
