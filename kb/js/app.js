@@ -6,8 +6,8 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=28';
-import { detectEntities, norm } from './entities.js?v=15';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=62';
+import { detectEntities, norm } from './entities.js?v=25';
 
 // ---------------------------------------------------------------------------
 // DOM refs
@@ -33,16 +33,16 @@ function dn(s) { return s ? (DISPLAY_NAMES[s] || s) : s; }
 
 // Paleta mejorada basada en el logo
 const CHART_COLORS = [
-  '#4A5D23', // verde olivo
-  '#BC955C', // dorado
-  '#C07850', // terracota
-  '#5B8A8A', // teal
-  '#7D9A4C', // verde claro
-  '#9A7A4A', // dorado oscuro
-  '#8B6E5A', // marron
-  '#6B8E8E', // teal claro
-  '#5C7A2A', // verde medio
-  '#D4A574', // dorado claro
+  '#2EC4A8', // teal
+  '#D4A84B', // gold
+  '#C83A5A', // burgundy
+  '#6DD6C2', // teal claro
+  '#E8C56D', // gold claro
+  '#E06080', // burgundy claro
+  '#1DA88E', // teal oscuro
+  '#8FA99D', // sage
+  '#A8D8C8', // mint
+  '#F0D090', // cream gold
 ];
 
 // ---------------------------------------------------------------------------
@@ -70,7 +70,7 @@ async function checkGemini() {
     indicator.className = 'gemini-status gemini-ok';
     indicator.innerHTML = `
       <span class="gemini-dot"></span>
-      <span>Gemini activo</span>`;
+      <span>Powered by AI</span>`;
   } else {
     indicator.className = 'gemini-status gemini-off';
     indicator.innerHTML = `
@@ -193,6 +193,8 @@ function addWelcome(data) {
 // Chat
 // ---------------------------------------------------------------------------
 
+let lastChartQuery = '';
+
 async function handleSend() {
   const text = inputField.value.trim();
   if (!text) return;
@@ -203,7 +205,21 @@ async function handleSend() {
   try { result = await answer(text); } catch (err) { console.error('KB error:', err); }
 
   if (result) {
-    const chartData = extractChartData(result, text);
+    let chartData = null;
+    try {
+      chartData = extractChartData(result, text);
+      // If no chart but we had a previous chart query, try merging context
+      if (!chartData && lastChartQuery) {
+        const ent = detectEntities(text);
+        if (ent._years && ent._years.length) {
+          const merged = lastChartQuery.replace(/\b20[0-3]\d\b/g, '') + ' ' + text;
+          chartData = extractChartData(result, merged);
+        }
+      }
+    } catch (err) {
+      console.error('extractChartData error:', err);
+    }
+    if (chartData) lastChartQuery = text;
     const suggestions = getSuggestions(text);
     addBotMessage(result, 'local', suggestions, chartData);
     pushHistory(text, result);
@@ -282,7 +298,8 @@ function addBotMessage(markdown, source, suggestions, chartData) {
   if (source === 'ai') { badgeClass = 'badge-ai'; badgeText = 'IA'; }
   else if (source === 'error') { badgeClass = 'badge-ai'; badgeText = 'Error'; }
 
-  const html = marked.parse(markdown, { breaks: true });
+  const cleanMarkdown = markdown.replace(/<!--COMPARE:.*?-->/g, '').replace(/<!--DISTRIB:.*?-->/g, '').replace(/<!--GENCHART:.*?-->/g, '');
+  const html = marked.parse(cleanMarkdown, { breaks: true });
   const now = new Date();
   const timeStr = now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
 
@@ -375,39 +392,127 @@ function extractChartData(markdown, query) {
   const s = data.stats || {};
   const qn = query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-  // Comparacion pronostico vs real -> 3 graficos separados (uno por padecimiento)
-  const compTriggers = ['comparar', 'compara', 'comparacion', 'vs real', 'vs realidad',
-    'acertamos', 'le atinamos', 'como le fue', 'como nos fue', 'pronosticado',
-    'pronosticamos', 'predijimos', 'que tan preciso', 'que tan bien'];
-  if (compTriggers.some(t => qn.includes(t))) {
-    const wc = data.weekly_comparison;
-    if (wc) {
-      const charts = [];
-      const sem = Object.values(wc)[0]?.semanas_reales || '?';
-      for (const [name, info] of Object.entries(wc)) {
-        const semanas = info.semanas || [];
-        const reales = semanas.filter(s => s.real != null);
-        if (!reales.length) continue;
-        const last = reales[reales.length - 1];
-        const pron = last.pronostico || 0;
-        const real = last.real || 0;
-        const displayName = dn(name.charAt(0).toUpperCase() + name.slice(1));
-        const errPct = real > 0 ? ((pron - real) / real * 100).toFixed(1) : '0.0';
-        const sign = pron > real ? '+' : '';
+  // Comparacion semanal Real vs Pronostico (embedded from answerComparacionSemanal)
+  // Collect ALL weekly matches (one per padecimiento) and return as array
+  const weeklyMatches = [...markdown.matchAll(/<!--WEEKLY:(.*?)-->/g)];
+  if (weeklyMatches.length) {
+    const charts = [];
+    for (const match of weeklyMatches) {
+      try {
+        const wk = JSON.parse(match[1]);
+        const semanas = wk.semanas || [];
+        const labels = semanas.map(w => `Sem ${w.s}`);
+        const realData = semanas.map(w => w.r);
+        const pronData = semanas.map(w => w.p);
         charts.push({
           type: 'bar',
-          title: `${displayName} - Sem ${sem}: ${sign}${errPct}%`,
-          labels: ['Pronostico', 'Real'],
-          datasets: [{
-            label: displayName,
-            data: [pron, real],
-            backgroundColor: ['#4A5D23CC', '#BC955CCC'],
-            borderRadius: 6,
-          }],
+          title: `${dn(wk.pad)} ${wk.anio}: Real vs Pronostico`,
+          labels,
+          datasets: [
+            {
+              label: 'Real',
+              data: realData,
+              backgroundColor: '#2EC4A8CC',
+              borderColor: '#2EC4A8',
+              borderWidth: 2,
+              borderRadius: 4,
+              order: 1,
+            },
+            {
+              label: `Pronostico (${wk.modelo})`,
+              data: pronData,
+              backgroundColor: '#D4A84BCC',
+              borderColor: '#D4A84B',
+              borderWidth: 2,
+              borderRadius: 4,
+              order: 2,
+            },
+          ],
         });
-      }
-      if (charts.length) return charts;
+      } catch (e) { console.warn('Weekly parse error:', e); }
     }
+    if (charts.length === 1) return charts[0];
+    if (charts.length > 1) return charts;
+  }
+
+  // Distribucion de metricas (embedded from answerDistribucion)
+  const distribMatch = markdown.match(/<!--DISTRIB:(.*?)-->/);
+  if (distribMatch) {
+    try {
+      const dist = JSON.parse(distribMatch[1]);
+      const datasets = (dist.datasets || []).map((ds, i) => ({
+        label: dn(ds.pad),
+        data: ds.counts,
+        backgroundColor: CHART_COLORS[i] + '99',
+        borderColor: CHART_COLORS[i],
+        borderWidth: 2,
+        borderRadius: 3,
+      }));
+      return {
+        type: 'bar',
+        title: `Distribucion de ${dist.metric} por padecimiento`,
+        labels: dist.bins,
+        datasets,
+        options: {
+          scales: {
+            x: { title: { display: true, text: dist.metric } },
+            y: { title: { display: true, text: 'Modelos' } },
+          },
+        },
+      };
+    } catch (e) { console.warn('Distrib parse error:', e); }
+  }
+
+  // Grafico generico embebido (from answerGraficoAleatorio)
+  const genChartMatch = markdown.match(/<!--GENCHART:(.*?)-->/);
+  if (genChartMatch) {
+    try {
+      return JSON.parse(genChartMatch[1]);
+    } catch (e) { console.warn('GenChart parse error:', e); }
+  }
+
+  // Comparativa de estados (embedded data from handler)
+  const compareMatch = markdown.match(/<!--COMPARE:(.*?)-->/);
+  if (compareMatch) {
+    try {
+      const cmp = JSON.parse(compareMatch[1]);
+      if (cmp.length >= 2) {
+        // Check if all states have per-padecimiento breakdown
+        const hasPadBreakdown = cmp.some(c => c.models && c.models.length > 1);
+        if (hasPadBreakdown) {
+          // Grouped bar: each state, one bar per padecimiento
+          const pads = [...new Set(cmp.flatMap(c => c.models.map(m => m.pad)))];
+          return {
+            type: 'bar',
+            title: `Comparativa: ${cmp.map(c => c.estado).join(' vs ')}`,
+            labels: cmp.map(c => c.estado),
+            datasets: pads.map((pad, i) => ({
+              label: dn(pad),
+              data: cmp.map(c => { const m = c.models.find(x => x.pad === pad); return m ? m.casos : 0; }),
+              backgroundColor: CHART_COLORS[i] + 'CC',
+              borderColor: CHART_COLORS[i],
+              borderWidth: 1,
+              borderRadius: 4,
+            })),
+          };
+        } else {
+          // Simple bar: total per state
+          return {
+            type: 'bar',
+            title: `Comparativa: ${cmp.map(c => c.estado).join(' vs ')}`,
+            labels: cmp.map(c => c.estado),
+            datasets: [{
+              label: 'Casos pronosticados (52 sem)',
+              data: cmp.map(c => c.total),
+              backgroundColor: CHART_COLORS.slice(0, cmp.length).map(c => c + 'CC'),
+              borderColor: CHART_COLORS.slice(0, cmp.length),
+              borderWidth: 1,
+              borderRadius: 4,
+            }],
+          };
+        }
+      }
+    } catch (e) { console.warn('Compare parse error:', e); }
   }
 
   // Comparativa de motores -> bar chart
@@ -437,8 +542,8 @@ function extractChartData(markdown, query) {
         title: 'SMAPE por motor de predicción',
         labels: Object.keys(pm),
         datasets: [
-          { label: 'SMAPE medio', data: Object.values(pm).map(v => v.smape_mean), backgroundColor: '#4A5D23CC', borderRadius: 6 },
-          { label: 'SMAPE mediano', data: Object.values(pm).map(v => v.smape_median), backgroundColor: '#BC955CCC', borderRadius: 6 },
+          { label: 'SMAPE medio', data: Object.values(pm).map(v => v.smape_mean), backgroundColor: '#2EC4A8CC', borderRadius: 6 },
+          { label: 'SMAPE mediano', data: Object.values(pm).map(v => v.smape_median), backgroundColor: '#D4A84BCC', borderRadius: 6 },
         ],
       };
     }
@@ -473,7 +578,7 @@ function extractChartData(markdown, query) {
         labels: ['OK', 'Moderado', 'Alto'],
         datasets: [{
           data: [s.overfitting_ok || 0, s.overfitting_moderado || 0, s.overfitting_alto || 0],
-          backgroundColor: ['#4A5D23', '#BC955C', '#C07850'],
+          backgroundColor: ['#2EC4A8', '#D4A84B', '#C83A5A'],
           borderWidth: 0,
         }],
       };
@@ -525,8 +630,12 @@ function extractChartData(markdown, query) {
   }
 
   // Pronostico / forecast -> contextual chart
+  // Skip if user is asking for historical/weekly data with a specific year
+  const entPre = detectEntities(query);
+  const hasHistYear = entPre._years && entPre._years.length > 0;
+  const isWeeklyReq = qn.includes('por semana') || qn.includes('semanal');
   if (qn.includes('pronostico') || qn.includes('forecast') || qn.includes('prediccion') ||
-      (qn.includes('grafico') && (qn.includes('caso') || qn.includes('semana')))) {
+      (qn.includes('grafico') && (qn.includes('caso') || qn.includes('semana')) && !hasHistYear && !isWeeklyReq)) {
 
     const ent = detectEntities(query);
     const models = data.prod_models || [];
@@ -545,7 +654,7 @@ function extractChartData(markdown, query) {
           datasets: [{
             label: 'Casos pronosticados',
             data: matches.map(m => m.casos_52_semanas_futuro || 0),
-            backgroundColor: ['#4A5D23', '#BC955C', '#5B8A8A'],
+            backgroundColor: ['#2EC4A8', '#D4A84B', '#C83A5A'],
             borderRadius: 6,
           }],
         };
@@ -628,6 +737,42 @@ function extractChartData(markdown, query) {
       ent._years = [2019, 2020, 2021, 2022, 2023];
     }
 
+    // Weekly chart from boletin semanal (current year only)
+    const weeklyTrigger = qn.includes('por semana') || qn.includes('semanal') || qn.includes('semana a semana');
+    const semData = data.boletin?.semanal;
+    const metaBol = data.boletin?.meta;
+    if (weeklyTrigger && semData && semData.length) {
+      const currentYear = metaBol?.max_anio || new Date().getFullYear();
+      const requestedYear = ent._years && ent._years.length ? ent._years[0] : currentYear;
+      if (requestedYear === currentYear) {
+        const labels = semData.map(s => `Sem ${s.semana}`);
+        const datasets = [];
+        const pads = ['Depresion', 'Parkinson', 'Alzheimer'];
+        pads.forEach((pad, i) => {
+          if (ent.padecimiento && norm(ent.padecimiento) !== norm(pad)) return;
+          const vals = semData.map(s => s[pad] || 0);
+          if (vals.some(v => v > 0)) {
+            datasets.push({
+              label: dn(pad),
+              data: vals,
+              borderColor: CHART_COLORS[i],
+              backgroundColor: CHART_COLORS[i] + '22',
+              fill: true, tension: 0.3, borderWidth: 2.5,
+              pointRadius: 4, pointBackgroundColor: CHART_COLORS[i],
+            });
+          }
+        });
+        if (datasets.length) {
+          const padLabel = ent.padecimiento ? dn(ent.padecimiento) : 'Todos los padecimientos';
+          return {
+            type: 'line',
+            title: `${padLabel} — semanas ${currentYear} (sem 1–${semData.length})`,
+            labels, datasets,
+          };
+        }
+      }
+    }
+
     // Historical year(s) → line chart from boletin
     if (ent._years && ent._years.length) {
       const anualEstPad = data.boletin?.anual_por_estado_pad;
@@ -658,7 +803,7 @@ function extractChartData(markdown, query) {
             backgroundColor: CHART_COLORS[i] + '22',
             fill: true, tension: 0.4, borderWidth: 3,
             pointRadius: allYears.map(y => ent._years.includes(Number(y)) ? 7 : 3),
-            pointBackgroundColor: allYears.map(y => ent._years.includes(Number(y)) ? '#9F2241' : CHART_COLORS[i]),
+            pointBackgroundColor: allYears.map(y => ent._years.includes(Number(y)) ? '#C83A5A' : CHART_COLORS[i]),
           });
         });
         if (datasets.length) {
@@ -685,7 +830,7 @@ function extractChartData(markdown, query) {
           title: `${dn(ent.padecimiento)} en ${dn(ent.estado)}: pronóstico 52 sem`,
           labels: matches.map(m => m.sexo.charAt(0).toUpperCase() + m.sexo.slice(1)),
           datasets: [{ label: 'Casos pronosticados', data: matches.map(m => m.casos_52_semanas_futuro || 0),
-            backgroundColor: ['#4A5D23', '#BC955C', '#5B8A8A'], borderRadius: 6 }],
+            backgroundColor: ['#2EC4A8', '#D4A84B', '#C83A5A'], borderRadius: 6 }],
         };
       }
     }
@@ -762,7 +907,7 @@ function extractChartData(markdown, query) {
           datasets: [{
             label: 'Casos pronosticados',
             data: vals,
-            backgroundColor: ['#4A5D23', '#BC955C'],
+            backgroundColor: ['#2EC4A8', '#D4A84B'],
             borderRadius: 6,
           }],
         };
@@ -785,7 +930,7 @@ function extractChartData(markdown, query) {
           datasets: [{
             label: 'Modelos',
             data: vals,
-            backgroundColor: ['#4A5D23', '#BC955C'],
+            backgroundColor: ['#2EC4A8', '#D4A84B'],
             borderRadius: 6,
           }],
         };
@@ -814,12 +959,6 @@ function renderChart(canvasId, chartData) {
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
 
-  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const titleColor = isDark ? '#F5F3EE' : '#2D2A26';
-  const tickColor = isDark ? '#CCC6BA' : '#5C5650';
-  const gridColor = isDark ? '#4A4640' : '#E5E2DA';
-  const legendColor = isDark ? '#E8E2D8' : undefined;
-
   const isHorizontal = chartData.horizontal;
   const config = {
     type: chartData.type,
@@ -832,36 +971,53 @@ function renderChart(canvasId, chartData) {
         title: {
           display: true,
           text: chartData.title,
-          font: { size: 14, weight: '700', family: 'Inter' },
-          color: titleColor,
+          font: { size: 14, weight: '700', family: 'Outfit' },
+          color: '#E8F0EC',
           padding: { bottom: 16 }
         },
         legend: {
           display: chartData.datasets.length > 1 || chartData.type === 'doughnut',
           position: chartData.type === 'doughnut' ? 'right' : 'top',
           labels: {
-            font: { size: 12, family: 'Inter' },
+            font: { size: 12, family: 'Outfit' },
+            color: '#8FA99D',
             usePointStyle: true,
             padding: 16,
             boxWidth: 8,
-            color: legendColor,
           },
         },
       },
       scales: chartData.type === 'doughnut' ? {} : {
         x: {
           grid: { display: false },
-          ticks: { font: { size: 11, family: 'Inter' }, color: tickColor },
+          ticks: { font: { size: 11, family: 'Outfit' }, color: '#8FA99D' },
           border: { display: false }
         },
         y: {
-          grid: { color: gridColor, drawBorder: false },
-          ticks: { font: { size: 11, family: 'Inter' }, color: tickColor },
+          grid: { color: 'rgba(46, 196, 168, 0.1)', drawBorder: false },
+          ticks: { font: { size: 11, family: 'Outfit' }, color: '#8FA99D' },
           border: { display: false }
         },
       },
     },
   };
+
+  // Merge custom options (e.g. axis titles from distribution charts)
+  if (chartData.options?.scales) {
+    for (const [axis, opts] of Object.entries(chartData.options.scales)) {
+      if (config.options.scales[axis]) {
+        Object.assign(config.options.scales[axis], opts);
+        // Style axis titles
+        if (opts.title) {
+          config.options.scales[axis].title = {
+            ...opts.title,
+            font: { size: 12, family: 'Outfit' },
+            color: '#8FA99D',
+          };
+        }
+      }
+    }
+  }
 
   new Chart(canvas, config);
 }
