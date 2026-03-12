@@ -33,6 +33,7 @@ export function initSTT(btn, inputField, onResult) {
   if (!STT_SUPPORTED) { btn.style.display = 'none'; return; }
 
   micBtn = btn;
+  let sent = false; // guard: only fire onResult once per session
 
   recognition = new SpeechRecognition();
   recognition.lang = 'es-MX';
@@ -41,6 +42,7 @@ export function initSTT(btn, inputField, onResult) {
 
   recognition.onstart = () => {
     listening = true;
+    sent = false;
     micBtn.classList.add('mic-active');
     inputField.placeholder = 'Escuchando...';
   };
@@ -55,7 +57,8 @@ export function initSTT(btn, inputField, onResult) {
     }
     // Show interim in input as visual feedback
     inputField.value = final || interim;
-    if (final) {
+    if (final && !sent) {
+      sent = true;
       stopSTT(inputField);
       onResult(final.trim());
     }
@@ -68,8 +71,17 @@ export function initSTT(btn, inputField, onResult) {
     stopSTT(inputField);
   };
 
+  // Safari: isFinal may never be true. When recognition ends,
+  // send whatever text is in the input field.
   recognition.onend = () => {
-    if (listening) stopSTT(inputField);
+    if (!sent && inputField.value.trim()) {
+      sent = true;
+      const text = inputField.value.trim();
+      stopSTT(inputField);
+      onResult(text);
+    } else if (listening) {
+      stopSTT(inputField);
+    }
   };
 
   btn.addEventListener('click', () => {
