@@ -1400,7 +1400,7 @@ function answerBoletin(q, ent, s, d) {
     if (sexoLabel) {
       const ps = s.por_pad?.[pad]?.por_sexo?.[ent.sexo];
       if (!ent._ageFilter) {
-        lines.push(`*El Bolet\u00edn Epidemiol\u00f3gico SINAVE no incluye desglose por sexo en los datos hist\u00f3ricos anuales. Los modelos de pron\u00f3stico s\u00ed est\u00e1n diferenciados por sexo:*\n`);
+        lines.push(`*Nuestros modelos de pron\u00f3stico est\u00e1n diferenciados por sexo y entidad, al igual que los datos del Bolet\u00edn Epidemiol\u00f3gico SINAVE:*\n`);
       } else {
         lines.push(`Sin embargo, s\u00ed contamos con pron\u00f3sticos diferenciados por **sexo**:\n`);
       }
@@ -2023,7 +2023,7 @@ function answerHistorico(q, ent, s, d) {
             const mText = monthEstimateText(nacVal, months, [year], pad, null, d);
             if (mText) { lines.push(mText); continue; }
           }
-          lines.push(`El Bolet\u00edn Epidemiol\u00f3gico SINAVE no incluye desglose hist\u00f3rico para **${estado}**. Solo ${Object.keys(anualEst).length} entidades tienen datos anuales desglosados.\n\nA nivel **nacional**, en ${year} se reportaron **${fmt(nacVal)} casos de ${pad}**.${partialNote}`);
+          lines.push(`No tengo datos hist\u00f3ricos anuales cargados para **${estado}** en este momento. Tengo desglose de ${Object.keys(anualEst).length} entidades.\n\nA nivel **nacional**, en ${year} se reportaron **${fmt(nacVal)} casos de ${pad}**.${partialNote}`);
           if (!partial) {
             const prev = anualNac[pad]?.[String(year - 1)];
             if (prev != null && prev > 0) {
