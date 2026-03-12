@@ -505,6 +505,215 @@ function buildCorridorChart(data, qn) {
 }
 
 /**
+ * Treemap (simulado con barras horizontales): casos por entidad, color segun SMAPE.
+ */
+function buildTreemap(data) {
+  const models = data.prod_models || [];
+  if (!models.length) return null;
+
+  // Agregar por entidad (solo estados reales, general)
+  const byEnt = {};
+  for (const m of models) {
+    if (m.sexo !== 'general') continue;
+    const e = m.entidad || '';
+    if (e === 'Nacional' || e.startsWith('region_')) continue;
+    if (!byEnt[e]) byEnt[e] = { casos: 0, smapes: [] };
+    byEnt[e].casos += m.casos_52_semanas_futuro || 0;
+    if (m.smape_prod != null) byEnt[e].smapes.push(m.smape_prod);
+  }
+
+  const entries = Object.entries(byEnt)
+    .map(([ent, d]) => ({
+      ent,
+      casos: d.casos,
+      smape: d.smapes.length ? d.smapes.reduce((a, v) => a + v, 0) / d.smapes.length : 100,
+    }))
+    .sort((a, b) => b.casos - a.casos);
+
+  if (!entries.length) return null;
+
+  // Color por SMAPE: verde (<30%), amarillo (30-60%), rojo (>60%)
+  const smapeColor = (s) => {
+    if (s <= 30) return '#2EC4A8';
+    if (s <= 60) return '#D4A84B';
+    return '#C83A5A';
+  };
+
+  return {
+    type: 'bar',
+    horizontal: true,
+    title: 'Casos pronosticados por entidad (color = SMAPE)',
+    labels: entries.map(e => e.ent),
+    datasets: [{
+      label: 'Casos (52 sem)',
+      data: entries.map(e => e.casos),
+      backgroundColor: entries.map(e => smapeColor(e.smape) + 'CC'),
+      borderColor: entries.map(e => smapeColor(e.smape)),
+      borderWidth: 1,
+      borderRadius: 3,
+    }],
+    options: {
+      indexAxis: 'y',
+      scales: {
+        x: { beginAtZero: true },
+        y: { ticks: { font: { size: 9 } } },
+      },
+    },
+  };
+}
+
+/**
+ * Radar comparativo de motores: poligono por motor con metricas normalizadas.
+ */
+function buildRadarChart(data) {
+  const pm = data.stats?.por_motor;
+  const dist = data.stats?.dist_motor;
+  if (!pm || !dist) return null;
+
+  const motors = Object.keys(pm);
+  if (motors.length < 2) return null;
+
+  const totalSeries = Object.values(dist).reduce((a, v) => a + v, 0);
+
+  // Ejes: SMAPE (invertido), MASE (invertido), Series ganadas %, RMSE (invertido), MAE (invertido)
+  // Normalizar a 0-100 donde 100 = mejor
+  const maxSmape = Math.max(...motors.map(m => pm[m].smape_mean));
+  const maxMase = Math.max(...motors.map(m => pm[m].mase_mean));
+  const maxRmse = Math.max(...motors.map(m => pm[m].rmse_mean));
+  const maxMae = Math.max(...motors.map(m => pm[m].mae_mean));
+
+  const labels = ['Precision (SMAPE)', 'MASE', 'Series ganadas', 'RMSE', 'MAE'];
+  const motorColors = { Prophet: '#2EC4A8', DeepAR: '#C83A5A', Ensemble: '#D4A84B', Stacking: '#6DD6C2' };
+
+  const datasets = motors.map(m => {
+    const color = motorColors[m] || '#8FA99D';
+    return {
+      label: m,
+      data: [
+        Math.round((1 - pm[m].smape_mean / maxSmape) * 100),
+        Math.round((1 - pm[m].mase_mean / maxMase) * 100),
+        Math.round(((dist[m] || 0) / totalSeries) * 100),
+        Math.round((1 - pm[m].rmse_mean / maxRmse) * 100),
+        Math.round((1 - pm[m].mae_mean / maxMae) * 100),
+      ],
+      borderColor: color,
+      backgroundColor: color + '33',
+      borderWidth: 2,
+      pointRadius: 4,
+      pointBackgroundColor: color,
+    };
+  });
+
+  return {
+    type: 'radar',
+    title: 'Comparativa de motores (mayor = mejor)',
+    labels,
+    datasets,
+  };
+}
+
+/**
+ * Sparklines grid: mini-barras por entidad (top 16).
+ * Cada chart muestra Dep/Park/Alz para un estado.
+ */
+function buildSparklineGrid(data) {
+  const models = data.prod_models || [];
+  if (!models.length) return null;
+
+  const padColors = { Depresion: '#2EC4A8', Parkinson: '#D4A84B', Alzheimer: '#C83A5A' };
+  const pads = ['Depresion', 'Parkinson', 'Alzheimer'];
+
+  // Agregar por entidad (general, sin regiones)
+  const byEnt = {};
+  for (const m of models) {
+    if (m.sexo !== 'general') continue;
+    const e = m.entidad || '';
+    if (e === 'Nacional' || e.startsWith('region_')) continue;
+    if (!byEnt[e]) byEnt[e] = {};
+    byEnt[e][m.padecimiento] = m.casos_52_semanas_futuro || 0;
+  }
+
+  const sorted = Object.entries(byEnt)
+    .map(([ent, d]) => ({ ent, total: pads.reduce((a, p) => a + (d[p] || 0), 0), data: d }))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 16);
+
+  if (!sorted.length) return null;
+
+  return sorted.map(({ ent, data: d }) => ({
+    type: 'bar',
+    title: ent,
+    labels: pads.map(p => p.substring(0, 3)),
+    datasets: [{
+      data: pads.map(p => d[p] || 0),
+      backgroundColor: pads.map(p => padColors[p] + 'CC'),
+      borderColor: pads.map(p => padColors[p]),
+      borderWidth: 1,
+      borderRadius: 4,
+    }],
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { font: { size: 9 } } },
+        y: { beginAtZero: true, ticks: { font: { size: 8 }, maxTicksLimit: 3 } },
+      },
+    },
+  }));
+}
+
+/**
+ * Stacked area: 3 padecimientos apilados por semana.
+ */
+function buildStackedArea(data) {
+  const wc = data.weekly_comparison;
+  if (!wc) return null;
+
+  const padOrder = ['Depresion', 'Parkinson', 'Alzheimer'];
+  const padColors = { Depresion: '#2EC4A8', Parkinson: '#D4A84B', Alzheimer: '#C83A5A' };
+
+  // Usar semanas del primer padecimiento como referencia
+  const refSems = wc[padOrder[0]]?.semanas;
+  if (!refSems || !refSems.length) return null;
+
+  const labels = refSems.map(s => `S${String(s.semana).padStart(2, '0')}`);
+
+  const datasets = padOrder.filter(p => wc[p]).map(pad => {
+    const sems = wc[pad].semanas || [];
+    const color = padColors[pad];
+    return {
+      label: pad,
+      data: sems.map(s => s.pronostico),
+      borderColor: color,
+      backgroundColor: color + '88',
+      fill: true,
+      tension: 0.3,
+      borderWidth: 1.5,
+      pointRadius: 0,
+    };
+  });
+
+  return {
+    type: 'line',
+    title: 'Composicion semanal: pronostico apilado por padecimiento',
+    labels,
+    datasets,
+    options: {
+      scales: {
+        x: { ticks: { maxRotation: 90, font: { size: 9 }, autoSkip: true, maxTicksLimit: 20 } },
+        y: {
+          stacked: true,
+          beginAtZero: true,
+          title: { display: true, text: 'Casos', font: { size: 11, family: 'Outfit' }, color: '#8FA99D' },
+        },
+      },
+      plugins: {
+        filler: { propagate: true },
+      },
+    },
+  };
+}
+
+/**
  * Heatmap de error semanal: matriz padecimiento x semanas.
  * Usa barras coloreadas por intensidad de error.
  */
@@ -968,6 +1177,38 @@ function extractChartData(markdown, query) {
     }
   }
 
+  // Treemap (barras horizontales) por entidad
+  if (qn.includes('treemap') || qn.includes('mapa de entidad') ||
+      (qn.includes('caso') && qn.includes('entidad') && qn.includes('grafico')) ||
+      (qn.includes('panorama') && qn.includes('entidad'))) {
+    const chart = buildTreemap(data);
+    if (chart) return chart;
+  }
+
+  // Radar comparativo de motores
+  if (qn.includes('radar') || qn.includes('spider') ||
+      (qn.includes('comparar') && qn.includes('motor')) ||
+      (qn.includes('mejor motor') || qn.includes('cual motor'))) {
+    const chart = buildRadarChart(data);
+    if (chart) return chart;
+  }
+
+  // Sparklines grid (32 estados)
+  if (qn.includes('sparkline') || qn.includes('mini grafico') ||
+      qn.includes('panorama') || qn.includes('vista general') ||
+      (qn.includes('todos los estado') || qn.includes('32 estado') || qn.includes('cada estado'))) {
+    const chart = buildSparklineGrid(data);
+    if (chart) return chart;
+  }
+
+  // Stacked area (composicion semanal)
+  if (qn.includes('apilad') || qn.includes('stacked') || qn.includes('composicion') ||
+      (qn.includes('proporcion') && qn.includes('semanal')) ||
+      (qn.includes('area') && qn.includes('padecimiento'))) {
+    const chart = buildStackedArea(data);
+    if (chart) return chart;
+  }
+
   // Corredor de confianza (4 modelos)
   if (qn.includes('corredor') || qn.includes('confianza') || qn.includes('banda') ||
       qn.includes('incertidumbre') || qn.includes('consenso') ||
@@ -1381,7 +1622,16 @@ function renderChart(canvasId, chartData) {
           },
         },
       },
-      scales: chartData.type === 'doughnut' ? {} : {
+      scales: chartData.type === 'doughnut' ? {} : chartData.type === 'radar' ? {
+        r: {
+          angleLines: { color: 'rgba(46, 196, 168, 0.15)' },
+          grid: { color: 'rgba(46, 196, 168, 0.1)' },
+          pointLabels: { font: { size: 11, family: 'Outfit' }, color: '#8FA99D' },
+          ticks: { font: { size: 9 }, color: '#8FA99D', backdropColor: 'transparent' },
+          beginAtZero: true,
+          max: 100,
+        },
+      } : {
         x: {
           grid: { display: false },
           ticks: { font: { size: 11, family: 'Outfit' }, color: '#8FA99D' },
@@ -1396,12 +1646,12 @@ function renderChart(canvasId, chartData) {
     },
   };
 
-  // Merge custom options (e.g. axis titles from distribution charts)
-  if (chartData.options?.scales) {
-    for (const [axis, opts] of Object.entries(chartData.options.scales)) {
-      if (config.options.scales[axis]) {
+  // Merge custom options (e.g. axis titles, stacked, indexAxis)
+  if (chartData.options) {
+    if (chartData.options.scales) {
+      for (const [axis, opts] of Object.entries(chartData.options.scales)) {
+        if (!config.options.scales[axis]) config.options.scales[axis] = {};
         Object.assign(config.options.scales[axis], opts);
-        // Style axis titles
         if (opts.title) {
           config.options.scales[axis].title = {
             ...opts.title,
@@ -1410,6 +1660,10 @@ function renderChart(canvasId, chartData) {
           };
         }
       }
+    }
+    if (chartData.options.indexAxis) config.options.indexAxis = chartData.options.indexAxis;
+    if (chartData.options.plugins) {
+      Object.assign(config.options.plugins, chartData.options.plugins);
     }
   }
 

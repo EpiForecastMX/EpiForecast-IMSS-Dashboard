@@ -839,7 +839,8 @@ function answerProyectoMeta(q, ent, s, d) {
   const compTriggers = ['composicion', 'de donde salen', 'por que 333', 'porque 333', 'como se compone',
     'de donde vienen', 'que son los 333', 'como se forman', 'como se calculan los 333',
     'explicame los 333', 'explica los 333', 'desglose de modelo'];
-  if (any(q, compTriggers) || (q.includes('333') && any(q, ['que es', 'que son', 'como', 'por que', 'porque', 'explica', 'de donde']))) {
+  const stackedGuard = any(q, ['semanal', 'apilad', 'stacked', 'area']);
+  if (!stackedGuard && (any(q, compTriggers) || (q.includes('333') && any(q, ['que es', 'que son', 'como', 'por que', 'porque', 'explica', 'de donde'])))) {
     const pp = s.por_pad || {};
     const lines = [
       '**Composición de los 333 modelos de producción**\n',
@@ -1527,6 +1528,159 @@ function answerBoletin(q, ent, s, d) {
   }
 
   return null;
+}
+
+// ---------------------------------------------------------------------------
+// TREEMAP — panorama por entidad
+// ---------------------------------------------------------------------------
+
+function answerTreemap(q, ent, s, d) {
+  const triggers = ['treemap', 'mapa de entidad', 'panorama de entidad', 'panorama nacional'];
+  const triggerAlt = (any(q, ['caso', 'pronostico']) && any(q, ['todas las entidad', 'todos los estado', 'por entidad', 'por estado']) && any(q, ['grafico', 'grafica', 'mostrar', 'ver']));
+  if (!any(q, triggers) && !triggerAlt) return null;
+
+  const models = d.prod_models || [];
+  if (!models.length) return null;
+
+  const byEnt = {};
+  for (const m of models) {
+    if (m.sexo !== 'general') continue;
+    const e = m.entidad || '';
+    if (e === 'Nacional' || e.startsWith('region_')) continue;
+    if (!byEnt[e]) byEnt[e] = { casos: 0, smapes: [] };
+    byEnt[e].casos += m.casos_52_semanas_futuro || 0;
+    if (m.smape_prod != null) byEnt[e].smapes.push(m.smape_prod);
+  }
+
+  const sorted = Object.entries(byEnt)
+    .map(([e, d]) => ({ e, casos: d.casos, smape: d.smapes.length ? (d.smapes.reduce((a, v) => a + v, 0) / d.smapes.length).toFixed(1) : '?' }))
+    .sort((a, b) => b.casos - a.casos);
+
+  const lines = [];
+  lines.push(`**Panorama nacional**: pronostico por entidad (${sorted.length} estados).\n`);
+  lines.push('Color: verde (SMAPE < 30%) | amarillo (30-60%) | rojo (> 60%)\n');
+
+  const top5 = sorted.slice(0, 5);
+  lines.push('**Top 5 entidades** (mayor pronostico):');
+  lines.push('| Entidad | Casos (52 sem) | SMAPE prom |');
+  lines.push('|---------|---------------:|-----------:|');
+  for (const e of top5) {
+    lines.push(`| ${e.e} | ${fmt(e.casos)} | ${e.smape}% |`);
+  }
+
+  const totalCasos = sorted.reduce((a, e) => a + e.casos, 0);
+  lines.push(`\n**Total nacional** (sin regiones): **${fmt(totalCasos)} casos** pronosticados.`);
+
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// RADAR — comparativa de motores
+// ---------------------------------------------------------------------------
+
+function answerRadar(q, ent, s, d) {
+  const triggers = ['radar', 'spider', 'mejor motor', 'cual motor', 'cual es mejor'];
+  const triggerAlt = any(q, ['comparar', 'comparativa']) && any(q, ['motor', 'algoritmo']);
+  if (!any(q, triggers) && !triggerAlt) return null;
+
+  const pm = s.por_motor;
+  const dist = s.dist_motor;
+  if (!pm || !dist) return null;
+
+  const motors = Object.keys(pm);
+  const totalSeries = Object.values(dist).reduce((a, v) => a + v, 0);
+
+  const lines = [];
+  lines.push('**Radar comparativo de motores**: 5 ejes normalizados (mayor area = mejor).\n');
+
+  lines.push('| Motor | SMAPE | MASE | Series ganadas | RMSE | MAE |');
+  lines.push('|-------|------:|-----:|---------------:|-----:|----:|');
+  for (const m of motors) {
+    const p = pm[m];
+    const pct = ((dist[m] || 0) / totalSeries * 100).toFixed(0);
+    lines.push(`| ${m} | ${p.smape_mean.toFixed(1)}% | ${p.mase_mean.toFixed(2)} | ${dist[m] || 0} (${pct}%) | ${p.rmse_mean.toFixed(1)} | ${p.mae_mean.toFixed(1)} |`);
+  }
+
+  // Determinar ganador por mayor area (menor metricas + mas series)
+  const scores = motors.map(m => {
+    const p = pm[m];
+    return { m, score: (100 - p.smape_mean) + (100 - p.mase_mean * 50) + ((dist[m] || 0) / totalSeries * 100) };
+  }).sort((a, b) => b.score - a.score);
+
+  lines.push(`\n**Motor con mayor area**: ${scores[0].m} — mejor balance entre precision y cobertura.`);
+
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// SPARKLINES — grid de mini-graficos por estado
+// ---------------------------------------------------------------------------
+
+function answerSparklines(q, ent, s, d) {
+  const triggers = ['sparkline', 'mini grafico', 'panorama', 'vista general'];
+  const triggerAlt = any(q, ['todos los estado', '32 estado', 'cada estado', 'todas las entidad']);
+  if (!any(q, triggers) && !triggerAlt) return null;
+
+  // No activar si pide panorama de entidad (treemap)
+  if (q.includes('entidad') && (q.includes('caso') || q.includes('pronostico'))) return null;
+
+  const models = d.prod_models || [];
+  if (!models.length) return null;
+
+  const pads = ['Depresion', 'Parkinson', 'Alzheimer'];
+  const byEnt = {};
+  for (const m of models) {
+    if (m.sexo !== 'general') continue;
+    const e = m.entidad || '';
+    if (e === 'Nacional' || e.startsWith('region_')) continue;
+    if (!byEnt[e]) byEnt[e] = {};
+    byEnt[e][m.padecimiento] = m.casos_52_semanas_futuro || 0;
+  }
+
+  const sorted = Object.entries(byEnt)
+    .map(([e, d]) => ({ e, total: pads.reduce((a, p) => a + (d[p] || 0), 0) }))
+    .sort((a, b) => b.total - a.total);
+
+  const lines = [];
+  lines.push(`**Vista panoramica**: pronostico 52 semanas por entidad (${sorted.length} estados).\n`);
+  lines.push('Se muestran los **16 estados** con mayor pronostico en mini-graficos.\n');
+  lines.push(`Total de estados: **${sorted.length}** | Padecimientos: Dep / Park / Alz`);
+
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// STACKED AREA — composicion semanal apilada
+// ---------------------------------------------------------------------------
+
+function answerStackedArea(q, ent, s, d) {
+  const triggers = ['apilad', 'stacked', 'composicion', 'composicion semanal'];
+  const triggerAlt = (any(q, ['proporcion', 'distribucion']) && any(q, ['semanal', 'semana'])) ||
+    (any(q, ['area']) && any(q, ['padecimiento', 'enfermedad']));
+  if (!any(q, triggers) && !triggerAlt) return null;
+
+  const wc = d.weekly_comparison;
+  if (!wc) return null;
+
+  const pads = Object.keys(wc);
+  const totalPron = pads.reduce((a, p) => {
+    return a + (wc[p]?.semanas || []).reduce((s, w) => s + w.pronostico, 0);
+  }, 0);
+
+  const lines = [];
+  lines.push('**Composicion semanal apilada**: pronostico de los 3 padecimientos semana a semana.\n');
+  lines.push(`Pronostico total (52 sem): **${fmt(totalPron)} casos**\n`);
+
+  for (const p of pads) {
+    const sems = wc[p]?.semanas || [];
+    const total = sems.reduce((a, s) => a + s.pronostico, 0);
+    const pct = totalPron > 0 ? ((total / totalPron) * 100).toFixed(1) : '?';
+    lines.push(`- **${p}**: ${fmt(total)} casos (${pct}%)`);
+  }
+
+  lines.push('\n*El area de cada padecimiento muestra su proporcion del total semanal.*');
+
+  return lines.join('\n');
 }
 
 // ---------------------------------------------------------------------------
@@ -2674,6 +2828,7 @@ const VOCAB = [
   'equipo','integrantes','miembros','autores',
   'tendencia','historica','historico','evolucion','boletin','zoom','detalle','cercano','acercamiento',
   'corredor','confianza','banda','incertidumbre','consenso','dispersion','heatmap','mapa de calor','error',
+  'treemap','radar','spider','sparkline','panorama','vista general','apilado','stacked','composicion',
   'depresion','parkinson','alzheimer',
   'deepar','prophet','ensemble','stacking',
   'configuracion','entrenamiento','hiperparametros','parametros',
@@ -3282,7 +3437,8 @@ function _genDistribChart(models, metric, metricLabel) {
 const HANDLERS = [
   answerSaludo, answerPadecimientoNoModelado, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerTemporal, answerProyectoMeta,
   answerTrainingConfig, answerSemanaActual, answerQueEsPadecimiento,
-  answerComparacionSemanal, answerCorredor, answerErrorHeatmap, answerZoom,
+  answerComparacionSemanal, answerTreemap, answerRadar, answerSparklines, answerStackedArea,
+  answerCorredor, answerErrorHeatmap, answerZoom,
   answerBoletin, answerHistorico, answerComparativaEstados, answerSpecificSeries, answerEstado, answerPadecimiento,
   answerMotor, answerDemografica, answerSexo, answerDistribucion, answerGraficoAleatorio, answerMetricaGlobal,
   answerRanking, answerDiagnosticos, answerValidacion, answerInfra,
