@@ -2653,14 +2653,15 @@ function answerComparacionSemanal(q, ent, s, d) {
     const diffSign = Number(diffPct) > 0 ? '+' : '';
 
     lines.push(`**${p} — Real vs Pronostico ${anio}** (modelo productivo: ${modelo})\n`);
-    lines.push('| Semana | Real | Pronostico | Diferencia |');
-    lines.push('|--------|-----:|----------:|-----------:|');
+    lines.push('| Semana | Inicio | Real | Pronostico | Diferencia |');
+    lines.push('|--------|--------|-----:|----------:|-----------:|');
 
     for (const w of showWeeks) {
       const diff = w.pronostico - w.real;
       const sign = diff > 0 ? '+' : '';
       const pctStr = w.error_pct != null ? ` (${w.error_pct}%)` : '';
-      lines.push(`| Sem ${w.semana} | ${fmt(w.real)} | ${fmt(w.pronostico)} | ${sign}${fmt(diff)}${pctStr} |`);
+      const fechaStr = w.fecha ? w.fecha.slice(5) : '';
+      lines.push(`| Sem ${w.semana} | ${fechaStr} | ${fmt(w.real)} | ${fmt(w.pronostico)} | ${sign}${fmt(diff)}${pctStr} |`);
     }
 
     if (!requestedWeek) {
