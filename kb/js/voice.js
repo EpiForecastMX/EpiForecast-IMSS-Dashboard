@@ -147,6 +147,10 @@ function loadVoice() {
   const voices = synth.getVoices();
   if (!voices.length) return;
 
+  // Log all Spanish voices for debugging
+  const spanishVoices = voices.filter(v => v.lang.startsWith('es'));
+  console.info('TTS voces disponibles (es*):', spanishVoices.map(v => `${v.name} [${v.lang}]`).join(', '));
+
   // Score all voices and pick the best
   const scored = voices
     .map(v => ({ voice: v, score: scoreVoice(v) }))
@@ -160,11 +164,29 @@ function loadVoice() {
   voiceReady = true;
 }
 
+/** Ensure a voice is loaded before speaking. Returns the best available voice. */
+function ensureVoice() {
+  if (preferredVoice) return preferredVoice;
+  // Voices might have loaded since init — retry
+  loadVoice();
+  if (preferredVoice) return preferredVoice;
+  // Last resort: grab any es-MX or es voice directly
+  const voices = synth.getVoices();
+  const fallback = voices.find(v => v.lang === 'es-MX')
+    || voices.find(v => v.lang === 'es-ES')
+    || voices.find(v => v.lang.startsWith('es'));
+  if (fallback) {
+    preferredVoice = fallback;
+    console.info(`TTS fallback voz: "${fallback.name}" (${fallback.lang})`);
+  }
+  return preferredVoice;
+}
+
 if (TTS_SUPPORTED) {
-  if (synth.getVoices().length) loadVoice();
-  else synth.addEventListener('voiceschanged', loadVoice, { once: true });
-  // Some browsers need a retry
-  setTimeout(() => { if (!voiceReady) loadVoice(); }, 500);
+  loadVoice();
+  synth.addEventListener('voiceschanged', loadVoice);
+  setTimeout(loadVoice, 300);
+  setTimeout(loadVoice, 1000);
 }
 
 // ---------------------------------------------------------------------------
@@ -220,27 +242,28 @@ export function speak(markdown, speakerBtn) {
     ? plain.substring(0, maxChars) + '... Consulta el texto completo en pantalla.'
     : plain;
 
+  // Ensure we have a Spanish voice — never speak in English
+  const voice = ensureVoice();
+  if (!voice) {
+    console.warn('TTS: no se encontro voz en espanol, omitiendo lectura');
+    return;
+  }
+
   const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = 'es-MX';
+  utter.voice = voice;
+  utter.lang = voice.lang; // match the voice's actual lang tag
 
   // Tune for naturalness depending on voice type
-  if (preferredVoice) {
-    utter.voice = preferredVoice;
-    const name = preferredVoice.name.toLowerCase();
-    if (name.includes('google')) {
-      // Google cloud voices: slight slowdown sounds more natural
-      utter.rate = 0.95;
-      utter.pitch = 1.0;
-    } else if (name.includes('paulina') || name.includes('monica')) {
-      utter.rate = 0.92;
-      utter.pitch = 1.05;
-    } else {
-      utter.rate = 0.9;
-      utter.pitch = 1.02;
-    }
+  const name = voice.name.toLowerCase();
+  if (name.includes('google')) {
+    utter.rate = 0.95;
+    utter.pitch = 1.0;
+  } else if (name.includes('paulina') || name.includes('monica') || name.includes('mónica')) {
+    utter.rate = 0.92;
+    utter.pitch = 1.05;
   } else {
     utter.rate = 0.9;
-    utter.pitch = 1.0;
+    utter.pitch = 1.02;
   }
 
   currentUtterance = utter;
