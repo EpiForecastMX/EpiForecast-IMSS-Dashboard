@@ -12,7 +12,7 @@ import { renderMexicoMap } from './mexico-map.js?v=1';
 import { renderTimelapse } from './timelapse.js?v=1';
 import { renderSemaforo } from './semaforo.js?v=1';
 import { renderComparador } from './comparador.js?v=1';
-import { initSTT, STT_SUPPORTED, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking } from './voice.js?v=1';
+import { initSTT, STT_SUPPORTED, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking, isSpeaking, toggleMute, isTTSEnabled, onSpeakingStateChange } from './voice.js?v=2';
 
 // ---------------------------------------------------------------------------
 // DOM refs
@@ -124,6 +124,39 @@ async function init() {
   if (resetBtn) {
     resetBtn.addEventListener('click', resetChat);
   }
+
+  // TTS stop & mute buttons
+  const ttsStopBtn = document.getElementById('ttsStopBtn');
+  const ttsMuteBtn = document.getElementById('ttsMuteBtn');
+
+  if (ttsStopBtn) {
+    ttsStopBtn.addEventListener('click', () => {
+      stopSpeaking();
+    });
+  }
+
+  if (ttsMuteBtn) {
+    // Hide if TTS not supported
+    if (!TTS_SUPPORTED) { ttsMuteBtn.style.display = 'none'; }
+    else {
+      ttsMuteBtn.addEventListener('click', () => {
+        const enabled = toggleMute();
+        ttsMuteBtn.classList.toggle('muted', !enabled);
+        ttsMuteBtn.title = enabled ? 'Silenciar respuestas de voz' : 'Activar respuestas de voz';
+        const label = ttsMuteBtn.querySelector('.voice-btn-label');
+        if (label) label.textContent = enabled ? 'Voz' : 'Mute';
+        // Update SVG
+        ttsMuteBtn.querySelector('svg').innerHTML = enabled
+          ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07"/><path d="M19.07 4.93a10 10 0 010 14.14"/>'
+          : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
+      });
+    }
+  }
+
+  // Show/hide stop button when TTS starts/stops
+  onSpeakingStateChange((speaking) => {
+    if (ttsStopBtn) ttsStopBtn.style.display = speaking ? '' : 'none';
+  });
 
   // Prompt menu (burger)
   const promptToggle = document.getElementById('promptToggle');

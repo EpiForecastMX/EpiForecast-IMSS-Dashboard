@@ -2,7 +2,7 @@
  * voice.js - Entrada y salida por voz para EpiForecast-MX.
  *
  * STT: Web Speech API (SpeechRecognition) - es-MX
- * TTS: Web Speech Synthesis API - es-MX
+ * TTS: Web Speech Synthesis API - es-MX, seleccion inteligente de voz
  */
 
 // ---------------------------------------------------------------------------
@@ -62,7 +62,6 @@ export function initSTT(btn, inputField, onResult) {
   };
 
   recognition.onerror = (event) => {
-    // 'no-speech' and 'aborted' are normal — user just didn't say anything
     if (event.error !== 'no-speech' && event.error !== 'aborted') {
       console.warn('SpeechRecognition error:', event.error);
     }
@@ -101,48 +100,106 @@ function stopSTT(inputField) {
 let preferredVoice = null;
 let voiceReady = false;
 let ttsEnabled = true;
+let ttsSpeaking = false;
 let lastSpokenFromVoice = false;
+let currentUtterance = null;
 
 /** Mark that the current query came from voice input (auto-speak response). */
 export function setVoiceQuery(isVoice) { lastSpokenFromVoice = isVoice; }
 export function wasVoiceQuery() { return lastSpokenFromVoice; }
 
-/**
- * Pre-load an es-MX or es voice.
- */
+// ---------------------------------------------------------------------------
+// Intelligent voice selection
+// ---------------------------------------------------------------------------
+
+/** Score a voice for quality — higher = better. */
+function scoreVoice(v) {
+  const name = v.name.toLowerCase();
+  let score = 0;
+
+  // Language match
+  if (v.lang === 'es-MX') score += 100;
+  else if (v.lang.startsWith('es')) score += 50;
+  else return 0; // not Spanish
+
+  // Google cloud voices are the most natural-sounding
+  if (name.includes('google')) score += 80;
+
+  // Microsoft Online voices (Edge) are also good
+  if (name.includes('online') || name.includes('natural')) score += 70;
+
+  // macOS premium voices
+  if (name.includes('paulina')) score += 60;
+  if (name.includes('monica') || name.includes('mónica')) score += 55;
+
+  // Prefer non-novelty voices (Eddy, Flo, Rocko, etc. are robotic)
+  const novelty = ['eddy', 'flo', 'grandma', 'grandpa', 'reed', 'rocko', 'sandy', 'shelley'];
+  if (novelty.some(n => name.includes(n))) score -= 30;
+
+  // Prefer female voices for assistant personality
+  if (name.includes('female') || name.includes('mujer')) score += 5;
+
+  return score;
+}
+
 function loadVoice() {
   if (!TTS_SUPPORTED) return;
   const voices = synth.getVoices();
-  // Prefer es-MX, fallback to any es-*
-  preferredVoice = voices.find(v => v.lang === 'es-MX')
-    || voices.find(v => v.lang.startsWith('es'))
-    || null;
+  if (!voices.length) return;
+
+  // Score all voices and pick the best
+  const scored = voices
+    .map(v => ({ voice: v, score: scoreVoice(v) }))
+    .filter(v => v.score > 0)
+    .sort((a, b) => b.score - a.score);
+
+  if (scored.length) {
+    preferredVoice = scored[0].voice;
+    console.info(`TTS voz seleccionada: "${preferredVoice.name}" (${preferredVoice.lang}, score: ${scored[0].score})`);
+  }
   voiceReady = true;
 }
 
 if (TTS_SUPPORTED) {
-  // Voices load async in some browsers
   if (synth.getVoices().length) loadVoice();
   else synth.addEventListener('voiceschanged', loadVoice, { once: true });
+  // Some browsers need a retry
+  setTimeout(() => { if (!voiceReady) loadVoice(); }, 500);
 }
 
-/**
- * Strip markdown/HTML to plain text for TTS.
- */
+// ---------------------------------------------------------------------------
+// Clean text for TTS
+// ---------------------------------------------------------------------------
+
 function cleanForTTS(md) {
   return md
-    .replace(/<!--.*?-->/gs, '')          // HTML comments
-    .replace(/\*\*([^*]+)\*\*/g, '$1')    // bold
-    .replace(/\*([^*]+)\*/g, '$1')        // italic
-    .replace(/`([^`]+)`/g, '$1')          // inline code
-    .replace(/#{1,6}\s*/g, '')            // headings
-    .replace(/\|[^\n]+\|/g, '')           // table rows
-    .replace(/[-*]\s+/g, ', ')            // list items
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // links
-    .replace(/\n{2,}/g, '. ')             // paragraphs
-    .replace(/\n/g, ', ')                 // line breaks
+    .replace(/<!--.*?-->/gs, '')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/\*([^*]+)\*/g, '$1')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/#{1,6}\s*/g, '')
+    .replace(/\|[^\n]+\|/g, '')
+    .replace(/[-*]\s+/g, ', ')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/\n{2,}/g, '. ')
+    .replace(/\n/g, ', ')
     .replace(/\s{2,}/g, ' ')
     .trim();
+}
+
+// ---------------------------------------------------------------------------
+// Speak / Stop
+// ---------------------------------------------------------------------------
+
+/** Callbacks for UI updates when speech starts/stops. */
+let onSpeakingChange = null;
+
+/** Register a callback for speaking state changes. */
+export function onSpeakingStateChange(cb) { onSpeakingChange = cb; }
+
+function setSpeaking(val) {
+  ttsSpeaking = val;
+  if (onSpeakingChange) onSpeakingChange(val);
 }
 
 /**
@@ -153,29 +210,74 @@ function cleanForTTS(md) {
 export function speak(markdown, speakerBtn) {
   if (!TTS_SUPPORTED || !ttsEnabled) return;
 
-  // Cancel any ongoing speech
   synth.cancel();
 
   const plain = cleanForTTS(markdown);
   if (!plain) return;
 
-  // Truncate very long responses to avoid TTS hanging
-  const maxChars = 500;
+  const maxChars = 600;
   const text = plain.length > maxChars
     ? plain.substring(0, maxChars) + '... Consulta el texto completo en pantalla.'
     : plain;
 
   const utter = new SpeechSynthesisUtterance(text);
   utter.lang = 'es-MX';
-  utter.rate = 1.05;
-  utter.pitch = 1.0;
-  if (preferredVoice) utter.voice = preferredVoice;
 
-  if (speakerBtn) {
-    utter.onstart = () => speakerBtn.classList.add('tts-speaking');
-    utter.onend = () => speakerBtn.classList.remove('tts-speaking');
-    utter.onerror = () => speakerBtn.classList.remove('tts-speaking');
+  // Tune for naturalness depending on voice type
+  if (preferredVoice) {
+    utter.voice = preferredVoice;
+    const name = preferredVoice.name.toLowerCase();
+    if (name.includes('google')) {
+      // Google cloud voices: slight slowdown sounds more natural
+      utter.rate = 0.95;
+      utter.pitch = 1.0;
+    } else if (name.includes('paulina') || name.includes('monica')) {
+      utter.rate = 0.92;
+      utter.pitch = 1.05;
+    } else {
+      utter.rate = 0.9;
+      utter.pitch = 1.02;
+    }
+  } else {
+    utter.rate = 0.9;
+    utter.pitch = 1.0;
   }
+
+  currentUtterance = utter;
+
+  utter.onstart = () => {
+    setSpeaking(true);
+    if (speakerBtn) speakerBtn.classList.add('tts-speaking');
+  };
+  utter.onend = () => {
+    setSpeaking(false);
+    currentUtterance = null;
+    if (speakerBtn) speakerBtn.classList.remove('tts-speaking');
+  };
+  utter.onerror = () => {
+    setSpeaking(false);
+    currentUtterance = null;
+    if (speakerBtn) speakerBtn.classList.remove('tts-speaking');
+  };
+
+  // Chrome bug: long utterances get cut off. Workaround: keep-alive timer.
+  let resumeTimer = null;
+  utter.onstart = () => {
+    setSpeaking(true);
+    if (speakerBtn) speakerBtn.classList.add('tts-speaking');
+    // Chrome pauses after ~15s; this resumes it
+    resumeTimer = setInterval(() => {
+      if (synth.speaking && !synth.pending) synth.resume();
+    }, 10000);
+  };
+  const cleanup = () => {
+    setSpeaking(false);
+    currentUtterance = null;
+    if (speakerBtn) speakerBtn.classList.remove('tts-speaking');
+    if (resumeTimer) { clearInterval(resumeTimer); resumeTimer = null; }
+  };
+  utter.onend = cleanup;
+  utter.onerror = cleanup;
 
   synth.speak(utter);
 }
@@ -183,10 +285,18 @@ export function speak(markdown, speakerBtn) {
 /** Stop any ongoing speech. */
 export function stopSpeaking() {
   if (TTS_SUPPORTED) synth.cancel();
+  setSpeaking(false);
+  currentUtterance = null;
 }
 
-/** Toggle TTS on/off globally. */
-export function toggleTTS() {
+export function isSpeaking() { return ttsSpeaking; }
+
+// ---------------------------------------------------------------------------
+// Mute toggle
+// ---------------------------------------------------------------------------
+
+/** Toggle TTS on/off globally. Returns new state. */
+export function toggleMute() {
   ttsEnabled = !ttsEnabled;
   if (!ttsEnabled) stopSpeaking();
   return ttsEnabled;
