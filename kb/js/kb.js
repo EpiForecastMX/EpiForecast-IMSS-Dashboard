@@ -2467,6 +2467,7 @@ function answerComparacionSemanal(q, ent, s, d) {
     'pronosticabamos', 'ibamos a tener', 'iban a ser', 'iba a haber',
     'cuantos habria', 'cuantos iba', 'esperabamos', 'el pronostico decia',
     'cuanto se pronostico', 'cuanto pronosticamos', 'cuanto habiamos',
+    'le atinamos', 'atinamos', 'acertamos', 'fallamos',
   ];
   const hasRetrospective = any(q, retrospectiveTriggers);
 
