@@ -690,7 +690,35 @@ function answerTemporal(q, ent, s, d) {
   }
 
   const isCoverage = any(q, ['ultima semana', 'ultimo dato', 'hasta cuando', 'hasta que fecha', 'hasta que semana', 'cobertura temporal', 'rango de fecha', 'periodo de dato', 'desde cuando', 'cuando inicia', 'cuando empieza']);
-  if (isCoverage) {
+  const asksForecast = any(q, ['pronostic', 'forecast', 'predicci', 'predecir', 'pronosicad', 'horizonte']);
+
+  // Si pregunta por horizonte de pronostico, mostrar info del forecast
+  if ((isCoverage || q.includes('horizonte')) && asksForecast) {
+    const rng = forecastDateRange(d);
+    const tc = d.training_config || {};
+    if (rng) {
+      if (lines.length) lines.push('');
+      lines.push('**Horizonte de pron\u00f3stico**:');
+      lines.push(`- Desde: **${rng.startDate}**`);
+      lines.push(`- Hasta: **${rng.endDate}**`);
+      lines.push(`- Duraci\u00f3n: **52 semanas**`);
+      if (rng.entrenam) lines.push(`- \u00daltimo entrenamiento: **${rng.entrenam}**`);
+      lines.push(`- Modelos: **${tc.series_totales || 333}** series de producci\u00f3n`);
+      // Semanas transcurridas
+      const hStart = new Date(tc.horizonte_inicio + 'T00:00:00');
+      const diffMs = now.getTime() - hStart.getTime();
+      const semTranscurridas = Math.max(0, Math.floor(diffMs / (7 * 24 * 3600 * 1000)) + 1);
+      if (semTranscurridas > 0 && semTranscurridas <= 52) {
+        lines.push(`- Avance: **semana ${semTranscurridas} de 52**`);
+      }
+      // Datos reales disponibles dentro del horizonte
+      const wc = d.weekly_comparison;
+      if (wc) {
+        const semsReales = Object.values(wc)[0]?.semanas?.filter(s => s.real != null).length || 0;
+        if (semsReales > 0) lines.push(`- Semanas con datos reales: **${semsReales}** de 53`);
+      }
+    }
+  } else if (isCoverage) {
     const meta = d.boletin?.meta;
     if (meta) {
       if (lines.length) lines.push('');
@@ -705,7 +733,7 @@ function answerTemporal(q, ent, s, d) {
     }
   }
 
-  if (q.includes('horizonte') && !lines.length) {
+  if (q.includes('horizonte') && !asksForecast && !lines.length) {
     lines.push(`El horizonte de pron\u00f3stico es de **52 semanas** (hasta enero ${iso.year + 1} aproximadamente).`);
   }
 
@@ -1213,7 +1241,24 @@ function answerBoletin(q, ent, s, d) {
       }
     }
     if (missing.length) {
-      lines.push(`\nNo tengo datos para ${missing.length === 1 ? 'el a\u00f1o' : 'los a\u00f1os'} **${missing.join(', ')}**. El Bolet\u00edn Epidemiol\u00f3gico SINAVE (nuestra fuente de datos) cubre de **${minY}** a **${maxY}**.`);
+      const tc = d.training_config || {};
+      const hFin = tc.horizonte_fin;
+      const hFinYear = hFin ? new Date(hFin + 'T00:00:00').getFullYear() : null;
+      const inForecast = missing.filter(y => hFinYear && y <= hFinYear && y >= currentYear);
+      const outOfRange = missing.filter(y => !inForecast.includes(y));
+      if (inForecast.length) {
+        const rng = forecastDateRange(d);
+        const wc = d.weekly_comparison || {};
+        const info = wc[pad];
+        if (info && rng) {
+          lines.push(`\n**${inForecast.join(', ')}** esta cubierto por el horizonte de pronostico (${rng.label}):`);
+          const pron = (info.semanas || []).reduce((a, s) => a + s.pronostico, 0);
+          lines.push(`- Pronostico total: **${fmt(pron)} casos** (modelo ${info.modelo_productivo || '-'})`);
+        }
+      }
+      if (outOfRange.length) {
+        lines.push(`\nNo tengo datos para ${outOfRange.length === 1 ? 'el a\u00f1o' : 'los a\u00f1os'} **${outOfRange.join(', ')}**. El Bolet\u00edn Epidemiol\u00f3gico SINAVE cubre de **${minY}** a **${maxY}**.`);
+      }
     }
     return lines.join('\n');
   }
@@ -1270,7 +1315,38 @@ function answerBoletin(q, ent, s, d) {
       }
     }
     if (missing.length) {
-      lines.push(`\nNo tengo datos para ${missing.length === 1 ? 'el a\u00f1o' : 'los a\u00f1os'} **${missing.join(', ')}**. El Bolet\u00edn Epidemiol\u00f3gico SINAVE (nuestra fuente) cubre de **${minY}** a **${maxY}**.`);
+      // Verificar si años faltantes caen en el horizonte de pronóstico
+      const tc = d.training_config || {};
+      const hFin = tc.horizonte_fin;
+      const hFinYear = hFin ? new Date(hFin + 'T00:00:00').getFullYear() : null;
+      const inForecast = missing.filter(y => hFinYear && y <= hFinYear && y >= new Date().getFullYear());
+      const outOfRange = missing.filter(y => !inForecast.includes(y));
+
+      if (inForecast.length) {
+        const rng = forecastDateRange(d);
+        const wc = d.weekly_comparison || {};
+        lines.push('');
+        for (const y of inForecast) {
+          lines.push(`**${y}** esta cubierto por el horizonte de pronostico${rng ? ` (${rng.label})` : ''}:`);
+          for (const [p, info] of Object.entries(wc)) {
+            const sems = info.semanas || [];
+            // Buscar semanas del año; si no hay (ej: 2027 solo tiene semanas con fecha 2026),
+            // mostrar el total del pronostico completo
+            let semsInYear = sems.filter(s => s.fecha && s.fecha.startsWith(String(y)));
+            if (semsInYear.length === 0) {
+              // El horizonte cubre hasta enero 2027 pero las fechas son 2025-12-29 a 2026-12-28
+              const pron = sems.reduce((a, s) => a + s.pronostico, 0);
+              if (pron > 0) lines.push(`- ${p}: el pronostico de 52 semanas totaliza **${fmt(pron)} casos** y se extiende hasta enero ${y} (${info.modelo_productivo || '-'})`);
+              continue;
+            }
+            const pron = semsInYear.reduce((a, s) => a + s.pronostico, 0);
+            if (pron > 0) lines.push(`- ${p}: **${fmt(pron)} casos** pronosticados (${info.modelo_productivo || '-'})`);
+          }
+        }
+      }
+      if (outOfRange.length) {
+        lines.push(`\nNo tengo datos para ${outOfRange.length === 1 ? 'el a\u00f1o' : 'los a\u00f1os'} **${outOfRange.join(', ')}**. El Bolet\u00edn Epidemiol\u00f3gico SINAVE (nuestra fuente) cubre de **${minY}** a **${maxY}**.`);
+      }
     }
     return lines.join('\n');
   }
@@ -1626,7 +1702,33 @@ function answerHistorico(q, ent, s, d) {
       }
     }
 
-    lines.push(`No tengo datos para el año ${year}. El Boletín Epidemiológico SINAVE (nuestra fuente) cubre de 2014 a ${currentYear}.`);
+    // Verificar si el año cae dentro del horizonte de pronóstico
+    const tc = d.training_config || {};
+    const hFin = tc.horizonte_fin;
+    const hFinYear = hFin ? new Date(hFin + 'T00:00:00').getFullYear() : null;
+    if (hFinYear && year <= hFinYear && year >= currentYear) {
+      const rng = forecastDateRange(d);
+      const wc = d.weekly_comparison || {};
+      if (rng) {
+        lines.push(`**${year}** esta cubierto por el horizonte de pronostico (${rng.label}).`);
+        if (pad) {
+          const info = wc[pad];
+          if (info && info.semanas) {
+            const semsInYear = info.semanas.filter(s => s.fecha && s.fecha.startsWith(String(year)));
+            const pron = semsInYear.reduce((a, s) => a + s.pronostico, 0);
+            lines.push(`- ${pad}: **${fmt(pron)} casos** pronosticados en las semanas de ${year} (modelo ${info.modelo_productivo || '-'}).`);
+          }
+        } else {
+          for (const [p, info] of Object.entries(wc)) {
+            const semsInYear = info.semanas.filter(s => s.fecha && s.fecha.startsWith(String(year)));
+            const pron = semsInYear.reduce((a, s) => a + s.pronostico, 0);
+            if (pron > 0) lines.push(`- ${p}: **${fmt(pron)} casos** pronosticados en ${year} (${info.modelo_productivo || '-'})`);
+          }
+        }
+        continue;
+      }
+    }
+    lines.push(`No tengo datos para el año **${year}**. El Boletín Epidemiológico SINAVE (nuestra fuente) cubre de **2014** a **${currentYear}**.`);
   }
 
   if (!lines.length) return null;
