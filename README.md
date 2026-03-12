@@ -1,112 +1,291 @@
-# 🌐 EpiForecast-MX Dashboard
+# EpiForecast-MX Dashboard
 
-**Pronósticos epidemiológicos inteligentes para padecimientos neurológicos y de salud mental en México.**
+**Plataforma de inteligencia epidemiologica con asistente conversacional, visualizaciones interactivas y pronosticos multi-modelo para el IMSS.**
 
-🔗 **Sitio en vivo:** [proyectointegrador.org](https://proyectointegrador.org/)
+Sitio en vivo: [proyectointegrador.org](https://proyectointegrador.org/)
 
 ---
 
-## Descripción
+## Descripcion
 
-Dashboard interactivo del proyecto **EpiForecast-MX**, desarrollado en colaboración entre el **Tecnológico de Monterrey** y el **Instituto Mexicano del Seguro Social (IMSS)**. El sitio presenta visualizaciones de datos epidemiológicos para tres padecimientos clave:
+Dashboard interactivo del proyecto **EpiForecast-MX**, desarrollado en colaboracion entre el **Tecnologico de Monterrey** y el **Instituto Mexicano del Seguro Social (IMSS)**. Cubre tres padecimientos clave:
 
-| Código CIE-10 | Padecimiento |
+| Codigo CIE-10 | Padecimiento |
 |:-:|---|
-| F32 | Depresión |
+| F32 | Depresion |
 | G20 | Enfermedad de Parkinson |
 | G30 | Enfermedad de Alzheimer |
 
-## Visualizaciones
+El sitio integra visualizaciones Tableau, un chatbot conversacional con base de conocimiento local (EpiBot), mapas interactivos de Mexico, y herramientas avanzadas de analisis epidemiologico.
 
-El dashboard incluye las siguientes secciones interactivas construidas con **Tableau Public**:
+---
 
-- **Tabla de datos consolidada** — Datos acumulados por entidad federativa, año y semana epidemiológica, con información demográfica del INEGI.
-- **Mapa de México** — Densidad poblacional, superficie territorial y casos desagregados por sexo con filtros interactivos.
-- **Categorías territoriales** — Categorizaciones por región geográfica, región socio-urbana, ratio de género, extensión territorial y densidad poblacional.
-- **Casos por año** — Incremento anual de casos desagregado por sexo, con filtros por año y padecimiento.
-- **Casos por semana** — Dinámica temporal de corto plazo dentro de cada año epidemiológico.
-- **Predicciones** — Proyecciones del modelo Prophet para cada padecimiento.
+## EpiBot - Asistente Conversacional
 
-## Fuentes de datos
+El componente principal del dashboard es **EpiBot** (`kb/`), un asistente conversacional que responde preguntas sobre el proyecto con datos reales de 333 modelos de produccion.
 
-- **SINAVE** — Boletines epidemiológicos semanales (2012–2025), procesados mediante pipeline automatizado.
-- **INEGI** — Datos demográficos complementarios por entidad federativa.
+### Arquitectura
 
-## Stack técnico
+```
+kb/
+├── index.html              # UI del chat (HTML5 + CSS custom)
+├── knowledge.json          # Base de datos: metricas, boletin, modelos, config
+├── css/style.css           # Estilos con paleta IMSS 2026
+├── js/
+│   ├── app.js              # UI principal, renderizado de charts y mensajes
+│   ├── kb.js               # Base de conocimiento: 30+ handlers en cadena de prioridad
+│   ├── entities.js         # Deteccion de entidades (estados, padecimientos, sexo, modelos)
+│   ├── mexico-map.js       # Renderizador SVG de mapas de Mexico (32 entidades)
+│   ├── timelapse.js        # Animacion temporal semana a semana
+│   ├── semaforo.js         # Semaforo epidemiologico por niveles de riesgo
+│   ├── comparador.js       # Comparador visual lado a lado de dos estados
+│   └── voice.js            # Entrada/salida por voz (STT + TTS)
+├── netlify/functions/       # Serverless function para fallback a Gemini
+└── tests/                   # Tests unitarios
+```
 
-| Componente | Tecnología |
+### Base de Conocimiento (kb.js)
+
+- **30+ handlers** en cadena de prioridad que cubren: metricas globales, datos por padecimiento/estado/sexo, historico anual, comparativas entre estados, ranking de modelos, equipo, infraestructura, semanas epidemiologicas, boletin SINAVE y mas.
+- Respuestas basadas en **datos reales** de `knowledge.json` (generado por el pipeline del repo principal).
+- Fallback a **Gemini** via Netlify Function cuando la pregunta excede la base local.
+- Historial conversacional para contexto en preguntas de seguimiento.
+
+### Deteccion de Entidades (entities.js)
+
+- **32 estados** + regiones INEGI con aliases (CDMX, Edomex, EdoMex, etc.)
+- **3 padecimientos** con aliases y codigos CIE-10 (F32, G20, G30)
+- **Sexo** (hombres, mujeres, general) con variantes (masculino, femenino)
+- **4 motores** de prediccion (Prophet, DeepAR, Ensemble, Stacking)
+- Extraccion de anios, semanas, meses, rangos de edad, "ultimos N anios"
+- Deteccion de multiples estados para activar el comparador
+- Deteccion de lugares no reconocidos y lugares no mexicanos
+
+### Funcionalidades del Chat
+
+| Funcionalidad | Ejemplo de consulta |
 |---|---|
-| Frontend | HTML5 estático |
-| Visualización | Tableau Public (embeds interactivos) |
-| Hosting | Netlify |
-| Repositorio | GitHub (IntegradorIMSS2026Team01) |
+| Metricas globales | "metricas globales", "como va el proyecto" |
+| Por padecimiento | "depresion en Jalisco", "parkinson en mujeres" |
+| Historico anual | "casos de alzheimer en 2023", "tendencia 2018-2024" |
+| Comparativa estados | "compara CDMX y Nuevo Leon" |
+| Ranking modelos | "mejores modelos", "peores SMAPE" |
+| Datos del boletin | "boletin epidemiologico", "semana 52" |
+| Resumen por anio | "resumen epidemiologico 2023" |
+| Equipo/infraestructura | "equipo del proyecto", "infraestructura AWS" |
+
+---
+
+## Visualizaciones Interactivas
+
+### Charts Inline (Chart.js)
+
+EpiBot genera graficas en vivo dentro del chat cuando detecta contexto numerico:
+
+- **Barras agrupadas** por padecimiento y anio
+- **Treemap** de casos por entidad (color segun SMAPE)
+- **Radar** comparativo de motores de prediccion
+- **Barras** SMAPE por motor
+- **Corredor endemico** para padecimientos con datos historicos
+
+### Mapas de Mexico (mexico-map.js)
+
+Mapas SVG interactivos de las 32 entidades federativas:
+
+- **Mapa de casos** por padecimiento y sexo (3 padecimientos x 3 filtros de sexo)
+- **Mapa de SMAPE** con gradiente de precision por estado
+- Tooltip con nombre del estado, valor y detalle al pasar el cursor
+- Leyenda con gradiente de color dinamico
+- Accesibles desde el menu hamburguesa del chat
+
+### Timelapse Animado (timelapse.js)
+
+Animacion temporal que muestra la evolucion semana a semana:
+
+- 52 frames (uno por semana epidemiologica)
+- Distribucion proporcional basada en patron semanal nacional
+- Controles: play/pause, velocidad 1x/2x/4x, slider, contador de semana
+- Escala de color consistente (min/max global)
+
+### Semaforo Epidemiologico (semaforo.js)
+
+Clasificacion de riesgo por estado basada en percentiles:
+
+- 4 niveles: verde (< P25), amarillo (P25-P50), naranja (P50-P75), rojo (> P75)
+- Grid de 32 tarjetas ordenadas por nivel de riesgo
+- Cada tarjeta: nombre, tendencia (flecha SVG), casos, desglose por padecimiento, badge SMAPE
+- Barra resumen con conteo por nivel y seccion de alertas
+
+### Comparador de Estados (comparador.js)
+
+Comparacion visual lado a lado de dos entidades:
+
+- Se activa con "compara X y Y" cuando se detectan 2+ estados
+- Layout split: dos columnas con divisor vertical
+- Por columna: header con corona SVG para ganador, casos totales, metricas, barras por padecimiento
+- Seccion versus: barras duales izquierda/derecha por padecimiento
+
+### Reporte PDF (generatePDFReport)
+
+Generacion de reporte ejecutivo imprimible:
+
+- KPIs: casos totales, modelos, SMAPE mediano, motores
+- Tabla por padecimiento con casos y SMAPE promedio
+- Top 10 entidades con indicador de riesgo por color
+- Mini semaforo de 32 entidades
+- Distribucion de motores de IA
+- Branding IMSS, boton "Imprimir / Guardar PDF"
+
+---
+
+## Entrada y Salida por Voz (voice.js)
+
+### Speech-to-Text (STT)
+
+- Boton de microfono al lado del input con animacion pulsante
+- Web Speech API con `lang: 'es-MX'`
+- Texto interim visible en el input como feedback visual
+- Envio automatico al terminar de hablar
+- Compatibilidad Safari (fallback via `onend` cuando `isFinal` no se dispara)
+- Graceful degradation: boton oculto en navegadores sin soporte
+
+### Text-to-Speech (TTS)
+
+- Auto-speak cuando la pregunta fue por voz
+- Boton de altavoz en cada respuesta para reproduccion manual
+- **Seleccion inteligente de voz** con scoring:
+  - Google cloud (+80) > Paulina macOS (+60) > otras voces
+  - Penaliza voces novelty roboticas (Eddy, Rocko, Flo, etc.)
+  - Rate/pitch ajustados por tipo de voz para naturalidad
+- Nunca habla con voz en ingles (requiere voz espanola disponible)
+- **Boton Stop** (rojo pulsante) aparece durante la reproduccion
+- **Boton Mute** en header para silenciar/activar TTS globalmente
+- Trunca respuestas largas a 600 caracteres
+- Workaround para bug de Chrome que corta utterances largos
+
+---
+
+## Visualizaciones Tableau
+
+El dashboard (`EpiDashboard.html`) incluye embeds interactivos de Tableau Public:
+
+- **Tabla de datos consolidada** con datos SINAVE e INEGI
+- **Mapa de Mexico** con densidad poblacional y casos por sexo
+- **Categorias territoriales** por region geografica y socio-urbana
+- **Casos por anio** con desagregacion por sexo
+- **Casos por semana** con dinamica temporal
+- **Predicciones** multi-modelo (Prophet, DeepAR, Ensemble, Stacking)
+
+---
 
 ## Galeria de Pronosticos
 
-La seccion **Reports/** contiene una galeria HTML interactiva con **312 graficos** de pronostico generados por Prophet, organizados por padecimiento, entidad y sexo.
+La seccion **Reports/** contiene una galeria HTML interactiva con graficos de pronostico organizados por padecimiento, entidad y sexo.
 
-- **Filtros** por padecimiento (Alzheimer, Depresion, Parkinson), nivel (estatal, nacional, regional) y sexo
-- **Busqueda** por nombre de estado o region
-- **Vista grid / lista** con lightbox para ver cada grafico en detalle
-- **Ficha tecnica** en cada grafico: modelo, MASE, RMSE, tipo (estatal propio / regional fallback)
+- Filtros por padecimiento, nivel (estatal, nacional, regional) y sexo
+- Busqueda por nombre de estado o region
+- Vista grid / lista con lightbox
+- Ficha tecnica en cada grafico: modelo, metricas, tipo (propio vs fallback)
 
-Accesible desde:
-- Boton "Explorar Pronosticos" en la pagina principal (`index.html`)
-- Link "Pronosticos" en el navbar del dashboard (`EpiDashboard.html`)
-- Link "Pronosticos" en el navbar del reporte de modelos (`reporte_resultados.html`)
-- Botones de navegacion en la propia galeria (Inicio, Dashboard, Reporte de Modelos)
+---
 
-## Estructura del sitio
+## Reportes HTML
+
+| Archivo | Contenido |
+|---|---|
+| `reporte_resultados.html` | Resultados del modelado: KPIs, ranking de 333 modelos, cobertura |
+| `comparacion_modelos.html` | Comparativa visual de 4 motores (Prophet, DeepAR, Ensemble, Stacking) |
+| `validacion_semanal.html` | Validacion Real vs Forecast con datos del boletin mas reciente |
+| `bitacora_modelado.html` | Bitacora historica del modelado Prophet v1-v6 |
+| `ficha_tecnica_prophet.html` | Ficha tecnica del modelo Prophet |
+| `hiperparametros_modelos.html` | Hiperparametros de los 4 motores |
+| `conclusiones.html` | Conclusiones clave del proyecto |
+| `construccion_dashboard.html` | Documentacion de la construccion del dashboard |
+| `referencias.html` | Referencias bibliograficas |
+| `auditoria_remediacion_2026.html` | Auditoria de calidad y remediacion |
+
+---
+
+## Estructura del Sitio
 
 ```
 EpiForecast-IMSS-Dashboard/
-├── index.html                  # Pagina principal del proyecto
-├── EpiDashboard.html           # Dashboard con visualizaciones Tableau
-├── reporte_resultados.html     # Reporte HTML interactivo de resultados del modelado
+├── index.html                      # Pagina principal del proyecto
+├── EpiDashboard.html               # Dashboard con visualizaciones Tableau
+├── reporte_resultados.html         # Reporte interactivo de 333 modelos
+├── comparacion_modelos.html        # Comparativa de 4 motores
+├── validacion_semanal.html         # Validacion semanal Real vs Forecast
+├── bitacora_modelado.html          # Bitacora Prophet v1-v6
+├── ficha_tecnica_prophet.html      # Ficha tecnica Prophet
+├── hiperparametros_modelos.html    # Hiperparametros de motores
+├── conclusiones.html               # Conclusiones clave
+├── construccion_dashboard.html     # Documentacion del dashboard
+├── referencias.html                # Referencias bibliograficas
+├── auditoria_remediacion_2026.html # Auditoria de calidad
 ├── Reports/
-│   ├── index.html              # Galeria interactiva de 312 pronosticos
-│   ├── Alzheimer/              # PNGs por entidad (ej. Aguascalientes/)
-│   ├── Depresion/              #   cada carpeta tiene general/hombres/mujeres
+│   ├── index.html                  # Galeria interactiva de pronosticos
+│   ├── Alzheimer/                  # PNGs por entidad y sexo
+│   ├── Depresion/
 │   └── Parkinson/
-├── Avance1.Equipo01.html       # Reporte de avance (HTML)
-├── Avance1.Equipo01.pdf        # Reporte de avance (PDF)
-├── pipeline_diagramEDA.html    # Diagrama del pipeline EDA
+├── kb/                             # EpiBot - Asistente conversacional
+│   ├── index.html                  # UI del chat
+│   ├── knowledge.json              # Base de datos (metricas, boletin, modelos)
+│   ├── css/style.css               # Estilos IMSS 2026
+│   ├── js/
+│   │   ├── app.js                  # UI, charts, mensajes (~2300 lineas)
+│   │   ├── kb.js                   # Knowledge base, 30+ handlers (~3900 lineas)
+│   │   ├── entities.js             # Deteccion de entidades NLP
+│   │   ├── mexico-map.js           # Mapas SVG interactivos
+│   │   ├── timelapse.js            # Animacion semanal
+│   │   ├── semaforo.js             # Semaforo de riesgo
+│   │   ├── comparador.js           # Comparador lado a lado
+│   │   └── voice.js                # STT + TTS
+│   ├── netlify/functions/          # Gemini fallback
+│   └── tests/                      # Tests unitarios
 └── README.md
 ```
 
-## Reporte de Resultados del Modelado
-
-El archivo `reporte_resultados.html` es un reporte HTML interactivo self-contained que presenta los resultados generales del modelado Prophet (312 modelos). Incluye:
-
-- **Guia rapida**: Explicacion accesible de MASE, regiones INEGI, fallback regional y confianza
-- **Resumen por padecimiento**: KPIs, graficos comparativos (barras, doughnut, histograma)
-- **Desglose por sexo**: MASE por sexo y padecimiento
-- **Ranking interactivo**: Tabla sorteable/filtrable de 312 modelos, agrupados Nacional/Regional/Estatal
-- **Cobertura geografica**: Grid de 32 estados con tipo de modelo (propio vs fallback)
-- **Top/Bottom 10**: Mejores y peores modelos por MASE
-- **Metricas**: Formulas e interpretacion de MASE, RMSE, MAE, MAPE
-
-Tecnologias: Chart.js 4.x (CDN), Google Fonts, CSS animations, branding IMSS.
-
-Se genera desde el repo principal con `make report` (`scripts/genera_reporte.py`).
+---
 
 ## Navegacion
 
-El sitio tiene cuatro paginas principales conectadas entre si:
-
 ```
-index.html  ──▶  EpiDashboard.html      (Dashboard Tableau)
-    │
-    ├──────▶  reporte_resultados.html  (Reporte de Modelos)
-    │
-    └──────▶  Reports/index.html       (Galeria de Pronosticos)
+index.html
+  ├──> EpiDashboard.html            (Dashboard Tableau)
+  ├──> reporte_resultados.html      (Reporte de Modelos)
+  ├──> comparacion_modelos.html     (Comparativa de Motores)
+  ├──> Reports/index.html           (Galeria de Pronosticos)
+  └──> kb/index.html                (EpiBot - Chat Inteligente)
 ```
 
-Todas las paginas incluyen enlaces de navegacion cruzada entre si.
+Todas las paginas incluyen navegacion cruzada entre si.
 
-## Desarrollo local
+---
 
-Para visualizar el sitio localmente:
+## Stack Tecnico
+
+| Componente | Tecnologia |
+|---|---|
+| Frontend | HTML5 + CSS3 + ES Modules (vanilla JS) |
+| Chatbot | Knowledge base local + NLP de entidades |
+| Visualizacion | Chart.js 4.x, SVG maps, Tableau Public |
+| Voz | Web Speech API (SpeechRecognition + SpeechSynthesis) |
+| Markdown | marked.js |
+| IA fallback | Google Gemini via Netlify Functions |
+| Hosting | Netlify (deploy automatico en push a main) |
+| Repositorio | GitHub (IntegradorIMSS2026Team01) |
+
+---
+
+## Fuentes de Datos
+
+- **SINAVE** -- Boletines epidemiologicos semanales (2012-2025), procesados mediante pipeline automatizado. Incluye desglose por sexo y entidad federativa.
+- **INEGI** -- Datos demograficos complementarios por entidad federativa.
+- **knowledge.json** -- Generado por el pipeline del repo principal (`scripts/build_web_knowledge.py`), contiene: estadisticas globales, metricas por modelo/padecimiento/estado/sexo, datos del boletin, comparativa semanal, configuracion de entrenamiento.
+
+---
+
+## Desarrollo Local
 
 ```bash
 # Clonar el repositorio
@@ -117,30 +296,44 @@ cd EpiForecast-IMSS-Dashboard
 python3 -m http.server 8080
 
 # Abrir en navegador: http://localhost:8080
+# EpiBot: http://localhost:8080/kb/
 ```
+
+Para el fallback de Gemini en desarrollo local, se requiere Netlify CLI:
+
+```bash
+npm install
+netlify dev
+```
+
+---
 
 ## Despliegue
 
-El sitio se despliega automáticamente a través de **Netlify** al hacer push a la rama `main`. No requiere comandos de build.
+El sitio se despliega automaticamente a traves de **Netlify** al hacer push a la rama `main`. No requiere comandos de build.
 
-## Proyecto principal
+---
 
-Este dashboard es el componente de visualización del proyecto [EpiForecast-MX](https://github.com/IntegradorIMSS2026Team01/EpiForecast-MX), que incluye el pipeline completo de extracción, procesamiento y modelado de datos epidemiológicos.
+## Proyecto Principal
+
+Este dashboard es el componente de visualizacion del proyecto [EpiForecast-MX](https://github.com/IntegradorIMSS2026Team01/EpiForecast-MX), que incluye el pipeline completo de extraccion, procesamiento, entrenamiento multi-modelo (Prophet, DeepAR, Ensemble, Stacking) y generacion de pronosticos epidemiologicos.
+
+---
 
 ## Equipo
 
 | Integrante | Rol |
 |---|---|
-| Javier Rebull | Sr. Asocciate Application Developer - Santander Bank US |
-| Juan Carlos Pérez Nava | Profesional de TI — IMSS |
-| Luis Gerardo Sánchez Salazar | Sr. Controls Engineer — Tesla |
+| Javier Rebull | Sr. Associate Application Developer - Santander Bank US |
+| Juan Carlos Perez Nava | Profesional de TI -- IMSS |
+| Luis Gerardo Sanchez Salazar | Sr. Controls Engineer -- Tesla |
 
-**Asesora académica:** Dra. Grettel Barceló Alonso — Tecnológico de Monterrey
+**Asesora academica:** Dra. Grettel Barcelo Alonso -- Tecnologico de Monterrey
 
-**Stakeholders IMSS:** Dra. Ruth Pérez (Líder de Proyecto) · Dra. Lina Díaz Castro (Investigadora en Psiquiatría)
+**Stakeholders IMSS:** Dra. Ruth Perez (Lider de Proyecto) -- Dra. Lina Diaz Castro (Investigadora en Psiquiatria)
 
 ---
 
 <p align="center">
-  <strong>Tecnológico de Monterrey</strong> · <strong>IMSS</strong> · Equipo 01 — 2026
+  <strong>Tecnologico de Monterrey</strong> · <strong>IMSS</strong> · Equipo 01 -- 2026
 </p>
