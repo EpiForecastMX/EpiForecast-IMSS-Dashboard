@@ -2338,7 +2338,7 @@ function generatePDFReport(data) {
 <div class="kpi-grid">
   <div class="kpi"><div class="val">${totalCasos.toLocaleString()}</div><div class="lbl">Casos pronosticados (52 sem)</div></div>
   <div class="kpi"><div class="val">${s.total_modelos || 333}</div><div class="lbl">Modelos de produccion</div></div>
-  <div class="kpi"><div class="val">${s.smape_median != null ? s.smape_median + '%' : '?'}</div><div class="lbl">SMAPE mediano</div></div>
+  <div class="kpi"><div class="val">${s.smape_prod_median != null ? s.smape_prod_median + '%' : '?'}</div><div class="lbl">SMAPE mediano</div></div>
   <div class="kpi"><div class="val">4</div><div class="lbl">Motores de IA</div></div>
 </div>
 
