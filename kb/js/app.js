@@ -2218,13 +2218,18 @@ function generatePDFReport(data) {
   const tc = data.training_config || {};
   const bol = data.boletin || {};
 
-  const totalCasos = models.filter(m => m.sexo === 'general')
+  function isState(m) {
+    const e = m.entidad || '';
+    return e && e !== 'Nacional' && !e.startsWith('Region') && !e.startsWith('region_');
+  }
+
+  const totalCasos = models.filter(m => m.sexo === 'general' && isState(m))
     .reduce((a, m) => a + (m.casos_52_semanas_futuro || 0), 0);
 
-  // Per-padecimiento stats
+  // Per-padecimiento stats (solo 32 estados)
   const padStats = {};
   for (const m of models) {
-    if (m.sexo !== 'general') continue;
+    if (m.sexo !== 'general' || !isState(m)) continue;
     if (!padStats[m.padecimiento]) padStats[m.padecimiento] = { casos: 0, smapes: [], models: 0 };
     padStats[m.padecimiento].casos += m.casos_52_semanas_futuro || 0;
     padStats[m.padecimiento].models++;
