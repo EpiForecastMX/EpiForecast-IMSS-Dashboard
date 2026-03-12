@@ -1530,6 +1530,94 @@ function answerBoletin(q, ent, s, d) {
 }
 
 // ---------------------------------------------------------------------------
+// CORREDOR DE CONFIANZA — banda de 4 modelos
+// ---------------------------------------------------------------------------
+
+function answerCorredor(q, ent, s, d) {
+  const triggers = ['corredor', 'confianza', 'banda', 'incertidumbre', 'consenso', 'dispersion'];
+  const triggerAlt = any(q, ['4 modelo', 'cuatro modelo', 'los 4', 'los cuatro']);
+  if (!any(q, triggers) && !triggerAlt) return null;
+
+  const wc = d.weekly_comparison;
+  if (!wc) return null;
+
+  const MODELS = ['prophet', 'deepar', 'ensemble', 'stacking'];
+  const pad = ent.padecimiento;
+  const pads = pad ? [pad].filter(p => wc[p]) : Object.keys(wc);
+  const lines = [];
+
+  lines.push('**Corredor de confianza**: banda formada por los 4 modelos (Prophet, DeepAR, Ensemble, Stacking).\n');
+  lines.push('Donde la banda es **estrecha**, los modelos coinciden (alta confianza). Donde es **ancha**, hay divergencia.\n');
+
+  for (const p of pads) {
+    const info = wc[p];
+    const sems = info.semanas || [];
+    const spreads = sems.map(s => {
+      const vals = MODELS.map(m => s[m] || 0);
+      return Math.max(...vals) - Math.min(...vals);
+    });
+    const avgSpread = Math.round(spreads.reduce((a, v) => a + v, 0) / spreads.length);
+    const maxSpread = Math.max(...spreads);
+    const maxSpreadSem = sems[spreads.indexOf(maxSpread)]?.semana || '?';
+    const minSpread = Math.min(...spreads);
+    const minSpreadSem = sems[spreads.indexOf(minSpread)]?.semana || '?';
+
+    lines.push(`**${p}** (productivo: ${info.modelo_productivo || '-'}):`);
+    lines.push(`- Dispersion promedio: **${fmt(avgSpread)} casos/semana**`);
+    lines.push(`- Mayor divergencia: semana ${maxSpreadSem} (**${fmt(maxSpread)} casos** de diferencia)`);
+    lines.push(`- Mayor consenso: semana ${minSpreadSem} (**${fmt(minSpread)} casos** de diferencia)`);
+    lines.push('');
+  }
+
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// HEATMAP DE ERROR — donde acierta y falla el modelo
+// ---------------------------------------------------------------------------
+
+function answerErrorHeatmap(q, ent, s, d) {
+  const triggers = ['heatmap', 'mapa de calor', 'donde falla', 'donde acierta'];
+  const triggerAlt = any(q, ['error']) && any(q, ['semanal', 'semana', 'por semana']);
+  if (!any(q, triggers) && !triggerAlt) return null;
+
+  const wc = d.weekly_comparison;
+  if (!wc) return null;
+
+  const pad = ent.padecimiento;
+  const pads = pad ? [pad].filter(p => wc[p]) : Object.keys(wc);
+  const lines = [];
+
+  lines.push('**Mapa de error semanal**: porcentaje de desviacion entre pronostico y realidad.\n');
+  lines.push('Verde (< 15%) = bueno | Amarillo (15-40%) = aceptable | Rojo (> 40%) = fallo\n');
+
+  for (const p of pads) {
+    const sems = (wc[p]?.semanas || []).filter(s => s.real != null);
+    if (!sems.length) continue;
+
+    const errors = sems.map(s => {
+      if (s.real === 0) return s.pronostico > 0 ? 100 : 0;
+      return Math.abs(((s.pronostico - s.real) / s.real) * 100);
+    });
+    const good = errors.filter(e => e <= 15).length;
+    const ok = errors.filter(e => e > 15 && e <= 40).length;
+    const bad = errors.filter(e => e > 40).length;
+    const avgErr = (errors.reduce((a, v) => a + v, 0) / errors.length).toFixed(1);
+    const worstIdx = errors.indexOf(Math.max(...errors));
+    const bestIdx = errors.indexOf(Math.min(...errors));
+
+    lines.push(`**${p}** (${sems.length} semanas con datos):`);
+    lines.push(`- Error promedio: **${avgErr}%**`);
+    lines.push(`- Semanas verdes (< 15%): **${good}** | amarillas: **${ok}** | rojas: **${bad}**`);
+    lines.push(`- Mejor semana: S${String(sems[bestIdx].semana).padStart(2, '0')} (**${errors[bestIdx].toFixed(1)}%**)`);
+    lines.push(`- Peor semana: S${String(sems[worstIdx].semana).padStart(2, '0')} (**${errors[worstIdx].toFixed(1)}%**)`);
+    lines.push('');
+  }
+
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
 // ZOOM SEMANAL — vista detallada 2025-2027 (real vs pronostico)
 // ---------------------------------------------------------------------------
 
@@ -2585,6 +2673,7 @@ const VOCAB = [
   'pronostico','pronosticos','forecast','prediccion','futuro',
   'equipo','integrantes','miembros','autores',
   'tendencia','historica','historico','evolucion','boletin','zoom','detalle','cercano','acercamiento',
+  'corredor','confianza','banda','incertidumbre','consenso','dispersion','heatmap','mapa de calor','error',
   'depresion','parkinson','alzheimer',
   'deepar','prophet','ensemble','stacking',
   'configuracion','entrenamiento','hiperparametros','parametros',
@@ -3193,7 +3282,7 @@ function _genDistribChart(models, metric, metricLabel) {
 const HANDLERS = [
   answerSaludo, answerPadecimientoNoModelado, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerTemporal, answerProyectoMeta,
   answerTrainingConfig, answerSemanaActual, answerQueEsPadecimiento,
-  answerComparacionSemanal, answerZoom,
+  answerComparacionSemanal, answerCorredor, answerErrorHeatmap, answerZoom,
   answerBoletin, answerHistorico, answerComparativaEstados, answerSpecificSeries, answerEstado, answerPadecimiento,
   answerMotor, answerDemografica, answerSexo, answerDistribucion, answerGraficoAleatorio, answerMetricaGlobal,
   answerRanking, answerDiagnosticos, answerValidacion, answerInfra,

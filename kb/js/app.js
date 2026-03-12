@@ -392,6 +392,181 @@ function removeTyping(el) { if (el && el.parentNode) el.parentNode.removeChild(e
  * El tramo proyectado se muestra como linea punteada.
  */
 /**
+ * Corredor de confianza: banda min-max de 4 modelos + linea productiva + real.
+ * 1 chart por padecimiento filtrado.
+ */
+function buildCorridorChart(data, qn) {
+  const wc = data.weekly_comparison;
+  if (!wc) return null;
+
+  const MODELS = ['prophet', 'deepar', 'ensemble', 'stacking'];
+  const pads = Object.keys(wc);
+  const filtered = pads.filter(pad => {
+    if (!qn) return true;
+    const pn = pad.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const inQ = qn.includes(pn);
+    return inQ || !pads.some(p => qn.includes(p.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')));
+  });
+  if (!filtered.length) return null;
+
+  const padColors = { Depresion: '#2EC4A8', Parkinson: '#D4A84B', Alzheimer: '#C83A5A' };
+  const charts = [];
+
+  for (const pad of filtered) {
+    const info = wc[pad];
+    const sems = info.semanas || [];
+    if (!sems.length) continue;
+    const color = padColors[pad] || '#2EC4A8';
+
+    const labels = sems.map(s => `S${String(s.semana).padStart(2, '0')}`);
+    const minData = sems.map(s => Math.min(...MODELS.map(m => s[m] || 0)));
+    const maxData = sems.map(s => Math.max(...MODELS.map(m => s[m] || 0)));
+    const prodData = sems.map(s => s.pronostico);
+    const realData = sems.map(s => s.real != null ? s.real : null);
+
+    const datasets = [
+      // Banda superior (max)
+      {
+        label: 'Max modelos',
+        data: maxData,
+        borderColor: 'transparent',
+        backgroundColor: color + '20',
+        fill: false,
+        pointRadius: 0,
+        borderWidth: 0,
+        tension: 0.3,
+        order: 4,
+      },
+      // Banda inferior (min) con fill hasta max
+      {
+        label: 'Min modelos',
+        data: minData,
+        borderColor: 'transparent',
+        backgroundColor: color + '20',
+        fill: '-1',
+        pointRadius: 0,
+        borderWidth: 0,
+        tension: 0.3,
+        order: 3,
+      },
+      // Pronostico productivo (linea central)
+      {
+        label: `Productivo (${info.modelo_productivo || pad})`,
+        data: prodData,
+        borderColor: color,
+        backgroundColor: 'transparent',
+        fill: false,
+        tension: 0.3,
+        borderWidth: 2.5,
+        pointRadius: 0,
+        order: 2,
+      },
+      // Real
+      {
+        label: 'Real',
+        data: realData,
+        borderColor: '#ffffff',
+        backgroundColor: '#ffffffCC',
+        fill: false,
+        tension: 0.3,
+        borderWidth: 3,
+        pointRadius: realData.map(v => v != null ? 4 : 0),
+        pointBackgroundColor: '#ffffff',
+        pointBorderColor: color,
+        pointBorderWidth: 2,
+        spanGaps: false,
+        order: 1,
+      },
+    ];
+
+    // Dispersion (max - min) promedio
+    const spreads = sems.map(s => {
+      const vals = MODELS.map(m => s[m] || 0);
+      return Math.max(...vals) - Math.min(...vals);
+    });
+    const avgSpread = (spreads.reduce((a, v) => a + v, 0) / spreads.length).toFixed(0);
+
+    charts.push({
+      type: 'line',
+      title: `${pad} — corredor de confianza (4 modelos, dispersion prom: ${avgSpread})`,
+      labels,
+      datasets,
+      options: {
+        scales: {
+          x: { ticks: { maxRotation: 90, font: { size: 9 }, autoSkip: true, maxTicksLimit: 20 } },
+          y: { beginAtZero: true },
+        },
+      },
+    });
+  }
+
+  if (!charts.length) return null;
+  return charts.length === 1 ? charts[0] : charts;
+}
+
+/**
+ * Heatmap de error semanal: matriz padecimiento x semanas.
+ * Usa barras coloreadas por intensidad de error.
+ */
+function buildErrorHeatmap(data, qn) {
+  const wc = data.weekly_comparison;
+  if (!wc) return null;
+
+  const pads = Object.keys(wc);
+  const filtered = pads.filter(pad => {
+    if (!qn) return true;
+    const pn = pad.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const inQ = qn.includes(pn);
+    return inQ || !pads.some(p => qn.includes(p.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')));
+  });
+
+  // Solo semanas con datos reales
+  const refPad = wc[filtered[0] || pads[0]];
+  const realWeeks = (refPad?.semanas || []).filter(s => s.real != null);
+  if (!realWeeks.length) return null;
+
+  const labels = realWeeks.map(s => `S${String(s.semana).padStart(2, '0')}`);
+  const padColors = { Depresion: '#2EC4A8', Parkinson: '#D4A84B', Alzheimer: '#C83A5A' };
+
+  const datasets = [];
+  for (const pad of filtered) {
+    const sems = (wc[pad]?.semanas || []).filter(s => s.real != null);
+    const errors = sems.map(s => {
+      if (s.real === 0) return s.pronostico > 0 ? 100 : 0;
+      return Math.abs(((s.pronostico - s.real) / s.real) * 100);
+    });
+    const color = padColors[pad] || '#2EC4A8';
+    // Color por intensidad: verde (<15%), amarillo (15-40%), rojo (>40%)
+    const bgColors = errors.map(e => {
+      if (e <= 15) return '#2EC4A8CC';
+      if (e <= 40) return '#D4A84BCC';
+      return '#C83A5ACC';
+    });
+    datasets.push({
+      label: pad,
+      data: errors.map(e => Math.round(e * 10) / 10),
+      backgroundColor: bgColors,
+      borderColor: bgColors.map(c => c.replace('CC', '')),
+      borderWidth: 1,
+      borderRadius: 3,
+    });
+  }
+
+  return {
+    type: 'bar',
+    title: 'Error semanal (% |real - pronostico| / real)',
+    labels,
+    datasets,
+    options: {
+      scales: {
+        x: { ticks: { font: { size: 10 } } },
+        y: { beginAtZero: true, title: { display: true, text: 'Error %', font: { size: 11, family: 'Outfit' }, color: '#8FA99D' } },
+      },
+    },
+  };
+}
+
+/**
  * Genera graficos de zoom semanal (2025-2027): real vs pronostico.
  * Devuelve un array de charts (1 por padecimiento filtrado).
  */
@@ -791,6 +966,24 @@ function extractChartData(markdown, query) {
         }],
       };
     }
+  }
+
+  // Corredor de confianza (4 modelos)
+  if (qn.includes('corredor') || qn.includes('confianza') || qn.includes('banda') ||
+      qn.includes('incertidumbre') || qn.includes('consenso') ||
+      (qn.includes('4 modelo') || qn.includes('cuatro modelo')) ||
+      (qn.includes('dispersion') && qn.includes('modelo'))) {
+    const chart = buildCorridorChart(data, qn);
+    if (chart) return chart;
+  }
+
+  // Heatmap de error semanal
+  if (qn.includes('heatmap') || qn.includes('mapa de calor') ||
+      (qn.includes('error') && qn.includes('semanal')) ||
+      (qn.includes('error') && qn.includes('semana')) ||
+      (qn.includes('donde falla') || qn.includes('donde aciert'))) {
+    const chart = buildErrorHeatmap(data, qn);
+    if (chart) return chart;
   }
 
   // Zoom semanal (2025-2027) -> line charts
@@ -1241,10 +1434,14 @@ function getSuggestions(query) {
     return [{ text: 'Métricas globales', q: 'metricas globales' }, { text: 'Comparativa motores', q: 'comparativa de motores' }];
   if (q.includes('equipo'))
     return [{ text: 'Infraestructura', q: 'infraestructura del proyecto' }, { text: 'Alcance', q: 'que padecimientos modela' }];
+  if (q.includes('corredor') || q.includes('confianza') || q.includes('consenso'))
+    return [{ text: 'Heatmap de error', q: 'heatmap error semanal' }, { text: 'Zoom semanal', q: 'zoom semanal' }];
+  if (q.includes('heatmap') || q.includes('error semanal'))
+    return [{ text: 'Corredor de confianza', q: 'corredor de confianza' }, { text: 'Zoom semanal', q: 'zoom semanal' }];
   if (q.includes('zoom'))
-    return [{ text: 'Tendencia histórica', q: 'tendencia historica' }, { text: 'Comportamiento modelos', q: 'como se comportan los modelos' }];
+    return [{ text: 'Corredor de confianza', q: 'corredor de confianza' }, { text: 'Heatmap de error', q: 'heatmap error semanal' }];
   if (q.includes('tendencia'))
-    return [{ text: 'Zoom semanal', q: 'zoom semanal' }, { text: 'Ranking entidades', q: 'ranking entidades por incidencia' }];
+    return [{ text: 'Zoom semanal', q: 'zoom semanal' }, { text: 'Corredor de confianza', q: 'corredor de confianza' }];
   return null;
 }
 
