@@ -100,13 +100,6 @@ async function init() {
 
   checkGemini();
 
-  document.querySelectorAll('.quick-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const q = btn.dataset.q;
-      if (q) { inputField.value = q; handleSend(); }
-    });
-  });
-
   sendBtn.addEventListener('click', handleSend);
   inputField.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
