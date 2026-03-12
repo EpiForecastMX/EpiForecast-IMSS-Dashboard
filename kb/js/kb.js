@@ -132,44 +132,28 @@ function monthEstimateText(total, months, years, pad, lugar, data) {
   return lines.join('\n');
 }
 
-/** Calcula rango de fechas del horizonte de pronostico (52 semanas desde ultima semana del boletin). */
+/** Devuelve rango fijo del horizonte de pronostico desde training_config (no se recalcula). */
 function forecastDateRange(d) {
-  const bol = d.boletin || {};
-  const us = bol.ultima_semana;
-  if (!us || !us.anio || !us.semana) return null;
+  const tc = d.training_config || {};
+  if (!tc.horizonte_inicio || !tc.horizonte_fin) return null;
 
-  // Semana inicio = ultima_semana + 1
-  let sA = us.anio, sS = us.semana + 1;
-  if (sS > 52) { sS = 1; sA++; }
-  // Semana fin = inicio + 51
-  let eA = sA, eS = sS + 51;
-  if (eS > 52) { eS -= 52; eA++; }
-
-  // Convertir semana epi a fecha aprox (lunes de esa semana)
-  function weekToDate(year, week) {
-    const jan4 = new Date(year, 0, 4);
-    const dayOfWeek = jan4.getDay() || 7;
-    const monday = new Date(jan4);
-    monday.setDate(jan4.getDate() - dayOfWeek + 1 + (week - 1) * 7);
-    return monday;
-  }
-
-  const startDate = weekToDate(sA, sS);
-  const endDate = weekToDate(eA, eS);
-
-  const fmtDate = (dt) => {
-    const d = dt.getDate();
+  const fmtDate = (iso) => {
+    const dt = new Date(iso + 'T00:00:00');
+    const day = dt.getDate();
     const m = MONTH_NAMES[dt.getMonth()];
     const y = dt.getFullYear();
-    return `${d} de ${m} ${y}`;
+    return `${day} de ${m} ${y}`;
   };
 
+  const startLabel = fmtDate(tc.horizonte_inicio);
+  const endLabel = fmtDate(tc.horizonte_fin);
+  const entrenam = tc.ultimo_entrenamiento ? fmtDate(tc.ultimo_entrenamiento) : null;
+
   return {
-    startWeek: `S${String(sS).padStart(2, '0')}-${sA}`,
-    endWeek: `S${String(eS).padStart(2, '0')}-${eA}`,
-    startDate: fmtDate(startDate),
-    endDate: fmtDate(endDate),
-    label: `${fmtDate(startDate)} a ${fmtDate(endDate)} (S${String(sS).padStart(2, '0')}-${sA} a S${String(eS).padStart(2, '0')}-${eA})`,
+    startDate: startLabel,
+    endDate: endLabel,
+    entrenam,
+    label: `${startLabel} a ${endLabel}`,
   };
 }
 
@@ -2304,7 +2288,8 @@ function answerPronostico(q, ent, s, d) {
   const years = ent._years || [];
   const lines = [];
   const rng = forecastDateRange(d);
-  const horizLabel = rng ? `**${rng.startDate}** a **${rng.endDate}** (${rng.startWeek} a ${rng.endWeek})` : '52 semanas';
+  const horizLabel = rng ? `**${rng.startDate}** a **${rng.endDate}**` : '52 semanas';
+  const entrenLabel = rng?.entrenam ? `Ultimo entrenamiento: **${rng.entrenam}**` : null;
 
   if (pad && !estado) {
     const ps = s.por_pad?.[pad];
@@ -2314,7 +2299,8 @@ function answerPronostico(q, ent, s, d) {
       `Se pronostican **${fmt(ps.casos_futuro_total)} casos de ${pad}** a nivel nacional ` +
       `en las pr\u00f3ximas 52 semanas.\n`
     );
-    if (rng) lines.push(`Horizonte: ${horizLabel}\n`);
+    if (rng) lines.push(`Horizonte: ${horizLabel}`);
+    if (entrenLabel) lines.push(entrenLabel + '\n');
 
     if (months.length) {
       const mText = monthEstimateText(ps.casos_futuro_total, months, years, pad, null, d);
@@ -2336,7 +2322,8 @@ function answerPronostico(q, ent, s, d) {
       `Se pronostican **${fmt(es.casos_futuro)} casos totales en ${estado}** ` +
       `para las pr\u00f3ximas 52 semanas.\n`
     );
-    if (rng) lines.push(`Horizonte: ${horizLabel}\n`);
+    if (rng) lines.push(`Horizonte: ${horizLabel}`);
+    if (entrenLabel) lines.push(entrenLabel + '\n');
 
     if (months.length) {
       const mText = monthEstimateText(es.casos_futuro, months, years, null, estado, d);
@@ -2346,7 +2333,8 @@ function answerPronostico(q, ent, s, d) {
   } else {
     // Pron\u00f3stico global
     lines.push(`**Pron\u00f3stico total**: **${fmt(s.pronostico_total)} casos** en las pr\u00f3ximas 52 semanas.\n`);
-    if (rng) lines.push(`Horizonte: ${horizLabel}\n`);
+    if (rng) lines.push(`Horizonte: ${horizLabel}`);
+    if (entrenLabel) lines.push(entrenLabel + '\n');
 
     if (months.length) {
       const mText = monthEstimateText(s.pronostico_total, months, years, null, null, d);
