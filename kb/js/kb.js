@@ -2523,9 +2523,14 @@ function answerComparacionSemanal(q, ent, s, d) {
   ];
 
   // Also match: "compara real" / "compara pronostico" / "como va depresion 2026"
+  // "como se comportan/estan comportando los modelos", "que tal van los modelos"
   const hasCompare = any(q, triggers) ||
     (any(q, ['compara', 'comparar', 'comparativa', 'como va', 'como van']) &&
-     any(q, ['real', 'pronostico', 'prediccion', 'forecast', 'modelo', '2026', 'semana']));
+     any(q, ['real', 'pronostico', 'prediccion', 'forecast', 'modelo', '2026', 'semana'])) ||
+    (any(q, ['comporta', 'comportan', 'comportando', 'funcionando', 'rindiendo', 'que tal van', 'que tal va']) &&
+     any(q, ['modelo', 'productivo', 'pronostico', 'prediccion'])) ||
+    (any(q, ['como esta', 'como estan', 'como va', 'como van']) &&
+     any(q, ['modelo', 'productivo', 'pronostico']));
 
   // Frases que implican "cuanto habiamos pronosticado" (follow-up a datos reales)
   const retrospectiveTriggers = [
