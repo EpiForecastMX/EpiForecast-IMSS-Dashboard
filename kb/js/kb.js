@@ -828,7 +828,17 @@ function answerProyectoMeta(q, ent, s, d) {
         lines.push('Desglose: ' + globalWinner.map(([m, n]) => `${m} ${n}`).join(' | '));
       }
     }
-    lines.push(`\nCada padecimiento genera **111 modelos** (37 geograf\u00edas \u00d7 3 modos de sexo) = **${s.total_modelos || 333} modelos totales**.`);
+    lines.push('\n---\n');
+    lines.push('**Cobertura por padecimiento: 111 modelos**\n');
+    lines.push('**37 geografias:**');
+    lines.push('- 32 entidades federativas (una por estado)');
+    lines.push('- 4 macrorregiones INEGI (Norte, Centro, Sur, Occidente)');
+    lines.push('- 1 Nacional (agregado del pais)\n');
+    lines.push('**3 modos de sexo** por cada geografia:');
+    lines.push('- Hombres');
+    lines.push('- Mujeres');
+    lines.push('- General (combinado)\n');
+    lines.push(`37 geografias \u00d7 3 sexos = **111 modelos por padecimiento** \u00d7 3 padecimientos = **${s.total_modelos || 333} modelos totales**.`);
     return lines.join('\n');
   }
 
