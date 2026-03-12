@@ -2331,8 +2331,8 @@ function answerPronostico(q, ent, s, d) {
     }
 
   } else {
-    // Pron\u00f3stico global
-    lines.push(`**Pron\u00f3stico total**: **${fmt(s.pronostico_total)} casos** en las pr\u00f3ximas 52 semanas.\n`);
+    // Pron\u00f3stico Nacional
+    lines.push(`**Pron\u00f3stico Nacional**: **${fmt(s.pronostico_total)} casos** en las pr\u00f3ximas 52 semanas.\n`);
     if (rng) lines.push(`Horizonte: ${horizLabel}`);
     if (entrenLabel) lines.push(entrenLabel + '\n');
 
@@ -2341,12 +2341,18 @@ function answerPronostico(q, ent, s, d) {
       if (mText) lines.push(mText + '\n');
     }
 
+    // Buscar motores reales de Nacional (general) en prod_models
+    const nacModels = (d.prod_models || []).filter(m => norm(m.entidad || '') === 'nacional' && m.sexo === 'general');
+    const nacMotorMap = {};
+    for (const m of nacModels) nacMotorMap[m.padecimiento] = m.modelo_produccion || '-';
+
     const pp = s.por_pad || {};
-    lines.push('| Padecimiento | Pron\u00f3stico 52 sem | Motor ganador |');
-    lines.push('|-------------|-------------------|---------------|');
+    lines.push('| Padecimiento | Pron\u00f3stico 52 sem | Modelo productivo |');
+    lines.push('|-------------|-------------------|-------------------|');
     for (const [p, ps] of Object.entries(pp)) {
       if (ps.casos_futuro_total) {
-        lines.push(`| ${p} | ${fmt(ps.casos_futuro_total)} casos | ${ps.motor_ganador || '-'} |`);
+        const motor = nacMotorMap[p] || ps.motor_ganador || '-';
+        lines.push(`| ${p} | ${fmt(ps.casos_futuro_total)} casos | ${motor} |`);
       }
     }
   }
