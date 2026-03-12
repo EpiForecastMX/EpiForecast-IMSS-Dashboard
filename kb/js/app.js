@@ -361,7 +361,10 @@ function addBotMessage(markdown, source, suggestions, chartData) {
   } else if (chartList.length) {
     const ids = chartList.map(() => `chart-${++chartCounter}`);
     if (chartList.length > 1) {
-      chartHtml = `<div class="msg-chart-grid">` +
+      // Corridor charts → stack vertically for better readability
+      const isVertical = chartList.some(c => c.title && c.title.includes('corredor'));
+      const gridClass = isVertical ? 'msg-chart-stack' : 'msg-chart-grid';
+      chartHtml = `<div class="${gridClass}">` +
         ids.map(id => `<div class="msg-chart-container"><canvas id="${id}"></canvas></div>`).join('') +
         `</div>`;
     } else {

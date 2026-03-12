@@ -735,6 +735,21 @@ body::after {
   margin-top: 0;
 }
 
+.msg-chart-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.msg-chart-stack .msg-chart-container {
+  margin-top: 0;
+}
+
+.msg-chart-stack .msg-chart-container canvas {
+  max-height: 320px;
+}
+
 .msg-chart-container {
   margin-top: 14px;
   padding: 16px;
