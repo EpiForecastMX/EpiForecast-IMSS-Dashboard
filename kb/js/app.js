@@ -422,12 +422,22 @@ function buildTrendChart(data, qn) {
 
   if (!filteredPads.length) return null;
 
-  // Labels: anios historicos completos (sin 2026 parcial) + 2026 proyectado
   const lastYear = allYears[allYears.length - 1];
   const hasProjection = Object.keys(projected2026).length > 0 && lastYear === '2026';
-  // Quitar 2026 de los anios (es incompleto), agregar solo el proyectado
+
+  // Semanas reales disponibles en 2026
+  const semsReales = Object.values(wc)[0]?.semanas?.filter(s => s.real != null).length || 0;
+
+  // Labels: 2014...2025, "2026 (S08)", "2026 (proy.)", "Ene 2027"
   const yearsComplete = hasProjection ? allYears.slice(0, -1) : [...allYears];
-  const labels = hasProjection ? [...yearsComplete, '2026*'] : [...allYears];
+  const labels = hasProjection
+    ? [...yearsComplete, `S${String(semsReales).padStart(2,'0')}-2026`, '2026 (proy.)', 'Ene 2027']
+    : [...allYears];
+  // Indices de los 3 puntos extra
+  const iReal26 = yearsComplete.length;     // "S08-2026"
+  const iProj26 = yearsComplete.length + 1; // "2026 (proy.)"
+  const iEnd27  = yearsComplete.length + 2; // "Ene 2027"
+  const nLabels = labels.length;
 
   const datasets = [];
   filteredPads.forEach((pad, idx) => {
@@ -436,44 +446,70 @@ function buildTrendChart(data, qn) {
     const padData = anual[pad];
 
     if (hasProjection) {
-      // Linea solida: solo anios completos (hasta 2025)
-      const solidData = yearsComplete.map(y => padData[y] || 0);
-      solidData.push(null); // no llega al proyectado
+      const real2026 = padData['2026'] || 0;
+      const proj2026 = projected2026[pad] || 0;
+
+      // Dataset 1: linea solida — datos reales hasta 2026 parcial
+      const solidData = new Array(nLabels).fill(null);
+      yearsComplete.forEach((y, j) => { solidData[j] = padData[y] || 0; });
+      solidData[iReal26] = real2026;
+      // El punto de 2026 real se muestra hueco (ring) para indicar parcial
+      const solidRadius = solidData.map((v, j) => {
+        if (v == null) return 0;
+        if (j === iReal26) return 6;
+        return 4;
+      });
+      const solidPointBg = solidData.map((v, j) => {
+        if (j === iReal26) return 'transparent';
+        return color;
+      });
 
       datasets.push({
         label: pad,
         data: solidData,
         borderColor: color,
         backgroundColor: color + '22',
-        fill: true,
-        tension: 0.4,
+        fill: iReal26, // fill solo hasta el punto real
+        tension: 0.3,
         borderWidth: 3,
-        pointRadius: solidData.map(v => v != null ? 4 : 0),
-        pointBackgroundColor: color,
+        pointRadius: solidRadius,
+        pointBackgroundColor: solidPointBg,
+        pointBorderColor: color,
+        pointBorderWidth: solidData.map((v, j) => j === iReal26 ? 3 : 0),
         spanGaps: false,
       });
 
-      // Linea punteada: desde 2025 hasta 2026 proyectado
-      const nComplete = yearsComplete.length;
-      const dashedData = new Array(nComplete + 1).fill(null);
-      dashedData[nComplete - 1] = padData[yearsComplete[nComplete - 1]] || 0; // conecta desde 2025
-      dashedData[nComplete] = projected2026[pad] || 0; // 2026 proyectado
+      // Dataset 2: linea punteada — proyeccion desde 2025 -> 2026 proy -> Ene 2027
+      const dashedData = new Array(nLabels).fill(null);
+      const last2025 = padData[yearsComplete[yearsComplete.length - 1]] || 0;
+      dashedData[yearsComplete.length - 1] = last2025; // conecta desde 2025
+      dashedData[iProj26] = proj2026;
+      dashedData[iEnd27] = proj2026; // horizonte termina ~igual
 
       datasets.push({
         label: `${pad} (proyectado)`,
         data: dashedData,
-        borderColor: color,
+        borderColor: color + 'AA',
         backgroundColor: color + '08',
         fill: false,
-        tension: 0.4,
+        tension: 0.3,
         borderWidth: 2,
-        borderDash: [6, 4],
-        pointRadius: dashedData.map((v, j) => j === nComplete && v != null ? 6 : 0),
-        pointStyle: dashedData.map((v, j) => j === nComplete ? 'rectRot' : 'circle'),
-        pointBackgroundColor: color + '88',
+        borderDash: [8, 5],
+        pointRadius: dashedData.map((v, j) => {
+          if (v == null) return 0;
+          if (j === iProj26) return 6;
+          if (j === iEnd27) return 5;
+          return 0; // 2025 connection point hidden
+        }),
+        pointStyle: dashedData.map((v, j) => {
+          if (j === iProj26) return 'rectRot';
+          if (j === iEnd27) return 'triangle';
+          return 'circle';
+        }),
+        pointBackgroundColor: color + '66',
         pointBorderColor: color,
         pointBorderWidth: 2,
-        spanGaps: false,
+        spanGaps: true,
       });
     } else {
       datasets.push({
