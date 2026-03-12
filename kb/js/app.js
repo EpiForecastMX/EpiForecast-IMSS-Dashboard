@@ -386,6 +386,111 @@ function removeTyping(el) { if (el && el.parentNode) el.parentNode.removeChild(e
 // Chart.js integration
 // ---------------------------------------------------------------------------
 
+/**
+ * Genera grafico de tendencia historica.
+ * Para el ultimo anio (2026) separa dato real parcial vs proyectado (real + pronostico restante).
+ * El tramo proyectado se muestra como linea punteada.
+ */
+function buildTrendChart(data, qn) {
+  const anual = data.boletin?.anual_por_pad;
+  if (!anual) return null;
+
+  const wc = data.weekly_comparison || {};
+  const pads = Object.keys(anual);
+  let allYears = new Set();
+  pads.forEach(pad => Object.keys(anual[pad]).forEach(y => allYears.add(y)));
+  allYears = [...allYears].sort();
+
+  // Calcular proyeccion 2026 por padecimiento: real parcial + pronostico restante
+  const projected2026 = {};
+  for (const pad of pads) {
+    const info = wc[pad];
+    if (info && info.semanas) {
+      const realSum = info.semanas.filter(s => s.real != null).reduce((a, s) => a + s.real, 0);
+      const pronRest = info.semanas.filter(s => s.real == null).reduce((a, s) => a + s.pronostico, 0);
+      projected2026[pad] = realSum + pronRest;
+    }
+  }
+
+  // Filtrar pads segun query
+  const filteredPads = pads.filter((pad, i) => {
+    if (!qn) return true;
+    const padNorm = pad.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const padInQuery = qn.includes(padNorm);
+    return padInQuery || !pads.some(p => qn.includes(p.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')));
+  });
+
+  if (!filteredPads.length) return null;
+
+  // Labels: anios historicos completos + "2026*" para el proyectado
+  const lastYear = allYears[allYears.length - 1];
+  const hasProjection = Object.keys(projected2026).length > 0 && lastYear === '2026';
+  const labels = hasProjection ? [...allYears.slice(0, -1), '2026 (parcial)', '2026 (proyectado)'] : [...allYears];
+
+  const datasets = [];
+  filteredPads.forEach((pad, idx) => {
+    const i = pads.indexOf(pad);
+    const color = CHART_COLORS[i];
+    const padData = anual[pad];
+
+    if (hasProjection) {
+      // Linea solida: hasta 2025, luego 2026 parcial
+      const solidData = allYears.slice(0, -1).map(y => padData[y] || 0);
+      solidData.push(padData['2026'] || 0); // 2026 parcial (real)
+      solidData.push(null); // no llega al proyectado
+
+      datasets.push({
+        label: pad,
+        data: solidData,
+        borderColor: color,
+        backgroundColor: color + '22',
+        fill: true,
+        tension: 0.4,
+        borderWidth: 3,
+        pointRadius: solidData.map((v, j) => v != null ? 4 : 0),
+        pointBackgroundColor: color,
+        spanGaps: false,
+      });
+
+      // Linea punteada: desde 2026 parcial hasta 2026 proyectado
+      const dashedData = new Array(allYears.length - 1).fill(null); // nulls hasta 2025
+      dashedData.push(padData['2026'] || 0); // conecta desde 2026 parcial
+      dashedData.push(projected2026[pad] || 0); // 2026 proyectado
+
+      datasets.push({
+        label: `${pad} (proyectado)`,
+        data: dashedData,
+        borderColor: color,
+        backgroundColor: color + '08',
+        fill: false,
+        tension: 0.4,
+        borderWidth: 2,
+        borderDash: [6, 4],
+        pointRadius: dashedData.map((v, j) => j === dashedData.length - 1 && v != null ? 6 : 0),
+        pointStyle: dashedData.map((v, j) => j === dashedData.length - 1 ? 'rectRot' : 'circle'),
+        pointBackgroundColor: color + '88',
+        pointBorderColor: color,
+        pointBorderWidth: 2,
+        spanGaps: false,
+      });
+    } else {
+      datasets.push({
+        label: pad,
+        data: allYears.map(y => padData[y] || 0),
+        borderColor: color,
+        backgroundColor: color + '22',
+        fill: true,
+        tension: 0.4,
+        borderWidth: 3,
+        pointRadius: 4,
+        pointBackgroundColor: color,
+      });
+    }
+  });
+
+  return { type: 'line', title: 'Evolución histórica de incidencia', labels, datasets };
+}
+
 function extractChartData(markdown, query) {
   const data = getData();
   if (!data) return null;
@@ -587,46 +692,8 @@ function extractChartData(markdown, query) {
 
   // Tendencia historica -> line
   if (qn.includes('tendencia') || qn.includes('historica') || qn.includes('evolucion')) {
-    const anual = data.boletin?.anual_por_pad;
-    if (anual) {
-      // Find which pad
-      const pads = Object.keys(anual);
-      const datasets = [];
-      let allYears = new Set();
-      pads.forEach((pad, i) => {
-        const years = Object.keys(anual[pad]).sort();
-        years.forEach(y => allYears.add(y));
-        // Only include the detected pad or all if none specific
-        const padInQuery = qn.includes(pad.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''));
-        if (padInQuery || !pads.some(p => qn.includes(p.toLowerCase()))) {
-          datasets.push({
-            label: pad,
-            data: years.map(y => anual[pad][y]),
-            borderColor: CHART_COLORS[i],
-            backgroundColor: CHART_COLORS[i] + '22',
-            fill: true,
-            tension: 0.4,
-            borderWidth: 3,
-            pointRadius: 4,
-            pointBackgroundColor: CHART_COLORS[i],
-          });
-        }
-      });
-      allYears = [...allYears].sort();
-      if (datasets.length) {
-        // Re-align data to allYears
-        datasets.forEach(ds => {
-          const padData = anual[ds.label];
-          ds.data = allYears.map(y => padData[y] || 0);
-        });
-        return {
-          type: 'line',
-          title: 'Evolución histórica de incidencia',
-          labels: allYears,
-          datasets,
-        };
-      }
-    }
+    const chart = buildTrendChart(data, qn);
+    if (chart) return chart;
   }
 
   // Pronostico / forecast -> contextual chart
@@ -894,21 +961,8 @@ function extractChartData(markdown, query) {
 
     // General sin entidades → tendencia historica completa
     if (anual) {
-      const pads = Object.keys(anual);
-      const datasets = [];
-      let allYears = new Set();
-      pads.forEach(y => { Object.keys(anual[y]).forEach(yr => allYears.add(yr)); });
-      allYears = [...allYears].sort();
-      pads.forEach((pad, i) => {
-        datasets.push({
-          label: pad,
-          data: allYears.map(y => anual[pad][y] || 0),
-          borderColor: CHART_COLORS[i], backgroundColor: CHART_COLORS[i] + '22',
-          fill: true, tension: 0.4, borderWidth: 3, pointRadius: 4,
-          pointBackgroundColor: CHART_COLORS[i],
-        });
-      });
-      if (datasets.length) return { type: 'line', title: 'Evolución histórica de incidencia', labels: allYears, datasets };
+      const chart = buildTrendChart(data, '');
+      if (chart) return chart;
     }
   }
 
@@ -1010,6 +1064,7 @@ function renderChart(canvasId, chartData) {
             usePointStyle: true,
             padding: 16,
             boxWidth: 8,
+            filter: (item) => !item.text.includes('(proyectado)'),
           },
         },
       },
