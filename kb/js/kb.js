@@ -797,12 +797,36 @@ function answerProyectoMeta(q, ent, s, d) {
   if (any(q, padTriggers)) {
     const pp = s.por_pad || {};
     const lines = ['**EpiForecast-MX modela 3 padecimientos** de la Clasificaci\u00f3n Internacional de Enfermedades (CIE-10):\n'];
+    lines.push('| Padecimiento | SMAPE mediano | Motor ganador | Series ganadas | Distribuci\u00f3n |');
+    lines.push('|-------------|:------------:|:-------------:|:--------------:|:-----------|');
     for (const [nombre, cie, key] of [['Depresi\u00f3n', 'F32', 'Depresion'], ['Parkinson', 'G20', 'Parkinson'], ['Alzheimer', 'G30', 'Alzheimer']]) {
       const ps = pp[key] || {};
-      let extra = '';
-      if (ps.smape_prod_median != null) extra += ` | SMAPE mediano: ${ps.smape_prod_median}%`;
-      if (ps.motor_ganador) extra += ` | Motor ganador: ${ps.motor_ganador}`;
-      lines.push(`- **${nombre} (${cie})**${extra}`);
+      const smape = ps.smape_prod_median != null ? ps.smape_prod_median + '%' : '?';
+      const ganador = ps.motor_ganador || '?';
+      const nGanador = ps.motor_ganador_n || '?';
+      const total = ps.n || 111;
+      // Build distribution string from dist_motor
+      const dist = ps.dist_motor || {};
+      const distStr = Object.entries(dist)
+        .sort((a, b) => b[1] - a[1])
+        .map(([m, n]) => `${m}: ${n}`)
+        .join(', ');
+      lines.push(`| **${nombre} (${cie})** | ${smape} | ${ganador} | ${nGanador}/${total} | ${distStr} |`);
+    }
+    // Global motor summary
+    const pm = s.por_motor || {};
+    const motorTotals = {};
+    for (const [, ps] of Object.entries(pp)) {
+      for (const [m, n] of Object.entries(ps.dist_motor || {})) {
+        motorTotals[m] = (motorTotals[m] || 0) + n;
+      }
+    }
+    const globalWinner = Object.entries(motorTotals).sort((a, b) => b[1] - a[1]);
+    if (globalWinner.length) {
+      lines.push(`\n**Motor l\u00edder global**: **${globalWinner[0][0]}** con **${globalWinner[0][1]}/${s.total_modelos || 333}** series ganadas (${((globalWinner[0][1] / (s.total_modelos || 333)) * 100).toFixed(0)}%).`);
+      if (globalWinner.length > 1) {
+        lines.push('Desglose: ' + globalWinner.map(([m, n]) => `${m} ${n}`).join(' | '));
+      }
     }
     lines.push(`\nCada padecimiento genera **111 modelos** (37 geograf\u00edas \u00d7 3 modos de sexo) = **${s.total_modelos || 333} modelos totales**.`);
     return lines.join('\n');
