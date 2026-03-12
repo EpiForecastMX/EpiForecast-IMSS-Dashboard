@@ -6,9 +6,12 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=66';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=67';
 import { detectEntities, norm } from './entities.js?v=25';
 import { renderMexicoMap } from './mexico-map.js?v=1';
+import { renderTimelapse } from './timelapse.js?v=1';
+import { renderSemaforo } from './semaforo.js?v=1';
+import { renderComparador } from './comparador.js?v=1';
 
 // ---------------------------------------------------------------------------
 // DOM refs
@@ -414,16 +417,32 @@ function addBotMessage(markdown, source, suggestions, chartData) {
   }
 
   let chartHtml = '';
-  let isMapChart = false;
+  let customChartType = null; // 'map' | 'timelapse' | 'semaforo' | 'comparador' | 'pdf'
   const chartList = chartData ? (Array.isArray(chartData) ? chartData : [chartData]) : [];
 
-  // Special case: SVG map chart(s)
+  // Detect special chart types
   const mapCharts = chartList.filter(c => c._mapChart);
-  if (mapCharts.length && mapCharts.length === chartList.length) {
-    isMapChart = true;
+  const isTimelapse = chartList.length === 1 && chartList[0]._timelapseChart;
+  const isSemaforo = chartList.length === 1 && chartList[0]._semaforoChart;
+  const isComparador = chartList.length === 1 && chartList[0]._comparadorChart;
+  const isPDF = chartList.length === 1 && chartList[0]._pdfReport;
+
+  if (isTimelapse) {
+    customChartType = 'timelapse';
+    chartHtml = `<div class="msg-chart-container" id="tl-${++chartCounter}"></div>`;
+  } else if (isSemaforo) {
+    customChartType = 'semaforo';
+    chartHtml = `<div class="msg-chart-container" id="sem-${++chartCounter}"></div>`;
+  } else if (isComparador) {
+    customChartType = 'comparador';
+    chartHtml = `<div class="msg-chart-container" id="cmp-${++chartCounter}"></div>`;
+  } else if (isPDF) {
+    customChartType = 'pdf';
+    chartHtml = `<div class="pdf-btn-wrap"><button class="pdf-btn" id="pdf-${++chartCounter}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>Generar reporte PDF</button></div>`;
+  } else if (mapCharts.length && mapCharts.length === chartList.length) {
+    customChartType = 'map';
     if (mapCharts.length === 1) {
-      const mapId = `map-${++chartCounter}`;
-      chartHtml = `<div class="msg-chart-container" id="${mapId}"></div>`;
+      chartHtml = `<div class="msg-chart-container" id="map-${++chartCounter}"></div>`;
     } else {
       chartHtml = '<div class="msg-chart-stack">' +
         mapCharts.map(() => `<div class="msg-chart-container" id="map-${++chartCounter}"></div>`).join('') +
@@ -432,7 +451,6 @@ function addBotMessage(markdown, source, suggestions, chartData) {
   } else if (chartList.length) {
     const ids = chartList.map(() => `chart-${++chartCounter}`);
     if (chartList.length > 1) {
-      // Corridor charts → stack vertically for better readability
       const isVertical = chartList.some(c => c.title && c.title.includes('corredor'));
       const gridClass = isVertical ? 'msg-chart-stack' : 'msg-chart-grid';
       chartHtml = `<div class="${gridClass}">` +
@@ -471,7 +489,27 @@ function addBotMessage(markdown, source, suggestions, chartData) {
   });
 
   // Render charts
-  if (isMapChart) {
+  if (customChartType === 'timelapse') {
+    requestAnimationFrame(() => {
+      const container = div.querySelector('.msg-chart-container');
+      if (container) renderTimelapse(container, { frames: chartList[0].frames }, chartList[0].opts);
+    });
+  } else if (customChartType === 'semaforo') {
+    requestAnimationFrame(() => {
+      const container = div.querySelector('.msg-chart-container');
+      if (container) renderSemaforo(container, chartList[0].semaforoData, chartList[0].opts);
+    });
+  } else if (customChartType === 'comparador') {
+    requestAnimationFrame(() => {
+      const container = div.querySelector('.msg-chart-container');
+      if (container) renderComparador(container, chartList[0].comparadorData, chartList[0].opts);
+    });
+  } else if (customChartType === 'pdf') {
+    requestAnimationFrame(() => {
+      const btn = div.querySelector('.pdf-btn');
+      if (btn) btn.addEventListener('click', () => generatePDFReport(chartList[0].data));
+    });
+  } else if (customChartType === 'map') {
     requestAnimationFrame(() => {
       const containers = div.querySelectorAll('.msg-chart-container');
       const maps = chartList.filter(c => c._mapChart);
@@ -929,6 +967,174 @@ function buildMexicoMap(data, qn) {
 }
 
 /**
+ * Timelapse: animacion semanal del mapa de Mexico.
+ * Distribuye el pronostico por estado proporcionalmente usando el patron nacional semanal.
+ */
+function buildTimelapse(data) {
+  const models = data.prod_models || [];
+  const wc = data.weekly_comparison;
+  if (!models.length || !wc) return null;
+
+  const pads = Object.keys(wc);
+
+  // National weekly pattern (proportion per week)
+  const weeklyTotals = [];
+  const nWeeks = wc[pads[0]]?.semanas?.length || 52;
+  for (let i = 0; i < nWeeks; i++) {
+    let weekSum = 0;
+    for (const p of pads) { weekSum += (wc[p]?.semanas?.[i]?.pronostico || 0); }
+    weeklyTotals.push(weekSum);
+  }
+  const natTotal = weeklyTotals.reduce((a, v) => a + v, 0) || 1;
+  const weeklyProp = weeklyTotals.map(w => w / natTotal);
+
+  // Per-state totals (sexo=general)
+  const byEnt = {};
+  for (const m of models) {
+    if (m.sexo !== 'general') continue;
+    const e = m.entidad;
+    if (!e || e === 'Nacional' || e.startsWith('Region') || e.startsWith('region_')) continue;
+    byEnt[e] = (byEnt[e] || 0) + (m.casos_52_semanas_futuro || 0);
+  }
+
+  // Build cumulative frames
+  const frames = [];
+  const cumulative = {};
+  for (const e of Object.keys(byEnt)) cumulative[e] = 0;
+
+  for (let w = 0; w < nWeeks; w++) {
+    const prop = weeklyProp[w] || (1 / nWeeks);
+    const stateData = {};
+    for (const [ent, total] of Object.entries(byEnt)) {
+      cumulative[ent] += Math.round(total * prop);
+      stateData[ent] = { value: cumulative[ent], label: cumulative[ent].toLocaleString() + ' casos acum.' };
+    }
+    frames.push({ week: w + 1, stateData: JSON.parse(JSON.stringify(stateData)) });
+  }
+
+  return {
+    _timelapseChart: true,
+    frames,
+    opts: { title: 'Timelapse: pronostico acumulado por semana', lowColor: [30, 60, 50], highColor: [46, 196, 168], metric: 'casos acum.' },
+  };
+}
+
+/**
+ * Semaforo epidemiologico: grid de 32 estados clasificados por riesgo.
+ */
+function buildSemaforo(data) {
+  const models = data.prod_models || [];
+  if (!models.length) return null;
+
+  const wc = data.weekly_comparison || {};
+  const byEnt = {};
+  for (const m of models) {
+    if (m.sexo !== 'general') continue;
+    const e = m.entidad || '';
+    if (e === 'Nacional' || e.startsWith('region_') || e.startsWith('Region')) continue;
+    if (!byEnt[e]) byEnt[e] = { casos: 0, smapes: [], pads: {} };
+    byEnt[e].casos += m.casos_52_semanas_futuro || 0;
+    if (m.smape_prod != null) byEnt[e].smapes.push(m.smape_prod);
+    byEnt[e].pads[m.padecimiento] = (byEnt[e].pads[m.padecimiento] || 0) + (m.casos_52_semanas_futuro || 0);
+  }
+
+  const casosArr = Object.values(byEnt).map(e => e.casos).sort((a, b) => a - b);
+  const p25 = casosArr[Math.floor(casosArr.length * 0.25)] || 0;
+  const p50 = casosArr[Math.floor(casosArr.length * 0.50)] || 0;
+  const p75 = casosArr[Math.floor(casosArr.length * 0.75)] || 0;
+
+  function riskLevel(casos) {
+    if (casos >= p75) return 'rojo';
+    if (casos >= p50) return 'naranja';
+    if (casos >= p25) return 'amarillo';
+    return 'verde';
+  }
+
+  const states = Object.entries(byEnt).map(([name, d]) => {
+    const avgSmape = d.smapes.length ? d.smapes.reduce((a, v) => a + v, 0) / d.smapes.length : null;
+    return {
+      name, casos: d.casos, smape: avgSmape != null ? Math.round(avgSmape * 10) / 10 : null,
+      trend: 'stable', pads: d.pads, riskLevel: riskLevel(d.casos),
+    };
+  });
+
+  // Detect trends from weekly_comparison (very basic: is last week > average?)
+  // This is national-level only, but gives a flavor
+  for (const st of states) {
+    const topPad = Object.entries(st.pads).sort((a, b) => b[1] - a[1])[0];
+    if (topPad && wc[topPad[0]]) {
+      const sems = wc[topPad[0]].semanas || [];
+      const realSems = sems.filter(s => s.real != null);
+      if (realSems.length >= 4) {
+        const last = realSems[realSems.length - 1].real;
+        const avg = realSems.slice(0, -1).reduce((a, s) => a + s.real, 0) / (realSems.length - 1);
+        if (last > avg * 1.15) st.trend = 'up';
+        else if (last < avg * 0.85) st.trend = 'down';
+      }
+    }
+  }
+
+  const summary = { verde: 0, amarillo: 0, naranja: 0, rojo: 0 };
+  states.forEach(s => summary[s.riskLevel]++);
+
+  const alerts = states
+    .filter(s => s.riskLevel === 'rojo')
+    .sort((a, b) => b.casos - a.casos)
+    .slice(0, 5)
+    .map(s => {
+      const topPad = Object.entries(s.pads).sort((a, b) => b[1] - a[1])[0];
+      return s.name + ': ' + s.casos.toLocaleString() + ' casos (principal: ' + (topPad ? topPad[0] : '?') + ')';
+    });
+
+  return {
+    _semaforoChart: true,
+    semaforoData: { states, alerts, summary },
+    opts: { title: 'Semaforo epidemiologico: riesgo por entidad federativa' },
+  };
+}
+
+/**
+ * Comparador de estados: datos para renderizar side-by-side.
+ * Se construye a partir de los datos embebidos en <!--COMPARE:...-->
+ */
+function buildComparador(data, compareData) {
+  if (!compareData || compareData.length !== 2) return null;
+  const [a, b] = compareData;
+
+  function buildState(c) {
+    const smapes = c.models.filter(m => m.smape != null).map(m => m.smape);
+    const avgSmape = smapes.length ? Math.round(smapes.reduce((a, v) => a + v, 0) / smapes.length * 10) / 10 : null;
+    const motors = {};
+    c.models.forEach(m => { const mot = m.motor || m.modelo || '?'; motors[mot] = (motors[mot] || 0) + 1; });
+    const topMotor = Object.entries(motors).sort((a, b) => b[1] - a[1])[0];
+    const pads = {};
+    c.models.forEach(m => {
+      if (!pads[m.pad]) pads[m.pad] = { casos: 0, smape: null, motor: '?' };
+      pads[m.pad].casos += m.casos || 0;
+      if (m.smape != null) pads[m.pad].smape = m.smape;
+    });
+    return { name: c.estado, casos: c.total, smape: avgSmape, motor: topMotor ? topMotor[0] : '?', pads };
+  }
+
+  const stateA = buildState(a);
+  const stateB = buildState(b);
+  const winner = stateA.casos > stateB.casos ? 'A' : stateA.casos < stateB.casos ? 'B' : 'tie';
+
+  return {
+    _comparadorChart: true,
+    comparadorData: { stateA, stateB, winner },
+    opts: { title: 'Comparativa: ' + stateA.name + ' vs ' + stateB.name },
+  };
+}
+
+/**
+ * PDF Report: returns a special flag to trigger report generation.
+ */
+function buildPDFReport(data) {
+  return { _pdfReport: true, data };
+}
+
+/**
  * Heatmap de error semanal: matriz padecimiento x semanas.
  * Usa barras coloreadas por intensidad de error.
  */
@@ -1283,41 +1489,26 @@ function extractChartData(markdown, query) {
   if (compareMatch) {
     try {
       const cmp = JSON.parse(compareMatch[1]);
+      // 2 estados: usar comparador visual interactivo
+      if (cmp.length === 2) {
+        const comp = buildComparador(data, cmp);
+        if (comp) return comp;
+      }
       if (cmp.length >= 2) {
-        // Check if all states have per-padecimiento breakdown
-        const hasPadBreakdown = cmp.some(c => c.models && c.models.length > 1);
-        if (hasPadBreakdown) {
-          // Grouped bar: each state, one bar per padecimiento
-          const pads = [...new Set(cmp.flatMap(c => c.models.map(m => m.pad)))];
-          return {
-            type: 'bar',
-            title: `Comparativa: ${cmp.map(c => c.estado).join(' vs ')}`,
-            labels: cmp.map(c => c.estado),
-            datasets: pads.map((pad, i) => ({
-              label: dn(pad),
-              data: cmp.map(c => { const m = c.models.find(x => x.pad === pad); return m ? m.casos : 0; }),
-              backgroundColor: CHART_COLORS[i] + 'CC',
-              borderColor: CHART_COLORS[i],
-              borderWidth: 1,
-              borderRadius: 4,
-            })),
-          };
-        } else {
-          // Simple bar: total per state
-          return {
-            type: 'bar',
-            title: `Comparativa: ${cmp.map(c => c.estado).join(' vs ')}`,
-            labels: cmp.map(c => c.estado),
-            datasets: [{
-              label: 'Casos pronosticados (52 sem)',
-              data: cmp.map(c => c.total),
-              backgroundColor: CHART_COLORS.slice(0, cmp.length).map(c => c + 'CC'),
-              borderColor: CHART_COLORS.slice(0, cmp.length),
-              borderWidth: 1,
-              borderRadius: 4,
-            }],
-          };
-        }
+        const pads = [...new Set(cmp.flatMap(c => c.models.map(m => m.pad)))];
+        return {
+          type: 'bar',
+          title: 'Comparativa: ' + cmp.map(c => c.estado).join(' vs '),
+          labels: cmp.map(c => c.estado),
+          datasets: pads.map((pad, i) => ({
+            label: dn(pad),
+            data: cmp.map(c => { const m = c.models.find(x => x.pad === pad); return m ? m.casos : 0; }),
+            backgroundColor: CHART_COLORS[i] + 'CC',
+            borderColor: CHART_COLORS[i],
+            borderWidth: 1,
+            borderRadius: 4,
+          })),
+        };
       }
     } catch (e) { console.warn('Compare parse error:', e); }
   }
@@ -1390,6 +1581,23 @@ function extractChartData(markdown, query) {
         }],
       };
     }
+  }
+
+  // Timelapse animado
+  if (qn.includes('timelapse') || qn.includes('mapa animado') || qn.includes('animacion') || (qn.includes('anima') && qn.includes('mapa'))) {
+    const chart = buildTimelapse(data);
+    if (chart) return chart;
+  }
+
+  // Semaforo epidemiologico
+  if (qn.includes('semaforo') || qn.includes('nivel de riesgo') || (qn.includes('alerta') && qn.includes('epidemiolog'))) {
+    const chart = buildSemaforo(data);
+    if (chart) return chart;
+  }
+
+  // Reporte PDF
+  if (qn.includes('reporte') && (qn.includes('pdf') || qn.includes('ejecutivo') || qn.includes('exportar') || qn.includes('generar') || qn.includes('descargar') || qn.includes('imprimir'))) {
+    return buildPDFReport(data);
   }
 
   // Mapa coropletico de Mexico
@@ -1951,6 +2159,14 @@ function getSuggestions(query) {
     return [{ text: 'Mapa Depresion', q: 'mapa de mexico depresion' }, { text: 'Mapa Parkinson', q: 'mapa de mexico parkinson' }, { text: 'Mapa por SMAPE', q: 'mapa de mexico por smape' }];
   if (q.includes('treemap'))
     return [{ text: 'Mapa de Mexico', q: 'mapa de mexico por casos' }, { text: 'Radar motores', q: 'radar comparativo de motores' }];
+  if (q.includes('timelapse') || q.includes('animacion'))
+    return [{ text: 'Semaforo', q: 'semaforo epidemiologico' }, { text: 'Mapa de Mexico', q: 'mapa de mexico por casos' }];
+  if (q.includes('semaforo') || q.includes('riesgo'))
+    return [{ text: 'Timelapse', q: 'timelapse mapa animado' }, { text: 'Reporte PDF', q: 'generar reporte pdf' }];
+  if (q.includes('compara') || q.includes('vs'))
+    return [{ text: 'Semaforo', q: 'semaforo epidemiologico' }, { text: 'Timelapse', q: 'timelapse mapa animado' }];
+  if (q.includes('reporte') || q.includes('pdf'))
+    return [{ text: 'Semaforo', q: 'semaforo epidemiologico' }, { text: 'Metricas', q: 'metricas globales' }];
   return null;
 }
 
@@ -1989,4 +2205,182 @@ function escapeHtml(text) {
 
 function escapeAttr(text) {
   return text.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// ---------------------------------------------------------------------------
+// PDF Report Generator
+// ---------------------------------------------------------------------------
+
+function generatePDFReport(data) {
+  const s = data.stats || {};
+  const models = data.prod_models || [];
+  const wc = data.weekly_comparison || {};
+  const tc = data.training_config || {};
+  const bol = data.boletin || {};
+
+  const totalCasos = models.filter(m => m.sexo === 'general')
+    .reduce((a, m) => a + (m.casos_52_semanas_futuro || 0), 0);
+
+  // Per-padecimiento stats
+  const padStats = {};
+  for (const m of models) {
+    if (m.sexo !== 'general') continue;
+    if (!padStats[m.padecimiento]) padStats[m.padecimiento] = { casos: 0, smapes: [], models: 0 };
+    padStats[m.padecimiento].casos += m.casos_52_semanas_futuro || 0;
+    padStats[m.padecimiento].models++;
+    if (m.smape_prod != null) padStats[m.padecimiento].smapes.push(m.smape_prod);
+  }
+
+  // Per-state totals
+  const byEnt = {};
+  for (const m of models) {
+    if (m.sexo !== 'general') continue;
+    const e = m.entidad || '';
+    if (e === 'Nacional' || e.startsWith('region_') || e.startsWith('Region')) continue;
+    byEnt[e] = (byEnt[e] || 0) + (m.casos_52_semanas_futuro || 0);
+  }
+  const topStates = Object.entries(byEnt).sort((a, b) => b[1] - a[1]).slice(0, 10);
+
+  // Motor distribution
+  const motorDist = {};
+  models.filter(m => m.sexo === 'general').forEach(m => {
+    motorDist[m.modelo_produccion] = (motorDist[m.modelo_produccion] || 0) + 1;
+  });
+
+  const today = new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+  const horizonte = tc.horizonte_inicio && tc.horizonte_fin
+    ? tc.horizonte_inicio + ' a ' + tc.horizonte_fin : '52 semanas';
+
+  // Semaforo data
+  const casosArr = Object.values(byEnt).sort((a, b) => a - b);
+  const p75 = casosArr[Math.floor(casosArr.length * 0.75)] || 0;
+  const p50 = casosArr[Math.floor(casosArr.length * 0.50)] || 0;
+  const p25 = casosArr[Math.floor(casosArr.length * 0.25)] || 0;
+
+  function riskColor(casos) {
+    if (casos >= p75) return '#C83A5A';
+    if (casos >= p50) return '#E67E22';
+    if (casos >= p25) return '#D4A84B';
+    return '#2EC4A8';
+  }
+
+  const padRows = Object.entries(padStats).map(([pad, ps]) => {
+    const avgSmape = ps.smapes.length ? (ps.smapes.reduce((a, v) => a + v, 0) / ps.smapes.length).toFixed(1) : '?';
+    return '<tr><td style="padding:6px 10px;border-bottom:1px solid #e0e0e0">' + pad + '</td>' +
+      '<td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:right">' + ps.casos.toLocaleString() + '</td>' +
+      '<td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:center">' + ps.models + '</td>' +
+      '<td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:center">' + avgSmape + '%</td></tr>';
+  }).join('');
+
+  const stateRows = topStates.map(([ent, casos]) =>
+    '<tr><td style="padding:4px 10px;border-bottom:1px solid #f0f0f0">' + ent + '</td>' +
+    '<td style="padding:4px 10px;border-bottom:1px solid #f0f0f0;text-align:right">' + casos.toLocaleString() + '</td>' +
+    '<td style="padding:4px 10px;border-bottom:1px solid #f0f0f0;text-align:center">' +
+    '<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:' + riskColor(casos) + '"></span></td></tr>'
+  ).join('');
+
+  const motorRows = Object.entries(motorDist).sort((a, b) => b[1] - a[1]).map(([m, n]) =>
+    '<tr><td style="padding:4px 10px;border-bottom:1px solid #f0f0f0">' + m + '</td>' +
+    '<td style="padding:4px 10px;border-bottom:1px solid #f0f0f0;text-align:right">' + n + ' modelos</td>' +
+    '<td style="padding:4px 10px;border-bottom:1px solid #f0f0f0;text-align:right">' + (n / models.filter(m2 => m2.sexo === 'general').length * 100).toFixed(0) + '%</td></tr>'
+  ).join('');
+
+  const reportHtml = `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Reporte Ejecutivo - EpiForecast-MX</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; color: #1a1a1a; padding: 40px; max-width: 900px; margin: 0 auto; line-height: 1.5; }
+  @media print { body { padding: 20px; } .no-print { display: none; } }
+  .header { border-bottom: 3px solid #006847; padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .header h1 { font-size: 22px; color: #006847; }
+  .header .subtitle { font-size: 13px; color: #666; }
+  .header .date { font-size: 12px; color: #888; text-align: right; }
+  .header .logo { font-size: 11px; color: #006847; font-weight: 700; letter-spacing: 1px; }
+  .section { margin-bottom: 24px; }
+  .section h2 { font-size: 16px; color: #006847; border-bottom: 1px solid #e0e0e0; padding-bottom: 6px; margin-bottom: 12px; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  .kpi { background: #f8faf9; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; text-align: center; }
+  .kpi .val { font-size: 24px; font-weight: 700; color: #006847; }
+  .kpi .lbl { font-size: 11px; color: #666; margin-top: 2px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { background: #006847; color: #fff; padding: 8px 10px; text-align: left; font-weight: 600; }
+  .semaforo-mini { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
+  .sem-cell { text-align: center; padding: 6px 2px; border-radius: 4px; font-size: 9px; color: #fff; font-weight: 600; }
+  .footer { margin-top: 30px; padding-top: 12px; border-top: 2px solid #006847; font-size: 10px; color: #888; text-align: center; }
+  .print-btn { position: fixed; top: 20px; right: 20px; padding: 10px 24px; background: #006847; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; }
+  .print-btn:hover { background: #005030; }
+</style>
+</head>
+<body>
+<button class="print-btn no-print" onclick="window.print()">Imprimir / Guardar PDF</button>
+
+<div class="header">
+  <div>
+    <div class="logo">IMSS - Instituto Mexicano del Seguro Social</div>
+    <h1>Reporte Ejecutivo de Pronostico Epidemiologico</h1>
+    <div class="subtitle">EpiForecast-MX: Plataforma multi-modelo de inteligencia epidemiologica</div>
+  </div>
+  <div class="date">
+    <div>${today}</div>
+    <div>Horizonte: ${horizonte}</div>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi"><div class="val">${totalCasos.toLocaleString()}</div><div class="lbl">Casos pronosticados (52 sem)</div></div>
+  <div class="kpi"><div class="val">${s.total_modelos || 333}</div><div class="lbl">Modelos de produccion</div></div>
+  <div class="kpi"><div class="val">${s.smape_median != null ? s.smape_median + '%' : '?'}</div><div class="lbl">SMAPE mediano</div></div>
+  <div class="kpi"><div class="val">4</div><div class="lbl">Motores de IA</div></div>
+</div>
+
+<div class="section">
+  <h2>Pronostico por padecimiento</h2>
+  <table>
+    <tr><th>Padecimiento</th><th style="text-align:right">Casos (52 sem)</th><th style="text-align:center">Modelos</th><th style="text-align:center">SMAPE prom</th></tr>
+    ${padRows}
+  </table>
+</div>
+
+<div class="section">
+  <h2>Top 10 entidades por incidencia pronosticada</h2>
+  <table>
+    <tr><th>Entidad</th><th style="text-align:right">Casos (52 sem)</th><th style="text-align:center">Riesgo</th></tr>
+    ${stateRows}
+  </table>
+</div>
+
+<div class="section">
+  <h2>Semaforo epidemiologico (32 entidades)</h2>
+  <div class="semaforo-mini">
+    ${Object.entries(byEnt).sort((a, b) => b[1] - a[1]).map(([ent, casos]) =>
+      '<div class="sem-cell" style="background:' + riskColor(casos) + '">' + ent.substring(0, 5) + '</div>'
+    ).join('')}
+  </div>
+</div>
+
+<div class="section">
+  <h2>Distribucion de motores de IA</h2>
+  <table>
+    <tr><th>Motor</th><th style="text-align:right">Modelos</th><th style="text-align:right">Participacion</th></tr>
+    ${motorRows}
+  </table>
+</div>
+
+<div class="footer">
+  <strong>EpiForecast-MX</strong> - Proyecto integrador, Maestria en Inteligencia Artificial Aplicada, Tecnologico de Monterrey<br>
+  Pronostico multi-modelo (Prophet, DeepAR, Ensemble, Stacking) para el Instituto Mexicano del Seguro Social (IMSS)<br>
+  Generado automaticamente el ${today}
+</div>
+
+</body></html>`;
+
+  const reportWindow = window.open('', '_blank');
+  if (reportWindow) {
+    reportWindow.document.write(reportHtml);
+    reportWindow.document.close();
+  }
 }

@@ -535,6 +535,91 @@
       font-family: 'JetBrains Mono', monospace;
     }
 
+    /* ═══════════ TIMELAPSE ═══════════ */
+    .timelapse-wrapper { position: relative; }
+    .timelapse-title { font-size: 13px; font-weight: 700; color: #EDF3EF; margin-bottom: 10px; letter-spacing: -0.2px; }
+    .timelapse-week { font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #2EC4A8; text-align: center; margin: 8px 0 4px; }
+    .timelapse-controls { display: flex; align-items: center; gap: 10px; justify-content: center; margin-top: 8px; }
+    .timelapse-btn {
+      width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(46,196,168,0.35);
+      background: rgba(46,196,168,0.08); color: #2EC4A8; cursor: pointer; display: flex;
+      align-items: center; justify-content: center; transition: background 0.2s, border-color 0.2s;
+    }
+    .timelapse-btn:hover { background: rgba(46,196,168,0.18); border-color: #2EC4A8; }
+    .timelapse-speed { display: flex; gap: 4px; }
+    .timelapse-speed button {
+      padding: 3px 10px; border-radius: 10px; border: 1px solid rgba(46,196,168,0.2);
+      background: transparent; color: #7A9A8D; font-size: 11px; cursor: pointer;
+      font-family: 'JetBrains Mono', monospace; transition: all 0.2s;
+    }
+    .timelapse-speed button.active { background: rgba(46,196,168,0.15); color: #2EC4A8; border-color: #2EC4A8; }
+    .timelapse-slider {
+      width: 100%; max-width: 500px; margin: 4px auto; display: block;
+      accent-color: #2EC4A8; cursor: pointer; height: 6px;
+    }
+
+    /* ═══════════ SEMAFORO ═══════════ */
+    .semaforo-wrapper { max-width: 700px; }
+    .semaforo-title { font-size: 13px; font-weight: 700; color: #EDF3EF; margin-bottom: 10px; }
+    .semaforo-summary { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+    .semaforo-badge {
+      display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px;
+      border-radius: 16px; font-size: 12px; font-family: 'JetBrains Mono', monospace;
+      background: rgba(255,255,255,0.04);
+    }
+    .semaforo-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .semaforo-alerts {
+      background: rgba(200,58,90,0.08); border-left: 3px solid #C83A5A;
+      padding: 8px 12px; font-size: 12px; color: #EDF3EF; margin-bottom: 12px;
+      border-radius: 0 6px 6px 0; line-height: 1.7;
+    }
+    .semaforo-alerts-title { font-weight: 700; color: #C83A5A; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .semaforo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    @media (max-width: 600px) { .semaforo-grid { grid-template-columns: repeat(2, 1fr); } }
+    .semaforo-card {
+      background: rgba(255,255,255,0.03); border-radius: 8px; padding: 8px 10px;
+      border-left: 4px solid transparent; transition: transform 0.15s;
+    }
+    .semaforo-card:hover { transform: translateY(-1px); }
+    .semaforo-card-name { font-size: 11px; font-weight: 700; color: #EDF3EF; display: flex; align-items: center; gap: 4px; }
+    .semaforo-card-casos { font-size: 15px; font-weight: 700; color: #EDF3EF; font-family: 'JetBrains Mono', monospace; margin: 2px 0; }
+    .semaforo-card-pads { font-size: 9px; color: #7A9A8D; display: flex; gap: 6px; flex-wrap: wrap; }
+    .semaforo-card-pads span { display: inline-flex; align-items: center; gap: 2px; }
+    .semaforo-card-smape { font-size: 9px; font-family: 'JetBrains Mono', monospace; margin-top: 2px; padding: 1px 6px; border-radius: 8px; display: inline-block; }
+
+    /* ═══════════ COMPARADOR ═══════════ */
+    .comparador-wrapper { max-width: 700px; }
+    .comparador-title { font-size: 13px; font-weight: 700; color: #EDF3EF; margin-bottom: 12px; }
+    .comparador-split { display: flex; gap: 0; }
+    .comparador-col { flex: 1; padding: 10px 14px; }
+    .comparador-col + .comparador-col { border-left: 1px solid rgba(46,196,168,0.15); }
+    .comparador-col.winner { box-shadow: inset 0 0 20px rgba(46,196,168,0.08); border-radius: 8px; }
+    .comparador-header-name { font-size: 16px; font-weight: 700; color: #EDF3EF; display: flex; align-items: center; gap: 6px; }
+    .comparador-header-casos { font-size: 20px; font-weight: 700; color: #2EC4A8; font-family: 'JetBrains Mono', monospace; margin: 2px 0 8px; }
+    .comparador-metrics { font-size: 11px; color: #7A9A8D; margin-bottom: 10px; }
+    .comparador-metrics div { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .comparador-metrics span:last-child { color: #EDF3EF; font-family: 'JetBrains Mono', monospace; }
+    .comparador-bar-wrap { margin-bottom: 6px; }
+    .comparador-bar-label { font-size: 10px; color: #7A9A8D; margin-bottom: 2px; }
+    .comparador-bar { height: 14px; border-radius: 4px; min-width: 4px; transition: width 0.4s; display: flex; align-items: center; justify-content: flex-end; padding-right: 4px; }
+    .comparador-bar span { font-size: 9px; color: #fff; font-family: 'JetBrains Mono', monospace; }
+    .comparador-versus { margin-top: 14px; border-top: 1px solid rgba(46,196,168,0.12); padding-top: 10px; }
+    .comparador-vs-row { display: flex; align-items: center; margin-bottom: 6px; height: 20px; }
+    .comparador-vs-label { width: 70px; font-size: 10px; color: #7A9A8D; text-align: center; flex-shrink: 0; }
+    .comparador-vs-left { flex: 1; display: flex; justify-content: flex-end; }
+    .comparador-vs-right { flex: 1; display: flex; justify-content: flex-start; }
+    .comparador-vs-bar { height: 14px; border-radius: 4px; min-width: 2px; transition: width 0.4s; }
+
+    /* ═══════════ REPORTE PDF ═══════════ */
+    .pdf-btn-wrap { margin-top: 10px; }
+    .pdf-btn {
+      padding: 8px 20px; border-radius: 8px; border: 1px solid rgba(46,196,168,0.3);
+      background: rgba(46,196,168,0.1); color: #2EC4A8; cursor: pointer;
+      font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600;
+      display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s;
+    }
+    .pdf-btn:hover { background: rgba(46,196,168,0.2); border-color: #2EC4A8; }
+
     /* ═══════════ CHART.JS DARK OVERRIDE ═══════════ */
     /* Applied via JS but we set canvas defaults */
   </style>
@@ -650,6 +735,13 @@
           </button>
         </div>
         <div class="prompt-menu-body">
+          <div class="prompt-cat">
+            <span class="prompt-cat-label">Herramientas avanzadas</span>
+            <button class="prompt-item" data-q="timelapse mapa animado">Timelapse (mapa animado)</button>
+            <button class="prompt-item" data-q="semaforo epidemiologico">Semaforo epidemiologico</button>
+            <button class="prompt-item" data-q="compara Jalisco y Nuevo Leon">Comparador de estados</button>
+            <button class="prompt-item" data-q="generar reporte pdf">Reporte ejecutivo PDF</button>
+          </div>
           <div class="prompt-cat">
             <span class="prompt-cat-label">Metricas y calidad</span>
             <button class="prompt-item" data-q="metricas globales">Metricas globales</button>
@@ -812,6 +904,6 @@
     })();
   </script>
 
-  <script type="module" src="js/app.js?v=73"></script>
+  <script type="module" src="js/app.js?v=74"></script>
 </body>
 </html>

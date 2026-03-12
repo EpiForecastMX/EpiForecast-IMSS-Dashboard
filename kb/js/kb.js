@@ -2309,7 +2309,7 @@ function answerComparativaEstados(q, ent, s, d) {
   }
 
   // Store chart data for extractChartData to pick up
-  lines.push(`\n<!--COMPARE:${JSON.stringify(comparisons.map(c => ({ estado: c.estado, total: c.totalCasos, smape: c.avgSmape, models: c.models.map(m => ({ pad: m.padecimiento, casos: m.casos_52_semanas_futuro, smape: m.smape_prod })) })))}-->`);
+  lines.push(`\n<!--COMPARE:${JSON.stringify(comparisons.map(c => ({ estado: c.estado, total: c.totalCasos, smape: c.avgSmape, motor: c.topMotor ? c.topMotor[0] : '?', models: c.models.map(m => ({ pad: m.padecimiento, casos: m.casos_52_semanas_futuro, smape: m.smape_prod, motor: m.modelo_produccion })) })))}-->`);
 
   return lines.join('\n');
 }
@@ -2957,6 +2957,7 @@ const VOCAB = [
   'corredor','confianza','banda','incertidumbre','consenso','dispersion','heatmap','mapa de calor','error',
   'treemap','radar','spider','sparkline','panorama','vista general','apilado','stacked','composicion',
   'mapa','republica','coropletico','geografico',
+  'timelapse','animacion','semaforo','alerta','riesgo','reporte','exportar','pdf','ejecutivo',
   'depresion','parkinson','alzheimer',
   'deepar','prophet','ensemble','stacking',
   'configuracion','entrenamiento','hiperparametros','parametros',
@@ -3559,12 +3560,126 @@ function _genDistribChart(models, metric, metricLabel) {
 }
 
 // ---------------------------------------------------------------------------
+// TIMELAPSE — animacion semanal del mapa
+// ---------------------------------------------------------------------------
+
+function answerTimelapse(q, ent, s, d) {
+  const triggers = ['timelapse', 'animacion', 'anima el mapa', 'mapa animado', 'semana a semana mapa', 'evolucion mapa'];
+  if (!any(q, triggers)) return null;
+
+  const models = d.prod_models || [];
+  const wc = d.weekly_comparison;
+  if (!models.length || !wc) return null;
+
+  const pads = Object.keys(wc);
+  const nSemanas = wc[pads[0]]?.semanas?.length || 52;
+  const totalNac = pads.reduce((a, p) => a + (wc[p]?.semanas || []).reduce((s, w) => s + w.pronostico, 0), 0);
+
+  const lines = [];
+  lines.push('**Timelapse epidemiologico**: animacion semana a semana del pronostico a 52 semanas.\n');
+  lines.push(`- ${pads.length} padecimientos, 32 entidades federativas`);
+  lines.push(`- Horizonte: ${nSemanas} semanas`);
+  lines.push(`- Total nacional pronosticado: **${fmt(totalNac)} casos**\n`);
+  lines.push('Usa los controles para reproducir, pausar o navegar por semana.');
+
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// SEMAFORO EPIDEMIOLOGICO — riesgo por entidad
+// ---------------------------------------------------------------------------
+
+function answerSemaforo(q, ent, s, d) {
+  const triggers = ['semaforo', 'semaforo epidemiologico', 'alerta', 'riesgo por estado', 'nivel de riesgo'];
+  if (!any(q, triggers)) return null;
+
+  const models = d.prod_models || [];
+  if (!models.length) return null;
+
+  // Agregar por estado (sexo=general, todos los pads)
+  const byEnt = {};
+  for (const m of models) {
+    if (m.sexo !== 'general') continue;
+    const e = m.entidad || '';
+    if (e === 'Nacional' || e.startsWith('region_') || e.startsWith('Region')) continue;
+    if (!byEnt[e]) byEnt[e] = { casos: 0, smapes: [], pads: {} };
+    byEnt[e].casos += m.casos_52_semanas_futuro || 0;
+    if (m.smape_prod != null) byEnt[e].smapes.push(m.smape_prod);
+    byEnt[e].pads[m.padecimiento] = (byEnt[e].pads[m.padecimiento] || 0) + (m.casos_52_semanas_futuro || 0);
+  }
+
+  // Calcular percentiles para umbrales
+  const casosArr = Object.values(byEnt).map(e => e.casos).sort((a, b) => a - b);
+  const p25 = casosArr[Math.floor(casosArr.length * 0.25)] || 0;
+  const p50 = casosArr[Math.floor(casosArr.length * 0.50)] || 0;
+  const p75 = casosArr[Math.floor(casosArr.length * 0.75)] || 0;
+
+  let verde = 0, amarillo = 0, naranja = 0, rojo = 0;
+  for (const data of Object.values(byEnt)) {
+    if (data.casos >= p75) { rojo++; }
+    else if (data.casos >= p50) { naranja++; }
+    else if (data.casos >= p25) { amarillo++; }
+    else { verde++; }
+  }
+
+  const sorted = Object.entries(byEnt).sort((a, b) => b[1].casos - a[1].casos);
+  const lines = [];
+  lines.push('**Semaforo epidemiologico**: clasificacion de riesgo por entidad federativa.\n');
+  lines.push(`| Nivel | Rango (casos 52 sem) | Estados |`);
+  lines.push(`|-------|---------------------:|--------:|`);
+  lines.push(`| Rojo | > ${fmt(p75)} | ${rojo} |`);
+  lines.push(`| Naranja | ${fmt(p50)} - ${fmt(p75)} | ${naranja} |`);
+  lines.push(`| Amarillo | ${fmt(p25)} - ${fmt(p50)} | ${amarillo} |`);
+  lines.push(`| Verde | < ${fmt(p25)} | ${verde} |`);
+
+  // Top alertas
+  const alerts = sorted.slice(0, 3);
+  lines.push('\n**Alertas (mayor incidencia):**');
+  for (const [e, data] of alerts) {
+    const topPad = Object.entries(data.pads).sort((a, b) => b[1] - a[1])[0];
+    lines.push(`- **${e}**: ${fmt(data.casos)} casos (principal: ${topPad ? topPad[0] : '?'})`);
+  }
+
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// REPORTE PDF — generar reporte descargable
+// ---------------------------------------------------------------------------
+
+function answerReportePDF(q, ent, s, d) {
+  const triggers = ['reporte pdf', 'generar reporte', 'exportar reporte', 'descargar reporte', 'reporte ejecutivo', 'imprimir reporte'];
+  if (!any(q, triggers)) return null;
+
+  const models = d.prod_models || [];
+  const wc = d.weekly_comparison || {};
+  const tc = d.training_config || {};
+
+  const totalCasos = models.filter(m => m.sexo === 'general')
+    .reduce((a, m) => a + (m.casos_52_semanas_futuro || 0), 0);
+  const pads = ['Depresion', 'Parkinson', 'Alzheimer'];
+
+  const lines = [];
+  lines.push('**Reporte ejecutivo generado.**\n');
+  lines.push('Se abrira una ventana de impresion con el reporte completo que incluye:\n');
+  lines.push('- Resumen ejecutivo con metricas globales');
+  lines.push('- Semaforo epidemiologico (32 estados)');
+  lines.push('- Pronostico a 52 semanas por padecimiento');
+  lines.push('- Top 10 entidades por incidencia');
+  lines.push('- Metricas de calidad por motor\n');
+  lines.push(`**Total nacional pronosticado**: ${fmt(totalCasos)} casos (${s.total_modelos || 333} modelos).`);
+
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
 // Cadena de handlers (orden de prioridad)
 // ---------------------------------------------------------------------------
 
 const HANDLERS = [
   answerSaludo, answerPadecimientoNoModelado, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerTemporal, answerProyectoMeta,
   answerTrainingConfig, answerSemanaActual, answerQueEsPadecimiento,
+  answerTimelapse, answerSemaforo, answerReportePDF,
   answerComparacionSemanal, answerMapaMexico, answerTreemap, answerRadar, answerSparklines, answerStackedArea,
   answerCorredor, answerErrorHeatmap, answerZoom,
   answerBoletin, answerHistorico, answerComparativaEstados, answerSpecificSeries, answerEstado, answerPadecimiento,
