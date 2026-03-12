@@ -1,5 +1,5 @@
 /* ============================================================
-   EpiForecast-MX — Clinical Noir Theme 2026
+   EpiForecast-MX — Clinical Mist Theme 2026
    Dark editorial aesthetic with IMSS institutional identity
    Fully responsive: 320px → ultrawide
    ============================================================ */
@@ -9,38 +9,38 @@
 /* ─── DESIGN TOKENS ─── */
 
 :root {
-  /* Surfaces */
-  --bg-deep: #060A09;
-  --bg-base: #0B1210;
-  --bg-raised: #101B17;
-  --bg-card: #132018;
-  --bg-card-hover: #17261E;
-  --bg-input: #0E1814;
-  --bg-glass: rgba(16, 27, 23, 0.75);
-  --bg-glass-hover: rgba(23, 38, 30, 0.85);
+  /* Surfaces — Clinical Mist */
+  --bg-deep: #0F1614;
+  --bg-base: #141D1A;
+  --bg-raised: #1A2723;
+  --bg-card: #1F2E29;
+  --bg-card-hover: #25362F;
+  --bg-input: #18231F;
+  --bg-glass: rgba(26, 39, 35, 0.80);
+  --bg-glass-hover: rgba(37, 54, 47, 0.88);
 
   /* IMSS Palette */
   --burgundy: #C83A5A;
-  --burgundy-dim: rgba(200, 58, 90, 0.15);
-  --burgundy-glow: rgba(200, 58, 90, 0.25);
+  --burgundy-dim: rgba(200, 58, 90, 0.18);
+  --burgundy-glow: rgba(200, 58, 90, 0.30);
   --teal: #2EC4A8;
-  --teal-dim: rgba(46, 196, 168, 0.12);
-  --teal-glow: rgba(46, 196, 168, 0.20);
+  --teal-dim: rgba(46, 196, 168, 0.15);
+  --teal-glow: rgba(46, 196, 168, 0.25);
   --gold: #D4A84B;
-  --gold-dim: rgba(212, 168, 75, 0.12);
-  --gold-glow: rgba(212, 168, 75, 0.20);
+  --gold-dim: rgba(212, 168, 75, 0.15);
+  --gold-glow: rgba(212, 168, 75, 0.25);
 
   /* Neutrals */
-  --text-primary: #E8F0EC;
-  --text-secondary: #8FA99D;
-  --text-muted: #5A7168;
-  --text-faint: #3D5248;
+  --text-primary: #EDF3EF;
+  --text-secondary: #A3BDB2;
+  --text-muted: #7A9A8D;
+  --text-faint: #506B60;
 
   /* Borders */
-  --border: rgba(46, 196, 168, 0.08);
-  --border-subtle: rgba(255, 255, 255, 0.04);
-  --border-accent: rgba(46, 196, 168, 0.18);
-  --border-hover: rgba(46, 196, 168, 0.25);
+  --border: rgba(46, 196, 168, 0.12);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-accent: rgba(46, 196, 168, 0.22);
+  --border-hover: rgba(46, 196, 168, 0.32);
 
   /* Radii */
   --r-sm: 8px;
@@ -50,12 +50,12 @@
   --r-pill: 100px;
 
   /* Shadows */
-  --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
-  --shadow-md: 0 4px 20px rgba(0,0,0,0.4);
-  --shadow-lg: 0 8px 40px rgba(0,0,0,0.5);
-  --shadow-glow-teal: 0 0 30px rgba(46, 196, 168, 0.1);
-  --shadow-glow-gold: 0 0 30px rgba(212, 168, 75, 0.08);
-  --shadow-glow-burg: 0 0 30px rgba(200, 58, 90, 0.08);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25), 0 1px 3px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.35), 0 2px 8px rgba(0, 0, 0, 0.20);
+  --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.40), 0 4px 16px rgba(0, 0, 0, 0.25);
+  --shadow-glow-teal: 0 0 20px rgba(46, 196, 168, 0.15), 0 0 60px rgba(46, 196, 168, 0.05);
+  --shadow-glow-gold: 0 0 20px rgba(212, 168, 75, 0.12), 0 0 60px rgba(212, 168, 75, 0.04);
+  --shadow-glow-burg: 0 0 20px rgba(200, 58, 90, 0.12), 0 0 60px rgba(200, 58, 90, 0.04);
 
   /* Typography */
   --font-body: 'Outfit', system-ui, -apple-system, sans-serif;
@@ -103,9 +103,9 @@ body::before {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(46, 196, 168, 0.04) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 90%, rgba(200, 58, 90, 0.03) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(212, 168, 75, 0.02) 0%, transparent 50%);
+    radial-gradient(ellipse 80% 60% at 15% 5%, rgba(46, 196, 168, 0.06) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 85% 95%, rgba(200, 58, 90, 0.04) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(212, 168, 75, 0.03) 0%, transparent 45%);
   pointer-events: none;
   z-index: 0;
 }
@@ -115,7 +115,7 @@ body::after {
   content: '';
   position: fixed;
   inset: 0;
-  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 0H0v40' fill='none' stroke='%23ffffff' stroke-opacity='0.015'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M40 0H0v40' fill='none' stroke='%23ffffff' stroke-opacity='0.025'/%3E%3C/svg%3E");
   pointer-events: none;
   z-index: 0;
 }
@@ -144,7 +144,7 @@ body::after {
   right: 10%;
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--teal) 30%, var(--gold) 70%, transparent);
-  opacity: 0.3;
+  opacity: 0.5;
 }
 
 .header-left {
@@ -427,7 +427,7 @@ body::after {
   padding: 5px 12px;
   border-radius: var(--r-pill);
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   transition: all var(--dur) var(--ease-out);
   font-family: var(--font-body);
@@ -458,6 +458,20 @@ body::after {
   scroll-behavior: smooth;
   position: relative;
   z-index: 1;
+}
+
+.chat-area::before {
+  content: '';
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  margin-bottom: -20px;
+  background: linear-gradient(to bottom, var(--bg-base), transparent);
+  pointer-events: none;
+  z-index: 2;
+  flex-shrink: 0;
 }
 
 .chat-area::-webkit-scrollbar {
@@ -540,11 +554,11 @@ body::after {
 }
 
 .msg-user .msg-bubble {
-  background: linear-gradient(135deg, rgba(200, 58, 90, 0.2), rgba(155, 34, 66, 0.15));
+  background: linear-gradient(135deg, rgba(200, 58, 90, 0.25), rgba(155, 34, 66, 0.18));
   color: var(--text-primary);
   border-radius: var(--r-lg) 4px var(--r-lg) var(--r-lg);
   padding: 12px 18px;
-  border: 1px solid rgba(200, 58, 90, 0.15);
+  border: 1px solid rgba(200, 58, 90, 0.20);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
@@ -649,6 +663,7 @@ body::after {
   -webkit-backdrop-filter: blur(12px);
   transition: all var(--dur) var(--ease-out);
   box-shadow: var(--shadow-sm);
+  border-left: 2px solid rgba(46, 196, 168, 0.25);
 }
 
 .msg-bubble-bot:hover {
@@ -740,7 +755,7 @@ body::after {
 }
 
 .msg-content th {
-  background: var(--bg-raised);
+  background: rgba(46, 196, 168, 0.08);
   font-weight: 700;
   color: var(--teal);
   font-size: 10px;
@@ -866,7 +881,7 @@ body::after {
 
 .input-wrapper:focus-within {
   border-color: var(--teal);
-  box-shadow: 0 0 0 4px rgba(46, 196, 168, 0.08), var(--shadow-glow-teal);
+  box-shadow: 0 0 0 4px rgba(46, 196, 168, 0.10), var(--shadow-glow-teal);
   background: var(--bg-card);
 }
 
