@@ -6001,5 +6001,50 @@
     "mustContain": [],
     "mustNotContain": [],
     "checkEntities": {}
+  },
+  {
+    "id": 566,
+    "query": "y cuantos habiamos dicho que habria?",
+    "setupQuery": "cuantos casos llegaron esta semana",
+    "expectedHandler": "answerComparacionSemanal",
+    "mustContain": ["Pronostico", "Real"],
+    "mustNotContain": ["52 semanas"],
+    "checkEntities": {}
+  },
+  {
+    "id": 567,
+    "query": "cuantos se esperaba que hubiera?",
+    "setupQuery": "cuantos casos nuevos hay esta semana",
+    "expectedHandler": "answerComparacionSemanal",
+    "mustContain": ["Pronostico", "Real"],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 568,
+    "query": "compara solo la semana 8",
+    "setupQuery": "comparalo contra el pronostico",
+    "expectedHandler": "answerComparacionSemanal",
+    "mustContain": ["Pronostico", "Real"],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 569,
+    "query": "compara la semana 8",
+    "setupQuery": "cuantos casos llegaron esta semana",
+    "expectedHandler": "answerComparacionSemanal",
+    "mustContain": ["Pronostico", "Real"],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 570,
+    "query": "cuantos habiamos pronosticado?",
+    "setupQuery": "cuantos casos llegaron esta semana de parkinson",
+    "expectedHandler": "answerComparacionSemanal",
+    "mustContain": ["Pronostico", "Real"],
+    "mustNotContain": ["52 semanas"],
+    "checkEntities": {}
   }
 ]
