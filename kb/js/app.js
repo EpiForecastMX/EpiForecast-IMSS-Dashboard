@@ -703,22 +703,47 @@ function extractChartData(markdown, query) {
       }
     }
 
-    // General -> donut por padecimiento
-    const pp = s.por_pad;
-    if (pp) {
-      const entries = Object.entries(pp).filter(([, v]) => v.casos_futuro_total);
-      if (entries.length) {
-        return {
-          type: 'doughnut',
-          title: 'Pronóstico 52 semanas por padecimiento',
-          labels: entries.map(([k]) => k),
-          datasets: [{
-            data: entries.map(([, v]) => v.casos_futuro_total),
-            backgroundColor: CHART_COLORS.slice(0, entries.length),
-            borderWidth: 0,
-          }],
-        };
+    // General -> 3 bar charts semanales (uno por padecimiento)
+    const wc = data.weekly_comparison;
+    if (wc) {
+      const padColors = { Depresion: '#2EC4A8', Parkinson: '#D4A84B', Alzheimer: '#C83A5A' };
+      const charts = [];
+      for (const [pad, info] of Object.entries(wc)) {
+        const sems = info.semanas || [];
+        if (!sems.length) continue;
+        const labels = sems.map(s => `S${String(s.semana).padStart(2, '0')}`);
+        const datasets = [{
+          label: 'Pronóstico',
+          data: sems.map(s => s.pronostico),
+          backgroundColor: sems.map(s => s.real != null ? padColors[pad] + 'AA' : padColors[pad] + '55'),
+          borderRadius: 2,
+        }];
+        // Superponer datos reales donde existan
+        const realData = sems.map(s => s.real != null ? s.real : null);
+        if (realData.some(v => v != null)) {
+          datasets.push({
+            label: 'Real',
+            data: realData,
+            backgroundColor: '#ffffffCC',
+            borderColor: padColors[pad],
+            borderWidth: 1.5,
+            borderRadius: 2,
+          });
+        }
+        charts.push({
+          type: 'bar',
+          title: `${pad} - pronóstico semanal (${info.modelo_productivo || ''})`,
+          labels,
+          datasets,
+          options: {
+            scales: {
+              x: { ticks: { maxRotation: 90, font: { size: 9 } } },
+              y: { beginAtZero: true },
+            },
+          },
+        });
       }
+      if (charts.length) return charts;
     }
   }
 
