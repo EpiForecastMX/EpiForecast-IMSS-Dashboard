@@ -117,9 +117,67 @@ async function init() {
   const promptMenuClose = document.getElementById('promptMenuClose');
 
   if (promptToggle && promptMenu) {
+    // Pool of entity/data prompts — 6 random picks shown each time
+    const ENTITY_PROMPTS = [
+      { text: 'Depresion en Jalisco', q: 'depresion en Jalisco' },
+      { text: 'Depresion en CDMX', q: 'depresion en Ciudad de Mexico' },
+      { text: 'Depresion en Nuevo Leon', q: 'depresion en Nuevo Leon' },
+      { text: 'Parkinson en Sonora', q: 'parkinson en Sonora' },
+      { text: 'Parkinson en Veracruz', q: 'parkinson en Veracruz' },
+      { text: 'Parkinson en Chihuahua', q: 'parkinson en Chihuahua' },
+      { text: 'Alzheimer en Puebla', q: 'alzheimer en Puebla' },
+      { text: 'Alzheimer en Guanajuato', q: 'alzheimer en Guanajuato' },
+      { text: 'Alzheimer en Yucatan', q: 'alzheimer en Yucatan' },
+      { text: 'Top entidades', q: 'ranking entidades por incidencia' },
+      { text: 'Resumen 2024', q: 'resumen epidemiologico 2024' },
+      { text: 'Resumen 2023', q: 'resumen epidemiologico 2023' },
+      { text: 'Hombres vs Mujeres', q: 'depresion hombres vs mujeres' },
+      { text: 'Parkinson por sexo', q: 'parkinson hombres vs mujeres' },
+      { text: 'Jalisco vs Nuevo Leon', q: 'compara Jalisco y Nuevo Leon' },
+      { text: 'CDMX vs Estado de Mexico', q: 'compara Ciudad de Mexico y Mexico' },
+      { text: 'Sonora vs Chihuahua', q: 'compara Sonora y Chihuahua' },
+      { text: 'Oaxaca vs Guerrero', q: 'compara Oaxaca y Guerrero' },
+      { text: 'Baja California', q: 'pronostico Baja California' },
+      { text: 'Tabasco', q: 'pronostico Tabasco' },
+      { text: 'Michoacan', q: 'pronostico Michoacan' },
+      { text: 'Quintana Roo', q: 'pronostico Quintana Roo' },
+      { text: 'Sinaloa', q: 'pronostico Sinaloa' },
+      { text: 'Coahuila', q: 'pronostico Coahuila' },
+      { text: 'Tamaulipas', q: 'pronostico Tamaulipas' },
+      { text: 'Chiapas', q: 'pronostico Chiapas' },
+      { text: 'Region Norte', q: 'region norte' },
+      { text: 'Region Sur', q: 'region sur' },
+    ];
+
+    const entidadesContainer = document.getElementById('promptEntidades');
+
+    function fillRandomEntidades() {
+      if (!entidadesContainer) return;
+      // Keep the label, remove old buttons
+      const label = entidadesContainer.querySelector('.prompt-cat-label');
+      entidadesContainer.innerHTML = '';
+      if (label) entidadesContainer.appendChild(label);
+      // Pick 6 random
+      const shuffled = [...ENTITY_PROMPTS].sort(() => Math.random() - 0.5);
+      const picks = shuffled.slice(0, 6);
+      for (const p of picks) {
+        const btn = document.createElement('button');
+        btn.className = 'prompt-item';
+        btn.dataset.q = p.q;
+        btn.textContent = p.text;
+        btn.addEventListener('click', () => {
+          closePromptMenu();
+          inputField.value = p.q;
+          handleSend();
+        });
+        entidadesContainer.appendChild(btn);
+      }
+    }
+
     function togglePromptMenu() {
       const isOpen = promptMenu.classList.toggle('open');
       promptToggle.classList.toggle('active', isOpen);
+      if (isOpen) fillRandomEntidades();
     }
     function closePromptMenu() {
       promptMenu.classList.remove('open');
@@ -129,7 +187,7 @@ async function init() {
     promptToggle.addEventListener('click', togglePromptMenu);
     if (promptMenuClose) promptMenuClose.addEventListener('click', closePromptMenu);
 
-    // Click a prompt item → send it
+    // Click a prompt item → send it (for static items)
     promptMenu.querySelectorAll('.prompt-item').forEach(btn => {
       btn.addEventListener('click', () => {
         const q = btn.dataset.q;
