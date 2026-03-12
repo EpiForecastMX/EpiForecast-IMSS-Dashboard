@@ -536,18 +536,18 @@ function buildErrorHeatmap(data, qn) {
       return Math.abs(((s.pronostico - s.real) / s.real) * 100);
     });
     const color = padColors[pad] || '#2EC4A8';
-    // Color por intensidad: verde (<15%), amarillo (15-40%), rojo (>40%)
+    // Color del padecimiento, opacidad segun error: alta (>40%), media (15-40%), baja (<15%)
     const bgColors = errors.map(e => {
-      if (e <= 15) return '#2EC4A8CC';
-      if (e <= 40) return '#D4A84BCC';
-      return '#C83A5ACC';
+      if (e > 40) return color + 'FF';  // solido = error alto
+      if (e > 15) return color + '99';  // semi = error medio
+      return color + '55';              // tenue = error bajo (bueno)
     });
     datasets.push({
       label: pad,
       data: errors.map(e => Math.round(e * 10) / 10),
       backgroundColor: bgColors,
-      borderColor: bgColors.map(c => c.replace('CC', '')),
-      borderWidth: 1,
+      borderColor: color,
+      borderWidth: 1.5,
       borderRadius: 3,
     });
   }
