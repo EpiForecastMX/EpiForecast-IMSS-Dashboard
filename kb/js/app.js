@@ -634,7 +634,8 @@ function extractChartData(markdown, query) {
   const entPre = detectEntities(query);
   const hasHistYear = entPre._years && entPre._years.length > 0;
   const isWeeklyReq = qn.includes('por semana') || qn.includes('semanal');
-  if (qn.includes('pronostico') || qn.includes('forecast') || qn.includes('prediccion') ||
+  if (qn.includes('pronostic') || qn.includes('forecast') || qn.includes('predicci') ||
+      (qn.includes('caso') && (qn.includes('52 semana') || qn.includes('futuro') || qn.includes('esperan') || qn.includes('siguientes'))) ||
       (qn.includes('grafico') && (qn.includes('caso') || qn.includes('semana')) && !hasHistYear && !isWeeklyReq)) {
 
     const ent = detectEntities(query);
