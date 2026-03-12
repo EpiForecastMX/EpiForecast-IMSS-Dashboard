@@ -1048,6 +1048,15 @@ function extractChartData(markdown, query) {
     };
   }
 
+  // Fallback: si se detecto un padecimiento, mostrar tendencia historica
+  {
+    const entFb = detectEntities(query);
+    if (entFb.padecimiento) {
+      const chart = buildTrendChart(data, qn);
+      if (chart) return chart;
+    }
+  }
+
   return null;
 }
 
