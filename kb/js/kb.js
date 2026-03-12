@@ -2213,6 +2213,10 @@ function answerConteo(q, ent, s, d) {
   // Si tiene pad+estado o meses, dejar que otros handlers se encarguen
   if ((ent.padecimiento && ent.estado) || (ent._months || []).length > 0) return null;
 
+  // Si pregunta por casos/pronosticos, ceder a answerPronostico
+  const pronoWords = ['caso', 'pronostic', 'predicci', 'esperado', 'esperan', 'futuro', '52 semana', 'proxima'];
+  if (pronoWords.some(w => q.includes(w))) return null;
+
   const pad = ent.padecimiento, estado = ent.estado;
   const lines = [];
 
@@ -2244,9 +2248,10 @@ function answerConteo(q, ent, s, d) {
 
 function answerPronostico(q, ent, s, d) {
   const triggers = [
-    'pronostic', 'casos futuro', 'futuro 52', '52 semanas', 'proximas', 'forecast',
+    'pronostic', 'casos futuro', 'futuro 52', '52 semanas', 'proximas', 'siguientes', 'forecast',
     'prediccion', 'predice', 'predecir', 'casos esperado', 'se esperan', 'se espera',
     'se estima', 'se estiman', 'habra', 'va a haber',
+    'cuantos caso', 'cuantas caso',
   ];
   if (!any(q, triggers)) return null;
 

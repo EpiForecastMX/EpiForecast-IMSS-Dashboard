@@ -1709,11 +1709,13 @@
   {
     "id": 150,
     "query": "cuantos casos se pronostican",
-    "expectedHandler": "answerConteo",
+    "expectedHandler": "answerPronostico",
     "mustContain": [
-      "333"
+      "52 semanas"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "modelos en producci"
+    ],
     "checkEntities": {}
   },
   {
@@ -4849,11 +4851,13 @@
   {
     "id": 452,
     "query": "cuantos casos se esperan",
-    "expectedHandler": "*",
+    "expectedHandler": "answerPronostico",
     "mustContain": [
-      "333"
+      "52 semanas"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "modelos en producci"
+    ],
     "checkEntities": {},
     "setupQuery": "metricas del parkinson"
   },
@@ -6007,8 +6011,13 @@
     "query": "y cuantos habiamos dicho que habria?",
     "setupQuery": "cuantos casos llegaron esta semana",
     "expectedHandler": "answerComparacionSemanal",
-    "mustContain": ["Pronostico", "Real"],
-    "mustNotContain": ["52 semanas"],
+    "mustContain": [
+      "Pronostico",
+      "Real"
+    ],
+    "mustNotContain": [
+      "52 semanas"
+    ],
     "checkEntities": {}
   },
   {
@@ -6016,7 +6025,10 @@
     "query": "cuantos se esperaba que hubiera?",
     "setupQuery": "cuantos casos nuevos hay esta semana",
     "expectedHandler": "answerComparacionSemanal",
-    "mustContain": ["Pronostico", "Real"],
+    "mustContain": [
+      "Pronostico",
+      "Real"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6025,7 +6037,10 @@
     "query": "compara solo la semana 8",
     "setupQuery": "comparalo contra el pronostico",
     "expectedHandler": "answerComparacionSemanal",
-    "mustContain": ["Pronostico", "Real"],
+    "mustContain": [
+      "Pronostico",
+      "Real"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6034,7 +6049,10 @@
     "query": "compara la semana 8",
     "setupQuery": "cuantos casos llegaron esta semana",
     "expectedHandler": "answerComparacionSemanal",
-    "mustContain": ["Pronostico", "Real"],
+    "mustContain": [
+      "Pronostico",
+      "Real"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6043,8 +6061,13 @@
     "query": "cuantos habiamos pronosticado?",
     "setupQuery": "cuantos casos llegaron esta semana de parkinson",
     "expectedHandler": "answerComparacionSemanal",
-    "mustContain": ["Pronostico", "Real"],
-    "mustNotContain": ["52 semanas"],
+    "mustContain": [
+      "Pronostico",
+      "Real"
+    ],
+    "mustNotContain": [
+      "52 semanas"
+    ],
     "checkEntities": {}
   },
   {
@@ -6052,7 +6075,9 @@
     "query": "y en Jalisco?",
     "setupQuery": "cuantos casos hay de depresion en Nuevo Leon",
     "expectedHandler": "answerSpecificSeries",
-    "mustContain": ["Jalisco"],
+    "mustContain": [
+      "Jalisco"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6061,7 +6086,9 @@
     "query": "y para hombres?",
     "setupQuery": "pronostico de alzheimer en Ciudad de Mexico",
     "expectedHandler": "*",
-    "mustContain": ["hombre"],
+    "mustContain": [
+      "hombre"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6070,7 +6097,9 @@
     "query": "y el de mujeres?",
     "setupQuery": "pronostico de depresion en Sonora",
     "expectedHandler": "*",
-    "mustContain": ["mujer"],
+    "mustContain": [
+      "mujer"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6079,8 +6108,12 @@
     "query": "y en Chiapas?",
     "setupQuery": "datos del boletin de parkinson en Oaxaca",
     "expectedHandler": "*",
-    "mustContain": ["Chiapas"],
-    "mustNotContain": ["Oaxaca"],
+    "mustContain": [
+      "Chiapas"
+    ],
+    "mustNotContain": [
+      "Oaxaca"
+    ],
     "checkEntities": {}
   },
   {
@@ -6088,7 +6121,9 @@
     "query": "ahora muestra depresion",
     "setupQuery": "pronostico de parkinson en Jalisco",
     "expectedHandler": "*",
-    "mustContain": ["Depresion"],
+    "mustContain": [
+      "Depresion"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6097,7 +6132,9 @@
     "query": "y que hay de Tabasco?",
     "setupQuery": "incidencia de depresion en Veracruz",
     "expectedHandler": "*",
-    "mustContain": ["Tabasco"],
+    "mustContain": [
+      "Tabasco"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6106,7 +6143,9 @@
     "query": "pero de alzheimer",
     "setupQuery": "ranking de entidades por incidencia de depresion",
     "expectedHandler": "*",
-    "mustContain": ["Alzheimer"],
+    "mustContain": [
+      "Alzheimer"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6115,7 +6154,9 @@
     "query": "y en Baja California?",
     "setupQuery": "cuantos casos de depresion hay en Sinaloa",
     "expectedHandler": "*",
-    "mustContain": ["Baja California"],
+    "mustContain": [
+      "Baja California"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6124,7 +6165,10 @@
     "query": "dijimos que iba a haber mas o menos?",
     "setupQuery": "cuantos casos llegaron esta semana",
     "expectedHandler": "answerComparacionSemanal",
-    "mustContain": ["Pronostico", "Real"],
+    "mustContain": [
+      "Pronostico",
+      "Real"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6133,7 +6177,10 @@
     "query": "se esperaba mas o menos de lo que llego?",
     "setupQuery": "cuantos casos nuevos hay esta semana de depresion",
     "expectedHandler": "answerComparacionSemanal",
-    "mustContain": ["Pronostico", "Real"],
+    "mustContain": [
+      "Pronostico",
+      "Real"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6142,7 +6189,9 @@
     "query": "que modelo usa?",
     "setupQuery": "pronostico de alzheimer en Guerrero",
     "expectedHandler": "*",
-    "mustContain": ["Motor"],
+    "mustContain": [
+      "Motor"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6151,7 +6200,9 @@
     "query": "y para el general?",
     "setupQuery": "cuantos casos de depresion en Puebla para hombres",
     "expectedHandler": "*",
-    "mustContain": ["general"],
+    "mustContain": [
+      "general"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6160,7 +6211,9 @@
     "query": "y en Quintana Roo?",
     "setupQuery": "pronostico de parkinson en Yucatan",
     "expectedHandler": "*",
-    "mustContain": ["Quintana Roo"],
+    "mustContain": [
+      "Quintana Roo"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6169,7 +6222,10 @@
     "query": "cuanto pronosticamos para esa semana?",
     "setupQuery": "datos de la semana mas reciente",
     "expectedHandler": "answerComparacionSemanal",
-    "mustContain": ["Pronostico", "Real"],
+    "mustContain": [
+      "Pronostico",
+      "Real"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6178,7 +6234,10 @@
     "query": "le atinamos?",
     "setupQuery": "cuantos casos llegaron esta semana",
     "expectedHandler": "answerComparacionSemanal",
-    "mustContain": ["Pronostico", "Real"],
+    "mustContain": [
+      "Pronostico",
+      "Real"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6187,7 +6246,9 @@
     "query": "y tambien en Tamaulipas?",
     "setupQuery": "depresion en Nuevo Leon",
     "expectedHandler": "*",
-    "mustContain": ["Tamaulipas"],
+    "mustContain": [
+      "Tamaulipas"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6196,7 +6257,9 @@
     "query": "y del parkinson que sabes?",
     "setupQuery": "que es la depresion",
     "expectedHandler": "*",
-    "mustContain": ["Parkinson"],
+    "mustContain": [
+      "Parkinson"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6205,7 +6268,10 @@
     "query": "y como va contra el pronostico?",
     "setupQuery": "cuantos casos llegaron esta semana de alzheimer",
     "expectedHandler": "answerComparacionSemanal",
-    "mustContain": ["Pronostico", "Real"],
+    "mustContain": [
+      "Pronostico",
+      "Real"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6214,7 +6280,9 @@
     "query": "pero en Chihuahua",
     "setupQuery": "casos de depresion en Sonora",
     "expectedHandler": "*",
-    "mustContain": ["Chihuahua"],
+    "mustContain": [
+      "Chihuahua"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6223,7 +6291,9 @@
     "query": "y para mujeres como va?",
     "setupQuery": "pronostico de depresion en Jalisco",
     "expectedHandler": "*",
-    "mustContain": ["mujer"],
+    "mustContain": [
+      "mujer"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6232,7 +6302,10 @@
     "query": "cuantos iban a ser segun el modelo?",
     "setupQuery": "cuantos casos llegaron esta semana de parkinson",
     "expectedHandler": "answerComparacionSemanal",
-    "mustContain": ["Pronostico", "Real"],
+    "mustContain": [
+      "Pronostico",
+      "Real"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6241,7 +6314,9 @@
     "query": "y en Aguascalientes?",
     "setupQuery": "modelo de depresion en Guanajuato",
     "expectedHandler": "*",
-    "mustContain": ["Aguascalientes"],
+    "mustContain": [
+      "Aguascalientes"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6250,7 +6325,10 @@
     "query": "el pronostico decia que iban a ser mas?",
     "setupQuery": "ultimo dato del boletin",
     "expectedHandler": "answerComparacionSemanal",
-    "mustContain": ["Pronostico", "Real"],
+    "mustContain": [
+      "Pronostico",
+      "Real"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6259,7 +6337,9 @@
     "query": "y Michoacan?",
     "setupQuery": "cuantos casos de alzheimer en Jalisco",
     "expectedHandler": "*",
-    "mustContain": ["Michoac"],
+    "mustContain": [
+      "Michoac"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6268,7 +6348,10 @@
     "query": "pero solo semana 8",
     "setupQuery": "comparar pronostico vs real",
     "expectedHandler": "answerComparacionSemanal",
-    "mustContain": ["Pronostico", "Real"],
+    "mustContain": [
+      "Pronostico",
+      "Real"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6277,7 +6360,10 @@
     "query": "comparalo contra lo pronosticado",
     "setupQuery": "cuantos casos llegaron esta semana",
     "expectedHandler": "answerComparacionSemanal",
-    "mustContain": ["Pronostico", "Real"],
+    "mustContain": [
+      "Pronostico",
+      "Real"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6286,7 +6372,9 @@
     "query": "y en Coahuila que onda?",
     "setupQuery": "pronostico de depresion en Nuevo Leon",
     "expectedHandler": "*",
-    "mustContain": ["Coahuila"],
+    "mustContain": [
+      "Coahuila"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6295,7 +6383,10 @@
     "query": "esperabamos mas o menos casos?",
     "setupQuery": "datos recientes del boletin",
     "expectedHandler": "answerComparacionSemanal",
-    "mustContain": ["Pronostico", "Real"],
+    "mustContain": [
+      "Pronostico",
+      "Real"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6304,7 +6395,9 @@
     "query": "y para depresion en ese estado?",
     "setupQuery": "casos de parkinson en Veracruz",
     "expectedHandler": "*",
-    "mustContain": ["Depresion"],
+    "mustContain": [
+      "Depresion"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },
@@ -6313,8 +6406,106 @@
     "query": "cuanto se pronostico para esa semana?",
     "setupQuery": "cuantos casos nuevos hay esta semana",
     "expectedHandler": "answerComparacionSemanal",
-    "mustContain": ["Pronostico", "Real"],
+    "mustContain": [
+      "Pronostico",
+      "Real"
+    ],
     "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 601,
+    "query": "cuantos casos tienes pronosticados en las siguientes 52 semanas",
+    "expectedHandler": "answerPronostico",
+    "mustContain": [
+      "52 semanas"
+    ],
+    "mustNotContain": [
+      "modelos en producci"
+    ],
+    "checkEntities": {}
+  },
+  {
+    "id": 602,
+    "query": "cuantos casos hay pronosticados",
+    "expectedHandler": "answerPronostico",
+    "mustContain": [
+      "52 semanas"
+    ],
+    "mustNotContain": [
+      "modelos en producci"
+    ],
+    "checkEntities": {}
+  },
+  {
+    "id": 603,
+    "query": "cuantos casos esperas en el futuro",
+    "expectedHandler": "answerPronostico",
+    "mustContain": [
+      "52 semanas"
+    ],
+    "mustNotContain": [
+      "modelos en producci"
+    ],
+    "checkEntities": {}
+  },
+  {
+    "id": 604,
+    "query": "cuantos casos de depresion se pronostican para las proximas 52 semanas",
+    "expectedHandler": "answerPronostico",
+    "mustContain": [
+      "Depresion",
+      "casos"
+    ],
+    "mustNotContain": [
+      "modelos en producci"
+    ],
+    "checkEntities": {}
+  },
+  {
+    "id": 605,
+    "query": "cuantos modelos tienes",
+    "expectedHandler": "answerConteo",
+    "mustContain": [
+      "333"
+    ],
+    "mustNotContain": [
+      "52 semanas"
+    ],
+    "checkEntities": {}
+  },
+  {
+    "id": 606,
+    "query": "cuantos modelos tiene parkinson",
+    "expectedHandler": "answerConteo",
+    "mustContain": [
+      "111",
+      "modelo"
+    ],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 607,
+    "query": "que pronostico hay para las siguientes 52 semanas",
+    "expectedHandler": "answerPronostico",
+    "mustContain": [
+      "52 semanas"
+    ],
+    "mustNotContain": [],
+    "checkEntities": {}
+  },
+  {
+    "id": 608,
+    "query": "cuantos casos de alzheimer se esperan",
+    "expectedHandler": "answerPronostico",
+    "mustContain": [
+      "Alzheimer",
+      "casos"
+    ],
+    "mustNotContain": [
+      "modelos en producci"
+    ],
     "checkEntities": {}
   }
 ]
