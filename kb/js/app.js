@@ -6,7 +6,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=65';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=66';
 import { detectEntities, norm } from './entities.js?v=25';
 import { renderMexicoMap } from './mexico-map.js?v=1';
 
@@ -306,11 +306,17 @@ async function handleSend() {
     try {
       chartData = extractChartData(result, text);
       // If no chart but we had a previous chart query, try merging context
+      // Only merge for short follow-up queries (e.g. "y en 2024?"), not full new queries
       if (!chartData && lastChartQuery) {
-        const ent = detectEntities(text);
-        if (ent._years && ent._years.length) {
-          const merged = lastChartQuery.replace(/\b20[0-3]\d\b/g, '') + ' ' + text;
-          chartData = extractChartData(result, merged);
+        const tn = text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const isShortFollowUp = text.split(/\s+/).length <= 5;
+        const isNewTopic = /(resumen|que es|explicam|como funciona|cuantos modelo|alcance|equipo|infraestructura)/.test(tn);
+        if (isShortFollowUp && !isNewTopic) {
+          const ent = detectEntities(text);
+          if (ent._years && ent._years.length) {
+            const merged = lastChartQuery.replace(/\b20[0-3]\d\b/g, '') + ' ' + text;
+            chartData = extractChartData(result, merged);
+          }
         }
       }
     } catch (err) {
@@ -411,11 +417,18 @@ function addBotMessage(markdown, source, suggestions, chartData) {
   let isMapChart = false;
   const chartList = chartData ? (Array.isArray(chartData) ? chartData : [chartData]) : [];
 
-  // Special case: SVG map chart
-  if (chartList.length === 1 && chartList[0]._mapChart) {
+  // Special case: SVG map chart(s)
+  const mapCharts = chartList.filter(c => c._mapChart);
+  if (mapCharts.length && mapCharts.length === chartList.length) {
     isMapChart = true;
-    const mapId = `map-${++chartCounter}`;
-    chartHtml = `<div class="msg-chart-container" id="${mapId}"></div>`;
+    if (mapCharts.length === 1) {
+      const mapId = `map-${++chartCounter}`;
+      chartHtml = `<div class="msg-chart-container" id="${mapId}"></div>`;
+    } else {
+      chartHtml = '<div class="msg-chart-stack">' +
+        mapCharts.map(() => `<div class="msg-chart-container" id="map-${++chartCounter}"></div>`).join('') +
+        '</div>';
+    }
   } else if (chartList.length) {
     const ids = chartList.map(() => `chart-${++chartCounter}`);
     if (chartList.length > 1) {
@@ -460,11 +473,11 @@ function addBotMessage(markdown, source, suggestions, chartData) {
   // Render charts
   if (isMapChart) {
     requestAnimationFrame(() => {
-      const mapContainer = div.querySelector('.msg-chart-container');
-      if (mapContainer) {
-        const mc = chartList[0];
-        renderMexicoMap(mapContainer, mc.stateData, mc.opts);
-      }
+      const containers = div.querySelectorAll('.msg-chart-container');
+      const maps = chartList.filter(c => c._mapChart);
+      containers.forEach((container, i) => {
+        if (maps[i]) renderMexicoMap(container, maps[i].stateData, maps[i].opts);
+      });
     });
   } else if (chartList.length) {
     requestAnimationFrame(() => {
@@ -843,46 +856,76 @@ function buildMexicoMap(data, qn) {
   const models = data.prod_models || [];
   if (!models.length) return null;
 
-  // Detectar que metrica mostrar
   const q = (qn || '').toLowerCase();
-  let mode = 'casos'; // default
+  let mode = 'casos';
   if (q.includes('smape') || q.includes('error') || q.includes('precision')) mode = 'smape';
 
-  // Aggregate by entity (only general sex, only real states)
-  const byEnt = {};
-  for (const m of models) {
-    if (m.sexo !== 'general') continue;
-    const ent = m.entidad;
-    if (!ent || ent === 'Nacional' || ent.startsWith('Region')) continue;
-    if (!byEnt[ent]) byEnt[ent] = { casos: 0, smapeSum: 0, count: 0 };
-    byEnt[ent].casos += (m.casos_52_semanas_futuro || 0);
-    byEnt[ent].smapeSum += (m.smape_prod || 0);
-    byEnt[ent].count += 1;
+  // Detectar padecimiento
+  const padNames = ['Depresion', 'Parkinson', 'Alzheimer'];
+  const padAliases = { depresion: 'Depresion', depression: 'Depresion', f32: 'Depresion',
+    parkinson: 'Parkinson', g20: 'Parkinson', alzheimer: 'Alzheimer', g30: 'Alzheimer' };
+  let filterPad = null;
+  for (const [alias, pad] of Object.entries(padAliases)) {
+    if (q.includes(alias)) { filterPad = pad; break; }
   }
 
-  const stateData = {};
-  for (const [ent, d] of Object.entries(byEnt)) {
-    if (mode === 'smape') {
-      const avg = d.count ? (d.smapeSum / d.count) : 0;
-      stateData[ent] = { value: Math.round(avg * 10) / 10, label: 'SMAPE prom: ' + avg.toFixed(1) + '%' };
-    } else {
-      stateData[ent] = { value: d.casos, label: d.casos.toLocaleString() + ' casos (52 sem)' };
+  // Detectar sexo
+  const sexoAliases = { hombres: 'hombres', hombre: 'hombres', masculino: 'hombres',
+    mujeres: 'mujeres', mujer: 'mujeres', femenino: 'mujeres' };
+  let filterSexo = 'general';
+  for (const [alias, sexo] of Object.entries(sexoAliases)) {
+    if (q.includes(alias)) { filterSexo = sexo; break; }
+  }
+
+  const sexoLabel = { general: 'ambos sexos', hombres: 'hombres', mujeres: 'mujeres' };
+
+  // Funcion para construir un mapa individual
+  function buildSingleMap(padFilter, sexFilter) {
+    const byEnt = {};
+    for (const m of models) {
+      if (m.sexo !== sexFilter) continue;
+      if (padFilter && m.padecimiento !== padFilter) continue;
+      const ent = m.entidad;
+      if (!ent || ent === 'Nacional' || ent.startsWith('Region') || ent.startsWith('region_')) continue;
+      if (!byEnt[ent]) byEnt[ent] = { casos: 0, smapeSum: 0, count: 0 };
+      byEnt[ent].casos += (m.casos_52_semanas_futuro || 0);
+      byEnt[ent].smapeSum += (m.smape_prod || 0);
+      byEnt[ent].count += 1;
     }
+    if (!Object.keys(byEnt).length) return null;
+
+    const stateData = {};
+    for (const [ent, d] of Object.entries(byEnt)) {
+      if (mode === 'smape') {
+        const avg = d.count ? (d.smapeSum / d.count) : 0;
+        stateData[ent] = { value: Math.round(avg * 10) / 10, label: 'SMAPE prom: ' + avg.toFixed(1) + '%' };
+      } else {
+        stateData[ent] = { value: d.casos, label: d.casos.toLocaleString() + ' casos (52 sem)' };
+      }
+    }
+
+    const padLabel = padFilter || 'todos los padecimientos';
+    const sexLabel = sexoLabel[sexFilter] || sexFilter;
+    const colorOpts = mode === 'smape'
+      ? { lowColor: [46, 196, 168], highColor: [200, 58, 90], metric: 'SMAPE %' }
+      : { lowColor: [30, 60, 50], highColor: [46, 196, 168], metric: 'casos' };
+    const titleMode = mode === 'smape'
+      ? 'SMAPE: ' + padLabel + ' (' + sexLabel + ')'
+      : padLabel + ' (' + sexLabel + ') - casos 52 sem';
+
+    return { _mapChart: true, stateData, opts: { title: titleMode, ...colorOpts } };
   }
 
-  const colorOpts = mode === 'smape'
-    ? { lowColor: [46, 196, 168], highColor: [200, 58, 90], metric: 'SMAPE %' }
-    : { lowColor: [30, 60, 50], highColor: [46, 196, 168], metric: 'casos' };
+  // Si hay padecimiento especifico, un solo mapa
+  if (filterPad) {
+    return buildSingleMap(filterPad, filterSexo);
+  }
 
-  const titleMode = mode === 'smape'
-    ? 'SMAPE promedio por entidad'
-    : 'Pronostico de casos por entidad (52 semanas)';
-
-  return {
-    _mapChart: true,
-    stateData,
-    opts: { title: titleMode, ...colorOpts },
-  };
+  // Sin padecimiento especifico: generar 3 mapas (uno por padecimiento)
+  const maps = padNames.map(pad => buildSingleMap(pad, filterSexo)).filter(Boolean);
+  if (maps.length === 1) return maps[0];
+  if (maps.length > 1) return maps;
+  return null;
 }
 
 /**
@@ -1413,6 +1456,36 @@ function extractChartData(markdown, query) {
     if (chart) return chart;
   }
 
+  // Resumen epidemiologico con año → bar chart por padecimiento
+  if (qn.includes('resumen') && qn.includes('epidemiolog')) {
+    const anual = data.boletin?.anual_por_pad;
+    if (anual) {
+      const ent = detectEntities(query);
+      const years = ent._years && ent._years.length ? ent._years : [];
+      if (years.length) {
+        const pads = Object.keys(anual);
+        const padColors = { Depresion: '#2EC4A8', Parkinson: '#D4A84B', Alzheimer: '#C83A5A' };
+        const labels = years.map(String);
+        const datasets = pads.map(pad => ({
+          label: pad,
+          data: years.map(y => anual[pad]?.[String(y)] || 0),
+          backgroundColor: (padColors[pad] || '#2EC4A8') + 'CC',
+          borderColor: padColors[pad] || '#2EC4A8',
+          borderWidth: 2,
+          borderRadius: 4,
+        }));
+        if (datasets.some(ds => ds.data.some(v => v > 0))) {
+          return {
+            type: 'bar',
+            title: `Resumen epidemiologico ${years.join(', ')}`,
+            labels,
+            datasets,
+          };
+        }
+      }
+    }
+  }
+
   // Tendencia historica -> line
   if (qn.includes('tendencia') || qn.includes('historica') || qn.includes('evolucion')) {
     const chart = buildTrendChart(data, qn);
@@ -1875,7 +1948,7 @@ function getSuggestions(query) {
   if (q.includes('tendencia'))
     return [{ text: 'Zoom semanal', q: 'zoom semanal' }, { text: 'Corredor de confianza', q: 'corredor de confianza' }];
   if (q.includes('mapa') && (q.includes('mexico') || q.includes('republica')))
-    return [{ text: 'Mapa por SMAPE', q: 'mapa de mexico por smape' }, { text: 'Treemap entidades', q: 'panorama nacional treemap' }];
+    return [{ text: 'Mapa Depresion', q: 'mapa de mexico depresion' }, { text: 'Mapa Parkinson', q: 'mapa de mexico parkinson' }, { text: 'Mapa por SMAPE', q: 'mapa de mexico por smape' }];
   if (q.includes('treemap'))
     return [{ text: 'Mapa de Mexico', q: 'mapa de mexico por casos' }, { text: 'Radar motores', q: 'radar comparativo de motores' }];
   return null;

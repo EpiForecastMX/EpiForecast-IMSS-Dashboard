@@ -1581,42 +1581,82 @@ function answerMapaMexico(q, ent, s, d) {
   if (!models.length) return null;
 
   const isSmape = any(q, ['smape', 'error', 'precision']);
-  const metric = isSmape ? 'SMAPE' : 'casos';
 
-  const byEnt = {};
-  for (const m of models) {
-    if (m.sexo !== 'general') continue;
-    const e = m.entidad || '';
-    if (e === 'Nacional' || e.startsWith('region_') || e.startsWith('Region')) continue;
-    if (!byEnt[e]) byEnt[e] = { casos: 0, smapes: [] };
-    byEnt[e].casos += m.casos_52_semanas_futuro || 0;
-    if (m.smape_prod != null) byEnt[e].smapes.push(m.smape_prod);
+  // Detectar padecimiento
+  const padAliases = { depresion: 'Depresion', depression: 'Depresion', f32: 'Depresion',
+    parkinson: 'Parkinson', g20: 'Parkinson', alzheimer: 'Alzheimer', g30: 'Alzheimer' };
+  let filterPad = ent.padecimiento || null;
+  if (!filterPad) {
+    for (const [alias, pad] of Object.entries(padAliases)) {
+      if (q.includes(alias)) { filterPad = pad; break; }
+    }
   }
 
-  const sorted = Object.entries(byEnt)
-    .map(([e, d]) => ({ e, casos: d.casos, smape: d.smapes.length ? d.smapes.reduce((a, v) => a + v, 0) / d.smapes.length : null }))
-    .sort((a, b) => b.casos - a.casos);
+  // Detectar sexo
+  const sexoAliases = { hombres: 'hombres', hombre: 'hombres', masculino: 'hombres',
+    mujeres: 'mujeres', mujer: 'mujeres', femenino: 'mujeres' };
+  let filterSexo = ent.sexo || 'general';
+  if (filterSexo === 'general') {
+    for (const [alias, sexo] of Object.entries(sexoAliases)) {
+      if (q.includes(alias)) { filterSexo = sexo; break; }
+    }
+  }
 
-  const totalCasos = sorted.reduce((a, e) => a + e.casos, 0);
+  const sexoLabel = { general: 'ambos sexos', hombres: 'hombres', mujeres: 'mujeres' };
+
+  // Funcion para agregar datos de un filtro
+  function aggregateMap(padFilter, sexFilter) {
+    const byEnt = {};
+    for (const m of models) {
+      if (m.sexo !== sexFilter) continue;
+      if (padFilter && m.padecimiento !== padFilter) continue;
+      const e = m.entidad || '';
+      if (e === 'Nacional' || e.startsWith('region_') || e.startsWith('Region')) continue;
+      if (!byEnt[e]) byEnt[e] = { casos: 0, smapes: [] };
+      byEnt[e].casos += m.casos_52_semanas_futuro || 0;
+      if (m.smape_prod != null) byEnt[e].smapes.push(m.smape_prod);
+    }
+    return Object.entries(byEnt)
+      .map(([e, d]) => ({ e, casos: d.casos, smape: d.smapes.length ? d.smapes.reduce((a, v) => a + v, 0) / d.smapes.length : null }))
+      .sort((a, b) => b.casos - a.casos);
+  }
 
   const lines = [];
-  lines.push(`**Mapa de la Republica Mexicana**: pronostico por entidad (${sorted.length} estados).\n`);
 
-  if (isSmape) {
-    lines.push('Color: verde (buen SMAPE) a rojo (alto SMAPE).\n');
+  if (filterPad) {
+    // Mapa para un padecimiento especifico
+    const sorted = aggregateMap(filterPad, filterSexo);
+    const totalCasos = sorted.reduce((a, e) => a + e.casos, 0);
+    lines.push(`**Mapa de Mexico - ${filterPad}** (${sexoLabel[filterSexo]}, ${sorted.length} estados)\n`);
+    if (isSmape) {
+      lines.push('Color: verde (buen SMAPE) a rojo (alto SMAPE).\n');
+    } else {
+      lines.push('Color: mas oscuro = menor incidencia, mas claro = mayor incidencia.\n');
+    }
+    lines.push('**Top 5 entidades**:');
+    lines.push('| Entidad | Casos (52 sem) | SMAPE prom |');
+    lines.push('|---------|---------------:|-----------:|');
+    for (const e of sorted.slice(0, 5)) {
+      lines.push(`| ${e.e} | ${fmt(e.casos)} | ${e.smape != null ? e.smape.toFixed(1) + '%' : '?'} |`);
+    }
+    lines.push(`\n**Total**: **${fmt(totalCasos)} casos** pronosticados (52 semanas).`);
   } else {
-    lines.push('Color: mas oscuro = menor incidencia, mas claro = mayor incidencia.\n');
+    // 3 mapas: uno por padecimiento
+    const pads = ['Depresion', 'Parkinson', 'Alzheimer'];
+    lines.push(`**Mapa de la Republica Mexicana** por padecimiento (${sexoLabel[filterSexo]})\n`);
+    if (isSmape) {
+      lines.push('Color: verde (buen SMAPE) a rojo (alto SMAPE).\n');
+    } else {
+      lines.push('Color: mas oscuro = menor incidencia, mas claro = mayor incidencia.\n');
+    }
+    for (const pad of pads) {
+      const sorted = aggregateMap(pad, filterSexo);
+      const totalCasos = sorted.reduce((a, e) => a + e.casos, 0);
+      const top3 = sorted.slice(0, 3);
+      lines.push(`**${pad}** - ${fmt(totalCasos)} casos totales:`);
+      lines.push(`  Top 3: ${top3.map(e => e.e + ' (' + fmt(e.casos) + ')').join(', ')}`);
+    }
   }
-
-  const top5 = sorted.slice(0, 5);
-  lines.push('**Top 5 entidades**:');
-  lines.push('| Entidad | Casos (52 sem) | SMAPE prom |');
-  lines.push('|---------|---------------:|-----------:|');
-  for (const e of top5) {
-    lines.push(`| ${e.e} | ${fmt(e.casos)} | ${e.smape != null ? e.smape.toFixed(1) + '%' : '?'} |`);
-  }
-
-  lines.push(`\n**Total nacional**: **${fmt(totalCasos)} casos** pronosticados (52 semanas).`);
 
   return lines.join('\n');
 }
