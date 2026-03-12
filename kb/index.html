@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=32">
+  <link rel="stylesheet" href="css/style.css?v=33">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <style>
@@ -291,6 +291,174 @@
       overflow-y: auto;
     }
 
+    /* ═══════════ PROMPT MENU ═══════════ */
+
+    .prompt-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+      background: none;
+      border: none;
+      color: var(--text-muted, #7A9A8D);
+      cursor: pointer;
+      border-radius: 10px;
+      margin-left: 4px;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+
+    .prompt-toggle:hover {
+      color: #2EC4A8;
+      background: rgba(46, 196, 168, 0.08);
+    }
+
+    .prompt-toggle.active {
+      color: #2EC4A8;
+      background: rgba(46, 196, 168, 0.12);
+    }
+
+    .prompt-menu {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      background: rgba(26, 39, 35, 0.98);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(46, 196, 168, 0.15);
+      border-radius: 16px;
+      box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(46, 196, 168, 0.05);
+      opacity: 0;
+      transform: translateY(12px) scale(0.97);
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 200;
+      max-height: 60vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .prompt-menu.open {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+
+    .prompt-menu-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px 10px;
+      border-bottom: 1px solid rgba(46, 196, 168, 0.08);
+      flex-shrink: 0;
+    }
+
+    .prompt-menu-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #EDF3EF;
+      letter-spacing: -0.2px;
+    }
+
+    .prompt-menu-title svg {
+      color: #2EC4A8;
+    }
+
+    .prompt-menu-close {
+      background: none;
+      border: none;
+      color: #7A9A8D;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .prompt-menu-close:hover {
+      color: #EDF3EF;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .prompt-menu-body {
+      overflow-y: auto;
+      padding: 10px 14px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(46, 196, 168, 0.22) transparent;
+    }
+
+    .prompt-menu-body::-webkit-scrollbar { width: 4px; }
+    .prompt-menu-body::-webkit-scrollbar-track { background: transparent; }
+    .prompt-menu-body::-webkit-scrollbar-thumb { background: rgba(46, 196, 168, 0.22); border-radius: 100px; }
+
+    .prompt-cat {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .prompt-cat-label {
+      width: 100%;
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #7A9A8D;
+      padding: 0 4px 2px;
+    }
+
+    .prompt-item {
+      background: rgba(31, 46, 41, 0.8);
+      border: 1px solid rgba(46, 196, 168, 0.1);
+      color: #A3BDB2;
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      white-space: nowrap;
+    }
+
+    .prompt-item:hover {
+      background: rgba(46, 196, 168, 0.12);
+      border-color: #2EC4A8;
+      color: #2EC4A8;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 12px rgba(46, 196, 168, 0.15);
+    }
+
+    .prompt-item:active {
+      transform: translateY(0) scale(0.97);
+    }
+
+    @media (max-width: 480px) {
+      .prompt-menu {
+        left: -10px;
+        right: -10px;
+        border-radius: 14px 14px 0 0;
+        bottom: 100%;
+        max-height: 55vh;
+      }
+      .prompt-item {
+        font-size: 11px;
+        padding: 5px 11px;
+      }
+    }
+
     /* ═══════════ CHART.JS DARK OVERRIDE ═══════════ */
     /* Applied via JS but we set canvas defaults */
   </style>
@@ -450,7 +618,82 @@
 
     <!-- Input -->
     <footer class="input-bar">
+      <!-- Prompt menu panel -->
+      <div class="prompt-menu" id="promptMenu">
+        <div class="prompt-menu-header">
+          <span class="prompt-menu-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+            </svg>
+            Consultas sugeridas
+          </span>
+          <button class="prompt-menu-close" id="promptMenuClose" aria-label="Cerrar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+        <div class="prompt-menu-body">
+          <div class="prompt-cat">
+            <span class="prompt-cat-label">Metricas y calidad</span>
+            <button class="prompt-item" data-q="metricas globales">Metricas globales</button>
+            <button class="prompt-item" data-q="ranking mejores modelos">Ranking mejores modelos</button>
+            <button class="prompt-item" data-q="diagnosticos de calidad">Diagnosticos de calidad</button>
+            <button class="prompt-item" data-q="validacion semanal">Validacion semanal</button>
+          </div>
+          <div class="prompt-cat">
+            <span class="prompt-cat-label">Graficos y visualizaciones</span>
+            <button class="prompt-item" data-q="tendencia historica de depresion">Tendencia historica</button>
+            <button class="prompt-item" data-q="zoom semanal">Zoom semanal</button>
+            <button class="prompt-item" data-q="corredor de confianza">Corredor de confianza</button>
+            <button class="prompt-item" data-q="heatmap error semanal">Heatmap de error</button>
+            <button class="prompt-item" data-q="radar comparativo de motores">Radar de motores</button>
+            <button class="prompt-item" data-q="panorama nacional treemap">Treemap por entidad</button>
+            <button class="prompt-item" data-q="sparklines vista general">Sparklines (estados)</button>
+            <button class="prompt-item" data-q="area apilada por padecimiento">Area apilada</button>
+          </div>
+          <div class="prompt-cat">
+            <span class="prompt-cat-label">Padecimientos</span>
+            <button class="prompt-item" data-q="que es la depresion">Depresion (F32)</button>
+            <button class="prompt-item" data-q="que es el parkinson">Parkinson (G20)</button>
+            <button class="prompt-item" data-q="que es el alzheimer">Alzheimer (G30)</button>
+            <button class="prompt-item" data-q="pronostico depresion">Pronostico Depresion</button>
+            <button class="prompt-item" data-q="pronostico parkinson">Pronostico Parkinson</button>
+            <button class="prompt-item" data-q="pronostico alzheimer">Pronostico Alzheimer</button>
+          </div>
+          <div class="prompt-cat">
+            <span class="prompt-cat-label">Modelos y motores</span>
+            <button class="prompt-item" data-q="comparativa de motores">Comparativa de motores</button>
+            <button class="prompt-item" data-q="configuracion de entrenamiento">Configuracion de entrenamiento</button>
+            <button class="prompt-item" data-q="composicion de los 333 modelos">Composicion (333 modelos)</button>
+            <button class="prompt-item" data-q="que es prophet">Prophet</button>
+            <button class="prompt-item" data-q="que es deepar">DeepAR</button>
+          </div>
+          <div class="prompt-cat">
+            <span class="prompt-cat-label">Entidades y datos</span>
+            <button class="prompt-item" data-q="depresion en Jalisco">Depresion en Jalisco</button>
+            <button class="prompt-item" data-q="ranking entidades por incidencia">Top entidades</button>
+            <button class="prompt-item" data-q="resumen epidemiologico 2024">Resumen 2024</button>
+            <button class="prompt-item" data-q="depresion hombres vs mujeres">Hombres vs Mujeres</button>
+          </div>
+          <div class="prompt-cat">
+            <span class="prompt-cat-label">Proyecto</span>
+            <button class="prompt-item" data-q="equipo del proyecto">Equipo</button>
+            <button class="prompt-item" data-q="infraestructura del proyecto">Infraestructura</button>
+            <button class="prompt-item" data-q="que padecimientos modela">Alcance</button>
+            <button class="prompt-item" data-q="horizonte de pronostico">Horizonte de pronostico</button>
+          </div>
+        </div>
+      </div>
+
       <div class="input-wrapper">
+        <button class="prompt-toggle" id="promptToggle" title="Ver consultas sugeridas" aria-label="Menu de consultas">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="18" height="18">
+            <line x1="4" y1="6" x2="20" y2="6"/>
+            <line x1="4" y1="12" x2="20" y2="12"/>
+            <line x1="4" y1="18" x2="20" y2="18"/>
+          </svg>
+        </button>
         <div class="input-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17">
             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
@@ -538,6 +781,6 @@
     })();
   </script>
 
-  <script type="module" src="js/app.js?v=69"></script>
+  <script type="module" src="js/app.js?v=70"></script>
 </body>
 </html>

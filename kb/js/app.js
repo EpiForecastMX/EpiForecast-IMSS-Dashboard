@@ -116,6 +116,51 @@ async function init() {
   if (resetBtn) {
     resetBtn.addEventListener('click', resetChat);
   }
+
+  // Prompt menu (burger)
+  const promptToggle = document.getElementById('promptToggle');
+  const promptMenu = document.getElementById('promptMenu');
+  const promptMenuClose = document.getElementById('promptMenuClose');
+
+  if (promptToggle && promptMenu) {
+    function togglePromptMenu() {
+      const isOpen = promptMenu.classList.toggle('open');
+      promptToggle.classList.toggle('active', isOpen);
+    }
+    function closePromptMenu() {
+      promptMenu.classList.remove('open');
+      promptToggle.classList.remove('active');
+    }
+
+    promptToggle.addEventListener('click', togglePromptMenu);
+    if (promptMenuClose) promptMenuClose.addEventListener('click', closePromptMenu);
+
+    // Click a prompt item → send it
+    promptMenu.querySelectorAll('.prompt-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const q = btn.dataset.q;
+        if (q) {
+          closePromptMenu();
+          inputField.value = q;
+          handleSend();
+        }
+      });
+    });
+
+    // Close on outside click
+    document.addEventListener('click', (e) => {
+      if (promptMenu.classList.contains('open') &&
+          !promptMenu.contains(e.target) &&
+          !promptToggle.contains(e.target)) {
+        closePromptMenu();
+      }
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && promptMenu.classList.contains('open')) closePromptMenu();
+    });
+  }
 }
 
 function resetChat() {
