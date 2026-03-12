@@ -2460,24 +2460,46 @@ function answerComparacionSemanal(q, ent, s, d) {
     (any(q, ['compara', 'comparar', 'comparativa', 'como va', 'como van']) &&
      any(q, ['real', 'pronostico', 'prediccion', 'forecast', 'modelo', '2026', 'semana']));
 
+  // Frases que implican "cuanto habiamos pronosticado" (follow-up a datos reales)
+  const retrospectiveTriggers = [
+    'habiamos dicho', 'habiamos pronosticado', 'habiamos predicho',
+    'dijimos que', 'dijimos', 'se esperaba', 'se pronosticaba',
+    'pronosticabamos', 'ibamos a tener', 'iban a ser', 'iba a haber',
+    'cuantos habria', 'cuantos iba', 'esperabamos', 'el pronostico decia',
+    'cuanto se pronostico', 'cuanto pronosticamos', 'cuanto habiamos',
+  ];
+  const hasRetrospective = any(q, retrospectiveTriggers);
+
   // Contexto conversacional: si la ultima respuesta fue de datos semanales o comparacion,
-  // ser mas flexible con triggers simples como "compara solo la semana 8"
+  // ser mas flexible con triggers simples
   const prevWasRelevant = _lastHandlerFn === answerComparacionSemanal || _lastHandlerFn === answerSemanaActual;
   const hasSimpleCompare = prevWasRelevant &&
     (any(q, ['compara', 'comparar', 'solo', 'solo la semana', 'solo semana']) ||
+     hasRetrospective ||
      /semana\s*\d/.test(q));
 
-  if (!hasCompare && !hasSimpleCompare) return null;
+  if (!hasCompare && !hasSimpleCompare && !hasRetrospective) return null;
 
   const wc = d?.weekly_comparison;
   if (!wc || !Object.keys(wc).length) return null;
 
   // Detectar si piden una semana especifica: "solo la semana 8", "compara semana 8"
   const weekMatch = q.match(/semana\s*(\d{1,2})/);
-  const requestedWeek = weekMatch ? parseInt(weekMatch[1], 10) : null;
-  // Es single-week si dicen "solo" o si el query es corto y pide una semana puntual
+  let requestedWeek = weekMatch ? parseInt(weekMatch[1], 10) : null;
+
+  // Si es follow-up retrospectivo sin semana explicita, usar la ultima semana con datos reales
+  if (!requestedWeek && hasRetrospective && prevWasRelevant) {
+    const firstPad = Object.values(wc)[0];
+    if (firstPad && firstPad.semanas) {
+      const lastReal = firstPad.semanas.filter(w => w.real != null).pop();
+      if (lastReal) requestedWeek = lastReal.semana;
+    }
+  }
+
+  // Es single-week si dicen "solo", si es retrospectivo, o si es query corto con semana
   const singleWeek = requestedWeek && (
     any(q, ['solo', 'solamente', 'nada mas', 'unicamente', 'especifica']) ||
+    hasRetrospective ||
     (q.split(/\s+/).length <= 7 && any(q, ['compara', 'comparar', 'comparalo']))
   );
 
