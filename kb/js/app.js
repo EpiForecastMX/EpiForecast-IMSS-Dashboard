@@ -422,10 +422,12 @@ function buildTrendChart(data, qn) {
 
   if (!filteredPads.length) return null;
 
-  // Labels: anios historicos completos + "2026*" para el proyectado
+  // Labels: anios historicos completos (sin 2026 parcial) + 2026 proyectado
   const lastYear = allYears[allYears.length - 1];
   const hasProjection = Object.keys(projected2026).length > 0 && lastYear === '2026';
-  const labels = hasProjection ? [...allYears.slice(0, -1), '2026 (parcial)', '2026 (proyectado)'] : [...allYears];
+  // Quitar 2026 de los anios (es incompleto), agregar solo el proyectado
+  const yearsComplete = hasProjection ? allYears.slice(0, -1) : [...allYears];
+  const labels = hasProjection ? [...yearsComplete, '2026*'] : [...allYears];
 
   const datasets = [];
   filteredPads.forEach((pad, idx) => {
@@ -434,9 +436,8 @@ function buildTrendChart(data, qn) {
     const padData = anual[pad];
 
     if (hasProjection) {
-      // Linea solida: hasta 2025, luego 2026 parcial
-      const solidData = allYears.slice(0, -1).map(y => padData[y] || 0);
-      solidData.push(padData['2026'] || 0); // 2026 parcial (real)
+      // Linea solida: solo anios completos (hasta 2025)
+      const solidData = yearsComplete.map(y => padData[y] || 0);
       solidData.push(null); // no llega al proyectado
 
       datasets.push({
@@ -447,15 +448,16 @@ function buildTrendChart(data, qn) {
         fill: true,
         tension: 0.4,
         borderWidth: 3,
-        pointRadius: solidData.map((v, j) => v != null ? 4 : 0),
+        pointRadius: solidData.map(v => v != null ? 4 : 0),
         pointBackgroundColor: color,
         spanGaps: false,
       });
 
-      // Linea punteada: desde 2026 parcial hasta 2026 proyectado
-      const dashedData = new Array(allYears.length - 1).fill(null); // nulls hasta 2025
-      dashedData.push(padData['2026'] || 0); // conecta desde 2026 parcial
-      dashedData.push(projected2026[pad] || 0); // 2026 proyectado
+      // Linea punteada: desde 2025 hasta 2026 proyectado
+      const nComplete = yearsComplete.length;
+      const dashedData = new Array(nComplete + 1).fill(null);
+      dashedData[nComplete - 1] = padData[yearsComplete[nComplete - 1]] || 0; // conecta desde 2025
+      dashedData[nComplete] = projected2026[pad] || 0; // 2026 proyectado
 
       datasets.push({
         label: `${pad} (proyectado)`,
@@ -466,8 +468,8 @@ function buildTrendChart(data, qn) {
         tension: 0.4,
         borderWidth: 2,
         borderDash: [6, 4],
-        pointRadius: dashedData.map((v, j) => j === dashedData.length - 1 && v != null ? 6 : 0),
-        pointStyle: dashedData.map((v, j) => j === dashedData.length - 1 ? 'rectRot' : 'circle'),
+        pointRadius: dashedData.map((v, j) => j === nComplete && v != null ? 6 : 0),
+        pointStyle: dashedData.map((v, j) => j === nComplete ? 'rectRot' : 'circle'),
         pointBackgroundColor: color + '88',
         pointBorderColor: color,
         pointBorderWidth: 2,
