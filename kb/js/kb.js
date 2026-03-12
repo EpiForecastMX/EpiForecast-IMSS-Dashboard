@@ -1534,6 +1534,59 @@ function answerBoletin(q, ent, s, d) {
 // TREEMAP — panorama por entidad
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// MAPA DE MEXICO — coropletico por entidad
+// ---------------------------------------------------------------------------
+
+function answerMapaMexico(q, ent, s, d) {
+  const triggers = ['mapa de mexico', 'mapa de la republica', 'mapa coropletico', 'mapa geografico', 'mapa nacional'];
+  const triggerAlt = q.includes('mapa') && any(q, ['estado', 'entidad', 'mexico', 'republica', 'nacional', 'coropletico', 'geografico']);
+  if (!any(q, triggers) && !triggerAlt) return null;
+
+  const models = d.prod_models || [];
+  if (!models.length) return null;
+
+  const isSmape = any(q, ['smape', 'error', 'precision']);
+  const metric = isSmape ? 'SMAPE' : 'casos';
+
+  const byEnt = {};
+  for (const m of models) {
+    if (m.sexo !== 'general') continue;
+    const e = m.entidad || '';
+    if (e === 'Nacional' || e.startsWith('region_') || e.startsWith('Region')) continue;
+    if (!byEnt[e]) byEnt[e] = { casos: 0, smapes: [] };
+    byEnt[e].casos += m.casos_52_semanas_futuro || 0;
+    if (m.smape_prod != null) byEnt[e].smapes.push(m.smape_prod);
+  }
+
+  const sorted = Object.entries(byEnt)
+    .map(([e, d]) => ({ e, casos: d.casos, smape: d.smapes.length ? d.smapes.reduce((a, v) => a + v, 0) / d.smapes.length : null }))
+    .sort((a, b) => b.casos - a.casos);
+
+  const totalCasos = sorted.reduce((a, e) => a + e.casos, 0);
+
+  const lines = [];
+  lines.push(`**Mapa de la Republica Mexicana**: pronostico por entidad (${sorted.length} estados).\n`);
+
+  if (isSmape) {
+    lines.push('Color: verde (buen SMAPE) a rojo (alto SMAPE).\n');
+  } else {
+    lines.push('Color: mas oscuro = menor incidencia, mas claro = mayor incidencia.\n');
+  }
+
+  const top5 = sorted.slice(0, 5);
+  lines.push('**Top 5 entidades**:');
+  lines.push('| Entidad | Casos (52 sem) | SMAPE prom |');
+  lines.push('|---------|---------------:|-----------:|');
+  for (const e of top5) {
+    lines.push(`| ${e.e} | ${fmt(e.casos)} | ${e.smape != null ? e.smape.toFixed(1) + '%' : '?'} |`);
+  }
+
+  lines.push(`\n**Total nacional**: **${fmt(totalCasos)} casos** pronosticados (52 semanas).`);
+
+  return lines.join('\n');
+}
+
 function answerTreemap(q, ent, s, d) {
   const triggers = ['treemap', 'mapa de entidad', 'panorama de entidad', 'panorama nacional'];
   const triggerAlt = (any(q, ['caso', 'pronostico']) && any(q, ['todas las entidad', 'todos los estado', 'por entidad', 'por estado']) && any(q, ['grafico', 'grafica', 'mostrar', 'ver']));
@@ -2829,6 +2882,7 @@ const VOCAB = [
   'tendencia','historica','historico','evolucion','boletin','zoom','detalle','cercano','acercamiento',
   'corredor','confianza','banda','incertidumbre','consenso','dispersion','heatmap','mapa de calor','error',
   'treemap','radar','spider','sparkline','panorama','vista general','apilado','stacked','composicion',
+  'mapa','republica','coropletico','geografico',
   'depresion','parkinson','alzheimer',
   'deepar','prophet','ensemble','stacking',
   'configuracion','entrenamiento','hiperparametros','parametros',
@@ -3437,7 +3491,7 @@ function _genDistribChart(models, metric, metricLabel) {
 const HANDLERS = [
   answerSaludo, answerPadecimientoNoModelado, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerTemporal, answerProyectoMeta,
   answerTrainingConfig, answerSemanaActual, answerQueEsPadecimiento,
-  answerComparacionSemanal, answerTreemap, answerRadar, answerSparklines, answerStackedArea,
+  answerComparacionSemanal, answerMapaMexico, answerTreemap, answerRadar, answerSparklines, answerStackedArea,
   answerCorredor, answerErrorHeatmap, answerZoom,
   answerBoletin, answerHistorico, answerComparativaEstados, answerSpecificSeries, answerEstado, answerPadecimiento,
   answerMotor, answerDemografica, answerSexo, answerDistribucion, answerGraficoAleatorio, answerMetricaGlobal,

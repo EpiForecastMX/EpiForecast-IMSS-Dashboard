@@ -458,6 +458,83 @@
       }
     }
 
+    /* ═══════════ MEXICO MAP ═══════════ */
+
+    .mexico-map-wrapper {
+      position: relative;
+    }
+
+    .mexico-map-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #EDF3EF;
+      margin-bottom: 10px;
+      letter-spacing: -0.2px;
+    }
+
+    .mexico-map-svg-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .mexico-map-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .mexico-map-tooltip {
+      position: absolute;
+      background: rgba(15, 22, 20, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(46, 196, 168, 0.25);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: #EDF3EF;
+      pointer-events: none;
+      z-index: 50;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      white-space: nowrap;
+      line-height: 1.5;
+    }
+
+    .mexico-map-tooltip strong {
+      color: #2EC4A8;
+    }
+
+    .mexico-map-legend {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      margin-top: 12px;
+    }
+
+    .mexico-map-legend-bar {
+      display: flex;
+      width: 200px;
+      height: 10px;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .mexico-map-legend-bar span {
+      flex: 1;
+    }
+
+    .mexico-map-legend-labels {
+      display: flex;
+      justify-content: space-between;
+      width: 200px;
+      font-size: 10px;
+      color: #7A9A8D;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
     /* ═══════════ CHART.JS DARK OVERRIDE ═══════════ */
     /* Applied via JS but we set canvas defaults */
   </style>
@@ -587,6 +664,7 @@
             <button class="prompt-item" data-q="corredor de confianza">Corredor de confianza</button>
             <button class="prompt-item" data-q="heatmap error semanal">Heatmap de error</button>
             <button class="prompt-item" data-q="radar comparativo de motores">Radar de motores</button>
+            <button class="prompt-item" data-q="mapa de mexico por casos">Mapa de Mexico</button>
             <button class="prompt-item" data-q="panorama nacional treemap">Treemap por entidad</button>
             <button class="prompt-item" data-q="sparklines vista general">Sparklines (estados)</button>
             <button class="prompt-item" data-q="area apilada por padecimiento">Area apilada</button>
@@ -720,6 +798,6 @@
     })();
   </script>
 
-  <script type="module" src="js/app.js?v=70"></script>
+  <script type="module" src="js/app.js?v=71"></script>
 </body>
 </html>

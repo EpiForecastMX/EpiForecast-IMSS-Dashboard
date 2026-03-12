@@ -6,8 +6,9 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=64';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=65';
 import { detectEntities, norm } from './entities.js?v=25';
+import { renderMexicoMap } from './mexico-map.js?v=1';
 
 // ---------------------------------------------------------------------------
 // DOM refs
@@ -349,8 +350,15 @@ function addBotMessage(markdown, source, suggestions, chartData) {
   }
 
   let chartHtml = '';
+  let isMapChart = false;
   const chartList = chartData ? (Array.isArray(chartData) ? chartData : [chartData]) : [];
-  if (chartList.length) {
+
+  // Special case: SVG map chart
+  if (chartList.length === 1 && chartList[0]._mapChart) {
+    isMapChart = true;
+    const mapId = `map-${++chartCounter}`;
+    chartHtml = `<div class="msg-chart-container" id="${mapId}"></div>`;
+  } else if (chartList.length) {
     const ids = chartList.map(() => `chart-${++chartCounter}`);
     if (chartList.length > 1) {
       chartHtml = `<div class="msg-chart-grid">` +
@@ -389,7 +397,15 @@ function addBotMessage(markdown, source, suggestions, chartData) {
   });
 
   // Render charts
-  if (chartList.length) {
+  if (isMapChart) {
+    requestAnimationFrame(() => {
+      const mapContainer = div.querySelector('.msg-chart-container');
+      if (mapContainer) {
+        const mc = chartList[0];
+        renderMexicoMap(mapContainer, mc.stateData, mc.opts);
+      }
+    });
+  } else if (chartList.length) {
     requestAnimationFrame(() => {
       chartList.forEach((cd, i) => {
         const id = chartCounter - chartList.length + 1 + i;
@@ -754,6 +770,57 @@ function buildStackedArea(data) {
         filler: { propagate: true },
       },
     },
+  };
+}
+
+/**
+ * Mapa coropletico de la Republica Mexicana.
+ * Retorna un objeto especial { type: 'mexico-map', stateData, opts } que
+ * se renderiza con renderMexicoMap() en vez de Chart.js.
+ */
+function buildMexicoMap(data, qn) {
+  const models = data.prod_models || [];
+  if (!models.length) return null;
+
+  // Detectar que metrica mostrar
+  const q = (qn || '').toLowerCase();
+  let mode = 'casos'; // default
+  if (q.includes('smape') || q.includes('error') || q.includes('precision')) mode = 'smape';
+
+  // Aggregate by entity (only general sex, only real states)
+  const byEnt = {};
+  for (const m of models) {
+    if (m.sexo !== 'general') continue;
+    const ent = m.entidad;
+    if (!ent || ent === 'Nacional' || ent.startsWith('Region')) continue;
+    if (!byEnt[ent]) byEnt[ent] = { casos: 0, smapeSum: 0, count: 0 };
+    byEnt[ent].casos += (m.casos_52_semanas_futuro || 0);
+    byEnt[ent].smapeSum += (m.smape_prod || 0);
+    byEnt[ent].count += 1;
+  }
+
+  const stateData = {};
+  for (const [ent, d] of Object.entries(byEnt)) {
+    if (mode === 'smape') {
+      const avg = d.count ? (d.smapeSum / d.count) : 0;
+      stateData[ent] = { value: Math.round(avg * 10) / 10, label: 'SMAPE prom: ' + avg.toFixed(1) + '%' };
+    } else {
+      stateData[ent] = { value: d.casos, label: d.casos.toLocaleString() + ' casos (52 sem)' };
+    }
+  }
+
+  const colorOpts = mode === 'smape'
+    ? { lowColor: [46, 196, 168], highColor: [200, 58, 90], metric: 'SMAPE %' }
+    : { lowColor: [30, 60, 50], highColor: [46, 196, 168], metric: 'casos' };
+
+  const titleMode = mode === 'smape'
+    ? 'SMAPE promedio por entidad'
+    : 'Pronostico de casos por entidad (52 semanas)';
+
+  return {
+    _mapChart: true,
+    stateData,
+    opts: { title: titleMode, ...colorOpts },
   };
 }
 
@@ -1219,6 +1286,12 @@ function extractChartData(markdown, query) {
         }],
       };
     }
+  }
+
+  // Mapa coropletico de Mexico
+  if (qn.includes('mapa') && (qn.includes('mexico') || qn.includes('republica') || qn.includes('entidad') || qn.includes('estado') || qn.includes('nacional') || qn.includes('coropletico') || qn.includes('geografico'))) {
+    const chart = buildMexicoMap(data, qn);
+    if (chart) return chart;
   }
 
   // Treemap (barras horizontales) por entidad
@@ -1740,6 +1813,10 @@ function getSuggestions(query) {
     return [{ text: 'Corredor de confianza', q: 'corredor de confianza' }, { text: 'Heatmap de error', q: 'heatmap error semanal' }];
   if (q.includes('tendencia'))
     return [{ text: 'Zoom semanal', q: 'zoom semanal' }, { text: 'Corredor de confianza', q: 'corredor de confianza' }];
+  if (q.includes('mapa') && (q.includes('mexico') || q.includes('republica')))
+    return [{ text: 'Mapa por SMAPE', q: 'mapa de mexico por smape' }, { text: 'Treemap entidades', q: 'panorama nacional treemap' }];
+  if (q.includes('treemap'))
+    return [{ text: 'Mapa de Mexico', q: 'mapa de mexico por casos' }, { text: 'Radar motores', q: 'radar comparativo de motores' }];
   return null;
 }
 
