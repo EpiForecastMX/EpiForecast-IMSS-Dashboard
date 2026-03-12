@@ -391,6 +391,93 @@ function removeTyping(el) { if (el && el.parentNode) el.parentNode.removeChild(e
  * Para el ultimo anio (2026) separa dato real parcial vs proyectado (real + pronostico restante).
  * El tramo proyectado se muestra como linea punteada.
  */
+/**
+ * Genera graficos de zoom semanal (2025-2027): real vs pronostico.
+ * Devuelve un array de charts (1 por padecimiento filtrado).
+ */
+function buildZoomChart(data, qn) {
+  const wc = data.weekly_comparison;
+  if (!wc) return null;
+
+  const pads = Object.keys(wc);
+  const filtered = pads.filter(pad => {
+    if (!qn) return true;
+    const pn = pad.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const inQ = qn.includes(pn);
+    return inQ || !pads.some(p => qn.includes(p.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')));
+  });
+  if (!filtered.length) return null;
+
+  const padColors = { Depresion: '#2EC4A8', Parkinson: '#D4A84B', Alzheimer: '#C83A5A' };
+  const charts = [];
+
+  for (const pad of filtered) {
+    const info = wc[pad];
+    const sems = info.semanas || [];
+    if (!sems.length) continue;
+
+    const labels = sems.map(s => {
+      if (s.fecha) {
+        const parts = s.fecha.split('-');
+        return `${parts[1]}/${parts[2]}`;
+      }
+      return `S${String(s.semana).padStart(2, '0')}`;
+    });
+
+    const realData = sems.map(s => s.real != null ? s.real : null);
+    const pronData = sems.map(s => s.pronostico);
+    const lastRealIdx = realData.reduce((acc, v, i) => v != null ? i : acc, -1);
+    const color = padColors[pad] || '#2EC4A8';
+
+    // Pronostico: linea punteada completa
+    const datasets = [
+      {
+        label: 'Pronostico (' + (info.modelo_productivo || pad) + ')',
+        data: pronData,
+        borderColor: color + '88',
+        backgroundColor: color + '0A',
+        fill: true,
+        tension: 0.3,
+        borderWidth: 2,
+        borderDash: [8, 5],
+        pointRadius: 0,
+        order: 2,
+      },
+      {
+        label: 'Real',
+        data: realData,
+        borderColor: color,
+        backgroundColor: color + '22',
+        fill: false,
+        tension: 0.3,
+        borderWidth: 3,
+        pointRadius: realData.map((v, i) => i === lastRealIdx ? 6 : v != null ? 3 : 0),
+        pointBackgroundColor: realData.map((v, i) => i === lastRealIdx ? '#fff' : color),
+        pointBorderColor: color,
+        pointBorderWidth: realData.map((v, i) => i === lastRealIdx ? 3 : 1),
+        spanGaps: false,
+        order: 1,
+      },
+    ];
+
+    charts.push({
+      type: 'line',
+      title: `${pad} — zoom semanal (${sems[0].fecha || ''} a ${sems[sems.length - 1].fecha || ''})`,
+      labels,
+      datasets,
+      options: {
+        scales: {
+          x: { ticks: { maxRotation: 90, font: { size: 9 }, autoSkip: true, maxTicksLimit: 20 } },
+          y: { beginAtZero: true },
+        },
+      },
+    });
+  }
+
+  if (!charts.length) return null;
+  return charts.length === 1 ? charts[0] : charts;
+}
+
 function buildTrendChart(data, qn) {
   const anual = data.boletin?.anual_por_pad;
   if (!anual) return null;
@@ -704,6 +791,14 @@ function extractChartData(markdown, query) {
         }],
       };
     }
+  }
+
+  // Zoom semanal (2025-2027) -> line charts
+  if (qn.includes('zoom') || qn.includes('detalle semanal') || qn.includes('cercano') ||
+      (qn.includes('semanal') && (qn.includes('pronostico') || qn.includes('forecast'))) ||
+      (qn.includes('real vs') && qn.includes('pronostico'))) {
+    const chart = buildZoomChart(data, qn);
+    if (chart) return chart;
   }
 
   // Tendencia historica -> line
@@ -1137,17 +1232,19 @@ function getSuggestions(query) {
   if (q.includes('metrica') || q.includes('smape'))
     return [{ text: 'Ranking mejores', q: 'ranking mejores modelos' }, { text: 'Diagnósticos', q: 'diagnosticos de calidad' }];
   if (q.includes('depresion'))
-    return [{ text: 'Tendencia histórica', q: 'tendencia historica de depresion' }, { text: 'Pronóstico', q: 'pronostico depresion' }];
+    return [{ text: 'Tendencia histórica', q: 'tendencia historica de depresion' }, { text: 'Zoom semanal', q: 'zoom depresion' }, { text: 'Pronóstico', q: 'pronostico depresion' }];
   if (q.includes('parkinson'))
-    return [{ text: 'Tendencia histórica', q: 'tendencia historica de parkinson' }, { text: 'Pronóstico', q: 'pronostico parkinson' }];
+    return [{ text: 'Tendencia histórica', q: 'tendencia historica de parkinson' }, { text: 'Zoom semanal', q: 'zoom parkinson' }, { text: 'Pronóstico', q: 'pronostico parkinson' }];
   if (q.includes('alzheimer'))
-    return [{ text: 'Tendencia histórica', q: 'tendencia historica de alzheimer' }, { text: 'Pronóstico', q: 'pronostico alzheimer' }];
+    return [{ text: 'Tendencia histórica', q: 'tendencia historica de alzheimer' }, { text: 'Zoom semanal', q: 'zoom alzheimer' }, { text: 'Pronóstico', q: 'pronostico alzheimer' }];
   if (q.includes('ranking'))
     return [{ text: 'Métricas globales', q: 'metricas globales' }, { text: 'Comparativa motores', q: 'comparativa de motores' }];
   if (q.includes('equipo'))
     return [{ text: 'Infraestructura', q: 'infraestructura del proyecto' }, { text: 'Alcance', q: 'que padecimientos modela' }];
+  if (q.includes('zoom'))
+    return [{ text: 'Tendencia histórica', q: 'tendencia historica' }, { text: 'Comportamiento modelos', q: 'como se comportan los modelos' }];
   if (q.includes('tendencia'))
-    return [{ text: 'Resumen 2024', q: 'resumen epidemiologico 2024' }, { text: 'Ranking entidades', q: 'ranking entidades por incidencia' }];
+    return [{ text: 'Zoom semanal', q: 'zoom semanal' }, { text: 'Ranking entidades', q: 'ranking entidades por incidencia' }];
   return null;
 }
 

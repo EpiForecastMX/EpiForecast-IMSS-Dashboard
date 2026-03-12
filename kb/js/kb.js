@@ -1454,6 +1454,59 @@ function answerBoletin(q, ent, s, d) {
 }
 
 // ---------------------------------------------------------------------------
+// ZOOM SEMANAL — vista detallada 2025-2027 (real vs pronostico)
+// ---------------------------------------------------------------------------
+
+function answerZoom(q, ent, s, d) {
+  const triggers = ['zoom', 'detalle semanal', 'vista cercana', 'acercamiento'];
+  const triggerAlt = (q.includes('real') && q.includes('pronostico') && q.includes('semanal')) ||
+    (q.includes('semana a semana') && (q.includes('pronostico') || q.includes('modelo')));
+  if (!triggers.some(t => q.includes(t)) && !triggerAlt) return null;
+
+  const wc = d.weekly_comparison;
+  if (!wc) return null;
+
+  const tc = d.training_config || {};
+  const pads = Object.keys(wc);
+  const pad = ent.padecimiento;
+  const filtered = pad ? pads.filter(p => p === pad) : pads;
+
+  const lines = [];
+  lines.push('**Zoom semanal: Real vs Pronostico**\n');
+
+  const rng = forecastDateRange(d);
+  if (rng) {
+    lines.push(`Horizonte: **${rng.label}**\n`);
+  }
+
+  for (const p of filtered) {
+    const info = wc[p];
+    const sems = info.semanas || [];
+    const withReal = sems.filter(s => s.real != null);
+    const totalReal = withReal.reduce((a, s) => a + s.real, 0);
+    const totalPron = sems.reduce((a, s) => a + s.pronostico, 0);
+    const modelo = info.modelo_productivo || '-';
+
+    lines.push(`**${p}** (${modelo}):`);
+    lines.push(`- Semanas con datos reales: **${withReal.length}** de ${sems.length}`);
+    lines.push(`- Casos reales acumulados: **${fmt(totalReal)}**`);
+    lines.push(`- Pronostico total (52 sem): **${fmt(totalPron)}**`);
+
+    if (withReal.length > 0) {
+      const realSum = withReal.reduce((a, s) => a + s.real, 0);
+      const pronSum = withReal.reduce((a, s) => a + s.pronostico, 0);
+      const errorPct = pronSum > 0 ? Math.abs(((pronSum - realSum) / realSum) * 100).toFixed(1) : '-';
+      lines.push(`- Error acumulado (semanas con datos): **${errorPct}%**`);
+    }
+    lines.push('');
+  }
+
+  lines.push('*Linea solida = datos reales, linea punteada = pronostico del modelo productivo.*');
+
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
 // HISTORICO — prioriza años pasados sobre pronóstico
 // ---------------------------------------------------------------------------
 
@@ -2429,7 +2482,7 @@ const VOCAB = [
   'diagnosticos','diagnostico','overfitting','leakage','calidad',
   'pronostico','pronosticos','forecast','prediccion','futuro',
   'equipo','integrantes','miembros','autores',
-  'tendencia','historica','historico','evolucion','boletin',
+  'tendencia','historica','historico','evolucion','boletin','zoom','detalle','cercano','acercamiento',
   'depresion','parkinson','alzheimer',
   'deepar','prophet','ensemble','stacking',
   'configuracion','entrenamiento','hiperparametros','parametros',
@@ -3038,7 +3091,7 @@ function _genDistribChart(models, metric, metricLabel) {
 const HANDLERS = [
   answerSaludo, answerPadecimientoNoModelado, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerTemporal, answerProyectoMeta,
   answerTrainingConfig, answerSemanaActual, answerQueEsPadecimiento,
-  answerComparacionSemanal,
+  answerComparacionSemanal, answerZoom,
   answerBoletin, answerHistorico, answerComparativaEstados, answerSpecificSeries, answerEstado, answerPadecimiento,
   answerMotor, answerDemografica, answerSexo, answerDistribucion, answerGraficoAleatorio, answerMetricaGlobal,
   answerRanking, answerDiagnosticos, answerValidacion, answerInfra,
