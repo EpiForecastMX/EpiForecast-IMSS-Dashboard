@@ -2451,23 +2451,90 @@ function answerComparacionSemanal(q, ent, s, d) {
     'acierto semanal', 'acierto por semana',
     'cuantos casos van en', 'cuantos llevamos',
     'acumulado 2026', 'acumulado vs',
+    'comparalo', 'comparalos', 'comparar contra', 'compara contra',
+    'contra el pronostico', 'contra lo pronosticado',
   ];
 
   // Also match: "compara real" / "compara pronostico" / "como va depresion 2026"
   const hasCompare = any(q, triggers) ||
     (any(q, ['compara', 'comparar', 'comparativa', 'como va', 'como van']) &&
-     any(q, ['real', 'pronostico', 'prediccion', 'forecast', 'modelo', '2026']));
+     any(q, ['real', 'pronostico', 'prediccion', 'forecast', 'modelo', '2026', 'semana']));
 
-  if (!hasCompare) return null;
+  // Contexto conversacional: si la ultima respuesta fue de datos semanales o comparacion,
+  // ser mas flexible con triggers simples como "compara solo la semana 8"
+  const prevWasRelevant = _lastHandlerFn === answerComparacionSemanal || _lastHandlerFn === answerSemanaActual;
+  const hasSimpleCompare = prevWasRelevant &&
+    (any(q, ['compara', 'comparar', 'solo', 'solo la semana', 'solo semana']) ||
+     /semana\s*\d/.test(q));
+
+  if (!hasCompare && !hasSimpleCompare) return null;
 
   const wc = d?.weekly_comparison;
   if (!wc || !Object.keys(wc).length) return null;
+
+  // Detectar si piden una semana especifica: "solo la semana 8", "compara semana 8"
+  const weekMatch = q.match(/semana\s*(\d{1,2})/);
+  const requestedWeek = weekMatch ? parseInt(weekMatch[1], 10) : null;
+  // Es single-week si dicen "solo" o si el query es corto y pide una semana puntual
+  const singleWeek = requestedWeek && (
+    any(q, ['solo', 'solamente', 'nada mas', 'unicamente', 'especifica']) ||
+    (q.split(/\s+/).length <= 7 && any(q, ['compara', 'comparar', 'comparalo']))
+  );
 
   // Determine which padecimiento(s) to show
   const pad = ent.padecimiento;
   const padsToShow = pad ? [pad] : Object.keys(wc);
 
   const lines = [];
+
+  // Modo semana unica: tabla resumen compacta con los 3 padecimientos
+  if (singleWeek && !pad) {
+    const anio = Object.values(wc)[0]?.anio || 2026;
+    lines.push(`**Semana ${requestedWeek} de ${anio}: Pronostico vs Realidad**\n`);
+    lines.push('| Padecimiento | Pronostico | Real | Error |');
+    lines.push('|-------------|----------:|-----:|------:|');
+    let totalPron = 0, totalReal = 0;
+    for (const p of padsToShow) {
+      const info = wc[p];
+      if (!info || !info.semanas) continue;
+      const w = info.semanas.find(s => s.semana === requestedWeek && s.real != null);
+      if (!w) continue;
+      const pron = w.pronostico || 0;
+      const real = w.real || 0;
+      const errPct = real > 0 ? (Math.abs(pron - real) / real * 100).toFixed(1) : '0.0';
+      const dir = pron > real ? '+' : pron < real ? '-' : '';
+      lines.push(`| ${p} | ${fmt(pron)} | ${fmt(real)} | ${dir}${errPct}% |`);
+      totalPron += pron;
+      totalReal += real;
+    }
+    if (padsToShow.length > 1 && totalReal > 0) {
+      const totalErr = (Math.abs(totalPron - totalReal) / totalReal * 100).toFixed(1);
+      const totalDir = totalPron > totalReal ? '+' : totalPron < totalReal ? '-' : '';
+      lines.push(`| **Total** | **${fmt(totalPron)}** | **${fmt(totalReal)}** | **${totalDir}${totalErr}%** |`);
+    }
+    // Interpretacion
+    const totalErr = totalReal > 0 ? Math.abs(totalPron - totalReal) / totalReal * 100 : 0;
+    lines.push('');
+    if (totalErr < 5) lines.push('Precision **excelente**: el error total es menor al 5%.');
+    else if (totalErr < 15) lines.push('Precision **buena**: el error total esta entre 5-15%.');
+    else lines.push('Precision **moderada**: revisar los modelos con mayor desviacion.');
+
+    // Embed chart data: one per padecimiento for grid display
+    for (const p of padsToShow) {
+      const info = wc[p];
+      if (!info || !info.semanas) continue;
+      const w = info.semanas.find(sw => sw.semana === requestedWeek && sw.real != null);
+      if (!w) continue;
+      const chartPayload = JSON.stringify({
+        pad: p,
+        modelo: info.modelo_productivo || '?',
+        anio,
+        semanas: [{ s: w.semana, r: w.real, p: w.pronostico }],
+      });
+      lines.push(`\n<!--WEEKLY:${chartPayload}-->`);
+    }
+    return lines.length > 4 ? lines.join('\n') : null;
+  }
 
   for (const p of padsToShow) {
     const info = wc[p];
@@ -2480,7 +2547,11 @@ function answerComparacionSemanal(q, ent, s, d) {
 
     if (!realWeeks.length) continue;
 
-    // Acumulados
+    // Si piden semana especifica (pero con padecimiento filtrado), filtrar
+    const showWeeks = requestedWeek ? realWeeks.filter(w => w.semana === requestedWeek) : realWeeks;
+    if (!showWeeks.length) continue;
+
+    // Acumulados (siempre del total, no del filtro)
     const acumReal = realWeeks.reduce((s, w) => s + w.real, 0);
     const acumPron = realWeeks.reduce((s, w) => s + w.pronostico, 0);
     const diffPct = acumReal > 0 ? ((acumPron - acumReal) / acumReal * 100).toFixed(1) : '?';
@@ -2490,43 +2561,43 @@ function answerComparacionSemanal(q, ent, s, d) {
     lines.push('| Semana | Real | Pronostico | Diferencia |');
     lines.push('|--------|-----:|----------:|-----------:|');
 
-    for (const w of realWeeks) {
+    for (const w of showWeeks) {
       const diff = w.pronostico - w.real;
       const sign = diff > 0 ? '+' : '';
       const pctStr = w.error_pct != null ? ` (${w.error_pct}%)` : '';
       lines.push(`| Sem ${w.semana} | ${fmt(w.real)} | ${fmt(w.pronostico)} | ${sign}${fmt(diff)}${pctStr} |`);
     }
 
-    lines.push('');
-    lines.push(`**Acumulado ${realWeeks.length} semanas:** Real **${fmt(acumReal)}** vs Pronostico **${fmt(acumPron)}** (${diffSign}${diffPct}%)`);
+    if (!requestedWeek) {
+      lines.push('');
+      lines.push(`**Acumulado ${realWeeks.length} semanas:** Real **${fmt(acumReal)}** vs Pronostico **${fmt(acumPron)}** (${diffSign}${diffPct}%)`);
 
-    // SMAPE promedio
-    const smapes = realWeeks.filter(w => w.error_pct != null && w.real > 0).map(w => {
-      const r = w.real, f = w.pronostico;
-      return 200 * Math.abs(f - r) / (Math.abs(f) + Math.abs(r));
-    });
-    if (smapes.length) {
-      const avgSmape = (smapes.reduce((a, b) => a + b, 0) / smapes.length).toFixed(1);
-      lines.push(`**SMAPE promedio semanal:** ${avgSmape}%`);
-    }
+      // SMAPE promedio
+      const smapes = realWeeks.filter(w => w.error_pct != null && w.real > 0).map(w => {
+        const r = w.real, f = w.pronostico;
+        return 200 * Math.abs(f - r) / (Math.abs(f) + Math.abs(r));
+      });
+      if (smapes.length) {
+        const avgSmape = (smapes.reduce((a, b) => a + b, 0) / smapes.length).toFixed(1);
+        lines.push(`**SMAPE promedio semanal:** ${avgSmape}%`);
+      }
 
-    // Upcoming weeks preview
-    const futureWeeks = weeks.filter(w => w.real == null).slice(0, 4);
-    if (futureWeeks.length) {
-      lines.push(`\nProximas semanas pronosticadas:`);
-      for (const w of futureWeeks) {
-        lines.push(`- Sem ${w.semana}: **${fmt(w.pronostico)}** casos`);
+      // Upcoming weeks preview
+      const futureWeeks = weeks.filter(w => w.real == null).slice(0, 4);
+      if (futureWeeks.length) {
+        lines.push(`\nProximas semanas pronosticadas:`);
+        for (const w of futureWeeks) {
+          lines.push(`- Sem ${w.semana}: **${fmt(w.pronostico)}** casos`);
+        }
       }
     }
 
     // Embed chart data for app.js
-    const chartPayload = JSON.stringify({
-      pad: p,
-      modelo,
-      anio,
-      semanas: weeks.filter(w => w.real != null || w.semana <= (realWeeks.length + 4))
-        .map(w => ({ s: w.semana, r: w.real ?? null, p: w.pronostico })),
-    });
+    const chartWeeks = requestedWeek
+      ? showWeeks.map(w => ({ s: w.semana, r: w.real, p: w.pronostico }))
+      : weeks.filter(w => w.real != null || w.semana <= (realWeeks.length + 4))
+        .map(w => ({ s: w.semana, r: w.real ?? null, p: w.pronostico }));
+    const chartPayload = JSON.stringify({ pad: p, modelo, anio, semanas: chartWeeks });
     lines.push(`\n<!--WEEKLY:${chartPayload}-->`);
 
     if (padsToShow.length > 1) lines.push('\n---\n');
@@ -2887,6 +2958,7 @@ function runHandlers(q, ent, s, d) {
         _lastDistribMetric = null;
         _lastChartHandler = null;
       }
+      _lastHandlerFn = handler;
       return result;
     }
   }
@@ -2978,9 +3050,10 @@ function isOffTopic(q, ent) {
 let lastEntities = {};
 let _lastDistribMetric = null;   // {metric, label} de la ultima distribucion
 let _lastChartHandler = null;    // nombre del ultimo handler que genero grafico
+let _lastHandlerFn = null;       // referencia al ultimo handler que respondio
 
 /** Reset conversacional — solo para tests. */
-export function _resetContext() { lastEntities = {}; _lastDistribMetric = null; _lastChartHandler = null; }
+export function _resetContext() { lastEntities = {}; _lastDistribMetric = null; _lastChartHandler = null; _lastHandlerFn = null; }
 
 export async function answer(query) {
   const d = await loadKnowledge();
