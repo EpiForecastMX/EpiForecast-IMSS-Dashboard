@@ -665,6 +665,28 @@ function answerTemporal(q, ent, s, d) {
   const isWeekQ = any(q, ['semana epidemiologica', 'semana epi', 'en que semana', 'que semana es', 'que semana estamos', 'semana estamos']);
   if (isWeekQ && !isDateQ) {
     lines.push(`Estamos en la **semana epidemiol\u00f3gica ${iso.week}** de ${iso.year}.`);
+
+    // Datos disponibles y avance del pronóstico
+    const ult = d.boletin?.ultima_semana;
+    const rng = forecastDateRange(d);
+    if (ult) {
+      lines.push(`Datos disponibles hasta: **semana ${ult.semana} de ${ult.anio}** (${fmt(ult.total)} casos reportados esa semana).`);
+      const rezago = ult.anio === iso.year ? iso.week - ult.semana : iso.week + (52 - ult.semana);
+      if (rezago > 0) lines.push(`Rezago del bolet\u00edn: **${rezago} semana(s)**.`);
+    }
+    if (rng) {
+      // Calcular en qué semana del horizonte de 52 estamos
+      const tc = d.training_config || {};
+      const hStart = new Date(tc.horizonte_inicio + 'T00:00:00');
+      const diffMs = now.getTime() - hStart.getTime();
+      const semTranscurridas = Math.max(0, Math.floor(diffMs / (7 * 24 * 3600 * 1000)) + 1);
+      if (semTranscurridas > 0 && semTranscurridas <= 52) {
+        lines.push(`Avance del pron\u00f3stico: **semana ${semTranscurridas} de 52** (horizonte: ${rng.label}).`);
+      } else if (semTranscurridas > 52) {
+        lines.push(`El horizonte de pron\u00f3stico (${rng.label}) ya concluy\u00f3.`);
+      }
+      if (rng.entrenam) lines.push(`\u00daltimo entrenamiento: **${rng.entrenam}**.`);
+    }
   }
 
   const isCoverage = any(q, ['ultima semana', 'ultimo dato', 'hasta cuando', 'hasta que fecha', 'hasta que semana', 'cobertura temporal', 'rango de fecha', 'periodo de dato', 'desde cuando', 'cuando inicia', 'cuando empieza']);
