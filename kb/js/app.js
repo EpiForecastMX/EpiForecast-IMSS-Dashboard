@@ -12,6 +12,7 @@ import { renderMexicoMap } from './mexico-map.js?v=1';
 import { renderTimelapse } from './timelapse.js?v=1';
 import { renderSemaforo } from './semaforo.js?v=1';
 import { renderComparador } from './comparador.js?v=1';
+import { initSTT, STT_SUPPORTED, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking } from './voice.js?v=1';
 
 // ---------------------------------------------------------------------------
 // DOM refs
@@ -108,6 +109,16 @@ async function init() {
   inputField.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
   });
+
+  // Voice input (STT)
+  const micBtn = document.getElementById('micBtn');
+  if (micBtn) {
+    initSTT(micBtn, inputField, (transcript) => {
+      inputField.value = transcript;
+      setVoiceQuery(true);
+      handleSend();
+    });
+  }
 
   const resetBtn = document.getElementById('resetBtn');
   if (resetBtn) {
@@ -470,7 +481,7 @@ function addBotMessage(markdown, source, suggestions, chartData) {
         <span class="msg-name">EpiForecast-MX</span>
         <span class="msg-source ${badgeClass}">${badgeText}</span>
         <span class="msg-time">${timeStr}</span>
-      </div>
+        ${TTS_SUPPORTED ? '<button class="tts-btn" title="Escuchar respuesta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07"/><path d="M19.07 4.93a10 10 0 010 14.14"/></svg></button>' : ''}
       <div class="msg-bubble-bot">
         <div class="msg-content">${html}</div>
         ${chartHtml}
@@ -487,6 +498,19 @@ function addBotMessage(markdown, source, suggestions, chartData) {
       handleSend();
     });
   });
+
+  // TTS: bind speaker button + auto-speak if query was by voice
+  const ttsBtn = div.querySelector('.tts-btn');
+  if (ttsBtn) {
+    ttsBtn.addEventListener('click', () => {
+      speak(cleanMarkdown, ttsBtn);
+    });
+    // Auto-speak when the user asked by voice
+    if (wasVoiceQuery()) {
+      setVoiceQuery(false);
+      requestAnimationFrame(() => speak(cleanMarkdown, ttsBtn));
+    }
+  }
 
   // Render charts
   if (customChartType === 'timelapse') {

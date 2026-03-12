@@ -880,6 +880,59 @@ body::after {
   transform: scale(0.97);
 }
 
+/* ─── MIC BUTTON ─── */
+.mic-btn {
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--text-muted) !important;
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+  transition: all 0.25s var(--ease-out) !important;
+}
+.mic-btn:hover {
+  color: var(--teal) !important;
+  background: rgba(46, 196, 168, 0.08) !important;
+  transform: scale(1.06);
+  box-shadow: none !important;
+}
+.mic-btn.mic-active {
+  color: #C83A5A !important;
+  background: rgba(200, 58, 90, 0.12) !important;
+  animation: mic-pulse 1.2s ease-in-out infinite;
+}
+@keyframes mic-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(200, 58, 90, 0.3); }
+  50%      { box-shadow: 0 0 0 8px rgba(200, 58, 90, 0); }
+}
+
+/* ─── TTS SPEAKER BUTTON ─── */
+.tts-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 2px;
+  margin-left: 6px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 4px;
+  transition: color 0.2s, background 0.2s;
+  vertical-align: middle;
+}
+.tts-btn:hover {
+  color: var(--teal);
+  background: rgba(46, 196, 168, 0.08);
+}
+.tts-btn.tts-speaking {
+  color: var(--teal);
+  animation: tts-wave 0.6s ease-in-out infinite alternate;
+}
+@keyframes tts-wave {
+  0%   { transform: scale(1); }
+  100% { transform: scale(1.15); }
+}
+
 .input-hint {
   display: flex;
   align-items: center;
@@ -1098,6 +1151,8 @@ body::after {
     height: 38px;
     border-radius: var(--r-md);
   }
+
+  .mic-btn { width: 34px !important; height: 34px !important; }
 
   .input-icon { padding: 0 10px 0 12px; }
 
