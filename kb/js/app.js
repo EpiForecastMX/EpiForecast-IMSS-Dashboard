@@ -515,6 +515,7 @@ function addBotMessage(markdown, source, suggestions, chartData) {
         <span class="msg-source ${badgeClass}">${badgeText}</span>
         <span class="msg-time">${timeStr}</span>
         ${TTS_SUPPORTED ? '<button class="tts-btn" title="Escuchar respuesta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07"/><path d="M19.07 4.93a10 10 0 010 14.14"/></svg></button>' : ''}
+      </div>
       <div class="msg-bubble-bot">
         <div class="msg-content">${html}</div>
         ${chartHtml}
