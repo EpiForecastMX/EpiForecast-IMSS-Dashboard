@@ -294,9 +294,16 @@ function addBotMessage(markdown, source, suggestions, chartData) {
   }
 
   let chartHtml = '';
-  if (chartData) {
-    const canvasId = `chart-${++chartCounter}`;
-    chartHtml = `<div class="msg-chart-container"><canvas id="${canvasId}"></canvas></div>`;
+  const chartList = chartData ? (Array.isArray(chartData) ? chartData : [chartData]) : [];
+  if (chartList.length) {
+    const ids = chartList.map(() => `chart-${++chartCounter}`);
+    if (chartList.length > 1) {
+      chartHtml = `<div class="msg-chart-grid">` +
+        ids.map(id => `<div class="msg-chart-container"><canvas id="${id}"></canvas></div>`).join('') +
+        `</div>`;
+    } else {
+      chartHtml = `<div class="msg-chart-container"><canvas id="${ids[0]}"></canvas></div>`;
+    }
   }
 
   div.innerHTML = `
@@ -326,10 +333,14 @@ function addBotMessage(markdown, source, suggestions, chartData) {
     });
   });
 
-  // Render chart
-  if (chartData) {
-    const canvasId = `chart-${chartCounter}`;
-    requestAnimationFrame(() => renderChart(canvasId, chartData));
+  // Render charts
+  if (chartList.length) {
+    requestAnimationFrame(() => {
+      chartList.forEach((cd, i) => {
+        const id = chartCounter - chartList.length + 1 + i;
+        renderChart(`chart-${id}`, cd);
+      });
+    });
   }
 
   scrollToBottom();
@@ -364,37 +375,38 @@ function extractChartData(markdown, query) {
   const s = data.stats || {};
   const qn = query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-  // Comparacion pronostico vs real -> grouped bar chart
+  // Comparacion pronostico vs real -> 3 graficos separados (uno por padecimiento)
   const compTriggers = ['comparar', 'compara', 'comparacion', 'vs real', 'vs realidad',
     'acertamos', 'le atinamos', 'como le fue', 'como nos fue', 'pronosticado',
     'pronosticamos', 'predijimos', 'que tan preciso', 'que tan bien'];
   if (compTriggers.some(t => qn.includes(t))) {
     const wc = data.weekly_comparison;
     if (wc) {
-      const labels = [];
-      const pronData = [];
-      const realData = [];
+      const charts = [];
+      const sem = Object.values(wc)[0]?.semanas_reales || '?';
       for (const [name, info] of Object.entries(wc)) {
         const semanas = info.semanas || [];
         const reales = semanas.filter(s => s.real != null);
         if (!reales.length) continue;
         const last = reales[reales.length - 1];
-        labels.push(name.charAt(0).toUpperCase() + name.slice(1));
-        pronData.push(last.pronostico || 0);
-        realData.push(last.real || 0);
-      }
-      if (labels.length) {
-        const sem = Object.values(wc)[0]?.semanas_reales || '?';
-        return {
+        const pron = last.pronostico || 0;
+        const real = last.real || 0;
+        const displayName = dn(name.charAt(0).toUpperCase() + name.slice(1));
+        const errPct = real > 0 ? ((pron - real) / real * 100).toFixed(1) : '0.0';
+        const sign = pron > real ? '+' : '';
+        charts.push({
           type: 'bar',
-          title: `Semana ${sem}: Pronostico vs Real`,
-          labels: labels,
-          datasets: [
-            { label: 'Pronostico', data: pronData, backgroundColor: '#4A5D23CC', borderRadius: 6 },
-            { label: 'Real', data: realData, backgroundColor: '#BC955CCC', borderRadius: 6 },
-          ],
-        };
+          title: `${displayName} - Sem ${sem}: ${sign}${errPct}%`,
+          labels: ['Pronostico', 'Real'],
+          datasets: [{
+            label: displayName,
+            data: [pron, real],
+            backgroundColor: ['#4A5D23CC', '#BC955CCC'],
+            borderRadius: 6,
+          }],
+        });
       }
+      if (charts.length) return charts;
     }
   }
 
@@ -802,6 +814,12 @@ function renderChart(canvasId, chartData) {
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
 
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const titleColor = isDark ? '#F5F3EE' : '#2D2A26';
+  const tickColor = isDark ? '#CCC6BA' : '#5C5650';
+  const gridColor = isDark ? '#4A4640' : '#E5E2DA';
+  const legendColor = isDark ? '#E8E2D8' : undefined;
+
   const isHorizontal = chartData.horizontal;
   const config = {
     type: chartData.type,
@@ -811,33 +829,34 @@ function renderChart(canvasId, chartData) {
       maintainAspectRatio: true,
       indexAxis: isHorizontal ? 'y' : 'x',
       plugins: {
-        title: { 
-          display: true, 
-          text: chartData.title, 
-          font: { size: 14, weight: '700', family: 'Inter' }, 
-          color: '#2D2A26',
+        title: {
+          display: true,
+          text: chartData.title,
+          font: { size: 14, weight: '700', family: 'Inter' },
+          color: titleColor,
           padding: { bottom: 16 }
         },
         legend: {
           display: chartData.datasets.length > 1 || chartData.type === 'doughnut',
           position: chartData.type === 'doughnut' ? 'right' : 'top',
-          labels: { 
-            font: { size: 12, family: 'Inter' }, 
-            usePointStyle: true, 
+          labels: {
+            font: { size: 12, family: 'Inter' },
+            usePointStyle: true,
             padding: 16,
             boxWidth: 8,
+            color: legendColor,
           },
         },
       },
       scales: chartData.type === 'doughnut' ? {} : {
-        x: { 
-          grid: { display: false }, 
-          ticks: { font: { size: 11, family: 'Inter' }, color: '#5C5650' },
+        x: {
+          grid: { display: false },
+          ticks: { font: { size: 11, family: 'Inter' }, color: tickColor },
           border: { display: false }
         },
-        y: { 
-          grid: { color: '#E5E2DA', drawBorder: false }, 
-          ticks: { font: { size: 11, family: 'Inter' }, color: '#5C5650' },
+        y: {
+          grid: { color: gridColor, drawBorder: false },
+          ticks: { font: { size: 11, family: 'Inter' }, color: tickColor },
           border: { display: false }
         },
       },
