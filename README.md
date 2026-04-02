@@ -283,6 +283,15 @@ Todas las paginas incluyen navegacion cruzada entre si.
 - **INEGI** -- Datos demograficos complementarios por entidad federativa.
 - **knowledge.json** -- Generado por el pipeline del repo principal (`scripts/build_web_knowledge.py`), contiene: estadisticas globales, metricas por modelo/padecimiento/estado/sexo, datos del boletin, comparativa semanal, configuracion de entrenamiento.
 
+### Actualizacion semanal
+
+Desde el repo principal, un solo comando descarga el boletin mas reciente, regenera `knowledge.json` y hace push a este dashboard:
+
+```bash
+# En el repo EpiForecast-MX
+make update-week
+```
+
 ---
 
 ## Desarrollo Local
