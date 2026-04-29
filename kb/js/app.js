@@ -6,7 +6,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=69';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=70';
 import { detectEntities, norm } from './entities.js?v=26';
 import { renderMexicoMap } from './mexico-map.js?v=1';
 import { renderTimelapse } from './timelapse.js?v=1';
@@ -411,20 +411,32 @@ function addWelcome(data) {
   const s = data.stats || {};
   const total = s.total_modelos || 333;
   const motor = s.motor_ganador || 'DeepAR';
+  const smapeMean = s.smape_prod_mean ? `${s.smape_prod_mean.toFixed(1)}%` : '—';
+  const forecastTotal = s.pronostico_total ? Number(s.pronostico_total).toLocaleString('es-MX') : '—';
 
-  const md =
-    `¡Hola! Soy el asistente de la **Base de Conocimiento EpiForecast-MX**. ` +
-    `Tengo acceso a los datos de **${total} modelos** de producción.\n\n` +
-    `Pregúntame sobre métricas, padecimientos, pronósticos, el equipo o datos históricos del boletín epidemiológico.`;
+  // Hero card embebida en markdown como HTML inline (marked permite passthrough)
+  const hero = `<div class="welcome-hero">
+    <div class="welcome-hero-title">Hola, soy <span class="welcome-brand">EPI</span></div>
+    <div class="welcome-hero-sub">Tu copiloto de inteligencia epidemiológica del IMSS. Tengo acceso a <strong>${total} modelos</strong> de producción y datos del Boletín SINAVE 2014–2026.</div>
+    <div class="welcome-quickstats">
+      <div class="welcome-qs"><div class="welcome-qs-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 6-6"/></svg></div><div class="welcome-qs-meta"><span class="welcome-qs-val">${total}</span><span class="welcome-qs-lbl">modelos</span></div></div>
+      <div class="welcome-qs"><div class="welcome-qs-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="welcome-qs-meta"><span class="welcome-qs-val">52</span><span class="welcome-qs-lbl">semanas</span></div></div>
+      <div class="welcome-qs"><div class="welcome-qs-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M12 20l9-9-9-9-9 9 9 9z"/><path d="M12 12l4-4"/></svg></div><div class="welcome-qs-meta"><span class="welcome-qs-val">${smapeMean}</span><span class="welcome-qs-lbl">SMAPE</span></div></div>
+      <div class="welcome-qs"><div class="welcome-qs-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="22 7 13 16 8 11 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div><div class="welcome-qs-meta"><span class="welcome-qs-val">${motor}</span><span class="welcome-qs-lbl">motor líder</span></div></div>
+    </div>
+    <div class="welcome-hint">Escribe tu pregunta, presiona <kbd>/</kbd> para enfocar, o pulsa una sugerencia.</div>
+  </div>`;
 
   const suggestions = [
     { text: 'Métricas globales', q: 'metricas globales' },
     { text: '¿Qué es la depresión?', q: 'que es la depresion' },
     { text: 'Ranking de modelos', q: 'ranking mejores modelos' },
+    { text: 'Hombres vs mujeres', q: 'compara desempeno hombres vs mujeres' },
+    { text: 'Mapa de México por casos', q: 'mapa de mexico por casos' },
     { text: 'Equipo del proyecto', q: 'equipo del proyecto' },
   ];
 
-  addBotMessage(md, 'local', suggestions);
+  addBotMessage(hero, 'local', suggestions);
 }
 
 // ---------------------------------------------------------------------------

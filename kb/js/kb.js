@@ -3035,7 +3035,81 @@ function fuzzyCorrect(q) {
 // Handler: Comparacion semanal Real vs Pronostico 2026
 // ---------------------------------------------------------------------------
 
+// Handler dedicado: comparación de desempeño por sexo (hombres vs mujeres)
+function answerComparacionPorSexo(q, ent, s, d) {
+  const trigger =
+    (q.includes('hombre') && q.includes('mujer')) ||
+    /\b(por sexo|entre sexos|por genero|comparativa de sexo|desempeno.*sexo|sexo.*desempeno)\b/.test(q);
+  if (!trigger) return null;
+  // Necesita un verbo de comparación o métrica para confirmar intención
+  const verb = /\b(compar|diferenci|contrast|versus|\bvs\b|desempeno|metric|smape|pronost|cual.*mejor|cual.*peor)/.test(q);
+  if (!verb) return null;
+
+  const models = d?.prod_models || [];
+  if (!models.length) return null;
+
+  const PADS = ['Depresion', 'Parkinson', 'Alzheimer'];
+  const PAD_LABEL = { Depresion: 'Depresión', Parkinson: 'Parkinson', Alzheimer: 'Alzheimer' };
+  const SEXES = ['hombres', 'mujeres'];
+
+  // Filtra a 32 estados (sin Nacional/regiones) para evitar doble conteo en pronóstico
+  const realStates = models.filter(m =>
+    m.entidad !== 'Nacional' &&
+    !String(m.entidad || '').startsWith('Region') &&
+    !String(m.entidad || '').startsWith('region')
+  );
+
+  const lines = ['**Desempeño del modelo: hombres vs mujeres**\n'];
+  lines.push('Comparativa basada en los 333 modelos productivos (32 estados, sin doble conteo). Métricas SMAPE más bajas = mejor precisión.\n');
+  lines.push('| Padecimiento | Sexo | N | SMAPE medio | MASE medio | Pronóstico 52 sem |');
+  lines.push('|---|---|---:|---:|---:|---:|');
+
+  const summary = {};
+  for (const pad of PADS) {
+    summary[pad] = {};
+    for (const sx of SEXES) {
+      const subset = realStates.filter(m => m.padecimiento === pad && m.sexo === sx);
+      const smapes = subset.map(m => m.smape_prod).filter(v => v != null);
+      const mases = subset.map(m => m.mase_prod).filter(v => v != null);
+      const forecast = subset.reduce((sum, m) => sum + (m.casos_52_semanas_futuro || 0), 0);
+      const smapeAvg = smapes.length ? smapes.reduce((a, b) => a + b, 0) / smapes.length : null;
+      const maseAvg = mases.length ? mases.reduce((a, b) => a + b, 0) / mases.length : null;
+      summary[pad][sx] = { n: subset.length, smapeAvg, maseAvg, forecast };
+      const sxLabel = sx === 'hombres' ? 'Hombres' : 'Mujeres';
+      lines.push(`| **${PAD_LABEL[pad]}** | ${sxLabel} | ${subset.length} | ${smapeAvg != null ? smapeAvg.toFixed(2) + '%' : '—'} | ${maseAvg != null ? maseAvg.toFixed(2) : '—'} | ${fmt(forecast)} |`);
+    }
+  }
+
+  // Lecturas accionables
+  lines.push('\n**Lecturas clave:**');
+  for (const pad of PADS) {
+    const h = summary[pad].hombres;
+    const m = summary[pad].mujeres;
+    if (h.smapeAvg == null || m.smapeAvg == null) continue;
+    const mejor = h.smapeAvg < m.smapeAvg ? 'hombres' : 'mujeres';
+    const peor = mejor === 'hombres' ? 'mujeres' : 'hombres';
+    const diff = Math.abs(h.smapeAvg - m.smapeAvg).toFixed(2);
+    const ratio = h.forecast && m.forecast ? (m.forecast / h.forecast).toFixed(2) : null;
+    lines.push(`- **${PAD_LABEL[pad]}**: el modelo precisa más en **${mejor}** (SMAPE más bajo por ${diff} puntos vs ${peor}). ` +
+      (ratio ? `La carga proyectada de mujeres es **${ratio}×** la de hombres.` : ''));
+  }
+
+  lines.push('\n**Notas metodológicas:**');
+  lines.push('- SMAPE = Error porcentual absoluto simétrico (menor es mejor).');
+  lines.push('- MASE = Error escalado vs naive estacional; <1 supera a la línea base.');
+  lines.push('- Excluimos series Nacional y regionales para no contar dos veces.');
+  lines.push('- En padecimientos con baja incidencia (p. ej., Alzheimer), SMAPE puede inflarse por divisiones cercanas a cero.');
+
+  return lines.join('\n');
+}
+
 function answerComparacionSemanal(q, ent, s, d) {
+  // Guard: comparaciones por sexo o género no son lo que este handler resuelve.
+  // Dejar que answerComparacionPorSexo (o Gemini) las atienda.
+  const sexCompare = (q.includes('hombre') && q.includes('mujer')) ||
+                     /\b(por sexo|entre sexos|por genero|sexo masculino|sexo femenino|comparativa de sexo)\b/.test(q);
+  if (sexCompare) return null;
+
   const triggers = [
     'real vs pronostico', 'real vs prediccion', 'real vs forecast',
     'pronostico vs real', 'prediccion vs real', 'forecast vs real',
@@ -3680,6 +3754,7 @@ const HANDLERS = [
   answerSaludo, answerPadecimientoNoModelado, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerTemporal, answerProyectoMeta,
   answerTrainingConfig, answerSemanaActual, answerQueEsPadecimiento,
   answerTimelapse, answerSemaforo, answerReportePDF,
+  answerComparacionPorSexo,
   answerComparacionSemanal, answerMapaMexico, answerTreemap, answerRadar, answerSparklines, answerStackedArea,
   answerCorredor, answerErrorHeatmap, answerZoom,
   answerBoletin, answerHistorico, answerComparativaEstados, answerSpecificSeries, answerEstado, answerPadecimiento,
