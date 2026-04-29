@@ -13,6 +13,38 @@ import { fileURLToPath } from 'url';
 // Cache knowledge.json in memory (cold start only)
 let knowledgeCache = null;
 
+// Rate limit por IP (sliding window, in-memory por warm instance).
+// No protege entre cold starts pero filtra ráfagas obvias.
+const RATE_LIMIT = { windowMs: 60_000, max: 20 }; // 20 consultas / minuto / IP
+const rateBucket = new Map(); // ip -> [timestamps]
+
+function checkRateLimit(ip) {
+  if (!ip) return { ok: true };
+  const now = Date.now();
+  const timestamps = (rateBucket.get(ip) || []).filter(t => now - t < RATE_LIMIT.windowMs);
+  if (timestamps.length >= RATE_LIMIT.max) {
+    const retryAfterSec = Math.ceil((RATE_LIMIT.windowMs - (now - timestamps[0])) / 1000);
+    return { ok: false, retryAfterSec };
+  }
+  timestamps.push(now);
+  rateBucket.set(ip, timestamps);
+  // GC: limita el mapa a 1000 IPs activas
+  if (rateBucket.size > 1000) {
+    const stale = Array.from(rateBucket.entries())
+      .filter(([, ts]) => now - ts[ts.length - 1] > RATE_LIMIT.windowMs);
+    for (const [k] of stale) rateBucket.delete(k);
+  }
+  return { ok: true };
+}
+
+function getClientIp(req) {
+  const headers = req.headers;
+  // Netlify pasa la IP real en x-nf-client-connection-ip; fallback a x-forwarded-for
+  return headers.get('x-nf-client-connection-ip') ||
+         (headers.get('x-forwarded-for') || '').split(',')[0].trim() ||
+         'unknown';
+}
+
 function loadKnowledge() {
   if (knowledgeCache) return knowledgeCache;
   try {
@@ -257,11 +289,24 @@ export default async function handler(req) {
     return json({ error: 'GEMINI_API_KEY no configurada' }, 500);
   }
 
+  // Rate limit por IP
+  const ip = getClientIp(req);
+  const rl = checkRateLimit(ip);
+  if (!rl.ok) {
+    return new Response(
+      JSON.stringify({ error: `Has hecho muchas consultas seguidas. Espera ${rl.retryAfterSec} segundos antes de volver a intentar.` }),
+      { status: 429, headers: { ...CORS, 'Retry-After': String(rl.retryAfterSec) } },
+    );
+  }
+
   const query = body.query || '';
   const history = body.history || [];
 
   if (!query.trim()) {
     return json({ error: 'Pregunta vacía' }, 400);
+  }
+  if (query.length > 2000) {
+    return json({ error: 'La pregunta es demasiado larga (máximo 2000 caracteres).' }, 400);
   }
 
   const data = loadKnowledge();

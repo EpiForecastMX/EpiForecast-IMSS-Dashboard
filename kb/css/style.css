@@ -850,10 +850,24 @@ body::after {
 }
 
 /* Typing indicator */
+.typing-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 16px;
+}
+
 .typing {
   display: inline-flex;
   gap: 6px;
-  padding: 14px 18px;
+}
+
+.typing-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  animation: label-fade 1.6s ease-in-out infinite;
 }
 
 .typing span {
@@ -871,6 +885,11 @@ body::after {
 @keyframes bounce {
   0%, 80%, 100% { transform: scale(0.5); opacity: 0.3; }
   40% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes label-fade {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
 }
 
 /* ─── INPUT BAR ─── */
@@ -992,24 +1011,41 @@ body::after {
   50%      { box-shadow: 0 0 0 8px rgba(200, 58, 90, 0); }
 }
 
-/* ─── TTS SPEAKER BUTTON ─── */
-.tts-btn {
+/* ─── ACCIONES DE MENSAJE (copy / TTS) ─── */
+.msg-action-btn {
   background: none;
   border: none;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 2px;
-  margin-left: 6px;
+  padding: 6px;
+  margin-left: 4px;
   display: inline-flex;
   align-items: center;
-  border-radius: 4px;
-  transition: color 0.2s, background 0.2s;
+  justify-content: center;
+  border-radius: 6px;
+  transition: color 0.2s, background 0.2s, transform 0.15s;
   vertical-align: middle;
+  min-width: 28px;
+  min-height: 28px;
 }
-.tts-btn:hover {
+.msg-action-btn:hover {
   color: var(--teal);
   background: rgba(46, 196, 168, 0.08);
 }
+.msg-action-btn:active { transform: scale(0.92); }
+
+.copy-btn.copied {
+  color: var(--teal);
+  background: rgba(46, 196, 168, 0.14);
+}
+.copy-btn.copied svg { animation: copy-pop 0.3s ease-out; }
+@keyframes copy-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+/* TTS keeps its own state styling */
 .tts-btn.tts-speaking {
   color: var(--teal);
   animation: tts-wave 0.6s ease-in-out infinite alternate;
@@ -1017,6 +1053,26 @@ body::after {
 @keyframes tts-wave {
   0%   { transform: scale(1); }
   100% { transform: scale(1.15); }
+}
+
+/* ─── MOBILE THUMB-FIRST: targets ≥ 44px ─── */
+@media (max-width: 768px) {
+  .mic-btn, #sendBtn, .prompt-toggle {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  .msg-action-btn {
+    min-width: 36px;
+    min-height: 36px;
+    padding: 8px;
+  }
+  .prompt-item {
+    min-height: 36px;
+    padding: 8px 14px;
+  }
+  .voice-header-btn, .reset-btn {
+    min-height: 36px;
+  }
 }
 
 .input-hint {

@@ -470,7 +470,7 @@ async function handleSend() {
     return;
   }
 
-  const typingEl = addTypingIndicator();
+  const typingEl = addTypingIndicator('EPI está consultando la IA');
   try {
     const resp = await fetch('/.netlify/functions/ask', {
       method: 'POST',
@@ -485,22 +485,18 @@ async function handleSend() {
     } else {
       const errData = await resp.json().catch(() => ({}));
       console.warn('Gemini response error:', resp.status, errData);
-      if (resp.status === 500 && errData.detail) {
-        addBotMessage(
-          `No pude consultar la IA en este momento.\n\n**Error:** ${errData.detail}\n\n` +
-          'Mientras tanto, prueba con preguntas sobre el proyecto como "metricas globales" o "equipo del proyecto".',
-          'error'
-        );
-      } else {
-        addBotMessage(noMatchMessage(), 'local');
-      }
+      const userMsg = errData.error || 'No pude consultar la IA en este momento.';
+      addBotMessage(
+        `${userMsg}\n\nMientras tanto, prueba con preguntas sobre el proyecto, por ejemplo «métricas globales» o «equipo del proyecto».`,
+        'error'
+      );
     }
   } catch (err) {
     removeTyping(typingEl);
     console.warn('Gemini fetch error:', err);
     addBotMessage(
-      'No pude conectar con el servicio de IA.\n\n' +
-      'Puedo responder preguntas sobre datos del proyecto. Prueba: "metricas globales", "equipo" o "depresion en Jalisco".',
+      'No pude conectar con el servicio de IA. Verifica tu conexión a internet.\n\n' +
+      'Mientras tanto, puedo responder preguntas sobre datos del proyecto. Prueba: «métricas globales», «equipo» o «depresión en Jalisco».',
       'error'
     );
   }
@@ -610,7 +606,8 @@ function addBotMessage(markdown, source, suggestions, chartData) {
         <span class="msg-name">EpiForecast-MX</span>
         <span class="msg-source ${badgeClass}">${badgeText}</span>
         <span class="msg-time">${timeStr}</span>
-        ${TTS_SUPPORTED ? '<button class="tts-btn" title="Escuchar respuesta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07"/><path d="M19.07 4.93a10 10 0 010 14.14"/></svg></button>' : ''}
+        <button class="msg-action-btn copy-btn" title="Copiar respuesta" aria-label="Copiar respuesta al portapapeles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+        ${TTS_SUPPORTED ? '<button class="msg-action-btn tts-btn" title="Escuchar respuesta" aria-label="Escuchar respuesta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07"/><path d="M19.07 4.93a10 10 0 010 14.14"/></svg></button>' : ''}
       </div>
       <div class="msg-bubble-bot">
         <div class="msg-content">${html}</div>
@@ -628,6 +625,32 @@ function addBotMessage(markdown, source, suggestions, chartData) {
       handleSend();
     });
   });
+
+  // Bind copy button
+  const copyBtn = div.querySelector('.copy-btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', async () => {
+      try {
+        // Texto plano (markdown sin marcas) para portapapeles cómodo
+        const plain = cleanMarkdown
+          .replace(/\*\*(.*?)\*\*/g, '$1')
+          .replace(/\*(.*?)\*/g, '$1')
+          .replace(/`(.*?)`/g, '$1')
+          .replace(/\[(.*?)\]\(.*?\)/g, '$1')
+          .replace(/<!--.*?-->/g, '')
+          .trim();
+        await navigator.clipboard.writeText(plain);
+        copyBtn.classList.add('copied');
+        copyBtn.setAttribute('title', 'Copiado');
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+          copyBtn.setAttribute('title', 'Copiar respuesta');
+        }, 1500);
+      } catch (err) {
+        console.warn('Copy falló:', err);
+      }
+    });
+  }
 
   // TTS: bind speaker button + auto-speak if query was by voice
   const ttsBtn = div.querySelector('.tts-btn');
@@ -683,17 +706,23 @@ function addBotMessage(markdown, source, suggestions, chartData) {
   scrollToBottom();
 }
 
-function addTypingIndicator() {
+function addTypingIndicator(label) {
   const div = document.createElement('div');
   div.className = 'msg msg-bot';
   div.id = 'typing-indicator';
+  const txt = label || 'EPI está pensando';
   div.innerHTML = `
     <div class="msg-avatar">
       <img src="EPI.jpg" alt="EpiForecast-MX" />
     </div>
     <div class="msg-body">
       <div class="msg-meta"><span class="msg-name">EpiForecast-MX</span></div>
-      <div class="msg-bubble-bot"><div class="typing"><span></span><span></span><span></span></div></div>
+      <div class="msg-bubble-bot">
+        <div class="typing-row">
+          <div class="typing"><span></span><span></span><span></span></div>
+          <span class="typing-label">${txt}…</span>
+        </div>
+      </div>
     </div>`;
   chatArea.appendChild(div);
   scrollToBottom();
@@ -701,6 +730,20 @@ function addTypingIndicator() {
 }
 
 function removeTyping(el) { if (el && el.parentNode) el.parentNode.removeChild(el); }
+
+// Atajo de teclado: "/" enfoca el input (estilo Slack/GitHub)
+document.addEventListener('keydown', (e) => {
+  // Solo si no estás escribiendo en otro input/textarea
+  const tgt = e.target;
+  const isTyping = tgt && (tgt.tagName === 'INPUT' || tgt.tagName === 'TEXTAREA' || tgt.isContentEditable);
+  if (e.key === '/' && !isTyping && !e.metaKey && !e.ctrlKey) {
+    e.preventDefault();
+    if (inputField) {
+      inputField.focus();
+      inputField.select?.();
+    }
+  }
+});
 
 // ---------------------------------------------------------------------------
 // Chart.js integration
