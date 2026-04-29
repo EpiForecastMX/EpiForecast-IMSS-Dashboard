@@ -21,14 +21,29 @@
 
   /* IMSS Palette */
   --burgundy: #C83A5A;
+  --burgundy-bright: #E04A6E;
   --burgundy-dim: rgba(200, 58, 90, 0.18);
   --burgundy-glow: rgba(200, 58, 90, 0.30);
   --teal: #2EC4A8;
+  --teal-bright: #4FE5C9;
+  --teal-deep: #0F8772;
   --teal-dim: rgba(46, 196, 168, 0.15);
   --teal-glow: rgba(46, 196, 168, 0.25);
   --gold: #D4A84B;
+  --gold-bright: #F0C460;
+  --gold-deep: #9C7E33;
   --gold-dim: rgba(212, 168, 75, 0.15);
   --gold-glow: rgba(212, 168, 75, 0.25);
+
+  /* Gradientes señalan jerarquía */
+  --grad-primary: linear-gradient(135deg, var(--teal) 0%, var(--teal-bright) 100%);
+  --grad-aurora: linear-gradient(135deg, var(--teal) 0%, #4FE5C9 35%, var(--gold) 70%, var(--gold-bright) 100%);
+  --grad-burg: linear-gradient(135deg, var(--burgundy) 0%, var(--burgundy-bright) 100%);
+
+  /* Sombras de color (chart hover, focus, hero) */
+  --glow-teal-strong: 0 0 24px rgba(79, 229, 201, 0.35), 0 0 60px rgba(46, 196, 168, 0.18);
+  --glow-gold-strong: 0 0 24px rgba(240, 196, 96, 0.30), 0 0 60px rgba(212, 168, 75, 0.15);
+  --glow-burg-strong: 0 0 24px rgba(224, 74, 110, 0.30), 0 0 60px rgba(200, 58, 90, 0.15);
 
   /* Neutrals */
   --text-primary: #EDF3EF;
@@ -914,44 +929,102 @@ body::after {
   opacity: 1;
 }
 
-/* Charts */
+/* Charts — paneles más grandes, dramáticos */
 .msg-chart-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-top: 14px;
+  grid-template-columns: repeat(2, 1fr); /* antes 3 — más espacio por chart */
+  gap: 14px;
+  margin-top: 18px;
 }
 
 .msg-chart-grid .msg-chart-container {
   margin-top: 0;
 }
 
+
 .msg-chart-stack {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 14px;
+  gap: 16px;
+  margin-top: 18px;
 }
 
 .msg-chart-stack .msg-chart-container {
   margin-top: 0;
 }
 
-.msg-chart-stack .msg-chart-container canvas {
-  max-height: 320px;
-}
 
 .msg-chart-container {
-  margin-top: 14px;
-  padding: 16px;
-  background: var(--bg-raised);
-  border-radius: var(--r-md);
+  margin-top: 18px;
+  padding: 20px 22px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(46, 196, 168, 0.04), transparent 50%),
+    var(--bg-raised);
+  border-radius: var(--r-lg);
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  transition: border-color 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
+  position: relative;
+  height: 460px;
+}
+
+.msg-chart-grid .msg-chart-container { height: 380px; }
+.msg-chart-stack .msg-chart-container { height: 440px; }
+@media (min-width: 1400px) {
+  .msg-chart-container { height: 520px; }
+  .msg-chart-grid .msg-chart-container { height: 440px; }
+}
+@media (max-width: 768px) {
+  .msg-chart-container { height: 360px; padding: 14px 16px; }
+  .msg-chart-grid .msg-chart-container { height: 320px; }
+}
+
+/* Contenedores custom (mapa, semaforo, comparador, timelapse) usan padding interno propio */
+.msg-chart-container:has(.mexico-map-wrapper),
+.msg-chart-container:has(.timelapse-wrapper),
+.msg-chart-container:has(.semaforo-wrapper),
+.msg-chart-container:has(.comparador-wrapper) {
+  height: auto;
+  min-height: unset;
+}
+
+.msg-chart-container::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--grad-aurora);
+  opacity: 0.55;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+}
+
+.msg-chart-container:hover {
+  border-color: var(--border-accent);
+  box-shadow: var(--shadow-md), var(--glow-teal-strong);
 }
 
 .msg-chart-container canvas {
-  max-height: 280px;
-  width: 100%;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none;
+}
+
+/* Mensajes que contienen chart standalone se expanden mucho más ancho */
+.msg-bot:has(.msg-chart-container:only-child),
+.msg-bot:has(.msg-chart-grid),
+.msg-bot:has(.msg-chart-stack) {
+  max-width: 96%;
+}
+
+/* Para mapas de México y herramientas custom, todavía más espacio */
+.msg-bot:has(#tl-1, [id^="tl-"], [id^="sem-"], [id^="cmp-"], [id^="map-"]) {
+  max-width: 98%;
+}
+
+@media (min-width: 1400px) {
+  .msg-bot:has(.msg-chart-container) {
+    max-width: 92%;
+  }
 }
 
 /* Typing indicator */

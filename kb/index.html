@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=36">
+  <link rel="stylesheet" href="css/style.css?v=37">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <style>
@@ -475,7 +475,7 @@
     .mexico-map-svg-wrap {
       position: relative;
       width: 100%;
-      max-width: 600px;
+      max-width: 920px;
       margin: 0 auto;
     }
 
@@ -559,7 +559,7 @@
     }
 
     /* ═══════════ SEMAFORO ═══════════ */
-    .semaforo-wrapper { max-width: 700px; }
+    .semaforo-wrapper { max-width: 1100px; }
     .semaforo-title { font-size: 13px; font-weight: 700; color: #EDF3EF; margin-bottom: 10px; }
     .semaforo-summary { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
     .semaforo-badge {
@@ -574,7 +574,7 @@
       border-radius: 0 6px 6px 0; line-height: 1.7;
     }
     .semaforo-alerts-title { font-weight: 700; color: #C83A5A; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .semaforo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .semaforo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
     @media (max-width: 600px) { .semaforo-grid { grid-template-columns: repeat(2, 1fr); } }
     .semaforo-card {
       background: rgba(255,255,255,0.03); border-radius: 8px; padding: 8px 10px;
@@ -588,7 +588,7 @@
     .semaforo-card-smape { font-size: 9px; font-family: 'JetBrains Mono', monospace; margin-top: 2px; padding: 1px 6px; border-radius: 8px; display: inline-block; }
 
     /* ═══════════ COMPARADOR ═══════════ */
-    .comparador-wrapper { max-width: 700px; }
+    .comparador-wrapper { max-width: 1100px; }
     .comparador-title { font-size: 13px; font-weight: 700; color: #EDF3EF; margin-bottom: 12px; }
     .comparador-split { display: flex; gap: 0; }
     .comparador-col { flex: 1; padding: 10px 14px; }
@@ -951,6 +951,6 @@
     })();
   </script>
 
-  <script type="module" src="js/app.js?v=81"></script>
+  <script type="module" src="js/app.js?v=82"></script>
 </body>
 </html>

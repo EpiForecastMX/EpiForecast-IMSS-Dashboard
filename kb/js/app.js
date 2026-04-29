@@ -130,16 +130,18 @@ function polishSpanish(text) {
   return out;
 }
 
-// Paleta mejorada basada en el logo
+// Paleta mejorada basada en el logo - más vibrante y diferenciada
 const CHART_COLORS = [
-  '#2EC4A8', // teal
-  '#D4A84B', // gold
-  '#C83A5A', // burgundy
-  '#6DD6C2', // teal claro
-  '#E8C56D', // gold claro
-  '#E06080', // burgundy claro
+  '#2EC4A8', // teal IMSS
+  '#D4A84B', // gold IMSS
+  '#C83A5A', // burgundy IMSS
+  '#4FE5C9', // teal electric (highlights)
+  '#F0C460', // gold electric
+  '#E04A6E', // burgundy electric
+  '#7B5FD6', // morado complementario
+  '#3B9AE8', // azul claro complementario
   '#1DA88E', // teal oscuro
-  '#8FA99D', // sage
+  '#FF8F4F', // naranja accent
   '#A8D8C8', // mint
   '#F0D090', // cream gold
 ];
@@ -2267,52 +2269,82 @@ function renderChart(canvasId, chartData) {
     data: { labels: chartData.labels, datasets: chartData.datasets },
     options: {
       responsive: true,
-      maintainAspectRatio: true,
+      maintainAspectRatio: false,  // Llenan el contenedor; canvas controla el tamaño vía CSS
       indexAxis: isHorizontal ? 'y' : 'x',
+      interaction: { mode: 'index', intersect: false },
+      animation: { duration: 700, easing: 'easeOutCubic' },
       plugins: {
         title: {
           display: true,
           text: chartData.title,
-          font: { size: 14, weight: '700', family: 'Outfit' },
-          color: '#E8F0EC',
-          padding: { bottom: 16 }
+          font: { size: 16, weight: '800', family: 'Outfit' },
+          color: '#EDF3EF',
+          padding: { bottom: 20, top: 4 },
+          align: 'start',
         },
         legend: {
           display: chartData.datasets.length > 1 || chartData.type === 'doughnut',
           position: chartData.type === 'doughnut' ? 'right' : 'top',
+          align: 'end',
           labels: {
-            font: { size: 12, family: 'Outfit' },
-            color: '#8FA99D',
+            font: { size: 12, family: 'Outfit', weight: '600' },
+            color: '#A3BDB2',
             usePointStyle: true,
-            padding: 16,
+            pointStyle: 'circle',
+            padding: 18,
             boxWidth: 8,
             filter: () => true,
           },
         },
+        tooltip: {
+          backgroundColor: 'rgba(15, 22, 20, 0.96)',
+          titleColor: '#4FE5C9',
+          titleFont: { size: 13, weight: '700', family: 'Outfit' },
+          bodyColor: '#EDF3EF',
+          bodyFont: { size: 12, family: 'Outfit' },
+          borderColor: 'rgba(46, 196, 168, 0.45)',
+          borderWidth: 1,
+          cornerRadius: 10,
+          padding: 12,
+          displayColors: true,
+          boxPadding: 6,
+          usePointStyle: true,
+          caretSize: 7,
+        },
       },
       scales: chartData.type === 'doughnut' ? {} : chartData.type === 'radar' ? {
         r: {
-          angleLines: { color: 'rgba(46, 196, 168, 0.15)' },
-          grid: { color: 'rgba(46, 196, 168, 0.1)' },
-          pointLabels: { font: { size: 11, family: 'Outfit' }, color: '#8FA99D' },
-          ticks: { font: { size: 9 }, color: '#8FA99D', backdropColor: 'transparent' },
+          angleLines: { color: 'rgba(46, 196, 168, 0.18)' },
+          grid: { color: 'rgba(46, 196, 168, 0.12)' },
+          pointLabels: { font: { size: 12, family: 'Outfit', weight: '600' }, color: '#A3BDB2' },
+          ticks: { font: { size: 10 }, color: '#7A9A8D', backdropColor: 'transparent' },
           beginAtZero: true,
           max: 100,
         },
       } : {
         x: {
           grid: { display: false },
-          ticks: { font: { size: 11, family: 'Outfit' }, color: '#8FA99D' },
-          border: { display: false }
+          ticks: { font: { size: 11, family: 'Outfit', weight: '500' }, color: '#A3BDB2', padding: 6 },
+          border: { display: false },
         },
         y: {
-          grid: { color: 'rgba(46, 196, 168, 0.1)', drawBorder: false },
-          ticks: { font: { size: 11, family: 'Outfit' }, color: '#8FA99D' },
-          border: { display: false }
+          grid: { color: 'rgba(46, 196, 168, 0.08)', drawBorder: false, lineWidth: 1 },
+          ticks: { font: { size: 11, family: 'Outfit', weight: '500' }, color: '#A3BDB2', padding: 8 },
+          border: { display: false },
         },
       },
     },
   };
+
+  // Engruesa líneas y puntos para mayor presencia visual
+  if (chartData.type === 'line') {
+    for (const ds of chartData.datasets) {
+      if (ds.borderWidth == null) ds.borderWidth = 2.5;
+      if (ds.pointRadius == null) ds.pointRadius = 0;
+      if (ds.pointHoverRadius == null) ds.pointHoverRadius = 6;
+      if (ds.tension == null) ds.tension = 0.32;
+    }
+  }
 
   // Merge custom options (e.g. axis titles, stacked, indexAxis)
   if (chartData.options) {
