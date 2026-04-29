@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0F1614">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="description" content="Base de Conocimiento EpiForecast-MX — Inteligencia Epidemiologica IMSS">
+  <meta name="description" content="Base de Conocimiento EpiForecast-MX (Inteligencia Epidemiológica IMSS)">
   <title>Base de Conocimiento — EpiForecast-MX</title>
   <link rel="icon" href="EPI.jpg" type="image/jpeg">
   <link rel="apple-touch-icon" href="EPI.jpg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=33">
+  <link rel="stylesheet" href="css/style.css?v=34">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <style>
@@ -636,10 +636,10 @@
       <div class="site-nav-links">
         <a href="../index.html">Inicio</a>
         <a href="../EpiDashboard.html">Dashboard</a>
-        <a href="../Reports/index.html">Pronosticos</a>
+        <a href="../Reports/index.html">Pronósticos</a>
         <a href="../reporte_resultados.html">Resultados</a>
-        <a href="../comparacion_modelos.html">Comparacion</a>
-        <a href="../validacion_semanal.html">Validacion</a>
+        <a href="../comparacion_modelos.html">Comparación</a>
+        <a href="../validacion_semanal.html">Validación</a>
         <a href="../conclusiones.html">Conclusiones</a>
         <a href="index.html" class="active">Base de Conocimiento</a>
       </div>
@@ -649,7 +649,7 @@
         Dashboard
       </a>
 
-      <button class="nav-toggle" id="navToggle" aria-label="Menu">
+      <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false" aria-controls="navPanel">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="22" height="22">
           <line x1="3" y1="6" x2="21" y2="6"/>
           <line x1="3" y1="12" x2="21" y2="12"/>
@@ -661,8 +661,8 @@
 
   <!-- Mobile nav overlay + panel -->
   <div class="nav-mobile-overlay" id="navOverlay"></div>
-  <div class="nav-mobile-panel" id="navPanel">
-    <button class="nav-mobile-close" id="navClose" aria-label="Cerrar menu">
+  <div class="nav-mobile-panel" id="navPanel" role="dialog" aria-modal="true" aria-label="Menú de navegación" aria-hidden="true">
+    <button class="nav-mobile-close" id="navClose" aria-label="Cerrar menú">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="22" height="22">
         <line x1="18" y1="6" x2="6" y2="18"/>
         <line x1="6" y1="6" x2="18" y2="18"/>
@@ -670,10 +670,10 @@
     </button>
     <a href="../index.html">Inicio</a>
     <a href="../EpiDashboard.html">Dashboard</a>
-    <a href="../Reports/index.html">Pronosticos</a>
+    <a href="../Reports/index.html">Pronósticos</a>
     <a href="../reporte_resultados.html">Resultados</a>
-    <a href="../comparacion_modelos.html">Comparacion</a>
-    <a href="../validacion_semanal.html">Validacion</a>
+    <a href="../comparacion_modelos.html">Comparación</a>
+    <a href="../validacion_semanal.html">Validación</a>
     <a href="../conclusiones.html">Conclusiones</a>
     <a href="index.html" class="active">Base de Conocimiento</a>
   </div>
@@ -688,7 +688,7 @@
           <img src="EPI.jpg" alt="EpiForecast-MX Logo">
         </div>
         <div class="header-info">
-          <h1>Base de Conocimiento <span class="header-sub">Inteligencia Epidemiologica IMSS</span></h1>
+          <h1>Base de Conocimiento <span class="header-sub">Inteligencia Epidemiológica IMSS</span></h1>
         </div>
       </div>
       <div class="header-stats">
@@ -712,7 +712,7 @@
           </svg>
           <span class="voice-btn-label">Voz</span>
         </button>
-        <button id="resetBtn" class="reset-btn" title="Limpiar conversacion y empezar de nuevo">
+        <button id="resetBtn" class="reset-btn" title="Limpiar conversación y empezar de nuevo" aria-label="Limpiar conversación">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
             <path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
           </svg>
@@ -727,23 +727,23 @@
     </header>
 
     <!-- Chat area -->
-    <main class="chat-area" id="chatArea">
+    <main class="chat-area" id="chatArea" role="log" aria-live="polite" aria-relevant="additions" aria-label="Conversación con EPI">
       <!-- Welcome injected by JS -->
     </main>
 
     <!-- Input -->
     <footer class="input-bar">
       <!-- Prompt menu panel -->
-      <div class="prompt-menu" id="promptMenu">
+      <div class="prompt-menu" id="promptMenu" role="dialog" aria-modal="false" aria-labelledby="promptMenuTitle" aria-hidden="true">
         <div class="prompt-menu-header">
-          <span class="prompt-menu-title">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+          <span class="prompt-menu-title" id="promptMenuTitle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
             </svg>
             Consultas sugeridas
           </span>
-          <button class="prompt-menu-close" id="promptMenuClose" aria-label="Cerrar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16">
+          <button class="prompt-menu-close" id="promptMenuClose" aria-label="Cerrar consultas sugeridas">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16" aria-hidden="true">
               <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
             </svg>
           </button>
@@ -752,41 +752,41 @@
           <div class="prompt-cat">
             <span class="prompt-cat-label">Herramientas avanzadas</span>
             <button class="prompt-item" data-q="timelapse mapa animado">Timelapse (mapa animado)</button>
-            <button class="prompt-item" data-q="semaforo epidemiologico">Semaforo epidemiologico</button>
+            <button class="prompt-item" data-q="semaforo epidemiologico">Semáforo epidemiológico</button>
             <button class="prompt-item" data-q="compara Jalisco y Nuevo Leon">Comparador de estados</button>
             <button class="prompt-item" data-q="generar reporte pdf">Reporte ejecutivo PDF</button>
           </div>
           <div class="prompt-cat">
-            <span class="prompt-cat-label">Metricas y calidad</span>
-            <button class="prompt-item" data-q="metricas globales">Metricas globales</button>
-            <button class="prompt-item" data-q="ranking mejores modelos">Ranking mejores modelos</button>
-            <button class="prompt-item" data-q="diagnosticos de calidad">Diagnosticos de calidad</button>
-            <button class="prompt-item" data-q="validacion semanal">Validacion semanal</button>
+            <span class="prompt-cat-label">Métricas y calidad</span>
+            <button class="prompt-item" data-q="metricas globales">Métricas globales</button>
+            <button class="prompt-item" data-q="ranking mejores modelos">Ranking de mejores modelos</button>
+            <button class="prompt-item" data-q="diagnosticos de calidad">Diagnósticos de calidad</button>
+            <button class="prompt-item" data-q="validacion semanal">Validación semanal</button>
           </div>
           <div class="prompt-cat">
-            <span class="prompt-cat-label">Graficos y visualizaciones</span>
-            <button class="prompt-item" data-q="tendencia historica de depresion">Tendencia historica</button>
+            <span class="prompt-cat-label">Gráficos y visualizaciones</span>
+            <button class="prompt-item" data-q="tendencia historica de depresion">Tendencia histórica</button>
             <button class="prompt-item" data-q="zoom semanal">Zoom semanal</button>
             <button class="prompt-item" data-q="corredor de confianza">Corredor de confianza</button>
             <button class="prompt-item" data-q="heatmap error semanal">Heatmap de error</button>
             <button class="prompt-item" data-q="radar comparativo de motores">Radar de motores</button>
             <button class="prompt-item" data-q="panorama nacional treemap">Treemap por entidad</button>
             <button class="prompt-item" data-q="sparklines vista general">Sparklines (estados)</button>
-            <button class="prompt-item" data-q="area apilada por padecimiento">Area apilada</button>
+            <button class="prompt-item" data-q="area apilada por padecimiento">Área apilada</button>
           </div>
           <div class="prompt-cat">
-            <span class="prompt-cat-label">Mapas de Mexico (casos)</span>
+            <span class="prompt-cat-label">Mapas de México (casos)</span>
             <button class="prompt-item" data-q="mapa de mexico por casos">Todos</button>
-            <button class="prompt-item" data-q="mapa de mexico depresion">Depresion</button>
+            <button class="prompt-item" data-q="mapa de mexico depresion">Depresión</button>
             <button class="prompt-item" data-q="mapa de mexico parkinson">Parkinson</button>
             <button class="prompt-item" data-q="mapa de mexico alzheimer">Alzheimer</button>
             <button class="prompt-item" data-q="mapa de mexico hombres">Hombres</button>
             <button class="prompt-item" data-q="mapa de mexico mujeres">Mujeres</button>
           </div>
           <div class="prompt-cat">
-            <span class="prompt-cat-label">Mapas de Mexico (SMAPE)</span>
+            <span class="prompt-cat-label">Mapas de México (SMAPE)</span>
             <button class="prompt-item" data-q="mapa de mexico por smape">Todos</button>
-            <button class="prompt-item" data-q="mapa de mexico depresion smape">Depresion</button>
+            <button class="prompt-item" data-q="mapa de mexico depresion smape">Depresión</button>
             <button class="prompt-item" data-q="mapa de mexico parkinson smape">Parkinson</button>
             <button class="prompt-item" data-q="mapa de mexico alzheimer smape">Alzheimer</button>
             <button class="prompt-item" data-q="mapa de mexico hombres smape">Hombres</button>
@@ -794,18 +794,18 @@
           </div>
           <div class="prompt-cat">
             <span class="prompt-cat-label">Padecimientos</span>
-            <button class="prompt-item" data-q="que es la depresion">Depresion (F32)</button>
+            <button class="prompt-item" data-q="que es la depresion">Depresión (F32)</button>
             <button class="prompt-item" data-q="que es el parkinson">Parkinson (G20)</button>
             <button class="prompt-item" data-q="que es el alzheimer">Alzheimer (G30)</button>
-            <button class="prompt-item" data-q="pronostico depresion">Pronostico Depresion</button>
-            <button class="prompt-item" data-q="pronostico parkinson">Pronostico Parkinson</button>
-            <button class="prompt-item" data-q="pronostico alzheimer">Pronostico Alzheimer</button>
+            <button class="prompt-item" data-q="pronostico depresion">Pronóstico Depresión</button>
+            <button class="prompt-item" data-q="pronostico parkinson">Pronóstico Parkinson</button>
+            <button class="prompt-item" data-q="pronostico alzheimer">Pronóstico Alzheimer</button>
           </div>
           <div class="prompt-cat">
             <span class="prompt-cat-label">Modelos y motores</span>
             <button class="prompt-item" data-q="comparativa de motores">Comparativa de motores</button>
-            <button class="prompt-item" data-q="configuracion de entrenamiento">Configuracion de entrenamiento</button>
-            <button class="prompt-item" data-q="composicion de los 333 modelos">Composicion (333 modelos)</button>
+            <button class="prompt-item" data-q="configuracion de entrenamiento">Configuración de entrenamiento</button>
+            <button class="prompt-item" data-q="composicion de los 333 modelos">Composición (333 modelos)</button>
             <button class="prompt-item" data-q="que es prophet">Prophet</button>
             <button class="prompt-item" data-q="que es deepar">DeepAR</button>
           </div>
@@ -818,46 +818,47 @@
             <button class="prompt-item" data-q="equipo del proyecto">Equipo</button>
             <button class="prompt-item" data-q="infraestructura del proyecto">Infraestructura</button>
             <button class="prompt-item" data-q="que padecimientos modela">Alcance</button>
-            <button class="prompt-item" data-q="horizonte de pronostico">Horizonte de pronostico</button>
+            <button class="prompt-item" data-q="horizonte de pronostico">Horizonte de pronóstico</button>
           </div>
         </div>
       </div>
 
       <div class="input-wrapper">
-        <button class="prompt-toggle" id="promptToggle" title="Ver consultas sugeridas" aria-label="Menu de consultas">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="18" height="18">
+        <button class="prompt-toggle" id="promptToggle" title="Ver consultas sugeridas" aria-label="Abrir consultas sugeridas" aria-expanded="false" aria-controls="promptMenu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="18" height="18" aria-hidden="true">
             <line x1="4" y1="6" x2="20" y2="6"/>
             <line x1="4" y1="12" x2="20" y2="12"/>
             <line x1="4" y1="18" x2="20" y2="18"/>
           </svg>
         </button>
-        <div class="input-icon">
+        <div class="input-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17">
             <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
           </svg>
         </div>
-        <input type="text" id="inputField" placeholder="Escribe o habla tu pregunta..." autocomplete="off">
-        <button id="micBtn" class="mic-btn" title="Hablar">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17">
+        <label for="inputField" class="sr-only">Escribe tu pregunta para EPI</label>
+        <input type="text" id="inputField" placeholder="Escribe o habla tu pregunta..." autocomplete="off" aria-label="Pregunta para EPI">
+        <button id="micBtn" class="mic-btn" title="Hablar" aria-label="Hablar (dictado por voz)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17" aria-hidden="true">
             <rect x="9" y="1" width="6" height="12" rx="3"/>
             <path d="M19 10v1a7 7 0 01-14 0v-1"/>
             <line x1="12" y1="19" x2="12" y2="23"/>
             <line x1="8" y1="23" x2="16" y2="23"/>
           </svg>
         </button>
-        <button id="sendBtn" title="Enviar">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="17" height="17">
+        <button id="sendBtn" title="Enviar" aria-label="Enviar pregunta">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="17" height="17" aria-hidden="true">
             <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
           </svg>
         </button>
       </div>
       <div class="input-hint">
-        <span class="hint-icon">
+        <span class="hint-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11">
             <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
           </svg>
         </span>
-        Escribe o usa el microfono. Prueba: "metricas globales", "depresion en Jalisco"
+        Escribe o usa el micrófono. Prueba: «métricas globales», «depresión en Jalisco».
       </div>
     </footer>
 
@@ -875,23 +876,36 @@
     }
   </script>
 
-  <!-- ═══════════ MOBILE NAV LOGIC ═══════════ -->
+  <!-- ═══════════ MOBILE NAV LOGIC (con focus trap + a11y) ═══════════ -->
   <script>
     (function() {
       const toggle = document.getElementById('navToggle');
       const overlay = document.getElementById('navOverlay');
       const panel = document.getElementById('navPanel');
       const close = document.getElementById('navClose');
+      let lastFocus = null;
+
+      function focusables() {
+        return panel.querySelectorAll('a, button');
+      }
 
       function openNav() {
+        lastFocus = document.activeElement;
         overlay.classList.add('open');
         panel.classList.add('open');
+        panel.setAttribute('aria-hidden', 'false');
+        if (toggle) toggle.setAttribute('aria-expanded', 'true');
         document.body.style.overflow = 'hidden';
+        const list = focusables();
+        if (list.length) list[0].focus();
       }
       function closeNav() {
         overlay.classList.remove('open');
         panel.classList.remove('open');
+        panel.setAttribute('aria-hidden', 'true');
+        if (toggle) toggle.setAttribute('aria-expanded', 'false');
         document.body.style.overflow = '';
+        if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
       }
 
       if (toggle) toggle.addEventListener('click', openNav);
@@ -901,9 +915,20 @@
       // Close on link click
       panel.querySelectorAll('a').forEach(a => a.addEventListener('click', closeNav));
 
-      // Close on Escape
+      // Close on Escape + focus trap (Tab / Shift+Tab)
       document.addEventListener('keydown', e => {
-        if (e.key === 'Escape' && panel.classList.contains('open')) closeNav();
+        if (!panel.classList.contains('open')) return;
+        if (e.key === 'Escape') { e.preventDefault(); closeNav(); return; }
+        if (e.key !== 'Tab') return;
+        const list = Array.from(focusables());
+        if (!list.length) return;
+        const first = list[0];
+        const last = list[list.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault(); last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault(); first.focus();
+        }
       });
     })();
   </script>
@@ -926,6 +951,6 @@
     })();
   </script>
 
-  <script type="module" src="js/app.js?v=78"></script>
+  <script type="module" src="js/app.js?v=79"></script>
 </body>
 </html>

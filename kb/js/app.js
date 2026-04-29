@@ -6,8 +6,8 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=68';
-import { detectEntities, norm } from './entities.js?v=25';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=69';
+import { detectEntities, norm } from './entities.js?v=26';
 import { renderMexicoMap } from './mexico-map.js?v=1';
 import { renderTimelapse } from './timelapse.js?v=1';
 import { renderSemaforo } from './semaforo.js?v=1';
@@ -35,6 +35,100 @@ const DISPLAY_NAMES = {
   'Queretaro': 'Querétaro', 'Yucatan': 'Yucatán',
 };
 function dn(s) { return s ? (DISPLAY_NAMES[s] || s) : s; }
+
+// ---------------------------------------------------------------------------
+// polishSpanish: normaliza ortografía en texto de salida del bot.
+// Solo se aplica al markdown que va a chat o TTS, NO a claves internas.
+// Word boundaries \b protegen contra matches dentro de palabras compuestas.
+// ---------------------------------------------------------------------------
+const SPANISH_FIXES = [
+  // Padecimientos
+  [/\bDepresion\b/g, 'Depresión'], [/\bdepresion\b/g, 'depresión'],
+  [/\bdepresivos\b/g, 'depresivos'], [/\bDepresivos\b/g, 'Depresivos'],
+  // País / estados
+  [/\bMexico\b/g, 'México'], [/\bmexico\b/g, 'méxico'],
+  [/\bMichoacan\b/g, 'Michoacán'], [/\bYucatan\b/g, 'Yucatán'],
+  [/\bQueretaro\b/g, 'Querétaro'], [/\bSan Luis Potosi\b/g, 'San Luis Potosí'],
+  [/\bNuevo Leon\b/g, 'Nuevo León'], [/\bLeon\b/g, 'León'],
+  // Términos del proyecto
+  [/\bPronostico\b/g, 'Pronóstico'], [/\bpronostico\b/g, 'pronóstico'],
+  [/\bPronosticos\b/g, 'Pronósticos'], [/\bpronosticos\b/g, 'pronósticos'],
+  [/\bComparacion\b/g, 'Comparación'], [/\bcomparacion\b/g, 'comparación'],
+  [/\bValidacion\b/g, 'Validación'], [/\bvalidacion\b/g, 'validación'],
+  [/\bConfiguracion\b/g, 'Configuración'], [/\bconfiguracion\b/g, 'configuración'],
+  [/\bComposicion\b/g, 'Composición'], [/\bcomposicion\b/g, 'composición'],
+  [/\bInformacion\b/g, 'Información'], [/\binformacion\b/g, 'información'],
+  [/\bIntroduccion\b/g, 'Introducción'], [/\bintroduccion\b/g, 'introducción'],
+  [/\bRegion\b/g, 'Región'], [/\bregion\b/g, 'región'],
+  [/\bRegiones\b/g, 'Regiones'], [/\bregiones\b/g, 'regiones'],
+  [/\bFuncion\b/g, 'Función'], [/\bfuncion\b/g, 'función'],
+  [/\bEstacion\b/g, 'Estación'], [/\bestacion\b/g, 'estación'],
+  [/\bAplicacion\b/g, 'Aplicación'], [/\baplicacion\b/g, 'aplicación'],
+  [/\bSolucion\b/g, 'Solución'], [/\bsolucion\b/g, 'solución'],
+  [/\bAtencion\b/g, 'Atención'], [/\batencion\b/g, 'atención'],
+  [/\bPrevencion\b/g, 'Prevención'], [/\bprevencion\b/g, 'prevención'],
+  [/\bGeneracion\b/g, 'Generación'], [/\bgeneracion\b/g, 'generación'],
+  [/\bFederacion\b/g, 'Federación'], [/\bfederacion\b/g, 'federación'],
+  [/\bConclusion\b/g, 'Conclusión'], [/\bconclusion\b/g, 'conclusión'],
+  // Adjetivos comunes en el dominio
+  [/\bepidemiologic([oa]s?)\b/g, 'epidemiológic$1'],
+  [/\bEpidemiologic([oa]s?)\b/g, 'Epidemiológic$1'],
+  [/\bestadistic([oa]s?)\b/g, 'estadístic$1'],
+  [/\bEstadistic([oa]s?)\b/g, 'Estadístic$1'],
+  [/\bhistoric([oa]s?)\b/g, 'históric$1'],
+  [/\bHistoric([oa]s?)\b/g, 'Históric$1'],
+  [/\bteoric([oa]s?)\b/g, 'teóric$1'],
+  [/\beconomic([oa]s?)\b/g, 'económic$1'],
+  [/\bEconomic([oa]s?)\b/g, 'Económic$1'],
+  [/\bgeografic([oa]s?)\b/g, 'geográfic$1'],
+  [/\bdemografic([oa]s?)\b/g, 'demográfic$1'],
+  [/\bsintomatic([oa]s?)\b/g, 'sintomátic$1'],
+  [/\bdiagnostic([oa]s?)\b/g, 'diagnóstic$1'],
+  [/\bDiagnostic([oa]s?)\b/g, 'Diagnóstic$1'],
+  [/\btecnic([oa]s?)\b/g, 'técnic$1'],
+  [/\bTecnic([oa]s?)\b/g, 'Técnic$1'],
+  [/\bpractic([oa]s?)\b/g, 'práctic$1'],
+  [/\blogic([oa]s?)\b/g, 'lógic$1'],
+  [/\bsimetric([oa]s?)\b/g, 'simétric$1'],
+  [/\bmetric([oa]s?)\b/g, 'métric$1'],
+  [/\bMetric([oa]s?)\b/g, 'Métric$1'],
+  [/\bpublic([oa]s?)\b/g, 'públic$1'],
+  [/\bPublic([oa]s?)\b/g, 'Públic$1'],
+  // Sustantivos
+  [/\bSintoma\b/g, 'Síntoma'], [/\bsintoma\b/g, 'síntoma'],
+  [/\bSintomas\b/g, 'Síntomas'], [/\bsintomas\b/g, 'síntomas'],
+  [/\bNumero\b/g, 'Número'], [/\bnumero\b/g, 'número'],
+  [/\bBoletin\b/g, 'Boletín'], [/\bboletin\b/g, 'boletín'],
+  [/\bPais\b/g, 'País'], [/\bpais\b/g, 'país'],
+  [/\bpaises\b/g, 'países'], [/\bPaises\b/g, 'Países'],
+  [/\bSecretaria\b/g, 'Secretaría'], [/\bsecretaria\b/g, 'secretaría'],
+  [/\bUltimo\b/g, 'Último'], [/\bultimo\b/g, 'último'],
+  [/\bUltima\b/g, 'Última'], [/\bultima\b/g, 'última'],
+  [/\bunicament(e)\b/g, 'únicament$1'], [/\bUnicament(e)\b/g, 'Únicament$1'],
+  [/\bsemanalmente\b/g, 'semanalmente'],
+  [/\bperiodicament(e)\b/g, 'periódicament$1'],
+  // Conectores y adverbios frecuentes
+  [/\btambien\b/g, 'también'], [/\bTambien\b/g, 'También'],
+  [/\bademas\b/g, 'además'], [/\bAdemas\b/g, 'Además'],
+  [/\basi\b/g, 'así'], [/\bAsi\b/g, 'Así'],
+  [/\bdespues\b/g, 'después'], [/\bDespues\b/g, 'Después'],
+  [/\brapid([oa]s?)\b/g, 'rápid$1'],
+  // "más" (more) — en español moderno casi siempre lleva tilde
+  // Solo cuando está rodeado de espacios para evitar romper compuestos
+  [/ mas /g, ' más '],
+  [/^mas /g, 'más '],
+  [/ mas$/g, ' más'],
+  [/ mas([,.;:!?\)])/g, ' más$1'],
+  // Markdown bold: **mas** (raro pero por si acaso)
+  [/\*\*mas\*\*/g, '**más**'],
+];
+
+function polishSpanish(text) {
+  if (typeof text !== 'string' || !text) return text;
+  let out = text;
+  for (const [re, repl] of SPANISH_FIXES) out = out.replace(re, repl);
+  return out;
+}
 
 // Paleta mejorada basada en el logo
 const CHART_COLORS = [
@@ -448,7 +542,9 @@ function addBotMessage(markdown, source, suggestions, chartData) {
   if (source === 'ai') { badgeClass = 'badge-ai'; badgeText = 'IA'; }
   else if (source === 'error') { badgeClass = 'badge-ai'; badgeText = 'Error'; }
 
-  const cleanMarkdown = markdown.replace(/<!--COMPARE:.*?-->/g, '').replace(/<!--DISTRIB:.*?-->/g, '').replace(/<!--GENCHART:.*?-->/g, '');
+  // Normalizar acentos antes de comentarios y render
+  const polished = polishSpanish(markdown);
+  const cleanMarkdown = polished.replace(/<!--COMPARE:.*?-->/g, '').replace(/<!--DISTRIB:.*?-->/g, '').replace(/<!--GENCHART:.*?-->/g, '');
   const html = marked.parse(cleanMarkdown, { breaks: true });
   const now = new Date();
   const timeStr = now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
@@ -456,7 +552,7 @@ function addBotMessage(markdown, source, suggestions, chartData) {
   let suggestionsHtml = '';
   if (suggestions && suggestions.length) {
     suggestionsHtml = '<div class="msg-suggestions">' +
-      suggestions.map(s => `<button data-q="${escapeAttr(s.q)}">${escapeHtml(s.text)}</button>`).join('') +
+      suggestions.map(s => `<button data-q="${escapeAttr(s.q)}">${escapeHtml(polishSpanish(s.text))}</button>`).join('') +
       '</div>';
   }
 

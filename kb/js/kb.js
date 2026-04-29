@@ -6,7 +6,7 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities } from './entities.js';
+import { norm, detectEntities } from './entities.js?v=26';
 
 let DATA = null;
 

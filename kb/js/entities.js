@@ -30,7 +30,9 @@ export function norm(text) {
 
 const ESTADOS_ALIAS = {
   'cdmx': 'Ciudad de Mexico',
+  'df': 'Ciudad de Mexico',
   'ciudad de mexico': 'Ciudad de Mexico',
+  'distrito federal': 'Ciudad de Mexico',
   'edomex': 'Mexico',
   'edo mex': 'Mexico',
   'edo de mex': 'Mexico',
@@ -73,12 +75,30 @@ const ESTADOS_32 = [
 ];
 
 const PADECIMIENTO_ALIAS = {
+  // Depresión + variantes y typos comunes
   'depresion': 'Depresion',
   'depression': 'Depresion',
+  'depre': 'Depresion',
+  'deprecion': 'Depresion',
+  'depresiva': 'Depresion',
+  'depresivo': 'Depresion',
+  'trastorno depresivo': 'Depresion',
   'f32': 'Depresion',
+  // Parkinson + typos
   'parkinson': 'Parkinson',
+  'parkinsons': 'Parkinson',
+  'parquinson': 'Parkinson',
+  'parkison': 'Parkinson',
+  'enfermedad de parkinson': 'Parkinson',
   'g20': 'Parkinson',
+  // Alzheimer + typos
   'alzheimer': 'Alzheimer',
+  'alzaimer': 'Alzheimer',
+  'arzheimer': 'Alzheimer',
+  'alzheimers': 'Alzheimer',
+  'alzhaimer': 'Alzheimer',
+  'enfermedad de alzheimer': 'Alzheimer',
+  'demencia': 'Alzheimer',
   'g30': 'Alzheimer',
 };
 
