@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MICAI 2026 — Artículo | EpiForecast-MX</title>
+  <meta name="description" content="Versión digital del artículo sometido a MICAI 2026: marco multi-modelo con selección de modelo por serie auditable y revisable para el pronóstico de incidencia de depresión en México." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --neutral-black: #231F20;
+      --burgundy:      #9B2242;
+      --dark-burgundy: #6F1D46;
+      --cool-gray:     #97999B;
+      --teal:          #00524E;
+      --dark-teal:     #173F35;
+      --cream:         #E8D5B5;
+      --gold:          #B58500;
+      --cream-light:   #F5EDE0;
+      --cream-pale:    #FAF6F0;
+      --font-display:  'DM Serif Display', Georgia, serif;
+      --font-body:     'Source Sans 3', sans-serif;
+      --font-mono:     'JetBrains Mono', monospace;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-body);
+      color: var(--neutral-black);
+      background: var(--cream-pale);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--teal); text-decoration: none; transition: color .2s; }
+    a:hover { color: var(--burgundy); }
+
+    /* ---- Top bar ---- */
+    .topbar {
+      position: sticky; top: 0; z-index: 50;
+      background: var(--dark-teal);
+      border-bottom: 1px solid rgba(232,213,181,0.12);
+    }
+    .topbar-inner {
+      max-width: 1100px; margin: 0 auto; padding: 0 1.5rem;
+      height: 60px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .topbar-logo { font-family: var(--font-display); font-size: 1.25rem; color: var(--cream); }
+    .topbar-logo span { color: var(--gold); }
+    .topbar-back {
+      display: inline-flex; align-items: center; gap: .45rem;
+      color: var(--cream); font-size: .85rem; font-weight: 600; letter-spacing: .02em;
+      padding: .45rem .9rem; border: 1px solid rgba(232,213,181,0.25); border-radius: 100px;
+    }
+    .topbar-back:hover { background: rgba(232,213,181,0.1); color: #fff; }
+    .topbar-back svg { width: 14px; height: 14px; }
+
+    /* ---- Hero ---- */
+    .hero {
+      background: linear-gradient(160deg, var(--dark-teal), var(--teal) 70%);
+      color: var(--cream-pale); padding: 3.5rem 1.5rem 3rem;
+    }
+    .hero-inner { max-width: 880px; margin: 0 auto; }
+    .badge {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: rgba(181,133,0,0.18); border: 1px solid rgba(181,133,0,0.45);
+      color: var(--gold); font-family: var(--font-mono); font-size: .72rem;
+      letter-spacing: .12em; text-transform: uppercase;
+      padding: .4rem .85rem; border-radius: 100px; margin-bottom: 1.4rem;
+    }
+    .badge::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--gold); }
+    .hero h1 {
+      font-family: var(--font-display); font-weight: 400;
+      font-size: clamp(1.7rem, 4.2vw, 2.7rem); line-height: 1.18; color: #fff;
+      margin-bottom: 1.2rem;
+    }
+    .hero-sub { font-size: 1.02rem; color: var(--cream); max-width: 760px; margin-bottom: 1.8rem; }
+    .authors { font-size: .94rem; color: var(--cream-light); }
+    .authors b { color: #fff; font-weight: 600; }
+    .affil { font-size: .8rem; color: var(--cool-gray); margin-top: .5rem; }
+    .venue {
+      margin-top: 1.6rem; font-size: .82rem; color: var(--cream);
+      display: flex; flex-wrap: wrap; gap: 1.2rem;
+    }
+    .venue span { display: inline-flex; align-items: center; gap: .4rem; }
+    .venue svg { width: 15px; height: 15px; color: var(--gold); }
+
+    /* ---- Layout ---- */
+    .wrap { max-width: 880px; margin: 0 auto; padding: 0 1.5rem; }
+    section.block { padding: 2.6rem 0; border-bottom: 1px solid rgba(35,31,32,0.08); }
+    h2 {
+      font-family: var(--font-display); font-weight: 400; color: var(--dark-teal);
+      font-size: 1.5rem; margin-bottom: 1.1rem;
+      display: flex; align-items: center; gap: .6rem;
+    }
+    h2 svg { width: 22px; height: 22px; color: var(--gold); }
+    .abstract-text {
+      font-size: 1.02rem; color: #2c2826; text-align: justify;
+      background: #fff; border-left: 3px solid var(--gold);
+      padding: 1.4rem 1.6rem; border-radius: 4px;
+      box-shadow: 0 2px 14px rgba(0,82,78,0.05);
+    }
+    .lang-note { font-size: .78rem; color: var(--cool-gray); margin-bottom: .9rem; font-style: italic; }
+    .keywords { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: .5rem; }
+    .keywords span {
+      font-family: var(--font-mono); font-size: .72rem; color: var(--teal);
+      background: var(--teal-glow, rgba(0,82,78,0.07)); border: 1px solid rgba(0,82,78,0.15);
+      padding: .25rem .65rem; border-radius: 4px;
+    }
+
+    /* ---- Highlights grid ---- */
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1rem; }
+    .card {
+      background: #fff; border: 1px solid rgba(35,31,32,0.08); border-radius: 10px;
+      padding: 1.3rem; transition: transform .2s, box-shadow .2s;
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 10px 28px rgba(0,82,78,0.08); }
+    .card .stat { font-family: var(--font-display); font-size: 1.9rem; color: var(--burgundy); line-height: 1; }
+    .card .label { font-weight: 700; color: var(--dark-teal); margin: .5rem 0 .35rem; font-size: .95rem; }
+    .card .desc { font-size: .85rem; color: #5a5550; }
+
+    ul.contrib { list-style: none; }
+    ul.contrib li {
+      position: relative; padding-left: 1.7rem; margin-bottom: .85rem; font-size: .98rem; color: #2c2826;
+    }
+    ul.contrib li::before {
+      content: ""; position: absolute; left: 0; top: .55rem;
+      width: 9px; height: 9px; border-radius: 50%; background: var(--gold);
+    }
+    ul.contrib b { color: var(--dark-teal); }
+
+    /* ---- PDF viewer ---- */
+    .pdf-actions { display: flex; flex-wrap: wrap; gap: .8rem; margin-bottom: 1.3rem; }
+    .btn {
+      display: inline-flex; align-items: center; gap: .5rem;
+      font-weight: 700; font-size: .88rem; letter-spacing: .02em;
+      padding: .7rem 1.4rem; border-radius: 100px; transition: transform .2s, box-shadow .2s;
+    }
+    .btn svg { width: 16px; height: 16px; }
+    .btn--primary { background: var(--gold); color: var(--dark-teal); }
+    .btn--primary:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(181,133,0,0.3); color: var(--dark-teal); }
+    .btn--ghost { background: transparent; color: var(--teal); border: 1px solid rgba(0,82,78,0.3); }
+    .btn--ghost:hover { background: rgba(0,82,78,0.05); }
+    .pdf-frame {
+      width: 100%; height: 80vh; min-height: 560px;
+      border: 1px solid rgba(35,31,32,0.15); border-radius: 8px;
+      box-shadow: 0 4px 24px rgba(0,82,78,0.08); background: #fff;
+    }
+    .pdf-fallback { font-size: .85rem; color: var(--cool-gray); margin-top: .7rem; }
+
+    /* ---- Footer ---- */
+    footer {
+      background: var(--neutral-black); color: var(--cool-gray);
+      padding: 2.2rem 1.5rem; font-size: .82rem; text-align: center;
+    }
+    footer a { color: var(--cream); }
+    footer .repo { font-family: var(--font-mono); font-size: .76rem; margin-top: .6rem; }
+  </style>
+</head>
+<body>
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-inner">
+      <div class="topbar-logo">EpiForecast<span>-MX</span></div>
+      <a class="topbar-back" href="index.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Inicio
+      </a>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="hero-inner">
+      <span class="badge">MICAI 2026 · Mexican International Conference on AI</span>
+      <h1>Forecasting Weekly Depression Incidence in Mexico: A Multi-Model Framework with Auditable Per-Series Model Selection</h1>
+      <p class="hero-sub">Versión digital del artículo sometido a MICAI 2026 (Springer LNAI). Marco de pronóstico multi-modelo que selecciona, para cada serie, el modelo mejor sustentado por su propia evidencia, con una regla de selección auditable y revisable.</p>
+      <p class="authors">
+        <b>Javier A. Rebull-Saucedo</b><sup>1</sup>, Juan Carlos Pérez-Nava<sup>2</sup>, Luis Gerardo Sánchez-Salazar<sup>3</sup>, Grettel Barceló-Alonso<sup>4</sup>, Ruth Manuela Pérez-Hernández<sup>2</sup>
+      </p>
+      <p class="affil">
+        <sup>1</sup>Santander Bank US, Massachusetts, USA &nbsp;·&nbsp;
+        <sup>2</sup>Instituto Mexicano del Seguro Social (IMSS), Ciudad de México &nbsp;·&nbsp;
+        <sup>3</sup>Tesla, Inc., California, USA &nbsp;·&nbsp;
+        <sup>4</sup>Tecnológico de Monterrey (ITESM-HGO), Hidalgo, México
+      </p>
+      <div class="venue">
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>MICAI 2026</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Springer LNAI · 20 pp</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20z"/></svg>Depresión (CIE-10 F32) · 32 entidades · SINAVE</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <!-- ABSTRACT -->
+    <section class="block">
+      <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Resumen (Abstract)</h2>
+      <p class="lang-note">El artículo está escrito en inglés; se reproduce el resumen original.</p>
+      <div class="abstract-text">
+        Weekly forecasting of psychiatric demand is hard because surveillance signals are heterogeneous across regions, sexes and time, so no single forecasting paradigm performs uniformly well. Rather than impose one algorithm across an entire surveillance system, we present a deterministic, auditable framework that selects, for each series, the model best supported by its own evidence. The framework draws on a library of forecasters with deliberately different inductive assumptions — a structural additive decomposition, a probabilistic recurrent network and two tree-based hybrids — so the candidate pool spans diverse temporal representations and improves coverage across this heterogeneity. A transparent rule then picks one model per series on cross-validated accuracy, reassigns low-incidence series to a regional model, and records every decision in a justified selection log. We instantiate it for weekly incidence of depression (CIE-10 F32) across the 32 Mexican federal entities, drawing on the public bulletins of the National Epidemiological Surveillance System (SINAVE), and validate it twice: by rolling-origin cross-validation over a decade of weekly observations and by a prospective out-of-sample assessment against the 2026 bulletins released after the training cut-off. The resulting assignment concentrates on the recurrent model for most federal-entity series while retaining simpler models where aggregation favours them, and the separately locked national forecast tracks the early-2026 bulletins. Because cross-validated accuracy need not persist as the live signal shifts, the selection is revisable — it re-selects as new bulletins arrive — so the system stays auditable and accountable in deployment, not a frozen leaderboard winner. It is reproducible and extends to other conditions with heterogeneous behaviour.
+      </div>
+      <div class="keywords">
+        <span>Depression</span><span>Time series forecasting</span><span>Probabilistic recurrent networks</span><span>Multi-model forecasting</span><span>Epidemiological surveillance</span><span>Model selection</span>
+      </div>
+    </section>
+
+    <!-- HIGHLIGHTS -->
+    <section class="block">
+      <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Aspectos destacados</h2>
+      <div class="grid">
+        <div class="card">
+          <div class="stat">4</div>
+          <div class="label">Motores de pronóstico</div>
+          <div class="desc">Prophet, DeepAR, Ensemble (Prophet + XGBoost) y Stacking (Prophet + ETS + LightGBM + Ridge), con supuestos inductivos complementarios.</div>
+        </div>
+        <div class="card">
+          <div class="stat">96.4 %</div>
+          <div class="label">DeepAR seleccionado (CV)</div>
+          <div class="desc">La validación cruzada elige el modelo recurrente para la mayoría de las series, entendida como señal de selección, no como garantía fuera de muestra.</div>
+        </div>
+        <div class="card">
+          <div class="stat">6.63 %</div>
+          <div class="label">sMAPE prospectivo 2026</div>
+          <div class="desc">Evaluación contra los boletines en vivo de 2026 (semanas W02–W18), dentro de la tolerancia de planeación de ±5 %.</div>
+        </div>
+        <div class="card">
+          <div class="stat">69 %</div>
+          <div class="label">Mejora por re-selección</div>
+          <div class="desc">En un experimento held-out, el modelo revisado mejora el error fuera de muestra en el 69 % de las series reasignadas.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTRIBUTIONS -->
+    <section class="block">
+      <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Contribuciones</h2>
+      <ul class="contrib">
+        <li><b>Marco multi-modelo para vigilancia psiquiátrica:</b> expone modelos estructurales, recurrentes y basados en árboles tras una sola interfaz, permitiendo una comparación por serie bajo un único protocolo de validación cruzada de origen móvil.</li>
+        <li><b>Regla de selección por serie auditable y revisable:</b> ordena candidatos por error simétrico con desempates de escala y un respaldo regional para series de baja incidencia, produciendo una bitácora de selección justificada en lugar de una elección a mano — un mecanismo pensado para un despliegue confiable bajo cambio de distribución.</li>
+        <li><b>Caracterización empírica a nivel nacional:</b> sobre 111 combinaciones serie–estrato y 626 semanas de datos SINAVE, documenta la heterogeneidad regional, demográfica y temporal de la señal de depresión y las condiciones bajo las que prevalece cada paradigma.</li>
+      </ul>
+    </section>
+
+    <!-- PDF VIEWER -->
+    <section class="block" style="border-bottom:none;">
+      <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Documento completo</h2>
+      <div class="pdf-actions">
+        <a class="btn btn--primary" href="MICAI/EpiForecast_MICAI2026.pdf" download>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar PDF
+        </a>
+        <a class="btn btn--ghost" href="MICAI/EpiForecast_MICAI2026.pdf" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Abrir en pestaña nueva
+        </a>
+      </div>
+      <iframe class="pdf-frame" src="MICAI/EpiForecast_MICAI2026.pdf#view=FitH" title="Artículo MICAI 2026 — EpiForecast-MX"></iframe>
+      <p class="pdf-fallback">Si el visor no carga en tu navegador, usa <a href="MICAI/EpiForecast_MICAI2026.pdf" target="_blank" rel="noopener">este enlace directo al PDF</a>.</p>
+    </section>
+
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div>EpiForecast-MX · Plataforma de inteligencia epidemiológica multi-modelo para el IMSS</div>
+    <div class="repo">Código y datos: <a href="https://github.com/IntegradorIMSS2026Team01" target="_blank" rel="noopener">github.com/IntegradorIMSS2026Team01</a></div>
+  </footer>
+
+</body>
+</html>
