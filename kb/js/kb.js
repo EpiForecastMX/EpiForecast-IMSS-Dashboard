@@ -377,10 +377,14 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
 
 function answerLugarDesconocido(q, ent, s, d) {
   if (!ent._lugarDesconocido || ent.estado) return null;
-  // No interceptar preguntas sobre metodologia/fuentes o historia/origen
-  const skipKw = ['basado', 'basas', 'basa', 'funciona', 'metodologia', 'sacas', 'obtienes', 'sabes',
+  // No interceptar preguntas sobre metodologia/fuentes, historia/origen,
+  // ni preguntas meta/valor/comparacion (no son lugares aunque mencionen "Google").
+  const skipKw = ['basado', 'basas', 'basa', 'funciona', 'funcion', 'metodologia', 'sacas', 'obtienes', 'sabes',
     'historia', 'origen', 'descubri', 'viene de', 'por que se llama', 'inventor', 'creador',
-    'en el mundo', 'mundial', 'global'];
+    'en el mundo', 'mundial', 'global',
+    'value', 'valor', 'diferencia', 'comparar', 'compararte', 'consultarte', 'preguntarte',
+    'google', 'chatgpt', 'internet', 'buscar', 'busqueda', 'recomendacion', 'recomendaciones',
+    'para que sirve', 'para que sirves', 'que haces', 'que puedes', 'quien eres', 'utilidad', 'ventaja', 'sirves'];
   if (any(q, skipKw)) return null;
   const lugar = ent._lugarDesconocido;
   const cap = lugar.charAt(0).toUpperCase() + lugar.slice(1);
@@ -4019,6 +4023,36 @@ function answerWaterfall(q, ent, s, d) {
 }
 
 // ---------------------------------------------------------------------------
+// GUARD: solicitudes de generar código → rechazar con cortesía
+// (EPI no es un asistente de programación general)
+// ---------------------------------------------------------------------------
+
+function answerCodeRequest(q, ent, s, d) {
+  const triggers = [
+    'dame codigo', 'dame el codigo', 'damelo en codigo', 'escribe codigo', 'escribeme codigo',
+    'genera codigo', 'generame codigo', 'hazme un codigo', 'hazme codigo', 'crea un codigo',
+    'codigo en python', 'codigo de python', 'codigo python', 'code in python', 'python code',
+    'script en python', 'programa en python', 'funcion en python', 'implementa en python',
+    'escribe un programa', 'escribe una funcion', 'escribeme una funcion', 'en javascript',
+    'codigo para', 'snippet', 'dame un ejemplo de codigo', 'escribe el codigo',
+  ];
+  if (!any(q, triggers)) return null;
+  // No bloquear preguntas legítimas SOBRE el código/configuración del proyecto
+  const legit = ['cuantas lineas', 'lineas de codigo', 'que configuracion', 'configuracion de entrenamiento',
+    'hiperparametro', 'arquitectura', 'repositorio', 'que motor', 'que modelo'];
+  if (any(q, legit)) return null;
+
+  const lines = [];
+  lines.push('Soy **EPI**, el asistente de inteligencia epidemiológica de EpiForecast-MX. No genero código a la medida ni funciono como asistente de programación general.');
+  lines.push('\nEn cambio, puedo ayudarte con:');
+  lines.push('- Pronósticos y métricas (SMAPE, MASE) por entidad y padecimiento');
+  lines.push('- Comparativas de motores, mapas, semáforos y reportes');
+  lines.push('- La metodología del proyecto y el paper MICAI');
+  lines.push('\nPor ejemplo: «métricas globales», «depresión en Jalisco» o «cómo se elige el modelo por serie».');
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
 // Cadena de handlers (orden de prioridad)
 // ---------------------------------------------------------------------------
 
@@ -4152,6 +4186,11 @@ export async function answer(query) {
 
   // Guard: prompt injection / roleplay → rechazar inmediatamente
   if (answerInjectionGuard(q)) return INJECTION_RESPONSE;
+
+  // Guard: solicitudes de generar código → rechazar ANTES del fuzzy/handlers
+  // (evita que "codigo... regresion" se autocorrija a "depresion", etc.)
+  const codeResp = answerCodeRequest(q, ent, s, d);
+  if (codeResp) return codeResp;
 
   // Si requiere razonamiento temporal fino (diario), ceder a Gemini
   if (needsGeminiReasoning(q)) return null;

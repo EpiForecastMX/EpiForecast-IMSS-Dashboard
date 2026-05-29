@@ -25,7 +25,7 @@ const EMBED_DIM = 768;
 const TOP_K = 6;            // pasajes finales que ven el generador
 const RERANK_POOL = 16;     // candidatos que entran al reranker
 const DIVERSITY_CAP = 3;    // máx. pasajes por documento en el top-K (diversidad)
-const GEN_MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite'];
+const GEN_MODELS = ['gemini-3.1-flash-lite', 'gemini-2.5-flash'];
 
 // ---------------------------------------------------------------------------
 // Caches (cold start)
@@ -176,7 +176,7 @@ async function retrieve(genAI, query, expandedText, index) {
  *  para mejorar el recall semántico. Devuelve la consulta original ante fallo. */
 async function expandQuery(genAI, query) {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite' });
     const prompt = `Reescribe esta consulta para un buscador del proyecto EpiForecast-MX (pronóstico epidemiológico semanal del IMSS; padecimientos Depresión, Parkinson, Alzheimer; motores Prophet, DeepAR, Ensemble, Stacking; métricas SMAPE/MASE; paper MICAI). Devuelve SOLO una versión enriquecida con sinónimos y términos clave, en una línea, sin comillas ni explicación.\nConsulta: ${query}`;
     const r = await model.generateContent(prompt);
     const t = (r.response.text() || '').trim().split('\n')[0].slice(0, 300);
@@ -189,7 +189,7 @@ async function expandQuery(genAI, query) {
  *  con el orden híbrido para no encoger por debajo de TOP_K. */
 async function rerank(genAI, query, candidates) {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite' });
     const list = candidates.map((c, idx) => `[${idx}] (${c.chunk.source} — ${c.chunk.title}) ${c.chunk.text.replace(/\s+/g, ' ').slice(0, 240)}`).join('\n');
     const prompt = `Consulta: "${query}"\n\nPasajes candidatos:\n${list}\n\nOrdena los índices de los pasajes del MÁS al menos relevante para responder la consulta. Devuelve SOLO un arreglo JSON con TODOS los índices ordenados. Ejemplo: [3,0,7,1,5,2,4]`;
     const r = await model.generateContent(prompt);

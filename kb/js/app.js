@@ -6,7 +6,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=72';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=73';
 import { detectEntities, norm } from './entities.js?v=26';
 import { renderMexicoMap } from './mexico-map.js?v=1';
 import { renderTimelapse } from './timelapse.js?v=1';
@@ -607,6 +607,8 @@ function addWelcome(data) {
   ];
 
   addBotMessage(hero, 'local', suggestions);
+  // Marca el mensaje de bienvenida para poder retirarlo al primer envío.
+  if (chatArea.lastElementChild) chatArea.lastElementChild.classList.add('msg-welcome');
 }
 
 // ---------------------------------------------------------------------------
@@ -704,6 +706,10 @@ function askAboutSource(sourceName) {
 // ---------------------------------------------------------------------------
 
 function addUserMessage(text) {
+  // El saludo de bienvenida desaparece en cuanto el usuario hace su 1ª pregunta.
+  const welcome = chatArea.querySelector('.msg-welcome');
+  if (welcome) welcome.remove();
+
   const div = document.createElement('div');
   div.className = 'msg msg-user';
   const now = new Date();
