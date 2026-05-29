@@ -6,7 +6,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=75';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=76';
 import { detectEntities, norm } from './entities.js?v=26';
 import { renderMexicoMap } from './mexico-map.js?v=1';
 import { renderTimelapse } from './timelapse.js?v=1';
@@ -616,12 +616,20 @@ function addWelcome(data) {
 // ---------------------------------------------------------------------------
 
 let lastChartQuery = '';
+let lastAnswerWasRag = false;   // si la última respuesta vino del RAG (para seguimientos)
 
 async function handleSend() {
   const text = inputField.value.trim();
   if (!text) return;
   inputField.value = '';
   addUserMessage(text);
+
+  // Seguimiento corto tras una respuesta del RAG → continúa en el RAG (que
+  // contextualiza con el historial e inyecta datos exactos). Evita que «¿y X?»
+  // pierda la intención al caer en un handler local distinto.
+  const tnorm = norm(text);
+  const isShortFollowUp = text.trim().split(/\s+/).length <= 5 || /^¿?\s*(y|pero|ademas|entonces|tambien|ok)\b/.test(tnorm);
+  if (lastAnswerWasRag && isShortFollowUp) { await callRag(text); return; }
 
   let result = null;
   try { result = await answer(text); } catch (err) { console.error('KB error:', err); }
@@ -648,6 +656,7 @@ async function handleSend() {
       console.error('extractChartData error:', err);
     }
     if (chartData) lastChartQuery = text;
+    lastAnswerWasRag = false;
     const suggestions = getSuggestions(text);
     addBotMessage(result, 'local', suggestions, chartData);
     pushHistory(text, result);
@@ -715,6 +724,7 @@ async function callRag(text) {
     if (shell) shell.div.remove();
     addBotMessage(finalText, 'ai', null, null, sources);   // mensaje final con copy/tts/chips
     pushHistory(text, finalText);
+    lastAnswerWasRag = true;
     void streamed;
   } catch (err) {
     removeTyping(typingEl);
@@ -736,6 +746,7 @@ async function ragNonStream(text, existing) {
       const answer = (data.answer || 'Sin respuesta.').replace(STRIP_CIFRAS, '');
       addBotMessage(answer, 'ai', null, null, data.sources);
       pushHistory(text, answer);
+      lastAnswerWasRag = true;
     } else {
       const errData = await resp.json().catch(() => ({}));
       addBotMessage(`${errData.error || 'No pude consultar la IA en este momento.'}\n\nPrueba «métricas globales» o «equipo del proyecto».`, 'error');

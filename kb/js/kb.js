@@ -4221,7 +4221,7 @@ export async function answer(query) {
     'metodologia', 'contribucion', 'contribuciones', 'hallazgo', 'hallazgos',
     'limitacion', 'limitaciones', 'trabajo futuro', 'desagregacion', 'auditable',
     'seleccion por serie', 'seleccion auditable', 'rolling-origin', 'reproducible',
-    'estado del arte', 'que propone', 'de que trata el estudio',
+    'estado del arte', 'que propone', 'de que trata el estudio', 'hiperparametro', 'hiperparametros',
     // Identidad / por qué del nombre / alcance conceptual → mejor explicado por RAG
     'te llamas', 'te llaman', 'tu nombre', 'por que te llam', 'porque te llam',
     'por que se llama', 'porque se llama', 'por que el nombre', 'significa epi',
