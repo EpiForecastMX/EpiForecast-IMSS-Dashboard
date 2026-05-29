@@ -147,6 +147,139 @@ const CHART_COLORS = [
 ];
 
 // ---------------------------------------------------------------------------
+// Chart visual enhancements — gradientes, glow, crosshair, formato numérico.
+// Se aplican de forma central en renderChart(), así que TODOS los gráficos
+// (líneas, barras, áreas, doughnut, radar) heredan el acabado sin tocar cada
+// generador individual.
+// ---------------------------------------------------------------------------
+
+// Parsea '#RGB', '#RRGGBB', '#RRGGBBAA' o 'rgb()/rgba()' a [r,g,b].
+function parseRGB(c) {
+  if (typeof c !== 'string') return null;
+  c = c.trim();
+  if (c[0] === '#') {
+    let h = c.slice(1);
+    if (h.length === 3) h = h.split('').map(x => x + x).join('');
+    if (h.length >= 6) return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+    return null;
+  }
+  const m = c.match(/rgba?\(([^)]+)\)/i);
+  if (m) { const p = m[1].split(',').map(s => parseFloat(s)); return [p[0], p[1], p[2]]; }
+  return null;
+}
+const rgbaStr = (rgb, a) => `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${a})`;
+
+// Formato compacto para ejes (1.2k, 3.4M); respeta strings/categorías.
+function fmtAxis(v) {
+  if (typeof v !== 'number' || !isFinite(v)) return v;
+  const a = Math.abs(v);
+  if (a >= 1e6) return +(v / 1e6).toFixed(1) + 'M';
+  if (a >= 1e3) return +(v / 1e3).toFixed(1) + 'k';
+  return v.toLocaleString('es-MX');
+}
+// Formato completo para tooltips (con separadores de miles es-MX).
+function fmtFull(v) {
+  if (typeof v !== 'number' || !isFinite(v)) return v;
+  return (Number.isInteger(v) ? v : +v.toFixed(2)).toLocaleString('es-MX');
+}
+
+// Gradiente vertical/horizontal por dataset, generado con el ctx del canvas.
+const epiGradientPlugin = {
+  id: 'epiGradient',
+  beforeDatasetsDraw(chart) {
+    const { ctx, chartArea } = chart;
+    if (!chartArea) return;
+    for (const ds of chart.data.datasets) {
+      if (!ds._grad) continue;
+      const rgb = parseRGB(ds._grad.base);
+      if (!rgb) continue;
+      let g;
+      if (ds._grad.kind === 'barH') {
+        g = ctx.createLinearGradient(chartArea.left, 0, chartArea.right, 0);
+        g.addColorStop(0, rgbaStr(rgb, 0.5));
+        g.addColorStop(1, rgbaStr(rgb, 1));
+      } else if (ds._grad.kind === 'bar') {
+        g = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+        g.addColorStop(0, rgbaStr(rgb, 1));
+        g.addColorStop(1, rgbaStr(rgb, 0.45));
+      } else { // area
+        g = ctx.createLinearGradient(0, chartArea.top, 0, chartArea.bottom);
+        g.addColorStop(0, rgbaStr(rgb, 0.42));
+        g.addColorStop(0.85, rgbaStr(rgb, 0.03));
+        g.addColorStop(1, rgbaStr(rgb, 0));
+      }
+      ds.backgroundColor = g;
+    }
+  },
+};
+
+// Resplandor suave bajo las líneas (no aplica a áreas ni bandas).
+const epiGlowPlugin = {
+  id: 'epiGlow',
+  beforeDatasetDraw(chart, args) {
+    const ds = chart.data.datasets[args.index];
+    const t = ds.type || chart.config.type;
+    if (t !== 'line' || !ds.borderWidth) return;
+    if (ds._grad && ds._grad.kind === 'area') return;
+    const rgb = parseRGB(ds.borderColor) || [46, 196, 168];
+    chart.ctx.save();
+    chart.ctx.shadowColor = rgbaStr(rgb, 0.45);
+    chart.ctx.shadowBlur = 9;
+    chart.ctx.shadowOffsetY = 3;
+  },
+  afterDatasetDraw(chart, args) {
+    const ds = chart.data.datasets[args.index];
+    const t = ds.type || chart.config.type;
+    if (t === 'line' && ds.borderWidth && !(ds._grad && ds._grad.kind === 'area')) chart.ctx.restore();
+  },
+};
+
+// Guía vertical punteada al pasar el cursor sobre gráficos de línea.
+const epiCrosshairPlugin = {
+  id: 'epiCrosshair',
+  afterDraw(chart) {
+    if (chart.config.type !== 'line') return;
+    const act = chart.getActiveElements();
+    if (!act || !act.length) return;
+    const { ctx, chartArea } = chart;
+    const x = act[0].element.x;
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(x, chartArea.top);
+    ctx.lineTo(x, chartArea.bottom);
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.strokeStyle = 'rgba(46, 196, 168, 0.4)';
+    ctx.stroke();
+    ctx.restore();
+  },
+};
+
+// Total al centro del doughnut.
+const epiDoughnutCenterPlugin = {
+  id: 'epiDoughnutCenter',
+  afterDraw(chart) {
+    if (chart.config.type !== 'doughnut') return;
+    const ds = chart.data.datasets[0];
+    if (!ds) return;
+    const total = ds.data.reduce((a, b) => a + (+b || 0), 0);
+    const { ctx, chartArea } = chart;
+    const cx = (chartArea.left + chartArea.right) / 2;
+    const cy = (chartArea.top + chartArea.bottom) / 2;
+    ctx.save();
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#EDF3EF';
+    ctx.font = '800 26px Outfit, sans-serif';
+    ctx.fillText(fmtAxis(total), cx, cy - 6);
+    ctx.fillStyle = '#7A9A8D';
+    ctx.font = '600 10px Outfit, sans-serif';
+    ctx.fillText('TOTAL', cx, cy + 15);
+    ctx.restore();
+  },
+};
+
+// ---------------------------------------------------------------------------
 // Gemini connectivity check
 // ---------------------------------------------------------------------------
 
@@ -2260,12 +2393,13 @@ function renderChart(canvasId, chartData) {
   const config = {
     type: chartData.type,
     data: { labels: chartData.labels, datasets: chartData.datasets },
+    plugins: [epiGradientPlugin, epiGlowPlugin, epiCrosshairPlugin, epiDoughnutCenterPlugin],
     options: {
       responsive: true,
       maintainAspectRatio: false,  // Llenan el contenedor; canvas controla el tamaño vía CSS
       indexAxis: isHorizontal ? 'y' : 'x',
       interaction: { mode: 'index', intersect: false },
-      animation: { duration: 700, easing: 'easeOutCubic' },
+      animation: { duration: 850, easing: 'easeOutQuart' },
       plugins: {
         title: {
           display: true,
@@ -2303,6 +2437,24 @@ function renderChart(canvasId, chartData) {
           boxPadding: 6,
           usePointStyle: true,
           caretSize: 7,
+          callbacks: {
+            label(ctx) {
+              const type = ctx.chart.config.type;
+              if (type === 'doughnut' || type === 'pie') {
+                const arr = ctx.dataset.data || [];
+                const total = arr.reduce((a, b) => a + (+b || 0), 0);
+                const v = +ctx.parsed || 0;
+                const pct = total ? (v / total * 100).toFixed(1) : 0;
+                return ` ${ctx.label}: ${fmtFull(v)} (${pct}%)`;
+              }
+              let val = ctx.parsed;
+              if (val && typeof val === 'object') {
+                val = val.r != null ? val.r : (ctx.chart.options.indexAxis === 'y' ? val.x : val.y);
+              }
+              const lbl = ctx.dataset.label ? `${ctx.dataset.label}: ` : '';
+              return ` ${lbl}${fmtFull(val)}`;
+            },
+          },
         },
       },
       scales: chartData.type === 'doughnut' ? {} : chartData.type === 'radar' ? {
@@ -2329,24 +2481,60 @@ function renderChart(canvasId, chartData) {
     },
   };
 
-  // Engruesa líneas y puntos para mayor presencia visual
-  if (chartData.type === 'line') {
-    for (const ds of chartData.datasets) {
+  // Número formateado (1.2k, 3.4M) en el eje de valores.
+  if (chartData.type !== 'doughnut' && chartData.type !== 'radar') {
+    const valueAxis = isHorizontal ? 'x' : 'y';
+    if (config.options.scales[valueAxis]) {
+      config.options.scales[valueAxis].ticks = config.options.scales[valueAxis].ticks || {};
+      config.options.scales[valueAxis].ticks.callback = (v) => fmtAxis(v);
+    }
+  }
+
+  // Acabado por dataset: gradientes (barras/áreas), barras redondeadas,
+  // líneas más presentes y puntos con realce al hover.
+  for (const ds of chartData.datasets) {
+    const t = ds.type || chartData.type;
+
+    if (t === 'bar' && typeof ds.backgroundColor === 'string') {
+      // Solo color único → gradiente; arrays de color por barra se respetan.
+      ds._grad = { base: ds.backgroundColor, kind: isHorizontal ? 'barH' : 'bar' };
+      if (ds.borderRadius == null) ds.borderRadius = 6;
+      if (ds.borderSkipped == null) ds.borderSkipped = false;
+      if (ds.maxBarThickness == null) ds.maxBarThickness = isHorizontal ? 30 : 52;
+    } else if (t === 'line') {
       if (ds.borderWidth == null) ds.borderWidth = 2.5;
       if (ds.pointRadius == null) ds.pointRadius = 0;
       if (ds.pointHoverRadius == null) ds.pointHoverRadius = 6;
       if (ds.tension == null) ds.tension = 0.32;
+      if (ds.borderCapStyle == null) ds.borderCapStyle = 'round';
+      if (ds.borderJoinStyle == null) ds.borderJoinStyle = 'round';
+      if (ds.pointHoverBackgroundColor == null) ds.pointHoverBackgroundColor = ds.borderColor;
+      if (ds.pointHoverBorderColor == null) ds.pointHoverBorderColor = '#0F1614';
+      if (ds.pointHoverBorderWidth == null) ds.pointHoverBorderWidth = 2;
+      // Área rellena (no bandas de confianza) → gradiente vertical.
+      const fillOn = ds.fill === true || ds.fill === 'origin' || ds.fill === 'start' || ds.fill === 'end';
+      if (fillOn && typeof ds.borderColor === 'string') {
+        ds._grad = { base: ds.borderColor, kind: 'area' };
+      }
     }
   }
 
-  // Merge custom options (e.g. axis titles, stacked, indexAxis)
+  // Merge custom options (e.g. axis titles, stacked, indexAxis) — merge profundo
+  // en ticks/grid/border/title para no pisar callbacks ni estilos base.
   if (chartData.options) {
     if (chartData.options.scales) {
       for (const [axis, opts] of Object.entries(chartData.options.scales)) {
         if (!config.options.scales[axis]) config.options.scales[axis] = {};
-        Object.assign(config.options.scales[axis], opts);
+        const target = config.options.scales[axis];
+        for (const [k, val] of Object.entries(opts)) {
+          if ((k === 'ticks' || k === 'grid' || k === 'border') && target[k] && val && typeof val === 'object') {
+            Object.assign(target[k], val);
+          } else if (k !== 'title') {
+            target[k] = val;
+          }
+        }
         if (opts.title) {
-          config.options.scales[axis].title = {
+          target.title = {
             ...opts.title,
             font: { size: 12, family: 'Outfit' },
             color: '#8FA99D',
