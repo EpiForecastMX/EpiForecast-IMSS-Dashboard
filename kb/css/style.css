@@ -1340,6 +1340,11 @@ body::after {
   line-height: 1.15;
 }
 
+/* Variante compacta: primer mensaje mínimo y poco invasivo */
+.welcome-hero--compact { padding: 0; margin: 0; background: none; }
+.welcome-hero--compact .welcome-hero-title { font-size: clamp(17px, 2.2vw, 21px); margin-bottom: 4px; }
+.welcome-hero--compact .welcome-hero-sub { font-size: 13px; margin-bottom: 0; color: var(--text-muted); }
+
 .welcome-brand {
   background: linear-gradient(135deg, var(--teal) 0%, #9DB6FF 50%, var(--gold) 100%);
   -webkit-background-clip: text;

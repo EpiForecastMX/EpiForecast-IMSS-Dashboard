@@ -591,22 +591,19 @@ function addWelcome(data) {
   const s = data.stats || {};
   const total = s.total_modelos || 333;
 
-  // Hero card embebida en markdown como HTML inline (marked permite passthrough).
-  // Los KPIs viven ahora en el panel lateral (Command Center), así que el hero
-  // se mantiene enfocado en el saludo y el call-to-action, sin duplicar métricas.
-  const hero = `<div class="welcome-hero">
+  // Hero compacto: saludo breve + sugerencias. Los datos viven en el panel
+  // lateral, así que el primer mensaje se mantiene mínimo y poco invasivo.
+  void total;
+  const hero = `<div class="welcome-hero welcome-hero--compact">
     <div class="welcome-hero-title">Hola, soy <span class="welcome-brand">EPI</span></div>
-    <div class="welcome-hero-sub">Tu copiloto de inteligencia epidemiológica del IMSS. Tengo acceso a <strong>${total} modelos</strong> de producción y datos del Boletín SINAVE 2014–2026. Pregúntame por una entidad, un padecimiento o usa el panel lateral para explorar mapas, semáforos y comparativas.</div>
-    <div class="welcome-hint">Escribe tu pregunta, presiona <kbd>/</kbd> para enfocar, o pulsa una sugerencia.</div>
+    <div class="welcome-hero-sub">Copiloto epidemiológico del IMSS. Pregúntame o usa el panel lateral.</div>
   </div>`;
 
   const suggestions = [
     { text: 'Métricas globales', q: 'metricas globales' },
     { text: '¿Qué es la depresión?', q: 'que es la depresion' },
-    { text: 'Ranking de modelos', q: 'ranking mejores modelos' },
-    { text: 'Hombres vs mujeres', q: 'compara desempeno hombres vs mujeres' },
-    { text: 'Mapa de México por casos', q: 'mapa de mexico por casos' },
-    { text: 'Equipo del proyecto', q: 'equipo del proyecto' },
+    { text: 'Mapa de México', q: 'mapa de mexico por casos' },
+    { text: 'Equipo', q: 'equipo del proyecto' },
   ];
 
   addBotMessage(hero, 'local', suggestions);

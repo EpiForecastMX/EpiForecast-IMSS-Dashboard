@@ -182,6 +182,27 @@ function structuredCards(kb) {
     `${pad}: ${p.n} modelos, SMAPE media ${p.smape_prod_mean}% (mediana ${p.smape_prod_median}%), motor ganador ${p.motor_ganador} (${p.motor_ganador_n} modelos), pronóstico a 52 semanas ${p.casos_futuro_total} casos.`);
   push('Diagnósticos de calidad (overfitting y leakage)',
     `Overfitting: OK ${s.overfitting_ok}, moderado ${s.overfitting_moderado}, alto ${s.overfitting_alto}, N/D ${s.overfitting_nd}. Leakage: OK ${s.leakage_ok}, sospechoso ${s.leakage_sospechoso}. Fallback regional en ${s.fallback_n} series.`);
+
+  // Macrorregiones (agrupación de las 32 entidades para el respaldo regional)
+  if (kb.regiones && Object.keys(kb.regiones).length) {
+    const parts = Object.entries(kb.regiones).map(([r, sts]) => `${r}: ${Array.isArray(sts) ? sts.join(', ') : sts}`);
+    push('Macrorregiones del proyecto (agrupación de entidades)',
+      `El sistema agrupa las 32 entidades federativas en macrorregiones para el respaldo regional (fallback) de series de baja incidencia. ${parts.join('. ')}.`);
+  }
+
+  // Top entidades por incidencia (Boletín SINAVE)
+  if (kb.boletin && Array.isArray(kb.boletin.ranking_entidades) && kb.boletin.ranking_entidades.length) {
+    const top = kb.boletin.ranking_entidades.slice(0, 10).map(r => `${r.entidad} (${(r.casos || 0).toLocaleString('es-MX')} casos)`);
+    push('Entidades con mayor incidencia (Boletín SINAVE)',
+      `Ranking de entidades federativas por incidencia anual registrada en el Boletín SINAVE (mayor a menor): ${top.join(', ')}.`);
+  }
+
+  // Desempeño por sexo
+  if (s.por_sexo && Object.keys(s.por_sexo).length) {
+    const parts = Object.entries(s.por_sexo).map(([k, v]) => `${k}: ${v.n} modelos, SMAPE media ${v.smape_mean}% (mediana ${v.smape_median}%), MASE media ${v.mase_mean}`);
+    push('Desempeño por sexo (hombres, mujeres, general)',
+      `Comparativa de desempeño del modelado por sexo. ${parts.join('; ')}. El modelo agregado 'general' (ambos sexos) suele lograr menor SMAPE por su mayor volumen de casos; hombres y mujeres se modelan por separado para la desagregación.`);
+  }
   if (kb.definiciones) for (const [term, def] of Object.entries(kb.definiciones)) if (typeof def === 'string') push(`Definición: ${term}`, `${term}: ${def}`);
   if (kb.padecimiento_info) for (const [pad, info] of Object.entries(kb.padecimiento_info)) {
     const parts = typeof info === 'string' ? [info] : (info && typeof info === 'object' ? Object.entries(info).filter(([, v]) => typeof v === 'string').map(([k, v]) => `${k}: ${v}`) : []);

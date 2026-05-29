@@ -26,6 +26,12 @@
     { "q": "que limitaciones y trabajo futuro tiene el proyecto", "expect": ["Conclusiones del proyecto", "Paper MICAI 2026"] },
     { "q": "por que se usa una red recurrente probabilistica como DeepAR", "expect": ["Paper MICAI 2026", "Comparación de modelos", "Bitácora de modelado"] },
     { "q": "que horizonte de pronostico maneja el sistema", "expect": ["Datos del proyecto", "Paper MICAI 2026", "Bitácora de modelado"] },
-    { "q": "como se controla la fuga de datos o data leakage", "expect": ["Auditoría y remediación 2026", "Datos del proyecto"] }
+    { "q": "como se controla la fuga de datos o data leakage", "expect": ["Auditoría y remediación 2026", "Datos del proyecto"] },
+    { "q": "como se agrupan las entidades en macrorregiones del pais", "expect": ["Datos del proyecto"] },
+    { "q": "a que macrorregion pertenece jalisco", "expect": ["Datos del proyecto"] },
+    { "q": "cuales son las entidades con mayor incidencia", "expect": ["Datos del proyecto", "Reporte de resultados"] },
+    { "q": "que diferencia de desempeno hay entre hombres y mujeres", "expect": ["Datos del proyecto"] },
+    { "q": "cuantas entidades federativas modela el sistema", "expect": ["Datos del proyecto", "Paper MICAI 2026"] },
+    { "q": "que region concentra mas casos pronosticados", "expect": ["Datos del proyecto", "Reporte de resultados"] }
   ]
 }
