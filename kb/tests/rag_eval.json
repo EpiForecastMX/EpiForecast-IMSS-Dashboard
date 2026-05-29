@@ -1,0 +1,17 @@
+{
+  "description": "Set de evaluación del RAG: pregunta -> fuente(s) esperada(s) en el top-K. 'expect' lista nombres de 'source' aceptables.",
+  "cases": [
+    { "q": "como elige el framework el mejor modelo para cada serie", "expect": ["Paper MICAI 2026", "Bitácora de modelado"] },
+    { "q": "que hiperparametros usa prophet y por que", "expect": ["Ficha técnica — Prophet", "Hiperparámetros de los modelos"] },
+    { "q": "cuantos modelos de produccion hay y cual es el smape mediano", "expect": ["Datos del proyecto"] },
+    { "q": "como se valida el pronostico cada semana", "expect": ["Validación semanal"] },
+    { "q": "cuales son las conclusiones principales del proyecto", "expect": ["Conclusiones del proyecto"] },
+    { "q": "que diferencia hay entre prophet deepar ensemble y stacking", "expect": ["Comparación de modelos", "Datos del proyecto", "Bitácora de modelado"] },
+    { "q": "como se controla el overfitting y el leakage", "expect": ["Auditoría y remediación 2026", "Datos del proyecto"] },
+    { "q": "como se construyo el dashboard del proyecto", "expect": ["Construcción del dashboard"] },
+    { "q": "que referencias bibliograficas sustentan el trabajo", "expect": ["Referencias bibliográficas"] },
+    { "q": "que aporta la desagregacion por sexo y entidad federativa", "expect": ["Paper MICAI 2026", "Conclusiones del proyecto", "Reporte de resultados"] },
+    { "q": "que es el fallback regional y cuando se aplica", "expect": ["Datos del proyecto", "Bitácora de modelado", "Hiperparámetros de los modelos"] },
+    { "q": "como se hace el grid search y la validacion cruzada temporal", "expect": ["Hiperparámetros de los modelos", "Ficha técnica — Prophet", "Bitácora de modelado"] }
+  ]
+}

@@ -8,7 +8,9 @@
     "test": "node tests/run_tests.js",
     "test:gen": "node tests/generate_tests.js",
     "rag:build": "node scripts/build_rag_index.mjs",
-    "check": "node --check js/app.js && node --check js/kb.js && node --check js/entities.js && node --check netlify/functions/ask.mjs && node --check netlify/functions/rag.mjs && node --check scripts/build_rag_index.mjs"
+    "rag:eval": "node scripts/rag_eval.mjs",
+    "rag:verify": "node scripts/rag_verify.mjs",
+    "check": "node --check js/app.js && node --check js/kb.js && node --check js/entities.js && node --check netlify/functions/ask.mjs && node --check netlify/functions/rag.mjs && node --check scripts/build_rag_index.mjs && node --check scripts/lib/corpus.mjs && node --check scripts/rag_eval.mjs && node --check scripts/rag_verify.mjs && npm run rag:verify"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0"

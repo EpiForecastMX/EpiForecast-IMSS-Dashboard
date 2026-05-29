@@ -709,7 +709,8 @@ function addBotMessage(markdown, source, suggestions, chartData, sources) {
       '</div>';
   }
 
-  // Chips de fuentes (RAG): deduplica por documento, conserva el primer [n].
+  // Chips de fuentes (RAG): deduplica por documento; abre el documento real y
+  // ofrece un sub-botón para profundizar con base en esa fuente.
   let sourcesHtml = '';
   if (sources && sources.length) {
     const seen = new Set();
@@ -718,12 +719,19 @@ function addBotMessage(markdown, source, suggestions, chartData, sources) {
       const name = s.source || s.title || '';
       if (!name || seen.has(name)) continue;
       seen.add(name);
-      docs.push({ n: s.n, name });
+      docs.push({ n: s.n, name, url: s.url || '' });
     }
     if (docs.length) {
       const docIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+      const askIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
       sourcesHtml = '<div class="msg-sources">' +
-        docs.map(d => `<button class="msg-source-chip" data-src="${escapeAttr(d.name)}" title="Profundizar con base en esta fuente">${docIcon}<span class="src-n">[${d.n}]</span>${escapeHtml(polishSpanish(d.name))}</button>`).join('') +
+        docs.map(d => {
+          const label = `${docIcon}<span class="src-n">[${d.n}]</span>${escapeHtml(polishSpanish(d.name))}`;
+          const open = d.url
+            ? `<a class="src-open" href="${escapeAttr(d.url)}" target="_blank" rel="noopener" title="Abrir fuente">${label}</a>`
+            : `<span class="src-open src-open--static">${label}</span>`;
+          return `<span class="msg-source-chip">${open}<button class="src-ask" data-src="${escapeAttr(d.name)}" title="Profundizar con base en esta fuente" aria-label="Profundizar con base en ${escapeAttr(d.name)}">${askIcon}</button></span>`;
+        }).join('') +
         '</div>';
     }
   }
@@ -803,9 +811,10 @@ function addBotMessage(markdown, source, suggestions, chartData, sources) {
     });
   });
 
-  // Bind source chips (RAG): consultan directamente al RAG sobre esa fuente
-  div.querySelectorAll('.msg-source-chip').forEach(btn => {
-    btn.addEventListener('click', () => askAboutSource(btn.dataset.src));
+  // Bind source chips (RAG): el sub-botón "profundizar" consulta al RAG sobre
+  // esa fuente; el resto del chip (enlace) abre el documento real.
+  div.querySelectorAll('.msg-source-chip .src-ask').forEach(btn => {
+    btn.addEventListener('click', (e) => { e.preventDefault(); askAboutSource(btn.dataset.src); });
   });
 
   // Bind copy button

@@ -366,7 +366,7 @@ Recuerda: cifras del proyecto vienen del contexto, ortografía perfecta siempre,
   });
 
   // Modelos en orden: primario, fallback (cuota agotada o 2.5 caído)
-  const MODELS = ['gemini-2.5-flash', 'gemini-1.5-flash'];
+  const MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite'];
 
   const genAI = new GoogleGenerativeAI(apiKey);
   let lastErr = null;

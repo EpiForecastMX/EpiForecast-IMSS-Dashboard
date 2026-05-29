@@ -55,14 +55,19 @@ kb/
 
 Para preguntas de conocimiento (metodologia, decisiones de diseno, el paper MICAI, "por que", "como funciona"), EpiBot usa **Retrieval-Augmented Generation** con grounding y citas:
 
-- **Corpus**: paper MICAI 2026 (`rag_sources/micai.txt`), notas/reportes HTML del proyecto (bitacora, ficha tecnica Prophet, hiperparametros, conclusiones, validacion, comparacion, etc.) y tarjetas estructuradas derivadas de `knowledge.json`. ~227 chunks.
-- **Indexado** (offline): `npm run rag:build` trocea el corpus, genera embeddings con **gemini-embedding-001** (768 dims via MRL) y escribe `rag_index.json` (~2 MB). Requiere `GEMINI_API_KEY`. Re-ejecutar cuando cambien las notas/paper.
-- **Recuperacion hibrida** (runtime, en `rag.mjs`): embebe la consulta y combina **similitud coseno (semantica)** con **BM25 (lexica)** -> top-K pasajes. Si el indice no tiene vectores, opera solo en modo lexico.
-- **Generacion**: arma un prompt con los pasajes numerados + cifras clave y pide a Gemini una respuesta **citando las fuentes con `[n]`**. La UI muestra las "Fuentes consultadas".
+- **Corpus** (`scripts/lib/corpus.mjs`): paper MICAI 2026 (`rag_sources/micai.txt`), notas/reportes HTML del proyecto y tarjetas estructuradas de `knowledge.json`. Chunking **consciente de secciones** (respeta encabezados; cada chunk lleva su seccion y la URL del documento). ~356 chunks.
+- **Indexado incremental** (`npm run rag:build`): genera embeddings con **gemini-embedding-001** (768 dims via MRL) y escribe `rag_index.json` (~3 MB). **Caché por hash**: solo re-embebe los chunks nuevos o modificados; los demas se reusan. Es **resiliente** (nunca degrada un indice bueno) y se ejecuta **automaticamente en cada deploy** (build command en `netlify.toml`; define `GEMINI_API_KEY` en el entorno de build para reindexar notas nuevas sin pasos manuales).
+- **Recuperacion hibrida + reranking** (runtime, `rag.mjs`): (1) **expande la consulta** con sinonimos/terminos clave; (2) recupera un pool combinando **coseno (semantico)** + **BM25 (lexico)**; (3) un **reranker LLM** (gemini-2.5-flash-lite) elige los top-K mas relevantes. Degrada a lexico si no hay vectores.
+- **Generacion**: arma un prompt con los pasajes numerados + cifras clave y pide a Gemini una respuesta **citando las fuentes con `[n]`**. La UI muestra **chips de fuente clicables**: abren el documento real (PDF/HTML) y ofrecen "profundizar" (re-consulta el RAG sobre esa fuente).
+- **Evaluacion + guardarrail**: `npm run rag:eval` mide recall@k / MRR contra `tests/rag_eval.json`; `npm run rag:verify` detecta drift (notas cambiaron pero el indice no se regenero) y corre dentro de `npm run check`.
 
 ```
-npm run rag:build          # regenera rag_index.json (necesita GEMINI_API_KEY)
+npm run rag:build     # reindexa (incremental; necesita GEMINI_API_KEY)
+npm run rag:eval      # recall@k / MRR del set de evaluacion
+npm run rag:verify    # falla si el indice esta desincronizado del corpus
 ```
+
+> Nota: el modelo de embeddings es **gemini-embedding-001** (no `text-embedding-004`, que da 404 en esta key). Para generacion/reranking se usan **gemini-2.5-flash** y **gemini-2.5-flash-lite** (los `gemini-1.5-*` ya no estan disponibles).
 
 ### Deteccion de Entidades (entities.js)
 

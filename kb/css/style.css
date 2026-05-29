@@ -956,22 +956,16 @@ body::after {
 
 .msg-source-chip {
   display: inline-flex;
-  align-items: center;
-  gap: 6px;
+  align-items: stretch;
   background: linear-gradient(135deg, rgba(212, 168, 75, 0.10), rgba(212, 168, 75, 0.04));
   border: 1px solid rgba(212, 168, 75, 0.22);
-  color: var(--gold-bright);
-  padding: 6px 12px;
   border-radius: var(--r-pill);
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: var(--font-body);
-  transition: all var(--dur) var(--ease-out);
+  overflow: hidden;
   max-width: 100%;
+  transition: all var(--dur) var(--ease-out);
 }
 
-.msg-source-chip svg { opacity: 0.7; flex-shrink: 0; }
+.msg-source-chip svg { opacity: 0.75; flex-shrink: 0; }
 
 .msg-source-chip .src-n {
   font-family: var(--font-mono);
@@ -979,15 +973,46 @@ body::after {
   opacity: 0.7;
 }
 
+/* Parte enlace: abre el documento real */
+.msg-source-chip .src-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px 6px 12px;
+  color: var(--gold-bright);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-body);
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.msg-source-chip .src-open--static { cursor: default; }
+
+/* Sub-botón: profundizar con el RAG */
+.msg-source-chip .src-ask {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 9px;
+  background: rgba(212, 168, 75, 0.10);
+  border: none;
+  border-left: 1px solid rgba(212, 168, 75, 0.22);
+  color: var(--gold-bright);
+  cursor: pointer;
+  transition: background var(--dur) var(--ease-out);
+}
+.msg-source-chip .src-ask:hover { background: rgba(212, 168, 75, 0.30); color: #fff; }
+
 .msg-source-chip:hover {
-  background: linear-gradient(135deg, rgba(212, 168, 75, 0.22), rgba(212, 168, 75, 0.10));
   border-color: var(--gold);
-  color: #fff;
   transform: translateY(-2px);
   box-shadow: 0 4px 16px rgba(212, 168, 75, 0.25);
 }
-
-.msg-source-chip:active { transform: translateY(0) scale(0.98); }
+.msg-source-chip .src-open:hover { color: #fff; }
+.msg-source-chip:active { transform: translateY(0) scale(0.99); }
 
 /* Charts — paneles más grandes, dramáticos */
 .msg-chart-grid {

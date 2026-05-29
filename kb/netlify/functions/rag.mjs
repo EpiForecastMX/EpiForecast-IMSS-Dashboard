@@ -22,8 +22,9 @@ import { fileURLToPath } from 'url';
 
 const EMBED_MODEL = 'gemini-embedding-001';
 const EMBED_DIM = 768;
-const TOP_K = 6;
-const GEN_MODELS = ['gemini-2.5-flash', 'gemini-1.5-flash'];
+const TOP_K = 6;            // pasajes finales que ven el generador
+const RERANK_POOL = 16;     // candidatos que entran al reranker
+const GEN_MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite'];
 
 // ---------------------------------------------------------------------------
 // Caches (cold start)
@@ -125,19 +126,19 @@ function normalize(arr) {
   return Array.from(arr, v => v / max);
 }
 
-/** Recuperación híbrida → devuelve los TOP_K chunks con su score. */
-async function retrieve(query, index, apiKey) {
+/** Recuperación híbrida → devuelve hasta RERANK_POOL candidatos con score.
+ *  La parte léxica usa la consulta original; la semántica, el texto expandido. */
+async function retrieve(genAI, query, expandedText, index) {
   const lex = buildLexical(index);
   const lexScores = normalize(bm25Scores(tokenize(query), lex));
 
   let semScores = new Array(index.chunks.length).fill(0);
   let mode = 'lexical';
-  if (index.vectors && index.vectors.length === index.chunks.length && apiKey) {
+  if (index.vectors && index.vectors.length === index.chunks.length && genAI) {
     try {
-      const genAI = new GoogleGenerativeAI(apiKey);
       const model = genAI.getGenerativeModel({ model: index.model || EMBED_MODEL });
       const res = await model.embedContent({
-        content: { parts: [{ text: query }], role: 'user' },
+        content: { parts: [{ text: expandedText || query }], role: 'user' },
         taskType: 'RETRIEVAL_QUERY',
         outputDimensionality: index.dim || EMBED_DIM,
       });
@@ -155,7 +156,41 @@ async function retrieve(query, index, apiKey) {
     score: mode === 'semantic' ? 0.75 * semScores[i] + 0.25 * lexScores[i] : lexScores[i],
   }));
   combined.sort((a, b) => b.score - a.score);
-  return { hits: combined.slice(0, TOP_K).filter(h => h.score > 0.01), mode };
+  return { candidates: combined.slice(0, RERANK_POOL).filter(h => h.score > 0.01), mode };
+}
+
+/** Expansión de consulta: reescribe la pregunta con sinónimos/términos clave
+ *  para mejorar el recall semántico. Devuelve la consulta original ante fallo. */
+async function expandQuery(genAI, query) {
+  try {
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
+    const prompt = `Reescribe esta consulta para un buscador del proyecto EpiForecast-MX (pronóstico epidemiológico semanal del IMSS; padecimientos Depresión, Parkinson, Alzheimer; motores Prophet, DeepAR, Ensemble, Stacking; métricas SMAPE/MASE; paper MICAI). Devuelve SOLO una versión enriquecida con sinónimos y términos clave, en una línea, sin comillas ni explicación.\nConsulta: ${query}`;
+    const r = await model.generateContent(prompt);
+    const t = (r.response.text() || '').trim().split('\n')[0].slice(0, 300);
+    return t ? `${query} ${t}` : query;
+  } catch { return query; }
+}
+
+/** Reranker LLM: reordena los candidatos por relevancia y devuelve TOP_K.
+ *  Usa 2.5-flash-lite (rápido). Si devuelve pocos índices, rellena
+ *  con el orden híbrido para no encoger por debajo de TOP_K. */
+async function rerank(genAI, query, candidates) {
+  try {
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite' });
+    const list = candidates.map((c, idx) => `[${idx}] (${c.chunk.source} — ${c.chunk.title}) ${c.chunk.text.replace(/\s+/g, ' ').slice(0, 240)}`).join('\n');
+    const prompt = `Consulta: "${query}"\n\nPasajes candidatos:\n${list}\n\nOrdena los índices de los pasajes del MÁS al menos relevante para responder la consulta. Devuelve SOLO un arreglo JSON con TODOS los índices ordenados. Ejemplo: [3,0,7,1,5,2,4]`;
+    const r = await model.generateContent(prompt);
+    const m = (r.response.text() || '').match(/\[[\d,\s]+\]/);
+    if (!m) return null;
+    const order = JSON.parse(m[0]).filter(n => Number.isInteger(n) && n >= 0 && n < candidates.length);
+    if (!order.length) return null;
+    // Orden del reranker + relleno con el orden híbrido para llegar a TOP_K
+    const seen = new Set();
+    const picked = [];
+    for (const n of order) { if (!seen.has(n)) { seen.add(n); picked.push(candidates[n]); } if (picked.length >= TOP_K) break; }
+    for (let i = 0; i < candidates.length && picked.length < TOP_K; i++) { if (!seen.has(i)) { seen.add(i); picked.push(candidates[i]); } }
+    return picked;
+  } catch { return null; }
 }
 
 // ---------------------------------------------------------------------------
@@ -273,12 +308,26 @@ export default async function handler(req) {
   if (query.length > 2000) return json({ error: 'La pregunta es demasiado larga (máximo 2000 caracteres).' }, 400);
 
   const index = loadIndex();
-  let hits = [], mode = 'lexical';
+  const genAI = new GoogleGenerativeAI(apiKey);
+
+  // 1. Expansión de consulta (mejora recall semántico)
+  const expanded = await expandQuery(genAI, query);
+
+  // 2. Recuperación híbrida → pool de candidatos
+  let candidates = [], mode = 'lexical';
   try {
-    const r = await retrieve(query, index, apiKey);
-    hits = r.hits; mode = r.mode;
+    const r = await retrieve(genAI, query, expanded, index);
+    candidates = r.candidates; mode = r.mode;
   } catch (err) {
     console.error('Retrieve error:', err.message);
+  }
+
+  // 3. Reranking LLM del pool → TOP_K (fallback: orden híbrido)
+  let hits = candidates.slice(0, TOP_K);
+  let reranked = false;
+  if (candidates.length > TOP_K) {
+    const rr = await rerank(genAI, query, candidates);
+    if (rr) { hits = rr; reranked = true; }
   }
 
   // Bloque de contexto: pasajes numerados + cifras clave
@@ -297,16 +346,21 @@ export default async function handler(req) {
   }
   contents.push({ role: 'user', parts: [{ text: query }] });
 
-  const genAI = new GoogleGenerativeAI(apiKey);
   let lastErr = null;
   for (const modelName of GEN_MODELS) {
     try {
       const model = genAI.getGenerativeModel({ model: modelName, systemInstruction: systemMsg });
       const result = await model.generateContent({ contents });
       const text = result.response.text();
-      // Devuelve solo las fuentes efectivamente disponibles (para la UI de citas)
-      const sources = hits.map((h, i) => ({ n: i + 1, source: h.chunk.source, title: h.chunk.title }));
-      return json({ answer: text, model: modelName, retrieval: mode, sources });
+      // Fuentes para la UI de citas (incluye enlace al documento real)
+      const sources = hits.map((h, i) => ({
+        n: i + 1,
+        source: h.chunk.source,
+        title: h.chunk.title,
+        section: h.chunk.section || h.chunk.title,
+        url: h.chunk.url || null,
+      }));
+      return json({ answer: text, model: modelName, retrieval: mode, reranked, sources });
     } catch (err) {
       lastErr = err;
       const msg = String(err?.message || '');
