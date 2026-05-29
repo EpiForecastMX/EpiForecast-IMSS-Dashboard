@@ -929,6 +929,66 @@ body::after {
   opacity: 1;
 }
 
+/* Fuentes del RAG — chips clicables (estética documento, acento dorado) */
+.msg-sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--border);
+  position: relative;
+}
+
+.msg-sources::before {
+  content: 'Fuentes';
+  position: absolute;
+  top: -7px;
+  left: 0;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: var(--bg-card);
+  padding: 0 8px 0 0;
+}
+
+.msg-source-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(212, 168, 75, 0.10), rgba(212, 168, 75, 0.04));
+  border: 1px solid rgba(212, 168, 75, 0.22);
+  color: var(--gold-bright);
+  padding: 6px 12px;
+  border-radius: var(--r-pill);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: all var(--dur) var(--ease-out);
+  max-width: 100%;
+}
+
+.msg-source-chip svg { opacity: 0.7; flex-shrink: 0; }
+
+.msg-source-chip .src-n {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.msg-source-chip:hover {
+  background: linear-gradient(135deg, rgba(212, 168, 75, 0.22), rgba(212, 168, 75, 0.10));
+  border-color: var(--gold);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(212, 168, 75, 0.25);
+}
+
+.msg-source-chip:active { transform: translateY(0) scale(0.98); }
+
 /* Charts — paneles más grandes, dramáticos */
 .msg-chart-grid {
   display: grid;

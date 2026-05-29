@@ -612,6 +612,14 @@ async function handleSend() {
     return;
   }
 
+  await callRag(text);
+}
+
+// ---------------------------------------------------------------------------
+// RAG: consulta a la base de conocimiento (función serverless /rag).
+// Reutilizable por el fallback de handleSend y por los chips de fuentes.
+// ---------------------------------------------------------------------------
+async function callRag(text) {
   const typingEl = addTypingIndicator('EPI está consultando la base de conocimiento');
   try {
     const resp = await fetch('/.netlify/functions/rag', {
@@ -622,12 +630,11 @@ async function handleSend() {
     removeTyping(typingEl);
     if (resp.ok) {
       const data = await resp.json();
-      const answer = (data.answer || 'Sin respuesta.') + formatSources(data.sources);
-      addBotMessage(answer, 'ai');
+      addBotMessage(data.answer || 'Sin respuesta.', 'ai', null, null, data.sources);
       pushHistory(text, data.answer || '');
     } else {
       const errData = await resp.json().catch(() => ({}));
-      console.warn('Gemini response error:', resp.status, errData);
+      console.warn('RAG response error:', resp.status, errData);
       const userMsg = errData.error || 'No pude consultar la IA en este momento.';
       addBotMessage(
         `${userMsg}\n\nMientras tanto, prueba con preguntas sobre el proyecto, por ejemplo «métricas globales» o «equipo del proyecto».`,
@@ -636,13 +643,20 @@ async function handleSend() {
     }
   } catch (err) {
     removeTyping(typingEl);
-    console.warn('Gemini fetch error:', err);
+    console.warn('RAG fetch error:', err);
     addBotMessage(
       'No pude conectar con el servicio de IA. Verifica tu conexión a internet.\n\n' +
       'Mientras tanto, puedo responder preguntas sobre datos del proyecto. Prueba: «métricas globales», «equipo» o «depresión en Jalisco».',
       'error'
     );
   }
+}
+
+// Reformula y consulta directamente al RAG sobre una fuente (chip clicable).
+function askAboutSource(sourceName) {
+  const q = `Cuéntame más sobre la respuesta anterior, con base en «${sourceName}».`;
+  addUserMessage(q);
+  callRag(q);
 }
 
 // ---------------------------------------------------------------------------
@@ -672,7 +686,7 @@ function addUserMessage(text) {
   scrollToBottom();
 }
 
-function addBotMessage(markdown, source, suggestions, chartData) {
+function addBotMessage(markdown, source, suggestions, chartData, sources) {
   const div = document.createElement('div');
   div.className = 'msg msg-bot';
 
@@ -693,6 +707,25 @@ function addBotMessage(markdown, source, suggestions, chartData) {
     suggestionsHtml = '<div class="msg-suggestions">' +
       suggestions.map(s => `<button data-q="${escapeAttr(s.q)}">${escapeHtml(polishSpanish(s.text))}</button>`).join('') +
       '</div>';
+  }
+
+  // Chips de fuentes (RAG): deduplica por documento, conserva el primer [n].
+  let sourcesHtml = '';
+  if (sources && sources.length) {
+    const seen = new Set();
+    const docs = [];
+    for (const s of sources) {
+      const name = s.source || s.title || '';
+      if (!name || seen.has(name)) continue;
+      seen.add(name);
+      docs.push({ n: s.n, name });
+    }
+    if (docs.length) {
+      const docIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+      sourcesHtml = '<div class="msg-sources">' +
+        docs.map(d => `<button class="msg-source-chip" data-src="${escapeAttr(d.name)}" title="Profundizar con base en esta fuente">${docIcon}<span class="src-n">[${d.n}]</span>${escapeHtml(polishSpanish(d.name))}</button>`).join('') +
+        '</div>';
+    }
   }
 
   let chartHtml = '';
@@ -755,6 +788,7 @@ function addBotMessage(markdown, source, suggestions, chartData) {
       <div class="msg-bubble-bot">
         <div class="msg-content">${html}</div>
         ${chartHtml}
+        ${sourcesHtml}
         ${suggestionsHtml}
       </div>
     </div>`;
@@ -767,6 +801,11 @@ function addBotMessage(markdown, source, suggestions, chartData) {
       inputField.value = btn.dataset.q;
       handleSend();
     });
+  });
+
+  // Bind source chips (RAG): consultan directamente al RAG sobre esa fuente
+  div.querySelectorAll('.msg-source-chip').forEach(btn => {
+    btn.addEventListener('click', () => askAboutSource(btn.dataset.src));
   });
 
   // Bind copy button
@@ -3028,14 +3067,6 @@ function getSuggestions(query) {
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
-
-// Formatea las fuentes recuperadas por el RAG como pie de cita en Markdown.
-// Mantiene la numeración [n] para que coincida con las citas inline del modelo.
-function formatSources(sources) {
-  if (!Array.isArray(sources) || !sources.length) return '';
-  const items = sources.map(s => `\`[${s.n}]\` ${s.source}`).join(' · ');
-  return `\n\n---\n\n**Fuentes consultadas:** ${items}`;
-}
 
 function noMatchMessage() {
   return (
