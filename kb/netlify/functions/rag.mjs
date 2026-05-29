@@ -34,16 +34,28 @@ let indexCache = null;
 let knowledgeCache = null;
 let lexCache = null;   // { df:Map, avgdl, N } para BM25
 
-function filePath(rel) {
+// Lee un archivo de datos probando varias rutas: el bundling de Netlify puede
+// ubicar los included_files en distintos lugares según la versión/base dir.
+function readDataFile(name) {
   const __dirname = dirname(fileURLToPath(import.meta.url));
-  return resolve(__dirname, rel);
+  const cwd = process.cwd();
+  const candidates = [
+    resolve(__dirname, '../../', name),   // kb/<name> (layout local y mismo árbol)
+    resolve(cwd, 'kb', name),             // base = repo root
+    resolve(cwd, name),                   // base = kb
+    resolve('/var/task', 'kb', name),     // Lambda task root (base = root)
+    resolve('/var/task', name),
+  ];
+  for (const p of candidates) {
+    try { return readFileSync(p, 'utf-8'); } catch { /* siguiente */ }
+  }
+  throw new Error(`No se encontró ${name}. Rutas probadas: ${candidates.join(' | ')}`);
 }
 
 function loadIndex() {
   if (indexCache) return indexCache;
   try {
-    const raw = readFileSync(filePath('../../rag_index.json'), 'utf-8');
-    indexCache = JSON.parse(raw);
+    indexCache = JSON.parse(readDataFile('rag_index.json'));
   } catch (err) {
     console.error('Error cargando rag_index.json:', err.message);
     indexCache = { chunks: [], vectors: [], dim: EMBED_DIM, model: EMBED_MODEL };
@@ -54,7 +66,7 @@ function loadIndex() {
 function loadKnowledge() {
   if (knowledgeCache) return knowledgeCache;
   try {
-    knowledgeCache = JSON.parse(readFileSync(filePath('../../knowledge.json'), 'utf-8'));
+    knowledgeCache = JSON.parse(readDataFile('knowledge.json'));
   } catch {
     knowledgeCache = {};
   }

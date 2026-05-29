@@ -1,9 +1,17 @@
 [build]
   publish = "."
   functions = "kb/netlify/functions"
+  # Reindexa el RAG en cada deploy (incremental: reusa vectores del índice
+  # commiteado, solo embebe lo nuevo). El "|| true" garantiza que un fallo de
+  # reindexado NUNCA rompe el deploy: se publica el rag_index.json commiteado.
+  # Define GEMINI_API_KEY en el entorno de build para reindexar notas nuevas.
+  command = "cd kb && npm install && npm run rag:build || true"
 
 [functions]
   node_bundler = "esbuild"
+  # CRÍTICO: empaqueta los datos que las funciones leen vía fs en runtime.
+  # Sin esto, rag.mjs no encuentra el índice en producción (RAG vacío).
+  included_files = ["kb/knowledge.json", "kb/rag_index.json"]
 
 [[headers]]
   for = "/kb/knowledge.json"
