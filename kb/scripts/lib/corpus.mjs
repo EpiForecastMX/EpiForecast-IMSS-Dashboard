@@ -211,7 +211,9 @@ function paperCardsES() {
     ['Paper MICAI — Validación y resultados (resumen ES)',
       'El marco se valida dos veces: (1) validación cruzada de origen móvil (rolling-origin) sobre una década de observaciones semanales, y (2) evaluación prospectiva fuera de muestra contra los boletines de 2026 posteriores al corte de entrenamiento. La asignación resultante se concentra en el modelo recurrente (DeepAR) para la mayoría de las series por entidad, conservando modelos más simples donde la agregación los favorece; el pronóstico nacional, bloqueado por separado, sigue de cerca los boletines de inicio de 2026.'],
     ['Paper MICAI — Aportaciones e impacto (resumen ES)',
-      'Frente a la planeación reactiva (ajustar capacidad solo después de ver el aumento en el boletín), pronósticos semanales confiables por entidad permiten una planeación PROACTIVA: anticipar personal y recursos. El enfoque es reproducible, auditable y extensible a otros padecimientos con comportamiento heterogéneo. La desagregación por sexo y entidad federativa es parte del diseño modular del sistema.'],
+      'Frente a la planeación reactiva (ajustar capacidad solo después de ver el aumento en el boletín), pronósticos semanales confiables por entidad permiten una planeación PROACTIVA: anticipar personal y recursos. El enfoque es reproducible, auditable y extensible a otros padecimientos con comportamiento heterogéneo.'],
+    ['Paper MICAI — Desagregación por sexo y entidad federativa (resumen ES)',
+      'La desagregación por SEXO y por ENTIDAD FEDERATIVA es central en el diseño modular del sistema. En lugar de un modelo nacional único, se modela cada serie (entidad × sexo) por separado, lo que aporta granularidad y permite capturar la heterogeneidad regional y por sexo en la incidencia. Qué aporta la desagregación: pronósticos específicos por estado y por sexo, mejor cobertura de patrones locales, y selección de modelo adaptada a cada serie. Las series de muy baja incidencia se respaldan con un modelo regional.'],
   ];
   return cards.map(([section, text], i) => ({
     id: `micai-es#${i}`,

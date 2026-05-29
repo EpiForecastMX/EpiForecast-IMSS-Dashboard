@@ -18,6 +18,14 @@
     { "q": "por que un enfoque multimodelo en vez de un solo algoritmo", "expect": ["Paper MICAI 2026", "Comparación de modelos"] },
     { "q": "como se reasignan las series de baja incidencia", "expect": ["Paper MICAI 2026", "Datos del proyecto", "Bitácora de modelado"] },
     { "q": "como se valida fuera de muestra contra los boletines 2026", "expect": ["Paper MICAI 2026", "Validación semanal"] },
-    { "q": "que es la seleccion auditable por serie", "expect": ["Paper MICAI 2026"] }
+    { "q": "que es la seleccion auditable por serie", "expect": ["Paper MICAI 2026"] },
+    { "q": "quien desarrollo el proyecto y de que institucion", "expect": ["Datos del proyecto"] },
+    { "q": "que motor gana en cada padecimiento", "expect": ["Datos del proyecto", "Comparación de modelos", "Paper MICAI 2026"] },
+    { "q": "que metricas de error usa el proyecto", "expect": ["Datos del proyecto", "Comparación de modelos"] },
+    { "q": "como funciona el ensemble y el stacking", "expect": ["Comparación de modelos", "Hiperparámetros de los modelos", "Bitácora de modelado"] },
+    { "q": "que limitaciones y trabajo futuro tiene el proyecto", "expect": ["Conclusiones del proyecto", "Paper MICAI 2026"] },
+    { "q": "por que se usa una red recurrente probabilistica como DeepAR", "expect": ["Paper MICAI 2026", "Comparación de modelos", "Bitácora de modelado"] },
+    { "q": "que horizonte de pronostico maneja el sistema", "expect": ["Datos del proyecto", "Paper MICAI 2026", "Bitácora de modelado"] },
+    { "q": "como se controla la fuga de datos o data leakage", "expect": ["Auditoría y remediación 2026", "Datos del proyecto"] }
   ]
 }

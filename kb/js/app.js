@@ -283,6 +283,45 @@ const epiDoughnutCenterPlugin = {
   },
 };
 
+// Box-plot: dibuja bigotes (mín–máx) y marcador de mediana sobre barras
+// horizontales flotantes cuyo dataset trae `_box` = [{min,p25,med,p75,max}].
+const epiBoxPlotPlugin = {
+  id: 'epiBoxPlot',
+  afterDatasetsDraw(chart) {
+    const ds = chart.data.datasets[0];
+    if (!ds || !ds._box) return;
+    const xs = chart.scales.x;
+    const meta = chart.getDatasetMeta(0);
+    const { ctx } = chart;
+    ctx.save();
+    for (let i = 0; i < ds._box.length; i++) {
+      const b = ds._box[i];
+      const el = meta.data[i];
+      if (!b || !el) continue;
+      const y = el.y;
+      const half = (el.height || 22) / 2;
+      const xMin = xs.getPixelForValue(b.min);
+      const xMax = xs.getPixelForValue(b.max);
+      const xMed = xs.getPixelForValue(b.med);
+      // Bigote mín–máx con tapas
+      ctx.strokeStyle = 'rgba(231, 236, 245, 0.55)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(xMin, y); ctx.lineTo(xMax, y);
+      ctx.moveTo(xMin, y - half * 0.55); ctx.lineTo(xMin, y + half * 0.55);
+      ctx.moveTo(xMax, y - half * 0.55); ctx.lineTo(xMax, y + half * 0.55);
+      ctx.stroke();
+      // Marcador de mediana
+      ctx.strokeStyle = '#E7ECF5';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(xMed, y - half); ctx.lineTo(xMed, y + half);
+      ctx.stroke();
+    }
+    ctx.restore();
+  },
+};
+
 // ---------------------------------------------------------------------------
 // Gemini connectivity check
 // ---------------------------------------------------------------------------
@@ -2173,22 +2212,27 @@ function buildSmapeBox(data) {
   const pads = Object.keys(byPad);
   if (!pads.length) return null;
   const quant = (arr, p) => { const a = [...arr].sort((x, y) => x - y); const i = (a.length - 1) * p, lo = Math.floor(i), hi = Math.ceil(i); return a[lo] + (a[hi] - a[lo]) * (i - lo); };
-  const rows = pads.map(p => ({ p, p25: quant(byPad[p], 0.25), p75: quant(byPad[p], 0.75) }));
+  const rows = pads.map(p => {
+    const a = byPad[p];
+    return { p, min: Math.min(...a), p25: quant(a, 0.25), med: quant(a, 0.5), p75: quant(a, 0.75), max: Math.max(...a) };
+  });
+  const maxAll = Math.max(...rows.map(r => r.max));
   return {
     type: 'bar',
     horizontal: true,
-    title: 'Rango de SMAPE por padecimiento (intercuartil p25–p75)',
+    title: 'Distribución de SMAPE por padecimiento (caja y bigotes)',
     labels: pads.map(dn),
     datasets: [{
-      label: 'SMAPE p25–p75 (%)',
+      label: 'SMAPE: caja p25–p75, bigotes mín–máx, línea = mediana',
       data: rows.map(r => [r.p25, r.p75]),
-      backgroundColor: pads.map(p => padColors[p] || '#5B8DEF'),
+      backgroundColor: pads.map(p => (padColors[p] || '#5B8DEF') + 'D0'),
       borderColor: pads.map(p => padColors[p] || '#5B8DEF'),
       borderWidth: 1,
-      borderRadius: 5,
+      borderRadius: 4,
       maxBarThickness: 30,
+      _box: rows.map(r => ({ min: r.min, p25: r.p25, med: r.med, p75: r.p75, max: r.max })),
     }],
-    options: { scales: { x: { title: { display: true, text: 'SMAPE (%)' }, beginAtZero: true } } },
+    options: { scales: { x: { title: { display: true, text: 'SMAPE (%)' }, beginAtZero: true, suggestedMax: Math.ceil(maxAll * 1.05) } } },
   };
 }
 
@@ -2971,7 +3015,7 @@ function renderChart(canvasId, chartData) {
   const config = {
     type: chartData.type,
     data: { labels: chartData.labels, datasets: chartData.datasets },
-    plugins: [epiGradientPlugin, epiGlowPlugin, epiCrosshairPlugin, epiDoughnutCenterPlugin],
+    plugins: [epiGradientPlugin, epiGlowPlugin, epiCrosshairPlugin, epiDoughnutCenterPlugin, epiBoxPlotPlugin],
     options: {
       responsive: true,
       maintainAspectRatio: false,  // Llenan el contenedor; canvas controla el tamaño vía CSS
