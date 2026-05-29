@@ -48,8 +48,21 @@ kb/
 
 - **30+ handlers** en cadena de prioridad que cubren: metricas globales, datos por padecimiento/estado/sexo, historico anual, comparativas entre estados, ranking de modelos, equipo, infraestructura, semanas epidemiologicas, boletin SINAVE y mas.
 - Respuestas basadas en **datos reales** de `knowledge.json` (generado por el pipeline del repo principal).
-- Fallback a **Gemini** via Netlify Function cuando la pregunta excede la base local.
+- Fallback a un **RAG real** (ver abajo) cuando la pregunta excede los handlers locales.
 - Historial conversacional para contexto en preguntas de seguimiento.
+
+### RAG Real (rag_index.json + netlify/functions/rag.mjs)
+
+Para preguntas de conocimiento (metodologia, decisiones de diseno, el paper MICAI, "por que", "como funciona"), EpiBot usa **Retrieval-Augmented Generation** con grounding y citas:
+
+- **Corpus**: paper MICAI 2026 (`rag_sources/micai.txt`), notas/reportes HTML del proyecto (bitacora, ficha tecnica Prophet, hiperparametros, conclusiones, validacion, comparacion, etc.) y tarjetas estructuradas derivadas de `knowledge.json`. ~227 chunks.
+- **Indexado** (offline): `npm run rag:build` trocea el corpus, genera embeddings con **gemini-embedding-001** (768 dims via MRL) y escribe `rag_index.json` (~2 MB). Requiere `GEMINI_API_KEY`. Re-ejecutar cuando cambien las notas/paper.
+- **Recuperacion hibrida** (runtime, en `rag.mjs`): embebe la consulta y combina **similitud coseno (semantica)** con **BM25 (lexica)** -> top-K pasajes. Si el indice no tiene vectores, opera solo en modo lexico.
+- **Generacion**: arma un prompt con los pasajes numerados + cifras clave y pide a Gemini una respuesta **citando las fuentes con `[n]`**. La UI muestra las "Fuentes consultadas".
+
+```
+npm run rag:build          # regenera rag_index.json (necesita GEMINI_API_KEY)
+```
 
 ### Deteccion de Entidades (entities.js)
 

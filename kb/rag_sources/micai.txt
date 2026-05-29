@@ -1,0 +1,1710 @@
+Forecasting Weekly Depression Incidence in
+Mexico: A Multi-Model Framework with
+Auditable Per-Series Model Selection
+Javier A. Rebull-Saucedo1 (⊠), Juan Carlos Pérez-Nava2 , Luis Gerardo
+Sánchez-Salazar3 , Grettel Barceló-Alonso4 , and Ruth Manuela
+Pérez-Hernández2
+Santander Bank US, Massachusetts, USA
+rebull@outlook.com
+2
+Mexican Social Security Institute (IMSS), Mexico City, Mexico
+3
+Tesla, Inc., California, USA
+4
+Tecnológico de Monterrey (ITESM-HGO), Hidalgo, Mexico
+1
+
+Abstract. Weekly forecasting of psychiatric demand is hard because
+
+surveillance signals are heterogeneous across regions, sexes and time,
+so no single forecasting paradigm performs uniformly well. Rather than
+impose one algorithm across an entire surveillance system, we present
+a deterministic, auditable framework that selects, for each series, the
+model best supported by its own evidence. The framework draws on a library of forecasters with deliberately dierent inductive assumptionsa
+structural additive decomposition, a probabilistic recurrent network and
+two tree-based hybridsso the candidate pool spans diverse temporal
+representations and improves coverage across this heterogeneity. A transparent rule then picks one model per series on cross-validated accuracy,
+reassigns low-incidence series to a regional model, and records every decision in a justied selection log. We instantiate it for weekly incidence of
+depression (CIE-10 F32) across the 32 Mexican federal entities, drawing
+on the public bulletins of the National Epidemiological Surveillance System (SINAVE), and validate it twice: by rolling-origin cross-validation
+over a decade of weekly observations and by a prospective out-of-sample
+assessment against the 2026 bulletins released after the training cuto. The resulting assignment concentrates on the recurrent model for
+most federal-entity series while retaining simpler models where aggregation favours them, and the separately locked national forecast tracks the
+early-2026 bulletins. Because cross-validated accuracy need not persist
+as the live signal shifts, the selection is revisableit re-selects as new
+bulletins arriveso the system stays auditable and accountable in deployment, not a frozen leaderboard winner. It is reproducible and extends
+to other conditions with heterogeneous behaviour.
+
+Keywords: Depression · Time series forecasting · Probabilistic recur-
+
+rent networks · Multi-model forecasting · Epidemiological surveillance ·
+Model selection.
+
+2
+
+1
+
+J.A. Rebull-Saucedo et al.
+
+Introduction
+
+Depression is a leading cause of disability worldwide and a major burden on
+public-health systems [25]. In Mexico it aects an estimated 810 million people, and the National Epidemiological Surveillance System (SINAVE) records
+over 150,000 new cases of depressive episode (CIE-10 F32) per year [11]. Despite
+the routine availability of weekly case counts, the planning of psychiatric services remains largely reactive : capacity is adjusted only after demand surges are
+already visible in the bulletin, producing recurrent saturation windows during
+the FebruaryMay period.
+Accurate weekly, federal-entity forecasts would make this planning proactive : a reliable 52-week-ahead trajectory lets authorities pre-position sta ahead
+of seasonal peaks, size programmes per state, and time help-seeking campaigns
+for the quieter months. The problem is hard precisely where it matters. The depression signal is strongly heterogeneous: case loads dier by orders of magnitude
+across entities, are sharply skewed by sex, and range from smooth metropolitan
+series to volatile low-volume states, over a panel marked by a COVID-19 regime
+change and a post-pandemic level shift. No single paradigm accommodates all
+of these at once: structural decompositions excel on smooth aggregates but lag
+on noisy series, whereas representation-learning models share structure across
+series but can over-react on smooth aggregates. Deployment also raises a trust
+problem: a model chosen on historical cross-validation can quietly lose its edge
+once the live signal shifts, so an institution needs a selection it can audit and
+revise, not a one-o leaderboard winner.
+We address this with a multi-model forecasting framework (referred to
+throughout as the proposed framework ). Rather than committing to one model
+family, it trains four forecasters with complementary inductive assumptions for
+each series and selects one per series through a deterministic, auditable rule,
+so that whichever paradigm ts a given series best is the one that produces
+its forecast. Although evaluated here on depression, the framework is designed
+for epidemiological surveillance in general: choosing one model per series is a
+direct response to the heterogeneity that makes any single architecture unlikely
+to dominate across the many conditions a surveillance system monitors.
+The main contributions of this study are threefold: (i) we present and empirically study a multi-model forecasting framework for psychiatric surveillance
+that places structural, recurrent and tree-based forecasters behind a single interface, enabling a head-to-head, per-series comparison under one rolling-origin
+protocol; (ii) we introduce a deterministic, auditable per-series model-selection
+strategy that ranks candidates on cross-validated symmetric error with scale-free
+and large-error tiebreakers and a transparent low-incidence regional fallback,
+producing a fully justied, revisable selection logan auditable selection mechanism built for trustworthy deployment under distribution shift, not a one-o
+leaderboard choice; and (iii) we provide a nation-wide empirical characterisation,
+over 111 seriesstratum combinations and 626 weeks of SINAVE data, of the regional, demographic and temporal heterogeneity of the depression signal and of
+the conditions under which each forecasting paradigm prevails. A central nding
+
+Forecasting Depression in Mexico
+
+3
+
+is that the cross-validated ranking is a selection signal, not an out-of-sample
+guarantee: per-series accuracy degrades on live 2026 data, which the revisable
+rule absorbs by reassigning models as the signal accumulatessubstantiated on
+the rst eighteen epidemiological weeks of 2026.
+
+2
+
+Foundations and Related Work
+
+2.1
+
+Epidemiological Time-Series Forecasting
+
+Incidence forecasting has progressed from linear, series-by-series statistical models to global, representation-learning architectures that share parameters across
+many related series. The BoxJenkins autoregressive integrated moving average
+(ARIMA) family [5] remains a standard baseline, but its linearity and stationarity assumptions limit performance on non-stationary public-health signals subject to regime changes. Exponential-smoothing state-space models (ETS) [16]
+oer a exible additive or multiplicative decomposition but treat each series independently. Prophet [26] popularised an additive decomposition with explicit
+trend, seasonality and holiday components and is robust to missing data and
+outliers, making it a frequent default in public-health pipelines; its smooth additive structure, however, can under-t the volatile low-count series typical of
+small federal entities. Recurrent neural networks (RNNs), and in particular long
+short-term memory (LSTM) networks, have shown clear advantages on epidemiological series: Chimmula and Zhang [8] applied LSTMs to COVID-19 incidence
+in Canada, outperforming classical baselines on short horizons, though such datahungry models can over-react on the smooth, high-volume aggregates where simpler decompositions already suce. For public-health surveillance specically,
+collaborative forecasting eorts have shown that systematic, reproducible evaluation of probabilistic forecasts is feasible at national scale [23,9]. More recent
+architectures push long-horizon accuracy furtherfor example, the hierarchicalinterpolation network N-HiTS [6]and large pretrained foundation models for
+time series, such as Chronos [3], forecast across many domains with little or
+no task-specic training; their behaviour on the sparse, regime-shifting panels
+typical of epidemiological surveillance is still largely untested.
+
+2.2
+
+Foundations of Multi-Model Forecasting
+
+The case for combining heterogeneous forecasters is well established. Salinas
+et al. [24] introduced DeepAR, a global probabilistic autoregressive RNN that
+performs cross-learning across a panel of related series and emits a full predictive
+distribution at each step; recent surveys of deep learning for forecasting situate
+such global models within a broad design space [4,19,14]. Large-scale empirical evidence from the M4 and M5 forecasting competitionsopen benchmarks
+spanning, respectively, 100,000 cross-domain series and a large hierarchical retailsales corpusshows that machine-learning and hybrid methods are competitive
+with, and often superior to, classical univariate methods across heterogeneous
+
+4
+
+J.A. Rebull-Saucedo et al.
+
+collections, and that combinations are particularly robust [20,21], including automated ensembles tuned for weekly series [13]. Combining the explicit components
+of additive decompositions with the non-linear capacity of gradient-boosting decision trees (GBDT) has proven eective in retail and energy forecasting [17],
+and Prophetneural hybrids have improved pandemic incidence forecasts [10].
+Stacked generalisation [28] formalises learning a meta-model on top of heterogeneous base learners. These foundations motivate a design in which structural,
+statistical and learning-based assumptions coexist and a principled rule decides
+between them per series.
+
+2.3
+
+Depression and Mental-Health Surveillance
+
+The burden of depression in Mexico has been quantied through the Global
+Burden of Disease study [12], and the COVID-19 pandemic produced a measurable global increase in depressive-disorder burden [25]. Sex-related disparities in
+reported incidence are well established clinically [1]. No prior work has applied
+a multi-model forecasting framework with auditable per-series model selection
+to the SINAVE depression panel at federal-entity granularity, together with an
+out-of-sample prospective evaluation.
+
+3
+
+Materials and Methods
+
+3.1
+
+Data Characterisation
+
+The study draws on weekly case counts of depressive episode (CIE-10 code F32,
+the Spanish-language denomination of the WHO ICD-10 classication used by
+SINAVE) reported in the SINAVE bulletin by the Dirección General de Epidemiología [11], the consolidated public-health surveillance system of Mexico.
+After calendar alignment under the SINAVE epidemiological-week convention,5
+the harmonised panel contains 626 weekly observations per series, spanning 2014-W02 through 2025-W53. Epidemiological week 1 of 2014 was unavailable in the retrieved archive, so 2014 contributes 52 weeks; 2020 and 2025 each
+contain 53 epidemiological weeks, giving 626 = 10×52 + 2×53. Records are disaggregated by sex (women, men) and aggregated to a non-disaggregated total
+(general). We analyse the 32 federal entities, four socio-urban regions dened
+by population density and INEGI demographic indicators (Metropolitana alta,
+Urbana media, Sur-Sureste vulnerable, Rural / dispersa ), and a national series,
+yielding 37 × 3 = 111 seriesstratum combinations.
+
+Temporal and seasonal structure. Figure 1 shows the national series. Three
+
+regimes are visible: a stable 20142018 baseline; the COVID-19 disruption of
+20202021, when both reporting capacity and clinical demand shifted abruptly;
+5
+
+The SINAVE calendar is similar but not identical to the ISO 8601 and CDC Morbidity and Mortality Weekly Report (MMWR) week conventions. We use the calendar
+as published in the bulletin and do not re-index against either external standard.
+
+Forecasting Depression in Mexico
+
+5
+
+Depression (CIE-10 F32): temporal distribution
+149,402
+
+3000
+2000
+1000
+0
+
+20
+14
+20
+15
+20
+16
+20
+17
+20
+18
+20
+19
+20
+20
+20
+21
+20
+22
+20
+23
+20
+24
+20
+25
+20
+26
+
+0
+
+Cases per week
+
+151,612
+
+COVID-19 disruption
+
+4000
+
+49,559
+
+50000
+
+(b) Weekly national series
+148,188
+
+130,306
+
+103,829
+
+121,741
+83,364
+
+118,189
+
+99,146
+
+91,086
+
+68,910
+
+Cases
+
+100000
+
+116,805
+
+(a) Annual reported cases
+150000
+
+2014
+
+2016
+
+2018
+
+2020
+
+2022
+
+2024
+
+2026
+
+Fig. 1. Depression (CIE-10 F32) temporal distribution. (a) Annual reported cases
+
+20142026 (2026 is year-to-date). (b) Weekly national series; the COVID-19 disruption
+window is highlighted in gold. The post-2022 level shift and the recurring February
+May peaks motivate models that adapt across regimes.
+
+and a post-pandemic regime in 20222025 that exceeds pre-pandemic levels.
+The series exhibits clear intra-annual seasonality, with recurring annual peaks
+between epidemiological weeks 820 (FebruaryMay).
+
+Spatial, regional and demographic heterogeneity. State-level case loads vary by
+
+more than two orders of magnitude (Fig. 2): the highest-volume entities (Mexico City, the State of Mexico, Jalisco, Chihuahua, Veracruz) together account
+for about 40% of the cumulative caseload, while sparsely populated southern
+states are lower but more volatile; the Metropolitana alta region is the most
+stable and Sur-Sureste vulnerable the most variable relative to its mean, which
+penalises single-series baselines. Women account for 74.0% of reported cases
+against 26.0% in men over 20142025, exceeding the 1.52× female prevalence
+of major depressive disorder [1]; as the data are reported incidence, this likely
+reects both clinical patterns and male under-reporting. We forecast the three
+strata separately and revisit the gap in Sect. 6. By the indicators we can measure (median annual coecient of variation below 0.25, negligible missing weeks,
+a well-contained COVID-19 window), this panel is unusually clean, making it
+amenable to data-driven sequence models.
+
+3.2
+
+Proposed Framework
+
+Rationale. The heterogeneity documented above motivates a design that does
+not commit to one inductive bias. We train, for each series, four forecasters
+whose assumptions are deliberately complementary, and we let a deterministic rule choose between them. The methodological core is not any individual
+forecasterall four are established modelsbut the principled, per-series choice
+among them: each series is matched to the inductive bias its own history supports, through a deterministic and fully auditable rule rather than a global or
+hand-tuned commitment. A structural additive model captures explicit trend
+and seasonality and is strong on smooth aggregates; a probabilistic recurrent
+network with a exible autoregressive structure is strong on the many noisy
+
+6
+
+J.A. Rebull-Saucedo et al.
+Depression (CIE-10 F32): annual reported case load by
+federal entity (rows sorted by cumulative volume)
+Ciudad de México
+Jalisco
+México
+Chihuahua
+Veracruz
+Nuevo León
+Baja California
+Tamaulipas
+Michoacán
+Sinaloa
+Durango
+Guanajuato
+Nayarit
+San Luis Potosí
+Puebla
+Sonora
+Morelos
+Tabasco
+Hidalgo
+Yucatán
+Coahuila
+Chiapas
+Zacatecas
+Guerrero
+Aguascalientes
+Colima
+Oaxaca
+Quintana Roo
+Campeche
+Baja California Sur
+Querétaro
+Tlaxcala
+
+20000
+
+Annual cases
+
+15000
+
+10000
+
+5000
+
+2014
+
+2015
+
+2016
+
+2017
+
+2018
+
+2019
+
+2020
+
+Year
+
+2021
+
+2022
+
+2023
+
+2024
+
+2025
+
+2026
+
+Fig. 2. Annual reported depression (CIE-10 F32) case load by federal entity, 20142026
+
+(2026 year-to-date), with rows sorted by cumulative volume. Annual loads span more
+than two orders of magnitude across entitiesfrom high-volume states such as Mexico
+City, Jalisco and the State of Mexico down to the sparsely populated southand the
+ve highest-volume entities account for about 40% of the cumulative caseload. This
+per-entity spread is the heterogeneity the proposed framework is designed to absorb
+through per-series model selection.
+
+state series; two tree-based hybrids add non-linear interactions between calendar, lag and demographic features. The four forecasters are exposed through a
+single, common interface, so that the selection rule operates uniformly over all
+of them (Fig. 3).
+
+ Probabilistic recurrent network (DeepAR) [24,2]: an autoregressive
+
+recurrent network that emits a Student-t distribution whose mean is the
+point forecast. Each federal-entity and regional series is tted with its own
+DeepAR model; the national aggregate uses a single DeepAR trained jointly
+over the 32 state series, with the per-state forecasts summed to the national
+total. A controlled comparison (Sect. 3.3) shows that joint training adds only
+a small margin over per-series tting, so the per-series variant is used at the
+federal-entity level.
+
+Forecasting Depression in Mexico
+
+7
+
+Four candidate models, trained in parallel per series
+
+DeepAR
+global RNN
+
+SINAVE
+bulletin
+20142025
+
+Prophet
+Clean +
+features
+
+Rollingorigin CV
+
+additive
+
+Ensemble
++XGBoost
+
+Stacking
+3 experts
+
+Model
+selection
+smape → mase → rmse
+
+Lowincidence?
+
+no
+
+Locked
+forecast
+52 weeks
+
+yes
+Regional
+model
+
+Fig. 3. Proposed framework. Four candidate models with complementary inductive
+
+assumptions are trained in parallel per series; a deterministic rule selects one on
+cross-validated smape (with mase and rmse tiebreakers), after which structurally lowincidence series are routed to their regional model before the 52-week forecast is locked.
+
+ Structural additive model (Prophet) [26]: piecewise-linear trend with
+
+automatic change points plus Fourier annual seasonality, tted to the log(1+y)
+rate per 100,000 inhabitants to stabilise variance across population sizes.
+ Parallel hybrid (Ensemble): an XGBoost regressor [7] on calendar features and lagged and rolling-window statistics (lags {1, 2, 4, 8, 13, 26, 52} weeks,
+spanning short-term momentum, quarterly structure and the annual cycle),
+blended with Prophet in count space as ŷt = αŷtP +(1−α)ŷtXGB with α tted
+on out-of-fold predictions, so that Prophet's smooth trend and seasonality
+complement XGBoost's non-linear lag interactions.
+ Stacked hybrid (Stacking): Prophet, ETS and LightGBM [18] experts
+two structural and statistical views of trend and seasonality plus one nonlinear learnercombined by a non-negative ElasticNet meta-learner over
+out-of-fold predictions; the non-negativity keeps the learned weights interpretable as positive contributions and stable on short series.
+
+Low-incidence regional fallback. Series with structurally low historical incidence
+cumulative count below 5 cases in the 52 weeks immediately preceding the forecast originare reassigned to the model selected for their socio-urban region
+(Fig. 3). On such near-zero series the percentage metrics are dominated by noise,
+so a regional model estimated from a denser signal is a safer default. The rule
+depends only on past observations and is therefore free of look-ahead bias. On
+the depression panel studied here no series falls below the threshold, so the fallback is not activated; it is retained as a safeguard for sparser conditions in the
+SINAVE catalogue.
+
+3.3
+
+Evaluation Protocol
+
+Cross-validation. Every seriesstratum combination is evaluated by rolling-origin
+cross-validation with ve folds, a 52-week horizon and a 13-week (one-quarter)
+stride; the training window expands at each fold. Metrics are accumulated across
+folds and weeks, and we report the median across folds per {series, stratum,
+model} triple.
+
+8
+
+J.A. Rebull-Saucedo et al.
+
+Metrics and their rationale. Let yt be the observed value and ŷt the point fore-
+
+cast at step t over a horizon H . We use four complementary metricsthe root
+mean squared error (rmse), the mean absolute error (mae), the symmetric mean
+absolute percentage error (smape) and the mean absolute scaled error (mase)
+dened in Eqs. (1)(2), so that no single artefact dominates the selection.
+q
+P
+P
+2
+mae = H1 H
+(1)
+rmse = H1 H
+t=1 (yt − ŷt ) ,
+t=1 |yt − ŷt |,
+
+smape =
+
+H
+
+100 X |yt − ŷt |
+,
+H t=1 (|yt | + |ŷt |)/2
+
+mase =
+
+PH
+t=1 |yt − ŷt |
+P
+.
+n
+1
+t=53 |yt − yt−52 |
+n−52
+1
+H
+
+(2)
+
+smape is scale-normalised and symmetric, hence comparable across entities of
+very dierent volume, and is our primary criterion; mase [15] normalises by a
+
+52-week seasonal-naïve benchmark, so a value below 1 beats seasonal persistence
+regardless of scale; rmse penalises large errors and mae is an interpretable casecount error. Excluding the W53 weeks of the two 53-week years shifts every
+median mase by less than 0.005 and leaves the ranking unchanged.
+
+Leakage prevention. Temporal leakage is controlled throughout: the rolling-origin
+
+splits are strictly expanding; lag and rolling features never reference an observation later than the forecast origin (multi-step rollout lls h>1 lags recursively
+with predictions, never future values); demographic covariates are pre-origin annual estimates; and the low-incidence fallback depends only on past counts. The
+2026 bulletins of Sect. 5 were used exclusively for evaluation: no 2026 observation trained, tuned or reselected any model, and all hyperparameters, architectures and the selection rule were xed on data through 2025-W53. We call
+the evaluation out-of-sample rather than blind, the guarantee being the temporal one above. As a leakage check, an otherwise-identical global versus local
+(single-series) DeepAR pair on eight states improved the median smape by only
+∼5% (24.9 vs. 26.3): a modest, legitimate cross-learning gain, not an information
+leak.6
+
+Baselines. Beyond the four candidate models of Sect. 3.2, the 52-week seasonal-
+
+naïve benchmark is the denominator of mase and is reported explicitly (Table 1),
+together with two baselines re-implemented under the identical CV: a tuned
+Auto-ARIMA with Fourier annual terms and a PatchTST transformer.
+
+Model selection strategy. For a seriesstratum combination, let E be the candi-
+
+date set and, for each model e ∈ E , let se , ae and re denote its median crossvalidated smape, mase and rmse. Write s(1) ≤ s(2) for the two smallest smape
+values and B = {e ∈ E : se ≤ 1.05 s(1) } for the models within 5% of the best.
+The selected model e⋆ is determined deterministically:
+6
+
+This controlled pair uses a lightweight identical conguration to isolate the globalversus-local eect; its absolute errors exceed those of the production-congured
+model in Table 1.
+
+Forecasting Depression in Mexico
+
+9
+
+1. Primary (smape). If s(2) > 1.05 s(1) (the best model beats the second by
+more than a 5% relative margin), then e⋆ = arg mine∈E se .
+2. Tiebreaker (mase). Otherwise e⋆ = arg mine∈B ae .
+3. Tiebreaker (rmse). If the mase values in B are tied, e⋆ = arg mine∈B re .
+The low-incidence regional fallback of Sect. 3.2 is then applied. The resulting
+choice and its metrics are persisted alongside each forecast, so every locked prediction is justied by an auditable record rather than an architectural prior. In
+compact form:
+sort the four models by cross-validated sMAPE; e1 = best, e2 =
+second.
+if relative gap(e1, e2) exceeds 5%: select e1.
+else: among models within 5% of e1's sMAPE, select the lowest MASE
+(break remaining ties by RMSE).
+if cumulative count over the last 52 weeks is below 5: use the
+regional model.
+
+Search budget. The per-model search eort is calibrated to its dominant source
+
+of sensitivity. Prophet is exposed via a 12-point grid over the changepoint and
+seasonality priors, the parameters most sensitive to scale across the 111 panels; DeepAR is xed at the conguration selected on the validation portion of
+the rst cross-validation fold, with context length and dropout the only seriesaware choices; the gradient-boosting models use the library defaults with the
+blend weight α tted on out-of-fold residuals. We do not equalise the number of
+congurations across models, because the marginal value of additional DeepAR
+tuning at panel scale is empirically small relative to its compute cost under the
+production cross-validation.
+
+Code availability. The model-selection, evaluation and analysis code supporting
+
+this study is publicly available at https://github.com/IntegradorIMSS2026Team01/
+per-series-model-selection2026.
+
+4
+
+Results
+
+4.1
+
+Aggregate Performance
+
+Table 1 reports median per-model accuracy together with two coverage indicators
+over the 111 combinations: the share in which a model beats the seasonal-naïve
+baseline (mase < 1), and the share in which the selection strategy locks it as
+the forecast. These cross-validation gures drive selection ; their out-of-sample
+counterpart, examined below and in Sect. 5, is substantially weaker, so they
+should be read as a selection signal and not as expected live accuracy.
+DeepAR achieves the lowest median value on all four metrics by a wide
+margin and beats the seasonal-naïve baseline on 99.1% of combinations. Under
+the selection strategy it is locked for 107 of 111 combinations (96.4%), and for
+every one of the 32 × 3 = 96 federal-entity combinations; the four exceptions
+
+10
+
+J.A. Rebull-Saucedo et al.
+
+Table 1. Aggregate cross-validation performance over the 111 seriesstratum combi-
+
+nations (in-sample model-selection metrics, not out-of-sample accuracy; see the generalisation note in the text). The rst four numeric columns are the median of each
+accuracy metric across the 111 combinations (lower is better). Beats naïve is the share
+with mase < 1; Selected is the share locked by the strategy of Sect. 3.3. The two rates
+do not sum to 100% by row because every model is evaluated on every combination
+but only one is selected per combination.
+
+Median accuracy (lower is better) Coverage (% of 111)
+Model
+
+smape (%) mase rmse
+
+Seasonal naïve (52-wk lag)
+
+29.28
+
+1.000
+
+DeepAR
+Prophet
+Ensemble
+Stacking
+
+5.99
+29.71
+25.07
+27.56
+
+22.57
+
+mae
+
+Beats naïve Selected
+
+17.87
+
+
+
+
+
+0.171 4.79
+
+2.19
+
+99.1
+
+96.4
+
+0.885
+0.925
+0.940
+
+12.63
+12.97
+13.75
+
+68.5
+62.2
+55.9
+
+0.9
+1.8
+0.9
+
+27.0
+27.0
+
+
+
+
+15.95
+16.37
+17.02
+
+‡
+
+Additional baselines, re-implemented under the identical CV
+
+Auto-ARIMA + Fourier
+PatchTST (transformer)
+
+29.07
+27.18
+
+1.438
+1.409
+
+
+
+
+
+
+
+The Auto-ARIMA baseline models log(1+y) with an ARIMA order selected by AIC
+over a compact grid and Fourier annual terms (K=4), the standard treatment of long
+weekly seasonality; PatchTST [22] is run with its reference conguration (patch
+length 16) on the same 104-week context window as DeepAR. Both are deliberately
+out-of-the-box implementations of widely cited baselines, not exhaustively tuned
+competitors. We report their scale-free smape and mase, which cross-check against
+the production pipeline at the national stratum (smape 8.9% vs. 8.8%; mase 0.60 vs.
+0.59); rmse/mae are omitted as their absolute scale is not comparable across the two
+implementations. Neither participates in the model-selection pool.
+‡
+
+are aggregate series (the three national strata, discussed next, and one sparse
+southern region). Because DeepAR's federal-entity margin far exceeds the 5%
+selection band, this assignment is insensitive to the exact threshold, which only
+adjudicates the near-ties among the aggregate series.
+Two additional baselines evaluated under the identical protocola tuned
+Auto-ARIMA with Fourier seasonality and a PatchTST transformerland with
+the statistical models and well above DeepAR's cross-validation value, conrming the gap is not an artefact of a weak classical baseline. A grid over the transformer's patch length and context window does not narrow this gap: across ve
+congurations its general-stratum cross-validated smape stays within 2223%
+(best 22.3%), several times the recurrent model's median, so the gap does not
+stem from an untuned baseline.
+
+Why the recurrent model dominates, and where it does not. At the federal-entity
+
+level, where each series is tted with its own model, two factors favour DeepAR:
+the exible autoregressive recurrent structure, with a long context window and
+a Student-t likelihood, captures each state's seasonality and post-pandemic level
+
+Forecasting Depression in Mexico
+
+11
+
+Depression (CIE-10 F32): four-model forecast comparison national series (general mode)
+Observed (SINAVE)
+
+Weekly cases
+
+4000
+
+DeepAR
+
+Ensemble
+
+Stacking
+
+3000
+2000
+1000
+0
+
+Weekly cases
+
+Prophet
+
+(a) full history 2014--2026
+
+2014
+
+3500
+3000
+2500
+2000
+1500
+1000
+500
+0
+2024-01
+
+2016
+
+2018
+
+2020
+
+2022
+
+2024
+
+2026
+forecast horizon
+
+(b) zoom 2024--2026: the four models diverge at the forecast horizon
+
+2024-05
+
+2024-09
+
+2025-01
+
+2025-05
+
+2025-09
+Year
+
+2026-01
+
+2026-05
+
+2026-09
+
+2027-01
+
+Fig. 4. Four-model forecast comparison on the national series (general stratum). (a)
+Full 20142026 history: the four models track the observed series closely (the gold band
+marks the window magnied in (b)). (b) Zoom on 20242026: past the dotted forecasthorizon line the models diverge, with DeepAR following the magnitude and phase of
+the seasonal peaks, Prophet under-shooting the post-2022 level and Stacking lagging
+in phase. At the national level the DeepAR forecast is the joint model summed over
+states; aggregation smooths state-level variation, so the selection rule retains a simpler
+model for this stratum.
+
+shift and converges to a strong in-sample t on this dense, clean panel; and
+the probabilistic likelihood regularises training on asymmetric counts. We caution that this is an in-sample cross-validation t that does not persist out of
+sample (Sect. 4). At the national-aggregate level the advantage is neutralised:
+there the DeepAR forecast is the joint model summed over states, and aggregation smooths the idiosyncratic state variation, so simpler models t the smooth
+trend at least as well. The strategy therefore locks Ensemble for the national
+general and women strata and Prophet for men, with cross-validated smape of
+8.75%, 7.11% and 12.64% respectively (mase 0.59, 0.46, 0.76); we retain these
+data-driven choices rather than override them. That the rule lands on dierent
+models across the three national strataa tree-based hybrid for the general and
+female series and a structural model for the smaller male seriesis the perseries mechanism working as intended: each stratum is matched to the inductive
+bias its own cross-validated evidence supports rather than inheriting the federalentity winner, so these aggregate-level choices reect a dierent data regime, not
+a contradiction of the federal-entity result. On the national series itself, DeepAR
+follows the magnitude and phase of the seasonal peaks while Prophet undershoots the post-2022 level shift and Stacking lags in phase (Fig. 4).
+
+Statistical signicance. A one-sided Wilcoxon signed-rank test on the 111 paired
+per-series smape values conrms that DeepAR lies below each of the other three
+
+12
+
+J.A. Rebull-Saucedo et al.
+
+candidates in cross-validation (p < 0.001 against Prophet, Ensemble and Stacking; n=111), so the cross-validation ranking is not an artefact of the median
+statistic.
+
+Generalisation to live 2026 data. Table 1 reports in-sample cross-validation metrics, to be read as the basis for selection, not as out-of-sample accuracy. Re-scored
+against the 2026 bulletins, the per-series median smape rises for every model
+
+and the cross-validation gap closes: the four become comparable (per-series median in the 4548% range), reecting both genuine one-year-ahead extrapolation
+diculty and the instability of smape on low-count series. The framework is
+designed for this: per-series assignments are revisable, and re-selecting on the
+accumulating 2026 signal reassigned 72 of the 111 series; the out-of-sample evaluation resolves this by model and stratum (Sect. 5). Where counts are large and
+smape stable (the national strata) the locked forecast generalises well, as the
+prospective evaluation quanties (6.63% over W02W18); we treat that, not the
+cross-validation medians, as the primary out-of-sample evidence of this study.
+
+4.2
+
+State-Level Behaviour
+
+Across the 32 federal entities the selected (DeepAR) model ranges from a best
+case near 1% smape (Michoacán 1.03, Morelos 1.40, Guanajuato 1.94, Baja California 2.09, Coahuila 2.15) to a worst case in the low double digits (Nuevo León
+7.91, Querétaro 9.75, Tlaxcala 11.47, Durango 12.91, Puebla 16.28), with mase
+below 0.5 throughout, i.e. a uniform improvement over seasonal persistence. In
+the worst case (Puebla, mase = 0.42) the abrupt 2023 level shift inates the
+residual variance, but the seasonal phase is still preserved. The per-state outof-sample errors for every entity, on which the production rule re-selects, are
+reported in Appendix B.
+
+4.3
+
+Demographic Forecasts
+
+Forecasting the three strata separately surfaces gender-specic saturation windows. The selected national female model (Ensemble, smape = 7.11%) projects
+116,047 cases for 2026, against 43,500 male cases and 155,966 in the general
+stratum; the annual peak falls in FebruaryMay for both sexes. Because the
+strata are forecast independently rather than reconciled, the women-plus-men
+sum exceeds the general forecast by about 2.3%; we treat this small incoherence
+explicitly and return to reconciliation in Sect. 6.
+
+5
+
+Out-of-Sample Evaluation (2026)
+
+We assess the locked national-general forecast (Ensemble) against every 2026
+SINAVE bulletin published since the training cut-o, covering epidemiological
+weeks W01W18 (Table 2, Fig. 5). No 2026 observation entered training, tuning
+or selection (Sect. 3.3).
+
+Forecasting Depression in Mexico
+
+13
+
+Table 2. Out-of-sample evaluation: SINAVE-published weekly incidence (national,
+
+general stratum) versus the locked Ensemble forecast for 2026 weeks W01W18. Deviation is 100(ŷ − y)/y . W01 is reported separately, as the bulletin's rst week is structurally incomplete (holiday-season carry-over from the prior W52); aggregates are over
+the complete weeks W02W18. The `Recon.' column is the minimum-trace reconciled
+national-general forecast (Sect. 6).
+
+Week
+
+Obs. Pred. Recon. Dev. (%)
+
+Week Obs. Pred. Recon. Dev. (%)
+
+W01
+W02
+W03
+W04
+W05
+W06
+W07
+
+1,259
+2,220
+2,819
+2,820
+2,595
+2,585
+2,975
+
+2,022
+2,511
+2,869
+3,044
+2,973
+2,886
+2,906
+
+W09
+
+3,086
+
+3,167
+
+W10
+W11
+W12
+W13
+W14
+W15
+W16
+W17
+W18
+
+∗
+
+W08 3,041 3,046
+
+
+2,487
+2,835
+3,030
+3,012
+2,961
+2,997
+
+3,131
+
+3,228
+
++60.6
++13.1
++1.8
++7.9
++14.6
++11.6
+−2.3
++0.2
++2.6
+
+3,057
+3,052
+2,574
+3,223
+2,341
+2,981
+3,065
+3,075
+2,791
+
+3,132
+3,004
+2,891
+2,897
+2,961
+3,093
+3,048
+3,032
+2,964
+
+3,190
+3,061
+2,953
+2,955
+3,030
+3,124
+3,112
+3,080
+3,033
+
++2.5
+−1.6
++12.3
+−10.1
++26.5
++3.8
+−0.6
+−1.4
++6.2
+
+Cumulative W02W18: observed 48,300, predicted 50,424 (reconciled
+51,219), deviation +4.40% (reconciled +6.0%) (∗ W01 excluded from aggregates).
+
+Aggregate behaviour. Over the 17 complete weeks W02W18 the locked forecast
+attains a smape of 6.63% (mean mae = 184 cases per week) and a cumulative
+deviation of +4.40%, inside the ±5% planning tolerance. The relevant comparator is the CV-period smape on the same national-general stratum, 8.75%: the
+out-of-sample error is below the in-sample CV error. The weekly errors have
+a median absolute percentage error of 3.7%, below the 6.6% CV median, so
+the forecast generalises without visible drift. The ranking is robust to the error
+metric: under a count-appropriate mean Poisson deviance the locked Ensemble
+forecast is again the best of the four models on this window (21.7, against 31.9
+for Prophet, 32.0 for DeepAR and 87.5 for Stacking). Consistent with the deployment setting, an empirical 80% prediction interval (10th/90th percentiles of
+post-2021 residuals) covers 15 of 17 validation weeks (88%; 76% on a full-history
+calibration), bracketing the nominal level rather than the over-condence of a
+single model's native intervals.
+
+Pairwise comparison. A Diebold-Mariano test (Harvey-Leybourne-Newbold smallsample correction) on the W02W18 squared-error losses does not reject equal
+accuracy between the locked Ensemble and DeepAR (p = 0.15) or Prophet
+(p = 0.10), and nds it more accurate than Stacking (p = 0.03); with only seventeen weeks the test has limited power, so a non-rejection means insucient
+evidence to separate the leading models, not equivalence.
+
+Largest single-week deviation. W14 is the largest single-week deviation (+26.5%),
+well beyond the upper quartile of the cross-validation error band. The value remained at 2,341 cases through the manuscript cut-o and is therefore not a
+
+14
+
+J.A. Rebull-Saucedo et al.
+Depression: 2026 prospective evaluation national general stratum, W01 W18 (every SINAVE bulletin since training cut-off)
+W08: +0.16%
+
+National cases per week
+
+3000
+2500
+W01 incomplete
+(holiday carry-over)
+
+2000
+1500
+1000
+500
+
+Deviation (%)
+
+0
+
+20
+
+Observed 2025 (context)
+Observed (SINAVE bulletin)
+
+2025-10
+
+2025-11
+2025-12
+2026-01
+2026-02
+2026-03
+Per-week deviation, locked forecast vs. SINAVE bulletin (W02
+W18)
++26
++15
+
++13
+
+10
+
++8
+
+10
+
++0
+
++3
+
+W03
+
+W04
+
+W05
+
+W06
+
+2026-05
+
+Planning tolerance ±5%
+
+W07
+
+-2
+
+W08
+
+W09
+
+W10
+
++6
+
++4
+
++2
+
+-2
+
+W02
+
+2026-04
+
++12
+
++12
+
++2
+
+0
+
+Locked forecast (Ensemble)
+
+W11
+
+W12
+
+-10
+
+W13
+
+W14
+
+W15
+
+-1
+
+-1
+
+W16
+
+W17
+
+W18
+
+Fig. 5. 2026 out-of-sample evaluation, national general stratum. (a) Late-2025 context
+
+and W01W18 observed (grey) versus the locked Ensemble forecast (green); W01 is
+agged as incomplete and the W08 planning milestone is annotated. (b) Per-week
+deviation against the ±5% planning tolerance band (shaded); bars are coloured by
+absolute deviation: green within ±5%, orange between 5 and 10%, and wine above
+10%.
+
+reporting-lag artefact; the four subsequent weeks W15W18 return to a smape
+of 2.9%, so the miss does not propagate into the trajectory. We treat W14 as one
+observation in the tail of the in-sample error distribution rather than as evidence
+of model drift, and note that the most recent one or two weeks of any bulletin
+should still be read with caution because of the documented SINAVE reporting
+lag. Week W08, the onset of the FebruaryMay saturation window, deviates by
+only +0.2%, though the 17-week aggregate is the more informative summary.
+
+Per-series behaviour. Cross-validation accuracy does not persist per series out
+
+of sample (Sect. 4); Fig. 6 resolves this by model and demographic stratum.
+The cross-validated dominance of the recurrent model (dashed line) does not
+survive: out of sample no model is uniformly best, and the error grows toward
+the sparse male stratum, where low weekly counts also inate smape on small
+denominatorson the scale-free mase the same male series stay near 0.450.50
+for all four models, well below 1, about twice as accurate as 52-week seasonal
+persistence. Far from undermining per-series selection, this is the regime that
+makes an auditable, revisable rule valuable, and we test that value directly. In
+a held-out reselection experimentre-selecting each series' model on the early2026 weeks (W02W11) and scoring it on the subsequent, unused weeks (W12
+W18)the revised model lowers held-out smape in 69% of the reassigned series
+(robust at 6178% across split points), cutting their median held-out smape from
+32.0% to 26.4%. Revising the per-series choice on accumulating data therefore
+
+Forecasting Depression in Mexico
+
+15
+
+Out-of-sample 2026 per-series error by model and stratum (each box: 32 entities + national)
+Out-of-sample 2026 sMAPE (%)
+
+100
+
+Prophet
+
+DeepAR
+
+Ensemble
+
+Stacking
+
+80
+60
+40
+20
+DeepAR cross-validation median (5.99%)
+
+0
+
+General
+
+Women
+Demographic stratum
+
+Men
+
+Fig. 6. Out-of-sample 2026 per-series symmetric error by model and demographic stra-
+
+tum; each box summarises the 32 federal entities and the national series over the 2026
+weeks available at the production cut-o. In cross-validation the recurrent model is
+selected for most series at a 5.99% median (dashed line); out of sample that advantage
+disappears and the four models converge near 4548%, worst on the sparse male stratum. The auditable rule treats these scores as a revisable signal and reassigns 72 of the
+111 series.
+
+measurably improves live accuracy: the rule is a working mechanism, not merely
+an audit log.
+
+6
+
+Discussion
+
+Combining forecasters with complementary inductive biases and selecting one
+per series by a transparent, revisable rule is a principled way to forecast a heterogeneous panel, preserving the simpler model where an aggregate series favours
+it and re-selecting as live data accumulate. The auditable log makes each locked
+forecast defensible by a metric rather than an architectural preference; we stress
+that the cross-validation ranking favouring the recurrent model is a selection signal, not an out-of-sample guarantee, since per-series accuracy degrades on live
+2026 data (Sect. 4).
+
+Public-health relevance. The 74%/26% reported femalemale split, broadly echoed
+by the 2026 forecast (about 73%/27%), has planning implications: a grid sized at
+the national mean may underserve women in absolute terms, while male depression remains plausibly under-identied. A sex-disaggregated 52-week forecast
+could support both proactive capacity allocation for the FebruaryMay saturation window and male-targeted help-seeking campaigns in quieter months. We
+emphasise that the data are reported incidence, not prevalence; the femalemale
+gap is a hypothesis requiring dedicated epidemiological validation before use as
+policy input. This paper evaluates the framework; it does not describe a deployed
+operational system.
+
+16
+
+J.A. Rebull-Saucedo et al.
+
+Hierarchical reconciliation. The three demographic strata are forecast indepen-
+
+dently, leaving the ∼2.3% general-versus-(women+men) incoherence noted in
+Sect. 4.3. Applying a minimum-trace reconciliation [27] to the locked national
+forecasts, weighted by the per-stratum cross-validation error variances, removes
+the incoherence by construction; the reconciled national-general series (Table 2,
+`Recon.' column) shifts the operational forecast by only 1.9% on average and,
+since it is already well calibrated, slightly raises the cumulative deviation (+6.0%
+vs. +4.40%). The independence approximation is thus a small source of error,
+and we report the unreconciled forecasts for transparency.
+
+Limitations. Five limitations bound the conclusions. (i) Only one condition (de-
+
+pression) is evaluated; transfer to conditions with dierent temporal behaviour
+remains to be shown. (ii) The per-series cross-validation metrics of Table 1
+are optimistic relative to live performance: re-scored on the 2026 bulletins the
+per-series errors rise and the cross-validation ranking compresses (Sect. 4). The
+strong cross-validation result is best read as the basis for selection, and the out-ofsample claim of this paper rests on the national-aggregate prospective evaluation,
+not on the cross-validation medians. (iii) The headline prospective evaluation is
+at the national-aggregate stratum over an early-2026 window (W01W18); a
+per-state out-of-sample table over the same window is given in Appendix B, but
+a per-state full-year evaluation is still pending. (iv) The most recent bulletins are
+subject to reporting-lag revision, so the latest one or two weeks are provisional.
+(v) The framework has not been externally validated outside SINAVE/Mexico.
+
+Future work. We plan to extend the framework to further CIE-10 codes in the
+
+SINAVE catalogue, to report a full-year per-state prospective evaluation, to
+add tuned SARIMA and N-BEATS/N-HiTS baselines, and to pursue external
+validation.
+
+7
+
+Conclusions
+
+We presented an empirical study of multi-model, per-series forecast selection for
+weekly depression incidence at federal-entity granularity in Mexico, comparing
+a structural model, a global probabilistic recurrent network and two tree-based
+hybrids under a deterministic, auditable and revisable selection rule. Evaluated
+on more than a decade of SINAVE data across a nation-wide panel of series and
+demographic strata, cross-validation selects the recurrent model (DeepAR) for
+the large majority of federal-entity series, while the rule retains simpler models
+where aggregation favours them. We are explicit that this ranking is an in-sample
+selection signal: on live 2026 data the per-series advantage narrows and the
+framework re-selects, so our out-of-sample evidence is the prospective national
+evaluation, not the cross-validation gures. We are not aware of prior work that
+applies a multi-model framework with auditable, revisable per-series model selection to psychiatric surveillance at federal-entity granularity in a Latin American
+country. The framework is a research prototype; future work will broaden the
+conditions, baselines and prospective horizon evaluated.
+
+Forecasting Depression in Mexico
+
+17
+
+Ethics and Data Availability
+The SINAVE bulletin reports aggregate weekly case counts at the federal-entity
+level, stratied by sex; all analyses were performed on these aggregate cells and
+no cell corresponds to an individual patient, so no informed consent or reviewboard approval was required. The institutional ethics committee of Tecnológico
+de Monterrey (ITESM-HGO) conrmed that no formal review was required for
+the use of aggregate, public SINAVE data. The data are published as open
+data by the Dirección General de Epidemiología, Secretaría de Salud, and were
+retrieved from the public SINAVE portal on 2026-04-15 [11]; redistribution is
+governed by the open-data terms of the bulletin.
+
+Acknowledgments. The authors gratefully acknowledge subject-matter guidance
+
+from Dra. Ruth Manuela Pérez-Hernández (IMSS) and Dra. Grettel Barceló-Alonso
+(ITESM-HGO) on the model-selection methodology, and the contributions of Dra. Lina
+Díaz-Castro (Instituto Nacional de Psiquiatría Ramón de la Fuente Muñiz) and Dra. Silvia Magali Cuadra-Hernández (Instituto Nacional de Salud Pública) on the epidemiological interpretation of the data. The authors thank the M.Sc. in Applied Articial
+Intelligence (MNA) programme of Tecnológico de Monterrey for institutional support.
+
+Disclosure of Interests. The authors have no competing interests relevant to the
+content of this article. The corporate aliations in the header indicate current employment only; this work was developed independently of those employers under the
+MNA programme, with no funding, computing resources or proprietary information
+from either company.
+
+A
+
+Implementation and Reproducibility Details
+
+The four models are exposed behind a single, common interface and congured from hierarchical yaml les under OmegaConf. The framework is implemented in Python 3.12 on GluonTS 0.15 (PyTorch 2.5), Prophet 1.1, XGBoost 2.0, LightGBM 4.3, scikit-learn 1.4 and pandas 2.2. The recurrent model
+(DeepAR) is trained on a single NVIDIA T4 GPU (an ml.g4dn.xlarge cloud
+instance), while the remaining models run on CPU. Run-to-run reproducibility
+is enforced with a xed multi-source seed: torch, numpy and random are set
+to 42, torch.backends.cudnn.deterministic is enabled, and the per-library
+feature_fraction_seed and bagging_seed of the tree-based models are xed.
+Per-model hyperparameters are summarised in Table 3, and the conguration
+les and the model-selection pseudocode are released with the source code.
+
+B
+
+Per-State Out-of-Sample Evaluation (2026)
+
+Table 4 reports the per-entity out-of-sample 2026 smape of the four models
+(general stratum); its wide spreadgenuine state heterogeneity compounded
+by smape ination on sparse countsis what the per-series, revisable rule is
+built to absorb, and is why no single model dominates the panel, rather than a
+shortcoming of any one forecaster.
+
+18
+
+J.A. Rebull-Saucedo et al.
+
+Table 3. Principal hyperparameters per model, xed before the 2026 evaluation window.
+
+Model
+
+Principal hyperparameters
+
+DeepAR
+
+2 layers × 80 cells; context 104 wk; horizon 52; dropout 0.15;
+Student-t output; Adam η=5×10−4 , λ2 =10−6 ; batch 32; ≤300
+epochs; early stop (patience 15).
+
+Prophet
+
+rate per 100k, log(1+y); changepoint prior ∈ {0.01, 0.03, 0.05}; seasonality prior ∈ {0.025, 0.05, 0.1, 0.5} (12-point grid under temporal
+CV).
+
+Ensemble XGBoost on calendar/lags {1, 2, 4, 8, 13, 26, 52}/rolling stats; blend
+weight learned on out-of-fold predictions.
+Stacking
+
+Prophet + ETS + LightGBM experts; non-negative ElasticNet
+(α=1.0, l1_ratio=0.5).
+
+References
+1. Albert, P.R.: Why is depression more prevalent in women? J. Psychiatry Neurosci.
+40(4), 219221 (2015). https://doi.org/10.1503/jpn.150205
+2. Alexandrov, A., Benidis, K., Bohlke-Schneider, M., Flunkert, V., Gasthaus, J.,
+Januschowski, T., et al.: GluonTS: probabilistic and neural time series modeling
+in Python. J. Mach. Learn. Res. 21(116), 16 (2020). http://jmlr.org/papers/v21/
+19-820.html
+3. Ansari, A.F., Stella, L., Türkmen, C., Zhang, X., Mercado, P., Shen, H., et al.:
+Chronos: learning the language of time series. Trans. Mach. Learn. Res. (2024).
+https://doi.org/10.48550/arXiv.2403.07815
+4. Benidis, K., Rangapuram, S.S., Flunkert, V., Wang, Y., Maddix, D., Türkmen,
+C., et al.: Deep learning for time series forecasting: tutorial and literature survey.
+ACM Comput. Surv. 55(6), 136 (2022). https://doi.org/10.1145/3533382
+5. Box, G.E.P., Jenkins, G.M., Reinsel, G.C., Ljung, G.M.: Time Series Analysis:
+Forecasting and Control, 5th edn. John Wiley & Sons, Hoboken (2015)
+6. Challu, C., Olivares, K.G., Oreshkin, B.N., Garza Ramirez, F., Mergenthaler
+Canseco, M., Dubrawski, A.: N-HiTS: neural hierarchical interpolation for time series forecasting. In: Proceedings of the AAAI Conference on Articial Intelligence,
+vol. 37, no. 6, pp. 69896997 (2023). https://doi.org/10.1609/aaai.v37i6.25854
+7. Chen, T., Guestrin, C.: XGBoost: a scalable tree boosting system. In: Proceedings
+of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and
+Data Mining (KDD), pp. 785794. ACM, San Francisco (2016). https://doi.org/
+10.1145/2939672.2939785
+8. Chimmula, V.K.R., Zhang, L.: Time series forecasting of COVID-19 transmission
+in Canada using LSTM networks. Chaos Solitons Fractals 135, 109864 (2020).
+https://doi.org/10.1016/j.chaos.2020.109864
+9. Cramer, E.Y., Ray, E.L., Lopez, V.K., Bracher, J., Brennen, A., Castro Rivadeneira, A.J., et al.: Evaluation of individual and ensemble probabilistic forecasts
+of COVID-19 mortality in the United States. Proc. Natl. Acad. Sci. USA 119(15),
+e2113561119 (2022). https://doi.org/10.1073/pnas.2113561119
+
+Forecasting Depression in Mexico
+
+19
+
+Table 4. Per-state out-of-sample 2026 smape (%), general stratum, weeks W02W18
+(Dpr DeepAR, Prp Prophet, Ens Ensemble, Stk Stacking); bold marks each series'
+
+lowest error. Cross-validation selects DeepAR for all 32 entities (Ensemble nationally),
+yet out of sample it is lowest in only 10 of the 33 series. Medians: DeepAR 30.0, Prophet
+25.8, Ensemble 27.0, Stacking 30.2. The bold model is the rule's pick by construction;
+the held-out test of Sect. 5 (scored on unused weeks) shows the reassignment generalises.
+
+Entidad
+Aguascalientes
+Baja California
+Baja Calif. Sur
+Campeche
+Chiapas
+Chihuahua
+Ciudad de México
+Coahuila
+Colima
+Durango
+Guanajuato
+Guerrero
+Hidalgo
+Jalisco
+Michoacán
+Morelos
+México
+
+Dpr Prp Ens Stk
+26
+20
+39
+37
+35
+
+20
+8
+
+26
+36
+
+20
+23
+
+15
+30
+
+34
+
+21
+40
+23
+21
+
+40
+
+23
+24
+
+49
+26
+35
+17
+
+47
+31
+39
+25
+
+20
+14
+63
+
+21
+23
+
+25
+9
+40
+26
+
+33
+
+16
+24
+24
+32
+
+27
+
+42
+25
+22
+15
+68
+24
+
+19
+
+21
+12
+
+37
+25
+37
+
+15
+39
+30
+72
+29
+36
+
+23
+
+23
+16
+92
+24
+33
+
+Entidad
+Nayarit
+Nuevo León
+Oaxaca
+Puebla
+Querétaro
+Quintana Roo
+San Luis Potosí
+Sinaloa
+Sonora
+Tabasco
+Tamaulipas
+Tlaxcala
+Veracruz
+Yucatán
+Zacatecas
+
+Nacional
+
+Dpr Prp Ens Stk
+30
+31
+
+22
+
+34
+38
+26
+
+30
+
+35
+
+28
+
+46
+43
+
+37
+32
+
+34
+31
+23
+
+32
+25
+
+27
+
+23
+
+28
+
+47
+
+44
+
+26
+31
+
+16
+16
+
+21
+64
+
+55
+28
+25
+23
+
+13
+
+38
+
+38
+37
+30
+59
+35
+31
+49
+46
+
+31
+53
+33
+
+36
+35
+22
+52
+25
+53
+26
+37
+21
+
+20
+
+61
+30
+72
+
+22
+24
+
+13
+
+10. Dash, S., Giri, S.K., Mallik, S., Pani, S.K., Shah, M.A., Qin, H.: Predictive healthcare modeling for early pandemic assessment leveraging deep auto regressor neural
+prophet. Sci. Rep. 14, 5287 (2024). https://doi.org/10.1038/s41598-024-55973-y
+11. Dirección General de Epidemiología (DGE), Secretaría de Salud, México: Sistema Nacional de Vigilancia Epidemiológica (SINAVE)  Boletín
+Epidemiológico.
+https://www.gob.mx/salud/acciones-y-programas/
+direccion-general-de-epidemiologia-boletin-epidemiologico, last accessed 2026-0415
+12. García-Pacheco, J.Á., Torres-Ortega, M.L., Borges, G.: The burden of mental disorders in Mexico, 19902019: mental and neurological disorders, substance use,
+suicides, and related somatic disorders. Span. J. Psychiatry Ment. Health 17(2),
+6470 (2024). https://doi.org/10.1016/j.rpsm.2021.06.005
+13. Godahewa, R., Bergmeir, C., Webb, G.I., Montero-Manso, P.: An accurate and
+fully-automated ensemble model for weekly time series forecasting. Int. J. Forecast.
+39(2), 641658 (2023). https://doi.org/10.1016/j.ijforecast.2022.01.008
+14. Hewamalage, H., Bergmeir, C., Bandara, K.: Recurrent neural networks for time
+series forecasting: current status and future directions. Int. J. Forecast. 37(1),
+388427 (2021). https://doi.org/10.1016/j.ijforecast.2020.06.008
+15. Hyndman, R.J., Koehler, A.B.: Another look at measures of forecast accuracy.
+Int. J. Forecast. 22(4), 679688 (2006). https://doi.org/10.1016/j.ijforecast.2006.
+
+23
+18
+
+20
+
+J.A. Rebull-Saucedo et al.
+
+03.001
+16. Hyndman, R.J., Koehler, A.B., Ord, J.K., Snyder, R.D.: Forecasting with Exponential Smoothing: The State Space Approach. Springer, Berlin (2008). https:
+//doi.org/10.1007/978-3-540-71918-2
+17. Hyndman, R.J., Athanasopoulos, G.: Forecasting: Principles and Practice, 2nd edn.
+OTexts, Melbourne (2018). https://otexts.com/fpp2/
+18. Ke, G., Meng, Q., Finley, T., Wang, T., Chen, W., Ma, W., et al.: LightGBM: a
+highly ecient gradient boosting decision tree. In: Advances in Neural Information
+Processing Systems (NeurIPS), vol. 30, pp. 31463154 (2017). https://proceedings.
+neurips.cc/paper/2017/hash/6449f44a102fde848669bdd9eb6b76fa-Abstract.html
+19. Lim, B., Zohren, S.: Time-series forecasting with deep learning: a survey. Philos.
+Trans. R. Soc. A 379(2194), 20200209 (2021). https://doi.org/10.1098/rsta.2020.
+0209
+20. Makridakis, S., Spiliotis, E., Assimakopoulos, V.: The M4 Competition: 100,000
+time series and 61 forecasting methods. Int. J. Forecast. 36(1), 5474 (2020). https:
+//doi.org/10.1016/j.ijforecast.2019.04.014
+21. Makridakis, S., Spiliotis, E., Assimakopoulos, V.: The M5 accuracy competition:
+results, ndings, and conclusions. Int. J. Forecast. 38(4), 13461364 (2022). https:
+//doi.org/10.1016/j.ijforecast.2021.11.013
+22. Nie, Y., Nguyen, N.H., Sinthong, P., Kalagnanam, J.: A time series is worth
+64 words: long-term forecasting with transformers. In: International Conference
+on Learning Representations (ICLR) (2023). https://doi.org/10.48550/arXiv.2211.
+14730
+23. Reich, N.G., Brooks, L.C., Fox, S.J., Kandula, S., McGowan, C.J., Moore, E., et al.:
+A collaborative multiyear, multimodel assessment of seasonal inuenza forecasting
+in the United States. Proc. Natl. Acad. Sci. USA 116(8), 31463154 (2019). https:
+//doi.org/10.1073/pnas.1812594116
+24. Salinas, D., Flunkert, V., Gasthaus, J., Januschowski, T.: DeepAR: probabilistic
+forecasting with autoregressive recurrent networks. Int. J. Forecast. 36(3), 1181
+1191 (2020). https://doi.org/10.1016/j.ijforecast.2019.07.001
+25. Santomauro, D.F., Mantilla Herrera, A.M., Shadid, J., Zheng, P., Ashbaugh, C.,
+Pigott, D.M., et al.: Global prevalence and burden of depressive and anxiety disorders in 204 countries and territories in 2020 due to the COVID-19 pandemic. Lancet
+398(10312), 17001712 (2021). https://doi.org/10.1016/S0140-6736(21)02143-7
+26. Taylor, S.J., Letham, B.: Forecasting at scale. Am. Stat. 72(1), 3745 (2018).
+https://doi.org/10.1080/00031305.2017.1380080
+27. Wickramasuriya, S.L., Athanasopoulos, G., Hyndman, R.J.: Optimal forecast reconciliation for hierarchical and grouped time series through trace minimization.
+J. Am. Stat. Assoc. 114(526), 804819 (2019). https://doi.org/10.1080/01621459.
+2018.1448825
+28. Wolpert, D.H.: Stacked generalization. Neural Netw. 5(2), 241259 (1992). https:
+//doi.org/10.1016/S0893-6080(05)80023-1
+

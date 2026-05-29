@@ -4,6 +4,8 @@
 
 [functions]
   node_bundler = "esbuild"
+  # Empaqueta los datos que las funciones leen vía fs en runtime.
+  included_files = ["knowledge.json", "rag_index.json"]
 
 [[headers]]
   for = "/knowledge.json"

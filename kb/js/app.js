@@ -286,8 +286,9 @@ const epiDoughnutCenterPlugin = {
 async function checkGemini() {
   const indicator = document.getElementById('geminiStatus');
   if (!indicator) return;
+  let ragReady = false;
   try {
-    const resp = await fetch('/.netlify/functions/ask', {
+    const resp = await fetch('/.netlify/functions/rag', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ health: true }),
@@ -295,16 +296,17 @@ async function checkGemini() {
     if (resp.ok) {
       const data = await resp.json();
       geminiConnected = data.gemini === true;
+      ragReady = data.rag === true && data.hasVectors === true;
     }
   } catch (err) {
-    console.warn('Gemini health check failed:', err);
+    console.warn('RAG health check failed:', err);
     geminiConnected = false;
   }
   if (geminiConnected) {
     indicator.className = 'gemini-status gemini-ok';
     indicator.innerHTML = `
       <span class="gemini-dot"></span>
-      <span>Powered by AI</span>`;
+      <span>${ragReady ? 'RAG activo' : 'Powered by AI'}</span>`;
   } else {
     indicator.className = 'gemini-status gemini-off';
     indicator.innerHTML = `
@@ -610,9 +612,9 @@ async function handleSend() {
     return;
   }
 
-  const typingEl = addTypingIndicator('EPI está consultando la IA');
+  const typingEl = addTypingIndicator('EPI está consultando la base de conocimiento');
   try {
-    const resp = await fetch('/.netlify/functions/ask', {
+    const resp = await fetch('/.netlify/functions/rag', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query: text, history: history.slice(-MAX_HISTORY) }),
@@ -620,7 +622,8 @@ async function handleSend() {
     removeTyping(typingEl);
     if (resp.ok) {
       const data = await resp.json();
-      addBotMessage(data.answer || 'Sin respuesta.', 'ai');
+      const answer = (data.answer || 'Sin respuesta.') + formatSources(data.sources);
+      addBotMessage(answer, 'ai');
       pushHistory(text, data.answer || '');
     } else {
       const errData = await resp.json().catch(() => ({}));
@@ -3025,6 +3028,14 @@ function getSuggestions(query) {
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+// Formatea las fuentes recuperadas por el RAG como pie de cita en Markdown.
+// Mantiene la numeración [n] para que coincida con las citas inline del modelo.
+function formatSources(sources) {
+  if (!Array.isArray(sources) || !sources.length) return '';
+  const items = sources.map(s => `\`[${s.n}]\` ${s.source}`).join(' · ');
+  return `\n\n---\n\n**Fuentes consultadas:** ${items}`;
+}
 
 function noMatchMessage() {
   return (
