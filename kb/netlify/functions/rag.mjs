@@ -23,9 +23,10 @@ import { fileURLToPath } from 'url';
 const EMBED_MODEL = 'gemini-embedding-001';
 const EMBED_DIM = 768;
 const TOP_K = 6;            // pasajes finales que ven el generador
-const RERANK_POOL = 16;     // candidatos que entran al reranker
+const RERANK_POOL = 12;     // candidatos que entran al reranker
 const DIVERSITY_CAP = 3;    // máx. pasajes por documento en el top-K (diversidad)
 const SIM_MIN = 0.55;       // umbral de confianza (coseno crudo del mejor pasaje)
+const RERANK_SKIP_SIM = 0.72; // si el mejor pasaje supera esto, se omite el rerank (ya es confiable)
 const GEN_MODELS = ['gemini-3.1-flash-lite', 'gemini-2.5-flash'];
 
 // ---------------------------------------------------------------------------
@@ -236,25 +237,13 @@ async function contextualizeQuery(genAI, query, history) {
   } catch { return query; }
 }
 
-/** Expansión de consulta: reescribe la pregunta con sinónimos/términos clave
- *  para mejorar el recall semántico. Devuelve la consulta original ante fallo. */
-async function expandQuery(genAI, query) {
-  try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite' });
-    const prompt = `Reescribe esta consulta para un buscador del proyecto EpiForecast-MX (pronóstico epidemiológico semanal del IMSS; padecimientos Depresión, Parkinson, Alzheimer; motores Prophet, DeepAR, Ensemble, Stacking; métricas SMAPE/MASE; paper MICAI). Devuelve SOLO una versión enriquecida con sinónimos y términos clave, en una línea, sin comillas ni explicación.\nConsulta: ${query}`;
-    const r = await model.generateContent(prompt);
-    const t = (r.response.text() || '').trim().split('\n')[0].slice(0, 300);
-    return t ? `${query} ${t}` : query;
-  } catch { return query; }
-}
-
 /** Reranker LLM: reordena los candidatos por relevancia y devuelve TOP_K.
  *  Usa 2.5-flash-lite (rápido). Si devuelve pocos índices, rellena
  *  con el orden híbrido para no encoger por debajo de TOP_K. */
 async function rerank(genAI, query, candidates) {
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite' });
-    const list = candidates.map((c, idx) => `[${idx}] (${c.chunk.source} — ${c.chunk.title}) ${c.chunk.text.replace(/\s+/g, ' ').slice(0, 240)}`).join('\n');
+    const list = candidates.map((c, idx) => `[${idx}] (${c.chunk.source} — ${c.chunk.title}) ${c.chunk.text.replace(/\s+/g, ' ').slice(0, 160)}`).join('\n');
     const prompt = `Consulta: "${query}"\n\nPasajes candidatos:\n${list}\n\nOrdena los índices de los pasajes del MÁS al menos relevante para responder la consulta. Devuelve SOLO un arreglo JSON con TODOS los índices ordenados. Ejemplo: [3,0,7,1,5,2,4]`;
     const r = await model.generateContent(prompt);
     const m = (r.response.text() || '').match(/\[[\d,\s]+\]/);
@@ -409,25 +398,24 @@ export default async function handler(req) {
   const kb = loadKnowledge();
   const genAI = new GoogleGenerativeAI(apiKey);
 
-  // 0. Multi-turno: reescribe el seguimiento como pregunta autónoma para buscar
+  // 0. Multi-turno: reescribe el seguimiento como pregunta autónoma (solo si aplica)
   const searchQuery = await contextualizeQuery(genAI, query, history);
 
-  // 1. Expansión de consulta (mejora recall semántico)
-  const expanded = await expandQuery(genAI, searchQuery);
-
-  // 2. Recuperación híbrida → pool de candidatos
+  // 1. Recuperación híbrida (embebe la consulta directa; sin expansión LLM en el
+  //    camino crítico para reducir latencia al primer token).
   let candidates = [], mode = 'lexical', topSim = 0;
   try {
-    const r = await retrieve(genAI, searchQuery, expanded, index);
+    const r = await retrieve(genAI, searchQuery, searchQuery, index);
     candidates = r.candidates; mode = r.mode; topSim = r.topSim;
   } catch (err) {
     console.error('Retrieve error:', err.message);
   }
 
-  // 3. Reranking LLM del pool (orden completo) + 4. selección con diversidad
+  // 2. Reranking LLM SOLO si la recuperación no es ya muy confiable (ahorra ~2.5s
+  //    en consultas claras) + 3. selección con diversidad
   let ordered = candidates;
   let reranked = false;
-  if (candidates.length > TOP_K) {
+  if (candidates.length > TOP_K && topSim < RERANK_SKIP_SIM) {
     const rr = await rerank(genAI, searchQuery, candidates);
     if (rr) { ordered = rr; reranked = true; }
   }
