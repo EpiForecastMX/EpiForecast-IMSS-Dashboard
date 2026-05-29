@@ -1772,9 +1772,13 @@ function answerSparklines(q, ent, s, d) {
     .map(([e, d]) => ({ e, total: pads.reduce((a, p) => a + (d[p] || 0), 0) }))
     .sort((a, b) => b.total - a.total);
 
+  const wantAll = any(q, ['todos', 'todas', 'cada estado', 'cada entidad', '32 estad', '32 entidad', 'completa', 'completo']);
+  const shown = wantAll ? sorted.length : Math.min(16, sorted.length);
   const lines = [];
   lines.push(`**Vista panoramica**: pronostico 52 semanas por entidad (${sorted.length} estados).\n`);
-  lines.push('Se muestran los **16 estados** con mayor pronostico en mini-graficos.\n');
+  lines.push(wantAll
+    ? `Se muestran **los ${shown} estados** en mini-graficos.\n`
+    : `Se muestran los **${shown} estados** con mayor pronostico en mini-graficos (pide "todos los estados" para ver los ${sorted.length}).\n`);
   lines.push(`Total de estados: **${sorted.length}** | Padecimientos: Dep / Park / Alz`);
 
   return lines.join('\n');
@@ -2420,11 +2424,13 @@ function answerPadecimiento(q, ent, s, d) {
 
     if (padModels.length) {
       const label = isLeast ? 'menor' : 'mayor';
-      lines.push(`**Entidades con ${label} pronóstico de ${pad}** (52 semanas):\n`);
+      // Si piden "todos / completa / 32 / cada", listar todas las entidades.
+      const wantAll = any(q, ['todos', 'todas', 'completa', 'completo', 'lista completa', 'el listado', 'cada estado', 'cada entidad', '32 estados', '32 entidades']);
+      const rows = wantAll ? padModels : padModels.slice(0, 10);
+      lines.push(`**Entidades con ${label} pronóstico de ${pad}** (52 semanas)${wantAll ? ` — las ${rows.length}` : ''}:\n`);
       lines.push('| # | Entidad | Casos pronosticados | Motor | SMAPE |');
       lines.push('|---|---------|--------------------:|-------|-------|');
-      const top10 = padModels.slice(0, 10);
-      top10.forEach((m, i) => {
+      rows.forEach((m, i) => {
         lines.push(`| ${i + 1} | ${m.entidad} | ${fmt(m.casos_52_semanas_futuro)} | ${m.modelo_produccion} | ${m.smape_prod}% |`);
       });
 
@@ -4035,6 +4041,7 @@ function answerCodeRequest(q, ent, s, d) {
     'script en python', 'programa en python', 'funcion en python', 'implementa en python',
     'escribe un programa', 'escribe una funcion', 'escribeme una funcion', 'en javascript',
     'codigo para', 'snippet', 'dame un ejemplo de codigo', 'escribe el codigo',
+    'script', 'hazme un script', 'dame un script', 'un script', 'hazme un programa',
   ];
   if (!any(q, triggers)) return null;
   // No bloquear preguntas legítimas SOBRE el código/configuración del proyecto
@@ -4093,6 +4100,9 @@ function runHandlers(q, ent, s, d) {
 // ---------------------------------------------------------------------------
 
 function isOffTopic(q, ent) {
+  // Clima / meteorología → fuera de alcance (y evita el fuzzy 'clima'→'colima')
+  if (any(q, ['clima', 'pronostico del tiempo', 'pronostico del clima', 'va a llover', 'lluvia manana', 'que tiempo hara', 'tiempo atmosferico'])) return true;
+
   // Si detectamos entidades del dominio, no es off-topic
   if (ent.padecimiento || ent.estado || ent.modelo) return false;
 
@@ -4192,6 +4202,18 @@ export async function answer(query) {
   const codeResp = answerCodeRequest(q, ent, s, d);
   if (codeResp) return codeResp;
 
+  // Guard: temas claramente ajenos (clima, deportes, recetas, etc.) → declinar
+  // LOCALMENTE, sin ceder a la IA. Evita además el fuzzy 'clima'→'colima'.
+  const offTopic = ['clima', 'pronostico del tiempo', 'pronostico del clima', 'va a llover',
+    'lluvia manana', 'que tiempo hara', 'tiempo atmosferico', 'temperatura ambiente',
+    'horoscopo', 'signo zodiacal', 'receta', 'pozole', 'cocina', 'futbol', 'mundial',
+    'champions', 'liga mx', 'chiste', 'bitcoin', 'criptomoneda', 'precio de las acciones',
+    'pelicula', 'netflix', 'horario de', 'vuelos a', 'hotel en'];
+  if (any(q, offTopic) && !ent.padecimiento && !ent.estado && !ent.modelo) {
+    return 'Soy **EPI**, asistente de inteligencia epidemiológica de EpiForecast-MX. No respondo temas fuera del proyecto (clima, deportes, recetas, finanzas, etc.).\n\n' +
+      'Puedo ayudarte con pronósticos, métricas y la metodología de **Depresión, Parkinson y Alzheimer** en México. Por ejemplo: «métricas globales», «depresión en Jalisco» o «¿cómo se elige el modelo por serie?».';
+  }
+
   // Guard: preguntas sobre el PAPER / MICAI / metodología → ceder al RAG, que
   // tiene el artículo indexado. Se hace ANTES de los handlers locales para que
   // el menú genérico de "alcance" ('que sabes...') no las intercepte.
@@ -4199,7 +4221,11 @@ export async function answer(query) {
     'metodologia', 'contribucion', 'contribuciones', 'hallazgo', 'hallazgos',
     'limitacion', 'limitaciones', 'trabajo futuro', 'desagregacion', 'auditable',
     'seleccion por serie', 'seleccion auditable', 'rolling-origin', 'reproducible',
-    'estado del arte', 'que propone', 'de que trata el estudio'];
+    'estado del arte', 'que propone', 'de que trata el estudio',
+    // Identidad / por qué del nombre / alcance conceptual → mejor explicado por RAG
+    'te llamas', 'te llaman', 'tu nombre', 'por que te llam', 'porque te llam',
+    'por que se llama', 'porque se llama', 'por que el nombre', 'significa epi',
+    'por que epidemiolog', 'epidemiologico si', 'epideomologico'];
   if (any(q, ragIntent) && !ent.estado) return null;
 
   // Si requiere razonamiento temporal fino (diario), ceder a Gemini

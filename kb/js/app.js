@@ -6,7 +6,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=74';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=75';
 import { detectEntities, norm } from './entities.js?v=26';
 import { renderMexicoMap } from './mexico-map.js?v=1';
 import { renderTimelapse } from './timelapse.js?v=1';
@@ -1222,9 +1222,10 @@ function buildRadarChart(data) {
  * Sparklines grid: mini-barras por entidad (top 16).
  * Cada chart muestra Dep/Park/Alz para un estado.
  */
-function buildSparklineGrid(data) {
+function buildSparklineGrid(data, qn) {
   const models = data.prod_models || [];
   if (!models.length) return null;
+  const wantAll = qn && /\btodos\b|\btodas\b|cada estado|cada entidad|32 estad|32 entidad|completa|completo/.test(qn);
 
   const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6' };
   const pads = ['Depresion', 'Parkinson', 'Alzheimer'];
@@ -1242,7 +1243,7 @@ function buildSparklineGrid(data) {
   const sorted = Object.entries(byEnt)
     .map(([ent, d]) => ({ ent, total: pads.reduce((a, p) => a + (d[p] || 0), 0), data: d }))
     .sort((a, b) => b.total - a.total)
-    .slice(0, 16);
+    .slice(0, wantAll ? 32 : 16);
 
   if (!sorted.length) return null;
 
@@ -2588,7 +2589,7 @@ function extractChartData(markdown, query) {
   if (qn.includes('sparkline') || qn.includes('mini grafico') ||
       qn.includes('panorama') || qn.includes('vista general') ||
       (qn.includes('todos los estado') || qn.includes('32 estado') || qn.includes('cada estado'))) {
-    const chart = buildSparklineGrid(data);
+    const chart = buildSparklineGrid(data, qn);
     if (chart) return chart;
   }
 
