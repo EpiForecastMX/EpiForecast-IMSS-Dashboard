@@ -539,6 +539,10 @@ async function init() {
 function resetChat() {
   history.length = 0;
   chartCounter = 0;
+  lastChartQuery = '';
+  lastAnswerWasRag = false;
+  lastPad = null;
+  lastEst = null;
   while (chatArea.firstChild) chatArea.removeChild(chatArea.firstChild);
   const data = getData();
   if (data) addWelcome(data);
@@ -643,8 +647,15 @@ async function handleSend() {
     // tendencia SOLO de Parkinson, no de los 3 padecimientos).
     const ent = detectEntities(text);
     let chartQuery = text;
-    if (ent.estado && !ent.padecimiento && lastPad) chartQuery = `${lastPad} ${text}`;
-    else if (ent.padecimiento && !ent.estado && lastEst && isShortFollowUp) chartQuery = `${text} en ${lastEst}`;
+    // En seguimientos, completa el padecimiento/estado faltante desde el contexto
+    // (ej. «¿y en Puebla?» o «por sexo» heredan «Depresión» y/o «Puebla»).
+    const needsCtx = isShortFollowUp || (ent.estado && !ent.padecimiento) || (ent.padecimiento && !ent.estado);
+    if (needsCtx) {
+      const parts = [];
+      if (!ent.padecimiento && lastPad) parts.push(lastPad);
+      if (!ent.estado && lastEst && (isShortFollowUp || ent.padecimiento)) parts.push(`en ${lastEst}`);
+      if (parts.length) chartQuery = `${parts.join(' ')} ${text}`;
+    }
     if (ent.padecimiento) lastPad = ent.padecimiento;
     if (ent.estado) lastEst = ent.estado;
 
@@ -1816,8 +1827,18 @@ function buildZoomChart(data, qn) {
 }
 
 function buildTrendChart(data, qn) {
-  const anual = data.boletin?.anual_por_pad;
+  // Estado-aware: si la consulta menciona un estado con histórico propio, usa
+  // sus datos (anual_por_estado_pad); si no, el nacional (anual_por_pad).
+  const perState = data.boletin?.anual_por_estado_pad || {};
+  let estadoKey = null;
+  if (qn) {
+    const knorm = (k) => k.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    for (const k of Object.keys(perState)) { if (qn.includes(knorm(k))) { estadoKey = k; break; } }
+    if (!estadoKey && /\bcdmx\b/.test(qn) && perState['Ciudad de Mexico']) estadoKey = 'Ciudad de Mexico';
+  }
+  const anual = estadoKey ? perState[estadoKey] : data.boletin?.anual_por_pad;
   if (!anual) return null;
+  const estadoLabel = estadoKey ? dn(estadoKey) : null;
 
   const wc = data.weekly_comparison || {};
   const pads = Object.keys(anual);
@@ -1825,9 +1846,9 @@ function buildTrendChart(data, qn) {
   pads.forEach(pad => Object.keys(anual[pad]).forEach(y => allYears.add(y)));
   allYears = [...allYears].sort();
 
-  // Calcular proyeccion 2026 por padecimiento: real parcial + pronostico restante
+  // Proyección 2026 solo a nivel nacional (no hay weekly_comparison por estado)
   const projected2026 = {};
-  for (const pad of pads) {
+  if (!estadoKey) for (const pad of pads) {
     const info = wc[pad];
     if (info && info.semanas) {
       const realSum = info.semanas.filter(s => s.real != null).reduce((a, s) => a + s.real, 0);
@@ -1928,7 +1949,7 @@ function buildTrendChart(data, qn) {
     }
   });
 
-  return { type: 'line', title: 'Evolución histórica de incidencia', labels, datasets };
+  return { type: 'line', title: `Evolución histórica de incidencia${estadoLabel ? ' — ' + estadoLabel : ''}`, labels, datasets };
 }
 
 /**
@@ -2755,6 +2776,36 @@ function extractChartData(markdown, query) {
   }
 
   // Tendencia historica -> line
+  // Padecimiento + Estado: por defecto la EVOLUCIÓN HISTÓRICA del estado (si hay
+  // histórico para esa entidad); «por sexo» → barras por sexo; si no hay histórico
+  // del estado, el pronóstico del estado por sexo (específico, nunca nacional).
+  {
+    const entPE = detectEntities(query);
+    if (entPE.padecimiento && entPE.estado) {
+      const sexoIntent = /\b(sexo|genero|generos|hombres?|mujeres?|masculino|femenino)\b/.test(qn);
+      const otherIntent = /pronostic|forecast|predicci|mapa|compar|semanal|por semana|heatmap|corredor|zoom/.test(qn) || (qn.includes('caso') && /52|futuro|siguientes|esperan/.test(qn));
+      const perStateKeys = Object.keys(data.boletin?.anual_por_estado_pad || {});
+      const hasStateHist = perStateKeys.some(k => norm(k) === norm(entPE.estado));
+      const sexBar = () => {
+        const matches = (data.prod_models || []).filter(m => m.padecimiento === entPE.padecimiento && norm(m.entidad || '') === norm(entPE.estado));
+        if (!matches.length) return null;
+        const order = { hombres: 0, mujeres: 1, general: 2 };
+        matches.sort((a, b) => (order[a.sexo] ?? 9) - (order[b.sexo] ?? 9));
+        return {
+          type: 'bar',
+          title: `${dn(entPE.padecimiento)} en ${dn(entPE.estado)}: pronóstico por sexo (52 sem)`,
+          labels: matches.map(m => m.sexo.charAt(0).toUpperCase() + m.sexo.slice(1)),
+          datasets: [{ label: 'Casos pronosticados', data: matches.map(m => m.casos_52_semanas_futuro || 0), backgroundColor: ['#5B8DEF', '#F472B6', '#2DD4BF'], borderColor: ['#5B8DEF', '#F472B6', '#2DD4BF'], borderRadius: 6 }],
+        };
+      };
+      if (sexoIntent) { const b = sexBar(); if (b) return b; }
+      else if (!otherIntent) {
+        if (hasStateHist) { const tr = buildTrendChart(data, qn); if (tr) return tr; }
+        const b = sexBar(); if (b) return b;   // sin histórico del estado → pronóstico del estado
+      }
+    }
+  }
+
   if (qn.includes('tendencia') || qn.includes('historica') || qn.includes('evolucion')) {
     const chart = buildTrendChart(data, qn);
     if (chart) return chart;
