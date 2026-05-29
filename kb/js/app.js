@@ -617,6 +617,8 @@ function addWelcome(data) {
 
 let lastChartQuery = '';
 let lastAnswerWasRag = false;   // si la última respuesta vino del RAG (para seguimientos)
+let lastPad = null;             // padecimiento del contexto conversacional (para gráficos)
+let lastEst = null;             // estado/entidad del contexto conversacional
 
 async function handleSend() {
   const text = inputField.value.trim();
@@ -635,27 +637,33 @@ async function handleSend() {
   try { result = await answer(text); } catch (err) { console.error('KB error:', err); }
 
   if (result) {
+    // Hereda el padecimiento/estado del contexto para que el GR\u00c1FICO de un
+    // seguimiento coincida con el texto (ej. \u00ab\u00bfy en Sonora?\u00bb tras Parkinson \u2192
+    // gr\u00e1fico de Parkinson en Sonora; \u00abevoluci\u00f3n hist\u00f3rica en Sonora\u00bb \u2192
+    // tendencia SOLO de Parkinson, no de los 3 padecimientos).
+    const ent = detectEntities(text);
+    let chartQuery = text;
+    if (ent.estado && !ent.padecimiento && lastPad) chartQuery = `${lastPad} ${text}`;
+    else if (ent.padecimiento && !ent.estado && lastEst && isShortFollowUp) chartQuery = `${text} en ${lastEst}`;
+    if (ent.padecimiento) lastPad = ent.padecimiento;
+    if (ent.estado) lastEst = ent.estado;
+
     let chartData = null;
     try {
-      chartData = extractChartData(result, text);
-      // If no chart but we had a previous chart query, try merging context
-      // Only merge for short follow-up queries (e.g. "y en 2024?"), not full new queries
+      chartData = extractChartData(result, chartQuery);
+      // Fallback: seguimiento por a\u00f1o (ej. \u00ab\u00bfy en 2024?\u00bb) usando la \u00faltima consulta con gr\u00e1fico
       if (!chartData && lastChartQuery) {
-        const tn = text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-        const isShortFollowUp = text.split(/\s+/).length <= 5;
+        const tn = norm(text);
         const isNewTopic = /(resumen|que es|explicam|como funciona|cuantos modelo|alcance|equipo|infraestructura)/.test(tn);
-        if (isShortFollowUp && !isNewTopic) {
-          const ent = detectEntities(text);
-          if (ent._years && ent._years.length) {
-            const merged = lastChartQuery.replace(/\b20[0-3]\d\b/g, '') + ' ' + text;
-            chartData = extractChartData(result, merged);
-          }
+        if (isShortFollowUp && !isNewTopic && ent._years && ent._years.length) {
+          const merged = lastChartQuery.replace(/\b20[0-3]\d\b/g, '') + ' ' + chartQuery;
+          chartData = extractChartData(result, merged);
         }
       }
     } catch (err) {
       console.error('extractChartData error:', err);
     }
-    if (chartData) lastChartQuery = text;
+    if (chartData) lastChartQuery = chartQuery;
     lastAnswerWasRag = false;
     const suggestions = getSuggestions(text);
     addBotMessage(result, 'local', suggestions, chartData);
