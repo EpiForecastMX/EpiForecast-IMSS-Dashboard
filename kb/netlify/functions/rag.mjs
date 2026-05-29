@@ -382,7 +382,10 @@ export default async function handler(req) {
     try {
       const model = genAI.getGenerativeModel({ model: modelName, systemInstruction: systemMsg });
       const result = await model.generateContent({ contents });
-      const text = result.response.text();
+      // Limpia pseudo-citas que el modelo emite a veces para las cifras del
+      // resumen estructurado ("[CIFRAS CLAVE]", "[Cifras Clave]", "[Datos del proyecto]").
+      const text = (result.response.text() || '')
+        .replace(/\s*\[\s*(cifras?\s*clave|datos del proyecto)\s*\]/gi, '');
       // Fuentes para la UI de citas (incluye enlace al documento real)
       const sources = hits.map((h, i) => ({
         n: i + 1,
