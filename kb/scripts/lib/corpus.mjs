@@ -209,7 +209,19 @@ function structuredCards(kb) {
     if (parts.length) push(`Información clínica: ${pad}`, `${pad}. ${parts.join('. ')}`);
   }
   if (kb.training_config) { const parts = Object.entries(kb.training_config).filter(([, v]) => typeof v === 'string' || typeof v === 'number').map(([k, v]) => `${k}: ${v}`); if (parts.length) push('Configuración de entrenamiento', parts.join('. ')); }
-  if (kb.equipo) { const eq = Array.isArray(kb.equipo) ? kb.equipo : Object.values(kb.equipo); const names = eq.map(p => typeof p === 'string' ? p : (p.nombre || p.name || '')).filter(Boolean).join(', '); push('Equipo del proyecto', `Desarrollado por el Equipo 01 de la Maestría en Inteligencia Artificial Aplicada (Tecnológico de Monterrey): ${names}.`); }
+  if (kb.equipo) {
+    const eq = Array.isArray(kb.equipo) ? kb.equipo : Object.values(kb.equipo);
+    const members = eq.map(p => typeof p === 'string' ? { nombre: p } : p);
+    const names = members.map(p => p.nombre || p.name || '').filter(Boolean).join(', ');
+    push('Equipo del proyecto', `Desarrollado por el Equipo 01 de la Maestría en Inteligencia Artificial Aplicada (Tecnológico de Monterrey): ${members.map(p => `${p.nombre}${p.apodo ? ` (${p.apodo})` : ''}${p.orcid ? `, ORCID ${p.orcid}` : ''}`).filter(Boolean).join('; ')}.`);
+    // Tarjeta dedicada de ORCID (identificadores de investigador)
+    const withOrcid = members.filter(p => p.orcid);
+    if (withOrcid.length) {
+      push('Identificadores ORCID del equipo',
+        `Los ORCID iD (identificadores de investigador) del equipo de EpiForecast-MX son: ${withOrcid.map(p => `${p.nombre}${p.apodo ? ` (${p.apodo})` : ''}: https://orcid.org/${p.orcid}`).join('; ')}.`);
+    }
+    void names;
+  }
 
   return cards.map((c, i) => ({ id: `kb-card#${i}`, ...c }));
 }
