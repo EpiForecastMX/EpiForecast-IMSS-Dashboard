@@ -4192,6 +4192,16 @@ export async function answer(query) {
   const codeResp = answerCodeRequest(q, ent, s, d);
   if (codeResp) return codeResp;
 
+  // Guard: preguntas sobre el PAPER / MICAI / metodología → ceder al RAG, que
+  // tiene el artículo indexado. Se hace ANTES de los handlers locales para que
+  // el menú genérico de "alcance" ('que sabes...') no las intercepte.
+  const ragIntent = ['paper', 'micai', 'articulo', 'publicacion', 'abstract',
+    'metodologia', 'contribucion', 'contribuciones', 'hallazgo', 'hallazgos',
+    'limitacion', 'limitaciones', 'trabajo futuro', 'desagregacion', 'auditable',
+    'seleccion por serie', 'seleccion auditable', 'rolling-origin', 'reproducible',
+    'estado del arte', 'que propone', 'de que trata el estudio'];
+  if (any(q, ragIntent) && !ent.estado) return null;
+
   // Si requiere razonamiento temporal fino (diario), ceder a Gemini
   if (needsGeminiReasoning(q)) return null;
 
