@@ -929,6 +929,15 @@ body::after {
   opacity: 1;
 }
 
+/* Caret de streaming: parpadea al final del texto mientras EPI escribe */
+.msg-streaming::after {
+  content: '▍';
+  color: var(--teal);
+  margin-left: 1px;
+  animation: stream-caret 1s steps(2) infinite;
+}
+@keyframes stream-caret { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
 /* Fuentes del RAG — chips clicables (estética documento, acento dorado) */
 .msg-sources {
   display: flex;

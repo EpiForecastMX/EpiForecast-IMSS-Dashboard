@@ -25,6 +25,7 @@ const EMBED_DIM = 768;
 const TOP_K = 6;            // pasajes finales que ven el generador
 const RERANK_POOL = 16;     // candidatos que entran al reranker
 const DIVERSITY_CAP = 3;    // máx. pasajes por documento en el top-K (diversidad)
+const SIM_MIN = 0.55;       // umbral de confianza (coseno crudo del mejor pasaje)
 const GEN_MODELS = ['gemini-3.1-flash-lite', 'gemini-2.5-flash'];
 
 // ---------------------------------------------------------------------------
@@ -147,6 +148,7 @@ async function retrieve(genAI, query, expandedText, index) {
 
   let semScores = new Array(index.chunks.length).fill(0);
   let mode = 'lexical';
+  let topSim = 0;   // similitud coseno cruda máxima (para umbral de confianza)
   if (index.vectors && index.vectors.length === index.chunks.length && genAI) {
     try {
       const model = genAI.getGenerativeModel({ model: index.model || EMBED_MODEL });
@@ -157,6 +159,7 @@ async function retrieve(genAI, query, expandedText, index) {
       });
       const qv = res.embedding.values.slice(0, index.dim || EMBED_DIM);
       const raw = index.vectors.map(v => cosine(qv, v));
+      topSim = raw.reduce((m, v) => v > m ? v : m, 0);
       semScores = normalize(raw);
       mode = 'semantic';
     } catch (err) {
@@ -169,7 +172,68 @@ async function retrieve(genAI, query, expandedText, index) {
     score: mode === 'semantic' ? 0.75 * semScores[i] + 0.25 * lexScores[i] : lexScores[i],
   }));
   combined.sort((a, b) => b.score - a.score);
-  return { candidates: combined.slice(0, RERANK_POOL).filter(h => h.score > 0.01), mode };
+  return { candidates: combined.slice(0, RERANK_POOL).filter(h => h.score > 0.01), mode, topSim };
+}
+
+// ---------------------------------------------------------------------------
+// Agentic: detección de entidad/padecimiento + datos EXACTOS de knowledge.json
+// ---------------------------------------------------------------------------
+
+function stripAccents(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+
+function detectEntities(query) {
+  const qn = stripAccents(query);
+  const out = { padecimiento: null, entidad: null, sexo: null };
+  const padMap = { depresion: 'Depresion', depression: 'Depresion', f32: 'Depresion', parkinson: 'Parkinson', g20: 'Parkinson', alzheimer: 'Alzheimer', alzaimer: 'Alzheimer', g30: 'Alzheimer' };
+  for (const [k, v] of Object.entries(padMap)) if (qn.includes(k)) { out.padecimiento = v; break; }
+  const alias = { cdmx: 'Ciudad de Mexico', df: 'Ciudad de Mexico', 'distrito federal': 'Ciudad de Mexico', 'ciudad de mexico': 'Ciudad de Mexico', edomex: 'Mexico', 'estado de mexico': 'Mexico', 'nuevo leon': 'Nuevo Leon', 'san luis potosi': 'San Luis Potosi', 'baja california sur': 'Baja California Sur', 'baja california': 'Baja California', 'quintana roo': 'Quintana Roo' };
+  for (const [k, v] of Object.entries(alias).sort((a, b) => b[0].length - a[0].length)) if (qn.includes(k)) { out.entidad = v; break; }
+  if (!out.entidad) {
+    const st = ['aguascalientes', 'campeche', 'chiapas', 'chihuahua', 'coahuila', 'colima', 'durango', 'guanajuato', 'guerrero', 'hidalgo', 'jalisco', 'michoacan', 'morelos', 'nayarit', 'oaxaca', 'puebla', 'queretaro', 'sinaloa', 'sonora', 'tabasco', 'tamaulipas', 'tlaxcala', 'veracruz', 'yucatan', 'zacatecas', 'mexico'];
+    for (const s of st) if (new RegExp(`\\b${s}\\b`).test(qn)) { out.entidad = s.replace(/\b\w/g, c => c.toUpperCase()); break; }
+  }
+  if (qn.includes('hombre') || qn.includes('masculino')) out.sexo = 'hombres';
+  else if (qn.includes('mujer') || qn.includes('femenino')) out.sexo = 'mujeres';
+  return out;
+}
+
+/** Devuelve un bloque de DATOS EXACTOS para la combinación detectada, o ''. */
+function focusedFacts(kb, query) {
+  const ent = detectEntities(query);
+  if (!ent.padecimiento && !ent.entidad) return '';
+  const models = kb.prod_models || [];
+  const norm = (s) => stripAccents(s);
+  const matches = models.filter(m => {
+    if (ent.padecimiento && m.padecimiento !== ent.padecimiento) return false;
+    if (ent.entidad && norm(m.entidad || '') !== norm(ent.entidad)) return false;
+    if (ent.sexo && m.sexo !== ent.sexo) return false;
+    return true;
+  });
+  if (!matches.length) return '';
+  const lines = ['=== DATOS EXACTOS (verdad numérica; cítalos tal cual) ==='];
+  for (const m of matches.slice(0, 12)) {
+    lines.push(`${m.padecimiento} · ${m.entidad} · ${m.sexo}: pronóstico 52 sem = ${(m.casos_52_semanas_futuro || 0).toLocaleString('es-MX')} casos; SMAPE = ${m.smape_prod}%; motor = ${m.modelo_produccion}; precisión histórica = ${m.precision_historica}.`);
+  }
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// Multi-turno: reescribe la consulta de seguimiento como pregunta autónoma
+// ---------------------------------------------------------------------------
+
+async function contextualizeQuery(genAI, query, history) {
+  if (!history || !history.length) return query;
+  const qn = stripAccents(query);
+  const isFollowUp = query.split(/\s+/).length <= 6 || /^(y|pero|ademas|entonces|ok|tambien)\b/.test(qn) || /\b(eso|ese|esa|ahi|alli|ahí|el mismo|la misma|y en|y para|que tal)\b/.test(qn);
+  if (!isFollowUp) return query;
+  try {
+    const turns = history.slice(-4).map(h => `${h.role === 'user' ? 'Usuario' : 'EPI'}: ${(h.text || '').slice(0, 200)}`).join('\n');
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite' });
+    const prompt = `Conversación:\n${turns}\n\nPregunta de seguimiento: "${query}"\n\nReescribe la pregunta de seguimiento como una pregunta AUTÓNOMA y completa (resolviendo referencias como "eso", "y en X"), en una sola línea, en español, sin explicación.`;
+    const r = await model.generateContent(prompt);
+    const t = (r.response.text() || '').trim().split('\n')[0].slice(0, 200);
+    return t && t.length > 3 ? t : query;
+  } catch { return query; }
 }
 
 /** Expansión de consulta: reescribe la pregunta con sinónimos/términos clave
@@ -275,8 +339,12 @@ const json = (data, status = 200) => new Response(JSON.stringify(data), { status
 // System prompt
 // ---------------------------------------------------------------------------
 
-function buildSystem(contextBlock, sourcesList) {
+function buildSystem(contextBlock, sourcesList, lowConfidence) {
+  const confNote = lowConfidence
+    ? '\nAVISO DE CONFIANZA: la recuperación fue DÉBIL para esta consulta. Si los pasajes y las cifras de abajo NO cubren claramente la pregunta, dilo de forma honesta («No tengo información específica sobre eso en la base de conocimiento del proyecto») y ofrece reformular o sugiere temas relacionados. NO inventes datos del proyecto.\n'
+    : '';
   return `Eres EPI, asistente conversacional de EpiForecast-MX (plataforma de inteligencia epidemiológica del IMSS, Instituto Mexicano del Seguro Social).
+${confNote}
 
 TU TONO: cálido, profesional, preciso. Explicas con claridad, oraciones cortas, como un colega experto.
 
@@ -338,16 +406,20 @@ export default async function handler(req) {
   if (query.length > 2000) return json({ error: 'La pregunta es demasiado larga (máximo 2000 caracteres).' }, 400);
 
   const index = loadIndex();
+  const kb = loadKnowledge();
   const genAI = new GoogleGenerativeAI(apiKey);
 
+  // 0. Multi-turno: reescribe el seguimiento como pregunta autónoma para buscar
+  const searchQuery = await contextualizeQuery(genAI, query, history);
+
   // 1. Expansión de consulta (mejora recall semántico)
-  const expanded = await expandQuery(genAI, query);
+  const expanded = await expandQuery(genAI, searchQuery);
 
   // 2. Recuperación híbrida → pool de candidatos
-  let candidates = [], mode = 'lexical';
+  let candidates = [], mode = 'lexical', topSim = 0;
   try {
-    const r = await retrieve(genAI, query, expanded, index);
-    candidates = r.candidates; mode = r.mode;
+    const r = await retrieve(genAI, searchQuery, expanded, index);
+    candidates = r.candidates; mode = r.mode; topSim = r.topSim;
   } catch (err) {
     console.error('Retrieve error:', err.message);
   }
@@ -356,20 +428,39 @@ export default async function handler(req) {
   let ordered = candidates;
   let reranked = false;
   if (candidates.length > TOP_K) {
-    const rr = await rerank(genAI, query, candidates);
+    const rr = await rerank(genAI, searchQuery, candidates);
     if (rr) { ordered = rr; reranked = true; }
   }
   const hits = selectDiverse(ordered, TOP_K, DIVERSITY_CAP);
 
-  // Bloque de contexto: pasajes numerados + cifras clave
-  const kb = loadKnowledge();
+  // Agentic: datos EXACTOS de la combinación entidad/padecimiento detectada
+  const facts = focusedFacts(kb, query);
+
+  // Confianza: recuperación débil y sin datos exactos → avisar para no inventar
+  const lowConfidence = mode === 'semantic' && topSim < SIM_MIN && !facts;
+
+  // Observabilidad: log de consulta (anónimo, sin IP) para detectar huecos
+  console.log(`[RAG] q="${query.slice(0, 120)}" topSim=${topSim.toFixed(3)} mode=${mode} facts=${!!facts} lowConf=${lowConfidence}`);
+
+  // Bloque de contexto: datos exactos + pasajes numerados + cifras clave
   const passages = hits.map((h, i) =>
     `[${i + 1}] (${h.chunk.source} — ${h.chunk.title})\n${h.chunk.text}`
   ).join('\n\n');
-  const contextBlock = `=== PASAJES RECUPERADOS ===\n${passages || '(sin pasajes relevantes)'}\n\n${structuredSummary(kb)}`;
+  const contextBlock = (facts ? facts + '\n\n' : '') +
+    `=== PASAJES RECUPERADOS ===\n${passages || '(sin pasajes relevantes)'}\n\n${structuredSummary(kb)}`;
   const sourcesList = hits.map((h, i) => `[${i + 1}] ${h.chunk.source} — ${h.chunk.title}`).join('\n') || '(ninguna)';
 
-  const systemMsg = buildSystem(contextBlock, sourcesList);
+  const systemMsg = buildSystem(contextBlock, sourcesList, lowConfidence);
+
+  // Fuentes para la UI (incluye enlace + extracto para citas verificables)
+  const sources = hits.map((h, i) => ({
+    n: i + 1,
+    source: h.chunk.source,
+    title: h.chunk.title,
+    section: h.chunk.section || h.chunk.title,
+    url: h.chunk.url || null,
+    snippet: (h.chunk.text || '').replace(/\s+/g, ' ').slice(0, 240),
+  }));
 
   const contents = [];
   for (const h of history.slice(-6)) {
@@ -377,23 +468,49 @@ export default async function handler(req) {
   }
   contents.push({ role: 'user', parts: [{ text: query }] });
 
+  const CIFRAS_RE = /\s*\[\s*(cifras?\s*clave|datos del proyecto)\s*\]/gi;
+
+  // ── Modo STREAMING (NDJSON): meta → deltas → done ──────────────────────────
+  if (body.stream === true) {
+    const encoder = new TextEncoder();
+    const streamBody = new ReadableStream({
+      async start(controller) {
+        const enq = (obj) => controller.enqueue(encoder.encode(JSON.stringify(obj) + '\n'));
+        enq({ type: 'meta', retrieval: mode, reranked, sources });
+        let ok = false, usedModel = null, lastE = null;
+        for (const modelName of GEN_MODELS) {
+          try {
+            const model = genAI.getGenerativeModel({ model: modelName, systemInstruction: systemMsg });
+            const result = await model.generateContentStream({ contents });
+            for await (const chunk of result.stream) {
+              const t = typeof chunk.text === 'function' ? chunk.text() : '';
+              if (t) enq({ type: 'delta', text: t });
+            }
+            ok = true; usedModel = modelName; break;
+          } catch (err) {
+            lastE = err;
+            if (/API[_\s]?KEY|permission|unauthor|forbidden/i.test(String(err?.message || ''))) break;
+            console.warn(`Gemini stream ${modelName} falló:`, err.message);
+          }
+        }
+        if (!ok) {
+          const m = String(lastE?.message || '');
+          enq({ type: 'error', error: /quota|rate|429/i.test(m) ? 'Se alcanzó el límite de consultas de IA. Intenta de nuevo en un momento.' : 'No pude generar la respuesta en este momento.' });
+        }
+        enq({ type: 'done', model: usedModel });
+        controller.close();
+      },
+    });
+    return new Response(streamBody, { status: 200, headers: { ...CORS, 'Content-Type': 'application/x-ndjson; charset=utf-8', 'Cache-Control': 'no-cache' } });
+  }
+
+  // ── Modo NO-streaming (fallback / compatibilidad) ──────────────────────────
   let lastErr = null;
   for (const modelName of GEN_MODELS) {
     try {
       const model = genAI.getGenerativeModel({ model: modelName, systemInstruction: systemMsg });
       const result = await model.generateContent({ contents });
-      // Limpia pseudo-citas que el modelo emite a veces para las cifras del
-      // resumen estructurado ("[CIFRAS CLAVE]", "[Cifras Clave]", "[Datos del proyecto]").
-      const text = (result.response.text() || '')
-        .replace(/\s*\[\s*(cifras?\s*clave|datos del proyecto)\s*\]/gi, '');
-      // Fuentes para la UI de citas (incluye enlace al documento real)
-      const sources = hits.map((h, i) => ({
-        n: i + 1,
-        source: h.chunk.source,
-        title: h.chunk.title,
-        section: h.chunk.section || h.chunk.title,
-        url: h.chunk.url || null,
-      }));
+      const text = (result.response.text() || '').replace(CIFRAS_RE, '');
       return json({ answer: text, model: modelName, retrieval: mode, reranked, sources });
     } catch (err) {
       lastErr = err;

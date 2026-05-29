@@ -661,36 +661,88 @@ async function handleSend() {
 // RAG: consulta a la base de conocimiento (función serverless /rag).
 // Reutilizable por el fallback de handleSend y por los chips de fuentes.
 // ---------------------------------------------------------------------------
+const STRIP_CIFRAS = /\s*\[\s*(cifras?\s*clave|datos del proyecto)\s*\]/gi;
+
 async function callRag(text) {
   const typingEl = addTypingIndicator('EPI está consultando la base de conocimiento');
+  let shell = null, acc = '', sources = null, gotMeta = false, streamErr = null, rafPending = false;
+  const render = () => {
+    if (!shell) return;
+    shell.content.innerHTML = marked.parse(polishSpanish(acc), { breaks: true });
+    scrollToBottom();
+  };
   try {
     const resp = await fetch('/.netlify/functions/rag', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query: text, history: history.slice(-MAX_HISTORY) }),
+      body: JSON.stringify({ query: text, history: history.slice(-MAX_HISTORY), stream: true }),
     });
-    removeTyping(typingEl);
-    if (resp.ok) {
-      const data = await resp.json();
-      addBotMessage(data.answer || 'Sin respuesta.', 'ai', null, null, data.sources);
-      pushHistory(text, data.answer || '');
-    } else {
+    if (!resp.ok) {
+      removeTyping(typingEl);
       const errData = await resp.json().catch(() => ({}));
       console.warn('RAG response error:', resp.status, errData);
-      const userMsg = errData.error || 'No pude consultar la IA en este momento.';
-      addBotMessage(
-        `${userMsg}\n\nMientras tanto, prueba con preguntas sobre el proyecto, por ejemplo «métricas globales» o «equipo del proyecto».`,
-        'error'
-      );
+      addBotMessage(`${errData.error || 'No pude consultar la IA en este momento.'}\n\nMientras tanto, prueba «métricas globales» o «equipo del proyecto».`, 'error');
+      return;
     }
+    if (!resp.body || !resp.body.getReader) { removeTyping(typingEl); return await ragNonStream(text, resp); }
+
+    const reader = resp.body.getReader();
+    const dec = new TextDecoder();
+    let buf = '';
+    let streamed = false;
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let nl;
+      while ((nl = buf.indexOf('\n')) >= 0) {
+        const line = buf.slice(0, nl); buf = buf.slice(nl + 1);
+        if (!line.trim()) continue;
+        let o; try { o = JSON.parse(line); } catch { continue; }
+        if (o.type === 'meta') { gotMeta = true; sources = o.sources || []; removeTyping(typingEl); shell = createBotShell(); }
+        else if (o.type === 'delta') { streamed = true; acc += o.text || ''; if (!rafPending) { rafPending = true; requestAnimationFrame(() => { rafPending = false; render(); }); } }
+        else if (o.type === 'error') { streamErr = o.error; }
+        else if (o.type === 'done') { /* finalize abajo */ }
+        else if (o.answer !== undefined) { gotMeta = true; sources = o.sources || []; acc = o.answer || ''; } // respuesta no-stream en una línea
+      }
+    }
+    removeTyping(typingEl);
+
+    if (streamErr && !acc.trim()) { if (shell) shell.div.remove(); addBotMessage(`${streamErr}\n\nPrueba «métricas globales» o «equipo del proyecto».`, 'error'); return; }
+    if (!gotMeta && !acc.trim()) { if (shell) shell.div.remove(); return await ragNonStream(text); } // no fue streaming → fallback
+
+    const finalText = (acc.replace(STRIP_CIFRAS, '').trim()) || 'Sin respuesta.';
+    if (shell) shell.div.remove();
+    addBotMessage(finalText, 'ai', null, null, sources);   // mensaje final con copy/tts/chips
+    pushHistory(text, finalText);
+    void streamed;
   } catch (err) {
     removeTyping(typingEl);
+    if (shell) { try { shell.div.remove(); } catch {} }
+    console.warn('RAG stream error, fallback:', err);
+    await ragNonStream(text);
+  }
+}
+
+// Fallback sin streaming (función antigua, error de stream, o red intermitente).
+async function ragNonStream(text, existing) {
+  try {
+    const resp = existing || await fetch('/.netlify/functions/rag', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: text, history: history.slice(-MAX_HISTORY) }),
+    });
+    if (resp.ok) {
+      const data = await resp.json();
+      const answer = (data.answer || 'Sin respuesta.').replace(STRIP_CIFRAS, '');
+      addBotMessage(answer, 'ai', null, null, data.sources);
+      pushHistory(text, answer);
+    } else {
+      const errData = await resp.json().catch(() => ({}));
+      addBotMessage(`${errData.error || 'No pude consultar la IA en este momento.'}\n\nPrueba «métricas globales» o «equipo del proyecto».`, 'error');
+    }
+  } catch (err) {
     console.warn('RAG fetch error:', err);
-    addBotMessage(
-      'No pude conectar con el servicio de IA. Verifica tu conexión a internet.\n\n' +
-      'Mientras tanto, puedo responder preguntas sobre datos del proyecto. Prueba: «métricas globales», «equipo» o «depresión en Jalisco».',
-      'error'
-    );
+    addBotMessage('No pude conectar con el servicio de IA. Verifica tu conexión.\n\nMientras tanto, prueba: «métricas globales», «equipo» o «depresión en Jalisco».', 'error');
   }
 }
 
@@ -699,6 +751,59 @@ function askAboutSource(sourceName) {
   const q = `Cuéntame más sobre la respuesta anterior, con base en «${sourceName}».`;
   addUserMessage(q);
   callRag(q);
+}
+
+const DOC_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+const ASK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
+
+// Chips de fuentes (RAG): deduplica por documento; abre el documento real y
+// muestra el EXTRACTO citado al pasar el cursor; sub-botón para profundizar.
+function sourceChipsHtml(sources) {
+  if (!sources || !sources.length) return '';
+  const seen = new Set();
+  const docs = [];
+  for (const s of sources) {
+    const name = s.source || s.title || '';
+    if (!name || seen.has(name)) continue;
+    seen.add(name);
+    docs.push({ n: s.n, name, url: s.url || '', snippet: s.snippet || '' });
+  }
+  if (!docs.length) return '';
+  return '<div class="msg-sources">' + docs.map(d => {
+    const label = `${DOC_ICON}<span class="src-n">[${d.n}]</span>${escapeHtml(polishSpanish(d.name))}`;
+    const tip = escapeAttr(d.snippet ? `«${polishSpanish(d.snippet)}…»` : 'Abrir fuente');
+    const open = d.url
+      ? `<a class="src-open" href="${escapeAttr(d.url)}" target="_blank" rel="noopener" title="${tip}">${label}</a>`
+      : `<span class="src-open src-open--static" title="${tip}">${label}</span>`;
+    return `<span class="msg-source-chip">${open}<button class="src-ask" data-src="${escapeAttr(d.name)}" title="Profundizar con base en esta fuente" aria-label="Profundizar con base en ${escapeAttr(d.name)}">${ASK_ICON}</button></span>`;
+  }).join('') + '</div>';
+}
+
+function bindSourceChips(div) {
+  div.querySelectorAll('.msg-source-chip .src-ask').forEach(btn => {
+    btn.addEventListener('click', (e) => { e.preventDefault(); askAboutSource(btn.dataset.src); });
+  });
+}
+
+// Shell efímero para renderizar la respuesta en streaming (token a token).
+function createBotShell() {
+  const div = document.createElement('div');
+  div.className = 'msg msg-bot';
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+  div.innerHTML = `
+    <div class="msg-avatar"><img src="EPI.jpg" alt="EpiForecast-MX" /></div>
+    <div class="msg-body">
+      <div class="msg-meta">
+        <span class="msg-name">EpiForecast-MX</span>
+        <span class="msg-source badge-ai">IA</span>
+        <span class="msg-time">${timeStr}</span>
+      </div>
+      <div class="msg-bubble-bot"><div class="msg-content msg-streaming"></div></div>
+    </div>`;
+  chatArea.appendChild(div);
+  scrollToBottom();
+  return { div, content: div.querySelector('.msg-content') };
 }
 
 // ---------------------------------------------------------------------------
@@ -755,32 +860,8 @@ function addBotMessage(markdown, source, suggestions, chartData, sources) {
       '</div>';
   }
 
-  // Chips de fuentes (RAG): deduplica por documento; abre el documento real y
-  // ofrece un sub-botón para profundizar con base en esa fuente.
-  let sourcesHtml = '';
-  if (sources && sources.length) {
-    const seen = new Set();
-    const docs = [];
-    for (const s of sources) {
-      const name = s.source || s.title || '';
-      if (!name || seen.has(name)) continue;
-      seen.add(name);
-      docs.push({ n: s.n, name, url: s.url || '' });
-    }
-    if (docs.length) {
-      const docIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
-      const askIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
-      sourcesHtml = '<div class="msg-sources">' +
-        docs.map(d => {
-          const label = `${docIcon}<span class="src-n">[${d.n}]</span>${escapeHtml(polishSpanish(d.name))}`;
-          const open = d.url
-            ? `<a class="src-open" href="${escapeAttr(d.url)}" target="_blank" rel="noopener" title="Abrir fuente">${label}</a>`
-            : `<span class="src-open src-open--static">${label}</span>`;
-          return `<span class="msg-source-chip">${open}<button class="src-ask" data-src="${escapeAttr(d.name)}" title="Profundizar con base en esta fuente" aria-label="Profundizar con base en ${escapeAttr(d.name)}">${askIcon}</button></span>`;
-        }).join('') +
-        '</div>';
-    }
-  }
+  // Chips de fuentes (RAG): documento + extracto + sub-botón "profundizar".
+  const sourcesHtml = sourceChipsHtml(sources);
 
   let chartHtml = '';
   let customChartType = null; // 'map' | 'timelapse' | 'semaforo' | 'comparador' | 'pdf'
@@ -857,11 +938,8 @@ function addBotMessage(markdown, source, suggestions, chartData, sources) {
     });
   });
 
-  // Bind source chips (RAG): el sub-botón "profundizar" consulta al RAG sobre
-  // esa fuente; el resto del chip (enlace) abre el documento real.
-  div.querySelectorAll('.msg-source-chip .src-ask').forEach(btn => {
-    btn.addEventListener('click', (e) => { e.preventDefault(); askAboutSource(btn.dataset.src); });
-  });
+  // Bind source chips (RAG): "profundizar" consulta al RAG; el enlace abre el doc.
+  bindSourceChips(div);
 
   // Bind copy button
   const copyBtn = div.querySelector('.copy-btn');
