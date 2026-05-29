@@ -5,13 +5,13 @@
  */
 
 const PAD_COLORS = {
-  Depresion: '#2EC4A8',
-  Parkinson: '#D4A84B',
-  Alzheimer: '#C83A5A',
+  Depresion: '#5B8DEF',
+  Parkinson: '#2DD4BF',
+  Alzheimer: '#F472B6',
 };
 
 const CROWN_SVG =
-  '<svg viewBox="0 0 14 14" width="14" height="14"><polygon points="7,1 9,5 13,5.5 10,8.5 11,12.5 7,10.5 3,12.5 4,8.5 1,5.5 5,5" fill="#D4A84B"/></svg>';
+  '<svg viewBox="0 0 14 14" width="14" height="14"><polygon points="7,1 9,5 13,5.5 10,8.5 11,12.5 7,10.5 3,12.5 4,8.5 1,5.5 5,5" fill="#2DD4BF"/></svg>';
 
 /**
  * Build the inline <style> block for the comparador component.
@@ -22,14 +22,14 @@ function buildStyles() {
       max-width: 700px;
       margin: 0 auto;
       font-family: 'Inter', 'Segoe UI', sans-serif;
-      color: #EDF3EF;
+      color: #E7ECF5;
     }
 
     .comparador-title {
       text-align: center;
       font-size: 16px;
       font-weight: 600;
-      color: #EDF3EF;
+      color: #E7ECF5;
       margin-bottom: 20px;
       letter-spacing: 0.3px;
     }
@@ -48,12 +48,12 @@ function buildStyles() {
     }
 
     .comparador-col--winner {
-      box-shadow: 0 0 12px rgba(46, 196, 168, 0.2);
+      box-shadow: 0 0 12px rgba(91, 141, 239, 0.2);
     }
 
     .comparador-divider {
       width: 1px;
-      background: rgba(46, 196, 168, 0.15);
+      background: rgba(91, 141, 239, 0.15);
       align-self: stretch;
       flex-shrink: 0;
     }
@@ -68,7 +68,7 @@ function buildStyles() {
       gap: 6px;
       font-size: 18px;
       font-weight: 700;
-      color: #EDF3EF;
+      color: #E7ECF5;
       line-height: 1.3;
     }
 
@@ -82,7 +82,7 @@ function buildStyles() {
       font-size: 22px;
       font-family: 'JetBrains Mono', 'Fira Code', monospace;
       font-weight: 600;
-      color: #2EC4A8;
+      color: #5B8DEF;
       margin-top: 4px;
     }
 
@@ -98,16 +98,16 @@ function buildStyles() {
     }
 
     .comparador-metrics tr:nth-child(odd) td {
-      background: rgba(46, 196, 168, 0.04);
+      background: rgba(91, 141, 239, 0.04);
     }
 
     .comparador-metrics__label {
-      color: #7A9A8D;
+      color: #6E82A6;
       white-space: nowrap;
     }
 
     .comparador-metrics__value {
-      color: #EDF3EF;
+      color: #E7ECF5;
       text-align: right;
       font-family: 'JetBrains Mono', 'Fira Code', monospace;
     }
@@ -120,14 +120,14 @@ function buildStyles() {
 
     .comparador-pad__label {
       font-size: 11px;
-      color: #7A9A8D;
+      color: #6E82A6;
       margin-bottom: 3px;
     }
 
     .comparador-pad__bar-track {
       width: 100%;
       height: 18px;
-      background: rgba(46, 196, 168, 0.06);
+      background: rgba(91, 141, 239, 0.06);
       border-radius: 4px;
       position: relative;
       overflow: hidden;
@@ -147,26 +147,26 @@ function buildStyles() {
       transform: translateY(-50%);
       font-size: 11px;
       font-family: 'JetBrains Mono', 'Fira Code', monospace;
-      color: #EDF3EF;
+      color: #E7ECF5;
     }
 
     .comparador-pad__smape {
       font-size: 10px;
-      color: #7A9A8D;
+      color: #6E82A6;
       margin-top: 2px;
     }
 
     .comparador-versus {
       margin-top: 24px;
       padding-top: 20px;
-      border-top: 1px solid rgba(46, 196, 168, 0.1);
+      border-top: 1px solid rgba(91, 141, 239, 0.1);
     }
 
     .comparador-versus__title {
       text-align: center;
       font-size: 13px;
       font-weight: 600;
-      color: #7A9A8D;
+      color: #6E82A6;
       margin-bottom: 14px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -180,7 +180,7 @@ function buildStyles() {
       display: flex;
       justify-content: space-between;
       font-size: 11px;
-      color: #7A9A8D;
+      color: #6E82A6;
       margin-bottom: 4px;
     }
 
@@ -188,7 +188,7 @@ function buildStyles() {
       text-align: center;
       font-size: 11px;
       font-weight: 600;
-      color: #EDF3EF;
+      color: #E7ECF5;
       margin-bottom: 4px;
     }
 
@@ -197,7 +197,7 @@ function buildStyles() {
       height: 16px;
       border-radius: 4px;
       overflow: hidden;
-      background: rgba(46, 196, 168, 0.04);
+      background: rgba(91, 141, 239, 0.04);
     }
 
     .comparador-versus__bar-left {
@@ -239,7 +239,7 @@ function buildStyles() {
       justify-content: space-between;
       font-size: 10px;
       font-family: 'JetBrains Mono', 'Fira Code', monospace;
-      color: #7A9A8D;
+      color: #6E82A6;
       margin-top: 3px;
     }
   `;

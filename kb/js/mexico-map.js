@@ -58,8 +58,8 @@ export function renderMexicoMap(container, stateData, opts = {}) {
   const {
     title = 'Mapa de la Republica Mexicana',
     lowColor = [30, 60, 50],
-    highColor = [46, 196, 168],
-    noDataColor = '#1A2723',
+    highColor = [91, 141, 239],
+    noDataColor = '#18223A',
     metric = 'casos',
   } = opts;
 
@@ -107,14 +107,14 @@ export function renderMexicoMap(container, stateData, opts = {}) {
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     path.setAttribute('d', pathD);
     path.setAttribute('fill', fill);
-    path.setAttribute('stroke', 'rgba(46,196,168,0.25)');
+    path.setAttribute('stroke', 'rgba(91,141,239,0.25)');
     path.setAttribute('stroke-width', '0.8');
     path.setAttribute('data-state', name);
     path.style.transition = 'fill 0.2s, stroke-width 0.2s, stroke 0.2s';
     path.style.cursor = 'pointer';
 
     path.addEventListener('mouseenter', () => {
-      path.setAttribute('stroke', '#2EC4A8');
+      path.setAttribute('stroke', '#5B8DEF');
       path.setAttribute('stroke-width', '2.5');
       path.parentNode.appendChild(path); // bring to front
       const label = data ? data.label : 'Sin datos';
@@ -127,7 +127,7 @@ export function renderMexicoMap(container, stateData, opts = {}) {
       tooltipEl.style.top = (e.clientY - rect.top - 36) + 'px';
     });
     path.addEventListener('mouseleave', () => {
-      path.setAttribute('stroke', 'rgba(46,196,168,0.25)');
+      path.setAttribute('stroke', 'rgba(91,141,239,0.25)');
       path.setAttribute('stroke-width', '0.8');
       tooltipEl.style.display = 'none';
     });

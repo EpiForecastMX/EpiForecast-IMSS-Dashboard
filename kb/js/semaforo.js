@@ -4,24 +4,24 @@
  */
 
 const RISK_COLORS = {
-  verde: '#2EC4A8',
-  amarillo: '#D4A84B',
+  verde: '#5B8DEF',
+  amarillo: '#2DD4BF',
   naranja: '#E67E22',
-  rojo: '#C83A5A',
+  rojo: '#F472B6',
 };
 
 const RISK_ORDER = { rojo: 0, naranja: 1, amarillo: 2, verde: 3 };
 
 const TREND_SVGS = {
-  up: '<svg viewBox="0 0 12 12" width="12" height="12"><path d="M6 2L10 8H2Z" fill="#C83A5A"/></svg>',
-  down: '<svg viewBox="0 0 12 12" width="12" height="12"><path d="M6 10L2 4H10Z" fill="#2EC4A8"/></svg>',
-  stable: '<svg viewBox="0 0 12 12" width="12" height="12"><line x1="2" y1="6" x2="10" y2="6" stroke="#7A9A8D" stroke-width="2"/></svg>',
+  up: '<svg viewBox="0 0 12 12" width="12" height="12"><path d="M6 2L10 8H2Z" fill="#F472B6"/></svg>',
+  down: '<svg viewBox="0 0 12 12" width="12" height="12"><path d="M6 10L2 4H10Z" fill="#5B8DEF"/></svg>',
+  stable: '<svg viewBox="0 0 12 12" width="12" height="12"><line x1="2" y1="6" x2="10" y2="6" stroke="#6E82A6" stroke-width="2"/></svg>',
 };
 
 const WARNING_ICON = `<svg viewBox="0 0 16 16" width="14" height="14" style="flex-shrink:0;margin-right:6px;vertical-align:middle">
-  <path d="M8 1L15 14H1Z" fill="none" stroke="#C83A5A" stroke-width="1.4" stroke-linejoin="round"/>
-  <line x1="8" y1="6" x2="8" y2="10" stroke="#C83A5A" stroke-width="1.4" stroke-linecap="round"/>
-  <circle cx="8" cy="12.2" r="0.8" fill="#C83A5A"/>
+  <path d="M8 1L15 14H1Z" fill="none" stroke="#F472B6" stroke-width="1.4" stroke-linejoin="round"/>
+  <line x1="8" y1="6" x2="8" y2="10" stroke="#F472B6" stroke-width="1.4" stroke-linecap="round"/>
+  <circle cx="8" cy="12.2" r="0.8" fill="#F472B6"/>
 </svg>`;
 
 /**
@@ -38,9 +38,9 @@ function hexToRgba(hex, alpha) {
  * Return a color for the SMAPE value.
  */
 function smapeColor(smape) {
-  if (smape < 20) return '#2EC4A8';
-  if (smape <= 40) return '#D4A84B';
-  return '#C83A5A';
+  if (smape < 20) return '#5B8DEF';
+  if (smape <= 40) return '#2DD4BF';
+  return '#F472B6';
 }
 
 /**
@@ -59,7 +59,7 @@ function injectStyles(wrapper) {
   style.textContent = `
     .semaforo-wrapper {
       font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-      color: #EDF3EF;
+      color: #E7ECF5;
       max-width: 1200px;
       margin: 0 auto;
     }
@@ -68,7 +68,7 @@ function injectStyles(wrapper) {
       font-size: 18px;
       font-weight: 700;
       margin-bottom: 16px;
-      color: #EDF3EF;
+      color: #E7ECF5;
     }
 
     /* ---- Summary bar ---- */
@@ -99,8 +99,8 @@ function injectStyles(wrapper) {
 
     /* ---- Alerts ---- */
     .semaforo-alerts {
-      background: rgba(200,58,90,0.1);
-      border-left: 3px solid #C83A5A;
+      background: rgba(244,114,182,0.1);
+      border-left: 3px solid #F472B6;
       padding: 8px 12px;
       margin-bottom: 16px;
       border-radius: 0 6px 6px 0;
@@ -110,7 +110,7 @@ function injectStyles(wrapper) {
       display: flex;
       align-items: center;
       font-size: 12px;
-      color: #EDF3EF;
+      color: #E7ECF5;
       padding: 3px 0;
     }
 
@@ -151,7 +151,7 @@ function injectStyles(wrapper) {
     .semaforo-card-name {
       font-size: 13px;
       font-weight: 700;
-      color: #EDF3EF;
+      color: #E7ECF5;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -160,7 +160,7 @@ function injectStyles(wrapper) {
     .semaforo-card-casos {
       font-size: 16px;
       font-weight: 700;
-      color: #EDF3EF;
+      color: #E7ECF5;
     }
 
     .semaforo-card-pads {
@@ -168,7 +168,7 @@ function injectStyles(wrapper) {
       align-items: center;
       gap: 10px;
       font-size: 10px;
-      color: #7A9A8D;
+      color: #6E82A6;
     }
 
     .semaforo-pad-item {
@@ -280,9 +280,9 @@ function buildCard(state) {
     padsRow.className = 'semaforo-card-pads';
 
     const items = [
-      { label: 'Dep', color: '#2EC4A8', value: state.pads.Depresion },
-      { label: 'Par', color: '#D4A84B', value: state.pads.Parkinson },
-      { label: 'Alz', color: '#C83A5A', value: state.pads.Alzheimer },
+      { label: 'Dep', color: '#5B8DEF', value: state.pads.Depresion },
+      { label: 'Par', color: '#2DD4BF', value: state.pads.Parkinson },
+      { label: 'Alz', color: '#F472B6', value: state.pads.Alzheimer },
     ];
 
     for (const item of items) {

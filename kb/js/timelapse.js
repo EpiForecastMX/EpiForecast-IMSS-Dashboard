@@ -13,12 +13,12 @@ function interpolateColor(val, vMin, vMax, range, lowColor, highColor, noDataCol
 }
 
 const PLAY_ICON = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">'
-  + '<path d="M3 1.5L12 7L3 12.5V1.5Z" fill="#EDF3EF"/>'
+  + '<path d="M3 1.5L12 7L3 12.5V1.5Z" fill="#E7ECF5"/>'
   + '</svg>';
 
 const PAUSE_ICON = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">'
-  + '<rect x="2.5" y="1.5" width="3" height="11" rx="0.5" fill="#EDF3EF"/>'
-  + '<rect x="8.5" y="1.5" width="3" height="11" rx="0.5" fill="#EDF3EF"/>'
+  + '<rect x="2.5" y="1.5" width="3" height="11" rx="0.5" fill="#E7ECF5"/>'
+  + '<rect x="8.5" y="1.5" width="3" height="11" rx="0.5" fill="#E7ECF5"/>'
   + '</svg>';
 
 const SPEED_OPTIONS = [
@@ -37,8 +37,8 @@ export function renderTimelapse(container, timelapseData, opts = {}) {
   const {
     title = 'Timelapse - Pronostico Semanal',
     lowColor = [30, 60, 50],
-    highColor = [46, 196, 168],
-    noDataColor = '#1A2723',
+    highColor = [91, 141, 239],
+    noDataColor = '#18223A',
     metric = 'casos',
   } = opts;
 
@@ -101,14 +101,14 @@ export function renderTimelapse(container, timelapseData, opts = {}) {
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     path.setAttribute('d', pathD);
     path.setAttribute('fill', noDataColor);
-    path.setAttribute('stroke', 'rgba(46,196,168,0.25)');
+    path.setAttribute('stroke', 'rgba(91,141,239,0.25)');
     path.setAttribute('stroke-width', '0.8');
     path.setAttribute('data-state', name);
     path.style.transition = 'fill 0.15s';
     path.style.cursor = 'pointer';
 
     path.addEventListener('mouseenter', () => {
-      path.setAttribute('stroke', '#2EC4A8');
+      path.setAttribute('stroke', '#5B8DEF');
       path.setAttribute('stroke-width', '2.5');
       path.parentNode.appendChild(path);
       const frameData = frames[currentFrame].stateData[name];
@@ -122,7 +122,7 @@ export function renderTimelapse(container, timelapseData, opts = {}) {
       tooltipEl.style.top = (e.clientY - rect.top - 36) + 'px';
     });
     path.addEventListener('mouseleave', () => {
-      path.setAttribute('stroke', 'rgba(46,196,168,0.25)');
+      path.setAttribute('stroke', 'rgba(91,141,239,0.25)');
       path.setAttribute('stroke-width', '0.8');
       tooltipEl.style.display = 'none';
     });

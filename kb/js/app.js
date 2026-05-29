@@ -132,18 +132,18 @@ function polishSpanish(text) {
 
 // Paleta mejorada basada en el logo - más vibrante y diferenciada
 const CHART_COLORS = [
-  '#2EC4A8', // teal IMSS
-  '#D4A84B', // gold IMSS
-  '#C83A5A', // burgundy IMSS
-  '#4FE5C9', // teal electric (highlights)
-  '#F0C460', // gold electric
-  '#E04A6E', // burgundy electric
-  '#7B5FD6', // morado complementario
+  '#5B8DEF', // teal IMSS
+  '#2DD4BF', // gold IMSS
+  '#F472B6', // burgundy IMSS
+  '#8FB4FF', // teal electric (highlights)
+  '#5EEAD4', // gold electric
+  '#F9A8D4', // burgundy electric
+  '#A78BFA', // morado complementario
   '#3B9AE8', // azul claro complementario
-  '#1DA88E', // teal oscuro
+  '#3A6FD8', // teal oscuro
   '#FF8F4F', // naranja accent
-  '#A8D8C8', // mint
-  '#F0D090', // cream gold
+  '#A9C2F0', // mint
+  '#BFE9E0', // cream gold
 ];
 
 // ---------------------------------------------------------------------------
@@ -221,7 +221,7 @@ const epiGlowPlugin = {
     const t = ds.type || chart.config.type;
     if (t !== 'line' || !ds.borderWidth) return;
     if (ds._grad && ds._grad.kind === 'area') return;
-    const rgb = parseRGB(ds.borderColor) || [46, 196, 168];
+    const rgb = parseRGB(ds.borderColor) || [91, 141, 239];
     chart.ctx.save();
     chart.ctx.shadowColor = rgbaStr(rgb, 0.45);
     chart.ctx.shadowBlur = 9;
@@ -249,7 +249,7 @@ const epiCrosshairPlugin = {
     ctx.lineTo(x, chartArea.bottom);
     ctx.lineWidth = 1;
     ctx.setLineDash([4, 4]);
-    ctx.strokeStyle = 'rgba(46, 196, 168, 0.4)';
+    ctx.strokeStyle = 'rgba(91, 141, 239, 0.4)';
     ctx.stroke();
     ctx.restore();
   },
@@ -269,10 +269,10 @@ const epiDoughnutCenterPlugin = {
     ctx.save();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#EDF3EF';
+    ctx.fillStyle = '#E7ECF5';
     ctx.font = '800 26px Outfit, sans-serif';
     ctx.fillText(fmtAxis(total), cx, cy - 6);
-    ctx.fillStyle = '#7A9A8D';
+    ctx.fillStyle = '#6E82A6';
     ctx.font = '600 10px Outfit, sans-serif';
     ctx.fillText('TOTAL', cx, cy + 15);
     ctx.restore();
@@ -963,14 +963,14 @@ function buildCorridorChart(data, qn) {
   });
   if (!filtered.length) return null;
 
-  const padColors = { Depresion: '#2EC4A8', Parkinson: '#D4A84B', Alzheimer: '#C83A5A' };
+  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6' };
   const charts = [];
 
   for (const pad of filtered) {
     const info = wc[pad];
     const sems = info.semanas || [];
     if (!sems.length) continue;
-    const color = padColors[pad] || '#2EC4A8';
+    const color = padColors[pad] || '#5B8DEF';
 
     const labels = sems.map(s => `S${String(s.semana).padStart(2, '0')}`);
     const minData = sems.map(s => Math.min(...MODELS.map(m => s[m] || 0)));
@@ -1094,9 +1094,9 @@ function buildTreemap(data) {
 
   // Color por SMAPE: verde (<30%), amarillo (30-60%), rojo (>60%)
   const smapeColor = (s) => {
-    if (s <= 30) return '#2EC4A8';
-    if (s <= 60) return '#D4A84B';
-    return '#C83A5A';
+    if (s <= 30) return '#5B8DEF';
+    if (s <= 60) return '#2DD4BF';
+    return '#F472B6';
   };
 
   return {
@@ -1143,10 +1143,10 @@ function buildRadarChart(data) {
   const maxMae = Math.max(...motors.map(m => pm[m].mae_mean));
 
   const labels = ['Precision (SMAPE)', 'MASE', 'Series ganadas', 'RMSE', 'MAE'];
-  const motorColors = { Prophet: '#2EC4A8', DeepAR: '#C83A5A', Ensemble: '#D4A84B', Stacking: '#6DD6C2' };
+  const motorColors = { Prophet: '#5B8DEF', DeepAR: '#F472B6', Ensemble: '#2DD4BF', Stacking: '#9DB6FF' };
 
   const datasets = motors.map(m => {
-    const color = motorColors[m] || '#8FA99D';
+    const color = motorColors[m] || '#7E92B6';
     return {
       label: m,
       data: [
@@ -1180,7 +1180,7 @@ function buildSparklineGrid(data) {
   const models = data.prod_models || [];
   if (!models.length) return null;
 
-  const padColors = { Depresion: '#2EC4A8', Parkinson: '#D4A84B', Alzheimer: '#C83A5A' };
+  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6' };
   const pads = ['Depresion', 'Parkinson', 'Alzheimer'];
 
   // Agregar por entidad (general, sin regiones)
@@ -1229,7 +1229,7 @@ function buildStackedArea(data) {
   if (!wc) return null;
 
   const padOrder = ['Depresion', 'Parkinson', 'Alzheimer'];
-  const padColors = { Depresion: '#2EC4A8', Parkinson: '#D4A84B', Alzheimer: '#C83A5A' };
+  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6' };
 
   // Usar semanas del primer padecimiento como referencia
   const refSems = wc[padOrder[0]]?.semanas;
@@ -1263,7 +1263,7 @@ function buildStackedArea(data) {
         y: {
           stacked: true,
           beginAtZero: true,
-          title: { display: true, text: 'Casos', font: { size: 11, family: 'Outfit' }, color: '#8FA99D' },
+          title: { display: true, text: 'Casos', font: { size: 11, family: 'Outfit' }, color: '#7E92B6' },
         },
       },
       plugins: {
@@ -1333,8 +1333,8 @@ function buildMexicoMap(data, qn) {
     const padLabel = padFilter || 'todos los padecimientos';
     const sexLabel = sexoLabel[sexFilter] || sexFilter;
     const colorOpts = mode === 'smape'
-      ? { lowColor: [46, 196, 168], highColor: [200, 58, 90], metric: 'SMAPE %' }
-      : { lowColor: [30, 60, 50], highColor: [46, 196, 168], metric: 'casos' };
+      ? { lowColor: [91, 141, 239], highColor: [244, 114, 182], metric: 'SMAPE %' }
+      : { lowColor: [30, 60, 50], highColor: [91, 141, 239], metric: 'casos' };
     const titleMode = mode === 'smape'
       ? 'SMAPE: ' + padLabel + ' (' + sexLabel + ')'
       : padLabel + ' (' + sexLabel + ') - casos 52 sem';
@@ -1403,7 +1403,7 @@ function buildTimelapse(data) {
   return {
     _timelapseChart: true,
     frames,
-    opts: { title: 'Timelapse: pronostico acumulado por semana', lowColor: [30, 60, 50], highColor: [46, 196, 168], metric: 'casos acum.' },
+    opts: { title: 'Timelapse: pronostico acumulado por semana', lowColor: [30, 60, 50], highColor: [91, 141, 239], metric: 'casos acum.' },
   };
 }
 
@@ -1544,7 +1544,7 @@ function buildErrorHeatmap(data, qn) {
   if (!realWeeks.length) return null;
 
   const labels = realWeeks.map(s => `S${String(s.semana).padStart(2, '0')}`);
-  const padColors = { Depresion: '#2EC4A8', Parkinson: '#D4A84B', Alzheimer: '#C83A5A' };
+  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6' };
 
   const datasets = [];
   for (const pad of filtered) {
@@ -1553,7 +1553,7 @@ function buildErrorHeatmap(data, qn) {
       if (s.real === 0) return s.pronostico > 0 ? 100 : 0;
       return Math.abs(((s.pronostico - s.real) / s.real) * 100);
     });
-    const color = padColors[pad] || '#2EC4A8';
+    const color = padColors[pad] || '#5B8DEF';
     // Color del padecimiento, opacidad segun error: alta (>40%), media (15-40%), baja (<15%)
     const bgColors = errors.map(e => {
       if (e > 40) return color + 'FF';  // solido = error alto
@@ -1578,7 +1578,7 @@ function buildErrorHeatmap(data, qn) {
     options: {
       scales: {
         x: { ticks: { font: { size: 10 } } },
-        y: { beginAtZero: true, title: { display: true, text: 'Error %', font: { size: 11, family: 'Outfit' }, color: '#8FA99D' } },
+        y: { beginAtZero: true, title: { display: true, text: 'Error %', font: { size: 11, family: 'Outfit' }, color: '#7E92B6' } },
       },
     },
   };
@@ -1601,7 +1601,7 @@ function buildZoomChart(data, qn) {
   });
   if (!filtered.length) return null;
 
-  const padColors = { Depresion: '#2EC4A8', Parkinson: '#D4A84B', Alzheimer: '#C83A5A' };
+  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6' };
   const charts = [];
 
   for (const pad of filtered) {
@@ -1620,7 +1620,7 @@ function buildZoomChart(data, qn) {
     const realData = sems.map(s => s.real != null ? s.real : null);
     const pronData = sems.map(s => s.pronostico);
     const lastRealIdx = realData.reduce((acc, v, i) => v != null ? i : acc, -1);
-    const color = padColors[pad] || '#2EC4A8';
+    const color = padColors[pad] || '#5B8DEF';
 
     // Pronostico: linea punteada completa
     const datasets = [
@@ -1795,7 +1795,7 @@ function buildTrendChart(data, qn) {
 function buildPerformanceMatrix(data) {
   const models = data.prod_models || [];
   if (!models.length) return null;
-  const padColors = { Depresion: '#2EC4A8', Parkinson: '#D4A84B', Alzheimer: '#C83A5A' };
+  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6' };
   const isState = (m) => {
     const e = m.entidad || '';
     return e && e !== 'Nacional' && !e.startsWith('Region') && !e.startsWith('region_');
@@ -1830,8 +1830,8 @@ function buildPerformanceMatrix(data) {
       label: dn(p.ent),
       casos: p.casos,
     })),
-    backgroundColor: (padColors[pad] || '#2EC4A8') + 'B0',
-    borderColor: padColors[pad] || '#2EC4A8',
+    backgroundColor: (padColors[pad] || '#5B8DEF') + 'B0',
+    borderColor: padColors[pad] || '#5B8DEF',
     borderWidth: 1.5,
     hoverBorderWidth: 2.5,
   }));
@@ -1842,7 +1842,7 @@ function buildPerformanceMatrix(data) {
     datasets,
     options: {
       scales: {
-        x: { title: { display: true, text: 'Precisión histórica (%)' }, min: 0, max: 100, grid: { color: 'rgba(46, 196, 168, 0.08)' } },
+        x: { title: { display: true, text: 'Precisión histórica (%)' }, min: 0, max: 100, grid: { color: 'rgba(91, 141, 239, 0.08)' } },
         y: { title: { display: true, text: 'SMAPE (%) — menor es mejor' }, beginAtZero: true },
       },
     },
@@ -1858,15 +1858,15 @@ function buildMotorPolar(data) {
   if (!dm || !Object.keys(dm).length) return null;
   const labels = Object.keys(dm);
   const total = Object.values(dm).reduce((a, b) => a + b, 0);
-  const colorMap = { Prophet: '#2EC4A8', DeepAR: '#3B9AE8', Ensemble: '#D4A84B', Stacking: '#C83A5A' };
+  const colorMap = { Prophet: '#5B8DEF', DeepAR: '#3B9AE8', Ensemble: '#2DD4BF', Stacking: '#F472B6' };
   return {
     type: 'polarArea',
     title: `Arsenal de modelos — ${total} en producción por motor`,
     labels,
     datasets: [{
       data: Object.values(dm),
-      backgroundColor: labels.map(l => (colorMap[l] || '#7B5FD6') + 'C0'),
-      borderColor: labels.map(l => colorMap[l] || '#7B5FD6'),
+      backgroundColor: labels.map(l => (colorMap[l] || '#A78BFA') + 'C0'),
+      borderColor: labels.map(l => colorMap[l] || '#A78BFA'),
       borderWidth: 1.5,
     }],
   };
@@ -1881,7 +1881,7 @@ function buildMotorByPad(data) {
   if (!pp || !Object.keys(pp).length) return null;
   const pads = Object.keys(pp);
   const motors = ['Prophet', 'DeepAR', 'Ensemble', 'Stacking'];
-  const colorMap = { Prophet: '#2EC4A8', DeepAR: '#3B9AE8', Ensemble: '#D4A84B', Stacking: '#C83A5A' };
+  const colorMap = { Prophet: '#5B8DEF', DeepAR: '#3B9AE8', Ensemble: '#2DD4BF', Stacking: '#F472B6' };
   const datasets = motors.map(mt => ({
     label: mt,
     data: pads.map(p => (pp[p].dist_motor || {})[mt] || 0),
@@ -1920,7 +1920,7 @@ function buildBestWorst(data) {
     ...worst.map(r => ({ ...r, kind: 'worst' })),
   ];
   const labels = rows.map(r => `${dn(r.entidad)} · ${dn(r.padecimiento)} (${r.sexo})`);
-  const colors = rows.map(r => r.kind === 'best' ? '#2EC4A8' : '#C83A5A');
+  const colors = rows.map(r => r.kind === 'best' ? '#5B8DEF' : '#F472B6');
   return {
     type: 'bar',
     horizontal: true,
@@ -1963,8 +1963,8 @@ function buildVolumeError(data) {
     title: 'Top 10 estados — volumen vs error (SMAPE)',
     labels: entries.map(e => dn(e.name)),
     datasets: [
-      { label: 'Casos (52 sem)', data: entries.map(e => e.casos), backgroundColor: '#2EC4A8', yAxisID: 'y', order: 2 },
-      { label: 'SMAPE (%)', type: 'line', data: entries.map(e => e.smape != null ? +e.smape.toFixed(1) : null), borderColor: '#D4A84B', backgroundColor: 'transparent', yAxisID: 'y1', order: 1, fill: false, tension: 0.3, pointRadius: 4, pointBackgroundColor: '#D4A84B', borderWidth: 2.5 },
+      { label: 'Casos (52 sem)', data: entries.map(e => e.casos), backgroundColor: '#5B8DEF', yAxisID: 'y', order: 2 },
+      { label: 'SMAPE (%)', type: 'line', data: entries.map(e => e.smape != null ? +e.smape.toFixed(1) : null), borderColor: '#2DD4BF', backgroundColor: 'transparent', yAxisID: 'y1', order: 1, fill: false, tension: 0.3, pointRadius: 4, pointBackgroundColor: '#2DD4BF', borderWidth: 2.5 },
     ],
     options: {
       scales: {
@@ -1983,7 +1983,7 @@ function buildVolumeError(data) {
 function buildCalibration(data) {
   const models = data.prod_models || [];
   if (!models.length) return null;
-  const padColors = { Depresion: '#2EC4A8', Parkinson: '#D4A84B', Alzheimer: '#C83A5A' };
+  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6' };
   const byPad = {};
   let maxV = 0;
   for (const m of models) {
@@ -1999,8 +1999,8 @@ function buildCalibration(data) {
     label: dn(pad),
     type: 'scatter',
     data: byPad[pad],
-    backgroundColor: (padColors[pad] || '#2EC4A8') + 'C0',
-    borderColor: padColors[pad] || '#2EC4A8',
+    backgroundColor: (padColors[pad] || '#5B8DEF') + 'C0',
+    borderColor: padColors[pad] || '#5B8DEF',
     pointRadius: 4,
     pointHoverRadius: 7,
   }));
@@ -2037,7 +2037,7 @@ function buildMaseByMotor(data) {
   if (!pm || !Object.keys(pm).length) return null;
   const motors = Object.keys(pm);
   const vals = motors.map(m => pm[m].mase_median != null ? pm[m].mase_median : pm[m].mase_mean);
-  const colors = vals.map(v => v < 1 ? '#2EC4A8' : '#C83A5A');
+  const colors = vals.map(v => v < 1 ? '#5B8DEF' : '#F472B6');
   return {
     type: 'bar',
     horizontal: true,
@@ -2087,8 +2087,8 @@ function buildCumulative(data) {
     datasets: [{
       label: 'Casos acumulados',
       data: cum,
-      borderColor: '#2EC4A8',
-      backgroundColor: '#2EC4A8',
+      borderColor: '#5B8DEF',
+      backgroundColor: '#5B8DEF',
       fill: true,
       tension: 0.25,
       pointRadius: 0,
@@ -2116,10 +2116,10 @@ function buildModelHealth(data) {
     title: 'Salud de los modelos — overfitting y fuga de datos',
     labels: ['Overfitting', 'Fuga de datos'],
     datasets: [
-      { label: 'OK', data: [s.overfitting_ok || 0, s.leakage_ok || 0], backgroundColor: '#2EC4A8', stack: 'h', borderRadius: 4 },
-      { label: 'Moderado', data: [s.overfitting_moderado || 0, 0], backgroundColor: '#D4A84B', stack: 'h', borderRadius: 4 },
-      { label: 'Alto / Sospechoso', data: [s.overfitting_alto || 0, s.leakage_sospechoso || 0], backgroundColor: '#C83A5A', stack: 'h', borderRadius: 4 },
-      { label: 'N/D', data: [s.overfitting_nd || 0, 0], backgroundColor: '#7A9A8D', stack: 'h', borderRadius: 4 },
+      { label: 'OK', data: [s.overfitting_ok || 0, s.leakage_ok || 0], backgroundColor: '#5B8DEF', stack: 'h', borderRadius: 4 },
+      { label: 'Moderado', data: [s.overfitting_moderado || 0, 0], backgroundColor: '#2DD4BF', stack: 'h', borderRadius: 4 },
+      { label: 'Alto / Sospechoso', data: [s.overfitting_alto || 0, s.leakage_sospechoso || 0], backgroundColor: '#F472B6', stack: 'h', borderRadius: 4 },
+      { label: 'N/D', data: [s.overfitting_nd || 0, 0], backgroundColor: '#6E82A6', stack: 'h', borderRadius: 4 },
     ],
     options: {
       scales: {
@@ -2156,8 +2156,8 @@ function extractChartData(markdown, query) {
             {
               label: 'Real',
               data: realData,
-              backgroundColor: '#2EC4A8CC',
-              borderColor: '#2EC4A8',
+              backgroundColor: '#5B8DEFCC',
+              borderColor: '#5B8DEF',
               borderWidth: 2,
               borderRadius: 4,
               order: 1,
@@ -2165,8 +2165,8 @@ function extractChartData(markdown, query) {
             {
               label: `Pronostico (${wk.modelo})`,
               data: pronData,
-              backgroundColor: '#D4A84BCC',
-              borderColor: '#D4A84B',
+              backgroundColor: '#2DD4BFCC',
+              borderColor: '#2DD4BF',
               borderWidth: 2,
               borderRadius: 4,
               order: 2,
@@ -2271,8 +2271,8 @@ function extractChartData(markdown, query) {
         title: 'SMAPE por motor de predicción',
         labels: Object.keys(pm),
         datasets: [
-          { label: 'SMAPE medio', data: Object.values(pm).map(v => v.smape_mean), backgroundColor: '#2EC4A8CC', borderRadius: 6 },
-          { label: 'SMAPE mediano', data: Object.values(pm).map(v => v.smape_median), backgroundColor: '#D4A84BCC', borderRadius: 6 },
+          { label: 'SMAPE medio', data: Object.values(pm).map(v => v.smape_mean), backgroundColor: '#5B8DEFCC', borderRadius: 6 },
+          { label: 'SMAPE mediano', data: Object.values(pm).map(v => v.smape_median), backgroundColor: '#2DD4BFCC', borderRadius: 6 },
         ],
       };
     }
@@ -2307,7 +2307,7 @@ function extractChartData(markdown, query) {
         labels: ['OK', 'Moderado', 'Alto'],
         datasets: [{
           data: [s.overfitting_ok || 0, s.overfitting_moderado || 0, s.overfitting_alto || 0],
-          backgroundColor: ['#2EC4A8', '#D4A84B', '#C83A5A'],
+          backgroundColor: ['#5B8DEF', '#2DD4BF', '#F472B6'],
           borderWidth: 0,
         }],
       };
@@ -2466,13 +2466,13 @@ function extractChartData(markdown, query) {
       const years = ent._years && ent._years.length ? ent._years : [];
       if (years.length) {
         const pads = Object.keys(anual);
-        const padColors = { Depresion: '#2EC4A8', Parkinson: '#D4A84B', Alzheimer: '#C83A5A' };
+        const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6' };
         const labels = years.map(String);
         const datasets = pads.map(pad => ({
           label: pad,
           data: years.map(y => anual[pad]?.[String(y)] || 0),
-          backgroundColor: (padColors[pad] || '#2EC4A8') + 'CC',
-          borderColor: padColors[pad] || '#2EC4A8',
+          backgroundColor: (padColors[pad] || '#5B8DEF') + 'CC',
+          borderColor: padColors[pad] || '#5B8DEF',
           borderWidth: 2,
           borderRadius: 4,
         }));
@@ -2520,7 +2520,7 @@ function extractChartData(markdown, query) {
           datasets: [{
             label: 'Casos pronosticados',
             data: matches.map(m => m.casos_52_semanas_futuro || 0),
-            backgroundColor: ['#2EC4A8', '#D4A84B', '#C83A5A'],
+            backgroundColor: ['#5B8DEF', '#2DD4BF', '#F472B6'],
             borderRadius: 6,
           }],
         };
@@ -2571,7 +2571,7 @@ function extractChartData(markdown, query) {
     // General -> 3 bar charts semanales (uno por padecimiento)
     const wc = data.weekly_comparison;
     if (wc) {
-      const padColors = { Depresion: '#2EC4A8', Parkinson: '#D4A84B', Alzheimer: '#C83A5A' };
+      const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6' };
       const charts = [];
       for (const [pad, info] of Object.entries(wc)) {
         const sems = info.semanas || [];
@@ -2694,7 +2694,7 @@ function extractChartData(markdown, query) {
             backgroundColor: CHART_COLORS[i] + '22',
             fill: true, tension: 0.4, borderWidth: 3,
             pointRadius: allYears.map(y => ent._years.includes(Number(y)) ? 7 : 3),
-            pointBackgroundColor: allYears.map(y => ent._years.includes(Number(y)) ? '#C83A5A' : CHART_COLORS[i]),
+            pointBackgroundColor: allYears.map(y => ent._years.includes(Number(y)) ? '#F472B6' : CHART_COLORS[i]),
           });
         });
         if (datasets.length) {
@@ -2721,7 +2721,7 @@ function extractChartData(markdown, query) {
           title: `${dn(ent.padecimiento)} en ${dn(ent.estado)}: pronóstico 52 sem`,
           labels: matches.map(m => m.sexo.charAt(0).toUpperCase() + m.sexo.slice(1)),
           datasets: [{ label: 'Casos pronosticados', data: matches.map(m => m.casos_52_semanas_futuro || 0),
-            backgroundColor: ['#2EC4A8', '#D4A84B', '#C83A5A'], borderRadius: 6 }],
+            backgroundColor: ['#5B8DEF', '#2DD4BF', '#F472B6'], borderRadius: 6 }],
         };
       }
     }
@@ -2785,7 +2785,7 @@ function extractChartData(markdown, query) {
           datasets: [{
             label: 'Casos pronosticados',
             data: vals,
-            backgroundColor: ['#2EC4A8', '#D4A84B'],
+            backgroundColor: ['#5B8DEF', '#2DD4BF'],
             borderRadius: 6,
           }],
         };
@@ -2808,7 +2808,7 @@ function extractChartData(markdown, query) {
           datasets: [{
             label: 'Modelos',
             data: vals,
-            backgroundColor: ['#2EC4A8', '#D4A84B'],
+            backgroundColor: ['#5B8DEF', '#2DD4BF'],
             borderRadius: 6,
           }],
         };
@@ -2864,7 +2864,7 @@ function renderChart(canvasId, chartData) {
           display: true,
           text: chartData.title,
           font: { size: 16, weight: '800', family: 'Outfit' },
-          color: '#EDF3EF',
+          color: '#E7ECF5',
           padding: { bottom: 20, top: 4 },
           align: 'start',
         },
@@ -2874,7 +2874,7 @@ function renderChart(canvasId, chartData) {
           align: 'end',
           labels: {
             font: { size: 12, family: 'Outfit', weight: '600' },
-            color: '#A3BDB2',
+            color: '#9FB0CE',
             usePointStyle: true,
             pointStyle: 'circle',
             padding: 18,
@@ -2883,12 +2883,12 @@ function renderChart(canvasId, chartData) {
           },
         },
         tooltip: {
-          backgroundColor: 'rgba(15, 22, 20, 0.96)',
-          titleColor: '#4FE5C9',
+          backgroundColor: 'rgba(14, 20, 36, 0.96)',
+          titleColor: '#8FB4FF',
           titleFont: { size: 13, weight: '700', family: 'Outfit' },
-          bodyColor: '#EDF3EF',
+          bodyColor: '#E7ECF5',
           bodyFont: { size: 12, family: 'Outfit' },
-          borderColor: 'rgba(46, 196, 168, 0.45)',
+          borderColor: 'rgba(91, 141, 239, 0.45)',
           borderWidth: 1,
           cornerRadius: 10,
           padding: 12,
@@ -2928,30 +2928,30 @@ function renderChart(canvasId, chartData) {
       },
       scales: chartData.type === 'doughnut' ? {} : chartData.type === 'radar' ? {
         r: {
-          angleLines: { color: 'rgba(46, 196, 168, 0.18)' },
-          grid: { color: 'rgba(46, 196, 168, 0.12)' },
-          pointLabels: { font: { size: 12, family: 'Outfit', weight: '600' }, color: '#A3BDB2' },
-          ticks: { font: { size: 10 }, color: '#7A9A8D', backdropColor: 'transparent' },
+          angleLines: { color: 'rgba(91, 141, 239, 0.18)' },
+          grid: { color: 'rgba(91, 141, 239, 0.12)' },
+          pointLabels: { font: { size: 12, family: 'Outfit', weight: '600' }, color: '#9FB0CE' },
+          ticks: { font: { size: 10 }, color: '#6E82A6', backdropColor: 'transparent' },
           beginAtZero: true,
           max: 100,
         },
       } : chartData.type === 'polarArea' ? {
         r: {
-          angleLines: { color: 'rgba(46, 196, 168, 0.12)' },
-          grid: { color: 'rgba(46, 196, 168, 0.12)' },
+          angleLines: { color: 'rgba(91, 141, 239, 0.12)' },
+          grid: { color: 'rgba(91, 141, 239, 0.12)' },
           pointLabels: { display: false },
-          ticks: { font: { size: 10 }, color: '#7A9A8D', backdropColor: 'transparent', callback: (v) => fmtAxis(v) },
+          ticks: { font: { size: 10 }, color: '#6E82A6', backdropColor: 'transparent', callback: (v) => fmtAxis(v) },
           beginAtZero: true,
         },
       } : {
         x: {
           grid: { display: false },
-          ticks: { font: { size: 11, family: 'Outfit', weight: '500' }, color: '#A3BDB2', padding: 6 },
+          ticks: { font: { size: 11, family: 'Outfit', weight: '500' }, color: '#9FB0CE', padding: 6 },
           border: { display: false },
         },
         y: {
-          grid: { color: 'rgba(46, 196, 168, 0.08)', drawBorder: false, lineWidth: 1 },
-          ticks: { font: { size: 11, family: 'Outfit', weight: '500' }, color: '#A3BDB2', padding: 8 },
+          grid: { color: 'rgba(91, 141, 239, 0.08)', drawBorder: false, lineWidth: 1 },
+          ticks: { font: { size: 11, family: 'Outfit', weight: '500' }, color: '#9FB0CE', padding: 8 },
           border: { display: false },
         },
       },
@@ -2990,7 +2990,7 @@ function renderChart(canvasId, chartData) {
       if (ds.borderCapStyle == null) ds.borderCapStyle = 'round';
       if (ds.borderJoinStyle == null) ds.borderJoinStyle = 'round';
       if (ds.pointHoverBackgroundColor == null) ds.pointHoverBackgroundColor = ds.borderColor;
-      if (ds.pointHoverBorderColor == null) ds.pointHoverBorderColor = '#0F1614';
+      if (ds.pointHoverBorderColor == null) ds.pointHoverBorderColor = '#0E1424';
       if (ds.pointHoverBorderWidth == null) ds.pointHoverBorderWidth = 2;
       // Área rellena (no bandas de confianza) → gradiente vertical.
       const fillOn = ds.fill === true || ds.fill === 'origin' || ds.fill === 'start' || ds.fill === 'end';
@@ -3018,7 +3018,7 @@ function renderChart(canvasId, chartData) {
           target.title = {
             ...opts.title,
             font: { size: 12, family: 'Outfit' },
-            color: '#8FA99D',
+            color: '#7E92B6',
           };
         }
       }
@@ -3166,10 +3166,10 @@ function generatePDFReport(data) {
   const p25 = casosArr[Math.floor(casosArr.length * 0.25)] || 0;
 
   function riskColor(casos) {
-    if (casos >= p75) return '#C83A5A';
+    if (casos >= p75) return '#F472B6';
     if (casos >= p50) return '#E67E22';
-    if (casos >= p25) return '#D4A84B';
-    return '#2EC4A8';
+    if (casos >= p25) return '#2DD4BF';
+    return '#5B8DEF';
   }
 
   const padRows = Object.entries(padStats).map(([pad, ps]) => {
