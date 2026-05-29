@@ -24,6 +24,7 @@ const EMBED_MODEL = 'gemini-embedding-001';
 const EMBED_DIM = 768;
 const TOP_K = 6;            // pasajes finales que ven el generador
 const RERANK_POOL = 16;     // candidatos que entran al reranker
+const DIVERSITY_CAP = 3;    // máx. pasajes por documento en el top-K (diversidad)
 const GEN_MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite'];
 
 // ---------------------------------------------------------------------------
@@ -196,13 +197,30 @@ async function rerank(genAI, query, candidates) {
     if (!m) return null;
     const order = JSON.parse(m[0]).filter(n => Number.isInteger(n) && n >= 0 && n < candidates.length);
     if (!order.length) return null;
-    // Orden del reranker + relleno con el orden híbrido para llegar a TOP_K
+    // Devuelve el POOL COMPLETO reordenado (el reranker primero, luego el resto
+    // en su orden híbrido) para poder aplicar diversidad después.
     const seen = new Set();
-    const picked = [];
-    for (const n of order) { if (!seen.has(n)) { seen.add(n); picked.push(candidates[n]); } if (picked.length >= TOP_K) break; }
-    for (let i = 0; i < candidates.length && picked.length < TOP_K; i++) { if (!seen.has(i)) { seen.add(i); picked.push(candidates[i]); } }
-    return picked;
+    const ordered = [];
+    for (const n of order) { if (!seen.has(n)) { seen.add(n); ordered.push(candidates[n]); } }
+    for (let i = 0; i < candidates.length; i++) { if (!seen.has(i)) { seen.add(i); ordered.push(candidates[i]); } }
+    return ordered;
   } catch { return null; }
+}
+
+/** Selección con diversidad (MMR-lite): toma los mejores respetando un máximo
+ *  de `cap` pasajes por documento; si falta, rellena con el orden original. */
+function selectDiverse(ordered, k, cap) {
+  const bySrc = new Map();
+  const picked = [];
+  const overflow = [];
+  for (const c of ordered) {
+    const s = c.chunk.source;
+    const n = bySrc.get(s) || 0;
+    if (n < cap) { picked.push(c); bySrc.set(s, n + 1); if (picked.length >= k) return picked; }
+    else overflow.push(c);
+  }
+  for (const c of overflow) { if (picked.length >= k) break; picked.push(c); }
+  return picked.slice(0, k);
 }
 
 // ---------------------------------------------------------------------------
@@ -334,13 +352,14 @@ export default async function handler(req) {
     console.error('Retrieve error:', err.message);
   }
 
-  // 3. Reranking LLM del pool → TOP_K (fallback: orden híbrido)
-  let hits = candidates.slice(0, TOP_K);
+  // 3. Reranking LLM del pool (orden completo) + 4. selección con diversidad
+  let ordered = candidates;
   let reranked = false;
   if (candidates.length > TOP_K) {
     const rr = await rerank(genAI, query, candidates);
-    if (rr) { hits = rr; reranked = true; }
+    if (rr) { ordered = rr; reranked = true; }
   }
+  const hits = selectDiverse(ordered, TOP_K, DIVERSITY_CAP);
 
   // Bloque de contexto: pasajes numerados + cifras clave
   const kb = loadKnowledge();

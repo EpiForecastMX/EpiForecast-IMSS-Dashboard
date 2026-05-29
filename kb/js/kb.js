@@ -3961,6 +3961,64 @@ function answerSaludModelos(q, ent, s, d) {
 }
 
 // ---------------------------------------------------------------------------
+// MEDIDOR (gauge) de salud global
+// ---------------------------------------------------------------------------
+
+function answerGauge(q, ent, s, d) {
+  const triggers = ['medidor', 'gauge', 'velocimetro', 'salud global'];
+  const triggerAlt = any(q, ['porcentaje']) && any(q, ['sanos']);
+  if (!any(q, triggers) && !triggerAlt) return null;
+  if (s.overfitting_ok == null) return null;
+  const total = s.total_modelos || 333;
+  const ok = s.overfitting_ok;
+  const pct = total ? Math.round(ok / total * 100) : 0;
+  const lines = [];
+  lines.push(`**Salud global de los modelos**: el ${pct}% (${ok} de ${total}) pasa el control de overfitting sin observaciones.`);
+  lines.push(`\nEl medidor resume la robustez del sistema de un vistazo. Complementa con el control de fuga de datos (leakage OK en ${s.leakage_ok} series).`);
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// RANGO DE SMAPE (caja y bigotes)
+// ---------------------------------------------------------------------------
+
+function answerSmapeBox(q, ent, s, d) {
+  const triggers = ['caja y bigotes', 'boxplot', 'box plot', 'rango de smape', 'intercuartil', 'cuartil'];
+  if (!any(q, triggers)) return null;
+  const pp = s.por_pad;
+  if (!pp) return null;
+  const lines = [];
+  lines.push('**Rango de SMAPE por padecimiento**: la barra muestra el rango intercuartil (p25–p75), donde se concentra la mitad central de los modelos.\n');
+  for (const [pad, p] of Object.entries(pp)) {
+    lines.push(`- **${pad}**: mediana ${p.smape_prod_median}% (media ${p.smape_prod_mean}%)`);
+  }
+  lines.push('\nUn rango más estrecho indica desempeño más homogéneo entre series; Alzheimer suele mostrar el rango más alto por su baja incidencia.');
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// CASCADA (waterfall) de aporte por padecimiento
+// ---------------------------------------------------------------------------
+
+function answerWaterfall(q, ent, s, d) {
+  const triggers = ['cascada', 'waterfall', 'aporte acumulado'];
+  const triggerAlt = (any(q, ['contribucion']) && any(q, ['padecimiento'])) || (any(q, ['aporte']) && any(q, ['total']));
+  if (!any(q, triggers) && !triggerAlt) return null;
+  const pp = s.por_pad;
+  if (!pp) return null;
+  const entries = Object.entries(pp).map(([p, v]) => [p, v.casos_futuro_total || 0]);
+  const total = entries.reduce((a, [, v]) => a + v, 0);
+  const lines = [];
+  lines.push('**Aporte acumulado al total nacional** (pronóstico a 52 semanas): cada barra se apila sobre la anterior hasta el total.\n');
+  for (const [p, v] of entries.sort((a, b) => b[1] - a[1])) {
+    const pct = total ? (v / total * 100).toFixed(1) : 0;
+    lines.push(`- **${p}**: ${fmt(v)} casos (${pct}%)`);
+  }
+  lines.push(`\n**Total nacional**: ${fmt(total)} casos.`);
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
 // Cadena de handlers (orden de prioridad)
 // ---------------------------------------------------------------------------
 
@@ -3972,6 +4030,7 @@ const HANDLERS = [
   answerComparacionSemanal, answerMapaMexico, answerTreemap, answerRadar, answerSparklines, answerStackedArea,
   answerMatrizRendimiento, answerArsenalMotores, answerMotoresPorPadecimiento, answerMejoresPeores,
   answerVolumenError, answerCalibracion, answerMasePorMotor, answerAcumulado, answerSaludModelos,
+  answerGauge, answerSmapeBox, answerWaterfall,
   answerCorredor, answerErrorHeatmap, answerZoom,
   answerBoletin, answerHistorico, answerComparativaEstados, answerSpecificSeries, answerEstado, answerPadecimiento,
   answerMotor, answerDemografica, answerSexo, answerDistribucion, answerGraficoAleatorio, answerMetricaGlobal,

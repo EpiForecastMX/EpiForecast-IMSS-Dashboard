@@ -12,6 +12,12 @@
     { "q": "que referencias bibliograficas sustentan el trabajo", "expect": ["Referencias bibliográficas"] },
     { "q": "que aporta la desagregacion por sexo y entidad federativa", "expect": ["Paper MICAI 2026", "Conclusiones del proyecto", "Reporte de resultados"] },
     { "q": "que es el fallback regional y cuando se aplica", "expect": ["Datos del proyecto", "Bitácora de modelado", "Hiperparámetros de los modelos"] },
-    { "q": "como se hace el grid search y la validacion cruzada temporal", "expect": ["Hiperparámetros de los modelos", "Ficha técnica — Prophet", "Bitácora de modelado"] }
+    { "q": "como se hace el grid search y la validacion cruzada temporal", "expect": ["Hiperparámetros de los modelos", "Ficha técnica — Prophet", "Bitácora de modelado"] },
+    { "q": "cual es la contribucion principal del paper", "expect": ["Paper MICAI 2026"] },
+    { "q": "que datos de SINAVE utiliza y para que padecimiento", "expect": ["Paper MICAI 2026", "Datos del proyecto"] },
+    { "q": "por que un enfoque multimodelo en vez de un solo algoritmo", "expect": ["Paper MICAI 2026", "Comparación de modelos"] },
+    { "q": "como se reasignan las series de baja incidencia", "expect": ["Paper MICAI 2026", "Datos del proyecto", "Bitácora de modelado"] },
+    { "q": "como se valida fuera de muestra contra los boletines 2026", "expect": ["Paper MICAI 2026", "Validación semanal"] },
+    { "q": "que es la seleccion auditable por serie", "expect": ["Paper MICAI 2026"] }
   ]
 }

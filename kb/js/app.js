@@ -262,19 +262,23 @@ const epiDoughnutCenterPlugin = {
     if (chart.config.type !== 'doughnut') return;
     const ds = chart.data.datasets[0];
     if (!ds) return;
-    const total = ds.data.reduce((a, b) => a + (+b || 0), 0);
+    // Gauge: texto central personalizado (ej. "98.5%" + subtítulo)
+    const big = ds._centerText != null ? ds._centerText : fmtAxis(ds.data.reduce((a, b) => a + (+b || 0), 0));
+    const sub = ds._centerSub != null ? ds._centerSub : 'TOTAL';
     const { ctx, chartArea } = chart;
     const cx = (chartArea.left + chartArea.right) / 2;
-    const cy = (chartArea.top + chartArea.bottom) / 2;
+    // En gauge (semicírculo) el centro visual baja un poco
+    const half = chart.options.circumference && chart.options.circumference <= 180;
+    const cy = half ? chartArea.bottom - 18 : (chartArea.top + chartArea.bottom) / 2;
     ctx.save();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillStyle = '#E7ECF5';
-    ctx.font = '800 26px Outfit, sans-serif';
-    ctx.fillText(fmtAxis(total), cx, cy - 6);
+    ctx.font = '800 30px Outfit, sans-serif';
+    ctx.fillText(String(big), cx, cy - 8);
     ctx.fillStyle = '#6E82A6';
     ctx.font = '600 10px Outfit, sans-serif';
-    ctx.fillText('TOTAL', cx, cy + 15);
+    ctx.fillText(String(sub).toUpperCase(), cx, cy + 16);
     ctx.restore();
   },
 };
@@ -329,7 +333,7 @@ async function init() {
     console.error('Error cargando knowledge.json:', err);
     const chatEl = document.getElementById('chatArea');
     if (chatEl) {
-      chatEl.innerHTML = `<div style="padding:24px;color:#9F2241;font-weight:600;">
+      chatEl.innerHTML = `<div style="padding:24px;color:#F472B6;font-weight:600;">
         Error al cargar la base de conocimiento: ${err.message}</div>`;
     }
   }
@@ -2130,6 +2134,101 @@ function buildModelHealth(data) {
   };
 }
 
+/**
+ * Medidor (gauge semicircular): % de modelos sanos (sin overfitting).
+ */
+function buildQualityGauge(data) {
+  const s = data.stats || {};
+  const total = s.total_modelos || 333;
+  const ok = s.overfitting_ok != null ? s.overfitting_ok : total;
+  const pct = total ? Math.round(ok / total * 100) : 0;
+  return {
+    type: 'doughnut',
+    title: 'Salud global de los modelos (sin overfitting)',
+    labels: ['Sanos', 'Con observaciones'],
+    datasets: [{
+      data: [ok, Math.max(0, total - ok)],
+      backgroundColor: ['#5B8DEF', 'rgba(159, 176, 206, 0.10)'],
+      borderColor: 'transparent',
+      borderWidth: 0,
+      _centerText: pct + '%',
+      _centerSub: `${ok} de ${total} sanos`,
+    }],
+    options: { circumference: 180, rotation: -90, cutout: '72%' },
+  };
+}
+
+/**
+ * Rango de SMAPE por padecimiento (caja intercuartil p25–p75, barras flotantes).
+ */
+function buildSmapeBox(data) {
+  const models = data.prod_models || [];
+  if (!models.length) return null;
+  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6' };
+  const byPad = {};
+  for (const m of models) {
+    if (m.sexo !== 'general' || m.smape_prod == null) continue;
+    (byPad[m.padecimiento] = byPad[m.padecimiento] || []).push(m.smape_prod);
+  }
+  const pads = Object.keys(byPad);
+  if (!pads.length) return null;
+  const quant = (arr, p) => { const a = [...arr].sort((x, y) => x - y); const i = (a.length - 1) * p, lo = Math.floor(i), hi = Math.ceil(i); return a[lo] + (a[hi] - a[lo]) * (i - lo); };
+  const rows = pads.map(p => ({ p, p25: quant(byPad[p], 0.25), p75: quant(byPad[p], 0.75) }));
+  return {
+    type: 'bar',
+    horizontal: true,
+    title: 'Rango de SMAPE por padecimiento (intercuartil p25–p75)',
+    labels: pads.map(dn),
+    datasets: [{
+      label: 'SMAPE p25–p75 (%)',
+      data: rows.map(r => [r.p25, r.p75]),
+      backgroundColor: pads.map(p => padColors[p] || '#5B8DEF'),
+      borderColor: pads.map(p => padColors[p] || '#5B8DEF'),
+      borderWidth: 1,
+      borderRadius: 5,
+      maxBarThickness: 30,
+    }],
+    options: { scales: { x: { title: { display: true, text: 'SMAPE (%)' }, beginAtZero: true } } },
+  };
+}
+
+/**
+ * Cascada (waterfall): aporte acumulado de cada padecimiento al total nacional.
+ */
+function buildWaterfall(data) {
+  const models = data.prod_models || [];
+  if (!models.length) return null;
+  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6' };
+  const byPad = {};
+  for (const m of models) {
+    if (m.sexo !== 'general') continue;
+    const e = m.entidad || '';
+    if (e === 'Nacional' || e.startsWith('Region') || e.startsWith('region_')) continue;
+    byPad[m.padecimiento] = (byPad[m.padecimiento] || 0) + (m.casos_52_semanas_futuro || 0);
+  }
+  const pads = Object.keys(byPad);
+  if (!pads.length) return null;
+  let run = 0;
+  const labels = [], dataPairs = [], colors = [];
+  for (const p of pads) { const v = byPad[p]; dataPairs.push([run, run + v]); colors.push(padColors[p] || '#5B8DEF'); labels.push(dn(p)); run += v; }
+  labels.push('Total nacional'); dataPairs.push([0, run]); colors.push('#A78BFA');
+  return {
+    type: 'bar',
+    title: 'Aporte acumulado al total nacional (pronóstico 52 sem)',
+    labels,
+    datasets: [{
+      label: 'Casos',
+      data: dataPairs,
+      backgroundColor: colors,
+      borderColor: colors,
+      borderWidth: 1,
+      borderRadius: 5,
+      maxBarThickness: 80,
+    }],
+    options: { scales: { y: { title: { display: true, text: 'Casos acumulados' }, beginAtZero: true } } },
+  };
+}
+
 function extractChartData(markdown, query) {
   const data = getData();
   if (!data) return null;
@@ -2413,6 +2512,28 @@ function extractChartData(markdown, query) {
   if (qn.includes('salud de los modelos') || qn.includes('salud de modelos') ||
       qn.includes('integridad de') || (qn.includes('overfitting') && qn.includes('leakage'))) {
     const chart = buildModelHealth(data);
+    if (chart) return chart;
+  }
+
+  // Medidor (gauge) de salud global
+  if (qn.includes('medidor') || qn.includes('gauge') || qn.includes('velocimetro') ||
+      qn.includes('salud global') || (qn.includes('porcentaje') && qn.includes('sanos'))) {
+    const chart = buildQualityGauge(data);
+    if (chart) return chart;
+  }
+
+  // Rango de SMAPE por padecimiento (caja y bigotes / intercuartil)
+  if (qn.includes('caja y bigotes') || qn.includes('boxplot') || qn.includes('box plot') ||
+      qn.includes('rango de smape') || qn.includes('intercuartil') || qn.includes('cuartil')) {
+    const chart = buildSmapeBox(data);
+    if (chart) return chart;
+  }
+
+  // Cascada (waterfall) de aporte por padecimiento
+  if (qn.includes('cascada') || qn.includes('waterfall') || qn.includes('aporte acumulado') ||
+      (qn.includes('contribucion') && qn.includes('padecimiento')) ||
+      (qn.includes('aporte') && qn.includes('total'))) {
+    const chart = buildWaterfall(data);
     if (chart) return chart;
   }
 
@@ -3024,6 +3145,10 @@ function renderChart(canvasId, chartData) {
       }
     }
     if (chartData.options.indexAxis) config.options.indexAxis = chartData.options.indexAxis;
+    // Opciones top-level para gauge/doughnut
+    for (const k of ['circumference', 'rotation', 'cutout']) {
+      if (chartData.options[k] != null) config.options[k] = chartData.options[k];
+    }
     if (chartData.options.plugins) {
       Object.assign(config.options.plugins, chartData.options.plugins);
     }
@@ -3203,24 +3328,24 @@ function generatePDFReport(data) {
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Inter', sans-serif; color: #1a1a1a; padding: 40px; max-width: 900px; margin: 0 auto; line-height: 1.5; }
   @media print { body { padding: 20px; } .no-print { display: none; } }
-  .header { border-bottom: 3px solid #006847; padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; }
-  .header h1 { font-size: 22px; color: #006847; }
+  .header { border-bottom: 3px solid #3A6FD8; padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .header h1 { font-size: 22px; color: #3A6FD8; }
   .header .subtitle { font-size: 13px; color: #666; }
   .header .date { font-size: 12px; color: #888; text-align: right; }
-  .header .logo { font-size: 11px; color: #006847; font-weight: 700; letter-spacing: 1px; }
+  .header .logo { font-size: 11px; color: #3A6FD8; font-weight: 700; letter-spacing: 1px; }
   .section { margin-bottom: 24px; }
-  .section h2 { font-size: 16px; color: #006847; border-bottom: 1px solid #e0e0e0; padding-bottom: 6px; margin-bottom: 12px; }
+  .section h2 { font-size: 16px; color: #3A6FD8; border-bottom: 1px solid #e0e0e0; padding-bottom: 6px; margin-bottom: 12px; }
   .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
   .kpi { background: #f8faf9; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; text-align: center; }
-  .kpi .val { font-size: 24px; font-weight: 700; color: #006847; }
+  .kpi .val { font-size: 24px; font-weight: 700; color: #3A6FD8; }
   .kpi .lbl { font-size: 11px; color: #666; margin-top: 2px; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { background: #006847; color: #fff; padding: 8px 10px; text-align: left; font-weight: 600; }
+  th { background: #3A6FD8; color: #fff; padding: 8px 10px; text-align: left; font-weight: 600; }
   .semaforo-mini { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
   .sem-cell { text-align: center; padding: 6px 2px; border-radius: 4px; font-size: 9px; color: #fff; font-weight: 600; }
-  .footer { margin-top: 30px; padding-top: 12px; border-top: 2px solid #006847; font-size: 10px; color: #888; text-align: center; }
-  .print-btn { position: fixed; top: 20px; right: 20px; padding: 10px 24px; background: #006847; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; }
-  .print-btn:hover { background: #005030; }
+  .footer { margin-top: 30px; padding-top: 12px; border-top: 2px solid #3A6FD8; font-size: 10px; color: #888; text-align: center; }
+  .print-btn { position: fixed; top: 20px; right: 20px; padding: 10px 24px; background: #3A6FD8; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; }
+  .print-btn:hover { background: #2A52A8; }
 </style>
 </head>
 <body>

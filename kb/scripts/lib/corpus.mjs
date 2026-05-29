@@ -193,6 +193,36 @@ function structuredCards(kb) {
   return cards.map((c, i) => ({ id: `kb-card#${i}`, ...c }));
 }
 
+/**
+ * Tarjetas en ESPAÑOL que resumen el paper MICAI (que está en inglés). Mejoran
+ * el recall cross-lingüe: garantizan que preguntas conceptuales en español sobre
+ * el artículo recuperen y citen la fuente correcta.
+ */
+function paperCardsES() {
+  const cards = [
+    ['Paper MICAI — Contribución principal (resumen ES)',
+      'El artículo propone un marco (framework) determinista y auditable que selecciona, para CADA serie, el modelo mejor sustentado por su propia evidencia, en lugar de imponer un único algoritmo a todo el sistema de vigilancia. Su aporte central es la SELECCIÓN DE MODELO POR SERIE, transparente y reproducible, con un registro justificado de cada decisión. Título: "Forecasting Weekly Depression Incidence in Mexico: A Multi-Model Framework with Auditable Per-Series Model Selection".'],
+    ['Paper MICAI — Método de selección por serie (resumen ES)',
+      'Una regla transparente elige un modelo por serie según la exactitud en validación cruzada (menor error; usa SMAPE con MASE como desempate y un margen relativo del 5%). Las series de baja incidencia se reasignan a un modelo regional de respaldo (fallback). Cada elección se guarda en un log de selección justificado. La selección es REVISABLE: vuelve a elegirse cuando llegan nuevos boletines, por lo que el sistema se mantiene auditable y responsable en producción, no un ganador congelado de tabla.'],
+    ['Paper MICAI — Librería de modelos (resumen ES)',
+      'El conjunto de candidatos reúne pronosticadores con suposiciones inductivas deliberadamente distintas para cubrir representaciones temporales diversas: una descomposición aditiva estructural (Prophet), una red recurrente probabilística (DeepAR) y dos híbridos basados en árboles (Ensemble y Stacking). Esta diversidad mejora la cobertura ante la heterogeneidad entre regiones, sexos y tiempo.'],
+    ['Paper MICAI — Datos y alcance (resumen ES)',
+      'Se instancia para la incidencia semanal de depresión (CIE-10 F32) en las 32 entidades federativas de México, usando los boletines públicos del Sistema Nacional de Vigilancia Epidemiológica (SINAVE). En México la depresión afecta a unos 8 a 10 millones de personas y SINAVE registra más de 150,000 casos nuevos de episodio depresivo por año, con ventanas de saturación recurrentes en el periodo febrero-mayo. El objetivo es habilitar planeación proactiva con trayectorias a 52 semanas por entidad.'],
+    ['Paper MICAI — Validación y resultados (resumen ES)',
+      'El marco se valida dos veces: (1) validación cruzada de origen móvil (rolling-origin) sobre una década de observaciones semanales, y (2) evaluación prospectiva fuera de muestra contra los boletines de 2026 posteriores al corte de entrenamiento. La asignación resultante se concentra en el modelo recurrente (DeepAR) para la mayoría de las series por entidad, conservando modelos más simples donde la agregación los favorece; el pronóstico nacional, bloqueado por separado, sigue de cerca los boletines de inicio de 2026.'],
+    ['Paper MICAI — Aportaciones e impacto (resumen ES)',
+      'Frente a la planeación reactiva (ajustar capacidad solo después de ver el aumento en el boletín), pronósticos semanales confiables por entidad permiten una planeación PROACTIVA: anticipar personal y recursos. El enfoque es reproducible, auditable y extensible a otros padecimientos con comportamiento heterogéneo. La desagregación por sexo y entidad federativa es parte del diseño modular del sistema.'],
+  ];
+  return cards.map(([section, text], i) => ({
+    id: `micai-es#${i}`,
+    source: 'Paper MICAI 2026',
+    section,
+    title: section,
+    url: MICAI_URL,
+    text,
+  }));
+}
+
 /** Construye TODOS los chunks del corpus (sin embeddings). */
 export function buildChunks() {
   const chunks = [];
@@ -206,6 +236,9 @@ export function buildChunks() {
     const c = sectionsToChunks(secs, { id: 'micai', source: 'Paper MICAI 2026', url: MICAI_URL });
     chunks.push(...c); log.push(['MICAI', c.length]);
   }
+  // Tarjetas en español del paper (recall cross-lingüe)
+  const esCards = paperCardsES();
+  chunks.push(...esCards); log.push(['MICAI (resumen ES)', esCards.length]);
 
   // 2. Notas / reportes HTML
   for (const note of HTML_NOTES) {
