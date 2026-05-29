@@ -6,7 +6,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=70';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=72';
 import { detectEntities, norm } from './entities.js?v=26';
 import { renderMexicoMap } from './mexico-map.js?v=1';
 import { renderTimelapse } from './timelapse.js?v=1';
@@ -1736,6 +1736,349 @@ function buildTrendChart(data, qn) {
   return { type: 'line', title: 'Evolución histórica de incidencia', labels, datasets };
 }
 
+/**
+ * Matriz de rendimiento (bubble): precisión histórica (x) vs SMAPE (y) vs
+ * volumen de casos (tamaño), coloreado por padecimiento. Revela el balance
+ * entre acierto y error de cada modelo estatal.
+ */
+function buildPerformanceMatrix(data) {
+  const models = data.prod_models || [];
+  if (!models.length) return null;
+  const padColors = { Depresion: '#2EC4A8', Parkinson: '#D4A84B', Alzheimer: '#C83A5A' };
+  const isState = (m) => {
+    const e = m.entidad || '';
+    return e && e !== 'Nacional' && !e.startsWith('Region') && !e.startsWith('region_');
+  };
+  const parsePct = (v) => {
+    if (v == null) return null;
+    const n = parseFloat(String(v).replace('%', ''));
+    return isFinite(n) ? n : null;
+  };
+
+  const byPad = {};
+  let maxCasos = 0;
+  for (const m of models) {
+    if (m.sexo !== 'general' || !isState(m)) continue;
+    if (m.smape_prod == null) continue;
+    const prec = parsePct(m.precision_historica);
+    if (prec == null) continue;
+    const casos = m.casos_52_semanas_futuro || 0;
+    maxCasos = Math.max(maxCasos, casos);
+    (byPad[m.padecimiento] = byPad[m.padecimiento] || []).push({ prec, smape: m.smape_prod, casos, ent: m.entidad });
+  }
+
+  const pads = Object.keys(byPad);
+  if (!pads.length) return null;
+
+  const datasets = pads.map(pad => ({
+    label: dn(pad),
+    data: byPad[pad].map(p => ({
+      x: p.prec,
+      y: p.smape,
+      r: 5 + 16 * Math.sqrt(p.casos / (maxCasos || 1)),
+      label: dn(p.ent),
+      casos: p.casos,
+    })),
+    backgroundColor: (padColors[pad] || '#2EC4A8') + 'B0',
+    borderColor: padColors[pad] || '#2EC4A8',
+    borderWidth: 1.5,
+    hoverBorderWidth: 2.5,
+  }));
+
+  return {
+    type: 'bubble',
+    title: 'Matriz de rendimiento — precisión vs error vs volumen',
+    datasets,
+    options: {
+      scales: {
+        x: { title: { display: true, text: 'Precisión histórica (%)' }, min: 0, max: 100, grid: { color: 'rgba(46, 196, 168, 0.08)' } },
+        y: { title: { display: true, text: 'SMAPE (%) — menor es mejor' }, beginAtZero: true },
+      },
+    },
+  };
+}
+
+/**
+ * Arsenal de modelos (polarArea): distribución de los 333 modelos de
+ * producción por motor ganador, en formato radial.
+ */
+function buildMotorPolar(data) {
+  const dm = (data.stats || {}).dist_motor;
+  if (!dm || !Object.keys(dm).length) return null;
+  const labels = Object.keys(dm);
+  const total = Object.values(dm).reduce((a, b) => a + b, 0);
+  const colorMap = { Prophet: '#2EC4A8', DeepAR: '#3B9AE8', Ensemble: '#D4A84B', Stacking: '#C83A5A' };
+  return {
+    type: 'polarArea',
+    title: `Arsenal de modelos — ${total} en producción por motor`,
+    labels,
+    datasets: [{
+      data: Object.values(dm),
+      backgroundColor: labels.map(l => (colorMap[l] || '#7B5FD6') + 'C0'),
+      borderColor: labels.map(l => colorMap[l] || '#7B5FD6'),
+      borderWidth: 1.5,
+    }],
+  };
+}
+
+/**
+ * Composición de motores por padecimiento (barras apiladas): cuántos modelos
+ * de cada motor se eligieron en cada enfermedad.
+ */
+function buildMotorByPad(data) {
+  const pp = (data.stats || {}).por_pad;
+  if (!pp || !Object.keys(pp).length) return null;
+  const pads = Object.keys(pp);
+  const motors = ['Prophet', 'DeepAR', 'Ensemble', 'Stacking'];
+  const colorMap = { Prophet: '#2EC4A8', DeepAR: '#3B9AE8', Ensemble: '#D4A84B', Stacking: '#C83A5A' };
+  const datasets = motors.map(mt => ({
+    label: mt,
+    data: pads.map(p => (pp[p].dist_motor || {})[mt] || 0),
+    backgroundColor: colorMap[mt],
+    stack: 'motores',
+    borderRadius: 4,
+    maxBarThickness: 90,
+  }));
+  return {
+    type: 'bar',
+    title: 'Composición de motores por padecimiento',
+    labels: pads.map(dn),
+    datasets,
+    options: {
+      scales: {
+        x: { stacked: true },
+        y: { stacked: true, title: { display: true, text: 'Modelos' } },
+      },
+    },
+  };
+}
+
+/**
+ * Mejores y peores modelos por SMAPE (barras horizontales divergentes):
+ * top y bottom combinados, verde para aciertos, guinda para errores.
+ */
+function buildBestWorst(data) {
+  const s = data.stats || {};
+  const top = s.top5_smape || [];
+  const bot = s.bottom5_smape || [];
+  if (!top.length && !bot.length) return null;
+  const best = top.slice(0, 6);
+  const worst = bot.slice(0, 6);
+  const rows = [
+    ...best.map(r => ({ ...r, kind: 'best' })),
+    ...worst.map(r => ({ ...r, kind: 'worst' })),
+  ];
+  const labels = rows.map(r => `${dn(r.entidad)} · ${dn(r.padecimiento)} (${r.sexo})`);
+  const colors = rows.map(r => r.kind === 'best' ? '#2EC4A8' : '#C83A5A');
+  return {
+    type: 'bar',
+    horizontal: true,
+    title: 'Mejores y peores modelos por SMAPE (%)',
+    labels,
+    datasets: [{
+      label: 'SMAPE (%)',
+      data: rows.map(r => r.smape),
+      backgroundColor: colors,
+      borderColor: colors,
+      borderWidth: 1,
+      borderRadius: 6,
+      maxBarThickness: 26,
+    }],
+  };
+}
+
+/**
+ * Volumen vs error (combo doble eje): top 10 estados por casos (barras) con su
+ * SMAPE promedio superpuesto como línea en eje secundario.
+ */
+function buildVolumeError(data) {
+  const models = data.prod_models || [];
+  if (!models.length) return null;
+  const byEnt = {};
+  for (const m of models) {
+    if (m.sexo !== 'general') continue;
+    const e = m.entidad || '';
+    if (e === 'Nacional' || e.startsWith('Region') || e.startsWith('region_')) continue;
+    if (!byEnt[e]) byEnt[e] = { casos: 0, smapes: [] };
+    byEnt[e].casos += m.casos_52_semanas_futuro || 0;
+    if (m.smape_prod != null) byEnt[e].smapes.push(m.smape_prod);
+  }
+  const entries = Object.entries(byEnt)
+    .map(([name, o]) => ({ name, casos: o.casos, smape: o.smapes.length ? o.smapes.reduce((a, v) => a + v, 0) / o.smapes.length : null }))
+    .sort((a, b) => b.casos - a.casos).slice(0, 10);
+  if (!entries.length) return null;
+  return {
+    type: 'bar',
+    title: 'Top 10 estados — volumen vs error (SMAPE)',
+    labels: entries.map(e => dn(e.name)),
+    datasets: [
+      { label: 'Casos (52 sem)', data: entries.map(e => e.casos), backgroundColor: '#2EC4A8', yAxisID: 'y', order: 2 },
+      { label: 'SMAPE (%)', type: 'line', data: entries.map(e => e.smape != null ? +e.smape.toFixed(1) : null), borderColor: '#D4A84B', backgroundColor: 'transparent', yAxisID: 'y1', order: 1, fill: false, tension: 0.3, pointRadius: 4, pointBackgroundColor: '#D4A84B', borderWidth: 2.5 },
+    ],
+    options: {
+      scales: {
+        y: { title: { display: true, text: 'Casos' }, position: 'left' },
+        y1: { title: { display: true, text: 'SMAPE (%)' }, position: 'right', grid: { display: false }, ticks: { callback: (v) => v + '%' } },
+        x: { ticks: { maxRotation: 45, minRotation: 30, font: { size: 10 } } },
+      },
+    },
+  };
+}
+
+/**
+ * Calibración (scatter): pronóstico vs realidad de la última semana por modelo,
+ * coloreado por padecimiento, con línea de predicción perfecta (y = x).
+ */
+function buildCalibration(data) {
+  const models = data.prod_models || [];
+  if (!models.length) return null;
+  const padColors = { Depresion: '#2EC4A8', Parkinson: '#D4A84B', Alzheimer: '#C83A5A' };
+  const byPad = {};
+  let maxV = 0;
+  for (const m of models) {
+    if (m.pron_sem_previa == null || m.realidad_sem_previa == null) continue;
+    const x = m.pron_sem_previa, y = m.realidad_sem_previa;
+    maxV = Math.max(maxV, x, y);
+    (byPad[m.padecimiento] = byPad[m.padecimiento] || []).push({ x, y, label: `${dn(m.entidad)} · ${m.sexo}` });
+  }
+  const pads = Object.keys(byPad);
+  if (!pads.length) return null;
+  const lim = Math.max(5, Math.ceil(maxV * 1.05));
+  const datasets = pads.map(pad => ({
+    label: dn(pad),
+    type: 'scatter',
+    data: byPad[pad],
+    backgroundColor: (padColors[pad] || '#2EC4A8') + 'C0',
+    borderColor: padColors[pad] || '#2EC4A8',
+    pointRadius: 4,
+    pointHoverRadius: 7,
+  }));
+  datasets.push({
+    label: 'Predicción perfecta',
+    type: 'line',
+    data: [{ x: 0, y: 0 }, { x: lim, y: lim }],
+    borderColor: 'rgba(237, 243, 239, 0.5)',
+    borderDash: [6, 6],
+    borderWidth: 1.5,
+    pointRadius: 0,
+    showLine: true,
+    fill: false,
+  });
+  return {
+    type: 'scatter',
+    title: 'Calibración — pronóstico vs realidad (última semana)',
+    datasets,
+    options: {
+      scales: {
+        x: { title: { display: true, text: 'Pronosticado' }, min: 0, max: lim },
+        y: { title: { display: true, text: 'Real' }, min: 0, max: lim },
+      },
+    },
+  };
+}
+
+/**
+ * MASE mediano por motor (barras horizontales): valores < 1 (verde) superan al
+ * modelo ingenuo; >= 1 (guinda) no lo logran.
+ */
+function buildMaseByMotor(data) {
+  const pm = (data.stats || {}).por_motor;
+  if (!pm || !Object.keys(pm).length) return null;
+  const motors = Object.keys(pm);
+  const vals = motors.map(m => pm[m].mase_median != null ? pm[m].mase_median : pm[m].mase_mean);
+  const colors = vals.map(v => v < 1 ? '#2EC4A8' : '#C83A5A');
+  return {
+    type: 'bar',
+    horizontal: true,
+    title: 'MASE mediano por motor — < 1 supera al modelo ingenuo',
+    labels: motors,
+    datasets: [{
+      label: 'MASE',
+      data: vals,
+      backgroundColor: colors,
+      borderColor: colors,
+      borderWidth: 1,
+      borderRadius: 6,
+      maxBarThickness: 34,
+    }],
+    options: { scales: { x: { title: { display: true, text: 'MASE (menor es mejor)' }, suggestedMax: 1.1 } } },
+  };
+}
+
+/**
+ * Pronóstico nacional acumulado (área): suma acumulada semana a semana de los
+ * 3 padecimientos a lo largo del horizonte de 52 semanas.
+ */
+function buildCumulative(data) {
+  const wc = data.weekly_comparison;
+  if (!wc) return null;
+  const pads = Object.keys(wc);
+  if (!pads.length) return null;
+  const nSem = (wc[pads[0]].semanas || []).length;
+  if (!nSem) return null;
+  const labels = [], cum = [];
+  let acc = 0;
+  for (let i = 0; i < nSem; i++) {
+    let wk = 0;
+    for (const p of pads) {
+      const sem = (wc[p].semanas || [])[i];
+      if (sem) wk += sem.pronostico || 0;
+    }
+    acc += wk;
+    cum.push(acc);
+    const sObj = (wc[pads[0]].semanas || [])[i];
+    labels.push('S' + String(sObj ? sObj.semana : i + 1).padStart(2, '0'));
+  }
+  return {
+    type: 'line',
+    title: 'Pronóstico nacional acumulado (52 semanas)',
+    labels,
+    datasets: [{
+      label: 'Casos acumulados',
+      data: cum,
+      borderColor: '#2EC4A8',
+      backgroundColor: '#2EC4A8',
+      fill: true,
+      tension: 0.25,
+      pointRadius: 0,
+      borderWidth: 3,
+    }],
+    options: {
+      scales: {
+        x: { ticks: { maxRotation: 90, autoSkip: true, maxTicksLimit: 18, font: { size: 9 } } },
+        y: { title: { display: true, text: 'Casos acumulados' } },
+      },
+    },
+  };
+}
+
+/**
+ * Salud de los modelos (barras apiladas horizontales): conteo de modelos por
+ * estado de overfitting y de fuga de datos (leakage).
+ */
+function buildModelHealth(data) {
+  const s = data.stats || {};
+  if (s.overfitting_ok == null && s.leakage_ok == null) return null;
+  return {
+    type: 'bar',
+    horizontal: true,
+    title: 'Salud de los modelos — overfitting y fuga de datos',
+    labels: ['Overfitting', 'Fuga de datos'],
+    datasets: [
+      { label: 'OK', data: [s.overfitting_ok || 0, s.leakage_ok || 0], backgroundColor: '#2EC4A8', stack: 'h', borderRadius: 4 },
+      { label: 'Moderado', data: [s.overfitting_moderado || 0, 0], backgroundColor: '#D4A84B', stack: 'h', borderRadius: 4 },
+      { label: 'Alto / Sospechoso', data: [s.overfitting_alto || 0, s.leakage_sospechoso || 0], backgroundColor: '#C83A5A', stack: 'h', borderRadius: 4 },
+      { label: 'N/D', data: [s.overfitting_nd || 0, 0], backgroundColor: '#7A9A8D', stack: 'h', borderRadius: 4 },
+    ],
+    options: {
+      scales: {
+        x: { stacked: true, title: { display: true, text: 'Modelos' } },
+        y: { stacked: true },
+      },
+    },
+  };
+}
+
 function extractChartData(markdown, query) {
   const data = getData();
   if (!data) return null;
@@ -1956,6 +2299,69 @@ function extractChartData(markdown, query) {
       (qn.includes('comparar') && qn.includes('motor')) ||
       (qn.includes('mejor motor') || qn.includes('cual motor'))) {
     const chart = buildRadarChart(data);
+    if (chart) return chart;
+  }
+
+  // Matriz de rendimiento (bubble)
+  if (qn.includes('matriz') || qn.includes('burbuja') || qn.includes('scatter') ||
+      (qn.includes('rendimiento') && qn.includes('modelo')) ||
+      (qn.includes('precision') && qn.includes('error'))) {
+    const chart = buildPerformanceMatrix(data);
+    if (chart) return chart;
+  }
+
+  // Arsenal de motores (polar area)
+  if (qn.includes('arsenal') || qn.includes('polar') || qn.includes('rosa de motores')) {
+    const chart = buildMotorPolar(data);
+    if (chart) return chart;
+  }
+
+  // Composición de motores por padecimiento (barras apiladas)
+  if (qn.includes('motores por padecimiento') || qn.includes('motor por padecimiento') ||
+      qn.includes('motor dominante') || qn.includes('motores por enfermedad') ||
+      qn.includes('mix de motores') || (qn.includes('motor') && qn.includes('gana cada'))) {
+    const chart = buildMotorByPad(data);
+    if (chart) return chart;
+  }
+
+  // Mejores y peores modelos por SMAPE (barras divergentes)
+  if (qn.includes('mejores y peores') || qn.includes('peores y mejores') ||
+      qn.includes('aciertos y errores') || (qn.includes('ranking') && qn.includes('precision'))) {
+    const chart = buildBestWorst(data);
+    if (chart) return chart;
+  }
+
+  // Volumen vs error (combo doble eje)
+  if (qn.includes('volumen vs error') || (qn.includes('volumen') && qn.includes('error')) ||
+      qn.includes('doble eje') || (qn.includes('casos') && qn.includes('smape') && qn.includes('estado'))) {
+    const chart = buildVolumeError(data);
+    if (chart) return chart;
+  }
+
+  // Calibración (scatter pronóstico vs realidad)
+  if (qn.includes('calibracion') || qn.includes('calibrado') ||
+      (qn.includes('pronostico') && qn.includes('vs') && qn.includes('realidad'))) {
+    const chart = buildCalibration(data);
+    if (chart) return chart;
+  }
+
+  // MASE por motor (barras horizontales)
+  if (qn.includes('mase por motor') || qn.includes('mase de los motores') ||
+      qn.includes('skill') || (qn.includes('mase') && qn.includes('motor'))) {
+    const chart = buildMaseByMotor(data);
+    if (chart) return chart;
+  }
+
+  // Pronóstico acumulado nacional (área)
+  if (qn.includes('acumulad')) {
+    const chart = buildCumulative(data);
+    if (chart) return chart;
+  }
+
+  // Salud de los modelos (overfitting + leakage)
+  if (qn.includes('salud de los modelos') || qn.includes('salud de modelos') ||
+      qn.includes('integridad de') || (qn.includes('overfitting') && qn.includes('leakage'))) {
+    const chart = buildModelHealth(data);
     if (chart) return chart;
   }
 
@@ -2398,7 +2804,9 @@ function renderChart(canvasId, chartData) {
       responsive: true,
       maintainAspectRatio: false,  // Llenan el contenedor; canvas controla el tamaño vía CSS
       indexAxis: isHorizontal ? 'y' : 'x',
-      interaction: { mode: 'index', intersect: false },
+      interaction: (chartData.type === 'bubble' || chartData.type === 'scatter')
+        ? { mode: 'nearest', intersect: true }
+        : { mode: 'index', intersect: false },
       animation: { duration: 850, easing: 'easeOutQuart' },
       plugins: {
         title: {
@@ -2410,8 +2818,8 @@ function renderChart(canvasId, chartData) {
           align: 'start',
         },
         legend: {
-          display: chartData.datasets.length > 1 || chartData.type === 'doughnut',
-          position: chartData.type === 'doughnut' ? 'right' : 'top',
+          display: chartData.datasets.length > 1 || chartData.type === 'doughnut' || chartData.type === 'polarArea',
+          position: (chartData.type === 'doughnut' || chartData.type === 'polarArea') ? 'right' : 'top',
           align: 'end',
           labels: {
             font: { size: 12, family: 'Outfit', weight: '600' },
@@ -2440,12 +2848,22 @@ function renderChart(canvasId, chartData) {
           callbacks: {
             label(ctx) {
               const type = ctx.chart.config.type;
-              if (type === 'doughnut' || type === 'pie') {
+              if (type === 'doughnut' || type === 'pie' || type === 'polarArea') {
                 const arr = ctx.dataset.data || [];
                 const total = arr.reduce((a, b) => a + (+b || 0), 0);
-                const v = +ctx.parsed || 0;
+                const v = type === 'polarArea' ? (+ctx.parsed.r || +ctx.parsed || 0) : (+ctx.parsed || 0);
                 const pct = total ? (v / total * 100).toFixed(1) : 0;
                 return ` ${ctx.label}: ${fmtFull(v)} (${pct}%)`;
+              }
+              if (type === 'bubble' || type === 'scatter') {
+                const sc = ctx.chart.options.scales || {};
+                const xLab = (sc.x && sc.x.title && sc.x.title.text) || 'X';
+                const yLab = (sc.y && sc.y.title && sc.y.title.text) || 'Y';
+                const raw = ctx.raw || {};
+                const head = (raw.label ? raw.label + ' · ' : '') + (ctx.dataset.label || '');
+                const lines = [` ${head}`, `   ${xLab}: ${fmtFull(ctx.parsed.x)}`, `   ${yLab}: ${fmtFull(ctx.parsed.y)}`];
+                if (raw.casos != null) lines.push(`   Volumen: ${fmtFull(raw.casos)} casos`);
+                return lines;
               }
               let val = ctx.parsed;
               if (val && typeof val === 'object') {
@@ -2466,6 +2884,14 @@ function renderChart(canvasId, chartData) {
           beginAtZero: true,
           max: 100,
         },
+      } : chartData.type === 'polarArea' ? {
+        r: {
+          angleLines: { color: 'rgba(46, 196, 168, 0.12)' },
+          grid: { color: 'rgba(46, 196, 168, 0.12)' },
+          pointLabels: { display: false },
+          ticks: { font: { size: 10 }, color: '#7A9A8D', backdropColor: 'transparent', callback: (v) => fmtAxis(v) },
+          beginAtZero: true,
+        },
       } : {
         x: {
           grid: { display: false },
@@ -2482,11 +2908,15 @@ function renderChart(canvasId, chartData) {
   };
 
   // Número formateado (1.2k, 3.4M) en el eje de valores.
-  if (chartData.type !== 'doughnut' && chartData.type !== 'radar') {
-    const valueAxis = isHorizontal ? 'x' : 'y';
-    if (config.options.scales[valueAxis]) {
-      config.options.scales[valueAxis].ticks = config.options.scales[valueAxis].ticks || {};
-      config.options.scales[valueAxis].ticks.callback = (v) => fmtAxis(v);
+  if (chartData.type !== 'doughnut' && chartData.type !== 'radar' && chartData.type !== 'polarArea') {
+    const valueAxes = (chartData.type === 'bubble' || chartData.type === 'scatter')
+      ? ['x', 'y']
+      : [isHorizontal ? 'x' : 'y'];
+    for (const ax of valueAxes) {
+      if (config.options.scales[ax]) {
+        config.options.scales[ax].ticks = config.options.scales[ax].ticks || {};
+        config.options.scales[ax].ticks.callback = (v) => fmtAxis(v);
+      }
     }
   }
 

@@ -3747,6 +3747,220 @@ function answerReportePDF(q, ent, s, d) {
 }
 
 // ---------------------------------------------------------------------------
+// MATRIZ DE RENDIMIENTO — burbujas precision vs error vs volumen
+// ---------------------------------------------------------------------------
+
+function answerMatrizRendimiento(q, ent, s, d) {
+  const triggers = ['matriz de rendimiento', 'matriz', 'burbuja', 'scatter', 'grafico de dispersion', 'rendimiento de los modelos', 'rendimiento de modelos'];
+  const triggerAlt = any(q, ['precision']) && any(q, ['error']);
+  if (!any(q, triggers) && !triggerAlt) return null;
+
+  const models = d.prod_models || [];
+  if (!models.length) return null;
+
+  const lines = [];
+  lines.push('**Matriz de rendimiento**: cada burbuja es un modelo estatal (sexo general).\n');
+  lines.push('- **Eje X**: precision historica (mayor es mejor)');
+  lines.push('- **Eje Y**: SMAPE (menor es mejor)');
+  lines.push('- **Tamano**: volumen de casos pronosticados a 52 semanas');
+  lines.push('- **Color**: padecimiento (Depresion, Parkinson, Alzheimer)\n');
+  lines.push('Los modelos ideales se ubican **abajo a la derecha**: alta precision y bajo error. Las burbujas grandes son estados de alta incidencia, donde mas importa acertar.');
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// ARSENAL DE MOTORES — distribucion polar de los modelos
+// ---------------------------------------------------------------------------
+
+function answerArsenalMotores(q, ent, s, d) {
+  const triggers = ['arsenal', 'polar', 'rosa de motores', 'grafico polar'];
+  if (!any(q, triggers)) return null;
+
+  const dm = s.dist_motor;
+  if (!dm || !Object.keys(dm).length) return null;
+
+  const total = Object.values(dm).reduce((a, b) => a + b, 0);
+  const sorted = Object.entries(dm).sort((a, b) => b[1] - a[1]);
+
+  const lines = [];
+  lines.push(`**Arsenal de modelos**: distribucion de los **${total} modelos** en produccion por motor ganador.\n`);
+  for (const [m, n] of sorted) {
+    lines.push(`- **${m}**: ${n} modelos (${(n / total * 100).toFixed(0)}%)`);
+  }
+  lines.push('\nCada sector del grafico polar crece con la cantidad de modelos en que ese motor resulto ganador tras la validacion.');
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// MOTORES POR PADECIMIENTO — barras apiladas
+// ---------------------------------------------------------------------------
+
+function answerMotoresPorPadecimiento(q, ent, s, d) {
+  const triggers = ['motores por padecimiento', 'motor por padecimiento', 'motor dominante', 'motores por enfermedad', 'mix de motores'];
+  const triggerAlt = any(q, ['motor']) && any(q, ['gana cada']);
+  if (!any(q, triggers) && !triggerAlt) return null;
+
+  const pp = s.por_pad;
+  if (!pp || !Object.keys(pp).length) return null;
+
+  const lines = [];
+  lines.push('**Composicion de motores por padecimiento**: que motor gana en cada enfermedad.\n');
+  for (const [pad, info] of Object.entries(pp)) {
+    lines.push(`- **${pad}**: gana ${info.motor_ganador} (${info.motor_ganador_n}/${info.n} modelos)`);
+  }
+  lines.push('\nLas barras apiladas muestran cuantos modelos de cada motor (Prophet, DeepAR, Ensemble, Stacking) se eligieron por padecimiento.');
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// MEJORES Y PEORES MODELOS — extremos de SMAPE
+// ---------------------------------------------------------------------------
+
+function answerMejoresPeores(q, ent, s, d) {
+  const triggers = ['mejores y peores', 'peores y mejores', 'aciertos y errores'];
+  const triggerAlt = any(q, ['ranking']) && any(q, ['precision']);
+  if (!any(q, triggers) && !triggerAlt) return null;
+
+  const top = s.top5_smape || [];
+  const bot = s.bottom5_smape || [];
+  if (!top.length && !bot.length) return null;
+
+  const lines = [];
+  lines.push('**Mejores y peores modelos por SMAPE**: los extremos de precision.\n');
+  lines.push('**Mejores (menor SMAPE):**');
+  for (const r of top.slice(0, 5)) {
+    lines.push(`- ${r.entidad} · ${r.padecimiento} (${r.sexo}): ${r.smape}% — ${r.motor}`);
+  }
+  lines.push('\n**Peores (mayor SMAPE):**');
+  for (const r of bot.slice(0, 5)) {
+    lines.push(`- ${r.entidad} · ${r.padecimiento} (${r.sexo}): ${r.smape}% — ${r.motor}`);
+  }
+  lines.push('\n*El SMAPE alto suele concentrarse en Alzheimer: su baja incidencia hace que pocos casos amplifiquen el porcentaje de error.*');
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// VOLUMEN VS ERROR — combo doble eje top estados
+// ---------------------------------------------------------------------------
+
+function answerVolumenError(q, ent, s, d) {
+  const triggers = ['volumen vs error', 'doble eje'];
+  const triggerAlt = (any(q, ['volumen']) && any(q, ['error'])) ||
+    (any(q, ['casos']) && any(q, ['smape']) && any(q, ['estado']));
+  if (!any(q, triggers) && !triggerAlt) return null;
+
+  const models = d.prod_models || [];
+  if (!models.length) return null;
+  const byEnt = {};
+  for (const m of models) {
+    if (m.sexo !== 'general') continue;
+    const e = m.entidad || '';
+    if (e === 'Nacional' || e.startsWith('Region') || e.startsWith('region_')) continue;
+    if (!byEnt[e]) byEnt[e] = { casos: 0, smapes: [] };
+    byEnt[e].casos += m.casos_52_semanas_futuro || 0;
+    if (m.smape_prod != null) byEnt[e].smapes.push(m.smape_prod);
+  }
+  const top = Object.entries(byEnt)
+    .map(([n, o]) => ({ n, casos: o.casos, smape: o.smapes.length ? o.smapes.reduce((a, v) => a + v, 0) / o.smapes.length : 0 }))
+    .sort((a, b) => b.casos - a.casos).slice(0, 3);
+
+  const lines = [];
+  lines.push('**Volumen vs error** en los estados de mayor incidencia: las barras muestran los casos pronosticados y la linea el SMAPE promedio.\n');
+  for (const t of top) lines.push(`- **${t.n}**: ${fmt(t.casos)} casos · SMAPE ${t.smape.toFixed(1)}%`);
+  lines.push('\nIdealmente, mas volumen deberia venir acompanado de menor error: la linea ayuda a detectar estados grandes con baja precision.');
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// CALIBRACION — pronostico vs realidad
+// ---------------------------------------------------------------------------
+
+function answerCalibracion(q, ent, s, d) {
+  const triggers = ['calibracion', 'calibrado'];
+  const triggerAlt = any(q, ['pronostico']) && any(q, ['vs']) && any(q, ['realidad']);
+  if (!any(q, triggers) && !triggerAlt) return null;
+
+  const models = (d.prod_models || []).filter(m => m.pron_sem_previa != null && m.realidad_sem_previa != null);
+  if (!models.length) return null;
+
+  const lines = [];
+  lines.push('**Calibracion de modelos**: cada punto compara el pronostico contra la realidad observada de la ultima semana.\n');
+  lines.push('- **Eje X**: valor pronosticado');
+  lines.push('- **Eje Y**: valor real');
+  lines.push('- **Linea diagonal**: prediccion perfecta\n');
+  lines.push(`Se grafican **${models.length} modelos**. Los puntos sobre la diagonal estan bien calibrados; arriba subestiman y abajo sobreestiman.`);
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// MASE POR MOTOR — skill score
+// ---------------------------------------------------------------------------
+
+function answerMasePorMotor(q, ent, s, d) {
+  const triggers = ['mase por motor', 'mase de los motores', 'skill'];
+  const triggerAlt = any(q, ['mase']) && any(q, ['motor']);
+  if (!any(q, triggers) && !triggerAlt) return null;
+
+  const pm = s.por_motor;
+  if (!pm || !Object.keys(pm).length) return null;
+
+  const rows = Object.entries(pm)
+    .map(([m, v]) => ({ m, mase: v.mase_median != null ? v.mase_median : v.mase_mean }))
+    .sort((a, b) => a.mase - b.mase);
+
+  const lines = [];
+  lines.push('**MASE mediano por motor** (Mean Absolute Scaled Error): mide el error relativo a un modelo ingenuo.\n');
+  lines.push('- **MASE < 1**: el modelo supera al pronostico ingenuo (deseable)');
+  lines.push('- **MASE >= 1**: no mejora al ingenuo\n');
+  for (const r of rows) lines.push(`- **${r.m}**: ${r.mase.toFixed(2)}${r.mase < 1 ? ' ✓' : ''}`);
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// PRONOSTICO ACUMULADO — curva nacional
+// ---------------------------------------------------------------------------
+
+function answerAcumulado(q, ent, s, d) {
+  if (!any(q, ['acumulad'])) return null;
+
+  const wc = d.weekly_comparison;
+  if (!wc) return null;
+  const pads = Object.keys(wc);
+  const total = pads.reduce((a, p) => a + (wc[p]?.semanas || []).reduce((x, w) => x + (w.pronostico || 0), 0), 0);
+  const nSem = (wc[pads[0]]?.semanas || []).length || 52;
+
+  const lines = [];
+  lines.push('**Pronostico nacional acumulado**: suma de casos semana a semana de los 3 padecimientos.\n');
+  lines.push(`- Horizonte: ${nSem} semanas`);
+  lines.push(`- Total acumulado al final: **${fmt(total)} casos**\n`);
+  lines.push('La curva muestra como se acumula la carga esperada; su pendiente indica la velocidad de aparicion de casos.');
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// SALUD DE LOS MODELOS — overfitting + leakage
+// ---------------------------------------------------------------------------
+
+function answerSaludModelos(q, ent, s, d) {
+  const triggers = ['salud de los modelos', 'salud de modelos', 'integridad de'];
+  const triggerAlt = any(q, ['overfitting']) && any(q, ['leakage']);
+  if (!any(q, triggers) && !triggerAlt) return null;
+  if (s.overfitting_ok == null && s.leakage_ok == null) return null;
+
+  const totalOf = (s.overfitting_ok || 0) + (s.overfitting_moderado || 0) + (s.overfitting_alto || 0) + (s.overfitting_nd || 0);
+  const totalLk = (s.leakage_ok || 0) + (s.leakage_sospechoso || 0);
+
+  const lines = [];
+  lines.push('**Salud de los modelos**: control de calidad sobre overfitting y fuga de datos (leakage).\n');
+  lines.push('**Overfitting:**');
+  lines.push(`- OK: ${s.overfitting_ok || 0} · Moderado: ${s.overfitting_moderado || 0} · Alto: ${s.overfitting_alto || 0} · N/D: ${s.overfitting_nd || 0} (de ${totalOf})`);
+  lines.push('\n**Fuga de datos (leakage):**');
+  lines.push(`- OK: ${s.leakage_ok || 0} · Sospechoso: ${s.leakage_sospechoso || 0} (de ${totalLk})`);
+  lines.push('\nLa amplia mayoria de modelos pasa ambos controles, lo que respalda la confiabilidad del pronostico.');
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
 // Cadena de handlers (orden de prioridad)
 // ---------------------------------------------------------------------------
 
@@ -3756,6 +3970,8 @@ const HANDLERS = [
   answerTimelapse, answerSemaforo, answerReportePDF,
   answerComparacionPorSexo,
   answerComparacionSemanal, answerMapaMexico, answerTreemap, answerRadar, answerSparklines, answerStackedArea,
+  answerMatrizRendimiento, answerArsenalMotores, answerMotoresPorPadecimiento, answerMejoresPeores,
+  answerVolumenError, answerCalibracion, answerMasePorMotor, answerAcumulado, answerSaludModelos,
   answerCorredor, answerErrorHeatmap, answerZoom,
   answerBoletin, answerHistorico, answerComparativaEstados, answerSpecificSeries, answerEstado, answerPadecimiento,
   answerMotor, answerDemografica, answerSexo, answerDistribucion, answerGraficoAleatorio, answerMetricaGlobal,
