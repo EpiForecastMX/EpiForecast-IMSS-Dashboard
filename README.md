@@ -55,19 +55,24 @@ kb/
 
 Para preguntas de conocimiento (metodologia, decisiones de diseno, el paper MICAI, "por que", "como funciona"), EpiBot usa **Retrieval-Augmented Generation** con grounding y citas:
 
-- **Corpus** (`scripts/lib/corpus.mjs`): paper MICAI 2026 (`rag_sources/micai.txt`), notas/reportes HTML del proyecto y tarjetas estructuradas de `knowledge.json`. Chunking **consciente de secciones** (respeta encabezados; cada chunk lleva su seccion y la URL del documento). ~356 chunks.
-- **Indexado incremental** (`npm run rag:build`): genera embeddings con **gemini-embedding-001** (768 dims via MRL) y escribe `rag_index.json` (~3 MB). **Caché por hash**: solo re-embebe los chunks nuevos o modificados; los demas se reusan. Es **resiliente** (nunca degrada un indice bueno) y se ejecuta **automaticamente en cada deploy** (build command en `netlify.toml`; define `GEMINI_API_KEY` en el entorno de build para reindexar notas nuevas sin pasos manuales).
-- **Recuperacion hibrida + reranking** (runtime, `rag.mjs`): (1) **expande la consulta** con sinonimos/terminos clave; (2) recupera un pool combinando **coseno (semantico)** + **BM25 (lexico)**; (3) un **reranker LLM** (gemini-2.5-flash-lite) elige los top-K mas relevantes. Degrada a lexico si no hay vectores.
-- **Generacion**: arma un prompt con los pasajes numerados + cifras clave y pide a Gemini una respuesta **citando las fuentes con `[n]`**. La UI muestra **chips de fuente clicables**: abren el documento real (PDF/HTML) y ofrecen "profundizar" (re-consulta el RAG sobre esa fuente).
-- **Evaluacion + guardarrail**: `npm run rag:eval` mide recall@k / MRR contra `tests/rag_eval.json`; `npm run rag:verify` detecta drift (notas cambiaron pero el indice no se regenero) y corre dentro de `npm run check`.
+- **Corpus** (`scripts/lib/corpus.mjs`): paper MICAI 2026 (`rag_sources/micai.txt`) + tarjetas en espanol que lo resumen (recall cross-lingue), notas/reportes HTML del proyecto, tarjetas estructuradas de `knowledge.json` (incluye macrorregiones, top entidades, desempeno por sexo y los **ORCID del equipo**). Chunking **consciente de secciones** (cada chunk lleva su seccion y la URL del documento). ~367 chunks.
+- **Indexado incremental** (`npm run rag:build`): embeddings con **gemini-embedding-001** (768 dims via MRL) -> `rag_index.json` (~3 MB). **Cache por hash** (solo re-embebe lo nuevo), **resiliente** (no degrada un indice bueno) y **auto-rebuild en cada deploy** (`netlify.toml`; requiere `GEMINI_API_KEY` en el entorno de build).
+- **Recuperacion hibrida + reranking** (runtime, `rag.mjs`): **coseno (semantico)** + **BM25 (lexico)** -> pool; **reranker LLM CONDICIONAL** (gemini-3.1-flash-lite) solo cuando la recuperacion no es ya muy confiable (`topSim < 0.72`, ahorra latencia); **diversidad MMR-lite** (max. 3 pasajes por documento). Degrada a lexico sin vectores.
+- **Datos exactos (agentic)**: si la consulta menciona padecimiento+entidad, inyecta las cifras exactas de `knowledge.json` en el contexto (pronosticos precisos, sin deriva).
+- **Confianza**: umbral de similitud (`SIM_MIN`) -> si la recuperacion es debil, EPI lo declara en vez de inventar.
+- **Multi-turno**: reescribe seguimientos ("¿y en Jalisco?") como pregunta autonoma antes de recuperar; el cliente mantiene los seguimientos cortos dentro del RAG.
+- **Generacion + STREAMING**: respuesta token a token (NDJSON; primer token ~1-3 s) citando las fuentes con `[n]`. La UI muestra **chips de fuente clicables** que abren el documento real (PDF/HTML), muestran el **extracto citado** al pasar el cursor y ofrecen "profundizar".
+- **Evaluacion + guardarrail**: `rag:eval` (recall@k/MRR), `rag:eval:quality` (LLM-as-judge: fidelidad/relevancia), `rag:verify` (detecta drift; corre en `npm run check`).
 
 ```
-npm run rag:build     # reindexa (incremental; necesita GEMINI_API_KEY)
-npm run rag:eval      # recall@k / MRR del set de evaluacion
-npm run rag:verify    # falla si el indice esta desincronizado del corpus
+npm run rag:build          # reindexa (incremental; necesita GEMINI_API_KEY)
+npm run rag:eval           # recall@k / MRR del set de evaluacion
+npm run rag:eval:quality   # fidelidad/relevancia (juez LLM)
+npm run rag:verify         # falla si el indice esta desincronizado del corpus
 ```
 
-> Nota: el modelo de embeddings es **gemini-embedding-001** (no `text-embedding-004`, que da 404 en esta key). Para generacion/reranking se usan **gemini-2.5-flash** y **gemini-2.5-flash-lite** (los `gemini-1.5-*` ya no estan disponibles).
+> Notas de modelos: embeddings = **gemini-embedding-001** (no `text-embedding-004`, da 404). Generacion/expansion/rerank = **gemini-3.1-flash-lite** (con **gemini-2.5-flash** de respaldo); los `gemini-1.5-*` ya no estan disponibles.
+> El `netlify.toml` de la **raiz** es el que manda: necesita `included_files=["kb/knowledge.json","kb/rag_index.json"]` o la funcion no encuentra el indice en produccion.
 
 ### Deteccion de Entidades (entities.js)
 
@@ -98,13 +103,16 @@ npm run rag:verify    # falla si el indice esta desincronizado del corpus
 
 ### Charts Inline (Chart.js)
 
-EpiBot genera graficas en vivo dentro del chat cuando detecta contexto numerico:
+EpiBot genera graficas en vivo dentro del chat cuando detecta contexto numerico, con acabado unificado (gradientes por canvas, glow en lineas, crosshair, formato es-MX, paleta **Clinical Indigo**):
 
-- **Barras agrupadas** por padecimiento y anio
-- **Treemap** de casos por entidad (color segun SMAPE)
-- **Radar** comparativo de motores de prediccion
-- **Barras** SMAPE por motor
-- **Corredor endemico** para padecimientos con datos historicos
+- **Barras agrupadas / apiladas** por padecimiento, motor, sexo o anio
+- **Treemap** de casos por entidad · **Radar** de motores · **Sparklines** (16/32 estados)
+- **Tendencia historica** (nacional o **por estado** cuando hay `anual_por_estado_pad`)
+- **Matriz de rendimiento** (burbujas), **Calibracion** (scatter), **Arsenal de motores** (polar)
+- **Medidor (gauge)** de salud, **Caja y bigotes** de SMAPE, **Cascada** (waterfall), **Volumen vs error** (combo doble eje)
+- **Corredor de confianza**, **heatmap de error**, **mapa de Mexico**, **semaforo**, **timelapse**, **comparador**
+
+Los graficos de seguimiento **heredan el padecimiento/estado del contexto** ("¿y en Jalisco?" tras una pregunta sobre Depresion grafica Depresion en Jalisco; "por sexo" cambia a barras por sexo).
 
 ### Mapas de Mexico (mexico-map.js)
 
