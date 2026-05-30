@@ -6,35 +6,64 @@
 <title>Construcción del Dashboard Tableau — EpiForecast-MX</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --burgundy:#9B2242;--dark-burgundy:#6F1D46;--teal:#00524E;--dark-teal:#173F35;
-  --gold:#B58500;--cream:#E8D5B5;--cream-light:#F5EDE0;--cream-pale:#FAF6F0;
-  --cool-gray:#97999B;--neutral-black:#231F20;
-  --burgundy-light:#D4758B;--teal-light:#4A9E9A;--gold-light:#D4B24A;
-  --font-display:'DM Serif Display',Georgia,serif;
-  --font-body:'Source Sans 3','Source Sans Pro',sans-serif;
-  --font-mono:'JetBrains Mono','Fira Code',monospace;
-  --shadow-sm:0 2px 8px rgba(0,0,0,.06);--shadow-md:0 8px 24px rgba(0,0,0,.06);
-  --shadow-lg:0 16px 48px rgba(0,0,0,.06);--radius:16px;--radius-sm:10px;
+  /* Surfaces — Clinical Indigo */
+  --bg-deep:        #0E1424;
+  --bg-base:        #131C30;
+  --bg-raised:      #18223A;
+  --bg-card:        #1C2740;
+  --bg-card-hover:  #243150;
+  /* Texto */
+  --text-primary:   #E7ECF5;
+  --text-secondary: #9FB0CE;
+  --text-muted:     #6E82A6;
+  --text-faint:     #44567A;
+  /* Acentos */
+  --burgundy:       #F472B6;
+  --dark-burgundy:  #8E2A63;
+  --teal:           #5B8DEF;
+  --gold:           #2DD4BF;
+  /* Aliases legacy */
+  --neutral-black:  #0B0F1A;
+  --cool-gray:      #9FB0CE;
+  --dark-teal:      #16203A;
+  --cream:          #E7ECF5;
+  --cream-light:    #1C2740;
+  --cream-pale:     #131C30;
+  --teal-glow:      rgba(91,141,239,0.15);
+  --burgundy-glow:  rgba(244,114,182,0.15);
+  --gold-glow:      rgba(45,212,191,0.15);
+  /* Extra legacy aliases kept for rules that use them */
+  --burgundy-light: #F472B6;
+  --teal-light:     #7BA7F2;
+  --gold-light:     #2DD4BF;
+  /* Typography */
+  --font-display:   'Playfair Display', Georgia, serif;
+  --font-body:      'Outfit', system-ui, -apple-system, sans-serif;
+  --font-mono:      'JetBrains Mono', 'SF Mono', monospace;
+  --shadow-sm:      0 2px 8px rgba(0,0,0,.35);
+  --shadow-md:      0 8px 24px rgba(0,0,0,.4);
+  --shadow-lg:      0 16px 48px rgba(0,0,0,.45);
+  --radius:16px;--radius-sm:10px;
 }
-body{font-family:var(--font-body);background:var(--cream-pale);color:var(--neutral-black);line-height:1.7;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font-body);background:var(--bg-base);color:var(--text-primary);line-height:1.7;-webkit-font-smoothing:antialiased}
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.025;pointer-events:none;z-index:0}
 
 /* Nav */
-.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(23,63,53,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(232,213,181,.08);transition:box-shadow .3s,background .3s}.nav.scrolled{box-shadow:0 4px 30px rgba(0,0,0,.18);background:rgba(23,63,53,.97)}.nav-inner{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;align-items:center;height:64px;gap:1rem}.nav-logo{font-family:var(--font-display);font-size:1.3rem;color:var(--cream);letter-spacing:.02em;flex-shrink:0;text-decoration:none}.nav-logo span{color:var(--gold)}.nav-menu{display:flex;align-items:center;gap:.25rem;list-style:none;flex:1;justify-content:center}.nav-group{position:relative}.nav-group-toggle{display:flex;align-items:center;gap:.3rem;color:rgba(232,213,181,.65);font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;padding:.5rem .85rem;border-radius:6px;cursor:pointer;transition:color .2s,background .2s;white-space:nowrap;border:none;background:none;font-family:inherit}.nav-group-toggle:hover,.nav-group:hover .nav-group-toggle{color:var(--cream);background:rgba(232,213,181,.06)}.nav-group-toggle svg{width:10px;height:10px;opacity:.5;transition:transform .2s}.nav-group:hover .nav-group-toggle svg{transform:rotate(180deg);opacity:.8}.nav-dropdown{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(-4px);background:rgba(23,63,53,.98);backdrop-filter:blur(16px);border:1px solid rgba(232,213,181,.1);border-radius:12px;padding:.5rem;min-width:200px;opacity:0;visibility:hidden;transition:opacity .15s,transform .15s,visibility .15s;box-shadow:0 12px 40px rgba(0,0,0,.25)}.nav-group:hover .nav-dropdown{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}.nav-dropdown::before{content:'';position:absolute;top:-8px;left:0;right:0;height:8px}.nav-dropdown a{display:flex;align-items:center;gap:.75rem;padding:.6rem 1rem;color:rgba(232,213,181,.7);font-size:.82rem;font-weight:500;border-radius:8px;transition:background .15s,color .15s;text-decoration:none;white-space:nowrap}.nav-dropdown a:hover{background:rgba(232,213,181,.08);color:var(--cream)}.nav-dropdown a svg{width:16px;height:16px;opacity:.5;flex-shrink:0}.nav-dropdown a:hover svg{opacity:.8}.nav-ctas{display:flex;gap:.5rem;align-items:center;flex-shrink:0}.nav-cta{display:inline-flex;align-items:center;gap:.4rem;padding:.4rem 1rem;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-radius:100px;text-decoration:none;transition:transform .2s,box-shadow .2s,background .2s;white-space:nowrap}.nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(181,133,0,.3)}.nav-cta--primary{background:var(--gold);color:var(--dark-teal)}.nav-cta--secondary{background:rgba(232,213,181,.1);color:var(--gold);border:1px solid rgba(181,133,0,.3)}.nav-cta--secondary:hover{background:rgba(181,133,0,.15);color:var(--gold)}.nav-cta svg{width:14px;height:14px}.nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}.nav-hamburger span{width:24px;height:2px;background:var(--cream);transition:transform .3s,opacity .3s}.nav-mobile{display:none;flex-direction:column;background:rgba(23,63,53,.98);backdrop-filter:blur(16px);padding:1rem 2rem 1.5rem;border-bottom:1px solid rgba(232,213,181,.1)}.nav-mobile.show{display:flex}.nav-mobile-group{border-bottom:1px solid rgba(232,213,181,.06)}.nav-mobile-heading{display:flex;align-items:center;justify-content:space-between;padding:.85rem 0;color:rgba(232,213,181,.7);font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;cursor:pointer}.nav-mobile-heading svg{width:10px;height:10px;transition:transform .2s}.nav-mobile-group.open .nav-mobile-heading svg{transform:rotate(180deg)}.nav-mobile-items{display:none;flex-direction:column;padding-bottom:.5rem}.nav-mobile-group.open .nav-mobile-items{display:flex}.nav-mobile-items a{padding:.5rem 1rem;color:rgba(232,213,181,.55);font-size:.82rem;text-decoration:none;border-radius:6px;transition:background .15s,color .15s}.nav-mobile-items a:hover{background:rgba(232,213,181,.06);color:var(--cream)}.nav-mobile-ctas{display:flex;gap:.5rem;margin-top:1rem}@media(max-width:768px){.nav-menu,.nav-ctas{display:none}.nav-hamburger{display:flex}}
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(14,20,36,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(232,213,181,.08);transition:box-shadow .3s,background .3s}.nav.scrolled{box-shadow:0 4px 30px rgba(0,0,0,.18);background:rgba(14,20,36,.97)}.nav-inner{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;align-items:center;height:64px;gap:1rem}.nav-logo{font-family:var(--font-display);font-size:1.3rem;color:var(--cream);letter-spacing:.02em;flex-shrink:0;text-decoration:none}.nav-logo span{color:var(--gold)}.nav-menu{display:flex;align-items:center;gap:.25rem;list-style:none;flex:1;justify-content:center}.nav-group{position:relative}.nav-group-toggle{display:flex;align-items:center;gap:.3rem;color:rgba(232,213,181,.65);font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;padding:.5rem .85rem;border-radius:6px;cursor:pointer;transition:color .2s,background .2s;white-space:nowrap;border:none;background:none;font-family:inherit}.nav-group-toggle:hover,.nav-group:hover .nav-group-toggle{color:var(--cream);background:rgba(232,213,181,.06)}.nav-group-toggle svg{width:10px;height:10px;opacity:.5;transition:transform .2s}.nav-group:hover .nav-group-toggle svg{transform:rotate(180deg);opacity:.8}.nav-dropdown{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(-4px);background:rgba(14,20,36,.98);backdrop-filter:blur(16px);border:1px solid rgba(232,213,181,.1);border-radius:12px;padding:.5rem;min-width:200px;opacity:0;visibility:hidden;transition:opacity .15s,transform .15s,visibility .15s;box-shadow:0 12px 40px rgba(0,0,0,.25)}.nav-group:hover .nav-dropdown{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}.nav-dropdown::before{content:'';position:absolute;top:-8px;left:0;right:0;height:8px}.nav-dropdown a{display:flex;align-items:center;gap:.75rem;padding:.6rem 1rem;color:rgba(232,213,181,.7);font-size:.82rem;font-weight:500;border-radius:8px;transition:background .15s,color .15s;text-decoration:none;white-space:nowrap}.nav-dropdown a:hover{background:rgba(232,213,181,.08);color:var(--cream)}.nav-dropdown a svg{width:16px;height:16px;opacity:.5;flex-shrink:0}.nav-dropdown a:hover svg{opacity:.8}.nav-ctas{display:flex;gap:.5rem;align-items:center;flex-shrink:0}.nav-cta{display:inline-flex;align-items:center;gap:.4rem;padding:.4rem 1rem;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-radius:100px;text-decoration:none;transition:transform .2s,box-shadow .2s,background .2s;white-space:nowrap}.nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(45,212,191,.3)}.nav-cta--primary{background:var(--gold);color:var(--dark-teal)}.nav-cta--secondary{background:rgba(232,213,181,.1);color:var(--gold);border:1px solid rgba(45,212,191,.3)}.nav-cta--secondary:hover{background:rgba(45,212,191,.15);color:var(--gold)}.nav-cta svg{width:14px;height:14px}.nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}.nav-hamburger span{width:24px;height:2px;background:var(--cream);transition:transform .3s,opacity .3s}.nav-mobile{display:none;flex-direction:column;background:rgba(14,20,36,.98);backdrop-filter:blur(16px);padding:1rem 2rem 1.5rem;border-bottom:1px solid rgba(232,213,181,.1)}.nav-mobile.show{display:flex}.nav-mobile-group{border-bottom:1px solid rgba(232,213,181,.06)}.nav-mobile-heading{display:flex;align-items:center;justify-content:space-between;padding:.85rem 0;color:rgba(232,213,181,.7);font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;cursor:pointer}.nav-mobile-heading svg{width:10px;height:10px;transition:transform .2s}.nav-mobile-group.open .nav-mobile-heading svg{transform:rotate(180deg)}.nav-mobile-items{display:none;flex-direction:column;padding-bottom:.5rem}.nav-mobile-group.open .nav-mobile-items{display:flex}.nav-mobile-items a{padding:.5rem 1rem;color:rgba(232,213,181,.55);font-size:.82rem;text-decoration:none;border-radius:6px;transition:background .15s,color .15s}.nav-mobile-items a:hover{background:rgba(232,213,181,.06);color:var(--cream)}.nav-mobile-ctas{display:flex;gap:.5rem;margin-top:1rem}@media(max-width:768px){.nav-menu,.nav-ctas{display:none}.nav-hamburger{display:flex}}
 
 .container{max-width:1200px;margin:0 auto;padding:0 2rem;position:relative;z-index:1}
 section{padding:4rem 0}
-.section-title{font-family:var(--font-display);font-size:clamp(1.8rem,4vw,2.5rem);margin-bottom:.5rem;color:var(--dark-teal)}
-.section-sub{color:var(--cool-gray);font-size:1rem;margin-bottom:2.5rem}
+.section-title{font-family:var(--font-display);font-size:clamp(1.8rem,4vw,2.5rem);margin-bottom:.5rem;color:var(--cream)}
+.section-sub{color:var(--text-secondary);font-size:1rem;margin-bottom:2.5rem}
 
 /* Hero */
-.hero{padding:10rem 2rem 6rem;text-align:center;background:linear-gradient(170deg,#0a1628 0%,var(--dark-teal) 40%,var(--teal) 70%,rgba(0,82,78,.85) 100%);color:var(--cream-pale);position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 800px 600px at 30% 20%,rgba(181,133,0,.12),transparent),radial-gradient(ellipse 600px 500px at 70% 80%,rgba(155,34,66,.08),transparent);pointer-events:none}
+.hero{padding:10rem 2rem 6rem;text-align:center;background:linear-gradient(170deg,#0a1628 0%,#16203A 40%,#1a2d58 70%,rgba(14,20,36,.95) 100%);color:var(--cream);position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 800px 600px at 30% 20%,rgba(45,212,191,.10),transparent),radial-gradient(ellipse 600px 500px at 70% 80%,rgba(244,114,182,.08),transparent);pointer-events:none}
 .hero::after{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.04;pointer-events:none}
 .hero h1{font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);line-height:1.1;margin-bottom:1rem;position:relative}
 .hero h1 em{font-style:italic;color:var(--gold-light)}
@@ -43,39 +72,39 @@ section{padding:4rem 0}
 .hero-kpis{display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;position:relative}
 .hero-kpi{background:rgba(255,255,255,.07);border:1px solid rgba(232,213,181,.12);border-radius:var(--radius);padding:1.5rem 2rem;backdrop-filter:blur(8px);min-width:140px;transition:transform .3s,box-shadow .3s}
 .hero-kpi:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.2)}
-.hero-kpi .value{font-family:var(--font-display);font-size:2.5rem;display:block;background:linear-gradient(135deg,var(--cream),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-kpi .value{font-family:var(--font-display);font-size:2.5rem;display:block;background:linear-gradient(135deg,var(--cream),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .hero-kpi .label{font-size:.8rem;text-transform:uppercase;letter-spacing:1px;opacity:.6}
 
 /* Cards */
-.card{background:#fff;border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow-md);border:1px solid rgba(0,0,0,.04);transition:transform .3s,box-shadow .3s;overflow:hidden}
+.card{background:var(--bg-card);border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow-md);border:1px solid rgba(91,141,239,.12);transition:transform .3s,box-shadow .3s;overflow:hidden}
 .card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
 .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:2rem}
 .card-grid-3{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem}
-.card-header{display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:2px solid var(--cream-light)}
+.card-header{display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:2px solid rgba(91,141,239,.2)}
 .card-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;box-shadow:0 0 8px currentColor}
-.card-title{font-family:var(--font-display);font-size:1.4rem}
+.card-title{font-family:var(--font-display);font-size:1.4rem;color:var(--cream)}
 
 /* Chart */
-.chart-wrap{background:#fff;border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow-md);border:1px solid rgba(0,0,0,.04)}
+.chart-wrap{background:var(--bg-card);border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow-md);border:1px solid rgba(91,141,239,.12)}
 .chart-wrap canvas{max-height:400px}
-.chart-wrap h3{font-family:var(--font-display);font-size:1.3rem;color:var(--dark-teal);margin-bottom:.25rem}
-.chart-wrap .chart-sub{font-size:.85rem;color:var(--cool-gray);margin-bottom:1.5rem}
+.chart-wrap h3{font-family:var(--font-display);font-size:1.3rem;color:var(--cream);margin-bottom:.25rem}
+.chart-wrap .chart-sub{font-size:.85rem;color:var(--text-secondary);margin-bottom:1.5rem}
 .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem}
 
 /* Callout */
-.callout{background:linear-gradient(135deg,rgba(0,82,78,.06),rgba(181,133,0,.04));border:1px solid rgba(0,82,78,.15);border-left:4px solid var(--teal);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:1.5rem 2rem;margin:2rem 0;font-size:.95rem}
-.callout-gold{border-left-color:var(--gold);background:linear-gradient(135deg,rgba(181,133,0,.06),rgba(155,34,66,.03))}
-.callout-burgundy{border-left-color:var(--burgundy);background:linear-gradient(135deg,rgba(155,34,66,.06),rgba(0,82,78,.03))}
-.callout strong{color:var(--dark-teal)}
+.callout{background:linear-gradient(135deg,rgba(91,141,239,.08),rgba(45,212,191,.04));border:1px solid rgba(91,141,239,.2);border-left:4px solid var(--teal);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:1.5rem 2rem;margin:2rem 0;font-size:.95rem;color:var(--text-secondary)}
+.callout-gold{border-left-color:var(--gold);background:linear-gradient(135deg,rgba(45,212,191,.08),rgba(244,114,182,.03))}
+.callout-burgundy{border-left-color:var(--burgundy);background:linear-gradient(135deg,rgba(244,114,182,.08),rgba(91,141,239,.03))}
+.callout strong{color:var(--cream)}
 .callout-gold strong{color:var(--gold)}
 .callout-burgundy strong{color:var(--burgundy)}
 
 /* Badge */
 .badge{display:inline-block;padding:.2rem .7rem;border-radius:100px;font-family:var(--font-mono);font-size:.8rem;font-weight:500}
-.badge-green{background:#e6f4ea;color:#1a7431}
-.badge-yellow{background:#fef7e0;color:#8a6d00}
-.badge-red{background:#fde8e8;color:#b91c1c}
-.badge-teal{background:rgba(0,82,78,.1);color:var(--teal)}
+.badge-green{background:rgba(45,212,191,.15);color:#2DD4BF}
+.badge-yellow{background:rgba(251,191,36,.15);color:#FCD34D}
+.badge-red{background:rgba(244,114,182,.15);color:#F472B6}
+.badge-teal{background:rgba(91,141,239,.15);color:var(--teal)}
 
 /* Code */
 .code-block{background:var(--neutral-black);color:#e0e0e0;border-radius:var(--radius-sm);padding:1.25rem 1.5rem;font-family:var(--font-mono);font-size:.82rem;line-height:1.6;overflow-x:auto;margin:1.5rem 0;position:relative}
@@ -88,22 +117,22 @@ section{padding:4rem 0}
 .code-label{position:absolute;top:.5rem;right:.75rem;font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:var(--cool-gray);opacity:.6}
 
 /* YAML */
-.yaml-block{background:var(--cream-light);border-left:4px solid var(--teal);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:1.25rem 1.5rem;font-family:var(--font-mono);font-size:.82rem;line-height:1.6;overflow-x:auto;margin:1.5rem 0}
+.yaml-block{background:var(--bg-raised);border-left:4px solid var(--teal);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:1.25rem 1.5rem;font-family:var(--font-mono);font-size:.82rem;line-height:1.6;overflow-x:auto;margin:1.5rem 0;color:var(--text-secondary)}
 .yaml-key{color:var(--teal);font-weight:500}
 .yaml-val{color:var(--burgundy)}
-.yaml-cm{color:var(--cool-gray)}
+.yaml-cm{color:var(--text-muted)}
 
 /* Pipeline steps — redesigned */
 .pipeline-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem 1.5rem;margin:2rem 0;position:relative}
-.pipeline-step{position:relative;background:#fff;border-radius:var(--radius);padding:1.25rem 1rem .75rem;text-align:center;box-shadow:var(--shadow-sm);border:1px solid rgba(0,0,0,.04);transition:transform .3s,box-shadow .3s}
+.pipeline-step{position:relative;background:var(--bg-card);border-radius:var(--radius);padding:1.25rem 1rem .75rem;text-align:center;box-shadow:var(--shadow-sm);border:1px solid rgba(91,141,239,.12);transition:transform .3s,box-shadow .3s}
 .pipeline-step:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
 .pipeline-step .step-num{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;font-family:var(--font-mono);font-size:.9rem;font-weight:700;margin-bottom:.6rem;color:#fff}
 .pipeline-step .step-num.c-teal{background:var(--teal)}
 .pipeline-step .step-num.c-gold{background:var(--gold)}
 .pipeline-step .step-num.c-burgundy{background:var(--burgundy)}
-.pipeline-step .step-label{font-family:var(--font-display);font-size:1rem;color:var(--dark-teal);display:block;margin-bottom:.25rem}
-.pipeline-step .step-desc{font-size:.78rem;color:var(--cool-gray);line-height:1.4}
-.pipeline-step .step-fn{display:inline-block;margin-top:.5rem;font-family:var(--font-mono);font-size:.7rem;background:var(--cream-light);color:var(--dark-teal);padding:.15rem .5rem;border-radius:4px}
+.pipeline-step .step-label{font-family:var(--font-display);font-size:1rem;color:var(--cream);display:block;margin-bottom:.25rem}
+.pipeline-step .step-desc{font-size:.78rem;color:var(--text-secondary);line-height:1.4}
+.pipeline-step .step-fn{display:inline-block;margin-top:.5rem;font-family:var(--font-mono);font-size:.7rem;background:var(--bg-raised);color:var(--teal);padding:.15rem .5rem;border-radius:4px}
 /* connector arrows between steps */
 .pipeline-step:not(:nth-child(4n))::after{content:'';position:absolute;right:-1rem;top:50%;width:.75rem;height:2px;background:var(--gold)}
 .pipeline-step:not(:nth-child(4n))::before{content:'';position:absolute;right:-1.1rem;top:50%;transform:translateY(-50%);border:5px solid transparent;border-left:6px solid var(--gold)}
@@ -112,50 +141,50 @@ section{padding:4rem 0}
 
 /* Table */
 .compare-table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:.9rem}
-.compare-table thead th{background:var(--dark-teal);color:var(--cream);padding:.75rem 1rem;text-align:left;font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.5px}
-.compare-table tbody td{padding:.7rem 1rem;border-bottom:1px solid var(--cream-light)}
-.compare-table tbody tr:hover{background:var(--cream-light)}
+.compare-table thead th{background:var(--bg-raised);color:var(--cream);padding:.75rem 1rem;text-align:left;font-weight:600;font-size:.8rem;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid rgba(91,141,239,.2)}
+.compare-table tbody td{padding:.7rem 1rem;border-bottom:1px solid rgba(91,141,239,.10);color:var(--text-secondary)}
+.compare-table tbody tr:hover{background:var(--bg-card-hover)}
 
 /* Timeline */
 .timeline{position:relative;padding:2rem 0 2rem 3rem}
 .timeline::before{content:'';position:absolute;left:1rem;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--teal),var(--gold),var(--burgundy));border-radius:2px}
 .tl-item{position:relative;margin-bottom:2.5rem}
-.tl-item::before{content:'';position:absolute;left:-2.35rem;top:.5rem;width:14px;height:14px;border-radius:50%;background:var(--teal);border:3px solid #fff;box-shadow:0 0 0 3px var(--teal)}
+.tl-item::before{content:'';position:absolute;left:-2.35rem;top:.5rem;width:14px;height:14px;border-radius:50%;background:var(--teal);border:3px solid var(--bg-base);box-shadow:0 0 0 3px var(--teal)}
 .tl-item:nth-child(2)::before{background:var(--gold);box-shadow:0 0 0 3px var(--gold)}
 .tl-item:nth-child(3)::before{background:var(--burgundy);box-shadow:0 0 0 3px var(--burgundy)}
 .tl-version{font-family:var(--font-mono);font-size:.8rem;font-weight:500;color:var(--burgundy);text-transform:uppercase;letter-spacing:1px;margin-bottom:.25rem}
-.tl-title{font-family:var(--font-display);font-size:1.3rem;color:var(--dark-teal);margin-bottom:.5rem}
-.tl-desc{font-size:.92rem;color:#555;line-height:1.7}
+.tl-title{font-family:var(--font-display);font-size:1.3rem;color:var(--cream);margin-bottom:.5rem}
+.tl-desc{font-size:.92rem;color:var(--text-secondary);line-height:1.7}
 
 /* Viz grid */
 .viz-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:2rem;margin-top:2rem}
-.viz-card{background:#fff;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-md);border:1px solid rgba(0,0,0,.04);transition:transform .3s,box-shadow .3s}
+.viz-card{background:var(--bg-card);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-md);border:1px solid rgba(91,141,239,.12);transition:transform .3s,box-shadow .3s}
 .viz-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
 .viz-card-num{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;background:var(--teal);color:#fff;font-family:var(--font-mono);font-size:.85rem;font-weight:600;margin-right:.75rem;flex-shrink:0}
 .viz-card-head{padding:1.5rem 2rem 1rem;display:flex;align-items:center}
-.viz-card-head h3{font-family:var(--font-display);font-size:1.2rem;color:var(--dark-teal)}
-.viz-card-body{padding:0 2rem 1.5rem;font-size:.9rem;color:#555;line-height:1.7}
-.viz-card-foot{background:var(--cream-pale);padding:.75rem 2rem;font-family:var(--font-mono);font-size:.75rem;color:var(--cool-gray)}
+.viz-card-head h3{font-family:var(--font-display);font-size:1.2rem;color:var(--cream)}
+.viz-card-body{padding:0 2rem 1.5rem;font-size:.9rem;color:var(--text-secondary);line-height:1.7}
+.viz-card-foot{background:var(--bg-deep);padding:.75rem 2rem;font-family:var(--font-mono);font-size:.75rem;color:var(--text-muted)}
 
 /* Reveal */
 .reveal{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease}
 .reveal.visible{opacity:1;transform:translateY(0)}
 
 /* Footer */
-footer{background:var(--dark-teal);color:rgba(232,213,181,.7);padding:3rem 2rem;text-align:center;font-size:.85rem;position:relative;z-index:1}
-footer a{color:var(--gold-light);text-decoration:none}
+footer{background:var(--bg-deep);color:var(--text-muted);padding:3rem 2rem;text-align:center;font-size:.85rem;position:relative;z-index:1;border-top:1px solid rgba(91,141,239,.12)}
+footer a{color:var(--gold);text-decoration:none}
 footer a:hover{color:var(--cream)}
 footer .footer-title{font-family:var(--font-display);color:var(--cream);font-size:1.2rem;margin-bottom:.5rem}
 
 /* Flow diagram */
 .flow-diagram{display:flex;flex-direction:column;gap:0;align-items:center;margin:2rem 0}
 .flow-row{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;justify-content:center}
-.flow-box{background:#fff;border:2px solid var(--teal);border-radius:var(--radius-sm);padding:.6rem 1.2rem;font-size:.82rem;font-weight:600;color:var(--dark-teal);text-align:center;min-width:100px}
-.flow-box.data{border-color:var(--gold);background:rgba(181,133,0,.06)}
-.flow-box.script{border-color:var(--teal);background:rgba(0,82,78,.06)}
-.flow-box.output{border-color:var(--burgundy);background:rgba(155,34,66,.06)}
-.flow-box.cloud{border-color:#5C6BC0;background:rgba(92,107,192,.06)}
-.flow-arrow-down{color:var(--cool-gray);font-size:1.2rem;text-align:center;padding:.25rem 0}
+.flow-box{background:var(--bg-card);border:2px solid var(--teal);border-radius:var(--radius-sm);padding:.6rem 1.2rem;font-size:.82rem;font-weight:600;color:var(--cream);text-align:center;min-width:100px}
+.flow-box.data{border-color:var(--gold);background:rgba(45,212,191,.06)}
+.flow-box.script{border-color:var(--teal);background:rgba(91,141,239,.06)}
+.flow-box.output{border-color:var(--burgundy);background:rgba(244,114,182,.06)}
+.flow-box.cloud{border-color:#7B8FD4;background:rgba(123,143,212,.06)}
+.flow-arrow-down{color:var(--text-muted);font-size:1.2rem;text-align:center;padding:.25rem 0}
 
 /* Responsive */
 @media(max-width:768px){
@@ -254,7 +283,7 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
   </div>
 
   <div class="card" style="margin-top:2rem">
-    <h3 style="font-family:var(--font-display);font-size:1.3rem;color:var(--dark-teal);margin-bottom:1rem">El problema no estaba en Tableau</h3>
+    <h3 style="font-family:var(--font-display);font-size:1.3rem;color:var(--cream);margin-bottom:1rem">El problema no estaba en Tableau</h3>
     <p>Tras la fase de entrenamiento, las fechas futuras desaparecían al filtrar por entidad o padecimiento en Tableau. La persistencia del error incluso en vistas simplificadas reveló que el defecto no era visual sino <strong>estructural</strong>: estaba en la integración de datos aguas abajo del entrenamiento. El diagnóstico completo, la reconstrucción del pipeline y la migración a un dataset único (<code>tableau.csv</code>) constituyen el núcleo de este reporte.</p>
   </div>
 </section>
@@ -290,7 +319,7 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
     </div>
     <div class="flow-arrow-down">&darr;</div>
     <div class="flow-row">
-      <div class="flow-box highlight" style="border-color:var(--burgundy);background:rgba(155,34,66,.08)">make tableau<br><span style="font-size:.7rem;opacity:.6">build_tableau.py</span></div>
+      <div class="flow-box highlight" style="border-color:var(--burgundy);background:rgba(244,114,182,.08)">make tableau<br><span style="font-size:.7rem;opacity:.6">build_tableau.py</span></div>
       <span class="pipeline-arrow">&rarr;</span>
       <div class="flow-box output">tableau.csv<br><span style="font-size:.7rem;opacity:.6">Dataset integrado final</span></div>
     </div>
@@ -318,7 +347,7 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
         <div class="card-dot" style="color:var(--burgundy)"></div>
         <h3 class="card-title">Semana 53 vs Semana 1</h3>
       </div>
-      <p style="font-size:.92rem;color:#555">Se detectaron <strong>duplicados reales</strong> en el histórico INEGI en fechas específicas (<code>2014-12-29</code> y <code>2025-12-29</code>) por colisión entre Semana 53 y Semana 1. Esto rompía la unicidad esperada para los joins y provocaba filas fantasma que desaparecían al filtrar.</p>
+      <p style="font-size:.92rem;color:var(--text-secondary)">Se detectaron <strong>duplicados reales</strong> en el histórico INEGI en fechas específicas (<code>2014-12-29</code> y <code>2025-12-29</code>) por colisión entre Semana 53 y Semana 1. Esto rompía la unicidad esperada para los joins y provocaba filas fantasma que desaparecían al filtrar.</p>
       <div class="code-block" style="margin-top:1rem">
         <span class="code-label">build_tableau.py</span>
 <span class="cm"># Fix determinista: preferir Semana 53 cuando existe</span>
@@ -337,7 +366,7 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
         <div class="card-dot" style="color:var(--teal)"></div>
         <h3 class="card-title">Política de NaN</h3>
       </div>
-      <p style="font-size:.92rem;color:#555">Se decidió <strong>no inventar datos</strong>: no rellenar <code>yhat</code> donde no existe, no mezclar valores reales con forecast, y mantener NaN como ausencia real de información. El dataset se construye con <code>outer join</code> y una validación mínima correcta: prohibir NaN <strong>solo</strong> en llaves críticas.</p>
+      <p style="font-size:.92rem;color:var(--text-secondary)">Se decidió <strong>no inventar datos</strong>: no rellenar <code>yhat</code> donde no existe, no mezclar valores reales con forecast, y mantener NaN como ausencia real de información. El dataset se construye con <code>outer join</code> y una validación mínima correcta: prohibir NaN <strong>solo</strong> en llaves críticas.</p>
       <div class="code-block" style="margin-top:1rem">
         <span class="code-label">Validación</span>
 key_cols = [<span class="st">"ds"</span>, <span class="st">"padecimiento"</span>, <span class="st">"entidad"</span>, <span class="st">"meta_modo"</span>]
@@ -352,7 +381,7 @@ bad_keys = out[key_cols].isna().sum()
         <div class="card-dot" style="color:var(--gold)"></div>
         <h3 class="card-title">Triple conteo de modos</h3>
       </div>
-      <p style="font-size:.92rem;color:#555">Al expandir el histórico a <code>general/hombres/mujeres</code>, se evitó inflar <code>SUM(Incrementos_*)</code> en Tableau dejando poblado <strong>solo</strong> el incremento correspondiente al modo y poniendo NaN en los otros dos. Así, filtrar por <code>meta_modo=hombres</code> solo cuenta hombres.</p>
+      <p style="font-size:.92rem;color:var(--text-secondary)">Al expandir el histórico a <code>general/hombres/mujeres</code>, se evitó inflar <code>SUM(Incrementos_*)</code> en Tableau dejando poblado <strong>solo</strong> el incremento correspondiente al modo y poniendo NaN en los otros dos. Así, filtrar por <code>meta_modo=hombres</code> solo cuenta hombres.</p>
       <div class="code-block" style="margin-top:1rem">
         <span class="code-label">expand_real_by_modo</span>
 g = r.assign(meta_modo=<span class="st">"general"</span>,  y_real=r[<span class="st">"incrementos_total"</span>])
@@ -422,16 +451,16 @@ g = g.assign(incrementos_hombres=pd.NA, incrementos_mujeres=pd.NA)
   </div>
 
   <div class="card" style="margin-bottom:2rem">
-    <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--dark-teal);margin-bottom:1rem">Contrato de llaves</h3>
-    <p style="font-size:.92rem;color:#555;margin-bottom:1rem">La llave compuesta del dataset final es:</p>
+    <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:1rem">Contrato de llaves</h3>
+    <p style="font-size:.92rem;color:var(--text-secondary);margin-bottom:1rem">La llave compuesta del dataset final es:</p>
     <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:.75rem">
       <span class="badge badge-teal">ds</span>
       <span class="badge badge-teal">padecimiento</span>
       <span class="badge badge-teal">entidad</span>
       <span class="badge badge-teal">meta_modo</span>
     </div>
-    <p style="font-size:.85rem;color:#777;margin-bottom:1rem"><code>meta_modo</code> indica la segmentación por sexo: <strong>general</strong> (ambos sexos), <strong>hombres</strong> o <strong>mujeres</strong>. Cada combinación de padecimiento, entidad y modo genera un modelo independiente.</p>
-    <p style="font-size:.92rem;color:#555">El pipeline exige <strong>unicidad</strong> por esta llave en ambas entradas (histórico expandido y forecast) antes de hacer el merge. El merge es <code>outer</code> para no perder histórico ni forecast, y se usa <code>validate="m:1"</code> para controlar cardinalidad.</p>
+    <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:1rem"><code>meta_modo</code> indica la segmentación por sexo: <strong>general</strong> (ambos sexos), <strong>hombres</strong> o <strong>mujeres</strong>. Cada combinación de padecimiento, entidad y modo genera un modelo independiente.</p>
+    <p style="font-size:.92rem;color:var(--text-secondary)">El pipeline exige <strong>unicidad</strong> por esta llave en ambas entradas (histórico expandido y forecast) antes de hacer el merge. El merge es <code>outer</code> para no perder histórico ni forecast, y se usa <code>validate="m:1"</code> para controlar cardinalidad.</p>
   </div>
 
   <!-- Subsección: Segmentación por sexo — meta_modo -->
@@ -440,39 +469,39 @@ g = g.assign(incrementos_hombres=pd.NA, incrementos_mujeres=pd.NA)
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       <h3 class="card-title">Segmentación por sexo &mdash; <code>meta_modo</code></h3>
     </div>
-    <p style="font-size:.92rem;color:#555;margin-bottom:1.25rem">El campo <code>meta_modo</code> es la tercera dimensión de la llave compuesta que permite segmentar los datos y las predicciones por sexo. Cada valor genera un modelo Prophet independiente:</p>
+    <p style="font-size:.92rem;color:var(--text-secondary);margin-bottom:1.25rem">El campo <code>meta_modo</code> es la tercera dimensión de la llave compuesta que permite segmentar los datos y las predicciones por sexo. Cada valor genera un modelo Prophet independiente:</p>
 
     <div style="display:flex;gap:1.25rem;flex-wrap:wrap;margin-bottom:1.5rem">
       <!-- Badge: general -->
-      <div style="background:rgba(0,82,78,.07);border:1px solid rgba(0,82,78,.2);border-radius:var(--radius-sm);padding:1rem 1.5rem;flex:1;min-width:180px">
+      <div style="background:rgba(91,141,239,.07);border:1px solid rgba(91,141,239,.2);border-radius:var(--radius-sm);padding:1rem 1.5rem;flex:1;min-width:180px">
         <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem">
           <span class="badge badge-teal" style="font-size:.85rem;padding:.25rem .85rem">general</span>
         </div>
-        <p style="font-size:.85rem;color:#555;line-height:1.5">Ambos sexos combinados. Usa la columna <code>incrementos_total</code> del histórico. Es la vista por defecto del dashboard.</p>
+        <p style="font-size:.85rem;color:var(--text-secondary);line-height:1.5">Ambos sexos combinados. Usa la columna <code>incrementos_total</code> del histórico. Es la vista por defecto del dashboard.</p>
       </div>
       <!-- Badge: hombres -->
-      <div style="background:rgba(155,34,66,.05);border:1px solid rgba(155,34,66,.18);border-radius:var(--radius-sm);padding:1rem 1.5rem;flex:1;min-width:180px">
+      <div style="background:rgba(244,114,182,.05);border:1px solid rgba(244,114,182,.18);border-radius:var(--radius-sm);padding:1rem 1.5rem;flex:1;min-width:180px">
         <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem">
-          <span class="badge" style="background:rgba(155,34,66,.1);color:var(--burgundy);font-size:.85rem;padding:.25rem .85rem">hombres</span>
+          <span class="badge" style="background:rgba(244,114,182,.12);color:var(--burgundy);font-size:.85rem;padding:.25rem .85rem">hombres</span>
         </div>
-        <p style="font-size:.85rem;color:#555;line-height:1.5">Solo población masculina. Usa la columna <code>incrementos_hombres</code> del histórico.</p>
+        <p style="font-size:.85rem;color:var(--text-secondary);line-height:1.5">Solo población masculina. Usa la columna <code>incrementos_hombres</code> del histórico.</p>
       </div>
       <!-- Badge: mujeres -->
-      <div style="background:rgba(181,133,0,.06);border:1px solid rgba(181,133,0,.18);border-radius:var(--radius-sm);padding:1rem 1.5rem;flex:1;min-width:180px">
+      <div style="background:rgba(45,212,191,.06);border:1px solid rgba(45,212,191,.18);border-radius:var(--radius-sm);padding:1rem 1.5rem;flex:1;min-width:180px">
         <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem">
           <span class="badge badge-yellow" style="font-size:.85rem;padding:.25rem .85rem">mujeres</span>
         </div>
-        <p style="font-size:.85rem;color:#555;line-height:1.5">Solo población femenina. Usa la columna <code>incrementos_mujeres</code> del histórico.</p>
+        <p style="font-size:.85rem;color:var(--text-secondary);line-height:1.5">Solo población femenina. Usa la columna <code>incrementos_mujeres</code> del histórico.</p>
       </div>
     </div>
 
-    <p style="font-size:.92rem;color:#555;margin-bottom:.75rem"><strong>Cada combinación padecimiento &times; entidad &times; meta_modo genera un modelo Prophet independiente.</strong> Esto significa que Jalisco-Depresión produce 3 modelos distintos, cada uno entrenado con su propia serie de incidencia.</p>
+    <p style="font-size:.92rem;color:var(--text-secondary);margin-bottom:.75rem"><strong>Cada combinación padecimiento &times; entidad &times; meta_modo genera un modelo Prophet independiente.</strong> Esto significa que Jalisco-Depresión produce 3 modelos distintos, cada uno entrenado con su propia serie de incidencia.</p>
 
     <div class="callout" style="margin:1.25rem 0">
       <strong>Triple conteo (<code>expand_real_by_modo</code>):</strong> La función <code>expand_real_by_modo()</code> triplica el histórico INEGI generando una fila por cada modo. Solo el incremento correspondiente al modo queda poblado; los otros dos se dejan como NaN. Esto permite que Tableau filtre por <code>meta_modo</code> sin inflar las sumas agregadas (<code>SUM(incrementos_*)</code>).
     </div>
 
-    <p style="font-size:.92rem;color:#555;margin-bottom:1rem">Ejemplo: una sola fila de Jalisco-Depresión en el histórico se expande en 3 registros independientes:</p>
+    <p style="font-size:.92rem;color:var(--text-secondary);margin-bottom:1rem">Ejemplo: una sola fila de Jalisco-Depresión en el histórico se expande en 3 registros independientes:</p>
 
     <table class="compare-table" style="margin-top:.5rem">
       <thead>
@@ -495,7 +524,7 @@ g = g.assign(incrementos_hombres=pd.NA, incrementos_mujeres=pd.NA)
         <tr>
           <td><code>Depresión</code></td>
           <td><code>Jalisco</code></td>
-          <td><span class="badge" style="background:rgba(155,34,66,.1);color:var(--burgundy)">hombres</span></td>
+          <td><span class="badge" style="background:rgba(244,114,182,.12);color:var(--burgundy)">hombres</span></td>
           <td><code>incrementos_hombres</code></td>
           <td><code>Prophet_Depresion_Jalisco_hombres.pkl</code></td>
         </tr>
@@ -534,13 +563,13 @@ g = g.assign(incrementos_hombres=pd.NA, incrementos_mujeres=pd.NA)
 
   <div class="charts-row">
     <div class="card">
-      <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--dark-teal);margin-bottom:1rem">Modelo propio</h3>
-      <p style="font-size:.92rem;color:#555">Para los 256 modelos con <span class="badge badge-green">confianza suficiente</span>, <code>archivo_modelo_original</code> y <code>archivo_modelo_usado</code> apuntan al mismo <code>.pkl</code>. Las métricas original y usado son idénticas.</p>
+      <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:1rem">Modelo propio</h3>
+      <p style="font-size:.92rem;color:var(--text-secondary)">Para los 256 modelos con <span class="badge badge-green">confianza suficiente</span>, <code>archivo_modelo_original</code> y <code>archivo_modelo_usado</code> apuntan al mismo <code>.pkl</code>. Las métricas original y usado son idénticas.</p>
     </div>
     <div class="card">
-      <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--dark-teal);margin-bottom:1rem">Fallback regional</h3>
-      <p style="font-size:.92rem;color:#555">Para los <strong>41 modelos insuficientes</strong>, el forecast viene del modelo regional pero se desnormaliza con la población <strong>estatal individual</strong>. Las métricas se desdoblan:</p>
-      <ul style="font-size:.88rem;color:#555;margin-top:.5rem;padding-left:1.25rem">
+      <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:1rem">Fallback regional</h3>
+      <p style="font-size:.92rem;color:var(--text-secondary)">Para los <strong>41 modelos insuficientes</strong>, el forecast viene del modelo regional pero se desnormaliza con la población <strong>estatal individual</strong>. Las métricas se desdoblan:</p>
+      <ul style="font-size:.88rem;color:var(--text-secondary);margin-top:.5rem;padding-left:1.25rem">
         <li><code>rmse_original</code>, <code>mase_original</code> &mdash; del modelo estatal propio</li>
         <li><code>rmse_usado</code>, <code>mase_usado</code> &mdash; del modelo regional fallback</li>
         <li><code>confianza_original</code> = "insuficiente"</li>
@@ -648,7 +677,7 @@ g = g.assign(incrementos_hombres=pd.NA, incrementos_mujeres=pd.NA)
   <div class="charts-row">
     <div class="card">
       <h3 style="font-family:var(--font-display);font-size:1.15rem;color:var(--burgundy);margin-bottom:.75rem">Antes: arquitectura fragmentada</h3>
-      <ul style="font-size:.88rem;color:#555;padding-left:1.25rem;line-height:2">
+      <ul style="font-size:.88rem;color:var(--text-secondary);padding-left:1.25rem;line-height:2">
         <li>Dos fuentes de datos separadas (histórico + forecast)</li>
         <li>Joins implícitos en Tableau (Relationships)</li>
         <li>Filtros sobre campos del histórico excluían filas futuras</li>
@@ -659,7 +688,7 @@ g = g.assign(incrementos_hombres=pd.NA, incrementos_mujeres=pd.NA)
     </div>
     <div class="card">
       <h3 style="font-family:var(--font-display);font-size:1.15rem;color:var(--teal);margin-bottom:.75rem">Después: dataset único</h3>
-      <ul style="font-size:.88rem;color:#555;padding-left:1.25rem;line-height:2">
+      <ul style="font-size:.88rem;color:var(--text-secondary);padding-left:1.25rem;line-height:2">
         <li>Un solo <code>tableau.csv</code> con llave compuesta</li>
         <li>Todos los registros responden a los mismos filtros</li>
         <li>NaN semántico: ausencia real, no error</li>
@@ -671,24 +700,24 @@ g = g.assign(incrementos_hombres=pd.NA, incrementos_mujeres=pd.NA)
   </div>
 
   <div class="card" style="margin-top:2rem">
-    <h3 style="font-family:var(--font-display);font-size:1.15rem;color:var(--dark-teal);margin-bottom:.75rem">Reconstrucción del workbook</h3>
-    <p style="font-size:.92rem;color:#555">La migración no fue un simple "cambiar fuente": requirió reconstruir sistemáticamente múltiples componentes:</p>
+    <h3 style="font-family:var(--font-display);font-size:1.15rem;color:var(--cream);margin-bottom:.75rem">Reconstrucción del workbook</h3>
+    <p style="font-size:.92rem;color:var(--text-secondary)">La migración no fue un simple "cambiar fuente": requirió reconstruir sistemáticamente múltiples componentes:</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem;margin-top:1rem">
       <div style="background:var(--cream-pale);border-radius:var(--radius-sm);padding:1rem">
-        <strong style="font-size:.85rem;color:var(--dark-teal)">Fuente de datos</strong>
-        <p style="font-size:.82rem;color:#555;margin-top:.25rem">Todas las hojas apuntadas al nuevo CSV con tipos validados</p>
+        <strong style="font-size:.85rem;color:var(--cream)">Fuente de datos</strong>
+        <p style="font-size:.82rem;color:var(--text-secondary);margin-top:.25rem">Todas las hojas apuntadas al nuevo CSV con tipos validados</p>
       </div>
       <div style="background:var(--cream-pale);border-radius:var(--radius-sm);padding:1rem">
-        <strong style="font-size:.85rem;color:var(--dark-teal)">Campos calculados</strong>
-        <p style="font-size:.82rem;color:#555;margin-top:.25rem">Condiciones logicas basadas en meta_modo, WINDOW_* revisadas</p>
+        <strong style="font-size:.85rem;color:var(--cream)">Campos calculados</strong>
+        <p style="font-size:.82rem;color:var(--text-secondary);margin-top:.25rem">Condiciones logicas basadas en meta_modo, WINDOW_* revisadas</p>
       </div>
       <div style="background:var(--cream-pale);border-radius:var(--radius-sm);padding:1rem">
-        <strong style="font-size:.85rem;color:var(--dark-teal)">Agregaciones LOD</strong>
-        <p style="font-size:.82rem;color:#555;margin-top:.25rem">SUM, AVG, FIXED recalibrados para evitar duplicaciones</p>
+        <strong style="font-size:.85rem;color:var(--cream)">Agregaciones LOD</strong>
+        <p style="font-size:.82rem;color:var(--text-secondary);margin-top:.25rem">SUM, AVG, FIXED recalibrados para evitar duplicaciones</p>
       </div>
       <div style="background:var(--cream-pale);border-radius:var(--radius-sm);padding:1rem">
-        <strong style="font-size:.85rem;color:var(--dark-teal)">Filtros y parámetros</strong>
-        <p style="font-size:.82rem;color:#555;margin-top:.25rem">Globales remapeados, acciones de resaltado verificadas</p>
+        <strong style="font-size:.85rem;color:var(--cream)">Filtros y parámetros</strong>
+        <p style="font-size:.82rem;color:var(--text-secondary);margin-top:.25rem">Globales remapeados, acciones de resaltado verificadas</p>
       </div>
     </div>
   </div>
@@ -701,28 +730,28 @@ g = g.assign(incrementos_hombres=pd.NA, incrementos_mujeres=pd.NA)
 
   <div class="card-grid-3">
     <div class="card">
-      <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--dark-teal);margin-bottom:.5rem">Contexto temporal</h3>
-      <p style="font-size:.88rem;color:#555">Línea de referencia COVID-19 y ajuste a fecha continua (condición necesaria para bandas en Tableau). Títulos con referencias temporales claras sin sobrecargar.</p>
+      <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.5rem">Contexto temporal</h3>
+      <p style="font-size:.88rem;color:var(--text-secondary)">Línea de referencia COVID-19 y ajuste a fecha continua (condición necesaria para bandas en Tableau). Títulos con referencias temporales claras sin sobrecargar.</p>
     </div>
     <div class="card">
-      <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--dark-teal);margin-bottom:.5rem">MASE categórico</h3>
-      <p style="font-size:.88rem;color:#555">Clasificación interpretable: <span class="badge badge-green">Excelente</span> (&lt;0.7), <span class="badge badge-yellow">Bueno</span> (0.7-1.0), <span class="badge badge-red">Mejora</span> (&gt;1.0). El usuario entiende sin interpretar la métrica cruda.</p>
+      <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.5rem">MASE categórico</h3>
+      <p style="font-size:.88rem;color:var(--text-secondary)">Clasificación interpretable: <span class="badge badge-green">Excelente</span> (&lt;0.7), <span class="badge badge-yellow">Bueno</span> (0.7-1.0), <span class="badge badge-red">Mejora</span> (&gt;1.0). El usuario entiende sin interpretar la métrica cruda.</p>
     </div>
     <div class="card">
-      <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--dark-teal);margin-bottom:.5rem">Tooltips informativos</h3>
-      <p style="font-size:.88rem;color:#555">RMSE, MAE, MAPE, MASE y modelo utilizado bajo demanda. La visualización principal queda limpia; el detalle técnico aparece al hover.</p>
+      <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.5rem">Tooltips informativos</h3>
+      <p style="font-size:.88rem;color:var(--text-secondary)">RMSE, MAE, MAPE, MASE y modelo utilizado bajo demanda. La visualización principal queda limpia; el detalle técnico aparece al hover.</p>
     </div>
     <div class="card">
-      <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--dark-teal);margin-bottom:.5rem">Dashboard integrado</h3>
-      <p style="font-size:.88rem;color:#555">Worksheets de predicciones y desempeño se integraron en un único dashboard "Predicciones" con una nueva worksheet "KPIs" (confianza + modelo Prophet).</p>
+      <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.5rem">Dashboard integrado</h3>
+      <p style="font-size:.88rem;color:var(--text-secondary)">Worksheets de predicciones y desempeño se integraron en un único dashboard "Predicciones" con una nueva worksheet "KPIs" (confianza + modelo Prophet).</p>
     </div>
     <div class="card">
-      <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--dark-teal);margin-bottom:.5rem">Normalización de mapas</h3>
-      <p style="font-size:.88rem;color:#555">Normalización min-max para variables con magnitudes muy diferentes (densidad, superficie, casos). El gradiente de color es consistente al alternar variables.</p>
+      <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.5rem">Normalización de mapas</h3>
+      <p style="font-size:.88rem;color:var(--text-secondary)">Normalización min-max para variables con magnitudes muy diferentes (densidad, superficie, casos). El gradiente de color es consistente al alternar variables.</p>
     </div>
     <div class="card">
-      <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--dark-teal);margin-bottom:.5rem">Ventana 2 años</h3>
-      <p style="font-size:.88rem;color:#555">52 semanas históricas + 52 proyectadas. Controlada por parámetro de selección única (workaround a limitación de Tableau). <span class="badge badge-yellow">En desarrollo</span></p>
+      <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.5rem">Ventana 2 años</h3>
+      <p style="font-size:.88rem;color:var(--text-secondary)">52 semanas históricas + 52 proyectadas. Controlada por parámetro de selección única (workaround a limitación de Tableau). <span class="badge badge-yellow">En desarrollo</span></p>
     </div>
   </div>
 
@@ -801,7 +830,7 @@ g = g.assign(incrementos_hombres=pd.NA, incrementos_mujeres=pd.NA)
   <p class="section-sub">Validación del principio pipeline &rarr; publicación &rarr; consumo</p>
 
   <div class="card" style="margin-bottom:2rem">
-    <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--dark-teal);margin-bottom:1rem">Arquitectura del experimento</h3>
+    <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:1rem">Arquitectura del experimento</h3>
     <div class="flow-diagram">
       <div class="flow-row">
         <div class="flow-box script">GitHub Actions<br><span style="font-size:.7rem;opacity:.6">cron: 0 * * * * (cada hora)</span></div>
@@ -821,8 +850,8 @@ g = g.assign(incrementos_hombres=pd.NA, incrementos_mujeres=pd.NA)
 
   <div class="charts-row">
     <div class="card">
-      <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--dark-teal);margin-bottom:.75rem">Identidad no interactiva</h3>
-      <p style="font-size:.88rem;color:#555">Service account de Google Cloud como identidad técnica. Credenciales en GitHub Secrets (no versionadas). El Sheet se comparte con el correo de la service account.</p>
+      <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.75rem">Identidad no interactiva</h3>
+      <p style="font-size:.88rem;color:var(--text-secondary)">Service account de Google Cloud como identidad técnica. Credenciales en GitHub Secrets (no versionadas). El Sheet se comparte con el correo de la service account.</p>
       <table class="compare-table" style="margin-top:1rem">
         <thead><tr><th>Componente</th><th>Responsabilidad</th></tr></thead>
         <tbody>
@@ -833,8 +862,8 @@ g = g.assign(incrementos_hombres=pd.NA, incrementos_mujeres=pd.NA)
       </table>
     </div>
     <div class="card">
-      <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--dark-teal);margin-bottom:.75rem">Resultados y limitaciones</h3>
-      <p style="font-size:.88rem;color:#555">La escritura a Google Sheets funciona correctamente en cada ejecución. La incertidumbre está en <strong>el lado de Tableau Public</strong>: no ofrece control sobre triggers ni schedules de refresh.</p>
+      <h3 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.75rem">Resultados y limitaciones</h3>
+      <p style="font-size:.88rem;color:var(--text-secondary)">La escritura a Google Sheets funciona correctamente en cada ejecución. La incertidumbre está en <strong>el lado de Tableau Public</strong>: no ofrece control sobre triggers ni schedules de refresh.</p>
       <div class="callout-burgundy callout" style="margin-top:1rem;padding:1rem 1.25rem;font-size:.85rem">
         <strong>Limitacion estructural:</strong> Tableau Public no gestiona credenciales de datos protegidos por diseño. Para una arquitectura robusta y gobernada, la solución correcta es Tableau Cloud o Tableau Server.
       </div>
@@ -876,28 +905,28 @@ g = g.assign(incrementos_hombres=pd.NA, incrementos_mujeres=pd.NA)
         <div class="card-dot" style="color:var(--teal)"></div>
         <h3 class="card-title">Semántica sobre estética</h3>
       </div>
-      <p style="font-size:.92rem;color:#555">Los errores en Tableau no se resolvieron con ajustes visuales. El problema estaba en la estructura del dataset. Los NaN no son errores: son semántica. La visualización es consecuencia de datos bien construidos.</p>
+      <p style="font-size:.92rem;color:var(--text-secondary)">Los errores en Tableau no se resolvieron con ajustes visuales. El problema estaba en la estructura del dataset. Los NaN no son errores: son semántica. La visualización es consecuencia de datos bien construidos.</p>
     </div>
     <div class="card">
       <div class="card-header">
         <div class="card-dot" style="color:var(--gold)"></div>
         <h3 class="card-title">Contrato > convencion</h3>
       </div>
-      <p style="font-size:.92rem;color:#555">Definir un contrato explícito de llaves (<code>ds, padecimiento, entidad, meta_modo</code>) y validarlo con <code>validate="m:1"</code> previene errores silenciosos que solo se manifiestan en producción.</p>
+      <p style="font-size:.92rem;color:var(--text-secondary)">Definir un contrato explícito de llaves (<code>ds, padecimiento, entidad, meta_modo</code>) y validarlo con <code>validate="m:1"</code> previene errores silenciosos que solo se manifiestan en producción.</p>
     </div>
     <div class="card">
       <div class="card-header">
         <div class="card-dot" style="color:var(--burgundy)"></div>
         <h3 class="card-title">Trazabilidad end-to-end</h3>
       </div>
-      <p style="font-size:.92rem;color:#555">El desdoblamiento <code>original</code> vs <code>usado</code> en métricas permite auditar exactamente qué modelo generó cada predicción. Con 41 modelos en fallback, la transparencia es crítica.</p>
+      <p style="font-size:.92rem;color:var(--text-secondary)">El desdoblamiento <code>original</code> vs <code>usado</code> en métricas permite auditar exactamente qué modelo generó cada predicción. Con 41 modelos en fallback, la transparencia es crítica.</p>
     </div>
     <div class="card">
       <div class="card-header">
         <div class="card-dot" style="color:var(--teal)"></div>
         <h3 class="card-title">Pipeline reproducible</h3>
       </div>
-      <p style="font-size:.92rem;color:#555"><code>make tableau</code> es un único comando que genera el dataset final. Cualquier miembro del equipo puede reconstruir <code>tableau.csv</code> desde cero en cualquier momento.</p>
+      <p style="font-size:.92rem;color:var(--text-secondary)"><code>make tableau</code> es un único comando que genera el dataset final. Cualquier miembro del equipo puede reconstruir <code>tableau.csv</code> desde cero en cualquier momento.</p>
     </div>
   </div>
 
@@ -967,6 +996,13 @@ g = g.assign(incrementos_hombres=pd.NA, incrementos_mujeres=pd.NA)
 
 <!-- ═══════════ SCRIPTS ═══════════ -->
 <script>
+/* ── Chart.js global dark defaults ── */
+if (typeof Chart !== 'undefined') {
+  Chart.defaults.color = '#9FB0CE';
+  Chart.defaults.borderColor = 'rgba(91,141,239,0.12)';
+  Chart.defaults.backgroundColor = 'rgba(91,141,239,0.5)';
+}
+
 /* ── Nav scroll ── */
 const nav=document.getElementById('nav');if(nav)window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',window.scrollY>40));
 
@@ -996,23 +1032,23 @@ if (ctxMod) new Chart(ctxMod, {
       {
         label: 'Modelo propio',
         data: [63, 99, 94],
-        backgroundColor: 'rgba(0,82,78,.7)',
+        backgroundColor: 'rgba(91,141,239,.7)',
         borderRadius: 6
       },
       {
         label: 'Fallback regional',
         data: [36, 0, 5],
-        backgroundColor: 'rgba(155,34,66,.6)',
+        backgroundColor: 'rgba(244,114,182,.6)',
         borderRadius: 6
       }
     ]
   },
   options: {
     responsive: true,
-    plugins: { legend: { position: 'top', labels: { font: { family: "'Source Sans 3'" } } } },
+    plugins: { legend: { position: 'top', labels: { font: { family: "'Outfit'" }, color: '#9FB0CE' } } },
     scales: {
-      x: { stacked: true, grid: { display: false }, ticks: { font: { family: "'Source Sans 3'" } } },
-      y: { stacked: true, beginAtZero: true, title: { display: true, text: 'Modelos', font: { family: "'Source Sans 3'" } } }
+      x: { stacked: true, grid: { display: false }, ticks: { font: { family: "'Outfit'" }, color: '#9FB0CE' } },
+      y: { stacked: true, beginAtZero: true, title: { display: true, text: 'Modelos', font: { family: "'Outfit'" }, color: '#9FB0CE' } }
     }
   }
 });
@@ -1027,29 +1063,29 @@ if (ctxEvo) new Chart(ctxEvo, {
       {
         label: 'Vistas Tableau',
         data: [5, 7, 8],
-        backgroundColor: 'rgba(0,82,78,.65)',
+        backgroundColor: 'rgba(91,141,239,.65)',
         borderRadius: 6
       },
       {
         label: 'Scripts pipeline',
         data: [1, 2, 4],
-        backgroundColor: 'rgba(181,133,0,.65)',
+        backgroundColor: 'rgba(45,212,191,.65)',
         borderRadius: 6
       },
       {
         label: 'Campos calculados',
         data: [3, 8, 15],
-        backgroundColor: 'rgba(155,34,66,.5)',
+        backgroundColor: 'rgba(244,114,182,.5)',
         borderRadius: 6
       }
     ]
   },
   options: {
     responsive: true,
-    plugins: { legend: { position: 'top', labels: { font: { family: "'Source Sans 3'" } } } },
+    plugins: { legend: { position: 'top', labels: { font: { family: "'Outfit'" }, color: '#9FB0CE' } } },
     scales: {
-      x: { grid: { display: false }, ticks: { font: { family: "'Source Sans 3'" } } },
-      y: { beginAtZero: true, title: { display: true, text: 'Componentes', font: { family: "'Source Sans 3'" } } }
+      x: { grid: { display: false }, ticks: { font: { family: "'Outfit'" }, color: '#9FB0CE' } },
+      y: { beginAtZero: true, title: { display: true, text: 'Componentes', font: { family: "'Outfit'" }, color: '#9FB0CE' } }
     }
   }
 });
@@ -1063,16 +1099,16 @@ if (ctxCol) new Chart(ctxCol, {
     datasets: [{
       data: [4, 6, 5, 7, 7, 4, 3],
       backgroundColor: [
-        'rgba(0,82,78,.8)',
-        'rgba(181,133,0,.7)',
-        'rgba(155,34,66,.7)',
-        'rgba(0,82,78,.5)',
-        'rgba(155,34,66,.4)',
-        'rgba(92,107,192,.6)',
-        'rgba(151,153,155,.5)'
+        'rgba(91,141,239,.8)',
+        'rgba(45,212,191,.7)',
+        'rgba(244,114,182,.7)',
+        'rgba(91,141,239,.5)',
+        'rgba(244,114,182,.4)',
+        'rgba(123,143,212,.6)',
+        'rgba(110,130,166,.5)'
       ],
       borderWidth: 2,
-      borderColor: '#FAF6F0'
+      borderColor: '#131C30'
     }]
   },
   options: {
@@ -1080,7 +1116,7 @@ if (ctxCol) new Chart(ctxCol, {
     plugins: {
       legend: {
         position: 'right',
-        labels: { font: { family: "'Source Sans 3'", size: 12 }, padding: 12 }
+        labels: { font: { family: "'Outfit'", size: 12 }, color: '#9FB0CE', padding: 12 }
       }
     }
   }

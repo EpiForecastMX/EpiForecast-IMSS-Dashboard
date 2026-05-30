@@ -6,28 +6,42 @@
 <title>Ficha Técnica del Modelo Prophet — EpiForecast-MX</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --burgundy:#9B2242;--dark-burgundy:#6F1D46;--teal:#00524E;--dark-teal:#173F35;
-  --gold:#B58500;--cream:#E8D5B5;--cream-light:#F5EDE0;--cream-pale:#FAF6F0;
-  --cool-gray:#97999B;--neutral-black:#231F20;
-  --burgundy-light:#D4758B;--teal-light:#4A9E9A;--gold-light:#D4B24A;
-  --font-display:'DM Serif Display',Georgia,serif;
-  --font-body:'Source Sans 3','Source Sans Pro',sans-serif;
-  --font-mono:'JetBrains Mono','Fira Code',monospace;
-  --shadow-sm:0 2px 8px rgba(0,0,0,.06);--shadow-md:0 8px 24px rgba(0,0,0,.06);
-  --shadow-lg:0 16px 48px rgba(0,0,0,.08);--radius:16px;--radius-sm:10px;
+  /* Surfaces — Clinical Indigo */
+  --bg-deep:#0E1424;--bg-base:#131C30;--bg-raised:#18223A;
+  --bg-card:#1C2740;--bg-card-hover:#243150;
+  /* Texto */
+  --text-primary:#E7ECF5;--text-secondary:#9FB0CE;
+  --text-muted:#6E82A6;--text-faint:#44567A;
+  /* Acentos */
+  --burgundy:#F472B6;--dark-burgundy:#8E2A63;
+  --teal:#5B8DEF;--gold:#2DD4BF;
+  /* Aliases legacy */
+  --neutral-black:#0B0F1A;--cool-gray:#9FB0CE;
+  --dark-teal:#16203A;--cream:#E7ECF5;
+  --cream-light:#1C2740;--cream-pale:#131C30;
+  --teal-glow:rgba(91,141,239,0.15);
+  --burgundy-glow:rgba(244,114,182,0.15);
+  --gold-glow:rgba(45,212,191,0.15);
+  /* Compatibilidad con estilos anteriores */
+  --burgundy-light:#F472B6;--teal-light:#5B8DEF;--gold-light:#2DD4BF;
+  --font-display:'Playfair Display',Georgia,serif;
+  --font-body:'Outfit',system-ui,-apple-system,sans-serif;
+  --font-mono:'JetBrains Mono','SF Mono',monospace;
+  --shadow-sm:0 2px 8px rgba(0,0,0,.35);--shadow-md:0 8px 24px rgba(0,0,0,.40);
+  --shadow-lg:0 16px 48px rgba(0,0,0,.45);--radius:16px;--radius-sm:10px;
 }
-body{font-family:var(--font-body);background:var(--cream-pale);color:var(--neutral-black);line-height:1.7;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font-body);background:var(--bg-base);color:var(--text-primary);line-height:1.7;-webkit-font-smoothing:antialiased}
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.025;pointer-events:none;z-index:0}
 
 /* Unified Nav */
-.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(23,63,53,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(232,213,181,.08);transition:box-shadow .3s,background .3s}
-.nav.scrolled{box-shadow:0 4px 30px rgba(0,0,0,.18);background:rgba(23,63,53,.97)}
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(14,20,36,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(232,213,181,.08);transition:box-shadow .3s,background .3s}
+.nav.scrolled{box-shadow:0 4px 30px rgba(0,0,0,.18);background:rgba(14,20,36,.97)}
 .nav-inner{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;align-items:center;height:64px;gap:1rem}
 .nav-logo{font-family:var(--font-display);font-size:1.3rem;color:var(--cream);letter-spacing:.02em;flex-shrink:0;text-decoration:none}
 .nav-logo span{color:var(--gold)}
@@ -37,7 +51,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .nav-group-toggle:hover,.nav-group:hover .nav-group-toggle{color:var(--cream);background:rgba(232,213,181,.06)}
 .nav-group-toggle svg{width:10px;height:10px;opacity:.5;transition:transform .2s}
 .nav-group:hover .nav-group-toggle svg{transform:rotate(180deg);opacity:.8}
-.nav-dropdown{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(-4px);background:rgba(23,63,53,.98);backdrop-filter:blur(16px);border:1px solid rgba(232,213,181,.1);border-radius:12px;padding:.5rem;min-width:200px;opacity:0;visibility:hidden;transition:opacity .15s,transform .15s,visibility .15s;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.nav-dropdown{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(-4px);background:rgba(14,20,36,.98);backdrop-filter:blur(16px);border:1px solid rgba(232,213,181,.1);border-radius:12px;padding:.5rem;min-width:200px;opacity:0;visibility:hidden;transition:opacity .15s,transform .15s,visibility .15s;box-shadow:0 12px 40px rgba(0,0,0,.25)}
 .nav-group:hover .nav-dropdown{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
 .nav-dropdown::before{content:'';position:absolute;top:-8px;left:0;right:0;height:8px}
 .nav-dropdown a{display:flex;align-items:center;gap:.75rem;padding:.6rem 1rem;color:rgba(232,213,181,.7);font-size:.82rem;font-weight:500;border-radius:8px;transition:background .15s,color .15s;text-decoration:none;white-space:nowrap}
@@ -46,14 +60,14 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .nav-dropdown a:hover svg{opacity:.8}
 .nav-ctas{display:flex;gap:.5rem;align-items:center;flex-shrink:0}
 .nav-cta{display:inline-flex;align-items:center;gap:.4rem;padding:.4rem 1rem;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-radius:100px;text-decoration:none;transition:transform .2s,box-shadow .2s,background .2s;white-space:nowrap}
-.nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(181,133,0,.3)}
+.nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(45,212,191,.25)}
 .nav-cta--primary{background:var(--gold);color:var(--dark-teal)}
-.nav-cta--secondary{background:rgba(232,213,181,.1);color:var(--gold);border:1px solid rgba(181,133,0,.3)}
-.nav-cta--secondary:hover{background:rgba(181,133,0,.15);color:var(--gold)}
+.nav-cta--secondary{background:rgba(91,141,239,.1);color:var(--gold);border:1px solid rgba(45,212,191,.3)}
+.nav-cta--secondary:hover{background:rgba(45,212,191,.15);color:var(--gold)}
 .nav-cta svg{width:14px;height:14px}
 .nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
 .nav-hamburger span{width:24px;height:2px;background:var(--cream);transition:transform .3s,opacity .3s}
-.nav-mobile{display:none;flex-direction:column;background:rgba(23,63,53,.98);backdrop-filter:blur(16px);padding:1rem 2rem 1.5rem;border-bottom:1px solid rgba(232,213,181,.1)}
+.nav-mobile{display:none;flex-direction:column;background:rgba(14,20,36,.98);backdrop-filter:blur(16px);padding:1rem 2rem 1.5rem;border-bottom:1px solid rgba(232,213,181,.1)}
 .nav-mobile.show{display:flex}
 .nav-mobile-group{border-bottom:1px solid rgba(232,213,181,.06)}
 .nav-mobile-heading{display:flex;align-items:center;justify-content:space-between;padding:.85rem 0;color:rgba(232,213,181,.7);font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;cursor:pointer}
@@ -69,91 +83,91 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 /* LAYOUT */
 .container{max-width:1200px;margin:0 auto;padding:0 2rem;position:relative;z-index:1}
 section{padding:4rem 0}
-.section-title{font-family:var(--font-display);font-size:clamp(1.8rem,4vw,2.5rem);margin-bottom:.5rem;color:var(--dark-teal)}
-.section-sub{color:var(--cool-gray);font-size:1rem;margin-bottom:2.5rem}
+.section-title{font-family:var(--font-display);font-size:clamp(1.8rem,4vw,2.5rem);margin-bottom:.5rem;color:var(--cream)}
+.section-sub{color:var(--text-secondary);font-size:1rem;margin-bottom:2.5rem}
 
 /* HERO */
-.hero{padding:10rem 2rem 6rem;text-align:center;background:linear-gradient(170deg,#0a1a16 0%,var(--dark-teal) 35%,var(--teal) 65%,#1a3025 100%);color:var(--cream-pale);position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 800px 600px at 20% 30%,rgba(181,133,0,.15),transparent),radial-gradient(ellipse 900px 700px at 80% 70%,rgba(155,34,66,.15),transparent);pointer-events:none}
+.hero{padding:10rem 2rem 6rem;text-align:center;background:linear-gradient(170deg,var(--bg-deep) 0%,var(--bg-raised) 50%,#1B1733 100%);color:var(--text-primary);position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 800px 600px at 20% 30%,rgba(244,114,182,.16),transparent),radial-gradient(ellipse 900px 700px at 80% 70%,rgba(45,212,191,.12),transparent),radial-gradient(ellipse 600px 500px at 60% 40%,rgba(91,141,239,.14),transparent);pointer-events:none}
 .hero::after{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.04;pointer-events:none}
 .hero h1{font-family:var(--font-display);font-size:clamp(2.5rem,7vw,4.5rem);line-height:1.05;margin-bottom:.5rem;position:relative}
-.hero h1 em{font-style:italic;color:var(--gold-light)}
+.hero h1 em{font-style:italic;color:var(--gold)}
 .hero .subtitle{font-size:clamp(1rem,2.5vw,1.3rem);opacity:.8;font-weight:300;margin-bottom:.75rem;position:relative}
 .hero .subtitle2{font-size:clamp(.82rem,1.5vw,.95rem);opacity:.5;font-weight:400;margin-bottom:3rem;position:relative;font-family:var(--font-mono)}
 .hero-kpis{display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;position:relative}
-.hero-kpi{background:rgba(255,255,255,.06);border:1px solid rgba(232,213,181,.12);border-radius:var(--radius);padding:1.5rem 2rem;backdrop-filter:blur(8px);min-width:150px;transition:transform .3s,box-shadow .3s}
+.hero-kpi{background:rgba(28,39,64,.6);border:1px solid rgba(91,141,239,.15);border-radius:var(--radius);padding:1.5rem 2rem;backdrop-filter:blur(8px);min-width:150px;transition:transform .3s,box-shadow .3s}
 .hero-kpi:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.3)}
-.hero-kpi .value{font-family:var(--font-display);font-size:2.5rem;display:block;background:linear-gradient(135deg,var(--cream),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero-kpi .label{font-size:.78rem;text-transform:uppercase;letter-spacing:1px;opacity:.6}
+.hero-kpi .value{font-family:var(--font-display);font-size:2.5rem;display:block;background:linear-gradient(135deg,var(--cream),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-kpi .label{font-size:.78rem;text-transform:uppercase;letter-spacing:1px;opacity:.75;color:var(--text-secondary)}
 
 /* CARDS */
-.card{background:#fff;border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow-md);border:1px solid rgba(0,0,0,.04);transition:transform .3s,box-shadow .3s;overflow:hidden}
+.card{background:var(--bg-card);border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow-md);border:1px solid rgba(91,141,239,.1);transition:transform .3s,box-shadow .3s;overflow:hidden}
 .card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
 .card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:2rem}
 .card-grid-3{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1.5rem}
-.card-header{display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:2px solid var(--cream-light)}
-.card-title{font-family:var(--font-display);font-size:1.3rem}
+.card-header{display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:2px solid rgba(91,141,239,.15)}
+.card-title{font-family:var(--font-display);font-size:1.3rem;color:var(--text-primary)}
 
 /* PARAM CARDS (dark teal) */
-.param-card{background:linear-gradient(135deg,var(--dark-teal),var(--teal));color:var(--cream-pale);border-radius:var(--radius);padding:1.75rem 2rem;box-shadow:var(--shadow-md);position:relative;overflow:hidden}
+.param-card{background:linear-gradient(135deg,var(--bg-raised),var(--bg-card-hover));color:var(--text-primary);border-radius:var(--radius);padding:1.75rem 2rem;box-shadow:var(--shadow-md);border:1px solid rgba(91,141,239,.15);position:relative;overflow:hidden}
 .param-card::before{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.04;pointer-events:none}
-.param-card h4{font-family:var(--font-mono);font-size:.95rem;color:var(--gold-light);margin-bottom:.4rem;font-weight:500}
-.param-card .param-value{font-family:var(--font-mono);font-size:1.4rem;color:#fff;font-weight:500;margin-bottom:.75rem;display:block}
-.param-card p{font-size:.88rem;opacity:.92;line-height:1.65}
-.param-card .param-why{margin-top:.75rem;padding-top:.75rem;border-top:1px solid rgba(232,213,181,.25);font-size:.82rem;opacity:.85}
-.param-card code{background:rgba(232,213,181,.18);color:#fff;padding:.15em .45em;border-radius:4px;font-size:.85em;font-weight:500}
+.param-card h4{font-family:var(--font-mono);font-size:.95rem;color:var(--gold);margin-bottom:.4rem;font-weight:500}
+.param-card .param-value{font-family:var(--font-mono);font-size:1.4rem;color:var(--text-primary);font-weight:500;margin-bottom:.75rem;display:block}
+.param-card p{font-size:.88rem;opacity:.92;line-height:1.65;color:var(--text-secondary)}
+.param-card .param-why{margin-top:.75rem;padding-top:.75rem;border-top:1px solid rgba(91,141,239,.2);font-size:.82rem;opacity:.85;color:var(--text-secondary)}
+.param-card code{background:rgba(91,141,239,.15);color:var(--gold);padding:.15em .45em;border-radius:4px;font-size:.85em;font-weight:500}
 .param-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1.5rem}
 
 /* CHART */
-.chart-wrap{background:#fff;border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow-md);border:1px solid rgba(0,0,0,.04)}
+.chart-wrap{background:var(--bg-card);border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow-md);border:1px solid rgba(91,141,239,.1)}
 .chart-wrap canvas{max-height:380px}
-.chart-wrap h3{font-family:var(--font-display);font-size:1.3rem;color:var(--dark-teal);margin-bottom:.25rem}
-.chart-wrap .chart-sub{font-size:.85rem;color:var(--cool-gray);margin-bottom:1.5rem}
+.chart-wrap h3{font-family:var(--font-display);font-size:1.3rem;color:var(--cream);margin-bottom:.25rem}
+.chart-wrap .chart-sub{font-size:.85rem;color:var(--text-muted);margin-bottom:1.5rem}
 .charts-row{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem}
 
 /* CALLOUT */
-.callout{background:linear-gradient(135deg,rgba(0,82,78,.06),rgba(181,133,0,.04));border:1px solid rgba(0,82,78,.15);border-left:4px solid var(--teal);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:1.5rem 2rem;margin:2rem 0;font-size:.95rem}
-.callout-gold{border-left-color:var(--gold);background:linear-gradient(135deg,rgba(181,133,0,.06),rgba(155,34,66,.03))}
-.callout-burgundy{border-left-color:var(--burgundy);background:linear-gradient(135deg,rgba(155,34,66,.06),rgba(0,82,78,.03))}
-.callout strong{color:var(--dark-teal)}
+.callout{background:linear-gradient(135deg,rgba(91,141,239,.08),rgba(45,212,191,.05));border:1px solid rgba(91,141,239,.2);border-left:4px solid var(--teal);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:1.5rem 2rem;margin:2rem 0;font-size:.95rem;color:var(--text-secondary)}
+.callout-gold{border-left-color:var(--gold);background:linear-gradient(135deg,rgba(45,212,191,.08),rgba(244,114,182,.04))}
+.callout-burgundy{border-left-color:var(--burgundy);background:linear-gradient(135deg,rgba(244,114,182,.08),rgba(91,141,239,.04))}
+.callout strong{color:var(--teal)}
 .callout-gold strong{color:var(--gold)}
 .callout-burgundy strong{color:var(--burgundy)}
 
 /* BADGE */
 .badge{display:inline-block;padding:.2rem .7rem;border-radius:100px;font-family:var(--font-mono);font-size:.78rem;font-weight:500}
-.badge-green{background:#e6f4ea;color:#1a7431}
-.badge-yellow{background:#fef7e0;color:#8a6d00}
-.badge-red{background:#fde8e8;color:#b91c1c}
-.badge-teal{background:rgba(0,82,78,.1);color:var(--teal)}
-.badge-gray{background:#f0f0f0;color:#555}
+.badge-green{background:rgba(45,212,191,.15);color:#2DD4BF}
+.badge-yellow{background:rgba(251,191,36,.12);color:#FCD34D}
+.badge-red{background:rgba(244,114,182,.15);color:#F472B6}
+.badge-teal{background:rgba(91,141,239,.15);color:var(--teal)}
+.badge-gray{background:rgba(159,176,206,.1);color:var(--text-secondary)}
 
 /* TABLE */
-.table-wrapper{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-md);border:1px solid rgba(0,0,0,.04);overflow:hidden}
+.table-wrapper{background:var(--bg-card);border-radius:var(--radius);box-shadow:var(--shadow-md);border:1px solid rgba(91,141,239,.1);overflow:hidden}
 table.ref-table{width:100%;border-collapse:collapse;font-size:.85rem}
-table.ref-table thead th{padding:.8rem 1rem;text-align:left;font-weight:600;text-transform:uppercase;font-size:.7rem;letter-spacing:.5px;color:var(--cream-pale);background:var(--dark-teal);border-bottom:2px solid rgba(232,213,181,.2)}
-table.ref-table tbody td{padding:.65rem 1rem;border-bottom:1px solid var(--cream-light);vertical-align:middle}
-table.ref-table tbody tr:hover{background:var(--cream-pale)}
-table.ref-table .mono{font-family:var(--font-mono);font-size:.82rem}
-table.ref-table .cell-added{background:#e6f4ea;color:#1a7431;font-weight:600;font-size:.8rem;padding:.3rem .6rem;border-radius:6px;display:inline-block}
-table.ref-table .cell-removed{background:#fde8e8;color:#b91c1c;font-weight:600;font-size:.8rem;padding:.3rem .6rem;border-radius:6px;display:inline-block}
-table.ref-table .cell-modified{background:#fef7e0;color:#8a6d00;font-weight:600;font-size:.8rem;padding:.3rem .6rem;border-radius:6px;display:inline-block}
-table.ref-table .cell-same{color:var(--cool-gray);font-size:.82rem}
+table.ref-table thead th{padding:.8rem 1rem;text-align:left;font-weight:600;text-transform:uppercase;font-size:.7rem;letter-spacing:.5px;color:var(--text-primary);background:var(--bg-raised);border-bottom:2px solid rgba(91,141,239,.15)}
+table.ref-table tbody td{padding:.65rem 1rem;border-bottom:1px solid rgba(91,141,239,.08);vertical-align:middle;color:var(--text-secondary)}
+table.ref-table tbody tr:hover{background:var(--bg-card-hover)}
+table.ref-table .mono{font-family:var(--font-mono);font-size:.82rem;color:var(--teal)}
+table.ref-table .cell-added{background:rgba(45,212,191,.15);color:#2DD4BF;font-weight:600;font-size:.8rem;padding:.3rem .6rem;border-radius:6px;display:inline-block}
+table.ref-table .cell-removed{background:rgba(244,114,182,.15);color:#F472B6;font-weight:600;font-size:.8rem;padding:.3rem .6rem;border-radius:6px;display:inline-block}
+table.ref-table .cell-modified{background:rgba(251,191,36,.12);color:#FCD34D;font-weight:600;font-size:.8rem;padding:.3rem .6rem;border-radius:6px;display:inline-block}
+table.ref-table .cell-same{color:var(--text-muted);font-size:.82rem}
 
 /* TOC */
-.toc{background:#fff;border-radius:var(--radius);padding:1.5rem 2rem;box-shadow:var(--shadow-md);margin-bottom:3rem}
-.toc h3{font-family:var(--font-display);font-size:1.1rem;color:var(--dark-teal);margin-bottom:1rem}
+.toc{background:var(--bg-card);border-radius:var(--radius);padding:1.5rem 2rem;box-shadow:var(--shadow-md);margin-bottom:3rem;border:1px solid rgba(91,141,239,.1)}
+.toc h3{font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:1rem}
 .toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.5rem}
 .toc a{color:var(--teal);text-decoration:none;font-size:.88rem;padding:.3rem .5rem;border-radius:6px;transition:background .2s;display:block}
-.toc a:hover{background:var(--cream-pale)}
-.toc a .toc-num{font-family:var(--font-mono);font-size:.75rem;color:var(--cool-gray);margin-right:.3rem}
+.toc a:hover{background:var(--bg-raised)}
+.toc a .toc-num{font-family:var(--font-mono);font-size:.75rem;color:var(--text-muted);margin-right:.3rem}
 
 /* PIPELINE */
 .pipeline{display:flex;align-items:center;gap:0;flex-wrap:wrap;margin:2rem 0}
-.pipe-step{background:#fff;border-radius:var(--radius-sm);padding:1.5rem 1.75rem;box-shadow:var(--shadow-md);border:1px solid rgba(0,0,0,.04);flex:1;min-width:220px;position:relative}
-.pipe-step .step-num{font-family:var(--font-mono);font-size:.75rem;color:var(--cool-gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem}
-.pipe-step h4{font-family:var(--font-display);font-size:1.1rem;color:var(--dark-teal);margin-bottom:.5rem}
-.pipe-step .formula{font-family:var(--font-mono);font-size:.88rem;background:var(--cream-pale);border:1px solid var(--cream);border-radius:6px;padding:.5rem .75rem;margin:.5rem 0;display:block;color:var(--dark-teal)}
-.pipe-step p{font-size:.85rem;color:#555;line-height:1.6}
+.pipe-step{background:var(--bg-card);border-radius:var(--radius-sm);padding:1.5rem 1.75rem;box-shadow:var(--shadow-md);border:1px solid rgba(91,141,239,.1);flex:1;min-width:220px;position:relative}
+.pipe-step .step-num{font-family:var(--font-mono);font-size:.75rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem}
+.pipe-step h4{font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.5rem}
+.pipe-step .formula{font-family:var(--font-mono);font-size:.88rem;background:var(--bg-deep);border:1px solid rgba(91,141,239,.2);border-radius:6px;padding:.5rem .75rem;margin:.5rem 0;display:block;color:var(--teal)}
+.pipe-step p{font-size:.85rem;color:var(--text-secondary);line-height:1.6}
 .pipe-arrow{font-size:2rem;color:var(--gold);padding:0 .5rem;flex-shrink:0;align-self:center}
 
 /* FOLD DIAGRAM */
@@ -161,84 +175,84 @@ table.ref-table .cell-same{color:var(--cool-gray);font-size:.82rem}
 .fold-row{display:flex;gap:.5rem;align-items:center;margin-bottom:.75rem}
 .fold-label{font-family:var(--font-mono);font-size:.78rem;color:var(--cool-gray);min-width:60px;text-align:right}
 .fold-bar-wrap{display:flex;flex:1;height:36px;border-radius:6px;overflow:hidden;gap:2px}
-.fold-train{background:linear-gradient(90deg,rgba(0,82,78,.25),rgba(0,82,78,.4));display:flex;align-items:center;justify-content:flex-end;padding-right:.5rem;font-family:var(--font-mono);font-size:.72rem;color:var(--teal);font-weight:600}
-.fold-test{background:linear-gradient(90deg,rgba(181,133,0,.4),rgba(181,133,0,.6));display:flex;align-items:center;justify-content:center;padding:0 .5rem;font-family:var(--font-mono);font-size:.72rem;color:#6a5000;font-weight:600}
+.fold-train{background:linear-gradient(90deg,rgba(91,141,239,.2),rgba(91,141,239,.35));display:flex;align-items:center;justify-content:flex-end;padding-right:.5rem;font-family:var(--font-mono);font-size:.72rem;color:var(--teal);font-weight:600}
+.fold-test{background:linear-gradient(90deg,rgba(45,212,191,.3),rgba(45,212,191,.5));display:flex;align-items:center;justify-content:center;padding:0 .5rem;font-family:var(--font-mono);font-size:.72rem;color:var(--bg-deep);font-weight:600}
 .fold-weight{margin-left:1rem;font-family:var(--font-mono);font-size:.82rem;font-weight:600;min-width:50px}
 
 /* FLOWCHART */
 .flowchart{display:flex;flex-direction:column;gap:.75rem;max-width:700px;margin:2rem auto}
-.flow-node{background:#fff;border-radius:var(--radius-sm);padding:1rem 1.5rem;box-shadow:var(--shadow-sm);border-left:4px solid var(--teal);position:relative}
-.flow-node.decision{border-left-color:var(--gold);background:linear-gradient(135deg,#fff,#fffdf5)}
-.flow-node.action{border-left-color:var(--teal)}
-.flow-node.warning{border-left-color:var(--burgundy);background:linear-gradient(135deg,#fff,#fff8f8)}
-.flow-node.success{border-left-color:#2E7D32;background:linear-gradient(135deg,#fff,#f6faf6)}
-.flow-node h5{font-family:var(--font-mono);font-size:.82rem;font-weight:600;margin-bottom:.25rem}
-.flow-node p{font-size:.85rem;color:#555;margin:0}
-.flow-connector{text-align:center;color:var(--cool-gray);font-size:1.2rem;line-height:1}
+.flow-node{background:var(--bg-card);border-radius:var(--radius-sm);padding:1rem 1.5rem;box-shadow:var(--shadow-sm);border:1px solid rgba(91,141,239,.1);border-left:4px solid var(--teal);position:relative}
+.flow-node.decision{border-left-color:var(--gold);background:linear-gradient(135deg,var(--bg-card),rgba(45,212,191,.06))}
+.flow-node.action{border-left-color:var(--teal);background:var(--bg-card)}
+.flow-node.warning{border-left-color:var(--burgundy);background:linear-gradient(135deg,var(--bg-card),rgba(244,114,182,.06))}
+.flow-node.success{border-left-color:#2DD4BF;background:linear-gradient(135deg,var(--bg-card),rgba(45,212,191,.06))}
+.flow-node h5{font-family:var(--font-mono);font-size:.82rem;font-weight:600;margin-bottom:.25rem;color:var(--cream)}
+.flow-node p{font-size:.85rem;color:var(--text-secondary);margin:0}
+.flow-connector{text-align:center;color:var(--text-muted);font-size:1.2rem;line-height:1}
 
 /* GRID HEATMAP */
 .grid-heat{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:1rem}
-.grid-heat thead th{padding:.65rem .8rem;text-align:center;font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.3px;color:var(--cool-gray);border-bottom:2px solid var(--cream-light)}
+.grid-heat thead th{padding:.65rem .8rem;text-align:center;font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.3px;color:var(--text-muted);border-bottom:2px solid rgba(91,141,239,.12)}
 .grid-heat thead th:first-child{text-align:left}
-.grid-heat tbody td{padding:.6rem .8rem;text-align:center;border-bottom:1px solid var(--cream-light);font-family:var(--font-mono);font-size:.85rem;vertical-align:middle}
-.grid-heat tbody td:first-child{text-align:left;font-family:var(--font-body);font-weight:600;color:var(--dark-teal)}
-.heat-hi{background:rgba(0,82,78,.18);color:var(--dark-teal);border-radius:6px;padding:.25rem .5rem;font-weight:700;display:inline-block}
-.heat-mid{background:rgba(181,133,0,.15);color:#6a5000;border-radius:6px;padding:.25rem .5rem;display:inline-block}
-.heat-lo{background:rgba(155,34,66,.08);color:var(--dark-burgundy);border-radius:6px;padding:.25rem .5rem;display:inline-block}
-.heat-elim{background:#f0f0f0;color:var(--cool-gray);border-radius:6px;padding:.25rem .5rem;font-style:italic;font-size:.75rem;display:inline-block;text-decoration:line-through}
+.grid-heat tbody td{padding:.6rem .8rem;text-align:center;border-bottom:1px solid rgba(91,141,239,.08);font-family:var(--font-mono);font-size:.85rem;vertical-align:middle;color:var(--text-secondary)}
+.grid-heat tbody td:first-child{text-align:left;font-family:var(--font-body);font-weight:600;color:var(--teal)}
+.heat-hi{background:rgba(45,212,191,.18);color:#2DD4BF;border-radius:6px;padding:.25rem .5rem;font-weight:700;display:inline-block}
+.heat-mid{background:rgba(251,191,36,.12);color:#FCD34D;border-radius:6px;padding:.25rem .5rem;display:inline-block}
+.heat-lo{background:rgba(244,114,182,.12);color:#F472B6;border-radius:6px;padding:.25rem .5rem;display:inline-block}
+.heat-elim{background:rgba(159,176,206,.08);color:var(--text-muted);border-radius:6px;padding:.25rem .5rem;font-style:italic;font-size:.75rem;display:inline-block;text-decoration:line-through}
 
 /* METRIC CARDS */
-.metric-card{background:#fff;border-radius:var(--radius);padding:1.75rem 2rem;box-shadow:var(--shadow-md);border:1px solid rgba(0,0,0,.04);border-top:4px solid var(--teal)}
+.metric-card{background:var(--bg-card);border-radius:var(--radius);padding:1.75rem 2rem;box-shadow:var(--shadow-md);border:1px solid rgba(91,141,239,.1);border-top:4px solid var(--teal)}
 .metric-card.gold{border-top-color:var(--gold)}
 .metric-card.burgundy{border-top-color:var(--burgundy)}
-.metric-card.green{border-top-color:#2E7D32}
-.metric-card h4{font-family:var(--font-display);font-size:1.2rem;color:var(--dark-teal);margin-bottom:.5rem}
-.metric-card .formula-block{font-family:var(--font-mono);font-size:.88rem;background:var(--cream-pale);border:1px solid var(--cream);border-radius:8px;padding:.75rem 1rem;margin:.75rem 0;color:var(--dark-teal);line-height:1.8}
-.metric-card p{font-size:.88rem;color:#555;line-height:1.65}
+.metric-card.green{border-top-color:#2DD4BF}
+.metric-card h4{font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:.5rem}
+.metric-card .formula-block{font-family:var(--font-mono);font-size:.88rem;background:var(--bg-deep);border:1px solid rgba(91,141,239,.2);border-radius:8px;padding:.75rem 1rem;margin:.75rem 0;color:var(--teal);line-height:1.8}
+.metric-card p{font-size:.88rem;color:var(--text-secondary);line-height:1.65}
 .metric-card .threshold{display:inline-flex;gap:.5rem;align-items:center;margin-top:.5rem;font-size:.82rem;font-family:var(--font-mono)}
 
 /* STATS ROW */
 .stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem;margin:2rem 0}
-.stat-box{background:#fff;border-radius:var(--radius-sm);padding:1.2rem;text-align:center;box-shadow:var(--shadow-sm);border-top:3px solid var(--teal)}
-.stat-box .big-num{font-family:var(--font-display);font-size:2rem;color:var(--dark-teal);line-height:1.1}
-.stat-box .stat-desc{font-size:.75rem;color:var(--cool-gray);margin-top:.3rem;text-transform:uppercase;letter-spacing:.5px}
+.stat-box{background:var(--bg-card);border-radius:var(--radius-sm);padding:1.2rem;text-align:center;box-shadow:var(--shadow-sm);border:1px solid rgba(91,141,239,.1);border-top:3px solid var(--teal)}
+.stat-box .big-num{font-family:var(--font-display);font-size:2rem;color:var(--teal);line-height:1.1}
+.stat-box .stat-desc{font-size:.75rem;color:var(--text-muted);margin-top:.3rem;text-transform:uppercase;letter-spacing:.5px}
 .stat-box.burgundy{border-top-color:var(--burgundy)}
-.stat-box.burgundy .big-num{color:var(--dark-burgundy)}
+.stat-box.burgundy .big-num{color:var(--burgundy)}
 .stat-box.gold{border-top-color:var(--gold)}
 .stat-box.gold .big-num{color:var(--gold)}
-.stat-box.green{border-top-color:#2E7D32}
-.stat-box.green .big-num{color:#1a7431}
+.stat-box.green{border-top-color:#2DD4BF}
+.stat-box.green .big-num{color:#2DD4BF}
 
 /* VERDICT */
-.verdict{background:linear-gradient(170deg,var(--dark-teal) 0%,var(--teal) 100%);color:var(--cream-pale);border-radius:var(--radius);padding:3rem;margin-top:2rem;position:relative;overflow:hidden}
-.verdict::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 600px 400px at 80% 20%,rgba(181,133,0,.15),transparent);pointer-events:none}
-.verdict h3{font-family:var(--font-display);font-size:2rem;margin-bottom:1rem;position:relative}
-.verdict p{font-size:1rem;opacity:.9;line-height:1.8;position:relative;max-width:900px}
+.verdict{background:linear-gradient(170deg,var(--bg-raised) 0%,var(--bg-card-hover) 100%);color:var(--text-primary);border-radius:var(--radius);padding:3rem;margin-top:2rem;position:relative;overflow:hidden;border:1px solid rgba(91,141,239,.15)}
+.verdict::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 600px 400px at 80% 20%,rgba(45,212,191,.12),transparent),radial-gradient(ellipse 400px 300px at 20% 80%,rgba(91,141,239,.1),transparent);pointer-events:none}
+.verdict h3{font-family:var(--font-display);font-size:2rem;margin-bottom:1rem;position:relative;color:var(--cream)}
+.verdict p{font-size:1rem;opacity:.9;line-height:1.8;position:relative;max-width:900px;color:var(--text-secondary)}
 
 /* EVO TABLE */
 .evo-table{width:100%;border-collapse:collapse;font-size:.85rem}
-.evo-table thead th{padding:.7rem .8rem;text-align:left;font-weight:600;text-transform:uppercase;font-size:.7rem;letter-spacing:.5px;color:var(--cream-pale);background:var(--dark-teal)}
+.evo-table thead th{padding:.7rem .8rem;text-align:left;font-weight:600;text-transform:uppercase;font-size:.7rem;letter-spacing:.5px;color:var(--text-primary);background:var(--bg-raised)}
 .evo-table thead th:not(:first-child){text-align:center}
-.evo-table tbody td{padding:.6rem .8rem;border-bottom:1px solid var(--cream-light);vertical-align:middle}
+.evo-table tbody td{padding:.6rem .8rem;border-bottom:1px solid rgba(91,141,239,.08);vertical-align:middle;color:var(--text-secondary)}
 .evo-table tbody td:not(:first-child){text-align:center}
-.evo-table tbody tr:hover{background:var(--cream-pale)}
-.evo-table .param-name{font-family:var(--font-mono);font-size:.82rem;font-weight:600;color:var(--dark-teal)}
+.evo-table tbody tr:hover{background:var(--bg-card-hover)}
+.evo-table .param-name{font-family:var(--font-mono);font-size:.82rem;font-weight:600;color:var(--teal)}
 
 /* REVEAL */
 .reveal{opacity:0;transform:translateY(28px);transition:opacity .6s,transform .6s}
 .reveal.visible{opacity:1;transform:translateY(0)}
 
 /* SECTION DIVIDER */
-.section-divider{height:1px;background:linear-gradient(90deg,transparent,var(--cream),transparent);margin:1rem 0}
+.section-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(91,141,239,.25),transparent);margin:1rem 0}
 
 /* FOOTER */
-footer{background:var(--dark-teal);color:rgba(232,213,181,.7);text-align:center;padding:3rem 2rem;font-size:.88rem;line-height:1.8}
+footer{background:var(--neutral-black);color:var(--text-secondary);text-align:center;padding:3rem 2rem;font-size:.88rem;line-height:1.8}
 footer strong{color:var(--cream)}
 footer a{color:var(--gold);text-decoration:none;transition:opacity .2s}
 footer a:hover{opacity:.7}
 
 /* CODE INLINE */
-code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);color:var(--dark-teal);border-radius:4px;padding:.1rem .4rem}
+code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12);color:var(--teal);border-radius:4px;padding:.1rem .4rem}
 
 /* RESPONSIVE */
 @media(max-width:768px){
@@ -396,32 +410,32 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
     <div class="pipe-step" style="border-top:4px solid var(--teal)">
       <div class="step-num">Paso 1</div>
       <h4>Normalización a tasa por 100K</h4>
-      <code class="formula" style="display:block;font-family:var(--font-mono);font-size:.88rem;background:var(--cream-pale);border:1px solid var(--cream);border-radius:6px;padding:.6rem .9rem;margin:.6rem 0;color:var(--dark-teal)">y_tasa = (incidencia / población) × 100,000</code>
+      <code class="formula" style="display:block;font-family:var(--font-mono);font-size:.88rem;background:var(--bg-deep);border:1px solid rgba(91,141,239,.2);border-radius:6px;padding:.6rem .9rem;margin:.6rem 0;color:var(--teal)">y_tasa = (incidencia / población) × 100,000</code>
       <p>Normaliza por tamaño de la entidad. CDMX y Colima ahora son directamente comparables. El RMSE deja de estar dominado por los estados grandes.</p>
-      <p class="param-why" style="margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--cream-light);font-size:.82rem;color:var(--cool-gray)">Fuente de población: <code>data/utils/inegi.csv</code> — columna <code>Total</code> (proyecciones CONAPO por año)</p>
+      <p class="param-why" style="margin-top:.6rem;padding-top:.6rem;border-top:1px solid rgba(91,141,239,.12);font-size:.82rem;color:var(--text-muted)">Fuente de población: <code>data/utils/inegi.csv</code> — columna <code>Total</code> (proyecciones CONAPO por año)</p>
     </div>
     <div class="pipe-arrow">&#8594;</div>
     <div class="pipe-step" style="border-top:4px solid var(--gold)">
       <div class="step-num">Paso 2</div>
       <h4>Log-transform</h4>
-      <code class="formula" style="display:block;font-family:var(--font-mono);font-size:.88rem;background:var(--cream-pale);border:1px solid var(--cream);border-radius:6px;padding:.6rem .9rem;margin:.6rem 0;color:var(--dark-teal)">y = log(1 + y_tasa)</code>
+      <code class="formula" style="display:block;font-family:var(--font-mono);font-size:.88rem;background:var(--bg-deep);border:1px solid rgba(91,141,239,.2);border-radius:6px;padding:.6rem .9rem;margin:.6rem 0;color:var(--teal)">y = log(1 + y_tasa)</code>
       <p>Estabiliza la varianza. Series con picos extremos (Depresión post-pandemia, alertas epidemiológicas) quedan comprimidas. El <code>+1</code> garantiza que log(0)=0 sin indefinidos.</p>
-      <p class="param-why" style="margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--cream-light);font-size:.82rem;color:var(--cool-gray)">Impacto medido: redujo el RMSE mediano de Depresión en -64% vs serie sin log-transform</p>
+      <p class="param-why" style="margin-top:.6rem;padding-top:.6rem;border-top:1px solid rgba(91,141,239,.12);font-size:.82rem;color:var(--text-muted)">Impacto medido: redujo el RMSE mediano de Depresión en -64% vs serie sin log-transform</p>
     </div>
     <div class="pipe-arrow">&#8594;</div>
     <div class="pipe-step" style="border-top:4px solid var(--burgundy)">
       <div class="step-num">Paso 3</div>
       <h4>Espacio de entrenamiento</h4>
-      <code class="formula" style="display:block;font-family:var(--font-mono);font-size:.88rem;background:var(--cream-pale);border:1px solid var(--cream);border-radius:6px;padding:.6rem .9rem;margin:.6rem 0;color:var(--dark-teal)">Prophet.fit(df[y = log(1 + y_tasa)])</code>
+      <code class="formula" style="display:block;font-family:var(--font-mono);font-size:.88rem;background:var(--bg-deep);border:1px solid rgba(91,141,239,.2);border-radius:6px;padding:.6rem .9rem;margin:.6rem 0;color:var(--teal)">Prophet.fit(df[y = log(1 + y_tasa)])</code>
       <p>El modelo aprende en espacio log-tasa. Al predecir, se revierten ambas transformaciones para obtener conteos absolutos:</p>
-      <code class="formula" style="display:block;font-family:var(--font-mono);font-size:.82rem;background:var(--cream-pale);border:1px solid var(--cream);border-radius:6px;padding:.5rem .8rem;margin:.4rem 0;color:var(--dark-teal)">conteos = (exp(ŷ) - 1) × población / 100,000</code>
+      <code class="formula" style="display:block;font-family:var(--font-mono);font-size:.82rem;background:var(--bg-deep);border:1px solid rgba(91,141,239,.2);border-radius:6px;padding:.5rem .8rem;margin:.4rem 0;color:var(--teal)">conteos = (exp(ŷ) - 1) × población / 100,000</code>
     </div>
     <div class="pipe-arrow">&#8594;</div>
-    <div class="pipe-step" style="border-top:4px solid #2E7D32;background:linear-gradient(135deg,#fff,#f6faf6)">
+    <div class="pipe-step" style="border-top:4px solid #2DD4BF;background:linear-gradient(135deg,var(--bg-card),rgba(45,212,191,.06))">
       <div class="step-num">Salida</div>
       <h4>all_forecast.csv</h4>
       <p>Conteos absolutos desnormalizados por entidad y semana. El CSV sidecar del <code>.pkl</code> guarda <code>y_original</code> y <code>Total</code> (población) para la inversión exacta en producción.</p>
-      <p class="param-why" style="margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--cream-light);font-size:.82rem;color:var(--cool-gray)">Columnas: <code>yhat</code> (conteos), <code>yhat_lower</code>, <code>yhat_upper</code> (IC 95%)</p>
+      <p class="param-why" style="margin-top:.6rem;padding-top:.6rem;border-top:1px solid rgba(91,141,239,.12);font-size:.82rem;color:var(--text-muted)">Columnas: <code>yhat</code> (conteos), <code>yhat_lower</code>, <code>yhat_upper</code> (IC 95%)</p>
     </div>
   </div>
 
@@ -437,21 +451,21 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
         <h3 class="card-title">Propiedades matemáticas</h3>
       </div>
       <div style="display:flex;flex-direction:column;gap:1rem">
-        <div style="padding:1rem;background:var(--cream-pale);border-radius:var(--radius-sm);border-left:3px solid var(--teal)">
-          <div style="font-family:var(--font-mono);font-size:.82rem;font-weight:600;color:var(--dark-teal);margin-bottom:.3rem">Simetrizacion</div>
-          <p style="font-size:.85rem;color:#555">El log comprime colas largas a la derecha. Series de Depresión con CV &gt;2 quedan cerca de distribución normal en log-espacio.</p>
+        <div style="padding:1rem;background:var(--bg-raised);border-radius:var(--radius-sm);border-left:3px solid var(--teal)">
+          <div style="font-family:var(--font-mono);font-size:.82rem;font-weight:600;color:var(--teal);margin-bottom:.3rem">Simetrizacion</div>
+          <p style="font-size:.85rem;color:var(--text-secondary)">El log comprime colas largas a la derecha. Series de Depresión con CV &gt;2 quedan cerca de distribución normal en log-espacio.</p>
         </div>
-        <div style="padding:1rem;background:var(--cream-pale);border-radius:var(--radius-sm);border-left:3px solid var(--gold)">
+        <div style="padding:1rem;background:var(--bg-raised);border-radius:var(--radius-sm);border-left:3px solid var(--gold)">
           <div style="font-family:var(--font-mono);font-size:.82rem;font-weight:600;color:var(--gold);margin-bottom:.3rem">Interpretabilidad</div>
-          <p style="font-size:.85rem;color:#555">Prophet modela cambios relativos (multiplicativos en log-espacio). Un cambio de +0.1 en y representa ~+10.5% en tasa original.</p>
+          <p style="font-size:.85rem;color:var(--text-secondary)">Prophet modela cambios relativos (multiplicativos en log-espacio). Un cambio de +0.1 en y representa ~+10.5% en tasa original.</p>
         </div>
-        <div style="padding:1rem;background:var(--cream-pale);border-radius:var(--radius-sm);border-left:3px solid var(--burgundy)">
+        <div style="padding:1rem;background:var(--bg-raised);border-radius:var(--radius-sm);border-left:3px solid var(--burgundy)">
           <div style="font-family:var(--font-mono);font-size:.82rem;font-weight:600;color:var(--burgundy);margin-bottom:.3rem">Restriccion de no-negatividad</div>
-          <p style="font-size:.85rem;color:#555">exp(ŷ) &ge; 0 siempre. Nunca se predice una tasa negativa, lo que elimina post-procesamiento de clipping.</p>
+          <p style="font-size:.85rem;color:var(--text-secondary)">exp(ŷ) &ge; 0 siempre. Nunca se predice una tasa negativa, lo que elimina post-procesamiento de clipping.</p>
         </div>
-        <div style="padding:1rem;background:var(--cream-pale);border-radius:var(--radius-sm);border-left:3px solid #2E7D32">
-          <div style="font-family:var(--font-mono);font-size:.82rem;font-weight:600;color:#1a7431;margin-bottom:.3rem">Config activa</div>
-          <p style="font-size:.85rem;color:#555"><code>normalizar_tasa: true</code><br><code>log_transform: true</code><br><code>tasa_por: 100000</code><br><code>columna_poblacion: "Total"</code></p>
+        <div style="padding:1rem;background:var(--bg-raised);border-radius:var(--radius-sm);border-left:3px solid #2DD4BF">
+          <div style="font-family:var(--font-mono);font-size:.82rem;font-weight:600;color:#2DD4BF;margin-bottom:.3rem">Config activa</div>
+          <p style="font-size:.85rem;color:var(--text-secondary)"><code>normalizar_tasa: true</code><br><code>log_transform: true</code><br><code>tasa_por: 100000</code><br><code>columna_poblacion: "Total"</code></p>
         </div>
       </div>
     </div>
@@ -471,7 +485,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
     <strong>Prophet descompone la serie en:</strong> tendencia (changepoints) + estacionalidad (Fourier) + efectos de calendario (holidays) + ruido. La configuración de EpiForecast-MX deshabilita las estacionalidades default de Prophet y las reemplaza con una estacionalidad anual personalizada de mayor precisión.
   </div>
 
-  <h3 class="reveal" style="font-family:var(--font-display);font-size:1.4rem;color:var(--dark-teal);margin-bottom:1.5rem;margin-top:2rem">Estacionalidades deshabilitadas</h3>
+  <h3 class="reveal" style="font-family:var(--font-display);font-size:1.4rem;color:var(--cream);margin-bottom:1.5rem;margin-top:2rem">Estacionalidades deshabilitadas</h3>
 
   <div class="param-grid reveal">
     <div class="param-card">
@@ -494,40 +508,40 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
     </div>
   </div>
 
-  <h3 class="reveal" style="font-family:var(--font-display);font-size:1.4rem;color:var(--dark-teal);margin-bottom:1.5rem;margin-top:2.5rem">Estacionalidad personalizada</h3>
+  <h3 class="reveal" style="font-family:var(--font-display);font-size:1.4rem;color:var(--cream);margin-bottom:1.5rem;margin-top:2.5rem">Estacionalidad personalizada</h3>
 
   <div class="param-grid reveal">
-    <div class="param-card" style="background:linear-gradient(135deg,var(--dark-teal),#1a5c50)">
+    <div class="param-card" style="background:linear-gradient(135deg,#1C2740,#243150)">
       <h4>period (estacionalidad anual)</h4>
       <span class="param-value">52.18 semanas</span>
       <p>Equivalente exacto de 365.25 / 7 = 52.1786... semanas. Captura el ciclo anual real con mayor precisión que el periodo default de Prophet en días.</p>
       <p class="param-why">365.25 / 7 = 52.178... — el 0.25 captura los años bisiestos en promedio</p>
     </div>
-    <div class="param-card" style="background:linear-gradient(135deg,#1a4a40,var(--dark-teal))">
+    <div class="param-card" style="background:linear-gradient(135deg,#18223A,#1C2740)">
       <h4>fourier_order — Nacional</h4>
       <span class="param-value">5 (10 columnas)</span>
       <p>Genera 5 funciones seno + 5 coseno = 10 regresores en la matriz de diseño. Permite patrones estacionales complejos con hasta 5 "armónicos".</p>
       <p class="param-why">Ejemplo: brotes de otoño + temporada navide&ntilde;a + repunte primaveral = 3 armónicos mínimo</p>
     </div>
-    <div class="param-card" style="background:linear-gradient(135deg,#254040,var(--dark-teal))">
+    <div class="param-card" style="background:linear-gradient(135deg,#1C2740,#243150)">
       <h4>fourier_order — Regional/Estatal</h4>
       <span class="param-value">3 (6 columnas)</span>
       <p>Series estatales son más cortas y volátiles. Con fourier_order=5 en series de ~285 puntos, hay riesgo de overfitting al patrón de entrenamiento. <strong>-40% coeficientes.</strong></p>
       <p class="param-why">Activo cuando: <code>modelado_estados: true</code> en params.yaml</p>
     </div>
-    <div class="param-card" style="background:linear-gradient(135deg,var(--dark-teal),#1a4535)">
+    <div class="param-card" style="background:linear-gradient(135deg,#16203A,#1C2740)">
       <h4>n_changepoints — Nacional</h4>
       <span class="param-value">25 (default Prophet)</span>
       <p>1 changepoint cada ~11 semanas en la serie completa (~285 semanas). Captura cambios de tendencia anuales y post-pandemia con suficiente granularidad.</p>
       <p class="param-why">Prophet los distribuye uniformemente en el 80% inicial de la serie</p>
     </div>
-    <div class="param-card" style="background:linear-gradient(135deg,#1a3a30,var(--dark-teal))">
+    <div class="param-card" style="background:linear-gradient(135deg,#18223A,#243150)">
       <h4>n_changepoints — Regional/Estatal</h4>
       <span class="param-value">12</span>
       <p>Con 25 changepoints en series cortas (~150 puntos para estados pequeños), Prophet sobreajusta cambios locales. 12 = 1 changepoint cada ~12 semanas (~1 por trimestre).</p>
       <p class="param-why">Activo cuando: <code>modelado_estados: true</code> — previene overfitting en estados &lt;1M hab.</p>
     </div>
-    <div class="param-card" style="background:linear-gradient(135deg,#1a5040,var(--teal))">
+    <div class="param-card" style="background:linear-gradient(135deg,#18223A,rgba(91,141,239,.3))">
       <h4>growth</h4>
       <span class="param-value">"linear"</span>
       <p>Tendencia lineal (por tramos, ajustada en changepoints). La tendencia "logistic" requiere definir una capacidad de saturación (<code>cap</code>) que no está justificada epidemiológicamente.</p>
@@ -552,25 +566,25 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
   <p class="section-sub reveal">Grids v5 diferenciados por padecimiento — optimizados con datos de 297 modelos v4</p>
 
   <!-- EXPLICACION DE PARÁMETROS -->
-  <h3 class="reveal" style="font-family:var(--font-display);font-size:1.5rem;color:var(--dark-teal);margin-bottom:1.25rem">3.1 Qué controla cada parámetro</h3>
+  <h3 class="reveal" style="font-family:var(--font-display);font-size:1.5rem;color:var(--cream);margin-bottom:1.25rem">3.1 Qué controla cada parámetro</h3>
 
   <div class="card-grid-3 reveal">
     <div class="card" style="border-top:4px solid var(--teal)">
       <div style="font-family:var(--font-mono);font-size:.8rem;color:var(--cool-gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem">changepoint_prior_scale</div>
-      <h3 style="font-family:var(--font-display);font-size:1.3rem;color:var(--dark-teal);margin-bottom:.75rem">Flexibilidad de la tendencia</h3>
-      <p style="font-size:.88rem;color:#555;line-height:1.65;margin-bottom:1rem">Controla qué tanto puede cambiar la tendencia en cada changepoint. Es una prior Laplace sobre los deltas de tendencia.</p>
+      <h3 style="font-family:var(--font-display);font-size:1.3rem;color:var(--cream);margin-bottom:.75rem">Flexibilidad de la tendencia</h3>
+      <p style="font-size:.88rem;color:var(--text-secondary);line-height:1.65;margin-bottom:1rem">Controla qué tanto puede cambiar la tendencia en cada changepoint. Es una prior Laplace sobre los deltas de tendencia.</p>
       <div style="display:flex;flex-direction:column;gap:.5rem">
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .6rem;background:#e6f4ea;border-radius:6px;font-size:.82rem">
-          <span style="font-family:var(--font-mono);color:#1a7431;font-weight:600">cp = 0.01</span>
-          <span style="color:#1a7431">Tendencia muy suave, pocos cambios</span>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .6rem;background:rgba(45,212,191,.1);border-radius:6px;font-size:.82rem">
+          <span style="font-family:var(--font-mono);color:#2DD4BF;font-weight:600">cp = 0.01</span>
+          <span style="color:#2DD4BF">Tendencia muy suave, pocos cambios</span>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .6rem;background:#fef7e0;border-radius:6px;font-size:.82rem">
-          <span style="font-family:var(--font-mono);color:#8a6d00;font-weight:600">cp = 0.05</span>
-          <span style="color:#8a6d00">Balance entre flexibilidad y estabilidad</span>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .6rem;background:rgba(251,191,36,.1);border-radius:6px;font-size:.82rem">
+          <span style="font-family:var(--font-mono);color:#FCD34D;font-weight:600">cp = 0.05</span>
+          <span style="color:#FCD34D">Balance entre flexibilidad y estabilidad</span>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .6rem;background:#fde8e8;border-radius:6px;font-size:.82rem">
-          <span style="font-family:var(--font-mono);color:#b91c1c;font-weight:600">cp muy bajo</span>
-          <span style="color:#b91c1c">Riesgo: activa optimizador Newton (lento)</span>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .6rem;background:rgba(244,114,182,.1);border-radius:6px;font-size:.82rem">
+          <span style="font-family:var(--font-mono);color:#F472B6;font-weight:600">cp muy bajo</span>
+          <span style="color:#F472B6">Riesgo: activa optimizador Newton (lento)</span>
         </div>
       </div>
     </div>
@@ -578,42 +592,42 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
     <div class="card" style="border-top:4px solid var(--gold)">
       <div style="font-family:var(--font-mono);font-size:.8rem;color:var(--cool-gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem">seasonality_prior_scale</div>
       <h3 style="font-family:var(--font-display);font-size:1.3rem;color:var(--gold);margin-bottom:.75rem">Regularización estacional</h3>
-      <p style="font-size:.88rem;color:#555;line-height:1.65;margin-bottom:1rem">Controla la amplitud de los coeficientes de Fourier. Prior Normal(0, sp). Valores bajos = estacionalidad más suave y regularizada.</p>
+      <p style="font-size:.88rem;color:var(--text-secondary);line-height:1.65;margin-bottom:1rem">Controla la amplitud de los coeficientes de Fourier. Prior Normal(0, sp). Valores bajos = estacionalidad más suave y regularizada.</p>
       <div style="display:flex;flex-direction:column;gap:.5rem">
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .6rem;background:#e6f4ea;border-radius:6px;font-size:.82rem">
-          <span style="font-family:var(--font-mono);color:#1a7431;font-weight:600">sp = 0.025</span>
-          <span style="color:#1a7431">Alta regularización (series volátiles)</span>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .6rem;background:rgba(45,212,191,.1);border-radius:6px;font-size:.82rem">
+          <span style="font-family:var(--font-mono);color:#2DD4BF;font-weight:600">sp = 0.025</span>
+          <span style="color:#2DD4BF">Alta regularización (series volátiles)</span>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .6rem;background:#fef7e0;border-radius:6px;font-size:.82rem">
-          <span style="font-family:var(--font-mono);color:#8a6d00;font-weight:600">sp = 0.5</span>
-          <span style="color:#8a6d00">Amplitud estacional moderada (ganador frecuente en Parkinson)</span>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .6rem;background:rgba(251,191,36,.1);border-radius:6px;font-size:.82rem">
+          <span style="font-family:var(--font-mono);color:#FCD34D;font-weight:600">sp = 0.5</span>
+          <span style="color:#FCD34D">Amplitud estacional moderada (ganador frecuente en Parkinson)</span>
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .6rem;background:#fde8e8;border-radius:6px;font-size:.82rem">
-          <span style="font-family:var(--font-mono);color:#b91c1c;font-weight:600">sp = 1.0+</span>
-          <span style="color:#b91c1c">Riesgo: sobreajuste estacional, peor test RMSE</span>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .6rem;background:rgba(244,114,182,.1);border-radius:6px;font-size:.82rem">
+          <span style="font-family:var(--font-mono);color:#F472B6;font-weight:600">sp = 1.0+</span>
+          <span style="color:#F472B6">Riesgo: sobreajuste estacional, peor test RMSE</span>
         </div>
       </div>
     </div>
 
     <div class="card" style="border-top:4px solid var(--burgundy)">
       <div style="font-family:var(--font-mono);font-size:.8rem;color:var(--cool-gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem">seasonality_mode</div>
-      <h3 style="font-family:var(--font-display);font-size:1.3rem;color:var(--dark-burgundy);margin-bottom:.75rem">Modo de estacionalidad</h3>
-      <p style="font-size:.88rem;color:#555;line-height:1.65;margin-bottom:1rem">Define cómo interactúa la componente estacional con la tendencia.</p>
+      <h3 style="font-family:var(--font-display);font-size:1.3rem;color:var(--burgundy);margin-bottom:.75rem">Modo de estacionalidad</h3>
+      <p style="font-size:.88rem;color:var(--text-secondary);line-height:1.65;margin-bottom:1rem">Define cómo interactúa la componente estacional con la tendencia.</p>
       <div style="display:flex;flex-direction:column;gap:.75rem">
-        <div style="padding:.75rem;background:var(--cream-pale);border-radius:8px;border-left:3px solid var(--teal)">
-          <div style="font-family:var(--font-mono);font-size:.8rem;font-weight:600;color:var(--dark-teal);margin-bottom:.25rem">additive</div>
-          <p style="font-size:.82rem;color:#555">y(t) = tendencia(t) + estacionalidad(t) + ruido<br>La amplitud estacional es <strong>constante</strong> independiente del nivel de tendencia. Mejor para Depresión.</p>
+        <div style="padding:.75rem;background:var(--bg-raised);border-radius:8px;border-left:3px solid var(--teal)">
+          <div style="font-family:var(--font-mono);font-size:.8rem;font-weight:600;color:var(--teal);margin-bottom:.25rem">additive</div>
+          <p style="font-size:.82rem;color:var(--text-secondary)">y(t) = tendencia(t) + estacionalidad(t) + ruido<br>La amplitud estacional es <strong>constante</strong> independiente del nivel de tendencia. Mejor para Depresión.</p>
         </div>
-        <div style="padding:.75rem;background:var(--cream-pale);border-radius:8px;border-left:3px solid var(--burgundy)">
-          <div style="font-family:var(--font-mono);font-size:.8rem;font-weight:600;color:var(--dark-burgundy);margin-bottom:.25rem">multiplicative</div>
-          <p style="font-size:.82rem;color:#555">y(t) = tendencia(t) × (1 + estacionalidad(t)) + ruido<br>La amplitud <strong>escala con la tendencia</strong>. Mejor para Alzheimer (crecimiento poblacional).</p>
+        <div style="padding:.75rem;background:var(--bg-raised);border-radius:8px;border-left:3px solid var(--burgundy)">
+          <div style="font-family:var(--font-mono);font-size:.8rem;font-weight:600;color:var(--burgundy);margin-bottom:.25rem">multiplicative</div>
+          <p style="font-size:.82rem;color:var(--text-secondary)">y(t) = tendencia(t) × (1 + estacionalidad(t)) + ruido<br>La amplitud <strong>escala con la tendencia</strong>. Mejor para Alzheimer (crecimiento poblacional).</p>
         </div>
       </div>
     </div>
   </div>
 
   <!-- ALZHEIMER GRID -->
-  <h3 class="reveal" style="font-family:var(--font-display);font-size:1.5rem;color:var(--dark-teal);margin-bottom:1rem;margin-top:3rem">3.2 Alzheimer — 6 combinaciones</h3>
+  <h3 class="reveal" style="font-family:var(--font-display);font-size:1.5rem;color:var(--cream);margin-bottom:1rem;margin-top:3rem">3.2 Alzheimer — 6 combinaciones</h3>
 
   <div class="callout callout-gold reveal">
     <strong>Enfermedad neurodegenerativa con crecimiento tendencial.</strong> La estacionalidad multiplicativa gana siempre: a mayor prevalencia, mayor amplitud estacional. changepoint_prior_scale bajo (0.01-0.03) prefiere tendencias suaves — la incidencia de Alzheimer no presenta quiebres abruptos. sp=0.05 (nuevo en v5) fue el ganador en 41% de los modelos.
@@ -622,7 +636,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
   <div class="card reveal">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start">
       <div>
-        <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--dark-teal);margin-bottom:1rem">Grid activo (v5)</h4>
+        <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:1rem">Grid activo (v5)</h4>
         <table class="grid-heat">
           <thead>
             <tr>
@@ -650,25 +664,25 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
         <p style="font-size:.82rem;color:var(--cool-gray);margin-top:.75rem">seasonality_mode: solo <strong>multiplicative</strong> (additive eliminado: +51% RMSE vs multiplicative)</p>
       </div>
       <div>
-        <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--dark-teal);margin-bottom:1rem">Resumen del grid</h4>
+        <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:1rem">Resumen del grid</h4>
         <div style="display:flex;flex-direction:column;gap:.6rem">
-          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--cream-pale);border-radius:8px;font-size:.88rem">
-            <span>Combinaciones totales</span><span style="font-family:var(--font-mono);font-weight:600;color:var(--dark-teal)">6</span>
+          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--bg-raised);border-radius:8px;font-size:.88rem">
+            <span>Combinaciones totales</span><span style="font-family:var(--font-mono);font-weight:600;color:var(--teal)">6</span>
           </div>
-          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--cream-pale);border-radius:8px;font-size:.88rem">
+          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--bg-raised);border-radius:8px;font-size:.88rem">
             <span>seasonality_mode</span><span style="font-family:var(--font-mono);font-size:.82rem;color:var(--teal)">[multiplicative]</span>
           </div>
-          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--cream-pale);border-radius:8px;font-size:.88rem">
+          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--bg-raised);border-radius:8px;font-size:.88rem">
             <span>changepoint_prior_scale</span><span style="font-family:var(--font-mono);font-size:.82rem;color:var(--teal)">[0.01, 0.03]</span>
           </div>
-          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--cream-pale);border-radius:8px;font-size:.88rem">
+          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--bg-raised);border-radius:8px;font-size:.88rem">
             <span>seasonality_prior_scale</span><span style="font-family:var(--font-mono);font-size:.82rem;color:var(--teal)">[0.05, 0.1, 0.5]</span>
           </div>
-          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:#fde8e8;border-radius:8px;font-size:.88rem">
-            <span>Eliminado</span><span style="font-family:var(--font-mono);font-size:.82rem;color:#b91c1c">additive (+51% RMSE)</span>
+          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:rgba(244,114,182,.1);border-radius:8px;font-size:.88rem">
+            <span>Eliminado</span><span style="font-family:var(--font-mono);font-size:.82rem;color:#F472B6">additive (+51% RMSE)</span>
           </div>
-          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:#e6f4ea;border-radius:8px;font-size:.88rem">
-            <span>RMSE medio v6</span><span style="font-family:var(--font-mono);font-weight:700;color:#1a7431">0.027</span>
+          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:rgba(45,212,191,.1);border-radius:8px;font-size:.88rem">
+            <span>RMSE medio v6</span><span style="font-family:var(--font-mono);font-weight:700;color:#2DD4BF">0.027</span>
           </div>
         </div>
       </div>
@@ -676,7 +690,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
   </div>
 
   <!-- DEPRESION GRID -->
-  <h3 class="reveal" style="font-family:var(--font-display);font-size:1.5rem;color:var(--dark-teal);margin-bottom:1rem;margin-top:3rem">3.3 Depresión — 24 combinaciones</h3>
+  <h3 class="reveal" style="font-family:var(--font-display);font-size:1.5rem;color:var(--cream);margin-bottom:1rem;margin-top:3rem">3.3 Depresión — 24 combinaciones</h3>
 
   <div class="callout callout-burgundy reveal">
     <strong>La serie más volátil y el grid más amplio.</strong> Depresión presenta picos pandémicos, sub-registro temporal y recuperación no lineal. Se prueban ambos seasonality_mode y el rango más amplio de cp y sp. sp=0.025 (nuevo en v5) aplica mayor regularización para series estatales inestables. sp=1.0 fue eliminado: ganaba en 29% de modelos individuales pero con peor RMSE medio global.
@@ -685,7 +699,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
   <div class="card reveal">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start">
       <div>
-        <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--dark-teal);margin-bottom:.75rem">Grid additive (12 combos)</h4>
+        <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.75rem">Grid additive (12 combos)</h4>
         <table class="grid-heat">
           <thead>
             <tr>
@@ -702,7 +716,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
             <tr><td>cp=0.05</td><td><span class="heat-lo">Bajo</span></td><td><span class="heat-mid">Moderado</span></td><td><span class="heat-mid">Moderado</span></td><td><span class="heat-lo">Bajo</span></td></tr>
           </tbody>
         </table>
-        <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--dark-teal);margin-bottom:.75rem;margin-top:1rem">Grid multiplicative (12 combos)</h4>
+        <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.75rem;margin-top:1rem">Grid multiplicative (12 combos)</h4>
         <table class="grid-heat">
           <thead>
             <tr>
@@ -718,31 +732,31 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
         </table>
       </div>
       <div>
-        <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--dark-teal);margin-bottom:1rem">Resumen del grid</h4>
+        <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:1rem">Resumen del grid</h4>
         <div style="display:flex;flex-direction:column;gap:.6rem">
-          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--cream-pale);border-radius:8px;font-size:.88rem">
-            <span>Combinaciones totales</span><span style="font-family:var(--font-mono);font-weight:600;color:var(--dark-teal)">24</span>
+          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--bg-raised);border-radius:8px;font-size:.88rem">
+            <span>Combinaciones totales</span><span style="font-family:var(--font-mono);font-weight:600;color:var(--teal)">24</span>
           </div>
-          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--cream-pale);border-radius:8px;font-size:.88rem">
+          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--bg-raised);border-radius:8px;font-size:.88rem">
             <span>seasonality_mode</span><span style="font-family:var(--font-mono);font-size:.82rem;color:var(--teal)">[additive, multiplicative]</span>
           </div>
-          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--cream-pale);border-radius:8px;font-size:.88rem">
+          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--bg-raised);border-radius:8px;font-size:.88rem">
             <span>changepoint_prior_scale</span><span style="font-family:var(--font-mono);font-size:.82rem;color:var(--teal)">[0.01, 0.03, 0.05]</span>
           </div>
-          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--cream-pale);border-radius:8px;font-size:.88rem">
+          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--bg-raised);border-radius:8px;font-size:.88rem">
             <span>seasonality_prior_scale</span><span style="font-family:var(--font-mono);font-size:.82rem;color:var(--teal)">[0.025, 0.05, 0.1, 0.5]</span>
           </div>
-          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:#fde8e8;border-radius:8px;font-size:.88rem">
-            <span>Eliminado</span><span style="font-family:var(--font-mono);font-size:.82rem;color:#b91c1c">sp=1.0 (peor RMSE medio)</span>
+          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:rgba(244,114,182,.1);border-radius:8px;font-size:.88rem">
+            <span>Eliminado</span><span style="font-family:var(--font-mono);font-size:.82rem;color:#F472B6">sp=1.0 (peor RMSE medio)</span>
           </div>
-          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:#e6f4ea;border-radius:8px;font-size:.88rem">
-            <span>Additive RMSE medio</span><span style="font-family:var(--font-mono);font-weight:700;color:#1a7431">0.2017</span>
+          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:rgba(45,212,191,.1);border-radius:8px;font-size:.88rem">
+            <span>Additive RMSE medio</span><span style="font-family:var(--font-mono);font-weight:700;color:#2DD4BF">0.2017</span>
           </div>
-          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:#fef7e0;border-radius:8px;font-size:.88rem">
-            <span>Multiplicative RMSE medio</span><span style="font-family:var(--font-mono);font-weight:600;color:#8a6d00">0.2183</span>
+          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:rgba(251,191,36,.1);border-radius:8px;font-size:.88rem">
+            <span>Multiplicative RMSE medio</span><span style="font-family:var(--font-mono);font-weight:600;color:#FCD34D">0.2183</span>
           </div>
-          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:#e6f4ea;border-radius:8px;font-size:.88rem">
-            <span>RMSE medio v6</span><span style="font-family:var(--font-mono);font-weight:700;color:#1a7431">0.183</span>
+          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:rgba(45,212,191,.1);border-radius:8px;font-size:.88rem">
+            <span>RMSE medio v6</span><span style="font-family:var(--font-mono);font-weight:700;color:#2DD4BF">0.183</span>
           </div>
         </div>
       </div>
@@ -750,7 +764,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
   </div>
 
   <!-- PARKINSON GRID -->
-  <h3 class="reveal" style="font-family:var(--font-display);font-size:1.5rem;color:var(--dark-teal);margin-bottom:1rem;margin-top:3rem">3.4 Parkinson — 18 combinaciones</h3>
+  <h3 class="reveal" style="font-family:var(--font-display);font-size:1.5rem;color:var(--cream);margin-bottom:1rem;margin-top:3rem">3.4 Parkinson — 18 combinaciones</h3>
 
   <div class="callout reveal">
     <strong>El grid más depurado tras la guerra contra Newton.</strong> cp=0.01 eliminado (causaba Newton en el 35% de series). cp=0.07 eliminado (nunca ganaba). cp=0.04 nuevo (interpolación entre 0.03 y 0.05 que mejoró cobertura). sp=0.5 fue el ganador claro con RMSE=0.0461, reduciéndolo ~15% vs sp=0.1.
@@ -759,7 +773,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
   <div class="card reveal">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start">
       <div>
-        <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--dark-teal);margin-bottom:1rem">Grid activo (v5)</h4>
+        <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:1rem">Grid activo (v5)</h4>
         <table class="grid-heat">
           <thead>
             <tr>
@@ -790,31 +804,31 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
             </tr>
           </tbody>
         </table>
-        <div style="margin-top:.75rem;padding:.6rem .75rem;background:#fde8e8;border-radius:8px;font-size:.82rem;color:#b91c1c">
+        <div style="margin-top:.75rem;padding:.6rem .75rem;background:rgba(244,114,182,.1);border-radius:8px;font-size:.82rem;color:#F472B6">
           <strong>Eliminados:</strong> cp=0.01 (Newton-prone), cp=0.07 (nunca ganaba) — ambos de v4
         </div>
         <p style="font-size:.82rem;color:var(--cool-gray);margin-top:.5rem">seasonality_mode: [multiplicative, additive]</p>
       </div>
       <div>
-        <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--dark-teal);margin-bottom:1rem">Resumen del grid</h4>
+        <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:1rem">Resumen del grid</h4>
         <div style="display:flex;flex-direction:column;gap:.6rem">
-          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--cream-pale);border-radius:8px;font-size:.88rem">
-            <span>Combinaciones totales</span><span style="font-family:var(--font-mono);font-weight:600;color:var(--dark-teal)">18</span>
+          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--bg-raised);border-radius:8px;font-size:.88rem">
+            <span>Combinaciones totales</span><span style="font-family:var(--font-mono);font-weight:600;color:var(--teal)">18</span>
           </div>
-          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--cream-pale);border-radius:8px;font-size:.88rem">
+          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--bg-raised);border-radius:8px;font-size:.88rem">
             <span>seasonality_mode</span><span style="font-family:var(--font-mono);font-size:.82rem;color:var(--teal)">[multiplicative, additive]</span>
           </div>
-          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--cream-pale);border-radius:8px;font-size:.88rem">
+          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--bg-raised);border-radius:8px;font-size:.88rem">
             <span>changepoint_prior_scale</span><span style="font-family:var(--font-mono);font-size:.82rem;color:var(--teal)">[0.03, 0.04, 0.05]</span>
           </div>
-          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--cream-pale);border-radius:8px;font-size:.88rem">
+          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:var(--bg-raised);border-radius:8px;font-size:.88rem">
             <span>seasonality_prior_scale</span><span style="font-family:var(--font-mono);font-size:.82rem;color:var(--teal)">[0.1, 0.5, 1.0]</span>
           </div>
-          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:#e6f4ea;border-radius:8px;font-size:.88rem">
-            <span>sp ganador</span><span style="font-family:var(--font-mono);font-weight:700;color:#1a7431">0.5 (RMSE 0.046)</span>
+          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:rgba(45,212,191,.1);border-radius:8px;font-size:.88rem">
+            <span>sp ganador</span><span style="font-family:var(--font-mono);font-weight:700;color:#2DD4BF">0.5 (RMSE 0.046)</span>
           </div>
-          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:#e6f4ea;border-radius:8px;font-size:.88rem">
-            <span>RMSE medio v6</span><span style="font-family:var(--font-mono);font-weight:700;color:#1a7431">0.057</span>
+          <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:rgba(45,212,191,.1);border-radius:8px;font-size:.88rem">
+            <span>RMSE medio v6</span><span style="font-family:var(--font-mono);font-weight:700;color:#2DD4BF">0.057</span>
           </div>
         </div>
       </div>
@@ -836,7 +850,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
   </div>
 
   <!-- TABLA EVOLUCIÓN -->
-  <h3 class="reveal" style="font-family:var(--font-display);font-size:1.5rem;color:var(--dark-teal);margin-bottom:1.25rem;margin-top:3rem">3.5 Evolución del Grid: v4 → v5 → v6</h3>
+  <h3 class="reveal" style="font-family:var(--font-display);font-size:1.5rem;color:var(--cream);margin-bottom:1.25rem;margin-top:3rem">3.5 Evolución del Grid: v4 → v5 → v6</h3>
 
   <div class="table-wrapper reveal">
     <table class="ref-table">
@@ -946,7 +960,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
   </div>
 
   <div class="card reveal" style="margin-top:2rem">
-    <h3 style="font-family:var(--font-display);font-size:1.3rem;color:var(--dark-teal);margin-bottom:1.5rem">Estructura de los 4 folds</h3>
+    <h3 style="font-family:var(--font-display);font-size:1.3rem;color:var(--cream);margin-bottom:1.5rem">Estructura de los 4 folds</h3>
     <div class="fold-diagram">
       <div style="display:flex;gap:.5rem;align-items:center;margin-bottom:1.25rem">
         <span style="min-width:60px;text-align:right;font-family:var(--font-mono);font-size:.72rem;color:var(--cool-gray)">Fold 1</span>
@@ -981,43 +995,43 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
           <div class="fold-train" style="flex:8">Entrenamiento (2014-2023)</div>
           <div class="fold-test" style="flex:1">Test 2023-24</div>
         </div>
-        <span style="margin-left:1rem;font-family:var(--font-mono);font-size:.82rem;font-weight:700;color:var(--dark-teal);min-width:50px">×1.25</span>
+        <span style="margin-left:1rem;font-family:var(--font-mono);font-size:.82rem;font-weight:700;color:var(--teal);min-width:50px">×1.25</span>
         <span style="font-size:.8rem;color:var(--cool-gray);max-width:180px">Comportamiento actual</span>
       </div>
     </div>
 
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--cream-light)">
       <div>
-        <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--dark-teal);margin-bottom:.75rem">Ponderacion progresiva</h4>
-        <p style="font-size:.88rem;color:#555;line-height:1.65">En lugar de <code>np.mean(metrics)</code> sobre los 4 folds, se usa:</p>
-        <div style="font-family:var(--font-mono);font-size:.88rem;background:var(--cream-pale);border:1px solid var(--cream);border-radius:8px;padding:.75rem 1rem;margin:.75rem 0;color:var(--dark-teal)">
+        <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.75rem">Ponderacion progresiva</h4>
+        <p style="font-size:.88rem;color:var(--text-secondary);line-height:1.65">En lugar de <code>np.mean(metrics)</code> sobre los 4 folds, se usa:</p>
+        <div style="font-family:var(--font-mono);font-size:.88rem;background:var(--bg-raised);border:1px solid rgba(91,141,239,.15);border-radius:8px;padding:.75rem 1rem;margin:.75rem 0;color:var(--teal)">
           RMSE_cv = np.average(<br>
           &nbsp;&nbsp;[rmse_f1, rmse_f2, rmse_f3, rmse_f4],<br>
           &nbsp;&nbsp;weights=[0.50, 0.75, 1.00, 1.25]<br>
           )
         </div>
-        <p style="font-size:.85rem;color:#555">El fold post-COVID (2020-2021) recibe la mitad del peso del fold actual. Evita que el periodo atípico domine la selección de hiperparámetros.</p>
+        <p style="font-size:.85rem;color:var(--text-secondary)">El fold post-COVID (2020-2021) recibe la mitad del peso del fold actual. Evita que el periodo atípico domine la selección de hiperparámetros.</p>
       </div>
       <div>
-        <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--dark-teal);margin-bottom:.75rem">Parámetros de CV</h4>
+        <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.75rem">Parámetros de CV</h4>
         <div style="display:flex;flex-direction:column;gap:.5rem">
-          <div style="display:flex;justify-content:space-between;padding:.4rem .7rem;background:var(--cream-pale);border-radius:6px;font-size:.85rem">
-            <span>Método</span><span style="font-family:var(--font-mono);color:var(--dark-teal)">TimeSeriesSplit</span>
+          <div style="display:flex;justify-content:space-between;padding:.4rem .7rem;background:var(--bg-raised);border-radius:6px;font-size:.85rem">
+            <span>Método</span><span style="font-family:var(--font-mono);color:var(--teal)">TimeSeriesSplit</span>
           </div>
-          <div style="display:flex;justify-content:space-between;padding:.4rem .7rem;background:var(--cream-pale);border-radius:6px;font-size:.85rem">
-            <span>n_splits</span><span style="font-family:var(--font-mono);color:var(--dark-teal)">4</span>
+          <div style="display:flex;justify-content:space-between;padding:.4rem .7rem;background:var(--bg-raised);border-radius:6px;font-size:.85rem">
+            <span>n_splits</span><span style="font-family:var(--font-mono);color:var(--teal)">4</span>
           </div>
-          <div style="display:flex;justify-content:space-between;padding:.4rem .7rem;background:var(--cream-pale);border-radius:6px;font-size:.85rem">
-            <span>test_size</span><span style="font-family:var(--font-mono);color:var(--dark-teal)">53 semanas (~1 año)</span>
+          <div style="display:flex;justify-content:space-between;padding:.4rem .7rem;background:var(--bg-raised);border-radius:6px;font-size:.85rem">
+            <span>test_size</span><span style="font-family:var(--font-mono);color:var(--teal)">53 semanas (~1 año)</span>
           </div>
-          <div style="display:flex;justify-content:space-between;padding:.4rem .7rem;background:var(--cream-pale);border-radius:6px;font-size:.85rem">
-            <span>Criterio de selección</span><span style="font-family:var(--font-mono);color:var(--dark-teal)">RMSE ponderado mínimo</span>
+          <div style="display:flex;justify-content:space-between;padding:.4rem .7rem;background:var(--bg-raised);border-radius:6px;font-size:.85rem">
+            <span>Criterio de selección</span><span style="font-family:var(--font-mono);color:var(--teal)">RMSE ponderado mínimo</span>
           </div>
-          <div style="display:flex;justify-content:space-between;padding:.4rem .7rem;background:var(--cream-pale);border-radius:6px;font-size:.85rem">
-            <span>Modelo final</span><span style="font-family:var(--font-mono);color:var(--dark-teal)">Reentrenar con serie COMPLETA</span>
+          <div style="display:flex;justify-content:space-between;padding:.4rem .7rem;background:var(--bg-raised);border-radius:6px;font-size:.85rem">
+            <span>Modelo final</span><span style="font-family:var(--font-mono);color:var(--teal)">Reentrenar con serie COMPLETA</span>
           </div>
-          <div style="display:flex;justify-content:space-between;padding:.4rem .7rem;background:#e6f4ea;border-radius:6px;font-size:.85rem">
-            <span>Timeout por fold</span><span style="font-family:var(--font-mono);color:#1a7431">35 segundos</span>
+          <div style="display:flex;justify-content:space-between;padding:.4rem .7rem;background:rgba(45,212,191,.1);border-radius:6px;font-size:.85rem">
+            <span>Timeout por fold</span><span style="font-family:var(--font-mono);color:#2DD4BF">35 segundos</span>
           </div>
         </div>
       </div>
@@ -1035,14 +1049,14 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
         <div style="width:14px;height:14px;border-radius:50%;background:var(--teal);flex-shrink:0"></div>
         <h3 class="card-title">Entrenamiento del modelo final</h3>
       </div>
-      <p style="font-size:.9rem;color:#555;line-height:1.7;margin-bottom:1rem">Después de la CV, el mejor conjunto de hiperparámetros se usa para entrenar el modelo <strong>con la serie completa</strong> (2014-2026), no solo el split de entrenamiento del último fold.</p>
-      <div style="padding:1rem;background:linear-gradient(135deg,rgba(0,82,78,.06),rgba(181,133,0,.04));border-radius:8px;border-left:3px solid var(--teal)">
-        <p style="font-size:.85rem;color:var(--dark-teal);font-weight:600;margin-bottom:.25rem">Razonamiento</p>
-        <p style="font-size:.85rem;color:#555">CV evalúa el desempeño predictivo. El .pkl en producción necesita toda la información disponible para el pronóstico futuro — incluir 2024-2026 mejora la proyección a 52 semanas.</p>
+      <p style="font-size:.9rem;color:var(--text-secondary);line-height:1.7;margin-bottom:1rem">Después de la CV, el mejor conjunto de hiperparámetros se usa para entrenar el modelo <strong>con la serie completa</strong> (2014-2026), no solo el split de entrenamiento del último fold.</p>
+      <div style="padding:1rem;background:linear-gradient(135deg,rgba(91,141,239,.08),rgba(45,212,191,.05));border-radius:8px;border-left:3px solid var(--teal)">
+        <p style="font-size:.85rem;color:var(--cream);font-weight:600;margin-bottom:.25rem">Razonamiento</p>
+        <p style="font-size:.85rem;color:var(--text-secondary)">CV evalúa el desempeño predictivo. El .pkl en producción necesita toda la información disponible para el pronóstico futuro — incluir 2024-2026 mejora la proyección a 52 semanas.</p>
       </div>
-      <div style="margin-top:1rem;padding:1rem;background:#e6f4ea;border-radius:8px;border-left:3px solid #2E7D32">
-        <p style="font-size:.85rem;color:#1a7431;font-weight:600;margin-bottom:.25rem">Impacto</p>
-        <p style="font-size:.85rem;color:#555">+53 semanas de datos adicionales en el modelo final vs v4 (que entrenaba solo hasta el split de CV). Mejora especialmente la proyección en series con tendencia reciente marcada.</p>
+      <div style="margin-top:1rem;padding:1rem;background:rgba(45,212,191,.1);border-radius:8px;border-left:3px solid #2DD4BF">
+        <p style="font-size:.85rem;color:#2DD4BF;font-weight:600;margin-bottom:.25rem">Impacto</p>
+        <p style="font-size:.85rem;color:var(--text-secondary)">+53 semanas de datos adicionales en el modelo final vs v4 (que entrenaba solo hasta el split de CV). Mejora especialmente la proyección en series con tendencia reciente marcada.</p>
       </div>
     </div>
   </div>
@@ -1125,19 +1139,19 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
         <div style="width:14px;height:14px;border-radius:50%;background:var(--burgundy);flex-shrink:0"></div>
         <h3 class="card-title">Por qué cp bajo activa Newton</h3>
       </div>
-      <p style="font-size:.88rem;color:#555;line-height:1.7;margin-bottom:1rem">Con <code>changepoint_prior_scale=0.01</code>, la prior Laplace es extremadamente estrecha. L-BFGS necesita muchos pasos para encontrar la curvatura correcta en ese espacio de parámetros — y a menudo falla la convergencia, activando el fallback a Newton.</p>
+      <p style="font-size:.88rem;color:var(--text-secondary);line-height:1.7;margin-bottom:1rem">Con <code>changepoint_prior_scale=0.01</code>, la prior Laplace es extremadamente estrecha. L-BFGS necesita muchos pasos para encontrar la curvatura correcta en ese espacio de parámetros — y a menudo falla la convergencia, activando el fallback a Newton.</p>
       <div style="display:flex;flex-direction:column;gap:.75rem">
-        <div style="padding:.75rem;background:#fde8e8;border-radius:8px;border-left:3px solid var(--burgundy)">
-          <div style="font-family:var(--font-mono);font-size:.8rem;font-weight:600;color:var(--dark-burgundy);margin-bottom:.25rem">L-BFGS (normal)</div>
-          <p style="font-size:.82rem;color:#555">Optimizador quasi-Newton de memoria limitada. Típicamente converge en 50-200 iteraciones. Tiempo: 2-10 segundos por fold.</p>
+        <div style="padding:.75rem;background:rgba(244,114,182,.1);border-radius:8px;border-left:3px solid var(--burgundy)">
+          <div style="font-family:var(--font-mono);font-size:.8rem;font-weight:600;color:var(--burgundy);margin-bottom:.25rem">L-BFGS (normal)</div>
+          <p style="font-size:.82rem;color:var(--text-secondary)">Optimizador quasi-Newton de memoria limitada. Típicamente converge en 50-200 iteraciones. Tiempo: 2-10 segundos por fold.</p>
         </div>
-        <div style="padding:.75rem;background:#fde8e8;border-radius:8px;border-left:3px solid #8B0000">
-          <div style="font-family:var(--font-mono);font-size:.8rem;font-weight:600;color:#8B0000;margin-bottom:.25rem">Newton (lento)</div>
-          <p style="font-size:.82rem;color:#555">Newton completo requiere la Hessiana exacta. En espacio de alta dimensión (Fourier + changepoints), puede tardar 500-2000 iteraciones. Tiempo: 5-40 minutos por fold.</p>
+        <div style="padding:.75rem;background:rgba(244,114,182,.1);border-radius:8px;border-left:3px solid #F472B6">
+          <div style="font-family:var(--font-mono);font-size:.8rem;font-weight:600;color:#F472B6;margin-bottom:.25rem">Newton (lento)</div>
+          <p style="font-size:.82rem;color:var(--text-secondary)">Newton completo requiere la Hessiana exacta. En espacio de alta dimensión (Fourier + changepoints), puede tardar 500-2000 iteraciones. Tiempo: 5-40 minutos por fold.</p>
         </div>
-        <div style="padding:.75rem;background:#e6f4ea;border-radius:8px;border-left:3px solid #2E7D32">
-          <div style="font-family:var(--font-mono);font-size:.8rem;font-weight:600;color:#1a7431;margin-bottom:.25rem">Con protección anti-Newton</div>
-          <p style="font-size:.82rem;color:#555">cp=0.01 se prueba primero (orden descendente). Si timeout en fold 1, se salta todos los cp menores. Tiempo total: &lt;5 min por serie.</p>
+        <div style="padding:.75rem;background:rgba(45,212,191,.1);border-radius:8px;border-left:3px solid #2DD4BF">
+          <div style="font-family:var(--font-mono);font-size:.8rem;font-weight:600;color:#2DD4BF;margin-bottom:.25rem">Con protección anti-Newton</div>
+          <p style="font-size:.82rem;color:var(--text-secondary)">cp=0.01 se prueba primero (orden descendente). Si timeout en fold 1, se salta todos los cp menores. Tiempo total: &lt;5 min por serie.</p>
         </div>
       </div>
     </div>
@@ -1183,57 +1197,57 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
   <div class="card-grid reveal" style="margin-top:2rem">
     <div class="card" style="border-top:4px solid var(--burgundy)">
       <div style="font-family:var(--font-mono);font-size:.8rem;color:var(--cool-gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem">umbral_minimo_semanal</div>
-      <h3 style="font-family:var(--font-display);font-size:1.3rem;color:var(--dark-burgundy);margin-bottom:.75rem">0.5 casos/semana</h3>
-      <p style="font-size:.88rem;color:#555;line-height:1.7">Si el promedio semanal de una serie estatal es &lt; 0.5, se marca como <code>confianza: "insuficiente"</code>. Reducido de 1.0 (v5) a 0.5 (v6) para recuperar ~40 modelos que tenían datos usables pero escasos.</p>
-      <div style="margin-top:1rem;padding:.75rem;background:#fde8e8;border-radius:8px;font-size:.85rem;color:#555">
-        <strong style="color:var(--dark-burgundy)">Distribución por padecimiento:</strong><br>
+      <h3 style="font-family:var(--font-display);font-size:1.3rem;color:var(--burgundy);margin-bottom:.75rem">0.5 casos/semana</h3>
+      <p style="font-size:.88rem;color:var(--text-secondary);line-height:1.7">Si el promedio semanal de una serie estatal es &lt; 0.5, se marca como <code>confianza: "insuficiente"</code>. Reducido de 1.0 (v5) a 0.5 (v6) para recuperar ~40 modelos que tenían datos usables pero escasos.</p>
+      <div style="margin-top:1rem;padding:.75rem;background:rgba(244,114,182,.1);border-radius:8px;font-size:.85rem;color:var(--text-secondary)">
+        <strong style="color:var(--burgundy)">Distribución por padecimiento:</strong><br>
         Alzheimer: 36 insuficientes &middot; Parkinson: 5 insuficientes &middot; Depresión: 0
       </div>
     </div>
 
     <div class="card" style="border-top:4px solid var(--teal)">
       <div style="font-family:var(--font-mono);font-size:.8rem;color:var(--cool-gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem">modelado_hibrido: true</div>
-      <h3 style="font-family:var(--font-display);font-size:1.3rem;color:var(--dark-teal);margin-bottom:.75rem">Lógica de fallback</h3>
+      <h3 style="font-family:var(--font-display);font-size:1.3rem;color:var(--cream);margin-bottom:.75rem">Lógica de fallback</h3>
       <div style="display:flex;flex-direction:column;gap:.6rem;font-size:.88rem">
         <div style="display:flex;gap:.75rem;align-items:flex-start">
-          <span style="min-width:22px;height:22px;border-radius:50%;background:rgba(0,82,78,.15);color:var(--teal);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.72rem;font-weight:700;flex-shrink:0">1</span>
-          <p style="color:#555;margin:0">CV y entrenamiento regional se realizan normalmente (datos agregados suficientes)</p>
+          <span style="min-width:22px;height:22px;border-radius:50%;background:rgba(91,141,239,.15);color:var(--teal);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.72rem;font-weight:700;flex-shrink:0">1</span>
+          <p style="color:var(--text-secondary);margin:0">CV y entrenamiento regional se realizan normalmente (datos agregados suficientes)</p>
         </div>
         <div style="display:flex;gap:.75rem;align-items:flex-start">
-          <span style="min-width:22px;height:22px;border-radius:50%;background:rgba(0,82,78,.15);color:var(--teal);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.72rem;font-weight:700;flex-shrink:0">2</span>
-          <p style="color:#555;margin:0">Estado insuficiente: el .pkl regional del estado correspondiente se usa para predicción</p>
+          <span style="min-width:22px;height:22px;border-radius:50%;background:rgba(91,141,239,.15);color:var(--teal);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.72rem;font-weight:700;flex-shrink:0">2</span>
+          <p style="color:var(--text-secondary);margin:0">Estado insuficiente: el .pkl regional del estado correspondiente se usa para predicción</p>
         </div>
         <div style="display:flex;gap:.75rem;align-items:flex-start">
-          <span style="min-width:22px;height:22px;border-radius:50%;background:rgba(0,82,78,.15);color:var(--teal);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.72rem;font-weight:700;flex-shrink:0">3</span>
-          <p style="color:#555;margin:0">La desnormalización usa la <strong>población individual del estado</strong>, no la regional — escala correcta</p>
+          <span style="min-width:22px;height:22px;border-radius:50%;background:rgba(91,141,239,.15);color:var(--teal);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.72rem;font-weight:700;flex-shrink:0">3</span>
+          <p style="color:var(--text-secondary);margin:0">La desnormalización usa la <strong>población individual del estado</strong>, no la regional — escala correcta</p>
         </div>
         <div style="display:flex;gap:.75rem;align-items:flex-start">
-          <span style="min-width:22px;height:22px;border-radius:50%;background:rgba(0,82,78,.15);color:var(--teal);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.72rem;font-weight:700;flex-shrink:0">4</span>
-          <p style="color:#555;margin:0">El CSV <code>all_forecast.csv</code> incluye columna <code>usar_regional</code> y mapeo a .pkl regional</p>
+          <span style="min-width:22px;height:22px;border-radius:50%;background:rgba(91,141,239,.15);color:var(--teal);display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.72rem;font-weight:700;flex-shrink:0">4</span>
+          <p style="color:var(--text-secondary);margin:0">El CSV <code>all_forecast.csv</code> incluye columna <code>usar_regional</code> y mapeo a .pkl regional</p>
         </div>
       </div>
     </div>
   </div>
 
   <div class="card reveal" style="margin-top:2rem">
-    <h3 style="font-family:var(--font-display);font-size:1.3rem;color:var(--dark-teal);margin-bottom:1.25rem">Regiones INEGI de Salud Mental</h3>
+    <h3 style="font-family:var(--font-display);font-size:1.3rem;color:var(--cream);margin-bottom:1.25rem">Regiones INEGI de Salud Mental</h3>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem">
-      <div style="padding:1.25rem;background:linear-gradient(135deg,var(--dark-teal),var(--teal));color:var(--cream-pale);border-radius:var(--radius-sm)">
+      <div style="padding:1.25rem;background:linear-gradient(135deg,#1C2740,rgba(91,141,239,.4));color:var(--cream);border-radius:var(--radius-sm)">
         <div style="font-family:var(--font-mono);font-size:.78rem;opacity:.7;margin-bottom:.4rem">Región 1</div>
         <div style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:.5rem">Metropolitana alta</div>
         <p style="font-size:.82rem;opacity:.8">CDMX, Jalisco, Nuevo León, Estado de México. Alta densidad, servicios de salud mental desarrollados.</p>
       </div>
-      <div style="padding:1.25rem;background:linear-gradient(135deg,#1a4a3a,var(--teal));color:var(--cream-pale);border-radius:var(--radius-sm)">
+      <div style="padding:1.25rem;background:linear-gradient(135deg,#18223A,rgba(91,141,239,.3));color:var(--cream);border-radius:var(--radius-sm)">
         <div style="font-family:var(--font-mono);font-size:.78rem;opacity:.7;margin-bottom:.4rem">Región 2</div>
         <div style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:.5rem">Urbana media</div>
         <p style="font-size:.82rem;opacity:.8">Aguascalientes, Querétaro, Guanajuato, Coahuila. Urbanización creciente, cobertura IMSS media.</p>
       </div>
-      <div style="padding:1.25rem;background:linear-gradient(135deg,#203a30,var(--dark-teal));color:var(--cream-pale);border-radius:var(--radius-sm)">
+      <div style="padding:1.25rem;background:linear-gradient(135deg,#131C30,#1C2740);color:var(--cream);border-radius:var(--radius-sm)">
         <div style="font-family:var(--font-mono);font-size:.78rem;opacity:.7;margin-bottom:.4rem">Región 3</div>
         <div style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:.5rem">Sur-Sureste vulnerable</div>
         <p style="font-size:.82rem;opacity:.8">Chiapas, Oaxaca, Guerrero, Veracruz. Alta marginalidad, sub-registro alto, series más cortas.</p>
       </div>
-      <div style="padding:1.25rem;background:linear-gradient(135deg,#1a3828,var(--dark-teal));color:var(--cream-pale);border-radius:var(--radius-sm)">
+      <div style="padding:1.25rem;background:linear-gradient(135deg,#131C30,rgba(91,141,239,.25));color:var(--cream);border-radius:var(--radius-sm)">
         <div style="font-family:var(--font-mono);font-size:.78rem;opacity:.7;margin-bottom:.4rem">Región 4</div>
         <div style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:.5rem">Rural / dispersa</div>
         <p style="font-size:.82rem;opacity:.8">Durango, Zacatecas, Colima, BCS, Nayarit. Baja densidad, mayor proporción de modelos insuficientes.</p>
@@ -1268,26 +1282,26 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
     <!-- COVID -->
     <div style="display:flex;align-items:flex-start;gap:2rem;margin-bottom:2.5rem">
       <div style="min-width:110px;text-align:right;font-family:var(--font-mono);font-size:.78rem;color:var(--cool-gray);padding-top:.3rem">2020-03-23</div>
-      <div style="width:16px;height:16px;border-radius:50%;background:var(--burgundy);border:3px solid #fff;box-shadow:0 0 0 2px var(--burgundy);flex-shrink:0;margin-top:.25rem;z-index:1"></div>
-      <div style="flex:1;background:#fff;border-radius:var(--radius-sm);padding:1.25rem 1.5rem;box-shadow:var(--shadow-sm);border-left:4px solid var(--burgundy)">
+      <div style="width:16px;height:16px;border-radius:50%;background:var(--burgundy);border:3px solid var(--bg-base);box-shadow:0 0 0 2px var(--burgundy);flex-shrink:0;margin-top:.25rem;z-index:1"></div>
+      <div style="flex:1;background:var(--bg-card);border-radius:var(--radius-sm);padding:1.25rem 1.5rem;box-shadow:var(--shadow-sm);border-left:4px solid var(--burgundy)">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.5rem">
-          <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--dark-burgundy)">Pandemia COVID-19</h4>
+          <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--burgundy)">Pandemia COVID-19</h4>
           <div style="display:flex;gap:.5rem;flex-wrap:wrap">
             <span class="badge badge-red">913 días</span>
             <span class="badge badge-red">~2.5 años</span>
             <span class="badge badge-teal">Activo</span>
           </div>
         </div>
-        <p style="font-size:.88rem;color:#555;line-height:1.65;margin-top:.5rem">Declaración de pandemia. Los tres padecimientos experimentaron disrupciones distintas: Depresión con pico de demanda + colapso de reporte, Parkinson con interrupción de consultas, Alzheimer con sub-registro en domicilios. La ventana de 913 días cubre hasta mediados de 2022, absorbiendo la fase de recuperación gradual.</p>
-        <div style="margin-top:.75rem;font-family:var(--font-mono);font-size:.82rem;background:var(--cream-pale);border-radius:6px;padding:.5rem .75rem;color:var(--dark-teal)">lower_window: 0 &nbsp;&middot;&nbsp; upper_window: 913</div>
+        <p style="font-size:.88rem;color:var(--text-secondary);line-height:1.65;margin-top:.5rem">Declaración de pandemia. Los tres padecimientos experimentaron disrupciones distintas: Depresión con pico de demanda + colapso de reporte, Parkinson con interrupción de consultas, Alzheimer con sub-registro en domicilios. La ventana de 913 días cubre hasta mediados de 2022, absorbiendo la fase de recuperación gradual.</p>
+        <div style="margin-top:.75rem;font-family:var(--font-mono);font-size:.82rem;background:var(--bg-raised);border-radius:6px;padding:.5rem .75rem;color:var(--teal)">lower_window: 0 &nbsp;&middot;&nbsp; upper_window: 913</div>
       </div>
     </div>
 
     <!-- TABASCO -->
     <div style="display:flex;align-items:flex-start;gap:2rem;margin-bottom:2.5rem">
       <div style="min-width:110px;text-align:right;font-family:var(--font-mono);font-size:.78rem;color:var(--cool-gray);padding-top:.3rem">2023-01-09</div>
-      <div style="width:16px;height:16px;border-radius:50%;background:var(--gold);border:3px solid #fff;box-shadow:0 0 0 2px var(--gold);flex-shrink:0;margin-top:.25rem;z-index:1"></div>
-      <div style="flex:1;background:#fff;border-radius:var(--radius-sm);padding:1.25rem 1.5rem;box-shadow:var(--shadow-sm);border-left:4px solid var(--gold)">
+      <div style="width:16px;height:16px;border-radius:50%;background:var(--gold);border:3px solid var(--bg-base);box-shadow:0 0 0 2px var(--gold);flex-shrink:0;margin-top:.25rem;z-index:1"></div>
+      <div style="flex:1;background:var(--bg-card);border-radius:var(--radius-sm);padding:1.25rem 1.5rem;box-shadow:var(--shadow-sm);border-left:4px solid var(--gold)">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.5rem">
           <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--gold)">Tabasco — Cambio de régimen (Depresión)</h4>
           <div style="display:flex;gap:.5rem;flex-wrap:wrap">
@@ -1296,28 +1310,28 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
             <span class="badge badge-teal">Activo</span>
           </div>
         </div>
-        <p style="font-size:.88rem;color:#555;line-height:1.65;margin-top:.5rem">Quiebre estadístico en la serie de Depresión de Tabasco a principios de 2023 — posiblemente asociado a cambio en protocolo de diagnóstico o sistema de reporte. Sin este holiday, el RMSE de Tabasco-Depresión era 6.2% más alto. Filtrado por <code>entidad="Tabasco"</code> y <code>padecimiento="Depresión"</code>.</p>
-        <div style="margin-top:.75rem;font-family:var(--font-mono);font-size:.82rem;background:var(--cream-pale);border-radius:6px;padding:.5rem .75rem;color:var(--dark-teal)">lower_window: 0 &nbsp;&middot;&nbsp; upper_window: 365 &nbsp;&middot;&nbsp; RMSE mejora: -6.2%</div>
+        <p style="font-size:.88rem;color:var(--text-secondary);line-height:1.65;margin-top:.5rem">Quiebre estadístico en la serie de Depresión de Tabasco a principios de 2023 — posiblemente asociado a cambio en protocolo de diagnóstico o sistema de reporte. Sin este holiday, el RMSE de Tabasco-Depresión era 6.2% más alto. Filtrado por <code>entidad="Tabasco"</code> y <code>padecimiento="Depresión"</code>.</p>
+        <div style="margin-top:.75rem;font-family:var(--font-mono);font-size:.82rem;background:var(--bg-raised);border-radius:6px;padding:.5rem .75rem;color:var(--teal)">lower_window: 0 &nbsp;&middot;&nbsp; upper_window: 365 &nbsp;&middot;&nbsp; RMSE mejora: -6.2%</div>
       </div>
     </div>
 
     <!-- RECHAZADOS -->
     <div style="display:flex;align-items:flex-start;gap:2rem">
       <div style="min-width:110px;text-align:right;font-family:var(--font-mono);font-size:.78rem;color:var(--cool-gray);padding-top:.3rem">Probados</div>
-      <div style="width:16px;height:16px;border-radius:50%;background:var(--cool-gray);border:3px solid #fff;box-shadow:0 0 0 2px var(--cool-gray);flex-shrink:0;margin-top:.25rem;z-index:1"></div>
-      <div style="flex:1;background:#fff;border-radius:var(--radius-sm);padding:1.25rem 1.5rem;box-shadow:var(--shadow-sm);border-left:4px solid var(--cool-gray)">
+      <div style="width:16px;height:16px;border-radius:50%;background:var(--cool-gray);border:3px solid var(--bg-base);box-shadow:0 0 0 2px var(--cool-gray);flex-shrink:0;margin-top:.25rem;z-index:1"></div>
+      <div style="flex:1;background:var(--bg-card);border-radius:var(--radius-sm);padding:1.25rem 1.5rem;box-shadow:var(--shadow-sm);border-left:4px solid var(--cool-gray)">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:.5rem">
           <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cool-gray)">Rechazados — sin mejora de RMSE</h4>
           <span class="badge badge-gray">Descartados</span>
         </div>
         <div style="display:flex;flex-wrap:wrap;gap:.75rem;margin-top:.75rem">
-          <div style="padding:.6rem .9rem;background:#f0f0f0;border-radius:8px;font-size:.85rem">
+          <div style="padding:.6rem .9rem;background:var(--bg-raised);border-radius:8px;font-size:.85rem">
             <div style="font-family:var(--font-mono);font-size:.78rem;color:var(--cool-gray);margin-bottom:.2rem">Atípico 2016</div>
-            <p style="color:#555;margin:0">No produjo mejora estadísticamente significativa en ningún padecimiento. Removido en v5.</p>
+            <p style="color:var(--text-secondary);margin:0">No produjo mejora estadísticamente significativa en ningún padecimiento. Removido en v5.</p>
           </div>
-          <div style="padding:.6rem .9rem;background:#f0f0f0;border-radius:8px;font-size:.85rem">
+          <div style="padding:.6rem .9rem;background:var(--bg-raised);border-radius:8px;font-size:.85rem">
             <div style="font-family:var(--font-mono);font-size:.78rem;color:var(--cool-gray);margin-bottom:.2rem">Step functions (Nayarit, Colima, Durango, BCS)</div>
-            <p style="color:#555;margin:0">Cambios de régimen permanentes (posibles fusiones de clínicas o redefinición de catchment). Prophet trata los holidays como eventos temporales — mal ajuste para escalones permanentes. Empeoraron el RMSE.</p>
+            <p style="color:var(--text-secondary);margin:0">Cambios de régimen permanentes (posibles fusiones de clínicas o redefinición de catchment). Prophet trata los holidays como eventos temporales — mal ajuste para escalones permanentes. Empeoraron el RMSE.</p>
           </div>
         </div>
       </div>
@@ -1360,7 +1374,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
 
     <div class="metric-card burgundy">
       <div style="font-family:var(--font-mono);font-size:.78rem;color:var(--cool-gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem">Solo si mape_confiable</div>
-      <h4 style="color:var(--dark-burgundy)">MAPE</h4>
+      <h4 style="color:var(--burgundy)">MAPE</h4>
       <div class="formula-block">MAPE = (100/n) &sum; |y&hat; - y| / |y|</div>
       <p>Error porcentual absoluto medio. Problemático cuando <code>y &approx; 0</code> (explosión a infinito). Se usa la bandera <code>mape_confiable</code>: solo se reporta si el mínimo de y es &gt;0.1. Se clipea a 999 para evitar infinitos.</p>
       <div class="threshold">
@@ -1371,14 +1385,14 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
 
     <div class="metric-card green">
       <div style="font-family:var(--font-mono);font-size:.78rem;color:var(--cool-gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem">Nuevo en v6 — escala-independiente</div>
-      <h4 style="color:#1a7431">MASE</h4>
+      <h4 style="color:#2DD4BF">MASE</h4>
       <div class="formula-block">MASE = MAE_modelo / MAE_naive_lag52<br><br>MAE_naive_lag52 = (1/n) &sum; |y(t) - y(t-52)|</div>
       <p>Error absoluto medio escalado. El denominador es el MAE de un modelo naive que predice el mismo valor que hace 52 semanas (lag-52). <strong>MASE &lt; 1</strong> significa que el modelo supera al baseline seasonal naive.</p>
       <div class="threshold">
         <span class="badge badge-green">MASE &lt; 1 = mejor que naive</span>
         <span class="badge badge-red">MASE &gt; 1 = peor que naive</span>
       </div>
-      <div style="margin-top:.75rem;padding:.6rem .8rem;background:#e6f4ea;border-radius:6px;font-size:.82rem;color:#1a7431">
+      <div style="margin-top:.75rem;padding:.6rem .8rem;background:rgba(45,212,191,.1);border-radius:6px;font-size:.82rem;color:#2DD4BF">
         v6: Alzheimer 0.74, Depresión 0.80, Parkinson 0.75 — todos &lt; 1
       </div>
     </div>
@@ -1443,16 +1457,16 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
           <td class="mono">99</td>
           <td class="mono" style="color:var(--burgundy)">36</td>
           <td class="mono" style="color:var(--gold)">36</td>
-          <td class="mono" style="color:#1a7431;font-weight:700">0.027</td>
+          <td class="mono" style="color:#2DD4BF;font-weight:700">0.027</td>
           <td class="mono">0.021</td>
-          <td class="mono" style="color:#1a7431;font-weight:700">0.74</td>
+          <td class="mono" style="color:#2DD4BF;font-weight:700">0.74</td>
           <td class="mono">~2 min</td>
         </tr>
         <tr>
           <td><strong>Depresión</strong></td>
           <td class="mono">99</td>
-          <td class="mono" style="color:#1a7431">0</td>
-          <td class="mono" style="color:#1a7431">0</td>
+          <td class="mono" style="color:#2DD4BF">0</td>
+          <td class="mono" style="color:#2DD4BF">0</td>
           <td class="mono" style="color:var(--gold);font-weight:700">0.183</td>
           <td class="mono">0.143</td>
           <td class="mono" style="color:var(--gold);font-weight:700">0.80</td>
@@ -1463,9 +1477,9 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
           <td class="mono">99</td>
           <td class="mono" style="color:var(--burgundy)">5</td>
           <td class="mono" style="color:var(--gold)">5</td>
-          <td class="mono" style="color:#1a7431;font-weight:700">0.057</td>
+          <td class="mono" style="color:#2DD4BF;font-weight:700">0.057</td>
           <td class="mono">0.044</td>
-          <td class="mono" style="color:#1a7431;font-weight:700">0.75</td>
+          <td class="mono" style="color:#2DD4BF;font-weight:700">0.75</td>
           <td class="mono">~14 min</td>
         </tr>
       </tbody>
@@ -1477,19 +1491,19 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(0,82,78,.08);c
     <p>Los tres padecimientos presentan <strong>MASE &lt; 1</strong> — los modelos Prophet superan consistentemente al baseline naive estacional (lag-52 semanas). El modo híbrido elev&oacute; la cobertura estatal informada del 87% (v5) al <strong>100% (v6)</strong>. La protección anti-Newton redujo el tiempo de entrenamiento de Depresión de &gt;2 horas (v4) a 28 minutos. El sistema está listo para producción con 52 semanas de proyección por entidad.</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1.5rem;margin-top:2rem;position:relative">
       <div style="text-align:center">
-        <div style="font-family:var(--font-display);font-size:2.5rem;background:linear-gradient(135deg,var(--cream),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">0.76</div>
+        <div style="font-family:var(--font-display);font-size:2.5rem;background:linear-gradient(135deg,var(--cream),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">0.76</div>
         <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:1px;opacity:.6;margin-top:.25rem">MASE medio global</div>
       </div>
       <div style="text-align:center">
-        <div style="font-family:var(--font-display);font-size:2.5rem;background:linear-gradient(135deg,var(--cream),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">312</div>
+        <div style="font-family:var(--font-display);font-size:2.5rem;background:linear-gradient(135deg,var(--cream),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">312</div>
         <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:1px;opacity:.6;margin-top:.25rem">Gráficos PNG</div>
       </div>
       <div style="text-align:center">
-        <div style="font-family:var(--font-display);font-size:2.5rem;background:linear-gradient(135deg,var(--cream),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">100%</div>
+        <div style="font-family:var(--font-display);font-size:2.5rem;background:linear-gradient(135deg,var(--cream),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">100%</div>
         <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:1px;opacity:.6;margin-top:.25rem">Cobertura estatal</div>
       </div>
       <div style="text-align:center">
-        <div style="font-family:var(--font-display);font-size:2.5rem;background:linear-gradient(135deg,var(--cream),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">45 min</div>
+        <div style="font-family:var(--font-display);font-size:2.5rem;background:linear-gradient(135deg,var(--cream),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">45 min</div>
         <div style="font-size:.75rem;text-transform:uppercase;letter-spacing:1px;opacity:.6;margin-top:.25rem">Entrenamiento completo</div>
       </div>
     </div>
@@ -1760,21 +1774,21 @@ if(nav) window.addEventListener('scroll', () => nav.classList.toggle('scrolled',
     data:{
       labels:weeks,
       datasets:[
-        {label:'Tasa cruda (por 100K)',data:raw,borderColor:'rgba(155,34,66,.7)',backgroundColor:'rgba(155,34,66,.08)',borderWidth:1.5,pointRadius:0,tension:.3,yAxisID:'y'},
-        {label:'log(1 + tasa)',data:logged,borderColor:'rgba(0,82,78,.9)',backgroundColor:'rgba(0,82,78,.1)',borderWidth:2,pointRadius:0,tension:.3,yAxisID:'y2'}
+        {label:'Tasa cruda (por 100K)',data:raw,borderColor:'rgba(244,114,182,.6)',backgroundColor:'rgba(244,114,182,.1)',borderWidth:1.5,pointRadius:0,tension:.3,yAxisID:'y'},
+        {label:'log(1 + tasa)',data:logged,borderColor:'rgba(91,141,239,.9)',backgroundColor:'rgba(91,141,239,.1)',borderWidth:2,pointRadius:0,tension:.3,yAxisID:'y2'}
       ]
     },
     options:{
       responsive:true,
       interaction:{mode:'index',intersect:false},
       plugins:{
-        legend:{position:'top',labels:{font:{family:'Source Sans 3'},usePointStyle:true}},
+        legend:{position:'top',labels:{font:{family:'Outfit'},usePointStyle:true}},
         datalabels:{display:false}
       },
       scales:{
-        x:{display:true,title:{display:true,text:'Semana',font:{family:'Source Sans 3'}},grid:{display:false},ticks:{maxTicksLimit:12}},
-        y:{position:'left',title:{display:true,text:'Tasa cruda',font:{family:'Source Sans 3'}},grid:{color:'rgba(0,0,0,.05)'}},
-        y2:{position:'right',title:{display:true,text:'log(1+tasa)',font:{family:'Source Sans 3'}},grid:{display:false}}
+        x:{display:true,title:{display:true,text:'Semana',font:{family:'Outfit'}},grid:{display:false},ticks:{maxTicksLimit:12}},
+        y:{position:'left',title:{display:true,text:'Tasa cruda',font:{family:'Outfit'}},grid:{color:'rgba(91,141,239,.12)'}},
+        y2:{position:'right',title:{display:true,text:'log(1+tasa)',font:{family:'Outfit'}},grid:{display:false}}
       }
     }
   });
@@ -1799,19 +1813,19 @@ if(nav) window.addEventListener('scroll', () => nav.classList.toggle('scrolled',
     data:{
       labels:t.map((_,i)=>i%13===0?Math.round(i/2)+' sem':''),
       datasets:[
-        {label:'Fourier order=3 (estatal, 6 cols)',data:f3,borderColor:'rgba(181,133,0,.85)',backgroundColor:'rgba(181,133,0,.06)',borderWidth:2,pointRadius:0,tension:.1},
-        {label:'Fourier order=5 (nacional, 10 cols)',data:f5,borderColor:'rgba(0,82,78,.85)',backgroundColor:'rgba(0,82,78,.06)',borderWidth:2,pointRadius:0,tension:.1}
+        {label:'Fourier order=3 (estatal, 6 cols)',data:f3,borderColor:'rgba(45,212,191,.75)',backgroundColor:'rgba(45,212,191,.08)',borderWidth:2,pointRadius:0,tension:.1},
+        {label:'Fourier order=5 (nacional, 10 cols)',data:f5,borderColor:'rgba(0,82,78,.85)',backgroundColor:'rgba(91,141,239,.08)',borderWidth:2,pointRadius:0,tension:.1}
       ]
     },
     options:{
       responsive:true,
       plugins:{
-        legend:{position:'top',labels:{font:{family:'Source Sans 3'},usePointStyle:true}},
+        legend:{position:'top',labels:{font:{family:'Outfit'},usePointStyle:true}},
         datalabels:{display:false}
       },
       scales:{
         x:{grid:{display:false},ticks:{maxTicksLimit:10,font:{size:10}}},
-        y:{grid:{color:'rgba(0,0,0,.05)'},title:{display:true,text:'Amplitud estacional (u.a.)',font:{family:'Source Sans 3'}}}
+        y:{grid:{color:'rgba(91,141,239,.12)'},title:{display:true,text:'Amplitud estacional (u.a.)',font:{family:'Outfit'}}}
       }
     }
   });
@@ -1825,8 +1839,8 @@ new Chart(document.getElementById('chartCombos'),{
     datasets:[{
       label:'Combinaciones totales en grid',
       data:[6,24,18],
-      backgroundColor:['rgba(0,82,78,.75)','rgba(155,34,66,.75)','rgba(181,133,0,.75)'],
-      borderColor:['rgba(0,82,78,1)','rgba(155,34,66,1)','rgba(181,133,0,1)'],
+      backgroundColor:['rgba(91,141,239,.75)','rgba(244,114,182,.65)','rgba(45,212,191,.65)'],
+      borderColor:['rgba(91,141,239,1)','rgba(244,114,182,1)','rgba(45,212,191,1)'],
       borderWidth:2,borderRadius:10,barPercentage:.65
     }]
   },
@@ -1834,11 +1848,11 @@ new Chart(document.getElementById('chartCombos'),{
     responsive:true,
     plugins:{
       legend:{display:false},
-      datalabels:{anchor:'end',align:'top',font:{family:'JetBrains Mono',size:13,weight:'700'},color:'#231F20',formatter:v=>v+' combos'}
+      datalabels:{anchor:'end',align:'top',font:{family:'JetBrains Mono',size:13,weight:'700'},color:'#E7ECF5',formatter:v=>v+' combos'}
     },
     scales:{
-      y:{grid:{color:'rgba(0,0,0,.05)'},min:0,max:30,ticks:{stepSize:6}},
-      x:{grid:{display:false},ticks:{font:{weight:600,family:'Source Sans 3'}}}
+      y:{grid:{color:'rgba(91,141,239,.12)'},min:0,max:30,ticks:{stepSize:6}},
+      x:{grid:{display:false},ticks:{font:{weight:600,family:'Outfit'}}}
     }
   },
   plugins:[ChartDataLabels]
@@ -1850,20 +1864,20 @@ new Chart(document.getElementById('chartCpDist'),{
   data:{
     labels:['cp=0.01','cp=0.03','cp=0.04','cp=0.05'],
     datasets:[
-      {label:'Alzheimer',data:[1,1,0,0],backgroundColor:'rgba(0,82,78,.75)',borderRadius:6,borderWidth:0},
-      {label:'Depresión',data:[1,1,0,1],backgroundColor:'rgba(155,34,66,.75)',borderRadius:6,borderWidth:0},
-      {label:'Parkinson',data:[0,1,1,1],backgroundColor:'rgba(181,133,0,.75)',borderRadius:6,borderWidth:0}
+      {label:'Alzheimer',data:[1,1,0,0],backgroundColor:'rgba(91,141,239,.75)',borderRadius:6,borderWidth:0},
+      {label:'Depresión',data:[1,1,0,1],backgroundColor:'rgba(244,114,182,.65)',borderRadius:6,borderWidth:0},
+      {label:'Parkinson',data:[0,1,1,1],backgroundColor:'rgba(45,212,191,.65)',borderRadius:6,borderWidth:0}
     ]
   },
   options:{
     responsive:true,
     plugins:{
-      legend:{position:'top',labels:{font:{family:'Source Sans 3'},usePointStyle:true}},
+      legend:{position:'top',labels:{font:{family:'Outfit'},usePointStyle:true}},
       datalabels:{display:false}
     },
     scales:{
       x:{stacked:false,grid:{display:false},ticks:{font:{family:'JetBrains Mono',size:11}}},
-      y:{stacked:false,grid:{color:'rgba(0,0,0,.05)'},title:{display:true,text:'Incluido en grid (1=sí)'},ticks:{stepSize:1,max:1.5}}
+      y:{stacked:false,grid:{color:'rgba(91,141,239,.12)'},title:{display:true,text:'Incluido en grid (1=sí)'},ticks:{stepSize:1,max:1.5}}
     }
   }
 });
@@ -1876,8 +1890,8 @@ new Chart(document.getElementById('chartCvWeights'),{
     datasets:[{
       label:'Peso en RMSE ponderado',
       data:[0.50,0.75,1.00,1.25],
-      backgroundColor:['rgba(155,34,66,.5)','rgba(181,133,0,.6)','rgba(0,82,78,.7)','rgba(0,82,78,.95)'],
-      borderColor:['rgba(155,34,66,1)','rgba(181,133,0,1)','rgba(0,82,78,1)','rgba(23,63,53,1)'],
+      backgroundColor:['rgba(244,114,182,.4)','rgba(45,212,191,.5)','rgba(91,141,239,.7)','rgba(91,141,239,.95)'],
+      borderColor:['rgba(244,114,182,1)','rgba(45,212,191,1)','rgba(91,141,239,1)','rgba(14,20,36,1)'],
       borderWidth:2,borderRadius:10,barPercentage:.7
     }]
   },
@@ -1885,11 +1899,11 @@ new Chart(document.getElementById('chartCvWeights'),{
     responsive:true,
     plugins:{
       legend:{display:false},
-      datalabels:{anchor:'end',align:'top',font:{family:'JetBrains Mono',size:13,weight:'700'},color:'#231F20',formatter:v=>'×'+v}
+      datalabels:{anchor:'end',align:'top',font:{family:'JetBrains Mono',size:13,weight:'700'},color:'#E7ECF5',formatter:v=>'×'+v}
     },
     scales:{
-      y:{grid:{color:'rgba(0,0,0,.05)'},min:0,max:1.5,ticks:{callback:v=>'×'+v}},
-      x:{grid:{display:false},ticks:{font:{family:'Source Sans 3',size:11}}}
+      y:{grid:{color:'rgba(91,141,239,.12)'},min:0,max:1.5,ticks:{callback:v=>'×'+v}},
+      x:{grid:{display:false},ticks:{font:{family:'Outfit',size:11}}}
     }
   },
   plugins:[ChartDataLabels]
@@ -1903,8 +1917,8 @@ new Chart(document.getElementById('chartNewton'),{
     datasets:[{
       label:'Minutos para Chihuahua-Depresión',
       data:[39,4],
-      backgroundColor:['rgba(155,34,66,.75)','rgba(46,125,50,.75)'],
-      borderColor:['rgba(155,34,66,1)','rgba(46,125,50,1)'],
+      backgroundColor:['rgba(244,114,182,.65)','rgba(45,212,191,.65)'],
+      borderColor:['rgba(244,114,182,1)','rgba(45,212,191,1)'],
       borderWidth:2,borderRadius:12,barPercentage:.55
     }]
   },
@@ -1912,11 +1926,11 @@ new Chart(document.getElementById('chartNewton'),{
     responsive:true,
     plugins:{
       legend:{display:false},
-      datalabels:{anchor:'end',align:'top',font:{family:'JetBrains Mono',size:14,weight:'700'},color:'#231F20',formatter:v=>v+' min'}
+      datalabels:{anchor:'end',align:'top',font:{family:'JetBrains Mono',size:14,weight:'700'},color:'#E7ECF5',formatter:v=>v+' min'}
     },
     scales:{
-      y:{grid:{color:'rgba(0,0,0,.05)'},title:{display:true,text:'Tiempo (minutos)'},min:0,max:45},
-      x:{grid:{display:false},ticks:{font:{family:'Source Sans 3',weight:'600'}}}
+      y:{grid:{color:'rgba(91,141,239,.12)'},title:{display:true,text:'Tiempo (minutos)'},min:0,max:45},
+      x:{grid:{display:false},ticks:{font:{family:'Outfit',weight:'600'}}}
     }
   },
   plugins:[ChartDataLabels]
@@ -1928,19 +1942,19 @@ new Chart(document.getElementById('chartConfianza'),{
   data:{
     labels:['Alzheimer','Depresión','Parkinson'],
     datasets:[
-      {label:'Confianza normal',data:[63,99,94],backgroundColor:'rgba(0,82,78,.75)',borderRadius:8,borderWidth:0},
-      {label:'Insuficiente (fallback regional)',data:[36,0,5],backgroundColor:'rgba(155,34,66,.7)',borderRadius:8,borderWidth:0}
+      {label:'Confianza normal',data:[63,99,94],backgroundColor:'rgba(91,141,239,.75)',borderRadius:8,borderWidth:0},
+      {label:'Insuficiente (fallback regional)',data:[36,0,5],backgroundColor:'rgba(244,114,182,.6)',borderRadius:8,borderWidth:0}
     ]
   },
   options:{
     responsive:true,
     plugins:{
-      legend:{position:'top',labels:{font:{family:'Source Sans 3'},usePointStyle:true}},
+      legend:{position:'top',labels:{font:{family:'Outfit'},usePointStyle:true}},
       datalabels:{display:false}
     },
     scales:{
-      x:{stacked:true,grid:{display:false},ticks:{font:{family:'Source Sans 3',weight:'600'}}},
-      y:{stacked:true,grid:{color:'rgba(0,0,0,.05)'},title:{display:true,text:'Número de modelos'},max:110}
+      x:{stacked:true,grid:{display:false},ticks:{font:{family:'Outfit',weight:'600'}}},
+      y:{stacked:true,grid:{color:'rgba(91,141,239,.12)'},title:{display:true,text:'Número de modelos'},max:110}
     }
   }
 });
@@ -1951,19 +1965,19 @@ new Chart(document.getElementById('chartMetricas'),{
   data:{
     labels:['Alzheimer','Depresión','Parkinson'],
     datasets:[
-      {label:'RMSE medio',data:[0.027,0.183,0.057],backgroundColor:'rgba(0,82,78,.75)',borderRadius:8,borderWidth:0,yAxisID:'y'},
-      {label:'MASE medio',data:[0.74,0.80,0.75],backgroundColor:'rgba(181,133,0,.75)',borderRadius:8,borderWidth:0,yAxisID:'y2'}
+      {label:'RMSE medio',data:[0.027,0.183,0.057],backgroundColor:'rgba(91,141,239,.75)',borderRadius:8,borderWidth:0,yAxisID:'y'},
+      {label:'MASE medio',data:[0.74,0.80,0.75],backgroundColor:'rgba(45,212,191,.65)',borderRadius:8,borderWidth:0,yAxisID:'y2'}
     ]
   },
   options:{
     responsive:true,
     plugins:{
-      legend:{position:'top',labels:{font:{family:'Source Sans 3'},usePointStyle:true}},
+      legend:{position:'top',labels:{font:{family:'Outfit'},usePointStyle:true}},
       datalabels:{display:false}
     },
     scales:{
-      x:{grid:{display:false},ticks:{font:{family:'Source Sans 3',weight:'600'}}},
-      y:{position:'left',grid:{color:'rgba(0,0,0,.05)'},title:{display:true,text:'RMSE (log-tasa)'}},
+      x:{grid:{display:false},ticks:{font:{family:'Outfit',weight:'600'}}},
+      y:{position:'left',grid:{color:'rgba(91,141,239,.12)'},title:{display:true,text:'RMSE (log-tasa)'}},
       y2:{position:'right',grid:{display:false},title:{display:true,text:'MASE'},min:0,max:1.2,ticks:{callback:v=>v.toFixed(2)}}
     }
   }
@@ -1977,8 +1991,8 @@ new Chart(document.getElementById('chartResultRmse'),{
     datasets:[{
       label:'RMSE medio v6',
       data:[0.027,0.183,0.057],
-      backgroundColor:['rgba(0,82,78,.8)','rgba(155,34,66,.8)','rgba(181,133,0,.8)'],
-      borderColor:['rgba(0,82,78,1)','rgba(155,34,66,1)','rgba(181,133,0,1)'],
+      backgroundColor:['rgba(91,141,239,.8)','rgba(244,114,182,.7)','rgba(181,133,0,.8)'],
+      borderColor:['rgba(91,141,239,1)','rgba(244,114,182,1)','rgba(45,212,191,1)'],
       borderWidth:2,borderRadius:12,barPercentage:.6
     }]
   },
@@ -1986,11 +2000,11 @@ new Chart(document.getElementById('chartResultRmse'),{
     responsive:true,
     plugins:{
       legend:{display:false},
-      datalabels:{anchor:'end',align:'top',font:{family:'JetBrains Mono',size:13,weight:'700'},color:'#231F20',formatter:v=>v.toFixed(3)}
+      datalabels:{anchor:'end',align:'top',font:{family:'JetBrains Mono',size:13,weight:'700'},color:'#E7ECF5',formatter:v=>v.toFixed(3)}
     },
     scales:{
-      y:{grid:{color:'rgba(0,0,0,.05)'},title:{display:true,text:'RMSE (log-tasa por 100K)'}},
-      x:{grid:{display:false},ticks:{font:{family:'Source Sans 3',weight:'600'}}}
+      y:{grid:{color:'rgba(91,141,239,.12)'},title:{display:true,text:'RMSE (log-tasa por 100K)'}},
+      x:{grid:{display:false},ticks:{font:{family:'Outfit',weight:'600'}}}
     }
   },
   plugins:[ChartDataLabels]
@@ -2006,8 +2020,8 @@ new Chart(document.getElementById('chartResultRmse'),{
       datasets:[{
         label:'MASE medio v6',
         data:[0.74,0.80,0.75],
-        backgroundColor:['rgba(0,82,78,.8)','rgba(155,34,66,.8)','rgba(181,133,0,.8)'],
-        borderColor:['rgba(0,82,78,1)','rgba(155,34,66,1)','rgba(181,133,0,1)'],
+        backgroundColor:['rgba(91,141,239,.8)','rgba(244,114,182,.7)','rgba(181,133,0,.8)'],
+        borderColor:['rgba(91,141,239,1)','rgba(244,114,182,1)','rgba(45,212,191,1)'],
         borderWidth:2,borderRadius:12,barPercentage:.6
       }]
     },
@@ -2015,16 +2029,16 @@ new Chart(document.getElementById('chartResultRmse'),{
       responsive:true,
       plugins:{
         legend:{display:false},
-        datalabels:{anchor:'end',align:'top',font:{family:'JetBrains Mono',size:13,weight:'700'},color:'#231F20',formatter:v=>v.toFixed(2)},
+        datalabels:{anchor:'end',align:'top',font:{family:'JetBrains Mono',size:13,weight:'700'},color:'#E7ECF5',formatter:v=>v.toFixed(2)},
         annotation:{
           annotations:{
-            line1:{type:'line',yMin:1,yMax:1,borderColor:'rgba(155,34,66,.8)',borderWidth:2,borderDash:[6,4],label:{display:true,content:'Baseline naive (MASE=1)',position:'end',font:{size:11,family:'Source Sans 3'},color:'rgba(155,34,66,1)',backgroundColor:'rgba(255,255,255,.8)'}}
+            line1:{type:'line',yMin:1,yMax:1,borderColor:'rgba(244,114,182,.7)',borderWidth:2,borderDash:[6,4],label:{display:true,content:'Baseline naive (MASE=1)',position:'end',font:{size:11,family:'Outfit'},color:'rgba(244,114,182,1)',backgroundColor:'rgba(28,39,64,.85)'}}
           }
         }
       },
       scales:{
-        y:{grid:{color:'rgba(0,0,0,.05)'},title:{display:true,text:'MASE (< 1 = mejor que naive)'},min:0,max:1.2},
-        x:{grid:{display:false},ticks:{font:{family:'Source Sans 3',weight:'600'}}}
+        y:{grid:{color:'rgba(91,141,239,.12)'},title:{display:true,text:'MASE (< 1 = mejor que naive)'},min:0,max:1.2},
+        x:{grid:{display:false},ticks:{font:{family:'Outfit',weight:'600'}}}
       }
     },
     plugins:[ChartDataLabels]

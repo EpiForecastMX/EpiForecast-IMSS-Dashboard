@@ -6,26 +6,59 @@
 <title>Hiperparámetros de los Modelos — EpiForecast-MX</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --burgundy:#9B2242;--dark-burgundy:#6F1D46;--teal:#00524E;--dark-teal:#173F35;
-  --gold:#B58500;--cream:#E8D5B5;--cream-light:#F5EDE0;--cream-pale:#FAF6F0;
-  --cool-gray:#97999B;--neutral-black:#231F20;
-  --prophet:#00524E;--tft:#9B2242;--deepar:#B58500;--lgbm:#2E7D32;--xgb:#E65100;--ridge:#5C6BC0;
-  --font-display:'DM Serif Display',Georgia,serif;
-  --font-body:'Source Sans 3','Source Sans Pro',sans-serif;
-  --font-mono:'JetBrains Mono','Fira Code',monospace;
-  --shadow-sm:0 2px 8px rgba(0,0,0,.06);--shadow-md:0 8px 24px rgba(0,0,0,.06);
-  --shadow-lg:0 16px 48px rgba(0,0,0,.06);--radius:16px;--radius-sm:10px;
+  /* Surfaces — Clinical Indigo */
+  --bg-deep:        #0E1424;
+  --bg-base:        #131C30;
+  --bg-raised:      #18223A;
+  --bg-card:        #1C2740;
+  --bg-card-hover:  #243150;
+  /* Texto */
+  --text-primary:   #E7ECF5;
+  --text-secondary: #9FB0CE;
+  --text-muted:     #6E82A6;
+  --text-faint:     #44567A;
+  /* Acentos */
+  --burgundy:       #F472B6;
+  --dark-burgundy:  #8E2A63;
+  --teal:           #5B8DEF;
+  --gold:           #2DD4BF;
+  /* Aliases legacy */
+  --neutral-black:  #0B0F1A;
+  --cool-gray:      #9FB0CE;
+  --dark-teal:      #16203A;
+  --cream:          #E7ECF5;
+  --cream-light:    #1C2740;
+  --cream-pale:     #131C30;
+  --teal-glow:      rgba(91,141,239,0.15);
+  --burgundy-glow:  rgba(244,114,182,0.15);
+  --gold-glow:      rgba(45,212,191,0.15);
+  /* Model accent colors — remapped to dark theme */
+  --prophet:        #1a3a5c;
+  --tft:            #5a1a40;
+  --deepar:         #1a4a40;
+  --lgbm:           #1a3a1a;
+  --xgb:            #4a1a00;
+  --ridge:          #1a1a4a;
+  /* Typography */
+  --font-display:   'Playfair Display', Georgia, serif;
+  --font-body:      'Outfit', system-ui, -apple-system, sans-serif;
+  --font-mono:      'JetBrains Mono', 'SF Mono', monospace;
+  --shadow-sm:      0 2px 8px rgba(0,0,0,.35);
+  --shadow-md:      0 8px 24px rgba(0,0,0,.40);
+  --shadow-lg:      0 16px 48px rgba(0,0,0,.45);
+  --radius:         16px;
+  --radius-sm:      10px;
 }
-body{font-family:var(--font-body);background:var(--cream-pale);color:var(--neutral-black);line-height:1.7;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font-body);background:var(--bg-base);color:var(--text-primary);line-height:1.7;-webkit-font-smoothing:antialiased}
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.025;pointer-events:none;z-index:0}
 
 /* Unified Nav */
-.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(23,63,53,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(232,213,181,.08);transition:box-shadow .3s,background .3s}
-.nav.scrolled{box-shadow:0 4px 30px rgba(0,0,0,.18);background:rgba(23,63,53,.97)}
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(14,20,36,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(232,213,181,.08);transition:box-shadow .3s,background .3s}
+.nav.scrolled{box-shadow:0 4px 30px rgba(0,0,0,.18);background:rgba(14,20,36,.97)}
 .nav-inner{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;align-items:center;height:64px;gap:1rem}
 .nav-logo{font-family:var(--font-display);font-size:1.3rem;color:var(--cream);letter-spacing:.02em;flex-shrink:0;text-decoration:none}
 .nav-logo span{color:var(--gold)}
@@ -35,7 +68,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .nav-group-toggle:hover,.nav-group:hover .nav-group-toggle{color:var(--cream);background:rgba(232,213,181,.06)}
 .nav-group-toggle svg{width:10px;height:10px;opacity:.5;transition:transform .2s}
 .nav-group:hover .nav-group-toggle svg{transform:rotate(180deg);opacity:.8}
-.nav-dropdown{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(-4px);background:rgba(23,63,53,.98);backdrop-filter:blur(16px);border:1px solid rgba(232,213,181,.1);border-radius:12px;padding:.5rem;min-width:200px;opacity:0;visibility:hidden;transition:opacity .15s,transform .15s,visibility .15s;box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.nav-dropdown{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(-4px);background:rgba(14,20,36,.98);backdrop-filter:blur(16px);border:1px solid rgba(232,213,181,.1);border-radius:12px;padding:.5rem;min-width:200px;opacity:0;visibility:hidden;transition:opacity .15s,transform .15s,visibility .15s;box-shadow:0 12px 40px rgba(0,0,0,.25)}
 .nav-group:hover .nav-dropdown{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
 .nav-dropdown::before{content:'';position:absolute;top:-8px;left:0;right:0;height:8px}
 .nav-dropdown a{display:flex;align-items:center;gap:.75rem;padding:.6rem 1rem;color:rgba(232,213,181,.7);font-size:.82rem;font-weight:500;border-radius:8px;transition:background .15s,color .15s;text-decoration:none;white-space:nowrap}
@@ -47,11 +80,11 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(181,133,0,.3)}
 .nav-cta--primary{background:var(--gold);color:var(--dark-teal)}
 .nav-cta--secondary{background:rgba(232,213,181,.1);color:var(--gold);border:1px solid rgba(181,133,0,.3)}
-.nav-cta--secondary:hover{background:rgba(181,133,0,.15);color:var(--gold)}
+.nav-cta--secondary:hover{background:rgba(45,212,191,.15);color:var(--gold)}
 .nav-cta svg{width:14px;height:14px}
 .nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
 .nav-hamburger span{width:24px;height:2px;background:var(--cream);transition:transform .3s,opacity .3s}
-.nav-mobile{display:none;flex-direction:column;background:rgba(23,63,53,.98);backdrop-filter:blur(16px);padding:1rem 2rem 1.5rem;border-bottom:1px solid rgba(232,213,181,.1)}
+.nav-mobile{display:none;flex-direction:column;background:rgba(14,20,36,.98);backdrop-filter:blur(16px);padding:1rem 2rem 1.5rem;border-bottom:1px solid rgba(232,213,181,.1)}
 .nav-mobile.show{display:flex}
 .nav-mobile-group{border-bottom:1px solid rgba(232,213,181,.06)}
 .nav-mobile-heading{display:flex;align-items:center;justify-content:space-between;padding:.85rem 0;color:rgba(232,213,181,.7);font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;cursor:pointer}
@@ -66,7 +99,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 .container{max-width:1200px;margin:0 auto;padding:0 2rem;position:relative;z-index:1}
 section{padding:4rem 0}
-.section-title{font-family:var(--font-display);font-size:clamp(1.8rem,4vw,2.5rem);margin-bottom:.5rem;color:var(--dark-teal)}
+.section-title{font-family:var(--font-display);font-size:clamp(1.8rem,4vw,2.5rem);margin-bottom:.5rem;color:var(--cream)}
 .section-sub{color:var(--cool-gray);font-size:1rem;margin-bottom:2.5rem}
 
 /* Hero */
@@ -78,8 +111,8 @@ section{padding:4rem 0}
 .hero .subtitle2{font-size:clamp(.85rem,1.5vw,1rem);opacity:.5;font-weight:400;font-family:var(--font-mono);position:relative}
 
 /* Cards */
-.card{background:#fff;border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow-md);border:1px solid rgba(0,0,0,.04);transition:transform .3s,box-shadow .3s;overflow:hidden}
-.card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.card{background:var(--bg-card);border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow-md);border:1px solid rgba(91,141,239,.12);transition:transform .3s,box-shadow .3s;overflow:hidden}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg);background:var(--bg-card-hover)}
 
 /* Model section */
 .model-section{margin-bottom:4rem}
@@ -92,44 +125,44 @@ section{padding:4rem 0}
 /* HP table */
 .hp-table{width:100%;border-collapse:collapse;font-size:.9rem;margin:1.5rem 0}
 .hp-table thead th{padding:.75rem 1rem;text-align:left;font-weight:600;text-transform:uppercase;font-size:.72rem;letter-spacing:.5px;color:#fff;border-bottom:none}
-.hp-table tbody td{padding:.7rem 1rem;border-bottom:1px solid var(--cream-light);vertical-align:top}
-.hp-table tbody tr:hover{background:var(--cream-pale)}
-.hp-table .hp-name{font-family:var(--font-mono);font-weight:500;color:var(--dark-teal);white-space:nowrap}
-.hp-table .hp-val{font-family:var(--font-mono);font-weight:500}
-.hp-table .hp-desc{font-size:.85rem;color:#555;line-height:1.6}
+.hp-table tbody td{padding:.7rem 1rem;border-bottom:1px solid rgba(91,141,239,.12);vertical-align:top;color:var(--text-secondary)}
+.hp-table tbody tr:hover{background:var(--bg-card-hover)}
+.hp-table .hp-name{font-family:var(--font-mono);font-weight:500;color:var(--teal);white-space:nowrap}
+.hp-table .hp-val{font-family:var(--font-mono);font-weight:500;color:var(--text-primary)}
+.hp-table .hp-desc{font-size:.85rem;color:var(--text-secondary);line-height:1.6}
 
 /* Callout */
-.callout{background:linear-gradient(135deg,rgba(0,82,78,.06),rgba(181,133,0,.04));border:1px solid rgba(0,82,78,.15);border-left:4px solid var(--teal);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:1.5rem 2rem;margin:1.5rem 0;font-size:.95rem}
-.callout strong{color:var(--dark-teal)}
-.callout-gold{border-left-color:var(--gold);background:linear-gradient(135deg,rgba(181,133,0,.06),rgba(155,34,66,.03))}
+.callout{background:linear-gradient(135deg,rgba(91,141,239,.08),rgba(45,212,191,.05));border:1px solid rgba(91,141,239,.2);border-left:4px solid var(--teal);border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:1.5rem 2rem;margin:1.5rem 0;font-size:.95rem;color:var(--text-secondary)}
+.callout strong{color:var(--text-primary)}
+.callout-gold{border-left-color:var(--gold);background:linear-gradient(135deg,rgba(45,212,191,.08),rgba(244,114,182,.04))}
 .callout-gold strong{color:var(--gold)}
-.callout-burgundy{border-left-color:var(--burgundy);background:linear-gradient(135deg,rgba(155,34,66,.06),rgba(0,82,78,.03))}
+.callout-burgundy{border-left-color:var(--burgundy);background:linear-gradient(135deg,rgba(244,114,182,.08),rgba(91,141,239,.04))}
 .callout-burgundy strong{color:var(--burgundy)}
 
 /* Pros/Cons */
 .pros-cons{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin:1.5rem 0}
 .pros,.cons{border-radius:var(--radius-sm);padding:1.5rem;font-size:.9rem}
-.pros{background:#e8f5e9;border:1px solid #c8e6c9}
-.cons{background:#fde8e8;border:1px solid #f5c6c6}
+.pros{background:rgba(45,212,191,.07);border:1px solid rgba(45,212,191,.2)}
+.cons{background:rgba(244,114,182,.07);border:1px solid rgba(244,114,182,.2)}
 .pros h4,.cons h4{font-family:var(--font-display);font-size:1.1rem;margin-bottom:.75rem}
-.pros h4{color:#1a7431}
-.cons h4{color:#b91c1c}
-.pros li,.cons li{margin-bottom:.4rem;line-height:1.6;color:#333}
+.pros h4{color:var(--gold)}
+.cons h4{color:var(--burgundy)}
+.pros li,.cons li{margin-bottom:.4rem;line-height:1.6;color:var(--text-secondary)}
 
 /* Badge */
 .badge{display:inline-block;padding:.2rem .7rem;border-radius:100px;font-family:var(--font-mono);font-size:.8rem;font-weight:500}
-.badge-green{background:#e6f4ea;color:#1a7431}
-.badge-yellow{background:#fef7e0;color:#8a6d00}
-.badge-red{background:#fde8e8;color:#b91c1c}
-.badge-teal{background:rgba(0,82,78,.1);color:var(--teal)}
-.badge-blue{background:rgba(92,107,192,.1);color:#5C6BC0}
+.badge-green{background:rgba(45,212,191,.15);color:var(--gold)}
+.badge-yellow{background:rgba(250,189,47,.12);color:#FBBF24}
+.badge-red{background:rgba(244,114,182,.15);color:var(--burgundy)}
+.badge-teal{background:rgba(91,141,239,.15);color:var(--teal)}
+.badge-blue{background:rgba(91,141,239,.12);color:var(--teal)}
 
 /* Grid combos */
 .grid-combos{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin:1.5rem 0}
-.combo-card{background:#fff;border-radius:var(--radius-sm);padding:1.2rem 1.5rem;box-shadow:var(--shadow-sm);border-left:4px solid var(--teal)}
-.combo-card h4{font-family:var(--font-display);font-size:1rem;color:var(--dark-teal);margin-bottom:.3rem}
+.combo-card{background:var(--bg-card);border-radius:var(--radius-sm);padding:1.2rem 1.5rem;box-shadow:var(--shadow-sm);border-left:4px solid var(--teal);border:1px solid rgba(91,141,239,.12);border-left:4px solid var(--teal)}
+.combo-card h4{font-family:var(--font-display);font-size:1rem;color:var(--text-primary);margin-bottom:.3rem}
 .combo-card .combo-size{font-family:var(--font-mono);font-size:1.8rem;color:var(--teal);font-weight:700}
-.combo-card .combo-detail{font-size:.8rem;color:var(--cool-gray);margin-top:.25rem;line-height:1.5}
+.combo-card .combo-detail{font-size:.8rem;color:var(--text-muted);margin-top:.25rem;line-height:1.5}
 
 /* Code block */
 .code-block{background:#1e1e2e;color:#cdd6f4;border-radius:var(--radius-sm);padding:1.5rem;font-family:var(--font-mono);font-size:.82rem;line-height:1.7;overflow-x:auto;margin:1rem 0}
@@ -141,23 +174,23 @@ section{padding:4rem 0}
 
 /* Stats row */
 .stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;margin:2rem 0}
-.stat-box{background:#fff;border-radius:var(--radius-sm);padding:1.2rem;text-align:center;box-shadow:var(--shadow-sm);border-top:3px solid var(--teal)}
-.stat-box .big-num{font-family:var(--font-display);font-size:2rem;color:var(--dark-teal);line-height:1.1}
-.stat-box .stat-desc{font-size:.72rem;color:var(--cool-gray);margin-top:.3rem;text-transform:uppercase;letter-spacing:.5px}
+.stat-box{background:var(--bg-card);border-radius:var(--radius-sm);padding:1.2rem;text-align:center;box-shadow:var(--shadow-sm);border-top:3px solid var(--teal);border:1px solid rgba(91,141,239,.12);border-top:3px solid var(--teal)}
+.stat-box .big-num{font-family:var(--font-display);font-size:2rem;color:var(--text-primary);line-height:1.1}
+.stat-box .stat-desc{font-size:.72rem;color:var(--text-muted);margin-top:.3rem;text-transform:uppercase;letter-spacing:.5px}
 
 /* Compare table */
 .compare-table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:.88rem}
-.compare-table thead th{padding:.7rem 1rem;text-align:left;font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;color:#fff;background:var(--dark-teal)}
-.compare-table tbody td{padding:.65rem 1rem;border-bottom:1px solid var(--cream-light)}
-.compare-table tbody tr:hover{background:var(--cream-pale)}
+.compare-table thead th{padding:.7rem 1rem;text-align:left;font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;color:var(--text-primary);background:var(--bg-raised)}
+.compare-table tbody td{padding:.65rem 1rem;border-bottom:1px solid rgba(91,141,239,.12);color:var(--text-secondary)}
+.compare-table tbody tr:hover{background:var(--bg-card-hover)}
 
 /* TOC */
-.toc{background:#fff;border-radius:var(--radius);padding:1.5rem 2rem;box-shadow:var(--shadow-md);margin-bottom:3rem}
-.toc h3{font-family:var(--font-display);font-size:1.1rem;color:var(--dark-teal);margin-bottom:1rem}
+.toc{background:var(--bg-card);border-radius:var(--radius);padding:1.5rem 2rem;box-shadow:var(--shadow-md);margin-bottom:3rem;border:1px solid rgba(91,141,239,.12)}
+.toc h3{font-family:var(--font-display);font-size:1.1rem;color:var(--text-primary);margin-bottom:1rem}
 .toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.5rem}
 .toc a{color:var(--teal);text-decoration:none;font-size:.88rem;padding:.3rem .5rem;border-radius:6px;transition:background .2s;display:block}
-.toc a:hover{background:var(--cream-pale)}
-.toc a .toc-num{font-family:var(--font-mono);font-size:.75rem;color:var(--cool-gray);margin-right:.3rem}
+.toc a:hover{background:var(--bg-card-hover)}
+.toc a .toc-num{font-family:var(--font-mono);font-size:.75rem;color:var(--text-muted);margin-right:.3rem}
 
 /* Reveal */
 .reveal{opacity:0;transform:translateY(30px);transition:opacity .6s,transform .6s}
@@ -290,13 +323,13 @@ section{padding:4rem 0}
   <p class="section-sub reveal">Los "botones y perillas" que ajustamos antes de entrenar un modelo.</p>
 
   <div class="card reveal">
-    <p style="font-size:1.05rem;line-height:1.8;color:#333">
+    <p style="font-size:1.05rem;line-height:1.8;color:var(--text-primary)">
       Un modelo de machine learning tiene dos tipos de configuración: los <strong>parámetros</strong> (que el modelo aprende automáticamente de los datos) y los <strong>hiperparámetros</strong> (que nosotros definimos antes de entrenar).
     </p>
-    <p style="font-size:1.05rem;line-height:1.8;color:#333;margin-top:1rem">
+    <p style="font-size:1.05rem;line-height:1.8;color:var(--text-primary);margin-top:1rem">
       Imagina un auto de carreras: los <strong>parámetros</strong> son como la habilidad del piloto &mdash; mejora con práctica. Los <strong>hiperparámetros</strong> son como la configuración del motor, la presión de las llantas y la aerodinámica &mdash; los ingenieros los ajustan <em>antes</em> de la carrera.
     </p>
-    <p style="font-size:1.05rem;line-height:1.8;color:#333;margin-top:1rem">
+    <p style="font-size:1.05rem;line-height:1.8;color:var(--text-primary);margin-top:1rem">
       Elegir mal los hiperparámetros puede hacer que un modelo excelente funcione pésimamente. Elegirlos bien es la diferencia entre un pronóstico mediocre y uno que supera al baseline naive en el 86% de las series.
     </p>
   </div>
@@ -312,7 +345,7 @@ section{padding:4rem 0}
   <p class="section-sub reveal">Todos los modelos reciben los mismos datos, transformados de la misma manera.</p>
 
   <div class="card reveal">
-    <h3 style="font-family:var(--font-display);font-size:1.3rem;color:var(--dark-teal);margin-bottom:1rem">De conteos crudos a la entrada del modelo</h3>
+    <h3 style="font-family:var(--font-display);font-size:1.3rem;color:var(--cream);margin-bottom:1rem">De conteos crudos a la entrada del modelo</h3>
     <div class="code-block">
 <span class="comment"># 1. Tasa por 100,000 habitantes</span>
 y_tasa = (incidencia_semanal / población_estado) × <span class="number">100,000</span>
@@ -327,24 +360,24 @@ modelo.<span class="fn">fit</span>(y_final)
 yhat_tasa = <span class="fn">exp</span>(yhat) - <span class="number">1</span>
 yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
     </div>
-    <p style="font-size:.9rem;color:#555;margin-top:1rem;line-height:1.7">
+    <p style="font-size:.9rem;color:var(--text-secondary);margin-top:1rem;line-height:1.7">
       <strong>¿Por qué tasas?</strong> Normaliza la escala entre estados con poblaciones muy diferentes (CDMX ~9M vs Colima ~730K). Sin esto, CDMX dominaría todas las métricas por volumen.
     </p>
-    <p style="font-size:.9rem;color:#555;margin-top:.5rem;line-height:1.7">
+    <p style="font-size:.9rem;color:var(--text-secondary);margin-top:.5rem;line-height:1.7">
       <strong>¿Por qué log-transform?</strong> Las series epidemiológicas tienen varianza proporcional al nivel (más casos = más variabilidad). El logaritmo estabiliza esto y comprime los picos extremos de Depresión.
     </p>
   </div>
 
   <div class="card reveal" style="margin-top:1.5rem">
-    <h3 style="font-family:var(--font-display);font-size:1.3rem;color:var(--dark-teal);margin-bottom:1rem">Períodos atípicos</h3>
+    <h3 style="font-family:var(--font-display);font-size:1.3rem;color:var(--cream);margin-bottom:1rem">Períodos atípicos</h3>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
-      <div style="padding:1rem;background:var(--cream-pale);border-radius:var(--radius-sm);border-left:4px solid var(--burgundy)">
-        <h4 style="font-family:var(--font-display);color:var(--dark-burgundy)">COVID-19</h4>
-        <p style="font-size:.85rem;color:#555;margin-top:.3rem">Inicio: <span style="font-family:var(--font-mono)">2020-03-23</span><br>Duración: <span style="font-family:var(--font-mono)">913 días</span> (~2.5 años)<br>Prophet lo trata como "holiday" para no ajustar la tendencia al colapso pandémico.</p>
+      <div style="padding:1rem;background:var(--bg-card);border-radius:var(--radius-sm);border-left:4px solid var(--burgundy)">
+        <h4 style="font-family:var(--font-display);color:var(--burgundy)">COVID-19</h4>
+        <p style="font-size:.85rem;color:var(--text-secondary);margin-top:.3rem">Inicio: <span style="font-family:var(--font-mono)">2020-03-23</span><br>Duración: <span style="font-family:var(--font-mono)">913 días</span> (~2.5 años)<br>Prophet lo trata como "holiday" para no ajustar la tendencia al colapso pandémico.</p>
       </div>
-      <div style="padding:1rem;background:var(--cream-pale);border-radius:var(--radius-sm);border-left:4px solid var(--gold)">
+      <div style="padding:1rem;background:var(--bg-card);border-radius:var(--radius-sm);border-left:4px solid var(--gold)">
         <h4 style="font-family:var(--font-display);color:var(--gold)">Cambio régimen Tabasco 2023</h4>
-        <p style="font-size:.85rem;color:#555;margin-top:.3rem">Inicio: <span style="font-family:var(--font-mono)">2023-01-09</span><br>Duración: <span style="font-family:var(--font-mono)">365 días</span><br>Solo aplica a Depresión en Tabasco. Cambio estructural en el reporte.</p>
+        <p style="font-size:.85rem;color:var(--text-secondary);margin-top:.3rem">Inicio: <span style="font-family:var(--font-mono)">2023-01-09</span><br>Duración: <span style="font-family:var(--font-mono)">365 días</span><br>Solo aplica a Depresión en Tabasco. Cambio estructural en el reporte.</p>
       </div>
     </div>
   </div>
@@ -360,11 +393,11 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
       <div class="stat-box"><div class="big-num">4</div><div class="stat-desc">Folds temporales</div></div>
       <div class="stat-box"><div class="big-num">52</div><div class="stat-desc">Semanas test</div></div>
       <div class="stat-box"><div class="big-num">730</div><div class="stat-desc">Días mín. train</div></div>
-      <div class="stat-box" style="border-top-color:var(--burgundy)"><div class="big-num" style="color:var(--dark-burgundy)">2025-01</div><div class="stat-desc">Fecha de corte</div></div>
+      <div class="stat-box" style="border-top-color:var(--burgundy)"><div class="big-num" style="color:var(--burgundy)">2025-01</div><div class="stat-desc">Fecha de corte</div></div>
     </div>
 
-    <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--dark-teal);margin:1.5rem 0 1rem">Ponderación de folds</h3>
-    <p style="font-size:.92rem;color:#555;line-height:1.7;margin-bottom:1rem">
+    <h3 style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin:1.5rem 0 1rem">Ponderación de folds</h3>
+    <p style="font-size:.92rem;color:var(--text-secondary);line-height:1.7;margin-bottom:1rem">
       El Fold 1 contiene el choque de COVID-19, que es un evento anómalo e irrepetible. Si ponderamos todos los folds igual, el modelo se sesga hacia <em>rigidez excesiva</em> (para no sobreajustar al dip pandémico). Por eso penalizamos el Fold 1 y favorecemos los folds recientes.
     </p>
     <table class="compare-table">
@@ -392,12 +425,12 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
     </div>
 
     <div class="card reveal">
-      <p style="font-size:1rem;line-height:1.8;color:#333">
+      <p style="font-size:1rem;line-height:1.8;color:var(--text-primary)">
         Prophet descompone la serie en tres componentes: <strong>tendencia</strong> (dirección general), <strong>estacionalidad</strong> (patrones cíclicos anuales/semanales), y <strong>holidays</strong> (eventos especiales como COVID-19). Es el único modelo con <strong>grid search completo</strong>: probamos múltiples combinaciones y elegimos la mejor por validación cruzada.
       </p>
     </div>
 
-    <h3 class="reveal" style="font-family:var(--font-display);font-size:1.4rem;color:var(--dark-teal);margin:2rem 0 1rem">Hiperparámetros del Grid Search</h3>
+    <h3 class="reveal" style="font-family:var(--font-display);font-size:1.4rem;color:var(--cream);margin:2rem 0 1rem">Hiperparámetros del Grid Search</h3>
 
     <div class="card reveal" style="padding:0;overflow:hidden">
       <table class="hp-table">
@@ -444,8 +477,8 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
       </table>
     </div>
 
-    <h3 class="reveal" style="font-family:var(--font-display);font-size:1.3rem;color:var(--dark-teal);margin:2rem 0 1rem">Grid por padecimiento</h3>
-    <p class="reveal" style="font-size:.92rem;color:#555;margin-bottom:1rem">Cada padecimiento tiene un grid diferente porque sus patrones temporales son distintos.</p>
+    <h3 class="reveal" style="font-family:var(--font-display);font-size:1.3rem;color:var(--cream);margin:2rem 0 1rem">Grid por padecimiento</h3>
+    <p class="reveal" style="font-size:.92rem;color:var(--text-secondary);margin-bottom:1rem">Cada padecimiento tiene un grid diferente porque sus patrones temporales son distintos.</p>
 
     <div class="grid-combos reveal">
       <div class="combo-card" style="border-left-color:var(--burgundy)">
@@ -465,7 +498,7 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
       </div>
     </div>
 
-    <h3 class="reveal" style="font-family:var(--font-display);font-size:1.3rem;color:var(--dark-teal);margin:2rem 0 1rem">Parámetros fijos</h3>
+    <h3 class="reveal" style="font-family:var(--font-display);font-size:1.3rem;color:var(--cream);margin:2rem 0 1rem">Parámetros fijos</h3>
     <div class="card reveal" style="padding:0;overflow:hidden">
       <table class="hp-table">
         <thead style="background:var(--dark-teal)"><tr><th>Parámetro</th><th>Valor</th><th>Razón</th></tr></thead>
@@ -518,7 +551,7 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
     </div>
 
     <div class="card reveal">
-      <p style="font-size:1rem;line-height:1.8;color:#333">
+      <p style="font-size:1rem;line-height:1.8;color:var(--text-primary)">
         TFT es una arquitectura de <strong>deep learning</strong> basada en el mecanismo de <strong>atención</strong> (el mismo concepto detrás de GPT y ChatGPT). Aprende automáticamente qué momentos del pasado son más relevantes para predecir el futuro. Puede capturar patrones no lineales y relaciones complejas que Prophet no detecta.
       </p>
     </div>
@@ -607,7 +640,7 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
     </div>
 
     <div class="card reveal">
-      <p style="font-size:1rem;line-height:1.8;color:#333">
+      <p style="font-size:1rem;line-height:1.8;color:var(--text-primary)">
         DeepAR es una red neuronal <strong>recurrente</strong> (LSTM) desarrollada por Amazon. A diferencia de TFT (que "mira" todo el pasado a la vez con atención), DeepAR procesa la serie <strong>paso a paso</strong>, como leer un libro página por página. Genera predicciones <strong>probabilísticas</strong>: no solo dice "la incidencia será 45", sino "será 45 &plusmn; 12 con 95% de confianza".
       </p>
     </div>
@@ -687,8 +720,8 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
     </div>
 
     <div class="card reveal">
-      <p style="font-size:1rem;line-height:1.8;color:#333">
-        Este es nuestro <strong>modelo híbrido</strong>: combina la velocidad y robustez de LightGBM (árboles de decisión potenciados) con la capacidad secuencial de LSTM (red neuronal recurrente). La predicción final es un <strong>promedio ponderado</strong> de ambos: <code style="font-family:var(--font-mono);background:var(--cream-pale);padding:.1rem .4rem;border-radius:4px">y = 0.5 &times; LightGBM + 0.5 &times; LSTM</code>. La idea: donde uno falla, el otro compensa.
+      <p style="font-size:1rem;line-height:1.8;color:var(--text-primary)">
+        Este es nuestro <strong>modelo híbrido</strong>: combina la velocidad y robustez de LightGBM (árboles de decisión potenciados) con la capacidad secuencial de LSTM (red neuronal recurrente). La predicción final es un <strong>promedio ponderado</strong> de ambos: <code style="font-family:var(--font-mono);background:var(--bg-raised);padding:.1rem .4rem;border-radius:4px">y = 0.5 &times; LightGBM + 0.5 &times; LSTM</code>. La idea: donde uno falla, el otro compensa.
       </p>
     </div>
 
@@ -698,13 +731,13 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
         <tbody>
           <tr>
             <td class="hp-name">lgbm_n_estimators</td>
-            <td class="hp-val"><span class="badge" style="background:rgba(46,125,50,.12);color:#2E7D32">300</span></td>
+            <td class="hp-val"><span class="badge" style="background:rgba(45,212,191,.15);color:var(--gold)">300</span></td>
             <td>LightGBM</td>
             <td class="hp-desc">Número de árboles. 300 es 3x más que XGBoost (100) porque LightGBM usa árboles más ligeros (leaf-wise vs level-wise). Más árboles = más refinamiento, pero con learning_rate bajo no sobreajusta.</td>
           </tr>
           <tr>
             <td class="hp-name">lgbm_max_depth</td>
-            <td class="hp-val"><span class="badge" style="background:rgba(46,125,50,.12);color:#2E7D32">5</span></td>
+            <td class="hp-val"><span class="badge" style="background:rgba(45,212,191,.15);color:var(--gold)">5</span></td>
             <td>LightGBM</td>
             <td class="hp-desc">Profundidad máxima de cada árbol. 5 niveles = hasta 32 hojas. Suficiente para capturar interacciones entre features (lag_52 &times; mes del año) sin sobreajustar.</td>
           </tr>
@@ -722,13 +755,13 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
           </tr>
           <tr>
             <td class="hp-name">lstm_max_steps</td>
-            <td class="hp-val"><span class="badge" style="background:rgba(46,125,50,.12);color:#2E7D32">100</span></td>
+            <td class="hp-val"><span class="badge" style="background:rgba(45,212,191,.15);color:var(--gold)">100</span></td>
             <td>LSTM</td>
             <td class="hp-desc">Iteraciones de entrenamiento del componente LSTM. Igual que DeepAR y TFT.</td>
           </tr>
           <tr>
             <td class="hp-name">ensemble_weight_lgbm</td>
-            <td class="hp-val"><span class="badge" style="background:rgba(46,125,50,.12);color:#2E7D32">0.5</span></td>
+            <td class="hp-val"><span class="badge" style="background:rgba(45,212,191,.15);color:var(--gold)">0.5</span></td>
             <td>Ensemble</td>
             <td class="hp-desc"><strong>50% LightGBM + 50% LSTM.</strong> Peso igual a ambos componentes. No se optimizó este peso por serie &mdash; un valor fijo de 0.5 es robusto como punto de partida.</td>
           </tr>
@@ -736,20 +769,20 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
       </table>
     </div>
 
-    <h3 class="reveal" style="font-family:var(--font-display);font-size:1.2rem;color:var(--dark-teal);margin:1.5rem 0 1rem">Features de ingeniería (componente LightGBM)</h3>
+    <h3 class="reveal" style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin:1.5rem 0 1rem">Features de ingeniería (componente LightGBM)</h3>
     <div class="card reveal">
-      <p style="font-size:.92rem;color:#555;margin-bottom:1rem">El componente LightGBM necesita <strong>features manuales</strong> (a diferencia de Prophet que las descubre automáticamente):</p>
+      <p style="font-size:.92rem;color:var(--text-secondary);margin-bottom:1rem">El componente LightGBM necesita <strong>features manuales</strong> (a diferencia de Prophet que las descubre automáticamente):</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
         <div>
-          <h4 style="font-family:var(--font-display);font-size:1rem;color:var(--dark-teal);margin-bottom:.5rem">Lags temporales</h4>
-          <div style="font-family:var(--font-mono);font-size:.82rem;line-height:2;color:#333">
+          <h4 style="font-family:var(--font-display);font-size:1rem;color:var(--cream);margin-bottom:.5rem">Lags temporales</h4>
+          <div style="font-family:var(--font-mono);font-size:.82rem;line-height:2;color:var(--text-primary)">
             <span class="badge badge-teal">lag_1</span> <span class="badge badge-teal">lag_2</span> <span class="badge badge-teal">lag_4</span> <span class="badge badge-teal">lag_8</span> <span class="badge badge-teal">lag_12</span> <span class="badge badge-teal">lag_52</span>
           </div>
           <p style="font-size:.82rem;color:var(--cool-gray);margin-top:.5rem">Valores de hace 1, 2, 4, 8, 12 y 52 semanas. El lag_52 captura la estacionalidad anual.</p>
         </div>
         <div>
-          <h4 style="font-family:var(--font-display);font-size:1rem;color:var(--dark-teal);margin-bottom:.5rem">Estadísticas móviles</h4>
-          <div style="font-family:var(--font-mono);font-size:.82rem;line-height:2;color:#333">
+          <h4 style="font-family:var(--font-display);font-size:1rem;color:var(--cream);margin-bottom:.5rem">Estadísticas móviles</h4>
+          <div style="font-family:var(--font-mono);font-size:.82rem;line-height:2;color:var(--text-primary)">
             <span class="badge badge-teal">rolling_mean_4</span> <span class="badge badge-teal">rolling_std_4</span><br>
             <span class="badge badge-teal">rolling_mean_12</span> <span class="badge badge-teal">rolling_std_12</span><br>
             <span class="badge badge-teal">rolling_mean_26</span> <span class="badge badge-teal">rolling_std_26</span>
@@ -758,8 +791,8 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
         </div>
       </div>
       <div style="margin-top:1rem">
-        <h4 style="font-family:var(--font-display);font-size:1rem;color:var(--dark-teal);margin-bottom:.5rem">Variables calendario</h4>
-        <div style="font-family:var(--font-mono);font-size:.82rem;line-height:2;color:#333">
+        <h4 style="font-family:var(--font-display);font-size:1rem;color:var(--cream);margin-bottom:.5rem">Variables calendario</h4>
+        <div style="font-family:var(--font-mono);font-size:.82rem;line-height:2;color:var(--text-primary)">
           <span class="badge badge-teal">week_of_year</span> <span class="badge badge-teal">month</span> <span class="badge badge-teal">quarter</span> <span class="badge badge-teal">year</span> <span class="badge badge-teal">week_sin</span> <span class="badge badge-teal">week_cos</span> <span class="badge badge-teal">month_sin</span> <span class="badge badge-teal">month_cos</span>
         </div>
         <p style="font-size:.82rem;color:var(--cool-gray);margin-top:.5rem">Codificación cíclica (seno/coseno) para que la semana 52 esté "cerca" de la semana 1, evitando discontinuidad artificial.</p>
@@ -803,7 +836,7 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
     </div>
 
     <div class="card reveal">
-      <p style="font-size:1rem;line-height:1.8;color:#333">
+      <p style="font-size:1rem;line-height:1.8;color:var(--text-primary)">
         XGBoost es el "caballo de batalla" del machine learning tabular. Construye cientos de <strong>árboles de decisión pequeños</strong>, donde cada nuevo árbol corrige los errores del anterior. Es extremadamente rápido (0.5s por serie) pero no tiene componentes explícitas de tendencia ni estacionalidad &mdash; debe aprenderlas de los features.
       </p>
     </div>
@@ -814,17 +847,17 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
         <tbody>
           <tr>
             <td class="hp-name">n_estimators</td>
-            <td class="hp-val"><span class="badge" style="background:rgba(230,81,0,.12);color:#E65100">100</span></td>
+            <td class="hp-val"><span class="badge" style="background:rgba(244,114,182,.15);color:var(--burgundy)">100</span></td>
             <td class="hp-desc">Número de árboles. 100 es conservador &mdash; suficiente para series cortas sin riesgo de sobreajuste. Compárese con 300 de LightGBM (que usa árboles más ligeros).</td>
           </tr>
           <tr>
             <td class="hp-name">max_depth</td>
-            <td class="hp-val"><span class="badge" style="background:rgba(230,81,0,.12);color:#E65100">5</span></td>
+            <td class="hp-val"><span class="badge" style="background:rgba(244,114,182,.15);color:var(--burgundy)">5</span></td>
             <td class="hp-desc">Profundidad máxima de cada árbol. Igual que LightGBM. Árboles poco profundos capturan patrones generales sin memorizar ruido.</td>
           </tr>
           <tr>
             <td class="hp-name">learning_rate</td>
-            <td class="hp-val"><span class="badge" style="background:rgba(230,81,0,.12);color:#E65100">0.05</span></td>
+            <td class="hp-val"><span class="badge" style="background:rgba(244,114,182,.15);color:var(--burgundy)">0.05</span></td>
             <td class="hp-desc">Tasa de aprendizaje. 0.05 = cada árbol contribuye poco individualmente. Esto, combinado con 100 árboles, da un modelo conservador y estable.</td>
           </tr>
         </tbody>
@@ -872,7 +905,7 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
     </div>
 
     <div class="card reveal">
-      <p style="font-size:1rem;line-height:1.8;color:#333">
+      <p style="font-size:1rem;line-height:1.8;color:var(--text-primary)">
         Ridge es nuestro <strong>baseline</strong>: el modelo más simple posible. Es una regresión lineal con regularización L2 que penaliza coeficientes grandes. Su propósito es establecer un piso de rendimiento: <strong>si un modelo sofisticado no puede vencer a una línea recta, algo anda mal</strong>. Sorprendentemente, Ridge gana 20 series, lo que sugiere que algunas series son tan simples que la complejidad adicional perjudica.
       </p>
     </div>
@@ -883,7 +916,7 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
         <tbody>
           <tr>
             <td class="hp-name">alpha</td>
-            <td class="hp-val"><span class="badge" style="background:rgba(92,107,192,.12);color:#5C6BC0">1.0</span></td>
+            <td class="hp-val"><span class="badge" style="background:rgba(91,141,239,.15);color:var(--teal)">1.0</span></td>
             <td class="hp-desc">
               Fuerza de regularización L2. Controla cuánto se penalizan los coeficientes grandes.
               <br><strong>Alpha = 0:</strong> regresión lineal pura (sin regularización, riesgo de sobreajuste).
