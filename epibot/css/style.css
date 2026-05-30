@@ -620,17 +620,17 @@ body::after {
 }
 
 .msg-avatar {
-  width: 42px;
-  height: 42px;
+  width: 63px;
+  height: 63px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   margin-top: 2px;
-  border-radius: var(--r-md);
+  border-radius: var(--r-lg);
   overflow: hidden;
-  background: var(--bg-card);
-  border: 1.5px solid var(--border-accent);
+  background: radial-gradient(circle at 50% 32%, #2A3A5E 0%, #1C2740 60%, #18223A 100%);
+  border: 2px solid var(--border-accent);
   box-shadow: var(--shadow-glow-teal);
   position: relative;
   transition: transform 0.3s var(--ease-out), box-shadow 0.3s var(--ease-out);
@@ -653,7 +653,8 @@ body::after {
 .msg-avatar img {
   height: 100%;
   width: 100%;
-  object-fit: contain;
+  object-fit: cover;
+  display: block;
 }
 
 .msg-avatar svg {
@@ -1658,6 +1659,11 @@ body::after {
     width: 30px;
     height: 30px;
     border-radius: var(--r-sm);
+  }
+  .msg-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: var(--r-md);
   }
 
   .msg-avatar-user svg { width: 16px; height: 16px; }

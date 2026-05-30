@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=43">
+  <link rel="stylesheet" href="css/style.css?v=44">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <style>
@@ -81,10 +81,11 @@
     }
 
     .cc-brand img {
-      height: 40px;
-      width: 40px;
-      object-fit: contain;
-      border-radius: 10px;
+      height: 46px;
+      width: 46px;
+      object-fit: cover;
+      border-radius: 12px;
+      background: radial-gradient(circle at 50% 32%, #2A3A5E 0%, #1C2740 60%, #18223A 100%);
       box-shadow: 0 0 0 1px rgba(91, 141, 239, 0.18), var(--shadow-glow-teal);
       transition: transform var(--dur) var(--ease-out);
     }
@@ -750,7 +751,7 @@
     <aside class="cc-sidebar" id="ccSidebar" aria-label="Panel de inteligencia">
 
       <a href="../index.html" class="cc-brand">
-        <img src="EpiBot_v2_SinFondo.png" alt="EpiForecast-MX">
+        <img src="EpiBot_v2_avatar.png" alt="EpiForecast-MX">
         <span class="cc-brand-text">
           <span class="cc-brand-name">EpiForecast<span>-MX</span></span>
           <span class="cc-brand-sub">Centro de Inteligencia · IMSS</span>
@@ -1141,6 +1142,6 @@
     })();
   </script>
 
-  <script type="module" src="js/app.js?v=102"></script>
+  <script type="module" src="js/app.js?v=103"></script>
 </body>
 </html>

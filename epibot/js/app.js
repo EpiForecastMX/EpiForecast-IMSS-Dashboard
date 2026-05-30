@@ -822,7 +822,7 @@ function createBotShell() {
   const now = new Date();
   const timeStr = now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
   div.innerHTML = `
-    <div class="msg-avatar"><img src="EpiBot_v2_SinFondo.png" alt="EpiForecast-MX" /></div>
+    <div class="msg-avatar"><img src="EpiBot_v2_avatar.png" alt="EpiForecast-MX" /></div>
     <div class="msg-body">
       <div class="msg-meta">
         <span class="msg-name">EpiForecast-MX</span>
@@ -940,7 +940,7 @@ function addBotMessage(markdown, source, suggestions, chartData, sources) {
 
   div.innerHTML = `
     <div class="msg-avatar">
-      <img src="EpiBot_v2_SinFondo.png" alt="EpiForecast-MX" />
+      <img src="EpiBot_v2_avatar.png" alt="EpiForecast-MX" />
     </div>
     <div class="msg-body">
       <div class="msg-meta">
@@ -1058,7 +1058,7 @@ function addTypingIndicator(label) {
   const txt = label || 'EPI está pensando';
   div.innerHTML = `
     <div class="msg-avatar">
-      <img src="EpiBot_v2_SinFondo.png" alt="EpiForecast-MX" />
+      <img src="EpiBot_v2_avatar.png" alt="EpiForecast-MX" />
     </div>
     <div class="msg-body">
       <div class="msg-meta"><span class="msg-name">EpiForecast-MX</span></div>
