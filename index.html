@@ -6,33 +6,47 @@
   <title>EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <style>
     /* ═══════════════════════════════════════════════════════════════════
-       IMSS INSTITUTIONAL COLOR SYSTEM
-       Guía Cromática Institucional del IMSS — PANTONE to HEX
+       CLINICAL INDIGO THEME 2026
+       Misma colorimetría que EpiBot — fondos índigo, acentos teal/menta/rosa
        ═══════════════════════════════════════════════════════════════════ */
     :root {
-      --neutral-black:  #231F20;   /* PANTONE Neutral Black C   */
-      --burgundy:       #9B2242;   /* PANTONE 7420 C            */
-      --dark-burgundy:  #6F1D46;   /* PANTONE 7421 C            */
-      --cool-gray:      #97999B;   /* PANTONE Cool Gray C       */
-      --teal:           #00524E;   /* PANTONE IMSS 561 C        */
-      --dark-teal:      #173F35;   /* PANTONE 627 C             */
-      --cream:          #E8D5B5;   /* PANTONE 7402 C            */
-      --gold:           #B58500;   /* PANTONE 1255 C            */
+      /* Surfaces — Clinical Indigo (azul pizarra) */
+      --bg-deep:        #0E1424;
+      --bg-base:        #131C30;
+      --bg-raised:      #18223A;
+      --bg-card:        #1C2740;
+      --bg-card-hover:  #243150;
 
-      /* Derived / utility */
-      --cream-light:    #F5EDE0;
-      --cream-pale:     #FAF6F0;
-      --teal-glow:      rgba(0,82,78,0.08);
-      --burgundy-glow:  rgba(155,34,66,0.06);
-      --gold-glow:      rgba(181,133,0,0.10);
+      /* Texto */
+      --text-primary:   #E7ECF5;
+      --text-secondary: #9FB0CE;
+      --text-muted:     #6E82A6;
+      --text-faint:     #44567A;
 
-      /* Typography */
-      --font-display:   'DM Serif Display', Georgia, serif;
-      --font-body:      'Source Sans 3', 'Source Sans Pro', sans-serif;
-      --font-mono:      'JetBrains Mono', 'Fira Code', monospace;
+      /* Acentos (paleta EpiBot) */
+      --burgundy:       #F472B6;   /* rosa    */
+      --dark-burgundy:  #8E2A63;   /* plum profundo (decorativo) */
+      --teal:           #5B8DEF;   /* azul    */
+      --gold:           #2DD4BF;   /* menta   */
+
+      /* Aliases de compatibilidad — los nombres legacy que usa el marcado */
+      --neutral-black:  #0B0F1A;   /* superficies más profundas (footer/results) */
+      --cool-gray:      #9FB0CE;   /* texto secundario (remapeado claro) */
+      --dark-teal:      #16203A;   /* superficie índigo profunda / texto sobre acento */
+      --cream:          #E7ECF5;   /* texto casi blanco sobre fondo oscuro */
+      --cream-light:    #1C2740;   /* superficie elevada */
+      --cream-pale:     #131C30;   /* base */
+      --teal-glow:      rgba(91,141,239,0.15);
+      --burgundy-glow:  rgba(244,114,182,0.15);
+      --gold-glow:      rgba(45,212,191,0.15);
+
+      /* Typography — misma familia que EpiBot */
+      --font-display:   'Playfair Display', Georgia, serif;
+      --font-body:      'Outfit', system-ui, -apple-system, sans-serif;
+      --font-mono:      'JetBrains Mono', 'SF Mono', monospace;
     }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -44,8 +58,8 @@
 
     body {
       font-family: var(--font-body);
-      color: var(--neutral-black);
-      background: var(--cream-pale);
+      color: var(--text-primary);
+      background: var(--bg-base);
       line-height: 1.7;
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
@@ -77,7 +91,7 @@
       left: 0;
       right: 0;
       z-index: 1000;
-      background: rgba(23,63,53, 0.92);
+      background: rgba(14, 20, 36, 0.92);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid rgba(232,213,181,0.08);
@@ -85,7 +99,7 @@
     }
     .nav.scrolled {
       box-shadow: 0 4px 30px rgba(0,0,0,0.18);
-      background: rgba(23,63,53, 0.97);
+      background: rgba(14, 20, 36, 0.97);
     }
     .nav-inner {
       max-width: 1200px;
@@ -158,7 +172,7 @@
       top: calc(100% + 8px);
       left: 50%;
       transform: translateX(-50%) translateY(-4px);
-      background: rgba(23,63,53,0.98);
+      background: rgba(14, 20, 36,0.98);
       backdrop-filter: blur(16px);
       border: 1px solid rgba(232,213,181,0.1);
       border-radius: 12px;
@@ -270,7 +284,7 @@
       min-height: 100vh;
       display: flex;
       align-items: center;
-      background: linear-gradient(160deg, var(--dark-teal) 0%, var(--teal) 40%, var(--dark-burgundy) 100%);
+      background: linear-gradient(165deg, var(--bg-deep) 0%, var(--bg-raised) 50%, #1B1733 100%);
       overflow: hidden;
     }
     .hero::before {
@@ -278,8 +292,9 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(ellipse 60% 50% at 20% 80%, rgba(155,34,66,0.25), transparent),
-        radial-gradient(ellipse 50% 60% at 80% 20%, rgba(181,133,0,0.15), transparent);
+        radial-gradient(ellipse 60% 50% at 20% 80%, rgba(244,114,182,0.16), transparent),
+        radial-gradient(ellipse 50% 60% at 80% 20%, rgba(45,212,191,0.12), transparent),
+        radial-gradient(ellipse 45% 55% at 60% 40%, rgba(91,141,239,0.14), transparent);
     }
     .hero::after {
       content: '';
@@ -484,7 +499,7 @@
     .section-title {
       font-family: var(--font-display);
       font-size: clamp(2rem, 4vw, 3rem);
-      color: var(--dark-teal);
+      color: var(--cream);
       line-height: 1.15;
       margin-bottom: 1.5rem;
     }
@@ -501,7 +516,7 @@
        ABOUT / CONTEXT
        ═══════════════════════════════════════════════════════════════════ */
     .about {
-      background: white;
+      background: var(--bg-raised);
       border-top: 4px solid var(--teal);
     }
     .about .section { padding: 5rem 2rem; }
@@ -517,15 +532,15 @@
       margin-bottom: 1.5rem;
       font-size: 1.05rem;
       line-height: 1.85;
-      color: #444;
+      color: var(--text-secondary);
     }
     .about-text strong { color: var(--teal); }
 
     .about-card {
-      background: var(--cream-pale);
+      background: var(--bg-card);
       border-radius: 16px;
       padding: 2.5rem;
-      border: 1px solid rgba(232,213,181,0.5);
+      border: 1px solid var(--border, rgba(91,141,239,0.16));
       position: relative;
       overflow: hidden;
     }
@@ -541,7 +556,7 @@
     .about-card h3 {
       font-family: var(--font-display);
       font-size: 1.3rem;
-      color: var(--dark-teal);
+      color: var(--cream);
       margin-bottom: 1.5rem;
     }
     .collab-logos {
@@ -554,14 +569,14 @@
       align-items: center;
       gap: 1rem;
       padding: 1rem;
-      background: white;
+      background: var(--bg-raised);
       border-radius: 10px;
-      border: 1px solid rgba(0,82,78,0.08);
+      border: 1px solid rgba(91,141,239,0.14);
       transition: transform .2s, box-shadow .2s;
     }
     .collab-item:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
     }
     .collab-icon {
       width: 48px;
@@ -579,7 +594,7 @@
     .collab-name {
       font-weight: 700;
       font-size: 0.95rem;
-      color: var(--neutral-black);
+      color: var(--text-primary);
     }
     .collab-role {
       font-size: 0.8rem;
@@ -599,16 +614,17 @@
     }
     .disease-card {
       position: relative;
-      background: white;
+      background: var(--bg-card);
       border-radius: 20px;
       padding: 2.5rem 2rem 2rem;
-      border: 1px solid rgba(0,0,0,0.05);
+      border: 1px solid rgba(91,141,239,0.12);
       overflow: hidden;
       transition: transform .3s ease, box-shadow .3s ease;
     }
     .disease-card:hover {
       transform: translateY(-6px);
-      box-shadow: 0 20px 60px rgba(0,0,0,0.08);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+      border-color: rgba(91,141,239,0.28);
     }
     .disease-card::before {
       content: '';
@@ -651,7 +667,7 @@
 
     .disease-card p {
       font-size: 0.95rem;
-      color: #666;
+      color: var(--text-secondary);
       line-height: 1.7;
       margin-bottom: 1.5rem;
     }
@@ -769,10 +785,10 @@
       margin-top: 3.5rem;
     }
     .method-card {
-      background: white;
+      background: var(--bg-card);
       border-radius: 16px;
       padding: 2.5rem;
-      border: 1px solid rgba(0,0,0,0.05);
+      border: 1px solid rgba(91,141,239,0.12);
       transition: transform .3s, box-shadow .3s;
       position: relative;
       overflow: hidden;
@@ -781,7 +797,7 @@
       content: attr(data-phase);
       font-family: var(--font-display);
       font-size: 6rem;
-      color: rgba(0,82,78,0.04);
+      color: rgba(143,180,255,0.06);
       position: absolute;
       top: 0.5rem;
       right: 1rem;
@@ -790,17 +806,18 @@
     }
     .method-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 16px 48px rgba(0,0,0,0.06);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+      border-color: rgba(91,141,239,0.26);
     }
     .method-card h3 {
       font-family: var(--font-display);
       font-size: 1.25rem;
-      color: var(--dark-teal);
+      color: var(--cream);
       margin-bottom: 1rem;
     }
     .method-card p {
       font-size: 0.95rem;
-      color: #666;
+      color: var(--text-secondary);
       line-height: 1.75;
     }
     .method-card .method-icon {
@@ -816,8 +833,8 @@
     .method-card .method-icon svg { width: 24px; height: 24px; color: var(--teal); }
 
     .method-highlight {
-      background: linear-gradient(135deg, var(--cream-pale), rgba(232,213,181,0.3));
-      border-color: rgba(232,213,181,0.4);
+      background: linear-gradient(135deg, var(--bg-raised), rgba(244,114,182,0.07));
+      border-color: rgba(244,114,182,0.22);
       grid-column: 1 / -1;
     }
     .method-highlight h3 { color: var(--burgundy); }
@@ -846,7 +863,7 @@
     }
     .method-feature span {
       font-size: 0.88rem;
-      color: #555;
+      color: var(--text-secondary);
       line-height: 1.5;
     }
 
@@ -854,9 +871,9 @@
        TEAM
        ═══════════════════════════════════════════════════════════════════ */
     .team-bg {
-      background: white;
-      border-top: 1px solid rgba(0,0,0,0.04);
-      border-bottom: 1px solid rgba(0,0,0,0.04);
+      background: var(--bg-raised);
+      border-top: 1px solid rgba(91,141,239,0.1);
+      border-bottom: 1px solid rgba(91,141,239,0.1);
     }
     .team-grid {
       display: grid;
@@ -868,13 +885,14 @@
       text-align: center;
       padding: 2.5rem 1.5rem;
       border-radius: 16px;
-      background: var(--cream-pale);
-      border: 1px solid rgba(232,213,181,0.4);
+      background: var(--bg-card);
+      border: 1px solid rgba(91,141,239,0.14);
       transition: transform .3s, box-shadow .3s;
     }
     .team-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 12px 36px rgba(0,0,0,0.06);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.4);
+      border-color: rgba(91,141,239,0.28);
     }
     .team-avatar {
       width: 80px;
@@ -895,7 +913,7 @@
     .team-card h4 {
       font-family: var(--font-display);
       font-size: 1.15rem;
-      color: var(--neutral-black);
+      color: var(--text-primary);
       margin-bottom: 0.35rem;
     }
     .team-role {
@@ -925,8 +943,8 @@
       gap: 1rem;
       padding: 1.25rem;
       border-radius: 12px;
-      background: var(--cream-pale);
-      border: 1px solid rgba(232,213,181,0.3);
+      background: var(--bg-card);
+      border: 1px solid rgba(91,141,239,0.14);
     }
     .advisor-dot {
       width: 12px; height: 12px;
@@ -938,7 +956,7 @@
     .advisor-dot--3 { background: var(--gold); }
     .advisor-card h5 {
       font-size: 0.9rem;
-      color: var(--neutral-black);
+      color: var(--text-primary);
       margin-bottom: 0.15rem;
     }
     .advisor-card p {
@@ -962,17 +980,17 @@
       gap: 0.5rem;
       padding: 0.65rem 1.2rem;
       border-radius: 100px;
-      background: white;
-      border: 1px solid rgba(0,0,0,0.06);
+      background: var(--bg-card);
+      border: 1px solid rgba(91,141,239,0.14);
       font-family: var(--font-mono);
       font-size: 0.82rem;
       font-weight: 500;
-      color: var(--neutral-black);
+      color: var(--text-primary);
       transition: transform .2s, box-shadow .2s, border-color .2s;
     }
     .stack-pill:hover {
       transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.35);
       border-color: var(--teal);
     }
     .stack-pill-dot {
@@ -989,7 +1007,7 @@
        CTA / DATA SCOPE
        ═══════════════════════════════════════════════════════════════════ */
     .scope-bg {
-      background: linear-gradient(135deg, var(--cream), var(--cream-light));
+      background: linear-gradient(135deg, var(--bg-base), var(--bg-deep));
     }
     .scope-stats {
       display: grid;
@@ -1000,9 +1018,9 @@
     .scope-stat {
       text-align: center;
       padding: 2rem;
-      background: white;
+      background: var(--bg-card);
       border-radius: 16px;
-      border: 1px solid rgba(0,0,0,0.04);
+      border: 1px solid rgba(91,141,239,0.12);
       transition: transform .3s;
     }
     .scope-stat:hover { transform: translateY(-4px); }
@@ -1014,7 +1032,7 @@
     .scope-stat-value--teal { color: var(--teal); }
     .scope-stat-value--burg { color: var(--burgundy); }
     .scope-stat-value--gold { color: var(--gold); }
-    .scope-stat-value--dark { color: var(--dark-teal); }
+    .scope-stat-value--dark { color: var(--teal); }
     .scope-stat-label {
       font-size: 0.82rem;
       color: var(--cool-gray);
@@ -1025,7 +1043,7 @@
     }
     .scope-stat-sub {
       font-size: 0.8rem;
-      color: #999;
+      color: var(--text-muted);
       margin-top: 0.25rem;
     }
 
@@ -1320,14 +1338,14 @@
     .cta-hub {
       position: relative;
       padding: 6rem 2rem 5rem;
-      background: linear-gradient(180deg, var(--cream-pale) 0%, #f8f5ef 40%, #fff 100%);
+      background: linear-gradient(180deg, var(--bg-base) 0%, var(--bg-raised) 50%, var(--bg-base) 100%);
       overflow: hidden;
     }
     .cta-hub-pattern {
       position: absolute;
       inset: 0;
-      opacity: 0.03;
-      background-image: radial-gradient(circle, var(--dark-teal) 1px, transparent 1px);
+      opacity: 0.05;
+      background-image: radial-gradient(circle, var(--teal) 1px, transparent 1px);
       background-size: 24px 24px;
       pointer-events: none;
     }
@@ -1348,10 +1366,10 @@
 
     .cta-card {
       position: relative;
-      background: rgba(255,255,255,0.75);
+      background: rgba(28,39,64,0.72);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(0,0,0,0.06);
+      border: 1px solid rgba(91,141,239,0.14);
       border-radius: 16px;
       padding: 2rem 1.75rem 1.75rem;
       display: flex;
@@ -1360,8 +1378,8 @@
     }
     .cta-card:hover {
       transform: translateY(-6px);
-      box-shadow: 0 20px 50px rgba(0,82,78,0.1);
-      border-color: rgba(0,82,78,0.15);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.45);
+      border-color: rgba(91,141,239,0.34);
     }
 
     /* Featured card — double width */
@@ -1399,7 +1417,7 @@
     .cta-card-title {
       font-family: var(--font-display);
       font-size: 1.2rem;
-      color: var(--dark-teal);
+      color: var(--cream);
       margin-bottom: 0.5rem;
     }
     .cta-card-desc {
@@ -1438,12 +1456,105 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════════
+       NOVEDADES / NEWS
+       ═══════════════════════════════════════════════════════════════════ */
+    .news-bg {
+      background: var(--bg-deep);
+      border-top: 1px solid rgba(91,141,239,0.1);
+      border-bottom: 1px solid rgba(91,141,239,0.1);
+    }
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+    .news-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+      padding: 1.75rem 1.75rem 1.6rem 2rem;
+      background: var(--bg-card);
+      border: 1px solid rgba(91,141,239,0.12);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform .3s ease, box-shadow .3s, border-color .3s;
+    }
+    .news-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      width: 3px;
+    }
+    .news-card--featured { grid-column: 1 / -1; }
+    .news-card--featured::before { background: linear-gradient(180deg, var(--gold), var(--teal)); }
+    .news-card--epibot::before   { background: var(--teal); }
+    .news-card--modelos::before  { background: var(--burgundy); }
+    .news-card--datos::before    { background: var(--gold); }
+    .news-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 44px rgba(0,0,0,0.42);
+      border-color: rgba(91,141,239,0.3);
+    }
+    .news-meta {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .news-date {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      letter-spacing: 0.04em;
+    }
+    .news-tag {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0.2rem 0.65rem;
+      border-radius: 100px;
+    }
+    .news-tag--plataforma { background: rgba(45,212,191,0.15);  color: var(--gold); }
+    .news-tag--epibot     { background: rgba(91,141,239,0.15);  color: var(--teal); }
+    .news-tag--modelos    { background: rgba(244,114,182,0.15); color: var(--burgundy); }
+    .news-tag--datos      { background: rgba(45,212,191,0.12);  color: var(--gold); }
+    .news-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      color: var(--cream);
+      line-height: 1.25;
+    }
+    .news-card--featured h3 { font-size: 1.5rem; }
+    .news-card p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+    .news-link {
+      margin-top: auto;
+      padding-top: 0.4rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--teal);
+      align-self: flex-start;
+    }
+    .news-link svg { width: 14px; height: 14px; }
+    .news-link:hover { color: var(--gold); }
+
+    /* ═══════════════════════════════════════════════════════════════════
        MOBILE NAV
        ═══════════════════════════════════════════════════════════════════ */
     .nav-mobile {
       display: none;
       flex-direction: column;
-      background: rgba(23,63,53,0.98);
+      background: rgba(14, 20, 36,0.98);
       backdrop-filter: blur(16px);
       padding: 1rem 2rem 1.5rem;
       border-bottom: 1px solid rgba(232,213,181,0.1);
@@ -1516,6 +1627,7 @@
       .team-grid { grid-template-columns: 1fr; }
       .advisors { grid-template-columns: 1fr; }
       .scope-stats { grid-template-columns: repeat(2, 1fr); }
+      .news-grid { grid-template-columns: 1fr; }
       .section { padding: 4rem 1.5rem; }
       .cta-grid { grid-template-columns: 1fr; }
       .cta-card--featured { grid-column: span 1; }
@@ -1545,6 +1657,7 @@
             <a href="#hero"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>Inicio</a>
             <a href="EpiDashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
             <a href="Reports/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Pronósticos</a>
+            <a href="#novedades"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/></svg>Novedades</a>
             <a href="epibot/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>EPI Chatbot</a>
           </div>
         </li>
@@ -1587,7 +1700,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
           Dashboard
         </a>
-        <a href="epibot/index.html" class="nav-cta nav-cta--primary" style="background: linear-gradient(135deg, #4A5D23, #5C7A2A); color: #fff;">
+        <a href="epibot/index.html" class="nav-cta nav-cta--primary" style="background: linear-gradient(135deg, #5B8DEF, #2DD4BF); color: var(--bg-deep);">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           EPI Chatbot
         </a>
@@ -1609,6 +1722,7 @@
           <a href="#hero">Inicio</a>
           <a href="EpiDashboard.html">Dashboard</a>
           <a href="Reports/index.html">Pronósticos</a>
+          <a href="#novedades">Novedades</a>
           <a href="epibot/index.html">EPI Chatbot</a>
         </div>
       </div>
@@ -1756,7 +1870,7 @@
         </div>
 
         <!-- 2. EPI CHATBOT — HERO CARD full-width -->
-        <div class="cta-card reveal reveal-delay-2" style="grid-column: 1 / -1; background: linear-gradient(135deg, #1A2E0D 0%, #2D3B1A 25%, #4A5D23 55%, #3A4A1C 100%); border: 1px solid rgba(188,149,92,0.2); padding: 0; overflow: hidden; display: grid; grid-template-columns: auto 1fr; gap: 0;">
+        <div class="cta-card reveal reveal-delay-2" style="grid-column: 1 / -1; background: linear-gradient(135deg, #0E1424 0%, #18223A 32%, #2A3A6B 72%, #3A2B52 100%); border: 1px solid rgba(91,141,239,0.28); padding: 0; overflow: hidden; display: grid; grid-template-columns: auto 1fr; gap: 0;">
           <!-- EPI image -->
           <div style="display: flex; align-items: center; justify-content: center; padding: 2.5rem 2rem 2.5rem 2.5rem;">
             <img src="epibot/EPI.jpg" alt="EPI Chatbot" style="width: 140px; height: 140px; object-fit: contain; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.4)); border-radius: 20px;">
@@ -1777,7 +1891,7 @@
               </a>
               <span style="display: inline-flex; align-items: center; gap: 0.5rem; color: rgba(232,213,181,0.45); font-size: 0.78rem; font-weight: 500; letter-spacing: 0.02em;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" style="opacity:0.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                22 handlers &middot; Fuzzy matching &middot; Gr&aacute;ficas en vivo
+                RAG con grounding y citas &middot; Gr&aacute;ficas en vivo &middot; Voz STT/TTS
               </span>
             </div>
           </div>
@@ -1943,6 +2057,75 @@
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════════
+       NOVEDADES / NEWS
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="news-bg" id="novedades">
+    <div class="section">
+      <div class="section-label reveal">Novedades</div>
+      <div class="section-title reveal">Lo más reciente del proyecto</div>
+      <div class="section-desc reveal">Anuncios de plataforma, mejoras del asistente y actualizaciones de datos y modelos.</div>
+
+      <div class="news-grid">
+        <!-- Nuevo dominio (featured) -->
+        <div class="news-card news-card--featured reveal reveal-delay-1">
+          <div class="news-meta">
+            <span class="news-date">29 de mayo de 2026</span>
+            <span class="news-tag news-tag--plataforma">Plataforma</span>
+          </div>
+          <h3>EpiForecast-MX estrena dominio propio: epiforecast.mx</h3>
+          <p>El proyecto migra a su dominio definitivo. Toda la plataforma (dashboard, pronósticos, reportes y el asistente EpiBot) queda disponible bajo <strong style="color:var(--cream)">epiforecast.mx</strong>. El chatbot ahora vive en <strong style="color:var(--cream)">epiforecast.mx/epibot/</strong> y los enlaces previos redirigen de forma automática.</p>
+          <a href="epibot/index.html" class="news-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+            Conocer EpiBot
+          </a>
+        </div>
+
+        <!-- EpiBot RAG -->
+        <div class="news-card news-card--epibot reveal reveal-delay-2">
+          <div class="news-meta">
+            <span class="news-date">28 de mayo de 2026</span>
+            <span class="news-tag news-tag--epibot">EpiBot</span>
+          </div>
+          <h3>EpiBot ahora responde con RAG real</h3>
+          <p>El asistente incorpora Retrieval-Augmented Generation con grounding y citas sobre el corpus del proyecto (embeddings de Gemini, reindexado en cada despliegue). Suma gráficas en vivo dentro del chat y voz (reconocimiento y síntesis).</p>
+          <a href="epibot/index.html" class="news-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Hablar con EPI
+          </a>
+        </div>
+
+        <!-- Re-selección de motores -->
+        <div class="news-card news-card--modelos reveal reveal-delay-3">
+          <div class="news-meta">
+            <span class="news-date">30 de abril de 2026</span>
+            <span class="news-tag news-tag--modelos">Modelos</span>
+          </div>
+          <h3>Re-selección de motores con realidad 2026</h3>
+          <p>Los 333 modelos de producción se reevaluaron contra los datos reales del Boletín SINAVE 2026 (SMAPE 2026 como criterio primario, MASE como desempate). El resultado: 227 reasignaciones y una nueva distribución productiva (Prophet 126, Ensemble 95, DeepAR 78, Stacking 34).</p>
+          <a href="comparacion_modelos.html" class="news-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Ver comparación
+          </a>
+        </div>
+
+        <!-- Actualización semanal de datos -->
+        <div class="news-card news-card--datos reveal reveal-delay-4">
+          <div class="news-meta">
+            <span class="news-date">Actualización semanal</span>
+            <span class="news-tag news-tag--datos">Datos</span>
+          </div>
+          <h3>Boletín SINAVE integrado automáticamente</h3>
+          <p>Un pipeline de scraping diario incorpora cada boletín nuevo y regenera el conocimiento del sitio. Último corte: semana epidemiológica 19 de 2026 (2,766 casos: 2,605 de Depresión, 130 de Parkinson y 31 de Alzheimer).</p>
+          <a href="validacion_semanal.html" class="news-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            Validación semanal
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
        ABOUT
        ═══════════════════════════════════════════════════════════════ -->
   <section class="about" id="about">
@@ -2017,7 +2200,7 @@
         </div>
         <h3>Depresión</h3>
         <p>Mayor volumen de casos del portafolio. Tras la re-selección 2026 (15 sem reales), la asignación se equilibró: DeepAR 38, Prophet 36, Ensemble 23, Stacking 14. SMAPE mediano del 21.7% y MASE de 0.71. 100% datos suficientes.</p>
-        <span class="disease-tag">CIE-10: F32 · SMAPE 21.7% · MASE 0.71 · RMSE 25.0 · 111 modelos</span>
+        <span class="disease-tag">CIE-10: F32 · SMAPE 21.7% · MASE 0.71 · RMSE 12.4 · 111 modelos</span>
       </div>
 
       <!-- Parkinson -->
@@ -2027,7 +2210,7 @@
         </div>
         <h3>Parkinson</h3>
         <p>Escenario desafiante con baja incidencia donde Prophet captura mejor la estacionalidad. SMAPE mediano del 68.6% y MASE de 0.71 (supera el baseline naive). Tras la re-selección 2026: Prophet 45, Ensemble 31, DeepAR 22, Stacking 13.</p>
-        <span class="disease-tag">CIE-10: G20 · SMAPE 68.6% · MASE 0.71 · RMSE 3.28 · 111 modelos</span>
+        <span class="disease-tag">CIE-10: G20 · SMAPE 68.6% · MASE 0.71 · RMSE 1.73 · 111 modelos</span>
       </div>
 
       <!-- Alzheimer -->
@@ -2037,7 +2220,7 @@
         </div>
         <h3>Alzheimer</h3>
         <p>Ultra-baja incidencia donde un caso de diferencia genera alto SMAPE. MASE de 0.76 (supera el baseline naive). Tras la re-selección 2026: Prophet 45, Ensemble 41, DeepAR 18, Stacking 7. 7 modelos regionales.</p>
-        <span class="disease-tag">CIE-10: G30 · SMAPE 123.5% · MASE 0.76 · RMSE 1.21 · 111 modelos</span>
+        <span class="disease-tag">CIE-10: G30 · SMAPE 123.5% · MASE 0.76 · RMSE 0.96 · 111 modelos</span>
       </div>
     </div>
   </section>
@@ -2222,7 +2405,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         </div>
         <h3>Fase V — Validación y Producción</h3>
-        <p>Validación semanal con datos reales del boletín SINAVE que los modelos nunca vieron. Auditoría de calidad del código (849 tests), diagnósticos de overfitting y leakage, y tabla de 333 modelos de producción con métricas comparativas.</p>
+        <p>Validación semanal con datos reales del boletín SINAVE que los modelos nunca vieron. Auditoría de calidad del código (855 tests), diagnósticos de overfitting y leakage, y tabla de 333 modelos de producción con métricas comparativas.</p>
       </div>
 
       <div class="method-card method-highlight reveal reveal-delay-3" data-phase="final">
@@ -2255,7 +2438,7 @@
           </div>
           <div class="method-feature">
             <div class="method-feature-dot"></div>
-            <span>CI/CD: scraping diario de boletines, 849 tests automatizados, MLflow para tracking de experimentos</span>
+            <span>CI/CD: scraping diario de boletines, 855 tests automatizados, MLflow para tracking de experimentos</span>
           </div>
         </div>
       </div>
@@ -2289,15 +2472,15 @@
           </div>
           <div class="result-kpis">
             <div class="result-kpi">
-              <div class="result-kpi-value">6.0%</div>
+              <div class="result-kpi-value">21.7%</div>
               <div class="result-kpi-label">SMAPE mediano</div>
             </div>
             <div class="result-kpi">
-              <div class="result-kpi-value">0.17</div>
+              <div class="result-kpi-value">0.71</div>
               <div class="result-kpi-label">MASE mediano</div>
             </div>
             <div class="result-kpi">
-              <div class="result-kpi-value">4.79</div>
+              <div class="result-kpi-value">12.4</div>
               <div class="result-kpi-label">RMSE mediano</div>
             </div>
             <div class="result-kpi">
@@ -2330,15 +2513,15 @@
           </div>
           <div class="result-kpis">
             <div class="result-kpi">
-              <div class="result-kpi-value">35.2%</div>
+              <div class="result-kpi-value">68.6%</div>
               <div class="result-kpi-label">SMAPE mediano</div>
             </div>
             <div class="result-kpi">
-              <div class="result-kpi-value">0.26</div>
+              <div class="result-kpi-value">0.71</div>
               <div class="result-kpi-label">MASE mediano</div>
             </div>
             <div class="result-kpi">
-              <div class="result-kpi-value">1.00</div>
+              <div class="result-kpi-value">1.73</div>
               <div class="result-kpi-label">RMSE mediano</div>
             </div>
             <div class="result-kpi">
@@ -2372,15 +2555,15 @@
           </div>
           <div class="result-kpis">
             <div class="result-kpi">
-              <div class="result-kpi-value">107.6%</div>
+              <div class="result-kpi-value">123.5%</div>
               <div class="result-kpi-label">SMAPE mediano</div>
             </div>
             <div class="result-kpi">
-              <div class="result-kpi-value">0.63</div>
+              <div class="result-kpi-value">0.76</div>
               <div class="result-kpi-label">MASE mediano</div>
             </div>
             <div class="result-kpi">
-              <div class="result-kpi-value">0.78</div>
+              <div class="result-kpi-value">0.96</div>
               <div class="result-kpi-label">RMSE mediano</div>
             </div>
             <div class="result-kpi">
@@ -2418,7 +2601,7 @@
           <div class="cv-detail-label">Todos superan baseline naive lag-52</div>
         </div>
         <div class="cv-detail">
-          <div class="cv-detail-value">849 tests</div>
+          <div class="cv-detail-value">855 tests</div>
           <div class="cv-detail-label">Suite de calidad automatizada (70%+ cobertura)</div>
         </div>
       </div>
@@ -2569,6 +2752,7 @@
     </p>
     <div class="footer-links">
       <a href="#hero">Inicio</a>
+      <a href="#novedades">Novedades</a>
       <a href="EpiDashboard.html">Dashboard</a>
       <a href="Reports/index.html">Pronósticos</a>
       <a href="reporte_resultados.html">Resultados</a>
@@ -2585,8 +2769,8 @@
       <a href="https://github.com/IntegradorIMSS2026Team01" target="_blank" rel="noopener">GitHub</a>
     </div>
     <p style="margin-top:1.5rem; font-size:0.75rem; opacity:0.5;">
-      © 2026 EpiForecast-MX. Todos los derechos reservados.<br>
-      Guía Cromática Institucional del IMSS aplicada.
+      © 2026 EpiForecast-MX · epiforecast.mx · Todos los derechos reservados.<br>
+      Tema Clinical Indigo 2026 · Identidad visual EpiForecast-MX.
     </p>
   </footer>
 
