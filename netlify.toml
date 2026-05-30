@@ -1,29 +1,36 @@
 [build]
   publish = "."
-  functions = "kb/netlify/functions"
+  functions = "epibot/netlify/functions"
   # Reindexa el RAG en cada deploy (incremental: reusa vectores del índice
   # commiteado, solo embebe lo nuevo). El "|| true" garantiza que un fallo de
   # reindexado NUNCA rompe el deploy: se publica el rag_index.json commiteado.
   # Define GEMINI_API_KEY en el entorno de build para reindexar notas nuevas.
-  command = "cd kb && npm install && npm run rag:build || true"
+  command = "cd epibot && npm install && npm run rag:build || true"
 
 [functions]
   node_bundler = "esbuild"
   # CRÍTICO: empaqueta los datos que las funciones leen vía fs en runtime.
   # Sin esto, rag.mjs no encuentra el índice en producción (RAG vacío).
-  included_files = ["kb/knowledge.json", "kb/rag_index.json"]
+  included_files = ["epibot/knowledge.json", "epibot/rag_index.json"]
+
+# Compatibilidad: los enlaces viejos a /kb/ redirigen al nuevo /epibot/.
+[[redirects]]
+  from = "/kb/*"
+  to = "/epibot/:splat"
+  status = 301
+  force = true
 
 [[headers]]
-  for = "/kb/knowledge.json"
+  for = "/epibot/knowledge.json"
   [headers.values]
     Cache-Control = "public, max-age=3600"
 
 [[headers]]
-  for = "/kb/css/*"
+  for = "/epibot/css/*"
   [headers.values]
     Cache-Control = "public, max-age=300"
 
 [[headers]]
-  for = "/kb/js/*"
+  for = "/epibot/js/*"
   [headers.values]
     Cache-Control = "public, max-age=300"

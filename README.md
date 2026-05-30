@@ -22,12 +22,12 @@ El sitio integra visualizaciones Tableau, un chatbot conversacional con base de 
 
 ## EpiBot - Asistente Conversacional
 
-El componente principal del dashboard es **EpiBot** (`kb/`), un asistente conversacional que responde preguntas sobre el proyecto con datos reales de 333 modelos de produccion.
+El componente principal del dashboard es **EpiBot** (`epibot/`), un asistente conversacional que responde preguntas sobre el proyecto con datos reales de 333 modelos de produccion.
 
 ### Arquitectura
 
 ```
-kb/
+epibot/
 ├── index.html              # UI del chat (HTML5 + CSS custom)
 ├── knowledge.json          # Base de datos: metricas, boletin, modelos, config
 ├── css/style.css           # Estilos con paleta IMSS 2026
@@ -72,7 +72,7 @@ npm run rag:verify         # falla si el indice esta desincronizado del corpus
 ```
 
 > Notas de modelos: embeddings = **gemini-embedding-001** (no `text-embedding-004`, da 404). Generacion/expansion/rerank = **gemini-3.1-flash-lite** (con **gemini-2.5-flash** de respaldo); los `gemini-1.5-*` ya no estan disponibles.
-> El `netlify.toml` de la **raiz** es el que manda: necesita `included_files=["kb/knowledge.json","kb/rag_index.json"]` o la funcion no encuentra el indice en produccion.
+> El `netlify.toml` de la **raiz** es el que manda: necesita `included_files=["epibot/knowledge.json","epibot/rag_index.json"]` o la funcion no encuentra el indice en produccion.
 
 ### Deteccion de Entidades (entities.js)
 
@@ -253,7 +253,7 @@ EpiForecast-IMSS-Dashboard/
 │   ├── Alzheimer/                  # PNGs por entidad y sexo
 │   ├── Depresion/
 │   └── Parkinson/
-├── kb/                             # EpiBot - Asistente conversacional
+├── epibot/                             # EpiBot - Asistente conversacional
 │   ├── index.html                  # UI del chat
 │   ├── knowledge.json              # Base de datos (metricas, boletin, modelos)
 │   ├── css/style.css               # Estilos IMSS 2026
@@ -281,7 +281,7 @@ index.html
   ├──> reporte_resultados.html      (Reporte de Modelos)
   ├──> comparacion_modelos.html     (Comparativa de Motores)
   ├──> Reports/index.html           (Galeria de Pronosticos)
-  └──> kb/index.html                (EpiBot - Chat Inteligente)
+  └──> epibot/index.html                (EpiBot - Chat Inteligente)
 ```
 
 Todas las paginas incluyen navegacion cruzada entre si.
@@ -331,7 +331,7 @@ cd EpiForecast-IMSS-Dashboard
 python3 -m http.server 8080
 
 # Abrir en navegador: http://localhost:8080
-# EpiBot: http://localhost:8080/kb/
+# EpiBot: http://localhost:8080/epibot/
 ```
 
 Para el fallback de Gemini en desarrollo local, se requiere Netlify CLI:
