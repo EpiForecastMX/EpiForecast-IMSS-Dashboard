@@ -685,6 +685,68 @@ function answerEquipo(q, ent, s, d) {
   return null;
 }
 
+// ---------------------------------------------------------------------------
+// Fecha de una semana epidemiologica especifica.
+// "de que fecha es el boletin 20", "que fecha es la semana 20", "cuando fue la
+// semana 12". Convierte semana epi -> rango lunes-domingo usando las fechas
+// reales de weekly_comparison. Debe ir ANTES de answerTemporal (que daria la
+// fecha de HOY) y answerBoletin (que volcaria el resumen historico).
+// ---------------------------------------------------------------------------
+
+function _fechaLarga(iso) {
+  const meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio',
+    'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  const dt = new Date(iso + 'T00:00:00');
+  return `${dt.getDate()} de ${meses[dt.getMonth()]} de ${dt.getFullYear()}`;
+}
+
+function _addDiasISO(iso, dias) {
+  const dt = new Date(iso + 'T00:00:00');
+  dt.setDate(dt.getDate() + dias);
+  const y = dt.getFullYear();
+  const m = String(dt.getMonth() + 1).padStart(2, '0');
+  const d2 = String(dt.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d2}`;
+}
+
+function answerFechaSemana(q, ent, s, d) {
+  const asksDate = any(q, ['fecha', 'cuando fue', 'cuando es', 'cuando va', 'que dia',
+    'dia es', 'corresponde', 'a que dia', 'en que dia', 'que semana del calendario']);
+  if (!asksDate) return null;
+
+  // Extraer el numero de semana/boletin (1-53)
+  const m = q.match(/\b(?:boletin|semana|sem)\s*(?:epidemiologica\s*)?(?:numero\s*|num\s*|no\s*|#\s*)?(\d{1,2})\b/);
+  const week = m ? parseInt(m[1], 10) : ((ent._weeks || [])[0] ?? null);
+  if (!week || week < 1 || week > 53) return null;
+
+  const wc = d.weekly_comparison || {};
+  const pads = Object.keys(wc);
+  if (!pads.length) return null;
+  const serie = wc[pads[0]];
+  const anio = serie?.anio;
+  const semObj = (serie?.semanas || []).find(x => x.semana === week);
+  if (!semObj || !semObj.fecha) return null;
+
+  const ini = _fechaLarga(semObj.fecha);
+  const fin = _fechaLarga(_addDiasISO(semObj.fecha, 6));
+  const lines = [];
+  lines.push(`La **semana epidemiológica ${week} de ${anio}** abarca del **${ini}** al **${fin}** (lunes a domingo).`);
+
+  // Casos reales reportados esa semana (suma de los 3 padecimientos), si los hay
+  let totalReal = 0;
+  let hayReal = false;
+  for (const p of pads) {
+    const so = (wc[p].semanas || []).find(x => x.semana === week);
+    if (so && so.real != null) { totalReal += so.real; hayReal = true; }
+  }
+  if (hayReal) {
+    lines.push(`\nEn esa semana se reportaron **${fmt(totalReal)} casos** en total en el boletín SINAVE.`);
+  } else if (serie.semanas_reales != null && week > serie.semanas_reales) {
+    lines.push(`\n*(Es una semana del horizonte de pronóstico; aún no hay dato real del boletín.)*`);
+  }
+  return lines.join('\n');
+}
+
 function answerTemporal(q, ent, s, d) {
   const triggers = [
     'que dia es', 'que fecha es', 'fecha de hoy', 'dia de hoy', 'fecha actual',
@@ -4153,7 +4215,7 @@ function answerCodeRequest(q, ent, s, d) {
 // ---------------------------------------------------------------------------
 
 const HANDLERS = [
-  answerSaludo, answerPadecimientoNoModelado, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerTemporal, answerProyectoMeta,
+  answerSaludo, answerPadecimientoNoModelado, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerFechaSemana, answerTemporal, answerProyectoMeta,
   answerTrainingConfig, answerSemanaActual, answerSemanasBoletin, answerQueEsPadecimiento,
   answerTimelapse, answerSemaforo, answerReportePDF,
   answerComparacionPorSexo,
