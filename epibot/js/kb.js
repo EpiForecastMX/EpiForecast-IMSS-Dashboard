@@ -1184,6 +1184,43 @@ function answerSemanaActual(q, ent, s, d) {
   return lines.join('\n');
 }
 
+// ---------------------------------------------------------------------------
+// Cuantas semanas epidemiologicas / boletines del anio en curso van cargados.
+// ("cuantas semanas van en 2026", "cuantos boletines llevan") -> max_semana.
+// Debe ir ANTES de answerBoletin (resumen del anio) y answerConteo (modelos),
+// que secuestraban estas preguntas por el "cuantas" o el "2026".
+// ---------------------------------------------------------------------------
+
+function answerSemanasBoletin(q, ent, s, d) {
+  const triggers = [
+    'cuantas semana', 'cuantos semana', 'cuantos boletin', 'cuantas boletin',
+    'cuanto boletin', 'semanas van', 'semanas llevan', 'semanas llevamos',
+    'semanas hay', 'semanas computad', 'semanas cargad', 'semanas registrad',
+    'semanas procesad', 'semanas transcurrid', 'semanas disponible',
+    'semanas reportad', 'semanas capturad', 'semanas acumulad', 'semanas tienen',
+    'semanas tenemos', 'semanas de boletin', 'semanas del boletin',
+    'semanas de boletines', 'boletines van', 'boletines llevan', 'boletines hay',
+    'boletines cargad', 'que semana va el boletin', 'en que semana va el',
+  ];
+  if (!any(q, triggers)) return null;
+
+  // Preguntas sobre el horizonte FUTURO de pronostico -> otros handlers
+  if (any(q, ['faltan', 'restan', 'quedan', 'horizonte', 'pronostic', 'forecast', 'futur'])) return null;
+
+  const meta = d.boletin?.meta || {};
+  const ult = d.boletin?.ultima_semana;
+  const maxSem = meta.max_semana ?? ult?.semana;
+  const maxAnio = meta.max_anio ?? ult?.anio;
+  if (!maxSem) return null;
+
+  const lines = [];
+  lines.push(`Van **${maxSem} semanas epidemiológicas de ${maxAnio}** cargadas del boletín SINAVE (hasta la **semana ${maxSem} de ${maxAnio}**, de 52 posibles en el año).`);
+  if (ult && ult.anio === maxAnio && ult.total != null) {
+    lines.push(`\nEl dato más reciente es la **semana ${ult.semana} de ${ult.anio}**, con **${fmt(ult.total)} casos** reportados esa semana.`);
+  }
+  return lines.join('\n');
+}
+
 function answerQueEsPadecimiento(q, ent, s, d) {
   // Historia / origen / descubrimiento → ceder a Gemini (conocimiento general)
   const historyKw = [
@@ -4117,7 +4154,7 @@ function answerCodeRequest(q, ent, s, d) {
 
 const HANDLERS = [
   answerSaludo, answerPadecimientoNoModelado, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerTemporal, answerProyectoMeta,
-  answerTrainingConfig, answerSemanaActual, answerQueEsPadecimiento,
+  answerTrainingConfig, answerSemanaActual, answerSemanasBoletin, answerQueEsPadecimiento,
   answerTimelapse, answerSemaforo, answerReportePDF,
   answerComparacionPorSexo,
   answerComparacionSemanal, answerMapaMexico, answerTreemap, answerRadar, answerSparklines, answerStackedArea,
