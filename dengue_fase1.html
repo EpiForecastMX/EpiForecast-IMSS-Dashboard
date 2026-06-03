@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EpiForecast-MX — Fase 1 de Dengue: del boletín al dato</title>
+  <meta name="description" content="Cómo EpiForecast-MX extrae y valida la serie histórica de Dengue confirmado desde los boletines del SINAVE: del cuadro del PDF al dato listo para modelar." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-deep:#0E1424; --bg-base:#131C30; --bg-raised:#18223A; --bg-card:#1C2740; --bg-card-hover:#243150;
+      --text-primary:#E7ECF5; --text-secondary:#9FB0CE; --text-muted:#6E82A6; --text-faint:#44567A;
+      --burgundy:#F472B6; --teal:#5B8DEF; --gold:#2DD4BF; --amber:#F59E0B; --amber-soft:#FBBF24;
+      --cream:#E7ECF5;
+      --font-display:'Playfair Display',Georgia,serif;
+      --font-body:'Outfit',system-ui,-apple-system,sans-serif;
+      --font-mono:'JetBrains Mono','SF Mono',monospace;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:var(--font-body); background:var(--bg-base); color:var(--text-secondary); line-height:1.6; -webkit-font-smoothing:antialiased; }
+    a { color:var(--teal); text-decoration:none; transition:color .2s; }
+    a:hover { color:var(--amber-soft); }
+    .wrap { max-width:1080px; margin:0 auto; padding:0 1.5rem; }
+
+    /* Nav */
+    nav { position:sticky; top:0; z-index:50; background:rgba(14,20,36,0.82); backdrop-filter:blur(12px); border-bottom:1px solid var(--bg-card-hover); }
+    .nav-in { max-width:1080px; margin:0 auto; padding:0.9rem 1.5rem; display:flex; align-items:center; justify-content:space-between; }
+    .nav-logo { font-family:var(--font-display); font-weight:800; font-size:1.15rem; color:var(--cream); letter-spacing:.3px; }
+    .nav-logo span { color:var(--gold); }
+    .nav-back { font-family:var(--font-mono); font-size:.78rem; display:inline-flex; align-items:center; gap:.45rem; }
+    .nav-back svg { width:14px; height:14px; }
+
+    /* Hero */
+    .hero { padding:4.5rem 0 2.5rem; background:radial-gradient(1200px 400px at 70% -10%, rgba(245,158,11,0.10), transparent 60%); }
+    .eyebrow { font-family:var(--font-mono); font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.18em; color:var(--amber-soft); display:inline-flex; align-items:center; gap:.5rem; }
+    .eyebrow::before { content:""; width:26px; height:2px; background:var(--amber); display:inline-block; }
+    h1 { font-family:var(--font-display); font-size:2.7rem; line-height:1.1; color:var(--cream); margin:.8rem 0 1rem; }
+    .lead { font-size:1.12rem; max-width:64ch; color:var(--text-secondary); }
+    .lead strong { color:var(--cream); }
+
+    .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-top:2.4rem; }
+    .stat { background:var(--bg-card); border:1px solid var(--bg-card-hover); border-radius:14px; padding:1.1rem 1.2rem; position:relative; overflow:hidden; }
+    .stat::before { content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--amber); }
+    .stat .v { font-family:var(--font-display); font-size:1.7rem; font-weight:800; color:var(--cream); }
+    .stat .l { font-family:var(--font-mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); margin-top:.25rem; }
+
+    /* Sections */
+    section { padding:3rem 0; border-top:1px solid rgba(36,49,80,0.6); }
+    .label { font-family:var(--font-mono); font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.16em; color:var(--gold); }
+    h2 { font-family:var(--font-display); font-size:1.85rem; color:var(--cream); margin:.5rem 0 1rem; line-height:1.18; }
+    section p { max-width:72ch; margin-bottom:1rem; }
+    section p strong, li strong { color:var(--cream); }
+
+    .callout { background:linear-gradient(135deg, rgba(245,158,11,0.08), rgba(244,114,182,0.06)); border:1px solid rgba(245,158,11,0.22); border-radius:16px; padding:1.5rem 1.7rem; margin-top:1.2rem; }
+    .callout h3 { font-family:var(--font-display); color:var(--cream); font-size:1.2rem; margin-bottom:.5rem; }
+    .sev { display:flex; flex-wrap:wrap; gap:.6rem; margin:1rem 0 .2rem; }
+    .sev span { font-family:var(--font-mono); font-size:.72rem; background:var(--bg-card); border:1px solid var(--bg-card-hover); border-radius:100px; padding:.3rem .8rem; color:var(--text-secondary); }
+    .sev b { color:var(--amber-soft); }
+
+    /* Figure */
+    figure { margin:1.4rem 0 0; }
+    figure img { width:100%; border-radius:14px; border:1px solid var(--bg-card-hover); background:#fff; display:block; }
+    figcaption { font-size:.85rem; color:var(--text-muted); margin-top:.7rem; font-family:var(--font-mono); }
+
+    /* Pipeline steps */
+    .steps { display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; margin-top:1.6rem; }
+    .step { background:var(--bg-card); border:1px solid var(--bg-card-hover); border-radius:14px; padding:1.1rem 1.2rem; }
+    .step .n { font-family:var(--font-mono); font-weight:700; color:var(--amber-soft); font-size:.8rem; }
+    .step h4 { color:var(--cream); font-size:1rem; margin:.3rem 0 .35rem; }
+    .step p { font-size:.9rem; margin:0; color:var(--text-secondary); }
+
+    /* Charts */
+    .charts { display:grid; gap:1.4rem; margin-top:1.4rem; }
+    .chart-card { background:var(--bg-card); border:1px solid var(--bg-card-hover); border-radius:16px; padding:1rem; }
+    .chart-card img { width:100%; border-radius:10px; display:block; }
+    .chart-card .cap { font-size:.85rem; color:var(--text-muted); margin-top:.6rem; padding:0 .3rem .2rem; }
+
+    /* Live table */
+    .live-head { display:flex; align-items:center; flex-wrap:wrap; gap:.8rem; margin:1.2rem 0 .4rem; }
+    .badge-live { font-family:var(--font-mono); font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--gold); background:var(--gold-glow,rgba(45,212,191,0.14)); border:1px solid rgba(45,212,191,0.3); border-radius:100px; padding:.32rem .8rem; display:inline-flex; align-items:center; gap:.45rem; }
+    .badge-live .dot { width:8px; height:8px; border-radius:50%; background:var(--gold); box-shadow:0 0 0 0 rgba(45,212,191,.6); animation:pulse 2s infinite; }
+    @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(45,212,191,.5)} 70%{box-shadow:0 0 0 8px rgba(45,212,191,0)} 100%{box-shadow:0 0 0 0 rgba(45,212,191,0)} }
+    .live-meta { font-family:var(--font-mono); font-size:.74rem; color:var(--text-muted); }
+    .table-scroll { margin-top:1rem; border:1px solid var(--bg-card-hover); border-radius:14px; overflow:hidden; }
+    table { width:100%; border-collapse:collapse; font-size:.9rem; }
+    thead th { background:var(--bg-raised); color:var(--text-secondary); font-family:var(--font-mono); font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; font-weight:700; padding:.7rem .9rem; text-align:right; position:sticky; top:0; }
+    thead th:first-child { text-align:left; }
+    tbody td { padding:.6rem .9rem; text-align:right; border-top:1px solid rgba(36,49,80,0.5); color:var(--text-secondary); font-variant-numeric:tabular-nums; }
+    tbody td:first-child { text-align:left; color:var(--cream); font-weight:500; }
+    tbody tr:hover { background:var(--bg-card-hover); }
+    tbody td.casos { color:var(--amber-soft); font-weight:600; }
+    tfoot td { padding:.7rem .9rem; text-align:right; border-top:2px solid var(--bg-card-hover); background:var(--bg-raised); color:var(--cream); font-weight:700; font-variant-numeric:tabular-nums; }
+    tfoot td:first-child { text-align:left; font-family:var(--font-mono); font-size:.78rem; }
+    .table-note { font-size:.82rem; color:var(--text-muted); margin-top:.8rem; }
+    .err { color:var(--burgundy); font-family:var(--font-mono); font-size:.85rem; }
+
+    footer { border-top:1px solid var(--bg-card-hover); padding:2.2rem 0; text-align:center; background:var(--bg-deep); margin-top:1rem; }
+    footer .t { font-family:var(--font-display); color:var(--cream); font-weight:700; }
+    footer .s { font-size:.82rem; color:var(--text-muted); margin-top:.3rem; }
+
+    @media (max-width:760px) {
+      h1 { font-size:2rem; }
+      .stats { grid-template-columns:repeat(2,1fr); }
+      .steps { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-in">
+      <div class="nav-logo">EpiForecast<span>-MX</span></div>
+      <a class="nav-back" href="index.html#novedades">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        Volver al inicio
+      </a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="wrap">
+      <div class="eyebrow">Fase 1 · Nueva línea de trabajo</div>
+      <h1>Del boletín del SINAVE<br>al dato de Dengue listo para modelar</h1>
+      <p class="lead">El equipo de EpiForecast-MX extiende su pipeline al <strong>Dengue</strong>, la primera enfermedad transmitida por vector del proyecto. Esta es la primera fase: <strong>extraer y validar la serie histórica semanal del dengue confirmado</strong> directamente de los cuadros de los boletines epidemiológicos, lista para alimentar a los cuatro motores de pronóstico.</p>
+
+      <div class="stats" id="hero-stats">
+        <div class="stat"><div class="v" data-k="cobertura">2020–2026</div><div class="l">Cobertura</div></div>
+        <div class="stat"><div class="v" data-k="n_boletines">—</div><div class="l">Boletines validados</div></div>
+        <div class="stat"><div class="v">32</div><div class="l">Entidades federativas</div></div>
+        <div class="stat"><div class="v" data-k="ultima_semana">—</div><div class="l">Última semana</div></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- DECISIÓN -->
+  <section>
+    <div class="wrap">
+      <div class="label">La decisión de modelado</div>
+      <h2>Dengue total, no por severidad</h2>
+      <p>El boletín reporta el dengue bajo la clasificación de la OMS 2009 en tres niveles de severidad. Con respaldo en una revisión de la literatura de pronóstico de dengue, decidimos modelar el <strong>dengue total (las tres categorías agregadas)</strong> y no cada severidad por separado.</p>
+      <div class="sev">
+        <span><b>A97.0</b> · Dengue no grave</span>
+        <span><b>A97.1</b> · Con signos de alarma</span>
+        <span><b>A97.2</b> · Dengue grave</span>
+      </div>
+      <div class="callout">
+        <h3>¿Por qué agregado?</h3>
+        <p style="margin-bottom:.6rem">El dengue grave es una fracción muy pequeña de los casos (alrededor de 0.1 a 0.2 por ciento en las Américas), lo que produce series estatales semanales casi en cero, ruidosas e intrínsecamente difíciles de pronosticar. La capacidad predictiva proviene de la <strong>autocorrelación y la estacionalidad de la serie agregada</strong>. Pronosticar la severidad es un problema de clasificación clínica, distinto del pronóstico de incidencia.</p>
+        <p style="margin:0; font-size:.9rem; color:var(--text-muted)">Es además el enfoque estándar en la literatura: los estudios de forecasting de dengue (incluidos los de México) pronostican casos totales, no estratos de severidad.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEL PDF AL DATO -->
+  <section>
+    <div class="wrap">
+      <div class="label">Del PDF al dato</div>
+      <h2>Cómo extraemos el cuadro del boletín</h2>
+      <p>El Dengue vive en un cuadro propio del boletín (Enfermedades Transmitidas por Vector), separado del de los padecimientos neurológicos y con un diseño distinto: <strong>tres bloques de severidad</strong>, cada uno con cuatro columnas (casos de la semana, acumulado de hombres, acumulado de mujeres y acumulado del año anterior). Por cada entidad federativa hay 12 cifras que sumamos por categoría.</p>
+      <figure>
+        <img src="Reports/dengue/cuadro_pdf_ejemplo.png" alt="Cuadro 7.2 del boletín SINAVE con los casos de Dengue por entidad federativa y severidad (A97.0, A97.1, A97.2)." loading="lazy" />
+        <figcaption>Cuadro 7.2 del boletín del SINAVE (semana 47, 2025). Cada estado trae 12 cifras: 3 severidades × [Sem · Acum. H · Acum. M · año anterior].</figcaption>
+      </figure>
+
+      <div class="steps">
+        <div class="step"><div class="n">01</div><h4>Localizar el cuadro</h4><p>Se ancla en los códigos CIE A97.0/A97.1/A97.2 y en marcadores de entidad, estable ante los cambios de redacción del boletín entre años.</p></div>
+        <div class="step"><div class="n">02</div><h4>Extraer la tabla</h4><p>Se leen las 32 filas × 12 columnas con extracción estructural de tablas y se restringe a las entidades canónicas (sin acentos ni mayúsculas que estorben).</p></div>
+        <div class="step"><div class="n">03</div><h4>Agregar severidades</h4><p>Se suman las tres categorías columna por columna en un único padecimiento "Dengue" (casos de la semana y acumulados por sexo).</p></div>
+        <div class="step"><div class="n">04</div><h4>Validar contra el TOTAL</h4><p>La suma de las 32 entidades debe cuadrar con el renglón TOTAL impreso en el propio boletín (con tolerancia para erratas tipográficas).</p></div>
+        <div class="step"><div class="n">05</div><h4>Rechazar artefactos</h4><p>Una guarda descarta boletines donde el extractor duplica una columna (detectado y corregido durante una auditoría a ciegas contra los píxeles del PDF).</p></div>
+        <div class="step"><div class="n">06</div><h4>Fechar con el archivo</h4><p>El año y la semana se toman del nombre del boletín (fuente autoritativa), evitando desfases del texto de la página.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GRÁFICOS -->
+  <section>
+    <div class="wrap">
+      <div class="label">Gráficos preliminares</div>
+      <h2>Lo que ya muestra la serie</h2>
+      <p>Visualizaciones exploratorias de la serie validada (2020 a 2026). Aún no son pronósticos: ilustran la señal estacional y la magnitud que los modelos deberán capturar.</p>
+      <div class="charts">
+        <div class="chart-card">
+          <img src="Reports/dengue/dengue_nacional_semanal.png" alt="Incidencia semanal nacional de dengue confirmado, 2020 a 2026." loading="lazy" />
+          <div class="cap">Incidencia semanal nacional: brotes anuales marcados, con el pico epidémico de 2024.</div>
+        </div>
+        <div class="chart-card">
+          <img src="Reports/dengue/dengue_totales_anuales.png" alt="Casos confirmados de dengue por año, 2020 a 2026." loading="lazy" />
+          <div class="cap">Casos confirmados por año: 2024 resalta como el año epidémico del periodo.</div>
+        </div>
+        <div class="chart-card">
+          <img src="Reports/dengue/dengue_estacionalidad.png" alt="Estacionalidad del dengue: promedio de casos por semana epidemiológica." loading="lazy" />
+          <div class="cap">Estacionalidad promedio: la carga se concentra en la segunda mitad del año epidemiológico.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CUADRO EN VIVO -->
+  <section>
+    <div class="wrap">
+      <div class="label">Cuadro en vivo</div>
+      <h2>Las cifras, como en el boletín</h2>
+      <p>Esta tabla reproduce el cuadro del último boletín procesado, ya agregado a "Dengue total". Se alimenta del dato publicado por el proyecto: <strong>cuando llega un boletín nuevo y se regenera la serie, las cifras de abajo se actualizan solas</strong>.</p>
+      <div class="live-head">
+        <span class="badge-live"><span class="dot"></span>En vivo</span>
+        <span class="live-meta" id="live-meta">Cargando datos…</span>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Entidad federativa</th>
+              <th>Casos (semana)</th>
+              <th>Acum. hombres</th>
+              <th>Acum. mujeres</th>
+              <th>Acum. total</th>
+            </tr>
+          </thead>
+          <tbody id="live-body">
+            <tr><td colspan="5" style="text-align:center; color:var(--text-muted); padding:1.4rem">Cargando el cuadro…</td></tr>
+          </tbody>
+          <tfoot id="live-foot"></tfoot>
+        </table>
+      </div>
+      <p class="table-note">Dengue confirmado agregado (A97.0 + A97.1 + A97.2). Acumulados del año en curso. Fuente: boletines epidemiológicos del SINAVE / DGE / Secretaría de Salud.</p>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <div class="t">EpiForecast-MX · IMSS 2026</div>
+      <div class="s">Inteligencia epidemiológica multi-modelo · Tecnológico de Monterrey</div>
+    </div>
+  </footer>
+
+  <script>
+    const fmt = n => Number(n).toLocaleString('es-MX');
+    fetch('Reports/dengue/dengue_serie.json?cb=' + Date.now())
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(d => {
+        const m = d.meta || {};
+        // Hero stats
+        document.querySelectorAll('#hero-stats [data-k]').forEach(el => {
+          const k = el.dataset.k;
+          if (k === 'ultima_semana') el.textContent = m.ultima_semana || '—';
+          else if (k === 'n_boletines') el.textContent = m.n_boletines != null ? fmt(m.n_boletines) : '—';
+          else if (k === 'cobertura' && m.cobertura) el.textContent = m.cobertura.replace('-', '–');
+        });
+        // Meta line
+        const meta = document.getElementById('live-meta');
+        meta.textContent = 'Última semana epidemiológica: ' + (m.ultima_semana || '—') +
+          ' · ' + fmt(m.casos_semana_nacional ?? 0) + ' casos esa semana · ' +
+          fmt(m.acum_total_nacional ?? 0) + ' acumulados en el año' +
+          (m.generado ? ' · actualizado ' + m.generado : '');
+        // Table
+        const body = document.getElementById('live-body');
+        const rows = d.cuadro_ultima_semana || [];
+        if (!rows.length) { body.innerHTML = '<tr><td colspan="5" class="err">Sin datos en el cuadro.</td></tr>'; return; }
+        body.innerHTML = rows.map(r =>
+          '<tr><td>' + r.entidad + '</td>' +
+          '<td class="casos">' + fmt(r.casos_semana) + '</td>' +
+          '<td>' + fmt(r.acum_hombres) + '</td>' +
+          '<td>' + fmt(r.acum_mujeres) + '</td>' +
+          '<td>' + fmt(r.acum_total) + '</td></tr>'
+        ).join('');
+        const sum = (k) => rows.reduce((a, r) => a + (r[k] || 0), 0);
+        document.getElementById('live-foot').innerHTML =
+          '<tr><td>TOTAL NACIONAL</td><td>' + fmt(sum('casos_semana')) + '</td><td>' +
+          fmt(sum('acum_hombres')) + '</td><td>' + fmt(sum('acum_mujeres')) + '</td><td>' +
+          fmt(sum('acum_total')) + '</td></tr>';
+      })
+      .catch(e => {
+        document.getElementById('live-meta').innerHTML = '<span class="err">No se pudo cargar el dato en vivo (' + e.message + ').</span>';
+        document.getElementById('live-body').innerHTML = '<tr><td colspan="5" class="err" style="text-align:center; padding:1.4rem">Datos no disponibles por el momento.</td></tr>';
+      });
+  </script>
+</body>
+</html>

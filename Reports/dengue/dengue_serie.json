@@ -1,0 +1,1842 @@
+{
+  "meta": {
+    "generado": "2026-06-03",
+    "ultima_semana": "2026-W20",
+    "anio": 2026,
+    "semana": 20,
+    "cobertura": "2020-2026",
+    "n_boletines": 320,
+    "n_filas": 10240,
+    "casos_semana_nacional": 125,
+    "acum_total_nacional": 2136,
+    "nota": "Dengue confirmado agregado (A97.0 + A97.1 + A97.2). Fuente: boletines SINAVE."
+  },
+  "cuadro_ultima_semana": [
+    {
+      "entidad": "Sonora",
+      "casos_semana": 51,
+      "acum_hombres": 256,
+      "acum_mujeres": 300,
+      "acum_total": 556
+    },
+    {
+      "entidad": "Sinaloa",
+      "casos_semana": 16,
+      "acum_hombres": 176,
+      "acum_mujeres": 189,
+      "acum_total": 365
+    },
+    {
+      "entidad": "Tabasco",
+      "casos_semana": 13,
+      "acum_hombres": 163,
+      "acum_mujeres": 201,
+      "acum_total": 364
+    },
+    {
+      "entidad": "Veracruz",
+      "casos_semana": 1,
+      "acum_hombres": 141,
+      "acum_mujeres": 153,
+      "acum_total": 294
+    },
+    {
+      "entidad": "Baja California Sur",
+      "casos_semana": 9,
+      "acum_hombres": 62,
+      "acum_mujeres": 75,
+      "acum_total": 137
+    },
+    {
+      "entidad": "Quintana Roo",
+      "casos_semana": 9,
+      "acum_hombres": 34,
+      "acum_mujeres": 50,
+      "acum_total": 84
+    },
+    {
+      "entidad": "Nayarit",
+      "casos_semana": 3,
+      "acum_hombres": 30,
+      "acum_mujeres": 34,
+      "acum_total": 64
+    },
+    {
+      "entidad": "Chiapas",
+      "casos_semana": 7,
+      "acum_hombres": 32,
+      "acum_mujeres": 30,
+      "acum_total": 62
+    },
+    {
+      "entidad": "Jalisco",
+      "casos_semana": 10,
+      "acum_hombres": 25,
+      "acum_mujeres": 22,
+      "acum_total": 47
+    },
+    {
+      "entidad": "Michoacán",
+      "casos_semana": 2,
+      "acum_hombres": 27,
+      "acum_mujeres": 17,
+      "acum_total": 44
+    },
+    {
+      "entidad": "Tamaulipas",
+      "casos_semana": 0,
+      "acum_hombres": 17,
+      "acum_mujeres": 15,
+      "acum_total": 32
+    },
+    {
+      "entidad": "Guerrero",
+      "casos_semana": 0,
+      "acum_hombres": 6,
+      "acum_mujeres": 9,
+      "acum_total": 15
+    },
+    {
+      "entidad": "Oaxaca",
+      "casos_semana": 0,
+      "acum_hombres": 7,
+      "acum_mujeres": 7,
+      "acum_total": 14
+    },
+    {
+      "entidad": "Campeche",
+      "casos_semana": 1,
+      "acum_hombres": 7,
+      "acum_mujeres": 4,
+      "acum_total": 11
+    },
+    {
+      "entidad": "Yucatán",
+      "casos_semana": 0,
+      "acum_hombres": 3,
+      "acum_mujeres": 7,
+      "acum_total": 10
+    },
+    {
+      "entidad": "San Luis Potosí",
+      "casos_semana": 0,
+      "acum_hombres": 5,
+      "acum_mujeres": 4,
+      "acum_total": 9
+    },
+    {
+      "entidad": "Guanajuato",
+      "casos_semana": 1,
+      "acum_hombres": 1,
+      "acum_mujeres": 5,
+      "acum_total": 6
+    },
+    {
+      "entidad": "Nuevo León",
+      "casos_semana": 2,
+      "acum_hombres": 3,
+      "acum_mujeres": 1,
+      "acum_total": 4
+    },
+    {
+      "entidad": "Puebla",
+      "casos_semana": 0,
+      "acum_hombres": 2,
+      "acum_mujeres": 2,
+      "acum_total": 4
+    },
+    {
+      "entidad": "Hidalgo",
+      "casos_semana": 0,
+      "acum_hombres": 2,
+      "acum_mujeres": 2,
+      "acum_total": 4
+    },
+    {
+      "entidad": "México",
+      "casos_semana": 0,
+      "acum_hombres": 1,
+      "acum_mujeres": 1,
+      "acum_total": 2
+    },
+    {
+      "entidad": "Coahuila",
+      "casos_semana": 0,
+      "acum_hombres": 1,
+      "acum_mujeres": 1,
+      "acum_total": 2
+    },
+    {
+      "entidad": "Baja California",
+      "casos_semana": 0,
+      "acum_hombres": 1,
+      "acum_mujeres": 1,
+      "acum_total": 2
+    },
+    {
+      "entidad": "Morelos",
+      "casos_semana": 0,
+      "acum_hombres": 2,
+      "acum_mujeres": 0,
+      "acum_total": 2
+    },
+    {
+      "entidad": "Querétaro",
+      "casos_semana": 0,
+      "acum_hombres": 1,
+      "acum_mujeres": 0,
+      "acum_total": 1
+    },
+    {
+      "entidad": "Chihuahua",
+      "casos_semana": 0,
+      "acum_hombres": 0,
+      "acum_mujeres": 1,
+      "acum_total": 1
+    },
+    {
+      "entidad": "Tlaxcala",
+      "casos_semana": 0,
+      "acum_hombres": 0,
+      "acum_mujeres": 0,
+      "acum_total": 0
+    },
+    {
+      "entidad": "Aguascalientes",
+      "casos_semana": 0,
+      "acum_hombres": 0,
+      "acum_mujeres": 0,
+      "acum_total": 0
+    },
+    {
+      "entidad": "Durango",
+      "casos_semana": 0,
+      "acum_hombres": 0,
+      "acum_mujeres": 0,
+      "acum_total": 0
+    },
+    {
+      "entidad": "Colima",
+      "casos_semana": 0,
+      "acum_hombres": 0,
+      "acum_mujeres": 0,
+      "acum_total": 0
+    },
+    {
+      "entidad": "Ciudad de México",
+      "casos_semana": 0,
+      "acum_hombres": 0,
+      "acum_mujeres": 0,
+      "acum_total": 0
+    },
+    {
+      "entidad": "Zacatecas",
+      "casos_semana": 0,
+      "acum_hombres": 0,
+      "acum_mujeres": 0,
+      "acum_total": 0
+    }
+  ],
+  "nacional_semanal": [
+    {
+      "anio": 2020,
+      "semana": 4,
+      "casos": 224
+    },
+    {
+      "anio": 2020,
+      "semana": 5,
+      "casos": 232
+    },
+    {
+      "anio": 2020,
+      "semana": 6,
+      "casos": 296
+    },
+    {
+      "anio": 2020,
+      "semana": 7,
+      "casos": 257
+    },
+    {
+      "anio": 2020,
+      "semana": 8,
+      "casos": 230
+    },
+    {
+      "anio": 2020,
+      "semana": 9,
+      "casos": 202
+    },
+    {
+      "anio": 2020,
+      "semana": 10,
+      "casos": 238
+    },
+    {
+      "anio": 2020,
+      "semana": 11,
+      "casos": 134
+    },
+    {
+      "anio": 2020,
+      "semana": 12,
+      "casos": 154
+    },
+    {
+      "anio": 2020,
+      "semana": 13,
+      "casos": 121
+    },
+    {
+      "anio": 2020,
+      "semana": 14,
+      "casos": 79
+    },
+    {
+      "anio": 2020,
+      "semana": 15,
+      "casos": 116
+    },
+    {
+      "anio": 2020,
+      "semana": 16,
+      "casos": 84
+    },
+    {
+      "anio": 2020,
+      "semana": 17,
+      "casos": 97
+    },
+    {
+      "anio": 2020,
+      "semana": 18,
+      "casos": 97
+    },
+    {
+      "anio": 2020,
+      "semana": 19,
+      "casos": 148
+    },
+    {
+      "anio": 2020,
+      "semana": 20,
+      "casos": 149
+    },
+    {
+      "anio": 2020,
+      "semana": 21,
+      "casos": 174
+    },
+    {
+      "anio": 2020,
+      "semana": 22,
+      "casos": 246
+    },
+    {
+      "anio": 2020,
+      "semana": 23,
+      "casos": 179
+    },
+    {
+      "anio": 2020,
+      "semana": 24,
+      "casos": 373
+    },
+    {
+      "anio": 2020,
+      "semana": 25,
+      "casos": 168
+    },
+    {
+      "anio": 2020,
+      "semana": 26,
+      "casos": 394
+    },
+    {
+      "anio": 2020,
+      "semana": 27,
+      "casos": 184
+    },
+    {
+      "anio": 2020,
+      "semana": 28,
+      "casos": 258
+    },
+    {
+      "anio": 2020,
+      "semana": 29,
+      "casos": 574
+    },
+    {
+      "anio": 2020,
+      "semana": 30,
+      "casos": 201
+    },
+    {
+      "anio": 2020,
+      "semana": 31,
+      "casos": 384
+    },
+    {
+      "anio": 2020,
+      "semana": 32,
+      "casos": 632
+    },
+    {
+      "anio": 2020,
+      "semana": 33,
+      "casos": 441
+    },
+    {
+      "anio": 2020,
+      "semana": 34,
+      "casos": 396
+    },
+    {
+      "anio": 2020,
+      "semana": 36,
+      "casos": 830
+    },
+    {
+      "anio": 2020,
+      "semana": 40,
+      "casos": 1257
+    },
+    {
+      "anio": 2020,
+      "semana": 45,
+      "casos": 1045
+    },
+    {
+      "anio": 2020,
+      "semana": 46,
+      "casos": 999
+    },
+    {
+      "anio": 2020,
+      "semana": 47,
+      "casos": 1066
+    },
+    {
+      "anio": 2020,
+      "semana": 48,
+      "casos": 819
+    },
+    {
+      "anio": 2020,
+      "semana": 49,
+      "casos": 513
+    },
+    {
+      "anio": 2020,
+      "semana": 50,
+      "casos": 559
+    },
+    {
+      "anio": 2020,
+      "semana": 51,
+      "casos": 258
+    },
+    {
+      "anio": 2020,
+      "semana": 52,
+      "casos": 158
+    },
+    {
+      "anio": 2021,
+      "semana": 1,
+      "casos": 5
+    },
+    {
+      "anio": 2021,
+      "semana": 2,
+      "casos": 25
+    },
+    {
+      "anio": 2021,
+      "semana": 3,
+      "casos": 24
+    },
+    {
+      "anio": 2021,
+      "semana": 4,
+      "casos": 35
+    },
+    {
+      "anio": 2021,
+      "semana": 5,
+      "casos": 11
+    },
+    {
+      "anio": 2021,
+      "semana": 6,
+      "casos": 22
+    },
+    {
+      "anio": 2021,
+      "semana": 7,
+      "casos": 18
+    },
+    {
+      "anio": 2021,
+      "semana": 8,
+      "casos": 39
+    },
+    {
+      "anio": 2021,
+      "semana": 9,
+      "casos": 19
+    },
+    {
+      "anio": 2021,
+      "semana": 10,
+      "casos": 30
+    },
+    {
+      "anio": 2021,
+      "semana": 11,
+      "casos": 12
+    },
+    {
+      "anio": 2021,
+      "semana": 12,
+      "casos": 24
+    },
+    {
+      "anio": 2021,
+      "semana": 13,
+      "casos": 17
+    },
+    {
+      "anio": 2021,
+      "semana": 14,
+      "casos": 20
+    },
+    {
+      "anio": 2021,
+      "semana": 15,
+      "casos": 21
+    },
+    {
+      "anio": 2021,
+      "semana": 16,
+      "casos": 35
+    },
+    {
+      "anio": 2021,
+      "semana": 17,
+      "casos": 43
+    },
+    {
+      "anio": 2021,
+      "semana": 18,
+      "casos": 26
+    },
+    {
+      "anio": 2021,
+      "semana": 19,
+      "casos": 46
+    },
+    {
+      "anio": 2021,
+      "semana": 20,
+      "casos": 51
+    },
+    {
+      "anio": 2021,
+      "semana": 21,
+      "casos": 73
+    },
+    {
+      "anio": 2021,
+      "semana": 22,
+      "casos": 72
+    },
+    {
+      "anio": 2021,
+      "semana": 23,
+      "casos": 75
+    },
+    {
+      "anio": 2021,
+      "semana": 24,
+      "casos": 116
+    },
+    {
+      "anio": 2021,
+      "semana": 25,
+      "casos": 87
+    },
+    {
+      "anio": 2021,
+      "semana": 26,
+      "casos": 93
+    },
+    {
+      "anio": 2021,
+      "semana": 27,
+      "casos": 92
+    },
+    {
+      "anio": 2021,
+      "semana": 28,
+      "casos": 92
+    },
+    {
+      "anio": 2021,
+      "semana": 29,
+      "casos": 135
+    },
+    {
+      "anio": 2021,
+      "semana": 30,
+      "casos": 109
+    },
+    {
+      "anio": 2021,
+      "semana": 31,
+      "casos": 98
+    },
+    {
+      "anio": 2021,
+      "semana": 32,
+      "casos": 92
+    },
+    {
+      "anio": 2021,
+      "semana": 33,
+      "casos": 104
+    },
+    {
+      "anio": 2021,
+      "semana": 34,
+      "casos": 126
+    },
+    {
+      "anio": 2021,
+      "semana": 35,
+      "casos": 117
+    },
+    {
+      "anio": 2021,
+      "semana": 36,
+      "casos": 107
+    },
+    {
+      "anio": 2021,
+      "semana": 37,
+      "casos": 121
+    },
+    {
+      "anio": 2021,
+      "semana": 38,
+      "casos": 165
+    },
+    {
+      "anio": 2021,
+      "semana": 39,
+      "casos": 246
+    },
+    {
+      "anio": 2021,
+      "semana": 40,
+      "casos": 367
+    },
+    {
+      "anio": 2021,
+      "semana": 41,
+      "casos": 300
+    },
+    {
+      "anio": 2021,
+      "semana": 42,
+      "casos": 464
+    },
+    {
+      "anio": 2021,
+      "semana": 43,
+      "casos": 355
+    },
+    {
+      "anio": 2021,
+      "semana": 44,
+      "casos": 395
+    },
+    {
+      "anio": 2021,
+      "semana": 45,
+      "casos": 480
+    },
+    {
+      "anio": 2021,
+      "semana": 46,
+      "casos": 427
+    },
+    {
+      "anio": 2021,
+      "semana": 47,
+      "casos": 334
+    },
+    {
+      "anio": 2021,
+      "semana": 48,
+      "casos": 303
+    },
+    {
+      "anio": 2021,
+      "semana": 49,
+      "casos": 265
+    },
+    {
+      "anio": 2021,
+      "semana": 50,
+      "casos": 0
+    },
+    {
+      "anio": 2021,
+      "semana": 51,
+      "casos": 0
+    },
+    {
+      "anio": 2021,
+      "semana": 52,
+      "casos": 419
+    },
+    {
+      "anio": 2022,
+      "semana": 1,
+      "casos": 4
+    },
+    {
+      "anio": 2022,
+      "semana": 2,
+      "casos": 39
+    },
+    {
+      "anio": 2022,
+      "semana": 3,
+      "casos": 52
+    },
+    {
+      "anio": 2022,
+      "semana": 4,
+      "casos": 29
+    },
+    {
+      "anio": 2022,
+      "semana": 5,
+      "casos": 35
+    },
+    {
+      "anio": 2022,
+      "semana": 6,
+      "casos": 24
+    },
+    {
+      "anio": 2022,
+      "semana": 7,
+      "casos": 37
+    },
+    {
+      "anio": 2022,
+      "semana": 8,
+      "casos": 32
+    },
+    {
+      "anio": 2022,
+      "semana": 9,
+      "casos": 25
+    },
+    {
+      "anio": 2022,
+      "semana": 10,
+      "casos": 34
+    },
+    {
+      "anio": 2022,
+      "semana": 11,
+      "casos": 29
+    },
+    {
+      "anio": 2022,
+      "semana": 12,
+      "casos": 0
+    },
+    {
+      "anio": 2022,
+      "semana": 13,
+      "casos": 53
+    },
+    {
+      "anio": 2022,
+      "semana": 14,
+      "casos": 54
+    },
+    {
+      "anio": 2022,
+      "semana": 15,
+      "casos": 39
+    },
+    {
+      "anio": 2022,
+      "semana": 16,
+      "casos": 48
+    },
+    {
+      "anio": 2022,
+      "semana": 17,
+      "casos": 75
+    },
+    {
+      "anio": 2022,
+      "semana": 18,
+      "casos": 74
+    },
+    {
+      "anio": 2022,
+      "semana": 19,
+      "casos": 73
+    },
+    {
+      "anio": 2022,
+      "semana": 20,
+      "casos": 41
+    },
+    {
+      "anio": 2022,
+      "semana": 21,
+      "casos": 125
+    },
+    {
+      "anio": 2022,
+      "semana": 22,
+      "casos": 144
+    },
+    {
+      "anio": 2022,
+      "semana": 23,
+      "casos": 145
+    },
+    {
+      "anio": 2022,
+      "semana": 24,
+      "casos": 196
+    },
+    {
+      "anio": 2022,
+      "semana": 25,
+      "casos": 262
+    },
+    {
+      "anio": 2022,
+      "semana": 26,
+      "casos": 80
+    },
+    {
+      "anio": 2022,
+      "semana": 27,
+      "casos": 177
+    },
+    {
+      "anio": 2022,
+      "semana": 28,
+      "casos": 210
+    },
+    {
+      "anio": 2022,
+      "semana": 29,
+      "casos": 146
+    },
+    {
+      "anio": 2022,
+      "semana": 30,
+      "casos": 208
+    },
+    {
+      "anio": 2022,
+      "semana": 31,
+      "casos": 186
+    },
+    {
+      "anio": 2022,
+      "semana": 32,
+      "casos": 182
+    },
+    {
+      "anio": 2022,
+      "semana": 33,
+      "casos": 249
+    },
+    {
+      "anio": 2022,
+      "semana": 34,
+      "casos": 285
+    },
+    {
+      "anio": 2022,
+      "semana": 35,
+      "casos": 540
+    },
+    {
+      "anio": 2022,
+      "semana": 36,
+      "casos": 645
+    },
+    {
+      "anio": 2022,
+      "semana": 37,
+      "casos": 482
+    },
+    {
+      "anio": 2022,
+      "semana": 38,
+      "casos": 493
+    },
+    {
+      "anio": 2022,
+      "semana": 39,
+      "casos": 593
+    },
+    {
+      "anio": 2022,
+      "semana": 40,
+      "casos": 772
+    },
+    {
+      "anio": 2022,
+      "semana": 41,
+      "casos": 697
+    },
+    {
+      "anio": 2022,
+      "semana": 42,
+      "casos": 820
+    },
+    {
+      "anio": 2022,
+      "semana": 43,
+      "casos": 685
+    },
+    {
+      "anio": 2022,
+      "semana": 44,
+      "casos": 602
+    },
+    {
+      "anio": 2022,
+      "semana": 45,
+      "casos": 666
+    },
+    {
+      "anio": 2022,
+      "semana": 46,
+      "casos": 591
+    },
+    {
+      "anio": 2022,
+      "semana": 47,
+      "casos": 403
+    },
+    {
+      "anio": 2022,
+      "semana": 48,
+      "casos": 428
+    },
+    {
+      "anio": 2022,
+      "semana": 49,
+      "casos": 292
+    },
+    {
+      "anio": 2022,
+      "semana": 50,
+      "casos": 0
+    },
+    {
+      "anio": 2022,
+      "semana": 51,
+      "casos": 0
+    },
+    {
+      "anio": 2022,
+      "semana": 52,
+      "casos": 549
+    },
+    {
+      "anio": 2023,
+      "semana": 1,
+      "casos": 5
+    },
+    {
+      "anio": 2023,
+      "semana": 2,
+      "casos": 113
+    },
+    {
+      "anio": 2023,
+      "semana": 3,
+      "casos": 164
+    },
+    {
+      "anio": 2023,
+      "semana": 4,
+      "casos": 171
+    },
+    {
+      "anio": 2023,
+      "semana": 5,
+      "casos": 152
+    },
+    {
+      "anio": 2023,
+      "semana": 6,
+      "casos": 197
+    },
+    {
+      "anio": 2023,
+      "semana": 7,
+      "casos": 157
+    },
+    {
+      "anio": 2023,
+      "semana": 8,
+      "casos": 128
+    },
+    {
+      "anio": 2023,
+      "semana": 9,
+      "casos": 95
+    },
+    {
+      "anio": 2023,
+      "semana": 10,
+      "casos": 229
+    },
+    {
+      "anio": 2023,
+      "semana": 11,
+      "casos": 143
+    },
+    {
+      "anio": 2023,
+      "semana": 12,
+      "casos": 152
+    },
+    {
+      "anio": 2023,
+      "semana": 13,
+      "casos": 142
+    },
+    {
+      "anio": 2023,
+      "semana": 14,
+      "casos": 92
+    },
+    {
+      "anio": 2023,
+      "semana": 15,
+      "casos": 117
+    },
+    {
+      "anio": 2023,
+      "semana": 16,
+      "casos": 107
+    },
+    {
+      "anio": 2023,
+      "semana": 17,
+      "casos": 152
+    },
+    {
+      "anio": 2023,
+      "semana": 18,
+      "casos": 111
+    },
+    {
+      "anio": 2023,
+      "semana": 19,
+      "casos": 118
+    },
+    {
+      "anio": 2023,
+      "semana": 20,
+      "casos": 104
+    },
+    {
+      "anio": 2023,
+      "semana": 21,
+      "casos": 195
+    },
+    {
+      "anio": 2023,
+      "semana": 22,
+      "casos": 161
+    },
+    {
+      "anio": 2023,
+      "semana": 23,
+      "casos": 223
+    },
+    {
+      "anio": 2023,
+      "semana": 24,
+      "casos": 284
+    },
+    {
+      "anio": 2023,
+      "semana": 25,
+      "casos": 366
+    },
+    {
+      "anio": 2023,
+      "semana": 26,
+      "casos": 531
+    },
+    {
+      "anio": 2023,
+      "semana": 27,
+      "casos": 492
+    },
+    {
+      "anio": 2023,
+      "semana": 28,
+      "casos": 731
+    },
+    {
+      "anio": 2023,
+      "semana": 29,
+      "casos": 749
+    },
+    {
+      "anio": 2023,
+      "semana": 30,
+      "casos": 924
+    },
+    {
+      "anio": 2023,
+      "semana": 31,
+      "casos": 996
+    },
+    {
+      "anio": 2023,
+      "semana": 32,
+      "casos": 1106
+    },
+    {
+      "anio": 2023,
+      "semana": 33,
+      "casos": 1628
+    },
+    {
+      "anio": 2023,
+      "semana": 34,
+      "casos": 2002
+    },
+    {
+      "anio": 2023,
+      "semana": 35,
+      "casos": 1947
+    },
+    {
+      "anio": 2023,
+      "semana": 36,
+      "casos": 3058
+    },
+    {
+      "anio": 2023,
+      "semana": 37,
+      "casos": 2481
+    },
+    {
+      "anio": 2023,
+      "semana": 38,
+      "casos": 2730
+    },
+    {
+      "anio": 2023,
+      "semana": 39,
+      "casos": 3715
+    },
+    {
+      "anio": 2023,
+      "semana": 40,
+      "casos": 3365
+    },
+    {
+      "anio": 2023,
+      "semana": 41,
+      "casos": 3869
+    },
+    {
+      "anio": 2023,
+      "semana": 42,
+      "casos": 3263
+    },
+    {
+      "anio": 2023,
+      "semana": 43,
+      "casos": 2693
+    },
+    {
+      "anio": 2023,
+      "semana": 44,
+      "casos": 2058
+    },
+    {
+      "anio": 2023,
+      "semana": 45,
+      "casos": 2054
+    },
+    {
+      "anio": 2023,
+      "semana": 46,
+      "casos": 1725
+    },
+    {
+      "anio": 2023,
+      "semana": 47,
+      "casos": 1529
+    },
+    {
+      "anio": 2023,
+      "semana": 48,
+      "casos": 1591
+    },
+    {
+      "anio": 2023,
+      "semana": 49,
+      "casos": 1825
+    },
+    {
+      "anio": 2023,
+      "semana": 50,
+      "casos": 1519
+    },
+    {
+      "anio": 2023,
+      "semana": 51,
+      "casos": 854
+    },
+    {
+      "anio": 2023,
+      "semana": 52,
+      "casos": 1109
+    },
+    {
+      "anio": 2024,
+      "semana": 1,
+      "casos": 31
+    },
+    {
+      "anio": 2024,
+      "semana": 2,
+      "casos": 524
+    },
+    {
+      "anio": 2024,
+      "semana": 3,
+      "casos": 883
+    },
+    {
+      "anio": 2024,
+      "semana": 4,
+      "casos": 1276
+    },
+    {
+      "anio": 2024,
+      "semana": 5,
+      "casos": 1032
+    },
+    {
+      "anio": 2024,
+      "semana": 6,
+      "casos": 849
+    },
+    {
+      "anio": 2024,
+      "semana": 7,
+      "casos": 846
+    },
+    {
+      "anio": 2024,
+      "semana": 8,
+      "casos": 734
+    },
+    {
+      "anio": 2024,
+      "semana": 9,
+      "casos": 655
+    },
+    {
+      "anio": 2024,
+      "semana": 10,
+      "casos": 659
+    },
+    {
+      "anio": 2024,
+      "semana": 11,
+      "casos": 662
+    },
+    {
+      "anio": 2024,
+      "semana": 12,
+      "casos": 531
+    },
+    {
+      "anio": 2024,
+      "semana": 13,
+      "casos": 548
+    },
+    {
+      "anio": 2024,
+      "semana": 14,
+      "casos": 507
+    },
+    {
+      "anio": 2024,
+      "semana": 15,
+      "casos": 557
+    },
+    {
+      "anio": 2024,
+      "semana": 16,
+      "casos": 712
+    },
+    {
+      "anio": 2024,
+      "semana": 17,
+      "casos": 566
+    },
+    {
+      "anio": 2024,
+      "semana": 18,
+      "casos": 700
+    },
+    {
+      "anio": 2024,
+      "semana": 19,
+      "casos": 623
+    },
+    {
+      "anio": 2024,
+      "semana": 20,
+      "casos": 507
+    },
+    {
+      "anio": 2024,
+      "semana": 21,
+      "casos": 740
+    },
+    {
+      "anio": 2024,
+      "semana": 22,
+      "casos": 739
+    },
+    {
+      "anio": 2024,
+      "semana": 23,
+      "casos": 865
+    },
+    {
+      "anio": 2024,
+      "semana": 24,
+      "casos": 1274
+    },
+    {
+      "anio": 2024,
+      "semana": 25,
+      "casos": 1616
+    },
+    {
+      "anio": 2024,
+      "semana": 26,
+      "casos": 1618
+    },
+    {
+      "anio": 2024,
+      "semana": 27,
+      "casos": 1962
+    },
+    {
+      "anio": 2024,
+      "semana": 28,
+      "casos": 1647
+    },
+    {
+      "anio": 2024,
+      "semana": 30,
+      "casos": 2383
+    },
+    {
+      "anio": 2024,
+      "semana": 31,
+      "casos": 2290
+    },
+    {
+      "anio": 2024,
+      "semana": 32,
+      "casos": 3006
+    },
+    {
+      "anio": 2024,
+      "semana": 33,
+      "casos": 3383
+    },
+    {
+      "anio": 2024,
+      "semana": 34,
+      "casos": 4584
+    },
+    {
+      "anio": 2024,
+      "semana": 35,
+      "casos": 5672
+    },
+    {
+      "anio": 2024,
+      "semana": 36,
+      "casos": 5661
+    },
+    {
+      "anio": 2024,
+      "semana": 37,
+      "casos": 6325
+    },
+    {
+      "anio": 2024,
+      "semana": 38,
+      "casos": 5234
+    },
+    {
+      "anio": 2024,
+      "semana": 39,
+      "casos": 5702
+    },
+    {
+      "anio": 2024,
+      "semana": 40,
+      "casos": 4560
+    },
+    {
+      "anio": 2024,
+      "semana": 41,
+      "casos": 5791
+    },
+    {
+      "anio": 2024,
+      "semana": 42,
+      "casos": 5690
+    },
+    {
+      "anio": 2024,
+      "semana": 43,
+      "casos": 7883
+    },
+    {
+      "anio": 2024,
+      "semana": 44,
+      "casos": 5974
+    },
+    {
+      "anio": 2024,
+      "semana": 45,
+      "casos": 4832
+    },
+    {
+      "anio": 2024,
+      "semana": 46,
+      "casos": 5036
+    },
+    {
+      "anio": 2024,
+      "semana": 47,
+      "casos": 3644
+    },
+    {
+      "anio": 2024,
+      "semana": 48,
+      "casos": 3570
+    },
+    {
+      "anio": 2024,
+      "semana": 49,
+      "casos": 3436
+    },
+    {
+      "anio": 2024,
+      "semana": 50,
+      "casos": 2211
+    },
+    {
+      "anio": 2024,
+      "semana": 51,
+      "casos": 1280
+    },
+    {
+      "anio": 2024,
+      "semana": 52,
+      "casos": 742
+    },
+    {
+      "anio": 2025,
+      "semana": 1,
+      "casos": 0
+    },
+    {
+      "anio": 2025,
+      "semana": 2,
+      "casos": 150
+    },
+    {
+      "anio": 2025,
+      "semana": 3,
+      "casos": 446
+    },
+    {
+      "anio": 2025,
+      "semana": 4,
+      "casos": 291
+    },
+    {
+      "anio": 2025,
+      "semana": 5,
+      "casos": 291
+    },
+    {
+      "anio": 2025,
+      "semana": 6,
+      "casos": 172
+    },
+    {
+      "anio": 2025,
+      "semana": 7,
+      "casos": 210
+    },
+    {
+      "anio": 2025,
+      "semana": 8,
+      "casos": 221
+    },
+    {
+      "anio": 2025,
+      "semana": 9,
+      "casos": 202
+    },
+    {
+      "anio": 2025,
+      "semana": 10,
+      "casos": 167
+    },
+    {
+      "anio": 2025,
+      "semana": 11,
+      "casos": 145
+    },
+    {
+      "anio": 2025,
+      "semana": 12,
+      "casos": 137
+    },
+    {
+      "anio": 2025,
+      "semana": 13,
+      "casos": 143
+    },
+    {
+      "anio": 2025,
+      "semana": 14,
+      "casos": 165
+    },
+    {
+      "anio": 2025,
+      "semana": 15,
+      "casos": 170
+    },
+    {
+      "anio": 2025,
+      "semana": 16,
+      "casos": 117
+    },
+    {
+      "anio": 2025,
+      "semana": 18,
+      "casos": 132
+    },
+    {
+      "anio": 2025,
+      "semana": 19,
+      "casos": 121
+    },
+    {
+      "anio": 2025,
+      "semana": 20,
+      "casos": 157
+    },
+    {
+      "anio": 2025,
+      "semana": 21,
+      "casos": 181
+    },
+    {
+      "anio": 2025,
+      "semana": 22,
+      "casos": 165
+    },
+    {
+      "anio": 2025,
+      "semana": 23,
+      "casos": 189
+    },
+    {
+      "anio": 2025,
+      "semana": 24,
+      "casos": 219
+    },
+    {
+      "anio": 2025,
+      "semana": 25,
+      "casos": 269
+    },
+    {
+      "anio": 2025,
+      "semana": 26,
+      "casos": 206
+    },
+    {
+      "anio": 2025,
+      "semana": 27,
+      "casos": 206
+    },
+    {
+      "anio": 2025,
+      "semana": 28,
+      "casos": 188
+    },
+    {
+      "anio": 2025,
+      "semana": 29,
+      "casos": 246
+    },
+    {
+      "anio": 2025,
+      "semana": 30,
+      "casos": 318
+    },
+    {
+      "anio": 2025,
+      "semana": 31,
+      "casos": 334
+    },
+    {
+      "anio": 2025,
+      "semana": 32,
+      "casos": 375
+    },
+    {
+      "anio": 2025,
+      "semana": 33,
+      "casos": 518
+    },
+    {
+      "anio": 2025,
+      "semana": 34,
+      "casos": 578
+    },
+    {
+      "anio": 2025,
+      "semana": 35,
+      "casos": 755
+    },
+    {
+      "anio": 2025,
+      "semana": 36,
+      "casos": 611
+    },
+    {
+      "anio": 2025,
+      "semana": 37,
+      "casos": 760
+    },
+    {
+      "anio": 2025,
+      "semana": 38,
+      "casos": 567
+    },
+    {
+      "anio": 2025,
+      "semana": 39,
+      "casos": 830
+    },
+    {
+      "anio": 2025,
+      "semana": 40,
+      "casos": 792
+    },
+    {
+      "anio": 2025,
+      "semana": 41,
+      "casos": 923
+    },
+    {
+      "anio": 2025,
+      "semana": 42,
+      "casos": 922
+    },
+    {
+      "anio": 2025,
+      "semana": 43,
+      "casos": 992
+    },
+    {
+      "anio": 2025,
+      "semana": 44,
+      "casos": 1154
+    },
+    {
+      "anio": 2025,
+      "semana": 45,
+      "casos": 1147
+    },
+    {
+      "anio": 2025,
+      "semana": 46,
+      "casos": 1095
+    },
+    {
+      "anio": 2025,
+      "semana": 47,
+      "casos": 845
+    },
+    {
+      "anio": 2025,
+      "semana": 48,
+      "casos": 1054
+    },
+    {
+      "anio": 2025,
+      "semana": 49,
+      "casos": 719
+    },
+    {
+      "anio": 2025,
+      "semana": 50,
+      "casos": 678
+    },
+    {
+      "anio": 2025,
+      "semana": 51,
+      "casos": 389
+    },
+    {
+      "anio": 2025,
+      "semana": 52,
+      "casos": 248
+    },
+    {
+      "anio": 2025,
+      "semana": 53,
+      "casos": 0
+    },
+    {
+      "anio": 2026,
+      "semana": 1,
+      "casos": 16
+    },
+    {
+      "anio": 2026,
+      "semana": 2,
+      "casos": 169
+    },
+    {
+      "anio": 2026,
+      "semana": 3,
+      "casos": 205
+    },
+    {
+      "anio": 2026,
+      "semana": 4,
+      "casos": 162
+    },
+    {
+      "anio": 2026,
+      "semana": 5,
+      "casos": 116
+    },
+    {
+      "anio": 2026,
+      "semana": 6,
+      "casos": 128
+    },
+    {
+      "anio": 2026,
+      "semana": 7,
+      "casos": 100
+    },
+    {
+      "anio": 2026,
+      "semana": 8,
+      "casos": 78
+    },
+    {
+      "anio": 2026,
+      "semana": 9,
+      "casos": 73
+    },
+    {
+      "anio": 2026,
+      "semana": 10,
+      "casos": 122
+    },
+    {
+      "anio": 2026,
+      "semana": 11,
+      "casos": 78
+    },
+    {
+      "anio": 2026,
+      "semana": 12,
+      "casos": 91
+    },
+    {
+      "anio": 2026,
+      "semana": 13,
+      "casos": 77
+    },
+    {
+      "anio": 2026,
+      "semana": 14,
+      "casos": 85
+    },
+    {
+      "anio": 2026,
+      "semana": 15,
+      "casos": 122
+    },
+    {
+      "anio": 2026,
+      "semana": 16,
+      "casos": 81
+    },
+    {
+      "anio": 2026,
+      "semana": 17,
+      "casos": 81
+    },
+    {
+      "anio": 2026,
+      "semana": 18,
+      "casos": 107
+    },
+    {
+      "anio": 2026,
+      "semana": 19,
+      "casos": 128
+    },
+    {
+      "anio": 2026,
+      "semana": 20,
+      "casos": 125
+    }
+  ]
+}
