@@ -20,6 +20,13 @@
   status = 301
   force = true
 
+# La pagina de Dengue se renombro de dengue_fase1.html a dengue.html (cubre Fase 1 + Fase 2).
+[[redirects]]
+  from = "/dengue_fase1.html"
+  to = "/dengue.html"
+  status = 301
+  force = true
+
 [[headers]]
   for = "/epibot/knowledge.json"
   [headers.values]

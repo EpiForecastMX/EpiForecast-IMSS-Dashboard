@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EpiForecast-MX — Fase 1 de Dengue: del boletín al dato</title>
+  <title>EpiForecast-MX — Dengue: del boletín al modelo</title>
   <meta name="description" content="Cómo EpiForecast-MX extrae y valida la serie histórica de Dengue confirmado desde los boletines del SINAVE: del cuadro del PDF al dato listo para modelar." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -129,7 +129,7 @@
   <!-- HERO -->
   <header class="hero">
     <div class="wrap">
-      <div class="eyebrow">Fase 1 · Nueva línea de trabajo</div>
+      <div class="eyebrow">Dengue · Nueva línea de trabajo</div>
       <h1>Del boletín del SINAVE<br>al dato de Dengue listo para modelar</h1>
       <p class="lead">El equipo de EpiForecast-MX extiende su pipeline al <strong>Dengue</strong>, la primera enfermedad transmitida por vector del proyecto. Esta es la primera fase: <strong>extraer y validar la serie histórica semanal del dengue confirmado</strong> directamente de los cuadros de los boletines epidemiológicos, lista para alimentar a los cuatro motores de pronóstico.</p>
 
@@ -267,7 +267,12 @@
       </figure>
 
       <h3 class="subh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M4.2 4.2l4.3 4.3M15.5 15.5l4.3 4.3M1 12h6M17 12h6M4.2 19.8l4.3-4.3M15.5 8.5l4.3-4.3"/></svg>Feature engineering a la medida del dengue</h3>
-      <p>El modelado se afina a la dinámica del dengue, distinta de las series neurológicas:</p>
+      <p>El modelado se afina a la dinámica del dengue, distinta de las series neurológicas. La decisión más visible es la del tratamiento de outliers: el siguiente gráfico contrasta la serie real (lo que conserva el feature engineering de Dengue) contra lo que dejaría el recorte estándar, que aplanaría los brotes a la mediana.</p>
+      <figure>
+        <img src="Reports/dengue/dengue_fe_comparacion.png" alt="Comparación del efecto del feature engineering en Dengue: serie real con picos preservados vs serie con outliers recortados a la mediana." loading="lazy" />
+        <figcaption>Efecto del feature engineering (ejemplo Veracruz): el FE estándar (línea punteada) aplanaría los picos epidémicos de 2023 y 2024 a la mediana; el FE de Dengue (línea ámbar) los conserva como la señal a pronosticar.</figcaption>
+      </figure>
+      <p>Los demás ajustes del modelado para Dengue:</p>
       <div class="steps">
         <div class="step"><div class="n">Estacionalidad</div><h4>Multiplicativa</h4><p>La amplitud de la temporada crece con el nivel de casos; la estacionalidad anual es el componente dominante.</p></div>
         <div class="step"><div class="n">Tendencia</div><h4>Cambios más flexibles</h4><p>Los brotes arrancan de forma abrupta; el modelo permite quiebres de tendencia más marcados que en las series neurológicas.</p></div>
