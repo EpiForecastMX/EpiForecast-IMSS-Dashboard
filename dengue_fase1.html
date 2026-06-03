@@ -183,8 +183,8 @@
       <p>Visualizaciones exploratorias de la serie validada (2020 a 2026). Aún no son pronósticos: ilustran la señal estacional y la magnitud que los modelos deberán capturar.</p>
       <div class="charts">
         <div class="chart-card">
-          <img src="Reports/dengue/dengue_nacional_semanal.png" alt="Incidencia semanal nacional de dengue confirmado, 2020 a 2026." loading="lazy" />
-          <div class="cap">Incidencia semanal nacional: brotes anuales marcados, con el pico epidémico de 2024.</div>
+          <div style="position:relative; height:340px"><canvas id="chart-nacional"></canvas></div>
+          <div class="cap">Incidencia semanal nacional (interactivo, en vivo): pasa el cursor para ver los casos de cada semana. Brotes anuales marcados, con el pico epidémico de 2024.</div>
         </div>
         <div class="chart-card">
           <img src="Reports/dengue/dengue_totales_anuales.png" alt="Casos confirmados de dengue por año, 2020 a 2026." loading="lazy" />
@@ -236,8 +236,50 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <script>
     const fmt = n => Number(n).toLocaleString('es-MX');
+
+    function renderChartNacional(serie) {
+      const cv = document.getElementById('chart-nacional');
+      if (!cv || !serie || !serie.length) return;
+      // Fallback al PNG si Chart.js no cargó (sin red / CDN bloqueado).
+      if (!window.Chart) {
+        const img = document.createElement('img');
+        img.src = 'Reports/dengue/dengue_nacional_semanal.png';
+        img.alt = 'Incidencia semanal nacional de dengue confirmado, 2020 a 2026.';
+        img.style.width = '100%'; img.style.borderRadius = '10px';
+        cv.replaceWith(img);
+        return;
+      }
+      const pts = serie.map(p => ({ x: p.anio + (p.semana - 1) / 52, y: p.casos,
+        _lbl: p.anio + ' · semana ' + String(p.semana).padStart(2, '0') }));
+      new Chart(cv.getContext('2d'), {
+        type: 'line',
+        data: { datasets: [{ data: pts, borderColor: '#F59E0B',
+          backgroundColor: 'rgba(245,158,11,0.12)', fill: true, borderWidth: 1.8,
+          pointRadius: 0, pointHoverRadius: 4, pointHoverBackgroundColor: '#FBBF24', tension: 0.25 }] },
+        options: {
+          responsive: true, maintainAspectRatio: false, parsing: false,
+          interaction: { mode: 'nearest', intersect: false, axis: 'x' },
+          scales: {
+            x: { type: 'linear', min: Math.floor(pts[0].x),
+              grid: { color: '#243150' },
+              ticks: { color: '#6E82A6', stepSize: 1, autoSkip: false,
+                callback: v => (Number.isInteger(v) ? v : '') } },
+            y: { beginAtZero: true, grid: { color: '#243150' },
+              ticks: { color: '#6E82A6' },
+              title: { display: true, text: 'Casos por semana', color: '#6E82A6' } }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: '#0E1424', borderColor: '#243150', borderWidth: 1,
+              titleColor: '#E7ECF5', bodyColor: '#FBBF24', padding: 10, displayColors: false,
+              callbacks: { title: it => it[0].raw._lbl, label: it => fmt(it.raw.y) + ' casos confirmados' } }
+          }
+        }
+      });
+    }
     fetch('Reports/dengue/dengue_serie.json?cb=' + Date.now())
       .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(d => {
@@ -271,6 +313,8 @@
           '<tr><td>TOTAL NACIONAL</td><td>' + fmt(sum('casos_semana')) + '</td><td>' +
           fmt(sum('acum_hombres')) + '</td><td>' + fmt(sum('acum_mujeres')) + '</td><td>' +
           fmt(sum('acum_total')) + '</td></tr>';
+        // Gráfico nacional interactivo (misma fuente de datos en vivo).
+        renderChartNacional(d.nacional_semanal);
       })
       .catch(e => {
         document.getElementById('live-meta').innerHTML = '<span class="err">No se pudo cargar el dato en vivo (' + e.message + ').</span>';
