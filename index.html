@@ -1489,9 +1489,11 @@
     }
     .news-card--featured { grid-column: 1 / -1; }
     .news-card--featured::before { background: linear-gradient(180deg, var(--gold), var(--teal)); }
+    .news-card--dengue::before   { background: linear-gradient(180deg, #F59E0B, var(--burgundy)); }
     .news-card--epibot::before   { background: var(--teal); }
     .news-card--modelos::before  { background: var(--burgundy); }
     .news-card--datos::before    { background: var(--gold); }
+    .news-card--plataforma::before { background: var(--gold); }
     .news-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 16px 44px rgba(0,0,0,0.42);
@@ -1522,6 +1524,7 @@
     .news-tag--epibot     { background: rgba(91,141,239,0.15);  color: var(--teal); }
     .news-tag--modelos    { background: rgba(244,114,182,0.15); color: var(--burgundy); }
     .news-tag--datos      { background: rgba(45,212,191,0.12);  color: var(--gold); }
+    .news-tag--dengue     { background: rgba(245,158,11,0.16);  color: #FBBF24; }
     .news-card h3 {
       font-family: var(--font-display);
       font-size: 1.2rem;
@@ -2066,8 +2069,22 @@
       <div class="section-desc reveal">Anuncios de plataforma, mejoras del asistente y actualizaciones de datos y modelos.</div>
 
       <div class="news-grid">
-        <!-- Nuevo dominio (featured) -->
-        <div class="news-card news-card--featured reveal reveal-delay-1">
+        <!-- Dengue: nueva línea (featured) -->
+        <div class="news-card news-card--featured news-card--dengue reveal reveal-delay-1">
+          <div class="news-meta">
+            <span class="news-date">3 de junio de 2026</span>
+            <span class="news-tag news-tag--dengue">Nueva línea</span>
+          </div>
+          <h3>EpiForecast-MX lleva su pronóstico al Dengue</h3>
+          <p>El equipo abre una nueva línea de trabajo: extender el pipeline multimodelo al <strong style="color:var(--cream)">Dengue</strong>, la primera enfermedad transmitida por vector del proyecto y una de las arbovirosis de mayor impacto en México. La fase inicial ya está completa: se construyó y validó la <strong style="color:var(--cream)">serie histórica semanal del dengue confirmado (2020 a 2026, las 32 entidades federativas)</strong> directamente desde los boletines del SINAVE, contrastada celda por celda contra la fuente. Con respaldo en la literatura científica, el dengue se modelará de forma agregada (las tres categorías de severidad combinadas), el enfoque estándar en el pronóstico de incidencia. Próximamente: predicciones a 52 semanas con los cuatro motores (Prophet, DeepAR, Ensemble y Stacking).</p>
+          <a href="#about" class="news-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+            Conocer el proyecto
+          </a>
+        </div>
+
+        <!-- Nuevo dominio -->
+        <div class="news-card news-card--plataforma reveal reveal-delay-2">
           <div class="news-meta">
             <span class="news-date">29 de mayo de 2026</span>
             <span class="news-tag news-tag--plataforma">Plataforma</span>
