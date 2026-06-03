@@ -54,6 +54,10 @@
     h3.subh svg { width:20px; height:20px; color:var(--amber-soft); flex:none; }
     .eda-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:.9rem; margin:1.2rem 0; }
     .eda-grid .stat .v { font-size:1.4rem; }
+    .eda-gallery { display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:1.2rem; margin:1.4rem 0; align-items:start; }
+    .eda-gallery figure { margin:0; background:var(--bg-card); border:1px solid var(--bg-card-hover); border-radius:14px; padding:.8rem; }
+    .eda-gallery img { width:100%; border-radius:8px; display:block; background:var(--bg-deep); }
+    .eda-gallery figcaption { font-size:.8rem; color:var(--text-muted); margin-top:.55rem; line-height:1.5; }
     section p { max-width:72ch; margin-bottom:1rem; }
     section p strong, li strong { color:var(--cream); }
 
@@ -218,6 +222,34 @@
         <div class="stat"><div class="v">44.3%</div><div class="l">Semanas en cero</div></div>
       </div>
       <p>La autocorrelación altísima (0.96 a una semana) significa que la propia historia de la serie predice bien el futuro cercano. La carga se concentra en el segundo semestre (pico promedio en la semana 43). Los años epidémicos son muy marcados (2024 fue cerca de 18 veces el año más bajo). Geográficamente, la señal vive en los estados tropicales y costeros; <strong>dos entidades (Ciudad de México y Tlaxcala) no registran dengue confirmado</strong> en todo el periodo.</p>
+
+      <p style="color:var(--text-muted); font-size:.92rem; margin-bottom:.4rem">Galería exploratoria completa sobre la serie validada (mapas de calor, distribuciones y autocorrelación), para verificar visualmente que el dato está sano:</p>
+      <div class="eda-gallery">
+        <figure>
+          <img src="Reports/dengue/eda_heatmap_estado_anio.png" alt="Mapa de calor de casos de dengue por entidad federativa y año." loading="lazy" />
+          <figcaption>Mapa de calor por entidad y año. Los estados tropicales y costeros concentran la carga; Ciudad de México y Tlaxcala permanecen en cero; 2024 destaca como año epidémico.</figcaption>
+        </figure>
+        <figure>
+          <img src="Reports/dengue/eda_heatmap_semana_anio.png" alt="Mapa de calor de casos nacionales por semana epidemiológica y año." loading="lazy" />
+          <figcaption>Mapa de calor semana × año (nacional). La carga se concentra de forma consistente en las semanas 27 a 52 de cada año.</figcaption>
+        </figure>
+        <figure>
+          <img src="Reports/dengue/eda_acf.png" alt="Gráfico de autocorrelación de la serie nacional de dengue." loading="lazy" />
+          <figcaption>Autocorrelación: el rezago de una semana es cercano a 1 (alta predictibilidad) y hay un repunte en el rezago 52 (el ciclo anual).</figcaption>
+        </figure>
+        <figure>
+          <img src="Reports/dengue/eda_box_anio.png" alt="Diagrama de caja de casos semanales por año." loading="lazy" />
+          <figcaption>Diagrama de caja (bigotes) de casos semanales por año, en escala symlog: mediana, dispersión y valores atípicos. Los años epidémicos elevan toda la distribución.</figcaption>
+        </figure>
+        <figure>
+          <img src="Reports/dengue/eda_violin_estado.png" alt="Diagramas de violín de casos semanales por entidad." loading="lazy" />
+          <figcaption>Diagramas de violín por entidad (las de mayor carga): muestran la forma de la distribución semanal, incluida la masa de semanas en cero (temporada baja).</figcaption>
+        </figure>
+        <figure>
+          <img src="Reports/dengue/eda_correlacion.png" alt="Matriz de correlación de las variables del dengue." loading="lazy" />
+          <figcaption>Matriz de correlación de variables. Los acumulados por sexo van de la mano; los casos semanales correlacionan con la semana epidemiológica (estacionalidad).</figcaption>
+        </figure>
+      </div>
 
       <h3 class="subh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>Limpieza e integración</h3>
       <p>La serie se validó celda por celda contra los píxeles del PDF en la Fase 1 (cero duplicados, 32 entidades por semana, consistencia interna verificada). En la Fase 2 se integró al dataset consolidado del proyecto (<strong>72,256 filas</strong>: 62,016 de los tres padecimientos neurológicos más 10,240 de Dengue), con los nombres de entidad normalizados. El siguiente paso, antes de entrenar, es empatarla con la base demográfica del INEGI para modelar la incidencia como tasa por cada 100 mil habitantes.</p>
