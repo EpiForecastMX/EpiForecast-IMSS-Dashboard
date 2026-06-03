@@ -303,37 +303,40 @@ function needsGeneralKnowledge(q) {
 // ---------------------------------------------------------------------------
 
 function needsMedicalAdvice(q) {
-  // Patrones de tratamiento / cura / manejo clinico (auto-clinicos)
-  const treatment = [
-    'como curar', 'como se cura', 'cura para', 'tiene cura', 'se puede curar',
-    'como tratar', 'como se trata', 'tratamiento para', 'que tratamiento',
-    'que terapia', 'terapia para', 'medicamento para', 'medicina para',
-    'que medicamento', 'que tomar para', 'como superar', 'como salir de la',
-    'como lidiar con', 'como manejar la', 'como sobrellevar', 'como combatir la',
+  // Vocabulario de DATOS / proyecto INEQUIVOCO: si aparece, es una consulta
+  // sobre los modelos/series, no consejo clinico personal. Protege casos como
+  // "que modelo me recomiendas para depresion". Se omiten terminos ambiguos
+  // (tendencia, casos, incidencia): "tendencias a la psicosis" es clinico, no
+  // un pedido de tendencia de datos. Esta exclusion solo aplica cuando ademas
+  // hay verbo de consejo, asi que basta cubrir el vocabulario fuerte.
+  const dataIntent = [
+    'modelo', 'motor', 'pronostic', 'forecast', 'prediccion', 'smape', 'mase',
+    'rmse', 'metrica', 'grafic', 'ranking', 'validacion', 'heatmap', 'dataset',
+    'sinave', 'mapa de calor', 'serie de tiempo', 'entrena', 'hiperparametr',
+    'overfitting', 'tableau',
   ];
-  if (any(q, treatment)) return true;
+  if (any(q, dataIntent)) return false;
 
-  // Patrones de consejo/recomendacion dirigidos a una persona. Requieren un
-  // contexto clinico para no bloquear consultas legitimas como
-  // "que modelo me recomiendas" o "que le recomiendas a un turista".
-  const adviceForPerson = [
-    'le recomiendas', 'les recomiendas', 'que le recomiend', 'que les recomiend',
-    'recomiendas a un', 'recomiendas a una', 'recomiendas a alguien',
-    'recomendarias a', 'que aconsejas a', 'aconsejas a', 'que consejo le',
-    'consejo para un', 'consejo para una', 'recomendacion para un',
-    'recomendacion para una', 'como ayudar a un', 'como ayudar a una',
-    'como ayudo a un', 'como ayudo a una', 'que deberia hacer', 'que hago si tengo',
+  // Termino clinico/salud real (no jerga ambigua de datos).
+  const clinical = [
+    'depresi', 'depre', 'deprim', 'parkinson', 'alzheimer', 'psicosis',
+    'psicotic', 'psicos', 'psiquiatr', 'narcis', 'narcic', 'suicid', 'ansiedad',
+    'ansios', 'bipolar', 'esquizofren', 'demencia', 'salud mental', 'trastorno',
+    'sintoma', 'temblor', 'rigidez', 'olvido', 'perdida de memoria', 'animo',
+    'autoestima', 'emocional', 'panico', 'angustia', 'estres', 'insomnio',
+    'enfermo', 'enferma', 'paciente', 'diagnostic',
   ];
-  const clinicalCtx = [
-    'depresi', 'parkinson', 'alzheimer', 'psicosis', 'psicotic', 'psiquiatr',
-    'narcis', 'narcic', 'suicid', 'ansiedad', 'ansios', 'deprimid', 'salud mental',
-    'trastorno', 'sintoma', 'enfermo', 'paciente', 'medicament', 'farmac',
-    'terapia', 'doctor', 'demencia', 'bipolar', 'esquizofren', 'autoestima',
-    'emocional', 'animo', 'mental',
+  // Intencion de consejo / tratamiento / ayuda personal.
+  const advice = [
+    'recomend', 'recomien', 'aconsej', 'consejo', 'consejos', 'ayud', 'curar',
+    'curo', 'curacion', 'tiene cura', 'hay cura', 'cura para', 'se puede curar',
+    'tratar', 'tratamiento', 'terapia', 'pastilla', 'medicament', 'medicina',
+    'remedio', 'farmac', 'sobrellev', 'superar', 'salir de', 'lidiar',
+    'manejar la', 'manejar el', 'prevenir', 'que hago', 'que le doy', 'que doy',
+    'que tomo', 'que debo', 'deberia', 'me siento', 'que hacer', 'doctor',
+    'medico', 'mejorar', 'aliviar', 'calmar', 'combatir',
   ];
-  if (any(q, adviceForPerson) && any(q, clinicalCtx)) return true;
-
-  return false;
+  return any(q, clinical) && any(q, advice);
 }
 
 // ---------------------------------------------------------------------------
