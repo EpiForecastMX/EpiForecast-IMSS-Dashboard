@@ -294,6 +294,49 @@ function needsGeneralKnowledge(q) {
 }
 
 // ---------------------------------------------------------------------------
+// Detecta consejo clinico / recomendacion DIRIGIDA a una persona
+// ("que le recomiendas a un depresivo", "como curar la depresion").
+// EPI no es asesor medico: estas preguntas se ceden a Gemini, que responde
+// con contexto general y el disclaimer "no constituye consejo medico".
+// Se evalua ANTES del fuzzy/handlers, sin depender de que se haya detectado
+// un padecimiento (el fuzzy podria inventar uno y volcar estadisticas).
+// ---------------------------------------------------------------------------
+
+function needsMedicalAdvice(q) {
+  // Patrones de tratamiento / cura / manejo clinico (auto-clinicos)
+  const treatment = [
+    'como curar', 'como se cura', 'cura para', 'tiene cura', 'se puede curar',
+    'como tratar', 'como se trata', 'tratamiento para', 'que tratamiento',
+    'que terapia', 'terapia para', 'medicamento para', 'medicina para',
+    'que medicamento', 'que tomar para', 'como superar', 'como salir de la',
+    'como lidiar con', 'como manejar la', 'como sobrellevar', 'como combatir la',
+  ];
+  if (any(q, treatment)) return true;
+
+  // Patrones de consejo/recomendacion dirigidos a una persona. Requieren un
+  // contexto clinico para no bloquear consultas legitimas como
+  // "que modelo me recomiendas" o "que le recomiendas a un turista".
+  const adviceForPerson = [
+    'le recomiendas', 'les recomiendas', 'que le recomiend', 'que les recomiend',
+    'recomiendas a un', 'recomiendas a una', 'recomiendas a alguien',
+    'recomendarias a', 'que aconsejas a', 'aconsejas a', 'que consejo le',
+    'consejo para un', 'consejo para una', 'recomendacion para un',
+    'recomendacion para una', 'como ayudar a un', 'como ayudar a una',
+    'como ayudo a un', 'como ayudo a una', 'que deberia hacer', 'que hago si tengo',
+  ];
+  const clinicalCtx = [
+    'depresi', 'parkinson', 'alzheimer', 'psicosis', 'psicotic', 'psiquiatr',
+    'narcis', 'narcic', 'suicid', 'ansiedad', 'ansios', 'deprimid', 'salud mental',
+    'trastorno', 'sintoma', 'enfermo', 'paciente', 'medicament', 'farmac',
+    'terapia', 'doctor', 'demencia', 'bipolar', 'esquizofren', 'autoestima',
+    'emocional', 'animo', 'mental',
+  ];
+  if (any(q, adviceForPerson) && any(q, clinicalCtx)) return true;
+
+  return false;
+}
+
+// ---------------------------------------------------------------------------
 // Guard: prompt injection / roleplay → rechazar con mensaje
 // ---------------------------------------------------------------------------
 
@@ -3015,6 +3058,11 @@ const STOP_WORDS = new Set([
   'anos', 'anno', 'meses', 'semanas', 'dias',
   'mas', 'menos', 'preciso', 'precisos', 'distribucion',
   'historia', 'origen', 'descubrio', 'nombre', 'inventor', 'creador',
+  // Adjetivos/sustantivos validos que NO deben corregirse a un padecimiento:
+  // "depresivo" (adjetivo) != "depresion" (la enfermedad modelada). Evita que
+  // una consulta clinica/personal se convierta en un volcado de datos.
+  'depresivo', 'depresiva', 'depresivos', 'depresivas', 'deprimido', 'deprimida',
+  'narcisista', 'narcicista', 'narcisistas', 'psicotico', 'psicotica',
 ]);
 
 function fuzzyCorrect(q) {
@@ -4231,6 +4279,11 @@ export async function answer(query) {
 
   // Si requiere razonamiento temporal fino (diario), ceder a Gemini
   if (needsGeminiReasoning(q)) return null;
+
+  // Guard: consejo clinico / recomendacion para una persona → ceder a Gemini
+  // (con disclaimer medico). Va ANTES del fuzzy para que un adjetivo como
+  // "depresivo" no se autocorrija a "depresion" y dispare un volcado de datos.
+  if (needsMedicalAdvice(q)) return null;
 
   // Guard: tema fuera de alcance → ceder a Gemini
   if (isOffTopic(q, ent)) return null;
