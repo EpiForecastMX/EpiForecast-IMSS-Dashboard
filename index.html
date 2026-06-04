@@ -608,7 +608,7 @@
     .diseases { padding-top: 2rem; }
     .disease-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
       gap: 2rem;
       margin-top: 3.5rem;
     }
@@ -683,6 +683,13 @@
     .disease-card--dep .disease-tag { background: var(--burgundy-glow); color: var(--burgundy); }
     .disease-card--par .disease-tag { background: var(--teal-glow); color: var(--teal); }
     .disease-card--alz .disease-tag { background: var(--gold-glow); color: var(--gold); }
+
+    /* Dengue (4.o padecimiento, ámbar) */
+    .disease-card--den::before { background: #F59E0B; }
+    .disease-card--den .disease-icon { background: rgba(245,158,11,0.15); }
+    .disease-card--den .disease-icon svg { color: #F59E0B; }
+    .disease-card--den h3 { color: #F59E0B; }
+    .disease-card--den .disease-tag { background: rgba(245,158,11,0.15); color: #FBBF24; }
 
     /* ═══════════════════════════════════════════════════════════════════
        PIPELINE
@@ -1810,7 +1817,8 @@
 
       <p class="hero-sub">
         333 modelos de producción con selección automática entre 4 motores (DeepAR, Prophet, Ensemble, Stacking)
-        optimizados por SMAPE, MASE y RMSE. Pronósticos a 52 semanas con <strong style="color:var(--cream)">100% cobertura estatal</strong>.
+        optimizados por SMAPE, MASE y RMSE. Pronósticos a 52 semanas con <strong style="color:var(--cream)">100% cobertura estatal</strong>,
+        ahora con un cuarto padecimiento en producción: <strong style="color:var(--cream)">Dengue</strong>.
         Una colaboración entre el <strong style="color:var(--cream)">Tecnológico de Monterrey</strong>
         y el <strong style="color:var(--cream)">IMSS</strong>.
       </p>
@@ -1864,14 +1872,14 @@
         <!-- Dengue: nueva línea (featured) -->
         <div class="news-card news-card--featured news-card--dengue reveal reveal-delay-1">
           <div class="news-meta">
-            <span class="news-date">3 de junio de 2026</span>
+            <span class="news-date">4 de junio de 2026</span>
             <span class="news-tag news-tag--dengue">Nueva línea</span>
           </div>
-          <h3>EpiForecast-MX lleva su pronóstico al Dengue</h3>
-          <p>El equipo abre una nueva línea de trabajo: extender el pipeline multimodelo al <strong style="color:var(--cream)">Dengue</strong>, la primera enfermedad transmitida por vector del proyecto y una de las arbovirosis de mayor impacto en México. La fase inicial ya está completa: se construyó y validó la <strong style="color:var(--cream)">serie histórica semanal del dengue confirmado (2020 a 2026, las 32 entidades federativas)</strong> directamente desde los boletines del SINAVE, contrastada celda por celda contra la fuente. Con respaldo en la literatura científica, el dengue se modelará de forma agregada (las tres categorías de severidad combinadas), el enfoque estándar en el pronóstico de incidencia. Próximamente: predicciones a 52 semanas con los cuatro motores (Prophet, DeepAR, Ensemble y Stacking).</p>
+          <h3>El Dengue ya está en producción en EpiForecast-MX</h3>
+          <p>El <strong style="color:var(--cream)">Dengue</strong> se incorpora como cuarto padecimiento y primera enfermedad transmitida por vector del proyecto. Se construyó y validó la <strong style="color:var(--cream)">serie histórica semanal del dengue confirmado (2018 a 2026, las 32 entidades federativas)</strong> directamente desde los boletines del SINAVE, contrastada celda por celda. Con respaldo en la literatura, se modela de forma agregada (en conteos absolutos). Se entrenaron los cuatro motores y en producción quedan <strong style="color:var(--cream)">DeepAR y Prophet</strong> (los modelos de árboles no extrapolan la dinámica epidémica). Ya está en vivo el pronóstico nacional a 1 año (más una proyección estacional ilustrativa a 5 años), y el asistente EpiBot también responde sobre Dengue.</p>
           <a href="dengue.html" class="news-link">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-            Ver el trabajo en Dengue
+            Ver el pronóstico de Dengue
           </a>
         </div>
 
@@ -2190,10 +2198,10 @@
             <strong>EpiForecast-MX</strong> es un proyecto capstone de la Maestría en Inteligencia Artificial Aplicada del Tecnológico de Monterrey, desarrollado en colaboración directa con el <strong>Instituto Mexicano del Seguro Social (IMSS)</strong>.
           </p>
           <p>
-            El proyecto busca generar <strong>pronósticos confiables con intervalos de predicción</strong> para tres padecimientos neurológicos y de salud mental — Depresión, Enfermedad de Parkinson y Enfermedad de Alzheimer — a nivel nacional y subnacional (32 entidades federativas), facilitando la <strong>planificación estratégica de recursos sanitarios</strong> y la toma de decisiones informada.
+            El proyecto busca generar <strong>pronósticos confiables con intervalos de predicción</strong> para tres padecimientos neurológicos y de salud mental (Depresión, Enfermedad de Parkinson y Enfermedad de Alzheimer) y, como cuarto padecimiento, el <strong>Dengue</strong> (su primera enfermedad transmitida por vector), a nivel nacional y subnacional (32 entidades federativas), facilitando la <strong>planificación estratégica de recursos sanitarios</strong> y la toma de decisiones informada.
           </p>
           <p>
-            Utilizamos datos semanales de los boletines epidemiológicos del <strong>SINAVE</strong> (Sistema Nacional de Vigilancia Epidemiológica) que abarcan el período 2012–2026, incorporando variables previamente no consideradas como género y entidad geográfica para mejorar la capacidad predictiva.
+            Utilizamos datos semanales de los boletines epidemiológicos del <strong>SINAVE</strong> (Sistema Nacional de Vigilancia Epidemiológica) que abarcan el período 2014–2026 (Dengue desde 2018), incorporando variables previamente no consideradas como género y entidad geográfica para mejorar la capacidad predictiva.
           </p>
         </div>
 
@@ -2238,9 +2246,9 @@
        ═══════════════════════════════════════════════════════════════ -->
   <section class="section diseases" id="diseases">
     <div class="section-label reveal">Padecimientos Objetivo</div>
-    <div class="section-title reveal">Tres enfermedades, un pipeline<br>de pronóstico unificado</div>
+    <div class="section-title reveal">Cuatro enfermedades, un pipeline<br>de pronóstico unificado</div>
     <div class="section-desc reveal">
-      El proyecto se enfoca en condiciones neurológicas y de salud mental con alta carga en el sistema de salud mexicano, generando pronósticos desagregados por entidad y sexo.
+      Tres condiciones neurológicas y de salud mental de alta carga en el sistema de salud mexicano, más el Dengue como cuarto padecimiento (la primera arbovirosis del proyecto), generando pronósticos desagregados por entidad y sexo.
     </div>
 
     <div class="disease-grid">
@@ -2272,6 +2280,16 @@
         <h3>Alzheimer</h3>
         <p>Ultra-baja incidencia donde un caso de diferencia genera alto SMAPE. MASE de 0.76 (supera el baseline naive). Tras la re-selección 2026: Prophet 45, Ensemble 41, DeepAR 18, Stacking 7. 7 modelos regionales.</p>
         <span class="disease-tag">CIE-10: G30 · SMAPE 123.5% · MASE 0.76 · RMSE 0.96 · 111 modelos</span>
+      </div>
+
+      <!-- Dengue (4.o padecimiento) -->
+      <div class="disease-card disease-card--den reveal reveal-delay-1">
+        <div class="disease-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8a4 4 0 014 4v2a4 4 0 01-8 0v-2a4 4 0 014-4z"/><path d="M12 8V5"/><path d="M10 4l2 1 2-1"/><path d="M8 12H4M16 12h4M8 15l-3 2M16 15l3 2"/></svg>
+        </div>
+        <h3>Dengue</h3>
+        <p>Cuarto padecimiento y primera arbovirosis (transmitida por mosquito), con estacionalidad climática y grandes brotes cada cuatro a cinco años. Se modela en conteos absolutos; en producción quedan DeepAR y Prophet (Ensemble y Stacking no extrapolan la dinámica epidémica). Pronóstico nacional a 1 año más una proyección estacional ilustrativa a 5 años.</p>
+        <span class="disease-tag">CIE-10: A97 · SMAPE nac. 20.3% · DeepAR + Prophet · 99 series · 2018-2026</span>
       </div>
     </div>
   </section>
@@ -2456,7 +2474,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         </div>
         <h3>Fase V — Validación y Producción</h3>
-        <p>Validación semanal con datos reales del boletín SINAVE que los modelos nunca vieron. Auditoría de calidad del código (855 tests), diagnósticos de overfitting y leakage, y tabla de 333 modelos de producción con métricas comparativas.</p>
+        <p>Validación semanal con datos reales del boletín SINAVE que los modelos nunca vieron. Auditoría de calidad del código (907 tests), diagnósticos de overfitting y leakage, y tabla de 333 modelos de producción con métricas comparativas.</p>
       </div>
 
       <div class="method-card method-highlight reveal reveal-delay-3" data-phase="final">
@@ -2489,7 +2507,7 @@
           </div>
           <div class="method-feature">
             <div class="method-feature-dot"></div>
-            <span>CI/CD: scraping diario de boletines, 855 tests automatizados, MLflow para tracking de experimentos</span>
+            <span>CI/CD: scraping diario de boletines, 907 tests automatizados, MLflow para tracking de experimentos</span>
           </div>
         </div>
       </div>
@@ -2652,7 +2670,7 @@
           <div class="cv-detail-label">Todos superan baseline naive lag-52</div>
         </div>
         <div class="cv-detail">
-          <div class="cv-detail-value">855 tests</div>
+          <div class="cv-detail-value">907 tests</div>
           <div class="cv-detail-label">Suite de calidad automatizada (70%+ cobertura)</div>
         </div>
       </div>
@@ -2768,14 +2786,14 @@
 
       <div class="scope-stats">
         <div class="scope-stat reveal reveal-delay-1">
-          <div class="scope-stat-value scope-stat-value--teal" data-target="60288" data-suffix="">0</div>
+          <div class="scope-stat-value scope-stat-value--teal" data-target="74560" data-suffix="">0</div>
           <div class="scope-stat-label">Registros totales</div>
-          <div class="scope-stat-sub">Dataset consolidado SINAVE + INEGI</div>
+          <div class="scope-stat-sub">Consolidado SINAVE + INEGI (62,016 neuro + 12,544 Dengue)</div>
         </div>
         <div class="scope-stat reveal reveal-delay-2">
-          <div class="scope-stat-value scope-stat-value--burg">2012–2026</div>
+          <div class="scope-stat-value scope-stat-value--burg">2014–2026</div>
           <div class="scope-stat-label">Período cubierto</div>
-          <div class="scope-stat-sub">13+ años de boletines SINAVE</div>
+          <div class="scope-stat-sub">Boletines SINAVE (Dengue desde 2018)</div>
         </div>
         <div class="scope-stat reveal reveal-delay-3">
           <div class="scope-stat-value scope-stat-value--gold" data-target="32" data-suffix="">0</div>
@@ -2804,6 +2822,7 @@
     <div class="footer-links">
       <a href="#hero">Inicio</a>
       <a href="#novedades">Novedades</a>
+      <a href="dengue.html">Dengue</a>
       <a href="EpiDashboard.html">Dashboard</a>
       <a href="Reports/index.html">Pronósticos</a>
       <a href="reporte_resultados.html">Resultados</a>
