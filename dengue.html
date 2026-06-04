@@ -618,6 +618,7 @@
         .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(d => {
           const m = d.meta || {};
+          const anios = m.anios_proyeccion || 5;
           const motor = document.getElementById('fc-motor');
           if (motor) motor.textContent = m.motor_nacional || '—';
           const dist = m.distribucion || {};
@@ -651,7 +652,7 @@
                   backgroundColor: 'rgba(245,158,11,0.13)', pointRadius: 0, fill: '+1', tension: 0.3, order: 5 },
                 { label: 'Banda baja', data: pLo, parsing: false, borderColor: 'transparent',
                   backgroundColor: 'transparent', pointRadius: 0, fill: false, tension: 0.3, order: 5 },
-                { label: 'Proyección estacional (5 años, ilustrativa)', data: proy, parsing: false,
+                { label: 'Proyección estacional (' + anios + ' años, ilustrativa)', data: proy, parsing: false,
                   borderColor: '#5B8DEF', borderWidth: 1.6, borderDash: [5, 4], pointRadius: 0, tension: 0.3, order: 3 },
                 { label: 'Histórico real', data: hist, parsing: false,
                   borderColor: '#9FB0CE', borderWidth: 1.6, pointRadius: 0, pointHoverRadius: 3, tension: 0.25, order: 2 },
@@ -680,7 +681,7 @@
             }
           });
           if (cap) cap.textContent = 'Nacional: histórico real (gris), pronóstico productivo a 1 año con banda de confianza (' +
-            (m.motor_nacional || 'motor productivo') + ', ámbar) y proyección estacional ilustrativa a 5 años (azul punteado). ' +
+            (m.motor_nacional || 'motor productivo') + ', ámbar) y proyección estacional ilustrativa a ' + anios + ' años (azul punteado). ' +
             'Última semana real: ' + (m.ultima_real || '—') + '.';
         })
         .catch(e => {
