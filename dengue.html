@@ -104,6 +104,14 @@
     .table-note { font-size:.82rem; color:var(--text-muted); margin-top:.8rem; }
     .err { color:var(--burgundy); font-family:var(--font-mono); font-size:.85rem; }
 
+    /* Referencias */
+    .refs { list-style:none; margin:1.5rem 0 0; padding:0; display:grid; gap:.9rem; }
+    .refs li { background:var(--bg-card); border:1px solid var(--bg-card-hover); border-left:3px solid var(--gold); border-radius:12px; padding:1rem 1.2rem; }
+    .refs .rt { color:var(--cream); font-weight:600; font-size:.98rem; }
+    .refs .rd { font-size:.86rem; color:var(--text-secondary); margin:.25rem 0 .45rem; }
+    .refs a { font-family:var(--font-mono); font-size:.76rem; word-break:break-word; }
+    .refs .rtag { font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.1em; color:var(--gold); }
+
     /* Lightbox: ampliar imágenes al hacer clic */
     .eda-gallery img, figure img, .chart-card img { cursor:zoom-in; transition:filter .15s, transform .15s; }
     .eda-gallery img:hover, figure img:hover, .chart-card img:hover { filter:brightness(1.06); }
@@ -210,6 +218,10 @@
         <p style="margin-bottom:.6rem">Antes de la semana 27 de 2018, el boletín reportaba el dengue con la clasificación de la OMS 1997 (A90 dengue clásico, A91 hemorrágico), en un cuadro por estatus de caso (confirmados y en estudio). Lo recuperamos también (226 semanas validadas, de 2014 a 2018) pero como una <strong>serie histórica nacional separada</strong>, NO mezclada con la de modelado.</p>
         <p style="margin:0; font-size:.9rem; color:var(--text-muted)">Mezclar dos taxonomías y dos definiciones de caso introduciría un salto artificial que ensuciaría lo que aprende el modelo. Esa serie antigua queda como contexto histórico, no como insumo de entrenamiento.</p>
       </div>
+      <figure>
+        <img src="Reports/dengue/dengue_historico_ciclo.png" alt="Total de dengue confirmado por año en México, 2014 a 2026, con los grandes brotes de 2014, 2019 y 2024 resaltados." loading="lazy" />
+        <figcaption>Total anual de dengue confirmado, 2014-2026. Los grandes brotes (en rosa) llegan en olas de aproximadamente cinco años (2014, 2019, 2024); 2024 fue la mayor epidemia registrada en las Américas. El dengue mantuvo su ciclo natural durante la pandemia (franja COVID-19 sombreada). Haz clic para ampliar.</figcaption>
+      </figure>
     </div>
   </section>
 
@@ -218,8 +230,12 @@
     <div class="wrap">
       <div class="label">Gráficos preliminares</div>
       <h2>Lo que ya muestra la serie</h2>
-      <p>Visualizaciones exploratorias de la serie validada (2018 a 2026). No son pronósticos: ilustran la señal estacional y la magnitud que los modelos deben capturar.</p>
+      <p>Visualizaciones exploratorias de la serie validada (2018 a 2026). No son pronósticos: ilustran la señal estacional, la geografía y la magnitud que los modelos deben capturar.</p>
       <div class="charts">
+        <div class="chart-card">
+          <img src="Reports/dengue/dengue_mapa_mexico.png" alt="Mapa de México coloreado por el total de casos confirmados de dengue por entidad, 2018 a 2026." loading="lazy" />
+          <div class="cap">Geografía del dengue: el sureste tropical y la costa del Pacífico concentran la carga (Jalisco, Veracruz, Chiapas, Guerrero); el centro-altiplano (Ciudad de México, Tlaxcala) queda sin transmisión confirmada. Escala logarítmica. Haz clic para ampliar.</div>
+        </div>
         <div class="chart-card">
           <div style="position:relative; height:340px"><canvas id="chart-nacional"></canvas></div>
           <div class="cap">Incidencia semanal nacional (interactivo, en vivo): pasa el cursor para ver los casos de cada semana. Brotes anuales marcados, con el pico epidémico de 2024.</div>
@@ -297,7 +313,7 @@
       </figure>
 
       <h3 class="subh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M4.2 4.2l4.3 4.3M15.5 15.5l4.3 4.3M1 12h6M17 12h6M4.2 19.8l4.3-4.3M15.5 8.5l4.3-4.3"/></svg>Feature engineering a la medida del dengue</h3>
-      <p>El modelado se afina a la dinámica del dengue, distinta de las series neurológicas. La decisión más visible es la del tratamiento de outliers: el siguiente gráfico contrasta la serie real (lo que conserva el feature engineering de Dengue) contra lo que dejaría el recorte estándar, que aplanaría los brotes a la mediana.</p>
+      <p>El dengue no se parece a una enfermedad crónica: es un fenómeno <strong>climático y biológico</strong> que estalla en brotes (como se ve en el mapa y en el ciclo de ~5 años, ligado a El Niño) y se apaga en temporada baja. Por eso <strong>no reutilizamos</strong> el feature engineering de los padecimientos neurológicos: lo rediseñamos pieza por pieza para la dinámica del mosquito. La decisión más visible es la de los outliers: el siguiente gráfico contrasta la serie real (lo que conserva el feature engineering de Dengue) contra lo que dejaría el recorte estándar, que aplanaría los brotes a la mediana.</p>
       <figure>
         <img src="Reports/dengue/dengue_fe_comparacion.png" alt="Comparación del efecto del feature engineering en Dengue: serie real con picos preservados vs serie con outliers recortados a la mediana." loading="lazy" />
         <figcaption>Efecto del feature engineering (ejemplo Veracruz): el FE estándar (línea punteada) aplanaría los picos epidémicos de 2023 y 2024 a la mediana; el FE de Dengue (línea ámbar) los conserva como la señal a pronosticar.</figcaption>
@@ -387,6 +403,48 @@
         </table>
       </div>
       <p class="table-note">Dengue confirmado agregado (A97.0 + A97.1 + A97.2). Acumulados del año en curso. Fuente: boletines epidemiológicos del SINAVE / DGE / Secretaría de Salud.</p>
+    </div>
+  </section>
+
+  <!-- REFERENCIAS -->
+  <section>
+    <div class="wrap">
+      <div class="label">Fuentes y referencias</div>
+      <h2>Datos oficiales, documentados y validados</h2>
+      <p>Toda la serie y el contexto epidemiológico de esta página provienen de fuentes oficiales. Cada referencia se consultó y verificó en línea en junio de 2026.</p>
+      <ul class="refs">
+        <li>
+          <span class="rtag">Fuente primaria de los datos</span>
+          <div class="rt">SINAVE · Sistema Nacional de Vigilancia Epidemiológica</div>
+          <div class="rd">Boletines epidemiológicos semanales del SINAVE / DGE / Secretaría de Salud, de donde EpiForecast-MX extrae y valida la serie de Dengue confirmado.</div>
+          <a href="https://www.sinave.gob.mx/" target="_blank" rel="noopener">https://www.sinave.gob.mx/</a>
+        </li>
+        <li>
+          <span class="rtag">Vigilancia de Dengue (México)</span>
+          <div class="rt">DGE · Panorama Epidemiológico de Dengue</div>
+          <div class="rd">Reportes semanales de la Dirección General de Epidemiología sobre dengue y dengue grave en México (Sistema Especial de Vigilancia Epidemiológica de Dengue).</div>
+          <a href="https://www.gob.mx/salud/documentos/panorama-epidemiologico-de-dengue-2024" target="_blank" rel="noopener">gob.mx/salud · Panorama Epidemiológico de Dengue</a>
+        </li>
+        <li>
+          <span class="rtag">Contexto regional</span>
+          <div class="rt">OPS/PAHO · Actualización epidemiológica de dengue en las Américas (2024)</div>
+          <div class="rd">2024 fue el mayor número de casos de dengue en las Américas desde 1980 (cerca de 12.9 millones de casos sospechosos); México figuró entre los cuatro países que concentraron el 90% de los casos.</div>
+          <a href="https://www.paho.org/en/documents/epidemiological-update-increase-dengue-cases-region-americas-18-june-2024" target="_blank" rel="noopener">paho.org · Epidemiological Update Dengue (2024)</a>
+        </li>
+        <li>
+          <span class="rtag">Definición y clasificación</span>
+          <div class="rt">OMS/WHO · Dengue y dengue grave (nota descriptiva)</div>
+          <div class="rd">Clasificación clínica (CIE-10 A97), transmisión por <em>Aedes aegypti</em> y carga global del dengue, incluido el récord histórico de 2024.</div>
+          <a href="https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue" target="_blank" rel="noopener">who.int · Dengue and severe dengue</a>
+        </li>
+        <li>
+          <span class="rtag">Base demográfica</span>
+          <div class="rt">INEGI · Censo de Población y Vivienda 2020</div>
+          <div class="rd">Población por entidad federativa, usada para normalizar la incidencia a tasa por cada 100 mil habitantes.</div>
+          <a href="https://www.inegi.org.mx/programas/ccpv/2020/" target="_blank" rel="noopener">inegi.org.mx · Censo 2020</a>
+        </li>
+      </ul>
+      <p class="table-note">Las cifras citadas (récord de 2024 en las Américas, concentración geográfica, ciclo epidémico ligado a El Niño) están respaldadas por las actualizaciones de OPS/PAHO y la OMS enlazadas arriba.</p>
     </div>
   </section>
 
