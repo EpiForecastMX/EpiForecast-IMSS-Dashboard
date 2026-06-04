@@ -1491,6 +1491,7 @@
     .news-card--featured::before { background: linear-gradient(180deg, var(--gold), var(--teal)); }
     .news-card--dengue::before   { background: linear-gradient(180deg, #F59E0B, var(--burgundy)); }
     .news-card--helix::before    { background: linear-gradient(180deg, var(--gold), #F59E0B); }
+    .news-card--future::before   { background: linear-gradient(180deg, var(--teal), var(--gold)); }
     .news-card--epibot::before   { background: var(--teal); }
     .news-card--modelos::before  { background: var(--burgundy); }
     .news-card--datos::before    { background: var(--gold); }
@@ -1527,6 +1528,7 @@
     .news-tag--datos      { background: rgba(45,212,191,0.12);  color: var(--gold); }
     .news-tag--dengue     { background: rgba(245,158,11,0.16);  color: #FBBF24; }
     .news-tag--helix      { background: rgba(45,212,191,0.16);  color: var(--gold); }
+    .news-tag--future     { background: rgba(91,141,239,0.16);  color: var(--teal); }
     .news-card h3 {
       font-family: var(--font-display);
       font-size: 1.2rem;
@@ -1859,20 +1861,6 @@
       <div class="section-desc reveal">Anuncios de plataforma, mejoras del asistente y actualizaciones de datos y modelos.</div>
 
       <div class="news-grid">
-        <!-- HELIX: primer lugar (featured) -->
-        <div class="news-card news-card--featured news-card--helix reveal reveal-delay-1">
-          <div class="news-meta">
-            <span class="news-date">20 de mayo de 2026</span>
-            <span class="news-tag news-tag--helix">Reconocimiento</span>
-          </div>
-          <h3>EpiForecast-MX gana el primer lugar en el International Summit HELIX 2026 México</h3>
-          <p>El proyecto obtuvo el <strong style="color:var(--cream)">primer lugar</strong> en el <strong style="color:var(--cream)">International Summit HELIX 2026 México</strong>, un encuentro internacional de innovación y educación continua en salud organizado por la Universidad Anáhuac México, el Instituto Nacional de Salud Pública (INSP), la Universitat de Barcelona y UManresa, entre otras instituciones. La <strong style="color:var(--cream)">Dra. Ruth Manuela Pérez Hernández</strong> y <strong style="color:var(--cream)">Juan Carlos Pérez Nava</strong> expusieron en Cuernavaca el enfoque del equipo para transitar de la vigilancia epidemiológica clásica al pronóstico con inteligencia artificial. El mismo trabajo fue aceptado, además, como ponencia oral en la 2nd Public Health Conference de Skopje.</p>
-          <a href="helix.html" class="news-link">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-            Leer la nota de prensa
-          </a>
-        </div>
-
         <!-- Dengue: nueva línea (featured) -->
         <div class="news-card news-card--featured news-card--dengue reveal reveal-delay-1">
           <div class="news-meta">
@@ -1912,6 +1900,34 @@
           <a href="epibot/index.html" class="news-link">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
             Hablar con EPI
+          </a>
+        </div>
+
+        <!-- Future Health / Skopje: aceptación oral -->
+        <div class="news-card news-card--future reveal reveal-delay-1">
+          <div class="news-meta">
+            <span class="news-date">21 de mayo de 2026</span>
+            <span class="news-tag news-tag--future">Internacional</span>
+          </div>
+          <h3>EpiForecast-MX, aceptado para presentación oral en Europa</h3>
+          <p>El enfoque del proyecto fue <strong style="color:var(--cream)">aceptado como ponencia oral</strong> en la <strong style="color:var(--cream)">2nd Public Health Conference</strong> (Public Health Futures), con la 2nd HSG Europe Preconference, celebrada en <strong style="color:var(--cream)">Skopje, Macedonia del Norte</strong>. El mismo trabajo que ganó el primer lugar en HELIX México llega así a un foro europeo de salud pública.</p>
+          <a href="future_health.html" class="news-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+            Ver noticia
+          </a>
+        </div>
+
+        <!-- HELIX: primer lugar -->
+        <div class="news-card news-card--helix reveal reveal-delay-2">
+          <div class="news-meta">
+            <span class="news-date">20 de mayo de 2026</span>
+            <span class="news-tag news-tag--helix">Reconocimiento</span>
+          </div>
+          <h3>Primer lugar en el International Summit HELIX 2026 México</h3>
+          <p>EpiForecast-MX obtuvo el <strong style="color:var(--cream)">primer lugar</strong> en el International Summit HELIX 2026 México, foro internacional de innovación y educación continua en salud. La <strong style="color:var(--cream)">Dra. Ruth Manuela Pérez Hernández</strong> y <strong style="color:var(--cream)">Juan Carlos Pérez Nava</strong> expusieron en Cuernavaca el enfoque del equipo para transitar de la vigilancia epidemiológica clásica al pronóstico con inteligencia artificial.</p>
+          <a href="helix.html" class="news-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+            Ver noticia
           </a>
         </div>
 

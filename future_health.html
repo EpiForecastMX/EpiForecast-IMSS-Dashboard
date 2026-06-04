@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EpiForecast-MX — Aceptado para presentación oral en Europa (Public Health Futures, Skopje 2026)</title>
+  <meta name="description" content="El enfoque de EpiForecast-MX fue aceptado como ponencia oral en la 2nd Public Health Conference (Public Health Futures), con la 2nd HSG Europe Preconference, en Skopje, Macedonia del Norte, el 21 y 22 de mayo de 2026." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-deep:#0E1424; --bg-base:#131C30; --bg-raised:#18223A; --bg-card:#1C2740; --bg-card-hover:#243150;
+      --text-primary:#E7ECF5; --text-secondary:#9FB0CE; --text-muted:#6E82A6; --text-faint:#44567A;
+      --burgundy:#F472B6; --teal:#5B8DEF; --gold:#2DD4BF; --amber:#F59E0B; --amber-soft:#FBBF24;
+      --cream:#E7ECF5;
+      --font-display:'Playfair Display',Georgia,serif;
+      --font-body:'Outfit',system-ui,-apple-system,sans-serif;
+      --font-mono:'JetBrains Mono','SF Mono',monospace;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:var(--font-body); background:var(--bg-base); color:var(--text-secondary); line-height:1.6; -webkit-font-smoothing:antialiased; }
+    a { color:var(--teal); text-decoration:none; transition:color .2s; }
+    a:hover { color:var(--amber-soft); }
+    .wrap { max-width:1080px; margin:0 auto; padding:0 1.5rem; }
+
+    /* Nav */
+    nav { position:sticky; top:0; z-index:50; background:rgba(14,20,36,0.82); backdrop-filter:blur(12px); border-bottom:1px solid var(--bg-card-hover); }
+    .nav-in { max-width:1080px; margin:0 auto; padding:0.9rem 1.5rem; display:flex; align-items:center; justify-content:space-between; }
+    .nav-logo { font-family:var(--font-display); font-weight:800; font-size:1.15rem; color:var(--cream); letter-spacing:.3px; }
+    .nav-logo span { color:var(--gold); }
+    .nav-back { font-family:var(--font-mono); font-size:.78rem; display:inline-flex; align-items:center; gap:.45rem; }
+    .nav-back svg { width:14px; height:14px; }
+
+    /* Hero */
+    .hero { padding:4.5rem 0 2.5rem; background:radial-gradient(1200px 400px at 70% -10%, rgba(91,141,239,0.12), transparent 60%); }
+    .eyebrow { font-family:var(--font-mono); font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.18em; color:var(--teal); display:inline-flex; align-items:center; gap:.5rem; }
+    .eyebrow::before { content:""; width:26px; height:2px; background:var(--teal); display:inline-block; }
+    h1 { font-family:var(--font-display); font-size:2.7rem; line-height:1.1; color:var(--cream); margin:.8rem 0 1rem; }
+    .lead { font-size:1.12rem; max-width:64ch; color:var(--text-secondary); }
+    .lead strong { color:var(--cream); }
+
+    .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-top:2.4rem; }
+    .stat { background:var(--bg-card); border:1px solid var(--bg-card-hover); border-radius:14px; padding:1.1rem 1.2rem; position:relative; overflow:hidden; }
+    .stat::before { content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--teal); }
+    .stat .v { font-family:var(--font-display); font-size:1.7rem; font-weight:800; color:var(--cream); }
+    .stat .l { font-family:var(--font-mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); margin-top:.25rem; }
+
+    /* Sections */
+    section { padding:3rem 0; border-top:1px solid rgba(36,49,80,0.6); }
+    .label { font-family:var(--font-mono); font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.16em; color:var(--gold); }
+    h2 { font-family:var(--font-display); font-size:1.85rem; color:var(--cream); margin:.5rem 0 1rem; line-height:1.18; }
+    section p { max-width:72ch; margin-bottom:1rem; }
+    section p strong, li strong { color:var(--cream); }
+
+    .callout { background:linear-gradient(135deg, rgba(91,141,239,0.10), rgba(45,212,191,0.06)); border:1px solid rgba(91,141,239,0.22); border-radius:16px; padding:1.5rem 1.7rem; margin-top:1.2rem; }
+    .callout h3 { font-family:var(--font-display); color:var(--cream); font-size:1.2rem; margin-bottom:.5rem; }
+    .callout .title-en { font-style:italic; color:var(--cream); }
+
+    .steps { display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; margin-top:1.6rem; }
+    .step { background:var(--bg-card); border:1px solid var(--bg-card-hover); border-radius:14px; padding:1.1rem 1.2rem; }
+    .step .n { font-family:var(--font-mono); font-weight:700; color:var(--teal); font-size:.8rem; }
+    .step h4 { color:var(--cream); font-size:1rem; margin:.3rem 0 .35rem; }
+    .step p { font-size:.9rem; margin:0; color:var(--text-secondary); }
+
+    /* Figure */
+    figure { margin:1.4rem 0 0; }
+    figure img { width:100%; border-radius:14px; border:1px solid var(--bg-card-hover); background:#fff; display:block; }
+    figcaption { font-size:.85rem; color:var(--text-muted); margin-top:.7rem; font-family:var(--font-mono); }
+    .doc-portrait { max-width:560px; margin:1.4rem auto 0; }
+
+    /* Referencias */
+    .refs { list-style:none; margin:1.5rem 0 0; padding:0; display:grid; gap:.9rem; }
+    .refs li { background:var(--bg-card); border:1px solid var(--bg-card-hover); border-left:3px solid var(--gold); border-radius:12px; padding:1rem 1.2rem; }
+    .refs .rt { color:var(--cream); font-weight:600; font-size:.98rem; }
+    .refs .rd { font-size:.86rem; color:var(--text-secondary); margin:.25rem 0 .45rem; }
+    .refs a { font-family:var(--font-mono); font-size:.76rem; word-break:break-word; }
+    .refs .rtag { font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.1em; color:var(--gold); }
+
+    /* Lightbox */
+    figure img { cursor:zoom-in; transition:filter .15s, transform .15s; }
+    figure img:hover { filter:brightness(1.04); }
+    .lightbox { position:fixed; inset:0; background:rgba(6,10,20,0.95); display:none; align-items:center; justify-content:center; z-index:200; padding:2.5rem 1.5rem; cursor:zoom-out; }
+    .lightbox.open { display:flex; }
+    .lightbox img { max-width:96vw; max-height:88vh; border-radius:10px; box-shadow:0 24px 70px rgba(0,0,0,.6); background:#fff; }
+    .lightbox .lb-close { position:absolute; top:1.1rem; right:1.3rem; width:42px; height:42px; border:1px solid var(--bg-card-hover); background:var(--bg-card); color:var(--cream); border-radius:10px; font-size:1.5rem; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .lightbox .lb-close:hover { background:var(--bg-card-hover); }
+    .lightbox .lb-cap { position:absolute; bottom:1.1rem; left:0; right:0; text-align:center; color:var(--text-secondary); font-family:var(--font-mono); font-size:.78rem; padding:0 1.5rem; pointer-events:none; }
+
+    footer { border-top:1px solid var(--bg-card-hover); padding:2.2rem 0; text-align:center; background:var(--bg-deep); margin-top:1rem; }
+    footer .t { font-family:var(--font-display); color:var(--cream); font-weight:700; }
+    footer .s { font-size:.82rem; color:var(--text-muted); margin-top:.3rem; }
+
+    @media (max-width:760px) {
+      h1 { font-size:2rem; }
+      .stats { grid-template-columns:repeat(2,1fr); }
+      .steps { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-in">
+      <div class="nav-logo">EpiForecast<span>-MX</span></div>
+      <a class="nav-back" href="index.html#novedades">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        Volver al inicio
+      </a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="wrap">
+      <div class="eyebrow">Reconocimiento · 2nd Public Health Conference (Skopje)</div>
+      <h1>EpiForecast-MX, aceptado para<br>presentación oral en Europa</h1>
+      <p class="lead">El enfoque de <strong>EpiForecast-MX</strong> fue <strong>aceptado como ponencia oral</strong> en la <strong>2nd Public Health Conference</strong> (Public Health Futures), con la 2nd HSG Europe Preconference, celebrada en <strong>Skopje, Macedonia del Norte, el 21 y 22 de mayo de 2026</strong>. El mismo trabajo que obtuvo el primer lugar en el Summit HELIX México llega así a un foro europeo de salud pública.</p>
+
+      <div class="stats">
+        <div class="stat"><div class="v">Ponencia oral</div><div class="l">Modalidad aceptada</div></div>
+        <div class="stat"><div class="v">Skopje</div><div class="l">Macedonia del Norte</div></div>
+        <div class="stat"><div class="v">21-22 may 2026</div><div class="l">Fechas del congreso</div></div>
+        <div class="stat"><div class="v">Europa</div><div class="l">Proyección internacional</div></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- QUÉ ES EL CONGRESO -->
+  <section>
+    <div class="wrap">
+      <div class="label">El congreso</div>
+      <h2>Qué es la 2nd Public Health Conference y por qué importa</h2>
+      <p>La <strong>2nd Public Health Conference</strong> (bajo la iniciativa <strong>Public Health Futures</strong>) es una conferencia internacional de salud pública celebrada junto con la <strong>2nd HSG Europe Preconference</strong> de Health Systems Global, en la <strong>Facultad de Medicina de Skopje</strong> (Universidad Ss. Cirilo y Metodio), Macedonia del Norte, el <strong>21 y 22 de mayo de 2026</strong>. La edición conmemora los <strong>25 años de la Escuela de Salud Pública</strong> de esa facultad.</p>
+      <p>El tema de esta edición es <strong>"Building Evidence Based Resilient Health Systems in a Changing Europe"</strong> (Construir sistemas de salud resilientes y basados en evidencia en una Europa en transformación). Importa porque reúne a la comunidad europea de salud pública en torno a una pregunta central: cómo hacer que los sistemas de salud resistan y se anticipen a los retos del futuro. Es justo el espacio donde un enfoque predictivo como el de EpiForecast-MX (anticipar la carga de enfermedad para planear mejor los servicios) encaja y aporta.</p>
+    </div>
+  </section>
+
+  <!-- EL TRABAJO ACEPTADO -->
+  <section>
+    <div class="wrap">
+      <div class="label">El trabajo aceptado</div>
+      <h2>El mismo enfoque, reconocido en dos continentes</h2>
+      <p>La versión internacional del trabajo se titula <em>"AI-Based Forecasting to Shift Epidemiological Surveillance toward Predictive Approaches: Depression, Alzheimer's, and Parkinson's as Use Cases"</em>. Es la misma propuesta que obtuvo el <strong>primer lugar en el International Summit HELIX 2026 México</strong>: usar inteligencia artificial para transitar de una vigilancia epidemiológica que describe el pasado a una que anticipa la incidencia futura, con la depresión, el Alzheimer y el Parkinson como casos de uso.</p>
+      <div class="callout">
+        <h3>Doble reconocimiento, la misma semana</h3>
+        <p style="margin:0">Que la misma propuesta sea premiada con el primer lugar en México y aceptada para presentación oral en Europa, en la misma semana, confirma que el problema que aborda EpiForecast-MX (anticipar la carga de enfermedades de alto impacto para apoyar la planeación de los servicios de salud) es relevante más allá de las fronteras nacionales.</p>
+      </div>
+      <p style="margin-top:1.4rem"><a href="helix.html">Ver la noticia del primer lugar en HELIX México &rarr;</a></p>
+    </div>
+  </section>
+
+  <!-- LA ACEPTACIÓN -->
+  <section>
+    <div class="wrap">
+      <div class="label">La aceptación</div>
+      <h2>La confirmación, en documento</h2>
+      <p>Notificación oficial de Public Health Futures confirmando la aceptación del resumen para presentación oral. Haz clic en el documento para ampliarlo.</p>
+      <div class="doc-portrait">
+        <figure>
+          <img src="Reports/future_health/aceptacion_future_health.png" alt="Correo de aceptación de Public Health Futures confirmando la ponencia oral del trabajo en la 2nd Public Health Conference y 2nd HSG Europe Preconference, Skopje, 21 y 22 de mayo de 2026." loading="lazy" />
+          <figcaption>Aceptación como ponencia oral en la 2nd Public Health Conference (Public Health Futures), Skopje, 21-22 de mayo de 2026.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- REFERENCIAS -->
+  <section>
+    <div class="wrap">
+      <div class="label">Fuentes</div>
+      <h2>Enlaces oficiales</h2>
+      <ul class="refs">
+        <li>
+          <span class="rtag">Sitio oficial del congreso</span>
+          <div class="rt">Public Health Futures · 2nd Public Health Conference &amp; HSG Europe Preconference (Skopje 2026)</div>
+          <div class="rd">Conferencia internacional de salud pública (21-22 de mayo de 2026, Facultad de Medicina de Skopje), con el tema "Building Evidence Based Resilient Health Systems in a Changing Europe", en conmemoración de los 25 años de la Escuela de Salud Pública.</div>
+          <a href="https://publichealthfutures.org/" target="_blank" rel="noopener">publichealthfutures.org</a>
+        </li>
+        <li>
+          <span class="rtag">Reconocimiento relacionado</span>
+          <div class="rt">Primer lugar en el International Summit HELIX 2026 México</div>
+          <div class="rd">El mismo trabajo obtuvo el primer lugar en el Summit HELIX México (Cuernavaca, 20 de mayo de 2026).</div>
+          <a href="helix.html">Ver la noticia en este sitio</a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <div class="t">EpiForecast-MX · IMSS 2026</div>
+      <div class="s">Inteligencia epidemiológica multi-modelo · Tecnológico de Monterrey</div>
+    </div>
+  </footer>
+
+  <!-- Lightbox para ampliar imágenes -->
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <button class="lb-close" aria-label="Cerrar">&times;</button>
+    <img id="lb-img" src="" alt="" />
+    <div class="lb-cap" id="lb-cap"></div>
+  </div>
+  <script>
+    (function () {
+      const lb = document.getElementById('lightbox');
+      const lbImg = document.getElementById('lb-img');
+      const lbCap = document.getElementById('lb-cap');
+      const openLb = (src, alt) => {
+        lbImg.src = src; lbImg.alt = alt || ''; lbCap.textContent = alt || '';
+        lb.classList.add('open'); lb.setAttribute('aria-hidden', 'false');
+      };
+      const closeLb = () => {
+        lb.classList.remove('open'); lb.setAttribute('aria-hidden', 'true'); lbImg.src = '';
+      };
+      document.addEventListener('click', (e) => {
+        const img = e.target.closest('figure img');
+        if (img) { openLb(img.currentSrc || img.src, img.alt); return; }
+        if (e.target.closest('.lightbox')) closeLb();
+      });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLb(); });
+    })();
+  </script>
+</body>
+</html>
