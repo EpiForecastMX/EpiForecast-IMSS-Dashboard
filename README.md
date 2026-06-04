@@ -2,27 +2,28 @@
 
 **Plataforma de inteligencia epidemiologica con asistente conversacional, visualizaciones interactivas y pronosticos multi-modelo para el IMSS.**
 
-Sitio en vivo: [proyectointegrador.org](https://proyectointegrador.org/)
+Sitio en vivo: [epiforecast.mx](https://epiforecast.mx/)
 
 ---
 
 ## Descripcion
 
-Dashboard interactivo del proyecto **EpiForecast-MX**, desarrollado en colaboracion entre el **Tecnologico de Monterrey** y el **Instituto Mexicano del Seguro Social (IMSS)**. Cubre tres padecimientos clave:
+Dashboard interactivo del proyecto **EpiForecast-MX**, desarrollado en colaboracion entre el **Tecnologico de Monterrey** y el **Instituto Mexicano del Seguro Social (IMSS)**. Cubre cuatro padecimientos:
 
 | Codigo CIE-10 | Padecimiento |
 |:-:|---|
 | F32 | Depresion |
 | G20 | Enfermedad de Parkinson |
 | G30 | Enfermedad de Alzheimer |
+| A97 | Dengue *(4.o padecimiento, vectorial)* |
 
-El sitio integra visualizaciones Tableau, un chatbot conversacional con base de conocimiento local (EpiBot), mapas interactivos de Mexico, y herramientas avanzadas de analisis epidemiologico.
+Los tres neurologicos son la cohorte de produccion principal (333 modelos). **Dengue** se incorporo como cuarto padecimiento, vectorial, con su propio pipeline de conteos: pagina publica en `dengue.html` (pronostico a 1 ano + proyeccion estacional ilustrativa a 5 anos) y respuestas del EpiBot. El sitio integra visualizaciones Tableau, un chatbot conversacional con base de conocimiento local + RAG (EpiBot), mapas interactivos de Mexico, y herramientas avanzadas de analisis epidemiologico.
 
 ---
 
 ## EpiBot - Asistente Conversacional
 
-El componente principal del dashboard es **EpiBot** (`epibot/`), un asistente conversacional que responde preguntas sobre el proyecto con datos reales de 333 modelos de produccion.
+El componente principal del dashboard es **EpiBot** (`epibot/`), un asistente conversacional que responde preguntas sobre el proyecto con datos reales de los 333 modelos de produccion neurologicos y del 4.o padecimiento, **Dengue** (handler dedicado `answerDengue`, alimentado por una seccion `dengue` de `knowledge.json` derivada de los artefactos de produccion).
 
 ### Arquitectura
 
@@ -77,7 +78,7 @@ npm run rag:verify         # falla si el indice esta desincronizado del corpus
 ### Deteccion de Entidades (entities.js)
 
 - **32 estados** + regiones INEGI con aliases (CDMX, Edomex, EdoMex, etc.)
-- **3 padecimientos** con aliases y codigos CIE-10 (F32, G20, G30)
+- **4 padecimientos** con aliases y codigos CIE-10 (F32, G20, G30 y A97 Dengue)
 - **Sexo** (hombres, mujeres, general) con variantes (masculino, femenino)
 - **4 motores** de prediccion (Prophet, DeepAR, Ensemble, Stacking)
 - Extraccion de anios, semanas, meses, rangos de edad, "ultimos N anios"
@@ -95,6 +96,7 @@ npm run rag:verify         # falla si el indice esta desincronizado del corpus
 | Ranking modelos | "mejores modelos", "peores SMAPE" |
 | Datos del boletin | "boletin epidemiologico", "semana 52" |
 | Resumen por anio | "resumen epidemiologico 2023" |
+| Dengue (4.o padecimiento) | "que es el dengue", "pronostico de dengue", "dengue en Veracruz", "que modelos usan para dengue" |
 | Equipo/infraestructura | "equipo del proyecto", "infraestructura AWS" |
 
 ---
@@ -238,6 +240,7 @@ La seccion **Reports/** contiene una galeria HTML interactiva con graficos de pr
 EpiForecast-IMSS-Dashboard/
 ├── index.html                      # Pagina principal del proyecto
 ├── EpiDashboard.html               # Dashboard con visualizaciones Tableau
+├── dengue.html                     # Pagina del 4.o padecimiento (Dengue): EDA, modelado y pronostico
 ├── reporte_resultados.html         # Reporte interactivo de 333 modelos
 ├── comparacion_modelos.html        # Comparativa de 4 motores
 ├── validacion_semanal.html         # Validacion semanal Real vs Forecast
@@ -252,7 +255,8 @@ EpiForecast-IMSS-Dashboard/
 │   ├── index.html                  # Galeria interactiva de pronosticos
 │   ├── Alzheimer/                  # PNGs por entidad y sexo
 │   ├── Depresion/
-│   └── Parkinson/
+│   ├── Parkinson/
+│   └── dengue/                     # Charts y JSON del 4.o padecimiento (mapa, EDA, pronostico)
 ├── epibot/                             # EpiBot - Asistente conversacional
 │   ├── index.html                  # UI del chat
 │   ├── knowledge.json              # Base de datos (metricas, boletin, modelos)
@@ -278,6 +282,7 @@ EpiForecast-IMSS-Dashboard/
 ```
 index.html
   ├──> EpiDashboard.html            (Dashboard Tableau)
+  ├──> dengue.html                  (Dengue - 4.o padecimiento)
   ├──> reporte_resultados.html      (Reporte de Modelos)
   ├──> comparacion_modelos.html     (Comparativa de Motores)
   ├──> Reports/index.html           (Galeria de Pronosticos)
@@ -305,7 +310,7 @@ Todas las paginas incluyen navegacion cruzada entre si.
 
 ## Fuentes de Datos
 
-- **SINAVE** -- Boletines epidemiologicos semanales (2012-2025), procesados mediante pipeline automatizado. Incluye desglose por sexo y entidad federativa.
+- **SINAVE** -- Boletines epidemiologicos semanales (neurologicos 2014-2026; Dengue 2018-2026), procesados mediante pipeline automatizado. Incluye desglose por sexo y entidad federativa.
 - **INEGI** -- Datos demograficos complementarios por entidad federativa.
 - **knowledge.json** -- Generado por el pipeline del repo principal (`scripts/build_web_knowledge.py`), contiene: estadisticas globales, metricas por modelo/padecimiento/estado/sexo, datos del boletin, comparativa semanal, configuracion de entrenamiento.
 
