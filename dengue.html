@@ -298,7 +298,7 @@
       </div>
 
       <h3 class="subh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>Limpieza e integración</h3>
-      <p>La serie se validó celda por celda contra el cuadro original del boletín (cero duplicados, 32 entidades por semana, consistencia interna verificada). Se integró al dataset consolidado del proyecto (<strong>74,560 filas</strong>: 62,016 de los tres padecimientos neurológicos más 12,544 de Dengue), con los nombres de entidad normalizados, y se empató con la base demográfica del INEGI. La serie quedó <strong>lista para el modelado</strong>: 32 entidades, sin valores faltantes de población ni región, e incidencia normalizable a tasa por cada 100 mil habitantes.</p>
+      <p>La serie se validó celda por celda contra el cuadro original del boletín (cero duplicados, 32 entidades por semana, consistencia interna verificada). Se integró al dataset consolidado del proyecto (<strong>74,560 filas</strong>: 62,016 de los tres padecimientos neurológicos más 12,544 de Dengue), con los nombres de entidad normalizados, y se empató con la base demográfica del INEGI. La serie quedó <strong>lista para el modelado</strong>: 32 entidades, sin valores faltantes de población ni región. El Dengue se modela sobre <strong>conteos absolutos</strong> (no tasa por población): en una arbovirosis con niveles muy bajos en temporada baja, normalizar a tasa comprime la señal y degrada el pronóstico.</p>
       <div class="callout">
         <h3>Una corrección de fuente: Zacatecas 2024</h3>
         <p style="margin-bottom:.6rem">Nuestra validación detectó un error de captura en el propio boletín: en la semana 41 de 2024, el acumulado de "dengue con signos de alarma" para Zacatecas aparecía impreso como <strong>14,522 hombres / 17,657 mujeres</strong>, una cifra imposible para un estado de incidencia casi nula. Lo corregimos a un valor consistente con los casos semanales validados (que daban 19 esa semana) y con las semanas vecinas.</p>
@@ -345,10 +345,15 @@
 
       <h3 class="subh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>Los cuatro motores</h3>
       <div class="steps">
-        <div class="step"><div class="n">Prophet</div><h4>Tendencia + estacionalidad</h4><p>Estacionalidad anual multiplicativa y quiebres de tendencia flexibles para los brotes. El más estable en error absoluto.</p></div>
-        <div class="step"><div class="n">DeepAR</div><h4>Red neuronal (GluonTS)</h4><p>Red recurrente probabilística entrenada sobre la serie nacional agregada, con dos años de contexto. Captura bien la dinámica epidémica.</p></div>
+        <div class="step"><div class="n">Prophet</div><h4>Tendencia + estacionalidad</h4><p>Estacionalidad anual multiplicativa sobre escala logarítmica, que estabiliza la varianza entre temporada alta y baja. Uno de los dos motores productivos del Dengue.</p></div>
+        <div class="step"><div class="n">DeepAR</div><h4>Red neuronal (GluonTS)</h4><p>Red recurrente probabilística entrenada sobre la serie nacional agregada, con dos años de contexto. Captura bien la dinámica epidémica. El segundo motor productivo del Dengue.</p></div>
         <div class="step"><div class="n">Ensemble</div><h4>Prophet + XGBoost</h4><p>Prophet modela la estructura y XGBoost aprende los residuos con rezagos y medias móviles (todos sobre el pasado, sin mirar el presente).</p></div>
         <div class="step"><div class="n">Stacking</div><h4>Prophet + ETS + LightGBM</h4><p>Varios expertos combinados por un meta-modelo con pesos no negativos sobre predicciones fuera de muestra.</p></div>
+      </div>
+      <div class="callout">
+        <h3>De cuatro entrenados, dos productivos</h3>
+        <p style="margin-bottom:.6rem">Se entrenan y evalúan los cuatro motores, pero al elegir el productivo por serie (el que mejor reproduce la realidad reciente del boletín) <strong>solo DeepAR y Prophet resultan seleccionados</strong>: Ensemble y Stacking no ganan ninguna serie de Dengue.</p>
+        <p style="margin:0; font-size:.9rem; color:var(--text-muted)">El motivo es de fondo: los componentes de árboles de Ensemble (XGBoost) y Stacking (LightGBM) no extrapolan bien la dinámica epidémica a 52 semanas y se disparan al alza. Es una limitación conocida de los modelos de árboles en horizontes largos, no un defecto de los datos. Para Dengue, las redes recurrentes (DeepAR) y los modelos estructurales (Prophet) son los adecuados.</p>
       </div>
 
       <h3 class="subh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Fechas y validación cruzada</h3>
@@ -466,7 +471,7 @@
         <li>
           <span class="rtag">Base demográfica</span>
           <div class="rt">INEGI · Censo de Población y Vivienda 2020</div>
-          <div class="rd">Población por entidad federativa, usada para normalizar la incidencia a tasa por cada 100 mil habitantes.</div>
+          <div class="rd">Población por entidad federativa, usada como contexto demográfico del proyecto. El Dengue se modela sobre conteos absolutos; los padecimientos neurológicos sí se normalizan a tasa por cada 100 mil habitantes.</div>
           <a href="https://www.inegi.org.mx/programas/ccpv/2020/" target="_blank" rel="noopener">inegi.org.mx · Censo 2020</a>
         </li>
       </ul>

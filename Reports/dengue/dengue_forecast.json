@@ -4,8 +4,8 @@
     "ultima_real": "2026-05-14",
     "motor_nacional": "Prophet",
     "distribucion": {
-      "DeepAR": 52,
-      "Prophet": 47
+      "DeepAR": 53,
+      "Prophet": 46
     },
     "anios_proyeccion": 5
   },
