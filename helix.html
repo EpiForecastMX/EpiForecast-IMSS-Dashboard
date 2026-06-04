@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EpiForecast-MX — Primer lugar en el International Summit HELIX 2026 México</title>
+  <meta name="description" content="EpiForecast-MX obtuvo el primer lugar en el International Summit HELIX 2026 México. La Dra. Ruth Manuela Pérez Hernández y Juan Carlos Pérez Nava expusieron en Cuernavaca el enfoque de inteligencia artificial del proyecto para transitar de la vigilancia epidemiológica clásica a enfoques predictivos." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-deep:#0E1424; --bg-base:#131C30; --bg-raised:#18223A; --bg-card:#1C2740; --bg-card-hover:#243150;
+      --text-primary:#E7ECF5; --text-secondary:#9FB0CE; --text-muted:#6E82A6; --text-faint:#44567A;
+      --burgundy:#F472B6; --teal:#5B8DEF; --gold:#2DD4BF; --amber:#F59E0B; --amber-soft:#FBBF24;
+      --cream:#E7ECF5;
+      --font-display:'Playfair Display',Georgia,serif;
+      --font-body:'Outfit',system-ui,-apple-system,sans-serif;
+      --font-mono:'JetBrains Mono','SF Mono',monospace;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:var(--font-body); background:var(--bg-base); color:var(--text-secondary); line-height:1.6; -webkit-font-smoothing:antialiased; }
+    a { color:var(--teal); text-decoration:none; transition:color .2s; }
+    a:hover { color:var(--amber-soft); }
+    .wrap { max-width:1080px; margin:0 auto; padding:0 1.5rem; }
+
+    /* Nav */
+    nav { position:sticky; top:0; z-index:50; background:rgba(14,20,36,0.82); backdrop-filter:blur(12px); border-bottom:1px solid var(--bg-card-hover); }
+    .nav-in { max-width:1080px; margin:0 auto; padding:0.9rem 1.5rem; display:flex; align-items:center; justify-content:space-between; }
+    .nav-logo { font-family:var(--font-display); font-weight:800; font-size:1.15rem; color:var(--cream); letter-spacing:.3px; }
+    .nav-logo span { color:var(--gold); }
+    .nav-back { font-family:var(--font-mono); font-size:.78rem; display:inline-flex; align-items:center; gap:.45rem; }
+    .nav-back svg { width:14px; height:14px; }
+
+    /* Hero */
+    .hero { padding:4.5rem 0 2.5rem; background:radial-gradient(1200px 400px at 70% -10%, rgba(245,158,11,0.10), transparent 60%); }
+    .eyebrow { font-family:var(--font-mono); font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.18em; color:var(--amber-soft); display:inline-flex; align-items:center; gap:.5rem; }
+    .eyebrow::before { content:""; width:26px; height:2px; background:var(--amber); display:inline-block; }
+    h1 { font-family:var(--font-display); font-size:2.7rem; line-height:1.1; color:var(--cream); margin:.8rem 0 1rem; }
+    .lead { font-size:1.12rem; max-width:64ch; color:var(--text-secondary); }
+    .lead strong { color:var(--cream); }
+
+    .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-top:2.4rem; }
+    .stat { background:var(--bg-card); border:1px solid var(--bg-card-hover); border-radius:14px; padding:1.1rem 1.2rem; position:relative; overflow:hidden; }
+    .stat::before { content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--amber); }
+    .stat .v { font-family:var(--font-display); font-size:1.7rem; font-weight:800; color:var(--cream); }
+    .stat .l { font-family:var(--font-mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); margin-top:.25rem; }
+
+    /* Sections */
+    section { padding:3rem 0; border-top:1px solid rgba(36,49,80,0.6); }
+    .label { font-family:var(--font-mono); font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.16em; color:var(--gold); }
+    h2 { font-family:var(--font-display); font-size:1.85rem; color:var(--cream); margin:.5rem 0 1rem; line-height:1.18; }
+    h3.subh { font-family:var(--font-display); color:var(--cream); font-size:1.3rem; margin:2rem 0 .6rem; display:flex; align-items:center; gap:.6rem; }
+    h3.subh svg { width:20px; height:20px; color:var(--amber-soft); flex:none; }
+    section p { max-width:72ch; margin-bottom:1rem; }
+    section p strong, li strong { color:var(--cream); }
+
+    .eda-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:.9rem; margin:1.2rem 0; }
+    .eda-grid .stat .v { font-size:1.4rem; }
+
+    .callout { background:linear-gradient(135deg, rgba(245,158,11,0.08), rgba(244,114,182,0.06)); border:1px solid rgba(245,158,11,0.22); border-radius:16px; padding:1.5rem 1.7rem; margin-top:1.2rem; }
+    .callout h3 { font-family:var(--font-display); color:var(--cream); font-size:1.2rem; margin-bottom:.5rem; }
+
+    /* Pilares / equipo */
+    .steps { display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; margin-top:1.6rem; }
+    .step { background:var(--bg-card); border:1px solid var(--bg-card-hover); border-radius:14px; padding:1.1rem 1.2rem; }
+    .step .n { font-family:var(--font-mono); font-weight:700; color:var(--amber-soft); font-size:.8rem; }
+    .step h4 { color:var(--cream); font-size:1rem; margin:.3rem 0 .35rem; }
+    .step p { font-size:.9rem; margin:0; color:var(--text-secondary); }
+
+    .people { display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; margin-top:1.4rem; }
+    .person { background:var(--bg-card); border:1px solid var(--bg-card-hover); border-left:3px solid var(--amber); border-radius:14px; padding:1.2rem 1.4rem; }
+    .person .role { font-family:var(--font-mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.1em; color:var(--amber-soft); }
+    .person .name { font-family:var(--font-display); color:var(--cream); font-size:1.2rem; margin:.25rem 0 .35rem; }
+    .person p { font-size:.9rem; margin:0; color:var(--text-secondary); }
+
+    .authors { font-size:.92rem; color:var(--text-secondary); }
+    .authors b { color:var(--cream); }
+
+    /* Figure */
+    figure { margin:1.4rem 0 0; }
+    figure img { width:100%; border-radius:14px; border:1px solid var(--bg-card-hover); background:#fff; display:block; }
+    figcaption { font-size:.85rem; color:var(--text-muted); margin-top:.7rem; font-family:var(--font-mono); }
+    .doc-gallery { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:1.4rem; margin-top:1.4rem; align-items:start; }
+    .doc-gallery figure { margin:0; }
+
+    /* Referencias */
+    .refs { list-style:none; margin:1.5rem 0 0; padding:0; display:grid; gap:.9rem; }
+    .refs li { background:var(--bg-card); border:1px solid var(--bg-card-hover); border-left:3px solid var(--gold); border-radius:12px; padding:1rem 1.2rem; }
+    .refs .rt { color:var(--cream); font-weight:600; font-size:.98rem; }
+    .refs .rd { font-size:.86rem; color:var(--text-secondary); margin:.25rem 0 .45rem; }
+    .refs a { font-family:var(--font-mono); font-size:.76rem; word-break:break-word; }
+    .refs .rtag { font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.1em; color:var(--gold); }
+
+    /* Lightbox: ampliar imágenes al hacer clic */
+    figure img { cursor:zoom-in; transition:filter .15s, transform .15s; }
+    figure img:hover { filter:brightness(1.04); }
+    .lightbox { position:fixed; inset:0; background:rgba(6,10,20,0.95); display:none; align-items:center; justify-content:center; z-index:200; padding:2.5rem 1.5rem; cursor:zoom-out; }
+    .lightbox.open { display:flex; }
+    .lightbox img { max-width:96vw; max-height:88vh; border-radius:10px; box-shadow:0 24px 70px rgba(0,0,0,.6); background:#fff; }
+    .lightbox .lb-close { position:absolute; top:1.1rem; right:1.3rem; width:42px; height:42px; border:1px solid var(--bg-card-hover); background:var(--bg-card); color:var(--cream); border-radius:10px; font-size:1.5rem; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .lightbox .lb-close:hover { background:var(--bg-card-hover); }
+    .lightbox .lb-cap { position:absolute; bottom:1.1rem; left:0; right:0; text-align:center; color:var(--text-secondary); font-family:var(--font-mono); font-size:.78rem; padding:0 1.5rem; pointer-events:none; }
+
+    footer { border-top:1px solid var(--bg-card-hover); padding:2.2rem 0; text-align:center; background:var(--bg-deep); margin-top:1rem; }
+    footer .t { font-family:var(--font-display); color:var(--cream); font-weight:700; }
+    footer .s { font-size:.82rem; color:var(--text-muted); margin-top:.3rem; }
+
+    @media (max-width:760px) {
+      h1 { font-size:2rem; }
+      .stats { grid-template-columns:repeat(2,1fr); }
+      .steps, .people { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="nav-in">
+      <div class="nav-logo">EpiForecast<span>-MX</span></div>
+      <a class="nav-back" href="index.html#novedades">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5"/><path d="M12 19l-7-7 7-7"/></svg>
+        Volver al inicio
+      </a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="wrap">
+      <div class="eyebrow">Reconocimiento · International Summit HELIX 2026 México</div>
+      <h1>Primer lugar en el<br>International Summit HELIX 2026 México</h1>
+      <p class="lead">El proyecto <strong>EpiForecast-MX</strong> obtuvo el <strong>primer lugar</strong> en el International Summit HELIX 2026 México. La <strong>Dra. Ruth Manuela Pérez Hernández</strong> y <strong>Juan Carlos Pérez Nava</strong> expusieron en Cuernavaca el enfoque del equipo: usar inteligencia artificial para transitar de la vigilancia epidemiológica clásica hacia un modelo predictivo, con la depresión, el Alzheimer y el Parkinson como casos de uso.</p>
+
+      <div class="stats">
+        <div class="stat"><div class="v">1.er lugar</div><div class="l">Distinción obtenida</div></div>
+        <div class="stat"><div class="v">HELIX 2026</div><div class="l">Summit internacional de salud</div></div>
+        <div class="stat"><div class="v">Cuernavaca</div><div class="l">Sede (INSP), Morelos</div></div>
+        <div class="stat"><div class="v">20 may 2026</div><div class="l">Fecha de la ponencia</div></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- QUÉ ES HELIX -->
+  <section>
+    <div class="wrap">
+      <div class="label">El congreso</div>
+      <h2>Qué es el International Summit HELIX y por qué importa</h2>
+      <p>El <strong>International Summit HELIX 2026 México</strong> es un encuentro internacional dedicado a la innovación, el liderazgo y la educación continua en el sector salud. Reúne a líderes, investigadores, instituciones y profesionales de México y América Latina para debatir, innovar y cocrear el futuro de la salud, la educación y la tecnología sanitaria. Su edición mexicana se celebró del <strong>19 al 22 de mayo de 2026</strong>, con sedes en el <strong>Instituto Nacional de Salud Pública (INSP)</strong> en Cuernavaca y en la <strong>Universidad Anáhuac México</strong>, campus Norte.</p>
+      <p>Lo organizan instituciones de primer nivel en salud y educación: la <strong>Asociación Nacional de Hospitales Privados (ANHP)</strong>, la <strong>Universidad Anáhuac México</strong>, el <strong>Instituto Nacional de Salud Pública</strong>, <strong>UManresa</strong> (Universitat de Vic - Universitat Central de Catalunya), el <strong>Institut de Formació Contínua IL3</strong> y la <strong>Universitat de Barcelona</strong>. La edición previa del Summit (HELIX 2025, en Cataluña) reunió a más de 300 profesionales de 24 países.</p>
+      <p>Importa porque es un foro donde la <strong>educación en salud se encuentra con la inteligencia artificial, la simulación y las tecnologías emergentes</strong>, y porque sus iniciativas se orientan a un impacto tangible en los sistemas de salud, alineadas con los Objetivos de Desarrollo Sostenible (ODS 3 salud y bienestar, ODS 4 educación de calidad y ODS 17 alianzas). Que un proyecto estudiantil de pronóstico epidemiológico obtenga el primer lugar en este escenario valida tanto su rigor técnico como su pertinencia para la salud pública.</p>
+      <div class="steps">
+        <div class="step"><div class="n">Conocer</div><h4>Tendencias innovadoras</h4><p>Las corrientes que están transformando la educación y la práctica en salud a nivel global.</p></div>
+        <div class="step"><div class="n">Compartir</div><h4>Experiencias de impacto</h4><p>Casos reales que muestran resultados medibles en los sistemas de salud.</p></div>
+        <div class="step"><div class="n">Conectar</div><h4>Con líderes internacionales</h4><p>Una red de instituciones de México, América Latina y Europa.</p></div>
+        <div class="step"><div class="n">Cocrear</div><h4>Soluciones aplicadas</h4><p>Proyectos e iniciativas diseñados para resolver retos concretos de salud.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LA PONENCIA -->
+  <section>
+    <div class="wrap">
+      <div class="label">La ponencia premiada</div>
+      <h2>De la vigilancia clásica al pronóstico con IA</h2>
+      <p>La comunicación presentada por el equipo se tituló <strong>"Predicción basada en IA para transitar de la vigilancia epidemiológica clásica hacia enfoques predictivos: los casos de la depresión, el Alzheimer y el Parkinson"</strong>. La idea central de EpiForecast-MX es dar el salto de una vigilancia que <em>describe</em> lo que ya ocurrió a una que <strong>anticipa</strong> la incidencia semanal por entidad federativa, con un horizonte de 52 semanas y varios motores de pronóstico (Prophet, DeepAR, Ensemble y Stacking) trabajando en conjunto.</p>
+
+      <h3 class="subh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Quiénes expusieron</h3>
+      <div class="people">
+        <div class="person">
+          <div class="role">Ponente</div>
+          <div class="name">Dra. Ruth Manuela Pérez Hernández</div>
+          <p>Expuso el proyecto ante el Summit y recibió la constancia oficial de ponente del encuentro, en representación del equipo.</p>
+        </div>
+        <div class="person">
+          <div class="role">Ponente</div>
+          <div class="name">Juan Carlos Pérez Nava</div>
+          <p>Acompañó la presentación en Cuernavaca, exponiendo el enfoque técnico de inteligencia artificial detrás del pronóstico.</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <h3>Equipo y coautores</h3>
+        <p class="authors" style="margin:0">La comunicación es un trabajo colectivo de EpiForecast-MX. Coautores: <b>Javier Augusto Rebull Saucedo</b>, <b>Juan Carlos Pérez Nava</b>, <b>Luis Gerardo Sánchez Salazar</b>, <b>Grettel Barceló Alonso</b>, <b>Lina Díaz-Castro</b> y <b>Silvia Magali Cuadra Hernández</b>, presentada por la <b>Dra. Ruth Manuela Pérez Hernández</b>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIPLOMA -->
+  <section>
+    <div class="wrap">
+      <div class="label">La constancia</div>
+      <h2>El reconocimiento, en documento</h2>
+      <p>La constancia oficial del International Summit HELIX 2026 México acredita la participación del equipo como ponente, con la firma de las instituciones organizadoras. Junto a ella, el mismo trabajo recibió una segunda validación internacional: su aceptación como ponencia oral en la 2nd Public Health Conference de Skopje. Haz clic en cualquiera de los documentos para ampliarlos.</p>
+      <div class="doc-gallery">
+        <figure>
+          <img src="Reports/helix/constancia_helix.png" alt="Constancia del International Summit HELIX 2026 México otorgada a la Dra. Ruth Manuela Pérez Hernández como ponente, Cuernavaca, Morelos, 20 de mayo de 2026." loading="lazy" />
+          <figcaption>Constancia del International Summit HELIX 2026 México. Cuernavaca, Morelos, 20 de mayo de 2026.</figcaption>
+        </figure>
+        <figure>
+          <img src="Reports/helix/aceptacion_future_health.png" alt="Correo de aceptación de Public Health Futures confirmando la ponencia oral del trabajo en la 2nd Public Health Conference, Skopje, 21 y 22 de mayo de 2026." loading="lazy" />
+          <figcaption>Aceptación como ponencia oral en la 2nd Public Health Conference (Public Health Futures), Skopje, 21-22 de mayo de 2026.</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <!-- ACEPTACIÓN INTERNACIONAL -->
+  <section>
+    <div class="wrap">
+      <div class="label">Proyección internacional</div>
+      <h2>El mismo trabajo, aceptado también en Europa</h2>
+      <p>En paralelo al primer lugar en HELIX, el enfoque de EpiForecast-MX fue <strong>aceptado como ponencia oral</strong> en la <strong>2nd Public Health Conference</strong> (con la 2nd HSG Europe Preconference), celebrada en <strong>Skopje, Macedonia del Norte, el 21 y 22 de mayo de 2026</strong>. La versión internacional del trabajo se titula <em>"AI-Based Forecasting to Shift Epidemiological Surveillance toward Predictive Approaches: Depression, Alzheimer's, and Parkinson's as Use Cases"</em>.</p>
+      <p>Que la misma propuesta sea reconocida con el primer lugar en México y aceptada para presentación oral en Europa, en la misma semana, confirma que el problema que aborda EpiForecast-MX (anticipar la carga de enfermedades de alto impacto para apoyar la planeación de los servicios de salud) es relevante más allá de las fronteras nacionales.</p>
+    </div>
+  </section>
+
+  <!-- REFERENCIAS -->
+  <section>
+    <div class="wrap">
+      <div class="label">Fuentes</div>
+      <h2>Enlaces oficiales</h2>
+      <p>Sitios oficiales de los congresos donde se reconoció el trabajo.</p>
+      <ul class="refs">
+        <li>
+          <span class="rtag">Sitio oficial del congreso</span>
+          <div class="rt">International Summit HELIX 2026 México</div>
+          <div class="rd">Encuentro internacional de innovación, liderazgo y educación continua en salud (19-22 de mayo de 2026, INSP Cuernavaca y Universidad Anáhuac México), organizado por ANHP, Universidad Anáhuac México, INSP, UManresa, IL3 y la Universitat de Barcelona.</div>
+          <a href="https://helixmexico.org/" target="_blank" rel="noopener">helixmexico.org</a>
+        </li>
+        <li>
+          <span class="rtag">Sede organizadora</span>
+          <div class="rt">Anáhuac Educación Continua · HELIX México</div>
+          <div class="rd">Página del Summit en la Universidad Anáhuac México, con el programa, los ponentes y las instituciones participantes.</div>
+          <a href="https://educacioncontinua.anahuac.mx/products/helixmexico" target="_blank" rel="noopener">educacioncontinua.anahuac.mx · HELIX México</a>
+        </li>
+        <li>
+          <span class="rtag">Congreso internacional</span>
+          <div class="rt">Public Health Futures · 2nd Public Health Conference (Skopje)</div>
+          <div class="rd">Conferencia internacional de salud pública con la 2nd HSG Europe Preconference, donde el trabajo fue aceptado como ponencia oral (21-22 de mayo de 2026, Skopje).</div>
+          <a href="https://publichealthfutures.org/" target="_blank" rel="noopener">publichealthfutures.org</a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <div class="t">EpiForecast-MX · IMSS 2026</div>
+      <div class="s">Inteligencia epidemiológica multi-modelo · Tecnológico de Monterrey</div>
+    </div>
+  </footer>
+
+  <!-- Lightbox para ampliar imágenes -->
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <button class="lb-close" aria-label="Cerrar">&times;</button>
+    <img id="lb-img" src="" alt="" />
+    <div class="lb-cap" id="lb-cap"></div>
+  </div>
+  <script>
+    (function () {
+      const lb = document.getElementById('lightbox');
+      const lbImg = document.getElementById('lb-img');
+      const lbCap = document.getElementById('lb-cap');
+      const openLb = (src, alt) => {
+        lbImg.src = src; lbImg.alt = alt || ''; lbCap.textContent = alt || '';
+        lb.classList.add('open'); lb.setAttribute('aria-hidden', 'false');
+      };
+      const closeLb = () => {
+        lb.classList.remove('open'); lb.setAttribute('aria-hidden', 'true'); lbImg.src = '';
+      };
+      document.addEventListener('click', (e) => {
+        const img = e.target.closest('figure img');
+        if (img) { openLb(img.currentSrc || img.src, img.alt); return; }
+        if (e.target.closest('.lightbox')) closeLb();
+      });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLb(); });
+    })();
+  </script>
+</body>
+</html>
