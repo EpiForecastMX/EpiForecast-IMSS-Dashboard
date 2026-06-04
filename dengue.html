@@ -323,7 +323,7 @@
         <div class="step"><div class="n">Estacionalidad</div><h4>Multiplicativa</h4><p>La amplitud de la temporada crece con el nivel de casos; la estacionalidad anual es el componente dominante.</p></div>
         <div class="step"><div class="n">Tendencia</div><h4>Cambios más flexibles</h4><p>Los brotes arrancan de forma abrupta; el modelo permite quiebres de tendencia más marcados que en las series neurológicas.</p></div>
         <div class="step"><div class="n">Régimen COVID</div><h4>Sin ajuste pandémico</h4><p>2020-2022 no fue una disrupción para el dengue (siguió su ciclo natural); no se aplicará el tratamiento especial de ese periodo que sí usan los modelos de salud mental.</p></div>
-        <div class="step"><div class="n">Escala</div><h4>Tasa por 100 mil</h4><p>Se modela la incidencia normalizada por población, comparable entre entidades de distinto tamaño.</p></div>
+        <div class="step"><div class="n">Escala</div><h4>Conteos absolutos</h4><p>Se modelan los casos directos (no la tasa por población): en una arbovirosis con niveles muy bajos en temporada baja, la tasa por 100 mil comprime la señal y degrada el pronóstico.</p></div>
       </div>
 
       <h3 class="subh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>Decisión: si es cero, es cero (sin fallback)</h3>
@@ -372,6 +372,32 @@
         </ul>
       </div>
       <p style="margin-top:1.2rem">Una nota honesta sobre las cifras: en una serie epidémica con saltos de cero a decenas de miles de casos por semana, los errores porcentuales (SMAPE) son altos por construcción en las semanas de baja transmisión. Por eso la selección del motor productivo no se queda con un solo número, sino que pondera el desempeño sobre la realidad reciente del boletín.</p>
+    </div>
+  </section>
+
+  <!-- PRONÓSTICO -->
+  <section>
+    <div class="wrap">
+      <div class="label">El pronóstico</div>
+      <h2>Lo que viene: 1 año preciso y una proyección estacional a 5 años</h2>
+      <p>Con los modelos entrenados y validados, el sistema genera el <strong>pronóstico productivo</strong>: para cada serie (entidad y sexo) se elige automáticamente el motor que mejor reproduce la realidad reciente del boletín 2026. A nivel nacional el motor productivo es <strong id="fc-motor">—</strong>.</p>
+      <div class="eda-grid">
+        <div class="stat"><div class="v" id="fc-deepar">—</div><div class="l">Series con DeepAR</div></div>
+        <div class="stat"><div class="v" id="fc-prophet">—</div><div class="l">Series con Prophet</div></div>
+        <div class="stat"><div class="v">52</div><div class="l">Semanas de pronóstico preciso</div></div>
+        <div class="stat"><div class="v">5 años</div><div class="l">Proyección estacional</div></div>
+      </div>
+
+      <div class="chart-card" style="margin-top:1.4rem">
+        <div style="position:relative; height:380px"><canvas id="chart-forecast"></canvas></div>
+        <div class="cap" id="fc-cap">Cargando pronóstico…</div>
+      </div>
+
+      <div class="callout">
+        <h3>Por qué solo 1 año es "pronóstico" y 5 años es "proyección"</h3>
+        <p style="margin-bottom:.6rem">El dengue tiene un ciclo epidémico de <strong>aproximadamente cuatro o cinco años</strong> (los grandes brotes de 2019 y 2024), ligado a fenómenos climáticos como El Niño. Sería ideal pronosticar ese ciclo completo, pero la serie disponible (2018-2026) contiene <strong>solo dos ciclos</strong>: estadísticamente no alcanza para que un modelo aprenda a anticipar la magnitud de la próxima gran epidemia.</p>
+        <p style="margin:0; font-size:.9rem; color:var(--text-muted)">Por eso distinguimos dos horizontes. El <strong style="color:var(--amber-soft)">pronóstico a 1 año (línea ámbar con banda)</strong> es la predicción precisa que los datos sí soportan. La <strong style="color:var(--teal)">proyección a 5 años (línea punteada)</strong> extiende el patrón estacional esperado a un nivel estable: ilustra <em>cuándo</em> ocurren las temporadas, no <em>qué tan grande</em> será el próximo brote. Es una guía de planeación, no una predicción de la próxima epidemia.</p>
+      </div>
     </div>
   </section>
 
@@ -566,6 +592,97 @@
         document.getElementById('live-meta').innerHTML = '<span class="err">No se pudo cargar el dato en vivo (' + e.message + ').</span>';
         document.getElementById('live-body').innerHTML = '<tr><td colspan="5" class="err" style="text-align:center; padding:1.4rem">Datos no disponibles por el momento.</td></tr>';
       });
+  </script>
+  <!-- Pronóstico productivo (1 año) + proyección estacional (5 años) -->
+  <script>
+    (function () {
+      const decYear = (s) => {
+        const dt = new Date(s + 'T00:00:00Z');
+        const y = dt.getUTCFullYear();
+        const start = Date.UTC(y, 0, 1), end = Date.UTC(y + 1, 0, 1);
+        return y + (dt.getTime() - start) / (end - start);
+      };
+      const lbl = (x) => {
+        const y = Math.floor(x);
+        const wk = Math.round((x - y) * 52) + 1;
+        return y + ' · semana ' + String(Math.min(wk, 52)).padStart(2, '0');
+      };
+      const fmt = (n) => Number(Math.round(n)).toLocaleString('es-MX');
+
+      fetch('Reports/dengue/dengue_forecast.json?cb=' + Date.now())
+        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(d => {
+          const m = d.meta || {};
+          const motor = document.getElementById('fc-motor');
+          if (motor) motor.textContent = m.motor_nacional || '—';
+          const dist = m.distribucion || {};
+          const setN = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v != null ? fmt(v) : '—'; };
+          setN('fc-deepar', dist.DeepAR);
+          setN('fc-prophet', dist.Prophet);
+
+          const cv = document.getElementById('chart-forecast');
+          const cap = document.getElementById('fc-cap');
+          if (!cv) return;
+          if (!window.Chart) { if (cap) cap.textContent = 'No se pudo cargar la librería de gráficos.'; return; }
+
+          // Solo desde 2022 para que se vea el detalle reciente + el horizonte futuro.
+          const fromYr = 2022;
+          const hist = (d.historico || []).map(p => ({ x: decYear(p.ds), y: p.y })).filter(p => p.x >= fromYr);
+          const pron = (d.pronostico || []).map(p => ({ x: decYear(p.ds), y: p.yhat }));
+          const pLo = (d.pronostico || []).map(p => ({ x: decYear(p.ds), y: p.yhat_lower }));
+          const pHi = (d.pronostico || []).map(p => ({ x: decYear(p.ds), y: p.yhat_upper }));
+          const proy = (d.proyeccion || []).map(p => ({ x: decYear(p.ds), y: p.yhat }));
+          // Empalmar inicio de pronóstico con el último real para continuidad visual.
+          const lastH = hist.length ? hist[hist.length - 1] : null;
+          if (lastH) { pron.unshift(lastH); pLo.unshift(lastH); pHi.unshift(lastH); }
+          const lastP = pron.length ? pron[pron.length - 1] : lastH;
+          if (lastP) proy.unshift(lastP);
+
+          new Chart(cv.getContext('2d'), {
+            type: 'line',
+            data: {
+              datasets: [
+                { label: 'Banda', data: pHi, parsing: false, borderColor: 'transparent',
+                  backgroundColor: 'rgba(245,158,11,0.13)', pointRadius: 0, fill: '+1', tension: 0.3, order: 5 },
+                { label: 'Banda baja', data: pLo, parsing: false, borderColor: 'transparent',
+                  backgroundColor: 'transparent', pointRadius: 0, fill: false, tension: 0.3, order: 5 },
+                { label: 'Proyección estacional (5 años, ilustrativa)', data: proy, parsing: false,
+                  borderColor: '#5B8DEF', borderWidth: 1.6, borderDash: [5, 4], pointRadius: 0, tension: 0.3, order: 3 },
+                { label: 'Histórico real', data: hist, parsing: false,
+                  borderColor: '#9FB0CE', borderWidth: 1.6, pointRadius: 0, pointHoverRadius: 3, tension: 0.25, order: 2 },
+                { label: 'Pronóstico (1 año)', data: pron, parsing: false,
+                  borderColor: '#F59E0B', borderWidth: 2.2, pointRadius: 0, pointHoverRadius: 4,
+                  pointHoverBackgroundColor: '#FBBF24', tension: 0.3, order: 1 }
+              ]
+            },
+            options: {
+              responsive: true, maintainAspectRatio: false, parsing: false,
+              interaction: { mode: 'nearest', intersect: false, axis: 'x' },
+              scales: {
+                x: { type: 'linear', min: fromYr, grid: { color: '#243150' },
+                  ticks: { color: '#6E82A6', stepSize: 1, autoSkip: false,
+                    callback: v => (Number.isInteger(v) ? v : '') } },
+                y: { beginAtZero: true, grid: { color: '#243150' }, ticks: { color: '#6E82A6' },
+                  title: { display: true, text: 'Casos por semana', color: '#6E82A6' } }
+              },
+              plugins: {
+                legend: { labels: { color: '#9FB0CE', filter: it => !it.text.startsWith('Banda'), boxWidth: 18, font: { size: 11 } } },
+                tooltip: { backgroundColor: '#0E1424', borderColor: '#243150', borderWidth: 1,
+                  titleColor: '#E7ECF5', bodyColor: '#FBBF24', padding: 10,
+                  filter: it => !it.dataset.label.startsWith('Banda'),
+                  callbacks: { title: it => lbl(it[0].parsed.x), label: it => it.dataset.label + ': ' + fmt(it.parsed.y) + ' casos' } }
+              }
+            }
+          });
+          if (cap) cap.textContent = 'Nacional: histórico real (gris), pronóstico productivo a 1 año con banda de confianza (' +
+            (m.motor_nacional || 'motor productivo') + ', ámbar) y proyección estacional ilustrativa a 5 años (azul punteado). ' +
+            'Última semana real: ' + (m.ultima_real || '—') + '.';
+        })
+        .catch(e => {
+          const cap = document.getElementById('fc-cap');
+          if (cap) cap.innerHTML = '<span class="err">No se pudo cargar el pronóstico (' + e.message + ').</span>';
+        });
+    })();
   </script>
 </body>
 </html>
