@@ -6,8 +6,8 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=81';
-import { detectEntities, norm } from './entities.js?v=26';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=82';
+import { detectEntities, norm } from './entities.js?v=27';
 import { renderMexicoMap } from './mexico-map.js?v=1';
 import { renderTimelapse } from './timelapse.js?v=1';
 import { renderSemaforo } from './semaforo.js?v=1';

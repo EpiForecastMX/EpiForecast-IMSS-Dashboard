@@ -6507,5 +6507,119 @@
       "modelos en producci"
     ],
     "checkEntities": {}
+  },
+  {
+    "id": 609,
+    "query": "que es el dengue",
+    "expectedHandler": "answerDengue",
+    "mustContain": [
+      "A97"
+    ],
+    "mustNotContain": [
+      "no modela"
+    ],
+    "checkEntities": {
+      "padecimiento": "Dengue"
+    }
+  },
+  {
+    "id": 610,
+    "query": "pronostico de dengue",
+    "expectedHandler": "answerDengue",
+    "mustContain": [
+      "52 semanas"
+    ],
+    "mustNotContain": [
+      "no modela"
+    ],
+    "checkEntities": {
+      "padecimiento": "Dengue"
+    }
+  },
+  {
+    "id": 611,
+    "query": "que modelos usan para dengue",
+    "expectedHandler": "answerDengue",
+    "mustContain": [
+      "DeepAR",
+      "productivos"
+    ],
+    "mustNotContain": [
+      "no modela"
+    ],
+    "checkEntities": {
+      "padecimiento": "Dengue"
+    }
+  },
+  {
+    "id": 612,
+    "query": "cuantos casos de dengue hubo en 2024",
+    "expectedHandler": "answerDengue",
+    "mustContain": [
+      "122,752"
+    ],
+    "mustNotContain": [
+      "no modela"
+    ],
+    "checkEntities": {
+      "padecimiento": "Dengue"
+    }
+  },
+  {
+    "id": 613,
+    "query": "dengue en veracruz",
+    "expectedHandler": "answerDengue",
+    "mustContain": [
+      "Veracruz"
+    ],
+    "mustNotContain": [
+      "no modela"
+    ],
+    "checkEntities": {
+      "padecimiento": "Dengue",
+      "estado": "Veracruz"
+    }
+  },
+  {
+    "id": 614,
+    "query": "dengue en la ciudad de mexico",
+    "expectedHandler": "answerDengue",
+    "mustContain": [
+      "no registra"
+    ],
+    "mustNotContain": [
+      "no modela"
+    ],
+    "checkEntities": {
+      "padecimiento": "Dengue"
+    }
+  },
+  {
+    "id": 615,
+    "query": "donde golpea mas el dengue",
+    "expectedHandler": "answerDengue",
+    "mustContain": [
+      "Jalisco"
+    ],
+    "mustNotContain": [
+      "no modela"
+    ],
+    "checkEntities": {
+      "padecimiento": "Dengue"
+    }
+  },
+  {
+    "id": 616,
+    "query": "el dengue lo modelan",
+    "expectedHandler": "answerDengue",
+    "mustContain": [
+      "EpiForecast"
+    ],
+    "mustNotContain": [
+      "no modela"
+    ],
+    "checkEntities": {
+      "padecimiento": "Dengue"
+    }
   }
 ]

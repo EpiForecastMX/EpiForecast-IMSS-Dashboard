@@ -100,6 +100,13 @@ const PADECIMIENTO_ALIAS = {
   'enfermedad de alzheimer': 'Alzheimer',
   'demencia': 'Alzheimer',
   'g30': 'Alzheimer',
+  // Dengue (4.o padecimiento, cohorte de conteos) + variantes / CIE-10 A97
+  'dengue': 'Dengue',
+  'dengues': 'Dengue',
+  'denge': 'Dengue',
+  'dengeu': 'Dengue',
+  'arbovirosis': 'Dengue',
+  'a97': 'Dengue',
 };
 
 const SEXO_ALIAS = {

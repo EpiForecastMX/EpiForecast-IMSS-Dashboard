@@ -391,7 +391,7 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
   const enfermedades = [
     'cancer', 'diabetes', 'hipertension', 'obesidad', 'asma', 'epilepsia',
     'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah', 'demencia',
-    'influenza', 'dengue', 'covid', 'tuberculosis', 'vih', 'sida', 'colera',
+    'influenza', 'covid', 'tuberculosis', 'vih', 'sida', 'colera',
     'sarampion', 'rubeola', 'hepatitis', 'zika', 'chikungunya', 'malaria',
     'leucemia', 'linfoma', 'tumor', 'neoplasia', 'cardiop', 'infarto',
     'embolia', 'neumonia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
@@ -1280,6 +1280,90 @@ function answerSemanasBoletin(q, ent, s, d) {
   if (ult && ult.anio === maxAnio && ult.total != null) {
     lines.push(`\nEl dato más reciente es la **semana ${ult.semana} de ${ult.anio}**, con **${fmt(ult.total)} casos** reportados esa semana.`);
   }
+  return lines.join('\n');
+}
+
+// ---------------------------------------------------------------------------
+// DENGUE — 4.o padecimiento (cohorte de conteos, pipeline propio). Un handler
+// dedicado posee TODAS las preguntas de Dengue: sus métricas y selección de motor
+// no comparten estructura con la neuro (333 modelos por tasa), así que no puede
+// servirse desde los handlers neuro. Lee la sección `d.dengue` (generada por
+// build_web_knowledge.build_dengue_section) + `d.padecimiento_info.Dengue`.
+// ---------------------------------------------------------------------------
+
+function answerDengue(q, ent, s, d) {
+  if (ent.padecimiento !== 'Dengue') return null;
+  const dg = d.dengue;
+  if (!dg) return null;
+  const info = d.padecimiento_info?.Dengue;
+  const num = (n) => (n == null ? '?' : fmt(n));
+
+  // Pronóstico / proyección
+  if (any(q, ['pronostic', 'forecast', 'prediccion', 'predice', 'predecir', 'se espera', 'se esperan', 'proxim', 'a futuro', 'proyeccion'])) {
+    return [
+      '**Pronóstico de Dengue (nacional)**', '',
+      `El motor productivo nacional es **${dg.motor_nacional}** (SMAPE ${dg.smape_nacional}% sobre la realidad de ${dg.ultima_real.slice(0, 4)}). Para las próximas **52 semanas** se proyectan ~**${num(dg.casos_futuro_nacional_52sem)} casos** confirmados a nivel nacional.`, '',
+      `- **Horizonte preciso**: 1 año (52 semanas) — lo que los datos soportan.`,
+      `- **Proyección ilustrativa**: ${dg.proyeccion_anios} años, que muestra el *patrón estacional* esperado, no la magnitud de la próxima epidemia (con solo dos ciclos epidémicos en la serie, el ciclo de ${dg.ciclo_anios} años aún no es aprendible).`, '',
+      `Última semana real cargada: ${dg.ultima_real}. La gráfica está en la página de Dengue.`,
+    ].join('\n');
+  }
+
+  // Modelos / motores / métricas
+  if (any(q, ['modelo', 'motor', 'smape', 'metrica', 'mejor model', 'cual usan', 'que usan', 'deepar', 'prophet', 'ensemble', 'stacking', 'produccion'])) {
+    const dist = Object.entries(dg.dist_motor || {}).map(([k, v]) => `- ${k}: ${v} series`).join('\n');
+    return [
+      '**Modelado de Dengue**', '',
+      `Se entrenan **${dg.motores_entrenados.length} motores** (${dg.motores_entrenados.join(', ')}), pero solo **${dg.motores_productivos.join(' y ')}** son productivos. Ensemble y Stacking quedan fuera: los árboles (XGBoost/LightGBM) no extrapolan la dinámica epidémica a 52 semanas.`, '',
+      `Selección por serie (${dg.n_series} series estado×sexo) por SMAPE sobre la realidad ${dg.ultima_real.slice(0, 4)}:`,
+      dist, '',
+      `A nivel **nacional** el motor productivo es **${dg.motor_nacional}** (SMAPE ${dg.smape_nacional}%). Se modela en **${dg.unidad}**.`,
+    ].join('\n');
+  }
+
+  // Geografía: por estado / ranking / mapa
+  if (ent.estado || any(q, ['donde', 'estado', 'entidad', 'mapa', 'ranking', 'top ', 'region', 'geografi', 'que estado', 'cuales estado'])) {
+    if (ent.estado) {
+      const hit = (dg.top_entidades || []).find((x) => norm(x.entidad) === norm(ent.estado));
+      const sin = (dg.sin_casos || []).find((x) => norm(x) === norm(ent.estado));
+      if (hit) return `En **${hit.entidad}**, el dengue confirmado acumulado (${dg.cobertura}) suma **${num(hit.casos)} casos**: es una de las entidades de mayor carga del país.`;
+      if (sin) return `**${sin}** no registra transmisión de dengue confirmada en todo el periodo (${dg.cobertura}). Pertenece al centro-altiplano, fuera del rango del vector *Aedes aegypti*.`;
+      return `El dengue se concentra en el **sureste tropical y las costas** (${(dg.top_entidades || []).slice(0, 3).map((e) => e.entidad).join(', ')}). No tengo el desglose por entidad de ${ent.estado} en el bot; puedes ver el mapa completo en la página de Dengue.`;
+    }
+    const top = (dg.top_entidades || []).map((e, i) => `${i + 1}. ${e.entidad}: ${num(e.casos)} casos`).join('\n');
+    return [
+      `**Dengue por entidad (${dg.cobertura}, casos confirmados)**`, '', top, '',
+      `La carga vive en el **sureste tropical y las costas**. El centro-altiplano no registra transmisión confirmada: **${(dg.sin_casos || []).join(' y ')}** con cero casos en todo el periodo.`,
+    ].join('\n');
+  }
+
+  // Histórico / casos / pico / ciclo epidémico
+  if (any(q, ['caso', 'cuanto', 'cuantos', 'historic', 'pico', 'brote', 'epidemia', 'anual', 'por ano', 'por anio', 'tendencia', 'total', 'ola', 'ciclo']) || ent._years?.length) {
+    const aniosTop = Object.entries(dg.anual).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([y, c]) => `${y} (${num(c)})`).join(', ');
+    return [
+      `**Dengue confirmado en México — histórico (${dg.cobertura})**`, '',
+      `El año de mayor carga fue **${dg.anio_pico}** con **${num(dg.casos_pico)} casos**: la mayor epidemia de dengue registrada en las Américas. Años con más casos: ${aniosTop}.`, '',
+      `El dengue vuelve en **olas**: grandes brotes cada **${dg.ciclo_anios} años** (${(dg.anios_epidemicos || []).join(' · ')}), coincidiendo con años de El Niño. Cobertura: ${dg.n_boletines} boletines semanales, ${dg.n_entidades} entidades, en **${dg.unidad}**.`,
+    ].join('\n');
+  }
+
+  // Por defecto: qué es / síntomas / panorama
+  const lines = [];
+  if (info) {
+    lines.push(`**${info.nombre_completo} (CIE-10: ${info.cie})**`, '', info.descripcion, '', '**Síntomas principales**:');
+    for (const e of (info.efectos || [])) lines.push(`- ${e}`);
+    if (info.nota_mexico) lines.push('', `**En México (IMSS)**: ${info.nota_mexico}`);
+  } else {
+    lines.push('**Dengue (CIE-10: A97)**');
+  }
+  lines.push(
+    '',
+    `**En EpiForecast-MX**: es el 4.o padecimiento, con serie ${dg.cobertura} (${dg.n_boletines} boletines). Se entrenan ${dg.motores_entrenados.length} motores y ${dg.motores_productivos.join(' y ')} son productivos. Pico histórico en ${dg.anio_pico} (${num(dg.casos_pico)} casos).`,
+    '',
+    'Pregúntame por su *pronóstico*, sus *modelos*, el *histórico* o *dónde* golpea más.',
+    '',
+    '*Esta información es de carácter general y no constituye consejo médico.*',
+  );
   return lines.join('\n');
 }
 
@@ -4215,7 +4299,7 @@ function answerCodeRequest(q, ent, s, d) {
 // ---------------------------------------------------------------------------
 
 const HANDLERS = [
-  answerSaludo, answerPadecimientoNoModelado, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerFechaSemana, answerTemporal, answerProyectoMeta,
+  answerSaludo, answerPadecimientoNoModelado, answerDengue, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerFechaSemana, answerTemporal, answerProyectoMeta,
   answerTrainingConfig, answerSemanaActual, answerSemanasBoletin, answerQueEsPadecimiento,
   answerTimelapse, answerSemaforo, answerReportePDF,
   answerComparacionPorSexo,
@@ -4284,7 +4368,7 @@ function isOffTopic(q, ent) {
     'neurologia', 'psiquiatria', 'neurodegenerativ', 'mental',
     'sintoma', 'factor de riesgo', 'prevencion', 'deteccion',
     'semana epidemiologica', 'vigilancia', 'brote', 'pandemia',
-    'diabetes', 'cancer', 'covid', 'influenza', 'dengue', 'obesidad',
+    'diabetes', 'cancer', 'covid', 'influenza', 'obesidad',
     'hipertension', 'ansiedad', 'esquizofrenia',
     // Proyecto / Temporalidad / Equipo (handlers propios)
     'equipo', 'integrante', 'quien es', 'quienes', 'proyecto',
@@ -4441,7 +4525,7 @@ export async function answer(query) {
     const noModelado = [
       'cancer', 'diabetes', 'hipertension', 'obesidad', 'asma', 'epilepsia',
       'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah', 'demencia',
-      'influenza', 'dengue', 'covid', 'tuberculosis', 'vih', 'sida', 'colera',
+      'influenza', 'covid', 'tuberculosis', 'vih', 'sida', 'colera',
       'sarampion', 'rubeola', 'hepatitis', 'zika', 'chikungunya', 'malaria',
       'leucemia', 'linfoma', 'tumor', 'neoplasia', 'cardiop', 'infarto',
       'embolia', 'neumonia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
@@ -4518,7 +4602,7 @@ export async function answer(query) {
   const noModeladoCtx = [
     'cancer', 'diabetes', 'hipertension', 'obesidad', 'asma', 'epilepsia',
     'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah', 'demencia',
-    'influenza', 'dengue', 'tuberculosis', 'vih', 'sida', 'colera',
+    'influenza', 'tuberculosis', 'vih', 'sida', 'colera',
     'sarampion', 'hepatitis', 'zika', 'malaria', 'leucemia', 'linfoma',
     'tumor', 'neoplasia', 'infarto', 'neumonia', 'artritis', 'lupus',
     'esclerosis', 'huntington',
