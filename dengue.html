@@ -220,7 +220,7 @@
       </div>
       <figure>
         <img src="Reports/dengue/dengue_historico_ciclo.png" alt="Total de dengue confirmado por año en México, 2014 a 2026, con los grandes brotes de 2014, 2019 y 2024 resaltados." loading="lazy" />
-        <figcaption>Total anual de dengue confirmado, 2014-2026. Los grandes brotes (en rosa) llegan en olas de aproximadamente cinco años (2014, 2019, 2024); 2024 fue la mayor epidemia registrada en las Américas. El dengue mantuvo su ciclo natural durante la pandemia (franja COVID-19 sombreada). Haz clic para ampliar.</figcaption>
+        <figcaption>Total anual de dengue confirmado, 2014-2026. Los grandes brotes (en rosa) llegan en olas de aproximadamente cuatro a cinco años (2014, 2019, 2024); 2024 fue la mayor epidemia registrada en las Américas. El dengue mantuvo su ciclo natural durante la pandemia (franja COVID-19 sombreada). Haz clic para ampliar.</figcaption>
       </figure>
     </div>
   </section>
@@ -313,7 +313,7 @@
       </figure>
 
       <h3 class="subh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M4.2 4.2l4.3 4.3M15.5 15.5l4.3 4.3M1 12h6M17 12h6M4.2 19.8l4.3-4.3M15.5 8.5l4.3-4.3"/></svg>Feature engineering a la medida del dengue</h3>
-      <p>El dengue no se parece a una enfermedad crónica: es un fenómeno <strong>climático y biológico</strong> que estalla en brotes (como se ve en el mapa y en el ciclo de ~5 años, ligado a El Niño) y se apaga en temporada baja. Por eso <strong>no reutilizamos</strong> el feature engineering de los padecimientos neurológicos: lo rediseñamos pieza por pieza para la dinámica del mosquito. La decisión más visible es la de los outliers: el siguiente gráfico contrasta la serie real (lo que conserva el feature engineering de Dengue) contra lo que dejaría el recorte estándar, que aplanaría los brotes a la mediana.</p>
+      <p>El dengue no se parece a una enfermedad crónica: es un fenómeno <strong>climático y biológico</strong> que estalla en brotes (como se ve en el mapa y en el ciclo de aproximadamente cuatro a cinco años, ligado a El Niño) y se apaga en temporada baja. Por eso <strong>no reutilizamos</strong> el feature engineering de los padecimientos neurológicos: lo rediseñamos pieza por pieza para la dinámica del mosquito. La decisión más visible es la de los outliers: el siguiente gráfico contrasta la serie real (lo que conserva el feature engineering de Dengue) contra lo que dejaría el recorte estándar, que aplanaría los brotes a la mediana.</p>
       <figure>
         <img src="Reports/dengue/dengue_fe_comparacion.png" alt="Comparación del efecto del feature engineering en Dengue: serie real con picos preservados vs serie con outliers recortados a la mediana." loading="lazy" />
         <figcaption>Efecto del feature engineering (ejemplo Veracruz): el FE estándar (línea punteada) aplanaría los picos epidémicos de 2023 y 2024 a la mediana; el FE de Dengue (línea ámbar) los conserva como la señal a pronosticar.</figcaption>
@@ -400,7 +400,7 @@
 
       <div class="callout">
         <h3>Por qué solo 1 año es "pronóstico" y 5 años es "proyección"</h3>
-        <p style="margin-bottom:.6rem">El dengue tiene un ciclo epidémico de <strong>aproximadamente cuatro o cinco años</strong> (los grandes brotes de 2019 y 2024), ligado a fenómenos climáticos como El Niño. Sería ideal pronosticar ese ciclo completo, pero la serie disponible (2018-2026) contiene <strong>solo dos ciclos</strong>: estadísticamente no alcanza para que un modelo aprenda a anticipar la magnitud de la próxima gran epidemia.</p>
+        <p style="margin-bottom:.6rem">El dengue tiene un ciclo epidémico de <strong>aproximadamente cuatro a cinco años</strong> (los grandes brotes de 2019 y 2024), ligado a fenómenos climáticos como El Niño. Sería ideal pronosticar ese ciclo completo, pero la serie disponible (2018-2026) contiene <strong>solo dos ciclos</strong>: estadísticamente no alcanza para que un modelo aprenda a anticipar la magnitud de la próxima gran epidemia.</p>
         <p style="margin:0; font-size:.9rem; color:var(--text-muted)">Por eso distinguimos dos horizontes. El <strong style="color:var(--amber-soft)">pronóstico a 1 año (línea ámbar con banda)</strong> es la predicción precisa que los datos sí soportan. La <strong style="color:var(--teal)">proyección a 5 años (línea punteada)</strong> extiende el patrón estacional esperado a un nivel estable: ilustra <em>cuándo</em> ocurren las temporadas, no <em>qué tan grande</em> será el próximo brote. Es una guía de planeación, no una predicción de la próxima epidemia.</p>
       </div>
     </div>
@@ -529,29 +529,34 @@
         cv.replaceWith(img);
         return;
       }
+      const _c = getComputedStyle(document.documentElement);
+      const cvar = (n, fb) => (_c.getPropertyValue(n).trim() || fb);
+      const TH = { amber: cvar('--amber', '#F59E0B'), amberSoft: cvar('--amber-soft', '#FBBF24'),
+        muted: cvar('--text-muted', '#6E82A6'), grid: cvar('--bg-card-hover', '#243150'),
+        deep: cvar('--bg-deep', '#0E1424'), cream: cvar('--cream', '#E7ECF5') };
       const pts = serie.map(p => ({ x: p.anio + (p.semana - 1) / 52, y: p.casos,
         _lbl: p.anio + ' · semana ' + String(p.semana).padStart(2, '0') }));
       new Chart(cv.getContext('2d'), {
         type: 'line',
-        data: { datasets: [{ data: pts, borderColor: '#F59E0B',
-          backgroundColor: 'rgba(245,158,11,0.12)', fill: true, borderWidth: 1.8,
-          pointRadius: 0, pointHoverRadius: 4, pointHoverBackgroundColor: '#FBBF24', tension: 0.25 }] },
+        data: { datasets: [{ data: pts, borderColor: TH.amber,
+          backgroundColor: TH.amber + '1f', fill: true, borderWidth: 1.8,
+          pointRadius: 0, pointHoverRadius: 4, pointHoverBackgroundColor: TH.amberSoft, tension: 0.25 }] },
         options: {
           responsive: true, maintainAspectRatio: false, parsing: false,
           interaction: { mode: 'nearest', intersect: false, axis: 'x' },
           scales: {
             x: { type: 'linear', min: Math.floor(pts[0].x),
-              grid: { color: '#243150' },
-              ticks: { color: '#6E82A6', stepSize: 1, autoSkip: false,
+              grid: { color: TH.grid },
+              ticks: { color: TH.muted, stepSize: 1, autoSkip: false,
                 callback: v => (Number.isInteger(v) ? v : '') } },
-            y: { beginAtZero: true, grid: { color: '#243150' },
-              ticks: { color: '#6E82A6' },
-              title: { display: true, text: 'Casos por semana', color: '#6E82A6' } }
+            y: { beginAtZero: true, grid: { color: TH.grid },
+              ticks: { color: TH.muted },
+              title: { display: true, text: 'Casos por semana', color: TH.muted } }
           },
           plugins: {
             legend: { display: false },
-            tooltip: { backgroundColor: '#0E1424', borderColor: '#243150', borderWidth: 1,
-              titleColor: '#E7ECF5', bodyColor: '#FBBF24', padding: 10, displayColors: false,
+            tooltip: { backgroundColor: TH.deep, borderColor: TH.grid, borderWidth: 1,
+              titleColor: TH.cream, bodyColor: TH.amberSoft, padding: 10, displayColors: false,
               callbacks: { title: it => it[0].raw._lbl, label: it => fmt(it.raw.y) + ' casos confirmados' } }
           }
         }
