@@ -206,9 +206,9 @@
     <div class="wrap">
       <div class="label">Cuánta historia</div>
       <h2>De 2018 a 2026: ocho temporadas de dengue</h2>
-      <p>La clasificación de la OMS 2009 (A97.x, la misma de producción) aparece en los boletines <strong>desde la semana 27 de 2018</strong>. Extendimos el extractor para leer también ese formato más antiguo (un cuadro de 10 columnas, distinto al de 12 de 2020 en adelante), validándolo celda por celda contra el renglón TOTAL impreso. Eso sumó <strong>72 semanas verificadas</strong> y llevó la serie de modelado a <strong>391 semanas (2018-W27 a 2026)</strong>: más ciclos anuales para que los modelos aprendan la estacionalidad, en especial DeepAR.</p>
+      <p>La clasificación de la OMS 2009 (A97.x, la misma de producción) aparece en los boletines <strong>desde la semana 27 de 2018</strong>. Extendimos el extractor para leer también ese formato más antiguo (un cuadro de 10 columnas, distinto al de 12 de 2020 en adelante), validándolo celda por celda contra el renglón TOTAL impreso. Eso sumó <strong>72 semanas verificadas</strong> y llevó la serie de modelado a <strong><span id="series-weeks">392</span> semanas (2018-W27 a 2026)</strong>: más ciclos anuales para que los modelos aprendan la estacionalidad, en especial DeepAR.</p>
       <div class="eda-grid">
-        <div class="stat"><div class="v">391</div><div class="l">Semanas de modelado</div></div>
+        <div class="stat"><div class="v" id="series-weeks-stat">392</div><div class="l">Semanas de modelado</div></div>
         <div class="stat"><div class="v">+72</div><div class="l">Semanas ganadas (2018-19)</div></div>
         <div class="stat"><div class="v">8</div><div class="l">Temporadas anuales</div></div>
         <div class="stat"><div class="v">2018–2026</div><div class="l">Cobertura A97.x</div></div>
@@ -573,6 +573,12 @@
           else if (k === 'n_boletines') el.textContent = m.n_boletines != null ? fmt(m.n_boletines) : '—';
           else if (k === 'cobertura' && m.cobertura) el.textContent = m.cobertura.replace('-', '–');
         });
+        // Semanas de modelado (= boletines en la serie): bind para no quedar stale.
+        if (m.n_boletines != null) {
+          const sw = fmt(m.n_boletines);
+          const a = document.getElementById('series-weeks'); if (a) a.textContent = sw;
+          const b = document.getElementById('series-weeks-stat'); if (b) b.textContent = sw;
+        }
         // Meta line
         const meta = document.getElementById('live-meta');
         meta.textContent = 'Última semana epidemiológica: ' + (m.ultima_semana || '—') +

@@ -410,10 +410,11 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
   if (matchedDisease && (any(q, dataKw) || ent.estado || isShortFollowUp)) {
     return (
       `EpiForecast-MX **no modela ${matchedDisease}**. ` +
-      'Nuestro proyecto se enfoca exclusivamente en 3 padecimientos del Bolet\u00edn Epidemiol\u00f3gico SINAVE:\n\n' +
+      'Nuestro proyecto se enfoca en cuatro padecimientos del Bolet\u00edn Epidemiol\u00f3gico SINAVE:\n\n' +
       '- **Depresi\u00f3n** (CIE-10: F32)\n' +
       '- **Parkinson** (CIE-10: G20)\n' +
-      '- **Alzheimer** (CIE-10: G30)\n\n' +
+      '- **Alzheimer** (CIE-10: G30)\n' +
+      '- **Dengue** (CIE-10: A97)\n\n' +
       '\u00bfTe gustar\u00eda consultar datos de alguno de estos padecimientos?'
     );
   }
@@ -909,7 +910,7 @@ function answerProyectoMeta(q, ent, s, d) {
   ];
   if (any(q, padTriggers)) {
     const pp = s.por_pad || {};
-    const lines = ['**EpiForecast-MX modela 3 padecimientos** de la Clasificaci\u00f3n Internacional de Enfermedades (CIE-10):\n'];
+    const lines = ['**EpiForecast-MX modela cuatro padecimientos**: tres neurol\u00f3gicos (Depresi\u00f3n, Parkinson, Alzheimer) y **Dengue** (pipeline propio). Los tres neurol\u00f3gicos, de la Clasificaci\u00f3n Internacional de Enfermedades (CIE-10):\n'];
     lines.push('| Padecimiento | SMAPE mediano | Motor ganador | Series ganadas | Distribuci\u00f3n |');
     lines.push('|-------------|:------------:|:-------------:|:--------------:|:-----------|');
     for (const [nombre, cie, key] of [['Depresi\u00f3n', 'F32', 'Depresion'], ['Parkinson', 'G20', 'Parkinson'], ['Alzheimer', 'G30', 'Alzheimer']]) {
@@ -952,6 +953,11 @@ function answerProyectoMeta(q, ent, s, d) {
     lines.push('- Mujeres');
     lines.push('- General (combinado)\n');
     lines.push(`37 geografias \u00d7 3 sexos = **111 modelos por padecimiento** \u00d7 3 padecimientos = **${s.total_modelos || 333} modelos totales**.`);
+    const dgi = d.dengue;
+    if (dgi) {
+      lines.push('\n---\n');
+      lines.push(`**4.\u00ba padecimiento, Dengue (A97)**: arbovirosis con **pipeline propio** (cohorte de conteos, no tasa), aparte de los ${s.total_modelos || 333} neuro. Serie ${dgi.cobertura}, ${dgi.n_series} series; productivos **${(dgi.motores_productivos || []).join(' y ')}**. Preg\u00fantame \u00abdengue\u00bb para su detalle.`);
+    }
     return lines.join('\n');
   }
 
@@ -1020,7 +1026,7 @@ function answerProyectoMeta(q, ent, s, d) {
       `- **Cobertura temporal**: ${meta ? `semana 1 de ${meta.min_anio} a semana ${meta.max_semana} de ${meta.max_anio}` : '2014 a 2026'}\n` +
       '- **Frecuencia**: semanal (52 semanas epidemiológicas por año)\n' +
       '- **Granularidad**: por entidad federativa, padecimiento y sexo\n' +
-      '- **Padecimientos cubiertos**: Depresión (F32), Parkinson (G20), Alzheimer (G30)\n' +
+      '- **Padecimientos cubiertos**: Depresión (F32), Parkinson (G20), Alzheimer (G30) y Dengue (A97)\n' +
       '- **Desglose geográfico**: 32 entidades federativas de México\n\n' +
       'Los datos se extraen mediante scraping automatizado de los PDF del boletín y se procesan con Camelot (CI/CD en GitHub Actions).'
     );
@@ -1109,7 +1115,7 @@ function answerProyectoMeta(q, ent, s, d) {
   if (any(q, alcanceTriggers) && !ent.padecimiento && !ent.estado && !(ent._years || []).length) {
     return (
       '**Puedo responder sobre el proyecto EpiForecast-MX**:\n\n' +
-      '- **Padecimientos**: Depresi\u00f3n (F32), Parkinson (G20), Alzheimer (G30)\n' +
+      '- **Padecimientos**: Depresi\u00f3n (F32), Parkinson (G20), Alzheimer (G30), Dengue (A97)\n' +
       '- **Geograf\u00edas**: 32 entidades + 4 regiones INEGI + Nacional\n' +
       `- **Modelos**: Prophet, DeepAR, Ensemble, Stacking (${s.total_modelos || 333} en producci\u00f3n)\n` +
       '- **M\u00e9tricas**: SMAPE, MASE, RMSE, MAE por serie\n' +
@@ -1309,16 +1315,25 @@ function answerDengue(q, ent, s, d) {
     ].join('\n');
   }
 
-  // Modelos / motores / métricas
-  if (any(q, ['modelo', 'motor', 'smape', 'metrica', 'mejor model', 'cual usan', 'que usan', 'deepar', 'prophet', 'ensemble', 'stacking', 'produccion'])) {
+  // Modelos / motores / métricas (incluye "tasa": Dengue es conteos, no tasa) y nº de series
+  if (any(q, ['modelo', 'motor', 'smape', 'metrica', 'mejor model', 'cual usan', 'que usan', 'deepar', 'prophet', 'ensemble', 'stacking', 'produccion', 'tasa', 'serie', 'series'])) {
     const dist = Object.entries(dg.dist_motor || {}).map(([k, v]) => `- ${k}: ${v} series`).join('\n');
     return [
       '**Modelado de Dengue**', '',
       `Se entrenan **${dg.motores_entrenados.length} motores** (${dg.motores_entrenados.join(', ')}), pero solo **${dg.motores_productivos.join(' y ')}** son productivos. Ensemble y Stacking quedan fuera: los árboles (XGBoost/LightGBM) no extrapolan la dinámica epidémica a 52 semanas.`, '',
-      `Selección por serie (${dg.n_series} series estado×sexo) por SMAPE sobre la realidad ${dg.ultima_real.slice(0, 4)}:`,
+      `Selección por serie (${dg.n_series} series = ${dg.n_entidades} entidades + agregados, × 3 sexos) por SMAPE sobre la realidad ${dg.ultima_real.slice(0, 4)}:`,
       dist, '',
       `A nivel **nacional** el motor productivo es **${dg.motor_nacional}** (SMAPE ${dg.smape_nacional}%). Se modela en **${dg.unidad}**.`,
+      '',
+      `*Nota: muchas de las ${dg.n_series} series tienen pocos casos (cercanas a cero), donde la elección de motor es poco discriminante; la señal robusta es la nacional.*`,
     ].join('\n');
+  }
+
+  // Sexo: el Dengue SÍ se modela por sexo (general/hombres/mujeres), pero el bot solo
+  // expone los agregados nacional y por entidad — ser honesto en vez de soltar el panorama.
+  if (ent.sexo === 'hombres' || ent.sexo === 'mujeres') {
+    const donde = ent.estado ? ` en ${ent.estado}` : '';
+    return `El Dengue **sí se modela por sexo** (general, hombres y mujeres: ${dg.n_series} series = ${dg.n_entidades} entidades + agregados × 3 sexos), pero el bot solo expone los agregados nacional y por entidad${donde}. El desglose por sexo del Dengue está en la tabla de producción y la página de Dengue. Puedo darte el total nacional, por entidad, el pronóstico o los modelos.`;
   }
 
   // Geografía: por estado / ranking / mapa
@@ -4446,7 +4461,7 @@ export async function answer(query) {
     'pelicula', 'netflix', 'horario de', 'vuelos a', 'hotel en'];
   if (any(q, offTopic) && !ent.padecimiento && !ent.estado && !ent.modelo) {
     return 'Soy **EPI**, asistente de inteligencia epidemiológica de EpiForecast-MX. No respondo temas fuera del proyecto (clima, deportes, recetas, finanzas, etc.).\n\n' +
-      'Puedo ayudarte con pronósticos, métricas y la metodología de **Depresión, Parkinson y Alzheimer** en México. Por ejemplo: «métricas globales», «depresión en Jalisco» o «¿cómo se elige el modelo por serie?».';
+      'Puedo ayudarte con pronósticos, métricas y la metodología de **Depresión, Parkinson, Alzheimer y Dengue** en México. Por ejemplo: «métricas globales», «depresión en Jalisco» o «pronóstico de dengue».';
   }
 
   // Guard: preguntas sobre el PAPER / MICAI / metodología → ceder al RAG, que
