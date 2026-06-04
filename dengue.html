@@ -646,8 +646,8 @@
             deep: cvar('--bg-deep', '#0E1424'), cream: cvar('--cream', '#E7ECF5'),
           };
 
-          // Solo desde 2022 para que se vea el detalle reciente + el horizonte futuro.
-          const fromYr = 2022;
+          // Inicio del eje derivado del dato (meta.chart_from_year): detalle reciente + horizonte.
+          const fromYr = m.chart_from_year || (new Date().getUTCFullYear() - 4);
           const hist = (d.historico || []).map(p => ({ x: decYear(p.ds), y: p.y })).filter(p => p.x >= fromYr);
           const pron = (d.pronostico || []).map(p => ({ x: decYear(p.ds), y: p.yhat }));
           const pLo = (d.pronostico || []).map(p => ({ x: decYear(p.ds), y: p.yhat_lower }));
