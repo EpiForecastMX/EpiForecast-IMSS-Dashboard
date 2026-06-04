@@ -4,9 +4,9 @@
     "ultima_semana": "2026-W20",
     "anio": 2026,
     "semana": 20,
-    "cobertura": "2020-2026",
-    "n_boletines": 320,
-    "n_filas": 10240,
+    "cobertura": "2018-2026",
+    "n_boletines": 392,
+    "n_filas": 12544,
     "casos_semana_nacional": 125,
     "acum_total_nacional": 2136,
     "nota": "Dengue confirmado agregado (A97.0 + A97.1 + A97.2). Fuente: boletines SINAVE."
@@ -238,6 +238,366 @@
     }
   ],
   "nacional_semanal": [
+    {
+      "anio": 2018,
+      "semana": 27,
+      "casos": 254
+    },
+    {
+      "anio": 2018,
+      "semana": 28,
+      "casos": 132
+    },
+    {
+      "anio": 2018,
+      "semana": 29,
+      "casos": 192
+    },
+    {
+      "anio": 2018,
+      "semana": 30,
+      "casos": 196
+    },
+    {
+      "anio": 2018,
+      "semana": 31,
+      "casos": 250
+    },
+    {
+      "anio": 2018,
+      "semana": 32,
+      "casos": 208
+    },
+    {
+      "anio": 2018,
+      "semana": 33,
+      "casos": 251
+    },
+    {
+      "anio": 2018,
+      "semana": 34,
+      "casos": 369
+    },
+    {
+      "anio": 2018,
+      "semana": 35,
+      "casos": 294
+    },
+    {
+      "anio": 2018,
+      "semana": 36,
+      "casos": 415
+    },
+    {
+      "anio": 2018,
+      "semana": 37,
+      "casos": 673
+    },
+    {
+      "anio": 2018,
+      "semana": 38,
+      "casos": 532
+    },
+    {
+      "anio": 2018,
+      "semana": 39,
+      "casos": 775
+    },
+    {
+      "anio": 2018,
+      "semana": 40,
+      "casos": 793
+    },
+    {
+      "anio": 2018,
+      "semana": 41,
+      "casos": 642
+    },
+    {
+      "anio": 2018,
+      "semana": 42,
+      "casos": 591
+    },
+    {
+      "anio": 2018,
+      "semana": 43,
+      "casos": 772
+    },
+    {
+      "anio": 2018,
+      "semana": 44,
+      "casos": 535
+    },
+    {
+      "anio": 2018,
+      "semana": 45,
+      "casos": 818
+    },
+    {
+      "anio": 2018,
+      "semana": 46,
+      "casos": 531
+    },
+    {
+      "anio": 2018,
+      "semana": 47,
+      "casos": 633
+    },
+    {
+      "anio": 2018,
+      "semana": 49,
+      "casos": 364
+    },
+    {
+      "anio": 2018,
+      "semana": 50,
+      "casos": 358
+    },
+    {
+      "anio": 2018,
+      "semana": 51,
+      "casos": 153
+    },
+    {
+      "anio": 2019,
+      "semana": 3,
+      "casos": 103
+    },
+    {
+      "anio": 2019,
+      "semana": 4,
+      "casos": 132
+    },
+    {
+      "anio": 2019,
+      "semana": 5,
+      "casos": 107
+    },
+    {
+      "anio": 2019,
+      "semana": 6,
+      "casos": 141
+    },
+    {
+      "anio": 2019,
+      "semana": 7,
+      "casos": 97
+    },
+    {
+      "anio": 2019,
+      "semana": 9,
+      "casos": 84
+    },
+    {
+      "anio": 2019,
+      "semana": 10,
+      "casos": 105
+    },
+    {
+      "anio": 2019,
+      "semana": 11,
+      "casos": 100
+    },
+    {
+      "anio": 2019,
+      "semana": 12,
+      "casos": 74
+    },
+    {
+      "anio": 2019,
+      "semana": 13,
+      "casos": 111
+    },
+    {
+      "anio": 2019,
+      "semana": 14,
+      "casos": 97
+    },
+    {
+      "anio": 2019,
+      "semana": 15,
+      "casos": 98
+    },
+    {
+      "anio": 2019,
+      "semana": 16,
+      "casos": 104
+    },
+    {
+      "anio": 2019,
+      "semana": 17,
+      "casos": 118
+    },
+    {
+      "anio": 2019,
+      "semana": 18,
+      "casos": 92
+    },
+    {
+      "anio": 2019,
+      "semana": 19,
+      "casos": 133
+    },
+    {
+      "anio": 2019,
+      "semana": 20,
+      "casos": 190
+    },
+    {
+      "anio": 2019,
+      "semana": 21,
+      "casos": 149
+    },
+    {
+      "anio": 2019,
+      "semana": 22,
+      "casos": 222
+    },
+    {
+      "anio": 2019,
+      "semana": 23,
+      "casos": 227
+    },
+    {
+      "anio": 2019,
+      "semana": 24,
+      "casos": 267
+    },
+    {
+      "anio": 2019,
+      "semana": 25,
+      "casos": 314
+    },
+    {
+      "anio": 2019,
+      "semana": 26,
+      "casos": 403
+    },
+    {
+      "anio": 2019,
+      "semana": 27,
+      "casos": 448
+    },
+    {
+      "anio": 2019,
+      "semana": 28,
+      "casos": 498
+    },
+    {
+      "anio": 2019,
+      "semana": 29,
+      "casos": 620
+    },
+    {
+      "anio": 2019,
+      "semana": 30,
+      "casos": 584
+    },
+    {
+      "anio": 2019,
+      "semana": 31,
+      "casos": 1160
+    },
+    {
+      "anio": 2019,
+      "semana": 32,
+      "casos": 1114
+    },
+    {
+      "anio": 2019,
+      "semana": 33,
+      "casos": 950
+    },
+    {
+      "anio": 2019,
+      "semana": 35,
+      "casos": 1382
+    },
+    {
+      "anio": 2019,
+      "semana": 36,
+      "casos": 2370
+    },
+    {
+      "anio": 2019,
+      "semana": 37,
+      "casos": 2440
+    },
+    {
+      "anio": 2019,
+      "semana": 38,
+      "casos": 1917
+    },
+    {
+      "anio": 2019,
+      "semana": 39,
+      "casos": 2594
+    },
+    {
+      "anio": 2019,
+      "semana": 40,
+      "casos": 2078
+    },
+    {
+      "anio": 2019,
+      "semana": 41,
+      "casos": 2031
+    },
+    {
+      "anio": 2019,
+      "semana": 42,
+      "casos": 1674
+    },
+    {
+      "anio": 2019,
+      "semana": 43,
+      "casos": 1729
+    },
+    {
+      "anio": 2019,
+      "semana": 44,
+      "casos": 2183
+    },
+    {
+      "anio": 2019,
+      "semana": 45,
+      "casos": 2021
+    },
+    {
+      "anio": 2019,
+      "semana": 46,
+      "casos": 1869
+    },
+    {
+      "anio": 2019,
+      "semana": 47,
+      "casos": 1095
+    },
+    {
+      "anio": 2019,
+      "semana": 48,
+      "casos": 1463
+    },
+    {
+      "anio": 2019,
+      "semana": 49,
+      "casos": 1604
+    },
+    {
+      "anio": 2019,
+      "semana": 50,
+      "casos": 1245
+    },
+    {
+      "anio": 2019,
+      "semana": 51,
+      "casos": 1411
+    },
+    {
+      "anio": 2019,
+      "semana": 52,
+      "casos": 188
+    },
     {
       "anio": 2020,
       "semana": 4,
