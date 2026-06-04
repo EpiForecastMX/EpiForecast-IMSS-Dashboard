@@ -631,6 +631,16 @@
           if (!cv) return;
           if (!window.Chart) { if (cap) cap.textContent = 'No se pudo cargar la librería de gráficos.'; return; }
 
+          // Tema desde las variables CSS (:root) — una sola fuente de color, sin duplicar la paleta.
+          const _css = getComputedStyle(document.documentElement);
+          const cvar = (n, fb) => (_css.getPropertyValue(n).trim() || fb);
+          const TH = {
+            amber: cvar('--amber', '#F59E0B'), amberSoft: cvar('--amber-soft', '#FBBF24'),
+            teal: cvar('--teal', '#5B8DEF'), txt2: cvar('--text-secondary', '#9FB0CE'),
+            muted: cvar('--text-muted', '#6E82A6'), grid: cvar('--bg-card-hover', '#243150'),
+            deep: cvar('--bg-deep', '#0E1424'), cream: cvar('--cream', '#E7ECF5'),
+          };
+
           // Solo desde 2022 para que se vea el detalle reciente + el horizonte futuro.
           const fromYr = 2022;
           const hist = (d.historico || []).map(p => ({ x: decYear(p.ds), y: p.y })).filter(p => p.x >= fromYr);
@@ -649,32 +659,32 @@
             data: {
               datasets: [
                 { label: 'Banda', data: pHi, parsing: false, borderColor: 'transparent',
-                  backgroundColor: 'rgba(245,158,11,0.13)', pointRadius: 0, fill: '+1', tension: 0.3, order: 5 },
+                  backgroundColor: TH.amber + '22', pointRadius: 0, fill: '+1', tension: 0.3, order: 5 },
                 { label: 'Banda baja', data: pLo, parsing: false, borderColor: 'transparent',
                   backgroundColor: 'transparent', pointRadius: 0, fill: false, tension: 0.3, order: 5 },
                 { label: 'Proyección estacional (' + anios + ' años, ilustrativa)', data: proy, parsing: false,
-                  borderColor: '#5B8DEF', borderWidth: 1.6, borderDash: [5, 4], pointRadius: 0, tension: 0.3, order: 3 },
+                  borderColor: TH.teal, borderWidth: 1.6, borderDash: [5, 4], pointRadius: 0, tension: 0.3, order: 3 },
                 { label: 'Histórico real', data: hist, parsing: false,
-                  borderColor: '#9FB0CE', borderWidth: 1.6, pointRadius: 0, pointHoverRadius: 3, tension: 0.25, order: 2 },
+                  borderColor: TH.txt2, borderWidth: 1.6, pointRadius: 0, pointHoverRadius: 3, tension: 0.25, order: 2 },
                 { label: 'Pronóstico (1 año)', data: pron, parsing: false,
-                  borderColor: '#F59E0B', borderWidth: 2.2, pointRadius: 0, pointHoverRadius: 4,
-                  pointHoverBackgroundColor: '#FBBF24', tension: 0.3, order: 1 }
+                  borderColor: TH.amber, borderWidth: 2.2, pointRadius: 0, pointHoverRadius: 4,
+                  pointHoverBackgroundColor: TH.amberSoft, tension: 0.3, order: 1 }
               ]
             },
             options: {
               responsive: true, maintainAspectRatio: false, parsing: false,
               interaction: { mode: 'nearest', intersect: false, axis: 'x' },
               scales: {
-                x: { type: 'linear', min: fromYr, grid: { color: '#243150' },
-                  ticks: { color: '#6E82A6', stepSize: 1, autoSkip: false,
+                x: { type: 'linear', min: fromYr, grid: { color: TH.grid },
+                  ticks: { color: TH.muted, stepSize: 1, autoSkip: false,
                     callback: v => (Number.isInteger(v) ? v : '') } },
-                y: { beginAtZero: true, grid: { color: '#243150' }, ticks: { color: '#6E82A6' },
-                  title: { display: true, text: 'Casos por semana', color: '#6E82A6' } }
+                y: { beginAtZero: true, grid: { color: TH.grid }, ticks: { color: TH.muted },
+                  title: { display: true, text: 'Casos por semana', color: TH.muted } }
               },
               plugins: {
-                legend: { labels: { color: '#9FB0CE', filter: it => !it.text.startsWith('Banda'), boxWidth: 18, font: { size: 11 } } },
-                tooltip: { backgroundColor: '#0E1424', borderColor: '#243150', borderWidth: 1,
-                  titleColor: '#E7ECF5', bodyColor: '#FBBF24', padding: 10,
+                legend: { labels: { color: TH.txt2, filter: it => !it.text.startsWith('Banda'), boxWidth: 18, font: { size: 11 } } },
+                tooltip: { backgroundColor: TH.deep, borderColor: TH.grid, borderWidth: 1,
+                  titleColor: TH.cream, bodyColor: TH.amberSoft, padding: 10,
                   filter: it => !it.dataset.label.startsWith('Banda'),
                   callbacks: { title: it => lbl(it[0].parsed.x), label: it => it.dataset.label + ': ' + fmt(it.parsed.y) + ' casos' } }
               }
