@@ -2431,6 +2431,12 @@ function extractChartData(markdown, query) {
   const s = data.stats || {};
   const qn = query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
+  // Dengue NO vive en prod_models/stats (esos son neuro: 333 modelos). Cualquier canvas
+  // generico (tendencia, mapa, barras) saldria con datos de Depresion/Parkinson/Alzheimer,
+  // nada que ver con Dengue. Solo el zoom semanal tiene datos de Dengue (weekly_comparison);
+  // el resto de respuestas de Dengue se entregan como imagen embebida o texto, sin canvas.
+  if (detectEntities(query).padecimiento === 'Dengue' && !qn.includes('zoom')) return null;
+
   // Comparacion semanal Real vs Pronostico (embedded from answerComparacionSemanal)
   // Collect ALL weekly matches (one per padecimiento) and return as array
   const weeklyMatches = [...markdown.matchAll(/<!--WEEKLY:(.*?)-->/g)];
