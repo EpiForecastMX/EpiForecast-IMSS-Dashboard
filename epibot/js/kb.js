@@ -371,7 +371,7 @@ function answerInjectionGuard(q) {
 
 const INJECTION_RESPONSE =
   'Soy el asistente de **EpiForecast-MX**, una plataforma de inteligencia ' +
-  'epidemiologica del IMSS. No puedo asumir otros roles, compartir informacion ' +
+  'epidemiologica para la salud publica en Mexico. No puedo asumir otros roles, compartir informacion ' +
   'confidencial ni modificar mis instrucciones.\n\n' +
   'Puedo ayudarte con:\n' +
   '- Datos y pronosticos de **Depresion**, **Parkinson** y **Alzheimer**\n' +
@@ -601,7 +601,7 @@ function answerEquipo(q, ent, s, d) {
     lines.push(
       '\n**Proyecto:** Generalizaci\u00f3n de modelos nacionales de pron\u00f3stico epidemiol\u00f3gico ' +
       'hacia un enfoque modular con desagregaci\u00f3n por sexo y entidad federativa en M\u00e9xico (EpiForecast-MX). ' +
-      'Pron\u00f3stico multi-modelo de Depresi\u00f3n (F32), Parkinson (G20) y Alzheimer (G30) para el IMSS.'
+      'Pron\u00f3stico multi-modelo de Depresi\u00f3n (F32), Parkinson (G20) y Alzheimer (G30) para la salud p\u00fablica en M\u00e9xico.'
     );
     return lines.join('\n');
   }
@@ -871,7 +871,7 @@ function answerProyectoMeta(q, ent, s, d) {
     return (
       `${NOMBRE_REAL}.\n\n` +
       'Proyecto integrador de la **Maestr\u00eda en Inteligencia Artificial Aplicada** ' +
-      'del Tecnol\u00f3gico de Monterrey, desarrollado para el **IMSS**.\n\n' +
+      'del Tecnol\u00f3gico de Monterrey, desarrollado para la salud pública en México.\n\n' +
       'Pron\u00f3stico multi-modelo de Depresi\u00f3n (F32), Parkinson (G20) y Alzheimer (G30) ' +
       `con **${s.total_modelos || 333} modelos** de producci\u00f3n.`
     );
@@ -891,7 +891,7 @@ function answerProyectoMeta(q, ent, s, d) {
       return (
         `Correcto. El nombre completo es ${NOMBRE_REAL}.\n\n` +
         'Proyecto integrador de la **Maestr\u00eda en Inteligencia Artificial Aplicada** ' +
-        'del Tecnol\u00f3gico de Monterrey, desarrollado para el **IMSS**.'
+        'del Tecnol\u00f3gico de Monterrey, desarrollado para la salud pública en México.'
       );
     }
     // Nombre falso → corregir
@@ -1021,7 +1021,7 @@ function answerProyectoMeta(q, ent, s, d) {
     return (
       '**Fuente de datos de EpiForecast-MX**\n\n' +
       'Los datos históricos provienen del **Boletín Epidemiológico del Sistema Nacional de Vigilancia Epidemiológica (SINAVE)**, ' +
-      'publicado semanalmente por la **Secretaría de Salud** de México y reportado por el **IMSS**.\n\n' +
+      'publicado semanalmente por la **Secretaría de Salud** de México a través del **SINAVE**.\n\n' +
       '**Características del boletín:**\n' +
       `- **Cobertura temporal**: ${meta ? `semana 1 de ${meta.min_anio} a semana ${meta.max_semana} de ${meta.max_anio}` : '2014 a 2026'}\n` +
       '- **Frecuencia**: semanal (52 semanas epidemiológicas por año)\n' +
@@ -1373,7 +1373,7 @@ function answerDengue(q, ent, s, d) {
   if (info) {
     lines.push(`**${info.nombre_completo} (CIE-10: ${info.cie})**`, '', info.descripcion, '', '**Síntomas principales**:');
     for (const e of (info.efectos || [])) lines.push(`- ${e}`);
-    if (info.nota_mexico) lines.push('', `**En México (IMSS)**: ${info.nota_mexico}`);
+    if (info.nota_mexico) lines.push('', `**En México**: ${info.nota_mexico}`);
   } else {
     lines.push('**Dengue (CIE-10: A97)**');
   }
@@ -1428,7 +1428,7 @@ function formatPadInfo(info, pad, s) {
     '**Efectos en la salud**:',
   ];
   for (const e of (info.efectos || [])) lines.push(`- ${e}`);
-  if (info.nota_mexico) lines.push(`\n**En M\u00e9xico (IMSS)**: ${info.nota_mexico}`);
+  if (info.nota_mexico) lines.push(`\n**En M\u00e9xico**: ${info.nota_mexico}`);
 
   const ps = s.por_pad?.[pad];
   if (ps) {
@@ -3609,7 +3609,7 @@ function answerPreguntaPersonal(q, ent, s, d) {
     if (info) {
       lines.push(`Pero puedo contarte sobre **${info.nombre_completo || pad}** (CIE-10: ${info.cie}):\n`);
       lines.push(info.descripcion);
-      if (info.nota_mexico) lines.push(`\n**En Mexico (IMSS):** ${info.nota_mexico}`);
+      if (info.nota_mexico) lines.push(`\n**En Mexico:** ${info.nota_mexico}`);
     }
     if (ps && ps.casos_futuro_total) {
       lines.push(`\n**En nuestro proyecto:** se pronostican **${fmt(ps.casos_futuro_total)} casos** en 52 semanas (SMAPE: ${ps.smape_prod_median}%, motor: ${ps.motor_ganador}).`);

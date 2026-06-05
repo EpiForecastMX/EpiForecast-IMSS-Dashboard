@@ -6,7 +6,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=85';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=86';
 import { detectEntities, norm } from './entities.js?v=27';
 import { renderMexicoMap } from './mexico-map.js?v=1';
 import { renderTimelapse } from './timelapse.js?v=1';
@@ -600,7 +600,7 @@ function addWelcome(data) {
   void total;
   const hero = `<div class="welcome-hero welcome-hero--compact">
     <div class="welcome-hero-title">Hola, soy <span class="welcome-brand">EPI</span></div>
-    <div class="welcome-hero-sub">Copiloto epidemiológico del IMSS. Pregúntame o usa el panel lateral.</div>
+    <div class="welcome-hero-sub">Copiloto epidemiológico para la salud pública en México. Pregúntame o usa el panel lateral.</div>
   </div>`;
 
   const suggestions = [
@@ -3558,7 +3558,7 @@ function generatePDFReport(data) {
 
 <div class="header">
   <div>
-    <div class="logo">IMSS - Instituto Mexicano del Seguro Social</div>
+    <div class="logo">EpiForecast-MX · Centro de Inteligencia Epidemiológica</div>
     <h1>Reporte Ejecutivo de Pronostico Epidemiologico</h1>
     <div class="subtitle">EpiForecast-MX: Plataforma multi-modelo de inteligencia epidemiologica</div>
   </div>
@@ -3610,7 +3610,7 @@ function generatePDFReport(data) {
 
 <div class="footer">
   <strong>EpiForecast-MX</strong> - Proyecto integrador, Maestria en Inteligencia Artificial Aplicada, Tecnologico de Monterrey<br>
-  Pronostico multi-modelo (Prophet, DeepAR, Ensemble, Stacking) para el Instituto Mexicano del Seguro Social (IMSS)<br>
+  Pronostico multi-modelo (Prophet, DeepAR, Ensemble, Stacking) para la salud publica en Mexico<br>
   Generado automaticamente el ${today}
 </div>
 
