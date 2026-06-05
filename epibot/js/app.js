@@ -6,7 +6,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=95';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=96';
 import { detectEntities, norm } from './entities.js?v=27';
 import { renderMexicoMap } from './mexico-map.js?v=1';
 import { renderTimelapse } from './timelapse.js?v=1';
@@ -2448,6 +2448,31 @@ function buildWaterfall(data) {
   };
 }
 
+// Evolución histórica anual de Dengue (chart interactivo, equivalente a la tendencia neuro).
+// Datos: data.dengue.anual (2014-2026). Años de gran brote (El Niño) resaltados en rosa.
+function buildDengueAnual(data) {
+  const anual = data.dengue && data.dengue.anual;
+  if (!anual) return null;
+  const years = Object.keys(anual).sort();
+  if (!years.length) return null;
+  const peak = new Set(['2014', '2019', '2024']);
+  const colors = years.map((y) => (peak.has(y) ? '#F472B6' : '#2DD4BF'));
+  return {
+    type: 'bar',
+    title: 'Dengue confirmado por año en México (2014-2026)',
+    labels: years,
+    datasets: [{
+      label: 'Casos confirmados en el año',
+      data: years.map((y) => anual[y]),
+      backgroundColor: colors,
+      borderColor: colors,
+      borderRadius: 5,
+      maxBarThickness: 64,
+    }],
+    options: { scales: { y: { beginAtZero: true, title: { display: true, text: 'Casos confirmados' } } } },
+  };
+}
+
 function extractChartData(markdown, query) {
   const data = getData();
   if (!data) return null;
@@ -2457,11 +2482,18 @@ function extractChartData(markdown, query) {
   const s = data.stats || {};
   const qn = query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-  // Dengue NO vive en prod_models/stats (esos son neuro: 333 modelos). Cualquier canvas
-  // generico (tendencia, mapa, barras) saldria con datos de Depresion/Parkinson/Alzheimer,
-  // nada que ver con Dengue. Solo el zoom semanal tiene datos de Dengue (weekly_comparison);
-  // el resto de respuestas de Dengue se entregan como imagen embebida o texto, sin canvas.
-  if (detectEntities(query).padecimiento === 'Dengue' && !qn.includes('zoom')) return null;
+  // Dengue NO vive en prod_models/stats (esos son neuro: 333 modelos). Casi todo canvas
+  // generico saldria con datos neuro. Excepciones con datos de Dengue: el zoom semanal
+  // (weekly_comparison) y la evolucion historica anual (dengue.anual). El resto, sin canvas.
+  if (detectEntities(query).padecimiento === 'Dengue' && !qn.includes('zoom')) {
+    const evolKw = ['evolucion', 'historic', 'tendencia', 'anual', 'ciclo', 'ola',
+      'pico', 'brote', 'epidemia', 'por ano', 'por anio', 'caso', 'cuanto'];
+    if (evolKw.some((k) => qn.includes(k))) {
+      const ch = buildDengueAnual(data);
+      if (ch) return ch;
+    }
+    return null;
+  }
 
   // Comparacion semanal Real vs Pronostico (embedded from answerComparacionSemanal)
   // Collect ALL weekly matches (one per padecimiento) and return as array

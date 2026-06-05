@@ -1391,11 +1391,12 @@ function answerDengue(q, ent, s, d) {
     if (yrPedido) {
       return `En **${yrPedido}** se confirmaron **${num(dg.anual[String(yrPedido)])} casos** de dengue en México (${dg.unidad}). El año de mayor carga del periodo fue **${dg.anio_pico}** (${num(dg.casos_pico)} casos). Los grandes brotes llegan cada ~${dg.ciclo_anios} años (${(dg.anios_epidemicos || []).join(', ')}).`;
     }
+    // Sin imagen embebida: la gráfica de evolución la genera el chart interactivo
+    // (buildDengueAnual en app.js), como en los demás padecimientos.
     return [
-      `**Dengue confirmado en México — histórico (${dg.cobertura})**`, '',
+      '**Dengue confirmado en México — histórico (2014-2026)**', '',
       `El año de mayor carga fue **${dg.anio_pico}** con **${num(dg.casos_pico)} casos**: la mayor epidemia de dengue registrada en las Américas. Años con más casos: ${aniosTop}.`, '',
-      `El dengue vuelve en **olas**: grandes brotes cada **${dg.ciclo_anios} años** (${(dg.anios_epidemicos || []).join(' · ')}), coincidiendo con años de El Niño. Cobertura: ${dg.n_boletines} boletines semanales, ${dg.n_entidades} entidades, en **${dg.unidad}**.`, '',
-      '![Total anual de dengue confirmado en México, 2014-2026, con los grandes brotes de 2014, 2019 y 2024](../Reports/dengue/dengue_historico_ciclo.png)',
+      `El dengue vuelve en **olas**: grandes brotes cada **${dg.ciclo_anios} años** (${(dg.anios_epidemicos || []).join(' · ')}), coincidiendo con años de El Niño. Cobertura: ${dg.n_boletines} boletines semanales, ${dg.n_entidades} entidades, en **${dg.unidad}**.`,
     ].join('\n');
   }
 
