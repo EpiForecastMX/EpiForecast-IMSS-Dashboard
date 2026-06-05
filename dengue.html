@@ -403,7 +403,7 @@
   <section>
     <div class="wrap">
       <div class="label">El pronóstico</div>
-      <h2>Lo que viene: 1 año preciso y una proyección estacional a 5 años</h2>
+      <h2>Lo que viene: el próximo brote, al ritmo de El Niño</h2>
       <p>Con los modelos entrenados y validados, el sistema genera el <strong>pronóstico productivo</strong>: para cada serie (entidad y sexo) se elige automáticamente el motor que mejor reproduce la realidad reciente del boletín 2026. Resultan <strong>tres motores productivos</strong> repartidos por serie: DeepAR, el nuevo <strong>NB-GLM</strong> (modelo de conteos con el regresor de El Niño, el mejor en validación) y Prophet. A nivel nacional el motor productivo es <strong id="fc-motor">—</strong>.</p>
       <div class="eda-grid">
         <div class="stat"><div class="v" id="fc-deepar">—</div><div class="l">Series con DeepAR</div></div>
@@ -413,14 +413,14 @@
       </div>
 
       <div class="chart-card" style="margin-top:1.4rem">
-        <div style="position:relative; height:380px"><canvas id="chart-forecast"></canvas></div>
-        <div class="cap" id="fc-cap">Cargando pronóstico…</div>
+        <img src="Reports/dengue/dengue_pronostico_nino.png" alt="Pronóstico de dengue nacional 2014-2030 en escala lineal (año vs casos por semana), con los periodos de El Niño y La Niña sombreados; el pronóstico anticipa el próximo gran brote hacia 2027 con el próximo El Niño." loading="lazy" />
+        <div class="cap">Serie nacional 2014-2026 (real) y pronóstico al ritmo de El Niño. Eje: año (X) y casos por semana (Y), escala lineal. Las franjas rojas marcan El Niño y las verdes La Niña: los grandes brotes (2014, 2019, 2024) caen en años cálidos. El pronóstico (azul punteado) proyecta el próximo El Niño climatológico (~2027-2028) y anticipa otro brote mayor entonces. La magnitud exacta es incierta: es un escenario de planeación, no una certeza.</div>
       </div>
 
       <div class="callout">
-        <h3>Por qué solo 1 año es "pronóstico" y 5 años es "proyección"</h3>
-        <p style="margin-bottom:.6rem">El dengue tiene un ciclo epidémico de <strong>aproximadamente cuatro a cinco años</strong> (los grandes brotes de 2019 y 2024), ligado a fenómenos climáticos como El Niño. Sería ideal pronosticar ese ciclo completo, pero la serie disponible (2018-2026) contiene <strong>solo dos ciclos</strong>: estadísticamente no alcanza para que un modelo aprenda a anticipar la magnitud de la próxima gran epidemia.</p>
-        <p style="margin:0; font-size:.9rem; color:var(--text-muted)">Por eso distinguimos dos horizontes. El <strong style="color:var(--amber-soft)">pronóstico a 1 año (línea ámbar con banda)</strong> es la predicción precisa que los datos sí soportan (DeepAR no puede ir mucho más allá de 52 semanas: necesita demasiada historia de contexto). La <strong style="color:var(--teal)">proyección a 5 años (línea punteada)</strong> ahora la genera el modelo <strong>NB-GLM</strong>, que al ser paramétrico (Fourier + El Niño) sí extrapola muchas más de 52 semanas sin divergir; mostramos su patrón estacional con la <em>tendencia congelada</em>, de modo que ilustra <em>cuándo</em> ocurren las temporadas a un nivel estable, no <em>qué tan grande</em> será el próximo brote (con solo dos ciclos epidémicos en la serie, esa magnitud aún no es aprendible). Es una guía de planeación, no una predicción de la próxima epidemia.</p>
+        <h3>Cómo pronosticamos: al ritmo de El Niño</h3>
+        <p style="margin-bottom:.6rem">El dengue tiene un ciclo epidémico de <strong>aproximadamente cuatro a cinco años</strong> (los grandes brotes de 2014, 2019 y 2024), ligado al fenómeno de <strong>El Niño</strong>. Esa señal no vive en los conteos recientes, así que un modelo que solo mire el pasado de los casos no puede anticipar el próximo gran brote. Por eso el motor <strong>NB-GLM</strong> incorpora el índice de El Niño (ONI) como variable: aprende cuánto amplifica el clima la transmisión.</p>
+        <p style="margin:0; font-size:.9rem; color:var(--text-muted)">Para el futuro proyectamos el <strong>próximo El Niño climatológico</strong> (el ciclo ENSO apunta a un nuevo evento hacia <strong>2027-2028</strong>) y se lo damos al modelo: así el pronóstico (azul punteado) <strong>anticipa el próximo gran brote alineado con ese El Niño</strong>, con años bajos en medio, en vez de repetir una temporada plana. El horizonte de magnitud <em>precisa</em> sigue siendo 1 año; más allá, lo que mostramos es el <em>momento</em> esperado del próximo brote (el <em>cuándo</em>), no su tamaño exacto: ENSO no se pronostica con certeza a varios años. Es una guía de planeación, no una predicción cerrada.</p>
       </div>
     </div>
   </section>
