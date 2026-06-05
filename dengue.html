@@ -149,7 +149,7 @@
     <div class="wrap">
       <div class="eyebrow">Dengue · Nueva línea de trabajo</div>
       <h1>Del boletín del SINAVE<br>al dato de Dengue listo para modelar</h1>
-      <p class="lead">El equipo de EpiForecast-MX extiende su pipeline al <strong>Dengue</strong>, la primera enfermedad transmitida por vector del proyecto. Construimos la <strong>serie histórica semanal del dengue confirmado (2018 a 2026)</strong> directamente de los cuadros de los boletines epidemiológicos, la dejamos lista para el modelado y <strong>ya entrenamos los cinco motores de pronóstico</strong> sobre ella, con validación temporal estricta.</p>
+      <p class="lead">El equipo de EpiForecast-MX extiende su pipeline al <strong>Dengue</strong>, la primera enfermedad transmitida por vector del proyecto. Construimos la <strong>serie histórica semanal del dengue confirmado (desde la semana 27 de 2018 hasta hoy)</strong> directamente de los cuadros de los boletines epidemiológicos, la dejamos lista para el modelado y <strong>ya entrenamos los cinco motores de pronóstico</strong> sobre ella, con validación temporal estricta. La serie <strong>se actualiza con cada boletín nuevo</strong>: la última semana cargada y la fecha de actualización aparecen abajo.</p>
 
       <div class="stats" id="hero-stats">
         <div class="stat"><div class="v" data-k="cobertura">2018–2026</div><div class="l">Cobertura</div></div>
@@ -386,12 +386,12 @@
     <div class="wrap">
       <div class="label">El pronóstico</div>
       <h2>Lo que viene: 1 año preciso y una proyección estacional a 5 años</h2>
-      <p>Con los modelos entrenados y validados, el sistema genera el <strong>pronóstico productivo</strong>: para cada serie (entidad y sexo) se elige automáticamente el motor que mejor reproduce la realidad reciente del boletín 2026. A nivel nacional el motor productivo es <strong id="fc-motor">—</strong>.</p>
+      <p>Con los modelos entrenados y validados, el sistema genera el <strong>pronóstico productivo</strong>: para cada serie (entidad y sexo) se elige automáticamente el motor que mejor reproduce la realidad reciente del boletín 2026. Resultan <strong>tres motores productivos</strong> repartidos por serie: DeepAR, el nuevo <strong>NB-GLM</strong> (modelo de conteos con el regresor de El Niño, el mejor en validación) y Prophet. A nivel nacional el motor productivo es <strong id="fc-motor">—</strong>.</p>
       <div class="eda-grid">
         <div class="stat"><div class="v" id="fc-deepar">—</div><div class="l">Series con DeepAR</div></div>
+        <div class="stat"><div class="v" id="fc-nbglm">—</div><div class="l">Series con NB-GLM</div></div>
         <div class="stat"><div class="v" id="fc-prophet">—</div><div class="l">Series con Prophet</div></div>
         <div class="stat"><div class="v">52</div><div class="l">Semanas de pronóstico preciso</div></div>
-        <div class="stat"><div class="v">5 años</div><div class="l">Proyección estacional</div></div>
       </div>
 
       <div class="chart-card" style="margin-top:1.4rem">
@@ -636,6 +636,7 @@
           const dist = m.distribucion || {};
           const setN = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v != null ? fmt(v) : '—'; };
           setN('fc-deepar', dist.DeepAR);
+          setN('fc-nbglm', dist.NBGLM);
           setN('fc-prophet', dist.Prophet);
 
           const cv = document.getElementById('chart-forecast');
