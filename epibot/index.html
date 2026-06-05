@@ -598,6 +598,9 @@
     .mexico-map-svg {
       width: 100%;
       height: auto;
+      /* viewBox 980x700: fijar aspect-ratio evita que el SVG colapse a 0 de altura
+         (con solo viewBox + height:auto el alto intrinseco es fragil y el mapa no se ve). */
+      aspect-ratio: 980 / 700;
       display: block;
     }
 
