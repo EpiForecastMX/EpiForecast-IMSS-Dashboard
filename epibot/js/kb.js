@@ -1311,13 +1311,13 @@ function answerDengue(q, ent, s, d) {
   const num = (n) => (n == null ? '?' : fmt(n));
 
   // Pronóstico / proyección
-  if (any(q, ['pronostic', 'forecast', 'prediccion', 'predice', 'predecir', 'se espera', 'se esperan', 'proxim', 'a futuro', 'proyeccion'])) {
+  if (any(q, ['pronostic', 'forecast', 'prediccion', 'predice', 'predecir', 'se espera', 'se esperan', 'proxim', 'a futuro', 'proyeccion', 'nino', 'enso', 'climatolog', 'brote'])) {
     return [
-      '**Pronóstico de Dengue (nacional)**', '',
-      `El motor productivo nacional es **${dg.motor_nacional}** (SMAPE ${dg.smape_nacional}% sobre la realidad de ${dg.ultima_real.slice(0, 4)}). Para las próximas **52 semanas** se proyectan ~**${num(dg.casos_futuro_nacional_52sem)} casos** confirmados a nivel nacional.`, '',
-      `- **Horizonte preciso**: 1 año (52 semanas) — lo que los datos soportan.`,
-      `- **Proyección ilustrativa**: ${dg.proyeccion_anios} años, que muestra el *patrón estacional* esperado, no la magnitud de la próxima epidemia (con solo dos ciclos epidémicos en la serie, el ciclo de ${dg.ciclo_anios} años aún no es aprendible).`, '',
-      `Última semana real cargada: ${dg.ultima_real}. La gráfica está en la página de Dengue.`,
+      '**Pronóstico de Dengue: al ritmo de El Niño**', '',
+      `El motor productivo nacional es **${dg.motor_nacional}** (SMAPE ${dg.smape_nacional}% sobre ${dg.ultima_real.slice(0, 4)}). El pronóstico preciso es a **52 semanas**; más allá, proyectamos al ritmo de **El Niño**.`, '',
+      `Los grandes brotes ocurren **cada ~5 años** en años de El Niño (2014, 2019, 2024), así que el **próximo se espera hacia 2029** (2024 + 5), con años bajos en medio. La gráfica muestra la serie real desde 2014 (El Niño en rojo, La Niña en verde) y el pronóstico al próximo El Niño:`, '',
+      '![Pronóstico de dengue al ritmo de El Niño: serie 2014-2026 y pronóstico del próximo brote hacia 2029](../Reports/dengue/dengue_pronostico_nino.png)', '',
+      `*La magnitud exacta del brote 2029 es incierta (El Niño no se pronostica con certeza a varios años): es un escenario de planeación, no una certeza. Última semana real: ${dg.ultima_real}.*`,
     ].join('\n');
   }
 

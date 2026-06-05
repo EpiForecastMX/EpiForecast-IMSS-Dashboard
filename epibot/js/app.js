@@ -6,7 +6,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=86';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=87';
 import { detectEntities, norm } from './entities.js?v=27';
 import { renderMexicoMap } from './mexico-map.js?v=1';
 import { renderTimelapse } from './timelapse.js?v=1';
@@ -378,6 +378,21 @@ async function init() {
   }
 
   checkGemini();
+
+  // Lightbox: clic en una imagen de una respuesta (p.ej. la grafica de pronostico El Nino)
+  // la abre en grande; clic de nuevo la cierra.
+  chatArea.addEventListener('click', (e) => {
+    const img = e.target.closest('.msg-content img');
+    if (!img) return;
+    const ov = document.createElement('div');
+    ov.className = 'img-lightbox';
+    const big = document.createElement('img');
+    big.src = img.src;
+    big.alt = img.alt || '';
+    ov.appendChild(big);
+    ov.addEventListener('click', () => ov.remove());
+    document.body.appendChild(ov);
+  });
 
   sendBtn.addEventListener('click', handleSend);
   inputField.addEventListener('keydown', (e) => {
