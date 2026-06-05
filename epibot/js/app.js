@@ -1743,17 +1743,25 @@ function buildErrorHeatmap(data, qn) {
  * Genera graficos de zoom semanal (2025-2027): real vs pronostico.
  * Devuelve un array de charts (1 por padecimiento filtrado).
  */
-function buildZoomChart(data, qn) {
+function buildZoomChart(data, qn, padResolved) {
   const wc = data.weekly_comparison;
   if (!wc) return null;
 
   const pads = Object.keys(wc);
-  const filtered = pads.filter(pad => {
-    if (!qn) return true;
-    const pn = pad.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    const inQ = qn.includes(pn);
-    return inQ || !pads.some(p => qn.includes(p.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')));
-  });
+  // Si el detector de entidades resolvio UN padecimiento (incluye typos/fuzzy),
+  // ese manda: el grafico debe coincidir con el texto (answerZoom filtra por
+  // ent.padecimiento). Solo si no se resolvio ninguno caemos al match por query.
+  let filtered;
+  if (padResolved && pads.includes(padResolved)) {
+    filtered = [padResolved];
+  } else {
+    filtered = pads.filter(pad => {
+      if (!qn) return true;
+      const pn = pad.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const inQ = qn.includes(pn);
+      return inQ || !pads.some(p => qn.includes(p.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')));
+    });
+  }
   if (!filtered.length) return null;
 
   const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
@@ -2741,7 +2749,8 @@ function extractChartData(markdown, query) {
   if (qn.includes('zoom') || qn.includes('detalle semanal') || qn.includes('cercano') ||
       (qn.includes('semanal') && (qn.includes('pronostico') || qn.includes('forecast'))) ||
       (qn.includes('real vs') && qn.includes('pronostico'))) {
-    const chart = buildZoomChart(data, qn);
+    const entZoom = detectEntities(query);
+    const chart = buildZoomChart(data, qn, entZoom && entZoom.padecimiento);
     if (chart) return chart;
   }
 
