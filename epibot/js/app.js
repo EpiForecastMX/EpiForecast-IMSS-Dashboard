@@ -1117,7 +1117,7 @@ function buildCorridorChart(data, qn) {
   });
   if (!filtered.length) return null;
 
-  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6' };
+  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
   const charts = [];
 
   for (const pad of filtered) {
@@ -1335,7 +1335,7 @@ function buildSparklineGrid(data, qn) {
   if (!models.length) return null;
   const wantAll = qn && /\btodos\b|\btodas\b|cada estado|cada entidad|32 estad|32 entidad|completa|completo/.test(qn);
 
-  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6' };
+  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
   const pads = ['Depresion', 'Parkinson', 'Alzheimer'];
 
   // Agregar por entidad (general, sin regiones)
@@ -1384,7 +1384,7 @@ function buildStackedArea(data) {
   if (!wc) return null;
 
   const padOrder = ['Depresion', 'Parkinson', 'Alzheimer'];
-  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6' };
+  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
 
   // Usar semanas del primer padecimiento como referencia
   const refSems = wc[padOrder[0]]?.semanas;
@@ -1699,7 +1699,7 @@ function buildErrorHeatmap(data, qn) {
   if (!realWeeks.length) return null;
 
   const labels = realWeeks.map(s => `S${String(s.semana).padStart(2, '0')}`);
-  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6' };
+  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
 
   const datasets = [];
   for (const pad of filtered) {
@@ -1756,7 +1756,7 @@ function buildZoomChart(data, qn) {
   });
   if (!filtered.length) return null;
 
-  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6' };
+  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
   const charts = [];
 
   for (const pad of filtered) {
@@ -1960,7 +1960,7 @@ function buildTrendChart(data, qn) {
 function buildPerformanceMatrix(data) {
   const models = data.prod_models || [];
   if (!models.length) return null;
-  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6' };
+  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
   const isState = (m) => {
     const e = m.entidad || '';
     return e && e !== 'Nacional' && !e.startsWith('Region') && !e.startsWith('region_');
@@ -2148,7 +2148,7 @@ function buildVolumeError(data) {
 function buildCalibration(data) {
   const models = data.prod_models || [];
   if (!models.length) return null;
-  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6' };
+  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
   const byPad = {};
   let maxV = 0;
   for (const m of models) {
@@ -2325,7 +2325,7 @@ function buildQualityGauge(data) {
 function buildSmapeBox(data) {
   const models = data.prod_models || [];
   if (!models.length) return null;
-  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6' };
+  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
   const byPad = {};
   for (const m of models) {
     if (m.sexo !== 'general' || m.smape_prod == null) continue;
@@ -2364,7 +2364,7 @@ function buildSmapeBox(data) {
 function buildWaterfall(data) {
   const models = data.prod_models || [];
   if (!models.length) return null;
-  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6' };
+  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
   const byPad = {};
   for (const m of models) {
     if (m.sexo !== 'general') continue;
@@ -2753,7 +2753,7 @@ function extractChartData(markdown, query) {
       const years = ent._years && ent._years.length ? ent._years : [];
       if (years.length) {
         const pads = Object.keys(anual);
-        const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6' };
+        const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
         const labels = years.map(String);
         const datasets = pads.map(pad => ({
           label: pad,
@@ -2888,7 +2888,7 @@ function extractChartData(markdown, query) {
     // General -> 3 bar charts semanales (uno por padecimiento)
     const wc = data.weekly_comparison;
     if (wc) {
-      const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6' };
+      const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
       const charts = [];
       for (const [pad, info] of Object.entries(wc)) {
         const sems = info.semanas || [];
