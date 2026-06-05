@@ -378,6 +378,11 @@
         </ul>
       </div>
       <p style="margin-top:1.2rem">Una nota honesta sobre las cifras: en una serie epidémica con saltos de cero a decenas de miles de casos por semana, los errores porcentuales (SMAPE) son altos por construcción en las semanas de baja transmisión. Por eso la selección del motor productivo no se queda con un solo número, sino que pondera el desempeño sobre la realidad reciente del boletín.</p>
+      <div class="callout" style="margin-top:1.2rem">
+        <h3>Una salvedad honesta sobre la selección</h3>
+        <p style="margin-bottom:.6rem">Hay que distinguir dos cosas. La comparación entre <em>familias</em> de modelos sí usa el esquema temporal de validación de arriba (honesto). Pero el motor productivo de cada serie se elige por qué tan bien <strong>reproduce el boletín reciente de 2026</strong>, y ese modelo se ajusta con toda la historia disponible (2026 incluido): por eso esa cifra de 2026 es un ajuste <strong>dentro de muestra</strong>, optimista, no una predicción a ciegas.</p>
+        <p style="margin:0; font-size:.9rem; color:var(--text-muted)">Para medir el desempeño de forma genuinamente <strong>fuera de muestra</strong> congelamos el pronóstico vigente y lo comparamos, semana a semana, contra los boletines que llegan <em>después</em> del corte (que el modelo no vio). Ese seguimiento prospectivo es el que dirá si la selección se sostiene en datos nuevos; mientras tanto, lo reportado de 2026 debe leerse como ajuste reciente, no como pronóstico verificado.</p>
+      </div>
     </div>
   </section>
 
