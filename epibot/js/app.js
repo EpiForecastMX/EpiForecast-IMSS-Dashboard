@@ -2421,6 +2421,9 @@ function buildWaterfall(data) {
 function extractChartData(markdown, query) {
   const data = getData();
   if (!data) return null;
+  // Si la respuesta YA incrusta una imagen propia (p.ej. la grafica de pronostico de Dengue
+  // al ritmo de El Nino), no generamos ademas un canvas: seria un grafico extra irrelevante.
+  if (/!\[[^\]]*\]\([^)]+\.png/i.test(markdown)) return null;
   const s = data.stats || {};
   const qn = query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
