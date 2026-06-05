@@ -1818,7 +1818,7 @@
       <p class="hero-sub">
         333 modelos de producción con selección automática entre 4 motores (DeepAR, Prophet, Ensemble, Stacking)
         optimizados por SMAPE, MASE y RMSE. Pronósticos a 52 semanas con <strong style="color:var(--cream)">100% cobertura estatal</strong>,
-        ahora con un cuarto padecimiento en producción: <strong style="color:var(--cream)">Dengue</strong>.
+        ahora con un cuarto padecimiento en producción: <strong style="color:var(--cream)">Dengue</strong>, que suma un quinto motor (<strong style="color:var(--cream)">NB-GLM</strong> con El Niño) y su propia serie de 99 modelos.
         Una colaboración entre el <strong style="color:var(--cream)">Tecnológico de Monterrey</strong>
         y el <strong style="color:var(--cream)">IMSS</strong>.
       </p>
@@ -1876,7 +1876,7 @@
             <span class="news-tag news-tag--dengue">Nueva línea</span>
           </div>
           <h3>El Dengue ya está en producción en EpiForecast-MX</h3>
-          <p>El <strong style="color:var(--cream)">Dengue</strong> se incorpora como cuarto padecimiento y primera enfermedad transmitida por vector del proyecto. Se construyó y validó la <strong style="color:var(--cream)">serie histórica semanal del dengue confirmado (2018 a 2026, las 32 entidades federativas)</strong> directamente desde los boletines del SINAVE, contrastada celda por celda. Con respaldo en la literatura, se modela de forma agregada (en conteos absolutos). Se entrenaron los cuatro motores y en producción quedan <strong style="color:var(--cream)">DeepAR y Prophet</strong> (los modelos de árboles no extrapolan la dinámica epidémica). Ya está en vivo el pronóstico nacional a 1 año (más una proyección estacional ilustrativa a 5 años), y el asistente EpiBot también responde sobre Dengue.</p>
+          <p>El <strong style="color:var(--cream)">Dengue</strong> se incorpora como cuarto padecimiento y primera enfermedad transmitida por vector del proyecto. Se construyó y validó la <strong style="color:var(--cream)">serie histórica semanal del dengue confirmado (2018 a 2026, las 32 entidades federativas)</strong> directamente desde los boletines del SINAVE, contrastada celda por celda. Con respaldo en la literatura, se modela de forma agregada (en conteos absolutos). Se entrenaron <strong style="color:var(--cream)">cinco motores</strong> y en producción quedan <strong style="color:var(--cream)">DeepAR, Prophet y NB-GLM</strong> (el nuevo motor de conteos con el regresor de El Niño, el mejor en validación; los modelos de árboles no extrapolan la dinámica epidémica). El pronóstico va <strong style="color:var(--cream)">al ritmo de El Niño</strong>: el próximo gran brote se espera hacia 2029. El asistente EpiBot también responde sobre Dengue y muestra sus gráficas.</p>
           <a href="dengue.html" class="news-link">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
             Ver el pronóstico de Dengue
@@ -2288,8 +2288,8 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8a4 4 0 014 4v2a4 4 0 01-8 0v-2a4 4 0 014-4z"/><path d="M12 8V5"/><path d="M10 4l2 1 2-1"/><path d="M8 12H4M16 12h4M8 15l-3 2M16 15l3 2"/></svg>
         </div>
         <h3>Dengue</h3>
-        <p>Cuarto padecimiento y primera arbovirosis (transmitida por mosquito), con estacionalidad climática y grandes brotes cada cuatro a cinco años. Se modela en conteos absolutos; en producción quedan DeepAR y Prophet (Ensemble y Stacking no extrapolan la dinámica epidémica). Pronóstico nacional a 1 año más una proyección estacional ilustrativa a 5 años.</p>
-        <span class="disease-tag">CIE-10: A97 · SMAPE nac. 20.3% · DeepAR + Prophet · 99 series · 2018-2026</span>
+        <p>Cuarto padecimiento y primera arbovirosis (transmitida por mosquito), con estacionalidad climática y grandes brotes cada cuatro a cinco años, ligados a <strong>El Niño</strong>. Se modela en conteos absolutos; en producción quedan <strong>DeepAR, Prophet y NB-GLM</strong> (el nuevo motor de conteos con regresor de El Niño, el mejor en validación; Ensemble y Stacking no extrapolan la dinámica epidémica). El pronóstico va al ritmo de El Niño: el próximo gran brote se espera hacia 2029.</p>
+        <span class="disease-tag">CIE-10: A97 · SMAPE nac. 20.4% · DeepAR + Prophet + NB-GLM · 99 series · 2018-2026</span>
       </div>
     </div>
   </section>
