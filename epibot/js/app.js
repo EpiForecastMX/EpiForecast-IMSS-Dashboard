@@ -6,7 +6,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=88';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=89';
 import { detectEntities, norm } from './entities.js?v=27';
 import { renderMexicoMap } from './mexico-map.js?v=1';
 import { renderTimelapse } from './timelapse.js?v=1';
@@ -1463,10 +1463,31 @@ function buildMexicoMap(data, qn) {
   // Detectar padecimiento
   const padNames = ['Depresion', 'Parkinson', 'Alzheimer'];
   const padAliases = { depresion: 'Depresion', depression: 'Depresion', f32: 'Depresion',
-    parkinson: 'Parkinson', g20: 'Parkinson', alzheimer: 'Alzheimer', g30: 'Alzheimer' };
+    parkinson: 'Parkinson', g20: 'Parkinson', alzheimer: 'Alzheimer', g30: 'Alzheimer',
+    dengue: 'Dengue', a97: 'Dengue' };
   let filterPad = null;
   for (const [alias, pad] of Object.entries(padAliases)) {
     if (q.includes(alias)) { filterPad = pad; break; }
+  }
+
+  // Mapa de Dengue: sus casos por entidad NO viven en prod_models (neuro) sino en
+  // data.dengue.por_entidad (total confirmado 2018-2026). Solo aplica al modo 'casos'.
+  function buildDengueMap() {
+    const pe = data.dengue && data.dengue.por_entidad;
+    if (!pe || mode === 'smape') return null;
+    // renderMexicoMap empareja por nombre EXACTO del SVG (sin acentos). Los nombres de Dengue
+    // traen acentos y 'Estado de Mexico'; normalizamos a las claves del mapa.
+    const strip = (x) => x.normalize('NFD').replace(/[̀-ͯ]/g, '');
+    const fix = { 'Estado de Mexico': 'Mexico' };
+    const stateData = {};
+    for (const [ent, c] of Object.entries(pe)) {
+      const key = fix[strip(ent)] || strip(ent);
+      stateData[key] = { value: c, label: Number(c).toLocaleString() + ' casos confirmados' };
+    }
+    if (!Object.keys(stateData).length) return null;
+    return { _mapChart: true, stateData, opts: {
+      title: 'Dengue (casos confirmados, 2018-2026)',
+      lowColor: [30, 60, 50], highColor: [244, 114, 182], metric: 'casos' } };
   }
 
   // Detectar sexo
@@ -1517,12 +1538,17 @@ function buildMexicoMap(data, qn) {
   }
 
   // Si hay padecimiento especifico, un solo mapa
+  if (filterPad === 'Dengue') {
+    return buildDengueMap();
+  }
   if (filterPad) {
     return buildSingleMap(filterPad, filterSexo);
   }
 
-  // Sin padecimiento especifico: generar 3 mapas (uno por padecimiento)
+  // Sin padecimiento especifico: 3 mapas neuro + Dengue (modo casos), 4 en total.
   const maps = padNames.map(pad => buildSingleMap(pad, filterSexo)).filter(Boolean);
+  const dengueMap = buildDengueMap();
+  if (dengueMap) maps.push(dengueMap);
   if (maps.length === 1) return maps[0];
   if (maps.length > 1) return maps;
   return null;

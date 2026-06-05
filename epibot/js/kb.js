@@ -1927,6 +1927,13 @@ function answerMapaMexico(q, ent, s, d) {
       lines.push(`**${pad}** - ${fmt(totalCasos)} casos totales:`);
       lines.push(`  Top 3: ${top3.map(e => e.e + ' (' + fmt(e.casos) + ')').join(', ')}`);
     }
+    // Dengue: casos confirmados HISTORICOS (2018-2026), no pronostico 52 sem (otra metrica).
+    if (!isSmape && d.dengue && d.dengue.por_entidad) {
+      const pe = Object.entries(d.dengue.por_entidad).sort((a, b) => b[1] - a[1]);
+      const tot = pe.reduce((a, kv) => a + kv[1], 0);
+      lines.push(`**Dengue** - ${fmt(tot)} casos confirmados (2018-2026, no pronostico):`);
+      lines.push(`  Top 3: ${pe.slice(0, 3).map(kv => kv[0] + ' (' + fmt(kv[1]) + ')').join(', ')}`);
+    }
   }
 
   return lines.join('\n');
