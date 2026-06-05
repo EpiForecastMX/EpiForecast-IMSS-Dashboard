@@ -517,10 +517,11 @@ function answerSaludo(q, ent, s, d) {
     `y el pron\u00f3stico total a 52 semanas es de **${forecast} casos**.\n\n` +
     'Puedo ayudarte con:\n' +
     '- **M\u00e9tricas** y rendimiento de modelos\n' +
-    '- **Padecimientos**: Depresi\u00f3n, Parkinson, Alzheimer\n' +
+    '- **Padecimientos**: Depresi\u00f3n, Parkinson, Alzheimer y **Dengue**\n' +
     '- **Datos hist\u00f3ricos** del bolet\u00edn epidemiol\u00f3gico\n' +
     '- **Equipo**, infraestructura y configuraci\u00f3n\n' +
     '- **Pron\u00f3sticos** y validaci\u00f3n semanal\n\n' +
+    'Para **Dengue** prueba: *pron\u00f3stico dengue*, *mapa de dengue*, *pr\u00f3ximo brote* o *hist\u00f3rico de dengue*.\n\n' +
     '\u00bfQu\u00e9 te gustar\u00eda saber?'
   );
 }
@@ -1344,27 +1345,42 @@ function answerDengue(q, ent, s, d) {
 
   // Geografía: por estado / ranking / mapa
   if (ent.estado || any(q, ['donde', 'estado', 'entidad', 'mapa', 'ranking', 'top ', 'region', 'geografi', 'que estado', 'cuales estado'])) {
-    if (ent.estado) {
+    const wantsMap = q.includes('mapa') || q.includes('coropletic') || q.includes('geografic');
+    // Petición de un estado concreto (sin pedir mapa): dato puntual de esa entidad.
+    if (ent.estado && !wantsMap) {
       const hit = (dg.top_entidades || []).find((x) => norm(x.entidad) === norm(ent.estado));
       const sin = (dg.sin_casos || []).find((x) => norm(x) === norm(ent.estado));
       if (hit) return `En **${hit.entidad}**, el dengue confirmado acumulado (${dg.cobertura}) suma **${num(hit.casos)} casos**: es una de las entidades de mayor carga del país.`;
       if (sin) return `**${sin}** no registra transmisión de dengue confirmada en todo el periodo (${dg.cobertura}). Pertenece al centro-altiplano, fuera del rango del vector *Aedes aegypti*.`;
-      return `El dengue se concentra en el **sureste tropical y las costas** (${(dg.top_entidades || []).slice(0, 3).map((e) => e.entidad).join(', ')}). No tengo el desglose por entidad de ${ent.estado} en el bot; puedes ver el mapa completo en la página de Dengue.`;
+      return `El dengue se concentra en el **sureste tropical y las costas** (${(dg.top_entidades || []).slice(0, 3).map((e) => e.entidad).join(', ')}). No tengo el desglose por entidad de ${ent.estado} en el bot; pídeme el **mapa de dengue** para ver la geografía completa.`;
     }
     const top = (dg.top_entidades || []).map((e, i) => `${i + 1}. ${e.entidad}: ${num(e.casos)} casos`).join('\n');
-    return [
+    const out = [
       `**Dengue por entidad (${dg.cobertura}, casos confirmados)**`, '', top, '',
       `La carga vive en el **sureste tropical y las costas**. El centro-altiplano no registra transmisión confirmada: **${(dg.sin_casos || []).join(' y ')}** con cero casos en todo el periodo.`,
-    ].join('\n');
+    ];
+    if (wantsMap) {
+      out.push(
+        '',
+        '![Mapa de México: casos confirmados de dengue por entidad, 2018-2026, escala logarítmica](../Reports/dengue/dengue_mapa_mexico.png)',
+      );
+    }
+    return out.join('\n');
   }
 
   // Histórico / casos / pico / ciclo epidémico
   if (any(q, ['caso', 'cuanto', 'cuantos', 'historic', 'pico', 'brote', 'epidemia', 'anual', 'por ano', 'por anio', 'tendencia', 'total', 'ola', 'ciclo']) || ent._years?.length) {
     const aniosTop = Object.entries(dg.anual).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([y, c]) => `${y} (${num(c)})`).join(', ');
+    // Año específico pedido por el usuario: dato puntual de dg.anual.
+    const yrPedido = (ent._years || []).find((y) => dg.anual?.[String(y)] != null);
+    if (yrPedido) {
+      return `En **${yrPedido}** se confirmaron **${num(dg.anual[String(yrPedido)])} casos** de dengue en México (${dg.unidad}). El año de mayor carga del periodo fue **${dg.anio_pico}** (${num(dg.casos_pico)} casos). Los grandes brotes llegan cada ~${dg.ciclo_anios} años (${(dg.anios_epidemicos || []).join(', ')}).`;
+    }
     return [
       `**Dengue confirmado en México — histórico (${dg.cobertura})**`, '',
       `El año de mayor carga fue **${dg.anio_pico}** con **${num(dg.casos_pico)} casos**: la mayor epidemia de dengue registrada en las Américas. Años con más casos: ${aniosTop}.`, '',
-      `El dengue vuelve en **olas**: grandes brotes cada **${dg.ciclo_anios} años** (${(dg.anios_epidemicos || []).join(' · ')}), coincidiendo con años de El Niño. Cobertura: ${dg.n_boletines} boletines semanales, ${dg.n_entidades} entidades, en **${dg.unidad}**.`,
+      `El dengue vuelve en **olas**: grandes brotes cada **${dg.ciclo_anios} años** (${(dg.anios_epidemicos || []).join(' · ')}), coincidiendo con años de El Niño. Cobertura: ${dg.n_boletines} boletines semanales, ${dg.n_entidades} entidades, en **${dg.unidad}**.`, '',
+      '![Total anual de dengue confirmado en México, 2014-2026, con los grandes brotes de 2014, 2019 y 2024](../Reports/dengue/dengue_historico_ciclo.png)',
     ].join('\n');
   }
 

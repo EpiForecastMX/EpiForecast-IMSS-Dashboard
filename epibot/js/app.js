@@ -6,7 +6,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=87';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=88';
 import { detectEntities, norm } from './entities.js?v=27';
 import { renderMexicoMap } from './mexico-map.js?v=1';
 import { renderTimelapse } from './timelapse.js?v=1';
@@ -483,6 +483,10 @@ async function init() {
       { text: 'Chiapas', q: 'pronostico Chiapas' },
       { text: 'Region Norte', q: 'region norte' },
       { text: 'Region Sur', q: 'region sur' },
+      { text: 'Pronostico Dengue', q: 'pronostico dengue' },
+      { text: 'Mapa de Dengue', q: 'mapa de mexico de dengue' },
+      { text: 'Proximo brote Dengue', q: 'proximo brote de dengue' },
+      { text: 'Dengue: donde golpea', q: 'donde golpea el dengue' },
     ];
 
     const entidadesContainer = document.getElementById('promptEntidades');
