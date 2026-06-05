@@ -2766,12 +2766,24 @@ function answerPadecimiento(q, ent, s, d) {
     lines.push(`Motor ganador: **${ps.motor_ganador}** (${ps.motor_ganador_n} de ${ps.n} series, ${((ps.motor_ganador_n / ps.n) * 100).toFixed(0)}%)`);
   }
 
-  // Distribucion de motores
+  // Distribucion de motores: tabla + dona (la dona solo si la consulta es de modelos, para
+  // no suprimir el grafico de pronostico via el guard de imagen en consultas generales).
   const dist = ps.dist_motor;
   if (dist) {
-    lines.push('\n**Distribución de motores:**');
-    for (const [motor, n] of Object.entries(dist)) {
-      lines.push(`- ${motor}: ${n} series (${((n / ps.n) * 100).toFixed(1)}%)`);
+    const orden = Object.entries(dist).sort((a, b) => b[1] - a[1]);
+    lines.push('\n**Distribución de motores:**\n');
+    lines.push('| Motor | Series | % |');
+    lines.push('|:------|-------:|---:|');
+    for (const [motor, n] of orden) {
+      const g = motor === ps.motor_ganador ? ' (ganador)' : '';
+      lines.push(`| ${motor}${g} | ${fmt(n)} | ${((n / ps.n) * 100).toFixed(0)}% |`);
+    }
+    if (any(q, ['tabla', 'modelo', 'motor', 'distribucion', 'reparto'])) {
+      const padFile = pad.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+      lines.push(
+        '',
+        `![Distribución de motores productivos de ${pad}](../Reports/motores/${padFile}_motores_dona.png)`,
+      );
     }
   }
 
