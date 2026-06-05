@@ -1323,16 +1323,33 @@ function answerDengue(q, ent, s, d) {
   }
 
   // Modelos / motores / métricas (incluye "tasa": Dengue es conteos, no tasa) y nº de series
-  if (any(q, ['modelo', 'motor', 'smape', 'metrica', 'mejor model', 'cual usan', 'que usan', 'deepar', 'prophet', 'ensemble', 'stacking', 'produccion', 'tasa', 'serie', 'series'])) {
-    const dist = Object.entries(dg.dist_motor || {}).map(([k, v]) => `- ${k}: ${v} series`).join('\n');
+  if (any(q, ['modelo', 'motor', 'smape', 'metrica', 'mejor model', 'cual usan', 'que usan', 'deepar', 'prophet', 'ensemble', 'stacking', 'produccion', 'tasa', 'serie', 'series', 'tabla'])) {
+    const tipos = {
+      DeepAR: 'Red neuronal recurrente (GluonTS)',
+      NBGLM: 'Conteos NegBin + Fourier + El Niño',
+      Prophet: 'Tendencia + estacionalidad + El Niño',
+      Ensemble: 'Prophet + XGBoost',
+      Stacking: 'Prophet + ETS + LightGBM',
+    };
+    const prodSet = new Set(dg.motores_productivos || []);
+    const orden = [...(dg.motores_entrenados || [])].sort((a, b) => {
+      const d = (prodSet.has(b) ? 1 : 0) - (prodSet.has(a) ? 1 : 0);
+      return d !== 0 ? d : (dg.dist_motor?.[b] || 0) - (dg.dist_motor?.[a] || 0);
+    });
+    const rows = orden.map((m) => {
+      const p = prodSet.has(m);
+      const ser = dg.dist_motor?.[m] || 0;
+      const flag = m === dg.motor_nacional ? 'Sí (nacional)' : p ? 'Sí' : 'No';
+      return `| ${m} | ${tipos[m] || '—'} | ${flag} | ${p ? fmt(ser) : '—'} |`;
+    }).join('\n');
     return [
       '**Modelado de Dengue**', '',
-      `Se entrenan **${dg.motores_entrenados.length} motores** (${dg.motores_entrenados.join(', ')}), pero solo **${dg.motores_productivos.join(' y ')}** son productivos. Ensemble y Stacking quedan fuera: los árboles (XGBoost/LightGBM) no extrapolan la dinámica epidémica a 52 semanas.`, '',
-      `Selección por serie (${dg.n_series} series = ${dg.n_entidades} entidades + agregados, × 3 sexos) por SMAPE sobre la realidad ${dg.ultima_real.slice(0, 4)}:`,
-      dist, '',
-      `A nivel **nacional** el motor productivo es **${dg.motor_nacional}** (SMAPE ${dg.smape_nacional}%). Se modela en **${dg.unidad}**.`,
-      '',
-      `*Nota: muchas de las ${dg.n_series} series tienen pocos casos (cercanas a cero), donde la elección de motor es poco discriminante; la señal robusta es la nacional.*`,
+      `**${dg.motores_entrenados.length} motores** entrenados, **${dg.motores_productivos.length}** productivos. Selección por serie (**${dg.n_series} series** = ${dg.n_entidades} entidades + agregados × 3 sexos) por SMAPE sobre la realidad ${dg.ultima_real.slice(0, 4)}:`, '',
+      '| Motor | Tipo | Productivo | Series |',
+      '|:------|:-----|:----------:|-------:|',
+      rows, '',
+      `A nivel **nacional** el motor productivo es **${dg.motor_nacional}** (SMAPE **${dg.smape_nacional}%**). Se modela en **${dg.unidad}**.`, '',
+      `*Ensemble y Stacking quedan fuera: los árboles (XGBoost/LightGBM) no extrapolan la dinámica epidémica a 52 semanas. Muchas de las ${dg.n_series} series tienen pocos casos; la señal robusta es la nacional.*`,
     ].join('\n');
   }
 
