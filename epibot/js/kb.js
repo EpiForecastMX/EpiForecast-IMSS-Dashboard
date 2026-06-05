@@ -1299,6 +1299,12 @@ function answerSemanasBoletin(q, ent, s, d) {
 
 function answerDengue(q, ent, s, d) {
   if (ent.padecimiento !== 'Dengue') return null;
+  // El zoom semanal lo atiende answerZoom (corre despues y SI soporta Dengue via
+  // weekly_comparison). Diferir para no interceptarlo con la ficha de texto.
+  const zoomTriggers = ['zoom', 'detalle semanal', 'vista cercana', 'acercamiento'];
+  const zoomAlt = (q.includes('real') && q.includes('pronostico') && q.includes('semanal')) ||
+    (q.includes('semana a semana') && (q.includes('pronostico') || q.includes('modelo')));
+  if (zoomTriggers.some(t => q.includes(t)) || zoomAlt) return null;
   const dg = d.dengue;
   if (!dg) return null;
   const info = d.padecimiento_info?.Dengue;
