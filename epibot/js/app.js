@@ -6,7 +6,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=89';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=90';
 import { detectEntities, norm } from './entities.js?v=27';
 import { renderMexicoMap } from './mexico-map.js?v=1';
 import { renderTimelapse } from './timelapse.js?v=1';
@@ -1482,11 +1482,11 @@ function buildMexicoMap(data, qn) {
     const stateData = {};
     for (const [ent, c] of Object.entries(pe)) {
       const key = fix[strip(ent)] || strip(ent);
-      stateData[key] = { value: c, label: Number(c).toLocaleString() + ' casos confirmados' };
+      stateData[key] = { value: c, label: Number(c).toLocaleString() + ' casos (52 sem)' };
     }
     if (!Object.keys(stateData).length) return null;
     return { _mapChart: true, stateData, opts: {
-      title: 'Dengue (casos confirmados, 2018-2026)',
+      title: 'Dengue (ambos sexos) - casos 52 sem',
       lowColor: [30, 60, 50], highColor: [244, 114, 182], metric: 'casos' } };
   }
 
