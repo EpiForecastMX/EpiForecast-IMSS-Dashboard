@@ -2185,6 +2185,10 @@ function answerZoom(q, ent, s, d) {
     const totalPron = sems.reduce((a, s) => a + s.pronostico, 0);
     const modelo = info.modelo_productivo || '-';
 
+    const ultimaSem = withReal.length > 0
+      ? Math.max(...withReal.map(s => s.semana || 0))
+      : 0;
+
     lines.push(`**${p}** (${modelo}):`);
     lines.push(`- Semanas con datos reales: **${withReal.length}** de ${sems.length}`);
     lines.push(`- Casos reales acumulados: **${fmt(totalReal)}**`);
@@ -2193,7 +2197,13 @@ function answerZoom(q, ent, s, d) {
     if (withReal.length > 0) {
       const realSum = withReal.reduce((a, s) => a + s.real, 0);
       const pronSum = withReal.reduce((a, s) => a + s.pronostico, 0);
-      const errorPct = pronSum > 0 ? Math.abs(((pronSum - realSum) / realSum) * 100).toFixed(1) : '-';
+      // Diferencia real - pronostico: positivo = realidad por ENCIMA del pronostico.
+      const diff = realSum - pronSum;
+      const signo = diff >= 0 ? '+' : '-';
+      const arrastre = diff >= 0 ? 'por encima del pronostico' : 'por debajo del pronostico';
+      const errorPct = realSum > 0 ? Math.abs((diff / realSum) * 100).toFixed(1) : '-';
+      lines.push(`- Pronostico acumulado (a la semana ${ultimaSem}): **${fmt(pronSum)}**`);
+      lines.push(`- Diferencia (real - pronostico): **${signo}${fmt(Math.abs(diff))}** casos (${arrastre})`);
       lines.push(`- Error acumulado (semanas con datos): **${errorPct}%**`);
     }
     lines.push('');
