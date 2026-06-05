@@ -89,6 +89,14 @@
   .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; color: white; margin-left: auto; }
   .badge-count { background: var(--teal); color: #0E1424; }
 
+  /* ── View toggle (Histórico / Zoom) ──────────── */
+  .view-toggle { display: inline-flex; border: 1px solid var(--imss-border); border-radius: 7px; overflow: hidden; background: var(--bg-card); }
+  .vt-btn { padding: 5px 12px; border: none; background: transparent; font-family: inherit; font-size: 0.76rem; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: background 0.15s, color 0.15s; display: flex; align-items: center; gap: 5px; }
+  .vt-btn + .vt-btn { border-left: 1px solid var(--imss-border); }
+  .vt-btn svg { width: 13px; height: 13px; }
+  .vt-btn:hover { color: var(--text-secondary); }
+  .vt-btn.active { background: var(--teal); color: #0E1424; }
+
   /* ── Tier nav pills ───────────────────────── */
   .tier-nav {
     display: flex; gap: 8px; align-items: center;
@@ -132,13 +140,16 @@
   .tier-nacional .tier-badge { background: rgba(91,141,239,0.15); color: var(--teal); border: 1px solid rgba(91,141,239,0.3); }
   .tier-nacional .tier-title { color: var(--cream); }
   .tier-nacional .tier-sub { color: rgba(232,213,181,0.5); }
-  .nac-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
-  .nac-pad-group { display: flex; flex-direction: column; gap: 10px; }
-  .nac-pad-divider { display: flex; align-items: center; gap: 10px; padding-bottom: 14px; margin-bottom: 4px; border-bottom: 1px solid rgba(232,213,181,0.1); }
+  .nac-grid { display: flex; flex-direction: column; gap: 38px; }
+  .nac-pad-group { display: flex; flex-direction: column; gap: 14px; }
+  .nac-pad-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  @media (max-width: 900px) { .nac-pad-cards { grid-template-columns: 1fr; } }
+  .nac-pad-divider { display: flex; align-items: center; gap: 10px; padding-bottom: 14px; margin-bottom: 0; border-bottom: 1px solid rgba(232,213,181,0.1); }
   .nac-pad-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
   .nac-pad-dot.alzheimer { background: #4caf7d; }
   .nac-pad-dot.depresion { background: #6b9de8; }
   .nac-pad-dot.parkinson { background: #e07575; }
+  .nac-pad-dot.dengue { background: var(--dengue); }
   .nac-pad-name { font-family: var(--font-display); font-size: 1.2rem; color: var(--cream); }
   .nac-card {
     border-radius: 10px; overflow: hidden; cursor: pointer;
@@ -307,6 +318,17 @@
     <label>Buscar</label>
     <input type="search" id="searchBox" placeholder="Ej: Jalisco, Rural...">
   </div>
+  <div class="filter-group">
+    <label>Vista</label>
+    <div class="view-toggle" id="viewToggle">
+      <button class="vt-btn active" data-view="full" title="Serie histórica completa">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 12 7 8 11 14 15 6 21 18"/></svg>Histórico
+      </button>
+      <button class="vt-btn" data-view="zoom" title="Últimas 52 semanas reales + pronóstico a 52 semanas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Zoom 52+52
+      </button>
+    </div>
+  </div>
   <span class="badge badge-count" id="countBadge">333</span>
 </div>
 
@@ -397,8 +419,13 @@ const countBadge = document.getElementById('countBadge');
 
 let filtered = [...DATA];
 let lbIndex  = 0;
+let view     = 'full';   // 'full' = histórico completo · 'zoom' = últimas 52 + pronóstico 52
 
 // ── Helpers ──────────────────────────────────
+// En modo zoom usamos el PNG '..._zoom.png' (mismo nombre + sufijo); si faltara, el onerror
+// del <img> regresa al histórico completo para no dejar un hueco roto.
+function srcOf(d)      { return view === 'zoom' ? d.f.replace(/\.png$/, '_zoom.png') : d.f; }
+function imgFallback(d){ return view === 'zoom' ? ` onerror="this.onerror=null;this.src='${d.f}'"` : ''; }
 function padClass(p) { return p.includes('Depresi') ? 'pad-Depresion' : 'pad-' + p; }
 function padMatch(p, val) {
   if (!val) return true;
@@ -413,7 +440,7 @@ function groupBy(arr, key) {
 }
 function cardHTML(d, idx) {
   return `<div class="card ${padClass(d.p)}" onclick="openLightbox(${idx})">
-    <img src="${d.f}" alt="${d.p} · ${d.n} · ${d.s}" loading="lazy">
+    <img src="${srcOf(d)}"${imgFallback(d)} alt="${d.p} · ${d.n} · ${d.s}" loading="lazy">
     <div class="info"><span class="title">${d.p} · ${d.s}</span><div class="tags">${catTag(d.c)}${sexoTag(d.s)}</div></div>
   </div>`;
 }
@@ -466,10 +493,12 @@ function renderNacional(data) {
         <span class="nac-pad-dot ${slug}"></span>
         <span class="nac-pad-name">${pad}</span>
       </div>
-      ${cards.map(d => `<div class="nac-card" onclick="openLightbox(${filtered.indexOf(d)})">
-        <img src="${d.f}" alt="${pad} Nacional ${d.s}" loading="lazy">
-        <div class="nac-card-label">${d.s}</div>
-      </div>`).join('')}
+      <div class="nac-pad-cards">
+        ${cards.map(d => `<div class="nac-card" onclick="openLightbox(${filtered.indexOf(d)})">
+          <img src="${srcOf(d)}"${imgFallback(d)} alt="${pad} Nacional ${d.s}" loading="lazy">
+          <div class="nac-card-label">${d.s}</div>
+        </div>`).join('')}
+      </div>
     </div>`;
   }).join('');
 }
@@ -535,8 +564,11 @@ function collapseAll(){ document.querySelectorAll('.state-item').forEach(el => e
 function openLightbox(idx) {
   lbIndex = idx;
   const d = filtered[idx];
-  document.getElementById('lbImg').src = d.f;
-  document.getElementById('lbCaption').textContent = `${d.p} · ${d.n} · ${d.s}  (${idx + 1} / ${filtered.length})`;
+  const img = document.getElementById('lbImg');
+  img.onerror = () => { img.onerror = null; img.src = d.f; };   // zoom faltante -> histórico
+  img.src = srcOf(d);
+  const vista = view === 'zoom' ? ' · Zoom 52+52' : '';
+  document.getElementById('lbCaption').textContent = `${d.p} · ${d.n} · ${d.s}${vista}  (${idx + 1} / ${filtered.length})`;
   document.getElementById('lightbox').classList.add('open');
 }
 function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); }
@@ -551,6 +583,18 @@ document.addEventListener('keydown', e => {
 filterPad.addEventListener('change', applyFilters);
 filterSexo.addEventListener('change', applyFilters);
 searchBox.addEventListener('input', applyFilters);
+
+// ── View toggle (Histórico / Zoom 52+52) ──────
+document.querySelectorAll('#viewToggle .vt-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.classList.contains('active')) return;
+    document.querySelectorAll('#viewToggle .vt-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    view = btn.dataset.view;
+    renderAll();
+    if (document.getElementById('lightbox').classList.contains('open')) openLightbox(lbIndex);
+  });
+});
 
 // Nav scroll effect
 const navEl = document.getElementById('nav');
