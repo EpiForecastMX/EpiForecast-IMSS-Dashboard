@@ -672,14 +672,21 @@
             deep: cvar('--bg-deep', '#0E1424'), cream: cvar('--cream', '#E7ECF5'),
           };
 
-          // Inicio del eje derivado del dato (meta.chart_from_year): detalle reciente + horizonte.
-          const fromYr = m.chart_from_year || (new Date().getUTCFullYear() - 4);
-          const hist = (d.historico || []).map(p => ({ x: decYear(p.ds), y: p.y })).filter(p => p.x >= fromYr);
-          const pron = (d.pronostico || []).map(p => ({ x: decYear(p.ds), y: p.yhat }));
-          const pLo = (d.pronostico || []).map(p => ({ x: decYear(p.ds), y: p.yhat_lower }));
-          const pHi = (d.pronostico || []).map(p => ({ x: decYear(p.ds), y: p.yhat_upper }));
-          const proy = (d.proyeccion || []).map(p => ({ x: decYear(p.ds), y: p.yhat }));
-          // Empalmar inicio de pronóstico con el último real para continuidad visual.
+          // Eje desde meta.chart_from_year (2014). Escala log: piso en 1 (las semanas con 0
+          // casos no existen en log; mostrarlas como ~1 evita huecos en la línea).
+          const fromYr = m.chart_from_year || 2014;
+          const logScale = (m.escala === 'log');
+          const fl = v => logScale ? Math.max(Number(v) || 0, 1) : (Number(v) || 0);
+          const ctx = (d.historico_contexto || []).map(p => ({ x: decYear(p.ds), y: fl(p.y) })).filter(p => p.x >= fromYr);
+          const hist = (d.historico || []).map(p => ({ x: decYear(p.ds), y: fl(p.y) })).filter(p => p.x >= fromYr);
+          const pron = (d.pronostico || []).map(p => ({ x: decYear(p.ds), y: fl(p.yhat) }));
+          const pLo = (d.pronostico || []).map(p => ({ x: decYear(p.ds), y: fl(p.yhat_lower) }));
+          const pHi = (d.pronostico || []).map(p => ({ x: decYear(p.ds), y: fl(p.yhat_upper) }));
+          const proy = (d.proyeccion || []).map(p => ({ x: decYear(p.ds), y: fl(p.yhat) }));
+          // Empalmar el contexto (A90/A91) con el histórico de modelado, y el pronóstico con el
+          // último real, para continuidad visual.
+          const firstH = hist.length ? hist[0] : null;
+          if (firstH && ctx.length) ctx.push(firstH);
           const lastH = hist.length ? hist[hist.length - 1] : null;
           if (lastH) { pron.unshift(lastH); pLo.unshift(lastH); pHi.unshift(lastH); }
           const lastP = pron.length ? pron[pron.length - 1] : lastH;
@@ -695,6 +702,8 @@
                   backgroundColor: 'transparent', pointRadius: 0, fill: false, tension: 0.3, order: 5 },
                 { label: 'Proyección NB-GLM (' + anios + ' años, patrón estacional)', data: proy, parsing: false,
                   borderColor: TH.teal, borderWidth: 1.8, borderDash: [5, 4], pointRadius: 0, tension: 0.3, order: 3 },
+                { label: '2014-2018 · contexto (A90/A91)', data: ctx, parsing: false,
+                  borderColor: TH.muted + '88', borderWidth: 1.1, pointRadius: 0, tension: 0.25, order: 4 },
                 { label: 'Histórico real', data: hist, parsing: false,
                   borderColor: TH.txt2, borderWidth: 1.6, pointRadius: 0, pointHoverRadius: 3, tension: 0.25, order: 2 },
                 { label: 'Pronóstico (1 año)', data: pron, parsing: false,
@@ -709,8 +718,11 @@
                 x: { type: 'linear', min: fromYr, grid: { color: TH.grid },
                   ticks: { color: TH.muted, stepSize: 1, autoSkip: false,
                     callback: v => (Number.isInteger(v) ? v : '') } },
-                y: { beginAtZero: true, grid: { color: TH.grid }, ticks: { color: TH.muted },
-                  title: { display: true, text: 'Casos por semana', color: TH.muted } }
+                y: (logScale
+                  ? { type: 'logarithmic', min: 1, grid: { color: TH.grid }, ticks: { color: TH.muted },
+                      title: { display: true, text: 'Casos por semana (escala log)', color: TH.muted } }
+                  : { beginAtZero: true, grid: { color: TH.grid }, ticks: { color: TH.muted },
+                      title: { display: true, text: 'Casos por semana', color: TH.muted } })
               },
               plugins: {
                 legend: { labels: { color: TH.txt2, filter: it => !it.text.startsWith('Banda'), boxWidth: 18, font: { size: 11 } } },
@@ -721,9 +733,10 @@
               }
             }
           });
-          if (cap) cap.textContent = 'Nacional: histórico real (gris), pronóstico productivo a 1 año con banda de confianza (' +
-            (m.motor_nacional || 'motor productivo') + ', ámbar) y proyección del modelo NB-GLM a ' + anios + ' años (azul punteado), ' +
-            'que extiende el patrón estacional más allá de las 52 semanas. Última semana real: ' + (m.ultima_real || '—') + '.';
+          if (cap) cap.textContent = 'Nacional, 2014-2031 en escala logarítmica (para ver juntos el pico de 2024 y los años bajos). ' +
+            'Contexto 2014-2018 en gris tenue (esquema viejo A90/A91), histórico de modelado en gris, pronóstico productivo a 1 año con banda (' +
+            (m.motor_nacional || 'motor productivo') + ', ámbar) y proyección NB-GLM a ' + anios + ' años (azul punteado), que extiende el patrón estacional ' +
+            'más allá de las 52 semanas. Última semana real: ' + (m.ultima_real || '—') + '.';
         })
         .catch(e => {
           const cap = document.getElementById('fc-cap');
