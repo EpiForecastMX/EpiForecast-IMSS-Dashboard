@@ -658,6 +658,9 @@
     .timelapse-wrapper { position: relative; }
     .timelapse-title { font-size: 13px; font-weight: 700; color: #E7ECF5; margin-bottom: 10px; letter-spacing: -0.2px; }
     .timelapse-week { font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #5B8DEF; text-align: center; margin: 8px 0 4px; }
+    /* viewBox 980x700 sin width/height: fijar aspect-ratio evita que el SVG colapse a 0 (igual que el mapa). */
+    .timelapse-svg-wrap { position: relative; width: 100%; max-width: 920px; margin: 0 auto; }
+    .timelapse-svg { width: 100%; height: auto; aspect-ratio: 980 / 700; display: block; }
     .timelapse-controls { display: flex; align-items: center; gap: 10px; justify-content: center; margin-top: 8px; }
     .timelapse-btn {
       width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(91,141,239,0.35);
