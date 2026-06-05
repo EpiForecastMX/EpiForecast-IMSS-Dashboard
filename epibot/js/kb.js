@@ -1348,6 +1348,7 @@ function answerDengue(q, ent, s, d) {
       '| Motor | Tipo | Productivo | Series |',
       '|:------|:-----|:----------:|-------:|',
       rows, '',
+      '![Distribución de motores productivos de Dengue: DeepAR 46, NBGLM 31, Prophet 22 series](../Reports/dengue/dengue_motores_dona.png)', '',
       `A nivel **nacional** el motor productivo es **${dg.motor_nacional}** (SMAPE **${dg.smape_nacional}%**). Se modela en **${dg.unidad}**.`, '',
       `*Ensemble y Stacking quedan fuera: los árboles (XGBoost/LightGBM) no extrapolan la dinámica epidémica a 52 semanas. Muchas de las ${dg.n_series} series tienen pocos casos; la señal robusta es la nacional.*`,
     ].join('\n');
