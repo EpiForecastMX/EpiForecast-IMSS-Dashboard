@@ -1384,7 +1384,7 @@ function answerDengue(q, ent, s, d) {
   }
 
   // Histórico / casos / pico / ciclo epidémico
-  if (any(q, ['caso', 'cuanto', 'cuantos', 'historic', 'pico', 'brote', 'epidemia', 'anual', 'por ano', 'por anio', 'tendencia', 'total', 'ola', 'ciclo']) || ent._years?.length) {
+  if (any(q, ['caso', 'cuanto', 'cuantos', 'historic', 'evolucion', 'pico', 'brote', 'epidemia', 'anual', 'por ano', 'por anio', 'tendencia', 'total', 'ola', 'ciclo']) || ent._years?.length) {
     const aniosTop = Object.entries(dg.anual).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([y, c]) => `${y} (${num(c)})`).join(', ');
     // Año específico pedido por el usuario: dato puntual de dg.anual.
     const yrPedido = (ent._years || []).find((y) => dg.anual?.[String(y)] != null);
