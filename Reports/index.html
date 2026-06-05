@@ -455,7 +455,7 @@ function renderAll() {
 function renderNacional(data) {
   const body = document.getElementById('bodyNacional');
   if (!data.length) { body.innerHTML = ''; return; }
-  const PAD_ORDER = ['Alzheimer', 'Depresión', 'Parkinson'];
+  const PAD_ORDER = ['Alzheimer', 'Depresión', 'Parkinson', 'Dengue'];
   const byPad = groupBy(data, 'p');
   const pads  = PAD_ORDER.filter(p => byPad[p]);
   body.innerHTML = pads.map(pad => {
