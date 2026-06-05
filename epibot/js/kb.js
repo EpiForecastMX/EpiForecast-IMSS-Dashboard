@@ -1358,13 +1358,10 @@ function answerDengue(q, ent, s, d) {
     const out = [
       `**Dengue por entidad (${dg.cobertura}, casos confirmados)**`, '', top, '',
       `La carga vive en el **sureste tropical y las costas**. El centro-altiplano no registra transmisión confirmada: **${(dg.sin_casos || []).join(' y ')}** con cero casos en todo el periodo.`,
+      // El mapa coroplético es la mejor visualización para "dónde golpea"; lo incluimos siempre.
+      '',
+      '![Mapa de México: casos confirmados de dengue por entidad, 2018-2026, escala logarítmica](../Reports/dengue/dengue_mapa_mexico.png)',
     ];
-    if (wantsMap) {
-      out.push(
-        '',
-        '![Mapa de México: casos confirmados de dengue por entidad, 2018-2026, escala logarítmica](../Reports/dengue/dengue_mapa_mexico.png)',
-      );
-    }
     return out.join('\n');
   }
 
