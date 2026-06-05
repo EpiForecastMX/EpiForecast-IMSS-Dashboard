@@ -1,11 +1,12 @@
 {
   "meta": {
-    "generado": "2026-06-04",
+    "generado": "2026-06-05",
     "ultima_real": "2026-05-11",
     "motor_nacional": "DeepAR",
     "distribucion": {
-      "DeepAR": 56,
-      "Prophet": 43
+      "DeepAR": 46,
+      "NBGLM": 31,
+      "Prophet": 22
     },
     "anios_proyeccion": 5,
     "chart_from_year": 2022
