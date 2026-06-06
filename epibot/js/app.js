@@ -1805,10 +1805,20 @@ function buildSeriesZoom(s, pad, estado, sexo) {
   const labels = s.d.map(iso => { const p = iso.split('-'); return `${p[1]}/${p[2].slice(0, 2)} ${p[0].slice(2)}`; });
   const lastRealIdx = s.r.reduce((acc, v, i) => (v != null ? i : acc), -1);
   const wk = s.last_real ? zoomIsoWeekApp(s.last_real) : null;
-  const datasets = [
+  const hasBand = Array.isArray(s.hi) && s.hi.some(v => v != null);
+  const datasets = [];
+  if (hasBand) {
+    // Banda de confianza: dataset superior rellena hacia el inferior (_lo). Ambos ocultos
+    // de leyenda/tooltip (prefijo '_'); muestran la incertidumbre del motor productivo.
+    datasets.push(
+      { label: '_hi', data: s.hi, borderColor: 'transparent', backgroundColor: color + '22', pointRadius: 0, fill: '+1', tension: 0.3, order: 4 },
+      { label: '_lo', data: s.lo, borderColor: 'transparent', backgroundColor: 'transparent', pointRadius: 0, fill: false, tension: 0.3, order: 4 },
+    );
+  }
+  datasets.push(
     {
       label: `Pronostico (${s.motor || pad})`, data: s.y,
-      borderColor: color + 'CC', backgroundColor: color + '0A', fill: true, tension: 0.3,
+      borderColor: color + 'CC', backgroundColor: 'transparent', fill: false, tension: 0.3,
       borderWidth: 2, borderDash: [8, 5], pointRadius: 0, order: 2,
     },
     {
@@ -1819,7 +1829,7 @@ function buildSeriesZoom(s, pad, estado, sexo) {
       pointBackgroundColor: s.r.map((v, i) => (i === lastRealIdx ? '#fff' : color)),
       pointBorderColor: color, pointBorderWidth: s.r.map((v, i) => (i === lastRealIdx ? 3 : 1)),
     },
-  ];
+  );
   return {
     type: 'line',
     title: `${pad} — ${estadoLbl} (${sexoLbl})  ·  real vs pronostico${wk != null ? ' (sem ' + wk + ')' : ''}`,
@@ -3338,10 +3348,11 @@ function renderChart(canvasId, chartData) {
             pointStyle: 'circle',
             padding: 18,
             boxWidth: 8,
-            filter: () => true,
+            filter: (item) => !String(item.text || '').startsWith('_'),
           },
         },
         tooltip: {
+          filter: (item) => !String((item.dataset && item.dataset.label) || '').startsWith('_'),
           backgroundColor: 'rgba(14, 20, 36, 0.96)',
           titleColor: '#8FB4FF',
           titleFont: { size: 13, weight: '700', family: 'Outfit' },
