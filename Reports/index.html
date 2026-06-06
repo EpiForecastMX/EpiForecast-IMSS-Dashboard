@@ -330,7 +330,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 12 7 8 11 14 15 6 21 18"/></svg>Histórico
       </button>
       <button class="vt-btn" data-view="zoom" title="Últimas 52 semanas reales + pronóstico a 52 semanas">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Zoom 52+52
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Zoom 52 Semanas
       </button>
     </div>
   </div>
@@ -669,7 +669,7 @@ function renderLbChart(d, s) {
 function openLightbox(idx) {
   lbIndex = idx;
   const d = filtered[idx];
-  const vista = view === 'zoom' ? ' · Zoom 52+52' : '';
+  const vista = view === 'zoom' ? ' · Zoom 52 Semanas' : '';
   document.getElementById('lbCaption').textContent = `${d.p} · ${d.n} · ${d.s}${vista}  (${idx + 1} / ${filtered.length})`;
   document.getElementById('lightbox').classList.add('open');
   if (view === 'zoom') {
@@ -696,7 +696,7 @@ filterPad.addEventListener('change', applyFilters);
 filterSexo.addEventListener('change', applyFilters);
 searchBox.addEventListener('input', applyFilters);
 
-// ── View toggle (Histórico / Zoom 52+52) ──────
+// ── View toggle (Histórico / Zoom 52 Semanas) ──────
 document.querySelectorAll('#viewToggle .vt-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     if (btn.classList.contains('active')) return;
