@@ -585,6 +585,31 @@ const MES_ABBR = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','N
 function fmtMes(iso) { const p = iso.split('-'); return `${MES_ABBR[+p[1]-1]} ${p[0].slice(2)}`; }
 function destroyLbChart() { if (lbChart) { lbChart.destroy(); lbChart = null; } }
 const PAD_COLOR = { Alzheimer:'#F472B6', 'Depresión':'#5B8DEF', Depresion:'#5B8DEF', Parkinson:'#2DD4BF', Dengue:'#F59E0B' };
+function isoWeek(iso) {
+  const t = new Date(iso + 'T00:00:00'); t.setHours(0, 0, 0, 0);
+  t.setDate(t.getDate() + 3 - ((t.getDay() + 6) % 7));
+  const w1 = new Date(t.getFullYear(), 0, 4);
+  return 1 + Math.round(((t - w1) / 864e5 - 3 + ((w1.getDay() + 6) % 7)) / 7);
+}
+// Sombra de la zona futura + divisor "presente" en la última semana real (idx en options).
+const presentLinePlugin = {
+  id: 'presentLine',
+  beforeDatasetsDraw(chart) {
+    const o = chart.options.plugins.presentLine; if (!o || o.idx == null || o.idx < 0) return;
+    const x = chart.scales.x.getPixelForValue(o.idx); const a = chart.chartArea; const ctx = chart.ctx;
+    ctx.save(); ctx.fillStyle = (o.color || '#5B8DEF') + '14'; ctx.fillRect(x, a.top, a.right - x, a.bottom - a.top); ctx.restore();
+  },
+  afterDatasetsDraw(chart) {
+    const o = chart.options.plugins.presentLine; if (!o || o.idx == null || o.idx < 0) return;
+    const x = chart.scales.x.getPixelForValue(o.idx); const a = chart.chartArea; const ctx = chart.ctx;
+    ctx.save();
+    ctx.beginPath(); ctx.setLineDash([5, 4]); ctx.strokeStyle = 'rgba(231,236,245,0.5)'; ctx.lineWidth = 1.2;
+    ctx.moveTo(x, a.top); ctx.lineTo(x, a.bottom); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(231,236,245,0.85)'; ctx.font = 'bold 10px system-ui,sans-serif'; ctx.textAlign = 'left';
+    ctx.fillText(o.label || 'presente', x + 5, a.top + 11);
+    ctx.restore();
+  },
+};
 
 function showLbImage(d, useZoom) {
   destroyLbChart();
@@ -604,9 +629,11 @@ function renderLbChart(d, s) {
   const color = PAD_COLOR[d.p] || '#5B8DEF';
   const labels = s.d.map(fmtMes);
   const lastRealIdx = s.r.reduce((acc, v, i) => v != null ? i : acc, -1);
+  const wk = s.last_real ? isoWeek(s.last_real) : null;
   const ctx = document.getElementById('lbChart').getContext('2d');
   lbChart = new Chart(ctx, {
     type: 'line',
+    plugins: [presentLinePlugin],
     data: {
       labels,
       datasets: [
@@ -623,7 +650,8 @@ function renderLbChart(d, s) {
       responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { labels: { color: '#E7ECF5', filter: it => !it.text.startsWith('_'), usePointStyle: true, boxWidth: 8, font: { size: 12 } } },
-        title: { display: true, text: `${d.p} — ${d.n} (${d.s})  ·  Zoom 52+52`, color: '#E7ECF5', font: { size: 14, weight: 'bold' } },
+        title: { display: true, text: `${d.p} — ${d.n} (${d.s})  ·  real vs pronóstico${wk ? ' (sem ' + wk + ')' : ''}`, color: '#E7ECF5', font: { size: 14, weight: 'bold' } },
+        presentLine: { idx: lastRealIdx, color, label: wk ? 'Sem ' + wk : 'presente' },
         tooltip: {
           backgroundColor: '#0E1424', borderColor: '#243150', borderWidth: 1, titleColor: '#E7ECF5', bodyColor: '#9DB0D0',
           filter: it => !it.dataset.label.startsWith('_'),
