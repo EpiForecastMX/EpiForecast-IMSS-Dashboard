@@ -17,6 +17,12 @@ export async function loadKnowledge() {
   if (!resp.ok) throw new Error('No se pudo cargar knowledge.json');
   DATA = await resp.json();
   _fixForecastTotals();
+  // Precarga en segundo plano el zoom por serie (estado×sexo, 432 series). No bloquea el
+  // arranque; cuando llega, queda en DATA.zoom_series y lo usan answerZoom/buildZoomChart.
+  fetch(`./zoom_series.json${cacheBust}`)
+    .then(r => (r.ok ? r.json() : null))
+    .then(z => { if (z) DATA.zoom_series = z; })
+    .catch(() => {});
   return DATA;
 }
 
@@ -2200,11 +2206,50 @@ function answerErrorHeatmap(q, ent, s, d) {
 // ZOOM SEMANAL — vista detallada 2025-2027 (real vs pronostico)
 // ---------------------------------------------------------------------------
 
+function zoomIsoWeek(iso) {
+  const dt = new Date(iso + 'T00:00:00'); dt.setHours(0, 0, 0, 0);
+  dt.setDate(dt.getDate() + 3 - ((dt.getDay() + 6) % 7));
+  const w1 = new Date(dt.getFullYear(), 0, 4);
+  return 1 + Math.round(((dt - w1) / 864e5 - 3 + ((w1.getDay() + 6) % 7)) / 7);
+}
+
+// Texto del zoom por SERIE (estado × sexo), usando d.zoom_series (precargado).
+function zoomSeriesText(s, pad, estado, sexo) {
+  const estadoLbl = norm(estado) === 'mexico' ? 'Estado de Mexico' : estado;
+  const sexoLbl = sexo === 'general' ? 'ambos sexos' : sexo;
+  let realSum = 0, pronSum = 0, nReal = 0;
+  for (let i = 0; i < s.d.length; i++) {
+    if (s.r[i] != null) { nReal++; realSum += s.r[i]; if (s.y[i] != null) pronSum += s.y[i]; }
+  }
+  const futSum = s.y.reduce((a, v, i) => (s.r[i] == null && v != null ? a + v : a), 0);
+  const diff = realSum - pronSum;
+  const signo = diff >= 0 ? '+' : '-';
+  const arrastre = diff >= 0 ? 'por encima del pronostico' : 'por debajo del pronostico';
+  const errPct = realSum > 0 ? Math.abs((diff / realSum) * 100).toFixed(1) : '-';
+  const wk = s.last_real ? zoomIsoWeek(s.last_real) : null;
+  const lines = [];
+  lines.push(`**Zoom semanal: ${pad} — ${estadoLbl} (${sexoLbl})**\n`);
+  lines.push(`Real vs pronostico hasta la **semana ${wk != null ? wk : '-'}** (${s.last_real || '-'}), motor **${s.motor || '-'}**.\n`);
+  lines.push(`- Semanas reales mostradas: **${nReal}**`);
+  lines.push(`- Real acumulado: **${fmt(Math.round(realSum))}** · pronostico (mismas semanas): **${fmt(Math.round(pronSum))}**`);
+  lines.push(`- Diferencia (real - pronostico): **${signo}${fmt(Math.round(Math.abs(diff)))}** casos (${arrastre}, error **${errPct}%**)`);
+  lines.push(`- Pronostico a futuro (post semana ${wk != null ? wk : '-'}): **${fmt(Math.round(futSum))}** casos`);
+  lines.push('\n*Linea solida = real (boletin SINAVE), punteada = pronostico del motor productivo.*');
+  return lines.join('\n');
+}
+
 function answerZoom(q, ent, s, d) {
   const triggers = ['zoom', 'detalle semanal', 'vista cercana', 'acercamiento'];
   const triggerAlt = (q.includes('real') && q.includes('pronostico') && q.includes('semanal')) ||
     (q.includes('semana a semana') && (q.includes('pronostico') || q.includes('modelo')));
   if (!triggers.some(t => q.includes(t)) && !triggerAlt) return null;
+
+  // Por estado (y sexo): zoom de la serie específica si se detectó entidad y ya cargó el índice.
+  if (ent.estado && ent.padecimiento && d.zoom_series) {
+    const sexo = ent.sexo || 'general';
+    const serie = d.zoom_series[`${norm(ent.padecimiento)}|${norm(ent.estado)}|${sexo}`];
+    if (serie) return zoomSeriesText(serie, ent.padecimiento, ent.estado, sexo);
+  }
 
   const wc = d.weekly_comparison;
   if (!wc) return null;

@@ -6,7 +6,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=96';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=97';
 import { detectEntities, norm } from './entities.js?v=27';
 import { renderMexicoMap } from './mexico-map.js?v=1';
 import { renderTimelapse } from './timelapse.js?v=1';
@@ -1788,7 +1788,54 @@ function buildErrorHeatmap(data, qn) {
  * Genera graficos de zoom semanal (2025-2027): real vs pronostico.
  * Devuelve un array de charts (1 por padecimiento filtrado).
  */
-function buildZoomChart(data, qn, padResolved) {
+function zoomIsoWeekApp(iso) {
+  const dt = new Date(iso + 'T00:00:00'); dt.setHours(0, 0, 0, 0);
+  dt.setDate(dt.getDate() + 3 - ((dt.getDay() + 6) % 7));
+  const w1 = new Date(dt.getFullYear(), 0, 4);
+  return 1 + Math.round(((dt - w1) / 864e5 - 3 + ((w1.getDay() + 6) % 7)) / 7);
+}
+
+// Chart de zoom para UNA serie (estado × sexo) desde data.zoom_series: real vs pronostico
+// solapados hasta la semana vigente + pronostico al futuro.
+function buildSeriesZoom(s, pad, estado, sexo) {
+  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
+  const color = padColors[pad] || '#5B8DEF';
+  const estadoLbl = norm(estado) === 'mexico' ? 'Estado de Mexico' : estado;
+  const sexoLbl = sexo === 'general' ? 'ambos sexos' : sexo;
+  const labels = s.d.map(iso => { const p = iso.split('-'); return `${p[1]}/${p[2].slice(0, 2)} ${p[0].slice(2)}`; });
+  const lastRealIdx = s.r.reduce((acc, v, i) => (v != null ? i : acc), -1);
+  const wk = s.last_real ? zoomIsoWeekApp(s.last_real) : null;
+  const datasets = [
+    {
+      label: `Pronostico (${s.motor || pad})`, data: s.y,
+      borderColor: color + 'CC', backgroundColor: color + '0A', fill: true, tension: 0.3,
+      borderWidth: 2, borderDash: [8, 5], pointRadius: 0, order: 2,
+    },
+    {
+      label: 'Real', data: s.r,
+      borderColor: color, backgroundColor: color + '22', fill: false, tension: 0.3,
+      borderWidth: 3, spanGaps: false, order: 1,
+      pointRadius: s.r.map((v, i) => (i === lastRealIdx ? 6 : v != null ? 2.5 : 0)),
+      pointBackgroundColor: s.r.map((v, i) => (i === lastRealIdx ? '#fff' : color)),
+      pointBorderColor: color, pointBorderWidth: s.r.map((v, i) => (i === lastRealIdx ? 3 : 1)),
+    },
+  ];
+  return {
+    type: 'line',
+    title: `${pad} — ${estadoLbl} (${sexoLbl})  ·  real vs pronostico${wk != null ? ' (sem ' + wk + ')' : ''}`,
+    labels, datasets,
+    options: { scales: { x: { ticks: { maxRotation: 90, font: { size: 9 }, autoSkip: true, maxTicksLimit: 18 } }, y: { beginAtZero: true } } },
+  };
+}
+
+function buildZoomChart(data, qn, ent) {
+  const padResolved = ent && ent.padecimiento;
+  // Si hay estado detectado y el indice por serie ya cargo: zoom especifico estado×sexo.
+  if (ent && ent.estado && padResolved && data.zoom_series) {
+    const sexo = ent.sexo || 'general';
+    const serie = data.zoom_series[`${norm(padResolved)}|${norm(ent.estado)}|${sexo}`];
+    if (serie && serie.d && serie.d.length) return buildSeriesZoom(serie, padResolved, ent.estado, sexo);
+  }
   const wc = data.weekly_comparison;
   if (!wc) return null;
 
@@ -2836,7 +2883,7 @@ function extractChartData(markdown, query) {
       (qn.includes('semanal') && (qn.includes('pronostico') || qn.includes('forecast'))) ||
       (qn.includes('real vs') && qn.includes('pronostico'))) {
     const entZoom = detectEntities(query);
-    const chart = buildZoomChart(data, qn, entZoom && entZoom.padecimiento);
+    const chart = buildZoomChart(data, qn, entZoom);
     if (chart) return chart;
   }
 
