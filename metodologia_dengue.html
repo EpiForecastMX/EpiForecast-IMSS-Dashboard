@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Metodología de Dengue — EpiForecast-MX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  /* Superficies — Clinical Indigo */
+  --bg-deep:        #0E1424;
+  --bg-base:        #131C30;
+  --bg-raised:      #18223A;
+  --bg-card:        #1C2740;
+  --bg-card-hover:  #243150;
+  /* Texto */
+  --text-primary:   #E7ECF5;
+  --text-secondary: #9FB0CE;
+  --text-muted:     #6E82A6;
+  --text-faint:     #44567A;
+  /* Acentos */
+  --burgundy:       #F472B6;
+  --dark-burgundy:  #8E2A63;
+  --teal:           #5B8DEF;
+  --gold:           #2DD4BF;
+  /* Aliases legacy */
+  --neutral-black:  #0B0F1A;
+  --cool-gray:      #9FB0CE;
+  --dark-teal:      #16203A;
+  --cream:          #E7ECF5;
+  --cream-light:    #1C2740;
+  --cream-pale:     #131C30;
+  --teal-glow:      rgba(91,141,239,0.15);
+  --burgundy-glow:  rgba(244,114,182,0.15);
+  --gold-glow:      rgba(45,212,191,0.15);
+  /* Extra legacy aliases */
+  --burgundy-light: #F472B6;
+  --teal-light:     #93C5FD;
+  --gold-light:     #2DD4BF;
+  /* Tipografía */
+  --font-display:   'Playfair Display', Georgia, serif;
+  --font-body:      'Outfit', system-ui, -apple-system, sans-serif;
+  --font-mono:      'JetBrains Mono', 'SF Mono', monospace;
+  --shadow-sm:      0 2px 8px rgba(0,0,0,.35);
+  --shadow-md:      0 8px 24px rgba(0,0,0,.40);
+  --shadow-lg:      0 16px 48px rgba(0,0,0,.45);
+  --radius:         16px;
+  --radius-sm:      10px;
+}
+body{font-family:var(--font-body);background:var(--bg-base);color:var(--text-primary);line-height:1.7;-webkit-font-smoothing:antialiased}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.025;pointer-events:none;z-index:0}
+
+/* Nav */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(14,20,36,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(232,213,181,.08);transition:box-shadow .3s,background .3s}.nav.scrolled{box-shadow:0 4px 30px rgba(0,0,0,.18);background:rgba(14,20,36,.97)}.nav-inner{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;align-items:center;height:64px;gap:1rem}.nav-logo{font-family:var(--font-display);font-size:1.3rem;color:var(--cream);letter-spacing:.02em;flex-shrink:0;text-decoration:none}.nav-logo span{color:var(--gold)}.nav-menu{display:flex;align-items:center;gap:.25rem;list-style:none;flex:1;justify-content:center}.nav-group{position:relative}.nav-group-toggle{display:flex;align-items:center;gap:.3rem;color:rgba(232,213,181,.65);font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;padding:.5rem .85rem;border-radius:6px;cursor:pointer;transition:color .2s,background .2s;white-space:nowrap;border:none;background:none;font-family:inherit}.nav-group-toggle:hover,.nav-group:hover .nav-group-toggle{color:var(--cream);background:rgba(232,213,181,.06)}.nav-group-toggle svg{width:10px;height:10px;opacity:.5;transition:transform .2s}.nav-group:hover .nav-group-toggle svg{transform:rotate(180deg);opacity:.8}.nav-dropdown{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(-4px);background:rgba(14,20,36,.98);backdrop-filter:blur(16px);border:1px solid rgba(232,213,181,.1);border-radius:12px;padding:.5rem;min-width:200px;opacity:0;visibility:hidden;transition:opacity .15s,transform .15s,visibility .15s;box-shadow:0 12px 40px rgba(0,0,0,.25)}.nav-group:hover .nav-dropdown{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}.nav-dropdown::before{content:'';position:absolute;top:-8px;left:0;right:0;height:8px}.nav-dropdown a{display:flex;align-items:center;gap:.75rem;padding:.6rem 1rem;color:rgba(232,213,181,.7);font-size:.82rem;font-weight:500;border-radius:8px;transition:background .15s,color .15s;text-decoration:none;white-space:nowrap}.nav-dropdown a:hover{background:rgba(232,213,181,.08);color:var(--cream)}.nav-dropdown a svg{width:16px;height:16px;opacity:.5;flex-shrink:0}.nav-dropdown a:hover svg{opacity:.8}.nav-ctas{display:flex;gap:.5rem;align-items:center;flex-shrink:0}.nav-cta{display:inline-flex;align-items:center;gap:.4rem;padding:.4rem 1rem;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-radius:100px;text-decoration:none;transition:transform .2s,box-shadow .2s,background .2s;white-space:nowrap}.nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(45,212,191,.3)}.nav-cta--primary{background:var(--gold);color:var(--dark-teal)}.nav-cta--secondary{background:rgba(232,213,181,.1);color:var(--gold);border:1px solid rgba(45,212,191,.3)}.nav-cta--secondary:hover{background:rgba(45,212,191,.15);color:var(--gold)}.nav-cta svg{width:14px;height:14px}.nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}.nav-hamburger span{width:24px;height:2px;background:var(--cream);transition:transform .3s,opacity .3s}.nav-mobile{display:none;flex-direction:column;background:rgba(14,20,36,.98);backdrop-filter:blur(16px);padding:1rem 2rem 1.5rem;border-bottom:1px solid rgba(232,213,181,.1)}.nav-mobile.show{display:flex}.nav-mobile-group{border-bottom:1px solid rgba(232,213,181,.06)}.nav-mobile-heading{display:flex;align-items:center;justify-content:space-between;padding:.85rem 0;color:rgba(232,213,181,.7);font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;cursor:pointer}.nav-mobile-heading svg{width:10px;height:10px;transition:transform .2s}.nav-mobile-group.open .nav-mobile-heading svg{transform:rotate(180deg)}.nav-mobile-items{display:none;flex-direction:column;padding-bottom:.5rem}.nav-mobile-group.open .nav-mobile-items{display:flex}.nav-mobile-items a{padding:.5rem 1rem;color:rgba(232,213,181,.55);font-size:.82rem;text-decoration:none;border-radius:6px;transition:background .15s,color .15s}.nav-mobile-items a:hover{background:rgba(232,213,181,.06);color:var(--cream)}.nav-mobile-ctas{display:flex;gap:.5rem;margin-top:1rem}@media(max-width:768px){.nav-menu,.nav-ctas{display:none}.nav-hamburger{display:flex}}
+
+.container{max-width:1200px;margin:0 auto;padding:0 2rem;position:relative;z-index:1}
+section{padding:4rem 0}
+.section-title{font-family:var(--font-display);font-size:clamp(1.8rem,4vw,2.5rem);margin-bottom:.5rem;color:var(--cream)}
+.section-sub{color:var(--cool-gray);font-size:1rem;margin-bottom:2.5rem}
+
+.hero{padding:10rem 2rem 6rem;text-align:center;background:linear-gradient(170deg,var(--dark-teal) 0%,var(--teal) 60%,rgba(0,82,78,.85) 100%);color:var(--cream-pale);position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 800px 600px at 30% 20%,rgba(45,212,191,.12),transparent),radial-gradient(ellipse 600px 500px at 70% 80%,rgba(244,114,182,.08),transparent);pointer-events:none}
+.hero h1{font-family:var(--font-display);font-size:clamp(2.5rem,6vw,4.5rem);line-height:1.1;margin-bottom:1rem;position:relative}
+.hero .subtitle{font-size:clamp(1rem,2vw,1.25rem);opacity:.8;font-weight:300;margin-bottom:3rem;position:relative}
+.hero-kpis{display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;position:relative}
+.hero-kpi{background:rgba(91,141,239,.10);border:1px solid rgba(91,141,239,.20);border-radius:var(--radius);padding:2rem 2.5rem;backdrop-filter:blur(8px);min-width:180px;transition:transform .3s,box-shadow .3s}
+.hero-kpi:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.2)}
+.hero-kpi .value{font-family:var(--font-display);font-size:3rem;display:block;background:linear-gradient(135deg,var(--cream),var(--gold-light));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-kpi .label{font-size:.85rem;text-transform:uppercase;letter-spacing:1px;opacity:.7}
+
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:2rem}
+.card{background:var(--bg-card);border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow-md);border:1px solid rgba(91,141,239,.12);transition:transform .3s,box-shadow .3s}
+.card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lg)}
+.card-header{display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:2px solid rgba(91,141,239,.2)}
+.card-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0;box-shadow:0 0 8px currentColor}
+.card-title{font-family:var(--font-display);font-size:1.4rem}
+.card-metrics{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.metric{background:var(--bg-raised);border-radius:var(--radius-sm);padding:.75rem 1rem}
+.metric-value{font-family:var(--font-mono);font-size:1.4rem;font-weight:500}
+.metric-label{font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary)}
+
+.chart-wrap{background:var(--bg-card);border-radius:var(--radius);padding:2rem;box-shadow:var(--shadow-md);border:1px solid rgba(91,141,239,.12)}
+.chart-wrap canvas{max-height:400px}
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:2rem}
+
+/* guide cards */
+.guide-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.5rem;margin-top:1.5rem}
+.guide-card{background:var(--bg-card);border-radius:var(--radius);padding:1.5rem 1.75rem;box-shadow:var(--shadow-sm);border-left:4px solid var(--teal)}
+.guide-card h3{font-family:var(--font-display);font-size:1.15rem;margin-bottom:.5rem;color:var(--cream)}
+.guide-card p{font-size:.92rem;color:var(--text-secondary);line-height:1.7}
+.guide-card .badge{margin:0 2px}
+
+/* region map */
+.region-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem;margin-top:1rem}
+.region-card{background:var(--bg-raised);border-radius:var(--radius-sm);padding:1rem 1.25rem;border:1px solid rgba(91,141,239,.15)}
+.region-card h4{font-size:.95rem;font-weight:700;margin-bottom:.4rem;color:var(--cream)}
+.region-card p{font-size:.82rem;color:var(--text-secondary);line-height:1.5}
+
+/* referencias */
+.ref-cat{font-family:var(--font-body);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:.78rem;color:var(--gold);margin:2rem 0 1rem}
+.ref-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:1rem}
+.ref-item{background:var(--bg-card);border-radius:var(--radius-sm);padding:1.1rem 1.25rem;box-shadow:var(--shadow-sm);border:1px solid rgba(91,141,239,.12);border-left:3px solid var(--teal)}
+.ref-item .ref-authors{font-weight:600;color:var(--text-primary);font-size:.9rem;margin-bottom:.2rem}
+.ref-item .ref-title{font-style:italic;color:var(--text-secondary);font-size:.92rem;line-height:1.45;margin-bottom:.2rem}
+.ref-item .ref-source{font-family:var(--font-mono);font-size:.76rem;color:var(--text-muted);margin-bottom:.45rem}
+.ref-item .ref-link{display:inline-flex;align-items:center;gap:.35rem;font-family:var(--font-mono);font-size:.76rem;color:var(--teal);text-decoration:none}
+.ref-item .ref-link:hover{color:var(--gold)}
+.ref-item .ref-link svg{width:13px;height:13px}
+
+/* table */
+.table-wrapper{background:var(--bg-card);border-radius:var(--radius);box-shadow:var(--shadow-md);border:1px solid rgba(91,141,239,.12);overflow:hidden}
+.table-controls{display:flex;gap:1rem;padding:1.5rem 2rem;flex-wrap:wrap;border-bottom:1px solid rgba(91,141,239,.15);align-items:center}
+.table-controls input,.table-controls select{font-family:var(--font-body);font-size:.9rem;padding:.5rem 1rem;border:1px solid rgba(91,141,239,.25);border-radius:6px;background:var(--bg-raised);color:var(--text-primary);outline:none;transition:border-color .2s}
+.table-controls input:focus,.table-controls select:focus{border-color:var(--teal)}
+.table-controls input{flex:1;min-width:180px}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+thead th{padding:1rem 1.25rem;text-align:left;font-weight:600;text-transform:uppercase;font-size:.75rem;letter-spacing:.5px;color:var(--text-secondary);border-bottom:2px solid rgba(91,141,239,.2);cursor:pointer;user-select:none;white-space:nowrap;transition:color .2s}
+thead th:hover{color:var(--teal)}
+thead th.sorted-asc::after{content:' \25B2';font-size:.65rem}
+thead th.sorted-desc::after{content:' \25BC';font-size:.65rem}
+tbody td{padding:.85rem 1.25rem;border-bottom:1px solid rgba(91,141,239,.10);vertical-align:middle}
+tbody tr{transition:background .15s}
+tbody tr:hover{background:var(--bg-card-hover)}
+.group-header td{background:var(--dark-teal);color:var(--cream);font-weight:700;font-size:.8rem;text-transform:uppercase;letter-spacing:1px;padding:.6rem 1.25rem;border:none}
+
+.badge{display:inline-block;padding:.2rem .7rem;border-radius:100px;font-family:var(--font-mono);font-size:.8rem;font-weight:500}
+.badge-green{background:rgba(45,212,191,.15);color:#2DD4BF}
+.badge-yellow{background:rgba(251,191,36,.15);color:#FCD34D}
+.badge-red{background:rgba(244,114,182,.15);color:#F472B6}
+.badge-tipo{font-family:var(--font-body);font-size:.78rem;font-weight:600;padding:.25rem .8rem;border-radius:100px}
+.badge-propio{background:rgba(45,212,191,.15);color:#2DD4BF}
+.badge-fallback{background:rgba(251,146,60,.15);color:#FB923C}
+
+.cob-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.75rem}
+.cob-item{display:flex;align-items:center;gap:.75rem;background:var(--bg-card);border-radius:var(--radius-sm);padding:.6rem 1rem;box-shadow:var(--shadow-sm);border:1px solid rgba(91,141,239,.12);font-size:.88rem}
+.cob-item .estado-name{flex:1;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cob-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.cob-dot.propio{background:#2DD4BF;box-shadow:0 0 4px rgba(45,212,191,.4)}
+.cob-dot.fallback{background:#FB923C;box-shadow:0 0 4px rgba(251,146,60,.4)}
+.cob-dot.sin_modelo{background:var(--cool-gray);opacity:.4}
+.cob-summary{display:flex;gap:2rem;margin-bottom:1.5rem;flex-wrap:wrap}
+.cob-summary-item{display:flex;align-items:center;gap:.5rem;font-size:.85rem}
+
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+footer{background:var(--dark-teal);color:rgba(232,213,181,.7);padding:3rem 2rem;text-align:center;font-size:.85rem;position:relative;z-index:1}
+footer a{color:var(--gold-light);text-decoration:none}
+footer a:hover{color:var(--cream)}
+footer .footer-title{font-family:var(--font-display);color:var(--cream);font-size:1.2rem;margin-bottom:.5rem}
+
+@media(max-width:768px){
+  .hero{padding:8rem 1.5rem 4rem}.hero-kpis{gap:1rem}.hero-kpi{min-width:140px;padding:1.25rem}.hero-kpi .value{font-size:2.2rem}
+  .card-grid,.charts-row,.guide-grid,.region-grid{grid-template-columns:1fr}
+  .table-controls{flex-direction:column}section{padding:2.5rem 0}.container{padding:0 1rem}
+}
+code{font-family:var(--font-mono);font-size:.86em;color:var(--gold);background:rgba(45,212,191,.08);padding:.05rem .35rem;border-radius:4px}
+</style>
+</head>
+<body>
+
+<nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="index.html" class="nav-logo" style="text-decoration:none">EpiForecast<span>-MX</span></a>
+      <ul class="nav-menu">
+        <li class="nav-group">
+          <button class="nav-group-toggle">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
+          <div class="nav-dropdown">
+            <a href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>Inicio</a>
+            <a href="EpiDashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+            <a href="Reports/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Pronósticos</a>
+          </div>
+        </li>
+        <li class="nav-group">
+          <button class="nav-group-toggle">Metodología <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
+          <div class="nav-dropdown">
+            <a href="bitacora_modelado.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Bitácora v1-v6</a>
+            <a href="ficha_tecnica_prophet.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Ficha Prophet</a>
+            <a href="metodologia_dengue.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>Metodología Dengue</a>
+            <a href="hiperparametros_modelos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>HPs SageMaker</a>
+            <a href="construccion_dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Arquitectura Dashboard</a>
+          </div>
+        </li>
+        <li class="nav-group">
+          <button class="nav-group-toggle">Resultados <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
+          <div class="nav-dropdown">
+            <a href="reporte_resultados.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg>Resultados</a>
+            <a href="comparacion_modelos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Comparación SageMaker</a>
+            <a href="validacion_semanal.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>Validación Semanal</a>
+            <a href="auditoria_remediacion_2026.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>Auditoría</a>
+            <a href="conclusiones.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Conclusiones</a>
+            <a href="referencias.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Referencias</a>
+          </div>
+        </li>
+      </ul>
+      <div class="nav-ctas">
+        <a href="EpiDashboard.html" class="nav-cta nav-cta--primary">Dashboard</a>
+        <a href="https://github.com/IntegradorIMSS2026Team01" target="_blank" rel="noopener" class="nav-cta nav-cta--secondary" style="padding:0.4rem 0.6rem" title="GitHub"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+      </div>
+      <div class="nav-hamburger" onclick="document.getElementById('navMobile').classList.toggle('show')" aria-label="Menú"><span></span><span></span><span></span></div>
+    </div>
+    <div class="nav-mobile" id="navMobile">
+      <div class="nav-mobile-group">
+        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
+        <div class="nav-mobile-items"><a href="index.html">Inicio</a><a href="EpiDashboard.html">Dashboard</a><a href="Reports/index.html">Pronósticos</a></div>
+      </div>
+      <div class="nav-mobile-group">
+        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Metodología <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
+        <div class="nav-mobile-items"><a href="bitacora_modelado.html">Bitácora v1-v6</a><a href="ficha_tecnica_prophet.html">Ficha Prophet</a><a href="metodologia_dengue.html">Metodología Dengue</a><a href="hiperparametros_modelos.html">HPs SageMaker</a><a href="construccion_dashboard.html">Arquitectura Dashboard</a></div>
+      </div>
+      <div class="nav-mobile-group">
+        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Resultados <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
+        <div class="nav-mobile-items"><a href="reporte_resultados.html">Resultados</a><a href="comparacion_modelos.html">Comparación SageMaker</a><a href="validacion_semanal.html">Validación Semanal</a><a href="auditoria_remediacion_2026.html">Auditoría</a><a href="conclusiones.html">Conclusiones</a><a href="referencias.html">Referencias</a></div>
+      </div>
+      <div class="nav-mobile-ctas"><a href="EpiDashboard.html" class="nav-cta nav-cta--primary" style="justify-content:center;padding:.6rem 1.5rem;flex:1">Dashboard</a></div>
+    </div>
+  </nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <h1 style="color:#F59E0B">Metodología — Dengue</h1>
+  <p class="subtitle">Datos, modelos, parámetros de entrenamiento y validación del 4.º padecimiento &middot; EpiForecast-MX</p>
+  <div class="hero-kpis">
+    <div class="hero-kpi"><span class="value">5</span><span class="label">Motores evaluados</span></div>
+    <div class="hero-kpi"><span class="value">~391</span><span class="label">Semanas (2018–2026)</span></div>
+    <div class="hero-kpi"><span class="value">ONI</span><span class="label">Regresor El Niño</span></div>
+    <div class="hero-kpi"><span class="value">NB-GLM</span><span class="label">Mejor en backtest</span></div>
+  </div>
+  <p style="max-width:780px;margin:1.5rem auto 0;color:var(--text-secondary);line-height:1.6;font-size:.97rem">
+    El Dengue se modela distinto a la cohorte neurológica: en <strong style="color:var(--cream)">conteos absolutos</strong>
+    (no en tasa), sobre escala <strong style="color:var(--cream)">log1p</strong>, con un regresor climático
+    (<strong style="color:var(--gold)">El Niño / ONI</strong>) y un motor nuevo count-correcto (NB-GLM). Aquí se documenta
+    cada decisión, con sus parámetros reales y sus referencias.
+  </p>
+</section>
+
+<!-- ═══ DATOS Y COHORTE ═══ -->
+<section id="datos">
+  <div class="container">
+    <h2 class="section-title reveal">Datos y cohorte</h2>
+    <p class="section-sub reveal">De qué serie partimos y por qué el Dengue se trata como una cohorte aparte</p>
+    <div class="guide-grid">
+      <div class="guide-card reveal" style="border-left-color:#F59E0B">
+        <h3>Origen de la serie</h3>
+        <p>Dengue <strong>confirmado</strong> reconstruido de los boletines del SINAVE (Cuadro 7.2, esquema OMS 2009
+        con tres severidades A97.0 / A97.1 / A97.2) agregadas a un único «Dengue». Serie semanal nacional y por entidad
+        <strong>2018-W27 a 2026</strong> (≈391 semanas), alineada a la <strong>semana ISO</strong>.</p>
+      </div>
+      <div class="guide-card reveal" style="border-left-color:var(--teal)">
+        <h3>Cohorte de conteos-log</h3>
+        <p>A diferencia de neuro (tasa por 100k), el Dengue se modela en <strong>conteos</strong>: se activa
+        <strong>log1p</strong> (estabiliza la varianza de los brotes), se desactiva la normalización por tasa, se acota
+        con un <strong>clamp estacional</strong> a la envolvente histórica y se invierte con <strong>expm1</strong> al
+        predecir. Sin log, la tendencia multiplicativa colapsa a ~0 al extrapolar.</p>
+      </div>
+      <div class="guide-card reveal" style="border-left-color:var(--burgundy)">
+        <h3>Cobertura y huecos</h3>
+        <p><strong>99 series</strong> (Nacional + 32 entidades × 3 sexos) más <strong>4 regiones</strong> agregadas. Las
+        semanas sin boletín se rellenan por <strong>interpolación</strong> (no con ceros), salvo un cero real observado,
+        que se conserva en cero («si es 0, es 0»).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MOTORES ═══ -->
+<section id="motores" style="background:var(--bg-raised);padding:4rem 0">
+  <div class="container">
+    <h2 class="section-title reveal">Los cinco motores</h2>
+    <p class="section-sub reveal">Tres compiten en producción; dos quedan fuera por una razón estructural</p>
+    <div class="guide-grid">
+      <div class="guide-card reveal" style="border-left-color:#2DD4BF">
+        <h3>Prophet (con El Niño)</h3>
+        <p>Modelo aditivo de tendencia + estacionalidad. Para Dengue: estacionalidad <strong>multiplicativa</strong> sobre
+        log1p, estacionalidad anual de Fourier y el regresor <strong>ONI</strong>. <span class="badge badge-green">En producción</span></p>
+      </div>
+      <div class="guide-card reveal" style="border-left-color:#F472B6">
+        <h3>DeepAR</h3>
+        <p>Red recurrente autorregresiva probabilística (GluonTS + PyTorch). Aprende de los <strong>lags</strong> y la
+        estacionalidad; bloque <em>short_series</em> ajustado a la historia más corta del Dengue. <span class="badge badge-green">En producción</span></p>
+      </div>
+      <div class="guide-card reveal" style="border-left-color:#F59E0B">
+        <h3>NB-GLM</h3>
+        <p>GLM Negative-Binomial + Fourier anual + tendencia + lags + ONI. <strong>Count-correcto</strong> y extrapola sin
+        divergir. El mejor del estudio (SMAPE 52 en backtest). <span class="badge badge-green">En producción</span></p>
+      </div>
+      <div class="guide-card reveal" style="border-left-color:#FB923C">
+        <h3>Ensemble y Stacking</h3>
+        <p>Prophet + XGBoost (Ensemble) y Prophet + ETS + LightGBM + Ridge (Stacking). <strong>Fuera de producción</strong>:
+        los árboles no extrapolan la dinámica epidémica a 52 semanas (divergen ~33x / ~99x); el clamp estacional los acota,
+        pero no se eligen. <span class="badge badge-red">Fuera</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PARAMETROS ═══ -->
+<section id="parametros">
+  <div class="container">
+    <h2 class="section-title reveal">Parámetros de entrenamiento</h2>
+    <p class="section-sub reveal">Valores reales de configuración por motor (config/models/*.yaml y el código del modelo)</p>
+
+    <h3 class="ref-cat reveal" style="color:#2DD4BF">Prophet — grid «dengue»</h3>
+    <div class="table-wrapper reveal"><div style="overflow-x:auto"><table>
+      <thead><tr><th>Parámetro</th><th>Valor</th><th>Razón</th></tr></thead>
+      <tbody>
+        <tr><td>seasonality_mode</td><td><code>multiplicative</code></td><td>La amplitud del brote crece con el nivel</td></tr>
+        <tr><td>changepoint_prior_scale</td><td><code>0.05</code> (fijo)</td><td>Barrido validado: ratio yhat/real nacional 0.98; valores altos persiguen la caída reciente</td></tr>
+        <tr><td>seasonality_prior_scale</td><td><code>{1.0, 5.0, 10.0}</code></td><td>Grid de 3 (único HP que se busca)</td></tr>
+        <tr><td>add_seasonality</td><td><code>period=365.25, fourier_order=10</code> (regional 5)</td><td>Estacionalidad anual exacta</td></tr>
+        <tr><td>transformación</td><td><code>log1p</code>, sin tasa</td><td>Cohorte de conteos-log</td></tr>
+        <tr><td>regresor</td><td><code>ONI</code>, lag 16 sem</td><td>Señal El Niño (ver abajo)</td></tr>
+        <tr><td>holidays / cv_weights</td><td>sin COVID / uniformes</td><td>El COVID no aplica al Dengue; CV sin sesgo reciente</td></tr>
+      </tbody>
+    </table></div></div>
+
+    <h3 class="ref-cat reveal" style="color:#F472B6">DeepAR — bloque «short_series»</h3>
+    <div class="table-wrapper reveal"><div style="overflow-x:auto"><table>
+      <thead><tr><th>Parámetro</th><th>Valor</th><th>Razón</th></tr></thead>
+      <tbody>
+        <tr><td>context_length</td><td><code>104</code> (2 años)</td><td>Captura 2 ciclos anuales completos</td></tr>
+        <tr><td>prediction_length</td><td><code>52</code></td><td>Horizonte de 1 año</td></tr>
+        <tr><td>max_lag</td><td><code>53</code></td><td>Conserva el lag anual (52) sin exceder la historia disponible</td></tr>
+        <tr><td>num_layers / num_cells</td><td><code>2 / 80</code></td><td>Capacidad recurrente</td></tr>
+        <tr><td>dropout_rate</td><td><code>0.15</code></td><td>Regularización (1 sola serie)</td></tr>
+        <tr><td>learning_rate / epochs</td><td><code>5e-4 / 300</code> + early stopping 15</td><td>Convergencia estable</td></tr>
+        <tr><td>cross-validation</td><td><code>2 folds × 26 sem</code></td><td>CV honesta sin padding de ceros</td></tr>
+        <tr><td>gap_fill / device</td><td><code>interpolate</code> / CUDA &gt; CPU (MPS off)</td><td>Huecos interpolados; muestreo StudentT no soportado en MPS</td></tr>
+      </tbody>
+    </table></div></div>
+
+    <h3 class="ref-cat reveal" style="color:#F59E0B">NB-GLM — Negative-Binomial GLM</h3>
+    <div class="table-wrapper reveal"><div style="overflow-x:auto"><table>
+      <thead><tr><th>Componente</th><th>Valor</th><th>Razón</th></tr></thead>
+      <tbody>
+        <tr><td>familia</td><td><code>NegativeBinomial(alpha=1.0)</code></td><td>Sobre-dispersión típica de conteos epidémicos</td></tr>
+        <tr><td>matriz de diseño</td><td><code>1 + Fourier(k=4) + tendencia + lag1 + lag52 [+ ONI]</code></td><td>Estacionalidad paramétrica + memoria + clima</td></tr>
+        <tr><td>fourier_k</td><td><code>4</code> armónicos</td><td>Ciclo anual sobre la semana ISO</td></tr>
+        <tr><td>tendencia</td><td>lineal (semanas/52)</td><td><code>freeze_trend</code> para la proyección multi-año</td></tr>
+        <tr><td>series degeneradas</td><td>fallback constante</td><td>Entidades sin transmisión (GLM infeasible)</td></tr>
+        <tr><td>implementación</td><td><code>statsmodels GLM</code></td><td>Determinista, reproducible</td></tr>
+      </tbody>
+    </table></div></div>
+    <p style="color:var(--text-muted);font-size:.82rem;margin-top:1rem">Ensemble (XGBoost: n_estimators 200, max_depth 3, lr 0.03) y Stacking (LightGBM: n_estimators 300, max_depth 4, lr 0.05) se entrenan y evalúan pero quedan fuera de producción.</p>
+  </div>
+</section>
+
+<!-- ═══ EL NIÑO ═══ -->
+<section id="elnino" style="background:var(--bg-raised);padding:4rem 0">
+  <div class="container">
+    <h2 class="section-title reveal">El regresor El Niño (ONI)</h2>
+    <p class="section-sub reveal">El ciclo inter-anual del dengue sigue a ENSO, una señal que no vive en los conteos recientes</p>
+    <div class="guide-grid">
+      <div class="guide-card reveal" style="border-left-color:#F59E0B">
+        <h3>Qué se inyecta</h3>
+        <p>El índice <strong>ONI</strong> (Oceanic Niño Index, NOAA CPC), alineado a semana ISO y <strong>rezagado 16
+        semanas</strong> (el clima precede al dengue ~3–6 meses). Es cohort-only: solo lo usa el Dengue; neuro nunca lo toca.</p>
+      </div>
+      <div class="guide-card reveal" style="border-left-color:var(--teal)">
+        <h3>ONI futuro (desplegable)</h3>
+        <p>Para el horizonte de pronóstico se usa ONI observado y, donde falta, <strong>persistencia amortiguada hacia
+        neutral</strong> (decae a 0 con e-folding ~40 sem), o un pronóstico ENSO externo (IRI/CPC) si se provee.</p>
+      </div>
+      <div class="guide-card reveal" style="border-left-color:var(--burgundy)">
+        <h3>Impacto medido</h3>
+        <p>En el backtest leave-one-epidemic-out, agregar ONI a Prophet baja el SMAPE nacional de
+        <span class="badge badge-red">102</span> a <span class="badge badge-yellow">76</span>, y corrige el pico 2024
+        de ratio 1.61 a 0.87.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SELECCION ═══ -->
+<section id="seleccion">
+  <div class="container">
+    <h2 class="section-title reveal">Selección de motor productivo</h2>
+    <p class="section-sub reveal">Cómo se decide qué motor usa cada serie, y la nota honesta de validación</p>
+    <div class="guide-grid">
+      <div class="guide-card reveal" style="border-left-color:var(--teal)">
+        <h3>Criterio</h3>
+        <p>Por serie, se compara el ajuste 2026 de cada motor contra la realidad del boletín (<strong>SMAPE alineado por
+        semana ISO</strong>); MASE como desempate. Distribución resultante: <span class="badge badge-green">DeepAR 46</span>
+        <span class="badge badge-green">NB-GLM 31</span> <span class="badge badge-green">Prophet 22</span>. Nacional = DeepAR.</p>
+      </div>
+      <div class="guide-card reveal" style="border-left-color:var(--gold)">
+        <h3>Backtest limpio (NB-GLM)</h3>
+        <p>El estudio que corona al NB-GLM es un backtest <strong>fuera de muestra</strong> (leave-one-epidemic-out): se
+        entrena solo con datos previos al corte y se puntúa el año siguiente (epidemia 2024). SMAPE
+        <span class="badge badge-green">52</span> vs Prophet+ENSO 76 vs Prophet 102.</p>
+      </div>
+      <div class="guide-card reveal" style="border-left-color:var(--cool-gray)">
+        <h3>Caveat de validación</h3>
+        <p>La métrica de selección (SMAPE 2026) es <strong>in-sample</strong>: el modelo final ve 2026 H1. Por eso se valida
+        prospectivo OOS en las semanas no vistas antes de re-entrenar. Detalle en la
+        <a href="auditoria_remediacion_2026.html" style="color:var(--teal)">Auditoría</a>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HORIZONTE ═══ -->
+<section id="horizonte" style="background:var(--bg-raised);padding:4rem 0">
+  <div class="container">
+    <h2 class="section-title reveal">Horizonte, proyección y regiones</h2>
+    <p class="section-sub reveal">Qué tan lejos se pronostica con precisión, y cómo se modelan las regiones</p>
+    <div class="guide-grid">
+      <div class="guide-card reveal" style="border-left-color:#F59E0B">
+        <h3>1 año + proyección de 5</h3>
+        <p>El pronóstico preciso es a <strong>52 semanas</strong>. La proyección multi-año la genera NB-GLM con
+        <code>freeze_trend</code> (congela la pendiente para no extrapolar la subida de 2024): muestra el patrón estacional
+        a nivel estable, no la magnitud de la próxima epidemia. El ciclo de ~4–5 años (2019, 2024) no es aprendible con solo
+        dos ciclos.</p>
+      </div>
+      <div class="guide-card reveal" style="border-left-color:var(--burgundy)">
+        <h3>Regiones con DeepAR nativo</h3>
+        <p>Las 4 regiones usan <strong>DeepAR nativo</strong>, no la suma de estados. Un backtest OOS de la epidemia 2024
+        mostró que agregar estados compone los sobre-tiros y explota (pico 34–157x); el nativo es contenido y fiel en
+        magnitud (<span class="badge badge-green">MAE 460</span> vs 3.7k–10k de la agregación).</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ REFERENCIAS ═══ -->
+<section id="referencias">
+  <div class="container">
+    <h2 class="section-title reveal">Referencias</h2>
+    <p class="section-sub reveal">Fuentes verificadas que sustentan los métodos y la señal climática de esta metodología. Bibliografía completa en <a href="referencias.html" style="color:var(--teal)">Referencias</a>.</p>
+
+    <h3 class="ref-cat reveal">Dengue y clima</h3>
+    <div class="ref-grid">
+      <div class="ref-item reveal" style="border-left-color:#F59E0B">
+        <p class="ref-authors">Johansson, M. A., Cummings, D. A. T., y Glass, G. E.</p>
+        <p class="ref-title">Multiyear climate variability and dengue—El Niño Southern Oscillation, weather, and dengue incidence in Puerto Rico, Mexico, and Thailand</p>
+        <p class="ref-source">PLOS Medicine, 6(11), e1000168, 2009</p>
+        <a href="https://doi.org/10.1371/journal.pmed.1000168" target="_blank" rel="noopener" class="ref-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>doi.org/10.1371/journal.pmed.1000168</a>
+      </div>
+      <div class="ref-item reveal" style="border-left-color:#F59E0B">
+        <p class="ref-authors">NOAA Climate Prediction Center</p>
+        <p class="ref-title">Oceanic Niño Index (ONI) — ENSO monitoring</p>
+        <p class="ref-source">National Weather Service, NOAA</p>
+        <a href="https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/ensostuff/ONI_v5.php" target="_blank" rel="noopener" class="ref-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>cpc.ncep.noaa.gov</a>
+      </div>
+    </div>
+
+    <h3 class="ref-cat reveal">Motores de pronóstico</h3>
+    <div class="ref-grid">
+      <div class="ref-item reveal">
+        <p class="ref-authors">Taylor, S. J., y Letham, B.</p>
+        <p class="ref-title">Forecasting at scale (Prophet)</p>
+        <p class="ref-source">The American Statistician, 72(1), 37–45, 2018</p>
+        <a href="https://doi.org/10.1080/00031305.2017.1380080" target="_blank" rel="noopener" class="ref-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>doi.org/10.1080/00031305.2017.1380080</a>
+      </div>
+      <div class="ref-item reveal">
+        <p class="ref-authors">Salinas, D., Flunkert, V., Gasthaus, J., y Januschowski, T.</p>
+        <p class="ref-title">DeepAR: Probabilistic forecasting with autoregressive recurrent networks</p>
+        <p class="ref-source">International Journal of Forecasting, 36(3), 1181–1191, 2020</p>
+        <a href="https://doi.org/10.1016/j.ijforecast.2019.07.001" target="_blank" rel="noopener" class="ref-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>doi.org/10.1016/j.ijforecast.2019.07.001</a>
+      </div>
+      <div class="ref-item reveal">
+        <p class="ref-authors">Hilbe, J. M.</p>
+        <p class="ref-title">Negative Binomial Regression (2.ª ed.) — base del motor NB-GLM</p>
+        <p class="ref-source">Cambridge University Press, 2011</p>
+        <a href="https://doi.org/10.1017/CBO9780511973420" target="_blank" rel="noopener" class="ref-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>doi.org/10.1017/CBO9780511973420</a>
+      </div>
+      <div class="ref-item reveal">
+        <p class="ref-authors">Chen, T., y Guestrin, C.</p>
+        <p class="ref-title">XGBoost: A scalable tree boosting system (Ensemble)</p>
+        <p class="ref-source">KDD '16: 22nd ACM SIGKDD, 785–794, 2016</p>
+        <a href="https://doi.org/10.1145/2939672.2939785" target="_blank" rel="noopener" class="ref-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>doi.org/10.1145/2939672.2939785</a>
+      </div>
+      <div class="ref-item reveal">
+        <p class="ref-authors">Ke, G., Meng, Q., Finley, T., et al.</p>
+        <p class="ref-title">LightGBM: A highly efficient gradient boosting decision tree (Stacking)</p>
+        <p class="ref-source">Advances in Neural Information Processing Systems (NeurIPS) 30, 2017</p>
+        <a href="https://proceedings.neurips.cc/paper/2017/hash/6449f44a102fde848669bdd9eb6b76fa-Abstract.html" target="_blank" rel="noopener" class="ref-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>proceedings.neurips.cc</a>
+      </div>
+    </div>
+
+    <h3 class="ref-cat reveal">Métricas, validación y datos</h3>
+    <div class="ref-grid">
+      <div class="ref-item reveal">
+        <p class="ref-authors">Hyndman, R. J., y Koehler, A. B.</p>
+        <p class="ref-title">Another look at measures of forecast accuracy (MASE)</p>
+        <p class="ref-source">International Journal of Forecasting, 22(4), 679–688, 2006</p>
+        <a href="https://doi.org/10.1016/j.ijforecast.2006.03.001" target="_blank" rel="noopener" class="ref-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>doi.org/10.1016/j.ijforecast.2006.03.001</a>
+      </div>
+      <div class="ref-item reveal">
+        <p class="ref-authors">Bergmeir, C., y Benítez, J. M.</p>
+        <p class="ref-title">On the use of cross-validation for time series predictor evaluation</p>
+        <p class="ref-source">Information Sciences, 191, 192–213, 2012</p>
+        <a href="https://doi.org/10.1016/j.ins.2011.12.028" target="_blank" rel="noopener" class="ref-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>doi.org/10.1016/j.ins.2011.12.028</a>
+      </div>
+      <div class="ref-item reveal" style="border-left-color:#F59E0B">
+        <p class="ref-authors">Secretaría de Salud / SINAVE</p>
+        <p class="ref-title">Boletín Epidemiológico — Sistema Nacional de Vigilancia Epidemiológica</p>
+        <p class="ref-source">Gobierno de México, 2012–2026</p>
+        <a href="https://www.gob.mx/salud/acciones-y-programas/historico-boletin-epidemiologico" target="_blank" rel="noopener" class="ref-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>gob.mx/salud</a>
+      </div>
+    </div>
+
+    <p style="text-align:center;margin-top:2.5rem">
+      <a href="reporte_resultados.html#dengue" class="nav-cta nav-cta--primary" style="display:inline-flex;align-items:center;gap:.5rem;padding:.7rem 1.6rem">
+        Ver los resultados de Dengue →
+      </a>
+    </p>
+  </div>
+</section>
+
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="footer-title">EpiForecast-MX</div>
+  <p>Plataforma de inteligencia epidemiológica &middot; IMSS &times; Tec de Monterrey</p>
+  <p style="margin-top:.75rem">
+    <a href="index.html">Inicio</a> &middot;
+    <a href="EpiDashboard.html">Dashboard</a> &middot;
+    <a href="reporte_resultados.html">Resultados</a> &middot;
+    <a href="Reports/index.html">Pronósticos</a> &middot;
+    <a href="dengue.html">Dengue</a> &middot;
+    <a href="bitacora_modelado.html">Bitácora</a> &middot;
+    <a href="comparacion_modelos.html">Comparación</a> &middot;
+    <a href="ficha_tecnica_prophet.html">Ficha Prophet</a> &middot;
+    <a href="hiperparametros_modelos.html">HPs SageMaker</a> &middot;
+    <a href="construccion_dashboard.html">Arquitectura</a> &middot;
+    <a href="validacion_semanal.html">Validación</a> &middot;
+    <a href="auditoria_remediacion_2026.html">Auditoría</a> &middot;
+    <a href="conclusiones.html">Conclusiones</a> &middot;
+    <a href="referencias.html">Referencias</a>
+  </p>
+  <p style="margin-top:.5rem">Maestría en Inteligencia Artificial Aplicada &mdash; Proyecto Capstone 2026</p>
+  <p style="margin-top:.5rem;font-family:var(--font-mono);font-size:.75rem;opacity:.5">Actualizado: 07/06/2026 &middot; neuro 2014–2026 + Dengue 2018–2026</p>
+</footer>
+
+<script>
+const obs = new IntersectionObserver(es => { es.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }); }, {threshold:.08});
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+document.querySelectorAll('a[href^="#"]').forEach(a => { a.addEventListener('click', e => { const el=document.querySelector(a.getAttribute('href')); if(el){e.preventDefault(); el.scrollIntoView({behavior:'smooth'});} }); });
+</script>
+<script>
+window.addEventListener('scroll',function(){document.getElementById('nav').classList.toggle('scrolled',window.scrollY>20)});
+</script>
+</body>
+</html>
