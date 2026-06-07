@@ -210,12 +210,48 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
 <!-- ═══ HERO ═══ -->
 <section class="hero">
   <h1>Resultados del Modelado</h1>
-  <p class="subtitle">EpiForecast-MX &middot; IMSS &times; Tec de Monterrey &middot; 02/03/2026</p>
+  <p class="subtitle">EpiForecast-MX &middot; IMSS &times; Tec de Monterrey &middot; 07/06/2026</p>
   <div class="hero-kpis">
-    <div class="hero-kpi"><span class="value">333</span><span class="label">Modelos Prophet</span></div>
-    <div class="hero-kpi"><span class="value">100%</span><span class="label">Cobertura Estatal</span></div>
-    <div class="hero-kpi"><span class="value">0.8</span><span class="label">MASE Promedio</span></div>
-    <div class="hero-kpi"><span class="value">115</span><span class="label">Excelentes (MASE&lt;0.7)</span></div>
+    <div class="hero-kpi"><span class="value">4</span><span class="label">Padecimientos</span></div>
+    <div class="hero-kpi"><span class="value">432</span><span class="label">Series con pronóstico</span></div>
+    <div class="hero-kpi"><span class="value">5</span><span class="label">Motores compitiendo</span></div>
+    <div class="hero-kpi"><span class="value">52 sem</span><span class="label">Horizonte productivo</span></div>
+  </div>
+  <p style="max-width:760px;margin:1.5rem auto 0;color:var(--text-secondary);line-height:1.6;font-size:.97rem">
+    De un solo modelo Prophet por serie pasamos a <strong style="color:var(--cream)">selección de motor por serie</strong>:
+    cada combinación entidad × sexo elige, contra la realidad del Boletín SINAVE 2026, el mejor de
+    <strong style="color:var(--cream)">cinco motores</strong> (Prophet, DeepAR, Ensemble, Stacking y el nuevo NB-GLM).
+    Y se incorporó el <strong style="color:var(--gold)">Dengue</strong> como cuarto padecimiento.
+    <a href="#dengue" style="color:var(--teal)">Ver la sección de Dengue ↓</a>
+  </p>
+</section>
+
+<!-- ═══ NOVEDADES 2026 ═══ -->
+<section id="novedades" style="padding:3rem 0">
+  <div class="container">
+    <h2 class="section-title reveal">Lo nuevo en 2026</h2>
+    <p class="section-sub reveal">Cómo evolucionó el modelado desde el primer reporte (Prophet único) a hoy</p>
+    <div class="guide-grid">
+      <div class="guide-card reveal" style="border-left-color:var(--teal)">
+        <h3>Selección de motor por serie</h3>
+        <p>Ya no es «Prophet para todo». Las <strong>333 series neuronales</strong> se reasignan al motor que mejor
+        sigue la realidad 2026. Distribución productiva actual: <span class="badge badge-green">DeepAR 98</span>
+        <span class="badge badge-green">Prophet 94</span> <span class="badge badge-yellow">Ensemble 85</span>
+        <span class="badge badge-yellow">Stacking 56</span>.</p>
+      </div>
+      <div class="guide-card reveal" style="border-left-color:var(--gold)">
+        <h3>Nuevo motor NB-GLM</h3>
+        <p>Un GLM Negative-Binomial con estacionalidad de Fourier y el índice <strong>El Niño (ONI)</strong>.
+        Es count-correcto y extrapola la dinámica epidémica sin divergir; el <strong>mejor del estudio</strong> para
+        Dengue en backtest leave-one-epidemic-out (SMAPE 52 vs Prophet 102).</p>
+      </div>
+      <div class="guide-card reveal" style="border-left-color:#F59E0B">
+        <h3>Dengue en producción</h3>
+        <p>Cuarto padecimiento y primera enfermedad por vector. Serie semanal <strong>2018–2026</strong> de las 32
+        entidades, modelada en conteos. Productivos <strong>DeepAR + Prophet + NB-GLM</strong>. En vivo en
+        <a href="dengue.html" style="color:var(--teal)">epiforecast.mx/dengue</a>.</p>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -274,8 +310,8 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
 <!-- ═══ RESUMEN ═══ -->
 <section id="resumen">
   <div class="container">
-    <h2 class="section-title reveal">Resumen por Padecimiento</h2>
-    <p class="section-sub reveal">Desempeno agregado de los modelos Prophet por enfermedad</p>
+    <h2 class="section-title reveal">Resumen por Padecimiento (neuro)</h2>
+    <p class="section-sub reveal">Desempeño agregado del motor productivo por serie en los 3 padecimientos neurológicos (Dengue tiene su propia sección abajo)</p>
     <div class="card-grid" id="pad-cards"></div>
     <div class="charts-row">
       <div class="chart-wrap"><canvas id="maseCompareChart"></canvas></div>
@@ -365,6 +401,77 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
   </div>
 </section>
 
+<!-- ═══ DENGUE ═══ -->
+<section id="dengue" style="background:linear-gradient(180deg,var(--bg-raised),var(--bg));padding:4.5rem 0;border-top:1px solid rgba(245,158,11,.18)">
+  <div class="container">
+    <h2 class="section-title reveal" style="color:#F59E0B">Dengue — 4.º padecimiento</h2>
+    <p class="section-sub reveal">Primera enfermedad transmitida por vector del proyecto. Serie semanal del dengue confirmado <strong>2018–2026</strong> de las 32 entidades, reconstruida desde los boletines del SINAVE y modelada en <strong>conteos absolutos</strong> (no en tasa, como neuro).</p>
+
+    <!-- Stats -->
+    <div class="region-grid reveal" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr))">
+      <div class="region-card"><h4 style="color:#F59E0B">392 sem</h4><p>Serie nacional 2018–2026 (≈8 años)</p></div>
+      <div class="region-card"><h4 style="color:#F59E0B">99 series</h4><p>Nacional + 32 entidades × 3 sexos</p></div>
+      <div class="region-card"><h4 style="color:#F59E0B">5 motores</h4><p>Prophet, DeepAR, Ensemble, Stacking, NB-GLM</p></div>
+      <div class="region-card"><h4 style="color:#F59E0B">DeepAR</h4><p>Motor nacional productivo</p></div>
+      <div class="region-card"><h4 style="color:#F59E0B">1 año + 5</h4><p>Pronóstico 52 sem + proyección 5 años ilustrativa</p></div>
+    </div>
+
+    <!-- Ciclo + ENSO -->
+    <div class="charts-row" style="margin-top:2.5rem">
+      <div class="chart-wrap"><img src="Reports/dengue/dengue_historico_ciclo.png" alt="Ciclo epidémico del dengue 2014-2026" style="width:100%;border-radius:8px;display:block"></div>
+      <div class="chart-wrap"><img src="Reports/dengue/dengue_enso_ciclo.png" alt="El Niño / La Niña vs dengue" style="width:100%;border-radius:8px;display:block"></div>
+    </div>
+    <p style="text-align:center;color:var(--text-muted);font-size:.82rem;margin-top:.5rem">Izquierda: ciclo epidémico (grandes brotes ≈ cada 4–5 años: 2019, 2024). Derecha: el ciclo inter-anual sigue a El Niño (ONI), señal ausente en los conteos recientes.</p>
+
+    <!-- Hallazgos -->
+    <h3 class="section-title reveal" style="font-size:1.5rem;margin-top:3rem">Hallazgos clave</h3>
+    <div class="guide-grid">
+      <div class="guide-card reveal" style="border-left-color:#F59E0B">
+        <h3>El Niño como regresor</h3>
+        <p>El dengue sigue el ciclo ENSO, pero esa señal no vive en los conteos recientes. Al agregar el índice
+        <strong>ONI rezagado 16 sem</strong> a Prophet, el backtest leave-one-epidemic-out mejora el nacional de
+        <span class="badge badge-red">SMAPE 102</span> a <span class="badge badge-yellow">76</span>, y el pico 2024
+        de ratio 1.61 a 0.87.</p>
+      </div>
+      <div class="guide-card reveal" style="border-left-color:var(--teal)">
+        <h3>NB-GLM, el mejor motor</h3>
+        <p>GLM Negative-Binomial + Fourier + El Niño: count-correcto y extrapola sin divergir. Es el mejor del
+        estudio (<span class="badge badge-green">SMAPE 52</span> vs Prophet+ENSO 76 vs Prophet 102). Ensemble y
+        Stacking quedan <strong>fuera</strong>: los árboles no extrapolan la dinámica epidémica a 52 sem.</p>
+      </div>
+      <div class="guide-card reveal" style="border-left-color:var(--burgundy)">
+        <h3>Regiones con DeepAR nativo</h3>
+        <p>Un backtest OOS sobre la epidemia 2024 mostró que <strong>agregar los estados</strong> compone los
+        sobre-tiros y explota (ratio de pico 34–157x). Las 4 regiones usan <strong>DeepAR nativo</strong>, el más
+        contenido y fiel en magnitud (<span class="badge badge-green">MAE 460</span> vs 3.7k–10k de la agregación).</p>
+      </div>
+      <div class="guide-card reveal" style="border-left-color:var(--cool-gray)">
+        <h3>Nota honesta de validación</h3>
+        <p>La métrica de selección de motor (SMAPE 2026) es <strong>in-sample</strong> (el modelo final ve 2026 H1).
+        El <strong>backtest</strong> de NB-GLM sí es limpio (leave-one-epidemic-out). Se valida prospectivo OOS en las
+        semanas no vistas antes de re-entrenar. Ver <a href="auditoria_remediacion_2026.html" style="color:var(--teal)">Auditoría</a>.</p>
+      </div>
+    </div>
+
+    <!-- Produccion + proyeccion -->
+    <div class="charts-row" style="margin-top:2.5rem">
+      <div class="chart-wrap"><img src="Reports/dengue/dengue_motores_dona.png" alt="Distribución de motores productivos de Dengue" style="width:100%;border-radius:8px;display:block"></div>
+      <div class="chart-wrap"><img src="Reports/dengue/dengue_pronostico_nino.png" alt="Proyección de dengue a 5 años guiada por El Niño" style="width:100%;border-radius:8px;display:block"></div>
+    </div>
+    <p style="text-align:center;color:var(--text-muted);font-size:.82rem;margin-top:.5rem">Izquierda: motor productivo por serie (DeepAR 15, Prophet 9, NB-GLM 9 a nivel general). Derecha: proyección multi-año NB-GLM guiada por el próximo El Niño (~2029); precisa a 52 sem, ilustrativa más allá.</p>
+
+    <!-- Mapa -->
+    <div class="chart-wrap reveal" style="margin-top:2rem"><img src="Reports/dengue/dengue_mapa_mexico.png" alt="Carga de dengue por entidad" style="width:100%;border-radius:8px;display:block"></div>
+    <p style="text-align:center;color:var(--text-muted);font-size:.82rem;margin-top:.5rem">Carga acumulada de dengue por entidad (2018–2026): el Sur-Sureste y la costa del Pacífico concentran la transmisión.</p>
+
+    <p style="text-align:center;margin-top:2.5rem">
+      <a href="dengue.html" class="nav-cta nav-cta--primary" style="display:inline-flex;align-items:center;gap:.5rem;padding:.7rem 1.6rem">
+        Ver el pronóstico de Dengue en vivo →
+      </a>
+    </p>
+  </div>
+</section>
+
 <!-- ═══ FOOTER ═══ -->
 <footer>
   <div class="footer-title">EpiForecast-MX</div>
@@ -374,6 +481,7 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
     <a href="EpiDashboard.html">Dashboard</a> &middot;
     <a href="reporte_resultados.html">Resultados</a> &middot;
     <a href="Reports/index.html">Pronósticos</a> &middot;
+    <a href="dengue.html">Dengue</a> &middot;
     <a href="bitacora_modelado.html">Bitácora</a> &middot;
     <a href="comparacion_modelos.html">Comparación</a> &middot;
     <a href="ficha_tecnica_prophet.html">Ficha Prophet</a> &middot;
@@ -385,7 +493,7 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
     <a href="referencias.html">Referencias</a>
   </p>
   <p style="margin-top:.5rem">Maestría en Inteligencia Artificial Aplicada &mdash; Proyecto Capstone 2026</p>
-  <p style="margin-top:.5rem;font-family:var(--font-mono);font-size:.75rem;opacity:.5">Generado: 02/03/2026 con datos 2014-2026</p>
+  <p style="margin-top:.5rem;font-family:var(--font-mono);font-size:.75rem;opacity:.5">Actualizado: 07/06/2026 &middot; neuro 2014–2026 + Dengue 2018–2026</p>
 </footer>
 
 <script>
