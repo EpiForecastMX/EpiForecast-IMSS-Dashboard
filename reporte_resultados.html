@@ -220,8 +220,8 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
   <p style="max-width:760px;margin:1.5rem auto 0;color:var(--text-secondary);line-height:1.6;font-size:.97rem">
     De un solo modelo Prophet por serie pasamos a <strong style="color:var(--cream)">selección de motor por serie</strong>:
     cada combinación entidad × sexo elige, contra la realidad del Boletín SINAVE 2026, el mejor de
-    <strong style="color:var(--cream)">cinco motores</strong> (Prophet, DeepAR, Ensemble, Stacking y el nuevo NB-GLM).
-    Y se incorporó el <strong style="color:var(--gold)">Dengue</strong> como cuarto padecimiento.
+    <strong style="color:var(--cream)">cuatro motores</strong> (Prophet, DeepAR, Ensemble y Stacking).
+    Y se incorporó el <strong style="color:var(--gold)">Dengue</strong> como cuarto padecimiento, con un quinto motor nuevo, el <strong style="color:var(--gold)">NB-GLM</strong>.
     <a href="#dengue" style="color:var(--teal)">Ver la sección de Dengue ↓</a>
   </p>
 </section>
@@ -259,50 +259,50 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
 <!-- ═══ GUIA ═══ -->
 <section id="guia" style="background:var(--bg-raised);padding:4rem 0">
   <div class="container">
-    <h2 class="section-title reveal">Antes de empezar: guia rapida</h2>
+    <h2 class="section-title reveal">Antes de empezar: guía rápida</h2>
     <p class="section-sub reveal">Todo lo que necesitas saber para entender este reporte, explicado de forma sencilla</p>
     <div class="guide-grid">
       <div class="guide-card" style="border-left-color:var(--teal)">
-        <h3>Que mide el MASE</h3>
-        <p>El MASE es como una <strong>calificacion</strong> del modelo. Lo compara contra el metodo mas simple posible: repetir lo que paso hace exactamente un ano.
+        <h3>Qué mide el MASE</h3>
+        <p>El MASE es como una <strong>calificación</strong> del modelo. Lo compara contra el método más simple posible: repetir lo que pasó hace exactamente un año.
         <br><br><span class="badge badge-green">&lt; 0.7 Excelente</span> <span class="badge badge-yellow">0.7 – 1.0 Bueno</span> <span class="badge badge-red">&gt; 1.0 Necesita mejora</span>
-        <br><br>Si el MASE es menor a 1, <strong>nuestro modelo es mejor que solo copiar el pasado</strong>. Entre mas bajo, mejor.</p>
+        <br><br>Si el MASE es menor a 1, <strong>nuestro modelo es mejor que solo copiar el pasado</strong>. Entre más bajo, mejor.</p>
       </div>
       <div class="guide-card" style="border-left-color:var(--gold)">
         <h3>Las 4 regiones INEGI de salud mental</h3>
-        <p>El INEGI agrupa los 32 estados en <strong>4 zonas</strong> segun sus patrones de salud mental. Esto importa porque estados de la misma zona se comportan de forma similar:</p>
+        <p>El INEGI agrupa los 32 estados en <strong>4 zonas</strong> según sus patrones de salud mental. Esto importa porque estados de la misma zona se comportan de forma similar:</p>
         <div class="region-grid" style="margin-top:.75rem">
-          <div class="region-card"><h4>Metropolitana alta</h4><p>CDMX, Edo. Mex, Jalisco, Nuevo Leon, Chihuahua, Baja California, Coahuila, Sinaloa, Sonora, Tamaulipas</p></div>
-          <div class="region-card"><h4>Urbana media</h4><p>Aguascalientes, BCS, Colima, Durango, Guanajuato, Morelos, Queretaro, San Luis Potosi, Zacatecas</p></div>
-          <div class="region-card"><h4>Sur-Sureste vulnerable</h4><p>Campeche, Chiapas, Oaxaca, Quintana Roo, Tabasco, Veracruz, Yucatan</p></div>
-          <div class="region-card"><h4>Rural / dispersa</h4><p>Guerrero, Hidalgo, Michoacan, Nayarit, Puebla, Tlaxcala</p></div>
+          <div class="region-card"><h4>Metropolitana alta</h4><p>CDMX, Edo. Méx., Jalisco, Nuevo León, Chihuahua, Baja California, Coahuila, Sinaloa, Sonora, Tamaulipas</p></div>
+          <div class="region-card"><h4>Urbana media</h4><p>Aguascalientes, BCS, Colima, Durango, Guanajuato, Morelos, Querétaro, San Luis Potosí, Zacatecas</p></div>
+          <div class="region-card"><h4>Sur-Sureste vulnerable</h4><p>Campeche, Chiapas, Oaxaca, Quintana Roo, Tabasco, Veracruz, Yucatán</p></div>
+          <div class="region-card"><h4>Rural / dispersa</h4><p>Guerrero, Hidalgo, Michoacán, Nayarit, Puebla, Tlaxcala</p></div>
         </div>
       </div>
       <div class="guide-card" style="border-left-color:var(--burgundy)">
-        <h3>Que es un modelo &laquo;fallback&raquo; regional</h3>
+        <h3>Qué es un modelo &laquo;fallback&raquo; regional</h3>
         <p>Algunos estados tienen <strong>tan pocos casos</strong> (menos de 0.5 por semana) que no hay datos suficientes para entrenar un modelo confiable solo para ese estado.
-        <br><br>En lugar de dar un pronostico malo, <strong>usamos el modelo de toda su region INEGI</strong>, que tiene muchos mas datos. El pronostico final se ajusta con la poblacion individual de cada estado.
-        <br><br>Es como pedir prestada la experiencia de los vecinos para hacer una mejor prediccion.</p>
+        <br><br>En lugar de dar un pronóstico malo, <strong>usamos el modelo de toda su región INEGI</strong>, que tiene muchos más datos. El pronóstico final se ajusta con la población individual de cada estado.
+        <br><br>Es como pedir prestada la experiencia de los vecinos para hacer una mejor predicción.</p>
       </div>
       <div class="guide-card" style="border-left-color:var(--cool-gray)">
-        <h3>Por que hay diferente numero de modelos</h3>
-        <p>Cada padecimiento tiene una base de <strong>99 modelos</strong> (32 estados &times; 3 modos de sexo + 3 nacionales). La diferencia viene de cuantos modelos regionales de respaldo se necesitan:
+        <h3>Por qué hay diferente número de modelos</h3>
+        <p>Cada padecimiento tiene una base de <strong>99 modelos</strong> (32 estados &times; 3 modos de sexo + 3 nacionales). La diferencia viene de cuántos modelos regionales de respaldo se necesitan:
         <br><br><strong>Alzheimer</strong>: 111 modelos (99 base + 12 regionales de respaldo). 7 series estatales usan el modelo de su region (4 regiones activas).<br><strong>Depresión</strong>: 111 modelos (99 base + 12 regionales de respaldo). Todos los estados tienen su propio modelo.<br><strong>Parkinson</strong>: 111 modelos (99 base + 12 regionales de respaldo). 1 series estatales usan el modelo de su region (4 regiones activas).</p>
       </div>
       <div class="guide-card" style="border-left-color:var(--teal)">
-        <h3>Las 4 metricas del modelo</h3>
-        <p>Cada modelo se evalua con cuatro metricas complementarias:
-        <br><br><strong>MASE</strong> &mdash; Compara el error del modelo contra un baseline naive (repetir el valor de hace 1 año). Menor a 1 = mejor que el baseline. <em>Metrica principal.</em>
-        <br><strong>SMAPE</strong> &mdash; Error porcentual simetrico, acotado entre 0% y 200%. Intuitivo y mas estable que el MAPE, aunque tambien se infla cuando la incidencia es cercana a cero.
-        <br><strong>RMSE</strong> &mdash; Error cuadratico medio. Penaliza errores grandes. Esta en casos por semana del motor productivo.
+        <h3>Las 4 métricas del modelo</h3>
+        <p>Cada modelo se evalúa con cuatro métricas complementarias:
+        <br><br><strong>MASE</strong> &mdash; Compara el error del modelo contra un baseline naive (repetir el valor de hace 1 año). Menor a 1 = mejor que el baseline. <em>Métrica principal.</em>
+        <br><strong>SMAPE</strong> &mdash; Error porcentual simétrico, acotado entre 0% y 200%. Intuitivo y más estable que el MAPE, aunque también se infla cuando la incidencia es cercana a cero.
+        <br><strong>RMSE</strong> &mdash; Error cuadrático medio. Penaliza errores grandes. Está en casos por semana del motor productivo.
         <br><strong>MAE</strong> &mdash; Error absoluto medio. Similar al RMSE pero sin penalizar extremos, tambien en casos por semana.
         <br><br><em>Nota: MASE es adimensional (comparable entre padecimientos); SMAPE en %, y RMSE/MAE en casos del motor productivo de cada serie.</em></p>
       </div>
       <div class="guide-card" style="border-left-color:var(--burgundy)">
-        <h3>Por que el SMAPE es alto en baja incidencia</h3>
-        <p>El SMAPE promedia el error relativo semana a semana. Cuando la incidencia es cercana a cero (comun en <strong>Alzheimer y Parkinson</strong> estatales), una diferencia de uno o dos casos representa un error porcentual enorme, asi que el SMAPE sube hacia su tope de 200% aunque el pronostico siga el patron.
-        <br><br>Por eso en esos padecimientos veras SMAPE alto junto a un <strong>MASE bajo</strong>: el modelo si le gana al baseline, solo que la metrica porcentual castiga los ceros.
-        <br><br>Por esta razon <strong>MASE es la metrica principal</strong> de seleccion: compara contra un baseline en vez de dividir por el valor real.</p>
+        <h3>Por qué el SMAPE es alto en baja incidencia</h3>
+        <p>El SMAPE promedia el error relativo semana a semana. Cuando la incidencia es cercana a cero (común en <strong>Alzheimer y Parkinson</strong> estatales), una diferencia de uno o dos casos representa un error porcentual enorme, así que el SMAPE sube hacia su tope de 200% aunque el pronóstico siga el patrón.
+        <br><br>Por eso en esos padecimientos verás SMAPE alto junto a un <strong>MASE bajo</strong>: el modelo sí le gana al baseline, solo que la métrica porcentual castiga los ceros.
+        <br><br>Por esta razón <strong>MASE es la métrica principal</strong> de selección: compara contra un baseline en vez de dividir por el valor real.</p>
       </div>
     </div>
   </div>
@@ -324,8 +324,8 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
 <!-- ═══ CALIDAD ═══ -->
 <section id="calidad" style="background:var(--bg-raised);padding:4rem 0">
   <div class="container">
-    <h2 class="section-title reveal">Distribucion de Calidad</h2>
-    <p class="section-sub reveal">Como se distribuyen los modelos segun su MASE — la mayoria estan en rango bueno o excelente</p>
+    <h2 class="section-title reveal">Distribución de Calidad</h2>
+    <p class="section-sub reveal">Cómo se distribuyen los modelos según su MASE — la mayoria estan en rango bueno o excelente</p>
     <div class="chart-wrap"><canvas id="histoChart"></canvas></div>
   </div>
 </section>
@@ -334,7 +334,7 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
 <section id="sexo">
   <div class="container">
     <h2 class="section-title reveal">Desglose por Sexo</h2>
-    <p class="section-sub reveal">Comparacion de MASE entre modelos generales, masculinos y femeninos. Los modelos &laquo;general&raquo; suelen ser mejores porque tienen mas datos.</p>
+    <p class="section-sub reveal">Comparación de MASE entre modelos generales, masculinos y femeninos. Los modelos &laquo;general&raquo; suelen ser mejores porque tienen más datos.</p>
     <div class="chart-wrap"><canvas id="sexoChart"></canvas></div>
   </div>
 </section>
@@ -343,7 +343,7 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
 <section id="topbottom" style="background:var(--bg-raised);padding:4rem 0">
   <div class="container">
     <h2 class="section-title reveal">Los 10 Mejores y 10 Peores</h2>
-    <p class="section-sub reveal">Modelos con el MASE mas bajo (mejor) y mas alto (peor). CDMX domina los mejores; Estado de Mexico domina los peores.</p>
+    <p class="section-sub reveal">Modelos con el MASE más bajo (mejor) y más alto (peor). CDMX domina los mejores; Estado de México domina los peores.</p>
     <div class="charts-row">
       <div class="chart-wrap"><canvas id="topChart"></canvas></div>
       <div class="chart-wrap"><canvas id="bottomChart"></canvas></div>
@@ -396,8 +396,8 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
 <!-- ═══ COBERTURA ═══ -->
 <section id="cobertura" style="background:var(--bg-raised);padding:4rem 0">
   <div class="container">
-    <h2 class="section-title reveal">Cobertura Geografica</h2>
-    <p class="section-sub reveal">Tipo de modelo por estado: <span class="cob-dot propio" style="display:inline-block;vertical-align:middle"></span> Propio (datos suficientes) &nbsp; <span class="cob-dot fallback" style="display:inline-block;vertical-align:middle"></span> Fallback regional (usa modelo de su zona). Orden: Alzheimer, Depresion, Parkinson.</p>
+    <h2 class="section-title reveal">Cobertura Geográfica</h2>
+    <p class="section-sub reveal">Tipo de modelo por estado: <span class="cob-dot propio" style="display:inline-block;vertical-align:middle"></span> Propio (datos suficientes) &nbsp; <span class="cob-dot fallback" style="display:inline-block;vertical-align:middle"></span> Fallback regional (usa modelo de su zona). Orden: Alzheimer, Depresión, Parkinson.</p>
     <div class="cob-summary" id="cobSummary"></div>
     <div class="cob-grid" id="cobGrid"></div>
   </div>
@@ -412,7 +412,7 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
     <!-- Stats -->
     <div class="region-grid reveal" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr))">
       <div class="region-card"><h4 style="color:#F59E0B">392 sem</h4><p>Serie nacional 2018–2026 (≈8 años)</p></div>
-      <div class="region-card"><h4 style="color:#F59E0B">99 series</h4><p>Nacional + 32 entidades × 3 sexos</p></div>
+      <div class="region-card"><h4 style="color:#F59E0B">99 series</h4><p>(Nacional + 32 entidades) × 3 sexos</p></div>
       <div class="region-card"><h4 style="color:#F59E0B">5 motores</h4><p>Prophet, DeepAR, Ensemble, Stacking, NB-GLM</p></div>
       <div class="region-card"><h4 style="color:#F59E0B">DeepAR</h4><p>Motor nacional productivo</p></div>
       <div class="region-card"><h4 style="color:#F59E0B">1 año + 5</h4><p>Pronóstico 52 sem + proyección 5 años ilustrativa</p></div>
@@ -664,11 +664,11 @@ try {
     options: {
       responsive: true,
       plugins: {
-        title: { display:true, text:'Cuantos modelos hay en cada rango de MASE', font:{ family:"'Outfit'", size:14 } },
+        title: { display:true, text:'Cuántos modelos hay en cada rango de MASE', font:{ family:"'Outfit'", size:14 } },
         legend: { position:'bottom', labels:{ font:{ family:"'Outfit'" } } }
       },
       scales: {
-        y: { beginAtZero:true, title:{ display:true, text:'Numero de modelos', font:{ family:"'Outfit'" } }, grid:{ color:'rgba(91,141,239,.12)' } },
+        y: { beginAtZero:true, title:{ display:true, text:'Número de modelos', font:{ family:"'Outfit'" } }, grid:{ color:'rgba(91,141,239,.12)' } },
         x: { grid:{ display:false }, title:{ display:true, text:'Rango de MASE', font:{ family:"'Outfit'" } } }
       }
     }
