@@ -96,7 +96,11 @@
   .meta-bar strong { color: var(--text-primary); font-weight: 600; }
   .meta-bar .meta-ico { width: 13px; height: 13px; color: var(--teal); flex-shrink: 0; }
   .meta-bar .meta-dot { width: 7px; height: 7px; border-radius: 50%; background: #2DD4BF; box-shadow: 0 0 0 0 rgba(45,212,191,0.6); animation: lbpulse 2s infinite; flex-shrink: 0; }
-  @media (max-width: 768px) { .meta-bar { padding: 8px 16px; font-size: 0.72rem; gap: 4px 14px; } }
+  @media (max-width: 768px) {
+    .meta-bar { flex-direction: column; align-items: flex-start; flex-wrap: nowrap; gap: 5px; padding: 10px 16px; font-size: 0.72rem; line-height: 1.3; }
+    .meta-bar .meta-item { width: 100%; align-items: flex-start; }
+    .meta-bar .meta-ico, .meta-bar .meta-dot { margin-top: 2px; }
+  }
 
   /* ── View toggle (Histórico / Zoom) ──────────── */
   .view-toggle { display: inline-flex; border: 1px solid var(--imss-border); border-radius: 7px; overflow: hidden; background: var(--bg-card); }
