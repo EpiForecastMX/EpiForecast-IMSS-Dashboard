@@ -332,6 +332,12 @@
       <button class="vt-btn" data-view="zoom" title="Últimas 52 semanas reales + pronóstico a 52 semanas">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Zoom 52 Semanas
       </button>
+      <button class="vt-btn" data-view="zoom5" title="5 años de realidad + pronóstico a 52 semanas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/></svg>Zoom 5 Años
+      </button>
+      <button class="vt-btn" data-view="compare" title="52 semanas atrás y adelante con todos los motores superpuestos">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 16 8 9 13 13 21 4"/><polyline points="3 20 8 14 13 17 21 9"/></svg>Comparar Modelos
+      </button>
     </div>
   </div>
   <span class="badge badge-count" id="countBadge">333</span>
@@ -435,8 +441,9 @@ let lbChart  = null;     // instancia Chart.js viva del lightbox
 // ── Helpers ──────────────────────────────────
 // En modo zoom usamos el PNG '..._zoom.png' (mismo nombre + sufijo); si faltara, el onerror
 // del <img> regresa al histórico completo para no dejar un hueco roto.
-function srcOf(d)      { return view === 'zoom' ? d.f.replace(/\.png$/, '_zoom.png') : d.f; }
-function imgFallback(d){ return view === 'zoom' ? ` onerror="this.onerror=null;this.src='${d.f}'"` : ''; }
+const VIEW_SUFFIX = { zoom: '_zoom.png', zoom5: '_zoom5.png', compare: '_compare.png' };
+function srcOf(d)      { const s = VIEW_SUFFIX[view]; return s ? d.f.replace(/\.png$/, s) : d.f; }
+function imgFallback(d){ return VIEW_SUFFIX[view] ? ` onerror="this.onerror=null;this.src='${d.f}'"` : ''; }
 function padClass(p) { return p.includes('Depresi') ? 'pad-Depresion' : 'pad-' + p; }
 function padMatch(p, val) {
   if (!val) return true;
@@ -669,8 +676,8 @@ function renderLbChart(d, s) {
 function openLightbox(idx) {
   lbIndex = idx;
   const d = filtered[idx];
-  const vista = view === 'zoom' ? ' · Zoom 52 Semanas' : '';
-  document.getElementById('lbCaption').textContent = `${d.p} · ${d.n} · ${d.s}${vista}  (${idx + 1} / ${filtered.length})`;
+  const VIEW_LABEL = { zoom: ' · Zoom 52 Semanas', zoom5: ' · Zoom 5 Años', compare: ' · Comparar Modelos' };
+  document.getElementById('lbCaption').textContent = `${d.p} · ${d.n} · ${d.s}${VIEW_LABEL[view] || ''}  (${idx + 1} / ${filtered.length})`;
   document.getElementById('lightbox').classList.add('open');
   if (view === 'zoom') {
     loadZoomData().then(zd => {
@@ -680,7 +687,7 @@ function openLightbox(idx) {
       else showLbImage(d, true);                   // sin datos vivos -> PNG zoom
     });
   } else {
-    showLbImage(d, false);
+    showLbImage(d, view !== 'full');               // zoom5/compare -> su PNG; full -> base
   }
 }
 function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); destroyLbChart(); }
