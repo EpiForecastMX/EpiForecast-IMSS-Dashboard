@@ -297,12 +297,12 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
 <section class="hero">
   <h1>Conclusiones del <em>Proyecto</em></h1>
   <p class="subtitle">EpiForecast-MX &middot; IMSS &times; Tec de Monterrey</p>
-  <p class="subtitle2">Maestr&iacute;a en Inteligencia Artificial Aplicada &bull; Febrero 2026</p>
+  <p class="subtitle2">Maestr&iacute;a en Inteligencia Artificial Aplicada &bull; Junio 2026</p>
   <div class="hero-kpis">
-    <div class="hero-kpi"><span class="value">312</span><span class="label">Modelos Prophet</span></div>
+    <div class="hero-kpi"><span class="value">4</span><span class="label">Padecimientos</span></div>
+    <div class="hero-kpi"><span class="value">432</span><span class="label">Series con pron&oacute;stico</span></div>
+    <div class="hero-kpi"><span class="value">5</span><span class="label">Motores de pron&oacute;stico</span></div>
     <div class="hero-kpi"><span class="value">100%</span><span class="label">Cobertura Estatal</span></div>
-    <div class="hero-kpi"><span class="value">1,548</span><span class="label">Trials SageMaker</span></div>
-    <div class="hero-kpi"><span class="value">4</span><span class="label">Avances Entregados</span></div>
   </div>
 </section>
 
@@ -319,13 +319,14 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
         <a href="#optimizaci&oacute;n"><span class="toc-num">05</span> Optimizaci&oacute;n v5/v6</a>
         <a href="#sagemaker"><span class="toc-num">06</span> Benchmark SageMaker</a>
         <a href="#tableau"><span class="toc-num">07</span> Dashboard Tableau</a>
-        <a href="#hallazgos"><span class="toc-num">08</span> Hallazgos clave</a>
-        <a href="#mase"><span class="toc-num">09</span> MASE: la m&eacute;trica que importa</a>
-        <a href="#limitaciones"><span class="toc-num">10</span> Limitaciones y trabajo futuro</a>
-        <a href="#equipo"><span class="toc-num">11</span> Reflexiones del equipo</a>
-        <a href="#personales"><span class="toc-num">12</span> Reflexiones personales</a>
-        <a href="#agradecimientos"><span class="toc-num">13</span> Agradecimientos</a>
-        <a href="#ficha"><span class="toc-num">14</span> Ficha t&eacute;cnica</a>
+        <a href="#dengue"><span class="toc-num">08</span> Dengue: el 4.&ordm; padecimiento</a>
+        <a href="#hallazgos"><span class="toc-num">09</span> Hallazgos clave</a>
+        <a href="#mase"><span class="toc-num">10</span> MASE: la m&eacute;trica que importa</a>
+        <a href="#limitaciones"><span class="toc-num">11</span> Limitaciones y trabajo futuro</a>
+        <a href="#equipo"><span class="toc-num">12</span> Reflexiones del equipo</a>
+        <a href="#personales"><span class="toc-num">13</span> Reflexiones personales</a>
+        <a href="#agradecimientos"><span class="toc-num">14</span> Agradecimientos</a>
+        <a href="#ficha"><span class="toc-num">15</span> Ficha t&eacute;cnica</a>
       </div>
     </div>
   </div>
@@ -342,18 +343,21 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
         <strong>EpiForecast-MX</strong> es una plataforma de inteligencia epidemiol&oacute;gica desarrollada en colaboraci&oacute;n con el
         <strong>Instituto Mexicano del Seguro Social (IMSS)</strong> como proyecto Capstone de la Maestr&iacute;a en Inteligencia
         Artificial Aplicada del Tecnol&oacute;gico de Monterrey. Predice la incidencia semanal de tres padecimientos neurol&oacute;gicos
-        y de salud mental a nivel estatal en M&eacute;xico:
+        y de salud mental, y &mdash;desde 2026&mdash; de una enfermedad transmitida por vector, el <strong>Dengue</strong>:
       </p>
       <div class="stats-row" style="margin-top:1.5rem">
         <div class="stat-box burgundy"><div class="big-num">F32</div><div class="stat-desc">Depresi&oacute;n</div></div>
         <div class="stat-box"><div class="big-num">G20</div><div class="stat-desc">Parkinson</div></div>
         <div class="stat-box gold"><div class="big-num">G30</div><div class="stat-desc">Alzheimer</div></div>
+        <div class="stat-box" style="border-color:rgba(245,158,11,.4)"><div class="big-num" style="color:#F59E0B">A97</div><div class="stat-desc">Dengue</div></div>
       </div>
       <p style="margin-top:1.5rem;font-size:.95rem;color:var(--text-secondary);line-height:1.7">
-        Los datos provienen del <strong>SINAVE</strong> (Sistema Nacional de Vigilancia Epidemiol&oacute;gica), con registros
-        semanales desde 2014 hasta 2026 extra&iacute;dos de m&aacute;s de 633 boletines epidemiol&oacute;gicos en PDF. Los modelos trabajan con
-        <strong>tasas por 100,000 habitantes</strong> normalizadas con datos demogr&aacute;ficos del INEGI, generando proyecciones
-        a 52 semanas para las 32 entidades federativas, segmentadas por sexo.
+        Los datos provienen del <strong>SINAVE</strong> (Sistema Nacional de Vigilancia Epidemiol&oacute;gica): la cohorte neurol&oacute;gica
+        con registros semanales <strong>2014&ndash;2026</strong> (m&aacute;s de 633 boletines en PDF, modelada en <strong>tasas por 100,000
+        habitantes</strong> con demograf&iacute;a del INEGI) y el <strong>Dengue 2018&ndash;2026</strong> (modelado en <strong>conteos</strong>).
+        En total se generan proyecciones a 52 semanas para <strong>432 series</strong> (Nacional, regiones y las 32 entidades,
+        segmentadas por sexo). Ya no es &laquo;un Prophet para todo&raquo;: cada serie elige el mejor de <strong>cinco motores</strong>
+        (Prophet, DeepAR, Ensemble, Stacking y el nuevo NB-GLM) contra la realidad del bolet&iacute;n.
       </p>
     </div>
   </div>
@@ -631,9 +635,63 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
 </section>
 
 <!-- 8. Hallazgos clave -->
+<!-- 8. Dengue -->
+<section id="dengue">
+  <div class="container">
+    <h2 class="section-title reveal">8. Dengue: el 4.&ordm; padecimiento</h2>
+    <p class="section-sub reveal">La primera enfermedad transmitida por vector del proyecto, con su propia metodolog&iacute;a</p>
+
+    <div class="card reveal" style="max-width:900px">
+      <p style="font-size:1.05rem;line-height:1.8">
+        En 2026 se incorpor&oacute; el <strong>Dengue</strong> como cuarto padecimiento. A diferencia de la cohorte neurol&oacute;gica
+        (tasas por 100k), el Dengue se modela en <strong>conteos absolutos</strong> sobre escala <code>log1p</code>, con un
+        regresor clim&aacute;tico (<strong>El Ni&ntilde;o / ONI</strong>) y un motor nuevo, el <strong>NB-GLM</strong>. La serie
+        semanal <strong>2018&ndash;2026</strong> (&asymp;391 semanas) se reconstruy&oacute; de los boletines del SINAVE.
+      </p>
+      <div class="stats-row" style="margin-top:1.5rem">
+        <div class="stat-box" style="border-color:rgba(245,158,11,.4)"><div class="big-num" style="color:#F59E0B">99</div><div class="stat-desc">Series + 4 regiones</div></div>
+        <div class="stat-box"><div class="big-num">5</div><div class="stat-desc">Motores evaluados</div></div>
+        <div class="stat-box gold"><div class="big-num">52</div><div class="stat-desc">SMAPE backtest NB-GLM</div></div>
+      </div>
+    </div>
+
+    <div class="guide-grid reveal" style="margin-top:2rem">
+      <div class="guide-card gold">
+        <h3>El Ni&ntilde;o como regresor</h3>
+        <p>El ciclo inter-anual del dengue sigue a ENSO, una se&ntilde;al ausente en los conteos recientes. Agregar el
+        &iacute;ndice <strong>ONI rezagado 16 semanas</strong> baja el SMAPE nacional del backtest de
+        <span class="badge badge-red">102</span> a <span class="badge badge-yellow">76</span>.</p>
+      </div>
+      <div class="guide-card green">
+        <h3>NB-GLM, el mejor motor</h3>
+        <p>Un GLM Negative-Binomial + Fourier + El Ni&ntilde;o: <em>count-correcto</em> y extrapola sin divergir. El mejor del
+        estudio en backtest leave-one-epidemic-out (<span class="badge badge-green">SMAPE 52</span> vs Prophet 102).</p>
+      </div>
+      <div class="guide-card burgundy">
+        <h3>&Aacute;rboles fuera de producci&oacute;n</h3>
+        <p>Ensemble y Stacking quedan fuera: XGBoost y LightGBM <strong>no extrapolan</strong> la din&aacute;mica epid&eacute;mica a
+        52 semanas (divergen ~33x / ~99x). Productivos: <strong>DeepAR 46, NB-GLM 31, Prophet 22</strong>.</p>
+      </div>
+      <div class="guide-card">
+        <h3>Regiones con DeepAR nativo</h3>
+        <p>Agregar estados compone los sobre-tiros y explota en la epidemia (pico 34&ndash;157x). Las 4 regiones usan
+        <strong>DeepAR nativo</strong>, contenido y fiel en magnitud (<span class="badge badge-green">MAE 460</span>).</p>
+      </div>
+    </div>
+
+    <p class="reveal" style="margin-top:1.5rem;font-size:.95rem;color:var(--text-secondary)">
+      Detalle completo en la <a href="metodologia_dengue.html" style="color:var(--teal)">metodolog&iacute;a de Dengue</a>
+      (datos, par&aacute;metros y referencias) y el <a href="dengue.html" style="color:var(--teal)">pron&oacute;stico en vivo</a>.
+      <em>Nota honesta:</em> la m&eacute;trica de selecci&oacute;n de motor (SMAPE 2026) es in-sample; el backtest del NB-GLM s&iacute;
+      es fuera de muestra, y se valida prospectivo OOS antes de re-entrenar.
+    </p>
+  </div>
+</section>
+
+<!-- 9. Hallazgos -->
 <section id="hallazgos" style="background:var(--bg-raised);padding:4rem 0">
   <div class="container">
-    <h2 class="section-title reveal">8. Hallazgos clave</h2>
+    <h2 class="section-title reveal">9. Hallazgos clave</h2>
     <p class="section-sub reveal">Descubrimientos m&aacute;s importantes del proyecto</p>
 
     <div class="guide-grid reveal">
@@ -676,7 +734,7 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
 <!-- 9. MASE: la m&eacute;trica que importa -->
 <section id="mase">
   <div class="container">
-    <h2 class="section-title reveal">9. MASE: la m&eacute;trica que importa</h2>
+    <h2 class="section-title reveal">10. MASE: la m&eacute;trica que importa</h2>
     <p class="section-sub reveal">Mean Absolute Scaled Error &mdash; por qu&eacute; elegimos esta m&eacute;trica y qu&eacute; revela</p>
 
     <div class="card reveal" style="max-width:900px">
@@ -750,7 +808,7 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
 <!-- 10. Limitaciones -->
 <section id="limitaciones" style="background:var(--bg-raised);padding:4rem 0">
   <div class="container">
-    <h2 class="section-title reveal">10. Limitaciones y trabajo futuro</h2>
+    <h2 class="section-title reveal">11. Limitaciones y trabajo futuro</h2>
     <p class="section-sub reveal">Qu&eacute; queda pendiente y c&oacute;mo continuar</p>
 
     <div class="concept-grid reveal">
@@ -762,9 +820,20 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
         <h4>39 series omitidas del benchmark</h4>
         <p>Series con incidencia &lt; 0.5/semana (todas Alzheimer + 4 Parkinson) no se evaluaron en SageMaker. Su comportamiento con otros modelos es desconocido.</p>
       </div>
+      <div class="concept-card green">
+        <h4>Selecci&oacute;n multi-motor (hecho)</h4>
+        <p>Lo que era trabajo futuro ya es producci&oacute;n: cada serie elige entre <strong>5 motores</strong> (Prophet, DeepAR,
+        Ensemble, Stacking, NB-GLM) contra la realidad 2026. Distribuci&oacute;n neuro: DeepAR 98, Prophet 94, Ensemble 85, Stacking 56.</p>
+      </div>
+      <div class="concept-card green">
+        <h4>Dengue incorporado (hecho)</h4>
+        <p>La expansi&oacute;n a otros c&oacute;digos CIE-10 se materializ&oacute; con el <strong>Dengue</strong> (A97): primera arbovirosis,
+        serie 2018&ndash;2026, en vivo en <a href="dengue.html" style="color:var(--teal)">epiforecast.mx/dengue</a>.</p>
+      </div>
       <div class="concept-card gold">
-        <h4>Ensemble de modelos</h4>
-        <p>Para las ~21 series con gap &gt; 20% vs el ganador, un modelo h&iacute;brido Prophet + TFT/DeepAR podr&iacute;a mejorar significativamente las predicciones.</p>
+        <h4>Validaci&oacute;n prospectiva OOS</h4>
+        <p>La m&eacute;trica de selecci&oacute;n (SMAPE 2026) es in-sample. Pendiente: acumular desempe&ntilde;o <strong>fuera de muestra</strong>
+        en las semanas no vistas tras cada bolet&iacute;n, antes de re-entrenar, para confirmar la selecci&oacute;n de motor.</p>
       </div>
       <div class="concept-card">
         <h4>Monitoreo trimestral</h4>
@@ -772,11 +841,7 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
       </div>
       <div class="concept-card gold">
         <h4>Variables ex&oacute;genas IMSS</h4>
-        <p>Incorporar datos internos del IMSS (consultas, prescripciones, personal m&eacute;dico) como regresores adicionales en Prophet para mejorar precisi&oacute;n estatal.</p>
-      </div>
-      <div class="concept-card green">
-        <h4>Expansi&oacute;n a otros padecimientos</h4>
-        <p>El pipeline es parametrizado y puede adaptarse a otros c&oacute;digos CIE-10. La arquitectura soporta expansi&oacute;n sin cambios estructurales.</p>
+        <p>Incorporar datos internos del IMSS (consultas, prescripciones, personal m&eacute;dico) como regresores adicionales para mejorar precisi&oacute;n estatal.</p>
       </div>
     </div>
   </div>
@@ -785,7 +850,7 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
 <!-- 11. Reflexiones del equipo -->
 <section id="equipo">
   <div class="container">
-    <h2 class="section-title reveal">11. Reflexiones del equipo</h2>
+    <h2 class="section-title reveal">12. Reflexiones del equipo</h2>
     <p class="section-sub reveal">Aprendizajes colectivos sobre interdisciplinariedad y pipeline</p>
 
     <div class="guide-grid reveal">
@@ -820,7 +885,7 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
 <!-- 11. Reflexiones personales -->
 <section id="personales">
   <div class="container">
-    <h2 class="section-title reveal">12. Reflexiones personales</h2>
+    <h2 class="section-title reveal">13. Reflexiones personales</h2>
     <p class="section-sub reveal">La voz de cada integrante sobre el proyecto completo</p>
 
     <div class="person-grid reveal">
@@ -878,7 +943,7 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
 <!-- 13. Agradecimientos -->
 <section id="agradecimientos" style="background:var(--bg-raised);padding:4rem 0">
   <div class="container">
-    <h2 class="section-title reveal">13. Agradecimientos</h2>
+    <h2 class="section-title reveal">14. Agradecimientos</h2>
     <p class="section-sub reveal">A quienes hicieron posible este proyecto</p>
 
     <div class="verdict reveal">
@@ -918,7 +983,7 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
 <!-- 13. Ficha t&eacute;cnica -->
 <section id="ficha">
   <div class="container">
-    <h2 class="section-title reveal">14. Ficha t&eacute;cnica</h2>
+    <h2 class="section-title reveal">15. Ficha t&eacute;cnica</h2>
     <p class="section-sub reveal">Resumen ejecutivo del stack, m&eacute;tricas y archivos del proyecto</p>
 
     <div class="card reveal" style="overflow-x:auto">
@@ -928,17 +993,18 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
         </thead>
         <tbody>
           <tr><td><strong>Lenguaje</strong></td><td class="mono">Python 3.12</td></tr>
-          <tr><td><strong>Modelo principal</strong></td><td class="mono">Prophet 1.3 (cmdstanpy)</td></tr>
+          <tr><td><strong>Motores productivos</strong></td><td class="mono">Prophet, DeepAR, Ensemble, Stacking, NB-GLM (selecci&oacute;n por serie)</td></tr>
           <tr><td><strong>Benchmark</strong></td><td class="mono">Prophet, XGBoost, Ridge, TFT, DeepAR, LightGBM+LSTM</td></tr>
-          <tr><td><strong>Cloud</strong></td><td class="mono">AWS S3 (DVC) + SageMaker (ml.m5.xlarge)</td></tr>
+          <tr><td><strong>Cloud</strong></td><td class="mono">AWS S3 (DVC) + SageMaker (ml.m5.xlarge / ml.g4dn.xlarge)</td></tr>
           <tr><td><strong>CI/CD</strong></td><td class="mono">GitHub Actions + Selenium (scraping diario)</td></tr>
           <tr><td><strong>Visualizaci&oacute;n</strong></td><td class="mono">Tableau, matplotlib, seaborn, plotly, Chart.js</td></tr>
-          <tr><td><strong>Modelos entrenados</strong></td><td class="mono">297 estatales + 15 regionales = 312 total</td></tr>
-          <tr><td><strong>Trials benchmark</strong></td><td class="mono">1,548 (258 series x 6 modelos)</td></tr>
-          <tr><td><strong>MASE medio (v6)</strong></td><td class="mono">Alzheimer 0.74 | Parkinson 0.75 | Depresi&oacute;n 0.80</td></tr>
-          <tr><td><strong>Cobertura</strong></td><td class="mono">100% (32 entidades x 3 padecimientos x 3 sexos)</td></tr>
-          <tr><td><strong>Horizonte</strong></td><td class="mono">52 semanas a futuro</td></tr>
-          <tr><td><strong>Per&iacute;odo datos</strong></td><td class="mono">2014 &ndash; 2026 (633 boletines SINAVE)</td></tr>
+          <tr><td><strong>Series con pron&oacute;stico</strong></td><td class="mono">333 neuro (x4 motores) + 99 Dengue (x5 motores) = 432</td></tr>
+          <tr><td><strong>Distribuci&oacute;n neuro</strong></td><td class="mono">DeepAR 98 | Prophet 94 | Ensemble 85 | Stacking 56</td></tr>
+          <tr><td><strong>Distribuci&oacute;n Dengue</strong></td><td class="mono">DeepAR 46 | NB-GLM 31 | Prophet 22</td></tr>
+          <tr><td><strong>MASE medio neuro</strong></td><td class="mono">0.65 (motor productivo por serie)</td></tr>
+          <tr><td><strong>Cobertura</strong></td><td class="mono">100% (4 padecimientos x 32 entidades x 3 sexos)</td></tr>
+          <tr><td><strong>Horizonte</strong></td><td class="mono">52 semanas (Dengue: + proyecci&oacute;n 5 a&ntilde;os ilustrativa)</td></tr>
+          <tr><td><strong>Per&iacute;odo datos</strong></td><td class="mono">neuro 2014&ndash;2026 | Dengue 2018&ndash;2026 (SINAVE)</td></tr>
           <tr><td><strong>Costo benchmark</strong></td><td class="mono">~$9.80 USD (9.8 horas ml.m5.xlarge)</td></tr>
           <tr><td><strong>Tiempo entrenamiento</strong></td><td class="mono">~45 min (n_jobs=-2, joblib loky)</td></tr>
         </tbody>
@@ -978,6 +1044,8 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
     <a href="bitacora_modelado.html">Bitácora</a> &middot;
     <a href="comparacion_modelos.html">Comparación</a> &middot;
     <a href="ficha_tecnica_prophet.html">Ficha Prophet</a> &middot;
+    <a href="metodologia_dengue.html">Metodolog&iacute;a Dengue</a> &middot;
+    <a href="dengue.html">Dengue</a> &middot;
     <a href="hiperparametros_modelos.html">HPs SageMaker</a> &middot;
     <a href="construccion_dashboard.html">Arquitectura</a> &middot;
     <a href="validacion_semanal.html">Validación</a> &middot;
@@ -986,7 +1054,7 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
     <a href="referencias.html">Referencias</a>
   </p>
   <p style="margin-top:.5rem">Maestría en Inteligencia Artificial Aplicada &mdash; Proyecto Capstone 2026</p>
-  <p style="margin-top:.5rem;font-family:var(--font-mono);font-size:.75rem;opacity:.5">Generado: 22 febrero 2026</p>
+  <p style="margin-top:.5rem;font-family:var(--font-mono);font-size:.75rem;opacity:.5">Actualizado: 07 junio 2026 &middot; neuro 2014&ndash;2026 + Dengue 2018&ndash;2026</p>
 </footer>
 
 <script>
