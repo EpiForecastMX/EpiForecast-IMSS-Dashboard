@@ -100,6 +100,17 @@ section{padding:4rem 0}
 .region-card h4{font-size:.95rem;font-weight:700;margin-bottom:.4rem;color:var(--cream)}
 .region-card p{font-size:.82rem;color:var(--text-secondary);line-height:1.5}
 
+/* referencias */
+.ref-cat{font-family:var(--font-body);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:.78rem;color:var(--gold);margin:2rem 0 1rem}
+.ref-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:1rem}
+.ref-item{background:var(--bg-card);border-radius:var(--radius-sm);padding:1.1rem 1.25rem;box-shadow:var(--shadow-sm);border:1px solid rgba(91,141,239,.12);border-left:3px solid var(--teal)}
+.ref-item .ref-authors{font-weight:600;color:var(--text-primary);font-size:.9rem;margin-bottom:.2rem}
+.ref-item .ref-title{font-style:italic;color:var(--text-secondary);font-size:.92rem;line-height:1.45;margin-bottom:.2rem}
+.ref-item .ref-source{font-family:var(--font-mono);font-size:.76rem;color:var(--text-muted);margin-bottom:.45rem}
+.ref-item .ref-link{display:inline-flex;align-items:center;gap:.35rem;font-family:var(--font-mono);font-size:.76rem;color:var(--teal);text-decoration:none}
+.ref-item .ref-link:hover{color:var(--gold)}
+.ref-item .ref-link svg{width:13px;height:13px}
+
 /* table */
 .table-wrapper{background:var(--bg-card);border-radius:var(--radius);box-shadow:var(--shadow-md);border:1px solid rgba(91,141,239,.12);overflow:hidden}
 .table-controls{display:flex;gap:1rem;padding:1.5rem 2rem;flex-wrap:wrap;border-bottom:1px solid rgba(91,141,239,.15);align-items:center}
@@ -515,6 +526,92 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
         Ver el pronóstico de Dengue en vivo →
       </a>
     </p>
+  </div>
+</section>
+
+<!-- ═══ REFERENCIAS ═══ -->
+<section id="referencias" style="background:var(--bg-raised);padding:4.5rem 0">
+  <div class="container">
+    <h2 class="section-title reveal">Referencias</h2>
+    <p class="section-sub reveal">Fuentes que sustentan los métodos, las métricas y los datos de este reporte. La bibliografía completa del proyecto está en <a href="referencias.html" style="color:var(--teal)">Referencias</a>.</p>
+
+    <h3 class="ref-cat reveal">Motores de pronóstico</h3>
+    <div class="ref-grid">
+      <div class="ref-item reveal">
+        <p class="ref-authors">Taylor, S. J., y Letham, B.</p>
+        <p class="ref-title">Forecasting at scale</p>
+        <p class="ref-source">The American Statistician, 72(1), 37&ndash;45, 2018</p>
+        <a href="https://doi.org/10.1080/00031305.2017.1380080" target="_blank" rel="noopener" class="ref-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>doi.org/10.1080/00031305.2017.1380080</a>
+      </div>
+      <div class="ref-item reveal">
+        <p class="ref-authors">Salinas, D., Flunkert, V., Gasthaus, J., y Januschowski, T.</p>
+        <p class="ref-title">DeepAR: Probabilistic forecasting with autoregressive recurrent networks</p>
+        <p class="ref-source">International Journal of Forecasting, 36(3), 1181&ndash;1191, 2020</p>
+        <a href="https://doi.org/10.1016/j.ijforecast.2019.07.001" target="_blank" rel="noopener" class="ref-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>doi.org/10.1016/j.ijforecast.2019.07.001</a>
+      </div>
+      <div class="ref-item reveal">
+        <p class="ref-authors">Chen, T., y Guestrin, C.</p>
+        <p class="ref-title">XGBoost: A scalable tree boosting system</p>
+        <p class="ref-source">KDD '16: 22nd ACM SIGKDD, 785&ndash;794, 2016</p>
+        <a href="https://doi.org/10.1145/2939672.2939785" target="_blank" rel="noopener" class="ref-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>doi.org/10.1145/2939672.2939785</a>
+      </div>
+      <div class="ref-item reveal">
+        <p class="ref-authors">Ke, G., Meng, Q., Finley, T., et al.</p>
+        <p class="ref-title">LightGBM: A highly efficient gradient boosting decision tree</p>
+        <p class="ref-source">Advances in Neural Information Processing Systems (NeurIPS) 30, 2017</p>
+        <a href="https://proceedings.neurips.cc/paper/2017/hash/6449f44a102fde848669bdd9eb6b76fa-Abstract.html" target="_blank" rel="noopener" class="ref-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>proceedings.neurips.cc</a>
+      </div>
+      <div class="ref-item reveal">
+        <p class="ref-authors">Hilbe, J. M.</p>
+        <p class="ref-title">Negative Binomial Regression (2.ª ed.)</p>
+        <p class="ref-source">Cambridge University Press, 2011</p>
+        <a href="https://doi.org/10.1017/CBO9780511973420" target="_blank" rel="noopener" class="ref-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>doi.org/10.1017/CBO9780511973420</a>
+      </div>
+    </div>
+
+    <h3 class="ref-cat reveal">Métricas y validación</h3>
+    <div class="ref-grid">
+      <div class="ref-item reveal">
+        <p class="ref-authors">Hyndman, R. J., y Koehler, A. B.</p>
+        <p class="ref-title">Another look at measures of forecast accuracy</p>
+        <p class="ref-source">International Journal of Forecasting, 22(4), 679&ndash;688, 2006</p>
+        <a href="https://doi.org/10.1016/j.ijforecast.2006.03.001" target="_blank" rel="noopener" class="ref-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>doi.org/10.1016/j.ijforecast.2006.03.001</a>
+      </div>
+      <div class="ref-item reveal">
+        <p class="ref-authors">Hyndman, R. J., y Athanasopoulos, G.</p>
+        <p class="ref-title">Forecasting: Principles and practice (3.ª ed.)</p>
+        <p class="ref-source">OTexts, 2021</p>
+        <a href="https://otexts.com/fpp3/" target="_blank" rel="noopener" class="ref-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>otexts.com/fpp3</a>
+      </div>
+      <div class="ref-item reveal">
+        <p class="ref-authors">Bergmeir, C., y Benítez, J. M.</p>
+        <p class="ref-title">On the use of cross-validation for time series predictor evaluation</p>
+        <p class="ref-source">Information Sciences, 191, 192&ndash;213, 2012</p>
+        <a href="https://doi.org/10.1016/j.ins.2011.12.028" target="_blank" rel="noopener" class="ref-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>doi.org/10.1016/j.ins.2011.12.028</a>
+      </div>
+    </div>
+
+    <h3 class="ref-cat reveal">Señal climática y fuentes de datos</h3>
+    <div class="ref-grid">
+      <div class="ref-item reveal" style="border-left-color:#F59E0B">
+        <p class="ref-authors">NOAA Climate Prediction Center</p>
+        <p class="ref-title">Oceanic Niño Index (ONI) &mdash; ENSO monitoring</p>
+        <p class="ref-source">National Weather Service, NOAA</p>
+        <a href="https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/ensostuff/ONI_v5.php" target="_blank" rel="noopener" class="ref-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>cpc.ncep.noaa.gov</a>
+      </div>
+      <div class="ref-item reveal" style="border-left-color:#F59E0B">
+        <p class="ref-authors">Secretaría de Salud / SINAVE</p>
+        <p class="ref-title">Boletín Epidemiológico &mdash; Sistema Nacional de Vigilancia Epidemiológica</p>
+        <p class="ref-source">Gobierno de México, 2012&ndash;2026</p>
+        <a href="https://www.gob.mx/salud/acciones-y-programas/historico-boletin-epidemiologico" target="_blank" rel="noopener" class="ref-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>gob.mx/salud</a>
+      </div>
+      <div class="ref-item reveal" style="border-left-color:#F59E0B">
+        <p class="ref-authors">INEGI</p>
+        <p class="ref-title">Marco geoestadístico y proyecciones demográficas por entidad federativa</p>
+        <p class="ref-source">Instituto Nacional de Estadística y Geografía</p>
+        <a href="https://www.inegi.org.mx/" target="_blank" rel="noopener" class="ref-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>inegi.org.mx</a>
+      </div>
+    </div>
   </div>
 </section>
 
