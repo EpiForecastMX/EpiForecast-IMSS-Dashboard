@@ -3,22 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes</title>
+  <title>Novedades — EpiForecast-MX</title>
 
   <!-- SEO -->
   <meta name="description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica la incidencia semanal de Depresión, Parkinson, Alzheimer y Dengue en las 32 entidades de México, con un horizonte de 52 semanas." />
-  <link rel="canonical" href="https://epiforecast.mx/" />
+  <link rel="canonical" href="https://epiforecast.mx/novedades.html" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://epiforecast.mx/" />
-  <meta property="og:title" content="EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes" />
+  <meta property="og:url" content="https://epiforecast.mx/novedades.html" />
+  <meta property="og:title" content="Novedades — EpiForecast-MX" />
   <meta property="og:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica la incidencia semanal de Depresión, Parkinson, Alzheimer y Dengue en las 32 entidades de México, con un horizonte de 52 semanas." />
   <meta property="og:image" content="https://epiforecast.mx/og-image.png" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes" />
+  <meta name="twitter:title" content="Novedades — EpiForecast-MX" />
   <meta name="twitter:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica la incidencia semanal de Depresión, Parkinson, Alzheimer y Dengue en las 32 entidades de México, con un horizonte de 52 semanas." />
   <meta name="twitter:image" content="https://epiforecast.mx/og-image.png" />
 
@@ -1610,79 +1610,7 @@
     .news-link svg { width: 14px; height: 14px; }
     .news-link:hover { color: var(--gold); }
 
-    /* Banner minimalista de novedades (landing): lo más fresco + enlace al archivo */
-    .news-banner {
-      background: linear-gradient(135deg, rgba(36,49,79,0.45), rgba(20,28,46,0.35));
-      border: 1px solid rgba(91,141,239,0.18);
-      border-radius: 20px;
-      padding: 1.6rem 1.8rem;
-    }
-    .news-banner-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-      margin-bottom: 1.2rem;
-    }
-    .news-banner-head .section-label { margin: 0; }
-    .news-banner-all {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--teal);
-      white-space: nowrap;
-    }
-    .news-banner-all svg { width: 15px; height: 15px; transition: transform 0.18s; }
-    .news-banner-all:hover { color: var(--gold); }
-    .news-banner-all:hover svg { transform: translateX(3px); }
-    .news-banner-row {
-      display: grid;
-      grid-template-columns: 1.5fr 1fr;
-      gap: 1.4rem;
-      align-items: stretch;
-    }
-    .news-lead {
-      display: block;
-      padding: 1.1rem 1.3rem;
-      border-radius: 14px;
-      border: 1px solid rgba(91,141,239,0.14);
-      border-left: 3px solid var(--teal);
-      background: rgba(14,20,36,0.35);
-      transition: transform 0.18s, border-color 0.18s, background 0.18s;
-    }
-    .news-lead:hover { transform: translateY(-2px); border-color: rgba(91,141,239,0.4); background: rgba(20,28,46,0.6); }
-    .news-lead-meta { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.5rem; }
-    .news-lead-title {
-      font-family: var(--font-display);
-      font-size: 1.18rem;
-      font-weight: 700;
-      color: var(--text-primary);
-      line-height: 1.25;
-      margin-bottom: 0.4rem;
-    }
-    .news-lead-sub { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.55; }
-    .news-mini-list { display: flex; flex-direction: column; gap: 0.7rem; }
-    .news-mini {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      align-items: center;
-      gap: 0.55rem 0.7rem;
-      padding: 0.75rem 0.95rem;
-      border-radius: 12px;
-      border: 1px solid rgba(91,141,239,0.12);
-      background: rgba(14,20,36,0.3);
-      transition: transform 0.18s, border-color 0.18s, background 0.18s;
-    }
-    .news-mini:hover { transform: translateX(3px); border-color: rgba(91,141,239,0.35); background: rgba(20,28,46,0.55); }
-    .news-mini-title { font-size: 0.92rem; font-weight: 600; color: var(--text-primary); line-height: 1.3; }
-    .news-mini-date { grid-column: 2; font-size: 0.74rem; color: var(--text-faint); }
-    @media (max-width: 760px) {
-      .news-banner-row { grid-template-columns: 1fr; }
-    }
-
-    /* Link de regreso en páginas internas */
+    /* Link de regreso */
     .news-back {
       display: inline-flex;
       align-items: center;
@@ -1808,12 +1736,8 @@
   </style>
 </head>
 <body>
-<!-- build: dengue-methodology-card r1 -->
   <a href="#main" class="skip-link">Saltar al contenido</a>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       NAVIGATION
-       ═══════════════════════════════════════════════════════════════ -->
   <nav class="nav" id="nav">
     <div class="nav-inner">
       <div class="nav-logo">EpiForecast<span>-MX</span></div>
@@ -1823,7 +1747,7 @@
         <li class="nav-group">
           <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
           <div class="nav-dropdown">
-            <a href="#hero"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>Inicio</a>
+            <a href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>Inicio</a>
             <a href="EpiDashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
             <a href="Reports/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Pronósticos</a>
             <a href="novedades.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/></svg>Novedades</a>
@@ -1890,7 +1814,7 @@
       <div class="nav-mobile-group">
         <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
         <div class="nav-mobile-items">
-          <a href="#hero">Inicio</a>
+          <a href="index.html">Inicio</a>
           <a href="EpiDashboard.html">Dashboard</a>
           <a href="Reports/index.html">Pronósticos</a>
           <a href="novedades.html">Novedades</a>
@@ -1934,986 +1858,161 @@
   </nav>
 
   <main id="main">
-  <!-- ═══════════════════════════════════════════════════════════════
-       HERO
-       ═══════════════════════════════════════════════════════════════ -->
-  <section class="hero" id="hero">
-    <div class="hero-grid"></div>
-    <div class="hero-mesh">
-      <svg viewBox="0 0 1200 800" preserveAspectRatio="none">
-        <line class="pulse-h" x1="0" y1="100" x2="1200" y2="100" style="animation-delay:-1s"/>
-        <line class="pulse-h" x1="0" y1="200" x2="1200" y2="200" style="animation-delay:-3s"/>
-        <line class="pulse-h" x1="0" y1="300" x2="1200" y2="300" style="animation-delay:-5s"/>
-        <line class="pulse-h" x1="0" y1="400" x2="1200" y2="400" style="animation-delay:-2s"/>
-        <line class="pulse-h" x1="0" y1="500" x2="1200" y2="500" style="animation-delay:-7s"/>
-        <line class="pulse-h" x1="0" y1="600" x2="1200" y2="600" style="animation-delay:-4s"/>
-        <line class="pulse-h" x1="0" y1="700" x2="1200" y2="700" style="animation-delay:-6s"/>
-        <line class="pulse-v" x1="150" y1="0" x2="150" y2="800" style="animation-delay:-2s"/>
-        <line class="pulse-v" x1="300" y1="0" x2="300" y2="800" style="animation-delay:-4s"/>
-        <line class="pulse-v" x1="450" y1="0" x2="450" y2="800" style="animation-delay:-1s"/>
-        <line class="pulse-v" x1="600" y1="0" x2="600" y2="800" style="animation-delay:-6s"/>
-        <line class="pulse-v" x1="750" y1="0" x2="750" y2="800" style="animation-delay:-3s"/>
-        <line class="pulse-v" x1="900" y1="0" x2="900" y2="800" style="animation-delay:-5s"/>
-        <line class="pulse-v" x1="1050" y1="0" x2="1050" y2="800" style="animation-delay:-7s"/>
-        <circle class="node" cx="300" cy="200" r="2"/>
-        <circle class="node" cx="600" cy="300" r="2"/>
-        <circle class="node" cx="900" cy="100" r="2"/>
-        <circle class="node" cx="450" cy="500" r="2"/>
-        <circle class="node" cx="750" cy="400" r="2"/>
-        <circle class="node" cx="150" cy="600" r="2"/>
-        <circle class="node" cx="1050" cy="500" r="2"/>
-        <circle class="node" cx="300" cy="700" r="2"/>
-        <circle class="node" cx="600" cy="600" r="2"/>
-        <circle class="node" cx="900" cy="700" r="2"/>
-      </svg>
-    </div>
-
-    <div class="hero-content">
-      <div class="hero-badge">Maestría en IA Aplicada — Proyecto Integrador 2026</div>
-
-      <h1>Inteligencia Epidemiológica<br>para <span class="accent">México</span></h1>
-
-      <p class="hero-sub">
-        Pronosticamos la incidencia semanal de cuatro padecimientos en las 32 entidades de México, a 52 semanas y con
-        <strong style="color:var(--cream)">100% de cobertura estatal</strong>.
-        <span style="display:block; margin-top:1rem; font-size:0.85em; color:rgba(232,213,181,0.62);">
-          435 modelos de producción (333 de la cohorte neurológica más 102 de Dengue) con selección automática entre cinco
-          motores: DeepAR, Prophet, Ensemble y Stacking, más <strong style="color:var(--cream)">NB-GLM</strong> con El Niño para el
-          Dengue. Una colaboración entre el <strong style="color:var(--cream)">Tecnológico de Monterrey</strong> y el
-          <strong style="color:var(--cream)">IMSS</strong>.
-        </span>
-      </p>
-
-      <div class="hero-stats" id="heroStats">
-        <div class="hero-stat">
-          <div class="hero-stat-value" id="kpi-modelos" data-target="435" data-suffix="">0</div>
-          <div class="hero-stat-label">Modelos Producción</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-value" data-target="5" data-suffix="">0</div>
-          <div class="hero-stat-label">Motores de IA</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-value" data-target="4" data-suffix="">0</div>
-          <div class="hero-stat-label">Padecimientos</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-value" data-target="52" data-suffix="">0</div>
-          <div class="hero-stat-label">Semanas Pronóstico</div>
-        </div>
-      </div>
-
-      <a href="EpiDashboard.html" class="hero-cta" style="display:inline-flex; align-items:center; gap:0.6rem; margin-top:2.5rem; padding:0.85rem 2rem; background:var(--gold); color:var(--dark-teal); font-weight:700; font-size:0.9rem; border-radius:100px; letter-spacing:0.04em; text-decoration:none; transition:transform .2s, box-shadow .2s; animation: fadeSlideUp 0.8s ease-out 0.6s both;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(45,212,191,0.3)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-        Explorar Dashboard Interactivo
-      </a>
-
-      <a href="Reports/index.html" style="display:inline-flex; align-items:center; gap:0.6rem; margin-top:2.5rem; margin-left:1rem; padding:0.85rem 2rem; background:transparent; color:var(--gold); font-weight:700; font-size:0.9rem; border:2px solid var(--gold); border-radius:100px; letter-spacing:0.04em; text-decoration:none; transition:transform .2s, box-shadow .2s, background .2s, color .2s; animation: fadeSlideUp 0.8s ease-out 0.8s both;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(45,212,191,0.3)';this.style.background='var(--gold)';this.style.color='var(--dark-teal)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none';this.style.background='transparent';this.style.color='var(--gold)'">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-        Explorar Pronósticos
-      </a>
-    </div>
-
-    <div class="hero-scroll">
-      <div class="hero-scroll-line"></div>
-      Explorar
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       NOVEDADES / NEWS
-       ═══════════════════════════════════════════════════════════════ -->
-  <section class="news-bg" id="novedades">
-    <div class="section">
-      <div class="news-banner reveal">
-        <div class="news-banner-head">
-          <div class="section-label">Novedades</div>
-          <a href="novedades.html" class="news-banner-all">Ver todas las novedades
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-          </a>
-        </div>
-        <div class="news-banner-row">
-          <a href="Reports/index.html" class="news-lead">
-            <div class="news-lead-meta">
-              <span class="news-date">11 de junio de 2026</span>
-              <span class="news-tag news-tag--datos">Datos</span>
-            </div>
-            <div class="news-lead-title">Ya contamos con la semana epidemiológica 21 de 2026</div>
-            <div class="news-lead-sub">Se integró el Boletín SINAVE en los cuatro padecimientos. El acumulado del año se mantiene dentro de un margen de un dígito y cada modelo supera a la persistencia estacional (MASE &lt; 1).</div>
-          </a>
-          <div class="news-mini-list">
-            <a href="dengue.html" class="news-mini">
-              <span class="news-tag news-tag--dengue">Nueva línea</span>
-              <span class="news-mini-title">El Dengue ya está en producción</span>
-              <span class="news-mini-date">4 de junio de 2026</span>
-            </a>
-            <a href="Reports/index.html" class="news-mini">
-              <span class="news-tag news-tag--plataforma">Reportes</span>
-              <span class="news-mini-title">Galería de pronósticos renovada</span>
-              <span class="news-mini-date">6 de junio de 2026</span>
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       CENTRO DE REPORTES — CTA Hub
-       ═══════════════════════════════════════════════════════════════ -->
-  <section id="reportes" class="cta-hub">
-    <div class="cta-hub-pattern"></div>
-
-    <div class="cta-hub-inner">
-      <div class="section-label reveal" style="color:var(--gold)">
-        <span style="display:inline-block;width:32px;height:2px;background:var(--gold);margin-right:.75rem"></span>Acceso Directo
-      </div>
-      <h2 class="section-title reveal" style="margin-bottom:1rem">Centro de Reportes</h2>
-      <p class="section-desc reveal" style="margin-bottom:1rem">Toda la evidencia, el análisis y las herramientas interactivas del proyecto, en un solo lugar.</p>
-
-      <div class="cta-grid">
-        <!-- 1. Dashboard — FEATURED -->
-        <div class="cta-card cta-card--featured reveal reveal-delay-1">
-          <div class="cta-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-          </div>
-          <div class="cta-card-title">Dashboard Interactivo</div>
-          <div class="cta-card-desc">Tableau interactivo con filtros por padecimiento, estado y sexo. Tooltips con métricas MASE por modelo.</div>
-          <a href="EpiDashboard.html" class="cta-card-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-            Explorar Dashboard
-          </a>
-        </div>
-
-        <!-- 2. EPI CHATBOT — HERO CARD full-width -->
-        <div class="cta-card reveal reveal-delay-2" style="grid-column: 1 / -1; background: linear-gradient(135deg, #0E1424 0%, #18223A 32%, #2A3A6B 72%, #3A2B52 100%); border: 1px solid rgba(91,141,239,0.28); padding: 0; overflow: hidden; display: grid; grid-template-columns: auto 1fr; gap: 0;">
-          <!-- EPI image -->
-          <div style="display: flex; align-items: center; justify-content: center; padding: 2.5rem 2rem 2.5rem 2.5rem;">
-            <img src="epibot/EPI.jpg" alt="EPI Chatbot" width="140" height="140" loading="lazy" decoding="async" style="width: 140px; height: 140px; object-fit: contain; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.4)); border-radius: 20px;">
-          </div>
-          <!-- Content -->
-          <div style="padding: 2.5rem 2.5rem 2.5rem 0.5rem; display: flex; flex-direction: column; justify-content: center;">
-            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
-              <span style="font-family: var(--font-display); font-size: 1.8rem; color: var(--cream); letter-spacing: 0.01em;">EPI Chatbot</span>
-              <span style="background: var(--gold); color: var(--dark-teal); font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.2rem 0.7rem; border-radius: 100px;">Nuevo</span>
-            </div>
-            <p style="color: rgba(232,213,181,0.75); font-size: 1rem; line-height: 1.7; max-width: 600px; margin-bottom: 1.5rem;">
-              Asistente inteligente con acceso en tiempo real a <strong style="color: var(--cream);">435 modelos de producci&oacute;n</strong>. Preg&uacute;ntale sobre m&eacute;tricas, pron&oacute;sticos, padecimientos, tendencias hist&oacute;ricas, el equipo y m&aacute;s. Respuestas instant&aacute;neas basadas en datos reales del proyecto.
-            </p>
-            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-              <a href="epibot/index.html" class="cta-card-btn" style="padding: 0.7rem 1.6rem; font-size: 0.85rem;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                Hablar con EPI
-              </a>
-              <span style="display: inline-flex; align-items: center; gap: 0.5rem; color: rgba(232,213,181,0.45); font-size: 0.78rem; font-weight: 500; letter-spacing: 0.02em;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="14" height="14" style="opacity:0.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                RAG con grounding y citas &middot; Gr&aacute;ficas en vivo &middot; Voz STT/TTS
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Artículo MICAI 2026 -->
-        <div class="cta-card reveal reveal-delay-1">
-          <div class="cta-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-          </div>
-          <div class="cta-card-title">Artículo MICAI 2026 <span style="background:var(--gold);color:var(--dark-teal);font-size:0.6rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;padding:0.15rem 0.6rem;border-radius:100px;vertical-align:middle;">Nuevo</span></div>
-          <div class="cta-card-desc">Versión digital del artículo científico sometido a MICAI 2026: marco multi-modelo con selección por serie auditable y revisable. Resumen, contribuciones y PDF embebido.</div>
-          <a href="micai.html" class="cta-card-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-            Leer versión digital
-          </a>
-        </div>
-
-        <!-- 3. Galería de Pronósticos -->
-        <div class="cta-card reveal reveal-delay-2">
-          <div class="cta-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-          </div>
-          <div class="cta-card-title">Galería de Pronósticos</div>
-          <div class="cta-card-desc">Galería de pronósticos por entidad con filtros, lightbox y búsqueda.</div>
-          <a href="Reports/index.html" class="cta-card-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-            Ver Pronósticos
-          </a>
-        </div>
-
-        <!-- 3. Resultados del Modelado -->
-        <div class="cta-card reveal reveal-delay-1">
-          <div class="cta-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg>
-          </div>
-          <div class="cta-card-title">Resultados del Modelado</div>
-          <div class="cta-card-desc">MASE, RMSE, ranking interactivo y cobertura.</div>
-          <a href="reporte_resultados.html" class="cta-card-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-            Ver Resultados
-          </a>
-        </div>
-
-        <!-- 4. Bitácora del Modelado -->
-        <div class="cta-card reveal reveal-delay-2">
-          <div class="cta-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-          </div>
-          <div class="cta-card-title">Bitácora del Modelado</div>
-          <div class="cta-card-desc">Prophet v1 a v6: evolución completa.</div>
-          <a href="bitacora_modelado.html" class="cta-card-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-            Ver Bitácora
-          </a>
-        </div>
-
-        <!-- 5. Comparación de Modelos -->
-        <div class="cta-card reveal reveal-delay-3">
-          <div class="cta-card-icon" style="background:var(--burgundy-glow)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="color:var(--burgundy)"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-          </div>
-          <div class="cta-card-title">Comparación de Modelos</div>
-          <div class="cta-card-desc">6 algoritmos, 1,548 trials en SageMaker.</div>
-          <a href="comparacion_modelos.html" class="cta-card-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-            Ver Comparación
-          </a>
-        </div>
-
-        <!-- 6. Ficha Técnica Prophet -->
-        <div class="cta-card reveal reveal-delay-4">
-          <div class="cta-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-          </div>
-          <div class="cta-card-title">Ficha Técnica Prophet</div>
-          <div class="cta-card-desc">Hiperparámetros y arquitectura del modelo.</div>
-          <a href="ficha_tecnica_prophet.html" class="cta-card-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-            Ver Ficha
-          </a>
-        </div>
-
-        <!-- 6b. Metodología de Dengue -->
-        <div class="cta-card reveal reveal-delay-1">
-          <div class="cta-card-icon" style="background:rgba(245,158,11,.12)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:#F59E0B"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>
-          </div>
-          <div class="cta-card-title">Metodología de Dengue</div>
-          <div class="cta-card-desc">Datos, 5 motores, parámetros y El Niño (ONI).</div>
-          <a href="metodologia_dengue.html" class="cta-card-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-            Ver Metodología
-          </a>
-        </div>
-
-        <!-- 7. HPs SageMaker -->
-        <div class="cta-card reveal reveal-delay-1">
-          <div class="cta-card-icon" style="background:var(--gold-glow)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="color:var(--gold)"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-          </div>
-          <div class="cta-card-title">HPs SageMaker</div>
-          <div class="cta-card-desc">Configuración de los 6 modelos comparados.</div>
-          <a href="hiperparametros_modelos.html" class="cta-card-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-            Ver HPs
-          </a>
-        </div>
-
-        <!-- 8. Arquitectura Dashboard -->
-        <div class="cta-card reveal reveal-delay-2">
-          <div class="cta-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-          </div>
-          <div class="cta-card-title">Arquitectura Dashboard</div>
-          <div class="cta-card-desc">Pipeline de datos para Tableau y visualización.</div>
-          <a href="construccion_dashboard.html" class="cta-card-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-            Ver Arquitectura
-          </a>
-        </div>
-
-        <!-- 9. Conclusiones -->
-        <div class="cta-card reveal reveal-delay-3">
-          <div class="cta-card-icon" style="background:rgba(45,212,191,0.08)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="color:var(--gold)"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-          </div>
-          <div class="cta-card-title">Conclusiones</div>
-          <div class="cta-card-desc">Hallazgos clave y reflexiones del proyecto.</div>
-          <a href="conclusiones.html" class="cta-card-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-            Ver Conclusiones
-          </a>
-        </div>
-
-        <!-- 10. Validación Semanal -->
-        <div class="cta-card reveal reveal-delay-4">
-          <div class="cta-card-icon" style="background:rgba(0,121,107,0.08)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="color:#00796B"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          </div>
-          <div class="cta-card-title">Validación Semanal</div>
-          <div class="cta-card-desc">Validación con datos reales de Semana 7/2026 que los modelos nunca vieron.</div>
-          <a href="validacion_semanal.html" class="cta-card-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-            Ver Validación
-          </a>
-        </div>
-
-        <!-- 11. Auditoría y Remediación -->
-        <div class="cta-card reveal reveal-delay-5">
-          <div class="cta-card-icon" style="background:rgba(136,14,79,0.08)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="color:#880E4F"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          </div>
-          <div class="cta-card-title">Auditoría y Remediación</div>
-          <div class="cta-card-desc">Auditoría de calidad del código y plan de remediación 2026.</div>
-          <a href="auditoria_remediacion_2026.html" class="cta-card-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-            Ver Auditoría
-          </a>
-        </div>
-
-        <!-- 12. Referencias -->
-        <div class="cta-card reveal reveal-delay-6">
-          <div class="cta-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
-          </div>
-          <div class="cta-card-title">Referencias</div>
-          <div class="cta-card-desc">43 fuentes bibliográficas organizadas por tema.</div>
-          <a href="referencias.html" class="cta-card-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-            Ver Referencias
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       ABOUT
-       ═══════════════════════════════════════════════════════════════ -->
-  <section class="about" id="about">
-    <div class="section">
-      <div class="section-label reveal">Contexto del Proyecto</div>
-      <h2 class="section-title reveal">Inteligencia artificial al servicio<br>de la salud pública mexicana</h2>
-
-      <div class="about-grid">
-        <div class="about-text reveal">
-          <p>
-            <strong>EpiForecast-MX</strong> es un proyecto capstone de la Maestría en Inteligencia Artificial Aplicada del Tecnológico de Monterrey, desarrollado en colaboración directa con el <strong>Instituto Mexicano del Seguro Social (IMSS)</strong>.
-          </p>
-          <p>
-            El proyecto busca generar <strong>pronósticos confiables con intervalos de predicción</strong> para tres padecimientos neurológicos y de salud mental (Depresión, Enfermedad de Parkinson y Enfermedad de Alzheimer) y, como cuarto padecimiento, el <strong>Dengue</strong> (su primera enfermedad transmitida por vector), a nivel nacional y subnacional (32 entidades federativas), facilitando la <strong>planificación estratégica de recursos sanitarios</strong> y la toma de decisiones informada.
-          </p>
-          <p>
-            Utilizamos datos semanales de los boletines epidemiológicos del <strong>SINAVE</strong> (Sistema Nacional de Vigilancia Epidemiológica) que abarcan el período 2014–2026 (Dengue desde 2018), incorporando variables previamente no consideradas como género y entidad geográfica para mejorar la capacidad predictiva.
-          </p>
-        </div>
-
-        <div class="about-card reveal reveal-delay-2">
-          <h3>Colaboración Institucional</h3>
-          <div class="collab-logos">
-            <div class="collab-item">
-              <div class="collab-icon collab-icon--imss">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 21h18M9 8h6M12 8v13M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16"/></svg>
-              </div>
-              <div>
-                <div class="collab-name">IMSS</div>
-                <div class="collab-role">Instituto Mexicano del Seguro Social</div>
-              </div>
-            </div>
-            <div class="collab-item">
-              <div class="collab-icon collab-icon--tec">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-              </div>
-              <div>
-                <div class="collab-name">Tecnológico de Monterrey</div>
-                <div class="collab-role">Maestría en IA Aplicada</div>
-              </div>
-            </div>
-            <div class="collab-item">
-              <div class="collab-icon collab-icon--sinave">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 4-10"/></svg>
-              </div>
-              <div>
-                <div class="collab-name">SINAVE</div>
-                <div class="collab-role">Fuente de datos epidemiológicos</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       DISEASES
-       ═══════════════════════════════════════════════════════════════ -->
-  <section class="section diseases" id="diseases">
-    <div class="section-label reveal">Padecimientos Objetivo</div>
-    <h2 class="section-title reveal">Cuatro enfermedades, un pipeline<br>de pronóstico unificado</h2>
-    <div class="section-desc reveal">
-      Tres condiciones neurológicas y de salud mental de alta carga en el sistema de salud mexicano, más el Dengue como cuarto padecimiento (la primera arbovirosis del proyecto), generando pronósticos desagregados por entidad y sexo.
-    </div>
-
-    <div class="disease-grid">
-      <!-- Depression -->
-      <div class="disease-card disease-card--dep reveal reveal-delay-1">
-        <div class="disease-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5-2 4-2 4 2 4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
-        </div>
-        <h3>Depresión</h3>
-        <p>Mayor volumen de casos del portafolio. Tras la re-selección de motores sobre la realidad 2026, la asignación quedó: DeepAR 54, Stacking 31, Prophet 14, Ensemble 12. SMAPE mediano del 16.1% y MASE de 0.57. 100% datos suficientes.</p>
-        <span class="disease-tag">CIE-10: F32 · SMAPE 16.1% · MASE 0.57 · 111 modelos</span>
-      </div>
-
-      <!-- Parkinson -->
-      <div class="disease-card disease-card--par reveal reveal-delay-2">
-        <div class="disease-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><path d="M12 8v4l3 3"/></svg>
-        </div>
-        <h3>Parkinson</h3>
-        <p>Escenario desafiante con baja incidencia donde Prophet captura mejor la estacionalidad. SMAPE mediano del 67.0% y MASE de 0.68 (supera el baseline naive). Tras la re-selección sobre la realidad 2026: Prophet 45, DeepAR 25, Ensemble 23, Stacking 18.</p>
-        <span class="disease-tag">CIE-10: G20 · SMAPE 67.0% · MASE 0.68 · 111 modelos</span>
-      </div>
-
-      <!-- Alzheimer -->
-      <div class="disease-card disease-card--alz reveal reveal-delay-3">
-        <div class="disease-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg>
-        </div>
-        <h3>Alzheimer</h3>
-        <p>Ultra-baja incidencia donde un caso de diferencia genera alto SMAPE. MASE de 0.73 (supera el baseline naive). Tras la re-selección sobre la realidad 2026: Ensemble 50, Prophet 35, DeepAR 19, Stacking 7.</p>
-        <span class="disease-tag">CIE-10: G30 · SMAPE 124.2% · MASE 0.73 · 111 modelos</span>
-      </div>
-
-      <!-- Dengue (4.o padecimiento) -->
-      <div class="disease-card disease-card--den reveal reveal-delay-1">
-        <div class="disease-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8a4 4 0 014 4v2a4 4 0 01-8 0v-2a4 4 0 014-4z"/><path d="M12 8V5"/><path d="M10 4l2 1 2-1"/><path d="M8 12H4M16 12h4M8 15l-3 2M16 15l3 2"/></svg>
-        </div>
-        <h3>Dengue</h3>
-        <p>Cuarto padecimiento y primera arbovirosis (transmitida por mosquito), con estacionalidad climática y grandes brotes cada cuatro a cinco años, ligados a <strong>El Niño</strong>. Se modela en conteos absolutos; en producción quedan <strong>DeepAR, Prophet y NB-GLM</strong> (el nuevo motor de conteos con regresor de El Niño, el mejor en validación; Ensemble y Stacking no extrapolan la dinámica epidémica). El pronóstico va al ritmo de El Niño: el próximo gran brote se espera hacia 2029.</p>
-        <span class="disease-tag">CIE-10: A97 · SMAPE nac. 20.4% · DeepAR + Prophet + NB-GLM · 99 series productivas · 2018-2026</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       PIPELINE
-       ═══════════════════════════════════════════════════════════════ -->
-  <section class="pipeline-bg" id="pipeline">
-    <div class="section">
-      <div class="section-label">Pipeline de Datos</div>
-      <h2 class="section-title">De PDFs crudos a series de tiempo<br>listas para modelado</h2>
-      <div class="section-desc">
-        Un flujo reproducible de siete etapas que transforma información no estructurada de boletines epidemiológicos en datasets coherentes para pronóstico multi-step.
-      </div>
-
-      <div class="pipeline-steps">
-        <!-- Step 1 -->
-        <div class="pipeline-step reveal reveal-delay-1">
-          <div class="step-number">01</div>
-          <div class="step-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
-          </div>
-          <h4>Extracción</h4>
-          <p>Procesamiento automatizado de boletines epidemiológicos PDF del SINAVE con extracción de tablas y OCR.</p>
-          <div class="step-tech">
-            <span>camelot-py</span>
-            <span>OpenCV</span>
-            <span>PDF</span>
-          </div>
-        </div>
-
-        <!-- Step 2 -->
-        <div class="pipeline-step reveal reveal-delay-2">
-          <div class="step-number">02</div>
-          <div class="step-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          </div>
-          <h4>EDA</h4>
-          <p>Análisis exploratorio profundo con visualizaciones institucionales, detección de anomalías y validación de la calidad de los datos.</p>
-          <div class="step-tech">
-            <span>Matplotlib</span>
-            <span>Seaborn</span>
-            <span>Jupyter</span>
-          </div>
-        </div>
-
-        <!-- Step 3 -->
-        <div class="pipeline-step reveal reveal-delay-3">
-          <div class="step-number">03</div>
-          <div class="step-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 22h14a2 2 0 002-2V7l-5-5H6a2 2 0 00-2 2v4"/><polyline points="14,2 14,8 20,8"/><line x1="2" y1="15" x2="10" y2="15"/><line x1="9" y1="18" x2="10" y2="15"/></svg>
-          </div>
-          <h4>Limpieza</h4>
-          <p>Normalización de entidades, corrección de inconsistencias, tratamiento de valores faltantes y estandarización de nomenclaturas.</p>
-          <div class="step-tech">
-            <span>Pandas</span>
-            <span>NumPy</span>
-          </div>
-        </div>
-
-        <!-- Step 4 -->
-        <div class="pipeline-step reveal reveal-delay-4">
-          <div class="step-number">04</div>
-          <div class="step-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 11h10l-3-3"/><path d="M17 13H7l3 3"/></svg>
-          </div>
-          <h4>Transformación</h4>
-          <p>Feature engineering con datos INEGI demográficos, corrimiento de semanas epidemiológicas, conversión acumulados a incrementos, tratamiento IQR de outliers y asignación de regiones.</p>
-          <div class="step-tech">
-            <span>INEGI</span>
-            <span>IQR</span>
-            <span>ISO-8601</span>
-          </div>
-        </div>
-
-        <!-- Step 5 -->
-        <div class="pipeline-step reveal reveal-delay-1">
-          <div class="step-number">05</div>
-          <div class="step-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
-          </div>
-          <h4>Consolidación</h4>
-          <p>Dataset limpio versionado con DVC y almacenado en S3 — series de tiempo coherentes listas para modelado.</p>
-          <div class="step-tech">
-            <span>DVC</span>
-            <span>AWS S3</span>
-            <span>CSV</span>
-          </div>
-        </div>
-
-        <!-- Step 6 -->
-        <div class="pipeline-step reveal reveal-delay-2">
-          <div class="step-number">06</div>
-          <div class="step-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 4-10"/></svg>
-          </div>
-          <h4>Modelado Multi-Motor</h4>
-          <p>333 modelos de la cohorte neurológica con 4 motores (DeepAR, Prophet, Ensemble, Stacking), más el pipeline de Dengue con NB-GLM. Selección automática por SMAPE + MASE + RMSE. Fallback regional para series insuficientes.</p>
-          <div class="step-tech">
-            <span>DeepAR</span>
-            <span>Prophet</span>
-            <span>Ensemble</span>
-            <span>Stacking</span>
-          </div>
-        </div>
-
-        <!-- Step 7 -->
-        <div class="pipeline-step reveal reveal-delay-3">
-          <div class="step-number">07</div>
-          <div class="step-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-          </div>
-          <h4>Visualización</h4>
-          <p>Dashboard Tableau interactivo con tooltips de métricas del modelo, gráficos de pronóstico con divisor CV y paleta institucional IMSS.</p>
-          <div class="step-tech">
-            <span>Tableau</span>
-            <span>Matplotlib</span>
-            <span>Plotly</span>
-          </div>
-        </div>
-
-        <!-- Step 8 -->
-        <div class="pipeline-step reveal reveal-delay-4">
-          <div class="step-number">08</div>
-          <div class="step-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="16,18 22,12 16,6"/><polyline points="8,6 2,12 8,18"/></svg>
-          </div>
-          <h4>MLOps y CI/CD</h4>
-          <p>Infraestructura reproducible con Makefile (~55 targets), GitHub Actions con scraping diario automatizado de boletines, versionado de datos con DVC y validación semanal con datos reales.</p>
-          <div class="step-tech">
-            <span>GitHub Actions</span>
-            <span>Make</span>
-            <span>MLflow</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       METHODOLOGY
-       ═══════════════════════════════════════════════════════════════ -->
-  <section class="section" id="methodology">
-    <div class="section-label reveal">Metodología</div>
-    <h2 class="section-title reveal">De silos aislados a producción<br>multi-modelo validada</h2>
-
-    <div class="method-grid">
-      <div class="method-card reveal reveal-delay-1" data-phase="I">
-        <div class="method-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="2" width="8" height="8" rx="1"/><rect x="8" y="14" width="8" height="8" rx="1"/></svg>
-        </div>
-        <h3>Fase I — Enfoque Monolítico</h3>
-        <p>Modelos aislados por padecimiento con promedios nacionales. Limitado alcance y sin desagregación geográfica ni por sexo. Sirvió como línea base para identificar oportunidades de mejora.</p>
-      </div>
-
-      <div class="method-card reveal reveal-delay-2" data-phase="II">
-        <div class="method-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
-        </div>
-        <h3>Fase II — Pipeline Unificado</h3>
-        <p>Arquitectura modular con Prophet para pronósticos multi-step. 297 modelos baseline validados con cross-validation temporal. Matriz: 3 padecimientos x 37 combinaciones x 3 sexos.</p>
-      </div>
-
-      <div class="method-card reveal reveal-delay-1" data-phase="III">
-        <div class="method-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-        </div>
-        <h3>Fase III — Optimización v5/v6</h3>
-        <p>Grids diferenciados por padecimiento, normalización a tasa por 100K + log-transform, protección anti-Newton (3 capas), modo híbrido con fallback regional, MASE como métrica. De 87% a 100% cobertura estatal.</p>
-      </div>
-
-      <div class="method-card reveal reveal-delay-2" data-phase="IV">
-        <div class="method-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 4-10"/></svg>
-        </div>
-        <h3>Fase IV — Multi-Motor (Avance 5)</h3>
-        <p>Incorporación de DeepAR (GluonTS + PyTorch en SageMaker GPU), Ensemble (Prophet + XGBoost) y Stacking (Prophet + ETS + LightGBM + Ridge meta-learner). Selección automática del mejor motor por SMAPE + MASE + RMSE para cada una de las 333 combinaciones de la cohorte neurológica.</p>
-      </div>
-
-      <div class="method-card reveal reveal-delay-1" data-phase="V">
-        <div class="method-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        </div>
-        <h3>Fase V — Validación y Producción</h3>
-        <p>Validación semanal con datos reales del boletín SINAVE que los modelos nunca vieron. Auditoría de calidad del código (907 tests), diagnósticos de overfitting y leakage, y tabla de 333 modelos de producción de la cohorte neurológica con métricas comparativas.</p>
-      </div>
-
-      <div class="method-card method-highlight reveal reveal-delay-3" data-phase="final">
-        <div class="method-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-          </div>
-        <h3>Innovaciones Clave</h3>
-        <p>Evolución completa desde un prototipo monolítico hasta un sistema multi-modelo validado en producción con cinco motores de IA.</p>
-
-        <div class="method-features">
-          <div class="method-feature">
-            <div class="method-feature-dot"></div>
-            <span>5 motores: DeepAR (GPU), Prophet, Ensemble (Prophet+XGBoost), Stacking (Prophet+ETS+LightGBM+Ridge) y NB-GLM con El Niño (Dengue)</span>
-          </div>
-          <div class="method-feature">
-            <div class="method-feature-dot"></div>
-            <span>Selección automática por SMAPE primario, MASE como desempate, RMSE como segundo desempate</span>
-          </div>
-          <div class="method-feature">
-            <div class="method-feature-dot"></div>
-            <span>Modo híbrido: fallback regional para series con datos insuficientes (&lt;5 casos/52 semanas)</span>
-          </div>
-          <div class="method-feature">
-            <div class="method-feature-dot"></div>
-            <span>Diagnósticos automáticos: detección de overfitting (ratio test/train) y leakage (train SMAPE sospechoso)</span>
-          </div>
-          <div class="method-feature">
-            <div class="method-feature-dot"></div>
-            <span>Validación semanal con datos reales del boletín que los modelos nunca vieron durante entrenamiento</span>
-          </div>
-          <div class="method-feature">
-            <div class="method-feature-dot"></div>
-            <span>CI/CD: scraping diario de boletines, 907 tests automatizados, MLflow para tracking de experimentos</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       RESULTS — BASELINE MODEL
-       ═══════════════════════════════════════════════════════════════ -->
-  <section class="results-bg" id="results">
-    <div class="section">
-      <div class="section-label reveal">Entrega Final — Producción Multi-Modelo</div>
-      <h2 class="section-title reveal">435 modelos optimizados con<br>cinco motores de IA</h2>
-      <div class="section-desc reveal">
-        Para cada serie se elige automáticamente el mejor motor por SMAPE sobre la realidad 2026 del Boletín SINAVE, con MASE como desempate y forzado a Ensemble en series ruidosas. Pronóstico a 52 semanas con 100% de cobertura. Las tarjetas resumen la cohorte neurológica (333 modelos); el Dengue suma 102 modelos con su propio pipeline NB-GLM.
-      </div>
-
-      <div class="results-summary reveal">
-        <div class="results-summary-pill">Modelos producción <strong id="kpi-modelos-pill">435</strong></div>
-        <div class="results-summary-pill">Motores <strong>5 (DeepAR, Prophet, Ensemble, Stacking, NB-GLM)</strong></div>
-        <div class="results-summary-pill">Horizonte <strong>52 semanas</strong></div>
-        <div class="results-summary-pill">MASE neuro <strong>&lt; 1.0 (3/3)</strong></div>
-      </div>
-
-      <div class="results-grid">
-        <!-- DEPRESION -->
-        <div class="result-card result-card--dep reveal reveal-delay-1">
-          <div class="result-card-header">
-            <h3>Depresión</h3>
-            <span class="result-card-tag">F32 · 111 modelos · DeepAR 38, Prophet 36, Ensemble 23, Stacking 14</span>
-          </div>
-          <div class="result-kpis">
-            <div class="result-kpi">
-              <div class="result-kpi-value">21.7%</div>
-              <div class="result-kpi-label">SMAPE mediano</div>
-            </div>
-            <div class="result-kpi">
-              <div class="result-kpi-value">0.71</div>
-              <div class="result-kpi-label">MASE mediano</div>
-            </div>
-            <div class="result-kpi">
-              <div class="result-kpi-value">12.4</div>
-              <div class="result-kpi-label">RMSE mediano</div>
-            </div>
-            <div class="result-kpi">
-              <div class="result-kpi-value">0</div>
-              <div class="result-kpi-label">Insuficientes</div>
-            </div>
-          </div>
-
-          <div class="result-semaphore">
-            <div class="result-semaphore-seg seg-exc" style="flex:111" data-label="111 Normal"></div>
-          </div>
-
-          <div class="result-states">
-            <div class="result-state result-state--best">
-              <span class="result-state-label">Cobertura</span>
-              <span class="result-state-name">100%</span> · <span class="result-state-val">0 fallback</span>
-            </div>
-            <div class="result-state result-state--worst">
-              <span class="result-state-label">Mejor SMAPE</span>
-              <span class="result-state-name">Michoacán</span> · <span class="result-state-val">1.03%</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- PARKINSON -->
-        <div class="result-card result-card--par reveal reveal-delay-2">
-          <div class="result-card-header">
-            <h3>Parkinson</h3>
-            <span class="result-card-tag">G20 · 111 modelos · Prophet 45, Ensemble 31, DeepAR 22, Stacking 13</span>
-          </div>
-          <div class="result-kpis">
-            <div class="result-kpi">
-              <div class="result-kpi-value">68.6%</div>
-              <div class="result-kpi-label">SMAPE mediano</div>
-            </div>
-            <div class="result-kpi">
-              <div class="result-kpi-value">0.71</div>
-              <div class="result-kpi-label">MASE mediano</div>
-            </div>
-            <div class="result-kpi">
-              <div class="result-kpi-value">1.73</div>
-              <div class="result-kpi-label">RMSE mediano</div>
-            </div>
-            <div class="result-kpi">
-              <div class="result-kpi-value">1</div>
-              <div class="result-kpi-label">Insuficientes</div>
-            </div>
-          </div>
-
-          <div class="result-semaphore">
-            <div class="result-semaphore-seg seg-exc" style="flex:110" data-label="110 Normal"></div>
-            <div class="result-semaphore-seg seg-acep" style="flex:1" data-label="1 Fallback"></div>
-          </div>
-
-          <div class="result-states">
-            <div class="result-state result-state--best">
-              <span class="result-state-label">Cobertura</span>
-              <span class="result-state-name">100%</span> · <span class="result-state-val">1 regional</span>
-            </div>
-            <div class="result-state result-state--worst">
-              <span class="result-state-label">Mejor SMAPE</span>
-              <span class="result-state-name">Urbana media</span> · <span class="result-state-val">1.95%</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- ALZHEIMER -->
-        <div class="result-card result-card--alz reveal reveal-delay-3">
-          <div class="result-card-header">
-            <h3>Alzheimer</h3>
-            <span class="result-card-tag">G30 · 111 modelos · Prophet 45, Ensemble 41, DeepAR 18, Stacking 7</span>
-          </div>
-          <div class="result-kpis">
-            <div class="result-kpi">
-              <div class="result-kpi-value">123.5%</div>
-              <div class="result-kpi-label">SMAPE mediano</div>
-            </div>
-            <div class="result-kpi">
-              <div class="result-kpi-value">0.76</div>
-              <div class="result-kpi-label">MASE mediano</div>
-            </div>
-            <div class="result-kpi">
-              <div class="result-kpi-value">0.96</div>
-              <div class="result-kpi-label">RMSE mediano</div>
-            </div>
-            <div class="result-kpi">
-              <div class="result-kpi-value">7</div>
-              <div class="result-kpi-label">Insuficientes</div>
-            </div>
-          </div>
-
-          <div class="result-semaphore">
-            <div class="result-semaphore-seg seg-exc" style="flex:104" data-label="104 Normal"></div>
-            <div class="result-semaphore-seg seg-acep" style="flex:7" data-label="7 Fallback"></div>
-          </div>
-
-          <div class="result-states">
-            <div class="result-state result-state--best">
-              <span class="result-state-label">Cobertura</span>
-              <span class="result-state-name">100%</span> · <span class="result-state-val">7 regionales</span>
-            </div>
-            <div class="result-state result-state--worst">
-              <span class="result-state-label">Mejor SMAPE</span>
-              <span class="result-state-name">BCS</span> · <span class="result-state-val">0.00%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Cross-validation details -->
-      <div class="results-cv-bar reveal">
-        <div class="cv-detail">
-          <div class="cv-detail-value">4 folds</div>
-          <div class="cv-detail-label">CV temporal con pesos progresivos</div>
-        </div>
-        <div class="cv-detail">
-          <div class="cv-detail-value">MASE &lt; 1</div>
-          <div class="cv-detail-label">Todos superan baseline naive lag-52</div>
-        </div>
-        <div class="cv-detail">
-          <div class="cv-detail-value">907 tests</div>
-          <div class="cv-detail-label">Suite de calidad automatizada (70%+ cobertura)</div>
-        </div>
-      </div>
-
-      <div style="text-align:center; margin-top:2.5rem;" class="reveal">
-        <a href="Reports/index.html" style="display:inline-block; padding:1rem 2.5rem; background:var(--teal); color:var(--cream); font-family:var(--font-body); font-weight:700; font-size:0.95rem; text-transform:uppercase; letter-spacing:0.08em; border-radius:8px; transition:background .2s, transform .2s; text-decoration:none;" onmouseover="this.style.background='var(--burgundy)';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='var(--teal)';this.style.transform='none'">
-          Ver Galería de Pronósticos
+    <section class="news-bg" style="padding-top:7rem">
+      <div class="section">
+        <a href="index.html" class="news-back reveal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Volver al inicio
         </a>
-      </div>
-    </div>
-  </section>
+        <div class="section-label reveal">Novedades</div>
+        <h1 class="section-title reveal" style="margin-top:.4rem">Bitácora del proyecto</h1>
+        <div class="section-desc reveal">Anuncios de plataforma, mejoras del asistente y actualizaciones de datos y modelos, de lo más reciente a lo más antiguo.</div>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       TEAM
-       ═══════════════════════════════════════════════════════════════ -->
-  <section class="team-bg" id="team">
-    <div class="section">
-      <div class="section-label reveal">Equipo</div>
-      <h2 class="section-title reveal">Un equipo multidisciplinario<br>uniendo tecnología y salud</h2>
-
-      <div class="team-grid">
-        <div class="team-card reveal reveal-delay-1">
-          <img class="team-avatar" src="JARS20206.jpg" alt="Javier Rebull" width="80" height="80" loading="lazy" decoding="async" style="object-fit:cover;">
-          <h4>Javier Rebull</h4>
-          <div class="team-role">ML Engineer & Lead Developer</div>
-          <div class="team-org">Santander Bank US</div>
-        </div>
-        <div class="team-card reveal reveal-delay-2">
-          <img class="team-avatar" src="JARCOS2026.png" alt="Juan Carlos Pérez Nava" width="80" height="80" loading="lazy" decoding="async" style="object-fit:cover;">
-          <h4>Juan Carlos Pérez Nava</h4>
-          <div class="team-role">EDA, Feature Engineering & Prophet Base</div>
-          <div class="team-org">IMSS</div>
-        </div>
-        <div class="team-card reveal reveal-delay-3">
-          <img class="team-avatar" src="LUIS2026.jpg" alt="Luis Gerardo Sánchez" width="80" height="80" loading="lazy" decoding="async" style="object-fit:cover;">
-          <h4>Luis Gerardo Sánchez</h4>
-          <div class="team-role">Dashboard Design & Development</div>
-          <div class="team-org">Tesla</div>
-        </div>
-      </div>
-
-      <div class="advisors reveal">
-        <div class="advisor-card">
-          <div class="advisor-dot advisor-dot--1"></div>
-          <div>
-            <h5>Dra. Grettel Barceló Alonso</h5>
-            <p>Asesora Académica — Tec de Monterrey</p>
+        <div class="news-grid">
+        <div class="news-card news-card--datos reveal reveal-delay-1">
+          <div class="news-meta">
+            <span class="news-date">11 de junio de 2026</span>
+            <span class="news-tag news-tag--datos">Datos</span>
           </div>
+          <h3>Ya contamos con la semana epidemiológica 21 de 2026</h3>
+          <p>Se integró el Boletín SINAVE hasta la <strong style="color:var(--cream)">semana 21 de 2026</strong> en los cuatro padecimientos. Sobre las semanas transcurridas del año, el total pronosticado se desvía del total realmente observado en <strong style="color:var(--cream)">+3.6&#37; en Depresión</strong>, <strong style="color:var(--cream)">&#8722;1.9&#37; en Parkinson</strong>, <strong style="color:var(--cream)">&#8722;6.3&#37; en Alzheimer</strong> y <strong style="color:var(--cream)">&#8722;8.9&#37; en Dengue</strong>: el acumulado del año se mantiene dentro de un margen de un dígito en todos los padecimientos.</p>
+          <p>Precisión de la serie nacional por padecimiento (<strong style="color:var(--cream)">SMAPE / MASE</strong>): Depresión <strong style="color:var(--cream)">7.8&#37; / 0.52</strong>, Parkinson <strong style="color:var(--cream)">14.2&#37; / 0.43</strong>, Alzheimer <strong style="color:var(--cream)">18.7&#37; / 0.48</strong>, Dengue <strong style="color:var(--cream)">20.8&#37; / 0.07</strong>. El MASE por debajo de 1 en los cuatro casos indica que cada modelo supera a la persistencia estacional (repetir el mismo periodo del año anterior).</p>
+          <a href="Reports/index.html" class="news-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+            Ver real vs pronóstico en la galería
+          </a>
         </div>
-        <div class="advisor-card">
-          <div class="advisor-dot advisor-dot--2"></div>
-          <div>
-            <h5>Dra. Ruth Pérez</h5>
-            <p>Stakeholder IMSS — Epidemiología</p>
+
+        <!-- Dengue: nueva línea (featured) -->
+        <div class="news-card news-card--featured news-card--dengue reveal reveal-delay-1">
+          <div class="news-meta">
+            <span class="news-date">4 de junio de 2026</span>
+            <span class="news-tag news-tag--dengue">Nueva línea</span>
           </div>
+          <h3>El Dengue ya está en producción en EpiForecast-MX</h3>
+          <p>El <strong style="color:var(--cream)">Dengue</strong> se incorpora como cuarto padecimiento y primera enfermedad transmitida por vector del proyecto. Se construyó y validó la <strong style="color:var(--cream)">serie histórica semanal del dengue confirmado (2018 a 2026, las 32 entidades federativas)</strong> directamente desde los boletines del SINAVE, contrastada celda por celda. Con respaldo en la literatura, se modela de forma agregada (en conteos absolutos). Se entrenaron <strong style="color:var(--cream)">cinco motores</strong> y en producción quedan <strong style="color:var(--cream)">DeepAR, Prophet y NB-GLM</strong> (el nuevo motor de conteos con el regresor de El Niño, el mejor en validación; los modelos de árboles no extrapolan la dinámica epidémica). El pronóstico va <strong style="color:var(--cream)">al ritmo de El Niño</strong>: el próximo gran brote se espera hacia 2029. El asistente EpiBot también responde sobre Dengue y muestra sus gráficas.</p>
+          <a href="dengue.html" class="news-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+            Ver el pronóstico de Dengue
+          </a>
         </div>
-        <div class="advisor-card">
-          <div class="advisor-dot advisor-dot--3"></div>
-          <div>
-            <h5>Dra. Lina Díaz Castro</h5>
-            <p>Stakeholder IMSS — Investigación</p>
+
+        <!-- Reportes: galería renovada -->
+        <div class="news-card news-card--plataforma reveal reveal-delay-2">
+          <div class="news-meta">
+            <span class="news-date">6 de junio de 2026</span>
+            <span class="news-tag news-tag--plataforma">Reportes</span>
           </div>
+          <h3>Galería de pronósticos renovada</h3>
+          <p>La sección de <strong style="color:var(--cream)">Reportes</strong> estrena la vista <strong style="color:var(--cream)">Zoom 52 Semanas</strong> (realidad contra pronóstico hasta la semana vigente, interactiva en el visor), con <strong style="color:var(--cream)">banda de confianza</strong> sobre el tramo a futuro y métricas <strong style="color:var(--cream)">SMAPE y MASE</strong> discretas en cada gráfico. Se incorporaron los <strong style="color:var(--cream)">cuatro clústeres regionales del Dengue</strong> (calculados al agregar sus estados), se marca la <strong style="color:var(--cream)">banda COVID</strong> en todas las series y los ciclos de <strong style="color:var(--cream)">El Niño y La Niña</strong> en Dengue. Las secciones quedaron ordenadas Nacional, Estatal y Regional.</p>
+          <a href="Reports/index.html" class="news-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Ver la galería de pronósticos
+          </a>
+        </div>
+
+        <!-- Re-selección de motores 2026 (sobre forecasts frescos) -->
+        <div class="news-card news-card--modelos reveal reveal-delay-2">
+          <div class="news-meta">
+            <span class="news-date">5 de junio de 2026</span>
+            <span class="news-tag news-tag--modelos">Modelos</span>
+          </div>
+          <h3>Re-selección de motores sobre pronósticos frescos</h3>
+          <p>Tras republicar los pronósticos, se volvió a elegir el motor productivo de las <strong style="color:var(--cream)">333 series neuronales</strong> contra la realidad del Boletín SINAVE 2026. Resultado: <strong style="color:var(--cream)">142 reasignaciones</strong> y una nueva distribución productiva (DeepAR 98, Prophet 94, Ensemble 85, Stacking 56). El SMAPE agregado del motor productivo bajó de 92.8 a 82.2 (121 series mejoran), recuperando la calidad de los pronósticos por entidad.</p>
+          <a href="reporte_resultados.html" class="news-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Ver resultados
+          </a>
+        </div>
+
+        <!-- Nuevo dominio -->
+        <div class="news-card news-card--plataforma reveal reveal-delay-2">
+          <div class="news-meta">
+            <span class="news-date">29 de mayo de 2026</span>
+            <span class="news-tag news-tag--plataforma">Plataforma</span>
+          </div>
+          <h3>EpiForecast-MX estrena dominio propio: epiforecast.mx</h3>
+          <p>El proyecto migra a su dominio definitivo. Toda la plataforma (dashboard, pronósticos, reportes y el asistente EpiBot) queda disponible bajo <strong style="color:var(--cream)">epiforecast.mx</strong>. El chatbot ahora vive en <strong style="color:var(--cream)">epiforecast.mx/epibot/</strong> y los enlaces previos redirigen de forma automática.</p>
+          <a href="epibot/index.html" class="news-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+            Conocer EpiBot
+          </a>
+        </div>
+
+        <!-- EpiBot RAG -->
+        <div class="news-card news-card--epibot reveal reveal-delay-2">
+          <div class="news-meta">
+            <span class="news-date">28 de mayo de 2026</span>
+            <span class="news-tag news-tag--epibot">EpiBot</span>
+          </div>
+          <h3>EpiBot ahora responde con RAG real</h3>
+          <p>El asistente incorpora Retrieval-Augmented Generation con grounding y citas sobre el corpus del proyecto (embeddings de Gemini, reindexado en cada despliegue). Suma gráficas en vivo dentro del chat y voz (reconocimiento y síntesis).</p>
+          <a href="epibot/index.html" class="news-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Hablar con EPI
+          </a>
+        </div>
+
+        <!-- Future Health / Skopje: aceptación oral -->
+        <div class="news-card news-card--future reveal reveal-delay-1">
+          <div class="news-meta">
+            <span class="news-date">21 de mayo de 2026</span>
+            <span class="news-tag news-tag--future">Internacional</span>
+          </div>
+          <h3>EpiForecast-MX, aceptado para presentación oral en Europa</h3>
+          <p>El enfoque del proyecto fue <strong style="color:var(--cream)">aceptado como ponencia oral</strong> en la <strong style="color:var(--cream)">2nd Public Health Conference</strong> (Public Health Futures), con la 2nd HSG Europe Preconference, celebrada en <strong style="color:var(--cream)">Skopje, Macedonia del Norte</strong>. El mismo trabajo que ganó el primer lugar en HELIX México llega así a un foro europeo de salud pública.</p>
+          <a href="future_health.html" class="news-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+            Ver noticia
+          </a>
+        </div>
+
+        <!-- HELIX: primer lugar -->
+        <div class="news-card news-card--helix reveal reveal-delay-2">
+          <div class="news-meta">
+            <span class="news-date">20 de mayo de 2026</span>
+            <span class="news-tag news-tag--helix">Reconocimiento</span>
+          </div>
+          <h3>Primer lugar en el International Summit HELIX 2026 México</h3>
+          <p>EpiForecast-MX obtuvo el <strong style="color:var(--cream)">primer lugar</strong> en el International Summit HELIX 2026 México, foro internacional de innovación y educación continua en salud. La <strong style="color:var(--cream)">Dra. Ruth Manuela Pérez Hernández</strong> y <strong style="color:var(--cream)">Juan Carlos Pérez Nava</strong> expusieron en Cuernavaca el enfoque del equipo para transitar de la vigilancia epidemiológica clásica al pronóstico con inteligencia artificial.</p>
+          <a href="helix.html" class="news-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+            Ver noticia
+          </a>
+        </div>
+
+        <!-- Re-selección de motores -->
+        <div class="news-card news-card--modelos reveal reveal-delay-3">
+          <div class="news-meta">
+            <span class="news-date">30 de abril de 2026</span>
+            <span class="news-tag news-tag--modelos">Modelos</span>
+          </div>
+          <h3>Re-selección de motores con realidad 2026</h3>
+          <p>Los 333 modelos de producción de la cohorte neurológica se reevaluaron contra los datos reales del Boletín SINAVE 2026 (SMAPE 2026 como criterio primario, MASE como desempate). El resultado: 227 reasignaciones y una redistribución de los motores productivos.</p>
+          <a href="comparacion_modelos.html" class="news-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Ver comparación
+          </a>
+        </div>
+
+        <!-- Actualización semanal de datos -->
+        <div class="news-card news-card--datos reveal reveal-delay-4">
+          <div class="news-meta">
+            <span class="news-date">Actualización semanal</span>
+            <span class="news-tag news-tag--datos">Datos</span>
+          </div>
+          <h3>Boletín SINAVE integrado automáticamente</h3>
+          <p>Un pipeline de scraping diario incorpora cada boletín nuevo y regenera el conocimiento del sitio, manteniendo los pronósticos al día con el corte epidemiológico más reciente del Boletín SINAVE.</p>
+          <a href="validacion_semanal.html" class="news-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            Validación semanal
+          </a>
+        </div>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       TECH STACK
-       ═══════════════════════════════════════════════════════════════ -->
-  <section class="section" id="stack">
-    <div class="section-label reveal" style="justify-content:center">Stack Tecnológico</div>
-    <h2 class="section-title reveal" style="text-align:center">Herramientas que potencian<br>el proyecto</h2>
-
-    <div class="stack-grid reveal">
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--lang"></span>Python 3.12</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ml"></span>Prophet</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ml"></span>DeepAR / GluonTS</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ml"></span>PyTorch</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ml"></span>XGBoost</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ml"></span>LightGBM</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ml"></span>scikit-learn</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ml"></span>statsmodels</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--cloud"></span>AWS SageMaker</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--cloud"></span>AWS S3</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ops"></span>DVC</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ops"></span>MLflow</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--lang"></span>Pandas</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--lang"></span>NumPy</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--lang"></span>OmegaConf</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--viz"></span>Matplotlib</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--viz"></span>Seaborn</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--viz"></span>Plotly</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--viz"></span>Rich</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--viz"></span>Tableau Public</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ops"></span>Git / GitHub</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ops"></span>GitHub Actions</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ops"></span>Makefile</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--lang"></span>camelot-py</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ml"></span>Claude Code</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--ops"></span>LaTeX</div>
-      <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--cloud"></span>Netlify</div>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════════════════════════
-       DATA SCOPE
-       ═══════════════════════════════════════════════════════════════ -->
-  <section class="scope-bg" id="scope">
-    <div class="section">
-      <div class="section-label reveal">Alcance de Datos</div>
-      <h2 class="section-title reveal">Un dataset robusto para<br>decisiones informadas</h2>
-
-      <div class="scope-stats">
-        <div class="scope-stat reveal reveal-delay-1">
-          <div class="scope-stat-value scope-stat-value--teal" data-target="74560" data-suffix="">0</div>
-          <div class="scope-stat-label">Registros totales</div>
-          <div class="scope-stat-sub">Consolidado SINAVE + INEGI (62,016 neuro + 12,544 Dengue)</div>
-        </div>
-        <div class="scope-stat reveal reveal-delay-2">
-          <div class="scope-stat-value scope-stat-value--burg">2014–2026</div>
-          <div class="scope-stat-label">Período cubierto</div>
-          <div class="scope-stat-sub">Boletines SINAVE (Dengue desde 2018)</div>
-        </div>
-        <div class="scope-stat reveal reveal-delay-3">
-          <div class="scope-stat-value scope-stat-value--gold" data-target="32" data-suffix="">0</div>
-          <div class="scope-stat-label">Entidades federativas</div>
-          <div class="scope-stat-sub">Cobertura nacional completa</div>
-        </div>
-        <div class="scope-stat reveal reveal-delay-4">
-          <div class="scope-stat-value scope-stat-value--dark" id="kpi-modelos-scope" data-target="435" data-suffix="">0</div>
-          <div class="scope-stat-label">Modelos Producción</div>
-          <div class="scope-stat-sub">5 motores: 333 de la cohorte neurológica + 102 de Dengue</div>
-        </div>
-      </div>
-    </div>
-  </section>
+    </section>
   </main>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       FOOTER
-       ═══════════════════════════════════════════════════════════════ -->
   <footer class="footer">
     <div class="footer-brand">EpiForecast<span>-MX</span></div>
     <div class="footer-divider"></div>
@@ -2923,7 +2022,7 @@
     </p>
     <div class="footer-links">
       <a href="#hero">Inicio</a>
-      <a href="novedades.html">Novedades</a>
+      <a href="#novedades">Novedades</a>
       <a href="dengue.html">Dengue</a>
       <a href="EpiDashboard.html">Dashboard</a>
       <a href="Reports/index.html">Pronósticos</a>
@@ -2947,9 +2046,6 @@
     </p>
   </footer>
 
-  <!-- ═══════════════════════════════════════════════════════════════
-       SCRIPTS
-       ═══════════════════════════════════════════════════════════════ -->
   <script>
     // Nav scroll effect
     const nav = document.getElementById('nav');
@@ -3070,40 +2166,5 @@
     });
   </script>
 
-  <!-- Hidratación dinámica de KPIs desde knowledge.json (con fallback a los valores estáticos) -->
-  <script>
-    (function hydrateKpis() {
-      try {
-        fetch('epibot/knowledge.json', { cache: 'no-store' })
-          .then(function (r) { return r.ok ? r.json() : null; })
-          .then(function (data) {
-            if (!data || !data.stats) return;
-            var stats = data.stats;
-            var total = stats.total_modelos;
-            if (total != null) {
-              // KPIs animados: actualizar data-target y, si ya animaron, el texto
-              ['kpi-modelos', 'kpi-modelos-scope'].forEach(function (id) {
-                var el = document.getElementById(id);
-                if (!el) return;
-                el.setAttribute('data-target', String(total));
-                if (el.textContent && el.textContent !== '0') {
-                  el.textContent = Number(total).toLocaleString();
-                }
-              });
-              // KPI estático (pill de resultados)
-              var pill = document.getElementById('kpi-modelos-pill');
-              if (pill) pill.textContent = Number(total).toLocaleString();
-            }
-            // Motor líder en la distribución del hero (si existe el nodo)
-            var leader = document.getElementById('kpi-motor-lider');
-            if (leader && stats.motor_ganador) {
-              var pct = stats.motor_ganador_pct != null ? ' (' + stats.motor_ganador_pct + '%)' : '';
-              leader.textContent = stats.motor_ganador + pct;
-            }
-          })
-          .catch(function () { /* fallback silencioso: se conservan los valores estáticos */ });
-      } catch (e) { /* no romper el render */ }
-    })();
-  </script>
 </body>
 </html>
