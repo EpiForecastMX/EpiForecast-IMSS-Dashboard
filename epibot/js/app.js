@@ -371,7 +371,7 @@ async function init() {
     const data = await loadKnowledge();
     renderStats(data);
     renderBuildBadge(data);
-    addWelcome(data);
+    addWelcome();
   } catch (err) {
     console.error('Error cargando knowledge.json:', err);
     const chatEl = document.getElementById('chatArea');
@@ -600,8 +600,7 @@ function resetChat() {
   while (chatArea.firstChild) chatArea.removeChild(chatArea.firstChild);
   stickToBottom = true;
   hideScrollDownBtn();
-  const data = getData();
-  if (data) addWelcome(data);
+  addWelcome();
   inputField.focus();
 }
 
@@ -698,20 +697,49 @@ function whenZoomReady(data, cb, tries) {
   setTimeout(() => whenZoomReady(data, cb, tries - 1), 120);
 }
 
-function addWelcome(data) {
+// Arranque minimalista: saludo breve + chips. El panorama nacional (KPIs +
+// gráfico vivo) NO se muestra de entrada; se ofrece como un chip y así el
+// arranque queda limpio (y «Limpiar» vuelve a este estado mínimo).
+function addWelcome() {
+  const hero =
+    `<div class="welcome-hero welcome-hero--compact">
+       <div class="welcome-hero-title">Hola, soy <span class="welcome-brand">EPI</span></div>
+       <div class="welcome-hero-sub">Copiloto epidemiológico para la salud pública en México. Pregúntame o usa el panel lateral.</div>
+     </div>`;
+
+  const suggestions = [
+    { text: 'Panorama nacional', q: 'panorama nacional' },
+    { text: 'Métricas globales', q: 'metricas globales' },
+    { text: 'Mapa de México', q: 'mapa de mexico por casos' },
+    { text: 'Equipo', q: 'equipo del proyecto' },
+  ];
+
+  addBotMessage(hero, 'local', suggestions);
+  if (chatArea.lastElementChild) chatArea.lastElementChild.classList.add('msg-welcome');
+}
+
+// ¿La consulta pide el panorama nacional (KPIs + gráfico vivo por padecimiento)?
+function isPanoramaQuery(text) {
+  const t = norm(text);
+  return /\bpanorama\b/.test(t) || t === 'kpis' || t === 'tablero nacional';
+}
+
+// Panorama nacional a demanda: KPIs animados + selector de padecimiento +
+// gráfico nacional real. Es contenido propio (canvas/svg/botones/estilos) que
+// el sanitizador de respuestas eliminaría, por eso se construye el nodo directo.
+function appendPanorama(data) {
   const s = data.stats || {};
-  // Total de modelos en producción de los 4 padecimientos del hero (neuro 333 +
-  // Dengue 102 = 435). Se suma por_pad para no depender de total_modelos, que la
-  // corrección de cohorte deja en 333 (solo neuro).
+  // Total de los 4 padecimientos (neuro 333 + Dengue 102 = 435). Se suma por_pad
+  // para no depender de total_modelos, que la corrección de cohorte deja en 333.
   const porPad = s.por_pad || {};
   const total = HERO_PADS.reduce((acc, p) => acc + ((porPad[p.pad] && porPad[p.pad].n) || 0), 0)
     || s.total_modelos || 435;
 
   const kpis = [
-    { key: 'pad', val: HERO_PADS.length, label: 'padecimientos', icon: '<path d="M3 12h4l2 6 4-14 2 8h6"/>' },
-    { key: 'ent', val: 32, label: 'entidades + Nacional', icon: '<path d="M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>' },
-    { key: 'hz', val: 52, label: 'semanas de horizonte', icon: '<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>' },
-    { key: 'mod', val: total, label: 'modelos en producción', icon: '<path d="M4 7l8-4 8 4-8 4-8-4z"/><path d="M4 7v6l8 4 8-4V7"/>' },
+    { val: HERO_PADS.length, label: 'padecimientos', icon: '<path d="M3 12h4l2 6 4-14 2 8h6"/>' },
+    { val: 32, label: 'entidades + Nacional', icon: '<path d="M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>' },
+    { val: 52, label: 'semanas de horizonte', icon: '<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>' },
+    { val: total, label: 'modelos en producción', icon: '<path d="M4 7l8-4 8 4-8 4-8-4z"/><path d="M4 7v6l8 4 8-4V7"/>' },
   ];
 
   const cid = `chart-${++chartCounter}`;
@@ -728,8 +756,6 @@ function addWelcome(data) {
 
   const hero =
     `<div class="welcome-hero">
-       <div class="welcome-hero-title">Hola, soy <span class="welcome-brand">EPI</span></div>
-       <div class="welcome-hero-sub">Copiloto epidemiológico para la salud pública en México. Esto es lo que vigilamos en tiempo real:</div>
        <div class="hero-kpis">${kpisHtml}</div>
        <div class="hero-pills" role="group" aria-label="Padecimiento del pronóstico nacional">${pillsHtml}</div>
        <div class="hero-chart-wrap">
@@ -738,22 +764,8 @@ function addWelcome(data) {
        </div>
      </div>`;
 
-  const suggestions = [
-    { text: 'Métricas globales', q: 'metricas globales' },
-    { text: 'Mapa de México', q: 'mapa de mexico por casos' },
-    { text: '¿Cómo va el dengue?', q: 'pronostico de dengue' },
-    { text: 'Equipo', q: 'equipo del proyecto' },
-  ];
-  const suggestionsHtml =
-    '<div class="msg-suggestions">' +
-    suggestions.map((sg) => `<button data-q="${escapeAttr(sg.q)}">${escapeHtml(polishSpanish(sg.text))}</button>`).join('') +
-    '</div>';
-
-  // El hero es contenido propio (canvas/svg/botones/estilos) que el sanitizador
-  // de respuestas eliminaría; por eso se construye el nodo directamente y NO se
-  // enruta por addBotMessage/marked/DOMPurify.
   const msg = document.createElement('div');
-  msg.className = 'msg msg-bot msg-welcome';
+  msg.className = 'msg msg-bot';
   msg.innerHTML =
     `<div class="msg-avatar"><img src="EpiBot_v2_avatar.png" alt="EpiForecast-MX" /></div>
      <div class="msg-body">
@@ -763,13 +775,9 @@ function addWelcome(data) {
        </div>
        <div class="msg-bubble-bot">
          <div class="msg-content">${hero}</div>
-         ${suggestionsHtml}
        </div>
      </div>`;
   chatArea.appendChild(msg);
-  msg.querySelectorAll('.msg-suggestions button').forEach((btn) => {
-    btn.addEventListener('click', () => { inputField.value = btn.dataset.q; handleSend(); });
-  });
 
   // KPIs con conteo animado.
   msg.querySelectorAll('.hero-kpi-val').forEach((el) => {
@@ -847,6 +855,15 @@ async function handleSend() {
 }
 
 async function routeQuery(text, typingEl) {
+  // Panorama nacional a demanda: KPIs + gráfico vivo por padecimiento.
+  if (isPanoramaQuery(text)) {
+    removeTyping(typingEl);
+    const data = getData();
+    if (data) appendPanorama(data);
+    lastAnswerWasRag = false;
+    return;
+  }
+
   // Seguimiento corto tras una respuesta del RAG → continúa en el RAG (que
   // contextualiza con el historial e inyecta datos exactos). Evita que «¿y X?»
   // pierda la intención al caer en un handler local distinto.
