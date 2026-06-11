@@ -2601,6 +2601,35 @@
       .news-banner-row { grid-template-columns: 1fr !important; gap: 1.8rem !important; }
       .news-mini-list { border-left: none; padding-left: 0; border-top: 1px solid var(--rule); padding-top: 0.5rem; }
     }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       FIXES de auditoría (footer, iconos, fuentes muertas)
+       ═══════════════════════════════════════════════════════════════════ */
+    /* Repunta las vars de fuente legacy a familias REALES cargadas (evita
+       fallback silencioso a system-ui en cualquier elemento no cubierto) */
+    :root { --font-display: 'Libre Caslon Display', Georgia, serif !important; --font-body: 'Source Serif 4', Georgia, serif !important; }
+    /* Guardia anti-overflow horizontal (móvil): ningún hijo desborda el viewport */
+    html, body { overflow-x: clip !important; max-width: 100% !important; }
+    .edl-wrap, .edl-hero, .section, .bento-wrap { max-width: 100% !important; }
+    .edl-wrap { width: 100%; }
+    /* La columna del lede no debe expandirse por el contenido de la figura */
+    @media (max-width: 900px) { .edl-lead { grid-template-columns: minmax(0, 1fr) !important; } }
+    @media (max-width: 560px) {
+      .edl-hero .edl-headline { font-size: clamp(1.8rem, 8.5vw, 2.6rem) !important; max-width: 100% !important; }
+      .edl-headline, .section-title, .arch-title, .edl-deck, .edl-folio, .bento-h1, .edl-byline { overflow-wrap: anywhere; }
+      .edl-hero { padding-left: 1.2rem !important; padding-right: 1.2rem !important; }
+      .edl-folio { font-size: 0.56rem !important; letter-spacing: 0.06em !important; }
+      .edl-folio .mid { display: none; }
+    }
+    /* Footer: arregla overflow móvil + restos de paleta vieja */
+    .footer-links { flex-wrap: wrap !important; gap: 0.6rem 1.6rem !important; }
+    .footer-divider { background: var(--accent) !important; }
+    .footer-brand { font-family: var(--serif-head) !important; color: var(--ink) !important; }
+    .footer-brand span { color: var(--accent) !important; }
+    /* Iconos de enfermedades: a una sola tinta azul (coherencia monocroma) */
+    .disease-card .disease-icon svg { color: var(--accent) !important; }
+    /* Punto 'en vivo' del folio: a azul de acento (no menta del look viejo) */
+    .edl-folio .live::before, .edl-kicker .dot { background: var(--accent) !important; box-shadow: 0 0 10px var(--accent) !important; }
   </style>
 </head>
 <body>
@@ -2953,18 +2982,18 @@
           <tbody>
             <tr>
               <td class="pad">Depresión <small>F32 · 111 modelos</small></td>
-              <td class="num">21.7%</td><td class="num">0.71</td><td class="num">12.4</td>
+              <td class="num">16.1%</td><td class="num">0.57</td><td class="num">8.16</td>
               <td>DeepAR</td><td class="num">100%</td>
             </tr>
             <tr>
               <td class="pad">Parkinson <small>G20 · 111 modelos</small></td>
-              <td class="num">68.6%</td><td class="num">0.71</td><td class="num">1.73</td>
+              <td class="num">67.0%</td><td class="num">0.68</td><td class="num">1.62</td>
               <td>Prophet</td><td class="num">100%</td>
             </tr>
             <tr>
               <td class="pad">Alzheimer <small>G30 · 111 modelos</small></td>
-              <td class="num">123.5%</td><td class="num">0.76</td><td class="num">0.96</td>
-              <td>Prophet</td><td class="num">100%</td>
+              <td class="num">124.2%</td><td class="num">0.73</td><td class="num">0.87</td>
+              <td>Ensemble</td><td class="num">100%</td>
             </tr>
           </tbody>
         </table>

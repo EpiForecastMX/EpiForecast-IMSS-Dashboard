@@ -2601,6 +2601,35 @@
       .news-banner-row { grid-template-columns: 1fr !important; gap: 1.8rem !important; }
       .news-mini-list { border-left: none; padding-left: 0; border-top: 1px solid var(--rule); padding-top: 0.5rem; }
     }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       FIXES de auditoría (footer, iconos, fuentes muertas)
+       ═══════════════════════════════════════════════════════════════════ */
+    /* Repunta las vars de fuente legacy a familias REALES cargadas (evita
+       fallback silencioso a system-ui en cualquier elemento no cubierto) */
+    :root { --font-display: 'Libre Caslon Display', Georgia, serif !important; --font-body: 'Source Serif 4', Georgia, serif !important; }
+    /* Guardia anti-overflow horizontal (móvil): ningún hijo desborda el viewport */
+    html, body { overflow-x: clip !important; max-width: 100% !important; }
+    .edl-wrap, .edl-hero, .section, .bento-wrap { max-width: 100% !important; }
+    .edl-wrap { width: 100%; }
+    /* La columna del lede no debe expandirse por el contenido de la figura */
+    @media (max-width: 900px) { .edl-lead { grid-template-columns: minmax(0, 1fr) !important; } }
+    @media (max-width: 560px) {
+      .edl-hero .edl-headline { font-size: clamp(1.8rem, 8.5vw, 2.6rem) !important; max-width: 100% !important; }
+      .edl-headline, .section-title, .arch-title, .edl-deck, .edl-folio, .bento-h1, .edl-byline { overflow-wrap: anywhere; }
+      .edl-hero { padding-left: 1.2rem !important; padding-right: 1.2rem !important; }
+      .edl-folio { font-size: 0.56rem !important; letter-spacing: 0.06em !important; }
+      .edl-folio .mid { display: none; }
+    }
+    /* Footer: arregla overflow móvil + restos de paleta vieja */
+    .footer-links { flex-wrap: wrap !important; gap: 0.6rem 1.6rem !important; }
+    .footer-divider { background: var(--accent) !important; }
+    .footer-brand { font-family: var(--serif-head) !important; color: var(--ink) !important; }
+    .footer-brand span { color: var(--accent) !important; }
+    /* Iconos de enfermedades: a una sola tinta azul (coherencia monocroma) */
+    .disease-card .disease-icon svg { color: var(--accent) !important; }
+    /* Punto 'en vivo' del folio: a azul de acento (no menta del look viejo) */
+    .edl-folio .live::before, .edl-kicker .dot { background: var(--accent) !important; box-shadow: 0 0 10px var(--accent) !important; }
     /* ARCHIVO DE NOVEDADES — lista de artículos editorial */
     .arch-back { display:inline-block; font-family:var(--sans); font-size:0.82rem; color:var(--accent) !important; margin-bottom:1.4rem; }
     .arch-list { margin-top:1.6rem; border-top:2px solid var(--rule-strong); }
@@ -2906,30 +2935,18 @@
     });
   </script>
 
-  <!-- Archivo renderizado desde news.json (fuente única) -->
   <script>
     (function () {
-      function esc(s) { return String(s == null ? '' : s); }
-      function itemHtml(it, i) {
-        var feat = (i === 0 || it.featured) ? ' arch-item--featured' : '';
-        var body = (it.body || []).map(function (p) { return '<p>' + esc(p) + '</p>'; }).join('');
-        var href = (it.link && it.link.href) || '#';
-        var ltext = (it.link && it.link.text) || 'Leer más';
-        return '<article class="arch-item' + feat + '">' +
-          '<div class="arch-meta"><span class="arch-date">' + esc(it.date) + '</span><span class="arch-tag">' + esc(it.tag) + '</span></div>' +
-          '<h2 class="arch-title"><a href="' + esc(href) + '">' + esc(it.title) + '</a></h2>' +
-          '<div class="arch-body">' + body + '</div>' +
-          '<a class="arch-link" href="' + esc(href) + '">' + esc(ltext) + ' &rarr;</a>' +
-          '</article>';
+      function esc(s){return String(s==null?'':s);}
+      function itemHtml(it,i){
+        var feat=(i===0||it.featured)?' arch-item--featured':'';
+        var body=(it.body||[]).map(function(p){return '<p>'+esc(p)+'</p>';}).join('');
+        var href=(it.link&&it.link.href)||'#'; var ltext=(it.link&&it.link.text)||'Leer más';
+        return '<article class="arch-item'+feat+'"><div class="arch-meta"><span class="arch-date">'+esc(it.date)+'</span><span class="arch-tag">'+esc(it.tag)+'</span></div><h2 class="arch-title"><a href="'+esc(href)+'">'+esc(it.title)+'</a></h2><div class="arch-body">'+body+'</div><a class="arch-link" href="'+esc(href)+'">'+esc(ltext)+' &rarr;</a></article>';
       }
-      fetch('news.json', { cache: 'no-store' })
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (d) {
-          if (!d || !Array.isArray(d.items)) return;
-          var g = document.getElementById('newsGrid');
-          if (g) g.innerHTML = d.items.map(itemHtml).join('');
-        })
-        .catch(function () {});
+      fetch('news.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(d){
+        if(!d||!Array.isArray(d.items))return; var g=document.getElementById('newsGrid'); if(g)g.innerHTML=d.items.map(itemHtml).join('');
+      }).catch(function(){});
     })();
   </script>
 </body>
