@@ -2473,6 +2473,46 @@
       .edl-columns { columns: 1; }
       .edl-credits-list { grid-template-columns: 1fr; gap: 1.1rem; }
     }
+
+    /* NOVEDADES → bloque "lo último" editorial */
+    .news-lead-title, .news-mini-title {
+      font-family: var(--serif-head) !important; font-weight: 400 !important; color: var(--ink) !important;
+      letter-spacing: -0.01em;
+    }
+    .news-lead-title { font-size: clamp(1.5rem, 2.6vw, 2rem) !important; line-height: 1.12 !important; }
+    .news-mini-title { font-size: 1.12rem !important; line-height: 1.2 !important; }
+    .news-tag {
+      background: transparent !important; border: none !important; border-radius: 0 !important;
+      color: var(--accent) !important; font-family: var(--sans) !important; font-weight: 700 !important;
+      text-transform: uppercase !important; letter-spacing: 0.09em !important; font-size: 0.6rem !important;
+      padding: 0 !important;
+    }
+    .news-date {
+      background: transparent !important; border: none !important; border-radius: 0 !important;
+      color: var(--ink-mut) !important; font-family: var(--sans) !important; font-size: 0.74rem !important;
+      letter-spacing: 0.02em; padding: 0 !important;
+    }
+    .news-mini-date { color: var(--ink-mut) !important; font-family: var(--sans) !important; }
+    .news-lead-sub { font-family: var(--serif-body) !important; }
+    .news-lead-meta, .news-mini { gap: 0.55rem 0.8rem; }
+
+    /* EQUIPO → ficha de redacción editorial */
+    .team-card h4 { font-family: var(--serif-head) !important; color: var(--ink) !important; font-weight: 400 !important; }
+    .team-role { font-family: var(--sans) !important; color: var(--ink-soft) !important; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.7rem; }
+    .team-org { font-family: var(--sans) !important; color: var(--ink-mut) !important; }
+    .team-avatar { border: 1px solid var(--rule-strong) !important; }
+    .advisors {
+      display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 1.6rem !important;
+      margin-top: 2.4rem !important; border-top: 2px solid var(--rule-strong); padding-top: 1.3rem;
+    }
+    .advisor-card {
+      background: transparent !important; border: none !important; border-top: 1px solid var(--rule) !important;
+      border-radius: 0 !important; padding: 0.8rem 0 0 !important; align-items: baseline !important; gap: 0.6rem !important;
+    }
+    .advisor-dot { width: 7px !important; height: 7px !important; margin-top: 0.5rem; flex: none; }
+    .advisor-card h5 { font-family: var(--serif-head) !important; color: var(--ink) !important; font-weight: 400 !important; font-size: 1.08rem !important; }
+    .advisor-card p { font-family: var(--sans) !important; color: var(--ink-mut) !important; font-size: 0.8rem !important; }
+    @media (max-width: 760px) { .advisors { grid-template-columns: 1fr !important; gap: 1rem !important; } }
   </style>
 </head>
 <body>
