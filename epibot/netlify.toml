@@ -1,11 +1,12 @@
 [build]
   publish = "."
   functions = "netlify/functions"
-  # Regenera el índice RAG en cada deploy (incremental: reusa vectores del
-  # rag_index.json commiteado, solo embebe chunks nuevos/cambiados). Define
-  # GEMINI_API_KEY en el entorno de build para reindexar notas nuevas sin pasos
-  # manuales; si falta, el script conserva el índice commiteado (modo seguro).
-  command = "npm install && npm run rag:build"
+  # Gate de deploy del índice RAG (rag:ci):
+  #   - CON GEMINI_API_KEY: reindexa (incremental) + verifica; si la verificación
+  #     detecta drift, el deploy FALLA (no se publica un índice desincronizado).
+  #   - SIN key: conserva el rag_index.json commiteado y solo avisa (no falla),
+  #     para no romper deploys donde la key no esté disponible.
+  command = "npm install && npm run rag:ci"
 
 [functions]
   node_bundler = "esbuild"

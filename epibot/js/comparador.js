@@ -10,6 +10,14 @@ const PAD_COLORS = {
   Alzheimer: '#F472B6',
 };
 
+// Etiquetas visibles con ortografía correcta (las claves de datos quedan intactas).
+const PAD_LABELS = {
+  Depresion: 'Depresión',
+  Parkinson: 'Parkinson',
+  Alzheimer: 'Alzheimer',
+};
+const padLabel = (pad) => PAD_LABELS[pad] || pad;
+
 const CROWN_SVG =
   '<svg viewBox="0 0 14 14" width="14" height="14"><polygon points="7,1 9,5 13,5.5 10,8.5 11,12.5 7,10.5 3,12.5 4,8.5 1,5.5 5,5" fill="#2DD4BF"/></svg>';
 
@@ -230,7 +238,7 @@ function buildStyles() {
 
     .comparador-versus__center-line {
       width: 2px;
-      background: rgba(237, 243, 239, 0.2);
+      background: rgba(226, 232, 245, 0.2);
       flex-shrink: 0;
     }
 
@@ -279,7 +287,7 @@ function buildColumn(state, isWinner, maxPerPad) {
 
       return `
         <div>
-          <div class="comparador-pad__label">${pad} &middot; ${data.motor}</div>
+          <div class="comparador-pad__label">${padLabel(pad)} &middot; ${data.motor}</div>
           <div class="comparador-pad__bar-track">
             <div class="comparador-pad__bar-fill"
                  style="width:${pct.toFixed(1)}%;background:${color}"></div>
@@ -334,7 +342,7 @@ function buildVersus(stateA, stateB) {
 
       return `
         <div class="comparador-versus__row">
-          <div class="comparador-versus__pad-name">${pad}</div>
+          <div class="comparador-versus__pad-name">${padLabel(pad)}</div>
           <div class="comparador-versus__labels">
             <span>${stateA.name}</span>
             <span>${stateB.name}</span>

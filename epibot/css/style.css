@@ -49,7 +49,8 @@
   --text-primary: #E7ECF5;
   --text-secondary: #9FB0CE;
   --text-muted: #6E82A6;
-  --text-faint: #44567A;
+  /* #7C8DB0 sobre #0E1424 ≈ 5.5:1 (antes #44567A ≈ 2.3:1, ilegible en labels de 9px) */
+  --text-faint: #7C8DB0;
 
   /* Borders */
   --border: rgba(91, 141, 239, 0.12);
@@ -726,6 +727,15 @@ body::after {
 }
 .badge-ai::before { background: var(--gold); box-shadow: 0 0 6px var(--gold); }
 
+/* Badge de error: distingue fallos del bot (rosa) de respuestas IA (verde-azul) */
+.badge-error {
+  background: linear-gradient(135deg, rgba(244, 114, 182, 0.18), rgba(244, 114, 182, 0.06));
+  color: var(--burgundy);
+  border: 1px solid rgba(244, 114, 182, 0.25);
+  box-shadow: 0 0 0 1px rgba(244, 114, 182, 0.05) inset;
+}
+.badge-error::before { background: var(--burgundy); box-shadow: 0 0 6px var(--burgundy); }
+
 @keyframes badge-dot-pulse {
   0%, 100% { transform: scale(1); opacity: 1; }
   50%      { transform: scale(1.35); opacity: 0.7; }
@@ -1285,6 +1295,51 @@ body::after {
 
 .input-wrapper button:active {
   transform: scale(0.97);
+}
+
+/* Consulta en vuelo: el botón Enviar se deshabilita para evitar envíos concurrentes */
+.input-wrapper button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ─── BOTÓN FLOTANTE «BAJAR» (auto-scroll condicional) ─── */
+.scroll-down-btn {
+  position: absolute;
+  bottom: calc(100% + 14px);
+  right: 22px;
+  z-index: 150;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 1px solid var(--border-accent);
+  border-radius: var(--r-pill);
+  background: rgba(24, 34, 58, 0.94);
+  color: var(--teal);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  transform: translateY(6px);
+  pointer-events: none;
+  transition: opacity var(--dur) var(--ease-out), transform var(--dur) var(--ease-out),
+              background var(--dur-fast), border-color var(--dur-fast);
+}
+.scroll-down-btn.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.scroll-down-btn:hover {
+  background: var(--teal-dim);
+  border-color: var(--teal);
 }
 
 /* ─── MIC BUTTON ─── */

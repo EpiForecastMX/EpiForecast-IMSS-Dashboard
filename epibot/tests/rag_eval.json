@@ -32,6 +32,12 @@
     { "q": "cuales son las entidades con mayor incidencia", "expect": ["Datos del proyecto", "Reporte de resultados"] },
     { "q": "que diferencia de desempeno hay entre hombres y mujeres", "expect": ["Datos del proyecto"] },
     { "q": "cuantas entidades federativas modela el sistema", "expect": ["Datos del proyecto", "Paper MICAI 2026"] },
-    { "q": "que region concentra mas casos pronosticados", "expect": ["Datos del proyecto", "Reporte de resultados"] }
+    { "q": "que region concentra mas casos pronosticados", "expect": ["Datos del proyecto", "Reporte de resultados"] },
+    { "q": "cuales son los motores productivos del dengue", "expect": ["Datos de Dengue", "Metodología de Dengue", "Dengue: del boletín al modelo"] },
+    { "q": "cuantos casos de dengue se pronostican a nivel nacional", "expect": ["Datos de Dengue"] },
+    { "q": "que entidades tienen mas casos de dengue", "expect": ["Datos de Dengue"] },
+    { "q": "que periodo cubre la serie de dengue del proyecto", "expect": ["Datos de Dengue", "Metodología de Dengue", "Dengue: del boletín al modelo"] },
+    { "q": "que es el motor NBGLM que se usa para el dengue", "expect": ["Datos de Dengue", "Metodología de Dengue", "Dengue: del boletín al modelo"] },
+    { "q": "por que el dengue tiene anios epidemicos y como influye el nino", "expect": ["Datos de Dengue", "Dengue: del boletín al modelo"] }
   ]
 }

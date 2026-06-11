@@ -6,17 +6,28 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities } from './entities.js?v=26';
+import { norm, detectEntities } from './entities.js?v=28';
 
 let DATA = null;
 
+// Cohorte neurologica de produccion (333 modelos = 3 padecimientos x 111).
+// Los handlers agregadores/nacionales son neuro-only; Dengue (cohorte de
+// conteos) se responde por answerDengue y handlers con ent.padecimiento==='Dengue'.
+const NEURO_PADS = ['Depresion', 'Parkinson', 'Alzheimer'];
+function isNeuro(p) { return NEURO_PADS.includes(p); }
+
+// Version de los datos para cache-bust estable (evita re-descargar 1.3 MB por visita).
+// Subir esta constante cuando cambie knowledge.json / zoom_series.json.
+const DATA_VERSION = '20260611';
+
 export async function loadKnowledge() {
   if (DATA) return DATA;
-  const cacheBust = `?t=${Date.now()}`;
+  const cacheBust = `?v=${DATA_VERSION}`;
   const resp = await fetch(`./knowledge.json${cacheBust}`);
   if (!resp.ok) throw new Error('No se pudo cargar knowledge.json');
   DATA = await resp.json();
   _fixForecastTotals();
+  _fixCohortStats();
   // Precarga en segundo plano el zoom por serie (estado×sexo, 432 series). No bloquea el
   // arranque; cuando llega, queda en DATA.zoom_series y lo usan answerZoom/buildZoomChart.
   fetch(`./zoom_series.json${cacheBust}`)
@@ -50,10 +61,121 @@ function _fixForecastTotals() {
     );
     const corrected = stateGenerals.reduce((sum, m) => sum + (m.casos_52_semanas_futuro || 0), 0);
     pp[pad].casos_futuro_total = corrected;
-    grandTotal += corrected;
+    // pronostico_total es la cohorte neuro (Dengue es conteos, no se mezcla).
+    if (isNeuro(pad)) grandTotal += corrected;
   }
 
   stats.pronostico_total = grandTotal;
+}
+
+/**
+ * Re-deriva las estadísticas GLOBALES (agregadores nacionales) sobre la cohorte
+ * neuro (333 modelos), porque knowledge.json ahora mezcla Dengue (cohorte de
+ * conteos) en stats.* (total_modelos=435, dist_motor, smape, diagnósticos, top5,
+ * por_motor). El contrato es: los handlers agregadores/nacionales son neuro;
+ * Dengue se sirve por answerDengue / d.dengue. Las series por padecimiento
+ * (por_pad.Dengue) y prod_models con Dengue se conservan intactas para los
+ * handlers específicos de Dengue.
+ */
+function _fixCohortStats() {
+  const stats = DATA?.stats;
+  const models = DATA?.prod_models;
+  if (!stats || !Array.isArray(models)) return;
+
+  const neuro = models.filter(m => isNeuro(m.padecimiento));
+  if (!neuro.length) return;
+
+  const median = (arr) => {
+    if (!arr.length) return null;
+    const a = [...arr].sort((x, y) => x - y);
+    const mid = Math.floor(a.length / 2);
+    return a.length % 2 ? a[mid] : (a[mid - 1] + a[mid]) / 2;
+  };
+  const mean = (arr) => (arr.length ? arr.reduce((s, v) => s + v, 0) / arr.length : null);
+  const r2 = (v) => (v == null ? null : Math.round(v * 100) / 100);
+  const r1 = (v) => (v == null ? null : Math.round(v * 10) / 10);
+  const nums = (key) => neuro.map(m => m[key]).filter(v => v != null && isFinite(v));
+
+  // Conteo y total fijos de la cohorte neuro
+  stats.total_modelos = 333;
+
+  // Distribución de motores ganadores (neuro)
+  const dist = {};
+  for (const m of neuro) {
+    const mo = m.modelo_produccion;
+    if (mo) dist[mo] = (dist[mo] || 0) + 1;
+  }
+  if (Object.keys(dist).length) {
+    stats.dist_motor = dist;
+    const win = Object.entries(dist).sort((a, b) => b[1] - a[1])[0];
+    stats.motor_ganador = win[0];
+    stats.motor_ganador_n = win[1];
+    stats.motor_ganador_pct = r1((win[1] / 333) * 100);
+  }
+
+  // Métricas globales (neuro)
+  for (const [prefix, key] of [['smape_prod', 'smape_prod'], ['mase_prod', 'mase_prod'], ['rmse_prod', 'rmse_prod'], ['mae_prod', 'mae_prod']]) {
+    const vals = nums(key);
+    if (!vals.length) continue;
+    stats[`${prefix}_mean`] = r2(mean(vals));
+    stats[`${prefix}_median`] = r2(median(vals));
+    stats[`${prefix}_min`] = r2(Math.min(...vals));
+    stats[`${prefix}_max`] = r2(Math.max(...vals));
+  }
+
+  // Precisión histórica (neuro): los valores vienen como "91.3%"
+  const ph = neuro.map(m => parseFloat(String(m.precision_historica || '').replace('%', '')))
+    .filter(v => isFinite(v));
+  if (ph.length) {
+    stats.precision_historica_mean = r1(mean(ph));
+    stats.precision_historica_median = r1(median(ph));
+  }
+
+  // Diagnósticos (neuro)
+  let ofOk = 0, ofMod = 0, ofAlto = 0, ofNd = 0, lkOk = 0, lkSosp = 0;
+  for (const m of neuro) {
+    const of = String(m.overfitting || '');
+    if (of.startsWith('OK')) ofOk++;
+    else if (of.startsWith('Moderado')) ofMod++;
+    else if (of.startsWith('Alto')) ofAlto++;
+    else ofNd++;
+    const lk = String(m.leakage || '');
+    if (lk.startsWith('Sospechoso')) lkSosp++;
+    else if (lk.startsWith('OK')) lkOk++;
+  }
+  stats.overfitting_ok = ofOk;
+  stats.overfitting_moderado = ofMod;
+  stats.overfitting_alto = ofAlto;
+  stats.overfitting_nd = ofNd;
+  stats.leakage_ok = lkOk;
+  stats.leakage_sospechoso = lkSosp;
+
+  // Top/Bottom 5 por SMAPE (neuro)
+  const bySmape = neuro.filter(m => m.smape_prod != null && isFinite(m.smape_prod))
+    .map(m => ({ entidad: m.entidad, padecimiento: m.padecimiento, sexo: m.sexo, smape: r2(m.smape_prod), motor: m.modelo_produccion }));
+  const asc = [...bySmape].sort((a, b) => a.smape - b.smape);
+  stats.top5_smape = asc.slice(0, 5);
+  stats.bottom5_smape = [...bySmape].sort((a, b) => b.smape - a.smape).slice(0, 5);
+
+  // por_motor: métricas agregadas por motor (neuro)
+  const pmOut = {};
+  const byMotor = {};
+  for (const m of neuro) {
+    const mo = m.modelo_produccion;
+    if (!mo) continue;
+    (byMotor[mo] = byMotor[mo] || []).push(m);
+  }
+  for (const [mo, arr] of Object.entries(byMotor)) {
+    const pick = (k) => arr.map(x => x[k]).filter(v => v != null && isFinite(v));
+    const sm = pick('smape_prod'), ma = pick('mase_prod'), rm = pick('rmse_prod'), me = pick('mae_prod');
+    pmOut[mo] = {
+      smape_mean: r2(mean(sm)), smape_median: r2(median(sm)),
+      mase_mean: r2(mean(ma)), mase_median: r2(median(ma)),
+      rmse_mean: r2(mean(rm)), rmse_median: r2(median(rm)),
+      mae_mean: r2(mean(me)), mae_median: r2(median(me)),
+    };
+  }
+  if (Object.keys(pmOut).length) stats.por_motor = pmOut;
 }
 
 export function getStats() { return DATA?.stats || {}; }
@@ -934,17 +1056,17 @@ function answerProyectoMeta(q, ent, s, d) {
         .join(', ');
       lines.push(`| **${nombre} (${cie})** | ${smape} | ${ganador} | ${nGanador}/${total} | ${distStr} |`);
     }
-    // Global motor summary
-    const pm = s.por_motor || {};
+    // Global motor summary (cohorte neuro: numerador y denominador = 333)
     const motorTotals = {};
-    for (const [, ps] of Object.entries(pp)) {
+    for (const [pk, ps] of Object.entries(pp)) {
+      if (!isNeuro(pk)) continue;
       for (const [m, n] of Object.entries(ps.dist_motor || {})) {
         motorTotals[m] = (motorTotals[m] || 0) + n;
       }
     }
     const globalWinner = Object.entries(motorTotals).sort((a, b) => b[1] - a[1]);
     if (globalWinner.length) {
-      lines.push(`\n**Motor l\u00edder global**: **${globalWinner[0][0]}** con **${globalWinner[0][1]}/${s.total_modelos || 333}** series ganadas (${((globalWinner[0][1] / (s.total_modelos || 333)) * 100).toFixed(0)}%).`);
+      lines.push(`\n**Motor l\u00edder global**: **${globalWinner[0][0]}** con **${globalWinner[0][1]}/333** series ganadas (${((globalWinner[0][1] / 333) * 100).toFixed(0)}%).`);
       if (globalWinner.length > 1) {
         lines.push('Desglose: ' + globalWinner.map(([m, n]) => `${m} ${n}`).join(' | '));
       }
@@ -959,11 +1081,11 @@ function answerProyectoMeta(q, ent, s, d) {
     lines.push('- Hombres');
     lines.push('- Mujeres');
     lines.push('- General (combinado)\n');
-    lines.push(`37 geografias \u00d7 3 sexos = **111 modelos por padecimiento** \u00d7 3 padecimientos = **${s.total_modelos || 333} modelos totales**.`);
+    lines.push('37 geografias \u00d7 3 sexos = **111 modelos por padecimiento** \u00d7 3 padecimientos = **333 modelos totales** (cohorte neurol\u00f3gica).');
     const dgi = d.dengue;
     if (dgi) {
       lines.push('\n---\n');
-      lines.push(`**4.\u00ba padecimiento, Dengue (A97)**: arbovirosis con **pipeline propio** (cohorte de conteos, no tasa), aparte de los ${s.total_modelos || 333} neuro. Serie ${dgi.cobertura}, ${dgi.n_series} series; productivos **${(dgi.motores_productivos || []).join(' y ')}**. Preg\u00fantame \u00abdengue\u00bb para su detalle.`);
+      lines.push(`**4.\u00ba padecimiento, Dengue (A97)**: arbovirosis con **pipeline propio** (cohorte de conteos, no tasa), aparte de los 333 neuro. Serie ${dgi.cobertura}, ${dgi.n_series} series; productivos **${(dgi.motores_productivos || []).join(' y ')}**. Sumando Dengue, la plataforma totaliza **435 series**. Preg\u00fantame \u00abdengue\u00bb para su detalle.`);
     }
     return lines.join('\n');
   }
@@ -985,7 +1107,7 @@ function answerProyectoMeta(q, ent, s, d) {
     const ev = d.training_config?.eventos?.covid || {};
     return (
       '**Per\u00edodo COVID-19 en EpiForecast-MX**:\n\n' +
-      `- **Inicio**: ${ev.inicio || '2020-03-23'} (15 de marzo de 2020)\n` +
+      `- **Inicio**: ${ev.inicio || '2020-03-23'} (23 de marzo de 2020)\n` +
       `- **Fin**: ${ev.fin || '2022-09-22'} (22 de septiembre de 2022)\n` +
       `- **Duraci\u00f3n**: ~2.5 a\u00f1os (${ev.duracion_semanas || 130} semanas)\n\n` +
       '**Impacto por padecimiento**:\n' +
@@ -1097,7 +1219,7 @@ function answerProyectoMeta(q, ent, s, d) {
 
     // Distribucion actual
     if (Object.keys(dist).length) {
-      lines.push('**Distribucion actual de motores ganadores:**');
+      lines.push('**Distribución actual de motores ganadores:**');
       for (const [motor, n] of Object.entries(dist)) {
         const pct = s.total_modelos ? (n / s.total_modelos * 100).toFixed(1) : '?';
         lines.push(`- ${motor}: **${n}** series (${pct}%)`);
@@ -1377,6 +1499,24 @@ function answerDengue(q, ent, s, d) {
       if (hit) return `En **${hit.entidad}**, el dengue confirmado acumulado (${dg.cobertura}) suma **${num(hit.casos)} casos**: es una de las entidades de mayor carga del país.`;
       if (sin) return `**${sin}** no registra transmisión de dengue confirmada en todo el periodo (${dg.cobertura}). Pertenece al centro-altiplano, fuera del rango del vector *Aedes aegypti*.`;
       return `El dengue se concentra en el **sureste tropical y las costas** (${(dg.top_entidades || []).slice(0, 3).map((e) => e.entidad).join(', ')}). No tengo el desglose por entidad de ${ent.estado} en el bot; pídeme el **mapa de dengue** para ver la geografía completa.`;
+    }
+    // "peor / mayor" = mas carga (default). "menor / menos / pocas" = entidades con menos casos.
+    const wantsLeast = any(q, ['menor', 'menos', 'pocas', 'pocos', 'baja carga', 'mas bajo', 'menos afectad']);
+    if (wantsLeast) {
+      const sinCasos = dg.sin_casos || [];
+      const ranking = [...(dg.top_entidades || [])].sort((a, b) => (a.casos || 0) - (b.casos || 0)).slice(0, 5);
+      const out = [
+        `**Entidades con menor carga de dengue (${dg.cobertura}, casos confirmados)**`, '',
+      ];
+      if (sinCasos.length) {
+        out.push(`Las de **menor carga** no registran transmisión confirmada en todo el periodo: **${sinCasos.join(' y ')}** con cero casos. Pertenecen al centro-altiplano, fuera del rango del vector *Aedes aegypti*.`);
+      }
+      if (ranking.length) {
+        out.push('', 'Entre las que sí registran transmisión, las de menor carga son:');
+        ranking.forEach((e, i) => out.push(`${i + 1}. ${e.entidad}: ${num(e.casos)} casos`));
+      }
+      out.push('', '![Mapa de México: casos confirmados de dengue por entidad, 2018-2026, escala logarítmica](../Reports/dengue/dengue_mapa_mexico.png)');
+      return out.join('\n');
     }
     const top = (dg.top_entidades || []).map((e, i) => `${i + 1}. ${e.entidad}: ${num(e.casos)} casos`).join('\n');
     const out = [
@@ -1972,6 +2112,7 @@ function answerTreemap(q, ent, s, d) {
   const byEnt = {};
   for (const m of models) {
     if (m.sexo !== 'general') continue;
+    if (!isNeuro(m.padecimiento)) continue; // panorama neuro; Dengue va aparte
     const e = m.entidad || '';
     if (e === 'Nacional' || e.startsWith('region_')) continue;
     if (!byEnt[e]) byEnt[e] = { casos: 0, smapes: [] };
@@ -2093,7 +2234,7 @@ function answerStackedArea(q, ent, s, d) {
   const wc = d.weekly_comparison;
   if (!wc) return null;
 
-  const pads = Object.keys(wc);
+  const pads = Object.keys(wc).filter(isNeuro);
   const totalPron = pads.reduce((a, p) => {
     return a + (wc[p]?.semanas || []).reduce((s, w) => s + w.pronostico, 0);
   }, 0);
@@ -2109,7 +2250,7 @@ function answerStackedArea(q, ent, s, d) {
     lines.push(`- **${p}**: ${fmt(total)} casos (${pct}%)`);
   }
 
-  lines.push('\n*El area de cada padecimiento muestra su proporcion del total semanal.*');
+  lines.push('\n*El área de cada padecimiento muestra su proporción del total semanal.*');
 
   return lines.join('\n');
 }
@@ -2128,7 +2269,10 @@ function answerCorredor(q, ent, s, d) {
 
   const MODELS = ['prophet', 'deepar', 'ensemble', 'stacking'];
   const pad = ent.padecimiento;
-  const pads = pad ? [pad].filter(p => wc[p]) : Object.keys(wc);
+  // Cohorte neuro: el corredor compara los 4 motores. Dengue (prophet/deepar/nbglm)
+  // se sirve por answerDengue, así que aquí solo neuro.
+  const pads = pad ? [pad].filter(p => wc[p] && isNeuro(p)) : Object.keys(wc).filter(isNeuro);
+  if (!pads.length) return null;
   const lines = [];
 
   lines.push('**Corredor de confianza**: banda formada por los 4 modelos (Prophet, DeepAR, Ensemble, Stacking).\n');
@@ -2148,7 +2292,7 @@ function answerCorredor(q, ent, s, d) {
     const minSpreadSem = sems[spreads.indexOf(minSpread)]?.semana || '?';
 
     lines.push(`**${p}** (productivo: ${info.modelo_productivo || '-'}):`);
-    lines.push(`- Dispersion promedio: **${fmt(avgSpread)} casos/semana**`);
+    lines.push(`- Dispersión promedio: **${fmt(avgSpread)} casos/semana**`);
     lines.push(`- Mayor divergencia: semana ${maxSpreadSem} (**${fmt(maxSpread)} casos** de diferencia)`);
     lines.push(`- Mayor consenso: semana ${minSpreadSem} (**${fmt(minSpread)} casos** de diferencia)`);
     lines.push('');
@@ -2170,10 +2314,11 @@ function answerErrorHeatmap(q, ent, s, d) {
   if (!wc) return null;
 
   const pad = ent.padecimiento;
-  const pads = pad ? [pad].filter(p => wc[p]) : Object.keys(wc);
+  const pads = pad ? [pad].filter(p => wc[p] && isNeuro(p)) : Object.keys(wc).filter(isNeuro);
+  if (!pads.length) return null;
   const lines = [];
 
-  lines.push('**Mapa de error semanal**: porcentaje de desviacion entre pronostico y realidad.\n');
+  lines.push('**Mapa de error semanal**: porcentaje de desviación entre pronostico y realidad.\n');
   lines.push('Verde (< 15%) = bueno | Amarillo (15-40%) = aceptable | Rojo (> 40%) = fallo\n');
 
   for (const p of pads) {
@@ -2234,7 +2379,7 @@ function zoomSeriesText(s, pad, estado, sexo) {
   lines.push(`- Real acumulado: **${fmt(Math.round(realSum))}** · pronostico (mismas semanas): **${fmt(Math.round(pronSum))}**`);
   lines.push(`- Diferencia (real - pronostico): **${signo}${fmt(Math.round(Math.abs(diff)))}** casos (${arrastre}, error **${errPct}%**)`);
   lines.push(`- Pronostico a futuro (post semana ${wk != null ? wk : '-'}): **${fmt(Math.round(futSum))}** casos`);
-  lines.push('\n*Linea solida = real (boletin SINAVE), punteada = pronostico del motor productivo.*');
+  lines.push('\n*Línea sólida = real (boletin SINAVE), punteada = pronostico del motor productivo.*');
   return lines.join('\n');
 }
 
@@ -2257,7 +2402,8 @@ function answerZoom(q, ent, s, d) {
   const tc = d.training_config || {};
   const pads = Object.keys(wc);
   const pad = ent.padecimiento;
-  const filtered = pad ? pads.filter(p => p === pad) : pads;
+  // Dengue explícito conserva su zoom (answerDengue lo difiere aquí); el agregado es neuro.
+  const filtered = pad ? pads.filter(p => p === pad) : pads.filter(isNeuro);
 
   const lines = [];
   lines.push('**Zoom semanal: Real vs Pronostico**\n');
@@ -2299,7 +2445,7 @@ function answerZoom(q, ent, s, d) {
     lines.push('');
   }
 
-  lines.push('*Linea solida = datos reales, linea punteada = pronostico del modelo productivo.*');
+  lines.push('*Línea sólida = datos reales, línea punteada = pronostico del modelo productivo.*');
 
   return lines.join('\n');
 }
@@ -2584,7 +2730,7 @@ function answerComparativaEstados(q, ent, s, d) {
   for (const estado of estados) {
     const estModels = models.filter(m =>
       norm(m.entidad || '') === norm(estado) && m.sexo === 'general' &&
-      (!pad || m.padecimiento === pad)
+      (pad ? m.padecimiento === pad : isNeuro(m.padecimiento))
     );
     const estStats = s.por_estado?.[estado] || {};
     const totalCasos = estModels.reduce((sum, m) => sum + (m.casos_52_semanas_futuro || 0), 0);
@@ -2675,38 +2821,55 @@ function answerEstado(q, ent, s, d) {
   const estado = ent.estado;
   if (!estado || ent.padecimiento) return null;
 
-  const estStats = s.por_estado?.[estado];
+  // Las regiones llevan prefijo en por_estado ('region_Metropolitana alta') mientras
+  // entities.js las canoniza como 'Region Metropolitana alta'. Resolver via norm().
+  const porEstado = s.por_estado || {};
+  let estStats = porEstado[estado];
+  if (!estStats) {
+    const keyMatch = Object.keys(porEstado).find(k => norm(k) === norm(estado));
+    if (keyMatch) estStats = porEstado[keyMatch];
+  }
   if (!estStats) return null;
 
   const months = ent._months || [];
   const years = ent._years || [];
   const lines = [];
 
+  // El resumen por entidad es neuro (la nacional/estatal son agregadores de cohorte
+  // neuro); Dengue se consulta aparte. por_estado mezcla Dengue para los 32 estados y
+  // Nacional, as\u00ed que recalculamos desde prod_models filtrando a la cohorte neuro.
+  const models = d.prod_models || [];
+  const matchNeuro = models.filter(m => norm(m.entidad || '') === norm(estado) && isNeuro(m.padecimiento));
+  if (!matchNeuro.length) return null;
+  const estModels = matchNeuro.filter(m => m.sexo === 'general');
+  const casosNeuro = estModels.reduce((a, m) => a + (m.casos_52_semanas_futuro || 0), 0);
+  const nNeuro = matchNeuro.length;
+  const smapeVals = matchNeuro.map(m => m.smape_prod).filter(v => v != null && isFinite(v));
+  const smapeMean = smapeVals.length ? Math.round((smapeVals.reduce((a, b) => a + b, 0) / smapeVals.length) * 100) / 100 : null;
+
   // Lead con hallazgo principal
-  if (estStats.casos_futuro != null) {
+  if (casosNeuro) {
     lines.push(
-      `**${estado}** tiene un pron\u00f3stico de **${fmt(estStats.casos_futuro)} casos totales** ` +
-      `para las pr\u00f3ximas 52 semanas (${estStats.n || '?'} modelos de producci\u00f3n).\n`
+      `**${estado}** tiene un pron\u00f3stico de **${fmt(casosNeuro)} casos totales** ` +
+      `para las pr\u00f3ximas 52 semanas (${nNeuro} modelos de producci\u00f3n).\n`
     );
   } else {
-    lines.push(`**${estado}** cuenta con **${estStats.n || '?'} modelos** de producci\u00f3n.\n`);
+    lines.push(`**${estado}** cuenta con **${nNeuro} modelos** de producci\u00f3n.\n`);
   }
 
   // Estimaci\u00f3n mensual
-  if (months.length > 0 && estStats.casos_futuro) {
-    const mText = monthEstimateText(estStats.casos_futuro, months, years, null, estado, d);
+  if (months.length > 0 && casosNeuro) {
+    const mText = monthEstimateText(casosNeuro, months, years, null, estado, d);
     if (mText) lines.push(mText + '\n');
   }
 
   // Confianza
-  if (estStats.smape_prod_mean != null) {
-    const conf = confidence(estStats.smape_prod_mean);
-    lines.push(`Confianza general: **${conf}** (SMAPE promedio: ${estStats.smape_prod_mean}%)`);
+  if (smapeMean != null) {
+    const conf = confidence(smapeMean);
+    lines.push(`Confianza general: **${conf}** (SMAPE promedio: ${smapeMean}%)`);
   }
 
-  // Desglose por padecimiento (solo general)
-  const models = d.prod_models || [];
-  const estModels = models.filter(m => norm(m.entidad || '') === norm(estado) && m.sexo === 'general');
+  // Desglose por padecimiento (solo general, cohorte neuro)
   if (estModels.length) {
     lines.push('\n| Padecimiento | Pron\u00f3stico 52 sem | Motor | SMAPE |');
     lines.push('|-------------|-------------------|-------|-------|');
@@ -2715,12 +2878,16 @@ function answerEstado(q, ent, s, d) {
     }
   }
 
-  // Motor dominante
-  const dist = estStats.dist_motor;
-  if (dist) {
-    const dominant = Object.entries(dist).sort((a, b) => b[1] - a[1])[0];
-    if (dominant) lines.push(`\nMotor dominante: **${dominant[0]}** (${dominant[1]} de ${estStats.n} series)`);
+  // Motor dominante (neuro)
+  const dist = {};
+  for (const m of matchNeuro) {
+    if (m.modelo_produccion) dist[m.modelo_produccion] = (dist[m.modelo_produccion] || 0) + 1;
   }
+  const dominant = Object.entries(dist).sort((a, b) => b[1] - a[1])[0];
+  if (dominant) lines.push(`\nMotor dominante: **${dominant[0]}** (${dominant[1]} de ${nNeuro} series)`);
+
+  // Para Dengue en esta entidad, consulta aparte.
+  lines.push('\n*El pron\u00f3stico de Dengue se consulta por separado (preg\u00fantame por dengue).*');
 
   return lines.join('\n');
 }
@@ -2900,7 +3067,7 @@ function answerMotor(q, ent, s, d) {
     return lines.join('\n');
   }
 
-  if (any(q, ['gana', 'ganador', 'cual gana', 'que modelo', 'comparar modelo', 'comparativa'])) {
+  if (any(q, ['gana', 'ganador', 'cual gana', 'que modelo', 'comparar modelo', 'comparativa', 'comparacion', 'comparan', 'comparar motor'])) {
     const pm = s.por_motor || {};
     const sorted = Object.entries(pm).sort((a, b) => (a[1].smape_mean || 999) - (b[1].smape_mean || 999));
 
@@ -3169,8 +3336,9 @@ function answerConteo(q, ent, s, d) {
       }
     }
   } else if (estado) {
-    const es = s.por_estado?.[estado];
-    if (es) lines.push(`**${estado}** tiene **${es.n} modelos** de producci\u00f3n.`);
+    // Cohorte neuro (Dengue se cuenta aparte); robusto para regiones (clave con prefijo).
+    const nNeuro = (d.prod_models || []).filter(m => norm(m.entidad || '') === norm(estado) && isNeuro(m.padecimiento)).length;
+    if (nNeuro) lines.push(`**${estado}** tiene **${nNeuro} modelos** de producci\u00f3n (cohorte neurol\u00f3gica).`);
   } else {
     lines.push(`**${s.total_modelos || 333} modelos** en producci\u00f3n total.`);
     const dist = s.dist_motor || {};
@@ -3228,18 +3396,21 @@ function answerPronostico(q, ent, s, d) {
     if (hist) lines.push(`\n**Contexto**: ${hist}`);
 
   } else if (estado && !pad) {
-    const es = s.por_estado?.[estado];
-    if (!es?.casos_futuro) return null;
+    // Cohorte neuro (Dengue aparte); recalcula desde prod_models para no mezclar Dengue.
+    const genNeuro = (d.prod_models || []).filter(m =>
+      norm(m.entidad || '') === norm(estado) && m.sexo === 'general' && isNeuro(m.padecimiento));
+    const casosNeuro = genNeuro.reduce((a, m) => a + (m.casos_52_semanas_futuro || 0), 0);
+    if (!casosNeuro) return null;
 
     lines.push(
-      `Se pronostican **${fmt(es.casos_futuro)} casos totales en ${estado}** ` +
+      `Se pronostican **${fmt(casosNeuro)} casos totales en ${estado}** ` +
       `para las pr\u00f3ximas 52 semanas.\n`
     );
     if (rng) lines.push(`Horizonte: ${horizLabel}`);
     if (entrenLabel) lines.push(entrenLabel + '\n');
 
     if (months.length) {
-      const mText = monthEstimateText(es.casos_futuro, months, years, null, estado, d);
+      const mText = monthEstimateText(casosNeuro, months, years, null, estado, d);
       if (mText) lines.push(mText);
     }
 
@@ -3263,11 +3434,13 @@ function answerPronostico(q, ent, s, d) {
     lines.push('| Padecimiento | Pron\u00f3stico 52 sem | Modelo productivo |');
     lines.push('|-------------|-------------------|-------------------|');
     for (const [p, ps] of Object.entries(pp)) {
+      if (!isNeuro(p)) continue; // Dengue es cohorte de conteos, se consulta aparte
       if (ps.casos_futuro_total) {
         const motor = nacMotorMap[p] || ps.motor_ganador || '-';
         lines.push(`| ${p} | ${fmt(ps.casos_futuro_total)} casos | ${motor} |`);
       }
     }
+    lines.push('\n*El pron\u00f3stico de Dengue se consulta por separado (preg\u00fantame por dengue).*');
   }
 
   return lines.length ? lines.join('\n') : null;
@@ -3326,7 +3499,8 @@ const VOCAB = [
   'mapa','republica','coropletico','geografico',
   'timelapse','animacion','semaforo','alerta','riesgo','reporte','exportar','pdf','ejecutivo',
   'depresion','parkinson','alzheimer',
-  'deepar','prophet','ensemble','stacking',
+  'dengue','dengues','arbovirosis','brote','epidemia',
+  'deepar','prophet','ensemble','stacking','nbglm',
   'configuracion','entrenamiento','hiperparametros','parametros',
   'validacion','semanal','precision',
   'infraestructura','tests','cobertura','sagemaker',
@@ -3550,9 +3724,10 @@ function answerComparacionSemanal(q, ent, s, d) {
     (q.split(/\s+/).length <= 7 && any(q, ['compara', 'comparar', 'comparalo']))
   );
 
-  // Determine which padecimiento(s) to show
+  // Determine which padecimiento(s) to show. Agregado = cohorte neuro (la fila Total
+  // suma solo neuro). Dengue explícito conserva su tabla; lo demás Dengue lo sirve answerDengue.
   const pad = ent.padecimiento;
-  const padsToShow = pad ? [pad] : Object.keys(wc);
+  const padsToShow = pad ? [pad] : Object.keys(wc).filter(isNeuro);
 
   const lines = [];
 
@@ -3584,9 +3759,9 @@ function answerComparacionSemanal(q, ent, s, d) {
     // Interpretacion
     const totalErr = totalReal > 0 ? Math.abs(totalPron - totalReal) / totalReal * 100 : 0;
     lines.push('');
-    if (totalErr < 5) lines.push('Precision **excelente**: el error total es menor al 5%.');
-    else if (totalErr < 15) lines.push('Precision **buena**: el error total esta entre 5-15%.');
-    else lines.push('Precision **moderada**: revisar los modelos con mayor desviacion.');
+    if (totalErr < 5) lines.push('Precisión **excelente**: el error total es menor al 5%.');
+    else if (totalErr < 15) lines.push('Precisión **buena**: el error total está entre 5-15%.');
+    else lines.push('Precisión **moderada**: revisar los modelos con mayor desviación.');
 
     // Embed chart data: one per padecimiento for grid display
     for (const p of padsToShow) {
@@ -3655,7 +3830,7 @@ function answerComparacionSemanal(q, ent, s, d) {
       // Upcoming weeks preview
       const futureWeeks = weeks.filter(w => w.real == null).slice(0, 4);
       if (futureWeeks.length) {
-        lines.push(`\nProximas semanas pronosticadas:`);
+        lines.push(`\nPróximas semanas pronosticadas:`);
         for (const w of futureWeeks) {
           lines.push(`- Sem ${w.semana}: **${fmt(w.pronostico)}** casos`);
         }
@@ -3790,7 +3965,7 @@ function answerDistribucion(q, ent, s, d) {
 
   // Stats per padecimiento
   const filterNote = filterPad ? ` — ${filterPad}` : '';
-  const lines = [`**Distribucion de ${metricLabel}${filterNote}** (modelos de produccion, sexo=general)\n`];
+  const lines = [`**Distribución de ${metricLabel}${filterNote}** (modelos de producción, sexo=general)\n`];
   lines.push('| Padecimiento | N | Min | Q1 | Mediana | Q3 | Max | Promedio |');
   lines.push('|---|--:|--:|--:|--:|--:|--:|--:|');
   for (const pad of padNames) {
@@ -3879,10 +4054,10 @@ function answerGraficoAleatorio(q, ent, s, d) {
     for (const m of models) { if (m.sexo === 'general') dist[m.modelo_produccion] = (dist[m.modelo_produccion] || 0) + 1; }
     const entries = Object.entries(dist).sort((a, b) => b[1] - a[1]);
     if (!entries.length) return null;
-    const chart = { type: 'doughnut', title: 'Motores de produccion: composicion', labels: entries.map(e => e[0]),
+    const chart = { type: 'doughnut', title: 'Motores de producción: composición', labels: entries.map(e => e[0]),
       datasets: [{ data: entries.map(e => e[1]), backgroundColor: ['#2EC4A8', '#D4A84B', '#C83A5A', '#6366F1'], borderWidth: 0 }] };
     const total = entries.reduce((a, b) => a + b[1], 0);
-    const md = `**Composicion de motores de produccion** (${total} modelos, sexo=general)\n\n` +
+    const md = `**Composición de motores de producción** (${total} modelos, sexo=general)\n\n` +
       entries.map(([motor, n]) => `- **${motor}**: ${n} modelos (${(n / total * 100).toFixed(1)}%)`).join('\n');
     return { md, chart };
   });
@@ -3991,12 +4166,12 @@ function _genDistribChart(models, metric, metricLabel) {
     for (const v of byPad[pad]) { counts[Math.min(Math.floor(v / binSize), numBins - 1)]++; }
     return { pad, counts };
   });
-  const chart = { type: 'bar', title: `Distribucion de ${metricLabel} por padecimiento`, labels: binLabels,
+  const chart = { type: 'bar', title: `Distribución de ${metricLabel} por padecimiento`, labels: binLabels,
     datasets: datasets.map((ds, i) => ({ label: ds.pad, data: ds.counts,
       backgroundColor: ['#2EC4A8', '#D4A84B', '#C83A5A'][i] + '99', borderColor: ['#2EC4A8', '#D4A84B', '#C83A5A'][i],
       borderWidth: 2, borderRadius: 3 })),
     options: { scales: { x: { title: { display: true, text: metricLabel } }, y: { title: { display: true, text: 'Modelos' } } } } };
-  const md = `**Distribucion de ${metricLabel}** (modelos de produccion, sexo=general)\n\n| Padecimiento | N | Min | Mediana | Max | Promedio |\n|---|--:|--:|--:|--:|--:|\n` +
+  const md = `**Distribución de ${metricLabel}** (modelos de producción, sexo=general)\n\n| Padecimiento | N | Min | Mediana | Max | Promedio |\n|---|--:|--:|--:|--:|--:|\n` +
     padNames.map(pad => {
       const vals = [...byPad[pad]].sort((a, b) => a - b);
       const n = vals.length;
@@ -4017,12 +4192,12 @@ function answerTimelapse(q, ent, s, d) {
   const wc = d.weekly_comparison;
   if (!models.length || !wc) return null;
 
-  const pads = Object.keys(wc);
+  const pads = Object.keys(wc).filter(isNeuro);
   const nSemanas = wc[pads[0]]?.semanas?.length || 52;
   const totalNac = pads.reduce((a, p) => a + (wc[p]?.semanas || []).reduce((s, w) => s + w.pronostico, 0), 0);
 
   const lines = [];
-  lines.push('**Timelapse epidemiologico**: animacion semana a semana del pronostico a 52 semanas.\n');
+  lines.push('**Timelapse epidemiologico**: animación semana a semana del pronostico a 52 semanas.\n');
   lines.push(`- ${pads.length} padecimientos, 32 entidades federativas`);
   lines.push(`- Horizonte: ${nSemanas} semanas`);
   lines.push(`- Total nacional pronosticado: **${fmt(totalNac)} casos**\n`);
@@ -4046,6 +4221,7 @@ function answerSemaforo(q, ent, s, d) {
   const byEnt = {};
   for (const m of models) {
     if (m.sexo !== 'general') continue;
+    if (!isNeuro(m.padecimiento)) continue; // semaforo neuro; Dengue va aparte
     const e = m.entidad || '';
     if (e === 'Nacional' || e.startsWith('region_') || e.startsWith('Region')) continue;
     if (!byEnt[e]) byEnt[e] = { casos: 0, smapes: [], pads: {} };
@@ -4070,7 +4246,7 @@ function answerSemaforo(q, ent, s, d) {
 
   const sorted = Object.entries(byEnt).sort((a, b) => b[1].casos - a[1].casos);
   const lines = [];
-  lines.push('**Semaforo epidemiologico**: clasificacion de riesgo por entidad federativa.\n');
+  lines.push('**Semáforo epidemiologico**: clasificación de riesgo por entidad federativa.\n');
   lines.push(`| Nivel | Rango (casos 52 sem) | Estados |`);
   lines.push(`|-------|---------------------:|--------:|`);
   lines.push(`| Rojo | > ${fmt(p75)} | ${rojo} |`);
@@ -4101,7 +4277,7 @@ function answerReportePDF(q, ent, s, d) {
   const wc = d.weekly_comparison || {};
   const tc = d.training_config || {};
 
-  const totalCasos = models.filter(m => m.sexo === 'general')
+  const totalCasos = models.filter(m => m.sexo === 'general' && isNeuro(m.padecimiento))
     .reduce((a, m) => a + (m.casos_52_semanas_futuro || 0), 0);
   const pads = ['Depresion', 'Parkinson', 'Alzheimer'];
 
@@ -4132,11 +4308,11 @@ function answerMatrizRendimiento(q, ent, s, d) {
 
   const lines = [];
   lines.push('**Matriz de rendimiento**: cada burbuja es un modelo estatal (sexo general).\n');
-  lines.push('- **Eje X**: precision historica (mayor es mejor)');
+  lines.push('- **Eje X**: precisión histórica (mayor es mejor)');
   lines.push('- **Eje Y**: SMAPE (menor es mejor)');
-  lines.push('- **Tamano**: volumen de casos pronosticados a 52 semanas');
+  lines.push('- **Tamaño**: volumen de casos pronosticados a 52 semanas');
   lines.push('- **Color**: padecimiento (Depresion, Parkinson, Alzheimer)\n');
-  lines.push('Los modelos ideales se ubican **abajo a la derecha**: alta precision y bajo error. Las burbujas grandes son estados de alta incidencia, donde mas importa acertar.');
+  lines.push('Los modelos ideales se ubican **abajo a la derecha**: alta precisión y bajo error. Las burbujas grandes son estados de alta incidencia, donde mas importa acertar.');
   return lines.join('\n');
 }
 
@@ -4155,7 +4331,7 @@ function answerArsenalMotores(q, ent, s, d) {
   const sorted = Object.entries(dm).sort((a, b) => b[1] - a[1]);
 
   const lines = [];
-  lines.push(`**Arsenal de modelos**: distribucion de los **${total} modelos** en produccion por motor ganador.\n`);
+  lines.push(`**Arsenal de modelos**: distribución de los **${total} modelos** en producción por motor ganador.\n`);
   for (const [m, n] of sorted) {
     lines.push(`- **${m}**: ${n} modelos (${(n / total * 100).toFixed(0)}%)`);
   }
@@ -4226,6 +4402,7 @@ function answerVolumenError(q, ent, s, d) {
   const byEnt = {};
   for (const m of models) {
     if (m.sexo !== 'general') continue;
+    if (!isNeuro(m.padecimiento)) continue; // neuro; Dengue va aparte
     const e = m.entidad || '';
     if (e === 'Nacional' || e.startsWith('Region') || e.startsWith('region_')) continue;
     if (!byEnt[e]) byEnt[e] = { casos: 0, smapes: [] };
@@ -4259,7 +4436,7 @@ function answerCalibracion(q, ent, s, d) {
   lines.push('**Calibracion de modelos**: cada punto compara el pronostico contra la realidad observada de la ultima semana.\n');
   lines.push('- **Eje X**: valor pronosticado');
   lines.push('- **Eje Y**: valor real');
-  lines.push('- **Linea diagonal**: prediccion perfecta\n');
+  lines.push('- **Línea diagonal**: predicción perfecta\n');
   lines.push(`Se grafican **${models.length} modelos**. Los puntos sobre la diagonal estan bien calibrados; arriba subestiman y abajo sobreestiman.`);
   return lines.join('\n');
 }
@@ -4297,7 +4474,7 @@ function answerAcumulado(q, ent, s, d) {
 
   const wc = d.weekly_comparison;
   if (!wc) return null;
-  const pads = Object.keys(wc);
+  const pads = Object.keys(wc).filter(isNeuro);
   const total = pads.reduce((a, p) => a + (wc[p]?.semanas || []).reduce((x, w) => x + (w.pronostico || 0), 0), 0);
   const nSem = (wc[pads[0]]?.semanas || []).length || 52;
 

@@ -23,9 +23,12 @@ export const EMBED_DIM = 768;
 const TARGET_WORDS = 210;
 const OVERLAP_WORDS = 40;
 const MIN_WORDS = 25;
+const MAX_WORDS = 320;   // tope duro por chunk (antes de añadir el solapamiento)
 
 // Notas / reportes HTML (en la raíz del repo). url relativa al sitio kb/.
 const HTML_NOTES = [
+  { file: 'dengue.html', title: 'Dengue: del boletín al modelo' },
+  { file: 'metodologia_dengue.html', title: 'Metodología de Dengue' },
   { file: 'bitacora_modelado.html', title: 'Bitácora de modelado' },
   { file: 'ficha_tecnica_prophet.html', title: 'Ficha técnica — Prophet' },
   { file: 'hiperparametros_modelos.html', title: 'Hiperparámetros de los modelos' },
@@ -117,7 +120,32 @@ function paperToSections(txt, fallbackTitle) {
   return sections.filter(s => wordCount(s.text) >= MIN_WORDS);
 }
 
-/** Trocea el texto de una sección en pasajes de ~TARGET_WORDS con solapamiento. */
+/** Parte una unidad de texto demasiado larga en piezas <= MAX_WORDS, prefiriendo
+ *  límites de oración y, si una sola oración excede el tope (p. ej. una tabla
+ *  aplanada sin puntuación), partiendo por palabras. */
+function splitLongUnit(unit) {
+  const out = [];
+  const sentences = unit.split(/(?<=[.!?])\s+/);
+  let sb = [], sw = 0;
+  const flushS = () => { if (sb.length) { const b = sb.join(' ').trim(); if (b) out.push(b); sb = []; sw = 0; } };
+  for (const sen of sentences) {
+    const swc = wordCount(sen);
+    if (swc > MAX_WORDS) {
+      flushS();
+      const words = sen.split(/\s+/);
+      for (let i = 0; i < words.length; i += TARGET_WORDS) out.push(words.slice(i, i + TARGET_WORDS).join(' ').trim());
+      continue;
+    }
+    if (sw + swc > TARGET_WORDS && sw > 0) flushS();
+    sb.push(sen); sw += swc;
+  }
+  flushS();
+  return out;
+}
+
+/** Trocea el texto de una sección en pasajes de ~TARGET_WORDS con solapamiento.
+ *  Acumula párrafos hasta TARGET_WORDS y nunca emite un chunk base mayor que
+ *  MAX_WORDS: los párrafos largos se subdividen por oración/palabra. */
 function chunkSection(text) {
   const paras = text.split(/\n{2,}|\n(?=[A-ZÁÉÍÓÚ0-9])/).map(p => p.trim()).filter(Boolean);
   const chunks = [];
@@ -125,15 +153,9 @@ function chunkSection(text) {
   const flush = () => { if (buf.length) { const b = buf.join('\n').trim(); if (wordCount(b) >= MIN_WORDS) chunks.push(b); buf = []; bufW = 0; } };
   for (const para of paras) {
     const w = wordCount(para);
-    if (w > TARGET_WORDS * 1.6) {
+    if (w > MAX_WORDS) {
       flush();
-      const sentences = para.split(/(?<=[.!?])\s+/);
-      let sb = [], sw = 0;
-      for (const sen of sentences) {
-        sb.push(sen); sw += wordCount(sen);
-        if (sw >= TARGET_WORDS) { if (wordCount(sb.join(' ')) >= MIN_WORDS) chunks.push(sb.join(' ').trim()); sb = sb.slice(-1); sw = wordCount(sb.join(' ')); }
-      }
-      if (sb.length && wordCount(sb.join(' ')) >= MIN_WORDS) chunks.push(sb.join(' ').trim());
+      for (const piece of splitLongUnit(para)) if (wordCount(piece) >= MIN_WORDS) chunks.push(piece);
       continue;
     }
     if (bufW + w > TARGET_WORDS && bufW > 0) flush();
@@ -226,6 +248,35 @@ function structuredCards(kb) {
   return cards.map((c, i) => ({ id: `kb-card#${i}`, ...c }));
 }
 
+// --- Tarjetas estructuradas de Dengue (sección `dengue` de knowledge.json) ---
+function dengueCards(kb) {
+  const d = kb.dengue;
+  if (!d || typeof d !== 'object') return [];
+  const cards = [];
+  const fmt = (n) => Number(n || 0).toLocaleString('es-MX');
+  const push = (section, text) => { if (text && text.trim()) cards.push({ source: 'Datos de Dengue', section, title: section, url: '../dengue.html', text: text.trim() }); };
+
+  push('Dengue — resumen de producción',
+    `EpiForecast-MX pronostica el Dengue (CIE-10 ${d.cie}) con una serie de producción que cubre ${d.cobertura} (${d.n_boletines} boletines del Cuadro 7.2 de SINAVE; dengue confirmado A97.x agregado). Abarca ${d.n_entidades} entidades federativas y ${d.n_series} series, con horizonte productivo de ${d.horizonte_semanas} semanas y una proyección ilustrativa a ${d.proyeccion_anios} años. Motores entrenados: ${(d.motores_entrenados || []).join(', ')}. Motores productivos: ${(d.motores_productivos || []).join(', ')} (reparto ${Object.entries(d.dist_motor || {}).map(([m, n]) => `${m}: ${n}`).join(', ')} series). El pronóstico nacional usa ${d.motor_nacional}, con SMAPE de ${d.smape_nacional}%, y proyecta ${fmt(d.casos_futuro_nacional_52sem)} casos a 52 semanas. Último dato real: ${d.ultima_real}. Unidad de medida: ${d.unidad}.`);
+
+  if (d.anual && Object.keys(d.anual).length) {
+    const years = Object.entries(d.anual).map(([y, n]) => `${y}: ${fmt(n)} casos`).join(', ');
+    push('Dengue — casos anuales y ciclo epidémico',
+      `Casos anuales registrados de Dengue (${years}). El año pico fue ${d.anio_pico} con ${fmt(d.casos_pico)} casos (la mayor epidemia de dengue registrada en las Américas). Los años epidémicos (${(d.anios_epidemicos || []).join(', ')}) coinciden con años de El Niño; el ciclo epidémico estimado es de ${d.ciclo_anios} años. El motor NBGLM (Negative-Binomial GLM con estacionalidad de Fourier y regresor El Niño/ONI) captura esta dinámica inter-anual.`);
+  }
+
+  if (Array.isArray(d.top_entidades) && d.top_entidades.length) {
+    const top = d.top_entidades.map(e => `${e.entidad} (${fmt(e.casos)} casos)`).join(', ');
+    const sin = (d.sin_casos || []).length ? ` Entidades sin casos registrados: ${(d.sin_casos || []).join(', ')}.` : '';
+    push('Dengue — entidades con mayor incidencia',
+      `Entidades con mayor incidencia histórica de Dengue: ${top}.${sin}`);
+  }
+
+  if (Array.isArray(d.notas) && d.notas.length) push('Dengue — notas metodológicas', d.notas.join(' '));
+
+  return cards.map((c, i) => ({ id: `dengue-card#${i}`, ...c }));
+}
+
 /**
  * Tarjetas en ESPAÑOL que resumen el paper MICAI (que está en inglés). Mejoran
  * el recall cross-lingüe: garantizan que preguntas conceptuales en español sobre
@@ -288,8 +339,11 @@ export function buildChunks() {
   // 3. Tarjetas estructuradas
   const kbPath = resolve(KB_DIR, 'knowledge.json');
   if (existsSync(kbPath)) {
-    const cards = structuredCards(JSON.parse(readFileSync(kbPath, 'utf-8')));
+    const kbObj = JSON.parse(readFileSync(kbPath, 'utf-8'));
+    const cards = structuredCards(kbObj);
     chunks.push(...cards); log.push(['knowledge.json (tarjetas)', cards.length]);
+    const dCards = dengueCards(kbObj);
+    if (dCards.length) { chunks.push(...dCards); log.push(['Dengue (tarjetas)', dCards.length]); }
   }
 
   return { chunks, log };

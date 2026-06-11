@@ -333,7 +333,7 @@ function sortStates(states) {
  */
 export function renderSemaforo(container, semaforoData, opts = {}) {
   const { states = [], alerts = [], summary = {} } = semaforoData;
-  const { title = 'Semaforo epidemiologico' } = opts;
+  const { title = 'Semáforo epidemiológico' } = opts;
 
   const wrapper = document.createElement('div');
   wrapper.className = 'semaforo-wrapper';

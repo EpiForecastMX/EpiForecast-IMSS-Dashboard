@@ -1,7 +1,7 @@
 // timelapse.js — Animated timelapse choropleth map of Mexico (52 weeks)
 // Imports state paths and viewBox from mexico-map.js
 
-import { STATES, VIEWBOX } from './mexico-map.js?v=1';
+import { STATES, VIEWBOX } from './mexico-map.js?v=2';
 
 function interpolateColor(val, vMin, vMax, range, lowColor, highColor, noDataColor) {
   if (val == null) return noDataColor;
@@ -35,7 +35,7 @@ const SPEED_OPTIONS = [
  */
 export function renderTimelapse(container, timelapseData, opts = {}) {
   const {
-    title = 'Timelapse - Pronostico Semanal',
+    title = 'Timelapse - Pronóstico Semanal',
     lowColor = [30, 60, 50],
     highColor = [91, 141, 239],
     noDataColor = '#18223A',
@@ -155,16 +155,21 @@ export function renderTimelapse(container, timelapseData, opts = {}) {
   playBtn.innerHTML = PLAY_ICON;
   controls.appendChild(playBtn);
 
-  // Speed buttons
+  // Speed buttons: el CSS espera `.timelapse-speed button`, así que los
+  // botones van DENTRO de un contenedor con esa clase (antes la clase caía
+  // en cada botón y quedaban sin estilo).
+  const speedWrap = document.createElement('div');
+  speedWrap.className = 'timelapse-speed';
   const speedButtons = [];
   for (let i = 0; i < SPEED_OPTIONS.length; i++) {
     const btn = document.createElement('button');
-    btn.className = 'timelapse-speed' + (i === 0 ? ' active' : '');
+    btn.className = i === 0 ? 'active' : '';
     btn.textContent = SPEED_OPTIONS[i].label;
     btn.dataset.index = String(i);
-    controls.appendChild(btn);
+    speedWrap.appendChild(btn);
     speedButtons.push(btn);
   }
+  controls.appendChild(speedWrap);
 
   wrapper.appendChild(controls);
 
@@ -212,17 +217,29 @@ export function renderTimelapse(container, timelapseData, opts = {}) {
     slider.value = String(index);
   }
 
+  function tick() {
+    // Anti-leak: si el SVG ya no está en el documento (chat limpiado o
+    // mensaje retirado), el intervalo se cancela solo.
+    if (!svg.isConnected) {
+      if (intervalId != null) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+      playing = false;
+      return;
+    }
+    let next = currentFrame + 1;
+    if (next >= totalFrames) {
+      next = 0;
+    }
+    applyFrame(next);
+  }
+
   function startPlayback() {
     if (playing) return;
     playing = true;
     playBtn.innerHTML = PAUSE_ICON;
-    intervalId = setInterval(() => {
-      let next = currentFrame + 1;
-      if (next >= totalFrames) {
-        next = 0;
-      }
-      applyFrame(next);
-    }, speedMs);
+    intervalId = setInterval(tick, speedMs);
   }
 
   function stopPlayback() {
@@ -240,14 +257,11 @@ export function renderTimelapse(container, timelapseData, opts = {}) {
     if (intervalId != null) {
       clearInterval(intervalId);
     }
-    intervalId = setInterval(() => {
-      let next = currentFrame + 1;
-      if (next >= totalFrames) {
-        next = 0;
-      }
-      applyFrame(next);
-    }, speedMs);
+    intervalId = setInterval(tick, speedMs);
   }
+
+  // Expone el stop para que resetChat pueda limpiar el intervalo al instante.
+  wrapper._tlStop = stopPlayback;
 
   // --- Event handlers ---
 

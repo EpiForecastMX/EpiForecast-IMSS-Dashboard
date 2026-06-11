@@ -229,13 +229,14 @@ export function detectEntities(query) {
     _ageFilter: extractAgeFilter(qn),
   };
 
-  // Padecimiento
+  // Padecimiento — detectar TODOS los mencionados (no romper en el primero).
+  // ent.padecimiento = el primero (compatibilidad); ent.padecimientos = array.
+  const allPads = [];
   for (const [alias, canon] of Object.entries(PADECIMIENTO_ALIAS)) {
-    if (qn.includes(alias)) {
-      result.padecimiento = canon;
-      break;
-    }
+    if (qn.includes(alias) && !allPads.includes(canon)) allPads.push(canon);
   }
+  result.padecimiento = allPads.length ? allPads[0] : null;
+  if (allPads.length > 1) result.padecimientos = allPads;
 
   // Estado (sorted by length desc) — detectar TODOS los estados mencionados
   const allEstados = [];

@@ -2,10 +2,10 @@
   publish = "."
   functions = "epibot/netlify/functions"
   # Reindexa el RAG en cada deploy (incremental: reusa vectores del índice
-  # commiteado, solo embebe lo nuevo). El "|| true" garantiza que un fallo de
-  # reindexado NUNCA rompe el deploy: se publica el rag_index.json commiteado.
-  # Define GEMINI_API_KEY en el entorno de build para reindexar notas nuevas.
-  command = "cd epibot && npm install && npm run rag:build || true"
+  # commiteado, solo embebe lo nuevo). rag:ci: con GEMINI_API_KEY hace
+  # build + verify (y falla el deploy si el índice queda con drift); sin key
+  # conserva el rag_index.json commiteado y solo avisa (no rompe el deploy).
+  command = "cd epibot && npm install && npm run rag:ci"
 
 [functions]
   node_bundler = "esbuild"

@@ -5455,7 +5455,7 @@
     "expectedHandler": "answerDistribucion",
     "mustContain": [
       "MASE",
-      "Distribucion",
+      "Distribución",
       "DISTRIB"
     ],
     "mustNotContain": [],
@@ -5467,7 +5467,7 @@
     "expectedHandler": "answerDistribucion",
     "mustContain": [
       "SMAPE",
-      "Distribucion",
+      "Distribución",
       "DISTRIB"
     ],
     "mustNotContain": [],
@@ -5479,7 +5479,7 @@
     "expectedHandler": "answerDistribucion",
     "mustContain": [
       "RMSE",
-      "Distribucion",
+      "Distribución",
       "DISTRIB"
     ],
     "mustNotContain": [],
@@ -5491,7 +5491,7 @@
     "expectedHandler": "answerDistribucion",
     "mustContain": [
       "MASE",
-      "Distribucion",
+      "Distribución",
       "DISTRIB"
     ],
     "mustNotContain": [],
@@ -5503,7 +5503,7 @@
     "expectedHandler": "answerDistribucion",
     "mustContain": [
       "SMAPE",
-      "Distribucion",
+      "Distribución",
       "DISTRIB"
     ],
     "mustNotContain": [],
@@ -5526,7 +5526,7 @@
     "expectedHandler": "answerDistribucion",
     "mustContain": [
       "MAE",
-      "Distribucion",
+      "Distribución",
       "DISTRIB"
     ],
     "mustNotContain": [],

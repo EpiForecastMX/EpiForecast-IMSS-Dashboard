@@ -6,13 +6,13 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=97';
-import { detectEntities, norm } from './entities.js?v=27';
-import { renderMexicoMap } from './mexico-map.js?v=1';
-import { renderTimelapse } from './timelapse.js?v=1';
-import { renderSemaforo } from './semaforo.js?v=1';
-import { renderComparador } from './comparador.js?v=1';
-import { initSTT, STT_SUPPORTED, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking, isSpeaking, toggleMute, isTTSEnabled, onSpeakingStateChange } from './voice.js?v=2';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=98';
+import { detectEntities, norm } from './entities.js?v=28';
+import { renderMexicoMap } from './mexico-map.js?v=2';
+import { renderTimelapse } from './timelapse.js?v=2';
+import { renderSemaforo } from './semaforo.js?v=2';
+import { renderComparador } from './comparador.js?v=2';
+import { initSTT, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking, toggleMute, isTTSEnabled, onSpeakingStateChange } from './voice.js?v=3';
 
 // ---------------------------------------------------------------------------
 // DOM refs
@@ -326,7 +326,7 @@ const epiBoxPlotPlugin = {
 // Gemini connectivity check
 // ---------------------------------------------------------------------------
 
-async function checkGemini() {
+async function checkGemini(attempt = 0) {
   const indicator = document.getElementById('geminiStatus');
   if (!indicator) return;
   let ragReady = false;
@@ -350,6 +350,10 @@ async function checkGemini() {
     indicator.innerHTML = `
       <span class="gemini-dot"></span>
       <span>${ragReady ? 'RAG activo' : 'Powered by AI'}</span>`;
+  } else if (attempt < 1) {
+    // Cold start de la función serverless: reintenta una vez a los 6 s antes
+    // de declarar «Solo datos locales». Mientras tanto se queda en "Conectando...".
+    setTimeout(() => { checkGemini(attempt + 1); }, 6000);
   } else {
     indicator.className = 'gemini-status gemini-off';
     indicator.innerHTML = `
@@ -386,12 +390,23 @@ async function init() {
     if (!img) return;
     const ov = document.createElement('div');
     ov.className = 'img-lightbox';
+    ov.setAttribute('role', 'dialog');
+    ov.setAttribute('aria-modal', 'true');
+    ov.setAttribute('aria-label', img.alt || 'Imagen ampliada');
+    ov.tabIndex = -1;
     const big = document.createElement('img');
     big.src = img.src;
     big.alt = img.alt || '';
     ov.appendChild(big);
-    ov.addEventListener('click', () => ov.remove());
+    const closeLightbox = () => {
+      ov.remove();
+      document.removeEventListener('keydown', onLightboxKey);
+    };
+    const onLightboxKey = (ev) => { if (ev.key === 'Escape') closeLightbox(); };
+    ov.addEventListener('click', closeLightbox);
+    document.addEventListener('keydown', onLightboxKey);
     document.body.appendChild(ov);
+    ov.focus();
   });
 
   sendBtn.addEventListener('click', handleSend);
@@ -428,17 +443,19 @@ async function init() {
     // Hide if TTS not supported
     if (!TTS_SUPPORTED) { ttsMuteBtn.style.display = 'none'; }
     else {
-      ttsMuteBtn.addEventListener('click', () => {
-        const enabled = toggleMute();
+      const syncMuteUI = (enabled) => {
         ttsMuteBtn.classList.toggle('muted', !enabled);
         ttsMuteBtn.title = enabled ? 'Silenciar respuestas de voz' : 'Activar respuestas de voz';
         const label = ttsMuteBtn.querySelector('.voice-btn-label');
-        if (label) label.textContent = enabled ? 'Voz' : 'Mute';
+        if (label) label.textContent = enabled ? 'Voz' : 'Silencio';
         // Update SVG
         ttsMuteBtn.querySelector('svg').innerHTML = enabled
           ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07"/><path d="M19.07 4.93a10 10 0 010 14.14"/>'
           : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
-      });
+      };
+      // Restaura la preferencia de silencio persistida (localStorage, voice.js)
+      syncMuteUI(isTTSEnabled());
+      ttsMuteBtn.addEventListener('click', () => { syncMuteUI(toggleMute()); });
     }
   }
 
@@ -454,39 +471,41 @@ async function init() {
 
   if (promptToggle && promptMenu) {
     // Pool of entity/data prompts — 6 random picks shown each time
+    // OJO: `q` es la consulta que se manda al matcher (sin tildes, NO tocar);
+    // `text` es la etiqueta visible (con ortografía correcta).
     const ENTITY_PROMPTS = [
-      { text: 'Depresion en Jalisco', q: 'depresion en Jalisco' },
-      { text: 'Depresion en CDMX', q: 'depresion en Ciudad de Mexico' },
-      { text: 'Depresion en Nuevo Leon', q: 'depresion en Nuevo Leon' },
+      { text: 'Depresión en Jalisco', q: 'depresion en Jalisco' },
+      { text: 'Depresión en CDMX', q: 'depresion en Ciudad de Mexico' },
+      { text: 'Depresión en Nuevo León', q: 'depresion en Nuevo Leon' },
       { text: 'Parkinson en Sonora', q: 'parkinson en Sonora' },
       { text: 'Parkinson en Veracruz', q: 'parkinson en Veracruz' },
       { text: 'Parkinson en Chihuahua', q: 'parkinson en Chihuahua' },
       { text: 'Alzheimer en Puebla', q: 'alzheimer en Puebla' },
       { text: 'Alzheimer en Guanajuato', q: 'alzheimer en Guanajuato' },
-      { text: 'Alzheimer en Yucatan', q: 'alzheimer en Yucatan' },
+      { text: 'Alzheimer en Yucatán', q: 'alzheimer en Yucatan' },
       { text: 'Top entidades', q: 'ranking entidades por incidencia' },
       { text: 'Resumen 2024', q: 'resumen epidemiologico 2024' },
       { text: 'Resumen 2023', q: 'resumen epidemiologico 2023' },
       { text: 'Hombres vs Mujeres', q: 'depresion hombres vs mujeres' },
       { text: 'Parkinson por sexo', q: 'parkinson hombres vs mujeres' },
-      { text: 'Jalisco vs Nuevo Leon', q: 'compara Jalisco y Nuevo Leon' },
-      { text: 'CDMX vs Estado de Mexico', q: 'compara Ciudad de Mexico y Mexico' },
+      { text: 'Jalisco vs Nuevo León', q: 'compara Jalisco y Nuevo Leon' },
+      { text: 'CDMX vs Estado de México', q: 'compara Ciudad de Mexico y Mexico' },
       { text: 'Sonora vs Chihuahua', q: 'compara Sonora y Chihuahua' },
       { text: 'Oaxaca vs Guerrero', q: 'compara Oaxaca y Guerrero' },
       { text: 'Baja California', q: 'pronostico Baja California' },
       { text: 'Tabasco', q: 'pronostico Tabasco' },
-      { text: 'Michoacan', q: 'pronostico Michoacan' },
+      { text: 'Michoacán', q: 'pronostico Michoacan' },
       { text: 'Quintana Roo', q: 'pronostico Quintana Roo' },
       { text: 'Sinaloa', q: 'pronostico Sinaloa' },
       { text: 'Coahuila', q: 'pronostico Coahuila' },
       { text: 'Tamaulipas', q: 'pronostico Tamaulipas' },
       { text: 'Chiapas', q: 'pronostico Chiapas' },
-      { text: 'Region Norte', q: 'region norte' },
-      { text: 'Region Sur', q: 'region sur' },
-      { text: 'Pronostico Dengue', q: 'pronostico dengue' },
+      { text: 'Región Norte', q: 'region norte' },
+      { text: 'Región Sur', q: 'region sur' },
+      { text: 'Pronóstico Dengue', q: 'pronostico dengue' },
       { text: 'Mapa de Dengue', q: 'mapa de mexico de dengue' },
-      { text: 'Proximo brote Dengue', q: 'proximo brote de dengue' },
-      { text: 'Dengue: donde golpea', q: 'donde golpea el dengue' },
+      { text: 'Próximo brote Dengue', q: 'proximo brote de dengue' },
+      { text: 'Dengue: dónde golpea', q: 'donde golpea el dengue' },
     ];
 
     const entidadesContainer = document.getElementById('promptEntidades');
@@ -517,11 +536,15 @@ async function init() {
     function togglePromptMenu() {
       const isOpen = promptMenu.classList.toggle('open');
       promptToggle.classList.toggle('active', isOpen);
+      promptMenu.setAttribute('aria-hidden', String(!isOpen));
+      promptToggle.setAttribute('aria-expanded', String(isOpen));
       if (isOpen) fillRandomEntidades();
     }
     function closePromptMenu() {
       promptMenu.classList.remove('open');
       promptToggle.classList.remove('active');
+      promptMenu.setAttribute('aria-hidden', 'true');
+      promptToggle.setAttribute('aria-expanded', 'false');
     }
 
     promptToggle.addEventListener('click', togglePromptMenu);
@@ -562,7 +585,21 @@ function resetChat() {
   lastAnswerWasRag = false;
   lastPad = null;
   lastEst = null;
+  // Libera recursos antes de vaciar el DOM: instancias Chart.js (leak de
+  // canvas/listeners), lectura TTS en curso e intervalos del timelapse.
+  if (typeof Chart !== 'undefined' && Chart.getChart) {
+    document.querySelectorAll('#chatArea canvas').forEach((c) => {
+      const ch = Chart.getChart(c);
+      if (ch) ch.destroy();
+    });
+  }
+  document.querySelectorAll('#chatArea .timelapse-wrapper').forEach((w) => {
+    if (typeof w._tlStop === 'function') w._tlStop();
+  });
+  stopSpeaking();
   while (chatArea.firstChild) chatArea.removeChild(chatArea.firstChild);
+  stickToBottom = true;
+  hideScrollDownBtn();
   const data = getData();
   if (data) addWelcome(data);
   inputField.focus();
@@ -642,22 +679,58 @@ let lastChartQuery = '';
 let lastAnswerWasRag = false;   // si la última respuesta vino del RAG (para seguimientos)
 let lastPad = null;             // padecimiento del contexto conversacional (para gráficos)
 let lastEst = null;             // estado/entidad del contexto conversacional
+let busy = false;               // consulta en vuelo: bloquea envíos concurrentes
+
+function setSendBusy(value) {
+  busy = value;
+  if (sendBtn) {
+    sendBtn.disabled = value;
+    sendBtn.setAttribute('aria-disabled', String(value));
+  }
+}
 
 async function handleSend() {
   const text = inputField.value.trim();
-  if (!text) return;
+  if (!text || busy) return;
+  setSendBusy(true);
   inputField.value = '';
   addUserMessage(text);
+  // Indicador de «pensando» también en el camino local (callRag crea el suyo).
+  const typingEl = addTypingIndicator();
+  try {
+    await routeQuery(text, typingEl);
+  } finally {
+    removeTyping(typingEl);
+    setSendBusy(false);
+  }
+}
 
+async function routeQuery(text, typingEl) {
   // Seguimiento corto tras una respuesta del RAG → continúa en el RAG (que
   // contextualiza con el historial e inyecta datos exactos). Evita que «¿y X?»
   // pierda la intención al caer en un handler local distinto.
+  // EXCEPCIÓN: si la consulta corta trae entidades del dominio (estado,
+  // padecimiento, métrica…) y el KB local la resuelve, gana el KB; así
+  // «métricas globales» responde con datos reales aunque venga tras el RAG.
   const tnorm = norm(text);
   const isShortFollowUp = text.trim().split(/\s+/).length <= 5 || /^¿?\s*(y|pero|ademas|entonces|tambien|ok)\b/.test(tnorm);
-  if (lastAnswerWasRag && isShortFollowUp) { await callRag(text); return; }
 
   let result = null;
-  try { result = await answer(text); } catch (err) { console.error('KB error:', err); }
+  let triedLocal = false;
+  if (lastAnswerWasRag && isShortFollowUp) {
+    const entFu = detectEntities(text);
+    const hasDomainEntity = !!(entFu.padecimiento || entFu.estado) ||
+      /(metric|smape|mase|rmse|motor|modelo|pronostic|mapa|ranking|validacion|semaforo|zoom|equipo)/.test(tnorm);
+    if (hasDomainEntity) {
+      triedLocal = true;
+      try { result = await answer(text); } catch (err) { console.error('KB error:', err); }
+    }
+    if (!result) { removeTyping(typingEl); await callRag(text); return; }
+  }
+
+  if (!result && !triedLocal) {
+    try { result = await answer(text); } catch (err) { console.error('KB error:', err); }
+  }
 
   if (result) {
     // Hereda el padecimiento/estado del contexto para que el GR\u00c1FICO de un
@@ -696,11 +769,13 @@ async function handleSend() {
     if (chartData) lastChartQuery = chartQuery;
     lastAnswerWasRag = false;
     const suggestions = getSuggestions(text);
+    removeTyping(typingEl);
     addBotMessage(result, 'local', suggestions, chartData);
     pushHistory(text, result);
     return;
   }
 
+  removeTyping(typingEl);
   await callRag(text);
 }
 
@@ -715,7 +790,7 @@ async function callRag(text) {
   let shell = null, acc = '', sources = null, gotMeta = false, streamErr = null, rafPending = false;
   const render = () => {
     if (!shell) return;
-    shell.content.innerHTML = marked.parse(polishSpanish(acc), { breaks: true });
+    shell.content.innerHTML = sanitizeHtml(marked.parse(polishSpanish(acc), { breaks: true }));
     scrollToBottom();
   };
   try {
@@ -796,10 +871,16 @@ async function ragNonStream(text, existing) {
 }
 
 // Reformula y consulta directamente al RAG sobre una fuente (chip clicable).
-function askAboutSource(sourceName) {
+async function askAboutSource(sourceName) {
+  if (busy) return;
   const q = `Cuéntame más sobre la respuesta anterior, con base en «${sourceName}».`;
+  setSendBusy(true);
   addUserMessage(q);
-  callRag(q);
+  try {
+    await callRag(q);
+  } finally {
+    setSendBusy(false);
+  }
 }
 
 const DOC_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
@@ -815,7 +896,7 @@ function sourceChipsHtml(sources) {
     const name = s.source || s.title || '';
     if (!name || seen.has(name)) continue;
     seen.add(name);
-    docs.push({ n: s.n, name, url: s.url || '', snippet: s.snippet || '' });
+    docs.push({ n: s.n, name, url: safeUrl(s.url || ''), snippet: s.snippet || '' });
   }
   if (!docs.length) return '';
   return '<div class="msg-sources">' + docs.map(d => {
@@ -883,7 +964,7 @@ function addUserMessage(text) {
       <div class="msg-bubble"><div class="msg-content">${escapeHtml(text)}</div></div>
     </div>`;
   chatArea.appendChild(div);
-  scrollToBottom();
+  scrollToBottom(true);   // al enviar, el usuario siempre quiere ver su mensaje
 }
 
 function addBotMessage(markdown, source, suggestions, chartData, sources) {
@@ -893,12 +974,12 @@ function addBotMessage(markdown, source, suggestions, chartData, sources) {
   let badgeClass = 'badge-local';
   let badgeText = 'Datos reales';
   if (source === 'ai') { badgeClass = 'badge-ai'; badgeText = 'IA'; }
-  else if (source === 'error') { badgeClass = 'badge-ai'; badgeText = 'Error'; }
+  else if (source === 'error') { badgeClass = 'badge-error'; badgeText = 'Error'; }
 
   // Normalizar acentos antes de comentarios y render
   const polished = polishSpanish(markdown);
   const cleanMarkdown = polished.replace(/<!--COMPARE:.*?-->/g, '').replace(/<!--DISTRIB:.*?-->/g, '').replace(/<!--GENCHART:.*?-->/g, '');
-  const html = marked.parse(cleanMarkdown, { breaks: true });
+  const html = sanitizeHtml(marked.parse(cleanMarkdown, { breaks: true }));
   const now = new Date();
   const timeStr = now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
 
@@ -1071,6 +1152,9 @@ function addBotMessage(markdown, source, suggestions, chartData, sources) {
 }
 
 function addTypingIndicator(label) {
+  // Robustez: el id es fijo; si quedó un indicador previo, se retira antes.
+  const prev = document.getElementById('typing-indicator');
+  if (prev) prev.remove();
   const div = document.createElement('div');
   div.className = 'msg msg-bot';
   div.id = 'typing-indicator';
@@ -1221,7 +1305,7 @@ function buildCorridorChart(data, qn) {
 
     charts.push({
       type: 'line',
-      title: `${dn(pad)} — corredor de confianza (4 modelos, dispersion prom: ${avgSpread})`,
+      title: `${dn(pad)} — corredor de confianza (4 modelos, dispersión prom: ${avgSpread})`,
       labels,
       datasets,
       options: {
@@ -1315,7 +1399,7 @@ function buildRadarChart(data) {
   const maxRmse = Math.max(...motors.map(m => pm[m].rmse_mean));
   const maxMae = Math.max(...motors.map(m => pm[m].mae_mean));
 
-  const labels = ['Precision (SMAPE)', 'MASE', 'Series ganadas', 'RMSE', 'MAE'];
+  const labels = ['Precisión (SMAPE)', 'MASE', 'Series ganadas', 'RMSE', 'MAE'];
   const motorColors = { Prophet: '#5B8DEF', DeepAR: '#F472B6', Ensemble: '#2DD4BF', Stacking: '#9DB6FF' };
 
   const datasets = motors.map(m => {
@@ -1428,7 +1512,7 @@ function buildStackedArea(data) {
 
   return {
     type: 'line',
-    title: 'Composicion semanal: pronostico apilado por padecimiento',
+    title: 'Composición semanal: pronóstico apilado por padecimiento',
     labels,
     datasets,
     options: {
@@ -1525,7 +1609,7 @@ function buildMexicoMap(data, qn) {
       }
     }
 
-    const padLabel = padFilter || 'todos los padecimientos';
+    const padLabel = padFilter ? dn(padFilter) : 'todos los padecimientos';
     const sexLabel = sexoLabel[sexFilter] || sexFilter;
     const colorOpts = mode === 'smape'
       ? { lowColor: [91, 141, 239], highColor: [244, 114, 182], metric: 'SMAPE %' }
@@ -1603,7 +1687,7 @@ function buildTimelapse(data) {
   return {
     _timelapseChart: true,
     frames,
-    opts: { title: 'Timelapse: pronostico acumulado por semana', lowColor: [30, 60, 50], highColor: [91, 141, 239], metric: 'casos acum.' },
+    opts: { title: 'Timelapse: pronóstico acumulado por semana', lowColor: [30, 60, 50], highColor: [91, 141, 239], metric: 'casos acum.' },
   };
 }
 
@@ -1677,7 +1761,7 @@ function buildSemaforo(data) {
   return {
     _semaforoChart: true,
     semaforoData: { states, alerts, summary },
-    opts: { title: 'Semaforo epidemiologico: riesgo por entidad federativa' },
+    opts: { title: 'Semáforo epidemiológico: riesgo por entidad federativa' },
   };
 }
 
@@ -1772,7 +1856,7 @@ function buildErrorHeatmap(data, qn) {
 
   return {
     type: 'bar',
-    title: 'Error semanal (% |real - pronostico| / real)',
+    title: 'Error semanal (% |real - pronóstico| / real)',
     labels,
     datasets,
     options: {
@@ -1800,7 +1884,7 @@ function zoomIsoWeekApp(iso) {
 function buildSeriesZoom(s, pad, estado, sexo) {
   const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
   const color = padColors[pad] || '#5B8DEF';
-  const estadoLbl = norm(estado) === 'mexico' ? 'Estado de Mexico' : estado;
+  const estadoLbl = norm(estado) === 'mexico' ? 'Estado de México' : dn(estado);
   const sexoLbl = sexo === 'general' ? 'ambos sexos' : sexo;
   const labels = s.d.map(iso => { const p = iso.split('-'); return `${p[1]}/${p[2].slice(0, 2)} ${p[0].slice(2)}`; });
   const lastRealIdx = s.r.reduce((acc, v, i) => (v != null ? i : acc), -1);
@@ -1817,7 +1901,7 @@ function buildSeriesZoom(s, pad, estado, sexo) {
   }
   datasets.push(
     {
-      label: `Pronostico (${s.motor || pad})`, data: s.y,
+      label: `Pronóstico (${s.motor || pad})`, data: s.y,
       borderColor: color + 'CC', backgroundColor: 'transparent', fill: false, tension: 0.3,
       borderWidth: 2, borderDash: [8, 5], pointRadius: 0, order: 2,
     },
@@ -1832,7 +1916,7 @@ function buildSeriesZoom(s, pad, estado, sexo) {
   );
   return {
     type: 'line',
-    title: `${pad} — ${estadoLbl} (${sexoLbl})  ·  real vs pronostico${wk != null ? ' (sem ' + wk + ')' : ''}`,
+    title: `${dn(pad)} — ${estadoLbl} (${sexoLbl})  ·  real vs pronóstico${wk != null ? ' (sem ' + wk + ')' : ''}`,
     labels, datasets,
     options: { scales: { x: { ticks: { maxRotation: 90, font: { size: 9 }, autoSkip: true, maxTicksLimit: 18 } }, y: { beginAtZero: true } } },
   };
@@ -1890,7 +1974,7 @@ function buildZoomChart(data, qn, ent) {
     // Pronostico: linea punteada completa
     const datasets = [
       {
-        label: 'Pronostico (' + (info.modelo_productivo || pad) + ')',
+        label: 'Pronóstico (' + (info.modelo_productivo || pad) + ')',
         data: pronData,
         borderColor: color + '88',
         backgroundColor: color + '0A',
@@ -1920,7 +2004,7 @@ function buildZoomChart(data, qn, ent) {
 
     charts.push({
       type: 'line',
-      title: `${pad} — zoom semanal (${sems[0].fecha || ''} a ${sems[sems.length - 1].fecha || ''})`,
+      title: `${dn(pad)} — zoom semanal (${sems[0].fecha || ''} a ${sems[sems.length - 1].fecha || ''})`,
       labels,
       datasets,
       options: {
@@ -2007,7 +2091,7 @@ function buildTrendChart(data, qn) {
       yearsComplete.forEach((y, j) => { solidData[j] = padData[y] || 0; });
 
       datasets.push({
-        label: pad + ' (real)',
+        label: dn(pad) + ' (real)',
         data: solidData,
         borderColor: color,
         backgroundColor: color + '22',
@@ -2026,7 +2110,7 @@ function buildTrendChart(data, qn) {
       dashedData[iEnd27] = proj2026;
 
       datasets.push({
-        label: pad + ' (pronostico)',
+        label: dn(pad) + ' (pronóstico)',
         data: dashedData,
         borderColor: color,
         backgroundColor: color + '0A',
@@ -2283,7 +2367,7 @@ function buildCalibration(data) {
     label: 'Predicción perfecta',
     type: 'line',
     data: [{ x: 0, y: 0 }, { x: lim, y: lim }],
-    borderColor: 'rgba(237, 243, 239, 0.5)',
+    borderColor: 'rgba(226, 232, 245, 0.5)',
     borderDash: [6, 6],
     borderWidth: 1.5,
     pointRadius: 0,
@@ -2566,7 +2650,7 @@ function extractChartData(markdown, query) {
         const pronData = semanas.map(w => w.p);
         charts.push({
           type: 'bar',
-          title: `${dn(wk.pad)} ${wk.anio}: Real vs Pronostico`,
+          title: `${dn(wk.pad)} ${wk.anio}: Real vs Pronóstico`,
           labels,
           datasets: [
             {
@@ -2579,7 +2663,7 @@ function extractChartData(markdown, query) {
               order: 1,
             },
             {
-              label: `Pronostico (${wk.modelo})`,
+              label: `Pronóstico (${wk.modelo})`,
               data: pronData,
               backgroundColor: '#2DD4BFCC',
               borderColor: '#2DD4BF',
@@ -2610,7 +2694,7 @@ function extractChartData(markdown, query) {
       }));
       return {
         type: 'bar',
-        title: `Distribucion de ${dist.metric} por padecimiento`,
+        title: `Distribución de ${dist.metric} por padecimiento`,
         labels: dist.bins,
         datasets,
         options: {
@@ -2918,7 +3002,7 @@ function extractChartData(markdown, query) {
         if (datasets.some(ds => ds.data.some(v => v > 0))) {
           return {
             type: 'bar',
-            title: `Resumen epidemiologico ${years.join(', ')}`,
+            title: `Resumen epidemiológico ${years.join(', ')}`,
             labels,
             datasets,
           };
@@ -3066,7 +3150,7 @@ function extractChartData(markdown, query) {
         }
         charts.push({
           type: 'bar',
-          title: `${pad} - pronóstico semanal (${info.modelo_productivo || ''})`,
+          title: `${dn(pad)} - pronóstico semanal (${info.modelo_productivo || ''})`,
           labels,
           datasets,
           options: {
@@ -3315,6 +3399,11 @@ function renderChart(canvasId, chartData) {
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
 
+  // Anti-leak: si el canvas ya tiene una instancia Chart.js, destruirla antes
+  // de crear otra (libera listeners, rAF y memoria del contexto).
+  const prevChart = typeof Chart !== 'undefined' && Chart.getChart ? Chart.getChart(canvas) : null;
+  if (prevChart) prevChart.destroy();
+
   const isHorizontal = chartData.horizontal;
   const config = {
     type: chartData.type,
@@ -3551,26 +3640,68 @@ function getSuggestions(query) {
 // Helpers
 // ---------------------------------------------------------------------------
 
-function noMatchMessage() {
-  return (
-    'No encontré una respuesta para esa pregunta en la base de conocimiento.\n\n' +
-    'Prueba con preguntas como:\n' +
-    '- "métricas globales" o "ranking mejores modelos"\n' +
-    '- "qué es la depresión" o "depresión en Jalisco"\n' +
-    '- "equipo del proyecto" o "infraestructura"\n' +
-    '- "tendencia histórica de parkinson"\n' +
-    '- "configuración de DeepAR"\n\n' +
-    'También puedes usar los botones de acceso rápido de arriba.'
-  );
-}
-
 function pushHistory(userText, botText) {
   history.push({ role: 'user', text: userText });
   history.push({ role: 'assistant', text: botText.substring(0, 300) });
   while (history.length > MAX_HISTORY * 2) history.shift();
 }
 
-function scrollToBottom() {
+// ---------------------------------------------------------------------------
+// Auto-scroll condicional: sigue el flujo solo si el usuario está pegado al
+// fondo (<120 px). Si subió a releer, NO se le secuestra el scroll: aparece
+// el botón flotante «Bajar» con el contenido nuevo esperando abajo.
+// ---------------------------------------------------------------------------
+const SCROLL_NEAR_PX = 120;
+let stickToBottom = true;   // el usuario sigue la conversación al fondo
+let scrollDownBtn = null;
+
+function isNearBottom() {
+  return chatArea.scrollHeight - chatArea.scrollTop - chatArea.clientHeight < SCROLL_NEAR_PX;
+}
+
+function hideScrollDownBtn() {
+  if (scrollDownBtn) scrollDownBtn.classList.remove('visible');
+}
+
+function ensureScrollDownBtn() {
+  if (scrollDownBtn) return scrollDownBtn;
+  scrollDownBtn = document.createElement('button');
+  scrollDownBtn.type = 'button';
+  scrollDownBtn.className = 'scroll-down-btn';
+  scrollDownBtn.title = 'Bajar al final de la conversación';
+  scrollDownBtn.setAttribute('aria-label', 'Bajar al final de la conversación');
+  scrollDownBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><line x1="12" y1="4" x2="12" y2="20"/><polyline points="5 13 12 20 19 13"/></svg><span>Bajar</span>';
+  scrollDownBtn.addEventListener('click', () => {
+    stickToBottom = true;
+    chatArea.scrollTop = chatArea.scrollHeight;
+    hideScrollDownBtn();
+  });
+  const inputBar = document.querySelector('.input-bar');
+  (inputBar || document.body).appendChild(scrollDownBtn);
+  return scrollDownBtn;
+}
+
+// Detecta la intención del usuario: scroll hacia arriba desactiva el
+// seguimiento; volver al fondo lo reactiva (el scroll programático solo
+// se mueve hacia abajo, así que no se auto-desactiva).
+let lastScrollTop = 0;
+chatArea.addEventListener('scroll', () => {
+  const st = chatArea.scrollTop;
+  if (st < lastScrollTop - 2) {
+    stickToBottom = false;
+  } else if (isNearBottom()) {
+    stickToBottom = true;
+    hideScrollDownBtn();
+  }
+  lastScrollTop = st;
+}, { passive: true });
+
+function scrollToBottom(force = false) {
+  if (force) stickToBottom = true;
+  if (!stickToBottom) {
+    ensureScrollDownBtn().classList.add('visible');
+    return;
+  }
   requestAnimationFrame(() => { chatArea.scrollTop = chatArea.scrollHeight; });
 }
 
@@ -3581,7 +3712,40 @@ function escapeHtml(text) {
 }
 
 function escapeAttr(text) {
-  return text.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  return String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// ---------------------------------------------------------------------------
+// Saneado anti-XSS del HTML que genera marked (DOMPurify, CDN con defer).
+// Permite solo las etiquetas/atributos que el bot usa (markdown: tablas,
+// listas, code, énfasis, enlaces, imágenes) y la política de URI por defecto
+// de DOMPurify, que ya bloquea javascript:/data: en href y src.
+// ---------------------------------------------------------------------------
+function sanitizeHtml(html) {
+  if (typeof DOMPurify === 'undefined') return html;   // CDN caído: degradación
+  return DOMPurify.sanitize(html, {
+    ALLOWED_TAGS: ['a', 'b', 'strong', 'i', 'em', 'u', 's', 'del', 'p', 'br', 'hr',
+      'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote',
+      'code', 'pre', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td',
+      'img', 'span', 'div'],
+    ALLOWED_ATTR: ['href', 'target', 'rel', 'title', 'src', 'alt', 'class', 'align'],
+  });
+}
+
+// Valida el esquema de un href de fuente RAG: solo http(s) o rutas relativas.
+// Cualquier otro esquema (javascript:, data:, vbscript:, //host) se descarta.
+function safeUrl(url) {
+  const u = String(url || '').trim();
+  if (!u) return '';
+  if (/^https?:\/\//i.test(u)) return u;
+  if (/^[a-z][a-z0-9+.-]*:/i.test(u)) return '';
+  if (u.startsWith('//')) return '';
+  return u;
 }
 
 // ---------------------------------------------------------------------------
@@ -3648,7 +3812,7 @@ function generatePDFReport(data) {
 
   const padRows = Object.entries(padStats).map(([pad, ps]) => {
     const avgSmape = ps.smapes.length ? (ps.smapes.reduce((a, v) => a + v, 0) / ps.smapes.length).toFixed(1) : '?';
-    return '<tr><td style="padding:6px 10px;border-bottom:1px solid #e0e0e0">' + pad + '</td>' +
+    return '<tr><td style="padding:6px 10px;border-bottom:1px solid #e0e0e0">' + dn(pad) + '</td>' +
       '<td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:right">' + ps.casos.toLocaleString() + '</td>' +
       '<td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:center">' + ps.models + '</td>' +
       '<td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:center">' + avgSmape + '%</td></tr>';
@@ -3685,7 +3849,7 @@ function generatePDFReport(data) {
   .section { margin-bottom: 24px; }
   .section h2 { font-size: 16px; color: #3A6FD8; border-bottom: 1px solid #e0e0e0; padding-bottom: 6px; margin-bottom: 12px; }
   .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-  .kpi { background: #f8faf9; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; text-align: center; }
+  .kpi { background: #f5f7fc; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; text-align: center; }
   .kpi .val { font-size: 24px; font-weight: 700; color: #3A6FD8; }
   .kpi .lbl { font-size: 11px; color: #666; margin-top: 2px; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -3703,8 +3867,8 @@ function generatePDFReport(data) {
 <div class="header">
   <div>
     <div class="logo">EpiForecast-MX · Centro de Inteligencia Epidemiológica</div>
-    <h1>Reporte Ejecutivo de Pronostico Epidemiologico</h1>
-    <div class="subtitle">EpiForecast-MX: Plataforma multi-modelo de inteligencia epidemiologica</div>
+    <h1>Reporte Ejecutivo de Pronóstico Epidemiológico</h1>
+    <div class="subtitle">EpiForecast-MX: Plataforma multi-modelo de inteligencia epidemiológica</div>
   </div>
   <div class="date">
     <div>${today}</div>
@@ -3714,13 +3878,13 @@ function generatePDFReport(data) {
 
 <div class="kpi-grid">
   <div class="kpi"><div class="val">${totalCasos.toLocaleString()}</div><div class="lbl">Casos pronosticados (52 sem)</div></div>
-  <div class="kpi"><div class="val">${s.total_modelos || 333}</div><div class="lbl">Modelos de produccion</div></div>
+  <div class="kpi"><div class="val">${s.total_modelos || 333}</div><div class="lbl">Modelos de producción</div></div>
   <div class="kpi"><div class="val">${s.smape_prod_median != null ? s.smape_prod_median + '%' : '?'}</div><div class="lbl">SMAPE mediano</div></div>
   <div class="kpi"><div class="val">4</div><div class="lbl">Motores de IA</div></div>
 </div>
 
 <div class="section">
-  <h2>Pronostico por padecimiento</h2>
+  <h2>Pronóstico por padecimiento</h2>
   <table>
     <tr><th>Padecimiento</th><th style="text-align:right">Casos (52 sem)</th><th style="text-align:center">Modelos</th><th style="text-align:center">SMAPE prom</th></tr>
     ${padRows}
@@ -3736,7 +3900,7 @@ function generatePDFReport(data) {
 </div>
 
 <div class="section">
-  <h2>Semaforo epidemiologico (32 entidades)</h2>
+  <h2>Semáforo epidemiológico (32 entidades)</h2>
   <div class="semaforo-mini">
     ${Object.entries(byEnt).sort((a, b) => b[1] - a[1]).map(([ent, casos]) =>
       '<div class="sem-cell" style="background:' + riskColor(casos) + '">' + ent.substring(0, 5) + '</div>'
@@ -3745,17 +3909,17 @@ function generatePDFReport(data) {
 </div>
 
 <div class="section">
-  <h2>Distribucion de motores de IA</h2>
+  <h2>Distribución de motores de IA</h2>
   <table>
-    <tr><th>Motor</th><th style="text-align:right">Modelos</th><th style="text-align:right">Participacion</th></tr>
+    <tr><th>Motor</th><th style="text-align:right">Modelos</th><th style="text-align:right">Participación</th></tr>
     ${motorRows}
   </table>
 </div>
 
 <div class="footer">
-  <strong>EpiForecast-MX</strong> - Proyecto integrador, Maestria en Inteligencia Artificial Aplicada, Tecnologico de Monterrey<br>
-  Pronostico multi-modelo (Prophet, DeepAR, Ensemble, Stacking) para la salud publica en Mexico<br>
-  Generado automaticamente el ${today}
+  <strong>EpiForecast-MX</strong> - Proyecto integrador, Maestría en Inteligencia Artificial Aplicada, Tecnológico de Monterrey<br>
+  Pronóstico multi-modelo (Prophet, DeepAR, Ensemble, Stacking) para la salud pública en México<br>
+  Generado automáticamente el ${today}
 </div>
 
 </body></html>`;

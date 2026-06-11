@@ -27,7 +27,18 @@ const RERANK_POOL = 12;     // candidatos que entran al reranker
 const DIVERSITY_CAP = 3;    // máx. pasajes por documento en el top-K (diversidad)
 const SIM_MIN = 0.55;       // umbral de confianza (coseno crudo del mejor pasaje)
 const RERANK_SKIP_SIM = 0.72; // si el mejor pasaje supera esto, se omite el rerank (ya es confiable)
-const GEN_MODELS = ['gemini-3.1-flash-lite', 'gemini-2.5-flash'];
+const GEN_MODELS = ['gemini-3.1-flash-lite', 'gemini-3.5-flash'];
+
+// Timeouts (ms) por tipo de llamada a Gemini.
+const T_FAST = 4000;     // embed, contextualize, rerank
+const T_GEN = 20000;     // generación (incl. streaming)
+
+/** AbortController con disparo por tiempo. Llamar done() en finally. */
+function withAbort(ms) {
+  const ac = new AbortController();
+  const t = setTimeout(() => ac.abort(), ms);
+  return { signal: ac.signal, done: () => clearTimeout(t) };
+}
 
 // ---------------------------------------------------------------------------
 // Caches (cold start)
@@ -83,13 +94,61 @@ function loadKnowledge() {
 const STOPWORDS = new Set(('de la el en y a los las un una que con por para del se su lo al es como mas más o ' +
   'sus le ho cual cuando muy sin sobre tambien también me ya este esta esto entre cada the of and to in is for').split(/\s+/));
 
+/** Stemming ligero español: plural folding conservador. Aplicado por igual en
+ *  indexación y consulta (un solo tokenize compartido). */
+function stem(t) {
+  if (t.length > 5 && t.endsWith('es')) {
+    const base = t.slice(0, -2);
+    if (/[bcdfghjklmnpqrstvwxyzñ]$/.test(base)) return base;   // entidades→entidad, motores→motor
+  }
+  if (t.length > 4 && t.endsWith('s')) {
+    const base = t.slice(0, -1);
+    if (/[aeiou]$/.test(base)) return base;                     // modelos→modelo, casos→caso, series→serie
+  }
+  return t;
+}
+
 function tokenize(s) {
   return String(s || '')
     .toLowerCase()
     .normalize('NFD').replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z0-9ñ\s]/g, ' ')
     .split(/\s+/)
-    .filter(t => t.length >= 3 && !STOPWORDS.has(t));
+    .filter(t => t.length >= 3 && !STOPWORDS.has(t))
+    .map(stem);
+}
+
+// Expansión de consulta ESTÁTICA (sin LLM): sinónimos del dominio para BM25.
+// Bidireccional y extensible: cada término del grupo se mapea a los demás.
+const SYNONYM_GROUPS = [
+  ['depresion', 'f32'],
+  ['alzheimer', 'g30'],
+  ['parkinson', 'g20'],
+  ['dengue', 'a97'],
+  ['motor', 'modelo', 'algoritmo'],
+  ['error', 'smape', 'mase', 'precision'],
+  ['pronostico', 'prediccion', 'forecast'],
+  ['boletin', 'sinave'],
+  ['entrenamiento', 'training'],
+  ['estado', 'entidad'],
+];
+const SYNONYMS = (() => {
+  const m = new Map();
+  for (const group of SYNONYM_GROUPS) {
+    const stems = group.map(stem);
+    for (const w of stems) {
+      const others = stems.filter(x => x !== w);
+      m.set(w, [...new Set([...(m.get(w) || []), ...others])]);
+    }
+  }
+  return m;
+})();
+
+/** Añade sinónimos del dominio a los tokens (para BM25). No duplica. */
+function expandTokens(tokens) {
+  const out = new Set(tokens);
+  for (const t of tokens) { const syn = SYNONYMS.get(t); if (syn) for (const s of syn) out.add(s); }
+  return [...out];
 }
 
 function buildLexical(index) {
@@ -145,19 +204,21 @@ function normalize(arr) {
  *  La parte léxica usa la consulta original; la semántica, el texto expandido. */
 async function retrieve(genAI, query, expandedText, index) {
   const lex = buildLexical(index);
-  const lexScores = normalize(bm25Scores(tokenize(query), lex));
+  // BM25 con expansión estática de sinónimos del dominio (mejora el recall léxico).
+  const lexScores = normalize(bm25Scores(expandTokens(tokenize(query)), lex));
 
   let semScores = new Array(index.chunks.length).fill(0);
   let mode = 'lexical';
   let topSim = 0;   // similitud coseno cruda máxima (para umbral de confianza)
   if (index.vectors && index.vectors.length === index.chunks.length && genAI) {
+    const a = withAbort(T_FAST);
     try {
       const model = genAI.getGenerativeModel({ model: index.model || EMBED_MODEL });
       const res = await model.embedContent({
         content: { parts: [{ text: expandedText || query }], role: 'user' },
         taskType: 'RETRIEVAL_QUERY',
         outputDimensionality: index.dim || EMBED_DIM,
-      });
+      }, { signal: a.signal });
       const qv = res.embedding.values.slice(0, index.dim || EMBED_DIM);
       const raw = index.vectors.map(v => cosine(qv, v));
       topSim = raw.reduce((m, v) => v > m ? v : m, 0);
@@ -165,6 +226,8 @@ async function retrieve(genAI, query, expandedText, index) {
       mode = 'semantic';
     } catch (err) {
       console.warn('Embedding de consulta falló, uso léxico:', err.message);
+    } finally {
+      a.done();
     }
   }
 
@@ -185,7 +248,7 @@ function stripAccents(s) { return String(s || '').toLowerCase().normalize('NFD')
 function detectEntities(query) {
   const qn = stripAccents(query);
   const out = { padecimiento: null, entidad: null, sexo: null };
-  const padMap = { depresion: 'Depresion', depression: 'Depresion', f32: 'Depresion', parkinson: 'Parkinson', g20: 'Parkinson', alzheimer: 'Alzheimer', alzaimer: 'Alzheimer', g30: 'Alzheimer' };
+  const padMap = { depresion: 'Depresion', depression: 'Depresion', f32: 'Depresion', parkinson: 'Parkinson', g20: 'Parkinson', alzheimer: 'Alzheimer', alzaimer: 'Alzheimer', g30: 'Alzheimer', dengue: 'Dengue', a97: 'Dengue' };
   for (const [k, v] of Object.entries(padMap)) if (qn.includes(k)) { out.padecimiento = v; break; }
   const alias = { cdmx: 'Ciudad de Mexico', df: 'Ciudad de Mexico', 'distrito federal': 'Ciudad de Mexico', 'ciudad de mexico': 'Ciudad de Mexico', edomex: 'Mexico', 'estado de mexico': 'Mexico', 'nuevo leon': 'Nuevo Leon', 'san luis potosi': 'San Luis Potosi', 'baja california sur': 'Baja California Sur', 'baja california': 'Baja California', 'quintana roo': 'Quintana Roo' };
   for (const [k, v] of Object.entries(alias).sort((a, b) => b[0].length - a[0].length)) if (qn.includes(k)) { out.entidad = v; break; }
@@ -198,10 +261,34 @@ function detectEntities(query) {
   return out;
 }
 
+/** Cifras agregadas de Dengue desde la sección `dengue` de knowledge.json. */
+function dengueFactLines(d, ent) {
+  if (!d || typeof d !== 'object') return [];
+  const fmt = (n) => Number(n || 0).toLocaleString('es-MX');
+  const L = [`Dengue (CIE-10 ${d.cie}): serie de producción ${d.cobertura}, ${d.n_series} series en ${d.n_entidades} entidades. Motores productivos: ${(d.motores_productivos || []).join(', ')} (reparto ${Object.entries(d.dist_motor || {}).map(([m, n]) => `${m}: ${n}`).join(', ')}). Nacional: motor ${d.motor_nacional}, SMAPE ${d.smape_nacional}%, pronóstico ${fmt(d.casos_futuro_nacional_52sem)} casos a 52 semanas. Último dato real: ${d.ultima_real}. Año pico ${d.anio_pico} con ${fmt(d.casos_pico)} casos.`];
+  if (Array.isArray(d.top_entidades) && d.top_entidades.length) {
+    L.push(`Entidades con mayor incidencia de Dengue: ${d.top_entidades.map(e => `${e.entidad} (${fmt(e.casos)} casos)`).join(', ')}.`);
+  }
+  // Si se detectó una entidad concreta, añade su acumulado si está disponible.
+  if (ent.entidad && d.por_entidad) {
+    const key = Object.keys(d.por_entidad).find(k => stripAccents(k) === stripAccents(ent.entidad));
+    if (key) L.push(`Dengue en ${key}: ${fmt(d.por_entidad[key])} casos acumulados registrados.`);
+  }
+  return L;
+}
+
 /** Devuelve un bloque de DATOS EXACTOS para la combinación detectada, o ''. */
 function focusedFacts(kb, query) {
   const ent = detectEntities(query);
   if (!ent.padecimiento && !ent.entidad) return '';
+  const lines = [];
+
+  // Dengue: cifras agregadas (sección dengue) además de las series por entidad.
+  if (ent.padecimiento === 'Dengue' && kb.dengue) {
+    const dl = dengueFactLines(kb.dengue, ent);
+    if (dl.length) lines.push('=== DATOS EXACTOS DE DENGUE (verdad numérica; cítalos tal cual) ===', ...dl);
+  }
+
   const models = kb.prod_models || [];
   const norm = (s) => stripAccents(s);
   const matches = models.filter(m => {
@@ -210,12 +297,13 @@ function focusedFacts(kb, query) {
     if (ent.sexo && m.sexo !== ent.sexo) return false;
     return true;
   });
-  if (!matches.length) return '';
-  const lines = ['=== DATOS EXACTOS (verdad numérica; cítalos tal cual) ==='];
-  for (const m of matches.slice(0, 12)) {
-    lines.push(`${m.padecimiento} · ${m.entidad} · ${m.sexo}: pronóstico 52 sem = ${(m.casos_52_semanas_futuro || 0).toLocaleString('es-MX')} casos; SMAPE = ${m.smape_prod}%; motor = ${m.modelo_produccion}; precisión histórica = ${m.precision_historica}.`);
+  if (matches.length) {
+    lines.push('=== DATOS EXACTOS POR SERIE (verdad numérica; cítalos tal cual) ===');
+    for (const m of matches.slice(0, 12)) {
+      lines.push(`${m.padecimiento} · ${m.entidad} · ${m.sexo}: pronóstico 52 sem = ${(m.casos_52_semanas_futuro || 0).toLocaleString('es-MX')} casos; SMAPE = ${m.smape_prod}%; motor = ${m.modelo_produccion}; precisión histórica = ${m.precision_historica}.`);
+    }
   }
-  return lines.join('\n');
+  return lines.length ? lines.join('\n') : '';
 }
 
 // ---------------------------------------------------------------------------
@@ -227,25 +315,27 @@ async function contextualizeQuery(genAI, query, history) {
   const qn = stripAccents(query);
   const isFollowUp = query.split(/\s+/).length <= 6 || /^(y|pero|ademas|entonces|ok|tambien)\b/.test(qn) || /\b(eso|ese|esa|ahi|alli|ahí|el mismo|la misma|y en|y para|que tal)\b/.test(qn);
   if (!isFollowUp) return query;
+  const a = withAbort(T_FAST);
   try {
     const turns = history.slice(-4).map(h => `${h.role === 'user' ? 'Usuario' : 'EPI'}: ${(h.text || '').slice(0, 200)}`).join('\n');
     const model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite' });
     const prompt = `Conversación:\n${turns}\n\nPregunta de seguimiento: "${query}"\n\nReescribe la pregunta de seguimiento como una pregunta AUTÓNOMA y completa (resolviendo referencias como "eso", "y en X"), en una sola línea, en español, sin explicación.`;
-    const r = await model.generateContent(prompt);
+    const r = await model.generateContent(prompt, { signal: a.signal });
     const t = (r.response.text() || '').trim().split('\n')[0].slice(0, 200);
     return t && t.length > 3 ? t : query;
-  } catch { return query; }
+  } catch { return query; } finally { a.done(); }
 }
 
 /** Reranker LLM: reordena los candidatos por relevancia y devuelve TOP_K.
  *  Usa 2.5-flash-lite (rápido). Si devuelve pocos índices, rellena
  *  con el orden híbrido para no encoger por debajo de TOP_K. */
 async function rerank(genAI, query, candidates) {
+  const a = withAbort(T_FAST);
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite' });
     const list = candidates.map((c, idx) => `[${idx}] (${c.chunk.source} — ${c.chunk.title}) ${c.chunk.text.replace(/\s+/g, ' ').slice(0, 160)}`).join('\n');
     const prompt = `Consulta: "${query}"\n\nPasajes candidatos:\n${list}\n\nOrdena los índices de los pasajes del MÁS al menos relevante para responder la consulta. Devuelve SOLO un arreglo JSON con TODOS los índices ordenados. Ejemplo: [3,0,7,1,5,2,4]`;
-    const r = await model.generateContent(prompt);
+    const r = await model.generateContent(prompt, { signal: a.signal });
     const m = (r.response.text() || '').match(/\[[\d,\s]+\]/);
     if (!m) return null;
     const order = JSON.parse(m[0]).filter(n => Number.isInteger(n) && n >= 0 && n < candidates.length);
@@ -257,7 +347,7 @@ async function rerank(genAI, query, candidates) {
     for (const n of order) { if (!seen.has(n)) { seen.add(n); ordered.push(candidates[n]); } }
     for (let i = 0; i < candidates.length; i++) { if (!seen.has(i)) { seen.add(i); ordered.push(candidates[i]); } }
     return ordered;
-  } catch { return null; }
+  } catch { return null; } finally { a.done(); }
 }
 
 /** Selección con diversidad (MMR-lite): toma los mejores respetando un máximo
@@ -292,7 +382,7 @@ function structuredSummary(kb) {
 }
 
 // ---------------------------------------------------------------------------
-// Rate limit + CORS (idéntico a ask.mjs)
+// Rate limit + CORS
 // ---------------------------------------------------------------------------
 
 const RATE_LIMIT = { windowMs: 60_000, max: 20 };
@@ -316,13 +406,27 @@ function getClientIp(req) {
   return h.get('x-nf-client-connection-ip') || (h.get('x-forwarded-for') || '').split(',')[0].trim() || 'unknown';
 }
 
-const CORS = {
-  'Content-Type': 'application/json',
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type',
-};
-const json = (data, status = 200) => new Response(JSON.stringify(data), { status, headers: CORS });
+// CORS con allowlist + reflexión de origen (evita el comodín '*').
+const ALLOWED_ORIGINS = new Set(['https://epiforecast.mx', 'https://www.epiforecast.mx']);
+const ORIGIN_ALLOWED_RE = [
+  /^https:\/\/([a-z0-9-]+\.)*netlify\.app$/,   // previews y dominio *.netlify.app del sitio
+  /^http:\/\/localhost(:\d+)?$/,               // desarrollo local
+  /^http:\/\/127\.0\.0\.1(:\d+)?$/,
+];
+
+function corsHeaders(req) {
+  const origin = (req.headers.get && req.headers.get('origin')) || '';
+  const allowed = ALLOWED_ORIGINS.has(origin) || ORIGIN_ALLOWED_RE.some(re => re.test(origin));
+  return {
+    'Content-Type': 'application/json',
+    // Si el origen no está permitido, refleja el dominio canónico (no '*').
+    'Access-Control-Allow-Origin': allowed ? origin : 'https://epiforecast.mx',
+    'Vary': 'Origin',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+}
+const json = (data, status, cors) => new Response(JSON.stringify(data), { status, headers: cors });
 
 // ---------------------------------------------------------------------------
 // System prompt
@@ -369,32 +473,33 @@ Responde ahora, citando los pasajes que uses con [n].`;
 // ---------------------------------------------------------------------------
 
 export default async function handler(req) {
-  if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
-  if (req.method !== 'POST') return json({ error: 'Método no permitido' }, 405);
+  const cors = corsHeaders(req);
+  if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
+  if (req.method !== 'POST') return json({ error: 'Método no permitido' }, 405, cors);
 
   const apiKey = process.env.GEMINI_API_KEY;
 
   let body;
-  try { body = await req.json(); } catch { return json({ error: 'Body inválido' }, 400); }
+  try { body = await req.json(); } catch { return json({ error: 'Body inválido' }, 400, cors); }
 
   if (body.health === true) {
     const idx = loadIndex();
-    return json({ ok: true, gemini: !!apiKey, rag: true, chunks: idx.chunks.length, hasVectors: (idx.vectors || []).length > 0 });
+    return json({ ok: true, gemini: !!apiKey, rag: true, chunks: idx.chunks.length, hasVectors: (idx.vectors || []).length > 0 }, 200, cors);
   }
 
-  if (!apiKey) return json({ error: 'GEMINI_API_KEY no configurada' }, 500);
+  if (!apiKey) return json({ error: 'GEMINI_API_KEY no configurada' }, 500, cors);
 
   const ip = getClientIp(req);
   const rl = checkRateLimit(ip);
   if (!rl.ok) {
     return new Response(JSON.stringify({ error: `Has hecho muchas consultas seguidas. Espera ${rl.retryAfterSec} segundos.` }),
-      { status: 429, headers: { ...CORS, 'Retry-After': String(rl.retryAfterSec) } });
+      { status: 429, headers: { ...cors, 'Retry-After': String(rl.retryAfterSec) } });
   }
 
   const query = (body.query || '').trim();
   const history = body.history || [];
-  if (!query) return json({ error: 'Pregunta vacía' }, 400);
-  if (query.length > 2000) return json({ error: 'La pregunta es demasiado larga (máximo 2000 caracteres).' }, 400);
+  if (!query) return json({ error: 'Pregunta vacía' }, 400, cors);
+  if (query.length > 2000) return json({ error: 'La pregunta es demasiado larga (máximo 2000 caracteres).' }, 400, cors);
 
   const index = loadIndex();
   const kb = loadKnowledge();
@@ -423,8 +528,10 @@ export default async function handler(req) {
   }
   const hits = selectDiverse(ordered, TOP_K, DIVERSITY_CAP);
 
-  // Agentic: datos EXACTOS de la combinación entidad/padecimiento detectada
-  const facts = focusedFacts(kb, query);
+  // Agentic: datos EXACTOS de la combinación entidad/padecimiento detectada.
+  // Usa la consulta CONTEXTUALIZADA para que los seguimientos ("¿y en Jalisco?")
+  // inyecten las cifras correctas.
+  const facts = focusedFacts(kb, searchQuery);
 
   // Confianza: recuperación débil y sin datos exactos → avisar para no inventar
   const lowConfidence = mode === 'semantic' && topSim < SIM_MIN && !facts;
@@ -469,9 +576,10 @@ export default async function handler(req) {
         enq({ type: 'meta', retrieval: mode, reranked, sources });
         let ok = false, usedModel = null, lastE = null;
         for (const modelName of GEN_MODELS) {
+          const a = withAbort(T_GEN);
           try {
             const model = genAI.getGenerativeModel({ model: modelName, systemInstruction: systemMsg });
-            const result = await model.generateContentStream({ contents });
+            const result = await model.generateContentStream({ contents }, { signal: a.signal });
             for await (const chunk of result.stream) {
               const t = typeof chunk.text === 'function' ? chunk.text() : '';
               if (t) enq({ type: 'delta', text: t });
@@ -481,6 +589,8 @@ export default async function handler(req) {
             lastE = err;
             if (/API[_\s]?KEY|permission|unauthor|forbidden/i.test(String(err?.message || ''))) break;
             console.warn(`Gemini stream ${modelName} falló:`, err.message);
+          } finally {
+            a.done();
           }
         }
         if (!ok) {
@@ -491,29 +601,33 @@ export default async function handler(req) {
         controller.close();
       },
     });
-    return new Response(streamBody, { status: 200, headers: { ...CORS, 'Content-Type': 'application/x-ndjson; charset=utf-8', 'Cache-Control': 'no-cache' } });
+    return new Response(streamBody, { status: 200, headers: { ...cors, 'Content-Type': 'application/x-ndjson; charset=utf-8', 'Cache-Control': 'no-cache' } });
   }
 
   // ── Modo NO-streaming (fallback / compatibilidad) ──────────────────────────
   let lastErr = null;
   for (const modelName of GEN_MODELS) {
+    const a = withAbort(T_GEN);
     try {
       const model = genAI.getGenerativeModel({ model: modelName, systemInstruction: systemMsg });
-      const result = await model.generateContent({ contents });
+      const result = await model.generateContent({ contents }, { signal: a.signal });
       const text = (result.response.text() || '').replace(CIFRAS_RE, '');
-      return json({ answer: text, model: modelName, retrieval: mode, reranked, sources });
+      return json({ answer: text, model: modelName, retrieval: mode, reranked, sources }, 200, cors);
     } catch (err) {
       lastErr = err;
       const msg = String(err?.message || '');
       if (/API[_\s]?KEY|permission|unauthor|forbidden/i.test(msg)) break;
       console.warn(`Gemini ${modelName} falló:`, msg);
+    } finally {
+      a.done();
     }
   }
 
-  console.error('RAG error final:', lastErr?.message);
+  // No filtrar el error crudo de Gemini al cliente; queda en los logs del servidor.
   const m = String(lastErr?.message || '');
+  console.error('RAG error final:', m);
   let userMsg = 'No pude consultar a la IA en este momento. Vuelve a intentarlo en unos minutos.';
   if (/quota|rate|429/i.test(m)) userMsg = 'Se alcanzó el límite de consultas de IA. Intenta de nuevo en un momento.';
-  else if (/network|fetch|timeout/i.test(m)) userMsg = 'Hubo un problema de conexión con la IA. Verifica tu red.';
-  return json({ error: userMsg, detail: m }, 500);
+  else if (/network|fetch|timeout|abort/i.test(m)) userMsg = 'Hubo un problema de conexión con la IA. Verifica tu red.';
+  return json({ error: userMsg }, 500, cors);
 }

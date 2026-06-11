@@ -56,7 +56,7 @@ function centroid(pathStr) {
  */
 export function renderMexicoMap(container, stateData, opts = {}) {
   const {
-    title = 'Mapa de la Republica Mexicana',
+    title = 'Mapa de la República Mexicana',
     lowColor = [30, 60, 50],
     highColor = [91, 141, 239],
     noDataColor = '#18223A',

@@ -12,9 +12,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=45">
-  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="css/style.css?v=46">
+  <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.2.4/dist/purify.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
   <style>
     /* ═══════════════════════════════════════════════════════════
        COMMAND CENTER SHELL — sidebar persistente + área de chat
@@ -304,7 +305,7 @@
       gap: 12px;
       padding: 11px 24px;
       flex-shrink: 0;
-      background: rgba(20, 29, 26, 0.72);
+      background: rgba(24, 34, 58, 0.72);
       border-bottom: 1px solid var(--border);
       backdrop-filter: blur(20px) saturate(1.4);
       -webkit-backdrop-filter: blur(20px) saturate(1.4);
@@ -526,6 +527,9 @@
 
     .prompt-cat-label {
       width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 6px;
       font-size: 9px;
       font-weight: 700;
       text-transform: uppercase;
@@ -533,6 +537,7 @@
       color: #6E82A6;
       padding: 0 4px 2px;
     }
+    .prompt-cat-label svg { flex-shrink: 0; color: #5B8DEF; }
 
     .prompt-item {
       background: rgba(28, 39, 64, 0.8);
@@ -890,7 +895,7 @@
         <div class="cc-topbar-actions">
           <button id="ttsStopBtn" class="voice-header-btn voice-stop-btn" title="Detener audio" style="display:none">
             <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
-            <span class="voice-btn-label">Stop</span>
+            <span class="voice-btn-label">Detener</span>
           </button>
           <button id="ttsMuteBtn" class="voice-header-btn voice-mute-btn" title="Silenciar respuestas de voz">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 010 7.07"/><path d="M19.07 4.93a10 10 0 010 14.14"/></svg>
@@ -927,7 +932,7 @@
           </div>
           <div class="prompt-menu-body">
             <div class="prompt-cat">
-              <span class="prompt-cat-label">✨ Visualizaciones avanzadas</span>
+              <span class="prompt-cat-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></svg>Visualizaciones avanzadas</span>
               <button class="prompt-item" data-q="matriz de rendimiento">Matriz de rendimiento (burbujas)</button>
               <button class="prompt-item" data-q="arsenal de motores">Arsenal de motores (polar)</button>
               <button class="prompt-item" data-q="motores por padecimiento">Motores por padecimiento</button>
@@ -939,13 +944,13 @@
               <button class="prompt-item" data-q="cascada de aporte por padecimiento">Cascada de aporte</button>
             </div>
             <div class="prompt-cat">
-              <span class="prompt-cat-label">📊 Análisis de calidad</span>
+              <span class="prompt-cat-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><line x1="4" y1="20" x2="4" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="20" y1="20" x2="20" y2="14"/></svg>Análisis de calidad</span>
               <button class="prompt-item" data-q="mase por motor">MASE por motor (skill)</button>
               <button class="prompt-item" data-q="salud de los modelos">Salud de los modelos</button>
               <button class="prompt-item" data-q="pronostico acumulado nacional">Pronóstico acumulado nacional</button>
             </div>
             <div class="prompt-cat">
-              <span class="prompt-cat-label">🧠 Pregúntale al estudio (RAG)</span>
+              <span class="prompt-cat-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="13" y2="13"/></svg>Pregúntale al estudio (RAG)</span>
               <button class="prompt-item" data-q="que ventajas tiene elegir un modelo distinto por cada serie">¿Por qué un modelo por serie?</button>
               <button class="prompt-item" data-q="como se audita la seleccion de modelos">¿Cómo se audita la selección?</button>
               <button class="prompt-item" data-q="cuales son los hallazgos clave del estudio">Hallazgos clave del estudio</button>
@@ -1085,14 +1090,19 @@
 
   <!-- ═══════════ CHART.JS DARK THEME DEFAULTS ═══════════ -->
   <script>
-    // Override Chart.js defaults for dark theme
-    if (typeof Chart !== 'undefined') {
-      Chart.defaults.color = '#9FB0CE';
-      Chart.defaults.borderColor = 'rgba(91, 141, 239, 0.12)';
-      Chart.defaults.plugins.title.color = '#E7ECF5';
-      Chart.defaults.plugins.legend.labels.color = '#9FB0CE';
-      Chart.defaults.scale = Chart.defaults.scale || {};
-    }
+    // Override Chart.js defaults for dark theme.
+    // chart.umd se carga con defer: aplicar los defaults hasta DOMContentLoaded,
+    // cuando los scripts diferidos ya se ejecutaron (y antes de que app.js,
+    // que es module y también diferido pero posterior en el documento, dibuje).
+    document.addEventListener('DOMContentLoaded', function () {
+      if (typeof Chart !== 'undefined') {
+        Chart.defaults.color = '#9FB0CE';
+        Chart.defaults.borderColor = 'rgba(91, 141, 239, 0.12)';
+        Chart.defaults.plugins.title.color = '#E7ECF5';
+        Chart.defaults.plugins.legend.labels.color = '#9FB0CE';
+        Chart.defaults.scale = Chart.defaults.scale || {};
+      }
+    });
   </script>
 
   <!-- ═══════════ COMMAND CENTER: sidebar drawer + quick actions ═══════════ -->
@@ -1159,6 +1169,6 @@
     })();
   </script>
 
-  <script type="module" src="js/app.js?v=128"></script>
+  <script type="module" src="js/app.js?v=129"></script>
 </body>
 </html>

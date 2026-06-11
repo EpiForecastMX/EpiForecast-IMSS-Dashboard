@@ -111,7 +111,10 @@ function stopSTT(inputField) {
 
 let preferredVoice = null;
 let voiceReady = false;
+// Preferencia de silencio persistida entre sesiones (localStorage).
+const TTS_MUTE_KEY = 'epibot_tts_muted';
 let ttsEnabled = true;
+try { ttsEnabled = localStorage.getItem(TTS_MUTE_KEY) !== '1'; } catch (_) { /* storage bloqueado */ }
 let ttsSpeaking = false;
 let lastSpokenFromVoice = false;
 let currentUtterance = null;
@@ -280,21 +283,6 @@ export function speak(markdown, speakerBtn) {
 
   currentUtterance = utter;
 
-  utter.onstart = () => {
-    setSpeaking(true);
-    if (speakerBtn) speakerBtn.classList.add('tts-speaking');
-  };
-  utter.onend = () => {
-    setSpeaking(false);
-    currentUtterance = null;
-    if (speakerBtn) speakerBtn.classList.remove('tts-speaking');
-  };
-  utter.onerror = () => {
-    setSpeaking(false);
-    currentUtterance = null;
-    if (speakerBtn) speakerBtn.classList.remove('tts-speaking');
-  };
-
   // Chrome bug: long utterances get cut off. Workaround: keep-alive timer.
   let resumeTimer = null;
   utter.onstart = () => {
@@ -330,10 +318,11 @@ export function isSpeaking() { return ttsSpeaking; }
 // Mute toggle
 // ---------------------------------------------------------------------------
 
-/** Toggle TTS on/off globally. Returns new state. */
+/** Toggle TTS on/off globally. Persists the choice. Returns new state. */
 export function toggleMute() {
   ttsEnabled = !ttsEnabled;
   if (!ttsEnabled) stopSpeaking();
+  try { localStorage.setItem(TTS_MUTE_KEY, ttsEnabled ? '0' : '1'); } catch (_) { /* storage bloqueado */ }
   return ttsEnabled;
 }
 
