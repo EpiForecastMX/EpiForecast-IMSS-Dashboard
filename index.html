@@ -2181,143 +2181,134 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════════
-       EDITORIAL — modo claro estilo periódico (The New York Times)
-       Override final: fondo claro, serif, filetes, sin cajas.
+    /* ═══════════════════════════════════════════════════════════════════
+       EDITORIAL ÍNDIGO — estilo periódico (NYT) SOBRE la paleta azul de marca.
+       Capa final (gana por cascada). Fondo azul oscuro, serif, filetes, sin cajas.
        ═══════════════════════════════════════════════════════════════════ */
     :root {
-      --paper: #ffffff;
-      --paper-2: #f7f7f5;
-      --ink: #121212;
-      --ink-soft: #333333;
-      --ink-mut: #6b6b6b;
-      --rule: #e2e2e2;
-      --rule-strong: #121212;
-      --link: #326891;
-      /* Reasignación de tokens de texto: todo a tinta sobre papel */
-      --text-primary: #121212;
-      --text-secondary: #333333;
-      --text-muted: #6b6b6b;
-      --text-faint: #8a8a8a;
-      --cream: #121212;
+      --bg: #0E1424;
+      --bg-deep: #0A0E18;
+      --ink: #EAEFF8;
+      --ink-soft: #B9C5DD;
+      --ink-mut: #8094B8;
+      --rule: rgba(130,160,210,0.16);
+      --rule-strong: rgba(160,185,225,0.40);
+      --accent: #6AA0FF;
+      --accent-2: #2DD4BF;
+      --link: #8FB4FF;
       --serif-head: 'Libre Caslon Display', Georgia, 'Times New Roman', serif;
       --serif-body: 'Source Serif 4', Georgia, serif;
       --sans: 'Libre Franklin', system-ui, -apple-system, sans-serif;
+      /* Reasignación de tokens base a la escala de tinta sobre índigo */
+      --text-primary: #EAEFF8;
+      --text-secondary: #B9C5DD;
+      --text-muted: #8094B8;
+      --text-faint: #5f739a;
+      --cream: #EAEFF8;
     }
     body {
-      background: var(--paper) !important;
+      background: #0E1424 !important;
       color: var(--ink) !important;
       font-family: var(--serif-body) !important;
-      line-height: 1.55;
+      line-height: 1.6;
     }
     body::before { display: none !important; }
     a { color: var(--link) !important; }
     a:hover { color: var(--link) !important; text-decoration: underline; }
 
-    /* MASTHEAD (nav como cabecera de periódico) */
+    /* MASTHEAD */
     .nav, .nav.scrolled {
-      background: var(--paper) !important;
+      background: rgba(14,20,36,0.92) !important;
       border-bottom: 1px solid var(--rule-strong) !important;
-      backdrop-filter: none !important;
-      box-shadow: none !important;
+      backdrop-filter: blur(10px) !important; box-shadow: none !important;
     }
-    .nav-inner { border: none !important; }
-    .nav-logo, .nav-brand, .brand, .logo { color: var(--ink) !important; font-family: var(--serif-head) !important; }
     .nav a, .nav-group-toggle, .nav-menu a { color: var(--ink-soft) !important; font-family: var(--sans) !important; }
     .nav-group-toggle { font-size: 0.82rem; }
-    .nav-dropdown { background: var(--paper) !important; border: 1px solid var(--rule) !important; box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important; }
+    .nav-dropdown { background: #121A2C !important; border: 1px solid var(--rule) !important; box-shadow: 0 14px 36px rgba(0,0,0,0.5) !important; }
     .nav-dropdown a { color: var(--ink-soft) !important; }
-    .nav-dropdown a:hover { background: var(--paper-2) !important; color: var(--ink) !important; }
-    .nav-cta--primary { background: var(--ink) !important; color: #fff !important; border-radius: 2px !important; font-family: var(--sans) !important; }
-    .nav-cta--secondary { background: transparent !important; color: var(--ink) !important; border: 1px solid var(--ink) !important; border-radius: 2px !important; font-family: var(--sans) !important; }
+    .nav-dropdown a:hover { background: rgba(255,255,255,0.05) !important; color: var(--ink) !important; }
+    .nav-cta--primary { background: var(--accent) !important; color: #08111F !important; border-radius: 3px !important; font-family: var(--sans) !important; font-weight: 700 !important; }
+    .nav-cta--secondary { background: transparent !important; color: var(--ink) !important; border: 1px solid var(--rule-strong) !important; border-radius: 3px !important; font-family: var(--sans) !important; }
     .nav-hamburger span { background: var(--ink) !important; }
-    .nav-mobile { background: var(--paper) !important; border-bottom: 1px solid var(--rule) !important; }
+    .nav-mobile { background: #0E1424 !important; border-bottom: 1px solid var(--rule) !important; }
     .nav-mobile a, .nav-mobile-heading { color: var(--ink-soft) !important; }
 
-    /* SECCIONES: papel blanco, separadas por filete fino */
-    .bento-section, .news-bg, .explora, .about, .diseases, .results-bg,
+    /* SECCIONES: índigo, separadas por filete fino */
+    .edl-hero, .news-bg, .explora, .about, .diseases, .results-bg,
     .team-bg, section.section, .cta-hub, .scope-bg, .pipeline-bg {
-      background: var(--paper) !important;
+      background: #0E1424 !important;
       border-top: 1px solid var(--rule) !important;
       border-bottom: none !important;
     }
 
     /* TIPOGRAFÍA editorial */
-    h1, h2, h3, h4, .section-title, .hero-h1, .bento-h1,
+    h1, h2, h3, h4, .section-title, .edl-headline,
     .explora-card h3, .disease-card h3, .tile-big, .epi-title {
-      font-family: var(--serif-head) !important;
-      color: var(--ink) !important;
-      font-weight: 400 !important;
-      letter-spacing: -0.01em !important;
+      font-family: var(--serif-head) !important; color: var(--ink) !important;
+      font-weight: 400 !important; letter-spacing: -0.01em !important;
     }
-    .section-title { font-size: clamp(1.9rem, 3.4vw, 2.8rem); line-height: 1.1; }
-    .section-desc, p, .tile-sub, .explora-card p, .disease-card p { color: var(--ink-soft) !important; }
+    .section-title { font-size: clamp(2rem, 3.6vw, 3rem); line-height: 1.08; }
+    p, .section-desc, .tile-sub, .explora-card p, .disease-card p, .news-lead-sub { color: var(--ink-soft) !important; }
     .section-desc { font-family: var(--serif-body) !important; font-size: 1.15rem; }
+    .news-lead-title, .news-mini-title { color: var(--ink) !important; }
 
-    /* KICKER / eyebrow estilo NYT (sans, mayúsculas, filete) */
-    .section-label, .bento-eyebrow, .tile-label, .hf-title {
-      font-family: var(--sans) !important;
-      color: var(--ink-mut) !important;
-      letter-spacing: 0.08em !important;
-      text-transform: uppercase !important;
+    /* KICKER (sans, mayúsculas, acento azul) */
+    .section-label, .bento-eyebrow, .tile-label, .hf-title, .edl-kicker {
+      font-family: var(--sans) !important; color: var(--accent) !important;
+      letter-spacing: 0.1em !important; text-transform: uppercase !important; font-weight: 600 !important;
     }
     .section-label::before, .bento-eyebrow::before { display: none !important; }
-    .accent, .bento-h1 .accent, .hero h1 .accent { color: var(--ink) !important; font-style: italic; }
+    .accent, .edl-headline em, .bento-h1 .accent, .hero h1 .accent { color: var(--accent) !important; }
+    .edl-headline em { font-style: italic; }
 
-    /* TARJETAS → bloques editoriales: sin caja, separados por filete */
+    /* TARJETAS → bloques editoriales (sin cajas, filete superior) */
     .explora-card, .disease-card, .result-card, .about-card, .news-banner,
     .news-lead, .news-mini, .collab-item, .team-card, .stat-card, .hf-card, .tile {
-      background: transparent !important;
-      border: none !important;
-      border-top: 1px solid var(--rule) !important;
-      border-radius: 0 !important;
-      box-shadow: none !important;
-      padding: 1.4rem 0 !important;
+      background: transparent !important; border: none !important;
+      border-top: 1px solid var(--rule) !important; border-radius: 0 !important;
+      box-shadow: none !important; padding: 1.4rem 0 !important;
     }
     .explora-card:hover, .disease-card:hover, .result-card:hover,
     .team-card:hover, .news-lead:hover, .news-mini:hover, .tile:hover {
-      background: transparent !important; transform: none !important; border-color: var(--rule) !important;
+      background: transparent !important; transform: none !important; border-color: var(--rule-strong) !important;
     }
-    .explora-go, .news-link, .news-banner-all, .epi-go, .bento-cta--ghost { color: var(--link) !important; }
-    .explora-ic, .disease-icon, .tile-label svg { color: var(--ink) !important; background: transparent !important; }
 
-    /* HERO/BENTO editorial: sin grid de mosaicos, columna de artículo */
-    .bento-grid { display: block !important; }
-    .t-forecast, .t-map { border-top: 1px solid var(--rule) !important; }
-    .map-state { stroke: var(--paper) !important; }
-    .map-state:hover { stroke: var(--ink) !important; }
-    .map-tip { background: var(--ink) !important; color: #fff !important; border: none !important; }
-    .map-tip b { color: #fff !important; }
+    /* ICONOS unificados: una sola tinta (acento), tamaño consistente; el color
+       por padecimiento se conserva SOLO en los iconos de datos (.disease-icon) */
+    .explora-ic, .tile-label svg, .section-label svg, .edl-kicker svg {
+      background: transparent !important; color: var(--accent) !important;
+    }
+    .explora-ic { width: auto !important; height: auto !important; margin-bottom: 0.8rem !important; }
+    .explora-ic svg { width: 26px !important; height: 26px !important; }
+    .explora-go, .news-link, .news-banner-all, .epi-go { color: var(--link) !important; }
 
-    /* Botón primario editorial */
-    .bento-cta--primary, .hero-cta { background: var(--ink) !important; color: #fff !important; border-radius: 2px !important; font-family: var(--sans) !important; }
-    .bento-ctas .bento-cta--ghost { border: 1px solid var(--ink) !important; color: var(--ink) !important; border-radius: 2px !important; }
-    .hf-pill { background: var(--paper-2) !important; border: 1px solid var(--rule) !important; color: var(--ink-soft) !important; }
-    .hf-pill.is-active { background: var(--ink) !important; color: #fff !important; border-color: var(--ink) !important; }
-    .hf-chip, .hf-cap-chip, .news-tag, .news-date { background: var(--paper-2) !important; color: var(--ink-soft) !important; border-color: var(--rule) !important; }
+    /* Pills / chips / etiquetas */
+    .hf-pill { background: rgba(255,255,255,0.04) !important; border: 1px solid var(--rule) !important; color: var(--ink-soft) !important; }
+    .hf-pill.is-active { background: var(--accent) !important; color: #08111F !important; border-color: var(--accent) !important; }
+    .hf-chip, .hf-cap-chip, .news-tag, .news-date { background: rgba(255,255,255,0.05) !important; color: var(--ink-soft) !important; border: 1px solid var(--rule) !important; }
     .hf-chip b { color: var(--ink) !important; }
 
     /* HERO EDITORIAL (lede de artículo) */
-    .edl-hero { background: var(--paper); padding: 3rem 1.5rem 3.5rem; }
+    .edl-hero { background: #0E1424; padding: 3.2rem 1.5rem 3.5rem; }
     .edl-wrap { max-width: 760px; margin: 0 auto; }
     .edl-kicker {
       font-family: var(--sans); text-transform: uppercase; letter-spacing: 0.12em;
-      font-size: 0.76rem; font-weight: 700; color: var(--ink);
-      padding-bottom: 0.9rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--rule-strong);
+      font-size: 0.76rem; font-weight: 700; color: var(--accent) !important;
+      padding-bottom: 0.9rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--rule-strong) !important;
       display: flex; align-items: center; gap: 0.6rem;
     }
-    .edl-kicker .dot { width: 7px; height: 7px; border-radius: 50%; background: #c0362c; }
+    .edl-kicker .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-2); box-shadow: 0 0 10px var(--accent-2); }
     .edl-headline {
       font-family: var(--serif-head); font-weight: 400;
-      font-size: clamp(2.7rem, 6.2vw, 4.8rem); line-height: 1.02; letter-spacing: -0.018em;
-      color: var(--ink); margin-bottom: 1.3rem;
+      font-size: clamp(2.7rem, 6.2vw, 4.8rem); line-height: 1.03; letter-spacing: -0.018em;
+      color: var(--ink) !important; margin-bottom: 1.3rem;
     }
-    .edl-headline em { font-style: italic; }
     .edl-deck {
       font-family: var(--serif-body); font-size: clamp(1.18rem, 2.1vw, 1.5rem);
-      line-height: 1.5; color: var(--ink-soft); margin-bottom: 1.4rem; font-weight: 400;
+      line-height: 1.5; color: var(--ink-soft) !important; margin-bottom: 1.4rem; font-weight: 400;
     }
     .edl-byline {
-      font-family: var(--sans); font-size: 0.8rem; color: var(--ink-mut); letter-spacing: 0.01em;
+      font-family: var(--sans); font-size: 0.8rem; color: var(--ink-mut) !important; letter-spacing: 0.01em;
       border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
       padding: 0.75rem 0; margin-bottom: 2.2rem; line-height: 1.5;
     }
@@ -2325,26 +2316,26 @@
     .edl-figure .hf-card { padding: 0 !important; border-top: none !important; }
     .edl-figure .hf-canvas-wrap { min-height: 300px; }
     .edl-figcap {
-      font-family: var(--sans); font-size: 0.8rem; color: var(--ink-mut);
+      font-family: var(--sans); font-size: 0.8rem; color: var(--ink-mut) !important;
       margin-top: 0.8rem; padding-top: 0.65rem; border-top: 1px solid var(--rule); line-height: 1.5;
     }
-    .edl-figcap b { color: var(--ink-soft); }
+    .edl-figcap b { color: var(--ink-soft) !important; }
     .edl-stats {
       display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
       border-top: 2px solid var(--rule-strong); border-bottom: 1px solid var(--rule);
       padding: 1.1rem 0; margin: 0.5rem 0 1.8rem;
     }
-    .edl-stat b { font-family: var(--serif-head); font-size: clamp(1.5rem,3vw,2.1rem); display: block; color: var(--ink); line-height: 1; }
-    .edl-stat span { font-family: var(--sans); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-mut); display: block; margin-top: 0.35rem; }
+    .edl-stat b { font-family: var(--serif-head); font-size: clamp(1.6rem,3vw,2.2rem); display: block; color: var(--ink) !important; line-height: 1; }
+    .edl-stat span { font-family: var(--sans); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-mut) !important; display: block; margin-top: 0.4rem; }
     .edl-ctas { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center; }
-    .edl-ctas .edl-primary { background: var(--ink); color: #fff !important; padding: 0.75rem 1.4rem; border-radius: 2px; font-family: var(--sans); font-weight: 600; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 0.5rem; }
-    .edl-ctas .edl-primary:hover { text-decoration: none; opacity: 0.88; }
+    .edl-ctas .edl-primary { background: var(--accent); color: #08111F !important; padding: 0.78rem 1.5rem; border-radius: 3px; font-family: var(--sans); font-weight: 700; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 0.5rem; }
+    .edl-ctas .edl-primary:hover { text-decoration: none; opacity: 0.9; }
     .edl-ctas .edl-link { color: var(--link) !important; font-family: var(--sans); font-weight: 600; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 0.4rem; }
     .edl-ctas svg { width: 16px; height: 16px; }
-    @media (max-width: 560px) { .edl-stats { grid-template-columns: repeat(2, 1fr); gap: 1.2rem 1rem; } }
+    @media (max-width: 560px) { .edl-stats { grid-template-columns: repeat(2, 1fr); gap: 1.3rem 1rem; } }
 
-    /* Footer claro */
-    .footer { background: var(--paper-2) !important; border-top: 1px solid var(--rule-strong) !important; color: var(--ink-soft) !important; }
+    /* Footer índigo */
+    .footer { background: #0A0E18 !important; border-top: 1px solid var(--rule-strong) !important; color: var(--ink-soft) !important; }
     .footer a { color: var(--ink-soft) !important; }
   </style>
 </head>
@@ -3260,7 +3251,7 @@
 
         // Rejilla horizontal
         ctx.save();
-        ctx.strokeStyle = 'rgba(18,18,18,' + (0.09 * gridA) + ')';
+        ctx.strokeStyle = 'rgba(159,176,206,' + (0.10 * gridA) + ')';
         ctx.lineWidth = 1;
         for (var r = 0; r <= 3; r++) {
           var yy = g.padT + (r / 3) * (g.H - g.padT - g.padB);
@@ -3311,7 +3302,7 @@
         if (realP >= 0.999 && g.lastReal >= 0) {
           var hx = g.X(g.lastReal), hy = g.Y(s.r[g.lastReal]);
           ctx.save();
-          ctx.strokeStyle = 'rgba(18,18,18,0.18)';
+          ctx.strokeStyle = 'rgba(159,176,206,0.22)';
           ctx.setLineDash([3, 4]); ctx.lineWidth = 1;
           ctx.beginPath(); ctx.moveTo(hx, g.padT); ctx.lineTo(hx, g.H - g.padB); ctx.stroke();
           ctx.restore();
@@ -3320,9 +3311,9 @@
           ctx.beginPath(); ctx.arc(hx, hy, 7 + pulse * 5, 0, Math.PI * 2);
           ctx.fillStyle = rgba(rgb, 0.12 + 0.14 * pulse); ctx.fill();
           ctx.beginPath(); ctx.arc(hx, hy, 4.5, 0, Math.PI * 2);
-          ctx.fillStyle = s.color; ctx.shadowColor = s.color; ctx.shadowBlur = 10; ctx.fill();
+          ctx.fillStyle = '#fff'; ctx.shadowColor = s.color; ctx.shadowBlur = 12; ctx.fill();
           ctx.beginPath(); ctx.arc(hx, hy, 4.5, 0, Math.PI * 2);
-          ctx.lineWidth = 2; ctx.strokeStyle = '#fff'; ctx.stroke();
+          ctx.lineWidth = 2; ctx.strokeStyle = s.color; ctx.stroke();
           ctx.restore();
         }
       }
