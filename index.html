@@ -2513,6 +2513,61 @@
     .advisor-card h5 { font-family: var(--serif-head) !important; color: var(--ink) !important; font-weight: 400 !important; font-size: 1.08rem !important; }
     .advisor-card p { font-family: var(--sans) !important; color: var(--ink-mut) !important; font-size: 0.8rem !important; }
     @media (max-width: 760px) { .advisors { grid-template-columns: 1fr !important; gap: 1rem !important; } }
+
+    /* BANDA DE CIFRAS — 'by the numbers' con divisores verticales */
+    .edl-stats {
+      display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 0 !important;
+      border-top: 2px solid var(--rule-strong) !important; border-bottom: 1px solid var(--rule) !important;
+      margin: 0.5rem 0 1.8rem !important;
+    }
+    .edl-stat { padding: 1.1rem 1.4rem !important; border-left: 1px solid var(--rule); }
+    .edl-stat:first-child { border-left: none; padding-left: 0 !important; }
+    .edl-stat b {
+      font-family: var(--serif-head) !important; font-size: clamp(1.9rem, 3.2vw, 2.5rem) !important;
+      display: block; color: var(--ink) !important; line-height: 1 !important; font-weight: 400 !important;
+      font-variant-numeric: tabular-nums;
+    }
+    .edl-stat > span {
+      font-family: var(--sans) !important; font-size: 0.68rem !important; text-transform: uppercase !important;
+      letter-spacing: 0.07em !important; color: var(--ink-mut) !important; display: block; margin-top: 0.55rem !important; line-height: 1.35;
+    }
+    .edl-stat b span { font: inherit !important; text-transform: none !important; display: inline !important; margin: 0 !important; letter-spacing: inherit !important; }
+    @media (max-width: 620px) {
+      .edl-stats { grid-template-columns: repeat(2, 1fr) !important; }
+      .edl-stat { border-left: none; padding-left: 0 !important; padding-right: 1rem !important; }
+      .edl-stat:nth-child(2) { border-left: 1px solid var(--rule); padding-left: 1rem !important; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       MASTHEAD — cabecera de periódico (la navbar se vuelve nameplate + section bar)
+       ═══════════════════════════════════════════════════════════════════ */
+    .nav { position: static !important; background: var(--bg) !important; backdrop-filter: none !important;
+           border-bottom: 3px double var(--rule-strong) !important; box-shadow: none !important; }
+    .nav-inner {
+      flex-wrap: wrap !important; justify-content: center !important; align-items: center !important;
+      height: auto !important; max-width: 1180px; padding: 1.4rem 2rem 0.7rem !important;
+      column-gap: 1.5rem; row-gap: 0; position: relative;
+    }
+    .nav-logo {
+      flex-basis: 100% !important; text-align: center; flex-shrink: 1 !important;
+      font-family: var(--serif-head) !important; font-weight: 400 !important;
+      font-size: clamp(2rem, 4.8vw, 3.1rem) !important; letter-spacing: -0.01em !important;
+      color: var(--ink) !important; padding-bottom: 0.7rem; margin-bottom: 0.7rem;
+      border-bottom: 1px solid var(--rule);
+    }
+    .nav-logo span { color: var(--accent) !important; }
+    .nav-menu { flex: none !important; justify-content: center !important; gap: 1.6rem !important; flex-wrap: wrap; }
+    .nav-group-toggle { text-transform: uppercase !important; letter-spacing: 0.08em !important; font-size: 0.72rem !important; font-weight: 600 !important; }
+    .nav-ctas { margin-left: 0.4rem; gap: 0.5rem; }
+    .nav.scrolled .nav-inner { height: auto !important; }
+    /* el nav ya no es fixed: el hero arranca pegado a la cabecera */
+    .edl-hero { padding-top: 2.6rem !important; }
+    @media (max-width: 768px) {
+      .nav-inner { padding: 1.1rem 1.3rem !important; }
+      .nav-logo { font-size: 1.8rem !important; border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+      .nav-hamburger { position: absolute !important; right: 1.2rem; top: 1.1rem; }
+      .nav { border-bottom-width: 1px !important; }
+    }
   </style>
 </head>
 <body>
@@ -2690,7 +2745,7 @@
         <div class="edl-stat"><b id="b-motor-total">435</b><span>modelos en producción</span></div>
         <div class="edl-stat"><b>32</b><span>entidades + nacional</span></div>
         <div class="edl-stat"><b>52</b><span>semanas de horizonte</span></div>
-        <div class="edl-stat"><b id="b-motor">DeepAR</b><span>motor líder &middot; <span id="b-motor-pct">36</span>%</span></div>
+        <div class="edl-stat"><b><span id="b-motor-pct">36</span>%</b><span>cuota del motor líder, <span id="b-motor">DeepAR</span></span></div>
       </div>
     </div>
   </section>
