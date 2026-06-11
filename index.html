@@ -2337,6 +2337,78 @@
     /* Footer índigo */
     .footer { background: #0A0E18 !important; border-top: 1px solid var(--rule-strong) !important; color: var(--ink-soft) !important; }
     .footer a { color: var(--ink-soft) !important; }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       PORTADA — reinvención del tope (front page de periódico). Override final.
+       ═══════════════════════════════════════════════════════════════════ */
+    /* El nav es fixed: damos aire arriba para que NO tape el folio del hero */
+    .edl-hero {
+      padding: 6.8rem 1.5rem 3.5rem !important;
+      background: #0E1424 !important;
+      border-top: none !important;
+    }
+    .edl-wrap { max-width: 1180px !important; }
+    section[id] { scroll-margin-top: 80px; }
+
+    /* Folio / dateline (banda superior tipo cabecera de periódico) */
+    .edl-folio {
+      display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+      font-family: var(--sans); text-transform: uppercase; letter-spacing: 0.14em;
+      font-size: 0.7rem; color: var(--ink-mut);
+      border-top: 2px solid var(--rule-strong); border-bottom: 1px solid var(--rule);
+      padding: 0.65rem 0; margin-bottom: 1.8rem;
+    }
+    .edl-folio .mid { color: var(--accent); font-weight: 700; }
+    .edl-folio .live { display: inline-flex; align-items: center; gap: 0.45rem; }
+    .edl-folio .live::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--accent-2); box-shadow: 0 0 10px var(--accent-2); }
+    @media (max-width: 720px) { .edl-folio { font-size: 0.62rem; letter-spacing: 0.1em; } .edl-folio .mid { display: none; } }
+
+    /* Titular de portada: enorme, a todo el ancho */
+    .edl-hero .edl-headline {
+      font-size: clamp(3rem, 8vw, 6.2rem) !important; line-height: 0.97 !important;
+      letter-spacing: -0.022em !important; max-width: 17ch; margin: 0 0 1.5rem !important;
+    }
+
+    /* Lede asimétrico: texto a la izquierda, figura grande a la derecha */
+    .edl-lead {
+      display: grid; grid-template-columns: minmax(0,0.82fr) minmax(0,1.18fr);
+      gap: 2.6rem; align-items: start;
+      border-top: 1px solid var(--rule); padding-top: 1.7rem;
+    }
+    .edl-lead .edl-deck { font-size: clamp(1.1rem, 1.6vw, 1.32rem) !important; }
+    .edl-lead .edl-byline { margin-bottom: 1.4rem; }
+    .edl-lead .edl-figure {
+      width: auto !important; left: auto !important; transform: none !important; margin: 0 !important;
+    }
+    .edl-lead .edl-figure .hf-canvas-wrap { min-height: 340px; }
+    .edl-figkick {
+      font-family: var(--sans); text-transform: uppercase; letter-spacing: 0.1em;
+      font-size: 0.66rem; color: var(--accent); font-weight: 700; margin-bottom: 0.5rem;
+    }
+    @media (max-width: 900px) { .edl-lead { grid-template-columns: 1fr; gap: 2rem; } }
+
+    /* Cifras: banda full-width bajo el lede */
+    .edl-hero .edl-stats { margin-top: 2.2rem !important; }
+
+    /* ÍNDICE editorial (reemplaza las tarjetas de Explora) */
+    .edl-index { border-top: 1px solid var(--rule); margin-top: 1.8rem; }
+    .edl-index-item {
+      display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1.4rem;
+      padding: 1.5rem 0; border-bottom: 1px solid var(--rule);
+      text-decoration: none !important; transition: padding-left .2s, background .2s;
+    }
+    .edl-index-item:hover { padding-left: 0.8rem; background: rgba(255,255,255,0.02); }
+    .edl-idx-num { font-family: var(--serif-head); font-size: 1.6rem; color: var(--accent); line-height: 1; min-width: 2ch; }
+    .edl-idx-title { font-family: var(--serif-head); font-size: clamp(1.4rem,2.4vw,1.9rem); color: var(--ink) !important; display: block; }
+    .edl-idx-desc { font-family: var(--serif-body); font-size: 0.98rem; color: var(--ink-soft) !important; display: block; margin-top: 0.25rem; }
+    .edl-idx-go { color: var(--accent); flex: none; }
+    .edl-idx-go svg { width: 22px; height: 22px; transition: transform .2s; }
+    .edl-index-item:hover .edl-idx-go svg { transform: translateX(5px); }
+    @media (max-width: 600px) { .edl-index-item { grid-template-columns: auto 1fr; } .edl-idx-go { display: none; } }
+
+    /* Iconos de datos SIN caja (de-card de las enfermedades) */
+    .disease-icon { background: transparent !important; width: auto !important; height: auto !important; margin-bottom: 0.7rem !important; padding: 0 !important; }
+    .disease-icon svg { width: 30px !important; height: 30px !important; }
   </style>
 </head>
 <body>
@@ -2471,40 +2543,50 @@
        ═══════════════════════════════════════════════════════════════ -->
   <section class="edl-hero" id="hero">
     <div class="edl-wrap">
-      <div class="edl-kicker"><span class="dot"></span>Pronóstico epidemiológico · México · Boletín SINAVE, semana 21 de 2026</div>
-      <h1 class="edl-headline">Anticipar la enfermedad, <em>semana a semana</em></h1>
-      <p class="edl-deck">EpiForecast-MX pronostica la incidencia de cuatro padecimientos en las 32 entidades del país a 52 semanas, con 435 modelos y selección automática entre cinco motores de inteligencia artificial.</p>
-      <div class="edl-byline">Una colaboración del Tecnológico de Monterrey con el Instituto Mexicano del Seguro Social (IMSS). Datos actualizados cada semana desde el Boletín Epidemiológico del SINAVE.</div>
+      <div class="edl-folio">
+        <span>México</span>
+        <span class="mid">Pronóstico epidemiológico multi-modelo</span>
+        <span class="live">Edición · Semana 21, 2026</span>
+      </div>
 
-      <figure class="edl-figure">
-        <div class="hf-card">
-          <div class="hf-head">
-            <div class="hf-title"><span class="hf-live"></span>Pronóstico nacional en vivo</div>
-            <div class="hf-pills" id="hfPills"></div>
+      <h1 class="edl-headline">Anticipar la enfermedad, <em>semana a semana</em></h1>
+
+      <div class="edl-lead">
+        <div class="edl-lead-text">
+          <p class="edl-deck">EpiForecast-MX pronostica la incidencia de cuatro padecimientos en las 32 entidades del país a 52 semanas, con 435 modelos y selección automática entre cinco motores de inteligencia artificial.</p>
+          <div class="edl-byline">Una colaboración del Tecnológico de Monterrey con el Instituto Mexicano del Seguro Social (IMSS). Datos actualizados cada semana desde el Boletín Epidemiológico del SINAVE.</div>
+          <div class="edl-ctas">
+            <a href="EpiDashboard.html" class="edl-primary">Abrir el tablero <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
+            <a href="epibot/index.html" class="edl-link">Pregúntale a EPI</a>
+            <a href="Reports/index.html" class="edl-link">Galería</a>
           </div>
-          <div class="hf-canvas-wrap">
-            <canvas id="hfCanvas" role="img" aria-label="Gráfico animado del pronóstico nacional por padecimiento"></canvas>
-            <div class="hf-legend">
-              <span><i style="border-color:var(--ink-soft)"></i>Real</span>
-              <span><i style="border-top-style:dashed;border-color:var(--ink-mut)"></i>Pronóstico</span>
-            </div>
-          </div>
-          <div class="hf-caption" id="hfCaption"></div>
         </div>
-        <figcaption class="edl-figcap">Incidencia semanal real frente al modelo productivo de cada padecimiento, a escala nacional. <b>Elige un padecimiento</b> para ver su serie y su motor.</figcaption>
-      </figure>
+
+        <figure class="edl-figure">
+          <div class="edl-figkick">Figura 1 · Pronóstico nacional en vivo</div>
+          <div class="hf-card">
+            <div class="hf-head">
+              <div class="hf-title"><span class="hf-live"></span>Real vs. pronóstico</div>
+              <div class="hf-pills" id="hfPills"></div>
+            </div>
+            <div class="hf-canvas-wrap">
+              <canvas id="hfCanvas" role="img" aria-label="Gráfico animado del pronóstico nacional por padecimiento"></canvas>
+              <div class="hf-legend">
+                <span><i style="border-color:var(--ink-soft)"></i>Real</span>
+                <span><i style="border-top-style:dashed;border-color:var(--ink-mut)"></i>Pronóstico</span>
+              </div>
+            </div>
+            <div class="hf-caption" id="hfCaption"></div>
+          </div>
+          <figcaption class="edl-figcap">Incidencia semanal real frente al modelo productivo de cada padecimiento, a escala nacional. <b>Elige un padecimiento</b> para ver su serie y su motor.</figcaption>
+        </figure>
+      </div>
 
       <div class="edl-stats">
         <div class="edl-stat"><b id="b-motor-total">435</b><span>modelos en producción</span></div>
         <div class="edl-stat"><b>32</b><span>entidades + nacional</span></div>
         <div class="edl-stat"><b>52</b><span>semanas de horizonte</span></div>
         <div class="edl-stat"><b id="b-motor">DeepAR</b><span>motor líder &middot; <span id="b-motor-pct">36</span>%</span></div>
-      </div>
-
-      <div class="edl-ctas">
-        <a href="EpiDashboard.html" class="edl-primary">Abrir el tablero interactivo <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
-        <a href="epibot/index.html" class="edl-link">Pregúntale a EPI</a>
-        <a href="Reports/index.html" class="edl-link">Galería de pronósticos</a>
       </div>
     </div>
   </section>
@@ -2552,28 +2634,23 @@
   <section id="reportes" class="explora">
     <div class="section">
       <div class="section-label reveal">Explora la plataforma</div>
-      <h2 class="section-title reveal">Tres formas de usar EpiForecast-MX</h2>
-      <p class="section-desc reveal">Entra al tablero, pregúntale al asistente o revisa los pronósticos por entidad. El detalle técnico vive en el menú.</p>
+      <h2 class="section-title reveal">Tres formas de usarla</h2>
 
-      <div class="explora-grid">
-        <a href="EpiDashboard.html" class="explora-card reveal reveal-delay-1">
-          <div class="explora-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
-          <h3>Tablero interactivo</h3>
-          <p>Filtra por padecimiento, entidad y sexo. Compara real contra pronóstico y revisa las métricas de cada modelo.</p>
-          <span class="explora-go">Abrir tablero <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></span>
+      <div class="edl-index reveal">
+        <a href="EpiDashboard.html" class="edl-index-item">
+          <span class="edl-idx-num">01</span>
+          <span class="edl-idx-body"><span class="edl-idx-title">Tablero interactivo</span><span class="edl-idx-desc">Filtra por padecimiento, entidad y sexo; compara real contra pronóstico y revisa las métricas de cada modelo.</span></span>
+          <span class="edl-idx-go"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></span>
         </a>
-        <a href="epibot/index.html" class="explora-card explora-card--epi reveal reveal-delay-2">
-          <span class="explora-tag">Asistente IA</span>
-          <div class="explora-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-          <h3>Pregúntale a EPI</h3>
-          <p>Asistente con RAG y citas sobre los 435 modelos: métricas, pronósticos, tendencias y más, al instante y con gráficas en vivo.</p>
-          <span class="explora-go">Hablar con EPI <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></span>
+        <a href="epibot/index.html" class="edl-index-item">
+          <span class="edl-idx-num">02</span>
+          <span class="edl-idx-body"><span class="edl-idx-title">Pregúntale a EPI</span><span class="edl-idx-desc">Asistente con RAG y citas sobre los 435 modelos: métricas, pronósticos y tendencias al instante, con gráficas en vivo.</span></span>
+          <span class="edl-idx-go"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></span>
         </a>
-        <a href="Reports/index.html" class="explora-card reveal reveal-delay-3">
-          <div class="explora-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-          <h3>Galería de pronósticos</h3>
-          <p>Pronósticos a 52 semanas por entidad y región, con banda de confianza y zoom a la semana vigente del boletín.</p>
-          <span class="explora-go">Ver galería <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></span>
+        <a href="Reports/index.html" class="edl-index-item">
+          <span class="edl-idx-num">03</span>
+          <span class="edl-idx-body"><span class="edl-idx-title">Galería de pronósticos</span><span class="edl-idx-desc">Pronósticos a 52 semanas por entidad y región, con banda de confianza y zoom a la semana vigente del boletín.</span></span>
+          <span class="edl-idx-go"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></span>
         </a>
       </div>
 
