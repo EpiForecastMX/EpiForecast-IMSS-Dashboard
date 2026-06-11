@@ -4,7 +4,11 @@
    Se enlaza al final del <head> de cada subpágina; gana por !important
    sobre el CSS inline del template viejo (Outfit/Playfair, nav dorado,
    hero con degradado verde/teal).
+   Trae sus PROPIAS fuentes (@import), así basta enlazar este archivo
+   en cualquier página o generador — durable ante regeneración.
    ═══════════════════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=Libre+Caslon+Display&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap');
+
 :root {
   --bg: #0E1424;
   --ink: #EAEFF8;
