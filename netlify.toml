@@ -27,6 +27,13 @@
   status = 301
   force = true
 
+# La galeria vive en /Reports/ (mayuscula); redirige la version en minuscula.
+[[redirects]]
+  from = "/reports/*"
+  to = "/Reports/:splat"
+  status = 301
+  force = true
+
 [[headers]]
   for = "/epibot/knowledge.json"
   [headers.values]
