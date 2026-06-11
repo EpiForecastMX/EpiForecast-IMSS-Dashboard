@@ -66,6 +66,7 @@ h1, h2, h3, h4, .section-title, .hero h1 {
   position: static !important;
   background: #0E1424 !important;
   backdrop-filter: none !important;
+  border-top: 2px solid var(--accent) !important;        /* firma editorial: filete de acento arriba */
   border-bottom: 1px solid var(--rule-strong) !important;
   box-shadow: none !important;
   top: 0; left: 0; right: 0; z-index: 1000;
@@ -99,19 +100,19 @@ h1, h2, h3, h4, .section-title, .hero h1 {
 @media (max-width: 768px) { .nav-menu, .nav-ctas { display: none !important; } .nav-hamburger { display: flex; } }
 .nav-inner {
   display: flex !important;
-  flex-wrap: nowrap !important; justify-content: space-between !important; align-items: center !important;
-  height: auto !important; max-width: 1240px; margin: 0 auto; padding: 0.6rem 2rem !important;
-  column-gap: 1.5rem; position: relative;
+  flex-wrap: wrap !important; justify-content: center !important; align-items: center !important;
+  height: auto !important; max-width: 1180px; margin: 0 auto; padding: 0.85rem 2rem 0.55rem !important;
+  column-gap: 1.4rem; row-gap: 0.5rem; position: relative;
 }
 .nav-logo {
-  flex-basis: auto !important; flex-shrink: 0 !important; text-align: left;
+  flex-basis: 100% !important; flex-shrink: 1 !important; text-align: center;
   font-family: var(--serif-head) !important; font-weight: 400 !important;
-  font-size: clamp(1.3rem, 2vw, 1.65rem) !important; letter-spacing: -0.01em !important;
-  color: var(--ink) !important; padding-bottom: 0 !important; margin-bottom: 0 !important;
+  font-size: clamp(1.55rem, 2.6vw, 2rem) !important; letter-spacing: -0.005em !important;
+  color: var(--ink) !important; padding: 0 !important; margin: 0 0 0.15rem !important;
   border-bottom: none !important;
 }
 .nav-logo span { color: var(--accent) !important; }
-.nav-menu { flex: 1 1 auto !important; justify-content: center !important; gap: 1.3rem !important; flex-wrap: wrap; }
+.nav-menu { flex: 0 1 auto !important; justify-content: center !important; gap: 1.3rem !important; flex-wrap: wrap; }
 .nav-group-toggle { color: var(--ink-soft) !important; font-family: var(--sans) !important; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.72rem !important; }
 .nav-group-toggle:hover, .nav-group:hover .nav-group-toggle { color: var(--ink) !important; background: rgba(255,255,255,0.04) !important; }
 .nav-dropdown {
@@ -133,8 +134,9 @@ h1, h2, h3, h4, .section-title, .hero h1 {
 .nav-mobile { background: #0E1424 !important; border-bottom: 1px solid var(--rule) !important; }
 .nav-mobile a, .nav-mobile-heading { color: var(--ink-soft) !important; }
 @media (max-width: 768px) {
-  .nav-logo { font-size: 1.4rem !important; }
-  .nav-inner { padding: 0.65rem 1.3rem !important; }
+  .nav-logo { font-size: 1.5rem !important; }
+  .nav-inner { padding: 0.85rem 1.3rem !important; }
+  .nav-hamburger { position: absolute !important; right: 1.2rem; top: 50%; transform: translateY(-50%); }
 }
 
 /* HERO de subpágina: fuera el degradado verde/teal; índigo plano editorial */

@@ -2542,29 +2542,31 @@
        MASTHEAD — cabecera de periódico (la navbar se vuelve nameplate + section bar)
        ═══════════════════════════════════════════════════════════════════ */
     .nav { position: static !important; background: var(--bg) !important; backdrop-filter: none !important;
+           border-top: 2px solid var(--accent) !important;
            border-bottom: 1px solid var(--rule-strong) !important; box-shadow: none !important; }
     .nav-inner {
-      flex-wrap: nowrap !important; justify-content: space-between !important; align-items: center !important;
-      height: auto !important; max-width: 1240px; padding: 0.6rem 2rem !important;
-      column-gap: 1.5rem; position: relative;
+      flex-wrap: wrap !important; justify-content: center !important; align-items: center !important;
+      height: auto !important; max-width: 1180px; padding: 0.85rem 2rem 0.55rem !important;
+      column-gap: 1.4rem; row-gap: 0.5rem; position: relative;
     }
     .nav-logo {
-      flex-basis: auto !important; flex-shrink: 0 !important; text-align: left;
+      flex-basis: 100% !important; flex-shrink: 1 !important; text-align: center;
       font-family: var(--serif-head) !important; font-weight: 400 !important;
-      font-size: clamp(1.3rem, 2vw, 1.65rem) !important; letter-spacing: -0.01em !important;
-      color: var(--ink) !important; padding-bottom: 0 !important; margin-bottom: 0 !important;
+      font-size: clamp(1.55rem, 2.6vw, 2rem) !important; letter-spacing: -0.005em !important;
+      color: var(--ink) !important; padding: 0 !important; margin: 0 0 0.15rem !important;
       border-bottom: none !important;
     }
     .nav-logo span { color: var(--accent) !important; }
-    .nav-menu { flex: 1 1 auto !important; justify-content: center !important; gap: 1.3rem !important; flex-wrap: wrap; }
+    .nav-menu { flex: 0 1 auto !important; justify-content: center !important; gap: 1.3rem !important; flex-wrap: wrap; }
     .nav-group-toggle { text-transform: uppercase !important; letter-spacing: 0.08em !important; font-size: 0.72rem !important; font-weight: 600 !important; }
     .nav-ctas { gap: 0.5rem; flex-shrink: 0; }
     .nav.scrolled .nav-inner { height: auto !important; }
     /* el nav ya no es fixed: el hero arranca pegado a la cabecera */
-    .edl-hero { padding-top: 2.2rem !important; }
+    .edl-hero { padding-top: 2.4rem !important; }
     @media (max-width: 768px) {
-      .nav-inner { padding: 0.65rem 1.3rem !important; }
-      .nav-logo { font-size: 1.4rem !important; }
+      .nav-inner { padding: 0.85rem 1.3rem !important; }
+      .nav-logo { font-size: 1.5rem !important; }
+      .nav-hamburger { position: absolute !important; right: 1.2rem; top: 50%; transform: translateY(-50%); }
     }
 
     /* ═══════════════════════════════════════════════════════════════════
