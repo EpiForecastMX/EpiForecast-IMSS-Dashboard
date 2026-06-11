@@ -661,7 +661,7 @@ function renderLbChart(d, s) {
   document.getElementById('lbChartWrap').classList.add('show');
   document.getElementById('lbLiveTag').style.display = 'flex';
   destroyLbChart();
-  const color = PAD_COLOR[d.p] || '#5B8DEF';
+  const color = s.color || PAD_COLOR[d.p] || '#5B8DEF';  // color del motor (del JSON), igual que el PNG
   const labels = s.d.map(fmtMes);
   const lastRealIdx = s.r.reduce((acc, v, i) => v != null ? i : acc, -1);
   const wk = s.last_real ? isoWeek(s.last_real) : null;
