@@ -30,7 +30,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=Libre+Caslon+Display&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     /* ═══════════════════════════════════════════════════════════════════
        CLINICAL INDIGO THEME 2026
@@ -483,6 +483,101 @@
       letter-spacing: 0.1em;
       font-weight: 600;
       margin-top: 0.25rem;
+    }
+
+    /* Hero en dos columnas: copy + visualizador de pronóstico en vivo */
+    .hero-content.hero-split {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      gap: 3.5rem;
+      align-items: center;
+      max-width: 1280px;
+    }
+    .hero-copy { min-width: 0; }
+    .hero-viz {
+      min-width: 0;
+      animation: fadeSlideUp 1s ease-out 0.5s both;
+    }
+    .hf-card {
+      position: relative;
+      background: linear-gradient(160deg, rgba(28,39,64,0.78), rgba(16,22,40,0.66));
+      border: 1px solid rgba(91,141,239,0.22);
+      border-radius: 22px;
+      padding: 1.3rem 1.4rem 1.1rem;
+      box-shadow: 0 24px 60px -24px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.04);
+      backdrop-filter: blur(10px);
+    }
+    .hf-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.9rem;
+    }
+    .hf-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--text-secondary);
+    }
+    .hf-live {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #34d399;
+      box-shadow: 0 0 0 0 rgba(52,211,153,0.6);
+      animation: hfLive 2s ease-out infinite;
+    }
+    @keyframes hfLive {
+      0% { box-shadow: 0 0 0 0 rgba(52,211,153,0.55); }
+      70% { box-shadow: 0 0 0 7px rgba(52,211,153,0); }
+      100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); }
+    }
+    .hf-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .hf-pill {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.34rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.76rem; font-weight: 600;
+      color: var(--text-secondary);
+      background: rgba(36,49,79,0.5);
+      border: 1px solid rgba(91,141,239,0.16);
+      cursor: pointer;
+      transition: background .18s, border-color .18s, color .18s, transform .12s;
+    }
+    .hf-pill:hover { transform: translateY(-1px); color: var(--text-primary); }
+    .hf-pill-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--p, #5B8DEF); box-shadow: 0 0 8px var(--p, #5B8DEF); }
+    .hf-pill.is-active {
+      color: var(--text-primary);
+      background: color-mix(in srgb, var(--p) 20%, transparent);
+      border-color: var(--p, #5B8DEF);
+    }
+    .hf-canvas-wrap { position: relative; width: 100%; height: 300px; }
+    #hfCanvas { width: 100%; height: 100%; display: block; }
+    .hf-legend {
+      position: absolute; top: 6px; right: 8px;
+      display: flex; gap: 0.9rem;
+      font-size: 0.72rem; color: var(--text-muted);
+      pointer-events: none;
+    }
+    .hf-legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
+    .hf-legend i { width: 16px; height: 0; display: inline-block; border-top-width: 2.5px; border-top-style: solid; }
+    .hf-caption {
+      display: flex; flex-wrap: wrap; gap: 0.5rem;
+      margin-top: 0.9rem;
+    }
+    .hf-chip {
+      font-size: 0.74rem; color: var(--text-secondary);
+      padding: 0.32rem 0.7rem; border-radius: 999px;
+      background: rgba(36,49,79,0.5); border: 1px solid rgba(91,141,239,0.14);
+    }
+    .hf-chip b { color: var(--text-primary); font-weight: 700; }
+    .hf-chip--motor b { color: var(--p, #5B8DEF); }
+    @media (max-width: 980px) {
+      .hero-content.hero-split { grid-template-columns: 1fr; gap: 2.2rem; }
+      .hero-viz { order: 2; }
+      .hf-canvas-wrap { height: 260px; }
     }
 
     .hero-scroll {
@@ -1610,7 +1705,79 @@
     .news-link svg { width: 14px; height: 14px; }
     .news-link:hover { color: var(--gold); }
 
-    /* Link de regreso */
+    /* Banner minimalista de novedades (landing): lo más fresco + enlace al archivo */
+    .news-banner {
+      background: linear-gradient(135deg, rgba(36,49,79,0.45), rgba(20,28,46,0.35));
+      border: 1px solid rgba(91,141,239,0.18);
+      border-radius: 20px;
+      padding: 1.6rem 1.8rem;
+    }
+    .news-banner-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+    }
+    .news-banner-head .section-label { margin: 0; }
+    .news-banner-all {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--teal);
+      white-space: nowrap;
+    }
+    .news-banner-all svg { width: 15px; height: 15px; transition: transform 0.18s; }
+    .news-banner-all:hover { color: var(--gold); }
+    .news-banner-all:hover svg { transform: translateX(3px); }
+    .news-banner-row {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 1.4rem;
+      align-items: stretch;
+    }
+    .news-lead {
+      display: block;
+      padding: 1.1rem 1.3rem;
+      border-radius: 14px;
+      border: 1px solid rgba(91,141,239,0.14);
+      border-left: 3px solid var(--teal);
+      background: rgba(14,20,36,0.35);
+      transition: transform 0.18s, border-color 0.18s, background 0.18s;
+    }
+    .news-lead:hover { transform: translateY(-2px); border-color: rgba(91,141,239,0.4); background: rgba(20,28,46,0.6); }
+    .news-lead-meta { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.5rem; }
+    .news-lead-title {
+      font-family: var(--font-display);
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.25;
+      margin-bottom: 0.4rem;
+    }
+    .news-lead-sub { font-size: 0.88rem; color: var(--text-secondary); line-height: 1.55; }
+    .news-mini-list { display: flex; flex-direction: column; gap: 0.7rem; }
+    .news-mini {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: 0.55rem 0.7rem;
+      padding: 0.75rem 0.95rem;
+      border-radius: 12px;
+      border: 1px solid rgba(91,141,239,0.12);
+      background: rgba(14,20,36,0.3);
+      transition: transform 0.18s, border-color 0.18s, background 0.18s;
+    }
+    .news-mini:hover { transform: translateX(3px); border-color: rgba(91,141,239,0.35); background: rgba(20,28,46,0.55); }
+    .news-mini-title { font-size: 0.92rem; font-weight: 600; color: var(--text-primary); line-height: 1.3; }
+    .news-mini-date { grid-column: 2; font-size: 0.74rem; color: var(--text-faint); }
+    @media (max-width: 760px) {
+      .news-banner-row { grid-template-columns: 1fr; }
+    }
+
+    /* Link de regreso en páginas internas */
     .news-back {
       display: inline-flex;
       align-items: center;
@@ -1623,6 +1790,71 @@
     }
     .news-back svg { width: 16px; height: 16px; }
     .news-back:hover { color: var(--teal); }
+
+    /* Explora: 3 destinos clave (reemplaza el muro de tarjetas) */
+    .explora { background: var(--bg-deep); padding: 6rem 0; }
+    .explora-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.4rem;
+      margin-top: 2.6rem;
+    }
+    .explora-card {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      padding: 2rem 1.8rem 1.8rem;
+      border-radius: 20px;
+      background: linear-gradient(160deg, rgba(28,39,64,0.5), rgba(16,22,40,0.4));
+      border: 1px solid rgba(91,141,239,0.16);
+      transition: transform .22s, border-color .22s, background .22s, box-shadow .22s;
+    }
+    .explora-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(91,141,239,0.45);
+      background: linear-gradient(160deg, rgba(36,49,79,0.7), rgba(20,28,46,0.5));
+      box-shadow: 0 22px 50px -28px rgba(0,0,0,0.75);
+    }
+    .explora-ic {
+      width: 52px; height: 52px; border-radius: 15px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(91,141,239,0.12); color: var(--teal);
+      margin-bottom: 1.3rem;
+    }
+    .explora-ic svg { width: 26px; height: 26px; }
+    .explora-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.32rem; color: var(--text-primary);
+      margin-bottom: 0.6rem; line-height: 1.2;
+    }
+    .explora-card p {
+      font-size: 0.92rem; color: var(--text-secondary);
+      line-height: 1.6; margin-bottom: 1.5rem; flex: 1;
+    }
+    .explora-go {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-size: 0.85rem; font-weight: 700; color: var(--teal);
+    }
+    .explora-go svg { width: 16px; height: 16px; transition: transform .18s; }
+    .explora-card:hover .explora-go svg { transform: translateX(4px); }
+    .explora-card--epi {
+      border-color: rgba(45,212,191,0.32);
+      background: linear-gradient(160deg, rgba(36,49,79,0.6), rgba(42,43,82,0.45));
+    }
+    .explora-card--epi .explora-ic { background: rgba(45,212,191,0.14); }
+    .explora-tag {
+      position: absolute; top: 1.3rem; right: 1.3rem;
+      font-size: 0.6rem; font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--dark-teal);
+      background: var(--gold); padding: 0.22rem 0.6rem; border-radius: 100px;
+    }
+    .explora-more {
+      text-align: center; margin-top: 2.6rem;
+      font-size: 0.9rem; color: var(--text-muted);
+    }
+    .explora-more a { color: var(--text-secondary); text-decoration: underline; text-underline-offset: 3px; }
+    .explora-more a:hover { color: var(--teal); }
+    @media (max-width: 900px) { .explora-grid { grid-template-columns: 1fr; } }
 
     /* ═══════════════════════════════════════════════════════════════════
        MOBILE NAV
@@ -1733,6 +1965,657 @@
       .hero-badge::before,
       .hero-scroll-line { animation: none !important; }
     }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       REFRESH 2026 — capa final: plano, moderno, calmado, fresco.
+       Override de la estética anterior (gana por orden de cascada).
+       ═══════════════════════════════════════════════════════════════════ */
+    :root {
+      --bg-deep: #0A0E18;
+      --accent: #6AA0FF;
+      --line: rgba(255,255,255,0.07);
+      --line-strong: rgba(255,255,255,0.14);
+      --surface: rgba(255,255,255,0.025);
+      /* Tipografía: sin serif. Una sola familia geométrica moderna. */
+      --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
+    }
+    body { background: #0A0E18; }
+    body::before { display: none !important; }            /* textura de ruido fuera */
+
+    /* Headings modernos y compactos */
+    .hero h1, .section-title { letter-spacing: -0.025em; font-weight: 700; }
+
+    /* HERO sin decoración ocupada (la gráfica viva es el único protagonista) */
+    .hero { background: #0A0E18 !important; min-height: auto; }
+    .hero::before, .hero::after { display: none !important; }
+    .hero-grid, .hero-mesh, .hero-scroll { display: none !important; }
+    .hero-content.hero-split { padding-top: 4.5rem; padding-bottom: 5rem; }
+    .hero-badge {
+      background: transparent !important;
+      border: 1px solid var(--line) !important;
+      color: var(--text-secondary) !important;
+    }
+    .hero-badge::before { background: var(--accent) !important; }
+    .hero h1 .accent { color: var(--accent) !important; }
+    .hero-sub strong, .hero-sub span strong { color: var(--text-primary) !important; }
+
+    /* SECCIONES: una superficie plana, separadas por una línea fina */
+    .about, .results-bg, .team-bg, .news-bg, .diseases, .explora,
+    .scope-bg, .pipeline-bg, .cta-hub {
+      background: #0A0E18 !important;
+      border-top: 1px solid var(--line) !important;
+      border-bottom: none !important;
+    }
+
+    /* EYEBROW neutro, sin guion de color */
+    .section-label { color: var(--text-muted) !important; letter-spacing: 0.16em; }
+    .section-label::before { display: none !important; }
+    .section-title { color: var(--text-primary) !important; }
+    .section-desc { color: var(--text-secondary) !important; }
+    .results-bg .section-label, .pipeline-bg .section-label,
+    .cta-hub .section-label { color: var(--text-muted) !important; }
+    .results-bg .section-title, .pipeline-bg .section-title { color: var(--text-primary) !important; }
+
+    /* TARJETAS planas: borde fino, sin glow, sin barra de acento, sin sombra dura */
+    .explora-card, .disease-card, .result-card, .about-card,
+    .news-banner, .news-lead, .news-mini, .collab-item, .stat-card,
+    .team-card {
+      background: var(--surface) !important;
+      border: 1px solid var(--line) !important;
+      box-shadow: none !important;
+    }
+    .team-card:hover {
+      border-color: var(--line-strong) !important;
+      background: rgba(255,255,255,0.045) !important;
+      box-shadow: none !important;
+    }
+    .team-org, .team-card h4 ~ .team-role { color: var(--text-muted) !important; }
+    .hf-card {
+      background: var(--surface) !important;
+      border: 1px solid var(--line) !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+    }
+    .explora-card:hover, .disease-card:hover, .result-card:hover,
+    .about-card:hover, .news-lead:hover, .news-mini:hover {
+      border-color: var(--line-strong) !important;
+      background: rgba(255,255,255,0.045) !important;
+      transform: translateY(-3px);
+      box-shadow: none !important;
+    }
+    .disease-card::before, .about-card::before, .result-card::before { display: none !important; }
+
+    /* Iconos y acentos a una sola tinta (el color de cada padecimiento vive en la gráfica) */
+    .explora-ic { background: rgba(106,160,255,0.10) !important; color: var(--accent) !important; }
+    .explora-card--epi .explora-ic { background: rgba(106,160,255,0.14) !important; }
+    .explora-go, .news-link, .news-banner-all { color: var(--accent) !important; }
+    .explora-tag { background: var(--accent) !important; color: #0A0E18 !important; }
+    a:hover { color: var(--accent) !important; }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       BENTO — SALA DE CONTROL (landing como panel vivo de datos)
+       ═══════════════════════════════════════════════════════════════════ */
+    .bento-section { background: #0A0E18; padding: 6.5rem 2rem 3.5rem; }
+    .bento-wrap { max-width: 1320px; margin: 0 auto; }
+    .bento-head { margin-bottom: 2rem; }
+    .bento-eyebrow {
+      font: 600 0.72rem/1 var(--font-mono); letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--accent);
+      display: inline-flex; align-items: center; gap: 0.55rem; margin-bottom: 1rem;
+    }
+    .bento-eyebrow::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #34d399; box-shadow: 0 0 0 0 rgba(52,211,153,0.5); animation: hfLive 2s infinite; }
+    .bento-h1 {
+      font-family: var(--font-display); font-weight: 700; letter-spacing: -0.03em;
+      font-size: clamp(2.4rem, 5.5vw, 4.2rem); line-height: 1.02; color: var(--text-primary);
+      margin-bottom: 1rem; max-width: 16ch;
+    }
+    .bento-h1 .accent { color: var(--accent); }
+    .bento-sub { font-size: clamp(1rem,1.5vw,1.18rem); color: var(--text-secondary); max-width: 60ch; line-height: 1.6; }
+    .bento-ctas { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 1.6rem; }
+    .bento-cta {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.7rem 1.3rem; border-radius: 100px; font-size: 0.88rem; font-weight: 600;
+    }
+    .bento-cta svg { width: 16px; height: 16px; }
+    .bento-cta--primary { background: var(--accent); color: #0A0E18; }
+    .bento-cta--ghost { border: 1px solid var(--line-strong); color: var(--text-primary); }
+    .bento-cta--ghost:hover { background: rgba(255,255,255,0.04); }
+
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-areas:
+        "fc fc map  motor"
+        "fc fc map  week"
+        "dengue top epi epi";
+      gap: 13px;
+      grid-auto-rows: minmax(148px, auto);
+    }
+    .tile {
+      position: relative; overflow: hidden;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 1.25rem 1.35rem;
+      display: flex; flex-direction: column;
+      transition: border-color .2s, background .2s;
+    }
+    .tile:hover { border-color: var(--line-strong); }
+    .tile-label {
+      font: 600 0.66rem/1 var(--font-mono); letter-spacing: 0.13em;
+      text-transform: uppercase; color: var(--text-muted);
+      display: flex; align-items: center; gap: 0.5rem; margin-bottom: auto;
+    }
+    .tile-label svg { width: 14px; height: 14px; opacity: 0.8; }
+    .tile-big {
+      font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em;
+      font-size: clamp(1.9rem, 3vw, 2.7rem); color: var(--text-primary); line-height: 1.05;
+    }
+    .tile-big .unit { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-left: 0.3rem; letter-spacing: 0; }
+    .tile-sub { font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.3rem; line-height: 1.4; }
+    .tile-foot { margin-top: 0.6rem; }
+
+    .t-forecast { grid-area: fc; }
+    .t-map { grid-area: map; }
+    .t-motor { grid-area: motor; }
+    .t-week { grid-area: week; }
+    .t-dengue { grid-area: dengue; }
+    .t-top { grid-area: top; }
+    .t-epi { grid-area: epi; }
+
+    /* Tile de pronóstico (reusa la gráfica viva) */
+    .t-forecast { padding: 1.25rem 1.35rem 1.1rem; }
+    .t-forecast .hf-head { margin-bottom: 0.7rem; }
+    .t-forecast .hf-canvas-wrap { flex: 1; min-height: 210px; height: auto; }
+
+    /* Tile de mapa */
+    .t-map { padding-bottom: 1rem; }
+    .map-svg-wrap { flex: 1; display: flex; align-items: center; justify-content: center; margin-top: 0.4rem; }
+    .map-svg-wrap svg { width: 100%; height: 100%; max-height: 290px; }
+    .map-state { stroke: #0A0E18; stroke-width: 0.8; transition: fill .2s, opacity .2s; cursor: pointer; }
+    .map-state:hover { opacity: 1; stroke: var(--accent); stroke-width: 1.2; }
+    .map-tip {
+      position: absolute; pointer-events: none; opacity: 0; transition: opacity .15s;
+      background: #0A0E18; border: 1px solid var(--line-strong); border-radius: 8px;
+      padding: 0.4rem 0.65rem; font-size: 0.74rem; color: var(--text-primary); z-index: 5; white-space: nowrap;
+    }
+    .map-tip b { color: var(--accent); }
+
+    /* Tile EPI (CTA ancho, acento) */
+    .t-epi {
+      flex-direction: row; align-items: center; justify-content: space-between;
+      background: linear-gradient(120deg, rgba(106,160,255,0.14), rgba(255,255,255,0.02));
+      border-color: rgba(106,160,255,0.3);
+    }
+    .t-epi .epi-txt { display: flex; flex-direction: column; gap: 0.2rem; }
+    .t-epi .epi-title { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; color: var(--text-primary); }
+    .t-epi .epi-go {
+      display: inline-flex; align-items: center; gap: 0.5rem; flex: none;
+      padding: 0.65rem 1.2rem; border-radius: 100px; background: var(--accent); color: #0A0E18;
+      font-size: 0.85rem; font-weight: 700;
+    }
+    .t-epi .epi-go svg { width: 16px; height: 16px; }
+
+    .tile-spark { display: flex; align-items: flex-end; gap: 3px; height: 30px; margin-top: 0.5rem; }
+    .tile-spark i { flex: 1; background: var(--accent); border-radius: 2px 2px 0 0; opacity: 0.55; }
+
+    @media (max-width: 980px) {
+      .bento-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+          "fc fc"
+          "map motor"
+          "map week"
+          "dengue top"
+          "epi epi";
+      }
+      .t-forecast .hf-canvas-wrap { min-height: 240px; }
+    }
+    @media (max-width: 600px) {
+      .bento-section { padding: 5rem 1.1rem 2.5rem; }
+      .bento-grid {
+        grid-template-columns: 1fr;
+        grid-template-areas: "fc" "map" "motor" "week" "dengue" "top" "epi";
+      }
+      .t-epi { }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+    /* ═══════════════════════════════════════════════════════════════════
+       EDITORIAL ÍNDIGO — estilo periódico (NYT) SOBRE la paleta azul de marca.
+       Capa final (gana por cascada). Fondo azul oscuro, serif, filetes, sin cajas.
+       ═══════════════════════════════════════════════════════════════════ */
+    :root {
+      --bg: #0E1424;
+      --bg-deep: #0A0E18;
+      --ink: #EAEFF8;
+      --ink-soft: #B9C5DD;
+      --ink-mut: #8094B8;
+      --rule: rgba(130,160,210,0.16);
+      --rule-strong: rgba(160,185,225,0.40);
+      --accent: #6AA0FF;
+      --accent-2: #2DD4BF;
+      --link: #8FB4FF;
+      --serif-head: 'Libre Caslon Display', Georgia, 'Times New Roman', serif;
+      --serif-body: 'Source Serif 4', Georgia, serif;
+      --sans: 'Libre Franklin', system-ui, -apple-system, sans-serif;
+      /* Reasignación de tokens base a la escala de tinta sobre índigo */
+      --text-primary: #EAEFF8;
+      --text-secondary: #B9C5DD;
+      --text-muted: #8094B8;
+      --text-faint: #5f739a;
+      --cream: #EAEFF8;
+    }
+    body {
+      background: #0E1424 !important;
+      color: var(--ink) !important;
+      font-family: var(--serif-body) !important;
+      line-height: 1.6;
+    }
+    body::before { display: none !important; }
+    a { color: var(--link) !important; }
+    a:hover { color: var(--link) !important; text-decoration: underline; }
+
+    /* MASTHEAD */
+    .nav, .nav.scrolled {
+      background: rgba(14,20,36,0.92) !important;
+      border-bottom: 1px solid var(--rule-strong) !important;
+      backdrop-filter: blur(10px) !important; box-shadow: none !important;
+    }
+    .nav a, .nav-group-toggle, .nav-menu a { color: var(--ink-soft) !important; font-family: var(--sans) !important; }
+    .nav-group-toggle { font-size: 0.82rem; }
+    .nav-dropdown { background: #121A2C !important; border: 1px solid var(--rule) !important; box-shadow: 0 14px 36px rgba(0,0,0,0.5) !important; }
+    .nav-dropdown a { color: var(--ink-soft) !important; }
+    .nav-dropdown a:hover { background: rgba(255,255,255,0.05) !important; color: var(--ink) !important; }
+    .nav-cta--primary { background: var(--accent) !important; color: #08111F !important; border-radius: 3px !important; font-family: var(--sans) !important; font-weight: 700 !important; }
+    .nav-cta--secondary { background: transparent !important; color: var(--ink) !important; border: 1px solid var(--rule-strong) !important; border-radius: 3px !important; font-family: var(--sans) !important; }
+    .nav-hamburger span { background: var(--ink) !important; }
+    .nav-mobile { background: #0E1424 !important; border-bottom: 1px solid var(--rule) !important; }
+    .nav-mobile a, .nav-mobile-heading { color: var(--ink-soft) !important; }
+
+    /* SECCIONES: índigo, separadas por filete fino */
+    .edl-hero, .news-bg, .explora, .about, .diseases, .results-bg,
+    .team-bg, section.section, .cta-hub, .scope-bg, .pipeline-bg {
+      background: #0E1424 !important;
+      border-top: 1px solid var(--rule) !important;
+      border-bottom: none !important;
+    }
+
+    /* TIPOGRAFÍA editorial */
+    h1, h2, h3, h4, .section-title, .edl-headline,
+    .explora-card h3, .disease-card h3, .tile-big, .epi-title {
+      font-family: var(--serif-head) !important; color: var(--ink) !important;
+      font-weight: 400 !important; letter-spacing: -0.01em !important;
+    }
+    .section-title { font-size: clamp(2rem, 3.6vw, 3rem); line-height: 1.08; }
+    p, .section-desc, .tile-sub, .explora-card p, .disease-card p, .news-lead-sub { color: var(--ink-soft) !important; }
+    .section-desc { font-family: var(--serif-body) !important; font-size: 1.15rem; }
+    .news-lead-title, .news-mini-title { color: var(--ink) !important; }
+
+    /* KICKER (sans, mayúsculas, acento azul) */
+    .section-label, .bento-eyebrow, .tile-label, .hf-title, .edl-kicker {
+      font-family: var(--sans) !important; color: var(--accent) !important;
+      letter-spacing: 0.1em !important; text-transform: uppercase !important; font-weight: 600 !important;
+    }
+    .section-label::before, .bento-eyebrow::before { display: none !important; }
+    .accent, .edl-headline em, .bento-h1 .accent, .hero h1 .accent { color: var(--accent) !important; }
+    .edl-headline em { font-style: italic; }
+
+    /* TARJETAS → bloques editoriales (sin cajas, filete superior) */
+    .explora-card, .disease-card, .result-card, .about-card, .news-banner,
+    .news-lead, .news-mini, .collab-item, .team-card, .stat-card, .hf-card, .tile {
+      background: transparent !important; border: none !important;
+      border-top: 1px solid var(--rule) !important; border-radius: 0 !important;
+      box-shadow: none !important; padding: 1.4rem 0 !important;
+    }
+    .explora-card:hover, .disease-card:hover, .result-card:hover,
+    .team-card:hover, .news-lead:hover, .news-mini:hover, .tile:hover {
+      background: transparent !important; transform: none !important; border-color: var(--rule-strong) !important;
+    }
+
+    /* ICONOS unificados: una sola tinta (acento), tamaño consistente; el color
+       por padecimiento se conserva SOLO en los iconos de datos (.disease-icon) */
+    .explora-ic, .tile-label svg, .section-label svg, .edl-kicker svg {
+      background: transparent !important; color: var(--accent) !important;
+    }
+    .explora-ic { width: auto !important; height: auto !important; margin-bottom: 0.8rem !important; }
+    .explora-ic svg { width: 26px !important; height: 26px !important; }
+    .explora-go, .news-link, .news-banner-all, .epi-go { color: var(--link) !important; }
+
+    /* Pills / chips / etiquetas */
+    .hf-pill { background: rgba(255,255,255,0.04) !important; border: 1px solid var(--rule) !important; color: var(--ink-soft) !important; }
+    .hf-pill.is-active { background: var(--accent) !important; color: #08111F !important; border-color: var(--accent) !important; }
+    .hf-chip, .hf-cap-chip, .news-tag, .news-date { background: rgba(255,255,255,0.05) !important; color: var(--ink-soft) !important; border: 1px solid var(--rule) !important; }
+    .hf-chip b { color: var(--ink) !important; }
+
+    /* HERO EDITORIAL (lede de artículo) */
+    .edl-hero { background: #0E1424; padding: 3.2rem 1.5rem 3.5rem; }
+    .edl-wrap { max-width: 760px; margin: 0 auto; }
+    .edl-kicker {
+      font-family: var(--sans); text-transform: uppercase; letter-spacing: 0.12em;
+      font-size: 0.76rem; font-weight: 700; color: var(--accent) !important;
+      padding-bottom: 0.9rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--rule-strong) !important;
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+    .edl-kicker .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent-2); box-shadow: 0 0 10px var(--accent-2); }
+    .edl-headline {
+      font-family: var(--serif-head); font-weight: 400;
+      font-size: clamp(2.7rem, 6.2vw, 4.8rem); line-height: 1.03; letter-spacing: -0.018em;
+      color: var(--ink) !important; margin-bottom: 1.3rem;
+    }
+    .edl-deck {
+      font-family: var(--serif-body); font-size: clamp(1.18rem, 2.1vw, 1.5rem);
+      line-height: 1.5; color: var(--ink-soft) !important; margin-bottom: 1.4rem; font-weight: 400;
+    }
+    .edl-byline {
+      font-family: var(--sans); font-size: 0.8rem; color: var(--ink-mut) !important; letter-spacing: 0.01em;
+      border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+      padding: 0.75rem 0; margin-bottom: 2.2rem; line-height: 1.5;
+    }
+    .edl-figure { width: min(1060px, 94vw); position: relative; left: 50%; transform: translateX(-50%); margin: 0 0 1.4rem; }
+    .edl-figure .hf-card { padding: 0 !important; border-top: none !important; }
+    .edl-figure .hf-canvas-wrap { min-height: 300px; }
+    .edl-figcap {
+      font-family: var(--sans); font-size: 0.8rem; color: var(--ink-mut) !important;
+      margin-top: 0.8rem; padding-top: 0.65rem; border-top: 1px solid var(--rule); line-height: 1.5;
+    }
+    .edl-figcap b { color: var(--ink-soft) !important; }
+    .edl-stats {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;
+      border-top: 2px solid var(--rule-strong); border-bottom: 1px solid var(--rule);
+      padding: 1.1rem 0; margin: 0.5rem 0 1.8rem;
+    }
+    .edl-stat b { font-family: var(--serif-head); font-size: clamp(1.6rem,3vw,2.2rem); display: block; color: var(--ink) !important; line-height: 1; }
+    .edl-stat span { font-family: var(--sans); font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--ink-mut) !important; display: block; margin-top: 0.4rem; }
+    .edl-ctas { display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center; }
+    .edl-ctas .edl-primary { background: var(--accent); color: #08111F !important; padding: 0.78rem 1.5rem; border-radius: 3px; font-family: var(--sans); font-weight: 700; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 0.5rem; }
+    .edl-ctas .edl-primary:hover { text-decoration: none; opacity: 0.9; }
+    .edl-ctas .edl-link { color: var(--link) !important; font-family: var(--sans); font-weight: 600; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 0.4rem; }
+    .edl-ctas svg { width: 16px; height: 16px; }
+    @media (max-width: 560px) { .edl-stats { grid-template-columns: repeat(2, 1fr); gap: 1.3rem 1rem; } }
+
+    /* Footer índigo */
+    .footer { background: #0A0E18 !important; border-top: 1px solid var(--rule-strong) !important; color: var(--ink-soft) !important; }
+    .footer a { color: var(--ink-soft) !important; }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       PORTADA — reinvención del tope (front page de periódico). Override final.
+       ═══════════════════════════════════════════════════════════════════ */
+    /* El nav es fixed: damos aire arriba para que NO tape el folio del hero */
+    .edl-hero {
+      padding: 6.8rem 1.5rem 3.5rem !important;
+      background: #0E1424 !important;
+      border-top: none !important;
+    }
+    .edl-wrap { max-width: 1180px !important; }
+    section[id] { scroll-margin-top: 80px; }
+
+    /* Folio / dateline (banda superior tipo cabecera de periódico) */
+    .edl-folio {
+      display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+      font-family: var(--sans); text-transform: uppercase; letter-spacing: 0.14em;
+      font-size: 0.7rem; color: var(--ink-mut);
+      border-top: 2px solid var(--rule-strong); border-bottom: 1px solid var(--rule);
+      padding: 0.65rem 0; margin-bottom: 1.8rem;
+    }
+    .edl-folio .mid { color: var(--accent); font-weight: 700; }
+    .edl-folio .live { display: inline-flex; align-items: center; gap: 0.45rem; }
+    .edl-folio .live::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--accent-2); box-shadow: 0 0 10px var(--accent-2); }
+    @media (max-width: 720px) { .edl-folio { font-size: 0.62rem; letter-spacing: 0.1em; } .edl-folio .mid { display: none; } }
+
+    /* Titular de portada: enorme, a todo el ancho */
+    .edl-hero .edl-headline {
+      font-size: clamp(3rem, 8vw, 6.2rem) !important; line-height: 0.97 !important;
+      letter-spacing: -0.022em !important; max-width: 17ch; margin: 0 0 1.5rem !important;
+    }
+
+    /* Lede asimétrico: texto a la izquierda, figura grande a la derecha */
+    .edl-lead {
+      display: grid; grid-template-columns: minmax(0,0.82fr) minmax(0,1.18fr);
+      gap: 2.6rem; align-items: start;
+      border-top: 1px solid var(--rule); padding-top: 1.7rem;
+    }
+    .edl-lead .edl-deck { font-size: clamp(1.1rem, 1.6vw, 1.32rem) !important; }
+    .edl-lead .edl-byline { margin-bottom: 1.4rem; }
+    .edl-lead .edl-figure {
+      width: auto !important; left: auto !important; transform: none !important; margin: 0 !important;
+    }
+    .edl-lead .edl-figure .hf-canvas-wrap { min-height: 340px; }
+    .edl-figkick {
+      font-family: var(--sans); text-transform: uppercase; letter-spacing: 0.1em;
+      font-size: 0.66rem; color: var(--accent); font-weight: 700; margin-bottom: 0.5rem;
+    }
+    @media (max-width: 900px) { .edl-lead { grid-template-columns: 1fr; gap: 2rem; } }
+
+    /* Cifras: banda full-width bajo el lede */
+    .edl-hero .edl-stats { margin-top: 2.2rem !important; }
+
+    /* ÍNDICE editorial (reemplaza las tarjetas de Explora) */
+    .edl-index { border-top: 1px solid var(--rule); margin-top: 1.8rem; }
+    .edl-index-item {
+      display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1.4rem;
+      padding: 1.5rem 0; border-bottom: 1px solid var(--rule);
+      text-decoration: none !important; transition: padding-left .2s, background .2s;
+    }
+    .edl-index-item:hover { padding-left: 0.8rem; background: rgba(255,255,255,0.02); }
+    .edl-idx-num { font-family: var(--serif-head); font-size: 1.6rem; color: var(--accent); line-height: 1; min-width: 2ch; }
+    .edl-idx-title { font-family: var(--serif-head); font-size: clamp(1.4rem,2.4vw,1.9rem); color: var(--ink) !important; display: block; }
+    .edl-idx-desc { font-family: var(--serif-body); font-size: 0.98rem; color: var(--ink-soft) !important; display: block; margin-top: 0.25rem; }
+    .edl-idx-go { color: var(--accent); flex: none; }
+    .edl-idx-go svg { width: 22px; height: 22px; transition: transform .2s; }
+    .edl-index-item:hover .edl-idx-go svg { transform: translateX(5px); }
+    @media (max-width: 600px) { .edl-index-item { grid-template-columns: auto 1fr; } .edl-idx-go { display: none; } }
+
+    /* Iconos de datos SIN caja (de-card de las enfermedades) */
+    .disease-icon { background: transparent !important; width: auto !important; height: auto !important; margin-bottom: 0.7rem !important; padding: 0 !important; }
+    .disease-icon svg { width: 30px !important; height: 30px !important; }
+
+    /* Etiqueta de enfermedad → línea de metadatos editorial (sin caja de color) */
+    .disease-tag {
+      display: block !important; background: transparent !important; border: none !important;
+      border-top: 1px solid var(--rule) !important; border-radius: 0 !important;
+      padding: 0.7rem 0 0 !important; margin-top: 0.8rem !important; color: var(--ink-mut) !important;
+      font-family: var(--sans) !important; font-size: 0.72rem !important; font-weight: 600 !important;
+      letter-spacing: 0.03em !important; text-transform: none !important;
+    }
+    .disease-card h3 { color: var(--ink) !important; }
+
+    /* RESULTADOS → tabla de datos de periódico */
+    .results-summary, .result-card, .results-cv-bar { display: none !important; } /* ocultamos lo viejo; se reemplaza en el HTML */
+    .edl-table-cap { font-family: var(--serif-body); color: var(--ink-soft) !important; font-size: 1.05rem; margin: 0.4rem 0 0.6rem; }
+    .edl-table-wrap { overflow-x: auto; }
+    .edl-table { width: 100%; border-collapse: collapse; margin-top: 1.2rem; min-width: 540px; }
+    .edl-table thead th {
+      font-family: var(--sans); text-transform: uppercase; letter-spacing: 0.07em;
+      font-size: 0.64rem; color: var(--ink-mut); text-align: right; font-weight: 700;
+      padding: 0.7rem 0.65rem; border-bottom: 2px solid var(--rule-strong); white-space: nowrap;
+    }
+    .edl-table thead th:first-child { text-align: left; }
+    .edl-table td { padding: 1rem 0.65rem; border-bottom: 1px solid var(--rule); text-align: right; font-size: 0.98rem; color: var(--ink-soft); font-family: var(--sans); }
+    .edl-table td:first-child { text-align: left; }
+    .edl-table tbody tr:hover { background: rgba(255,255,255,0.025); }
+    .edl-table .pad { font-family: var(--serif-head); font-size: 1.2rem; color: var(--ink); }
+    .edl-table .pad small { font-family: var(--sans); font-size: 0.64rem; color: var(--ink-mut); letter-spacing: 0.05em; margin-left: 0.5rem; }
+    .edl-table .num { font-variant-numeric: tabular-nums; color: var(--ink); font-weight: 600; }
+    .edl-table-note { font-family: var(--serif-body); font-size: 0.95rem; color: var(--ink-soft) !important; margin-top: 1.1rem; padding-top: 0.9rem; border-top: 1px solid var(--rule); }
+    .edl-table-note b { color: var(--ink) !important; }
+
+    /* CONTEXTO → artículo editorial (columnas, capitular, cita destacada, créditos) */
+    .edl-article { max-width: 1000px; }
+    .edl-columns {
+      columns: 2; column-gap: 3.2rem;
+      font-family: var(--serif-body); font-size: 1.13rem; line-height: 1.66;
+      color: var(--ink-soft) !important; margin-top: 1.5rem;
+    }
+    .edl-columns p { margin-bottom: 1.15rem; }
+    .edl-columns p strong { color: var(--ink) !important; font-weight: 600; }
+    .edl-dropcap::first-letter {
+      font-family: var(--serif-head); font-size: 3.6em; line-height: 0.72;
+      float: left; margin: 0.06em 0.1em 0 0; color: var(--ink); font-weight: 400;
+    }
+    .edl-pullquote {
+      column-span: all; -webkit-column-span: all;
+      font-family: var(--serif-head); font-style: italic; font-weight: 400;
+      font-size: clamp(1.5rem, 3vw, 2.2rem); line-height: 1.25; color: var(--ink) !important;
+      text-align: center; max-width: 22ch; margin: 1.8rem auto;
+      padding: 1.5rem 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+    }
+    .edl-credits { margin-top: 2.6rem; border-top: 2px solid var(--rule-strong); padding-top: 1.3rem; }
+    .edl-credits-label {
+      font-family: var(--sans); text-transform: uppercase; letter-spacing: 0.1em;
+      font-size: 0.66rem; color: var(--ink-mut); margin-bottom: 1.1rem; font-weight: 700;
+    }
+    .edl-credits-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.6rem; }
+    .edl-credit { border-top: 1px solid var(--rule); padding-top: 0.75rem; }
+    .edl-credit-name { font-family: var(--serif-head); font-size: 1.15rem; color: var(--ink); display: block; line-height: 1.15; }
+    .edl-credit-role { font-family: var(--sans); font-size: 0.78rem; color: var(--ink-mut); display: block; margin-top: 0.3rem; }
+    @media (max-width: 760px) {
+      .edl-columns { columns: 1; }
+      .edl-credits-list { grid-template-columns: 1fr; gap: 1.1rem; }
+    }
+
+    /* NOVEDADES → bloque "lo último" editorial */
+    .news-lead-title, .news-mini-title {
+      font-family: var(--serif-head) !important; font-weight: 400 !important; color: var(--ink) !important;
+      letter-spacing: -0.01em;
+    }
+    .news-lead-title { font-size: clamp(1.5rem, 2.6vw, 2rem) !important; line-height: 1.12 !important; }
+    .news-mini-title { font-size: 1.12rem !important; line-height: 1.2 !important; }
+    .news-tag {
+      background: transparent !important; border: none !important; border-radius: 0 !important;
+      color: var(--accent) !important; font-family: var(--sans) !important; font-weight: 700 !important;
+      text-transform: uppercase !important; letter-spacing: 0.09em !important; font-size: 0.6rem !important;
+      padding: 0 !important;
+    }
+    .news-date {
+      background: transparent !important; border: none !important; border-radius: 0 !important;
+      color: var(--ink-mut) !important; font-family: var(--sans) !important; font-size: 0.74rem !important;
+      letter-spacing: 0.02em; padding: 0 !important;
+    }
+    .news-mini-date { color: var(--ink-mut) !important; font-family: var(--sans) !important; }
+    .news-lead-sub { font-family: var(--serif-body) !important; }
+    .news-lead-meta, .news-mini { gap: 0.55rem 0.8rem; }
+
+    /* EQUIPO → ficha de redacción editorial */
+    .team-card h4 { font-family: var(--serif-head) !important; color: var(--ink) !important; font-weight: 400 !important; }
+    .team-role { font-family: var(--sans) !important; color: var(--ink-soft) !important; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.7rem; }
+    .team-org { font-family: var(--sans) !important; color: var(--ink-mut) !important; }
+    .team-avatar { border: 1px solid var(--rule-strong) !important; }
+    .advisors {
+      display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 1.6rem !important;
+      margin-top: 2.4rem !important; border-top: 2px solid var(--rule-strong); padding-top: 1.3rem;
+    }
+    .advisor-card {
+      background: transparent !important; border: none !important; border-top: 1px solid var(--rule) !important;
+      border-radius: 0 !important; padding: 0.8rem 0 0 !important; align-items: baseline !important; gap: 0.6rem !important;
+    }
+    .advisor-dot { width: 7px !important; height: 7px !important; margin-top: 0.5rem; flex: none; }
+    .advisor-card h5 { font-family: var(--serif-head) !important; color: var(--ink) !important; font-weight: 400 !important; font-size: 1.08rem !important; }
+    .advisor-card p { font-family: var(--sans) !important; color: var(--ink-mut) !important; font-size: 0.8rem !important; }
+    @media (max-width: 760px) { .advisors { grid-template-columns: 1fr !important; gap: 1rem !important; } }
+
+    /* BANDA DE CIFRAS — 'by the numbers' con divisores verticales */
+    .edl-stats {
+      display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 0 !important;
+      border-top: 2px solid var(--rule-strong) !important; border-bottom: 1px solid var(--rule) !important;
+      margin: 0.5rem 0 1.8rem !important;
+    }
+    .edl-stat { padding: 1.1rem 1.4rem !important; border-left: 1px solid var(--rule); }
+    .edl-stat:first-child { border-left: none; padding-left: 0 !important; }
+    .edl-stat b {
+      font-family: var(--serif-head) !important; font-size: clamp(1.9rem, 3.2vw, 2.5rem) !important;
+      display: block; color: var(--ink) !important; line-height: 1 !important; font-weight: 400 !important;
+      font-variant-numeric: tabular-nums;
+    }
+    .edl-stat > span {
+      font-family: var(--sans) !important; font-size: 0.68rem !important; text-transform: uppercase !important;
+      letter-spacing: 0.07em !important; color: var(--ink-mut) !important; display: block; margin-top: 0.55rem !important; line-height: 1.35;
+    }
+    .edl-stat b span { font: inherit !important; text-transform: none !important; display: inline !important; margin: 0 !important; letter-spacing: inherit !important; }
+    @media (max-width: 620px) {
+      .edl-stats { grid-template-columns: repeat(2, 1fr) !important; }
+      .edl-stat { border-left: none; padding-left: 0 !important; padding-right: 1rem !important; }
+      .edl-stat:nth-child(2) { border-left: 1px solid var(--rule); padding-left: 1rem !important; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       MASTHEAD — cabecera de periódico (la navbar se vuelve nameplate + section bar)
+       ═══════════════════════════════════════════════════════════════════ */
+    .nav { position: static !important; background: var(--bg) !important; backdrop-filter: none !important;
+           border-bottom: 3px double var(--rule-strong) !important; box-shadow: none !important; }
+    .nav-inner {
+      flex-wrap: wrap !important; justify-content: center !important; align-items: center !important;
+      height: auto !important; max-width: 1180px; padding: 1.4rem 2rem 0.7rem !important;
+      column-gap: 1.5rem; row-gap: 0; position: relative;
+    }
+    .nav-logo {
+      flex-basis: 100% !important; text-align: center; flex-shrink: 1 !important;
+      font-family: var(--serif-head) !important; font-weight: 400 !important;
+      font-size: clamp(2rem, 4.8vw, 3.1rem) !important; letter-spacing: -0.01em !important;
+      color: var(--ink) !important; padding-bottom: 0.7rem; margin-bottom: 0.7rem;
+      border-bottom: 1px solid var(--rule);
+    }
+    .nav-logo span { color: var(--accent) !important; }
+    .nav-menu { flex: none !important; justify-content: center !important; gap: 1.6rem !important; flex-wrap: wrap; }
+    .nav-group-toggle { text-transform: uppercase !important; letter-spacing: 0.08em !important; font-size: 0.72rem !important; font-weight: 600 !important; }
+    .nav-ctas { margin-left: 0.4rem; gap: 0.5rem; }
+    .nav.scrolled .nav-inner { height: auto !important; }
+    /* el nav ya no es fixed: el hero arranca pegado a la cabecera */
+    .edl-hero { padding-top: 2.6rem !important; }
+    @media (max-width: 768px) {
+      .nav-inner { padding: 1.1rem 1.3rem !important; }
+      .nav-logo { font-size: 1.8rem !important; border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+      .nav-hamburger { position: absolute !important; right: 1.2rem; top: 1.1rem; }
+      .nav { border-bottom-width: 1px !important; }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       RITMO EDITORIAL — secciones más juntas (sin huecos vacíos enormes)
+       ═══════════════════════════════════════════════════════════════════ */
+    .section { padding-top: 4rem !important; padding-bottom: 4rem !important; }
+    .about .section, .diseases { padding-top: 4rem !important; padding-bottom: 4rem !important; }
+    .edl-hero { padding-bottom: 2.4rem !important; }
+    .news-bg .section { padding-top: 3.2rem !important; padding-bottom: 3.2rem !important; }
+
+    /* NOVEDADES — nota principal + columna de breves (estilo periódico) */
+    .news-banner-row {
+      grid-template-columns: 1.7fr 1fr !important; gap: 2.8rem !important; align-items: start !important;
+    }
+    .news-lead {
+      border: none !important; border-top: none !important; border-left: 2px solid var(--accent) !important;
+      border-radius: 0 !important; padding: 0.1rem 0 0.1rem 1.4rem !important; background: transparent !important;
+    }
+    .news-lead:hover { transform: none !important; background: transparent !important; }
+    .news-lead-sub { margin-top: 0.5rem; }
+    .news-mini-list {
+      border-left: 1px solid var(--rule); padding-left: 2.2rem; gap: 0 !important;
+    }
+    .news-mini {
+      border: none !important; border-top: 1px solid var(--rule) !important; border-radius: 0 !important;
+      padding: 1rem 0 !important; background: transparent !important;
+    }
+    .news-mini:first-child { border-top: none !important; padding-top: 0 !important; }
+    .news-mini:hover { transform: none !important; background: transparent !important; padding-left: 0 !important; }
+    .news-banner-all { align-self: center; }
+    @media (max-width: 760px) {
+      .news-banner-row { grid-template-columns: 1fr !important; gap: 1.8rem !important; }
+      .news-mini-list { border-left: none; padding-left: 0; border-top: 1px solid var(--rule); padding-top: 0.5rem; }
+    }
+    /* ARCHIVO DE NOVEDADES — lista de artículos editorial */
+    .arch-back { display:inline-block; font-family:var(--sans); font-size:0.82rem; color:var(--accent) !important; margin-bottom:1.4rem; }
+    .arch-list { margin-top:1.6rem; border-top:2px solid var(--rule-strong); }
+    .arch-item { padding:2.1rem 0; border-bottom:1px solid var(--rule); }
+    .arch-meta { display:flex; align-items:center; gap:0.85rem; margin-bottom:0.55rem; }
+    .arch-date { font-family:var(--sans); font-size:0.74rem; color:var(--ink-mut); letter-spacing:0.02em; }
+    .arch-tag { font-family:var(--sans); font-size:0.6rem; font-weight:700; text-transform:uppercase; letter-spacing:0.09em; color:var(--accent); }
+    .arch-title { font-family:var(--serif-head); font-weight:400; font-size:clamp(1.5rem,2.6vw,2rem); line-height:1.14; letter-spacing:-0.01em; margin-bottom:0.8rem; }
+    .arch-item--featured .arch-title { font-size:clamp(1.9rem,3.6vw,2.7rem); }
+    .arch-title a { color:var(--ink) !important; }
+    .arch-title a:hover { color:var(--accent) !important; text-decoration:none; }
+    .arch-body { font-family:var(--serif-body); font-size:1.05rem; line-height:1.62; color:var(--ink-soft); max-width:70ch; }
+    .arch-body p { margin-bottom:0.85rem; }
+    .arch-body strong { color:var(--ink); font-weight:600; }
+    .arch-link { display:inline-block; margin-top:0.5rem; font-family:var(--sans); font-weight:600; font-size:0.85rem; color:var(--accent) !important; }
   </style>
 </head>
 <body>
@@ -1747,7 +2630,7 @@
         <li class="nav-group">
           <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
           <div class="nav-dropdown">
-            <a href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>Inicio</a>
+            <a href="index.html#hero"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>Inicio</a>
             <a href="EpiDashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
             <a href="Reports/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Pronósticos</a>
             <a href="novedades.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/></svg>Novedades</a>
@@ -1814,7 +2697,7 @@
       <div class="nav-mobile-group">
         <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
         <div class="nav-mobile-items">
-          <a href="index.html">Inicio</a>
+          <a href="index.html#hero">Inicio</a>
           <a href="EpiDashboard.html">Dashboard</a>
           <a href="Reports/index.html">Pronósticos</a>
           <a href="novedades.html">Novedades</a>
@@ -1858,18 +2741,14 @@
   </nav>
 
   <main id="main">
-    <section class="news-bg" style="padding-top:7rem">
-      <div class="section">
-        <a href="index.html" class="news-back reveal">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-          Volver al inicio
-        </a>
-        <div class="section-label reveal">Novedades</div>
-        <h1 class="section-title reveal" style="margin-top:.4rem">Bitácora del proyecto</h1>
-        <div class="section-desc reveal">Anuncios de plataforma, mejoras del asistente y actualizaciones de datos y modelos, de lo más reciente a lo más antiguo.</div>
-
-        <div class="news-grid" id="newsGrid"></div>
-        <noscript><p style="color:var(--text-secondary)">Activa JavaScript para ver el archivo de novedades.</p></noscript>
+    <section class="edl-hero" id="archivo">
+      <div class="edl-wrap" style="max-width:840px">
+        <a href="index.html" class="arch-back">&larr; Volver a la portada</a>
+        <div class="edl-folio"><span>México</span><span class="mid">Bitácora del proyecto</span><span class="live">Edición · Semana 21, 2026</span></div>
+        <h1 class="edl-headline" style="font-size:clamp(2.6rem,6vw,4.4rem)">Novedades</h1>
+        <p class="edl-deck">Anuncios de plataforma, mejoras del asistente y actualizaciones de datos y modelos, de lo más reciente a lo más antiguo.</p>
+        <div class="arch-list" id="newsGrid"></div>
+        <noscript><p style="color:var(--ink-soft)">Activa JavaScript para ver el archivo de novedades.</p></noscript>
       </div>
     </section>
   </main>
@@ -1883,7 +2762,7 @@
     </p>
     <div class="footer-links">
       <a href="#hero">Inicio</a>
-      <a href="#novedades">Novedades</a>
+      <a href="novedades.html">Novedades</a>
       <a href="dengue.html">Dengue</a>
       <a href="EpiDashboard.html">Dashboard</a>
       <a href="Reports/index.html">Pronósticos</a>
@@ -2027,33 +2906,31 @@
     });
   </script>
 
-  <!-- Archivo de novedades renderizado desde news.json (fuente única de verdad) -->
+  <!-- Archivo renderizado desde news.json (fuente única) -->
   <script>
     (function () {
       function esc(s) { return String(s == null ? '' : s); }
-      function cardHtml(it) {
-        var type = esc(it.type) || 'datos';
-        var feat = it.featured ? ' news-card--featured' : '';
+      function itemHtml(it, i) {
+        var feat = (i === 0 || it.featured) ? ' arch-item--featured' : '';
         var body = (it.body || []).map(function (p) { return '<p>' + esc(p) + '</p>'; }).join('');
-        var svg = (it.link && it.link.svg) || '';
         var href = (it.link && it.link.href) || '#';
-        var text = (it.link && it.link.text) || 'Ver más';
-        return '<div class="news-card news-card--' + type + feat + ' reveal visible">' +
-          '<div class="news-meta"><span class="news-date">' + esc(it.date) + '</span>' +
-          '<span class="news-tag news-tag--' + type + '">' + esc(it.tag) + '</span></div>' +
-          '<h3>' + esc(it.title) + '</h3>' + body +
-          '<a href="' + esc(href) + '" class="news-link">' + svg + esc(text) + '</a></div>';
+        var ltext = (it.link && it.link.text) || 'Leer más';
+        return '<article class="arch-item' + feat + '">' +
+          '<div class="arch-meta"><span class="arch-date">' + esc(it.date) + '</span><span class="arch-tag">' + esc(it.tag) + '</span></div>' +
+          '<h2 class="arch-title"><a href="' + esc(href) + '">' + esc(it.title) + '</a></h2>' +
+          '<div class="arch-body">' + body + '</div>' +
+          '<a class="arch-link" href="' + esc(href) + '">' + esc(ltext) + ' &rarr;</a>' +
+          '</article>';
       }
       fetch('news.json', { cache: 'no-store' })
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (d) {
           if (!d || !Array.isArray(d.items)) return;
-          var grid = document.getElementById('newsGrid');
-          if (grid) grid.innerHTML = d.items.map(cardHtml).join('');
+          var g = document.getElementById('newsGrid');
+          if (g) g.innerHTML = d.items.map(itemHtml).join('');
         })
-        .catch(function () { /* silencioso: queda el grid vacío + noscript */ });
+        .catch(function () {});
     })();
   </script>
-
 </body>
 </html>
