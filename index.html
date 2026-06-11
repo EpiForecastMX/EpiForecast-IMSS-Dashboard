@@ -2051,6 +2051,134 @@
     .explora-go, .news-link, .news-banner-all { color: var(--accent) !important; }
     .explora-tag { background: var(--accent) !important; color: #0A0E18 !important; }
     a:hover { color: var(--accent) !important; }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       BENTO — SALA DE CONTROL (landing como panel vivo de datos)
+       ═══════════════════════════════════════════════════════════════════ */
+    .bento-section { background: #0A0E18; padding: 6.5rem 2rem 3.5rem; }
+    .bento-wrap { max-width: 1320px; margin: 0 auto; }
+    .bento-head { margin-bottom: 2rem; }
+    .bento-eyebrow {
+      font: 600 0.72rem/1 var(--font-mono); letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--accent);
+      display: inline-flex; align-items: center; gap: 0.55rem; margin-bottom: 1rem;
+    }
+    .bento-eyebrow::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #34d399; box-shadow: 0 0 0 0 rgba(52,211,153,0.5); animation: hfLive 2s infinite; }
+    .bento-h1 {
+      font-family: var(--font-display); font-weight: 700; letter-spacing: -0.03em;
+      font-size: clamp(2.4rem, 5.5vw, 4.2rem); line-height: 1.02; color: var(--text-primary);
+      margin-bottom: 1rem; max-width: 16ch;
+    }
+    .bento-h1 .accent { color: var(--accent); }
+    .bento-sub { font-size: clamp(1rem,1.5vw,1.18rem); color: var(--text-secondary); max-width: 60ch; line-height: 1.6; }
+    .bento-ctas { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 1.6rem; }
+    .bento-cta {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.7rem 1.3rem; border-radius: 100px; font-size: 0.88rem; font-weight: 600;
+    }
+    .bento-cta svg { width: 16px; height: 16px; }
+    .bento-cta--primary { background: var(--accent); color: #0A0E18; }
+    .bento-cta--ghost { border: 1px solid var(--line-strong); color: var(--text-primary); }
+    .bento-cta--ghost:hover { background: rgba(255,255,255,0.04); }
+
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-areas:
+        "fc fc map  motor"
+        "fc fc map  week"
+        "dengue top epi epi";
+      gap: 13px;
+      grid-auto-rows: minmax(148px, auto);
+    }
+    .tile {
+      position: relative; overflow: hidden;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 1.25rem 1.35rem;
+      display: flex; flex-direction: column;
+      transition: border-color .2s, background .2s;
+    }
+    .tile:hover { border-color: var(--line-strong); }
+    .tile-label {
+      font: 600 0.66rem/1 var(--font-mono); letter-spacing: 0.13em;
+      text-transform: uppercase; color: var(--text-muted);
+      display: flex; align-items: center; gap: 0.5rem; margin-bottom: auto;
+    }
+    .tile-label svg { width: 14px; height: 14px; opacity: 0.8; }
+    .tile-big {
+      font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em;
+      font-size: clamp(1.9rem, 3vw, 2.7rem); color: var(--text-primary); line-height: 1.05;
+    }
+    .tile-big .unit { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-left: 0.3rem; letter-spacing: 0; }
+    .tile-sub { font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.3rem; line-height: 1.4; }
+    .tile-foot { margin-top: 0.6rem; }
+
+    .t-forecast { grid-area: fc; }
+    .t-map { grid-area: map; }
+    .t-motor { grid-area: motor; }
+    .t-week { grid-area: week; }
+    .t-dengue { grid-area: dengue; }
+    .t-top { grid-area: top; }
+    .t-epi { grid-area: epi; }
+
+    /* Tile de pronóstico (reusa la gráfica viva) */
+    .t-forecast { padding: 1.25rem 1.35rem 1.1rem; }
+    .t-forecast .hf-head { margin-bottom: 0.7rem; }
+    .t-forecast .hf-canvas-wrap { flex: 1; min-height: 210px; height: auto; }
+
+    /* Tile de mapa */
+    .t-map { padding-bottom: 1rem; }
+    .map-svg-wrap { flex: 1; display: flex; align-items: center; justify-content: center; margin-top: 0.4rem; }
+    .map-svg-wrap svg { width: 100%; height: 100%; max-height: 290px; }
+    .map-state { stroke: #0A0E18; stroke-width: 0.8; transition: fill .2s, opacity .2s; cursor: pointer; }
+    .map-state:hover { opacity: 1; stroke: var(--accent); stroke-width: 1.2; }
+    .map-tip {
+      position: absolute; pointer-events: none; opacity: 0; transition: opacity .15s;
+      background: #0A0E18; border: 1px solid var(--line-strong); border-radius: 8px;
+      padding: 0.4rem 0.65rem; font-size: 0.74rem; color: var(--text-primary); z-index: 5; white-space: nowrap;
+    }
+    .map-tip b { color: var(--accent); }
+
+    /* Tile EPI (CTA ancho, acento) */
+    .t-epi {
+      flex-direction: row; align-items: center; justify-content: space-between;
+      background: linear-gradient(120deg, rgba(106,160,255,0.14), rgba(255,255,255,0.02));
+      border-color: rgba(106,160,255,0.3);
+    }
+    .t-epi .epi-txt { display: flex; flex-direction: column; gap: 0.2rem; }
+    .t-epi .epi-title { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; color: var(--text-primary); }
+    .t-epi .epi-go {
+      display: inline-flex; align-items: center; gap: 0.5rem; flex: none;
+      padding: 0.65rem 1.2rem; border-radius: 100px; background: var(--accent); color: #0A0E18;
+      font-size: 0.85rem; font-weight: 700;
+    }
+    .t-epi .epi-go svg { width: 16px; height: 16px; }
+
+    .tile-spark { display: flex; align-items: flex-end; gap: 3px; height: 30px; margin-top: 0.5rem; }
+    .tile-spark i { flex: 1; background: var(--accent); border-radius: 2px 2px 0 0; opacity: 0.55; }
+
+    @media (max-width: 980px) {
+      .bento-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+          "fc fc"
+          "map motor"
+          "map week"
+          "dengue top"
+          "epi epi";
+      }
+      .t-forecast .hf-canvas-wrap { min-height: 240px; }
+    }
+    @media (max-width: 600px) {
+      .bento-section { padding: 5rem 1.1rem 2.5rem; }
+      .bento-grid {
+        grid-template-columns: 1fr;
+        grid-template-areas: "fc" "map" "motor" "week" "dengue" "top" "epi";
+      }
+      .t-epi { }
+    }
   </style>
 </head>
 <body>
@@ -2181,88 +2309,24 @@
 
   <main id="main">
   <!-- ═══════════════════════════════════════════════════════════════
-       HERO
+       BENTO — SALA DE CONTROL
        ═══════════════════════════════════════════════════════════════ -->
-  <section class="hero" id="hero">
-    <div class="hero-grid"></div>
-    <div class="hero-mesh">
-      <svg viewBox="0 0 1200 800" preserveAspectRatio="none">
-        <line class="pulse-h" x1="0" y1="100" x2="1200" y2="100" style="animation-delay:-1s"/>
-        <line class="pulse-h" x1="0" y1="200" x2="1200" y2="200" style="animation-delay:-3s"/>
-        <line class="pulse-h" x1="0" y1="300" x2="1200" y2="300" style="animation-delay:-5s"/>
-        <line class="pulse-h" x1="0" y1="400" x2="1200" y2="400" style="animation-delay:-2s"/>
-        <line class="pulse-h" x1="0" y1="500" x2="1200" y2="500" style="animation-delay:-7s"/>
-        <line class="pulse-h" x1="0" y1="600" x2="1200" y2="600" style="animation-delay:-4s"/>
-        <line class="pulse-h" x1="0" y1="700" x2="1200" y2="700" style="animation-delay:-6s"/>
-        <line class="pulse-v" x1="150" y1="0" x2="150" y2="800" style="animation-delay:-2s"/>
-        <line class="pulse-v" x1="300" y1="0" x2="300" y2="800" style="animation-delay:-4s"/>
-        <line class="pulse-v" x1="450" y1="0" x2="450" y2="800" style="animation-delay:-1s"/>
-        <line class="pulse-v" x1="600" y1="0" x2="600" y2="800" style="animation-delay:-6s"/>
-        <line class="pulse-v" x1="750" y1="0" x2="750" y2="800" style="animation-delay:-3s"/>
-        <line class="pulse-v" x1="900" y1="0" x2="900" y2="800" style="animation-delay:-5s"/>
-        <line class="pulse-v" x1="1050" y1="0" x2="1050" y2="800" style="animation-delay:-7s"/>
-        <circle class="node" cx="300" cy="200" r="2"/>
-        <circle class="node" cx="600" cy="300" r="2"/>
-        <circle class="node" cx="900" cy="100" r="2"/>
-        <circle class="node" cx="450" cy="500" r="2"/>
-        <circle class="node" cx="750" cy="400" r="2"/>
-        <circle class="node" cx="150" cy="600" r="2"/>
-        <circle class="node" cx="1050" cy="500" r="2"/>
-        <circle class="node" cx="300" cy="700" r="2"/>
-        <circle class="node" cx="600" cy="600" r="2"/>
-        <circle class="node" cx="900" cy="700" r="2"/>
-      </svg>
-    </div>
-
-    <div class="hero-content hero-split">
-      <div class="hero-copy">
-      <div class="hero-badge">Maestría en IA Aplicada — Proyecto Integrador 2026</div>
-
-      <h1>Inteligencia Epidemiológica<br>para <span class="accent">México</span></h1>
-
-      <p class="hero-sub">
-        Pronosticamos la incidencia semanal de cuatro padecimientos en las 32 entidades de México, a 52 semanas y con
-        <strong style="color:var(--cream)">100% de cobertura estatal</strong>.
-        <span style="display:block; margin-top:1rem; font-size:0.85em; color:rgba(232,213,181,0.62);">
-          435 modelos de producción (333 de la cohorte neurológica más 102 de Dengue) con selección automática entre cinco
-          motores: DeepAR, Prophet, Ensemble y Stacking, más <strong style="color:var(--cream)">NB-GLM</strong> con El Niño para el
-          Dengue. Una colaboración entre el <strong style="color:var(--cream)">Tecnológico de Monterrey</strong> y el
-          <strong style="color:var(--cream)">IMSS</strong>.
-        </span>
-      </p>
-
-      <div class="hero-stats" id="heroStats">
-        <div class="hero-stat">
-          <div class="hero-stat-value" id="kpi-modelos" data-target="435" data-suffix="">0</div>
-          <div class="hero-stat-label">Modelos Producción</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-value" data-target="5" data-suffix="">0</div>
-          <div class="hero-stat-label">Motores de IA</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-value" data-target="4" data-suffix="">0</div>
-          <div class="hero-stat-label">Padecimientos</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-value" data-target="52" data-suffix="">0</div>
-          <div class="hero-stat-label">Semanas Pronóstico</div>
+  <section class="bento-section" id="hero">
+    <div class="bento-wrap">
+      <div class="bento-head">
+        <div class="bento-eyebrow">Plataforma en vivo · Boletín SINAVE 2026</div>
+        <h1 class="bento-h1">Inteligencia epidemiológica <span class="accent">para México</span></h1>
+        <p class="bento-sub">Pronóstico semanal de cuatro padecimientos en las 32 entidades federativas, a 52 semanas. 435 modelos y cinco motores con selección automática por serie.</p>
+        <div class="bento-ctas">
+          <a href="EpiDashboard.html" class="bento-cta bento-cta--primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Abrir tablero</a>
+          <a href="epibot/index.html" class="bento-cta bento-cta--ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Pregúntale a EPI</a>
+          <a href="Reports/index.html" class="bento-cta bento-cta--ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Galería</a>
         </div>
       </div>
 
-      <a href="EpiDashboard.html" class="hero-cta" style="display:inline-flex; align-items:center; gap:0.6rem; margin-top:2.5rem; padding:0.85rem 2rem; background:var(--gold); color:var(--dark-teal); font-weight:700; font-size:0.9rem; border-radius:100px; letter-spacing:0.04em; text-decoration:none; transition:transform .2s, box-shadow .2s; animation: fadeSlideUp 0.8s ease-out 0.6s both;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(45,212,191,0.3)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-        Explorar Dashboard Interactivo
-      </a>
-
-      <a href="Reports/index.html" style="display:inline-flex; align-items:center; gap:0.6rem; margin-top:2.5rem; margin-left:1rem; padding:0.85rem 2rem; background:transparent; color:var(--gold); font-weight:700; font-size:0.9rem; border:2px solid var(--gold); border-radius:100px; letter-spacing:0.04em; text-decoration:none; transition:transform .2s, box-shadow .2s, background .2s, color .2s; animation: fadeSlideUp 0.8s ease-out 0.8s both;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(45,212,191,0.3)';this.style.background='var(--gold)';this.style.color='var(--dark-teal)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none';this.style.background='transparent';this.style.color='var(--gold)'">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-        Explorar Pronósticos
-      </a>
-      </div><!-- /hero-copy -->
-
-      <div class="hero-viz">
-        <div class="hf-card">
+      <div class="bento-grid">
+        <!-- Pronóstico nacional en vivo (pieza estrella) -->
+        <div class="tile t-forecast hf-card">
           <div class="hf-head">
             <div class="hf-title"><span class="hf-live"></span>Pronóstico nacional en vivo</div>
             <div class="hf-pills" id="hfPills"></div>
@@ -2276,12 +2340,52 @@
           </div>
           <div class="hf-caption" id="hfCaption"></div>
         </div>
-      </div>
-    </div>
 
-    <div class="hero-scroll">
-      <div class="hero-scroll-line"></div>
-      Explorar
+        <!-- Mapa de carga por entidad -->
+        <div class="tile t-map">
+          <div class="tile-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Carga pronosticada por entidad</div>
+          <div class="map-svg-wrap" id="bentoMap"></div>
+          <div class="map-tip" id="mapTip"></div>
+        </div>
+
+        <!-- Motor líder -->
+        <div class="tile t-motor">
+          <div class="tile-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7l8-4 8 4-8 4-8-4z"/><path d="M4 7v6l8 4 8-4V7"/></svg>Motor líder</div>
+          <div class="tile-big" id="b-motor">DeepAR</div>
+          <div class="tile-sub"><span id="b-motor-pct">36</span>% de <span id="b-motor-total">435</span> modelos productivos</div>
+        </div>
+
+        <!-- Boletín vigente -->
+        <div class="tile t-week">
+          <div class="tile-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/></svg>Boletín vigente</div>
+          <div class="tile-big">Sem <span id="b-week">21</span><span class="unit">/ <span id="b-year">2026</span></span></div>
+          <div class="tile-sub">SINAVE · <span id="b-ent">32</span> entidades + Nacional</div>
+        </div>
+
+        <!-- Dengue -->
+        <div class="tile t-dengue">
+          <div class="tile-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2.7l5.7 5.7a8 8 0 1 1-11.4 0z"/></svg>Dengue · epidemia <span id="b-dpico">2024</span></div>
+          <div class="tile-big" id="b-dcasos">122,752</div>
+          <div class="tile-sub">casos en el pico. El próximo gran brote se anticipa hacia 2029 (ciclo El Niño).</div>
+        </div>
+
+        <!-- Top entidad -->
+        <div class="tile t-top">
+          <div class="tile-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M21 7v6h-6"/></svg>Mayor carga pronosticada</div>
+          <div class="tile-big" id="b-topname" style="font-size:clamp(1.4rem,2vw,1.8rem)">Ciudad de México</div>
+          <div class="tile-sub"><span id="b-topcasos">46,551</span> casos · próximas 52 semanas</div>
+        </div>
+
+        <!-- EPI CTA -->
+        <a href="epibot/index.html" class="tile t-epi">
+          <span class="epi-txt">
+            <span class="tile-label">Asistente IA · RAG con citas</span>
+            <span class="epi-title">Pregúntale a EPI</span>
+            <span class="tile-sub">Métricas, pronósticos y tendencias al instante.</span>
+          </span>
+          <span class="epi-go">Abrir <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></span>
+        </a>
+      </div>
     </div>
   </section>
 
@@ -3155,6 +3259,69 @@
         if (document.hidden) { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
         else if (series.length && !reduce && !raf) { raf = requestAnimationFrame(loop); }
       });
+    })();
+  </script>
+
+  <!-- Bento sala de control: hidrata mosaicos + mapa coropletico desde bento.json -->
+  <script>
+    (function bentoConsole() {
+      function fmt(n) { return Number(n).toLocaleString('es-MX'); }
+      function set(id, v) { var el = document.getElementById(id); if (el) el.textContent = v; }
+      function disp(name) {
+        if (name === 'Mexico') return 'Estado de México';
+        if (name === 'Ciudad de Mexico') return 'Ciudad de México';
+        return name;
+      }
+      function renderMap(mapa) {
+        var wrap = document.getElementById('bentoMap');
+        if (!wrap) return;
+        fetch('mexico_paths.json', { cache: 'force-cache' })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (geo) {
+            if (!geo) return;
+            var vals = Object.keys(mapa).map(function (k) { return mapa[k]; }).filter(function (v) { return v > 0; });
+            var mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals);
+            var NS = 'http://www.w3.org/2000/svg';
+            var svg = document.createElementNS(NS, 'svg');
+            svg.setAttribute('viewBox', geo.viewbox);
+            svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+            Object.keys(geo.states).forEach(function (name) {
+              var p = document.createElementNS(NS, 'path');
+              p.setAttribute('d', geo.states[name]);
+              p.setAttribute('class', 'map-state');
+              var v = mapa[name] || 0;
+              var t = mx > mn ? (v - mn) / (mx - mn) : 0.5;
+              p.setAttribute('fill', 'rgba(106,160,255,' + (0.16 + t * 0.74).toFixed(3) + ')');
+              p.addEventListener('mousemove', function (e) { showTip(e, name, v); });
+              p.addEventListener('mouseleave', hideTip);
+              svg.appendChild(p);
+            });
+            wrap.appendChild(svg);
+          })
+          .catch(function () {});
+      }
+      function showTip(e, name, v) {
+        var t = document.getElementById('mapTip'); var box = document.querySelector('.t-map');
+        if (!t || !box) return;
+        var r = box.getBoundingClientRect();
+        t.innerHTML = disp(name) + ': <b>' + fmt(v) + '</b> casos';
+        t.style.opacity = '1';
+        t.style.left = Math.min(e.clientX - r.left + 12, r.width - 130) + 'px';
+        t.style.top = (e.clientY - r.top + 12) + 'px';
+      }
+      function hideTip() { var t = document.getElementById('mapTip'); if (t) t.style.opacity = '0'; }
+
+      fetch('bento.json', { cache: 'no-store' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          if (!d) return;
+          set('b-motor', d.motor.nombre); set('b-motor-pct', d.motor.pct); set('b-motor-total', fmt(d.motor.total));
+          set('b-week', d.semana.num); set('b-year', d.semana.anio); set('b-ent', d.semana.entidades);
+          set('b-dpico', d.dengue.pico_anio); set('b-dcasos', fmt(d.dengue.pico_casos));
+          set('b-topname', disp(d.top_entidad.nombre)); set('b-topcasos', fmt(d.top_entidad.casos));
+          if (d.mapa) renderMap(d.mapa);
+        })
+        .catch(function () {});
     })();
   </script>
 </body>
