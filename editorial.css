@@ -1,0 +1,125 @@
+/* ═══════════════════════════════════════════════════════════════════
+   editorial.css — capa compartida que lleva las SUBPÁGINAS al look
+   editorial (estilo periódico) sobre la paleta azul Clinical Indigo.
+   Se enlaza al final del <head> de cada subpágina; gana por !important
+   sobre el CSS inline del template viejo (Outfit/Playfair, nav dorado,
+   hero con degradado verde/teal).
+   ═══════════════════════════════════════════════════════════════════ */
+:root {
+  --bg: #0E1424;
+  --ink: #EAEFF8;
+  --ink-soft: #B9C5DD;
+  --ink-mut: #8094B8;
+  --rule: rgba(130,160,210,0.16);
+  --rule-strong: rgba(160,185,225,0.40);
+  --accent: #6AA0FF;
+  --serif-head: 'Libre Caslon Display', Georgia, 'Times New Roman', serif;
+  --serif-body: 'Source Serif 4', Georgia, serif;
+  --sans: 'Libre Franklin', system-ui, -apple-system, sans-serif;
+  /* Repunta los tokens legacy del template a la nueva escala */
+  --bg-deep: #0A0E18 !important;
+  --bg-base: #0E1424 !important;
+  --bg-raised: #0E1424 !important;
+  --bg-card: rgba(255,255,255,0.025) !important;
+  --bg-card-hover: rgba(255,255,255,0.05) !important;
+  --text-primary: #EAEFF8 !important;
+  --text-secondary: #B9C5DD !important;
+  --text-muted: #8094B8 !important;
+  --cream: #EAEFF8 !important;
+  --cream-pale: #EAEFF8 !important;
+  --gold: #6AA0FF !important;
+  --teal: #6AA0FF !important;
+  --burgundy: #6AA0FF !important;
+  --dark-teal: #0A0E18 !important;
+  --font-display: 'Libre Caslon Display', Georgia, serif !important;
+  --font-body: 'Source Serif 4', Georgia, serif !important;
+}
+
+html, body { overflow-x: clip; }
+body {
+  background: #0E1424 !important;
+  color: var(--ink) !important;
+  font-family: var(--serif-body) !important;
+}
+a { color: var(--accent) !important; }
+h1, h2, h3, h4, .section-title, .hero h1 {
+  font-family: var(--serif-head) !important;
+  color: var(--ink) !important;
+  font-weight: 400 !important;
+  letter-spacing: -0.01em;
+}
+.section-label, .eyebrow, [class*="label"] {
+  font-family: var(--sans) !important;
+  color: var(--accent) !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* MASTHEAD — la navbar se vuelve cabecera de periódico */
+.nav, .nav.scrolled {
+  position: static !important;
+  background: #0E1424 !important;
+  backdrop-filter: none !important;
+  border-bottom: 3px double var(--rule-strong) !important;
+  box-shadow: none !important;
+}
+.nav-inner {
+  flex-wrap: wrap !important; justify-content: center !important; align-items: center !important;
+  height: auto !important; max-width: 1180px; padding: 1.4rem 2rem 0.7rem !important;
+  column-gap: 1.5rem; position: relative;
+}
+.nav-logo {
+  flex-basis: 100% !important; text-align: center; flex-shrink: 1 !important;
+  font-family: var(--serif-head) !important; font-weight: 400 !important;
+  font-size: clamp(2rem, 4.8vw, 3.1rem) !important; letter-spacing: -0.01em !important;
+  color: var(--ink) !important; padding-bottom: 0.7rem; margin-bottom: 0.7rem;
+  border-bottom: 1px solid var(--rule);
+}
+.nav-logo span { color: var(--accent) !important; }
+.nav-menu { flex: none !important; justify-content: center !important; gap: 1.6rem !important; flex-wrap: wrap; }
+.nav-group-toggle { color: var(--ink-soft) !important; font-family: var(--sans) !important; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.72rem !important; }
+.nav-group-toggle:hover, .nav-group:hover .nav-group-toggle { color: var(--ink) !important; background: rgba(255,255,255,0.04) !important; }
+.nav-dropdown { background: #121A2C !important; border: 1px solid var(--rule) !important; box-shadow: 0 14px 36px rgba(0,0,0,0.5) !important; }
+.nav-dropdown a { color: var(--ink-soft) !important; font-family: var(--sans) !important; }
+.nav-dropdown a:hover { background: rgba(255,255,255,0.05) !important; color: var(--ink) !important; }
+.nav-cta--primary { background: var(--accent) !important; color: #08111F !important; border-radius: 3px !important; font-family: var(--sans) !important; font-weight: 700 !important; }
+.nav-cta--secondary { background: transparent !important; color: var(--ink) !important; border: 1px solid var(--rule-strong) !important; border-radius: 3px !important; font-family: var(--sans) !important; }
+.nav-hamburger span { background: var(--ink) !important; }
+.nav-mobile { background: #0E1424 !important; border-bottom: 1px solid var(--rule) !important; }
+.nav-mobile a, .nav-mobile-heading { color: var(--ink-soft) !important; }
+@media (max-width: 768px) {
+  .nav-logo { font-size: 1.8rem !important; border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+  .nav-inner { padding: 1.1rem 1.3rem !important; }
+  .nav-hamburger { position: absolute !important; right: 1.2rem; top: 1.1rem; }
+  .nav { border-bottom-width: 1px !important; }
+}
+
+/* HERO de subpágina: fuera el degradado verde/teal; índigo plano editorial */
+.hero {
+  background: #0E1424 !important; color: var(--ink) !important;
+  padding: 3.2rem 1.5rem 2.6rem !important; text-align: left !important;
+  border-bottom: 1px solid var(--rule) !important; min-height: auto !important;
+}
+.hero::before, .hero::after { display: none !important; }
+.hero h1 { color: var(--ink) !important; }
+.hero p, .hero .subtitle, .hero-sub { color: var(--ink-soft) !important; }
+
+/* KPIs y tarjetas comunes: aplanar (mata glow/gradiente/sombra dura) */
+.hero-kpi, .kpi-card, .stat-card, .metric-card, .info-card, .glass {
+  background: rgba(255,255,255,0.025) !important; border: 1px solid var(--rule) !important;
+  box-shadow: none !important; backdrop-filter: none !important; border-radius: 12px !important;
+}
+.hero-kpi { color: var(--ink) !important; }
+
+/* Bandas de sección con fondo de color -> índigo plano */
+.section[style*="background"], .pipeline-bg, .results-bg, .about, .team-bg, .scope-bg, .cta-hub, .news-bg {
+  background: #0E1424 !important;
+}
+
+/* Footer */
+.footer { background: #0A0E18 !important; border-top: 1px solid var(--rule-strong) !important; color: var(--ink-soft) !important; }
+.footer a { color: var(--ink-soft) !important; }
+.footer-brand { font-family: var(--serif-head) !important; color: var(--ink) !important; }
+.footer-brand span { color: var(--accent) !important; }
+.footer-links { flex-wrap: wrap !important; }
+.footer-divider { background: var(--accent) !important; }
