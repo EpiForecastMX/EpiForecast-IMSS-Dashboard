@@ -1,0 +1,166 @@
+{
+  "_generated": "2026-06-11",
+  "items": [
+    {
+      "date": "11 de junio de 2026",
+      "iso": "2026-06-11",
+      "type": "datos",
+      "tag": "Datos",
+      "featured": false,
+      "title": "Ya contamos con la semana epidemiológica 21 de 2026",
+      "body": [
+        "Se integró el Boletín SINAVE hasta la <strong style=\"color:var(--cream)\">semana 21 de 2026</strong> en los cuatro padecimientos. Sobre las semanas transcurridas del año, el total pronosticado se desvía del total realmente observado en <strong style=\"color:var(--cream)\">+3.6&#37; en Depresión</strong>, <strong style=\"color:var(--cream)\">&#8722;1.9&#37; en Parkinson</strong>, <strong style=\"color:var(--cream)\">&#8722;6.3&#37; en Alzheimer</strong> y <strong style=\"color:var(--cream)\">&#8722;8.9&#37; en Dengue</strong>: el acumulado del año se mantiene dentro de un margen de un dígito en todos los padecimientos.",
+        "Precisión de la serie nacional por padecimiento (<strong style=\"color:var(--cream)\">SMAPE / MASE</strong>): Depresión <strong style=\"color:var(--cream)\">7.8&#37; / 0.52</strong>, Parkinson <strong style=\"color:var(--cream)\">14.2&#37; / 0.43</strong>, Alzheimer <strong style=\"color:var(--cream)\">18.7&#37; / 0.48</strong>, Dengue <strong style=\"color:var(--cream)\">20.8&#37; / 0.07</strong>. El MASE por debajo de 1 en los cuatro casos indica que cada modelo supera a la persistencia estacional (repetir el mismo periodo del año anterior)."
+      ],
+      "link": {
+        "href": "Reports/index.html",
+        "text": "Ver real vs pronóstico en la galería",
+        "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+      }
+    },
+    {
+      "date": "6 de junio de 2026",
+      "iso": "2026-06-06",
+      "type": "plataforma",
+      "tag": "Reportes",
+      "featured": false,
+      "title": "Galería de pronósticos renovada",
+      "body": [
+        "La sección de <strong style=\"color:var(--cream)\">Reportes</strong> estrena la vista <strong style=\"color:var(--cream)\">Zoom 52 Semanas</strong> (realidad contra pronóstico hasta la semana vigente, interactiva en el visor), con <strong style=\"color:var(--cream)\">banda de confianza</strong> sobre el tramo a futuro y métricas <strong style=\"color:var(--cream)\">SMAPE y MASE</strong> discretas en cada gráfico. Se incorporaron los <strong style=\"color:var(--cream)\">cuatro clústeres regionales del Dengue</strong> (calculados al agregar sus estados), se marca la <strong style=\"color:var(--cream)\">banda COVID</strong> en todas las series y los ciclos de <strong style=\"color:var(--cream)\">El Niño y La Niña</strong> en Dengue. Las secciones quedaron ordenadas Nacional, Estatal y Regional."
+      ],
+      "link": {
+        "href": "Reports/index.html",
+        "text": "Ver la galería de pronósticos",
+        "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><polyline points=\"22 12 18 12 15 21 9 3 6 12 2 12\"/></svg>"
+      }
+    },
+    {
+      "date": "5 de junio de 2026",
+      "iso": "2026-06-05",
+      "type": "modelos",
+      "tag": "Modelos",
+      "featured": false,
+      "title": "Re-selección de motores sobre pronósticos frescos",
+      "body": [
+        "Tras republicar los pronósticos, se volvió a elegir el motor productivo de las <strong style=\"color:var(--cream)\">333 series neuronales</strong> contra la realidad del Boletín SINAVE 2026. Resultado: <strong style=\"color:var(--cream)\">142 reasignaciones</strong> y una nueva distribución productiva (DeepAR 98, Prophet 94, Ensemble 85, Stacking 56). El SMAPE agregado del motor productivo bajó de 92.8 a 82.2 (121 series mejoran), recuperando la calidad de los pronósticos por entidad."
+      ],
+      "link": {
+        "href": "reporte_resultados.html",
+        "text": "Ver resultados",
+        "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><line x1=\"18\" y1=\"20\" x2=\"18\" y2=\"10\"/><line x1=\"12\" y1=\"20\" x2=\"12\" y2=\"4\"/><line x1=\"6\" y1=\"20\" x2=\"6\" y2=\"14\"/></svg>"
+      }
+    },
+    {
+      "date": "4 de junio de 2026",
+      "iso": "2026-06-04",
+      "type": "dengue",
+      "tag": "Nueva línea",
+      "featured": true,
+      "title": "El Dengue ya está en producción en EpiForecast-MX",
+      "body": [
+        "El <strong style=\"color:var(--cream)\">Dengue</strong> se incorpora como cuarto padecimiento y primera enfermedad transmitida por vector del proyecto. Se construyó y validó la <strong style=\"color:var(--cream)\">serie histórica semanal del dengue confirmado (2018 a 2026, las 32 entidades federativas)</strong> directamente desde los boletines del SINAVE, contrastada celda por celda. Con respaldo en la literatura, se modela de forma agregada (en conteos absolutos). Se entrenaron <strong style=\"color:var(--cream)\">cinco motores</strong> y en producción quedan <strong style=\"color:var(--cream)\">DeepAR, Prophet y NB-GLM</strong> (el nuevo motor de conteos con el regresor de El Niño, el mejor en validación; los modelos de árboles no extrapolan la dinámica epidémica). El pronóstico va <strong style=\"color:var(--cream)\">al ritmo de El Niño</strong>: el próximo gran brote se espera hacia 2029. El asistente EpiBot también responde sobre Dengue y muestra sus gráficas."
+      ],
+      "link": {
+        "href": "dengue.html",
+        "text": "Ver el pronóstico de Dengue",
+        "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+      }
+    },
+    {
+      "date": "29 de mayo de 2026",
+      "iso": "2026-05-29",
+      "type": "plataforma",
+      "tag": "Plataforma",
+      "featured": false,
+      "title": "EpiForecast-MX estrena dominio propio: epiforecast.mx",
+      "body": [
+        "El proyecto migra a su dominio definitivo. Toda la plataforma (dashboard, pronósticos, reportes y el asistente EpiBot) queda disponible bajo <strong style=\"color:var(--cream)\">epiforecast.mx</strong>. El chatbot ahora vive en <strong style=\"color:var(--cream)\">epiforecast.mx/epibot/</strong> y los enlaces previos redirigen de forma automática."
+      ],
+      "link": {
+        "href": "epibot/index.html",
+        "text": "Conocer EpiBot",
+        "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+      }
+    },
+    {
+      "date": "28 de mayo de 2026",
+      "iso": "2026-05-28",
+      "type": "epibot",
+      "tag": "EpiBot",
+      "featured": false,
+      "title": "EpiBot ahora responde con RAG real",
+      "body": [
+        "El asistente incorpora Retrieval-Augmented Generation con grounding y citas sobre el corpus del proyecto (embeddings de Gemini, reindexado en cada despliegue). Suma gráficas en vivo dentro del chat y voz (reconocimiento y síntesis)."
+      ],
+      "link": {
+        "href": "epibot/index.html",
+        "text": "Hablar con EPI",
+        "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z\"/></svg>"
+      }
+    },
+    {
+      "date": "21 de mayo de 2026",
+      "iso": "2026-05-21",
+      "type": "future",
+      "tag": "Internacional",
+      "featured": false,
+      "title": "EpiForecast-MX, aceptado para presentación oral en Europa",
+      "body": [
+        "El enfoque del proyecto fue <strong style=\"color:var(--cream)\">aceptado como ponencia oral</strong> en la <strong style=\"color:var(--cream)\">2nd Public Health Conference</strong> (Public Health Futures), con la 2nd HSG Europe Preconference, celebrada en <strong style=\"color:var(--cream)\">Skopje, Macedonia del Norte</strong>. El mismo trabajo que ganó el primer lugar en HELIX México llega así a un foro europeo de salud pública."
+      ],
+      "link": {
+        "href": "future_health.html",
+        "text": "Ver noticia",
+        "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+      }
+    },
+    {
+      "date": "20 de mayo de 2026",
+      "iso": "2026-05-20",
+      "type": "helix",
+      "tag": "Reconocimiento",
+      "featured": false,
+      "title": "Primer lugar en el International Summit HELIX 2026 México",
+      "body": [
+        "EpiForecast-MX obtuvo el <strong style=\"color:var(--cream)\">primer lugar</strong> en el International Summit HELIX 2026 México, foro internacional de innovación y educación continua en salud. La <strong style=\"color:var(--cream)\">Dra. Ruth Manuela Pérez Hernández</strong> y <strong style=\"color:var(--cream)\">Juan Carlos Pérez Nava</strong> expusieron en Cuernavaca el enfoque del equipo para transitar de la vigilancia epidemiológica clásica al pronóstico con inteligencia artificial."
+      ],
+      "link": {
+        "href": "helix.html",
+        "text": "Ver noticia",
+        "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+      }
+    },
+    {
+      "date": "30 de abril de 2026",
+      "iso": "2026-04-30",
+      "type": "modelos",
+      "tag": "Modelos",
+      "featured": false,
+      "title": "Re-selección de motores con realidad 2026",
+      "body": [
+        "Los 333 modelos de producción de la cohorte neurológica se reevaluaron contra los datos reales del Boletín SINAVE 2026 (SMAPE 2026 como criterio primario, MASE como desempate). El resultado: 227 reasignaciones y una redistribución de los motores productivos."
+      ],
+      "link": {
+        "href": "comparacion_modelos.html",
+        "text": "Ver comparación",
+        "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><line x1=\"18\" y1=\"20\" x2=\"18\" y2=\"10\"/><line x1=\"12\" y1=\"20\" x2=\"12\" y2=\"4\"/><line x1=\"6\" y1=\"20\" x2=\"6\" y2=\"14\"/></svg>"
+      }
+    },
+    {
+      "date": "Actualización semanal",
+      "iso": "",
+      "type": "datos",
+      "tag": "Datos",
+      "featured": false,
+      "title": "Boletín SINAVE integrado automáticamente",
+      "body": [
+        "Un pipeline de scraping diario incorpora cada boletín nuevo y regenera el conocimiento del sitio, manteniendo los pronósticos al día con el corte epidemiológico más reciente del Boletín SINAVE."
+      ],
+      "link": {
+        "href": "validacion_semanal.html",
+        "text": "Validación semanal",
+        "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M22 11.08V12a10 10 0 1 1-5.93-9.14\"/><polyline points=\"22 4 12 14.01 9 11.01\"/></svg>"
+      }
+    }
+  ]
+}

@@ -2032,7 +2032,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
           </a>
         </div>
-        <div class="news-banner-row">
+        <div class="news-banner-row" id="newsBannerRow">
           <a href="Reports/index.html" class="news-lead">
             <div class="news-lead-meta">
               <span class="news-date">11 de junio de 2026</span>
@@ -3103,6 +3103,49 @@
           })
           .catch(function () { /* fallback silencioso: se conservan los valores estáticos */ });
       } catch (e) { /* no romper el render */ }
+    })();
+  </script>
+
+  <!-- Banner de novedades: lo más fresco desde news.json (fallback = banner estático) -->
+  <script>
+    (function renderNewsBanner() {
+      function esc(s) { return String(s == null ? '' : s); }
+      function plain(html) {
+        var d = document.createElement('div'); d.innerHTML = html || '';
+        return (d.textContent || '').replace(/\s+/g, ' ').trim();
+      }
+      function summary(it) {
+        if (it.summary) return esc(it.summary);
+        var t = plain((it.body || [])[0] || '');
+        return t.length > 150 ? t.slice(0, 147).replace(/\s+\S*$/, '') + '…' : t;
+      }
+      function leadHtml(it) {
+        var type = esc(it.type) || 'datos';
+        return '<a href="' + esc(it.link.href) + '" class="news-lead">' +
+          '<div class="news-lead-meta"><span class="news-date">' + esc(it.date) + '</span>' +
+          '<span class="news-tag news-tag--' + type + '">' + esc(it.tag) + '</span></div>' +
+          '<div class="news-lead-title">' + esc(it.title) + '</div>' +
+          '<div class="news-lead-sub">' + summary(it) + '</div></a>';
+      }
+      function miniHtml(it) {
+        var type = esc(it.type) || 'datos';
+        return '<a href="' + esc(it.link.href) + '" class="news-mini">' +
+          '<span class="news-tag news-tag--' + type + '">' + esc(it.tag) + '</span>' +
+          '<span class="news-mini-title">' + esc(it.title) + '</span>' +
+          '<span class="news-mini-date">' + esc(it.date) + '</span></a>';
+      }
+      fetch('news.json', { cache: 'no-store' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          if (!d || !Array.isArray(d.items) || !d.items.length) return;
+          var row = document.getElementById('newsBannerRow');
+          if (!row) return;
+          var top = d.items.slice(0, 3);
+          var minis = top.slice(1).map(miniHtml).join('');
+          row.innerHTML = leadHtml(top[0]) +
+            '<div class="news-mini-list">' + minis + '</div>';
+        })
+        .catch(function () { /* fallback silencioso: queda el banner estático */ });
     })();
   </script>
 </body>
