@@ -2630,6 +2630,75 @@
     .disease-card .disease-icon svg { color: var(--accent) !important; }
     /* Punto 'en vivo' del folio: a azul de acento (no menta del look viejo) */
     .edl-folio .live::before, .edl-kicker .dot { background: var(--accent) !important; box-shadow: 0 0 10px var(--accent) !important; }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       REFINAMIENTO NYT — columna centrada, lede elegante, tipografía fina.
+       ═══════════════════════════════════════════════════════════════════ */
+    body { text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    .edl-hero { padding: 2.8rem 1.5rem 4rem !important; }
+    .edl-article-col { max-width: 720px !important; margin: 0 auto !important; text-align: center; }
+
+    /* Dateline centrada (cabecera de edición) */
+    .edl-dateline {
+      display: block; font-family: var(--sans); text-transform: uppercase; letter-spacing: 0.14em;
+      font-size: 0.7rem; font-weight: 600; color: var(--ink-mut);
+      padding-bottom: 1.3rem; margin-bottom: 1.7rem; border-bottom: 1px solid var(--rule-strong);
+    }
+    .edl-dateline span { color: var(--accent); margin: 0 0.45rem; }
+
+    /* Titular centrado, grande, con la cursiva de acento */
+    .edl-hero .edl-headline {
+      text-align: center !important; max-width: none !important;
+      font-family: var(--serif-head) !important; font-weight: 400 !important;
+      font-size: clamp(2.9rem, 6.4vw, 5.6rem) !important; line-height: 1.03 !important;
+      letter-spacing: -0.022em !important; margin: 0 auto 1.5rem !important; color: var(--ink) !important;
+    }
+    .edl-hero .edl-headline em { font-style: italic; color: var(--accent) !important; }
+
+    /* Entradilla centrada con buena medida */
+    .edl-hero .edl-deck {
+      text-align: center !important; font-family: var(--serif-body) !important;
+      font-size: clamp(1.2rem, 1.7vw, 1.45rem) !important; line-height: 1.5 !important;
+      color: var(--ink-soft) !important; max-width: 46ch; margin: 0 auto 1.6rem !important; font-weight: 400;
+    }
+
+    /* Firma/crédito centrada con filetes (estilo reportaje) */
+    .edl-hero .edl-byline {
+      text-align: center !important; font-family: var(--sans) !important; font-size: 0.82rem !important;
+      color: var(--ink-mut) !important; max-width: 56ch; margin: 0 auto 1.9rem !important;
+      border-top: 1px solid var(--rule) !important; border-bottom: 1px solid var(--rule) !important;
+      padding: 0.9rem 0 !important; line-height: 1.5;
+    }
+    .edl-ctas { justify-content: center !important; }
+
+    /* Figura: ancho de breakout centrado, mayor que la columna de texto */
+    .edl-figure--break {
+      width: min(1020px, 94vw) !important; margin: 1.6rem auto 1.4rem !important;
+      position: static !important; left: auto !important; transform: none !important;
+    }
+    .edl-figure--break .edl-figkick { text-align: left; }
+    .edl-figure--break .edl-figcap { text-align: left; }
+    .edl-hero .edl-stats { max-width: 720px !important; margin: 1.4rem auto 0 !important; }
+
+    /* Encabezados de sección centrados (divisores tipo NYT) */
+    .news-bg .section-label, .explora .section-label, .about .section-label,
+    .diseases .section-label, .results-bg .section-label, .team-bg .section-label,
+    .news-banner-head .section-label { justify-content: center; text-align: center; width: 100%; }
+    .explora .section-title, .about .section-title, .diseases .section-title,
+    .results-bg .section-title, .team-bg .section-title {
+      text-align: center !important;
+    }
+    .explora .section-desc, .about .section-desc, .diseases .section-desc,
+    .results-bg .section-desc, .team-bg .section-desc, .edl-table-cap {
+      text-align: center !important; margin-left: auto !important; margin-right: auto !important; max-width: 62ch;
+    }
+    /* La sección de artículo (Contexto) mantiene su columna a 2 col pero centrada */
+    .edl-columns { margin-left: auto; margin-right: auto; max-width: 900px; }
+
+    @media (max-width: 640px) {
+      .edl-hero .edl-headline { font-size: clamp(2.1rem, 9vw, 3rem) !important; }
+      .edl-dateline { font-size: 0.6rem; letter-spacing: 0.1em; }
+    }
   </style>
 </head>
 <body>
@@ -2763,46 +2832,38 @@
        HERO EDITORIAL (lede de artículo, estilo periódico)
        ═══════════════════════════════════════════════════════════════ -->
   <section class="edl-hero" id="hero">
-    <div class="edl-wrap">
-      <div class="edl-folio">
-        <span>México</span>
-        <span class="mid">Pronóstico epidemiológico multi-modelo</span>
-        <span class="live">Edición · Semana 21, 2026</span>
+    <div class="edl-wrap edl-article-col">
+      <div class="edl-dateline">Pronóstico epidemiológico de México <span>&middot;</span> Edición de la semana 21, 2026</div>
+      <h1 class="edl-headline">Anticipar la enfermedad,<br><em>semana a semana</em></h1>
+      <p class="edl-deck">EpiForecast-MX pronostica la incidencia de cuatro padecimientos en las 32 entidades del país a 52 semanas, con 435 modelos y selección automática entre cinco motores de inteligencia artificial.</p>
+      <div class="edl-byline">Una colaboración del Tecnológico de Monterrey con el Instituto Mexicano del Seguro Social. Datos actualizados cada semana desde el Boletín Epidemiológico del SINAVE.</div>
+      <div class="edl-ctas">
+        <a href="EpiDashboard.html" class="edl-primary">Abrir el tablero <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
+        <a href="epibot/index.html" class="edl-link">Pregúntale a EPI</a>
+        <a href="Reports/index.html" class="edl-link">Galería</a>
       </div>
+    </div>
 
-      <h1 class="edl-headline">Anticipar la enfermedad, <em>semana a semana</em></h1>
-
-      <div class="edl-lead">
-        <div class="edl-lead-text">
-          <p class="edl-deck">EpiForecast-MX pronostica la incidencia de cuatro padecimientos en las 32 entidades del país a 52 semanas, con 435 modelos y selección automática entre cinco motores de inteligencia artificial.</p>
-          <div class="edl-byline">Una colaboración del Tecnológico de Monterrey con el Instituto Mexicano del Seguro Social (IMSS). Datos actualizados cada semana desde el Boletín Epidemiológico del SINAVE.</div>
-          <div class="edl-ctas">
-            <a href="EpiDashboard.html" class="edl-primary">Abrir el tablero <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
-            <a href="epibot/index.html" class="edl-link">Pregúntale a EPI</a>
-            <a href="Reports/index.html" class="edl-link">Galería</a>
+    <figure class="edl-figure edl-figure--break">
+      <div class="edl-figkick">Figura 1 &middot; Pronóstico nacional en vivo</div>
+      <div class="hf-card">
+        <div class="hf-head">
+          <div class="hf-title"><span class="hf-live"></span>Real vs. pronóstico</div>
+          <div class="hf-pills" id="hfPills"></div>
+        </div>
+        <div class="hf-canvas-wrap">
+          <canvas id="hfCanvas" role="img" aria-label="Gráfico animado del pronóstico nacional por padecimiento"></canvas>
+          <div class="hf-legend">
+            <span><i style="border-color:var(--ink-soft)"></i>Real</span>
+            <span><i style="border-top-style:dashed;border-color:var(--ink-mut)"></i>Pronóstico</span>
           </div>
         </div>
-
-        <figure class="edl-figure">
-          <div class="edl-figkick">Figura 1 · Pronóstico nacional en vivo</div>
-          <div class="hf-card">
-            <div class="hf-head">
-              <div class="hf-title"><span class="hf-live"></span>Real vs. pronóstico</div>
-              <div class="hf-pills" id="hfPills"></div>
-            </div>
-            <div class="hf-canvas-wrap">
-              <canvas id="hfCanvas" role="img" aria-label="Gráfico animado del pronóstico nacional por padecimiento"></canvas>
-              <div class="hf-legend">
-                <span><i style="border-color:var(--ink-soft)"></i>Real</span>
-                <span><i style="border-top-style:dashed;border-color:var(--ink-mut)"></i>Pronóstico</span>
-              </div>
-            </div>
-            <div class="hf-caption" id="hfCaption"></div>
-          </div>
-          <figcaption class="edl-figcap">Incidencia semanal real frente al modelo productivo de cada padecimiento, a escala nacional. <b>Elige un padecimiento</b> para ver su serie y su motor.</figcaption>
-        </figure>
+        <div class="hf-caption" id="hfCaption"></div>
       </div>
+      <figcaption class="edl-figcap">Incidencia semanal real frente al modelo productivo de cada padecimiento, a escala nacional. <b>Elige un padecimiento</b> para ver su serie y su motor.</figcaption>
+    </figure>
 
+    <div class="edl-wrap edl-article-col">
       <div class="edl-stats">
         <div class="edl-stat"><b id="b-motor-total">435</b><span>modelos en producción</span></div>
         <div class="edl-stat"><b>32</b><span>entidades + nacional</span></div>

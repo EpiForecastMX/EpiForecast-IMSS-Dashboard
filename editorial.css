@@ -168,3 +168,12 @@ h1, h2, h3, h4, .section-title, .hero h1 {
 .footer-brand span { color: var(--accent) !important; }
 .footer-links { flex-wrap: wrap !important; }
 .footer-divider { background: var(--accent) !important; }
+
+/* ═══ REFINAMIENTO NYT en subpáginas: encabezados centrados, hero centrado ═══ */
+body { text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+.hero { text-align: center !important; }
+.hero h1 { text-align: center !important; max-width: 18ch; margin-left: auto !important; margin-right: auto !important; }
+.hero .subtitle, .hero p, .hero .lead, .hero .hero-sub { text-align: center !important; margin-left: auto !important; margin-right: auto !important; max-width: 60ch; }
+.section-title { text-align: center !important; }
+.section-label, .eyebrow { justify-content: center !important; text-align: center !important; }
+.section-desc { text-align: center !important; margin-left: auto !important; margin-right: auto !important; max-width: 62ch; }

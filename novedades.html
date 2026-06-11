@@ -2630,8 +2630,77 @@
     .disease-card .disease-icon svg { color: var(--accent) !important; }
     /* Punto 'en vivo' del folio: a azul de acento (no menta del look viejo) */
     .edl-folio .live::before, .edl-kicker .dot { background: var(--accent) !important; box-shadow: 0 0 10px var(--accent) !important; }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       REFINAMIENTO NYT — columna centrada, lede elegante, tipografía fina.
+       ═══════════════════════════════════════════════════════════════════ */
+    body { text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    .edl-hero { padding: 2.8rem 1.5rem 4rem !important; }
+    .edl-article-col { max-width: 720px !important; margin: 0 auto !important; text-align: center; }
+
+    /* Dateline centrada (cabecera de edición) */
+    .edl-dateline {
+      display: block; font-family: var(--sans); text-transform: uppercase; letter-spacing: 0.14em;
+      font-size: 0.7rem; font-weight: 600; color: var(--ink-mut);
+      padding-bottom: 1.3rem; margin-bottom: 1.7rem; border-bottom: 1px solid var(--rule-strong);
+    }
+    .edl-dateline span { color: var(--accent); margin: 0 0.45rem; }
+
+    /* Titular centrado, grande, con la cursiva de acento */
+    .edl-hero .edl-headline {
+      text-align: center !important; max-width: none !important;
+      font-family: var(--serif-head) !important; font-weight: 400 !important;
+      font-size: clamp(2.9rem, 6.4vw, 5.6rem) !important; line-height: 1.03 !important;
+      letter-spacing: -0.022em !important; margin: 0 auto 1.5rem !important; color: var(--ink) !important;
+    }
+    .edl-hero .edl-headline em { font-style: italic; color: var(--accent) !important; }
+
+    /* Entradilla centrada con buena medida */
+    .edl-hero .edl-deck {
+      text-align: center !important; font-family: var(--serif-body) !important;
+      font-size: clamp(1.2rem, 1.7vw, 1.45rem) !important; line-height: 1.5 !important;
+      color: var(--ink-soft) !important; max-width: 46ch; margin: 0 auto 1.6rem !important; font-weight: 400;
+    }
+
+    /* Firma/crédito centrada con filetes (estilo reportaje) */
+    .edl-hero .edl-byline {
+      text-align: center !important; font-family: var(--sans) !important; font-size: 0.82rem !important;
+      color: var(--ink-mut) !important; max-width: 56ch; margin: 0 auto 1.9rem !important;
+      border-top: 1px solid var(--rule) !important; border-bottom: 1px solid var(--rule) !important;
+      padding: 0.9rem 0 !important; line-height: 1.5;
+    }
+    .edl-ctas { justify-content: center !important; }
+
+    /* Figura: ancho de breakout centrado, mayor que la columna de texto */
+    .edl-figure--break {
+      width: min(1020px, 94vw) !important; margin: 1.6rem auto 1.4rem !important;
+      position: static !important; left: auto !important; transform: none !important;
+    }
+    .edl-figure--break .edl-figkick { text-align: left; }
+    .edl-figure--break .edl-figcap { text-align: left; }
+    .edl-hero .edl-stats { max-width: 720px !important; margin: 1.4rem auto 0 !important; }
+
+    /* Encabezados de sección centrados (divisores tipo NYT) */
+    .news-bg .section-label, .explora .section-label, .about .section-label,
+    .diseases .section-label, .results-bg .section-label, .team-bg .section-label,
+    .news-banner-head .section-label { justify-content: center; text-align: center; width: 100%; }
+    .explora .section-title, .about .section-title, .diseases .section-title,
+    .results-bg .section-title, .team-bg .section-title {
+      text-align: center !important;
+    }
+    .explora .section-desc, .about .section-desc, .diseases .section-desc,
+    .results-bg .section-desc, .team-bg .section-desc, .edl-table-cap {
+      text-align: center !important; margin-left: auto !important; margin-right: auto !important; max-width: 62ch;
+    }
+    /* La sección de artículo (Contexto) mantiene su columna a 2 col pero centrada */
+    .edl-columns { margin-left: auto; margin-right: auto; max-width: 900px; }
+
+    @media (max-width: 640px) {
+      .edl-hero .edl-headline { font-size: clamp(2.1rem, 9vw, 3rem) !important; }
+      .edl-dateline { font-size: 0.6rem; letter-spacing: 0.1em; }
+    }
+    .arch-list { margin-top:1.8rem; border-top:2px solid var(--rule-strong); text-align:left; max-width:760px; margin-left:auto; margin-right:auto; }
     .arch-back { display:inline-block; font-family:var(--sans); font-size:0.82rem; color:var(--accent) !important; margin-bottom:1.4rem; }
-    .arch-list { margin-top:1.6rem; border-top:2px solid var(--rule-strong); }
     .arch-item { padding:2.1rem 0; border-bottom:1px solid var(--rule); }
     .arch-meta { display:flex; align-items:center; gap:0.85rem; margin-bottom:0.55rem; }
     .arch-date { font-family:var(--sans); font-size:0.74rem; color:var(--ink-mut); }
@@ -2768,13 +2837,13 @@
 
   <main id="main">
     <section class="edl-hero" id="archivo">
-      <div class="edl-wrap" style="max-width:840px">
+      <div class="edl-wrap edl-article-col">
         <a href="index.html" class="arch-back">&larr; Volver a la portada</a>
-        <div class="edl-folio"><span>México</span><span class="mid">Bitácora del proyecto</span><span class="live">Edición · Semana 21, 2026</span></div>
-        <h1 class="edl-headline" style="font-size:clamp(2.6rem,6vw,4.4rem)">Novedades</h1>
+        <div class="edl-dateline">Bitácora del proyecto <span>&middot;</span> Edición de la semana 21, 2026</div>
+        <h1 class="edl-headline">Novedades</h1>
         <p class="edl-deck">Anuncios de plataforma, mejoras del asistente y actualizaciones de datos y modelos, de lo más reciente a lo más antiguo.</p>
-        <div class="arch-list" id="newsGrid"></div>
       </div>
+      <div class="arch-list" id="newsGrid"></div>
     </section>
   </main>
 
