@@ -2636,7 +2636,9 @@
        ═══════════════════════════════════════════════════════════════════ */
     body { text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
     .edl-hero { padding: 2.8rem 1.5rem 4rem !important; }
-    .edl-article-col { max-width: 720px !important; margin: 0 auto !important; text-align: center; }
+    /* UNA sola medida para todo el lede: el mismo borde de columna de arriba
+       a abajo (dateline -> titular -> entradilla -> figura -> stats). Sin saltos. */
+    .edl-article-col { max-width: 880px !important; width: 100%; margin: 0 auto !important; text-align: center; }
 
     /* Dateline centrada (cabecera de edición) */
     .edl-dateline {
@@ -2659,7 +2661,7 @@
     .edl-hero .edl-deck {
       text-align: center !important; font-family: var(--serif-body) !important;
       font-size: clamp(1.2rem, 1.7vw, 1.45rem) !important; line-height: 1.5 !important;
-      color: var(--ink-soft) !important; max-width: 46ch; margin: 0 auto 1.6rem !important; font-weight: 400;
+      color: var(--ink-soft) !important; max-width: 54ch; margin: 0 auto 1.6rem !important; font-weight: 400;
     }
 
     /* Firma/crédito centrada con filetes (estilo reportaje) */
@@ -2671,14 +2673,14 @@
     }
     .edl-ctas { justify-content: center !important; }
 
-    /* Figura: ancho de breakout centrado, mayor que la columna de texto */
+    /* Figura: MISMA medida que la columna de texto (sin breakout) -> sin yo-yo */
     .edl-figure--break {
-      width: min(1020px, 94vw) !important; margin: 1.6rem auto 1.4rem !important;
+      width: 100% !important; max-width: 880px !important; margin: 2rem auto 1.6rem !important;
       position: static !important; left: auto !important; transform: none !important;
     }
-    .edl-figure--break .edl-figkick { text-align: left; }
-    .edl-figure--break .edl-figcap { text-align: left; }
-    .edl-hero .edl-stats { max-width: 720px !important; margin: 1.4rem auto 0 !important; }
+    .edl-figure--break .edl-figkick { text-align: center; }
+    .edl-figure--break .edl-figcap { text-align: center; margin-left: auto; margin-right: auto; max-width: 60ch; }
+    .edl-hero .edl-stats { max-width: 880px !important; margin: 1.8rem auto 0 !important; }
 
     /* Encabezados de sección centrados (divisores tipo NYT) */
     .news-bg .section-label, .explora .section-label, .about .section-label,
