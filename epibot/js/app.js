@@ -647,28 +647,169 @@ function renderBuildBadge(data) {
 // Welcome message
 // ---------------------------------------------------------------------------
 
+// Padecimientos del hero: orden, etiqueta, color de marca y código CIE-10.
+const HERO_PADS = [
+  { pad: 'Depresion', label: 'Depresión', color: '#5B8DEF', cie: 'F32' },
+  { pad: 'Parkinson', label: 'Parkinson', color: '#2DD4BF', cie: 'G20' },
+  { pad: 'Alzheimer', label: 'Alzheimer', color: '#F472B6', cie: 'G30' },
+  { pad: 'Dengue', label: 'Dengue', color: '#F59E0B', cie: 'A97' },
+];
+
+// Conteo animado (easeOutCubic). Respeta prefers-reduced-motion.
+function animateCount(el, target, fmt) {
+  fmt = fmt || ((v) => String(Math.round(v)));
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce || !target) { el.textContent = fmt(target || 0); return; }
+  const dur = 1100;
+  const start = performance.now();
+  function tick(now) {
+    const t = Math.min(1, (now - start) / dur);
+    const eased = 1 - Math.pow(1 - t, 3);
+    el.textContent = fmt(target * eased);
+    if (t < 1) requestAnimationFrame(tick);
+    else el.textContent = fmt(target);
+  }
+  requestAnimationFrame(tick);
+}
+
+// Pie de pronóstico por padecimiento: motor productivo, SMAPE y casos a 52 sem.
+function heroCaption(data, padObj) {
+  const fmtInt = (n) => Math.round(n).toLocaleString('es-MX');
+  if (padObj.pad === 'Dengue' && data.dengue) {
+    const d = data.dengue;
+    const motor = d.motor_nacional || 'DeepAR';
+    const sm = d.smape_nacional != null ? `${Math.round(d.smape_nacional)}%` : '—';
+    const casos = d.casos_futuro_nacional_52sem != null ? fmtInt(d.casos_futuro_nacional_52sem) : '—';
+    return { motor, sm, casos };
+  }
+  const p = (data.stats && data.stats.por_pad && data.stats.por_pad[padObj.pad]) || {};
+  return {
+    motor: p.motor_ganador || '—',
+    sm: p.smape_prod_median != null ? `${Math.round(p.smape_prod_median)}%` : '—',
+    casos: p.casos_futuro_total != null ? fmtInt(p.casos_futuro_total) : '—',
+  };
+}
+
+// Espera a que zoom_series.json (carga diferida en kb.js) esté disponible.
+function whenZoomReady(data, cb, tries) {
+  tries = tries == null ? 60 : tries;
+  if (data.zoom_series) { cb(data.zoom_series); return; }
+  if (tries <= 0) { cb(null); return; }
+  setTimeout(() => whenZoomReady(data, cb, tries - 1), 120);
+}
+
 function addWelcome(data) {
   const s = data.stats || {};
-  const total = s.total_modelos || 333;
+  // Total de modelos en producción de los 4 padecimientos del hero (neuro 333 +
+  // Dengue 102 = 435). Se suma por_pad para no depender de total_modelos, que la
+  // corrección de cohorte deja en 333 (solo neuro).
+  const porPad = s.por_pad || {};
+  const total = HERO_PADS.reduce((acc, p) => acc + ((porPad[p.pad] && porPad[p.pad].n) || 0), 0)
+    || s.total_modelos || 435;
 
-  // Hero compacto: saludo breve + sugerencias. Los datos viven en el panel
-  // lateral, así que el primer mensaje se mantiene mínimo y poco invasivo.
-  void total;
-  const hero = `<div class="welcome-hero welcome-hero--compact">
-    <div class="welcome-hero-title">Hola, soy <span class="welcome-brand">EPI</span></div>
-    <div class="welcome-hero-sub">Copiloto epidemiológico para la salud pública en México. Pregúntame o usa el panel lateral.</div>
-  </div>`;
+  const kpis = [
+    { key: 'pad', val: HERO_PADS.length, label: 'padecimientos', icon: '<path d="M3 12h4l2 6 4-14 2 8h6"/>' },
+    { key: 'ent', val: 32, label: 'entidades + Nacional', icon: '<path d="M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>' },
+    { key: 'hz', val: 52, label: 'semanas de horizonte', icon: '<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>' },
+    { key: 'mod', val: total, label: 'modelos en producción', icon: '<path d="M4 7l8-4 8 4-8 4-8-4z"/><path d="M4 7v6l8 4 8-4V7"/>' },
+  ];
+
+  const cid = `chart-${++chartCounter}`;
+  const kpisHtml = kpis.map((k) =>
+    `<div class="hero-kpi">
+       <svg class="hero-kpi-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${k.icon}</svg>
+       <div class="hero-kpi-txt"><span class="hero-kpi-val" data-val="${k.val}">0</span><span class="hero-kpi-lbl">${k.label}</span></div>
+     </div>`).join('');
+
+  const pillsHtml = HERO_PADS.map((p, i) =>
+    `<button class="hero-pill${i === 0 ? ' is-active' : ''}" data-pad="${p.pad}" style="--pill:${p.color}" aria-pressed="${i === 0 ? 'true' : 'false'}">
+       <span class="hero-pill-dot"></span>${p.label}<span class="hero-pill-cie">${p.cie}</span>
+     </button>`).join('');
+
+  const hero =
+    `<div class="welcome-hero">
+       <div class="welcome-hero-title">Hola, soy <span class="welcome-brand">EPI</span></div>
+       <div class="welcome-hero-sub">Copiloto epidemiológico para la salud pública en México. Esto es lo que vigilamos en tiempo real:</div>
+       <div class="hero-kpis">${kpisHtml}</div>
+       <div class="hero-pills" role="group" aria-label="Padecimiento del pronóstico nacional">${pillsHtml}</div>
+       <div class="hero-chart-wrap">
+         <div class="msg-chart-container"><canvas id="${cid}"></canvas></div>
+         <div class="hero-caption" id="${cid}-cap"></div>
+       </div>
+     </div>`;
 
   const suggestions = [
     { text: 'Métricas globales', q: 'metricas globales' },
-    { text: '¿Qué es la depresión?', q: 'que es la depresion' },
     { text: 'Mapa de México', q: 'mapa de mexico por casos' },
+    { text: '¿Cómo va el dengue?', q: 'pronostico de dengue' },
     { text: 'Equipo', q: 'equipo del proyecto' },
   ];
+  const suggestionsHtml =
+    '<div class="msg-suggestions">' +
+    suggestions.map((sg) => `<button data-q="${escapeAttr(sg.q)}">${escapeHtml(polishSpanish(sg.text))}</button>`).join('') +
+    '</div>';
 
-  addBotMessage(hero, 'local', suggestions);
-  // Marca el mensaje de bienvenida para poder retirarlo al primer envío.
-  if (chatArea.lastElementChild) chatArea.lastElementChild.classList.add('msg-welcome');
+  // El hero es contenido propio (canvas/svg/botones/estilos) que el sanitizador
+  // de respuestas eliminaría; por eso se construye el nodo directamente y NO se
+  // enruta por addBotMessage/marked/DOMPurify.
+  const msg = document.createElement('div');
+  msg.className = 'msg msg-bot msg-welcome';
+  msg.innerHTML =
+    `<div class="msg-avatar"><img src="EpiBot_v2_avatar.png" alt="EpiForecast-MX" /></div>
+     <div class="msg-body">
+       <div class="msg-meta">
+         <span class="msg-name">EpiForecast-MX</span>
+         <span class="msg-source badge-local">Datos reales</span>
+       </div>
+       <div class="msg-bubble-bot">
+         <div class="msg-content">${hero}</div>
+         ${suggestionsHtml}
+       </div>
+     </div>`;
+  chatArea.appendChild(msg);
+  msg.querySelectorAll('.msg-suggestions button').forEach((btn) => {
+    btn.addEventListener('click', () => { inputField.value = btn.dataset.q; handleSend(); });
+  });
+
+  // KPIs con conteo animado.
+  msg.querySelectorAll('.hero-kpi-val').forEach((el) => {
+    const target = parseInt(el.dataset.val, 10) || 0;
+    animateCount(el, target, (v) => Math.round(v).toLocaleString('es-MX'));
+  });
+
+  // Gráfico nacional real (historia + pronóstico + banda) por padecimiento.
+  const capEl = msg.querySelector(`#${cid}-cap`);
+  function drawHero(padObj) {
+    const z = data.zoom_series;
+    const cap = heroCaption(data, padObj);
+    if (capEl) {
+      capEl.innerHTML =
+        `<span class="hero-cap-chip" style="--pill:${padObj.color}">Motor: <b>${cap.motor}</b></span>` +
+        `<span class="hero-cap-chip">SMAPE <b>${cap.sm}</b></span>` +
+        `<span class="hero-cap-chip">${cap.casos} casos pronosticados · 52 sem</span>`;
+    }
+    if (!z) return;
+    const serie = z[`${norm(padObj.pad)}|nacional|general`];
+    if (serie && serie.d && serie.d.length) {
+      renderChart(cid, buildSeriesZoom(serie, padObj.pad, 'Nacional', 'general'));
+    }
+  }
+
+  whenZoomReady(data, () => drawHero(HERO_PADS[0]));
+
+  // Pills: alternan el padecimiento del gráfico en vivo.
+  msg.querySelectorAll('.hero-pill').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      msg.querySelectorAll('.hero-pill').forEach((b) => {
+        b.classList.toggle('is-active', b === btn);
+        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+      });
+      const padObj = HERO_PADS.find((p) => p.pad === btn.dataset.pad) || HERO_PADS[0];
+      drawHero(padObj);
+    });
+  });
+
+  scrollToBottom(true);
 }
 
 // ---------------------------------------------------------------------------
