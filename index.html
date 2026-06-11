@@ -4,6 +4,30 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes</title>
+
+  <!-- SEO -->
+  <meta name="description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica la incidencia semanal de Depresión, Parkinson, Alzheimer y Dengue en las 32 entidades de México, con un horizonte de 52 semanas." />
+  <link rel="canonical" href="https://epiforecast.mx/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://epiforecast.mx/" />
+  <meta property="og:title" content="EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes" />
+  <meta property="og:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica la incidencia semanal de Depresión, Parkinson, Alzheimer y Dengue en las 32 entidades de México, con un horizonte de 52 semanas." />
+  <meta property="og:image" content="https://epiforecast.mx/og-image.png" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes" />
+  <meta name="twitter:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica la incidencia semanal de Depresión, Parkinson, Alzheimer y Dengue en las 32 entidades de México, con un horizonte de 52 semanas." />
+  <meta name="twitter:image" content="https://epiforecast.mx/og-image.png" />
+
+  <!-- Iconos y tema -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/favicon.ico" sizes="32x32" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <meta name="theme-color" content="#0E1424" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -68,6 +92,28 @@
     img, svg { display: block; max-width: 100%; }
     a { color: var(--teal); text-decoration: none; transition: color .2s; }
     a:hover { color: var(--burgundy); }
+
+    /* Skip link — oculto hasta recibir foco con teclado */
+    .skip-link {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      transform: translate(-50%, -120%);
+      z-index: 10000;
+      background: var(--gold);
+      color: var(--dark-teal);
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.7rem 1.4rem;
+      border-radius: 0 0 10px 10px;
+      transition: transform .2s ease;
+    }
+    .skip-link:focus {
+      transform: translate(-50%, 0);
+      outline: 2px solid var(--cream);
+      outline-offset: 2px;
+      color: var(--dark-teal);
+    }
 
     /* ═══════════════════════════════════════════════════════════════════
        NOISE TEXTURE OVERLAY
@@ -244,7 +290,7 @@
     }
     .nav-cta:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 16px rgba(181,133,0,0.3);
+      box-shadow: 0 4px 16px rgba(45,212,191,0.3);
     }
     .nav-cta--primary {
       background: var(--gold);
@@ -253,10 +299,10 @@
     .nav-cta--secondary {
       background: rgba(232,213,181,0.1);
       color: var(--gold);
-      border: 1px solid rgba(181,133,0,0.3);
+      border: 1px solid rgba(45,212,191,0.3);
     }
     .nav-cta--secondary:hover {
-      background: rgba(181,133,0,0.15);
+      background: rgba(45,212,191,0.15);
       color: var(--gold);
     }
     .nav-cta svg { width: 14px; height: 14px; }
@@ -268,6 +314,8 @@
       gap: 5px;
       cursor: pointer;
       padding: 4px;
+      background: none;
+      border: none;
     }
     .nav-hamburger span {
       width: 24px;
@@ -281,7 +329,7 @@
        ═══════════════════════════════════════════════════════════════════ */
     .hero {
       position: relative;
-      min-height: 100vh;
+      min-height: clamp(640px, 88vh, 900px);
       display: flex;
       align-items: center;
       background: linear-gradient(165deg, var(--bg-deep) 0%, var(--bg-raised) 50%, #1B1733 100%);
@@ -362,7 +410,7 @@
       z-index: 3;
       max-width: 1200px;
       margin: 0 auto;
-      padding: 8rem 2rem 10rem;
+      padding: 5rem 2rem 7rem;
     }
 
     .hero-badge {
@@ -590,7 +638,7 @@
     }
     .collab-icon--imss { background: linear-gradient(135deg, var(--teal), var(--dark-teal)); color: white; }
     .collab-icon--tec  { background: linear-gradient(135deg, var(--burgundy), var(--dark-burgundy)); color: white; }
-    .collab-icon--sinave { background: linear-gradient(135deg, var(--gold), #D4A017); color: white; }
+    .collab-icon--sinave { background: linear-gradient(135deg, var(--gold), var(--teal)); color: white; }
     .collab-name {
       font-weight: 700;
       font-size: 0.95rem;
@@ -705,7 +753,7 @@
       inset: 0;
       background:
         radial-gradient(ellipse at 0% 0%, rgba(155,34,66,0.12), transparent 50%),
-        radial-gradient(ellipse at 100% 100%, rgba(181,133,0,0.1), transparent 50%);
+        radial-gradient(ellipse at 100% 100%, rgba(45,212,191,0.1), transparent 50%);
     }
     .pipeline-bg .section-label { color: var(--gold); }
     .pipeline-bg .section-label::before { background: var(--gold); }
@@ -776,7 +824,7 @@
     .step-tech span {
       font-family: var(--font-mono);
       font-size: 0.65rem;
-      background: rgba(181,133,0,0.12);
+      background: rgba(45,212,191,0.12);
       color: var(--gold);
       padding: 0.25rem 0.6rem;
       border-radius: 4px;
@@ -915,7 +963,7 @@
     }
     .team-avatar--1 { background: linear-gradient(135deg, var(--teal), var(--dark-teal)); }
     .team-avatar--2 { background: linear-gradient(135deg, var(--burgundy), var(--dark-burgundy)); }
-    .team-avatar--3 { background: linear-gradient(135deg, var(--gold), #D4A017); }
+    .team-avatar--3 { background: linear-gradient(135deg, var(--gold), var(--teal)); }
 
     .team-card h4 {
       font-family: var(--font-display);
@@ -1069,7 +1117,7 @@
       background:
         radial-gradient(ellipse 40% 40% at 15% 30%, rgba(155,34,66,0.15), transparent),
         radial-gradient(ellipse 35% 35% at 85% 70%, rgba(0,82,78,0.12), transparent),
-        radial-gradient(ellipse 30% 30% at 50% 50%, rgba(181,133,0,0.08), transparent);
+        radial-gradient(ellipse 30% 30% at 50% 50%, rgba(45,212,191,0.08), transparent);
     }
     .results-bg .section-label { color: var(--gold); }
     .results-bg .section-label::before { background: var(--gold); }
@@ -1129,7 +1177,7 @@
     }
     .result-card--dep::before { background: linear-gradient(90deg, var(--burgundy), #C0384F); }
     .result-card--par::before { background: linear-gradient(90deg, var(--teal), #1A7A74); }
-    .result-card--alz::before { background: linear-gradient(90deg, var(--gold), #D4A017); }
+    .result-card--alz::before { background: linear-gradient(90deg, var(--gold), var(--teal)); }
 
     .result-card-header {
       display: flex;
@@ -1146,7 +1194,7 @@
     }
     .result-card--dep .result-card-tag { background: rgba(155,34,66,0.15); color: #E8899C; }
     .result-card--par .result-card-tag { background: rgba(0,82,78,0.15); color: #5DB8B2; }
-    .result-card--alz .result-card-tag { background: rgba(181,133,0,0.15); color: #DABB54; }
+    .result-card--alz .result-card-tag { background: rgba(45,212,191,0.15); color: var(--gold); }
 
     .result-card h3 {
       font-family: var(--font-display);
@@ -1173,7 +1221,7 @@
     }
     .result-card--dep .result-kpi-value { color: #E8899C; }
     .result-card--par .result-kpi-value { color: #5DB8B2; }
-    .result-card--alz .result-kpi-value { color: #DABB54; }
+    .result-card--alz .result-kpi-value { color: var(--gold); }
     .result-kpi-label {
       font-size: 0.7rem;
       text-transform: uppercase;
@@ -1453,7 +1501,7 @@
     }
     .cta-card-btn:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 16px rgba(181,133,0,0.3);
+      box-shadow: 0 4px 16px rgba(45,212,191,0.3);
       color: var(--dark-teal);
     }
     .cta-card-btn svg { width: 14px; height: 14px; }
@@ -1652,10 +1700,30 @@
       .scope-stats { grid-template-columns: 1fr; }
       .hero-content { padding: 7rem 1.5rem 8rem; }
     }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       ACCESIBILIDAD — Movimiento reducido
+       ═══════════════════════════════════════════════════════════════════ */
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+        scroll-behavior: auto !important;
+      }
+      .hero-grid,
+      .hero-mesh .pulse-h,
+      .hero-mesh .pulse-v,
+      .hero-mesh .node,
+      .hero-badge::before,
+      .hero-scroll-line { animation: none !important; }
+    }
   </style>
 </head>
 <body>
 <!-- build: dengue-methodology-card r1 -->
+  <a href="#main" class="skip-link">Saltar al contenido</a>
 
   <!-- ═══════════════════════════════════════════════════════════════
        NAVIGATION
@@ -1667,7 +1735,7 @@
       <ul class="nav-menu">
         <!-- Proyecto -->
         <li class="nav-group">
-          <button class="nav-group-toggle">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
+          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
           <div class="nav-dropdown">
             <a href="#hero"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>Inicio</a>
             <a href="EpiDashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
@@ -1680,7 +1748,7 @@
 
         <!-- Metodología -->
         <li class="nav-group">
-          <button class="nav-group-toggle">Metodología <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
+          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Metodología <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
           <div class="nav-dropdown">
             <a href="bitacora_modelado.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Bitácora v1-v6</a>
             <a href="ficha_tecnica_prophet.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Ficha Prophet</a>
@@ -1692,7 +1760,7 @@
 
         <!-- Resultados -->
         <li class="nav-group">
-          <button class="nav-group-toggle">Resultados <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
+          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Resultados <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
           <div class="nav-dropdown">
             <a href="reporte_resultados.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg>Resultados</a>
             <a href="comparacion_modelos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Comparación SageMaker</a>
@@ -1703,7 +1771,7 @@
           </div>
         </li>
         <li class="nav-group">
-          <button class="nav-group-toggle">MICAI 2026 <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
+          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">MICAI 2026 <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
           <div class="nav-dropdown">
             <a href="micai.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Artículo (versión digital)</a>
             <a href="MICAI/EpiForecast_MICAI2026.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar PDF</a>
@@ -1717,7 +1785,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
           Dashboard
         </a>
-        <a href="epibot/index.html" class="nav-cta nav-cta--primary" style="background: linear-gradient(135deg, #5B8DEF, #2DD4BF); color: var(--bg-deep);">
+        <a href="epibot/index.html" class="nav-cta nav-cta--secondary">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           EPI Chatbot
         </a>
@@ -1726,9 +1794,9 @@
         </a>
       </div>
 
-      <div class="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menú">
+      <button type="button" class="nav-hamburger" onclick="toggleMobileNav(this)" aria-label="Abrir menú" aria-expanded="false" aria-controls="navMobile">
         <span></span><span></span><span></span>
-      </div>
+      </button>
     </div>
 
     <!-- Mobile menu -->
@@ -1779,6 +1847,7 @@
     </div>
   </nav>
 
+  <main id="main">
   <!-- ═══════════════════════════════════════════════════════════════
        HERO
        ═══════════════════════════════════════════════════════════════ -->
@@ -1819,24 +1888,27 @@
       <h1>Inteligencia Epidemiológica<br>para <span class="accent">México</span></h1>
 
       <p class="hero-sub">
-        333 modelos de producción con selección automática entre 4 motores (DeepAR, Prophet, Ensemble, Stacking)
-        optimizados por SMAPE, MASE y RMSE. Pronósticos a 52 semanas con <strong style="color:var(--cream)">100% cobertura estatal</strong>,
-        ahora con un cuarto padecimiento en producción: <strong style="color:var(--cream)">Dengue</strong>, que suma un quinto motor (<strong style="color:var(--cream)">NB-GLM</strong> con El Niño) y su propia serie de 99 modelos.
-        Una colaboración entre el <strong style="color:var(--cream)">Tecnológico de Monterrey</strong>
-        y el <strong style="color:var(--cream)">IMSS</strong>.
+        Pronosticamos la incidencia semanal de cuatro padecimientos en las 32 entidades de México, a 52 semanas y con
+        <strong style="color:var(--cream)">100% de cobertura estatal</strong>.
+        <span style="display:block; margin-top:1rem; font-size:0.85em; color:rgba(232,213,181,0.62);">
+          435 modelos de producción (333 de la cohorte neurológica más 102 de Dengue) con selección automática entre cinco
+          motores: DeepAR, Prophet, Ensemble y Stacking, más <strong style="color:var(--cream)">NB-GLM</strong> con El Niño para el
+          Dengue. Una colaboración entre el <strong style="color:var(--cream)">Tecnológico de Monterrey</strong> y el
+          <strong style="color:var(--cream)">IMSS</strong>.
+        </span>
       </p>
 
       <div class="hero-stats" id="heroStats">
         <div class="hero-stat">
-          <div class="hero-stat-value" data-target="333" data-suffix="">0</div>
+          <div class="hero-stat-value" id="kpi-modelos" data-target="435" data-suffix="">0</div>
           <div class="hero-stat-label">Modelos Producción</div>
         </div>
         <div class="hero-stat">
-          <div class="hero-stat-value" data-target="4" data-suffix="">0</div>
+          <div class="hero-stat-value" data-target="5" data-suffix="">0</div>
           <div class="hero-stat-label">Motores de IA</div>
         </div>
         <div class="hero-stat">
-          <div class="hero-stat-value" data-target="3" data-suffix="">0</div>
+          <div class="hero-stat-value" data-target="4" data-suffix="">0</div>
           <div class="hero-stat-label">Padecimientos</div>
         </div>
         <div class="hero-stat">
@@ -1845,12 +1917,12 @@
         </div>
       </div>
 
-      <a href="EpiDashboard.html" class="hero-cta" style="display:inline-flex; align-items:center; gap:0.6rem; margin-top:2.5rem; padding:0.85rem 2rem; background:var(--gold); color:var(--dark-teal); font-weight:700; font-size:0.9rem; border-radius:100px; letter-spacing:0.04em; text-decoration:none; transition:transform .2s, box-shadow .2s; animation: fadeSlideUp 0.8s ease-out 0.6s both;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(181,133,0,0.3)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
+      <a href="EpiDashboard.html" class="hero-cta" style="display:inline-flex; align-items:center; gap:0.6rem; margin-top:2.5rem; padding:0.85rem 2rem; background:var(--gold); color:var(--dark-teal); font-weight:700; font-size:0.9rem; border-radius:100px; letter-spacing:0.04em; text-decoration:none; transition:transform .2s, box-shadow .2s; animation: fadeSlideUp 0.8s ease-out 0.6s both;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(45,212,191,0.3)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none'">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
         Explorar Dashboard Interactivo
       </a>
 
-      <a href="Reports/index.html" style="display:inline-flex; align-items:center; gap:0.6rem; margin-top:2.5rem; margin-left:1rem; padding:0.85rem 2rem; background:transparent; color:var(--gold); font-weight:700; font-size:0.9rem; border:2px solid var(--gold); border-radius:100px; letter-spacing:0.04em; text-decoration:none; transition:transform .2s, box-shadow .2s, background .2s, color .2s; animation: fadeSlideUp 0.8s ease-out 0.8s both;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(181,133,0,0.3)';this.style.background='var(--gold)';this.style.color='var(--dark-teal)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none';this.style.background='transparent';this.style.color='var(--gold)'">
+      <a href="Reports/index.html" style="display:inline-flex; align-items:center; gap:0.6rem; margin-top:2.5rem; margin-left:1rem; padding:0.85rem 2rem; background:transparent; color:var(--gold); font-weight:700; font-size:0.9rem; border:2px solid var(--gold); border-radius:100px; letter-spacing:0.04em; text-decoration:none; transition:transform .2s, box-shadow .2s, background .2s, color .2s; animation: fadeSlideUp 0.8s ease-out 0.8s both;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(45,212,191,0.3)';this.style.background='var(--gold)';this.style.color='var(--dark-teal)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='none';this.style.background='transparent';this.style.color='var(--gold)'">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         Explorar Pronósticos
       </a>
@@ -1868,7 +1940,7 @@
   <section class="news-bg" id="novedades">
     <div class="section">
       <div class="section-label reveal">Novedades</div>
-      <div class="section-title reveal">Lo más reciente del proyecto</div>
+      <h2 class="section-title reveal">Lo más reciente del proyecto</h2>
       <div class="section-desc reveal">Anuncios de plataforma, mejoras del asistente y actualizaciones de datos y modelos.</div>
 
       <div class="news-grid">
@@ -1992,7 +2064,7 @@
             <span class="news-tag news-tag--modelos">Modelos</span>
           </div>
           <h3>Re-selección de motores con realidad 2026</h3>
-          <p>Los 333 modelos de producción se reevaluaron contra los datos reales del Boletín SINAVE 2026 (SMAPE 2026 como criterio primario, MASE como desempate). El resultado: 227 reasignaciones y una nueva distribución productiva (Prophet 126, Ensemble 95, DeepAR 78, Stacking 34).</p>
+          <p>Los 333 modelos de producción de la cohorte neurológica se reevaluaron contra los datos reales del Boletín SINAVE 2026 (SMAPE 2026 como criterio primario, MASE como desempate). El resultado: 227 reasignaciones y una redistribución de los motores productivos.</p>
           <a href="comparacion_modelos.html" class="news-link">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
             Ver comparación
@@ -2006,7 +2078,7 @@
             <span class="news-tag news-tag--datos">Datos</span>
           </div>
           <h3>Boletín SINAVE integrado automáticamente</h3>
-          <p>Un pipeline de scraping diario incorpora cada boletín nuevo y regenera el conocimiento del sitio. Último corte: semana epidemiológica 19 de 2026 (2,766 casos: 2,605 de Depresión, 130 de Parkinson y 31 de Alzheimer).</p>
+          <p>Un pipeline de scraping diario incorpora cada boletín nuevo y regenera el conocimiento del sitio, manteniendo los pronósticos al día con el corte epidemiológico más reciente del Boletín SINAVE.</p>
           <a href="validacion_semanal.html" class="news-link">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
             Validación semanal
@@ -2026,7 +2098,7 @@
       <div class="section-label reveal" style="color:var(--gold)">
         <span style="display:inline-block;width:32px;height:2px;background:var(--gold);margin-right:.75rem"></span>Acceso Directo
       </div>
-      <div class="section-title reveal" style="margin-bottom:1rem">Centro de Reportes</div>
+      <h2 class="section-title reveal" style="margin-bottom:1rem">Centro de Reportes</h2>
       <p class="section-desc reveal" style="margin-bottom:1rem">Toda la evidencia, el análisis y las herramientas interactivas del proyecto, en un solo lugar.</p>
 
       <div class="cta-grid">
@@ -2047,7 +2119,7 @@
         <div class="cta-card reveal reveal-delay-2" style="grid-column: 1 / -1; background: linear-gradient(135deg, #0E1424 0%, #18223A 32%, #2A3A6B 72%, #3A2B52 100%); border: 1px solid rgba(91,141,239,0.28); padding: 0; overflow: hidden; display: grid; grid-template-columns: auto 1fr; gap: 0;">
           <!-- EPI image -->
           <div style="display: flex; align-items: center; justify-content: center; padding: 2.5rem 2rem 2.5rem 2.5rem;">
-            <img src="epibot/EPI.jpg" alt="EPI Chatbot" style="width: 140px; height: 140px; object-fit: contain; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.4)); border-radius: 20px;">
+            <img src="epibot/EPI.jpg" alt="EPI Chatbot" width="140" height="140" loading="lazy" decoding="async" style="width: 140px; height: 140px; object-fit: contain; filter: drop-shadow(0 8px 24px rgba(0,0,0,0.4)); border-radius: 20px;">
           </div>
           <!-- Content -->
           <div style="padding: 2.5rem 2.5rem 2.5rem 0.5rem; display: flex; flex-direction: column; justify-content: center;">
@@ -2056,7 +2128,7 @@
               <span style="background: var(--gold); color: var(--dark-teal); font-size: 0.65rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; padding: 0.2rem 0.7rem; border-radius: 100px;">Nuevo</span>
             </div>
             <p style="color: rgba(232,213,181,0.75); font-size: 1rem; line-height: 1.7; max-width: 600px; margin-bottom: 1.5rem;">
-              Asistente inteligente con acceso en tiempo real a <strong style="color: var(--cream);">333 modelos de producci&oacute;n</strong>. Preg&uacute;ntale sobre m&eacute;tricas, pron&oacute;sticos, padecimientos, tendencias hist&oacute;ricas, el equipo y m&aacute;s. Respuestas instant&aacute;neas basadas en datos reales del proyecto.
+              Asistente inteligente con acceso en tiempo real a <strong style="color: var(--cream);">435 modelos de producci&oacute;n</strong>. Preg&uacute;ntale sobre m&eacute;tricas, pron&oacute;sticos, padecimientos, tendencias hist&oacute;ricas, el equipo y m&aacute;s. Respuestas instant&aacute;neas basadas en datos reales del proyecto.
             </p>
             <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
               <a href="epibot/index.html" class="cta-card-btn" style="padding: 0.7rem 1.6rem; font-size: 0.85rem;">
@@ -2090,7 +2162,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
           </div>
           <div class="cta-card-title">Galería de Pronósticos</div>
-          <div class="cta-card-desc">333 gráficos con filtros, lightbox y búsqueda.</div>
+          <div class="cta-card-desc">Galería de pronósticos por entidad con filtros, lightbox y búsqueda.</div>
           <a href="Reports/index.html" class="cta-card-btn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
             Ver Pronósticos
@@ -2190,8 +2262,8 @@
 
         <!-- 9. Conclusiones -->
         <div class="cta-card reveal reveal-delay-3">
-          <div class="cta-card-icon" style="background:rgba(46,125,50,0.08)">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="color:#2E7D32"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          <div class="cta-card-icon" style="background:rgba(45,212,191,0.08)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" style="color:var(--gold)"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
           </div>
           <div class="cta-card-title">Conclusiones</div>
           <div class="cta-card-desc">Hallazgos clave y reflexiones del proyecto.</div>
@@ -2249,7 +2321,7 @@
   <section class="about" id="about">
     <div class="section">
       <div class="section-label reveal">Contexto del Proyecto</div>
-      <div class="section-title reveal">Inteligencia artificial al servicio<br>de la salud pública mexicana</div>
+      <h2 class="section-title reveal">Inteligencia artificial al servicio<br>de la salud pública mexicana</h2>
 
       <div class="about-grid">
         <div class="about-text reveal">
@@ -2305,7 +2377,7 @@
        ═══════════════════════════════════════════════════════════════ -->
   <section class="section diseases" id="diseases">
     <div class="section-label reveal">Padecimientos Objetivo</div>
-    <div class="section-title reveal">Cuatro enfermedades, un pipeline<br>de pronóstico unificado</div>
+    <h2 class="section-title reveal">Cuatro enfermedades, un pipeline<br>de pronóstico unificado</h2>
     <div class="section-desc reveal">
       Tres condiciones neurológicas y de salud mental de alta carga en el sistema de salud mexicano, más el Dengue como cuarto padecimiento (la primera arbovirosis del proyecto), generando pronósticos desagregados por entidad y sexo.
     </div>
@@ -2348,7 +2420,7 @@
         </div>
         <h3>Dengue</h3>
         <p>Cuarto padecimiento y primera arbovirosis (transmitida por mosquito), con estacionalidad climática y grandes brotes cada cuatro a cinco años, ligados a <strong>El Niño</strong>. Se modela en conteos absolutos; en producción quedan <strong>DeepAR, Prophet y NB-GLM</strong> (el nuevo motor de conteos con regresor de El Niño, el mejor en validación; Ensemble y Stacking no extrapolan la dinámica epidémica). El pronóstico va al ritmo de El Niño: el próximo gran brote se espera hacia 2029.</p>
-        <span class="disease-tag">CIE-10: A97 · SMAPE nac. 20.4% · DeepAR + Prophet + NB-GLM · 99 series · 2018-2026</span>
+        <span class="disease-tag">CIE-10: A97 · SMAPE nac. 20.4% · DeepAR + Prophet + NB-GLM · 99 series productivas · 2018-2026</span>
       </div>
     </div>
   </section>
@@ -2359,7 +2431,7 @@
   <section class="pipeline-bg" id="pipeline">
     <div class="section">
       <div class="section-label">Pipeline de Datos</div>
-      <div class="section-title">De PDFs crudos a series de tiempo<br>listas para modelado</div>
+      <h2 class="section-title">De PDFs crudos a series de tiempo<br>listas para modelado</h2>
       <div class="section-desc">
         Un flujo reproducible de siete etapas que transforma información no estructurada de boletines epidemiológicos en datasets coherentes para pronóstico multi-step.
       </div>
@@ -2446,7 +2518,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 4-10"/></svg>
           </div>
           <h4>Modelado Multi-Motor</h4>
-          <p>333 modelos con 4 motores (DeepAR, Prophet, Ensemble, Stacking). Selección automática por SMAPE + MASE + RMSE. Fallback regional para series insuficientes.</p>
+          <p>333 modelos de la cohorte neurológica con 4 motores (DeepAR, Prophet, Ensemble, Stacking), más el pipeline de Dengue con NB-GLM. Selección automática por SMAPE + MASE + RMSE. Fallback regional para series insuficientes.</p>
           <div class="step-tech">
             <span>DeepAR</span>
             <span>Prophet</span>
@@ -2493,7 +2565,7 @@
        ═══════════════════════════════════════════════════════════════ -->
   <section class="section" id="methodology">
     <div class="section-label reveal">Metodología</div>
-    <div class="section-title reveal">De silos aislados a producción<br>multi-modelo validada</div>
+    <h2 class="section-title reveal">De silos aislados a producción<br>multi-modelo validada</h2>
 
     <div class="method-grid">
       <div class="method-card reveal reveal-delay-1" data-phase="I">
@@ -2525,7 +2597,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 4-10"/></svg>
         </div>
         <h3>Fase IV — Multi-Motor (Avance 5)</h3>
-        <p>Incorporación de DeepAR (GluonTS + PyTorch en SageMaker GPU), Ensemble (Prophet + XGBoost) y Stacking (Prophet + ETS + LightGBM + Ridge meta-learner). Selección automática del mejor motor por SMAPE + MASE + RMSE para cada una de las 333 combinaciones.</p>
+        <p>Incorporación de DeepAR (GluonTS + PyTorch en SageMaker GPU), Ensemble (Prophet + XGBoost) y Stacking (Prophet + ETS + LightGBM + Ridge meta-learner). Selección automática del mejor motor por SMAPE + MASE + RMSE para cada una de las 333 combinaciones de la cohorte neurológica.</p>
       </div>
 
       <div class="method-card reveal reveal-delay-1" data-phase="V">
@@ -2533,7 +2605,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         </div>
         <h3>Fase V — Validación y Producción</h3>
-        <p>Validación semanal con datos reales del boletín SINAVE que los modelos nunca vieron. Auditoría de calidad del código (907 tests), diagnósticos de overfitting y leakage, y tabla de 333 modelos de producción con métricas comparativas.</p>
+        <p>Validación semanal con datos reales del boletín SINAVE que los modelos nunca vieron. Auditoría de calidad del código (907 tests), diagnósticos de overfitting y leakage, y tabla de 333 modelos de producción de la cohorte neurológica con métricas comparativas.</p>
       </div>
 
       <div class="method-card method-highlight reveal reveal-delay-3" data-phase="final">
@@ -2541,12 +2613,12 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
           </div>
         <h3>Innovaciones Clave</h3>
-        <p>Evolución completa desde un prototipo monolítico hasta un sistema multi-modelo validado en producción con 4 motores de IA.</p>
+        <p>Evolución completa desde un prototipo monolítico hasta un sistema multi-modelo validado en producción con cinco motores de IA.</p>
 
         <div class="method-features">
           <div class="method-feature">
             <div class="method-feature-dot"></div>
-            <span>4 motores: DeepAR (GPU), Prophet, Ensemble (Prophet+XGBoost), Stacking (Prophet+ETS+LightGBM+Ridge)</span>
+            <span>5 motores: DeepAR (GPU), Prophet, Ensemble (Prophet+XGBoost), Stacking (Prophet+ETS+LightGBM+Ridge) y NB-GLM con El Niño (Dengue)</span>
           </div>
           <div class="method-feature">
             <div class="method-feature-dot"></div>
@@ -2579,16 +2651,16 @@
   <section class="results-bg" id="results">
     <div class="section">
       <div class="section-label reveal">Entrega Final — Producción Multi-Modelo</div>
-      <div class="section-title reveal">333 modelos optimizados con<br>4 motores de IA</div>
+      <h2 class="section-title reveal">435 modelos optimizados con<br>cinco motores de IA</h2>
       <div class="section-desc reveal">
-        Selección automática entre Prophet (126), Ensemble (95), DeepAR (78) y Stacking (34) por SMAPE 2026 real (15 sem del Boletín SINAVE) con MASE como desempate y forzado a Ensemble en series ruidosas. Pronóstico a 52 semanas con 100% cobertura.
+        Para cada serie se elige automáticamente el mejor motor por SMAPE sobre la realidad 2026 del Boletín SINAVE, con MASE como desempate y forzado a Ensemble en series ruidosas. Pronóstico a 52 semanas con 100% de cobertura. Las tarjetas resumen la cohorte neurológica (333 modelos); el Dengue suma 102 modelos con su propio pipeline NB-GLM.
       </div>
 
       <div class="results-summary reveal">
-        <div class="results-summary-pill">Modelos producción <strong>333</strong></div>
-        <div class="results-summary-pill">Motores <strong>4 (DeepAR, Prophet, Ensemble, Stacking)</strong></div>
+        <div class="results-summary-pill">Modelos producción <strong id="kpi-modelos-pill">435</strong></div>
+        <div class="results-summary-pill">Motores <strong>5 (DeepAR, Prophet, Ensemble, Stacking, NB-GLM)</strong></div>
         <div class="results-summary-pill">Horizonte <strong>52 semanas</strong></div>
-        <div class="results-summary-pill">MASE <strong>&lt; 1.0 (3/3)</strong></div>
+        <div class="results-summary-pill">MASE neuro <strong>&lt; 1.0 (3/3)</strong></div>
       </div>
 
       <div class="results-grid">
@@ -2736,7 +2808,7 @@
 
       <div style="text-align:center; margin-top:2.5rem;" class="reveal">
         <a href="Reports/index.html" style="display:inline-block; padding:1rem 2.5rem; background:var(--teal); color:var(--cream); font-family:var(--font-body); font-weight:700; font-size:0.95rem; text-transform:uppercase; letter-spacing:0.08em; border-radius:8px; transition:background .2s, transform .2s; text-decoration:none;" onmouseover="this.style.background='var(--burgundy)';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='var(--teal)';this.style.transform='none'">
-          Ver Galería de 333 Pronósticos
+          Ver Galería de Pronósticos
         </a>
       </div>
     </div>
@@ -2748,23 +2820,23 @@
   <section class="team-bg" id="team">
     <div class="section">
       <div class="section-label reveal">Equipo</div>
-      <div class="section-title reveal">Un equipo multidisciplinario<br>uniendo tecnología y salud</div>
+      <h2 class="section-title reveal">Un equipo multidisciplinario<br>uniendo tecnología y salud</h2>
 
       <div class="team-grid">
         <div class="team-card reveal reveal-delay-1">
-          <img class="team-avatar" src="JARS20206.jpg" alt="Javier Rebull" style="object-fit:cover;">
+          <img class="team-avatar" src="JARS20206.jpg" alt="Javier Rebull" width="80" height="80" loading="lazy" decoding="async" style="object-fit:cover;">
           <h4>Javier Rebull</h4>
           <div class="team-role">ML Engineer & Lead Developer</div>
           <div class="team-org">Santander Bank US</div>
         </div>
         <div class="team-card reveal reveal-delay-2">
-          <img class="team-avatar" src="JARCOS2026.png" alt="Juan Carlos Pérez Nava" style="object-fit:cover;">
+          <img class="team-avatar" src="JARCOS2026.png" alt="Juan Carlos Pérez Nava" width="80" height="80" loading="lazy" decoding="async" style="object-fit:cover;">
           <h4>Juan Carlos Pérez Nava</h4>
           <div class="team-role">EDA, Feature Engineering & Prophet Base</div>
           <div class="team-org">IMSS</div>
         </div>
         <div class="team-card reveal reveal-delay-3">
-          <img class="team-avatar" src="LUIS2026.jpg" alt="Luis Gerardo Sánchez" style="object-fit:cover;">
+          <img class="team-avatar" src="LUIS2026.jpg" alt="Luis Gerardo Sánchez" width="80" height="80" loading="lazy" decoding="async" style="object-fit:cover;">
           <h4>Luis Gerardo Sánchez</h4>
           <div class="team-role">Dashboard Design & Development</div>
           <div class="team-org">Tesla</div>
@@ -2802,7 +2874,7 @@
        ═══════════════════════════════════════════════════════════════ -->
   <section class="section" id="stack">
     <div class="section-label reveal" style="justify-content:center">Stack Tecnológico</div>
-    <div class="section-title reveal" style="text-align:center">Herramientas que potencian<br>el proyecto</div>
+    <h2 class="section-title reveal" style="text-align:center">Herramientas que potencian<br>el proyecto</h2>
 
     <div class="stack-grid reveal">
       <div class="stack-pill"><span class="stack-pill-dot stack-pill-dot--lang"></span>Python 3.12</div>
@@ -2841,7 +2913,7 @@
   <section class="scope-bg" id="scope">
     <div class="section">
       <div class="section-label reveal">Alcance de Datos</div>
-      <div class="section-title reveal">Un dataset robusto para<br>decisiones informadas</div>
+      <h2 class="section-title reveal">Un dataset robusto para<br>decisiones informadas</h2>
 
       <div class="scope-stats">
         <div class="scope-stat reveal reveal-delay-1">
@@ -2860,13 +2932,14 @@
           <div class="scope-stat-sub">Cobertura nacional completa</div>
         </div>
         <div class="scope-stat reveal reveal-delay-4">
-          <div class="scope-stat-value scope-stat-value--dark" data-target="333" data-suffix="">0</div>
+          <div class="scope-stat-value scope-stat-value--dark" id="kpi-modelos-scope" data-target="435" data-suffix="">0</div>
           <div class="scope-stat-label">Modelos Producción</div>
-          <div class="scope-stat-sub">4 motores: Prophet 126, Ensemble 95, DeepAR 78, Stacking 34</div>
+          <div class="scope-stat-sub">5 motores: 333 de la cohorte neurológica + 102 de Dengue</div>
         </div>
       </div>
     </div>
   </section>
+  </main>
 
   <!-- ═══════════════════════════════════════════════════════════════
        FOOTER
@@ -2943,15 +3016,36 @@
   </script>
 
   <script>
-    function toggleMobileNav() {
+    function toggleMobileNav(btn) {
       const mob = document.getElementById('navMobile');
-      mob.classList.toggle('show');
+      const open = mob.classList.toggle('show');
+      const trigger = btn || document.querySelector('.nav-hamburger');
+      if (trigger) {
+        trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+        trigger.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+      }
     }
     // Close mobile nav on link click
     document.querySelectorAll('.nav-mobile-items a').forEach(a => {
       a.addEventListener('click', () => {
         document.getElementById('navMobile').classList.remove('show');
+        const trigger = document.querySelector('.nav-hamburger');
+        if (trigger) {
+          trigger.setAttribute('aria-expanded', 'false');
+          trigger.setAttribute('aria-label', 'Abrir menú');
+        }
       });
+    });
+
+    // Sync aria-expanded on desktop hover-driven dropdowns
+    document.querySelectorAll('.nav-group').forEach(group => {
+      const toggle = group.querySelector('.nav-group-toggle');
+      if (!toggle) return;
+      const sync = (state) => toggle.setAttribute('aria-expanded', state ? 'true' : 'false');
+      group.addEventListener('mouseenter', () => sync(true));
+      group.addEventListener('mouseleave', () => sync(false));
+      group.addEventListener('focusin', () => sync(true));
+      group.addEventListener('focusout', () => sync(false));
     });
 
     // Counter animation
@@ -3004,6 +3098,42 @@
       }, { threshold: 0.3 });
       scopeObs.observe(el);
     });
+  </script>
+
+  <!-- Hidratación dinámica de KPIs desde knowledge.json (con fallback a los valores estáticos) -->
+  <script>
+    (function hydrateKpis() {
+      try {
+        fetch('epibot/knowledge.json', { cache: 'no-store' })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) {
+            if (!data || !data.stats) return;
+            var stats = data.stats;
+            var total = stats.total_modelos;
+            if (total != null) {
+              // KPIs animados: actualizar data-target y, si ya animaron, el texto
+              ['kpi-modelos', 'kpi-modelos-scope'].forEach(function (id) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                el.setAttribute('data-target', String(total));
+                if (el.textContent && el.textContent !== '0') {
+                  el.textContent = Number(total).toLocaleString();
+                }
+              });
+              // KPI estático (pill de resultados)
+              var pill = document.getElementById('kpi-modelos-pill');
+              if (pill) pill.textContent = Number(total).toLocaleString();
+            }
+            // Motor líder en la distribución del hero (si existe el nodo)
+            var leader = document.getElementById('kpi-motor-lider');
+            if (leader && stats.motor_ganador) {
+              var pct = stats.motor_ganador_pct != null ? ' (' + stats.motor_ganador_pct + '%)' : '';
+              leader.textContent = stats.motor_ganador + pct;
+            }
+          })
+          .catch(function () { /* fallback silencioso: se conservan los valores estáticos */ });
+      } catch (e) { /* no romper el render */ }
+    })();
   </script>
 </body>
 </html>
