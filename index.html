@@ -2542,31 +2542,29 @@
        MASTHEAD — cabecera de periódico (la navbar se vuelve nameplate + section bar)
        ═══════════════════════════════════════════════════════════════════ */
     .nav { position: static !important; background: var(--bg) !important; backdrop-filter: none !important;
-           border-bottom: 3px double var(--rule-strong) !important; box-shadow: none !important; }
+           border-bottom: 1px solid var(--rule-strong) !important; box-shadow: none !important; }
     .nav-inner {
-      flex-wrap: wrap !important; justify-content: center !important; align-items: center !important;
-      height: auto !important; max-width: 1180px; padding: 1.4rem 2rem 0.7rem !important;
-      column-gap: 1.5rem; row-gap: 0; position: relative;
+      flex-wrap: nowrap !important; justify-content: space-between !important; align-items: center !important;
+      height: auto !important; max-width: 1240px; padding: 0.6rem 2rem !important;
+      column-gap: 1.5rem; position: relative;
     }
     .nav-logo {
-      flex-basis: 100% !important; text-align: center; flex-shrink: 1 !important;
+      flex-basis: auto !important; flex-shrink: 0 !important; text-align: left;
       font-family: var(--serif-head) !important; font-weight: 400 !important;
-      font-size: clamp(2rem, 4.8vw, 3.1rem) !important; letter-spacing: -0.01em !important;
-      color: var(--ink) !important; padding-bottom: 0.7rem; margin-bottom: 0.7rem;
-      border-bottom: 1px solid var(--rule);
+      font-size: clamp(1.3rem, 2vw, 1.65rem) !important; letter-spacing: -0.01em !important;
+      color: var(--ink) !important; padding-bottom: 0 !important; margin-bottom: 0 !important;
+      border-bottom: none !important;
     }
     .nav-logo span { color: var(--accent) !important; }
-    .nav-menu { flex: none !important; justify-content: center !important; gap: 1.6rem !important; flex-wrap: wrap; }
+    .nav-menu { flex: 1 1 auto !important; justify-content: center !important; gap: 1.3rem !important; flex-wrap: wrap; }
     .nav-group-toggle { text-transform: uppercase !important; letter-spacing: 0.08em !important; font-size: 0.72rem !important; font-weight: 600 !important; }
-    .nav-ctas { margin-left: 0.4rem; gap: 0.5rem; }
+    .nav-ctas { gap: 0.5rem; flex-shrink: 0; }
     .nav.scrolled .nav-inner { height: auto !important; }
     /* el nav ya no es fixed: el hero arranca pegado a la cabecera */
-    .edl-hero { padding-top: 2.6rem !important; }
+    .edl-hero { padding-top: 2.2rem !important; }
     @media (max-width: 768px) {
-      .nav-inner { padding: 1.1rem 1.3rem !important; }
-      .nav-logo { font-size: 1.8rem !important; border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
-      .nav-hamburger { position: absolute !important; right: 1.2rem; top: 1.1rem; }
-      .nav { border-bottom-width: 1px !important; }
+      .nav-inner { padding: 0.65rem 1.3rem !important; }
+      .nav-logo { font-size: 1.4rem !important; }
     }
 
     /* ═══════════════════════════════════════════════════════════════════

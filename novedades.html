@@ -2542,31 +2542,29 @@
        MASTHEAD — cabecera de periódico (la navbar se vuelve nameplate + section bar)
        ═══════════════════════════════════════════════════════════════════ */
     .nav { position: static !important; background: var(--bg) !important; backdrop-filter: none !important;
-           border-bottom: 3px double var(--rule-strong) !important; box-shadow: none !important; }
+           border-bottom: 1px solid var(--rule-strong) !important; box-shadow: none !important; }
     .nav-inner {
-      flex-wrap: wrap !important; justify-content: center !important; align-items: center !important;
-      height: auto !important; max-width: 1180px; padding: 1.4rem 2rem 0.7rem !important;
-      column-gap: 1.5rem; row-gap: 0; position: relative;
+      flex-wrap: nowrap !important; justify-content: space-between !important; align-items: center !important;
+      height: auto !important; max-width: 1240px; padding: 0.6rem 2rem !important;
+      column-gap: 1.5rem; position: relative;
     }
     .nav-logo {
-      flex-basis: 100% !important; text-align: center; flex-shrink: 1 !important;
+      flex-basis: auto !important; flex-shrink: 0 !important; text-align: left;
       font-family: var(--serif-head) !important; font-weight: 400 !important;
-      font-size: clamp(2rem, 4.8vw, 3.1rem) !important; letter-spacing: -0.01em !important;
-      color: var(--ink) !important; padding-bottom: 0.7rem; margin-bottom: 0.7rem;
-      border-bottom: 1px solid var(--rule);
+      font-size: clamp(1.3rem, 2vw, 1.65rem) !important; letter-spacing: -0.01em !important;
+      color: var(--ink) !important; padding-bottom: 0 !important; margin-bottom: 0 !important;
+      border-bottom: none !important;
     }
     .nav-logo span { color: var(--accent) !important; }
-    .nav-menu { flex: none !important; justify-content: center !important; gap: 1.6rem !important; flex-wrap: wrap; }
+    .nav-menu { flex: 1 1 auto !important; justify-content: center !important; gap: 1.3rem !important; flex-wrap: wrap; }
     .nav-group-toggle { text-transform: uppercase !important; letter-spacing: 0.08em !important; font-size: 0.72rem !important; font-weight: 600 !important; }
-    .nav-ctas { margin-left: 0.4rem; gap: 0.5rem; }
+    .nav-ctas { gap: 0.5rem; flex-shrink: 0; }
     .nav.scrolled .nav-inner { height: auto !important; }
     /* el nav ya no es fixed: el hero arranca pegado a la cabecera */
-    .edl-hero { padding-top: 2.6rem !important; }
+    .edl-hero { padding-top: 2.2rem !important; }
     @media (max-width: 768px) {
-      .nav-inner { padding: 1.1rem 1.3rem !important; }
-      .nav-logo { font-size: 1.8rem !important; border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
-      .nav-hamburger { position: absolute !important; right: 1.2rem; top: 1.1rem; }
-      .nav { border-bottom-width: 1px !important; }
+      .nav-inner { padding: 0.65rem 1.3rem !important; }
+      .nav-logo { font-size: 1.4rem !important; }
     }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -2630,20 +2628,17 @@
     .disease-card .disease-icon svg { color: var(--accent) !important; }
     /* Punto 'en vivo' del folio: a azul de acento (no menta del look viejo) */
     .edl-folio .live::before, .edl-kicker .dot { background: var(--accent) !important; box-shadow: 0 0 10px var(--accent) !important; }
-    /* ARCHIVO DE NOVEDADES — lista de artículos editorial */
     .arch-back { display:inline-block; font-family:var(--sans); font-size:0.82rem; color:var(--accent) !important; margin-bottom:1.4rem; }
     .arch-list { margin-top:1.6rem; border-top:2px solid var(--rule-strong); }
     .arch-item { padding:2.1rem 0; border-bottom:1px solid var(--rule); }
     .arch-meta { display:flex; align-items:center; gap:0.85rem; margin-bottom:0.55rem; }
-    .arch-date { font-family:var(--sans); font-size:0.74rem; color:var(--ink-mut); letter-spacing:0.02em; }
+    .arch-date { font-family:var(--sans); font-size:0.74rem; color:var(--ink-mut); }
     .arch-tag { font-family:var(--sans); font-size:0.6rem; font-weight:700; text-transform:uppercase; letter-spacing:0.09em; color:var(--accent); }
-    .arch-title { font-family:var(--serif-head); font-weight:400; font-size:clamp(1.5rem,2.6vw,2rem); line-height:1.14; letter-spacing:-0.01em; margin-bottom:0.8rem; }
+    .arch-title { font-family:var(--serif-head); font-weight:400; font-size:clamp(1.5rem,2.6vw,2rem); line-height:1.14; margin-bottom:0.8rem; }
     .arch-item--featured .arch-title { font-size:clamp(1.9rem,3.6vw,2.7rem); }
-    .arch-title a { color:var(--ink) !important; }
-    .arch-title a:hover { color:var(--accent) !important; text-decoration:none; }
+    .arch-title a { color:var(--ink) !important; } .arch-title a:hover { color:var(--accent) !important; text-decoration:none; }
     .arch-body { font-family:var(--serif-body); font-size:1.05rem; line-height:1.62; color:var(--ink-soft); max-width:70ch; }
-    .arch-body p { margin-bottom:0.85rem; }
-    .arch-body strong { color:var(--ink); font-weight:600; }
+    .arch-body p { margin-bottom:0.85rem; } .arch-body strong { color:var(--ink); }
     .arch-link { display:inline-block; margin-top:0.5rem; font-family:var(--sans); font-weight:600; font-size:0.85rem; color:var(--accent) !important; }
   </style>
 </head>
@@ -2777,7 +2772,6 @@
         <h1 class="edl-headline" style="font-size:clamp(2.6rem,6vw,4.4rem)">Novedades</h1>
         <p class="edl-deck">Anuncios de plataforma, mejoras del asistente y actualizaciones de datos y modelos, de lo más reciente a lo más antiguo.</p>
         <div class="arch-list" id="newsGrid"></div>
-        <noscript><p style="color:var(--ink-soft)">Activa JavaScript para ver el archivo de novedades.</p></noscript>
       </div>
     </section>
   </main>
@@ -2936,18 +2930,9 @@
   </script>
 
   <script>
-    (function () {
-      function esc(s){return String(s==null?'':s);}
-      function itemHtml(it,i){
-        var feat=(i===0||it.featured)?' arch-item--featured':'';
-        var body=(it.body||[]).map(function(p){return '<p>'+esc(p)+'</p>';}).join('');
-        var href=(it.link&&it.link.href)||'#'; var ltext=(it.link&&it.link.text)||'Leer más';
-        return '<article class="arch-item'+feat+'"><div class="arch-meta"><span class="arch-date">'+esc(it.date)+'</span><span class="arch-tag">'+esc(it.tag)+'</span></div><h2 class="arch-title"><a href="'+esc(href)+'">'+esc(it.title)+'</a></h2><div class="arch-body">'+body+'</div><a class="arch-link" href="'+esc(href)+'">'+esc(ltext)+' &rarr;</a></article>';
-      }
-      fetch('news.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(d){
-        if(!d||!Array.isArray(d.items))return; var g=document.getElementById('newsGrid'); if(g)g.innerHTML=d.items.map(itemHtml).join('');
-      }).catch(function(){});
-    })();
+    (function(){function esc(s){return String(s==null?'':s);}
+    function ih(it,i){var f=(i===0||it.featured)?' arch-item--featured':'';var b=(it.body||[]).map(function(p){return '<p>'+esc(p)+'</p>';}).join('');var h=(it.link&&it.link.href)||'#';var l=(it.link&&it.link.text)||'Leer más';return '<article class="arch-item'+f+'"><div class="arch-meta"><span class="arch-date">'+esc(it.date)+'</span><span class="arch-tag">'+esc(it.tag)+'</span></div><h2 class="arch-title"><a href="'+esc(h)+'">'+esc(it.title)+'</a></h2><div class="arch-body">'+b+'</div><a class="arch-link" href="'+esc(h)+'">'+esc(l)+' &rarr;</a></article>';}
+    fetch('news.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(d){if(!d||!Array.isArray(d.items))return;var g=document.getElementById('newsGrid');if(g)g.innerHTML=d.items.map(ih).join('');}).catch(function(){});})();
   </script>
 </body>
 </html>
