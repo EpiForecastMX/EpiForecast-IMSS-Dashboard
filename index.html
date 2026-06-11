@@ -485,6 +485,101 @@
       margin-top: 0.25rem;
     }
 
+    /* Hero en dos columnas: copy + visualizador de pronóstico en vivo */
+    .hero-content.hero-split {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+      gap: 3.5rem;
+      align-items: center;
+      max-width: 1280px;
+    }
+    .hero-copy { min-width: 0; }
+    .hero-viz {
+      min-width: 0;
+      animation: fadeSlideUp 1s ease-out 0.5s both;
+    }
+    .hf-card {
+      position: relative;
+      background: linear-gradient(160deg, rgba(28,39,64,0.78), rgba(16,22,40,0.66));
+      border: 1px solid rgba(91,141,239,0.22);
+      border-radius: 22px;
+      padding: 1.3rem 1.4rem 1.1rem;
+      box-shadow: 0 24px 60px -24px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.04);
+      backdrop-filter: blur(10px);
+    }
+    .hf-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.9rem;
+    }
+    .hf-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--text-secondary);
+    }
+    .hf-live {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #34d399;
+      box-shadow: 0 0 0 0 rgba(52,211,153,0.6);
+      animation: hfLive 2s ease-out infinite;
+    }
+    @keyframes hfLive {
+      0% { box-shadow: 0 0 0 0 rgba(52,211,153,0.55); }
+      70% { box-shadow: 0 0 0 7px rgba(52,211,153,0); }
+      100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); }
+    }
+    .hf-pills { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .hf-pill {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.34rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.76rem; font-weight: 600;
+      color: var(--text-secondary);
+      background: rgba(36,49,79,0.5);
+      border: 1px solid rgba(91,141,239,0.16);
+      cursor: pointer;
+      transition: background .18s, border-color .18s, color .18s, transform .12s;
+    }
+    .hf-pill:hover { transform: translateY(-1px); color: var(--text-primary); }
+    .hf-pill-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--p, #5B8DEF); box-shadow: 0 0 8px var(--p, #5B8DEF); }
+    .hf-pill.is-active {
+      color: var(--text-primary);
+      background: color-mix(in srgb, var(--p) 20%, transparent);
+      border-color: var(--p, #5B8DEF);
+    }
+    .hf-canvas-wrap { position: relative; width: 100%; height: 300px; }
+    #hfCanvas { width: 100%; height: 100%; display: block; }
+    .hf-legend {
+      position: absolute; top: 6px; right: 8px;
+      display: flex; gap: 0.9rem;
+      font-size: 0.72rem; color: var(--text-muted);
+      pointer-events: none;
+    }
+    .hf-legend span { display: inline-flex; align-items: center; gap: 0.35rem; }
+    .hf-legend i { width: 16px; height: 0; display: inline-block; border-top-width: 2.5px; border-top-style: solid; }
+    .hf-caption {
+      display: flex; flex-wrap: wrap; gap: 0.5rem;
+      margin-top: 0.9rem;
+    }
+    .hf-chip {
+      font-size: 0.74rem; color: var(--text-secondary);
+      padding: 0.32rem 0.7rem; border-radius: 999px;
+      background: rgba(36,49,79,0.5); border: 1px solid rgba(91,141,239,0.14);
+    }
+    .hf-chip b { color: var(--text-primary); font-weight: 700; }
+    .hf-chip--motor b { color: var(--p, #5B8DEF); }
+    @media (max-width: 980px) {
+      .hero-content.hero-split { grid-template-columns: 1fr; gap: 2.2rem; }
+      .hero-viz { order: 2; }
+      .hf-canvas-wrap { height: 260px; }
+    }
+
     .hero-scroll {
       position: absolute;
       bottom: 80px;
@@ -1968,7 +2063,8 @@
       </svg>
     </div>
 
-    <div class="hero-content">
+    <div class="hero-content hero-split">
+      <div class="hero-copy">
       <div class="hero-badge">Maestría en IA Aplicada — Proyecto Integrador 2026</div>
 
       <h1>Inteligencia Epidemiológica<br>para <span class="accent">México</span></h1>
@@ -2012,6 +2108,24 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         Explorar Pronósticos
       </a>
+      </div><!-- /hero-copy -->
+
+      <div class="hero-viz">
+        <div class="hf-card">
+          <div class="hf-head">
+            <div class="hf-title"><span class="hf-live"></span>Pronóstico nacional en vivo</div>
+            <div class="hf-pills" id="hfPills"></div>
+          </div>
+          <div class="hf-canvas-wrap">
+            <canvas id="hfCanvas" role="img" aria-label="Gráfico animado del pronóstico nacional por padecimiento"></canvas>
+            <div class="hf-legend">
+              <span><i style="border-color:var(--text-secondary)"></i>Real</span>
+              <span><i style="border-top-style:dashed;border-color:var(--text-muted)"></i>Pronóstico</span>
+            </div>
+          </div>
+          <div class="hf-caption" id="hfCaption"></div>
+        </div>
+      </div>
     </div>
 
     <div class="hero-scroll">
@@ -3146,6 +3260,234 @@
             '<div class="news-mini-list">' + minis + '</div>';
         })
         .catch(function () { /* fallback silencioso: queda el banner estático */ });
+    })();
+  </script>
+
+  <!-- Hero vivo: pronóstico nacional real que se dibuja solo (canvas, sin librerías) -->
+  <script>
+    (function heroForecast() {
+      var canvas = document.getElementById('hfCanvas');
+      var pillsEl = document.getElementById('hfPills');
+      var capEl = document.getElementById('hfCaption');
+      var card = canvas && canvas.closest('.hf-card');
+      if (!canvas || !pillsEl || !capEl) return;
+      var ctx = canvas.getContext('2d');
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      var series = [], active = 0, geom = null, startT = 0, raf = 0, dpr = 1;
+      var INTRO = 2400; // ms de la animación de entrada
+
+      function hexToRgb(h) {
+        h = h.replace('#', '');
+        return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+      }
+      function rgba(rgb, a) { return 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + a + ')'; }
+      function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+      function clamp01(t) { return t < 0 ? 0 : t > 1 ? 1 : t; }
+      function fmt(n) { return Number(n).toLocaleString('es-MX'); }
+
+      function sizeCanvas() {
+        var wrap = canvas.parentElement;
+        var w = wrap.clientWidth, h = wrap.clientHeight;
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        computeGeom(w, h);
+      }
+
+      function computeGeom(W, H) {
+        var s = series[active];
+        if (!s) return;
+        var padL = 10, padR = 10, padT = 18, padB = 16;
+        var n = s.d.length;
+        var lastReal = -1;
+        for (var i = 0; i < n; i++) if (s.r[i] != null) lastReal = i;
+        var vals = [];
+        for (i = 0; i < n; i++) {
+          if (s.r[i] != null) vals.push(s.r[i]);
+          if (i >= lastReal && s.y[i] != null) vals.push(s.y[i]);
+          if (s.hi && s.hi[i] != null) vals.push(s.hi[i]);
+          if (s.lo && s.lo[i] != null) vals.push(s.lo[i]);
+        }
+        var mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals);
+        if (mn === mx) { mx = mn + 1; }
+        var span = mx - mn; mn -= span * 0.10; mx += span * 0.12;
+        var X = function (i) { return padL + (i / (n - 1)) * (W - padL - padR); };
+        var Y = function (v) { return padT + (1 - (v - mn) / (mx - mn)) * (H - padT - padB); };
+        geom = { W: W, H: H, n: n, lastReal: lastReal, X: X, Y: Y, padB: padB, padT: padT };
+      }
+
+      // Construye los puntos [x,y] de un arreglo en el rango [a,b] hasta una fracción prog
+      function segPoints(arr, a, b, prog) {
+        var g = geom, pts = [], k = a + prog * (b - a), ki = Math.floor(k);
+        for (var i = a; i <= Math.min(ki, b); i++) if (arr[i] != null) pts.push([g.X(i), g.Y(arr[i])]);
+        if (ki < b && prog > 0) {
+          var f = k - ki, v0 = arr[ki], v1 = arr[ki + 1];
+          if (v0 != null && v1 != null) {
+            var v = v0 + (v1 - v0) * f;
+            pts.push([g.X(ki) + (g.X(ki + 1) - g.X(ki)) * f, g.Y(v)]);
+          }
+        }
+        return pts;
+      }
+      function stroke(pts, color, width, dash, glow) {
+        if (pts.length < 2) return;
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(pts[0][0], pts[0][1]);
+        for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+        ctx.lineWidth = width; ctx.strokeStyle = color;
+        ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+        if (dash) ctx.setLineDash(dash);
+        if (glow) { ctx.shadowColor = glow; ctx.shadowBlur = 12; }
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      function draw(now) {
+        var g = geom, s = series[active];
+        if (!g || !s) return;
+        var rgb = hexToRgb(s.color);
+        var t = reduce ? 1e9 : (now - startT);
+        var gridA = clamp01(t / 380);
+        var realP = easeOut(clamp01((t - 250) / 1250));
+        var bandA = clamp01((t - 1300) / 800);
+        var fcP = easeOut(clamp01((t - 1450) / 850));
+        if (reduce) { gridA = bandA = 1; realP = fcP = 1; }
+
+        ctx.clearRect(0, 0, g.W, g.H);
+
+        // Rejilla horizontal
+        ctx.save();
+        ctx.strokeStyle = 'rgba(159,176,206,' + (0.10 * gridA) + ')';
+        ctx.lineWidth = 1;
+        for (var r = 0; r <= 3; r++) {
+          var yy = g.padT + (r / 3) * (g.H - g.padT - g.padB);
+          ctx.beginPath(); ctx.moveTo(0, yy); ctx.lineTo(g.W, yy); ctx.stroke();
+        }
+        ctx.restore();
+
+        // Banda de confianza (cola futura)
+        if (bandA > 0 && s.hi) {
+          var hiP = segPoints(s.hi, g.lastReal, g.n - 1, fcP);
+          var loP = segPoints(s.lo, g.lastReal, g.n - 1, fcP);
+          if (hiP.length > 1 && loP.length > 1) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(hiP[0][0], hiP[0][1]);
+            for (var i = 1; i < hiP.length; i++) ctx.lineTo(hiP[i][0], hiP[i][1]);
+            for (i = loP.length - 1; i >= 0; i--) ctx.lineTo(loP[i][0], loP[i][1]);
+            ctx.closePath();
+            ctx.fillStyle = rgba(rgb, 0.16 * bandA);
+            ctx.fill();
+            ctx.restore();
+          }
+        }
+
+        // Relleno bajo la línea real (gradiente)
+        var realPts = segPoints(s.r, 0, g.lastReal, realP);
+        if (realPts.length > 1) {
+          ctx.save();
+          var grad = ctx.createLinearGradient(0, g.padT, 0, g.H - g.padB);
+          grad.addColorStop(0, rgba(rgb, 0.22));
+          grad.addColorStop(1, rgba(rgb, 0));
+          ctx.beginPath();
+          ctx.moveTo(realPts[0][0], g.H - g.padB);
+          for (var j = 0; j < realPts.length; j++) ctx.lineTo(realPts[j][0], realPts[j][1]);
+          ctx.lineTo(realPts[realPts.length - 1][0], g.H - g.padB);
+          ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
+          ctx.restore();
+        }
+
+        // Pronóstico (cola futura, punteado)
+        var fcPts = segPoints(s.y, g.lastReal, g.n - 1, fcP);
+        stroke(fcPts, rgba(rgb, 0.92), 2.3, [7, 5], rgba(rgb, 0.35));
+
+        // Línea real (sólida, con glow)
+        stroke(realPts, s.color, 2.6, null, rgba(rgb, 0.5));
+
+        // Marcador "hoy" + punto que late
+        if (realP >= 0.999 && g.lastReal >= 0) {
+          var hx = g.X(g.lastReal), hy = g.Y(s.r[g.lastReal]);
+          ctx.save();
+          ctx.strokeStyle = 'rgba(159,176,206,0.22)';
+          ctx.setLineDash([3, 4]); ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(hx, g.padT); ctx.lineTo(hx, g.H - g.padB); ctx.stroke();
+          ctx.restore();
+          var pulse = reduce ? 0.5 : (0.5 + 0.5 * Math.sin(now / 380));
+          ctx.save();
+          ctx.beginPath(); ctx.arc(hx, hy, 7 + pulse * 5, 0, Math.PI * 2);
+          ctx.fillStyle = rgba(rgb, 0.10 + 0.12 * pulse); ctx.fill();
+          ctx.beginPath(); ctx.arc(hx, hy, 4.5, 0, Math.PI * 2);
+          ctx.fillStyle = '#fff'; ctx.shadowColor = s.color; ctx.shadowBlur = 12; ctx.fill();
+          ctx.beginPath(); ctx.arc(hx, hy, 4.5, 0, Math.PI * 2);
+          ctx.lineWidth = 2; ctx.strokeStyle = s.color; ctx.stroke();
+          ctx.restore();
+        }
+      }
+
+      function loop(now) {
+        draw(now);
+        if (reduce) return;
+        raf = requestAnimationFrame(loop);
+      }
+      function start() {
+        if (raf) cancelAnimationFrame(raf);
+        startT = performance.now();
+        if (reduce) { draw(0); return; }
+        raf = requestAnimationFrame(loop);
+      }
+
+      function setActive(i) {
+        active = i;
+        var s = series[i];
+        if (card) card.style.setProperty('--p', s.color);
+        Array.prototype.forEach.call(pillsEl.children, function (b, k) {
+          b.classList.toggle('is-active', k === i);
+          b.setAttribute('aria-pressed', k === i ? 'true' : 'false');
+        });
+        capEl.innerHTML =
+          '<span class="hf-chip hf-chip--motor">Motor <b>' + s.motor + '</b></span>' +
+          '<span class="hf-chip">SMAPE <b>' + s.smape + '%</b></span>' +
+          '<span class="hf-chip">' + fmt(s.casos) + ' casos · 52 sem</span>';
+        sizeCanvas();
+        start();
+      }
+
+      fetch('hero_series.json', { cache: 'no-store' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (d) {
+          if (!d || !Array.isArray(d.series) || !d.series.length) { hideViz(); return; }
+          series = d.series;
+          pillsEl.innerHTML = series.map(function (s, i) {
+            return '<button class="hf-pill' + (i === 0 ? ' is-active' : '') + '" style="--p:' + s.color +
+              '" data-i="' + i + '" aria-pressed="' + (i === 0 ? 'true' : 'false') + '">' +
+              '<span class="hf-pill-dot"></span>' + s.label + '</button>';
+          }).join('');
+          Array.prototype.forEach.call(pillsEl.children, function (b) {
+            b.addEventListener('click', function () { setActive(+b.dataset.i); });
+          });
+          setActive(0);
+        })
+        .catch(hideViz);
+
+      function hideViz() {
+        var viz = document.querySelector('.hero-viz');
+        if (viz) viz.style.display = 'none';
+        var split = document.querySelector('.hero-content.hero-split');
+        if (split) split.style.gridTemplateColumns = '1fr';
+      }
+
+      var rt;
+      window.addEventListener('resize', function () {
+        clearTimeout(rt);
+        rt = setTimeout(function () { if (series.length) { sizeCanvas(); draw(performance.now()); } }, 150);
+      });
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
+        else if (series.length && !reduce && !raf) { raf = requestAnimationFrame(loop); }
+      });
     })();
   </script>
 </body>
