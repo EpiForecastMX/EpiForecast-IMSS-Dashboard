@@ -59,17 +59,48 @@ h1, h2, h3, h4, .section-title, .hero h1 {
   text-transform: uppercase;
 }
 
-/* MASTHEAD — la navbar se vuelve cabecera de periódico */
+/* MASTHEAD — la navbar se vuelve cabecera de periódico.
+   Reglas BASE (autosuficientes) para que el nav se vea bien incluso en
+   subpáginas que NO traen CSS de nav inline. */
 .nav, .nav.scrolled {
   position: static !important;
   background: #0E1424 !important;
   backdrop-filter: none !important;
   border-bottom: 3px double var(--rule-strong) !important;
   box-shadow: none !important;
+  top: 0; left: 0; right: 0; z-index: 1000;
 }
+.nav-menu { display: flex; list-style: none; align-items: center; margin: 0; padding: 0; }
+.nav-group { position: relative; }
+.nav-group-toggle {
+  background: none !important; border: none !important; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.5rem 0.6rem;
+  font-family: var(--sans) !important;
+}
+.nav-group-toggle svg { width: 10px; height: 10px; opacity: 0.6; }
+.nav-dropdown {
+  position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
+  background: #121A2C; border: 1px solid var(--rule); border-radius: 12px;
+  padding: 0.5rem; min-width: 210px; opacity: 0; visibility: hidden;
+  transition: opacity .15s, visibility .15s; z-index: 200;
+  box-shadow: 0 14px 36px rgba(0,0,0,0.5);
+}
+.nav-group:hover .nav-dropdown { opacity: 1; visibility: visible; }
+.nav-dropdown::before { content: ''; position: absolute; top: -10px; left: 0; right: 0; height: 10px; }
+.nav-dropdown a { display: flex; align-items: center; gap: 0.7rem; padding: 0.55rem 0.9rem; border-radius: 8px; white-space: nowrap; text-decoration: none; }
+.nav-dropdown a svg { width: 16px; height: 16px; opacity: 0.55; flex: none; }
+.nav-ctas { display: flex; gap: 0.5rem; align-items: center; }
+.nav-cta { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 1rem; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; text-decoration: none; white-space: nowrap; }
+.nav-cta svg { width: 14px; height: 14px; }
+.nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; }
+.nav-hamburger span { width: 24px; height: 2px; display: block; }
+.nav-mobile { display: none; }
+.nav-mobile.show { display: flex; flex-direction: column; }
+@media (max-width: 768px) { .nav-menu, .nav-ctas { display: none !important; } .nav-hamburger { display: flex; } }
 .nav-inner {
+  display: flex !important;
   flex-wrap: wrap !important; justify-content: center !important; align-items: center !important;
-  height: auto !important; max-width: 1180px; padding: 1.4rem 2rem 0.7rem !important;
+  height: auto !important; max-width: 1180px; margin: 0 auto; padding: 1.4rem 2rem 0.7rem !important;
   column-gap: 1.5rem; position: relative;
 }
 .nav-logo {

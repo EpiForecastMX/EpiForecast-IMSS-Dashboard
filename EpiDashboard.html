@@ -537,59 +537,122 @@
   <!-- ═══════════════════════════════════════════════════════════════
        NAVIGATION
        ═══════════════════════════════════════════════════════════════ -->
-  <nav class="nav" id="nav">
+    <nav class="nav" id="nav">
     <div class="nav-inner">
-      <a href="index.html" class="nav-logo" style="text-decoration:none">EpiForecast<span>-MX</span></a>
+      <div class="nav-logo">EpiForecast<span>-MX</span></div>
+
       <ul class="nav-menu">
+        <!-- Proyecto -->
         <li class="nav-group">
-          <button class="nav-group-toggle">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
+          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
           <div class="nav-dropdown">
-            <a href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>Inicio</a>
+            <a href="index.html#hero"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>Inicio</a>
             <a href="EpiDashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
             <a href="Reports/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Pronósticos</a>
+            <a href="novedades.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/></svg>Novedades</a>
+            <a href="dengue.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>Dengue</a>
+            <a href="epibot/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>EPI Chatbot</a>
           </div>
         </li>
+
+        <!-- Metodología -->
         <li class="nav-group">
-          <button class="nav-group-toggle">Metodología <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
+          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Metodología <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
           <div class="nav-dropdown">
             <a href="bitacora_modelado.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Bitácora v1-v6</a>
             <a href="ficha_tecnica_prophet.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Ficha Prophet</a>
+            <a href="metodologia_dengue.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>Metodología Dengue</a>
             <a href="hiperparametros_modelos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>HPs SageMaker</a>
             <a href="construccion_dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Arquitectura Dashboard</a>
           </div>
         </li>
+
+        <!-- Resultados -->
         <li class="nav-group">
-          <button class="nav-group-toggle">Resultados <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
+          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Resultados <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
           <div class="nav-dropdown">
             <a href="reporte_resultados.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg>Resultados</a>
             <a href="comparacion_modelos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Comparación SageMaker</a>
-            <a href="validacion_semanal.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>Validación Semanal</a>
-            <a href="auditoria_remediacion_2026.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>Auditoría</a>
+            <a href="validacion_semanal.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Validación Semanal</a>
+            <a href="auditoria_remediacion_2026.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Auditoría y Remediación</a>
             <a href="conclusiones.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Conclusiones</a>
             <a href="referencias.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Referencias</a>
           </div>
         </li>
+        <li class="nav-group">
+          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">MICAI 2026 <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
+          <div class="nav-dropdown">
+            <a href="micai.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Artículo (versión digital)</a>
+            <a href="MICAI/EpiForecast_MICAI2026.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar PDF</a>
+          </div>
+        </li>
       </ul>
+
+      <!-- CTA buttons -->
       <div class="nav-ctas">
-        <a href="EpiDashboard.html" class="nav-cta nav-cta--primary">Dashboard</a>
-        <a href="https://github.com/IntegradorIMSS2026Team01" target="_blank" rel="noopener" class="nav-cta nav-cta--secondary" style="padding:0.4rem 0.6rem" title="GitHub"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
+        <a href="EpiDashboard.html" class="nav-cta nav-cta--primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          Dashboard
+        </a>
+        <a href="epibot/index.html" class="nav-cta nav-cta--secondary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          EPI Chatbot
+        </a>
+        <a href="https://github.com/IntegradorIMSS2026Team01" target="_blank" rel="noopener" class="nav-cta nav-cta--secondary" style="padding:0.4rem 0.6rem" title="GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        </a>
       </div>
-      <div class="nav-hamburger" onclick="document.getElementById('navMobile').classList.toggle('show')" aria-label="Menú"><span></span><span></span><span></span></div>
+
+      <button type="button" class="nav-hamburger" onclick="toggleMobileNav(this)" aria-label="Abrir menú" aria-expanded="false" aria-controls="navMobile">
+        <span></span><span></span><span></span>
+      </button>
     </div>
+
+    <!-- Mobile menu -->
     <div class="nav-mobile" id="navMobile">
       <div class="nav-mobile-group">
         <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items"><a href="index.html">Inicio</a><a href="EpiDashboard.html">Dashboard</a><a href="Reports/index.html">Pronósticos</a></div>
+        <div class="nav-mobile-items">
+          <a href="index.html#hero">Inicio</a>
+          <a href="EpiDashboard.html">Dashboard</a>
+          <a href="Reports/index.html">Pronósticos</a>
+          <a href="novedades.html">Novedades</a>
+          <a href="dengue.html">Dengue</a>
+          <a href="epibot/index.html">EPI Chatbot</a>
+        </div>
       </div>
       <div class="nav-mobile-group">
         <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Metodología <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items"><a href="bitacora_modelado.html">Bitácora v1-v6</a><a href="ficha_tecnica_prophet.html">Ficha Prophet</a><a href="hiperparametros_modelos.html">HPs SageMaker</a><a href="construccion_dashboard.html">Arquitectura Dashboard</a></div>
+        <div class="nav-mobile-items">
+          <a href="bitacora_modelado.html">Bitácora v1-v6</a>
+          <a href="ficha_tecnica_prophet.html">Ficha Prophet</a>
+          <a href="metodologia_dengue.html">Metodología Dengue</a>
+          <a href="hiperparametros_modelos.html">HPs SageMaker</a>
+          <a href="construccion_dashboard.html">Arquitectura Dashboard</a>
+        </div>
       </div>
       <div class="nav-mobile-group">
         <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Resultados <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items"><a href="reporte_resultados.html">Resultados</a><a href="comparacion_modelos.html">Comparación SageMaker</a><a href="validacion_semanal.html">Validación Semanal</a><a href="auditoria_remediacion_2026.html">Auditoría</a><a href="conclusiones.html">Conclusiones</a><a href="referencias.html">Referencias</a></div>
+        <div class="nav-mobile-items">
+          <a href="reporte_resultados.html">Resultados</a>
+          <a href="comparacion_modelos.html">Comparación SageMaker</a>
+          <a href="validacion_semanal.html">Validación Semanal</a>
+          <a href="auditoria_remediacion_2026.html">Auditoría y Remediación</a>
+          <a href="conclusiones.html">Conclusiones</a>
+          <a href="referencias.html">Referencias</a>
+        </div>
       </div>
-      <div class="nav-mobile-ctas"><a href="EpiDashboard.html" class="nav-cta nav-cta--primary" style="justify-content:center;padding:.6rem 1.5rem;flex:1">Dashboard</a></div>
+      <div class="nav-mobile-group">
+        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">MICAI 2026 <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
+        <div class="nav-mobile-items">
+          <a href="micai.html">Artículo (versión digital)</a>
+          <a href="MICAI/EpiForecast_MICAI2026.pdf" target="_blank" rel="noopener">Descargar PDF</a>
+        </div>
+      </div>
+      <div class="nav-mobile-ctas">
+        <a href="EpiDashboard.html" class="nav-cta nav-cta--primary" style="justify-content:center;padding:.6rem 1.5rem">Dashboard</a>
+        <a href="Reports/index.html" class="nav-cta nav-cta--secondary" style="justify-content:center;padding:.6rem 1.5rem">Pronósticos</a>
+      </div>
     </div>
   </nav>
 
@@ -683,20 +746,6 @@
   <!-- ═══════════════════════════════════════════════════════════════
        STICKY SECTION NAV
        ═══════════════════════════════════════════════════════════════ -->
-  <nav class="section-nav" id="sectionNav" aria-label="Navegación de visualizaciones">
-    <div class="section-nav-inner">
-      <a href="#tabla" class="chip"><span class="chip-dot chip-dot--tabla"></span>Tabla</a>
-      <a href="#mapa" class="chip"><span class="chip-dot chip-dot--mapa"></span>Mapa</a>
-      <a href="#categorias" class="chip"><span class="chip-dot chip-dot--cat"></span>Categorías</a>
-      <a href="#anual" class="chip"><span class="chip-dot chip-dot--anual"></span>Anual</a>
-      <a href="#semanal" class="chip"><span class="chip-dot chip-dot--semanal"></span>Semanal</a>
-      <a href="#pred-nacional" class="chip"><span class="chip-dot chip-dot--pred"></span>Nacional</a>
-      <a href="#pred-region" class="chip"><span class="chip-dot chip-dot--pred"></span>Regional</a>
-      <a href="#pred-estados" class="chip"><span class="chip-dot chip-dot--pred"></span>Por estado</a>
-      <a href="#dashgeneral" class="chip"><span class="chip-dot chip-dot--cat"></span>KPIs</a>
-    </div>
-  </nav>
-
   <!-- ═══════════════════════════════════════════════════════════════
        DASHBOARD BODY
        ═══════════════════════════════════════════════════════════════ -->
@@ -1100,6 +1149,90 @@
       }, { rootMargin: '-140px 0px -55% 0px', threshold: 0 });
       sections.forEach(s => spy.observe(s));
     }
+  </script>
+  <script>
+    function toggleMobileNav(btn) {
+      const mob = document.getElementById('navMobile');
+      const open = mob.classList.toggle('show');
+      const trigger = btn || document.querySelector('.nav-hamburger');
+      if (trigger) {
+        trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+        trigger.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+      }
+    }
+    // Close mobile nav on link click
+    document.querySelectorAll('.nav-mobile-items a').forEach(a => {
+      a.addEventListener('click', () => {
+        document.getElementById('navMobile').classList.remove('show');
+        const trigger = document.querySelector('.nav-hamburger');
+        if (trigger) {
+          trigger.setAttribute('aria-expanded', 'false');
+          trigger.setAttribute('aria-label', 'Abrir menú');
+        }
+      });
+    });
+
+    // Sync aria-expanded on desktop hover-driven dropdowns
+    document.querySelectorAll('.nav-group').forEach(group => {
+      const toggle = group.querySelector('.nav-group-toggle');
+      if (!toggle) return;
+      const sync = (state) => toggle.setAttribute('aria-expanded', state ? 'true' : 'false');
+      group.addEventListener('mouseenter', () => sync(true));
+      group.addEventListener('mouseleave', () => sync(false));
+      group.addEventListener('focusin', () => sync(true));
+      group.addEventListener('focusout', () => sync(false));
+    });
+
+    // Counter animation
+    function animateCounter(el) {
+      const target = parseFloat(el.getAttribute('data-target'));
+      const suffix = el.getAttribute('data-suffix') || '';
+      const duration = 2000;
+      const start = performance.now();
+
+      function update(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        let current;
+        if (Number.isInteger(target)) {
+          current = Math.round(target * eased);
+        } else {
+          current = (target * eased).toFixed(1);
+        }
+        el.textContent = current.toLocaleString() + suffix;
+        if (progress < 1) requestAnimationFrame(update);
+        else el.textContent = target.toLocaleString() + suffix;
+      }
+      requestAnimationFrame(update);
+    }
+
+    // Observe hero stats for counter trigger
+    const heroStats = document.getElementById('heroStats');
+    if (heroStats) {
+      const counterObs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            heroStats.querySelectorAll('[data-target]').forEach(animateCounter);
+            counterObs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.3 });
+      counterObs.observe(heroStats);
+    }
+
+    // Also animate scope stats
+    document.querySelectorAll('.scope-stat-value[data-target]').forEach(el => {
+      const scopeObs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            animateCounter(entry.target);
+            scopeObs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.3 });
+      scopeObs.observe(el);
+    });
   </script>
 </body>
 </html>
