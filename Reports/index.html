@@ -686,6 +686,9 @@ function renderLbChart(d, s) {
       plugins: {
         legend: { labels: { color: '#E7ECF5', filter: it => !it.text.startsWith('_'), usePointStyle: true, boxWidth: 8, font: { size: 12 } } },
         title: { display: true, text: `${d.p} — ${d.n} (${d.s})  ·  real vs pronóstico${wk ? ' (sem ' + wk + ')' : ''}`, color: '#E7ECF5', font: { size: 14, weight: 'bold' } },
+        subtitle: { display: (s.smape != null || s.mase != null),
+          text: [s.smape != null ? `SMAPE ${s.smape}%` : null, s.mase != null ? `MASE ${s.mase}` : null].filter(Boolean).join('   ·   ') + '   (ajuste vs real)',
+          color: '#9DB0D0', font: { size: 11.5 }, padding: { bottom: 8 } },
         presentLine: { idx: lastRealIdx, color, label: wk ? 'Sem ' + wk : 'presente' },
         tooltip: {
           backgroundColor: '#0E1424', borderColor: '#243150', borderWidth: 1, titleColor: '#E7ECF5', bodyColor: '#9DB0D0',
