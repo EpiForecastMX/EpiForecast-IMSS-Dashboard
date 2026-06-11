@@ -2409,6 +2409,36 @@
     /* Iconos de datos SIN caja (de-card de las enfermedades) */
     .disease-icon { background: transparent !important; width: auto !important; height: auto !important; margin-bottom: 0.7rem !important; padding: 0 !important; }
     .disease-icon svg { width: 30px !important; height: 30px !important; }
+
+    /* Etiqueta de enfermedad → línea de metadatos editorial (sin caja de color) */
+    .disease-tag {
+      display: block !important; background: transparent !important; border: none !important;
+      border-top: 1px solid var(--rule) !important; border-radius: 0 !important;
+      padding: 0.7rem 0 0 !important; margin-top: 0.8rem !important; color: var(--ink-mut) !important;
+      font-family: var(--sans) !important; font-size: 0.72rem !important; font-weight: 600 !important;
+      letter-spacing: 0.03em !important; text-transform: none !important;
+    }
+    .disease-card h3 { color: var(--ink) !important; }
+
+    /* RESULTADOS → tabla de datos de periódico */
+    .results-summary, .result-card, .results-cv-bar { display: none !important; } /* ocultamos lo viejo; se reemplaza en el HTML */
+    .edl-table-cap { font-family: var(--serif-body); color: var(--ink-soft) !important; font-size: 1.05rem; margin: 0.4rem 0 0.6rem; }
+    .edl-table-wrap { overflow-x: auto; }
+    .edl-table { width: 100%; border-collapse: collapse; margin-top: 1.2rem; min-width: 540px; }
+    .edl-table thead th {
+      font-family: var(--sans); text-transform: uppercase; letter-spacing: 0.07em;
+      font-size: 0.64rem; color: var(--ink-mut); text-align: right; font-weight: 700;
+      padding: 0.7rem 0.65rem; border-bottom: 2px solid var(--rule-strong); white-space: nowrap;
+    }
+    .edl-table thead th:first-child { text-align: left; }
+    .edl-table td { padding: 1rem 0.65rem; border-bottom: 1px solid var(--rule); text-align: right; font-size: 0.98rem; color: var(--ink-soft); font-family: var(--sans); }
+    .edl-table td:first-child { text-align: left; }
+    .edl-table tbody tr:hover { background: rgba(255,255,255,0.025); }
+    .edl-table .pad { font-family: var(--serif-head); font-size: 1.2rem; color: var(--ink); }
+    .edl-table .pad small { font-family: var(--sans); font-size: 0.64rem; color: var(--ink-mut); letter-spacing: 0.05em; margin-left: 0.5rem; }
+    .edl-table .num { font-variant-numeric: tabular-nums; color: var(--ink); font-weight: 600; }
+    .edl-table-note { font-family: var(--serif-body); font-size: 0.95rem; color: var(--ink-soft) !important; margin-top: 1.1rem; padding-top: 0.9rem; border-top: 1px solid var(--rule); }
+    .edl-table-note b { color: var(--ink) !important; }
   </style>
 </head>
 <body>
@@ -2776,163 +2806,47 @@
       <div class="section-label reveal">Entrega Final — Producción Multi-Modelo</div>
       <h2 class="section-title reveal">435 modelos optimizados con<br>cinco motores de IA</h2>
       <div class="section-desc reveal">
-        Para cada serie se elige automáticamente el mejor motor por SMAPE sobre la realidad 2026 del Boletín SINAVE, con MASE como desempate y forzado a Ensemble en series ruidosas. Pronóstico a 52 semanas con 100% de cobertura. Las tarjetas resumen la cohorte neurológica (333 modelos); el Dengue suma 102 modelos con su propio pipeline NB-GLM.
+        La entrega final del proyecto: 435 modelos en producción, pronóstico a 52 semanas y 100% de cobertura estatal.
       </div>
 
-      <div class="results-summary reveal">
-        <div class="results-summary-pill">Modelos producción <strong id="kpi-modelos-pill">435</strong></div>
-        <div class="results-summary-pill">Motores <strong>5 (DeepAR, Prophet, Ensemble, Stacking, NB-GLM)</strong></div>
-        <div class="results-summary-pill">Horizonte <strong>52 semanas</strong></div>
-        <div class="results-summary-pill">MASE neuro <strong>&lt; 1.0 (3/3)</strong></div>
+      <p class="edl-table-cap reveal">Para cada serie se elige automáticamente el mejor motor por SMAPE sobre la realidad 2026 del Boletín SINAVE, con MASE como desempate. La tabla resume la cohorte neurológica (333 modelos).</p>
+
+      <div class="edl-table-wrap reveal">
+        <table class="edl-table">
+          <thead>
+            <tr><th>Padecimiento</th><th>SMAPE mediano</th><th>MASE mediano</th><th>RMSE mediano</th><th>Motor líder</th><th>Cobertura</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="pad">Depresión <small>F32 · 111 modelos</small></td>
+              <td class="num">21.7%</td><td class="num">0.71</td><td class="num">12.4</td>
+              <td>DeepAR</td><td class="num">100%</td>
+            </tr>
+            <tr>
+              <td class="pad">Parkinson <small>G20 · 111 modelos</small></td>
+              <td class="num">68.6%</td><td class="num">0.71</td><td class="num">1.73</td>
+              <td>Prophet</td><td class="num">100%</td>
+            </tr>
+            <tr>
+              <td class="pad">Alzheimer <small>G30 · 111 modelos</small></td>
+              <td class="num">123.5%</td><td class="num">0.76</td><td class="num">0.96</td>
+              <td>Prophet</td><td class="num">100%</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
-      <div class="results-grid">
-        <!-- DEPRESION -->
-        <div class="result-card result-card--dep reveal reveal-delay-1">
-          <div class="result-card-header">
-            <h3>Depresión</h3>
-            <span class="result-card-tag">F32 · 111 modelos · DeepAR 38, Prophet 36, Ensemble 23, Stacking 14</span>
-          </div>
-          <div class="result-kpis">
-            <div class="result-kpi">
-              <div class="result-kpi-value">21.7%</div>
-              <div class="result-kpi-label">SMAPE mediano</div>
-            </div>
-            <div class="result-kpi">
-              <div class="result-kpi-value">0.71</div>
-              <div class="result-kpi-label">MASE mediano</div>
-            </div>
-            <div class="result-kpi">
-              <div class="result-kpi-value">12.4</div>
-              <div class="result-kpi-label">RMSE mediano</div>
-            </div>
-            <div class="result-kpi">
-              <div class="result-kpi-value">0</div>
-              <div class="result-kpi-label">Insuficientes</div>
-            </div>
-          </div>
+      <p class="edl-table-note reveal"><b>Dengue</b> (A97 · 99 series productivas, 2018-2026): SMAPE nacional de 20.4%, con DeepAR, Prophet y NB-GLM (regresor de El Niño) en producción. Pipeline de conteos propio, fuera de la cohorte neurológica.</p>
 
-          <div class="result-semaphore">
-            <div class="result-semaphore-seg seg-exc" style="flex:111" data-label="111 Normal"></div>
-          </div>
-
-          <div class="result-states">
-            <div class="result-state result-state--best">
-              <span class="result-state-label">Cobertura</span>
-              <span class="result-state-name">100%</span> · <span class="result-state-val">0 fallback</span>
-            </div>
-            <div class="result-state result-state--worst">
-              <span class="result-state-label">Mejor SMAPE</span>
-              <span class="result-state-name">Michoacán</span> · <span class="result-state-val">1.03%</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- PARKINSON -->
-        <div class="result-card result-card--par reveal reveal-delay-2">
-          <div class="result-card-header">
-            <h3>Parkinson</h3>
-            <span class="result-card-tag">G20 · 111 modelos · Prophet 45, Ensemble 31, DeepAR 22, Stacking 13</span>
-          </div>
-          <div class="result-kpis">
-            <div class="result-kpi">
-              <div class="result-kpi-value">68.6%</div>
-              <div class="result-kpi-label">SMAPE mediano</div>
-            </div>
-            <div class="result-kpi">
-              <div class="result-kpi-value">0.71</div>
-              <div class="result-kpi-label">MASE mediano</div>
-            </div>
-            <div class="result-kpi">
-              <div class="result-kpi-value">1.73</div>
-              <div class="result-kpi-label">RMSE mediano</div>
-            </div>
-            <div class="result-kpi">
-              <div class="result-kpi-value">1</div>
-              <div class="result-kpi-label">Insuficientes</div>
-            </div>
-          </div>
-
-          <div class="result-semaphore">
-            <div class="result-semaphore-seg seg-exc" style="flex:110" data-label="110 Normal"></div>
-            <div class="result-semaphore-seg seg-acep" style="flex:1" data-label="1 Fallback"></div>
-          </div>
-
-          <div class="result-states">
-            <div class="result-state result-state--best">
-              <span class="result-state-label">Cobertura</span>
-              <span class="result-state-name">100%</span> · <span class="result-state-val">1 regional</span>
-            </div>
-            <div class="result-state result-state--worst">
-              <span class="result-state-label">Mejor SMAPE</span>
-              <span class="result-state-name">Urbana media</span> · <span class="result-state-val">1.95%</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- ALZHEIMER -->
-        <div class="result-card result-card--alz reveal reveal-delay-3">
-          <div class="result-card-header">
-            <h3>Alzheimer</h3>
-            <span class="result-card-tag">G30 · 111 modelos · Prophet 45, Ensemble 41, DeepAR 18, Stacking 7</span>
-          </div>
-          <div class="result-kpis">
-            <div class="result-kpi">
-              <div class="result-kpi-value">123.5%</div>
-              <div class="result-kpi-label">SMAPE mediano</div>
-            </div>
-            <div class="result-kpi">
-              <div class="result-kpi-value">0.76</div>
-              <div class="result-kpi-label">MASE mediano</div>
-            </div>
-            <div class="result-kpi">
-              <div class="result-kpi-value">0.96</div>
-              <div class="result-kpi-label">RMSE mediano</div>
-            </div>
-            <div class="result-kpi">
-              <div class="result-kpi-value">7</div>
-              <div class="result-kpi-label">Insuficientes</div>
-            </div>
-          </div>
-
-          <div class="result-semaphore">
-            <div class="result-semaphore-seg seg-exc" style="flex:104" data-label="104 Normal"></div>
-            <div class="result-semaphore-seg seg-acep" style="flex:7" data-label="7 Fallback"></div>
-          </div>
-
-          <div class="result-states">
-            <div class="result-state result-state--best">
-              <span class="result-state-label">Cobertura</span>
-              <span class="result-state-name">100%</span> · <span class="result-state-val">7 regionales</span>
-            </div>
-            <div class="result-state result-state--worst">
-              <span class="result-state-label">Mejor SMAPE</span>
-              <span class="result-state-name">BCS</span> · <span class="result-state-val">0.00%</span>
-            </div>
-          </div>
-        </div>
+      <div class="edl-stats reveal" style="margin-top:2.4rem">
+        <div class="edl-stat"><b>4</b><span>folds · CV temporal con pesos</span></div>
+        <div class="edl-stat"><b>&lt; 1.0</b><span>MASE · superan baseline naive (3/3)</span></div>
+        <div class="edl-stat"><b>907</b><span>pruebas automatizadas</span></div>
+        <div class="edl-stat"><b>100%</b><span>cobertura · 0 series sin pronóstico</span></div>
       </div>
 
-      <!-- Cross-validation details -->
-      <div class="results-cv-bar reveal">
-        <div class="cv-detail">
-          <div class="cv-detail-value">4 folds</div>
-          <div class="cv-detail-label">CV temporal con pesos progresivos</div>
-        </div>
-        <div class="cv-detail">
-          <div class="cv-detail-value">MASE &lt; 1</div>
-          <div class="cv-detail-label">Todos superan baseline naive lag-52</div>
-        </div>
-        <div class="cv-detail">
-          <div class="cv-detail-value">907 tests</div>
-          <div class="cv-detail-label">Suite de calidad automatizada (70%+ cobertura)</div>
-        </div>
-      </div>
-
-      <div style="text-align:center; margin-top:2.5rem;" class="reveal">
-        <a href="Reports/index.html" style="display:inline-block; padding:1rem 2.5rem; background:var(--teal); color:var(--cream); font-family:var(--font-body); font-weight:700; font-size:0.95rem; text-transform:uppercase; letter-spacing:0.08em; border-radius:8px; transition:background .2s, transform .2s; text-decoration:none;" onmouseover="this.style.background='var(--burgundy)';this.style.transform='translateY(-2px)'" onmouseout="this.style.background='var(--teal)';this.style.transform='none'">
-          Ver Galería de Pronósticos
-        </a>
+      <div class="edl-ctas reveal" style="margin-top:2rem">
+        <a href="Reports/index.html" class="edl-primary">Ver la galería de pronósticos <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
       </div>
     </div>
   </section>
