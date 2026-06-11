@@ -1965,6 +1965,92 @@
       .hero-badge::before,
       .hero-scroll-line { animation: none !important; }
     }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       REFRESH 2026 — capa final: plano, moderno, calmado, fresco.
+       Override de la estética anterior (gana por orden de cascada).
+       ═══════════════════════════════════════════════════════════════════ */
+    :root {
+      --bg-deep: #0A0E18;
+      --accent: #6AA0FF;
+      --line: rgba(255,255,255,0.07);
+      --line-strong: rgba(255,255,255,0.14);
+      --surface: rgba(255,255,255,0.025);
+      /* Tipografía: sin serif. Una sola familia geométrica moderna. */
+      --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
+    }
+    body { background: #0A0E18; }
+    body::before { display: none !important; }            /* textura de ruido fuera */
+
+    /* Headings modernos y compactos */
+    .hero h1, .section-title { letter-spacing: -0.025em; font-weight: 700; }
+
+    /* HERO sin decoración ocupada (la gráfica viva es el único protagonista) */
+    .hero { background: #0A0E18 !important; min-height: auto; }
+    .hero::before, .hero::after { display: none !important; }
+    .hero-grid, .hero-mesh, .hero-scroll { display: none !important; }
+    .hero-content.hero-split { padding-top: 4.5rem; padding-bottom: 5rem; }
+    .hero-badge {
+      background: transparent !important;
+      border: 1px solid var(--line) !important;
+      color: var(--text-secondary) !important;
+    }
+    .hero-badge::before { background: var(--accent) !important; }
+    .hero h1 .accent { color: var(--accent) !important; }
+    .hero-sub strong, .hero-sub span strong { color: var(--text-primary) !important; }
+
+    /* SECCIONES: una superficie plana, separadas por una línea fina */
+    .about, .results-bg, .team-bg, .news-bg, .diseases, .explora,
+    .scope-bg, .pipeline-bg, .cta-hub {
+      background: #0A0E18 !important;
+      border-top: 1px solid var(--line) !important;
+      border-bottom: none !important;
+    }
+
+    /* EYEBROW neutro, sin guion de color */
+    .section-label { color: var(--text-muted) !important; letter-spacing: 0.16em; }
+    .section-label::before { display: none !important; }
+    .section-title { color: var(--text-primary) !important; }
+    .section-desc { color: var(--text-secondary) !important; }
+    .results-bg .section-label, .pipeline-bg .section-label,
+    .cta-hub .section-label { color: var(--text-muted) !important; }
+    .results-bg .section-title, .pipeline-bg .section-title { color: var(--text-primary) !important; }
+
+    /* TARJETAS planas: borde fino, sin glow, sin barra de acento, sin sombra dura */
+    .explora-card, .disease-card, .result-card, .about-card,
+    .news-banner, .news-lead, .news-mini, .collab-item, .stat-card,
+    .team-card {
+      background: var(--surface) !important;
+      border: 1px solid var(--line) !important;
+      box-shadow: none !important;
+    }
+    .team-card:hover {
+      border-color: var(--line-strong) !important;
+      background: rgba(255,255,255,0.045) !important;
+      box-shadow: none !important;
+    }
+    .team-org, .team-card h4 ~ .team-role { color: var(--text-muted) !important; }
+    .hf-card {
+      background: var(--surface) !important;
+      border: 1px solid var(--line) !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+    }
+    .explora-card:hover, .disease-card:hover, .result-card:hover,
+    .about-card:hover, .news-lead:hover, .news-mini:hover {
+      border-color: var(--line-strong) !important;
+      background: rgba(255,255,255,0.045) !important;
+      transform: translateY(-3px);
+      box-shadow: none !important;
+    }
+    .disease-card::before, .about-card::before, .result-card::before { display: none !important; }
+
+    /* Iconos y acentos a una sola tinta (el color de cada padecimiento vive en la gráfica) */
+    .explora-ic { background: rgba(106,160,255,0.10) !important; color: var(--accent) !important; }
+    .explora-card--epi .explora-ic { background: rgba(106,160,255,0.14) !important; }
+    .explora-go, .news-link, .news-banner-all { color: var(--accent) !important; }
+    .explora-tag { background: var(--accent) !important; color: #0A0E18 !important; }
+    a:hover { color: var(--accent) !important; }
   </style>
 </head>
 <body>
