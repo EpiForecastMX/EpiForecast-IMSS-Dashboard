@@ -1450,6 +1450,12 @@ function answerDengue(q, ent, s, d) {
     ].join('\n');
   }
 
+  // Rendimiento 2026 por motor (SMAPE + MASE): cuadro análogo al de la cohorte neuro.
+  const rd = d.rendimiento_2026 && d.rendimiento_2026.dengue;
+  if (rd && (any(q, ['rendimiento', 'desempeno', 'mase', 'cuadro']) || (any(q, ['smape']) && any(q, ['motor', 'tabla', 'padecimiento'])))) {
+    return _cuadroDengue(rd);
+  }
+
   // Modelos / motores / métricas (incluye "tasa": Dengue es conteos, no tasa) y nº de series
   if (any(q, ['modelo', 'motor', 'smape', 'metrica', 'mejor model', 'cual usan', 'que usan', 'deepar', 'prophet', 'ensemble', 'stacking', 'produccion', 'tasa', 'serie', 'series', 'tabla'])) {
     const tipos = {
@@ -4295,6 +4301,108 @@ function answerReportePDF(q, ent, s, d) {
 }
 
 // ---------------------------------------------------------------------------
+// RENDIMIENTO 2026 POR PADECIMIENTO — tabla SMAPE + MASE por motor
+// ---------------------------------------------------------------------------
+
+function answerRendimientoPorPadecimiento(q, ent, s, d) {
+  const R = d.rendimiento_2026;
+  if (!R || !R.por_pad || !Object.keys(R.por_pad).length) return null;
+
+  // No robar intents de graficos (matriz de burbujas, arsenal polar, mapas...).
+  const chartWord = any(q, ['matriz', 'burbuja', 'scatter', 'dispersion', 'polar', 'arsenal', 'mapa', 'treemap', 'radar', 'barra']);
+  const explicit = any(q, [
+    'rendimiento por padecimiento', 'rendimiento de los motores por', 'rendimiento 2026',
+    'desempeno por padecimiento', 'desempeno 2026', 'metricas por padecimiento', 'metricas 2026',
+    'tabla de motores', 'tabla de rendimiento', 'tabla de metricas', 'smape y mase', 'mase y smape',
+  ]);
+  const porPadMetric = any(q, ['por padecimiento', 'por enfermedad', 'de cada padecimiento', 'cada enfermedad', 'de los padecimientos'])
+    && any(q, ['rendimiento', 'desempeno', 'smape', 'mase', 'motor', 'motores', 'metrica', 'metricas', 'precision', 'error']);
+  const bothMetrics = any(q, ['mase']) && any(q, ['smape']);
+  const singlePad = !!ent.padecimiento && any(q, ['motor', 'motores'])
+    && any(q, ['smape', 'mase', 'rendimiento', 'desempeno']);
+  // "rendimiento de los modelos 2026", "desempeno de los motores 2026"... -> tabla (no burbujas).
+  const year2026Metric = any(q, ['2026']) && any(q, ['rendimiento', 'desempeno', 'smape', 'mase'])
+    && any(q, ['motor', 'motores', 'modelo', 'modelos', 'padecimiento', 'padecimientos']);
+
+  if (chartWord && !explicit) return null;
+  if (!explicit && !porPadMetric && !bothMetrics && !singlePad && !year2026Metric) return null;
+
+  const DISP = { Alzheimer: 'Alzheimer', Depresion: 'Depresión', Parkinson: 'Parkinson' };
+  const pctv = (v) => (v == null ? '—' : `${Number(v).toFixed(1)}%`);
+  const masev = (v) => (v == null ? '—' : Number(v).toFixed(2));
+  const orden = R.orden_motores || ['DeepAR', 'Prophet', 'Stacking', 'Ensemble'];
+
+  // Un solo padecimiento si la consulta lo nombra (p. ej. "rendimiento de Parkinson por motor").
+  let pads = Object.keys(R.por_pad);
+  if (ent.padecimiento && R.por_pad[ent.padecimiento]) pads = [ent.padecimiento];
+
+  const tabla = (title, info) => {
+    const mo = info.motores || {};
+    const out = [];
+    out.push(`**${title}** (n=${info.n} series)`);
+    out.push('| Motor | SMAPE med | SMAPE prom | MASE med | MASE prom |');
+    out.push('|:------|----------:|-----------:|---------:|----------:|');
+    for (const m of orden) {
+      const v = mo[m];
+      if (!v) continue;
+      out.push(`| ${m} | ${pctv(v.smape_med)} | ${pctv(v.smape_prom)} | ${masev(v.mase_med)} | ${masev(v.mase_prom)} |`);
+    }
+    const p = mo.Productivo;
+    if (p) out.push(`| **Productivo** | **${pctv(p.smape_med)}** | **${pctv(p.smape_prom)}** | **${masev(p.mase_med)}** | **${masev(p.mase_prom)}** |`);
+    return out.join('\n');
+  };
+
+  const nSem = R.n_semanas ? `${R.n_semanas} semanas` : 'las semanas';
+  const lines = [];
+  lines.push(`**Rendimiento ${R.anio || 2026} por padecimiento — SMAPE y MASE por motor**`);
+  lines.push(`Sobre **${nSem}** reales de ${R.anio || 2026}. Menos SMAPE = mejor; **MASE < 1 = mejor que el pronóstico ingenuo estacional** (lag 52). "Productivo" = motor desplegado por serie.\n`);
+
+  for (const pad of pads) lines.push(tabla(DISP[pad] || pad, R.por_pad[pad]) + '\n');
+  if (pads.length > 1 && R.global) lines.push(tabla('Global (3 padecimientos)', R.global) + '\n');
+
+  if (pads.includes('Alzheimer')) {
+    lines.push('*El SMAPE alto en Alzheimer (~130%) convive con un MASE ~0.5: los modelos aciertan casi el doble de bien que el ingenuo estacional; el SMAPE se infla porque son conteos semanales muy pequeños (divisiones cercanas a cero).*');
+  } else {
+    lines.push('*Un MASE < 1 indica que el modelo supera al pronóstico ingenuo estacional; el SMAPE se infla en las series de conteos pequeños (divisiones cercanas a cero), por eso conviene leer ambas métricas juntas.*');
+  }
+
+  // En la vista de todos los padecimientos, incluir también el cuadro de Dengue (cohorte propia).
+  if (pads.length > 1 && R.dengue) {
+    lines.push('\n---\n');
+    lines.push(_cuadroDengue(R.dengue));
+  }
+  return lines.join('\n');
+}
+
+// Cuadro de rendimiento 2026 de Dengue (motores propios DeepAR/Prophet/NBGLM). Compartido por
+// answerRendimientoPorPadecimiento (vista general) y answerDengue (consulta directa de Dengue).
+function _cuadroDengue(dg) {
+  if (!dg || !dg.motores) return '';
+  const pctv = (v) => (v == null ? '—' : `${Number(v).toFixed(1)}%`);
+  const masev = (v) => (v == null ? '—' : Number(v).toFixed(2));
+  const orden = dg.orden_motores || ['DeepAR', 'Prophet', 'NBGLM'];
+  const nsem = dg.n_semanas ? `, ${dg.n_semanas} semanas` : '';
+  const out = [];
+  out.push(`**Dengue 2026 — SMAPE y MASE por motor** (n=${dg.n} series${nsem})`);
+  out.push('| Motor | SMAPE med | SMAPE prom | MASE med | MASE prom |');
+  out.push('|:------|----------:|-----------:|---------:|----------:|');
+  for (const m of orden) {
+    const v = dg.motores[m];
+    if (!v) continue;
+    out.push(`| ${m} | ${pctv(v.smape_med)} | ${pctv(v.smape_prom)} | ${masev(v.mase_med)} | ${masev(v.mase_prom)} |`);
+  }
+  const p = dg.motores.Productivo;
+  if (p) out.push(`| **Productivo** | **${pctv(p.smape_med)}** | **${pctv(p.smape_prom)}** | **${masev(p.mase_med)}** | **${masev(p.mase_prom)}** |`);
+  if (dg.nacional && dg.nacional.smape) {
+    const ns = dg.nacional.smape;
+    const parts = orden.filter((m) => ns[m] != null).map((m) => `${m} ${Number(ns[m]).toFixed(1)}%`);
+    if (parts.length) out.push(`\nA nivel **nacional**: ${parts.join(' · ')}${dg.nacional.motor ? ` (productivo ${dg.nacional.motor})` : ''}.`);
+  }
+  if (dg.nota) out.push(`\n*${dg.nota}*`);
+  return out.join('\n');
+}
+
+// ---------------------------------------------------------------------------
 // MATRIZ DE RENDIMIENTO — burbujas precision vs error vs volumen
 // ---------------------------------------------------------------------------
 
@@ -4608,7 +4716,7 @@ const HANDLERS = [
   answerTimelapse, answerSemaforo, answerReportePDF,
   answerComparacionPorSexo,
   answerComparacionSemanal, answerMapaMexico, answerTreemap, answerRadar, answerSparklines, answerStackedArea,
-  answerMatrizRendimiento, answerArsenalMotores, answerMotoresPorPadecimiento, answerMejoresPeores,
+  answerRendimientoPorPadecimiento, answerMatrizRendimiento, answerArsenalMotores, answerMotoresPorPadecimiento, answerMejoresPeores,
   answerVolumenError, answerCalibracion, answerMasePorMotor, answerAcumulado, answerSaludModelos,
   answerGauge, answerSmapeBox, answerWaterfall,
   answerCorredor, answerErrorHeatmap, answerZoom,
