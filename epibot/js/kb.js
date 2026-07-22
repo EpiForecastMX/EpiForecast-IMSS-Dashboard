@@ -6,7 +6,7 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities } from './entities.js?v=28';
+import { norm, detectEntities } from './entities.js?v=29';
 
 let DATA = null;
 
@@ -18,7 +18,7 @@ function isNeuro(p) { return NEURO_PADS.includes(p); }
 
 // Version de los datos para cache-bust estable (evita re-descargar 1.3 MB por visita).
 // Subir esta constante cuando cambie knowledge.json / zoom_series.json.
-const DATA_VERSION = '20260721';
+const DATA_VERSION = '20260722';
 
 export async function loadKnowledge() {
   if (DATA) return DATA;
@@ -517,7 +517,7 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
 
   // Detectar enfermedades/padecimientos mencionados que NO modelamos
   const enfermedades = [
-    'cancer', 'diabetes', 'hipertension', 'obesidad', 'asma', 'epilepsia',
+    'cancer', 'diabetes', 'hipertension', 'asma', 'epilepsia',
     'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah', 'demencia',
     'influenza', 'covid', 'tuberculosis', 'vih', 'sida', 'colera',
     'sarampion', 'rubeola', 'hepatitis', 'zika', 'chikungunya', 'malaria',
@@ -1425,6 +1425,44 @@ function answerSemanasBoletin(q, ent, s, d) {
 // servirse desde los handlers neuro. Lee la sección `d.dengue` (generada por
 // build_web_knowledge.build_dengue_section) + `d.padecimiento_info.Dengue`.
 // ---------------------------------------------------------------------------
+
+function answerObesidad(q, ent, s, d) {
+  // Obesidad (E66) — preliminar (3 motores; DeepAR pendiente en SageMaker). Lee d.obesidad.
+  if (ent.padecimiento !== 'Obesidad') return null;
+  const o = d.obesidad;
+  if (!o) return null;
+  const info = d.padecimiento_info && d.padecimiento_info.Obesidad;
+  const dist = o.distribucion_motor || {};
+  const distStr = Object.entries(dist).map(([m, n]) => `${m} ${n}`).join(' · ');
+
+  if (any(q, ['modelo', 'motor', 'smape', 'mase', 'metrica', 'mejor model', 'cual usan', 'que usan',
+    'prophet', 'ensemble', 'stacking', 'deepar', 'produccion', 'serie', 'series', 'tabla',
+    'pronostic', 'forecast', 'rendimiento', 'desempeno', 'selecci'])) {
+    const lines = ['**Obesidad (E66) — selección preliminar de motor**', ''];
+    lines.push(`Estado: **preliminar** (${(o.motores_evaluados || []).join(' / ')}; ${o.motor_pendiente} pendiente).`, '');
+    lines.push(`Sobre **${o.n_series} series** (Nacional + 32 estados + 4 regiones × 3 sexos), el motor productivo se distribuye: **${distStr}**.`, '');
+    lines.push(`sMAPE mediana del ganador: **${o.smape_mediana_ganador}%** · MASE mediana: **${o.mase_mediana_ganador}** · **${o.pct_gana_naive}%** de las series le ganan al naive estacional.`, '');
+    lines.push('**Por motor (mediana de las 111 series):**');
+    for (const [e, mm] of Object.entries(o.por_motor || {})) {
+      lines.push(`- ${e}: sMAPE ${mm.smape_mediana}% · MASE ${mm.mase_mediana}`);
+    }
+    lines.push('', '**Nacional:**');
+    for (const n of (o.nacional || [])) {
+      lines.push(`- ${n.sexo}: **${n.motor}** (sMAPE ${n.smape}%, MASE ${n.mase})`);
+    }
+    lines.push('', `*${o.nota}*`);
+    return lines.join('\n');
+  }
+
+  const lines = ['**Obesidad (E66)**', ''];
+  if (info) {
+    if (info.descripcion) lines.push(info.descripcion, '');
+    if (info.estacionalidad) lines.push(`*${info.estacionalidad}*`, '');
+    if (info.nota_mexico) lines.push(info.nota_mexico, '');
+  }
+  lines.push(`En EpiForecast-MX es un padecimiento **preliminar**: ${o.n_series} series modeladas con ${(o.motores_evaluados || []).join(' / ')} (${o.motor_pendiente} pendiente). Pregúntame por **"mejor motor de obesidad"** o **"modelos de obesidad"** para ver la selección.`);
+  return lines.join('\n');
+}
 
 function answerDengue(q, ent, s, d) {
   if (ent.padecimiento !== 'Dengue') return null;
@@ -4711,7 +4749,7 @@ function answerCodeRequest(q, ent, s, d) {
 // ---------------------------------------------------------------------------
 
 const HANDLERS = [
-  answerSaludo, answerPadecimientoNoModelado, answerDengue, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerFechaSemana, answerTemporal, answerProyectoMeta,
+  answerSaludo, answerPadecimientoNoModelado, answerObesidad, answerDengue, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerFechaSemana, answerTemporal, answerProyectoMeta,
   answerTrainingConfig, answerSemanaActual, answerSemanasBoletin, answerQueEsPadecimiento,
   answerTimelapse, answerSemaforo, answerReportePDF,
   answerComparacionPorSexo,
@@ -4935,7 +4973,7 @@ export async function answer(query) {
   // answerPadecimientoNoModelado lo maneje con el query original
   if (isFollowUp) {
     const noModelado = [
-      'cancer', 'diabetes', 'hipertension', 'obesidad', 'asma', 'epilepsia',
+      'cancer', 'diabetes', 'hipertension', 'asma', 'epilepsia',
       'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah', 'demencia',
       'influenza', 'covid', 'tuberculosis', 'vih', 'sida', 'colera',
       'sarampion', 'rubeola', 'hepatitis', 'zika', 'chikungunya', 'malaria',
@@ -5012,7 +5050,7 @@ export async function answer(query) {
 
   // No heredar contexto si menciona un padecimiento no modelado
   const noModeladoCtx = [
-    'cancer', 'diabetes', 'hipertension', 'obesidad', 'asma', 'epilepsia',
+    'cancer', 'diabetes', 'hipertension', 'asma', 'epilepsia',
     'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah', 'demencia',
     'influenza', 'tuberculosis', 'vih', 'sida', 'colera',
     'sarampion', 'hepatitis', 'zika', 'malaria', 'leucemia', 'linfoma',
