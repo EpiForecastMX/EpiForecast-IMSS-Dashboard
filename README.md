@@ -48,9 +48,11 @@ epibot/
 ### Base de Conocimiento (kb.js)
 
 - **30+ handlers** en cadena de prioridad que cubren: metricas globales, datos por padecimiento/estado/sexo, historico anual, comparativas entre estados, ranking de modelos, equipo, infraestructura, semanas epidemiologicas, boletin SINAVE y mas.
+- **Cuadros de rendimiento 2026** (`answerRendimientoPorPadecimiento` + `_cuadroDengue`): tabla por padecimiento × motor con **SMAPE y MASE** (mediana/promedio) + fila productivo, para las 3 series neuro y **Dengue** (motores propios DeepAR/Prophet/NBGLM). Disparadores: "rendimiento por padecimiento", "smape y mase por padecimiento", "cuadro de dengue". Datos de la seccion `rendimiento_2026` de `knowledge.json`. Registrado antes de `answerMatrizRendimiento`.
 - Respuestas basadas en **datos reales** de `knowledge.json` (generado por el pipeline del repo principal).
 - Fallback a un **RAG real** (ver abajo) cuando la pregunta excede los handlers locales.
 - Historial conversacional para contexto en preguntas de seguimiento.
+- **Cache-bust al editar `kb.js`/`entities.js`**: sube `app.js?v=N` en `index.html` (la version de **afuera**; `/js/*` se sirve con `max-age=3600`), no solo el `?v` interno del import de `kb.js`. Sin ese bump el navegador sigue corriendo el `app.js` viejo cacheado (que importa el `kb.js` viejo). `knowledge.json` va con `no-cache` (se revalida solo).
 
 ### RAG Real (rag_index.json + netlify/functions/rag.mjs)
 
