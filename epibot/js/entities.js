@@ -107,12 +107,6 @@ const PADECIMIENTO_ALIAS = {
   'dengeu': 'Dengue',
   'arbovirosis': 'Dengue',
   'a97': 'Dengue',
-  // Obesidad (E66, Cuadro 14.1 Trastornos de la Nutricion) — preliminar (3 motores)
-  'obesidad': 'Obesidad',
-  'obeso': 'Obesidad',
-  'obesa': 'Obesidad',
-  'sobrepeso': 'Obesidad',
-  'e66': 'Obesidad',
 };
 
 const SEXO_ALIAS = {
