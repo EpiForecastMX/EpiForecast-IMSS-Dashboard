@@ -18,7 +18,7 @@ function isNeuro(p) { return NEURO_PADS.includes(p); }
 
 // Version de los datos para cache-bust estable (evita re-descargar 1.3 MB por visita).
 // Subir esta constante cuando cambie knowledge.json / zoom_series.json.
-const DATA_VERSION = '20260722';
+const DATA_VERSION = '20260723';
 
 export async function loadKnowledge() {
   if (DATA) return DATA;
@@ -1429,6 +1429,10 @@ function answerSemanasBoletin(q, ent, s, d) {
 function answerObesidad(q, ent, s, d) {
   // Obesidad (E66) — preliminar (3 motores; DeepAR pendiente en SageMaker). Lee d.obesidad.
   if (ent.padecimiento !== 'Obesidad') return null;
+  // Zoom / detalle semanal: lo atiende answerZoom (chart interactivo desde zoom_series). Diferir.
+  const zoomTriggers = ['zoom', 'detalle semanal', 'vista cercana', 'acercamiento'];
+  const zoomAlt = (q.includes('real') && q.includes('pronostico') && q.includes('semanal'));
+  if (zoomTriggers.some(t => q.includes(t)) || zoomAlt) return null;
   const o = d.obesidad;
   if (!o) return null;
   const info = d.padecimiento_info && d.padecimiento_info.Obesidad;
@@ -2438,6 +2442,16 @@ function answerZoom(q, ent, s, d) {
     const sexo = ent.sexo || 'general';
     const serie = d.zoom_series[`${norm(ent.padecimiento)}|${norm(ent.estado)}|${sexo}`];
     if (serie) return zoomSeriesText(serie, ent.padecimiento, ent.estado, sexo);
+  }
+
+  // Nacional vía zoom_series para padecimientos SIN weekly_comparison (p.ej. Obesidad):
+  // "zoom obesidad" (sin estado) resuelve a la serie nacional. Neuro/Dengue conservan su
+  // path (SÍ tienen weekly_comparison), así que esto no los toca.
+  if (ent.padecimiento && d.zoom_series &&
+      !(d.weekly_comparison && d.weekly_comparison[ent.padecimiento])) {
+    const sexo = ent.sexo || 'general';
+    const serie = d.zoom_series[`${norm(ent.padecimiento)}|nacional|${sexo}`];
+    if (serie) return zoomSeriesText(serie, ent.padecimiento, 'Nacional', sexo);
   }
 
   const wc = d.weekly_comparison;
