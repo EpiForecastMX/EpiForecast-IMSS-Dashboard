@@ -1,18 +1,23 @@
 /**
- * run_tests.js — Ejecuta 380+ tests contra kb.js + entities.js.
+ * run_tests.js — Ejecuta la suite de casos contra kb.js + entities.js.
  *
- * Mockea fetch() para que loadKnowledge() funcione en Node.js,
- * luego llama answer() por cada test y valida:
- *   - expectedHandler: '*' = any handler OK, null = must return null, string = specific
+ * Mockea fetch() para que loadKnowledge() funcione en Node.js, y llama answerWithTrace() por cada
+ * caso para validar:
+ *   - expectedHandler: nombre concreto = IGUALDAD EXACTA con el handler que realmente respondio;
+ *     '*' = no se exige nombre (el resto de aserciones sigue); null = respuesta Y handler nulos
+ *   - la invariante de traza: respuesta no nula <-> handler con nombre (nunca una sin la otra)
  *   - mustContain / mustNotContain (case-insensitive)
  *   - checkEntities (deteccion de entidades)
  *
- * Uso: node tests/run_tests.js
+ * Hasta 47.2-B3 el nombre del handler NO se verificaba: se daba por bueno si el texto contenia lo
+ * esperado, asi que 65 casos corrian por un handler distinto del declarado y la suite seguia verde.
+ *
+ * Uso: node tests/run_tests.js [ruta/a/otro_fixture.json]
  */
 
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
+import { dirname, join, resolve } from 'path';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -33,8 +38,12 @@ globalThis.fetch = async () => ({
 // Import KB modules (after fetch mock is in place)
 // ─────────────────────────────────────────────────────────────────────────────
 
+// RNG fijo SOLO en el harness: answerGraficoAleatorio elige al azar y sin esto la suite no es
+// reproducible. La aleatoriedad productiva no se toca (esto vive en el runner, no en kb.js).
+Math.random = () => 0.42;
+
 const { norm, detectEntities } = await import('../js/entities.js');
-const { answer, loadKnowledge, _resetContext } = await import('../js/kb.js');
+const { answerWithTrace, loadKnowledge, _resetContext } = await import('../js/kb.js');
 
 // Pre-load knowledge
 await loadKnowledge();
@@ -43,11 +52,15 @@ await loadKnowledge();
 // Load test cases
 // ─────────────────────────────────────────────────────────────────────────────
 
+// El fixture es parametrizable para poder ejercitar el propio runner contra uno alterado (la
+// regresion negativa de 47.2-B3). Sin argumento, el oficial.
+const fixturePath = process.argv[2] ? resolve(process.argv[2]) : join(__dirname, 'test_cases.json');
+
 let testCases;
 try {
-  testCases = JSON.parse(readFileSync(join(__dirname, 'test_cases.json'), 'utf-8'));
+  testCases = JSON.parse(readFileSync(fixturePath, 'utf-8'));
 } catch {
-  console.error('ERROR: test_cases.json not found. Run generate_tests.js first.');
+  console.error(`ERROR: no pude leer ${fixturePath}. Ejecuta generate_tests.js primero.`);
   process.exit(1);
 }
 
@@ -58,6 +71,7 @@ try {
 let totalPass = 0;
 let totalFail = 0;
 const failures = [];
+const observados = new Map();   // id -> handler REAL (el resumen se construye con esto)
 
 console.log(`\nRunning ${testCases.length} tests...\n`);
 
@@ -70,7 +84,7 @@ for (const t of testCases) {
 
   // 0. Run setup query to establish context (for follow-up tests)
   if (t.setupQuery) {
-    try { await answer(t.setupQuery); } catch {}
+    try { await answerWithTrace(t.setupQuery); } catch {}
   }
 
   // 1. Entity detection validation
@@ -90,24 +104,30 @@ for (const t of testCases) {
     }
   }
 
-  // 2. Answer validation
-  let result;
+  // 2. Answer validation — por la MISMA ruta que la produccion, con la identidad del handler
+  let result = null;
+  let handler = null;
   try {
-    result = await answer(query);
+    ({ response: result, handler } = await answerWithTrace(query));
   } catch (err) {
     issues.push(`CRASH: ${err.message}`);
   }
+  observados.set(id, handler);
 
-  // 3. Check expectedHandler
+  // 3. Check expectedHandler — igualdad EXACTA con el handler real
   if (expectedHandler === null) {
-    // Must return null (Gemini fallback / off-topic)
-    if (result !== null) {
-      issues.push(`HANDLER: expected null (Gemini fallback), got a response`);
-    }
+    if (result !== null) issues.push(`HANDLER: expected null (cesion a RAG/Gemini), got a response`);
+    if (handler !== null) issues.push(`HANDLER: expected null, traced "${handler}"`);
   } else if (expectedHandler === '*') {
-    // Any response is fine (entity-only test) — no handler check
+    // Comodin: no se exige nombre. El resto de aserciones sigue aplicando.
+  } else if (handler !== expectedHandler) {
+    issues.push(`HANDLER: expected "${expectedHandler}", got "${handler}"`);
   }
-  // For named handlers: we can't check which handler fired, but we validate via mustContain
+
+  // 3b. Invariante de traza: o hay respuesta Y dueño, o no hay ninguno de los dos.
+  if ((result !== null) !== (handler !== null)) {
+    issues.push(`TRACE: respuesta ${result !== null ? 'no nula' : 'nula'} con handler ${handler === null ? 'nulo' : `"${handler}"`}`);
+  }
 
   // 4. mustContain validation (case-insensitive)
   if (result !== null && mustContain.length > 0) {
@@ -169,22 +189,18 @@ if (failures.length) {
   }
 }
 
-// Summary by handler
+// Resumen por handler OBSERVADO: el reparto real de la cadena, no el que declara el fixture.
+// Construirlo con la expectativa era describir lo que se creia, no lo que pasa.
 const handlerStats = {};
+const fallidos = new Set(failures.map(f => f.id));
 for (const t of testCases) {
-  const h = t.expectedHandler || 'null';
-  if (h === '*') continue; // entity-only tests not counted per-handler
+  const h = observados.get(t.id) || 'null';
   if (!handlerStats[h]) handlerStats[h] = { pass: 0, fail: 0 };
-}
-for (const t of testCases) {
-  const h = t.expectedHandler || 'null';
-  if (h === '*') continue;
-  const failed = failures.some(f => f.id === t.id);
-  if (failed) handlerStats[h].fail++;
+  if (fallidos.has(t.id)) handlerStats[h].fail++;
   else handlerStats[h].pass++;
 }
 
-console.log('RESULTS BY HANDLER:');
+console.log('RESULTS BY HANDLER (observado):');
 console.log('-'.repeat(55));
 for (const [handler, stats] of Object.entries(handlerStats).sort((a, b) => a[0].localeCompare(b[0]))) {
   const total = stats.pass + stats.fail;
