@@ -3302,19 +3302,24 @@ function answerDemografica(q, ent, s, d) {
   if (!demo) return null;
 
   if (preguntaSexoIncidencia) {
-    // Se suman las claves PRESENTES y se nombran: el universo no es "siempre tres padecimientos".
-    const pads = Object.keys(demo);
+    // Si la consulta nombra un padecimiento se responde ESE; si no, se suman las claves PRESENTES y
+    // se nombran. El universo no es "siempre tres padecimientos" —hoy son cuatro, con Dengue— ni
+    // puede ser el agregado cuando preguntaron por uno solo (47.2-B4.1).
+    const pads = ent.padecimiento && demo[ent.padecimiento] ? [ent.padecimiento] : Object.keys(demo);
     const h = pads.reduce((a, p) => a + (demo[p].hombres || 0), 0);
     const m = pads.reduce((a, p) => a + (demo[p].mujeres || 0), 0);
     const total = h + m;
     if (!total) return null;
     const mayor = m > h ? 'mujeres' : 'hombres';
     const pct = ((Math.max(h, m) / total) * 100).toFixed(1);
+    const ambito = pads.length === 1 ? `de ${pads[0]}` : 'del boletín';
     const lines = [
       `**${mayor.charAt(0).toUpperCase() + mayor.slice(1)}** concentran el **${pct}%** de los casos ` +
-      `históricos del boletín: **${fmt(m)} mujeres** frente a **${fmt(h)} hombres** ` +
+      `históricos ${ambito}: **${fmt(m)} mujeres** frente a **${fmt(h)} hombres** ` +
       `(total ${fmt(total)}).\n`,
-      `Suma de los ${pads.length} padecimientos con desglose por sexo: ${pads.join(', ')}.\n`,
+      pads.length === 1
+        ? `Sólo **${pads[0]}**, que es el padecimiento por el que se pregunta.\n`
+        : `Suma de los ${pads.length} padecimientos con desglose por sexo: ${pads.join(', ')}.\n`,
       '| Padecimiento | Hombres | Mujeres | % mujeres | Razón M/H |',
       '|--------------|--------:|--------:|----------:|----------:|',
     ];

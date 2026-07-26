@@ -133,6 +133,21 @@ test('"cual sexo tiene mas incidencia" responde por sexo, nunca con entidades', 
   for (const p of pads) assert.ok(texto.includes(p), `debe nombrar ${p}`);
 });
 
+test('la pregunta por sexo respeta el padecimiento nombrado', async () => {
+  // Hallazgo de la auditoría de B4: "hombres o mujeres tienen mas depresion" contestaba con el
+  // agregado de los cuatro padecimientos (Dengue incluido). La tabla traía el dato, pero el
+  // titular respondía otra pregunta — el mismo vicio que R59-P0 (47.2-B4.1).
+  const texto = await responder('hombres o mujeres tienen mas depresion');
+  const dep = D.stats.demo_historica.Depresion;
+  assert.match(texto, /Depresion/);
+  assert.ok(!texto.includes('Dengue'), 'no puede sumar padecimientos que nadie pidió');
+  assert.ok(texto.includes(dep.mujeres.toLocaleString('en-US')), 'las cifras son las de Depresion');
+  assert.ok(texto.includes(`${dep.pct_m}%`), `el % debe ser el de Depresion (${dep.pct_m}%)`);
+  // Sin padecimiento nombrado sigue siendo el agregado, declarando su universo.
+  const global = await responder('cual sexo tiene mas incidencia');
+  assert.ok(global.includes('Dengue'), 'el agregado sí suma todas las claves presentes');
+});
+
 test('alterar la fuente de un padecimiento mueve SÓLO su ranking', async () => {
   const antes = { Depresion: await responder('ranking de depresion'),
     Parkinson: await responder('ranking de parkinson'),
