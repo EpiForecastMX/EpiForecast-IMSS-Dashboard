@@ -4935,8 +4935,12 @@ async function _resolve(query) {
   if (_lastDistribMetric) {
     const filterKw = ['solo', 'solamente', 'nada mas', 'unicamente', 'filtra', 'filtrar'];
     if ((ent.padecimiento || ent.estado) && any(q, filterKw)) {
+      // Llamada DIRECTA, fuera de runHandlers: hay que nombrar el handler aquí o la traza queda
+      // en null y el follow-up parece no tener dueño (47.2-A.1). Toda ruta que produzca respuesta
+      // sin pasar por la cadena debe declarar su identidad en el mismo sitio donde la produce.
       const distribResult = answerDistribucion(q, ent, s, d);
       if (distribResult) {
+        trace.handler = 'answerDistribucion';
         lastEntities = ent;
         return { response: distribResult, handler: trace.handler };
       }
