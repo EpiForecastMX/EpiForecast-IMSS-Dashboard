@@ -937,12 +937,6 @@ add('de donde viene el alzheimer', null, []);
 add('como se descubrio la depresion', null, []);
 add('cuando se identifico el parkinson', null, []);
 
-// =====================================================================
-// Total
-// =====================================================================
-
-console.log(`\nTotal tests generated: ${tests.length}`);
-
 // ─────────────────────────────────────────────────────────────────────────────
 // EXECUTION: Run entity detection tests
 // ─────────────────────────────────────────────────────────────────────────────
@@ -1099,6 +1093,10 @@ function validarInvariantes(casos) {
   });
   return problemas;
 }
+
+// La telemetria va DESPUES de construir la lista completa. Estaba a media construccion, antes de
+// la seccion 33, asi que anunciaba 564 casos cuando el fixture tiene 616 (47.3).
+console.log(`\nTotal tests generated: ${tests.length}`);
 
 const esperado = serializar(tests);
 const problemas = validarInvariantes(tests);

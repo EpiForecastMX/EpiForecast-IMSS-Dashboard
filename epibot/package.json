@@ -5,7 +5,9 @@
   "private": true,
   "description": "EpiForecast-MX Base de Conocimiento (sitio estático con Netlify Functions)",
   "scripts": {
-    "test": "node tests/run_tests.js",
+    "test": "npm run test:cases:verify && node tests/run_tests.js && npm run test:unit",
+    "test:cases:verify": "node tests/generate_tests.js --check",
+    "test:unit": "node --test tests/test_dispatcher_trace.mjs tests/test_entities.mjs tests/test_fixture_verify.mjs tests/test_precedencia.mjs tests/test_ranking.mjs tests/test_runner_gate.mjs",
     "test:gen": "node tests/generate_tests.js",
     "rag:build": "node scripts/build_rag_index.mjs",
     "rag:eval": "node scripts/rag_eval.mjs",
