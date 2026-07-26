@@ -175,7 +175,12 @@ const sampleEstados = ['Jalisco', 'Chihuahua', 'Oaxaca', 'Sonora', 'Tabasco', 'P
   'Veracruz', 'Guerrero', 'Durango', 'Yucatan', 'Colima', 'Morelos',
   'Tamaulipas', 'Coahuila', 'Nayarit', 'Hidalgo', 'Sinaloa', 'Guanajuato',
   'Tlaxcala', 'Michoacan', 'Campeche', 'Aguascalientes', 'Queretaro', 'Zacatecas'];
+// Jalisco y Tabasco tienen su propio caso explícito más abajo, que verifica respuesta Y entidad a
+// la vez. Repetirlos aquí duplicaría la consulta, y la consulta —no el ID— es la identidad del
+// fixture (R47). Fusionar no pierde cobertura: se conservan ambas aserciones en un solo caso.
+const conCasoExplicito = new Set(['Jalisco', 'Tabasco']);
 for (const est of sampleEstados) {
+  if (conCasoExplicito.has(est)) continue;
   add(`como esta ${est.toLowerCase()}`, '*', [], [], {estado: est});
 }
 
@@ -261,7 +266,7 @@ add('cuantos llevamos de alzheimer en 2026', 'answerComparacionSemanal', ['Alzhe
 // =====================================================================
 
 add('cual es el pronostico total', 'answerPronostico', ['52 semanas']);
-add('cuantos casos se pronostican', 'answerConteo', ['333']);
+add('cuantos casos se pronostican', 'answerPronostico', ['52 semanas']);
 add('pronostico de depresion', 'answerPronostico', ['Depresion', 'casos']);
 add('cuantos casos de parkinson se esperan', 'answerPronostico', ['Parkinson', 'casos']);
 add('forecast de alzheimer', 'answerPronostico', ['Alzheimer', 'casos']);
@@ -312,7 +317,7 @@ add('depresion en durango femenino', 'answerSpecificSeries', ['Durango']);
 // SECCION 10: ESTADO sin padecimiento (15 tests)
 // =====================================================================
 
-add('como esta jalisco', 'answerEstado', ['Jalisco']);
+add('como esta jalisco', 'answerEstado', ['Jalisco'], [], {estado: 'Jalisco'});
 add('resumen de cdmx', 'answerEstado', ['Ciudad de Mexico']);
 add('que pasa en nuevo leon', 'answerEstado', ['Nuevo Leon']);
 add('dame datos de sonora', 'answerEstado', ['Sonora']);
@@ -320,7 +325,7 @@ add('informacion de chihuahua', 'answerEstado', ['Chihuahua']);
 add('datos de puebla', 'answerEstado', ['Puebla']);
 add('resumen de oaxaca', 'answerEstado', ['Oaxaca']);
 add('que hay de veracruz', 'answerEstado', ['Veracruz']);
-add('como esta tabasco', 'answerEstado', ['Tabasco']);
+add('como esta tabasco', 'answerEstado', ['Tabasco'], [], {estado: 'Tabasco'});
 add('estadisticas de guerrero', 'answerEstado', ['Guerrero']);
 add('que modelos hay en jalisco', 'answerEstado', ['Jalisco']);
 add('resumen de baja california', 'answerEstado', ['Baja California']);
@@ -346,7 +351,10 @@ add('ranking de depresion', 'answerPadecimiento', ['Depresion']);
 add('que estados tienen mas parkinson', 'answerPadecimiento', ['Parkinson']);
 add('donde hay mas alzheimer', 'answerPadecimiento', ['Alzheimer']);
 add('distribucion de motores de depresion', 'answerPadecimiento', ['Depresion']);
-add('cuantos modelos tiene parkinson', 'answerPadecimiento', ['Parkinson']);
+// Contar modelos y pedir la ficha son intenciones distintas (R47): esta cuenta.
+add('cuantos modelos tiene parkinson', 'answerConteo', ['111', 'modelo'], [], {padecimiento: 'Parkinson'});
+// La ficha del padecimiento se pide con una consulta inequívoca y propia.
+add('informacion de parkinson', 'answerPadecimiento', ['Parkinson']);
 
 // =====================================================================
 // SECCION 12: COMPARATIVAS (20 tests)
@@ -443,7 +451,8 @@ add('que es el horizonte de pronostico', 'answerDefinicion', ['52']);
 // =====================================================================
 
 add('como se entreno el modelo', 'answerTrainingConfig', ['entrenamiento']);
-add('hiperparametros del modelo', 'answerTrainingConfig', ['entrenamiento']);
+// Delegado al RAG por `ragIntent`: pide configuración metodológica, que debe venir del corpus versionado y no de la ficha local.
+add('hiperparametros del modelo', null, []);
 add('parametros de entrenamiento', 'answerTrainingConfig', ['entrenamiento']);
 add('configuracion de deepar', 'answerTrainingConfig', ['DeepAR']);
 add('configuracion de prophet', 'answerTrainingConfig', ['Prophet']);
@@ -604,10 +613,13 @@ add('esquizofrenia en cdmx', 'answerPadecimientoNoModelado', ['no modela']);
 // =====================================================================
 
 add('quien ganara la f1', null, [], [], {});
-add('resultado del futbol', null, [], [], {});
-add('como va el bitcoin', null, [], [], {});
+// Rechazo local explícito: contrato vigente. Se exige contenido mínimo estable, no el párrafo completo.
+add('resultado del futbol', 'answerFueraDeTema', ['EPI', 'fuera del proyecto']);
+// Rechazo local explícito: contrato vigente. Se exige contenido mínimo estable, no el párrafo completo.
+add('como va el bitcoin', 'answerFueraDeTema', ['EPI', 'fuera del proyecto']);
 add('clima en cancun', '*', [], [], {});
-add('receta de tacos', null, [], [], {});
+// Rechazo local explícito: contrato vigente. Se exige contenido mínimo estable, no el párrafo completo.
+add('receta de tacos', 'answerFueraDeTema', ['EPI', 'fuera del proyecto']);
 add('quien es el presidente', null, [], [], {});
 add('formula 1 resultados', null, [], [], {});
 add('donde puedo viajar', '*', [], [], {});
@@ -754,7 +766,7 @@ addCtx('que es la depresion', 'y el parkinson', '*', ['Parkinson']);
 addCtx('depresion en jalisco', 'eres humano', 'answerPreguntaPersonal', ['inteligencia artificial']);
 
 // Follow-up pronostico → hereda contexto
-addCtx('metricas del parkinson', 'cuantos casos se esperan', '*', ['333']);
+addCtx('metricas del parkinson', 'cuantos casos se esperan', 'answerPronostico', ['52 semanas']);
 
 // Follow-up motor → no heredar (pregunta independiente)
 addCtx('depresion en jalisco', 'comparacion de motores', 'answerMotor', ['Prophet', 'DeepAR']);
@@ -839,13 +851,13 @@ add('como sabes cuantos casos habra', 'answerProyectoMeta', ['SINAVE']);
 // SECCION 37a: DISTRIBUCION / VIOLIN (8 tests)
 // =====================================================================
 
-add('grafico de violines del mase', 'answerDistribucion', ['MASE', 'Distribucion', 'DISTRIB']);
-add('violin del smape', 'answerDistribucion', ['SMAPE', 'Distribucion', 'DISTRIB']);
-add('histograma de rmse', 'answerDistribucion', ['RMSE', 'Distribucion', 'DISTRIB']);
-add('distribucion de mase', 'answerDistribucion', ['MASE', 'Distribucion', 'DISTRIB']);
-add('boxplot del smape', 'answerDistribucion', ['SMAPE', 'Distribucion', 'DISTRIB']);
+add('grafico de violines del mase', 'answerDistribucion', ['MASE', 'Distribución', 'DISTRIB']);
+add('violin del smape', 'answerDistribucion', ['SMAPE', 'Distribución', 'DISTRIB']);
+add('histograma de rmse', 'answerDistribucion', ['RMSE', 'Distribución', 'DISTRIB']);
+add('distribucion de mase', 'answerDistribucion', ['MASE', 'Distribución', 'DISTRIB']);
+add('boxplot del smape', 'answerDistribucion', ['SMAPE', 'Distribución', 'DISTRIB']);
 add('grafico del mase por padecimiento', 'answerDistribucion', ['MASE', 'DISTRIB']);
-add('distribucion de mae', 'answerDistribucion', ['MAE', 'Distribucion', 'DISTRIB']);
+add('distribucion de mae', 'answerDistribucion', ['MAE', 'Distribución', 'DISTRIB']);
 add('grafica de distribucion del rmse', 'answerDistribucion', ['RMSE', 'DISTRIB']);
 
 // =====================================================================
@@ -936,6 +948,77 @@ console.log(`\nTotal tests generated: ${tests.length}`);
 // ─────────────────────────────────────────────────────────────────────────────
 
 let entityPass = 0, entityFail = 0;
+
+// =====================================================================
+// SECCION 33: CONSULTAS INCORPORADAS DESPUES DE LA GENERACION BASE
+//
+// Estas consultas se añadieron al fixture con el tiempo y quedaron sólo en el JSON, de modo que
+// `npm run test:gen` las borraba en silencio (R45-P0). Aquí vuelven a la fuente, agrupadas por
+// intención. Los IDs se asignan consecutivamente al construir la lista: la identidad es la consulta.
+// =====================================================================
+
+// --- Dengue (8) ---
+add('que es el dengue', 'answerDengue', ['A97'], ['no modela'], {padecimiento: 'Dengue'});
+add('pronostico de dengue', 'answerDengue', ['52 semanas'], ['no modela'], {padecimiento: 'Dengue'});
+add('que modelos usan para dengue', 'answerDengue', ['DeepAR', 'productivos'], ['no modela'], {padecimiento: 'Dengue'});
+add('cuantos casos de dengue hubo en 2024', 'answerDengue', ['122,752'], ['no modela'], {padecimiento: 'Dengue'});
+add('dengue en veracruz', 'answerDengue', ['Veracruz'], ['no modela'], {padecimiento: 'Dengue', estado: 'Veracruz'});
+add('dengue en la ciudad de mexico', 'answerDengue', ['no registra'], ['no modela'], {padecimiento: 'Dengue'});
+add('donde golpea mas el dengue', 'answerDengue', ['Jalisco'], ['no modela'], {padecimiento: 'Dengue'});
+add('el dengue lo modelan', 'answerDengue', ['EpiForecast'], ['no modela'], {padecimiento: 'Dengue'});
+
+// --- Distribución y rendimiento (2) ---
+// Regresión de G4: sin 'boxplot' ni gráfico, sigue siendo answerSmapeBox.
+add('rango de smape', 'answerSmapeBox', ['Rango de SMAPE', 'intercuartil']);
+// Regresión de G4: una TABLA sigue siendo de answerRendimientoPorPadecimiento.
+add('tabla de metricas por padecimiento', 'answerRendimientoPorPadecimiento', ['SMAPE', 'MASE']);
+
+// --- Contexto conversacional (35) ---
+addCtx('cuantos casos llegaron esta semana', 'y cuantos habiamos dicho que habria?', 'answerComparacionSemanal', ['Pronostico', 'Real'], ['52 semanas']);
+addCtx('cuantos casos nuevos hay esta semana', 'cuantos se esperaba que hubiera?', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
+addCtx('comparalo contra el pronostico', 'compara solo la semana 8', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
+addCtx('cuantos casos llegaron esta semana', 'compara la semana 8', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
+addCtx('cuantos casos llegaron esta semana de parkinson', 'cuantos habiamos pronosticado?', 'answerComparacionSemanal', ['Pronostico', 'Real'], ['52 semanas']);
+addCtx('cuantos casos hay de depresion en Nuevo Leon', 'y en Jalisco?', 'answerSpecificSeries', ['Jalisco'], []);
+addCtx('pronostico de alzheimer en Ciudad de Mexico', 'y para hombres?', '*', ['hombre'], []);
+addCtx('pronostico de depresion en Sonora', 'y el de mujeres?', '*', ['mujer'], []);
+addCtx('datos del boletin de parkinson en Oaxaca', 'y en Chiapas?', '*', ['Chiapas'], ['Oaxaca']);
+addCtx('pronostico de parkinson en Jalisco', 'ahora muestra depresion', '*', ['Depresion'], []);
+addCtx('incidencia de depresion en Veracruz', 'y que hay de Tabasco?', '*', ['Tabasco'], []);
+addCtx('ranking de entidades por incidencia de depresion', 'pero de alzheimer', '*', ['Alzheimer'], []);
+addCtx('cuantos casos de depresion hay en Sinaloa', 'y en Baja California?', '*', ['Baja California'], []);
+addCtx('cuantos casos llegaron esta semana', 'dijimos que iba a haber mas o menos?', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
+addCtx('cuantos casos nuevos hay esta semana de depresion', 'se esperaba mas o menos de lo que llego?', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
+addCtx('pronostico de alzheimer en Guerrero', 'que modelo usa?', '*', ['Motor'], []);
+addCtx('cuantos casos de depresion en Puebla para hombres', 'y para el general?', '*', ['general'], []);
+addCtx('pronostico de parkinson en Yucatan', 'y en Quintana Roo?', '*', ['Quintana Roo'], []);
+addCtx('datos de la semana mas reciente', 'cuanto pronosticamos para esa semana?', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
+addCtx('cuantos casos llegaron esta semana', 'le atinamos?', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
+addCtx('depresion en Nuevo Leon', 'y tambien en Tamaulipas?', '*', ['Tamaulipas'], []);
+addCtx('que es la depresion', 'y del parkinson que sabes?', '*', ['Parkinson'], []);
+addCtx('cuantos casos llegaron esta semana de alzheimer', 'y como va contra el pronostico?', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
+addCtx('casos de depresion en Sonora', 'pero en Chihuahua', '*', ['Chihuahua'], []);
+addCtx('pronostico de depresion en Jalisco', 'y para mujeres como va?', '*', ['mujer'], []);
+addCtx('cuantos casos llegaron esta semana de parkinson', 'cuantos iban a ser segun el modelo?', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
+addCtx('modelo de depresion en Guanajuato', 'y en Aguascalientes?', '*', ['Aguascalientes'], []);
+addCtx('ultimo dato del boletin', 'el pronostico decia que iban a ser mas?', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
+addCtx('cuantos casos de alzheimer en Jalisco', 'y Michoacan?', '*', ['Michoac'], []);
+addCtx('comparar pronostico vs real', 'pero solo semana 8', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
+addCtx('cuantos casos llegaron esta semana', 'comparalo contra lo pronosticado', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
+addCtx('pronostico de depresion en Nuevo Leon', 'y en Coahuila que onda?', '*', ['Coahuila'], []);
+addCtx('datos recientes del boletin', 'esperabamos mas o menos casos?', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
+addCtx('casos de parkinson en Veracruz', 'y para depresion en ese estado?', '*', ['Depresion'], []);
+addCtx('cuantos casos nuevos hay esta semana', 'cuanto se pronostico para esa semana?', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
+
+// --- Consultas incorporadas después (7) ---
+add('cuantos casos tienes pronosticados en las siguientes 52 semanas', 'answerPronostico', ['52 semanas'], ['modelos en producci']);
+add('cuantos casos hay pronosticados', 'answerPronostico', ['52 semanas'], ['modelos en producci']);
+add('cuantos casos esperas en el futuro', 'answerPronostico', ['52 semanas'], ['modelos en producci']);
+add('cuantos casos de depresion se pronostican para las proximas 52 semanas', 'answerPronostico', ['Depresion', 'casos'], ['modelos en producci']);
+add('cuantos modelos tienes', 'answerConteo', ['333'], ['52 semanas']);
+add('que pronostico hay para las siguientes 52 semanas', 'answerPronostico', ['52 semanas']);
+add('cuantos casos de alzheimer se esperan', 'answerPronostico', ['Alzheimer', 'casos'], ['modelos en producci']);
+
 const entityFailures = [];
 
 for (const t of tests) {
@@ -985,10 +1068,72 @@ if (entityFailures.length) {
 // Save test cases as JSON for the KB runner
 // ─────────────────────────────────────────────────────────────────────────────
 
-import { writeFileSync } from 'fs';
-writeFileSync(
-  new URL('./test_cases.json', import.meta.url),
-  JSON.stringify(tests, null, 2),
-  'utf-8'
-);
-console.log(`\nSaved ${tests.length} test cases to tests/test_cases.json`);
+// =====================================================================
+// SALIDA: `test_cases.json` es un ARTEFACTO de este generador, no una segunda autoridad.
+//
+// `--check` reconstruye el fixture en memoria y lo compara SIN escribir. Si difieren, sale con
+// rc!=0. Así una ruta oficial no puede volver a reducir el universo de pruebas en silencio
+// (R45-P0). Generar tampoco ejecuta la suite: para eso está `npm test`.
+// =====================================================================
+import { writeFileSync, existsSync } from 'fs';
+
+const FIXTURE = new URL('./test_cases.json', import.meta.url);
+
+/** Serialización canónica: exactamente la que se escribe, para comparar bytes y no formatos. */
+function serializar(casos) {
+  return JSON.stringify(casos, null, 2) + '\n';
+}
+
+/** Invariantes que el fixture cumple SIEMPRE, se escriba o se verifique. */
+function validarInvariantes(casos) {
+  const problemas = [];
+  const vistas = new Map();
+  casos.forEach((c, i) => {
+    if (c.id !== i + 1) problemas.push(`ID no consecutivo en la posición ${i + 1}: ${c.id}`);
+    const clave = JSON.stringify([norm(c.query), c.setupQuery ? norm(c.setupQuery) : null]);
+    if (vistas.has(clave)) {
+      problemas.push(`consulta duplicada: ${JSON.stringify(c.query)} (#${vistas.get(clave)} y #${c.id})`);
+    } else {
+      vistas.set(clave, c.id);
+    }
+  });
+  return problemas;
+}
+
+const esperado = serializar(tests);
+const problemas = validarInvariantes(tests);
+
+if (process.argv.includes('--check')) {
+  const fallos = [...problemas];
+  if (!existsSync(FIXTURE)) {
+    fallos.push('no existe tests/test_cases.json');
+  } else if (readFileSync(FIXTURE, 'utf-8') !== esperado) {
+    const enDisco = JSON.parse(readFileSync(FIXTURE, 'utf-8'));
+    const claves = (a) => new Set(a.map((c) => JSON.stringify([c.query, c.setupQuery || null])));
+    const kd = claves(enDisco), ke = claves(tests);
+    const faltan = [...ke].filter((k) => !kd.has(k));
+    const sobran = [...kd].filter((k) => !ke.has(k));
+    fallos.push(`el fixture no coincide con el generador (${enDisco.length} en disco vs ${tests.length} generados)`);
+    if (faltan.length) fallos.push(`  faltan ${faltan.length}: ${faltan.slice(0, 3).join(' · ')}`);
+    if (sobran.length) fallos.push(`  sobran ${sobran.length}: ${sobran.slice(0, 3).join(' · ')}`);
+    if (!faltan.length && !sobran.length) fallos.push('  mismas consultas, contratos distintos');
+  }
+  if (fallos.length) {
+    console.error('\u2716 test_cases.json no es reproducible desde generate_tests.js:');
+    for (const f of fallos) console.error(`  ${f}`);
+    console.error('\n  Regenera con:  npm run test:gen');
+    process.exit(1);
+  }
+  console.log(`\u2714 fixture reproducible: ${tests.length} casos, IDs 1..${tests.length}, consultas unicas`);
+  process.exit(0);
+}
+
+if (problemas.length) {
+  console.error('\u2716 invariantes del fixture incumplidos:');
+  for (const p of problemas) console.error(`  ${p}`);
+  process.exit(1);
+}
+
+writeFileSync(FIXTURE, esperado);
+console.log(`\nGuardados ${tests.length} casos en tests/test_cases.json`);
+console.log('Nota: generar NO ejecuta la suite. Para ejecutarla: npm test');
