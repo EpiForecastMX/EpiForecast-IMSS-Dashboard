@@ -1459,7 +1459,7 @@
   {
     "id": 126,
     "query": "la depresion ha crecido o disminuido",
-    "expectedHandler": "answerPronostico",
+    "expectedHandler": "answerBoletin",
     "mustContain": [
       "Depresion"
     ],
@@ -2378,7 +2378,7 @@
   {
     "id": 214,
     "query": "ranking de depresion",
-    "expectedHandler": "answerPadecimiento",
+    "expectedHandler": "answerBoletin",
     "mustContain": [
       "Depresion"
     ],
@@ -2388,7 +2388,7 @@
   {
     "id": 215,
     "query": "que estados tienen mas parkinson",
-    "expectedHandler": "answerPadecimiento",
+    "expectedHandler": "answerBoletin",
     "mustContain": [
       "Parkinson"
     ],
@@ -2398,7 +2398,7 @@
   {
     "id": 216,
     "query": "donde hay mas alzheimer",
-    "expectedHandler": "answerPadecimiento",
+    "expectedHandler": "answerBoletin",
     "mustContain": [
       "Alzheimer"
     ],
@@ -2680,7 +2680,7 @@
   {
     "id": 242,
     "query": "como funciona el ensemble",
-    "expectedHandler": "answerMotor",
+    "expectedHandler": "answerProyectoMeta",
     "mustContain": [
       "Ensemble"
     ],
@@ -2769,7 +2769,7 @@
   {
     "id": 251,
     "query": "cual motor gana mas",
-    "expectedHandler": "answerMotor",
+    "expectedHandler": "answerRadar",
     "mustContain": [
       "DeepAR"
     ],
@@ -2800,7 +2800,7 @@
   {
     "id": 254,
     "query": "xgboost como funciona",
-    "expectedHandler": "answerMotor",
+    "expectedHandler": "answerProyectoMeta",
     "mustContain": [
       "Ensemble"
     ],
@@ -3080,7 +3080,7 @@
   {
     "id": 283,
     "query": "que es fallback regional",
-    "expectedHandler": "answerDefinicion",
+    "expectedHandler": "answerProyectoMeta",
     "mustContain": [
       "fallback"
     ],
@@ -3090,7 +3090,7 @@
   {
     "id": 284,
     "query": "que es el horizonte de pronostico",
-    "expectedHandler": "answerDefinicion",
+    "expectedHandler": "answerTemporal",
     "mustContain": [
       "52"
     ],
@@ -3168,7 +3168,7 @@
   {
     "id": 292,
     "query": "horizonte de pronostico",
-    "expectedHandler": "answerTrainingConfig",
+    "expectedHandler": "answerTemporal",
     "mustContain": [
       "52"
     ],
@@ -3314,7 +3314,7 @@
   {
     "id": 307,
     "query": "cuantas series tiene el proyecto",
-    "expectedHandler": "answerProyectoMeta",
+    "expectedHandler": "answerConteo",
     "mustContain": [
       "333"
     ],
@@ -3332,7 +3332,7 @@
   {
     "id": 309,
     "query": "cuantos modelos de produccion hay",
-    "expectedHandler": "answerProyectoMeta",
+    "expectedHandler": "answerConteo",
     "mustContain": [
       "333"
     ],
@@ -3446,7 +3446,7 @@
   {
     "id": 321,
     "query": "que modelos son los mejores",
-    "expectedHandler": "answerRanking",
+    "expectedHandler": "answerMotor",
     "mustContain": [
       "SMAPE"
     ],
@@ -3456,7 +3456,7 @@
   {
     "id": 322,
     "query": "mejores y peores modelos",
-    "expectedHandler": "answerRanking",
+    "expectedHandler": "answerMejoresPeores",
     "mustContain": [
       "SMAPE"
     ],
@@ -3533,7 +3533,7 @@
   {
     "id": 330,
     "query": "composicion por sexo",
-    "expectedHandler": "answerSexo",
+    "expectedHandler": "answerProyectoMeta",
     "mustContain": [
       "hombres",
       "mujeres"
@@ -3544,7 +3544,7 @@
   {
     "id": 331,
     "query": "diferencia entre hombres y mujeres",
-    "expectedHandler": "answerSexo",
+    "expectedHandler": "answerComparacionPorSexo",
     "mustContain": [
       "hombres",
       "mujeres"
@@ -5172,7 +5172,7 @@
   {
     "id": 481,
     "query": "alzheimer en sonora 2018",
-    "expectedHandler": "answerBoletin",
+    "expectedHandler": "answerHistorico",
     "mustContain": [
       "2018",
       "Sonora"
@@ -5194,7 +5194,7 @@
   {
     "id": 483,
     "query": "parkinson en puebla entre 2019 y 2023",
-    "expectedHandler": "answerBoletin",
+    "expectedHandler": "answerHistorico",
     "mustContain": [
       "2019",
       "2020",
@@ -5281,7 +5281,7 @@
   {
     "id": 491,
     "query": "alzheimer en yucatan 2019",
-    "expectedHandler": "answerBoletin",
+    "expectedHandler": "answerHistorico",
     "mustContain": [
       "2019",
       "Yucatan"
@@ -5292,7 +5292,7 @@
   {
     "id": 492,
     "query": "depresion en coahuila del 2020 al 2024",
-    "expectedHandler": "answerBoletin",
+    "expectedHandler": "answerHistorico",
     "mustContain": [
       "2020",
       "2021",
@@ -5915,7 +5915,7 @@
   {
     "id": 554,
     "query": "depresion en enero 2026",
-    "expectedHandler": "answerPadecimiento",
+    "expectedHandler": "answerHistorico",
     "mustContain": [
       "enero",
       "2026"

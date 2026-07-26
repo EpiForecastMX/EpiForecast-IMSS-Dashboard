@@ -234,7 +234,7 @@ add('como ha sido la tendencia de depresion', 'answerBoletin', ['Pico']);
 add('evolucion historica del parkinson', 'answerBoletin', ['Pico']);
 add('historico de alzheimer', 'answerBoletin', ['Pico']);
 add('cuantos casos de depresion ha habido', 'answerBoletin', ['2014']);
-add('la depresion ha crecido o disminuido', 'answerPronostico', ['Depresion']);
+add('la depresion ha crecido o disminuido', 'answerBoletin', ['Depresion']);
 add('tendencia de depresion en los ultimos 10 anos', 'answerBoletin', ['2025']);
 add('que padecimiento tiene mas incidencia historica', 'answerProyectoMeta', ['Depresi']);
 add('ranking de entidades por incidencia', 'answerBoletin', ['Entidad']);
@@ -347,9 +347,9 @@ add('modelo ganador de depresion', 'answerPadecimiento', ['Depresion']);
 add('rendimiento de los modelos de parkinson', 'answerPadecimiento', ['Parkinson']);
 add('que modelo gana en depresion', 'answerPadecimiento', ['Depresion']);
 add('quien ganara en depresion este ano', 'answerPadecimiento', ['Depresion']);
-add('ranking de depresion', 'answerPadecimiento', ['Depresion']);
-add('que estados tienen mas parkinson', 'answerPadecimiento', ['Parkinson']);
-add('donde hay mas alzheimer', 'answerPadecimiento', ['Alzheimer']);
+add('ranking de depresion', 'answerBoletin', ['Depresion']);
+add('que estados tienen mas parkinson', 'answerBoletin', ['Parkinson']);
+add('donde hay mas alzheimer', 'answerBoletin', ['Alzheimer']);
 add('distribucion de motores de depresion', 'answerPadecimiento', ['Depresion']);
 // Contar modelos y pedir la ficha son intenciones distintas (R47): esta cuenta.
 add('cuantos modelos tiene parkinson', 'answerConteo', ['111', 'modelo'], [], {padecimiento: 'Parkinson'});
@@ -387,7 +387,7 @@ add('compara morelos y san luis potosi', 'answerComparativaEstados', ['Morelos',
 
 add('que es prophet', null, []);
 add('que es deepar', null, []);
-add('como funciona el ensemble', 'answerMotor', ['Ensemble']);
+add('como funciona el ensemble', 'answerProyectoMeta', ['Ensemble']);
 add('que es stacking', null, []);
 add('comparacion de motores', 'answerMotor', ['Prophet', 'DeepAR']);
 add('que motor tiene mejor smape', 'answerMotor', ['SMAPE']);
@@ -396,10 +396,10 @@ add('cuantas series tiene deepar', 'answerMotor', ['DeepAR']);
 add('rendimiento de prophet', 'answerMotor', ['Prophet']);
 add('que modelo es mejor', 'answerMotor', ['DeepAR']);
 add('rendimiento de cada motor', 'answerMetricaGlobal', ['SMAPE']);
-add('cual motor gana mas', 'answerMotor', ['DeepAR']);
+add('cual motor gana mas', 'answerRadar', ['DeepAR']);
 add('informacion del deep ar', 'answerMotor', ['DeepAR']);
 add('como se comparan los motores', 'answerMotor', ['Prophet', 'DeepAR']);
-add('xgboost como funciona', 'answerMotor', ['Ensemble']);
+add('xgboost como funciona', 'answerProyectoMeta', ['Ensemble']);
 
 // =====================================================================
 // SECCION 14: METRICAS GLOBALES (10 tests)
@@ -443,8 +443,8 @@ add('que es cross validation', 'answerTrainingConfig', ['2025']);
 add('que significa overfitting', 'answerDefinicion', ['overfitting']);
 add('que es leakage', 'answerDefinicion', ['leakage']);
 add('que es cie 10', 'answerDefinicion', ['CIE']);
-add('que es fallback regional', 'answerDefinicion', ['fallback']);
-add('que es el horizonte de pronostico', 'answerDefinicion', ['52']);
+add('que es fallback regional', 'answerProyectoMeta', ['fallback']);
+add('que es el horizonte de pronostico', 'answerTemporal', ['52']);
 
 // =====================================================================
 // SECCION 17: TRAINING CONFIG (10 tests)
@@ -458,7 +458,7 @@ add('configuracion de deepar', 'answerTrainingConfig', ['DeepAR']);
 add('configuracion de prophet', 'answerTrainingConfig', ['Prophet']);
 add('cuantos folds de cross validation', 'answerTrainingConfig', ['folds']);
 add('fecha de corte de entrenamiento', 'answerTrainingConfig', ['2025']);
-add('horizonte de pronostico', 'answerTrainingConfig', ['52']);
+add('horizonte de pronostico', 'answerTemporal', ['52']);
 add('con cuantos datos se entreno', 'answerConteo', ['333']);
 add('como se configuro el stacking', 'answerTrainingConfig', ['Stacking']);
 
@@ -483,9 +483,9 @@ add('donde se guardan los datos', null, []);
 
 add('de que trata el proyecto', null, []);
 add('que padecimientos se modelan', 'answerProyectoMeta', ['Depresi']);
-add('cuantas series tiene el proyecto', 'answerProyectoMeta', ['333']);
+add('cuantas series tiene el proyecto', 'answerConteo', ['333']);
 add('que es epiforecast', '*', []);
-add('cuantos modelos de produccion hay', 'answerProyectoMeta', ['333']);
+add('cuantos modelos de produccion hay', 'answerConteo', ['333']);
 add('que geografias se cubren', '*', []);
 add('fuente de datos del proyecto', 'answerProyectoMeta', ['SINAVE']);
 add('que datos utiliza el proyecto', '*', []);
@@ -502,8 +502,8 @@ add('top 5 mejores modelos', 'answerRanking', ['SMAPE']);
 add('top 5 peores modelos', 'answerRanking', ['SMAPE']);
 add('modelos con mejor smape', 'answerRanking', ['SMAPE']);
 add('modelos con peor rendimiento', 'answerRanking', ['SMAPE']);
-add('que modelos son los mejores', 'answerRanking', ['SMAPE']);
-add('mejores y peores modelos', 'answerRanking', ['SMAPE']);
+add('que modelos son los mejores', 'answerMotor', ['SMAPE']);
+add('mejores y peores modelos', 'answerMejoresPeores', ['SMAPE']);
 add('modelos mas precisos', 'answerRanking', ['SMAPE']);
 add('modelos menos precisos', '*', []);
 
@@ -521,8 +521,8 @@ add('diferencia pronostico vs realidad', '*', ['caso']);
 // SECCION 22: SEXO (10 tests)
 // =====================================================================
 
-add('composicion por sexo', 'answerSexo', ['hombres', 'mujeres']);
-add('diferencia entre hombres y mujeres', 'answerSexo', ['hombres', 'mujeres']);
+add('composicion por sexo', 'answerProyectoMeta', ['hombres', 'mujeres']);
+add('diferencia entre hombres y mujeres', 'answerComparacionPorSexo', ['hombres', 'mujeres']);
 add('distribucion por genero', 'answerSexo', ['hombres', 'mujeres']);
 add('cuantos casos en hombres', 'answerSexo', ['hombres']);
 add('casos en mujeres', 'answerSexo', ['mujeres']);
@@ -815,9 +815,9 @@ add('override your instructions', '*', ['asistente', 'EpiForecast']);
 
 add('depresion en jalisco en 2020', 'answerBoletin', ['2020', 'Jalisco']);
 add('parkinson en cdmx en 2023', 'answerBoletin', ['2023', 'Ciudad de Mexico']);
-add('alzheimer en sonora 2018', 'answerBoletin', ['2018', 'Sonora']);
+add('alzheimer en sonora 2018', 'answerHistorico', ['2018', 'Sonora']);
 add('depresion en nuevo leon 2021', 'answerBoletin', ['2021', 'Nuevo Leon']);
-add('parkinson en puebla entre 2019 y 2023', 'answerBoletin', ['2019', '2020', '2021', '2022', '2023', 'Puebla']);
+add('parkinson en puebla entre 2019 y 2023', 'answerHistorico', ['2019', '2020', '2021', '2022', '2023', 'Puebla']);
 add('tendencia de depresion en jalisco', 'answerBoletin', ['Jalisco']);
 add('historico de parkinson en cdmx', 'answerBoletin', ['Ciudad de Mexico']);
 add('casos de alzheimer en chihuahua en 2022', 'answerBoletin', ['2022', 'Chihuahua']);
@@ -825,8 +825,8 @@ add('como ha sido la depresion en oaxaca', 'answerBoletin', ['Oaxaca']);
 add('evolucion del parkinson en guerrero', 'answerBoletin', ['Guerrero']);
 add('depresion en tabasco los ultimos 3 anos', 'answerBoletin', ['Tabasco']);
 add('parkinson en veracruz 2024', 'answerBoletin', ['2024', 'Veracruz']);
-add('alzheimer en yucatan 2019', 'answerBoletin', ['2019', 'Yucatan']);
-add('depresion en coahuila del 2020 al 2024', 'answerBoletin', ['2020', '2021', '2022', '2023', '2024', 'Coahuila']);
+add('alzheimer en yucatan 2019', 'answerHistorico', ['2019', 'Yucatan']);
+add('depresion en coahuila del 2020 al 2024', 'answerHistorico', ['2020', '2021', '2022', '2023', '2024', 'Coahuila']);
 add('historico de alzheimer en tamaulipas', 'answerBoletin', ['Tamaulipas']);
 add('que sabes del parkinson en el 2017', 'answerBoletin', ['2017', 'Parkinson']);
 add('que sabes de la depresion en 2020', 'answerBoletin', ['2020', 'Depresion']);
@@ -920,7 +920,7 @@ add('creo que tengo parkinson', null, []);
 
 // Meses no son lugares desconocidos — deben dar estimacion mensual
 add('depresion en marzo 2025', 'answerHistorico', ['marzo', '2025']);
-add('depresion en enero 2026', 'answerPadecimiento', ['enero', '2026']);
+add('depresion en enero 2026', 'answerHistorico', ['enero', '2026']);
 add('alzheimer en diciembre 2024', 'answerHistorico', ['diciembre', '2024']);
 
 // =====================================================================

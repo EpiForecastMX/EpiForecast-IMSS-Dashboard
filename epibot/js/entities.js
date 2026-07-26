@@ -174,9 +174,13 @@ const MESES = {
 };
 
 function extractMonths(q) {
+  // Token COMPLETO, no subcadena: "genero" contiene "enero", asi que con includes() toda
+  // pregunta de genero arrastraba una estimacion de enero (R56-P0). El texto ya viene
+  // normalizado a [a-z0-9 ], pero se parte por no-alfanumerico para no depender de eso.
+  const tokens = new Set(String(q).split(/[^a-z0-9]+/));
   const months = [];
   for (const [name, num] of Object.entries(MESES)) {
-    if (q.includes(name)) months.push(num);
+    if (tokens.has(name)) months.push(num);
   }
   return [...new Set(months)].sort((a, b) => a - b);
 }
