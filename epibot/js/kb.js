@@ -4734,10 +4734,16 @@ const HANDLERS = [
   answerConteo, answerPronostico, answerDefinicion,
 ];
 
-function runHandlers(q, ent, s, d) {
+/**
+ * Recorre la cadena y devuelve la respuesta. `trace`, cuando se pasa, recibe el nombre del handler
+ * que realmente respondió: la identidad viaja CON la resolución, no se deduce después de un global
+ * mutable como `_lastHandlerFn`, que además no cubre los guards previos a la cadena (R52-A.7).
+ */
+function runHandlers(q, ent, s, d, trace = null) {
   for (const handler of HANDLERS) {
     const result = handler(q, ent, s, d);
     if (result) {
+      if (trace) trace.handler = handler.name;
       // Reset chart context when a non-chart handler answers
       if (handler !== answerDistribucion && handler !== answerGraficoAleatorio) {
         _lastDistribMetric = null;
@@ -4843,19 +4849,25 @@ let _lastHandlerFn = null;       // referencia al ultimo handler que respondio
 /** Reset conversacional — solo para tests. */
 export function _resetContext() { lastEntities = {}; _lastDistribMetric = null; _lastChartHandler = null; _lastHandlerFn = null; }
 
-export async function answer(query) {
+/**
+ * Núcleo ÚNICO de resolución: devuelve la respuesta y la identidad de quien la produjo.
+ * `answer()` delega aquí y expone sólo la respuesta, así que no hay una segunda ruta de producción
+ * "para pruebas": la que se mide es exactamente la que corre en el sitio.
+ */
+async function _resolve(query) {
+  const trace = { handler: null };   // por llamada, no global: no puede quedar obsoleto
   const d = await loadKnowledge();
   const s = d.stats || {};
   const q = norm(query);
   const ent = detectEntities(query);
 
   // Guard: prompt injection / roleplay → rechazar inmediatamente
-  if (answerInjectionGuard(q)) return INJECTION_RESPONSE;
+  if (answerInjectionGuard(q)) { trace.handler = 'answerInjectionGuard'; return { response: INJECTION_RESPONSE, handler: trace.handler }; }
 
   // Guard: solicitudes de generar código → rechazar ANTES del fuzzy/handlers
   // (evita que "codigo... regresion" se autocorrija a "depresion", etc.)
   const codeResp = answerCodeRequest(q, ent, s, d);
-  if (codeResp) return codeResp;
+  if (codeResp) { trace.handler = 'answerCodeRequest'; return { response: codeResp, handler: trace.handler }; }
 
   // Guard: temas claramente ajenos (clima, deportes, recetas, etc.) → declinar
   // LOCALMENTE, sin ceder a la IA. Evita además el fuzzy 'clima'→'colima'.
@@ -4865,8 +4877,9 @@ export async function answer(query) {
     'champions', 'liga mx', 'chiste', 'bitcoin', 'criptomoneda', 'precio de las acciones',
     'pelicula', 'netflix', 'horario de', 'vuelos a', 'hotel en'];
   if (any(q, offTopic) && !ent.padecimiento && !ent.estado && !ent.modelo) {
-    return 'Soy **EPI**, asistente de inteligencia epidemiológica de EpiForecast-MX. No respondo temas fuera del proyecto (clima, deportes, recetas, finanzas, etc.).\n\n' +
-      'Puedo ayudarte con pronósticos, métricas y la metodología de **Depresión, Parkinson, Alzheimer y Dengue** en México. Por ejemplo: «métricas globales», «depresión en Jalisco» o «pronóstico de dengue».';
+    trace.handler = 'answerFueraDeTema';
+    return { response: 'Soy **EPI**, asistente de inteligencia epidemiológica de EpiForecast-MX. No respondo temas fuera del proyecto (clima, deportes, recetas, finanzas, etc.).\n\n' +
+      'Puedo ayudarte con pronósticos, métricas y la metodología de **Depresión, Parkinson, Alzheimer y Dengue** en México. Por ejemplo: «métricas globales», «depresión en Jalisco» o «pronóstico de dengue».', handler: trace.handler };
   }
 
   // Guard: preguntas sobre el PAPER / MICAI / metodología → ceder al RAG, que
@@ -4901,22 +4914,22 @@ export async function answer(query) {
     'estado del arte', 'que propone', 'de que trata', 'que dice', 'seccion',
   ];
   const esRefProyecto = any(q, proyectoRefIntent) && !any(q, ragContentIntent);
-  if (!esRefProyecto && any(q, ragIntent) && !ent.estado) return null;
+  if (!esRefProyecto && any(q, ragIntent) && !ent.estado) return { response: null, handler: null };
 
   // Si requiere razonamiento temporal fino (diario), ceder a Gemini
-  if (needsGeminiReasoning(q)) return null;
+  if (needsGeminiReasoning(q)) return { response: null, handler: null };
 
   // Guard: consejo clinico / recomendacion para una persona → ceder a Gemini
   // (con disclaimer medico). Va ANTES del fuzzy para que un adjetivo como
   // "depresivo" no se autocorrija a "depresion" y dispare un volcado de datos.
-  if (needsMedicalAdvice(q)) return null;
+  if (needsMedicalAdvice(q)) return { response: null, handler: null };
 
   // Guard: tema fuera de alcance → ceder a Gemini
-  if (isOffTopic(q, ent)) return null;
+  if (isOffTopic(q, ent)) return { response: null, handler: null };
 
   // Guard: conocimiento general sobre padecimientos → ceder a Gemini
   // (el proyecto solo tiene datos epidemiologicos de Mexico, no info general)
-  if (ent.padecimiento && needsGeneralKnowledge(q)) return null;
+  if (ent.padecimiento && needsGeneralKnowledge(q)) return { response: null, handler: null };
 
   // Prioridad: follow-up de distribucion ("solo de la depresion" tras un violin/histograma)
   if (_lastDistribMetric) {
@@ -4925,7 +4938,7 @@ export async function answer(query) {
       const distribResult = answerDistribucion(q, ent, s, d);
       if (distribResult) {
         lastEntities = ent;
-        return distribResult;
+        return { response: distribResult, handler: trace.handler };
       }
     }
   }
@@ -4951,7 +4964,7 @@ export async function answer(query) {
     if (!merged._estados && lastEntities._estados) merged._estados = lastEntities._estados;
     // Heredar contexto de \u00faltimos N a\u00f1os
     if (merged._lastNYears == null && lastEntities._lastNYears != null) merged._lastNYears = lastEntities._lastNYears;
-    return merged;
+    return merged;   // helper de entidades: devuelve el merge, no una resolución
   }
 
   // Pre-calcular corrección fuzzy
@@ -4982,11 +4995,11 @@ export async function answer(query) {
                        (merged._estados && !ent._estados) ||
                        (merged._lastNYears != null && ent._lastNYears == null);
       if (hasExtra) {
-        const resultCtx = runHandlers(q, merged, s, d);
+        const resultCtx = runHandlers(q, merged, s, d, trace);
         if (resultCtx) {
           const ctx = [merged.padecimiento, merged.estado, merged.sexo].filter(Boolean).join(' / ');
           lastEntities = merged;
-          return `*(Contexto: ${ctx})*\n\n${resultCtx}`;
+          return { response: `*(Contexto: ${ctx})*\n\n${resultCtx}`, handler: trace.handler };
         }
       }
     }
@@ -5000,28 +5013,28 @@ export async function answer(query) {
       (!ent.estado && entFixed.estado) ||
       (!ent.modelo && entFixed.modelo);
     if (moreEntities) {
-      const resultFixed = runHandlers(corrected, entFixed, s, d);
+      const resultFixed = runHandlers(corrected, entFixed, s, d, trace);
       if (resultFixed) {
         lastEntities = entFixed;
-        return `*(¿Quisiste decir «${corrected}»?)*\n\n${resultFixed}`;
+        return { response: `*(¿Quisiste decir «${corrected}»?)*\n\n${resultFixed}`, handler: trace.handler };
       }
     }
   }
 
   // Intento normal: query original
-  const result = runHandlers(q, ent, s, d);
+  const result = runHandlers(q, ent, s, d, trace);
   if (result) {
     lastEntities = ent;
-    return result;
+    return { response: result, handler: trace.handler };
   }
 
   // Corrección fuzzy completa
   if (hasFuzzy) {
     const entFixed = detectEntities(corrected);
-    const resultFixed = runHandlers(corrected, entFixed, s, d);
+    const resultFixed = runHandlers(corrected, entFixed, s, d, trace);
     if (resultFixed) {
       lastEntities = entFixed;
-      return `*(¿Quisiste decir «${corrected}»?)*\n\n${resultFixed}`;
+      return { response: `*(¿Quisiste decir «${corrected}»?)*\n\n${resultFixed}`, handler: trace.handler };
     }
   }
 
@@ -5064,15 +5077,25 @@ export async function answer(query) {
                        (merged._estados && !ent._estados) ||
                        (merged._lastNYears != null && ent._lastNYears == null);
       if (hasExtra) {
-        const resultCtx = runHandlers(q, merged, s, d);
+        const resultCtx = runHandlers(q, merged, s, d, trace);
         if (resultCtx) {
           const ctx = [merged.padecimiento, merged.estado, merged.sexo].filter(Boolean).join(' / ');
           lastEntities = merged;
-          return `*(Contexto: ${ctx})*\n\n${resultCtx}`;
+          return { response: `*(Contexto: ${ctx})*\n\n${resultCtx}`, handler: trace.handler };
         }
       }
     }
   }
 
-  return null;
+  return { response: null, handler: trace.handler };
+}
+
+/** API pública: firma y salida idénticas a las de siempre. */
+export async function answer(query) {
+  return (await _resolve(query)).response;
+}
+
+/** API diagnóstica para pruebas: MISMO núcleo, con la identidad del handler observado. */
+export async function answerWithTrace(query) {
+  return _resolve(query);
 }
