@@ -6,7 +6,7 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities } from './entities.js?v=30';
+import { norm, detectEntities, canonEstado } from './entities.js?v=30';
 
 let DATA = null;
 
@@ -1648,6 +1648,41 @@ function formatPadInfo(info, pad, s) {
 // BOLETIN (hist\u00f3rico) — skip si la pregunta es sobre pron\u00f3sticos futuros
 // ---------------------------------------------------------------------------
 
+/**
+ * Ranking de entidades para UN padecimiento, agregado desde `boletin.anual_por_estado_pad`.
+ *
+ * `boletin.ranking_entidades` NO tiene dimensión de padecimiento: usarla y sólo cambiar el título
+ * devolvía las MISMAS cifras para Depresión, Parkinson y Alzheimer (R59-P0). Aquí se suman los años
+ * disponibles por entidad y padecimiento.
+ *
+ * Los nombres se canonizan con `canonEstado` (la tabla de alias vive en entities.js): "Distrito
+ * Federal" y "Ciudad de Mexico" son la misma entidad, partida por el cambio de nombre de 2016. Sus
+ * años se SUMAN —2017 existe en ambas grafías— porque sobrescribir perdería observaciones reales.
+ */
+function rankingPorPadecimiento(bol, pad) {
+  const porEstado = bol.anual_por_estado_pad || {};
+  const acum = new Map();
+  for (const [entidad, pads] of Object.entries(porEstado)) {
+    const serie = pads?.[pad];
+    if (!serie) continue;
+    const canon = canonEstado(entidad);
+    const fila = acum.get(canon) || { entidad: canon, casos: 0, anios: new Set() };
+    for (const [anio, casos] of Object.entries(serie)) {
+      fila.casos += casos || 0;
+      fila.anios.add(anio);
+    }
+    acum.set(canon, fila);
+  }
+  return [...acum.values()].sort((a, b) => b.casos - a.casos);
+}
+
+/** Total nacional del padecimiento (o de todos) según `boletin.anual_por_pad`: el denominador real. */
+function totalNacionalBoletin(bol, pad = null) {
+  const anual = bol.anual_por_pad || {};
+  const fuentes = pad ? [anual[pad]].filter(Boolean) : Object.values(anual);
+  return fuentes.reduce((a, serie) => a + Object.values(serie).reduce((x, c) => x + (c || 0), 0), 0);
+}
+
 function answerBoletin(q, ent, s, d) {
   const years = ent._years || [];
   // Los verbos de tendencia estaban solo en preterito ('crecio', 'subio'): "ha crecido o
@@ -1677,6 +1712,11 @@ function answerBoletin(q, ent, s, d) {
   const estado = ent.estado;
   const bol = d.boletin || {};
 
+  // "cual sexo tiene mas incidencia" pregunta por otra DIMENSION: responderla con una tabla de
+  // entidades es contestar otra cosa. Cede a la ruta demográfica (47.2-B4).
+  if (any(q, ['cual sexo', 'que sexo', 'cual genero', 'que genero', 'hombres o mujeres',
+    'hombre o mujer', 'entre sexos'])) return null;
+
   // Si pide ranking de modelos (no de entidades), dejar pasar a answerRanking. 'mejor'/'peor'
   // hablan de PRECISION, no de incidencia: "ranking mejores" es un ranking de modelos aunque no
   // diga la palabra modelo. El ranking de entidades usa 'mayor'/'menor' (47.2-B2).
@@ -1685,27 +1725,68 @@ function answerBoletin(q, ent, s, d) {
 
   // Ranking de entidades
   if (isRanking) {
-    const ranking = bol.ranking_entidades || [];
-    if (!ranking.length) return null;
-
     const wantsLeast = any(q, ['menor', 'menos', 'bajo', 'baja', 'pocas', 'pocos', 'ultima', 'ultimas', 'ultimos']);
-    const sorted = wantsLeast ? [...ranking].reverse() : ranking;
     const orderLabel = wantsLeast ? 'menor' : 'mayor';
-    const padLabel = pad ? ` de ${pad}` : '';
-    const total = ranking.reduce((sum, r) => sum + (r.casos || 0), 0);
-    const lines = [`**Entidades con ${orderLabel} incidencia${padLabel}** (acumulado histórico):\n`];
-    lines.push('| # | Entidad | Casos | % del total |');
-    lines.push('|---|---------|------:|-------------|');
+    const notaMenor = '\nLas entidades con menor incidencia suelen tener menor población o menor cobertura de detección.';
+
+    // Con padecimiento: SIEMPRE desde `anual_por_estado_pad` (R59-P0).
+    if (pad) {
+      const porEntidad = rankingPorPadecimiento(bol, pad);
+      if (!porEntidad.length) return null;
+      const nacional = totalNacionalBoletin(bol, pad);
+      const cubierto = porEntidad.reduce((a, r) => a + r.casos, 0);
+      const anios = [...new Set(porEntidad.flatMap(r => [...r.anios]))].sort();
+      const rango = anios.length ? ` ${anios[0]}–${anios[anios.length - 1]}` : '';
+      const filas = wantsLeast ? [...porEntidad].reverse() : porEntidad;
+
+      // La cobertura es PARCIAL y hay que decirlo: esto no es el ranking de las 32 entidades.
+      const lines = [`**Entidades con ${orderLabel} incidencia de ${pad}** (acumulado${rango}) — ` +
+        `**${porEntidad.length} entidades canónicas con desglose cargado**, no las 32:\n`];
+      lines.push(`| # | Entidad | Casos | % del total nacional de ${pad} |`);
+      lines.push('|---|---------|------:|------------------------------:|');
+      filas.slice(0, 15).forEach((r, i) => {
+        const p = nacional > 0 ? ((r.casos / nacional) * 100).toFixed(1) : '?';
+        lines.push(`| ${i + 1} | ${r.entidad} | ${fmt(r.casos)} | ${p}% |`);
+      });
+      if (filas.length > 15) lines.push(`\n*... y ${filas.length - 15} entidades más con desglose.*`);
+      const pctCubierto = nacional > 0 ? ((cubierto / nacional) * 100).toFixed(1) : '?';
+      lines.push(`\nEstas **${porEntidad.length} entidades** suman **${fmt(cubierto)} casos**: el ` +
+        `**${pctCubierto}%** del total nacional de ${pad} (**${fmt(nacional)}** casos según el boletín).`);
+      if (wantsLeast) lines.push(notaMenor);
+      return lines.join('\n');
+    }
+
+    // Sin padecimiento: se conserva el orden de `ranking_entidades`, pero se declara qué es —un
+    // subconjunto— y contra qué denominador se calcula cada porcentaje.
+    // Se canoniza igual que el ranking por padecimiento: `ranking_entidades` trae "Ciudad de
+    // Mexico" y "Distrito Federal" como filas distintas, y contarlas por separado sería decir que
+    // hay una entidad más de las que hay.
+    const acum = new Map();
+    for (const r of bol.ranking_entidades || []) {
+      const canon = canonEstado(r.entidad);
+      acum.set(canon, (acum.get(canon) || 0) + (r.casos || 0));
+    }
+    const ranking = [...acum.entries()].map(([entidad, casos]) => ({ entidad, casos }))
+      .sort((a, b) => b.casos - a.casos);
+    if (!ranking.length) return null;
+    const sorted = wantsLeast ? [...ranking].reverse() : ranking;
+    const disponible = ranking.reduce((sum, r) => sum + (r.casos || 0), 0);
+    const nacional = totalNacionalBoletin(bol);
+    const pads = Object.keys(bol.anual_por_pad || {});
+    const lines = [`**Entidades con ${orderLabel} incidencia** (acumulado histórico) — ` +
+      `**${ranking.length} entidades disponibles en el ranking**, no las 32:\n`];
+    lines.push('| # | Entidad | Casos | % de las disponibles |');
+    lines.push('|---|---------|------:|---------------------:|');
     sorted.slice(0, 15).forEach((r, i) => {
-      const p = total > 0 ? ((r.casos / total) * 100).toFixed(1) : '?';
+      const p = disponible > 0 ? ((r.casos / disponible) * 100).toFixed(1) : '?';
       lines.push(`| ${i + 1} | ${r.entidad} | ${fmt(r.casos)} | ${p}% |`);
     });
     if (sorted.length > 15) lines.push(`\n*... y ${sorted.length - 15} entidades más.*`);
-    if (wantsLeast) {
-      lines.push(`\nLas entidades con menor incidencia suelen tener menor población o menor cobertura de detección.`);
-    } else {
-      lines.push(`\n**Total acumulado**: ${fmt(total)} casos. Las 5 entidades principales concentran el ${total > 0 ? ((ranking.slice(0, 5).reduce((s, r) => s + (r.casos || 0), 0) / total) * 100).toFixed(1) : '?'}% del total.`);
-    }
+    const pctNac = nacional > 0 ? ((disponible / nacional) * 100).toFixed(1) : '?';
+    lines.push(`\nEstas **${ranking.length} entidades** suman **${fmt(disponible)} casos**: el ` +
+      `**${pctNac}%** del total nacional de ${pads.length} padecimientos ` +
+      `(**${fmt(nacional)}** casos — ${pads.join(', ')}).`);
+    if (wantsLeast) lines.push(notaMenor);
     return lines.join('\n');
   }
 
@@ -3210,10 +3291,39 @@ function answerMotor(q, ent, s, d) {
 function answerDemografica(q, ent, s, d) {
   const triggers = ['composicion demografica', 'distribucion por sexo', 'composicion por sexo', 'ratio hombre', 'ratio mujer', 'proporcion hombre', 'proporcion mujer',
     'desglose demografico', 'desglose demografica', 'perfil demografico', 'demografia'];
-  if (!any(q, triggers)) return null;
+  // "cual sexo tiene mas incidencia" es una pregunta demográfica agregada, no un ranking de
+  // entidades ni el desempeño de los modelos por sexo (47.2-B4).
+  const preguntaSexoIncidencia = any(q, ['cual sexo', 'que sexo', 'cual genero', 'que genero',
+    'hombres o mujeres', 'hombre o mujer'])
+    && any(q, ['mas', 'mayor', 'menos', 'menor', 'incidencia', 'caso', 'predomina', 'afecta', 'frecuente']);
+  if (!any(q, triggers) && !preguntaSexoIncidencia) return null;
 
   const demo = s.demo_historica;
   if (!demo) return null;
+
+  if (preguntaSexoIncidencia) {
+    // Se suman las claves PRESENTES y se nombran: el universo no es "siempre tres padecimientos".
+    const pads = Object.keys(demo);
+    const h = pads.reduce((a, p) => a + (demo[p].hombres || 0), 0);
+    const m = pads.reduce((a, p) => a + (demo[p].mujeres || 0), 0);
+    const total = h + m;
+    if (!total) return null;
+    const mayor = m > h ? 'mujeres' : 'hombres';
+    const pct = ((Math.max(h, m) / total) * 100).toFixed(1);
+    const lines = [
+      `**${mayor.charAt(0).toUpperCase() + mayor.slice(1)}** concentran el **${pct}%** de los casos ` +
+      `históricos del boletín: **${fmt(m)} mujeres** frente a **${fmt(h)} hombres** ` +
+      `(total ${fmt(total)}).\n`,
+      `Suma de los ${pads.length} padecimientos con desglose por sexo: ${pads.join(', ')}.\n`,
+      '| Padecimiento | Hombres | Mujeres | % mujeres | Razón M/H |',
+      '|--------------|--------:|--------:|----------:|----------:|',
+    ];
+    for (const p of pads) {
+      const dd = demo[p];
+      lines.push(`| ${p} | ${fmt(dd.hombres)} | ${fmt(dd.mujeres)} | ${dd.pct_m}% | ${dd.ratio_mh} |`);
+    }
+    return lines.join('\n');
+  }
 
   // Sin vocabulario demografico explicito y con un padecimiento nombrado ("proporcion hombres
   // mujeres depresion"), lo que se pide es el desglose por sexo de ESE padecimiento: answerSexo.

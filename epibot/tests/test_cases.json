@@ -3630,8 +3630,11 @@
   {
     "id": 339,
     "query": "cual sexo tiene mas incidencia",
-    "expectedHandler": "*",
-    "mustContain": [],
+    "expectedHandler": "answerDemografica",
+    "mustContain": [
+      "mujeres",
+      "hombres"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },

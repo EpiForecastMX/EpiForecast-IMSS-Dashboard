@@ -74,6 +74,23 @@ const ESTADOS_32 = [
   'veracruz', 'yucatan', 'zacatecas',
 ];
 
+/**
+ * Nombre CANONICO de una entidad federativa. "Distrito Federal" y "cdmx" son la misma entidad que
+ * "Ciudad de Mexico": el boletin arrastra ambas grafias por el cambio de nombre de 2016 y quien
+ * agregue por estado debe colapsarlas o contara la misma entidad dos veces (47.2-B4).
+ *
+ * Se exporta para que kb.js NO copie otro diccionario de estados: la tabla de alias vive aqui.
+ * Si el nombre no se reconoce, se devuelve tal cual (mejor un nombre intacto que uno inventado).
+ */
+export function canonEstado(nombre) {
+  const bruto = String(nombre ?? '');
+  const n = norm(bruto);
+  if (!n) return bruto;
+  if (ESTADOS_ALIAS[n]) return ESTADOS_ALIAS[n];
+  if (ESTADOS_32.includes(n)) return n.replace(/\b\w/g, c => c.toUpperCase());
+  return bruto;
+}
+
 const PADECIMIENTO_ALIAS = {
   // Depresión + variantes y typos comunes
   'depresion': 'Depresion',

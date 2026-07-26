@@ -530,7 +530,7 @@ add('proporcion hombres mujeres depresion', 'answerSexo', ['hombres', 'mujeres']
 add('desglose por sexo', 'answerSexo', ['hombres', 'mujeres']);
 add('hay diferencia de genero en parkinson', 'answerSexo', ['hombres', 'mujeres']);
 add('brecha de genero en depresion', 'answerSexo', ['hombres', 'mujeres']);
-add('cual sexo tiene mas incidencia', '*', []);
+add('cual sexo tiene mas incidencia', 'answerDemografica', ['mujeres', 'hombres']);
 
 // =====================================================================
 // SECCION 23: SEMANA ACTUAL (5 tests)
