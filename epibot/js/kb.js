@@ -893,6 +893,15 @@ function answerTemporal(q, ent, s, d) {
   const historicalContext = ['ocurrio', 'fue', 'paso', 'inicio', 'empezo', 'surgio', 'covid', 'pandemia'];
   if (historicalContext.some(w => q.includes(w))) return null;
 
+  // "datos de la ultima semana", "ultimo dato disponible", "que reporto la ultima semana" piden el
+  // CONTENIDO del ultimo boletin, no la cobertura temporal: los responde answerSemanaActual, que va
+  // despues en la cadena. Sin esta cesion se contestaba con el rango de fechas (47.2-B2).
+  const pideUltimoDato = any(q, ['ultima semana', 'ultimo dato', 'ultimos dato', 'dato mas reciente'])
+    && any(q, ['dato', 'reporto', 'reportaron', 'reporta', 'caso', 'cuanto', 'que hubo'])
+    && !any(q, ['hasta cuando', 'hasta que', 'cobertura', 'rango de fecha', 'periodo de dato',
+      'desde cuando', 'cuando inicia', 'cuando empieza', 'horizonte']);
+  if (pideUltimoDato) return null;
+
   const now = new Date();
   const iso = getISOWeek(now);
   const lines = [];
@@ -1121,6 +1130,14 @@ function answerProyectoMeta(q, ent, s, d) {
   const compTriggers = ['composicion', 'de donde salen', 'por que 333', 'porque 333', 'como se compone',
     'de donde vienen', 'que son los 333', 'como se forman', 'como se calculan los 333',
     'explicame los 333', 'explica los 333', 'desglose de modelo'];
+  // "composicion demografica ..." y "composicion por sexo y padecimiento" piden el desglose
+  // demografico del boletin (hombres/mujeres por padecimiento), no la aritmetica de los 333
+  // modelos: los responde answerDemografica. "composicion por sexo" a secas SI se queda aqui,
+  // porque pregunta como se componen los 333 (47.2-B2).
+  const pideDemografia = any(q, ['demografic'])
+    || (q.includes('composicion') && any(q, ['sexo', 'genero']) && any(q, ['padecimiento', 'enfermedad']));
+  if (pideDemografia) return null;
+
   const stackedGuard = any(q, ['semanal', 'apilad', 'stacked', 'area']);
   if (!stackedGuard && (any(q, compTriggers) || (q.includes('333') && any(q, ['que es', 'que son', 'como', 'por que', 'porque', 'explica', 'de donde'])))) {
     const pp = s.por_pad || {};
@@ -1363,6 +1380,7 @@ function answerSemanaActual(q, ent, s, d) {
     'semana previa', 'casos nuevos', 'llegaron caso', 'nuevos caso',
     'ultimo dato', 'ultimos dato', 'dato reciente', 'datos reciente',
     'dato mas reciente', 'ultimo reporte', 'ultimo boletin', 'mas reciente',
+    'ultima semana',   // "datos de la ultima semana" es el ultimo boletin, no la cobertura
   ];
   if (!any(q, triggers)) return null;
 
@@ -1632,7 +1650,12 @@ function formatPadInfo(info, pad, s) {
 
 function answerBoletin(q, ent, s, d) {
   const years = ent._years || [];
-  const histTriggers = ['caso', 'incidencia', 'registro', 'hubo', 'reporto', 'reportaron', 'historico', 'historica', 'tendencia', 'evolucion', 'serie de tiempo', 'boletin', 'sinave', 'acumulado', 'anual', 'semanal', 'comparar ano', 'comparar anio', 'crecio', 'crecimiento', 'bajo', 'subio', 'aumento', 'disminuyo', 'maximo', 'minimo', 'pico', 'record'];
+  // Los verbos de tendencia estaban solo en preterito ('crecio', 'subio'): "ha crecido o
+  // disminuido" no disparaba nada y la pregunta terminaba en la ficha general. Se agregan los
+  // participios y las formas perifrasticas (47.2-B2).
+  const histTriggers = ['caso', 'incidencia', 'registro', 'hubo', 'reporto', 'reportaron', 'historico', 'historica', 'tendencia', 'evolucion', 'serie de tiempo', 'boletin', 'sinave', 'acumulado', 'anual', 'semanal', 'comparar ano', 'comparar anio', 'crecio', 'crecimiento', 'bajo', 'subio', 'aumento', 'disminuyo', 'maximo', 'minimo', 'pico', 'record',
+    'crecido', 'disminuido', 'aumentado', 'bajado', 'subido', 'descendido', 'reducido',
+    'como ha sido', 'como ha ido', 'como se ha comportado', 'como se comporto'];
   const rankingKw = ['mas caso', 'mas incidencia', 'ranking', 'top ', 'mayor incidencia', 'mas reporta', 'menos caso', 'menor incidencia', 'que entidad', 'que estado', 'donde hay mas', 'cual tiene mas', 'estado con mas', 'estado con mayor', 'estado con menos', 'estado con menor', 'cual estado', 'cuales estado'];
   const hasYear = years.length > 0;
   const hasHist = any(q, histTriggers);
@@ -1654,8 +1677,11 @@ function answerBoletin(q, ent, s, d) {
   const estado = ent.estado;
   const bol = d.boletin || {};
 
-  // Si pide ranking de modelos (no de entidades), dejar pasar a answerRanking
-  if (isRanking && any(q, ['modelo', 'motor', 'mejores modelo', 'peores modelo', 'mejor modelo', 'peor modelo'])) return null;
+  // Si pide ranking de modelos (no de entidades), dejar pasar a answerRanking. 'mejor'/'peor'
+  // hablan de PRECISION, no de incidencia: "ranking mejores" es un ranking de modelos aunque no
+  // diga la palabra modelo. El ranking de entidades usa 'mayor'/'menor' (47.2-B2).
+  if (isRanking && any(q, ['modelo', 'motor', 'mejores modelo', 'peores modelo', 'mejor modelo', 'peor modelo',
+    'mejor', 'peor', 'mas preciso', 'menor error'])) return null;
 
   // Ranking de entidades
   if (isRanking) {
@@ -1822,6 +1848,63 @@ function answerBoletin(q, ent, s, d) {
         lines.push(`\nNo tengo datos para ${outOfRange.length === 1 ? 'el a\u00f1o' : 'los a\u00f1os'} **${outOfRange.join(', ')}**. El Bolet\u00edn Epidemiol\u00f3gico SINAVE (nuestra fuente) cubre de **${minY}** a **${maxY}**.`);
       }
     }
+    return lines.join('\n');
+  }
+
+  // Tendencia/historico de un padecimiento EN UN ESTADO, sin a\u00f1o concreto ("historico de parkinson
+  // en cdmx", "tendencia de depresion en jalisco"). Sin esta rama la pregunta caia en
+  // answerSpecificSeries, que responde el PRONOSTICO: historia servida como futuro (47.2-B2).
+  // Se exige vocabulario historico EXPLICITO, no el 'caso' generico de histTriggers: "casos de
+  // depresion en Jalisco" sigue siendo la serie productiva (pronostico), como siempre.
+  const historicoExplicito = hasLastN || any(q, ['historico', 'historica', 'tendencia', 'evolucion',
+    'como ha sido', 'como ha ido', 'como se ha comportado', 'como se comporto', 'serie de tiempo']);
+  if (pad && estado && !hasYear && historicoExplicito) {
+    const porEstado = bol.anual_por_estado_pad || {};
+    const estKey = Object.keys(porEstado).find(k => norm(k) === norm(estado));
+    const serie = estKey ? porEstado[estKey]?.[pad] : null;
+    const fuente = serie || bol.anual_por_pad?.[pad];
+    if (!fuente) return null;
+
+    const currentYear = new Date().getFullYear();
+    const maxWeek = bol.meta?.max_semana || 52;
+    const isPartial = (bol.meta?.max_anio || currentYear) === currentYear && maxWeek < 48;
+    const todos = Object.keys(fuente).sort();
+    const completos = isPartial ? todos.filter(y => Number(y) !== currentYear) : todos;
+    const lastN = ent._lastNYears;
+    const mostrados = lastN && lastN < completos.length ? completos.slice(-lastN) : completos;
+    if (!mostrados.length) return null;
+
+    const lines = [];
+    if (!serie) {
+      // La cobertura estatal anual es parcial: decirlo y dar lo que SI hay, nunca callarlo.
+      lines.push(`No tengo la serie anual de **${estado}** cargada (tengo desglose de ` +
+        `${Object.keys(porEstado).length} entidades). Muestro el **hist\u00f3rico nacional** de ${pad}:\n`);
+    }
+    const ambito = serie ? estKey : 'Nacional';
+    const first = mostrados[0], last = mostrados[mostrados.length - 1];
+    const firstC = fuente[first], lastC = fuente[last];
+    if (firstC > 0) {
+      const growth = ((lastC - firstC) / firstC * 100).toFixed(0);
+      const dir = lastC > firstC ? 'crecimiento' : 'descenso';
+      lines.push(`**${pad} en ${ambito}** muestra un **${dir} del ${Math.abs(Number(growth))}%** entre ${first} y ${last} (de ${fmt(firstC)} a ${fmt(lastC)} casos).\n`);
+    } else {
+      lines.push(`**${pad} en ${ambito} \u2014 Evoluci\u00f3n hist\u00f3rica** (${first}\u2013${last}):\n`);
+    }
+    let prev = null, maxY = mostrados[0], minY = mostrados[0];
+    for (const y of mostrados) {
+      const c = fuente[y];
+      let chg = '';
+      if (prev != null && prev > 0) { const pc = (c - prev) / prev * 100; chg = ` (${pc >= 0 ? '+' : ''}${pc.toFixed(1)}%)`; }
+      lines.push(`- ${y}: ${fmt(c)} casos${chg}`);
+      if (c > fuente[maxY]) maxY = y;
+      if (c < fuente[minY]) minY = y;
+      prev = c;
+    }
+    if (isPartial && fuente[String(currentYear)] != null) {
+      lines.push(`- ${currentYear}: ${fmt(fuente[String(currentYear)])} casos *(parcial, semana ${maxWeek} de 52)*`);
+    }
+    lines.push(`\n**Pico**: ${maxY} con ${fmt(fuente[maxY])} casos`);
+    lines.push(`**Valle**: ${minY} con ${fmt(fuente[minY])} casos`);
     return lines.join('\n');
   }
 
@@ -2236,6 +2319,11 @@ function answerStackedArea(q, ent, s, d) {
   const triggerAlt = (any(q, ['proporcion', 'distribucion']) && any(q, ['semanal', 'semana'])) ||
     (any(q, ['area']) && any(q, ['padecimiento', 'enfermedad']));
   if (!any(q, triggers) && !triggerAlt) return null;
+
+  // El trigger 'composicion' es amplio: la composicion DEMOGRAFICA (hombres/mujeres del boletin) no
+  // es el area apilada semanal. Cede a answerDemografica (47.2-B2).
+  if (any(q, ['demografic'])
+    || (q.includes('composicion') && any(q, ['sexo', 'genero']) && !any(q, ['semanal', 'semana']))) return null;
 
   const wc = d.weekly_comparison;
   if (!wc) return null;
@@ -2914,6 +3002,15 @@ function answerPadecimiento(q, ent, s, d) {
   ];
   if (any(q, historyKw)) return null;
 
+  // Intenciones EXPLICITAS con handler propio mas adelante en la cadena. Este handler es la FICHA
+  // GENERAL del padecimiento: mencionarlo no puede bastar para secuestrar una pregunta concreta.
+  // Sin esta cesion, "pronostico de depresion" devolvia la ficha en vez del pronostico (47.2-B2).
+  if (any(q, PRONOSTICO_EXPLICITO)) return null;                       // -> answerPronostico
+  if (any(q, ['cuantos modelo', 'cuantas modelo', 'numero de modelo',
+    'cantidad de modelo', 'total de modelo'])) return null;            // -> answerConteo
+  if (any(q, ['demografic'])) return null;                             // -> answerDemografica
+  if (any(q, ['sexo', 'genero', 'hombre', 'mujer'])) return null;      // -> answerSexo
+
   const ps = s.por_pad?.[pad];
   if (!ps) return null;
 
@@ -3073,7 +3170,14 @@ function answerMotor(q, ent, s, d) {
     return lines.join('\n');
   }
 
-  if (any(q, ['gana', 'ganador', 'cual gana', 'que modelo', 'comparar modelo', 'comparativa', 'comparacion', 'comparan', 'comparar motor'])) {
+  // "que motor tiene mejor smape" compara MOTORES: es esta tabla, no el resumen global de metricas.
+  // El discriminante es motor(es) vs modelo(s): "modelos con mejor smape" es un ranking de SERIES y
+  // lo responde answerRanking (47.2-B2).
+  const mejorMotor = any(q, ['motor', 'motores'])
+    && any(q, ['mejor', 'peor', 'menor error', 'mas preciso'])
+    && any(q, ['smape', 'mase', 'rmse', 'mae', 'metrica', 'rendimiento', 'desempeno', 'precision', 'error']);
+
+  if (mejorMotor || any(q, ['gana', 'ganador', 'cual gana', 'que modelo', 'comparar modelo', 'comparativa', 'comparacion', 'comparan', 'comparar motor'])) {
     const pm = s.por_motor || {};
     const sorted = Object.entries(pm).sort((a, b) => (a[1].smape_mean || 999) - (b[1].smape_mean || 999));
 
@@ -3104,14 +3208,25 @@ function answerMotor(q, ent, s, d) {
 }
 
 function answerDemografica(q, ent, s, d) {
-  const triggers = ['composicion demografica', 'distribucion por sexo', 'composicion por sexo', 'ratio hombre', 'ratio mujer', 'proporcion hombre', 'proporcion mujer'];
+  const triggers = ['composicion demografica', 'distribucion por sexo', 'composicion por sexo', 'ratio hombre', 'ratio mujer', 'proporcion hombre', 'proporcion mujer',
+    'desglose demografico', 'desglose demografica', 'perfil demografico', 'demografia'];
   if (!any(q, triggers)) return null;
 
   const demo = s.demo_historica;
   if (!demo) return null;
 
+  // Sin vocabulario demografico explicito y con un padecimiento nombrado ("proporcion hombres
+  // mujeres depresion"), lo que se pide es el desglose por sexo de ESE padecimiento: answerSexo.
+  if (ent.padecimiento && !any(q, ['demografic'])) return null;
+
+  // Si la consulta nombra un padecimiento, se responde SOLO ese: devolver los tres seria una
+  // tabla global ajena a lo que se pregunto (47.2-B2).
+  const pedido = ent.padecimiento && demo[ent.padecimiento]
+    ? [[ent.padecimiento, demo[ent.padecimiento]]]
+    : Object.entries(demo);
+
   const lines = ['**Composici\u00f3n demogr\u00e1fica hist\u00f3rica (bolet\u00edn)**\n'];
-  for (const [pad, data] of Object.entries(demo)) {
+  for (const [pad, data] of pedido) {
     lines.push(`**${pad}**:`);
     lines.push(`- Hombres: ${fmt(data.hombres)} (${data.pct_h}%)`);
     lines.push(`- Mujeres: ${fmt(data.mujeres)} (${data.pct_m}%)`);
@@ -3126,6 +3241,50 @@ function answerSexo(q, ent, s, d) {
   const triggers = ['sexo', 'genero', 'hombre', 'mujer'];
   if (!any(q, triggers)) return null;
   if (any(q, ['composicion demografica', 'distribucion por sexo'])) return null;
+
+  // Si la consulta (o el contexto heredado) trae un padecimiento, se responde ESE padecimiento por
+  // sexo. Devolver la tabla global era responder otra pregunta: "brecha de genero en depresion" no
+  // pide el SMAPE de los 333 modelos. El sexo heredado en un follow-up ("y en hombres") manda el
+  // foco (47.2-B2).
+  const pad = ent.padecimiento;
+  const psPad = pad ? s.por_pad?.[pad]?.por_sexo : null;
+  if (psPad && Object.keys(psPad).length) {
+    // Si la consulta nombra AMBOS sexos esta comparando, no pidiendo uno: no hay foco.
+    const ambos = q.includes('hombre') && q.includes('mujer');
+    const foco = !ambos && ent.sexo && psPad[ent.sexo] ? ent.sexo : null;
+    const demo = s.demo_historica?.[pad];
+    const lines = [`**${pad} por sexo**\n`];
+
+    if (demo) {
+      lines.push(`Hist\u00f3rico del bolet\u00edn: **${fmt(demo.hombres)}** casos en hombres (${demo.pct_h}%) y ` +
+        `**${fmt(demo.mujeres)}** en mujeres (${demo.pct_m}%) \u2014 raz\u00f3n mujeres/hombres **${demo.ratio_mh}**.\n`);
+    }
+
+    lines.push('| Sexo | Modelos | Pron\u00f3stico 52 sem | SMAPE medio | SMAPE mediana |');
+    lines.push('|------|--------:|------------------:|------------:|--------------:|');
+    for (const sx of ['general', 'hombres', 'mujeres']) {
+      const info = psPad[sx];
+      if (!info) continue;
+      const label = sx === 'general' ? 'General' : sx === 'hombres' ? 'Hombres' : 'Mujeres';
+      lines.push(`| ${label}${foco === sx ? ' \u2190' : ''} | ${info.n} | ${fmt(info.casos_total)} | ` +
+        `${info.smape_prod_mean}% | ${info.smape_prod_median}% |`);
+    }
+
+    const h = psPad.hombres, m = psPad.mujeres;
+    const totalHM = (h?.casos_total || 0) + (m?.casos_total || 0);
+    if (foco && totalHM > 0) {
+      const info = psPad[foco];
+      const pct = ((info.casos_total / totalHM) * 100).toFixed(1);
+      lines.push(`\nEn **${foco}** se pronostican **${fmt(info.casos_total)} casos de ${pad}** en 52 semanas ` +
+        `(**${pct}%** del total hombres+mujeres), con SMAPE mediano ${info.smape_prod_median}%.`);
+    } else if (totalHM > 0) {
+      const dominante = m.casos_total > h.casos_total ? 'mujeres' : 'hombres';
+      const pctDom = ((Math.max(m.casos_total, h.casos_total) / totalHM) * 100).toFixed(1);
+      lines.push(`\nEl **${pctDom}%** del pron\u00f3stico de ${pad} corresponde a **${dominante}** ` +
+        `(hombres: ${fmt(h.casos_total)} casos, mujeres: ${fmt(m.casos_total)} casos).`);
+    }
+    return lines.join('\n');
+  }
 
   const ps = s.por_sexo || {};
   if (!Object.keys(ps).length) return null;
@@ -3144,10 +3303,24 @@ function answerSexo(q, ent, s, d) {
 // M\u00c9TRICAS GLOBALES — con interpretaci\u00f3n
 // ---------------------------------------------------------------------------
 
+/**
+ * Intencion explicita de DEFINIR un termino. La usan los handlers de datos para ceder a
+ * answerDefinicion: nombrar una metrica no convierte la pregunta en un volcado de esa metrica
+ * ("que es mase" no pide la tabla global de metricas) (47.2-B2).
+ */
+function esIntencionDefinicion(q) {
+  return /(^|\s)(que es|que son|que significa|que significan|que quiere decir|definicion|define|a que se refiere|como se define)(\s|$)/.test(q);
+}
+
 function answerMetricaGlobal(q, ent, s, d) {
   const triggers = ['metrica', 'smape', 'mase', 'rmse', 'mae', 'rendimiento', 'performance', 'desempeno', 'error promedio'];
   if (!any(q, triggers)) return null;
   if (ent.padecimiento || ent.estado || ent.modelo) return null;
+
+  // Este handler es el RESUMEN global de las metricas: ni glosario ni ranking.
+  if (esIntencionDefinicion(q)) return null;                                   // -> answerDefinicion
+  if (any(q, ['mejor', 'peor', 'top ', 'ranking',
+    'mas preciso', 'mas precisos', 'menor error'])) return null;               // -> answerRanking
 
   const conf = confidence(s.smape_prod_median);
   const lines = [
@@ -3223,6 +3396,9 @@ function answerRanking(q, ent, s, d) {
 function answerDiagnosticos(q, ent, s, d) {
   const triggers = ['overfitting', 'leakage', 'fallback', 'diagnostico', 'calidad de modelo', 'problema'];
   if (!any(q, triggers)) return null;
+
+  // "que es leakage" pide la definicion, no el recuento de modelos afectados (47.2-B2).
+  if (esIntencionDefinicion(q)) return null;
 
   const total = s.total_modelos || 333;
   const okPct = s.overfitting_ok != null ? ((s.overfitting_ok / total) * 100).toFixed(1) : null;
@@ -3358,6 +3534,18 @@ function answerConteo(q, ent, s, d) {
 // PRON\u00d3STICO — con estimaci\u00f3n mensual
 // ---------------------------------------------------------------------------
 
+/**
+ * Intencion EXPLICITA de pronostico. Es un subconjunto deliberado de los triggers de
+ * answerPronostico: solo lo inequivoco ("pronostico", "se esperan", "habra"), nunca lo ambiguo
+ * ("cuantos casos", "52 semanas"), porque esta lista la usan los handlers generalistas para CEDER
+ * y una cesion de mas es tan defectuosa como una de menos (47.2-B2).
+ */
+const PRONOSTICO_EXPLICITO = [
+  'pronostic', 'forecast', 'prediccion', 'predice', 'predecir',
+  'se espera', 'se esperan', 'se estima', 'se estiman', 'habra', 'va a haber',
+  'casos futuro', 'casos esperado',
+];
+
 function answerPronostico(q, ent, s, d) {
   const triggers = [
     'pronostic', 'casos futuro', 'futuro 52', '52 semanas', 'proximas', 'siguientes', 'forecast',
@@ -3454,9 +3642,12 @@ function answerPronostico(q, ent, s, d) {
 
 function answerDefinicion(q, ent, s, d) {
   const triggers = ['que significa', 'definicion', ' cie', 'cie-10', 'cie 10', 'codigo', 'que quiere decir', 'como se define', 'a que se refiere'];
-  if (!any(q, triggers)) return null;
-
   const defs = d.definiciones || {};
+  // "que es mase" tambien pide una definicion, pero 'que es' sin mas es demasiado amplio (lo usan
+  // padecimientos, motores y proyecto). Se acepta SOLO si la consulta nombra un termino que este
+  // glosario define: asi no roba "que es prophet" ni "que es la depresion" (47.2-B2).
+  const nombraTermino = Object.keys(defs).some(t => q.includes(norm(t)));
+  if (!any(q, triggers) && !(esIntencionDefinicion(q) && nombraTermino)) return null;
   const lines = [];
   for (const [term, def] of Object.entries(defs)) {
     if (q.includes(norm(term))) lines.push(`**${term}**: ${def}`);
@@ -4413,6 +4604,11 @@ function answerMatrizRendimiento(q, ent, s, d) {
   const triggers = ['matriz de rendimiento', 'matriz', 'burbuja', 'scatter', 'grafico de dispersion', 'rendimiento de los modelos', 'rendimiento de modelos'];
   const triggerAlt = any(q, ['precision']) && any(q, ['error']);
   if (!any(q, triggers) && !triggerAlt) return null;
+
+  // La matriz es GLOBAL (los 333 modelos, un padecimiento por color). Si la pregunta nombra un
+  // padecimiento pide el rendimiento de ESE, no la nube entera: cede salvo que pida la matriz por
+  // su nombre (47.2-B2).
+  if (ent.padecimiento && !any(q, ['matriz', 'burbuja', 'scatter', 'dispersion'])) return null;
 
   const models = d.prod_models || [];
   if (!models.length) return null;
