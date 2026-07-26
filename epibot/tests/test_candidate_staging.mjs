@@ -20,6 +20,7 @@ import { join, resolve } from 'path';
 
 import {
   CandidateError,
+  SHARD_SCHEMA,
   findShards,
   loadCandidateShard,
   parseCSV,
@@ -36,8 +37,9 @@ import { buildChunks, chunkHash } from '../scripts/lib/corpus.mjs';
 const COLUMNAS = ['disease_id', 'geography_level', 'sex', 'epi_year', 'epi_week', 'ds',
   'yhat_cases', 'engine', 'derived', 'interval_method', 'yhat_lower', 'yhat_upper'];
 
-function fabricarShard({ lifecycle = 'trained', filas = 2, conLimites = false,
-  intervalMethod = 'none', uncertainty = false, filasDeclaradas = null } = {}) {
+function fabricarShard(opciones = {}) {
+  const { lifecycle = 'trained', filas = 2, conLimites = false,
+    intervalMethod = 'none', uncertainty = false, filasDeclaradas = null } = opciones;
   const raiz = mkdtempSync(join(tmpdir(), 'stage-'));
   const root = join(raiz, 'padecimiento_x', 'padecimiento_x_release_abc123456789');
   mkdirSync(join(root, 'web'), { recursive: true });
@@ -51,6 +53,7 @@ function fabricarShard({ lifecycle = 'trained', filas = 2, conLimites = false,
   }
   writeFileSync(join(root, 'web', 'series.csv'), [COLUMNAS.join(','), ...cuerpo].join('\n') + '\n');
   const base = {
+    schema: opciones.schema === undefined ? SHARD_SCHEMA : opciones.schema,
     release_id: 'padecimiento_x_release_abc123456789',
     disease_id: 'padecimiento_x',
     lifecycle,
@@ -126,6 +129,8 @@ const RECHAZOS = [
   ['declara intervalos', { intervalMethod: 'quantile' }, /point-only/],
   ['trae límites en una fila', { conLimites: true }, /límites de intervalo/],
   ['miente en el conteo de filas', { filasDeclaradas: 99 }, /filas y el manifiesto declara/],
+  ['viene de otro schema', { schema: 'publication_shard.v2' }, /no soportado/],
+  ['no declara schema', { schema: null }, /no soportado/],
 ];
 for (const [nombre, opciones, patron] of RECHAZOS) {
   test(`se rechaza un shard que ${nombre}`, () => {
@@ -141,6 +146,13 @@ test('se rechaza un shard sin manifiesto', () => {
   try {
     rmSync(join(root, 'shard_manifest.json'));
     assert.throws(() => loadCandidateShard(root), CandidateError);
+  } finally { rmSync(raiz, { recursive: true, force: true }); }
+});
+
+test('el schema del shard es un contrato ENTRE REPOS y se verifica', () => {
+  const { raiz, root } = fabricarShard({});
+  try {
+    assert.equal(loadCandidateShard(root).manifest.schema, SHARD_SCHEMA);
   } finally { rmSync(raiz, { recursive: true, force: true }); }
 });
 

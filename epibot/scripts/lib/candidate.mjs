@@ -16,6 +16,15 @@ import { resolve, join } from 'path';
 
 export const LIFECYCLE_PUBLISHED = 'published';
 export const INTERVAL_NONE = 'none';
+/**
+ * Schema del shard que este lector sabe interpretar. Lo emite el compilador del repo principal.
+ *
+ * Comprobarlo NO es ceremonia: productor y consumidor viven en repositorios distintos, evolucionan
+ * en commits distintos y se revisan por separado. Sin esta igualdad, un cambio de formato se
+ * descubriría como un error confuso aguas abajo —o peor, leyendo mal en silencio— en vez de decir
+ * "este shard es de otra versión".
+ */
+export const SHARD_SCHEMA = 'publication_shard.v1';
 
 export class CandidateError extends Error {}
 
@@ -74,6 +83,19 @@ export function loadCandidateShard(shardRoot) {
   const root = resolve(shardRoot);
   const manifest = leerJSON(join(root, 'shard_manifest.json'), 'shard_manifest.json');
   const web = leerJSON(join(root, 'web', 'manifest.json'), 'web/manifest.json');
+
+  if (manifest.schema !== SHARD_SCHEMA) {
+    throw new CandidateError(
+      `shard_manifest.json: schema ${JSON.stringify(manifest.schema)} no soportado ` +
+        `(este lector entiende ${JSON.stringify(SHARD_SCHEMA)})`,
+    );
+  }
+  if (web.schema !== SHARD_SCHEMA) {
+    throw new CandidateError(
+      `web/manifest.json: schema ${JSON.stringify(web.schema)} no soportado ` +
+        `(este lector entiende ${JSON.stringify(SHARD_SCHEMA)})`,
+    );
+  }
 
   for (const [clave, valor] of [
     ['release_id', manifest.release_id],
