@@ -3115,12 +3115,11 @@
   {
     "id": 287,
     "query": "hiperparametros del modelo",
-    "expectedHandler": "answerTrainingConfig",
-    "mustContain": [
-      "entrenamiento"
-    ],
+    "expectedHandler": null,
+    "mustContain": [],
     "mustNotContain": [],
-    "checkEntities": {}
+    "checkEntities": {},
+    "nota": "Delegado al RAG por `ragIntent`: pide configuración metodológica, que debe venir del corpus versionado y no de la ficha local."
   },
   {
     "id": 288,
@@ -4047,18 +4046,26 @@
   {
     "id": 377,
     "query": "resultado del futbol",
-    "expectedHandler": null,
-    "mustContain": [],
+    "expectedHandler": "answerFueraDeTema",
+    "mustContain": [
+      "EPI",
+      "fuera del proyecto"
+    ],
     "mustNotContain": [],
-    "checkEntities": {}
+    "checkEntities": {},
+    "nota": "Rechazo local explícito: contrato vigente. Se exige contenido mínimo estable, no el párrafo completo."
   },
   {
     "id": 378,
     "query": "como va el bitcoin",
-    "expectedHandler": null,
-    "mustContain": [],
+    "expectedHandler": "answerFueraDeTema",
+    "mustContain": [
+      "EPI",
+      "fuera del proyecto"
+    ],
     "mustNotContain": [],
-    "checkEntities": {}
+    "checkEntities": {},
+    "nota": "Rechazo local explícito: contrato vigente. Se exige contenido mínimo estable, no el párrafo completo."
   },
   {
     "id": 379,
@@ -4071,10 +4078,14 @@
   {
     "id": 380,
     "query": "receta de tacos",
-    "expectedHandler": null,
-    "mustContain": [],
+    "expectedHandler": "answerFueraDeTema",
+    "mustContain": [
+      "EPI",
+      "fuera del proyecto"
+    ],
     "mustNotContain": [],
-    "checkEntities": {}
+    "checkEntities": {},
+    "nota": "Rechazo local explícito: contrato vigente. Se exige contenido mínimo estable, no el párrafo completo."
   },
   {
     "id": 381,
@@ -6621,5 +6632,29 @@
     "checkEntities": {
       "padecimiento": "Dengue"
     }
+  },
+  {
+    "id": 617,
+    "query": "rango de smape",
+    "expectedHandler": "answerSmapeBox",
+    "mustContain": [
+      "Rango de SMAPE",
+      "intercuartil"
+    ],
+    "mustNotContain": [],
+    "checkEntities": {},
+    "nota": "Regresión de G4: sin 'boxplot' ni gráfico, sigue siendo answerSmapeBox."
+  },
+  {
+    "id": 618,
+    "query": "tabla de metricas por padecimiento",
+    "expectedHandler": "answerRendimientoPorPadecimiento",
+    "mustContain": [
+      "SMAPE",
+      "MASE"
+    ],
+    "mustNotContain": [],
+    "checkEntities": {},
+    "nota": "Regresión de G4: una TABLA sigue siendo de answerRendimientoPorPadecimiento."
   }
 ]

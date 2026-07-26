@@ -4309,7 +4309,10 @@ function answerRendimientoPorPadecimiento(q, ent, s, d) {
   if (!R || !R.por_pad || !Object.keys(R.por_pad).length) return null;
 
   // No robar intents de graficos (matriz de burbujas, arsenal polar, mapas...).
-  const chartWord = any(q, ['matriz', 'burbuja', 'scatter', 'dispersion', 'polar', 'arsenal', 'mapa', 'treemap', 'radar', 'barra']);
+  // 'grafico/grafica/plot/chart' + una métrica es distribución gráfica: la responde
+  // answerDistribucion. Este handler emite una TABLA, así que cederlo es lo correcto.
+  const chartWord = any(q, ['matriz', 'burbuja', 'scatter', 'dispersion', 'polar', 'arsenal', 'mapa', 'treemap', 'radar', 'barra'])
+    || (any(q, ['grafico', 'grafica', 'plot', 'chart']) && any(q, ['smape', 'mase', 'rmse', 'mae']));
   const explicit = any(q, [
     'rendimiento por padecimiento', 'rendimiento de los motores por', 'rendimiento 2026',
     'desempeno por padecimiento', 'desempeno 2026', 'metricas por padecimiento', 'metricas 2026',
@@ -4642,6 +4645,11 @@ function answerGauge(q, ent, s, d) {
 function answerSmapeBox(q, ent, s, d) {
   const triggers = ['caja y bigotes', 'boxplot', 'box plot', 'rango de smape', 'intercuartil', 'cuartil'];
   if (!any(q, triggers)) return null;
+  // Precedencia: 'boxplot'/'caja y bigotes' + una MÉTRICA es una petición de distribución gráfica,
+  // territorio de answerDistribucion, que está más abajo en la cadena. Sin esta cesión este handler
+  // la interceptaba y devolvía el rango intercuartil en vez del gráfico pedido.
+  const distribChart = any(q, ['boxplot', 'box plot', 'caja y bigotes', 'violin', 'histograma']);
+  if (distribChart && any(q, ['smape', 'mase', 'rmse', 'mae'])) return null;
   const pp = s.por_pad;
   if (!pp) return null;
   const lines = [];
@@ -4873,7 +4881,27 @@ export async function answer(query) {
     'te llamas', 'te llaman', 'tu nombre', 'por que te llam', 'porque te llam',
     'por que se llama', 'porque se llama', 'por que el nombre', 'significa epi',
     'por que epidemiolog', 'epidemiologico si', 'epideomologico'];
-  if (any(q, ragIntent) && !ent.estado) return null;
+  // Identidad / referencia del PROYECTO: preguntan SI existe un artículo, DÓNDE está o CÓMO se
+  // cita. No preguntan por su CONTENIDO —eso sí lo responde mejor el corpus versionado—, así que
+  // las contesta la ficha local, que es determinista y curada (título, subtítulo, autores).
+  // La distinción es por intención explícita, no por el orden casual de las palabras.
+  const proyectoRefIntent = [
+    'tienen articulo', 'tiene articulo', 'tienen paper', 'tiene paper',
+    'hay articulo', 'hay paper', 'hay publicacion',
+    'articulo publicado', 'paper publicado', 'publicacion del proyecto',
+    'articulo del proyecto', 'paper del proyecto',
+    'donde esta el articulo', 'donde esta el paper', 'donde se publico',
+    'referencia del articulo', 'referencia del paper', 'como se cita', 'como citar',
+    'titulo del articulo', 'nombre del articulo',
+  ];
+  // Marcadores de CONTENIDO: si aparecen, manda el RAG aunque la frase suene a referencia.
+  const ragContentIntent = [
+    'metodologia', 'contribucion', 'contribuciones', 'hallazgo', 'hallazgos',
+    'limitacion', 'limitaciones', 'trabajo futuro', 'abstract', 'resumen del',
+    'estado del arte', 'que propone', 'de que trata', 'que dice', 'seccion',
+  ];
+  const esRefProyecto = any(q, proyectoRefIntent) && !any(q, ragContentIntent);
+  if (!esRefProyecto && any(q, ragIntent) && !ent.estado) return null;
 
   // Si requiere razonamiento temporal fino (diario), ceder a Gemini
   if (needsGeminiReasoning(q)) return null;
