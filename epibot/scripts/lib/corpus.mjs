@@ -9,10 +9,11 @@
  * encabezados numerados / títulos conocidos en el texto del paper).
  */
 
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, readdirSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { createHash } from 'crypto';
+import { findShards } from './candidate.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const KB_DIR = resolve(__dirname, '..', '..');   // kb/
@@ -309,8 +310,14 @@ function paperCardsES() {
   }));
 }
 
-/** Construye TODOS los chunks del corpus (sin embeddings). */
-export function buildChunks() {
+/**
+ * Construye TODOS los chunks del corpus (sin embeddings).
+ *
+ * `candidateRoot` (C7.3c) añade el corpus de los shards CANDIDATE de un staging. Sin ese argumento
+ * el resultado es idéntico al de siempre —byte a byte—, para que el índice publicado no derive por
+ * el hecho de que exista un candidate en la máquina.
+ */
+export function buildChunks({ candidateRoot = null } = {}) {
   const chunks = [];
   const log = [];
 
@@ -346,7 +353,36 @@ export function buildChunks() {
     if (dCards.length) { chunks.push(...dCards); log.push(['Dengue (tarjetas)', dCards.length]); }
   }
 
+  // 4. Corpus CANDIDATE (staging). Sólo si se pide explícitamente.
+  if (candidateRoot) {
+    const c = candidateChunks(candidateRoot);
+    if (c.length) { chunks.push(...c); log.push(['candidate (staging)', c.length]); }
+  }
+
   return { chunks, log };
+}
+
+/** Chunks de los shards candidate de un staging root: uno por archivo del corpus generado. */
+function candidateChunks(stagingRoot) {
+  const salida = [];
+  for (const shard of findShards(stagingRoot)) {
+    const dir = resolve(shard.root, 'epibot', 'corpus');
+    if (!existsSync(dir)) continue;
+    for (const archivo of readdirSync(dir).sort()) {
+      if (!archivo.endsWith('.md')) continue;
+      const texto = readFileSync(resolve(dir, archivo), 'utf-8');
+      salida.push({
+        id: `candidate:${shard.diseaseId}:${shard.releaseId}`,
+        source: `Release candidate ${shard.releaseId}`,
+        section: shard.diseaseId,
+        title: shard.diseaseId,
+        // Sin URL pública: un candidate no tiene página donde enlazarse.
+        url: null,
+        text: texto,
+      });
+    }
+  }
+  return salida;
 }
 
 /** Texto que se embebe por chunk (incluye fuente y sección como contexto). */
