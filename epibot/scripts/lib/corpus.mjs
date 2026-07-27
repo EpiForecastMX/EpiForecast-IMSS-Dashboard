@@ -313,11 +313,13 @@ function paperCardsES() {
 /**
  * Construye TODOS los chunks del corpus (sin embeddings).
  *
- * `candidateRoot` (C7.3c) añade el corpus de los shards CANDIDATE de un staging. Sin ese argumento
- * el resultado es idéntico al de siempre —byte a byte—, para que el índice publicado no derive por
- * el hecho de que exista un candidate en la máquina.
+ * `candidateRoot` (C7.3c) añade el corpus de los shards CANDIDATE de un staging. `publicationRoot`
+ * (C7.6-ADAPTERS-A) hace lo mismo con un árbol ya INSTALADO por el installer, que es lo que
+ * consumirá la promoción real. Sin ninguno de los dos argumentos el resultado es idéntico al de
+ * siempre —byte a byte—, para que el índice publicado no derive por el hecho de que exista un
+ * candidate en la máquina.
  */
-export function buildChunks({ candidateRoot = null } = {}) {
+export function buildChunks({ candidateRoot = null, publicationRoot = null } = {}) {
   const chunks = [];
   const log = [];
 
@@ -358,8 +360,40 @@ export function buildChunks({ candidateRoot = null } = {}) {
     const c = candidateChunks(candidateRoot);
     if (c.length) { chunks.push(...c); log.push(['candidate (staging)', c.length]); }
   }
+  if (publicationRoot) {
+    const c = installedChunks(publicationRoot);
+    if (c.length) { chunks.push(...c); log.push(['release instalado', c.length]); }
+  }
 
   return { chunks, log };
+}
+
+/**
+ * Chunks de los releases INSTALADOS: se resuelven por el catálogo, no recorriendo directorios.
+ *
+ * Un árbol instalado declara qué hay y en qué estado; leerlo por catálogo evita que un directorio
+ * huérfano se cuele en el índice sin que nadie lo haya declarado (C7.6-ADAPTERS-A).
+ */
+function installedChunks(publicationRoot) {
+  const catalogo = resolve(publicationRoot, 'publication', 'catalog.json');
+  if (!existsSync(catalogo)) return [];
+  const { releases = [] } = JSON.parse(readFileSync(catalogo, 'utf-8'));
+  const salida = [];
+  for (const r of [...releases].sort((a, b) =>
+    `${a.disease_id}/${a.release_id}`.localeCompare(`${b.disease_id}/${b.release_id}`))) {
+    const md = resolve(publicationRoot, 'publication', r.disease_id, r.release_id, 'corpus', `${r.disease_id}.md`);
+    if (!existsSync(md)) continue;
+    salida.push({
+      id: `candidate:${r.disease_id}:${r.release_id}`,
+      source: `Release candidate ${r.release_id}`,
+      section: r.disease_id,
+      title: r.disease_id,
+      // Sin URL pública mientras no sea visible: un candidate no tiene página donde enlazarse.
+      url: r.visible ? `../publication/${r.disease_id}/${r.release_id}/` : null,
+      text: readFileSync(md, 'utf-8'),
+    });
+  }
+  return salida;
 }
 
 /** Chunks de los shards candidate de un staging root: uno por archivo del corpus generado. */
