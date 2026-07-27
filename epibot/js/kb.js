@@ -6,7 +6,7 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado } from './entities.js?v=30';
+import { norm, detectEntities, canonEstado } from './entities.js?v=31';
 
 let DATA = null;
 
