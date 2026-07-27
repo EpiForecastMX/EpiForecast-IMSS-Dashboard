@@ -6,28 +6,43 @@
  * cualquier cifra, porque separarlas es como se producen las capturas en las que el número viaja
  * sin su condición.
  *
+ * Antes de leer nada, verifica el release completo —forma cerrada del manifiesto y digest de TODOS
+ * sus outputs—: abrir sólo el archivo que interesa daba por bueno un árbol con otro alterado
+ * (R96-P0-4).
+ *
  * Sin DOM y sin efectos: es un modelo, no una plantilla.
  */
 
-import { existsSync, readFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import { join, resolve } from 'path';
 
-import { CandidateError, checkPublicationStatus } from './candidate.mjs';
-import { INSTALL_MANIFEST, INSTALL_SCHEMA, LIFECYCLE_PUBLISHED, readCatalog } from './installer.mjs';
+import { CandidateError } from './candidate.mjs';
+import {
+  LIFECYCLE_PUBLISHED,
+  MODE_PUBLIC,
+  porBytes,
+  readCatalog,
+  readInstalledRelease,
+} from './installer.mjs';
 import { UNCERTAINTY_LABEL } from '../../js/point_only.js';
 import { toChartSeries } from '../../js/point_only.js';
 import { parseCSV } from './candidate.mjs';
 
 export { UNCERTAINTY_LABEL };
 
+const porClave = (a, b) =>
+  porBytes(`${a.disease_id}/${a.release_id}`, `${b.disease_id}/${b.release_id}`);
+
 /** Releases que una superficie PÚBLICA puede listar. Un candidate nunca aparece aquí. */
 export function publicReleases(targetRoot) {
-  return readCatalog(targetRoot).releases.filter((r) => r.visible === true);
+  return readCatalog(targetRoot)
+    .releases.filter((r) => r.visible === true)
+    .sort(porClave);
 }
 
 /** Todos los releases instalados, con su visibilidad declarada. Para inspección de staging. */
 export function installedReleases(targetRoot) {
-  return readCatalog(targetRoot).releases;
+  return readCatalog(targetRoot).releases.slice().sort(porClave);
 }
 
 /**
@@ -45,33 +60,34 @@ export function buildReleaseView(targetRoot, { diseaseId, releaseId }) {
     throw new CandidateError(`el catálogo no declara ${diseaseId}/${releaseId}`);
   }
 
-  const base = join(root, 'publication', diseaseId, releaseId);
-  const rutaManifiesto = join(base, INSTALL_MANIFEST);
-  if (!existsSync(rutaManifiesto)) {
-    throw new CandidateError(`${diseaseId}/${releaseId}: falta ${INSTALL_MANIFEST}`);
-  }
-  const instalado = JSON.parse(readFileSync(rutaManifiesto, 'utf-8'));
-  if (instalado.schema !== INSTALL_SCHEMA) {
-    throw new CandidateError(
-      `${INSTALL_MANIFEST}: schema ${JSON.stringify(instalado.schema)} no soportado`,
-    );
-  }
+  // Verifica forma cerrada, identidad, estado y el digest de todos los outputs.
+  const { base, manifest: instalado, status } = readInstalledRelease(root, { diseaseId, releaseId });
+
   for (const [clave, esperado] of [
-    ['disease_id', diseaseId],
-    ['release_id', releaseId],
     ['lifecycle', entrada.lifecycle],
+    ['mode', entrada.mode],
     ['publication_label', entrada.publication_label],
+    ['gallery_enabled', entrada.gallery_enabled],
   ]) {
     if (instalado[clave] !== esperado) {
       throw new CandidateError(
-        `${INSTALL_MANIFEST}: ${clave}=${JSON.stringify(instalado[clave])} contradice el catálogo`,
+        `publication_install.json: ${clave}=${JSON.stringify(instalado[clave])} contradice el catálogo`,
       );
     }
   }
-  // El estado se revalida aquí: el catálogo es un índice, no una autoridad.
-  const status = checkPublicationStatus(instalado.publication_status, INSTALL_MANIFEST);
-  if (status.label !== instalado.publication_label) {
-    throw new CandidateError(`${INSTALL_MANIFEST}: la etiqueta no coincide con el estado`);
+  for (const [clave, esperado] of [
+    ['verdict', status.verdict],
+    ['weeks_available', status.weeks_available],
+    ['weeks_required', status.weeks_required],
+    ['gate_digest', status.gate_digest],
+    ['evaluation_digest', status.evaluation_digest],
+    ['status_digest', status.status_digest],
+  ]) {
+    if (entrada[clave] !== esperado) {
+      throw new CandidateError(
+        `${JSON.stringify(clave)} del catálogo no coincide con el estado instalado`,
+      );
+    }
   }
 
   const web = JSON.parse(readFileSync(join(base, 'manifest.json'), 'utf-8'));
@@ -80,6 +96,12 @@ export function buildReleaseView(targetRoot, { diseaseId, releaseId }) {
   }
   const rows = parseCSV(readFileSync(join(base, 'series.csv'), 'utf-8'), 'series.csv');
   const series = toChartSeries(rows, { intervalMethod: web.interval_method });
+
+  // Sólo un release publicado, en modo público y con puntero es visible; un candidate se inspecciona.
+  const isPubliclyVisible =
+    entrada.visible === true &&
+    entrada.mode === MODE_PUBLIC &&
+    instalado.lifecycle === LIFECYCLE_PUBLISHED;
 
   return {
     diseaseId,
@@ -93,9 +115,11 @@ export function buildReleaseView(targetRoot, { diseaseId, releaseId }) {
     uncertaintyLabel: UNCERTAINTY_LABEL,
     band: series.band,
 
-    // Sólo un release publicado y con puntero es visible; un candidate se inspecciona, no se lista.
-    isPubliclyVisible: entrada.visible === true && instalado.lifecycle === LIFECYCLE_PUBLISHED,
-    inGallery: false,
+    isPubliclyVisible,
+    // Metadata del release × visibilidad. Nunca una constante: un release que sí va a la galería
+    // tiene que poder entrar sin editar esta línea (R96-P1-2).
+    galleryEnabled: instalado.gallery_enabled,
+    inGallery: instalado.gallery_enabled === true && isPubliclyVisible,
 
     verdict: status.verdict,
     weeksAvailable: status.weeks_available,

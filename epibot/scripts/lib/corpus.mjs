@@ -13,7 +13,12 @@ import { readFileSync, existsSync, readdirSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { createHash } from 'crypto';
-import { findShards } from './candidate.mjs';
+import { CandidateError, LIFECYCLE_PUBLISHED, findShards } from './candidate.mjs';
+import { MODE_PUBLIC, porBytes, readCatalog, readInstalledRelease } from './installer.mjs';
+
+/** Modos de consumo RAG de un árbol instalado. No hay default: se piden por su nombre. */
+export const RAG_MODE_STAGING = 'staging';
+export const RAG_MODE_PUBLIC = 'public';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const KB_DIR = resolve(__dirname, '..', '..');   // kb/
@@ -318,8 +323,21 @@ function paperCardsES() {
  * consumirá la promoción real. Sin ninguno de los dos argumentos el resultado es idéntico al de
  * siempre —byte a byte—, para que el índice publicado no derive por el hecho de que exista un
  * candidate en la máquina.
+ *
+ * `publicationMode` es OBLIGATORIO cuando se pasa `publicationRoot`, y no tiene default: un árbol
+ * instalado contiene candidates, y decidir por omisión cuáles entran al índice es exactamente como
+ * un candidate acaba respondiendo en producción (R96-P0-5).
+ *
+ *  - `staging`: entra todo lo que el catálogo declare, visible o no. Es inspección.
+ *  - `public` : entra sólo `visible=true` + `mode=public` + lifecycle published + puntero
+ *    coincidente en `publicationPointers`. Sin puntero para ese padecimiento, no entra.
  */
-export function buildChunks({ candidateRoot = null, publicationRoot = null } = {}) {
+export function buildChunks({
+  candidateRoot = null,
+  publicationRoot = null,
+  publicationMode = null,
+  publicationPointers = {},
+} = {}) {
   const chunks = [];
   const log = [];
 
@@ -361,8 +379,10 @@ export function buildChunks({ candidateRoot = null, publicationRoot = null } = {
     if (c.length) { chunks.push(...c); log.push(['candidate (staging)', c.length]); }
   }
   if (publicationRoot) {
-    const c = installedChunks(publicationRoot);
-    if (c.length) { chunks.push(...c); log.push(['release instalado', c.length]); }
+    const c = installedChunks(publicationRoot, publicationMode, publicationPointers);
+    if (c.length) { chunks.push(...c); log.push([`release instalado (${publicationMode})`, c.length]); }
+  } else if (publicationMode) {
+    throw new CandidateError('publicationMode sin publicationRoot: no hay árbol que consumir');
   }
 
   return { chunks, log };
@@ -372,24 +392,41 @@ export function buildChunks({ candidateRoot = null, publicationRoot = null } = {
  * Chunks de los releases INSTALADOS: se resuelven por el catálogo, no recorriendo directorios.
  *
  * Un árbol instalado declara qué hay y en qué estado; leerlo por catálogo evita que un directorio
- * huérfano se cuele en el índice sin que nadie lo haya declarado (C7.6-ADAPTERS-A).
+ * huérfano se cuele en el índice sin que nadie lo haya declarado (C7.6-ADAPTERS-A). Y antes de leer
+ * el corpus se verifica el release entero: un `.md` alterado no puede entrar al índice sólo porque
+ * el catálogo lo nombre (R96-P0-4).
  */
-function installedChunks(publicationRoot) {
-  const catalogo = resolve(publicationRoot, 'publication', 'catalog.json');
-  if (!existsSync(catalogo)) return [];
-  const { releases = [] } = JSON.parse(readFileSync(catalogo, 'utf-8'));
+function installedChunks(publicationRoot, mode, pointers) {
+  if (![RAG_MODE_STAGING, RAG_MODE_PUBLIC].includes(mode)) {
+    throw new CandidateError(
+      `publicationRoot exige un modo explícito (${RAG_MODE_STAGING}|${RAG_MODE_PUBLIC}), ` +
+        `no ${JSON.stringify(mode)}`,
+    );
+  }
   const salida = [];
-  for (const r of [...releases].sort((a, b) =>
-    `${a.disease_id}/${a.release_id}`.localeCompare(`${b.disease_id}/${b.release_id}`))) {
-    const md = resolve(publicationRoot, 'publication', r.disease_id, r.release_id, 'corpus', `${r.disease_id}.md`);
-    if (!existsSync(md)) continue;
+  const releases = readCatalog(publicationRoot)
+    .releases.slice()
+    .sort((a, b) => porBytes(`${a.disease_id}/${a.release_id}`, `${b.disease_id}/${b.release_id}`));
+
+  for (const r of releases) {
+    if (mode === RAG_MODE_PUBLIC) {
+      const publico =
+        r.visible === true &&
+        r.mode === MODE_PUBLIC &&
+        r.lifecycle === LIFECYCLE_PUBLISHED &&
+        pointers[r.disease_id] === r.release_id;
+      if (!publico) continue;
+    }
+    const identidad = { diseaseId: r.disease_id, releaseId: r.release_id };
+    const { base } = readInstalledRelease(publicationRoot, identidad);
+    const md = resolve(base, 'corpus', `${r.disease_id}.md`);
     salida.push({
       id: `candidate:${r.disease_id}:${r.release_id}`,
       source: `Release candidate ${r.release_id}`,
       section: r.disease_id,
       title: r.disease_id,
       // Sin URL pública mientras no sea visible: un candidate no tiene página donde enlazarse.
-      url: r.visible ? `../publication/${r.disease_id}/${r.release_id}/` : null,
+      url: r.visible === true ? `../publication/${r.disease_id}/${r.release_id}/` : null,
       text: readFileSync(md, 'utf-8'),
     });
   }
