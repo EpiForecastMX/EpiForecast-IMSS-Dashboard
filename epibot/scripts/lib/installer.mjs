@@ -118,6 +118,24 @@ function planDeArchivos(diseaseId, releaseId) {
   ];
 }
 
+/** Ruta del manifiesto de instalación dentro del destino. Una sola definición para todos. */
+function rutaDelManifiesto(diseaseId, releaseId) {
+  return `publication/${diseaseId}/${releaseId}/${INSTALL_MANIFEST}`;
+}
+
+/**
+ * TODO lo que el instalador escribe en el destino, en orden: seis outputs, el manifiesto y el
+ * catálogo. Se exporta para que la matriz de fallos de las pruebas salga del plan REAL y no de una
+ * lista copiada a mano que se queda corta en silencio (R98-P1-2).
+ */
+export function installArtifacts(diseaseId, releaseId) {
+  return [
+    ...planDeArchivos(diseaseId, releaseId).map((p) => p.hacia),
+    rutaDelManifiesto(diseaseId, releaseId),
+    CATALOG_FILE,
+  ];
+}
+
 function leerJSON(ruta, etiqueta) {
   if (!existsSync(ruta)) throw new CandidateError(`${etiqueta}: no existe ${ruta}`);
   try {
@@ -298,7 +316,7 @@ export function installShard(
   };
   exigeFormaCerrada(manifiesto, INSTALL_KEYS, INSTALL_MANIFEST);
 
-  const rutaManifiesto = `publication/${manifest.disease_id}/${manifest.release_id}/${INSTALL_MANIFEST}`;
+  const rutaManifiesto = rutaDelManifiesto(manifest.disease_id, manifest.release_id);
   const entrada = {
     disease_id: manifest.disease_id,
     release_id: manifest.release_id,

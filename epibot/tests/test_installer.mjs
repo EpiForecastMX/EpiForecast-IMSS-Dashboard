@@ -26,6 +26,7 @@ import {
   INSTALL_MANIFEST,
   MODE_CANDIDATE,
   MODE_PUBLIC,
+  installArtifacts,
   installShard,
   inventory,
   porBytes,
@@ -248,39 +249,54 @@ test('una ruta ya existente con otros bytes se RECHAZA, no se sobrescribe', () =
   });
 });
 
-/** Sink que revienta en una frontera concreta del destino vivo: write, rename, mkdir o remove. */
-function opsQueFallanEn(patron) {
+/**
+ * Sink que revienta en UNA frontera del destino vivo.
+ *
+ * `write` cae sobre el temporal `<artefacto>.installing-<token>`; `rename` sobre el artefacto ya
+ * en su sitio. Se compara por ruta exacta, no por expresión regular suelta, para que una frontera
+ * mal escrita no pase por verde sin haber disparado nunca.
+ */
+function opsQueFallanEn(op, relativa) {
+  const esTemporal = (ruta) => ruta.includes(`${relativa}.installing-`);
+  const esFinal = (ruta) => ruta.endsWith(`/${relativa}`);
   return {
-    mkdir: (d) => { if (patron.test(`mkdir:${d}`)) throw new Error(`fallo en mkdir ${d}`); FS_OPS.mkdir(d); },
-    write: (r, d) => { if (patron.test(`write:${r}`)) throw new Error(`fallo en write ${r}`); FS_OPS.write(r, d); },
-    rename: (a, b) => { if (patron.test(`rename:${b}`)) throw new Error(`fallo en rename ${b}`); FS_OPS.rename(a, b); },
+    mkdir: FS_OPS.mkdir,
+    write: (r, d) => {
+      if (op === 'write' && esTemporal(r)) throw new Error(`fallo en write ${relativa}`);
+      FS_OPS.write(r, d);
+    },
+    rename: (a, b) => {
+      if (op === 'rename' && esFinal(b)) throw new Error(`fallo en rename ${relativa}`);
+      FS_OPS.rename(a, b);
+    },
     remove: FS_OPS.remove,
   };
 }
 
-const FRONTERAS = [
-  `write:.*publication/${DISEASE}/${RELEASE}/manifest.json`,
-  `rename:.*publication/${DISEASE}/${RELEASE}/manifest.json`,
-  `write:.*publication/${DISEASE}/${RELEASE}/series.csv`,
-  `rename:.*publication/${DISEASE}/${RELEASE}/corpus/${DISEASE}.md`,
-  `write:.*Reports/publication/${DISEASE}/${RELEASE}/report.md`,
-  `rename:.*Reports/publication/${DISEASE}/${RELEASE}/forecast_products.csv`,
-  `write:.*publication/${DISEASE}/${RELEASE}/${INSTALL_MANIFEST}`,
-  `rename:.*publication/${DISEASE}/${RELEASE}/${INSTALL_MANIFEST}`,
-  `write:.*publication/catalog.json`,
-  `rename:.*publication/catalog.json$`,
-];
+/** La matriz sale del plan REAL de instalación: 8 artefactos × 2 fronteras = 16 casos. */
+const ARTEFACTOS = installArtifacts(DISEASE, RELEASE);
+const FRONTERAS = ARTEFACTOS.flatMap((a) => [
+  { op: 'write', relativa: a },
+  { op: 'rename', relativa: a },
+]);
 
-for (const frontera of FRONTERAS) {
-  test(`un fallo en «${frontera}» deja catálogo y release visible byte-idénticos`, () => {
+test('la matriz de fallos cubre los 8 artefactos del plan, write y rename', () => {
+  assert.equal(ARTEFACTOS.length, 8, 'seis outputs + publication_install.json + catalog.json');
+  assert.equal(FRONTERAS.length, 16);
+  assert.ok(ARTEFACTOS.includes(CATALOG_FILE) && ARTEFACTOS.some((a) => a.endsWith(INSTALL_MANIFEST)));
+});
+
+for (const { op, relativa } of FRONTERAS) {
+  test(`un fallo en «${op}:${relativa}» deja catálogo y release visible byte-idénticos`, () => {
     const previo = fabricarShard({ disease: 'ya_visible', release: 'ya_visible_release_00000000' });
     conShardYDestino((shard, destino) => {
       installShard(previo.root, destino);              // un release que YA era visible
       const antes = inventory(destino);
 
       assert.throws(
-        () => installShard(shard, destino, { ops: opsQueFallanEn(new RegExp(frontera)) }),
-        /fallo en (write|rename|mkdir)/,
+        () => installShard(shard, destino, { ops: opsQueFallanEn(op, relativa) }),
+        new RegExp(`fallo en ${op} ${relativa.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`),
+        'la frontera tiene que disparar de verdad, no pasar de largo',
       );
 
       const ahora = inventory(destino);
@@ -305,7 +321,7 @@ for (const frontera of FRONTERAS) {
 test('tras un fallo, reinstalar completo funciona y no deja residuos', () => {
   conShardYDestino((shard, destino) => {
     assert.throws(
-      () => installShard(shard, destino, { ops: opsQueFallanEn(/rename:.*report\.md/) }),
+      () => installShard(shard, destino, { ops: opsQueFallanEn('rename', `Reports/publication/${DISEASE}/${RELEASE}/report.md`) }),
       /fallo en rename/,
     );
     const r = installShard(shard, destino);
@@ -655,7 +671,7 @@ test('shard real: instala, se ve en staging y no en público', { skip: !RAIZ_REA
     // Fallo durante el commit: catálogo y release previo byte-idénticos.
     const antes = inventory(destino);
     assert.throws(
-      () => installShard(shard.root, destino, { ops: opsQueFallanEn(/rename:.*publication\/catalog.json$/) }),
+      () => installShard(shard.root, destino, { ops: opsQueFallanEn('rename', CATALOG_FILE) }),
       /fallo en rename/,
     );
     assert.deepEqual(inventory(destino), antes);
