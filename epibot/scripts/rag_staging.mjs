@@ -4,16 +4,22 @@
  *
  * El `rag_index.json` commiteado no se toca: es la superficie publicada. Aquí se construye un índice
  * paralelo en el propio directorio de staging y se comprueba que cubre cada chunk del corpus
- * ampliado. Así se responde la pregunta de C7.3 —«¿el índice se regenera sin drift con el corpus
- * nuevo?»— sin publicar nada.
+ * ampliado.
  *
- * Uso:  node scripts/rag_staging.mjs <staging_root>
+ * C7.6-RAG-A: antes asignaba `[]` a los chunks sin embedding y a continuación los daba por «sin
+ * drift», porque la verificación sólo miraba que el chunk existiera. Un chunk candidate con vector
+ * vacío se reportaba como listo. Ahora usa el MISMO contrato que el builder público
+ * (scripts/lib/rag_index.mjs): sin vector válido para cada chunk —candidate incluido— esto falla
+ * con rc≠0 y no escribe nada.
+ *
+ * Uso:  GEMINI_API_KEY=... node scripts/rag_staging.mjs <staging_root>
  */
 
-import { existsSync, readFileSync, writeFileSync } from 'fs';
+import { existsSync } from 'fs';
 import { resolve, join } from 'path';
-import { buildChunks, chunkHash, KB_DIR } from './lib/corpus.mjs';
+import { buildChunks, KB_DIR, EMBED_DIM, EMBED_MODEL } from './lib/corpus.mjs';
 import { findShards } from './lib/candidate.mjs';
+import { buildIndex, readIndex, writeAtomic, geminiEmbedder, RagIndexError } from './lib/rag_index.mjs';
 
 const stagingRoot = resolve(process.argv[2] || '');
 if (!process.argv[2] || !existsSync(stagingRoot)) {
@@ -29,32 +35,32 @@ const base = buildChunks();
 const ampliado = buildChunks({ candidateRoot: stagingRoot });
 const nuevos = ampliado.chunks.length - base.chunks.length;
 
-// Reusa los vectores del índice publicado para lo que no cambió; los chunks candidate quedan sin
-// vector (modo léxico), igual que hace el build normal sin API key. Nunca se aborta por eso.
-const cache = new Map();
-if (existsSync(publicado)) {
-  const viejo = JSON.parse(readFileSync(publicado, 'utf-8'));
-  (viejo.chunks || []).forEach((c, i) => {
-    const v = (viejo.vectors || [])[i];
-    if (v && v.length) cache.set(chunkHash(c), v);
+const apiKey = process.env.GEMINI_API_KEY;   // sólo se usa; nunca se imprime ni se serializa
+
+try {
+  const { index, reused, generated } = await buildIndex({
+    chunks: ampliado.chunks,
+    previous: readIndex(publicado),          // reusa por hash lo ya embebido del corpus público
+    embed: apiKey ? await geminiEmbedder(apiKey) : null,
+    dim: EMBED_DIM,
+    model: EMBED_MODEL,
   });
-}
-const vectors = ampliado.chunks.map((c) => cache.get(chunkHash(c)) || []);
-writeFileSync(salida, JSON.stringify({ chunks: ampliado.chunks, vectors }, null, 0));
+  writeAtomic(salida, index);
 
-// Verificación de drift sobre el índice de staging: cada chunk del corpus ampliado tiene que estar.
-const indice = JSON.parse(readFileSync(salida, 'utf-8'));
-const presentes = new Set((indice.chunks || []).map(chunkHash));
-const faltan = ampliado.chunks.filter((c) => !presentes.has(chunkHash(c)));
-
-console.log(`shards candidate      : ${shards.map((s) => s.diseaseId).join(', ') || '(ninguno)'}`);
-console.log(`chunks publicados     : ${base.chunks.length}`);
-console.log(`chunks con candidate  : ${ampliado.chunks.length}  (+${nuevos})`);
-console.log(`vectores reutilizados : ${vectors.filter((v) => v.length).length}`);
-console.log(`índice de staging     : ${salida}`);
-console.log(`rag_index.json público: SIN TOCAR`);
-if (faltan.length) {
-  console.error(`✖ drift: ${faltan.length} chunks del corpus no están en el índice`);
-  process.exit(1);
+  console.log(`shards candidate      : ${shards.map((s) => s.diseaseId).join(', ') || '(ninguno)'}`);
+  console.log(`chunks publicados     : ${base.chunks.length}`);
+  console.log(`chunks con candidate  : ${ampliado.chunks.length}  (+${nuevos})`);
+  console.log(`vectores reutilizados : ${reused}`);
+  console.log(`vectores generados    : ${generated}`);
+  console.log(`índice de staging     : ${salida}`);
+  console.log('rag_index.json público: SIN TOCAR');
+  console.log('✔ el índice de staging cubre el corpus ampliado, con vector válido en cada chunk');
+} catch (err) {
+  if (err instanceof RagIndexError) {
+    console.error(`✖ ${err.message}`);
+    console.error('\n  No se escribió el índice de staging.');
+    if (!apiKey) console.error('  Falta GEMINI_API_KEY en el entorno.');
+    process.exit(1);
+  }
+  throw err;
 }
-console.log('✔ sin drift: el índice de staging cubre todo el corpus ampliado');

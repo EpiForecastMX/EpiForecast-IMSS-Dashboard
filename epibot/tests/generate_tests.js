@@ -1,17 +1,23 @@
 /**
- * generate_tests.js — Genera y ejecuta ~400 preguntas de test para el KB.
+ * generate_tests.js — CONSTRUYE, valida y escribe los 616 casos de prueba del KB.
+ *
+ * No ejecuta la suite: eso es `npm test` (tests/run_tests.js). Aquí sólo se declara el contrato de
+ * cada consulta y se serializa a tests/test_cases.json, que es un ARTEFACTO de este archivo — la
+ * fuente son las llamadas a `add`/`addCtx` de abajo, nunca el JSON. Con `--check` no escribe nada:
+ * verifica que el fixture en disco sea exactamente lo que este generador produce (rc≠0 si no).
  *
  * Cada pregunta tiene:
  *   - query: la pregunta en espanol
  *   - expectedHandler: el handler que deberia responder
  *       null  = debe retornar null (Gemini fallback / off-topic)
- *       '*'   = cualquier respuesta es valida (test de entidades solamente)
+ *       '*'   = no se exige nombre de handler; el resto de aserciones sigue aplicando
  *       'xxx' = handler especifico esperado
  *   - mustContain: strings que DEBEN aparecer en la respuesta (case-insensitive)
  *   - mustNotContain: strings que NO deben aparecer
  *   - checkEntities: entidades esperadas en la deteccion
  *
- * Uso: node tests/generate_tests.js
+ * Uso:  npm run test:gen              escribe tests/test_cases.json
+ *        npm run test:cases:verify    --check, no mutante, rc≠0 si el fixture no coincide
  */
 
 import { readFileSync } from 'fs';
