@@ -52,6 +52,23 @@ function fabricarShard(opciones = {}) {
       conLimites ? '90' : '', conLimites ? '110' : ''].join(','));
   }
   writeFileSync(join(root, 'web', 'series.csv'), [COLUMNAS.join(','), ...cuerpo].join('\n') + '\n');
+  // El estado prospectivo es parte OBLIGATORIA del shard desde C7.6-STATUS-B: sin él, la cifra
+  // viajaría sin la condición bajo la que se autorizó publicarla.
+  const etiqueta =
+    'Validación prospectiva en curso (0/4 semanas) · pronóstico puntual sin intervalos';
+  const estado = {
+    schema: 'prospective_status.v2',
+    gate_digest: 'a'.repeat(64),
+    evaluation_digest: 'b'.repeat(64),
+    status_digest: 'c'.repeat(64),
+    observation_dataset_id: 'padecimiento_x_dataset',
+    verdict: 'INCOMPLETE',
+    weeks_required: 4,
+    weeks_available: 0,
+    completed_weeks: [],
+    target_weeks: [[2026, 27], [2026, 28], [2026, 29], [2026, 30]],
+    label: etiqueta,
+  };
   const base = {
     schema: opciones.schema === undefined ? SHARD_SCHEMA : opciones.schema,
     release_id: 'padecimiento_x_release_abc123456789',
@@ -60,6 +77,8 @@ function fabricarShard(opciones = {}) {
     rows: filasDeclaradas === null ? filas : filasDeclaradas,
     interval_method: intervalMethod,
     uncertainty_available: uncertainty,
+    publication_status: opciones.publicationStatus === undefined ? estado : opciones.publicationStatus,
+    publication_label: opciones.publicationLabel === undefined ? etiqueta : opciones.publicationLabel,
   };
   writeFileSync(join(root, 'shard_manifest.json'), JSON.stringify(base));
   writeFileSync(join(root, 'web', 'manifest.json'), JSON.stringify(base));
