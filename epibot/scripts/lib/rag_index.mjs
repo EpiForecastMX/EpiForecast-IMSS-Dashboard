@@ -49,17 +49,40 @@ export function readIndex(path) {
 }
 
 /**
- * Caché hash→vector desde un índice en disco. Un vector inválido NO se recicla: reusarlo
- * propagaría el defecto a la siguiente construcción en vez de regenerarlo.
+ * Identidad del espacio de embeddings. Dos vectores sólo son comparables si vienen del MISMO modelo
+ * y la misma dimensión: un vector de `model-A` y otro de `model-B` con 768 componentes cada uno son
+ * numéricamente compatibles y semánticamente incomparables (R68-P0).
  */
-export function cacheFrom(index, { dim = EMBED_DIM } = {}) {
+export function sameEmbeddingIdentity(index, { dim = EMBED_DIM, model = EMBED_MODEL } = {}) {
+  return !!index && index.model === model && index.dim === dim;
+}
+
+/**
+ * Caché hash→vector desde un índice en disco. La identidad de una entrada es
+ * `model + dim + chunkHash`, no sólo el hash: si el índice previo declara otro modelo u otra
+ * dimensión, NO se reutiliza nada y se regenera todo. Antes bastaba con que coincidiera la
+ * dimensión, así que cambiar de modelo producía un índice mezclado y de apariencia válida.
+ *
+ * Un vector inválido no se recicla —reusarlo propagaría el defecto—, y un hash duplicado con
+ * vectores distintos se descarta por completo: «el último gana» elegiría en silencio.
+ */
+export function cacheFrom(index, { dim = EMBED_DIM, model = EMBED_MODEL } = {}) {
   const cache = new Map();
-  if (!index) return cache;
+  if (!sameEmbeddingIdentity(index, { dim, model })) return cache;
   const chunks = index.chunks || [];
   const vectors = index.vectors || [];
+  const ambiguos = new Set();
   for (let i = 0; i < chunks.length; i++) {
     if (vectorProblem(vectors[i], dim)) continue;
-    cache.set(chunkHash(chunks[i]), vectors[i]);
+    const hash = chunkHash(chunks[i]);
+    if (ambiguos.has(hash)) continue;
+    const previo = cache.get(hash);
+    if (previo && JSON.stringify(previo) !== JSON.stringify(vectors[i])) {
+      cache.delete(hash);          // ambiguo: no se elige por nosotros, se regenera
+      ambiguos.add(hash);
+      continue;
+    }
+    cache.set(hash, vectors[i]);
   }
   return cache;
 }
@@ -188,7 +211,9 @@ export function writeAtomic(path, obj) {
 export async function buildIndex({ chunks, previous = null, embed = null, dim = EMBED_DIM, model = EMBED_MODEL, built, concurrency, retries, onProgress } = {}) {
   if (!chunks?.length) throw new RagIndexError(['el corpus está vacío']);
   const frame = frameFor(chunks);
-  const reused = applyCache(frame, cacheFrom(previous, { dim }));
+  // La caché se filtra por identidad de embeddings: el índice que se escribe declara `model`/`dim`
+  // y TODOS sus vectores salen de ese espacio, nunca una mezcla.
+  const reused = applyCache(frame, cacheFrom(previous, { dim, model }));
   const { generated } = await fillMissing(frame, { embed, dim, concurrency, retries, onProgress });
   assertValid(frame, { dim, expected: frame.map((e) => e.hash) });
   return { frame, reused, generated, index: serialize(frame, { model, dim, built }) };
@@ -199,18 +224,35 @@ export async function buildIndex({ chunks, previous = null, embed = null, dim = 
  * que la asociación se reconstruye por posición; la alineación se garantiza en construcción, y aquí
  * se comprueba lo que el archivo sí permite: cobertura, unicidad y validez de cada vector.
  */
-export function problemsAgainstCorpus(index, chunks, { dim = EMBED_DIM } = {}) {
-  if (!index) return ['no existe el índice'];
-  const idxChunks = index.chunks || [];
-  const idxVectors = index.vectors || [];
+export function problemsAgainstCorpus(index, chunks, { dim = EMBED_DIM, model = EMBED_MODEL } = {}) {
+  if (!index || typeof index !== 'object') return ['no existe el índice'];
+  const problemas = [];
+
+  // Metadata: un índice que no declara de dónde salieron sus vectores no es verificable. Y si
+  // declara otro modelo u otra dimensión, sus vectores no sirven para ESTE corpus (R68-P0).
+  if (typeof index.model !== 'string' || !index.model) problemas.push('el índice no declara `model`');
+  else if (index.model !== model) problemas.push(`modelo ${index.model} ≠ ${model}`);
+  if (typeof index.dim !== 'number') problemas.push('el índice no declara `dim` numérico');
+  else if (index.dim !== dim) problemas.push(`dimensión declarada ${index.dim} ≠ ${dim}`);
+
+  const idxChunks = Array.isArray(index.chunks) ? index.chunks : null;
+  const idxVectors = Array.isArray(index.vectors) ? index.vectors : null;
+  if (!idxChunks) problemas.push('`chunks` ausente o no es un arreglo');
+  if (!idxVectors) problemas.push('`vectors` ausente o no es un arreglo');
+  if (!idxChunks || !idxVectors) return problemas;
+
+  if (typeof index.count !== 'number') problemas.push('el índice no declara `count` numérico');
+  else if (index.count !== chunks.length) problemas.push(`count ${index.count} ≠ ${chunks.length} chunks del corpus`);
   if (idxChunks.length !== idxVectors.length) {
-    return [`el índice declara ${idxChunks.length} chunks y ${idxVectors.length} vectores`];
+    problemas.push(`el índice declara ${idxChunks.length} chunks y ${idxVectors.length} vectores`);
+    return problemas;
   }
+
   const frame = idxChunks.map((chunk, i) => {
     const hash = chunkHash(chunk);
     return { chunk, hash, vector: idxVectors[i], vectorHash: hash };
   });
-  return problemsOf(frame, { dim, expected: chunks.map(chunkHash) });
+  return [...problemas, ...problemsOf(frame, { dim, expected: chunks.map(chunkHash) })];
 }
 
 /**

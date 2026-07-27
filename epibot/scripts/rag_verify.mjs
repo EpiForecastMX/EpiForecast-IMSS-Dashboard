@@ -12,7 +12,7 @@
  */
 
 import { resolve } from 'path';
-import { buildChunks, KB_DIR, EMBED_DIM } from './lib/corpus.mjs';
+import { buildChunks, KB_DIR, EMBED_DIM, EMBED_MODEL } from './lib/corpus.mjs';
 import { readIndex, problemsAgainstCorpus } from './lib/rag_index.mjs';
 
 const OUT = resolve(KB_DIR, 'rag_index.json');
@@ -24,10 +24,13 @@ if (!idx) {
   process.exit(1);
 }
 
-const problemas = problemsAgainstCorpus(idx, chunks, { dim: EMBED_DIM });
+// Identidad explícita: el índice tiene que declarar el MISMO modelo y dimensión que el
+// corpus vigente, no sólo cubrir sus chunks (R68-P0).
+const problemas = problemsAgainstCorpus(idx, chunks, { dim: EMBED_DIM, model: EMBED_MODEL });
 
 console.log('▶ Verificación de índice RAG');
 console.log(`  corpus actual: ${chunks.length} chunks · índice: ${(idx.chunks || []).length} chunks`);
+console.log(`  modelo esperado: ${EMBED_MODEL} · dim ${EMBED_DIM} · índice declara: ${idx.model ?? '—'} / ${idx.dim ?? '—'}`);
 
 if (problemas.length) {
   console.error(`\n✖ El índice no cumple el contrato (${problemas.length} problemas):`);

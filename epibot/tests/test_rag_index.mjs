@@ -14,12 +14,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtempSync, writeFileSync, readFileSync, existsSync, readdirSync, rmSync } from 'fs';
+import { execFileSync } from 'child_process';
 import { createHash } from 'crypto';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import {
   buildIndex, frameFor, applyCache, assignVector, cacheFrom, fillMissing, problemsOf,
-  problemsAgainstCorpus, serialize, writeAtomic, readIndex, vectorProblem, RagIndexError,
+  problemsAgainstCorpus, sameEmbeddingIdentity, serialize, writeAtomic, readIndex, vectorProblem,
+  RagIndexError,
 } from '../scripts/lib/rag_index.mjs';
 import { chunkHash } from '../scripts/lib/corpus.mjs';
 
@@ -58,8 +60,10 @@ test('índice completamente cubierto: PASS', async () => {
 test('chunk ausente en el índice: FAIL', async () => {
   const { index } = await buildIndex({ chunks: CORPUS.slice(0, 2), embed: proveedor().embed, dim: DIM });
   const problemas = problemsAgainstCorpus(index, CORPUS, { dim: DIM });
-  assert.equal(problemas.length, 1);
-  assert.match(problemas[0], /falta el chunk .* del corpus/);
+  // Dos quejas por el mismo hecho, y las dos son ciertas: falta un chunk y el `count` declarado ya
+  // no cuadra con el corpus (A.1 añadió la comprobación de metadata).
+  assert.ok(problemas.some((p) => /falta el chunk .* del corpus/.test(p)), problemas.join(' · '));
+  assert.ok(problemas.some((p) => /count 2 ≠ 3 chunks del corpus/.test(p)), problemas.join(' · '));
 });
 
 test('vector vacío: FAIL (no es "modo léxico", es un índice inválido)', async () => {
@@ -206,6 +210,125 @@ test('cacheFrom descarta lo inválido en vez de propagarlo', () => {
   const cache = cacheFrom(index, { dim: DIM });
   assert.equal(cache.size, 1);
   assert.ok(cache.has(chunkHash(CORPUS[0])));
+});
+
+// ── Identidad del espacio de embeddings (R68-P0) ────────────────────────────────────────────────
+
+test('cambiar de modelo con la MISMA dimensión invalida la caché entera', async () => {
+  const { index } = await buildIndex({ chunks: CORPUS, embed: proveedor().embed, dim: DIM, model: 'model-A' });
+  assert.equal(index.model, 'model-A');
+
+  const p = proveedor();
+  const r = await buildIndex({ chunks: CORPUS, previous: index, embed: p.embed, dim: DIM, model: 'model-B' });
+  assert.equal(r.reused, 0, 'un vector de model-A no vale para un índice de model-B');
+  assert.equal(r.generated, 3);
+  assert.deepEqual(p.pedidos, ['a', 'b', 'c'], 'hay que pedirlos todos de nuevo');
+  assert.equal(r.index.model, 'model-B');
+});
+
+test('cambiar de dimensión invalida la caché entera', async () => {
+  const { index } = await buildIndex({ chunks: CORPUS, embed: proveedor({ dim: DIM }).embed, dim: DIM });
+  const p = proveedor({ dim: DIM * 2 });
+  const r = await buildIndex({ chunks: CORPUS, previous: index, embed: p.embed, dim: DIM * 2 });
+  assert.equal(r.reused, 0);
+  assert.equal(p.pedidos.length, 3);
+  assert.equal(r.index.dim, DIM * 2);
+});
+
+test('misma identidad y mismo hash: sí reutiliza', () => {
+  const frame = frameFor(CORPUS);
+  const index = serialize(frame.map((e) => assignVector(e, e.hash, Array(DIM).fill(0.25))), { dim: DIM, model: 'model-A' });
+  assert.equal(cacheFrom(index, { dim: DIM, model: 'model-A' }).size, 3);
+  assert.equal(cacheFrom(index, { dim: DIM, model: 'model-B' }).size, 0);
+  assert.equal(cacheFrom(index, { dim: DIM + 1, model: 'model-A' }).size, 0);
+});
+
+test('hash duplicado con vectores distintos: no se resuelve con "el último gana"', () => {
+  const index = {
+    model: 'model-A', dim: DIM, count: 2,
+    chunks: [CORPUS[0], CORPUS[0]],
+    vectors: [Array(DIM).fill(0.1), Array(DIM).fill(0.9)],
+  };
+  const cache = cacheFrom(index, { dim: DIM, model: 'model-A' });
+  assert.equal(cache.size, 0, 'ante dos vectores para el mismo chunk, ninguno se reutiliza');
+
+  // Duplicado idéntico: no hay ambigüedad, se puede reutilizar.
+  const iguales = { ...index, vectors: [Array(DIM).fill(0.1), Array(DIM).fill(0.1)] };
+  assert.equal(cacheFrom(iguales, { dim: DIM, model: 'model-A' }).size, 1);
+});
+
+test('el verificador exige metadata correcta, no sólo cobertura', async () => {
+  const { index } = await buildIndex({ chunks: CORPUS, embed: proveedor().embed, dim: DIM, model: 'model-A' });
+  const ok = (i) => problemsAgainstCorpus(i, CORPUS, { dim: DIM, model: 'model-A' });
+  assert.deepEqual(ok(index), []);
+
+  const casos = [
+    [{ ...index, model: 'model-B' }, /modelo model-B ≠ model-A/],
+    [{ ...index, model: undefined }, /no declara `model`/],
+    [{ ...index, dim: DIM + 1 }, /dimensión declarada 9 ≠ 8/],
+    [{ ...index, dim: '8' }, /no declara `dim` numérico/],
+    [{ ...index, count: 99 }, /count 99 ≠ 3 chunks del corpus/],
+    [{ ...index, count: undefined }, /no declara `count` numérico/],
+    [{ ...index, chunks: undefined }, /`chunks` ausente/],
+    [{ ...index, vectors: 'x' }, /`vectors` ausente o no es un arreglo/],
+    [{ ...index, vectors: index.vectors.slice(0, 2) }, /declara 3 chunks y 2 vectores/],
+  ];
+  for (const [mutado, patron] of casos) {
+    const problemas = ok(mutado);
+    assert.ok(problemas.length, `${patron} debería fallar`);
+    assert.ok(problemas.some((p) => patron.test(p)), `esperaba ${patron}, hubo: ${problemas.join(' · ')}`);
+  }
+});
+
+// ── Contrato de CI (R68-P0) ─────────────────────────────────────────────────────────────────────
+
+/**
+ * Ejecuta el `rag:ci` REAL —la cadena se lee del package.json del repo, no se copia aquí— con
+ * `rag:build` y `rag:verify` sustituidos por stubs que dejan constancia de haber corrido.
+ */
+function correrCI({ conClave, verifyRc }) {
+  const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf-8'));
+  return conDir(async (dir) => {
+    const marca = (n) => join(dir, `${n}.marca`).replace(/\\/g, '/');
+    writeFileSync(join(dir, 'package.json'), JSON.stringify({
+      name: 'ci-stub', version: '1.0.0', private: true,
+      scripts: {
+        'rag:ci': pkg.scripts['rag:ci'],
+        'rag:build': `node -e "require('fs').writeFileSync('${marca('build')}','1')"`,
+        'rag:verify': `node -e "require('fs').writeFileSync('${marca('verify')}','1');process.exit(${verifyRc})"`,
+      },
+    }));
+    const env = { ...process.env };
+    if (conClave) env.GEMINI_API_KEY = 'no-usada-por-los-stubs';
+    else delete env.GEMINI_API_KEY;
+    let code = 0;
+    try { execFileSync('npm', ['run', 'rag:ci'], { cwd: dir, env, stdio: 'pipe' }); }
+    catch (err) { code = err.status ?? 1; }
+    return {
+      code,
+      construyo: existsSync(join(dir, 'build.marca')),
+      verifico: existsSync(join(dir, 'verify.marca')),
+    };
+  });
+}
+
+test('rag:ci sin clave: no construye, pero SÍ verifica y respeta su veredicto', async () => {
+  const sano = await correrCI({ conClave: false, verifyRc: 0 });
+  assert.deepEqual(sano, { code: 0, construyo: false, verifico: true });
+
+  // El falso verde de R68-P0: sin clave daba rc=0 aunque el índice commiteado estuviera roto.
+  const roto = await correrCI({ conClave: false, verifyRc: 1 });
+  assert.equal(roto.construyo, false, 'sin clave no puede reconstruir');
+  assert.equal(roto.verifico, true, 'sin clave TIENE que verificar el índice commiteado');
+  assert.notEqual(roto.code, 0, 'si el índice commiteado tiene drift, rag:ci debe fallar');
+});
+
+test('rag:ci con clave: construye y verifica, en ese orden', async () => {
+  const r = await correrCI({ conClave: true, verifyRc: 0 });
+  assert.deepEqual(r, { code: 0, construyo: true, verifico: true });
+  const conDrift = await correrCI({ conClave: true, verifyRc: 1 });
+  assert.equal(conDrift.construyo, true);
+  assert.notEqual(conDrift.code, 0);
 });
 
 test('fillMissing no reintenta indefinidamente y reporta cada chunk fallido', async () => {
