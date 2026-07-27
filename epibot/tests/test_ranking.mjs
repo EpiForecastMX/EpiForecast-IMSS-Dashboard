@@ -148,6 +148,56 @@ test('la pregunta por sexo respeta el padecimiento nombrado', async () => {
   assert.ok(global.includes('Dengue'), 'el agregado sí suma todas las claves presentes');
 });
 
+test('sin desglose del padecimiento pedido, FALLA CERRADO (no suma los demás)', async () => {
+  // El fallback N+1: con Obesidad o Anorexia F50 dados de alta sin demografía, caer al agregado
+  // devolvería la suma de las OTRAS enfermedades como si respondiera la pregunta. Se simula
+  // quitando Depresion, que sí tiene datos hoy (B4.2).
+  const demo = D.stats.demo_historica;
+  const guardado = demo.Depresion;
+  delete demo.Depresion;
+  try {
+    for (const q of ['composicion demografica de depresion', 'hombres o mujeres tienen mas depresion']) {
+      _resetContext();
+      const r = await answer(q);
+      // Puede ser null o un mensaje explícito; lo prohibido es contestar con datos ajenos.
+      if (r !== null) {
+        assert.match(r, /No tengo desglose/i, `${q}: debe declarar que no hay dato`);
+        // Puede NOMBRAR de qué padecimientos sí hay datos; nunca dar sus cifras.
+        for (const otro of Object.keys(demo)) {
+          assert.ok(!r.includes(demo[otro].mujeres.toLocaleString('en-US')),
+            `${q}: filtró cifras de ${otro}`);
+        }
+        assert.equal(filas(r).length, 0, `${q}: no puede devolver una tabla de datos`);
+      }
+    }
+  } finally {
+    demo.Depresion = guardado;
+  }
+  // Restaurado: vuelve a responder con sus propias cifras.
+  const vuelta = await responder('composicion demografica de depresion');
+  assert.ok(vuelta.includes(guardado.mujeres.toLocaleString('en-US')));
+});
+
+test('el corte sale de boletin.meta, no de la fecha del sistema', async () => {
+  const meta = D.boletin.meta;
+  const anio = meta.max_anio, semana = meta.max_semana;
+  meta.max_anio = 1999; meta.max_semana = 3;
+  try {
+    for (const q of ['ranking de parkinson', 'ranking de entidades por incidencia']) {
+      const texto = await responder(q);
+      assert.match(texto, /datos hasta la semana 3 de 1999/, `${q}: debe leer el corte de meta`);
+      assert.ok(!texto.includes(String(new Date().getFullYear())),
+        `${q}: no puede colarse el año del sistema`);
+      assert.ok(!/de 52|de 53|parcial/.test(texto),
+        `${q}: meta no declara cuántas semanas tiene el año MMWR`);
+    }
+  } finally {
+    meta.max_anio = anio; meta.max_semana = semana;
+  }
+  const restaurado = await responder('ranking de parkinson');
+  assert.ok(restaurado.includes(`semana ${semana} de ${anio}`), 'vuelve al corte real');
+});
+
 test('alterar la fuente de un padecimiento mueve SÓLO su ranking', async () => {
   const antes = { Depresion: await responder('ranking de depresion'),
     Parkinson: await responder('ranking de parkinson'),

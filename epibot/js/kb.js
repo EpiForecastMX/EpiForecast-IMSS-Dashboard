@@ -1676,6 +1676,20 @@ function rankingPorPadecimiento(bol, pad) {
   return [...acum.values()].sort((a, b) => b.casos - a.casos);
 }
 
+/**
+ * Corte de los datos, derivado de `boletin.meta`: "datos hasta la semana 27 de 2026".
+ *
+ * NO se infiere si el año está completo. El metadato dice hasta dónde llegan los datos, no cuántas
+ * semanas tiene ese año MMWR —hay años de 52 y de 53—, así que llamarlo "parcial" o compararlo con
+ * una constante sería afirmar algo que el contrato no declara. Tampoco se usa `new Date()`: la
+ * respuesta describe el boletín, no el día en que se pregunta (B4.2).
+ */
+function corteBoletin(bol) {
+  const meta = bol.meta || {};
+  if (meta.max_semana == null || meta.max_anio == null) return null;
+  return `datos hasta la semana ${meta.max_semana} de ${meta.max_anio}`;
+}
+
 /** Total nacional del padecimiento (o de todos) según `boletin.anual_por_pad`: el denominador real. */
 function totalNacionalBoletin(bol, pad = null) {
   const anual = bol.anual_por_pad || {};
@@ -1736,11 +1750,13 @@ function answerBoletin(q, ent, s, d) {
       const nacional = totalNacionalBoletin(bol, pad);
       const cubierto = porEntidad.reduce((a, r) => a + r.casos, 0);
       const anios = [...new Set(porEntidad.flatMap(r => [...r.anios]))].sort();
-      const rango = anios.length ? ` ${anios[0]}–${anios[anios.length - 1]}` : '';
+      const corte = corteBoletin(bol);
+      const desde = anios.length ? ` desde ${anios[0]}` : '';
+      const rango = `acumulado${desde}${corte ? `, ${corte}` : ''}`;
       const filas = wantsLeast ? [...porEntidad].reverse() : porEntidad;
 
       // La cobertura es PARCIAL y hay que decirlo: esto no es el ranking de las 32 entidades.
-      const lines = [`**Entidades con ${orderLabel} incidencia de ${pad}** (acumulado${rango}) — ` +
+      const lines = [`**Entidades con ${orderLabel} incidencia de ${pad}** (${rango}) — ` +
         `**${porEntidad.length} entidades canónicas con desglose cargado**, no las 32:\n`];
       lines.push(`| # | Entidad | Casos | % del total nacional de ${pad} |`);
       lines.push('|---|---------|------:|------------------------------:|');
@@ -1773,7 +1789,9 @@ function answerBoletin(q, ent, s, d) {
     const disponible = ranking.reduce((sum, r) => sum + (r.casos || 0), 0);
     const nacional = totalNacionalBoletin(bol);
     const pads = Object.keys(bol.anual_por_pad || {});
-    const lines = [`**Entidades con ${orderLabel} incidencia** (acumulado histórico) — ` +
+    const corte = corteBoletin(bol);
+    const lines = [`**Entidades con ${orderLabel} incidencia** ` +
+      `(acumulado histórico${corte ? `, ${corte}` : ''}) — ` +
       `**${ranking.length} entidades disponibles en el ranking**, no las 32:\n`];
     lines.push('| # | Entidad | Casos | % de las disponibles |');
     lines.push('|---|---------|------:|---------------------:|');
@@ -3301,11 +3319,22 @@ function answerDemografica(q, ent, s, d) {
   const demo = s.demo_historica;
   if (!demo) return null;
 
+  // FALLA CERRADO: si preguntan por un padecimiento del que NO hay desglose demográfico, se dice
+  // que no lo hay. Caer al agregado devolvería la suma de las OTRAS enfermedades presentada como
+  // respuesta a la que se preguntó — el mismo vicio de R59-P0, y con N+1 padecimientos (Obesidad,
+  // Anorexia F50…) se dispararía solo. Se responde con mensaje y no con null: cediendo, un handler
+  // posterior volvería a servir un agregado ajeno (B4.2).
+  if (ent.padecimiento && !demo[ent.padecimiento]) {
+    const conDatos = Object.keys(demo);
+    return `No tengo desglose demográfico por sexo de **${ent.padecimiento}** en el boletín.` +
+      (conDatos.length ? ` Sí lo tengo de: ${conDatos.join(', ')}.` : '');
+  }
+
   if (preguntaSexoIncidencia) {
     // Si la consulta nombra un padecimiento se responde ESE; si no, se suman las claves PRESENTES y
     // se nombran. El universo no es "siempre tres padecimientos" —hoy son cuatro, con Dengue— ni
     // puede ser el agregado cuando preguntaron por uno solo (47.2-B4.1).
-    const pads = ent.padecimiento && demo[ent.padecimiento] ? [ent.padecimiento] : Object.keys(demo);
+    const pads = ent.padecimiento ? [ent.padecimiento] : Object.keys(demo);
     const h = pads.reduce((a, p) => a + (demo[p].hombres || 0), 0);
     const m = pads.reduce((a, p) => a + (demo[p].mujeres || 0), 0);
     const total = h + m;
@@ -3335,8 +3364,9 @@ function answerDemografica(q, ent, s, d) {
   if (ent.padecimiento && !any(q, ['demografic'])) return null;
 
   // Si la consulta nombra un padecimiento, se responde SOLO ese: devolver los tres seria una
-  // tabla global ajena a lo que se pregunto (47.2-B2).
-  const pedido = ent.padecimiento && demo[ent.padecimiento]
+  // tabla global ajena a lo que se pregunto (47.2-B2). Que exista esta garantizado por el guard
+  // de arriba, que falla cerrado cuando no hay datos de ese padecimiento.
+  const pedido = ent.padecimiento
     ? [[ent.padecimiento, demo[ent.padecimiento]]]
     : Object.entries(demo);
 
@@ -3363,6 +3393,11 @@ function answerSexo(q, ent, s, d) {
   // foco (47.2-B2).
   const pad = ent.padecimiento;
   const psPad = pad ? s.por_pad?.[pad]?.por_sexo : null;
+  // Mismo criterio que answerDemografica: con un padecimiento nombrado y sin datos suyos, NO se
+  // baja a la tabla global de los 333 modelos. Sería contestar por otras enfermedades (B4.2).
+  if (pad && !(psPad && Object.keys(psPad).length)) {
+    return `No tengo desglose por sexo de **${pad}**.`;
+  }
   if (psPad && Object.keys(psPad).length) {
     // Si la consulta nombra AMBOS sexos esta comparando, no pidiendo uno: no hay foco.
     const ambos = q.includes('hombre') && q.includes('mujer');
