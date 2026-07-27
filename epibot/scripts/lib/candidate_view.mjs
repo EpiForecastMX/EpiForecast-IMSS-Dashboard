@@ -10,8 +10,7 @@
  * Aquí no se reconstruye el texto en español ni se reimplementa el evaluador (C7.6-STATUS-B).
  */
 
-import { LIFECYCLE_PUBLISHED } from './candidate.mjs';
-import { INTERVAL_NONE, UNCERTAINTY_LABEL, toChartSeries } from '../../js/point_only.js';
+import { INTERVAL_NONE, UNCERTAINTY_LABEL, isPubliclyVisible, toChartSeries } from '../../js/point_only.js';
 
 export { UNCERTAINTY_LABEL };
 
@@ -45,8 +44,9 @@ export function buildCandidateView(shard) {
     band: series.band,
     intervalMethod: manifest.interval_method ?? INTERVAL_NONE,
 
-    // Mientras el lifecycle no sea `published`, esto no sale del staging.
-    isPubliclyVisible: manifest.lifecycle === LIFECYCLE_PUBLISHED,
+    // Mientras el lifecycle no sea `published`, esto no sale del staging. Se usa la MISMA función
+    // que la vista pública: dos reglas de visibilidad acabarían discrepando (B.1).
+    isPubliclyVisible: isPubliclyVisible(manifest),
 
     verdict: status.verdict,
     weeksAvailable: status.weeks_available,

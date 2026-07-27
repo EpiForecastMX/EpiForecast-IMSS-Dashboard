@@ -28,6 +28,21 @@ export const SHARD_SCHEMA = 'publication_shard.v1';
 /** Schema del bloque de estado prospectivo que transporta el shard (lo produce el backend). */
 export const PROSPECTIVE_STATUS_SCHEMA = 'prospective_status.v2';
 export const VERDICTS = ['INCOMPLETE', 'PASS', 'FAIL'];
+/**
+ * Claves EXACTAS del bloque de estado, las once que emite `status_facts()` en el backend.
+ *
+ * Bajo un schema versionado, "cerrado" significa este conjunto y no "al menos éstas": una clave
+ * desconocida es un productor que evolucionó sin que el consumidor se entere (R86-P1).
+ */
+export const STATUS_KEYS = [
+  'schema', 'gate_digest', 'evaluation_digest', 'status_digest', 'observation_dataset_id',
+  'verdict', 'weeks_required', 'weeks_available', 'completed_weeks', 'target_weeks', 'label',
+];
+/** Invariantes que AMBOS manifiestos repiten; si divergen, cada canal muestra otra cosa. */
+export const SHARED_MANIFEST_KEYS = [
+  'schema', 'release_id', 'disease_id', 'lifecycle', 'rows', 'interval_method',
+  'uncertainty_available',
+];
 const SHA256 = /^[0-9a-f]{64}$/;
 
 export class CandidateError extends Error {}
@@ -68,6 +83,14 @@ function periodos(lista, etiqueta) {
 export function checkPublicationStatus(bloque, etiqueta) {
   if (!bloque || typeof bloque !== 'object' || Array.isArray(bloque)) {
     throw new CandidateError(`${etiqueta}: falta el bloque publication_status`);
+  }
+  const sobran = Object.keys(bloque).filter((k) => !STATUS_KEYS.includes(k)).sort();
+  const faltan = STATUS_KEYS.filter((k) => !(k in bloque)).sort();
+  if (sobran.length) {
+    throw new CandidateError(`${etiqueta}: claves no reconocidas en publication_status: ${sobran.join(', ')}`);
+  }
+  if (faltan.length) {
+    throw new CandidateError(`${etiqueta}: faltan claves en publication_status: ${faltan.join(', ')}`);
   }
   if (bloque.schema !== PROSPECTIVE_STATUS_SCHEMA) {
     throw new CandidateError(
@@ -213,10 +236,16 @@ export function loadCandidateShard(shardRoot) {
       throw new CandidateError(`shard_manifest.json: ${clave} ausente o vacío`);
     }
   }
-  if (web.release_id !== manifest.release_id) {
-    throw new CandidateError(
-      `web/manifest.json describe ${web.release_id}, el shard declara ${manifest.release_id}`,
-    );
+  // Invariantes comunes: no se compara el manifiesto entero —cada canal tiene campos propios—,
+  // pero lo que los dos declaran tiene que decir lo mismo. Un `lifecycle` distinto entre ellos
+  // haría que un canal se creyera público y el otro no (R86-P1).
+  for (const clave of SHARED_MANIFEST_KEYS) {
+    if (JSON.stringify(web[clave]) !== JSON.stringify(manifest[clave])) {
+      throw new CandidateError(
+        `web/manifest.json declara ${clave}=${JSON.stringify(web[clave])} y el shard ` +
+          `${JSON.stringify(manifest[clave])}`,
+      );
+    }
   }
   if (manifest.interval_method !== INTERVAL_NONE || manifest.uncertainty_available !== false) {
     throw new CandidateError(

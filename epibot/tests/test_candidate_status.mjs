@@ -246,3 +246,61 @@ test('el índice y el knowledge PÚBLICOS siguen sin Obesidad', () => {
     assert.ok(!texto.includes('obesidad'), `${archivo} menciona Obesidad`);
   }
 });
+
+
+// ── Integración canónica y contrato cerrado (B.1) ─────────────────────────────────────────────
+test('el test de status forma parte del comando canónico', () => {
+  // Leído del package.json REAL: si alguien lo desconecta, esto se entera (R86-P0).
+  const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf-8'));
+  assert.match(pkg.scripts['test:candidate'], /tests\/test_candidate_status\.mjs/);
+  assert.match(pkg.scripts.check, /npm run test:candidate/);
+  assert.match(pkg.scripts.check, /candidate_view\.mjs/);
+});
+
+test('una clave desconocida o ausente en publication_status se rechaza', () => {
+  assert.throws(
+    () => checkPublicationStatus({ ...estado(), extra: 1 }, 'fixture'),
+    /claves no reconocidas .*extra/,
+  );
+  const sinLabel = { ...estado() };
+  delete sinLabel.label;
+  assert.throws(() => checkPublicationStatus(sinLabel, 'fixture'), /faltan claves .*label/);
+});
+
+test('los invariantes comunes de ambos manifiestos tienen que coincidir', () => {
+  const casos = [
+    ['lifecycle', 'published'],
+    ['disease_id', 'otro_padecimiento'],
+    ['rows', 3],
+    ['interval_method', 'quantile'],
+    ['uncertainty_available', true],
+    ['schema', 'publication_shard.v2'],
+  ];
+  for (const [clave, valor] of casos) {
+    const { dir, root } = fabricarShard(estado());
+    try {
+      const web = JSON.parse(readFileSync(join(root, 'web', 'manifest.json'), 'utf-8'));
+      web[clave] = valor;
+      writeFileSync(join(root, 'web', 'manifest.json'), JSON.stringify(web));
+      assert.throws(
+        () => loadCandidateShard(root),
+        new RegExp(`${clave}|schema .* no soportado`),
+        `divergencia en ${clave} debería rechazarse`,
+      );
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }
+});
+
+test('la visibilidad sale de la MISMA función que la vista pública', async () => {
+  const { isPubliclyVisible } = await import('../js/point_only.js');
+  conShard(estado({ verdict: 'PASS', completed: OBJETIVO, label: 'x' }), {}, (root) => {
+    const shard = loadCandidateShard(root);
+    const vista = buildCandidateView(shard);
+    // Un PASS del gate no publica nada: sólo el lifecycle decide, y con la regla compartida.
+    assert.equal(vista.isPubliclyVisible, isPubliclyVisible(shard.manifest));
+    assert.equal(vista.isPubliclyVisible, false);
+    assert.equal(isPubliclyVisible({ lifecycle: 'published' }), true);
+  });
+});
