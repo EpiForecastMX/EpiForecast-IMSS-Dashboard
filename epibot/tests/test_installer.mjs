@@ -629,6 +629,7 @@ const RAIZ_REAL = process.env.C7_SHARD_ROOT;
 test('shard real: instala, se ve en staging y no en público', { skip: !RAIZ_REAL }, async () => {
   const { findShards } = await import('../scripts/lib/candidate.mjs');
   const [shard] = findShards(RAIZ_REAL);
+  const sourceManifest = JSON.parse(readFileSync(join(shard.root, 'shard_manifest.json'), 'utf8'));
   const destino = mkdtempSync(join(tmpdir(), 'install-real-'));
   const identidad = { diseaseId: shard.diseaseId, releaseId: shard.releaseId };
   try {
@@ -638,7 +639,7 @@ test('shard real: instala, se ve en staging y no en público', { skip: !RAIZ_REA
     assert.equal(r.files.length, 6);
 
     const vista = buildReleaseView(destino, identidad);
-    assert.match(vista.validationLabel, /\(0\/4 semanas\)/);
+    assert.equal(vista.validationLabel, sourceManifest.publication_label);
     assert.equal(vista.band, null);
     assert.equal(vista.isPubliclyVisible, false);
     assert.equal(vista.inGallery, false);

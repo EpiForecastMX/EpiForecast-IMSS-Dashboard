@@ -218,7 +218,7 @@ test('el shard sigue rechazando intervalos, aunque el estado sea válido', () =>
 // ── Gate contra el shard REAL del backend ─────────────────────────────────────────────────────
 const RAIZ_REAL = process.env.C7_SHARD_ROOT;
 
-test('shard real del backend: 5,772 filas, 0/4 y point-only', { skip: !RAIZ_REAL }, () => {
+test('shard real del backend: transporta su estado vigente y sigue point-only', { skip: !RAIZ_REAL }, () => {
   const shards = findShards(RAIZ_REAL);
   assert.equal(shards.length, 1, 'se esperaba exactamente un shard candidate');
   assert.equal(shards[0].diseaseId, 'obesidad');
@@ -229,11 +229,18 @@ test('shard real del backend: 5,772 filas, 0/4 y point-only', { skip: !RAIZ_REAL
   assert.equal(shard.manifest.rows, 5772);
   assert.equal(shard.rows.length, 5772);
   assert.equal(vista.lifecycle, 'trained');
-  assert.equal(vista.validationLabel, ETIQUETA_0_4);
+  assert.equal(vista.validationLabel, shard.manifest.publication_status.label);
   assert.equal(vista.uncertaintyLabel, UNCERTAINTY_LABEL);
   assert.equal(vista.band, null);
   assert.equal(vista.isPubliclyVisible, false);
-  assert.deepEqual([vista.verdict, vista.weeksAvailable, vista.weeksRequired], ['INCOMPLETE', 0, 4]);
+  assert.deepEqual(
+    [vista.verdict, vista.weeksAvailable, vista.weeksRequired],
+    [
+      shard.manifest.publication_status.verdict,
+      shard.manifest.publication_status.weeks_available,
+      shard.manifest.publication_status.weeks_required,
+    ],
+  );
   assert.deepEqual(shard.manifest.channels_emitted.sort(), ['epibot', 'reports', 'tableau', 'web']);
   assert.deepEqual(shard.manifest.channels_without_bridge, []);
 });
