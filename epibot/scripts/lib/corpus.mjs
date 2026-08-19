@@ -332,6 +332,32 @@ function paperCardsES() {
  *  - `public` : entra sólo `visible=true` + `mode=public` + lifecycle published + puntero
  *    coincidente en `publicationPointers`. Sin puntero para ese padecimiento, no entra.
  */
+/**
+ * Neutraliza la hora de generación de `validacion_semanal.html` SOLO para el corpus.
+ *
+ * Ese informe lleva al pie un sello "Generado: DD/MM/AAAA HH:MM hrs" que cambia en cada
+ * corrida aunque los datos sean idénticos. Como el archivo alimenta el índice, esa hora
+ * bastaba para invalidar el índice entero y obligar a reindexar sin que hubiera cambiado
+ * un solo dato.
+ *
+ * La sustitución es deliberadamente estrecha: se aplica a un único documento y a un único
+ * patrón. Una limpieza genérica de fechas borraría las que sí son contenido —semanas
+ * epidemiológicas, cortes, periodos— y volvería el índice ciego justo a lo que se le
+ * pregunta. El HTML que se publica no se toca: la hora sigue visible para quien lo lee.
+ *
+ * @param {string} html  contenido del informe
+ * @returns {string}     el mismo contenido con la hora de generación neutralizada
+ */
+export function normalizaSelloDeGeneracion(html) {
+  return html.replace(
+    /Generado:\s*\d{1,2}\/\d{1,2}\/\d{4}\s+\d{1,2}:\d{2}\s*hrs/g,
+    'Generado: (hora omitida del índice)',
+  );
+}
+
+/** Documentos cuyo contenido semántico se normaliza antes de trocear. */
+export const NORMALIZA_SELLO = new Set(['validacion_semanal.html']);
+
 export function buildChunks({
   candidateRoot = null,
   publicationRoot = null,
@@ -357,7 +383,9 @@ export function buildChunks({
   for (const note of HTML_NOTES) {
     const p = resolve(ROOT_DIR, note.file);
     if (!existsSync(p)) continue;
-    const html = readFileSync(p, 'utf-8');
+    const crudo = readFileSync(p, 'utf-8');
+    // Solo para el corpus: el archivo publicado conserva su sello de generación.
+    const html = NORMALIZA_SELLO.has(note.file) ? normalizaSelloDeGeneracion(crudo) : crudo;
     const secs = htmlToSections(html, htmlTitle(html, note.title));
     const c = sectionsToChunks(secs, { id: note.file.replace(/\.html$/, ''), source: note.title, url: `../${note.file}` });
     chunks.push(...c); log.push([note.file, c.length]);
