@@ -1,13 +1,13 @@
 {
   "meta": {
-    "generado": "2026-07-21",
-    "ultima_real": "2026-06-29",
+    "generado": "2026-08-18",
+    "ultima_real": "2026-07-27",
     "motor_nacional": "Prophet",
     "motor_proyeccion": "NBGLM",
     "distribucion": {
-      "Prophet": 39,
-      "NBGLM": 30,
-      "DeepAR": 30
+      "Prophet": 46,
+      "DeepAR": 27,
+      "NBGLM": 26
     },
     "anios_proyeccion": 5,
     "chart_from_year": 2014,
@@ -2515,33 +2515,25 @@
     {
       "ds": "2026-06-29",
       "y": 173.0
-    }
-  ],
-  "pronostico": [
+    },
     {
       "ds": "2026-07-06",
-      "yhat": 224.1,
-      "yhat_lower": 63.5,
-      "yhat_upper": 855.8
+      "y": 177.0
     },
     {
       "ds": "2026-07-13",
-      "yhat": 241.2,
-      "yhat_lower": 66.5,
-      "yhat_upper": 745.8
+      "y": 143.0
     },
     {
       "ds": "2026-07-20",
-      "yhat": 266.2,
-      "yhat_lower": 76.3,
-      "yhat_upper": 885.4
+      "y": 191.0
     },
     {
       "ds": "2026-07-27",
-      "yhat": 301.4,
-      "yhat_lower": 84.8,
-      "yhat_upper": 1019.8
-    },
+      "y": 200.0
+    }
+  ],
+  "pronostico": [
     {
       "ds": "2026-08-03",
       "yhat": 347.9,
@@ -2786,1299 +2778,1323 @@
   "proyeccion": [
     {
       "ds": "2027-05-10",
-      "yhat": 255.0,
+      "yhat": 253.1,
       "yhat_lower": 0.0,
-      "yhat_upper": 755.9
+      "yhat_upper": 750.1
     },
     {
       "ds": "2027-05-17",
-      "yhat": 282.9,
+      "yhat": 281.1,
       "yhat_lower": 0.0,
-      "yhat_upper": 838.5
+      "yhat_upper": 832.9
     },
     {
       "ds": "2027-05-24",
-      "yhat": 320.0,
+      "yhat": 317.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 948.1
+      "yhat_upper": 941.4
     },
     {
       "ds": "2027-05-31",
-      "yhat": 366.7,
+      "yhat": 363.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 1086.4
+      "yhat_upper": 1076.4
     },
     {
       "ds": "2027-06-07",
-      "yhat": 422.4,
+      "yhat": 416.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 1251.2
+      "yhat_upper": 1234.5
     },
     {
       "ds": "2027-06-14",
-      "yhat": 483.1,
+      "yhat": 473.4,
       "yhat_lower": 0.0,
-      "yhat_upper": 1431.0
+      "yhat_upper": 1402.1
     },
     {
       "ds": "2027-06-21",
-      "yhat": 547.3,
+      "yhat": 531.5,
       "yhat_lower": 0.0,
-      "yhat_upper": 1621.0
+      "yhat_upper": 1574.2
     },
     {
       "ds": "2027-06-28",
-      "yhat": 613.8,
+      "yhat": 590.0,
       "yhat_lower": 0.0,
-      "yhat_upper": 1817.8
+      "yhat_upper": 1747.4
     },
     {
       "ds": "2027-07-05",
-      "yhat": 693.3,
+      "yhat": 649.1,
       "yhat_lower": 0.0,
-      "yhat_upper": 2053.1
+      "yhat_upper": 1922.4
     },
     {
       "ds": "2027-07-12",
-      "yhat": 779.3,
+      "yhat": 711.2,
       "yhat_lower": 0.0,
-      "yhat_upper": 2307.8
+      "yhat_upper": 2106.2
     },
     {
       "ds": "2027-07-19",
-      "yhat": 878.2,
+      "yhat": 792.2,
       "yhat_lower": 0.0,
-      "yhat_upper": 2600.5
+      "yhat_upper": 2346.0
     },
     {
       "ds": "2027-07-26",
-      "yhat": 1000.7,
+      "yhat": 896.8,
       "yhat_lower": 0.0,
-      "yhat_upper": 2963.1
+      "yhat_upper": 2655.4
     },
     {
       "ds": "2027-08-02",
-      "yhat": 1158.5,
+      "yhat": 1061.4,
       "yhat_lower": 0.0,
-      "yhat_upper": 3430.0
+      "yhat_upper": 3142.7
     },
     {
       "ds": "2027-08-09",
-      "yhat": 1363.3,
+      "yhat": 1278.1,
       "yhat_lower": 0.0,
-      "yhat_upper": 4036.3
+      "yhat_upper": 3784.1
     },
     {
       "ds": "2027-08-16",
-      "yhat": 1623.6,
+      "yhat": 1554.1,
       "yhat_lower": 0.0,
-      "yhat_upper": 4806.8
+      "yhat_upper": 4601.2
     },
     {
       "ds": "2027-08-23",
-      "yhat": 1940.2,
+      "yhat": 1893.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 5744.0
+      "yhat_upper": 5605.1
     },
     {
       "ds": "2027-08-30",
-      "yhat": 2300.7,
+      "yhat": 2284.9,
       "yhat_lower": 0.0,
-      "yhat_upper": 6811.0
+      "yhat_upper": 6764.1
     },
     {
       "ds": "2027-09-06",
-      "yhat": 2677.1,
+      "yhat": 2698.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 7925.2
+      "yhat_upper": 7989.1
     },
     {
       "ds": "2027-09-13",
-      "yhat": 3028.2,
+      "yhat": 3086.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 8964.3
+      "yhat_upper": 9136.3
     },
     {
       "ds": "2027-09-20",
-      "yhat": 3311.6,
+      "yhat": 3395.6,
       "yhat_lower": 0.0,
-      "yhat_upper": 9803.2
+      "yhat_upper": 10051.9
     },
     {
       "ds": "2027-09-27",
-      "yhat": 3496.9,
+      "yhat": 3588.5,
       "yhat_lower": 0.0,
-      "yhat_upper": 10351.7
+      "yhat_upper": 10622.9
     },
     {
       "ds": "2027-10-04",
-      "yhat": 3577.0,
+      "yhat": 3656.4,
       "yhat_lower": 0.0,
-      "yhat_upper": 10588.9
+      "yhat_upper": 10823.9
     },
     {
       "ds": "2027-10-11",
-      "yhat": 3566.8,
+      "yhat": 3619.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 10558.7
+      "yhat_upper": 10714.1
     },
     {
       "ds": "2027-10-18",
-      "yhat": 3493.5,
+      "yhat": 3513.4,
       "yhat_lower": 0.0,
-      "yhat_upper": 10341.9
+      "yhat_upper": 10400.6
     },
     {
       "ds": "2027-10-25",
-      "yhat": 3383.9,
+      "yhat": 3374.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 10017.4
+      "yhat_upper": 9989.0
     },
     {
       "ds": "2027-11-01",
-      "yhat": 3254.6,
+      "yhat": 3225.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 9634.6
+      "yhat_upper": 9547.8
     },
     {
       "ds": "2027-11-08",
-      "yhat": 3109.1,
+      "yhat": 3073.1,
       "yhat_lower": 0.0,
-      "yhat_upper": 9203.9
+      "yhat_upper": 9097.3
     },
     {
       "ds": "2027-11-15",
-      "yhat": 2939.3,
+      "yhat": 2909.9,
       "yhat_lower": 0.0,
-      "yhat_upper": 8701.2
+      "yhat_upper": 8614.3
     },
     {
       "ds": "2027-11-22",
-      "yhat": 2732.1,
+      "yhat": 2720.2,
       "yhat_lower": 0.0,
-      "yhat_upper": 8088.1
+      "yhat_upper": 8052.8
     },
     {
       "ds": "2027-11-29",
-      "yhat": 2477.1,
+      "yhat": 2488.0,
       "yhat_lower": 0.0,
-      "yhat_upper": 7333.3
+      "yhat_upper": 7365.4
     },
     {
       "ds": "2027-12-06",
-      "yhat": 2175.9,
+      "yhat": 2208.2,
       "yhat_lower": 0.0,
-      "yhat_upper": 6441.6
+      "yhat_upper": 6537.2
     },
     {
       "ds": "2027-12-13",
-      "yhat": 1844.5,
+      "yhat": 1891.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 5460.8
+      "yhat_upper": 5599.3
     },
     {
       "ds": "2027-12-20",
-      "yhat": 1510.5,
+      "yhat": 1562.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 4472.0
+      "yhat_upper": 4625.4
     },
     {
       "ds": "2027-12-27",
-      "yhat": 1201.7,
+      "yhat": 1250.1,
       "yhat_lower": 0.0,
-      "yhat_upper": 3558.1
+      "yhat_upper": 3701.4
     },
     {
       "ds": "2028-01-03",
-      "yhat": 942.6,
+      "yhat": 983.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 2791.2
+      "yhat_upper": 2911.5
     },
     {
       "ds": "2028-01-10",
-      "yhat": 736.4,
+      "yhat": 767.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 2180.8
+      "yhat_upper": 2273.4
     },
     {
       "ds": "2028-01-17",
-      "yhat": 581.4,
+      "yhat": 604.0,
       "yhat_lower": 0.0,
-      "yhat_upper": 1722.1
+      "yhat_upper": 1788.7
     },
     {
       "ds": "2028-01-24",
-      "yhat": 470.4,
+      "yhat": 485.8,
       "yhat_lower": 0.0,
-      "yhat_upper": 1393.3
+      "yhat_upper": 1438.9
     },
     {
       "ds": "2028-01-31",
-      "yhat": 393.7,
+      "yhat": 403.9,
       "yhat_lower": 0.0,
-      "yhat_upper": 1166.4
+      "yhat_upper": 1196.5
     },
     {
       "ds": "2028-02-07",
-      "yhat": 342.4,
+      "yhat": 348.9,
       "yhat_lower": 0.0,
-      "yhat_upper": 1014.6
+      "yhat_upper": 1033.8
     },
     {
       "ds": "2028-02-14",
-      "yhat": 309.0,
+      "yhat": 312.9,
       "yhat_lower": 0.0,
-      "yhat_upper": 915.6
+      "yhat_upper": 927.3
     },
     {
       "ds": "2028-02-21",
-      "yhat": 287.4,
+      "yhat": 289.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 851.7
+      "yhat_upper": 858.4
     },
     {
       "ds": "2028-02-28",
-      "yhat": 273.0,
+      "yhat": 274.1,
       "yhat_lower": 0.0,
-      "yhat_upper": 809.0
+      "yhat_upper": 812.4
     },
     {
       "ds": "2028-03-06",
-      "yhat": 261.9,
+      "yhat": 262.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 776.2
+      "yhat_upper": 777.4
     },
     {
       "ds": "2028-03-13",
-      "yhat": 251.7,
+      "yhat": 251.6,
       "yhat_lower": 0.0,
-      "yhat_upper": 746.0
+      "yhat_upper": 745.7
     },
     {
       "ds": "2028-03-20",
-      "yhat": 241.0,
+      "yhat": 240.6,
       "yhat_lower": 0.0,
-      "yhat_upper": 714.5
+      "yhat_upper": 713.1
     },
     {
       "ds": "2028-03-27",
-      "yhat": 230.0,
+      "yhat": 229.2,
       "yhat_lower": 0.0,
-      "yhat_upper": 681.8
+      "yhat_upper": 679.5
     },
     {
       "ds": "2028-04-03",
-      "yhat": 219.7,
+      "yhat": 218.6,
       "yhat_lower": 0.0,
-      "yhat_upper": 651.2
+      "yhat_upper": 648.1
     },
     {
       "ds": "2028-04-10",
-      "yhat": 211.6,
+      "yhat": 210.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 627.2
+      "yhat_upper": 623.5
     },
     {
       "ds": "2028-04-17",
-      "yhat": 207.5,
+      "yhat": 206.1,
       "yhat_lower": 0.0,
-      "yhat_upper": 615.1
+      "yhat_upper": 611.2
     },
     {
       "ds": "2028-04-24",
-      "yhat": 209.0,
+      "yhat": 207.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 619.6
+      "yhat_upper": 615.7
     },
     {
       "ds": "2028-05-01",
-      "yhat": 217.5,
+      "yhat": 216.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 644.9
+      "yhat_upper": 641.3
     },
     {
       "ds": "2028-05-08",
-      "yhat": 234.3,
+      "yhat": 233.2,
       "yhat_lower": 0.0,
-      "yhat_upper": 694.5
+      "yhat_upper": 691.3
     },
     {
       "ds": "2028-05-15",
-      "yhat": 260.3,
+      "yhat": 259.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 771.4
+      "yhat_upper": 768.4
     },
     {
       "ds": "2028-05-22",
-      "yhat": 296.0,
+      "yhat": 294.8,
       "yhat_lower": 0.0,
-      "yhat_upper": 877.1
+      "yhat_upper": 873.7
     },
     {
       "ds": "2028-05-29",
-      "yhat": 341.2,
+      "yhat": 339.2,
       "yhat_lower": 0.0,
-      "yhat_upper": 1010.8
+      "yhat_upper": 1005.1
     },
     {
       "ds": "2028-06-05",
-      "yhat": 394.5,
+      "yhat": 390.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 1168.7
+      "yhat_upper": 1157.4
     },
     {
       "ds": "2028-06-12",
-      "yhat": 453.6,
+      "yhat": 446.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 1343.8
+      "yhat_upper": 1322.0
     },
     {
       "ds": "2028-06-19",
-      "yhat": 516.1,
+      "yhat": 503.2,
       "yhat_lower": 0.0,
-      "yhat_upper": 1528.6
+      "yhat_upper": 1490.6
     },
     {
       "ds": "2028-06-26",
-      "yhat": 580.4,
+      "yhat": 560.2,
       "yhat_lower": 0.0,
-      "yhat_upper": 1719.0
+      "yhat_upper": 1659.1
     },
     {
       "ds": "2028-07-03",
-      "yhat": 647.7,
+      "yhat": 618.5,
       "yhat_lower": 0.0,
-      "yhat_upper": 1918.2
+      "yhat_upper": 1831.7
     },
     {
       "ds": "2028-07-10",
-      "yhat": 721.9,
+      "yhat": 682.9,
       "yhat_lower": 0.0,
-      "yhat_upper": 2137.8
+      "yhat_upper": 2022.5
     },
     {
       "ds": "2028-07-17",
-      "yhat": 809.9,
+      "yhat": 761.5,
       "yhat_lower": 0.0,
-      "yhat_upper": 2398.3
+      "yhat_upper": 2255.0
     },
     {
       "ds": "2028-07-24",
-      "yhat": 921.1,
+      "yhat": 864.5,
       "yhat_lower": 0.0,
-      "yhat_upper": 2727.3
+      "yhat_upper": 2559.8
     },
     {
       "ds": "2028-07-31",
-      "yhat": 1066.1,
+      "yhat": 1004.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 3156.6
+      "yhat_upper": 2973.8
     },
     {
       "ds": "2028-08-07",
-      "yhat": 1255.6,
+      "yhat": 1193.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 3717.7
+      "yhat_upper": 3533.3
     },
     {
       "ds": "2028-08-14",
-      "yhat": 1497.6,
+      "yhat": 1441.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 4433.8
+      "yhat_upper": 4268.5
     },
     {
       "ds": "2028-08-21",
-      "yhat": 1792.8,
+      "yhat": 1752.8,
       "yhat_lower": 0.0,
-      "yhat_upper": 5307.8
+      "yhat_upper": 5189.1
     },
     {
       "ds": "2028-08-28",
-      "yhat": 2130.6,
+      "yhat": 2116.4,
       "yhat_lower": 0.0,
-      "yhat_upper": 6307.4
+      "yhat_upper": 6265.4
     },
     {
       "ds": "2028-09-04",
-      "yhat": 2485.0,
+      "yhat": 2504.0,
       "yhat_lower": 0.0,
-      "yhat_upper": 7356.5
+      "yhat_upper": 7412.9
     },
     {
       "ds": "2028-09-11",
-      "yhat": 2818.0,
+      "yhat": 2870.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 8342.4
+      "yhat_upper": 8498.3
     },
     {
       "ds": "2028-09-18",
-      "yhat": 3089.4,
+      "yhat": 3166.6,
       "yhat_lower": 0.0,
-      "yhat_upper": 9145.7
+      "yhat_upper": 9374.3
     },
     {
       "ds": "2028-09-25",
-      "yhat": 3270.3,
+      "yhat": 3355.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 9680.9
+      "yhat_upper": 9932.7
     },
     {
       "ds": "2028-10-02",
-      "yhat": 3352.8,
+      "yhat": 3427.1,
       "yhat_lower": 0.0,
-      "yhat_upper": 9925.1
+      "yhat_upper": 10145.3
     },
     {
       "ds": "2028-10-09",
-      "yhat": 3350.1,
+      "yhat": 3399.8,
       "yhat_lower": 0.0,
-      "yhat_upper": 9917.4
+      "yhat_upper": 10064.5
     },
     {
       "ds": "2028-10-16",
-      "yhat": 3287.5,
+      "yhat": 3306.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 9731.9
+      "yhat_upper": 9788.9
     },
     {
       "ds": "2028-10-23",
-      "yhat": 3189.7,
+      "yhat": 3181.2,
       "yhat_lower": 0.0,
-      "yhat_upper": 9442.4
+      "yhat_upper": 9417.3
     },
     {
       "ds": "2028-10-30",
-      "yhat": 3072.8,
+      "yhat": 3045.4,
       "yhat_lower": 0.0,
-      "yhat_upper": 9096.4
+      "yhat_upper": 9015.5
     },
     {
       "ds": "2028-11-06",
-      "yhat": 2940.2,
+      "yhat": 2906.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 8704.0
+      "yhat_upper": 8603.6
     },
     {
       "ds": "2028-11-13",
-      "yhat": 2784.6,
+      "yhat": 2756.8,
       "yhat_lower": 0.0,
-      "yhat_upper": 8243.3
+      "yhat_upper": 8161.0
     },
     {
       "ds": "2028-11-20",
-      "yhat": 2593.0,
+      "yhat": 2581.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 7676.4
+      "yhat_upper": 7642.7
     },
     {
       "ds": "2028-11-27",
-      "yhat": 2355.8,
+      "yhat": 2366.1,
       "yhat_lower": 0.0,
-      "yhat_upper": 6974.0
+      "yhat_upper": 7004.7
     },
     {
       "ds": "2028-12-04",
-      "yhat": 2073.6,
+      "yhat": 2104.6,
       "yhat_lower": 0.0,
-      "yhat_upper": 6138.8
+      "yhat_upper": 6230.6
     },
     {
       "ds": "2028-12-11",
-      "yhat": 1761.6,
+      "yhat": 1806.8,
       "yhat_lower": 0.0,
-      "yhat_upper": 5215.2
+      "yhat_upper": 5349.0
     },
     {
       "ds": "2028-12-18",
-      "yhat": 1445.5,
+      "yhat": 1495.8,
       "yhat_lower": 0.0,
-      "yhat_upper": 4279.7
+      "yhat_upper": 4428.6
     },
     {
       "ds": "2028-12-25",
-      "yhat": 1152.8,
+      "yhat": 1200.2,
       "yhat_lower": 0.0,
-      "yhat_upper": 3413.1
+      "yhat_upper": 3553.4
     },
     {
       "ds": "2029-01-01",
-      "yhat": 903.2,
+      "yhat": 942.8,
       "yhat_lower": 0.0,
-      "yhat_upper": 2674.5
+      "yhat_upper": 2791.7
     },
     {
       "ds": "2029-01-08",
-      "yhat": 705.1,
+      "yhat": 735.5,
       "yhat_lower": 0.0,
-      "yhat_upper": 2088.2
+      "yhat_upper": 2177.9
     },
     {
       "ds": "2029-01-15",
-      "yhat": 556.8,
+      "yhat": 578.6,
       "yhat_lower": 0.0,
-      "yhat_upper": 1649.2
+      "yhat_upper": 1713.5
     },
     {
       "ds": "2029-01-22",
-      "yhat": 450.8,
+      "yhat": 465.6,
       "yhat_lower": 0.0,
-      "yhat_upper": 1335.2
+      "yhat_upper": 1379.2
     },
     {
       "ds": "2029-01-29",
-      "yhat": 377.6,
+      "yhat": 387.4,
       "yhat_lower": 0.0,
-      "yhat_upper": 1118.7
+      "yhat_upper": 1147.7
     },
     {
       "ds": "2029-02-05",
-      "yhat": 328.8,
+      "yhat": 335.0,
       "yhat_lower": 0.0,
-      "yhat_upper": 974.1
+      "yhat_upper": 992.5
     },
     {
       "ds": "2029-02-12",
-      "yhat": 297.0,
+      "yhat": 300.8,
       "yhat_lower": 0.0,
-      "yhat_upper": 880.0
+      "yhat_upper": 891.2
     },
     {
       "ds": "2029-02-19",
-      "yhat": 276.5,
+      "yhat": 278.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 819.4
+      "yhat_upper": 825.9
     },
     {
       "ds": "2029-02-26",
-      "yhat": 262.8,
+      "yhat": 263.9,
       "yhat_lower": 0.0,
-      "yhat_upper": 778.9
+      "yhat_upper": 782.2
     },
     {
       "ds": "2029-03-05",
-      "yhat": 252.4,
+      "yhat": 252.8,
       "yhat_lower": 0.0,
-      "yhat_upper": 748.1
+      "yhat_upper": 749.3
     },
     {
       "ds": "2029-03-12",
-      "yhat": 242.8,
+      "yhat": 242.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 719.6
+      "yhat_upper": 719.3
     },
     {
       "ds": "2029-03-19",
-      "yhat": 232.7,
+      "yhat": 232.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 689.9
+      "yhat_upper": 688.5
     },
     {
       "ds": "2029-03-26",
-      "yhat": 222.3,
+      "yhat": 221.5,
       "yhat_lower": 0.0,
-      "yhat_upper": 658.9
+      "yhat_upper": 656.6
     },
     {
       "ds": "2029-04-02",
-      "yhat": 212.4,
+      "yhat": 211.4,
       "yhat_lower": 0.0,
-      "yhat_upper": 629.7
+      "yhat_upper": 626.7
     },
     {
       "ds": "2029-04-09",
-      "yhat": 204.8,
+      "yhat": 203.6,
       "yhat_lower": 0.0,
-      "yhat_upper": 607.1
+      "yhat_upper": 603.5
     },
     {
       "ds": "2029-04-16",
-      "yhat": 201.0,
+      "yhat": 199.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 595.9
+      "yhat_upper": 592.1
     },
     {
       "ds": "2029-04-23",
-      "yhat": 202.6,
+      "yhat": 201.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 600.7
+      "yhat_upper": 596.9
     },
     {
       "ds": "2029-04-30",
-      "yhat": 211.0,
+      "yhat": 209.8,
       "yhat_lower": 0.0,
-      "yhat_upper": 625.7
+      "yhat_upper": 622.1
     },
     {
       "ds": "2029-05-07",
-      "yhat": 227.5,
+      "yhat": 226.4,
       "yhat_lower": 0.0,
-      "yhat_upper": 674.3
+      "yhat_upper": 671.1
     },
     {
       "ds": "2029-05-14",
-      "yhat": 252.8,
+      "yhat": 251.9,
       "yhat_lower": 0.0,
-      "yhat_upper": 749.4
+      "yhat_upper": 746.6
     },
     {
       "ds": "2029-05-21",
-      "yhat": 287.8,
+      "yhat": 286.6,
       "yhat_lower": 0.0,
-      "yhat_upper": 852.7
+      "yhat_upper": 849.4
     },
     {
       "ds": "2029-05-28",
-      "yhat": 332.0,
+      "yhat": 330.1,
       "yhat_lower": 0.0,
-      "yhat_upper": 983.6
+      "yhat_upper": 978.0
     },
     {
       "ds": "2029-06-04",
-      "yhat": 384.1,
+      "yhat": 380.4,
       "yhat_lower": 0.0,
-      "yhat_upper": 1138.0
+      "yhat_upper": 1127.0
     },
     {
       "ds": "2029-06-11",
-      "yhat": 442.0,
+      "yhat": 434.9,
       "yhat_lower": 0.0,
-      "yhat_upper": 1309.4
+      "yhat_upper": 1288.3
     },
     {
       "ds": "2029-06-18",
-      "yhat": 503.2,
+      "yhat": 490.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 1490.5
+      "yhat_upper": 1453.6
     },
     {
       "ds": "2029-06-25",
-      "yhat": 566.3,
+      "yhat": 546.6,
       "yhat_lower": 0.0,
-      "yhat_upper": 1677.3
+      "yhat_upper": 1619.0
     },
     {
       "ds": "2029-07-02",
-      "yhat": 632.2,
+      "yhat": 603.9,
       "yhat_lower": 0.0,
-      "yhat_upper": 1872.4
+      "yhat_upper": 1788.6
     },
     {
       "ds": "2029-07-09",
-      "yhat": 704.9,
+      "yhat": 667.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 2087.6
+      "yhat_upper": 1976.3
     },
     {
       "ds": "2029-07-16",
-      "yhat": 791.2,
+      "yhat": 744.5,
       "yhat_lower": 0.0,
-      "yhat_upper": 2342.9
+      "yhat_upper": 2204.8
     },
     {
       "ds": "2029-07-23",
-      "yhat": 900.2,
+      "yhat": 845.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 2665.6
+      "yhat_upper": 2504.4
     },
     {
       "ds": "2029-07-30",
-      "yhat": 1042.5,
+      "yhat": 982.8,
       "yhat_lower": 0.0,
-      "yhat_upper": 3086.7
+      "yhat_upper": 2910.0
     },
     {
       "ds": "2029-08-06",
-      "yhat": 1228.4,
+      "yhat": 1167.9,
       "yhat_lower": 0.0,
-      "yhat_upper": 3637.1
+      "yhat_upper": 3458.1
     },
     {
       "ds": "2029-08-13",
-      "yhat": 1465.9,
+      "yhat": 1411.4,
       "yhat_lower": 0.0,
-      "yhat_upper": 4339.9
+      "yhat_upper": 4178.7
     },
     {
       "ds": "2029-08-20",
-      "yhat": 1755.8,
+      "yhat": 1716.5,
       "yhat_lower": 0.0,
-      "yhat_upper": 5198.1
+      "yhat_upper": 5081.8
     },
     {
       "ds": "2029-08-27",
-      "yhat": 2087.6,
+      "yhat": 2073.5,
       "yhat_lower": 0.0,
-      "yhat_upper": 6180.3
+      "yhat_upper": 6138.4
     },
     {
       "ds": "2029-09-03",
-      "yhat": 2436.1,
+      "yhat": 2454.4,
       "yhat_lower": 0.0,
-      "yhat_upper": 7211.8
+      "yhat_upper": 7266.1
     },
     {
       "ds": "2029-09-10",
-      "yhat": 2764.0,
+      "yhat": 2815.2,
       "yhat_lower": 0.0,
-      "yhat_upper": 8182.5
+      "yhat_upper": 8334.1
     },
     {
       "ds": "2029-09-17",
-      "yhat": 3031.7,
+      "yhat": 3107.0,
       "yhat_lower": 0.0,
-      "yhat_upper": 8974.8
+      "yhat_upper": 9197.7
     },
     {
       "ds": "2029-09-24",
-      "yhat": 3210.7,
+      "yhat": 3293.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 9504.6
+      "yhat_upper": 9750.3
     },
     {
       "ds": "2029-10-01",
-      "yhat": 3293.2,
+      "yhat": 3365.8,
       "yhat_lower": 0.0,
-      "yhat_upper": 9748.9
+      "yhat_upper": 9963.8
     },
     {
       "ds": "2029-10-08",
-      "yhat": 3292.1,
+      "yhat": 3340.6,
       "yhat_lower": 0.0,
-      "yhat_upper": 9745.7
+      "yhat_upper": 9889.0
     },
     {
       "ds": "2029-10-15",
-      "yhat": 3232.0,
+      "yhat": 3250.5,
       "yhat_lower": 0.0,
-      "yhat_upper": 9567.6
+      "yhat_upper": 9622.6
     },
     {
       "ds": "2029-10-22",
-      "yhat": 3137.2,
+      "yhat": 3128.5,
       "yhat_lower": 0.0,
-      "yhat_upper": 9287.0
+      "yhat_upper": 9261.3
     },
     {
       "ds": "2029-10-29",
-      "yhat": 3023.4,
+      "yhat": 2996.2,
       "yhat_lower": 0.0,
-      "yhat_upper": 8950.4
+      "yhat_upper": 8869.8
     },
     {
       "ds": "2029-11-05",
-      "yhat": 2894.2,
+      "yhat": 2860.5,
       "yhat_lower": 0.0,
-      "yhat_upper": 8567.8
+      "yhat_upper": 8468.0
     },
     {
       "ds": "2029-11-12",
-      "yhat": 2742.1,
+      "yhat": 2714.4,
       "yhat_lower": 0.0,
-      "yhat_upper": 8117.5
+      "yhat_upper": 8035.6
     },
     {
       "ds": "2029-11-19",
-      "yhat": 2554.5,
+      "yhat": 2543.0,
       "yhat_lower": 0.0,
-      "yhat_upper": 7562.2
+      "yhat_upper": 7528.2
     },
     {
       "ds": "2029-11-26",
-      "yhat": 2321.6,
+      "yhat": 2331.6,
       "yhat_lower": 0.0,
-      "yhat_upper": 6872.9
+      "yhat_upper": 6902.5
     },
     {
       "ds": "2029-12-03",
-      "yhat": 2044.3,
+      "yhat": 2074.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 6052.1
+      "yhat_upper": 6142.0
     },
     {
       "ds": "2029-12-10",
-      "yhat": 1737.3,
+      "yhat": 1781.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 5143.5
+      "yhat_upper": 5274.9
     },
     {
       "ds": "2029-12-17",
-      "yhat": 1426.2,
+      "yhat": 1475.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 4222.4
+      "yhat_upper": 4369.0
     },
     {
       "ds": "2029-12-24",
-      "yhat": 1137.7,
+      "yhat": 1184.4,
       "yhat_lower": 0.0,
-      "yhat_upper": 3368.6
+      "yhat_upper": 3506.9
     },
     {
       "ds": "2029-12-31",
-      "yhat": 891.7,
+      "yhat": 930.8,
       "yhat_lower": 0.0,
-      "yhat_upper": 2640.4
+      "yhat_upper": 2756.0
     },
     {
       "ds": "2030-01-07",
-      "yhat": 696.3,
+      "yhat": 726.2,
       "yhat_lower": 0.0,
-      "yhat_upper": 2062.2
+      "yhat_upper": 2150.6
     },
     {
       "ds": "2030-01-14",
-      "yhat": 550.0,
+      "yhat": 571.5,
       "yhat_lower": 0.0,
-      "yhat_upper": 1629.1
+      "yhat_upper": 1692.5
     },
     {
       "ds": "2030-01-21",
-      "yhat": 445.4,
+      "yhat": 460.0,
       "yhat_lower": 0.0,
-      "yhat_upper": 1319.3
+      "yhat_upper": 1362.7
     },
     {
       "ds": "2030-01-28",
-      "yhat": 373.2,
+      "yhat": 382.9,
       "yhat_lower": 0.0,
-      "yhat_upper": 1105.8
+      "yhat_upper": 1134.3
     },
     {
       "ds": "2030-02-04",
-      "yhat": 325.0,
+      "yhat": 331.2,
       "yhat_lower": 0.0,
-      "yhat_upper": 963.1
+      "yhat_upper": 981.2
     },
     {
       "ds": "2030-02-11",
-      "yhat": 293.7,
+      "yhat": 297.4,
       "yhat_lower": 0.0,
-      "yhat_upper": 870.3
+      "yhat_upper": 881.3
     },
     {
       "ds": "2030-02-18",
-      "yhat": 273.5,
+      "yhat": 275.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 810.6
+      "yhat_upper": 816.9
     },
     {
       "ds": "2030-02-25",
-      "yhat": 260.1,
+      "yhat": 261.1,
       "yhat_lower": 0.0,
-      "yhat_upper": 770.8
+      "yhat_upper": 773.9
     },
     {
       "ds": "2030-03-04",
-      "yhat": 249.8,
+      "yhat": 250.2,
       "yhat_lower": 0.0,
-      "yhat_upper": 740.4
+      "yhat_upper": 741.6
     },
     {
       "ds": "2030-03-11",
-      "yhat": 240.4,
+      "yhat": 240.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 712.4
+      "yhat_upper": 712.1
     },
     {
       "ds": "2030-03-18",
-      "yhat": 230.5,
+      "yhat": 230.0,
       "yhat_lower": 0.0,
-      "yhat_upper": 683.1
+      "yhat_upper": 681.7
     },
     {
       "ds": "2030-03-25",
-      "yhat": 220.2,
+      "yhat": 219.4,
       "yhat_lower": 0.0,
-      "yhat_upper": 652.6
+      "yhat_upper": 650.4
     },
     {
       "ds": "2030-04-01",
-      "yhat": 210.5,
+      "yhat": 209.4,
       "yhat_lower": 0.0,
-      "yhat_upper": 623.9
+      "yhat_upper": 620.9
     },
     {
       "ds": "2030-04-08",
-      "yhat": 202.9,
+      "yhat": 201.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 601.6
+      "yhat_upper": 598.1
     },
     {
       "ds": "2030-04-15",
-      "yhat": 199.2,
+      "yhat": 197.9,
       "yhat_lower": 0.0,
-      "yhat_upper": 590.6
+      "yhat_upper": 586.8
     },
     {
       "ds": "2030-04-22",
-      "yhat": 200.9,
+      "yhat": 199.6,
       "yhat_lower": 0.0,
-      "yhat_upper": 595.6
+      "yhat_upper": 591.7
     },
     {
       "ds": "2030-04-29",
-      "yhat": 209.3,
+      "yhat": 208.1,
       "yhat_lower": 0.0,
-      "yhat_upper": 620.4
+      "yhat_upper": 616.9
     },
     {
       "ds": "2030-05-06",
-      "yhat": 225.6,
+      "yhat": 224.5,
       "yhat_lower": 0.0,
-      "yhat_upper": 668.8
+      "yhat_upper": 665.6
     },
     {
       "ds": "2030-05-13",
-      "yhat": 250.8,
+      "yhat": 249.9,
       "yhat_lower": 0.0,
-      "yhat_upper": 743.4
+      "yhat_upper": 740.6
     },
     {
       "ds": "2030-05-20",
-      "yhat": 285.5,
+      "yhat": 284.4,
       "yhat_lower": 0.0,
-      "yhat_upper": 846.1
+      "yhat_upper": 842.8
     },
     {
       "ds": "2030-05-27",
-      "yhat": 329.4,
+      "yhat": 327.5,
       "yhat_lower": 0.0,
-      "yhat_upper": 976.1
+      "yhat_upper": 970.5
     },
     {
       "ds": "2030-06-03",
-      "yhat": 381.3,
+      "yhat": 377.6,
       "yhat_lower": 0.0,
-      "yhat_upper": 1129.6
+      "yhat_upper": 1118.6
     },
     {
       "ds": "2030-06-10",
-      "yhat": 438.8,
+      "yhat": 431.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 1300.0
+      "yhat_upper": 1278.9
     },
     {
       "ds": "2030-06-17",
-      "yhat": 499.7,
+      "yhat": 487.2,
       "yhat_lower": 0.0,
-      "yhat_upper": 1480.0
+      "yhat_upper": 1443.2
     },
     {
       "ds": "2030-06-24",
-      "yhat": 562.4,
+      "yhat": 542.8,
       "yhat_lower": 0.0,
-      "yhat_upper": 1665.7
+      "yhat_upper": 1607.7
     },
     {
       "ds": "2030-07-01",
-      "yhat": 628.0,
+      "yhat": 599.8,
       "yhat_lower": 0.0,
-      "yhat_upper": 1859.9
+      "yhat_upper": 1776.5
     },
     {
       "ds": "2030-07-08",
-      "yhat": 700.3,
+      "yhat": 662.9,
       "yhat_lower": 0.0,
-      "yhat_upper": 2073.9
+      "yhat_upper": 1963.2
     },
     {
       "ds": "2030-07-15",
-      "yhat": 786.1,
+      "yhat": 739.8,
       "yhat_lower": 0.0,
-      "yhat_upper": 2327.9
+      "yhat_upper": 2190.7
     },
     {
       "ds": "2030-07-22",
-      "yhat": 894.6,
+      "yhat": 840.4,
       "yhat_lower": 0.0,
-      "yhat_upper": 2648.9
+      "yhat_upper": 2488.7
     },
     {
       "ds": "2030-07-29",
-      "yhat": 1036.1,
+      "yhat": 976.8,
       "yhat_lower": 0.0,
-      "yhat_upper": 3067.8
+      "yhat_upper": 2892.2
     },
     {
       "ds": "2030-08-05",
-      "yhat": 1221.1,
+      "yhat": 1161.0,
       "yhat_lower": 0.0,
-      "yhat_upper": 3615.5
+      "yhat_upper": 3437.4
     },
     {
       "ds": "2030-08-12",
-      "yhat": 1457.4,
+      "yhat": 1403.2,
       "yhat_lower": 0.0,
-      "yhat_upper": 4314.8
+      "yhat_upper": 4154.3
     },
     {
       "ds": "2030-08-19",
-      "yhat": 1745.8,
+      "yhat": 1706.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 5168.7
+      "yhat_upper": 5052.8
     },
     {
       "ds": "2030-08-26",
-      "yhat": 2076.1,
+      "yhat": 2061.9,
       "yhat_lower": 0.0,
-      "yhat_upper": 6146.1
+      "yhat_upper": 6104.3
     },
     {
       "ds": "2030-09-02",
-      "yhat": 2423.0,
+      "yhat": 2441.1,
       "yhat_lower": 0.0,
-      "yhat_upper": 7173.0
+      "yhat_upper": 7226.7
     },
     {
       "ds": "2030-09-09",
-      "yhat": 2749.5,
+      "yhat": 2800.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 8139.5
+      "yhat_upper": 8290.0
     },
     {
       "ds": "2030-09-16",
-      "yhat": 3016.2,
+      "yhat": 3090.9,
       "yhat_lower": 0.0,
-      "yhat_upper": 8928.8
+      "yhat_upper": 9150.1
     },
     {
       "ds": "2030-09-23",
-      "yhat": 3194.6,
+      "yhat": 3277.1,
       "yhat_lower": 0.0,
-      "yhat_upper": 9457.1
+      "yhat_upper": 9701.2
     },
     {
       "ds": "2030-09-30",
-      "yhat": 3277.2,
+      "yhat": 3349.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 9701.4
+      "yhat_upper": 9914.8
     },
     {
       "ds": "2030-10-07",
-      "yhat": 3276.5,
+      "yhat": 3324.5,
       "yhat_lower": 0.0,
-      "yhat_upper": 9699.4
+      "yhat_upper": 9841.6
     },
     {
       "ds": "2030-10-14",
-      "yhat": 3217.0,
+      "yhat": 3235.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 9523.2
+      "yhat_upper": 9577.6
     },
     {
       "ds": "2030-10-21",
-      "yhat": 3123.0,
+      "yhat": 3114.2,
       "yhat_lower": 0.0,
-      "yhat_upper": 9245.0
+      "yhat_upper": 9219.0
     },
     {
       "ds": "2030-10-28",
-      "yhat": 3010.1,
+      "yhat": 2982.9,
       "yhat_lower": 0.0,
-      "yhat_upper": 8910.9
+      "yhat_upper": 8830.3
     },
     {
       "ds": "2030-11-04",
-      "yhat": 2881.7,
+      "yhat": 2848.1,
       "yhat_lower": 0.0,
-      "yhat_upper": 8530.9
+      "yhat_upper": 8431.3
     },
     {
       "ds": "2030-11-11",
-      "yhat": 2730.5,
+      "yhat": 2702.9,
       "yhat_lower": 0.0,
-      "yhat_upper": 8083.4
+      "yhat_upper": 8001.6
     },
     {
       "ds": "2030-11-18",
-      "yhat": 2544.0,
+      "yhat": 2532.5,
       "yhat_lower": 0.0,
-      "yhat_upper": 7531.2
+      "yhat_upper": 7497.2
     },
     {
       "ds": "2030-11-25",
-      "yhat": 2312.3,
+      "yhat": 2322.2,
       "yhat_lower": 0.0,
-      "yhat_upper": 6845.5
+      "yhat_upper": 6874.7
     },
     {
       "ds": "2030-12-02",
-      "yhat": 2036.3,
+      "yhat": 2066.5,
       "yhat_lower": 0.0,
-      "yhat_upper": 6028.5
+      "yhat_upper": 6117.9
     },
     {
       "ds": "2030-12-09",
-      "yhat": 1730.7,
+      "yhat": 1774.9,
       "yhat_lower": 0.0,
-      "yhat_upper": 5124.0
+      "yhat_upper": 5254.8
     },
     {
       "ds": "2030-12-16",
-      "yhat": 1420.9,
+      "yhat": 1470.2,
       "yhat_lower": 0.0,
-      "yhat_upper": 4206.8
+      "yhat_upper": 4352.7
     },
     {
       "ds": "2030-12-23",
-      "yhat": 1133.6,
+      "yhat": 1180.1,
       "yhat_lower": 0.0,
-      "yhat_upper": 3356.5
+      "yhat_upper": 3494.1
     },
     {
       "ds": "2030-12-30",
-      "yhat": 888.6,
+      "yhat": 927.5,
       "yhat_lower": 0.0,
-      "yhat_upper": 2631.1
+      "yhat_upper": 2746.2
     },
     {
       "ds": "2031-01-06",
-      "yhat": 694.0,
+      "yhat": 723.7,
       "yhat_lower": 0.0,
-      "yhat_upper": 2055.1
+      "yhat_upper": 2143.2
     },
     {
       "ds": "2031-01-13",
-      "yhat": 548.2,
+      "yhat": 569.5,
       "yhat_lower": 0.0,
-      "yhat_upper": 1623.7
+      "yhat_upper": 1686.8
     },
     {
       "ds": "2031-01-20",
-      "yhat": 443.9,
+      "yhat": 458.5,
       "yhat_lower": 0.0,
-      "yhat_upper": 1315.0
+      "yhat_upper": 1358.2
     },
     {
       "ds": "2031-01-27",
-      "yhat": 372.1,
+      "yhat": 381.6,
       "yhat_lower": 0.0,
-      "yhat_upper": 1102.2
+      "yhat_upper": 1130.7
     },
     {
       "ds": "2031-02-03",
-      "yhat": 324.0,
+      "yhat": 330.1,
       "yhat_lower": 0.0,
-      "yhat_upper": 960.1
+      "yhat_upper": 978.2
     },
     {
       "ds": "2031-02-10",
-      "yhat": 292.8,
+      "yhat": 296.5,
       "yhat_lower": 0.0,
-      "yhat_upper": 867.6
+      "yhat_upper": 878.6
     },
     {
       "ds": "2031-02-17",
-      "yhat": 272.7,
+      "yhat": 274.8,
       "yhat_lower": 0.0,
-      "yhat_upper": 808.2
+      "yhat_upper": 814.5
     },
     {
       "ds": "2031-02-24",
-      "yhat": 259.3,
+      "yhat": 260.4,
       "yhat_lower": 0.0,
-      "yhat_upper": 768.5
+      "yhat_upper": 771.7
     },
     {
       "ds": "2031-03-03",
-      "yhat": 249.1,
+      "yhat": 249.5,
       "yhat_lower": 0.0,
-      "yhat_upper": 738.4
+      "yhat_upper": 739.5
     },
     {
       "ds": "2031-03-10",
-      "yhat": 239.7,
+      "yhat": 239.6,
       "yhat_lower": 0.0,
-      "yhat_upper": 710.5
+      "yhat_upper": 710.2
     },
     {
       "ds": "2031-03-17",
-      "yhat": 229.8,
+      "yhat": 229.4,
       "yhat_lower": 0.0,
-      "yhat_upper": 681.3
+      "yhat_upper": 679.9
     },
     {
       "ds": "2031-03-24",
-      "yhat": 219.6,
+      "yhat": 218.8,
       "yhat_lower": 0.0,
-      "yhat_upper": 650.9
+      "yhat_upper": 648.6
     },
     {
       "ds": "2031-03-31",
-      "yhat": 209.9,
+      "yhat": 208.9,
       "yhat_lower": 0.0,
-      "yhat_upper": 622.3
+      "yhat_upper": 619.3
     },
     {
       "ds": "2031-04-07",
-      "yhat": 202.4,
+      "yhat": 201.2,
       "yhat_lower": 0.0,
-      "yhat_upper": 600.1
+      "yhat_upper": 596.6
     },
     {
       "ds": "2031-04-14",
-      "yhat": 198.7,
+      "yhat": 197.4,
       "yhat_lower": 0.0,
-      "yhat_upper": 589.2
+      "yhat_upper": 585.4
     },
     {
       "ds": "2031-04-21",
-      "yhat": 200.4,
+      "yhat": 199.1,
       "yhat_lower": 0.0,
-      "yhat_upper": 594.2
+      "yhat_upper": 590.3
     },
     {
       "ds": "2031-04-28",
-      "yhat": 208.8,
+      "yhat": 207.6,
       "yhat_lower": 0.0,
-      "yhat_upper": 619.0
+      "yhat_upper": 615.4
     },
     {
       "ds": "2031-05-05",
-      "yhat": 225.1,
+      "yhat": 224.0,
       "yhat_lower": 0.0,
-      "yhat_upper": 667.3
+      "yhat_upper": 664.1
     },
     {
       "ds": "2031-05-12",
-      "yhat": 250.3,
+      "yhat": 249.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 741.8
+      "yhat_upper": 738.9
     },
     {
       "ds": "2031-05-19",
-      "yhat": 284.9,
+      "yhat": 283.8,
       "yhat_lower": 0.0,
-      "yhat_upper": 844.3
+      "yhat_upper": 841.0
     },
     {
       "ds": "2031-05-26",
-      "yhat": 328.7,
+      "yhat": 326.9,
       "yhat_lower": 0.0,
-      "yhat_upper": 974.1
+      "yhat_upper": 968.5
     },
     {
       "ds": "2031-06-02",
-      "yhat": 380.5,
+      "yhat": 376.8,
       "yhat_lower": 0.0,
-      "yhat_upper": 1127.3
+      "yhat_upper": 1116.3
     },
     {
       "ds": "2031-06-09",
-      "yhat": 438.0,
+      "yhat": 430.9,
       "yhat_lower": 0.0,
-      "yhat_upper": 1297.4
+      "yhat_upper": 1276.3
     },
     {
       "ds": "2031-06-16",
-      "yhat": 498.7,
+      "yhat": 486.3,
       "yhat_lower": 0.0,
-      "yhat_upper": 1477.2
+      "yhat_upper": 1440.4
     },
     {
       "ds": "2031-06-23",
-      "yhat": 561.4,
+      "yhat": 541.8,
       "yhat_lower": 0.0,
-      "yhat_upper": 1662.6
+      "yhat_upper": 1604.7
+    },
+    {
+      "ds": "2031-06-30",
+      "yhat": 598.7,
+      "yhat_lower": 0.0,
+      "yhat_upper": 1773.2
+    },
+    {
+      "ds": "2031-07-07",
+      "yhat": 661.7,
+      "yhat_lower": 0.0,
+      "yhat_upper": 1959.7
+    },
+    {
+      "ds": "2031-07-14",
+      "yhat": 738.5,
+      "yhat_lower": 0.0,
+      "yhat_upper": 2186.8
+    },
+    {
+      "ds": "2031-07-21",
+      "yhat": 839.0,
+      "yhat_lower": 0.0,
+      "yhat_upper": 2484.4
     }
   ]
 }
