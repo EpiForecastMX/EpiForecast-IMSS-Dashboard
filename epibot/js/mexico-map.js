@@ -1,3 +1,4 @@
+import { dn } from './display.js?v=1';
 // mexico-map.js — Mapa SVG coropletico de Mexico (32 entidades federativas)
 // Datos geograficos simplificados desde INEGI/GeoJSON (dominio publico)
 // Generado automaticamente — no editar manualmente
@@ -118,7 +119,7 @@ export function renderMexicoMap(container, stateData, opts = {}) {
       path.setAttribute('stroke-width', '2.5');
       path.parentNode.appendChild(path); // bring to front
       const label = data ? data.label : 'Sin datos';
-      tooltipEl.innerHTML = '<strong>' + name + '</strong><br>' + label;
+      tooltipEl.innerHTML = '<strong>' + dn(name) + '</strong><br>' + label;
       tooltipEl.style.display = 'block';
     });
     path.addEventListener('mousemove', (e) => {

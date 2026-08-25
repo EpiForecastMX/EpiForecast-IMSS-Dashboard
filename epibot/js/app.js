@@ -8,10 +8,11 @@
 
 import { loadKnowledge, getStats, getData, answer } from './kb.js?v=104';
 import { detectEntities, norm } from './entities.js?v=31';
-import { renderMexicoMap } from './mexico-map.js?v=2';
-import { renderTimelapse } from './timelapse.js?v=2';
-import { renderSemaforo } from './semaforo.js?v=2';
-import { renderComparador } from './comparador.js?v=2';
+import { dn, DISPLAY_NAMES } from './display.js?v=1';
+import { renderMexicoMap } from './mexico-map.js?v=3';
+import { renderTimelapse } from './timelapse.js?v=3';
+import { renderSemaforo } from './semaforo.js?v=3';
+import { renderComparador } from './comparador.js?v=3';
 import { initSTT, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking, toggleMute, isTTSEnabled, onSpeakingStateChange } from './voice.js?v=3';
 
 // ---------------------------------------------------------------------------
@@ -27,14 +28,6 @@ const MAX_HISTORY = 6;
 let chartCounter = 0;
 let geminiConnected = false;
 
-// Mapa de corrección ortográfica para nombres de entidades/padecimientos en títulos
-const DISPLAY_NAMES = {
-  'Depresion': 'Depresión', 'Ciudad de Mexico': 'Ciudad de México',
-  'Nuevo Leon': 'Nuevo León', 'San Luis Potosi': 'San Luis Potosí',
-  'Mexico': 'México', 'Leon': 'León', 'Michoacan': 'Michoacán',
-  'Queretaro': 'Querétaro', 'Yucatan': 'Yucatán',
-};
-function dn(s) { return s ? (DISPLAY_NAMES[s] || s) : s; }
 
 // ---------------------------------------------------------------------------
 // polishSpanish: normaliza ortografía en texto de salida del bot.
@@ -1915,7 +1908,7 @@ function buildSemaforo(data) {
     .slice(0, 5)
     .map(s => {
       const topPad = Object.entries(s.pads).sort((a, b) => b[1] - a[1])[0];
-      return s.name + ': ' + s.casos.toLocaleString() + ' casos (principal: ' + (topPad ? topPad[0] : '?') + ')';
+      return dn(s.name) + ': ' + s.casos.toLocaleString() + ' casos (principal: ' + (topPad ? dn(topPad[0]) : '?') + ')';
     });
 
   return {
@@ -1955,7 +1948,7 @@ function buildComparador(data, compareData) {
   return {
     _comparadorChart: true,
     comparadorData: { stateA, stateB, winner },
-    opts: { title: 'Comparativa: ' + stateA.name + ' vs ' + stateB.name },
+    opts: { title: 'Comparativa: ' + dn(stateA.name) + ' vs ' + dn(stateB.name) },
   };
 }
 
@@ -2889,7 +2882,7 @@ function extractChartData(markdown, query) {
         const pads = [...new Set(cmp.flatMap(c => c.models.map(m => m.pad)))];
         return {
           type: 'bar',
-          title: 'Comparativa: ' + cmp.map(c => c.estado).join(' vs '),
+          title: 'Comparativa: ' + cmp.map(c => dn(c.estado)).join(' vs '),
           labels: cmp.map(c => c.estado),
           datasets: pads.map((pad, i) => ({
             label: dn(pad),

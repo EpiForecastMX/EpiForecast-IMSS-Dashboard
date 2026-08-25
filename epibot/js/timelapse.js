@@ -1,3 +1,4 @@
+import { dn } from './display.js?v=1';
 // timelapse.js — Animated timelapse choropleth map of Mexico (52 weeks)
 // Imports state paths and viewBox from mexico-map.js
 
@@ -113,7 +114,7 @@ export function renderTimelapse(container, timelapseData, opts = {}) {
       path.parentNode.appendChild(path);
       const frameData = frames[currentFrame].stateData[name];
       const label = frameData ? frameData.label : 'Sin datos';
-      tooltipEl.innerHTML = '<strong>' + name + '</strong><br>' + label;
+      tooltipEl.innerHTML = '<strong>' + dn(name) + '</strong><br>' + label;
       tooltipEl.style.display = 'block';
     });
     path.addEventListener('mousemove', (e) => {
