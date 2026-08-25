@@ -1,2 +1,7 @@
 .DS_Store
 xAvance2.Equipo01.pdf
+
+# Artefactos locales voluminosos: no son código ni se sirven desde el sitio.
+# Estaban sin trackear y un `git add -A` los habría barrido al repositorio (6 MB).
+EpiBot_v2_SinFondo.png
+kb.zip
