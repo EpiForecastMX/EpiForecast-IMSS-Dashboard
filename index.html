@@ -2837,7 +2837,7 @@
     <div class="edl-wrap edl-article-col">
       <div class="edl-dateline">Pronóstico epidemiológico de México <span>&middot;</span> Edición de la semana 31, 2026</div>
       <h1 class="edl-headline">Anticipar la enfermedad,<br><em>semana a semana</em></h1>
-      <p class="edl-deck">EpiForecast-MX pronostica la incidencia de cuatro padecimientos en las 32 entidades del país a 52 semanas, con 435 modelos y selección automática entre cinco motores de inteligencia artificial.</p>
+      <p class="edl-deck">EpiForecast-MX pronostica la incidencia de cuatro padecimientos en las 32 entidades del país a 52 semanas, con 432 series productivas y selección automática entre cinco motores de inteligencia artificial.</p>
       <div class="edl-byline">Una colaboración del Tecnológico de Monterrey con el Instituto Mexicano del Seguro Social. Datos actualizados cada semana desde el Boletín Epidemiológico del SINAVE.</div>
       <div class="edl-ctas">
         <a href="EpiDashboard.html" class="edl-primary">Abrir el tablero <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
@@ -2867,10 +2867,10 @@
 
     <div class="edl-wrap edl-article-col">
       <div class="edl-stats">
-        <div class="edl-stat"><b id="b-motor-total">435</b><span>modelos en producción</span></div>
+        <div class="edl-stat"><b id="b-motor-total">432</b><span>series en producción</span></div>
         <div class="edl-stat"><b>32</b><span>entidades + nacional</span></div>
         <div class="edl-stat"><b>52</b><span>semanas de horizonte</span></div>
-        <div class="edl-stat"><b><span id="b-motor-pct">36</span>%</b><span>cuota del motor líder, <span id="b-motor">DeepAR</span></span></div>
+        <div class="edl-stat"><b><span id="b-motor-pct">29</span>%</b><span>cuota del motor líder en la cohorte neuro, <span id="b-motor">DeepAR</span></span></div>
       </div>
     </div>
   </section>
@@ -2928,7 +2928,7 @@
         </a>
         <a href="epibot/index.html" class="edl-index-item">
           <span class="edl-idx-num">02</span>
-          <span class="edl-idx-body"><span class="edl-idx-title">Pregúntale a EPI</span><span class="edl-idx-desc">Asistente con RAG y citas sobre los 435 modelos: métricas, pronósticos y tendencias al instante, con gráficas en vivo.</span></span>
+          <span class="edl-idx-body"><span class="edl-idx-title">Pregúntale a EPI</span><span class="edl-idx-desc">Asistente con RAG y citas sobre las 432 series productivas: métricas, pronósticos y tendencias al instante, con gráficas en vivo.</span></span>
           <span class="edl-idx-go"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></span>
         </a>
         <a href="Reports/index.html" class="edl-index-item">
@@ -3030,9 +3030,9 @@
   <section class="results-bg" id="results">
     <div class="section">
       <div class="section-label reveal">Entrega Final — Producción Multi-Modelo</div>
-      <h2 class="section-title reveal">435 modelos optimizados con<br>cinco motores de IA</h2>
+      <h2 class="section-title reveal">432 series productivas optimizadas<br>con cinco motores de IA</h2>
       <div class="section-desc reveal">
-        La entrega final del proyecto: 435 modelos en producción, pronóstico a 52 semanas y 100% de cobertura estatal.
+        La entrega final del proyecto: 432 series productivas, pronóstico a 52 semanas y 100% de cobertura estatal.
       </div>
 
       <p class="edl-table-cap reveal">Para cada serie se elige automáticamente el mejor motor por SMAPE sobre la realidad 2026 del Boletín SINAVE, con MASE como desempate. La tabla resume la cohorte neurológica (333 modelos).</p>
@@ -3652,7 +3652,12 @@
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (d) {
           if (!d) return;
-          set('b-motor', d.motor.nombre); set('b-motor-pct', d.motor.pct); set('b-motor-total', fmt(d.motor.total));
+          // El bloque `motor` de bento.json NO se hidrata: ese snapshot es del 11-jun-2026
+          // (semana 21) y su total 435 contaba dos veces las tres series `Dengue · Nacional`,
+          // una por motor —de ahí también el 36 %, que era 157/435—. El inventario de series
+          // no es un dato de snapshot semanal: sale del catálogo canónico y va estático en el
+          // HTML (432 series; DeepAR 98/333 = 29 % en la cohorte neuro).
+          // Ver EpiForecast-MX/docs/CONTRATO_VOCABULARIO_CIFRAS.md.
           set('b-week', d.semana.num); set('b-year', d.semana.anio); set('b-ent', d.semana.entidades);
           set('b-dpico', d.dengue.pico_anio); set('b-dcasos', fmt(d.dengue.pico_casos));
           set('b-topname', disp(d.top_entidad.nombre)); set('b-topcasos', fmt(d.top_entidad.casos));

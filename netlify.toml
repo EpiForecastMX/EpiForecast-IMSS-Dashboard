@@ -5,7 +5,12 @@
   # commiteado, solo embebe lo nuevo). rag:ci: con GEMINI_API_KEY hace
   # build + verify (y falla el deploy si el índice queda con drift); sin key
   # conserva el rag_index.json commiteado y solo avisa (no rompe el deploy).
-  command = "cd epibot && npm install && npm run rag:ci"
+  # `cifras:verify` va PRIMERO y sin API key: comprueba el contrato de vocabulario
+# (333 neuro · 99 dengue · 432 series · 444 gráficos) sobre el corpus y knowledge.json.
+# Vive aquí y no dentro de `rag:ci` porque aquella cadena tiene un contrato propio y
+# probado: sin clave NO construye pero SÍ verifica el índice commiteado, y anteponerle
+# un paso que puede fallar dejaría esa verificación sin correr (el falso verde R68-P0).
+command = "cd epibot && npm install && npm run cifras:verify && npm run rag:ci"
 
 [functions]
   node_bundler = "esbuild"
