@@ -1,3 +1,4 @@
+import { dn } from './display.js?v=1';
 /**
  * comparador.js
  * Renders a side-by-side comparison of two Mexican states
@@ -303,7 +304,7 @@ function buildColumn(state, isWinner, maxPerPad) {
       <div class="comparador-header">
         <div class="comparador-header__name">
           ${crownHtml}
-          <span>${state.name}</span>
+          <span>${dn(state.name)}</span>
         </div>
         <div class="comparador-header__cases">${state.casos.toLocaleString()}</div>
       </div>
@@ -344,8 +345,8 @@ function buildVersus(stateA, stateB) {
         <div class="comparador-versus__row">
           <div class="comparador-versus__pad-name">${padLabel(pad)}</div>
           <div class="comparador-versus__labels">
-            <span>${stateA.name}</span>
-            <span>${stateB.name}</span>
+            <span>${dn(stateA.name)}</span>
+            <span>${dn(stateB.name)}</span>
           </div>
           <div class="comparador-versus__dual-track">
             <div class="comparador-versus__bar-left">

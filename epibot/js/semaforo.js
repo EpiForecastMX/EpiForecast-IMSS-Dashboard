@@ -1,3 +1,4 @@
+import { dn } from './display.js?v=1';
 /**
  * semaforo.js — Semaforo epidemiologico de 32 entidades federativas.
  * Renderiza una cuadricula de tarjetas por estado, codificadas por nivel de riesgo.
@@ -256,7 +257,7 @@ function buildCard(state) {
 
   const nameEl = document.createElement('span');
   nameEl.className = 'semaforo-card-name';
-  nameEl.textContent = state.name;
+  nameEl.textContent = dn(state.name);
   header.appendChild(nameEl);
 
   const trendHtml = TREND_SVGS[state.trend] || TREND_SVGS.stable;
