@@ -6,7 +6,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=103';
+import { loadKnowledge, getStats, getData, answer } from './kb.js?v=104';
 import { detectEntities, norm } from './entities.js?v=31';
 import { renderMexicoMap } from './mexico-map.js?v=2';
 import { renderTimelapse } from './timelapse.js?v=2';
@@ -729,17 +729,19 @@ function isPanoramaQuery(text) {
 // el sanitizador de respuestas eliminaría, por eso se construye el nodo directo.
 function appendPanorama(data) {
   const s = data.stats || {};
-  // Total de los 4 padecimientos (neuro 333 + Dengue 102 = 435). Se suma por_pad
-  // para no depender de total_modelos, que la corrección de cohorte deja en 333.
-  const porPad = s.por_pad || {};
-  const total = HERO_PADS.reduce((acc, p) => acc + ((porPad[p.pad] && porPad[p.pad].n) || 0), 0)
-    || s.total_modelos || 435;
+  // El inventario de plataforma vive en `rosters`, que sale del catálogo canónico:
+  // 432 = 333 neuro + 99 dengue. Antes se sumaba `por_pad` sobre los cuatro padecimientos
+  // y se caía a `total_modelos`, que traía 435 porque contaba DOS VECES las tres series
+  // `Dengue · Nacional`, una por motor. `stats` describe sólo la cohorte neuro, así que
+  // sumar por_pad aquí devolvería 333 y el panel dice cuatro padecimientos.
+  // Ver EpiForecast-MX/docs/CONTRATO_VOCABULARIO_CIFRAS.md.
+  const total = (data.rosters && data.rosters.total_series) || 432;
 
   const kpis = [
     { val: HERO_PADS.length, label: 'padecimientos', icon: '<path d="M3 12h4l2 6 4-14 2 8h6"/>' },
     { val: 32, label: 'entidades + Nacional', icon: '<path d="M12 21s-7-5.2-7-11a7 7 0 0 1 14 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>' },
     { val: 52, label: 'semanas de horizonte', icon: '<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>' },
-    { val: total, label: 'modelos en producción', icon: '<path d="M4 7l8-4 8 4-8 4-8-4z"/><path d="M4 7v6l8 4 8-4V7"/>' },
+    { val: total, label: 'series en producción', icon: '<path d="M4 7l8-4 8 4-8 4-8-4z"/><path d="M4 7v6l8 4 8-4V7"/>' },
   ];
 
   const cid = `chart-${++chartCounter}`;

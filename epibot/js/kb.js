@@ -18,7 +18,7 @@ function isNeuro(p) { return NEURO_PADS.includes(p); }
 
 // Version de los datos para cache-bust estable (evita re-descargar 1.3 MB por visita).
 // Subir esta constante cuando cambie knowledge.json / zoom_series.json.
-const DATA_VERSION = '20260724';
+const DATA_VERSION = '20260824';
 
 export async function loadKnowledge() {
   if (DATA) return DATA;
@@ -71,7 +71,7 @@ function _fixForecastTotals() {
 /**
  * Re-deriva las estadísticas GLOBALES (agregadores nacionales) sobre la cohorte
  * neuro (333 modelos), porque knowledge.json ahora mezcla Dengue (cohorte de
- * conteos) en stats.* (total_modelos=435, dist_motor, smape, diagnósticos, top5,
+ * conteos) en stats.* (total_modelos, dist_motor, smape, diagnósticos, top5,
  * por_motor). El contrato es: los handlers agregadores/nacionales son neuro;
  * Dengue se sirve por answerDengue / d.dengue. Las series por padecimiento
  * (por_pad.Dengue) y prod_models con Dengue se conservan intactas para los
@@ -1094,7 +1094,7 @@ function answerProyectoMeta(q, ent, s, d) {
     const dgi = d.dengue;
     if (dgi) {
       lines.push('\n---\n');
-      lines.push(`**4.\u00ba padecimiento, Dengue (A97)**: arbovirosis con **pipeline propio** (cohorte de conteos, no tasa), aparte de los 333 neuro. Serie ${dgi.cobertura}, ${dgi.n_series} series; productivos **${(dgi.motores_productivos || []).join(' y ')}**. Sumando Dengue, la plataforma totaliza **435 series**. Preg\u00fantame \u00abdengue\u00bb para su detalle.`);
+      lines.push(`**4.\u00ba padecimiento, Dengue (A97)**: arbovirosis con **pipeline propio** (cohorte de conteos, no tasa), aparte de los 333 neuro. Serie ${dgi.cobertura}, ${dgi.n_series} series; productivos **${(dgi.motores_productivos || []).join(' y ')}**. Sumando Dengue, la plataforma totaliza **${(d.rosters && d.rosters.total_series) || 432} series productivas**. Preg\u00fantame \u00abdengue\u00bb para su detalle.`);
     }
     return lines.join('\n');
   }

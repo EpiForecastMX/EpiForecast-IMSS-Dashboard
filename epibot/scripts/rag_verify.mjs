@@ -14,6 +14,8 @@
 import { resolve } from 'path';
 import { buildChunks, KB_DIR, EMBED_DIM, EMBED_MODEL } from './lib/corpus.mjs';
 import { readIndex, problemsAgainstCorpus } from './lib/rag_index.mjs';
+import { problemasDeCifras, problemasDeKnowledge } from './lib/cifras_contrato.mjs';
+import { readFileSync } from 'fs';
 
 const OUT = resolve(KB_DIR, 'rag_index.json');
 
@@ -41,3 +43,32 @@ if (problemas.length) {
 }
 
 console.log('\n✔ Índice sincronizado con el corpus: un vector válido por chunk, sin faltantes ni duplicados.');
+
+// ---------------------------------------------------------------------------------------
+// Contrato de cifras. Lo anterior comprueba que cada chunk TENGA un vector; esto comprueba
+// lo que el chunk DICE. El 24-ago-2026 el índice estaba perfectamente sincronizado y
+// perfectamente equivocado: 454 vectores válidos, y cinco tarjetas afirmando 435 modelos.
+// Ver EpiForecast-MX/docs/CONTRATO_VOCABULARIO_CIFRAS.md.
+// ---------------------------------------------------------------------------------------
+console.log('\n▶ Contrato de cifras públicas');
+
+const malas = problemasDeCifras(chunks);
+
+let kb = null;
+try {
+  kb = JSON.parse(readFileSync(resolve(KB_DIR, 'knowledge.json'), 'utf8'));
+} catch {
+  malas.push('no se pudo leer knowledge.json para comprobar el inventario');
+}
+if (kb) malas.push(...problemasDeKnowledge(kb));
+
+if (malas.length) {
+  console.error(`\n✖ Cifras fuera de contrato (${malas.length}):`);
+  for (const p of malas.slice(0, 30)) console.error(`    - ${p}`);
+  if (malas.length > 30) console.error(`    … y ${malas.length - 30} más`);
+  console.error('\n  Vocabulario vigente: 333 neuro · 99 dengue · 432 series productivas · 444 gráficos.');
+  console.error('  El JSON se corrige en el GENERADOR (build_web_knowledge.py), nunca a mano ni en el navegador.');
+  process.exit(1);
+}
+
+console.log('  ok  333 neuro · 99 dengue · 432 series · 444 gráficos; sin cifras retiradas en el corpus.');
