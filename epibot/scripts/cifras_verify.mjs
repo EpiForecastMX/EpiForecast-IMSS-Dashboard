@@ -45,7 +45,7 @@ if (kb) problemas.push(...problemasDeKnowledge(kb));
 // Lo que la gente realmente lee. Sin esto el gate vigilaba una sola puerta.
 const sup = problemasDeSuperficies(
   RAIZ_PUBLICADA,
-  (d) => readdirSync(d),
+  (d) => readdirSync(d, { withFileTypes: true }),
   (f) => readFileSync(f, 'utf8')
 );
 problemas.push(...sup.problemas);

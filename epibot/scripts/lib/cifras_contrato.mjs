@@ -215,18 +215,41 @@ export function jsonRevisable(raw) {
   }
   const partes = [];
   let exentos = 0;
-  const anda = (nodo) => {
-    if (Array.isArray(nodo)) return nodo.forEach(anda);
+  // Solo estas claves declaran INVENTARIO. Sin este filtro, cualquier dato de una serie
+  // temporal --145 casos de dengue en una semana-- disparaba la aguja «145 series»: 813
+  // falsos positivos en la primera prueba. El contrato persigue la FORMA en que la cifra
+  // mala aparece, no la cifra suelta, y esto lo mantiene.
+  const CLAVE_INVENTARIO = /^(total|totales|count|cuenta|n_|num|series|modelos|motores|graficos|gr[aá]ficos|inventario|gallery|prod_)/i;
+  const anda = (nodo, clave = '', enLista = false) => {
+    if (Array.isArray(nodo)) return nodo.forEach((v) => anda(v, clave, true));
     if (nodo && typeof nodo === 'object') {
       for (const [k, v] of Object.entries(nodo)) {
         if (k.startsWith('_')) {
           exentos++;
           continue;
         }
-        anda(v);
+        anda(v, k, false);
       }
       return;
     }
+    // Dentro de una lista, un numero es un DATO (una serie temporal), nunca un inventario.
+    if (typeof nodo === 'number' && !enLista && CLAVE_INVENTARIO.test(clave)) {
+      // `total: 435` se convierte en «total 435 series» para que las agujas del contrato,
+      // que persiguen «<cifra> <unidad>», puedan verlo. La unidad se toma del nombre del
+      // campo cuando lo sugiere; si no, se prueban las tres.
+      const u = /gr[aá]fic/i.test(clave) ? 'gráficos'
+        : /serie/i.test(clave) ? 'series'
+        : /model|motor/i.test(clave) ? 'modelos'
+        : null;
+      partes.push(u ? `${clave} ${nodo} ${u}` : `${clave} ${nodo} series`);
+      if (!u) partes.push(`${clave} ${nodo} modelos`, `${clave} ${nodo} gráficos`);
+      return;
+    }
+    if (typeof nodo === 'number') return;
+    // Los numeros TAMBIEN se revisan. El bento.json que motivo el contrato guardaba la
+    // cifra mala como {"motor":{"total":435}}, no como texto: quedarse solo con las cadenas
+    // dejaba pasar justo la forma que hay que cazar. Se emite «clave valor» para que las
+    // agujas contextuales («435 series») puedan reconocerla por el nombre del campo.
     if (typeof nodo === 'string') partes.push(nodo);
   };
   anda(dato);
@@ -240,11 +263,37 @@ export function jsonRevisable(raw) {
  * @param {(f:string)=>string} leer        inyectable para la prueba
  * @returns {{problemas:string[], revisados:number, exentos:number}}
  */
+export const IGNORAR_DIR = new Set(['node_modules', '.git', '.netlify', 'dist']);
+
 export function problemasDeSuperficies(raiz, listar, leer) {
   const problemas = [];
   let revisados = 0;
   let exentos = 0;
-  for (const nombre of listar(raiz).sort()) {
+  // Recorrido RECURSIVO. La primera version leia solo la raiz: vigilaba 26 archivos y dejaba
+  // fuera los servidos bajo `Reports/` y `epibot/`. Netlify publica con `publish = "."`, asi
+  // que TODO lo que cuelga de ahi es superficie.
+  const recorre = (dir, prefijo = '') => {
+    let entradas;
+    try {
+      entradas = listar(dir);
+    } catch (e) {
+      problemas.push(`no se pudo listar ${prefijo || '.'}: ${e.message}`);
+      return [];
+    }
+    const salida = [];
+    for (const e of entradas.sort()) {
+      const nombre = typeof e === 'string' ? e : e.name;
+      const esDir = typeof e === 'string' ? false : !!e.isDirectory?.();
+      if (esDir) {
+        if (IGNORAR_DIR.has(nombre) || nombre.startsWith('.')) continue;
+        salida.push(...recorre(`${dir}/${nombre}`, `${prefijo}${nombre}/`));
+      } else {
+        salida.push(`${prefijo}${nombre}`);
+      }
+    }
+    return salida;
+  };
+  for (const nombre of recorre(raiz)) {
     if (!/\.(html|json)$/i.test(nombre)) continue;
     let crudo;
     try {

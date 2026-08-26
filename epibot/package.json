@@ -17,7 +17,8 @@
     "check": "node --check js/app.js && node --check js/kb.js && node --check js/entities.js && node --check netlify/functions/rag.mjs && node --check scripts/build_rag_index.mjs && node --check scripts/lib/corpus.mjs && node --check scripts/lib/rag_index.mjs && node --check scripts/rag_eval.mjs && node --check scripts/rag_verify.mjs && node --check scripts/rag_eval_quality.mjs && node --check scripts/lib/candidate.mjs && node --check scripts/lib/candidate_view.mjs && node --check scripts/lib/installer.mjs && node --check scripts/lib/publication_view.mjs && node --check scripts/rag_staging.mjs && node --check js/point_only.js && npm test && npm run test:candidate && npm run rag:verify",
     "test:candidate": "node --test tests/test_candidate_staging.mjs tests/test_candidate_status.mjs tests/test_installer.mjs",
     "rag:staging": "node scripts/rag_staging.mjs",
-    "cifras:verify": "node scripts/cifras_verify.mjs"
+    "cifras:verify": "node scripts/cifras_verify.mjs",
+    "cifras:test": "node scripts/lib/cifras_contrato.test.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0"
