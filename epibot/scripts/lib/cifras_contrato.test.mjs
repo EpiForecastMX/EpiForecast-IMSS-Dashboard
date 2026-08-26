@@ -43,6 +43,10 @@ const CASOS = [
    'JSON · dato de una serie temporal, no inventario'],
   ['n.json', '{"total":[145,145]}', false,
    'JSON · dentro de una lista un número es dato, aunque la clave suene a inventario'],
+  ['q.json', '[{"total":145},{"total":145}]', false,
+   'JSON · objeto DENTRO de una lista: sigue siendo dato tabulado, no inventario'],
+  ['r.json', '{"filas":[{"total":435}]}', false,
+   'JSON · fila de una tabla, aunque la clave suene a inventario'],
   ['o.json', '{"d":"M12 0C5.37 0 0 L435.2,99 3.435 9.795"}', false, 'JSON · geometría SVG'],
   ['p.json', '{"semana":31,"anio":2026}', false, 'JSON · números corrientes'],
 ];
