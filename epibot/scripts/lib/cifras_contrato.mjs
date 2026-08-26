@@ -221,6 +221,8 @@ export function jsonRevisable(raw) {
   // mala aparece, no la cifra suelta, y esto lo mantiene.
   const CLAVE_INVENTARIO = /^(total|totales|count|cuenta|n_|num|series|modelos|motores|graficos|gr[aá]ficos|inventario|gallery|prod_)/i;
   const anda = (nodo, clave = '', enLista = false) => {
+    // `enLista` se PROPAGA hacia dentro. Sin propagarlo, `[{"total":145}]` volvia a tratarse
+    // como inventario en cuanto se entraba al objeto, y un dato tabulado disparaba la aguja.
     if (Array.isArray(nodo)) return nodo.forEach((v) => anda(v, clave, true));
     if (nodo && typeof nodo === 'object') {
       for (const [k, v] of Object.entries(nodo)) {
@@ -228,7 +230,7 @@ export function jsonRevisable(raw) {
           exentos++;
           continue;
         }
-        anda(v, k, false);
+        anda(v, k, enLista);
       }
       return;
     }
