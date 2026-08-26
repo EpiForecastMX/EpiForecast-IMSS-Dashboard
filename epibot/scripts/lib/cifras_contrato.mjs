@@ -162,3 +162,109 @@ export function problemasDeKnowledge(kb) {
   }
   return problemas;
 }
+
+// ---------------------------------------------------------------------------------------
+// Superficies publicas
+// ---------------------------------------------------------------------------------------
+//
+// Anadido el 25-ago-2026, tras una auditoria externa. Hasta entonces este gate abria
+// UNICAMENTE `knowledge.json`: pasaba en verde mientras `index.html`, `bento.json` y
+// `EpiDashboard.html` --lo que la gente realmente lee-- quedaban fuera de su alcance. El
+// contrato se cumplia en las tres, pero no estaba defendido, que no es lo mismo. Un gate
+// cuyo alcance es mas estrecho que su nombre es un falso verde con retardo.
+//
+// `netlify.toml` publica con `publish = "."`, asi que la superficie es todo .html/.json
+// de la raiz, no una lista escogida a mano: enumerarla a mano volveria a dejar huecos.
+
+/** Regiones que el publico NO lee y que por tanto quedan fuera del contrato. */
+const EXENCIONES = [
+  [/<!--[\s\S]*?-->/g, 'comentario HTML'],
+  [/\/\*[\s\S]*?\*\//g, 'comentario de bloque'],
+  [/(^|[^:'"`\w])\/\/[^\n]*/g, 'comentario de linea'],
+];
+
+/**
+ * Borra lo que el publico no lee, CONSERVANDO las posiciones para que el numero de linea
+ * siga siendo cierto: cada region se sustituye por espacios, no se elimina.
+ * @returns {{texto:string, exentos:number}}
+ */
+export function sinRegionesNoLeidas(texto) {
+  let exentos = 0;
+  let out = texto;
+  for (const [re] of EXENCIONES) {
+    out = out.replace(re, (m) => {
+      exentos++;
+      return m.replace(/[^\n]/g, ' ');
+    });
+  }
+  return { texto: out, exentos };
+}
+
+/**
+ * Aplana un JSON a texto revisable, saltando las claves que empiezan por `_`: son notas
+ * de mantenimiento (por que se retiro un bloque, de que fecha es un snapshot) y nadie las
+ * pinta. `bento.json._nota_motor` es justo eso, y explica por que 435 era falso.
+ * @returns {{texto:string, exentos:number}}
+ */
+export function jsonRevisable(raw) {
+  let dato;
+  try {
+    dato = JSON.parse(raw);
+  } catch {
+    return { texto: raw, exentos: 0 }; // no parsea: se revisa crudo, mejor pasarse que faltar
+  }
+  const partes = [];
+  let exentos = 0;
+  const anda = (nodo) => {
+    if (Array.isArray(nodo)) return nodo.forEach(anda);
+    if (nodo && typeof nodo === 'object') {
+      for (const [k, v] of Object.entries(nodo)) {
+        if (k.startsWith('_')) {
+          exentos++;
+          continue;
+        }
+        anda(v);
+      }
+      return;
+    }
+    if (typeof nodo === 'string') partes.push(nodo);
+  };
+  anda(dato);
+  return { texto: partes.join('\n'), exentos };
+}
+
+/**
+ * Revisa TODA la superficie publicada contra el contrato.
+ * @param {string} raiz  directorio que netlify publica
+ * @param {(dir:string)=>string[]} listar  inyectable para la prueba
+ * @param {(f:string)=>string} leer        inyectable para la prueba
+ * @returns {{problemas:string[], revisados:number, exentos:number}}
+ */
+export function problemasDeSuperficies(raiz, listar, leer) {
+  const problemas = [];
+  let revisados = 0;
+  let exentos = 0;
+  for (const nombre of listar(raiz).sort()) {
+    if (!/\.(html|json)$/i.test(nombre)) continue;
+    let crudo;
+    try {
+      crudo = leer(`${raiz}/${nombre}`);
+    } catch (e) {
+      problemas.push(`no se pudo leer ${nombre}: ${e.message}`);
+      continue;
+    }
+    const { texto, exentos: n } = nombre.toLowerCase().endsWith('.json')
+      ? jsonRevisable(crudo)
+      : sinRegionesNoLeidas(crudo);
+    revisados++;
+    exentos += n;
+    const lineas = texto.split('\n');
+    for (let i = 0; i < lineas.length; i++) {
+      for (const [patron, motivo] of CIFRAS_RETIRADAS) {
+        const m = lineas[i].match(patron);
+        if (m) problemas.push(`${nombre}:${i + 1}: «${m[0].trim()}» — ${motivo}`);
+      }
+    }
+  }
+  return { problemas, revisados, exentos };
+}
