@@ -6,6 +6,44 @@ Sitio en vivo: [epiforecast.mx](https://epiforecast.mx/)
 
 ---
 
+---
+
+## Estado — 25 de agosto de 2026
+
+| | |
+|---|---|
+| Datos reales hasta | **semana 31 de 2026** |
+| Series productivas | **432** = 333 neuro + 99 dengue |
+| Graficos publicados | **444** = 333 neuro + 111 dengue |
+| Tablero Tableau | `javier.rebull3700` / `viz_epiforecastmx_17873231502650` |
+| Despliegue | Netlify, automatico en push a `main` |
+| Ramas | solo `main` |
+
+### Contrato de cifras publicas
+
+Las cuatro cifras de arriba estan **congeladas** y hay un gate que lo comprueba en cada
+despliegue (`npm run cifras:verify`, invocado desde `netlify.toml` **antes** de `rag:ci`).
+
+**Prohibidas:** `435` (contaba dos veces las tres series `Dengue - Nacional`, una por motor),
+`102`, `145` por sexo y `15` nacionales. Si alguna reaparece, el despliegue falla.
+
+Y **«motor» es familia algoritmica, nunca una serie**: no se cuentan series por motor.
+
+Contrato normativo completo: `docs/CONTRATO_VOCABULARIO_CIFRAS.md` del repo principal.
+
+### Ortografia: se corrige al PINTAR, no al guardar
+
+Las entidades se guardan **sin tilde** (`Nuevo Leon`, `Ciudad de Mexico`) porque ese es su
+**identificador**: es la clave de `knowledge.json` y lo que devuelve el emparejador de
+`entities.js`. **Acentuar esas claves rompe la busqueda en silencio.**
+
+La correccion vive en **`js/display.js`** (`DISPLAY_NAMES` + `dn()`) y en `polishSpanish()`
+para el markdown. **Regla: `dn()` solo sobre texto que va a pantalla o a voz, jamas sobre una
+clave.** Una vista nueva que imprima nombres tiene que importar `display.js` — `comparador`,
+`semaforo`, `mexico-map` y `timelapse` lo hacen.
+
+---
+
 ## Descripcion
 
 Dashboard interactivo del proyecto **EpiForecast-MX**, desarrollado en colaboracion entre el **Tecnologico de Monterrey** y el **Instituto Mexicano del Seguro Social (IMSS)**. Cubre cuatro padecimientos:
@@ -206,6 +244,20 @@ El dashboard (`EpiDashboard.html`) incluye embeds interactivos de Tableau Public
 - **Casos por semana** con dinamica temporal
 - **Predicciones** multi-modelo (Prophet, DeepAR, Ensemble, Stacking)
 
+Son **diez vistas** del workbook `viz_epiforecastmx_17873231502650`, publicado en Tableau
+Public bajo la cuenta **`javier.rebull3700`**.
+
+> **Al republicar, conservar el nombre del workbook.** Los embeds lo alcanzan por
+> `name='viz_epiforecastmx_17873231502650/<vista>'`; si Tableau le anade otra marca de tiempo
+> hay que actualizar las **30 referencias** de `EpiDashboard.html` (10 en `name`, 20 en
+> `static_image`).
+
+> **El tablero lleva un extracto, no conexion viva.** El conector de Google Drive de Tableau
+> Desktop Public Edition 2025.3.2 rechaza la lectura aun con el permiso concedido y
+> confirmado (`A7AE75CC`); esta descartado todo lo descartable y documentado en
+> `docs/GUIA_PUBLICAR_TABLEAU_2026-08-25.md` del repo principal. **Consecuencia: hay que
+> republicar el workbook a mano** despues de cada actualizacion semanal.
+
 ---
 
 ## Galeria de Pronosticos
@@ -306,7 +358,7 @@ Todas las paginas incluyen navegacion cruzada entre si.
 | Markdown | marked.js |
 | IA fallback | Google Gemini via Netlify Functions |
 | Hosting | Netlify (deploy automatico en push a main) |
-| Repositorio | GitHub (IntegradorIMSS2026Team01) |
+| Repositorio | GitHub (EpiForecastMX) |
 
 ---
 
@@ -318,12 +370,24 @@ Todas las paginas incluyen navegacion cruzada entre si.
 
 ### Actualizacion semanal
 
-Desde el repo principal, un solo comando descarga el boletin mas reciente, regenera `knowledge.json` y hace push a este dashboard:
+Desde el repo principal, un solo comando descarga el boletin mas reciente, regenera
+`knowledge.json` y hace push a este dashboard:
 
 ```bash
 # En el repo EpiForecast-MX
 make update-week
 ```
+
+**Pero eso no lo actualiza todo.** Quedan **dos pasos manuales** despues:
+
+| paso | por que es manual |
+|---|---|
+| Publicar a Google Sheets | `data/processed/tableau_model.xlsx` esta **gitignorado** (11 MB) y ningun workflow lo genera, asi que `gsheets.yml` **no puede correr solo**: fallaria al no encontrarlo. |
+| Republicar el workbook de Tableau | el tablero lleva **extracto**, no conexion viva (ver arriba). |
+
+Hoja de datos vigente: `tableau_epiforecast` en el Drive de `javirebull@gmail.com`
+(ID `1yQ4tL7NzaUBplsoOfP9BVXARwUrb8h0i70vpDGvHpOQ`), con las dos cuentas de servicio como
+editoras. La variable `GSHEETS_SPREADSHEET_ID` del repo principal ya apunta ahi.
 
 ---
 
@@ -331,7 +395,7 @@ make update-week
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/IntegradorIMSS2026Team01/EpiForecast-IMSS-Dashboard.git
+git clone https://github.com/EpiForecastMX/EpiForecast-IMSS-Dashboard.git
 cd EpiForecast-IMSS-Dashboard
 
 # Servir con Python
@@ -358,7 +422,7 @@ El sitio se despliega automaticamente a traves de **Netlify** al hacer push a la
 
 ## Proyecto Principal
 
-Este dashboard es el componente de visualizacion del proyecto [EpiForecast-MX](https://github.com/IntegradorIMSS2026Team01/EpiForecast-MX), que incluye el pipeline completo de extraccion, procesamiento, entrenamiento multi-modelo (Prophet, DeepAR, Ensemble, Stacking) y generacion de pronosticos epidemiologicos.
+Este dashboard es el componente de visualizacion del proyecto [EpiForecast-MX](https://github.com/EpiForecastMX/EpiForecast-MX), que incluye el pipeline completo de extraccion, procesamiento, entrenamiento multi-modelo (Prophet, DeepAR, Ensemble, Stacking) y generacion de pronosticos epidemiologicos.
 
 ---
 
