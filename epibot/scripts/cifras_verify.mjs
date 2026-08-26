@@ -10,9 +10,18 @@
  */
 
 import { resolve } from 'path';
-import { readFileSync } from 'fs';
+import { readFileSync, readdirSync } from 'fs';
 import { buildChunks, KB_DIR } from './lib/corpus.mjs';
-import { problemasDeCifras, problemasDeKnowledge, VOCABULARIO } from './lib/cifras_contrato.mjs';
+import {
+  problemasDeCifras,
+  problemasDeKnowledge,
+  problemasDeSuperficies,
+  VOCABULARIO,
+} from './lib/cifras_contrato.mjs';
+
+// `netlify.toml` publica con `publish = "."` desde la raiz del repo, un nivel por encima
+// de `epibot/`. Todo .html/.json de ahi lo sirve el sitio.
+const RAIZ_PUBLICADA = resolve(KB_DIR, '..');
 
 const { chunks } = buildChunks();
 
@@ -33,13 +42,31 @@ try {
 }
 if (kb) problemas.push(...problemasDeKnowledge(kb));
 
+// Lo que la gente realmente lee. Sin esto el gate vigilaba una sola puerta.
+const sup = problemasDeSuperficies(
+  RAIZ_PUBLICADA,
+  (d) => readdirSync(d),
+  (f) => readFileSync(f, 'utf8')
+);
+problemas.push(...sup.problemas);
+console.log(
+  `  superficie: ${sup.revisados} archivos publicados revisados ` +
+    `(${sup.exentos} regiones no leidas por el publico quedaron fuera: ` +
+    `comentarios y claves _* de mantenimiento)`
+);
+
 if (problemas.length) {
   console.error(`\n✖ Cifras fuera de contrato (${problemas.length}):`);
   for (const p of problemas.slice(0, 40)) console.error(`    - ${p}`);
   if (problemas.length > 40) console.error(`    … y ${problemas.length - 40} más`);
-  console.error('\n  El JSON se corrige en el GENERADOR (build_web_knowledge.py), nunca a mano');
-  console.error('  ni reparándolo en el navegador. Ver docs/CONTRATO_VOCABULARIO_CIFRAS.md.');
+  console.error('\n  Dónde se arregla, según de dónde venga:');
+  console.error('    · knowledge.json o un chunk → en el GENERADOR (build_web_knowledge.py),');
+  console.error('      nunca a mano ni reparándolo en el navegador.');
+  console.error('    · un .html/.json publicado  → en la plantilla que lo escribe.');
+  console.error('  Si la cifra aparece dentro de un comentario o una clave «_*», el gate no la');
+  console.error('  marca: son notas de mantenimiento que nadie pinta.');
+  console.error('  Ver docs/CONTRATO_VOCABULARIO_CIFRAS.md.');
   process.exit(1);
 }
 
-console.log('\n✔ Corpus y knowledge.json dentro del contrato.');
+console.log('\n✔ Corpus, knowledge.json y superficie publicada dentro del contrato.');
