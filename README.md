@@ -288,6 +288,49 @@ La seccion **Reports/** contiene una galeria HTML interactiva con graficos de pr
 
 ---
 
+## Novedades y prensa
+
+La bitacora publica del proyecto vive en `novedades.html` y se alimenta **sola** de
+`news.json`: la portada toma los items mas recientes para su banner y Novedades los pinta
+todos. Cada hito grande tiene ademas **pagina propia**, enlazada desde su item.
+
+| Pagina | Hito |
+|---|---|
+| `calass.html` | CALASS 2026 — XXXVI Congreso de la ALASS, Universite de Montreal, 27-ago-2026 |
+| `helix.html` | Primer lugar en el International Summit HELIX 2026 Mexico |
+| `future_health.html` | Ponencia aceptada en la 2nd Public Health Conference (Skopje) |
+| `micai.html` | Articulo MICAI 2026 (version digital + PDF) |
+
+### Publicar una noticia toca cinco superficies
+
+1. **`news.json`** — el item nuevo va **primero**. Campos: `date`, `iso`, `type`, `tag`,
+   `featured`, `title`, `body[]` (acepta HTML), `link` y el opcional **`summary`**. Sin
+   `summary`, el banner de la portada corta el primer parrafo a 150 caracteres y suele
+   partir la frase por la mitad.
+2. **La pagina del hito**, si lo merece. Se clona el armazon de `helix.html`: nav,
+   tipografia, galeria `.doc-gallery` y lightbox ya vienen resueltos.
+3. **`index.html`** — el color del tag (`.news-tag--<type>`) y, si el `type` es nuevo, el
+   filete de la tarjeta (`.news-card--<type>::before`).
+4. **`index.html` otra vez: el banner estatico.** Es el respaldo para cuando falla el
+   `fetch` de `news.json` y **no se actualiza solo**. Si no se toca, el sitio sigue
+   anunciando como «lo mas nuevo» algo viejo cada vez que la red falla.
+5. **`sitemap.xml`** — alta de la pagina nueva.
+
+> **El gate de cifras alcanza a la pagina nueva.** `npm run cifras:verify` recorre **todo**
+> el `.html`/`.json` publicado desde la raiz, no una lista escogida a mano. Una nota que
+> escriba «435 modelos» rompe el despliegue, y hace bien.
+
+### Las fotos
+
+Se recortan a una proporcion **comun (3:2)** antes de subirlas: la galeria las coloca en una
+reticula de dos columnas y, con proporciones distintas, los pies quedan desalineados. Las de
+iPhone llegan en HEIC; `sips -s format jpeg` las convierte y, ya en Pillow,
+`ImageOps.exif_transpose` respeta la orientacion (hay fotos con `orientation: 3`, giradas
+180 grados, que sin eso salen de cabeza). Van a `Reports/<hito>/` a 1600 px de ancho y
+calidad 82.
+
+---
+
 ## Estructura del Sitio
 
 ```
@@ -295,6 +338,16 @@ EpiForecast-IMSS-Dashboard/
 ├── index.html                      # Pagina principal del proyecto
 ├── EpiDashboard.html               # Dashboard con visualizaciones Tableau
 ├── dengue.html                     # Pagina del 4.o padecimiento (Dengue): EDA, modelado y pronostico
+├── novedades.html                  # Bitacora publica; se pinta desde news.json
+├── news.json                       # Items de novedades, el mas reciente primero
+├── calass.html                     # CALASS 2026, Montreal: la ponencia, con fotos
+├── helix.html                      # Primer lugar en HELIX 2026 Mexico
+├── future_health.html              # Ponencia aceptada en Skopje
+├── micai.html                      # Articulo MICAI 2026 (version digital)
+├── metodologia_dengue.html         # Metodologia del pipeline de Dengue
+├── pipeline_diagramEDA.html        # Diagrama del pipeline de EDA
+├── editorial.css                   # Nav y tipografia editorial, compartidos
+├── sitemap.xml                     # Alta de cada pagina publicada
 ├── reporte_resultados.html         # Reporte interactivo de 333 modelos
 ├── comparacion_modelos.html        # Comparativa de 4 motores
 ├── validacion_semanal.html         # Validacion semanal Real vs Forecast
@@ -310,7 +363,10 @@ EpiForecast-IMSS-Dashboard/
 │   ├── Alzheimer/                  # PNGs por entidad y sexo
 │   ├── Depresion/
 │   ├── Parkinson/
-│   └── dengue/                     # Charts y JSON del 4.o padecimiento (mapa, EDA, pronostico)
+│   ├── dengue/                     # Charts y JSON del 4.o padecimiento (mapa, EDA, pronostico)
+│   ├── calass/                     # Fotos del congreso CALASS 2026
+│   ├── helix/                      # Constancia del Summit HELIX 2026
+│   └── future_health/              # Aceptacion de la ponencia de Skopje
 ├── epibot/                             # EpiBot - Asistente conversacional
 │   ├── index.html                  # UI del chat
 │   ├── knowledge.json              # Base de datos (metricas, boletin, modelos)
@@ -340,6 +396,10 @@ index.html
   ├──> reporte_resultados.html      (Reporte de Modelos)
   ├──> comparacion_modelos.html     (Comparativa de Motores)
   ├──> Reports/index.html           (Galeria de Pronosticos)
+  ├──> novedades.html               (Bitacora publica)
+  │      ├──> calass.html           (CALASS 2026, Montreal)
+  │      ├──> helix.html            (HELIX 2026 Mexico)
+  │      └──> future_health.html    (Skopje)
   └──> epibot/index.html                (EpiBot - Chat Inteligente)
 ```
 

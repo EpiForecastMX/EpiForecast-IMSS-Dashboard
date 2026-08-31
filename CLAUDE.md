@@ -4,6 +4,29 @@
 - **NUNCA agregar Co-Authored-By** en los mensajes de commit.
 - Los commits deben llevar únicamente el nombre del usuario, sin líneas de co-autoría.
 
+## Sitio público (páginas y noticias)
+
+- **Publicar una noticia toca cinco superficies, no una**: `news.json` (el item nuevo va
+  primero), la página propia del hito si la merece, el color del tag `.news-tag--<type>` en
+  `index.html`, **el banner estático de `index.html`** y `sitemap.xml`. El banner estático es
+  el respaldo para cuando falla el `fetch` de `news.json` y **no se actualiza solo**: si no se
+  toca, el sitio anuncia como «lo más nuevo» algo viejo cada vez que la red falla. Receta
+  completa y convenciones de las fotos en el README.
+- **El gate de cifras alcanza a cualquier página nueva.** `npm run cifras:verify` recorre
+  **todo** el `.html`/`.json` publicado desde la raíz (41 archivos hoy), no una lista escogida
+  a mano. Una nota que escriba «435 modelos» tumba el despliegue.
+- **Nunca `<img src="">` ni `img.src = ''`.** Un `src` vacío **no** deja la imagen vacía: se
+  resuelve contra la URL del documento, así que el navegador se trae el HTML de la propia
+  página y después no lo puede decodificar. El `<img>` del lightbox nace **sin atributo**
+  `src` y al cerrar se usa `removeAttribute('src')`. Estuvo mal en las cuatro páginas con
+  lightbox (`calass`, `helix`, `future_health`, `dengue`) hasta el 31-ago-2026.
+- **Para validar en móvil, `chrome --headless --window-size` MIENTE.** En headless de
+  escritorio Chrome no aplica el `<meta name="viewport">`: compone a un ancho mayor y recorta,
+  así que inventa defectos que no existen (los «reproduce» hasta en páginas que llevan meses
+  en producción). Emular de verdad exige CDP —`Emulation.setDeviceMetricsOverride` con
+  `mobile:true`—, y el texto recortado se **mide** (`scrollWidth > clientWidth` en elementos
+  con overflow oculto), no se mira: a 390 px un corte pasa por final de línea.
+
 ## EpiBot (`epibot/`)
 - **Cache-bust al tocar `kb.js`/`entities.js`**: sube `app.js?v=N` en `index.html` (la de **afuera**), además del `?v` interno del import de `kb.js`. Sin bumpear `app.js?v` el navegador sigue corriendo el `app.js` viejo cacheado (que importa el `kb.js` viejo) y tu cambio no aparece aunque el deploy haya llegado bien.
 - **Cache-bust al tocar `knowledge.json`**: sube `DATA_VERSION` en `epibot/js/kb.js`. **No es opcional.** Las cabeceras que mandan son las del `netlify.toml` de la **raíz** (`publish = "."`), y ahí `knowledge.json` va con `public, max-age=3600` — no con `no-cache`, como decía este archivo hasta el 24-ago-2026. El `epibot/netlify.toml` que aún declara `no-cache` parece vestigial de cuando EpiBot era un sitio aparte.
