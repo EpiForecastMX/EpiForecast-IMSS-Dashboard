@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EpiForecast-MX — CALASS 2026, Montréal: la plataforma ante la ALASS</title>
+  <meta name="description" content="EpiForecast-MX se presentó el 27 de agosto de 2026 en el XXXVI Congreso de la ALASS (CALASS 2026), en la Université de Montréal. La Dra. Ruth Pérez-Hernández y Javier Rebull expusieron la Comunicación 75 en la sesión 4.1, sobre inteligencia artificial para la gestión de los servicios de salud." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=Libre+Caslon+Display&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-deep:#0E1424; --bg-base:#131C30; --bg-raised:#18223A; --bg-card:#1C2740; --bg-card-hover:#243150;
+      --text-primary:#E7ECF5; --text-secondary:#9FB0CE; --text-muted:#6E82A6; --text-faint:#44567A;
+      --burgundy:#F472B6; --teal:#5B8DEF; --gold:#2DD4BF; --amber:#F59E0B; --amber-soft:#FBBF24;
+      --cream:#E7ECF5;
+      --font-display:'Playfair Display',Georgia,serif;
+      --font-body:'Outfit',system-ui,-apple-system,sans-serif;
+      --font-mono:'JetBrains Mono','SF Mono',monospace;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:var(--font-body); background:var(--bg-base); color:var(--text-secondary); line-height:1.6; -webkit-font-smoothing:antialiased; }
+    a { color:var(--teal); text-decoration:none; transition:color .2s; }
+    a:hover { color:var(--amber-soft); }
+    .wrap { max-width:1080px; margin:0 auto; padding:0 1.5rem; }
+
+    /* Nav */
+    nav { position:sticky; top:0; z-index:50; background:rgba(14,20,36,0.82); backdrop-filter:blur(12px); border-bottom:1px solid var(--bg-card-hover); }
+    .nav-in { max-width:1080px; margin:0 auto; padding:0.9rem 1.5rem; display:flex; align-items:center; justify-content:space-between; }
+    .nav-logo { font-family:var(--font-display); font-weight:800; font-size:1.15rem; color:var(--cream); letter-spacing:.3px; }
+    .nav-logo span { color:var(--gold); }
+    .nav-back { font-family:var(--font-mono); font-size:.78rem; display:inline-flex; align-items:center; gap:.45rem; }
+    .nav-back svg { width:14px; height:14px; }
+
+    /* Hero */
+    .hero { padding:4.5rem 0 2.5rem; background:radial-gradient(1200px 400px at 70% -10%, rgba(245,158,11,0.10), transparent 60%); }
+    .eyebrow { font-family:var(--font-mono); font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.18em; color:var(--amber-soft); display:inline-flex; align-items:center; gap:.5rem; }
+    .eyebrow::before { content:""; width:26px; height:2px; background:var(--amber); display:inline-block; }
+    h1 { font-family:var(--font-display); font-size:2.7rem; line-height:1.1; color:var(--cream); margin:.8rem 0 1rem; }
+    .lead { font-size:1.12rem; max-width:64ch; color:var(--text-secondary); }
+    .lead strong { color:var(--cream); }
+
+    .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-top:2.4rem; }
+    .stat { background:var(--bg-card); border:1px solid var(--bg-card-hover); border-radius:14px; padding:1.1rem 1.2rem; position:relative; overflow:hidden; }
+    .stat::before { content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--amber); }
+    .stat .v { font-family:var(--font-display); font-size:1.7rem; font-weight:800; color:var(--cream); }
+    .stat .l { font-family:var(--font-mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); margin-top:.25rem; }
+
+    /* Sections */
+    section { padding:3rem 0; border-top:1px solid rgba(36,49,80,0.6); }
+    .label { font-family:var(--font-mono); font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.16em; color:var(--gold); }
+    h2 { font-family:var(--font-display); font-size:1.85rem; color:var(--cream); margin:.5rem 0 1rem; line-height:1.18; }
+    h3.subh { font-family:var(--font-display); color:var(--cream); font-size:1.3rem; margin:2rem 0 .6rem; display:flex; align-items:center; gap:.6rem; }
+    h3.subh svg { width:20px; height:20px; color:var(--amber-soft); flex:none; }
+    section p { max-width:72ch; margin-bottom:1rem; }
+    section p strong, li strong { color:var(--cream); }
+
+    .eda-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:.9rem; margin:1.2rem 0; }
+    .eda-grid .stat .v { font-size:1.4rem; }
+
+    .callout { background:linear-gradient(135deg, rgba(245,158,11,0.08), rgba(244,114,182,0.06)); border:1px solid rgba(245,158,11,0.22); border-radius:16px; padding:1.5rem 1.7rem; margin-top:1.2rem; }
+    .callout h3 { font-family:var(--font-display); color:var(--cream); font-size:1.2rem; margin-bottom:.5rem; }
+
+    /* Pilares / equipo */
+    .steps { display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; margin-top:1.6rem; }
+    .step { background:var(--bg-card); border:1px solid var(--bg-card-hover); border-radius:14px; padding:1.1rem 1.2rem; }
+    .step .n { font-family:var(--font-mono); font-weight:700; color:var(--amber-soft); font-size:.8rem; }
+    .step h4 { color:var(--cream); font-size:1rem; margin:.3rem 0 .35rem; }
+    .step p { font-size:.9rem; margin:0; color:var(--text-secondary); }
+
+    .people { display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; margin-top:1.4rem; }
+    .person { background:var(--bg-card); border:1px solid var(--bg-card-hover); border-left:3px solid var(--amber); border-radius:14px; padding:1.2rem 1.4rem; }
+    .person .role { font-family:var(--font-mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.1em; color:var(--amber-soft); }
+    .person .name { font-family:var(--font-display); color:var(--cream); font-size:1.2rem; margin:.25rem 0 .35rem; }
+    .person p { font-size:.9rem; margin:0; color:var(--text-secondary); }
+
+    .authors { font-size:.92rem; color:var(--text-secondary); }
+    .authors b { color:var(--cream); }
+
+    /* Figure */
+    figure { margin:1.4rem 0 0; }
+    figure img { width:100%; border-radius:14px; border:1px solid var(--bg-card-hover); background:#fff; display:block; }
+    figcaption { font-size:.85rem; color:var(--text-muted); margin-top:.7rem; font-family:var(--font-mono); }
+    .doc-gallery { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:1.4rem; margin-top:1.4rem; align-items:start; }
+    .doc-gallery figure { margin:0; }
+
+    /* Referencias */
+    .refs { list-style:none; margin:1.5rem 0 0; padding:0; display:grid; gap:.9rem; }
+    .refs li { background:var(--bg-card); border:1px solid var(--bg-card-hover); border-left:3px solid var(--gold); border-radius:12px; padding:1rem 1.2rem; }
+    .refs .rt { color:var(--cream); font-weight:600; font-size:.98rem; }
+    .refs .rd { font-size:.86rem; color:var(--text-secondary); margin:.25rem 0 .45rem; }
+    .refs a { font-family:var(--font-mono); font-size:.76rem; word-break:break-word; }
+    .refs .rtag { font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.1em; color:var(--gold); }
+
+    /* Lightbox: ampliar imágenes al hacer clic */
+    figure img { cursor:zoom-in; transition:filter .15s, transform .15s; }
+    figure img:hover { filter:brightness(1.04); }
+    .lightbox { position:fixed; inset:0; background:rgba(6,10,20,0.95); display:none; align-items:center; justify-content:center; z-index:200; padding:2.5rem 1.5rem; cursor:zoom-out; }
+    .lightbox.open { display:flex; }
+    .lightbox img { max-width:96vw; max-height:88vh; border-radius:10px; box-shadow:0 24px 70px rgba(0,0,0,.6); background:#fff; }
+    .lightbox .lb-close { position:absolute; top:1.1rem; right:1.3rem; width:42px; height:42px; border:1px solid var(--bg-card-hover); background:var(--bg-card); color:var(--cream); border-radius:10px; font-size:1.5rem; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .lightbox .lb-close:hover { background:var(--bg-card-hover); }
+    .lightbox .lb-cap { position:absolute; bottom:1.1rem; left:0; right:0; text-align:center; color:var(--text-secondary); font-family:var(--font-mono); font-size:.78rem; padding:0 1.5rem; pointer-events:none; }
+
+    footer { border-top:1px solid var(--bg-card-hover); padding:2.2rem 0; text-align:center; background:var(--bg-deep); margin-top:1rem; }
+    footer .t { font-family:var(--font-display); color:var(--cream); font-weight:700; }
+    footer .s { font-size:.82rem; color:var(--text-muted); margin-top:.3rem; }
+
+    @media (max-width:760px) {
+      h1 { font-size:2rem; }
+      .stats { grid-template-columns:repeat(2,1fr); }
+      .steps, .people { grid-template-columns:1fr; }
+    }
+  </style>
+  <link rel="stylesheet" href="editorial.css?v=1">
+</head>
+<body>
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <div class="nav-logo">EpiForecast<span>-MX</span></div>
+
+      <ul class="nav-menu">
+        <!-- Proyecto -->
+        <li class="nav-group">
+          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
+          <div class="nav-dropdown">
+            <a href="index.html#hero"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>Inicio</a>
+            <a href="EpiDashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
+            <a href="Reports/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Pronósticos</a>
+            <a href="novedades.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/></svg>Novedades</a>
+            <a href="dengue.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>Dengue</a>
+            <a href="epibot/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>EPI Chatbot</a>
+          </div>
+        </li>
+
+        <!-- Metodología -->
+        <li class="nav-group">
+          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Metodología <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
+          <div class="nav-dropdown">
+            <a href="bitacora_modelado.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Bitácora v1-v6</a>
+            <a href="ficha_tecnica_prophet.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Ficha Prophet</a>
+            <a href="metodologia_dengue.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>Metodología Dengue</a>
+            <a href="hiperparametros_modelos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>HPs SageMaker</a>
+            <a href="construccion_dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Arquitectura Dashboard</a>
+          </div>
+        </li>
+
+        <!-- Resultados -->
+        <li class="nav-group">
+          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Resultados <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
+          <div class="nav-dropdown">
+            <a href="reporte_resultados.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg>Resultados</a>
+            <a href="comparacion_modelos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Comparación SageMaker</a>
+            <a href="validacion_semanal.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Validación Semanal</a>
+            <a href="auditoria_remediacion_2026.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Auditoría y Remediación</a>
+            <a href="conclusiones.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Conclusiones</a>
+            <a href="referencias.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Referencias</a>
+          </div>
+        </li>
+        <li class="nav-group">
+          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">MICAI 2026 <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
+          <div class="nav-dropdown">
+            <a href="micai.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Artículo (versión digital)</a>
+            <a href="MICAI/EpiForecast_MICAI2026.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar PDF</a>
+          </div>
+        </li>
+      </ul>
+
+      <!-- CTA buttons -->
+      <div class="nav-ctas">
+        <a href="EpiDashboard.html" class="nav-cta nav-cta--primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          Dashboard
+        </a>
+        <a href="epibot/index.html" class="nav-cta nav-cta--secondary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          EPI Chatbot
+        </a>
+        <a href="https://github.com/IntegradorIMSS2026Team01" target="_blank" rel="noopener" class="nav-cta nav-cta--secondary" style="padding:0.4rem 0.6rem" title="GitHub">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        </a>
+      </div>
+
+      <button type="button" class="nav-hamburger" onclick="toggleMobileNav(this)" aria-label="Abrir menú" aria-expanded="false" aria-controls="navMobile">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <!-- Mobile menu -->
+    <div class="nav-mobile" id="navMobile">
+      <div class="nav-mobile-group">
+        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
+        <div class="nav-mobile-items">
+          <a href="index.html#hero">Inicio</a>
+          <a href="EpiDashboard.html">Dashboard</a>
+          <a href="Reports/index.html">Pronósticos</a>
+          <a href="novedades.html">Novedades</a>
+          <a href="dengue.html">Dengue</a>
+          <a href="epibot/index.html">EPI Chatbot</a>
+        </div>
+      </div>
+      <div class="nav-mobile-group">
+        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Metodología <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
+        <div class="nav-mobile-items">
+          <a href="bitacora_modelado.html">Bitácora v1-v6</a>
+          <a href="ficha_tecnica_prophet.html">Ficha Prophet</a>
+          <a href="metodologia_dengue.html">Metodología Dengue</a>
+          <a href="hiperparametros_modelos.html">HPs SageMaker</a>
+          <a href="construccion_dashboard.html">Arquitectura Dashboard</a>
+        </div>
+      </div>
+      <div class="nav-mobile-group">
+        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Resultados <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
+        <div class="nav-mobile-items">
+          <a href="reporte_resultados.html">Resultados</a>
+          <a href="comparacion_modelos.html">Comparación SageMaker</a>
+          <a href="validacion_semanal.html">Validación Semanal</a>
+          <a href="auditoria_remediacion_2026.html">Auditoría y Remediación</a>
+          <a href="conclusiones.html">Conclusiones</a>
+          <a href="referencias.html">Referencias</a>
+        </div>
+      </div>
+      <div class="nav-mobile-group">
+        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">MICAI 2026 <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
+        <div class="nav-mobile-items">
+          <a href="micai.html">Artículo (versión digital)</a>
+          <a href="MICAI/EpiForecast_MICAI2026.pdf" target="_blank" rel="noopener">Descargar PDF</a>
+        </div>
+      </div>
+      <div class="nav-mobile-ctas">
+        <a href="EpiDashboard.html" class="nav-cta nav-cta--primary" style="justify-content:center;padding:.6rem 1.5rem">Dashboard</a>
+        <a href="Reports/index.html" class="nav-cta nav-cta--secondary" style="justify-content:center;padding:.6rem 1.5rem">Pronósticos</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="wrap">
+      <div class="eyebrow">Internacional · CALASS 2026 · Montréal</div>
+      <h1>EpiForecast-MX se presentó<br>en el CALASS 2026, en Montréal</h1>
+      <p class="lead">El <strong>jueves 27 de agosto de 2026</strong>, EpiForecast-MX expuso en el <strong>XXXVI Congreso de la ALASS</strong>, la Association Latine pour l’Analyse des Systèmes de Santé, celebrado en la <strong>Université de Montréal</strong>. La <strong>Dra. Ruth Pérez-Hernández</strong> (IMSS) y <strong>Javier Rebull</strong> (Tecnológico de Monterrey) presentaron la Comunicación 75 en la sesión <strong>4.1 · «L’IA pour la gestion des services»</strong>: una plataforma pública que convierte casos notificados en señales prospectivas para la planificación de los sistemas de salud.</p>
+
+      <div class="stats">
+        <div class="stat"><div class="v">27 ago 2026</div><div class="l">Día de la ponencia</div></div>
+        <div class="stat"><div class="v">Comunicación 75</div><div class="l">Sesión 4.1 · La IA para la gestión de los servicios</div></div>
+        <div class="stat"><div class="v">Montréal</div><div class="l">Université de Montréal · ESPUM</div></div>
+        <div class="stat"><div class="v">Cuatro idiomas</div><div class="l">Francés, español, italiano y portugués en la sala</div></div>
+      </div>
+
+      <figure>
+        <img src="Reports/calass/calass_javier_ruth.jpg" alt="Javier Rebull y la Dra. Ruth Pérez-Hernández, con el gafete del congreso, el día de su ponencia en el CALASS 2026 de la Université de Montréal." loading="lazy" />
+        <figcaption>Javier Rebull y la Dra. Ruth Pérez-Hernández el día de la ponencia. Université de Montréal, 27 de agosto de 2026.</figcaption>
+      </figure>
+    </div>
+  </header>
+
+  <!-- EL CONGRESO -->
+  <section>
+    <div class="wrap">
+      <div class="label">El congreso</div>
+      <h2>Qué es el CALASS y por qué importa</h2>
+      <p>El <strong>CALASS</strong> es el congreso anual de la <strong>ALASS</strong>, la Association Latine pour l’Analyse des Systèmes de Santé: una red que desde hace más de tres décadas reúne a investigadores, gestores y profesionales de los sistemas de salud del mundo latino, con varias lenguas de trabajo. Su <strong>XXXVI edición</strong> se celebró del <strong>27 al 29 de agosto de 2026</strong> en Montréal, con la <strong>École de santé publique de l’Université de Montréal (ESPUM)</strong> como anfitriona y el <strong>Centre de recherche en santé publique (CReSP)</strong> y <strong>CIRANO</strong> entre las instituciones que lo acompañaron.</p>
+      <p>El tema de esta edición fue <strong>«Prévention en santé et efficience dans l’organisation des soins : défis et innovation dans les systèmes de santé»</strong> —prevención en salud y eficiencia en la organización de la atención: desafíos e innovación en los sistemas de salud—, que es exactamente la conversación en la que este proyecto quiere estar: no la de producir más información, sino la de <strong>obtener más valor de la que ya existe</strong>.</p>
+      <p>Importa porque el CALASS no es un foro de modelos, sino de <strong>sistemas de salud</strong>. La pregunta que se hace en esa sala no es qué tan bien ajusta un algoritmo, sino qué cambia en la organización de los servicios cuando el dato llega antes. Llevar ahí una plataforma que ya está publicada y abierta —y no un prototipo— es lo que hizo que la discusión empezara donde suele terminar.</p>
+    </div>
+  </section>
+
+  <!-- LA PONENCIA -->
+  <section>
+    <div class="wrap">
+      <div class="label">La ponencia</div>
+      <h2>De la vigilancia epidemiológica a la inteligencia predictiva</h2>
+      <p>La Comunicación 75 se tituló <strong>«De la vigilancia epidemiológica a la inteligencia predictiva: el papel de la inteligencia artificial en la organización prospectiva de los sistemas públicos de salud»</strong>. Se expuso con <strong>diapositivas en francés y voz en español</strong>, en quince láminas y quince minutos, seguidos de cinco de preguntas.</p>
+      <p>El hilo de la exposición fue la <strong>plataforma</strong>, no el modelo: datos públicos del boletín semanal del SINAVE, pronóstico, evaluación contra lo observado, visualización abierta y consulta. El desempeño se demostró <strong>una sola vez y donde está bien medido</strong>: sobre semanas que los modelos nunca vieron, con el corte declarado en la semana 31 de 2026. La plataforma <strong>no sustituye al SINAVE: se apoya en él</strong>.</p>
+
+      <div class="doc-gallery">
+        <figure>
+          <img src="Reports/calass/calass_portada.jpg" alt="Lámina de portada de la Comunicación 75 proyectada en francés en la sala del congreso, con el título de EpiForecast-MX, la sesión 4.1 y los siete autores." loading="lazy" />
+          <figcaption>La lámina de apertura, proyectada en francés: EpiForecast-MX ante el CALASS 2026.</figcaption>
+        </figure>
+        <figure>
+          <img src="Reports/calass/calass_exposicion.jpg" alt="Javier Rebull expone ante la sala mientras se proyecta la serie nacional de depresión, real contra pronóstico; la Dra. Ruth Pérez-Hernández sigue la exposición junto al equipo de cómputo." loading="lazy" />
+          <figcaption>La serie nacional de depresión, observada contra pronosticada, en pantalla durante la exposición.</figcaption>
+        </figure>
+      </div>
+
+      <h3 class="subh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Quiénes firman el trabajo</h3>
+      <div class="people">
+        <div class="person">
+          <div class="role">Presenta</div>
+          <div class="name">Javier Rebull</div>
+          <p>Tecnológico de Monterrey. Llevó la consulta y el análisis en vivo, cómo se genera el pronóstico y la prueba de desempeño fuera de muestra.</p>
+        </div>
+        <div class="person">
+          <div class="role">Presenta</div>
+          <div class="name">Dra. Ruth Pérez-Hernández</div>
+          <p>Instituto Mexicano del Seguro Social. Abrió y cerró la ponencia: el problema, la definición de la plataforma, hasta dónde se transfiere y qué no resuelve todavía.</p>
+        </div>
+      </div>
+
+      <div class="callout">
+        <h3>Un trabajo de cuatro instituciones</h3>
+        <p class="authors" style="margin:0">Con <b>Juan Carlos Pérez-Nava</b>, <b>Luis Gerardo Sánchez-Salazar</b> y <b>Grettel Barceló-Alonso</b> (Tecnológico de Monterrey), <b>Lina Díaz-Castro</b> (Instituto Nacional de Psiquiatría Ramón de la Fuente Muñiz) y <b>Silvia Magali Cuadra-Hernández</b> (Instituto Nacional de Salud Pública).</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- EL AUDITORIO -->
+  <section>
+    <div class="wrap">
+      <div class="label">El auditorio</div>
+      <h2>Cuatro idiomas en la misma sala</h2>
+      <p>El aforo fue <strong>internacional</strong>, como corresponde a una asociación latina: en la sesión y en los pasillos se hablaba <strong>francés, español, italiano y portugués</strong>, y a menudo los cuatro en la misma conversación. Las diapositivas iban en francés y la voz en español precisamente por eso.</p>
+      <p>Y a pesar de las posibles barreras lingüísticas, <strong>el mensaje pasó</strong>: qué hace la plataforma, sobre qué datos, con qué evidencia, y —lo que más interesó— <strong>qué impacto social puede tener</strong> que un sistema de salud sepa en septiembre lo que va a ocurrir en enero. El intercambio con colegas de otros países no esperó al final de la sesión.</p>
+      <figure>
+        <img src="Reports/calass/calass_intercambio.jpg" alt="Al terminar la exposición, un congresista se acerca al equipo de cómputo a conversar con la Dra. Ruth Pérez-Hernández mientras Javier Rebull señala la gráfica proyectada." loading="lazy" />
+        <figcaption>El intercambio con colegas de otros países no esperó al final de la sesión.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- LO QUE NOS LLEVAMOS -->
+  <section>
+    <div class="wrap">
+      <div class="label">Lo que nos llevamos</div>
+      <h2>Felicitaciones, y una lista de cosas por hacer</h2>
+      <p>El equipo <strong>recibió felicitaciones por el trabajo</strong> al terminar la sesión y en los días siguientes del congreso. Pero lo que vuelve a México con nosotros no es el aplauso: son las <strong>experiencias, preguntas y contactos</strong> que enriquecen el trabajo. Un congreso donde se discuten sistemas de salud de varios países devuelve, en tres días, comparaciones que no se consiguen leyendo.</p>
+      <figure style="max-width:620px">
+        <img src="Reports/calass/calass_gafete.jpg" alt="Gafete de participante del CALASS 2026 a nombre de Javier Augusto Rebull Saucedo, México, con los logotipos del CReSP, la École de santé publique de l’Université de Montréal y la ALASS." loading="lazy" />
+        <figcaption>El gafete del congreso: CReSP, École de santé publique de l’Université de Montréal y ALASS. México, en el programa.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- REFERENCIAS -->
+  <section>
+    <div class="wrap">
+      <div class="label">Fuentes</div>
+      <h2>Enlaces oficiales</h2>
+      <p>Sitios oficiales de la asociación y del congreso.</p>
+      <ul class="refs">
+        <li>
+          <span class="rtag">Sitio oficial del congreso</span>
+          <div class="rt">CALASS 2026 · XXXVI Congreso de la ALASS</div>
+          <div class="rd">«Prévention en santé et efficience dans l’organisation des soins : défis et innovation dans les systèmes de santé». Montréal, 27 a 29 de agosto de 2026, con la École de santé publique de l’Université de Montréal como anfitriona.</div>
+          <a href="https://alass.org/calass-2026.php" target="_blank" rel="noopener">alass.org · CALASS 2026</a>
+        </li>
+        <li>
+          <span class="rtag">La asociación</span>
+          <div class="rt">ALASS — Association Latine pour l’Analyse des Systèmes de Santé</div>
+          <div class="rd">Red internacional dedicada al análisis de los sistemas de salud, con cuatro lenguas de trabajo y un congreso anual desde 1990.</div>
+          <a href="https://alass.org/" target="_blank" rel="noopener">alass.org</a>
+        </li>
+        <li>
+          <span class="rtag">La plataforma</span>
+          <div class="rt">Lo que se presentó, abierto</div>
+          <div class="rd">La galería de pronósticos y el tablero que se proyectaron en Montréal están publicados y son consultables por cualquiera.</div>
+          <a href="Reports/index.html">Ver la galería de pronósticos</a>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    <div class="wrap">
+      <div class="t">EpiForecast-MX · IMSS 2026</div>
+      <div class="s">Inteligencia epidemiológica multi-modelo · Tecnológico de Monterrey</div>
+    </div>
+  </footer>
+
+  <!-- Lightbox para ampliar imágenes -->
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <button class="lb-close" aria-label="Cerrar">&times;</button>
+    <img id="lb-img" src="" alt="" />
+    <div class="lb-cap" id="lb-cap"></div>
+  </div>
+  <script>
+    (function () {
+      const lb = document.getElementById('lightbox');
+      const lbImg = document.getElementById('lb-img');
+      const lbCap = document.getElementById('lb-cap');
+      const openLb = (src, alt) => {
+        lbImg.src = src; lbImg.alt = alt || ''; lbCap.textContent = alt || '';
+        lb.classList.add('open'); lb.setAttribute('aria-hidden', 'false');
+      };
+      const closeLb = () => {
+        lb.classList.remove('open'); lb.setAttribute('aria-hidden', 'true'); lbImg.src = '';
+      };
+      document.addEventListener('click', (e) => {
+        const img = e.target.closest('figure img');
+        if (img) { openLb(img.currentSrc || img.src, img.alt); return; }
+        if (e.target.closest('.lightbox')) closeLb();
+      });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLb(); });
+    })();
+  </script>
+  <script>
+    function toggleMobileNav(btn) {
+      const mob = document.getElementById('navMobile');
+      const open = mob.classList.toggle('show');
+      const trigger = btn || document.querySelector('.nav-hamburger');
+      if (trigger) {
+        trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+        trigger.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+      }
+    }
+    // Close mobile nav on link click
+    document.querySelectorAll('.nav-mobile-items a').forEach(a => {
+      a.addEventListener('click', () => {
+        document.getElementById('navMobile').classList.remove('show');
+        const trigger = document.querySelector('.nav-hamburger');
+        if (trigger) {
+          trigger.setAttribute('aria-expanded', 'false');
+          trigger.setAttribute('aria-label', 'Abrir menú');
+        }
+      });
+    });
+
+    // Sync aria-expanded on desktop hover-driven dropdowns
+    document.querySelectorAll('.nav-group').forEach(group => {
+      const toggle = group.querySelector('.nav-group-toggle');
+      if (!toggle) return;
+      const sync = (state) => toggle.setAttribute('aria-expanded', state ? 'true' : 'false');
+      group.addEventListener('mouseenter', () => sync(true));
+      group.addEventListener('mouseleave', () => sync(false));
+      group.addEventListener('focusin', () => sync(true));
+      group.addEventListener('focusout', () => sync(false));
+    });
+
+    // Counter animation
+    function animateCounter(el) {
+      const target = parseFloat(el.getAttribute('data-target'));
+      const suffix = el.getAttribute('data-suffix') || '';
+      const duration = 2000;
+      const start = performance.now();
+
+      function update(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        let current;
+        if (Number.isInteger(target)) {
+          current = Math.round(target * eased);
+        } else {
+          current = (target * eased).toFixed(1);
+        }
+        el.textContent = current.toLocaleString() + suffix;
+        if (progress < 1) requestAnimationFrame(update);
+        else el.textContent = target.toLocaleString() + suffix;
+      }
+      requestAnimationFrame(update);
+    }
+
+    // Observe hero stats for counter trigger
+    const heroStats = document.getElementById('heroStats');
+    if (heroStats) {
+      const counterObs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            heroStats.querySelectorAll('[data-target]').forEach(animateCounter);
+            counterObs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.3 });
+      counterObs.observe(heroStats);
+    }
+
+    // Also animate scope stats
+    document.querySelectorAll('.scope-stat-value[data-target]').forEach(el => {
+      const scopeObs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            animateCounter(entry.target);
+            scopeObs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.3 });
+      scopeObs.observe(el);
+    });
+  </script>
+</body>
+</html>

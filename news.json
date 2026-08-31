@@ -1,6 +1,24 @@
 {
-    "_generated": "2026-08-18",
+    "_generated": "2026-08-31",
     "items": [
+        {
+            "date": "27 de agosto de 2026",
+            "iso": "2026-08-27",
+            "type": "calass",
+            "tag": "Internacional",
+            "featured": true,
+            "title": "EpiForecast-MX se presentó en el CALASS 2026, en Montréal",
+            "summary": "La Dra. Ruth Pérez-Hernández y Javier Rebull expusieron la Comunicación 75 ante la ALASS, en la Université de Montréal, con la sala hablando cuatro idiomas.",
+            "body": [
+                "El jueves <strong style=\"color:var(--cream)\">27 de agosto de 2026</strong> EpiForecast-MX expuso en el <strong style=\"color:var(--cream)\">XXXVI Congreso de la ALASS (CALASS 2026)</strong>, celebrado en la <strong style=\"color:var(--cream)\">Université de Montréal</strong>. La <strong style=\"color:var(--cream)\">Dra. Ruth Pérez-Hernández</strong> (IMSS) y <strong style=\"color:var(--cream)\">Javier Rebull</strong> (Tecnológico de Monterrey) presentaron la <strong style=\"color:var(--cream)\">Comunicación 75</strong> en la sesión 4.1, «La IA para la gestión de los servicios», con diapositivas en francés y voz en español.",
+                "El aforo fue internacional: en la sala se hablaba <strong style=\"color:var(--cream)\">francés, español, italiano y portugués</strong>. A pesar de las posibles barreras lingüísticas, el mensaje del proyecto y su <strong style=\"color:var(--cream)\">impacto social</strong> llegaron. El equipo fue felicitado por el trabajo y volvió con experiencias, preguntas y contactos que enriquecen lo que sigue."
+            ],
+            "link": {
+                "href": "calass.html",
+                "text": "Ver la crónica y las fotos",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
         {
             "date": "18 de agosto de 2026",
             "iso": "2026-08-18",
