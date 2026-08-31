@@ -341,7 +341,7 @@
   <!-- Lightbox para ampliar imágenes -->
   <div class="lightbox" id="lightbox" aria-hidden="true">
     <button class="lb-close" aria-label="Cerrar">&times;</button>
-    <img id="lb-img" src="" alt="" />
+    <img id="lb-img" alt="" />
     <div class="lb-cap" id="lb-cap"></div>
   </div>
   <script>
@@ -354,7 +354,10 @@
         lb.classList.add('open'); lb.setAttribute('aria-hidden', 'false');
       };
       const closeLb = () => {
-        lb.classList.remove('open'); lb.setAttribute('aria-hidden', 'true'); lbImg.src = '';
+        // `src = ''` NO vacia la imagen: un src vacio resuelve a la URL del documento, asi que
+        // el navegador vuelve a pedir la propia pagina como si fuera una imagen. Se quita el
+        // atributo. Por lo mismo el <img> del lightbox nace SIN src.
+        lb.classList.remove('open'); lb.setAttribute('aria-hidden', 'true'); lbImg.removeAttribute('src');
       };
       document.addEventListener('click', (e) => {
         const img = e.target.closest('figure img');
