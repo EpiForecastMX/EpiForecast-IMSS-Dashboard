@@ -4,6 +4,11 @@
 
 Sitio en vivo: [epiforecast.mx](https://epiforecast.mx/)
 
+Estado verificado el 1-sep-2026: `main@5f8666dc`, desplegado y comprobado por contenido
+servido. El comparador conserva el motor por padecimiento, Netlify ejecuta ambos gates de
+deploy y la portada ya no descarga el snapshot histórico `bento.json`. La rama
+`fix/frontend-deudas` sigue local y remota, aunque su punta es ancestro de `main`.
+
 ---
 
 ---
