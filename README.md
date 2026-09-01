@@ -22,7 +22,8 @@ Sitio en vivo: [epiforecast.mx](https://epiforecast.mx/)
 ### Contrato de cifras publicas
 
 Las cuatro cifras de arriba estan **congeladas** y hay un gate que lo comprueba en cada
-despliegue (`npm run cifras:verify`, invocado desde `netlify.toml` **antes** de `rag:ci`).
+despliegue (`npm run deploy:verify`, invocado desde `netlify.toml`, ejecuta siempre
+`cifras:verify` y `rag:ci` y falla si cualquiera falla).
 
 **Prohibidas:** `435` (contaba dos veces las tres series `Dengue - Nacional`, una por motor),
 `102`, `145` por sexo y `15` nacionales. Si alguna reaparece, el despliegue falla.

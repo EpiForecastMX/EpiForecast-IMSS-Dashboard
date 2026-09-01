@@ -13,6 +13,7 @@ import { renderMexicoMap } from './mexico-map.js?v=3';
 import { renderTimelapse } from './timelapse.js?v=3';
 import { renderSemaforo } from './semaforo.js?v=3';
 import { renderComparador } from './comparador.js?v=3';
+import { buildComparadorState } from './comparador_data.js?v=1';
 import { initSTT, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking, toggleMute, isTTSEnabled, onSpeakingStateChange } from './voice.js?v=3';
 
 // ---------------------------------------------------------------------------
@@ -1926,23 +1927,8 @@ function buildComparador(data, compareData) {
   if (!compareData || compareData.length !== 2) return null;
   const [a, b] = compareData;
 
-  function buildState(c) {
-    const smapes = c.models.filter(m => m.smape != null).map(m => m.smape);
-    const avgSmape = smapes.length ? Math.round(smapes.reduce((a, v) => a + v, 0) / smapes.length * 10) / 10 : null;
-    const motors = {};
-    c.models.forEach(m => { const mot = m.motor || m.modelo || '?'; motors[mot] = (motors[mot] || 0) + 1; });
-    const topMotor = Object.entries(motors).sort((a, b) => b[1] - a[1])[0];
-    const pads = {};
-    c.models.forEach(m => {
-      if (!pads[m.pad]) pads[m.pad] = { casos: 0, smape: null, motor: '?' };
-      pads[m.pad].casos += m.casos || 0;
-      if (m.smape != null) pads[m.pad].smape = m.smape;
-    });
-    return { name: c.estado, casos: c.total, smape: avgSmape, motor: topMotor ? topMotor[0] : '?', pads };
-  }
-
-  const stateA = buildState(a);
-  const stateB = buildState(b);
+  const stateA = buildComparadorState(a);
+  const stateB = buildComparadorState(b);
   const winner = stateA.casos > stateB.casos ? 'A' : stateA.casos < stateB.casos ? 'B' : 'tie';
 
   return {
