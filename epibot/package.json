@@ -7,17 +7,18 @@
   "scripts": {
     "test": "npm run test:cases:verify && node tests/run_tests.js && npm run test:unit",
     "test:cases:verify": "node tests/generate_tests.js --check",
-    "test:unit": "node --test tests/test_dispatcher_trace.mjs tests/test_entities.mjs tests/test_fixture_verify.mjs tests/test_precedencia.mjs tests/test_rag_index.mjs tests/test_ranking.mjs tests/test_runner_gate.mjs",
+    "test:unit": "node --test tests/test_comparador_data.mjs tests/test_dispatcher_trace.mjs tests/test_entities.mjs tests/test_fixture_verify.mjs tests/test_landing_debt.mjs tests/test_precedencia.mjs tests/test_rag_index.mjs tests/test_ranking.mjs tests/test_runner_gate.mjs tests/test_verify_deploy.mjs",
     "test:gen": "node tests/generate_tests.js",
     "rag:build": "node scripts/build_rag_index.mjs",
     "rag:eval": "node scripts/rag_eval.mjs",
     "rag:eval:quality": "node scripts/rag_eval_quality.mjs",
     "rag:verify": "node scripts/rag_verify.mjs",
     "rag:ci": "if [ -n \"$GEMINI_API_KEY\" ]; then npm run rag:build; else echo 'Aviso: sin GEMINI_API_KEY no se reconstruye el indice; se verifica el commiteado.'; fi && npm run rag:verify",
-    "check": "node --check js/app.js && node --check js/kb.js && node --check js/entities.js && node --check netlify/functions/rag.mjs && node --check scripts/build_rag_index.mjs && node --check scripts/lib/corpus.mjs && node --check scripts/lib/rag_index.mjs && node --check scripts/rag_eval.mjs && node --check scripts/rag_verify.mjs && node --check scripts/rag_eval_quality.mjs && node --check scripts/lib/candidate.mjs && node --check scripts/lib/candidate_view.mjs && node --check scripts/lib/installer.mjs && node --check scripts/lib/publication_view.mjs && node --check scripts/rag_staging.mjs && node --check js/point_only.js && npm test && npm run test:candidate && npm run rag:verify",
+    "check": "node --check js/app.js && node --check js/kb.js && node --check js/entities.js && node --check js/comparador_data.js && node --check netlify/functions/rag.mjs && node --check scripts/build_rag_index.mjs && node --check scripts/lib/corpus.mjs && node --check scripts/lib/rag_index.mjs && node --check scripts/rag_eval.mjs && node --check scripts/rag_verify.mjs && node --check scripts/rag_eval_quality.mjs && node --check scripts/lib/candidate.mjs && node --check scripts/lib/candidate_view.mjs && node --check scripts/lib/installer.mjs && node --check scripts/lib/publication_view.mjs && node --check scripts/rag_staging.mjs && node --check scripts/verify_deploy.mjs && node --check js/point_only.js && npm test && npm run test:candidate && npm run rag:verify",
     "test:candidate": "node --test tests/test_candidate_staging.mjs tests/test_candidate_status.mjs tests/test_installer.mjs",
     "rag:staging": "node scripts/rag_staging.mjs",
     "cifras:verify": "node scripts/cifras_verify.mjs",
+    "deploy:verify": "node scripts/verify_deploy.mjs",
     "cifras:test": "node scripts/lib/cifras_contrato.test.mjs"
   },
   "dependencies": {

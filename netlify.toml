@@ -10,7 +10,7 @@
 # Vive aquí y no dentro de `rag:ci` porque aquella cadena tiene un contrato propio y
 # probado: sin clave NO construye pero SÍ verifica el índice commiteado, y anteponerle
 # un paso que puede fallar dejaría esa verificación sin correr (el falso verde R68-P0).
-command = "cd epibot && npm install && npm run cifras:test && npm run cifras:verify && npm run rag:ci"
+command = "cd epibot && npm install && npm run cifras:test && npm run deploy:verify"
 
 [functions]
   node_bundler = "esbuild"
