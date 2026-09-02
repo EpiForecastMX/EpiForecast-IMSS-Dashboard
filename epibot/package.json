@@ -7,7 +7,7 @@
   "scripts": {
     "test": "npm run test:cases:verify && node tests/run_tests.js && npm run test:unit",
     "test:cases:verify": "node tests/generate_tests.js --check",
-    "test:unit": "node --test tests/test_comparador_data.mjs tests/test_dispatcher_trace.mjs tests/test_entities.mjs tests/test_fixture_verify.mjs tests/test_landing_debt.mjs tests/test_precedencia.mjs tests/test_rag_index.mjs tests/test_ranking.mjs tests/test_runner_gate.mjs tests/test_verify_deploy.mjs",
+    "test:unit": "node --test tests/test_comparador_data.mjs tests/test_dispatcher_trace.mjs tests/test_entities.mjs tests/test_fixture_verify.mjs tests/test_banner_estatico.mjs tests/test_landing_debt.mjs tests/test_precedencia.mjs tests/test_rag_index.mjs tests/test_ranking.mjs tests/test_runner_gate.mjs tests/test_verify_deploy.mjs",
     "test:gen": "node tests/generate_tests.js",
     "rag:build": "node scripts/build_rag_index.mjs",
     "rag:eval": "node scripts/rag_eval.mjs",

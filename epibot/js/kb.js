@@ -18,7 +18,7 @@ function isNeuro(p) { return NEURO_PADS.includes(p); }
 
 // Version de los datos para cache-bust estable (evita re-descargar 1.3 MB por visita).
 // Subir esta constante cuando cambie knowledge.json / zoom_series.json.
-const DATA_VERSION = '20260825';
+const DATA_VERSION = '20260826';
 
 export async function loadKnowledge() {
   if (DATA) return DATA;

@@ -15,6 +15,7 @@ import { buildChunks, KB_DIR } from './lib/corpus.mjs';
 import {
   problemasDeCifras,
   problemasDeKnowledge,
+  problemasDelBannerEstatico,
   problemasDeSuperficies,
   VOCABULARIO,
 } from './lib/cifras_contrato.mjs';
@@ -49,6 +50,18 @@ const sup = problemasDeSuperficies(
   (f) => readFileSync(f, 'utf8')
 );
 problemas.push(...sup.problemas);
+
+// El fallback estático del banner de novedades debe decir lo mismo que news.json.
+try {
+  const banner = problemasDelBannerEstatico(
+    readFileSync(resolve(RAIZ_PUBLICADA, 'index.html'), 'utf8'),
+    JSON.parse(readFileSync(resolve(RAIZ_PUBLICADA, 'news.json'), 'utf8'))
+  );
+  problemas.push(...banner);
+  console.log(`  banner estático de novedades: ${banner.length ? 'DESALINEADO' : 'alineado con news.json'}`);
+} catch (e) {
+  problemas.push(`no se pudo contrastar el banner estático: ${e.message}`);
+}
 console.log(
   `  superficie: ${sup.revisados} archivos publicados revisados ` +
     `(${sup.exentos} regiones no leidas por el publico quedaron fuera: ` +

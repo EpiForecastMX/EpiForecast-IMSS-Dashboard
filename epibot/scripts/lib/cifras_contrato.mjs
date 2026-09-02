@@ -319,3 +319,75 @@ export function problemasDeSuperficies(raiz, listar, leer) {
   }
   return { problemas, revisados, exentos };
 }
+
+// ── Fallback estático del banner de novedades ─────────────────────────────────────────
+// `index.html` lleva un banner estático (`#newsBannerRow`) que se ve cuando falla el fetch
+// de `news.json`; el JS lo sobreescribe con items[0] como lead e items[1..2] como minis.
+// Si el generador deja el estático desalineado (W33 salió con titular del CALASS, fecha y
+// subtítulo de W33, 2-sep-2026), el sitio miente justo cuando más importa. El gate exige
+// que estático y `news.json` digan lo mismo.
+const desent = (s) =>
+  String(s == null ? '' : s)
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s+/g, ' ')
+    .trim();
+
+export function bannerEstatico(indexHtml) {
+  const m = indexHtml.match(
+    /<div class="news-banner-row" id="newsBannerRow">([\s\S]*?)\n {8}<\/div>/
+  );
+  if (!m) return null;
+  const bloque = m[1];
+  const iMinis = bloque.indexOf('news-mini-list');
+  const lead = iMinis >= 0 ? bloque.slice(0, iMinis) : bloque;
+  const minis = iMinis >= 0 ? bloque.slice(iMinis) : '';
+  const uno = (re, txt) => {
+    const r = txt.match(re);
+    return r ? desent(r[1]) : null;
+  };
+  return {
+    lead: {
+      title: uno(/<div class="news-lead-title">([\s\S]*?)<\/div>/, lead),
+      date: uno(/<span class="news-date">([\s\S]*?)<\/span>/, lead),
+      tag: uno(/<span class="news-tag news-tag--[^"]*">([\s\S]*?)<\/span>/, lead),
+      type: uno(/<span class="news-tag news-tag--([^"]*)">/, lead),
+    },
+    minis: [...minis.matchAll(/<span class="news-mini-title">([\s\S]*?)<\/span>/g)].map((r) =>
+      desent(r[1])
+    ),
+  };
+}
+
+export function problemasDelBannerEstatico(indexHtml, news) {
+  const problemas = [];
+  const items = (news && Array.isArray(news.items) ? news.items : []).slice(0, 3);
+  if (!items.length) return ['news.json sin items: no hay con qué contrastar el banner estático'];
+  const est = bannerEstatico(indexHtml);
+  if (!est) return ['index.html sin el bloque estático #newsBannerRow'];
+  const lead = items[0];
+  for (const [campo, esperado] of [
+    ['title', lead.title],
+    ['date', lead.date],
+    ['tag', lead.tag],
+    ['type', lead.type || 'datos'],
+  ]) {
+    if (est.lead[campo] !== desent(esperado)) {
+      problemas.push(
+        `banner estático de index.html: lead.${campo} dice «${est.lead[campo]}» y news.json[0] ` +
+          `dice «${desent(esperado)}»`
+      );
+    }
+  }
+  const esperados = items.slice(1).map((it) => desent(it.title));
+  if (JSON.stringify(est.minis) !== JSON.stringify(esperados)) {
+    problemas.push(
+      `banner estático de index.html: minis ${JSON.stringify(est.minis)} ≠ news.json[1..2] ` +
+        `${JSON.stringify(esperados)}`
+    );
+  }
+  return problemas;
+}
