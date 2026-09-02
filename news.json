@@ -1,6 +1,23 @@
 {
-    "_generated": "2026-08-31",
+    "_generated": "2026-09-02",
     "items": [
+        {
+            "date": "2 de septiembre de 2026",
+            "iso": "2026-09-02",
+            "type": "datos",
+            "tag": "Datos",
+            "featured": false,
+            "title": "Ya contamos con la semana epidemiológica 33 de 2026",
+            "body": [
+                "Se integró el Boletín SINAVE hasta la <strong style=\"color:var(--cream)\">semana 33 de 2026</strong> en los cuatro padecimientos. Sobre las semanas transcurridas del año, el total pronosticado se desvía del realmente observado en <strong style=\"color:var(--cream)\">+2.9&#37; en Depresión</strong>, <strong style=\"color:var(--cream)\">+8.8&#37; en Parkinson</strong>, <strong style=\"color:var(--cream)\">&#8722;34.9&#37; en Alzheimer</strong> y <strong style=\"color:var(--cream)\">+17.4&#37; en Dengue</strong>. Las series de conteo bajo (Alzheimer, Parkinson) muestran mayor variación entre recalibraciones; el acumulado se ajusta con cada reentrenamiento de modelos.",
+                "Precisión de la serie nacional por padecimiento (<strong style=\"color:var(--cream)\">SMAPE / MASE</strong>): Depresión <strong style=\"color:var(--cream)\">8.7&#37; / 0.59</strong>, Parkinson <strong style=\"color:var(--cream)\">16.2&#37; / 0.55</strong>, Alzheimer <strong style=\"color:var(--cream)\">17.4&#37; / 0.45</strong> y Dengue <strong style=\"color:var(--cream)\">23.1&#37; / 0.50</strong>. El MASE por debajo de 1 indica que el modelo supera a la persistencia estacional (repetir el mismo periodo del año anterior)."
+            ],
+            "link": {
+                "href": "Reports/index.html",
+                "text": "Ver real vs pronóstico en la galería",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
         {
             "date": "27 de agosto de 2026",
             "iso": "2026-08-27",
