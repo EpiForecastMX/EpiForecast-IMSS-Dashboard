@@ -1,6 +1,25 @@
 {
-    "_generated": "2026-09-02",
+    "_generated": "2026-09-03",
     "items": [
+        {
+            "date": "3 de septiembre de 2026",
+            "iso": "2026-09-03",
+            "type": "wcp",
+            "tag": "Internacional",
+            "featured": true,
+            "title": "EpiForecast-MX va al Congreso Mundial de Psiquiatría, en Estocolmo",
+            "summary": "El E-Poster 3134 fue aceptado en el 26.º Congreso Mundial de Psiquiatría de la WPA, del 23 al 26 de septiembre en Estocolmo.",
+            "body": [
+                "El <strong style=\"color:var(--cream)\">E-Poster 3134</strong> fue aceptado en el <strong style=\"color:var(--cream)\">26.º Congreso Mundial de Psiquiatría</strong> de la World Psychiatric Association, que se celebra del <strong style=\"color:var(--cream)\">23 al 26 de septiembre de 2026</strong> en Estocolmo. Presenta el pronóstico de incidencia notificada de depresión, Alzheimer y Parkinson con inteligencia artificial sobre datos públicos del SINAVE.",
+                "La afirmación central es de validación prospectiva: el archivo de pronóstico se escribió el <strong style=\"color:var(--cream)\">5 de junio de 2026</strong> y ocho de las semanas que se puntúan <strong style=\"color:var(--cream)\">todavía no habían ocurrido</strong> entonces. En depresión el error fue de <strong style=\"color:var(--cream)\">5.0&#37;</strong> en esas ocho semanas y de <strong style=\"color:var(--cream)\">8.7&#37;</strong> sobre las veinticinco posteriores al corte de entrenamiento.",
+                "La página del congreso publica las dos ventanas juntas, el desglose por sexo, el mapa por entidad —donde la mediana estatal es muy superior al acierto nacional— y lo que el trabajo deliberadamente no afirma."
+            ],
+            "link": {
+                "href": "wcp2026.html",
+                "text": "Ver el póster y las cifras",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
         {
             "date": "2 de septiembre de 2026",
             "iso": "2026-09-02",

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 146" width="300pt" height="146pt">
+<rect width="300" height="146" fill="#FBF9F6"/>
+<text x="0.0" y="12.0" font-family="'Times New Roman', Times, serif" font-size="13" font-weight="bold" fill="#14202E" text-anchor="start">By sex, 25 weeks</text>
+<line x1="96.0" y1="26" x2="96.0" y2="100" stroke="#E2DBD0" stroke-width="0.8"/>
+<text x="96.0" y="112.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" fill="#5C6674" text-anchor="middle">0%</text>
+<line x1="150.2" y1="26" x2="150.2" y2="100" stroke="#E2DBD0" stroke-width="0.8"/>
+<text x="150.2" y="112.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" fill="#5C6674" text-anchor="middle">10%</text>
+<line x1="204.5" y1="26" x2="204.5" y2="100" stroke="#E2DBD0" stroke-width="0.8"/>
+<text x="204.5" y="112.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" fill="#5C6674" text-anchor="middle">20%</text>
+<text x="0.0" y="44.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" fill="#14202E" text-anchor="start">Depression</text>
+<line x1="143.8" y1="40" x2="144.9" y2="40" stroke="#CFC7BA" stroke-width="2.4" stroke-linecap="round"/>
+<circle cx="143.8" cy="40" r="4.5" fill="#14202E"/>
+<circle cx="144.9" cy="40" r="4.5" fill="#A8480F"/>
+<text x="135.8" y="44.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#14202E" text-anchor="end">8.8%</text>
+<text x="152.9" y="44.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#A8480F" text-anchor="start">9.0%</text>
+<text x="0.0" y="70.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" fill="#14202E" text-anchor="start">Parkinson</text>
+<line x1="163.3" y1="66" x2="175.4" y2="66" stroke="#CFC7BA" stroke-width="2.4" stroke-linecap="round"/>
+<circle cx="163.3" cy="66" r="4.5" fill="#14202E"/>
+<circle cx="175.4" cy="66" r="4.5" fill="#A8480F"/>
+<text x="155.3" y="70.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#14202E" text-anchor="end">12.4%</text>
+<text x="183.4" y="70.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#A8480F" text-anchor="start">14.6%</text>
+<text x="0.0" y="96.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" fill="#14202E" text-anchor="start">Alzheimer</text>
+<line x1="170.5" y1="92" x2="229.3" y2="92" stroke="#CFC7BA" stroke-width="2.4" stroke-linecap="round"/>
+<circle cx="229.3" cy="92" r="4.5" fill="#14202E"/>
+<circle cx="170.5" cy="92" r="4.5" fill="#A8480F"/>
+<text x="162.5" y="96.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#A8480F" text-anchor="end">13.7%</text>
+<text x="237.3" y="96.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#14202E" text-anchor="start">24.6%</text>
+<circle cx="4" cy="132" r="4.5" fill="#14202E"/>
+<text x="14.0" y="136.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#14202E" text-anchor="start">men</text>
+<circle cx="62" cy="132" r="4.5" fill="#A8480F"/>
+<text x="72.0" y="136.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#A8480F" text-anchor="start">women</text>
+<text x="300.0" y="136.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" fill="#5C6674" text-anchor="end">not additive</text>
+</svg>
