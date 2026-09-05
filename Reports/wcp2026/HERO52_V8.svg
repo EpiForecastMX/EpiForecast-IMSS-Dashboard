@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 570 140" width="570pt" height="140pt">
+<rect width="570" height="140" fill="#FBF9F6"/>
+<rect x="266.0" y="40" width="212.0" height="60" fill="#F4F1EA"/>
+<rect x="69.7" y="40" width="196.3" height="60" fill="#FCFAF6"/>
+<rect x="211.0" y="40" width="55.0" height="60" fill="#F0EBE3"/>
+<line x1="69.7" y1="40" x2="69.7" y2="100" stroke="#5C6674" stroke-width="0.9" stroke-dasharray="3 3"/>
+<line x1="211.0" y1="40" x2="211.0" y2="100" stroke="#5C6674" stroke-width="0.9"/>
+<line x1="266.0" y1="40" x2="266.0" y2="100" stroke="#5C6674" stroke-width="0.9"/>
+<line x1="54" y1="100.0" x2="478" y2="100.0" stroke="#DED7CC" stroke-width="0.9"/>
+<line x1="54" y1="69.5" x2="478" y2="69.5" stroke="#EAE4DA" stroke-width="0.7"/>
+<text x="48.0" y="73.5" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" fill="#5C6674" text-anchor="end">2,500</text>
+<line x1="54" y1="56.3" x2="478" y2="56.3" stroke="#EAE4DA" stroke-width="0.7"/>
+<text x="48.0" y="60.3" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" fill="#5C6674" text-anchor="end">3,000</text>
+<line x1="54" y1="43.0" x2="478" y2="43.0" stroke="#EAE4DA" stroke-width="0.7"/>
+<text x="48.0" y="47.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" fill="#5C6674" text-anchor="end">3,500</text>
+<polyline points="54.0,61.0 61.9,67.0 69.7,67.2 77.6,56.9 85.4,55.2 93.3,54.0 101.1,54.7 109.0,54.9 116.8,67.5 124.7,50.4 132.5,73.7 140.4,56.8 148.2,54.5 156.1,54.3 163.9,61.8 171.8,66.7 179.6,52.4 187.5,48.1 195.3,45.9 203.2,43.7 211.0,51.7 218.9,46.2 226.7,58.7 234.6,55.5 242.4,50.0 250.3,60.3 258.1,55.9 266.0,54.0" fill="none" stroke="#123A5E" stroke-width="2.0" stroke-linejoin="round"/>
+<polyline points="77.6,57.0 85.4,52.8 93.3,48.2 101.1,45.6 109.0,47.2 116.8,49.0 124.7,54.0 132.5,59.8 140.4,64.4 148.2,65.3 156.1,60.8 163.9,59.4 171.8,61.5 179.6,62.3 187.5,59.4 195.3,57.8 203.2,56.4 211.0,55.8 218.9,54.8 226.7,56.0 234.6,57.6 242.4,58.2 250.3,57.7 258.1,56.9 266.0,57.0" fill="none" stroke="#A8480F" stroke-width="2.4" stroke-linejoin="round" stroke-dasharray="6 3"/>
+<polyline points="266.0,57.0 273.9,58.6 281.7,58.5 289.6,57.2 297.4,57.3 305.3,58.0 313.1,59.0 321.0,57.7 328.8,56.7 336.7,56.3 344.5,56.2 352.4,53.1 360.2,52.4 368.1,54.3 375.9,57.0 383.8,56.3 391.6,58.7 399.5,62.8 407.3,65.4 415.2,67.6 423.0,69.4 430.9,80.8 438.7,92.7 446.6,97.7 454.4,86.4 462.3,69.3 470.1,59.3 478.0,57.8" fill="none" stroke="#A8480F" stroke-width="2.2" stroke-linejoin="round" stroke-dasharray="6 3"/>
+<text x="262.0" y="45.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#123A5E" text-anchor="end">observed</text>
+<text x="483.0" y="61.8" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#A8480F" text-anchor="start">forecast</text>
+<text x="48.0" y="13.0" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="bold" fill="#14202E" text-anchor="start">National counts · 9 Feb 2026–1 Feb 2027</text>
+<text x="73.7" y="30.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#14202E" text-anchor="start">declared W6</text>
+<text x="238.5" y="30.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#A8480F" text-anchor="middle">8 wk written ahead</text>
+<text x="167.9" y="93.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#5C6674" text-anchor="middle">25 scored weeks (W7–W31)</text>
+<text x="372.0" y="132.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" fill="#5C6674" text-anchor="middle">forecast only — not evaluated</text>
+<text x="68.6" y="115.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" fill="#5C6674" text-anchor="middle">Feb 2026</text>
+<text x="168.4" y="115.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" fill="#5C6674" text-anchor="middle">May</text>
+<text x="271.6" y="115.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" fill="#5C6674" text-anchor="middle">Aug</text>
+<text x="374.8" y="115.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" fill="#5C6674" text-anchor="middle">Nov</text>
+<text x="478.0" y="115.0" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="bold" fill="#5C6674" text-anchor="end">Feb 2027</text>
+</svg>
