@@ -2,6 +2,10 @@
   "name": "epiforecast-mx-kb",
   "version": "1.0.0",
   "private": true,
+  "scripts": {
+    "test:wcp": "node --test tests/wcp*.test.mjs",
+    "check:wcp": "node --check Reports/wcp2026/wcp.mjs && node --check Reports/wcp2026/wcp-data.mjs && npm run test:wcp"
+  },
   "description": "EpiForecast-MX Knowledge Base - Sitio estatico con Netlify Functions",
   "dependencies": {
     "@google/generative-ai": "^0.21.0"
