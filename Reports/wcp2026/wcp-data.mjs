@@ -1,4 +1,4 @@
-export const ASSETS = 'Reports/wcp2026/2026-09-08-00567d59/';
+export const ASSETS = 'Reports/wcp2026/2026-09-08-8a0a9018/';
 export function initialLanguage(search = '') {
   return new URLSearchParams(search).get('lang') === 'es' ? 'es' : 'en';
 }
@@ -26,7 +26,7 @@ export function medianState(data) {
 }
 export function validateData(data) {
   const finite = a => Array.isArray(a) && a.every(v => Number.isFinite(v) && v >= 0);
-  if (data?.version !== '2026-09-08-00567d59' || data.national?.length !== 3 || data.states?.length !== 32) throw new Error('Unexpected study version');
+  if (data?.version !== '2026-09-08-8a0a9018' || data.national?.length !== 3 || data.states?.length !== 32) throw new Error('Unexpected study version');
   if (new Set(data.national.map(r => r.condition)).size !== 3 || !['depresion','parkinson','alzheimer'].every(k => data.national.some(r => r.condition === k))) throw new Error('Invalid conditions');
   for (const r of data.national) {
     if (![r.observations,r.forecasts,r.historical,r.model,r.lower,r.upper].every(finite)) throw new Error('Invalid series value');

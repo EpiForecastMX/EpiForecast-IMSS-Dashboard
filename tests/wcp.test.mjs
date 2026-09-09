@@ -7,7 +7,7 @@ import {createHash} from 'node:crypto';
 import {initialLanguage,metrics,validateData,sortedStates,medianState} from '../Reports/wcp2026/wcp-data.mjs';
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-const assets=resolve(root,'Reports/wcp2026/2026-09-08-00567d59');
+const assets=resolve(root,'Reports/wcp2026/2026-09-08-8a0a9018');
 const data=JSON.parse(readFileSync(resolve(assets,'data.json')));
 const html=readFileSync(resolve(root,'wcp2026.html'),'utf8');
 const app=readFileSync(resolve(root,'Reports/wcp2026/wcp.mjs'),'utf8');
@@ -39,10 +39,10 @@ test('metric zero pairs and unsupported windows fail predictably',()=>{
   assert.throws(()=>metrics(row,10));assert.throws(()=>metrics({...row,forecasts:[]},8));
 });
 test('both PDFs match their exact final poster hashes, metadata and links',()=>{
-  for(const [lang,expected] of Object.entries({en:'d1022ee10efeaaed8910cee12e8dc9516fdf6ef4c21bd91eeac781f131e7d318',es:'00567d598933b09952043dd7b45d131c06ee0961bbc8d003e547286b0e1c097a'})){
+  for(const [lang,expected] of Object.entries({en:'ec5ebd80e3c3f5293a69b1e97ece8b14ab9f0159628ca403cd609666f6e06b7a',es:'8a0a901896f2bb2ba8f7e192a0c876c83391df3133659335a54500d046865760'})){
     const p=data.pdfs[lang];assert.equal(p.sha256,expected);assert.equal(sha(resolve(assets,p.file)),expected);
     assert.match(html,new RegExp(`name="wcp-pdf-${lang}-sha256" content="${expected}"`));
-    assert.match(html,new RegExp(`href="Reports/wcp2026/2026-09-08-00567d59/${p.file}" download`));
+    assert.match(html,new RegExp(`href="Reports/wcp2026/2026-09-08-8a0a9018/${p.file}" download`));
   }
 });
 test('all local page assets and anchor links exist; no empty image src',()=>{
@@ -62,6 +62,32 @@ test('sex totals are descriptive, with a separate cumulative window',()=>{
   assert.match(html,/not forecasts, individual risk or predictive performance by sex/i);
   assert.match(html,/cumulative 2026 notifications through epidemiological week 31/);
   assert.match(html,/cumulative window differs from the 25-week evaluation/);
+});
+function assertVisibleSexWarning(page){
+  const card=page.match(/<article class="sex-card"[\s\S]*?<\/article>/)?.[0];
+  assert.ok(card);assert.match(card,/aria-describedby="sex-warning"/);
+  const warning=card.match(/<p id="sex-warning" class="sex-warning"[^>]*>[\s\S]*?<\/p>/)?.[0];
+  assert.ok(warning);assert.match(warning,/Different window and variable/);
+  assert.match(warning,/not directly comparable with the national forecast callout/);
+  assert.doesNotMatch(warning,/hidden|sr-only|display:none/);
+  assert.ok(card.indexOf(warning)<card.indexOf('class="sex-total"'));
+  assert.match(card,/Even when the weeks are aligned/);
+}
+test('sex warning precedes counts, is explicit and not folded into hidden details',()=>{
+  assertVisibleSexWarning(html);assert.match(css,/\.sex-card>p\.sex-warning\{font-size:15px/);
+  assert.match(app,/Otra ventana y variable/);assert.match(app,/Aun alineando las semanas/);
+});
+test('presentation negative: missing warning is rejected',()=>{
+  assert.throws(()=>assertVisibleSexWarning(html.replace(/<p id="sex-warning"[\s\S]*?<\/p>/,'')));
+});
+test('presentation negative: inverted comparability is rejected',()=>{
+  assert.throws(()=>assertVisibleSexWarning(html.replace('not directly comparable','directly comparable')));
+});
+test('home provides WCP links in desktop and mobile navigation',()=>{
+  const home=readFileSync(resolve(root,'index.html'),'utf8');
+  assert.ok((home.match(/href="wcp2026.html"/g)||[]).length>=2);
+  assert.match(home,/<ul class="nav-menu">[\s\S]*?href="wcp2026.html"/);
+  assert.match(home,/<div class="nav-mobile-items">[\s\S]*?href="wcp2026.html"/);
 });
 test('clinical caveats, selected-model caveat, and funding remain explicit',()=>{
   for(const s of ['not clinical incidence','not fully prospective','not uniform prospective out-of-sample validation','not the sum of the state forecasts','Benefits for services still need to be tested','No funding was received'])assert.ok(html.includes(s),s);

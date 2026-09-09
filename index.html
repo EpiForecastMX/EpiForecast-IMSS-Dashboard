@@ -1710,6 +1710,66 @@
     .news-link:hover { color: var(--gold); }
 
     /* Banner minimalista de novedades (landing): lo más fresco + enlace al archivo */
+    /* Congreso Mundial · consulta el póster ------------------------------ */
+    .wcp-bg { padding-top: 0; }
+    .wcp-card {
+      position: relative; border-radius: 18px; overflow: hidden;
+      border: 1px solid rgba(91,141,239,0.16);
+      background:
+        radial-gradient(760px 320px at 88% -20%, rgba(106,160,255,0.16), transparent 62%),
+        linear-gradient(180deg, #0E1424 0%, #0B1020 100%);
+    }
+    .wcp-ribbon { height: 3px; background: linear-gradient(90deg, #2B318B 0%, var(--accent) 55%, #ED4096 100%); }
+    .wcp-inner { display: flex; gap: 44px; align-items: center; padding: 34px 38px; }
+    .wcp-copy { flex: 1 1 auto; min-width: 0; }
+    .wcp-kicker {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 15px;
+      font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+      font-weight: 600; color: var(--ink-mut);
+    }
+    .wcp-kicker-live { color: #ED4096; }
+    .wcp-kicker-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--ink-mut); }
+    .wcp-copy h2 {
+      margin: 0 0 13px; font-family: var(--serif-head); font-weight: 400;
+      font-size: clamp(25px, 2.5vw, 34px); line-height: 1.2; color: var(--ink);
+    }
+    .wcp-copy p {
+      margin: 0 0 24px; font-family: var(--serif-body); font-size: 17px;
+      line-height: 1.6; color: var(--ink-soft); max-width: 610px;
+    }
+    .wcp-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .wcp-btn {
+      display: inline-flex; align-items: center; gap: 9px; min-height: 44px;
+      padding: 12px 20px; border-radius: 11px; background: var(--accent);
+      color: #0A0E18 !important; font-weight: 700; font-size: 14.5px; text-decoration: none;
+      border: 1px solid var(--accent); transition: transform .18s, background .18s;
+    }
+    .wcp-btn svg { width: 16px; height: 16px; }
+    .wcp-btn:hover { transform: translateY(-1px); background: #8FBBFF; color: #0A0E18 !important; }
+    .wcp-btn--ghost {
+      background: transparent; color: var(--ink) !important;
+      border: 1px solid var(--rule-strong); font-weight: 600;
+    }
+    .wcp-btn--ghost:hover { background: rgba(255,255,255,0.05); color: var(--ink) !important; }
+    .wcp-figure { width: 392px; flex: 0 0 auto; }
+    .wcp-thumb {
+      display: block; border-radius: 13px; overflow: hidden;
+      border: 1px solid rgba(91,141,239,0.20); box-shadow: 0 18px 46px rgba(0,0,0,0.42);
+    }
+    .wcp-thumb img { display: block; width: 100%; height: auto; }
+    .wcp-marks {
+      display: flex; align-items: center; gap: 14px; margin-top: 14px;
+      padding: 9px 13px; border-radius: 10px; background: #FFFFFF;
+    }
+    .wcp-marks img { display: block; height: 26px; width: auto; }
+    .wcp-marks .wcp-marks-wpa { height: 20px; margin-left: auto; }
+    @media (max-width: 860px) {
+      .wcp-inner { flex-direction: column; align-items: stretch; gap: 26px; padding: 26px 22px; }
+      .wcp-figure { width: 100%; }
+      .wcp-copy p { font-size: 16px; }
+      .wcp-actions .wcp-btn { flex: 1 1 auto; justify-content: center; }
+    }
+
     .news-banner {
       background: linear-gradient(135deg, rgba(36,49,79,0.45), rgba(20,28,46,0.35));
       border: 1px solid rgba(91,141,239,0.18);
@@ -2732,6 +2792,8 @@
           </div>
         </li>
 
+        <li class="nav-group"><a href="wcp2026.html" class="nav-group-toggle" lang="en">WCP 2026 · Poster</a></li>
+
         <!-- Metodología -->
         <li class="nav-group">
           <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Metodología <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
@@ -2794,6 +2856,7 @@
           <a href="EpiDashboard.html">Dashboard</a>
           <a href="Reports/index.html">Pronósticos</a>
           <a href="novedades.html">Novedades</a>
+          <a href="wcp2026.html" lang="en">WCP 2026 · Interactive poster</a>
           <a href="dengue.html">Dengue</a>
           <a href="epibot/index.html">EPI Chatbot</a>
         </div>
@@ -2875,6 +2938,49 @@
         <div class="edl-stat"><b>32</b><span>entidades + nacional</span></div>
         <div class="edl-stat"><b>52</b><span>semanas de horizonte</span></div>
         <div class="edl-stat"><b><span id="b-motor-pct">29</span>%</b><span>cuota del motor líder en la cohorte neuro, <span id="b-motor">DeepAR</span></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       CONGRESO MUNDIAL DE PSIQUIATRÍA · CONSULTA EL PÓSTER
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="wcp-bg" id="mundial" aria-labelledby="wcp-title">
+    <div class="section">
+      <div class="wcp-card reveal">
+        <div class="wcp-ribbon" aria-hidden="true"></div>
+        <div class="wcp-inner">
+          <div class="wcp-copy">
+            <div class="wcp-kicker">
+              <span class="wcp-kicker-live">Estamos en el Mundial</span>
+              <span class="wcp-kicker-dot" aria-hidden="true"></span>
+              <span>Estocolmo · 23–26 sep 2026</span>
+            </div>
+            <h2 id="wcp-title">Consulta el póster del Congreso Mundial de Psiquiatría</h2>
+            <p>El E-Poster 3134 se presenta en el 26.º Congreso Mundial de la WPA.
+               Está disponible en español e inglés, con sus métodos y datos abiertos.</p>
+            <div class="wcp-actions">
+              <a class="wcp-btn" href="wcp2026.html">Ver el póster
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1"
+                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg></a>
+              <a class="wcp-btn wcp-btn--ghost" href="wcp2026.html#evidence">Métodos y datos</a>
+            </div>
+          </div>
+          <div class="wcp-figure">
+            <a href="wcp2026.html" class="wcp-thumb">
+              <img src="Reports/wcp2026/marca/poster-portada.jpg"
+                   alt="E-Poster 3134 del Congreso Mundial de Psiquiatría"
+                   width="820" height="461" loading="lazy" decoding="async">
+            </a>
+            <div class="wcp-marks">
+              <img src="Reports/wcp2026/marca/wcp-lockup.png"
+                   alt="26.º Congreso Mundial de Psiquiatría" width="700" height="273" loading="lazy">
+              <img class="wcp-marks-wpa" src="Reports/wcp2026/marca/wpa.png"
+                   alt="World Psychiatric Association" width="480" height="189" loading="lazy">
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>

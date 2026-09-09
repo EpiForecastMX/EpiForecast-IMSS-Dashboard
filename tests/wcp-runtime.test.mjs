@@ -6,7 +6,7 @@ import {resolve,dirname} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const html=readFileSync(resolve(root,'wcp2026.html'),'utf8');
-const data=JSON.parse(readFileSync(resolve(root,'Reports/wcp2026/2026-09-08-00567d59/data.json')));
+const data=JSON.parse(readFileSync(resolve(root,'Reports/wcp2026/2026-09-08-8a0a9018/data.json')));
 let doc;
 class Element {
   constructor(tag='div'){this.tag=tag;this.children=[];this.dataset={};this.attrs={};this.listeners={};this.value='';this.hidden=false;this.disabled=true;this._html='';this._text='';this.style={setProperty(k,v){this[k]=v;}};this.classList={add(){},remove(){}};this.clientWidth=780;this.parentElement={};}
