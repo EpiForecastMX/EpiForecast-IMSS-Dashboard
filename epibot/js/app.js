@@ -6,6 +6,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
+import { UNCERTAINTY_LABEL } from './point_only.js?v=1';
 import { loadKnowledge, getStats, getData, answer } from './kb.js?v=106';
 import { detectEntities, norm } from './entities.js?v=31';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
@@ -2028,11 +2029,15 @@ function buildSeriesZoom(s, pad, estado, sexo) {
   const labels = s.d.map(iso => { const p = iso.split('-'); return `${p[1]}/${p[2].slice(0, 2)} ${p[0].slice(2)}`; });
   const lastRealIdx = s.r.reduce((acc, v, i) => (v != null ? i : acc), -1);
   const wk = s.last_real ? zoomIsoWeekApp(s.last_real) : null;
+  // Solo se dibuja el intervalo PROPIO del motor. `intervalo_disponible: false` significa que
+  // ese enfoque no produce intervalo (Ensemble y Stacking): antes se rellenaba con una banda
+  // empirica y el usuario veia una incertidumbre que nadie habia calculado.
   const hasBand = Array.isArray(s.hi) && s.hi.some(v => v != null);
+  const conIntervalo = s.intervalo_disponible !== false && hasBand;
   const datasets = [];
-  if (hasBand) {
-    // Banda de confianza: dataset superior rellena hacia el inferior (_lo). Ambos ocultos
-    // de leyenda/tooltip (prefijo '_'); muestran la incertidumbre del motor productivo.
+  if (conIntervalo) {
+    // Banda del motor: el dataset superior rellena hacia el inferior (_lo). Ambos ocultos
+    // de leyenda/tooltip (prefijo '_').
     datasets.push(
       { label: '_hi', data: s.hi, borderColor: 'transparent', backgroundColor: color + '22', pointRadius: 0, fill: '+1', tension: 0.3, order: 4 },
       { label: '_lo', data: s.lo, borderColor: 'transparent', backgroundColor: 'transparent', pointRadius: 0, fill: false, tension: 0.3, order: 4 },
@@ -2055,7 +2060,7 @@ function buildSeriesZoom(s, pad, estado, sexo) {
   );
   return {
     type: 'line',
-    title: `${dn(pad)} — ${estadoLbl} (${sexoLbl})  ·  real vs pronóstico${wk != null ? ' (sem ' + wk + ')' : ''}`,
+    title: `${dn(pad)} — ${estadoLbl} (${sexoLbl})  ·  real vs pronóstico${wk != null ? ' (sem ' + wk + ')' : ''}${conIntervalo ? '' : '  ·  ' + UNCERTAINTY_LABEL}`,
     labels, datasets,
     options: { scales: { x: { ticks: { maxRotation: 90, font: { size: 9 }, autoSkip: true, maxTicksLimit: 18 } }, y: { beginAtZero: true } } },
   };
