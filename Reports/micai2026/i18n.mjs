@@ -1,4 +1,4 @@
-export const VERSION = "1928e175e4";
+export const VERSION = "41c89b7221";
 export const I18N = {
  "en": {
   "skip": "Skip to content",
@@ -50,7 +50,7 @@ export const I18N = {
   "panel_window_B": "B · W19–W34",
   "panel_window_Bsens": "B-sens · W19–W32",
   "panel_window_C": "C · W03–W34",
-  "aria_home": "EpiForecast-MX home",
+  "aria_home": "E+ EpiForecast -MX, home",
   "aria_sections": "Sections",
   "aria_language": "Language",
   "col_archived": "Archived",
@@ -155,7 +155,7 @@ export const I18N = {
   "panel_window_B": "B · S19–S34",
   "panel_window_Bsens": "B-sens · S19–S32",
   "panel_window_C": "C · S03–S34",
-  "aria_home": "EpiForecast-MX, inicio",
+  "aria_home": "E+ EpiForecast -MX, inicio",
   "aria_sections": "Secciones",
   "aria_language": "Idioma",
   "col_archived": "Archivada",
