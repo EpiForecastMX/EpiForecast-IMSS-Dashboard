@@ -92,3 +92,16 @@ command = "cd epibot && npm install && npm run cifras:test && npm run deploy:ver
   for = "/Reports/*"
   [headers.values]
     Cache-Control = "public, max-age=86400"
+
+# MICAI 2026 (artículo 12): la página de mayo se sustituye por el sitio complementario de la ponencia.
+[[redirects]]
+  from = "/micai.html"
+  to = "/micai2026.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/micai"
+  to = "/micai2026.html"
+  status = 301
+  force = true
