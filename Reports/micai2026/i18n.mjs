@@ -1,4 +1,4 @@
-export const VERSION = "b21594064e";
+export const VERSION = "325e60615d";
 export const I18N = {
  "en": {
   "skip": "Skip to content",
@@ -14,6 +14,7 @@ export const I18N = {
   "independence": "Independent research; affiliations do not imply institutional endorsement.",
   "btn_explore": "Explore the follow-up",
   "btn_slides": "Slides (PDF)",
+  "btn_paper": "Paper (PDF)",
   "btn_code": "Code and data",
   "insight_eyebrow": "After the paper · editions W19–W34 of 2026",
   "insight_nat_dt": "National, general stratum (sMAPE)",
@@ -87,7 +88,9 @@ export const I18N = {
   "slides_en": "Slides, English",
   "slides_es": "Slides, Spanish",
   "paper_eyebrow": "The paper",
-  "paper_venue": "To appear in Advances in Soft Computing, MICAI 2026, Springer LNCS 17149. The full text will be available from the publisher.",
+  "paper_venue": "To appear in Advances in Soft Computing, MICAI 2026, Springer LNCS 17149. The accepted manuscript is available here; the Version of Record will be available from the publisher.",
+  "paper_dl": "Paper, accepted manuscript",
+  "paper_dl_meta": "Camera-ready, 20 pages, with Springer’s notice; not the Version of Record",
   "diffs_title": "How the talk updates the paper's analysis",
   "d1": "The talk treats the historical state DeepAR scores as training-fit evidence: the historical code skipped cross-validation for states and scored the full-series fit. The exact published runs are not independently linked.",
   "d2": "The spread across states is about 22 times (cumulative 2014–2025), not two orders of magnitude.",
@@ -119,6 +122,7 @@ export const I18N = {
   "independence": "Investigación independiente; las afiliaciones no implican aval institucional.",
   "btn_explore": "Explorar el seguimiento",
   "btn_slides": "Diapositivas (PDF)",
+  "btn_paper": "Artículo (PDF)",
   "btn_code": "Código y datos",
   "insight_eyebrow": "Después del artículo · ediciones S19–S34 de 2026",
   "insight_nat_dt": "Nacional, estrato general (sMAPE)",
@@ -192,7 +196,9 @@ export const I18N = {
   "slides_en": "Diapositivas, inglés",
   "slides_es": "Diapositivas, español",
   "paper_eyebrow": "El artículo",
-  "paper_venue": "Aparecerá en Advances in Soft Computing, MICAI 2026, Springer LNCS 17149. El texto completo estará disponible en la editorial.",
+  "paper_venue": "Aparecerá en Advances in Soft Computing, MICAI 2026, Springer LNCS 17149. Aquí está el manuscrito aceptado; la versión publicada estará disponible en la editorial.",
+  "paper_dl": "Artículo, manuscrito aceptado",
+  "paper_dl_meta": "Camera-ready, 20 páginas, con el aviso de Springer; no es la versión publicada",
   "diffs_title": "Qué actualiza la ponencia respecto del análisis del artículo",
   "d1": "La ponencia trata las cifras históricas de DeepAR estatal como evidencia de ajuste en entrenamiento: el código histórico omitía la validación cruzada estatal y calificaba el ajuste con la serie completa. Las ejecuciones publicadas no están vinculadas de forma independiente.",
   "d2": "La dispersión entre estados es de unas 22 veces (acumulado 2014–2025), no de dos órdenes de magnitud.",
