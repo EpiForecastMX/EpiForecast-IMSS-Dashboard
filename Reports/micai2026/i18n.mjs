@@ -1,4 +1,4 @@
-export const VERSION = "0569a936d1";
+export const VERSION = "b21594064e";
 export const I18N = {
  "en": {
   "skip": "Skip to content",
@@ -78,7 +78,7 @@ export const I18N = {
   "f3_t": "Revision lowered the replay median",
   "f3_p": "In this seven-week replay (re-selecting with editions W03–W11, scoring W12–W18), revision reduced the median from 32.7% to 28.5%. Simple alternatives had lower medians: Prophet alone 27.6%, a pool without DeepAR 26.4%.",
   "f4_t": "How 2026 is going",
-  "f4_p": "Nationally, the recorded Ensemble path has 5.91% sMAPE against 6.24% for the naive. Across the 99 targets, the archived assignment has a higher median than the naive (31.0% vs. 27.0%) and a lower sMAPE in 55 of 99. Prophet and Ensemble beat the naive in 70 and 71 of 99. This motivates reassessing the assignment; revision in this later window remains untested.",
+  "f4_p": "In the sixteen-week follow-up, bulletin editions W19–W34, the recorded national Ensemble path has 5.91% sMAPE against 6.24% for the naive. Across the 99 targets, the archived assignment has a higher median than the naive (31.0% vs. 27.0%) and a lower sMAPE in 55 of 99. Prophet and Ensemble beat the naive in 70 and 71 of 99. This motivates reassessing the assignment; revision in this later window remains untested.",
   "panel_caption": "Median sMAPE (%) across the 99 targets, with the number of targets in which each estimator has a lower sMAPE than the 52-week naive.",
   "window": "Window",
   "talk_eyebrow": "The talk",
@@ -183,7 +183,7 @@ export const I18N = {
   "f3_t": "La revisión bajó la mediana de la reconstrucción",
   "f3_p": "En esta reconstrucción de siete semanas (reselección con las ediciones S03–S11, evaluación en S12–S18), la revisión redujo la mediana de 32.7 % a 28.5 %. Las alternativas simples tuvieron medianas menores: solo Prophet, 27.6 %; un conjunto sin DeepAR, 26.4 %.",
   "f4_t": "Cómo va 2026",
-  "f4_p": "En el nacional, la trayectoria registrada de Ensemble tiene 5.91 % de sMAPE frente a 6.24 % del ingenuo. En los 99 objetivos, la asignación archivada tiene mayor mediana que el ingenuo (31.0 % frente a 27.0 %) y menor sMAPE en 55 de 99. Prophet y Ensemble superan al ingenuo en 70 y 71 de 99. Esto motiva reevaluar la asignación; la revisión en esta ventana posterior sigue sin probarse.",
+  "f4_p": "En el seguimiento de 16 semanas, ediciones S19–S34, la trayectoria registrada nacional de Ensemble tiene 5.91 % de sMAPE frente a 6.24 % del ingenuo. En los 99 objetivos, la asignación archivada tiene mayor mediana que el ingenuo (31.0 % frente a 27.0 %) y menor sMAPE en 55 de 99. Prophet y Ensemble superan al ingenuo en 70 y 71 de 99. Esto motiva reevaluar la asignación; la revisión en esta ventana posterior sigue sin probarse.",
   "panel_caption": "sMAPE mediano (%) en los 99 objetivos y número de objetivos en que cada estimador tiene menor sMAPE que el ingenuo de 52 semanas.",
   "window": "Ventana",
   "talk_eyebrow": "La ponencia",
