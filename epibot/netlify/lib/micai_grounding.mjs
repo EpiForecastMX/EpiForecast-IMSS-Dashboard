@@ -84,11 +84,6 @@ function windowsOf(q) {
   return w;
 }
 const estimatorsOf = q => EST_RE.filter(([, re]) => re.test(q)).map(([k]) => k);
-function strataOf(q) {
-  const s = [['general', /\bgeneral\b/], ['women', /\bmujeres\b/], ['men', /\bhombres\b/]]
-    .filter(([, re]) => re.test(q)).map(([k]) => k);
-  return s.length ? s : ['general', 'women', 'men'];
-}
 const asksComparison = (q, est) => est.length >= 2 || (est.length >= 1 && /\b(mejor|gana|gano|ganador|peor|frente|versus|vs|compar)/.test(q));
 const seasonalAsked = q => /febrero|picos|saturacion/.test(q) || /estacional/.test(q.replace(/(ingenuo|naive) estacional|seasonal naive/g, ''));
 const RESULTS = /pronostic|seguimiento|ingenuo|naive|smape|error|asignacion|modelo|motor|picos|estacional|revision|resultado|desempeno|mediana|mejor|peor|gana|prophet|deepar|ensemble|stacking|como (le fue|quedo|va|salio)/;
@@ -118,18 +113,66 @@ export function micaiIntent(query, history = []) {
   return null;
 }
 
+// ---- metric and the active query ---------------------------------------------------------------------
+/** sMAPE (%) and MAE (cases) are available per target; anything else is not answered from these data. */
+function metricOf(q) {
+  if (/\bmase\b|\brmse\b|error cuadratico|desviacion acumulada|\bmape\b/.test(q)) return 'unsupported';
+  if (/\bmae\b|error absoluto/.test(q)) return 'mae';
+  if (/\bsmape\b/.test(q)) return 'smape';
+  return null;
+}
+function explicitStrata(q) {
+  return [['general', /\bgeneral\b/], ['women', /\bmujeres\b/], ['men', /\bhombres\b/]].filter(([, re]) => re.test(q)).map(([k]) => k);
+}
+const NATIONAL = /\bnacional\b/;
+const isFollowUp = q => /^[¿\s]*y\b/.test(q) && q.length < 120;
+
+/** The fields of the current question; a follow-up («¿Y en Puebla?») inherits the previous user question's
+ * fields and changes only those it names (DICTAMEN_PR26 P26-02). */
+export function resolveFields(query, history = []) {
+  const q = norm(query);
+  const own = { est: estimatorsOf(q), wins: windowsOf(q), strata: explicitStrata(q), metric: metricOf(q),
+    geos: resolveStates(query), national: NATIONAL.test(q) };
+  if (!isFollowUp(q)) return { ...own, followUp: false };
+  const prevText = (history || []).filter(h => h && h.role === 'user').slice(-1)[0]?.text;
+  if (!prevText) return { ...own, followUp: false };
+  const p = norm(prevText);
+  const prev = { est: estimatorsOf(p), wins: windowsOf(p), strata: explicitStrata(p), metric: metricOf(p),
+    geos: resolveStates(prevText), national: NATIONAL.test(p) };
+  const newGeo = own.geos.length || own.national;
+  return {
+    est: own.est.length ? own.est : prev.est,
+    wins: own.wins.size ? own.wins : prev.wins,
+    strata: own.strata.length ? own.strata : prev.strata,
+    metric: own.metric || prev.metric,
+    geos: newGeo ? own.geos : prev.geos,
+    national: newGeo ? own.national : prev.national,
+    followUp: true,
+    prevResults: RESULTS.test(p),
+  };
+}
+
 // ---- computed answers from the sealed metrics ------------------------------------------------------
-const pct = v => `${v.toFixed(1)} %`;
 const STRATUM = { general: 'general', women: 'mujeres', men: 'hombres' };
 const WIN = { B: 'Seguimiento, ediciones S19–S34', A: 'Ventana del artículo, ediciones S03–S18' };
 const median = a => { const s = [...a].sort((x, y) => x - y); const n = s.length; return n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2; };
 const geoName = k => (k === 'México' ? 'Estado de México' : k);
 const UNAVAILABLE = { unavailable: true, error: 'La fuente actual del MICAI no está disponible; no se usará el preprint retirado.' };
+const METRIC = {
+  smape: { label: 'sMAPE', fmt: v => `${v.toFixed(1)} %`, get: (s, w, e) => s[w][e] },
+  mae: { label: 'MAE, en casos', fmt: v => `${v.toFixed(1)} casos`, get: (s, w, e) => s.mae[w][e] },
+};
+const ALL_STRATA = ['general', 'women', 'men'];
 
-function panelMedian(w, e) {
+function panelMedian(w, e, strata, m) {
   const v = [];
-  for (const g of Object.values(MICAI_STATES)) for (const s of Object.values(g)) v.push(s[w][e]);
+  for (const g of Object.values(MICAI_STATES)) for (const k of strata) v.push(METRIC[m].get(g[k], w, e));
   return median(v);
+}
+function denominator(strata) {
+  const n = 33 * strata.length;
+  if (strata.length === 3) return `${n} objetivos`;
+  return `${n} objetivos de ${strata.map(k => STRATUM[k]).join(' y ')}`;
 }
 const verified = (answer, retrieval, sources) => ({ answer, model: 'verified-source', generated: false, retrieval, reranked: false, sources });
 const abstention = text => ({ answer: text, model: 'abstention', generated: false, retrieval: 'no-verified-source', reranked: false, sources: [] });
@@ -141,20 +184,25 @@ function cardAnswer(chunks, ids) {
     cards.map((c, i) => ({ n: i + 1, source: c.source, title: c.title, section: c.section, url: c.url, snippet: c.text })));
 }
 
-function panelComparison(est, wins) {
+/** One named model is compared with the naive (or the archived assignment with the naive). */
+const withComparator = est => (est.length >= 2 ? est : est.length === 1 ? [est[0], est[0] === 'naive' ? 'archived' : 'naive'] : ['archived', 'naive']);
+
+function panelComparison(est, wins, strata, m) {
+  est = withComparator(est);
   const lines = [];
   for (const w of wins) {
-    const rows = est.map(e => [e, panelMedian(w, e)]).sort((a, b) => a[1] - b[1]);
-    lines.push(`${WIN[w]} (99 objetivos, mediana de sMAPE, menor es mejor): ` +
-      rows.map(([e, v]) => `${NAME[e]} ${pct(v)}`).join(', ') + `. Menor mediana: ${NAME[rows[0][0]]}.`);
+    const rows = est.map(e => [e, panelMedian(w, e, strata, m)]).sort((a, b) => a[1] - b[1]);
+    lines.push(`${WIN[w]} (${denominator(strata)}, mediana de ${METRIC[m].label}, menor es mejor): ` +
+      rows.map(([e, v]) => `${NAME[e]} ${METRIC[m].fmt(v)}`).join(', ') + `. Menor mediana: ${NAME[rows[0][0]]}.`);
   }
+  if (m === 'mae') lines.push('MAE se expresa en casos; no es sMAPE ni un porcentaje.');
   lines.push('Es una comparación descriptiva de medianas: no significa que el modelo con menor mediana gane en cada objetivo, y los objetivos se superponen.');
   return verified(lines.join('\n\n') + ' [1]', 'micai-panel-metrics', [{ n: 1, source: 'Seguimiento MICAI 2026',
     title: 'MICAI 2026 · medianas del panel', section: 'Métricas por objetivo', url: '../micai2026.html#follow-up', snippet: lines[0] }]);
 }
 
-function geoAnswer(geos, est, wins, strata, q) {
-  const shown = est.length ? est : ['archived', 'naive'];
+function geoAnswer(geos, est, wins, strata, m, q) {
+  const shown = withComparator(est);
   const blocks = [];
   for (const key of geos) {
     const s = MICAI_STATES[key];
@@ -163,13 +211,14 @@ function geoAnswer(geos, est, wins, strata, q) {
       : strata.map((k, i) => `${STRATUM[k]} ${engines[i]}`).join(', ');
     const parts = [`${geoName(key)}: la asignación archivada es ${assigned}.`];
     for (const w of wins) {
-      parts.push(`${WIN[w]} (sMAPE, menor es mejor): ` + strata.map(k =>
-        `${STRATUM[k]}, ` + shown.map(e => `${NAME[e]} ${pct(s[k][w][e])}`).join(' frente a ')).join('; ') + '.');
+      parts.push(`${WIN[w]} (${METRIC[m].label}, menor es mejor): ` + strata.map(k =>
+        `${STRATUM[k]}, ` + shown.map(e => `${NAME[e]} ${METRIC[m].fmt(METRIC[m].get(s[k], w, e))}`).join(' frente a ')).join('; ') + '.');
     }
     blocks.push(parts.join(' '));
   }
-  const lines = ['En el análisis MICAI (depresión, F32):', ...blocks,
-    'Son cifras descriptivas de un objetivo por estrato; los objetivos se superponen y no incluyen la reconstrucción de la revisión por estado.'];
+  const lines = ['En el análisis MICAI (depresión, F32):', ...blocks];
+  if (m === 'mae') lines.push('MAE se expresa en casos; no es sMAPE ni un porcentaje.');
+  lines.push('Son cifras descriptivas de un objetivo por estrato; los objetivos se superponen y no incluyen la reconstrucción de la revisión por estado.');
   if (seasonalAsked(q)) lines.push('Las fuentes no evalúan picos estacionales por estado; el patrón de la serie nacional no demuestra un patrón estatal.');
   lines.push('Corresponden al experimento MICAI, no a los modelos productivos actuales del sistema.');
   return verified(lines.join('\n\n') + ' [1]', 'micai-state-metrics', [{ n: 1, source: 'Seguimiento MICAI 2026',
@@ -177,6 +226,9 @@ function geoAnswer(geos, est, wins, strata, q) {
 }
 
 // ---- entry point ---------------------------------------------------------------------------------
+const UNSUPPORTED_METRIC = 'Estas respuestas por objetivo solo tienen sMAPE y MAE. No puedo responder sobre MASE, RMSE, MAPE ' +
+  'o la desviación acumulada con esas cifras, ni sustituirlas por otra métrica.';
+
 export function micaiGroundedAnswer(query, history, index) {
   const q = norm(query);
   if (!q || q.length > 600) return null;
@@ -195,34 +247,42 @@ export function micaiGroundedAnswer(query, history, index) {
   }
   if (!(doc === 'micai' || DISTINCTIVE(q)) || QUOTES.test(q)) return null;
 
-  const est = estimatorsOf(q);
-  const wins = windowsOf(q);
-  const geos = resolveStates(query);
-  const followUp = /^[¿\s]*y (en|para|con)\b/.test(q) &&
-    (history || []).filter(h => h && h.role === 'user').slice(-4).some(h => RESULTS.test(norm(h.text)));
+  const f = resolveFields(query, history);
+  const strata = f.strata.length ? f.strata : ALL_STRATA;
+  const m = f.metric || 'smape';
+  const results = RESULTS.test(q) || (f.followUp && f.prevResults) || f.metric === 'mae';
+
+  // National is a geography whenever the question goes beyond the general national card (stratum, models, metric).
+  const nationalComputed = f.national && (f.strata.some(k => k !== 'general') || m !== 'smape' ||
+    f.est.some(e => !['ensemble', 'naive'].includes(e)) || f.followUp);
+  const geos = [...(nationalComputed ? ['Nacional'] : []), ...f.geos];
 
   if (geos.length) {
-    if (!(RESULTS.test(q) || followUp) || /\booad\b/.test(q)) return null;  // e.g. «la ponencia en Chihuahua»
-    if (wins.has('hist') || wins.has('replay')) {
+    if (!results || /\booad\b/.test(q)) return null;  // e.g. «la ponencia en Chihuahua»
+    if (f.metric === 'unsupported') return abstention(UNSUPPORTED_METRIC);
+    if (f.wins.has('hist') || f.wins.has('replay')) {
       return abstention('Las cifras por estado del MICAI disponibles aquí son las de la ventana del artículo (S03–S18) y del ' +
         'seguimiento (S19–S34); no incluyen la evidencia histórica ni la reconstrucción por estado.');
     }
     if (geos.length > 4) return abstention('Puedo comparar hasta cuatro geografías a la vez. Las 33 están en epiforecast.mx/micai2026.html, sección de seguimiento.');
-    const ws = ['B', 'A'].filter(w => wins.has(w));
-    return geoAnswer(geos, est, ws.length ? ws : ['B', 'A'], strataOf(q), q);
+    const ws = ['B', 'A'].filter(w => f.wins.has(w));
+    return geoAnswer(geos, f.est, ws.length ? ws : ['B', 'A'], strata, m, q);
   }
   if (GENERIC_GEO.test(q)) return null;
 
-  // Comparisons between estimators keep the requested window; with no window both are shown, labelled.
-  const cardFirst = /nacional/.test(q) || /revision|reseleccion|reconstruccion/.test(q) ||
-    (est.length === 2 && est.includes('archived') && est.includes('naive') && wins.has('B') && wins.size === 1);
-  if (asksComparison(q, est) && !cardFirst) {
-    if (wins.has('hist')) return wins.size === 1 ? cardAnswer(chunks, [6]) : null;
-    if (!wins.has('replay')) {
-      const ws = ['B', 'A'].filter(w => wins.has(w));
-      return panelComparison(est, ws.length ? ws : ['B', 'A']);
+  // Comparisons between estimators keep the requested window, strata and metric; with no window both are shown.
+  const card11 = f.est.length === 2 && f.est.includes('archived') && f.est.includes('naive') && f.wins.has('B') &&
+    f.wins.size === 1 && !f.strata.length && m === 'smape';
+  const cardFirst = (f.national && !nationalComputed) || /revision|reseleccion|reconstruccion/.test(q) || card11;
+  if (asksComparison(q, f.est) && !cardFirst) {
+    if (f.metric === 'unsupported') return abstention(UNSUPPORTED_METRIC);
+    if (f.wins.has('hist')) return f.wins.size === 1 && m === 'smape' && !f.strata.length ? cardAnswer(chunks, [6]) : null;
+    if (!f.wins.has('replay')) {
+      const ws = ['B', 'A'].filter(w => f.wins.has(w));
+      return panelComparison(f.est, ws.length ? ws : ['B', 'A'], strata, m);
     }
   }
+  if (f.metric === 'mae' || f.metric === 'unsupported') return f.metric === 'unsupported' ? abstention(UNSUPPORTED_METRIC) : null;
 
   const ids = micaiIntent(query, history);
   return ids ? cardAnswer(chunks, ids) : null;
