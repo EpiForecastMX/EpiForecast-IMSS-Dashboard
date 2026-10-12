@@ -19,6 +19,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { micaiGroundedAnswer } from '../lib/micai_grounding.mjs';
 
 const EMBED_MODEL = 'gemini-embedding-001';
 const EMBED_DIM = 768;
@@ -451,6 +452,10 @@ GROUNDING (lo más importante):
 - Cita ÚNICAMENTE los pasajes numerados [1], [2], etc. NUNCA escribas «[CIFRAS CLAVE]» ni inventes etiquetas de cita: las cifras clave se usan como datos, no se citan con corchetes.
 - Si la respuesta NO está en el contexto recuperado, dilo con honestidad y, si aplica, complementa con conocimiento general de epidemiología o ML dejando claro que es contexto general, no del proyecto. NUNCA inventes cifras del proyecto.
 - Para datos numéricos del proyecto usa exclusivamente las CIFRAS CLAVE o los pasajes. Cita la cifra exacta.
+- MICAI 2026: distingue el manuscrito aceptado de la ponencia y el seguimiento actuales. Si el manuscrito usa «prospectivo» o describe validación uniforme pero los pasajes actuales delimitan la evidencia, atribuye la frase al artículo y usa las precisiones actuales para describir lo comprobado. No certifiques fechas de ejecución, ausencia de fuga, picos recurrentes febrero-mayo ni utilidad clínica sin evidencia actual.
+- Precisión MICAI: los acumulados por sexo se reinician SOLO en el periodo epidemiológico uno de cada año, nunca en cada periodo. General puede diferir de mujeres más hombres, sin afirmar que siempre sea distinto. El ajuste en entrenamiento está comprobado para la ruta estatal histórica de DeepAR del código; no atribuyas ese protocolo a todas las ejecuciones publicadas ni a todos los 111 objetivos. La mediana 6.0 no certifica un error de pronóstico comparable.
+- Las cifras de producción del sistema (333/432 series y métricas actuales de knowledge.json) tienen otro alcance: no sustituyen los 111 objetivos de selección ni las 99 series del análisis MICAI. Los 111 objetivos de selección incluyen cuatro regiones; los 99 evaluados solo incluyen 32 estados y un nacional por tres estratos, sin ninguna región. Identifica la ventana y el denominador al citar un error; no mezcles S02–S18 nacional, S03–S18 por objetivo, S12–S18 reconstrucción y S19–S34 seguimiento. «Mejor» debe precisar qué métrica y comparación usa.
+
 
 EXTENSIÓN: 2 a 5 párrafos, según lo exija la pregunta. No saludes ni te presentes en cada respuesta (es una conversación en curso); ve directo al contenido.
 
@@ -503,6 +508,10 @@ export default async function handler(req) {
 
   const index = loadIndex();
   const kb = loadKnowledge();
+  const verified = micaiGroundedAnswer(query, history, index);
+  if (verified?.unavailable) return json({ error: verified.error }, 503, cors);
+  if (verified) return json(verified, 200, cors);
+
   const genAI = new GoogleGenerativeAI(apiKey);
 
   // 0. Multi-turno: reescribe el seguimiento como pregunta autónoma (solo si aplica)

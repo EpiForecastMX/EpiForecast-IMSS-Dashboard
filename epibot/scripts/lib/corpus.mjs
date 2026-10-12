@@ -50,7 +50,7 @@ const HTML_NOTES = [
   { file: 'Avance2_Equipo01.html', title: 'Avance 2 (Equipo 01)' },
 ];
 
-const MICAI_URL = '../MICAI/EpiForecast_MICAI2026.pdf';
+const MICAI_URL = '../Reports/micai2026/MICAI2026_012_Rebull_accepted_manuscript.pdf';
 
 const wordCount = (s) => (s.trim().match(/\S+/g) || []).length;
 
@@ -289,30 +289,17 @@ function dengueCards(kb) {
  * el artículo recuperen y citen la fuente correcta.
  */
 function paperCardsES() {
-  const cards = [
-    ['Paper MICAI — Contribución principal (resumen ES)',
-      'El artículo propone un marco (framework) determinista y auditable que selecciona, para CADA serie, el modelo mejor sustentado por su propia evidencia, en lugar de imponer un único algoritmo a todo el sistema de vigilancia. Su aporte central es la SELECCIÓN DE MODELO POR SERIE, transparente y reproducible, con un registro justificado de cada decisión. Título: "Forecasting Weekly Depression Incidence in Mexico: A Multi-Model Framework with Auditable Per-Series Model Selection".'],
-    ['Paper MICAI — Método de selección por serie (resumen ES)',
-      'Una regla transparente elige un modelo por serie según la exactitud en validación cruzada (menor error; usa SMAPE con MASE como desempate y un margen relativo del 5%). Las series de baja incidencia se reasignan a un modelo regional de respaldo (fallback). Cada elección se guarda en un log de selección justificado. La selección es REVISABLE: vuelve a elegirse cuando llegan nuevos boletines, por lo que el sistema se mantiene auditable y responsable en producción, no un ganador congelado de tabla.'],
-    ['Paper MICAI — Librería de modelos (resumen ES)',
-      'El conjunto de candidatos reúne pronosticadores con suposiciones inductivas deliberadamente distintas para cubrir representaciones temporales diversas: una descomposición aditiva estructural (Prophet), una red recurrente probabilística (DeepAR) y dos híbridos basados en árboles (Ensemble y Stacking). Esta diversidad mejora la cobertura ante la heterogeneidad entre regiones, sexos y tiempo.'],
-    ['Paper MICAI — Datos y alcance (resumen ES)',
-      'Se instancia para la incidencia semanal de depresión (CIE-10 F32) en las 32 entidades federativas de México, usando los boletines públicos del Sistema Nacional de Vigilancia Epidemiológica (SINAVE). En México la depresión afecta a unos 8 a 10 millones de personas y SINAVE registra más de 150,000 casos nuevos de episodio depresivo por año, con ventanas de saturación recurrentes en el periodo febrero-mayo. El objetivo es habilitar planeación proactiva con trayectorias a 52 semanas por entidad.'],
-    ['Paper MICAI — Validación y resultados (resumen ES)',
-      'El marco se valida dos veces: (1) validación cruzada de origen móvil (rolling-origin) sobre una década de observaciones semanales, y (2) evaluación prospectiva fuera de muestra contra los boletines de 2026 posteriores al corte de entrenamiento. La asignación resultante se concentra en el modelo recurrente (DeepAR) para la mayoría de las series por entidad, conservando modelos más simples donde la agregación los favorece; el pronóstico nacional, bloqueado por separado, sigue de cerca los boletines de inicio de 2026.'],
-    ['Paper MICAI — Aportaciones e impacto (resumen ES)',
-      'Frente a la planeación reactiva (ajustar capacidad solo después de ver el aumento en el boletín), pronósticos semanales confiables por entidad permiten una planeación PROACTIVA: anticipar personal y recursos. El enfoque es reproducible, auditable y extensible a otros padecimientos con comportamiento heterogéneo.'],
-    ['Paper MICAI — Desagregación por sexo y entidad federativa (resumen ES)',
-      'La desagregación por SEXO y por ENTIDAD FEDERATIVA es central en el diseño modular del sistema. En lugar de un modelo nacional único, se modela cada serie (entidad × sexo) por separado, lo que aporta granularidad y permite capturar la heterogeneidad regional y por sexo en la incidencia. Qué aporta la desagregación: pronósticos específicos por estado y por sexo, mejor cobertura de patrones locales, y selección de modelo adaptada a cada serie. Las series de muy baja incidencia se respaldan con un modelo regional.'],
-  ];
-  return cards.map(([section, text], i) => ({
-    id: `micai-es#${i}`,
-    source: 'Paper MICAI 2026',
-    section,
-    title: section,
-    url: MICAI_URL,
-    text,
-  }));
+  // The curated cards distinguish the accepted paper from the current talk/follow-up.
+  // This is a required source: never silently fall back to the retired summaries.
+  const path = resolve(KB_DIR, 'rag_sources/micai_updates.json');
+  const cards = JSON.parse(readFileSync(path, 'utf-8'));
+  if (!Array.isArray(cards) || !cards.length) throw new Error('MICAI current cards missing');
+  return cards.map((c) => {
+    if (![c.id, c.source, c.title, c.section, c.url, c.text].every(v => typeof v === 'string' && v.trim())) {
+      throw new Error('Incomplete MICAI grounding card');
+    }
+    return c;
+  });
 }
 
 /**
@@ -373,6 +360,10 @@ export function buildChunks({
     const txt = readFileSync(micaiPath, 'utf-8');
     const secs = paperToSections(txt, 'Paper MICAI 2026');
     const c = sectionsToChunks(secs, { id: 'micai', source: 'Paper MICAI 2026', url: MICAI_URL });
+    // Attribute the submitted paper's protocol language; the companion records the current evidence.
+    const context = 'Accepted manuscript as submitted. For current evaluation/provenance, use the MICAI 2026 companion: recorded forecasts are evaluated retrospectively; execution dates are not independently verified. Historical state DeepAR code scores training fit; a common validation protocol is unverified. Do not certify prospective validation or clinical utility from manuscript wording. ';
+    for (const chunk of c) chunk.text = context + '\n\n' + chunk.text;
+
     chunks.push(...c); log.push(['MICAI', c.length]);
   }
   // Tarjetas en español del paper (recall cross-lingüe)
