@@ -116,7 +116,6 @@ test('«ingenuo estacional» is a comparator, not a seasonal pattern; «autores�
 
 // Regresiones del dictamen del PR 24 (G01–G03).
 test('identity needs an explicit author or affiliation; data origin and «who is better» get their own cards (G03)',()=>{
- assert.deepEqual(micaiIntent('¿Quién es mejor en MICAI: Prophet o DeepAR?'),[9]);
  assert.deepEqual(micaiIntent('¿De dónde son los datos del MICAI?'),[3]);
  assert.deepEqual(micaiIntent('¿Quiénes son los autores del MICAI?'),[4]);
  assert.deepEqual(micaiIntent('¿Qué afiliaciones tienen los autores del MICAI?'),[4]);
@@ -135,8 +134,8 @@ test('MICAI questions about one geography get that geography\'s sealed metrics, 
  const index=readIndex(resolve(KB_DIR,'rag_index.json'));
  const p=micaiGroundedAnswer('En el seguimiento MICAI, ¿cómo quedó la asignación archivada frente al ingenuo en Puebla?',[],index);
  assert.equal(p.retrieval,'micai-state-metrics');
- assert.match(p.answer,/Puebla/);assert.match(p.answer,/general, archivada 49\.3 % frente a ingenuo 21\.2 %/);
- assert.match(p.answer,/mujeres, archivada 45\.0 % frente a ingenuo 46\.0 %/);
+ assert.match(p.answer,/Puebla/);assert.match(p.answer,/general, asignación archivada 49\.3 % frente a ingenuo 21\.2 %/);
+ assert.match(p.answer,/mujeres, asignación archivada 45\.0 % frente a ingenuo 46\.0 %/);
  assert.doesNotMatch(p.answer,/99 objetivos|31\.0 %/);
  const j=micaiGroundedAnswer('¿El pronóstico MICAI para Jalisco sigue picos estacionales?',[],index);
  assert.match(j.answer,/Jalisco: la asignación archivada es DeepAR en los tres estratos/);
@@ -147,4 +146,37 @@ test('MICAI questions about one geography get that geography\'s sealed metrics, 
  assert.equal(micaiGroundedAnswer('¿Ruth Pérez del MICAI trabaja en el OOAD Guerrero?',[],index)?.retrieval==='micai-state-metrics',false);
  assert.match(micaiGroundedAnswer('MICAI: ¿cómo le fue al modelo en el Estado de México?',[],index).answer,/Estado de México/);
  assert.match(micaiGroundedAnswer('MICAI: ¿cómo le fue al modelo en Baja California Sur?',[],index).answer,/Baja California Sur/);
+});
+
+// Regresiones del dictamen del PR 25: documento activo, ventana, estimadores, geografías y redondeo.
+const IDX=()=>readIndex(resolve(KB_DIR,'rag_index.json'));
+test('a WCP follow-up keeps the WCP abstention; the assistant\'s own text never reactivates MICAI (P25-01)',()=>{
+ const h=[{role:'user',text:'¿Quiénes son los autores de la ponencia WCP?'},
+  {role:'assistant',text:'No tengo en mis fuentes información verificada sobre el póster WCP 2026, así que no puedo responder eso ni sustituirlo con datos del MICAI o del equipo del proyecto.'}];
+ const r=micaiGroundedAnswer('¿Cuántos autores son?',h,IDX());
+ assert.equal(r.model,'abstention');assert.doesNotMatch(r.answer,/Javier|Rebull|Tecnológico/);
+ assert.equal(micaiIntent('¿Cuántos autores son?',h),null);
+});
+test('comparisons keep the requested window and estimators (P25-02, T1–T2)',()=>{
+ const t1=micaiGroundedAnswer('En el seguimiento MICAI, ¿quién fue mejor, DeepAR o Stacking?',[],IDX());
+ assert.equal(t1.retrieval,'micai-panel-metrics');
+ assert.match(t1.answer,/Seguimiento, ediciones S19–S34 \(99 objetivos, mediana de sMAPE, menor es mejor\): Stacking 30\.6 %, DeepAR 31\.0 %\. Menor mediana: Stacking\./);
+ assert.doesNotMatch(t1.answer,/S03–S18|27\.4|29\.3/);
+ const both=micaiGroundedAnswer('¿Quién es mejor en MICAI: Prophet o DeepAR?',[],IDX());
+ assert.match(both.answer,/S19–S34[^\n]*Prophet 23\.4 %, DeepAR 31\.0 %/);assert.match(both.answer,/S03–S18[^\n]*Prophet 26\.7 %, DeepAR 27\.4 %/);
+ const t2=micaiGroundedAnswer('En MICAI, ¿quién fue mejor en el histórico, DeepAR o Prophet?',[],IDX());
+ assert.match(t2.answer,/La mediana histórica de DeepAR es 6\.0 %/);assert.doesNotMatch(t2.answer,/S19–S34/);
+});
+test('state answers keep the requested estimators and every geography (P25-02, T3–T4)',()=>{
+ const t3=micaiGroundedAnswer('En el seguimiento MICAI, ¿Prophet o Ensemble fue mejor en Puebla?',[],IDX());
+ assert.match(t3.answer,/general, Prophet 28\.3 % frente a Ensemble 42\.1 %; mujeres, Prophet 27\.4 % frente a Ensemble 37\.5 %; hombres, Prophet 34\.0 % frente a Ensemble 37\.0 %/);
+ assert.doesNotMatch(t3.answer,/ingenuo \d/);assert.doesNotMatch(t3.answer,/S03–S18 \(sMAPE/);
+ const t4=micaiGroundedAnswer('MICAI: ¿cómo quedó la asignación archivada frente al ingenuo en Puebla y en Jalisco durante el seguimiento?',[],IDX());
+ assert.match(t4.answer,/Puebla: la asignación archivada/);assert.match(t4.answer,/Jalisco: la asignación archivada/);
+});
+test('state figures are rounded once from full precision (P25-03)',()=>{
+ const a=micaiGroundedAnswer('MICAI: en la ventana del artículo, ¿cómo le fue a la asignación archivada frente al ingenuo en Aguascalientes para mujeres?',[],IDX());
+ assert.match(a.answer,/mujeres, asignación archivada 36\.2 %/);
+ const j=micaiGroundedAnswer('MICAI: en la ventana del artículo, ¿cómo le fue a la asignación archivada frente al ingenuo en Jalisco para hombres?',[],IDX());
+ assert.match(j.answer,/hombres, asignación archivada [0-9.]+ % frente a ingenuo 34\.9 %/);
 });
