@@ -73,3 +73,43 @@ test('the real handler can deliver a JSON fallback for a streamed MICAI request'
   if(previous===undefined)delete process.env.GEMINI_API_KEY;else process.env.GEMINI_API_KEY=previous;
  }
 });
+
+// Regresiones de la revisión integral del 12-oct-2026 (RI01–RI03): casos C1–C8 y A1–A6 del auditor.
+test('critical MICAI questions keep their verified card (C1–C8)',()=>{
+ const cases=[
+  ['¿Quiénes son los autores del MICAI?',[4]],
+  ['¿Cómo queda la asignación archivada frente al ingenuo en el seguimiento MICAI?',[11]],
+  ['¿La revisión por serie de MICAI fue óptima frente a Prophet?',[10]],
+  ['¿Qué significan los 99 objetivos del MICAI?',[3]],
+  ['¿General equivale a mujeres más hombres en MICAI y son independientes?',[12,3]],
+  ['¿DeepAR tuvo validación histórica de 6.0 en MICAI?',[6]],
+  ['¿MICAI prueba ausencia de fuga y evaluación prospectiva?',[5]],
+  ['¿Cómo le fue a Ensemble nacional frente al ingenuo en MICAI?',[8]],
+ ];
+ for(const [q,ids] of cases)assert.deepEqual(micaiIntent(q),ids,q);
+});
+test('scope errors found after publication are routed correctly (A1–A6)',()=>{
+ assert.deepEqual(micaiIntent('¿Cómo quedó el pronóstico nacional del MICAI frente al ingenuo estacional?'),[8]);
+ assert.equal(micaiIntent('En el seguimiento MICAI, ¿cómo quedó la asignación archivada frente al ingenuo en Puebla?'),null);
+ assert.equal(micaiIntent('¿Quiénes son los autores de la ponencia WCP?',[{role:'user',text:'Revisemos el MICAI 2026'}]),null);
+ assert.deepEqual(micaiIntent('En MICAI, ¿qué dicen los autores sobre la revisión frente a Prophet?'),[10]);
+ assert.equal(micaiIntent('¿El pronóstico MICAI para Jalisco sigue picos estacionales?'),null);
+ assert.equal(micaiIntent('¿Quiénes son los autores de la ponencia WCP?'),null);
+});
+test('no individual geography receives an aggregate MICAI card',()=>{
+ const states=['Aguascalientes','Baja California','Baja California Sur','Campeche','Chiapas','Chihuahua','Ciudad de México',
+  'Coahuila','Colima','Durango','Guanajuato','Guerrero','Hidalgo','Jalisco','Estado de México','Michoacán','Morelos','Nayarit',
+  'Nuevo León','Oaxaca','Puebla','Querétaro','Quintana Roo','San Luis Potosí','Sinaloa','Sonora','Tabasco','Tamaulipas',
+  'Tlaxcala','Veracruz','Yucatán','Zacatecas','CDMX','Edomex'];
+ const templates=[s=>`En el seguimiento MICAI, ¿cómo quedó la asignación archivada frente al ingenuo en ${s}?`,
+  s=>`¿El pronóstico MICAI para ${s} sigue picos estacionales?`,
+  s=>`MICAI: ¿la revisión por serie mejoró la mediana en ${s}?`,
+  s=>`¿Cómo le fue al modelo nacional del MICAI frente al ingenuo comparado con ${s}?`];
+ for(const s of states)for(const t of templates)assert.equal(micaiIntent(t(s)),null,t(s));
+ assert.equal(micaiIntent('¿Y en Puebla?',[{role:'user',text:'Estudio MICAI 2026'}]),null);
+});
+test('«ingenuo estacional» is a comparator, not a seasonal pattern; «autores» alone is not identity',()=>{
+ assert.deepEqual(micaiIntent('MICAI: ¿el nacional supera al seasonal naive?'),[8]);
+ assert.deepEqual(micaiIntent('MICAI: ¿hay estacionalidad de febrero a mayo?'),[7]);
+ assert.notDeepEqual(micaiIntent('En MICAI, ¿qué concluyen los autores sobre el seguimiento frente al ingenuo?'),[4]);
+});
