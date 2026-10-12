@@ -113,3 +113,38 @@ test('«ingenuo estacional» is a comparator, not a seasonal pattern; «autores�
  assert.deepEqual(micaiIntent('MICAI: ¿hay estacionalidad de febrero a mayo?'),[7]);
  assert.notDeepEqual(micaiIntent('En MICAI, ¿qué concluyen los autores sobre el seguimiento frente al ingenuo?'),[4]);
 });
+
+// Regresiones del dictamen del PR 24 (G01–G03).
+test('identity needs an explicit author or affiliation; data origin and «who is better» get their own cards (G03)',()=>{
+ assert.deepEqual(micaiIntent('¿Quién es mejor en MICAI: Prophet o DeepAR?'),[9]);
+ assert.deepEqual(micaiIntent('¿De dónde son los datos del MICAI?'),[3]);
+ assert.deepEqual(micaiIntent('¿Quiénes son los autores del MICAI?'),[4]);
+ assert.deepEqual(micaiIntent('¿Qué afiliaciones tienen los autores del MICAI?'),[4]);
+});
+test('documents outside the index get a deterministic abstention, never the project team (G01)',()=>{
+ const index=readIndex(resolve(KB_DIR,'rag_index.json'));
+ for(const h of [[],[{role:'user',text:'Revisemos el MICAI 2026'}]]){
+  const r=micaiGroundedAnswer('¿Quiénes son los autores de la ponencia WCP?',h,index);
+  assert.equal(r.model,'abstention');assert.equal(r.generated,false);assert.deepEqual(r.sources,[]);
+  assert.match(r.answer,/No tengo en mis fuentes información verificada sobre el póster WCP 2026/);
+  assert.doesNotMatch(r.answer,/Javier|Grettel|Ruth|Lina|Equipo 01/);
+ }
+ assert.equal(micaiGroundedAnswer('¿Qué dice el preprint del MICAI?',[],index).model,'abstention');
+});
+test('MICAI questions about one geography get that geography\'s sealed metrics, not the panel or production (G02)',()=>{
+ const index=readIndex(resolve(KB_DIR,'rag_index.json'));
+ const p=micaiGroundedAnswer('En el seguimiento MICAI, ¿cómo quedó la asignación archivada frente al ingenuo en Puebla?',[],index);
+ assert.equal(p.retrieval,'micai-state-metrics');
+ assert.match(p.answer,/Puebla/);assert.match(p.answer,/general, archivada 49\.3 % frente a ingenuo 21\.2 %/);
+ assert.match(p.answer,/mujeres, archivada 45\.0 % frente a ingenuo 46\.0 %/);
+ assert.doesNotMatch(p.answer,/99 objetivos|31\.0 %/);
+ const j=micaiGroundedAnswer('¿El pronóstico MICAI para Jalisco sigue picos estacionales?',[],index);
+ assert.match(j.answer,/Jalisco: la asignación archivada es DeepAR en los tres estratos/);
+ assert.match(j.answer,/no evalúan picos estacionales por estado/);
+ assert.doesNotMatch(j.answer,/Alzheimer|Parkinson/);
+ assert.match(micaiGroundedAnswer('¿Y en Puebla?',[{role:'user',text:'Seguimiento MICAI frente al ingenuo'}],index)?.answer ?? '',/Puebla/);
+ assert.equal(micaiGroundedAnswer('¿Cuándo es la ponencia MICAI en Chihuahua?',[],index),null);
+ assert.equal(micaiGroundedAnswer('¿Ruth Pérez del MICAI trabaja en el OOAD Guerrero?',[],index)?.retrieval==='micai-state-metrics',false);
+ assert.match(micaiGroundedAnswer('MICAI: ¿cómo le fue al modelo en el Estado de México?',[],index).answer,/Estado de México/);
+ assert.match(micaiGroundedAnswer('MICAI: ¿cómo le fue al modelo en Baja California Sur?',[],index).answer,/Baja California Sur/);
+});
