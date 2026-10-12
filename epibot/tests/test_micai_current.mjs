@@ -180,3 +180,33 @@ test('state figures are rounded once from full precision (P25-03)',()=>{
  const j=micaiGroundedAnswer('MICAI: en la ventana del artículo, ¿cómo le fue a la asignación archivada frente al ingenuo en Jalisco para hombres?',[],IDX());
  assert.match(j.answer,/hombres, asignación archivada [0-9.]+ % frente a ingenuo 34\.9 %/);
 });
+
+// Regresiones del dictamen del PR 26: estratos, continuaciones y métrica.
+test('aggregates and the national target respect the requested stratum (P26-01, U1–U2)',()=>{
+ const u1=micaiGroundedAnswer('En el seguimiento MICAI, solo para mujeres, ¿DeepAR o Stacking tuvo menor mediana de sMAPE?',[],IDX());
+ assert.match(u1.answer,/33 objetivos de mujeres, mediana de sMAPE, menor es mejor\): DeepAR 29\.6 %, Stacking 30\.2 %\. Menor mediana: DeepAR\./);
+ assert.doesNotMatch(u1.answer,/99 objetivos/);
+ const u2=micaiGroundedAnswer('En el seguimiento MICAI, ¿cómo le fue a Ensemble frente al ingenuo en el nacional de mujeres?',[],IDX());
+ assert.match(u2.answer,/Nacional: la asignación archivada es Ensemble\./);
+ assert.match(u2.answer,/mujeres, Ensemble 5\.9 % frente a ingenuo 6\.8 %/);
+ assert.doesNotMatch(u2.answer,/objetivo nacional general|5\.91 %/);
+});
+test('a follow-up changes only the fields it names (P26-02, U3)',()=>{
+ const h=[{role:'user',text:'En MICAI, para Jalisco durante el seguimiento, ¿Prophet tuvo menor sMAPE que Ensemble solo en mujeres?'},
+  {role:'assistant',text:'En el análisis MICAI (depresión, F32): Jalisco: …'}];
+ const u3=micaiGroundedAnswer('¿Y en Puebla?',h,IDX());
+ assert.match(u3.answer,/Puebla: la asignación archivada es DeepAR\./);
+ assert.match(u3.answer,/Seguimiento, ediciones S19–S34 \(sMAPE, menor es mejor\): mujeres, Prophet 27\.4 % frente a Ensemble 37\.5 %\./);
+ assert.doesNotMatch(u3.answer,/archivada \d|ingenuo \d|general,|hombres,|S03–S18/);
+ const s=micaiGroundedAnswer('¿Y para hombres?',h,IDX());
+ assert.match(s.answer,/Jalisco[\s\S]*hombres, Prophet/);assert.doesNotMatch(s.answer,/mujeres,/);
+});
+test('the metric is validated: MAE in cases, unsupported metrics abstain (P26-03, U4)',()=>{
+ const u4=micaiGroundedAnswer('En el seguimiento MICAI, compara el MAE de Prophet y Ensemble',[],IDX());
+ assert.match(u4.answer,/mediana de MAE, en casos, menor es mejor\): Prophet 10\.6 casos, Ensemble 10\.8 casos/);
+ assert.match(u4.answer,/MAE se expresa en casos; no es sMAPE ni un porcentaje/);
+ assert.doesNotMatch(u4.answer,/23\.4 %|25\.2 %/);
+ for(const q of ['En el seguimiento MICAI, compara el MASE de Prophet y Ensemble','MICAI: ¿qué RMSE tuvo Prophet frente a DeepAR en Puebla?']){
+  const r=micaiGroundedAnswer(q,[],IDX());assert.equal(r.model,'abstention',q);assert.doesNotMatch(r.answer,/\d+\.\d %/);
+ }
+});
