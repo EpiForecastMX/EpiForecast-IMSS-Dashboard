@@ -1,0 +1,130 @@
+[
+  {
+    "id": "micai-current#0",
+    "section": "Paper MICAI: aporte del marco auditable",
+    "title": "Paper MICAI: aporte del marco auditable",
+    "source": "Paper MICAI 2026",
+    "url": "../Reports/micai2026/MICAI2026_012_Rebull_accepted_manuscript.pdf",
+    "text": "El artículo 12 propone un marco determinista de selección auditable por serie para casos semanales notificados de depresión (F32) en México. El aporte es explicitar y registrar qué modelo se elige para cada serie y poder reconstruir una revisión. No demuestra que usar cuatro modelos supere a uno ni que la política por serie sea óptima. La exactitud se contrasta por separado con alternativas simples. El título es Forecasting Weekly Depression Incidence in Mexico: A Multi-Model Framework with Auditable Per-Series Model Selection."
+  },
+  {
+    "id": "micai-current#1",
+    "section": "Regla exacta de selección: sMAPE, MASE, RMSE y respaldo regional",
+    "title": "Regla exacta de selección: sMAPE, MASE, RMSE y respaldo regional",
+    "source": "Paper MICAI 2026",
+    "url": "../Reports/micai2026/MICAI2026_012_Rebull_accepted_manuscript.pdf",
+    "text": "La selección elige el menor sMAPE histórico si el segundo menor supera 1.05 veces al menor. Si no, considera los modelos con sMAPE menor o igual a 1.05 veces el mejor y escoge el menor MASE; si MASE empata, usa el menor RMSE. Con menos de cinco casos en las 52 semanas anteriores al origen del pronóstico usaría un modelo regional, pero ese respaldo no se activó en ninguno de los 111 objetivos. Cada elección conserva su evidencia con el pronóstico."
+  },
+  {
+    "id": "micai-current#2",
+    "section": "Cuatro candidatos: Prophet, DeepAR, Ensemble y Stacking",
+    "title": "Cuatro candidatos: Prophet, DeepAR, Ensemble y Stacking",
+    "source": "Paper MICAI 2026",
+    "url": "../Reports/micai2026/MICAI2026_012_Rebull_accepted_manuscript.pdf",
+    "text": "Los cuatro candidatos del marco son Prophet (descomposición aditiva), DeepAR (red recurrente probabilística), Ensemble (Prophet y XGBoost) y Stacking (Prophet, ETS y LightGBM con ElasticNet no negativa). Son candidatos para seleccionar trayectorias por serie. La diversidad de candidatos no demuestra por sí misma una ganancia de exactitud. La ablación del artículo y la reconstrucción muestran alternativas simples con medianas menores."
+  },
+  {
+    "id": "micai-current#3",
+    "section": "SINAVE: datos, objetivos y denominadores del MICAI",
+    "title": "SINAVE: datos, objetivos y denominadores del MICAI",
+    "source": "MICAI 2026 — ponencia y seguimiento",
+    "url": "../micai2026.html",
+    "text": "El panel evaluado del MICAI contiene 99 objetivos: exactamente 32 estados y un nacional (33 geografías), cada uno por general, mujeres y hombres. No incluye las cuatro regiones. La selección histórica contiene 111 objetivos: 32 estados, cuatro regiones y un nacional (37 geografías), cada uno por los tres estratos. Son 96 objetivos estatales y tres nacionales en el panel de 99; los 12 objetivos regionales quedan fuera de esa evaluación. El estudio usa conteos públicos semanales notificados de depresión F32 del SINAVE, 2014–2025, 626 semanas históricas. Son conteos notificados, no prevalencia ni riesgo individual. Las 333 series neuro y 432 series productivas pertenecen al sistema general, no al denominador MICAI."
+  },
+  {
+    "id": "micai-current#4",
+    "section": "Afiliaciones actuales del manuscrito aceptado MICAI 2026",
+    "title": "Afiliaciones actuales del manuscrito aceptado MICAI 2026",
+    "source": "MICAI 2026 — ponencia y seguimiento",
+    "url": "../micai2026.html",
+    "text": "El manuscrito aceptado identifica a Javier Augusto Rebull-Saucedo, Juan Carlos Pérez-Nava, Luis Gerardo Sánchez-Salazar y Grettel Barceló-Alonso con Tecnológico de Monterrey, Monterrey, México. Ruth Pérez-Hernández figura con Instituto Mexicano del Seguro Social (IMSS), OOAD Guerrero, México. El correo de correspondencia de Javier es rebull@exatec.tec.mx. Es investigación independiente; las afiliaciones y el uso del logotipo no implican aval institucional. Las afiliaciones del preprint de mayo están retiradas y no describen el manuscrito aceptado."
+  },
+  {
+    "id": "micai-current#5",
+    "section": "Procedencia: evaluación retrospectiva de pronósticos registrados",
+    "title": "Procedencia: evaluación retrospectiva de pronósticos registrados",
+    "source": "MICAI 2026 — ponencia y seguimiento",
+    "url": "../micai2026.html#reproduce",
+    "text": "La ponencia y el seguimiento actuales evalúan retrospectivamente trayectorias registradas. Los archivos disponibles no verifican de forma independiente las fechas de ejecución ni prueban ausencia de fuga. Los periodos del pronóstico se asignan a las ediciones por una regla documentada. El manuscrito usa el término prospectivo, pero debe atribuirse como descripción del manuscrito, no como certificación independiente de las ejecuciones. El registro interno de la especificación se escribió antes de calcular el seguimiento; las ediciones ya estaban publicadas. No es una preregistración prospectiva externa."
+  },
+  {
+    "id": "micai-current#6",
+    "section": "DeepAR histórico: cómo leer el 6.0 y los protocolos distintos",
+    "title": "DeepAR histórico: cómo leer el 6.0 y los protocolos distintos",
+    "source": "MICAI 2026 — ponencia y seguimiento",
+    "url": "../micai2026.html#differences",
+    "text": "La mediana histórica de DeepAR es 6.0 % entre 111 objetivos (5.99 % sin ese redondeo). En el código histórico, las cifras estatales de DeepAR reflejan ajuste en entrenamiento, no error de pronóstico. El código estatal entrenaba con la serie completa y calificaba ese ajuste. Las ejecuciones publicadas no están vinculadas independientemente a esa ruta. Los otros motores tuvieron ventanas reservadas, con protocolos distintos; no está verificado un protocolo común para todos. El artículo describe cinco pliegues, lo que no permite certificar a partir del código una validación uniforme. En los 99 objetivos las medianas históricas son 5.7, 30.9, 26.2 y 28.2 para DeepAR, Prophet, Ensemble y Stacking. La comprobación del ajuste en entrenamiento corresponde a la ruta estatal del código. No permite atribuir ese protocolo a todas las ejecuciones publicadas ni afirmar que toda la mediana de 111 objetivos provenga de ajuste en entrenamiento."
+  },
+  {
+    "id": "micai-current#7",
+    "section": "Patrones temporales y dispersión: no picos recurrentes febrero–mayo",
+    "title": "Patrones temporales y dispersión: no picos recurrentes febrero–mayo",
+    "source": "MICAI 2026 — ponencia y seguimiento",
+    "url": "../micai2026.html#differences",
+    "text": "El recálculo de la serie nacional no sostiene picos recurrentes de febrero a mayo ni ventanas de saturación clínica. El rasgo recurrente más claro es la caída del cambio de año; las caídas cercanas a Pascua varían según año y edición. La media semanal sube alrededor de 25 % entre 2017–2019 y 2023–2025; estos datos no identifican la causa. Los casos notificados acumulados de 2014–2025 son 220751 en Ciudad de México y 9876 en Tlaxcala, razón 22.35 (aproximadamente 22 veces), no dos órdenes de magnitud. No confundir conteos con prevalencia."
+  },
+  {
+    "id": "micai-current#8",
+    "section": "Nacional: ventanas del artículo y del seguimiento frente al ingenuo",
+    "title": "Nacional: ventanas del artículo y del seguimiento frente al ingenuo",
+    "source": "MICAI 2026 — ponencia y seguimiento",
+    "url": "../micai2026.html#follow-up",
+    "text": "Para el objetivo nacional general, la asignación registrada es Ensemble. En la ventana nacional de la ponencia, ediciones S02–S18 (17 semanas), el sMAPE de Ensemble es 7.40 % y el ingenuo de 52 semanas es 7.33 %: el ingenuo es ligeramente menor. En el seguimiento de 16 semanas, ediciones S19–S34 (periodos epidemiológicos W18–W33), Ensemble tiene 5.91 % y el ingenuo 6.24 %: Ensemble es menor. La desviación acumulada de Ensemble en seguimiento es +0.17 % y la del ingenuo −2.95 %. La tabla A por objetivo usa S03–S18 (16 semanas); nacional en A es Ensemble 7.28 % e ingenuo 7.41 %. No mezclar esa tabla con la ventana de 17 semanas de la ponencia ni afirmar precisión anual."
+  },
+  {
+    "id": "micai-current#9",
+    "section": "Panel 2026 del artículo: medianas y modelo con menor error",
+    "title": "Panel 2026 del artículo: medianas y modelo con menor error",
+    "source": "MICAI 2026 — ponencia y seguimiento",
+    "url": "../micai2026.html#findings",
+    "text": "En las 99 series evaluadas entre ediciones S03 y S18, Prophet tiene la menor mediana sMAPE, 26.7 %; DeepAR 27.4 %, Ensemble 28.1 % y Stacking 29.3 %. Prophet tiene el menor error en 35 objetivos, DeepAR en 27, Ensemble en 19 y Stacking en 18. No existe un modelo que gane en todos los objetivos. La asignación histórica favoreció DeepAR, pero eso no implica que tuviera el menor error registrado de 2026. Una comparación no significativa no demuestra equivalencia."
+  },
+  {
+    "id": "micai-current#10",
+    "section": "Revisión de siete semanas: 32.7 a 28.5 y alternativas simples",
+    "title": "Revisión de siete semanas: 32.7 a 28.5 y alternativas simples",
+    "source": "MICAI 2026 — ponencia y seguimiento",
+    "url": "../micai2026.html#findings",
+    "text": "La reconstrucción reselecciona con ediciones S03–S11 y evalúa S12–S18, siete semanas excluidas de la reselección. Selecciona entre trayectorias registradas sin reentrenar. La mediana de la política congelada y del selector global es 32.7 %; la revisión por serie baja a 28.5 %. Solo Prophet da 27.6 % y el conjunto sin DeepAR 26.4 %, menores que la revisión. Mejoran 44 objetivos, empeoran 12 y 43 no cambian. La mediana del cambio pareado es cero: 4.2 puntos es la diferencia entre medianas marginales de política. No se demostró una política óptima ni superioridad del conjunto de cuatro modelos."
+  },
+  {
+    "id": "micai-current#11",
+    "section": "Seguimiento de 16 semanas en los 99 objetivos, resultado adverso incluido",
+    "title": "Seguimiento de 16 semanas en los 99 objetivos, resultado adverso incluido",
+    "source": "MICAI 2026 — ponencia y seguimiento",
+    "url": "../micai2026.html#follow-up",
+    "text": "En el seguimiento de ediciones S19–S34 (periodos W18–W33), la mediana sMAPE en 99 objetivos es Prophet 23.4 %, Ensemble 25.2 %, DeepAR 31.0 %, Stacking 30.6 %, asignación archivada 31.0 % e ingenuo 27.0 %. Prophet supera al ingenuo en 70 de 99 objetivos, Ensemble en 71, DeepAR en 52, Stacking en 51 y la asignación archivada en 55. La archivada tiene peor mediana marginal que el ingenuo aunque gana en más de la mitad de objetivos; son medidas distintas. No se evaluó una política revisada en esa ventana, así que el seguimiento motiva reevaluar, no demuestra una mejora posterior por revisión."
+  },
+  {
+    "id": "micai-current#12",
+    "section": "Objetivos por sexo y estado: no son réplicas independientes",
+    "title": "Objetivos por sexo y estado: no son réplicas independientes",
+    "source": "MICAI 2026 — ponencia y seguimiento",
+    "url": "../micai2026.html#reproduce",
+    "text": "General usa Casos_semana. Mujeres y hombres usan incrementos de acumulados dentro del mismo año epidemiológico, reiniciados únicamente en el periodo epidemiológico uno de cada año (no en cada periodo), y los negativos se recortan a cero según la regla reproducida. General puede diferir de mujeres más hombres; no se afirma que sea igual en todas las celdas ni que nunca coincida. Los nacionales se construyen sumando estados; los 99 objetivos se superponen, no son réplicas independientes. En seguimiento solo mujeres tiene mediana archivada mayor que la del ingenuo, 29.6 frente a 24.9; general 22.0 frente a 22.5 y hombres 34.3 frente a 36.5. Esas medianas no descomponen la mediana conjunta ni identifican una causa."
+  },
+  {
+    "id": "micai-current#13",
+    "section": "Pruebas y límites: exploratorio, no equivalencia, no utilidad clínica probada",
+    "title": "Pruebas y límites: exploratorio, no equivalencia, no utilidad clínica probada",
+    "source": "MICAI 2026 — ponencia y seguimiento",
+    "url": "../micai2026.html#reproduce",
+    "text": "Las comparaciones entre objetivos son post hoc y exploratorias. Wilcoxon bilateral con zsplit y Holm se usa por familias declaradas; Holm no elimina la dependencia ni controla conjuntamente toda la búsqueda. El estudio evalúa un padecimiento, ventanas cortas y una reconstrucción de siete semanas; el seguimiento descriptivo añade 16. No se probó reentrenamiento semanal, transferencia a otros contextos ni impacto en servicios clínicos. No rechazar una hipótesis no demuestra equivalencia. La cobertura de 58.8 % para la banda del 80 % se atribuye al artículo; no está recalculada con extremos de intervalos públicos ausentes."
+  },
+  {
+    "id": "micai-current#14",
+    "section": "Acuerdo de ganadores: 34 observado frente a 31 de referencia",
+    "title": "Acuerdo de ganadores: 34 observado frente a 31 de referencia",
+    "source": "MICAI 2026 — ponencia y seguimiento",
+    "url": "../micai2026.html#findings",
+    "text": "En una comparación adicional entre Prophet, Ensemble y Stacking, el ganador histórico coincide con el registrado en S03–S18 en 34 de 99 series, aproximadamente 34 %. Las frecuencias marginales dan una referencia descriptiva de 31 %, no 33 % ni una prueba formal de azar. Ensemble tiene menor error histórico que Prophet en 61 % de series; Prophet menor en 60 % en 2026. Estas series se superponen y la sensibilidad de 32 estados debilita la evidencia inferencial de inversión del orden."
+  },
+  {
+    "id": "micai-current#15",
+    "section": "Desagregación por sexo y entidad federativa: aporte y alcance",
+    "title": "Desagregación por sexo y entidad federativa: aporte y alcance",
+    "source": "Paper MICAI 2026",
+    "url": "../Reports/micai2026/MICAI2026_012_Rebull_accepted_manuscript.pdf",
+    "text": "La desagregación por sexo y entidad federativa permite representar cada objetivo por separado, registrar su modelo elegido y evaluar errores locales en vez de depender solo de un resultado nacional. El marco incluye los estratos general, mujeres y hombres para cada estado, las regiones y el país; su evaluación observada tiene 99 objetivos (32 estados y un nacional por tres estratos). Así pueden examinarse diferencias de trayectorias, de elecciones y de error entre entidades y estratos. Esa granularidad es una propiedad del diseño, no una demostración de mayor exactitud frente a un modelo simple ni de utilidad clínica. Los objetivos pueden superponerse y no son réplicas independientes."
+  }
+]
