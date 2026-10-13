@@ -294,7 +294,7 @@ function buildColumn(state, isWinner, maxPerPad) {
                  style="width:${pct.toFixed(1)}%;background:${color}"></div>
             <span class="comparador-pad__bar-value">${data.casos.toLocaleString()}</span>
           </div>
-          <div class="comparador-pad__smape">SMAPE ${data.smape.toFixed(1)}%</div>
+          ${data.smape != null ? `<div class="comparador-pad__smape">SMAPE ${data.smape.toFixed(1)}%</div>` : ''}
         </div>`;
     })
     .join('');
@@ -310,10 +310,10 @@ function buildColumn(state, isWinner, maxPerPad) {
       </div>
 
       <table class="comparador-metrics">
-        <tr>
+        ${state.smape != null ? `<tr>
           <td class="comparador-metrics__label">SMAPE promedio</td>
           <td class="comparador-metrics__value">${state.smape.toFixed(1)}%</td>
-        </tr>
+        </tr>` : ''}
         <tr>
           <td class="comparador-metrics__label">Motor principal</td>
           <td class="comparador-metrics__value">${state.motor}</td>

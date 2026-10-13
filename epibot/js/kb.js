@@ -113,8 +113,12 @@ function _fixCohortStats() {
     stats.motor_ganador_pct = r1((win[1] / 333) * 100);
   }
 
+  // Con las métricas de selección retiradas no se re-deriva NINGUNA métrica de error: los
+  // promedios saldrían null (prod_models ya no las trae) y reintroducirían las claves retiradas.
+  const conMetricas = !metricasRetiradas(DATA);
+
   // Métricas globales (neuro)
-  for (const [prefix, key] of [['smape_prod', 'smape_prod'], ['mase_prod', 'mase_prod'], ['rmse_prod', 'rmse_prod'], ['mae_prod', 'mae_prod']]) {
+  if (conMetricas) for (const [prefix, key] of [['smape_prod', 'smape_prod'], ['mase_prod', 'mase_prod'], ['rmse_prod', 'rmse_prod'], ['mae_prod', 'mae_prod']]) {
     const vals = nums(key);
     if (!vals.length) continue;
     stats[`${prefix}_mean`] = r2(mean(vals));
@@ -126,7 +130,7 @@ function _fixCohortStats() {
   // Precisión histórica (neuro): los valores vienen como "91.3%"
   const ph = neuro.map(m => parseFloat(String(m.precision_historica || '').replace('%', '')))
     .filter(v => isFinite(v));
-  if (ph.length) {
+  if (conMetricas && ph.length) {
     stats.precision_historica_mean = r1(mean(ph));
     stats.precision_historica_median = r1(median(ph));
   }
@@ -151,6 +155,7 @@ function _fixCohortStats() {
   stats.leakage_sospechoso = lkSosp;
 
   // Top/Bottom 5 por SMAPE (neuro)
+  if (!conMetricas) return;
   const bySmape = neuro.filter(m => m.smape_prod != null && isFinite(m.smape_prod))
     .map(m => ({ entidad: m.entidad, padecimiento: m.padecimiento, sexo: m.sexo, smape: r2(m.smape_prod), motor: m.modelo_produccion }));
   const asc = [...bySmape].sort((a, b) => a.smape - b.smape);
@@ -292,6 +297,61 @@ function confidence(smape) {
   if (smape < 40) return 'moderada';
   if (smape < 80) return 'baja';
   return 'muy baja';
+}
+
+// ---------------------------------------------------------------------------
+// M\u00e9tricas de selecci\u00f3n retiradas (decisi\u00f3n del autor, 13-oct-2026)
+// ---------------------------------------------------------------------------
+// En la ronda con corte W37 todas las m\u00e9tricas de error por serie o por motor (SMAPE, MASE, RMSE,
+// MAE, sus medianas/medias, rankings y top/bottom por ellas, \u00abprecisi\u00f3n hist\u00f3rica\u00bb) son el error de
+// la ventana W28\u2013W37 con la que se eligi\u00f3 el motor productivo de cada serie: diagn\u00f3stico de
+// selecci\u00f3n, no evaluaci\u00f3n independiente. El generador las quita de knowledge.json y declara
+// `metricas_seleccion.publicadas === false`. Todo lo que pinte esos valores pregunta aqu\u00ed primero:
+// con la declaraci\u00f3n presente responde el aviso (y conserva lo que no es m\u00e9trica: motor productivo,
+// distribuci\u00f3n de motores, conteos de series). Las DEFINICIONES de SMAPE/MASE siguen respondi\u00e9ndose.
+
+/** true si knowledge.json declara retiradas las m\u00e9tricas de selecci\u00f3n de esta ronda. */
+export function metricasRetiradas(kb = DATA) {
+  const ms = kb && kb.metricas_seleccion;
+  return !!(ms && ms.publicadas === false);
+}
+
+/** Ventana de selecci\u00f3n declarada (p. ej. \u00abW28\u2013W37\u00bb). */
+function _ventanaMetricas(kb = DATA) {
+  const ms = (kb && kb.metricas_seleccion) || {};
+  return ms.ventana || 'W28\u2013W37';
+}
+
+/** R\u00f3tulo corto para chips/etiquetas: \u00abdiagn\u00f3stico de selecci\u00f3n W28\u2013W37; no evaluaci\u00f3n independiente\u00bb. */
+export function rotuloMetricas(kb = DATA) {
+  const ms = (kb && kb.metricas_seleccion) || {};
+  return ms.rotulo || `diagn\u00f3stico de selecci\u00f3n ${_ventanaMetricas(kb)}; no evaluaci\u00f3n independiente`;
+}
+
+/** Aviso est\u00e1ndar (texto plano) que sustituye a cualquier valor de m\u00e9trica retirado. */
+export function avisoMetricas(kb = DATA) {
+  return `Las m\u00e9tricas de error de esta ronda (ventana ${_ventanaMetricas(kb)}) se usaron para elegir ` +
+    'el motor de cada serie: son diagn\u00f3stico de selecci\u00f3n, no evaluaci\u00f3n independiente, y no se publican.';
+}
+
+/** Aviso en Markdown, con encabezado, para las respuestas del bot. */
+function avisoMetricasMd(kb = DATA) {
+  return `**M\u00e9tricas de error no publicadas.** ${avisoMetricas(kb)}`;
+}
+
+// La consulta (ya normalizada: min\u00fasculas, sin acentos) pregunta por una m\u00e9trica de error.
+const _RE_PIDE_METRICA = /\b(s?mape|mase|rmse|mae|metricas?|rendimiento|desempeno|precision|precisos?|exactitud|confianza|errores|error)\b/;
+function _pideMetrica(q) { return _RE_PIDE_METRICA.test(q || ''); }
+
+/**
+ * Texto libre de knowledge.json (p. ej. `padecimiento_info.*.nota_mexico`) sin las frases que
+ * citan una métrica de error. La regla del generador quita CLAVES, no frases dentro de un texto:
+ * con las métricas retiradas, la frase «SMAPE … (>100%)» se cae aquí en vez de pintarse.
+ */
+function _sinFrasesDeMetrica(txt, kb = DATA) {
+  if (!txt || !metricasRetiradas(kb)) return txt;
+  const frases = String(txt).split(/(?<=\.)\s+/);
+  return frases.filter(f => !/\b(s?mape|mase|rmse|mae)\b/i.test(f)).join(' ').trim();
 }
 
 /** Busca posici\u00f3n de una entidad en el ranking de precisi\u00f3n para un padecimiento. */
@@ -571,7 +631,7 @@ function answerLugarDesconocido(q, ent, s, d) {
   if (ent.padecimiento) {
     const ps = s.por_pad?.[ent.padecimiento];
     if (ps && ps.casos_futuro_total) {
-      lines.push(`A nivel **Nacional**, se pronostican **${fmt(ps.casos_futuro_total)} casos de ${ent.padecimiento}** en 52 semanas (SMAPE: ${ps.smape_prod_median}%).`);
+      lines.push(`A nivel **Nacional**, se pronostican **${fmt(ps.casos_futuro_total)} casos de ${ent.padecimiento}** en 52 semanas${!metricasRetiradas(d) && ps.smape_prod_median != null ? ` (SMAPE: ${ps.smape_prod_median}%)` : ''}.`);
     }
     lines.push(`\nPrueba con una entidad valida: "${ent.padecimiento} en Jalisco", "${ent.padecimiento} en CDMX".`);
   } else {
@@ -600,16 +660,24 @@ function answerEdadNoDisponible(q, ent, s, d) {
     const ps = s.por_pad?.[pad]?.por_sexo?.[ent.sexo];
     lines.push(`Sin embargo, si contamos con pronosticos diferenciados por **sexo**:\n`);
     if (ps) {
-      lines.push(`${articuloSexo} **${sexoLabel}** representan el **${ps.pct_series}** de las series de ${pad}.`);
-      lines.push(`- Pronostico: **${fmt(ps.casos_futuro)}** casos en 52 semanas`);
-      lines.push(`- SMAPE promedio: **${ps.smape_mean}%**`);
+      // por_sexo trae n / casos_total / casos_nacional (no pct_series ni casos_futuro): sin esto
+      // la respuesta pintaba «undefined» y «?».
+      const nPad = s.por_pad?.[pad]?.n;
+      if (ps.pct_series != null) {
+        lines.push(`${articuloSexo} **${sexoLabel}** representan el **${ps.pct_series}** de las series de ${pad}.`);
+      } else if (ps.n != null && nPad) {
+        lines.push(`${articuloSexo} **${sexoLabel}** tienen **${ps.n} de ${nPad}** series de ${pad}.`);
+      }
+      const casosSexo = ps.casos_futuro ?? ps.casos_nacional;
+      if (casosSexo != null) lines.push(`- Pronostico${ps.casos_futuro == null ? ' nacional' : ''}: **${fmt(casosSexo)}** casos en 52 semanas`);
+      if (!metricasRetiradas(d) && ps.smape_mean != null) lines.push(`- SMAPE promedio: **${ps.smape_mean}%**`);
     }
   } else {
     const ps = s.por_pad?.[pad];
     if (ps?.casos_futuro_total) {
       lines.push(`Datos generales de **${pad}**:`);
       lines.push(`- Pronostico total: **${fmt(ps.casos_futuro_total)}** casos en 52 semanas`);
-      lines.push(`- SMAPE mediano: **${ps.smape_median}%**`);
+      if (!metricasRetiradas(d) && ps.smape_median != null) lines.push(`- SMAPE mediano: **${ps.smape_median}%**`);
     }
   }
 
@@ -1049,8 +1117,13 @@ function answerProyectoMeta(q, ent, s, d) {
   if (any(q, padTriggers)) {
     const pp = s.por_pad || {};
     const lines = ['**EpiForecast-MX modela cuatro padecimientos**: tres neurol\u00f3gicos (Depresi\u00f3n, Parkinson, Alzheimer) y **Dengue** (pipeline propio). Los tres neurol\u00f3gicos, de la Clasificaci\u00f3n Internacional de Enfermedades (CIE-10):\n'];
-    lines.push('| Padecimiento | SMAPE mediano | Motor ganador | Series ganadas | Distribuci\u00f3n |');
-    lines.push('|-------------|:------------:|:-------------:|:--------------:|:-----------|');
+    const conSmape = !metricasRetiradas(d);
+    lines.push(conSmape
+      ? '| Padecimiento | SMAPE mediano | Motor ganador | Series ganadas | Distribuci\u00f3n |'
+      : '| Padecimiento | Motor ganador | Series ganadas | Distribuci\u00f3n |');
+    lines.push(conSmape
+      ? '|-------------|:------------:|:-------------:|:--------------:|:-----------|'
+      : '|-------------|:-------------:|:--------------:|:-----------|');
     for (const [nombre, cie, key] of [['Depresi\u00f3n', 'F32', 'Depresion'], ['Parkinson', 'G20', 'Parkinson'], ['Alzheimer', 'G30', 'Alzheimer']]) {
       const ps = pp[key] || {};
       const smape = ps.smape_prod_median != null ? ps.smape_prod_median + '%' : '?';
@@ -1063,7 +1136,9 @@ function answerProyectoMeta(q, ent, s, d) {
         .sort((a, b) => b[1] - a[1])
         .map(([m, n]) => `${m}: ${n}`)
         .join(', ');
-      lines.push(`| **${nombre} (${cie})** | ${smape} | ${ganador} | ${nGanador}/${total} | ${distStr} |`);
+      lines.push(conSmape
+        ? `| **${nombre} (${cie})** | ${smape} | ${ganador} | ${nGanador}/${total} | ${distStr} |`
+        : `| **${nombre} (${cie})** | ${ganador} | ${nGanador}/${total} | ${distStr} |`);
     }
     // Global motor summary (cohorte neuro: numerador y denominador = 333)
     const motorTotals = {};
@@ -1249,7 +1324,7 @@ function answerProyectoMeta(q, ent, s, d) {
 
     lines.push('**4. Pronostico**');
     lines.push(`Horizonte de **${tc.horizonte || 52} semanas** hacia adelante (corte: ${tc.fecha_corte || '2025-01-01'}).`);
-    if (s.smape_prod_median != null) {
+    if (s.smape_prod_median != null && !metricasRetiradas(d)) {
       lines.push(`Precision global: SMAPE mediano **${s.smape_prod_median}%**.`);
     }
 
@@ -1264,7 +1339,9 @@ function answerProyectoMeta(q, ent, s, d) {
       '- **Padecimientos**: Depresi\u00f3n (F32), Parkinson (G20), Alzheimer (G30), Dengue (A97)\n' +
       '- **Geograf\u00edas**: 32 entidades + 4 regiones INEGI + Nacional\n' +
       `- **Modelos**: Prophet, DeepAR, Ensemble, Stacking (${s.total_modelos || 333} en producci\u00f3n)\n` +
-      '- **M\u00e9tricas**: SMAPE, MASE, RMSE, MAE por serie\n' +
+      (metricasRetiradas(d)
+        ? '- **M\u00e9tricas**: qu\u00e9 miden SMAPE, MASE, RMSE y MAE (los valores de esta ronda son diagn\u00f3stico de selecci\u00f3n y no se publican)\n'
+        : '- **M\u00e9tricas**: SMAPE, MASE, RMSE, MAE por serie\n') +
       '- **Bolet\u00edn epidemiol\u00f3gico**: datos hist\u00f3ricos 2014\u20132026\n' +
       '- **Equipo**: integrantes, roles, contribuciones\n' +
       '- **Infraestructura**: tests, CI/CD, SageMaker, costos\n' +
@@ -1472,12 +1549,15 @@ function answerDengue(q, ent, s, d) {
 
   // Rendimiento 2026 por motor (SMAPE + MASE): cuadro análogo al de la cohorte neuro.
   const rd = d.rendimiento_2026 && d.rendimiento_2026.dengue;
-  if (rd && (any(q, ['rendimiento', 'desempeno', 'mase', 'cuadro']) || (any(q, ['smape']) && any(q, ['motor', 'tabla', 'padecimiento'])))) {
+  const retiradas = metricasRetiradas(d);
+  if (!retiradas && rd && (any(q, ['rendimiento', 'desempeno', 'mase', 'cuadro']) || (any(q, ['smape']) && any(q, ['motor', 'tabla', 'padecimiento'])))) {
     return _cuadroDengue(rd);
   }
+  // Retiradas: la pregunta de rendimiento recibe la ficha de modelos (motor, series) con el aviso.
+  const pideMetricaRetirada = retiradas && any(q, ['rendimiento', 'desempeno', 'mase', 'rmse', 'cuadro', 'precision']);
 
   // Modelos / motores / métricas (incluye "tasa": Dengue es conteos, no tasa) y nº de series
-  if (any(q, ['modelo', 'motor', 'smape', 'metrica', 'mejor model', 'cual usan', 'que usan', 'deepar', 'prophet', 'ensemble', 'stacking', 'produccion', 'tasa', 'serie', 'series', 'tabla'])) {
+  if (pideMetricaRetirada || any(q, ['modelo', 'motor', 'smape', 'metrica', 'mejor model', 'cual usan', 'que usan', 'deepar', 'prophet', 'ensemble', 'stacking', 'produccion', 'tasa', 'serie', 'series', 'tabla'])) {
     const tipos = {
       DeepAR: 'Red neuronal recurrente (GluonTS)',
       NBGLM: 'Conteos NegBin + Fourier + El Niño',
@@ -1503,7 +1583,10 @@ function answerDengue(q, ent, s, d) {
       '|:------|:-----|:----------:|-------:|',
       rows, '',
       `![Distribución de motores productivos de Dengue: ${(dg.motores_productivos || []).map((m) => `${m} ${dg.dist_motor?.[m] || 0}`).join(', ')} series](../Reports/dengue/dengue_motores_dona.png)`, '',
-      `A nivel **nacional** el motor productivo es **${dg.motor_nacional}** (SMAPE **${dg.smape_nacional}%**). Se modela en **${dg.unidad}**.`, '',
+      retiradas || dg.smape_nacional == null
+        ? `A nivel **nacional** el motor productivo es **${dg.motor_nacional}**. Se modela en **${dg.unidad}**.`
+        : `A nivel **nacional** el motor productivo es **${dg.motor_nacional}** (SMAPE **${dg.smape_nacional}%**). Se modela en **${dg.unidad}**.`, '',
+      ...(retiradas ? [avisoMetricasMd(d), ''] : []),
       `*Ensemble y Stacking no son elegibles: los árboles (XGBoost/LightGBM) no extrapolan la dinámica epidémica a 52 semanas.${(dg.motores_entrenados || []).includes('NBGLM') && !prodSet.has('NBGLM') ? ' NBGLM está suspendido en esta ronda por la inestabilidad de su predicción recursiva.' : ''} Muchas de las ${dg.n_series} series tienen pocos casos; la señal robusta es la nacional.*`,
     ].join('\n');
   }
@@ -1577,7 +1660,7 @@ function answerDengue(q, ent, s, d) {
   if (info) {
     lines.push(`**${info.nombre_completo} (CIE-10: ${info.cie})**`, '', info.descripcion, '', '**Síntomas principales**:');
     for (const e of (info.efectos || [])) lines.push(`- ${e}`);
-    if (info.nota_mexico) lines.push('', `**En México**: ${info.nota_mexico}`);
+    if (_sinFrasesDeMetrica(info.nota_mexico, d)) lines.push('', `**En México**: ${_sinFrasesDeMetrica(info.nota_mexico, d)}`);
   } else {
     lines.push('**Dengue (CIE-10: A97)**');
   }
@@ -1632,13 +1715,14 @@ function formatPadInfo(info, pad, s) {
     '**Efectos en la salud**:',
   ];
   for (const e of (info.efectos || [])) lines.push(`- ${e}`);
-  if (info.nota_mexico) lines.push(`\n**En M\u00e9xico**: ${info.nota_mexico}`);
+  const nota = _sinFrasesDeMetrica(info.nota_mexico);
+  if (nota) lines.push(`\n**En M\u00e9xico**: ${nota}`);
 
   const ps = s.por_pad?.[pad];
   if (ps) {
     lines.push('\n**Datos del proyecto EpiForecast-MX**:');
     if (ps.casos_futuro_total) lines.push(`- Pron\u00f3stico 52 semanas: ${fmt(ps.casos_futuro_total)} casos`);
-    if (ps.smape_prod_mean != null) lines.push(`- SMAPE promedio: ${ps.smape_prod_mean}%`);
+    if (ps.smape_prod_mean != null && !metricasRetiradas()) lines.push(`- SMAPE promedio: ${ps.smape_prod_mean}%`);
     if (ps.motor_ganador) lines.push(`- Motor ganador: ${ps.motor_ganador}`);
     if (ps.n) lines.push(`- Modelos de producci\u00f3n: ${ps.n}`);
   }
@@ -2038,7 +2122,7 @@ function answerBoletin(q, ent, s, d) {
         lines.push(`**Pron\u00f3stico de ${pad} (${sexoLabel})** \u2014 pr\u00f3ximas 52 semanas:\n`);
         lines.push(`- Casos pronosticados: **${fmt(totalCasos)}**`);
         lines.push(`- Modelos: ${ps.n} series`);
-        lines.push(`- SMAPE: ${ps.smape_prod_mean}% (media) / ${ps.smape_prod_median}% (mediana)`);
+        if (!metricasRetiradas(d) && ps.smape_prod_mean != null) lines.push(`- SMAPE: ${ps.smape_prod_mean}% (media) / ${ps.smape_prod_median}% (mediana)`);
         if (ps.casos_nacional) lines.push(`- Nacional: **${fmt(ps.casos_nacional)} casos**`);
 
         const psGen = s.por_pad?.[pad]?.por_sexo?.general;
@@ -2203,7 +2287,10 @@ function answerMapaMexico(q, ent, s, d) {
   const models = d.prod_models || [];
   if (!models.length) return null;
 
-  const isSmape = any(q, ['smape', 'error', 'precision']);
+  // Con las métricas de selección retiradas el mapa se colorea sólo por incidencia.
+  const retiradas = metricasRetiradas(d);
+  const isSmape = !retiradas && any(q, ['smape', 'error', 'precision']);
+  const pidioMetrica = retiradas && any(q, ['smape', 'mase', 'error', 'precision']);
 
   // Detectar padecimiento
   const padAliases = { depresion: 'Depresion', depression: 'Depresion', f32: 'Depresion',
@@ -2257,10 +2344,16 @@ function answerMapaMexico(q, ent, s, d) {
       lines.push('Color: mas oscuro = menor incidencia, mas claro = mayor incidencia.\n');
     }
     lines.push('**Top 5 entidades**:');
-    lines.push('| Entidad | Casos (52 sem) | SMAPE prom |');
-    lines.push('|---------|---------------:|-----------:|');
-    for (const e of sorted.slice(0, 5)) {
-      lines.push(`| ${e.e} | ${fmt(e.casos)} | ${e.smape != null ? e.smape.toFixed(1) + '%' : '?'} |`);
+    if (retiradas) {
+      lines.push('| Entidad | Casos (52 sem) |');
+      lines.push('|---------|---------------:|');
+      for (const e of sorted.slice(0, 5)) lines.push(`| ${e.e} | ${fmt(e.casos)} |`);
+    } else {
+      lines.push('| Entidad | Casos (52 sem) | SMAPE prom |');
+      lines.push('|---------|---------------:|-----------:|');
+      for (const e of sorted.slice(0, 5)) {
+        lines.push(`| ${e.e} | ${fmt(e.casos)} | ${e.smape != null ? e.smape.toFixed(1) + '%' : '?'} |`);
+      }
     }
     lines.push(`\n**Total**: **${fmt(totalCasos)} casos** pronosticados (52 semanas).`);
   } else {
@@ -2288,6 +2381,7 @@ function answerMapaMexico(q, ent, s, d) {
     }
   }
 
+  if (pidioMetrica) lines.push('', avisoMetricasMd(d));
   return lines.join('\n');
 }
 
@@ -2315,15 +2409,24 @@ function answerTreemap(q, ent, s, d) {
     .sort((a, b) => b.casos - a.casos);
 
   const lines = [];
+  const retiradas = metricasRetiradas(d);
   lines.push(`**Panorama nacional**: pronostico por entidad (${sorted.length} estados).\n`);
-  lines.push('Color: verde (SMAPE < 30%) | amarillo (30-60%) | rojo (> 60%)\n');
+  lines.push(retiradas
+    ? 'Tamaño de cada bloque: casos pronosticados (52 semanas).\n'
+    : 'Color: verde (SMAPE < 30%) | amarillo (30-60%) | rojo (> 60%)\n');
 
   const top5 = sorted.slice(0, 5);
   lines.push('**Top 5 entidades** (mayor pronostico):');
-  lines.push('| Entidad | Casos (52 sem) | SMAPE prom |');
-  lines.push('|---------|---------------:|-----------:|');
-  for (const e of top5) {
-    lines.push(`| ${e.e} | ${fmt(e.casos)} | ${e.smape}% |`);
+  if (retiradas) {
+    lines.push('| Entidad | Casos (52 sem) |');
+    lines.push('|---------|---------------:|');
+    for (const e of top5) lines.push(`| ${e.e} | ${fmt(e.casos)} |`);
+  } else {
+    lines.push('| Entidad | Casos (52 sem) | SMAPE prom |');
+    lines.push('|---------|---------------:|-----------:|');
+    for (const e of top5) {
+      lines.push(`| ${e.e} | ${fmt(e.casos)} | ${e.smape}% |`);
+    }
   }
 
   const totalCasos = sorted.reduce((a, e) => a + e.casos, 0);
@@ -2347,6 +2450,18 @@ function answerRadar(q, ent, s, d) {
 
   const motors = Object.keys(pm);
   const totalSeries = Object.values(dist).reduce((a, v) => a + v, 0);
+
+  // Retiradas: sin ejes de error no hay radar; queda la cobertura de cada motor y el aviso.
+  if (metricasRetiradas(d)) {
+    const out = ['**Comparativa de motores**: series en las que cada motor quedó como productivo.\n'];
+    out.push('| Motor | Series productivas |');
+    out.push('|-------|-------------------:|');
+    for (const [m, n] of Object.entries(dist).sort((a, b) => b[1] - a[1])) {
+      out.push(`| ${m} | ${n} (${totalSeries ? ((n / totalSeries) * 100).toFixed(0) : 0}%) |`);
+    }
+    out.push('', avisoMetricasMd(d));
+    return out.join('\n');
+  }
 
   const lines = [];
   lines.push('**Radar comparativo de motores**: 5 ejes normalizados (mayor area = mejor).\n');
@@ -2836,6 +2951,8 @@ function answerSpecificSeries(q, ent, s, d) {
   const specific = sexo ? matches.find(m => m.sexo === sexo) : null;
   const primary = specific || gen;
   const total = primary.casos_52_semanas_futuro;
+  // Retiradas: sin SMAPE no hay «confianza» derivada de él, ni ranking de precisión.
+  const retiradas = metricasRetiradas(d);
   const conf = confidence(primary.smape_prod);
   const months = ent._months || [];
   const years = ent._years || [];
@@ -2846,27 +2963,37 @@ function answerSpecificSeries(q, ent, s, d) {
   if (months.length > 0) {
     const mText = monthEstimateText(total, months, years, pad, estado, d);
     if (mText) lines.push(mText);
-    lines.push(`\nModelo: **${primary.modelo_produccion}** | Confianza: **${conf}** (SMAPE: ${primary.smape_prod}%)`);
-    if (primary.precision_historica) lines.push(`Precisi\u00f3n hist\u00f3rica: **${primary.precision_historica}**`);
+    if (retiradas) {
+      lines.push(`\nModelo: **${primary.modelo_produccion}**`);
+    } else {
+      lines.push(`\nModelo: **${primary.modelo_produccion}** | Confianza: **${conf}** (SMAPE: ${primary.smape_prod}%)`);
+      if (primary.precision_historica) lines.push(`Precisi\u00f3n hist\u00f3rica: **${primary.precision_historica}**`);
+    }
   } else {
     // Respuesta directa del pron\u00f3stico
     const sexoLabel = specific ? ` (${sexo})` : '';
     lines.push(
       `Se pronostican **${fmt(total)} casos de ${pad} en ${estado}${sexoLabel}** ` +
-      `para las pr\u00f3ximas 52 semanas (confianza: **${conf}**).\n`
+      `para las pr\u00f3ximas 52 semanas${retiradas ? '' : ` (confianza: **${conf}**)`}.\n`
     );
-    lines.push(`Modelo de producci\u00f3n: **${primary.modelo_produccion}** (SMAPE: ${primary.smape_prod}%` +
-      (primary.precision_historica ? `, precisi\u00f3n hist\u00f3rica: ${primary.precision_historica}` : '') + ')');
+    if (retiradas) {
+      lines.push(`Modelo de producci\u00f3n: **${primary.modelo_produccion}**`);
+    } else {
+      lines.push(`Modelo de producci\u00f3n: **${primary.modelo_produccion}** (SMAPE: ${primary.smape_prod}%` +
+        (primary.precision_historica ? `, precisi\u00f3n hist\u00f3rica: ${primary.precision_historica}` : '') + ')');
+    }
   }
 
   // Tabla de desglose por sexo (solo si no pide sexo espec\u00edfico y hay varias series)
   if (!sexo && matches.length > 1) {
-    lines.push('\n| Grupo | Pron\u00f3stico 52 sem | Motor | Confianza |');
-    lines.push('|-------|-------------------|-------|-----------|');
+    lines.push(retiradas ? '\n| Grupo | Pron\u00f3stico 52 sem | Motor |' : '\n| Grupo | Pron\u00f3stico 52 sem | Motor | Confianza |');
+    lines.push(retiradas ? '|-------|-------------------|-------|' : '|-------|-------------------|-------|-----------|');
     for (const m of matches) {
       const label = m.sexo === 'general' ? 'General' :
                     m.sexo === 'hombres' ? 'Hombres' : 'Mujeres';
-      lines.push(`| ${label} | ${fmt(m.casos_52_semanas_futuro)} casos | ${m.modelo_produccion} | ${confidence(m.smape_prod)} (${m.smape_prod}%) |`);
+      lines.push(retiradas
+        ? `| ${label} | ${fmt(m.casos_52_semanas_futuro)} casos | ${m.modelo_produccion} |`
+        : `| ${label} | ${fmt(m.casos_52_semanas_futuro)} casos | ${m.modelo_produccion} | ${confidence(m.smape_prod)} (${m.smape_prod}%) |`);
     }
 
     // Si pregunt\u00f3 por mes, agregar columna de estimaci\u00f3n mensual
@@ -2887,10 +3014,11 @@ function answerSpecificSeries(q, ent, s, d) {
   if (hist) lines.push(`\n**Contexto hist\u00f3rico**: ${hist}`);
 
   // Posici\u00f3n en ranking de precisi\u00f3n
-  const rank = findRank(models, pad, estado);
+  const rank = retiradas ? null : findRank(models, pad, estado);
   if (rank) {
     lines.push(`\n${estado} ocupa la **posici\u00f3n #${rank.rank} de ${rank.total}** entidades en precisi\u00f3n de pron\u00f3stico para ${pad} (ordenado por SMAPE, menor es mejor).`);
   }
+  if (retiradas && _pideMetrica(q)) lines.push('\n' + avisoMetricasMd(d));
 
   return lines.join('\n');
 }
@@ -2959,7 +3087,14 @@ function answerComparativaEstados(q, ent, s, d) {
   }
 
   // Table header
-  if (pad) {
+  const retiradas = metricasRetiradas(d);
+  if (retiradas) {
+    lines.push('| Entidad | Pronóstico 52 sem | Modelos | Motor principal |');
+    lines.push('|---------|------------------:|:-------:|-----------------|');
+    for (const c of comparisons) {
+      lines.push(`| **${c.estado}** | ${fmt(c.totalCasos)} casos | ${c.nModelos} | ${c.topMotor ? c.topMotor[0] : '—'} |`);
+    }
+  } else if (pad) {
     lines.push('| Entidad | Pronóstico 52 sem | SMAPE | Motor | Confianza |');
     lines.push('|---------|------------------:|------:|-------|-----------|');
     for (const c of comparisons) {
@@ -2997,13 +3132,13 @@ function answerComparativaEstados(q, ent, s, d) {
     lines.push(`- Ratio: ${sorted[0].estado} tiene **${ratio}x** más casos que ${sorted[sorted.length - 1].estado}`);
   }
 
-  const bestSmape = [...comparisons].filter(c => c.avgSmape != null).sort((a, b) => a.avgSmape - b.avgSmape);
+  const bestSmape = retiradas ? [] : [...comparisons].filter(c => c.avgSmape != null).sort((a, b) => a.avgSmape - b.avgSmape);
   if (bestSmape.length) {
     lines.push(`- Mejor precisión: **${bestSmape[0].estado}** (SMAPE ${bestSmape[0].avgSmape}%)`);
   }
 
   // Store chart data for extractChartData to pick up
-  lines.push(`\n<!--COMPARE:${JSON.stringify(comparisons.map(c => ({ estado: c.estado, total: c.totalCasos, smape: c.avgSmape, motor: c.topMotor ? c.topMotor[0] : '?', models: c.models.map(m => ({ pad: m.padecimiento, casos: m.casos_52_semanas_futuro, smape: m.smape_prod, motor: m.modelo_produccion })) })))}-->`);
+  lines.push(`\n<!--COMPARE:${JSON.stringify(comparisons.map(c => ({ estado: c.estado, total: c.totalCasos, smape: retiradas ? null : c.avgSmape, motor: c.topMotor ? c.topMotor[0] : '?', models: c.models.map(m => ({ pad: m.padecimiento, casos: m.casos_52_semanas_futuro, smape: retiradas ? null : m.smape_prod, motor: m.modelo_produccion })) })))}-->`);
 
   return lines.join('\n');
 }
@@ -3059,17 +3194,20 @@ function answerEstado(q, ent, s, d) {
   }
 
   // Confianza
-  if (smapeMean != null) {
+  const retiradas = metricasRetiradas(d);
+  if (smapeMean != null && !retiradas) {
     const conf = confidence(smapeMean);
     lines.push(`Confianza general: **${conf}** (SMAPE promedio: ${smapeMean}%)`);
   }
 
   // Desglose por padecimiento (solo general, cohorte neuro)
   if (estModels.length) {
-    lines.push('\n| Padecimiento | Pron\u00f3stico 52 sem | Motor | SMAPE |');
-    lines.push('|-------------|-------------------|-------|-------|');
+    lines.push(retiradas ? '\n| Padecimiento | Pron\u00f3stico 52 sem | Motor |' : '\n| Padecimiento | Pron\u00f3stico 52 sem | Motor | SMAPE |');
+    lines.push(retiradas ? '|-------------|-------------------|-------|' : '|-------------|-------------------|-------|-------|');
     for (const m of estModels) {
-      lines.push(`| ${m.padecimiento} | ${fmt(m.casos_52_semanas_futuro)} casos | ${m.modelo_produccion} | ${m.smape_prod}% |`);
+      lines.push(retiradas
+        ? `| ${m.padecimiento} | ${fmt(m.casos_52_semanas_futuro)} casos | ${m.modelo_produccion} |`
+        : `| ${m.padecimiento} | ${fmt(m.casos_52_semanas_futuro)} casos | ${m.modelo_produccion} | ${m.smape_prod}% |`);
     }
   }
 
@@ -3080,6 +3218,7 @@ function answerEstado(q, ent, s, d) {
   }
   const dominant = Object.entries(dist).sort((a, b) => b[1] - a[1])[0];
   if (dominant) lines.push(`\nMotor dominante: **${dominant[0]}** (${dominant[1]} de ${nNeuro} series)`);
+  if (retiradas && _pideMetrica(q)) lines.push('\n' + avisoMetricasMd(d));
 
   // Para Dengue en esta entidad, consulta aparte.
   lines.push('\n*El pron\u00f3stico de Dengue se consulta por separado (preg\u00fantame por dengue).*');
@@ -3144,10 +3283,13 @@ function answerPadecimiento(q, ent, s, d) {
       const wantAll = any(q, ['todos', 'todas', 'completa', 'completo', 'lista completa', 'el listado', 'cada estado', 'cada entidad', '32 estados', '32 entidades']);
       const rows = wantAll ? padModels : padModels.slice(0, 10);
       lines.push(`**Entidades con ${label} pronóstico de ${pad}** (52 semanas)${wantAll ? ` — las ${rows.length}` : ''}:\n`);
-      lines.push('| # | Entidad | Casos pronosticados | Motor | SMAPE |');
-      lines.push('|---|---------|--------------------:|-------|-------|');
+      const retiradas = metricasRetiradas(d);
+      lines.push(retiradas ? '| # | Entidad | Casos pronosticados | Motor |' : '| # | Entidad | Casos pronosticados | Motor | SMAPE |');
+      lines.push(retiradas ? '|---|---------|--------------------:|-------|' : '|---|---------|--------------------:|-------|-------|');
       rows.forEach((m, i) => {
-        lines.push(`| ${i + 1} | ${m.entidad} | ${fmt(m.casos_52_semanas_futuro)} | ${m.modelo_produccion} | ${m.smape_prod}% |`);
+        lines.push(retiradas
+          ? `| ${i + 1} | ${m.entidad} | ${fmt(m.casos_52_semanas_futuro)} | ${m.modelo_produccion} |`
+          : `| ${i + 1} | ${m.entidad} | ${fmt(m.casos_52_semanas_futuro)} | ${m.modelo_produccion} | ${m.smape_prod}% |`);
       });
 
       const first = padModels[0];
@@ -3176,7 +3318,7 @@ function answerPadecimiento(q, ent, s, d) {
   }
 
   // Rendimiento
-  if (ps.smape_prod_mean != null) {
+  if (ps.smape_prod_mean != null && !metricasRetiradas(d)) {
     lines.push(`Rendimiento: SMAPE promedio **${ps.smape_prod_mean}%** (mediana: ${ps.smape_prod_median}%) — confianza **${confidence(ps.smape_prod_median)}**`);
   }
   if (ps.motor_ganador) {
@@ -3208,12 +3350,15 @@ function answerPadecimiento(q, ent, s, d) {
   const wantsSex = any(q, ['sexo', 'genero', 'hombre', 'mujer', 'distribucion']);
   const psx = ps.por_sexo || {};
   if (wantsSex && Object.keys(psx).length) {
+    const retiradas = metricasRetiradas(d);
     lines.push('\n**Distribución por sexo:**\n');
-    lines.push('| Sexo | Modelos | Casos pronosticados | SMAPE promedio | SMAPE mediana |');
-    lines.push('|------|--------:|--------------------:|---------------:|--------------:|');
+    lines.push(retiradas ? '| Sexo | Modelos | Casos pronosticados |' : '| Sexo | Modelos | Casos pronosticados | SMAPE promedio | SMAPE mediana |');
+    lines.push(retiradas ? '|------|--------:|--------------------:|' : '|------|--------:|--------------------:|---------------:|--------------:|');
     for (const [sx, info] of Object.entries(psx)) {
       const label = sx === 'general' ? 'General' : sx === 'hombres' ? 'Hombres' : 'Mujeres';
-      lines.push(`| ${label} | ${info.n} | ${fmt(info.casos_total)} | ${info.smape_prod_mean}% | ${info.smape_prod_median}% |`);
+      lines.push(retiradas
+        ? `| ${label} | ${info.n} | ${fmt(info.casos_total)} |`
+        : `| ${label} | ${info.n} | ${fmt(info.casos_total)} | ${info.smape_prod_mean}% | ${info.smape_prod_median}% |`);
     }
     // Insight
     const h = psx.hombres, m = psx.mujeres;
@@ -3232,6 +3377,7 @@ function answerPadecimiento(q, ent, s, d) {
   // Contexto historico
   const hist = getHistContext(d, pad, null);
   if (hist) lines.push(`\n**Contexto histórico**: ${hist}`);
+  if (metricasRetiradas(d) && _pideMetrica(q)) lines.push('\n' + avisoMetricasMd(d));
 
   return lines.join('\n');
 }
@@ -3249,9 +3395,10 @@ function answerMotor(q, ent, s, d) {
   if (conceptual && ent.modelo) return null;
 
   const motor = ent.modelo;
+  const retiradas = metricasRetiradas(d);
   if (motor) {
     const ms = s.por_motor?.[motor];
-    if (!ms) return null;
+    if (!ms && !retiradas) return null;
     const n = s.dist_motor?.[motor] || 0;
     const total = s.total_modelos || 333;
     const pctWin = ((n / total) * 100).toFixed(1);
@@ -3261,6 +3408,10 @@ function answerMotor(q, ent, s, d) {
       `**${motor}** gana **${n} de ${total} series** (${pctWin}%)${isWinner ? ' \u2014 es el **motor ganador** global.' : '.'}\n`,
     ];
 
+    if (retiradas) {
+      lines.push(avisoMetricasMd(d));
+      return lines.join('\n');
+    }
     lines.push('| M\u00e9trica | Promedio | Mediana |');
     lines.push('|---------|---------|---------|');
     if (ms.smape_mean != null) lines.push(`| SMAPE | ${ms.smape_mean}% | ${ms.smape_median}% |`);
@@ -3285,6 +3436,21 @@ function answerMotor(q, ent, s, d) {
     const lines = [
       `**${s.motor_ganador}** es el motor m\u00e1s utilizado, ganando **${s.motor_ganador_n} de ${s.total_modelos || 333} series** (${s.motor_ganador_pct}%).\n`,
     ];
+
+    // Retiradas: el reparto de series productivas sí se publica; el error medio por motor, no.
+    if (retiradas) {
+      lines.push('| Motor | Series productivas |');
+      lines.push('|-------|-------------------:|');
+      for (const [name, n] of Object.entries(s.dist_motor || {}).sort((a, b) => b[1] - a[1])) {
+        lines.push(`| ${name} | ${n} |`);
+      }
+      lines.push(
+        `\nEl sistema selecciona autom\u00e1ticamente el motor de cada combinaci\u00f3n padecimiento/entidad/sexo; ` +
+        `el motor productivo var\u00eda por serie.`
+      );
+      if (mejorMotor || _pideMetrica(q) || any(q, ['mejor', 'peor', 'preciso'])) lines.push('\n' + avisoMetricasMd(d));
+      return lines.join('\n');
+    }
 
     lines.push('| Motor | SMAPE medio | MASE medio | Series ganadas |');
     lines.push('|-------|------------|------------|----------------|');
@@ -3412,14 +3578,19 @@ function answerSexo(q, ent, s, d) {
         `**${fmt(demo.mujeres)}** en mujeres (${demo.pct_m}%) \u2014 raz\u00f3n mujeres/hombres **${demo.ratio_mh}**.\n`);
     }
 
-    lines.push('| Sexo | Modelos | Pron\u00f3stico 52 sem | SMAPE medio | SMAPE mediana |');
-    lines.push('|------|--------:|------------------:|------------:|--------------:|');
+    const retiradas = metricasRetiradas(d);
+    lines.push(retiradas
+      ? '| Sexo | Modelos | Pron\u00f3stico 52 sem |'
+      : '| Sexo | Modelos | Pron\u00f3stico 52 sem | SMAPE medio | SMAPE mediana |');
+    lines.push(retiradas
+      ? '|------|--------:|------------------:|'
+      : '|------|--------:|------------------:|------------:|--------------:|');
     for (const sx of ['general', 'hombres', 'mujeres']) {
       const info = psPad[sx];
       if (!info) continue;
       const label = sx === 'general' ? 'General' : sx === 'hombres' ? 'Hombres' : 'Mujeres';
-      lines.push(`| ${label}${foco === sx ? ' \u2190' : ''} | ${info.n} | ${fmt(info.casos_total)} | ` +
-        `${info.smape_prod_mean}% | ${info.smape_prod_median}% |`);
+      lines.push(`| ${label}${foco === sx ? ' \u2190' : ''} | ${info.n} | ${fmt(info.casos_total)} |` +
+        (retiradas ? '' : ` ${info.smape_prod_mean}% | ${info.smape_prod_median}% |`));
     }
 
     const h = psPad.hombres, m = psPad.mujeres;
@@ -3428,13 +3599,15 @@ function answerSexo(q, ent, s, d) {
       const info = psPad[foco];
       const pct = ((info.casos_total / totalHM) * 100).toFixed(1);
       lines.push(`\nEn **${foco}** se pronostican **${fmt(info.casos_total)} casos de ${pad}** en 52 semanas ` +
-        `(**${pct}%** del total hombres+mujeres), con SMAPE mediano ${info.smape_prod_median}%.`);
+        `(**${pct}%** del total hombres+mujeres)` +
+        (retiradas || info.smape_prod_median == null ? '.' : `, con SMAPE mediano ${info.smape_prod_median}%.`));
     } else if (totalHM > 0) {
       const dominante = m.casos_total > h.casos_total ? 'mujeres' : 'hombres';
       const pctDom = ((Math.max(m.casos_total, h.casos_total) / totalHM) * 100).toFixed(1);
       lines.push(`\nEl **${pctDom}%** del pron\u00f3stico de ${pad} corresponde a **${dominante}** ` +
         `(hombres: ${fmt(h.casos_total)} casos, mujeres: ${fmt(m.casos_total)} casos).`);
     }
+    if (retiradas && _pideMetrica(q)) lines.push('\n' + avisoMetricasMd(d));
     return lines.join('\n');
   }
 
@@ -3448,6 +3621,7 @@ function answerSexo(q, ent, s, d) {
     if (data.mase_mean != null) lines.push(`- MASE promedio: ${data.mase_mean}`);
     lines.push('');
   }
+  if (metricasRetiradas(d)) lines.push(avisoMetricasMd(d));
   return lines.join('\n');
 }
 
@@ -3473,6 +3647,16 @@ function answerMetricaGlobal(q, ent, s, d) {
   if (esIntencionDefinicion(q)) return null;                                   // -> answerDefinicion
   if (any(q, ['mejor', 'peor', 'top ', 'ranking',
     'mas preciso', 'mas precisos', 'menor error'])) return null;               // -> answerRanking
+
+  // Retiradas: el resumen global de métricas ES el diagnóstico de selección. Queda el aviso y lo
+  // que no es métrica (cuántos modelos, qué motor domina).
+  if (metricasRetiradas(d)) {
+    const out = [avisoMetricasMd(d), ''];
+    out.push(`Lo que s\u00ed se publica: **${s.total_modelos || 333} modelos** de producci\u00f3n; ` +
+      `motor m\u00e1s frecuente **${s.motor_ganador}** (${s.motor_ganador_n} series, ${s.motor_ganador_pct}%).`);
+    out.push('\nSi quieres saber qu\u00e9 mide cada m\u00e9trica, preg\u00fantame por ejemplo \u00ab\u00bfqu\u00e9 es el SMAPE?\u00bb.');
+    return out.join('\n');
+  }
 
   const conf = confidence(s.smape_prod_median);
   const lines = [
@@ -3507,6 +3691,17 @@ function answerRanking(q, ent, s, d) {
   const triggers = ['mejor', 'peor', 'top', 'ranking', 'mejores modelo', 'peores modelo',
     'mas preciso', 'mas precisos', 'mayor precision', 'menor error'];
   if (!any(q, triggers)) return null;
+
+  // Retiradas: este ranking ordena SERIES por SMAPE (diagnóstico de selección). Los rankings por
+  // CASOS (boletín, pronóstico por entidad) los atienden otros handlers y siguen publicándose.
+  if (metricasRetiradas(d)) {
+    return [
+      avisoMetricasMd(d), '',
+      'Por eso no hay ranking de modelos \u00abmejores\u00bb o \u00abpeores\u00bb por error en esta ronda. ' +
+      'S\u00ed puedo darte rankings por casos: por ejemplo \u00abranking de depresi\u00f3n\u00bb (bolet\u00edn) o ' +
+      '\u00abestados con m\u00e1s casos pronosticados de parkinson\u00bb.',
+    ].join('\n');
+  }
 
   const lines = [];
   // Filtrar series triviales (SMAPE ~0% = incidencia cercana a cero, no precision real)
@@ -3600,8 +3795,9 @@ function answerValidacion(q, ent, s, d) {
   if (!any(q, triggers)) return null;
 
   const lines = [];
+  const retiradas = metricasRetiradas(d);
 
-  if (s.precision_historica_mean != null) {
+  if (s.precision_historica_mean != null && !retiradas) {
     lines.push(`La precisi\u00f3n hist\u00f3rica promedio de los modelos es de **${s.precision_historica_mean}%** (mediana: ${s.precision_historica_median}%).\n`);
   }
 
@@ -3613,16 +3809,20 @@ function answerValidacion(q, ent, s, d) {
     lines.push('');
   }
 
-  if (s.precision_historica_mean != null && !val) {
+  if (s.precision_historica_mean != null && !val && !retiradas) {
     lines.push('**Precisi\u00f3n hist\u00f3rica** (52 semanas previas):');
     lines.push(`- Promedio: ${s.precision_historica_mean}%`);
     lines.push(`- Mediana: ${s.precision_historica_median}%`);
   }
 
+  // Retiradas: la «precisión histórica» por serie es diagnóstico de selección. El error de la
+  // última semana observada (validación semanal) no es una métrica por serie y se conserva.
+  if (retiradas && (_pideMetrica(q) || q.includes('acertamos'))) lines.push(avisoMetricasMd(d));
+
   if (!lines.length) return null;
 
   // Interpretaci\u00f3n
-  if (s.precision_historica_mean != null && s.precision_historica_mean > 85) {
+  if (!retiradas && s.precision_historica_mean != null && s.precision_historica_mean > 85) {
     lines.push('\nLa precisi\u00f3n hist\u00f3rica superior al 85% indica que los modelos **replican adecuadamente** los patrones observados en las 52 semanas previas.');
   }
 
@@ -3735,7 +3935,9 @@ function answerPronostico(q, ent, s, d) {
     }
 
     if (ps.motor_ganador) {
-      lines.push(`\nMotor ganador: **${ps.motor_ganador}** | Confianza: **${confidence(ps.smape_prod_median)}** (SMAPE mediano: ${ps.smape_prod_median}%)`);
+      lines.push(metricasRetiradas(d) || ps.smape_prod_median == null
+        ? `\nMotor ganador: **${ps.motor_ganador}**`
+        : `\nMotor ganador: **${ps.motor_ganador}** | Confianza: **${confidence(ps.smape_prod_median)}** (SMAPE mediano: ${ps.smape_prod_median}%)`);
     }
 
     const hist = getHistContext(d, pad, null);
@@ -3954,6 +4156,29 @@ function answerComparacionPorSexo(q, ent, s, d) {
     !String(m.entidad || '').startsWith('region')
   );
 
+  // Retiradas: SMAPE/MASE por sexo son diagnóstico de selección. Queda la carga pronosticada.
+  if (metricasRetiradas(d)) {
+    const out = ['**Hombres vs mujeres: pronóstico a 52 semanas**\n'];
+    out.push('Basado en los 333 modelos productivos (32 estados, sin doble conteo).\n');
+    out.push('| Padecimiento | Sexo | N | Pronóstico 52 sem |');
+    out.push('|---|---|---:|---:|');
+    const lect = [];
+    for (const pad of PADS) {
+      const fc = {};
+      for (const sx of SEXES) {
+        const subset = realStates.filter(m => m.padecimiento === pad && m.sexo === sx);
+        fc[sx] = subset.reduce((sum, m) => sum + (m.casos_52_semanas_futuro || 0), 0);
+        out.push(`| **${PAD_LABEL[pad]}** | ${sx === 'hombres' ? 'Hombres' : 'Mujeres'} | ${subset.length} | ${fmt(fc[sx])} |`);
+      }
+      if (fc.hombres && fc.mujeres) {
+        lect.push(`- **${PAD_LABEL[pad]}**: la carga proyectada de mujeres es **${(fc.mujeres / fc.hombres).toFixed(2)}×** la de hombres.`);
+      }
+    }
+    if (lect.length) out.push('\n**Lecturas clave:**', ...lect);
+    out.push('', avisoMetricasMd(d));
+    return out.join('\n');
+  }
+
   const lines = ['**Desempeño del modelo: hombres vs mujeres**\n'];
   lines.push('Comparativa basada en los 333 modelos productivos (32 estados, sin doble conteo). Métricas SMAPE más bajas = mejor precisión.\n');
   lines.push('| Padecimiento | Sexo | N | SMAPE medio | MASE medio | Pronóstico 52 sem |');
@@ -4166,8 +4391,8 @@ function answerComparacionSemanal(q, ent, s, d) {
       lines.push('');
       lines.push(`**Acumulado ${realWeeks.length} semanas:** Real **${fmt(acumReal)}** vs Pronostico **${fmt(acumPron)}** (${diffSign}${diffPct}%)`);
 
-      // SMAPE promedio
-      const smapes = realWeeks.filter(w => w.error_pct != null && w.real > 0).map(w => {
+      // SMAPE promedio (retirado con las métricas de selección: promedia la ventana W28–W37)
+      const smapes = metricasRetiradas(d) ? [] : realWeeks.filter(w => w.error_pct != null && w.real > 0).map(w => {
         const r = w.real, f = w.pronostico;
         return 200 * Math.abs(f - r) / (Math.abs(f) + Math.abs(r));
       });
@@ -4229,10 +4454,11 @@ function answerPreguntaPersonal(q, ent, s, d) {
     if (info) {
       lines.push(`Pero puedo contarte sobre **${info.nombre_completo || pad}** (CIE-10: ${info.cie}):\n`);
       lines.push(info.descripcion);
-      if (info.nota_mexico) lines.push(`\n**En Mexico:** ${info.nota_mexico}`);
+      const nota = _sinFrasesDeMetrica(info.nota_mexico, d);
+      if (nota) lines.push(`\n**En Mexico:** ${nota}`);
     }
     if (ps && ps.casos_futuro_total) {
-      lines.push(`\n**En nuestro proyecto:** se pronostican **${fmt(ps.casos_futuro_total)} casos** en 52 semanas (SMAPE: ${ps.smape_prod_median}%, motor: ${ps.motor_ganador}).`);
+      lines.push(`\n**En nuestro proyecto:** se pronostican **${fmt(ps.casos_futuro_total)} casos** en 52 semanas (${!metricasRetiradas(d) && ps.smape_prod_median != null ? `SMAPE: ${ps.smape_prod_median}%, ` : ''}motor: ${ps.motor_ganador}).`);
     }
   } else {
     lines.push('Pero puedo ayudarte con informacion sobre **Depresion**, **Parkinson** y **Alzheimer**: pronosticos, datos historicos, metricas de los modelos y mas.');
@@ -4255,6 +4481,23 @@ function answerDistribucion(q, ent, s, d) {
     (ent.padecimiento || ent.estado) && any(q, filterKw);
 
   if (!any(q, chartKw) && !(any(q, ['grafico', 'grafica', 'chart', 'plot']) && any(q, metricKw)) && !isDistribFollowUp) return null;
+
+  // Retiradas: la distribución de SMAPE/MASE/RMSE/MAE por serie es el diagnóstico de selección.
+  // Se responde el aviso (también a los follow-ups «solo de la depresión»); sin métrica nombrada,
+  // la pregunta no era de métricas y se cede.
+  if (metricasRetiradas(d)) {
+    if (!isDistribFollowUp && !any(q, metricKw)) return null;
+    const nombre = isDistribFollowUp ? _lastDistribMetric.label
+      : q.includes('mase') ? 'MASE' : q.includes('smape') ? 'SMAPE' : q.includes('rmse') ? 'RMSE' : 'MAE';
+    const foco = ent.padecimiento ? ` de ${ent.padecimiento}` : '';
+    _lastDistribMetric = { metric: null, label: nombre };
+    _lastChartHandler = 'distribucion';
+    return [
+      `**Distribución de ${nombre}${foco}: no publicada**\n`,
+      avisoMetricasMd(d), '',
+      `Sí puedo explicarte qué mide el ${nombre} (pregunta «¿qué es el ${nombre}?») o mostrarte la distribución de motores productivos.`,
+    ].join('\n');
+  }
 
   // Detect which metric (use stored for follow-ups)
   let metric = null, metricLabel = '';
@@ -4367,12 +4610,14 @@ function answerGraficoAleatorio(q, ent, s, d) {
     { metric: 'rmse_prod', label: 'RMSE' },
     { metric: 'mae_prod', label: 'MAE' },
   ];
-  for (const m of metrics) {
+  // Retiradas: los generadores 1–3 (distribuciones y tops por métrica) no entran al catálogo.
+  const conMetricas = !metricasRetiradas(d);
+  if (conMetricas) for (const m of metrics) {
     generators.push(() => _genDistribChart(models, m.metric, m.label));
   }
 
   // 2. Top 10 modelos por SMAPE (mejores)
-  generators.push(() => {
+  if (conMetricas) generators.push(() => {
     const top = models.filter(m => m.sexo === 'general' && m.smape_prod != null)
       .sort((a, b) => a.smape_prod - b.smape_prod).slice(0, 10);
     if (!top.length) return null;
@@ -4385,7 +4630,7 @@ function answerGraficoAleatorio(q, ent, s, d) {
   });
 
   // 3. Top 10 peores modelos por SMAPE
-  generators.push(() => {
+  if (conMetricas) generators.push(() => {
     const worst = models.filter(m => m.sexo === 'general' && m.smape_prod != null)
       .sort((a, b) => b.smape_prod - a.smape_prod).slice(0, 10);
     if (!worst.length) return null;
@@ -4633,12 +4878,14 @@ function answerReportePDF(q, ent, s, d) {
   const lines = [];
   lines.push('**Reporte ejecutivo generado.**\n');
   lines.push('Se abrira una ventana de impresion con el reporte completo que incluye:\n');
-  lines.push('- Resumen ejecutivo con metricas globales');
+  const retiradas = metricasRetiradas(d);
+  lines.push(retiradas ? '- Resumen ejecutivo (modelos, series y motores productivos)' : '- Resumen ejecutivo con metricas globales');
   lines.push('- Semaforo epidemiologico (32 estados)');
   lines.push('- Pronostico a 52 semanas por padecimiento');
   lines.push('- Top 10 entidades por incidencia');
-  lines.push('- Metricas de calidad por motor\n');
+  lines.push(retiradas ? '- Distribución de motores productivos\n' : '- Metricas de calidad por motor\n');
   lines.push(`**Total nacional pronosticado**: ${fmt(totalCasos)} casos (${s.total_modelos || 333} modelos).`);
+  if (retiradas) lines.push('\n*' + avisoMetricas(d) + '*');
 
   return lines.join('\n');
 }
@@ -4649,7 +4896,8 @@ function answerReportePDF(q, ent, s, d) {
 
 function answerRendimientoPorPadecimiento(q, ent, s, d) {
   const R = d.rendimiento_2026;
-  if (!R || !R.por_pad || !Object.keys(R.por_pad).length) return null;
+  const retiradas = metricasRetiradas(d);
+  if (!retiradas && (!R || !R.por_pad || !Object.keys(R.por_pad).length)) return null;
 
   // No robar intents de graficos (matriz de burbujas, arsenal polar, mapas...).
   // 'grafico/grafica/plot/chart' + una métrica es distribución gráfica: la responde
@@ -4674,6 +4922,28 @@ function answerRendimientoPorPadecimiento(q, ent, s, d) {
   if (!explicit && !porPadMetric && !bothMetrics && !singlePad && !year2026Metric) return null;
 
   const DISP = { Alzheimer: 'Alzheimer', Depresion: 'Depresión', Parkinson: 'Parkinson' };
+
+  // Retiradas: los cuadros SMAPE/MASE por padecimiento × motor eran el diagnóstico de selección
+  // W28–W37. Se responde el aviso y lo que sí se publica: el reparto de motores productivos.
+  if (retiradas) {
+    const pp = s.por_pad || {};
+    const pads = ent.padecimiento && pp[ent.padecimiento] ? [ent.padecimiento] : Object.keys(pp).filter(isNeuro);
+    const out = ['**Rendimiento por padecimiento y motor: no publicado en esta ronda**\n', avisoMetricasMd(d), ''];
+    out.push('Lo que sí se publica es qué motor quedó productivo en cada serie:\n');
+    out.push('| Padecimiento | Series | Motores productivos |');
+    out.push('|:-------------|-------:|:--------------------|');
+    for (const pad of pads) {
+      const info = pp[pad] || {};
+      const dist = Object.entries(info.dist_motor || {}).sort((a, b) => b[1] - a[1]).map(([m, n]) => `${m} ${n}`).join(', ');
+      out.push(`| ${DISP[pad] || pad} | ${info.n != null ? info.n : '—'} | ${dist || '—'} |`);
+    }
+    const dg = d.dengue;
+    if (!ent.padecimiento && dg && dg.dist_motor) {
+      const dist = Object.entries(dg.dist_motor).filter(([, n]) => n > 0).sort((a, b) => b[1] - a[1]).map(([m, n]) => `${m} ${n}`).join(', ');
+      out.push(`| Dengue | ${dg.n_series != null ? dg.n_series : '—'} | ${dist || '—'} |`);
+    }
+    return out.join('\n');
+  }
   const pctv = (v) => (v == null ? '—' : `${Number(v).toFixed(1)}%`);
   const masev = (v) => (v == null ? '—' : Number(v).toFixed(2));
   const orden = R.orden_motores || ['DeepAR', 'Prophet', 'Stacking', 'Ensemble'];
@@ -4765,6 +5035,11 @@ function answerMatrizRendimiento(q, ent, s, d) {
   const models = d.prod_models || [];
   if (!models.length) return null;
 
+  // Retiradas: los dos ejes (precisión histórica y SMAPE) son diagnóstico de selección.
+  if (metricasRetiradas(d)) {
+    return ['**Matriz de rendimiento: no publicada en esta ronda**\n', avisoMetricasMd(d)].join('\n');
+  }
+
   const lines = [];
   lines.push('**Matriz de rendimiento**: cada burbuja es un modelo estatal (sexo general).\n');
   lines.push('- **Eje X**: precisión histórica (mayor es mejor)');
@@ -4828,6 +5103,9 @@ function answerMejoresPeores(q, ent, s, d) {
   const triggerAlt = any(q, ['ranking']) && any(q, ['precision']);
   if (!any(q, triggers) && !triggerAlt) return null;
 
+  if (metricasRetiradas(d)) {
+    return ['**Mejores y peores modelos: no publicado en esta ronda**\n', avisoMetricasMd(d)].join('\n');
+  }
   const top = s.top5_smape || [];
   const bot = s.bottom5_smape || [];
   if (!top.length && !bot.length) return null;
@@ -4873,6 +5151,12 @@ function answerVolumenError(q, ent, s, d) {
     .sort((a, b) => b.casos - a.casos).slice(0, 3);
 
   const lines = [];
+  if (metricasRetiradas(d)) {
+    lines.push('**Volumen** en los estados de mayor incidencia (casos pronosticados a 52 semanas):\n');
+    for (const t of top) lines.push(`- **${t.n}**: ${fmt(t.casos)} casos`);
+    lines.push('', avisoMetricasMd(d));
+    return lines.join('\n');
+  }
   lines.push('**Volumen vs error** en los estados de mayor incidencia: las barras muestran los casos pronosticados y la linea el SMAPE promedio.\n');
   for (const t of top) lines.push(`- **${t.n}**: ${fmt(t.casos)} casos · SMAPE ${t.smape.toFixed(1)}%`);
   lines.push('\nIdealmente, mas volumen deberia venir acompanado de menor error: la linea ayuda a detectar estados grandes con baja precision.');
@@ -4909,6 +5193,10 @@ function answerMasePorMotor(q, ent, s, d) {
   const triggerAlt = any(q, ['mase']) && any(q, ['motor']);
   if (!any(q, triggers) && !triggerAlt) return null;
 
+  if (metricasRetiradas(d)) {
+    return ['**MASE por motor: no publicado en esta ronda**\n', avisoMetricasMd(d), '',
+      'Si quieres saber qué mide el MASE, pregunta «¿qué es el MASE?».'].join('\n');
+  }
   const pm = s.por_motor;
   if (!pm || !Object.keys(pm).length) return null;
 
@@ -4998,6 +5286,9 @@ function answerSmapeBox(q, ent, s, d) {
   // la interceptaba y devolvía el rango intercuartil en vez del gráfico pedido.
   const distribChart = any(q, ['boxplot', 'box plot', 'caja y bigotes', 'violin', 'histograma']);
   if (distribChart && any(q, ['smape', 'mase', 'rmse', 'mae'])) return null;
+  if (metricasRetiradas(d)) {
+    return ['**Rango de SMAPE por padecimiento: no publicado en esta ronda**\n', avisoMetricasMd(d)].join('\n');
+  }
   const pp = s.por_pad;
   if (!pp) return null;
   const lines = [];
@@ -5055,10 +5346,15 @@ function answerCodeRequest(q, ent, s, d) {
   const lines = [];
   lines.push('Soy **EPI**, el asistente de inteligencia epidemiológica de EpiForecast-MX. No genero código a la medida ni funciono como asistente de programación general.');
   lines.push('\nEn cambio, puedo ayudarte con:');
-  lines.push('- Pronósticos y métricas (SMAPE, MASE) por entidad y padecimiento');
+  const retiradas = metricasRetiradas(d);
+  lines.push(retiradas
+    ? '- Pronósticos y motor productivo por entidad y padecimiento'
+    : '- Pronósticos y métricas (SMAPE, MASE) por entidad y padecimiento');
   lines.push('- Comparativas de motores, mapas, semáforos y reportes');
   lines.push('- La metodología del proyecto y el paper MICAI');
-  lines.push('\nPor ejemplo: «métricas globales», «depresión en Jalisco» o «cómo se elige el modelo por serie».');
+  lines.push(retiradas
+    ? '\nPor ejemplo: «motores productivos», «depresión en Jalisco» o «cómo se elige el modelo por serie».'
+    : '\nPor ejemplo: «métricas globales», «depresión en Jalisco» o «cómo se elige el modelo por serie».');
   return lines.join('\n');
 }
 

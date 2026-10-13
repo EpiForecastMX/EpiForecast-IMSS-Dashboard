@@ -18,6 +18,9 @@ import {
   problemasDelBannerEstatico,
   problemasDeDistribuciones,
   problemasDeSuperficies,
+  problemasDeMetricasSeleccion,
+  problemasDeMetricasEnPagina,
+  PAGINAS_OPERATIVAS,
   VOCABULARIO,
 } from './lib/cifras_contrato.mjs';
 
@@ -43,6 +46,29 @@ try {
   problemas.push(`no se pudo leer knowledge.json: ${e.message}`);
 }
 if (kb) problemas.push(...problemasDeKnowledge(kb));
+
+// Métricas de selección W28–W37 retiradas: ni en knowledge.json ni en las vistas operativas.
+if (kb) {
+  const pm = problemasDeMetricasSeleccion(kb);
+  problemas.push(...pm);
+  console.log(`  métricas de selección en knowledge.json: ${pm.length ? `${pm.length} PUBLICADAS` : 'retiradas y declaradas'}`);
+}
+{
+  let nPag = 0;
+  for (const rel of PAGINAS_OPERATIVAS) {
+    let html;
+    try {
+      html = readFileSync(resolve(RAIZ_PUBLICADA, rel), 'utf8');
+    } catch (e) {
+      problemas.push(`no se pudo leer ${rel}: ${e.message}`);
+      continue;
+    }
+    const p = problemasDeMetricasEnPagina(rel, html);
+    nPag += p.length;
+    problemas.push(...p);
+  }
+  console.log(`  métricas de selección en ${PAGINAS_OPERATIVAS.length} vistas operativas: ${nPag ? `${nPag} PINTADAS` : 'ninguna'}`);
+}
 
 // Lo que la gente realmente lee. Sin esto el gate vigilaba una sola puerta.
 const sup = problemasDeSuperficies(

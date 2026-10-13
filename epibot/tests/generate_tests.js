@@ -26,6 +26,15 @@ import { norm, detectEntities } from '../js/entities.js';
 // Load knowledge.json directly (no fetch in Node)
 const DATA = JSON.parse(readFileSync(new URL('../knowledge.json', import.meta.url), 'utf-8'));
 
+// Métricas de selección retiradas (decisión del autor, 13-oct-2026): en la ronda con corte W37 las
+// métricas de error por serie/motor son el diagnóstico de la ventana W28–W37 con la que se eligió el
+// motor, no una evaluación independiente, y no se publican. Las preguntas que pedían sus VALORES
+// esperan el aviso; las DEFINICIONES («qué es el SMAPE») siguen respondiéndose. El contrato es fijo
+// (no depende del knowledge.json en disco): el fixture describe el producto vigente.
+const AVISO = 'diagnóstico de selección';
+// (mustNotContain es subcadena sin mayúsculas: «NaN» a secas casaría con «ganando»)
+const SIN_VALORES = ['undefined', ' NaN', 'NaN%', '<!--DISTRIB:'];
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Test case definitions
 // ─────────────────────────────────────────────────────────────────────────────
@@ -259,12 +268,12 @@ add('dame datos historicos del proyecto', 'answerBoletin', ['Boletin', 'Periodo'
 // =====================================================================
 
 add('como va el modelo de depresion en 2026', 'answerComparacionSemanal', ['Real', 'Pronostico', 'Depresion']);
-add('real vs pronostico depresion', 'answerComparacionSemanal', ['Acumulado', 'SMAPE']);
+add('real vs pronostico depresion', 'answerComparacionSemanal', ['Acumulado'], ['SMAPE promedio']);
 add('cuantos casos van en 2026 de depresion', 'answerComparacionSemanal', ['Real', 'Pronostico']);
 add('comparacion semanal', 'answerComparacionSemanal', ['Sem 1', 'Sem 7']);
 add('como se comporta el modelo de parkinson', 'answerComparacionSemanal', ['Parkinson', 'Real']);
 add('compara real vs pronostico', 'answerComparacionSemanal', ['Acumulado']);
-add('acierto semanal de depresion', 'answerComparacionSemanal', ['Depresion', 'SMAPE']);
+add('acierto semanal de depresion', 'answerComparacionSemanal', ['Depresion', 'Acumulado'], ['SMAPE promedio']);
 add('cuantos llevamos de alzheimer en 2026', 'answerComparacionSemanal', ['Alzheimer', 'Real']);
 
 // =====================================================================
@@ -350,7 +359,7 @@ add('depresion general', 'answerPadecimiento', ['Depresion']);
 add('como va el parkinson en general', 'answerPadecimiento', ['Parkinson']);
 add('estadisticas de alzheimer', 'answerPadecimiento', ['Alzheimer']);
 add('modelo ganador de depresion', 'answerPadecimiento', ['Depresion']);
-add('rendimiento de los modelos de parkinson', 'answerPadecimiento', ['Parkinson']);
+add('rendimiento de los modelos de parkinson', 'answerPadecimiento', ['Parkinson', AVISO], SIN_VALORES);
 add('que modelo gana en depresion', 'answerPadecimiento', ['Depresion']);
 add('quien ganara en depresion este ano', 'answerPadecimiento', ['Depresion']);
 add('ranking de depresion', 'answerBoletin', ['Depresion']);
@@ -396,12 +405,12 @@ add('que es deepar', null, []);
 add('como funciona el ensemble', 'answerProyectoMeta', ['Ensemble']);
 add('que es stacking', null, []);
 add('comparacion de motores', 'answerMotor', ['Prophet', 'DeepAR']);
-add('que motor tiene mejor smape', 'answerMotor', ['SMAPE']);
+add('que motor tiene mejor smape', 'answerMotor', [AVISO, 'Series productivas'], SIN_VALORES);
 add('distribucion de motores ganadores', 'answerMotor', ['DeepAR']);
 add('cuantas series tiene deepar', 'answerMotor', ['DeepAR']);
-add('rendimiento de prophet', 'answerMotor', ['Prophet']);
+add('rendimiento de prophet', 'answerMotor', ['Prophet', AVISO], SIN_VALORES);
 add('que modelo es mejor', 'answerMotor', ['DeepAR']);
-add('rendimiento de cada motor', 'answerMetricaGlobal', ['SMAPE']);
+add('rendimiento de cada motor', 'answerMetricaGlobal', [AVISO], SIN_VALORES);
 add('cual motor gana mas', 'answerRadar', ['DeepAR']);
 add('informacion del deep ar', 'answerMotor', ['DeepAR']);
 add('como se comparan los motores', 'answerMotor', ['Prophet', 'DeepAR']);
@@ -411,14 +420,14 @@ add('xgboost como funciona', 'answerProyectoMeta', ['Ensemble']);
 // SECCION 14: METRICAS GLOBALES (10 tests)
 // =====================================================================
 
-add('cuales son las metricas globales', 'answerMetricaGlobal', ['SMAPE']);
-add('smape promedio del proyecto', 'answerMetricaGlobal', ['SMAPE']);
-add('que tan preciso es el modelo', 'answerValidacion', ['precisi']);
-add('rendimiento general de los modelos', 'answerMetricaGlobal', ['SMAPE']);
-add('metricas de rendimiento', 'answerMetricaGlobal', ['SMAPE']);
-add('dame las metricas', 'answerMetricaGlobal', ['SMAPE']);
-add('que rmse tienen los modelos', 'answerMetricaGlobal', ['RMSE']);
-add('cual es el mase promedio', 'answerMetricaGlobal', ['MASE']);
+add('cuales son las metricas globales', 'answerMetricaGlobal', [AVISO, 'qué es el SMAPE'], SIN_VALORES);
+add('smape promedio del proyecto', 'answerMetricaGlobal', [AVISO], SIN_VALORES);
+add('que tan preciso es el modelo', 'answerValidacion', ['Validaci', AVISO], ['precisión histórica promedio']);
+add('rendimiento general de los modelos', 'answerMetricaGlobal', [AVISO], SIN_VALORES);
+add('metricas de rendimiento', 'answerMetricaGlobal', [AVISO], SIN_VALORES);
+add('dame las metricas', 'answerMetricaGlobal', [AVISO], SIN_VALORES);
+add('que rmse tienen los modelos', 'answerMetricaGlobal', [AVISO], SIN_VALORES);
+add('cual es el mase promedio', 'answerMetricaGlobal', [AVISO], SIN_VALORES);
 add('precision de los modelos', '*', []);
 add('que tan buenos son los modelos', null, []);
 
@@ -502,15 +511,15 @@ add('como se selecciona el modelo de produccion', '*', []);
 // SECCION 20: RANKING (10 tests)
 // =====================================================================
 
-add('ranking de mejores modelos', 'answerRanking', ['SMAPE']);
-add('cuales son los peores modelos', 'answerRanking', ['SMAPE']);
-add('top 5 mejores modelos', 'answerRanking', ['SMAPE']);
-add('top 5 peores modelos', 'answerRanking', ['SMAPE']);
-add('modelos con mejor smape', 'answerRanking', ['SMAPE']);
-add('modelos con peor rendimiento', 'answerRanking', ['SMAPE']);
-add('que modelos son los mejores', 'answerMotor', ['SMAPE']);
-add('mejores y peores modelos', 'answerMejoresPeores', ['SMAPE']);
-add('modelos mas precisos', 'answerRanking', ['SMAPE']);
+add('ranking de mejores modelos', 'answerRanking', [AVISO], ['| SMAPE |']);
+add('cuales son los peores modelos', 'answerRanking', [AVISO], ['| SMAPE |']);
+add('top 5 mejores modelos', 'answerRanking', [AVISO], ['| SMAPE |']);
+add('top 5 peores modelos', 'answerRanking', [AVISO], ['| SMAPE |']);
+add('modelos con mejor smape', 'answerRanking', [AVISO], ['| SMAPE |']);
+add('modelos con peor rendimiento', 'answerRanking', [AVISO], ['| SMAPE |']);
+add('que modelos son los mejores', 'answerMotor', [AVISO, 'Series productivas'], SIN_VALORES);
+add('mejores y peores modelos', 'answerMejoresPeores', [AVISO], SIN_VALORES);
+add('modelos mas precisos', 'answerRanking', [AVISO], ['| SMAPE |']);
 add('modelos menos precisos', '*', []);
 
 // =====================================================================
@@ -734,7 +743,7 @@ addCtx('parkinson en cdmx', 'pero en hombres', 'answerSpecificSeries', ['Parkins
 addCtx('depresion en jalisco', 'ahora en guerrero', 'answerSpecificSeries', ['Depresion', 'Guerrero']);
 
 // Follow-up generico sin prefijo → heredar por dataKeywords
-addCtx('metricas del parkinson', 'ranking mejores', 'answerRanking', ['#']);
+addCtx('metricas del parkinson', 'ranking mejores', 'answerRanking', [AVISO]);
 addCtx('depresion en jalisco', 'diagnosticos', 'answerDiagnosticos', ['overfitting']);
 
 // Follow-up a tema nuevo → NO heredar
@@ -789,8 +798,8 @@ add('pronostico de depresoin', '*', ['Depresion']);
 add('alzeimer en jalisco', '*', ['Alzheimer']);
 add('depreson en cdmx', '*', ['Depresion', 'Ciudad de Mexico']);
 add('parkinsn en sonora', '*', ['Parkinson', 'Sonora']);
-add('metricas glovales', '*', ['SMAPE']);
-add('rankin de modelos', '*', ['SMAPE']);
+add('metricas glovales', '*', [AVISO]);
+add('rankin de modelos', '*', [AVISO]);
 add('pronositco de depresion', '*', ['Depresion']);
 add('tendncia del parkinson', '*', ['Parkinson']);
 add('como esta el alzheimr', '*', ['Alzheimer']);
@@ -857,25 +866,25 @@ add('como sabes cuantos casos habra', 'answerProyectoMeta', ['SINAVE']);
 // SECCION 37a: DISTRIBUCION / VIOLIN (8 tests)
 // =====================================================================
 
-add('grafico de violines del mase', 'answerDistribucion', ['MASE', 'Distribución', 'DISTRIB']);
-add('violin del smape', 'answerDistribucion', ['SMAPE', 'Distribución', 'DISTRIB']);
-add('histograma de rmse', 'answerDistribucion', ['RMSE', 'Distribución', 'DISTRIB']);
-add('distribucion de mase', 'answerDistribucion', ['MASE', 'Distribución', 'DISTRIB']);
-add('boxplot del smape', 'answerDistribucion', ['SMAPE', 'Distribución', 'DISTRIB']);
-add('grafico del mase por padecimiento', 'answerDistribucion', ['MASE', 'DISTRIB']);
-add('distribucion de mae', 'answerDistribucion', ['MAE', 'Distribución', 'DISTRIB']);
-add('grafica de distribucion del rmse', 'answerDistribucion', ['RMSE', 'DISTRIB']);
+add('grafico de violines del mase', 'answerDistribucion', ['MASE', 'Distribución', AVISO], SIN_VALORES);
+add('violin del smape', 'answerDistribucion', ['SMAPE', 'Distribución', AVISO], SIN_VALORES);
+add('histograma de rmse', 'answerDistribucion', ['RMSE', 'Distribución', AVISO], SIN_VALORES);
+add('distribucion de mase', 'answerDistribucion', ['MASE', 'Distribución', AVISO], SIN_VALORES);
+add('boxplot del smape', 'answerDistribucion', ['SMAPE', 'Distribución', AVISO], SIN_VALORES);
+add('grafico del mase por padecimiento', 'answerDistribucion', ['MASE', AVISO], SIN_VALORES);
+add('distribucion de mae', 'answerDistribucion', ['MAE', 'Distribución', AVISO], SIN_VALORES);
+add('grafica de distribucion del rmse', 'answerDistribucion', ['RMSE', AVISO], SIN_VALORES);
 
 // =====================================================================
 // SECCION 37c: DISTRIBUCION — follow-up con filtro (6 tests)
 // =====================================================================
 
-addCtx('violin del smape', 'solo de la depresion', 'answerDistribucion', ['SMAPE', 'Depresion', 'DISTRIB']);
-addCtx('histograma del mase', 'solo del parkinson', 'answerDistribucion', ['MASE', 'Parkinson', 'DISTRIB']);
-addCtx('distribucion de rmse', 'solo del alzheimer', 'answerDistribucion', ['RMSE', 'Alzheimer', 'DISTRIB']);
-addCtx('violin del smape', 'solamente depresion', 'answerDistribucion', ['SMAPE', 'Depresion', 'DISTRIB']);
-addCtx('distribucion de mae', 'filtra por parkinson', 'answerDistribucion', ['MAE', 'Parkinson', 'DISTRIB']);
-addCtx('violin del smape', 'nada mas alzheimer', 'answerDistribucion', ['SMAPE', 'Alzheimer', 'DISTRIB']);
+addCtx('violin del smape', 'solo de la depresion', 'answerDistribucion', ['SMAPE', 'Depresion', AVISO], SIN_VALORES);
+addCtx('histograma del mase', 'solo del parkinson', 'answerDistribucion', ['MASE', 'Parkinson', AVISO], SIN_VALORES);
+addCtx('distribucion de rmse', 'solo del alzheimer', 'answerDistribucion', ['RMSE', 'Alzheimer', AVISO], SIN_VALORES);
+addCtx('violin del smape', 'solamente depresion', 'answerDistribucion', ['SMAPE', 'Depresion', AVISO], SIN_VALORES);
+addCtx('distribucion de mae', 'filtra por parkinson', 'answerDistribucion', ['MAE', 'Parkinson', AVISO], SIN_VALORES);
+addCtx('violin del smape', 'nada mas alzheimer', 'answerDistribucion', ['SMAPE', 'Alzheimer', AVISO], SIN_VALORES);
 
 // =====================================================================
 // SECCION 37d: GRAFICO ALEATORIO / INTERESANTE (10 tests)
@@ -969,9 +978,9 @@ add('el dengue lo modelan', 'answerDengue', ['EpiForecast'], ['no modela'], {pad
 
 // --- Distribución y rendimiento (2) ---
 // Regresión de G4: sin 'boxplot' ni gráfico, sigue siendo answerSmapeBox.
-add('rango de smape', 'answerSmapeBox', ['Rango de SMAPE', 'intercuartil']);
+add('rango de smape', 'answerSmapeBox', ['Rango de SMAPE', AVISO], SIN_VALORES);
 // Regresión de G4: una TABLA sigue siendo de answerRendimientoPorPadecimiento.
-add('tabla de metricas por padecimiento', 'answerRendimientoPorPadecimiento', ['SMAPE', 'MASE']);
+add('tabla de metricas por padecimiento', 'answerRendimientoPorPadecimiento', [AVISO, 'Motores productivos'], SIN_VALORES);
 
 // --- Contexto conversacional (35) ---
 addCtx('cuantos casos llegaron esta semana', 'y cuantos habiamos dicho que habria?', 'answerComparacionSemanal', ['Pronostico', 'Real'], ['52 semanas']);

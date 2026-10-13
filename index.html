@@ -3098,8 +3098,8 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5-2 4-2 4 2 4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
         </div>
         <h3>Depresión</h3>
-        <p>Mayor volumen de casos del portafolio. Tras la re-selección de motores sobre la realidad 2026, la asignación quedó: DeepAR 54, Stacking 31, Prophet 14, Ensemble 12. SMAPE mediano del 16.1% y MASE de 0.57. 100% datos suficientes.</p>
-        <span class="disease-tag">CIE-10: F32 · SMAPE 16.1% · MASE 0.57 · 111 modelos</span>
+        <p>Mayor volumen de casos del portafolio. Con la selección fuera de muestra (semanas 28 a 37 de 2026), la asignación quedó: Ensemble 48, Stacking 29, DeepAR 22, Prophet 12. 100% datos suficientes.</p>
+        <span class="disease-tag">CIE-10: F32 · 111 modelos · pronóstico a 52 semanas</span>
       </div>
 
       <!-- Parkinson -->
@@ -3108,8 +3108,8 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><path d="M12 8v4l3 3"/></svg>
         </div>
         <h3>Parkinson</h3>
-        <p>Escenario desafiante con baja incidencia donde Prophet captura mejor la estacionalidad. SMAPE mediano del 67.0% y MASE de 0.68 (supera el baseline naive). Tras la re-selección sobre la realidad 2026: Prophet 45, DeepAR 25, Ensemble 23, Stacking 18.</p>
-        <span class="disease-tag">CIE-10: G20 · SMAPE 67.0% · MASE 0.68 · 111 modelos</span>
+        <p>Escenario desafiante con baja incidencia. Con la selección fuera de muestra (semanas 28 a 37 de 2026): Prophet 35, Ensemble 31, Stacking 31, DeepAR 14.</p>
+        <span class="disease-tag">CIE-10: G20 · 111 modelos · pronóstico a 52 semanas</span>
       </div>
 
       <!-- Alzheimer -->
@@ -3118,8 +3118,8 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg>
         </div>
         <h3>Alzheimer</h3>
-        <p>Ultra-baja incidencia donde un caso de diferencia genera alto SMAPE. MASE de 0.73 (supera el baseline naive). Tras la re-selección sobre la realidad 2026: Ensemble 50, Prophet 35, DeepAR 19, Stacking 7.</p>
-        <span class="disease-tag">CIE-10: G30 · SMAPE 124.2% · MASE 0.73 · 111 modelos</span>
+        <p>Ultra-baja incidencia, donde un caso de diferencia pesa mucho en el error porcentual. Con la selección fuera de muestra (semanas 28 a 37 de 2026): Stacking 47, Prophet 31, Ensemble 30, DeepAR 3.</p>
+        <span class="disease-tag">CIE-10: G30 · 111 modelos · pronóstico a 52 semanas</span>
       </div>
 
       <!-- Dengue (4.o padecimiento) -->
@@ -3128,8 +3128,8 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8a4 4 0 014 4v2a4 4 0 01-8 0v-2a4 4 0 014-4z"/><path d="M12 8V5"/><path d="M10 4l2 1 2-1"/><path d="M8 12H4M16 12h4M8 15l-3 2M16 15l3 2"/></svg>
         </div>
         <h3>Dengue</h3>
-        <p>Cuarto padecimiento y primera arbovirosis (transmitida por mosquito), con estacionalidad climática y grandes brotes cada cuatro a cinco años, ligados a <strong>El Niño</strong>. Se modela en conteos absolutos; en producción quedan <strong>DeepAR, Prophet y NB-GLM</strong> (el nuevo motor de conteos con regresor de El Niño, el mejor en validación; Ensemble y Stacking no extrapolan la dinámica epidémica). El pronóstico va al ritmo de El Niño: el próximo gran brote se espera hacia 2029.</p>
-        <span class="disease-tag">CIE-10: A97 · SMAPE nac. 20.4% · DeepAR + Prophet · 99 series productivas · 2018-2026</span>
+        <p>Cuarto padecimiento y primera arbovirosis (transmitida por mosquito), con estacionalidad climática y grandes brotes cada cuatro a cinco años, ligados a <strong>El Niño</strong>. Se modela en conteos absolutos; en producción quedan <strong>DeepAR y Prophet</strong>, con pronóstico a 52 semanas. NB-GLM, el mejor en el backtest, queda suspendido en esta ronda porque su predicción recursiva se desboca a horizontes largos; Ensemble y Stacking no extrapolan la dinámica epidémica.</p>
+        <span class="disease-tag">CIE-10: A97 · DeepAR + Prophet · 99 series productivas · 2018-2026</span>
       </div>
     </div>
   </section>
@@ -3145,38 +3145,38 @@
         La entrega final del proyecto: 432 series productivas, pronóstico a 52 semanas y 100% de cobertura estatal.
       </div>
 
-      <p class="edl-table-cap reveal">Para cada serie se elige automáticamente el mejor motor por SMAPE sobre la realidad 2026 del Boletín SINAVE, con MASE como desempate. La tabla resume la cohorte neuropsiquiátrica (333 modelos).</p>
+      <p class="edl-table-cap reveal">Para cada serie se elige automáticamente el motor productivo por SMAPE, con MASE como desempate, en la ventana de selección W28–W37. Esas métricas son un diagnóstico de selección, no una evaluación independiente, y no se publican. La tabla resume la cohorte neuropsiquiátrica (333 modelos).</p>
 
       <div class="edl-table-wrap reveal">
         <table class="edl-table">
           <thead>
-            <tr><th>Padecimiento</th><th>SMAPE mediano</th><th>MASE mediano</th><th>RMSE mediano</th><th>Motor líder</th><th>Cobertura</th></tr>
+            <tr><th>Padecimiento</th><th>Modelos</th><th>Horizonte</th><th>Motor líder</th><th>Cobertura</th></tr>
           </thead>
           <tbody>
             <tr>
-              <td class="pad">Depresión <small>F32 · 111 modelos</small></td>
-              <td class="num">16.1%</td><td class="num">0.57</td><td class="num">8.16</td>
-              <td>DeepAR</td><td class="num">100%</td>
+              <td class="pad">Depresión <small>F32</small></td>
+              <td class="num">111</td><td class="num">52 sem</td>
+              <td>Ensemble</td><td class="num">100%</td>
             </tr>
             <tr>
-              <td class="pad">Parkinson <small>G20 · 111 modelos</small></td>
-              <td class="num">67.0%</td><td class="num">0.68</td><td class="num">1.62</td>
+              <td class="pad">Parkinson <small>G20</small></td>
+              <td class="num">111</td><td class="num">52 sem</td>
               <td>Prophet</td><td class="num">100%</td>
             </tr>
             <tr>
-              <td class="pad">Alzheimer <small>G30 · 111 modelos</small></td>
-              <td class="num">124.2%</td><td class="num">0.73</td><td class="num">0.87</td>
-              <td>Ensemble</td><td class="num">100%</td>
+              <td class="pad">Alzheimer <small>G30</small></td>
+              <td class="num">111</td><td class="num">52 sem</td>
+              <td>Stacking</td><td class="num">100%</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <p class="edl-table-note reveal"><b>Dengue</b> (A97 · 99 series productivas, 2018-2026): SMAPE nacional de 20.4%, con DeepAR y Prophet en producción (NB-GLM suspendido en esta ronda). Pipeline de conteos propio, fuera de la cohorte neuropsiquiátrica.</p>
+      <p class="edl-table-note reveal"><b>Dengue</b> (A97 · 99 series productivas, 2018-2026): DeepAR y Prophet en producción (NB-GLM suspendido en esta ronda). Pipeline de conteos propio, fuera de la cohorte neuropsiquiátrica.</p>
 
       <div class="edl-stats reveal" style="margin-top:2.4rem">
         <div class="edl-stat"><b>4</b><span>folds · CV temporal con pesos</span></div>
-        <div class="edl-stat"><b>&lt; 1.0</b><span>MASE · superan baseline naive (3/3)</span></div>
+        <div class="edl-stat"><b>52</b><span>semanas · horizonte de pronóstico</span></div>
         <div class="edl-stat"><b>907</b><span>pruebas automatizadas</span></div>
         <div class="edl-stat"><b>100%</b><span>cobertura · 0 series sin pronóstico</span></div>
       </div>
@@ -3667,7 +3667,6 @@
         });
         capEl.innerHTML =
           '<span class="hf-chip hf-chip--motor">Motor <b>' + s.motor + '</b></span>' +
-          '<span class="hf-chip">SMAPE <b>' + s.smape + '%</b></span>' +
           '<span class="hf-chip">' + fmt(s.casos) + ' casos · 52 sem</span>';
         sizeCanvas();
         start();

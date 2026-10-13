@@ -6,13 +6,13 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=107';
+import { loadKnowledge, getStats, getData, answer, metricasRetiradas, rotuloMetricas } from './kb.js?v=108';
 import { detectEntities, norm } from './entities.js?v=31';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
 import { renderMexicoMap } from './mexico-map.js?v=3';
 import { renderTimelapse } from './timelapse.js?v=3';
 import { renderSemaforo } from './semaforo.js?v=3';
-import { renderComparador } from './comparador.js?v=3';
+import { renderComparador } from './comparador.js?v=4';
 import { buildComparadorState } from './comparador_data.js?v=1';
 import { initSTT, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking, toggleMute, isTTSEnabled, onSpeakingStateChange } from './voice.js?v=3';
 
@@ -613,7 +613,17 @@ function renderStats(data) {
   const el = (id) => document.getElementById(id);
 
   el('statModelos').textContent = s.total_modelos || 333;
-  el('statSmape').textContent = s.smape_prod_median != null ? `${s.smape_prod_median}%` : '--';
+  // Métricas de selección retiradas (W28–W37): el KPI de SMAPE pasa a «Series productivas».
+  const kpiLbl = el('statSmapeLbl');
+  if (metricasRetiradas(data)) {
+    const series = data.rosters && data.rosters.total_series;
+    el('statSmape').textContent = series != null ? Number(series).toLocaleString('es-MX') : '--';
+    if (kpiLbl) kpiLbl.textContent = 'Series productivas';
+    el('statSmape').title = rotuloMetricas(data);
+  } else {
+    el('statSmape').textContent = s.smape_prod_median != null ? `${s.smape_prod_median}%` : '--';
+    if (kpiLbl) kpiLbl.textContent = 'SMAPE mediana';
+  }
 
   if (s.motor_ganador) {
     el('statMotor').innerHTML =
@@ -666,19 +676,21 @@ function animateCount(el, target, fmt) {
 }
 
 // Pie de pronóstico por padecimiento: motor productivo, SMAPE y casos a 52 sem.
+// Con las métricas de selección retiradas `sm` es null y el chip de SMAPE no se pinta.
 function heroCaption(data, padObj) {
   const fmtInt = (n) => Math.round(n).toLocaleString('es-MX');
+  const retiradas = metricasRetiradas(data);
   if (padObj.pad === 'Dengue' && data.dengue) {
     const d = data.dengue;
     const motor = d.motor_nacional || 'DeepAR';
-    const sm = d.smape_nacional != null ? `${Math.round(d.smape_nacional)}%` : '—';
+    const sm = retiradas ? null : d.smape_nacional != null ? `${Math.round(d.smape_nacional)}%` : '—';
     const casos = d.casos_futuro_nacional_52sem != null ? fmtInt(d.casos_futuro_nacional_52sem) : '—';
     return { motor, sm, casos };
   }
   const p = (data.stats && data.stats.por_pad && data.stats.por_pad[padObj.pad]) || {};
   return {
     motor: p.motor_ganador || '—',
-    sm: p.smape_prod_median != null ? `${Math.round(p.smape_prod_median)}%` : '—',
+    sm: retiradas ? null : p.smape_prod_median != null ? `${Math.round(p.smape_prod_median)}%` : '—',
     casos: p.casos_futuro_total != null ? fmtInt(p.casos_futuro_total) : '—',
   };
 }
@@ -703,7 +715,7 @@ function addWelcome() {
 
   const suggestions = [
     { text: 'Panorama nacional', q: 'panorama nacional' },
-    { text: 'Métricas globales', q: 'metricas globales' },
+    { text: 'Motores productivos', q: 'distribucion de motores ganadores' },
     { text: 'Mapa de México', q: 'mapa de mexico por casos' },
     { text: 'Equipo', q: 'equipo del proyecto' },
   ];
@@ -789,7 +801,7 @@ function appendPanorama(data) {
     if (capEl) {
       capEl.innerHTML =
         `<span class="hero-cap-chip" style="--pill:${padObj.color}">Motor: <b>${cap.motor}</b></span>` +
-        `<span class="hero-cap-chip">SMAPE <b>${cap.sm}</b></span>` +
+        (cap.sm != null ? `<span class="hero-cap-chip">SMAPE <b>${cap.sm}</b></span>` : '') +
         `<span class="hero-cap-chip">${cap.casos} casos pronosticados · 52 sem</span>`;
     }
     if (!z) return;
@@ -1503,8 +1515,11 @@ function buildTreemap(data) {
 
   if (!entries.length) return null;
 
-  // Color por SMAPE: verde (<30%), amarillo (30-60%), rojo (>60%)
+  // Color por SMAPE: verde (<30%), amarillo (30-60%), rojo (>60%). Con las métricas de selección
+  // retiradas todas las barras van en un solo color: el tamaño (casos) es lo único que se publica.
+  const retiradas = metricasRetiradas(data);
   const smapeColor = (s) => {
+    if (retiradas) return '#5B8DEF';
     if (s <= 30) return '#5B8DEF';
     if (s <= 60) return '#2DD4BF';
     return '#F472B6';
@@ -1513,7 +1528,7 @@ function buildTreemap(data) {
   return {
     type: 'bar',
     horizontal: true,
-    title: 'Casos pronosticados por entidad (color = SMAPE)',
+    title: retiradas ? 'Casos pronosticados por entidad' : 'Casos pronosticados por entidad (color = SMAPE)',
     labels: entries.map(e => e.ent),
     datasets: [{
       label: 'Casos (52 sem)',
@@ -1537,6 +1552,7 @@ function buildTreemap(data) {
  * Radar comparativo de motores: poligono por motor con metricas normalizadas.
  */
 function buildRadarChart(data) {
+  if (metricasRetiradas(data)) return null; // ejes de error = diagnóstico de selección
   const pm = data.stats?.por_motor;
   const dist = data.stats?.dist_motor;
   if (!pm || !dist) return null;
@@ -1696,7 +1712,7 @@ function buildMexicoMap(data, qn) {
 
   const q = (qn || '').toLowerCase();
   let mode = 'casos';
-  if (q.includes('smape') || q.includes('error') || q.includes('precision')) mode = 'smape';
+  if (!metricasRetiradas(data) && (q.includes('smape') || q.includes('error') || q.includes('precision'))) mode = 'smape';
 
   // Detectar padecimiento
   const padNames = ['Depresion', 'Parkinson', 'Alzheimer'];
@@ -1876,8 +1892,9 @@ function buildSemaforo(data) {
     return 'verde';
   }
 
+  const retiradas = metricasRetiradas(data);
   const states = Object.entries(byEnt).map(([name, d]) => {
-    const avgSmape = d.smapes.length ? d.smapes.reduce((a, v) => a + v, 0) / d.smapes.length : null;
+    const avgSmape = !retiradas && d.smapes.length ? d.smapes.reduce((a, v) => a + v, 0) / d.smapes.length : null;
     return {
       name, casos: d.casos, smape: avgSmape != null ? Math.round(avgSmape * 10) / 10 : null,
       trend: 'stable', pads: d.pads, riskLevel: riskLevel(d.casos),
@@ -2291,6 +2308,7 @@ function buildTrendChart(data, qn) {
  * entre acierto y error de cada modelo estatal.
  */
 function buildPerformanceMatrix(data) {
+  if (metricasRetiradas(data)) return null;
   const models = data.prod_models || [];
   if (!models.length) return null;
   const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
@@ -2407,6 +2425,7 @@ function buildMotorByPad(data) {
  * top y bottom combinados, verde para aciertos, guinda para errores.
  */
 function buildBestWorst(data) {
+  if (metricasRetiradas(data)) return null;
   const s = data.stats || {};
   const top = s.top5_smape || [];
   const bot = s.bottom5_smape || [];
@@ -2456,6 +2475,15 @@ function buildVolumeError(data) {
     .map(([name, o]) => ({ name, casos: o.casos, smape: o.smapes.length ? o.smapes.reduce((a, v) => a + v, 0) / o.smapes.length : null }))
     .sort((a, b) => b.casos - a.casos).slice(0, 10);
   if (!entries.length) return null;
+  // Retiradas: sólo el volumen; la línea de SMAPE era diagnóstico de selección.
+  if (metricasRetiradas(data)) {
+    return {
+      type: 'bar',
+      title: 'Top 10 estados — casos pronosticados (52 sem)',
+      labels: entries.map(e => dn(e.name)),
+      datasets: [{ label: 'Casos (52 sem)', data: entries.map(e => e.casos), backgroundColor: '#5B8DEF', borderRadius: 4 }],
+    };
+  }
   return {
     type: 'bar',
     title: 'Top 10 estados — volumen vs error (SMAPE)',
@@ -2531,6 +2559,7 @@ function buildCalibration(data) {
  * modelo ingenuo; >= 1 (guinda) no lo logran.
  */
 function buildMaseByMotor(data) {
+  if (metricasRetiradas(data)) return null;
   const pm = (data.stats || {}).por_motor;
   if (!pm || !Object.keys(pm).length) return null;
   const motors = Object.keys(pm);
@@ -2656,6 +2685,7 @@ function buildQualityGauge(data) {
  * Rango de SMAPE por padecimiento (caja intercuartil p25–p75, barras flotantes).
  */
 function buildSmapeBox(data) {
+  if (metricasRetiradas(data)) return null;
   const models = data.prod_models || [];
   if (!models.length) return null;
   const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
@@ -2886,7 +2916,22 @@ function extractChartData(markdown, query) {
   // Comparativa de motores -> bar chart
   if (qn.includes('comparativa') || qn.includes('motor') && (qn.includes('gana') || qn.includes('comparar'))) {
     const pm = s.por_motor;
-    if (pm && Object.keys(pm).length) {
+    // Retiradas: en vez del SMAPE por motor, las series en que cada motor quedó productivo.
+    if (metricasRetiradas(data) && s.dist_motor && Object.keys(s.dist_motor).length) {
+      const dm = Object.entries(s.dist_motor).sort((a, b) => b[1] - a[1]);
+      return {
+        type: 'bar',
+        title: 'Series productivas por motor',
+        labels: dm.map(([m]) => m),
+        datasets: [{
+          label: 'Series',
+          data: dm.map(([, n]) => n),
+          backgroundColor: CHART_COLORS.slice(0, dm.length),
+          borderRadius: 6,
+        }],
+      };
+    }
+    if (!metricasRetiradas(data) && pm && Object.keys(pm).length) {
       return {
         type: 'bar',
         title: 'SMAPE promedio por motor',
@@ -2904,7 +2949,7 @@ function extractChartData(markdown, query) {
   // Metricas globales -> radar or bar
   if (qn.includes('metrica') && qn.includes('global')) {
     const pm = s.por_motor;
-    if (pm && Object.keys(pm).length) {
+    if (!metricasRetiradas(data) && pm && Object.keys(pm).length) {
       return {
         type: 'bar',
         title: 'SMAPE por motor de predicción',
@@ -3740,8 +3785,11 @@ function renderChart(canvasId, chartData) {
 
 function getSuggestions(query) {
   const q = query.toLowerCase();
+  const retiradas = metricasRetiradas(getData());
   if (q.includes('metrica') || q.includes('smape'))
-    return [{ text: 'Ranking mejores', q: 'ranking mejores modelos' }, { text: 'Diagnósticos', q: 'diagnosticos de calidad' }];
+    return retiradas
+      ? [{ text: '¿Qué es el SMAPE?', q: 'que es el smape' }, { text: 'Motores productivos', q: 'distribucion de motores ganadores' }]
+      : [{ text: 'Ranking mejores', q: 'ranking mejores modelos' }, { text: 'Diagnósticos', q: 'diagnosticos de calidad' }];
   if (q.includes('depresion'))
     return [{ text: 'Tendencia histórica', q: 'tendencia historica de depresion' }, { text: 'Zoom semanal', q: 'zoom depresion' }, { text: 'Pronóstico', q: 'pronostico depresion' }];
   if (q.includes('parkinson'))
@@ -3749,7 +3797,9 @@ function getSuggestions(query) {
   if (q.includes('alzheimer'))
     return [{ text: 'Tendencia histórica', q: 'tendencia historica de alzheimer' }, { text: 'Zoom semanal', q: 'zoom alzheimer' }, { text: 'Pronóstico', q: 'pronostico alzheimer' }];
   if (q.includes('ranking'))
-    return [{ text: 'Métricas globales', q: 'metricas globales' }, { text: 'Comparativa motores', q: 'comparativa de motores' }];
+    return retiradas
+      ? [{ text: 'Comparativa motores', q: 'comparativa de motores' }, { text: 'Mapa de Mexico', q: 'mapa de mexico por casos' }]
+      : [{ text: 'Métricas globales', q: 'metricas globales' }, { text: 'Comparativa motores', q: 'comparativa de motores' }];
   if (q.includes('equipo'))
     return [{ text: 'Infraestructura', q: 'infraestructura del proyecto' }, { text: 'Alcance', q: 'que padecimientos modela' }];
   if (q.includes('corredor') || q.includes('confianza') || q.includes('consenso'))
@@ -3761,7 +3811,8 @@ function getSuggestions(query) {
   if (q.includes('tendencia'))
     return [{ text: 'Zoom semanal', q: 'zoom semanal' }, { text: 'Corredor de confianza', q: 'corredor de confianza' }];
   if (q.includes('mapa') && (q.includes('mexico') || q.includes('republica')))
-    return [{ text: 'Mapa Depresion', q: 'mapa de mexico depresion' }, { text: 'Mapa Parkinson', q: 'mapa de mexico parkinson' }, { text: 'Mapa por SMAPE', q: 'mapa de mexico por smape' }];
+    return [{ text: 'Mapa Depresion', q: 'mapa de mexico depresion' }, { text: 'Mapa Parkinson', q: 'mapa de mexico parkinson' },
+      retiradas ? { text: 'Mapa Alzheimer', q: 'mapa de mexico alzheimer' } : { text: 'Mapa por SMAPE', q: 'mapa de mexico por smape' }];
   if (q.includes('treemap'))
     return [{ text: 'Mapa de Mexico', q: 'mapa de mexico por casos' }, { text: 'Radar motores', q: 'radar comparativo de motores' }];
   if (q.includes('timelapse') || q.includes('animacion'))
@@ -3771,7 +3822,8 @@ function getSuggestions(query) {
   if (q.includes('compara') || q.includes('vs'))
     return [{ text: 'Semaforo', q: 'semaforo epidemiologico' }, { text: 'Timelapse', q: 'timelapse mapa animado' }];
   if (q.includes('reporte') || q.includes('pdf'))
-    return [{ text: 'Semaforo', q: 'semaforo epidemiologico' }, { text: 'Metricas', q: 'metricas globales' }];
+    return [{ text: 'Semaforo', q: 'semaforo epidemiologico' },
+      retiradas ? { text: 'Motores productivos', q: 'distribucion de motores ganadores' } : { text: 'Metricas', q: 'metricas globales' }];
   return null;
 }
 
@@ -3893,6 +3945,7 @@ function safeUrl(url) {
 
 function generatePDFReport(data) {
   const s = data.stats || {};
+  const retiradas = metricasRetiradas(data);
   const models = data.prod_models || [];
   const wc = data.weekly_comparison || {};
   const tc = data.training_config || {};
@@ -3954,8 +4007,15 @@ function generatePDFReport(data) {
     return '<tr><td style="padding:6px 10px;border-bottom:1px solid #e0e0e0">' + dn(pad) + '</td>' +
       '<td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:right">' + ps.casos.toLocaleString() + '</td>' +
       '<td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:center">' + ps.models + '</td>' +
-      '<td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:center">' + avgSmape + '%</td></tr>';
+      (retiradas ? '' : '<td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:center">' + avgSmape + '%</td>') + '</tr>';
   }).join('');
+  // Retiradas: el KPI de SMAPE mediano se sustituye por las series productivas y se declara por qué.
+  const kpi3 = retiradas
+    ? `<div class="kpi"><div class="val">${data.rosters && data.rosters.total_series != null ? data.rosters.total_series : '—'}</div><div class="lbl">Series productivas</div></div>`
+    : `<div class="kpi"><div class="val">${s.smape_prod_median != null ? s.smape_prod_median + '%' : '?'}</div><div class="lbl">SMAPE mediano</div></div>`;
+  const notaMetricas = retiradas
+    ? `<p style="font-size:11px;color:#666;margin:-8px 0 20px">Métricas de error: ${rotuloMetricas(data)}. No se publican en esta ronda.</p>`
+    : '';
 
   const stateRows = topStates.map(([ent, casos]) =>
     '<tr><td style="padding:4px 10px;border-bottom:1px solid #f0f0f0">' + ent + '</td>' +
@@ -4018,14 +4078,15 @@ function generatePDFReport(data) {
 <div class="kpi-grid">
   <div class="kpi"><div class="val">${totalCasos.toLocaleString()}</div><div class="lbl">Casos pronosticados (52 sem)</div></div>
   <div class="kpi"><div class="val">${s.total_modelos || 333}</div><div class="lbl">Modelos de producción</div></div>
-  <div class="kpi"><div class="val">${s.smape_prod_median != null ? s.smape_prod_median + '%' : '?'}</div><div class="lbl">SMAPE mediano</div></div>
+  ${kpi3}
   <div class="kpi"><div class="val">4</div><div class="lbl">Motores de IA</div></div>
 </div>
+${notaMetricas}
 
 <div class="section">
   <h2>Pronóstico por padecimiento</h2>
   <table>
-    <tr><th>Padecimiento</th><th style="text-align:right">Casos (52 sem)</th><th style="text-align:center">Modelos</th><th style="text-align:center">SMAPE prom</th></tr>
+    <tr><th>Padecimiento</th><th style="text-align:right">Casos (52 sem)</th><th style="text-align:center">Modelos</th>${retiradas ? '' : '<th style="text-align:center">SMAPE prom</th>'}</tr>
     ${padRows}
   </table>
 </div>

@@ -1605,10 +1605,11 @@
     "query": "real vs pronostico depresion",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Acumulado",
-      "SMAPE"
+      "Acumulado"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "SMAPE promedio"
+    ],
     "checkEntities": {}
   },
   {
@@ -1660,9 +1661,11 @@
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
       "Depresion",
-      "SMAPE"
+      "Acumulado"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "SMAPE promedio"
+    ],
     "checkEntities": {}
   },
   {
@@ -2350,9 +2353,15 @@
     "query": "rendimiento de los modelos de parkinson",
     "expectedHandler": "answerPadecimiento",
     "mustContain": [
-      "Parkinson"
+      "Parkinson",
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -2711,9 +2720,15 @@
     "query": "que motor tiene mejor smape",
     "expectedHandler": "answerMotor",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección",
+      "Series productivas"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -2741,9 +2756,15 @@
     "query": "rendimiento de prophet",
     "expectedHandler": "answerMotor",
     "mustContain": [
-      "Prophet"
+      "Prophet",
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -2761,9 +2782,14 @@
     "query": "rendimiento de cada motor",
     "expectedHandler": "answerMetricaGlobal",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -2812,9 +2838,15 @@
     "query": "cuales son las metricas globales",
     "expectedHandler": "answerMetricaGlobal",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección",
+      "qué es el SMAPE"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -2822,9 +2854,14 @@
     "query": "smape promedio del proyecto",
     "expectedHandler": "answerMetricaGlobal",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -2832,9 +2869,12 @@
     "query": "que tan preciso es el modelo",
     "expectedHandler": "answerValidacion",
     "mustContain": [
-      "precisi"
+      "Validaci",
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "precisión histórica promedio"
+    ],
     "checkEntities": {}
   },
   {
@@ -2842,9 +2882,14 @@
     "query": "rendimiento general de los modelos",
     "expectedHandler": "answerMetricaGlobal",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -2852,9 +2897,14 @@
     "query": "metricas de rendimiento",
     "expectedHandler": "answerMetricaGlobal",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -2862,9 +2912,14 @@
     "query": "dame las metricas",
     "expectedHandler": "answerMetricaGlobal",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -2872,9 +2927,14 @@
     "query": "que rmse tienen los modelos",
     "expectedHandler": "answerMetricaGlobal",
     "mustContain": [
-      "RMSE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -2882,9 +2942,14 @@
     "query": "cual es el mase promedio",
     "expectedHandler": "answerMetricaGlobal",
     "mustContain": [
-      "MASE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -3388,9 +3453,11 @@
     "query": "ranking de mejores modelos",
     "expectedHandler": "answerRanking",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "| SMAPE |"
+    ],
     "checkEntities": {}
   },
   {
@@ -3398,9 +3465,11 @@
     "query": "cuales son los peores modelos",
     "expectedHandler": "answerRanking",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "| SMAPE |"
+    ],
     "checkEntities": {}
   },
   {
@@ -3408,9 +3477,11 @@
     "query": "top 5 mejores modelos",
     "expectedHandler": "answerRanking",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "| SMAPE |"
+    ],
     "checkEntities": {}
   },
   {
@@ -3418,9 +3489,11 @@
     "query": "top 5 peores modelos",
     "expectedHandler": "answerRanking",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "| SMAPE |"
+    ],
     "checkEntities": {}
   },
   {
@@ -3428,9 +3501,11 @@
     "query": "modelos con mejor smape",
     "expectedHandler": "answerRanking",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "| SMAPE |"
+    ],
     "checkEntities": {}
   },
   {
@@ -3438,9 +3513,11 @@
     "query": "modelos con peor rendimiento",
     "expectedHandler": "answerRanking",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "| SMAPE |"
+    ],
     "checkEntities": {}
   },
   {
@@ -3448,9 +3525,15 @@
     "query": "que modelos son los mejores",
     "expectedHandler": "answerMotor",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección",
+      "Series productivas"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -3458,9 +3541,14 @@
     "query": "mejores y peores modelos",
     "expectedHandler": "answerMejoresPeores",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -3468,9 +3556,11 @@
     "query": "modelos mas precisos",
     "expectedHandler": "answerRanking",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "| SMAPE |"
+    ],
     "checkEntities": {}
   },
   {
@@ -4668,7 +4758,7 @@
     "query": "ranking mejores",
     "expectedHandler": "answerRanking",
     "mustContain": [
-      "#"
+      "diagnóstico de selección"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -4945,7 +5035,7 @@
     "query": "metricas glovales",
     "expectedHandler": "*",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -4955,7 +5045,7 @@
     "query": "rankin de modelos",
     "expectedHandler": "*",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -5459,9 +5549,14 @@
     "mustContain": [
       "MASE",
       "Distribución",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -5471,9 +5566,14 @@
     "mustContain": [
       "SMAPE",
       "Distribución",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -5483,9 +5583,14 @@
     "mustContain": [
       "RMSE",
       "Distribución",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -5495,9 +5600,14 @@
     "mustContain": [
       "MASE",
       "Distribución",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -5507,9 +5617,14 @@
     "mustContain": [
       "SMAPE",
       "Distribución",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -5518,9 +5633,14 @@
     "expectedHandler": "answerDistribucion",
     "mustContain": [
       "MASE",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -5530,9 +5650,14 @@
     "mustContain": [
       "MAE",
       "Distribución",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -5541,9 +5666,14 @@
     "expectedHandler": "answerDistribucion",
     "mustContain": [
       "RMSE",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -5553,9 +5683,14 @@
     "mustContain": [
       "SMAPE",
       "Depresion",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {},
     "setupQuery": "violin del smape"
   },
@@ -5566,9 +5701,14 @@
     "mustContain": [
       "MASE",
       "Parkinson",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {},
     "setupQuery": "histograma del mase"
   },
@@ -5579,9 +5719,14 @@
     "mustContain": [
       "RMSE",
       "Alzheimer",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {},
     "setupQuery": "distribucion de rmse"
   },
@@ -5592,9 +5737,14 @@
     "mustContain": [
       "SMAPE",
       "Depresion",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {},
     "setupQuery": "violin del smape"
   },
@@ -5605,9 +5755,14 @@
     "mustContain": [
       "MAE",
       "Parkinson",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {},
     "setupQuery": "distribucion de mae"
   },
@@ -5618,9 +5773,14 @@
     "mustContain": [
       "SMAPE",
       "Alzheimer",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {},
     "setupQuery": "violin del smape"
   },
@@ -6129,9 +6289,14 @@
     "expectedHandler": "answerSmapeBox",
     "mustContain": [
       "Rango de SMAPE",
-      "intercuartil"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -6139,10 +6304,15 @@
     "query": "tabla de metricas por padecimiento",
     "expectedHandler": "answerRendimientoPorPadecimiento",
     "mustContain": [
-      "SMAPE",
-      "MASE"
+      "diagnóstico de selección",
+      "Motores productivos"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {

@@ -449,3 +449,94 @@ export function problemasDeDistribuciones(archivo, html, kb) {
   }
   return problemas;
 }
+
+// --- Métricas de selección retiradas (decisión del autor, 13-oct-2026) ---------------------
+// En la ronda con corte W37 toda métrica de error por serie o por motor (SMAPE, MASE, RMSE, MAE,
+// sus medias/medianas, rankings y top/bottom por ellas, «precisión histórica») es el error de la
+// ventana W28–W37 con la que se eligió el motor productivo: diagnóstico de selección, no
+// evaluación independiente. El generador las quita de knowledge.json y declara
+// `metricas_seleccion.publicadas === false`; las vistas operativas no las pintan.
+//
+// Dos controles, uno por cada puerta por donde volverían:
+//   · knowledge.json: la declaración presente y NINGUNA clave de métrica fuera de `definiciones`
+//     (el glosario sí se queda), y sin la sección `rendimiento_2026`.
+//   · las páginas operativas: ningún «SMAPE 16.1%», «MASE de 0.57», «< 1.0 MASE», columna de
+//     métrica en una tabla ni plantilla JS que interpole un valor de métrica.
+
+/** La misma regla de retiro que aplica el generador (build_web_knowledge.py). */
+export const RE_CLAVE_METRICA = /(^|_)(smape|mase|rmse|mae)(_|$)/i;
+export const esClaveDeMetrica = (k) => RE_CLAVE_METRICA.test(k) || String(k).startsWith('precision_historica');
+
+/**
+ * knowledge.json con las métricas de selección retiradas: declaración + cero claves de métrica.
+ * Cada clave que sobrevive es un problema (con su ruta), para que se arregle en el generador.
+ * @param {object} kb  contenido de knowledge.json
+ * @returns {string[]} problemas
+ */
+export function problemasDeMetricasSeleccion(kb) {
+  const problemas = [];
+  const ms = kb?.metricas_seleccion;
+  if (!ms || ms.publicadas !== false) {
+    problemas.push(
+      `metricas_seleccion.publicadas = ${JSON.stringify(ms?.publicadas)}; knowledge.json debe declarar ` +
+        '`metricas_seleccion.publicadas === false` (las métricas W28–W37 son diagnóstico de selección)'
+    );
+  }
+  if (kb && Object.prototype.hasOwnProperty.call(kb, 'rendimiento_2026')) {
+    problemas.push('rendimiento_2026 presente: los cuadros SMAPE/MASE por motor son diagnóstico de selección y se retiran');
+  }
+  const anda = (nodo, ruta) => {
+    if (Array.isArray(nodo)) return nodo.forEach((v, i) => anda(v, `${ruta}[${i}]`));
+    if (!nodo || typeof nodo !== 'object') return;
+    for (const [k, v] of Object.entries(nodo)) {
+      if (ruta === '' && (k === 'definiciones' || k === 'rendimiento_2026')) continue; // glosario / ya marcado
+      const aqui = ruta ? `${ruta}.${k}` : k;
+      if (esClaveDeMetrica(k)) problemas.push(`${aqui}: métrica de selección W28–W37 publicada en knowledge.json`);
+      anda(v, aqui);
+    }
+  };
+  anda(kb, '');
+  return problemas;
+}
+
+/** Vistas operativas que no pueden pintar valores de métricas de selección. */
+export const PAGINAS_OPERATIVAS = ['index.html', 'Reports/index.html', 'epibot/index.html'];
+
+const _M = '(?:s?mape|mase|rmse|mae)';
+/** (patrón, qué caza) sobre el texto VISIBLE de una línea: sin comentarios y sin etiquetas. */
+const RE_VALOR_METRICA = [
+  // «SMAPE 16.1%», «SMAPE mediano del 16.1%», «MASE de 0.57», «SMAPE nac. 20.4%», «SMAPE: 0.5»
+  [new RegExp(`\\b${_M}\\b\\s*(?:[:=(]\\s*)?(?:(?:de|del|nac\\.?|nacional|mediano|mediana|medio|media|promedio|prom\\.?|med)\\s+)*(?:[<>≤≥]\\s*)?\\d[\\d.,]*%?`, 'i'),
+    'valor de métrica'],
+  // «< 1.0 MASE», «20.4 % de SMAPE»
+  [new RegExp(`\\d(?:[.,]\\d+)?\\s*%?\\s*(?:de\\s+)?\\b${_M}\\b`, 'i'), 'valor antes de la métrica'],
+  // plantilla JS: 'SMAPE <b>' + s.smape + '%' · `SMAPE ${s.smape}%` · `MASE ${s.mase}`
+  [new RegExp(`\\b${_M}\\b[^\\n]{0,40}?(?:\\$\\{[^}]*\\b${_M}\\w*|\\+\\s*[\\w.]*\\b${_M}\\w*)`, 'i'),
+    'plantilla que interpola una métrica'],
+];
+/** Columna de métrica en una tabla (los valores van en otras filas: se caza el encabezado). */
+const RE_COLUMNA_METRICA = new RegExp(`<th\\b[^>]*>\\s*${_M}\\b[^<]*</th>`, 'gi');
+
+/**
+ * Una página operativa no pinta valores de métricas de selección.
+ * @param {string} archivo  nombre para el mensaje
+ * @param {string} html     contenido crudo
+ * @returns {string[]} problemas con archivo:línea
+ */
+export function problemasDeMetricasEnPagina(archivo, html) {
+  const problemas = [];
+  const { texto } = sinRegionesNoLeidas(String(html ?? ''));
+  const lineas = texto.split('\n');
+  for (let i = 0; i < lineas.length; i++) {
+    for (const m of lineas[i].matchAll(RE_COLUMNA_METRICA)) {
+      problemas.push(`${archivo}:${i + 1}: columna «${desent(m[0].replace(/<[^>]*>/g, ''))}» — métrica de selección W28–W37`);
+    }
+    // Texto visible: sin etiquetas y con las entidades resueltas («&lt; 1.0 MASE»).
+    const visible = desent(lineas[i].replace(/<[^>]*>/g, ' '));
+    for (const [re, que] of RE_VALOR_METRICA) {
+      const m = visible.match(re);
+      if (m) problemas.push(`${archivo}:${i + 1}: «${m[0].trim()}» — ${que} (diagnóstico de selección W28–W37)`);
+    }
+  }
+  return problemas;
+}

@@ -12,7 +12,11 @@
  * Uso:  npm run cifras:test
  */
 
-import { problemasDeSuperficies, problemasDeKnowledge, problemasDeDistribuciones, jsonRevisable, sinRegionesNoLeidas } from './cifras_contrato.mjs';
+import { readFileSync } from 'fs';
+import {
+  problemasDeSuperficies, problemasDeKnowledge, problemasDeDistribuciones, jsonRevisable, sinRegionesNoLeidas,
+  problemasDeMetricasSeleccion, problemasDeMetricasEnPagina, esClaveDeMetrica,
+} from './cifras_contrato.mjs';
 
 const CASOS = [
   // --- HTML: lo que se ve --------------------------------------------------------------
@@ -160,6 +164,88 @@ for (const [nombre, contenido, debe, desc] of CASOS) {
     const ok = (r.length > 0) === debe;
     if (!ok) fallos++;
     console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  distribución · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
+}
+
+// --- Métricas de selección W28–W37 retiradas: knowledge.json ---------------------------
+{
+  const DECL = { publicadas: false, ventana: 'W28–W37', rotulo: 'diagnóstico de selección W28–W37; no evaluación independiente' };
+  const limpio = () => ({
+    metricas_seleccion: { ...DECL },
+    definiciones: { SMAPE: 'error porcentual simétrico', MASE: 'error escalado' },
+    stats: { total_modelos: 333, por_pad: { Depresion: { n: 111, motor_ganador: 'DeepAR' } }, validacion_semanal: { error_abs_medio: 12.4 } },
+    prod_models: [{ padecimiento: 'Depresion', entidad: 'Jalisco', modelo_produccion: 'DeepAR', casos_52_semanas_futuro: 10 }],
+    weekly_comparison: { Depresion: { semanas: [{ semana: 1, real: 3, pronostico: 4, error_pct: 33.3 }] } },
+  });
+  const con = (f) => { const k = limpio(); f(k); return k; };
+  // La misma regla que el generador, aplicada al knowledge.json EN DISCO: el despojado pasa sea
+  // cual sea el estado del archivo (control negativo que no depende de que el generador ya corrió).
+  const despoja = (kb) => {
+    const anda = (o) => Array.isArray(o) ? o.map(anda) : (o && typeof o === 'object'
+      ? Object.fromEntries(Object.entries(o).filter(([k]) => !esClaveDeMetrica(k)).map(([k, v]) => [k, anda(v)])) : o);
+    const out = {};
+    for (const [k, v] of Object.entries(kb)) if (k !== 'rendimiento_2026') out[k] = k === 'definiciones' ? v : anda(v);
+    return { ...out, metricas_seleccion: { ...DECL } };
+  };
+  const enDisco = JSON.parse(readFileSync(new URL('../../knowledge.json', import.meta.url), 'utf-8'));
+  const casos = [
+    [limpio(), false, 'declarado y sin métricas pasa (definiciones y error_pct/error_abs se quedan)'],
+    [despoja(enDisco), false, 'el knowledge.json en disco, despojado con la regla del generador, pasa'],
+    [con((k) => { delete k.metricas_seleccion; }), true, 'sin la declaración se marca'],
+    [con((k) => { k.metricas_seleccion.publicadas = true; }), true, 'publicadas:true se marca'],
+    [con((k) => { k.stats.smape_prod_median = 20.4; }), true, 'stats.smape_prod_median se marca'],
+    [con((k) => { k.prod_models[0].mase_prod = 0.57; }), true, 'prod_models[].mase_prod se marca'],
+    [con((k) => { k.stats.top5_smape = []; }), true, 'stats.top5_smape (ranking por métrica) se marca'],
+    [con((k) => { k.stats.precision_historica_mean = 91.3; }), true, 'precision_historica_* se marca'],
+    [con((k) => { k.dengue = { smape_nacional: 20.4 }; }), true, 'dengue.smape_nacional se marca'],
+    [con((k) => { k.rendimiento_2026 = { anio: 2026 }; }), true, 'rendimiento_2026 se marca'],
+    [con((k) => { k.stats.por_pad.Depresion.por_sexo = { general: { RMSE_prod_mean: 8 } }; }), true,
+     'a cualquier profundidad y sin importar mayúsculas'],
+  ];
+  for (const [kb, debe, desc] of casos) {
+    const r = problemasDeMetricasSeleccion(kb);
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  métricas · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r.slice(0, 3))}`);
+  }
+  // Cada clave sobreviviente es UN problema con su ruta (para arreglarla en el generador).
+  const r = problemasDeMetricasSeleccion(con((k) => { k.prod_models[0].smape_prod = 1; k.prod_models[0].mae_prod = 2; }));
+  const ok = r.length === 2 && r.every((p) => p.startsWith('prod_models[0].'));
+  if (!ok) fallos++;
+  console.log(`  ${ok ? '✔' : '✖ FALLO'}  métricas · un problema por clave, con su ruta (${r.length}, esperado 2)`);
+}
+
+// --- Métricas de selección W28–W37 retiradas: vistas operativas -------------------------
+{
+  const casos = [
+    // Lo que había en index.html y Reports/index.html antes del retiro (debe marcarse).
+    ['<span class="disease-tag">CIE-10: F32 · SMAPE 16.1% · MASE 0.57 · 111 modelos</span>', true, 'insignia SMAPE/MASE'],
+    ['<p>SMAPE mediano del 16.1% y MASE de 0.57. 100% datos suficientes.</p>', true, 'SMAPE mediano del … / MASE de …'],
+    ['<span class="disease-tag">CIE-10: A97 · SMAPE nac. 20.4% · DeepAR + Prophet</span>', true, 'SMAPE nac. …%'],
+    ['<p><b>Dengue</b>: SMAPE nacional de 20.4%, con DeepAR</p>', true, 'SMAPE nacional de …%'],
+    ['<div class="edl-stat"><b>&lt; 1.0</b><span>MASE · superan baseline naive</span></div>', true, '«< 1.0 MASE» con entidades'],
+    ['<tr><th>Padecimiento</th><th>SMAPE mediano</th><th>MASE mediano</th></tr>', true, 'columna de métrica en tabla'],
+    ["          '<span class=\"hf-chip\">SMAPE <b>' + s.smape + '%</b></span>' +", true, 'chip JS que concatena s.smape'],
+    ["text: [s.smape != null ? `SMAPE ${s.smape}%` : null, s.mase != null ? `MASE ${s.mase}` : null]", true, 'subtítulo JS con ${s.smape}'],
+    // Lo que queda tras el retiro (no debe marcarse).
+    ['<p>Se elige el motor productivo por SMAPE, con MASE como desempate, en la ventana de selección W28–W37.</p>', false,
+     'mencionar el criterio de selección sin valores'],
+    ['<button data-q="que es el smape">¿Qué es el SMAPE?</button>', false, 'pregunta de definición'],
+    ['<!-- antes: SMAPE 16.1% · MASE 0.57 -->', false, 'comentario no se marca'],
+    ['    .semaforo-card-smape { font-size: 9px; font-family: monospace; }', false, 'selector CSS con «smape»'],
+    ['subtitle: { display: corteTxt != null, text: corteTxt }, // corte del modelo: semana 37 de 2026', false,
+     'rótulo del corte del modelo'],
+    ['<span class="cc-kpi-lbl" id="statSmapeLbl">Series productivas</span>', false, 'id con «Smape» sin valor'],
+    ['<span class="disease-tag">CIE-10: G30 · SMAPE alto por baja incidencia</span>', false,
+     'un código (G30) antes de la métrica no es un valor'],
+  ];
+  for (const [html, debe, desc] of casos) {
+    const r = problemasDeMetricasEnPagina('x.html', html);
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  página · ${desc}`);
     if (!ok) console.log(`           → ${JSON.stringify(r)}`);
   }
 }

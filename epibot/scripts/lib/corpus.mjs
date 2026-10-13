@@ -15,6 +15,13 @@ import { fileURLToPath } from 'url';
 import { createHash } from 'crypto';
 import { CandidateError, LIFECYCLE_PUBLISHED, findShards } from './candidate.mjs';
 import { MODE_PUBLIC, porBytes, readCatalog, readInstalledRelease } from './installer.mjs';
+// Un solo criterio para «métricas de selección retiradas» (W28–W37): el mismo helper que el bot.
+import { metricasRetiradas, avisoMetricas } from '../../js/kb.js';
+
+/** Frases de un texto libre que no citan una métrica de error (para notas clínicas con «SMAPE…»). */
+function sinFrasesDeMetrica(txt) {
+  return String(txt).split(/(?<=\.)\s+/).filter(f => !/\b(s?mape|mase|rmse|mae)\b/i.test(f)).join(' ').trim();
+}
 
 /** Modos de consumo RAG de un árbol instalado. No hay default: se piden por su nombre. */
 export const RAG_MODE_STAGING = 'staging';
@@ -200,14 +207,26 @@ function structuredCards(kb) {
   const s = kb.stats || {};
   const push = (title, text) => { if (text && text.trim()) cards.push({ source: 'Datos del proyecto', section: title, title, url: '../EpiDashboard.html', text: text.trim() }); };
 
-  push('Resumen global del sistema',
-    `EpiForecast-MX opera ${s.total_modelos || 333} modelos de producción con horizonte de ${s.horizonte || 52} semanas y ${s.evaluaciones_totales || 1332} evaluaciones totales. Modelo activo: ${s.modelo_activo || 'stacking'}. SMAPE de producción: media ${s.smape_prod_mean}%, mediana ${s.smape_prod_median}%. MASE media ${s.mase_prod_mean}. Pronóstico total a 52 semanas: ${s.pronostico_total} casos. Precisión histórica: media ${s.precision_historica_mean}%, mediana ${s.precision_historica_median}%.`);
-  if (s.dist_motor) push('Distribución de motores ganadores',
-    `Reparto de los ${s.total_modelos || 333} modelos por motor ganador: ${Object.entries(s.dist_motor).map(([m, n]) => `${m}: ${n}`).join(', ')}. Motor líder: ${s.motor_ganador} (${s.motor_ganador_pct}%).`);
-  if (s.por_motor) for (const [motor, m] of Object.entries(s.por_motor)) push(`Métricas del motor ${motor}`,
-    `El motor ${motor} registra SMAPE media ${m.smape_mean}% (mediana ${m.smape_median}%), MASE media ${m.mase_mean} (mediana ${m.mase_median}), RMSE media ${m.rmse_mean}, MAE media ${m.mae_mean}. MASE < 1 indica que supera al pronóstico ingenuo.`);
-  if (s.por_pad) for (const [pad, p] of Object.entries(s.por_pad)) push(`Padecimiento ${pad}: desempeño`,
-    `${pad}: ${p.n} modelos, SMAPE media ${p.smape_prod_mean}% (mediana ${p.smape_prod_median}%), motor ganador ${p.motor_ganador} (${p.motor_ganador_n} modelos), pronóstico a 52 semanas ${p.casos_futuro_total} casos.`);
+  // Métricas de selección retiradas: ninguna tarjeta lleva valores de error; una sola los explica.
+  if (metricasRetiradas(kb)) {
+    push('Resumen global del sistema',
+      `EpiForecast-MX opera ${s.total_modelos || 333} modelos de producción con horizonte de ${s.horizonte || 52} semanas. Modelo activo: ${s.modelo_activo || 'stacking'}. Pronóstico total a 52 semanas: ${s.pronostico_total} casos.`);
+    push('Métricas de error de esta ronda (no publicadas)',
+      `${avisoMetricas(kb)}${kb.metricas_seleccion.nota ? ` ${kb.metricas_seleccion.nota}` : ''} Las definiciones de SMAPE, MASE, RMSE y MAE siguen disponibles.`);
+    if (s.dist_motor) push('Distribución de motores ganadores',
+      `Reparto de los ${s.total_modelos || 333} modelos por motor ganador: ${Object.entries(s.dist_motor).map(([m, n]) => `${m}: ${n}`).join(', ')}. Motor líder: ${s.motor_ganador} (${s.motor_ganador_pct}%).`);
+    if (s.por_pad) for (const [pad, p] of Object.entries(s.por_pad)) push(`Padecimiento ${pad}: motores y pronóstico`,
+      `${pad}: ${p.n} modelos, motor ganador ${p.motor_ganador} (${p.motor_ganador_n} modelos), pronóstico a 52 semanas ${p.casos_futuro_total} casos.`);
+  } else {
+    push('Resumen global del sistema',
+      `EpiForecast-MX opera ${s.total_modelos || 333} modelos de producción con horizonte de ${s.horizonte || 52} semanas y ${s.evaluaciones_totales || 1332} evaluaciones totales. Modelo activo: ${s.modelo_activo || 'stacking'}. SMAPE de producción: media ${s.smape_prod_mean}%, mediana ${s.smape_prod_median}%. MASE media ${s.mase_prod_mean}. Pronóstico total a 52 semanas: ${s.pronostico_total} casos. Precisión histórica: media ${s.precision_historica_mean}%, mediana ${s.precision_historica_median}%.`);
+    if (s.dist_motor) push('Distribución de motores ganadores',
+      `Reparto de los ${s.total_modelos || 333} modelos por motor ganador: ${Object.entries(s.dist_motor).map(([m, n]) => `${m}: ${n}`).join(', ')}. Motor líder: ${s.motor_ganador} (${s.motor_ganador_pct}%).`);
+    if (s.por_motor) for (const [motor, m] of Object.entries(s.por_motor)) push(`Métricas del motor ${motor}`,
+      `El motor ${motor} registra SMAPE media ${m.smape_mean}% (mediana ${m.smape_median}%), MASE media ${m.mase_mean} (mediana ${m.mase_median}), RMSE media ${m.rmse_mean}, MAE media ${m.mae_mean}. MASE < 1 indica que supera al pronóstico ingenuo.`);
+    if (s.por_pad) for (const [pad, p] of Object.entries(s.por_pad)) push(`Padecimiento ${pad}: desempeño`,
+      `${pad}: ${p.n} modelos, SMAPE media ${p.smape_prod_mean}% (mediana ${p.smape_prod_median}%), motor ganador ${p.motor_ganador} (${p.motor_ganador_n} modelos), pronóstico a 52 semanas ${p.casos_futuro_total} casos.`);
+  }
   push('Diagnósticos de calidad (overfitting y leakage)',
     `Overfitting: OK ${s.overfitting_ok}, moderado ${s.overfitting_moderado}, alto ${s.overfitting_alto}, N/D ${s.overfitting_nd}. Leakage: OK ${s.leakage_ok}, sospechoso ${s.leakage_sospechoso}. Fallback regional en ${s.fallback_n} series.`);
 
@@ -225,15 +244,16 @@ function structuredCards(kb) {
       `Ranking de entidades federativas por incidencia anual registrada en el Boletín SINAVE (mayor a menor): ${top.join(', ')}.`);
   }
 
-  // Desempeño por sexo
-  if (s.por_sexo && Object.keys(s.por_sexo).length) {
+  // Desempeño por sexo (sólo métricas: con ellas retiradas no hay tarjeta)
+  if (!metricasRetiradas(kb) && s.por_sexo && Object.keys(s.por_sexo).length) {
     const parts = Object.entries(s.por_sexo).map(([k, v]) => `${k}: ${v.n} modelos, SMAPE media ${v.smape_mean}% (mediana ${v.smape_median}%), MASE media ${v.mase_mean}`);
     push('Desempeño por sexo (hombres, mujeres, general)',
       `Comparativa de desempeño del modelado por sexo. ${parts.join('; ')}. El modelo agregado 'general' (ambos sexos) suele lograr menor SMAPE por su mayor volumen de casos; hombres y mujeres se modelan por separado para la desagregación.`);
   }
   if (kb.definiciones) for (const [term, def] of Object.entries(kb.definiciones)) if (typeof def === 'string') push(`Definición: ${term}`, `${term}: ${def}`);
   if (kb.padecimiento_info) for (const [pad, info] of Object.entries(kb.padecimiento_info)) {
-    const parts = typeof info === 'string' ? [info] : (info && typeof info === 'object' ? Object.entries(info).filter(([, v]) => typeof v === 'string').map(([k, v]) => `${k}: ${v}`) : []);
+    const limpio = (v) => (metricasRetiradas(kb) ? sinFrasesDeMetrica(v) : v);
+    const parts = (typeof info === 'string' ? [limpio(info)] : (info && typeof info === 'object' ? Object.entries(info).filter(([, v]) => typeof v === 'string').map(([k, v]) => `${k}: ${limpio(v)}`) : [])).filter(t => t && !/:\s*$/.test(t));
     if (parts.length) push(`Información clínica: ${pad}`, `${pad}. ${parts.join('. ')}`);
   }
   if (kb.training_config) { const parts = Object.entries(kb.training_config).filter(([, v]) => typeof v === 'string' || typeof v === 'number').map(([k, v]) => `${k}: ${v}`); if (parts.length) push('Configuración de entrenamiento', parts.join('. ')); }
@@ -263,7 +283,7 @@ function dengueCards(kb) {
   const push = (section, text) => { if (text && text.trim()) cards.push({ source: 'Datos de Dengue', section, title: section, url: '../dengue.html', text: text.trim() }); };
 
   push('Dengue — resumen de producción',
-    `EpiForecast-MX pronostica el Dengue (CIE-10 ${d.cie}) con una serie de producción que cubre ${d.cobertura} (${d.n_boletines} boletines del Cuadro 7.2 de SINAVE; dengue confirmado A97.x agregado). Abarca ${d.n_entidades} entidades federativas y ${d.n_series} series, con horizonte productivo de ${d.horizonte_semanas} semanas (sin proyección multi-año). Motores entrenados: ${(d.motores_entrenados || []).join(', ')}. Motores productivos: ${(d.motores_productivos || []).join(', ')} (reparto ${Object.entries(d.dist_motor || {}).map(([m, n]) => `${m}: ${n}`).join(', ')} series). El pronóstico nacional usa ${d.motor_nacional}, con SMAPE de ${d.smape_nacional}%, y proyecta ${fmt(d.casos_futuro_nacional_52sem)} casos a 52 semanas. Último dato real: ${d.ultima_real}. Unidad de medida: ${d.unidad}.`);
+    `EpiForecast-MX pronostica el Dengue (CIE-10 ${d.cie}) con una serie de producción que cubre ${d.cobertura} (${d.n_boletines} boletines del Cuadro 7.2 de SINAVE; dengue confirmado A97.x agregado). Abarca ${d.n_entidades} entidades federativas y ${d.n_series} series, con horizonte productivo de ${d.horizonte_semanas} semanas (sin proyección multi-año). Motores entrenados: ${(d.motores_entrenados || []).join(', ')}. Motores productivos: ${(d.motores_productivos || []).join(', ')} (reparto ${Object.entries(d.dist_motor || {}).map(([m, n]) => `${m}: ${n}`).join(', ')} series). El pronóstico nacional usa ${d.motor_nacional}${metricasRetiradas(kb) || d.smape_nacional == null ? '' : `, con SMAPE de ${d.smape_nacional}%,`} y proyecta ${fmt(d.casos_futuro_nacional_52sem)} casos a 52 semanas. Último dato real: ${d.ultima_real}. Unidad de medida: ${d.unidad}.`);
 
   if (d.anual && Object.keys(d.anual).length) {
     const years = Object.entries(d.anual).map(([y, n]) => `${y}: ${fmt(n)} casos`).join(', ');

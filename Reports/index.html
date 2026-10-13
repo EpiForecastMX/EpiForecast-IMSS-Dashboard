@@ -729,6 +729,9 @@ function renderLbChart(d, s) {
   const labels = s.d.map(fmtMes);
   const lastRealIdx = s.r.reduce((acc, v, i) => v != null ? i : acc, -1);
   const wk = s.last_real ? isoWeek(s.last_real) : null;
+  const cm = s.corte_modelo;
+  const corteTxt = cm && cm.semana != null && cm.anio != null && Number.isFinite(+cm.semana) && Number.isFinite(+cm.anio)
+    ? `corte del modelo: semana ${+cm.semana} de ${+cm.anio}` : null;
   const ctx = document.getElementById('lbChart').getContext('2d');
   lbChart = new Chart(ctx, {
     type: 'line',
@@ -750,8 +753,9 @@ function renderLbChart(d, s) {
       plugins: {
         legend: { labels: { color: '#E7ECF5', filter: it => !it.text.startsWith('_'), usePointStyle: true, boxWidth: 8, font: { size: 12 } } },
         title: { display: true, text: `${d.p} — ${d.n} (${d.s})  ·  real vs pronóstico${wk ? ' (sem ' + wk + ')' : ''}`, color: '#E7ECF5', font: { size: 14, weight: 'bold' } },
-        subtitle: { display: (s.smape != null || s.mase != null),
-          text: [s.smape != null ? `SMAPE ${s.smape}%` : null, s.mase != null ? `MASE ${s.mase}` : null].filter(Boolean).join('   ·   ') + '   (ajuste vs real)',
+        // Sin métricas de error: las de esta ronda son el diagnóstico de selección W28–W37 (no se
+        // publican). Si el JSON trae el corte del modelo, se rotula en su lugar.
+        subtitle: { display: corteTxt != null, text: corteTxt || '',
           color: '#9DB0D0', font: { size: 11.5 }, padding: { bottom: 8 } },
         presentLine: { idx: lastRealIdx, color, label: wk ? 'Sem ' + wk : 'presente' },
         tooltip: {

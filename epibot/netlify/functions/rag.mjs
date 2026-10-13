@@ -262,11 +262,24 @@ function detectEntities(query) {
   return out;
 }
 
+// Métricas de selección retiradas (W28–W37). Mismo criterio que `metricasRetiradas`/`avisoMetricas`
+// de js/kb.js; se repite aquí porque la función no puede empaquetar ese módulo de navegador (sus
+// imports llevan `?v=`). Con la declaración presente, el contexto que recibe Gemini no lleva
+// valores de SMAPE/MASE/precisión histórica y sí el aviso, para que no los invente ni los cite.
+function metricasRetiradas(kb) {
+  return !!(kb && kb.metricas_seleccion && kb.metricas_seleccion.publicadas === false);
+}
+function avisoMetricas(kb) {
+  const v = (kb && kb.metricas_seleccion && kb.metricas_seleccion.ventana) || 'W28–W37';
+  return `Las métricas de error de esta ronda (ventana ${v}) se usaron para elegir el motor de cada serie: ` +
+    'son diagnóstico de selección, no evaluación independiente, y no se publican.';
+}
+
 /** Cifras agregadas de Dengue desde la sección `dengue` de knowledge.json. */
-function dengueFactLines(d, ent) {
+function dengueFactLines(d, ent, retiradas = false) {
   if (!d || typeof d !== 'object') return [];
   const fmt = (n) => Number(n || 0).toLocaleString('es-MX');
-  const L = [`Dengue (CIE-10 ${d.cie}): serie de producción ${d.cobertura}, ${d.n_series} series en ${d.n_entidades} entidades. Motores productivos: ${(d.motores_productivos || []).join(', ')} (reparto ${Object.entries(d.dist_motor || {}).map(([m, n]) => `${m}: ${n}`).join(', ')}). Nacional: motor ${d.motor_nacional}, SMAPE ${d.smape_nacional}%, pronóstico ${fmt(d.casos_futuro_nacional_52sem)} casos a 52 semanas. Último dato real: ${d.ultima_real}. Año pico ${d.anio_pico} con ${fmt(d.casos_pico)} casos.`];
+  const L = [`Dengue (CIE-10 ${d.cie}): serie de producción ${d.cobertura}, ${d.n_series} series en ${d.n_entidades} entidades. Motores productivos: ${(d.motores_productivos || []).join(', ')} (reparto ${Object.entries(d.dist_motor || {}).map(([m, n]) => `${m}: ${n}`).join(', ')}). Nacional: motor ${d.motor_nacional}${retiradas || d.smape_nacional == null ? '' : `, SMAPE ${d.smape_nacional}%`}, pronóstico ${fmt(d.casos_futuro_nacional_52sem)} casos a 52 semanas. Último dato real: ${d.ultima_real}. Año pico ${d.anio_pico} con ${fmt(d.casos_pico)} casos.`];
   if (Array.isArray(d.top_entidades) && d.top_entidades.length) {
     L.push(`Entidades con mayor incidencia de Dengue: ${d.top_entidades.map(e => `${e.entidad} (${fmt(e.casos)} casos)`).join(', ')}.`);
   }
@@ -286,7 +299,7 @@ function focusedFacts(kb, query) {
 
   // Dengue: cifras agregadas (sección dengue) además de las series por entidad.
   if (ent.padecimiento === 'Dengue' && kb.dengue) {
-    const dl = dengueFactLines(kb.dengue, ent);
+    const dl = dengueFactLines(kb.dengue, ent, metricasRetiradas(kb));
     if (dl.length) lines.push('=== DATOS EXACTOS DE DENGUE (verdad numérica; cítalos tal cual) ===', ...dl);
   }
 
@@ -300,9 +313,13 @@ function focusedFacts(kb, query) {
   });
   if (matches.length) {
     lines.push('=== DATOS EXACTOS POR SERIE (verdad numérica; cítalos tal cual) ===');
+    const retiradas = metricasRetiradas(kb);
     for (const m of matches.slice(0, 12)) {
-      lines.push(`${m.padecimiento} · ${m.entidad} · ${m.sexo}: pronóstico 52 sem = ${(m.casos_52_semanas_futuro || 0).toLocaleString('es-MX')} casos; SMAPE = ${m.smape_prod}%; motor = ${m.modelo_produccion}; precisión histórica = ${m.precision_historica}.`);
+      lines.push(retiradas
+        ? `${m.padecimiento} · ${m.entidad} · ${m.sexo}: pronóstico 52 sem = ${(m.casos_52_semanas_futuro || 0).toLocaleString('es-MX')} casos; motor = ${m.modelo_produccion}.`
+        : `${m.padecimiento} · ${m.entidad} · ${m.sexo}: pronóstico 52 sem = ${(m.casos_52_semanas_futuro || 0).toLocaleString('es-MX')} casos; SMAPE = ${m.smape_prod}%; motor = ${m.modelo_produccion}; precisión histórica = ${m.precision_historica}.`);
     }
+    if (retiradas) lines.push(avisoMetricas(kb));
   }
   return lines.length ? lines.join('\n') : '';
 }
@@ -375,9 +392,14 @@ function structuredSummary(kb) {
   const s = kb.stats || {};
   const L = ['=== CIFRAS CLAVE DEL PROYECTO (usar como verdad para datos numéricos) ==='];
   L.push(`Modelos: ${s.total_modelos || 333} · Horizonte: ${s.horizonte || 52} semanas · Pronóstico total 52 sem: ${s.pronostico_total} casos.`);
-  L.push(`SMAPE producción: media ${s.smape_prod_mean}%, mediana ${s.smape_prod_median}%. MASE media ${s.mase_prod_mean}. Precisión histórica media ${s.precision_historica_mean}%.`);
+  const retiradas = metricasRetiradas(kb);
+  L.push(retiradas
+    ? `Métricas de error: ${avisoMetricas(kb)} No cites valores de SMAPE, MASE, RMSE, MAE ni precisión histórica de esta ronda.`
+    : `SMAPE producción: media ${s.smape_prod_mean}%, mediana ${s.smape_prod_median}%. MASE media ${s.mase_prod_mean}. Precisión histórica media ${s.precision_historica_mean}%.`);
   if (s.dist_motor) L.push('Motores: ' + Object.entries(s.dist_motor).map(([m, n]) => `${m} ${n}`).join(', ') + `. Líder: ${s.motor_ganador} (${s.motor_ganador_pct}%).`);
-  if (s.por_pad) for (const [p, v] of Object.entries(s.por_pad)) L.push(`${p}: ${v.n} modelos, SMAPE mediana ${v.smape_prod_median}%, motor ${v.motor_ganador}, pronóstico ${v.casos_futuro_total} casos.`);
+  if (s.por_pad) for (const [p, v] of Object.entries(s.por_pad)) L.push(retiradas
+    ? `${p}: ${v.n} modelos, motor ${v.motor_ganador}, pronóstico ${v.casos_futuro_total} casos.`
+    : `${p}: ${v.n} modelos, SMAPE mediana ${v.smape_prod_median}%, motor ${v.motor_ganador}, pronóstico ${v.casos_futuro_total} casos.`);
   L.push(`Calidad: overfitting OK ${s.overfitting_ok}/${s.total_modelos}, leakage OK ${s.leakage_ok}/${s.total_modelos}.`);
   return L.join('\n');
 }
