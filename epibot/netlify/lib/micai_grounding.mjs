@@ -75,11 +75,26 @@ const EST_RE = [['prophet', /\bprophet\b/], ['deepar', /\bdeepar\b/], ['ensemble
 const NAME = { prophet: 'Prophet', deepar: 'DeepAR', ensemble: 'Ensemble', stacking: 'Stacking',
   archived: 'asignación archivada', naive: 'ingenuo' };
 
+// Explicit ranges must match a computed window at both ends (DICTAMEN_PR27 C1-02). Editions S03–S18 = A,
+// S19–S34 = B; epidemiological periods W02–W17 = A, W18–W33 = B. Anything else is «unsupported».
+const RANGE_RE = /\b([sw])\s?(\d{1,2})\s*(?:–|-|a|al|hasta)\s*([sw])?\s?(\d{1,2})\b/g;
+function rangesOf(q) {
+  const out = [];
+  for (const m of q.matchAll(RANGE_RE)) {
+    const kind = m[1], a = Number(m[2]), b = Number(m[4]);
+    if (m[3] && m[3] !== kind) { out.push('unsupported'); continue; }
+    const ok = kind === 's' ? { '3-18': 'A', '19-34': 'B' } : { '2-17': 'A', '18-33': 'B' };
+    out.push(ok[`${a}-${b}`] || 'unsupported');
+  }
+  return out;
+}
+
 function windowsOf(q) {
   const w = new Set();
   if (/historic|validacion cruzada|\bcv\b|tabla 1|seleccion historica/.test(q)) w.add('hist');
-  if (/seguimiento|\bs19\b|\bs34\b|despues del articulo|16 semanas/.test(q)) w.add('B');
-  if (/ventana del articulo|\bs03\b|panel (registrado )?(de )?2026|en el articulo/.test(q)) w.add('A');
+  if (/seguimiento|despues del articulo|16 semanas/.test(q)) w.add('B');
+  if (/ventana del articulo|panel (registrado )?(de )?2026|en el articulo/.test(q)) w.add('A');
+  for (const r of rangesOf(q)) w.add(r);
   if (/reconstruccion|replay|\bs12\b|\bs11\b/.test(q)) w.add('replay');
   return w;
 }
@@ -117,8 +132,10 @@ export function micaiIntent(query, history = []) {
 /** sMAPE (%) and MAE (cases) are available per target; anything else is not answered from these data. */
 function metricOf(q) {
   if (/\bmase\b|\brmse\b|error cuadratico|desviacion acumulada|\bmape\b/.test(q)) return 'unsupported';
-  if (/\bmae\b|error absoluto/.test(q)) return 'mae';
-  if (/\bsmape\b/.test(q)) return 'smape';
+  const mae = /\bmae\b|error absoluto/.test(q), smape = /\bsmape\b/.test(q);
+  if (mae && smape) return 'several';  // DICTAMEN_PR27 C1-03: one metric per answer
+  if (mae) return 'mae';
+  if (smape) return 'smape';
   return null;
 }
 function explicitStrata(q) {
@@ -129,27 +146,37 @@ const isFollowUp = q => /^[¿\s]*y\b/.test(q) && q.length < 120;
 
 /** The fields of the current question; a follow-up («¿Y en Puebla?») inherits the previous user question's
  * fields and changes only those it names (DICTAMEN_PR26 P26-02). */
-export function resolveFields(query, history = []) {
-  const q = norm(query);
-  const own = { est: estimatorsOf(q), wins: windowsOf(q), strata: explicitStrata(q), metric: metricOf(q),
-    geos: resolveStates(query), national: NATIONAL.test(q) };
-  if (!isFollowUp(q)) return { ...own, followUp: false };
-  const prevText = (history || []).filter(h => h && h.role === 'user').slice(-1)[0]?.text;
-  if (!prevText) return { ...own, followUp: false };
-  const p = norm(prevText);
-  const prev = { est: estimatorsOf(p), wins: windowsOf(p), strata: explicitStrata(p), metric: metricOf(p),
-    geos: resolveStates(prevText), national: NATIONAL.test(p) };
+function fieldsOf(text) {
+  const q = norm(text);
+  return { est: estimatorsOf(q), wins: windowsOf(q), strata: explicitStrata(q), metric: metricOf(q),
+    geos: resolveStates(text), national: NATIONAL.test(q) };
+}
+function overlay(base, own) {
   const newGeo = own.geos.length || own.national;
   return {
-    est: own.est.length ? own.est : prev.est,
-    wins: own.wins.size ? own.wins : prev.wins,
-    strata: own.strata.length ? own.strata : prev.strata,
-    metric: own.metric || prev.metric,
-    geos: newGeo ? own.geos : prev.geos,
-    national: newGeo ? own.national : prev.national,
-    followUp: true,
-    prevResults: RESULTS.test(p),
+    est: own.est.length ? own.est : base.est,
+    wins: own.wins.size ? own.wins : base.wins,
+    strata: own.strata.length ? own.strata : base.strata,
+    metric: own.metric || base.metric,
+    geos: newGeo ? own.geos : base.geos,
+    national: newGeo ? own.national : base.national,
   };
+}
+
+/** The fields of the current question. A follow-up («¿Y en Puebla?», «¿Y para hombres?») is resolved on top of
+ * the user's previous turns: from the latest non-follow-up question among the last four, each follow-up changes
+ * only the fields it names (DICTAMEN_PR26 P26-02, DICTAMEN_PR27 C1-01). */
+export function resolveFields(query, history = []) {
+  const q = norm(query);
+  const own = fieldsOf(query);
+  if (!isFollowUp(q)) return { ...own, followUp: false };
+  const users = (history || []).filter(h => h && h.role === 'user').slice(-4).map(h => h.text || '');
+  let start = -1;
+  for (let k = users.length - 1; k >= 0; k--) if (!isFollowUp(norm(users[k]))) { start = k; break; }
+  if (start < 0) return { ...own, followUp: false };
+  let acc = fieldsOf(users[start]);
+  for (const u of users.slice(start + 1)) acc = overlay(acc, fieldsOf(u));
+  return { ...overlay(acc, own), followUp: true, prevResults: RESULTS.test(norm(users[start])) };
 }
 
 // ---- computed answers from the sealed metrics ------------------------------------------------------
@@ -248,13 +275,22 @@ export function micaiGroundedAnswer(query, history, index) {
   if (!(doc === 'micai' || DISTINCTIVE(q)) || QUOTES.test(q)) return null;
 
   const f = resolveFields(query, history);
+  if (f.wins.has('unsupported')) {
+    return abstention('Las métricas calculadas disponibles aquí corresponden a las ediciones S03–S18 (ventana del artículo) y ' +
+      'S19–S34 (seguimiento). Esta respuesta no cubre el rango que pides y no lo sustituiré por otro.');
+  }
+  if (f.metric === 'several') return abstention('Puedo comparar una métrica a la vez. Has pedido sMAPE y MAE; dime cuál quieres.');
   const strata = f.strata.length ? f.strata : ALL_STRATA;
   const m = f.metric || 'smape';
   const results = RESULTS.test(q) || (f.followUp && f.prevResults) || f.metric === 'mae';
 
   // National is a geography whenever the question goes beyond the general national card (stratum, models, metric).
-  const nationalComputed = f.national && (f.strata.some(k => k !== 'general') || m !== 'smape' ||
-    f.est.some(e => !['ensemble', 'naive'].includes(e)) || f.followUp);
+  // The national card answers the general national target against the naive; any other combination is computed
+  // from the Nacional row (DICTAMEN_PR27 C1-04: a single model without «ingenuo» is compared with the naive).
+  const nationalCard = f.national && !f.followUp && m === 'smape' && f.strata.every(k => k === 'general') &&
+    f.est.includes('naive') && f.est.every(e => ['ensemble', 'naive'].includes(e));
+  const nationalComputed = f.national && !nationalCard &&
+    (f.est.length > 0 || f.strata.length > 0 || f.metric !== null || f.followUp);
   const geos = [...(nationalComputed ? ['Nacional'] : []), ...f.geos];
 
   if (geos.length) {
