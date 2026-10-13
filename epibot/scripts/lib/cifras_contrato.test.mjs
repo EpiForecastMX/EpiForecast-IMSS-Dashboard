@@ -12,7 +12,7 @@
  * Uso:  npm run cifras:test
  */
 
-import { problemasDeSuperficies, jsonRevisable, sinRegionesNoLeidas } from './cifras_contrato.mjs';
+import { problemasDeSuperficies, problemasDeKnowledge, jsonRevisable, sinRegionesNoLeidas } from './cifras_contrato.mjs';
 
 const CASOS = [
   // --- HTML: lo que se ve --------------------------------------------------------------
@@ -101,6 +101,37 @@ for (const [nombre, contenido, debe, desc] of CASOS) {
   const ok = exentos === 2;
   if (!ok) fallos++;
   console.log(`  ${ok ? '✔' : '✖ FALLO'}  exenciones se cuentan y se informan (${exentos}, esperado 2)`);
+}
+
+// --- Dengue en knowledge.json: motores de la asignación W37 ----------------------------
+{
+  const base = () => ({
+    rosters: { total_series: 432, gallery_items: 444, por_cohorte: { neuro: 333, dengue: 99 } },
+    stats: { total_modelos: 333, dist_motor: { Prophet: 333 }, por_estado: { Nacional: { n: 9 } },
+             por_sexo: { hombres: { n: 111 }, mujeres: { n: 111 }, general: { n: 111 } } },
+    dengue: { dist_motor: { DeepAR: 53, Prophet: 46 }, motores_productivos: ['DeepAR', 'Prophet'] },
+  });
+  const dengue = (kb) => problemasDeKnowledge(kb).filter((p) => p.startsWith('dengue.'));
+  const casos = [
+    [base(), false, 'asignación W37 (DeepAR 53 / Prophet 46) pasa'],
+    [(() => { const k = base(); k.dengue.dist_motor = { DeepAR: 46, NBGLM: 31, Prophet: 22 };
+      k.dengue.motores_productivos = ['DeepAR', 'NBGLM', 'Prophet']; return k; })(), true,
+     'NBGLM con series (suspendido) se marca'],
+    [(() => { const k = base(); k.dengue.motores_productivos = ['DeepAR', 'Prophet', 'NBGLM']; return k; })(),
+     true, 'motores_productivos escrito a mano con NBGLM se marca'],
+    [(() => { const k = base(); k.dengue.proyeccion_anios = 5; return k; })(), true,
+     'proyeccion_anios presente se marca'],
+    [(() => { const k = base(); k.dengue.dist_motor = { DeepAR: 53, Ensemble: 46 };
+      k.dengue.motores_productivos = ['DeepAR', 'Ensemble']; return k; })(), true,
+     'árbol no elegible se marca'],
+  ];
+  for (const [kb, debe, desc] of casos) {
+    const r = dengue(kb);
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  knowledge · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
 }
 
 console.log(fallos ? `\n✖ ${fallos} prueba(s) fallaron` : '\n✔ Todas las pruebas pasan');

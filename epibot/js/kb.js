@@ -1459,12 +1459,14 @@ function answerDengue(q, ent, s, d) {
 
   // Pronóstico / proyección
   if (any(q, ['pronostic', 'forecast', 'prediccion', 'predice', 'predecir', 'se espera', 'se esperan', 'proxim', 'a futuro', 'proyeccion', 'nino', 'enso', 'climatolog', 'brote'])) {
+    // Ronda W37: sólo se publica el pronóstico a 52 semanas. La proyección NB-GLM multi-año y el
+    // escenario El Niño se retiraron (ENMIENDA_DENGUE_NBGLM_W37): reajustaban el motor suspendido.
+    const fut = dg.casos_futuro_nacional_52sem;
     return [
-      '**Pronóstico de Dengue: al ritmo de El Niño**', '',
-      `El motor productivo nacional es **${dg.motor_nacional}** (SMAPE ${dg.smape_nacional}% sobre ${dg.ultima_real.slice(0, 4)}). El pronóstico preciso es a **52 semanas**; más allá, proyectamos al ritmo de **El Niño**.`, '',
-      `Los grandes brotes ocurren **cada ~5 años** en años de El Niño (2014, 2019, 2024), así que el **próximo se espera hacia 2029** (2024 + 5), con años bajos en medio. La gráfica muestra la serie real desde 2014 (El Niño en rojo, La Niña en verde) y el pronóstico al próximo El Niño:`, '',
-      '![Pronóstico de dengue al ritmo de El Niño: serie 2014-2026 y pronóstico del próximo brote hacia 2029](../Reports/dengue/dengue_pronostico_nino.png)', '',
-      `*La magnitud exacta del brote 2029 es incierta (El Niño no se pronostica con certeza a varios años): es un escenario de planeación, no una certeza. Última semana real: ${dg.ultima_real}.*`,
+      '**Pronóstico de Dengue a 52 semanas**', '',
+      `El motor productivo nacional es **${dg.motor_nacional}**. El pronóstico publicado cubre **${dg.horizonte_semanas || 52} semanas** desde la última semana real (${dg.ultima_real})${fut ? `: alrededor de **${num(fut)} casos** a nivel nacional en ese año (media prevista)` : ''}.`, '',
+      'No publicamos proyecciones a varios años: con pocos ciclos epidémicos en los datos, el momento y la magnitud del próximo gran brote no pueden pronosticarse con fiabilidad.', '',
+      `Los grandes brotes de ${(dg.anios_epidemicos || [2014, 2019, 2024]).join(', ')} coincidieron con años de **El Niño**; por eso el índice ONI se usa como señal climática en el modelado.`,
     ].join('\n');
   }
 
@@ -1500,9 +1502,9 @@ function answerDengue(q, ent, s, d) {
       '| Motor | Tipo | Productivo | Series |',
       '|:------|:-----|:----------:|-------:|',
       rows, '',
-      '![Distribución de motores productivos de Dengue: DeepAR 46, NBGLM 31, Prophet 22 series](../Reports/dengue/dengue_motores_dona.png)', '',
+      `![Distribución de motores productivos de Dengue: ${(dg.motores_productivos || []).map((m) => `${m} ${dg.dist_motor?.[m] || 0}`).join(', ')} series](../Reports/dengue/dengue_motores_dona.png)`, '',
       `A nivel **nacional** el motor productivo es **${dg.motor_nacional}** (SMAPE **${dg.smape_nacional}%**). Se modela en **${dg.unidad}**.`, '',
-      `*Ensemble y Stacking quedan fuera: los árboles (XGBoost/LightGBM) no extrapolan la dinámica epidémica a 52 semanas. Muchas de las ${dg.n_series} series tienen pocos casos; la señal robusta es la nacional.*`,
+      `*Ensemble y Stacking no son elegibles: los árboles (XGBoost/LightGBM) no extrapolan la dinámica epidémica a 52 semanas.${(dg.motores_entrenados || []).includes('NBGLM') && !prodSet.has('NBGLM') ? ' NBGLM está suspendido en esta ronda por la inestabilidad de su predicción recursiva.' : ''} Muchas de las ${dg.n_series} series tienen pocos casos; la señal robusta es la nacional.*`,
     ].join('\n');
   }
 

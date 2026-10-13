@@ -26,7 +26,14 @@ export const VOCABULARIO = {
 /** Motores elegibles por cohorte. «Motor» es familia algorítmica, nunca una serie. */
 export const MOTORES = {
   neuro: ['Prophet', 'DeepAR', 'Ensemble', 'Stacking'],
-  dengue: ['Prophet', 'DeepAR', 'NBGLM'],
+  // Ronda W37: NBGLM suspendido por inestabilidad recursiva (ENMIENDA_DENGUE_NBGLM_W37,
+  // 13-oct-2026). Restituirlo exige corregir la recursión, reentrenar y recalificar.
+  dengue: ['Prophet', 'DeepAR'],
+};
+
+/** Motores entrenados que NO pueden publicarse en esta ronda, con su causa. */
+export const SUSPENDIDOS = {
+  dengue: { NBGLM: 'suspendido en W37 por inestabilidad de su predicción recursiva' },
 };
 
 const UNIDAD = '(?:modelos?|series|gr[áa]ficos?)';
@@ -145,7 +152,8 @@ export function problemasDeKnowledge(kb) {
     problemas.push(`stats.por_estado.Nacional.n = ${nac}; la cohorte neuro tiene 9 nacionales (3 padecimientos x 3 sexos)`);
   }
 
-  // Dengue: 99 series y sólo motores elegibles, con NBGLM presente.
+  // Dengue: 99 series, sólo motores elegibles, ninguno suspendido, y los productivos
+  // derivados de la asignación (no de una lista escrita a mano).
   const d = kb?.dengue ?? {};
   const ddm = d.dist_motor ?? {};
   const sumaDengue = Object.values(ddm).reduce((a, b) => a + b, 0);
@@ -153,12 +161,24 @@ export function problemasDeKnowledge(kb) {
     problemas.push(`dengue.dist_motor suma ${sumaDengue}; debe sumar ${VOCABULARIO.dengue}`);
   }
   for (const m of Object.keys(ddm)) {
-    if (!MOTORES.dengue.includes(m)) {
+    if (!MOTORES.dengue.includes(m) && !(m in SUSPENDIDOS.dengue)) {
       problemas.push(`dengue.dist_motor trae «${m}», no elegible para dengue (los árboles no extrapolan)`);
     }
   }
-  if (!Object.prototype.hasOwnProperty.call(ddm, 'NBGLM')) {
-    problemas.push('dengue.dist_motor sin NBGLM: es la huella de una selección anterior al selector vigente');
+  for (const [m, causa] of Object.entries(SUSPENDIDOS.dengue)) {
+    if (Object.prototype.hasOwnProperty.call(ddm, m)) {
+      problemas.push(`dengue.dist_motor trae «${m}»: ${causa}`);
+    }
+  }
+  const prodDeclarados = [...(d.motores_productivos ?? [])].sort();
+  const prodAsignados = Object.keys(ddm).filter((m) => ddm[m] > 0).sort();
+  if (JSON.stringify(prodDeclarados) !== JSON.stringify(prodAsignados)) {
+    problemas.push(
+      `dengue.motores_productivos = ${JSON.stringify(d.motores_productivos)}; debe derivarse de dist_motor (${JSON.stringify(prodAsignados)})`
+    );
+  }
+  if (Object.prototype.hasOwnProperty.call(d, 'proyeccion_anios')) {
+    problemas.push('dengue.proyeccion_anios presente: la proyección NB-GLM multi-año está retirada del producto');
   }
   return problemas;
 }
