@@ -12,7 +12,7 @@
  * Uso:  npm run cifras:test
  */
 
-import { problemasDeSuperficies, problemasDeKnowledge, jsonRevisable, sinRegionesNoLeidas } from './cifras_contrato.mjs';
+import { problemasDeSuperficies, problemasDeKnowledge, problemasDeDistribuciones, jsonRevisable, sinRegionesNoLeidas } from './cifras_contrato.mjs';
 
 const CASOS = [
   // --- HTML: lo que se ve --------------------------------------------------------------
@@ -130,6 +130,36 @@ for (const [nombre, contenido, debe, desc] of CASOS) {
     const ok = (r.length > 0) === debe;
     if (!ok) fallos++;
     console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  knowledge · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
+}
+
+// --- Distribuciones escritas a mano en las páginas ------------------------------------
+{
+  const kb = {
+    stats: { dist_motor: { Ensemble: 109, Stacking: 107, Prophet: 78, DeepAR: 39 } },
+    dengue: { dist_motor: { DeepAR: 53, Prophet: 46, NBGLM: 0 } },
+  };
+  const casos = [
+    ['<td>Distribuci&oacute;n neuro</td><td>Ensemble 109 | Stacking 107 | Prophet 78 | DeepAR 39</td></tr>',
+     false, 'neuro W37 en tabla pasa'],
+    ['<p>Distribución neuro: DeepAR 98, Prophet 94, Ensemble 85, Stacking 56.</p>', true,
+     'neuro de la ronda anterior se marca'],
+    ['<td>Distribución Dengue</td><td>DeepAR 53 | Prophet 46 (asignación W37)</td></tr>', false,
+     'Dengue W37 pasa (NBGLM con 0 no cuenta)'],
+    ['<td>Distribución Dengue</td><td>Prophet 48 | DeepAR 29 | NB-GLM 22</td></tr>', true,
+     'Dengue con NB-GLM se marca'],
+    ['<p>Distribución productiva actual: <span class="b">DeepAR 98</span> <span>Prophet 94</span></p>',
+     true, 'insignias del reporte rancias se marcan'],
+    ['<h3>Distribución de modelos por tipo</h3><p>sin cifras de motor</p>', false,
+     'un título sin cifras de motor no se marca'],
+    ['<!-- Distribución neuro: DeepAR 98, Prophet 94 </p> -->', false, 'comentario no se marca'],
+  ];
+  for (const [html, debe, desc] of casos) {
+    const r = problemasDeDistribuciones('x.html', html, kb);
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  distribución · ${desc}`);
     if (!ok) console.log(`           → ${JSON.stringify(r)}`);
   }
 }

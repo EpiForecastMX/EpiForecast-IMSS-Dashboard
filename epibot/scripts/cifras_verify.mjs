@@ -16,6 +16,7 @@ import {
   problemasDeCifras,
   problemasDeKnowledge,
   problemasDelBannerEstatico,
+  problemasDeDistribuciones,
   problemasDeSuperficies,
   VOCABULARIO,
 } from './lib/cifras_contrato.mjs';
@@ -50,6 +51,19 @@ const sup = problemasDeSuperficies(
   (f) => readFileSync(f, 'utf8')
 );
 problemas.push(...sup.problemas);
+
+// Las distribuciones de motores escritas a mano en las páginas deben coincidir con knowledge.json.
+if (kb) {
+  let nDist = 0;
+  for (const e of readdirSync(RAIZ_PUBLICADA, { withFileTypes: true })) {
+    if (!e.isFile() || !e.name.endsWith('.html')) continue;
+    const html = readFileSync(resolve(RAIZ_PUBLICADA, e.name), 'utf8');
+    const p = problemasDeDistribuciones(e.name, html, kb);
+    nDist += p.length;
+    problemas.push(...p);
+  }
+  console.log(`  distribuciones de motores en páginas: ${nDist ? `${nDist} DESALINEADAS` : 'alineadas con knowledge.json'}`);
+}
 
 // El fallback estático del banner de novedades debe decir lo mismo que news.json.
 try {

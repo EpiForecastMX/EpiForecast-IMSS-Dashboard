@@ -411,3 +411,41 @@ export function problemasDelBannerEstatico(indexHtml, news) {
   }
   return problemas;
 }
+
+// --- Distribuciones escritas a mano en las páginas ------------------------------------------
+// conclusiones.html y otras páginas traen «Distribución neuro: Ensemble 109, …» como texto fijo.
+// Ninguna se regenera sola, así que se quedan con la asignación de la ronda anterior (W37 llegó
+// con «DeepAR 98 | Prophet 94 | …» en conclusiones). Cada una debe decir lo mismo que
+// knowledge.json, que el generador deriva de la asignación congelada.
+const RE_DISTRIBUCION =
+  /Distribuci(?:ó|&oacute;)n (neuro|Dengue|productiva actual)([\s\S]{0,400}?)(?:<\/p>|<\/tr>|<\/li>)/g;
+const RE_MOTOR_N = /\b(Prophet|DeepAR|Ensemble|Stacking|NB-?GLM)\b(?:<\/span>)?\s*[:|]?\s*(\d+)\b/g;
+
+const _normMotor = (m) => (m.replace('-', '') === 'NBGLM' ? 'NBGLM' : m);
+const _ordena = (o) =>
+  JSON.stringify(Object.fromEntries(Object.entries(o).sort(([a], [b]) => a.localeCompare(b))));
+
+export function problemasDeDistribuciones(archivo, html, kb) {
+  const problemas = [];
+  const esperado = {
+    neuro: kb?.stats?.dist_motor ?? null,
+    dengue: Object.fromEntries(
+      Object.entries(kb?.dengue?.dist_motor ?? {}).filter(([, n]) => Number(n) > 0)
+    ),
+  };
+  for (const m of sinRegionesNoLeidas(html).texto.matchAll(RE_DISTRIBUCION)) {
+    const cohorte = m[1] === 'Dengue' ? 'dengue' : 'neuro';
+    const dicho = {};
+    for (const [, motor, n] of m[2].matchAll(RE_MOTOR_N)) dicho[_normMotor(motor)] = Number(n);
+    if (!Object.keys(dicho).length) continue; // un título («Distribución de …») sin cifras
+    const ref = esperado[cohorte];
+    if (!ref || !Object.keys(ref).length) {
+      problemas.push(`${archivo}: «Distribución ${m[1]}» sin referencia en knowledge.json`);
+    } else if (_ordena(dicho) !== _ordena(ref)) {
+      problemas.push(
+        `${archivo}: «Distribución ${m[1]}» dice ${_ordena(dicho)} y knowledge.json ${_ordena(ref)}`
+      );
+    }
+  }
+  return problemas;
+}
