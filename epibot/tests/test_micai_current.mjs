@@ -210,3 +210,28 @@ test('the metric is validated: MAE in cases, unsupported metrics abstain (P26-03
   const r=micaiGroundedAnswer(q,[],IDX());assert.equal(r.model,'abstention',q);assert.doesNotMatch(r.answer,/\d+\.\d %/);
  }
 });
+
+// Contrato C1 (DICTAMEN_PR27): cadenas de continuación, rangos, varias métricas y nacional de un modelo.
+test('two successive follow-ups keep models and window (C1-01)',()=>{
+ const h=[{role:'user',text:'En MICAI, para Jalisco durante el seguimiento, ¿Prophet tuvo menor sMAPE que Ensemble solo en mujeres?'},
+  {role:'assistant',text:'…'},{role:'user',text:'¿Y en Puebla?'},{role:'assistant',text:'…'}];
+ const r=micaiGroundedAnswer('¿Y para hombres, qué sMAPE tuvieron?',h,IDX());
+ assert.match(r.answer,/Puebla: [\s\S]*hombres, Prophet 34\.0 % frente a Ensemble 37\.0 %/);
+ assert.doesNotMatch(r.answer,/Ventana del artículo|archivada \d|ingenuo \d|mujeres,/);
+});
+test('an explicit range must match a computed window at both ends (C1-02)',()=>{
+ const r=micaiGroundedAnswer('MICAI: compara sMAPE de Prophet y Ensemble solo en las ediciones S19–S32.',[],IDX());
+ assert.equal(r.model,'abstention');assert.doesNotMatch(r.answer,/23\.4|25\.2/);
+ const ok=micaiGroundedAnswer('MICAI: compara sMAPE de Prophet y Ensemble en las ediciones S19–S34.',[],IDX());
+ assert.match(ok.answer,/Seguimiento, ediciones S19–S34/);assert.doesNotMatch(ok.answer,/S03–S18 \(/);
+});
+test('two metrics in one question ask the user to choose (C1-03)',()=>{
+ const r=micaiGroundedAnswer('MICAI: compara sMAPE y MAE de Prophet y Ensemble en el seguimiento.',[],IDX());
+ assert.equal(r.model,'abstention');assert.match(r.answer,/una métrica a la vez/);
+});
+test('a national single-model comparison is computed against the naive (C1-04)',()=>{
+ const r=micaiGroundedAnswer('MICAI: compara sMAPE de Ensemble en el seguimiento para general en Nacional.',[],IDX());
+ assert.equal(r.retrieval,'micai-state-metrics');
+ assert.match(r.answer,/general, Ensemble 5\.9 % frente a ingenuo 6\.2 %/);
+ assert.equal(micaiGroundedAnswer('¿Cómo le fue a Ensemble nacional frente al ingenuo en MICAI?',[],IDX()).retrieval,'curated-micai');
+});
