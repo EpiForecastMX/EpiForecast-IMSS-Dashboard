@@ -1593,11 +1593,17 @@
     "query": "como va el modelo de depresion en 2026",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Real",
-      "Pronostico",
-      "Depresion"
+      "Observado",
+      "Pronóstico",
+      "Depresión"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "SMAPE promedio",
+      "Precisión",
+      "excelente",
+      "| Inicio |",
+      "Acumulado"
+    ],
     "checkEntities": {}
   },
   {
@@ -1605,10 +1611,16 @@
     "query": "real vs pronostico depresion",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Acumulado"
+      "Seguimiento del pronóstico con corte W37",
+      "Periodo del boletín",
+      "Estado del par"
     ],
     "mustNotContain": [
-      "SMAPE promedio"
+      "SMAPE promedio",
+      "Precisión",
+      "excelente",
+      "| Inicio |",
+      "Acumulado"
     ],
     "checkEntities": {}
   },
@@ -1617,10 +1629,16 @@
     "query": "cuantos casos van en 2026 de depresion",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Real",
-      "Pronostico"
+      "Observado",
+      "Pronóstico"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "SMAPE promedio",
+      "Precisión",
+      "excelente",
+      "| Inicio |",
+      "Acumulado"
+    ],
     "checkEntities": {}
   },
   {
@@ -1628,10 +1646,14 @@
     "query": "comparacion semanal",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Sem 1",
-      "Sem 7"
+      "Sem 38",
+      "Sem 39",
+      "Horizonte"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "| Sem 7 |",
+      "| Sem 1 |"
+    ],
     "checkEntities": {}
   },
   {
@@ -1640,9 +1662,15 @@
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
       "Parkinson",
-      "Real"
+      "Observado"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "SMAPE promedio",
+      "Precisión",
+      "excelente",
+      "| Inicio |",
+      "Acumulado"
+    ],
     "checkEntities": {}
   },
   {
@@ -1650,9 +1678,16 @@
     "query": "compara real vs pronostico",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
+      "Seguimiento del pronóstico",
+      "Estado del par"
+    ],
+    "mustNotContain": [
+      "SMAPE promedio",
+      "Precisión",
+      "excelente",
+      "| Inicio |",
       "Acumulado"
     ],
-    "mustNotContain": [],
     "checkEntities": {}
   },
   {
@@ -1660,11 +1695,15 @@
     "query": "acierto semanal de depresion",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Depresion",
-      "Acumulado"
+      "Depresión",
+      "ajuste dentro de muestra"
     ],
     "mustNotContain": [
-      "SMAPE promedio"
+      "SMAPE promedio",
+      "Precisión",
+      "excelente",
+      "| Inicio |",
+      "Acumulado"
     ],
     "checkEntities": {}
   },
@@ -1674,9 +1713,15 @@
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
       "Alzheimer",
-      "Real"
+      "Observado"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "SMAPE promedio",
+      "Precisión",
+      "excelente",
+      "| Inicio |",
+      "Acumulado"
+    ],
     "checkEntities": {}
   },
   {
@@ -3604,10 +3649,13 @@
     "query": "validacion del pronostico vs real",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Real",
-      "Pronostico"
+      "Observado",
+      "Pronóstico"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "Precisión",
+      "excelente"
+    ],
     "checkEntities": {}
   },
   {
@@ -4971,8 +5019,8 @@
     "query": "como va el modelo en 2026",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Real",
-      "Pronostico"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6320,8 +6368,8 @@
     "query": "y cuantos habiamos dicho que habria?",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [
       "52 semanas"
@@ -6334,8 +6382,8 @@
     "query": "cuantos se esperaba que hubiera?",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6346,8 +6394,8 @@
     "query": "compara solo la semana 8",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "anterior al corte"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6358,8 +6406,8 @@
     "query": "compara la semana 8",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "anterior al corte"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6370,8 +6418,8 @@
     "query": "cuantos habiamos pronosticado?",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [
       "52 semanas"
@@ -6474,8 +6522,8 @@
     "query": "dijimos que iba a haber mas o menos?",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6486,8 +6534,8 @@
     "query": "se esperaba mas o menos de lo que llego?",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6531,8 +6579,8 @@
     "query": "cuanto pronosticamos para esa semana?",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6543,8 +6591,8 @@
     "query": "le atinamos?",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6577,8 +6625,8 @@
     "query": "y como va contra el pronostico?",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6611,8 +6659,8 @@
     "query": "cuantos iban a ser segun el modelo?",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6634,8 +6682,8 @@
     "query": "el pronostico decia que iban a ser mas?",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6657,8 +6705,8 @@
     "query": "pero solo semana 8",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "anterior al corte"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6669,8 +6717,8 @@
     "query": "comparalo contra lo pronosticado",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6692,8 +6740,8 @@
     "query": "esperabamos mas o menos casos?",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6715,8 +6763,8 @@
     "query": "cuanto se pronostico para esa semana?",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [],
     "checkEntities": {},

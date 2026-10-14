@@ -898,15 +898,6 @@ function _fechaLarga(iso) {
   return `${dt.getDate()} de ${meses[dt.getMonth()]} de ${dt.getFullYear()}`;
 }
 
-function _addDiasISO(iso, dias) {
-  const dt = new Date(iso + 'T00:00:00');
-  dt.setDate(dt.getDate() + dias);
-  const y = dt.getFullYear();
-  const m = String(dt.getMonth() + 1).padStart(2, '0');
-  const d2 = String(dt.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d2}`;
-}
-
 function answerFechaSemana(q, ent, s, d) {
   const asksDate = any(q, ['fecha', 'cuando fue', 'cuando es', 'cuando va', 'que dia',
     'dia es', 'corresponde', 'a que dia', 'en que dia', 'que semana del calendario']);
@@ -923,12 +914,14 @@ function answerFechaSemana(q, ent, s, d) {
   const serie = wc[pads[0]];
   const anio = serie?.anio;
   const semObj = (serie?.semanas || []).find(x => x.semana === week);
-  if (!semObj || !semObj.fecha) return null;
+  // Periodo OFICIAL del boletín (domingo a sábado). El ds legado de los pronósticos no es el
+  // inicio de la semana: sumarle 6 días daba el periodo de otra semana.
+  if (!semObj || !semObj.periodo_inicio || !semObj.periodo_fin) return null;
 
-  const ini = _fechaLarga(semObj.fecha);
-  const fin = _fechaLarga(_addDiasISO(semObj.fecha, 6));
+  const ini = _fechaLarga(semObj.periodo_inicio);
+  const fin = _fechaLarga(semObj.periodo_fin);
   const lines = [];
-  lines.push(`La **semana epidemiológica ${week} de ${anio}** abarca del **${ini}** al **${fin}** (lunes a domingo).`);
+  lines.push(`La **semana epidemiológica ${week} de ${anio}** abarca del **${ini}** al **${fin}** (periodo del boletín).`);
 
   // Casos reales reportados esa semana (suma de los 3 padecimientos), si los hay
   let totalReal = 0;
@@ -939,7 +932,7 @@ function answerFechaSemana(q, ent, s, d) {
   }
   if (hayReal) {
     lines.push(`\nEn esa semana se reportaron **${fmt(totalReal)} casos** en total en el boletín SINAVE.`);
-  } else if (serie.semanas_reales != null && week > serie.semanas_reales) {
+  } else if (semObj.fase === 'pronostico') {
     lines.push(`\n*(Es una semana del horizonte de pronóstico; aún no hay dato real del boletín.)*`);
   }
   return lines.join('\n');
@@ -1035,7 +1028,8 @@ function answerTemporal(q, ent, s, d) {
       const wc = d.weekly_comparison;
       if (wc) {
         const semsReales = Object.values(wc)[0]?.semanas?.filter(s => s.real != null).length || 0;
-        if (semsReales > 0) lines.push(`- Semanas con datos reales: **${semsReales}** de 53`);
+        const nSem = Object.values(wc)[0]?.semanas?.length || 52;
+        if (semsReales > 0) lines.push(`- Semanas con datos reales: **${semsReales}** de ${nSem}`);
       }
     }
   } else if (isCoverage) {
@@ -1937,8 +1931,9 @@ function answerBoletin(q, ent, s, d) {
         const info = wc[pad];
         if (info && rng) {
           lines.push(`\n**${inForecast.join(', ')}** esta cubierto por el horizonte de pronostico (${rng.label}):`);
-          const pron = (info.semanas || []).reduce((a, s) => a + s.pronostico, 0);
-          lines.push(`- Pronostico total: **${fmt(pron)} casos** (modelo ${info.modelo_productivo || '-'})`);
+          if (info.pronostico_52_pasos != null) {
+            lines.push(`- Pronóstico a 52 pasos semanales desde el corte ${String(info.corte || '').replace(/^\d{4}-/, '')}: **${fmt(info.pronostico_52_pasos)} casos** (motor ${info.motor || info.modelo_productivo || '-'})`);
+          }
         }
       }
       if (outOfRange.length) {
@@ -2014,18 +2009,8 @@ function answerBoletin(q, ent, s, d) {
         for (const y of inForecast) {
           lines.push(`**${y}** esta cubierto por el horizonte de pronostico${rng ? ` (${rng.label})` : ''}:`);
           for (const [p, info] of Object.entries(wc)) {
-            const sems = info.semanas || [];
-            // Buscar semanas del año; si no hay (ej: 2027 solo tiene semanas con fecha 2026),
-            // mostrar el total del pronostico completo
-            let semsInYear = sems.filter(s => s.fecha && s.fecha.startsWith(String(y)));
-            if (semsInYear.length === 0) {
-              // El horizonte cubre hasta enero 2027 pero las fechas son 2025-12-29 a 2026-12-28
-              const pron = sems.reduce((a, s) => a + s.pronostico, 0);
-              if (pron > 0) lines.push(`- ${p}: el pronostico de 52 semanas totaliza **${fmt(pron)} casos** y se extiende hasta enero ${y} (${info.modelo_productivo || '-'})`);
-              continue;
-            }
-            const pron = semsInYear.reduce((a, s) => a + s.pronostico, 0);
-            if (pron > 0) lines.push(`- ${p}: **${fmt(pron)} casos** pronosticados (${info.modelo_productivo || '-'})`);
+            const linea = lineaPronosticoAnio(p, info, y);
+            if (linea) lines.push(linea);
           }
         }
       }
@@ -2544,23 +2529,21 @@ function answerStackedArea(q, ent, s, d) {
   const wc = d.weekly_comparison;
   if (!wc) return null;
 
-  const pads = Object.keys(wc).filter(isNeuro);
-  const totalPron = pads.reduce((a, p) => {
-    return a + (wc[p]?.semanas || []).reduce((s, w) => s + w.pronostico, 0);
-  }, 0);
+  const pads = Object.keys(wc).filter(p => isNeuro(p) && weeklyV2(wc[p]));
+  if (!pads.length) return null;
+  const totalPron = pads.reduce((a, p) => a + (wc[p].pronostico_52_pasos || 0), 0);
 
   const lines = [];
-  lines.push('**Composicion semanal apilada**: pronostico de los 3 padecimientos semana a semana.\n');
-  lines.push(`Pronostico total (52 sem): **${fmt(totalPron)} casos**\n`);
+  lines.push(`**Composicion semanal apilada**: pronóstico de los 3 padecimientos con corte ${String(wc[pads[0]].corte || '').replace(/^\d{4}-/, '')}.\n`);
+  lines.push(`Pronóstico a 52 pasos semanales desde el corte: **${fmt(totalPron)} casos**\n`);
 
   for (const p of pads) {
-    const sems = wc[p]?.semanas || [];
-    const total = sems.reduce((a, s) => a + s.pronostico, 0);
+    const total = wc[p].pronostico_52_pasos || 0;
     const pct = totalPron > 0 ? ((total / totalPron) * 100).toFixed(1) : '?';
     lines.push(`- **${p}**: ${fmt(total)} casos (${pct}%)`);
   }
 
-  lines.push('\n*El área de cada padecimiento muestra su proporción del total semanal.*');
+  lines.push('\n*El área muestra las semanas de 2026 posteriores al corte; las anteriores son observadas y el ajuste dentro de muestra no se dibuja.*');
 
   return lines.join('\n');
 }
@@ -2585,12 +2568,13 @@ function answerCorredor(q, ent, s, d) {
   if (!pads.length) return null;
   const lines = [];
 
-  lines.push('**Corredor de confianza**: banda formada por los 4 modelos (Prophet, DeepAR, Ensemble, Stacking).\n');
-  lines.push('Donde la banda es **estrecha**, los modelos coinciden (alta confianza). Donde es **ancha**, hay divergencia.\n');
+  lines.push('**Corredor entre motores**: banda formada por los pronósticos de los 4 motores (Prophet, DeepAR, Ensemble, Stacking) con el mismo corte, en las semanas aún sin dato.\n');
+  lines.push('Donde la banda es **estrecha**, los motores coinciden; donde es **ancha**, divergen. La dispersión entre motores no es un intervalo de confianza ni una validación.\n');
 
   for (const p of pads) {
     const info = wc[p];
-    const sems = info.semanas || [];
+    const sems = semanasDeFase(info, 'pronostico').filter(w => MODELS.every(m => w[m] != null));
+    if (!sems.length) continue;
     const spreads = sems.map(s => {
       const vals = MODELS.map(m => s[m] || 0);
       return Math.max(...vals) - Math.min(...vals);
@@ -2624,36 +2608,24 @@ function answerErrorHeatmap(q, ent, s, d) {
   if (!wc) return null;
 
   const pad = ent.padecimiento;
-  const pads = pad ? [pad].filter(p => wc[p] && isNeuro(p)) : Object.keys(wc).filter(isNeuro);
+  const pads = (pad ? [pad].filter(p => wc[p] && isNeuro(p)) : Object.keys(wc).filter(isNeuro))
+    .filter(p => weeklyV2(wc[p]));
   if (!pads.length) return null;
+  const info0 = wc[pads[0]];
+  const n = semanasDeFase(info0, 'seguimiento').length;
   const lines = [];
 
-  lines.push('**Mapa de error semanal**: porcentaje de desviación entre pronostico y realidad.\n');
-  lines.push('Verde (< 15%) = bueno | Amarillo (15-40%) = aceptable | Rojo (> 40%) = fallo\n');
-
+  // Sólo los pares posteriores al corte, sin colores ni calificaciones: el error de las semanas
+  // anteriores era el del ajuste dentro de muestra y no es validación.
+  lines.push(`**Diferencias del ${tituloSeguimientoMin(info0)}** (pronóstico − observado, nacional).\n`);
+  lines.push(`*Seguimiento diagnóstico de ${n} semana${n === 1 ? '' : 's'} posterior${n === 1 ? '' : 'es'} al corte; no es el desempeño general del modelo. Las semanas anteriores al corte no se comparan: el ajuste dentro de muestra no es validación.*\n`);
   for (const p of pads) {
-    const sems = (wc[p]?.semanas || []).filter(s => s.real != null);
-    if (!sems.length) continue;
-
-    const errors = sems.map(s => {
-      if (s.real === 0) return s.pronostico > 0 ? 100 : 0;
-      return Math.abs(((s.pronostico - s.real) / s.real) * 100);
-    });
-    const good = errors.filter(e => e <= 15).length;
-    const ok = errors.filter(e => e > 15 && e <= 40).length;
-    const bad = errors.filter(e => e > 40).length;
-    const avgErr = (errors.reduce((a, v) => a + v, 0) / errors.length).toFixed(1);
-    const worstIdx = errors.indexOf(Math.max(...errors));
-    const bestIdx = errors.indexOf(Math.min(...errors));
-
-    lines.push(`**${p}** (${sems.length} semanas con datos):`);
-    lines.push(`- Error promedio: **${avgErr}%**`);
-    lines.push(`- Semanas verdes (< 15%): **${good}** | amarillas: **${ok}** | rojas: **${bad}**`);
-    lines.push(`- Mejor semana: S${String(sems[bestIdx].semana).padStart(2, '0')} (**${errors[bestIdx].toFixed(1)}%**)`);
-    lines.push(`- Peor semana: S${String(sems[worstIdx].semana).padStart(2, '0')} (**${errors[worstIdx].toFixed(1)}%**)`);
+    lines.push(`**${padLegible(p)}** (motor ${wc[p].motor || wc[p].modelo_productivo || '-'}):`);
+    for (const w of semanasDeFase(wc[p], 'seguimiento')) {
+      lines.push(`- Sem ${w.semana} (${periodoBoletin(w)}, horizonte ${w.horizonte}): observado ${fmtObs(w.real)} · pronóstico ${fmtObs(w.pronostico)} · diferencia ${fmtDif(w)} · ${estadoPar(w)}`);
+    }
     lines.push('');
   }
-
   return lines.join('\n');
 }
 
@@ -2661,35 +2633,31 @@ function answerErrorHeatmap(q, ent, s, d) {
 // ZOOM SEMANAL — vista detallada 2025-2027 (real vs pronostico)
 // ---------------------------------------------------------------------------
 
-function zoomIsoWeek(iso) {
-  const dt = new Date(iso + 'T00:00:00'); dt.setHours(0, 0, 0, 0);
-  dt.setDate(dt.getDate() + 3 - ((dt.getDay() + 6) % 7));
-  const w1 = new Date(dt.getFullYear(), 0, 4);
-  return 1 + Math.round(((dt - w1) / 864e5 - 3 + ((w1.getDay() + 6) % 7)) / 7);
-}
-
-// Texto del zoom por SERIE (estado × sexo), usando d.zoom_series (precargado).
+// Texto del zoom por SERIE (estado × sexo), usando d.zoom_series (precargado). Compara SÓLO los
+// pares del seguimiento posterior al corte: la línea del motor anterior al corte es ajuste dentro
+// de muestra y no se presenta como validación.
 function zoomSeriesText(s, pad, estado, sexo) {
   const estadoLbl = norm(estado) === 'mexico' ? 'Estado de Mexico' : estado;
   const sexoLbl = sexo === 'general' ? 'ambos sexos' : sexo;
-  let realSum = 0, pronSum = 0, nReal = 0;
-  for (let i = 0; i < s.d.length; i++) {
-    if (s.r[i] != null) { nReal++; realSum += s.r[i]; if (s.y[i] != null) pronSum += s.y[i]; }
-  }
-  const futSum = s.y.reduce((a, v, i) => (s.r[i] == null && v != null ? a + v : a), 0);
-  const diff = realSum - pronSum;
-  const signo = diff >= 0 ? '+' : '-';
-  const arrastre = diff >= 0 ? 'por encima del pronostico' : 'por debajo del pronostico';
-  const errPct = realSum > 0 ? Math.abs((diff / realSum) * 100).toFixed(1) : '-';
-  const wk = s.last_real ? zoomIsoWeek(s.last_real) : null;
+  const seg = Array.isArray(s.seguimiento) ? s.seguimiento : [];
+  const nReal = s.r.filter(v => v != null).length;
+  const futSum = s.y.reduce((a, v, i) => (s.r[i] == null && v != null && (!s.ds_corte || s.d[i] > s.ds_corte) ? a + v : a), 0);
+  const corte = String(s.corte || '').replace(/^\d{4}-/, '');
   const lines = [];
   lines.push(`**Zoom semanal: ${pad} — ${estadoLbl} (${sexoLbl})**\n`);
-  lines.push(`Real vs pronostico hasta la **semana ${wk != null ? wk : '-'}** (${s.last_real || '-'}), motor **${s.motor || '-'}**.\n`);
-  lines.push(`- Semanas reales mostradas: **${nReal}**`);
-  lines.push(`- Real acumulado: **${fmt(Math.round(realSum))}** · pronostico (mismas semanas): **${fmt(Math.round(pronSum))}**`);
-  lines.push(`- Diferencia (real - pronostico): **${signo}${fmt(Math.round(Math.abs(diff)))}** casos (${arrastre}, error **${errPct}%**)`);
-  lines.push(`- Pronostico a futuro (post semana ${wk != null ? wk : '-'}): **${fmt(Math.round(futSum))}** casos`);
-  lines.push('\n*Línea sólida = real (boletin SINAVE), punteada = pronostico del motor productivo.*');
+  lines.push(`Motor **${s.motor || '-'}**${corte ? `, pronóstico con corte **${corte}**` : ''}. Observado: ${s.definicion_real || 'datos del boletín'}.\n`);
+  lines.push(`- Semanas observadas mostradas: **${nReal}**`);
+  if (seg.length) {
+    lines.push(`- Seguimiento posterior al corte (${seg.length} semana${seg.length === 1 ? '' : 's'}; diagnóstico, sin calificar):`);
+    for (const w of seg) {
+      const sem = Number(String(w.etiqueta).slice(-2));
+      lines.push(`  - Sem ${sem} (${periodoBoletin(w)}, horizonte ${w.horizonte}): observado ${fmtObs(w.real)} · pronóstico ${fmtObs(w.pronostico)} · ${estadoPar(w)}`);
+    }
+  } else {
+    lines.push('- Sin pares del seguimiento posterior al corte para esta serie.');
+  }
+  lines.push(`- Pronóstico a futuro (semanas aún sin dato): **${fmt(Math.round(futSum))}** casos`);
+  lines.push('\n*Línea sólida = observado (boletín SINAVE); punteada = pronóstico desde el corte. El ajuste anterior al corte no se dibuja ni se compara.*');
   return lines.join('\n');
 }
 
@@ -2716,46 +2684,31 @@ function answerZoom(q, ent, s, d) {
   const filtered = pad ? pads.filter(p => p === pad) : pads.filter(isNeuro);
 
   const lines = [];
-  lines.push('**Zoom semanal: Real vs Pronostico**\n');
+  const v2 = filtered.filter(p => weeklyV2(wc[p]));
+  if (!v2.length) return null;
+  lines.push(`**Zoom semanal: observado y ${tituloSeguimientoMin(wc[v2[0]])}**\n`);
 
   const rng = forecastDateRange(d);
   if (rng) {
     lines.push(`Horizonte: **${rng.label}**\n`);
   }
 
-  for (const p of filtered) {
+  for (const p of v2) {
     const info = wc[p];
-    const sems = info.semanas || [];
-    const withReal = sems.filter(s => s.real != null);
-    const totalReal = withReal.reduce((a, s) => a + s.real, 0);
-    const totalPron = sems.reduce((a, s) => a + s.pronostico, 0);
-    const modelo = info.modelo_productivo || '-';
-
-    const ultimaSem = withReal.length > 0
-      ? Math.max(...withReal.map(s => s.semana || 0))
-      : 0;
-
-    lines.push(`**${p}** (${modelo}):`);
-    lines.push(`- Semanas con datos reales: **${withReal.length}** de ${sems.length}`);
-    lines.push(`- Casos reales acumulados: **${fmt(totalReal)}**`);
-    lines.push(`- Pronostico total (52 sem): **${fmt(totalPron)}**`);
-
-    if (withReal.length > 0) {
-      const realSum = withReal.reduce((a, s) => a + s.real, 0);
-      const pronSum = withReal.reduce((a, s) => a + s.pronostico, 0);
-      // Diferencia real - pronostico: positivo = realidad por ENCIMA del pronostico.
-      const diff = realSum - pronSum;
-      const signo = diff >= 0 ? '+' : '-';
-      const arrastre = diff >= 0 ? 'por encima del pronostico' : 'por debajo del pronostico';
-      const errorPct = realSum > 0 ? Math.abs((diff / realSum) * 100).toFixed(1) : '-';
-      lines.push(`- Pronostico acumulado (a la semana ${ultimaSem}): **${fmt(pronSum)}**`);
-      lines.push(`- Diferencia (real - pronostico): **${signo}${fmt(Math.abs(diff))}** casos (${arrastre})`);
-      lines.push(`- Error acumulado (semanas con datos): **${errorPct}%**`);
+    const obs = (info.semanas || []).filter(w => w.real != null);
+    const seg = semanasDeFase(info, 'seguimiento');
+    lines.push(`**${padLegible(p)}** (${info.motor || info.modelo_productivo || '-'}):`);
+    lines.push(`- Semanas observadas en ${info.anio}: **${obs.length}**; las anteriores al corte se muestran sólo como observado`);
+    for (const w of seg) {
+      lines.push(`- Sem ${w.semana} (${periodoBoletin(w)}, horizonte ${w.horizonte}): observado ${fmtObs(w.real)} · pronóstico ${fmtObs(w.pronostico)} · ${estadoPar(w)}`);
+    }
+    if (info.pronostico_52_pasos != null) {
+      lines.push(`- Pronóstico a 52 pasos semanales desde el corte: **${fmt(info.pronostico_52_pasos)}** casos`);
     }
     lines.push('');
   }
 
-  lines.push('*Línea sólida = datos reales, línea punteada = pronostico del modelo productivo.*');
+  lines.push('*Línea sólida = observado; punteada = pronóstico guardado desde el corte (el ajuste dentro de muestra no se dibuja). Seguimiento diagnóstico, no desempeño general del modelo.*');
 
   return lines.join('\n');
 }
@@ -2889,19 +2842,10 @@ function answerHistorico(q, ent, s, d) {
       const wc = d.weekly_comparison || {};
       if (rng) {
         lines.push(`**${year}** esta cubierto por el horizonte de pronostico (${rng.label}).`);
-        if (pad) {
-          const info = wc[pad];
-          if (info && info.semanas) {
-            const semsInYear = info.semanas.filter(s => s.fecha && s.fecha.startsWith(String(year)));
-            const pron = semsInYear.reduce((a, s) => a + s.pronostico, 0);
-            lines.push(`- ${pad}: **${fmt(pron)} casos** pronosticados en las semanas de ${year} (modelo ${info.modelo_productivo || '-'}).`);
-          }
-        } else {
-          for (const [p, info] of Object.entries(wc)) {
-            const semsInYear = info.semanas.filter(s => s.fecha && s.fecha.startsWith(String(year)));
-            const pron = semsInYear.reduce((a, s) => a + s.pronostico, 0);
-            if (pron > 0) lines.push(`- ${p}: **${fmt(pron)} casos** pronosticados en ${year} (${info.modelo_productivo || '-'})`);
-          }
+        for (const [p, info] of Object.entries(wc)) {
+          if (pad && p !== pad) continue;
+          const linea = lineaPronosticoAnio(p, info, year);
+          if (linea) lines.push(linea);
         }
         continue;
       }
@@ -3817,7 +3761,29 @@ function seguimientoMd(seg) {
       out.push(`- ${nombre}: ${c.pares} de ${c.series} series con par v\u00e1lido${aus}${err}`);
     }
   }
-  out.push('\nUn par ausente (falta el pron\u00f3stico o la observaci\u00f3n desagregable) no se rellena ni se desplaza. Detalle por serie en [Validaci\u00f3n semanal](../validacion_semanal.html).');
+  // Nacional de la \u00faltima semana: general y por sexo, cada uno con su definici\u00f3n.
+  const ult = seg.semanas[seg.semanas.length - 1];
+  const nac = Object.values(ult.cohortes || {}).flatMap(c => c.nacional || []);
+  if (nac.length) {
+    out.push(`\n**Nacional, ${semanaLegible(ult.etiqueta)}** (pron\u00f3stico guardado frente a lo observado, sin calificar):\n`);
+    out.push('| Padecimiento | Sexo | Observado | Pron\u00f3stico | Qu\u00e9 es lo observado |');
+    out.push('|---|---|---:|---:|---|');
+    for (const n of nac) {
+      out.push(`| ${padLegible(n.padecimiento)} | ${n.sexo} | ${fmt(n.real)} | ${fmt(n.pronostico)} | ${n.definicion_real || ''} |`);
+    }
+    const def = seg.definiciones || {};
+    if (def.sexo_agregado) {
+      out.push(`\nHombres y mujeres del nacional: **${def.sexo_agregado}** (diferencia del acumulado nacional entre semanas consecutivas, con las 32 entidades publicadas en ambas; incluye las revisiones negativas de los estados). No es un n\u00famero demostrado de casos nuevos. El general son los casos de la semana (Casos_semana) y no se fuerza a coincidir con hombres + mujeres.`);
+    }
+  }
+  const aus = seg.ausentes || [];
+  if (aus.length) {
+    out.push(`\n**Pares ausentes** (${aus.length}; se conservan aparte con su motivo, sin imputar ni convertir en cero):`);
+    for (const a of aus) {
+      out.push(`- ${semanaLegible(a.semana_objetivo)} \u00b7 ${padLegible(a.padecimiento)} \u00b7 ${a.entidad} \u00b7 ${a.sexo}: ${a.motivo}`);
+    }
+  }
+  out.push('\nDetalle por serie en [Validaci\u00f3n semanal](../validacion_semanal.html).');
   return out.join('\n');
 }
 
@@ -4183,7 +4149,7 @@ function fuzzyCorrect(q) {
 }
 
 // ---------------------------------------------------------------------------
-// Handler: Comparacion semanal Real vs Pronostico 2026
+// Handler: Seguimiento del pronóstico con corte (antes «comparación semanal 2026»)
 // ---------------------------------------------------------------------------
 
 // Handler dedicado: comparación de desempeño por sexo (hombres vs mujeres)
@@ -4332,151 +4298,192 @@ function answerComparacionSemanal(q, ent, s, d) {
   const wc = d?.weekly_comparison;
   if (!wc || !Object.keys(wc).length) return null;
 
-  // Detectar si piden una semana especifica: "solo la semana 8", "compara semana 8"
+  // Semana pedida: «solo la semana 38», «compara semana 30»
   const weekMatch = q.match(/semana\s*(\d{1,2})/);
   let requestedWeek = weekMatch ? parseInt(weekMatch[1], 10) : null;
 
-  // Si es follow-up retrospectivo sin semana explicita, usar la ultima semana con datos reales
+  // Follow-up retrospectivo sin semana explícita: la última semana del seguimiento
   if (!requestedWeek && hasRetrospective && prevWasRelevant) {
-    const firstPad = Object.values(wc)[0];
-    if (firstPad && firstPad.semanas) {
-      const lastReal = firstPad.semanas.filter(w => w.real != null).pop();
-      if (lastReal) requestedWeek = lastReal.semana;
-    }
+    const ult = semanasDeFase(Object.values(wc)[0], 'seguimiento').pop();
+    if (ult) requestedWeek = ult.semana;
   }
 
-  // Es single-week si dicen "solo", si es retrospectivo, o si es query corto con semana
   const singleWeek = requestedWeek && (
     any(q, ['solo', 'solamente', 'nada mas', 'unicamente', 'especifica']) ||
     hasRetrospective ||
     (q.split(/\s+/).length <= 7 && any(q, ['compara', 'comparar', 'comparalo']))
   );
 
-  // Determine which padecimiento(s) to show. Agregado = cohorte neuro (la fila Total
-  // suma solo neuro). Dengue explícito conserva su tabla; lo demás Dengue lo sirve answerDengue.
+  // Agregado = cohorte neuro. Dengue explícito conserva su tabla.
   const pad = ent.padecimiento;
-  const padsToShow = pad ? [pad] : Object.keys(wc).filter(isNeuro);
-
+  const padsToShow = (pad ? [pad] : Object.keys(wc).filter(isNeuro)).filter(p => weeklyV2(wc[p]));
+  if (!padsToShow.length) return null;
   const lines = [];
 
-  // Modo semana unica: tabla resumen compacta con los 3 padecimientos
+  // Una semana, los padecimientos juntos: sin total entre padecimientos ni calificación.
   if (singleWeek && !pad) {
-    const anio = Object.values(wc)[0]?.anio || 2026;
-    lines.push(`**Semana ${requestedWeek} de ${anio}: Pronostico vs Realidad**\n`);
-    lines.push('| Padecimiento | Pronostico | Real | Error |');
-    lines.push('|-------------|----------:|-----:|------:|');
-    let totalPron = 0, totalReal = 0;
+    const info0 = wc[padsToShow[0]];
+    const w0 = (info0.semanas || []).find(x => x.semana === requestedWeek);
+    if (!w0) return null;
+    lines.push(`**${tituloSeguimiento(info0)} — semana ${requestedWeek} de ${w0.anio}** (${periodoBoletin(w0)})\n`);
+    if (w0.fase === 'seguimiento') {
+      lines.push(`Horizonte ${w0.horizonte} desde el corte. ${ROTULO_SEGUIMIENTO}\n`);
+      lines.push('| Padecimiento | Observado | Pronóstico | Diferencia (pron. − obs.) | Estado del par |');
+      lines.push('|---|---:|---:|---:|---|');
+    } else if (w0.fase === 'observado') {
+      lines.push(`Semana anterior al corte: ${NOTA_ANTES_DEL_CORTE}\n`);
+      lines.push('| Padecimiento | Observado |');
+      lines.push('|---|---:|');
+    } else {
+      lines.push(`Semana sin dato todavía: pronóstico guardado desde el corte (horizonte ${w0.horizonte}).\n`);
+      lines.push('| Padecimiento | Pronóstico |');
+      lines.push('|---|---:|');
+    }
     for (const p of padsToShow) {
-      const info = wc[p];
-      if (!info || !info.semanas) continue;
-      const w = info.semanas.find(s => s.semana === requestedWeek && s.real != null);
+      const w = (wc[p].semanas || []).find(x => x.semana === requestedWeek);
       if (!w) continue;
-      const pron = w.pronostico || 0;
-      const real = w.real || 0;
-      const errPct = real > 0 ? (Math.abs(pron - real) / real * 100).toFixed(1) : '0.0';
-      const dir = pron > real ? '+' : pron < real ? '-' : '';
-      lines.push(`| ${p} | ${fmt(pron)} | ${fmt(real)} | ${dir}${errPct}% |`);
-      totalPron += pron;
-      totalReal += real;
+      if (w.fase === 'seguimiento') lines.push(`| ${padLegible(p)} | ${fmtObs(w.real)} | ${fmtObs(w.pronostico)} | ${fmtDif(w)} | ${estadoPar(w)} |`);
+      else if (w.fase === 'observado') lines.push(`| ${padLegible(p)} | ${fmtObs(w.real)} |`);
+      else lines.push(`| ${padLegible(p)} | ${fmtObs(w.pronostico)} |`);
     }
-    if (padsToShow.length > 1 && totalReal > 0) {
-      const totalErr = (Math.abs(totalPron - totalReal) / totalReal * 100).toFixed(1);
-      const totalDir = totalPron > totalReal ? '+' : totalPron < totalReal ? '-' : '';
-      lines.push(`| **Total** | **${fmt(totalPron)}** | **${fmt(totalReal)}** | **${totalDir}${totalErr}%** |`);
+    if (w0.fase === 'seguimiento') {
+      for (const p of padsToShow) {
+        const info = wc[p];
+        const w = (info.semanas || []).find(x => x.semana === requestedWeek);
+        if (w) lines.push(`\n<!--WEEKLY:${JSON.stringify(payloadSeguimiento(p, info, [w]))}-->`);
+      }
     }
-    // Interpretacion
-    const totalErr = totalReal > 0 ? Math.abs(totalPron - totalReal) / totalReal * 100 : 0;
-    lines.push('');
-    if (totalErr < 5) lines.push('Precisión **excelente**: el error total es menor al 5%.');
-    else if (totalErr < 15) lines.push('Precisión **buena**: el error total está entre 5-15%.');
-    else lines.push('Precisión **moderada**: revisar los modelos con mayor desviación.');
-
-    // Embed chart data: one per padecimiento for grid display
-    for (const p of padsToShow) {
-      const info = wc[p];
-      if (!info || !info.semanas) continue;
-      const w = info.semanas.find(sw => sw.semana === requestedWeek && sw.real != null);
-      if (!w) continue;
-      const chartPayload = JSON.stringify({
-        pad: p,
-        modelo: info.modelo_productivo || '?',
-        anio,
-        semanas: [{ s: w.semana, r: w.real, p: w.pronostico }],
-      });
-      lines.push(`\n<!--WEEKLY:${chartPayload}-->`);
-    }
-    return lines.length > 4 ? lines.join('\n') : null;
+    return lines.join('\n');
   }
 
   for (const p of padsToShow) {
     const info = wc[p];
-    if (!info || !info.semanas) continue;
+    const seg = semanasDeFase(info, 'seguimiento');
+    const pedida = requestedWeek ? (info.semanas || []).find(w => w.semana === requestedWeek) : null;
+    if (requestedWeek && !pedida) continue;
 
-    const weeks = info.semanas;
-    const realWeeks = weeks.filter(w => w.real != null);
-    const modelo = info.modelo_productivo || '?';
-    const anio = info.anio || 2026;
+    lines.push(`**${padLegible(p)} — ${tituloSeguimiento(info)}** (motor asignado: ${info.motor || info.modelo_productivo || '?'}; nacional, ambos sexos)\n`);
+    lines.push(`*${ROTULO_SEGUIMIENTO}*\n`);
 
-    if (!realWeeks.length) continue;
-
-    // Si piden semana especifica (pero con padecimiento filtrado), filtrar
-    const showWeeks = requestedWeek ? realWeeks.filter(w => w.semana === requestedWeek) : realWeeks;
-    if (!showWeeks.length) continue;
-
-    // Acumulados (siempre del total, no del filtro)
-    const acumReal = realWeeks.reduce((s, w) => s + w.real, 0);
-    const acumPron = realWeeks.reduce((s, w) => s + w.pronostico, 0);
-    const diffPct = acumReal > 0 ? ((acumPron - acumReal) / acumReal * 100).toFixed(1) : '?';
-    const diffSign = Number(diffPct) > 0 ? '+' : '';
-
-    lines.push(`**${p} — Real vs Pronostico ${anio}** (modelo productivo: ${modelo})\n`);
-    lines.push('| Semana | Inicio | Real | Pronostico | Diferencia |');
-    lines.push('|--------|--------|-----:|----------:|-----------:|');
-
-    for (const w of showWeeks) {
-      const diff = w.pronostico - w.real;
-      const sign = diff > 0 ? '+' : '';
-      const pctStr = w.error_pct != null ? ` (${w.error_pct}%)` : '';
-      const fechaStr = w.fecha ? w.fecha.slice(5) : '';
-      lines.push(`| Sem ${w.semana} | ${fechaStr} | ${fmt(w.real)} | ${fmt(w.pronostico)} | ${sign}${fmt(diff)}${pctStr} |`);
-    }
-
-    if (!requestedWeek) {
-      lines.push('');
-      lines.push(`**Acumulado ${realWeeks.length} semanas:** Real **${fmt(acumReal)}** vs Pronostico **${fmt(acumPron)}** (${diffSign}${diffPct}%)`);
-
-      // SMAPE promedio (retirado con las métricas de selección: promedia la ventana W28–W37)
-      const smapes = metricasRetiradas(d) ? [] : realWeeks.filter(w => w.error_pct != null && w.real > 0).map(w => {
-        const r = w.real, f = w.pronostico;
-        return 200 * Math.abs(f - r) / (Math.abs(f) + Math.abs(r));
-      });
-      if (smapes.length) {
-        const avgSmape = (smapes.reduce((a, b) => a + b, 0) / smapes.length).toFixed(1);
-        lines.push(`**SMAPE promedio semanal:** ${avgSmape}%`);
-      }
-
-      // Upcoming weeks preview
-      const futureWeeks = weeks.filter(w => w.real == null).slice(0, 4);
-      if (futureWeeks.length) {
-        lines.push(`\nPróximas semanas pronosticadas:`);
-        for (const w of futureWeeks) {
-          lines.push(`- Sem ${w.semana}: **${fmt(w.pronostico)}** casos`);
+    if (pedida && pedida.fase === 'observado') {
+      lines.push(`La semana ${pedida.semana} (${periodoBoletin(pedida)}) es anterior al corte: ${NOTA_ANTES_DEL_CORTE}\n`);
+      lines.push(`- Observado: **${fmtObs(pedida.real)}** casos`);
+    } else if (pedida && pedida.fase === 'pronostico') {
+      lines.push(`La semana ${pedida.semana} (${periodoBoletin(pedida)}) aún no tiene dato: pronóstico guardado desde el corte, horizonte ${pedida.horizonte}: **${fmtObs(pedida.pronostico)}** casos.`);
+    } else {
+      const filas = pedida ? [pedida] : seg;
+      lines.push(...tablaSeguimientoMd(filas));
+      if (!pedida) {
+        const previas = semanasDeFase(info, 'observado').slice(-4);
+        if (previas.length) {
+          lines.push(`\nSemanas anteriores al corte (sólo observado, sin comparación):`);
+          for (const w of previas) lines.push(`- Sem ${w.semana} (${periodoBoletin(w)}): **${fmtObs(w.real)}** casos`);
+        }
+        const proximas = semanasDeFase(info, 'pronostico').slice(0, 4);
+        if (proximas.length) {
+          lines.push(`\nPróximas semanas pronosticadas (corte ${String(info.corte || '').replace(/^\d{4}-/, '')}):`);
+          for (const w of proximas) lines.push(`- Sem ${w.semana} (${periodoBoletin(w)}, horizonte ${w.horizonte}): **${fmtObs(w.pronostico)}** casos`);
         }
       }
+      lines.push(`\n<!--WEEKLY:${JSON.stringify(payloadSeguimiento(p, info, filas))}-->`);
     }
-
-    // Embed chart data for app.js
-    const chartWeeks = requestedWeek
-      ? showWeeks.map(w => ({ s: w.semana, r: w.real, p: w.pronostico }))
-      : weeks.filter(w => w.real != null || w.semana <= (realWeeks.length + 4))
-        .map(w => ({ s: w.semana, r: w.real ?? null, p: w.pronostico }));
-    const chartPayload = JSON.stringify({ pad: p, modelo, anio, semanas: chartWeeks });
-    lines.push(`\n<!--WEEKLY:${chartPayload}-->`);
-
     if (padsToShow.length > 1) lines.push('\n---\n');
   }
 
-  return lines.length > 2 ? lines.join('\n') : null;
+  return lines.length ? lines.join('\n') : null;
+}
+
+// ---------------------------------------------------------------------------
+// Seguimiento semanal (weekly_comparison v2, ronda W37). Sólo los pares POSTERIORES al corte se
+// comparan; antes del corte se muestra lo observado (el ajuste dentro de muestra no es validación);
+// cada semana lleva el periodo OFICIAL del boletín (el ds legado no es su inicio). Un ausente sigue
+// ausente y nunca se convierte en cero. Sin calificaciones automáticas.
+// ---------------------------------------------------------------------------
+
+const ROTULO_SEGUIMIENTO = 'Seguimiento diagnóstico de las semanas posteriores al corte; no es el desempeño general del modelo. Antes del corte sólo se muestra lo observado: el ajuste dentro de muestra no se presenta como validación.';
+const NOTA_ANTES_DEL_CORTE = 'sólo se muestra lo observado; el ajuste dentro de muestra del modelo no se presenta como validación.';
+const MESES_CORTOS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+
+/** Nombre legible del padecimiento (las claves del knowledge van sin tilde). */
+function padLegible(p) { return { Depresion: 'Depresión' }[p] || p; }
+
+export function weeklyV2(info) { return !!info && info.version === 2 && Array.isArray(info.semanas); }
+
+export function semanasDeFase(info, fase) { return weeklyV2(info) ? info.semanas.filter(w => w.fase === fase) : []; }
+
+/** «Seguimiento del pronóstico con corte W37» desde la etiqueta del corte (2026-W37). */
+export function tituloSeguimiento(info) {
+  const m = String(info?.corte || '').match(/W(\d{2})$/);
+  return `Seguimiento del pronóstico con corte W${m ? Number(m[1]) : '?'}`;
+}
+
+/** El mismo título en medio de una frase («seguimiento del pronóstico con corte W37»). */
+export function tituloSeguimientoMin(info) { const t = tituloSeguimiento(info); return t.charAt(0).toLowerCase() + t.slice(1); }
+
+/** Periodo oficial del boletín: «20–26 sep 2026», «27 sep – 3 oct 2026». */
+export function periodoBoletin(w) {
+  if (!w || !w.periodo_inicio || !w.periodo_fin) return '';
+  const [y1, m1, d1] = w.periodo_inicio.split('-').map(Number);
+  const [y2, m2, d2] = w.periodo_fin.split('-').map(Number);
+  if (y1 === y2 && m1 === m2) return `${d1}–${d2} ${MESES_CORTOS[m1 - 1]} ${y2}`;
+  if (y1 === y2) return `${d1} ${MESES_CORTOS[m1 - 1]} – ${d2} ${MESES_CORTOS[m2 - 1]} ${y2}`;
+  return `${d1} ${MESES_CORTOS[m1 - 1]} ${y1} – ${d2} ${MESES_CORTOS[m2 - 1]} ${y2}`;
+}
+
+function fmtObs(v) { return v == null ? '—' : fmt(v); }
+
+function fmtDif(w) {
+  if (w.estado !== 'par' || w.diferencia == null) return '—';
+  return `${w.diferencia > 0 ? '+' : w.diferencia < 0 ? '−' : ''}${fmt(Math.abs(w.diferencia))}`;
+}
+
+function estadoPar(w) { return w.estado === 'par' ? 'par' : `ausente: ${w.motivo || 'sin motivo declarado'}`; }
+
+/** Filas Markdown del seguimiento: semana, periodo, corte, horizonte, observado, pronóstico, estado. */
+function tablaSeguimientoMd(semanas) {
+  const out = [
+    '| Semana | Periodo del boletín | Corte | Horizonte | Observado | Pronóstico | Diferencia (pron. − obs.) | Estado del par |',
+    '|---|---|---|---:|---:|---:|---:|---|',
+  ];
+  for (const w of semanas) {
+    out.push(`| Sem ${w.semana} | ${periodoBoletin(w)} | ${String(w.corte || '').replace(/^\d{4}-/, '')} | ${w.horizonte} | ${fmtObs(w.real)} | ${fmtObs(w.pronostico)} | ${fmtDif(w)} | ${estadoPar(w)} |`);
+  }
+  return out;
+}
+
+/** Datos del gráfico embebido: SÓLO pares del seguimiento (un ausente viaja con su lado nulo). */
+/** Pronóstico guardado desde el corte en las semanas de un año sin dato todavía (o, si el año
+ *  queda fuera de la rejilla semanal, el total de 52 pasos); nunca el ajuste dentro de muestra. */
+/** Índices de las semanas en las que TODOS los padecimientos tienen pronóstico (posteriores al corte). */
+export function semanasConPronostico(wc, pads) {
+  const n = wc[pads[0]]?.semanas?.length || 0;
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    if (pads.every(p => wc[p].semanas[i] && wc[p].semanas[i].fase !== 'observado' && wc[p].semanas[i].pronostico != null)) out.push(i);
+  }
+  return out;
+}
+
+function lineaPronosticoAnio(p, info, y) {
+  if (!weeklyV2(info)) return null;
+  const corte = String(info.corte || '').replace(/^\d{4}-/, '');
+  const sems = semanasDeFase(info, 'pronostico').filter(w => w.anio === Number(y) && w.pronostico != null);
+  if (sems.length) {
+    const tot = sems.reduce((a, w) => a + w.pronostico, 0);
+    return `- ${p}: **${fmt(tot)} casos** pronosticados (corte ${corte}) en las semanas ${sems[0].semana}–${sems[sems.length - 1].semana} de ${y}, aún sin dato (motor ${info.motor || info.modelo_productivo || '-'})`;
+  }
+  if (info.pronostico_52_pasos != null && Number(y) > info.anio) {
+    return `- ${p}: el pronóstico a 52 pasos semanales desde el corte ${corte} totaliza **${fmt(info.pronostico_52_pasos)} casos** y se extiende a ${y} (motor ${info.motor || info.modelo_productivo || '-'})`;
+  }
+  return null;
+}
+
+function payloadSeguimiento(p, info, semanas) {
+  return {
+    pad: p, modelo: info.motor || info.modelo_productivo || '?', anio: info.anio, corte: info.corte,
+    semanas: semanas.filter(w => w.fase === 'seguimiento')
+      .map(w => ({ s: w.semana, r: w.real ?? null, p: w.pronostico ?? null, estado: w.estado })),
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -4840,15 +4847,17 @@ function answerTimelapse(q, ent, s, d) {
   const wc = d.weekly_comparison;
   if (!models.length || !wc) return null;
 
-  const pads = Object.keys(wc).filter(isNeuro);
-  const nSemanas = wc[pads[0]]?.semanas?.length || 52;
-  const totalNac = pads.reduce((a, p) => a + (wc[p]?.semanas || []).reduce((s, w) => s + w.pronostico, 0), 0);
+  const pads = Object.keys(wc).filter(p => isNeuro(p) && weeklyV2(wc[p]));
+  if (!pads.length) return null;
+  const sems = semanasConPronostico(wc, pads);
+  const totalNac = sems.reduce((a, i) => a + pads.reduce((x, p) => x + wc[p].semanas[i].pronostico, 0), 0);
+  const w0 = wc[pads[0]].semanas[sems[0]], w1 = wc[pads[0]].semanas[sems[sems.length - 1]];
 
   const lines = [];
-  lines.push('**Timelapse epidemiologico**: animación semana a semana del pronostico a 52 semanas.\n');
+  lines.push(`**Timelapse epidemiologico**: animación semana a semana del pronóstico con corte ${String(wc[pads[0]].corte || '').replace(/^\d{4}-/, '')}.\n`);
   lines.push(`- ${pads.length} padecimientos, 32 entidades federativas`);
-  lines.push(`- Horizonte: ${nSemanas} semanas`);
-  lines.push(`- Total nacional pronosticado: **${fmt(totalNac)} casos**\n`);
+  lines.push(`- Semanas animadas: **${sems.length}** (semanas ${w0?.semana}–${w1?.semana} de ${w0?.anio}, posteriores al corte)`);
+  lines.push(`- Total nacional pronosticado en esas semanas: **${fmt(totalNac)} casos**\n`);
   lines.push('Usa los controles para reproducir, pausar o navegar por semana.');
 
   return lines.join('\n');
@@ -5235,7 +5244,10 @@ function answerCalibracion(q, ent, s, d) {
   lines.push('- **Eje X**: valor pronosticado');
   lines.push('- **Eje Y**: valor real');
   lines.push('- **Línea diagonal**: predicción perfecta\n');
-  lines.push(`Se grafican **${models.length} modelos**. Los puntos sobre la diagonal estan bien calibrados; arriba subestiman y abajo sobreestiman.`);
+  lines.push(`Se grafican **${models.length} modelos**. Arriba de la diagonal lo observado supero al pronostico; abajo quedo por debajo. Con una sola semana no se califica la calibracion de ningun modelo.`);
+  if (models.some(m => m.definicion_realidad_validacion && m.sexo !== 'general' && !/entidad/.test(m.definicion_realidad_validacion))) {
+    lines.push('\nEn hombres y mujeres del nacional y las regiones, lo observado es el incremento neto del acumulado por sexo, sujeto a revisiones.');
+  }
   return lines.join('\n');
 }
 
@@ -5276,13 +5288,14 @@ function answerAcumulado(q, ent, s, d) {
 
   const wc = d.weekly_comparison;
   if (!wc) return null;
-  const pads = Object.keys(wc).filter(isNeuro);
-  const total = pads.reduce((a, p) => a + (wc[p]?.semanas || []).reduce((x, w) => x + (w.pronostico || 0), 0), 0);
-  const nSem = (wc[pads[0]]?.semanas || []).length || 52;
+  const pads = Object.keys(wc).filter(p => isNeuro(p) && weeklyV2(wc[p]));
+  if (!pads.length) return null;
+  const total = pads.reduce((a, p) => a + (wc[p].pronostico_52_pasos || 0), 0);
+  const corte = String(wc[pads[0]].corte || '').replace(/^\d{4}-/, '');
 
   const lines = [];
-  lines.push('**Pronostico nacional acumulado**: suma de casos semana a semana de los 3 padecimientos.\n');
-  lines.push(`- Horizonte: ${nSem} semanas`);
+  lines.push(`**Pronostico nacional acumulado**: suma de casos semana a semana de los 3 padecimientos, desde el corte ${corte}.\n`);
+  lines.push('- Horizonte: 52 pasos semanales desde el corte');
   lines.push(`- Total acumulado al final: **${fmt(total)} casos**\n`);
   lines.push('La curva muestra como se acumula la carga esperada; su pendiente indica la velocidad de aparicion de casos.');
   return lines.join('\n');

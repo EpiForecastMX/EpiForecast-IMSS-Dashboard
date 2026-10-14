@@ -264,17 +264,19 @@ add('datos historicos', 'answerBoletin', ['Boletin', 'Periodo']);
 add('dame datos historicos del proyecto', 'answerBoletin', ['Boletin', 'Periodo']);
 
 // =====================================================================
-// SECCION 7b: COMPARACION SEMANAL Real vs Pronostico (8 tests)
+// SECCION 7b: SEGUIMIENTO DEL PRONOSTICO CON CORTE (antes «Real vs Pronostico 2026», 8 tests)
+// Ronda W37: sólo los pares posteriores al corte se comparan, con el periodo oficial del boletín,
+// corte, horizonte y estado del par; sin acumulados contra el ajuste ni calificaciones.
 // =====================================================================
 
-add('como va el modelo de depresion en 2026', 'answerComparacionSemanal', ['Real', 'Pronostico', 'Depresion']);
-add('real vs pronostico depresion', 'answerComparacionSemanal', ['Acumulado'], ['SMAPE promedio']);
-add('cuantos casos van en 2026 de depresion', 'answerComparacionSemanal', ['Real', 'Pronostico']);
-add('comparacion semanal', 'answerComparacionSemanal', ['Sem 1', 'Sem 7']);
-add('como se comporta el modelo de parkinson', 'answerComparacionSemanal', ['Parkinson', 'Real']);
-add('compara real vs pronostico', 'answerComparacionSemanal', ['Acumulado']);
-add('acierto semanal de depresion', 'answerComparacionSemanal', ['Depresion', 'Acumulado'], ['SMAPE promedio']);
-add('cuantos llevamos de alzheimer en 2026', 'answerComparacionSemanal', ['Alzheimer', 'Real']);
+add('como va el modelo de depresion en 2026', 'answerComparacionSemanal', ['Observado', 'Pronóstico', 'Depresión'], ['SMAPE promedio', 'Precisión', 'excelente', '| Inicio |', 'Acumulado']);
+add('real vs pronostico depresion', 'answerComparacionSemanal', ['Seguimiento del pronóstico con corte W37', 'Periodo del boletín', 'Estado del par'], ['SMAPE promedio', 'Precisión', 'excelente', '| Inicio |', 'Acumulado']);
+add('cuantos casos van en 2026 de depresion', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], ['SMAPE promedio', 'Precisión', 'excelente', '| Inicio |', 'Acumulado']);
+add('comparacion semanal', 'answerComparacionSemanal', ['Sem 38', 'Sem 39', 'Horizonte'], ['| Sem 7 |', '| Sem 1 |']);
+add('como se comporta el modelo de parkinson', 'answerComparacionSemanal', ['Parkinson', 'Observado'], ['SMAPE promedio', 'Precisión', 'excelente', '| Inicio |', 'Acumulado']);
+add('compara real vs pronostico', 'answerComparacionSemanal', ['Seguimiento del pronóstico', 'Estado del par'], ['SMAPE promedio', 'Precisión', 'excelente', '| Inicio |', 'Acumulado']);
+add('acierto semanal de depresion', 'answerComparacionSemanal', ['Depresión', 'ajuste dentro de muestra'], ['SMAPE promedio', 'Precisión', 'excelente', '| Inicio |', 'Acumulado']);
+add('cuantos llevamos de alzheimer en 2026', 'answerComparacionSemanal', ['Alzheimer', 'Observado'], ['SMAPE promedio', 'Precisión', 'excelente', '| Inicio |', 'Acumulado']);
 
 // =====================================================================
 // SECCION 8: PRONOSTICO (12 tests)
@@ -529,7 +531,7 @@ add('modelos menos precisos', '*', []);
 add('validacion semanal', 'answerValidacion', ['validaci']);
 add('como se validan los modelos', null, []);
 add('precision de la ultima semana', '*', ['semana']);
-add('validacion del pronostico vs real', 'answerComparacionSemanal', ['Real', 'Pronostico']);
+add('validacion del pronostico vs real', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], ['Precisión', 'excelente']);
 add('diferencia pronostico vs realidad', '*', ['caso']);
 
 // =====================================================================
@@ -787,7 +789,7 @@ addCtx('metricas del parkinson', 'cuantos casos se esperan', 'answerPronostico',
 addCtx('depresion en jalisco', 'comparacion de motores', 'answerMotor', ['Prophet', 'DeepAR']);
 
 // Follow-up validacion semanal
-addCtx('depresion general', 'como va el modelo en 2026', 'answerComparacionSemanal', ['Real', 'Pronostico']);
+addCtx('depresion general', 'como va el modelo en 2026', 'answerComparacionSemanal', ['Observado', 'Pronóstico']);
 
 // =====================================================================
 // SECCION 33: TYPOS Y FUZZY — correcciones comunes (15 tests)
@@ -983,11 +985,11 @@ add('rango de smape', 'answerSmapeBox', ['Rango de SMAPE', AVISO], SIN_VALORES);
 add('tabla de metricas por padecimiento', 'answerRendimientoPorPadecimiento', [AVISO, 'Motores productivos'], SIN_VALORES);
 
 // --- Contexto conversacional (35) ---
-addCtx('cuantos casos llegaron esta semana', 'y cuantos habiamos dicho que habria?', 'answerComparacionSemanal', ['Pronostico', 'Real'], ['52 semanas']);
-addCtx('cuantos casos nuevos hay esta semana', 'cuantos se esperaba que hubiera?', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
-addCtx('comparalo contra el pronostico', 'compara solo la semana 8', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
-addCtx('cuantos casos llegaron esta semana', 'compara la semana 8', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
-addCtx('cuantos casos llegaron esta semana de parkinson', 'cuantos habiamos pronosticado?', 'answerComparacionSemanal', ['Pronostico', 'Real'], ['52 semanas']);
+addCtx('cuantos casos llegaron esta semana', 'y cuantos habiamos dicho que habria?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], ['52 semanas']);
+addCtx('cuantos casos nuevos hay esta semana', 'cuantos se esperaba que hubiera?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
+addCtx('comparalo contra el pronostico', 'compara solo la semana 8', 'answerComparacionSemanal', ['Observado', 'anterior al corte'], []);
+addCtx('cuantos casos llegaron esta semana', 'compara la semana 8', 'answerComparacionSemanal', ['Observado', 'anterior al corte'], []);
+addCtx('cuantos casos llegaron esta semana de parkinson', 'cuantos habiamos pronosticado?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], ['52 semanas']);
 addCtx('cuantos casos hay de depresion en Nuevo Leon', 'y en Jalisco?', 'answerSpecificSeries', ['Jalisco'], []);
 addCtx('pronostico de alzheimer en Ciudad de Mexico', 'y para hombres?', '*', ['hombre'], []);
 addCtx('pronostico de depresion en Sonora', 'y el de mujeres?', '*', ['mujer'], []);
@@ -996,28 +998,28 @@ addCtx('pronostico de parkinson en Jalisco', 'ahora muestra depresion', '*', ['D
 addCtx('incidencia de depresion en Veracruz', 'y que hay de Tabasco?', '*', ['Tabasco'], []);
 addCtx('ranking de entidades por incidencia de depresion', 'pero de alzheimer', '*', ['Alzheimer'], []);
 addCtx('cuantos casos de depresion hay en Sinaloa', 'y en Baja California?', '*', ['Baja California'], []);
-addCtx('cuantos casos llegaron esta semana', 'dijimos que iba a haber mas o menos?', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
-addCtx('cuantos casos nuevos hay esta semana de depresion', 'se esperaba mas o menos de lo que llego?', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
+addCtx('cuantos casos llegaron esta semana', 'dijimos que iba a haber mas o menos?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
+addCtx('cuantos casos nuevos hay esta semana de depresion', 'se esperaba mas o menos de lo que llego?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
 addCtx('pronostico de alzheimer en Guerrero', 'que modelo usa?', '*', ['Motor'], []);
 addCtx('cuantos casos de depresion en Puebla para hombres', 'y para el general?', '*', ['general'], []);
 addCtx('pronostico de parkinson en Yucatan', 'y en Quintana Roo?', '*', ['Quintana Roo'], []);
-addCtx('datos de la semana mas reciente', 'cuanto pronosticamos para esa semana?', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
-addCtx('cuantos casos llegaron esta semana', 'le atinamos?', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
+addCtx('datos de la semana mas reciente', 'cuanto pronosticamos para esa semana?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
+addCtx('cuantos casos llegaron esta semana', 'le atinamos?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
 addCtx('depresion en Nuevo Leon', 'y tambien en Tamaulipas?', '*', ['Tamaulipas'], []);
 addCtx('que es la depresion', 'y del parkinson que sabes?', '*', ['Parkinson'], []);
-addCtx('cuantos casos llegaron esta semana de alzheimer', 'y como va contra el pronostico?', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
+addCtx('cuantos casos llegaron esta semana de alzheimer', 'y como va contra el pronostico?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
 addCtx('casos de depresion en Sonora', 'pero en Chihuahua', '*', ['Chihuahua'], []);
 addCtx('pronostico de depresion en Jalisco', 'y para mujeres como va?', '*', ['mujer'], []);
-addCtx('cuantos casos llegaron esta semana de parkinson', 'cuantos iban a ser segun el modelo?', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
+addCtx('cuantos casos llegaron esta semana de parkinson', 'cuantos iban a ser segun el modelo?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
 addCtx('modelo de depresion en Guanajuato', 'y en Aguascalientes?', '*', ['Aguascalientes'], []);
-addCtx('ultimo dato del boletin', 'el pronostico decia que iban a ser mas?', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
+addCtx('ultimo dato del boletin', 'el pronostico decia que iban a ser mas?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
 addCtx('cuantos casos de alzheimer en Jalisco', 'y Michoacan?', '*', ['Michoac'], []);
-addCtx('comparar pronostico vs real', 'pero solo semana 8', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
-addCtx('cuantos casos llegaron esta semana', 'comparalo contra lo pronosticado', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
+addCtx('comparar pronostico vs real', 'pero solo semana 8', 'answerComparacionSemanal', ['Observado', 'anterior al corte'], []);
+addCtx('cuantos casos llegaron esta semana', 'comparalo contra lo pronosticado', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
 addCtx('pronostico de depresion en Nuevo Leon', 'y en Coahuila que onda?', '*', ['Coahuila'], []);
-addCtx('datos recientes del boletin', 'esperabamos mas o menos casos?', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
+addCtx('datos recientes del boletin', 'esperabamos mas o menos casos?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
 addCtx('casos de parkinson en Veracruz', 'y para depresion en ese estado?', '*', ['Depresion'], []);
-addCtx('cuantos casos nuevos hay esta semana', 'cuanto se pronostico para esa semana?', 'answerComparacionSemanal', ['Pronostico', 'Real'], []);
+addCtx('cuantos casos nuevos hay esta semana', 'cuanto se pronostico para esa semana?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
 
 // --- Consultas incorporadas después (7) ---
 add('cuantos casos tienes pronosticados en las siguientes 52 semanas', 'answerPronostico', ['52 semanas'], ['modelos en producci']);

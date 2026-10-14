@@ -6,11 +6,11 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, metricasRetiradas, rotuloMetricas } from './kb.js?v=110';
+import { loadKnowledge, getStats, getData, answer, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=111';
 import { detectEntities, norm } from './entities.js?v=31';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
 import { renderMexicoMap } from './mexico-map.js?v=3';
-import { renderTimelapse } from './timelapse.js?v=3';
+import { renderTimelapse } from './timelapse.js?v=4';
 import { renderSemaforo } from './semaforo.js?v=3';
 import { renderComparador } from './comparador.js?v=4';
 import { buildComparadorState } from './comparador_data.js?v=1';
@@ -1369,7 +1369,8 @@ document.addEventListener('keydown', (e) => {
  * El tramo proyectado se muestra como linea punteada.
  */
 /**
- * Corredor de confianza: banda min-max de 4 modelos + linea productiva + real.
+ * Corredor entre motores: banda min-max de los 4 motores (mismo corte) + linea productiva, en las
+ * semanas aun sin dato. No es un intervalo de confianza.
  * 1 chart por padecimiento filtrado.
  */
 function buildCorridorChart(data, qn) {
@@ -1391,7 +1392,8 @@ function buildCorridorChart(data, qn) {
 
   for (const pad of filtered) {
     const info = wc[pad];
-    const sems = info.semanas || [];
+    // Sólo semanas aún sin dato, con los 4 motores del mismo corte (antes del corte sería ajuste).
+    const sems = semanasDeFase(info, 'pronostico').filter(s => MODELS.every(m => s[m] != null));
     if (!sems.length) continue;
     const color = padColors[pad] || '#5B8DEF';
 
@@ -1438,22 +1440,6 @@ function buildCorridorChart(data, qn) {
         pointRadius: 0,
         order: 2,
       },
-      // Real
-      {
-        label: 'Real',
-        data: realData,
-        borderColor: '#ffffff',
-        backgroundColor: '#ffffffCC',
-        fill: false,
-        tension: 0.3,
-        borderWidth: 3,
-        pointRadius: realData.map(v => v != null ? 4 : 0),
-        pointBackgroundColor: '#ffffff',
-        pointBorderColor: color,
-        pointBorderWidth: 2,
-        spanGaps: false,
-        order: 1,
-      },
     ];
 
     // Dispersion (max - min) promedio
@@ -1471,7 +1457,7 @@ function buildCorridorChart(data, qn) {
 
     charts.push({
       type: 'line',
-      title: `${dn(pad)} — corredor de confianza (4 modelos, dispersión prom: ${avgSpread})`,
+      title: `${dn(pad)} — corredor entre motores, ${tituloSeguimiento(info).replace('Seguimiento del ', '')} (dispersión prom.: ${avgSpread}; no es un intervalo de confianza)`,
       labels,
       datasets,
       options: {
@@ -1659,18 +1645,20 @@ function buildStackedArea(data) {
   const padOrder = ['Depresion', 'Parkinson', 'Alzheimer'];
   const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
 
-  // Usar semanas del primer padecimiento como referencia
-  const refSems = wc[padOrder[0]]?.semanas;
-  if (!refSems || !refSems.length) return null;
+  // Sólo las semanas posteriores al corte (antes del corte sería el ajuste dentro de muestra).
+  const pads = padOrder.filter(p => weeklyV2(wc[p]));
+  if (!pads.length) return null;
+  const idx = semanasConPronostico(wc, pads);
+  if (!idx.length) return null;
+  const refSems = wc[pads[0]].semanas;
+  const labels = idx.map(i => `S${String(refSems[i].semana).padStart(2, '0')}`);
 
-  const labels = refSems.map(s => `S${String(s.semana).padStart(2, '0')}`);
-
-  const datasets = padOrder.filter(p => wc[p]).map(pad => {
-    const sems = wc[pad].semanas || [];
+  const datasets = pads.map(pad => {
+    const sems = wc[pad].semanas;
     const color = padColors[pad];
     return {
       label: pad,
-      data: sems.map(s => s.pronostico),
+      data: idx.map(i => sems[i].pronostico),
       borderColor: color,
       backgroundColor: color + '88',
       fill: true,
@@ -1682,7 +1670,7 @@ function buildStackedArea(data) {
 
   return {
     type: 'line',
-    title: 'Composición semanal: pronóstico apilado por padecimiento',
+    title: `Composición semanal: pronóstico apilado por padecimiento (corte ${String(wc[pads[0]].corte || '').replace(/^\d{4}-/, '')}, semanas sin dato de ${wc[pads[0]].anio})`,
     labels,
     datasets,
     options: {
@@ -1817,18 +1805,15 @@ function buildTimelapse(data) {
   const wc = data.weekly_comparison;
   if (!models.length || !wc) return null;
 
-  const pads = Object.keys(wc);
+  const pads = Object.keys(wc).filter(p => weeklyV2(wc[p]) && ['Depresion', 'Parkinson', 'Alzheimer'].includes(p));
+  if (!pads.length) return null;
 
-  // National weekly pattern (proportion per week)
-  const weeklyTotals = [];
-  const nWeeks = wc[pads[0]]?.semanas?.length || 52;
-  for (let i = 0; i < nWeeks; i++) {
-    let weekSum = 0;
-    for (const p of pads) { weekSum += (wc[p]?.semanas?.[i]?.pronostico || 0); }
-    weeklyTotals.push(weekSum);
-  }
-  const natTotal = weeklyTotals.reduce((a, v) => a + v, 0) || 1;
-  const weeklyProp = weeklyTotals.map(w => w / natTotal);
+  // Semanas posteriores al corte con pronóstico nacional de los 3 padecimientos (antes del corte
+  // sería el ajuste dentro de muestra). Cada estado recibe su parte del total nacional de la semana.
+  const idx = semanasConPronostico(wc, pads);
+  if (!idx.length) return null;
+  const weeklyTotals = idx.map(i => pads.reduce((a, p) => a + wc[p].semanas[i].pronostico, 0));
+  const nWeeks = idx.length;
 
   // Per-state totals (sexo=general)
   const byEnt = {};
@@ -1843,21 +1828,21 @@ function buildTimelapse(data) {
   const frames = [];
   const cumulative = {};
   for (const e of Object.keys(byEnt)) cumulative[e] = 0;
+  const totalEnt = Object.values(byEnt).reduce((a, v) => a + v, 0) || 1;
 
   for (let w = 0; w < nWeeks; w++) {
-    const prop = weeklyProp[w] || (1 / nWeeks);
     const stateData = {};
     for (const [ent, total] of Object.entries(byEnt)) {
-      cumulative[ent] += Math.round(total * prop);
+      cumulative[ent] += Math.round(weeklyTotals[w] * (total / totalEnt));
       stateData[ent] = { value: cumulative[ent], label: cumulative[ent].toLocaleString() + ' casos acum.' };
     }
-    frames.push({ week: w + 1, stateData: JSON.parse(JSON.stringify(stateData)) });
+    frames.push({ week: wc[pads[0]].semanas[idx[w]].semana, stateData: JSON.parse(JSON.stringify(stateData)) });
   }
 
   return {
     _timelapseChart: true,
     frames,
-    opts: { title: 'Timelapse: pronóstico acumulado por semana', lowColor: [30, 60, 50], highColor: [91, 141, 239], metric: 'casos acum.' },
+    opts: { title: `Timelapse: pronóstico acumulado por semana desde el corte ${String(wc[pads[0]].corte || '').replace(/^\d{4}-/, '')}`, lowColor: [30, 60, 50], highColor: [91, 141, 239], metric: 'casos acum.' },
   };
 }
 
@@ -1963,62 +1948,54 @@ function buildPDFReport(data) {
 }
 
 /**
- * Heatmap de error semanal: matriz padecimiento x semanas.
- * Usa barras coloreadas por intensidad de error.
+ * Diferencias del seguimiento posterior al corte (pronostico - observado), por padecimiento.
+ * Sin colores de calificacion; un par ausente queda vacio.
  */
 function buildErrorHeatmap(data, qn) {
   const wc = data.weekly_comparison;
   if (!wc) return null;
 
-  const pads = Object.keys(wc);
+  const pads = Object.keys(wc).filter(p => weeklyV2(wc[p]));
   const filtered = pads.filter(pad => {
     if (!qn) return true;
     const pn = pad.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     const inQ = qn.includes(pn);
     return inQ || !pads.some(p => qn.includes(p.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')));
   });
+  if (!filtered.length) return null;
 
-  // Solo semanas con datos reales
-  const refPad = wc[filtered[0] || pads[0]];
-  const realWeeks = (refPad?.semanas || []).filter(s => s.real != null);
-  if (!realWeeks.length) return null;
-
-  const labels = realWeeks.map(s => `S${String(s.semana).padStart(2, '0')}`);
+  // Sólo los pares posteriores al corte, sin colores de calificación: antes del corte la
+  // diferencia sería contra el ajuste dentro de muestra, que no es validación.
+  const seg0 = semanasDeFase(wc[filtered[0]], 'seguimiento');
+  if (!seg0.length) return null;
+  const labels = seg0.map(w => `Sem ${w.semana} (h=${w.horizonte})`);
   const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
 
-  const datasets = [];
-  for (const pad of filtered) {
-    const sems = (wc[pad]?.semanas || []).filter(s => s.real != null);
-    const errors = sems.map(s => {
-      if (s.real === 0) return s.pronostico > 0 ? 100 : 0;
-      return Math.abs(((s.pronostico - s.real) / s.real) * 100);
-    });
+  const datasets = filtered.map(pad => {
+    const seg = semanasDeFase(wc[pad], 'seguimiento');
     const color = padColors[pad] || '#5B8DEF';
-    // Color del padecimiento, opacidad segun error: alta (>40%), media (15-40%), baja (<15%)
-    const bgColors = errors.map(e => {
-      if (e > 40) return color + 'FF';  // solido = error alto
-      if (e > 15) return color + '99';  // semi = error medio
-      return color + '55';              // tenue = error bajo (bueno)
-    });
-    datasets.push({
+    return {
       label: pad,
-      data: errors.map(e => Math.round(e * 10) / 10),
-      backgroundColor: bgColors,
+      data: seg0.map(w0 => {
+        const w = seg.find(x => x.semana === w0.semana);
+        return w && w.estado === 'par' ? w.diferencia : null;  // un ausente queda vacío, no en cero
+      }),
+      backgroundColor: color + '99',
       borderColor: color,
       borderWidth: 1.5,
       borderRadius: 3,
-    });
-  }
+    };
+  });
 
   return {
     type: 'bar',
-    title: 'Error semanal (% |real - pronóstico| / real)',
+    title: `${tituloSeguimiento(wc[filtered[0]])}: pronóstico − observado (nacional; diagnóstico, sin calificar)`,
     labels,
     datasets,
     options: {
       scales: {
         x: { ticks: { font: { size: 10 } } },
-        y: { beginAtZero: true, title: { display: true, text: 'Error %', font: { size: 11, family: 'Outfit' }, color: '#7E92B6' } },
+        y: { title: { display: true, text: 'Casos (pron. − obs.)', font: { size: 11, family: 'Outfit' }, color: '#7E92B6' } },
       },
     },
   };
@@ -2028,13 +2005,6 @@ function buildErrorHeatmap(data, qn) {
  * Genera graficos de zoom semanal (2025-2027): real vs pronostico.
  * Devuelve un array de charts (1 por padecimiento filtrado).
  */
-function zoomIsoWeekApp(iso) {
-  const dt = new Date(iso + 'T00:00:00'); dt.setHours(0, 0, 0, 0);
-  dt.setDate(dt.getDate() + 3 - ((dt.getDay() + 6) % 7));
-  const w1 = new Date(dt.getFullYear(), 0, 4);
-  return 1 + Math.round(((dt - w1) / 864e5 - 3 + ((w1.getDay() + 6) % 7)) / 7);
-}
-
 // Chart de zoom para UNA serie (estado × sexo) desde data.zoom_series: real vs pronostico
 // solapados hasta la semana vigente + pronostico al futuro.
 function buildSeriesZoom(s, pad, estado, sexo) {
@@ -2044,7 +2014,12 @@ function buildSeriesZoom(s, pad, estado, sexo) {
   const sexoLbl = sexo === 'general' ? 'ambos sexos' : sexo;
   const labels = s.d.map(iso => { const p = iso.split('-'); return `${p[1]}/${p[2].slice(0, 2)} ${p[0].slice(2)}`; });
   const lastRealIdx = s.r.reduce((acc, v, i) => (v != null ? i : acc), -1);
-  const wk = s.last_real ? zoomIsoWeekApp(s.last_real) : null;
+  // Semana del boletín de la última observación, desde el seguimiento (el ISO del ds legado no lo es).
+  const seg = Array.isArray(s.seguimiento) ? s.seguimiento : [];
+  const ult = seg.filter(w => w.real != null).pop();
+  const wk = ult ? Number(String(ult.etiqueta).slice(-2)) : null;
+  // Antes del corte la línea del motor es ajuste dentro de muestra: no se dibuja.
+  const yPost = s.y.map((v, i) => (s.ds_corte && s.d[i] <= s.ds_corte ? null : v));
   const hasBand = Array.isArray(s.hi) && s.hi.some(v => v != null);
   const datasets = [];
   if (hasBand) {
@@ -2057,12 +2032,12 @@ function buildSeriesZoom(s, pad, estado, sexo) {
   }
   datasets.push(
     {
-      label: `Pronóstico (${s.motor || pad})`, data: s.y,
+      label: `Pronóstico desde el corte (${s.motor || pad})`, data: yPost,
       borderColor: color + 'CC', backgroundColor: 'transparent', fill: false, tension: 0.3,
       borderWidth: 2, borderDash: [8, 5], pointRadius: 0, order: 2,
     },
     {
-      label: 'Real', data: s.r,
+      label: s.definicion_real && sexo !== 'general' ? `Observado (${s.definicion_real})` : 'Observado', data: s.r,
       borderColor: color, backgroundColor: color + '22', fill: false, tension: 0.3,
       borderWidth: 3, spanGaps: false, order: 1,
       pointRadius: s.r.map((v, i) => (i === lastRealIdx ? 6 : v != null ? 2.5 : 0)),
@@ -2072,7 +2047,7 @@ function buildSeriesZoom(s, pad, estado, sexo) {
   );
   return {
     type: 'line',
-    title: `${dn(pad)} — ${estadoLbl} (${sexoLbl})  ·  real vs pronóstico${wk != null ? ' (sem ' + wk + ')' : ''}`,
+    title: `${dn(pad)} — ${estadoLbl} (${sexoLbl})  ·  observado y pronóstico${s.corte ? ' con corte ' + String(s.corte).replace(/^\d{4}-/, '') : ''}${wk != null ? ' (última observada: sem ' + wk + ')' : ''}`,
     labels, datasets,
     options: { scales: { x: { ticks: { maxRotation: 90, font: { size: 9 }, autoSkip: true, maxTicksLimit: 18 } }, y: { beginAtZero: true } } },
   };
@@ -2111,26 +2086,22 @@ function buildZoomChart(data, qn, ent) {
 
   for (const pad of filtered) {
     const info = wc[pad];
-    const sems = info.semanas || [];
+    if (!weeklyV2(info)) continue;
+    const sems = info.semanas;
     if (!sems.length) continue;
 
-    const labels = sems.map(s => {
-      if (s.fecha) {
-        const parts = s.fecha.split('-');
-        return `${parts[1]}/${parts[2]}`;
-      }
-      return `S${String(s.semana).padStart(2, '0')}`;
-    });
+    const labels = sems.map(s => `S${String(s.semana).padStart(2, '0')}`);
 
     const realData = sems.map(s => s.real != null ? s.real : null);
-    const pronData = sems.map(s => s.pronostico);
+    // Pronóstico sólo desde el corte: las semanas observadas no llevan el ajuste dentro de muestra.
+    const pronData = sems.map(s => (s.fase === 'observado' ? null : s.pronostico ?? null));
     const lastRealIdx = realData.reduce((acc, v, i) => v != null ? i : acc, -1);
     const color = padColors[pad] || '#5B8DEF';
 
     // Pronostico: linea punteada completa
     const datasets = [
       {
-        label: 'Pronóstico (' + (info.modelo_productivo || pad) + ')',
+        label: 'Pronóstico desde el corte (' + (info.motor || info.modelo_productivo || pad) + ')',
         data: pronData,
         borderColor: color + '88',
         backgroundColor: color + '0A',
@@ -2142,7 +2113,7 @@ function buildZoomChart(data, qn, ent) {
         order: 2,
       },
       {
-        label: 'Real',
+        label: 'Observado',
         data: realData,
         borderColor: color,
         backgroundColor: color + '22',
@@ -2160,7 +2131,7 @@ function buildZoomChart(data, qn, ent) {
 
     charts.push({
       type: 'line',
-      title: `${dn(pad)} — zoom semanal (${sems[0].fecha || ''} a ${sems[sems.length - 1].fecha || ''})`,
+      title: `${dn(pad)} — ${tituloSeguimientoMin(info)} (semanas ${sems[0].semana}–${sems[sems.length - 1].semana} de ${info.anio}: ${periodoBoletin(sems[0]).split(' – ')[0]} a ${periodoBoletin(sems[sems.length - 1])})`,
       labels,
       datasets,
       options: {
@@ -2596,26 +2567,22 @@ function buildMaseByMotor(data) {
 function buildCumulative(data) {
   const wc = data.weekly_comparison;
   if (!wc) return null;
-  const pads = Object.keys(wc);
+  const pads = Object.keys(wc).filter(p => weeklyV2(wc[p]) && ['Depresion', 'Parkinson', 'Alzheimer'].includes(p));
   if (!pads.length) return null;
-  const nSem = (wc[pads[0]].semanas || []).length;
-  if (!nSem) return null;
+  // Sólo semanas posteriores al corte: antes del corte sería el ajuste dentro de muestra.
+  const idx = semanasConPronostico(wc, pads);
+  if (!idx.length) return null;
   const labels = [], cum = [];
   let acc = 0;
-  for (let i = 0; i < nSem; i++) {
-    let wk = 0;
-    for (const p of pads) {
-      const sem = (wc[p].semanas || [])[i];
-      if (sem) wk += sem.pronostico || 0;
-    }
-    acc += wk;
+  for (const i of idx) {
+    acc += pads.reduce((a, p) => a + wc[p].semanas[i].pronostico, 0);
     cum.push(acc);
-    const sObj = (wc[pads[0]].semanas || [])[i];
-    labels.push('S' + String(sObj ? sObj.semana : i + 1).padStart(2, '0'));
+    labels.push('S' + String(wc[pads[0]].semanas[i].semana).padStart(2, '0'));
   }
+  const ref = wc[pads[0]];
   return {
     type: 'line',
-    title: 'Pronóstico nacional acumulado (52 semanas)',
+    title: `Pronóstico nacional acumulado desde el corte ${String(ref.corte || '').replace(/^\d{4}-/, '')} (semanas ${labels[0].slice(1)}–${labels[labels.length - 1].slice(1)} de ${ref.anio})`,
     labels,
     datasets: [{
       label: 'Casos acumulados',
@@ -2811,7 +2778,8 @@ function extractChartData(markdown, query) {
     return null;
   }
 
-  // Comparacion semanal Real vs Pronostico (embedded from answerComparacionSemanal)
+  // Seguimiento del pronóstico con corte (embebido por answerComparacionSemanal): sólo pares
+  // posteriores al corte
   // Collect ALL weekly matches (one per padecimiento) and return as array
   const weeklyMatches = [...markdown.matchAll(/<!--WEEKLY:(.*?)-->/g)];
   if (weeklyMatches.length) {
@@ -2820,16 +2788,17 @@ function extractChartData(markdown, query) {
       try {
         const wk = JSON.parse(match[1]);
         const semanas = wk.semanas || [];
+        if (!semanas.length) continue;
         const labels = semanas.map(w => `Sem ${w.s}`);
-        const realData = semanas.map(w => w.r);
-        const pronData = semanas.map(w => w.p);
+        const realData = semanas.map(w => w.r ?? null);  // un ausente queda vacío, nunca en cero
+        const pronData = semanas.map(w => w.p ?? null);
         charts.push({
           type: 'bar',
-          title: `${dn(wk.pad)} ${wk.anio}: Real vs Pronóstico`,
+          title: `${dn(wk.pad)}: ${tituloSeguimiento({ corte: wk.corte })}`,
           labels,
           datasets: [
             {
-              label: 'Real',
+              label: 'Observado',
               data: realData,
               backgroundColor: '#5B8DEFCC',
               borderColor: '#5B8DEF',
@@ -3144,7 +3113,7 @@ function extractChartData(markdown, query) {
     if (chart) return chart;
   }
 
-  // Corredor de confianza (4 modelos)
+  // Corredor entre motores (4 motores, semanas sin dato)
   if (qn.includes('corredor') || qn.includes('confianza') || qn.includes('banda') ||
       qn.includes('incertidumbre') || qn.includes('consenso') ||
       (qn.includes('4 modelo') || qn.includes('cuatro modelo')) ||
@@ -3317,20 +3286,21 @@ function extractChartData(markdown, query) {
       const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
       const charts = [];
       for (const [pad, info] of Object.entries(wc)) {
-        const sems = info.semanas || [];
+        // Semanas posteriores al corte: pares del seguimiento y pronóstico de las que no tienen dato.
+        const sems = weeklyV2(info) ? info.semanas.filter(s => s.fase !== 'observado') : [];
         if (!sems.length) continue;
         const labels = sems.map(s => `S${String(s.semana).padStart(2, '0')}`);
         const datasets = [{
-          label: 'Pronóstico',
-          data: sems.map(s => s.pronostico),
+          label: 'Pronóstico desde el corte',
+          data: sems.map(s => s.pronostico ?? null),
           backgroundColor: sems.map(s => s.real != null ? padColors[pad] + 'AA' : padColors[pad] + '55'),
           borderRadius: 2,
         }];
-        // Superponer datos reales donde existan
+        // Superponer lo observado en las semanas del seguimiento
         const realData = sems.map(s => s.real != null ? s.real : null);
         if (realData.some(v => v != null)) {
           datasets.push({
-            label: 'Real',
+            label: 'Observado',
             data: realData,
             backgroundColor: '#ffffffCC',
             borderColor: padColors[pad],
@@ -3340,7 +3310,7 @@ function extractChartData(markdown, query) {
         }
         charts.push({
           type: 'bar',
-          title: `${dn(pad)} - pronóstico semanal (${info.modelo_productivo || ''})`,
+          title: `${dn(pad)} - pronóstico semanal con corte ${String(info.corte || '').replace(/^\d{4}-/, '')} (${info.motor || info.modelo_productivo || ''})`,
           labels,
           datasets,
           options: {
@@ -3809,13 +3779,13 @@ function getSuggestions(query) {
   if (q.includes('equipo'))
     return [{ text: 'Infraestructura', q: 'infraestructura del proyecto' }, { text: 'Alcance', q: 'que padecimientos modela' }];
   if (q.includes('corredor') || q.includes('confianza') || q.includes('consenso'))
-    return [{ text: 'Heatmap de error', q: 'heatmap error semanal' }, { text: 'Zoom semanal', q: 'zoom semanal' }];
+    return [{ text: 'Diferencias del seguimiento', q: 'heatmap error semanal' }, { text: 'Zoom semanal', q: 'zoom semanal' }];
   if (q.includes('heatmap') || q.includes('error semanal'))
-    return [{ text: 'Corredor de confianza', q: 'corredor de confianza' }, { text: 'Zoom semanal', q: 'zoom semanal' }];
+    return [{ text: 'Corredor entre motores', q: 'corredor entre motores' }, { text: 'Zoom semanal', q: 'zoom semanal' }];
   if (q.includes('zoom'))
-    return [{ text: 'Corredor de confianza', q: 'corredor de confianza' }, { text: 'Heatmap de error', q: 'heatmap error semanal' }];
+    return [{ text: 'Corredor entre motores', q: 'corredor entre motores' }, { text: 'Diferencias del seguimiento', q: 'heatmap error semanal' }];
   if (q.includes('tendencia'))
-    return [{ text: 'Zoom semanal', q: 'zoom semanal' }, { text: 'Corredor de confianza', q: 'corredor de confianza' }];
+    return [{ text: 'Zoom semanal', q: 'zoom semanal' }, { text: 'Corredor entre motores', q: 'corredor entre motores' }];
   if (q.includes('mapa') && (q.includes('mexico') || q.includes('republica')))
     return [{ text: 'Mapa Depresion', q: 'mapa de mexico depresion' }, { text: 'Mapa Parkinson', q: 'mapa de mexico parkinson' },
       retiradas ? { text: 'Mapa Alzheimer', q: 'mapa de mexico alzheimer' } : { text: 'Mapa por SMAPE', q: 'mapa de mexico por smape' }];

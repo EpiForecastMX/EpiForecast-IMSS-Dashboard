@@ -17,6 +17,7 @@ import {
   problemasDeSuperficies, problemasDeKnowledge, problemasDeDistribuciones, jsonRevisable, sinRegionesNoLeidas,
   problemasDeMetricasSeleccion, problemasDeMetricasEnPagina, esClaveDeMetrica,
   problemasDeGaleria, problemasDeMetricasAntiguas, problemasDeNoticias, problemasDeCifras,
+  problemasDeSeguimientoSemanal, problemasDeNacionalPorSexo, problemasDeVistasSeguimiento, inicioSemanaEpi,
 } from './cifras_contrato.mjs';
 
 const CASOS = [
@@ -324,6 +325,99 @@ for (const [nombre, contenido, debe, desc] of CASOS) {
     console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  news.json · ${desc}`);
     if (!ok) console.log(`           → ${JSON.stringify(r)}`);
   }
+}
+
+// --- Seguimiento del pronóstico con corte (ronda W37, 14-oct-2026) -----------------------
+{
+  const DEF = 'incremento neto del acumulado por sexo, sujeto a revisiones';
+  const sem = (s, extra) => ({ anio: 2026, semana: s, etiqueta: `2026-W${String(s).padStart(2, '0')}`,
+    periodo_inicio: inicioSemanaEpi(2026, s), periodo_fin: new Date(Date.parse(inicioSemanaEpi(2026, s)) + 6 * 864e5).toISOString().slice(0, 10), ...extra });
+  const kbOk = () => ({
+    weekly_comparison: { Depresion: { version: 2, titulo: 'Seguimiento del pronóstico con corte W37', corte: '2026-W37', semanas: [
+      sem(37, { fase: 'observado', real: 3181 }),
+      sem(38, { fase: 'seguimiento', corte: '2026-W37', horizonte: 1, pronostico: 3118, real: 2748, estado: 'par', motivo: '', error_abs: 370, diferencia: 370 }),
+      sem(39, { fase: 'seguimiento', corte: '2026-W37', horizonte: 2, pronostico: 3136, real: null, estado: 'ausente', motivo: 'revisión' }),
+      sem(40, { fase: 'pronostico', corte: '2026-W37', horizonte: 3, pronostico: 3140, real: null, prophet: 1587 }),
+    ] } },
+    seguimiento_post_corte: {
+      corte: { etiqueta: '2026-W37' },
+      definiciones: { general: 'casos de la semana (Casos_semana)', sexo_agregado: DEF },
+      semanas: [{ etiqueta: '2026-W38', cohortes: { neuro: { ausentes: 1, nacional: [
+        { padecimiento: 'Depresion', sexo: 'general', pronostico: 3118, real: 2748, definicion_real: 'casos de la semana (Casos_semana)' },
+        { padecimiento: 'Parkinson', sexo: 'hombres', pronostico: 86, real: 85, definicion_real: DEF },
+      ] } } }],
+      agregacion_sexo: [{ semana_objetivo: '2026-W38', semana_previa: '2026-W37', padecimiento: 'Parkinson', sexo: 'hombres', definicion_real: DEF,
+        entidades_semana: 32, entidades_semana_previa: 32, semanas_consecutivas: true, acumulado_semana_previa: 1148, acumulado_semana: 1233,
+        neto: 85, real_publicado: 85, suma_estatal_recortada: 87, entidades_con_revision_negativa: { Tamaulipas: -2 } }],
+      ausentes: [{ semana_objetivo: '2026-W38', padecimiento: 'Depresion', entidad: 'Tabasco', sexo: 'mujeres', pronostico: 47, real: null, motivo: 'revisión negativa' }],
+    },
+    prod_models: [{ padecimiento: 'Parkinson', entidad: 'Nacional', sexo: 'hombres', semana_validacion: '2026-W39', definicion_realidad_validacion: DEF }],
+  });
+  const con = (f) => { const k = kbOk(); f(k); return k; };
+  const w = (k, s) => k.weekly_comparison.Depresion.semanas.find((x) => x.semana === s);
+  const casosSeg = [
+    [kbOk(), false, 'v2 con pares, ausente y pronóstico pasa'],
+    [con((k) => { delete k.weekly_comparison.Depresion.version; }), true, 'tabla sin versión 2 (la anterior)'],
+    [con((k) => { w(k, 37).pronostico = 3175; }), true, 'semana anterior al corte con pronóstico (ajuste dentro de muestra)'],
+    [con((k) => { w(k, 37).ensemble = 3175; }), true, 'semana anterior al corte con el valor de un motor'],
+    [con((k) => { w(k, 38).fecha = '2026-09-07'; }), true, 'ds legado como «fecha»'],
+    [con((k) => { w(k, 38).periodo_inicio = '2026-09-07'; w(k, 38).periodo_fin = '2026-09-13'; }), true, 'el ds legado como inicio del periodo'],
+    [con((k) => { w(k, 39).real = 0; }), true, 'un ausente convertido en cero'],
+    [con((k) => { w(k, 39).diferencia = 3136; }), true, 'un ausente con diferencia'],
+    [con((k) => { w(k, 38).pronostico = 3136; w(k, 38).diferencia = 388; w(k, 38).error_abs = 388; }), true, 'el par no es el del seguimiento (pronóstico de otra semana)'],
+    [con((k) => { w(k, 38).horizonte = 2; }), true, 'horizonte mal contado desde el corte'],
+    [con((k) => { k.weekly_comparison.Depresion.titulo = 'Real vs Pronóstico 2026'; }), true, 'título anterior'],
+    [con((k) => { w(k, 40).real = 3000; }), true, 'semana de pronóstico con observado'],
+  ];
+  for (const [kb, debe, desc] of casosSeg) {
+    const r = problemasDeSeguimientoSemanal(kb);
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  tabla del EpiBot · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
+  const a = (k) => k.seguimiento_post_corte.agregacion_sexo[0];
+  const casosSexo = [
+    [kbOk(), false, 'neto rotulado, 32/32, consecutivas y ausentes con motivo pasa'],
+    [con((k) => { k.seguimiento_post_corte.semanas[0].cohortes.neuro.nacional[1].real = 87; a(k).real_publicado = 87; }), true,
+     'se publica la suma estatal recortada (87) en vez del neto (85)'],
+    [con((k) => { k.seguimiento_post_corte.semanas[0].cohortes.neuro.nacional[1].definicion_real = 'casos nuevos'; }), true,
+     'el nacional por sexo sin el rótulo del incremento neto'],
+    [con((k) => { a(k).entidades_semana_previa = 31; }), true, 'cobertura incompleta en la semana previa'],
+    [con((k) => { a(k).semanas_consecutivas = false; }), true, 'semanas no consecutivas'],
+    [con((k) => { k.seguimiento_post_corte.ausentes[0].real = 0; }), true, 'un ausente estatal convertido en cero'],
+    [con((k) => { k.seguimiento_post_corte.ausentes = []; }), true, 'los ausentes estatales no se conservan'],
+    [con((k) => { delete k.prod_models[0].definicion_realidad_validacion; }), true, 'la tabla publica el nacional por sexo sin rótulo'],
+  ];
+  for (const [kb, debe, desc] of casosSexo) {
+    const r = problemasDeNacionalPorSexo(kb);
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  nacional por sexo · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
+  const vistas = [
+    ['epibot/js/kb.js', "lines.push(`**${p} — Real vs Pronostico ${anio}**`);", true, 'título anterior, también sin tilde'],
+    ['epibot/js/kb.js', "lines.push(`**${p} — Real vs Pronóstico ${anio}**`);", true, 'título anterior'],
+    ['epibot/js/kb.js', "lines.push('| Semana | Inicio | Real |');", true, 'columna Inicio'],
+    ['epibot/js/kb.js', "lines.push('Precisión **excelente**: el error total es menor al 5%.');", true, 'calificación automática'],
+    ['epibot/js/app.js', "title: 'Corredor de confianza'", true, 'dispersión como confianza'],
+    ['epibot/js/kb.js', "const triggers = ['real vs pronostico', 'acierto semanal'];", false, 'los disparadores en minúsculas no son texto visible'],
+    ['validacion_semanal.html', '<span>EXCELENTE</span>', true, 'veredicto en la página'],
+    ['validacion_semanal.html', `<p>${DEF}</p><h2>Pares ausentes y sus motivos</h2><h2>Nacional por sexo: definicion</h2>`, false,
+     'página con el rótulo, los ausentes y la definición'],
+    ['validacion_semanal.html', '<h2>Pares ausentes y sus motivos</h2>', true, 'página sin el rótulo del nacional por sexo'],
+  ];
+  for (const [arch, txt, debe, desc] of vistas) {
+    const r = problemasDeVistasSeguimiento(arch, txt);
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  vistas · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
+  const ok = inicioSemanaEpi(2026, 38) === '2026-09-20' && inicioSemanaEpi(2026, 1) === '2026-01-04' && inicioSemanaEpi(2025, 1) === '2024-12-29';
+  if (!ok) fallos++;
+  console.log(`  ${ok ? '✔' : '✖ FALLO'}  calendario · semana 38 de 2026 empieza el 20 de septiembre; la 1 de 2025, el 29 de diciembre de 2024`);
 }
 
 console.log(fallos ? `\n✖ ${fallos} prueba(s) fallaron` : '\n✔ Todas las pruebas pasan');

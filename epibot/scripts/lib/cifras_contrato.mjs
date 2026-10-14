@@ -679,3 +679,205 @@ export function problemasDeNoticias(news) {
   });
   return problemas;
 }
+
+// --- Seguimiento del pronóstico con corte (ronda W37, decisiones del autor del 14-oct-2026) ---
+// La tabla del EpiBot «Real vs Pronóstico 2026» alineaba lo observado con TODAS las filas del
+// pronóstico del año (el ajuste dentro de muestra W2–W37 incluido), rotulaba el ds legado como
+// «Inicio» de la semana y calificaba la precisión. Ahora: comparaciones sólo en los pares
+// posteriores al corte, periodo oficial del boletín, ausentes sin convertir en cero y el nacional
+// por sexo rotulado como incremento neto del acumulado, sujeto a revisiones.
+
+export const TITULO_SEGUIMIENTO = /^Seguimiento del pronóstico con corte W\d{1,2}$/;
+export const DEF_SEXO_AGREGADO = 'incremento neto del acumulado por sexo, sujeto a revisiones';
+const FASES_SEGUIMIENTO = ['observado', 'seguimiento', 'pronostico'];
+const CLAVES_MOTOR = ['prophet', 'deepar', 'ensemble', 'stacking', 'nbglm'];
+const DIA = 864e5;
+const sinTilde = (t) => String(t ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '');
+
+/**
+ * Inicio (domingo, ISO yyyy-mm-dd) de la semana epidemiológica `s` del año `y`, calculado aquí y
+ * no tomado del generador: la semana 1 es la de domingo a sábado que contiene el 4 de enero.
+ */
+export function inicioSemanaEpi(y, s) {
+  const ene4 = Date.UTC(y, 0, 4);
+  const w1 = ene4 - new Date(ene4).getUTCDay() * DIA;
+  return new Date(w1 + (s - 1) * 7 * DIA).toISOString().slice(0, 10);
+}
+
+/**
+ * `knowledge.weekly_comparison`: sin ajuste dentro de muestra, con el periodo oficial, los pares
+ * del seguimiento iguales a `seguimiento_post_corte` y los ausentes ausentes.
+ * @returns {string[]} problemas
+ */
+export function problemasDeSeguimientoSemanal(kb) {
+  const out = [];
+  const wc = kb?.weekly_comparison;
+  const seg = kb?.seguimiento_post_corte;
+  if (!wc || typeof wc !== 'object' || !Object.keys(wc).length) {
+    return ['weekly_comparison ausente: la tabla del EpiBot no tiene el seguimiento con corte'];
+  }
+  const pares = new Map();
+  for (const s of seg?.semanas ?? []) {
+    for (const c of Object.values(s.cohortes ?? {})) {
+      for (const n of c.nacional ?? []) if (n.sexo === 'general') pares.set(`${sinTilde(n.padecimiento)}|${s.etiqueta}`, n);
+    }
+  }
+  for (const [pad, info] of Object.entries(wc)) {
+    const q = (m) => out.push(`weekly_comparison.${pad}: ${m}`);
+    if (info?.version !== 2) {
+      const viejas = (info?.semanas ?? []).filter((w) => 'fecha' in w || 'error_pct' in w).length;
+      q(`version ${info?.version}: debe ser la 2 (seguimiento con corte)${viejas ? `; ${viejas} semanas con fecha/error_pct de la tabla anterior (ajuste y seguimiento mezclados)` : ''}`);
+      continue;
+    }
+    if (!TITULO_SEGUIMIENTO.test(info?.titulo ?? '')) q(`título «${info?.titulo}»; debe ser «Seguimiento del pronóstico con corte W..»`);
+    if (seg && info?.corte !== seg.corte?.etiqueta) q(`corte ${info?.corte} ≠ el del seguimiento (${seg.corte?.etiqueta})`);
+    const semanas = Array.isArray(info?.semanas) ? info.semanas : [];
+    if (!semanas.length) q('sin semanas');
+    let ordenFase = 0, iniPrevio = null, hEsperado = 1;
+    for (const w of semanas) {
+      const e = w.etiqueta ?? `semana ${w.semana}`;
+      for (const k of ['fecha', 'inicio', 'error_pct']) {
+        if (k in w) q(`${e} trae «${k}» (tabla anterior: ds legado como inicio o error contra el ajuste)`);
+      }
+      const f = FASES_SEGUIMIENTO.indexOf(w.fase);
+      if (f < 0) { q(`${e}: fase «${w.fase}»`); continue; }
+      if (f < ordenFase) q(`${e}: fase ${w.fase} después de una posterior (las fases van observado → seguimiento → pronóstico)`);
+      else ordenFase = f;
+      // Periodo oficial del boletín: domingo a sábado, consecutivo y el del calendario.
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(w.periodo_inicio ?? '') || !/^\d{4}-\d{2}-\d{2}$/.test(w.periodo_fin ?? '')) {
+        q(`${e}: sin periodo oficial del boletín`);
+      } else {
+        const ini = Date.parse(`${w.periodo_inicio}T00:00:00Z`), fin = Date.parse(`${w.periodo_fin}T00:00:00Z`);
+        if (fin - ini !== 6 * DIA) q(`${e}: periodo ${w.periodo_inicio}–${w.periodo_fin} no es de 7 días`);
+        if (w.periodo_inicio !== inicioSemanaEpi(w.anio, w.semana)) {
+          q(`${e}: periodo empieza ${w.periodo_inicio}; la semana ${w.semana} de ${w.anio} empieza ${inicioSemanaEpi(w.anio, w.semana)}`);
+        }
+        if (iniPrevio != null && ini - iniPrevio !== 7 * DIA) q(`${e}: no es la semana siguiente de la anterior`);
+        iniPrevio = ini;
+      }
+      if (w.fase === 'observado') {
+        for (const k of ['pronostico', 'diferencia', 'error_abs', 'estado', 'horizonte', ...CLAVES_MOTOR]) {
+          if (k in w) q(`${e}: semana anterior al corte con «${k}»: el ajuste dentro de muestra no se presenta como validación`);
+        }
+        if (w.real === 0 && w.motivo_observado) q(`${e}: observación faltante convertida en cero`);
+        continue;
+      }
+      if (w.corte !== info.corte) q(`${e}: corte ${w.corte} ≠ ${info.corte}`);
+      if (w.horizonte !== hEsperado) q(`${e}: horizonte ${w.horizonte}; tras el corte debía ser ${hEsperado}`);
+      hEsperado += 1;
+      if (w.fase === 'seguimiento') {
+        for (const k of CLAVES_MOTOR) if (k in w) q(`${e}: el seguimiento compara sólo el motor asignado, trae «${k}»`);
+        if (w.estado === 'par') {
+          if (!Number.isInteger(w.real) || !Number.isInteger(w.pronostico)) q(`${e}: par sin ambos lados enteros`);
+          else {
+            if (w.diferencia !== w.pronostico - w.real) q(`${e}: diferencia ${w.diferencia} ≠ pronóstico − observado`);
+            if (w.error_abs !== Math.abs(w.pronostico - w.real)) q(`${e}: error_abs ${w.error_abs} ≠ |pronóstico − observado|`);
+          }
+          const n = pares.get(`${sinTilde(pad)}|${e}`);
+          if (!n || n.pronostico !== w.pronostico || n.real !== w.real) q(`${e}: no es el par nacional de seguimiento_post_corte`);
+        } else if (w.estado === 'ausente') {
+          if (!String(w.motivo ?? '').trim()) q(`${e}: ausente sin motivo`);
+          if (w.real != null && w.pronostico != null) q(`${e}: ausente con ambos lados (un par ausente no se completa)`);
+          if ('diferencia' in w || 'error_abs' in w) q(`${e}: ausente con diferencia o error (se convirtió en un número)`);
+        } else q(`${e}: estado «${w.estado}» (par o ausente)`);
+      } else if (w.real != null) q(`${e}: semana de pronóstico con observado`);
+    }
+  }
+  return out;
+}
+
+/**
+ * El nacional por sexo: incremento neto del acumulado (con las revisiones de los estados),
+ * rotulado; cobertura de 32 entidades en ambas semanas, semanas consecutivas; los ausentes
+ * estatales aparte con su motivo; general = Casos_semana, sin forzar general = hombres + mujeres.
+ * @returns {string[]} problemas
+ */
+export function problemasDeNacionalPorSexo(kb) {
+  const out = [];
+  const seg = kb?.seguimiento_post_corte;
+  if (!seg) return ['seguimiento_post_corte ausente'];
+  const def = seg.definiciones ?? {};
+  if (def.sexo_agregado !== DEF_SEXO_AGREGADO) out.push(`definiciones.sexo_agregado = «${def.sexo_agregado}»; debe ser «${DEF_SEXO_AGREGADO}»`);
+  if (!/Casos_semana/.test(def.general ?? '')) out.push('definiciones.general no declara Casos_semana');
+  const agreg = Array.isArray(seg.agregacion_sexo) ? seg.agregacion_sexo : [];
+  if (!agreg.length) out.push('agregacion_sexo vacía: no se documenta cómo se agrega el nacional por sexo');
+  const porClave = new Map(agreg.map((a) => [`${a.semana_objetivo}|${sinTilde(a.padecimiento)}|${a.sexo}`, a]));
+  for (const a of agreg) {
+    const e = `agregacion_sexo ${a.semana_objetivo} ${a.padecimiento} ${a.sexo}`;
+    if (a.definicion_real !== DEF_SEXO_AGREGADO) out.push(`${e}: sin el rótulo del incremento neto`);
+    if (a.entidades_semana !== 32 || a.entidades_semana_previa !== 32) out.push(`${e}: cobertura ${a.entidades_semana_previa}/${a.entidades_semana}; debe ser 32/32`);
+    if (a.semanas_consecutivas !== true) out.push(`${e}: semanas no consecutivas (${a.semana_previa} → ${a.semana_objetivo})`);
+    if (a.neto != null && a.acumulado_semana != null && a.acumulado_semana_previa != null && a.neto !== a.acumulado_semana - a.acumulado_semana_previa) {
+      out.push(`${e}: neto ${a.neto} no es la diferencia del acumulado nacional`);
+    }
+    if (a.real_publicado != null && a.real_publicado !== a.neto) {
+      out.push(`${e}: se publicó ${a.real_publicado} y la diferencia del acumulado nacional es ${a.neto} (¿suma de incrementos estatales recortados?)`);
+    }
+  }
+  let nAus = 0;
+  for (const s of seg.semanas ?? []) {
+    for (const [cohorte, c] of Object.entries(s.cohortes ?? {})) {
+      nAus += c.ausentes ?? 0;
+      for (const n of c.nacional ?? []) {
+        const e = `${s.etiqueta} ${cohorte} nacional ${n.padecimiento} ${n.sexo}`;
+        if (n.sexo === 'general') {
+          if (!/Casos_semana/.test(n.definicion_real ?? '')) out.push(`${e}: el general no declara Casos_semana`);
+          continue;
+        }
+        if (n.definicion_real !== DEF_SEXO_AGREGADO) out.push(`${e}: sin el rótulo «${DEF_SEXO_AGREGADO}»`);
+        const a = porClave.get(`${s.etiqueta}|${sinTilde(n.padecimiento)}|${n.sexo}`);
+        if (!a) out.push(`${e}: sin su fila en agregacion_sexo`);
+        else if (a.neto !== n.real) out.push(`${e}: publicado ${n.real} ≠ incremento neto ${a.neto}`);
+      }
+    }
+  }
+  const aus = Array.isArray(seg.ausentes) ? seg.ausentes : [];
+  if (aus.length !== nAus) out.push(`ausentes: ${aus.length} listados y ${nAus} contados en las semanas`);
+  for (const a of aus) {
+    const e = `ausente ${a.semana_objetivo} ${a.padecimiento} ${a.entidad} ${a.sexo}`;
+    if (!String(a.motivo ?? '').trim()) out.push(`${e}: sin motivo`);
+    if (a.real != null && a.pronostico != null) out.push(`${e}: con ambos lados`);
+    if (a.real === 0) out.push(`${e}: convertido en cero`);
+  }
+  for (const m of kb?.prod_models ?? []) {
+    if (!m.semana_validacion || m.sexo === 'general') continue;
+    const agregado = m.entidad === 'Nacional' || /^region/i.test(m.entidad ?? '');
+    if (agregado && m.definicion_realidad_validacion !== DEF_SEXO_AGREGADO) {
+      out.push(`prod_models ${m.padecimiento} ${m.entidad} ${m.sexo}: la realidad no lleva el rótulo del incremento neto`);
+    }
+  }
+  return out;
+}
+
+/** Vistas que presentan el seguimiento: el EpiBot (kb.js, app.js) y la página de validación. */
+export const VISTAS_SEGUIMIENTO = ['epibot/js/kb.js', 'epibot/js/app.js', 'validacion_semanal.html'];
+export const RE_MEZCLA_O_CALIFICACION = [
+  [/Real vs Pron[oó]stico/, 'título de la tabla anterior (mezclaba ajuste y seguimiento)'],
+  [/\|\s*Inicio\s*\|/, 'columna «Inicio» con el ds legado (no es el inicio del periodo)'],
+  [/Precisi[oó]n \*\*(excelente|buena|moderada)\*\*/i, 'calificación automática de la precisión'],
+  [/\b(EXCELENTE|BUENO|REGULAR|FALLO)\b/, 'veredicto automático'],
+  [/= bueno\b|= fallo\b/i, 'semáforo de calificación'],
+  [/[Cc]orredor de confianza|alta confianza/, 'la dispersión entre motores presentada como confianza'],
+  [/Error acumulado/, 'error acumulado contra semanas del ajuste'],
+  [/Semaforo por Entidad/, 'semáforo de calificaciones'],
+];
+
+/**
+ * El código de las vistas no reintroduce la mezcla ni las calificaciones (comentarios incluidos
+ * para el título anterior; las agujas son de texto visible).
+ * @returns {string[]} problemas con archivo:línea
+ */
+export function problemasDeVistasSeguimiento(archivo, texto) {
+  const out = [];
+  String(texto ?? '').split('\n').forEach((linea, i) => {
+    for (const [re, que] of RE_MEZCLA_O_CALIFICACION) {
+      if (re.test(linea)) out.push(`${archivo}:${i + 1}: ${que} — «${linea.trim().slice(0, 90)}»`);
+    }
+  });
+  if (archivo === 'validacion_semanal.html') {
+    for (const req of [DEF_SEXO_AGREGADO, 'Pares ausentes y sus motivos', 'Nacional por sexo: definicion']) {
+      if (!String(texto ?? '').includes(req)) out.push(`${archivo}: falta «${req}»`);
+    }
+  }
+  return out;
+}

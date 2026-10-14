@@ -23,6 +23,10 @@ import {
   problemasDeGaleria,
   problemasDeMetricasAntiguas,
   problemasDeNoticias,
+  problemasDeSeguimientoSemanal,
+  problemasDeNacionalPorSexo,
+  problemasDeVistasSeguimiento,
+  VISTAS_SEGUIMIENTO,
   PAGINAS_METRICAS_ANTIGUAS,
   PAGINAS_OPERATIVAS,
   VOCABULARIO,
@@ -110,6 +114,22 @@ try {
     problemas.push(`no se pudo revisar news.json: ${e.message}`);
   }
   console.log(`  métricas antiguas en ${PAGINAS_METRICAS_ANTIGUAS.length} páginas y news.json: ${n ? `${n} PUBLICADAS` : 'retiradas'}`);
+}
+
+// Seguimiento del pronóstico con corte (ronda W37): la tabla del EpiBot sin ajuste dentro de
+// muestra, con el periodo oficial y los ausentes ausentes; el nacional por sexo rotulado como
+// incremento neto del acumulado; las vistas sin la mezcla anterior ni calificaciones automáticas.
+{
+  const p = kb ? [...problemasDeSeguimientoSemanal(kb), ...problemasDeNacionalPorSexo(kb)] : [];
+  for (const rel of VISTAS_SEGUIMIENTO) {
+    try {
+      p.push(...problemasDeVistasSeguimiento(rel, readFileSync(resolve(RAIZ_PUBLICADA, rel), 'utf8')));
+    } catch (e) {
+      p.push(`no se pudo leer ${rel}: ${e.message}`);
+    }
+  }
+  problemas.push(...p);
+  console.log(`  seguimiento con corte (tabla del EpiBot, nacional por sexo, ${VISTAS_SEGUIMIENTO.length} vistas): ${p.length ? `${p.length} PROBLEMAS` : 'sin ajuste presentado como validación ni calificaciones'}`);
 }
 
 // Lo que la gente realmente lee. Sin esto el gate vigilaba una sola puerta.
