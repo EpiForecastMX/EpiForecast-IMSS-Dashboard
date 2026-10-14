@@ -18,7 +18,7 @@ function isNeuro(p) { return NEURO_PADS.includes(p); }
 
 // Version de los datos para cache-bust estable (evita re-descargar 1.3 MB por visita).
 // Subir esta constante cuando cambie knowledge.json / zoom_series.json.
-const DATA_VERSION = '20260826';
+const DATA_VERSION = '20261013';
 
 export async function loadKnowledge() {
   if (DATA) return DATA;
@@ -3806,6 +3806,11 @@ function answerValidacion(q, ent, s, d) {
     lines.push('**Validaci\u00f3n semanal** (pron\u00f3stico vs realidad en la \u00faltima semana disponible):');
     lines.push(`- Error absoluto medio: **${val.error_abs_medio}** casos`);
     lines.push(`- Error absoluto mediano: **${val.error_abs_mediano}** casos`);
+    lines.push('');
+  } else {
+    // Sin el resumen en knowledge (la tabla de producci\u00f3n a\u00fan no empareja pron\u00f3stico y
+    // realidad de la misma semana): se remite a la p\u00e1gina, que compara la \u00faltima semana observada.
+    lines.push('**Validaci\u00f3n semanal**: la comparaci\u00f3n del pron\u00f3stico con la realidad de la \u00faltima semana publicada del bolet\u00edn est\u00e1 en la p\u00e1gina [Validaci\u00f3n semanal](../validacion_semanal.html).');
     lines.push('');
   }
 
