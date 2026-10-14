@@ -245,7 +245,7 @@
     }
     .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(5, 1fr);
       gap: 1rem;
       background: linear-gradient(145deg, var(--bg-card), var(--bg-raised));
       border: 1px solid rgba(91,141,239,0.18);
@@ -423,6 +423,10 @@
     }
 
     /* Tableau card */
+    .tableau-historico {
+      margin: 1.25rem 0 -0.75rem; font-size: 0.82rem; letter-spacing: 0.02em;
+      color: var(--gold, #E8D5B5); opacity: 0.9;
+    }
     .tableau-wrap {
       position: relative;
       background: var(--bg-card);
@@ -691,7 +695,7 @@
         Tableau Public a partir de los boletines del SINAVE y datos demográficos del INEGI, junto con
         los pronósticos a 52 semanas de los cuatro motores de IA en producción.
       </p>
-      <div class="dash-update">Última actualización: 25 de agosto de 2026 · datos reales hasta la <strong>semana 31 de 2026</strong></div>
+      <div class="dash-update">Tableros de Tableau <strong>históricos: corte W31 de 2026</strong> (datos reales hasta la semana 31, actualizados el 25 de agosto de 2026). Sus cifras quedan fuera del resumen de la ronda W37; su actualización requiere una aprobación específica.</div>
     </div>
   </section>
 
@@ -719,11 +723,6 @@
         <div class="kpi-value"><span data-target="52">0</span><span class="unit">sem</span></div>
         <div class="kpi-label">Horizonte de pronóstico</div>
         <div class="kpi-sub">Proyección a un año</div>
-      </div>
-      <div class="kpi-cell k-blue">
-        <div class="kpi-value"><span data-target="152268">0</span></div>
-        <div class="kpi-label">Casos pronosticados</div>
-        <div class="kpi-sub">Suma a 52 semanas, 3 padecimientos</div>
       </div>
       <div class="kpi-cell k-mint">
         <div class="kpi-value"><span data-target="32">0</span></div>
@@ -773,6 +772,8 @@
         filtrarse por año, género y padecimiento.
       </p>
 
+      <p class="tableau-historico">Tablero histórico de Tableau · corte W31 de 2026 · sus cifras quedan fuera del resumen W37</p>
+
       <div class="tableau-wrap">
 <div class='tableauPlaceholder' id='viz1771742623726' style='position: relative'><noscript><a href='#'><img alt='EpiForecast-MX: Tabla de datos ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx_17873231502650&#47;Tabladedatos&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='viz_epiforecastmx_17873231502650&#47;Tabladedatos' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx_17873231502650&#47;Tabladedatos&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='en-US' /><param name='filter' value='publish=yes' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1771742623726');                    var vizElement = divElement.getElementsByTagName('object')[0];                    vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';                    var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
       </div>
@@ -795,6 +796,8 @@
         Las variables visualizadas son seleccionables, lo que permite explorar de manera interactiva
         la relación entre territorio, población e incidencia de los padecimientos.
       </p>
+
+      <p class="tableau-historico">Tablero histórico de Tableau · corte W31 de 2026 · sus cifras quedan fuera del resumen W37</p>
 
       <div class="tableau-wrap">
 <div class='tableauPlaceholder' id='viz1771742687193' style='position: relative'><noscript><a href='#'><img alt='EpiForecast-MX: Mapa de México ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx_17873231502650&#47;MapadeMxico&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='viz_epiforecastmx_17873231502650&#47;MapadeMxico' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx_17873231502650&#47;MapadeMxico&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='en-US' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1771742687193');                    var vizElement = divElement.getElementsByTagName('object')[0];                    vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';                    var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
@@ -819,6 +822,8 @@
         estructurales entre entidades federativas.
       </p>
 
+      <p class="tableau-historico">Tablero histórico de Tableau · corte W31 de 2026 · sus cifras quedan fuera del resumen W37</p>
+
       <div class="tableau-wrap">
 <div class='tableauPlaceholder' id='viz1771742718789' style='position: relative'><noscript><a href='#'><img alt='EpiForecast-MX: México en categorías ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx_17873231502650&#47;Mxicoencategoras&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='viz_epiforecastmx_17873231502650&#47;Mxicoencategoras' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx_17873231502650&#47;Mxicoencategoras&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='en-US' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1771742718789');                    var vizElement = divElement.getElementsByTagName('object')[0];                    vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';                    var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
       </div>
@@ -841,6 +846,8 @@
         extremos, manteniendo los valores reales disponibles en el detalle informativo.
       </p>
 
+      <p class="tableau-historico">Tablero histórico de Tableau · corte W31 de 2026 · sus cifras quedan fuera del resumen W37</p>
+
       <div class="tableau-wrap">
 <div class='tableauPlaceholder' id='viz1771742789816' style='position: relative'><noscript><a href='#'><img alt='EpiForecast-MX: Casos por año ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx_17873231502650&#47;Casosporao&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='viz_epiforecastmx_17873231502650&#47;Casosporao' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx_17873231502650&#47;Casosporao&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='en-US' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1771742789816');                    var vizElement = divElement.getElementsByTagName('object')[0];                    vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';                    var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
       </div>
@@ -862,6 +869,8 @@
         El recorte visual basado en percentiles preserva la legibilidad sin perder trazabilidad
         cuantitativa.
       </p>
+
+      <p class="tableau-historico">Tablero histórico de Tableau · corte W31 de 2026 · sus cifras quedan fuera del resumen W37</p>
 
       <div class="tableau-wrap">
 <div class='tableauPlaceholder' id='viz1771742836687' style='position: relative'><noscript><a href='#'><img alt='EpiForecast-MX: Casos por semana ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx_17873231502650&#47;Casosporsemana&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='viz_epiforecastmx_17873231502650&#47;Casosporsemana' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx_17873231502650&#47;Casosporsemana&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='en-US' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1771742836687');                    var vizElement = divElement.getElementsByTagName('object')[0];                    vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';                    var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
@@ -903,6 +912,8 @@
         pronóstico, lo que permite evaluar la tendencia reciente y su extensión esperada a corto plazo.
       </p>
 
+      <p class="tableau-historico">Tablero histórico de Tableau · corte W31 de 2026 · sus cifras quedan fuera del resumen W37</p>
+
       <div class="tableau-wrap">
 <div class='tableauPlaceholder' id='viz1772521211528' style='position: relative'><noscript><a href='#'><img alt='DashNacional ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx_17873231502650&#47;DashNacional&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='viz_epiforecastmx_17873231502650&#47;DashNacional' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx_17873231502650&#47;DashNacional&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='en-US' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1772521211528');                    var vizElement = divElement.getElementsByTagName('object')[0];                    if ( divElement.offsetWidth > 800 ) { vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';} else if ( divElement.offsetWidth > 500 ) { vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';} else { vizElement.style.width='100%';vizElement.style.height='1077px';}                     var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
       </div>
@@ -927,6 +938,8 @@
         a nivel macro.
       </p>
 
+      <p class="tableau-historico">Tablero histórico de Tableau · corte W31 de 2026 · sus cifras quedan fuera del resumen W37</p>
+
       <div class="tableau-wrap">
 <div class='tableauPlaceholder' id='viz1772521315571' style='position: relative'><noscript><a href='#'><img alt='DashRegional ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx_17873231502650&#47;DashRegional&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='viz_epiforecastmx_17873231502650&#47;DashRegional' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx_17873231502650&#47;DashRegional&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='en-US' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1772521315571');                    var vizElement = divElement.getElementsByTagName('object')[0];                    if ( divElement.offsetWidth > 800 ) { vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';} else if ( divElement.offsetWidth > 500 ) { vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';} else { vizElement.style.width='100%';vizElement.style.height='1077px';}                     var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
       </div>
@@ -950,6 +963,8 @@
         facilitando la evaluación de tendencias locales y su proyección a corto plazo.
       </p>
 
+      <p class="tableau-historico">Tablero histórico de Tableau · corte W31 de 2026 · sus cifras quedan fuera del resumen W37</p>
+
       <div class="tableau-wrap">
 <div class='tableauPlaceholder' id='viz1772521423851' style='position: relative'><noscript><a href='#'><img alt='DashDesempeno ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx_17873231502650&#47;DashDesempeno&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='viz_epiforecastmx_17873231502650&#47;DashDesempeno' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx_17873231502650&#47;DashDesempeno&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='en-US' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1772521423851');                    var vizElement = divElement.getElementsByTagName('object')[0];                    if ( divElement.offsetWidth > 800 ) { vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';} else if ( divElement.offsetWidth > 500 ) { vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';} else { vizElement.style.width='100%';vizElement.style.height='1127px';}                     var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
       </div>
@@ -966,6 +981,8 @@
         estatal, ofreciendo una referencia clara del rango esperado de variación en el horizonte
         de proyección.
       </p>
+
+      <p class="tableau-historico">Tablero histórico de Tableau · corte W31 de 2026 · sus cifras quedan fuera del resumen W37</p>
 
       <div class="tableau-wrap">
 <div class='tableauPlaceholder' id='viz1772521258204' style='position: relative'><noscript><a href='#'><img alt='Predicciones ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx_17873231502650&#47;Predicciones&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='viz_epiforecastmx_17873231502650&#47;Predicciones' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx_17873231502650&#47;Predicciones&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='en-US' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1772521258204');                    var vizElement = divElement.getElementsByTagName('object')[0];                    vizElement.style.width='100%';vizElement.style.height=(divElement.offsetWidth*0.75)+'px';                    var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
@@ -986,9 +1003,9 @@
         el alcance y la cobertura del proyecto EpiForecast-MX.
       </p>
       <p>
-        Los tableros de Tableau corresponden a una ronda de datos anterior y se actualizarán
-        cuando se regenere Tableau. Las métricas de error y los rankings de motores de rondas
-        anteriores no forman parte de los resultados verificados de la ronda vigente.
+        Los tableros de Tableau son históricos, con corte en la semana 31 de 2026, y se
+        actualizarán cuando se apruebe regenerar Tableau. Sus cifras, incluidas las métricas de
+        error y los rankings de motores, quedan fuera del resumen de la ronda W37.
       </p>
     </section>
 
@@ -1006,6 +1023,8 @@
       <p>
         Permite tener una visión global del proyecto, e identificar áreas de cobertura incompleta.
       </p>
+
+      <p class="tableau-historico">Tablero histórico de Tableau · corte W31 de 2026 · sus cifras quedan fuera del resumen W37</p>
 
       <div class="tableau-wrap" style="overflow:hidden;">
 <div class='tableauPlaceholder' id='viz1772521529839' style='position: relative'><noscript><a href='#'><img alt='DashKPIs ' src='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx_17873231502650&#47;DashKPIs&#47;1_rss.png' style='border: none' /></a></noscript><object class='tableauViz'  style='display:none;'><param name='host_url' value='https%3A%2F%2Fpublic.tableau.com%2F' /> <param name='embed_code_version' value='3' /> <param name='site_root' value='' /><param name='name' value='viz_epiforecastmx_17873231502650&#47;DashKPIs' /><param name='tabs' value='no' /><param name='toolbar' value='yes' /><param name='static_image' value='https:&#47;&#47;public.tableau.com&#47;static&#47;images&#47;vi&#47;viz_epiforecastmx_17873231502650&#47;DashKPIs&#47;1.png' /> <param name='animate_transition' value='yes' /><param name='display_static_image' value='yes' /><param name='display_spinner' value='yes' /><param name='display_overlay' value='yes' /><param name='display_count' value='yes' /><param name='language' value='en-US' /></object></div>                <script type='text/javascript'>                    var divElement = document.getElementById('viz1772521529839');                    var vizElement = divElement.getElementsByTagName('object')[0];                    if ( divElement.offsetWidth > 800 ) { vizElement.style.width='1280px';vizElement.style.height='827px';} else if ( divElement.offsetWidth > 500 ) { vizElement.style.width='1280px';vizElement.style.height='827px';} else { vizElement.style.width='100%';vizElement.style.height='1077px';}                     var scriptElement = document.createElement('script');                    scriptElement.src = 'https://public.tableau.com/javascripts/api/viz_v1.js';                    vizElement.parentNode.insertBefore(scriptElement, vizElement);                </script>
