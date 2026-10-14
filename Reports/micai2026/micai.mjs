@@ -1,11 +1,11 @@
 // MICAI 2026 · paper #12 companion site. No external libraries; the static HTML is readable without JS.
-import { I18N, VERSION } from './i18n.mjs?v=433f313c77';
+import { I18N, VERSION } from './i18n.mjs?v=00a0c8d09c';
 
 const $ = (id) => document.getElementById(id);
 const COLORS = { observed: '#c2186b', ensemble: '#7c5cbf', naive: '#64748b', prophet: '#0f8076', deepar: '#235fe8', stacking: '#475569' };
 const ENGINES = ['prophet', 'deepar', 'ensemble', 'stacking'];
 const NAMES = { prophet: 'Prophet', deepar: 'DeepAR', ensemble: 'Ensemble', stacking: 'Stacking' };
-let lang = 'en', data = null, target = null, showAll = false, week = 33;
+let lang = 'en', data = null, target = null, showAll = false, week = 38;
 
 const t = (k) => (I18N[lang] && I18N[lang][k]) ?? I18N.en[k] ?? k;
 const nf = (v, d = 1) => v == null ? '—' : v.toLocaleString(lang === 'es' ? 'es-MX' : 'en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
