@@ -1,4 +1,4 @@
-export const VERSION = "acef6e71d7";
+export const VERSION = "433f313c77";
 export const I18N = {
  "en": {
   "skip": "Skip to content",
@@ -56,7 +56,7 @@ export const I18N = {
   "aria_language": "Language",
   "col_archived": "Archived",
   "col_naive": "Naive",
-  "slides_meta": "18 slides · 7 backup",
+  "slides_meta": "20 slides · 9 backup",
   "h_spec": "Specification v2 (sha256)",
   "h_snap": "Data snapshot, edition W34 (sha256)",
   "h_data": "tracker.json (sha256)",
@@ -164,7 +164,7 @@ export const I18N = {
   "aria_language": "Idioma",
   "col_archived": "Archivada",
   "col_naive": "Ingenuo",
-  "slides_meta": "18 diapositivas · 7 de respaldo",
+  "slides_meta": "20 diapositivas · 9 de respaldo",
   "h_spec": "Especificación v2 (sha256)",
   "h_snap": "Copia de datos, edición S34 (sha256)",
   "h_data": "tracker.json (sha256)",
