@@ -574,8 +574,9 @@
 
     @media (max-width: 480px) {
       .prompt-menu {
-        left: -10px;
-        right: -10px;
+        /* Antes -10px a cada lado: a 390 px sobresalía de la pantalla (scroll horizontal). */
+        left: 0;
+        right: 0;
         border-radius: 14px 14px 0 0;
         bottom: 100%;
         max-height: 55vh;

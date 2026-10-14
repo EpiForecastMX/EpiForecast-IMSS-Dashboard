@@ -480,10 +480,10 @@
 
 </main>
 
-<div class="lightbox" id="lightbox">
-  <span class="close" onclick="closeLightbox()">&times;</span>
-  <span class="lb-nav prev" onclick="navLightbox(-1)">&#8249;</span>
-  <span class="lb-nav next" onclick="navLightbox(1)">&#8250;</span>
+<div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-labelledby="lbCaption">
+  <span class="close" id="lbClose" role="button" tabindex="0" aria-label="Cerrar" onclick="closeLightbox()">&times;</span>
+  <span class="lb-nav prev" role="button" tabindex="0" aria-label="Gráfico anterior" onclick="navLightbox(-1)">&#8249;</span>
+  <span class="lb-nav next" role="button" tabindex="0" aria-label="Gráfico siguiente" onclick="navLightbox(1)">&#8250;</span>
   <span class="lb-live-tag" id="lbLiveTag" style="display:none">En vivo</span>
   <img id="lbImg" src="" alt="">
   <div class="lb-chart" id="lbChartWrap"><canvas id="lbChart"></canvas></div>
@@ -544,7 +544,7 @@ function groupBy(arr, key) {
   return arr.reduce((acc, item) => { (acc[item[key]] = acc[item[key]] || []).push(item); return acc; }, {});
 }
 function cardHTML(d, idx) {
-  return `<div class="card ${padClass(d.p)}" onclick="openLightbox(${idx})">
+  return `<div class="card ${padClass(d.p)}" role="button" tabindex="0" aria-label="${d.p} · ${d.n} · ${d.s}" onclick="openLightbox(${idx})" onkeydown="abreConTeclado(event, ${idx})">
     <img src="${srcOf(d)}"${imgFallback(d)} alt="${d.p} · ${d.n} · ${d.s}" loading="lazy">
     <div class="info"><span class="title">${d.p} · ${d.s}</span><div class="tags">${catTag(d.c)}${sexoTag(d.s)}</div></div>
   </div>`;
@@ -599,7 +599,7 @@ function renderNacional(data) {
         <span class="nac-pad-name">${pad}</span>
       </div>
       <div class="nac-pad-cards">
-        ${cards.map(d => `<div class="nac-card" onclick="openLightbox(${filtered.indexOf(d)})">
+        ${cards.map(d => `<div class="nac-card" role="button" tabindex="0" aria-label="${pad} · Nacional · ${d.s}" onclick="openLightbox(${filtered.indexOf(d)})" onkeydown="abreConTeclado(event, ${filtered.indexOf(d)})">
           <img src="${srcOf(d)}"${imgFallback(d)} alt="${pad} Nacional ${d.s}" loading="lazy">
           <div class="nac-card-label">${d.s}</div>
         </div>`).join('')}
@@ -628,7 +628,7 @@ function renderRegional(data) {
       </div>` : '';
     const isOpen = openRegs.has(region);
     return `<div class="state-item${isOpen ? ' open' : ''}" data-state="${region}">
-      <div class="state-header" onclick="toggleState(this)">
+      <div class="state-header" role="button" tabindex="0" aria-expanded="${isOpen}" onclick="toggleState(this)" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleState(this); }">
         <span class="state-dot"></span>
         <span class="state-name">${label}</span>
         <span class="state-count">${cards.length} gráfico${cards.length !== 1 ? 's' : ''}</span>
@@ -652,7 +652,7 @@ function renderEstatal(data) {
     const cards  = byState[state];
     const isOpen = openStates.has(state);
     return `<div class="state-item${isOpen ? ' open' : ''}" data-state="${state}">
-      <div class="state-header" onclick="toggleState(this)">
+      <div class="state-header" role="button" tabindex="0" aria-expanded="${isOpen}" onclick="toggleState(this)" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); toggleState(this); }">
         <span class="state-dot"></span>
         <span class="state-name">${state}</span>
         <span class="state-count">${cards.length} gráfico${cards.length !== 1 ? 's' : ''}</span>
@@ -666,7 +666,7 @@ function renderEstatal(data) {
 }
 
 // ── Accordion ─────────────────────────────────
-function toggleState(header) { header.parentElement.classList.toggle('open'); }
+function toggleState(header) { const abierto = header.parentElement.classList.toggle('open'); header.setAttribute('aria-expanded', String(abierto)); }
 function expandAll(id)  { document.querySelectorAll((id ? '#' + id + ' ' : '') + '.state-item').forEach(el => el.classList.add('open')); }
 function collapseAll(id){ document.querySelectorAll((id ? '#' + id + ' ' : '') + '.state-item').forEach(el => el.classList.remove('open')); }
 
@@ -684,12 +684,6 @@ const MES_ABBR = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','N
 function fmtMes(iso) { const p = iso.split('-'); return `${MES_ABBR[+p[1]-1]} ${p[0].slice(2)}`; }
 function destroyLbChart() { if (lbChart) { lbChart.destroy(); lbChart = null; } }
 const PAD_COLOR = { Alzheimer:'#F472B6', 'Depresión':'#5B8DEF', Depresion:'#5B8DEF', Parkinson:'#2DD4BF', Dengue:'#F59E0B' };
-function isoWeek(iso) {
-  const t = new Date(iso + 'T00:00:00'); t.setHours(0, 0, 0, 0);
-  t.setDate(t.getDate() + 3 - ((t.getDay() + 6) % 7));
-  const w1 = new Date(t.getFullYear(), 0, 4);
-  return 1 + Math.round(((t - w1) / 864e5 - 3 + ((w1.getDay() + 6) % 7)) / 7);
-}
 // Sombra de la zona futura + divisor "presente" en la última semana real (idx en options).
 const presentLinePlugin = {
   id: 'presentLine',
@@ -728,7 +722,13 @@ function renderLbChart(d, s) {
   const color = s.color || PAD_COLOR[d.p] || '#5B8DEF';  // color del motor (del JSON), igual que el PNG
   const labels = s.d.map(fmtMes);
   const lastRealIdx = s.r.reduce((acc, v, i) => v != null ? i : acc, -1);
-  const wk = s.last_real ? isoWeek(s.last_real) : null;
+  // Semana DEL BOLETÍN de la última observación (el ISO del ds legado va una semana atrás).
+  const ub = s.ultima_semana_boletin;
+  const wk = ub && Number.isFinite(+ub.semana) ? +ub.semana : null;
+  // Hasta el corte la línea del motor es ajuste dentro de muestra: se dibuja aparte y tenue;
+  // desde el corte, el pronóstico guardado. Sin ds del corte no se separa (datos antiguos).
+  const yAjuste = s.ds_corte ? s.y.map((v, i) => (s.d[i] <= s.ds_corte ? v : null)) : null;
+  const yPron = s.ds_corte ? s.y.map((v, i) => (s.d[i] >= s.ds_corte ? v : null)) : s.y;
   const cm = s.corte_modelo;
   const corteTxt = cm && cm.semana != null && cm.anio != null && Number.isFinite(+cm.semana) && Number.isFinite(+cm.anio)
     ? `corte del modelo: semana ${+cm.semana} de ${+cm.anio}` : null;
@@ -741,8 +741,9 @@ function renderLbChart(d, s) {
       datasets: [
         { label: '_hi', data: s.hi, borderColor: 'transparent', backgroundColor: color + '22', pointRadius: 0, fill: '+1', tension: 0.3, order: 4 },
         { label: '_lo', data: s.lo, borderColor: 'transparent', backgroundColor: 'transparent', pointRadius: 0, fill: false, tension: 0.3, order: 4 },
-        { label: `Pronóstico (${s.motor})`, data: s.y, borderColor: color, backgroundColor: 'transparent', borderDash: [7, 4], borderWidth: 2.5, pointRadius: 0, tension: 0.3, fill: false, order: 2 },
-        { label: 'Real (boletín SINAVE)', data: s.r, borderColor: '#9DB0D0', backgroundColor: '#9DB0D0', borderWidth: 2.5, tension: 0.3, spanGaps: false, order: 1,
+        { label: s.ds_corte ? `Pronóstico desde el corte (${s.motor})` : `Pronóstico (${s.motor})`, data: yPron, borderColor: color, backgroundColor: 'transparent', borderDash: [7, 4], borderWidth: 2.5, pointRadius: 0, tension: 0.3, fill: false, order: 2 },
+        ...(yAjuste ? [{ label: 'Ajuste del modelo antes del corte (no es validación)', data: yAjuste, borderColor: color + '66', backgroundColor: 'transparent', borderDash: [2, 4], borderWidth: 1.4, pointRadius: 0, tension: 0.3, fill: false, order: 3 }] : []),
+        { label: 'Observado (boletín SINAVE)', data: s.r, borderColor: '#9DB0D0', backgroundColor: '#9DB0D0', borderWidth: 2.5, tension: 0.3, spanGaps: false, order: 1,
           pointRadius: s.r.map((v, i) => i === lastRealIdx ? 5 : (v != null ? 1.8 : 0)),
           pointBackgroundColor: s.r.map((v, i) => i === lastRealIdx ? '#fff' : '#9DB0D0'),
           pointBorderColor: '#9DB0D0', pointBorderWidth: s.r.map((v, i) => i === lastRealIdx ? 2 : 1) },
@@ -752,7 +753,7 @@ function renderLbChart(d, s) {
       responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { labels: { color: '#E7ECF5', filter: it => !it.text.startsWith('_'), usePointStyle: true, boxWidth: 8, font: { size: 12 } } },
-        title: { display: true, text: `${d.p} — ${d.n} (${d.s})  ·  real vs pronóstico${wk ? ' (sem ' + wk + ')' : ''}`, color: '#E7ECF5', font: { size: 14, weight: 'bold' } },
+        title: { display: true, text: `${d.p} — ${d.n} (${d.s})  ·  observado y pronóstico${wk ? ' · última semana observada: ' + wk + ' de ' + ub.anio : ''}`, color: '#E7ECF5', font: { size: 14, weight: 'bold' } },
         // Sin métricas de error: las de esta ronda son el diagnóstico de selección W28–W37 (no se
         // publican). Si el JSON trae el corte del modelo, se rotula en su lugar.
         subtitle: { display: corteTxt != null, text: corteTxt || '',
@@ -772,12 +773,19 @@ function renderLbChart(d, s) {
   });
 }
 
+let lbVuelta = null;  // elemento que abrió el lightbox: recibe el foco al cerrar
+function abreConTeclado(e, idx) {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(idx); }
+}
 function openLightbox(idx) {
+  const lb = document.getElementById('lightbox');
+  if (!lb.classList.contains('open')) lbVuelta = document.activeElement;
   lbIndex = idx;
   const d = filtered[idx];
   const VIEW_LABEL = { zoom: ' · Zoom 52 Semanas', zoom5: ' · Zoom 5 Años', compare: ' · Comparar Modelos' };
   document.getElementById('lbCaption').textContent = `${d.p} · ${d.n} · ${d.s}${VIEW_LABEL[view] || ''}  (${idx + 1} / ${filtered.length})`;
-  document.getElementById('lightbox').classList.add('open');
+  lb.classList.add('open');
+  document.getElementById('lbClose').focus();
   if (view === 'zoom') {
     loadZoomData().then(zd => {
       if (lbIndex !== idx) return;                 // el usuario ya navegó a otra
@@ -789,11 +797,16 @@ function openLightbox(idx) {
     showLbImage(d, view !== 'full');               // zoom5/compare -> su PNG; full -> base
   }
 }
-function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); destroyLbChart(); }
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open'); destroyLbChart();
+  if (lbVuelta && document.contains(lbVuelta) && lbVuelta.focus) lbVuelta.focus();
+  lbVuelta = null;
+}
 function navLightbox(dir) { lbIndex = (lbIndex + dir + filtered.length) % filtered.length; openLightbox(lbIndex); }
 document.addEventListener('keydown', e => {
   if (!document.getElementById('lightbox').classList.contains('open')) return;
   if (e.key === 'Escape')     closeLightbox();
+  if ((e.key === 'Enter' || e.key === ' ') && e.target.matches && e.target.matches('#lightbox [role="button"]')) { e.preventDefault(); e.target.click(); }
   if (e.key === 'ArrowLeft')  navLightbox(-1);
   if (e.key === 'ArrowRight') navLightbox(1);
 });
