@@ -3751,7 +3751,7 @@ function seguimientoMd(seg) {
   out.push(`**Seguimiento posterior al corte** (${seg.rotulo || 'seguimiento diagn\u00f3stico posterior al corte; no evaluaci\u00f3n independiente'}).`);
   out.push(`Modelos con corte en la ${semanaLegible(seg.corte?.etiqueta)}; **${n} semana${n === 1 ? '' : 's'} evaluada${n === 1 ? '' : 's'}** despu\u00e9s del corte. Cada comparaci\u00f3n usa el pron\u00f3stico guardado y lo observado esa misma semana del bolet\u00edn.\n`);
   for (const sem of seg.semanas) {
-    out.push(`*${semanaLegible(sem.etiqueta)}* \u2014 horizonte ${sem.horizonte} semana${sem.horizonte === 1 ? '' : 's'} desde el corte:`);
+    out.push(`\n*${semanaLegible(sem.etiqueta)}* \u2014 horizonte ${sem.horizonte} semana${sem.horizonte === 1 ? '' : 's'} desde el corte:`);
     for (const [cohorte, c] of Object.entries(sem.cohortes || {})) {
       const nombre = cohorte === 'dengue' ? 'Dengue' : 'Neuro (depresi\u00f3n, Parkinson, Alzheimer)';
       const err = c.error_abs_medio != null
