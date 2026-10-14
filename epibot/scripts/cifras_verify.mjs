@@ -30,6 +30,7 @@ import {
   problemasDelAgregadoEstatal,
   problemasDeVistasAgregado,
   VISTAS_AGREGADO,
+  problemasDePortada,
   PAGINAS_METRICAS_ANTIGUAS,
   PAGINAS_OPERATIVAS,
   VOCABULARIO,
@@ -149,6 +150,16 @@ try {
   problemas.push(...p);
   const ag = kb?.agregado_estatal_neuro;
   console.log(`  agregado estatal neuro: ${ag ? `${ag.valor_mostrado} (${ag.series_incluidas} series, suma ${ag.suma_original})` : 'AUSENTE'}${p.length ? ` — ${p.length} PROBLEMAS` : ''}`);
+}
+
+// Portada y Dengue hasta W39: el gráfico vivo y la cifra del motor líder, al día con el knowledge.
+{
+  let hero = null;
+  try { hero = JSON.parse(readFileSync(resolve(RAIZ_PUBLICADA, 'hero_series.json'), 'utf8')); } catch { hero = null; }
+  const p = kb ? problemasDePortada(readFileSync(resolve(RAIZ_PUBLICADA, 'index.html'), 'utf8'), hero, kb,
+    existsSync(resolve(RAIZ_PUBLICADA, 'bento.json'))) : [];
+  problemas.push(...p);
+  console.log(`  portada (hero_series, motor líder, Dengue 52 pasos): ${p.length ? `${p.length} PROBLEMAS` : `al día (${hero?.ultima_observada}, corte ${hero?.corte})`}`);
 }
 
 // Lo que la gente realmente lee. Sin esto el gate vigilaba una sola puerta.

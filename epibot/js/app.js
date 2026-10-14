@@ -6,7 +6,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=112';
+import { loadKnowledge, getStats, getData, answer, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=113';
 import { detectEntities, norm } from './entities.js?v=31';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
 import { renderMexicoMap } from './mexico-map.js?v=3';
@@ -808,7 +808,7 @@ function appendPanorama(data) {
       capEl.innerHTML =
         `<span class="hero-cap-chip" style="--pill:${padObj.color}">Motor: <b>${cap.motor}</b></span>` +
         (cap.sm != null ? `<span class="hero-cap-chip">SMAPE <b>${cap.sm}</b></span>` : '') +
-        `<span class="hero-cap-chip">${cap.casos} casos · pronóstico del modelo nacional · 52 sem</span>`;
+        `<span class="hero-cap-chip">${cap.casos} casos · pronóstico del modelo nacional · 52 pasos desde el corte</span>`;
     }
     if (!z) return;
     const serie = z[`${norm(padObj.pad)}|nacional|general`];

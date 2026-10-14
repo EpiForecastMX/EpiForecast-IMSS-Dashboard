@@ -1520,7 +1520,7 @@ function answerDengue(q, ent, s, d) {
     const fut = dg.casos_futuro_nacional_52sem;
     return [
       '**Pronóstico de Dengue a 52 semanas**', '',
-      `El motor productivo nacional es **${dg.motor_nacional}**. El pronóstico publicado cubre **${dg.horizonte_semanas || 52} semanas** desde la última semana real (${dg.ultima_real})${fut ? `: alrededor de **${num(fut)} casos** a nivel nacional en ese año (media prevista)` : ''}.`, '',
+      `El motor productivo nacional es **${dg.motor_nacional}**. El pronóstico publicado son **${dg.horizonte_semanas || 52} pasos semanales desde el corte** de los modelos (${tituloSeguimientoMin(d.weekly_comparison?.Dengue || {}).replace('seguimiento del pronóstico con ', '')})${fut ? `: alrededor de **${num(fut)} casos** a nivel nacional (media prevista del modelo nacional)` : ''}.${d.weekly_comparison?.Dengue?.ultima_semana_observada ? ` Lo observado llega hasta la ${semanaLegible(d.weekly_comparison.Dengue.ultima_semana_observada)}.` : ''}`, '',
       'No publicamos proyecciones a varios años: con pocos ciclos epidémicos en los datos, el momento y la magnitud del próximo gran brote no pueden pronosticarse con fiabilidad.', '',
       `Los grandes brotes de ${(dg.anios_epidemicos || [2014, 2019, 2024]).join(', ')} coincidieron con años de **El Niño**; por eso el índice ONI se usa como señal climática en el modelado.`,
     ].join('\n');

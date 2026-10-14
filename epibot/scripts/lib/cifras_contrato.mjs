@@ -963,3 +963,49 @@ export function problemasDeVistasAgregado(archivo, texto) {
   }
   return out;
 }
+
+// --- Portada y Dengue hasta W39 (cierre W39, 14-oct-2026) -------------------------------------
+// `hero_series.json` no tenía generador y seguía en junio (semana 21: motor, total, curvas y un
+// `smape` por padecimiento); la cifra fija del motor líder decía «29 % DeepAR»; `bento.json`
+// (semana 21) seguía servido sin consumidor; el total de Dengue «52 sem» sumaba 50 pasos.
+
+/**
+ * @param {string} indexHtml  index.html de la raíz
+ * @param {object|null} hero  hero_series.json (null si falta)
+ * @param {object} kb         knowledge.json
+ * @param {boolean} hayBento  si `bento.json` sigue publicado
+ * @returns {string[]} problemas
+ */
+export function problemasDePortada(indexHtml, hero, kb, hayBento) {
+  const out = [];
+  const seg = kb?.seguimiento_post_corte || {};
+  const corte = seg.corte?.etiqueta, ultima = seg.ultima_semana_observada?.etiqueta;
+  if (!hero) out.push('hero_series.json ausente');
+  else {
+    if (hero.corte !== corte || hero.ultima_observada !== ultima) {
+      out.push(`hero_series: corte ${hero.corte} / observado ${hero.ultima_observada}; el knowledge dice ${corte} / ${ultima}`);
+    }
+    if (/"smape"|"mase"/i.test(JSON.stringify(hero))) out.push('hero_series publica métricas de error');
+    const wc = kb?.weekly_comparison || {};
+    for (const s of hero.series || []) {
+      const esperado = wc[s.pad]?.pronostico_52_pasos;
+      if (s.casos !== esperado) out.push(`hero_series ${s.pad}: ${s.casos} casos ≠ 52 pasos desde el corte (${esperado})`);
+      const nac = s.pad === 'Dengue' ? kb?.dengue?.motor_nacional
+        : (kb?.prod_models || []).find((m) => m.padecimiento === s.pad && m.entidad === 'Nacional' && m.sexo === 'general')?.modelo_produccion;
+      if (s.motor !== nac) out.push(`hero_series ${s.pad}: motor ${s.motor} ≠ modelo nacional ${nac}`);
+    }
+    if ((hero.series || []).length !== 4) out.push(`hero_series con ${(hero.series || []).length} series (deben ser 4)`);
+  }
+  const st = kb?.stats || {};
+  const m = String(indexHtml ?? '').match(/id="b-motor-pct">([^<]*)<\/span>%<\/b><span>[^<]*<span id="b-motor">([^<]*)</);
+  if (!m) out.push('index.html: sin la cifra del motor líder');
+  else if (m[2] !== st.motor_ganador || Number(m[1]) !== Number(st.motor_ganador_pct)) {
+    out.push(`index.html: motor líder fijo ${m[1]} % ${m[2]} ≠ knowledge ${st.motor_ganador_pct} % ${st.motor_ganador}`);
+  }
+  const dg = kb?.dengue;
+  if (dg && dg.casos_futuro_nacional_52sem !== kb?.weekly_comparison?.Dengue?.pronostico_52_pasos) {
+    out.push(`dengue.casos_futuro_nacional_52sem ${dg.casos_futuro_nacional_52sem} ≠ 52 pasos desde el corte (${kb?.weekly_comparison?.Dengue?.pronostico_52_pasos})`);
+  }
+  if (hayBento) out.push('bento.json sigue publicado (datos de la semana 21, sin consumidor)');
+  return out;
+}

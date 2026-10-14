@@ -19,6 +19,7 @@ import {
   problemasDeGaleria, problemasDeMetricasAntiguas, problemasDeNoticias, problemasDeCifras,
   problemasDeSeguimientoSemanal, problemasDeNacionalPorSexo, problemasDeVistasSeguimiento, inicioSemanaEpi,
   problemasDelAgregadoEstatal, problemasDeVistasAgregado,
+  problemasDePortada,
 } from './cifras_contrato.mjs';
 
 const CASOS = [
@@ -473,6 +474,38 @@ for (const [nombre, contenido, debe, desc] of CASOS) {
     const ok = (r.length > 0) === debe;
     if (!ok) fallos++;
     console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  vistas del agregado · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
+}
+
+// --- Portada y Dengue hasta W39 -----------------------------------------------------------
+{
+  const IDX = '<div class="edl-stat"><b><span id="b-motor-pct">32.7</span>%</b><span>cuota del motor líder en la cohorte neuro, <span id="b-motor">Ensemble</span></span></div>';
+  const kbOk = () => ({
+    stats: { motor_ganador: 'Ensemble', motor_ganador_pct: 32.7 },
+    seguimiento_post_corte: { corte: { etiqueta: '2026-W37' }, ultima_semana_observada: { etiqueta: '2026-W39' } },
+    weekly_comparison: { Depresion: { pronostico_52_pasos: 160999 }, Parkinson: { pronostico_52_pasos: 7391 }, Alzheimer: { pronostico_52_pasos: 1915 }, Dengue: { pronostico_52_pasos: 8811 } },
+    prod_models: [['Depresion', 'Ensemble'], ['Parkinson', 'Prophet'], ['Alzheimer', 'Prophet']].map(([p, m]) => ({ padecimiento: p, entidad: 'Nacional', sexo: 'general', modelo_produccion: m })),
+    dengue: { motor_nacional: 'DeepAR', casos_futuro_nacional_52sem: 8811 },
+  });
+  const heroOk = () => ({ corte: '2026-W37', ultima_observada: '2026-W39', series: [
+    { pad: 'Depresion', motor: 'Ensemble', casos: 160999 }, { pad: 'Parkinson', motor: 'Prophet', casos: 7391 },
+    { pad: 'Alzheimer', motor: 'Prophet', casos: 1915 }, { pad: 'Dengue', motor: 'DeepAR', casos: 8811 }] });
+  const casos = [
+    [IDX, heroOk(), kbOk(), false, false, 'portada al día pasa'],
+    [IDX, null, kbOk(), false, true, 'sin hero_series'],
+    [IDX, { ...heroOk(), ultima_observada: '2026-W21', corte: '2026-W21' }, kbOk(), false, true, 'hero de junio (semana 21)'],
+    [IDX, { ...heroOk(), series: heroOk().series.map((s, i) => (i ? s : { ...s, smape: 16 })) }, kbOk(), false, true, 'hero con smape'],
+    [IDX, { ...heroOk(), series: heroOk().series.map((s, i) => (i ? s : { ...s, motor: 'DeepAR', casos: 141078 })) }, kbOk(), false, true, 'hero con el motor y total de junio'],
+    [IDX.replace('32.7', '29').replace('>Ensemble<', '>DeepAR<'), heroOk(), kbOk(), false, true, '«29 % DeepAR» fijo'],
+    [IDX, heroOk(), (() => { const k = kbOk(); k.dengue.casos_futuro_nacional_52sem = 8350; return k; })(), false, true, 'Dengue «52 sem» con 50 pasos'],
+    [IDX, heroOk(), kbOk(), true, true, 'bento.json sigue publicado'],
+  ];
+  for (const [idx, hero, kb, bento, debe, desc] of casos) {
+    const r = problemasDePortada(idx, hero, kb, bento);
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  portada · ${desc}`);
     if (!ok) console.log(`           → ${JSON.stringify(r)}`);
   }
 }

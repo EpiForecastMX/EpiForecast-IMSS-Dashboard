@@ -2923,13 +2923,13 @@
         <div class="hf-canvas-wrap">
           <canvas id="hfCanvas" role="img" aria-label="Gráfico animado del pronóstico nacional por padecimiento"></canvas>
           <div class="hf-legend">
-            <span><i style="border-color:var(--ink-soft)"></i>Real</span>
-            <span><i style="border-top-style:dashed;border-color:var(--ink-mut)"></i>Pronóstico</span>
+            <span><i style="border-color:var(--ink-soft)"></i>Observado</span>
+            <span><i style="border-top-style:dashed;border-color:var(--ink-mut)"></i>Pronóstico desde el corte</span>
           </div>
         </div>
         <div class="hf-caption" id="hfCaption"></div>
       </div>
-      <figcaption class="edl-figcap">Incidencia semanal real frente al modelo productivo de cada padecimiento, a escala nacional. <b>Elige un padecimiento</b> para ver su serie y su motor.</figcaption>
+      <figcaption class="edl-figcap">Casos semanales notificados frente al pronóstico del modelo nacional de cada padecimiento, desde su corte. <b>Elige un padecimiento</b> para ver su serie y su motor.</figcaption>
     </figure>
 
     <div class="edl-wrap edl-article-col">
@@ -2937,7 +2937,7 @@
         <div class="edl-stat"><b id="b-motor-total">432</b><span>series en producción</span></div>
         <div class="edl-stat"><b>32</b><span>entidades + nacional</span></div>
         <div class="edl-stat"><b>52</b><span>semanas de horizonte</span></div>
-        <div class="edl-stat"><b><span id="b-motor-pct">29</span>%</b><span>cuota del motor líder en la cohorte neuro, <span id="b-motor">DeepAR</span></span></div>
+        <div class="edl-stat"><b><span id="b-motor-pct">32.7</span>%</b><span>cuota del motor líder en la cohorte neuro, <span id="b-motor">Ensemble</span></span></div>
       </div>
     </div>
   </section>
@@ -3426,6 +3426,10 @@
               var pill = document.getElementById('kpi-modelos-pill');
               if (pill) pill.textContent = Number(total).toLocaleString();
             }
+            // Motor líder de la cohorte neuro (cifra fija con respaldo en knowledge.json)
+            var bm = document.getElementById('b-motor'), bp = document.getElementById('b-motor-pct');
+            if (bm && stats.motor_ganador) bm.textContent = stats.motor_ganador;
+            if (bp && stats.motor_ganador_pct != null) bp.textContent = String(stats.motor_ganador_pct);
             // Motor líder en la distribución del hero (si existe el nodo)
             var leader = document.getElementById('kpi-motor-lider');
             if (leader && stats.motor_ganador) {
@@ -3667,7 +3671,8 @@
         });
         capEl.innerHTML =
           '<span class="hf-chip hf-chip--motor">Motor <b>' + s.motor + '</b></span>' +
-          '<span class="hf-chip">' + fmt(s.casos) + ' casos · 52 sem</span>';
+          '<span class="hf-chip">' + fmt(s.casos) + ' casos · pronóstico del modelo nacional, 52 pasos desde el corte ' + (s.corte || '').replace(/^\d{4}-/, '') + '</span>' +
+          (s.ultima_observada ? '<span class="hf-chip">observado hasta ' + s.ultima_observada.replace(/^(\d{4})-W(\d{2})$/, 'la semana $2 de $1') + '</span>' : '');
         sizeCanvas();
         start();
       }
