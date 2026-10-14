@@ -10,7 +10,7 @@
  */
 
 import { resolve } from 'path';
-import { readFileSync, readdirSync } from 'fs';
+import { existsSync, readFileSync, readdirSync } from 'fs';
 import { buildChunks, KB_DIR } from './lib/corpus.mjs';
 import {
   problemasDeCifras,
@@ -20,6 +20,10 @@ import {
   problemasDeSuperficies,
   problemasDeMetricasSeleccion,
   problemasDeMetricasEnPagina,
+  problemasDeGaleria,
+  problemasDeMetricasAntiguas,
+  problemasDeNoticias,
+  PAGINAS_METRICAS_ANTIGUAS,
   PAGINAS_OPERATIVAS,
   VOCABULARIO,
 } from './lib/cifras_contrato.mjs';
@@ -68,6 +72,44 @@ if (kb) {
     problemas.push(...p);
   }
   console.log(`  métricas de selección en ${PAGINAS_OPERATIVAS.length} vistas operativas: ${nPag ? `${nPag} PINTADAS` : 'ninguna'}`);
+}
+
+// La galería: la lista `DATA` que pinta las tarjetas, contada y contrastada con sus PNG.
+try {
+  const g = problemasDeGaleria(
+    readFileSync(resolve(RAIZ_PUBLICADA, 'Reports/index.html'), 'utf8'),
+    kb,
+    (rel) => existsSync(resolve(RAIZ_PUBLICADA, 'Reports', rel))
+  );
+  problemas.push(...g.problemas);
+  console.log(`  galería: ${g.total} gráficos ${JSON.stringify(g.conteo)}${g.problemas.length ? ` — ${g.problemas.length} PROBLEMAS` : ''}`);
+} catch (e) {
+  problemas.push(`no se pudo revisar la galería: ${e.message}`);
+}
+
+// Métricas y afirmaciones de desempeño de rondas anteriores (otro origen, no W28–W37).
+{
+  let n = 0;
+  for (const rel of PAGINAS_METRICAS_ANTIGUAS) {
+    let html;
+    try {
+      html = readFileSync(resolve(RAIZ_PUBLICADA, rel), 'utf8');
+    } catch (e) {
+      problemas.push(`no se pudo leer ${rel}: ${e.message}`);
+      continue;
+    }
+    const p = problemasDeMetricasAntiguas(rel, html);
+    n += p.length;
+    problemas.push(...p);
+  }
+  try {
+    const p = problemasDeNoticias(JSON.parse(readFileSync(resolve(RAIZ_PUBLICADA, 'news.json'), 'utf8')));
+    n += p.length;
+    problemas.push(...p);
+  } catch (e) {
+    problemas.push(`no se pudo revisar news.json: ${e.message}`);
+  }
+  console.log(`  métricas antiguas en ${PAGINAS_METRICAS_ANTIGUAS.length} páginas y news.json: ${n ? `${n} PUBLICADAS` : 'retiradas'}`);
 }
 
 // Lo que la gente realmente lee. Sin esto el gate vigilaba una sola puerta.

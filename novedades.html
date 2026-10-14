@@ -2710,6 +2710,7 @@
     .arch-title a { color:var(--ink) !important; } .arch-title a:hover { color:var(--accent) !important; text-decoration:none; }
     .arch-body { font-family:var(--serif-body); font-size:1.05rem; line-height:1.62; color:var(--ink-soft); max-width:70ch; }
     .arch-body p { margin-bottom:0.85rem; } .arch-body strong { color:var(--ink); }
+    .arch-nota { font-family:var(--serif-body); font-size:0.9rem; font-style:italic; line-height:1.5; color:var(--ink-soft); max-width:70ch; margin:0 0 0.9rem; padding-left:0.75rem; border-left:2px solid var(--rule); }
     .arch-link { display:inline-block; margin-top:0.5rem; font-family:var(--sans); font-weight:600; font-size:0.85rem; color:var(--accent) !important; }
   </style>
 </head>
@@ -3002,7 +3003,7 @@
 
   <script>
     (function(){function esc(s){return String(s==null?'':s);}
-    function ih(it,i){var f=(i===0||it.featured)?' arch-item--featured':'';var b=(it.body||[]).map(function(p){return '<p>'+esc(p)+'</p>';}).join('');var h=(it.link&&it.link.href)||'#';var l=(it.link&&it.link.text)||'Leer más';return '<article class="arch-item'+f+'"><div class="arch-meta"><span class="arch-date">'+esc(it.date)+'</span><span class="arch-tag">'+esc(it.tag)+'</span></div><h2 class="arch-title"><a href="'+esc(h)+'">'+esc(it.title)+'</a></h2><div class="arch-body">'+b+'</div><a class="arch-link" href="'+esc(h)+'">'+esc(l)+' &rarr;</a></article>';}
+    function ih(it,i){var f=(i===0||it.featured)?' arch-item--featured':'';var b=(it.body||[]).map(function(p){return '<p>'+esc(p)+'</p>';}).join('');var h=(it.link&&it.link.href)||'#';var l=(it.link&&it.link.text)||'Leer más';return '<article class="arch-item'+f+'"><div class="arch-meta"><span class="arch-date">'+esc(it.date)+'</span><span class="arch-tag">'+esc(it.tag)+'</span></div><h2 class="arch-title"><a href="'+esc(h)+'">'+esc(it.title)+'</a></h2><div class="arch-body">'+b+'</div>'+(it.historico?'<p class="arch-nota">'+esc(it.nota_historica)+'</p>':'')+'<a class="arch-link" href="'+esc(h)+'">'+esc(l)+' &rarr;</a></article>';}
     fetch('news.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(d){if(!d||!Array.isArray(d.items))return;var g=document.getElementById('newsGrid');if(g)g.innerHTML=d.items.map(ih).join('');}).catch(function(){});})();
   </script>
 </body>

@@ -6,7 +6,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, metricasRetiradas, rotuloMetricas } from './kb.js?v=108';
+import { loadKnowledge, getStats, getData, answer, metricasRetiradas, rotuloMetricas } from './kb.js?v=109';
 import { detectEntities, norm } from './entities.js?v=31';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
 import { renderMexicoMap } from './mexico-map.js?v=3';
@@ -2513,7 +2513,7 @@ function buildCalibration(data) {
   const byPad = {};
   let maxV = 0;
   for (const m of models) {
-    if (m.pron_sem_previa == null || m.realidad_sem_previa == null) continue;
+    if (m.pron_sem_previa == null || m.realidad_sem_previa == null || !m.semana_validacion) continue;
     const x = m.pron_sem_previa, y = m.realidad_sem_previa;
     maxV = Math.max(maxV, x, y);
     (byPad[m.padecimiento] = byPad[m.padecimiento] || []).push({ x, y, label: `${dn(m.entidad)} · ${m.sexo}` });
@@ -2543,7 +2543,13 @@ function buildCalibration(data) {
   });
   return {
     type: 'scatter',
-    title: 'Calibración — pronóstico vs realidad (última semana)',
+    title: (() => {
+      const m0 = models.find(m => m.semana_validacion) || {};
+      const sem = String(m0.semana_validacion || '').match(/^(\d{4})-W(\d{2})$/);
+      return sem
+        ? `Calibración — pronóstico vs realidad, semana ${Number(sem[2])} de ${sem[1]} (horizonte ${m0.horizonte_validacion})`
+        : 'Calibración — pronóstico vs realidad';
+    })(),
     datasets,
     options: {
       scales: {

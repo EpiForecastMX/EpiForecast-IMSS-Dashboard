@@ -66,9 +66,9 @@ if (malas.length) {
   console.error(`\n✖ Cifras fuera de contrato (${malas.length}):`);
   for (const p of malas.slice(0, 30)) console.error(`    - ${p}`);
   if (malas.length > 30) console.error(`    … y ${malas.length - 30} más`);
-  console.error('\n  Vocabulario vigente: 333 neuro · 99 dengue · 432 series productivas · 444 gráficos.');
+  console.error('\n  Vocabulario vigente: 333 neuro · 99 dengue · 432 series productivas · 432 gráficos.');
   console.error('  El JSON se corrige en el GENERADOR (build_web_knowledge.py), nunca a mano ni en el navegador.');
   process.exit(1);
 }
 
-console.log('  ok  333 neuro · 99 dengue · 432 series · 444 gráficos; sin cifras retiradas en el corpus.');
+console.log('  ok  333 neuro · 99 dengue · 432 series · 432 gráficos; sin cifras retiradas en el corpus.');

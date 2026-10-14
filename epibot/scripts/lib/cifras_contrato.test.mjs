@@ -16,6 +16,7 @@ import { readFileSync } from 'fs';
 import {
   problemasDeSuperficies, problemasDeKnowledge, problemasDeDistribuciones, jsonRevisable, sinRegionesNoLeidas,
   problemasDeMetricasSeleccion, problemasDeMetricasEnPagina, esClaveDeMetrica,
+  problemasDeGaleria, problemasDeMetricasAntiguas, problemasDeNoticias, problemasDeCifras,
 } from './cifras_contrato.mjs';
 
 const CASOS = [
@@ -110,7 +111,7 @@ for (const [nombre, contenido, debe, desc] of CASOS) {
 // --- Dengue en knowledge.json: motores de la asignación W37 ----------------------------
 {
   const base = () => ({
-    rosters: { total_series: 432, gallery_items: 444, por_cohorte: { neuro: 333, dengue: 99 } },
+    rosters: { total_series: 432, gallery_items: 432, por_cohorte: { neuro: 333, dengue: 99 } },
     stats: { total_modelos: 333, dist_motor: { Prophet: 333 }, por_estado: { Nacional: { n: 9 } },
              por_sexo: { hombres: { n: 111 }, mujeres: { n: 111 }, general: { n: 111 } } },
     dengue: { dist_motor: { DeepAR: 53, Prophet: 46 }, motores_productivos: ['DeepAR', 'Prophet'] },
@@ -246,6 +247,81 @@ for (const [nombre, contenido, debe, desc] of CASOS) {
     const ok = (r.length > 0) === debe;
     if (!ok) fallos++;
     console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  página · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
+}
+
+// --- Galería publicada: la lista DATA (ronda W37, 444 → 432) ----------------------------
+{
+  const neuro = Array.from({ length: 333 }, (_, i) => ({ p: 'Depresión', f: `Depresión/E${i}/a.png` }));
+  const dengue = Array.from({ length: 99 }, (_, i) => ({ p: 'Dengue', f: `dengue/E${i}/b.png` }));
+  const html = (items) => `<script>\nconst DATA = ${JSON.stringify(items)};\n</script>`;
+  const kb = (n) => ({ rosters: { gallery_items: n } });
+  const todo = () => true;
+  const regiones = Array.from({ length: 12 }, (_, i) => ({ p: 'Dengue', f: `dengue/Region_${i}/c.png` }));
+  const casos = [
+    [html([...neuro, ...dengue]), kb(432), todo, false, '333 + 99 con sus PNG y knowledge 432 pasa'],
+    [html([...neuro, ...dengue, ...regiones]), kb(444), todo, true, 'las 12 regiones de dengue se marcan (444)'],
+    [html([...neuro, ...dengue]), kb(444), todo, true, 'knowledge 444 con galería 432 se marca'],
+    [html([...neuro, ...dengue]), kb(432), (f) => f !== 'dengue/E3/b.png', true, 'una tarjeta sin PNG se marca'],
+    [html([...neuro, ...dengue, dengue[0]]), kb(433), todo, true, 'un gráfico repetido se marca'],
+    ['<html></html>', kb(432), todo, true, 'sin la línea DATA se marca'],
+  ];
+  for (const [h, k, existe, debe, desc] of casos) {
+    const r = problemasDeGaleria(h, k, existe).problemas;
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  galería · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r.slice(0, 3))}`);
+  }
+  const ok = problemasDeCifras([{ id: 'c', text: 'La galería tiene 444 gráficos publicados.' }]).length === 1;
+  if (!ok) fallos++;
+  console.log(`  ${ok ? '✔' : '✖ FALLO'}  marca     corpus · «444 gráficos» es cifra retirada`);
+}
+
+// --- Métricas antiguas (otro origen, no W28–W37): páginas y news.json --------------------
+{
+  const paginas = [
+    ['<div class="kpi-label">SMAPE mediano (producción)</div>', true, 'KPI con métrica (EpiDashboard 51.1 %)'],
+    ['<div class="kpi-label">Motor ganador</div>', true, '«Motor ganador»'],
+    ['<p>generados por el mejor modelo disponible</p>', true, '«mejor modelo»'],
+    ['<span class="label">Mejor SMAPE (DeepAR)</span>', true, '«Mejor SMAPE»'],
+    ['<p class="section-sub">Promedio de métricas. Menor es mejor. Celda verde = ganador.</p>', true, 'ranking de celdas'],
+    ['<thead><tr><th class="c-prophet">RMSE Prophet</th></tr></thead>', true, 'columna de métrica'],
+    ['<p>generados por el motor asignado a cada combinación</p>', false, 'motor asignado no es ranking'],
+    ['<p>Las métricas de error y los rankings de motores de rondas anteriores no forman parte de los resultados verificados.</p>', false,
+     'el aviso del retiro no se marca'],
+  ];
+  for (const [html, debe, desc] of paginas) {
+    const r = problemasDeMetricasAntiguas('x.html', html);
+    const ok = (r.length > 0) === debe && r.every((p) => !p.includes('W28–W37'));
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  métrica antigua · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
+  const nota = (body, extra = {}) => ({ items: [{ title: 't', body: [body], ...extra }] });
+  const noticias = [
+    [nota('el total pronosticado se desvía del realmente observado en <strong>+2.9&#37; en Depresión</strong>'), true,
+     'desviación del acumulado de la nota semanal'],
+    [nota('Precisión (<strong>SMAPE / MASE</strong>): Depresión <strong>8.7&#37; / 0.59</strong>'), true,
+     'SMAPE / MASE con valores separados por etiquetas'],
+    [nota('El SMAPE agregado del motor productivo bajó de 92.8 a 82.2 (121 series mejoran).'), true,
+     'SMAPE agregado con valores en la frase'],
+    [nota('NB-GLM (el nuevo motor de conteos, el mejor en validación)'), true, '«el mejor en validación»'],
+    [nota('Se integró el Boletín SINAVE hasta la semana 33 de 2026 en los cuatro padecimientos.', { historico: true }), true,
+     'histórica sin nota_historica'],
+    [nota('Se integró el Boletín SINAVE hasta la semana 33 de 2026.', { historico: true, nota_historica: 'Anterior a W37.' }), false,
+     'semana integrada con su nota histórica'],
+    [nota('Se reevaluaron contra los datos reales del Boletín SINAVE 2026 (SMAPE 2026 como criterio primario, MASE como desempate).'), false,
+     '«SMAPE 2026» nombra un año, no un valor'],
+    [nota('En depresión el error fue de <strong>5.0&#37;</strong> en esas ocho semanas.'), false,
+     'resultado sellado del póster WCP (sin métrica nombrada) se conserva'],
+  ];
+  for (const [news, debe, desc] of noticias) {
+    const r = problemasDeNoticias(news);
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  news.json · ${desc}`);
     if (!ok) console.log(`           → ${JSON.stringify(r)}`);
   }
 }

@@ -3790,6 +3790,37 @@ function answerDiagnosticos(q, ent, s, d) {
   return lines.join('\n');
 }
 
+/** Semana del bolet\u00edn legible: «2026-W39» \u2192 «semana 39 de 2026». */
+function semanaLegible(etiqueta) {
+  const m = String(etiqueta || '').match(/^(\d{4})-W(\d{2})$/);
+  return m ? `semana ${Number(m[2])} de ${m[1]}` : String(etiqueta || '');
+}
+
+/**
+ * El seguimiento posterior al corte en Markdown, o null si knowledge.json no lo trae.
+ * Siempre dice cu\u00e1ntas semanas se evaluaron, el corte y el horizonte de cada una.
+ */
+function seguimientoMd(seg) {
+  if (!seg || !Array.isArray(seg.semanas) || !seg.semanas.length) return null;
+  const n = seg.semanas_evaluadas ?? seg.semanas.length;
+  const out = [];
+  out.push(`**Seguimiento posterior al corte** (${seg.rotulo || 'seguimiento diagn\u00f3stico posterior al corte; no evaluaci\u00f3n independiente'}).`);
+  out.push(`Modelos con corte en la ${semanaLegible(seg.corte?.etiqueta)}; **${n} semana${n === 1 ? '' : 's'} evaluada${n === 1 ? '' : 's'}** despu\u00e9s del corte. Cada comparaci\u00f3n usa el pron\u00f3stico guardado y lo observado esa misma semana del bolet\u00edn.\n`);
+  for (const sem of seg.semanas) {
+    out.push(`*${semanaLegible(sem.etiqueta)}* \u2014 horizonte ${sem.horizonte} semana${sem.horizonte === 1 ? '' : 's'} desde el corte:`);
+    for (const [cohorte, c] of Object.entries(sem.cohortes || {})) {
+      const nombre = cohorte === 'dengue' ? 'Dengue' : 'Neuro (depresi\u00f3n, Parkinson, Alzheimer)';
+      const err = c.error_abs_medio != null
+        ? `; error absoluto medio **${c.error_abs_medio}** casos (mediano ${c.error_abs_mediano})`
+        : '';
+      const aus = c.ausentes ? `, ${c.ausentes} ausente${c.ausentes === 1 ? '' : 's'}` : '';
+      out.push(`- ${nombre}: ${c.pares} de ${c.series} series con par v\u00e1lido${aus}${err}`);
+    }
+  }
+  out.push('\nUn par ausente (falta el pron\u00f3stico o la observaci\u00f3n desagregable) no se rellena ni se desplaza. Detalle por serie en [Validaci\u00f3n semanal](../validacion_semanal.html).');
+  return out.join('\n');
+}
+
 function answerValidacion(q, ent, s, d) {
   const triggers = ['validacion', 'semanal', 'real vs', 'precision historica', 'acertamos', 'que tan preciso', 'precision del modelo'];
   if (!any(q, triggers)) return null;
@@ -3801,16 +3832,15 @@ function answerValidacion(q, ent, s, d) {
     lines.push(`La precisi\u00f3n hist\u00f3rica promedio de los modelos es de **${s.precision_historica_mean}%** (mediana: ${s.precision_historica_median}%).\n`);
   }
 
-  const val = s.validacion_semanal;
+  // Seguimiento posterior al corte (campos de validaci\u00f3n v2): cada semana evaluada empareja el
+  // pron\u00f3stico guardado desde el corte con lo observado ESA MISMA semana del bolet\u00edn.
+  const seg = d.seguimiento_post_corte;
+  const val = seguimientoMd(seg);
   if (val) {
-    lines.push('**Validaci\u00f3n semanal** (pron\u00f3stico vs realidad en la \u00faltima semana disponible):');
-    lines.push(`- Error absoluto medio: **${val.error_abs_medio}** casos`);
-    lines.push(`- Error absoluto mediano: **${val.error_abs_mediano}** casos`);
+    lines.push(val);
     lines.push('');
   } else {
-    // Sin el resumen en knowledge (la tabla de producci\u00f3n a\u00fan no empareja pron\u00f3stico y
-    // realidad de la misma semana): se remite a la p\u00e1gina, que compara la \u00faltima semana observada.
-    lines.push('**Validaci\u00f3n semanal**: la comparaci\u00f3n del pron\u00f3stico con la realidad de la \u00faltima semana publicada del bolet\u00edn est\u00e1 en la p\u00e1gina [Validaci\u00f3n semanal](../validacion_semanal.html).');
+    lines.push('**Seguimiento posterior al corte**: la comparaci\u00f3n del pron\u00f3stico con lo observado est\u00e1 en la p\u00e1gina [Validaci\u00f3n semanal](../validacion_semanal.html).');
     lines.push('');
   }
 
@@ -5177,11 +5207,12 @@ function answerCalibracion(q, ent, s, d) {
   const triggerAlt = any(q, ['pronostico']) && any(q, ['vs']) && any(q, ['realidad']);
   if (!any(q, triggers) && !triggerAlt) return null;
 
-  const models = (d.prod_models || []).filter(m => m.pron_sem_previa != null && m.realidad_sem_previa != null);
+  const models = (d.prod_models || []).filter(m => m.pron_sem_previa != null && m.realidad_sem_previa != null && m.semana_validacion);
   if (!models.length) return null;
 
+  const m0 = models[0];
   const lines = [];
-  lines.push('**Calibracion de modelos**: cada punto compara el pronostico contra la realidad observada de la ultima semana.\n');
+  lines.push(`**Calibracion de modelos**: cada punto compara el pronostico guardado desde el corte (${semanaLegible(m0.corte_validacion)}) con lo observado en la ${semanaLegible(m0.semana_validacion)}, a ${m0.horizonte_validacion} semanas del corte. Es seguimiento diagnostico de una sola semana, no una evaluacion independiente.\n`);
   lines.push('- **Eje X**: valor pronosticado');
   lines.push('- **Eje Y**: valor real');
   lines.push('- **Línea diagonal**: predicción perfecta\n');

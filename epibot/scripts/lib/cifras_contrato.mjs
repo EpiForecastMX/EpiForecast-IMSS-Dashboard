@@ -20,7 +20,10 @@ export const VOCABULARIO = {
   neuro: 333, // series neuro productivas: 3 padecimientos x 37 geografías x 3 sexos
   dengue: 99, // series de dengue productivas: 33 geografías x 3 sexos
   total: 432, // series productivas totales (333 + 99)
-  galeria: 444, // gráficos publicados (333 neuro + 111 dengue)
+  // Gráficos publicados en la galería. Ronda W37: 333 neuro + 99 dengue; las 4 regiones de
+  // dengue (12 gráficos) salen porque no forman parte de la asignación (hasta W33 eran 444).
+  // Se CUENTA en la lista `DATA` de Reports/index.html (problemasDeGaleria), no se supone.
+  galeria: 432,
 };
 
 /** Motores elegibles por cohorte. «Motor» es familia algorítmica, nunca una serie. */
@@ -48,6 +51,7 @@ export const CIFRAS_RETIRADAS = [
   [new RegExp(`\\b102\\s+${UNIDAD}\\b`, 'i'), '102 de dengue arrastra 3 duplicados y 13 selecciones no elegibles; son 99'],
   [/\b15\s+(?:modelos|series)\s+nacionales\b/i, 'los nacionales son 12 (9 neuro + 3 dengue), no 15'],
   [/111\s*[x×*]\s*3\s*=\s*435/i, 'ecuación falsa: 111 x 3 = 333'],
+  [/\b444\s+gr[áa]ficos?\b/i, 'ronda W37: la galería publica 432 gráficos (sin las 4 regiones de dengue)'],
 ];
 
 /**
@@ -538,5 +542,140 @@ export function problemasDeMetricasEnPagina(archivo, html) {
       if (m) problemas.push(`${archivo}:${i + 1}: «${m[0].trim()}» — ${que} (diagnóstico de selección W28–W37)`);
     }
   }
+  return problemas;
+}
+
+// --- Galería publicada: la lista `DATA` de Reports/index.html ------------------------------------
+// La tarjeta que ve el público sale de esa lista. En el candidato W37 seguía con 444 elementos
+// (12 regiones de dengue cuyos PNG ya se habían retirado) mientras knowledge.json decía 444 por
+// otro camino: dos cifras iguales y ambas falsas. El conteo se toma de la lista, cada elemento
+// debe tener su PNG y la cifra debe coincidir con knowledge.json y con el vocabulario.
+
+const RE_DATA_GALERIA = /^const DATA = (\[.*\]);$/m;
+
+/**
+ * @param {string} indexHtml  contenido de Reports/index.html
+ * @param {object|null} kb    knowledge.json
+ * @param {(rel:string)=>boolean} existe  ¿existe Reports/<rel>?
+ * @returns {{problemas:string[], conteo:Record<string,number>, total:number}}
+ */
+export function problemasDeGaleria(indexHtml, kb, existe) {
+  const problemas = [];
+  const m = String(indexHtml ?? '').match(RE_DATA_GALERIA);
+  if (!m) return { problemas: ['Reports/index.html sin la línea `const DATA = [...]` de la galería'], conteo: {}, total: 0 };
+  let items;
+  try {
+    items = JSON.parse(m[1]);
+  } catch (e) {
+    return { problemas: [`Reports/index.html: DATA no es JSON (${e.message})`], conteo: {}, total: 0 };
+  }
+  const conteo = {};
+  const vistos = new Set();
+  for (const it of items) {
+    conteo[it.p] = (conteo[it.p] || 0) + 1;
+    if (vistos.has(it.f)) problemas.push(`galería: «${it.f}» repetido`);
+    vistos.add(it.f);
+    if (!existe(it.f)) problemas.push(`galería: «${it.f}» sin PNG (tarjeta rota)`);
+    if (it.p === 'Dengue' && /(^|\/)Region_/.test(it.f)) {
+      problemas.push(`galería: «${it.f}» es una región de dengue, fuera de la asignación en la ronda W37`);
+    }
+  }
+  const total = items.length;
+  const dengue = conteo.Dengue || 0;
+  if (total !== VOCABULARIO.galeria) problemas.push(`galería: ${total} gráficos; el vocabulario dice ${VOCABULARIO.galeria}`);
+  if (dengue !== VOCABULARIO.dengue) problemas.push(`galería: ${dengue} gráficos de dengue; deben ser ${VOCABULARIO.dengue}`);
+  if (total - dengue !== VOCABULARIO.neuro) problemas.push(`galería: ${total - dengue} gráficos neuro; deben ser ${VOCABULARIO.neuro}`);
+  const declarado = kb?.rosters?.gallery_items;
+  if (kb && declarado !== total) problemas.push(`knowledge.rosters.gallery_items = ${declarado}; la galería publica ${total}`);
+  return { problemas, conteo, total };
+}
+
+// --- Métricas y afirmaciones de desempeño ANTERIORES a la ronda W37 ---------------------------
+// Decisión del autor (14-oct-2026). EpiDashboard.html (SMAPE mediano 51.1 %, «Motor ganador»),
+// comparacion_modelos.html (tablas RMSE/MAE/SMAPE/MASE por motor de abril de 2026, «ganador») y
+// las notas de news.json (desviación del acumulado, SMAPE/MASE nacional, «el mejor en
+// validación») traen cifras que NO son el diagnóstico de selección W28–W37: tienen otro origen y
+// no se verificaron contra la asignación vigente. Se retiran de la presentación pública con su
+// propio rótulo; los originales se archivan íntegros fuera del sitio.
+
+/** Páginas que no pueden volver a pintar métricas o rankings de rondas anteriores. */
+export const PAGINAS_METRICAS_ANTIGUAS = ['EpiDashboard.html', 'comparacion_modelos.html'];
+
+const MOTIVO_ANTIGUA = 'métrica o afirmación de desempeño anterior a la ronda W37 (otro origen; no verificada)';
+
+/** Afirmaciones de desempeño sin cifra que también se retiran (ranking, «ganador», «el mejor»). */
+const RE_AFIRMACION_DESEMPENO = [
+  [/\bmotor ganador\b/i, 'ranking de motores'],
+  [/\bcelda verde\s*=\s*ganador\b/i, 'ranking de motores'],
+  [/\bmejor modelo\b/i, '«mejor modelo»'],
+  [/\bel mejor en validaci[oó]n\b/i, '«el mejor en validación»'],
+  [/\bsupera a la persistencia\b/i, 'comparación de desempeño contra la persistencia'],
+  [/\bse desv[ií]a del (?:total )?realmente observado\b/i, 'desviación del acumulado'],
+  [/\bmejor (?:s?mape|mase|rmse|mae)\b/i, 'ranking por métrica'],
+  [new RegExp(`(?:kpi-label|label)">[^<]*\\b${_M}\\b`, 'i'), 'indicador con métrica'],
+  // «El SMAPE agregado del motor productivo bajó de 92.8 a 82.2», «SMAPE / MASE: … 8.7 % / 0.59»:
+  // un valor decimal en la misma frase que la métrica (los años, sin decimales, no cuentan).
+  [new RegExp(`\\b${_M}\\b[^.\\d<]{0,60}?\\d+[.,]\\d`, 'i'), 'valor de métrica en la frase'],
+];
+
+/** «SMAPE 2026» nombra un año, no un valor: se neutraliza antes de buscar valores. */
+const _sinAnios = (t) => t.replace(new RegExp(`\\b(${_M})(\\s+)(20\\d\\d)\\b(?![.,]\\d)`, 'gi'), '$1$2del año $3');
+
+const _entidades = (s) =>
+  desent(String(s ?? ''))
+    .replace(/&#(\d+);/g, (_, n) => String.fromCodePoint(Number(n)))
+    .replace(/&#x([0-9a-f]+);/gi, (_, n) => String.fromCodePoint(parseInt(n, 16)));
+
+/** Problemas de una línea de texto (crudo con etiquetas) contra los patrones de desempeño. */
+function _desempenoEnLinea(crudo) {
+  const hallados = [];
+  for (const m of crudo.matchAll(RE_COLUMNA_METRICA)) hallados.push(`columna «${desent(m[0].replace(/<[^>]*>/g, ''))}»`);
+  const visible = _sinAnios(_entidades(crudo.replace(/<[^>]*>/g, ' ')));
+  for (const [re] of RE_VALOR_METRICA) {
+    const m = visible.match(re);
+    if (m) hallados.push(`«${m[0].trim()}»`);
+  }
+  for (const [re, que] of RE_AFIRMACION_DESEMPENO) {
+    const m = (re.source.includes('label') ? crudo : visible).match(re);
+    if (m) hallados.push(`«${desent(m[0].replace(/<[^>]*>/g, '')).trim()}» (${que})`);
+  }
+  return hallados;
+}
+
+/**
+ * Una página con métricas antiguas retiradas no vuelve a pintarlas.
+ * @returns {string[]} problemas con archivo:línea
+ */
+export function problemasDeMetricasAntiguas(archivo, html) {
+  const problemas = [];
+  const { texto } = sinRegionesNoLeidas(String(html ?? ''));
+  texto.split('\n').forEach((linea, i) => {
+    for (const h of _desempenoEnLinea(linea)) problemas.push(`${archivo}:${i + 1}: ${h} — ${MOTIVO_ANTIGUA}`);
+  });
+  return problemas;
+}
+
+/**
+ * news.json: fechas y acontecimientos se conservan; cifras y afirmaciones de precisión no.
+ * Toda nota marcada `historico` lleva su `nota_historica`. El póster WCP conserva sus resultados
+ * sellados («error de 5.0 % en ocho semanas»): no caen en estas agujas, que persiguen métricas
+ * nombradas, rankings y la desviación del acumulado de las notas semanales.
+ * @param {object} news  contenido de news.json
+ * @returns {string[]} problemas
+ */
+export function problemasDeNoticias(news) {
+  const problemas = [];
+  const items = Array.isArray(news?.items) ? news.items : [];
+  items.forEach((it, i) => {
+    const partes = [it.title, it.summary, ...(Array.isArray(it.body) ? it.body : [])];
+    for (const parte of partes) {
+      for (const h of _desempenoEnLinea(String(parte ?? ''))) {
+        problemas.push(`news.json items[${i}] («${it.title}»): ${h} — ${MOTIVO_ANTIGUA}`);
+      }
+    }
+    if (it.historico && !String(it.nota_historica ?? '').trim()) {
+      problemas.push(`news.json items[${i}] («${it.title}»): marcada histórica sin nota_historica`);
+    }
+  });
   return problemas;
 }
