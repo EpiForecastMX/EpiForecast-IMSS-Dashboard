@@ -3887,6 +3887,20 @@ function answerConteo(q, ent, s, d) {
   // Si tiene pad+estado o meses, dejar que otros handlers se encarguen
   if ((ent.padecimiento && ent.estado) || (ent._months || []).length > 0) return null;
 
+  // Gráficos de la galería: se cuentan en lo publicado (rosters.gallery_items), no en los modelos.
+  if (any(q, ['grafico', 'galeria'])) {
+    const r = d.rosters || {};
+    if (r.gallery_items == null) return null;
+    const pc = r.por_cohorte || {};
+    const mismas = r.gallery_items === r.total_series;
+    return [
+      `La galería publica **${r.gallery_items} gráficos**` +
+        (mismas && pc.neuro != null ? `: ${pc.neuro} neuro y ${pc.dengue} de Dengue, uno por serie productiva.` : '.'),
+      'En la ronda con corte en la semana 37 de 2026 las 4 regiones de Dengue no se publican: no forman parte de las series asignadas.',
+      'Explóralos en la [galería de pronósticos](../Reports/index.html).',
+    ].join('\n');
+  }
+
   // Si pregunta por casos/pronosticos, ceder a answerPronostico
   const pronoWords = ['caso', 'pronostic', 'predicci', 'esperado', 'esperan', 'futuro', '52 semana', 'proxima'];
   if (pronoWords.some(w => q.includes(w))) return null;
@@ -3909,9 +3923,14 @@ function answerConteo(q, ent, s, d) {
     const nNeuro = (d.prod_models || []).filter(m => norm(m.entidad || '') === norm(estado) && isNeuro(m.padecimiento)).length;
     if (nNeuro) lines.push(`**${estado}** tiene **${nNeuro} modelos** de producci\u00f3n (cohorte neurol\u00f3gica).`);
   } else {
-    lines.push(`**${s.total_modelos || 333} modelos** en producci\u00f3n total.`);
+    // 333 es la cohorte neuro; el total de series productivas (con Dengue) es rosters.total_series.
+    const r = d.rosters || {};
+    const conDengue = r.total_series && r.por_cohorte?.dengue != null
+      ? ` Con las ${r.por_cohorte.dengue} series de Dengue suman **${r.total_series} series productivas**.`
+      : '';
+    lines.push(`**${s.total_modelos || 333} modelos neuro** en producci\u00f3n (depresi\u00f3n, Parkinson y Alzheimer).${conDengue}`);
     const dist = s.dist_motor || {};
-    lines.push('\nDistribuci\u00f3n por motor:');
+    lines.push('\nDistribuci\u00f3n por motor (neuro):');
     for (const [motor, n] of Object.entries(dist)) lines.push(`- ${motor}: ${n} (${((n / (s.total_modelos || 333)) * 100).toFixed(1)}%)`);
   }
   return lines.length ? lines.join('\n') : null;
