@@ -727,7 +727,8 @@ function renderLbChart(d, s) {
   const wk = ub && Number.isFinite(+ub.semana) ? +ub.semana : null;
   // Hasta el corte la línea del motor es ajuste dentro de muestra: se dibuja aparte y tenue;
   // desde el corte, el pronóstico guardado. Sin ds del corte no se separa (datos antiguos).
-  const yAjuste = s.ds_corte ? s.y.map((v, i) => (s.d[i] <= s.ds_corte ? v : null)) : null;
+  const yAjusteTodo = s.ds_corte ? s.y.map((v, i) => (s.d[i] <= s.ds_corte ? v : null)) : null;
+  const yAjuste = yAjusteTodo && yAjusteTodo.some(v => v != null) ? yAjusteTodo : null;  // sin datos, sin leyenda
   const yPron = s.ds_corte ? s.y.map((v, i) => (s.d[i] >= s.ds_corte ? v : null)) : s.y;
   const cm = s.corte_modelo;
   const corteTxt = cm && cm.semana != null && cm.anio != null && Number.isFinite(+cm.semana) && Number.isFinite(+cm.anio)
