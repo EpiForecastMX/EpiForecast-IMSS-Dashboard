@@ -29,6 +29,7 @@ import {
   VISTAS_SEGUIMIENTO,
   problemasDelAgregadoEstatal,
   problemasDeVistasAgregado,
+  problemasDelCorpusAgregado,
   VISTAS_AGREGADO,
   problemasDePortada,
   PAGINAS_METRICAS_ANTIGUAS,
@@ -139,7 +140,7 @@ try {
 // Indicador «Notificaciones previstas · agregado estatal neuro»: valor canónico del backend, con su
 // denominador; el frontend no lo recalcula y no llama «nacional» a la suma de los 32 estados.
 {
-  const p = kb ? problemasDelAgregadoEstatal(kb) : [];
+  const p = kb ? [...problemasDelAgregadoEstatal(kb), ...problemasDelCorpusAgregado(chunks, kb)] : [];
   for (const rel of VISTAS_AGREGADO) {
     try {
       p.push(...problemasDeVistasAgregado(rel, readFileSync(resolve(RAIZ_PUBLICADA, rel), 'utf8')));

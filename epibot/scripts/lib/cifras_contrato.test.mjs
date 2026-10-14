@@ -18,7 +18,7 @@ import {
   problemasDeMetricasSeleccion, problemasDeMetricasEnPagina, esClaveDeMetrica,
   problemasDeGaleria, problemasDeMetricasAntiguas, problemasDeNoticias, problemasDeCifras,
   problemasDeSeguimientoSemanal, problemasDeNacionalPorSexo, problemasDeVistasSeguimiento, inicioSemanaEpi,
-  problemasDelAgregadoEstatal, problemasDeVistasAgregado,
+  problemasDelAgregadoEstatal, problemasDeVistasAgregado, problemasDelCorpusAgregado,
   problemasDePortada,
 } from './cifras_contrato.mjs';
 
@@ -458,6 +458,22 @@ for (const [nombre, contenido, debe, desc] of CASOS) {
     const ok = (r.length > 0) === debe;
     if (!ok) fallos++;
     console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  agregado estatal · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
+  const ROT_AG = kbOk().agregado_estatal_neuro.rotulo;
+  const corpusAg = [
+    [[{ id: 'kb-card#0', text: 'Pronóstico total a 52 semanas: 171524 casos.' }], true, 'tarjeta global con el rótulo antiguo'],
+    [[{ id: 'kb-card#4', text: 'Depresion: 111 modelos, pronóstico a 52 semanas 161887 casos.' }], true, 'tarjeta por padecimiento sin rótulo'],
+    [[{ id: 'x', text: 'el total es 171,524 casos' }], true, 'valor global con coma y sin rótulo'],
+    [[{ id: 'kb-card#0', text: `${ROT_AG}: 171,524 casos — suma de 96 series estatales.` }], false, 'valor global rotulado'],
+    [[{ id: 'kb-card#4', text: 'Agregado de sus 32 estados (modo general): 161,887 casos. Modelo nacional: 160,999.' }], false, 'por padecimiento rotulado'],
+    [[{ id: 'y', text: 'el boletín tiene 1171524 registros' }], false, 'el número dentro de otro no cuenta'],
+  ];
+  for (const [chunks, debe, desc] of corpusAg) {
+    const r = problemasDelCorpusAgregado(chunks, kbOk());
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  corpus del agregado · ${desc}`);
     if (!ok) console.log(`           → ${JSON.stringify(r)}`);
   }
   const vistas = [

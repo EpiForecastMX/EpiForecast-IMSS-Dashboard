@@ -964,6 +964,31 @@ export function problemasDeVistasAgregado(archivo, texto) {
   return out;
 }
 
+/**
+ * El corpus del RAG tampoco llama «pronóstico» a secas a la suma de los estados. Sus tarjetas decían
+ * «Pronóstico total a 52 semanas: 171524 casos» y «pronóstico a 52 semanas 161887 casos» (Depresión),
+ * y el RAG respondía con eso a preguntas sobre el total nacional (cierre W39, consulta real 4).
+ * Toda tarjeta que lleve un valor del agregado (global o por padecimiento) debe rotularlo como tal.
+ * @param {{id:string,text:string}[]} chunks
+ * @param {object} kb  knowledge.json
+ */
+export function problemasDelCorpusAgregado(chunks, kb) {
+  const out = [];
+  const ag = kb?.agregado_estatal_neuro;
+  if (!ag) return out;
+  const forma = (n) => new RegExp(`(?<![\\d.,])(?:${n}|${Number(n).toLocaleString('en-US').replace(/,/g, '[,\\s]')})(?![\\d.,])`);
+  const valores = [[ag.valor_mostrado, ag.rotulo],
+    ...Object.entries(ag.por_padecimiento ?? {}).map(([p, x]) => [x.valor_mostrado, `Agregado de sus 32 estados`])];
+  for (const c of chunks || []) {
+    const t = String(c?.text ?? '');
+    if (/Pron[óo]stico total a 52 semanas/i.test(t)) out.push(`${c.id}: «Pronóstico total a 52 semanas» para la suma de estados`);
+    for (const [v, rotulo] of valores) {
+      if (forma(v).test(t) && !t.includes(rotulo)) out.push(`${c.id}: lleva ${v} sin el rótulo «${rotulo}»`);
+    }
+  }
+  return out;
+}
+
 // --- Portada y Dengue hasta W39 (cierre W39, 14-oct-2026) -------------------------------------
 // `hero_series.json` no tenía generador y seguía en junio (semana 21: motor, total, curvas y un
 // `smape` por padecimiento); la cifra fija del motor líder decía «29 % DeepAR»; `bento.json`
