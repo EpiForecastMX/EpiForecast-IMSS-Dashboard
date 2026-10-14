@@ -1,5 +1,5 @@
 // MICAI 2026 · paper #12 companion site. No external libraries; the static HTML is readable without JS.
-import { I18N, VERSION } from './i18n.mjs?v=acef6e71d7';
+import { I18N, VERSION } from './i18n.mjs?v=433f313c77';
 
 const $ = (id) => document.getElementById(id);
 const COLORS = { observed: '#c2186b', ensemble: '#7c5cbf', naive: '#64748b', prophet: '#0f8076', deepar: '#235fe8', stacking: '#475569' };
