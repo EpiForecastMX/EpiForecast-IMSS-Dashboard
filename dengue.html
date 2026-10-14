@@ -749,6 +749,10 @@
         return y + ' · semana ' + String(Math.min(wk, 52)).padStart(2, '0');
       };
       const fmt = (n) => Number(Math.round(n)).toLocaleString('es-MX');
+      // «semana 39 de 2026 (27 sep – 3 oct)»: periodo oficial del boletín, no el ds legado.
+      const MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+      const fFecha = (iso) => { const [, mm, dd] = iso.split('-').map(Number); return dd + ' ' + MES[mm - 1]; };
+      const semanaPublicada = (w) => 'semana ' + w.semana + ' de ' + w.anio + ' (' + fFecha(w.inicio) + ' – ' + fFecha(w.fin) + ')';
 
       fetch('Reports/dengue/dengue_forecast.json?cb=' + Date.now())
         .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
@@ -787,9 +791,9 @@
           const fromYr = m.chart_from_year || 2014;
           const logScale = (m.escala === 'log');
           const fl = v => logScale ? Math.max(Number(v) || 0, 1) : (Number(v) || 0);
-          const ctx = (d.historico_contexto || []).map(p => ({ x: decYear(p.ds), y: fl(p.y) })).filter(p => p.x >= fromYr);
-          const hist = (d.historico || []).map(p => ({ x: decYear(p.ds), y: fl(p.y) })).filter(p => p.x >= fromYr);
-          const pron = (d.pronostico || []).map(p => ({ x: decYear(p.ds), y: fl(p.yhat) }));
+          const ctx = (d.historico_contexto || []).map(p => ({ x: decYear(p.ds), y: fl(p.y), sem: p.sem })).filter(p => p.x >= fromYr);
+          const hist = (d.historico || []).map(p => ({ x: decYear(p.ds), y: fl(p.y), sem: p.sem })).filter(p => p.x >= fromYr);
+          const pron = (d.pronostico || []).map(p => ({ x: decYear(p.ds), y: fl(p.yhat), sem: p.sem }));
           const pLo = (d.pronostico || []).map(p => ({ x: decYear(p.ds), y: fl(p.yhat_lower) }));
           const pHi = (d.pronostico || []).map(p => ({ x: decYear(p.ds), y: fl(p.yhat_upper) }));
           // Empalmar el contexto (A90/A91) con el histórico de modelado, y el pronóstico con el
@@ -834,14 +838,14 @@
                 tooltip: { backgroundColor: TH.deep, borderColor: TH.grid, borderWidth: 1,
                   titleColor: TH.cream, bodyColor: TH.amberSoft, padding: 10,
                   filter: it => !it.dataset.label.startsWith('Banda'),
-                  callbacks: { title: it => lbl(it[0].parsed.x), label: it => it.dataset.label + ': ' + fmt(it.parsed.y) + ' casos' } }
+                  callbacks: { title: it => (it[0].raw && it[0].raw.sem ? it[0].raw.sem.replace(/^(\d{4})-W0?(\d+)$/, '$1 · semana $2') : lbl(it[0].parsed.x)), label: it => it.dataset.label + ': ' + fmt(it.parsed.y) + ' casos' } }
               }
             }
           });
           if (cap) cap.textContent = 'Nacional, desde 2014 en escala logarítmica (para ver juntos el pico de 2024 y los años bajos). ' +
             'Contexto 2014-2018 en gris tenue (esquema viejo A90/A91), histórico de modelado en gris y media prevista a 52 semanas (' +
             (m.motor_nacional || 'motor productivo') + ', ámbar) con su intervalo predictivo central nominal del 90 %. ' +
-            'Última semana real: ' + (m.ultima_real || '—') + '.';
+            'Última semana real: ' + (m.ultima_semana_boletin ? semanaPublicada(m.ultima_semana_boletin) : '—') + '.';
         })
         .catch(e => {
           const cap = document.getElementById('fc-cap');
