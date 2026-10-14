@@ -18,6 +18,7 @@ import {
   problemasDeMetricasSeleccion, problemasDeMetricasEnPagina, esClaveDeMetrica,
   problemasDeGaleria, problemasDeMetricasAntiguas, problemasDeNoticias, problemasDeCifras,
   problemasDeSeguimientoSemanal, problemasDeNacionalPorSexo, problemasDeVistasSeguimiento, inicioSemanaEpi,
+  problemasDelAgregadoEstatal, problemasDeVistasAgregado,
 } from './cifras_contrato.mjs';
 
 const CASOS = [
@@ -418,6 +419,62 @@ for (const [nombre, contenido, debe, desc] of CASOS) {
   const ok = inicioSemanaEpi(2026, 38) === '2026-09-20' && inicioSemanaEpi(2026, 1) === '2026-01-04' && inicioSemanaEpi(2025, 1) === '2024-12-29';
   if (!ok) fallos++;
   console.log(`  ${ok ? '✔' : '✖ FALLO'}  calendario · semana 38 de 2026 empieza el 20 de septiembre; la 1 de 2025, el 29 de diciembre de 2024`);
+}
+
+// --- Indicador «Notificaciones previstas · agregado estatal neuro» (14-oct-2026) -------------
+{
+  const ROT = 'Notificaciones previstas · agregado estatal neuro';
+  const PADS = { Alzheimer: 1899.4, Depresion: 161887.1, Parkinson: 7737.5401 };
+  const kbOk = () => {
+    const series = [];
+    for (const [p, v] of Object.entries(PADS)) for (let i = 0; i < 32; i++) series.push({ padecimiento: p, entidad: `E${i}`, pasos: 52, suma_original: v / 32 });
+    const pp = Object.fromEntries(Object.entries(PADS).map(([p, v]) => [p, { series: 32, suma_original: v, valor_mostrado: Math.floor(v + 0.5) }]));
+    return {
+      agregado_estatal_neuro: { rotulo: ROT, corte: '2026-W37', series_incluidas: 96, valores: 4992, horizonte: { pasos: 52 },
+        suma_original: 171524.0401, valor_mostrado: 171524,
+        denominador: '96 series: 32 estados × 3 padecimientos, modo general · 52 pasos desde el corte W37',
+        series, por_padecimiento: pp, por_sexo: { general: { por_padecimiento: pp } } },
+      stats: { pronostico_total: 171524, por_pad: Object.fromEntries(Object.entries(pp).map(([p, x]) => [p, {
+        casos_futuro_total: x.valor_mostrado, por_sexo: { general: { casos_total: x.valor_mostrado, n_estados: 32, casos_nacional: 1 } } }])) },
+    };
+  };
+  const con = (f) => { const k = kbOk(); f(k); return k; };
+  const casosAg = [
+    [kbOk(), false, '96 series, suma original redondeada una vez y totales iguales pasa'],
+    [con((k) => { delete k.agregado_estatal_neuro; }), true, 'sin valor canónico del backend'],
+    [con((k) => { k.agregado_estatal_neuro.valor_mostrado = 171525; k.stats.pronostico_total = 171525; }), true,
+     '171,525: suma de totales ya redondeados'],
+    [con((k) => { k.stats.pronostico_total = 171525; }), true, 'el total del EpiBot difiere del canónico'],
+    [con((k) => { k.agregado_estatal_neuro.series.pop(); }), true, 'falta una serie (no vale cero)'],
+    [con((k) => { k.agregado_estatal_neuro.series[0].entidad = 'Nacional'; }), true, 'incluye el modelo nacional'],
+    [con((k) => { k.agregado_estatal_neuro.series[5].pasos = 51; }), true, 'horizonte incompleto en una serie'],
+    [con((k) => { k.agregado_estatal_neuro.horizonte.pasos = 50; }), true, 'horizonte distinto de 52 pasos'],
+    [con((k) => { k.agregado_estatal_neuro.rotulo = 'Pronóstico 52 sem'; }), true, 'rótulo anterior'],
+    [con((k) => { k.stats.por_pad.Depresion.por_sexo.general.casos_total = 479194; }), true, 'casos_total que suma las 37 geografías'],
+  ];
+  for (const [kb, debe, desc] of casosAg) {
+    const r = problemasDelAgregadoEstatal(kb);
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  agregado estatal · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
+  const vistas = [
+    ['epibot/js/kb.js', '  stats.pronostico_total = grandTotal;', true, 'el frontend recalcula el indicador'],
+    ['epibot/js/kb.js', "    lines.push(`**Pron\\u00f3stico Nacional**: **${fmt(s.pronostico_total)} casos**`);", true, '«Pronóstico Nacional»'],
+    ['epibot/js/kb.js', "  lines.push(`A nivel **Nacional**, se pronostican **${fmt(ps.casos_futuro_total)} casos`);", true, 'suma de estados llamada nacional'],
+    ['epibot/js/app.js', "  labels.push('Total nacional');", true, '«Total nacional» en la cascada'],
+    ['epibot/js/kb.js', "  if (kb.stats.pronostico_total === ag.valor_mostrado) ok();", false, 'una comparación no es un recálculo'],
+    ['epibot/index.html', '<span class="cc-kpi-lbl">Pronóstico 52 sem</span>', true, 'indicador sin rótulo ni denominador'],
+    ['epibot/index.html', `<span class="cc-kpi-lbl">${ROT}</span><span class="cc-kpi-det" id="statForecastDet">96 series</span>`, false, 'indicador rotulado con su denominador'],
+  ];
+  for (const [arch, txt, debe, desc] of vistas) {
+    const r = problemasDeVistasAgregado(arch, txt).filter((x) => arch !== 'epibot/index.html' || debe || !x.includes('falta'));
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  vistas del agregado · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
 }
 
 console.log(fallos ? `\n✖ ${fallos} prueba(s) fallaron` : '\n✔ Todas las pruebas pasan');

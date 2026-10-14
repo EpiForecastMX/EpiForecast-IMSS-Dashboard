@@ -26,7 +26,6 @@ export async function loadKnowledge() {
   const resp = await fetch(`./knowledge.json${cacheBust}`);
   if (!resp.ok) throw new Error('No se pudo cargar knowledge.json');
   DATA = await resp.json();
-  _fixForecastTotals();
   _fixCohortStats();
   // Precarga en segundo plano el zoom por serie (estado×sexo, 432 series). No bloquea el
   // arranque; cuando llega, queda en DATA.zoom_series y lo usan answerZoom/buildZoomChart.
@@ -38,35 +37,21 @@ export async function loadKnowledge() {
 }
 
 /**
- * Corrige pronostico_total y casos_futuro_total para evitar conteo multiple.
- * El build original suma todas las filas (general+hombres+mujeres, Nacional+regiones+estados).
- * Lo correcto es usar solo sexo=general, excluyendo Nacional y regiones (evitar doble conteo).
+ * «Notificaciones previstas · agregado estatal neuro»: el valor canónico que calcula el backend
+ * (suma de los yhat originales de 96 series, redondeada una vez), con su denominador. El EpiBot
+ * NO lo recalcula desde los totales por serie ya redondeados (eso daba 171,525 en vez de 171,524).
+ * No es el pronóstico de los modelos nacionales, que conservan el suyo (`casos_nacional`).
  */
-function _fixForecastTotals() {
-  const models = DATA?.prod_models;
-  const stats = DATA?.stats;
-  if (!models || !stats) return;
+function agregadoEstatal(d) { return d?.agregado_estatal_neuro || null; }
 
-  const pp = stats.por_pad || {};
-  let grandTotal = 0;
-
-  for (const pad of Object.keys(pp)) {
-    // Sumar solo 32 estados individuales con sexo=general (sin Nacional ni regiones)
-    const stateGenerals = models.filter(m =>
-      m.padecimiento === pad &&
-      m.sexo === 'general' &&
-      m.entidad !== 'Nacional' &&
-      !String(m.entidad || '').startsWith('Region') &&
-      !String(m.entidad || '').startsWith('region')
-    );
-    const corrected = stateGenerals.reduce((sum, m) => sum + (m.casos_52_semanas_futuro || 0), 0);
-    pp[pad].casos_futuro_total = corrected;
-    // pronostico_total es la cohorte neuro (Dengue es conteos, no se mezcla).
-    if (isNeuro(pad)) grandTotal += corrected;
-  }
-
-  stats.pronostico_total = grandTotal;
+/** Pronóstico propio del modelo nacional (general) de un padecimiento y su motor. */
+function nacionalPropio(d, pad) {
+  const casos = d?.stats?.por_pad?.[pad]?.por_sexo?.general?.casos_nacional;
+  const m = (d?.prod_models || []).find(x => x.padecimiento === pad && x.entidad === 'Nacional' && x.sexo === 'general');
+  return casos == null ? null : { casos, motor: m?.modelo_produccion || '-' };
 }
+
+const ROTULO_AGREGADO = 'Notificaciones previstas · agregado estatal neuro';
 
 /**
  * Re-deriva las estadísticas GLOBALES (agregadores nacionales) sobre la cohorte
@@ -629,9 +614,9 @@ function answerLugarDesconocido(q, ent, s, d) {
     '4 macrorregiones INEGI y el nivel Nacional.\n',
   ];
   if (ent.padecimiento) {
-    const ps = s.por_pad?.[ent.padecimiento];
-    if (ps && ps.casos_futuro_total) {
-      lines.push(`A nivel **Nacional**, se pronostican **${fmt(ps.casos_futuro_total)} casos de ${ent.padecimiento}** en 52 semanas${!metricasRetiradas(d) && ps.smape_prod_median != null ? ` (SMAPE: ${ps.smape_prod_median}%)` : ''}.`);
+    const nac = nacionalPropio(d, ent.padecimiento);
+    if (nac) {
+      lines.push(`A nivel **Nacional**, el modelo nacional (${nac.motor}) pronostica **${fmt(nac.casos)} casos de ${ent.padecimiento}** en 52 semanas.`);
     }
     lines.push(`\nPrueba con una entidad valida: "${ent.padecimiento} en Jalisco", "${ent.padecimiento} en CDMX".`);
   } else {
@@ -676,7 +661,7 @@ function answerEdadNoDisponible(q, ent, s, d) {
     const ps = s.por_pad?.[pad];
     if (ps?.casos_futuro_total) {
       lines.push(`Datos generales de **${pad}**:`);
-      lines.push(`- Pronostico total: **${fmt(ps.casos_futuro_total)}** casos en 52 semanas`);
+      lines.push(`- Agregado estatal (32 estados, modo general): **${fmt(ps.casos_futuro_total)}** casos en 52 pasos desde el corte`);
       if (!metricasRetiradas(d) && ps.smape_median != null) lines.push(`- SMAPE mediano: **${ps.smape_median}%**`);
     }
   }
@@ -704,13 +689,13 @@ function answerSaludo(q, ent, s, d) {
   const total = s.total_modelos || 333;
   const motor = s.motor_ganador || 'DeepAR';
   const mpct = s.motor_ganador_pct || '';
-  const forecast = s.pronostico_total ? Number(s.pronostico_total).toLocaleString('es-MX') : '?';
+  const ag = agregadoEstatal(d);
 
   return (
     '\u00a1Hola! Soy el asistente de **EpiForecast-MX**.\n\n' +
     `Tengo acceso a **${total} modelos** de producci\u00f3n. ` +
-    `El motor ganador es **${motor}** (${mpct}% de las series) ` +
-    `y el pron\u00f3stico total a 52 semanas es de **${forecast} casos**.\n\n` +
+    `El motor ganador es **${motor}** (${mpct}% de las series).\n\n` +
+    (ag ? `${ROTULO_AGREGADO}: **${fmt(ag.valor_mostrado)}** (${ag.denominador}).\n\n` : '') +
     'Puedo ayudarte con:\n' +
     '- **M\u00e9tricas** y rendimiento de modelos\n' +
     '- **Padecimientos**: Depresi\u00f3n, Parkinson, Alzheimer y **Dengue**\n' +
@@ -1225,7 +1210,7 @@ function answerProyectoMeta(q, ent, s, d) {
     ];
     for (const [nombre, key] of [['Depresión', 'Depresion'], ['Parkinson', 'Parkinson'], ['Alzheimer', 'Alzheimer']]) {
       const ps = pp[key] || {};
-      lines.push(`- **${nombre}**: ${ps.n || 111} modelos | Motor ganador: ${ps.motor_ganador || '—'} | Pronóstico: ${fmt(ps.casos_futuro_total)} casos`);
+      lines.push(`- **${nombre}**: ${ps.n || 111} modelos | Motor ganador: ${ps.motor_ganador || '—'} | Agregado estatal (32 estados): ${fmt(ps.casos_futuro_total)} casos`);
     }
     return lines.join('\n');
   }
@@ -1715,7 +1700,9 @@ function formatPadInfo(info, pad, s) {
   const ps = s.por_pad?.[pad];
   if (ps) {
     lines.push('\n**Datos del proyecto EpiForecast-MX**:');
-    if (ps.casos_futuro_total) lines.push(`- Pron\u00f3stico 52 semanas: ${fmt(ps.casos_futuro_total)} casos`);
+    const nac = nacionalPropio(DATA, pad);
+    if (nac) lines.push(`- Pron\u00f3stico del modelo nacional (52 semanas): ${fmt(nac.casos)} casos`);
+    if (ps.casos_futuro_total) lines.push(`- Agregado estatal (32 estados, modo general): ${fmt(ps.casos_futuro_total)} casos`);
     if (ps.smape_prod_mean != null && !metricasRetiradas()) lines.push(`- SMAPE promedio: ${ps.smape_prod_mean}%`);
     if (ps.motor_ganador) lines.push(`- Motor ganador: ${ps.motor_ganador}`);
     if (ps.n) lines.push(`- Modelos de producci\u00f3n: ${ps.n}`);
@@ -2103,9 +2090,10 @@ function answerBoletin(q, ent, s, d) {
           !String(m.entidad || '').startsWith('Region') &&
           !String(m.entidad || '').startsWith('region')
         );
-        const totalCasos = models.reduce((sum, m) => sum + (m.casos_52_semanas_futuro || 0), 0);
+        // Agregado estatal canónico del backend (suma original de 32 estados, redondeada una vez).
+        const totalCasos = ps.casos_total;
         lines.push(`**Pron\u00f3stico de ${pad} (${sexoLabel})** \u2014 pr\u00f3ximas 52 semanas:\n`);
-        lines.push(`- Casos pronosticados: **${fmt(totalCasos)}**`);
+        lines.push(`- Agregado estatal (${models.length} estados): **${fmt(totalCasos)}** casos`);
         lines.push(`- Modelos: ${ps.n} series`);
         if (!metricasRetiradas(d) && ps.smape_prod_mean != null) lines.push(`- SMAPE: ${ps.smape_prod_mean}% (media) / ${ps.smape_prod_median}% (mediana)`);
         if (ps.casos_nacional) lines.push(`- Nacional: **${fmt(ps.casos_nacional)} casos**`);
@@ -2122,7 +2110,7 @@ function answerBoletin(q, ent, s, d) {
       // Solo edad, sin sexo
       const ps = s.por_pad?.[pad];
       if (ps?.casos_futuro_total) {
-        lines.push(`**Pron\u00f3stico de ${pad} (general)** \u2014 pr\u00f3ximas 52 semanas: **${fmt(ps.casos_futuro_total)} casos**`);
+        lines.push(`**Pron\u00f3stico de ${pad} (general)** \u2014 agregado estatal (32 estados), 52 pasos desde el corte: **${fmt(ps.casos_futuro_total)} casos**`);
         lines.push(`\nPuedes filtrar por **sexo** (hombres/mujeres) o por **entidad federativa**.`);
       }
     }
@@ -3239,25 +3227,28 @@ function answerPadecimiento(q, ent, s, d) {
       const first = padModels[0];
       const total = ps.casos_futuro_total || 0;
       const pctFirst = total > 0 ? ((first.casos_52_semanas_futuro / total) * 100).toFixed(1) : '?';
-      lines.push(`\n**${first.entidad}** concentra el **${pctFirst}%** del pronóstico nacional de ${pad} con **${fmt(first.casos_52_semanas_futuro)} casos**.`);
+      lines.push(`\n**${first.entidad}** concentra el **${pctFirst}%** del agregado estatal de ${pad} (32 estados) con **${fmt(first.casos_52_semanas_futuro)} casos**.`);
 
       return lines.join('\n');
     }
   }
 
-  // Lead con hallazgo principal
-  if (ps.casos_futuro_total) {
+  // Lead con hallazgo principal: el pronóstico propio del modelo nacional y, aparte, el agregado
+  // de los 32 estados (no son la misma cantidad).
+  const nac = nacionalPropio(d, pad);
+  if (nac) {
     lines.push(
-      `Se pronostican **${fmt(ps.casos_futuro_total)} casos de ${pad}** a nivel nacional ` +
-      `en las próximas 52 semanas (${ps.n} modelos).\n`
+      `El modelo nacional (${nac.motor}) pronostica **${fmt(nac.casos)} casos de ${pad}** ` +
+      `en las próximas 52 semanas (${ps.n} modelos de producción en total).`
     );
   } else {
-    lines.push(`**${pad}**: ${ps.n} modelos de producción.\n`);
+    lines.push(`**${pad}**: ${ps.n} modelos de producción.`);
   }
+  if (ps.casos_futuro_total) lines.push(`Agregado estatal (32 estados, modo general): **${fmt(ps.casos_futuro_total)} casos**.\n`);
 
-  // Estimacion mensual
-  if (months.length > 0 && ps.casos_futuro_total) {
-    const mText = monthEstimateText(ps.casos_futuro_total, months, years, pad, null, d);
+  // Estimacion mensual (sobre el pronóstico del modelo nacional)
+  if (months.length > 0 && nac) {
+    const mText = monthEstimateText(nac.casos, months, years, pad, null, d);
     if (mText) lines.push(mText + '\n');
   }
 
@@ -3296,13 +3287,13 @@ function answerPadecimiento(q, ent, s, d) {
   if (wantsSex && Object.keys(psx).length) {
     const retiradas = metricasRetiradas(d);
     lines.push('\n**Distribución por sexo:**\n');
-    lines.push(retiradas ? '| Sexo | Modelos | Casos pronosticados |' : '| Sexo | Modelos | Casos pronosticados | SMAPE promedio | SMAPE mediana |');
+    lines.push(retiradas ? '| Sexo | Estados | Agregado estatal (52 pasos) |' : '| Sexo | Estados | Agregado estatal (52 pasos) | SMAPE promedio | SMAPE mediana |');
     lines.push(retiradas ? '|------|--------:|--------------------:|' : '|------|--------:|--------------------:|---------------:|--------------:|');
     for (const [sx, info] of Object.entries(psx)) {
       const label = sx === 'general' ? 'General' : sx === 'hombres' ? 'Hombres' : 'Mujeres';
       lines.push(retiradas
-        ? `| ${label} | ${info.n} | ${fmt(info.casos_total)} |`
-        : `| ${label} | ${info.n} | ${fmt(info.casos_total)} | ${info.smape_prod_mean}% | ${info.smape_prod_median}% |`);
+        ? `| ${label} | ${info.n_estados ?? '—'} | ${fmt(info.casos_total)} |`
+        : `| ${label} | ${info.n_estados ?? '—'} | ${fmt(info.casos_total)} | ${info.smape_prod_mean}% | ${info.smape_prod_median}% |`);
     }
     // Insight
     const h = psx.hombres, m = psx.mujeres;
@@ -3313,7 +3304,7 @@ function answerPadecimiento(q, ent, s, d) {
         const pctH = ((h.casos_total / totalHM) * 100).toFixed(1);
         const dominant = m.casos_total > h.casos_total ? 'mujeres' : 'hombres';
         const pctDom = m.casos_total > h.casos_total ? pctM : pctH;
-        lines.push(`\nEl **${pctDom}%** de los casos pronosticados de ${pad} corresponden a **${dominant}**.`);
+        lines.push(`\nEl **${pctDom}%** del agregado estatal de ${pad} (hombres + mujeres, 32 estados) corresponde a **${dominant}**.`);
       }
     }
   }
@@ -3524,8 +3515,8 @@ function answerSexo(q, ent, s, d) {
 
     const retiradas = metricasRetiradas(d);
     lines.push(retiradas
-      ? '| Sexo | Modelos | Pron\u00f3stico 52 sem |'
-      : '| Sexo | Modelos | Pron\u00f3stico 52 sem | SMAPE medio | SMAPE mediana |');
+      ? '| Sexo | Estados | Agregado estatal (52 pasos) |'
+      : '| Sexo | Estados | Agregado estatal (52 pasos) | SMAPE medio | SMAPE mediana |');
     lines.push(retiradas
       ? '|------|--------:|------------------:|'
       : '|------|--------:|------------------:|------------:|--------------:|');
@@ -3533,7 +3524,7 @@ function answerSexo(q, ent, s, d) {
       const info = psPad[sx];
       if (!info) continue;
       const label = sx === 'general' ? 'General' : sx === 'hombres' ? 'Hombres' : 'Mujeres';
-      lines.push(`| ${label}${foco === sx ? ' \u2190' : ''} | ${info.n} | ${fmt(info.casos_total)} |` +
+      lines.push(`| ${label}${foco === sx ? ' \u2190' : ''} | ${info.n_estados ?? '—'} | ${fmt(info.casos_total)} |` +
         (retiradas ? '' : ` ${info.smape_prod_mean}% | ${info.smape_prod_median}% |`));
     }
 
@@ -3542,13 +3533,13 @@ function answerSexo(q, ent, s, d) {
     if (foco && totalHM > 0) {
       const info = psPad[foco];
       const pct = ((info.casos_total / totalHM) * 100).toFixed(1);
-      lines.push(`\nEn **${foco}** se pronostican **${fmt(info.casos_total)} casos de ${pad}** en 52 semanas ` +
-        `(**${pct}%** del total hombres+mujeres)` +
+      lines.push(`\nEn **${foco}**, el agregado de los 32 estados suma **${fmt(info.casos_total)} casos de ${pad}** en 52 pasos ` +
+        `(**${pct}%** del agregado hombres + mujeres)` +
         (retiradas || info.smape_prod_median == null ? '.' : `, con SMAPE mediano ${info.smape_prod_median}%.`));
     } else if (totalHM > 0) {
       const dominante = m.casos_total > h.casos_total ? 'mujeres' : 'hombres';
       const pctDom = ((Math.max(m.casos_total, h.casos_total) / totalHM) * 100).toFixed(1);
-      lines.push(`\nEl **${pctDom}%** del pron\u00f3stico de ${pad} corresponde a **${dominante}** ` +
+      lines.push(`\nEl **${pctDom}%** del agregado estatal de ${pad} (32 estados) corresponde a **${dominante}** ` +
         `(hombres: ${fmt(h.casos_total)} casos, mujeres: ${fmt(m.casos_total)} casos).`);
     }
     if (retiradas && _pideMetrica(q)) lines.push('\n' + avisoMetricasMd(d));
@@ -3940,17 +3931,24 @@ function answerPronostico(q, ent, s, d) {
 
   if (pad && !estado) {
     const ps = s.por_pad?.[pad];
-    if (!ps?.casos_futuro_total) return null;
+    const nac = nacionalPropio(d, pad);
+    if (!nac && !ps?.casos_futuro_total) return null;
 
-    lines.push(
-      `Se pronostican **${fmt(ps.casos_futuro_total)} casos de ${pad}** a nivel nacional ` +
-      `en las pr\u00f3ximas 52 semanas.\n`
-    );
+    // Nacional = el pronóstico propio del modelo nacional; el agregado de los 32 estados va aparte.
+    if (nac) {
+      lines.push(
+        `El modelo nacional (${nac.motor}) pronostica **${fmt(nac.casos)} casos de ${pad}** ` +
+        `en las pr\u00f3ximas 52 semanas.\n`
+      );
+    }
+    if (ps?.casos_futuro_total) {
+      lines.push(`Agregado estatal (32 estados, modo general, 52 pasos desde el corte): **${fmt(ps.casos_futuro_total)} casos**.\n`);
+    }
     if (rng) lines.push(`Horizonte: ${horizLabel}`);
     if (entrenLabel) lines.push(entrenLabel + '\n');
 
-    if (months.length) {
-      const mText = monthEstimateText(ps.casos_futuro_total, months, years, pad, null, d);
+    if (months.length && nac) {
+      const mText = monthEstimateText(nac.casos, months, years, pad, null, d);
       if (mText) lines.push(mText);
     }
 
@@ -3983,31 +3981,33 @@ function answerPronostico(q, ent, s, d) {
     }
 
   } else {
-    // Pron\u00f3stico Nacional
-    lines.push(`**Pron\u00f3stico Nacional**: **${fmt(s.pronostico_total)} casos** en las pr\u00f3ximas 52 semanas.\n`);
-    if (rng) lines.push(`Horizonte: ${horizLabel}`);
+    // Dos cantidades distintas, cada una con su nombre: el pronóstico propio de cada modelo
+    // nacional y el indicador canónico «agregado estatal neuro» (suma de 32 estados).
+    const ag = agregadoEstatal(d);
+    if (ag) {
+      lines.push(`**${ROTULO_AGREGADO}**: **${fmt(ag.valor_mostrado)}** (${ag.denominador}).\n`);
+      const h = ag.horizonte || {};
+      if (h.semanas_del_boletin) {
+        const sin = (h.pasos_sin_semana_del_boletin || []).length;
+        lines.push(`Horizonte: ${h.pasos} pasos desde el corte: semanas del boletín ${h.semanas_del_boletin}${sin ? ` y ${sin} paso sin semana del boletín` : ''}.`);
+      }
+    } else if (rng) lines.push(`Horizonte: ${horizLabel}`);
     if (entrenLabel) lines.push(entrenLabel + '\n');
 
-    if (months.length) {
-      const mText = monthEstimateText(s.pronostico_total, months, years, null, null, d);
+    if (months.length && ag) {
+      const mText = monthEstimateText(ag.valor_mostrado, months, years, null, null, d);
       if (mText) lines.push(mText + '\n');
     }
 
-    // Buscar motores reales de Nacional (general) en prod_models
-    const nacModels = (d.prod_models || []).filter(m => norm(m.entidad || '') === 'nacional' && m.sexo === 'general');
-    const nacMotorMap = {};
-    for (const m of nacModels) nacMotorMap[m.padecimiento] = m.modelo_produccion || '-';
-
     const pp = s.por_pad || {};
-    lines.push('| Padecimiento | Pron\u00f3stico 52 sem | Modelo productivo |');
-    lines.push('|-------------|-------------------|-------------------|');
+    lines.push('| Padecimiento | Modelo nacional (pronóstico propio) | Motor nacional | Agregado estatal (32 estados) |');
+    lines.push('|-------------|---:|---|---:|');
     for (const [p, ps] of Object.entries(pp)) {
       if (!isNeuro(p)) continue; // Dengue es cohorte de conteos, se consulta aparte
-      if (ps.casos_futuro_total) {
-        const motor = nacMotorMap[p] || ps.motor_ganador || '-';
-        lines.push(`| ${p} | ${fmt(ps.casos_futuro_total)} casos | ${motor} |`);
-      }
+      const nac = nacionalPropio(d, p);
+      lines.push(`| ${padLegible(p)} | ${nac ? fmt(nac.casos) : '—'} | ${nac ? nac.motor : '—'} | ${ps.casos_futuro_total != null ? fmt(ps.casos_futuro_total) : '—'} |`);
     }
+    lines.push('\n*Los modelos nacionales conservan su pronóstico propio; el agregado estatal suma los 32 estados y no es su suma.*');
     lines.push('\n*El pron\u00f3stico de Dengue se consulta por separado (preg\u00fantame por dengue).*');
   }
 
@@ -4857,7 +4857,7 @@ function answerTimelapse(q, ent, s, d) {
   lines.push(`**Timelapse epidemiologico**: animación semana a semana del pronóstico con corte ${String(wc[pads[0]].corte || '').replace(/^\d{4}-/, '')}.\n`);
   lines.push(`- ${pads.length} padecimientos, 32 entidades federativas`);
   lines.push(`- Semanas animadas: **${sems.length}** (semanas ${w0?.semana}–${w1?.semana} de ${w0?.anio}, posteriores al corte)`);
-  lines.push(`- Total nacional pronosticado en esas semanas: **${fmt(totalNac)} casos**\n`);
+  lines.push(`- Suma de los modelos nacionales (3 padecimientos) en esas semanas: **${fmt(totalNac)} casos**\n`);
   lines.push('Usa los controles para reproducir, pausar o navegar por semana.');
 
   return lines.join('\n');
@@ -4934,8 +4934,8 @@ function answerReportePDF(q, ent, s, d) {
   const wc = d.weekly_comparison || {};
   const tc = d.training_config || {};
 
-  const totalCasos = models.filter(m => m.sexo === 'general' && isNeuro(m.padecimiento))
-    .reduce((a, m) => a + (m.casos_52_semanas_futuro || 0), 0);
+  // Indicador canónico del backend (antes: suma de Nacional + regiones + estados, solapada).
+  const ag = agregadoEstatal(d);
   const pads = ['Depresion', 'Parkinson', 'Alzheimer'];
 
   const lines = [];
@@ -4947,7 +4947,7 @@ function answerReportePDF(q, ent, s, d) {
   lines.push('- Pronostico a 52 semanas por padecimiento');
   lines.push('- Top 10 entidades por incidencia');
   lines.push(retiradas ? '- Distribución de motores productivos\n' : '- Metricas de calidad por motor\n');
-  lines.push(`**Total nacional pronosticado**: ${fmt(totalCasos)} casos (${s.total_modelos || 333} modelos).`);
+  if (ag) lines.push(`**${ROTULO_AGREGADO}**: ${fmt(ag.valor_mostrado)} casos (${ag.denominador}).`);
   if (retiradas) lines.push('\n*' + avisoMetricas(d) + '*');
 
   return lines.join('\n');

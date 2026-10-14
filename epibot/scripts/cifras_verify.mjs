@@ -27,6 +27,9 @@ import {
   problemasDeNacionalPorSexo,
   problemasDeVistasSeguimiento,
   VISTAS_SEGUIMIENTO,
+  problemasDelAgregadoEstatal,
+  problemasDeVistasAgregado,
+  VISTAS_AGREGADO,
   PAGINAS_METRICAS_ANTIGUAS,
   PAGINAS_OPERATIVAS,
   VOCABULARIO,
@@ -130,6 +133,22 @@ try {
   }
   problemas.push(...p);
   console.log(`  seguimiento con corte (tabla del EpiBot, nacional por sexo, ${VISTAS_SEGUIMIENTO.length} vistas): ${p.length ? `${p.length} PROBLEMAS` : 'sin ajuste presentado como validación ni calificaciones'}`);
+}
+
+// Indicador «Notificaciones previstas · agregado estatal neuro»: valor canónico del backend, con su
+// denominador; el frontend no lo recalcula y no llama «nacional» a la suma de los 32 estados.
+{
+  const p = kb ? problemasDelAgregadoEstatal(kb) : [];
+  for (const rel of VISTAS_AGREGADO) {
+    try {
+      p.push(...problemasDeVistasAgregado(rel, readFileSync(resolve(RAIZ_PUBLICADA, rel), 'utf8')));
+    } catch (e) {
+      p.push(`no se pudo leer ${rel}: ${e.message}`);
+    }
+  }
+  problemas.push(...p);
+  const ag = kb?.agregado_estatal_neuro;
+  console.log(`  agregado estatal neuro: ${ag ? `${ag.valor_mostrado} (${ag.series_incluidas} series, suma ${ag.suma_original})` : 'AUSENTE'}${p.length ? ` — ${p.length} PROBLEMAS` : ''}`);
 }
 
 // Lo que la gente realmente lee. Sin esto el gate vigilaba una sola puerta.

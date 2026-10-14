@@ -282,12 +282,12 @@ add('cuantos llevamos de alzheimer en 2026', 'answerComparacionSemanal', ['Alzhe
 // SECCION 8: PRONOSTICO (12 tests)
 // =====================================================================
 
-add('cual es el pronostico total', 'answerPronostico', ['52 semanas']);
-add('cuantos casos se pronostican', 'answerPronostico', ['52 semanas']);
+add('cual es el pronostico total', 'answerPronostico', ['agregado estatal neuro', '171,524', 'Modelo nacional'], ['171,525', 'Pronóstico Nacional']);
+add('cuantos casos se pronostican', 'answerPronostico', ['agregado estatal neuro', '171,524', 'Modelo nacional'], ['171,525', 'Pronóstico Nacional']);
 add('pronostico de depresion', 'answerPronostico', ['Depresion', 'casos']);
 add('cuantos casos de parkinson se esperan', 'answerPronostico', ['Parkinson', 'casos']);
 add('forecast de alzheimer', 'answerPronostico', ['Alzheimer', 'casos']);
-add('prediccion total de casos', 'answerPronostico', ['52 semanas']);
+add('prediccion total de casos', 'answerPronostico', ['agregado estatal neuro', '171,524', 'Modelo nacional'], ['171,525', 'Pronóstico Nacional']);
 add('cuantos casos habra de depresion', 'answerPronostico', ['Depresion']);
 add('se estiman cuantos casos de parkinson', 'answerPronostico', ['Parkinson']);
 add('pronostico de depresion pronosticados', 'answerPronostico', ['Depresion']);
@@ -783,7 +783,7 @@ addCtx('que es la depresion', 'y el parkinson', '*', ['Parkinson']);
 addCtx('depresion en jalisco', 'eres humano', 'answerPreguntaPersonal', ['inteligencia artificial']);
 
 // Follow-up pronostico → hereda contexto
-addCtx('metricas del parkinson', 'cuantos casos se esperan', 'answerPronostico', ['52 semanas']);
+addCtx('metricas del parkinson', 'cuantos casos se esperan', 'answerPronostico', ['agregado estatal neuro', 'Modelo nacional']);
 
 // Follow-up motor → no heredar (pregunta independiente)
 addCtx('depresion en jalisco', 'comparacion de motores', 'answerMotor', ['Prophet', 'DeepAR']);
@@ -1022,12 +1022,12 @@ addCtx('casos de parkinson en Veracruz', 'y para depresion en ese estado?', '*',
 addCtx('cuantos casos nuevos hay esta semana', 'cuanto se pronostico para esa semana?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
 
 // --- Consultas incorporadas después (7) ---
-add('cuantos casos tienes pronosticados en las siguientes 52 semanas', 'answerPronostico', ['52 semanas'], ['modelos en producci']);
-add('cuantos casos hay pronosticados', 'answerPronostico', ['52 semanas'], ['modelos en producci']);
-add('cuantos casos esperas en el futuro', 'answerPronostico', ['52 semanas'], ['modelos en producci']);
+add('cuantos casos tienes pronosticados en las siguientes 52 semanas', 'answerPronostico', ['agregado estatal neuro', '52 pasos'], ['modelos en producci', '171,525']);
+add('cuantos casos hay pronosticados', 'answerPronostico', ['agregado estatal neuro', '52 pasos'], ['modelos en producci', '171,525']);
+add('cuantos casos esperas en el futuro', 'answerPronostico', ['agregado estatal neuro', '52 pasos'], ['modelos en producci', '171,525']);
 add('cuantos casos de depresion se pronostican para las proximas 52 semanas', 'answerPronostico', ['Depresion', 'casos'], ['modelos en producci']);
 add('cuantos modelos tienes', 'answerConteo', ['333'], ['52 semanas']);
-add('que pronostico hay para las siguientes 52 semanas', 'answerPronostico', ['52 semanas']);
+add('que pronostico hay para las siguientes 52 semanas', 'answerPronostico', ['agregado estatal neuro', '52 pasos']);
 add('cuantos casos de alzheimer se esperan', 'answerPronostico', ['Alzheimer', 'casos'], ['modelos en producci']);
 
 const entityFailures = [];

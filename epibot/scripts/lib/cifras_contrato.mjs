@@ -881,3 +881,85 @@ export function problemasDeVistasSeguimiento(archivo, texto) {
   }
   return out;
 }
+
+// --- Indicador «Notificaciones previstas · agregado estatal neuro» (ronda W37, 14-oct-2026) ---
+// Antes: stats.pronostico_total sumaba los totales por serie ya redondeados (171,525), el EpiBot lo
+// recalculaba igual y lo llamaba «Pronóstico 52 sem» / «Pronóstico Nacional», y varias vistas
+// llamaban «nacional» a la suma de los 32 estados. Ahora el backend lo calcula desde los yhat
+// originales (171,524.0401 → 171,524) y los modelos nacionales conservan su pronóstico propio.
+
+export const ROTULO_AGREGADO = 'Notificaciones previstas · agregado estatal neuro';
+const PADS_NEURO = ['Alzheimer', 'Depresion', 'Parkinson'];
+const redondeaUnaVez = (x) => Math.floor(x + 0.5);
+
+/**
+ * `knowledge.agregado_estatal_neuro`: denominador (96 series = 32 estados × 3, general), horizonte
+ * de 52 pasos, suma original redondeada una vez, y los totales del EpiBot iguales a él.
+ * @returns {string[]} problemas
+ */
+export function problemasDelAgregadoEstatal(kb) {
+  const out = [];
+  const ag = kb?.agregado_estatal_neuro;
+  if (!ag) return ['agregado_estatal_neuro ausente: el indicador no tiene valor canónico del backend'];
+  const q = (m) => out.push(`agregado_estatal_neuro: ${m}`);
+  if (ag.rotulo !== ROTULO_AGREGADO) q(`rótulo «${ag.rotulo}»`);
+  if (ag.series_incluidas !== 96 || ag.valores !== 96 * 52) q(`${ag.series_incluidas} series / ${ag.valores} valores (deben ser 96 / 4,992)`);
+  if (ag.horizonte?.pasos !== 52) q(`horizonte de ${ag.horizonte?.pasos} pasos`);
+  const seg = kb?.seguimiento_post_corte;
+  if (seg && ag.corte !== seg.corte?.etiqueta) q(`corte ${ag.corte} ≠ ${seg.corte?.etiqueta}`);
+  if (typeof ag.suma_original !== 'number' || !Number.isFinite(ag.suma_original)) q('sin suma original');
+  else if (ag.valor_mostrado !== redondeaUnaVez(ag.suma_original)) {
+    q(`valor mostrado ${ag.valor_mostrado} ≠ suma original ${ag.suma_original} redondeada una vez`);
+  }
+  if (!/96 series/.test(ag.denominador ?? '') || !/52 pasos/.test(ag.denominador ?? '')) q(`denominador «${ag.denominador}»`);
+  const series = Array.isArray(ag.series) ? ag.series : [];
+  const claves = new Set(series.map((s) => `${s.padecimiento}|${s.entidad}`));
+  if (series.length !== 96 || claves.size !== 96) q(`${series.length} series listadas (${claves.size} distintas)`);
+  if (series.some((s) => s.pasos !== 52 || !Number.isFinite(s.suma_original) || s.suma_original < 0)) q('una serie sin 52 pasos o con suma inválida');
+  if (series.some((s) => s.entidad === 'Nacional' || /^region/i.test(s.entidad ?? ''))) q('incluye una serie nacional o regional');
+  const sumaSeries = series.reduce((a, s) => a + s.suma_original, 0);
+  if (Math.abs(sumaSeries - ag.suma_original) > 1e-6) q(`las series suman ${sumaSeries}, no ${ag.suma_original}`);
+  const pp = ag.por_padecimiento ?? {};
+  for (const p of PADS_NEURO) {
+    const x = pp[p];
+    if (!x || x.series !== 32) { q(`${p}: ${x?.series} estados (deben ser 32)`); continue; }
+    if (x.valor_mostrado !== redondeaUnaVez(x.suma_original)) q(`${p}: valor ${x.valor_mostrado} ≠ ${x.suma_original} redondeada una vez`);
+    const ps = kb?.stats?.por_pad?.[p];
+    if (ps && ps.casos_futuro_total !== x.valor_mostrado) q(`stats.por_pad.${p}.casos_futuro_total ${ps.casos_futuro_total} ≠ ${x.valor_mostrado}`);
+    for (const [sx, info] of Object.entries(ps?.por_sexo ?? {})) {
+      const canon = ag.por_sexo?.[sx]?.por_padecimiento?.[p];
+      if (!canon || info.casos_total !== canon.valor_mostrado || info.n_estados !== 32) {
+        q(`stats.por_pad.${p}.por_sexo.${sx}.casos_total ${info.casos_total} no es el agregado de 32 estados (${canon?.valor_mostrado})`);
+      }
+    }
+  }
+  if (kb?.stats?.pronostico_total !== ag.valor_mostrado) q(`stats.pronostico_total ${kb?.stats?.pronostico_total} ≠ ${ag.valor_mostrado}`);
+  return out;
+}
+
+/** El indicador no se recalcula en el frontend ni la suma de estados se llama «nacional». */
+export const VISTAS_AGREGADO = ['epibot/js/kb.js', 'epibot/js/app.js', 'epibot/index.html'];
+export const RE_AGREGADO_MAL = [
+  [/stats\.pronostico_total\s*=(?!=)/, 'el frontend recalcula el indicador'],
+  [/_fixForecastTotals/, 'recalcula los totales desde valores redondeados'],
+  [/Pron(?:ó|\\u00f3)stico Nacional/, '«Pronóstico Nacional» para la suma de estados'],
+  [/a nivel \*\*nacional\*\*[^\n]*casos_futuro_total|casos_futuro_total[^\n]*a nivel nacional/i, 'la suma de estados llamada nacional'],
+  [/'Total nacional'/, 'la suma de estados llamada «Total nacional»'],
+  [/Total nacional pronosticado\*\*/, 'la suma de estados llamada «Total nacional pronosticado»'],
+  [/>Pronóstico 52 sem</, 'el indicador sin su rótulo ni denominador'],
+];
+
+export function problemasDeVistasAgregado(archivo, texto) {
+  const out = [];
+  String(texto ?? '').split('\n').forEach((linea, i) => {
+    for (const [re, que] of RE_AGREGADO_MAL) {
+      if (re.test(linea)) out.push(`${archivo}:${i + 1}: ${que} — «${linea.trim().slice(0, 90)}»`);
+    }
+  });
+  if (archivo === 'epibot/index.html') {
+    for (const req of [ROTULO_AGREGADO, 'id="statForecastDet"']) {
+      if (!String(texto ?? '').includes(req)) out.push(`${archivo}: falta «${req}»`);
+    }
+  }
+  return out;
+}

@@ -1729,9 +1729,14 @@
     "query": "cual es el pronostico total",
     "expectedHandler": "answerPronostico",
     "mustContain": [
-      "52 semanas"
+      "agregado estatal neuro",
+      "171,524",
+      "Modelo nacional"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "171,525",
+      "Pronóstico Nacional"
+    ],
     "checkEntities": {}
   },
   {
@@ -1739,9 +1744,14 @@
     "query": "cuantos casos se pronostican",
     "expectedHandler": "answerPronostico",
     "mustContain": [
-      "52 semanas"
+      "agregado estatal neuro",
+      "171,524",
+      "Modelo nacional"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "171,525",
+      "Pronóstico Nacional"
+    ],
     "checkEntities": {}
   },
   {
@@ -1782,9 +1792,14 @@
     "query": "prediccion total de casos",
     "expectedHandler": "answerPronostico",
     "mustContain": [
-      "52 semanas"
+      "agregado estatal neuro",
+      "171,524",
+      "Modelo nacional"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "171,525",
+      "Pronóstico Nacional"
+    ],
     "checkEntities": {}
   },
   {
@@ -4996,7 +5011,8 @@
     "query": "cuantos casos se esperan",
     "expectedHandler": "answerPronostico",
     "mustContain": [
-      "52 semanas"
+      "agregado estatal neuro",
+      "Modelo nacional"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6775,10 +6791,12 @@
     "query": "cuantos casos tienes pronosticados en las siguientes 52 semanas",
     "expectedHandler": "answerPronostico",
     "mustContain": [
-      "52 semanas"
+      "agregado estatal neuro",
+      "52 pasos"
     ],
     "mustNotContain": [
-      "modelos en producci"
+      "modelos en producci",
+      "171,525"
     ],
     "checkEntities": {}
   },
@@ -6787,10 +6805,12 @@
     "query": "cuantos casos hay pronosticados",
     "expectedHandler": "answerPronostico",
     "mustContain": [
-      "52 semanas"
+      "agregado estatal neuro",
+      "52 pasos"
     ],
     "mustNotContain": [
-      "modelos en producci"
+      "modelos en producci",
+      "171,525"
     ],
     "checkEntities": {}
   },
@@ -6799,10 +6819,12 @@
     "query": "cuantos casos esperas en el futuro",
     "expectedHandler": "answerPronostico",
     "mustContain": [
-      "52 semanas"
+      "agregado estatal neuro",
+      "52 pasos"
     ],
     "mustNotContain": [
-      "modelos en producci"
+      "modelos en producci",
+      "171,525"
     ],
     "checkEntities": {}
   },
@@ -6836,7 +6858,8 @@
     "query": "que pronostico hay para las siguientes 52 semanas",
     "expectedHandler": "answerPronostico",
     "mustContain": [
-      "52 semanas"
+      "agregado estatal neuro",
+      "52 pasos"
     ],
     "mustNotContain": [],
     "checkEntities": {}

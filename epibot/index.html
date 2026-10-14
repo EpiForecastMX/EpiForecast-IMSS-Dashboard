@@ -187,6 +187,13 @@
       letter-spacing: 0.7px;
       color: var(--text-muted);
     }
+    /* Indicador con denominador: ocupa la fila entera para que el detalle se lea completo. */
+    .cc-kpi--ancho { grid-column: 1 / -1; }
+    .cc-kpi-det {
+      font-size: 10px;
+      line-height: 1.35;
+      color: var(--text-muted);
+    }
 
     /* Generic interactive row (tools + nav) */
     .cc-row {
@@ -785,9 +792,10 @@
             <span class="cc-kpi-val" id="statMotor">--</span>
             <span class="cc-kpi-lbl">Motor líder</span>
           </div>
-          <div class="cc-kpi">
+          <div class="cc-kpi cc-kpi--ancho">
             <span class="cc-kpi-val" id="statForecast">--</span>
-            <span class="cc-kpi-lbl">Pronóstico 52 sem</span>
+            <span class="cc-kpi-lbl">Notificaciones previstas · agregado estatal neuro</span>
+            <span class="cc-kpi-det" id="statForecastDet">32 estados × 3 padecimientos, modo general · 52 pasos desde el corte</span>
           </div>
         </div>
       </div>
@@ -1155,6 +1163,6 @@
     })();
   </script>
 
-  <script type="module" src="js/app.js?v=146"></script>
+  <script type="module" src="js/app.js?v=147"></script>
 </body>
 </html>

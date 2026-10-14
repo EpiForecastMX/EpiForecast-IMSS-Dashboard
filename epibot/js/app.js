@@ -6,7 +6,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=111';
+import { loadKnowledge, getStats, getData, answer, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=112';
 import { detectEntities, norm } from './entities.js?v=31';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
 import { renderMexicoMap } from './mexico-map.js?v=3';
@@ -630,9 +630,11 @@ function renderStats(data) {
       `${s.motor_ganador} <span style="font-size:11px;opacity:0.5;font-weight:500">${s.motor_ganador_pct || ''}%</span>`;
   }
 
-  if (s.pronostico_total != null) {
-    el('statForecast').textContent = Number(s.pronostico_total).toLocaleString('es-MX');
-  }
+  // «Notificaciones previstas · agregado estatal neuro»: el valor canónico del backend (suma de
+  // los yhat originales, redondeada una vez). No se recalcula desde totales ya redondeados.
+  const ag = data.agregado_estatal_neuro;
+  el('statForecast').textContent = ag && ag.valor_mostrado != null ? Number(ag.valor_mostrado).toLocaleString('es-MX') : '--';
+  if (ag && ag.denominador && el('statForecastDet')) el('statForecastDet').textContent = ag.denominador;
 }
 
 function renderBuildBadge(data) {
@@ -675,7 +677,7 @@ function animateCount(el, target, fmt) {
   requestAnimationFrame(tick);
 }
 
-// Pie de pronóstico por padecimiento: motor productivo, SMAPE y casos a 52 sem.
+// Pie del gráfico nacional por padecimiento: motor y pronóstico propio del modelo nacional (52 sem).
 // Con las métricas de selección retiradas `sm` es null y el chip de SMAPE no se pinta.
 function heroCaption(data, padObj) {
   const fmtInt = (n) => Math.round(n).toLocaleString('es-MX');
@@ -687,11 +689,15 @@ function heroCaption(data, padObj) {
     const casos = d.casos_futuro_nacional_52sem != null ? fmtInt(d.casos_futuro_nacional_52sem) : '—';
     return { motor, sm, casos };
   }
+  // El gráfico es la serie del MODELO NACIONAL: su motor y su pronóstico propio (no el motor más
+  // frecuente de las 111 series ni el agregado de los 32 estados).
   const p = (data.stats && data.stats.por_pad && data.stats.por_pad[padObj.pad]) || {};
+  const nac = (data.prod_models || []).find(m => m.padecimiento === padObj.pad && m.entidad === 'Nacional' && m.sexo === 'general');
+  const casosNac = p.por_sexo && p.por_sexo.general ? p.por_sexo.general.casos_nacional : null;
   return {
-    motor: p.motor_ganador || '—',
+    motor: nac ? nac.modelo_produccion : '—',
     sm: retiradas ? null : p.smape_prod_median != null ? `${Math.round(p.smape_prod_median)}%` : '—',
-    casos: p.casos_futuro_total != null ? fmtInt(p.casos_futuro_total) : '—',
+    casos: casosNac != null ? fmtInt(casosNac) : '—',
   };
 }
 
@@ -802,7 +808,7 @@ function appendPanorama(data) {
       capEl.innerHTML =
         `<span class="hero-cap-chip" style="--pill:${padObj.color}">Motor: <b>${cap.motor}</b></span>` +
         (cap.sm != null ? `<span class="hero-cap-chip">SMAPE <b>${cap.sm}</b></span>` : '') +
-        `<span class="hero-cap-chip">${cap.casos} casos pronosticados · 52 sem</span>`;
+        `<span class="hero-cap-chip">${cap.casos} casos · pronóstico del modelo nacional · 52 sem</span>`;
     }
     if (!z) return;
     const serie = z[`${norm(padObj.pad)}|nacional|general`];
@@ -2701,22 +2707,21 @@ function buildWaterfall(data) {
   const models = data.prod_models || [];
   if (!models.length) return null;
   const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
-  const byPad = {};
-  for (const m of models) {
-    if (m.sexo !== 'general') continue;
-    const e = m.entidad || '';
-    if (e === 'Nacional' || e.startsWith('Region') || e.startsWith('region_')) continue;
-    byPad[m.padecimiento] = (byPad[m.padecimiento] || 0) + (m.casos_52_semanas_futuro || 0);
-  }
-  const pads = Object.keys(byPad);
-  if (!pads.length) return null;
+  // Agregado estatal canónico del backend (yhat originales, redondeo único): ni los totales por
+  // serie ya redondeados ni el nombre «nacional», que es el de los modelos nacionales.
+  const ag = data.agregado_estatal_neuro;
+  if (!ag || !ag.por_padecimiento) return null;
+  const pads = Object.keys(ag.por_padecimiento);
   let run = 0;
   const labels = [], dataPairs = [], colors = [];
-  for (const p of pads) { const v = byPad[p]; dataPairs.push([run, run + v]); colors.push(padColors[p] || '#5B8DEF'); labels.push(dn(p)); run += v; }
-  labels.push('Total nacional'); dataPairs.push([0, run]); colors.push('#A78BFA');
+  for (const p of pads) {
+    const v = ag.por_padecimiento[p].suma_original;
+    dataPairs.push([run, run + v]); colors.push(padColors[p] || '#5B8DEF'); labels.push(dn(p)); run += v;
+  }
+  labels.push('Agregado estatal neuro'); dataPairs.push([0, ag.valor_mostrado]); colors.push('#A78BFA');
   return {
     type: 'bar',
-    title: 'Aporte acumulado al total nacional (pronóstico 52 sem)',
+    title: `Aporte por padecimiento al agregado estatal neuro (${ag.denominador})`,
     labels,
     datasets: [{
       label: 'Casos',
@@ -3488,12 +3493,12 @@ function extractChartData(markdown, query) {
       for (const [sx, info] of Object.entries(psx)) {
         if (sx === 'general') continue;
         labels.push(sx === 'hombres' ? 'Hombres' : 'Mujeres');
-        vals.push(info.casos_total || 0);
+        vals.push(info.casos_total ?? null);  // agregado de los 32 estados (backend)
       }
       if (labels.length) {
         return {
           type: 'bar',
-          title: `${dn(pad)}: casos pronosticados por sexo (52 sem)`,
+          title: `${dn(pad)}: agregado estatal por sexo (32 estados, 52 pasos)`,
           labels,
           datasets: [{
             label: 'Casos pronosticados',
@@ -3932,8 +3937,9 @@ function generatePDFReport(data) {
     return e && e !== 'Nacional' && !e.startsWith('Region') && !e.startsWith('region_');
   }
 
-  const totalCasos = models.filter(m => m.sexo === 'general' && isState(m))
-    .reduce((a, m) => a + (m.casos_52_semanas_futuro || 0), 0);
+  // Indicador canónico del backend; no se suma desde totales por serie ya redondeados.
+  const ag = data.agregado_estatal_neuro;
+  const totalCasos = ag ? ag.valor_mostrado : null;
 
   // Per-padecimiento stats (solo 32 estados)
   const padStats = {};
@@ -3981,7 +3987,8 @@ function generatePDFReport(data) {
   const padRows = Object.entries(padStats).map(([pad, ps]) => {
     const avgSmape = ps.smapes.length ? (ps.smapes.reduce((a, v) => a + v, 0) / ps.smapes.length).toFixed(1) : '?';
     return '<tr><td style="padding:6px 10px;border-bottom:1px solid #e0e0e0">' + dn(pad) + '</td>' +
-      '<td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:right">' + ps.casos.toLocaleString() + '</td>' +
+      '<td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:right">' +
+        (ag && ag.por_padecimiento && ag.por_padecimiento[pad] ? ag.por_padecimiento[pad].valor_mostrado.toLocaleString('es-MX') : '—') + '</td>' +
       '<td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:center">' + ps.models + '</td>' +
       (retiradas ? '' : '<td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:center">' + avgSmape + '%</td>') + '</tr>';
   }).join('');
@@ -4052,7 +4059,7 @@ function generatePDFReport(data) {
 </div>
 
 <div class="kpi-grid">
-  <div class="kpi"><div class="val">${totalCasos.toLocaleString()}</div><div class="lbl">Casos pronosticados (52 sem)</div></div>
+  <div class="kpi"><div class="val">${totalCasos != null ? totalCasos.toLocaleString('es-MX') : '—'}</div><div class="lbl">Notificaciones previstas · agregado estatal neuro</div><div class="lbl">${ag ? ag.denominador : ''}</div></div>
   <div class="kpi"><div class="val">${s.total_modelos || 333}</div><div class="lbl">Modelos de producción</div></div>
   ${kpi3}
   <div class="kpi"><div class="val">4</div><div class="lbl">Motores de IA</div></div>
@@ -4062,7 +4069,7 @@ ${notaMetricas}
 <div class="section">
   <h2>Pronóstico por padecimiento</h2>
   <table>
-    <tr><th>Padecimiento</th><th style="text-align:right">Casos (52 sem)</th><th style="text-align:center">Modelos</th>${retiradas ? '' : '<th style="text-align:center">SMAPE prom</th>'}</tr>
+    <tr><th>Padecimiento</th><th style="text-align:right">Agregado estatal (32 estados, 52 pasos)</th><th style="text-align:center">Modelos estatales</th>${retiradas ? '' : '<th style="text-align:center">SMAPE prom</th>'}</tr>
     ${padRows}
   </table>
 </div>
@@ -4070,7 +4077,7 @@ ${notaMetricas}
 <div class="section">
   <h2>Top 10 entidades por incidencia pronosticada</h2>
   <table>
-    <tr><th>Entidad</th><th style="text-align:right">Casos (52 sem)</th><th style="text-align:center">Riesgo</th></tr>
+    <tr><th>Entidad</th><th style="text-align:right">Casos (52 sem, 3 padecimientos)</th><th style="text-align:center">Riesgo</th></tr>
     ${stateRows}
   </table>
 </div>
