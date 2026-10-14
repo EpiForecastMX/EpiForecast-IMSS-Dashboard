@@ -69,7 +69,7 @@
     "title": "Nacional: ventanas del artículo y del seguimiento frente al ingenuo",
     "source": "MICAI 2026 — ponencia y seguimiento",
     "url": "../micai2026.html#follow-up",
-    "text": "Para el objetivo nacional general, la asignación registrada es Ensemble. En la ventana nacional de la ponencia, ediciones S02–S18 (17 semanas), el sMAPE de Ensemble es 7.40 % y el ingenuo de 52 semanas es 7.33 %: el ingenuo es ligeramente menor. En el seguimiento de 16 semanas, ediciones S19–S34 (periodos epidemiológicos W18–W33), Ensemble tiene 5.91 % y el ingenuo 6.24 %: Ensemble es menor. La desviación acumulada de Ensemble en seguimiento es +0.17 % y la del ingenuo −2.95 %. La tabla A por objetivo usa S03–S18 (16 semanas); nacional en A es Ensemble 7.28 % e ingenuo 7.41 %. No mezclar esa tabla con la ventana de 17 semanas de la ponencia ni afirmar precisión anual."
+    "text": "Para el objetivo nacional general, la asignación registrada es Ensemble. En la ventana nacional de la ponencia, ediciones S02–S18 (17 semanas), el sMAPE de Ensemble es 7.40 % y el ingenuo de 52 semanas es 7.33 %: el ingenuo es ligeramente menor. En el seguimiento de 21 semanas, ediciones S19–S39 (periodos epidemiológicos W18–W38), Ensemble tiene 5.64 % y el ingenuo 6.36 %: Ensemble es menor. La desviación acumulada de Ensemble en seguimiento es +0.21 % y la del ingenuo −3.81 %. El corte anterior del seguimiento, ediciones S19–S34, daba 5.91 % frente a 6.24 %. La tabla A por objetivo usa S03–S18 (16 semanas); nacional en A es Ensemble 7.28 % e ingenuo 7.41 %. No mezclar esa tabla con la ventana de 17 semanas de la ponencia ni afirmar precisión anual."
   },
   {
     "id": "micai-current#9",
@@ -89,11 +89,11 @@
   },
   {
     "id": "micai-current#11",
-    "section": "Seguimiento de 16 semanas en los 99 objetivos, resultado adverso incluido",
-    "title": "Seguimiento de 16 semanas en los 99 objetivos, resultado adverso incluido",
+    "section": "Seguimiento de 21 semanas en los 99 objetivos, resultado adverso incluido",
+    "title": "Seguimiento de 21 semanas en los 99 objetivos, resultado adverso incluido",
     "source": "MICAI 2026 — ponencia y seguimiento",
     "url": "../micai2026.html#follow-up",
-    "text": "En el seguimiento de ediciones S19–S34 (periodos W18–W33), la mediana sMAPE en 99 objetivos es Prophet 23.4 %, Ensemble 25.2 %, DeepAR 31.0 %, Stacking 30.6 %, asignación archivada 31.0 % e ingenuo 27.0 %. Prophet supera al ingenuo en 70 de 99 objetivos, Ensemble en 71, DeepAR en 52, Stacking en 51 y la asignación archivada en 55. La archivada tiene peor mediana marginal que el ingenuo aunque gana en más de la mitad de objetivos; son medidas distintas. No se evaluó una política revisada en esa ventana, así que el seguimiento motiva reevaluar, no demuestra una mejora posterior por revisión."
+    "text": "En el seguimiento de ediciones S19–S39 (periodos W18–W38), la mediana sMAPE en 99 objetivos es Prophet 24.2 %, Ensemble 25.7 %, DeepAR 31.7 %, Stacking 31.4 %, asignación archivada 31.7 % e ingenuo 28.6 %. Prophet supera al ingenuo en 72 de 99 objetivos, Ensemble en 70, DeepAR en 57, Stacking en 48 y la asignación archivada en 60. La archivada tiene peor mediana marginal que el ingenuo aunque gana en más de la mitad de objetivos; son medidas distintas. En el corte anterior, ediciones S19–S34, la archivada tenía 31.0 % frente a 27.0 % del ingenuo. No se evaluó una política revisada en esa ventana, así que el seguimiento motiva reevaluar, no demuestra una mejora posterior por revisión."
   },
   {
     "id": "micai-current#12",

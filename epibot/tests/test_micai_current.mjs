@@ -25,7 +25,7 @@ test('current sources keep correct windows, adverse results and the zero paired 
  assert.match(byId(8).text,/S02–S18/);assert.match(byId(8).text,/7\.40 %/);assert.match(byId(8).text,/7\.33 %/);
  assert.match(byId(8).text,/5\.91 %/);assert.match(byId(8).text,/6\.24 %/);
  assert.match(byId(10).text,/mediana del cambio pareado es cero/);
- assert.match(byId(11).text,/archivada 31\.0 % e ingenuo 27\.0 %/);
+ assert.match(byId(11).text,/archivada 31\.7 % e ingenuo 28\.6 %/);assert.match(byId(11).text,/S19–S39/);
  assert.match(byId(11).text,/No se evaluó una política revisada/);
 });
 test('current sources reject obsolete protocol, seasonality and denominator assertions',()=>{
@@ -46,9 +46,14 @@ test('bounded MICAI facts preserve numerical direction without generative paraph
  const index=readIndex(resolve(KB_DIR,'rag_index.json'));
  const r=micaiGroundedAnswer('¿Cómo queda la asignación archivada frente al ingenuo en el seguimiento MICAI?',[],index);
  assert.equal(r.generated,false);assert.equal(r.retrieval,'curated-micai');
- assert.match(r.answer,/archivada 31\.0 % e ingenuo 27\.0 %/);
+ assert.match(r.answer,/archivada 31\.7 % e ingenuo 28\.6 %/);
  assert.match(r.answer,/peor mediana marginal/);
  assert.equal(r.sources[0].url,'../micai2026.html#follow-up');
+ // DICTAMEN_S39 S39-01/02: the national card answers the current cut; the earlier cut is labelled.
+ const n=micaiGroundedAnswer('MICAI: compara sMAPE de Ensemble e ingenuo en las ediciones S19–S39 nacional general.',[],index);
+ assert.equal(n.retrieval,'curated-micai');
+ assert.match(n.answer,/21 semanas, ediciones S19–S39 \(periodos epidemiológicos W18–W38\), Ensemble tiene 5\.64 % y el ingenuo 6\.36 %/);
+ assert.match(n.answer,/\+0\.21 % y la del ingenuo −3\.81 %/);assert.match(n.answer,/El corte anterior del seguimiento, ediciones S19–S34/);
 });
 test('MICAI facts do not intercept other diseases, per-state forecasts, or literal quotations',()=>{
  for(const q of ['¿Qué picos describe el paper del dengue?','¿Quiénes son los autores de la ponencia WCP?','¿Qué predice el MICAI para Jalisco?','Dame una cita textual del paper MICAI sobre validación'])assert.equal(micaiIntent(q),null);
@@ -134,9 +139,9 @@ test('MICAI questions about one geography get that geography\'s sealed metrics, 
  const index=readIndex(resolve(KB_DIR,'rag_index.json'));
  const p=micaiGroundedAnswer('En el seguimiento MICAI, ¿cómo quedó la asignación archivada frente al ingenuo en Puebla?',[],index);
  assert.equal(p.retrieval,'micai-state-metrics');
- assert.match(p.answer,/Puebla/);assert.match(p.answer,/general, asignación archivada 49\.3 % frente a ingenuo 21\.2 %/);
- assert.match(p.answer,/mujeres, asignación archivada 45\.0 % frente a ingenuo 46\.0 %/);
- assert.doesNotMatch(p.answer,/99 objetivos|31\.0 %/);
+ assert.match(p.answer,/Puebla/);assert.match(p.answer,/general, asignación archivada 51\.3 % frente a ingenuo 20\.5 %/);
+ assert.match(p.answer,/mujeres, asignación archivada 43\.8 % frente a ingenuo 40\.4 %/);
+ assert.doesNotMatch(p.answer,/99 objetivos|31\.7 %/);
  const j=micaiGroundedAnswer('¿El pronóstico MICAI para Jalisco sigue picos estacionales?',[],index);
  assert.match(j.answer,/Jalisco: la asignación archivada es DeepAR en los tres estratos/);
  assert.match(j.answer,/no evalúan picos estacionales por estado/);
@@ -160,16 +165,16 @@ test('a WCP follow-up keeps the WCP abstention; the assistant\'s own text never 
 test('comparisons keep the requested window and estimators (P25-02, T1–T2)',()=>{
  const t1=micaiGroundedAnswer('En el seguimiento MICAI, ¿quién fue mejor, DeepAR o Stacking?',[],IDX());
  assert.equal(t1.retrieval,'micai-panel-metrics');
- assert.match(t1.answer,/Seguimiento, ediciones S19–S34 \(99 objetivos, mediana de sMAPE, menor es mejor\): Stacking 30\.6 %, DeepAR 31\.0 %\. Menor mediana: Stacking\./);
+ assert.match(t1.answer,/Seguimiento, ediciones S19–S39 \(99 objetivos, mediana de sMAPE, menor es mejor\): Stacking 31\.4 %, DeepAR 31\.7 %\. Menor mediana: Stacking\./);
  assert.doesNotMatch(t1.answer,/S03–S18|27\.4|29\.3/);
  const both=micaiGroundedAnswer('¿Quién es mejor en MICAI: Prophet o DeepAR?',[],IDX());
- assert.match(both.answer,/S19–S34[^\n]*Prophet 23\.4 %, DeepAR 31\.0 %/);assert.match(both.answer,/S03–S18[^\n]*Prophet 26\.7 %, DeepAR 27\.4 %/);
+ assert.match(both.answer,/S19–S39[^\n]*Prophet 24\.2 %, DeepAR 31\.7 %/);assert.match(both.answer,/S03–S18[^\n]*Prophet 26\.7 %, DeepAR 27\.4 %/);
  const t2=micaiGroundedAnswer('En MICAI, ¿quién fue mejor en el histórico, DeepAR o Prophet?',[],IDX());
- assert.match(t2.answer,/La mediana histórica de DeepAR es 6\.0 %/);assert.doesNotMatch(t2.answer,/S19–S34/);
+ assert.match(t2.answer,/La mediana histórica de DeepAR es 6\.0 %/);assert.doesNotMatch(t2.answer,/S19–S3[49]/);
 });
 test('state answers keep the requested estimators and every geography (P25-02, T3–T4)',()=>{
  const t3=micaiGroundedAnswer('En el seguimiento MICAI, ¿Prophet o Ensemble fue mejor en Puebla?',[],IDX());
- assert.match(t3.answer,/general, Prophet 28\.3 % frente a Ensemble 42\.1 %; mujeres, Prophet 27\.4 % frente a Ensemble 37\.5 %; hombres, Prophet 34\.0 % frente a Ensemble 37\.0 %/);
+ assert.match(t3.answer,/general, Prophet 30\.8 % frente a Ensemble 43\.3 %; mujeres, Prophet 30\.0 % frente a Ensemble 39\.6 %; hombres, Prophet 33\.8 % frente a Ensemble 37\.2 %/);
  assert.doesNotMatch(t3.answer,/ingenuo \d/);assert.doesNotMatch(t3.answer,/S03–S18 \(sMAPE/);
  const t4=micaiGroundedAnswer('MICAI: ¿cómo quedó la asignación archivada frente al ingenuo en Puebla y en Jalisco durante el seguimiento?',[],IDX());
  assert.match(t4.answer,/Puebla: la asignación archivada/);assert.match(t4.answer,/Jalisco: la asignación archivada/);
@@ -184,26 +189,26 @@ test('state figures are rounded once from full precision (P25-03)',()=>{
 // Regresiones del dictamen del PR 26: estratos, continuaciones y métrica.
 test('aggregates and the national target respect the requested stratum (P26-01, U1–U2)',()=>{
  const u1=micaiGroundedAnswer('En el seguimiento MICAI, solo para mujeres, ¿DeepAR o Stacking tuvo menor mediana de sMAPE?',[],IDX());
- assert.match(u1.answer,/33 objetivos de mujeres, mediana de sMAPE, menor es mejor\): DeepAR 29\.6 %, Stacking 30\.2 %\. Menor mediana: DeepAR\./);
+ assert.match(u1.answer,/33 objetivos de mujeres, mediana de sMAPE, menor es mejor\): DeepAR 27\.1 %, Stacking 30\.6 %\. Menor mediana: DeepAR\./);
  assert.doesNotMatch(u1.answer,/99 objetivos/);
  const u2=micaiGroundedAnswer('En el seguimiento MICAI, ¿cómo le fue a Ensemble frente al ingenuo en el nacional de mujeres?',[],IDX());
  assert.match(u2.answer,/Nacional: la asignación archivada es Ensemble\./);
- assert.match(u2.answer,/mujeres, Ensemble 5\.9 % frente a ingenuo 6\.8 %/);
- assert.doesNotMatch(u2.answer,/objetivo nacional general|5\.91 %/);
+ assert.match(u2.answer,/mujeres, Ensemble 6\.5 % frente a ingenuo 7\.8 %/);
+ assert.doesNotMatch(u2.answer,/objetivo nacional general|5\.64 %/);
 });
 test('a follow-up changes only the fields it names (P26-02, U3)',()=>{
  const h=[{role:'user',text:'En MICAI, para Jalisco durante el seguimiento, ¿Prophet tuvo menor sMAPE que Ensemble solo en mujeres?'},
   {role:'assistant',text:'En el análisis MICAI (depresión, F32): Jalisco: …'}];
  const u3=micaiGroundedAnswer('¿Y en Puebla?',h,IDX());
  assert.match(u3.answer,/Puebla: la asignación archivada es DeepAR\./);
- assert.match(u3.answer,/Seguimiento, ediciones S19–S34 \(sMAPE, menor es mejor\): mujeres, Prophet 27\.4 % frente a Ensemble 37\.5 %\./);
+ assert.match(u3.answer,/Seguimiento, ediciones S19–S39 \(sMAPE, menor es mejor\): mujeres, Prophet 30\.0 % frente a Ensemble 39\.6 %\./);
  assert.doesNotMatch(u3.answer,/archivada \d|ingenuo \d|general,|hombres,|S03–S18/);
  const s=micaiGroundedAnswer('¿Y para hombres?',h,IDX());
  assert.match(s.answer,/Jalisco[\s\S]*hombres, Prophet/);assert.doesNotMatch(s.answer,/mujeres,/);
 });
 test('the metric is validated: MAE in cases, unsupported metrics abstain (P26-03, U4)',()=>{
  const u4=micaiGroundedAnswer('En el seguimiento MICAI, compara el MAE de Prophet y Ensemble',[],IDX());
- assert.match(u4.answer,/mediana de MAE, en casos, menor es mejor\): Prophet 10\.6 casos, Ensemble 10\.8 casos/);
+ assert.match(u4.answer,/mediana de MAE, en casos, menor es mejor\): Ensemble 10\.4 casos, Prophet 11\.3 casos/);
  assert.match(u4.answer,/MAE se expresa en casos; no es sMAPE ni un porcentaje/);
  assert.doesNotMatch(u4.answer,/23\.4 %|25\.2 %/);
  for(const q of ['En el seguimiento MICAI, compara el MASE de Prophet y Ensemble','MICAI: ¿qué RMSE tuvo Prophet frente a DeepAR en Puebla?']){
@@ -216,14 +221,14 @@ test('two successive follow-ups keep models and window (C1-01)',()=>{
  const h=[{role:'user',text:'En MICAI, para Jalisco durante el seguimiento, ¿Prophet tuvo menor sMAPE que Ensemble solo en mujeres?'},
   {role:'assistant',text:'…'},{role:'user',text:'¿Y en Puebla?'},{role:'assistant',text:'…'}];
  const r=micaiGroundedAnswer('¿Y para hombres, qué sMAPE tuvieron?',h,IDX());
- assert.match(r.answer,/Puebla: [\s\S]*hombres, Prophet 34\.0 % frente a Ensemble 37\.0 %/);
+ assert.match(r.answer,/Puebla: [\s\S]*hombres, Prophet 33\.8 % frente a Ensemble 37\.2 %/);
  assert.doesNotMatch(r.answer,/Ventana del artículo|archivada \d|ingenuo \d|mujeres,/);
 });
 test('an explicit range must match a computed window at both ends (C1-02)',()=>{
  const r=micaiGroundedAnswer('MICAI: compara sMAPE de Prophet y Ensemble solo en las ediciones S19–S32.',[],IDX());
  assert.equal(r.model,'abstention');assert.doesNotMatch(r.answer,/23\.4|25\.2/);
  const ok=micaiGroundedAnswer('MICAI: compara sMAPE de Prophet y Ensemble en las ediciones S19–S34.',[],IDX());
- assert.match(ok.answer,/Seguimiento, ediciones S19–S34/);assert.doesNotMatch(ok.answer,/S03–S18 \(/);
+ assert.match(ok.answer,/Corte anterior del seguimiento, ediciones S19–S34[^\n]*Prophet 23\.4 %, Ensemble 25\.2 %/);assert.doesNotMatch(ok.answer,/S03–S18 \(|S19–S39/);
 });
 test('two metrics in one question ask the user to choose (C1-03)',()=>{
  const r=micaiGroundedAnswer('MICAI: compara sMAPE y MAE de Prophet y Ensemble en el seguimiento.',[],IDX());
@@ -232,6 +237,24 @@ test('two metrics in one question ask the user to choose (C1-03)',()=>{
 test('a national single-model comparison is computed against the naive (C1-04)',()=>{
  const r=micaiGroundedAnswer('MICAI: compara sMAPE de Ensemble en el seguimiento para general en Nacional.',[],IDX());
  assert.equal(r.retrieval,'micai-state-metrics');
- assert.match(r.answer,/general, Ensemble 5\.9 % frente a ingenuo 6\.2 %/);
+ assert.match(r.answer,/general, Ensemble 5\.6 % frente a ingenuo 6\.4 %/);
  assert.equal(micaiGroundedAnswer('¿Cómo le fue a Ensemble nacional frente al ingenuo en MICAI?',[],IDX()).retrieval,'curated-micai');
+});
+test('C1.1: S19–S39 is the current follow-up; S19–S34 is the earlier cut, only on explicit request',()=>{
+ const cur=micaiGroundedAnswer('MICAI: compara sMAPE de Prophet y Ensemble en el seguimiento.',[],IDX());
+ assert.match(cur.answer,/Seguimiento, ediciones S19–S39[^\n]*Prophet 24\.2 %, Ensemble 25\.7 %/);assert.doesNotMatch(cur.answer,/S19–S34/);
+ const exp=micaiGroundedAnswer('MICAI: compara sMAPE de Prophet y Ensemble en el seguimiento, ediciones S19–S34.',[],IDX());
+ assert.match(exp.answer,/Corte anterior del seguimiento, ediciones S19–S34/);assert.doesNotMatch(exp.answer,/S19–S39/);
+ const per=micaiGroundedAnswer('MICAI: compara sMAPE de Prophet y Ensemble en los periodos W18–W33.',[],IDX());
+ assert.match(per.answer,/S19–S34/);assert.doesNotMatch(per.answer,/S19–S39/);
+ const w38=micaiGroundedAnswer('MICAI: compara sMAPE de Prophet y Ensemble en los periodos W18–W38.',[],IDX());
+ assert.match(w38.answer,/Seguimiento, ediciones S19–S39/);assert.doesNotMatch(w38.answer,/S19–S34/);
+ const s39=micaiGroundedAnswer('MICAI: compara sMAPE de Prophet y Ensemble en las ediciones S19–S39.',[],IDX());
+ assert.match(s39.answer,/Seguimiento, ediciones S19–S39/);
+ const prev=micaiGroundedAnswer('MICAI: compara sMAPE de Prophet y Ensemble en el corte anterior del seguimiento.',[],IDX());
+ assert.match(prev.answer,/Corte anterior del seguimiento, ediciones S19–S34/);assert.doesNotMatch(prev.answer,/S19–S39/);
+ for(const q of ['MICAI: compara sMAPE de Prophet y Ensemble en las ediciones S19–S37.','MICAI: compara sMAPE de Prophet y Ensemble en las ediciones S19–S40.']){
+  const r=micaiGroundedAnswer(q,[],IDX());assert.equal(r.model,'abstention');assert.match(r.answer,/S19–S39 \(seguimiento\)/);}
+ const nat=micaiGroundedAnswer('MICAI: ¿Ensemble frente al ingenuo nacional en el corte anterior del seguimiento?',[],IDX());
+ assert.equal(nat.retrieval,'micai-state-metrics');assert.match(nat.answer,/Corte anterior del seguimiento, ediciones S19–S34[^\n]*general, Ensemble 5\.9 % frente a ingenuo 6\.2 %/);
 });
