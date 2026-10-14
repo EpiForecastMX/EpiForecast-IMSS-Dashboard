@@ -6,13 +6,13 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer } from './kb.js?v=106';
+import { loadKnowledge, getStats, getData, answer, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=113';
 import { detectEntities, norm } from './entities.js?v=31';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
 import { renderMexicoMap } from './mexico-map.js?v=3';
-import { renderTimelapse } from './timelapse.js?v=3';
+import { renderTimelapse } from './timelapse.js?v=4';
 import { renderSemaforo } from './semaforo.js?v=3';
-import { renderComparador } from './comparador.js?v=3';
+import { renderComparador } from './comparador.js?v=4';
 import { buildComparadorState } from './comparador_data.js?v=1';
 import { initSTT, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking, toggleMute, isTTSEnabled, onSpeakingStateChange } from './voice.js?v=3';
 
@@ -613,16 +613,28 @@ function renderStats(data) {
   const el = (id) => document.getElementById(id);
 
   el('statModelos').textContent = s.total_modelos || 333;
-  el('statSmape').textContent = s.smape_prod_median != null ? `${s.smape_prod_median}%` : '--';
+  // Métricas de selección retiradas (W28–W37): el KPI de SMAPE pasa a «Series productivas».
+  const kpiLbl = el('statSmapeLbl');
+  if (metricasRetiradas(data)) {
+    const series = data.rosters && data.rosters.total_series;
+    el('statSmape').textContent = series != null ? Number(series).toLocaleString('es-MX') : '--';
+    if (kpiLbl) kpiLbl.textContent = 'Series productivas';
+    el('statSmape').title = rotuloMetricas(data);
+  } else {
+    el('statSmape').textContent = s.smape_prod_median != null ? `${s.smape_prod_median}%` : '--';
+    if (kpiLbl) kpiLbl.textContent = 'SMAPE mediana';
+  }
 
   if (s.motor_ganador) {
     el('statMotor').innerHTML =
       `${s.motor_ganador} <span style="font-size:11px;opacity:0.5;font-weight:500">${s.motor_ganador_pct || ''}%</span>`;
   }
 
-  if (s.pronostico_total != null) {
-    el('statForecast').textContent = Number(s.pronostico_total).toLocaleString('es-MX');
-  }
+  // «Notificaciones previstas · agregado estatal neuro»: el valor canónico del backend (suma de
+  // los yhat originales, redondeada una vez). No se recalcula desde totales ya redondeados.
+  const ag = data.agregado_estatal_neuro;
+  el('statForecast').textContent = ag && ag.valor_mostrado != null ? Number(ag.valor_mostrado).toLocaleString('es-MX') : '--';
+  if (ag && ag.denominador && el('statForecastDet')) el('statForecastDet').textContent = ag.denominador;
 }
 
 function renderBuildBadge(data) {
@@ -665,21 +677,27 @@ function animateCount(el, target, fmt) {
   requestAnimationFrame(tick);
 }
 
-// Pie de pronóstico por padecimiento: motor productivo, SMAPE y casos a 52 sem.
+// Pie del gráfico nacional por padecimiento: motor y pronóstico propio del modelo nacional (52 sem).
+// Con las métricas de selección retiradas `sm` es null y el chip de SMAPE no se pinta.
 function heroCaption(data, padObj) {
   const fmtInt = (n) => Math.round(n).toLocaleString('es-MX');
+  const retiradas = metricasRetiradas(data);
   if (padObj.pad === 'Dengue' && data.dengue) {
     const d = data.dengue;
     const motor = d.motor_nacional || 'DeepAR';
-    const sm = d.smape_nacional != null ? `${Math.round(d.smape_nacional)}%` : '—';
+    const sm = retiradas ? null : d.smape_nacional != null ? `${Math.round(d.smape_nacional)}%` : '—';
     const casos = d.casos_futuro_nacional_52sem != null ? fmtInt(d.casos_futuro_nacional_52sem) : '—';
     return { motor, sm, casos };
   }
+  // El gráfico es la serie del MODELO NACIONAL: su motor y su pronóstico propio (no el motor más
+  // frecuente de las 111 series ni el agregado de los 32 estados).
   const p = (data.stats && data.stats.por_pad && data.stats.por_pad[padObj.pad]) || {};
+  const nac = (data.prod_models || []).find(m => m.padecimiento === padObj.pad && m.entidad === 'Nacional' && m.sexo === 'general');
+  const casosNac = p.por_sexo && p.por_sexo.general ? p.por_sexo.general.casos_nacional : null;
   return {
-    motor: p.motor_ganador || '—',
-    sm: p.smape_prod_median != null ? `${Math.round(p.smape_prod_median)}%` : '—',
-    casos: p.casos_futuro_total != null ? fmtInt(p.casos_futuro_total) : '—',
+    motor: nac ? nac.modelo_produccion : '—',
+    sm: retiradas ? null : p.smape_prod_median != null ? `${Math.round(p.smape_prod_median)}%` : '—',
+    casos: casosNac != null ? fmtInt(casosNac) : '—',
   };
 }
 
@@ -703,7 +721,7 @@ function addWelcome() {
 
   const suggestions = [
     { text: 'Panorama nacional', q: 'panorama nacional' },
-    { text: 'Métricas globales', q: 'metricas globales' },
+    { text: 'Motores productivos', q: 'distribucion de motores ganadores' },
     { text: 'Mapa de México', q: 'mapa de mexico por casos' },
     { text: 'Equipo', q: 'equipo del proyecto' },
   ];
@@ -789,8 +807,8 @@ function appendPanorama(data) {
     if (capEl) {
       capEl.innerHTML =
         `<span class="hero-cap-chip" style="--pill:${padObj.color}">Motor: <b>${cap.motor}</b></span>` +
-        `<span class="hero-cap-chip">SMAPE <b>${cap.sm}</b></span>` +
-        `<span class="hero-cap-chip">${cap.casos} casos pronosticados · 52 sem</span>`;
+        (cap.sm != null ? `<span class="hero-cap-chip">SMAPE <b>${cap.sm}</b></span>` : '') +
+        `<span class="hero-cap-chip">${cap.casos} casos · pronóstico del modelo nacional · 52 pasos desde el corte</span>`;
     }
     if (!z) return;
     const serie = z[`${norm(padObj.pad)}|nacional|general`];
@@ -1357,7 +1375,8 @@ document.addEventListener('keydown', (e) => {
  * El tramo proyectado se muestra como linea punteada.
  */
 /**
- * Corredor de confianza: banda min-max de 4 modelos + linea productiva + real.
+ * Corredor entre motores: banda min-max de los 4 motores (mismo corte) + linea productiva, en las
+ * semanas aun sin dato. No es un intervalo de confianza.
  * 1 chart por padecimiento filtrado.
  */
 function buildCorridorChart(data, qn) {
@@ -1379,7 +1398,8 @@ function buildCorridorChart(data, qn) {
 
   for (const pad of filtered) {
     const info = wc[pad];
-    const sems = info.semanas || [];
+    // Sólo semanas aún sin dato, con los 4 motores del mismo corte (antes del corte sería ajuste).
+    const sems = semanasDeFase(info, 'pronostico').filter(s => MODELS.every(m => s[m] != null));
     if (!sems.length) continue;
     const color = padColors[pad] || '#5B8DEF';
 
@@ -1426,22 +1446,6 @@ function buildCorridorChart(data, qn) {
         pointRadius: 0,
         order: 2,
       },
-      // Real
-      {
-        label: 'Real',
-        data: realData,
-        borderColor: '#ffffff',
-        backgroundColor: '#ffffffCC',
-        fill: false,
-        tension: 0.3,
-        borderWidth: 3,
-        pointRadius: realData.map(v => v != null ? 4 : 0),
-        pointBackgroundColor: '#ffffff',
-        pointBorderColor: color,
-        pointBorderWidth: 2,
-        spanGaps: false,
-        order: 1,
-      },
     ];
 
     // Dispersion (max - min) promedio
@@ -1459,7 +1463,7 @@ function buildCorridorChart(data, qn) {
 
     charts.push({
       type: 'line',
-      title: `${dn(pad)} — corredor de confianza (4 modelos, dispersión prom: ${avgSpread})`,
+      title: `${dn(pad)} — corredor entre motores, ${tituloSeguimiento(info).replace('Seguimiento del ', '')} (dispersión prom.: ${avgSpread}; no es un intervalo de confianza)`,
       labels,
       datasets,
       options: {
@@ -1503,8 +1507,11 @@ function buildTreemap(data) {
 
   if (!entries.length) return null;
 
-  // Color por SMAPE: verde (<30%), amarillo (30-60%), rojo (>60%)
+  // Color por SMAPE: verde (<30%), amarillo (30-60%), rojo (>60%). Con las métricas de selección
+  // retiradas todas las barras van en un solo color: el tamaño (casos) es lo único que se publica.
+  const retiradas = metricasRetiradas(data);
   const smapeColor = (s) => {
+    if (retiradas) return '#5B8DEF';
     if (s <= 30) return '#5B8DEF';
     if (s <= 60) return '#2DD4BF';
     return '#F472B6';
@@ -1513,7 +1520,7 @@ function buildTreemap(data) {
   return {
     type: 'bar',
     horizontal: true,
-    title: 'Casos pronosticados por entidad (color = SMAPE)',
+    title: retiradas ? 'Casos pronosticados por entidad' : 'Casos pronosticados por entidad (color = SMAPE)',
     labels: entries.map(e => e.ent),
     datasets: [{
       label: 'Casos (52 sem)',
@@ -1537,6 +1544,7 @@ function buildTreemap(data) {
  * Radar comparativo de motores: poligono por motor con metricas normalizadas.
  */
 function buildRadarChart(data) {
+  if (metricasRetiradas(data)) return null; // ejes de error = diagnóstico de selección
   const pm = data.stats?.por_motor;
   const dist = data.stats?.dist_motor;
   if (!pm || !dist) return null;
@@ -1643,18 +1651,20 @@ function buildStackedArea(data) {
   const padOrder = ['Depresion', 'Parkinson', 'Alzheimer'];
   const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
 
-  // Usar semanas del primer padecimiento como referencia
-  const refSems = wc[padOrder[0]]?.semanas;
-  if (!refSems || !refSems.length) return null;
+  // Sólo las semanas posteriores al corte (antes del corte sería el ajuste dentro de muestra).
+  const pads = padOrder.filter(p => weeklyV2(wc[p]));
+  if (!pads.length) return null;
+  const idx = semanasConPronostico(wc, pads);
+  if (!idx.length) return null;
+  const refSems = wc[pads[0]].semanas;
+  const labels = idx.map(i => `S${String(refSems[i].semana).padStart(2, '0')}`);
 
-  const labels = refSems.map(s => `S${String(s.semana).padStart(2, '0')}`);
-
-  const datasets = padOrder.filter(p => wc[p]).map(pad => {
-    const sems = wc[pad].semanas || [];
+  const datasets = pads.map(pad => {
+    const sems = wc[pad].semanas;
     const color = padColors[pad];
     return {
       label: pad,
-      data: sems.map(s => s.pronostico),
+      data: idx.map(i => sems[i].pronostico),
       borderColor: color,
       backgroundColor: color + '88',
       fill: true,
@@ -1666,7 +1676,7 @@ function buildStackedArea(data) {
 
   return {
     type: 'line',
-    title: 'Composición semanal: pronóstico apilado por padecimiento',
+    title: `Composición semanal: pronóstico apilado por padecimiento (corte ${String(wc[pads[0]].corte || '').replace(/^\d{4}-/, '')}, semanas sin dato de ${wc[pads[0]].anio})`,
     labels,
     datasets,
     options: {
@@ -1696,7 +1706,7 @@ function buildMexicoMap(data, qn) {
 
   const q = (qn || '').toLowerCase();
   let mode = 'casos';
-  if (q.includes('smape') || q.includes('error') || q.includes('precision')) mode = 'smape';
+  if (!metricasRetiradas(data) && (q.includes('smape') || q.includes('error') || q.includes('precision'))) mode = 'smape';
 
   // Detectar padecimiento
   const padNames = ['Depresion', 'Parkinson', 'Alzheimer'];
@@ -1801,18 +1811,15 @@ function buildTimelapse(data) {
   const wc = data.weekly_comparison;
   if (!models.length || !wc) return null;
 
-  const pads = Object.keys(wc);
+  const pads = Object.keys(wc).filter(p => weeklyV2(wc[p]) && ['Depresion', 'Parkinson', 'Alzheimer'].includes(p));
+  if (!pads.length) return null;
 
-  // National weekly pattern (proportion per week)
-  const weeklyTotals = [];
-  const nWeeks = wc[pads[0]]?.semanas?.length || 52;
-  for (let i = 0; i < nWeeks; i++) {
-    let weekSum = 0;
-    for (const p of pads) { weekSum += (wc[p]?.semanas?.[i]?.pronostico || 0); }
-    weeklyTotals.push(weekSum);
-  }
-  const natTotal = weeklyTotals.reduce((a, v) => a + v, 0) || 1;
-  const weeklyProp = weeklyTotals.map(w => w / natTotal);
+  // Semanas posteriores al corte con pronóstico nacional de los 3 padecimientos (antes del corte
+  // sería el ajuste dentro de muestra). Cada estado recibe su parte del total nacional de la semana.
+  const idx = semanasConPronostico(wc, pads);
+  if (!idx.length) return null;
+  const weeklyTotals = idx.map(i => pads.reduce((a, p) => a + wc[p].semanas[i].pronostico, 0));
+  const nWeeks = idx.length;
 
   // Per-state totals (sexo=general)
   const byEnt = {};
@@ -1827,21 +1834,21 @@ function buildTimelapse(data) {
   const frames = [];
   const cumulative = {};
   for (const e of Object.keys(byEnt)) cumulative[e] = 0;
+  const totalEnt = Object.values(byEnt).reduce((a, v) => a + v, 0) || 1;
 
   for (let w = 0; w < nWeeks; w++) {
-    const prop = weeklyProp[w] || (1 / nWeeks);
     const stateData = {};
     for (const [ent, total] of Object.entries(byEnt)) {
-      cumulative[ent] += Math.round(total * prop);
+      cumulative[ent] += Math.round(weeklyTotals[w] * (total / totalEnt));
       stateData[ent] = { value: cumulative[ent], label: cumulative[ent].toLocaleString() + ' casos acum.' };
     }
-    frames.push({ week: w + 1, stateData: JSON.parse(JSON.stringify(stateData)) });
+    frames.push({ week: wc[pads[0]].semanas[idx[w]].semana, stateData: JSON.parse(JSON.stringify(stateData)) });
   }
 
   return {
     _timelapseChart: true,
     frames,
-    opts: { title: 'Timelapse: pronóstico acumulado por semana', lowColor: [30, 60, 50], highColor: [91, 141, 239], metric: 'casos acum.' },
+    opts: { title: `Timelapse: pronóstico acumulado por semana desde el corte ${String(wc[pads[0]].corte || '').replace(/^\d{4}-/, '')}`, lowColor: [30, 60, 50], highColor: [91, 141, 239], metric: 'casos acum.' },
   };
 }
 
@@ -1876,8 +1883,9 @@ function buildSemaforo(data) {
     return 'verde';
   }
 
+  const retiradas = metricasRetiradas(data);
   const states = Object.entries(byEnt).map(([name, d]) => {
-    const avgSmape = d.smapes.length ? d.smapes.reduce((a, v) => a + v, 0) / d.smapes.length : null;
+    const avgSmape = !retiradas && d.smapes.length ? d.smapes.reduce((a, v) => a + v, 0) / d.smapes.length : null;
     return {
       name, casos: d.casos, smape: avgSmape != null ? Math.round(avgSmape * 10) / 10 : null,
       trend: 'stable', pads: d.pads, riskLevel: riskLevel(d.casos),
@@ -1946,62 +1954,54 @@ function buildPDFReport(data) {
 }
 
 /**
- * Heatmap de error semanal: matriz padecimiento x semanas.
- * Usa barras coloreadas por intensidad de error.
+ * Diferencias del seguimiento posterior al corte (pronostico - observado), por padecimiento.
+ * Sin colores de calificacion; un par ausente queda vacio.
  */
 function buildErrorHeatmap(data, qn) {
   const wc = data.weekly_comparison;
   if (!wc) return null;
 
-  const pads = Object.keys(wc);
+  const pads = Object.keys(wc).filter(p => weeklyV2(wc[p]));
   const filtered = pads.filter(pad => {
     if (!qn) return true;
     const pn = pad.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     const inQ = qn.includes(pn);
     return inQ || !pads.some(p => qn.includes(p.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')));
   });
+  if (!filtered.length) return null;
 
-  // Solo semanas con datos reales
-  const refPad = wc[filtered[0] || pads[0]];
-  const realWeeks = (refPad?.semanas || []).filter(s => s.real != null);
-  if (!realWeeks.length) return null;
-
-  const labels = realWeeks.map(s => `S${String(s.semana).padStart(2, '0')}`);
+  // Sólo los pares posteriores al corte, sin colores de calificación: antes del corte la
+  // diferencia sería contra el ajuste dentro de muestra, que no es validación.
+  const seg0 = semanasDeFase(wc[filtered[0]], 'seguimiento');
+  if (!seg0.length) return null;
+  const labels = seg0.map(w => `Sem ${w.semana} (h=${w.horizonte})`);
   const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
 
-  const datasets = [];
-  for (const pad of filtered) {
-    const sems = (wc[pad]?.semanas || []).filter(s => s.real != null);
-    const errors = sems.map(s => {
-      if (s.real === 0) return s.pronostico > 0 ? 100 : 0;
-      return Math.abs(((s.pronostico - s.real) / s.real) * 100);
-    });
+  const datasets = filtered.map(pad => {
+    const seg = semanasDeFase(wc[pad], 'seguimiento');
     const color = padColors[pad] || '#5B8DEF';
-    // Color del padecimiento, opacidad segun error: alta (>40%), media (15-40%), baja (<15%)
-    const bgColors = errors.map(e => {
-      if (e > 40) return color + 'FF';  // solido = error alto
-      if (e > 15) return color + '99';  // semi = error medio
-      return color + '55';              // tenue = error bajo (bueno)
-    });
-    datasets.push({
+    return {
       label: pad,
-      data: errors.map(e => Math.round(e * 10) / 10),
-      backgroundColor: bgColors,
+      data: seg0.map(w0 => {
+        const w = seg.find(x => x.semana === w0.semana);
+        return w && w.estado === 'par' ? w.diferencia : null;  // un ausente queda vacío, no en cero
+      }),
+      backgroundColor: color + '99',
       borderColor: color,
       borderWidth: 1.5,
       borderRadius: 3,
-    });
-  }
+    };
+  });
 
   return {
     type: 'bar',
-    title: 'Error semanal (% |real - pronóstico| / real)',
+    title: `${tituloSeguimiento(wc[filtered[0]])}: pronóstico − observado (nacional; diagnóstico, sin calificar)`,
     labels,
     datasets,
     options: {
       scales: {
         x: { ticks: { font: { size: 10 } } },
-        y: { beginAtZero: true, title: { display: true, text: 'Error %', font: { size: 11, family: 'Outfit' }, color: '#7E92B6' } },
+        y: { title: { display: true, text: 'Casos (pron. − obs.)', font: { size: 11, family: 'Outfit' }, color: '#7E92B6' } },
       },
     },
   };
@@ -2011,13 +2011,6 @@ function buildErrorHeatmap(data, qn) {
  * Genera graficos de zoom semanal (2025-2027): real vs pronostico.
  * Devuelve un array de charts (1 por padecimiento filtrado).
  */
-function zoomIsoWeekApp(iso) {
-  const dt = new Date(iso + 'T00:00:00'); dt.setHours(0, 0, 0, 0);
-  dt.setDate(dt.getDate() + 3 - ((dt.getDay() + 6) % 7));
-  const w1 = new Date(dt.getFullYear(), 0, 4);
-  return 1 + Math.round(((dt - w1) / 864e5 - 3 + ((w1.getDay() + 6) % 7)) / 7);
-}
-
 // Chart de zoom para UNA serie (estado × sexo) desde data.zoom_series: real vs pronostico
 // solapados hasta la semana vigente + pronostico al futuro.
 function buildSeriesZoom(s, pad, estado, sexo) {
@@ -2027,7 +2020,12 @@ function buildSeriesZoom(s, pad, estado, sexo) {
   const sexoLbl = sexo === 'general' ? 'ambos sexos' : sexo;
   const labels = s.d.map(iso => { const p = iso.split('-'); return `${p[1]}/${p[2].slice(0, 2)} ${p[0].slice(2)}`; });
   const lastRealIdx = s.r.reduce((acc, v, i) => (v != null ? i : acc), -1);
-  const wk = s.last_real ? zoomIsoWeekApp(s.last_real) : null;
+  // Semana del boletín de la última observación, desde el seguimiento (el ISO del ds legado no lo es).
+  const seg = Array.isArray(s.seguimiento) ? s.seguimiento : [];
+  const ult = seg.filter(w => w.real != null).pop();
+  const wk = ult ? Number(String(ult.etiqueta).slice(-2)) : null;
+  // Antes del corte la línea del motor es ajuste dentro de muestra: no se dibuja.
+  const yPost = s.y.map((v, i) => (s.ds_corte && s.d[i] <= s.ds_corte ? null : v));
   const hasBand = Array.isArray(s.hi) && s.hi.some(v => v != null);
   const datasets = [];
   if (hasBand) {
@@ -2040,12 +2038,12 @@ function buildSeriesZoom(s, pad, estado, sexo) {
   }
   datasets.push(
     {
-      label: `Pronóstico (${s.motor || pad})`, data: s.y,
+      label: `Pronóstico desde el corte (${s.motor || pad})`, data: yPost,
       borderColor: color + 'CC', backgroundColor: 'transparent', fill: false, tension: 0.3,
       borderWidth: 2, borderDash: [8, 5], pointRadius: 0, order: 2,
     },
     {
-      label: 'Real', data: s.r,
+      label: s.definicion_real && sexo !== 'general' ? `Observado (${s.definicion_real})` : 'Observado', data: s.r,
       borderColor: color, backgroundColor: color + '22', fill: false, tension: 0.3,
       borderWidth: 3, spanGaps: false, order: 1,
       pointRadius: s.r.map((v, i) => (i === lastRealIdx ? 6 : v != null ? 2.5 : 0)),
@@ -2055,7 +2053,7 @@ function buildSeriesZoom(s, pad, estado, sexo) {
   );
   return {
     type: 'line',
-    title: `${dn(pad)} — ${estadoLbl} (${sexoLbl})  ·  real vs pronóstico${wk != null ? ' (sem ' + wk + ')' : ''}`,
+    title: `${dn(pad)} — ${estadoLbl} (${sexoLbl})  ·  observado y pronóstico${s.corte ? ' con corte ' + String(s.corte).replace(/^\d{4}-/, '') : ''}${wk != null ? ' (última observada: sem ' + wk + ')' : ''}`,
     labels, datasets,
     options: { scales: { x: { ticks: { maxRotation: 90, font: { size: 9 }, autoSkip: true, maxTicksLimit: 18 } }, y: { beginAtZero: true } } },
   };
@@ -2094,26 +2092,22 @@ function buildZoomChart(data, qn, ent) {
 
   for (const pad of filtered) {
     const info = wc[pad];
-    const sems = info.semanas || [];
+    if (!weeklyV2(info)) continue;
+    const sems = info.semanas;
     if (!sems.length) continue;
 
-    const labels = sems.map(s => {
-      if (s.fecha) {
-        const parts = s.fecha.split('-');
-        return `${parts[1]}/${parts[2]}`;
-      }
-      return `S${String(s.semana).padStart(2, '0')}`;
-    });
+    const labels = sems.map(s => `S${String(s.semana).padStart(2, '0')}`);
 
     const realData = sems.map(s => s.real != null ? s.real : null);
-    const pronData = sems.map(s => s.pronostico);
+    // Pronóstico sólo desde el corte: las semanas observadas no llevan el ajuste dentro de muestra.
+    const pronData = sems.map(s => (s.fase === 'observado' ? null : s.pronostico ?? null));
     const lastRealIdx = realData.reduce((acc, v, i) => v != null ? i : acc, -1);
     const color = padColors[pad] || '#5B8DEF';
 
     // Pronostico: linea punteada completa
     const datasets = [
       {
-        label: 'Pronóstico (' + (info.modelo_productivo || pad) + ')',
+        label: 'Pronóstico desde el corte (' + (info.motor || info.modelo_productivo || pad) + ')',
         data: pronData,
         borderColor: color + '88',
         backgroundColor: color + '0A',
@@ -2125,7 +2119,7 @@ function buildZoomChart(data, qn, ent) {
         order: 2,
       },
       {
-        label: 'Real',
+        label: 'Observado',
         data: realData,
         borderColor: color,
         backgroundColor: color + '22',
@@ -2143,7 +2137,7 @@ function buildZoomChart(data, qn, ent) {
 
     charts.push({
       type: 'line',
-      title: `${dn(pad)} — zoom semanal (${sems[0].fecha || ''} a ${sems[sems.length - 1].fecha || ''})`,
+      title: `${dn(pad)} — ${tituloSeguimientoMin(info)} (semanas ${sems[0].semana}–${sems[sems.length - 1].semana} de ${info.anio}: ${periodoBoletin(sems[0]).split(' – ')[0]} a ${periodoBoletin(sems[sems.length - 1])})`,
       labels,
       datasets,
       options: {
@@ -2291,6 +2285,7 @@ function buildTrendChart(data, qn) {
  * entre acierto y error de cada modelo estatal.
  */
 function buildPerformanceMatrix(data) {
+  if (metricasRetiradas(data)) return null;
   const models = data.prod_models || [];
   if (!models.length) return null;
   const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
@@ -2407,6 +2402,7 @@ function buildMotorByPad(data) {
  * top y bottom combinados, verde para aciertos, guinda para errores.
  */
 function buildBestWorst(data) {
+  if (metricasRetiradas(data)) return null;
   const s = data.stats || {};
   const top = s.top5_smape || [];
   const bot = s.bottom5_smape || [];
@@ -2456,6 +2452,15 @@ function buildVolumeError(data) {
     .map(([name, o]) => ({ name, casos: o.casos, smape: o.smapes.length ? o.smapes.reduce((a, v) => a + v, 0) / o.smapes.length : null }))
     .sort((a, b) => b.casos - a.casos).slice(0, 10);
   if (!entries.length) return null;
+  // Retiradas: sólo el volumen; la línea de SMAPE era diagnóstico de selección.
+  if (metricasRetiradas(data)) {
+    return {
+      type: 'bar',
+      title: 'Top 10 estados — casos pronosticados (52 sem)',
+      labels: entries.map(e => dn(e.name)),
+      datasets: [{ label: 'Casos (52 sem)', data: entries.map(e => e.casos), backgroundColor: '#5B8DEF', borderRadius: 4 }],
+    };
+  }
   return {
     type: 'bar',
     title: 'Top 10 estados — volumen vs error (SMAPE)',
@@ -2485,7 +2490,7 @@ function buildCalibration(data) {
   const byPad = {};
   let maxV = 0;
   for (const m of models) {
-    if (m.pron_sem_previa == null || m.realidad_sem_previa == null) continue;
+    if (m.pron_sem_previa == null || m.realidad_sem_previa == null || !m.semana_validacion) continue;
     const x = m.pron_sem_previa, y = m.realidad_sem_previa;
     maxV = Math.max(maxV, x, y);
     (byPad[m.padecimiento] = byPad[m.padecimiento] || []).push({ x, y, label: `${dn(m.entidad)} · ${m.sexo}` });
@@ -2515,7 +2520,13 @@ function buildCalibration(data) {
   });
   return {
     type: 'scatter',
-    title: 'Calibración — pronóstico vs realidad (última semana)',
+    title: (() => {
+      const m0 = models.find(m => m.semana_validacion) || {};
+      const sem = String(m0.semana_validacion || '').match(/^(\d{4})-W(\d{2})$/);
+      return sem
+        ? `Calibración — pronóstico vs realidad, semana ${Number(sem[2])} de ${sem[1]} (horizonte ${m0.horizonte_validacion})`
+        : 'Calibración — pronóstico vs realidad';
+    })(),
     datasets,
     options: {
       scales: {
@@ -2531,6 +2542,7 @@ function buildCalibration(data) {
  * modelo ingenuo; >= 1 (guinda) no lo logran.
  */
 function buildMaseByMotor(data) {
+  if (metricasRetiradas(data)) return null;
   const pm = (data.stats || {}).por_motor;
   if (!pm || !Object.keys(pm).length) return null;
   const motors = Object.keys(pm);
@@ -2561,26 +2573,22 @@ function buildMaseByMotor(data) {
 function buildCumulative(data) {
   const wc = data.weekly_comparison;
   if (!wc) return null;
-  const pads = Object.keys(wc);
+  const pads = Object.keys(wc).filter(p => weeklyV2(wc[p]) && ['Depresion', 'Parkinson', 'Alzheimer'].includes(p));
   if (!pads.length) return null;
-  const nSem = (wc[pads[0]].semanas || []).length;
-  if (!nSem) return null;
+  // Sólo semanas posteriores al corte: antes del corte sería el ajuste dentro de muestra.
+  const idx = semanasConPronostico(wc, pads);
+  if (!idx.length) return null;
   const labels = [], cum = [];
   let acc = 0;
-  for (let i = 0; i < nSem; i++) {
-    let wk = 0;
-    for (const p of pads) {
-      const sem = (wc[p].semanas || [])[i];
-      if (sem) wk += sem.pronostico || 0;
-    }
-    acc += wk;
+  for (const i of idx) {
+    acc += pads.reduce((a, p) => a + wc[p].semanas[i].pronostico, 0);
     cum.push(acc);
-    const sObj = (wc[pads[0]].semanas || [])[i];
-    labels.push('S' + String(sObj ? sObj.semana : i + 1).padStart(2, '0'));
+    labels.push('S' + String(wc[pads[0]].semanas[i].semana).padStart(2, '0'));
   }
+  const ref = wc[pads[0]];
   return {
     type: 'line',
-    title: 'Pronóstico nacional acumulado (52 semanas)',
+    title: `Pronóstico nacional acumulado desde el corte ${String(ref.corte || '').replace(/^\d{4}-/, '')} (semanas ${labels[0].slice(1)}–${labels[labels.length - 1].slice(1)} de ${ref.anio})`,
     labels,
     datasets: [{
       label: 'Casos acumulados',
@@ -2656,6 +2664,7 @@ function buildQualityGauge(data) {
  * Rango de SMAPE por padecimiento (caja intercuartil p25–p75, barras flotantes).
  */
 function buildSmapeBox(data) {
+  if (metricasRetiradas(data)) return null;
   const models = data.prod_models || [];
   if (!models.length) return null;
   const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
@@ -2698,22 +2707,21 @@ function buildWaterfall(data) {
   const models = data.prod_models || [];
   if (!models.length) return null;
   const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
-  const byPad = {};
-  for (const m of models) {
-    if (m.sexo !== 'general') continue;
-    const e = m.entidad || '';
-    if (e === 'Nacional' || e.startsWith('Region') || e.startsWith('region_')) continue;
-    byPad[m.padecimiento] = (byPad[m.padecimiento] || 0) + (m.casos_52_semanas_futuro || 0);
-  }
-  const pads = Object.keys(byPad);
-  if (!pads.length) return null;
+  // Agregado estatal canónico del backend (yhat originales, redondeo único): ni los totales por
+  // serie ya redondeados ni el nombre «nacional», que es el de los modelos nacionales.
+  const ag = data.agregado_estatal_neuro;
+  if (!ag || !ag.por_padecimiento) return null;
+  const pads = Object.keys(ag.por_padecimiento);
   let run = 0;
   const labels = [], dataPairs = [], colors = [];
-  for (const p of pads) { const v = byPad[p]; dataPairs.push([run, run + v]); colors.push(padColors[p] || '#5B8DEF'); labels.push(dn(p)); run += v; }
-  labels.push('Total nacional'); dataPairs.push([0, run]); colors.push('#A78BFA');
+  for (const p of pads) {
+    const v = ag.por_padecimiento[p].suma_original;
+    dataPairs.push([run, run + v]); colors.push(padColors[p] || '#5B8DEF'); labels.push(dn(p)); run += v;
+  }
+  labels.push('Agregado estatal neuro'); dataPairs.push([0, ag.valor_mostrado]); colors.push('#A78BFA');
   return {
     type: 'bar',
-    title: 'Aporte acumulado al total nacional (pronóstico 52 sem)',
+    title: `Aporte por padecimiento al agregado estatal neuro (${ag.denominador})`,
     labels,
     datasets: [{
       label: 'Casos',
@@ -2775,7 +2783,8 @@ function extractChartData(markdown, query) {
     return null;
   }
 
-  // Comparacion semanal Real vs Pronostico (embedded from answerComparacionSemanal)
+  // Seguimiento del pronóstico con corte (embebido por answerComparacionSemanal): sólo pares
+  // posteriores al corte
   // Collect ALL weekly matches (one per padecimiento) and return as array
   const weeklyMatches = [...markdown.matchAll(/<!--WEEKLY:(.*?)-->/g)];
   if (weeklyMatches.length) {
@@ -2784,16 +2793,17 @@ function extractChartData(markdown, query) {
       try {
         const wk = JSON.parse(match[1]);
         const semanas = wk.semanas || [];
+        if (!semanas.length) continue;
         const labels = semanas.map(w => `Sem ${w.s}`);
-        const realData = semanas.map(w => w.r);
-        const pronData = semanas.map(w => w.p);
+        const realData = semanas.map(w => w.r ?? null);  // un ausente queda vacío, nunca en cero
+        const pronData = semanas.map(w => w.p ?? null);
         charts.push({
           type: 'bar',
-          title: `${dn(wk.pad)} ${wk.anio}: Real vs Pronóstico`,
+          title: `${dn(wk.pad)}: ${tituloSeguimiento({ corte: wk.corte })}`,
           labels,
           datasets: [
             {
-              label: 'Real',
+              label: 'Observado',
               data: realData,
               backgroundColor: '#5B8DEFCC',
               borderColor: '#5B8DEF',
@@ -2886,7 +2896,22 @@ function extractChartData(markdown, query) {
   // Comparativa de motores -> bar chart
   if (qn.includes('comparativa') || qn.includes('motor') && (qn.includes('gana') || qn.includes('comparar'))) {
     const pm = s.por_motor;
-    if (pm && Object.keys(pm).length) {
+    // Retiradas: en vez del SMAPE por motor, las series en que cada motor quedó productivo.
+    if (metricasRetiradas(data) && s.dist_motor && Object.keys(s.dist_motor).length) {
+      const dm = Object.entries(s.dist_motor).sort((a, b) => b[1] - a[1]);
+      return {
+        type: 'bar',
+        title: 'Series productivas por motor',
+        labels: dm.map(([m]) => m),
+        datasets: [{
+          label: 'Series',
+          data: dm.map(([, n]) => n),
+          backgroundColor: CHART_COLORS.slice(0, dm.length),
+          borderRadius: 6,
+        }],
+      };
+    }
+    if (!metricasRetiradas(data) && pm && Object.keys(pm).length) {
       return {
         type: 'bar',
         title: 'SMAPE promedio por motor',
@@ -2904,7 +2929,7 @@ function extractChartData(markdown, query) {
   // Metricas globales -> radar or bar
   if (qn.includes('metrica') && qn.includes('global')) {
     const pm = s.por_motor;
-    if (pm && Object.keys(pm).length) {
+    if (!metricasRetiradas(data) && pm && Object.keys(pm).length) {
       return {
         type: 'bar',
         title: 'SMAPE por motor de predicción',
@@ -3093,7 +3118,7 @@ function extractChartData(markdown, query) {
     if (chart) return chart;
   }
 
-  // Corredor de confianza (4 modelos)
+  // Corredor entre motores (4 motores, semanas sin dato)
   if (qn.includes('corredor') || qn.includes('confianza') || qn.includes('banda') ||
       qn.includes('incertidumbre') || qn.includes('consenso') ||
       (qn.includes('4 modelo') || qn.includes('cuatro modelo')) ||
@@ -3266,20 +3291,21 @@ function extractChartData(markdown, query) {
       const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
       const charts = [];
       for (const [pad, info] of Object.entries(wc)) {
-        const sems = info.semanas || [];
+        // Semanas posteriores al corte: pares del seguimiento y pronóstico de las que no tienen dato.
+        const sems = weeklyV2(info) ? info.semanas.filter(s => s.fase !== 'observado') : [];
         if (!sems.length) continue;
         const labels = sems.map(s => `S${String(s.semana).padStart(2, '0')}`);
         const datasets = [{
-          label: 'Pronóstico',
-          data: sems.map(s => s.pronostico),
+          label: 'Pronóstico desde el corte',
+          data: sems.map(s => s.pronostico ?? null),
           backgroundColor: sems.map(s => s.real != null ? padColors[pad] + 'AA' : padColors[pad] + '55'),
           borderRadius: 2,
         }];
-        // Superponer datos reales donde existan
+        // Superponer lo observado en las semanas del seguimiento
         const realData = sems.map(s => s.real != null ? s.real : null);
         if (realData.some(v => v != null)) {
           datasets.push({
-            label: 'Real',
+            label: 'Observado',
             data: realData,
             backgroundColor: '#ffffffCC',
             borderColor: padColors[pad],
@@ -3289,7 +3315,7 @@ function extractChartData(markdown, query) {
         }
         charts.push({
           type: 'bar',
-          title: `${dn(pad)} - pronóstico semanal (${info.modelo_productivo || ''})`,
+          title: `${dn(pad)} - pronóstico semanal con corte ${String(info.corte || '').replace(/^\d{4}-/, '')} (${info.motor || info.modelo_productivo || ''})`,
           labels,
           datasets,
           options: {
@@ -3467,12 +3493,12 @@ function extractChartData(markdown, query) {
       for (const [sx, info] of Object.entries(psx)) {
         if (sx === 'general') continue;
         labels.push(sx === 'hombres' ? 'Hombres' : 'Mujeres');
-        vals.push(info.casos_total || 0);
+        vals.push(info.casos_total ?? null);  // agregado de los 32 estados (backend)
       }
       if (labels.length) {
         return {
           type: 'bar',
-          title: `${dn(pad)}: casos pronosticados por sexo (52 sem)`,
+          title: `${dn(pad)}: agregado estatal por sexo (32 estados, 52 pasos)`,
           labels,
           datasets: [{
             label: 'Casos pronosticados',
@@ -3740,8 +3766,11 @@ function renderChart(canvasId, chartData) {
 
 function getSuggestions(query) {
   const q = query.toLowerCase();
+  const retiradas = metricasRetiradas(getData());
   if (q.includes('metrica') || q.includes('smape'))
-    return [{ text: 'Ranking mejores', q: 'ranking mejores modelos' }, { text: 'Diagnósticos', q: 'diagnosticos de calidad' }];
+    return retiradas
+      ? [{ text: '¿Qué es el SMAPE?', q: 'que es el smape' }, { text: 'Motores productivos', q: 'distribucion de motores ganadores' }]
+      : [{ text: 'Ranking mejores', q: 'ranking mejores modelos' }, { text: 'Diagnósticos', q: 'diagnosticos de calidad' }];
   if (q.includes('depresion'))
     return [{ text: 'Tendencia histórica', q: 'tendencia historica de depresion' }, { text: 'Zoom semanal', q: 'zoom depresion' }, { text: 'Pronóstico', q: 'pronostico depresion' }];
   if (q.includes('parkinson'))
@@ -3749,19 +3778,22 @@ function getSuggestions(query) {
   if (q.includes('alzheimer'))
     return [{ text: 'Tendencia histórica', q: 'tendencia historica de alzheimer' }, { text: 'Zoom semanal', q: 'zoom alzheimer' }, { text: 'Pronóstico', q: 'pronostico alzheimer' }];
   if (q.includes('ranking'))
-    return [{ text: 'Métricas globales', q: 'metricas globales' }, { text: 'Comparativa motores', q: 'comparativa de motores' }];
+    return retiradas
+      ? [{ text: 'Comparativa motores', q: 'comparativa de motores' }, { text: 'Mapa de Mexico', q: 'mapa de mexico por casos' }]
+      : [{ text: 'Métricas globales', q: 'metricas globales' }, { text: 'Comparativa motores', q: 'comparativa de motores' }];
   if (q.includes('equipo'))
     return [{ text: 'Infraestructura', q: 'infraestructura del proyecto' }, { text: 'Alcance', q: 'que padecimientos modela' }];
   if (q.includes('corredor') || q.includes('confianza') || q.includes('consenso'))
-    return [{ text: 'Heatmap de error', q: 'heatmap error semanal' }, { text: 'Zoom semanal', q: 'zoom semanal' }];
+    return [{ text: 'Diferencias del seguimiento', q: 'heatmap error semanal' }, { text: 'Zoom semanal', q: 'zoom semanal' }];
   if (q.includes('heatmap') || q.includes('error semanal'))
-    return [{ text: 'Corredor de confianza', q: 'corredor de confianza' }, { text: 'Zoom semanal', q: 'zoom semanal' }];
+    return [{ text: 'Corredor entre motores', q: 'corredor entre motores' }, { text: 'Zoom semanal', q: 'zoom semanal' }];
   if (q.includes('zoom'))
-    return [{ text: 'Corredor de confianza', q: 'corredor de confianza' }, { text: 'Heatmap de error', q: 'heatmap error semanal' }];
+    return [{ text: 'Corredor entre motores', q: 'corredor entre motores' }, { text: 'Diferencias del seguimiento', q: 'heatmap error semanal' }];
   if (q.includes('tendencia'))
-    return [{ text: 'Zoom semanal', q: 'zoom semanal' }, { text: 'Corredor de confianza', q: 'corredor de confianza' }];
+    return [{ text: 'Zoom semanal', q: 'zoom semanal' }, { text: 'Corredor entre motores', q: 'corredor entre motores' }];
   if (q.includes('mapa') && (q.includes('mexico') || q.includes('republica')))
-    return [{ text: 'Mapa Depresion', q: 'mapa de mexico depresion' }, { text: 'Mapa Parkinson', q: 'mapa de mexico parkinson' }, { text: 'Mapa por SMAPE', q: 'mapa de mexico por smape' }];
+    return [{ text: 'Mapa Depresion', q: 'mapa de mexico depresion' }, { text: 'Mapa Parkinson', q: 'mapa de mexico parkinson' },
+      retiradas ? { text: 'Mapa Alzheimer', q: 'mapa de mexico alzheimer' } : { text: 'Mapa por SMAPE', q: 'mapa de mexico por smape' }];
   if (q.includes('treemap'))
     return [{ text: 'Mapa de Mexico', q: 'mapa de mexico por casos' }, { text: 'Radar motores', q: 'radar comparativo de motores' }];
   if (q.includes('timelapse') || q.includes('animacion'))
@@ -3771,7 +3803,8 @@ function getSuggestions(query) {
   if (q.includes('compara') || q.includes('vs'))
     return [{ text: 'Semaforo', q: 'semaforo epidemiologico' }, { text: 'Timelapse', q: 'timelapse mapa animado' }];
   if (q.includes('reporte') || q.includes('pdf'))
-    return [{ text: 'Semaforo', q: 'semaforo epidemiologico' }, { text: 'Metricas', q: 'metricas globales' }];
+    return [{ text: 'Semaforo', q: 'semaforo epidemiologico' },
+      retiradas ? { text: 'Motores productivos', q: 'distribucion de motores ganadores' } : { text: 'Metricas', q: 'metricas globales' }];
   return null;
 }
 
@@ -3893,6 +3926,7 @@ function safeUrl(url) {
 
 function generatePDFReport(data) {
   const s = data.stats || {};
+  const retiradas = metricasRetiradas(data);
   const models = data.prod_models || [];
   const wc = data.weekly_comparison || {};
   const tc = data.training_config || {};
@@ -3903,8 +3937,9 @@ function generatePDFReport(data) {
     return e && e !== 'Nacional' && !e.startsWith('Region') && !e.startsWith('region_');
   }
 
-  const totalCasos = models.filter(m => m.sexo === 'general' && isState(m))
-    .reduce((a, m) => a + (m.casos_52_semanas_futuro || 0), 0);
+  // Indicador canónico del backend; no se suma desde totales por serie ya redondeados.
+  const ag = data.agregado_estatal_neuro;
+  const totalCasos = ag ? ag.valor_mostrado : null;
 
   // Per-padecimiento stats (solo 32 estados)
   const padStats = {};
@@ -3952,10 +3987,18 @@ function generatePDFReport(data) {
   const padRows = Object.entries(padStats).map(([pad, ps]) => {
     const avgSmape = ps.smapes.length ? (ps.smapes.reduce((a, v) => a + v, 0) / ps.smapes.length).toFixed(1) : '?';
     return '<tr><td style="padding:6px 10px;border-bottom:1px solid #e0e0e0">' + dn(pad) + '</td>' +
-      '<td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:right">' + ps.casos.toLocaleString() + '</td>' +
+      '<td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:right">' +
+        (ag && ag.por_padecimiento && ag.por_padecimiento[pad] ? ag.por_padecimiento[pad].valor_mostrado.toLocaleString('es-MX') : '—') + '</td>' +
       '<td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:center">' + ps.models + '</td>' +
-      '<td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:center">' + avgSmape + '%</td></tr>';
+      (retiradas ? '' : '<td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;text-align:center">' + avgSmape + '%</td>') + '</tr>';
   }).join('');
+  // Retiradas: el KPI de SMAPE mediano se sustituye por las series productivas y se declara por qué.
+  const kpi3 = retiradas
+    ? `<div class="kpi"><div class="val">${data.rosters && data.rosters.total_series != null ? data.rosters.total_series : '—'}</div><div class="lbl">Series productivas</div></div>`
+    : `<div class="kpi"><div class="val">${s.smape_prod_median != null ? s.smape_prod_median + '%' : '?'}</div><div class="lbl">SMAPE mediano</div></div>`;
+  const notaMetricas = retiradas
+    ? `<p style="font-size:11px;color:#666;margin:-8px 0 20px">Métricas de error: ${rotuloMetricas(data)}. No se publican en esta ronda.</p>`
+    : '';
 
   const stateRows = topStates.map(([ent, casos]) =>
     '<tr><td style="padding:4px 10px;border-bottom:1px solid #f0f0f0">' + ent + '</td>' +
@@ -4016,16 +4059,17 @@ function generatePDFReport(data) {
 </div>
 
 <div class="kpi-grid">
-  <div class="kpi"><div class="val">${totalCasos.toLocaleString()}</div><div class="lbl">Casos pronosticados (52 sem)</div></div>
+  <div class="kpi"><div class="val">${totalCasos != null ? totalCasos.toLocaleString('es-MX') : '—'}</div><div class="lbl">Notificaciones previstas · agregado estatal neuro</div><div class="lbl">${ag ? ag.denominador : ''}</div></div>
   <div class="kpi"><div class="val">${s.total_modelos || 333}</div><div class="lbl">Modelos de producción</div></div>
-  <div class="kpi"><div class="val">${s.smape_prod_median != null ? s.smape_prod_median + '%' : '?'}</div><div class="lbl">SMAPE mediano</div></div>
+  ${kpi3}
   <div class="kpi"><div class="val">4</div><div class="lbl">Motores de IA</div></div>
 </div>
+${notaMetricas}
 
 <div class="section">
   <h2>Pronóstico por padecimiento</h2>
   <table>
-    <tr><th>Padecimiento</th><th style="text-align:right">Casos (52 sem)</th><th style="text-align:center">Modelos</th><th style="text-align:center">SMAPE prom</th></tr>
+    <tr><th>Padecimiento</th><th style="text-align:right">Agregado estatal (32 estados, 52 pasos)</th><th style="text-align:center">Modelos estatales</th>${retiradas ? '' : '<th style="text-align:center">SMAPE prom</th>'}</tr>
     ${padRows}
   </table>
 </div>
@@ -4033,7 +4077,7 @@ function generatePDFReport(data) {
 <div class="section">
   <h2>Top 10 entidades por incidencia pronosticada</h2>
   <table>
-    <tr><th>Entidad</th><th style="text-align:right">Casos (52 sem)</th><th style="text-align:center">Riesgo</th></tr>
+    <tr><th>Entidad</th><th style="text-align:right">Casos (52 sem, 3 padecimientos)</th><th style="text-align:center">Riesgo</th></tr>
     ${stateRows}
   </table>
 </div>

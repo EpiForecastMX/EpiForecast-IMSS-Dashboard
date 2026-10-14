@@ -1,6 +1,23 @@
 {
-    "_generated": "2026-09-03",
+    "_generated": "2026-10-14",
     "items": [
+        {
+            "date": "14 de octubre de 2026",
+            "iso": "2026-10-14",
+            "type": "datos",
+            "tag": "Datos",
+            "featured": false,
+            "title": "Ya contamos con la semana epidemiológica 39 de 2026",
+            "body": [
+                "Se integró el Boletín SINAVE hasta la <strong style=\"color:var(--cream)\">semana 39 de 2026</strong> (27 de septiembre al 3 de octubre) en los cuatro padecimientos, con las 32 entidades.",
+                "Los pronósticos son los de los modelos con corte en la semana 37; no hubo reentrenamiento. La galería publica 432 gráficos y la validación muestra el seguimiento de las semanas 38 y 39: el pronóstico guardado frente a lo observado esa misma semana, sin calificarlo. Son semanas de diagnóstico, no el resultado general del modelo."
+            ],
+            "link": {
+                "href": "Reports/index.html",
+                "text": "Ver observado y pronóstico en la galería",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
         {
             "date": "3 de septiembre de 2026",
             "iso": "2026-09-03",
@@ -28,14 +45,15 @@
             "featured": false,
             "title": "Ya contamos con la semana epidemiológica 33 de 2026",
             "body": [
-                "Se integró el Boletín SINAVE hasta la <strong style=\"color:var(--cream)\">semana 33 de 2026</strong> en los cuatro padecimientos. Sobre las semanas transcurridas del año, el total pronosticado se desvía del realmente observado en <strong style=\"color:var(--cream)\">+2.9&#37; en Depresión</strong>, <strong style=\"color:var(--cream)\">+8.8&#37; en Parkinson</strong>, <strong style=\"color:var(--cream)\">&#8722;34.9&#37; en Alzheimer</strong> y <strong style=\"color:var(--cream)\">+17.4&#37; en Dengue</strong>. Las series de conteo bajo (Alzheimer, Parkinson) muestran mayor variación entre recalibraciones; el acumulado se ajusta con cada reentrenamiento de modelos.",
-                "Precisión de la serie nacional por padecimiento (<strong style=\"color:var(--cream)\">SMAPE / MASE</strong>): Depresión <strong style=\"color:var(--cream)\">8.7&#37; / 0.59</strong>, Parkinson <strong style=\"color:var(--cream)\">16.2&#37; / 0.55</strong>, Alzheimer <strong style=\"color:var(--cream)\">17.4&#37; / 0.45</strong> y Dengue <strong style=\"color:var(--cream)\">23.1&#37; / 0.50</strong>. El MASE por debajo de 1 indica que el modelo supera a la persistencia estacional (repetir el mismo periodo del año anterior)."
+                "Se integró el Boletín SINAVE hasta la <strong style=\"color:var(--cream)\">semana 33 de 2026</strong> en los cuatro padecimientos."
             ],
             "link": {
                 "href": "Reports/index.html",
                 "text": "Ver real vs pronóstico en la galería",
                 "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
-            }
+            },
+            "historico": true,
+            "nota_historica": "Información histórica anterior a la ronda con corte de modelos en la semana 37 de 2026. Se retiraron de esta nota sus cifras y afirmaciones de desempeño, que no se verificaron con la asignación vigente; el original se conserva archivado."
         },
         {
             "date": "27 de agosto de 2026",
@@ -63,14 +81,15 @@
             "featured": false,
             "title": "Ya contamos con la semana epidemiológica 31 de 2026",
             "body": [
-                "Se integró el Boletín SINAVE hasta la <strong style=\"color:var(--cream)\">semana 31 de 2026</strong> en los cuatro padecimientos. Sobre las semanas transcurridas del año, el total pronosticado se desvía del realmente observado en <strong style=\"color:var(--cream)\">+3.1&#37; en Depresión</strong>, <strong style=\"color:var(--cream)\">+7.8&#37; en Parkinson</strong>, <strong style=\"color:var(--cream)\">&#8722;34.6&#37; en Alzheimer</strong> y <strong style=\"color:var(--cream)\">+13.9&#37; en Dengue</strong>. Las series de conteo bajo (Alzheimer, Parkinson) muestran mayor variación entre recalibraciones; el acumulado se ajusta con cada reentrenamiento de modelos.",
-                "Precisión de la serie nacional por padecimiento (<strong style=\"color:var(--cream)\">SMAPE / MASE</strong>): Depresión <strong style=\"color:var(--cream)\">8.7&#37; / 0.59</strong>, Parkinson <strong style=\"color:var(--cream)\">16.2&#37; / 0.55</strong>, Alzheimer <strong style=\"color:var(--cream)\">17.4&#37; / 0.45</strong> y Dengue <strong style=\"color:var(--cream)\">22.3&#37; / 0.48</strong>. El MASE por debajo de 1 indica que el modelo supera a la persistencia estacional (repetir el mismo periodo del año anterior)."
+                "Se integró el Boletín SINAVE hasta la <strong style=\"color:var(--cream)\">semana 31 de 2026</strong> en los cuatro padecimientos."
             ],
             "link": {
                 "href": "Reports/index.html",
                 "text": "Ver real vs pronóstico en la galería",
                 "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
-            }
+            },
+            "historico": true,
+            "nota_historica": "Información histórica anterior a la ronda con corte de modelos en la semana 37 de 2026. Se retiraron de esta nota sus cifras y afirmaciones de desempeño, que no se verificaron con la asignación vigente; el original se conserva archivado."
         },
         {
             "date": "21 de julio de 2026",
@@ -80,14 +99,15 @@
             "featured": false,
             "title": "Ya contamos con la semana epidemiológica 27 de 2026",
             "body": [
-                "Se integró el Boletín SINAVE hasta la <strong style=\"color:var(--cream)\">semana 27 de 2026</strong> en los cuatro padecimientos. Sobre las semanas transcurridas del año, el total pronosticado se desvía del realmente observado en <strong style=\"color:var(--cream)\">+3.7&#37; en Depresión</strong>, <strong style=\"color:var(--cream)\">+8.9&#37; en Parkinson</strong>, <strong style=\"color:var(--cream)\">&#8722;32.8&#37; en Alzheimer</strong> y <strong style=\"color:var(--cream)\">+6.9&#37; en Dengue</strong>. Las series de conteo bajo (Alzheimer, Parkinson) muestran mayor variación entre recalibraciones; el acumulado se ajusta con cada reentrenamiento de modelos.",
-                "Precisión de la serie nacional por padecimiento (<strong style=\"color:var(--cream)\">SMAPE / MASE</strong>): Depresión <strong style=\"color:var(--cream)\">8.7&#37; / 0.59</strong>, Parkinson <strong style=\"color:var(--cream)\">16.2&#37; / 0.55</strong>, Alzheimer <strong style=\"color:var(--cream)\">17.4&#37; / 0.45</strong> y Dengue <strong style=\"color:var(--cream)\">20.1&#37; / 0.40</strong>. El MASE por debajo de 1 indica que el modelo supera a la persistencia estacional (repetir el mismo periodo del año anterior)."
+                "Se integró el Boletín SINAVE hasta la <strong style=\"color:var(--cream)\">semana 27 de 2026</strong> en los cuatro padecimientos."
             ],
             "link": {
                 "href": "Reports/index.html",
                 "text": "Ver real vs pronóstico en la galería",
                 "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
-            }
+            },
+            "historico": true,
+            "nota_historica": "Información histórica anterior a la ronda con corte de modelos en la semana 37 de 2026. Se retiraron de esta nota sus cifras y afirmaciones de desempeño, que no se verificaron con la asignación vigente; el original se conserva archivado."
         },
         {
             "date": "8 de julio de 2026",
@@ -97,14 +117,15 @@
             "featured": false,
             "title": "Ya contamos con la semana epidemiológica 25 de 2026",
             "body": [
-                "Se integró el Boletín SINAVE hasta la <strong style=\"color:var(--cream)\">semana 25 de 2026</strong> en los cuatro padecimientos. Sobre las semanas transcurridas del año, el total pronosticado se desvía del realmente observado en <strong style=\"color:var(--cream)\">+3.5&#37; en Depresión</strong>, <strong style=\"color:var(--cream)\">+8.8&#37; en Parkinson</strong>, <strong style=\"color:var(--cream)\">&#8722;31.9&#37; en Alzheimer</strong> y <strong style=\"color:var(--cream)\">&#8722;3.6&#37; en Dengue</strong>. Las series de conteo bajo (Alzheimer, Parkinson) muestran mayor variación entre recalibraciones; el acumulado se ajusta con cada reentrenamiento de modelos.",
-                "Precisión de la serie nacional por padecimiento (<strong style=\"color:var(--cream)\">SMAPE / MASE</strong>): Depresión <strong style=\"color:var(--cream)\">8.7&#37; / 0.59</strong>, Parkinson <strong style=\"color:var(--cream)\">16.2&#37; / 0.55</strong>, Alzheimer <strong style=\"color:var(--cream)\">17.4&#37; / 0.45</strong> y Dengue <strong style=\"color:var(--cream)\">18.2&#37; / 0.34</strong>. El MASE por debajo de 1 indica que el modelo supera a la persistencia estacional (repetir el mismo periodo del año anterior)."
+                "Se integró el Boletín SINAVE hasta la <strong style=\"color:var(--cream)\">semana 25 de 2026</strong> en los cuatro padecimientos."
             ],
             "link": {
                 "href": "Reports/index.html",
                 "text": "Ver real vs pronóstico en la galería",
                 "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
-            }
+            },
+            "historico": true,
+            "nota_historica": "Información histórica anterior a la ronda con corte de modelos en la semana 37 de 2026. Se retiraron de esta nota sus cifras y afirmaciones de desempeño, que no se verificaron con la asignación vigente; el original se conserva archivado."
         },
         {
             "date": "30 de junio de 2026",
@@ -114,14 +135,15 @@
             "featured": false,
             "title": "Ya contamos con la semana epidemiológica 24 de 2026",
             "body": [
-                "Se integró el Boletín SINAVE hasta la <strong style=\"color:var(--cream)\">semana 24 de 2026</strong> en los cuatro padecimientos. Sobre las semanas transcurridas del año, el total pronosticado se desvía del realmente observado en <strong style=\"color:var(--cream)\">+4.0&#37; en Depresión</strong>, <strong style=\"color:var(--cream)\">+9.1&#37; en Parkinson</strong>, <strong style=\"color:var(--cream)\">&#8722;31.4&#37; en Alzheimer</strong> y <strong style=\"color:var(--cream)\">&#8722;2.5&#37; en Dengue</strong>. Las series de conteo bajo (Alzheimer, Parkinson) muestran mayor variación entre recalibraciones; el acumulado se ajusta con cada reentrenamiento de modelos.",
-                "Precisión de la serie nacional por padecimiento (<strong style=\"color:var(--cream)\">SMAPE / MASE</strong>): Depresión <strong style=\"color:var(--cream)\">8.7&#37; / 0.59</strong>, Parkinson <strong style=\"color:var(--cream)\">16.2&#37; / 0.55</strong>, Alzheimer <strong style=\"color:var(--cream)\">17.4&#37; / 0.45</strong> y Dengue <strong style=\"color:var(--cream)\">17.8&#37; / 0.35</strong>. El MASE por debajo de 1 indica que el modelo supera a la persistencia estacional (repetir el mismo periodo del año anterior)."
+                "Se integró el Boletín SINAVE hasta la <strong style=\"color:var(--cream)\">semana 24 de 2026</strong> en los cuatro padecimientos."
             ],
             "link": {
                 "href": "Reports/index.html",
                 "text": "Ver real vs pronóstico en la galería",
                 "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
-            }
+            },
+            "historico": true,
+            "nota_historica": "Información histórica anterior a la ronda con corte de modelos en la semana 37 de 2026. Se retiraron de esta nota sus cifras y afirmaciones de desempeño, que no se verificaron con la asignación vigente; el original se conserva archivado."
         },
         {
             "date": "11 de junio de 2026",
@@ -131,14 +153,15 @@
             "featured": false,
             "title": "Ya contamos con la semana epidemiológica 21 de 2026",
             "body": [
-                "Se integró el Boletín SINAVE hasta la <strong style=\"color:var(--cream)\">semana 21 de 2026</strong> en los cuatro padecimientos. Sobre las semanas transcurridas del año, el total pronosticado se desvía del total realmente observado en <strong style=\"color:var(--cream)\">+3.6&#37; en Depresión</strong>, <strong style=\"color:var(--cream)\">&#8722;1.9&#37; en Parkinson</strong>, <strong style=\"color:var(--cream)\">&#8722;6.3&#37; en Alzheimer</strong> y <strong style=\"color:var(--cream)\">&#8722;8.9&#37; en Dengue</strong>: el acumulado del año se mantiene dentro de un margen de un dígito en todos los padecimientos.",
-                "Precisión de la serie nacional por padecimiento (<strong style=\"color:var(--cream)\">SMAPE / MASE</strong>): Depresión <strong style=\"color:var(--cream)\">7.8&#37; / 0.52</strong>, Parkinson <strong style=\"color:var(--cream)\">14.2&#37; / 0.43</strong>, Alzheimer <strong style=\"color:var(--cream)\">18.7&#37; / 0.48</strong>, Dengue <strong style=\"color:var(--cream)\">20.8&#37; / 0.07</strong>. El MASE por debajo de 1 en los cuatro casos indica que cada modelo supera a la persistencia estacional (repetir el mismo periodo del año anterior)."
+                "Se integró el Boletín SINAVE hasta la <strong style=\"color:var(--cream)\">semana 21 de 2026</strong> en los cuatro padecimientos."
             ],
             "link": {
                 "href": "Reports/index.html",
                 "text": "Ver real vs pronóstico en la galería",
                 "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
-            }
+            },
+            "historico": true,
+            "nota_historica": "Información histórica anterior a la ronda con corte de modelos en la semana 37 de 2026. Se retiraron de esta nota sus cifras y afirmaciones de desempeño, que no se verificaron con la asignación vigente; el original se conserva archivado."
         },
         {
             "date": "6 de junio de 2026",
@@ -148,13 +171,15 @@
             "featured": false,
             "title": "Galería de pronósticos renovada",
             "body": [
-                "La sección de <strong style=\"color:var(--cream)\">Reportes</strong> estrena la vista <strong style=\"color:var(--cream)\">Zoom 52 Semanas</strong> (realidad contra pronóstico hasta la semana vigente, interactiva en el visor), con <strong style=\"color:var(--cream)\">banda de confianza</strong> sobre el tramo a futuro y métricas <strong style=\"color:var(--cream)\">SMAPE y MASE</strong> discretas en cada gráfico. Se incorporaron los <strong style=\"color:var(--cream)\">cuatro clústeres regionales del Dengue</strong> (calculados al agregar sus estados), se marca la <strong style=\"color:var(--cream)\">banda COVID</strong> en todas las series y los ciclos de <strong style=\"color:var(--cream)\">El Niño y La Niña</strong> en Dengue. Las secciones quedaron ordenadas Nacional, Estatal y Regional."
+                "La sección de <strong style=\"color:var(--cream)\">Reportes</strong> estrena la vista <strong style=\"color:var(--cream)\">Zoom 52 Semanas</strong> (realidad contra pronóstico hasta la semana vigente, interactiva en el visor), con <strong style=\"color:var(--cream)\">banda de confianza</strong> sobre el tramo a futuro. Se incorporaron los <strong style=\"color:var(--cream)\">cuatro clústeres regionales del Dengue</strong> (calculados al agregar sus estados), se marca la <strong style=\"color:var(--cream)\">banda COVID</strong> en todas las series y los ciclos de <strong style=\"color:var(--cream)\">El Niño y La Niña</strong> en Dengue. Las secciones quedaron ordenadas Nacional, Estatal y Regional."
             ],
             "link": {
                 "href": "Reports/index.html",
                 "text": "Ver la galería de pronósticos",
                 "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><polyline points=\"22 12 18 12 15 21 9 3 6 12 2 12\"/></svg>"
-            }
+            },
+            "historico": true,
+            "nota_historica": "Información histórica anterior a la ronda con corte de modelos en la semana 37 de 2026. Se retiraron de esta nota sus cifras y afirmaciones de desempeño, que no se verificaron con la asignación vigente; el original se conserva archivado."
         },
         {
             "date": "5 de junio de 2026",
@@ -164,13 +189,15 @@
             "featured": false,
             "title": "Re-selección de motores sobre pronósticos frescos",
             "body": [
-                "Tras republicar los pronósticos, se volvió a elegir el motor productivo de las <strong style=\"color:var(--cream)\">333 series neuronales</strong> contra la realidad del Boletín SINAVE 2026. Resultado: <strong style=\"color:var(--cream)\">142 reasignaciones</strong> y una nueva distribución productiva (DeepAR 98, Prophet 94, Ensemble 85, Stacking 56). El SMAPE agregado del motor productivo bajó de 92.8 a 82.2 (121 series mejoran), recuperando la calidad de los pronósticos por entidad."
+                "Tras republicar los pronósticos, se volvió a elegir el motor productivo de las <strong style=\"color:var(--cream)\">333 series neuronales</strong> contra la realidad del Boletín SINAVE 2026. Resultado: <strong style=\"color:var(--cream)\">142 reasignaciones</strong> y una nueva distribución productiva (DeepAR 98, Prophet 94, Ensemble 85, Stacking 56)."
             ],
             "link": {
                 "href": "reporte_resultados.html",
                 "text": "Ver resultados",
                 "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><line x1=\"18\" y1=\"20\" x2=\"18\" y2=\"10\"/><line x1=\"12\" y1=\"20\" x2=\"12\" y2=\"4\"/><line x1=\"6\" y1=\"20\" x2=\"6\" y2=\"14\"/></svg>"
-            }
+            },
+            "historico": true,
+            "nota_historica": "Información histórica anterior a la ronda con corte de modelos en la semana 37 de 2026. Se retiraron de esta nota sus cifras y afirmaciones de desempeño, que no se verificaron con la asignación vigente; el original se conserva archivado."
         },
         {
             "date": "4 de junio de 2026",
@@ -180,13 +207,15 @@
             "featured": true,
             "title": "El Dengue ya está en producción en EpiForecast-MX",
             "body": [
-                "El <strong style=\"color:var(--cream)\">Dengue</strong> se incorpora como cuarto padecimiento y primera enfermedad transmitida por vector del proyecto. Se construyó y validó la <strong style=\"color:var(--cream)\">serie histórica semanal del dengue confirmado (2018 a 2026, las 32 entidades federativas)</strong> directamente desde los boletines del SINAVE, contrastada celda por celda. Con respaldo en la literatura, se modela de forma agregada (en conteos absolutos). Se entrenaron <strong style=\"color:var(--cream)\">cinco motores</strong> y en producción quedan <strong style=\"color:var(--cream)\">DeepAR, Prophet y NB-GLM</strong> (el nuevo motor de conteos con el regresor de El Niño, el mejor en validación; los modelos de árboles no extrapolan la dinámica epidémica). El pronóstico va <strong style=\"color:var(--cream)\">al ritmo de El Niño</strong>: el próximo gran brote se espera hacia 2029. El asistente EpiBot también responde sobre Dengue y muestra sus gráficas."
+                "El <strong style=\"color:var(--cream)\">Dengue</strong> se incorpora como cuarto padecimiento y primera enfermedad transmitida por vector del proyecto. Se construyó y validó la <strong style=\"color:var(--cream)\">serie histórica semanal del dengue confirmado (2018 a 2026, las 32 entidades federativas)</strong> directamente desde los boletines del SINAVE, contrastada celda por celda. Con respaldo en la literatura, se modela de forma agregada (en conteos absolutos). Se entrenaron <strong style=\"color:var(--cream)\">cinco motores</strong> y en producción quedan <strong style=\"color:var(--cream)\">DeepAR, Prophet y NB-GLM</strong> (el nuevo motor de conteos con el regresor de El Niño; los modelos de árboles no extrapolan la dinámica epidémica). El asistente EpiBot también responde sobre Dengue y muestra sus gráficas."
             ],
             "link": {
                 "href": "dengue.html",
                 "text": "Ver el pronóstico de Dengue",
                 "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
-            }
+            },
+            "historico": true,
+            "nota_historica": "Información histórica anterior a la ronda con corte de modelos en la semana 37 de 2026. Se retiraron de esta nota sus cifras y afirmaciones de desempeño, que no se verificaron con la asignación vigente; el original se conserva archivado."
         },
         {
             "date": "29 de mayo de 2026",

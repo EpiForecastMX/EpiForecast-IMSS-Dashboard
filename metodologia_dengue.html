@@ -348,8 +348,10 @@ code{font-family:var(--font-mono);font-size:.86em;color:var(--gold);background:r
       </div>
       <div class="guide-card reveal" style="border-left-color:#F59E0B">
         <h3>NB-GLM</h3>
-        <p>GLM Negative-Binomial + Fourier anual + tendencia + lags + ONI. <strong>Count-correcto</strong> y extrapola sin
-        divergir. El mejor del estudio (SMAPE 52 en backtest). <span class="badge badge-green">En producción</span></p>
+        <p>GLM Negative-Binomial + Fourier anual + tendencia + lags + ONI. <strong>Count-correcto</strong> y el mejor del
+        backtest de la epidemia 2024 (SMAPE 52). Pero su pronóstico es recursivo: cada semana pronosticada alimenta la
+        siguiente vía el rezago, y en muchas series se desboca más allá de ~10 semanas hasta el tope del modelo.
+        <span class="badge badge-yellow">Suspendido en esta ronda</span></p>
       </div>
       <div class="guide-card reveal" style="border-left-color:#FB923C">
         <h3>Ensemble y Stacking</h3>
@@ -403,7 +405,7 @@ code{font-family:var(--font-mono);font-size:.86em;color:var(--gold);background:r
         <tr><td>familia</td><td><code>NegativeBinomial(alpha=1.0)</code></td><td>Sobre-dispersión típica de conteos epidémicos</td></tr>
         <tr><td>matriz de diseño</td><td><code>1 + Fourier(k=4) + tendencia + lag1 + lag52 [+ ONI]</code></td><td>Estacionalidad paramétrica + memoria + clima</td></tr>
         <tr><td>fourier_k</td><td><code>4</code> armónicos</td><td>Ciclo anual sobre la semana ISO</td></tr>
-        <tr><td>tendencia</td><td>lineal (semanas/52)</td><td><code>freeze_trend</code> para la proyección multi-año</td></tr>
+        <tr><td>tendencia</td><td>lineal (semanas/52)</td><td><code>freeze_trend</code> (lo usaba la proyección multi-año, retirada)</td></tr>
         <tr><td>series degeneradas</td><td>fallback constante</td><td>Entidades sin transmisión (GLM infeasible)</td></tr>
         <tr><td>implementación</td><td><code>statsmodels GLM</code></td><td>Determinista, reproducible</td></tr>
       </tbody>
@@ -446,9 +448,10 @@ code{font-family:var(--font-mono);font-size:.86em;color:var(--gold);background:r
     <div class="guide-grid">
       <div class="guide-card reveal" style="border-left-color:var(--teal)">
         <h3>Criterio</h3>
-        <p>Por serie, se compara el ajuste 2026 de cada motor contra la realidad del boletín (<strong>SMAPE alineado por
-        semana ISO</strong>); MASE como desempate. Distribución resultante: <span class="badge badge-green">DeepAR 46</span>
-        <span class="badge badge-green">NB-GLM 31</span> <span class="badge badge-green">Prophet 22</span>. Nacional = DeepAR.</p>
+        <p>Por serie, entre los motores elegibles de la ronda (<strong>Prophet y DeepAR</strong>), se compara el
+        pronóstico de cada uno contra la realidad del boletín (<strong>SMAPE</strong>, con MAE para las series casi en
+        cero). La distribución vigente por motor se publica en la <a href="dengue.html" style="color:var(--teal)">página
+        de Dengue</a>, derivada de la asignación.</p>
       </div>
       <div class="guide-card reveal" style="border-left-color:var(--gold)">
         <h3>Backtest limpio (NB-GLM)</h3>
@@ -458,8 +461,9 @@ code{font-family:var(--font-mono);font-size:.86em;color:var(--gold);background:r
       </div>
       <div class="guide-card reveal" style="border-left-color:var(--cool-gray)">
         <h3>Caveat de validación</h3>
-        <p>La métrica de selección (SMAPE 2026) es <strong>in-sample</strong>: el modelo final ve 2026 H1. Por eso se valida
-        prospectivo OOS en las semanas no vistas antes de re-entrenar. Detalle en la
+        <p>En esta ronda la selección es <strong>fuera de muestra</strong>: modelos entrenados hasta la semana 27 de 2026,
+        comparados contra las semanas 28 a 37, y reentrenados después hasta la semana 37. Esa comparación sirve para elegir
+        motor; no es una medida publicada del desempeño. Detalle en la
         <a href="auditoria_remediacion_2026.html" style="color:var(--teal)">Auditoría</a>.</p>
       </div>
     </div>
@@ -469,14 +473,14 @@ code{font-family:var(--font-mono);font-size:.86em;color:var(--gold);background:r
 <!-- ═══ HORIZONTE ═══ -->
 <section id="horizonte" style="background:var(--bg-raised);padding:4rem 0">
   <div class="container">
-    <h2 class="section-title reveal">Horizonte, proyección y regiones</h2>
+    <h2 class="section-title reveal">Horizonte y regiones</h2>
     <p class="section-sub reveal">Qué tan lejos se pronostica con precisión, y cómo se modelan las regiones</p>
     <div class="guide-grid">
       <div class="guide-card reveal" style="border-left-color:#F59E0B">
-        <h3>1 año + proyección de 5</h3>
-        <p>El pronóstico preciso es a <strong>52 semanas</strong>. La proyección multi-año la genera NB-GLM con
-        <code>freeze_trend</code> (congela la pendiente para no extrapolar la subida de 2024): muestra el patrón estacional
-        a nivel estable, no la magnitud de la próxima epidemia. El ciclo de ~4–5 años (2019, 2024) no es aprendible con solo
+        <h3>52 semanas, sin proyección multi-año</h3>
+        <p>El pronóstico es a <strong>52 semanas</strong>. La proyección a 5 años que generaba NB-GLM con
+        <code>freeze_trend</code> se retiró junto con ese motor: congelar la tendencia no elimina su realimentación recursiva
+        y la proyección no tenía validación propia. El ciclo de ~4–5 años (2019, 2024) no es aprendible con solo
         dos ciclos.</p>
       </div>
       <div class="guide-card reveal" style="border-left-color:var(--burgundy)">

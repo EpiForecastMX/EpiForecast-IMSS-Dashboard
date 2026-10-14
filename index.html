@@ -6,20 +6,20 @@
   <title>EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes</title>
 
   <!-- SEO -->
-  <meta name="description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica la incidencia semanal de Depresión, Parkinson, Alzheimer y Dengue en las 32 entidades de México, con un horizonte de 52 semanas." />
+  <meta name="description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer y Dengue en las 32 entidades de México, con un horizonte de 52 semanas." />
   <link rel="canonical" href="https://epiforecast.mx/" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://epiforecast.mx/" />
   <meta property="og:title" content="EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes" />
-  <meta property="og:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica la incidencia semanal de Depresión, Parkinson, Alzheimer y Dengue en las 32 entidades de México, con un horizonte de 52 semanas." />
+  <meta property="og:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer y Dengue en las 32 entidades de México, con un horizonte de 52 semanas." />
   <meta property="og:image" content="https://epiforecast.mx/og-image.png" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes" />
-  <meta name="twitter:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica la incidencia semanal de Depresión, Parkinson, Alzheimer y Dengue en las 32 entidades de México, con un horizonte de 52 semanas." />
+  <meta name="twitter:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer y Dengue en las 32 entidades de México, con un horizonte de 52 semanas." />
   <meta name="twitter:image" content="https://epiforecast.mx/og-image.png" />
 
   <!-- Iconos y tema -->
@@ -2902,9 +2902,9 @@
        ═══════════════════════════════════════════════════════════════ -->
   <section class="edl-hero" id="hero">
     <div class="edl-wrap edl-article-col">
-      <div class="edl-dateline">Pronóstico epidemiológico de México <span>&middot;</span> Edición de la semana 33, 2026</div>
+      <div class="edl-dateline">Pronóstico epidemiológico de México <span>&middot;</span> Edición de la semana 39, 2026</div>
       <h1 class="edl-headline">Anticipar la enfermedad,<br><em>semana a semana</em></h1>
-      <p class="edl-deck">EpiForecast-MX pronostica la incidencia de cuatro padecimientos en las 32 entidades del país a 52 semanas, con 432 series productivas y selección automática entre cinco motores de inteligencia artificial.</p>
+      <p class="edl-deck">EpiForecast-MX pronostica las notificaciones semanales de cuatro padecimientos a 52 semanas, con 432 series productivas. La ronda con corte W37 asigna cuatro motores a las series neuropsiquiátricas y DeepAR o Prophet a las de Dengue.</p>
       <div class="edl-byline">Una colaboración del Tecnológico de Monterrey con el Instituto Mexicano del Seguro Social. Datos actualizados cada semana desde el Boletín Epidemiológico del SINAVE.</div>
       <div class="edl-ctas">
         <a href="EpiDashboard.html" class="edl-primary">Abrir el tablero <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
@@ -2923,13 +2923,13 @@
         <div class="hf-canvas-wrap">
           <canvas id="hfCanvas" role="img" aria-label="Gráfico animado del pronóstico nacional por padecimiento"></canvas>
           <div class="hf-legend">
-            <span><i style="border-color:var(--ink-soft)"></i>Real</span>
-            <span><i style="border-top-style:dashed;border-color:var(--ink-mut)"></i>Pronóstico</span>
+            <span><i style="border-color:var(--ink-soft)"></i>Observado</span>
+            <span><i style="border-top-style:dashed;border-color:var(--ink-mut)"></i>Pronóstico desde el corte</span>
           </div>
         </div>
         <div class="hf-caption" id="hfCaption"></div>
       </div>
-      <figcaption class="edl-figcap">Incidencia semanal real frente al modelo productivo de cada padecimiento, a escala nacional. <b>Elige un padecimiento</b> para ver su serie y su motor.</figcaption>
+      <figcaption class="edl-figcap">Casos semanales notificados frente al pronóstico del modelo nacional de cada padecimiento, desde su corte. <b>Elige un padecimiento</b> para ver su serie y su motor.</figcaption>
     </figure>
 
     <div class="edl-wrap edl-article-col">
@@ -2937,7 +2937,7 @@
         <div class="edl-stat"><b id="b-motor-total">432</b><span>series en producción</span></div>
         <div class="edl-stat"><b>32</b><span>entidades + nacional</span></div>
         <div class="edl-stat"><b>52</b><span>semanas de horizonte</span></div>
-        <div class="edl-stat"><b><span id="b-motor-pct">29</span>%</b><span>cuota del motor líder en la cohorte neuro, <span id="b-motor">DeepAR</span></span></div>
+        <div class="edl-stat"><b><span id="b-motor-pct">32.7</span>%</b><span>cuota del motor líder en la cohorte neuro, <span id="b-motor">Ensemble</span></span></div>
       </div>
     </div>
   </section>
@@ -3000,22 +3000,22 @@
         <div class="news-banner-row" id="newsBannerRow">
           <a href="novedades.html" class="news-lead">
             <div class="news-lead-meta">
-              <span class="news-date">3 de septiembre de 2026</span>
-              <span class="news-tag news-tag--wcp">Internacional</span>
+              <span class="news-date">14 de octubre de 2026</span>
+              <span class="news-tag news-tag--datos">Datos</span>
             </div>
-            <div class="news-lead-title">EpiForecast-MX va al Congreso Mundial de Psiquiatría, en Estocolmo</div>
-            <div class="news-lead-sub">El E-Poster 3134 fue aceptado en el 26.º Congreso Mundial de Psiquiatría de la WPA, del 23 al 26 de septiembre en Estocolmo.</div>
+            <div class="news-lead-title">Ya contamos con la semana epidemiológica 39 de 2026</div>
+            <div class="news-lead-sub">Se integró el Boletín SINAVE en los cuatro padecimientos; el detalle por padecimiento aparece en esta sección.</div>
           </a>
           <div class="news-mini-list">
+            <a href="novedades.html" class="news-mini">
+              <span class="news-tag news-tag--wcp">Internacional</span>
+              <span class="news-mini-title">EpiForecast-MX va al Congreso Mundial de Psiquiatría, en Estocolmo</span>
+              <span class="news-mini-date">3 de septiembre de 2026</span>
+            </a>
             <a href="novedades.html" class="news-mini">
               <span class="news-tag news-tag--datos">Datos</span>
               <span class="news-mini-title">Ya contamos con la semana epidemiológica 33 de 2026</span>
               <span class="news-mini-date">2 de septiembre de 2026</span>
-            </a>
-            <a href="novedades.html" class="news-mini">
-              <span class="news-tag news-tag--calass">Internacional</span>
-              <span class="news-mini-title">EpiForecast-MX se presentó en el CALASS 2026, en Montréal</span>
-              <span class="news-mini-date">27 de agosto de 2026</span>
             </a>
           </div>
         </div>
@@ -3033,17 +3033,17 @@
       <div class="edl-index reveal">
         <a href="EpiDashboard.html" class="edl-index-item">
           <span class="edl-idx-num">01</span>
-          <span class="edl-idx-body"><span class="edl-idx-title">Tablero interactivo</span><span class="edl-idx-desc">Filtra por padecimiento, entidad y sexo; compara real contra pronóstico y revisa las métricas de cada modelo.</span></span>
+          <span class="edl-idx-body"><span class="edl-idx-title">Tablero interactivo</span><span class="edl-idx-desc">Tableros de Tableau con su corte histórico W31: consulta por padecimiento, entidad y sexo. El seguimiento W38–W39 frente a los pronósticos guardados desde el corte W37 está en Validación semanal y en EPI.</span></span>
           <span class="edl-idx-go"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></span>
         </a>
         <a href="epibot/index.html" class="edl-index-item">
           <span class="edl-idx-num">02</span>
-          <span class="edl-idx-body"><span class="edl-idx-title">Pregúntale a EPI</span><span class="edl-idx-desc">Asistente con RAG y citas sobre las 432 series productivas: métricas, pronósticos y tendencias al instante, con gráficas en vivo.</span></span>
+          <span class="edl-idx-body"><span class="edl-idx-title">Pregúntale a EPI</span><span class="edl-idx-desc">Asistente con RAG y citas sobre las 432 series productivas: pronósticos, tendencias y seguimiento de semanas posteriores al corte, con gráficas interactivas.</span></span>
           <span class="edl-idx-go"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></span>
         </a>
         <a href="Reports/index.html" class="edl-index-item">
           <span class="edl-idx-num">03</span>
-          <span class="edl-idx-body"><span class="edl-idx-title">Galería de pronósticos</span><span class="edl-idx-desc">Pronósticos a 52 semanas por entidad y región, con banda de confianza y zoom a la semana vigente del boletín.</span></span>
+          <span class="edl-idx-body"><span class="edl-idx-title">Galería de pronósticos</span><span class="edl-idx-desc">Pronósticos a 52 semanas con zoom y datos observados hasta W39. Las bandas disponibles son intervalos predictivos nominales del motor: 90 % en DeepAR y 80 % en Prophet. Las regiones corresponden a la cohorte neuro.</span></span>
           <span class="edl-idx-go"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></span>
         </a>
       </div>
@@ -3062,7 +3062,7 @@
 
       <div class="edl-columns reveal">
         <p class="edl-dropcap"><strong>EpiForecast-MX</strong> es un proyecto capstone de la Maestría en Inteligencia Artificial Aplicada del Tecnológico de Monterrey, desarrollado en colaboración directa con el Instituto Mexicano del Seguro Social (IMSS).</p>
-        <p>Su objetivo es generar pronósticos confiables con intervalos de predicción para tres padecimientos neuropsiquiátricos —Depresión, Parkinson y Alzheimer— y, como cuarto, el Dengue, la primera enfermedad transmitida por vector del proyecto. Las predicciones se desagregan a nivel nacional y por las 32 entidades federativas.</p>
+        <p>Su objetivo es generar pronósticos de notificaciones semanales para tres padecimientos neuropsiquiátricos —Depresión, Parkinson y Alzheimer— y, como cuarto, el Dengue, la primera enfermedad transmitida por vector del proyecto. Las predicciones se desagregan a nivel nacional y por las 32 entidades federativas.</p>
 
         <blockquote class="edl-pullquote">Convertir la vigilancia epidemiológica clásica en pronóstico accionable, semana a semana.</blockquote>
 
@@ -3098,8 +3098,8 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M8 15s1.5-2 4-2 4 2 4 2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
         </div>
         <h3>Depresión</h3>
-        <p>Mayor volumen de casos del portafolio. Tras la re-selección de motores sobre la realidad 2026, la asignación quedó: DeepAR 54, Stacking 31, Prophet 14, Ensemble 12. SMAPE mediano del 16.1% y MASE de 0.57. 100% datos suficientes.</p>
-        <span class="disease-tag">CIE-10: F32 · SMAPE 16.1% · MASE 0.57 · 111 modelos</span>
+        <p>Mayor volumen de casos del portafolio. Con la selección fuera de muestra (semanas 28 a 37 de 2026), la asignación quedó: Ensemble 48, Stacking 29, DeepAR 22, Prophet 12. 100% datos suficientes.</p>
+        <span class="disease-tag">CIE-10: F32 · 111 modelos · pronóstico a 52 semanas</span>
       </div>
 
       <!-- Parkinson -->
@@ -3108,8 +3108,8 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><path d="M12 8v4l3 3"/></svg>
         </div>
         <h3>Parkinson</h3>
-        <p>Escenario desafiante con baja incidencia donde Prophet captura mejor la estacionalidad. SMAPE mediano del 67.0% y MASE de 0.68 (supera el baseline naive). Tras la re-selección sobre la realidad 2026: Prophet 45, DeepAR 25, Ensemble 23, Stacking 18.</p>
-        <span class="disease-tag">CIE-10: G20 · SMAPE 67.0% · MASE 0.68 · 111 modelos</span>
+        <p>Escenario desafiante con baja incidencia. Con la selección fuera de muestra (semanas 28 a 37 de 2026): Prophet 35, Ensemble 31, Stacking 31, DeepAR 14.</p>
+        <span class="disease-tag">CIE-10: G20 · 111 modelos · pronóstico a 52 semanas</span>
       </div>
 
       <!-- Alzheimer -->
@@ -3118,8 +3118,8 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M8 12h.01M12 12h.01M16 12h.01"/></svg>
         </div>
         <h3>Alzheimer</h3>
-        <p>Ultra-baja incidencia donde un caso de diferencia genera alto SMAPE. MASE de 0.73 (supera el baseline naive). Tras la re-selección sobre la realidad 2026: Ensemble 50, Prophet 35, DeepAR 19, Stacking 7.</p>
-        <span class="disease-tag">CIE-10: G30 · SMAPE 124.2% · MASE 0.73 · 111 modelos</span>
+        <p>Ultra-baja incidencia, donde un caso de diferencia pesa mucho en el error porcentual. Con la selección fuera de muestra (semanas 28 a 37 de 2026): Stacking 47, Prophet 31, Ensemble 30, DeepAR 3.</p>
+        <span class="disease-tag">CIE-10: G30 · 111 modelos · pronóstico a 52 semanas</span>
       </div>
 
       <!-- Dengue (4.o padecimiento) -->
@@ -3128,8 +3128,8 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8a4 4 0 014 4v2a4 4 0 01-8 0v-2a4 4 0 014-4z"/><path d="M12 8V5"/><path d="M10 4l2 1 2-1"/><path d="M8 12H4M16 12h4M8 15l-3 2M16 15l3 2"/></svg>
         </div>
         <h3>Dengue</h3>
-        <p>Cuarto padecimiento y primera arbovirosis (transmitida por mosquito), con estacionalidad climática y grandes brotes cada cuatro a cinco años, ligados a <strong>El Niño</strong>. Se modela en conteos absolutos; en producción quedan <strong>DeepAR, Prophet y NB-GLM</strong> (el nuevo motor de conteos con regresor de El Niño, el mejor en validación; Ensemble y Stacking no extrapolan la dinámica epidémica). El pronóstico va al ritmo de El Niño: el próximo gran brote se espera hacia 2029.</p>
-        <span class="disease-tag">CIE-10: A97 · SMAPE nac. 20.4% · DeepAR + Prophet + NB-GLM · 99 series productivas · 2018-2026</span>
+        <p>Cuarto padecimiento y primera arbovirosis (transmitida por mosquito), con estacionalidad climática y grandes brotes cada cuatro a cinco años, ligados a <strong>El Niño</strong>. Se modela en conteos absolutos; en producción quedan <strong>DeepAR y Prophet</strong>, con pronóstico a 52 semanas. NB-GLM queda suspendido en esta ronda por inestabilidad de su predicción recursiva a horizontes largos.</p>
+        <span class="disease-tag">CIE-10: A97 · DeepAR + Prophet · 99 series productivas · 2018-2026</span>
       </div>
     </div>
   </section>
@@ -3140,43 +3140,43 @@
   <section class="results-bg" id="results">
     <div class="section">
       <div class="section-label reveal">Entrega Final — Producción Multi-Modelo</div>
-      <h2 class="section-title reveal">432 series productivas optimizadas<br>con cinco motores de IA</h2>
+      <h2 class="section-title reveal">432 series productivas<br>con asignación congelada en W37</h2>
       <div class="section-desc reveal">
         La entrega final del proyecto: 432 series productivas, pronóstico a 52 semanas y 100% de cobertura estatal.
       </div>
 
-      <p class="edl-table-cap reveal">Para cada serie se elige automáticamente el mejor motor por SMAPE sobre la realidad 2026 del Boletín SINAVE, con MASE como desempate. La tabla resume la cohorte neuropsiquiátrica (333 modelos).</p>
+      <p class="edl-table-cap reveal">Para las 333 series neuropsiquiátricas se elige el motor productivo por SMAPE, con MASE como desempate, en la ventana de selección W28–W37. Esas métricas son un diagnóstico de selección, no una evaluación independiente, y no se publican. La tabla resume la cohorte neuropsiquiátrica (333 modelos).</p>
 
       <div class="edl-table-wrap reveal">
         <table class="edl-table">
           <thead>
-            <tr><th>Padecimiento</th><th>SMAPE mediano</th><th>MASE mediano</th><th>RMSE mediano</th><th>Motor líder</th><th>Cobertura</th></tr>
+            <tr><th>Padecimiento</th><th>Modelos</th><th>Horizonte</th><th>Motor líder</th><th>Cobertura</th></tr>
           </thead>
           <tbody>
             <tr>
-              <td class="pad">Depresión <small>F32 · 111 modelos</small></td>
-              <td class="num">16.1%</td><td class="num">0.57</td><td class="num">8.16</td>
-              <td>DeepAR</td><td class="num">100%</td>
+              <td class="pad">Depresión <small>F32</small></td>
+              <td class="num">111</td><td class="num">52 sem</td>
+              <td>Ensemble</td><td class="num">100%</td>
             </tr>
             <tr>
-              <td class="pad">Parkinson <small>G20 · 111 modelos</small></td>
-              <td class="num">67.0%</td><td class="num">0.68</td><td class="num">1.62</td>
+              <td class="pad">Parkinson <small>G20</small></td>
+              <td class="num">111</td><td class="num">52 sem</td>
               <td>Prophet</td><td class="num">100%</td>
             </tr>
             <tr>
-              <td class="pad">Alzheimer <small>G30 · 111 modelos</small></td>
-              <td class="num">124.2%</td><td class="num">0.73</td><td class="num">0.87</td>
-              <td>Ensemble</td><td class="num">100%</td>
+              <td class="pad">Alzheimer <small>G30</small></td>
+              <td class="num">111</td><td class="num">52 sem</td>
+              <td>Stacking</td><td class="num">100%</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <p class="edl-table-note reveal"><b>Dengue</b> (A97 · 99 series productivas, 2018-2026): SMAPE nacional de 20.4%, con DeepAR, Prophet y NB-GLM (regresor de El Niño) en producción. Pipeline de conteos propio, fuera de la cohorte neuropsiquiátrica.</p>
+      <p class="edl-table-note reveal"><b>Dengue</b> (A97 · 99 series productivas, 2018-2026): DeepAR y Prophet en producción (NB-GLM suspendido en esta ronda). Pipeline de conteos propio, fuera de la cohorte neuropsiquiátrica.</p>
 
       <div class="edl-stats reveal" style="margin-top:2.4rem">
         <div class="edl-stat"><b>4</b><span>folds · CV temporal con pesos</span></div>
-        <div class="edl-stat"><b>&lt; 1.0</b><span>MASE · superan baseline naive (3/3)</span></div>
+        <div class="edl-stat"><b>52</b><span>semanas · horizonte de pronóstico</span></div>
         <div class="edl-stat"><b>907</b><span>pruebas automatizadas</span></div>
         <div class="edl-stat"><b>100%</b><span>cobertura · 0 series sin pronóstico</span></div>
       </div>
@@ -3426,6 +3426,10 @@
               var pill = document.getElementById('kpi-modelos-pill');
               if (pill) pill.textContent = Number(total).toLocaleString();
             }
+            // Motor líder de la cohorte neuro (cifra fija con respaldo en knowledge.json)
+            var bm = document.getElementById('b-motor'), bp = document.getElementById('b-motor-pct');
+            if (bm && stats.motor_ganador) bm.textContent = stats.motor_ganador;
+            if (bp && stats.motor_ganador_pct != null) bp.textContent = String(stats.motor_ganador_pct);
             // Motor líder en la distribución del hero (si existe el nodo)
             var leader = document.getElementById('kpi-motor-lider');
             if (leader && stats.motor_ganador) {
@@ -3667,8 +3671,8 @@
         });
         capEl.innerHTML =
           '<span class="hf-chip hf-chip--motor">Motor <b>' + s.motor + '</b></span>' +
-          '<span class="hf-chip">SMAPE <b>' + s.smape + '%</b></span>' +
-          '<span class="hf-chip">' + fmt(s.casos) + ' casos · 52 sem</span>';
+          '<span class="hf-chip">' + fmt(s.casos) + ' casos · pronóstico del modelo nacional, 52 pasos desde el corte ' + (s.corte || '').replace(/^\d{4}-/, '') + '</span>' +
+          (s.ultima_observada ? '<span class="hf-chip">observado hasta ' + s.ultima_observada.replace(/^(\d{4})-W(\d{2})$/, 'la semana $2 de $1') + '</span>' : '');
         sizeCanvas();
         start();
       }

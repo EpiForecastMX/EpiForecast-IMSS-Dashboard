@@ -1593,11 +1593,17 @@
     "query": "como va el modelo de depresion en 2026",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Real",
-      "Pronostico",
-      "Depresion"
+      "Observado",
+      "Pronóstico",
+      "Depresión"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "SMAPE promedio",
+      "Precisión",
+      "excelente",
+      "| Inicio |",
+      "Acumulado"
+    ],
     "checkEntities": {}
   },
   {
@@ -1605,10 +1611,17 @@
     "query": "real vs pronostico depresion",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Acumulado",
-      "SMAPE"
+      "Seguimiento del pronóstico con corte W37",
+      "Periodo del boletín",
+      "Estado del par"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "SMAPE promedio",
+      "Precisión",
+      "excelente",
+      "| Inicio |",
+      "Acumulado"
+    ],
     "checkEntities": {}
   },
   {
@@ -1616,10 +1629,16 @@
     "query": "cuantos casos van en 2026 de depresion",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Real",
-      "Pronostico"
+      "Observado",
+      "Pronóstico"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "SMAPE promedio",
+      "Precisión",
+      "excelente",
+      "| Inicio |",
+      "Acumulado"
+    ],
     "checkEntities": {}
   },
   {
@@ -1627,10 +1646,14 @@
     "query": "comparacion semanal",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Sem 1",
-      "Sem 7"
+      "Sem 38",
+      "Sem 39",
+      "Horizonte"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "| Sem 7 |",
+      "| Sem 1 |"
+    ],
     "checkEntities": {}
   },
   {
@@ -1639,9 +1662,15 @@
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
       "Parkinson",
-      "Real"
+      "Observado"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "SMAPE promedio",
+      "Precisión",
+      "excelente",
+      "| Inicio |",
+      "Acumulado"
+    ],
     "checkEntities": {}
   },
   {
@@ -1649,9 +1678,16 @@
     "query": "compara real vs pronostico",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
+      "Seguimiento del pronóstico",
+      "Estado del par"
+    ],
+    "mustNotContain": [
+      "SMAPE promedio",
+      "Precisión",
+      "excelente",
+      "| Inicio |",
       "Acumulado"
     ],
-    "mustNotContain": [],
     "checkEntities": {}
   },
   {
@@ -1659,10 +1695,16 @@
     "query": "acierto semanal de depresion",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Depresion",
-      "SMAPE"
+      "Depresión",
+      "ajuste dentro de muestra"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "SMAPE promedio",
+      "Precisión",
+      "excelente",
+      "| Inicio |",
+      "Acumulado"
+    ],
     "checkEntities": {}
   },
   {
@@ -1671,9 +1713,15 @@
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
       "Alzheimer",
-      "Real"
+      "Observado"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "SMAPE promedio",
+      "Precisión",
+      "excelente",
+      "| Inicio |",
+      "Acumulado"
+    ],
     "checkEntities": {}
   },
   {
@@ -1681,9 +1729,14 @@
     "query": "cual es el pronostico total",
     "expectedHandler": "answerPronostico",
     "mustContain": [
-      "52 semanas"
+      "agregado estatal neuro",
+      "171,524",
+      "Modelo nacional"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "171,525",
+      "Pronóstico Nacional"
+    ],
     "checkEntities": {}
   },
   {
@@ -1691,9 +1744,14 @@
     "query": "cuantos casos se pronostican",
     "expectedHandler": "answerPronostico",
     "mustContain": [
-      "52 semanas"
+      "agregado estatal neuro",
+      "171,524",
+      "Modelo nacional"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "171,525",
+      "Pronóstico Nacional"
+    ],
     "checkEntities": {}
   },
   {
@@ -1734,9 +1792,14 @@
     "query": "prediccion total de casos",
     "expectedHandler": "answerPronostico",
     "mustContain": [
-      "52 semanas"
+      "agregado estatal neuro",
+      "171,524",
+      "Modelo nacional"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "171,525",
+      "Pronóstico Nacional"
+    ],
     "checkEntities": {}
   },
   {
@@ -2350,9 +2413,15 @@
     "query": "rendimiento de los modelos de parkinson",
     "expectedHandler": "answerPadecimiento",
     "mustContain": [
-      "Parkinson"
+      "Parkinson",
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -2711,9 +2780,15 @@
     "query": "que motor tiene mejor smape",
     "expectedHandler": "answerMotor",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección",
+      "Series productivas"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -2741,9 +2816,15 @@
     "query": "rendimiento de prophet",
     "expectedHandler": "answerMotor",
     "mustContain": [
-      "Prophet"
+      "Prophet",
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -2761,9 +2842,14 @@
     "query": "rendimiento de cada motor",
     "expectedHandler": "answerMetricaGlobal",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -2812,9 +2898,15 @@
     "query": "cuales son las metricas globales",
     "expectedHandler": "answerMetricaGlobal",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección",
+      "qué es el SMAPE"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -2822,9 +2914,14 @@
     "query": "smape promedio del proyecto",
     "expectedHandler": "answerMetricaGlobal",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -2832,9 +2929,12 @@
     "query": "que tan preciso es el modelo",
     "expectedHandler": "answerValidacion",
     "mustContain": [
-      "precisi"
+      "Validaci",
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "precisión histórica promedio"
+    ],
     "checkEntities": {}
   },
   {
@@ -2842,9 +2942,14 @@
     "query": "rendimiento general de los modelos",
     "expectedHandler": "answerMetricaGlobal",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -2852,9 +2957,14 @@
     "query": "metricas de rendimiento",
     "expectedHandler": "answerMetricaGlobal",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -2862,9 +2972,14 @@
     "query": "dame las metricas",
     "expectedHandler": "answerMetricaGlobal",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -2872,9 +2987,14 @@
     "query": "que rmse tienen los modelos",
     "expectedHandler": "answerMetricaGlobal",
     "mustContain": [
-      "RMSE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -2882,9 +3002,14 @@
     "query": "cual es el mase promedio",
     "expectedHandler": "answerMetricaGlobal",
     "mustContain": [
-      "MASE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -3388,9 +3513,11 @@
     "query": "ranking de mejores modelos",
     "expectedHandler": "answerRanking",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "| SMAPE |"
+    ],
     "checkEntities": {}
   },
   {
@@ -3398,9 +3525,11 @@
     "query": "cuales son los peores modelos",
     "expectedHandler": "answerRanking",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "| SMAPE |"
+    ],
     "checkEntities": {}
   },
   {
@@ -3408,9 +3537,11 @@
     "query": "top 5 mejores modelos",
     "expectedHandler": "answerRanking",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "| SMAPE |"
+    ],
     "checkEntities": {}
   },
   {
@@ -3418,9 +3549,11 @@
     "query": "top 5 peores modelos",
     "expectedHandler": "answerRanking",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "| SMAPE |"
+    ],
     "checkEntities": {}
   },
   {
@@ -3428,9 +3561,11 @@
     "query": "modelos con mejor smape",
     "expectedHandler": "answerRanking",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "| SMAPE |"
+    ],
     "checkEntities": {}
   },
   {
@@ -3438,9 +3573,11 @@
     "query": "modelos con peor rendimiento",
     "expectedHandler": "answerRanking",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "| SMAPE |"
+    ],
     "checkEntities": {}
   },
   {
@@ -3448,9 +3585,15 @@
     "query": "que modelos son los mejores",
     "expectedHandler": "answerMotor",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección",
+      "Series productivas"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -3458,9 +3601,14 @@
     "query": "mejores y peores modelos",
     "expectedHandler": "answerMejoresPeores",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -3468,9 +3616,11 @@
     "query": "modelos mas precisos",
     "expectedHandler": "answerRanking",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "| SMAPE |"
+    ],
     "checkEntities": {}
   },
   {
@@ -3514,10 +3664,13 @@
     "query": "validacion del pronostico vs real",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Real",
-      "Pronostico"
+      "Observado",
+      "Pronóstico"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "Precisión",
+      "excelente"
+    ],
     "checkEntities": {}
   },
   {
@@ -4668,7 +4821,7 @@
     "query": "ranking mejores",
     "expectedHandler": "answerRanking",
     "mustContain": [
-      "#"
+      "diagnóstico de selección"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -4858,7 +5011,8 @@
     "query": "cuantos casos se esperan",
     "expectedHandler": "answerPronostico",
     "mustContain": [
-      "52 semanas"
+      "agregado estatal neuro",
+      "Modelo nacional"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -4881,8 +5035,8 @@
     "query": "como va el modelo en 2026",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Real",
-      "Pronostico"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -4945,7 +5099,7 @@
     "query": "metricas glovales",
     "expectedHandler": "*",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -4955,7 +5109,7 @@
     "query": "rankin de modelos",
     "expectedHandler": "*",
     "mustContain": [
-      "SMAPE"
+      "diagnóstico de selección"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -5459,9 +5613,14 @@
     "mustContain": [
       "MASE",
       "Distribución",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -5471,9 +5630,14 @@
     "mustContain": [
       "SMAPE",
       "Distribución",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -5483,9 +5647,14 @@
     "mustContain": [
       "RMSE",
       "Distribución",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -5495,9 +5664,14 @@
     "mustContain": [
       "MASE",
       "Distribución",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -5507,9 +5681,14 @@
     "mustContain": [
       "SMAPE",
       "Distribución",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -5518,9 +5697,14 @@
     "expectedHandler": "answerDistribucion",
     "mustContain": [
       "MASE",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -5530,9 +5714,14 @@
     "mustContain": [
       "MAE",
       "Distribución",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -5541,9 +5730,14 @@
     "expectedHandler": "answerDistribucion",
     "mustContain": [
       "RMSE",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -5553,9 +5747,14 @@
     "mustContain": [
       "SMAPE",
       "Depresion",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {},
     "setupQuery": "violin del smape"
   },
@@ -5566,9 +5765,14 @@
     "mustContain": [
       "MASE",
       "Parkinson",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {},
     "setupQuery": "histograma del mase"
   },
@@ -5579,9 +5783,14 @@
     "mustContain": [
       "RMSE",
       "Alzheimer",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {},
     "setupQuery": "distribucion de rmse"
   },
@@ -5592,9 +5801,14 @@
     "mustContain": [
       "SMAPE",
       "Depresion",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {},
     "setupQuery": "violin del smape"
   },
@@ -5605,9 +5819,14 @@
     "mustContain": [
       "MAE",
       "Parkinson",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {},
     "setupQuery": "distribucion de mae"
   },
@@ -5618,9 +5837,14 @@
     "mustContain": [
       "SMAPE",
       "Alzheimer",
-      "DISTRIB"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {},
     "setupQuery": "violin del smape"
   },
@@ -6129,9 +6353,14 @@
     "expectedHandler": "answerSmapeBox",
     "mustContain": [
       "Rango de SMAPE",
-      "intercuartil"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -6139,10 +6368,15 @@
     "query": "tabla de metricas por padecimiento",
     "expectedHandler": "answerRendimientoPorPadecimiento",
     "mustContain": [
-      "SMAPE",
-      "MASE"
+      "diagnóstico de selección",
+      "Motores productivos"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -6150,8 +6384,8 @@
     "query": "y cuantos habiamos dicho que habria?",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [
       "52 semanas"
@@ -6164,8 +6398,8 @@
     "query": "cuantos se esperaba que hubiera?",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6176,8 +6410,8 @@
     "query": "compara solo la semana 8",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "anterior al corte"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6188,8 +6422,8 @@
     "query": "compara la semana 8",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "anterior al corte"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6200,8 +6434,8 @@
     "query": "cuantos habiamos pronosticado?",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [
       "52 semanas"
@@ -6304,8 +6538,8 @@
     "query": "dijimos que iba a haber mas o menos?",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6316,8 +6550,8 @@
     "query": "se esperaba mas o menos de lo que llego?",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6361,8 +6595,8 @@
     "query": "cuanto pronosticamos para esa semana?",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6373,8 +6607,8 @@
     "query": "le atinamos?",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6407,8 +6641,8 @@
     "query": "y como va contra el pronostico?",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6441,8 +6675,8 @@
     "query": "cuantos iban a ser segun el modelo?",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6464,8 +6698,8 @@
     "query": "el pronostico decia que iban a ser mas?",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6487,8 +6721,8 @@
     "query": "pero solo semana 8",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "anterior al corte"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6499,8 +6733,8 @@
     "query": "comparalo contra lo pronosticado",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6522,8 +6756,8 @@
     "query": "esperabamos mas o menos casos?",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6545,8 +6779,8 @@
     "query": "cuanto se pronostico para esa semana?",
     "expectedHandler": "answerComparacionSemanal",
     "mustContain": [
-      "Pronostico",
-      "Real"
+      "Observado",
+      "Pronóstico"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6557,10 +6791,12 @@
     "query": "cuantos casos tienes pronosticados en las siguientes 52 semanas",
     "expectedHandler": "answerPronostico",
     "mustContain": [
-      "52 semanas"
+      "agregado estatal neuro",
+      "52 pasos"
     ],
     "mustNotContain": [
-      "modelos en producci"
+      "modelos en producci",
+      "171,525"
     ],
     "checkEntities": {}
   },
@@ -6569,10 +6805,12 @@
     "query": "cuantos casos hay pronosticados",
     "expectedHandler": "answerPronostico",
     "mustContain": [
-      "52 semanas"
+      "agregado estatal neuro",
+      "52 pasos"
     ],
     "mustNotContain": [
-      "modelos en producci"
+      "modelos en producci",
+      "171,525"
     ],
     "checkEntities": {}
   },
@@ -6581,10 +6819,12 @@
     "query": "cuantos casos esperas en el futuro",
     "expectedHandler": "answerPronostico",
     "mustContain": [
-      "52 semanas"
+      "agregado estatal neuro",
+      "52 pasos"
     ],
     "mustNotContain": [
-      "modelos en producci"
+      "modelos en producci",
+      "171,525"
     ],
     "checkEntities": {}
   },
@@ -6618,7 +6858,8 @@
     "query": "que pronostico hay para las siguientes 52 semanas",
     "expectedHandler": "answerPronostico",
     "mustContain": [
-      "52 semanas"
+      "agregado estatal neuro",
+      "52 pasos"
     ],
     "mustNotContain": [],
     "checkEntities": {}

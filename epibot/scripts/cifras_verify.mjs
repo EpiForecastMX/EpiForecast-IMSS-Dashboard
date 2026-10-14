@@ -10,13 +10,30 @@
  */
 
 import { resolve } from 'path';
-import { readFileSync, readdirSync } from 'fs';
+import { existsSync, readFileSync, readdirSync } from 'fs';
 import { buildChunks, KB_DIR } from './lib/corpus.mjs';
 import {
   problemasDeCifras,
   problemasDeKnowledge,
   problemasDelBannerEstatico,
+  problemasDeDistribuciones,
   problemasDeSuperficies,
+  problemasDeMetricasSeleccion,
+  problemasDeMetricasEnPagina,
+  problemasDeGaleria,
+  problemasDeMetricasAntiguas,
+  problemasDeNoticias,
+  problemasDeSeguimientoSemanal,
+  problemasDeNacionalPorSexo,
+  problemasDeVistasSeguimiento,
+  VISTAS_SEGUIMIENTO,
+  problemasDelAgregadoEstatal,
+  problemasDeVistasAgregado,
+  problemasDelCorpusAgregado,
+  VISTAS_AGREGADO,
+  problemasDePortada,
+  PAGINAS_METRICAS_ANTIGUAS,
+  PAGINAS_OPERATIVAS,
   VOCABULARIO,
 } from './lib/cifras_contrato.mjs';
 
@@ -43,6 +60,109 @@ try {
 }
 if (kb) problemas.push(...problemasDeKnowledge(kb));
 
+// Métricas de selección W28–W37 retiradas: ni en knowledge.json ni en las vistas operativas.
+if (kb) {
+  const pm = problemasDeMetricasSeleccion(kb);
+  problemas.push(...pm);
+  console.log(`  métricas de selección en knowledge.json: ${pm.length ? `${pm.length} PUBLICADAS` : 'retiradas y declaradas'}`);
+}
+{
+  let nPag = 0;
+  for (const rel of PAGINAS_OPERATIVAS) {
+    let html;
+    try {
+      html = readFileSync(resolve(RAIZ_PUBLICADA, rel), 'utf8');
+    } catch (e) {
+      problemas.push(`no se pudo leer ${rel}: ${e.message}`);
+      continue;
+    }
+    const p = problemasDeMetricasEnPagina(rel, html);
+    nPag += p.length;
+    problemas.push(...p);
+  }
+  console.log(`  métricas de selección en ${PAGINAS_OPERATIVAS.length} vistas operativas: ${nPag ? `${nPag} PINTADAS` : 'ninguna'}`);
+}
+
+// La galería: la lista `DATA` que pinta las tarjetas, contada y contrastada con sus PNG.
+try {
+  const g = problemasDeGaleria(
+    readFileSync(resolve(RAIZ_PUBLICADA, 'Reports/index.html'), 'utf8'),
+    kb,
+    (rel) => existsSync(resolve(RAIZ_PUBLICADA, 'Reports', rel))
+  );
+  problemas.push(...g.problemas);
+  console.log(`  galería: ${g.total} gráficos ${JSON.stringify(g.conteo)}${g.problemas.length ? ` — ${g.problemas.length} PROBLEMAS` : ''}`);
+} catch (e) {
+  problemas.push(`no se pudo revisar la galería: ${e.message}`);
+}
+
+// Métricas y afirmaciones de desempeño de rondas anteriores (otro origen, no W28–W37).
+{
+  let n = 0;
+  for (const rel of PAGINAS_METRICAS_ANTIGUAS) {
+    let html;
+    try {
+      html = readFileSync(resolve(RAIZ_PUBLICADA, rel), 'utf8');
+    } catch (e) {
+      problemas.push(`no se pudo leer ${rel}: ${e.message}`);
+      continue;
+    }
+    const p = problemasDeMetricasAntiguas(rel, html);
+    n += p.length;
+    problemas.push(...p);
+  }
+  try {
+    const p = problemasDeNoticias(JSON.parse(readFileSync(resolve(RAIZ_PUBLICADA, 'news.json'), 'utf8')));
+    n += p.length;
+    problemas.push(...p);
+  } catch (e) {
+    problemas.push(`no se pudo revisar news.json: ${e.message}`);
+  }
+  console.log(`  métricas antiguas en ${PAGINAS_METRICAS_ANTIGUAS.length} páginas y news.json: ${n ? `${n} PUBLICADAS` : 'retiradas'}`);
+}
+
+// Seguimiento del pronóstico con corte (ronda W37): la tabla del EpiBot sin ajuste dentro de
+// muestra, con el periodo oficial y los ausentes ausentes; el nacional por sexo rotulado como
+// incremento neto del acumulado; las vistas sin la mezcla anterior ni calificaciones automáticas.
+{
+  const p = kb ? [...problemasDeSeguimientoSemanal(kb), ...problemasDeNacionalPorSexo(kb)] : [];
+  for (const rel of VISTAS_SEGUIMIENTO) {
+    try {
+      p.push(...problemasDeVistasSeguimiento(rel, readFileSync(resolve(RAIZ_PUBLICADA, rel), 'utf8')));
+    } catch (e) {
+      p.push(`no se pudo leer ${rel}: ${e.message}`);
+    }
+  }
+  problemas.push(...p);
+  console.log(`  seguimiento con corte (tabla del EpiBot, nacional por sexo, ${VISTAS_SEGUIMIENTO.length} vistas): ${p.length ? `${p.length} PROBLEMAS` : 'sin ajuste presentado como validación ni calificaciones'}`);
+}
+
+// Indicador «Notificaciones previstas · agregado estatal neuro»: valor canónico del backend, con su
+// denominador; el frontend no lo recalcula y no llama «nacional» a la suma de los 32 estados.
+{
+  const p = kb ? [...problemasDelAgregadoEstatal(kb), ...problemasDelCorpusAgregado(chunks, kb)] : [];
+  for (const rel of VISTAS_AGREGADO) {
+    try {
+      p.push(...problemasDeVistasAgregado(rel, readFileSync(resolve(RAIZ_PUBLICADA, rel), 'utf8')));
+    } catch (e) {
+      p.push(`no se pudo leer ${rel}: ${e.message}`);
+    }
+  }
+  problemas.push(...p);
+  const ag = kb?.agregado_estatal_neuro;
+  console.log(`  agregado estatal neuro: ${ag ? `${ag.valor_mostrado} (${ag.series_incluidas} series, suma ${ag.suma_original})` : 'AUSENTE'}${p.length ? ` — ${p.length} PROBLEMAS` : ''}`);
+}
+
+// Portada y Dengue hasta W39: el gráfico vivo y la cifra del motor líder, al día con el knowledge.
+{
+  let hero = null;
+  try { hero = JSON.parse(readFileSync(resolve(RAIZ_PUBLICADA, 'hero_series.json'), 'utf8')); } catch { hero = null; }
+  const p = kb ? problemasDePortada(readFileSync(resolve(RAIZ_PUBLICADA, 'index.html'), 'utf8'), hero, kb,
+    existsSync(resolve(RAIZ_PUBLICADA, 'bento.json'))) : [];
+  problemas.push(...p);
+  console.log(`  portada (hero_series, motor líder, Dengue 52 pasos): ${p.length ? `${p.length} PROBLEMAS` : `al día (${hero?.ultima_observada}, corte ${hero?.corte})`}`);
+}
+
 // Lo que la gente realmente lee. Sin esto el gate vigilaba una sola puerta.
 const sup = problemasDeSuperficies(
   RAIZ_PUBLICADA,
@@ -50,6 +170,19 @@ const sup = problemasDeSuperficies(
   (f) => readFileSync(f, 'utf8')
 );
 problemas.push(...sup.problemas);
+
+// Las distribuciones de motores escritas a mano en las páginas deben coincidir con knowledge.json.
+if (kb) {
+  let nDist = 0;
+  for (const e of readdirSync(RAIZ_PUBLICADA, { withFileTypes: true })) {
+    if (!e.isFile() || !e.name.endsWith('.html')) continue;
+    const html = readFileSync(resolve(RAIZ_PUBLICADA, e.name), 'utf8');
+    const p = problemasDeDistribuciones(e.name, html, kb);
+    nDist += p.length;
+    problemas.push(...p);
+  }
+  console.log(`  distribuciones de motores en páginas: ${nDist ? `${nDist} DESALINEADAS` : 'alineadas con knowledge.json'}`);
+}
 
 // El fallback estático del banner de novedades debe decir lo mismo que news.json.
 try {

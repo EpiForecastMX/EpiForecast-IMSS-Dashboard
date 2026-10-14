@@ -212,7 +212,8 @@ export function renderTimelapse(container, timelapseData, opts = {}) {
     }
 
     // Update week display
-    weekDisplay.textContent = 'Semana ' + String(weekNum).padStart(2, '0') + ' / ' + totalFrames;
+    // La semana es la del boletín (p. ej. 38); el avance va aparte: «Semana 38 · 1 de 15».
+    weekDisplay.textContent = 'Semana ' + String(weekNum).padStart(2, '0') + ' · ' + (index + 1) + ' de ' + totalFrames;
 
     // Update slider
     slider.value = String(index);

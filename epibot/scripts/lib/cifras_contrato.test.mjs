@@ -12,7 +12,15 @@
  * Uso:  npm run cifras:test
  */
 
-import { problemasDeSuperficies, jsonRevisable, sinRegionesNoLeidas } from './cifras_contrato.mjs';
+import { readFileSync } from 'fs';
+import {
+  problemasDeSuperficies, problemasDeKnowledge, problemasDeDistribuciones, jsonRevisable, sinRegionesNoLeidas,
+  problemasDeMetricasSeleccion, problemasDeMetricasEnPagina, esClaveDeMetrica,
+  problemasDeGaleria, problemasDeMetricasAntiguas, problemasDeNoticias, problemasDeCifras,
+  problemasDeSeguimientoSemanal, problemasDeNacionalPorSexo, problemasDeVistasSeguimiento, inicioSemanaEpi,
+  problemasDelAgregadoEstatal, problemasDeVistasAgregado, problemasDelCorpusAgregado,
+  problemasDePortada,
+} from './cifras_contrato.mjs';
 
 const CASOS = [
   // --- HTML: lo que se ve --------------------------------------------------------------
@@ -101,6 +109,421 @@ for (const [nombre, contenido, debe, desc] of CASOS) {
   const ok = exentos === 2;
   if (!ok) fallos++;
   console.log(`  ${ok ? '✔' : '✖ FALLO'}  exenciones se cuentan y se informan (${exentos}, esperado 2)`);
+}
+
+// --- Dengue en knowledge.json: motores de la asignación W37 ----------------------------
+{
+  const base = () => ({
+    rosters: { total_series: 432, gallery_items: 432, por_cohorte: { neuro: 333, dengue: 99 } },
+    stats: { total_modelos: 333, dist_motor: { Prophet: 333 }, por_estado: { Nacional: { n: 9 } },
+             por_sexo: { hombres: { n: 111 }, mujeres: { n: 111 }, general: { n: 111 } } },
+    dengue: { dist_motor: { DeepAR: 53, Prophet: 46 }, motores_productivos: ['DeepAR', 'Prophet'] },
+  });
+  const dengue = (kb) => problemasDeKnowledge(kb).filter((p) => p.startsWith('dengue.'));
+  const casos = [
+    [base(), false, 'asignación W37 (DeepAR 53 / Prophet 46) pasa'],
+    [(() => { const k = base(); k.dengue.dist_motor = { DeepAR: 46, NBGLM: 31, Prophet: 22 };
+      k.dengue.motores_productivos = ['DeepAR', 'NBGLM', 'Prophet']; return k; })(), true,
+     'NBGLM con series (suspendido) se marca'],
+    [(() => { const k = base(); k.dengue.motores_productivos = ['DeepAR', 'Prophet', 'NBGLM']; return k; })(),
+     true, 'motores_productivos escrito a mano con NBGLM se marca'],
+    [(() => { const k = base(); k.dengue.proyeccion_anios = 5; return k; })(), true,
+     'proyeccion_anios presente se marca'],
+    [(() => { const k = base(); k.dengue.dist_motor = { DeepAR: 53, Ensemble: 46 };
+      k.dengue.motores_productivos = ['DeepAR', 'Ensemble']; return k; })(), true,
+     'árbol no elegible se marca'],
+  ];
+  for (const [kb, debe, desc] of casos) {
+    const r = dengue(kb);
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  knowledge · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
+}
+
+// --- Distribuciones escritas a mano en las páginas ------------------------------------
+{
+  const kb = {
+    stats: { dist_motor: { Ensemble: 109, Stacking: 107, Prophet: 78, DeepAR: 39 } },
+    dengue: { dist_motor: { DeepAR: 53, Prophet: 46, NBGLM: 0 } },
+  };
+  const casos = [
+    ['<td>Distribuci&oacute;n neuro</td><td>Ensemble 109 | Stacking 107 | Prophet 78 | DeepAR 39</td></tr>',
+     false, 'neuro W37 en tabla pasa'],
+    ['<p>Distribución neuro: DeepAR 98, Prophet 94, Ensemble 85, Stacking 56.</p>', true,
+     'neuro de la ronda anterior se marca'],
+    ['<td>Distribución Dengue</td><td>DeepAR 53 | Prophet 46 (asignación W37)</td></tr>', false,
+     'Dengue W37 pasa (NBGLM con 0 no cuenta)'],
+    ['<td>Distribución Dengue</td><td>Prophet 48 | DeepAR 29 | NB-GLM 22</td></tr>', true,
+     'Dengue con NB-GLM se marca'],
+    ['<p>Distribución productiva actual: <span class="b">DeepAR 98</span> <span>Prophet 94</span></p>',
+     true, 'insignias del reporte rancias se marcan'],
+    ['<h3>Distribución de modelos por tipo</h3><p>sin cifras de motor</p>', false,
+     'un título sin cifras de motor no se marca'],
+    ['<!-- Distribución neuro: DeepAR 98, Prophet 94 </p> -->', false, 'comentario no se marca'],
+  ];
+  for (const [html, debe, desc] of casos) {
+    const r = problemasDeDistribuciones('x.html', html, kb);
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  distribución · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
+}
+
+// --- Métricas de selección W28–W37 retiradas: knowledge.json ---------------------------
+{
+  const DECL = { publicadas: false, ventana: 'W28–W37', rotulo: 'diagnóstico de selección W28–W37; no evaluación independiente' };
+  const limpio = () => ({
+    metricas_seleccion: { ...DECL },
+    definiciones: { SMAPE: 'error porcentual simétrico', MASE: 'error escalado' },
+    stats: { total_modelos: 333, por_pad: { Depresion: { n: 111, motor_ganador: 'DeepAR' } }, validacion_semanal: { error_abs_medio: 12.4 } },
+    prod_models: [{ padecimiento: 'Depresion', entidad: 'Jalisco', modelo_produccion: 'DeepAR', casos_52_semanas_futuro: 10 }],
+    weekly_comparison: { Depresion: { semanas: [{ semana: 1, real: 3, pronostico: 4, error_pct: 33.3 }] } },
+  });
+  const con = (f) => { const k = limpio(); f(k); return k; };
+  // La misma regla que el generador, aplicada al knowledge.json EN DISCO: el despojado pasa sea
+  // cual sea el estado del archivo (control negativo que no depende de que el generador ya corrió).
+  const despoja = (kb) => {
+    const anda = (o) => Array.isArray(o) ? o.map(anda) : (o && typeof o === 'object'
+      ? Object.fromEntries(Object.entries(o).filter(([k]) => !esClaveDeMetrica(k)).map(([k, v]) => [k, anda(v)])) : o);
+    const out = {};
+    for (const [k, v] of Object.entries(kb)) if (k !== 'rendimiento_2026') out[k] = k === 'definiciones' ? v : anda(v);
+    return { ...out, metricas_seleccion: { ...DECL } };
+  };
+  const enDisco = JSON.parse(readFileSync(new URL('../../knowledge.json', import.meta.url), 'utf-8'));
+  const casos = [
+    [limpio(), false, 'declarado y sin métricas pasa (definiciones y error_pct/error_abs se quedan)'],
+    [despoja(enDisco), false, 'el knowledge.json en disco, despojado con la regla del generador, pasa'],
+    [con((k) => { delete k.metricas_seleccion; }), true, 'sin la declaración se marca'],
+    [con((k) => { k.metricas_seleccion.publicadas = true; }), true, 'publicadas:true se marca'],
+    [con((k) => { k.stats.smape_prod_median = 20.4; }), true, 'stats.smape_prod_median se marca'],
+    [con((k) => { k.prod_models[0].mase_prod = 0.57; }), true, 'prod_models[].mase_prod se marca'],
+    [con((k) => { k.stats.top5_smape = []; }), true, 'stats.top5_smape (ranking por métrica) se marca'],
+    [con((k) => { k.stats.precision_historica_mean = 91.3; }), true, 'precision_historica_* se marca'],
+    [con((k) => { k.dengue = { smape_nacional: 20.4 }; }), true, 'dengue.smape_nacional se marca'],
+    [con((k) => { k.rendimiento_2026 = { anio: 2026 }; }), true, 'rendimiento_2026 se marca'],
+    [con((k) => { k.stats.por_pad.Depresion.por_sexo = { general: { RMSE_prod_mean: 8 } }; }), true,
+     'a cualquier profundidad y sin importar mayúsculas'],
+  ];
+  for (const [kb, debe, desc] of casos) {
+    const r = problemasDeMetricasSeleccion(kb);
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  métricas · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r.slice(0, 3))}`);
+  }
+  // Cada clave sobreviviente es UN problema con su ruta (para arreglarla en el generador).
+  const r = problemasDeMetricasSeleccion(con((k) => { k.prod_models[0].smape_prod = 1; k.prod_models[0].mae_prod = 2; }));
+  const ok = r.length === 2 && r.every((p) => p.startsWith('prod_models[0].'));
+  if (!ok) fallos++;
+  console.log(`  ${ok ? '✔' : '✖ FALLO'}  métricas · un problema por clave, con su ruta (${r.length}, esperado 2)`);
+}
+
+// --- Métricas de selección W28–W37 retiradas: vistas operativas -------------------------
+{
+  const casos = [
+    // Lo que había en index.html y Reports/index.html antes del retiro (debe marcarse).
+    ['<span class="disease-tag">CIE-10: F32 · SMAPE 16.1% · MASE 0.57 · 111 modelos</span>', true, 'insignia SMAPE/MASE'],
+    ['<p>SMAPE mediano del 16.1% y MASE de 0.57. 100% datos suficientes.</p>', true, 'SMAPE mediano del … / MASE de …'],
+    ['<span class="disease-tag">CIE-10: A97 · SMAPE nac. 20.4% · DeepAR + Prophet</span>', true, 'SMAPE nac. …%'],
+    ['<p><b>Dengue</b>: SMAPE nacional de 20.4%, con DeepAR</p>', true, 'SMAPE nacional de …%'],
+    ['<div class="edl-stat"><b>&lt; 1.0</b><span>MASE · superan baseline naive</span></div>', true, '«< 1.0 MASE» con entidades'],
+    ['<tr><th>Padecimiento</th><th>SMAPE mediano</th><th>MASE mediano</th></tr>', true, 'columna de métrica en tabla'],
+    ["          '<span class=\"hf-chip\">SMAPE <b>' + s.smape + '%</b></span>' +", true, 'chip JS que concatena s.smape'],
+    ["text: [s.smape != null ? `SMAPE ${s.smape}%` : null, s.mase != null ? `MASE ${s.mase}` : null]", true, 'subtítulo JS con ${s.smape}'],
+    // Lo que queda tras el retiro (no debe marcarse).
+    ['<p>Se elige el motor productivo por SMAPE, con MASE como desempate, en la ventana de selección W28–W37.</p>', false,
+     'mencionar el criterio de selección sin valores'],
+    ['<button data-q="que es el smape">¿Qué es el SMAPE?</button>', false, 'pregunta de definición'],
+    ['<!-- antes: SMAPE 16.1% · MASE 0.57 -->', false, 'comentario no se marca'],
+    ['    .semaforo-card-smape { font-size: 9px; font-family: monospace; }', false, 'selector CSS con «smape»'],
+    ['subtitle: { display: corteTxt != null, text: corteTxt }, // corte del modelo: semana 37 de 2026', false,
+     'rótulo del corte del modelo'],
+    ['<span class="cc-kpi-lbl" id="statSmapeLbl">Series productivas</span>', false, 'id con «Smape» sin valor'],
+    ['<span class="disease-tag">CIE-10: G30 · SMAPE alto por baja incidencia</span>', false,
+     'un código (G30) antes de la métrica no es un valor'],
+  ];
+  for (const [html, debe, desc] of casos) {
+    const r = problemasDeMetricasEnPagina('x.html', html);
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  página · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
+}
+
+// --- Galería publicada: la lista DATA (ronda W37, 444 → 432) ----------------------------
+{
+  const neuro = Array.from({ length: 333 }, (_, i) => ({ p: 'Depresión', f: `Depresión/E${i}/a.png` }));
+  const dengue = Array.from({ length: 99 }, (_, i) => ({ p: 'Dengue', f: `dengue/E${i}/b.png` }));
+  const html = (items) => `<script>\nconst DATA = ${JSON.stringify(items)};\n</script>`;
+  const kb = (n) => ({ rosters: { gallery_items: n } });
+  const todo = () => true;
+  const regiones = Array.from({ length: 12 }, (_, i) => ({ p: 'Dengue', f: `dengue/Region_${i}/c.png` }));
+  const casos = [
+    [html([...neuro, ...dengue]), kb(432), todo, false, '333 + 99 con sus PNG y knowledge 432 pasa'],
+    [html([...neuro, ...dengue, ...regiones]), kb(444), todo, true, 'las 12 regiones de dengue se marcan (444)'],
+    [html([...neuro, ...dengue]), kb(444), todo, true, 'knowledge 444 con galería 432 se marca'],
+    [html([...neuro, ...dengue]), kb(432), (f) => f !== 'dengue/E3/b.png', true, 'una tarjeta sin PNG se marca'],
+    [html([...neuro, ...dengue, dengue[0]]), kb(433), todo, true, 'un gráfico repetido se marca'],
+    ['<html></html>', kb(432), todo, true, 'sin la línea DATA se marca'],
+  ];
+  for (const [h, k, existe, debe, desc] of casos) {
+    const r = problemasDeGaleria(h, k, existe).problemas;
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  galería · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r.slice(0, 3))}`);
+  }
+  const ok = problemasDeCifras([{ id: 'c', text: 'La galería tiene 444 gráficos publicados.' }]).length === 1;
+  if (!ok) fallos++;
+  console.log(`  ${ok ? '✔' : '✖ FALLO'}  marca     corpus · «444 gráficos» es cifra retirada`);
+}
+
+// --- Métricas antiguas (otro origen, no W28–W37): páginas y news.json --------------------
+{
+  const paginas = [
+    ['<div class="kpi-label">SMAPE mediano (producción)</div>', true, 'KPI con métrica (EpiDashboard 51.1 %)'],
+    ['<div class="kpi-label">Motor ganador</div>', true, '«Motor ganador»'],
+    ['<p>generados por el mejor modelo disponible</p>', true, '«mejor modelo»'],
+    ['<span class="label">Mejor SMAPE (DeepAR)</span>', true, '«Mejor SMAPE»'],
+    ['<p class="section-sub">Promedio de métricas. Menor es mejor. Celda verde = ganador.</p>', true, 'ranking de celdas'],
+    ['<thead><tr><th class="c-prophet">RMSE Prophet</th></tr></thead>', true, 'columna de métrica'],
+    ['<p>generados por el motor asignado a cada combinación</p>', false, 'motor asignado no es ranking'],
+    ['<p>Las métricas de error y los rankings de motores de rondas anteriores no forman parte de los resultados verificados.</p>', false,
+     'el aviso del retiro no se marca'],
+  ];
+  for (const [html, debe, desc] of paginas) {
+    const r = problemasDeMetricasAntiguas('x.html', html);
+    const ok = (r.length > 0) === debe && r.every((p) => !p.includes('W28–W37'));
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  métrica antigua · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
+  const nota = (body, extra = {}) => ({ items: [{ title: 't', body: [body], ...extra }] });
+  const noticias = [
+    [nota('el total pronosticado se desvía del realmente observado en <strong>+2.9&#37; en Depresión</strong>'), true,
+     'desviación del acumulado de la nota semanal'],
+    [nota('Precisión (<strong>SMAPE / MASE</strong>): Depresión <strong>8.7&#37; / 0.59</strong>'), true,
+     'SMAPE / MASE con valores separados por etiquetas'],
+    [nota('El SMAPE agregado del motor productivo bajó de 92.8 a 82.2 (121 series mejoran).'), true,
+     'SMAPE agregado con valores en la frase'],
+    [nota('NB-GLM (el nuevo motor de conteos, el mejor en validación)'), true, '«el mejor en validación»'],
+    [nota('Se integró el Boletín SINAVE hasta la semana 33 de 2026 en los cuatro padecimientos.', { historico: true }), true,
+     'histórica sin nota_historica'],
+    [nota('Se integró el Boletín SINAVE hasta la semana 33 de 2026.', { historico: true, nota_historica: 'Anterior a W37.' }), false,
+     'semana integrada con su nota histórica'],
+    [nota('Se reevaluaron contra los datos reales del Boletín SINAVE 2026 (SMAPE 2026 como criterio primario, MASE como desempate).'), false,
+     '«SMAPE 2026» nombra un año, no un valor'],
+    [nota('En depresión el error fue de <strong>5.0&#37;</strong> en esas ocho semanas.'), false,
+     'resultado sellado del póster WCP (sin métrica nombrada) se conserva'],
+  ];
+  for (const [news, debe, desc] of noticias) {
+    const r = problemasDeNoticias(news);
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  news.json · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
+}
+
+// --- Seguimiento del pronóstico con corte (ronda W37, 14-oct-2026) -----------------------
+{
+  const DEF = 'incremento neto del acumulado por sexo, sujeto a revisiones';
+  const sem = (s, extra) => ({ anio: 2026, semana: s, etiqueta: `2026-W${String(s).padStart(2, '0')}`,
+    periodo_inicio: inicioSemanaEpi(2026, s), periodo_fin: new Date(Date.parse(inicioSemanaEpi(2026, s)) + 6 * 864e5).toISOString().slice(0, 10), ...extra });
+  const kbOk = () => ({
+    weekly_comparison: { Depresion: { version: 2, titulo: 'Seguimiento del pronóstico con corte W37', corte: '2026-W37', semanas: [
+      sem(37, { fase: 'observado', real: 3181 }),
+      sem(38, { fase: 'seguimiento', corte: '2026-W37', horizonte: 1, pronostico: 3118, real: 2748, estado: 'par', motivo: '', error_abs: 370, diferencia: 370 }),
+      sem(39, { fase: 'seguimiento', corte: '2026-W37', horizonte: 2, pronostico: 3136, real: null, estado: 'ausente', motivo: 'revisión' }),
+      sem(40, { fase: 'pronostico', corte: '2026-W37', horizonte: 3, pronostico: 3140, real: null, prophet: 1587 }),
+    ] } },
+    seguimiento_post_corte: {
+      corte: { etiqueta: '2026-W37' },
+      definiciones: { general: 'casos de la semana (Casos_semana)', sexo_agregado: DEF },
+      semanas: [{ etiqueta: '2026-W38', cohortes: { neuro: { ausentes: 1, nacional: [
+        { padecimiento: 'Depresion', sexo: 'general', pronostico: 3118, real: 2748, definicion_real: 'casos de la semana (Casos_semana)' },
+        { padecimiento: 'Parkinson', sexo: 'hombres', pronostico: 86, real: 85, definicion_real: DEF },
+      ] } } }],
+      agregacion_sexo: [{ semana_objetivo: '2026-W38', semana_previa: '2026-W37', padecimiento: 'Parkinson', sexo: 'hombres', definicion_real: DEF,
+        entidades_semana: 32, entidades_semana_previa: 32, semanas_consecutivas: true, acumulado_semana_previa: 1148, acumulado_semana: 1233,
+        neto: 85, real_publicado: 85, suma_estatal_recortada: 87, entidades_con_revision_negativa: { Tamaulipas: -2 } }],
+      ausentes: [{ semana_objetivo: '2026-W38', padecimiento: 'Depresion', entidad: 'Tabasco', sexo: 'mujeres', pronostico: 47, real: null, motivo: 'revisión negativa' }],
+    },
+    prod_models: [{ padecimiento: 'Parkinson', entidad: 'Nacional', sexo: 'hombres', semana_validacion: '2026-W39', definicion_realidad_validacion: DEF }],
+  });
+  const con = (f) => { const k = kbOk(); f(k); return k; };
+  const w = (k, s) => k.weekly_comparison.Depresion.semanas.find((x) => x.semana === s);
+  const casosSeg = [
+    [kbOk(), false, 'v2 con pares, ausente y pronóstico pasa'],
+    [con((k) => { delete k.weekly_comparison.Depresion.version; }), true, 'tabla sin versión 2 (la anterior)'],
+    [con((k) => { w(k, 37).pronostico = 3175; }), true, 'semana anterior al corte con pronóstico (ajuste dentro de muestra)'],
+    [con((k) => { w(k, 37).ensemble = 3175; }), true, 'semana anterior al corte con el valor de un motor'],
+    [con((k) => { w(k, 38).fecha = '2026-09-07'; }), true, 'ds legado como «fecha»'],
+    [con((k) => { w(k, 38).periodo_inicio = '2026-09-07'; w(k, 38).periodo_fin = '2026-09-13'; }), true, 'el ds legado como inicio del periodo'],
+    [con((k) => { w(k, 39).real = 0; }), true, 'un ausente convertido en cero'],
+    [con((k) => { w(k, 39).diferencia = 3136; }), true, 'un ausente con diferencia'],
+    [con((k) => { w(k, 38).pronostico = 3136; w(k, 38).diferencia = 388; w(k, 38).error_abs = 388; }), true, 'el par no es el del seguimiento (pronóstico de otra semana)'],
+    [con((k) => { w(k, 38).horizonte = 2; }), true, 'horizonte mal contado desde el corte'],
+    [con((k) => { k.weekly_comparison.Depresion.titulo = 'Real vs Pronóstico 2026'; }), true, 'título anterior'],
+    [con((k) => { w(k, 40).real = 3000; }), true, 'semana de pronóstico con observado'],
+  ];
+  for (const [kb, debe, desc] of casosSeg) {
+    const r = problemasDeSeguimientoSemanal(kb);
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  tabla del EpiBot · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
+  const a = (k) => k.seguimiento_post_corte.agregacion_sexo[0];
+  const casosSexo = [
+    [kbOk(), false, 'neto rotulado, 32/32, consecutivas y ausentes con motivo pasa'],
+    [con((k) => { k.seguimiento_post_corte.semanas[0].cohortes.neuro.nacional[1].real = 87; a(k).real_publicado = 87; }), true,
+     'se publica la suma estatal recortada (87) en vez del neto (85)'],
+    [con((k) => { k.seguimiento_post_corte.semanas[0].cohortes.neuro.nacional[1].definicion_real = 'casos nuevos'; }), true,
+     'el nacional por sexo sin el rótulo del incremento neto'],
+    [con((k) => { a(k).entidades_semana_previa = 31; }), true, 'cobertura incompleta en la semana previa'],
+    [con((k) => { a(k).semanas_consecutivas = false; }), true, 'semanas no consecutivas'],
+    [con((k) => { k.seguimiento_post_corte.ausentes[0].real = 0; }), true, 'un ausente estatal convertido en cero'],
+    [con((k) => { k.seguimiento_post_corte.ausentes = []; }), true, 'los ausentes estatales no se conservan'],
+    [con((k) => { delete k.prod_models[0].definicion_realidad_validacion; }), true, 'la tabla publica el nacional por sexo sin rótulo'],
+  ];
+  for (const [kb, debe, desc] of casosSexo) {
+    const r = problemasDeNacionalPorSexo(kb);
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  nacional por sexo · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
+  const vistas = [
+    ['epibot/js/kb.js', "lines.push(`**${p} — Real vs Pronostico ${anio}**`);", true, 'título anterior, también sin tilde'],
+    ['epibot/js/kb.js', "lines.push(`**${p} — Real vs Pronóstico ${anio}**`);", true, 'título anterior'],
+    ['epibot/js/kb.js', "lines.push('| Semana | Inicio | Real |');", true, 'columna Inicio'],
+    ['epibot/js/kb.js', "lines.push('Precisión **excelente**: el error total es menor al 5%.');", true, 'calificación automática'],
+    ['epibot/js/app.js', "title: 'Corredor de confianza'", true, 'dispersión como confianza'],
+    ['epibot/js/kb.js', "const triggers = ['real vs pronostico', 'acierto semanal'];", false, 'los disparadores en minúsculas no son texto visible'],
+    ['validacion_semanal.html', '<span>EXCELENTE</span>', true, 'veredicto en la página'],
+    ['validacion_semanal.html', `<p>${DEF}</p><h2>Pares ausentes y sus motivos</h2><h2>Nacional por sexo: definicion</h2>`, false,
+     'página con el rótulo, los ausentes y la definición'],
+    ['validacion_semanal.html', '<h2>Pares ausentes y sus motivos</h2>', true, 'página sin el rótulo del nacional por sexo'],
+  ];
+  for (const [arch, txt, debe, desc] of vistas) {
+    const r = problemasDeVistasSeguimiento(arch, txt);
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  vistas · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
+  const ok = inicioSemanaEpi(2026, 38) === '2026-09-20' && inicioSemanaEpi(2026, 1) === '2026-01-04' && inicioSemanaEpi(2025, 1) === '2024-12-29';
+  if (!ok) fallos++;
+  console.log(`  ${ok ? '✔' : '✖ FALLO'}  calendario · semana 38 de 2026 empieza el 20 de septiembre; la 1 de 2025, el 29 de diciembre de 2024`);
+}
+
+// --- Indicador «Notificaciones previstas · agregado estatal neuro» (14-oct-2026) -------------
+{
+  const ROT = 'Notificaciones previstas · agregado estatal neuro';
+  const PADS = { Alzheimer: 1899.4, Depresion: 161887.1, Parkinson: 7737.5401 };
+  const kbOk = () => {
+    const series = [];
+    for (const [p, v] of Object.entries(PADS)) for (let i = 0; i < 32; i++) series.push({ padecimiento: p, entidad: `E${i}`, pasos: 52, suma_original: v / 32 });
+    const pp = Object.fromEntries(Object.entries(PADS).map(([p, v]) => [p, { series: 32, suma_original: v, valor_mostrado: Math.floor(v + 0.5) }]));
+    return {
+      agregado_estatal_neuro: { rotulo: ROT, corte: '2026-W37', series_incluidas: 96, valores: 4992, horizonte: { pasos: 52 },
+        suma_original: 171524.0401, valor_mostrado: 171524,
+        denominador: '96 series: 32 estados × 3 padecimientos, modo general · 52 pasos desde el corte W37',
+        series, por_padecimiento: pp, por_sexo: { general: { por_padecimiento: pp } } },
+      stats: { pronostico_total: 171524, por_pad: Object.fromEntries(Object.entries(pp).map(([p, x]) => [p, {
+        casos_futuro_total: x.valor_mostrado, por_sexo: { general: { casos_total: x.valor_mostrado, n_estados: 32, casos_nacional: 1 } } }])) },
+    };
+  };
+  const con = (f) => { const k = kbOk(); f(k); return k; };
+  const casosAg = [
+    [kbOk(), false, '96 series, suma original redondeada una vez y totales iguales pasa'],
+    [con((k) => { delete k.agregado_estatal_neuro; }), true, 'sin valor canónico del backend'],
+    [con((k) => { k.agregado_estatal_neuro.valor_mostrado = 171525; k.stats.pronostico_total = 171525; }), true,
+     '171,525: suma de totales ya redondeados'],
+    [con((k) => { k.stats.pronostico_total = 171525; }), true, 'el total del EpiBot difiere del canónico'],
+    [con((k) => { k.agregado_estatal_neuro.series.pop(); }), true, 'falta una serie (no vale cero)'],
+    [con((k) => { k.agregado_estatal_neuro.series[0].entidad = 'Nacional'; }), true, 'incluye el modelo nacional'],
+    [con((k) => { k.agregado_estatal_neuro.series[5].pasos = 51; }), true, 'horizonte incompleto en una serie'],
+    [con((k) => { k.agregado_estatal_neuro.horizonte.pasos = 50; }), true, 'horizonte distinto de 52 pasos'],
+    [con((k) => { k.agregado_estatal_neuro.rotulo = 'Pronóstico 52 sem'; }), true, 'rótulo anterior'],
+    [con((k) => { k.stats.por_pad.Depresion.por_sexo.general.casos_total = 479194; }), true, 'casos_total que suma las 37 geografías'],
+  ];
+  for (const [kb, debe, desc] of casosAg) {
+    const r = problemasDelAgregadoEstatal(kb);
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  agregado estatal · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
+  const ROT_AG = kbOk().agregado_estatal_neuro.rotulo;
+  const corpusAg = [
+    [[{ id: 'kb-card#0', text: 'Pronóstico total a 52 semanas: 171524 casos.' }], true, 'tarjeta global con el rótulo antiguo'],
+    [[{ id: 'kb-card#4', text: 'Depresion: 111 modelos, pronóstico a 52 semanas 161887 casos.' }], true, 'tarjeta por padecimiento sin rótulo'],
+    [[{ id: 'x', text: 'el total es 171,524 casos' }], true, 'valor global con coma y sin rótulo'],
+    [[{ id: 'kb-card#0', text: `${ROT_AG}: 171,524 casos — suma de 96 series estatales.` }], false, 'valor global rotulado'],
+    [[{ id: 'kb-card#4', text: 'Agregado de sus 32 estados (modo general): 161,887 casos. Modelo nacional: 160,999.' }], false, 'por padecimiento rotulado'],
+    [[{ id: 'y', text: 'el boletín tiene 1171524 registros' }], false, 'el número dentro de otro no cuenta'],
+  ];
+  for (const [chunks, debe, desc] of corpusAg) {
+    const r = problemasDelCorpusAgregado(chunks, kbOk());
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  corpus del agregado · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
+  const vistas = [
+    ['epibot/js/kb.js', '  stats.pronostico_total = grandTotal;', true, 'el frontend recalcula el indicador'],
+    ['epibot/js/kb.js', "    lines.push(`**Pron\\u00f3stico Nacional**: **${fmt(s.pronostico_total)} casos**`);", true, '«Pronóstico Nacional»'],
+    ['epibot/js/kb.js', "  lines.push(`A nivel **Nacional**, se pronostican **${fmt(ps.casos_futuro_total)} casos`);", true, 'suma de estados llamada nacional'],
+    ['epibot/js/app.js', "  labels.push('Total nacional');", true, '«Total nacional» en la cascada'],
+    ['epibot/js/kb.js', "  if (kb.stats.pronostico_total === ag.valor_mostrado) ok();", false, 'una comparación no es un recálculo'],
+    ['epibot/index.html', '<span class="cc-kpi-lbl">Pronóstico 52 sem</span>', true, 'indicador sin rótulo ni denominador'],
+    ['epibot/index.html', `<span class="cc-kpi-lbl">${ROT}</span><span class="cc-kpi-det" id="statForecastDet">96 series</span>`, false, 'indicador rotulado con su denominador'],
+  ];
+  for (const [arch, txt, debe, desc] of vistas) {
+    const r = problemasDeVistasAgregado(arch, txt).filter((x) => arch !== 'epibot/index.html' || debe || !x.includes('falta'));
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  vistas del agregado · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
+}
+
+// --- Portada y Dengue hasta W39 -----------------------------------------------------------
+{
+  const IDX = '<div class="edl-stat"><b><span id="b-motor-pct">32.7</span>%</b><span>cuota del motor líder en la cohorte neuro, <span id="b-motor">Ensemble</span></span></div>';
+  const kbOk = () => ({
+    stats: { motor_ganador: 'Ensemble', motor_ganador_pct: 32.7 },
+    seguimiento_post_corte: { corte: { etiqueta: '2026-W37' }, ultima_semana_observada: { etiqueta: '2026-W39' } },
+    weekly_comparison: { Depresion: { pronostico_52_pasos: 160999 }, Parkinson: { pronostico_52_pasos: 7391 }, Alzheimer: { pronostico_52_pasos: 1915 }, Dengue: { pronostico_52_pasos: 8811 } },
+    prod_models: [['Depresion', 'Ensemble'], ['Parkinson', 'Prophet'], ['Alzheimer', 'Prophet']].map(([p, m]) => ({ padecimiento: p, entidad: 'Nacional', sexo: 'general', modelo_produccion: m })),
+    dengue: { motor_nacional: 'DeepAR', casos_futuro_nacional_52sem: 8811 },
+  });
+  const heroOk = () => ({ corte: '2026-W37', ultima_observada: '2026-W39', series: [
+    { pad: 'Depresion', motor: 'Ensemble', casos: 160999 }, { pad: 'Parkinson', motor: 'Prophet', casos: 7391 },
+    { pad: 'Alzheimer', motor: 'Prophet', casos: 1915 }, { pad: 'Dengue', motor: 'DeepAR', casos: 8811 }] });
+  const casos = [
+    [IDX, heroOk(), kbOk(), false, false, 'portada al día pasa'],
+    [IDX, null, kbOk(), false, true, 'sin hero_series'],
+    [IDX, { ...heroOk(), ultima_observada: '2026-W21', corte: '2026-W21' }, kbOk(), false, true, 'hero de junio (semana 21)'],
+    [IDX, { ...heroOk(), series: heroOk().series.map((s, i) => (i ? s : { ...s, smape: 16 })) }, kbOk(), false, true, 'hero con smape'],
+    [IDX, { ...heroOk(), series: heroOk().series.map((s, i) => (i ? s : { ...s, motor: 'DeepAR', casos: 141078 })) }, kbOk(), false, true, 'hero con el motor y total de junio'],
+    [IDX.replace('32.7', '29').replace('>Ensemble<', '>DeepAR<'), heroOk(), kbOk(), false, true, '«29 % DeepAR» fijo'],
+    [IDX, heroOk(), (() => { const k = kbOk(); k.dengue.casos_futuro_nacional_52sem = 8350; return k; })(), false, true, 'Dengue «52 sem» con 50 pasos'],
+    [IDX, heroOk(), kbOk(), true, true, 'bento.json sigue publicado'],
+  ];
+  for (const [idx, hero, kb, bento, debe, desc] of casos) {
+    const r = problemasDePortada(idx, hero, kb, bento);
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  portada · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
 }
 
 console.log(fallos ? `\n✖ ${fallos} prueba(s) fallaron` : '\n✔ Todas las pruebas pasan');

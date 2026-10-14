@@ -727,14 +727,15 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
         <span class="badge badge-red">102</span> a <span class="badge badge-yellow">76</span>.</p>
       </div>
       <div class="guide-card green">
-        <h3>NB-GLM, el mejor motor</h3>
-        <p>Un GLM Negative-Binomial + Fourier + El Ni&ntilde;o: <em>count-correcto</em> y extrapola sin divergir. El mejor del
-        estudio en backtest leave-one-epidemic-out (<span class="badge badge-green">SMAPE 52</span> vs Prophet 102).</p>
+        <h3>NB-GLM: mejor en backtest, suspendido</h3>
+        <p>Un GLM Negative-Binomial + Fourier + El Ni&ntilde;o: <em>count-correcto</em> y el mejor del estudio en backtest
+        leave-one-epidemic-out (<span class="badge badge-green">SMAPE 52</span> vs Prophet 102). Su pron&oacute;stico es
+        recursivo y en muchas series se desboca m&aacute;s all&aacute; de ~10 semanas: <strong>suspendido en esta ronda</strong>.</p>
       </div>
       <div class="guide-card burgundy">
         <h3>&Aacute;rboles fuera de producci&oacute;n</h3>
         <p>Ensemble y Stacking quedan fuera: XGBoost y LightGBM <strong>no extrapolan</strong> la din&aacute;mica epid&eacute;mica a
-        52 semanas (divergen ~33x / ~99x). Productivos: <strong>DeepAR 46, NB-GLM 31, Prophet 22</strong>.</p>
+        52 semanas (divergen ~33x / ~99x). Elegibles en esta ronda: <strong>Prophet y DeepAR</strong>.</p>
       </div>
       <div class="guide-card">
         <h3>Regiones con DeepAR nativo</h3>
@@ -746,8 +747,9 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
     <p class="reveal" style="margin-top:1.5rem;font-size:.95rem;color:var(--text-secondary)">
       Detalle completo en la <a href="metodologia_dengue.html" style="color:var(--teal)">metodolog&iacute;a de Dengue</a>
       (datos, par&aacute;metros y referencias) y el <a href="dengue.html" style="color:var(--teal)">pron&oacute;stico en vivo</a>.
-      <em>Nota honesta:</em> la m&eacute;trica de selecci&oacute;n de motor (SMAPE 2026) es in-sample; el backtest del NB-GLM s&iacute;
-      es fuera de muestra, y se valida prospectivo OOS antes de re-entrenar.
+      <em>Nota honesta:</em> en esta ronda el motor de cada serie se eligi&oacute; fuera de muestra (modelos hasta la semana 27
+      de 2026 frente a las semanas 28 a 37); esa comparaci&oacute;n sirve para elegir motor, no es una medida publicada del
+      desempe&ntilde;o.
     </p>
   </div>
 </section>
@@ -886,8 +888,8 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
       </div>
       <div class="concept-card green">
         <h4>Selecci&oacute;n multi-motor (hecho)</h4>
-        <p>Lo que era trabajo futuro ya es producci&oacute;n: cada serie elige entre <strong>5 motores</strong> (Prophet, DeepAR,
-        Ensemble, Stacking, NB-GLM) contra la realidad 2026. Distribuci&oacute;n neuro: DeepAR 98, Prophet 94, Ensemble 85, Stacking 56.</p>
+        <p>Lo que era trabajo futuro ya es producci&oacute;n: cada serie neuro elige entre <strong>4 motores</strong> (Prophet, DeepAR,
+        Ensemble, Stacking) y cada serie Dengue entre Prophet y DeepAR (NB-GLM suspendido). Distribuci&oacute;n neuro: Ensemble 109, Stacking 107, Prophet 78, DeepAR 39 (asignaci&oacute;n W37).</p>
       </div>
       <div class="concept-card green">
         <h4>Dengue incorporado (hecho)</h4>
@@ -1057,17 +1059,17 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
         </thead>
         <tbody>
           <tr><td><strong>Lenguaje</strong></td><td class="mono">Python 3.12</td></tr>
-          <tr><td><strong>Motores productivos</strong></td><td class="mono">Prophet, DeepAR, Ensemble, Stacking, NB-GLM (selecci&oacute;n por serie)</td></tr>
+          <tr><td><strong>Motores productivos</strong></td><td class="mono">Neuro: Prophet, DeepAR, Ensemble, Stacking | Dengue: Prophet, DeepAR (NB-GLM suspendido) (selecci&oacute;n por serie)</td></tr>
           <tr><td><strong>Benchmark</strong></td><td class="mono">Prophet, XGBoost, Ridge, TFT, DeepAR, LightGBM+LSTM</td></tr>
           <tr><td><strong>Cloud</strong></td><td class="mono">AWS S3 (DVC) + SageMaker (ml.m5.xlarge / ml.g4dn.xlarge)</td></tr>
           <tr><td><strong>CI/CD</strong></td><td class="mono">GitHub Actions + Selenium (scraping diario)</td></tr>
           <tr><td><strong>Visualizaci&oacute;n</strong></td><td class="mono">Tableau, matplotlib, seaborn, plotly, Chart.js</td></tr>
           <tr><td><strong>Series con pron&oacute;stico</strong></td><td class="mono">333 neuro (x4 motores) + 99 Dengue (x5 motores) = 432</td></tr>
-          <tr><td><strong>Distribuci&oacute;n neuro</strong></td><td class="mono">DeepAR 98 | Prophet 94 | Ensemble 85 | Stacking 56</td></tr>
-          <tr><td><strong>Distribuci&oacute;n Dengue</strong></td><td class="mono">DeepAR 46 | NB-GLM 31 | Prophet 22</td></tr>
+          <tr><td><strong>Distribuci&oacute;n neuro</strong></td><td class="mono">Ensemble 109 | Stacking 107 | Prophet 78 | DeepAR 39 (asignaci&oacute;n W37)</td></tr>
+          <tr><td><strong>Distribuci&oacute;n Dengue</strong></td><td class="mono">DeepAR 53 | Prophet 46 (asignaci&oacute;n W37)</td></tr>
           <tr><td><strong>MASE medio neuro</strong></td><td class="mono">0.65 (motor productivo por serie)</td></tr>
           <tr><td><strong>Cobertura</strong></td><td class="mono">100% (4 padecimientos x 32 entidades x 3 sexos)</td></tr>
-          <tr><td><strong>Horizonte</strong></td><td class="mono">52 semanas (Dengue: + proyecci&oacute;n 5 a&ntilde;os ilustrativa)</td></tr>
+          <tr><td><strong>Horizonte</strong></td><td class="mono">52 semanas</td></tr>
           <tr><td><strong>Per&iacute;odo datos</strong></td><td class="mono">neuro 2014&ndash;2026 | Dengue 2018&ndash;2026 (SINAVE)</td></tr>
           <tr><td><strong>Costo benchmark</strong></td><td class="mono">~$9.80 USD (9.8 horas ml.m5.xlarge)</td></tr>
           <tr><td><strong>Tiempo entrenamiento</strong></td><td class="mono">~45 min (n_jobs=-2, joblib loky)</td></tr>

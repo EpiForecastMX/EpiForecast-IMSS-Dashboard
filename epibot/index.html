@@ -187,6 +187,13 @@
       letter-spacing: 0.7px;
       color: var(--text-muted);
     }
+    /* Indicador con denominador: ocupa la fila entera para que el detalle se lea completo. */
+    .cc-kpi--ancho { grid-column: 1 / -1; }
+    .cc-kpi-det {
+      font-size: 10px;
+      line-height: 1.35;
+      color: var(--text-muted);
+    }
 
     /* Generic interactive row (tools + nav) */
     .cc-row {
@@ -567,8 +574,9 @@
 
     @media (max-width: 480px) {
       .prompt-menu {
-        left: -10px;
-        right: -10px;
+        /* Antes -10px a cada lado: a 390 px sobresalía de la pantalla (scroll horizontal). */
+        left: 0;
+        right: 0;
         border-radius: 14px 14px 0 0;
         bottom: 100%;
         max-height: 55vh;
@@ -779,15 +787,16 @@
           </div>
           <div class="cc-kpi cc-kpi--gold">
             <span class="cc-kpi-val" id="statSmape">--</span>
-            <span class="cc-kpi-lbl">SMAPE mediana</span>
+            <span class="cc-kpi-lbl" id="statSmapeLbl">Series productivas</span>
           </div>
-          <div class="cc-kpi cc-kpi--burg">
+          <div class="cc-kpi cc-kpi--burg cc-kpi--ancho">
             <span class="cc-kpi-val" id="statMotor">--</span>
             <span class="cc-kpi-lbl">Motor líder</span>
           </div>
-          <div class="cc-kpi">
+          <div class="cc-kpi cc-kpi--ancho">
             <span class="cc-kpi-val" id="statForecast">--</span>
-            <span class="cc-kpi-lbl">Pronóstico 52 sem</span>
+            <span class="cc-kpi-lbl">Notificaciones previstas · agregado estatal neuro</span>
+            <span class="cc-kpi-det" id="statForecastDet">32 estados × 3 padecimientos, modo general · 52 pasos desde el corte</span>
           </div>
         </div>
       </div>
@@ -820,9 +829,9 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             <span>Timelapse animado</span>
           </button>
-          <button class="cc-row" data-q="ranking mejores modelos">
+          <button class="cc-row" data-q="distribucion de motores ganadores">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="20" x2="4" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="20" y1="20" x2="20" y2="14"/></svg>
-            <span>Ranking de modelos</span>
+            <span>Motores productivos</span>
           </button>
           <button class="cc-row" data-q="generar reporte pdf">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
@@ -835,7 +844,7 @@
       <div class="cc-section">
         <div class="cc-group-label">Consultas rápidas</div>
         <div class="cc-chips">
-          <button class="cc-chip" data-q="metricas globales">Métricas globales</button>
+          <button class="cc-chip" data-q="que es el smape">¿Qué es el SMAPE?</button>
           <button class="cc-chip" data-q="que es la depresion">Depresión</button>
           <button class="cc-chip" data-q="que es el parkinson">Parkinson</button>
           <button class="cc-chip" data-q="que es el alzheimer">Alzheimer</button>
@@ -933,19 +942,14 @@
           <div class="prompt-menu-body">
             <div class="prompt-cat">
               <span class="prompt-cat-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></svg>Visualizaciones avanzadas</span>
-              <button class="prompt-item" data-q="matriz de rendimiento">Matriz de rendimiento (burbujas)</button>
               <button class="prompt-item" data-q="arsenal de motores">Arsenal de motores (polar)</button>
               <button class="prompt-item" data-q="motores por padecimiento">Motores por padecimiento</button>
-              <button class="prompt-item" data-q="mejores y peores modelos">Mejores y peores modelos</button>
               <button class="prompt-item" data-q="calibracion de modelos">Calibración (real vs pronóstico)</button>
-              <button class="prompt-item" data-q="volumen vs error por estado">Volumen vs error (top estados)</button>
               <button class="prompt-item" data-q="medidor de salud global">Medidor de salud (gauge)</button>
-              <button class="prompt-item" data-q="rango de smape por padecimiento">Rango de SMAPE (caja)</button>
               <button class="prompt-item" data-q="cascada de aporte por padecimiento">Cascada de aporte</button>
             </div>
             <div class="prompt-cat">
               <span class="prompt-cat-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><line x1="4" y1="20" x2="4" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="20" y1="20" x2="20" y2="14"/></svg>Análisis de calidad</span>
-              <button class="prompt-item" data-q="mase por motor">MASE por motor (skill)</button>
               <button class="prompt-item" data-q="salud de los modelos">Salud de los modelos</button>
               <button class="prompt-item" data-q="pronostico acumulado nacional">Pronóstico acumulado nacional</button>
             </div>
@@ -969,8 +973,8 @@
             </div>
             <div class="prompt-cat">
               <span class="prompt-cat-label">Métricas y calidad</span>
-              <button class="prompt-item" data-q="metricas globales">Métricas globales</button>
-              <button class="prompt-item" data-q="ranking mejores modelos">Ranking de mejores modelos</button>
+              <button class="prompt-item" data-q="que es el smape">¿Qué es el SMAPE?</button>
+              <button class="prompt-item" data-q="que es el mase">¿Qué es el MASE?</button>
               <button class="prompt-item" data-q="diagnosticos de calidad">Diagnósticos de calidad</button>
               <button class="prompt-item" data-q="validacion semanal">Validación semanal</button>
             </div>
@@ -978,9 +982,9 @@
               <span class="prompt-cat-label">Gráficos y visualizaciones</span>
               <button class="prompt-item" data-q="tendencia historica de depresion">Tendencia histórica</button>
               <button class="prompt-item" data-q="zoom semanal">Zoom semanal</button>
-              <button class="prompt-item" data-q="corredor de confianza">Corredor de confianza</button>
-              <button class="prompt-item" data-q="heatmap error semanal">Heatmap de error</button>
-              <button class="prompt-item" data-q="radar comparativo de motores">Radar de motores</button>
+              <button class="prompt-item" data-q="corredor entre motores">Corredor entre motores</button>
+              <button class="prompt-item" data-q="heatmap error semanal">Diferencias del seguimiento</button>
+              <button class="prompt-item" data-q="comparativa de motores">Comparativa de motores</button>
               <button class="prompt-item" data-q="panorama nacional treemap">Treemap por entidad</button>
               <button class="prompt-item" data-q="sparklines vista general">Sparklines (estados)</button>
               <button class="prompt-item" data-q="area apilada por padecimiento">Área apilada</button>
@@ -993,15 +997,6 @@
               <button class="prompt-item" data-q="mapa de mexico alzheimer">Alzheimer</button>
               <button class="prompt-item" data-q="mapa de mexico hombres">Hombres</button>
               <button class="prompt-item" data-q="mapa de mexico mujeres">Mujeres</button>
-            </div>
-            <div class="prompt-cat">
-              <span class="prompt-cat-label">Mapas de México (SMAPE)</span>
-              <button class="prompt-item" data-q="mapa de mexico por smape">Todos</button>
-              <button class="prompt-item" data-q="mapa de mexico depresion smape">Depresión</button>
-              <button class="prompt-item" data-q="mapa de mexico parkinson smape">Parkinson</button>
-              <button class="prompt-item" data-q="mapa de mexico alzheimer smape">Alzheimer</button>
-              <button class="prompt-item" data-q="mapa de mexico hombres smape">Hombres</button>
-              <button class="prompt-item" data-q="mapa de mexico mujeres smape">Mujeres</button>
             </div>
             <div class="prompt-cat">
               <span class="prompt-cat-label">Padecimientos</span>
@@ -1169,6 +1164,6 @@
     })();
   </script>
 
-  <script type="module" src="js/app.js?v=140"></script>
+  <script type="module" src="js/app.js?v=148"></script>
 </body>
 </html>

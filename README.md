@@ -19,7 +19,7 @@ deploy y la portada ya no descarga el snapshot histórico `bento.json`. La rama
 |---|---|
 | Datos reales hasta | **semana 33 de 2026** |
 | Series productivas | **432** = 333 neuro + 99 dengue |
-| Graficos publicados | **444** = 333 neuro + 111 dengue |
+| Graficos publicados | **432** = 333 neuro + 99 dengue (ronda W37; hasta W33 eran 444 con las 4 regiones de dengue) |
 | Tablero Tableau | `javier.rebull3700` / `viz_epiforecastmx_17873231502650` |
 | Despliegue | Netlify, automatico en push a `main` |
 | Ramas | solo `main` |
@@ -61,7 +61,7 @@ Dashboard interactivo del proyecto **EpiForecast-MX**, desarrollado en colaborac
 | G30 | Enfermedad de Alzheimer |
 | A97 | Dengue *(4.o padecimiento, vectorial)* |
 
-Los tres neurologicos son la cohorte de produccion principal (333 modelos). **Dengue** se incorporo como cuarto padecimiento, vectorial, con su propio pipeline de conteos: pagina publica en `dengue.html` (pronostico a 1 ano + proyeccion estacional ilustrativa a 5 anos) y respuestas del EpiBot. El sitio integra visualizaciones Tableau, un chatbot conversacional con base de conocimiento local + RAG (EpiBot), mapas interactivos de Mexico, y herramientas avanzadas de analisis epidemiologico.
+Los tres neurologicos son la cohorte de produccion principal (333 modelos). **Dengue** se incorporo como cuarto padecimiento, vectorial, con su propio pipeline de conteos: pagina publica en `dengue.html` (pronostico a 1 ano; la proyeccion NB-GLM a 5 anos se retiro en W37) y respuestas del EpiBot. El sitio integra visualizaciones Tableau, un chatbot conversacional con base de conocimiento local + RAG (EpiBot), mapas interactivos de Mexico, y herramientas avanzadas de analisis epidemiologico.
 
 ---
 

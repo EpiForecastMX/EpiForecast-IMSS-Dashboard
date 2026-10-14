@@ -137,7 +137,9 @@ test('C8 · ranking de precisión ≠ resumen de métricas ≠ ranking de entida
 test('C9 · "que motor tiene mejor smape" compara motores; "modelos con..." no', async () => {
   const motor = await traza('que motor tiene mejor smape');
   assert.equal(motor.handler, 'answerMotor');
-  assert.match(motor.response, /SMAPE/);
+  // Con las métricas de selección retiradas (knowledge.json lo declara) la tabla es el aviso.
+  const retiradas = JSON.parse(kraw).metricas_seleccion?.publicadas === false;
+  assert.match(motor.response, retiradas ? /diagnóstico de selección/ : /SMAPE/);
   // El discriminante es motor(es) vs modelo(s): esta sigue siendo un ranking de series.
   assert.equal((await traza('modelos con mejor smape')).handler, 'answerRanking');
 });
