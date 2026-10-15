@@ -1937,3 +1937,9 @@ body::after {
   scrollbar-width: thin;
   scrollbar-color: var(--border-accent) transparent;
 }
+
+/* Enlaces de las respuestas: contraste y foco sobre las tarjetas oscuras. */
+.msg-content a { color: #A9C8FF; text-decoration: underline; text-underline-offset: .18em; }
+.msg-content a:visited { color: #BED2FF; }
+.msg-content a:hover { color: #FFFFFF; }
+.msg-content a:focus-visible { outline: 2px solid #A9C8FF; outline-offset: 3px; border-radius: 3px; }

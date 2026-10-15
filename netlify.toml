@@ -112,3 +112,9 @@ command = "cd epibot && npm install && npm run cifras:test && npm run deploy:ver
   to = "/micai2026.html"
   status = 301
   force = true
+
+# La comparación se regenera con el boletín: revalidar siempre su JSON.
+[[headers]]
+  for = "/epibot/comparacion_rondas.json"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"

@@ -1,3 +1,4 @@
+import { graficoRondas } from './comparacion_rondas.js?v=2';
 /**
  * app.js - UI conversacional EpiForecast-MX con graficas en vivo.
  *
@@ -6,7 +7,7 @@
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=113';
+import { loadKnowledge, getStats, getData, answer, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=115';
 import { detectEntities, norm } from './entities.js?v=31';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
 import { renderMexicoMap } from './mexico-map.js?v=3';
@@ -119,9 +120,12 @@ const SPANISH_FIXES = [
 
 function polishSpanish(text) {
   if (typeof text !== 'string' || !text) return text;
-  let out = text;
-  for (const [re, repl] of SPANISH_FIXES) out = out.replace(re, repl);
-  return out;
+  // Corregir el texto visible sin cambiar los destinos de enlaces Markdown.
+  return text.split(/(\]\([^\s)]+)/g).map((part, i) => {
+    if (i % 2) return part;
+    for (const [re, repl] of SPANISH_FIXES) part = part.replace(re, repl);
+    return part;
+  }).join('');
 }
 
 // Paleta mejorada basada en el logo - más vibrante y diferenciada
@@ -2141,6 +2145,15 @@ function buildZoomChart(data, qn, ent) {
       labels,
       datasets,
       options: {
+        plugins: {
+          title: {
+            display: true,
+            text: [`${dn(pad)} · nacional`, `Seguimiento · corte ${String(info.corte || '').replace(/^\d{4}-/, '')}`,
+              `Semanas ${sems[0].semana}–${sems[sems.length - 1].semana} · ${info.anio}`],
+            font: { size: 13, weight: '700', family: 'Outfit' },
+            color: '#E7ECF5', align: 'start', padding: { bottom: 10, top: 4 },
+          },
+        },
         scales: {
           x: { ticks: { maxRotation: 90, font: { size: 9 }, autoSkip: true, maxTicksLimit: 20 } },
           y: { beginAtZero: true },
@@ -2769,6 +2782,12 @@ function extractChartData(markdown, query) {
   if (/!\[[^\]]*\]\([^)]+\.png/i.test(markdown)) return null;
   const s = data.stats || {};
   const qn = query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  const rondas = markdown.match(/<!--RONDAS:(.*?)-->/);
+  if (rondas && data.comparacion_rondas) {
+    try { return graficoRondas(data.comparacion_rondas, JSON.parse(rondas[1]).pad); }
+    catch (e) { console.warn('Comparación de rondas no disponible', e); }
+  }
 
   // Dengue NO vive en prod_models/stats (esos son neuro: 333 modelos). Casi todo canvas
   // generico saldria con datos neuro. Excepciones con datos de Dengue: el zoom semanal
@@ -3765,8 +3784,10 @@ function renderChart(canvasId, chartData) {
 // ---------------------------------------------------------------------------
 
 function getSuggestions(query) {
-  const q = query.toLowerCase();
+  const q = norm(query);
   const retiradas = metricasRetiradas(getData());
+  if (q.includes('zoom'))
+    return [{ text: 'Comparar con la ronda anterior', q: `comparar rondas ${detectEntities(query).padecimiento || 'depresion'}` }, { text: 'Diferencias del seguimiento', q: 'heatmap error semanal' }];
   if (q.includes('metrica') || q.includes('smape'))
     return retiradas
       ? [{ text: '¿Qué es el SMAPE?', q: 'que es el smape' }, { text: 'Motores productivos', q: 'distribucion de motores ganadores' }]
@@ -3787,8 +3808,6 @@ function getSuggestions(query) {
     return [{ text: 'Diferencias del seguimiento', q: 'heatmap error semanal' }, { text: 'Zoom semanal', q: 'zoom semanal' }];
   if (q.includes('heatmap') || q.includes('error semanal'))
     return [{ text: 'Corredor entre motores', q: 'corredor entre motores' }, { text: 'Zoom semanal', q: 'zoom semanal' }];
-  if (q.includes('zoom'))
-    return [{ text: 'Corredor entre motores', q: 'corredor entre motores' }, { text: 'Diferencias del seguimiento', q: 'heatmap error semanal' }];
   if (q.includes('tendencia'))
     return [{ text: 'Zoom semanal', q: 'zoom semanal' }, { text: 'Corredor entre motores', q: 'corredor entre motores' }];
   if (q.includes('mapa') && (q.includes('mexico') || q.includes('republica')))

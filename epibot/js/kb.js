@@ -7,6 +7,8 @@
  */
 
 import { norm, detectEntities, canonEstado } from './entities.js?v=31';
+import { comparacionRondasMd } from './comparacion_rondas.js?v=2';
+import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=1';
 
 let DATA = null;
 
@@ -27,6 +29,14 @@ export async function loadKnowledge() {
   if (!resp.ok) throw new Error('No se pudo cargar knowledge.json');
   DATA = await resp.json();
   _fixCohortStats();
+  try {
+    const extra = await fetch(`./comparacion_rondas.json${cacheBust}-rondas1`);
+    if (extra.ok) {
+      const c = await extra.json();
+      if (c.version === 1 && c.series && c.horizonte_actual) DATA.comparacion_rondas = c;
+    }
+  } catch { /* La comparación ausente se explica localmente, sin llamar al RAG. */ }
+
   // Precarga en segundo plano el zoom por serie (estado×sexo, 432 series). No bloquea el
   // arranque; cuando llega, queda en DATA.zoom_series y lo usan answerZoom/buildZoomChart.
   fetch(`./zoom_series.json${cacheBust}`)
@@ -250,8 +260,19 @@ function monthEstimateText(total, months, years, pad, lugar, data) {
   return lines.join('\n');
 }
 
-/** Devuelve rango fijo del horizonte de pronostico desde training_config (no se recalcula). */
+/** Fechas oficiales desde el archivo de comparación; fechas legacy sólo sin seguimiento v2. */
 function forecastDateRange(d) {
+  const h = d.comparacion_rondas?.horizonte_actual;
+  if (h) return { startDate: h.inicio, endDate: h.fin, entrenam: null,
+    isoStart: h.inicio, isoEnd: h.fin,
+    label: `${h.primera} (${h.inicio}) a ${h.ultima} (${h.fin}); corte ${h.corte}; ${h.pasos} pasos` };
+  // El seguimiento v2 tiene semanas oficiales; no se muestran fechas ds heredadas.
+  const info = Object.values(d.weekly_comparison || {}).find(info => info.version === 2);
+  if (info) {
+    const first = info.semanas?.find(w => w.horizonte === 1);
+    return { startDate: first?.periodo_inicio || 'no documentado', endDate: 'no documentado',
+      entrenam: null, label: `${info.pronostico_52_pasos != null ? '52 pasos' : 'horizonte'} desde el corte ${info.corte}; fechas completas pendientes del archivo de comparación` };
+  }
   const tc = d.training_config || {};
   if (!tc.horizonte_inicio || !tc.horizonte_fin) return null;
 
@@ -949,7 +970,8 @@ function answerTemporal(q, ent, s, d) {
   if (pideUltimoDato) return null;
 
   const now = new Date();
-  const iso = getISOWeek(now);
+  const epi = semanaBoletin(now);
+  const avance = estadoHorizonte(d,now,ent.padecimiento);
   const lines = [];
 
   const isDateQ = any(q, ['que dia es', 'que fecha es', 'fecha de hoy', 'dia de hoy', 'fecha actual', 'que ano es']);
@@ -957,29 +979,27 @@ function answerTemporal(q, ent, s, d) {
     const dias = ['domingo', 'lunes', 'martes', 'mi\u00e9rcoles', 'jueves', 'viernes', 's\u00e1bado'];
     const meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
     lines.push(`Hoy es **${dias[now.getDay()]} ${now.getDate()} de ${meses[now.getMonth()]} de ${now.getFullYear()}**`);
-    lines.push(`Semana epidemiol\u00f3gica: **${iso.week}** de ${iso.year}`);
+    lines.push(`Semana epidemiol\u00f3gica: **${epi.week}** de ${epi.year}`);
   }
 
   const isWeekQ = any(q, ['semana epidemiologica', 'semana epi', 'en que semana', 'que semana es', 'que semana estamos', 'semana estamos']);
   if (isWeekQ && !isDateQ) {
-    lines.push(`Estamos en la **semana epidemiol\u00f3gica ${iso.week}** de ${iso.year}.`);
+    lines.push(`Estamos en la **semana epidemiol\u00f3gica ${epi.week}** de ${epi.year}.`);
 
     // Datos disponibles y avance del pronóstico
     const ult = d.boletin?.ultima_semana;
     const rng = forecastDateRange(d);
     if (ult) {
       lines.push(`Datos disponibles hasta: **semana ${ult.semana} de ${ult.anio}** (${fmt(ult.total)} casos reportados esa semana).`);
-      const rezago = ult.anio === iso.year ? iso.week - ult.semana : iso.week + (52 - ult.semana);
+      const rezago = rezagoBoletin(now,ult.anio,ult.semana);
       if (rezago > 0) lines.push(`Rezago del bolet\u00edn: **${rezago} semana(s)**.`);
     }
     if (rng) {
       // Calcular en qué semana del horizonte de 52 estamos
       const tc = d.training_config || {};
-      const hStart = new Date(tc.horizonte_inicio + 'T00:00:00');
-      const diffMs = now.getTime() - hStart.getTime();
-      const semTranscurridas = Math.max(0, Math.floor(diffMs / (7 * 24 * 3600 * 1000)) + 1);
+      const semTranscurridas = avance.periodoActual || 0;
       if (semTranscurridas > 0 && semTranscurridas <= 52) {
-        lines.push(`Avance del pron\u00f3stico: **semana ${semTranscurridas} de 52** (horizonte: ${rng.label}).`);
+        lines.push(`Avance del pron\u00f3stico: **periodo ${semTranscurridas} del boletín desde el inicio** (horizonte: ${rng.label}).`);
       } else if (semTranscurridas > 52) {
         lines.push(`El horizonte de pron\u00f3stico (${rng.label}) ya concluy\u00f3.`);
       }
@@ -999,23 +1019,17 @@ function answerTemporal(q, ent, s, d) {
       lines.push('**Horizonte de pron\u00f3stico**:');
       lines.push(`- Desde: **${rng.startDate}**`);
       lines.push(`- Hasta: **${rng.endDate}**`);
-      lines.push(`- Duraci\u00f3n: **52 semanas**`);
+      lines.push(`- Corte de los modelos: **${avance.corte}**`);
+      lines.push(`- Duración: **${avance.pasos} pasos semanales del modelo**`);
+      if (avance.sinSemana) lines.push(`- Pasos sin semana del boletín: **${avance.sinSemana}**, excluidos de las comparaciones.`);
       if (rng.entrenam) lines.push(`- \u00daltimo entrenamiento: **${rng.entrenam}**`);
-      lines.push(`- Modelos: **${tc.series_totales || 333}** series de producci\u00f3n`);
+      lines.push(`- Series productivas: **${d.prod_models?.length || tc.series_totales || 333}**`);
       // Semanas transcurridas
-      const hStart = new Date(tc.horizonte_inicio + 'T00:00:00');
-      const diffMs = now.getTime() - hStart.getTime();
-      const semTranscurridas = Math.max(0, Math.floor(diffMs / (7 * 24 * 3600 * 1000)) + 1);
+      const semTranscurridas = avance.periodoActual || 0;
       if (semTranscurridas > 0 && semTranscurridas <= 52) {
-        lines.push(`- Avance: **semana ${semTranscurridas} de 52**`);
+        lines.push(`- Avance: **periodo ${semTranscurridas} del boletín desde el inicio**`);
       }
-      // Datos reales disponibles dentro del horizonte
-      const wc = d.weekly_comparison;
-      if (wc) {
-        const semsReales = Object.values(wc)[0]?.semanas?.filter(s => s.real != null).length || 0;
-        const nSem = Object.values(wc)[0]?.semanas?.length || 52;
-        if (semsReales > 0) lines.push(`- Semanas con datos reales: **${semsReales}** de ${nSem}`);
-      }
+      lines.push(`- Semanas con datos reales dentro del horizonte: **${avance.semanasObservadas}** (posteriores al corte).`);
     }
   } else if (isCoverage) {
     const meta = d.boletin?.meta;
@@ -1027,19 +1041,19 @@ function answerTemporal(q, ent, s, d) {
       lines.push(`- Registros totales: ${fmt(meta.total_registros)}`);
       lines.push('- Padecimientos: Depresi\u00f3n (F32), Parkinson (G20), Alzheimer (G30)');
       lines.push('- Entidades: 32 estados + Nacional');
-      const rezago = meta.max_anio === iso.year ? iso.week - meta.max_semana : iso.week + (52 - meta.max_semana);
-      if (rezago > 0) lines.push(`- Rezago: ~${rezago} semana(s) respecto a la semana actual (${iso.week})`);
+      const rezago = rezagoBoletin(now,meta.max_anio,meta.max_semana);
+      if (rezago > 0) lines.push(`- Rezago: ~${rezago} semana(s) respecto a la semana actual (${epi.week})`);
     }
   }
 
   if (q.includes('horizonte') && !asksForecast && !lines.length) {
-    lines.push(`El horizonte de pron\u00f3stico es de **52 semanas** (hasta enero ${iso.year + 1} aproximadamente).`);
+    lines.push(`El horizonte de pron\u00f3stico es de **52 semanas** (hasta enero ${epi.year + 1} aproximadamente).`);
   }
 
   if (lines.length && !isDateQ && !isWeekQ) {
     const dd = String(now.getDate()).padStart(2, '0');
     const mm = String(now.getMonth() + 1).padStart(2, '0');
-    lines.unshift(`Fecha actual: ${dd}/${mm}/${now.getFullYear()} (semana epidemiol\u00f3gica ${iso.week})\n`);
+    lines.unshift(`Fecha actual: ${dd}/${mm}/${now.getFullYear()} (semana epidemiol\u00f3gica ${epi.week})\n`);
   }
 
   return lines.length ? lines.join('\n') : null;
@@ -1302,7 +1316,7 @@ function answerProyectoMeta(q, ent, s, d) {
     lines.push('Para cada serie, se elige el motor con menor **SMAPE** (error porcentual simetrico) en validacion cruzada temporal. MASE y RMSE se usan como desempate.\n');
 
     lines.push('**4. Pronostico**');
-    lines.push(`Horizonte de **${tc.horizonte || 52} semanas** hacia adelante (corte: ${tc.fecha_corte || '2025-01-01'}).`);
+    lines.push(`Horizonte de **${tc.horizonte || 52} semanas** hacia adelante (corte: ${corteModelos(d)}).`);
     if (s.smape_prod_median != null && !metricasRetiradas(d)) {
       lines.push(`Precision global: SMAPE mediano **${s.smape_prod_median}%**.`);
     }
@@ -1363,7 +1377,7 @@ function answerTrainingConfig(q, ent, s, d) {
   if (corteKw || !modelo) {
     lines.push('**Fechas de corte de entrenamiento**\n');
     lines.push('Todos los modelos usan la misma fecha de corte:');
-    lines.push(`- **Fecha de corte: ${tc.fecha_corte || '2025-01-01'}**`);
+    lines.push(`- **Fecha de corte: ${corteModelos(d)}**`);
     lines.push('- Datos de entrenamiento: semana 1/2014 hasta semana 52/2024');
     lines.push('- Datos de prueba (CV): semana 1/2025 en adelante');
     lines.push(`- Horizonte de pron\u00f3stico: **${tc.horizonte || 52} semanas**`);
@@ -1421,7 +1435,7 @@ function answerTrainingConfig(q, ent, s, d) {
 
   if (!lines.length) {
     lines.push('**Configuraci\u00f3n general de entrenamiento**\n');
-    lines.push(`- Fecha de corte: **${tc.fecha_corte || '2025-01-01'}**`);
+    lines.push(`- Fecha de corte: **${corteModelos(d)}**`);
     lines.push(`- Horizonte: **${tc.horizonte || 52} semanas**`);
     lines.push('- Modelos: Prophet, DeepAR, Ensemble, Stacking');
     lines.push(`- Series: ${s.total_modelos || 333} (3 padecimientos \u00d7 37 geo \u00d7 3 sexo)`);
@@ -2649,6 +2663,10 @@ function zoomSeriesText(s, pad, estado, sexo) {
   return lines.join('\n');
 }
 
+function enlaceRondaAnterior(pad = 'Depresion') {
+  return `[Comparar con la ronda anterior nacional (año 2026 y zoom W38–W39)](../comparacion_rondas.html?pad=${encodeURIComponent(pad)})`;
+}
+
 function answerZoom(q, ent, s, d) {
   const triggers = ['zoom', 'detalle semanal', 'vista cercana', 'acercamiento'];
   const triggerAlt = (q.includes('real') && q.includes('pronostico') && q.includes('semanal')) ||
@@ -2659,7 +2677,7 @@ function answerZoom(q, ent, s, d) {
   if (ent.estado && ent.padecimiento && d.zoom_series) {
     const sexo = ent.sexo || 'general';
     const serie = d.zoom_series[`${norm(ent.padecimiento)}|${norm(ent.estado)}|${sexo}`];
-    if (serie) return zoomSeriesText(serie, ent.padecimiento, ent.estado, sexo);
+    if (serie) return zoomSeriesText(serie, ent.padecimiento, ent.estado, sexo) + "\n\n" + enlaceRondaAnterior(ent.padecimiento);
   }
 
   const wc = d.weekly_comparison;
@@ -2676,6 +2694,7 @@ function answerZoom(q, ent, s, d) {
   if (!v2.length) return null;
   lines.push(`**Zoom semanal: observado y ${tituloSeguimientoMin(wc[v2[0]])}**\n`);
 
+  lines.push(enlaceRondaAnterior(ent.padecimiento || 'Depresion') + '\n');
   const rng = forecastDateRange(d);
   if (rng) {
     lines.push(`Horizonte: **${rng.label}**\n`);
@@ -4243,6 +4262,19 @@ function answerComparacionPorSexo(q, ent, s, d) {
   return lines.join('\n');
 }
 
+function corteModelos(d) {
+  return d.seguimiento_post_corte?.corte?.etiqueta || d.comparacion_rondas?.horizonte_actual?.corte || 'no documentado';
+}
+
+function answerComparacionRondas(q, ent, s, d) {
+  if (!any(q, ['ronda anterior', 'comparar rondas', 'comparacion de rondas', 'comparar 2026 entero', 'compara 2026 entero', 'comparacion 2026 completa'])) return null;
+  if (ent.estado || ent.region || (ent.sexo && ent.sexo !== 'general')) {
+    return 'La comparación con archivos anteriores está habilitada sólo para los cuatro padecimientos nacionales, ambos sexos. No hay una serie anterior verificada para esta entidad o sexo en la nueva función. El seguimiento actual sigue disponible en la galería.';
+  }
+  const pad = ent.padecimiento || 'Depresion';
+  return comparacionRondasMd(d.comparacion_rondas, pad);
+}
+
 function answerComparacionSemanal(q, ent, s, d) {
   // Guard: comparaciones por sexo o género no son lo que este handler resuelve.
   // Dejar que answerComparacionPorSexo (o Gemini) las atienda.
@@ -4364,6 +4396,7 @@ function answerComparacionSemanal(q, ent, s, d) {
 
     lines.push(`**${padLegible(p)} — ${tituloSeguimiento(info)}** (motor asignado: ${info.motor || info.modelo_productivo || '?'}; nacional, ambos sexos)\n`);
     lines.push(`*${ROTULO_SEGUIMIENTO}*\n`);
+    lines.push("[Comparar 2026 con la ronda anterior archivada](../comparacion_rondas.html)\n");
 
     if (pedida && pedida.fase === 'observado') {
       lines.push(`La semana ${pedida.semana} (${periodoBoletin(pedida)}) es anterior al corte: ${NOTA_ANTES_DEL_CORTE}\n`);
@@ -5431,6 +5464,7 @@ function answerCodeRequest(q, ent, s, d) {
 // ---------------------------------------------------------------------------
 
 const HANDLERS = [
+  answerComparacionRondas,
   answerSaludo, answerPadecimientoNoModelado, answerDengue, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerFechaSemana, answerTemporal, answerProyectoMeta,
   answerTrainingConfig, answerSemanaActual, answerSemanasBoletin, answerQueEsPadecimiento,
   answerTimelapse, answerSemaforo, answerReportePDF,
