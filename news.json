@@ -1,6 +1,23 @@
 {
-    "_generated": "2026-10-14",
+    "_generated": "2026-10-20",
     "items": [
+        {
+            "date": "20 de octubre de 2026",
+            "iso": "2026-10-20",
+            "type": "datos",
+            "tag": "Datos",
+            "featured": false,
+            "title": "Ya contamos con la semana epidemiológica 40 de 2026",
+            "body": [
+                "Se integró el Boletín SINAVE hasta la <strong style=\"color:var(--cream)\">semana 40 de 2026</strong> (4 de octubre al 10 de octubre) en los cuatro padecimientos, con las 32 entidades.",
+                "Los pronósticos son los de los modelos con corte en la semana 37; no hubo reentrenamiento. La galería publica 432 gráficos y la validación muestra el seguimiento de las semanas 38, 39 y 40: el pronóstico guardado frente a lo observado esa misma semana, sin calificarlo. Son semanas de diagnóstico, no el resultado general del modelo."
+            ],
+            "link": {
+                "href": "Reports/index.html",
+                "text": "Ver observado y pronóstico en la galería",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
         {
             "date": "14 de octubre de 2026",
             "iso": "2026-10-14",

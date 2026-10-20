@@ -20,9 +20,9 @@ test('el rezago cruza años con 53 semanas sin asumir siempre 52',()=>{
   assert.equal(rezagoBoletin('2026-10-14',2026,39),2);
 });
 
-test('el horizonte cuenta sólo las dos semanas posteriores al corte, no las 39 del año',()=>{
+test('el horizonte cuenta sólo las tres semanas posteriores al corte, no las 40 del año',()=>{
   const h=estadoHorizonte(knowledge,'2026-10-14','Depresion');
-  assert.equal(h.corte,'2026-W37');assert.equal(h.semanasObservadas,2);
+  assert.equal(h.corte,'2026-W37');assert.equal(h.semanasObservadas,3);
   assert.equal(h.periodoActual,4);assert.equal(h.pasos,52);assert.equal(h.sinSemana,1);
 });
 
@@ -61,7 +61,7 @@ test('el propio zoom ofrece el enlace a la ronda anterior y lleva el padecimient
   }
 });
 
-test('la respuesta de horizonte publica W41, W37 y 2 observadas, nunca 39 de 52',async()=>{
+test('la respuesta de horizonte publica W41, W37 y 3 observadas, nunca 40 de 52',async()=>{
   const DateReal=globalThis.Date;
   globalThis.Date=class extends DateReal {
     constructor(...args){super(...(args.length?args:[2026,9,14,12]));}
@@ -71,7 +71,7 @@ test('la respuesta de horizonte publica W41, W37 y 2 observadas, nunca 39 de 52'
     assert.equal(r.handler,'answerTemporal');
     assert.match(r.response,/semana epidemiol[oó]gica 41/);
     assert.match(r.response,/2026-W37/);
-    assert.match(r.response,/datos reales dentro del horizonte: \*\*2\*\*/);
+    assert.match(r.response,/datos reales dentro del horizonte: \*\*3\*\*/);
     assert.doesNotMatch(r.response,/39 de 52|semana epidemiol[oó]gica 42/);
   } finally {globalThis.Date=DateReal;}
 });

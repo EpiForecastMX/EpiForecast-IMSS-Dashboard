@@ -62,7 +62,7 @@ export function graficoRondas(data, pad, ventana = 'anio') {
 
 const num = formatoCasos;
 export function comparacionRondasMd(data, pad) {
-  if (!data?.series?.[pad]) return 'No hay un pronóstico anterior verificado para esa serie en esta función. El seguimiento W38–W39 sigue disponible.';
+  if (!data?.series?.[pad]) return `No hay un pronóstico anterior verificado para esa serie en esta función. El seguimiento W38–${data?.observado_hasta?.split('-')[1] ?? ''} sigue disponible.`;
   const s = data.series[pad];
   const rows = filasComparacion(data, pad);
   const lines = [`**${pad === 'Depresion' ? 'Depresión' : pad} — comparación 2026 de rondas** (nacional, ambos sexos).`, '',
@@ -75,7 +75,7 @@ export function comparacionRondasMd(data, pad) {
     const diff = key => Number.isFinite(w.real) && Number.isFinite(w[key]) ? num(w[key] - w.real) : '—';
     lines.push(`| Sem ${w.semana} | ${w.inicio} a ${w.fin} | ${num(w.real)} | ${num(w.anterior)} | ${num(w.actual)} | ${diff('anterior')} | ${diff('actual')} | ${w.fase_anterior.replaceAll('_',' ')} |`);
   }
-  lines.push('', '[Abrir comparación interactiva: año, archivo previo o zoom W38–W39](../comparacion_rondas.html)',
+  lines.push('', `[Abrir comparación interactiva: año, archivo previo o zoom W38–${data.observado_hasta.split('-')[1]}](../comparacion_rondas.html)`,
     `<!--RONDAS:${JSON.stringify({ pad })}-->`);
   return lines.join('\n');
 }

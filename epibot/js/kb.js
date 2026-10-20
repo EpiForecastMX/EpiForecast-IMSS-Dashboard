@@ -7,7 +7,7 @@
  */
 
 import { norm, detectEntities, canonEstado } from './entities.js?v=31';
-import { comparacionRondasMd } from './comparacion_rondas.js?v=2';
+import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=1';
 
 let DATA = null;
@@ -20,7 +20,7 @@ function isNeuro(p) { return NEURO_PADS.includes(p); }
 
 // Version de los datos para cache-bust estable (evita re-descargar 1.3 MB por visita).
 // Subir esta constante cuando cambie knowledge.json / zoom_series.json.
-const DATA_VERSION = '20261014';
+const DATA_VERSION = '20261020';
 
 export async function loadKnowledge() {
   if (DATA) return DATA;
@@ -2664,7 +2664,7 @@ function zoomSeriesText(s, pad, estado, sexo) {
 }
 
 function enlaceRondaAnterior(pad = 'Depresion') {
-  return `[Comparar con la ronda anterior nacional (año 2026 y zoom W38–W39)](../comparacion_rondas.html?pad=${encodeURIComponent(pad)})`;
+  return `[Comparar con la ronda anterior nacional (año 2026 y seguimiento desde W38)](../comparacion_rondas.html?pad=${encodeURIComponent(pad)})`;
 }
 
 function answerZoom(q, ent, s, d) {
