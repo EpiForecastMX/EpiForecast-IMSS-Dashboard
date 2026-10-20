@@ -1,4 +1,4 @@
-import { filasComparacion, resumenPares, graficoRondas, formatoCasos, rangoGrafico } from './comparacion_rondas.js?v=2';
+import { filasComparacion, resumenPares, graficoRondas, formatoCasos, rangoGrafico } from './comparacion_rondas.js?v=3';
 const $ = id => document.getElementById(id);
 const num = formatoCasos;
 let data;
@@ -28,7 +28,7 @@ function render() {
     s.data.forEach((v,i)=>{if(Number.isFinite(v))svg+=`<circle cx="${x(i)}" cy="${y(v)}" r="${s.pointRadius}" fill="${s.borderColor}"><title>W${rows[i].semana} · ${s.label}: ${num(v)}</title></circle>`;});
   }
   $('chart').innerHTML=svg+'</svg>';
-  $('scaleNote').textContent=zoom?'Zoom W38–W39: eje vertical ajustado al rango visible; no comienza en cero.':'El eje vertical comienza en cero.';
+  $('scaleNote').textContent=zoom?`Zoom W38–${data.observado_hasta.split('-')[1]}: eje vertical ajustado al rango visible; no comienza en cero.`:'El eje vertical comienza en cero.';
   const summaries=['anterior','actual'].map(key=>{
     const s=resumenPares(rows,key);
     return `${key==='anterior'?'Ronda anterior':'Actual W37'}: ${s.n} pares válidos${s.n?` · observado ${num(s.observado)} · previsto ${num(s.previsto)} · diferencia ${num(s.diferencia)} · error absoluto medio ${num(s.mae)} casos/semana`:''}.`;
