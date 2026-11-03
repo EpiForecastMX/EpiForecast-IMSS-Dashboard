@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex, nofollow">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MICAI 2026 Talk Script</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one reading column for a phone held at arm's length; sticky control bar; slides as numbered stops. */
+:root {
+  --bg: #f4f6fb; --surface: #ffffff; --ink: #101935; --muted: #5a6378; --line: #dde2ee;
+  --accent: #c2186b; --accent-soft: #fbe6f0; --cue: #9a5b00; --cue-soft: #fff3df;
+  --read: "Atkinson Hyperlegible", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --size: 21px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0d1220; --surface: #151c2f; --ink: #e9edf7; --muted: #9aa4bd; --line: #26304a;
+  --accent: #f06aa9; --accent-soft: #3a1a2c; --cue: #f2b45a; --cue-soft: #33270f; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0d1220; --surface: #151c2f; --ink: #e9edf7; --muted: #9aa4bd; --line: #26304a;
+  --accent: #f06aa9; --accent-soft: #3a1a2c; --cue: #f2b45a; --cue-soft: #33270f; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font-family: var(--read); font-size: 16px; margin: 0;
+  -webkit-text-size-adjust: 100% }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10;
+  background: var(--surface) }
+.wrap { max-width: 40rem; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px)) }
+header.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface);
+  border-bottom: 1px solid var(--line) }
+.bar .wrap { display: flex; flex-direction: column; gap: 10px; padding-block: 10px }
+.row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; padding: 3px; gap: 2px }
+.seg button, .tool { font: 700 15px var(--read); color: var(--ink); background: transparent; border: 0;
+  border-radius: 999px; padding: 8px 14px; min-height: 40px; cursor: pointer }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface) }
+.tool { border: 1px solid var(--line) }
+.tool[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent) }
+.spacer { flex: 1 }
+.jump { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none }
+.jump::-webkit-scrollbar { display: none }
+.jump a { flex: none; font: 500 14px var(--mono); color: var(--muted); text-decoration: none; border: 1px solid var(--line);
+  border-radius: 8px; min-width: 40px; height: 34px; display: grid; place-items: center }
+.jump a.on { color: var(--accent); border-color: var(--accent) }
+.intro { padding-block: 22px 6px }
+.intro h1 { font-size: 26px; line-height: 1.15; margin: 0 0 6px; text-wrap: balance }
+.intro p { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.5 }
+.meta { font: 500 13px var(--mono); color: var(--muted); letter-spacing: .02em }
+section.slide { padding-block: 26px; border-bottom: 1px solid var(--line); scroll-margin-top: 130px }
+.head { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; align-items: baseline; margin-bottom: 14px }
+.num { font: 700 15px var(--mono); color: var(--accent); grid-row: span 2 }
+.head h2 { font-size: 19px; line-height: 1.25; margin: 0; text-wrap: balance; min-width: 0 }
+.lines { display: flex; flex-direction: column; gap: 14px }
+.say { font-size: var(--size); line-height: 1.55; margin: 0 }
+.click { font-size: var(--size); line-height: 1.55; margin: 0; padding-left: 12px; border-left: 4px solid var(--accent) }
+.pill { display: inline-block; font: 700 12px var(--read); letter-spacing: .08em; color: var(--accent);
+  background: var(--accent-soft); border-radius: 6px; padding: 2px 7px; margin-right: 8px; vertical-align: 3px }
+.next { font-size: calc(var(--size) * .82); line-height: 1.45; color: var(--muted); font-style: italic; margin: 4px 0 0 }
+.next::before { content: "→ "; font-style: normal; color: var(--accent) }
+.cue { font-size: 15px; color: var(--cue); background: var(--cue-soft); border-radius: 8px; padding: 8px 12px; margin: 4px 0 0 }
+footer { padding-block: 28px 40px; color: var(--muted); font-size: 14px; line-height: 1.5 }
+button:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth } }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <div class="wrap">
+    <div class="row">
+      <div class="seg" role="group" aria-label="Language">
+        <button id="lang-en" type="button" data-lang="en">EN</button>
+        <button id="lang-es" type="button" data-lang="es">ES</button>
+      </div>
+      <span class="spacer"></span>
+      <button id="size-down" class="tool" type="button" aria-label="Smaller text">A−</button>
+      <button id="size-up" class="tool" type="button" aria-label="Larger text">A+</button>
+      <button id="awake" class="tool" type="button" aria-pressed="false">Screen on</button>
+    </div>
+    <nav class="jump" id="jump" aria-label="Slides"></nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="intro">
+    <h1 id="h1"></h1>
+    <p id="sub"></p>
+  </div>
+  <div id="slides"></div>
+  <footer id="foot"></footer>
+</main>
+
+<script>
+const DATA = {"en": [{"n": 1, "title": "Opening", "start": "0:00", "end": "0:32", "lines": [{"k": "say", "t": "Hello. I'm Javier Rebull, with colleagues at Tecnologico de Monterrey and IMSS."}, {"k": "say", "t": "Every week, almost three thousand depression cases are reported in Mexico. Behind each count is a person who reached a health service."}, {"k": "say", "t": "We present an auditable per-series model selection framework, and we evaluate its recorded twenty twenty six forecasts."}, {"k": "next", "t": "First, the data."}], "words": 55}, {"n": 2, "title": "Depression is counted weekly, but only in hindsight", "start": "0:32", "end": "1:19", "lines": [{"k": "say", "t": "SINAVE, Mexico's surveillance system, reports these cases weekly: about one hundred and fifty thousand a year since twenty twenty three."}, {"k": "say", "t": "These are reported cases, not prevalence."}, {"k": "say", "t": "The weekly mean rose about twenty five percent between the two periods shown; these data do not establish why."}, {"k": "say", "t": "Women account for seventy four percent of annual totals reported by sex, a different measure from our weekly target."}, {"k": "say", "t": "Accumulated cases vary about twenty two fold between Mexico City and Tlaxcala."}, {"k": "next", "t": "This variation motivates a model for each series."}], "words": 84}, {"n": 3, "title": "Four candidates per series, one auditable rule", "start": "1:19", "end": "1:57", "lines": [{"k": "say", "t": "We evaluate ninety nine directly reported targets: thirty two states and the national total, each with three strata."}, {"k": "say", "t": "Four candidates share one rule: DeepAR, Prophet, Ensemble and Stacking."}, {"k": "say", "t": "sMAPE is relative forecast error; lower is better."}, {"k": "say", "t": "The rule picks the lowest historical sMAPE; within five percent of the best, it uses MASE, then RMSE."}, {"k": "say", "t": "An audit log stores each choice and its evidence."}, {"k": "next", "t": "What did this selection favor?"}], "words": 68}, {"n": 4, "title": "Recorded initial assignments", "start": "1:57", "end": "2:21", "lines": [{"k": "say", "t": "In all three strata, every state is assigned to DeepAR: ninety six targets. Nationally, Ensemble handles the general and women strata, and Prophet handles men."}, {"k": "say", "t": "Historical evaluation protocols differ; the state DeepAR code scores training fit."}, {"k": "next", "t": "Now, twenty twenty six."}], "words": 40}, {"n": 5, "title": "Recorded 2026 trajectories and follow-up", "start": "2:21", "end": "3:32", "lines": [{"k": "say", "t": "The figure shows one target, the national general series. Pink is observed; violet is the recorded Ensemble path, the assigned model; gray dashed is the naive, the value fifty two weeks earlier."}, {"k": "say", "t": "The second band is the follow-up, bulletin editions nineteen to forty one. Beyond the line, this snapshot has no observations."}, {"k": "say", "t": "In the follow-up, national Ensemble has five point five six percent sMAPE, versus six point three zero for the naive."}, {"k": "say", "t": "The table is a different measure: medians across all ninety nine targets. Prophet has the lowest, twenty four point one, and beats the naive on seventy one targets; Ensemble on sixty eight. The archived assignment has a higher median than the naive: thirty one point two versus twenty eight point one."}, {"k": "next", "t": "Quickly, by sex and by state."}], "words": 131}, {"n": 6, "title": "Every model against the naive, by window and sex", "start": "3:32", "end": "3:47", "lines": [{"k": "say", "t": "By sex, in the follow-up: Prophet has the lowest median for women and men; Ensemble for the general stratum."}, {"k": "next", "t": "And by state."}], "words": 23}, {"n": 7, "title": "How the year is going: every model against the naive", "start": "3:47", "end": "4:02", "lines": [{"k": "say", "t": "Each column is one state; teal beats the naive, magenta does not. The picture is mixed."}, {"k": "next", "t": "Now, per target, in the paper window."}], "words": 23}, {"n": 8, "title": "Historical and 2026 model rankings differ", "start": "4:02", "end": "5:06", "lines": [{"k": "say", "t": "Left, the historical selection scores; right, recorded errors in the paper window, editions three to eighteen, for the same ninety nine targets."}, {"k": "say", "t": "Historically, DeepAR had by far the lowest scores. Those protocols differ, so this contrast is descriptive, not a measured decline."}, {"k": "click", "t": "In twenty twenty six, the medians are Prophet twenty six point seven, DeepAR twenty seven point four, Ensemble twenty eight point one, and Stacking twenty nine point three."}, {"k": "click", "t": "They span less than three points."}, {"k": "click", "t": "The best model varies by target: Prophet wins thirty five, DeepAR twenty seven, Ensemble nineteen, Stacking eighteen."}, {"k": "next", "t": "Even without DeepAR, the order changes."}], "words": 99}, {"n": 9, "title": "Without DeepAR, Prophet overtook Ensemble in W03–W18", "start": "5:06", "end": "5:45", "lines": [{"k": "say", "t": "Is the change only about DeepAR's training-fit scores? No. Without DeepAR, Ensemble had lower historical error than Prophet in sixty one percent of targets; in twenty twenty six, Prophet had lower error in sixty percent."}, {"k": "say", "t": "Among Prophet, Ensemble and Stacking, the same model wins in thirty four of ninety nine targets, close to the thirty one percent reference from their win frequencies. Descriptive; targets overlap."}, {"k": "next", "t": "Can updating selection help?"}], "words": 70}, {"n": 10, "title": "Revision lowered the median in a seven-week replay", "start": "5:45", "end": "6:44", "lines": [{"k": "say", "t": "We replay selection with editions three through eleven, then evaluate editions twelve through eighteen. We choose among recorded paths, without refitting or using evaluation weeks."}, {"k": "click", "t": "Forty four targets improve, twelve worsen, and forty three are unchanged; the median paired change is zero."}, {"k": "say", "t": "A global selector matches the frozen assignment: thirty two point seven percent."}, {"k": "click", "t": "Per-series revision lowers the policy median to twenty eight point five. That compares policy medians, not paired gains."}, {"k": "say", "t": "Simple alternatives do better: Prophet alone, twenty seven point six; the pool without DeepAR, twenty six point four."}, {"k": "next", "t": "What does this tell us?"}], "words": 96}, {"n": 11, "title": "Selection is a signal, not a guarantee", "start": "6:44", "end": "7:33", "lines": [{"k": "say", "t": "Historical selection favored DeepAR; in the recorded panel, Prophet had the lowest median."}, {"k": "say", "t": "In the seven-week replay, revision helped, but simpler alternatives did better."}, {"k": "say", "t": "In the twenty three week follow-up, national Ensemble has lower error than the naive, while the archived panel median stays above the naive's. Revision in that window is untested."}, {"k": "say", "t": "These results cover one condition and short windows, with overlapping targets."}, {"k": "say", "t": "The contribution is a selection process whose decisions can be checked and revised, with its limits visible."}, {"k": "cue", "t": "Pause two seconds, then advance."}], "words": 83}, {"n": 12, "title": "Questions?", "start": "7:33", "end": "7:48", "lines": [{"k": "say", "t": "The QR code links to the follow-up, data, slides and code."}, {"k": "say", "t": "Behind every weekly count are people who reached a health service. Thank you. I'm ready for questions."}, {"k": "cue", "t": "Leave this slide up during questions."}], "words": 29}], "es": [{"n": 1, "title": "Apertura", "start": "0:00", "end": "0:35", "lines": [{"k": "say", "t": "Hola. Soy Javier Rebull, con colegas del Tecnológico de Monterrey y del IMSS."}, {"k": "say", "t": "Cada semana se notifican en México casi tres mil casos de depresión. Detrás de cada conteo hay una persona que llegó a un servicio de salud."}, {"k": "say", "t": "Presentamos un marco auditable de selección de modelos por serie, y evaluamos sus pronósticos registrados de dos mil veintiséis."}, {"k": "next", "t": "Primero, los datos."}], "words": 61}, {"n": 2, "title": "La notificación semanal describe el pasado", "start": "0:35", "end": "1:26", "lines": [{"k": "say", "t": "El SINAVE, el sistema de vigilancia epidemiológica de México, notifica estos casos cada semana: unos ciento cincuenta mil al año desde dos mil veintitrés."}, {"k": "say", "t": "Son casos notificados, no prevalencia."}, {"k": "say", "t": "La media semanal aumentó alrededor de veinticinco por ciento entre los dos períodos mostrados; estos datos no establecen la causa."}, {"k": "say", "t": "Las mujeres representan setenta y cuatro por ciento de los totales anuales notificados por sexo, una medida distinta de nuestro objetivo semanal."}, {"k": "say", "t": "Los casos acumulados varían unas veintidós veces entre la Ciudad de México y Tlaxcala."}, {"k": "next", "t": "Esta variación motiva un modelo para cada serie."}], "words": 93}, {"n": 3, "title": "Cuatro candidatos por serie, una regla auditable", "start": "1:26", "end": "2:08", "lines": [{"k": "say", "t": "Evaluamos los noventa y nueve objetivos notificados directamente: los treinta y dos estados y el total nacional, cada uno con tres estratos."}, {"k": "say", "t": "Cuatro candidatos comparten una regla: DeepAR, Prophet, Ensemble y Stacking."}, {"k": "say", "t": "sMAPE es el error relativo del pronóstico; cuanto menor, mejor."}, {"k": "say", "t": "La regla elige el menor sMAPE histórico; dentro de cinco por ciento del mejor, usa MASE y después RMSE."}, {"k": "say", "t": "Un registro de auditoría guarda cada elección y su evidencia."}, {"k": "next", "t": "¿Qué favoreció esta selección?"}], "words": 75}, {"n": 4, "title": "Asignaciones iniciales registradas", "start": "2:08", "end": "2:35", "lines": [{"k": "say", "t": "En los tres estratos, cada estado está asignado a DeepAR: noventa y seis objetivos. En el ámbito nacional, Ensemble corresponde a general y mujeres, y Prophet a hombres."}, {"k": "say", "t": "Los protocolos históricos difieren; el código estatal de DeepAR evalúa ajuste en entrenamiento."}, {"k": "next", "t": "Ahora, dos mil veintiséis."}], "words": 45}, {"n": 5, "title": "Trayectorias registradas de 2026 y seguimiento", "start": "2:35", "end": "3:53", "lines": [{"k": "say", "t": "La figura muestra un solo objetivo, la serie nacional general. El rosa es lo observado; el violeta, la trayectoria registrada de Ensemble, el modelo asignado; el gris discontinuo, el ingenuo, el valor de cincuenta y dos semanas antes."}, {"k": "say", "t": "La segunda franja es el seguimiento, ediciones del boletín diecinueve a cuarenta y uno. Después de la línea, esta copia no contiene observaciones."}, {"k": "say", "t": "En el seguimiento, Ensemble nacional tiene cinco punto cinco seis por ciento de sMAPE, frente a seis punto tres cero del ingenuo."}, {"k": "say", "t": "La tabla es otra medida: medianas de los noventa y nueve objetivos. Prophet tiene la menor, veinticuatro punto uno, y supera al ingenuo en setenta y un objetivos; Ensemble, en sesenta y ocho. La asignación archivada tiene una mediana mayor que la del ingenuo: treinta y uno punto dos frente a veintiocho punto uno."}, {"k": "next", "t": "Rápidamente, por sexo y por estado."}], "words": 143}, {"n": 6, "title": "Cada modelo frente al ingenuo, por ventana y sexo", "start": "3:53", "end": "4:07", "lines": [{"k": "say", "t": "Por sexo, en el seguimiento: Prophet tiene la menor mediana en mujeres y hombres; Ensemble, en el estrato general."}, {"k": "next", "t": "Y por estado."}], "words": 22}, {"n": 7, "title": "Cómo va el año: cada modelo frente al ingenuo", "start": "4:07", "end": "4:23", "lines": [{"k": "say", "t": "Cada columna es un estado; verde azulado supera al ingenuo y magenta no. El panorama es mixto."}, {"k": "next", "t": "Ahora, por objetivo, en la ventana del artículo."}], "words": 25}, {"n": 8, "title": "Los órdenes histórico y de 2026 difieren", "start": "4:23", "end": "5:30", "lines": [{"k": "say", "t": "A la izquierda, las cifras históricas de selección; a la derecha, los errores registrados en la ventana del artículo, ediciones tres a dieciocho, para los mismos noventa y nueve objetivos."}, {"k": "say", "t": "Históricamente, DeepAR tenía con mucho las cifras más bajas. Esos protocolos difieren, así que este contraste es descriptivo, no un deterioro medido."}, {"k": "click", "t": "En dos mil veintiséis, las medianas son Prophet veintiséis punto siete, DeepAR veintisiete punto cuatro, Ensemble veintiocho punto uno y Stacking veintinueve punto tres."}, {"k": "click", "t": "Abarcan menos de tres puntos."}, {"k": "click", "t": "El mejor modelo varía por objetivo: Prophet gana treinta y cinco, DeepAR veintisiete, Ensemble diecinueve y Stacking dieciocho."}, {"k": "next", "t": "Incluso sin DeepAR, el orden cambia."}], "words": 105}, {"n": 9, "title": "Sin DeepAR, Prophet superó a Ensemble en S03–S18", "start": "5:30", "end": "6:18", "lines": [{"k": "say", "t": "¿El cambio se debe solo a las cifras de ajuste de DeepAR? No. Sin DeepAR, Ensemble tenía menor error histórico que Prophet en sesenta y uno por ciento de los objetivos; en dos mil veintiséis, Prophet tuvo menor error en sesenta por ciento."}, {"k": "say", "t": "Entre Prophet, Ensemble y Stacking, el mismo modelo gana en treinta y cuatro de noventa y nueve objetivos, cerca de la referencia de treinta y uno por ciento según sus frecuencias de victoria. Descriptivo; los objetivos se superponen."}, {"k": "next", "t": "¿Puede ayudar actualizar la selección?"}], "words": 86}, {"n": 10, "title": "La revisión bajó la mediana en 7 semanas reconstruidas", "start": "6:18", "end": "7:23", "lines": [{"k": "say", "t": "Reconstruimos la selección con las ediciones tres a once y después evaluamos las ediciones doce a dieciocho. Elegimos entre trayectorias registradas, sin reentrenar ni usar semanas de evaluación."}, {"k": "click", "t": "Cuarenta y cuatro objetivos mejoran, doce empeoran y cuarenta y tres no cambian; la mediana del cambio pareado es cero."}, {"k": "say", "t": "Un selector global iguala a la asignación congelada: treinta y dos punto siete por ciento."}, {"k": "click", "t": "La revisión por serie baja la mediana de la política a veintiocho punto cinco. Eso compara medianas de políticas, no mejoras pareadas."}, {"k": "say", "t": "Las alternativas simples lo hacen mejor: Prophet solo, veintisiete punto seis; el conjunto sin DeepAR, veintiséis punto cuatro."}, {"k": "next", "t": "¿Qué nos dice esto?"}], "words": 107}, {"n": 11, "title": "La selección es una señal, no una garantía", "start": "7:23", "end": "8:19", "lines": [{"k": "say", "t": "La selección histórica favoreció a DeepAR; en el panel registrado, Prophet tuvo la menor mediana."}, {"k": "say", "t": "En la reconstrucción de siete semanas, la revisión ayudó, pero alternativas más simples lo hicieron mejor."}, {"k": "say", "t": "En el seguimiento de veintitrés semanas, Ensemble nacional tiene menor error que el ingenuo, mientras que la mediana archivada del panel sigue por encima de la del ingenuo. La revisión en esa ventana no se ha probado."}, {"k": "say", "t": "Estos resultados abarcan un solo padecimiento y ventanas cortas, con objetivos superpuestos."}, {"k": "say", "t": "La contribución es un proceso de selección cuyas decisiones pueden verificarse y revisarse, con sus límites a la vista."}, {"k": "cue", "t": "Pausa de dos segundos y avanzar."}], "words": 99}, {"n": 12, "title": "¿Preguntas?", "start": "8:19", "end": "8:36", "lines": [{"k": "say", "t": "El código QR lleva al seguimiento, los datos, las diapositivas y el código."}, {"k": "say", "t": "Detrás de cada conteo semanal hay personas que llegaron a un servicio de salud. Gracias. Con gusto respondo sus preguntas."}, {"k": "cue", "t": "Dejar esta diapositiva durante las preguntas."}], "words": 33}]};
+const UI = {
+  en: { h1: "MICAI 2026 · Paper 12 · Talk script", awake: "Screen on",
+        sub: "Twelve narrated slides, about 7:50 at a normal pace and 8:50 slowly. Pink marks a click; the arrow line leads into the next slide.",
+        click: "CLICK", words: "words", foot: "Same notes as the final .pptx (speaker notes). Backup slides 14–20: type the number and press Enter; type 12 and Enter to return." },
+  es: { h1: "MICAI 2026 · Artículo 12 · Guion de la charla", awake: "Pantalla",
+        sub: "Doce diapositivas narradas, unos 8:40 a ritmo normal y 9:45 a ritmo lento. El rosa marca un clic; la línea con flecha lleva a la siguiente diapositiva.",
+        click: "CLIC", words: "palabras", foot: "Mismas notas que el .pptx final (notas del orador). Respaldos 14–20: escribe el número y Enter; 12 y Enter para volver." }
+};
+const store = { get(k, d) { try { return localStorage.getItem(k) ?? d } catch (e) { return d } },
+                set(k, v) { try { localStorage.setItem(k, v) } catch (e) {} } };
+let lang = ["en", "es"].includes(location.hash.slice(1)) ? location.hash.slice(1) : store.get("pitch-lang", "en");
+let size = Number(store.get("pitch-size", 21)) || 21;
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function render() {
+  const u = UI[lang], slides = DATA[lang];
+  document.documentElement.lang = lang;
+  document.getElementById("h1").textContent = u.h1;
+  document.getElementById("sub").textContent = u.sub;
+  document.getElementById("foot").textContent = u.foot;
+  document.getElementById("awake").textContent = u.awake;
+  for (const b of document.querySelectorAll(".seg button")) b.setAttribute("aria-pressed", String(b.dataset.lang === lang));
+  document.getElementById("jump").innerHTML = slides.map(s => `<a href="#s${s.n}" data-n="${s.n}">${s.n}</a>`).join("");
+  document.getElementById("slides").innerHTML = slides.map(s => `
+    <section class="slide" id="s${s.n}">
+      <div class="head"><span class="num">${String(s.n).padStart(2, "0")}</span>
+        <h2>${esc(s.title)}</h2>
+        <span class="meta">${s.start}–${s.end} · ${s.words} ${u.words}</span></div>
+      <div class="lines">${s.lines.map(l =>
+        l.k === "click" ? `<p class="click"><span class="pill">${u.click}</span>${esc(l.t)}</p>` :
+        l.k === "next" ? `<p class="next">${esc(l.t)}</p>` :
+        l.k === "cue" ? `<p class="cue">${esc(l.t)}</p>` : `<p class="say">${esc(l.t)}</p>`).join("")}</div>
+    </section>`).join("");
+  document.documentElement.style.setProperty("--size", size + "px");
+  watch();
+}
+function watch() {
+  const links = [...document.querySelectorAll(".jump a")];
+  const io = new IntersectionObserver(es => {
+    for (const e of es) if (e.isIntersecting) {
+      const n = e.target.id.slice(1);
+      for (const a of links) a.classList.toggle("on", a.dataset.n === n);
+      links.find(a => a.dataset.n === n)?.scrollIntoView({ block: "nearest", inline: "center" });
+    }
+  }, { rootMargin: "-40% 0px -55% 0px" });
+  document.querySelectorAll("section.slide").forEach(s => io.observe(s));
+}
+for (const b of document.querySelectorAll(".seg button")) b.addEventListener("click", () => {
+  lang = b.dataset.lang; store.set("pitch-lang", lang); render(); window.scrollTo({ top: 0 });
+});
+document.getElementById("size-up").addEventListener("click", () => { size = Math.min(30, size + 1); store.set("pitch-size", size); render() });
+document.getElementById("size-down").addEventListener("click", () => { size = Math.max(15, size - 1); store.set("pitch-size", size); render() });
+let lock = null;
+const awake = document.getElementById("awake");
+awake.addEventListener("click", async () => {
+  if (lock) { await lock.release().catch(() => {}); lock = null; awake.setAttribute("aria-pressed", "false"); return }
+  try { lock = await navigator.wakeLock.request("screen"); awake.setAttribute("aria-pressed", "true");
+        lock.addEventListener("release", () => { lock = null; awake.setAttribute("aria-pressed", "false") }) }
+  catch (e) { awake.setAttribute("aria-pressed", "false") }
+});
+render();
+</script>
+
+</body>
+</html>
