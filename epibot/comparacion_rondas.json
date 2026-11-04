@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "observado_hasta": "2026-W41",
+  "observado_hasta": "2026-W42",
   "cobertura": "Nacional · general · cuatro padecimientos",
   "notas": [
     "W7–W23: comparación retrospectiva neuro; no se acredita un archivo emitido en febrero. Dengue sólo tiene archivo anterior desde W22.",
-    "W24–W41: pronósticos del CSV archivado el 5 de junio, anteriores al periodo comparado.",
-    "W38–W41: seguimiento del motor actual, con corte W37. Su ajuste histórico no se compara.",
+    "W24–W42: pronósticos del CSV archivado el 5 de junio, anteriores al periodo comparado.",
+    "W38–W42: seguimiento del motor actual, con corte W37. Su ajuste histórico no se compara.",
     "Los periodos difieren; sus resúmenes no constituyen un ranking entre rondas.",
     "Estados, regiones y sexos no tienen una comparación anterior habilitada en esta función."
   ],
@@ -24,11 +24,11 @@
     },
     "knowledge": {
       "archivo": "knowledge.json",
-      "sha256": "ddc1c5eb02aed53a24ee62da9ba66c5534826ceb5757e9d5742d26429eded1f2"
+      "sha256": "7e96355ef686a359b820a0540c085bf910b4e61d06127ef601ed553fd22c79d5"
     },
     "zoom": {
       "archivo": "zoom_series.json",
-      "sha256": "02f338dc5770b0a63a591c167492c866064030afa1bcf2c7ae39455c4ed34180"
+      "sha256": "952adeb60fcabcf0d0a51e5c278aa6dad484d98548bcb9a310f97e7cfd964dce"
     }
   },
   "horizonte_actual": {
@@ -538,6 +538,18 @@
           "procedencia_anterior": "snapshot_junio",
           "fase_anterior": "archivo_previo",
           "motivo_ausencia": ""
+        },
+        {
+          "semana": 42,
+          "etiqueta": "2026-W42",
+          "inicio": "2026-10-18",
+          "fin": "2026-10-24",
+          "real": 3202,
+          "anterior": 3118.1,
+          "actual": 3261,
+          "procedencia_anterior": "snapshot_junio",
+          "fase_anterior": "archivo_previo",
+          "motivo_ausencia": ""
         }
       ]
     },
@@ -1033,6 +1045,18 @@
           "real": 145,
           "anterior": 155.1,
           "actual": 150,
+          "procedencia_anterior": "snapshot_junio",
+          "fase_anterior": "archivo_previo",
+          "motivo_ausencia": ""
+        },
+        {
+          "semana": 42,
+          "etiqueta": "2026-W42",
+          "inicio": "2026-10-18",
+          "fin": "2026-10-24",
+          "real": 147,
+          "anterior": 153.81,
+          "actual": 148,
           "procedencia_anterior": "snapshot_junio",
           "fase_anterior": "archivo_previo",
           "motivo_ausencia": ""
@@ -1534,6 +1558,18 @@
           "procedencia_anterior": "snapshot_junio",
           "fase_anterior": "archivo_previo",
           "motivo_ausencia": ""
+        },
+        {
+          "semana": 42,
+          "etiqueta": "2026-W42",
+          "inicio": "2026-10-18",
+          "fin": "2026-10-24",
+          "real": 40,
+          "anterior": 42.69,
+          "actual": 40,
+          "procedencia_anterior": "snapshot_junio",
+          "fase_anterior": "archivo_previo",
+          "motivo_ausencia": ""
         }
       ]
     },
@@ -2029,6 +2065,18 @@
           "real": 678,
           "anterior": 178.11,
           "actual": 321,
+          "procedencia_anterior": "snapshot_junio",
+          "fase_anterior": "archivo_previo",
+          "motivo_ausencia": ""
+        },
+        {
+          "semana": 42,
+          "etiqueta": "2026-W42",
+          "inicio": "2026-10-18",
+          "fin": "2026-10-24",
+          "real": 667,
+          "anterior": 184.38,
+          "actual": 255,
           "procedencia_anterior": "snapshot_junio",
           "fase_anterior": "archivo_previo",
           "motivo_ausencia": ""
