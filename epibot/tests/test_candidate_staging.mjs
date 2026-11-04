@@ -181,9 +181,9 @@ test('parseCSV rechaza una fila con distinto número de campos', () => {
 
 // ── El corpus publicado no deriva solo ────────────────────────────────────────────────────────
 test('buildChunks sin candidateRoot da EXACTAMENTE el mismo corpus', () => {
-  const a = buildChunks().chunks.map(chunkHash).join('|');
-  const b = buildChunks({ candidateRoot: null }).chunks.map(chunkHash).join('|');
-  const c = buildChunks({ candidateRoot: '/ruta/que/no/existe' }).chunks.map(chunkHash).join('|');
+  const a = buildChunks({ published: false }).chunks.map(chunkHash).join('|');
+  const b = buildChunks({ published: false, candidateRoot: null }).chunks.map(chunkHash).join('|');
+  const c = buildChunks({ published: false, candidateRoot: '/ruta/que/no/existe' }).chunks.map(chunkHash).join('|');
   assert.equal(a, b);
   assert.equal(a, c, 'un candidateRoot inexistente no puede alterar el corpus publicado');
 });
@@ -191,8 +191,8 @@ test('buildChunks sin candidateRoot da EXACTAMENTE el mismo corpus', () => {
 test('buildChunks con candidateRoot añade el corpus candidate y sólo ese', () => {
   const { raiz } = fabricarShard({});
   try {
-    const base = buildChunks().chunks;
-    const ampliado = buildChunks({ candidateRoot: raiz }).chunks;
+    const base = buildChunks({ published: false }).chunks;
+    const ampliado = buildChunks({ published: false, candidateRoot: raiz }).chunks;
     assert.equal(ampliado.length, base.length + 1);
     const nuevo = ampliado[ampliado.length - 1];
     assert.match(nuevo.id, /^candidate:padecimiento_x:/);
@@ -200,10 +200,16 @@ test('buildChunks con candidateRoot añade el corpus candidate y sólo ese', () 
   } finally { rmSync(raiz, { recursive: true, force: true }); }
 });
 
-test('el índice RAG PUBLICADO no menciona al padecimiento candidate', () => {
+test('el índice RAG PUBLICADO sólo trae Obesidad desde su release publicado (C7.7)', () => {
   const ruta = resolve(new URL('../rag_index.json', import.meta.url).pathname);
   if (!existsSync(ruta)) return;
   const idx = JSON.parse(readFileSync(ruta, 'utf-8'));
-  const sospechosos = (idx.chunks || []).filter((c) => JSON.stringify(c).toLowerCase().includes('obesidad'));
-  assert.equal(sospechosos.length, 0, 'Obesidad sigue trained: no puede estar en el índice publicado');
+  const chunks = idx.chunks || [];
+  assert.equal(chunks.filter((c) => String(c.id).startsWith('candidate:')).length, 0, 'ningún candidate en el índice público');
+  const deObesidad = chunks.filter((c) => c.section === 'obesidad');
+  assert.ok(deObesidad.length >= 1, 'Obesidad publicada: su release tiene que estar en el índice');
+  for (const c of deObesidad) {
+    assert.match(c.source, /^Release publicado obesidad_release_/);
+    assert.equal(c.url, '../obesidad.html');
+  }
 });

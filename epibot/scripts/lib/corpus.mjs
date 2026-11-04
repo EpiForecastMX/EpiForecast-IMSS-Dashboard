@@ -391,12 +391,33 @@ export function normalizaSelloDeGeneracion(html) {
 /** Documentos cuyo contenido semántico se normaliza antes de trocear. */
 export const NORMALIZA_SELLO = new Set(['validacion_semanal.html']);
 
+/**
+ * Releases PUBLICADOS del sitio (C7.7): raíz, modo y punteros que leen el índice, su verificación y
+ * el contrato de cifras. Sin `publication/pointers.json` no hay ninguno, y el corpus es el legacy.
+ */
+export function publishedOptions(root = ROOT_DIR) {
+  const ruta = resolve(root, 'publication', 'pointers.json');
+  if (!existsSync(ruta)) return {};
+  const datos = JSON.parse(readFileSync(ruta, 'utf-8'));
+  if (datos.schema !== 'publication_pointers.v1' || !datos.pointers || typeof datos.pointers !== 'object') {
+    throw new CandidateError('publication/pointers.json: forma inválida');
+  }
+  if (!Object.keys(datos.pointers).length) return {};
+  return { publicationRoot: root, publicationMode: RAG_MODE_PUBLIC, publicationPointers: { ...datos.pointers } };
+}
+
 export function buildChunks({
   candidateRoot = null,
   publicationRoot = null,
   publicationMode = null,
   publicationPointers = {},
+  published = true,
 } = {}) {
+  // Por defecto el corpus PÚBLICO incluye los releases publicados con puntero activo: el índice,
+  // su verificación y el contrato de cifras ven así el mismo conjunto, sin banderas que olvidar.
+  if (published && !publicationRoot && !publicationMode) {
+    ({ publicationRoot = null, publicationMode = null, publicationPointers = {} } = publishedOptions());
+  }
   const chunks = [];
   const log = [];
 
@@ -461,6 +482,73 @@ export function buildChunks({
  * el corpus se verifica el release entero: un `.md` alterado no puede entrar al índice sólo porque
  * el catálogo lo nombre (R96-P0-4).
  */
+const MOTOR_ES = {
+  ets_add_damped_log1p: 'ETS amortiguado (log)',
+  prophet_count_log1p: 'Prophet en conteos (log)',
+  prophet_rate_log1p: 'Prophet en tasa (log)',
+  ridge_harmonic_log1p: 'Ridge armónico (log)',
+  seasonal_mean_5y: 'media estacional de 5 años',
+  seasonal_median_5y: 'mediana estacional de 5 años',
+  portfolio: 'portafolio (suma de las series estatales)',
+};
+
+const fmt = (n, d = 1) => (n === null || n === undefined ? 'sin dato' : Number(n).toLocaleString('es-MX', { maximumFractionDigits: d, minimumFractionDigits: d }));
+const semana = ([a, s]) => `${a}-W${String(s).padStart(2, '0')}`;
+
+/**
+ * Tarjetas del release publicado a partir de su vista derivada (observado + desempeño fuera de
+ * muestra). La vista se exige del MISMO release que el catálogo: una vista de otro release no entra.
+ */
+function vistaChunks(root, r) {
+  const ruta = resolve(root, 'publication', r.disease_id, 'vista.json');
+  // Sin vista sólo entra el corpus sellado del release; si existe, tiene que ser la de ESTE release.
+  if (!existsSync(ruta)) return [];
+  const v = JSON.parse(readFileSync(ruta, 'utf-8'));
+  if (v.schema !== 'publication_view.v1' || v.release_id !== r.release_id || v.disease_id !== r.disease_id) {
+    throw new CandidateError(`${r.disease_id}: la vista no corresponde al release ${r.release_id}`);
+  }
+  const url = `../${r.disease_id}.html`;
+  const base = { source: `Release publicado ${r.release_id}`, section: r.disease_id, url };
+  const nac = v.series['nacional|mx|general'];
+  const encabezado =
+    `${v.nombre_completo || v.display_name}: pronóstico congelado desde ${semana(v.origin)} ` +
+    `(${v.horizon_weeks} semanas, sin reentrenar). ${v.publication_label}. ` +
+    `Lo observado llega hasta la semana epidemiológica ${semana(v.observation_cutoff)}.`;
+  const chunks = [{
+    ...base,
+    id: `release:${r.disease_id}:${r.release_id}:nacional`,
+    title: `${v.display_name} — desempeño nacional fuera de muestra`,
+    text:
+      `${encabezado}\n\nNacional (general): en ${nac.oos.semanas} semanas ya observadas tras el origen, ` +
+      `sMAPE ${fmt(nac.oos.smape)} %, MAE ${fmt(nac.oos.mae, 0)} casos por semana y sesgo ` +
+      `${fmt(nac.oos.sesgo_pct)} % (observados ${fmt(nac.oos.observado_total, 0)} frente a ` +
+      `${fmt(nac.oos.pronostico_total, 0)} pronosticados). Total pronosticado para las 52 semanas: ` +
+      `${fmt(nac.pronostico_52_total, 0)} casos. ${v.models} modelos (uno por estado y sexo) y ` +
+      `${v.products} productos derivados por suma. ${v.uncertainty_label}.`,
+  }];
+  const estados = Object.values(v.series)
+    .filter((s) => s.nivel === 'estado' && s.sexo === 'general' && s.oos.smape !== null)
+    .sort((a, b) => a.oos.smape - b.oos.smape);
+  const filas = estados.map(
+    (s) => `- ${s.nombre}: sMAPE ${fmt(s.oos.smape)} %, sesgo ${fmt(s.oos.sesgo_pct)} %, ` +
+      `52 semanas ${fmt(s.pronostico_52_total, 0)} casos.`,
+  );
+  chunks.push({
+    ...base,
+    id: `release:${r.disease_id}:${r.release_id}:estados`,
+    title: `${v.display_name} — desempeño por estado fuera de muestra`,
+    text: `${encabezado}\n\nEstados ordenados de menor a mayor sMAPE fuera de muestra:\n${filas.join('\n')}`,
+  });
+  const motores = Object.entries(v.engines).map(([m, n]) => `${MOTOR_ES[m] || m}: ${n} series`);
+  chunks.push({
+    ...base,
+    id: `release:${r.disease_id}:${r.release_id}:motores`,
+    title: `${v.display_name} — motores del portafolio`,
+    text: `${encabezado}\n\nMotores seleccionados por validación cruzada rolling-origin: ${motores.join('; ')}.`,
+  });
+  return chunks;
+}
+
 function installedChunks(publicationRoot, mode, pointers) {
   if (![RAG_MODE_STAGING, RAG_MODE_PUBLIC].includes(mode)) {
     throw new CandidateError(
@@ -485,15 +573,17 @@ function installedChunks(publicationRoot, mode, pointers) {
     const identidad = { diseaseId: r.disease_id, releaseId: r.release_id };
     const { base } = readInstalledRelease(publicationRoot, identidad);
     const md = resolve(base, 'corpus', `${r.disease_id}.md`);
+    const publico = r.visible === true && r.mode === MODE_PUBLIC;
     salida.push({
-      id: `candidate:${r.disease_id}:${r.release_id}`,
-      source: `Release candidate ${r.release_id}`,
+      id: `${publico ? 'release' : 'candidate'}:${r.disease_id}:${r.release_id}`,
+      source: `${publico ? 'Release publicado' : 'Release candidate'} ${r.release_id}`,
       section: r.disease_id,
       title: r.disease_id,
       // Sin URL pública mientras no sea visible: un candidate no tiene página donde enlazarse.
-      url: r.visible === true ? `../publication/${r.disease_id}/${r.release_id}/` : null,
+      url: publico ? `../${r.disease_id}.html` : null,
       text: readFileSync(md, 'utf-8'),
     });
+    if (publico) salida.push(...vistaChunks(publicationRoot, r));
   }
   return salida;
 }

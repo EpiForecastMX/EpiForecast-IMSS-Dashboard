@@ -43,6 +43,12 @@ export async function loadKnowledge() {
     .then(r => (r.ok ? r.json() : null))
     .then(z => { if (z) DATA.zoom_series = z; })
     .catch(() => {});
+  // C7.7: Obesidad se publica desde su release sellado; su vista (observado + pronóstico +
+  // desempeño fuera de muestra) vive fuera de knowledge.json y se carga aparte.
+  DATA.obesidad_pendiente = fetch(`../publication/obesidad/vista.json${cacheBust}`)
+    .then(r => (r.ok ? r.json() : null))
+    .then(v => { if (v && v.schema === 'publication_view.v1') DATA.obesidad = v; })
+    .catch(() => {});
   return DATA;
 }
 
@@ -577,13 +583,98 @@ const INJECTION_RESPONSE =
 // Guard: padecimiento no modelado → retorna null para caer a Gemini
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Obesidad (E66): publicada desde su release sellado del runner (C7.7)
+// ---------------------------------------------------------------------------
+
+const OBESIDAD_KW = ['obesidad', 'obeso', 'obesa', 'sobrepeso', 'e66'];
+const OBESIDAD_MOTOR = {
+  ets_add_damped_log1p: 'ETS amortiguado (log)',
+  prophet_count_log1p: 'Prophet en conteos (log)',
+  prophet_rate_log1p: 'Prophet en tasa (log)',
+  ridge_harmonic_log1p: 'Ridge armónico (log)',
+  seasonal_mean_5y: 'media estacional de 5 años',
+  seasonal_median_5y: 'mediana estacional de 5 años',
+  portfolio: 'portafolio (suma de las series estatales)',
+};
+
+function _semanaObe([a, w]) { return `${a}-W${String(w).padStart(2, '0')}`; }
+function _num1(n) { return n == null ? '—' : Number(n).toLocaleString('es-MX', { maximumFractionDigits: 1, minimumFractionDigits: 1 }); }
+function _ent0(n) { return n == null ? '—' : Math.round(n).toLocaleString('es-MX'); }
+
+/** Serie de la vista que corresponde a la pregunta: estado detectado o Nacional; sexo o general. */
+function _serieObesidad(v, ent) {
+  const sexo = ent.sexo || 'general';
+  if (ent.estado) {
+    const objetivo = norm(ent.estado);
+    const hit = Object.values(v.series).find(x => x.nivel === 'estado' && x.sexo === sexo && norm(x.nombre) === objetivo);
+    if (hit) return hit;
+  }
+  return v.series[`nacional|mx|${sexo}`];
+}
+
+function answerObesidad(q, ent, s, d) {
+  if (!any(q, OBESIDAD_KW)) return null;
+  // Si la pregunta nombra además otro padecimiento, la responde su handler.
+  if (ent.padecimiento && ent.padecimiento !== 'Obesidad') return null;
+  const v = d.obesidad;
+  if (!v) {
+    return 'La vista de **Obesidad (E66)** todavía se está cargando. Puedes consultarla completa en ' +
+      '[la página de Obesidad](../obesidad.html) o volver a preguntar en unos segundos.';
+  }
+  const etiqueta = `_${v.publication_label}._`;
+  const pie = `\n\nGráfica interactiva por estado y sexo: [Obesidad · pronóstico semanal](../obesidad.html).`;
+
+  // Ranking por desempeño fuera de muestra (estados, general)
+  if (any(q, ['mejor', 'peor', 'ranking', 'top', 'que estado', 'cual estado', 'cuales estados', 'precis', 'acierta', 'falla'])) {
+    const est = Object.values(v.series)
+      .filter(x => x.nivel === 'estado' && x.sexo === 'general' && x.oos.smape != null)
+      .sort((a, b) => a.oos.smape - b.oos.smape);
+    const linea = (x, i) => `${i + 1}. **${x.nombre}**: sMAPE ${_num1(x.oos.smape)} % (sesgo ${_num1(x.oos.sesgo_pct)} %)`;
+    return [
+      `**Obesidad (E66): desempeño fuera de muestra por estado** (${est[0]?.oos.semanas ?? 0} semanas observadas tras el origen ${_semanaObe(v.origin)}).`,
+      '',
+      '**Más precisos:**', ...est.slice(0, 5).map(linea),
+      '', '**Menos precisos:**', ...est.slice(-5).reverse().map((x, i) => linea(x, est.length - 1 - i)),
+      '', etiqueta,
+    ].join('\n') + pie;
+  }
+
+  const x = _serieObesidad(v, ent);
+  if (!x) return null;
+  const corte = v.observation_cutoff;
+  const futuras = x.pronostico.filter(([ds]) => ds > v.observation_cutoff_ds).slice(0, 4);
+  const lugar = x.nivel === 'nacional' ? 'Nacional' : x.nombre;
+  let motor = OBESIDAD_MOTOR[x.motor] || x.motor;
+  if (x.nivel === 'estado' && x.motor === 'portfolio') {
+    // La serie General de un estado no se modela: es la suma de sus series de hombres y mujeres.
+    const m = (sx) => { const y = v.series[`estado|${x.id}|${sx}`]; return OBESIDAD_MOTOR[y?.motor] || y?.motor || '—'; };
+    motor = `suma de hombres (${m('hombres')}) y mujeres (${m('mujeres')})`;
+  }
+  const lineas = [
+    `**Obesidad (E66) · ${lugar} · ${x.sexo_nombre}**`,
+    '',
+    `Pronóstico **congelado** en ${_semanaObe(v.origin)} para ${v.horizon_weeks} semanas, sin reentrenar; motor: ${motor}.`,
+    '',
+    `**Cómo le ha ido fuera de muestra** (${x.oos.semanas} semanas observadas, hasta ${_semanaObe(corte)}):`,
+    `- sMAPE: **${_num1(x.oos.smape)} %**`,
+    `- Error medio absoluto: ${_ent0(x.oos.mae)} casos por semana`,
+    `- Sesgo: ${_num1(x.oos.sesgo_pct)} % (observados ${_ent0(x.oos.observado_total)} frente a ${_ent0(x.oos.pronostico_total)} pronosticados)`,
+  ];
+  if (futuras.length) {
+    lineas.push('', '**Próximas semanas del pronóstico:**', ...futuras.map(([ds, y]) => `- Semana del ${ds}: ${_ent0(y)} casos`));
+  }
+  lineas.push('', `Total pronosticado en las ${v.horizon_weeks} semanas: **${_ent0(x.pronostico_52_total)} casos**.`, '', etiqueta, `_${v.uncertainty_label}._`);
+  return lineas.join('\n') + pie;
+}
+
 function answerPadecimientoNoModelado(q, ent, s, d) {
   // Si ya detectamos un padecimiento conocido, no es off-scope
   if (ent.padecimiento) return null;
 
   // Detectar enfermedades/padecimientos mencionados que NO modelamos
   const enfermedades = [
-    'cancer', 'diabetes', 'hipertension', 'obesidad', 'asma', 'epilepsia',
+    'cancer', 'diabetes', 'hipertension', 'asma', 'epilepsia',
     'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah', 'demencia',
     'influenza', 'covid', 'tuberculosis', 'vih', 'sida', 'colera',
     'sarampion', 'rubeola', 'hepatitis', 'zika', 'chikungunya', 'malaria',
@@ -604,11 +695,12 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
   if (matchedDisease && (any(q, dataKw) || ent.estado || isShortFollowUp)) {
     return (
       `EpiForecast-MX **no modela ${matchedDisease}**. ` +
-      'Nuestro proyecto se enfoca en cuatro padecimientos del Bolet\u00edn Epidemiol\u00f3gico SINAVE:\n\n' +
+      'Nuestro proyecto se enfoca en cinco padecimientos del Bolet\u00edn Epidemiol\u00f3gico SINAVE:\n\n' +
       '- **Depresi\u00f3n** (CIE-10: F32)\n' +
       '- **Parkinson** (CIE-10: G20)\n' +
       '- **Alzheimer** (CIE-10: G30)\n' +
-      '- **Dengue** (CIE-10: A97)\n\n' +
+      '- **Dengue** (CIE-10: A97)\n' +
+      '- **Obesidad** (CIE-10: E66)\n\n' +
       '\u00bfTe gustar\u00eda consultar datos de alguno de estos padecimientos?'
     );
   }
@@ -5465,7 +5557,7 @@ function answerCodeRequest(q, ent, s, d) {
 
 const HANDLERS = [
   answerComparacionRondas,
-  answerSaludo, answerPadecimientoNoModelado, answerDengue, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerFechaSemana, answerTemporal, answerProyectoMeta,
+  answerSaludo, answerObesidad, answerPadecimientoNoModelado, answerDengue, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerFechaSemana, answerTemporal, answerProyectoMeta,
   answerTrainingConfig, answerSemanaActual, answerSemanasBoletin, answerQueEsPadecimiento,
   answerTimelapse, answerSemaforo, answerReportePDF,
   answerComparacionPorSexo,

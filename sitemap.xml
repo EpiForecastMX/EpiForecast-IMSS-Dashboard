@@ -6,6 +6,7 @@
   <url><loc>https://epiforecast.mx/Reports/index.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://epiforecast.mx/novedades.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://epiforecast.mx/dengue.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://epiforecast.mx/obesidad.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://epiforecast.mx/reporte_resultados.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://epiforecast.mx/validacion_semanal.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://epiforecast.mx/comparacion_modelos.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
