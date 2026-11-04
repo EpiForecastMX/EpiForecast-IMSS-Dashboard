@@ -6,20 +6,20 @@
   <title>EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes</title>
 
   <!-- SEO -->
-  <meta name="description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer y Dengue en las 32 entidades de México, con un horizonte de 52 semanas." />
+  <meta name="description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue y Obesidad en las 32 entidades de México, con un horizonte de 52 semanas." />
   <link rel="canonical" href="https://epiforecast.mx/" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://epiforecast.mx/" />
   <meta property="og:title" content="EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes" />
-  <meta property="og:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer y Dengue en las 32 entidades de México, con un horizonte de 52 semanas." />
+  <meta property="og:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue y Obesidad en las 32 entidades de México, con un horizonte de 52 semanas." />
   <meta property="og:image" content="https://epiforecast.mx/og-image.png" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes" />
-  <meta name="twitter:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer y Dengue en las 32 entidades de México, con un horizonte de 52 semanas." />
+  <meta name="twitter:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue y Obesidad en las 32 entidades de México, con un horizonte de 52 semanas." />
   <meta name="twitter:image" content="https://epiforecast.mx/og-image.png" />
 
   <!-- Iconos y tema -->
@@ -833,6 +833,14 @@
     .disease-card--den .disease-icon svg { color: #F59E0B; }
     .disease-card--den h3 { color: #F59E0B; }
     .disease-card--den .disease-tag { background: rgba(245,158,11,0.15); color: #FBBF24; }
+
+    /* Obesidad (5.o padecimiento, ámbar oscuro de su página) */
+    a.disease-card { display: block; text-decoration: none; color: inherit; }
+    .disease-card--obe::before { background: #D97706; }
+    .disease-card--obe .disease-icon { background: rgba(217,119,6,0.16); }
+    .disease-card--obe .disease-icon svg { color: #F59E0B; }
+    .disease-card--obe h3 { color: #FB923C; }
+    .disease-card--obe .disease-tag { background: rgba(217,119,6,0.16); color: #FDBA74; }
 
     /* ═══════════════════════════════════════════════════════════════════
        PIPELINE
@@ -1683,6 +1691,7 @@
     .news-tag--future     { background: rgba(91,141,239,0.16);  color: var(--teal); }
     .news-tag--calass     { background: rgba(91,141,239,0.16);  color: var(--teal); }
     .news-tag--wcp        { background: rgba(244,114,182,0.16); color: var(--burgundy); }
+    .news-tag--obesidad   { background: rgba(217,119,6,0.18);   color: #FDBA74; }
     .news-card h3 {
       font-family: var(--font-display);
       font-size: 1.2rem;
@@ -2906,7 +2915,7 @@
     <div class="edl-wrap edl-article-col">
       <div class="edl-dateline">Pronóstico epidemiológico de México <span>&middot;</span> Edición de la semana 42, 2026</div>
       <h1 class="edl-headline">Anticipar la enfermedad,<br><em>semana a semana</em></h1>
-      <p class="edl-deck">EpiForecast-MX pronostica las notificaciones semanales de cuatro padecimientos a 52 semanas, con 432 series productivas. La ronda con corte W37 asigna cuatro motores a las series neuropsiquiátricas y DeepAR o Prophet a las de Dengue.</p>
+      <p class="edl-deck">EpiForecast-MX pronostica las notificaciones semanales de cinco padecimientos a 52 semanas. La ronda con corte W37 sostiene 432 series productivas: asigna cuatro motores a las series neuropsiquiátricas y DeepAR o Prophet a las de Dengue. La <a href="obesidad.html">obesidad</a>, quinto padecimiento, publica 111 series desde un pronóstico congelado que se compara cada semana con lo observado.</p>
       <div class="edl-byline">Una colaboración del Tecnológico de Monterrey con el Instituto Mexicano del Seguro Social. Datos actualizados cada semana desde el Boletín Epidemiológico del SINAVE.</div>
       <div class="edl-ctas">
         <a href="EpiDashboard.html" class="edl-primary">Abrir el tablero <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
@@ -3003,21 +3012,21 @@
           <a href="novedades.html" class="news-lead">
             <div class="news-lead-meta">
               <span class="news-date">4 de noviembre de 2026</span>
-              <span class="news-tag news-tag--datos">Datos</span>
+              <span class="news-tag news-tag--obesidad">Nuevo padecimiento</span>
             </div>
-            <div class="news-lead-title">Ya contamos con la semana epidemiológica 42 de 2026</div>
-            <div class="news-lead-sub">Se integró el Boletín SINAVE en los cuatro padecimientos; el detalle por padecimiento aparece en esta sección.</div>
+            <div class="news-lead-title">La obesidad se incorpora como quinto padecimiento</div>
+            <div class="news-lead-sub">Pronóstico semanal a 52 semanas para el país, 4 regiones y las 32 entidades, por sexo, comparado cada semana con lo observado.</div>
           </a>
           <div class="news-mini-list">
             <a href="novedades.html" class="news-mini">
               <span class="news-tag news-tag--datos">Datos</span>
-              <span class="news-mini-title">Ya contamos con la semana epidemiológica 41 de 2026</span>
-              <span class="news-mini-date">27 de octubre de 2026</span>
+              <span class="news-mini-title">Ya contamos con la semana epidemiológica 42 de 2026</span>
+              <span class="news-mini-date">4 de noviembre de 2026</span>
             </a>
             <a href="novedades.html" class="news-mini">
               <span class="news-tag news-tag--datos">Datos</span>
-              <span class="news-mini-title">Ya contamos con la semana epidemiológica 40 de 2026</span>
-              <span class="news-mini-date">20 de octubre de 2026</span>
+              <span class="news-mini-title">Ya contamos con la semana epidemiológica 41 de 2026</span>
+              <span class="news-mini-date">27 de octubre de 2026</span>
             </a>
           </div>
         </div>
@@ -3040,12 +3049,12 @@
         </a>
         <a href="epibot/index.html" class="edl-index-item">
           <span class="edl-idx-num">02</span>
-          <span class="edl-idx-body"><span class="edl-idx-title">Pregúntale a EPI</span><span class="edl-idx-desc">Asistente con RAG y citas sobre las 432 series productivas: pronósticos, tendencias y seguimiento de semanas posteriores al corte, con gráficas interactivas.</span></span>
+          <span class="edl-idx-body"><span class="edl-idx-title">Pregúntale a EPI</span><span class="edl-idx-desc">Asistente con RAG y citas sobre las 432 series productivas y la obesidad: pronósticos, tendencias y seguimiento de semanas posteriores al corte, con gráficas interactivas.</span></span>
           <span class="edl-idx-go"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></span>
         </a>
         <a href="Reports/index.html" class="edl-index-item">
           <span class="edl-idx-num">03</span>
-          <span class="edl-idx-body"><span class="edl-idx-title">Galería de pronósticos</span><span class="edl-idx-desc">Pronósticos a 52 semanas con zoom y datos observados hasta W42. Las bandas disponibles son intervalos predictivos nominales del motor: 90 % en DeepAR y 80 % en Prophet. Las regiones corresponden a la cohorte neuro.</span></span>
+          <span class="edl-idx-body"><span class="edl-idx-title">Galería de pronósticos</span><span class="edl-idx-desc">Pronósticos a 52 semanas con zoom y datos observados hasta W42. Las bandas disponibles son intervalos predictivos nominales del motor: 90 % en DeepAR y 80 % en Prophet. Las regiones corresponden a la cohorte neuro. Incluye la sección interactiva de Obesidad.</span></span>
           <span class="edl-idx-go"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></span>
         </a>
         <a href="obesidad.html" class="edl-index-item">
@@ -3069,7 +3078,7 @@
 
       <div class="edl-columns reveal">
         <p class="edl-dropcap"><strong>EpiForecast-MX</strong> es un proyecto capstone de la Maestría en Inteligencia Artificial Aplicada del Tecnológico de Monterrey, desarrollado en colaboración directa con el Instituto Mexicano del Seguro Social (IMSS).</p>
-        <p>Su objetivo es generar pronósticos de notificaciones semanales para tres padecimientos neuropsiquiátricos —Depresión, Parkinson y Alzheimer— y, como cuarto, el Dengue, la primera enfermedad transmitida por vector del proyecto. Las predicciones se desagregan a nivel nacional y por las 32 entidades federativas.</p>
+        <p>Su objetivo es generar pronósticos de notificaciones semanales para tres padecimientos neuropsiquiátricos (Depresión, Parkinson y Alzheimer), el Dengue, primera enfermedad transmitida por vector del proyecto, y, como quinto, la Obesidad, el primer padecimiento que recorre el flujo genérico de entrenamiento, validación prospectiva y publicación. Las predicciones se desagregan a nivel nacional y por las 32 entidades federativas.</p>
 
         <blockquote class="edl-pullquote">Convertir la vigilancia epidemiológica clásica en pronóstico accionable, semana a semana.</blockquote>
 
@@ -3093,9 +3102,9 @@
        ═══════════════════════════════════════════════════════════════ -->
   <section class="section diseases" id="diseases">
     <div class="section-label reveal">Padecimientos Objetivo</div>
-    <h2 class="section-title reveal">Cuatro enfermedades, un pipeline<br>de pronóstico unificado</h2>
+    <h2 class="section-title reveal">Cinco padecimientos, un pipeline<br>de pronóstico unificado</h2>
     <div class="section-desc reveal">
-      Tres condiciones neuropsiquiátricas de alta carga en el sistema de salud mexicano, más el Dengue como cuarto padecimiento (la primera arbovirosis del proyecto), generando pronósticos desagregados por entidad y sexo.
+      Tres condiciones neuropsiquiátricas de alta carga en el sistema de salud mexicano, el Dengue como cuarto padecimiento (la primera arbovirosis del proyecto) y la Obesidad como quinto, con pronósticos desagregados por entidad y sexo.
     </div>
 
     <div class="disease-grid">
@@ -3138,6 +3147,16 @@
         <p>Cuarto padecimiento y primera arbovirosis (transmitida por mosquito), con estacionalidad climática y grandes brotes cada cuatro a cinco años, ligados a <strong>El Niño</strong>. Se modela en conteos absolutos; en producción quedan <strong>DeepAR y Prophet</strong>, con pronóstico a 52 semanas. NB-GLM queda suspendido en esta ronda por inestabilidad de su predicción recursiva a horizontes largos.</p>
         <span class="disease-tag">CIE-10: A97 · DeepAR + Prophet · 99 series productivas · 2018-2026</span>
       </div>
+
+      <!-- Obesidad (5.o padecimiento, publicada desde su release congelado) -->
+      <a class="disease-card disease-card--obe reveal reveal-delay-2" href="obesidad.html">
+        <div class="disease-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="2.5"/><path d="M7 21v-5a5 5 0 0110 0v5"/><path d="M5 12.5c1.2-1.6 3.6-2.5 7-2.5s5.8.9 7 2.5"/></svg>
+        </div>
+        <h3>Obesidad</h3>
+        <p>Quinto padecimiento y el primero que recorre el flujo genérico de entrenamiento, validación prospectiva y publicación. Se modelan 64 series de estado y sexo con seis motores elegidos por validación cruzada fuera de muestra; los totales estatales, regionales y nacional se obtienen sumándolas. El pronóstico se congeló en la semana 26 de 2026 y cada boletín nuevo se compara con él.</p>
+        <span class="disease-tag">CIE-10: E66 · 64 modelos · 111 series publicadas · pronóstico puntual</span>
+      </a>
     </div>
   </section>
 

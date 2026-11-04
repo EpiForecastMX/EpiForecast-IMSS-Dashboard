@@ -591,7 +591,16 @@
       .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
       .then((v) => {
         if (v.schema !== 'publication_view.v1') throw new Error('versión de datos no soportada');
-        V = v; cabecera(); opcionesGeo(); tabla(); dibujar();
+        V = v; cabecera(); opcionesGeo(); tabla();
+        // ?serie=nivel|id|sexo (enlaces de la galería): preselecciona esa serie si existe.
+        const pedida = new URLSearchParams(location.search).get('serie');
+        if (pedida && V.series[pedida]) {
+          const s = V.series[pedida];
+          geo = `${s.nivel}|${s.id}`; sexo = s.sexo; $('selGeo').value = geo;
+          document.querySelectorAll('#segSexo button').forEach((x) => { const on = x.dataset.sexo === sexo; x.classList.toggle('on', on); x.setAttribute('aria-checked', on ? 'true' : 'false'); });
+          requestAnimationFrame(() => $('explorador').scrollIntoView());
+        }
+        dibujar();
       })
       .catch((e) => {
         $('pubLabel').textContent = 'No se pudieron cargar los datos de obesidad.';
