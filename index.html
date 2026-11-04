@@ -3698,7 +3698,7 @@
         });
         capEl.innerHTML =
           '<span class="hf-chip hf-chip--motor">Motor <b>' + s.motor + '</b></span>' +
-          '<span class="hf-chip">' + fmt(s.casos) + ' casos · pronóstico del modelo nacional, 52 pasos desde el corte ' + (s.corte || '').replace(/^\d{4}-/, '') + '</span>' +
+          '<span class="hf-chip">' + fmt(s.casos) + ' casos · ' + (s.casos_texto || 'pronóstico del modelo nacional, 52 pasos desde el corte') + ' ' + (s.corte || '').replace(/^\d{4}-/, '') + '</span>' +
           (s.ultima_observada ? '<span class="hf-chip">observado hasta ' + s.ultima_observada.replace(/^(\d{4})-W(\d{2})$/, 'la semana $2 de $1') + '</span>' : '');
         sizeCanvas();
         start();
@@ -3708,18 +3708,58 @@
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (d) {
           if (!d || !Array.isArray(d.series) || !d.series.length) { hideViz(); return; }
-          series = d.series;
-          pillsEl.innerHTML = series.map(function (s, i) {
-            return '<button class="hf-pill' + (i === 0 ? ' is-active' : '') + '" style="--p:' + s.color +
-              '" data-i="' + i + '" aria-pressed="' + (i === 0 ? 'true' : 'false') + '">' +
-              '<span class="hf-pill-dot"></span>' + s.label + '</button>';
-          }).join('');
-          Array.prototype.forEach.call(pillsEl.children, function (b) {
-            b.addEventListener('click', function () { setActive(+b.dataset.i); });
-          });
+          series = d.series.slice();
+          pintaPills();
           setActive(0);
+          // Obesidad (E66) no está en hero_series.json (contrato: las 4 series del corte W37): su
+          // serie nacional sale de la vista publicada de su release y se añade como quinta.
+          fetch('publication/obesidad/vista.json', { cache: 'no-cache' })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (v) {
+              var s = v && v.schema === 'publication_view.v1' && serieObesidad(v);
+              if (!s) return;
+              series.push(s);
+              pintaPills();
+            })
+            .catch(function () { /* sin la vista, la figura conserva sus cuatro series */ });
         })
         .catch(hideViz);
+
+      function pintaPills() {
+        pillsEl.innerHTML = series.map(function (s, i) {
+          return '<button class="hf-pill' + (i === active ? ' is-active' : '') + '" style="--p:' + s.color +
+            '" data-i="' + i + '" aria-pressed="' + (i === active ? 'true' : 'false') + '">' +
+            '<span class="hf-pill-dot"></span>' + s.label + '</button>';
+        }).join('');
+        Array.prototype.forEach.call(pillsEl.children, function (b) {
+          b.addEventListener('click', function () { setActive(+b.dataset.i); });
+        });
+      }
+
+      // Nacional general de Obesidad con la misma forma que hero_series.json: 52 semanas observadas
+      // hasta el último boletín y el pronóstico congelado desde su origen (puntual, sin banda).
+      function serieObesidad(v) {
+        var x = v.series['nacional|mx|general'];
+        if (!x || !x.observado.length || !x.pronostico.length) return null;
+        var obs = {}, pron = {};
+        x.observado.forEach(function (p) { obs[p[0]] = p[1]; });
+        x.pronostico.forEach(function (p) { pron[p[0]] = p[1]; });
+        var corte = v.observation_cutoff_ds;
+        var vistas = x.observado.map(function (p) { return p[0]; }).filter(function (d) { return d <= corte; });
+        var fechas = vistas.slice(-52).concat(x.pronostico.map(function (p) { return p[0]; }).filter(function (d) { return d > corte; }));
+        var sem = function (a) { return a[0] + '-W' + String(a[1]).padStart(2, '0'); };
+        return {
+          pad: 'Obesidad', key: 'obesidad', label: 'Obesidad', color: v.color || '#D97706', cie: 'E66',
+          motor: 'portafolio de ' + v.models + ' series',
+          casos: Math.round(x.pronostico_52_total),
+          casos_texto: 'pronóstico congelado, ' + v.horizon_weeks + ' semanas desde el origen',
+          corte: sem(v.origin), ultima_observada: sem(v.observation_cutoff),
+          d: fechas,
+          r: fechas.map(function (d) { return d <= corte && obs[d] != null ? obs[d] : null; }),
+          y: fechas.map(function (d) { return pron[d] != null ? pron[d] : null; }),
+          lo: null, hi: null
+        };
+      }
 
       function hideViz() {
         var viz = document.querySelector('.hero-viz');
