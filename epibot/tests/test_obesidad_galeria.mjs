@@ -17,7 +17,8 @@ const VISTA = JSON.parse(leer('publication/obesidad/vista.json'));
 const ctx = { window: {}, document: {}, console };
 vm.runInNewContext(leer('Reports/obesidad_galeria.js'), ctx);
 const G = ctx.window.ObesidadGaleria;
-const sel = (f) => G._seleccion(VISTA, { pad: '', sexo: '', q: '', ...f });
+G._usa(VISTA);
+const sel = (f) => G.seleccion({ pad: '', sexo: '', q: '', ...f });
 
 test('la galería ofrece las 111 series de Obesidad y respeta los filtros', () => {
   assert.equal(sel({}).length, 111);
@@ -46,7 +47,9 @@ test('Obesidad no entra en la lista contractual DATA ni pinta métricas en la ga
   const data = JSON.parse(html.match(/^const DATA = (\[.*\]);$/m)[1]);
   assert.equal(data.length, 432);
   assert.ok(!data.some((d) => /obesidad/i.test(d.p)));
-  assert.match(html, /id="secObesidad"/);
+  // Integrada en los niveles existentes, no como sección aparte.
+  assert.doesNotMatch(html, /id="secObesidad"/);
+  for (const f of ['renderNacional(nac, obeNac)', 'renderRegional(reg, obeReg)', 'renderEstatal(est, obeEst)']) assert.ok(html.includes(f), f);
   assert.match(html, /<script src="obesidad_galeria\.js\?v=\d+"><\/script>/);
   assert.doesNotMatch(leer('Reports/obesidad_galeria.js'), /\.oos\b|smape|mase/i);
 });
@@ -66,4 +69,20 @@ test('la noticia de Obesidad encabeza novedades y la portada la anuncia', () => 
 test('la página de Obesidad acepta la serie pedida desde la galería', () => {
   assert.match(leer('obesidad.html'), /URLSearchParams\(location\.search\)\.get\('serie'\)/);
   assert.match(leer('Reports/obesidad_galeria.js'), /\.\.\/obesidad\.html\?serie=/);
+});
+
+test('cada estado de Obesidad cae en el acordeón de la galería con el mismo nombre', () => {
+  const html = leer('Reports/index.html');
+  const data = JSON.parse(html.match(/^const DATA = (\[.*\]);$/m)[1]);
+  const estados = new Set(data.filter((d) => d.c === 'Estatal').map((d) => d.n));
+  const obe = sel({}).filter((s) => s.nivel === 'estado').map(G.estadoGaleria);
+  assert.equal(new Set(obe).size, 32);
+  for (const n of obe) assert.ok(estados.has(n), n);
+});
+
+test('la Figura 1 de la portada añade Obesidad desde su vista sin tocar hero_series.json', () => {
+  const portada = leer('index.html');
+  assert.match(portada, /fetch\('publication\/obesidad\/vista\.json'/);
+  assert.match(portada, /function serieObesidad\(v\)/);
+  assert.equal(JSON.parse(leer('hero_series.json')).series.length, 4);
 });
