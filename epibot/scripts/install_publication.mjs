@@ -110,7 +110,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     const r = installPublication({ shard: resolve(a.shard), pointer: resolve(a.pointer), vista: resolve(a.vista), root: a.root ? resolve(a.root) : SITE_ROOT });
     console.log(JSON.stringify(r));
   } catch (e) {
-    console.error(`✖ install_publication: ${e.message}`);
+    console.error(`ERROR: install_publication: ${e.message}`);
     process.exit(1);
   }
 }

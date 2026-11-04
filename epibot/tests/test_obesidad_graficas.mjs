@@ -21,7 +21,7 @@ globalThis.fetch = async (u) => ({
 const kb = await import('../js/kb.js');
 const { detectEntities } = await import('../js/entities.js');
 // Misma URL que importan kb.js y app.js: un solo módulo.
-const oc = await import('../js/obesidad_charts.js?v=1');
+const oc = await import('../js/obesidad_charts.js?v=2');
 const d = await kb.loadKnowledge();
 await d.obesidad_pendiente;
 
@@ -161,4 +161,82 @@ test('las etiquetas conservan la semana en mayúscula', async () => {
   const { chart } = await responde('obesidad por sexo');
   for (const ds of chart.datasets) assert.doesNotMatch(ds.label, /-w\d/, ds.label);
   assert.ok(chart.datasets.some((ds) => ds.label.includes(`origen ${VISTA.origin[0]}-W${VISTA.origin[1]}`)));
+});
+
+// ── Auditoría C7.7 (4-nov-2026) ─────────────────────────────────────────────────────────────
+
+const conMarca = (md) => md.match(/<!--OBESIDAD:(.*?)-->/);
+
+test('follow-up «y hombres» tras una consulta de Obesidad sigue en Obesidad, texto y gráfica', async () => {
+  kb._resetContext();
+  await kb.answerWithTrace('zoom obesidad en cdmx mujeres');
+  const r = await kb.answerWithTrace('y hombres');
+  assert.equal(r.handler, 'answerObesidad');
+  assert.match(r.response, /Obesidad \(E66\) · Ciudad de México · Hombres/);
+  const chart = extract(r.response, 'y hombres');
+  assert.match(chart.title, /^Obesidad \(E66\) · Ciudad de México · Hombres/);
+  kb._resetContext();
+});
+
+test('un typo («obesdiad») se corrige a Obesidad y no cae en el zoom legacy', async () => {
+  kb._resetContext();
+  const q = 'zoom obesdiad en sonora mujeres';
+  const r = await kb.answerWithTrace(q);
+  assert.equal(r.handler, 'answerObesidad');
+  assert.match(r.response, /Sonora · Mujeres/);
+  assert.match(extract(r.response, q).title, /^Obesidad \(E66\) · Sonora · Mujeres/);
+  kb._resetContext();
+});
+
+test('una consulta que mezcla Obesidad con una enfermedad no modelada no la intercepta Obesidad', async () => {
+  kb._resetContext();
+  const r = await kb.answerWithTrace('comparar obesidad con diabetes');
+  assert.equal(r.handler, 'answerPadecimientoNoModelado');
+  assert.match(r.response, /no modela diabetes/);
+  assert.equal(extract(r.response, 'comparar obesidad con diabetes'), null, 'sin gráfica de Obesidad');
+  kb._resetContext();
+});
+
+test('el motor de una serie concreta responde ESA serie, no el reparto global', async () => {
+  kb._resetContext();
+  const q = 'qué motor usa obesidad en jalisco mujeres';
+  const r = await kb.answerWithTrace(q);
+  const s = Object.values(VISTA.series).find((x) => x.nivel === 'estado' && x.nombre === 'Jalisco' && x.sexo === 'mujeres');
+  assert.match(r.response, new RegExp(`El motor de esta serie es \\*\\*${oc.MOTOR_NOMBRE[s.motor].replace(/[()]/g, '\\$&')}\\*\\*`));
+  assert.doesNotMatch(r.response, /motores del release/);
+  const chart = extract(r.response, q);
+  assert.equal(chart.type, 'line');
+  assert.match(chart.title, /Jalisco · Mujeres/);
+  assert.equal(JSON.parse(conMarca(r.response)[1]).tipo, 'motor_serie');
+  kb._resetContext();
+});
+
+test('calibración: el texto habla de totales acumulados, no de acierto semana a semana', async () => {
+  const { md } = await responde('calibración de obesidad');
+  assert.match(md, /coinciden los \*\*totales acumulados\*\*/);
+  assert.doesNotMatch(md, /el pronóstico acertó/);
+});
+
+test('acumulado: la gráfica termina en el mismo total que el texto, en las 111 series', async () => {
+  for (const s of Object.values(VISTA.series)) {
+    const suma = s.pronostico.reduce((a, [, y]) => a + Math.round(y * 10), 0) / 10;
+    assert.equal(Math.round(suma), Math.round(s.pronostico_52_total), `${s.nivel} ${s.nombre} ${s.sexo}`);
+  }
+  const { md, chart } = await responde('acumulado de obesidad en cdmx');
+  const total = VISTA.series[Object.keys(VISTA.series).find((k) => k.startsWith('estado|09|general'))].pronostico_52_total;
+  assert.equal(chart.datasets[1].data.at(-1), Math.round(total));
+  assert.ok(md.includes(Math.round(total).toLocaleString('es-MX')));
+});
+
+test('la ficha dice cuándo se emitió el pronóstico y no lo sitúa en la semana de origen', async () => {
+  const { md } = await responde('pronóstico de obesidad');
+  assert.ok(VISTA.forecast_emitted_at, 'la vista trae la fecha de emisión');
+  assert.match(md, /datos hasta 2026-W26, emitido el 24 de julio de 2026/);
+  for (const q of ['motores de obesidad', 'radar obesidad']) {
+    assert.doesNotMatch((await responde(q)).md, /antes del origen/, q);
+  }
+});
+
+test('el marcador de Obesidad no se muestra: app.js lo retira antes de pintar y de leer en voz alta', () => {
+  assert.match(app, /replace\(\/<!--OBESIDAD:\.\*\?-->\/g, ''\)/);
 });

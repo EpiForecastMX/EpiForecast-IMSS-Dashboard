@@ -320,7 +320,7 @@
           <span id="pubLabel">Cargando el estado de la validación…</span>
         </div>
         <ul class="status-notes">
-          <li><strong>Pronóstico congelado</strong> en la semana de origen <span id="originTxt">W26 de 2026</span>: no se ha reentrenado ni ajustado con los datos posteriores.</li>
+          <li><strong>Pronóstico congelado:</strong> se entrenó con datos hasta la <span id="originTxt">W26 de 2026</span> y se emitió el <span id="emitTxt">24 de julio de 2026</span>; no se ha reentrenado ni ajustado con datos posteriores.</li>
           <li><strong>Sin intervalos de incertidumbre:</strong> es un pronóstico puntual. La gráfica no dibuja bandas porque este release no las tiene.</li>
           <li>Datos observados hasta la <strong id="cutoffTxt">—</strong>.</li>
         </ul>
@@ -339,7 +339,7 @@
     <div class="wrap">
       <div class="label">Explorador</div>
       <h2>Pronóstico congelado frente a lo observado</h2>
-      <p>Elige una geografía y un sexo. La línea gris es lo observado en el boletín; la línea ámbar, el pronóstico emitido en la semana de origen. La franja sombreada marca las semanas del pronóstico que <strong>ya se observaron</strong>: ahí se mide el desempeño fuera de muestra.</p>
+      <p>Elige una geografía y un sexo. La línea gris es lo observado en el boletín; la línea ámbar, el pronóstico emitido con datos hasta la semana de origen. La franja sombreada marca las semanas del pronóstico que <strong>ya se observaron</strong>: ahí se mide el desempeño fuera de muestra.</p>
 
       <div class="controls">
         <label class="ctl">
@@ -401,7 +401,7 @@
         <div class="step"><div class="n">01 · Datos</div><h4>Cuadro 14.1 del boletín</h4><p>La serie semanal de obesidad por entidad y sexo se extrae del Boletín Epidemiológico del SINAVE desde 2014. Los totales por sexo se reconcilian para que hombres más mujeres sumen exactamente el total.</p></div>
         <div class="step"><div class="n">02 · Modelos</div><h4>64 modelos, uno por serie base</h4><p>Cada combinación de entidad y sexo (32 × 2) tiene su propio modelo. Las <span id="mtProducts">111</span> series publicadas (entidades, regiones y nacional, en general, hombres y mujeres) se derivan sumando esas 64 bases, nunca se modelan por separado.</p></div>
         <div class="step"><div class="n">03 · Selección</div><h4>Validación cruzada rolling-origin</h4><p>El motor de cada serie se eligió con la política <code>rolling_cv_v1</code>: cuatro años de pliegues temporales de 52 semanas en los que el modelo nunca ve el periodo que pronostica. El portafolio combina <span id="mtEngines">seis motores</span>.</p></div>
-        <div class="step"><div class="n">04 · Validación prospectiva</div><h4>Gate congelado antes de publicar</h4><p>Antes de publicar, el pronóstico debía superar una regla fijada de antemano sobre las cuatro semanas siguientes al origen (W27 a W30 de 2026). El veredicto fue <strong id="mtVerdict">PASS</strong>, con <span id="mtWeeks">4 de 4</span> semanas observadas.</p></div>
+        <div class="step"><div class="n">04 · Validación prospectiva</div><h4>Regla fijada antes de ver los datos</h4><p>Antes de publicar, el pronóstico debía superar una regla fijada el 26 de julio de 2026, antes de registrar la primera semana observada, sobre las cuatro semanas siguientes al origen (W27 a W30 de 2026). El veredicto fue <strong id="mtVerdict">PASS</strong>, con <span id="mtWeeks">4 de 4</span> semanas observadas. Es prospectiva respecto de la información: los boletines con esas semanas se registraron después de emitir el pronóstico. No lo es en el calendario, porque al emitirse las semanas 27 y 28 ya habían terminado.</p></div>
       </div>
       <div class="callout">
         <h3>Qué significa y qué no</h3>
@@ -565,6 +565,9 @@
     function cabecera() {
       $('pubLabel').textContent = V.publication_label;
       $('originTxt').textContent = `W${V.origin[1]} de ${V.origin[0]}`;
+      if (V.forecast_emitted_at) {
+        $('emitTxt').textContent = new Date(V.forecast_emitted_at).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City', day: 'numeric', month: 'long', year: 'numeric' });
+      }
       const [a, w] = V.observation_cutoff;
       $('cutoffTxt').textContent = `semana epidemiológica ${w} de ${a} (semana del ${fechaLarga(V.observation_cutoff_ds)}), publicada en el boletín de la semana ${w + 1}`;
       $('stModels').textContent = V.models;

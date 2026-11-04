@@ -7,15 +7,15 @@ import { graficoRondas } from './comparacion_rondas.js?v=3';
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=120';
-import { detectEntities, norm } from './entities.js?v=31';
+import { loadKnowledge, getStats, getData, answer, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=121';
+import { detectEntities, norm } from './entities.js?v=32';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
 import { renderMexicoMap } from './mexico-map.js?v=3';
 import { renderTimelapse } from './timelapse.js?v=4';
 import { renderSemaforo } from './semaforo.js?v=3';
 import { renderComparador } from './comparador.js?v=4';
 import { buildComparadorState } from './comparador_data.js?v=1';
-import { esObesidad, graficaObesidad } from './obesidad_charts.js?v=1';
+import { esObesidad, graficaObesidad } from './obesidad_charts.js?v=2';
 import { initSTT, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking, toggleMute, isTTSEnabled, onSpeakingStateChange } from './voice.js?v=3';
 
 // ---------------------------------------------------------------------------
@@ -1158,7 +1158,7 @@ function addBotMessage(markdown, source, suggestions, chartData, sources) {
 
   // Normalizar acentos antes de comentarios y render
   const polished = polishSpanish(markdown);
-  const cleanMarkdown = polished.replace(/<!--COMPARE:.*?-->/g, '').replace(/<!--DISTRIB:.*?-->/g, '').replace(/<!--GENCHART:.*?-->/g, '');
+  const cleanMarkdown = polished.replace(/<!--OBESIDAD:.*?-->/g, '').replace(/<!--COMPARE:.*?-->/g, '').replace(/<!--DISTRIB:.*?-->/g, '').replace(/<!--GENCHART:.*?-->/g, '');
   const html = sanitizeHtml(marked.parse(cleanMarkdown, { breaks: true }));
   const now = new Date();
   const timeStr = now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
@@ -2794,11 +2794,19 @@ function extractChartData(markdown, query) {
   }
 
   // Obesidad (E66) tampoco vive en prod_models/weekly_comparison: sus gráficas salen de su vista
-  // publicada. Nunca se cae a las genéricas (pintarían Depresión con el título pedido).
-  if (esObesidad(qn)) {
-    const entObe = detectEntities(query);
-    if (!entObe.padecimiento || entObe.padecimiento === 'Obesidad') return graficaObesidad(data.obesidad, qn, entObe);
+  // publicada. Manda el marcador de la respuesta (tipo, estado y sexo resueltos por el texto, que
+  // cubre follow-ups y typos); sin él, una consulta de Obesidad no cae nunca en las genéricas
+  // (pintarían Depresión con el título pedido).
+  const obeMarca = markdown.match(/<!--OBESIDAD:(.*?)-->/);
+  if (obeMarca) {
+    try {
+      const m = JSON.parse(obeMarca[1]);
+      return graficaObesidad(data.obesidad, qn, { estado: m.estado, sexo: m.sexo }, m);
+    } catch (e) { console.warn('Marcador de Obesidad ilegible', e); return null; }
   }
+  // Sin marcador, la respuesta no es de Obesidad (vista cargando, o la contestó otro handler,
+  // p. ej. «comparar obesidad con diabetes»): ninguna gráfica, ni de Obesidad ni genérica.
+  if (esObesidad(qn) || detectEntities(query).padecimiento === 'Obesidad') return null;
 
   // Dengue NO vive en prod_models/stats (esos son neuro: 333 modelos). Casi todo canvas
   // generico saldria con datos neuro. Excepciones con datos de Dengue: el zoom semanal

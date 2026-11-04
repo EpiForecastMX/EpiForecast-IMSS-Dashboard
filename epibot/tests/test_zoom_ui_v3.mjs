@@ -5,7 +5,7 @@ import vm from 'node:vm';
 import { detectEntities, norm } from '../js/entities.js';
 import { dn } from '../js/display.js';
 import { weeklyV2, tituloSeguimientoMin, periodoBoletin } from '../js/kb.js';
-import { esObesidad } from '../js/obesidad_charts.js?v=1';
+import { esObesidad } from '../js/obesidad_charts.js?v=2';
 
 // Ejecutar las funciones reales de la UI sin arrancar el DOM ni el RAG.
 // APP_BASE permite comprobar que estas regresiones fallan en el árbol v2.

@@ -124,7 +124,41 @@ const PADECIMIENTO_ALIAS = {
   'dengeu': 'Dengue',
   'arbovirosis': 'Dengue',
   'a97': 'Dengue',
+  // Obesidad (5.o padecimiento, publicada desde su release; C7.7) + variantes / CIE-10 E66.
+  // Los typos de distancia 2 («obesdiad») los corrige fuzzyCorrect contra VOCAB.
+  'obesidad': 'Obesidad',
+  'obesidades': 'Obesidad',
+  'obeso': 'Obesidad',
+  'obesa': 'Obesidad',
+  'obesos': 'Obesidad',
+  'obesas': 'Obesidad',
+  'e66': 'Obesidad',
 };
+
+/**
+ * Enfermedades que el proyecto NO modela. Una consulta que nombra alguna no la contesta el handler
+ * de un padecimiento modelado (p. ej. «comparar obesidad con diabetes»): la responde
+ * answerPadecimientoNoModelado. Vive aquí para que kb.js y obesidad_kb.js usen la misma lista.
+ */
+export const ENFERMEDADES_NO_MODELADAS = [
+  'cancer', 'diabetes', 'hipertension', 'asma', 'epilepsia',
+  'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah',
+  'influenza', 'covid', 'tuberculosis', 'vih', 'sida', 'colera',
+  'sarampion', 'rubeola', 'hepatitis', 'zika', 'chikungunya', 'malaria',
+  'leucemia', 'linfoma', 'tumor', 'neoplasia', 'cardiop', 'infarto',
+  'embolia', 'neumonia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
+  'lupus', 'fibromialgia', 'esclerosis', 'huntington', 'ela ',
+  'insuficiencia renal', 'insuficiencia cardiaca',
+];
+
+/**
+ * La enfermedad no modelada que nombra la consulta (ya normalizada), o null. Compara al INICIO de
+ * palabra, no como subcadena: «obesidad» contiene «sida» y «cardiop» debe casar «cardiopatía».
+ */
+export function mencionaNoModelada(qn) {
+  const q = ` ${qn} `;
+  return ENFERMEDADES_NO_MODELADAS.find((e) => q.includes(` ${e.trim()}`)) || null;
+}
 
 const SEXO_ALIAS = {
   'hombres': 'hombres',
@@ -293,7 +327,7 @@ export function detectEntities(query) {
       // Excluir palabras comunes y padecimientos que no son lugares
       const noLugar = ['el', 'la', 'los', 'las', 'un', 'una', 'que', 'general', 'total',
         'produccion', 'promedio', 'detalle', 'mexico', 'cuenta', 'salud',
-        'depresion', 'parkinson', 'alzheimer', 'este ano', 'el ano',
+        'depresion', 'parkinson', 'alzheimer', 'dengue', 'obesidad', 'este ano', 'el ano',
         'hombres', 'mujeres', 'masculino', 'femenino',
         'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
         'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
