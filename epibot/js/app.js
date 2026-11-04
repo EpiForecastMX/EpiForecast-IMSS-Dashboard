@@ -7,7 +7,7 @@ import { graficoRondas } from './comparacion_rondas.js?v=3';
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=119';
+import { loadKnowledge, getStats, getData, answer, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=120';
 import { detectEntities, norm } from './entities.js?v=31';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
 import { renderMexicoMap } from './mexico-map.js?v=3';
@@ -15,6 +15,7 @@ import { renderTimelapse } from './timelapse.js?v=4';
 import { renderSemaforo } from './semaforo.js?v=3';
 import { renderComparador } from './comparador.js?v=4';
 import { buildComparadorState } from './comparador_data.js?v=1';
+import { esObesidad, graficaObesidad } from './obesidad_charts.js?v=1';
 import { initSTT, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking, toggleMute, isTTSEnabled, onSpeakingStateChange } from './voice.js?v=3';
 
 // ---------------------------------------------------------------------------
@@ -2792,6 +2793,13 @@ function extractChartData(markdown, query) {
     catch (e) { console.warn('Comparación de rondas no disponible', e); }
   }
 
+  // Obesidad (E66) tampoco vive en prod_models/weekly_comparison: sus gráficas salen de su vista
+  // publicada. Nunca se cae a las genéricas (pintarían Depresión con el título pedido).
+  if (esObesidad(qn)) {
+    const entObe = detectEntities(query);
+    if (!entObe.padecimiento || entObe.padecimiento === 'Obesidad') return graficaObesidad(data.obesidad, qn, entObe);
+  }
+
   // Dengue NO vive en prod_models/stats (esos son neuro: 333 modelos). Casi todo canvas
   // generico saldria con datos neuro. Excepciones con datos de Dengue: el zoom semanal
   // (weekly_comparison) y la evolucion historica anual (dengue.anual). El resto, sin canvas.
@@ -3789,6 +3797,12 @@ function renderChart(canvasId, chartData) {
 function getSuggestions(query) {
   const q = norm(query);
   const retiradas = metricasRetiradas(getData());
+  if (esObesidad(q)) {
+    const sug = [{ text: 'Zoom semanal', q: 'zoom obesidad' }, { text: 'Mapa por estado', q: 'mapa de obesidad' },
+      { text: 'Ranking de precisión', q: 'ranking de obesidad' }, { text: 'Calibración', q: 'calibracion de obesidad' },
+      { text: 'Hombres y mujeres', q: 'obesidad por sexo' }, { text: 'Motores', q: 'motores de obesidad' }];
+    return sug.filter(x => norm(x.q) !== q).slice(0, 3);
+  }
   if (q.includes('zoom'))
     return [{ text: 'Comparar con la ronda anterior', q: `comparar rondas ${detectEntities(query).padecimiento || 'depresion'}` }, { text: 'Diferencias del seguimiento', q: 'heatmap error semanal' }];
   if (q.includes('metrica') || q.includes('smape'))

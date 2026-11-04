@@ -9,6 +9,7 @@
 import { norm, detectEntities, canonEstado } from './entities.js?v=31';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=1';
+import { OBESIDAD_KW, MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoGraficaObesidad, NO_DISPONIBLE, ALTERNATIVAS, serieObesidad, estadosEnConsulta } from './obesidad_charts.js?v=1';
 
 let DATA = null;
 
@@ -587,30 +588,32 @@ const INJECTION_RESPONSE =
 // Obesidad (E66): publicada desde su release sellado del runner (C7.7)
 // ---------------------------------------------------------------------------
 
-const OBESIDAD_KW = ['obesidad', 'obeso', 'obesa', 'sobrepeso', 'e66'];
-const OBESIDAD_MOTOR = {
-  ets_add_damped_log1p: 'ETS amortiguado (log)',
-  prophet_count_log1p: 'Prophet en conteos (log)',
-  prophet_rate_log1p: 'Prophet en tasa (log)',
-  ridge_harmonic_log1p: 'Ridge armónico (log)',
-  seasonal_mean_5y: 'media estacional de 5 años',
-  seasonal_median_5y: 'mediana estacional de 5 años',
-  portfolio: 'portafolio (suma de las series estatales)',
-};
-
 function _semanaObe([a, w]) { return `${a}-W${String(w).padStart(2, '0')}`; }
 function _num1(n) { return n == null ? '—' : Number(n).toLocaleString('es-MX', { maximumFractionDigits: 1, minimumFractionDigits: 1 }); }
 function _ent0(n) { return n == null ? '—' : Math.round(n).toLocaleString('es-MX'); }
+const _medianaObe = (xs) => { const o = [...xs].sort((a, b) => a - b); const m = o.length >> 1; return o.length % 2 ? o[m] : (o[m - 1] + o[m]) / 2; };
 
-/** Serie de la vista que corresponde a la pregunta: estado detectado o Nacional; sexo o general. */
-function _serieObesidad(v, ent) {
-  const sexo = ent.sexo || 'general';
-  if (ent.estado) {
-    const objetivo = norm(ent.estado);
-    const hit = Object.values(v.series).find(x => x.nivel === 'estado' && x.sexo === sexo && norm(x.nombre) === objetivo);
-    if (hit) return hit;
+function _motorObe(v, x) {
+  if (x.nivel === 'estado' && x.motor === 'portfolio') {
+    // La serie General de un estado no se modela: es la suma de sus series de hombres y mujeres.
+    const m = (sx) => { const y = v.series[`estado|${x.id}|${sx}`]; return OBESIDAD_MOTOR[y?.motor] || y?.motor || '—'; };
+    return `suma de hombres (${m('hombres')}) y mujeres (${m('mujeres')})`;
   }
-  return v.series[`nacional|mx|${sexo}`];
+  return OBESIDAD_MOTOR[x.motor] || x.motor;
+}
+
+function _fichaObe(v, x, encabezado) {
+  const lugar = x.nivel === 'nacional' ? 'Nacional' : x.nombre;
+  return [
+    `**Obesidad (E66) · ${lugar} · ${x.sexo_nombre}${encabezado ? ` · ${encabezado}` : ''}**`,
+    '',
+    `Pronóstico **congelado** en ${_semanaObe(v.origin)} para ${v.horizon_weeks} semanas, sin reentrenar; motor: ${_motorObe(v, x)}.`,
+    '',
+    `**Cómo le ha ido fuera de muestra** (${x.oos.semanas} semanas observadas, hasta ${_semanaObe(v.observation_cutoff)}):`,
+    `- sMAPE: **${_num1(x.oos.smape)} %**`,
+    `- Error medio absoluto: ${_ent0(x.oos.mae)} casos por semana`,
+    `- Sesgo: ${_num1(x.oos.sesgo_pct)} % (observados ${_ent0(x.oos.observado_total)} frente a ${_ent0(x.oos.pronostico_total)} pronosticados)`,
+  ];
 }
 
 function answerObesidad(q, ent, s, d) {
@@ -622,49 +625,106 @@ function answerObesidad(q, ent, s, d) {
     return 'La vista de **Obesidad (E66)** todavía se está cargando. Puedes consultarla completa en ' +
       '[la página de Obesidad](../obesidad.html) o volver a preguntar en unos segundos.';
   }
+  const tipo = tipoGraficaObesidad(q);
   const etiqueta = `_${v.publication_label}._`;
   const pie = `\n\nGráfica interactiva por estado y sexo: [Obesidad · pronóstico semanal](../obesidad.html).`;
+  const sexo = ent.sexo || 'general';
+  const sexoTxt = { general: 'ambos sexos', hombres: 'hombres', mujeres: 'mujeres' }[sexo];
+  const est = Object.values(v.series).filter(x => x.nivel === 'estado' && x.sexo === sexo && x.oos.smape != null);
+  const oosTxt = `${est[0]?.oos.semanas ?? 0} semanas observadas tras el origen ${_semanaObe(v.origin)}`;
 
-  // Ranking por desempeño fuera de muestra (estados, general)
-  if (any(q, ['mejor', 'peor', 'ranking', 'top', 'que estado', 'cual estado', 'cuales estados', 'precis', 'acierta', 'falla'])) {
-    const est = Object.values(v.series)
-      .filter(x => x.nivel === 'estado' && x.sexo === 'general' && x.oos.smape != null)
-      .sort((a, b) => a.oos.smape - b.oos.smape);
+  if (tipo in NO_DISPONIBLE) {
+    return `${NO_DISPONIBLE[tipo]}\n\nPara Obesidad (E66) sí puedes pedir ${ALTERNATIVAS}.` + pie;
+  }
+
+  if (tipo === 'ranking') {
+    const orden = [...est].sort((a, b) => a.oos.smape - b.oos.smape);
     const linea = (x, i) => `${i + 1}. **${x.nombre}**: sMAPE ${_num1(x.oos.smape)} % (sesgo ${_num1(x.oos.sesgo_pct)} %)`;
     return [
-      `**Obesidad (E66): desempeño fuera de muestra por estado** (${est[0]?.oos.semanas ?? 0} semanas observadas tras el origen ${_semanaObe(v.origin)}).`,
+      `**Obesidad (E66): desempeño fuera de muestra por estado, ${sexoTxt}** (${oosTxt}).`,
       '',
-      '**Más precisos:**', ...est.slice(0, 5).map(linea),
-      '', '**Menos precisos:**', ...est.slice(-5).reverse().map((x, i) => linea(x, est.length - 1 - i)),
+      '**Más precisos:**', ...orden.slice(0, 5).map(linea),
+      '', '**Menos precisos:**', ...orden.slice(-5).reverse().map((x, i) => linea(x, orden.length - 1 - i)),
       '', etiqueta,
     ].join('\n') + pie;
   }
 
-  const x = _serieObesidad(v, ent);
-  if (!x) return null;
-  const corte = v.observation_cutoff;
-  const futuras = x.pronostico.filter(([ds]) => ds > v.observation_cutoff_ds).slice(0, 4);
-  const lugar = x.nivel === 'nacional' ? 'Nacional' : x.nombre;
-  let motor = OBESIDAD_MOTOR[x.motor] || x.motor;
-  if (x.nivel === 'estado' && x.motor === 'portfolio') {
-    // La serie General de un estado no se modela: es la suma de sus series de hombres y mujeres.
-    const m = (sx) => { const y = v.series[`estado|${x.id}|${sx}`]; return OBESIDAD_MOTOR[y?.motor] || y?.motor || '—'; };
-    motor = `suma de hombres (${m('hombres')}) y mujeres (${m('mujeres')})`;
+  if (tipo === 'mapa' || tipo === 'entidades') {
+    const error = tipo === 'mapa' && any(q, ['error', 'smape', 'precision', 'sesgo', 'desempeno']);
+    if (error) {
+      const orden = [...est].sort((a, b) => b.oos.smape - a.oos.smape).slice(0, 5);
+      return [`**Obesidad (E66): mapa del sMAPE fuera de muestra, ${sexoTxt}** (${oosTxt}).`, '',
+        `Mediana estatal: **${_num1(_medianaObe(est.map(x => x.oos.smape)))} %**. Estados con mayor error:`,
+        ...orden.map(x => `- **${x.nombre}**: ${_num1(x.oos.smape)} %`), '', etiqueta].join('\n') + pie;
+    }
+    const todos = Object.values(v.series).filter(x => x.nivel === 'estado' && x.sexo === sexo);
+    const orden = [...todos].sort((a, b) => b.pronostico_52_total - a.pronostico_52_total).slice(0, 5);
+    const nac = v.series[`nacional|mx|${sexo}`];
+    return [`**Obesidad (E66): casos pronosticados por estado en ${v.horizon_weeks} semanas, ${sexoTxt}**`, '',
+      `Total nacional: **${_ent0(nac.pronostico_52_total)} casos**. Estados con más casos pronosticados:`,
+      ...orden.map(x => `- **${x.nombre}**: ${_ent0(x.pronostico_52_total)} casos`), '', etiqueta, `_${v.uncertainty_label}._`].join('\n') + pie;
   }
-  const lineas = [
-    `**Obesidad (E66) · ${lugar} · ${x.sexo_nombre}**`,
-    '',
-    `Pronóstico **congelado** en ${_semanaObe(v.origin)} para ${v.horizon_weeks} semanas, sin reentrenar; motor: ${motor}.`,
-    '',
-    `**Cómo le ha ido fuera de muestra** (${x.oos.semanas} semanas observadas, hasta ${_semanaObe(corte)}):`,
-    `- sMAPE: **${_num1(x.oos.smape)} %**`,
-    `- Error medio absoluto: ${_ent0(x.oos.mae)} casos por semana`,
-    `- Sesgo: ${_num1(x.oos.sesgo_pct)} % (observados ${_ent0(x.oos.observado_total)} frente a ${_ent0(x.oos.pronostico_total)} pronosticados)`,
-  ];
+
+  if (tipo === 'calibracion' || tipo === 'volumen_error') {
+    const bajo = est.filter(x => x.oos.sesgo_pct < 0).length;
+    const nac = v.series[`nacional|mx|${sexo}`];
+    const enc = tipo === 'calibracion' ? 'calibración por estado' : 'volumen observado frente a error';
+    return [`**Obesidad (E66): ${enc}, ${sexoTxt}** (${oosTxt}).`, '',
+      `- Nacional: sMAPE **${_num1(nac.oos.smape)} %**, sesgo ${_num1(nac.oos.sesgo_pct)} %.`,
+      `- Mediana estatal del sMAPE: ${_num1(_medianaObe(est.map(x => x.oos.smape)))} %.`,
+      `- El pronóstico queda por debajo de lo observado en **${bajo} de ${est.length}** estados.`,
+      '', tipo === 'calibracion' ? 'Cada punto es un estado: suma pronosticada frente a suma observada; sobre la diagonal, el pronóstico acertó.' : 'Cada punto es un estado: casos observados frente a su sMAPE.',
+      '', etiqueta].join('\n') + pie;
+  }
+
+  if (tipo === 'motores') {
+    const cuenta = Object.entries(v.engines).sort((a, b) => b[1] - a[1]);
+    return [`**Obesidad (E66): motores del release** \`${v.release_id}\``, '',
+      `Se modelan **${v.models} series** (32 estados × hombres y mujeres); los otros ${v.products - v.models} de los ${v.products} productos (totales estatales, regionales y nacional) se obtienen sumándolas.`, '',
+      ...cuenta.map(([m, n]) => `- ${OBESIDAD_MOTOR[m] || m}: **${n}** series`), '',
+      'El motor de cada serie se eligió con validación cruzada fuera de muestra antes del origen.', '', etiqueta].join('\n') + pie;
+  }
+
+  if (tipo === 'comparador') {
+    let nombres = estadosEnConsulta(v, q);
+    const top = nombres.length < 2;
+    if (top) nombres = Object.values(v.series).filter(x => x.nivel === 'estado' && x.sexo === 'general').sort((a, b) => b.pronostico_52_total - a.pronostico_52_total).slice(0, 5).map(x => x.nombre);
+    const filas = nombres.slice(0, 6).map(n => Object.values(v.series).find(x => x.nivel === 'estado' && x.sexo === sexo && x.nombre === n)).filter(Boolean);
+    return [`**Obesidad (E66): comparación de estados, ${sexoTxt}**${top ? ' (los cinco con más casos pronosticados; nombra dos o más estados para compararlos)' : ''}`, '',
+      ...filas.map(x => `- **${x.nombre}**: sMAPE ${_num1(x.oos.smape)} %, sesgo ${_num1(x.oos.sesgo_pct)} %, ${_ent0(x.pronostico_52_total)} casos en ${v.horizon_weeks} semanas`),
+      '', etiqueta].join('\n') + pie;
+  }
+
+  const x = serieObesidad(v, ent);
+  if (!x) return null;
+
+  if (tipo === 'sexo') {
+    const base = x.nivel === 'nacional' ? 'nacional|mx' : `estado|${x.id}`;
+    const lugar = x.nivel === 'nacional' ? 'Nacional' : x.nombre;
+    const fila = (sx) => { const y = v.series[`${base}|${sx}`]; return `- **${y.sexo_nombre}**: sMAPE ${_num1(y.oos.smape)} %, sesgo ${_num1(y.oos.sesgo_pct)} %, ${_ent0(y.pronostico_52_total)} casos en ${v.horizon_weeks} semanas (${_motorObe(v, y)})`; };
+    return [`**Obesidad (E66) · ${lugar}: hombres y mujeres** (${oosTxt}).`, '', fila('hombres'), fila('mujeres'), '', etiqueta].join('\n') + pie;
+  }
+
+  if (tipo === 'acumulado') {
+    const total = (xs) => xs.reduce((a, [, y]) => a + y, 0);
+    const vistas = x.pronostico.filter(([ds]) => ds <= v.observation_cutoff_ds);
+    return [..._fichaObe(v, x, 'acumulado'), '',
+      `Acumulado del pronóstico hasta ${_semanaObe(v.observation_cutoff)}: ${_ent0(total(vistas))} casos; observado: ${_ent0(x.oos.observado_total)}.`,
+      `Acumulado de las ${v.horizon_weeks} semanas: **${_ent0(x.pronostico_52_total)} casos**.`, '', etiqueta].join('\n') + pie;
+  }
+
+  const lineas = _fichaObe(v, x, tipo === 'seguimiento' ? 'zoom semanal' : '');
+  if (tipo === 'seguimiento') {
+    const obs = new Map(x.observado);
+    const ult = x.pronostico.filter(([ds]) => obs.has(ds)).slice(-4);
+    lineas.push('', '**Últimas semanas observadas frente al pronóstico:**', ...ult.map(([ds, y]) => `- Semana del ${ds}: observado ${_ent0(obs.get(ds))}, pronóstico ${_ent0(y)}`));
+  }
+  const futuras = x.pronostico.filter(([ds]) => ds > v.observation_cutoff_ds).slice(0, 4);
   if (futuras.length) {
     lineas.push('', '**Próximas semanas del pronóstico:**', ...futuras.map(([ds, y]) => `- Semana del ${ds}: ${_ent0(y)} casos`));
   }
   lineas.push('', `Total pronosticado en las ${v.horizon_weeks} semanas: **${_ent0(x.pronostico_52_total)} casos**.`, '', etiqueta, `_${v.uncertainty_label}._`);
+  if (tipo === 'banda') lineas.push('', 'Obesidad se publica **sin intervalos**: la gráfica muestra sólo el pronóstico puntual, no un corredor ni una banda de confianza.');
   return lineas.join('\n') + pie;
 }
 
