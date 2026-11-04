@@ -87,7 +87,10 @@ const SPANISH_FIXES = [
   [/\bsimetric([oa]s?)\b/g, 'simétric$1'],
   [/\bmetric([oa]s?)\b/g, 'métric$1'],
   [/\bMetric([oa]s?)\b/g, 'Métric$1'],
-  [/\bpublic([oa]s?)\b/g, 'públic$1'],
+  // «publica» también es verbo («se publica», «la galería publica»): sin tilde tras un sujeto o
+  // clítico verbal; con tilde como adjetivo («salud publica» -> «salud pública»).
+  [/(?<!\b(?:se|que|no|lo|le|ya|también|tambien|galería|galeria) )\bpublica\b/g, 'pública'],
+  [/\bpublic(os?|as)\b/g, 'públic$1'],
   [/\bPublic([oa]s?)\b/g, 'Públic$1'],
   // Sustantivos
   [/\bSintoma\b/g, 'Síntoma'], [/\bsintoma\b/g, 'síntoma'],
