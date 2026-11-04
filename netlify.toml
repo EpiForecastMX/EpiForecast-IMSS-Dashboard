@@ -93,6 +93,29 @@ command = "cd epibot && npm install && npm run cifras:test && npm run deploy:ver
   [headers.values]
     Cache-Control = "public, max-age=86400"
 
+# La página de la galería, su JS y sus JSON (zoom_data_*.json) cambian con cada boletín o
+# publicación: se revalidan siempre. Netlify aplica la ÚLTIMA regla que coincide, así que estas
+# van después de /Reports/* (con 24 h, la galería nueva no se veía hasta un día después).
+[[headers]]
+  for = "/Reports/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/reports/"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/Reports/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/Reports/*.json"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
 # MICAI 2026 (artículo 12): la página de mayo se sustituye por el sitio complementario de la ponencia.
 # El preprint de mayo (afiliaciones anteriores) se retiró; su ruta lleva al manuscrito aceptado en la página MICAI.
 [[redirects]]
