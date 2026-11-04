@@ -4,6 +4,25 @@
         {
             "date": "4 de noviembre de 2026",
             "iso": "2026-11-04",
+            "type": "obesidad",
+            "tag": "Nuevo padecimiento",
+            "featured": true,
+            "title": "La obesidad se incorpora como quinto padecimiento",
+            "summary": "Pronóstico semanal a 52 semanas para el país, 4 regiones y las 32 entidades, por sexo, comparado cada semana con lo observado.",
+            "body": [
+                "EpiForecast-MX publica la <strong style=\"color:var(--cream)\">obesidad (CIE-10 E66)</strong> como quinto padecimiento: un pronóstico semanal a 52 semanas para el país, 4 regiones y las 32 entidades, cada una por sexo (111 series). Se modelan 64 series de estado y sexo con seis motores distintos; los totales estatales, regionales y nacional se obtienen sumándolas.",
+                "El pronóstico se congeló en la semana 26 de 2026 y no se reentrena: cada boletín nuevo se compara con él, semana a semana. Antes de publicarse superó una validación prospectiva de cuatro semanas. Es un pronóstico puntual, sin intervalos de incertidumbre.",
+                "Puedes consultarlo en su página, en la galería de pronósticos y en EPI, que responde por estado y sexo."
+            ],
+            "link": {
+                "href": "obesidad.html",
+                "text": "Ver el pronóstico de Obesidad",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
+        {
+            "date": "4 de noviembre de 2026",
+            "iso": "2026-11-04",
             "type": "datos",
             "tag": "Datos",
             "featured": false,
