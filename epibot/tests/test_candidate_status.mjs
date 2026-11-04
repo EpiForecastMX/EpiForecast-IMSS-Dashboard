@@ -245,12 +245,20 @@ test('shard real del backend: transporta su estado vigente y sigue point-only', 
   assert.deepEqual(shard.manifest.channels_without_bridge, []);
 });
 
-test('el índice y el knowledge PÚBLICOS siguen sin Obesidad', () => {
-  for (const archivo of ['../rag_index.json', '../knowledge.json']) {
-    const ruta = new URL(archivo, import.meta.url);
-    if (!existsSync(ruta)) continue;
-    const texto = readFileSync(ruta, 'utf-8').toLowerCase();
-    assert.ok(!texto.includes('obesidad'), `${archivo} menciona Obesidad`);
+test('C7.7: el knowledge legacy sigue sin Obesidad y el índice sólo la trae desde su release', () => {
+  // Obesidad se publica desde su release sellado: el knowledge.json legacy (rosters 432, demografía)
+  // no la absorbe, y en el índice RAG sólo entra por los chunks del release publicado.
+  const kb = new URL('../knowledge.json', import.meta.url);
+  if (existsSync(kb)) {
+    assert.ok(!readFileSync(kb, 'utf-8').toLowerCase().includes('obesidad'), 'knowledge.json menciona Obesidad');
+  }
+  const idx = new URL('../rag_index.json', import.meta.url);
+  if (existsSync(idx)) {
+    for (const c of JSON.parse(readFileSync(idx, 'utf-8')).chunks) {
+      if (!JSON.stringify(c).toLowerCase().includes('obesidad')) continue;
+      assert.equal(c.section, 'obesidad', `chunk ${c.id} menciona Obesidad fuera de su release`);
+      assert.match(c.source, /^Release publicado obesidad_release_/);
+    }
   }
 });
 

@@ -499,11 +499,11 @@ test('una entrada de catálogo escrita a mano e incompleta se rechaza', () => {
 });
 
 // ── EpiBot / RAG ──────────────────────────────────────────────────────────────────────────────
-test('buildChunks() sin raíz conserva el corpus público exacto', () => {
-  const publico = buildChunks().chunks;
+test('buildChunks({ published: false }) sin raíz conserva el corpus público exacto', () => {
+  const publico = buildChunks({ published: false }).chunks;
   conShardYDestino((shard, destino) => {
     installShard(shard, destino);
-    const deNuevo = buildChunks().chunks;
+    const deNuevo = buildChunks({ published: false }).chunks;
     assert.deepEqual(deNuevo, publico, 'instalar un candidate no puede mover el corpus público');
   });
 });
@@ -521,7 +521,7 @@ test('sin modo explícito, un árbol instalado NO entra al índice', () => {
 });
 
 test('en modo staging entra el candidate; en modo público, no', () => {
-  const publico = buildChunks().chunks.length;
+  const publico = buildChunks({ published: false }).chunks.length;
   conShardYDestino((shard, destino) => {
     installShard(shard, destino);
 
@@ -538,7 +538,7 @@ test('en modo staging entra el candidate; en modo público, no', () => {
 });
 
 test('en modo público entran sólo visible + public + published + puntero', () => {
-  const publico = buildChunks().chunks.length;
+  const publico = buildChunks({ published: false }).chunks.length;
   conShardYDestino(
     (shard, destino) => {
       installShard(shard, destino, { mode: MODE_PUBLIC, pointerReleaseId: RELEASE });
@@ -560,8 +560,8 @@ test('en modo público entran sólo visible + public + published + puntero', () 
       assert.equal(conPuntero.length, publico + 1);
       assert.equal(
         conPuntero[conPuntero.length - 1].url,
-        `../publication/${DISEASE}/${RELEASE}/`,
-        'ya publicado, sí tiene página donde enlazarse',
+        `../${DISEASE}.html`,
+        'ya publicado, enlaza a la página pública del padecimiento',
       );
     },
     { lifecycle: 'published' },
@@ -574,7 +574,7 @@ test('el corpus instalado se resuelve por catálogo, no por directorio', () => {
     const ruta = join(destino, CATALOG_FILE);
     writeFileSync(ruta, JSON.stringify({ schema: 'publication_install.v1', releases: [] }));
     const { chunks } = buildChunks({ publicationRoot: destino, publicationMode: RAG_MODE_STAGING });
-    assert.equal(chunks.length, buildChunks().chunks.length, 'sin catálogo no hay chunk');
+    assert.equal(chunks.length, buildChunks({ published: false }).chunks.length, 'sin catálogo no hay chunk');
   });
 });
 
@@ -646,7 +646,7 @@ test('shard real: instala, se ve en staging y no en público', { skip: !RAIZ_REA
     assert.equal(vista.rows, 5772);
     assert.deepEqual(publicReleases(destino), []);
 
-    const base = buildChunks().chunks.length;
+    const base = buildChunks({ published: false }).chunks.length;
     assert.equal(
       buildChunks({ publicationRoot: destino, publicationMode: RAG_MODE_STAGING }).chunks.length,
       base + 1,
