@@ -124,7 +124,7 @@
   }
 
   const meta = () => (V
-    ? `Pronóstico congelado en ${semana(V.origin)} a ${V.horizon_weeks} semanas, sin reentrenar · observado hasta ${semana(V.observation_cutoff)} · ${V.publication_label}.`
+    ? `Pronóstico congelado con datos hasta ${semana(V.origin)}${V.forecast_emitted_at ? `, emitido el ${new Date(V.forecast_emitted_at).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City', day: 'numeric', month: 'long', year: 'numeric' })}` : ''}, a ${V.horizon_weeks} semanas, sin reentrenar · observado hasta ${semana(V.observation_cutoff)} · ${V.publication_label}.`
     : '');
 
   /** Las gráficas viven mientras su canvas siga en el documento; al re-render se liberan. */

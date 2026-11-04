@@ -59,12 +59,25 @@ export function tipoGraficaObesidad(qn) {
   return 'serie';
 }
 
+/** El tipo que responden texto y gráfica: «motor» con estado o sexo es el de ESA serie. */
+export function tipoEfectivo(qn, ent = {}) {
+  const tipo = tipoGraficaObesidad(qn);
+  return tipo === 'motores' && (ent.estado || ent.sexo) ? 'motor_serie' : tipo;
+}
+
+/** «emitido el 24 de julio de 2026» (hora de la Ciudad de México), desde la vista. */
+export function emisionTxt(v) {
+  if (!v || !v.forecast_emitted_at) return 'emitido una sola vez';
+  const f = new Date(v.forecast_emitted_at).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City', day: 'numeric', month: 'long', year: 'numeric' });
+  return `emitido el ${f}`;
+}
+
 export const NO_DISPONIBLE = {
   timelapse: 'El **timelapse** necesita una serie de mapas semanales con el mismo motor en todos los estados; Obesidad se publica como un pronóstico congelado y no tiene esa animación.',
   semaforo: 'El **semáforo epidemiológico** usa umbrales de riesgo definidos para los padecimientos del carril semanal; para Obesidad no hay umbrales validados y no se calcula un nivel de riesgo.',
   pdf: 'El **reporte ejecutivo en PDF** cubre los padecimientos del carril semanal; Obesidad aún no está incluida.',
   heatmap: 'El **mapa de calor del error semanal** compara rondas de seguimiento del carril semanal; Obesidad tiene un único pronóstico congelado, así que su error se resume por estado.',
-  metricas: 'Esa gráfica resume las **métricas de selección** de los motores del carril semanal. En Obesidad la selección se hizo con validación cruzada fuera de muestra antes del origen y aquí se publica sólo el desempeño prospectivo.',
+  metricas: 'Esa gráfica resume las **métricas de selección** de los motores del carril semanal. En Obesidad el motor de cada serie se eligió con validación cruzada temporal en pliegues de 2021 a 2024, y aquí se publica sólo el desempeño frente a lo observado después de emitir el pronóstico.',
 };
 
 export const ALTERNATIVAS = '«zoom obesidad», «mapa de obesidad», «ranking de obesidad», «calibración de obesidad» u «obesidad por sexo»';
@@ -152,16 +165,20 @@ const colorError = (s) => (s <= 20 ? '#5B8DEF' : s <= 40 ? '#2DD4BF' : '#F472B6'
 
 // --- constructor ------------------------------------------------------------
 
-export function graficaObesidad(v, qn, ent = {}) {
+/**
+ * @param opciones  {tipo, estados} del marcador que deja la respuesta de texto (obesidad_kb.js): si
+ *                  viene, manda, para que la gráfica sea la del texto aun en follow-ups.
+ */
+export function graficaObesidad(v, qn, ent = {}, opciones = {}) {
   if (!v || v.schema !== 'publication_view.v1') return null;
-  const tipo = tipoGraficaObesidad(qn);
+  const tipo = opciones.tipo || tipoEfectivo(qn, ent);
   const sexo = ent.sexo || 'general';
   const x = serieObesidad(v, ent);
   const oos = `fuera de muestra, ${semana([v.origin[0], v.origin[1] + 1])}–${semana(v.observation_cutoff)}`;
   if (!x) return null;
 
   if (tipo in NO_DISPONIBLE) return null;
-  if (tipo === 'serie' || tipo === 'banda') {
+  if (tipo === 'serie' || tipo === 'banda' || tipo === 'motor_serie') {
     return lineal(v, x, `${Math.max(v.origin[0] - 3, 2023)}-01-01`, '9999', `historia desde 2023 y ${v.horizon_weeks} semanas de pronóstico`);
   }
   if (tipo === 'seguimiento') {
@@ -212,9 +229,11 @@ export function graficaObesidad(v, qn, ent = {}) {
   }
   if (tipo === 'acumulado') {
     const obs = new Map(x.observado);
+    // Los puntos vienen a un decimal: se acumulan en décimas enteras para que el último punto sea
+    // exactamente el total publicado (pronostico_52_total), sin error de coma flotante.
     let a = 0; let b = 0;
     const labels = x.pronostico.map(([d]) => d);
-    const pron = x.pronostico.map(([, y]) => Math.round((a += y)));
+    const pron = x.pronostico.map(([, y]) => Math.round((a += Math.round(y * 10)) / 10));
     const real = labels.map((d) => (obs.has(d) ? Math.round((b += obs.get(d))) : null));
     const color = v.color || PALETA[0];
     return {
@@ -250,7 +269,7 @@ export function graficaObesidad(v, qn, ent = {}) {
     };
   }
   if (tipo === 'comparador') {
-    let nombres = estadosEnConsulta(v, qn);
+    let nombres = opciones.estados || estadosEnConsulta(v, qn);
     if (nombres.length < 2) nombres = estados(v, 'general').sort((a, b) => b.pronostico_52_total - a.pronostico_52_total).slice(0, 5).map((e) => e.nombre);
     const series = nombres.slice(0, 6).map((n) => estados(v, sexo).find((e) => e.nombre === n)).filter(Boolean);
     const labels = [...new Set(series.flatMap((s) => [...s.observado.map(([d]) => d), ...s.pronostico.map(([d]) => d)]))].filter((d) => d >= '2025-01-01').sort();

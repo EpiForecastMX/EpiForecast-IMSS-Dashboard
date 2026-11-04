@@ -510,10 +510,15 @@ function vistaChunks(root, r) {
   const url = `../${r.disease_id}.html`;
   const base = { source: `Release publicado ${r.release_id}`, section: r.disease_id, url };
   const nac = v.series['nacional|mx|general'];
+  // La fecha de emisión acota la afirmación prospectiva: las semanas evaluadas son posteriores a lo
+  // que se sabía al emitir, no necesariamente futuras en el calendario.
+  const emitido = v.forecast_emitted_at
+    ? `, emitido el ${new Date(v.forecast_emitted_at).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City', day: 'numeric', month: 'long', year: 'numeric' })}`
+    : '';
   const encabezado =
-    `${v.nombre_completo || v.display_name}: pronóstico congelado desde ${semana(v.origin)} ` +
-    `(${v.horizon_weeks} semanas, sin reentrenar). ${v.publication_label}. ` +
-    `Lo observado llega hasta la semana epidemiológica ${semana(v.observation_cutoff)}.`;
+    `${v.nombre_completo || v.display_name}: pronóstico congelado con datos hasta ${semana(v.origin)}${emitido} ` +
+    `(${v.horizon_weeks} semanas, sin reentrenar; las semanas evaluadas se registraron después de la emisión). ` +
+    `${v.publication_label}. Lo observado llega hasta la semana epidemiológica ${semana(v.observation_cutoff)}.`;
   const chunks = [{
     ...base,
     id: `release:${r.disease_id}:${r.release_id}:nacional`,
@@ -544,7 +549,7 @@ function vistaChunks(root, r) {
     ...base,
     id: `release:${r.disease_id}:${r.release_id}:motores`,
     title: `${v.display_name} — motores del portafolio`,
-    text: `${encabezado}\n\nMotores seleccionados por validación cruzada rolling-origin: ${motores.join('; ')}.`,
+    text: `${encabezado}\n\nMotores seleccionados por validación cruzada temporal (rolling-origin, pliegues de 2021 a 2024): ${motores.join('; ')}.`,
   });
   return chunks;
 }
