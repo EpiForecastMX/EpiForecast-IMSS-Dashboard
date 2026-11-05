@@ -7,7 +7,7 @@ import { graficoRondas } from './comparacion_rondas.js?v=3';
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=122';
+import { loadKnowledge, getStats, getData, answer, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=123';
 import { detectEntities, norm } from './entities.js?v=33';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
 import { renderMexicoMap } from './mexico-map.js?v=3';
@@ -1158,7 +1158,7 @@ function addBotMessage(markdown, source, suggestions, chartData, sources) {
 
   // Normalizar acentos antes de comentarios y render
   const polished = polishSpanish(markdown);
-  const cleanMarkdown = polished.replace(/<!--OBESIDAD:.*?-->/g, '').replace(/<!--COMPARE:.*?-->/g, '').replace(/<!--DISTRIB:.*?-->/g, '').replace(/<!--GENCHART:.*?-->/g, '');
+  const cleanMarkdown = polished.replace(/<!--OBESIDAD:.*?-->/g, '').replace(/<!--SIN_GRAFICA-->/g, '').replace(/<!--COMPARE:.*?-->/g, '').replace(/<!--DISTRIB:.*?-->/g, '').replace(/<!--GENCHART:.*?-->/g, '');
   const html = sanitizeHtml(marked.parse(cleanMarkdown, { breaks: true }));
   const now = new Date();
   const timeStr = now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
@@ -2786,6 +2786,10 @@ function extractChartData(markdown, query) {
   if (/!\[[^\]]*\]\([^)]+\.png/i.test(markdown)) return null;
   const s = data.stats || {};
   const qn = query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  // Respuesta de un padecimiento no modelado (y sus seguimientos): ninguna gráfica. Sin esto, las
+  // ramas genéricas eligen por palabras de la consulta («y hombres?») y pintan datos neuro.
+  if (markdown.includes('<!--SIN_GRAFICA-->')) return null;
 
   const rondas = markdown.match(/<!--RONDAS:(.*?)-->/);
   if (rondas && data.comparacion_rondas) {
