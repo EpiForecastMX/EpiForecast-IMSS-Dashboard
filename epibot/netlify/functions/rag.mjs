@@ -78,6 +78,21 @@ function loadIndex() {
   return indexCache;
 }
 
+// Padecimientos publicados por el carril del runner: publication/catalog.json más el knowledge.json
+// de cada shard (nombre y CIE). netlify.toml empaqueta ambos para la función.
+let releasesCache = null;
+function loadPublishedReleases() {
+  if (releasesCache) return releasesCache;
+  try {
+    const cat = JSON.parse(readDataFile('../publication/catalog.json'));
+    releasesCache = releasesDesdeCatalogo(cat, (p) => JSON.parse(readDataFile(`../publication/${p}`)));
+  } catch (err) {
+    console.error('Error cargando publication/catalog.json:', err.message);
+    releasesCache = [];
+  }
+  return releasesCache;
+}
+
 function loadKnowledge() {
   if (knowledgeCache) return knowledgeCache;
   try {
@@ -409,9 +424,44 @@ function selectDiverse(ordered, k, cap) {
 // Resumen estructurado compacto (cifras de knowledge.json)
 // ---------------------------------------------------------------------------
 
-function structuredSummary(kb) {
+/** Releases visibles en el EpiBot: publicados, visibles y con canal epibot, con su nombre y CIE. */
+function releasesDesdeCatalogo(cat, leerShard) {
+  const out = [];
+  for (const r of (cat && cat.releases) || []) {
+    if (r.lifecycle !== 'published' || r.visible !== true || !(r.channels || []).includes('epibot')) continue;
+    let nombre = r.disease_id, cie = [];
+    try {
+      const rel = (leerShard(`${r.disease_id}/${r.release_id}/knowledge.json`) || {}).release || {};
+      nombre = rel.display_name || nombre;
+      cie = Array.isArray(rel.cie_codes) ? rel.cie_codes : [];
+    } catch (err) {
+      console.error(`Shard de ${r.disease_id} sin knowledge.json:`, err.message);
+    }
+    out.push({ nombre, cie });
+  }
+  return out;
+}
+
+const NUMERALES = ['cero', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez'];
+
+/** Línea de alcance vigente: los legacy de knowledge.json más los releases publicados del runner. */
+function alcanceVigente(kb, releases) {
+  const legacy = (kb.padecimientos || []).map((p) => `${p.pad_display} (${p.cie})`);
+  const runner = (releases || []).map((r) => (r.cie.length ? `${r.nombre} (${r.cie.join(', ')})` : r.nombre));
+  const todos = [...legacy, ...runner];
+  if (!todos.length) return '';
+  const n = NUMERALES[todos.length] || String(todos.length);
+  const lista = todos.length > 1 ? `${todos.slice(0, -1).join(', ')} y ${todos[todos.length - 1]}` : todos[0];
+  return `Alcance vigente: EpiForecast-MX modela ${n} padecimientos: ${lista}. ` +
+    'Ningún otro padecimiento está modelado. Los pasajes que hablan de tres o cuatro padecimientos ' +
+    'describen etapas anteriores del proyecto.';
+}
+
+function structuredSummary(kb, releases = []) {
   const s = kb.stats || {};
   const L = ['=== CIFRAS CLAVE DEL PROYECTO (usar como verdad para datos numéricos) ==='];
+  const alcance = alcanceVigente(kb, releases);
+  if (alcance) L.push(alcance);
   L.push(`Modelos: ${s.total_modelos || 333} · Horizonte: ${s.horizonte || 52} semanas · Pronóstico total 52 sem: ${s.pronostico_total} casos.`);
   const retiradas = metricasRetiradas(kb);
   L.push(retiradas
@@ -495,6 +545,7 @@ GROUNDING (lo más importante):
 - Cita ÚNICAMENTE los pasajes numerados [1], [2], etc. NUNCA escribas «[CIFRAS CLAVE]» ni inventes etiquetas de cita: las cifras clave se usan como datos, no se citan con corchetes.
 - Si la respuesta NO está en el contexto recuperado, dilo con honestidad y, si aplica, complementa con conocimiento general de epidemiología o ML dejando claro que es contexto general, no del proyecto. NUNCA inventes cifras del proyecto.
 - Para datos numéricos del proyecto usa exclusivamente las CIFRAS CLAVE o los pasajes. Cita la cifra exacta.
+- Para cuántos y cuáles padecimientos modela el proyecto usa SIEMPRE la línea «Alcance vigente» de las CIFRAS CLAVE. Si un pasaje dice tres o cuatro padecimientos, es una etapa anterior: no lo presentes como el alcance actual.
 - MICAI 2026: distingue el manuscrito aceptado de la ponencia y el seguimiento actuales. Si el manuscrito usa «prospectivo» o describe validación uniforme pero los pasajes actuales delimitan la evidencia, atribuye la frase al artículo y usa las precisiones actuales para describir lo comprobado. No certifiques fechas de ejecución, ausencia de fuga, picos recurrentes febrero-mayo ni utilidad clínica sin evidencia actual.
 - Precisión MICAI: los acumulados por sexo se reinician SOLO en el periodo epidemiológico uno de cada año, nunca en cada periodo. General puede diferir de mujeres más hombres, sin afirmar que siempre sea distinto. El ajuste en entrenamiento está comprobado para la ruta estatal histórica de DeepAR del código; no atribuyas ese protocolo a todas las ejecuciones publicadas ni a todos los 111 objetivos. La mediana 6.0 no certifica un error de pronóstico comparable.
 - Las cifras de producción del sistema (333/432 series y métricas actuales de knowledge.json) tienen otro alcance: no sustituyen los 111 objetivos de selección ni las 99 series del análisis MICAI. Los 111 objetivos de selección incluyen cuatro regiones; los 99 evaluados solo incluyen 32 estados y un nacional por tres estratos, sin ninguna región. Identifica la ventana y el denominador al citar un error; no mezcles S02–S18 nacional, S03–S18 por objetivo, S12–S18 reconstrucción y S19–S34 seguimiento. «Mejor» debe precisar qué métrica y comparación usa.
@@ -596,7 +647,7 @@ export default async function handler(req) {
     `[${i + 1}] (${h.chunk.source} — ${h.chunk.title})\n${h.chunk.text}`
   ).join('\n\n');
   const contextBlock = (facts ? facts + '\n\n' : '') +
-    `=== PASAJES RECUPERADOS ===\n${passages || '(sin pasajes relevantes)'}\n\n${structuredSummary(kb)}`;
+    `=== PASAJES RECUPERADOS ===\n${passages || '(sin pasajes relevantes)'}\n\n${structuredSummary(kb, loadPublishedReleases())}`;
   const sourcesList = hits.map((h, i) => `[${i + 1}] ${h.chunk.source} — ${h.chunk.title}`).join('\n') || '(ninguna)';
 
   const systemMsg = buildSystem(contextBlock, sourcesList, lowConfidence);

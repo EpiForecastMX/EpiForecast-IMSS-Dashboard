@@ -1,0 +1,68 @@
+/**
+ * El contexto que rag.mjs entrega a Gemini declara el alcance VIGENTE de padecimientos modelados.
+ *
+ * Regresión (5-nov-2026): «que se sabe de la diabetes en jalisco» contestaba que el proyecto «se
+ * centra exclusivamente en tres padecimientos». Los pasajes históricos del corpus (conclusiones,
+ * construcción del dashboard, ficha técnica de Prophet) hablan de tres, y las CIFRAS CLAVE no
+ * nombraban la lista vigente: cuatro legacy de knowledge.json más los releases publicados del
+ * runner (publication/catalog.json).
+ */
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'fs';
+import vm from 'node:vm';
+
+const raiz = new URL('../../', import.meta.url);
+const KB = JSON.parse(readFileSync(new URL('epibot/knowledge.json', raiz), 'utf8'));
+const CAT = JSON.parse(readFileSync(new URL('publication/catalog.json', raiz), 'utf8'));
+const RAG = readFileSync(
+  process.env.RAG_BASE || new URL('epibot/netlify/functions/rag.mjs', raiz), 'utf8');
+
+const ini = RAG.indexOf('function stripAccents(');
+const fin = RAG.indexOf('// Rate limit + CORS');
+const ctx = vm.runInNewContext(
+  `${RAG.slice(ini, fin)}\n({ structuredSummary,
+     releasesDesdeCatalogo: typeof releasesDesdeCatalogo === 'function' ? releasesDesdeCatalogo : null })`,
+  { console });
+const SYS = RAG.slice(RAG.indexOf('function buildSystem('));
+
+const leerShard = (p) => JSON.parse(readFileSync(new URL(`publication/${p}`, raiz), 'utf8'));
+
+test('rag.mjs deriva los releases publicados del catálogo y de su shard', () => {
+  assert.ok(ctx.releasesDesdeCatalogo, 'rag.mjs define releasesDesdeCatalogo');
+  const r = JSON.parse(JSON.stringify(ctx.releasesDesdeCatalogo(CAT, leerShard)));
+  assert.deepEqual(r, [{ nombre: 'Obesidad', cie: ['E66'] }]);
+});
+
+test('un release no publicado, oculto o sin canal epibot no entra al alcance', () => {
+  const base = CAT.releases[0];
+  const cat = { releases: [
+    { ...base, lifecycle: 'trained' },
+    { ...base, visible: false },
+    { ...base, channels: ['web'] },
+  ] };
+  assert.equal(ctx.releasesDesdeCatalogo(cat, leerShard).length, 0);
+});
+
+test('las CIFRAS CLAVE nombran los cinco padecimientos modelados', () => {
+  const rel = ctx.releasesDesdeCatalogo(CAT, leerShard);
+  const s = ctx.structuredSummary(KB, rel);
+  const linea = s.split('\n').find((l) => l.startsWith('Alcance vigente'));
+  assert.ok(linea, s);
+  assert.match(linea, /modela cinco padecimientos/);
+  for (const p of ['Depresión (F32)', 'Parkinson (G20)', 'Alzheimer (G30)', 'Dengue', 'Obesidad (E66)']) {
+    assert.ok(linea.includes(p), `${p} en: ${linea}`);
+  }
+  assert.match(linea, /Ningún otro padecimiento está modelado/);
+});
+
+test('las instrucciones mandan usar el alcance vigente sobre pasajes históricos', () => {
+  assert.match(SYS, /«Alcance vigente»/);
+});
+
+test('Netlify empaqueta el catálogo y el conocimiento de cada shard para la función', () => {
+  const toml = readFileSync(new URL('netlify.toml', raiz), 'utf8');
+  const inc = toml.match(/included_files = \[([^\]]*)\]/)[1];
+  assert.match(inc, /"publication\/catalog\.json"/);
+  assert.match(inc, /"publication\/\*\/\*\/knowledge\.json"/);
+});
