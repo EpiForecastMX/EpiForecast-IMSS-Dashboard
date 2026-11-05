@@ -5701,6 +5701,21 @@ async function _resolve(query) {
     }
   }
 
+  // Seguimiento tras una respuesta de «no modelado»: «diabetes en jalisco mujeres» → «y hombres?»
+  // no debe heredar estado y sexo hacia la tabla neuro del estado. Sigue en el padecimiento no
+  // modelado, salvo que la consulta nombre uno modelado («y depresión?») u otro no modelado.
+  const previoNoModelado = lastEntities._noModelado;
+  if (previoNoModelado && !ent.padecimiento && !mencionaNoModelada(q) &&
+      (/^y \w/.test(q) || /^(pero|tambien|que hay de|ahora) /.test(q))) {
+    const entCtx = { ...ent, estado: ent.estado || lastEntities.estado, sexo: ent.sexo || lastEntities.sexo };
+    const resp = answerPadecimientoNoModelado(`${q} ${previoNoModelado}`, entCtx, s, d);
+    if (resp) {
+      trace.handler = 'answerPadecimientoNoModelado';
+      lastEntities = { ...entCtx, _noModelado: previoNoModelado };
+      return { response: resp, handler: trace.handler };
+    }
+  }
+
   // Detectar follow-ups conversacionales
   const followUpPrefixes = [
     'y en ', 'y el ', 'y la ', 'y los ', 'y las ', 'y que ',
@@ -5832,11 +5847,29 @@ async function _resolve(query) {
 }
 
 /** API pública: firma y salida idénticas a las de siempre. */
+/**
+ * Recuerda si la última respuesta fue de un padecimiento NO modelado, para que su seguimiento
+ * («y hombres?») no caiga en datos de otro padecimiento. Cualquier otra respuesta lo olvida.
+ */
+async function _resolveConContexto(query) {
+  const r = await _resolve(query);
+  if (r.handler === 'answerPadecimientoNoModelado') {
+    const nm = mencionaNoModelada(norm(query)) || lastEntities._noModelado;
+    if (nm) lastEntities = { ...lastEntities, _noModelado: nm.trim() };
+    // app.js no dibuja gráfica con este marcador y lo retira antes de mostrar el texto y del TTS.
+    return { ...r, response: `${r.response}\n<!--SIN_GRAFICA-->` };
+  } else if (lastEntities._noModelado) {
+    const { _noModelado, ...resto } = lastEntities;
+    lastEntities = resto;
+  }
+  return r;
+}
+
 export async function answer(query) {
-  return (await _resolve(query)).response;
+  return (await _resolveConContexto(query)).response;
 }
 
 /** API diagnóstica para pruebas: MISMO núcleo, con la identidad del handler observado. */
 export async function answerWithTrace(query) {
-  return _resolve(query);
+  return _resolveConContexto(query);
 }
