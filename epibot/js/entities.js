@@ -132,6 +132,7 @@ const PADECIMIENTO_ALIAS = {
   'obesa': 'Obesidad',
   'obesos': 'Obesidad',
   'obesas': 'Obesidad',
+  'sobrepeso': 'Obesidad',
   'e66': 'Obesidad',
 };
 
