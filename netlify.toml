@@ -16,7 +16,7 @@ command = "cd epibot && npm install && npm run cifras:test && npm run deploy:ver
   node_bundler = "esbuild"
   # CRÍTICO: empaqueta los datos que las funciones leen vía fs en runtime.
   # Sin esto, rag.mjs no encuentra el índice en producción (RAG vacío).
-  included_files = ["epibot/knowledge.json", "epibot/rag_index.json"]
+  included_files = ["epibot/knowledge.json", "epibot/rag_index.json", "publication/catalog.json", "publication/*/*/knowledge.json"]
 
 # Compatibilidad: los enlaces viejos a /kb/ redirigen al nuevo /epibot/.
 [[redirects]]
