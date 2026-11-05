@@ -6,10 +6,10 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=32';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=33';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=1';
-import { answerObesidad } from './obesidad_kb.js?v=1';
+import { answerObesidad } from './obesidad_kb.js?v=2';
 
 let DATA = null;
 
@@ -5733,17 +5733,8 @@ async function _resolve(query) {
   // PERO: si la query menciona un padecimiento no modelado, NO heredar — dejar que
   // answerPadecimientoNoModelado lo maneje con el query original
   if (isFollowUp) {
-    const noModelado = [
-      'cancer', 'diabetes', 'hipertension', 'asma', 'epilepsia',
-      'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah', 'demencia',
-      'influenza', 'covid', 'tuberculosis', 'vih', 'sida', 'colera',
-      'sarampion', 'rubeola', 'hepatitis', 'zika', 'chikungunya', 'malaria',
-      'leucemia', 'linfoma', 'tumor', 'neoplasia', 'cardiop', 'infarto',
-      'embolia', 'neumonia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
-      'lupus', 'fibromialgia', 'esclerosis', 'huntington', 'ela ',
-      'insuficiencia renal', 'insuficiencia cardiaca',
-    ];
-    const mentionsUnmodeled = noModelado.some(e => q.includes(e));
+    // Inicio de palabra (mencionaNoModelada): «obesidad» contiene «sida» y «demencia» es Alzheimer.
+    const mentionsUnmodeled = !!mencionaNoModelada(q);
 
     if (!mentionsUnmodeled) {
       const merged = mergeWithContext(ent);
@@ -5810,15 +5801,7 @@ async function _resolve(query) {
   const isNewTopic = newTopicSignals.some(t => q.includes(t));
 
   // No heredar contexto si menciona un padecimiento no modelado
-  const noModeladoCtx = [
-    'cancer', 'diabetes', 'hipertension', 'asma', 'epilepsia',
-    'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah', 'demencia',
-    'influenza', 'tuberculosis', 'vih', 'sida', 'colera',
-    'sarampion', 'hepatitis', 'zika', 'malaria', 'leucemia', 'linfoma',
-    'tumor', 'neoplasia', 'infarto', 'neumonia', 'artritis', 'lupus',
-    'esclerosis', 'huntington',
-  ];
-  const mentionsUnmodeledCtx = noModeladoCtx.some(e => q.includes(e));
+  const mentionsUnmodeledCtx = !!mencionaNoModelada(q);
 
   if (!isFollowUp && !isNewTopic && !mentionsUnmodeledCtx && (lastEntities.padecimiento || lastEntities.estado)) {
     // Solo heredar si la query tiene keywords de datos/epidemiologia

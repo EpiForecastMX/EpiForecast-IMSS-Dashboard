@@ -246,10 +246,28 @@ async function retrieve(genAI, query, expandedText, index) {
 
 function stripAccents(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
 
+// Enfermedades que el proyecto NO modela: copia de ENFERMEDADES_NO_MODELADAS (js/entities.js), que
+// esta función no puede importar (sus importadores llevan `?v=`). tests/test_detectores_padecimiento.mjs
+// exige que ambas listas sean iguales. Se compara al INICIO de palabra: «obesidad» contiene «sida».
+const NO_MODELADAS = [
+  'cancer', 'diabetes', 'hipertension', 'asma', 'epilepsia',
+  'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah',
+  'influenza', 'covid', 'tuberculosis', 'vih', 'sida', 'colera',
+  'sarampion', 'rubeola', 'hepatitis', 'zika', 'chikungunya', 'malaria',
+  'leucemia', 'linfoma', 'tumor', 'neoplasia', 'cardiop', 'infarto',
+  'embolia', 'neumonia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
+  'lupus', 'fibromialgia', 'esclerosis', 'huntington', 'ela ',
+  'insuficiencia renal', 'insuficiencia cardiaca',
+];
+function mencionaNoModelada(qn) {
+  const q = ` ${qn} `;
+  return NO_MODELADAS.find((e) => q.includes(` ${e.trim()}`)) || null;
+}
+
 function detectEntities(query) {
   const qn = stripAccents(query);
   const out = { padecimiento: null, entidad: null, sexo: null };
-  const padMap = { depresion: 'Depresion', depression: 'Depresion', f32: 'Depresion', parkinson: 'Parkinson', g20: 'Parkinson', alzheimer: 'Alzheimer', alzaimer: 'Alzheimer', g30: 'Alzheimer', dengue: 'Dengue', a97: 'Dengue' };
+  const padMap = { depresion: 'Depresion', depression: 'Depresion', f32: 'Depresion', parkinson: 'Parkinson', g20: 'Parkinson', alzheimer: 'Alzheimer', alzaimer: 'Alzheimer', g30: 'Alzheimer', dengue: 'Dengue', a97: 'Dengue', obesidad: 'Obesidad', obes: 'Obesidad', sobrepeso: 'Obesidad', e66: 'Obesidad' };
   for (const [k, v] of Object.entries(padMap)) if (qn.includes(k)) { out.padecimiento = v; break; }
   const alias = { cdmx: 'Ciudad de Mexico', df: 'Ciudad de Mexico', 'distrito federal': 'Ciudad de Mexico', 'ciudad de mexico': 'Ciudad de Mexico', edomex: 'Mexico', 'estado de mexico': 'Mexico', 'nuevo leon': 'Nuevo Leon', 'san luis potosi': 'San Luis Potosi', 'baja california sur': 'Baja California Sur', 'baja california': 'Baja California', 'quintana roo': 'Quintana Roo' };
   for (const [k, v] of Object.entries(alias).sort((a, b) => b[0].length - a[0].length)) if (qn.includes(k)) { out.entidad = v; break; }
@@ -295,6 +313,9 @@ function dengueFactLines(d, ent, retiradas = false) {
 function focusedFacts(kb, query) {
   const ent = detectEntities(query);
   if (!ent.padecimiento && !ent.entidad) return '';
+  // Sin padecimiento modelado y con uno no modelado («diabetes en Jalisco»), las series del estado
+  // serían de otro padecimiento: no se inyectan como datos exactos.
+  if (!ent.padecimiento && mencionaNoModelada(stripAccents(query))) return '';
   const lines = [];
 
   // Dengue: cifras agregadas (sección dengue) además de las series por entidad.
