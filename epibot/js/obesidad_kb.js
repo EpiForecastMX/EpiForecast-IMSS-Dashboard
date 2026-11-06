@@ -10,7 +10,7 @@
  * follow-ups («¿y hombres?») y en consultas corregidas por typo, donde la consulta cruda ya no
  * nombra a Obesidad.
  */
-import { mencionaNoModelada } from './entities.js?v=36';
+import { mencionaNoModelada } from './entities.js?v=37';
 import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
