@@ -5,8 +5,8 @@
  * The question is resolved into fields before any answer is chosen (DICTAMEN_PR25):
  *   document  — from the current question, else from the latest USER message that names one (never from
  *               the assistant's own text, so an abstention that mentions MICAI does not reactivate it);
- *   window    — historical, paper (S03–S18), replay (S12–S18), follow-up (S19–S39, current cut) or the earlier
- *               follow-up cut (S19–S34, archived; only when asked explicitly; C1.1, corte S39);
+ *   window    — historical, paper (S03–S18), replay (S12–S18), follow-up (S19–S41, current cut) or an earlier
+ *               follow-up cut (S19–S39 or S19–S34, archived; only when asked explicitly; C1.2, corte S41);
  *   geographies, strata and estimators — every one requested is kept.
  * An answer is returned only when it covers those fields; otherwise null (general path) or an explicit
  * abstention. Documents the index does not cover always get an abstention, never a substitute. */
@@ -77,29 +77,32 @@ const NAME = { prophet: 'Prophet', deepar: 'DeepAR', ensemble: 'Ensemble', stack
   archived: 'asignación archivada', naive: 'ingenuo' };
 
 // Explicit ranges must match a computed window at both ends (DICTAMEN_PR27 C1-02; C1.1). Editions S03–S18 = A,
-// S19–S39 = B (current follow-up), S19–S34 = B34 (earlier cut); epidemiological periods W02–W17 = A, W18–W38 = B,
-// W18–W33 = B34. Anything else is «unsupported»: an out-of-scope range is never replaced by another window.
+// S19–S41 = B (current follow-up), S19–S39 = B39 and S19–S34 = B34 (earlier cuts); epidemiological periods W02–W17 = A,
+// W18–W40 = B, W18–W38 = B39, W18–W33 = B34. Anything else is «unsupported»: an out-of-scope range is never replaced.
 const RANGE_RE = /\b([sw])\s?(\d{1,2})\s*(?:–|-|a|al|hasta)\s*([sw])?\s?(\d{1,2})\b/g;
 function rangesOf(q) {
   const out = [];
   for (const m of q.matchAll(RANGE_RE)) {
     const kind = m[1], a = Number(m[2]), b = Number(m[4]);
     if (m[3] && m[3] !== kind) { out.push('unsupported'); continue; }
-    const ok = kind === 's' ? { '3-18': 'A', '19-39': 'B', '19-34': 'B34' } : { '2-17': 'A', '18-38': 'B', '18-33': 'B34' };
+    const ok = kind === 's' ? { '3-18': 'A', '19-41': 'B', '19-39': 'B39', '19-34': 'B34' }
+      : { '2-17': 'A', '18-40': 'B', '18-38': 'B39', '18-33': 'B34' };
     out.push(ok[`${a}-${b}`] || 'unsupported');
   }
   return out;
 }
 
-const EARLIER_CUT = /corte anterior|seguimiento anterior|16 semanas de seguimiento|seguimiento de 16 semanas/;
+const EARLIER_CUT = /corte anterior|seguimiento anterior|21 semanas de seguimiento|seguimiento de 21 semanas/;
+const FIRST_CUT = /primer corte|16 semanas de seguimiento|seguimiento de 16 semanas/;
 function windowsOf(q) {
   const w = new Set();
   const ranges = rangesOf(q);
   if (/historic|validacion cruzada|\bcv\b|tabla 1|seleccion historica/.test(q)) w.add('hist');
   // An explicit follow-up range or the earlier cut decides the follow-up window; the bare word «seguimiento»
-  // never adds S19–S39 on top of an explicit S19–S34 request (C1.1).
-  if (EARLIER_CUT.test(q)) w.add('B34');
-  else if (/seguimiento|despues del articulo|21 semanas/.test(q) && !ranges.some(r => r === 'B' || r === 'B34')) w.add('B');
+  // never adds S19–S41 on top of an explicit earlier-cut request (C1.1, C1.2).
+  if (FIRST_CUT.test(q)) w.add('B34');
+  else if (EARLIER_CUT.test(q)) w.add('B39');
+  else if (/seguimiento|despues del articulo|23 semanas/.test(q) && !ranges.some(r => ['B', 'B39', 'B34'].includes(r))) w.add('B');
   if (/ventana del articulo|panel (registrado )?(de )?2026|en el articulo/.test(q)) w.add('A');
   for (const r of ranges) w.add(r);
   if (/reconstruccion|replay|\bs12\b|\bs11\b/.test(q)) w.add('replay');
@@ -188,9 +191,10 @@ export function resolveFields(query, history = []) {
 
 // ---- computed answers from the sealed metrics ------------------------------------------------------
 const STRATUM = { general: 'general', women: 'mujeres', men: 'hombres' };
-const WIN = { B: 'Seguimiento, ediciones S19–S39', B34: 'Corte anterior del seguimiento, ediciones S19–S34',
+const WIN = { B: 'Seguimiento, ediciones S19–S41', B39: 'Corte anterior del seguimiento, ediciones S19–S39',
+  B34: 'Primer corte del seguimiento, ediciones S19–S34',
   A: 'Ventana del artículo, ediciones S03–S18' };
-const FOLLOW_ORDER = ['B', 'B34', 'A'];
+const FOLLOW_ORDER = ['B', 'B39', 'B34', 'A'];
 const median = a => { const s = [...a].sort((x, y) => x - y); const n = s.length; return n % 2 ? s[(n - 1) / 2] : (s[n / 2 - 1] + s[n / 2]) / 2; };
 const geoName = k => (k === 'México' ? 'Estado de México' : k);
 const UNAVAILABLE = { unavailable: true, error: 'La fuente actual del MICAI no está disponible; no se usará el preprint retirado.' };
@@ -286,7 +290,7 @@ export function micaiGroundedAnswer(query, history, index) {
   const f = resolveFields(query, history);
   if (f.wins.has('unsupported')) {
     return abstention('Las métricas calculadas disponibles aquí corresponden a las ediciones S03–S18 (ventana del artículo), ' +
-      'S19–S39 (seguimiento) y S19–S34 (corte anterior del seguimiento). Esta respuesta no cubre el rango que pides y no lo ' +
+      'S19–S41 (seguimiento), S19–S39 (corte anterior) y S19–S34 (primer corte). Esta respuesta no cubre el rango que pides y no lo ' +
       'sustituiré por otro.');
   }
   if (f.metric === 'several') return abstention('Puedo comparar una métrica a la vez. Has pedido sMAPE y MAE; dime cuál quieres.');
@@ -298,7 +302,7 @@ export function micaiGroundedAnswer(query, history, index) {
   // The national card answers the general national target against the naive; any other combination is computed
   // from the Nacional row (DICTAMEN_PR27 C1-04: a single model without «ingenuo» is compared with the naive).
   const nationalCard = f.national && !f.followUp && m === 'smape' && f.strata.every(k => k === 'general') &&
-    f.est.includes('naive') && f.est.every(e => ['ensemble', 'naive'].includes(e)) && !f.wins.has('B34');
+    f.est.includes('naive') && f.est.every(e => ['ensemble', 'naive'].includes(e)) && !f.wins.has('B34') && !f.wins.has('B39');
   const nationalComputed = f.national && !nationalCard &&
     (f.est.length > 0 || f.strata.length > 0 || f.metric !== null || f.followUp);
   const geos = [...(nationalComputed ? ['Nacional'] : []), ...f.geos];
@@ -308,7 +312,7 @@ export function micaiGroundedAnswer(query, history, index) {
     if (f.metric === 'unsupported') return abstention(UNSUPPORTED_METRIC);
     if (f.wins.has('hist') || f.wins.has('replay')) {
       return abstention('Las cifras por estado del MICAI disponibles aquí son las de la ventana del artículo (S03–S18), del ' +
-        'seguimiento (S19–S39) y de su corte anterior (S19–S34); no incluyen la evidencia histórica ni la reconstrucción por estado.');
+        'seguimiento (S19–S41) y de sus cortes anteriores (S19–S39 y S19–S34); no incluyen la evidencia histórica ni la reconstrucción por estado.');
     }
     if (geos.length > 4) return abstention('Puedo comparar hasta cuatro geografías a la vez. Las 33 están en epiforecast.mx/micai2026.html, sección de seguimiento.');
     const ws = FOLLOW_ORDER.filter(w => f.wins.has(w));
