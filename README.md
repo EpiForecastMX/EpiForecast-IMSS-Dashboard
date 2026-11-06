@@ -1,5 +1,61 @@
 # EpiForecast-MX Dashboard
 
+## Salida de sesión WCP — estado único vigente — 9-sep-2026
+
+**Trabajo operativo cerrado por ratificación expresa del autor.** Póster inglés
+cargado al WCP y web publicada. No repetir carga, rediseño o petición de ratificación.
+Par EN ec5ebd80… / ES 8a0a9018… intacto; frontend f02d2d16656ca1365d2b0a351109fb3be396457e.
+35 criterios registrados por hash; 46+52 controles y 22 de exportación correctos.
+Sello 110 piezas; manifiesto documental 103. EN 24/24, ES 23/24+C03 aceptada.
+Salida final: las nueve dependencias recuperadas ya están en RATIFICATION_FILES
+del exportador y son obligatorias también al verificar. No reponerlas sólo a mano
+ni regenerar desde el carril antiguo de 94 piezas. Evidencia exacta en
+`poster/auditorias/ratificacion_2026-09-09/INVENTARIO_RECUPERADO.json` dentro de Mundial.
+Índice de salida desde workspace: `planes/SALIDA_WCP_2026-09-09.md`.
+Gobernante: 13 PASA, 3 EXC, 13 N/A y 4 FALLA por formularios nominales sin
+respuestas/firmas; no confundir la ratificación global del autor con jueces
+independientes. EXC y N/A nunca se suman como aprobaciones. No abrir tareas
+automáticas por esa diferencia documental.
+
+Desde la raíz del workspace, leer únicamente para reanudar:
+- `EpiForecast-MX/Congresos/Mundial/ESTADO_ACTUAL_WCP.md`.
+- `planes/PROMPT_REANUDAR_WCP_ENVIADO_2026-09-09.md`.
+- `POSTER_WCP_2026/RATIFICACION_Y_CIERRE_2026-09-09.md`.
+
+Los checkpoints WCP inferiores son históricos, incluso donde dicen «vigente»,
+«sin ratificar», «no registrado», «no publicado» o manifiesto 93/94. No ejecutarlos.
+No cambia la continuidad de Obesidad u otros carriles. Cambios de memoria locales;
+sin commit/push/deploy en esta salida. Preservar árboles sucios y artefactos sellados.
+
+## WCP — carga registrada y web vigente comprobada — 8/9-sep-2026
+
+**Prevalece para la continuidad WCP sobre las secciones históricas inferiores.**
+El autor ya cargó el póster inglés #3134: el portal muestra
+`WCP2026ePoster3134Rebull`, **09.09.2026 03:19**, E-POSTER VIEWING.
+La subida no es pendiente. Capturas conservadas; no se descargó la copia del
+portal ni se afirma aprobación editorial o carga ES.
+
+El sitio del QR ya sirve el par vigente, verificado por descarga pública:
+EN `ec5ebd80…` / ES `8a0a9018…`, inglés inicial,
+`Reports/wcp2026/2026-09-08-8a0a9018/`.
+Frontend HEAD y referencia local origin/main:
+`f2141bbacbcd8b692fedda1199ace3b889a070a0`.
+No listar como pendiente publicar este par. No se hizo push/deploy en este cierre.
+
+Estado autoritativo y hashes completos, rutas desde la raíz del workspace:
+- `EpiForecast-MX/Congresos/Mundial/ESTADO_ACTUAL_WCP.md`.
+- `POSTER_WCP_2026/REGISTRO_SUBIDA_WCP_2026-09-09.md`.
+- Handoff: `planes/PROMPT_REANUDAR_WCP_ENVIADO_2026-09-09.md`.
+
+Preservar la entrega lema_congreso: EN 24/24; ES 23/24 más excepción de densidad
+ligada al hash, no un PASS adicional. Sello 97 piezas; manifiesto 93 piezas.
+Cuatro revisiones humanas y contrato interno 960×540/12 pt siguen sin cerrarse;
+no se dispensan por la carga. No hubo financiamiento; título aceptado intacto,
+siete apellidos con guion. No reabrir diseño ni ejecutar prompts de opciones 7–9.
+La hoja sellada y las versiones históricas se conservan intactas; el nuevo estado
+documenta los eventos posteriores. Ninguna nueva acción externa está autorizada
+por esta actualización de memorias.
+
 **Plataforma de inteligencia epidemiologica con asistente conversacional, visualizaciones interactivas y pronosticos multi-modelo para el IMSS.**
 
 Sitio en vivo: [epiforecast.mx](https://epiforecast.mx/)

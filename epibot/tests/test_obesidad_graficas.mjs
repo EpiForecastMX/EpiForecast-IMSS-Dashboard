@@ -30,7 +30,7 @@ await d.obesidad_pendiente;
 const app = readFileSync(process.env.APP_BASE || new URL('../js/app.js', import.meta.url), 'utf8');
 const between = (a, b) => app.slice(app.indexOf(a), app.indexOf(b, app.indexOf(a)));
 const extract = vm.runInNewContext(`(${between('function extractChartData(', '\nfunction ')})`, {
-  getData: () => d, detectEntities, esObesidad: oc.esObesidad, graficaObesidad: oc.graficaObesidad, ...rc,
+  getData: () => d, detectEntities, releaseConAlias: rc.releaseConAlias, graficaObesidad: oc.graficaObesidad, ...rc,
   graficoRondas: () => null, console,
 });
 
@@ -148,12 +148,12 @@ test('si la pregunta nombra otro padecimiento, Obesidad no la intercepta', async
 test('las sugerencias tras una consulta de Obesidad son de Obesidad', () => {
   const sug = vm.runInNewContext(`(${between('function getSuggestions(', '\n// ---------------------------------------------------------------------------')})`, {
     norm: (t) => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim(),
-    esObesidad: oc.esObesidad, metricasRetiradas: () => true, getData: () => d, detectEntities, ...rc,
+    releaseConAlias: rc.releaseConAlias, metricasRetiradas: () => true, getData: () => d, detectEntities, ...rc,
   });
   for (const q of ['zoom obesidad', 'mapa de obesidad']) {
     const s = sug(q);
     assert.ok(s.length >= 2, q);
-    for (const x of s) assert.ok(oc.esObesidad(x.q), `${q}: ${x.q}`);
+    for (const x of s) assert.ok(rc.releaseConAlias(x.q), `${q}: ${x.q}`);
     assert.ok(!s.some((x) => x.q === q), `${q}: no se sugiere a sí misma`);
   }
 });

@@ -7,16 +7,17 @@ import { graficoRondas } from './comparacion_rondas.js?v=3';
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=124';
-import { detectEntities, norm } from './entities.js?v=34';
+import { loadKnowledge, getStats, getData, answer, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=125';
+import { detectEntities, norm } from './entities.js?v=35';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
 import { renderMexicoMap } from './mexico-map.js?v=3';
 import { renderTimelapse } from './timelapse.js?v=4';
 import { renderSemaforo } from './semaforo.js?v=3';
 import { renderComparador } from './comparador.js?v=4';
 import { buildComparadorState } from './comparador_data.js?v=1';
-import { esObesidad, graficaObesidad } from './obesidad_charts.js?v=3';
-import { MARCADOR_RELEASE, RELEASES, releaseDeMarca, releaseDePad } from './release_config.js?v=1';
+import { graficaObesidad } from './obesidad_charts.js?v=4';
+import { UNCERTAINTY_LABEL } from './point_only.js?v=1';
+import { MARCADOR_RELEASE, releaseConAlias, releaseDeMarca, releaseDePad } from './release_config.js?v=2';
 import { initSTT, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking, toggleMute, isTTSEnabled, onSpeakingStateChange } from './voice.js?v=3';
 
 // ---------------------------------------------------------------------------
@@ -2035,11 +2036,14 @@ function buildSeriesZoom(s, pad, estado, sexo) {
   const wk = ult ? Number(String(ult.etiqueta).slice(-2)) : null;
   // Antes del corte la línea del motor es ajuste dentro de muestra: no se dibuja.
   const yPost = s.y.map((v, i) => (s.ds_corte && s.d[i] <= s.ds_corte ? null : v));
+  // Solo se dibuja el intervalo PROPIO del motor. `intervalo_disponible: false` significa que ese
+  // enfoque no produce intervalo (Ensemble y Stacking): el título lo declara.
   const hasBand = Array.isArray(s.hi) && s.hi.some(v => v != null);
+  const conIntervalo = s.intervalo_disponible !== false && hasBand;
   const datasets = [];
-  if (hasBand) {
-    // Banda de confianza: dataset superior rellena hacia el inferior (_lo). Ambos ocultos
-    // de leyenda/tooltip (prefijo '_'); muestran la incertidumbre del motor productivo.
+  if (conIntervalo) {
+    // Banda del motor: el dataset superior rellena hacia el inferior (_lo). Ambos ocultos
+    // de leyenda/tooltip (prefijo '_').
     datasets.push(
       { label: '_hi', data: s.hi, borderColor: 'transparent', backgroundColor: color + '22', pointRadius: 0, fill: '+1', tension: 0.3, order: 4 },
       { label: '_lo', data: s.lo, borderColor: 'transparent', backgroundColor: 'transparent', pointRadius: 0, fill: false, tension: 0.3, order: 4 },
@@ -2062,7 +2066,7 @@ function buildSeriesZoom(s, pad, estado, sexo) {
   );
   return {
     type: 'line',
-    title: `${dn(pad)} — ${estadoLbl} (${sexoLbl})  ·  observado y pronóstico${s.corte ? ' con corte ' + String(s.corte).replace(/^\d{4}-/, '') : ''}${wk != null ? ' (última observada: sem ' + wk + ')' : ''}`,
+    title: `${dn(pad)} — ${estadoLbl} (${sexoLbl})  ·  observado y pronóstico${s.corte ? ' con corte ' + String(s.corte).replace(/^\d{4}-/, '') : ''}${wk != null ? ' (última observada: sem ' + wk + ')' : ''}${conIntervalo ? '' : '  ·  ' + UNCERTAINTY_LABEL}`,
     labels, datasets,
     options: { scales: { x: { ticks: { maxRotation: 90, font: { size: 9 }, autoSkip: true, maxTicksLimit: 18 } }, y: { beginAtZero: true } } },
   };
@@ -2812,7 +2816,7 @@ function extractChartData(markdown, query) {
   }
   // Sin marcador, la respuesta no es de Obesidad (vista cargando, o la contestó otro handler,
   // p. ej. «comparar obesidad con diabetes»): ninguna gráfica, ni de Obesidad ni genérica.
-  if (esObesidad(qn) || releaseDePad(detectEntities(query).padecimiento)) return null;
+  if (releaseConAlias(qn) || releaseDePad(detectEntities(query).padecimiento)) return null;
 
   // Dengue NO vive en prod_models/stats (esos son neuro: 333 modelos). Casi todo canvas
   // generico saldria con datos neuro. Excepciones con datos de Dengue: el zoom semanal
@@ -3811,7 +3815,7 @@ function renderChart(canvasId, chartData) {
 function getSuggestions(query) {
   const q = norm(query);
   const retiradas = metricasRetiradas(getData());
-  const rel = esObesidad(q) ? RELEASES[0] : releaseDePad(detectEntities(query).padecimiento);
+  const rel = releaseConAlias(q) || releaseDePad(detectEntities(query).padecimiento);
   if (rel) {
     const c = rel.consulta;
     const conOos = (getData()?.[rel.dataKey]?.weeks_available ?? 1) > 0;

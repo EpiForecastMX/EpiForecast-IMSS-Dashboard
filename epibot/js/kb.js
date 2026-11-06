@@ -6,11 +6,11 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=34';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=35';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=1';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=3';
-import { RELEASES, releaseDePad } from './release_config.js?v=1';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=4';
+import { RELEASES, releaseDePad, VOCAB_RELEASES } from './release_config.js?v=2';
 
 let DATA = null;
 
@@ -4099,7 +4099,7 @@ const VOCAB = [
   'timelapse','animacion','semaforo','alerta','riesgo','reporte','exportar','pdf','ejecutivo',
   'depresion','parkinson','alzheimer',
   'dengue','dengues','arbovirosis','brote','epidemia',
-  'obesidad','obeso','obesa','diabetes','diabetico','diabetica','insulinodependiente',
+  ...VOCAB_RELEASES,'diabetes','diabetico','diabetica','insulinodependiente',
   'deepar','prophet','ensemble','stacking','nbglm',
   'configuracion','entrenamiento','hiperparametros','parametros',
   'validacion','semanal','precision',

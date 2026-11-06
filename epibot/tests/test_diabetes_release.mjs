@@ -136,7 +136,9 @@ test('las páginas leen su propia vista y dicen que la validación sigue en curs
 
 test('la galería crea una instancia por release y no mezcla sus canvas', () => {
   const g = leer('Reports/obesidad_galeria.js');
-  for (const id of VISTAS) assert.match(g, new RegExp(`id: '${id}'`));
+  const catalogo = leer('epibot/js/release_catalog.js');
+  for (const id of VISTAS) assert.match(catalogo, new RegExp(`id: '${id}'`));
+  assert.match(g, /GaleriasRelease = globalThis\.EPI_CATALOGO\.releases\.map\(crea\)/);
   assert.match(g, /canvas\[data-release="\$\{id\}"\]/);
   assert.equal(JSON.parse(leer('hero_series.json')).series.length, 4);
 });

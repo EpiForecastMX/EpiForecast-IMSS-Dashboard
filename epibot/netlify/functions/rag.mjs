@@ -14,6 +14,7 @@
  * Degradación: si no existe rag_index.json o no hay embeddings, opera en modo
  * léxico. Si no hay GEMINI_API_KEY, devuelve error claro.
  */
+import '../../js/release_catalog.js';
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { readFileSync } from 'fs';
@@ -280,22 +281,18 @@ function mencionaNoModelada(qn) {
   return NO_MODELADAS.find((e) => q.includes(` ${e.trim()}`)) || null;
 }
 
-// Subtipo de diabetes: copia de diabetesEnConsulta (js/release_config.js). Sin subtipo, tipo II.
+// Subtipo de diabetes, con el detector del catálogo: 'Diabetes' si la consulta nombra ambos tipos.
 function diabetesDe(qn) {
-  const q = ` ${qn.replace(/[^a-z0-9 ]/g, ' ')} `;
-  if (!/ (diabet|dm ?[12] |e1[0-4] )/.test(q)) return null;
-  if (/ (prediabet|pre diabet|gestacional|insipida|embarazo)/.test(q)) return null;
-  const sinNegada = q.replace(/ no insulinodependiente/g, ' dm2');
-  if (/(tipos? (1|i|uno) y (2|ii|dos)|ambos tipos|los dos tipos)/.test(sinNegada)) return 'Diabetes';
-  return / (tipo (1|i|uno) |dm ?1 |e10 |juvenil|insulinodependiente)/.test(sinNegada)
-    ? 'Diabetes tipo I'
-    : 'Diabetes tipo II';
+  const d = globalThis.EPI_CATALOGO.diabetesEnConsulta(qn.replace(/[^a-z0-9 ]/g, ' '));
+  if (!d) return null;
+  return d.pads.length > 1 ? 'Diabetes' : d.pads[0];
 }
 
 function detectEntities(query) {
   const qn = stripAccents(query);
   const out = { padecimiento: diabetesDe(qn), entidad: null, sexo: null };
-  const padMap = { depresion: 'Depresion', depression: 'Depresion', f32: 'Depresion', parkinson: 'Parkinson', g20: 'Parkinson', alzheimer: 'Alzheimer', alzaimer: 'Alzheimer', g30: 'Alzheimer', dengue: 'Dengue', a97: 'Dengue', obesidad: 'Obesidad', obes: 'Obesidad', sobrepeso: 'Obesidad', e66: 'Obesidad' };
+  const padMap = { depresion: 'Depresion', depression: 'Depresion', f32: 'Depresion', parkinson: 'Parkinson', g20: 'Parkinson', alzheimer: 'Alzheimer', alzaimer: 'Alzheimer', g30: 'Alzheimer', dengue: 'Dengue', a97: 'Dengue' };
+  for (const r of globalThis.EPI_CATALOGO.releases) for (const k of [...r.alias, ...r.prefijos]) padMap[k] = r.pad;
   if (!out.padecimiento) for (const [k, v] of Object.entries(padMap)) if (qn.includes(k)) { out.padecimiento = v; break; }
   const alias = { cdmx: 'Ciudad de Mexico', df: 'Ciudad de Mexico', 'distrito federal': 'Ciudad de Mexico', 'ciudad de mexico': 'Ciudad de Mexico', edomex: 'Mexico', 'estado de mexico': 'Mexico', 'nuevo leon': 'Nuevo Leon', 'san luis potosi': 'San Luis Potosi', 'baja california sur': 'Baja California Sur', 'baja california': 'Baja California', 'quintana roo': 'Quintana Roo' };
   for (const [k, v] of Object.entries(alias).sort((a, b) => b[0].length - a[0].length)) if (qn.includes(k)) { out.entidad = v; break; }

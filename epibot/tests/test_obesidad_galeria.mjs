@@ -15,7 +15,7 @@ const VISTA = JSON.parse(leer('publication/obesidad/vista.json'));
 
 // El módulo real de la galería, sin DOM: sólo sus funciones puras.
 const ctx = { window: {}, document: {}, console };
-vm.runInNewContext(leer('Reports/obesidad_galeria.js'), ctx);
+vm.runInNewContext(`${leer('epibot/js/release_catalog.js')}\n${leer('Reports/obesidad_galeria.js')}`, ctx);
 const G = ctx.window.ObesidadGaleria;
 G._usa(VISTA);
 const sel = (f) => G.seleccion({ pad: '', sexo: '', q: '', ...f });
