@@ -207,7 +207,7 @@ test('F50 responde su release, nunca la tabla neuro del estado', async () => {
   for (const q of ['anorexia en jalisco', 'bulimia en sonora', 'trastornos alimentarios en jalisco']) {
     const r = await conversa(q);
     assert.equal(r.handler, 'answerObesidad', q);
-    assert.match(r.md, /Anorexia y bulimia \(F50\)/, q);
+    assert.match(r.md, /Anorexia, bulimia y otros trastornos alimentarios \(F50\)/, q);
     assert.match(r.md, /ANOREXIA_F50/, q);
   }
 });
@@ -234,7 +234,7 @@ test('la noticia de F50 declara el control y no da métricas', () => {
 
 test('el seguimiento conserva F50', async () => {
   const dos = await conversa('bulimia en jalisco', 'y hombres');
-  assert.match(dos.md, /Anorexia y bulimia \(F50\) · Jalisco · Hombres/);
+  assert.match(dos.md, /Anorexia, bulimia y otros trastornos alimentarios \(F50\) · Jalisco · Hombres/);
 });
 
 test('las semanas sin observación no se presentan como futuras', async () => {

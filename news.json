@@ -7,7 +7,7 @@
             "type": "f50",
             "tag": "Nuevo padecimiento",
             "featured": true,
-            "title": "Anorexia y bulimia se incorporan con el control estacional",
+            "title": "Anorexia, bulimia y otros trastornos alimentarios se incorporan con el control estacional",
             "summary": "Pronóstico semanal a 52 semanas para el país, 4 regiones y las 32 entidades, por sexo. Repite la misma semana del año anterior, porque el portafolio no superó la prueba de 2025.",
             "body": [
                 "EpiForecast-MX publica <strong style=\"color:var(--cream)\">anorexia, bulimia y otros trastornos alimentarios (CIE-10 F50)</strong>: un pronóstico semanal a 52 semanas para el país, 4 regiones y las 32 entidades, por sexo (111 series). Se modelan 64 series de estado y sexo; los totales estatales, regionales y nacional se obtienen sumándolas.",
@@ -16,7 +16,7 @@
             ],
             "link": {
                 "href": "anorexia_f50.html",
-                "text": "Ver el pronóstico de anorexia y bulimia",
+                "text": "Ver el pronóstico de anorexia, bulimia y otros trastornos alimentarios",
                 "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
             }
         },

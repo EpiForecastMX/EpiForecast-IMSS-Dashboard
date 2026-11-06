@@ -24,8 +24,8 @@
       prefijos: ['obes'],
     },
     {
-      id: 'anorexia_f50', pad: 'Anorexia F50', nombre: 'Anorexia y bulimia',
-      nombreCorto: 'Anorexia y bulimia', etiqueta: 'Anorexia y bulimia (F50)',
+      id: 'anorexia_f50', pad: 'Anorexia F50', nombre: 'Anorexia, bulimia y otros trastornos alimentarios',
+      nombreCorto: 'Trastornos alimentarios', etiqueta: 'Anorexia, bulimia y otros trastornos alimentarios (F50)',
       dataKey: 'anorexia_f50', marca: 'ANOREXIA_F50', pagina: 'anorexia_f50.html',
       consulta: 'anorexia', cie: 'F50', color: '#A78BFA',
       alias: ['anorexia', 'anorexica', 'anorexico', 'anorexicas', 'anorexicos', 'bulimia',
