@@ -232,6 +232,24 @@ test('la noticia de F50 declara el control y no da métricas', () => {
   assert.doesNotMatch(JSON.stringify(nota), /sMAPE|MASE/);
 });
 
+test('Covid-19 sigue sin modelarse y remite a la evidencia del rechazo', async () => {
+  const r = await conversa('covid en jalisco');
+  assert.equal(r.handler, 'answerPadecimientoNoModelado');
+  assert.match(r.md, /no modela/);
+  assert.match(r.md, /rechazados\.html/);
+  const otra = await conversa('hipertension en jalisco');
+  assert.doesNotMatch(otra.md, /rechazados\.html/);
+});
+
+test('la sección de rechazados no entra al catálogo de publicados', () => {
+  const cat = JSON.parse(leer('publication/catalog.json'));
+  assert.ok(!cat.releases.some((r) => r.disease_id === 'covid_19'));
+  const v = JSON.parse(leer('publication/rechazados/covid_19.json'));
+  assert.equal(v.schema, 'rejected_view.v1');
+  assert.ok(v.comprobaciones.some((c) => !c.pasa));
+  assert.equal(Object.keys(v.series).length, 111);
+});
+
 test('el seguimiento conserva F50', async () => {
   const dos = await conversa('bulimia en jalisco', 'y hombres');
   assert.match(dos.md, /Anorexia, bulimia y otros trastornos alimentarios \(F50\) · Jalisco · Hombres/);

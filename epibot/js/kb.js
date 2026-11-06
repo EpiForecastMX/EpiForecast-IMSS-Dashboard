@@ -628,6 +628,9 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
       '- **Alzheimer** (CIE-10: G30)\n' +
       '- **Dengue** (CIE-10: A97)\n' +
       RELEASES.map((r) => `- **${r.nombre}** (CIE-10: ${r.cie})\n`).join('') + '\n' +
+      (matchedDisease === 'covid'
+        ? 'Covid-19 se analiz\u00f3 y se rechaz\u00f3 en la prueba de 2025: su evidencia y la referencia del control, no validada, est\u00e1n en [Analizados y rechazados](../rechazados.html).\n\n'
+        : '') +
       '\u00bfTe gustar\u00eda consultar datos de alguno de estos padecimientos?'
     );
   }
