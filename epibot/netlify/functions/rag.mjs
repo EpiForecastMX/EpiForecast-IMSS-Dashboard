@@ -275,6 +275,11 @@ const NO_MODELADAS = [
   'embolia', 'neumonia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
   'lupus', 'fibromialgia', 'esclerosis', 'huntington', 'ela ',
   'insuficiencia renal', 'insuficiencia cardiaca',
+  // En inglés: sin esto, «asthma in jalisco» caería en la tabla neuro del estado.
+  'gestational diabetes', 'diabetes gestational', 'diabetes insipidus', 'prediabetic', 'hypertension',
+  'asthma', 'epilepsy', 'schizophrenia', 'anxiety', 'tuberculosis', 'hiv', 'aids', 'measles',
+  'leukemia', 'lymphoma', 'heart attack', 'stroke', 'pneumonia', 'bronchitis', 'arthritis',
+  'kidney failure', 'heart failure',
 ];
 function mencionaNoModelada(qn) {
   const q = ` ${qn} `;
@@ -300,8 +305,8 @@ function detectEntities(query) {
     const st = ['aguascalientes', 'campeche', 'chiapas', 'chihuahua', 'coahuila', 'colima', 'durango', 'guanajuato', 'guerrero', 'hidalgo', 'jalisco', 'michoacan', 'morelos', 'nayarit', 'oaxaca', 'puebla', 'queretaro', 'sinaloa', 'sonora', 'tabasco', 'tamaulipas', 'tlaxcala', 'veracruz', 'yucatan', 'zacatecas', 'mexico'];
     for (const s of st) if (new RegExp(`\\b${s}\\b`).test(qn)) { out.entidad = s.replace(/\b\w/g, c => c.toUpperCase()); break; }
   }
-  if (qn.includes('hombre') || qn.includes('masculino')) out.sexo = 'hombres';
-  else if (qn.includes('mujer') || qn.includes('femenino')) out.sexo = 'mujeres';
+  if (qn.includes('hombre') || qn.includes('masculino') || /\b(men|man|males?)\b/.test(qn)) out.sexo = 'hombres';
+  else if (qn.includes('mujer') || qn.includes('femenino') || /\b(women|woman|females?)\b/.test(qn)) out.sexo = 'mujeres';
   return out;
 }
 

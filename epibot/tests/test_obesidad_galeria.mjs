@@ -87,3 +87,10 @@ test('la Figura 1 de la portada añade Obesidad desde su vista sin tocar hero_se
   assert.match(portada, /function serieRelease\(v, cfg\)/);
   assert.equal(JSON.parse(leer('hero_series.json')).series.length, 4);
 });
+
+test('la cabecera de un release da su propio corte y periodo', () => {
+  const c = G.cabecera();
+  assert.match(c.datos, /^semana \d+ de 2026$/);
+  assert.match(c.periodo, /→/);
+  assert.match(c.nota, /datos hasta la semana 26 de 2026/);
+});

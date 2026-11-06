@@ -4,7 +4,7 @@
  * Port directo de knowledge_base.py: _norm(), _detect_entities(),
  * alias maps para estados, padecimientos, sexo y modelos.
  */
-import { ALIAS_RELEASES, diabetesEnConsulta } from './release_config.js?v=2';
+import { ALIAS_RELEASES, diabetesEnConsulta } from './release_config.js?v=3';
 
 // ---------------------------------------------------------------------------
 // Normalizacion
@@ -145,6 +145,11 @@ export const ENFERMEDADES_NO_MODELADAS = [
   'embolia', 'neumonia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
   'lupus', 'fibromialgia', 'esclerosis', 'huntington', 'ela ',
   'insuficiencia renal', 'insuficiencia cardiaca',
+  // En inglés: sin esto, «asthma in jalisco» caería en la tabla neuro del estado.
+  'gestational diabetes', 'diabetes gestational', 'diabetes insipidus', 'prediabetic', 'hypertension',
+  'asthma', 'epilepsy', 'schizophrenia', 'anxiety', 'tuberculosis', 'hiv', 'aids', 'measles',
+  'leukemia', 'lymphoma', 'heart attack', 'stroke', 'pneumonia', 'bronchitis', 'arthritis',
+  'kidney failure', 'heart failure',
 ];
 
 /**
@@ -357,13 +362,15 @@ export function detectEntities(query) {
     }
   }
 
-  // Sexo
+  // Sexo. En inglés se compara por palabra: «women» contiene «men».
   for (const [alias, canon] of Object.entries(SEXO_ALIAS)) {
     if (qn.includes(alias)) {
       result.sexo = canon;
       break;
     }
   }
+  if (!result.sexo && /\b(women|woman|females?)\b/.test(qn)) result.sexo = 'mujeres';
+  else if (!result.sexo && /\b(men|man|males?)\b/.test(qn)) result.sexo = 'hombres';
 
   // Modelo
   for (const [alias, canon] of Object.entries(MODELO_ALIAS)) {
