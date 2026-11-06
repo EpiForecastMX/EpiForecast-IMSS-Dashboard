@@ -346,7 +346,7 @@
     <div class="wrap">
       <div class="label">Explorador</div>
       <h2>Pronóstico congelado frente a lo observado</h2>
-      <p>Elige una geografía y un sexo. La línea gris es lo observado en el boletín; la línea cian, el pronóstico emitido con datos hasta la semana de origen. La franja sombreada marcará las semanas del pronóstico que <strong>ya se observaron</strong>; ahí se medirá el desempeño fuera de muestra.</p>
+      <p>Elige una geografía y un sexo. La línea gris es lo observado en el boletín; la línea violeta, el pronóstico emitido con datos hasta la semana de origen. La franja sombreada marcará las semanas del pronóstico que <strong>ya se observaron</strong>; ahí se medirá el desempeño fuera de muestra.</p>
 
       <div class="controls">
         <label class="ctl">
@@ -448,6 +448,7 @@
       if (s.motor !== 'portfolio') return MOTORES[s.motor] || s.motor;
       if (s.nivel !== 'estado') return MOTORES.portfolio;
       const h = V.series[`estado|${s.id}|hombres`], m = V.series[`estado|${s.id}|mujeres`];
+      if (h.motor === m.motor) return `Suma de hombres y mujeres (${motor(h.motor)})`;
       if (corto) return `H: ${motor(h.motor)} · M: ${motor(m.motor)}`;
       return `Suma de hombres (${motor(h.motor)}) y mujeres (${motor(m.motor)})`;
     }
