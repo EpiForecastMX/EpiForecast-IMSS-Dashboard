@@ -1,17 +1,18 @@
 /**
- * obesidad_galeria.js — C7.7: Obesidad (E66) en la galería de pronósticos.
+ * obesidad_galeria.js — los releases publicados en la galería de pronósticos.
  *
- * Obesidad se publica desde su release sellado, sin PNG: sus 111 series (nacional, 4
+ * Obesidad y Diabetes se publican desde releases sellados, sin PNG: sus 111 series (nacional, 4
  * macrorregiones y 32 estados, cada una por sexo) se dibujan con Chart.js desde la vista publicada
- * (../publication/obesidad/vista.json) y se integran en los mismos niveles de la galería
+ * (../publication/<id>/vista.json) y se integran en los mismos niveles de la galería
  * (Nacional, Estatal y Regional) junto a los demás padecimientos. No entran en la lista DATA, que
  * es el inventario contractual de las 432 series del carril semanal.
  *
  * Cada tarjeta muestra lo observado y el pronóstico congelado, sin métricas de error (la galería
- * no las publica; el desempeño está en obesidad.html) y sin intervalos (el release es puntual).
+ * no las publica; el desempeño está en la página de cada release) y sin intervalos.
  * Las gráficas se crean sólo cuando la tarjeta es visible.
  *
- * API (window.ObesidadGaleria):
+ * window.GaleriasRelease es la lista de instancias; window.ObesidadGaleria, la de Obesidad.
+ * API de cada instancia (además de `id`, `pad`, `nombre` y `color`):
  *   cargar()                 -> Promise de la vista; al cargar, dispara el evento 'obesidad-galeria'
  *   seleccion({pad,sexo,q})  -> series visibles con esos filtros ([] mientras no carga)
  *   tarjeta(s)               -> HTML de la tarjeta de una serie
@@ -20,22 +21,22 @@
  *   pinta(view)              -> crea las gráficas de las tarjetas visibles
  */
 (function () {
-  const VISTA_URL = '../publication/obesidad/vista.json';
   const SEXOS = ['general', 'hombres', 'mujeres'];
   const SEXO_FILTRO = { General: 'general', Hombres: 'hombres', Mujeres: 'mujeres' };
   const NOMBRE_GALERIA = { México: 'Estado de México' };
   const MES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-
-  let V = null;
-  let cargando = null;
-  let vista = 'full';
-  const charts = new Map();
-
   const strip = (s) => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const semana = ([a, w]) => `${a}-W${String(w).padStart(2, '0')}`;
   const fmtMes = (iso) => { const p = iso.split('-'); return `${MES[+p[1] - 1]} ${p[0].slice(2)}`; };
   const porSexo = (a, b) => SEXOS.indexOf(a.sexo) - SEXOS.indexOf(b.sexo);
+
+  function crea({ id, pad, nombre, color, pagina }) {
+  const VISTA_URL = `../publication/${id}/vista.json`;
+  let V = null;
+  let cargando = null;
+  let vista = 'full';
+  const charts = new Map();
 
   function cargar() {
     if (V) return Promise.resolve(V);
@@ -54,14 +55,14 @@
 
   const estadoGaleria = (s) => NOMBRE_GALERIA[s.nombre] || s.nombre;
 
-  function seleccion({ pad, sexo, q } = {}) {
-    if (!V || (pad && pad !== 'Obesidad')) return [];
+  function seleccion({ pad: filtro, sexo, q } = {}) {
+    if (!V || (filtro && filtro !== cfgPad)) return [];
     const sx = sexo ? SEXO_FILTRO[sexo] : null;
     const texto = strip(q || '').trim();
-    const pideObesidad = texto && 'obesidad'.startsWith(texto);
+    const pideNombre = texto && strip(nombre).startsWith(texto);
     return Object.values(V.series).filter((s) => {
       if (sx && s.sexo !== sx) return false;
-      if (texto && !pideObesidad && !strip(estadoGaleria(s)).includes(texto) && !strip(s.nombre).includes(texto)) return false;
+      if (texto && !pideNombre && !strip(estadoGaleria(s)).includes(texto) && !strip(s.nombre).includes(texto)) return false;
       return true;
     }).sort(porSexo);
   }
@@ -82,7 +83,6 @@
     const s = V && V.series[canvas.dataset.serie];
     if (!s || charts.has(canvas)) return;
     const { fechas, obs, pron } = ventana(s, vista);
-    const color = V.color || '#D97706';
     charts.set(canvas, new Chart(canvas, {
       type: 'line',
       data: {
@@ -117,9 +117,9 @@
     const clave = `${s.nivel}|${s.id}|${s.sexo}`;
     const lugar = s.nivel === 'nacional' ? 'Nacional' : s.nombre;
     const nivel = s.nivel === 'estado' ? 'Estatal' : s.nivel === 'region' ? 'Regional' : 'Nacional';
-    return `<a class="obe-card" href="../obesidad.html?serie=${encodeURIComponent(clave)}" aria-label="Obesidad · ${esc(lugar)} · ${esc(s.sexo_nombre)}: abrir en la página de Obesidad">
-      <div class="obe-card-chart"><canvas data-serie="${esc(clave)}" role="img" aria-label="Obesidad, ${esc(lugar)}, ${esc(s.sexo_nombre)}: observado y pronóstico congelado"></canvas></div>
-      <div class="info"><span class="title">Obesidad · ${esc(s.sexo_nombre)}</span><div class="tags"><span class="tag tag-${nivel.toLowerCase()}">${nivel}</span><span class="tag tag-${s.sexo}">${esc(s.sexo_nombre)}</span></div></div>
+    return `<a class="obe-card" style="border-left-color:${color}" href="../${pagina}?serie=${encodeURIComponent(clave)}" aria-label="${esc(nombre)} · ${esc(lugar)} · ${esc(s.sexo_nombre)}: abrir en la página de ${esc(nombre)}">
+      <div class="obe-card-chart"><canvas data-release="${id}" data-serie="${esc(clave)}" role="img" aria-label="${esc(nombre)}, ${esc(lugar)}, ${esc(s.sexo_nombre)}: observado y pronóstico congelado"></canvas></div>
+      <div class="info"><span class="title">${esc(nombre)} · ${esc(s.sexo_nombre)}</span><div class="tags"><span class="tag tag-${nivel.toLowerCase()}">${nivel}</span><span class="tag tag-${s.sexo}">${esc(s.sexo_nombre)}</span></div></div>
     </a>`;
   }
 
@@ -132,11 +132,20 @@
     if (view && view !== vista) { vista = view; charts.forEach((ch) => ch.destroy()); charts.clear(); }
     charts.forEach((ch, c) => { if (!c.isConnected) { ch.destroy(); charts.delete(c); } });
     if (!V || typeof document.querySelectorAll !== 'function') return;
-    document.querySelectorAll('canvas[data-serie]').forEach((c) => {
+    document.querySelectorAll(`canvas[data-release="${id}"]`).forEach((c) => {
       if (charts.has(c) || c.offsetParent === null) return;
       if (observador) observador.observe(c); else dibuja(c);
     });
   }
 
-  window.ObesidadGaleria = { cargar, seleccion, tarjeta, estadoGaleria, meta, pinta, _ventana: ventana, _usa: (v) => { V = v; } };
+  const cfgPad = pad;
+  return { id, pad, nombre, color, cargar, seleccion, tarjeta, estadoGaleria, meta, pinta, _ventana: ventana, _usa: (v) => { V = v; } };
+  }
+
+  window.GaleriasRelease = [
+    crea({ id: 'obesidad', pad: 'Obesidad', nombre: 'Obesidad', color: '#D97706', pagina: 'obesidad.html' }),
+    crea({ id: 'diabetes_t1', pad: 'Diabetes tipo I', nombre: 'Diabetes tipo I', color: '#22D3EE', pagina: 'diabetes_t1.html' }),
+    crea({ id: 'diabetes_t2', pad: 'Diabetes tipo II', nombre: 'Diabetes tipo II', color: '#F472B6', pagina: 'diabetes_t2.html' }),
+  ];
+  window.ObesidadGaleria = window.GaleriasRelease[0];
 })();

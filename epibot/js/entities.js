@@ -4,6 +4,7 @@
  * Port directo de knowledge_base.py: _norm(), _detect_entities(),
  * alias maps para estados, padecimientos, sexo y modelos.
  */
+import { diabetesEnConsulta } from './release_config.js?v=1';
 
 // ---------------------------------------------------------------------------
 // Normalizacion
@@ -142,7 +143,8 @@ const PADECIMIENTO_ALIAS = {
  * answerPadecimientoNoModelado. Vive aquí para que kb.js y obesidad_kb.js usen la misma lista.
  */
 export const ENFERMEDADES_NO_MODELADAS = [
-  'cancer', 'diabetes', 'hipertension', 'asma', 'epilepsia',
+  'cancer', 'prediabetes', 'diabetes gestacional', 'diabetes insipida', 'diabetes en el embarazo',
+  'diabetes del embarazo', 'hipertension', 'asma', 'epilepsia',
   'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah',
   'influenza', 'covid', 'tuberculosis', 'vih', 'sida', 'colera',
   'sarampion', 'rubeola', 'hepatitis', 'zika', 'chikungunya', 'malaria',
@@ -291,6 +293,11 @@ export function detectEntities(query) {
   for (const [alias, canon] of Object.entries(PADECIMIENTO_ALIAS)) {
     if (qn.includes(alias) && !allPads.includes(canon)) allPads.push(canon);
   }
+  const diabetes = diabetesEnConsulta(qn);
+  if (diabetes) {
+    for (const pad of diabetes.pads) if (!allPads.includes(pad)) allPads.push(pad);
+    if (diabetes.generica) result._diabetesGenerica = true;
+  }
   result.padecimiento = allPads.length ? allPads[0] : null;
   if (allPads.length > 1) result.padecimientos = allPads;
 
@@ -328,7 +335,7 @@ export function detectEntities(query) {
       // Excluir palabras comunes y padecimientos que no son lugares
       const noLugar = ['el', 'la', 'los', 'las', 'un', 'una', 'que', 'general', 'total',
         'produccion', 'promedio', 'detalle', 'mexico', 'cuenta', 'salud',
-        'depresion', 'parkinson', 'alzheimer', 'dengue', 'obesidad', 'este ano', 'el ano',
+        'depresion', 'parkinson', 'alzheimer', 'dengue', 'obesidad', 'diabetes', 'este ano', 'el ano',
         'hombres', 'mujeres', 'masculino', 'femenino',
         'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
         'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];

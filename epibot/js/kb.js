@@ -6,10 +6,11 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=33';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=34';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=1';
-import { answerObesidad } from './obesidad_kb.js?v=2';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=3';
+import { RELEASES, releaseDePad } from './release_config.js?v=1';
 
 let DATA = null;
 
@@ -44,12 +45,12 @@ export async function loadKnowledge() {
     .then(r => (r.ok ? r.json() : null))
     .then(z => { if (z) DATA.zoom_series = z; })
     .catch(() => {});
-  // C7.7: Obesidad se publica desde su release sellado; su vista (observado + pronóstico +
-  // desempeño fuera de muestra) vive fuera de knowledge.json y se carga aparte.
-  DATA.obesidad_pendiente = fetch(`../publication/obesidad/vista.json${cacheBust}`)
+  // Cada release publicado trae su vista (observado + pronóstico + desempeño fuera de muestra),
+  // que vive fuera de knowledge.json y se carga aparte.
+  DATA.obesidad_pendiente = Promise.all(RELEASES.map((rel) => fetch(`../publication/${rel.id}/vista.json${cacheBust}`)
     .then(r => (r.ok ? r.json() : null))
-    .then(v => { if (v && v.schema === 'publication_view.v1') DATA.obesidad = v; })
-    .catch(() => {});
+    .then(v => { if (v && v.schema === 'publication_view.v1') DATA[rel.dataKey] = v; })
+    .catch(() => {})));
   return DATA;
 }
 
@@ -590,9 +591,10 @@ const INJECTION_RESPONSE =
 // ---------------------------------------------------------------------------
 
 function answerPadecimientoNoModelado(q, ent, s, d) {
-  // Si ya detectamos un padecimiento conocido, no es off-scope. Obesidad sí lo es si la consulta
-  // nombra además una enfermedad no modelada («comparar obesidad con diabetes»).
-  if (ent.padecimiento && ent.padecimiento !== 'Obesidad') return null;
+  // Si ya detectamos un padecimiento conocido, no es off-scope. Un release sí lo es si la consulta
+  // nombra además una enfermedad no modelada («comparar obesidad con hipertensión»).
+  const conRelease = !!releaseDePad(ent.padecimiento);
+  if (ent.padecimiento && !conRelease) return null;
 
   // Detectar enfermedades/padecimientos mencionados que NO modelamos
   const enfermedades = ENFERMEDADES_NO_MODELADAS;
@@ -605,17 +607,17 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
   const matchedDisease = mencionaNoModelada(q);
   // Activar si tiene data keywords, menciona un estado, o es un follow-up corto ("y del cancer")
   const isShortFollowUp = q.split(' ').length <= 5 && /^(y |y del |y de |y la |y el )/.test(q);
-  // Con Obesidad en la misma consulta («comparar obesidad con diabetes») se responde siempre: la
-  // consulta mezcla un padecimiento modelado con uno que no lo está.
-  if (matchedDisease && (any(q, dataKw) || ent.estado || isShortFollowUp || ent.padecimiento === 'Obesidad')) {
+  // Con un release en la misma consulta («comparar obesidad con hipertensión») se responde siempre:
+  // la consulta mezcla un padecimiento modelado con uno que no lo está.
+  if (matchedDisease && (any(q, dataKw) || ent.estado || isShortFollowUp || conRelease)) {
     return (
       `EpiForecast-MX **no modela ${matchedDisease}**. ` +
-      'Nuestro proyecto se enfoca en cinco padecimientos del Bolet\u00edn Epidemiol\u00f3gico SINAVE:\n\n' +
+      'Nuestro proyecto se enfoca en siete padecimientos del Bolet\u00edn Epidemiol\u00f3gico SINAVE:\n\n' +
       '- **Depresi\u00f3n** (CIE-10: F32)\n' +
       '- **Parkinson** (CIE-10: G20)\n' +
       '- **Alzheimer** (CIE-10: G30)\n' +
       '- **Dengue** (CIE-10: A97)\n' +
-      '- **Obesidad** (CIE-10: E66)\n\n' +
+      RELEASES.map((r) => `- **${r.nombre}** (CIE-10: ${r.cie})\n`).join('') + '\n' +
       '\u00bfTe gustar\u00eda consultar datos de alguno de estos padecimientos?'
     );
   }
@@ -4097,7 +4099,7 @@ const VOCAB = [
   'timelapse','animacion','semaforo','alerta','riesgo','reporte','exportar','pdf','ejecutivo',
   'depresion','parkinson','alzheimer',
   'dengue','dengues','arbovirosis','brote','epidemia',
-  'obesidad','obeso','obesa',
+  'obesidad','obeso','obesa','diabetes','diabetico','diabetica','insulinodependiente',
   'deepar','prophet','ensemble','stacking','nbglm',
   'configuracion','entrenamiento','hiperparametros','parametros',
   'validacion','semanal','precision',
@@ -5473,7 +5475,7 @@ function answerCodeRequest(q, ent, s, d) {
 
 const HANDLERS = [
   answerComparacionRondas,
-  answerSaludo, answerObesidad, answerPadecimientoNoModelado, answerDengue, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerFechaSemana, answerTemporal, answerProyectoMeta,
+  answerSaludo, answerObesidad, answerDiabetes, answerPadecimientoNoModelado, answerReleasesMixtos, answerDengue, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerFechaSemana, answerTemporal, answerProyectoMeta,
   answerTrainingConfig, answerSemanaActual, answerSemanasBoletin, answerQueEsPadecimiento,
   answerTimelapse, answerSemaforo, answerReportePDF,
   answerComparacionPorSexo,

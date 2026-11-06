@@ -4139,7 +4139,7 @@
   },
   {
     "id": 370,
-    "query": "cuantos casos de diabetes hay",
+    "query": "cuantos casos de hipertension hay",
     "expectedHandler": "answerPadecimientoNoModelado",
     "mustContain": [
       "no modela"
@@ -4642,7 +4642,7 @@
   },
   {
     "id": 418,
-    "query": "y de la diabetes",
+    "query": "y de la hipertension",
     "expectedHandler": "answerPadecimientoNoModelado",
     "mustContain": [
       "no modela"

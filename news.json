@@ -1,6 +1,25 @@
 {
-    "_generated": "2026-11-04",
+    "_generated": "2026-11-05",
     "items": [
+        {
+            "date": "5 de noviembre de 2026",
+            "iso": "2026-11-05",
+            "type": "diabetes",
+            "tag": "Nuevo padecimiento",
+            "featured": true,
+            "title": "La diabetes tipo I y tipo II se incorporan al pronóstico",
+            "summary": "Pronóstico semanal a 52 semanas para el país, 4 regiones y las 32 entidades, por sexo. Su validación prospectiva está en curso.",
+            "body": [
+                "EpiForecast-MX publica la <strong style=\"color:var(--cream)\">diabetes tipo I (CIE-10 E10)</strong> y la <strong style=\"color:var(--cream)\">diabetes tipo II (CIE-10 E11-E14)</strong>: dos pronósticos semanales a 52 semanas para el país, 4 regiones y las 32 entidades, cada una por sexo (111 series en cada padecimiento). Se modelan 64 series de estado y sexo; los totales estatales, regionales y nacional se obtienen sumándolas.",
+                "Los pronósticos usan datos hasta la semana 41 de 2026, se emitieron el 5 de noviembre y no se reentrenan. Su validación prospectiva está en curso: se medirá con las semanas 42 a 45, que aún no tenían boletín al emitirlos. Son pronósticos puntuales, sin intervalos de incertidumbre.",
+                "En la diabetes tipo I hay muy pocos casos por estado y sexo, así que el nivel más útil es el nacional. Puedes consultar ambos pronósticos en sus páginas, en la galería y en EPI, que responde por estado y sexo."
+            ],
+            "link": {
+                "href": "diabetes_t2.html",
+                "text": "Ver el pronóstico de Diabetes",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
         {
             "date": "4 de noviembre de 2026",
             "iso": "2026-11-04",

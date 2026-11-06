@@ -487,6 +487,9 @@ const MOTOR_ES = {
   prophet_count_log1p: 'Prophet en conteos (log)',
   prophet_rate_log1p: 'Prophet en tasa (log)',
   ridge_harmonic_log1p: 'Ridge armónico (log)',
+  seasonal_naive_lag52: 'naive estacional (lag 52)',
+  seasonal_mean_3y: 'media estacional de 3 años',
+  seasonal_median_3y: 'mediana estacional de 3 años',
   seasonal_mean_5y: 'media estacional de 5 años',
   seasonal_median_5y: 'mediana estacional de 5 años',
   portfolio: 'portafolio (suma de las series estatales)',
@@ -517,17 +520,20 @@ function vistaChunks(root, r) {
     : '';
   const encabezado =
     `${v.nombre_completo || v.display_name}: pronóstico congelado con datos hasta ${semana(v.origin)}${emitido} ` +
-    `(${v.horizon_weeks} semanas, sin reentrenar; las semanas evaluadas se registraron después de la emisión). ` +
+    `(${v.horizon_weeks} semanas, sin reentrenar${nac.oos.semanas ? '; las semanas evaluadas se registraron después de la emisión' : ''}). ` +
     `${v.publication_label}. Lo observado llega hasta la semana epidemiológica ${semana(v.observation_cutoff)}.`;
   const chunks = [{
     ...base,
     id: `release:${r.disease_id}:${r.release_id}:nacional`,
-    title: `${v.display_name} — desempeño nacional fuera de muestra`,
+    title: `${v.display_name} — ${nac.oos.semanas ? 'desempeño nacional fuera de muestra' : 'pronóstico nacional, sin semanas observadas aún'}`,
     text:
-      `${encabezado}\n\nNacional (general): en ${nac.oos.semanas} semanas ya observadas tras el origen, ` +
-      `sMAPE ${fmt(nac.oos.smape)} %, MAE ${fmt(nac.oos.mae, 0)} casos por semana y sesgo ` +
-      `${fmt(nac.oos.sesgo_pct)} % (observados ${fmt(nac.oos.observado_total, 0)} frente a ` +
-      `${fmt(nac.oos.pronostico_total, 0)} pronosticados). Total pronosticado para las 52 semanas: ` +
+      `${encabezado}\n\nNacional (general): ` +
+      (nac.oos.semanas
+        ? `en ${nac.oos.semanas} semanas ya observadas tras el origen, sMAPE ${fmt(nac.oos.smape)} %, ` +
+          `MAE ${fmt(nac.oos.mae, 0)} casos por semana y sesgo ${fmt(nac.oos.sesgo_pct)} % (observados ` +
+          `${fmt(nac.oos.observado_total, 0)} frente a ${fmt(nac.oos.pronostico_total, 0)} pronosticados). `
+        : `la validación prospectiva está en curso (${v.weeks_available} de ${v.weeks_required} semanas): aún no hay semanas observadas tras el origen y no existe desempeño fuera de muestra. `) +
+      `Total pronosticado para las 52 semanas: ` +
       `${fmt(nac.pronostico_52_total, 0)} casos. ${v.models} modelos (uno por estado y sexo) y ` +
       `${v.products} productos derivados por suma. ${v.uncertainty_label}.`,
   }];
@@ -538,12 +544,25 @@ function vistaChunks(root, r) {
     (s) => `- ${s.nombre}: sMAPE ${fmt(s.oos.smape)} %, sesgo ${fmt(s.oos.sesgo_pct)} %, ` +
       `52 semanas ${fmt(s.pronostico_52_total, 0)} casos.`,
   );
-  chunks.push({
-    ...base,
-    id: `release:${r.disease_id}:${r.release_id}:estados`,
-    title: `${v.display_name} — desempeño por estado fuera de muestra`,
-    text: `${encabezado}\n\nEstados ordenados de menor a mayor sMAPE fuera de muestra:\n${filas.join('\n')}`,
-  });
+  if (filas.length) {
+    chunks.push({
+      ...base,
+      id: `release:${r.disease_id}:${r.release_id}:estados`,
+      title: `${v.display_name} — desempeño por estado fuera de muestra`,
+      text: `${encabezado}\n\nEstados ordenados de menor a mayor sMAPE fuera de muestra:\n${filas.join('\n')}`,
+    });
+  } else {
+    const previstos = Object.values(v.series)
+      .filter((s) => s.nivel === 'estado' && s.sexo === 'general')
+      .sort((a, b) => b.pronostico_52_total - a.pronostico_52_total)
+      .map((s) => `- ${s.nombre}: ${fmt(s.pronostico_52_total, 0)} casos.`);
+    chunks.push({
+      ...base,
+      id: `release:${r.disease_id}:${r.release_id}:estados`,
+      title: `${v.display_name} — casos pronosticados por estado`,
+      text: `${encabezado}\n\nCasos pronosticados en 52 semanas por estado, de mayor a menor:\n${previstos.join('\n')}`,
+    });
+  }
   const motores = Object.entries(v.engines).map(([m, n]) => `${MOTOR_ES[m] || m}: ${n} series`);
   chunks.push({
     ...base,

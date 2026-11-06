@@ -6,20 +6,20 @@
   <title>EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes</title>
 
   <!-- SEO -->
-  <meta name="description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue y Obesidad en las 32 entidades de México, con un horizonte de 52 semanas." />
+  <meta name="description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad y Diabetes tipo I y II en las 32 entidades de México, con un horizonte de 52 semanas." />
   <link rel="canonical" href="https://epiforecast.mx/" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://epiforecast.mx/" />
   <meta property="og:title" content="EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes" />
-  <meta property="og:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue y Obesidad en las 32 entidades de México, con un horizonte de 52 semanas." />
+  <meta property="og:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad y Diabetes tipo I y II en las 32 entidades de México, con un horizonte de 52 semanas." />
   <meta property="og:image" content="https://epiforecast.mx/og-image.png" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes" />
-  <meta name="twitter:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue y Obesidad en las 32 entidades de México, con un horizonte de 52 semanas." />
+  <meta name="twitter:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad y Diabetes tipo I y II en las 32 entidades de México, con un horizonte de 52 semanas." />
   <meta name="twitter:image" content="https://epiforecast.mx/og-image.png" />
 
   <!-- Iconos y tema -->
@@ -841,6 +841,18 @@
     .disease-card--obe .disease-icon svg { color: #F59E0B; }
     .disease-card--obe h3 { color: #FB923C; }
     .disease-card--obe .disease-tag { background: rgba(217,119,6,0.16); color: #FDBA74; }
+
+    /* Diabetes tipo I y II */
+    .disease-card--dt1::before { background: #22D3EE; }
+    .disease-card--dt1 .disease-icon { background: rgba(34,211,238,0.14); }
+    .disease-card--dt1 .disease-icon svg { color: #22D3EE; }
+    .disease-card--dt1 h3 { color: #67E8F9; }
+    .disease-card--dt1 .disease-tag { background: rgba(34,211,238,0.14); color: #A5F3FC; }
+    .disease-card--dt2::before { background: #F472B6; }
+    .disease-card--dt2 .disease-icon { background: rgba(244,114,182,0.14); }
+    .disease-card--dt2 .disease-icon svg { color: #F472B6; }
+    .disease-card--dt2 h3 { color: #F9A8D4; }
+    .disease-card--dt2 .disease-tag { background: rgba(244,114,182,0.14); color: #FBCFE8; }
 
     /* ═══════════════════════════════════════════════════════════════════
        PIPELINE
@@ -1692,6 +1704,7 @@
     .news-tag--calass     { background: rgba(91,141,239,0.16);  color: var(--teal); }
     .news-tag--wcp        { background: rgba(244,114,182,0.16); color: var(--burgundy); }
     .news-tag--obesidad   { background: rgba(217,119,6,0.18);   color: #FDBA74; }
+    .news-tag--diabetes   { background: rgba(244,114,182,0.16); color: #FBCFE8; }
     .news-card h3 {
       font-family: var(--font-display);
       font-size: 1.2rem;
@@ -2798,6 +2811,8 @@
             <a href="novedades.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/></svg>Novedades</a>
             <a href="dengue.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>Dengue</a>
             <a href="obesidad.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Obesidad</a>
+            <a href="diabetes_t1.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Diabetes tipo I</a>
+            <a href="diabetes_t2.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Diabetes tipo II</a>
             <a href="epibot/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>EPI Chatbot</a>
           </div>
         </li>
@@ -2869,6 +2884,8 @@
           <a href="wcp2026.html" lang="en">WCP 2026 · Interactive poster</a>
           <a href="dengue.html">Dengue</a>
           <a href="obesidad.html">Obesidad</a>
+          <a href="diabetes_t1.html">Diabetes tipo I</a>
+          <a href="diabetes_t2.html">Diabetes tipo II</a>
           <a href="epibot/index.html">EPI Chatbot</a>
         </div>
       </div>
@@ -2915,7 +2932,7 @@
     <div class="edl-wrap edl-article-col">
       <div class="edl-dateline">Pronóstico epidemiológico de México <span>&middot;</span> Edición de la semana 42, 2026</div>
       <h1 class="edl-headline">Anticipar la enfermedad,<br><em>semana a semana</em></h1>
-      <p class="edl-deck">EpiForecast-MX pronostica las notificaciones semanales de cinco padecimientos a 52 semanas. La ronda con corte W37 sostiene 432 series productivas: asigna cuatro motores a las series neuropsiquiátricas y DeepAR o Prophet a las de Dengue. La <a href="obesidad.html">obesidad</a>, quinto padecimiento, publica 111 series desde un pronóstico congelado que se compara cada semana con lo observado.</p>
+      <p class="edl-deck">EpiForecast-MX pronostica las notificaciones semanales de siete padecimientos a 52 semanas. La ronda con corte W37 sostiene 432 series productivas: asigna cuatro motores a las series neuropsiquiátricas y DeepAR o Prophet a las de Dengue. La <a href="obesidad.html">obesidad</a> y la diabetes <a href="diabetes_t1.html">tipo I</a> y <a href="diabetes_t2.html">tipo II</a> publican 111 series cada una desde pronósticos congelados que se comparan cada semana con lo observado.</p>
       <div class="edl-byline">Una colaboración del Tecnológico de Monterrey con el Instituto Mexicano del Seguro Social. Datos actualizados cada semana desde el Boletín Epidemiológico del SINAVE.</div>
       <div class="edl-ctas">
         <a href="EpiDashboard.html" class="edl-primary">Abrir el tablero <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
@@ -3011,22 +3028,22 @@
         <div class="news-banner-row" id="newsBannerRow">
           <a href="novedades.html" class="news-lead">
             <div class="news-lead-meta">
-              <span class="news-date">4 de noviembre de 2026</span>
-              <span class="news-tag news-tag--obesidad">Nuevo padecimiento</span>
+              <span class="news-date">5 de noviembre de 2026</span>
+              <span class="news-tag news-tag--diabetes">Nuevo padecimiento</span>
             </div>
-            <div class="news-lead-title">La obesidad se incorpora como quinto padecimiento</div>
-            <div class="news-lead-sub">Pronóstico semanal a 52 semanas para el país, 4 regiones y las 32 entidades, por sexo, comparado cada semana con lo observado.</div>
+            <div class="news-lead-title">La diabetes tipo I y tipo II se incorporan al pronóstico</div>
+            <div class="news-lead-sub">Pronóstico semanal a 52 semanas para el país, 4 regiones y las 32 entidades, por sexo. Su validación prospectiva está en curso.</div>
           </a>
           <div class="news-mini-list">
             <a href="novedades.html" class="news-mini">
-              <span class="news-tag news-tag--datos">Datos</span>
-              <span class="news-mini-title">Ya contamos con la semana epidemiológica 42 de 2026</span>
+              <span class="news-tag news-tag--obesidad">Nuevo padecimiento</span>
+              <span class="news-mini-title">La obesidad se incorpora como quinto padecimiento</span>
               <span class="news-mini-date">4 de noviembre de 2026</span>
             </a>
             <a href="novedades.html" class="news-mini">
               <span class="news-tag news-tag--datos">Datos</span>
-              <span class="news-mini-title">Ya contamos con la semana epidemiológica 41 de 2026</span>
-              <span class="news-mini-date">27 de octubre de 2026</span>
+              <span class="news-mini-title">Ya contamos con la semana epidemiológica 42 de 2026</span>
+              <span class="news-mini-date">4 de noviembre de 2026</span>
             </a>
           </div>
         </div>
@@ -3062,6 +3079,11 @@
           <span class="edl-idx-body"><span class="edl-idx-title">Obesidad (E66)</span><span class="edl-idx-desc">Nuevo padecimiento: pronóstico semanal a 52 semanas para las 32 entidades, por sexo, congelado y comparado con lo observado en cada boletín. Validación prospectiva superada; pronóstico puntual, sin intervalos.</span></span>
           <span class="edl-idx-go"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></span>
         </a>
+        <a href="diabetes_t2.html" class="edl-index-item">
+          <span class="edl-idx-num">05</span>
+          <span class="edl-idx-body"><span class="edl-idx-title">Diabetes tipo I y II</span><span class="edl-idx-desc">Nuevos padecimientos: pronóstico semanal a 52 semanas para las 32 entidades, por sexo. Validación prospectiva en curso; pronóstico puntual, sin intervalos.</span></span>
+          <span class="edl-idx-go"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></span>
+        </a>
       </div>
 
       <p class="explora-more reveal">¿Buscas el detalle técnico? <a href="reporte_resultados.html">Resultados</a>, <a href="comparacion_modelos.html">comparación de modelos</a>, <a href="micai.html">artículo MICAI</a> y <a href="metodologia_dengue.html">metodología</a> están en el menú.</p>
@@ -3078,7 +3100,7 @@
 
       <div class="edl-columns reveal">
         <p class="edl-dropcap"><strong>EpiForecast-MX</strong> es un proyecto capstone de la Maestría en Inteligencia Artificial Aplicada del Tecnológico de Monterrey, desarrollado en colaboración directa con el Instituto Mexicano del Seguro Social (IMSS).</p>
-        <p>Su objetivo es generar pronósticos de notificaciones semanales para tres padecimientos neuropsiquiátricos (Depresión, Parkinson y Alzheimer), el Dengue, primera enfermedad transmitida por vector del proyecto, y, como quinto, la Obesidad, el primer padecimiento que recorre el flujo genérico de entrenamiento, validación prospectiva y publicación. Las predicciones se desagregan a nivel nacional y por las 32 entidades federativas.</p>
+        <p>Su objetivo es generar pronósticos de notificaciones semanales para tres padecimientos neuropsiquiátricos (Depresión, Parkinson y Alzheimer), el Dengue, primera enfermedad transmitida por vector del proyecto, la Obesidad, el primer padecimiento que recorrió el flujo genérico de entrenamiento, validación prospectiva y publicación, y la Diabetes tipo I y tipo II, que lo recorren después. Las predicciones se desagregan a nivel nacional y por las 32 entidades federativas.</p>
 
         <blockquote class="edl-pullquote">Convertir la vigilancia epidemiológica clásica en pronóstico accionable, semana a semana.</blockquote>
 
@@ -3102,9 +3124,9 @@
        ═══════════════════════════════════════════════════════════════ -->
   <section class="section diseases" id="diseases">
     <div class="section-label reveal">Padecimientos Objetivo</div>
-    <h2 class="section-title reveal">Cinco padecimientos, un pipeline<br>de pronóstico unificado</h2>
+    <h2 class="section-title reveal">Siete padecimientos, un pipeline<br>de pronóstico unificado</h2>
     <div class="section-desc reveal">
-      Tres condiciones neuropsiquiátricas de alta carga en el sistema de salud mexicano, el Dengue como cuarto padecimiento (la primera arbovirosis del proyecto) y la Obesidad como quinto, con pronósticos desagregados por entidad y sexo.
+      Tres condiciones neuropsiquiátricas de alta carga en el sistema de salud mexicano, el Dengue (la primera arbovirosis del proyecto), la Obesidad y la Diabetes tipo I y II, con pronósticos desagregados por entidad y sexo.
     </div>
 
     <div class="disease-grid">
@@ -3156,6 +3178,26 @@
         <h3>Obesidad</h3>
         <p>Quinto padecimiento y el primero que recorre el flujo genérico de entrenamiento, validación prospectiva y publicación. Se modelan 64 series de estado y sexo con seis motores, elegidos por validación cruzada temporal en pliegues de 2021 a 2024; los totales estatales, regionales y nacional se obtienen sumándolas. El pronóstico usa datos hasta la semana 26 de 2026, se emitió el 24 de julio y cada boletín nuevo se compara con él.</p>
         <span class="disease-tag">CIE-10: E66 · 64 modelos · 111 series publicadas · pronóstico puntual</span>
+      </a>
+
+      <!-- Diabetes tipo I (publicada desde su release congelado, validación prospectiva en curso) -->
+      <a class="disease-card disease-card--dt1 reveal reveal-delay-3" href="diabetes_t1.html">
+        <div class="disease-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5c3.5 4.4 6.5 7.8 6.5 11.5a6.5 6.5 0 01-13 0c0-3.7 3-7.1 6.5-11.5z"/></svg>
+        </div>
+        <h3>Diabetes tipo I</h3>
+        <p>Diabetes mellitus insulinodependiente, con unos 80 casos semanales en todo el país. Por sus pocos casos compite un portafolio de motores estacionales. El pronóstico usa datos hasta la semana 41 de 2026, se emitió el 5 de noviembre y su validación prospectiva está en curso.</p>
+        <span class="disease-tag">CIE-10: E10 · 64 modelos · 111 series publicadas · pronóstico puntual</span>
+      </a>
+
+      <!-- Diabetes tipo II (publicada desde su release congelado, validación prospectiva en curso) -->
+      <a class="disease-card disease-card--dt2 reveal reveal-delay-3" href="diabetes_t2.html">
+        <div class="disease-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5c3.5 4.4 6.5 7.8 6.5 11.5a6.5 6.5 0 01-13 0c0-3.7 3-7.1 6.5-11.5z"/></svg>
+        </div>
+        <h3>Diabetes tipo II</h3>
+        <p>Diabetes mellitus no insulinodependiente, con unos 11 mil casos semanales en todo el país. Se modelan 64 series de estado y sexo. El pronóstico usa datos hasta la semana 41 de 2026, se emitió el 5 de noviembre y su validación prospectiva está en curso.</p>
+        <span class="disease-tag">CIE-10: E11-E14 · 64 modelos · 111 series publicadas · pronóstico puntual</span>
       </a>
     </div>
   </section>
@@ -3284,6 +3326,8 @@
       <a href="novedades.html">Novedades</a>
       <a href="dengue.html">Dengue</a>
       <a href="obesidad.html">Obesidad</a>
+      <a href="diabetes_t1.html">Diabetes tipo I</a>
+      <a href="diabetes_t2.html">Diabetes tipo II</a>
       <a href="EpiDashboard.html">Dashboard</a>
       <a href="Reports/index.html">Pronósticos</a>
       <a href="reporte_resultados.html">Resultados</a>
@@ -3711,17 +3755,17 @@
           series = d.series.slice();
           pintaPills();
           setActive(0);
-          // Obesidad (E66) no está en hero_series.json (contrato: las 4 series del corte W37): su
-          // serie nacional sale de la vista publicada de su release y se añade como quinta.
-          fetch('publication/obesidad/vista.json', { cache: 'no-cache' })
-            .then(function (r) { return r.ok ? r.json() : null; })
-            .then(function (v) {
-              var s = v && v.schema === 'publication_view.v1' && serieObesidad(v);
-              if (!s) return;
-              series.push(s);
-              pintaPills();
-            })
-            .catch(function () { /* sin la vista, la figura conserva sus cuatro series */ });
+          // Los releases no están en hero_series.json (contrato: las 4 series del corte W37): su
+          // serie nacional sale de la vista publicada de cada release y se añade en este orden.
+          Promise.all(RELEASES_FIGURA.map(function (cfg) {
+            return fetch('publication/' + cfg.id + '/vista.json', { cache: 'no-cache' })
+              .then(function (r) { return r.ok ? r.json() : null; })
+              .then(function (v) { return v && v.schema === 'publication_view.v1' ? serieRelease(v, cfg) : null; })
+              .catch(function () { return null; /* sin la vista, la figura conserva las demás */ });
+          })).then(function (extra) {
+            extra.forEach(function (s) { if (s) series.push(s); });
+            pintaPills();
+          });
         })
         .catch(hideViz);
 
@@ -3736,9 +3780,15 @@
         });
       }
 
-      // Nacional general de Obesidad con la misma forma que hero_series.json: 52 semanas observadas
+      var RELEASES_FIGURA = [
+        { id: 'obesidad', label: 'Obesidad', color: '#D97706', cie: 'E66' },
+        { id: 'diabetes_t1', label: 'Diabetes I', color: '#22D3EE', cie: 'E10' },
+        { id: 'diabetes_t2', label: 'Diabetes II', color: '#F472B6', cie: 'E11-E14' }
+      ];
+
+      // Nacional general de un release con la misma forma que hero_series.json: 52 semanas observadas
       // hasta el último boletín y el pronóstico congelado desde su origen (puntual, sin banda).
-      function serieObesidad(v) {
+      function serieRelease(v, cfg) {
         var x = v.series['nacional|mx|general'];
         if (!x || !x.observado.length || !x.pronostico.length) return null;
         var obs = {}, pron = {};
@@ -3749,7 +3799,7 @@
         var fechas = vistas.slice(-52).concat(x.pronostico.map(function (p) { return p[0]; }).filter(function (d) { return d > corte; }));
         var sem = function (a) { return a[0] + '-W' + String(a[1]).padStart(2, '0'); };
         return {
-          pad: 'Obesidad', key: 'obesidad', label: 'Obesidad', color: v.color || '#D97706', cie: 'E66',
+          pad: cfg.label, key: cfg.id, label: cfg.label, color: cfg.color, cie: cfg.cie,
           motor: 'portafolio de ' + v.models + ' series',
           casos: Math.round(x.pronostico_52_total),
           casos_texto: 'pronóstico congelado, ' + v.horizon_weeks + ' semanas desde el origen',

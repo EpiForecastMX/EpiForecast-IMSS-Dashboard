@@ -12,8 +12,10 @@
  *  - `NO_DISPONIBLE` explica las gráficas que no existen para un release puntual (sin bandas,
  *    sin semáforo, sin timelapse): nunca se sustituyen por datos de otro padecimiento.
  *
- * Funciones puras: sin DOM, sin fetch.
+ * Vale para cualquier release publicado: título y color salen de `release_config.js` por
+ * `disease_id`. Funciones puras: sin DOM, sin fetch.
  */
+import { RELEASES, releaseDeId } from './release_config.js?v=1';
 
 export const OBESIDAD_KW = ['obesidad', 'obeso', 'obesa', 'sobrepeso', 'e66'];
 
@@ -27,6 +29,9 @@ export const MOTOR_NOMBRE = {
   prophet_count_log1p: 'Prophet en conteos (log)',
   prophet_rate_log1p: 'Prophet en tasa (log)',
   ridge_harmonic_log1p: 'Ridge armónico (log)',
+  seasonal_naive_lag52: 'naive estacional (lag 52)',
+  seasonal_mean_3y: 'media estacional de 3 años',
+  seasonal_median_3y: 'mediana estacional de 3 años',
   seasonal_mean_5y: 'media estacional de 5 años',
   seasonal_median_5y: 'mediana estacional de 5 años',
   portfolio: 'portafolio (suma de las series estatales)',
@@ -80,7 +85,19 @@ export const NO_DISPONIBLE = {
   metricas: 'Esa gráfica resume las **métricas de selección** de los motores del carril semanal. En Obesidad el motor de cada serie se eligió con validación cruzada temporal en pliegues de 2021 a 2024, y aquí se publica sólo el desempeño frente a lo observado después de emitir el pronóstico.',
 };
 
-export const ALTERNATIVAS = '«zoom obesidad», «mapa de obesidad», «ranking de obesidad», «calibración de obesidad» u «obesidad por sexo»';
+/** El texto de una gráfica no disponible, con el nombre del padecimiento consultado. */
+export const noDisponible = (tipo, nombre) => NO_DISPONIBLE[tipo].replaceAll('Obesidad', nombre);
+
+/** Consultas sugeridas; sin semanas observadas no se ofrecen las de error. */
+export function alternativas(r, conOos = true) {
+  const c = r.consulta;
+  const ops = conOos
+    ? [`«zoom ${c}»`, `«mapa de ${c}»`, `«ranking de ${c}»`, `«calibración de ${c}»`]
+    : [`«zoom ${c}»`, `«mapa de ${c}»`, `«acumulado de ${c}»`, `«motores de ${c}»`];
+  return `${ops.join(', ')} ${c.startsWith('o') ? 'u' : 'o'} «${c} por sexo»`;
+}
+
+export const ALTERNATIVAS = alternativas(RELEASES[0]);
 
 // --- utilidades -------------------------------------------------------------
 
@@ -118,6 +135,8 @@ export function estadosEnConsulta(v, qn) {
   return [...new Set(hallados.sort((a, b) => a[0] - b[0]).map((h) => h[1]))];
 }
 
+const et = (v) => (releaseDeId(v.disease_id) || RELEASES[0]).etiqueta;
+const colorDe = (v) => releaseDeId(v.disease_id)?.color || v.color || PALETA[0];
 const lugarDe = (x) => (x.nivel === 'nacional' ? 'Nacional' : x.nombre);
 const semana = ([a, w]) => `${a}-W${String(w).padStart(2, '0')}`;
 
@@ -139,14 +158,14 @@ function lineaObsPron(v, x, desde, hasta, color) {
 }
 
 function lineal(v, x, desde, hasta, encabezado) {
-  const color = v.color || PALETA[0];
+  const color = colorDe(v);
   const { labels, datasets } = lineaObsPron(v, x, desde, hasta, color);
   return {
     type: 'line',
-    title: `Obesidad (E66) · ${lugarDe(x)} · ${x.sexo_nombre}: ${encabezado}`,
+    title: `${et(v)} · ${lugarDe(x)} · ${x.sexo_nombre}: ${encabezado}`,
     labels,
     datasets,
-    options: { plugins: titulo([`Obesidad (E66) · ${lugarDe(x)} · ${x.sexo_nombre}`, encabezado, 'Pronóstico puntual, sin intervalos']) },
+    options: { plugins: titulo([`${et(v)} · ${lugarDe(x)} · ${x.sexo_nombre}`, encabezado, 'Pronóstico puntual, sin intervalos']) },
   };
 }
 
@@ -154,10 +173,10 @@ function barrasEstados(v, filas, valor, etiqueta, encabezado, color) {
   return {
     type: 'bar',
     horizontal: true,
-    title: `Obesidad (E66): ${encabezado}`,
+    title: `${et(v)}: ${encabezado}`,
     labels: filas.map((x) => x.nombre),
     datasets: [{ label: etiqueta, data: filas.map(valor), backgroundColor: filas.map((x) => (color ? color(x) : PALETA[0]) + 'CC'), borderColor: filas.map((x) => (color ? color(x) : PALETA[0])), borderWidth: 1, borderRadius: 4 }],
-    options: { plugins: titulo([`Obesidad (E66): ${encabezado}`]) },
+    options: { plugins: titulo([`${et(v)}: ${encabezado}`]) },
   };
 }
 
@@ -190,6 +209,7 @@ export function graficaObesidad(v, qn, ent = {}, opciones = {}) {
   }
   if (tipo === 'mapa') {
     const error = has(strip(qn), ['error', 'smape', 'precision', 'sesgo', 'desempeno']);
+    if (error && !estados(v, sexo).some((e) => e.oos.smape != null)) return null;
     const stateData = {};
     for (const e of estados(v, sexo)) {
       const val = error ? e.oos.smape : e.pronostico_52_total;
@@ -201,7 +221,7 @@ export function graficaObesidad(v, qn, ent = {}, opciones = {}) {
       };
     }
     return { _mapChart: true, stateData, opts: {
-      title: error ? `Obesidad (E66), ${SEXO_NOMBRE[sexo]}: sMAPE ${oos}` : `Obesidad (E66), ${SEXO_NOMBRE[sexo]}: casos pronosticados en ${v.horizon_weeks} semanas`,
+      title: error ? `${et(v)}, ${SEXO_NOMBRE[sexo]}: sMAPE ${oos}` : `${et(v)}, ${SEXO_NOMBRE[sexo]}: casos pronosticados en ${v.horizon_weeks} semanas`,
       lowColor: [30, 60, 50], highColor: error ? [244, 114, 182] : [245, 158, 11], metric: error ? 'sMAPE %' : 'casos' } };
   }
   if (tipo === 'entidades') {
@@ -210,19 +230,21 @@ export function graficaObesidad(v, qn, ent = {}, opciones = {}) {
   }
   if (tipo === 'ranking') {
     const filas = estados(v, sexo).filter((e) => e.oos.smape != null).sort((a, b) => a.oos.smape - b.oos.smape);
+    if (!filas.length) return null;
     return barrasEstados(v, filas, (e) => e.oos.smape, 'sMAPE %', `sMAPE por estado (${oos}), ${SEXO_NOMBRE[sexo]}`, (e) => colorError(e.oos.smape));
   }
   if (tipo === 'calibracion' || tipo === 'volumen_error') {
     const filas = estados(v, sexo).filter((e) => e.oos.semanas);
+    if (!filas.length) return null;
     const cal = tipo === 'calibracion';
     const puntos = filas.map((e) => (cal ? { x: e.oos.pronostico_total, y: e.oos.observado_total, nombre: e.nombre } : { x: e.oos.observado_total, y: e.oos.smape, nombre: e.nombre }));
-    const datasets = [{ label: 'Estados', data: puntos, backgroundColor: (v.color || PALETA[0]) + 'AA', borderColor: v.color || PALETA[0], pointRadius: 5, pointHoverRadius: 8 }];
+    const datasets = [{ label: 'Estados', data: puntos, backgroundColor: colorDe(v) + 'AA', borderColor: colorDe(v), pointRadius: 5, pointHoverRadius: 8 }];
     const lim = Math.max(...puntos.map((p) => Math.max(p.x, p.y))) * 1.05;
     if (cal) datasets.push({ label: 'Pronóstico perfecto', type: 'line', data: [{ x: 0, y: 0 }, { x: lim, y: lim }], borderColor: 'rgba(226, 232, 245, 0.5)', borderDash: [6, 6], borderWidth: 1.5, pointRadius: 0, showLine: true, fill: false });
     const enc = cal ? `calibración por estado (${oos})` : `volumen observado frente a sMAPE (${oos})`;
     return {
-      type: 'scatter', title: `Obesidad (E66): ${enc}`, datasets,
-      options: { plugins: titulo([`Obesidad (E66): ${enc}`, SEXO_NOMBRE[sexo]]), scales: cal
+      type: 'scatter', title: `${et(v)}: ${enc}`, datasets,
+      options: { plugins: titulo([`${et(v)}: ${enc}`, SEXO_NOMBRE[sexo]]), scales: cal
         ? { x: { title: { display: true, text: 'Pronosticado (suma)' }, min: 0, max: lim }, y: { title: { display: true, text: 'Observado (suma)' }, min: 0, max: lim } }
         : { x: { title: { display: true, text: 'Casos observados' } }, y: { title: { display: true, text: 'sMAPE %' }, min: 0 } } },
     };
@@ -235,14 +257,14 @@ export function graficaObesidad(v, qn, ent = {}, opciones = {}) {
     const labels = x.pronostico.map(([d]) => d);
     const pron = x.pronostico.map(([, y]) => Math.round((a += Math.round(y * 10)) / 10));
     const real = labels.map((d) => (obs.has(d) ? Math.round((b += obs.get(d))) : null));
-    const color = v.color || PALETA[0];
+    const color = colorDe(v);
     return {
-      type: 'line', title: `Obesidad (E66) · ${lugarDe(x)} · ${x.sexo_nombre}: acumulado desde el origen`, labels,
+      type: 'line', title: `${et(v)} · ${lugarDe(x)} · ${x.sexo_nombre}: acumulado desde el origen`, labels,
       datasets: [
         { label: 'Observado acumulado', data: real, borderColor: color, borderWidth: 2.5, pointRadius: 0, spanGaps: false },
         { label: 'Pronóstico acumulado', data: pron, borderColor: color + '99', borderDash: [8, 5], borderWidth: 2, pointRadius: 0 },
       ],
-      options: { plugins: titulo([`Obesidad (E66) · ${lugarDe(x)} · ${x.sexo_nombre}`, `Acumulado desde ${labels[0]}`]) },
+      options: { plugins: titulo([`${et(v)} · ${lugarDe(x)} · ${x.sexo_nombre}`, `Acumulado desde ${labels[0]}`]) },
     };
   }
   if (tipo === 'sexo') {
@@ -254,18 +276,18 @@ export function graficaObesidad(v, qn, ent = {}, opciones = {}) {
       return { labels, datasets };
     });
     return {
-      type: 'line', title: `Obesidad (E66) · ${lugarDe(x)}: hombres y mujeres`, labels: charts[0].labels,
+      type: 'line', title: `${et(v)} · ${lugarDe(x)}: hombres y mujeres`, labels: charts[0].labels,
       datasets: [...charts[0].datasets, ...charts[1].datasets],
-      options: { plugins: titulo([`Obesidad (E66) · ${lugarDe(x)}`, 'Hombres y mujeres, observado y pronóstico congelado']) },
+      options: { plugins: titulo([`${et(v)} · ${lugarDe(x)}`, 'Hombres y mujeres, observado y pronóstico congelado']) },
     };
   }
   if (tipo === 'motores') {
     const cuenta = Object.entries(v.engines).sort((p, q) => q[1] - p[1]);
     return {
-      type: 'doughnut', title: `Obesidad (E66): motores de las ${v.models} series modeladas`,
+      type: 'doughnut', title: `${et(v)}: motores de las ${v.models} series modeladas`,
       labels: cuenta.map(([m]) => MOTOR_NOMBRE[m] || m),
       datasets: [{ label: 'Series', data: cuenta.map(([, n]) => n), backgroundColor: PALETA, borderWidth: 0 }],
-      options: { plugins: titulo([`Obesidad (E66): motores de las ${v.models} series modeladas`, 'Estado × sexo; el resto se obtiene sumando']) },
+      options: { plugins: titulo([`${et(v)}: motores de las ${v.models} series modeladas`, 'Estado × sexo; el resto se obtiene sumando']) },
     };
   }
   if (tipo === 'comparador') {
@@ -281,8 +303,8 @@ export function graficaObesidad(v, qn, ent = {}, opciones = {}) {
       ];
     });
     return {
-      type: 'line', title: `Obesidad (E66): comparación de estados, ${SEXO_NOMBRE[sexo]}`, labels, datasets,
-      options: { plugins: titulo([`Obesidad (E66): ${series.map((s) => s.nombre).join(', ')}`, `${SEXO_NOMBRE[sexo]} · línea continua observado, punteada pronóstico`]) },
+      type: 'line', title: `${et(v)}: comparación de estados, ${SEXO_NOMBRE[sexo]}`, labels, datasets,
+      options: { plugins: titulo([`${et(v)}: ${series.map((s) => s.nombre).join(', ')}`, `${SEXO_NOMBRE[sexo]} · línea continua observado, punteada pronóstico`]) },
     };
   }
   return null;

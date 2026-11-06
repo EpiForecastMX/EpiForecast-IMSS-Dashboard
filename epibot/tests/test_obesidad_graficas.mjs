@@ -21,7 +21,8 @@ globalThis.fetch = async (u) => ({
 const kb = await import('../js/kb.js');
 const { detectEntities } = await import('../js/entities.js');
 // Misma URL que importan kb.js y app.js: un solo módulo.
-const oc = await import('../js/obesidad_charts.js?v=2');
+const oc = await import('../js/obesidad_charts.js?v=3');
+const rc = await import('../js/release_config.js?v=1');
 const d = await kb.loadKnowledge();
 await d.obesidad_pendiente;
 
@@ -29,7 +30,7 @@ await d.obesidad_pendiente;
 const app = readFileSync(process.env.APP_BASE || new URL('../js/app.js', import.meta.url), 'utf8');
 const between = (a, b) => app.slice(app.indexOf(a), app.indexOf(b, app.indexOf(a)));
 const extract = vm.runInNewContext(`(${between('function extractChartData(', '\nfunction ')})`, {
-  getData: () => d, detectEntities, esObesidad: oc.esObesidad, graficaObesidad: oc.graficaObesidad,
+  getData: () => d, detectEntities, esObesidad: oc.esObesidad, graficaObesidad: oc.graficaObesidad, ...rc,
   graficoRondas: () => null, console,
 });
 
@@ -147,7 +148,7 @@ test('si la pregunta nombra otro padecimiento, Obesidad no la intercepta', async
 test('las sugerencias tras una consulta de Obesidad son de Obesidad', () => {
   const sug = vm.runInNewContext(`(${between('function getSuggestions(', '\n// ---------------------------------------------------------------------------')})`, {
     norm: (t) => t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim(),
-    esObesidad: oc.esObesidad, metricasRetiradas: () => true, getData: () => d, detectEntities,
+    esObesidad: oc.esObesidad, metricasRetiradas: () => true, getData: () => d, detectEntities, ...rc,
   });
   for (const q of ['zoom obesidad', 'mapa de obesidad']) {
     const s = sug(q);
@@ -190,10 +191,10 @@ test('un typo («obesdiad») se corrige a Obesidad y no cae en el zoom legacy', 
 
 test('una consulta que mezcla Obesidad con una enfermedad no modelada no la intercepta Obesidad', async () => {
   kb._resetContext();
-  const r = await kb.answerWithTrace('comparar obesidad con diabetes');
+  const r = await kb.answerWithTrace('comparar obesidad con hipertension');
   assert.equal(r.handler, 'answerPadecimientoNoModelado');
-  assert.match(r.response, /no modela diabetes/);
-  assert.equal(extract(r.response, 'comparar obesidad con diabetes'), null, 'sin gráfica de Obesidad');
+  assert.match(r.response, /no modela hipertension/);
+  assert.equal(extract(r.response, 'comparar obesidad con hipertension'), null, 'sin gráfica de Obesidad');
   kb._resetContext();
 });
 
@@ -238,5 +239,5 @@ test('la ficha dice cuándo se emitió el pronóstico y no lo sitúa en la seman
 });
 
 test('el marcador de Obesidad no se muestra: app.js lo retira antes de pintar y de leer en voz alta', () => {
-  assert.match(app, /replace\(\/<!--OBESIDAD:\.\*\?-->\/g, ''\)/);
+  assert.match(app, /replace\(new RegExp\(MARCADOR_RELEASE\.source, 'g'\), ''\)/);
 });
