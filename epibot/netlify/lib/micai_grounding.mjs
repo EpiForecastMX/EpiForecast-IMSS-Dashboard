@@ -15,6 +15,19 @@ import { MICAI_STATES } from './micai_states_data.mjs';
 
 const norm = s => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
+// The talk is in English, so questions arrive in both languages. The routing below reads Spanish terms: English
+// ones are mapped once, here, so that a word such as «national» cannot silently fall through to the panel answer.
+const EN_TERMS = [
+  [/\bin the (micai )?paper\b/g, 'en el articulo'], [/\bpaper window\b/g, 'ventana del articulo'],
+  [/\b(earlier|previous|prior) cut\b/g, 'corte anterior'], [/\bfirst cut\b/g, 'primer corte'],
+  [/\bcross[- ]validation\b/g, 'validacion cruzada'], [/\bfollow[- ]?up\b/g, 'seguimiento'],
+  [/\bnational\b/g, 'nacional'], [/\bnationwide\b/g, 'nacional'], [/\bwomen\b/g, 'mujeres'], [/\bmen\b/g, 'hombres'],
+  [/\barchived\b/g, 'archivada'], [/\bhistorical\b/g, 'historica'], [/\bforecasts?\b/g, 'pronostico'],
+  [/\bbest\b/g, 'mejor'], [/\bworst\b/g, 'peor'], [/\b(beats?|wins?|won)\b/g, 'gana'], [/\bcompare[ds]?\b/g, 'compara'],
+  [/\bmedian\b/g, 'mediana'], [/\bresults?\b/g, 'resultado'], [/\bperformance\b/g, 'desempeno'],
+];
+export const normQuery = s => EN_TERMS.reduce((q, [re, es]) => q.replace(re, es), norm(s));
+
 // ---- documents -----------------------------------------------------------------------------------
 const OTHER_DOCS = [
   { re: /\bwcp\b|congreso mundial|world congress/, label: 'el póster WCP 2026', page: 'epiforecast.mx/wcp2026.html', key: 'wcp' },
@@ -115,7 +128,7 @@ const RESULTS = /pronostic|seguimiento|ingenuo|naive|smape|error|asignacion|mode
 
 // ---- card intents (aggregate questions) -----------------------------------------------------------
 export function micaiIntent(query, history = []) {
-  const q = norm(query);
+  const q = normQuery(query);
   if (!q || q.length > 600) return null;
   if (activeDoc(query, history) !== 'micai' && !DISTINCTIVE(q)) return null;
   if (QUOTES.test(q) || /preprint/.test(q)) return null;
@@ -157,7 +170,7 @@ const isFollowUp = q => /^[¿\s]*y\b/.test(q) && q.length < 120;
 /** The fields of the current question; a follow-up («¿Y en Puebla?») inherits the previous user question's
  * fields and changes only those it names (DICTAMEN_PR26 P26-02). */
 function fieldsOf(text) {
-  const q = norm(text);
+  const q = normQuery(text);
   return { est: estimatorsOf(q), wins: windowsOf(q), strata: explicitStrata(q), metric: metricOf(q),
     geos: resolveStates(text), national: NATIONAL.test(q) };
 }
@@ -177,16 +190,16 @@ function overlay(base, own) {
  * the user's previous turns: from the latest non-follow-up question among the last four, each follow-up changes
  * only the fields it names (DICTAMEN_PR26 P26-02, DICTAMEN_PR27 C1-01). */
 export function resolveFields(query, history = []) {
-  const q = norm(query);
+  const q = normQuery(query);
   const own = fieldsOf(query);
   if (!isFollowUp(q)) return { ...own, followUp: false };
   const users = (history || []).filter(h => h && h.role === 'user').slice(-4).map(h => h.text || '');
   let start = -1;
-  for (let k = users.length - 1; k >= 0; k--) if (!isFollowUp(norm(users[k]))) { start = k; break; }
+  for (let k = users.length - 1; k >= 0; k--) if (!isFollowUp(normQuery(users[k]))) { start = k; break; }
   if (start < 0) return { ...own, followUp: false };
   let acc = fieldsOf(users[start]);
   for (const u of users.slice(start + 1)) acc = overlay(acc, fieldsOf(u));
-  return { ...overlay(acc, own), followUp: true, prevResults: RESULTS.test(norm(users[start])) };
+  return { ...overlay(acc, own), followUp: true, prevResults: RESULTS.test(normQuery(users[start])) };
 }
 
 // ---- computed answers from the sealed metrics ------------------------------------------------------
@@ -270,7 +283,7 @@ const UNSUPPORTED_METRIC = 'Estas respuestas por objetivo solo tienen sMAPE y MA
   'o la desviación acumulada con esas cifras, ni sustituirlas por otra métrica.';
 
 export function micaiGroundedAnswer(query, history, index) {
-  const q = norm(query);
+  const q = normQuery(query);
   if (!q || q.length > 600) return null;
   const chunks = index?.chunks || [];
   const doc = activeDoc(query, history);

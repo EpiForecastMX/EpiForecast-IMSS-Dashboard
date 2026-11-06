@@ -41,7 +41,7 @@ test('the final committed-index candidate covers the new corpus with valid embed
  assert.equal(idx.count,chunks.length);
 });
 
-import {micaiIntent,micaiGroundedAnswer} from '../netlify/lib/micai_grounding.mjs';
+import {micaiIntent,micaiGroundedAnswer,normQuery} from '../netlify/lib/micai_grounding.mjs';
 test('bounded MICAI facts preserve numerical direction without generative paraphrase',()=>{
  const index=readIndex(resolve(KB_DIR,'rag_index.json'));
  const r=micaiGroundedAnswer('¿Cómo queda la asignación archivada frente al ingenuo en el seguimiento MICAI?',[],index);
@@ -261,4 +261,25 @@ test('C1.2: S19–S41 is the current follow-up; S19–S39 and S19–S34 are earl
   const r=micaiGroundedAnswer(q,[],IDX());assert.equal(r.model,'abstention');assert.match(r.answer,/S19–S41 \(seguimiento\)/);}
  const nat=micaiGroundedAnswer('MICAI: ¿Ensemble frente al ingenuo nacional en el corte anterior del seguimiento?',[],IDX());
  assert.equal(nat.retrieval,'micai-state-metrics');assert.match(nat.answer,/Corte anterior del seguimiento, ediciones S19–S39[^\n]*general, Ensemble 5\.6 % frente a ingenuo 6\.4 %/);
+});
+
+// La ponencia es en inglés: «national» no puede caer en la respuesta del panel de 99 objetivos.
+const pregunta=q=>micaiGroundedAnswer(q,[],IDX());
+test('English questions keep geography, window and stratum',()=>{
+ const nacional=pregunta('In the MICAI paper, what is the national follow-up sMAPE of Ensemble versus the naive?');
+ assert.equal(nacional.retrieval,'curated-micai');
+ assert.match(nacional.answer,/5\.56 %/);
+ assert.match(nacional.answer,/6\.30 %/);
+ assert.doesNotMatch(nacional.answer,/99 objetivos/);
+ assert.match(pregunta('MICAI national sMAPE of Ensemble in the earlier cut').answer,/S19–S39/);
+ const puebla=pregunta('MICAI follow-up sMAPE for women in Puebla, Ensemble versus naive').answer;
+ assert.match(puebla,/Puebla/);
+ assert.match(puebla,/mujeres/);
+ assert.doesNotMatch(puebla,/hombres/);
+});
+
+test('the English terms leave Spanish questions untouched',()=>{
+ for(const q of ['micai: seguimiento nacional de ensemble frente al ingenuo',
+  'mujeres y hombres en puebla, s19–s41, prophet frente a deepar','¿y en el articulo? mediana del mejor motor'])
+  assert.equal(normQuery(q),q);
 });
