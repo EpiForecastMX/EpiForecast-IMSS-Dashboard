@@ -10,12 +10,12 @@
  * follow-ups («¿y hombres?») y en consultas corregidas por typo, donde la consulta cruda ya no
  * nombra a Obesidad.
  */
-import { mencionaNoModelada } from './entities.js?v=37';
+import { mencionaNoModelada } from './entities.js?v=38';
 import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
-} from './obesidad_charts.js?v=5';
-import { releaseConAlias, releaseDePad } from './release_config.js?v=3';
+} from './obesidad_charts.js?v=6';
+import { releaseConAlias, releaseDePad } from './release_config.js?v=4';
 
 const any = (q, ks) => ks.some((k) => q.includes(k));
 const semana = ([a, w]) => `${a}-W${String(w).padStart(2, '0')}`;
@@ -44,6 +44,7 @@ function ficha(v, x, encabezado, r) {
   if (!x.oos.semanas) return [...inicio, enCurso(v)];
   return [
     ...inicio,
+    ...(v.caida_al_control ? [avisoControl(v), ''] : []),
     `**Cómo le ha ido fuera de muestra** (${x.oos.semanas} semanas observadas, hasta ${semana(v.observation_cutoff)}):`,
     `- sMAPE: **${num1(x.oos.smape)} %**`,
     `- Error medio absoluto: ${ent0(x.oos.mae)} casos por semana`,
@@ -51,8 +52,17 @@ function ficha(v, x, encabezado, r) {
   ];
 }
 
+/**
+ * Lo publicado es el control porque el gate rechazó el portafolio. Las cifras salen de la vista,
+ * que las toma del veredicto sellado; decirlo como validación sería falso.
+ */
+function avisoControl(v) {
+  const nac = v.caida_al_control.comprobaciones.find((c) => c.ambito === 'smape_nacional_general');
+  return `**Es el control estacional:** cada semana repite los casos de la misma semana del año anterior. El portafolio seleccionado se rechazó en 2025 porque empeoraba el total nacional (sMAPE ${num1(nac.portafolio)} frente a ${num1(nac.control)} del control), así que no hay una validación prospectiva que superar: sólo se registrará su error con cada boletín.`;
+}
+
 /** Estado de una validación sin semanas observadas: se dice, no se rellena con cifras. */
-const enCurso = (v) => `**Validación prospectiva en curso** (${v.weeks_available} de ${v.weeks_required} semanas): todavía no hay semanas observadas después del origen, así que aún no se publica su desempeño fuera de muestra.`;
+const enCurso = (v) => (v.caida_al_control ? avisoControl(v) : `**Validación prospectiva en curso** (${v.weeks_available} de ${v.weeks_required} semanas): todavía no hay semanas observadas después del origen, así que aún no se publica su desempeño fuera de muestra.`);
 
 /** Desempeño de una fila, o lo que hay mientras no exista ninguna semana observada. */
 const desempeno = (x, v) => (x.oos.semanas
@@ -117,7 +127,8 @@ function answerRelease(q, ent, s, d, r) {
   const pideError = any(q, ['error', 'smape', 'precision', 'sesgo', 'desempeno']);
 
   if (tipo in NO_DISPONIBLE) {
-    return `${noDisponible(tipo, r.nombre)}\n\nPara ${r.etiqueta} sí puedes pedir ${alternativas(r, conOos)}.` + pie + marca(tipo, ent, null, r);
+    const texto = tipo === 'metricas' && v.caida_al_control ? avisoControl(v) : noDisponible(tipo, r.nombre);
+    return `${texto}\n\nPara ${r.etiqueta} sí puedes pedir ${alternativas(r, conOos)}.` + pie + marca(tipo, ent, null, r);
   }
 
   if (!conOos && (['ranking', 'calibracion', 'volumen_error'].includes(tipo) || (tipo === 'mapa' && pideError))) {
@@ -170,7 +181,7 @@ function answerRelease(q, ent, s, d, r) {
     return fin([`**${r.etiqueta}: motores del release** \`${v.release_id}\``, '',
       `Se modelan **${v.models} series** (32 estados × hombres y mujeres); los otros ${v.products - v.models} de los ${v.products} productos (totales estatales, regionales y nacional) se obtienen sumándolas.`, '',
       ...cuenta.map(([m, n]) => `- ${OBESIDAD_MOTOR[m] || m}: **${n}** series`), '',
-      'El motor de cada serie se eligió con validación cruzada temporal en pliegues de 2021 a 2024, en los que el modelo nunca ve el periodo que pronostica.',
+      v.caida_al_control ? avisoControl(v) : 'El motor de cada serie se eligió con validación cruzada temporal en pliegues de 2021 a 2024, en los que el modelo nunca ve el periodo que pronostica.',
       `Pregunta por un estado y un sexo («motor de ${r.consulta} en Jalisco mujeres») para ver el de esa serie.`, '', etiqueta]);
   }
 

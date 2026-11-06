@@ -6,20 +6,20 @@
   <title>EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes</title>
 
   <!-- SEO -->
-  <meta name="description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad y Diabetes tipo I y II en las 32 entidades de México, con un horizonte de 52 semanas." />
+  <meta name="description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad, Anorexia, bulimia y otros trastornos alimentarios, y Diabetes tipo I y II en las 32 entidades de México, con un horizonte de 52 semanas." />
   <link rel="canonical" href="https://epiforecast.mx/" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://epiforecast.mx/" />
   <meta property="og:title" content="EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes" />
-  <meta property="og:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad y Diabetes tipo I y II en las 32 entidades de México, con un horizonte de 52 semanas." />
+  <meta property="og:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad, Anorexia, bulimia y otros trastornos alimentarios, y Diabetes tipo I y II en las 32 entidades de México, con un horizonte de 52 semanas." />
   <meta property="og:image" content="https://epiforecast.mx/og-image.png" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes" />
-  <meta name="twitter:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad y Diabetes tipo I y II en las 32 entidades de México, con un horizonte de 52 semanas." />
+  <meta name="twitter:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad, Anorexia, bulimia y otros trastornos alimentarios, y Diabetes tipo I y II en las 32 entidades de México, con un horizonte de 52 semanas." />
   <meta name="twitter:image" content="https://epiforecast.mx/og-image.png" />
 
   <!-- Iconos y tema -->
@@ -841,6 +841,13 @@
     .disease-card--obe .disease-icon svg { color: #F59E0B; }
     .disease-card--obe h3 { color: #FB923C; }
     .disease-card--obe .disease-tag { background: rgba(217,119,6,0.16); color: #FDBA74; }
+
+    /* Anorexia, bulimia y otros trastornos alimentarios (F50) */
+    .disease-card--f50::before { background: #A78BFA; }
+    .disease-card--f50 .disease-icon { background: rgba(167,139,250,0.16); }
+    .disease-card--f50 .disease-icon svg { color: #A78BFA; }
+    .disease-card--f50 h3 { color: #C4B5FD; }
+    .disease-card--f50 .disease-tag { background: rgba(167,139,250,0.16); color: #DDD6FE; }
 
     /* Diabetes tipo I y II */
     .disease-card--dt1::before { background: #22D3EE; }
@@ -1705,6 +1712,7 @@
     .news-tag--wcp        { background: rgba(244,114,182,0.16); color: var(--burgundy); }
     .news-tag--obesidad   { background: rgba(217,119,6,0.18);   color: #FDBA74; }
     .news-tag--diabetes   { background: rgba(244,114,182,0.16); color: #FBCFE8; }
+    .news-tag--f50        { background: rgba(167,139,250,0.16); color: #DDD6FE; }
     .news-card h3 {
       font-family: var(--font-display);
       font-size: 1.2rem;
@@ -2788,7 +2796,7 @@
       .edl-dateline { font-size: 0.6rem; letter-spacing: 0.1em; }
     }
   </style>
-<script src="epibot/js/release_catalog.js?v=2"></script>
+<script src="epibot/js/release_catalog.js?v=3"></script>
 </head>
 <body>
 <!-- build: dengue-methodology-card r1 -->
@@ -2812,6 +2820,7 @@
             <a href="novedades.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/></svg>Novedades</a>
             <a href="dengue.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>Dengue</a>
             <a href="obesidad.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Obesidad</a>
+            <a href="anorexia_f50.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Anorexia, bulimia y otros trastornos alimentarios</a>
             <a href="diabetes_t1.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Diabetes tipo I</a>
             <a href="diabetes_t2.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Diabetes tipo II</a>
             <a href="epibot/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>EPI Chatbot</a>
@@ -2885,6 +2894,7 @@
           <a href="wcp2026.html" lang="en">WCP 2026 · Interactive poster</a>
           <a href="dengue.html">Dengue</a>
           <a href="obesidad.html">Obesidad</a>
+          <a href="anorexia_f50.html">Anorexia, bulimia y otros trastornos alimentarios</a>
           <a href="diabetes_t1.html">Diabetes tipo I</a>
           <a href="diabetes_t2.html">Diabetes tipo II</a>
           <a href="epibot/index.html">EPI Chatbot</a>
@@ -2933,7 +2943,7 @@
     <div class="edl-wrap edl-article-col">
       <div class="edl-dateline">Pronóstico epidemiológico de México <span>&middot;</span> Edición de la semana 42, 2026</div>
       <h1 class="edl-headline">Anticipar la enfermedad,<br><em>semana a semana</em></h1>
-      <p class="edl-deck">EpiForecast-MX pronostica las notificaciones semanales de siete padecimientos a 52 semanas. La ronda con corte W37 sostiene 432 series productivas: asigna cuatro motores a las series neuropsiquiátricas y DeepAR o Prophet a las de Dengue. La <a href="obesidad.html">obesidad</a> y la diabetes <a href="diabetes_t1.html">tipo I</a> y <a href="diabetes_t2.html">tipo II</a> publican 111 series cada una desde pronósticos congelados que se comparan cada semana con lo observado.</p>
+      <p class="edl-deck">EpiForecast-MX pronostica las notificaciones semanales de ocho padecimientos a 52 semanas. La ronda con corte W37 sostiene 432 series productivas: asigna cuatro motores a las series neuropsiquiátricas y DeepAR o Prophet a las de Dengue. La <a href="obesidad.html">obesidad</a> y la diabetes <a href="diabetes_t1.html">tipo I</a> y <a href="diabetes_t2.html">tipo II</a> publican 111 series cada una desde pronósticos congelados que se comparan cada semana con lo observado. <a href="anorexia_f50.html">Anorexia, bulimia y otros trastornos alimentarios</a> publican el control estacional, porque su portafolio no superó la prueba de 2025.</p>
       <div class="edl-byline">Una colaboración del Tecnológico de Monterrey con el Instituto Mexicano del Seguro Social. Datos actualizados cada semana desde el Boletín Epidemiológico del SINAVE.</div>
       <div class="edl-ctas">
         <a href="EpiDashboard.html" class="edl-primary">Abrir el tablero <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
@@ -3029,21 +3039,21 @@
         <div class="news-banner-row" id="newsBannerRow">
           <a href="novedades.html" class="news-lead">
             <div class="news-lead-meta">
-              <span class="news-date">5 de noviembre de 2026</span>
-              <span class="news-tag news-tag--diabetes">Nuevo padecimiento</span>
+              <span class="news-date">6 de noviembre de 2026</span>
+              <span class="news-tag news-tag--f50">Nuevo padecimiento</span>
             </div>
-            <div class="news-lead-title">La diabetes tipo I y tipo II se incorporan al pronóstico</div>
-            <div class="news-lead-sub">Pronóstico semanal a 52 semanas para el país, 4 regiones y las 32 entidades, por sexo. Su validación prospectiva está en curso.</div>
+            <div class="news-lead-title">Anorexia, bulimia y otros trastornos alimentarios se incorporan con el control estacional</div>
+            <div class="news-lead-sub">Pronóstico semanal a 52 semanas para el país, 4 regiones y las 32 entidades, por sexo. Repite la misma semana del año anterior, porque el portafolio no superó la prueba de 2025.</div>
           </a>
           <div class="news-mini-list">
             <a href="novedades.html" class="news-mini">
-              <span class="news-tag news-tag--obesidad">Nuevo padecimiento</span>
-              <span class="news-mini-title">La obesidad se incorpora como quinto padecimiento</span>
-              <span class="news-mini-date">4 de noviembre de 2026</span>
+              <span class="news-tag news-tag--diabetes">Nuevo padecimiento</span>
+              <span class="news-mini-title">La diabetes tipo I y tipo II se incorporan al pronóstico</span>
+              <span class="news-mini-date">5 de noviembre de 2026</span>
             </a>
             <a href="novedades.html" class="news-mini">
-              <span class="news-tag news-tag--datos">Datos</span>
-              <span class="news-mini-title">Ya contamos con la semana epidemiológica 42 de 2026</span>
+              <span class="news-tag news-tag--obesidad">Nuevo padecimiento</span>
+              <span class="news-mini-title">La obesidad se incorpora como quinto padecimiento</span>
               <span class="news-mini-date">4 de noviembre de 2026</span>
             </a>
           </div>
@@ -3083,6 +3093,11 @@
         <a href="diabetes_t2.html" class="edl-index-item">
           <span class="edl-idx-num">05</span>
           <span class="edl-idx-body"><span class="edl-idx-title">Diabetes tipo I y II</span><span class="edl-idx-desc">Nuevos padecimientos: pronóstico semanal a 52 semanas para las 32 entidades, por sexo. Validación prospectiva en curso; pronóstico puntual, sin intervalos.</span></span>
+          <span class="edl-idx-go"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></span>
+        </a>
+        <a href="anorexia_f50.html" class="edl-index-item">
+          <span class="edl-idx-num">06</span>
+          <span class="edl-idx-body"><span class="edl-idx-title">Anorexia, bulimia y otros trastornos alimentarios (F50)</span><span class="edl-idx-desc">Nuevo padecimiento: control estacional a 52 semanas para las 32 entidades, por sexo, porque su portafolio no superó la prueba de 2025. Pronóstico puntual, sin intervalos.</span></span>
           <span class="edl-idx-go"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></span>
         </a>
       </div>
@@ -3125,9 +3140,9 @@
        ═══════════════════════════════════════════════════════════════ -->
   <section class="section diseases" id="diseases">
     <div class="section-label reveal">Padecimientos Objetivo</div>
-    <h2 class="section-title reveal">Siete padecimientos, un pipeline<br>de pronóstico unificado</h2>
+    <h2 class="section-title reveal">Ocho padecimientos, un pipeline<br>de pronóstico unificado</h2>
     <div class="section-desc reveal">
-      Tres condiciones neuropsiquiátricas de alta carga en el sistema de salud mexicano, el Dengue (la primera arbovirosis del proyecto), la Obesidad y la Diabetes tipo I y II, con pronósticos desagregados por entidad y sexo.
+      Tres condiciones neuropsiquiátricas de alta carga en el sistema de salud mexicano, el Dengue (la primera arbovirosis del proyecto), la Obesidad, la anorexia, bulimia y otros trastornos alimentarios, y la Diabetes tipo I y II, con pronósticos desagregados por entidad y sexo.
     </div>
 
     <div class="disease-grid">
@@ -3179,6 +3194,16 @@
         <h3>Obesidad</h3>
         <p>Quinto padecimiento y el primero que recorre el flujo genérico de entrenamiento, validación prospectiva y publicación. Se modelan 64 series de estado y sexo con seis motores, elegidos por validación cruzada temporal en pliegues de 2021 a 2024; los totales estatales, regionales y nacional se obtienen sumándolas. El pronóstico usa datos hasta la semana 26 de 2026, se emitió el 24 de julio y cada boletín nuevo se compara con él.</p>
         <span class="disease-tag">CIE-10: E66 · 64 modelos · 111 series publicadas · pronóstico puntual</span>
+      </a>
+
+      <!-- Anorexia, bulimia y otros trastornos alimentarios (publicada con el control: el gate de 2025 rechazó el portafolio) -->
+      <a class="disease-card disease-card--f50 reveal reveal-delay-3" href="anorexia_f50.html">
+        <div class="disease-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>
+        </div>
+        <h3>Anorexia, bulimia y otros trastornos alimentarios</h3>
+        <p>Anorexia, bulimia y otros trastornos alimentarios, con unos 100 casos semanales en todo el país. Su portafolio de motores no superó la prueba de 2025, así que se publica el control estacional, que repite la misma semana del año anterior. Usa datos hasta la semana 41 de 2026 y se emitió el 6 de noviembre.</p>
+        <span class="disease-tag">CIE-10: F50 · control estacional · 111 series publicadas · pronóstico puntual</span>
       </a>
 
       <!-- Diabetes tipo I (publicada desde su release congelado, validación prospectiva en curso) -->
@@ -3327,6 +3352,7 @@
       <a href="novedades.html">Novedades</a>
       <a href="dengue.html">Dengue</a>
       <a href="obesidad.html">Obesidad</a>
+      <a href="anorexia_f50.html">Anorexia, bulimia y otros trastornos alimentarios</a>
       <a href="diabetes_t1.html">Diabetes tipo I</a>
       <a href="diabetes_t2.html">Diabetes tipo II</a>
       <a href="EpiDashboard.html">Dashboard</a>

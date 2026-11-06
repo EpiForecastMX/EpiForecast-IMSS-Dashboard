@@ -274,8 +274,7 @@ const NO_MODELADAS = [
   'leucemia', 'linfoma', 'tumor', 'neoplasia', 'cardiop', 'infarto',
   'embolia', 'neumonia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
   'lupus', 'fibromialgia', 'esclerosis', 'huntington', 'ela ',
-  'insuficiencia renal', 'insuficiencia cardiaca', 'anorexia', 'bulimia', 'trastornos alimentarios',
-  'trastorno alimentario', 'eating disorder',
+  'insuficiencia renal', 'insuficiencia cardiaca',
   // En inglés: sin esto, «asthma in jalisco» caería en la tabla neuro del estado.
   'gestational diabetes', 'diabetes gestational', 'diabetes insipidus', 'prediabetic', 'hypertension',
   'asthma', 'epilepsy', 'schizophrenia', 'anxiety', 'tuberculosis', 'hiv', 'aids', 'measles',

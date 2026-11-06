@@ -522,6 +522,14 @@ function vistaChunks(root, r) {
     `${v.nombre_completo || v.display_name}: pronóstico congelado con datos hasta ${semana(v.origin)}${emitido} ` +
     `(${v.horizon_weeks} semanas, sin reentrenar${nac.oos.semanas ? '; las semanas evaluadas se registraron después de la emisión' : ''}). ` +
     `${v.publication_label}. Lo observado llega hasta la semana epidemiológica ${semana(v.observation_cutoff)}.`;
+  // Lo publicado es el control: ni se valida contra sí mismo ni salió de la selección.
+  const nacControl = v.caida_al_control?.comprobaciones.find((c) => c.ambito === 'smape_nacional_general');
+  const control = nacControl
+    ? `Es el control estacional: repite la misma semana del año anterior. El gate de aceptación de 2025 ` +
+      `rechazó el portafolio seleccionado porque empeoraba el nacional (sMAPE ${fmt(nacControl.portafolio)} ` +
+      `frente a ${fmt(nacControl.control)} del control). No debe presentarse como validado ni como aceptado; ` +
+      `no tiene validación prospectiva que superar. `
+    : '';
   const chunks = [{
     ...base,
     id: `release:${r.disease_id}:${r.release_id}:nacional`,
@@ -532,7 +540,7 @@ function vistaChunks(root, r) {
         ? `en ${nac.oos.semanas} semanas ya observadas tras el origen, sMAPE ${fmt(nac.oos.smape)} %, ` +
           `MAE ${fmt(nac.oos.mae, 0)} casos por semana y sesgo ${fmt(nac.oos.sesgo_pct)} % (observados ` +
           `${fmt(nac.oos.observado_total, 0)} frente a ${fmt(nac.oos.pronostico_total, 0)} pronosticados). `
-        : `la validación prospectiva está en curso (${v.weeks_available} de ${v.weeks_required} semanas): aún no hay semanas observadas tras el origen y no existe desempeño fuera de muestra. `) +
+        : control || `la validación prospectiva está en curso (${v.weeks_available} de ${v.weeks_required} semanas): aún no hay semanas observadas tras el origen y no existe desempeño fuera de muestra. `) +
       `Total pronosticado para las 52 semanas: ` +
       `${fmt(nac.pronostico_52_total, 0)} casos. ${v.models} modelos (uno por estado y sexo) y ` +
       `${v.products} productos derivados por suma. ${v.uncertainty_label}.`,
@@ -568,7 +576,9 @@ function vistaChunks(root, r) {
     ...base,
     id: `release:${r.disease_id}:${r.release_id}:motores`,
     title: `${v.display_name} — motores del portafolio`,
-    text: `${encabezado}\n\nMotores seleccionados por validación cruzada temporal (rolling-origin, pliegues de 2021 a 2024): ${motores.join('; ')}.`,
+    text: nacControl
+      ? `${encabezado}\n\n${control}Motor publicado: ${motores.join('; ')}.`
+      : `${encabezado}\n\nMotores seleccionados por validación cruzada temporal (rolling-origin, pliegues de 2021 a 2024): ${motores.join('; ')}.`,
   });
   return chunks;
 }

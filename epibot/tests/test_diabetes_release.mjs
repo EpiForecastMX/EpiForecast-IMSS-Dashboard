@@ -10,7 +10,7 @@ import { readFileSync } from 'node:fs';
 
 const leer = (r) => readFileSync(new URL(`../../${r}`, import.meta.url), 'utf-8');
 const K = readFileSync(new URL('../knowledge.json', import.meta.url), 'utf-8');
-const VISTAS = ['obesidad', 'diabetes_t1', 'diabetes_t2'];
+const VISTAS = ['obesidad', 'anorexia_f50', 'diabetes_t1', 'diabetes_t2'];
 globalThis.fetch = async (u) => ({
   ok: true,
   json: async () => {
@@ -57,7 +57,7 @@ test('gestacional, insípida y prediabetes siguen sin modelarse', async () => {
   const r = await conversa('casos de diabetes gestacional en jalisco');
   assert.equal(r.handler, 'answerPadecimientoNoModelado');
   assert.match(r.md, /no modela/);
-  assert.match(r.md, /siete padecimientos/);
+  assert.match(r.md, /ocho padecimientos/);
 });
 
 test('«diabetes» a secas avisa que se toma como tipo II', async () => {
@@ -144,8 +144,7 @@ test('la galería crea una instancia por release y no mezcla sus canvas', () => 
 });
 
 test('la noticia dice que la validación está en curso y no da métricas', () => {
-  const nota = JSON.parse(leer('news.json')).items[0];
-  assert.equal(nota.type, 'diabetes');
+  const nota = JSON.parse(leer('news.json')).items.find((it) => it.type === 'diabetes');
   assert.match(nota.summary, /validación prospectiva está en curso/);
   assert.doesNotMatch(JSON.stringify(nota), /sMAPE|MASE|superó/);
 });
@@ -204,10 +203,43 @@ test('las semanas sin observación no se presentan como futuras', async () => {
   assert.match(r.md, /aún sin observación publicada/);
 });
 
-test('F50 no publicada no cae en la tabla neuro del estado', async () => {
+test('F50 responde su release, nunca la tabla neuro del estado', async () => {
   for (const q of ['anorexia en jalisco', 'bulimia en sonora', 'trastornos alimentarios en jalisco']) {
     const r = await conversa(q);
-    assert.equal(r.handler, 'answerPadecimientoNoModelado', q);
-    assert.match(r.md, /no modela/, q);
+    assert.equal(r.handler, 'answerObesidad', q);
+    assert.match(r.md, /Anorexia, bulimia y otros trastornos alimentarios \(F50\)/, q);
+    assert.match(r.md, /ANOREXIA_F50/, q);
   }
 });
+
+test('F50 se declara como control, nunca como validación en curso', async () => {
+  for (const q of ['pronostico de anorexia', 'anorexia en jalisco mujeres', 'motores de anorexia']) {
+    const r = await conversa(q);
+    assert.match(r.md, /control estacional/i, q);
+    assert.doesNotMatch(r.md, /Validación prospectiva en curso/, q);
+    assert.doesNotMatch(r.md, /validación cruzada temporal/, q);
+  }
+  const r = await conversa('pronostico de anorexia');
+  assert.match(r.md, /40\.5/);
+  assert.match(r.md, /18\.1/);
+});
+
+test('la noticia de F50 declara el control y no da métricas', () => {
+  const nota = JSON.parse(leer('news.json')).items[0];
+  assert.equal(nota.type, 'f50');
+  assert.equal(nota.link.href, 'anorexia_f50.html');
+  assert.match(nota.summary, /no superó la prueba de 2025/);
+  assert.doesNotMatch(JSON.stringify(nota), /sMAPE|MASE/);
+});
+
+test('el seguimiento conserva F50', async () => {
+  const dos = await conversa('bulimia en jalisco', 'y hombres');
+  assert.match(dos.md, /Anorexia, bulimia y otros trastornos alimentarios \(F50\) · Jalisco · Hombres/);
+});
+
+test('las semanas sin observación no se presentan como futuras', async () => {
+  const r = await conversa('diabetes tipo 2 en jalisco');
+  assert.doesNotMatch(r.md, /Próximas semanas/);
+  assert.match(r.md, /aún sin observación publicada/);
+});
+
