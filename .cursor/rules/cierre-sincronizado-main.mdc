@@ -1,0 +1,22 @@
+---
+description: Cerrar el trabajo de EpiForecast con ambos repositorios integrados y sincronizados en main
+alwaysApply: true
+---
+
+# Cierre obligatorio en main
+
+La orden vigente del autor es no dejar trabajo terminado en ramas.
+Lee primero la sección «Orden vigente del autor: cierre sincronizado en main»
+de AGENTS.md y aplícala a backend y frontend.
+
+- Integra el trabajo autorizado, verifica CI, envíalo a origin/main y actualiza ambos checkouts.
+- Preserva cambios ajenos, commits únicos, stashes, runs y evidencia antes de limpiar.
+- Retira las ramas ya integradas y los worktrees temporales propios después de verificarlos.
+- Comprueba con red HEAD == main == origin/main == refs/heads/main remoto.
+- No cierres con cambios de la tarea sin commit, divergencias o ramas pendientes silenciosas.
+- Sin red o con conflictos sin resolver, informa bloqueo y pendientes; nunca simules cierre.
+- Esta regla no autoriza cambios científicos, reentrenamiento o nuevas publicaciones.
+
+Gate de cierre de solo lectura: ejecutar desde la raíz del workspace
+`python3 planes/auditoria_diabetes_2026-11-06/verifica_sincronizacion.py`.
+Debe devolver 0 para acreditar sincronización; no modifica repositorios ni verifica CI/despliegue.

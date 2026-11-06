@@ -1,4 +1,104 @@
+## Orden vigente del autor: cierre sincronizado en main (5-nov-2026)
+
+El autor ordenó: «no dejar nada en ramas, todo siempre sincronizado». Aplica a
+EpiForecast-MX y EpiForecast-IMSS-Dashboard y prevalece sobre recetas históricas
+que terminaban dejando el checkout en una rama de trabajo.
+
+- Las ramas y worktrees de desarrollo son temporales. El trabajo terminado debe
+  quedar integrado en `main` y enviado a `origin/main`; ambos checkouts principales
+  deben terminar en `main`, sin cambios pendientes de la tarea y sin divergencia.
+- Antes de integrar, inventariar ramas, worktrees, stashes y cambios locales.
+  Respaldar y verificar por hash los cambios ajenos; resolver los conflictos sin
+  descartarlos. Nunca usar `reset --hard`, `clean`, force-push ni borrar trabajo
+  único para aparentar sincronización. Un stash o una etiqueta de respaldo no
+  equivalen a integración ni a cierre.
+- Tras integrar y verificar CI, retirar las ramas locales y remotas ya contenidas
+  en `main` y los worktrees temporales propios; conservar antes sus runs y evidencia.
+  Las ramas con commits únicos requieren revisión e integración; no se borran ni
+  se fusionan a ciegas. No abandonar silenciosamente cambios ajenos pendientes.
+- Verificar con red `fetch --prune`, `HEAD == main == origin/main`, el SHA real de
+  `refs/heads/main` en origin, estado del árbol, ramas restantes y CI del SHA final.
+  Comprobar backend y frontend como un par; el despliegue público requiere además
+  comprobar la versión servida. No confundir una referencia remota local con red.
+- Si falta red, acceso o una decisión sobre cambios ajenos, el cierre queda
+  bloqueado con el motivo y los pendientes exactos. No afirmar «todo sincronizado»
+  ni «cerrado» por tener una PR fusionada o por conservar una copia en /tmp.
+- La sincronización no autoriza reentrenar, reabrir 2025, cambiar criterios de
+  aceptación, publicar otro padecimiento ni modificar artefactos sellados.
+
 # Instrucciones para Claude Code
+
+## Salida de sesión WCP — estado único vigente — 9-sep-2026
+
+**Trabajo operativo cerrado por ratificación expresa del autor.** Póster inglés
+cargado al WCP y web publicada. No repetir carga, rediseño o petición de ratificación.
+Par EN ec5ebd80… / ES 8a0a9018… intacto; frontend f02d2d16656ca1365d2b0a351109fb3be396457e.
+35 criterios registrados por hash; 46+52 controles y 22 de exportación correctos.
+Sello 110 piezas; manifiesto documental 103. EN 24/24, ES 23/24+C03 aceptada.
+Salida final: las nueve dependencias recuperadas ya están en RATIFICATION_FILES
+del exportador y son obligatorias también al verificar. No reponerlas sólo a mano
+ni regenerar desde el carril antiguo de 94 piezas. Evidencia exacta en
+`poster/auditorias/ratificacion_2026-09-09/INVENTARIO_RECUPERADO.json` dentro de Mundial.
+Índice de salida desde workspace: `planes/SALIDA_WCP_2026-09-09.md`.
+Gobernante: 13 PASA, 3 EXC, 13 N/A y 4 FALLA por formularios nominales sin
+respuestas/firmas; no confundir la ratificación global del autor con jueces
+independientes. EXC y N/A nunca se suman como aprobaciones. No abrir tareas
+automáticas por esa diferencia documental.
+
+Desde la raíz del workspace, leer únicamente para reanudar:
+- `EpiForecast-MX/Congresos/Mundial/ESTADO_ACTUAL_WCP.md`.
+- `planes/PROMPT_REANUDAR_WCP_ENVIADO_2026-09-09.md`.
+- `POSTER_WCP_2026/RATIFICACION_Y_CIERRE_2026-09-09.md`.
+
+Los checkpoints WCP inferiores son históricos, incluso donde dicen «vigente»,
+«sin ratificar», «no registrado», «no publicado» o manifiesto 93/94. No ejecutarlos.
+No cambia la continuidad de Obesidad u otros carriles. Cambios de memoria locales;
+sin commit/push/deploy en esta salida. Preservar árboles sucios y artefactos sellados.
+
+## WCP — cierre ratificado por el autor — 9-sep-2026
+
+Prevalece sobre los checkpoints WCP inferiores. El autor declaró «ya esta todo
+ratificado y validado cierra todo ya pues». Esquema registrado: 35 criterios
+G11/G12/G14/G15, ligados al par por SHA-256 y no por carpeta. No volver a pedir
+ratificación, ejecutar planes históricos, rediseñar ni repetir la carga.
+PDF EN ec5ebd80… / ES 8a0a9018… intactos; WCP cargado y web vigente f02d2d16.
+Sello 97; manifiesto documental 103, con el anterior 94 conservado como antecedente.
+46 controles históricos + 52 del registro correctos. Excepciones G2/G5/G19
+aceptadas y separadas de PASS; C03 ES conserva su excepción. La declaración del
+autor no se transforma en respuestas o firmas nominales de jueces no aportadas.
+No afirmar certificación independiente ni abrir tareas automáticas por esa
+distinción. Cierre: POSTER_WCP_2026/RATIFICACION_Y_CIERRE_2026-09-09.md.
+Estado: EpiForecast-MX/Congresos/Mundial/ESTADO_ACTUAL_WCP.md.
+Sin commit, push, despliegue o actuación en el portal en esta ratificación.
+
+## WCP — carga registrada y web vigente comprobada — 8/9-sep-2026
+
+**Prevalece para la continuidad WCP sobre las secciones históricas inferiores.**
+El autor ya cargó el póster inglés #3134: el portal muestra
+`WCP2026ePoster3134Rebull`, **09.09.2026 03:19**, E-POSTER VIEWING.
+La subida no es pendiente. Capturas conservadas; no se descargó la copia del
+portal ni se afirma aprobación editorial o carga ES.
+
+El sitio del QR ya sirve el par vigente, verificado por descarga pública:
+EN `ec5ebd80…` / ES `8a0a9018…`, inglés inicial,
+`Reports/wcp2026/2026-09-08-8a0a9018/`.
+Frontend HEAD y referencia local origin/main:
+`f2141bbacbcd8b692fedda1199ace3b889a070a0`.
+No listar como pendiente publicar este par. No se hizo push/deploy en este cierre.
+
+Estado autoritativo y hashes completos, rutas desde la raíz del workspace:
+- `EpiForecast-MX/Congresos/Mundial/ESTADO_ACTUAL_WCP.md`.
+- `POSTER_WCP_2026/REGISTRO_SUBIDA_WCP_2026-09-09.md`.
+- Handoff: `planes/PROMPT_REANUDAR_WCP_ENVIADO_2026-09-09.md`.
+
+Preservar la entrega lema_congreso: EN 24/24; ES 23/24 más excepción de densidad
+ligada al hash, no un PASS adicional. Sello 97 piezas; manifiesto 93 piezas.
+Cuatro revisiones humanas y contrato interno 960×540/12 pt siguen sin cerrarse;
+no se dispensan por la carga. No hubo financiamiento; título aceptado intacto,
+siete apellidos con guion. No reabrir diseño ni ejecutar prompts de opciones 7–9.
+La hoja sellada y las versiones históricas se conservan intactas; el nuevo estado
+documenta los eventos posteriores. Ninguna nueva acción externa está autorizada
+por esta actualización de memorias.
 
 ## Git / Commits
 - **NUNCA agregar Co-Authored-By** en los mensajes de commit.
