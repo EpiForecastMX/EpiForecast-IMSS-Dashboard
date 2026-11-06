@@ -4,7 +4,7 @@
  * Port directo de knowledge_base.py: _norm(), _detect_entities(),
  * alias maps para estados, padecimientos, sexo y modelos.
  */
-import { diabetesEnConsulta } from './release_config.js?v=1';
+import { ALIAS_RELEASES, diabetesEnConsulta } from './release_config.js?v=2';
 
 // ---------------------------------------------------------------------------
 // Normalizacion
@@ -125,16 +125,9 @@ const PADECIMIENTO_ALIAS = {
   'dengeu': 'Dengue',
   'arbovirosis': 'Dengue',
   'a97': 'Dengue',
-  // Obesidad (5.o padecimiento, publicada desde su release; C7.7) + variantes / CIE-10 E66.
-  // Los typos de distancia 2 («obesdiad») los corrige fuzzyCorrect contra VOCAB.
-  'obesidad': 'Obesidad',
-  'obesidades': 'Obesidad',
-  'obeso': 'Obesidad',
-  'obesa': 'Obesidad',
-  'obesos': 'Obesidad',
-  'obesas': 'Obesidad',
-  'sobrepeso': 'Obesidad',
-  'e66': 'Obesidad',
+  // Releases del runner: sus alias salen de release_catalog.js. Los typos de distancia 2
+  // («obesdiad») los corrige fuzzyCorrect contra VOCAB.
+  ...ALIAS_RELEASES,
 };
 
 /**

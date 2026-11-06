@@ -2788,6 +2788,7 @@
       .edl-dateline { font-size: 0.6rem; letter-spacing: 0.1em; }
     }
   </style>
+<script src="epibot/js/release_catalog.js?v=1"></script>
 </head>
 <body>
 <!-- build: dengue-methodology-card r1 -->
@@ -3780,11 +3781,9 @@
         });
       }
 
-      var RELEASES_FIGURA = [
-        { id: 'obesidad', label: 'Obesidad', color: '#D97706', cie: 'E66' },
-        { id: 'diabetes_t1', label: 'Diabetes I', color: '#22D3EE', cie: 'E10' },
-        { id: 'diabetes_t2', label: 'Diabetes II', color: '#F472B6', cie: 'E11-E14' }
-      ];
+      var RELEASES_FIGURA = window.EPI_CATALOGO.releases.map(function (r) {
+        return { id: r.id, label: r.nombreCorto, color: r.color, cie: r.cie };
+      });
 
       // Nacional general de un release con la misma forma que hero_series.json: 52 semanas observadas
       // hasta el último boletín y el pronóstico congelado desde su origen (puntual, sin banda).

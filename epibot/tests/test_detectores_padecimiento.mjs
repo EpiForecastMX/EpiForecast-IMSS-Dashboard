@@ -68,7 +68,7 @@ const RAG = readFileSync(
 const ini = RAG.indexOf('function stripAccents(');
 const fin = RAG.indexOf('// Multi-turno');
 const rag = vm.runInNewContext(
-  `${RAG.slice(ini, fin)}\n({ detectEntities, focusedFacts })`, { console });
+  `${readFileSync(new URL('../js/release_catalog.js', import.meta.url), 'utf8')}\n${RAG.slice(ini, fin)}\n({ detectEntities, focusedFacts })`, { console });
 const NEURO = /Depresion|Parkinson|Alzheimer/;
 
 test('rag.mjs reconoce Obesidad y sus alias', () => {

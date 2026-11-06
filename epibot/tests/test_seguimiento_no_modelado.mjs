@@ -26,7 +26,7 @@ await d.obesidad_pendiente;
 const app = readFileSync(new URL('../js/app.js', import.meta.url), 'utf8');
 const between = (a, b) => app.slice(app.indexOf(a), app.indexOf(b, app.indexOf(a)));
 const extract = vm.runInNewContext(`(${between('function extractChartData(', '\nfunction ')})`, {
-  getData: () => d, detectEntities, esObesidad: oc.esObesidad, graficaObesidad: oc.graficaObesidad, ...rc,
+  getData: () => d, detectEntities, releaseConAlias: rc.releaseConAlias, graficaObesidad: oc.graficaObesidad, ...rc,
   graficoRondas: () => null, console,
 });
 

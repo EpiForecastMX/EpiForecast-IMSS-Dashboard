@@ -21,7 +21,7 @@ const RAG = readFileSync(
 const ini = RAG.indexOf('function stripAccents(');
 const fin = RAG.indexOf('// Rate limit + CORS');
 const ctx = vm.runInNewContext(
-  `${RAG.slice(ini, fin)}\n({ structuredSummary,
+  `${readFileSync(new URL('epibot/js/release_catalog.js', raiz), 'utf8')}\n${RAG.slice(ini, fin)}\n({ structuredSummary,
      releasesDesdeCatalogo: typeof releasesDesdeCatalogo === 'function' ? releasesDesdeCatalogo : null })`,
   { console });
 const SYS = RAG.slice(RAG.indexOf('function buildSystem('));

@@ -10,12 +10,12 @@
  * follow-ups («¿y hombres?») y en consultas corregidas por typo, donde la consulta cruda ya no
  * nombra a Obesidad.
  */
-import { mencionaNoModelada } from './entities.js?v=34';
+import { mencionaNoModelada } from './entities.js?v=35';
 import {
-  OBESIDAD_KW, MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
+  MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
-} from './obesidad_charts.js?v=3';
-import { RELEASES, releaseDePad } from './release_config.js?v=1';
+} from './obesidad_charts.js?v=4';
+import { releaseConAlias, releaseDePad } from './release_config.js?v=2';
 
 const any = (q, ks) => ks.some((k) => q.includes(k));
 const semana = ([a, w]) => `${a}-W${String(w).padStart(2, '0')}`;
@@ -63,14 +63,16 @@ const desempeno = (x, v) => (x.oos.semanas
 const marca = (tipo, ent, estados, r) => `\n<!--${r.marca}:${JSON.stringify({ tipo, estado: ent.estado || null, sexo: ent.sexo || null, estados: estados || null })}-->`;
 
 export function answerObesidad(q, ent, s, d) {
-  // Obesidad la nombra la consulta o la trae el contexto (follow-up) o la corrección de typos.
-  if (!any(q, OBESIDAD_KW) && ent.padecimiento !== 'Obesidad') return null;
-  return answerRelease(q, ent, s, d, RELEASES[0]);
+  // El release con alias lo nombra la consulta o lo trae el contexto (follow-up) o la corrección
+  // de typos. El nombre del handler se conserva porque lo fijan los casos de prueba.
+  const delContexto = releaseDePad(ent.padecimiento);
+  const r = releaseConAlias(q) || (delContexto?.alias.length ? delContexto : null);
+  return r ? answerRelease(q, ent, s, d, r) : null;
 }
 
 export function answerDiabetes(q, ent, s, d) {
   const r = releaseDePad(ent.padecimiento);
-  if (!r || r.id === 'obesidad') return null;
+  if (!r || r.alias.length) return null;
   const respuesta = answerRelease(q, ent, s, d, r);
   if (!respuesta || !ent._diabetesGenerica) return respuesta;
   return `Tomo «diabetes» como **${r.etiqueta}**, que concentra la gran mayoría de los casos notificados. Para tipo 1, pregunta por «diabetes tipo 1».\n\n${respuesta}`;

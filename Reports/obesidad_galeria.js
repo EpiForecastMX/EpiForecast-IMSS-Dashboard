@@ -11,7 +11,8 @@
  * no las publica; el desempeño está en la página de cada release) y sin intervalos.
  * Las gráficas se crean sólo cuando la tarjeta es visible.
  *
- * window.GaleriasRelease es la lista de instancias; window.ObesidadGaleria, la de Obesidad.
+ * window.GaleriasRelease es la lista de instancias, una por cada release de release_catalog.js;
+ * window.ObesidadGaleria, la de Obesidad.
  * API de cada instancia (además de `id`, `pad`, `nombre` y `color`):
  *   cargar()                 -> Promise de la vista; al cargar, dispara el evento 'obesidad-galeria'
  *   seleccion({pad,sexo,q})  -> series visibles con esos filtros ([] mientras no carga)
@@ -142,10 +143,6 @@
   return { id, pad, nombre, color, cargar, seleccion, tarjeta, estadoGaleria, meta, pinta, _ventana: ventana, _usa: (v) => { V = v; } };
   }
 
-  window.GaleriasRelease = [
-    crea({ id: 'obesidad', pad: 'Obesidad', nombre: 'Obesidad', color: '#D97706', pagina: 'obesidad.html' }),
-    crea({ id: 'diabetes_t1', pad: 'Diabetes tipo I', nombre: 'Diabetes tipo I', color: '#22D3EE', pagina: 'diabetes_t1.html' }),
-    crea({ id: 'diabetes_t2', pad: 'Diabetes tipo II', nombre: 'Diabetes tipo II', color: '#F472B6', pagina: 'diabetes_t2.html' }),
-  ];
+  window.GaleriasRelease = globalThis.EPI_CATALOGO.releases.map(crea);
   window.ObesidadGaleria = window.GaleriasRelease[0];
 })();
