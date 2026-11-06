@@ -203,3 +203,11 @@ test('las semanas sin observación no se presentan como futuras', async () => {
   assert.doesNotMatch(r.md, /Próximas semanas/);
   assert.match(r.md, /aún sin observación publicada/);
 });
+
+test('F50 no publicada no cae en la tabla neuro del estado', async () => {
+  for (const q of ['anorexia en jalisco', 'bulimia en sonora', 'trastornos alimentarios en jalisco']) {
+    const r = await conversa(q);
+    assert.equal(r.handler, 'answerPadecimientoNoModelado', q);
+    assert.match(r.md, /no modela/, q);
+  }
+});
