@@ -497,8 +497,8 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-<script src="../epibot/js/release_catalog.js?v=1"></script>
-<script src="obesidad_galeria.js?v=5"></script>
+<script src="../epibot/js/release_catalog.js?v=2"></script>
+<script src="obesidad_galeria.js?v=6"></script>
 <script>
 // Una opción del filtro por cada release del catálogo.
 window.GaleriasRelease.forEach(g => document.getElementById('filterPad').add(new Option(g.nombre, g.pad)));
@@ -577,7 +577,23 @@ function applyFilters() {
 }
 
 // ── Render all tiers ─────────────────────────
+// La barra describe el carril semanal; cada release tiene su propio corte y periodo.
+const metaBar = [...document.querySelectorAll('.meta-bar .meta-item')].slice(1);
+const metaSemanal = metaBar.map(n => n.innerHTML);
+function actualizaMeta() {
+  const rel = (window.GaleriasRelease || []).find(g => g.pad === filterPad.value);
+  const c = rel && rel.cabecera();
+  metaBar.forEach((n, i) => { n.innerHTML = metaSemanal[i]; });
+  if (c) {
+    metaBar[0].innerHTML = `${rel.nombre}, datos reales hasta: <strong>${c.datos}</strong>`;
+    metaBar[1].innerHTML = `Período pronosticado: <strong>${c.periodo}</strong> (${c.nota})`;
+  } else if (!filterPad.value) {
+    metaBar[1].insertAdjacentHTML('beforeend', ' · Carril semanal; filtra por padecimiento para ver el corte de cada release');
+  }
+}
+
 function renderAll() {
+  actualizaMeta();
   const nac = filtered.filter(d => d.c === 'Nacional');
   const reg = filtered.filter(d => d.c === 'Regional');
   const est = filtered.filter(d => d.c === 'Estatal');

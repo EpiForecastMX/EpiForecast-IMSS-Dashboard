@@ -19,6 +19,7 @@
  *   tarjeta(s)               -> HTML de la tarjeta de una serie
  *   estadoGaleria(s)         -> nombre del estado como lo usa la galería ('México' -> 'Estado de México')
  *   meta()                   -> rótulo del release (origen, horizonte, último observado)
+ *   cabecera()               -> corte y periodo del release para la barra superior (null sin cargar)
  *   pinta(view)              -> crea las gráficas de las tarjetas visibles
  */
 (function () {
@@ -139,8 +140,23 @@
     });
   }
 
+  /** Corte y periodo propios del release, para la cabecera de la galería. */
+  function cabecera() {
+    if (!V) return null;
+    const puntos = (V.series['nacional|mx|general'] || {}).pronostico || [];
+    if (!puntos.length) return null;
+    const fecha = (iso) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('es-MX', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+    const [ao, so] = V.observation_cutoff;
+    const [ar, sr] = V.origin;
+    return {
+      datos: `semana ${so} de ${ao}`,
+      periodo: `${fecha(puntos[0][0])} → ${fecha(puntos[puntos.length - 1][0])}`,
+      nota: `pronóstico congelado con datos hasta la semana ${sr} de ${ar}`,
+    };
+  }
+
   const cfgPad = pad;
-  return { id, pad, nombre, color, cargar, seleccion, tarjeta, estadoGaleria, meta, pinta, _ventana: ventana, _usa: (v) => { V = v; } };
+  return { id, pad, nombre, color, cargar, seleccion, tarjeta, estadoGaleria, meta, cabecera, pinta, _ventana: ventana, _usa: (v) => { V = v; } };
   }
 
   window.GaleriasRelease = globalThis.EPI_CATALOGO.releases.map(crea);

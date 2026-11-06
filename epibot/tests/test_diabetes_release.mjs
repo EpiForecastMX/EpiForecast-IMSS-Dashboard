@@ -149,3 +149,57 @@ test('la noticia dice que la validación está en curso y no da métricas', () =
   assert.match(nota.summary, /validación prospectiva está en curso/);
   assert.doesNotMatch(JSON.stringify(nota), /sMAPE|MASE|superó/);
 });
+
+test('un seguimiento que nombra otro subtipo no hereda el anterior', async () => {
+  const { conDiabetesNombrada } = await import('../js/release_config.js');
+  assert.equal(conDiabetesNombrada('y tipo 2', 'Diabetes tipo I'), 'y diabetes tipo 2');
+  assert.equal(conDiabetesNombrada('y gestacional', 'Diabetes tipo II'), 'y diabetes gestacional');
+  assert.equal(conDiabetesNombrada('y insipida', 'Diabetes tipo II'), 'y diabetes insipida');
+  assert.equal(conDiabetesNombrada('and type 2', 'Diabetes tipo I'), 'and diabetes type 2');
+  assert.equal(conDiabetesNombrada('y hombres', 'Diabetes tipo I'), 'y hombres');
+  assert.equal(conDiabetesNombrada('y tipo 2', 'Obesidad'), 'y tipo 2');
+  assert.equal(conDiabetesNombrada('tipo 2', 'Diabetes tipo I'), 'tipo 2');
+});
+
+test('el inglés conserva padecimiento, subtipo y sexo', async () => {
+  const { detectEntities } = await import('../js/entities.js');
+  const o = detectEntities('obesity in jalisco women');
+  assert.equal(o.padecimiento, 'Obesidad');
+  assert.equal(o.sexo, 'mujeres');
+  const t = detectEntities('diabetes type 1 in jalisco women');
+  assert.equal(t.padecimiento, 'Diabetes tipo I');
+  assert.equal(t.sexo, 'mujeres');
+  assert.equal(detectEntities('diabetes type 2 in jalisco men').sexo, 'hombres');
+  assert.equal(detectEntities('gestational diabetes in jalisco').padecimiento, null);
+});
+
+test('la conversación cambia de subtipo o avisa que no se modela', async () => {
+  const dos = await conversa('diabetes tipo 1 en jalisco mujeres', '¿y tipo 2?');
+  assert.match(dos.md, /Diabetes tipo II \(E11-E14\) · Jalisco · Mujeres/);
+  assert.doesNotMatch(dos.md, /Diabetes tipo I \(E10\)/);
+  for (const q of ['¿y gestacional?', '¿y insípida?']) {
+    const r = await conversa('diabetes tipo 2 en jalisco', q);
+    assert.equal(r.handler, 'answerPadecimientoNoModelado', q);
+    assert.match(r.md, /no modela/, q);
+    assert.doesNotMatch(r.md, MARCADOR_RELEASE, q);
+  }
+});
+
+test('en inglés responde el padecimiento pedido o pide precisión', async () => {
+  const o = await conversa('obesity in jalisco women');
+  assert.match(o.md, /Obesidad \(E66\) · Jalisco · Mujeres/);
+  const t = await conversa('diabetes type 1 in jalisco women');
+  assert.match(t.md, /Diabetes tipo I \(E10\) · Jalisco · Mujeres/);
+  const a = await conversa('asthma in jalisco women');
+  assert.match(a.md, /no modela asthma/);
+  const x = await conversa('rare syndrome in jalisco women');
+  assert.equal(x.handler, 'answerConsultaEnInglesSinPadecimiento');
+  assert.match(x.md, /No identifiqué el padecimiento/);
+  assert.doesNotMatch(x.md, /Alzheimer \|/);
+});
+
+test('las semanas sin observación no se presentan como futuras', async () => {
+  const r = await conversa('diabetes tipo 2 en jalisco');
+  assert.doesNotMatch(r.md, /Próximas semanas/);
+  assert.match(r.md, /aún sin observación publicada/);
+});

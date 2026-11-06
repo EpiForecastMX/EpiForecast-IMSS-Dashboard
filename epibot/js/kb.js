@@ -6,11 +6,11 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=35';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=36';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=1';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=4';
-import { RELEASES, releaseDePad, VOCAB_RELEASES } from './release_config.js?v=2';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=5';
+import { conDiabetesNombrada, RELEASES, releaseDePad, VOCAB_RELEASES } from './release_config.js?v=3';
 
 let DATA = null;
 
@@ -589,6 +589,16 @@ const INJECTION_RESPONSE =
 // Obesidad (E66): publicada desde su release sellado del runner (C7.7). Su handler vive en
 // obesidad_kb.js (respuestas) y obesidad_charts.js (tipo de petición y gráficas).
 // ---------------------------------------------------------------------------
+
+/**
+ * Un estado sin padecimiento reconocido en una consulta en inglés no debe volcar la tabla neuro de
+ * ese estado: quien preguntó por otra enfermedad recibiría datos de tres que no pidió.
+ */
+function answerConsultaEnInglesSinPadecimiento(q, ent) {
+  if (!ent.estado || ent.padecimiento || !/\b(in|the|of|how many|what|which|cases|forecast|women|men)\b/.test(q)) return null;
+  const nombres = ['Depresión', 'Parkinson', 'Alzheimer', 'Dengue', ...RELEASES.map((r) => r.nombre)];
+  return `No identifiqué el padecimiento en tu consulta sobre **${ent.estado}**. Dime cuál de estos quieres consultar: ${nombres.join(', ')}.\n<!--SIN_GRAFICA-->`;
+}
 
 function answerPadecimientoNoModelado(q, ent, s, d) {
   // Si ya detectamos un padecimiento conocido, no es off-scope. Un release sí lo es si la consulta
@@ -5475,7 +5485,7 @@ function answerCodeRequest(q, ent, s, d) {
 
 const HANDLERS = [
   answerComparacionRondas,
-  answerSaludo, answerObesidad, answerDiabetes, answerPadecimientoNoModelado, answerReleasesMixtos, answerDengue, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerFechaSemana, answerTemporal, answerProyectoMeta,
+  answerSaludo, answerObesidad, answerDiabetes, answerPadecimientoNoModelado, answerReleasesMixtos, answerConsultaEnInglesSinPadecimiento, answerDengue, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerFechaSemana, answerTemporal, answerProyectoMeta,
   answerTrainingConfig, answerSemanaActual, answerSemanasBoletin, answerQueEsPadecimiento,
   answerTimelapse, answerSemaforo, answerReportePDF,
   answerComparacionPorSexo,
@@ -5614,8 +5624,9 @@ async function _resolve(query) {
   const trace = { handler: null };   // por llamada, no global: no puede quedar obsoleto
   const d = await loadKnowledge();
   const s = d.stats || {};
-  const q = norm(query);
-  const ent = detectEntities(query);
+  // Un seguimiento que nombra otro subtipo de diabetes se resuelve antes de heredar el contexto.
+  const q = conDiabetesNombrada(norm(query), lastEntities.padecimiento);
+  const ent = detectEntities(q === norm(query) ? query : q);
 
   // Guard: prompt injection / roleplay → rechazar inmediatamente
   if (answerInjectionGuard(q)) { trace.handler = 'answerInjectionGuard'; return { response: INJECTION_RESPONSE, handler: trace.handler }; }
