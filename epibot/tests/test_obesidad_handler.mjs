@@ -53,7 +53,7 @@ test('ranking fuera de muestra por estado', async () => {
 test('Obesidad ya no se responde como padecimiento no modelado', async () => {
   const r = await kb.answer('casos de obesidad en jalisco');
   assert.doesNotMatch(r, /no modela/);
-  const otro = await kb.answer('casos de diabetes en jalisco');
-  assert.match(otro, /no modela diabetes/);
+  const otro = await kb.answer('casos de hipertension en jalisco');
+  assert.match(otro, /no modela hipertension/);
   assert.match(otro, /Obesidad\*\* \(CIE-10: E66\)/);
 });

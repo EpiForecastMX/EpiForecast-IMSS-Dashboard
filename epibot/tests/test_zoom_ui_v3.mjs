@@ -5,13 +5,14 @@ import vm from 'node:vm';
 import { detectEntities, norm } from '../js/entities.js';
 import { dn } from '../js/display.js';
 import { weeklyV2, tituloSeguimientoMin, periodoBoletin } from '../js/kb.js';
-import { esObesidad } from '../js/obesidad_charts.js?v=2';
+import { esObesidad } from '../js/obesidad_charts.js?v=3';
+import { RELEASES, releaseDePad } from '../js/release_config.js?v=1';
 
 // Ejecutar las funciones reales de la UI sin arrancar el DOM ni el RAG.
 // APP_BASE permite comprobar que estas regresiones fallan en el árbol v2.
 const app = readFileSync(process.env.APP_BASE || new URL('../js/app.js', import.meta.url), 'utf8');
 const knowledge = JSON.parse(readFileSync(new URL('../knowledge.json', import.meta.url)));
-const scope = { detectEntities, norm, dn, weeklyV2, tituloSeguimientoMin, periodoBoletin, esObesidad,
+const scope = { detectEntities, norm, dn, weeklyV2, tituloSeguimientoMin, periodoBoletin, esObesidad, RELEASES, releaseDePad,
   metricasRetiradas: () => true, getData: () => knowledge };
 function between(start, end) { return app.slice(app.indexOf(start), app.indexOf(end, app.indexOf(start))); }
 const suggest = vm.runInNewContext(`(${between('function getSuggestions(', '\n// ---------------------------------------------------------------------------')})`, scope);

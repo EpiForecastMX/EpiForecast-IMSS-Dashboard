@@ -21,7 +21,7 @@ globalThis.fetch = async (u) => ({
   json: async () => JSON.parse(String(u).includes('publication/obesidad/vista.json') ? V : K),
 });
 const kb = await import('../js/kb.js');
-const { detectEntities, ENFERMEDADES_NO_MODELADAS } = await import('../js/entities.js?v=33');
+const { detectEntities, ENFERMEDADES_NO_MODELADAS } = await import('../js/entities.js?v=34');
 const KB = JSON.parse(K);
 const d = await kb.loadKnowledge();
 await d.obesidad_pendiente;
@@ -58,8 +58,8 @@ test('«y obesidad?» tras una consulta de Jalisco hereda el estado («obesidad�
 });
 
 test('un no modelado en el follow-up sigue sin heredar contexto', async () => {
-  const r = await sigue('casos de depresion en jalisco', 'y diabetes?');
-  assert.match(r.md, /no modela diabetes/);
+  const r = await sigue('casos de depresion en jalisco', 'y hipertension?');
+  assert.match(r.md, /no modela hipertension/);
 });
 
 // ── rag.mjs: detectEntities + focusedFacts reales, sin red ─────────────────────────────────

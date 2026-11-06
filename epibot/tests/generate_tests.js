@@ -619,7 +619,7 @@ add('proporcion demografica historica', 'answerBoletin', ['Boletin']);
 // SECCION 27: PADECIMIENTO NO MODELADO (5 tests)
 // =====================================================================
 
-add('cuantos casos de diabetes hay', 'answerPadecimientoNoModelado', ['no modela']);
+add('cuantos casos de hipertension hay', 'answerPadecimientoNoModelado', ['no modela']);
 add('cancer en jalisco', 'answerPadecimientoNoModelado', ['no modela']);
 add('influenza en mexico', '*', []);
 add('covid 19 pronostico', 'answerPadecimientoNoModelado', ['no modela']);
@@ -720,7 +720,7 @@ add('referencia del articulo', 'answerProyectoMeta', ['art']);
 
 // Follow-up que cambia a padecimiento NO modelado → NO heredar contexto
 addCtx('metricas del parkinson', 'y del cancer', 'answerPadecimientoNoModelado', ['no modela']);
-addCtx('pronostico de depresion', 'y de la diabetes', 'answerPadecimientoNoModelado', ['no modela']);
+addCtx('pronostico de depresion', 'y de la hipertension', 'answerPadecimientoNoModelado', ['no modela']);
 addCtx('alzheimer en jalisco', 'y del lupus', 'answerPadecimientoNoModelado', ['no modela']);
 addCtx('depresion en cdmx', 'y la influenza', 'answerPadecimientoNoModelado', ['no modela']);
 addCtx('parkinson general', 'y de la epilepsia', 'answerPadecimientoNoModelado', ['no modela']);

@@ -62,13 +62,14 @@ test('la noticia de Obesidad encabeza novedades y la portada la anuncia', () => 
   const portada = leer('index.html');
   assert.match(portada, /\.news-tag--obesidad/);
   assert.match(leer('novedades.html'), /\.news-tag--obesidad/);
-  assert.match(portada, /cinco padecimientos/);
+  assert.match(portada, /siete padecimientos/);
   assert.match(portada, /class="disease-card disease-card--obe[^"]*" href="obesidad\.html"/);
 });
 
 test('la página de Obesidad acepta la serie pedida desde la galería', () => {
   assert.match(leer('obesidad.html'), /URLSearchParams\(location\.search\)\.get\('serie'\)/);
-  assert.match(leer('Reports/obesidad_galeria.js'), /\.\.\/obesidad\.html\?serie=/);
+  assert.match(leer('Reports/obesidad_galeria.js'), /\.\.\/\$\{pagina\}\?serie=/);
+  assert.match(G.tarjeta(sel({})[0]), /\.\.\/obesidad\.html\?serie=/);
 });
 
 test('cada estado de Obesidad cae en el acordeón de la galería con el mismo nombre', () => {
@@ -82,7 +83,7 @@ test('cada estado de Obesidad cae en el acordeón de la galería con el mismo no
 
 test('la Figura 1 de la portada añade Obesidad desde su vista sin tocar hero_series.json', () => {
   const portada = leer('index.html');
-  assert.match(portada, /fetch\('publication\/obesidad\/vista\.json'/);
-  assert.match(portada, /function serieObesidad\(v\)/);
+  assert.match(portada, /fetch\('publication\/' \+ cfg\.id \+ '\/vista\.json'/);
+  assert.match(portada, /function serieRelease\(v, cfg\)/);
   assert.equal(JSON.parse(leer('hero_series.json')).series.length, 4);
 });

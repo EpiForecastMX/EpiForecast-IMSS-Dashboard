@@ -29,6 +29,7 @@ function arbol() {
   mkdirSync(join(dir, 'js'));
   mkdirSync(join(dir, 'tests'));
   copyFileSync(join(RAIZ, 'js/entities.js'), join(dir, 'js/entities.js'));
+  copyFileSync(join(RAIZ, 'js/release_config.js'), join(dir, 'js/release_config.js'));
   copyFileSync(join(RAIZ, 'knowledge.json'), join(dir, 'knowledge.json'));
   copyFileSync(join(RAIZ, 'tests/generate_tests.js'), join(dir, 'tests/generate_tests.js'));
   copyFileSync(join(RAIZ, 'tests/test_cases.json'), join(dir, 'tests/test_cases.json'));

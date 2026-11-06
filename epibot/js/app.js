@@ -7,15 +7,16 @@ import { graficoRondas } from './comparacion_rondas.js?v=3';
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=123';
-import { detectEntities, norm } from './entities.js?v=33';
+import { loadKnowledge, getStats, getData, answer, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=124';
+import { detectEntities, norm } from './entities.js?v=34';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
 import { renderMexicoMap } from './mexico-map.js?v=3';
 import { renderTimelapse } from './timelapse.js?v=4';
 import { renderSemaforo } from './semaforo.js?v=3';
 import { renderComparador } from './comparador.js?v=4';
 import { buildComparadorState } from './comparador_data.js?v=1';
-import { esObesidad, graficaObesidad } from './obesidad_charts.js?v=2';
+import { esObesidad, graficaObesidad } from './obesidad_charts.js?v=3';
+import { MARCADOR_RELEASE, RELEASES, releaseDeMarca, releaseDePad } from './release_config.js?v=1';
 import { initSTT, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking, toggleMute, isTTSEnabled, onSpeakingStateChange } from './voice.js?v=3';
 
 // ---------------------------------------------------------------------------
@@ -1158,7 +1159,7 @@ function addBotMessage(markdown, source, suggestions, chartData, sources) {
 
   // Normalizar acentos antes de comentarios y render
   const polished = polishSpanish(markdown);
-  const cleanMarkdown = polished.replace(/<!--OBESIDAD:.*?-->/g, '').replace(/<!--SIN_GRAFICA-->/g, '').replace(/<!--COMPARE:.*?-->/g, '').replace(/<!--DISTRIB:.*?-->/g, '').replace(/<!--GENCHART:.*?-->/g, '');
+  const cleanMarkdown = polished.replace(new RegExp(MARCADOR_RELEASE.source, 'g'), '').replace(/<!--SIN_GRAFICA-->/g, '').replace(/<!--COMPARE:.*?-->/g, '').replace(/<!--DISTRIB:.*?-->/g, '').replace(/<!--GENCHART:.*?-->/g, '');
   const html = sanitizeHtml(marked.parse(cleanMarkdown, { breaks: true }));
   const now = new Date();
   const timeStr = now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
@@ -2801,16 +2802,17 @@ function extractChartData(markdown, query) {
   // publicada. Manda el marcador de la respuesta (tipo, estado y sexo resueltos por el texto, que
   // cubre follow-ups y typos); sin él, una consulta de Obesidad no cae nunca en las genéricas
   // (pintarían Depresión con el título pedido).
-  const obeMarca = markdown.match(/<!--OBESIDAD:(.*?)-->/);
-  if (obeMarca) {
+  const relMarca = markdown.match(MARCADOR_RELEASE);
+  if (relMarca) {
     try {
-      const m = JSON.parse(obeMarca[1]);
-      return graficaObesidad(data.obesidad, qn, { estado: m.estado, sexo: m.sexo }, m);
-    } catch (e) { console.warn('Marcador de Obesidad ilegible', e); return null; }
+      const m = JSON.parse(relMarca[2]);
+      const rel = releaseDeMarca(relMarca[1]);
+      return graficaObesidad(data[rel.dataKey], qn, { estado: m.estado, sexo: m.sexo }, m);
+    } catch (e) { console.warn('Marcador de release ilegible', e); return null; }
   }
   // Sin marcador, la respuesta no es de Obesidad (vista cargando, o la contestó otro handler,
   // p. ej. «comparar obesidad con diabetes»): ninguna gráfica, ni de Obesidad ni genérica.
-  if (esObesidad(qn) || detectEntities(query).padecimiento === 'Obesidad') return null;
+  if (esObesidad(qn) || releaseDePad(detectEntities(query).padecimiento)) return null;
 
   // Dengue NO vive en prod_models/stats (esos son neuro: 333 modelos). Casi todo canvas
   // generico saldria con datos neuro. Excepciones con datos de Dengue: el zoom semanal
@@ -3809,10 +3811,13 @@ function renderChart(canvasId, chartData) {
 function getSuggestions(query) {
   const q = norm(query);
   const retiradas = metricasRetiradas(getData());
-  if (esObesidad(q)) {
-    const sug = [{ text: 'Zoom semanal', q: 'zoom obesidad' }, { text: 'Mapa por estado', q: 'mapa de obesidad' },
-      { text: 'Ranking de precisión', q: 'ranking de obesidad' }, { text: 'Calibración', q: 'calibracion de obesidad' },
-      { text: 'Hombres y mujeres', q: 'obesidad por sexo' }, { text: 'Motores', q: 'motores de obesidad' }];
+  const rel = esObesidad(q) ? RELEASES[0] : releaseDePad(detectEntities(query).padecimiento);
+  if (rel) {
+    const c = rel.consulta;
+    const conOos = (getData()?.[rel.dataKey]?.weeks_available ?? 1) > 0;
+    const sug = [{ text: 'Zoom semanal', q: `zoom ${c}` }, { text: 'Mapa por estado', q: `mapa de ${c}` },
+      ...(conOos ? [{ text: 'Ranking de precisión', q: `ranking de ${c}` }, { text: 'Calibración', q: `calibracion de ${c}` }] : []),
+      { text: 'Hombres y mujeres', q: `${c} por sexo` }, { text: 'Motores', q: `motores de ${c}` }];
     return sug.filter(x => norm(x.q) !== q).slice(0, 3);
   }
   if (q.includes('zoom'))

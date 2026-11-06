@@ -265,7 +265,8 @@ function stripAccents(s) { return String(s || '').toLowerCase().normalize('NFD')
 // esta función no puede importar (sus importadores llevan `?v=`). tests/test_detectores_padecimiento.mjs
 // exige que ambas listas sean iguales. Se compara al INICIO de palabra: «obesidad» contiene «sida».
 const NO_MODELADAS = [
-  'cancer', 'diabetes', 'hipertension', 'asma', 'epilepsia',
+  'cancer', 'prediabetes', 'diabetes gestacional', 'diabetes insipida', 'diabetes en el embarazo',
+  'diabetes del embarazo', 'hipertension', 'asma', 'epilepsia',
   'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah',
   'influenza', 'covid', 'tuberculosis', 'vih', 'sida', 'colera',
   'sarampion', 'rubeola', 'hepatitis', 'zika', 'chikungunya', 'malaria',
@@ -279,11 +280,23 @@ function mencionaNoModelada(qn) {
   return NO_MODELADAS.find((e) => q.includes(` ${e.trim()}`)) || null;
 }
 
+// Subtipo de diabetes: copia de diabetesEnConsulta (js/release_config.js). Sin subtipo, tipo II.
+function diabetesDe(qn) {
+  const q = ` ${qn.replace(/[^a-z0-9 ]/g, ' ')} `;
+  if (!/ (diabet|dm ?[12] |e1[0-4] )/.test(q)) return null;
+  if (/ (prediabet|pre diabet|gestacional|insipida|embarazo)/.test(q)) return null;
+  const sinNegada = q.replace(/ no insulinodependiente/g, ' dm2');
+  if (/(tipos? (1|i|uno) y (2|ii|dos)|ambos tipos|los dos tipos)/.test(sinNegada)) return 'Diabetes';
+  return / (tipo (1|i|uno) |dm ?1 |e10 |juvenil|insulinodependiente)/.test(sinNegada)
+    ? 'Diabetes tipo I'
+    : 'Diabetes tipo II';
+}
+
 function detectEntities(query) {
   const qn = stripAccents(query);
-  const out = { padecimiento: null, entidad: null, sexo: null };
+  const out = { padecimiento: diabetesDe(qn), entidad: null, sexo: null };
   const padMap = { depresion: 'Depresion', depression: 'Depresion', f32: 'Depresion', parkinson: 'Parkinson', g20: 'Parkinson', alzheimer: 'Alzheimer', alzaimer: 'Alzheimer', g30: 'Alzheimer', dengue: 'Dengue', a97: 'Dengue', obesidad: 'Obesidad', obes: 'Obesidad', sobrepeso: 'Obesidad', e66: 'Obesidad' };
-  for (const [k, v] of Object.entries(padMap)) if (qn.includes(k)) { out.padecimiento = v; break; }
+  if (!out.padecimiento) for (const [k, v] of Object.entries(padMap)) if (qn.includes(k)) { out.padecimiento = v; break; }
   const alias = { cdmx: 'Ciudad de Mexico', df: 'Ciudad de Mexico', 'distrito federal': 'Ciudad de Mexico', 'ciudad de mexico': 'Ciudad de Mexico', edomex: 'Mexico', 'estado de mexico': 'Mexico', 'nuevo leon': 'Nuevo Leon', 'san luis potosi': 'San Luis Potosi', 'baja california sur': 'Baja California Sur', 'baja california': 'Baja California', 'quintana roo': 'Quintana Roo' };
   for (const [k, v] of Object.entries(alias).sort((a, b) => b[0].length - a[0].length)) if (qn.includes(k)) { out.entidad = v; break; }
   if (!out.entidad) {
