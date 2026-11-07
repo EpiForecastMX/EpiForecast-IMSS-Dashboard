@@ -15,6 +15,8 @@
  * y no la cifra suelta.
  */
 
+import { VERDICTS_PUBLICABLES } from './candidate.mjs';
+
 /** Las cuatro cifras buenas, y qué cuenta cada una. */
 export const VOCABULARIO = {
   neuro: 333, // series neuro productivas: 3 padecimientos x 37 geografías x 3 sexos
@@ -1033,4 +1035,30 @@ export function problemasDePortada(indexHtml, hero, kb, hayBento) {
   }
   if (hayBento) out.push('bento.json sigue publicado (datos de la semana 21, sin consumidor)');
   return out;
+}
+
+// --- Vistas publicadas: la etiqueta dice lo que dice el veredicto (7-nov-2026) ---
+// El productor semanal no pasa por `revisa_releases`, así que este es el último freno antes de
+// publicar: corre en cada build. Un FAIL no se pinta, y una etiqueta congelada en 0/4 con semanas
+// ya observadas tampoco.
+const INICIO_ETIQUETA = {
+  PASS: 'Validación prospectiva superada',
+  INCOMPLETE: 'Validación prospectiva en curso',
+  CONTROL_ONLY: 'Publicado el control: sin contraste prospectivo',
+};
+
+export function problemasDeVistaPublicada(archivo, v) {
+  if (!VERDICTS_PUBLICABLES.includes(v.verdict)) {
+    return [`${archivo}: veredicto ${v.verdict} no es publicable`];
+  }
+  const etiqueta = String(v.publication_label ?? '');
+  if (v.caida_al_control) {
+    return etiqueta.startsWith('Control estacional publicado')
+      ? []
+      : [`${archivo}: un release del control lleva la etiqueta «${etiqueta}»`];
+  }
+  const esperada = `${INICIO_ETIQUETA[v.verdict]} (${v.weeks_available}/${v.weeks_required} semanas)`;
+  return etiqueta.startsWith(esperada)
+    ? []
+    : [`${archivo}: la etiqueta «${etiqueta}» no coincide con «${esperada}»`];
 }

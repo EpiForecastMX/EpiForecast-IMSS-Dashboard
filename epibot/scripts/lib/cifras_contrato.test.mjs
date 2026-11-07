@@ -14,7 +14,7 @@
 
 import { readFileSync } from 'fs';
 import {
-  problemasDeSuperficies, problemasDeKnowledge, problemasDeDistribuciones, jsonRevisable, sinRegionesNoLeidas,
+  problemasDeVistaPublicada, problemasDeSuperficies, problemasDeKnowledge, problemasDeDistribuciones, jsonRevisable, sinRegionesNoLeidas,
   problemasDeMetricasSeleccion, problemasDeMetricasEnPagina, esClaveDeMetrica,
   problemasDeGaleria, problemasDeMetricasAntiguas, problemasDeNoticias, problemasDeCifras,
   problemasDeSeguimientoSemanal, problemasDeNacionalPorSexo, problemasDeVistasSeguimiento, inicioSemanaEpi,
@@ -522,6 +522,29 @@ for (const [nombre, contenido, debe, desc] of CASOS) {
     const ok = (r.length > 0) === debe;
     if (!ok) fallos++;
     console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  portada · ${desc}`);
+    if (!ok) console.log(`           → ${JSON.stringify(r)}`);
+  }
+}
+
+console.log('\nVistas publicadas: la etiqueta dice lo que dice el veredicto');
+{
+  const base = { verdict: 'INCOMPLETE', weeks_available: 1, weeks_required: 4,
+    publication_label: 'Validación prospectiva en curso (1/4 semanas) · pronóstico puntual sin intervalos' };
+  const casos = [
+    [base, false, 'en curso coherente'],
+    [{ ...base, weeks_available: 4, verdict: 'PASS', publication_label: 'Validación prospectiva superada (4/4 semanas)' }, false, 'PASS 4/4'],
+    [{ ...base, verdict: 'CONTROL_ONLY', caida_al_control: {}, publication_label: 'Control estacional publicado: portafolio rechazado' }, false, 'control publicado'],
+    [{ ...base, publication_label: 'Validación prospectiva en curso (0/4 semanas)' }, true, 'etiqueta congelada en 0/4'],
+    [{ ...base, verdict: 'FAIL', publication_label: 'Validación prospectiva superada (4/4 semanas)' }, true, 'FAIL con etiqueta de superada'],
+    [{ ...base, verdict: 'FAIL', publication_label: 'Validación prospectiva NO superada (4/4 semanas)' }, true, 'FAIL con etiqueta fiel'],
+    [{ ...base, verdict: 'PASS', publication_label: 'Validación prospectiva en curso (1/4 semanas)' }, true, 'PASS con etiqueta en curso'],
+    [{ ...base, caida_al_control: {}, publication_label: 'Validación prospectiva en curso (1/4 semanas)' }, true, 'control presentado como validación'],
+  ];
+  for (const [v, debe, desc] of casos) {
+    const r = problemasDeVistaPublicada('vista', v);
+    const ok = (r.length > 0) === debe;
+    if (!ok) fallos++;
+    console.log(`  ${ok ? '✔' : '✖ FALLO'}  ${debe ? 'marca   ' : 'no marca'}  vista · ${desc}`);
     if (!ok) console.log(`           → ${JSON.stringify(r)}`);
   }
 }

@@ -32,6 +32,7 @@ import {
   problemasDelCorpusAgregado,
   VISTAS_AGREGADO,
   problemasDePortada,
+  problemasDeVistaPublicada,
   PAGINAS_METRICAS_ANTIGUAS,
   PAGINAS_OPERATIVAS,
   VOCABULARIO,
@@ -161,6 +162,21 @@ try {
     existsSync(resolve(RAIZ_PUBLICADA, 'bento.json'))) : [];
   problemas.push(...p);
   console.log(`  portada (hero_series, motor líder, Dengue 52 pasos): ${p.length ? `${p.length} PROBLEMAS` : `al día (${hero?.ultima_observada}, corte ${hero?.corte})`}`);
+}
+
+// Vistas instaladas: ni un FAIL ni una etiqueta distinta del veredicto llegan al sitio.
+{
+  const raiz = resolve(RAIZ_PUBLICADA, 'publication');
+  let n = 0;
+  const p = [];
+  for (const e of readdirSync(raiz, { withFileTypes: true })) {
+    const ruta = resolve(raiz, e.name, 'vista.json');
+    if (!e.isDirectory() || !existsSync(ruta)) continue;
+    n++;
+    p.push(...problemasDeVistaPublicada(`publication/${e.name}/vista.json`, JSON.parse(readFileSync(ruta, 'utf8'))));
+  }
+  problemas.push(...p);
+  console.log(`  vistas publicadas: ${n} revisadas${p.length ? ` — ${p.length} PROBLEMAS` : ', etiqueta igual al veredicto'}`);
 }
 
 // Lo que la gente realmente lee. Sin esto el gate vigilaba una sola puerta.

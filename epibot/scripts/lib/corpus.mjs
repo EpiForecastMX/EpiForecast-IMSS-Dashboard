@@ -615,11 +615,28 @@ function installedChunks(publicationRoot, mode, pointers) {
       title: r.disease_id,
       // Sin URL pública mientras no sea visible: un candidate no tiene página donde enlazarse.
       url: publico ? `../${r.disease_id}.html` : null,
-      text: readFileSync(md, 'utf-8'),
+      text: conEstadoVigente(readFileSync(md, 'utf-8'), r, publicationRoot, publico),
     });
     if (publico) salida.push(...vistaChunks(publicationRoot, r));
   }
   return salida;
+}
+
+/**
+ * El corpus sellado se compiló con el estado de la publicación y el shard es inmutable; lo que dice
+ * del avance prospectivo sale de la vista, o Gemini repetiría «0 de 4» con semanas ya observadas.
+ */
+export function conEstadoVigente(texto, r, root, publico) {
+  const ruta = resolve(root, 'publication', r.disease_id, 'vista.json');
+  if (!publico || !existsSync(ruta)) return texto;
+  const v = JSON.parse(readFileSync(ruta, 'utf-8'));
+  return texto
+    .replaceAll(r.publication_label, v.publication_label)
+    .replace(
+      /El veredicto del gate congelado es \S+ con \d+ de \d+ semanas objetivo observadas/,
+      `El veredicto del gate congelado es ${v.verdict} con ${v.weeks_available} de ` +
+        `${v.weeks_required} semanas objetivo observadas`,
+    );
 }
 
 /** Chunks de los shards candidate de un staging root: uno por archivo del corpus generado. */
