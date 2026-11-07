@@ -525,7 +525,7 @@ function vistaChunks(root, r) {
   // Lo publicado es el control: ni se valida contra sí mismo ni salió de la selección.
   const nacControl = v.caida_al_control?.comprobaciones.find((c) => c.ambito === 'smape_nacional_general');
   const control = nacControl
-    ? `Es el control estacional: repite la misma semana del año anterior. El gate de aceptación de 2025 ` +
+    ? `Es el control estacional: repite los casos de 52 semanas antes. El gate de aceptación de 2025 ` +
       `rechazó el portafolio seleccionado porque empeoraba el nacional (sMAPE ${fmt(nacControl.portafolio)} ` +
       `frente a ${fmt(nacControl.control)} del control). No debe presentarse como validado ni como aceptado; ` +
       `no tiene validación prospectiva que superar. `

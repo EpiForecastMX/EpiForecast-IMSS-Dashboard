@@ -332,7 +332,7 @@
         </div>
         <ul class="status-notes">
           <li><strong>No cuenta entre los padecimientos modelados:</strong> no entra a la Figura 1, a la galería ni al seguimiento semanal.</li>
-          <li><strong>La referencia a 52 semanas no está validada:</strong> repite la misma semana del año anterior y no anticipa brotes ni cambios de tendencia.</li>
+          <li><strong>La referencia a 52 semanas no está validada:</strong> repite los casos de 52 semanas antes y no anticipa brotes ni cambios de tendencia.</li>
           <li><strong>Sin intervalos de incertidumbre:</strong> son estimaciones puntuales.</li>
         </ul>
       </div>
@@ -465,7 +465,7 @@
       $('tituloPrueba').textContent = `Prueba de 2025 · ${lugar}`;
       $('capPrueba').textContent = `En 2025 se observaron ${nf0.format(suma(p.observado))} casos. El portafolio esperaba ${nf0.format(suma(p.portafolio))} (sMAPE ${nf1.format(p.smape_portafolio)}) y el control ${nf0.format(suma(p.control))} (sMAPE ${nf1.format(p.smape_control)}).`;
       $('tituloRef').textContent = `Referencia del control a ${V.horizon_weeks} semanas · ${lugar}`;
-      $('capRef').textContent = `Repite la misma semana del año anterior: ${nf0.format(s.pronostico_52_total)} casos en ${V.horizon_weeks} semanas. Datos hasta la semana ${V.origin[1]} de ${V.origin[0]}, emitido el ${new Date(V.forecast_emitted_at).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City', day: 'numeric', month: 'long', year: 'numeric' })}, sin reentrenar.`;
+      $('capRef').textContent = `Repite los casos de 52 semanas antes: ${nf0.format(s.pronostico_52_total)} casos en ${V.horizon_weeks} semanas. Datos hasta la semana ${V.origin[1]} de ${V.origin[0]}, emitido el ${new Date(V.forecast_emitted_at).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City', day: 'numeric', month: 'long', year: 'numeric' })}, sin reentrenar.`;
       if (!window.Chart) { $('capPrueba').textContent = 'No se pudo cargar la librería de gráficos.'; return; }
       chP = pinta($('chartPrueba'), chP, p.ds, [['Observado', p.observado, '#9FB0CE'], ['Portafolio rechazado', p.portafolio, '#F472B6'], ['Control estacional', p.control, '#2DD4BF']]);
       const et = [...new Set([...s.observado.map((x) => x[0]), ...s.pronostico.map((x) => x[0])])].sort();

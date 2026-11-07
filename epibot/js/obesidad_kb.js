@@ -58,7 +58,7 @@ function ficha(v, x, encabezado, r) {
  */
 function avisoControl(v) {
   const nac = v.caida_al_control.comprobaciones.find((c) => c.ambito === 'smape_nacional_general');
-  return `**Es el control estacional:** cada semana repite los casos de la misma semana del año anterior. El portafolio seleccionado se rechazó en 2025 porque empeoraba el total nacional (sMAPE ${num1(nac.portafolio)} frente a ${num1(nac.control)} del control), así que no hay una validación prospectiva que superar: sólo se registrará su error con cada boletín.`;
+  return `**Es el control estacional:** cada semana repite los casos de 52 semanas antes. El portafolio seleccionado se rechazó en 2025 porque empeoraba el total nacional (sMAPE ${num1(nac.portafolio)} frente a ${num1(nac.control)} del control), así que no hay una validación prospectiva que superar: sólo se registrará su error con cada boletín.`;
 }
 
 /** Estado de una validación sin semanas observadas: se dice, no se rellena con cifras. */

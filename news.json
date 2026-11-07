@@ -8,10 +8,10 @@
             "tag": "Nuevo padecimiento",
             "featured": true,
             "title": "Anorexia, bulimia y otros trastornos alimentarios se incorporan con el control estacional",
-            "summary": "Pronóstico semanal a 52 semanas para el país, 4 regiones y las 32 entidades, por sexo. Repite la misma semana del año anterior, porque el portafolio no superó la prueba de 2025.",
+            "summary": "Pronóstico semanal a 52 semanas para el país, 4 regiones y las 32 entidades, por sexo. Repite los casos de 52 semanas antes, porque el portafolio no superó la prueba de 2025.",
             "body": [
                 "EpiForecast-MX publica <strong style=\"color:var(--cream)\">anorexia, bulimia y otros trastornos alimentarios (CIE-10 F50)</strong>: un pronóstico semanal a 52 semanas para el país, 4 regiones y las 32 entidades, por sexo (111 series). Se modelan 64 series de estado y sexo; los totales estatales, regionales y nacional se obtienen sumándolas.",
-                "Es un <strong style=\"color:var(--cream)\">pronóstico de control</strong>: cada semana repite los casos de la misma semana del año anterior. El portafolio de motores estacionales se rechazó en la prueba de 2025 porque empeoraba el total nacional, y la regla, fijada antes de abrir ese año, deja entonces el control. No se presenta como validado.",
+                "Es un <strong style=\"color:var(--cream)\">pronóstico de control</strong>: cada semana repite los casos de 52 semanas antes. El portafolio de motores estacionales se rechazó en la prueba de 2025 porque empeoraba el total nacional, y la regla, fijada antes de abrir ese año, deja entonces el control. No se presenta como validado.",
                 "Usa datos hasta la semana 41 de 2026, se emitió el 6 de noviembre y no se reentrena. Es un pronóstico puntual, sin intervalos de incertidumbre. Por estado y sexo hay muy pocos casos, así que el nivel más útil es el nacional. Puedes consultarlo en su página, en la galería y en EPI."
             ],
             "link": {
