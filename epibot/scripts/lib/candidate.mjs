@@ -29,6 +29,7 @@ export const SHARD_SCHEMA = 'publication_shard.v1';
 export const PROSPECTIVE_STATUS_SCHEMA = 'prospective_status.v2';
 /** Los cuatro que puede emitir `evaluate` en el backend; la prueba de contrato de cada repo los fija. */
 export const VERDICTS = ['INCOMPLETE', 'PASS', 'FAIL', 'CONTROL_ONLY'];
+export const VERDICTS_PUBLICABLES = VERDICTS.filter((v) => v !== 'FAIL');
 /**
  * Claves EXACTAS del bloque de estado, las once que emite `status_facts()` en el backend.
  *

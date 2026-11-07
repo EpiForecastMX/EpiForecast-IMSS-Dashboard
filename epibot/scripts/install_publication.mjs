@@ -22,6 +22,7 @@ import { dirname, join, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
 import { CandidateError } from './lib/candidate.mjs';
+import { problemasDeVistaPublicada } from './lib/cifras_contrato.mjs';
 import { MODE_PUBLIC, installShard } from './lib/installer.mjs';
 
 export const POINTERS_FILE = 'publication/pointers.json';
@@ -82,6 +83,8 @@ export function installPublication({ shard, pointer, vista, root = SITE_ROOT }) 
   if (JSON.stringify(v.shard_manifest_files) !== JSON.stringify(manifiesto.files)) {
     throw new CandidateError('vista: no se derivó de este shard (archivos distintos)');
   }
+  const [problema] = problemasDeVistaPublicada(`vista de ${p.disease_id}`, v);
+  if (problema) throw new CandidateError(problema);
 
   const instalado = installShard(shard, root, { mode: MODE_PUBLIC, pointerReleaseId: p.release_id });
 
