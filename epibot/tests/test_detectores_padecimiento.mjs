@@ -92,10 +92,8 @@ test('rag.mjs sigue dando los datos exactos neuro cuando se piden', () => {
   assert.match(rag.focusedFacts(KB, 'demencia en jalisco'), /Alzheimer · Jalisco/);
 });
 
-test('la lista de no modelados de rag.mjs es la misma que la de entities.js', () => {
-  const m = RAG.match(/const NO_MODELADAS = \[([\s\S]*?)\];/);
-  assert.ok(m, 'rag.mjs declara NO_MODELADAS');
-  // JSON: el arreglo del contexto vm es de otro realm y deepEqual estricto lo distingue.
-  const lista = JSON.stringify(vm.runInNewContext(`[${m[1]}]`));
-  assert.equal(lista, JSON.stringify(ENFERMEDADES_NO_MODELADAS));
+test('rag.mjs usa la lista de no modelados del catálogo, sin copia propia', () => {
+  assert.doesNotMatch(RAG, /const NO_MODELADAS = \[/);
+  assert.match(RAG, /EPI_CATALOGO\.mencionaNoModelada\(qn\)/);
+  assert.ok(ENFERMEDADES_NO_MODELADAS.includes('asma'));
 });

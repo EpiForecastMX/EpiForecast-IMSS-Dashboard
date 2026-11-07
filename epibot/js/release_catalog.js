@@ -8,7 +8,8 @@
  *
  * `alias` son palabras normalizadas que identifican al padecimiento. Va vacío cuando sus subtipos
  * los resuelve `diabetesEnConsulta`, porque «diabetes» a secas no basta para elegir uno.
- * `prefijos` solo los usa el detector de rag.mjs, que compara por subcadena.
+ * `prefijos` solo los usa el detector de rag.mjs. Alias y prefijos se comparan al INICIO de palabra
+ * con `nombraAlias`, nunca como subcadena: «depresion alta» contiene «presion alta».
  */
 (function (g) {
   const T1 = 'Diabetes tipo I';
@@ -53,9 +54,10 @@
       nombreCorto: 'Hipertensión', etiqueta: 'Hipertensión arterial (I10-I15)',
       dataKey: 'hipertension_i10', marca: 'HIPERTENSION_I10', pagina: 'hipertension_i10.html',
       consulta: 'hipertension', cie: 'I10-I15', color: '#F87171',
-      alias: ['hipertension', 'hipertension arterial', 'presion alta', 'presion arterial alta',
-        'tension alta', 'hipertensos', 'i10', 'hypertension', 'high blood pressure'],
-      prefijos: ['hipertens', 'hypertens', 'presion alta', 'presion arterial alta', 'tension alta'],
+      alias: ['hipertension', 'hipertension arterial', 'presion alta', 'presion arterial',
+        'tension alta', 'tension arterial', 'hipertenso', 'hipertensa', 'i10', 'hypertension',
+        'high blood pressure'],
+      prefijos: ['hipertens', 'hypertens'],
     },
     {
       id: 'isquemica_i20', pad: 'Enfermedad isquémica del corazón',
@@ -63,9 +65,10 @@
       etiqueta: 'Enfermedad isquémica del corazón (I20, I25)', dataKey: 'isquemica_i20',
       marca: 'ISQUEMICA_I20', pagina: 'isquemica_i20.html', consulta: 'enfermedad isquemica',
       cie: 'I20, I25', color: '#FB923C',
-      alias: ['enfermedad isquemica', 'cardiopatia isquemica', 'isquemia cardiaca', 'angina de pecho',
-        'i20', 'ischemic heart disease', 'coronary heart disease'],
-      prefijos: ['isquemi', 'ischemic heart', 'coronary heart', 'angina de pecho'],
+      alias: ['isquemica', 'isquemia', 'enfermedad coronaria', 'enfermedades coronarias',
+        'angina de pecho', 'i20', 'i25', 'ischemic heart disease', 'coronary heart disease',
+        'coronary artery disease'],
+      prefijos: ['isquemi', 'ischemic heart', 'coronary heart', 'coronary artery'],
     },
     {
       id: 'cerebrovascular_i60', pad: 'Enfermedad cerebrovascular',
@@ -73,9 +76,9 @@
       etiqueta: 'Enfermedad cerebrovascular (I60-I67, I69)', dataKey: 'cerebrovascular_i60',
       marca: 'CEREBROVASCULAR_I60', pagina: 'cerebrovascular_i60.html',
       consulta: 'enfermedad cerebrovascular', cie: 'I60-I67, I69', color: '#FBBF24',
-      alias: ['cerebrovascular', 'enfermedad cerebrovascular', 'derrame cerebral', 'evc', 'acv',
-        'i60', 'stroke', 'cerebrovascular disease'],
-      prefijos: ['cerebrovasc', 'derrame cerebral', 'stroke'],
+      alias: ['cerebrovascular', 'derrame cerebral', 'ictus', 'apoplejia', 'evc', 'acv', 'i60',
+        'stroke'],
+      prefijos: ['cerebrovasc'],
     },
   ]);
 
@@ -110,5 +113,103 @@
     return qn.replace(SUBTIPO_DIABETES, 'diabetes $1');
   }
 
-  g.EPI_CATALOGO = Object.freeze({ releases, diabetesEnConsulta, conDiabetesNombrada });
+  /**
+   * Formas que describen un padecimiento publicado con palabras que, leídas sueltas, apuntan a otro:
+   * «isquemia cerebral» es cerebrovascular y «cardiopatía isquémica» no es una cardiopatía sin modelar.
+   */
+  const CANON_CLINICO = [
+    [/\bcerebro vascular(es)?\b/g, 'cerebrovascular'],
+    [/\benfermedad(es)? vascular(es)? cerebral(es)?\b/g, 'enfermedad cerebrovascular'],
+    [/\b(isquemia|isquemica|isquemico|infarto|embolia|ataque|evento|accidente)( vascular)? cerebral(es)?\b/g,
+      'enfermedad cerebrovascular'],
+    [/\bcardiopatias? isquemicas?\b/g, 'enfermedad isquemica'],
+  ];
+  function canonClinico(qn) {
+    return CANON_CLINICO.reduce((q, [de, a]) => q.replace(de, a), String(qn));
+  }
+
+  /** Alias al inicio de palabra; un código CIE («i10») debe coincidir completo, no como «i100». */
+  function nombraAlias(qn, alias) {
+    const q = ` ${String(qn).replace(/[^a-z0-9]+/g, ' ')} `;
+    return q.includes(` ${alias}${/\d/.test(alias) ? ' ' : ''}`);
+  }
+
+  /** Lista única del KB y de rag.mjs. Una consulta que nombra alguna no recibe cifras modeladas. */
+  const noModeladas = Object.freeze([
+    'intento de suicidio', 'ideacion suicida', 'autolesion', 'lesion autoinfligida', 'self harm',
+    'suicidio', 'suicida', 'suicide', 'suicidal',
+    'hipotension', 'hypotension', 'presion baja', 'presion arterial baja', 'tension baja',
+    'tension arterial baja',
+    'cancer', 'hipertension gestacional', 'hipertension en el embarazo', 'hipertension del embarazo',
+    'hipertension pulmonar', 'preeclampsia', 'eclampsia', 'prediabetes', 'diabetes gestacional', 'diabetes insipida', 'diabetes en el embarazo',
+    'diabetes del embarazo', 'asma', 'epilepsia',
+    'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah',
+    'influenza', 'covid', 'tuberculosis', 'vih', 'sida', 'colera',
+    'sarampion', 'rubeola', 'hepatitis', 'zika', 'chikungunya', 'malaria',
+    'leucemia', 'linfoma', 'tumor', 'neoplasia', 'cardiopatia congenita', 'cardiopatia', 'infarto',
+    'ataque al corazon', 'ataque cardiaco',
+    'embolia', 'neumonia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
+    'lupus', 'fibromialgia', 'esclerosis', 'huntington', 'ela ',
+    'insuficiencia renal', 'insuficiencia cardiaca',
+    // En inglés: sin esto, «asthma in jalisco» caería en la tabla neuro del estado.
+    'gestational diabetes', 'diabetes gestational', 'diabetes insipidus', 'prediabetic',
+    'asthma', 'epilepsy', 'schizophrenia', 'anxiety', 'tuberculosis', 'hiv', 'aids', 'measles',
+    'leukemia', 'lymphoma', 'heart attack', 'pneumonia', 'bronchitis', 'arthritis',
+    'kidney failure', 'heart failure',
+  ]);
+
+  const HIPERTENSION = /\b(hipertens|hypertens|presion alta|presion arterial|tension alta|tension arterial|high blood pressure)/;
+  /** Hipertensiones con código propio, fuera de I10-I15: nunca reciben sus cifras. */
+  const HIPERTENSION_AJENA = [
+    [/\b(embaraz|gestacion|gestational|pregnan|gravidez|posparto|puerperio)/, 'hipertension gestacional'],
+    [/\b(pulmonar|pulmonary)/, 'hipertension pulmonar'],
+    [/\bportal\b/, 'hipertension portal'],
+    [/\b(intracraneal|intracranial|endocraneal)/, 'hipertension intracraneal'],
+    [/\b(ocular|intraocular)\b/, 'hipertension ocular'],
+  ];
+
+  /** La enfermedad no modelada que nombra la consulta (normalizada), o null. Compara al inicio de palabra. */
+  function mencionaNoModelada(qn) {
+    const canon = canonClinico(qn);
+    const q = ` ${canon} `;
+    const directa = noModeladas.find((e) => q.includes(` ${e.trim()}`));
+    if (directa) return directa;
+    if (!HIPERTENSION.test(canon)) return null;
+    const ajena = HIPERTENSION_AJENA.find(([re]) => re.test(canon));
+    return ajena ? ajena[1] : null;
+  }
+
+  /** «¿y gestacional?» tras una respuesta de hipertensión nombra otra categoría, no un filtro. */
+  function conHipertensionNombrada(qn, padPrevio) {
+    if (padPrevio !== 'Hipertensión arterial' || HIPERTENSION.test(qn)) return qn;
+    if (!/^(y|pero|tambien|que hay de|ahora|and|what about)\b/.test(qn)) return qn;
+    return HIPERTENSION_AJENA.some(([re]) => re.test(qn)) ? `hipertension ${qn}` : qn;
+  }
+
+  const CRISIS_ES = /\b(suicidarme|suicidarse|matarme|matarse|quitarme la vida|quitarse la vida|acabar con mi vida|terminar con mi vida|(me|se) quier[eo] (morir|matar|suicidar)|me voy a (matar|morir|suicidar)|quiero (morir|morirme)|quisiera (morir|morirme|estar muert)|ganas de (morir|morirme|matarme|suicidarme)|(ya )?no quiero (vivir|seguir viviendo|seguir con vida|estar viv|existir)|no vale la pena vivir|hacerme dano|lastimarme|cortarme las venas|autolesionarme|(tengo|con) (pensamientos|ideas) suicidas|tengo ideacion suicida)\b/;
+  const CRISIS_EN = /\b(kill(ing)? myself|want to die|wanna die|end my life|take my own life|hurt myself|harm myself|suicidal thoughts|im suicidal|i am suicidal)\b/;
+
+  const CRISIS_TEXTO_ES = 'Lamento que estés pasando por esto. No tienes que enfrentarlo a solas.\n\n' +
+    'Si tú o alguien cercano está en peligro inmediato, llama al **911**.\n\n' +
+    'En México, la **Línea de la Vida** atiende gratis, las 24 horas, todos los días: **800 911 2000**. ' +
+    'Te contesta un profesional de salud mental.\n\n' +
+    'Soy un asistente de datos epidemiológicos y no puedo darte atención. Hablar hoy con ese servicio ' +
+    'o con una persona de confianza puede ayudar.\n<!--SIN_GRAFICA-->';
+  const CRISIS_TEXTO_EN = 'I am sorry you are going through this. You do not have to face it alone.\n\n' +
+    'If you or someone near you is in immediate danger, call **911**.\n\n' +
+    'In Mexico, **Línea de la Vida** is free and open 24 hours a day, every day: **800 911 2000**. ' +
+    'A mental health professional answers.\n\n' +
+    'I am an epidemiological data assistant and cannot provide care. Calling that service or talking ' +
+    'to someone you trust today can help.\n<!--SIN_GRAFICA-->';
+
+  /** Texto fijo ante una señal de riesgo personal, o null. No pasa por ningún modelo. */
+  function respuestaCrisis(qn) {
+    if (CRISIS_ES.test(qn)) return CRISIS_TEXTO_ES;
+    return CRISIS_EN.test(qn) ? CRISIS_TEXTO_EN : null;
+  }
+
+  g.EPI_CATALOGO = Object.freeze({
+    releases, diabetesEnConsulta, conDiabetesNombrada, canonClinico, nombraAlias, noModeladas,
+    mencionaNoModelada, conHipertensionNombrada, respuestaCrisis,
+  });
 })(globalThis);

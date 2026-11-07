@@ -27,7 +27,8 @@ export const INTERVAL_NONE = 'none';
 export const SHARD_SCHEMA = 'publication_shard.v1';
 /** Schema del bloque de estado prospectivo que transporta el shard (lo produce el backend). */
 export const PROSPECTIVE_STATUS_SCHEMA = 'prospective_status.v2';
-export const VERDICTS = ['INCOMPLETE', 'PASS', 'FAIL'];
+/** Los cuatro que puede emitir `evaluate` en el backend; la prueba de contrato de cada repo los fija. */
+export const VERDICTS = ['INCOMPLETE', 'PASS', 'FAIL', 'CONTROL_ONLY'];
 /**
  * Claves EXACTAS del bloque de estado, las once que emite `status_facts()` en el backend.
  *

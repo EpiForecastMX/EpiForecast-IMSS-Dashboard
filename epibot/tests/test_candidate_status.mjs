@@ -18,7 +18,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync, readFileSync
 import { tmpdir } from 'os';
 import { join } from 'path';
 
-import { CandidateError, checkPublicationStatus, findShards, loadCandidateShard } from '../scripts/lib/candidate.mjs';
+import { CandidateError, VERDICTS, checkPublicationStatus, findShards, loadCandidateShard } from '../scripts/lib/candidate.mjs';
 import { buildCandidateView, UNCERTAINTY_LABEL } from '../scripts/lib/candidate_view.mjs';
 
 const HEX = 'a'.repeat(64);
@@ -173,6 +173,19 @@ test('forma cerrada del bloque de estado', () => {
   for (const [cambio, patron] of casos) {
     assert.throws(() => checkPublicationStatus({ ...estado(), ...cambio }, 'fixture'), patron, JSON.stringify(cambio));
   }
+});
+
+test('CONTROL_ONLY, el veredicto de un control publicado, se acepta con las semanas completas', () => {
+  // Fijado también en el backend: tests/unit/publication/test_veredictos_contrato.py.
+  assert.deepEqual(VERDICTS, ['INCOMPLETE', 'PASS', 'FAIL', 'CONTROL_ONLY']);
+  assert.equal(
+    checkPublicationStatus(estado({ verdict: 'CONTROL_ONLY', completed: OBJETIVO }), 'fixture').verdict,
+    'CONTROL_ONLY',
+  );
+  assert.throws(
+    () => checkPublicationStatus(estado({ verdict: 'CONTROL_ONLY' }), 'fixture'),
+    /CONTROL_ONLY exige las 4 semanas/,
+  );
 });
 
 test('veredicto y conteos no pueden contradecirse', () => {
