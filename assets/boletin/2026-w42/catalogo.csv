@@ -1,0 +1,189 @@
+﻿categoria,CIE_impreso,grupo,pagina,semana_2026,acumulado_2026,acumulado_2025,estado_plataforma,prioridad,puntaje
+Enteritis debida a rotavirus,A08.0,Prevenibles por vacunación,6,5,491,977,Por incorporar,Exploración,
+Meningitis tuberculosa,A17.0,Prevenibles por vacunación,6,6,457,505,Por incorporar,Exploración,
+Tétanos neonatal,A33,Prevenibles por vacunación,7,0,1,1,Por incorporar,Exploración,
+Tétanos,"A34, A35",Prevenibles por vacunación,7,0,26,33,Por incorporar,Exploración,
+Tos ferina,A37,Prevenibles por vacunación,8,12,198,1516,Por incorporar,Exploración,
+Meningitis meningocócica,A39.0,Prevenibles por vacunación,8,0,10,0,Por incorporar,Exploración,
+Enfermedad invasiva por neumococo,"A40.3, G00.1, J13",Prevenibles por vacunación,9,9,126,0,Por incorporar,Exploración,
+Infecciones invasivas por Haemophilus influenzae,"A41.3, G00.0, J14",Prevenibles por vacunación,9,6,90,0,Por incorporar,Exploración,
+Viruela símica,B04,Prevenibles por vacunación,9,2,87,696,Por incorporar,Exploración,
+Varicela,B01,Prevenibles por vacunación,10,998,45562,51878,Por incorporar,Media,51.5
+Sarampión,B05,Prevenibles por vacunación,10,0,0,0,Por incorporar,Exploración,
+Rubéola,B06,Prevenibles por vacunación,10,0,0,0,Por incorporar,Exploración,
+Hepatitis vírica A,B15,Prevenibles por vacunación,11,56,2289,3727,Por incorporar,Exploración,39.8
+Hepatitis vírica B,B16,Prevenibles por vacunación,11,21,673,830,Por incorporar,Exploración,
+Parotiditis infecciosa,B26,Prevenibles por vacunación,12,78,4028,3180,Por incorporar,Media,51.0
+Influenza,J09-J11,Prevenibles por vacunación,12,75,7496,11953,Por incorporar,Exploración,39.3
+Síndrome de rubéola congénita,P35.0,Prevenibles por vacunación,13,0,0,0,Por incorporar,Exploración,
+Infección por virus de papiloma humano,B97.7,Prevenibles por vacunación,13,455,17350,19577,Por incorporar,Exploración,48.4
+Cólera,A00,Infecciosas del aparato digestivo,14,0,0,0,Por incorporar,Exploración,
+Fiebre tifoidea,A01.0,Infecciosas del aparato digestivo,14,87,4788,5931,Por incorporar,Exploración,34.7
+Fiebre paratifoidea,A01.1 - A01.4,Infecciosas del aparato digestivo,15,46,2848,3722,Por incorporar,Exploración,30.0
+Otras salmonelosis,A02,Infecciosas del aparato digestivo,15,352,17334,20782,Por incorporar,Exploración,45.3
+Shigelosis,A03,Infecciosas del aparato digestivo,16,27,1351,1470,Por incorporar,Exploración,27.3
+Infecciones intestinales por otros organismos y las mal definidas,"A04, A08-A09 excepto A08.0",Infecciosas del aparato digestivo,16,65306,3283912,3250804,Por incorporar,Media,58.3
+Intoxicación alimentaria bacteriana,A05,Infecciosas del aparato digestivo,17,219,14566,17759,Por incorporar,Exploración,44.2
+Amebiasis intestinal,"A06.0-A06.3, A06.9",Infecciosas del aparato digestivo,17,1226,63656,69008,Por incorporar,Media,52.0
+Absceso hepático amebiano,A06.4,Infecciosas del aparato digestivo,18,9,542,465,Por incorporar,Exploración,
+Otras infecciones intestinales debidas a protozoarios,"A07.0, A07.2, A07.9",Infecciosas del aparato digestivo,18,810,42490,46738,Por incorporar,Exploración,49.8
+Giardiasis,A07.1,Infecciosas del aparato digestivo,19,87,5559,5390,Por incorporar,Exploración,41.4
+Otras helmintiasis,"B65-B67, B70-B76, B78, B79, B81-B83 excepto B73 y B75",Infecciosas del aparato digestivo,19,1945,80252,,Por incorporar,Media,52.3
+Ascariasis,B77,Infecciosas del aparato digestivo,20,326,15436,17478,Por incorporar,Exploración,42.0
+Enterobiasis,B80,Infecciosas del aparato digestivo,20,175,8548,,Por incorporar,Exploración,42.6
+Enfermedades infecciosas intestinales,"A01-A03, A04, A05, A06.0-A06.3, A06.9, A07.0-A07.2, A07.9, A08-A09",Infecciosas del aparato digestivo,20,68165,3436995,3422581,Agregado,Exploración,
+Tuberculosis respiratoria,A15-A16,Infecciosas del aparato respiratorio,21,219,16550,17810,Por incorporar,Exploración,35.8
+Otitis media aguda,H65.0-H65.1,Infecciosas del aparato respiratorio,21,11098,459266,495119,Por incorporar,Media,55.0
+Infecciones respiratorias agudas,"J00-J06, J20, J21 excepto J02, J03.0",Infecciosas del aparato respiratorio,22,326751,12048243,13192350,Por incorporar,Media,72.0
+Faringitis y amigdalitis estreptocócicas,"J02.0, J03.0",Infecciosas del aparato respiratorio,22,5123,199176,224051,Por incorporar,Media,52.2
+Neumonías y bronconeumonías,"J12-J18 excepto J18.2, J13 y J14",Infecciosas del aparato respiratorio,23,2679,123829,123988,Por incorporar,Media,65.0
+Covid 19,U07.1,Infecciosas del aparato respiratorio,23,13,3031,6906,Rechazada,Revisión metodológica,
+Sífilis congénita,A50,Transmisión sexual,24,24,542,425,Por incorporar,Exploración,
+Sífilis adquirida,A51-A53,Transmisión sexual,24,429,20759,,Por incorporar,Exploración,49.5
+Infección gonocócica del tracto genitourinario,A54.0-A54.2,Transmisión sexual,24,103,4467,4555,Por incorporar,Exploración,43.2
+Linfogranuloma venéreo por Clamidias,A55,Transmisión sexual,25,8,391,289,Por incorporar,Exploración,
+Chancro blando,A57,Transmisión sexual,25,16,561,613,Por incorporar,Exploración,
+Herpes genital,A60.0,Transmisión sexual,26,118,4663,4770,Por incorporar,Exploración,47.2
+Vulvovaginitis,N76,Transmisión sexual,26,12853,505318,559259,Por incorporar,Media,55.1
+Infección por el virus de la inmunodeficiencia humana,"B20-B24,Z21",Transmisión sexual,27,404,14594,14781,Por incorporar,Exploración,43.5
+Candidiasis urogenital,B37.3-B37.4,Transmisión sexual,28,2364,91542,99035,Por incorporar,Media,52.5
+Tricomoniasis urogenital,A59.0,Transmisión sexual,28,262,11180,12744,Por incorporar,Exploración,48.5
+Tifo epidémico,A75.0,Transmitidas por vector,29,0,0,0,Por incorporar,Exploración,
+Tifo murino,A75.2,Transmitidas por vector,29,1,16,8,Por incorporar,Exploración,
+Otras Rickettsiosis,A79,Transmitidas por vector,30,9,181,113,Por incorporar,Exploración,
+Fiebre manchada,A77.0,Transmitidas por vector,30,6,444,300,Por incorporar,Exploración,
+Dengue no Grave,A97.0,Transmitidas por vector,31,373,4402,7157,Publicada,Seguimiento,
+Dengue con signos de alarma,A97.1,Transmitidas por vector,31,283,4040,6041,Publicada,Seguimiento,
+Dengue grave,A97.2,Transmitidas por vector,31,11,272,462,Publicada,Seguimiento,
+Enfermedad por virus Chikungunya,A92.0,Transmitidas por vector,32,0,15,0,Por incorporar,Exploración,
+Fiebre del oeste del Nilo,A92.3,Transmitidas por vector,32,0,0,0,Por incorporar,Exploración,
+Infección por virus Zika,U06.9,Transmitidas por vector,32,0,0,2,Por incorporar,Exploración,
+Paludismo por Plasmodium falciparum,B50,Transmitidas por vector,33,0,0,0,Por incorporar,Exploración,
+Paludismo por Plasmodium vivax,B50,Transmitidas por vector,33,9,186,150,Por incorporar,Exploración,
+Brucelosis,A23,Zoonóticas,34,29,1215,1350,Por incorporar,Exploración,29.5
+Leptospirosis,A27,Zoonóticas,34,15,454,370,Por incorporar,Exploración,
+Teniasis,B68,Zoonóticas,35,2,186,94,Por incorporar,Exploración,
+Cisticercosis,B69,Zoonóticas,35,2,154,124,Por incorporar,Exploración,
+Triquinosis,B75,Zoonóticas,35,0,18,12,Por incorporar,Exploración,
+Rabia humana por fauna silvestre,A82.0,Zoonóticas,36,0,0,2,Por incorporar,Exploración,
+Rabia humana por fauna urbana,A82.1,Zoonóticas,36,0,0,1,Por incorporar,Exploración,
+Escarlatina,A38,Exantemáticas,37,31,1395,1168,Por incorporar,Exploración,39.4
+Erisipela,A46,Exantemáticas,37,160,6447,6057,Por incorporar,Exploración,43.4
+Mal del pinto,A67,Otras transmisibles,38,6,80,60,Por incorporar,Exploración,
+Tuberculosis otras formas,"A17.1, A17.8, A17.9, A18-A19",Otras transmisibles,38,55,3598,3710,Por incorporar,Exploración,31.1
+Lepra°,A30,Otras transmisibles,38,3,59,58,Por incorporar,Exploración,
+Hepatitis vírica C,"B17.1, B18.2",Otras transmisibles,39,157,5626,5440,Por incorporar,Exploración,46.1
+Otras hepatitis víricas,B17-B19 Excepto B17.1 y B18.2,Otras transmisibles,39,43,1407,1640,Por incorporar,Exploración,36.0
+Conjuntivitis epidémica aguda hemorrágica,B30.3,Otras transmisibles,39,2,126,128,Por incorporar,Exploración,
+Tripanosomiasis americana (enfermedad de Chagas) aguda,B57.0-B57.1,Otras transmisibles,40,0,45,29,Por incorporar,Exploración,
+Tripanosomiasis americana (enfermedad de Chagas) crónica,B57.2-B57.5,Otras transmisibles,40,14,487,490,Por incorporar,Exploración,
+Toxoplasmosis,B58,Otras transmisibles,41,6,110,130,Por incorporar,Exploración,
+Meningoencefalitis amebiana primaria,B60.2,Otras transmisibles,41,0,1,0,Por incorporar,Exploración,
+Escabiosis,B86,Otras transmisibles,42,533,22301,23028,Por incorporar,Exploración,49.6
+Conjuntivitis,H10,Otras transmisibles,42,14113,614524,640868,Por incorporar,Media,55.4
+Infección asociada a la atención de la salud,S/C,Otras transmisibles,42,2333,92243,94556,Por incorporar,Media,52.5
+Tracoma,A71,"Interés local, regional o institucional",43,0,2,11,Por incorporar,Exploración,
+Oncocercosis,B73,"Interés local, regional o institucional",43,0,0,0,Por incorporar,Exploración,
+^Miasis,B87,"Interés local, regional o institucional",43,12,858,169,Por incorporar,Exploración,
+Leishmaniasis cutánea,B55.1,"Interés local, regional o institucional",44,2,584,231,Por incorporar,Exploración,
+Leishmaniasis visceral,B55.0,"Interés local, regional o institucional",44,0,0,2,Por incorporar,Exploración,
+Síndrome meníngeo,G00-G03 excepto G00.0 y G00.1,Vigilancia sindromática,45,21,739,803,Por incorporar,Exploración,
+Infección de vías urinarias,"N30, N34, N39.0",Vigilancia sindromática,45,70292,2817390,2873545,Por incorporar,Media,74.8
+Enfermedad febril  exantemática,U97,Vigilancia sindromática,46,155,30624,12076,Por incorporar,Media,60.4
+Parálisis flácida aguda  (menores de 15 años),U98,Vigilancia sindromática,46,8,326,394,Por incorporar,Exploración,
+Síndrome coqueluchoide,U99,Vigilancia sindromática,46,45,1141,4912,Por incorporar,Exploración,29.4
+Bocio endémico,E01,No transmisibles,47,5,602,564,Por incorporar,Exploración,
+Diabetes mellitus (tipo I),E10,No transmisibles,47,85,3238,3233,Publicada,Seguimiento,
+Diabetes mellitus (tipo II),E11-E14,No transmisibles,47,11836,483102,447031,Publicada,Seguimiento,
+Intoxicación aguda por alcohol,F10.0,No transmisibles,48,331,16516,17318,Por incorporar,Media,56.3
+Fiebre reumática aguda,I00-I02,No transmisibles,48,13,883,762,Por incorporar,Exploración,
+Hipertensión arterial,I10-I15,No transmisibles,49,12380,524396,496742,Por incorporar,Alta,81.9
+Enfermedad Isquémica del corazón,"I20, I25",No transmisibles,49,1621,70611,60780,Por incorporar,Alta,82.0
+Enfermedad cerebrovascular,"I60-I67, I69",No transmisibles,49,1441,57217,51198,Por incorporar,Alta,80.3
+Insuficiencia venosa periférica,I87.2,No transmisibles,50,4328,188585,179556,Por incorporar,Media,63.1
+Asma,"J45, J46",No transmisibles,50,2561,97682,103907,Por incorporar,Media,72.6
+Gingivitis y enfermedad periodontal,K05,No transmisibles,50,23757,999528,1012659,Por incorporar,Media,64.2
+Úlceras gastritis y duodenitis,K25-K29,No transmisibles,51,16650,713670,744102,Por incorporar,Media,63.7
+Enfermedad alcohólica del hígado,K70 excepto K70.3,No transmisibles,51,98,3998,4022,Por incorporar,Media,50.2
+Cirrosis hepática alcohólica,K70.3,No transmisibles,51,113,5965,6045,Por incorporar,Media,52.4
+Hiperplasia de próstata,N40,No transmisibles,52,2546,101522,100854,Por incorporar,Media,60.9
+"Edema proteinuria y transtornos hipertensivos en el embarazo, parto y puerperio",O10-O16,No transmisibles,52,1203,47424,47238,Por incorporar,Media,59.6
+Diabetes mellitus en el embarazo,O24.4,No transmisibles,52,467,18774,16987,Por incorporar,Media,59.7
+Quemaduras,T20-T32,No transmisibles,53,1499,59444,55099,Por incorporar,Media,62.2
+Intoxicación por monóxido de carbono,T58,No transmisibles,53,4,366,330,Por incorporar,Exploración,
+Intoxicación por plaguicidas,T60,No transmisibles,53,52,2177,1887,Por incorporar,Exploración,49.2
+Mordedura de araña viuda negra,U60.2,No transmisibles,54,88,3416,2709,Por incorporar,Media,53.1
+Mordedura de araña violinista,U60.3,No transmisibles,54,22,763,657,Por incorporar,Exploración,
+Mordedura de otras arañas,"T63.3, X21 Excepto U60.2 y U60.3",No transmisibles,54,154,4638,4081,Por incorporar,Media,56.1
+Picadura de abeja,U60.4,No transmisibles,55,293,11517,9560,Por incorporar,Media,60.4
+Picadura de avispa,U60.5,No transmisibles,55,117,2992,2478,Por incorporar,Media,56.8
+Picadura por otros artrópodos,T63.4 Excepto U60.4 y U60.5,No transmisibles,55,174,5770,4492,Por incorporar,Media,60.1
+Picadura o intoxicación por otros animales ponzoñosos,"T63.1, T63.5-T63.9, X27, U60.8",No transmisibles,56,613,21332,17660,Por incorporar,Media,63.0
+Intoxicación por picadura de alacrán,"T63.2, X22",No transmisibles,56,7381,252356,245026,Por incorporar,Media,59.9
+Hipotermia,T68,No transmisibles,57,6,135,101,Por incorporar,Exploración,
+Eventos supuestamente asociados a la vacunación  (ESAVI),"Y58, Y59",No transmisibles,57,216,3470,2165,Por incorporar,Media,63.5
+Efectos del calor y de la luz,"T67, X30",No transmisibles,58,42,4694,3366,Por incorporar,Media,57.6
+Depleción del volumen (deshidratación),E86,No transmisibles,58,131,8314,5776,Por incorporar,Media,65.3
+Desnutrición severa,E40-E43,Trastornos de la nutrición,59,82,4712,5156,Por incorporar,Exploración,46.6
+Desnutrición moderada,E44.0,Trastornos de la nutrición,59,251,9592,10859,Por incorporar,Media,53.1
+Desnutrición leve,E44.1,Trastornos de la nutrición,59,870,39173,44632,Por incorporar,Media,59.2
+Obesidad,E66,Trastornos de la nutrición,60,15669,703728,561594,Publicada,Seguimiento,
+"Anorexia, bulimia y otros trastornos alimentarios",F50,Trastornos de la nutrición,60,72,4156,4333,Control publicado,Seguimiento,
+Tumor maligno de la mama,C50,Displasias y neoplasias,61,522,22250,23970,Por incorporar,Media,50.4
+Tumor maligno del cuello del útero,C53,Displasias y neoplasias,61,74,3626,4042,Por incorporar,Exploración,42.1
+Displasia cervical leve y moderada,N87.0-N87.1,Displasias y neoplasias,62,733,29684,37930,Por incorporar,Media,50.0
+Displasia cervical severa y CaCu in situ,"N87.2, D06",Displasias y neoplasias,62,98,4253,4898,Por incorporar,Exploración,42.3
+Tumor maligno de la próstata,C61,Displasias y neoplasias,63,140,6852,5795,Por incorporar,Exploración,49.3
+Tumor maligno del cuerpo del útero,C54,Displasias y neoplasias,63,68,2840,2728,Por incorporar,Exploración,40.6
+Tumor maligno del ovario,C56,Displasias y neoplasias,63,66,2984,2750,Por incorporar,Exploración,39.7
+"Tumor maligno de traquea, bronquios y pulmón",C33-C34,Displasias y neoplasias,64,44,2167,1940,Por incorporar,Exploración,38.6
+Tumor maligno del estómago,C16,Displasias y neoplasias,64,46,1963,2009,Por incorporar,Exploración,35.7
+Tumor maligno del colon y recto,C18-C21,Displasias y neoplasias,64,164,6049,5589,Por incorporar,Exploración,44.6
+Tumor maligno del hígado y de las vías biliares intrahepáticas,C22,Displasias y neoplasias,65,44,1568,1445,Por incorporar,Exploración,38.7
+Linfoma Hodking,C81,Displasias y neoplasias,65,28,728,998,Por incorporar,Exploración,
+Linfoma no Hodking,C82-C85,Displasias y neoplasias,65,42,2102,2473,Por incorporar,Exploración,36.6
+Leucemia,C91-C95,Displasias y neoplasias,66,53,2070,2254,Por incorporar,Exploración,35.8
+Tumor maligno del esófago,C15,Displasias y neoplasias,66,16,476,470,Por incorporar,Exploración,
+Tumor maligno del páncreas,C26,Displasias y neoplasias,66,37,1429,1314,Por incorporar,Exploración,36.3
+Tumores malignos del encéfalo y otras partes del Sistema Nervioso Central,C70-C72,Displasias y neoplasias,67,31,989,896,Por incorporar,Exploración,
+Tumores malignos de los huesos y de los cartílagos articulares,C40-C41,Displasias y neoplasias,67,17,878,1088,Por incorporar,Exploración,
+Tumor maligno del riñón,C64,Displasias y neoplasias,67,56,2452,2311,Por incorporar,Exploración,34.7
+Anencefalia,Q00,Defectos al nacimiento,68,1,107,118,Por incorporar,Exploración,
+Encefalocele,Q01,Defectos al nacimiento,68,0,69,62,Por incorporar,Exploración,
+Microcefalia,Q02,Defectos al nacimiento,68,8,300,294,Por incorporar,Exploración,
+Espina bífida,Q05,Defectos al nacimiento,69,3,227,272,Por incorporar,Exploración,
+Labio y paladar hendido,Q35-Q37,Defectos al nacimiento,69,25,755,872,Por incorporar,Exploración,
+Depresión,F32,Neurológicas y de salud mental,70,3202,128907,122432,Publicada,Seguimiento,
+Enfermedad de Parkinson,G20,Neurológicas y de salud mental,70,147,6437,6160,Publicada,Seguimiento,
+Enfermedad de Alzheimer,G30,Neurológicas y de salud mental,70,40,1824,1688,Publicada,Seguimiento,
+"Envenenamiento autoinfligido intencionalmente por analgésicos no narcóticos, antipiréticos y antirreumáticos",X60,Neurológicas y de salud mental,71,53,2625,2210,Por incorporar,Media,50.5
+"Envenenamiento autoinfligido intencionalmente por drogas antiepilépticas, sedantes, hipnóticas, antiparkinsonianas y psicotrópicas",X61,Neurológicas y de salud mental,71,88,4360,3632,Por incorporar,Media,57.2
+"Lesión autoinfligida intencionalmente por ahorcamiento, estrangulamiento o sofocación",X70,Neurológicas y de salud mental,71,15,659,597,Por incorporar,Exploración,
+Lesión autoinfligida intencionalmente por disparo de arma corta,X72,Neurológicas y de salud mental,72,6,148,154,Por incorporar,Exploración,
+Lesión autoinfligida intencionalmente por objeto cortante,X78,Neurológicas y de salud mental,72,36,1605,1365,Por incorporar,Exploración,45.5
+Lesión autoinfligida intencionalmente al saltar desde un lugar elevado,X80,Neurológicas y de salud mental,72,11,231,188,Por incorporar,Exploración,
+Historia personal de lesión autoinfligida intencionalmente (Intento de suicidio),Z91.5,Neurológicas y de salud mental,73,126,3964,3501,Por incorporar,Media,69.0
+Otros síntomas y signos que involucran el estado emocional (Ideación suicida),R45.8,Neurológicas y de salud mental,73,154,6610,3965,Por incorporar,Alta,80.0
+Peatón lesionado en accidente de transporte,V01-V09,Accidentes,74,446,19540,20192,Por incorporar,Exploración,47.8
+Accidente de transporte en vehículos con motor,"V20-V29, V40-V79",Accidentes,74,5068,206326,196648,Por incorporar,Media,55.2
+Mordeduras por perro,W54,Accidentes,75,2574,110170,113139,Por incorporar,Media,52.8
+Mordeduras por otros mamíferos,W55,Accidentes,75,413,15007,13070,Por incorporar,Media,52.6
+Mordedura por serpiente de cascabel,U60.0,Accidentes,76,41,1414,1109,Por incorporar,Exploración,44.2
+Mordedura por serpiente Coral,U60.1,Accidentes,76,1,108,108,Por incorporar,Exploración,
+Mordedura por otras serpientes,"T63.0, X20 excepto U60.0 y U60.1",Accidentes,76,53,1874,1550,Por incorporar,Exploración,40.3
+Violencia intrafamiliar,Y07.0-Y07.2,Accidentes,77,890,37023,41338,Por incorporar,Media,50.3
+Herida por arma de fuego,W32-W34,Accidentes,77,786,35844,42766,Por incorporar,Media,50.3
+"Envenenamiento accidental por, y exposición a sustancias nocivas",X40 - X49,Accidentes,78,47,2278,1348,Por incorporar,Media,52.5
+Contacto traumático con animales y plantas venenosas,"X24-X29 excepto X26, X27",Accidentes,78,22,847,593,Por incorporar,Exploración,
+"Exposición al humo, fuego y llamas",X00-X09,Accidentes,79,30,1423,1404,Por incorporar,Exploración,30.9
+Contacto con calor y sustancias calientes,X10-X19,Accidentes,79,39,1777,1698,Por incorporar,Exploración,35.4
+Asfixia,T17.2 - T17.3,Accidentes,80,34,1500,412,Por incorporar,Media,50.3
+Ahogamiento y sumersión no mortal,T75.1,Accidentes,80,0,128,40,Por incorporar,Exploración,
+Quemaduras solares,L55,Accidentes,80,12,647,2,Por incorporar,Exploración,
+Poliomielitis,A80,"Notificación inmediata, solo resumen nacional",4,0,0,0,Por incorporar,Exploración,
+Difteria,A36,"Notificación inmediata, solo resumen nacional",4,0,0,0,Por incorporar,Exploración,
+Fiebre amarilla,A92.2,"Notificación inmediata, solo resumen nacional",4,0,0,0,Por incorporar,Exploración,
+Encefalitis equina venezolana,A95,"Notificación inmediata, solo resumen nacional",4,0,0,0,Por incorporar,Exploración,
+Peste,A20,"Notificación inmediata, solo resumen nacional",4,0,0,0,Por incorporar,Exploración,
+Fiebre por virus Mayaro,A92.8,"Notificación inmediata, solo resumen nacional",4,0,0,0,Por incorporar,Exploración,
+Enfermedad por virus Ébola,A98.4,"Notificación inmediata, solo resumen nacional",4,0,0,0,Por incorporar,Exploración,

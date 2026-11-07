@@ -1,0 +1,14 @@
+{
+  "schema": "boletin_radar.v1",
+  "source_pdf_sha256": "4539cf504e34c321fd0ef7680d99e9ea6215176f77b8a1512124ba663918c6df",
+  "source_period": "2026-W42",
+  "checked": "2026-11-07",
+  "state_blocks": 181,
+  "states_per_block": 32,
+  "state_columns_reconciled": true,
+  "national_rows": 77,
+  "national_values_verified": 385,
+  "categories_excluding_aggregate": 187,
+  "published_platform_entries": 8,
+  "scope": "Fixed snapshot of notified cases and incorporation proposal; no new forecast models."
+}

@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "test:wcp": "node --test tests/wcp*.test.mjs",
-    "check:wcp": "node --check Reports/wcp2026/wcp.mjs && node --check Reports/wcp2026/wcp-data.mjs && npm run test:wcp"
+    "check:wcp": "node --check Reports/wcp2026/wcp.mjs && node --check Reports/wcp2026/wcp-data.mjs && npm run test:wcp",
+    "test:boletin": "node --test tests/boletin.test.mjs && node --check assets/boletin/radar.js"
   },
   "description": "EpiForecast-MX Knowledge Base - Sitio estatico con Netlify Functions",
   "dependencies": {
