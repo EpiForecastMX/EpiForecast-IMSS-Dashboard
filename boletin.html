@@ -8,11 +8,11 @@
 <link rel="canonical" href="https://epiforecast.mx/boletin.html">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta property="og:title" content="Radar del boletín | EpiForecast-MX">
-<meta property="og:description" content="Casos, variables y cobertura de 187 categorías de vigilancia del boletín 42/2026. Explora cifras estatales y prioridades de incorporación.">
+<meta property="og:description" content="Curvas semanales de 2025 y 2026, casos y variables de 187 categorías de vigilancia. Explora cifras estatales y prioridades de incorporación.">
 <meta property="og:url" content="https://epiforecast.mx/boletin.html">
 <meta property="og:type" content="website">
 <link rel="stylesheet" href="/editorial.css?v=1">
-<link rel="stylesheet" href="/assets/boletin/radar.css?v=20261107">
+<link rel="stylesheet" href="/assets/boletin/radar.css?v=20261107b">
 </head>
 <body class="boletin-page">
 <a class="skip-link" href="#inicio">Saltar al contenido</a>
@@ -43,7 +43,7 @@
 <h1>Radar del boletín<br>
 <em>epidemiológico nacional</em>
 </h1>
-<p class="intro">Las categorías de vigilancia del boletín 42/2026, sus cifras y las oportunidades para ampliar EpiForecast-MX. Foto documental verificada el 7 de noviembre de 2026.</p>
+<p class="intro">Curvas de cada padecimiento a partir de los 95 boletines de 2025 y 2026, con sus cifras, variables y oportunidades para ampliar EpiForecast-MX. Último corte: boletín 42/2026, verificado el 7 de noviembre.</p>
 </div>
 <div class="issue">
 <span>BOLETÍN NACIONAL</span>
@@ -54,6 +54,7 @@
 </div>
 </div>
 <div class="radar-section-nav" aria-label="Secciones del radar">
+<a href="#curvas">Curvas 2025 y 2026</a>
 <a href="#catalogo">Catálogo de vigilancia</a>
 <a href="#prioridades">Prioridades de incorporación</a>
 <a href="#cobertura">Cobertura actual</a>
@@ -95,6 +96,15 @@
 <div class="coverage-foot">F50: control estacional publicado.<br>Covid-19: rechazado, solo en <a href="rechazados.html">su sección de evidencia</a>.</div>
 </article>
 </div>
+</section>
+<section id="curvas" aria-labelledby="curvas-heading">
+<div class="section-top"><div><div class="eyebrow">ARCHIVO HISTÓRICO · 95 BOLETINES</div><h2 id="curvas-heading">Así viene la curva.</h2><p>Explora cada padecimiento por semana observada. Compara 2025 y 2026, o sigue la secuencia completa, a nivel nacional o estatal.</p></div><a class="button secondary" href="/assets/boletin/history/nacional-2025-2026.csv" download>Descargar histórico nacional CSV</a></div>
+<div class="curve-controls"><label>Padecimiento<select id="curveDisease" disabled aria-label="Padecimiento de la curva"></select></label><label>Ámbito<select id="curveState" disabled aria-label="Entidad de la curva"><option value="-1">Nacional</option></select></label><label>Cifra<select id="curveMetric" disabled aria-label="Métrica de la curva"><option value="0">Casos semanales</option><option value="1">Acumulados del año observado</option></select></label><label>Vista<select id="curveMode" disabled aria-label="Vista de la curva"><option value="compare">Comparar 2025 y 2026</option><option value="timeline">Secuencia 2025–2026</option></select></label></div>
+<p id="curveStatus" class="context-note" role="status">Cargando el archivo histórico…</p>
+<div class="curve-panel"><div class="curve-chart-head"><h3 id="curveTitle">Curva de notificaciones</h3><div class="curve-legend"><span class="curve-legend-2025">2025</span><span class="curve-legend-2026">2026</span></div></div><p id="curveScope" class="caption"></p><div id="curveStats" class="curve-stats"></div><div id="curveChart" class="curve-chart"></div><p class="curve-mobile-hint">Desliza la gráfica horizontalmente para recorrer todas las semanas.</p><div id="curvePoint" class="curve-point" aria-live="polite"></div><p id="curveCaption" class="caption"></p></div>
+<p class="context-note">No se interpolan huecos ni se convierten ausencias en ceros. Los valores negativos y avisos impresos se conservan. Los cuadros convencionales suelen observar una semana antes del boletín: la última observación depende del padecimiento. Esto es vigilancia histórica, no un pronóstico ni una validación de modelos.</p>
+<details class="method-details"><summary>Consultar los puntos, sus fuentes y avisos</summary><button class="button secondary" id="curveCsv" type="button">Descargar esta selección CSV</button><div class="table-wrap"><table><thead><tr><th>Periodo observado</th><th class="number">Notificaciones</th><th>Boletín fuente</th><th>Avisos</th></tr></thead><tbody id="curveDataRows"></tbody></table></div></details>
+<details class="method-details"><summary>Cómo se construyeron las curvas de 2025 y 2026</summary><p>Se analizaron los 53 boletines oficiales de 2025 y los 42 de 2026 disponibles al 7 de noviembre de 2026. Cada punto conserva el PDF fuente, su huella SHA-256, la página y el periodo observado. Las identidades se unen por nombre y códigos, no por número de página, porque los cuadros cambian de posición.</p><p>Las cifras semanales se transcriben de su columna original. No se restan acumulados, pues pueden revisarse. Los acumulados se separan por año observado. Si un año impreso contradice el corte del cuadro, el acumulado ambiguo no se grafica. Un encabezado de 2026-W01 invierte los años de varicela, sarampión y rubéola: sus puntos quedan como huecos y se conserva el dato original con aviso. Las categorías que no aparecen aún en un boletín tampoco se rellenan.</p><p>Una discrepancia de origen se mantiene visible: tuberculosis en otras formas, boletín 2026-W07, página 43, imprime 293 hombres acumulados, frente a 286 al sumar las entidades. La curva nacional conserva el total impreso y las curvas estatales conservan sus celdas. Los puntos señalados permiten consultar cada caso.</p><a href="/assets/boletin/history/index.json" download>Manifiesto de fuentes y cobertura</a></details>
 </section>
 <section id="catalogo">
 <div class="section-top">
@@ -307,7 +317,8 @@
 </dialog>
 <div id="error" hidden>
 </div>
-<script src="/assets/boletin/radar.js?v=20261107" defer>
+<script src="/assets/boletin/radar.js?v=20261107b" defer>
 </script>
+<script src="/assets/boletin/curves.js?v=20261107" defer></script>
 </body>
 </html>
