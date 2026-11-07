@@ -2,6 +2,25 @@
     "_generated": "2026-11-05",
     "items": [
         {
+            "date": "7 de noviembre de 2026",
+            "iso": "2026-11-07",
+            "type": "cardio",
+            "tag": "Nuevos padecimientos",
+            "featured": true,
+            "title": "Hipertensión, enfermedad isquémica y cerebrovascular se incorporan al pronóstico",
+            "summary": "Pronóstico semanal a 52 semanas para el país, 4 regiones y las 32 entidades, por sexo. Hipertensión superó la prueba de 2025; las otras dos publican el control estacional.",
+            "body": [
+                "EpiForecast-MX publica la <strong style=\"color:var(--cream)\">hipertensión arterial (CIE-10 I10-I15)</strong>, la <strong style=\"color:var(--cream)\">enfermedad isquémica del corazón (I20, I25)</strong> y la <strong style=\"color:var(--cream)\">enfermedad cerebrovascular (I60-I67, I69)</strong>: pronósticos semanales a 52 semanas para el país, 4 regiones y las 32 entidades, por sexo (111 series en cada padecimiento).",
+                "La hipertensión superó la prueba de 2025 y su validación prospectiva está en curso. Las enfermedades isquémica y cerebrovascular no la superaron: se publica el control estacional, que repite los casos de 52 semanas antes, y no se presenta como validado.",
+                "Usan datos hasta la semana 41 de 2026, se emitieron el 7 de noviembre y no se reentrenan. Son pronósticos puntuales, sin intervalos de incertidumbre. Puedes consultarlos en sus páginas, en la galería y en EPI."
+            ],
+            "link": {
+                "href": "hipertension_i10.html",
+                "text": "Ver el pronóstico de hipertensión arterial",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
+        {
             "date": "6 de noviembre de 2026",
             "iso": "2026-11-06",
             "type": "f50",

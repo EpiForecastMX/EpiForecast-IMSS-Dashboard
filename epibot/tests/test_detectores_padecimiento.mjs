@@ -58,8 +58,8 @@ test('«y obesidad?» tras una consulta de Jalisco hereda el estado («obesidad�
 });
 
 test('un no modelado en el follow-up sigue sin heredar contexto', async () => {
-  const r = await sigue('casos de depresion en jalisco', 'y hipertension?');
-  assert.match(r.md, /no modela hipertension/);
+  const r = await sigue('casos de depresion en jalisco', 'y asma?');
+  assert.match(r.md, /no modela asma/);
 });
 
 // ── rag.mjs: detectEntities + focusedFacts reales, sin red ─────────────────────────────────

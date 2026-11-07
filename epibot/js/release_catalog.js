@@ -48,6 +48,35 @@
       pagina: 'diabetes_t2.html', consulta: 'diabetes tipo 2', cie: 'E11-E14', color: '#F472B6',
       alias: [], prefijos: [],
     },
+    {
+      id: 'hipertension_i10', pad: 'Hipertensión arterial', nombre: 'Hipertensión arterial',
+      nombreCorto: 'Hipertensión', etiqueta: 'Hipertensión arterial (I10-I15)',
+      dataKey: 'hipertension_i10', marca: 'HIPERTENSION_I10', pagina: 'hipertension_i10.html',
+      consulta: 'hipertension', cie: 'I10-I15', color: '#F87171',
+      alias: ['hipertension', 'hipertension arterial', 'presion alta', 'presion arterial alta',
+        'tension alta', 'hipertensos', 'i10', 'hypertension', 'high blood pressure'],
+      prefijos: ['hipertens', 'hypertens', 'presion alta', 'presion arterial alta', 'tension alta'],
+    },
+    {
+      id: 'isquemica_i20', pad: 'Enfermedad isquémica del corazón',
+      nombre: 'Enfermedad isquémica del corazón', nombreCorto: 'Isquémica',
+      etiqueta: 'Enfermedad isquémica del corazón (I20, I25)', dataKey: 'isquemica_i20',
+      marca: 'ISQUEMICA_I20', pagina: 'isquemica_i20.html', consulta: 'enfermedad isquemica',
+      cie: 'I20, I25', color: '#FB923C',
+      alias: ['enfermedad isquemica', 'cardiopatia isquemica', 'isquemia cardiaca', 'angina de pecho',
+        'i20', 'ischemic heart disease', 'coronary heart disease'],
+      prefijos: ['isquemi', 'ischemic heart', 'coronary heart', 'angina de pecho'],
+    },
+    {
+      id: 'cerebrovascular_i60', pad: 'Enfermedad cerebrovascular',
+      nombre: 'Enfermedad cerebrovascular', nombreCorto: 'Cerebrovascular',
+      etiqueta: 'Enfermedad cerebrovascular (I60-I67, I69)', dataKey: 'cerebrovascular_i60',
+      marca: 'CEREBROVASCULAR_I60', pagina: 'cerebrovascular_i60.html',
+      consulta: 'enfermedad cerebrovascular', cie: 'I60-I67, I69', color: '#FBBF24',
+      alias: ['cerebrovascular', 'enfermedad cerebrovascular', 'derrame cerebral', 'evc', 'acv',
+        'i60', 'stroke', 'cerebrovascular disease'],
+      prefijos: ['cerebrovasc', 'derrame cerebral', 'stroke'],
+    },
   ]);
 
   /**

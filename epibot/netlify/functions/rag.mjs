@@ -266,19 +266,20 @@ function stripAccents(s) { return String(s || '').toLowerCase().normalize('NFD')
 // esta función no puede importar (sus importadores llevan `?v=`). tests/test_detectores_padecimiento.mjs
 // exige que ambas listas sean iguales. Se compara al INICIO de palabra: «obesidad» contiene «sida».
 const NO_MODELADAS = [
-  'cancer', 'prediabetes', 'diabetes gestacional', 'diabetes insipida', 'diabetes en el embarazo',
-  'diabetes del embarazo', 'hipertension', 'asma', 'epilepsia',
+  'cancer', 'hipertension gestacional', 'hipertension en el embarazo', 'hipertension del embarazo',
+  'hipertension pulmonar', 'preeclampsia', 'eclampsia', 'prediabetes', 'diabetes gestacional', 'diabetes insipida', 'diabetes en el embarazo',
+  'diabetes del embarazo', 'asma', 'epilepsia',
   'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah',
   'influenza', 'covid', 'tuberculosis', 'vih', 'sida', 'colera',
   'sarampion', 'rubeola', 'hepatitis', 'zika', 'chikungunya', 'malaria',
-  'leucemia', 'linfoma', 'tumor', 'neoplasia', 'cardiop', 'infarto',
+  'leucemia', 'linfoma', 'tumor', 'neoplasia', 'cardiopatia congenita', 'infarto',
   'embolia', 'neumonia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
   'lupus', 'fibromialgia', 'esclerosis', 'huntington', 'ela ',
   'insuficiencia renal', 'insuficiencia cardiaca',
   // En inglés: sin esto, «asthma in jalisco» caería en la tabla neuro del estado.
-  'gestational diabetes', 'diabetes gestational', 'diabetes insipidus', 'prediabetic', 'hypertension',
+  'gestational diabetes', 'diabetes gestational', 'diabetes insipidus', 'prediabetic', 
   'asthma', 'epilepsy', 'schizophrenia', 'anxiety', 'tuberculosis', 'hiv', 'aids', 'measles',
-  'leukemia', 'lymphoma', 'heart attack', 'stroke', 'pneumonia', 'bronchitis', 'arthritis',
+  'leukemia', 'lymphoma', 'heart attack', 'pneumonia', 'bronchitis', 'arthritis',
   'kidney failure', 'heart failure',
 ];
 function mencionaNoModelada(qn) {
@@ -457,7 +458,7 @@ function releasesDesdeCatalogo(cat, leerShard) {
   return out;
 }
 
-const NUMERALES = ['cero', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez'];
+const NUMERALES = ['cero', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez', 'once'];
 
 /** Línea de alcance vigente: los legacy de knowledge.json más los releases publicados del runner. */
 function alcanceVigente(kb, releases) {

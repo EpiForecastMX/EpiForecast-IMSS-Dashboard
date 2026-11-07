@@ -4,7 +4,7 @@
  * Port directo de knowledge_base.py: _norm(), _detect_entities(),
  * alias maps para estados, padecimientos, sexo y modelos.
  */
-import { ALIAS_RELEASES, diabetesEnConsulta } from './release_config.js?v=4';
+import { ALIAS_RELEASES, diabetesEnConsulta } from './release_config.js?v=5';
 
 // ---------------------------------------------------------------------------
 // Normalizacion
@@ -136,19 +136,20 @@ const PADECIMIENTO_ALIAS = {
  * answerPadecimientoNoModelado. Vive aquí para que kb.js y obesidad_kb.js usen la misma lista.
  */
 export const ENFERMEDADES_NO_MODELADAS = [
-  'cancer', 'prediabetes', 'diabetes gestacional', 'diabetes insipida', 'diabetes en el embarazo',
-  'diabetes del embarazo', 'hipertension', 'asma', 'epilepsia',
+  'cancer', 'hipertension gestacional', 'hipertension en el embarazo', 'hipertension del embarazo',
+  'hipertension pulmonar', 'preeclampsia', 'eclampsia', 'prediabetes', 'diabetes gestacional', 'diabetes insipida', 'diabetes en el embarazo',
+  'diabetes del embarazo', 'asma', 'epilepsia',
   'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah',
   'influenza', 'covid', 'tuberculosis', 'vih', 'sida', 'colera',
   'sarampion', 'rubeola', 'hepatitis', 'zika', 'chikungunya', 'malaria',
-  'leucemia', 'linfoma', 'tumor', 'neoplasia', 'cardiop', 'infarto',
+  'leucemia', 'linfoma', 'tumor', 'neoplasia', 'cardiopatia congenita', 'infarto',
   'embolia', 'neumonia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
   'lupus', 'fibromialgia', 'esclerosis', 'huntington', 'ela ',
   'insuficiencia renal', 'insuficiencia cardiaca',
   // En inglés: sin esto, «asthma in jalisco» caería en la tabla neuro del estado.
-  'gestational diabetes', 'diabetes gestational', 'diabetes insipidus', 'prediabetic', 'hypertension',
+  'gestational diabetes', 'diabetes gestational', 'diabetes insipidus', 'prediabetic', 
   'asthma', 'epilepsy', 'schizophrenia', 'anxiety', 'tuberculosis', 'hiv', 'aids', 'measles',
-  'leukemia', 'lymphoma', 'heart attack', 'stroke', 'pneumonia', 'bronchitis', 'arthritis',
+  'leukemia', 'lymphoma', 'heart attack', 'pneumonia', 'bronchitis', 'arthritis',
   'kidney failure', 'heart failure',
 ];
 

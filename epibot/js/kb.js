@@ -6,11 +6,11 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=38';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=39';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=1';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=8';
-import { conDiabetesNombrada, RELEASES, releaseDePad, VOCAB_RELEASES } from './release_config.js?v=4';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=9';
+import { conDiabetesNombrada, RELEASES, releaseDePad, VOCAB_RELEASES } from './release_config.js?v=5';
 
 let DATA = null;
 
@@ -622,7 +622,7 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
   if (matchedDisease && (any(q, dataKw) || ent.estado || isShortFollowUp || conRelease)) {
     return (
       `EpiForecast-MX **no modela ${matchedDisease}**. ` +
-      'Nuestro proyecto se enfoca en ocho padecimientos del Bolet\u00edn Epidemiol\u00f3gico SINAVE:\n\n' +
+      'Nuestro proyecto se enfoca en once padecimientos del Bolet\u00edn Epidemiol\u00f3gico SINAVE:\n\n' +
       '- **Depresi\u00f3n** (CIE-10: F32)\n' +
       '- **Parkinson** (CIE-10: G20)\n' +
       '- **Alzheimer** (CIE-10: G30)\n' +
