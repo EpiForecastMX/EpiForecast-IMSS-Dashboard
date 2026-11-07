@@ -1,0 +1,110 @@
+{
+  "schema": "boletin_history_audit.v1",
+  "source_count": 95,
+  "records_extracted": 17696,
+  "state_blocks": 17031,
+  "state_blocks_with_discrepancy": 1,
+  "source_discrepancies": [
+    {
+      "filename": "2026_sem07.pdf",
+      "sha256": "2e078ac7aec4ca81d3b9a0adc8b73a5730f579d6a746fc7d79cca8fbb9501f7b",
+      "page": 43,
+      "id": "p38b2",
+      "kind": "reconciliation",
+      "printed": [
+        80,
+        293,
+        198,
+        472
+      ],
+      "summed": [
+        80,
+        286,
+        198,
+        472
+      ],
+      "name": "Tuberculosis otras formas"
+    }
+  ],
+  "source_cut_conflicts": [
+    {
+      "kind": "cut_audit",
+      "source": 53,
+      "id": "p10b1",
+      "page": 10,
+      "expected": [
+        2025,
+        53
+      ],
+      "found": [
+        [
+          2025,
+          1
+        ],
+        [
+          2026,
+          53
+        ]
+      ],
+      "text": "CUADRO 3.4 Casos por entidad federativa de Enfermedades Prevenibles por Vacunación hasta la semana epidemiológica 1 del 2025; Varicela hasta la semana 53 del 2026 Sarampión § Rubéola § Varicela"
+    },
+    {
+      "kind": "cut_audit",
+      "source": 53,
+      "id": "p10b2",
+      "page": 10,
+      "expected": [
+        2026,
+        1
+      ],
+      "found": [
+        [
+          2025,
+          1
+        ],
+        [
+          2026,
+          53
+        ]
+      ],
+      "text": "CUADRO 3.4 Casos por entidad federativa de Enfermedades Prevenibles por Vacunación hasta la semana epidemiológica 1 del 2025; Varicela hasta la semana 53 del 2026 Sarampión § Rubéola § Varicela"
+    },
+    {
+      "kind": "cut_audit",
+      "source": 53,
+      "id": "p10b3",
+      "page": 10,
+      "expected": [
+        2026,
+        1
+      ],
+      "found": [
+        [
+          2025,
+          1
+        ],
+        [
+          2026,
+          53
+        ]
+      ],
+      "text": "CUADRO 3.4 Casos por entidad federativa de Enfermedades Prevenibles por Vacunación hasta la semana epidemiológica 1 del 2025; Varicela hasta la semana 53 del 2026 Sarampión § Rubéola § Varicela"
+    }
+  ],
+  "visual_ocr_checks": [
+    {
+      "filename": "2025_sem31.pdf",
+      "page": 66,
+      "printed_week": 30,
+      "ocr_week": 50
+    },
+    {
+      "filename": "2026_sem34.pdf",
+      "page": 59,
+      "printed_week": 33,
+      "ocr_week": 35
+    }
+  ],
+  "negative_values_policy": "Preserve printed signed integers; no causal explanation is inferred.",
+  "missing_values_policy": "Null for absent or ambiguous data; no interpolation or differentiation of accumulated counts."
+}
