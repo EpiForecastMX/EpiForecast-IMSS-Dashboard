@@ -343,7 +343,7 @@
     <div class="wrap">
       <div class="label">Rechazado en 2025</div>
       <h2 id="covidTitulo">Covid-19</h2>
-      <p>Casos confirmados por laboratorio que reporta el Boletín Epidemiológico del SINAVE, por entidad y sexo. Ni el portafolio ni el control anticipan bien un padecimiento que cambió de régimen: el problema aquí no es de ajuste fino.</p>
+      <p>Casos confirmados por laboratorio que reporta el Boletín Epidemiológico del SINAVE, por entidad y sexo. Ni el portafolio ni el control anticiparon bien 2025: el error nacional fue alto en ambos.</p>
       <div class="stats">
         <div class="stat"><div class="v" id="stPort">—</div><div class="l">sMAPE nacional 2025, portafolio</div></div>
         <div class="stat"><div class="v" id="stCtrl">—</div><div class="l">sMAPE nacional 2025, control</div></div>
@@ -402,9 +402,9 @@
       </div>
       <div class="callout">
         <h3>Qué hay que tener en cuenta</h3>
-        <p id="notaRegimen">Los casos notificados cayeron de varios millones al año a unos miles, así que el patrón de años anteriores ya no describe el presente.</p>
-        <p>La última semana de cada boletín llega incompleta y se revisa en los siguientes. En <span id="sexoPct">parte</span> de las semanas por estado y sexo desde 2024, el reparto por sexo se estimó porque el boletín no permitía obtenerlo directamente.</p>
-        <p>Otro padecimiento también fue rechazado: en <a href="anorexia_f50.html">anorexia, bulimia y otros trastornos alimentarios</a> el control funcionó bien en el total nacional, y por eso esa referencia sí se publica como padecimiento, siempre rotulada como control.</p>
+        <p id="notaRegimen">Los casos notificados cayeron de varios millones al año a unos miles.</p>
+        <p>En <span id="sexoPct">parte</span> de las semanas por estado y sexo desde 2024, el reparto por sexo es estimado.</p>
+        <p>Otro padecimiento también fue rechazado: en <a href="anorexia_f50.html">anorexia, bulimia y otros trastornos alimentarios</a> el control tuvo un error mucho menor en el total nacional de 2025, y por eso esa referencia sí se publica como padecimiento, siempre rotulada como control.</p>
         <p class="mono-meta" id="releaseMeta"></p>
       </div>
       <p class="next-links">¿Tienes una pregunta concreta? <a href="epibot/index.html">Pregúntale a EPI</a> o vuelve al <a href="index.html">inicio</a>.</p>
@@ -486,7 +486,7 @@
       $('stEsp').textContent = nf0.format(suma(pn.portafolio));
       $('sexoPct').textContent = `${nf1.format(V.sexo_estimado_pct)} %`;
       const c = V.casos_por_anio;
-      $('notaRegimen').textContent = `Los casos en semanas con boletín cayeron de ${nf0.format(c['2022'])} en 2022 a ${nf0.format(c['2025'])} en 2025, así que el patrón de años anteriores ya no describe el presente.`;
+      $('notaRegimen').textContent = `Los casos en semanas con boletín cayeron de ${nf0.format(c['2022'])} en 2022 a ${nf0.format(c['2025'])} en 2025, un cambio de nivel que puede afectar a cualquier referencia basada en años anteriores. Esa caída no demuestra por sí sola que falte estacionalidad: no se evaluó.`;
       $('releaseMeta').textContent = `Release ${V.release_id} · datos hasta la semana ${V.observation_cutoff[1]} de ${V.observation_cutoff[0]}`;
       const tb = $('tablaGate'); tb.innerHTML = '';
       for (const r of V.comprobaciones) {
