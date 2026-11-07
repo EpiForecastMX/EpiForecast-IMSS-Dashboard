@@ -4,13 +4,19 @@
  * Todo lo que el EpiBot y sus gráficas necesitan de un release se deriva de esa lista.
  * Sin imports de otros módulos: lo cargan también módulos que no pueden depender de kb.js.
  */
-import './release_catalog.js?v=4';
+import './release_catalog.js?v=5';
 
 const CATALOGO = globalThis.EPI_CATALOGO;
 
 export const RELEASES = CATALOGO.releases;
 export const diabetesEnConsulta = CATALOGO.diabetesEnConsulta;
 export const conDiabetesNombrada = CATALOGO.conDiabetesNombrada;
+export const conHipertensionNombrada = CATALOGO.conHipertensionNombrada;
+export const canonClinico = CATALOGO.canonClinico;
+export const nombraAlias = CATALOGO.nombraAlias;
+export const noModeladas = CATALOGO.noModeladas;
+export const mencionaNoModelada = CATALOGO.mencionaNoModelada;
+export const respuestaCrisis = CATALOGO.respuestaCrisis;
 
 export const releaseDePad = (pad) => RELEASES.find((r) => r.pad === pad) || null;
 export const releaseDeId = (id) => RELEASES.find((r) => r.id === id) || null;
@@ -30,6 +36,6 @@ const strip = (s) => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g
 
 /** Primer release que la consulta nombra por uno de sus alias, o null. */
 export function releaseConAlias(q) {
-  const qn = strip(q);
-  return RELEASES.find((r) => r.alias.some((a) => qn.includes(a))) || null;
+  const qn = canonClinico(strip(q));
+  return RELEASES.find((r) => r.alias.some((a) => nombraAlias(qn, a))) || null;
 }

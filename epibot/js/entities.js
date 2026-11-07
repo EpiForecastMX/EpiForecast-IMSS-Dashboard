@@ -4,7 +4,7 @@
  * Port directo de knowledge_base.py: _norm(), _detect_entities(),
  * alias maps para estados, padecimientos, sexo y modelos.
  */
-import { ALIAS_RELEASES, diabetesEnConsulta } from './release_config.js?v=5';
+import { ALIAS_RELEASES, canonClinico, diabetesEnConsulta, mencionaNoModelada, nombraAlias, noModeladas } from './release_config.js?v=6';
 
 // ---------------------------------------------------------------------------
 // Normalizacion
@@ -131,36 +131,13 @@ const PADECIMIENTO_ALIAS = {
 };
 
 /**
- * Enfermedades que el proyecto NO modela. Una consulta que nombra alguna no la contesta el handler
- * de un padecimiento modelado (p. ej. «comparar obesidad con diabetes»): la responde
- * answerPadecimientoNoModelado. Vive aquí para que kb.js y obesidad_kb.js usen la misma lista.
+ * Enfermedades que el proyecto NO modela. La lista y su comparación viven en release_catalog.js, de
+ * donde también las lee rag.mjs. Una consulta que nombra alguna no la contesta el handler de un
+ * padecimiento modelado (p. ej. «comparar obesidad con diabetes»): la responde
+ * answerPadecimientoNoModelado.
  */
-export const ENFERMEDADES_NO_MODELADAS = [
-  'cancer', 'hipertension gestacional', 'hipertension en el embarazo', 'hipertension del embarazo',
-  'hipertension pulmonar', 'preeclampsia', 'eclampsia', 'prediabetes', 'diabetes gestacional', 'diabetes insipida', 'diabetes en el embarazo',
-  'diabetes del embarazo', 'asma', 'epilepsia',
-  'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah',
-  'influenza', 'covid', 'tuberculosis', 'vih', 'sida', 'colera',
-  'sarampion', 'rubeola', 'hepatitis', 'zika', 'chikungunya', 'malaria',
-  'leucemia', 'linfoma', 'tumor', 'neoplasia', 'cardiopatia congenita', 'infarto',
-  'embolia', 'neumonia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
-  'lupus', 'fibromialgia', 'esclerosis', 'huntington', 'ela ',
-  'insuficiencia renal', 'insuficiencia cardiaca',
-  // En inglés: sin esto, «asthma in jalisco» caería en la tabla neuro del estado.
-  'gestational diabetes', 'diabetes gestational', 'diabetes insipidus', 'prediabetic', 
-  'asthma', 'epilepsy', 'schizophrenia', 'anxiety', 'tuberculosis', 'hiv', 'aids', 'measles',
-  'leukemia', 'lymphoma', 'heart attack', 'pneumonia', 'bronchitis', 'arthritis',
-  'kidney failure', 'heart failure',
-];
-
-/**
- * La enfermedad no modelada que nombra la consulta (ya normalizada), o null. Compara al INICIO de
- * palabra, no como subcadena: «obesidad» contiene «sida» y «cardiop» debe casar «cardiopatía».
- */
-export function mencionaNoModelada(qn) {
-  const q = ` ${qn} `;
-  return ENFERMEDADES_NO_MODELADAS.find((e) => q.includes(` ${e.trim()}`)) || null;
-}
+export const ENFERMEDADES_NO_MODELADAS = noModeladas;
+export { mencionaNoModelada };
 
 const SEXO_ALIAS = {
   'hombres': 'hombres',
@@ -290,7 +267,7 @@ export function detectEntities(query) {
   // ent.padecimiento = el primero (compatibilidad); ent.padecimientos = array.
   const allPads = [];
   for (const [alias, canon] of Object.entries(PADECIMIENTO_ALIAS)) {
-    if (qn.includes(alias) && !allPads.includes(canon)) allPads.push(canon);
+    if (nombraAlias(canonClinico(qn), alias) && !allPads.includes(canon)) allPads.push(canon);
   }
   const diabetes = diabetesEnConsulta(qn);
   if (diabetes) {

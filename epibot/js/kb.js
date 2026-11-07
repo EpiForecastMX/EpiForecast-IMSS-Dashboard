@@ -6,11 +6,11 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=39';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=40';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=1';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=9';
-import { conDiabetesNombrada, RELEASES, releaseDePad, VOCAB_RELEASES } from './release_config.js?v=5';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=10';
+import { conDiabetesNombrada, conHipertensionNombrada, RELEASES, releaseDePad, respuestaCrisis, VOCAB_RELEASES } from './release_config.js?v=6';
 
 let DATA = null;
 
@@ -600,6 +600,19 @@ function answerConsultaEnInglesSinPadecimiento(q, ent) {
   return `No identifiqué el padecimiento en tu consulta sobre **${ent.estado}**. Dime cuál de estos quieres consultar: ${nombres.join(', ')}.\n<!--SIN_GRAFICA-->`;
 }
 
+const ROTULO_NO_MODELADA = {
+  'ideacion suicida': 'ideación suicida', suicida: 'suicidio', suicide: 'suicidio', suicidal: 'suicidio',
+  autolesion: 'autolesiones', 'lesion autoinfligida': 'lesiones autoinfligidas', 'self harm': 'autolesiones',
+  hipotension: 'hipotensión', hypotension: 'hipotensión', 'presion baja': 'presión baja',
+  'presion arterial baja': 'presión arterial baja', 'tension baja': 'tensión baja',
+  'tension arterial baja': 'tensión arterial baja', 'ataque al corazon': 'infarto',
+  'ataque cardiaco': 'infarto', 'heart attack': 'infarto', cardiopatia: 'esa cardiopatía',
+  'hipertension gestacional': 'hipertensión gestacional', 'hipertension en el embarazo': 'hipertensión en el embarazo',
+  'hipertension del embarazo': 'hipertensión del embarazo', 'hipertension pulmonar': 'hipertensión pulmonar',
+  'hipertension portal': 'hipertensión portal', 'hipertension intracraneal': 'hipertensión intracraneal',
+  'hipertension ocular': 'hipertensión ocular',
+};
+
 function answerPadecimientoNoModelado(q, ent, s, d) {
   // Si ya detectamos un padecimiento conocido, no es off-scope. Un release sí lo es si la consulta
   // nombra además una enfermedad no modelada («comparar obesidad con hipertensión»).
@@ -609,19 +622,29 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
   // Detectar enfermedades/padecimientos mencionados que NO modelamos
   const enfermedades = ENFERMEDADES_NO_MODELADAS;
 
+  const matchedDisease = mencionaNoModelada(q);
+  // Estos temas se responden siempre aquí: no deben quedar a la deriva del RAG ni de otro handler.
+  const sensible = /suicid|autolesion|autoinfligida|self harm/.test(matchedDisease || '');
+  const cardiaco = /infarto|ataque|heart attack/.test(matchedDisease || '');
+
   // Solo activar si la pregunta parece pedir datos (casos, incidencia, etc.)
   const dataKw = ['caso', 'cuanto', 'incidencia', 'dato', 'estadistica',
     'numero', 'cifra', 'hubo', 'reporta', 'registro', 'pronostic',
     'prediccion', 'modelo', 'grafica', 'tendencia'];
 
-  const matchedDisease = mencionaNoModelada(q);
   // Activar si tiene data keywords, menciona un estado, o es un follow-up corto ("y del cancer")
   const isShortFollowUp = q.split(' ').length <= 5 && /^(y |y del |y de |y la |y el )/.test(q);
   // Con un release en la misma consulta («comparar obesidad con hipertensión») se responde siempre:
   // la consulta mezcla un padecimiento modelado con uno que no lo está.
-  if (matchedDisease && (any(q, dataKw) || ent.estado || isShortFollowUp || conRelease)) {
+  if (matchedDisease && (any(q, dataKw) || ent.estado || isShortFollowUp || conRelease || sensible || cardiaco)) {
     return (
-      `EpiForecast-MX **no modela ${matchedDisease}**. ` +
+      `EpiForecast-MX **no modela ${ROTULO_NO_MODELADA[matchedDisease] || matchedDisease}**. ` +
+      (sensible
+        ? 'Si tú o alguien cercano necesita apoyo, la **Línea de la Vida** atiende gratis, las 24 horas: **800 911 2000**.\n\n'
+        : '') +
+      (cardiaco
+        ? 'El boletín no publica una serie propia de infarto. Su categoría más cercana es **Enfermedad isquémica del corazón**, rotulada I20, I25 en el cuadro e I20-I25 en el resumen, así que no se puede afirmar si incluye I21. Sus datos están en [su página](../isquemica_i20.html), publicados con el control y sin validar.\n\n'
+        : '') +
       'Nuestro proyecto se enfoca en once padecimientos del Bolet\u00edn Epidemiol\u00f3gico SINAVE:\n\n' +
       '- **Depresi\u00f3n** (CIE-10: F32)\n' +
       '- **Parkinson** (CIE-10: G20)\n' +
@@ -4163,6 +4186,8 @@ const STOP_WORDS = new Set([
   // una consulta clinica/personal se convierta en un volcado de datos.
   'depresivo', 'depresiva', 'depresivos', 'depresivas', 'deprimido', 'deprimida',
   'narcisista', 'narcicista', 'narcisistas', 'psicotico', 'psicotica',
+  // Palabras reales que el corrector convertía en otra entidad: hipotensión es la condición opuesta.
+  'presion', 'tension', 'hipotension', 'hipotenso', 'hipotensa', 'prueba', 'pruebas',
 ]);
 
 function fuzzyCorrect(q) {
@@ -5628,7 +5653,15 @@ async function _resolve(query) {
   const d = await loadKnowledge();
   const s = d.stats || {};
   // Un seguimiento que nombra otro subtipo de diabetes se resuelve antes de heredar el contexto.
-  const q = conDiabetesNombrada(norm(query), lastEntities.padecimiento);
+  const crisis = respuestaCrisis(norm(query));
+  if (crisis) {
+    lastEntities = {};
+    trace.handler = 'answerCrisis';
+    return { response: crisis, handler: trace.handler };
+  }
+  // Un seguimiento que nombra otro subtipo o categoría se resuelve antes de heredar el contexto.
+  const q = conHipertensionNombrada(
+    conDiabetesNombrada(norm(query), lastEntities.padecimiento), lastEntities.padecimiento);
   const ent = detectEntities(q === norm(query) ? query : q);
 
   // Guard: prompt injection / roleplay → rechazar inmediatamente

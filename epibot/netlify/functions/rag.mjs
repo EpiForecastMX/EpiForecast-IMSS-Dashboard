@@ -262,30 +262,8 @@ async function retrieve(genAI, query, expandedText, index) {
 
 function stripAccents(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
 
-// Enfermedades que el proyecto NO modela: copia de ENFERMEDADES_NO_MODELADAS (js/entities.js), que
-// esta función no puede importar (sus importadores llevan `?v=`). tests/test_detectores_padecimiento.mjs
-// exige que ambas listas sean iguales. Se compara al INICIO de palabra: «obesidad» contiene «sida».
-const NO_MODELADAS = [
-  'cancer', 'hipertension gestacional', 'hipertension en el embarazo', 'hipertension del embarazo',
-  'hipertension pulmonar', 'preeclampsia', 'eclampsia', 'prediabetes', 'diabetes gestacional', 'diabetes insipida', 'diabetes en el embarazo',
-  'diabetes del embarazo', 'asma', 'epilepsia',
-  'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah',
-  'influenza', 'covid', 'tuberculosis', 'vih', 'sida', 'colera',
-  'sarampion', 'rubeola', 'hepatitis', 'zika', 'chikungunya', 'malaria',
-  'leucemia', 'linfoma', 'tumor', 'neoplasia', 'cardiopatia congenita', 'infarto',
-  'embolia', 'neumonia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
-  'lupus', 'fibromialgia', 'esclerosis', 'huntington', 'ela ',
-  'insuficiencia renal', 'insuficiencia cardiaca',
-  // En inglés: sin esto, «asthma in jalisco» caería en la tabla neuro del estado.
-  'gestational diabetes', 'diabetes gestational', 'diabetes insipidus', 'prediabetic', 
-  'asthma', 'epilepsy', 'schizophrenia', 'anxiety', 'tuberculosis', 'hiv', 'aids', 'measles',
-  'leukemia', 'lymphoma', 'heart attack', 'pneumonia', 'bronchitis', 'arthritis',
-  'kidney failure', 'heart failure',
-];
-function mencionaNoModelada(qn) {
-  const q = ` ${qn} `;
-  return NO_MODELADAS.find((e) => q.includes(` ${e.trim()}`)) || null;
-}
+// La lista de no modelados y su comparación viven en release_catalog.js.
+const mencionaNoModelada = (qn) => globalThis.EPI_CATALOGO.mencionaNoModelada(qn);
 
 // Subtipo de diabetes, con el detector del catálogo: 'Diabetes' si la consulta nombra ambos tipos.
 function diabetesDe(qn) {
@@ -295,11 +273,11 @@ function diabetesDe(qn) {
 }
 
 function detectEntities(query) {
-  const qn = stripAccents(query);
+  const qn = globalThis.EPI_CATALOGO.canonClinico(stripAccents(query));
   const out = { padecimiento: diabetesDe(qn), entidad: null, sexo: null };
   const padMap = { depresion: 'Depresion', depression: 'Depresion', f32: 'Depresion', parkinson: 'Parkinson', g20: 'Parkinson', alzheimer: 'Alzheimer', alzaimer: 'Alzheimer', g30: 'Alzheimer', dengue: 'Dengue', a97: 'Dengue' };
   for (const r of globalThis.EPI_CATALOGO.releases) for (const k of [...r.alias, ...r.prefijos]) padMap[k] = r.pad;
-  if (!out.padecimiento) for (const [k, v] of Object.entries(padMap)) if (qn.includes(k)) { out.padecimiento = v; break; }
+  if (!out.padecimiento) for (const [k, v] of Object.entries(padMap)) if (globalThis.EPI_CATALOGO.nombraAlias(qn, k)) { out.padecimiento = v; break; }
   const alias = { cdmx: 'Ciudad de Mexico', df: 'Ciudad de Mexico', 'distrito federal': 'Ciudad de Mexico', 'ciudad de mexico': 'Ciudad de Mexico', edomex: 'Mexico', 'estado de mexico': 'Mexico', 'nuevo leon': 'Nuevo Leon', 'san luis potosi': 'San Luis Potosi', 'baja california sur': 'Baja California Sur', 'baja california': 'Baja California', 'quintana roo': 'Quintana Roo' };
   for (const [k, v] of Object.entries(alias).sort((a, b) => b[0].length - a[0].length)) if (qn.includes(k)) { out.entidad = v; break; }
   if (!out.entidad) {
@@ -601,6 +579,10 @@ export default async function handler(req) {
     const idx = loadIndex();
     return json({ ok: true, gemini: !!apiKey, rag: true, chunks: idx.chunks.length, hasVectors: (idx.vectors || []).length > 0 }, 200, cors);
   }
+
+  // Antes de la clave y del límite de consultas: esta respuesta no depende de ningún modelo.
+  const crisis = globalThis.EPI_CATALOGO.respuestaCrisis(stripAccents(String(body.query || '')).replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim());
+  if (crisis) return json({ answer: crisis.replace('\n<!--SIN_GRAFICA-->', ''), sources: [] }, 200, cors);
 
   if (!apiKey) return json({ error: 'GEMINI_API_KEY no configurada' }, 500, cors);
 
