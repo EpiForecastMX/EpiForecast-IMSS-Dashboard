@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Explorador del boletín epidemiológico nacional: casos por padecimiento, variables, cobertura EpiForecast y prioridades de incorporación.">
+<title>Radar del boletín epidemiológico | EpiForecast-MX</title>
+<link rel="canonical" href="https://epiforecast.mx/boletin.html">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="Radar del boletín | EpiForecast-MX">
+<meta property="og:description" content="Casos, variables y cobertura de 187 categorías de vigilancia del boletín 42/2026. Explora cifras estatales y prioridades de incorporación.">
+<meta property="og:url" content="https://epiforecast.mx/boletin.html">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="/editorial.css?v=1">
+<link rel="stylesheet" href="/assets/boletin/radar.css?v=20261107">
+</head>
+<body class="boletin-page">
+<a class="skip-link" href="#inicio">Saltar al contenido</a>
+<nav class="nav" aria-label="EpiForecast-MX">
+<div class="nav-inner">
+<a class="nav-logo" href="index.html">EpiForecast<span>-MX</span>
+</a>
+<div class="radar-main-nav">
+<a href="index.html">Inicio</a>
+<a href="Reports/index.html">Pronósticos</a>
+<a href="validacion_semanal.html">Validación semanal</a>
+<a href="boletin.html" aria-current="page">Radar del boletín</a>
+<a href="epibot/index.html">EPI Chatbot</a>
+</div>
+</div>
+</nav>
+<main>
+<header class="topbar">
+<span>RADAR DEL BOLETÍN <b>/</b> MÉXICO</span>
+<a href="/assets/boletin/2026-w42/boletin-4226.pdf" target="_blank" rel="noopener">Consultar PDF fuente ↗</a>
+</header>
+<section id="inicio">
+<div class="eyebrow">
+<span class="dot">
+</span> SINAVE · DIRECCIÓN GENERAL DE EPIDEMIOLOGÍA</div>
+<div class="hero">
+<div>
+<h1>Radar del boletín<br>
+<em>epidemiológico nacional</em>
+</h1>
+<p class="intro">Las categorías de vigilancia del boletín 42/2026, sus cifras y las oportunidades para ampliar EpiForecast-MX. Foto documental verificada el 7 de noviembre de 2026.</p>
+</div>
+<div class="issue">
+<span>BOLETÍN NACIONAL</span>
+<strong>42<span>/ 2026</span>
+</strong>
+<p>18–24 OCTUBRE</p>
+<small>Publicado el 2 de noviembre</small>
+</div>
+</div>
+<div class="radar-section-nav" aria-label="Secciones del radar">
+<a href="#catalogo">Catálogo de vigilancia</a>
+<a href="#prioridades">Prioridades de incorporación</a>
+<a href="#cobertura">Cobertura actual</a>
+<a href="#fuentes">Fuentes y método</a>
+</div>
+<noscript>
+<p class="context-note">Activa JavaScript para explorar las tablas, o descarga el catálogo CSV y consulta el PDF fuente.</p>
+</noscript>
+<p id="loading" class="context-note" role="status">Cargando cifras verificadas del boletín…</p>
+<div class="metrics" id="metrics" aria-label="Cifras de cobertura" aria-busy="true">
+</div>
+<div class="context-note">El catálogo distingue enfermedades, síndromes, lesiones y otros eventos. Son notificaciones, no personas únicas. Los acumulados y los cortes de observación se conservan por cuadro.</div>
+<div class="overview-grid">
+<article class="panel">
+<div class="section-top">
+<div>
+<div class="eyebrow">CARGA NOTIFICADA</div>
+<h2>Las cifras de mayor volumen</h2>
+</div>
+<select aria-label="Métrica de la gráfica" id="chartMetric">
+<option value="cumulative">Acumulado 2026</option>
+<option value="weekly">Semana reportada</option>
+</select>
+</div>
+<div id="bars" class="bars">
+</div>
+<p class="caption" id="chartCaption">
+</p>
+</article>
+<article class="coverage-panel">
+<div class="eyebrow">HUELLA DE LA PLATAFORMA</div>
+<h2>Ocho padecimientos.<br>Una agenda por ampliar.</h2>
+<div class="ring">
+<span>8<small>PUBLICADOS</small>
+</span>
+</div>
+<p>10 categorías del boletín cubiertas por 8 entradas de EpiForecast. Dengue se reporta en tres formas clínicas.</p>
+<a href="#cobertura" class="text-link">Revisar cobertura y excepciones →</a>
+<div class="coverage-foot">F50: control estacional publicado.<br>Covid-19: rechazado, sin canales públicos.</div>
+</article>
+</div>
+</section>
+<section id="catalogo">
+<div class="section-top">
+<div>
+<div class="eyebrow">EXPLORADOR DE VIGILANCIA</div>
+<h2>Cada padecimiento, en contexto.</h2>
+<p>Busca una categoría y abre su ficha para consultar variables y cifras por entidad.</p>
+</div>
+<a class="button secondary" href="/assets/boletin/2026-w42/catalogo.csv" download>Descargar catálogo CSV ↓</a>
+</div>
+<div class="tabs" role="tablist" aria-label="Tabla a consultar">
+<button class="selected" data-tab="catalogue" role="tab" aria-selected="true">Catálogo completo</button>
+<button data-tab="national" role="tab" aria-selected="false">Resúmenes nacionales · 77 filas</button>
+<button data-tab="myiasis" role="tab" aria-selected="false">Miasis confirmada · corte especial</button>
+</div>
+<div id="catalogueView">
+<div class="filters">
+<label class="search">
+<span>⌕</span>
+<input id="search" type="search" placeholder="Buscar padecimiento o código CIE…" aria-label="Buscar padecimiento o código CIE">
+</label>
+<select id="group" aria-label="Filtrar grupo">
+<option value="">Todos los grupos</option>
+</select>
+<select id="status" aria-label="Filtrar cobertura">
+<option value="">Toda la cobertura</option>
+<option value="covered">En la plataforma</option>
+<option value="new">Por incorporar</option>
+<option value="Rechazada">Rechazada</option>
+</select>
+<select id="priority" aria-label="Filtrar prioridad">
+<option value="">Todas las prioridades</option>
+<option>Alta</option>
+<option>Media</option>
+<option>Exploración</option>
+<option>Revisión metodológica</option>
+<option>Seguimiento</option>
+</select>
+</div>
+<div class="table-meta">
+<span id="resultCount">
+</span>
+<label>Ordenar por <select id="sort" aria-label="Ordenar catálogo">
+<option value="cumulative">Acumulados 2026</option>
+<option value="weekly">Casos de la semana</option>
+<option value="score">Prioridad de incorporación</option>
+<option value="name">Nombre</option>
+</select>
+</label>
+</div>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Padecimiento / evento</th>
+<th class="number">Semana del cuadro</th>
+<th class="number">Acum. 2026</th>
+<th class="number">Vs. 2025</th>
+<th>Plataforma</th>
+<th>Prioridad</th>
+<th>
+</th>
+</tr>
+</thead>
+<tbody id="rows">
+</tbody>
+</table>
+</div>
+<div class="pagination">
+<button id="prev" class="button secondary">← Anterior</button>
+<span id="pageInfo">
+</span>
+<button id="next" class="button secondary">Siguiente →</button>
+</div>
+</div>
+<div id="nationalView" hidden>
+<p class="context-note">Transcripción de las páginas 4 y 5. Incluye agregados como diabetes y hepatitis: no sumar estas filas con sus subtipos del catálogo. “n.d.” se conserva como dato no disponible.</p>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>Categoría</th>
+<th class="number">Semana 2026</th>
+<th class="number">Acum. 2026</th>
+<th class="number">Mediana 2021–2025</th>
+<th class="number">Semana 2025</th>
+<th class="number">Acum. 2025</th>
+<th>Fuente</th>
+</tr>
+</thead>
+<tbody id="nationalRows">
+</tbody>
+</table>
+</div>
+</div>
+<div id="myiasisView" hidden>
+<div id="myiasisIntro">
+</div>
+<div class="table-wrap">
+<table>
+<thead id="myiasisHead">
+</thead>
+<tbody id="myiasisRows">
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="prioridades">
+<div class="section-top">
+<div>
+<div class="eyebrow">AGENDA PROPUESTA</div>
+<h2>¿Qué conviene incorporar después?</h2>
+<p>Orden exploratorio por afinidad con la plataforma, carga, dispersión e incremento interanual.</p>
+</div>
+<span class="badge neutral">Propuesta · sin entrenamiento</span>
+</div>
+<div id="priorityCards" class="priority-grid">
+</div>
+<details class="method-details">
+<summary>Cómo se calcula la prioridad y qué falta comprobar</summary>
+<div class="method-grid">
+<div>
+<h3>Puntaje de 0 a 100</h3>
+<p>
+<b>35 puntos de afinidad temática:</b> 35 para hipertensión, cardiopatía isquémica y enfermedad cerebrovascular; 32 para intento e ideación suicida; 30 para asma; 27 para infección urinaria; 22 para infección respiratoria aguda y neumonía; 18 para las demás categorías no transmisibles, nutricionales y mentales; 10 para el resto. Es un juicio explícito de planeación.</p>
+<p>
+<b>25 de carga:</b> log(1 + acumulado) / log(1 + máximo del catálogo) × 25. <b>25 de dispersión:</b> entidades con casos semanales / 32 × 25. <b>15 de crecimiento:</b> aumento interanual positivo / 50 %, acotado a 15; sin base comparable se asignan 0 puntos por evidencia insuficiente.</p>
+</div>
+<div>
+<h3>Del orden exploratorio a la incorporación</h3>
+<p>Alta: ≥75; media: ≥50 y &lt;75; exploración: &lt;50. Publicados pasan a seguimiento. Los rechazados, los agregados, las categorías sin desglose estatal y las que tienen menos de 1.000 notificaciones acumuladas quedan fuera del puntaje.</p>
+<p>Antes de incorporar: revisar historia y continuidad semanal, cambios de definición, faltantes, retrasos, disponibilidad por sexo, aptitud del modelo y aceptación fuera de muestra. El puntaje no mide gravedad clínica, mortalidad, calidad predictiva ni factibilidad demostrada. Un solo PDF no demuestra estabilidad temporal.</p>
+</div>
+</div>
+</details>
+</section>
+<section id="cobertura">
+<div class="section-top">
+<div>
+<div class="eyebrow">INVENTARIO VIGENTE</div>
+<h2>Lo que ya tenemos en EpiForecast.</h2>
+<p>Identidad y estado de publicación de EpiForecast-MX al 7 de noviembre de 2026. Es una foto fija del inventario, no una actualización automática.</p>
+</div>
+</div>
+<div id="platformCards" class="platform-grid">
+</div>
+<div class="variables-block">
+<div>
+<div class="eyebrow">DATOS Y MODELOS</div>
+<h2>Variables disponibles<br>≠ predictores utilizados.</h2>
+<p>La ficha de cada categoría enumera las columnas que realmente aparecen en su cuadro.</p>
+</div>
+<div>
+<h3>En el boletín</h3>
+<p>Tiempo, entidad, casos semanales totales, acumulados del año y, según el cuadro, acumulados por sexo, año anterior y estadio clínico. Las columnas H/M son acumulados: este PDF no proporciona por sí solo una serie semanal por sexo.</p>
+<h3>En la plataforma</h3>
+<p>El runner usa historia de conteos por entidad y sexo y calendario epidemiológico. Los controles estacionales usan la misma semana de años previos; ETS usa historia, tendencia y estacionalidad; Ridge usa tendencia y armónicos del calendario. F50 usa rezago de 52 semanas.</p>
+<p>INEGI CPV 2020 y ONI/ENSO son fuentes externas. ONI está habilitado en motores específicos de dengue; no es una variable que el boletín reporte ni un predictor universal. Los motores legacy pueden usar rezagos, medias móviles y banderas COVID según configuración.</p>
+</div>
+</div>
+</section>
+<section id="fuentes">
+<div class="eyebrow">TRAZABILIDAD</div>
+<h2>De la cifra a la fuente.</h2>
+<div class="source-grid">
+<article>
+<h3>01 / Fuente oficial</h3>
+<p>Boletín Epidemiológico, volumen 43, número 42. Última publicación comprobada en el índice oficial el 7 de noviembre de 2026: semana 42, publicada el 2 de noviembre.</p>
+<a href="https://www.gob.mx/salud/documentos/boletinepidemiologico-sistema-nacional-de-vigilancia-epidemiologica-sistema-unico-de-informacion-417103" target="_blank" rel="noopener">Índice oficial ↗</a>
+<br>
+<a href="/assets/boletin/2026-w42/boletin-4226.pdf" target="_blank" rel="noopener">PDF analizado ↗</a>
+</article>
+<article>
+<h3>02 / Extracción y controles</h3>
+<p>181 bloques estatales, páginas 6–80; 77 filas nacionales, páginas 4–5; tabla especial de miasis, página 81. Reconciliación exacta de todas las columnas de los 181 bloques contra sus 32 entidades. Miasis: 29 entidades listadas, sin rellenar las tres ausentes.</p>
+<a href="/assets/boletin/2026-w42/data.json" download>Datos completos JSON ↓</a>
+<br>
+<a href="/assets/boletin/2026-w42/boletin.txt" download>Texto extraído del PDF ↓</a>
+<br>
+<a href="/assets/boletin/2026-w42/encabezados-ocr.json" download>Encabezados OCR originales ↓</a>
+</article>
+<article>
+<h3>03 / Qué estamos contando</h3>
+<p>187 categorías de vigilancia = 181 bloques estatales − 1 agregado intestinal + 7 categorías exclusivas del resumen inmediato. No son 187 diagnósticos individuales: algunos bloques agrupan códigos. El detalle confirmado de miasis es un corte complementario de B87, no otra categoría.</p>
+<p>No se muestra una suma global de casos: hay grupos superpuestos, distintos sistemas de vigilancia y fechas de corte. Los datos son preliminares y no representan prevalencia ni pacientes únicos.</p>
+</article>
+</div>
+<details class="method-details">
+<summary>Notas de la fuente y huellas de verificación</summary>
+<p>Se conservan los rótulos y códigos impresos, incluso discrepancias: P. vivax aparece con B50 en la página 33 y B51 en la 4; cardiopatía isquémica usa I20, I25 en la página 49 e I20–I25 en la 5; páncreas imprime C26 en la página 66. No se corrigen silenciosamente. “−” se interpreta como cero notificado y “n.d.” como ausente. Comparaciones contra acumulados de 2025, no contra el cierre anual.</p>
+<p>Los cortes de los cuadros se recuperaron mediante OCR y se muestran por bloque, con enlace a la página original. La fecha de portada no reemplaza el corte del cuadro.</p>
+<p id="hashes" class="hash">
+</p>
+<p>Estado basado en el registro público de padecimientos del proyecto, identificado por su huella SHA-256. Consulta los detalles públicos de <a href="anorexia_f50.html">F50</a> y los <a href="rechazados.html">padecimientos rechazados</a>. Esta sección describe vigilancia y planeación; no incorpora nuevos modelos.</p>
+</details>
+</section>
+<footer class="radar-footer">
+<a href="index.html">EpiForecast-MX</a> <span>Radar de cobertura · Semana 42 / 2026</span>
+<span>Elaborado para planeación de incorporación</span>
+</footer>
+</main>
+<dialog id="detail">
+<div class="dialog-top">
+<span class="eyebrow">FICHA DEL PADECIMIENTO</span>
+<button id="closeDetail" aria-label="Cerrar ficha">×</button>
+</div>
+<div id="detailContent">
+</div>
+</dialog>
+<div id="error" hidden>
+</div>
+<script src="/assets/boletin/radar.js?v=20261107" defer>
+</script>
+</body>
+</html>
