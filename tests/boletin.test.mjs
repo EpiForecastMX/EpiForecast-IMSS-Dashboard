@@ -125,3 +125,21 @@ test('history keeps negative published values, flagged discrepancies and year am
   assert.ok(varicela.flags.includes('source_cut_conflict'));
   assert.deepEqual(varicela.n,[null,null]);
 });
+
+
+test('coverage counters and public links follow every current published category', async () => {
+  const { summarizeCoverage, platformPage, publicationNote, predictorDescription } = await import('../assets/boletin/coverage.mjs');
+  const covered = data.diseases.filter(d => d.platform_id && !d.aggregate);
+  const summary = summarizeCoverage(data.diseases);
+  assert.equal(summary.published, new Set(covered.map(d => d.platform_id)).size);
+  assert.equal(summary.covered, covered.length);
+  assert.equal(summary.uncovered, data.meta.categories-covered.length);
+  for(const d of covered){
+    assert.ok(existsSync(resolve(root,platformPage(d.platform_id))),d.platform_id);
+    if(d.status==='Control publicado'){
+      assert.match(publicationNote(d),/Control estacional/);
+      assert.match(predictorDescription(d),/control estacional/);
+    }
+  }
+  assert.match(html,/<script type="module" src="\/assets\/boletin\/radar\.js/);
+});
