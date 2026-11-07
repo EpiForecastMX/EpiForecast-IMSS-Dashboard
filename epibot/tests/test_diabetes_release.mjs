@@ -10,7 +10,8 @@ import { readFileSync } from 'node:fs';
 
 const leer = (r) => readFileSync(new URL(`../../${r}`, import.meta.url), 'utf-8');
 const K = readFileSync(new URL('../knowledge.json', import.meta.url), 'utf-8');
-const VISTAS = ['obesidad', 'anorexia_f50', 'diabetes_t1', 'diabetes_t2'];
+const VISTAS = ['obesidad', 'anorexia_f50', 'diabetes_t1', 'diabetes_t2', 'hipertension_i10',
+  'isquemica_i20', 'cerebrovascular_i60'];
 globalThis.fetch = async (u) => ({
   ok: true,
   json: async () => {
@@ -57,7 +58,7 @@ test('gestacional, insípida y prediabetes siguen sin modelarse', async () => {
   const r = await conversa('casos de diabetes gestacional en jalisco');
   assert.equal(r.handler, 'answerPadecimientoNoModelado');
   assert.match(r.md, /no modela/);
-  assert.match(r.md, /ocho padecimientos/);
+  assert.match(r.md, /once padecimientos/);
 });
 
 test('«diabetes» a secas avisa que se toma como tipo II', async () => {
@@ -225,8 +226,7 @@ test('F50 se declara como control, nunca como validación en curso', async () =>
 });
 
 test('la noticia de F50 declara el control y no da métricas', () => {
-  const nota = JSON.parse(leer('news.json')).items[0];
-  assert.equal(nota.type, 'f50');
+  const nota = JSON.parse(leer('news.json')).items.find((it) => it.type === 'f50');
   assert.equal(nota.link.href, 'anorexia_f50.html');
   assert.match(nota.summary, /no superó la prueba de 2025/);
   assert.doesNotMatch(JSON.stringify(nota), /sMAPE|MASE/);
@@ -237,7 +237,7 @@ test('Covid-19 sigue sin modelarse y remite a la evidencia del rechazo', async (
   assert.equal(r.handler, 'answerPadecimientoNoModelado');
   assert.match(r.md, /no modela/);
   assert.match(r.md, /rechazados\.html/);
-  const otra = await conversa('hipertension en jalisco');
+  const otra = await conversa('asma en jalisco');
   assert.doesNotMatch(otra.md, /rechazados\.html/);
 });
 
@@ -248,6 +248,34 @@ test('la sección de rechazados no entra al catálogo de publicados', () => {
   assert.equal(v.schema, 'rejected_view.v1');
   assert.ok(v.comprobaciones.some((c) => !c.pasa));
   assert.equal(Object.keys(v.series).length, 111);
+});
+
+test('los cardiovasculares responden su release y no los subtipos ajenos', async () => {
+  const casos = [
+    ['hipertension en jalisco mujeres', /Hipertensión arterial \(I10-I15\) · Jalisco · Mujeres/, /HIPERTENSION_I10/],
+    ['cardiopatia isquemica en sonora', /Enfermedad isquémica del corazón \(I20, I25\) · Sonora/, /ISQUEMICA_I20/],
+    ['derrame cerebral en jalisco', /Enfermedad cerebrovascular \(I60-I67, I69\) · Jalisco/, /CEREBROVASCULAR_I60/],
+    ['stroke in jalisco women', /Enfermedad cerebrovascular \(I60-I67, I69\) · Jalisco · Mujeres/, /CEREBROVASCULAR_I60/],
+  ];
+  for (const [q, texto, marca] of casos) {
+    const r = await conversa(q);
+    assert.match(r.md, texto, q);
+    assert.match(r.md, marca, q);
+  }
+  for (const q of ['hipertension gestacional en jalisco', 'hipertension pulmonar en sonora', 'preeclampsia en jalisco']) {
+    const r = await conversa(q);
+    assert.equal(r.handler, 'answerPadecimientoNoModelado', q);
+  }
+});
+
+test('isquémica y cerebrovascular se declaran como control', async () => {
+  for (const q of ['pronostico de enfermedad isquemica', 'enfermedad cerebrovascular nacional']) {
+    const r = await conversa(q);
+    assert.match(r.md, /control estacional/i, q);
+    assert.doesNotMatch(r.md, /Validación prospectiva en curso/, q);
+  }
+  const h = await conversa('pronostico de hipertension');
+  assert.match(h.md, /Validación prospectiva en curso/);
 });
 
 test('el seguimiento conserva F50', async () => {

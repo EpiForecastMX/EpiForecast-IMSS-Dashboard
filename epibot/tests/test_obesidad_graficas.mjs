@@ -191,10 +191,10 @@ test('un typo («obesdiad») se corrige a Obesidad y no cae en el zoom legacy', 
 
 test('una consulta que mezcla Obesidad con una enfermedad no modelada no la intercepta Obesidad', async () => {
   kb._resetContext();
-  const r = await kb.answerWithTrace('comparar obesidad con hipertension');
+  const r = await kb.answerWithTrace('comparar obesidad con asma');
   assert.equal(r.handler, 'answerPadecimientoNoModelado');
-  assert.match(r.response, /no modela hipertension/);
-  assert.equal(extract(r.response, 'comparar obesidad con hipertension'), null, 'sin gráfica de Obesidad');
+  assert.match(r.response, /no modela asma/);
+  assert.equal(extract(r.response, 'comparar obesidad con asma'), null, 'sin gráfica de Obesidad');
   kb._resetContext();
 });
 
