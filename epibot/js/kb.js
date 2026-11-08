@@ -6,11 +6,11 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=40';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=42';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=1';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=10';
-import { conDiabetesNombrada, conHipertensionNombrada, RELEASES, releaseDePad, respuestaCrisis, VOCAB_RELEASES } from './release_config.js?v=6';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=12';
+import { conDiabetesNombrada, conHipertensionNombrada, RELEASES, releaseDePad, respuestaCrisis, VOCAB_RELEASES } from './release_config.js?v=8';
 
 let DATA = null;
 
@@ -600,7 +600,18 @@ function answerConsultaEnInglesSinPadecimiento(q, ent) {
   return `No identifiqué el padecimiento en tu consulta sobre **${ent.estado}**. Dime cuál de estos quieres consultar: ${nombres.join(', ')}.\n<!--SIN_GRAFICA-->`;
 }
 
+/** Evaluadas y rechazadas en la prueba de 2025 (8-nov-2026): se dice, sin cifras. */
+const RECHAZADA_2025 = {
+  'infecciones respiratorias': 'las infecciones respiratorias agudas', 'infeccion respiratoria': 'las infecciones respiratorias agudas',
+  'ira ': 'las infecciones respiratorias agudas', 'iras ': 'las infecciones respiratorias agudas',
+  gingivitis: 'la gingivitis y enfermedad periodontal', 'enfermedad periodontal': 'la gingivitis y enfermedad periodontal',
+  periodontitis: 'la gingivitis y enfermedad periodontal',
+};
+
 const ROTULO_NO_MODELADA = {
+  'ira ': 'infecciones respiratorias agudas', 'iras ': 'infecciones respiratorias agudas',
+  'infeccion respiratoria': 'infecciones respiratorias agudas',
+  'infecciones respiratorias': 'infecciones respiratorias agudas',
   'ideacion suicida': 'ideación suicida', suicida: 'suicidio', suicide: 'suicidio', suicidal: 'suicidio',
   autolesion: 'autolesiones', 'lesion autoinfligida': 'lesiones autoinfligidas', 'self harm': 'autolesiones',
   hipotension: 'hipotensión', hypotension: 'hipotensión', 'presion baja': 'presión baja',
@@ -612,6 +623,14 @@ const ROTULO_NO_MODELADA = {
   'hipertension portal': 'hipertensión portal', 'hipertension intracraneal': 'hipertensión intracraneal',
   'hipertension ocular': 'hipertensión ocular',
 };
+
+const NUMERALES_PAD = ['cero', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve',
+  'diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho',
+  'diecinueve', 'veinte'];
+/** El número de padecimientos, en letra: cuatro legacy más los releases del catálogo. */
+function numeralPadecimientos(n) {
+  return NUMERALES_PAD[n] || String(n);
+}
 
 function answerPadecimientoNoModelado(q, ent, s, d) {
   // Si ya detectamos un padecimiento conocido, no es off-scope. Un release sí lo es si la consulta
@@ -645,12 +664,15 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
       (cardiaco
         ? 'El boletín no publica una serie propia de infarto. Su categoría más cercana es **Enfermedad isquémica del corazón**, rotulada I20, I25 en el cuadro e I20-I25 en el resumen, así que no se puede afirmar si incluye I21. Sus datos están en [su página](../isquemica_i20.html), publicados con el control y sin validar.\n\n'
         : '') +
-      'Nuestro proyecto se enfoca en once padecimientos del Bolet\u00edn Epidemiol\u00f3gico SINAVE:\n\n' +
+      `Nuestro proyecto se enfoca en ${numeralPadecimientos(4 + RELEASES.length)} padecimientos del Bolet\u00edn Epidemiol\u00f3gico SINAVE:\n\n` +
       '- **Depresi\u00f3n** (CIE-10: F32)\n' +
       '- **Parkinson** (CIE-10: G20)\n' +
       '- **Alzheimer** (CIE-10: G30)\n' +
       '- **Dengue** (CIE-10: A97)\n' +
       RELEASES.map((r) => `- **${r.nombre}** (CIE-10: ${r.cie})\n`).join('') + '\n' +
+      (RECHAZADA_2025[matchedDisease]
+        ? `Se evaluaron ${RECHAZADA_2025[matchedDisease]} con el boletín 42, pero su portafolio no superó la prueba de 2025 frente al control estacional, así que no se publican.\n\n`
+        : '') +
       (matchedDisease === 'covid'
         ? 'Covid-19 se analiz\u00f3 y se rechaz\u00f3 en la prueba de 2025: su evidencia y la referencia del control, no validada, est\u00e1n en [Analizados y rechazados](../rechazados.html).\n\n'
         : '') +

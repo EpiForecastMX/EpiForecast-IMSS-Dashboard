@@ -22,7 +22,7 @@ Fiebre tifoidea,A01.0,Infecciosas del aparato digestivo,14,87,4788,5931,Por inco
 Fiebre paratifoidea,A01.1 - A01.4,Infecciosas del aparato digestivo,15,46,2848,3722,Por incorporar,Exploración,30.0
 Otras salmonelosis,A02,Infecciosas del aparato digestivo,15,352,17334,20782,Por incorporar,Exploración,45.3
 Shigelosis,A03,Infecciosas del aparato digestivo,16,27,1351,1470,Por incorporar,Exploración,27.3
-Infecciones intestinales por otros organismos y las mal definidas,"A04, A08-A09 excepto A08.0",Infecciosas del aparato digestivo,16,65306,3283912,3250804,Por incorporar,Media,58.3
+Infecciones intestinales por otros organismos y las mal definidas,"A04, A08-A09 excepto A08.0",Infecciosas del aparato digestivo,16,65306,3283912,3250804,Publicada,Seguimiento,
 Intoxicación alimentaria bacteriana,A05,Infecciosas del aparato digestivo,17,219,14566,17759,Por incorporar,Exploración,44.2
 Amebiasis intestinal,"A06.0-A06.3, A06.9",Infecciosas del aparato digestivo,17,1226,63656,69008,Por incorporar,Media,52.0
 Absceso hepático amebiano,A06.4,Infecciosas del aparato digestivo,18,9,542,465,Por incorporar,Exploración,
@@ -34,7 +34,7 @@ Enterobiasis,B80,Infecciosas del aparato digestivo,20,175,8548,,Por incorporar,E
 Enfermedades infecciosas intestinales,"A01-A03, A04, A05, A06.0-A06.3, A06.9, A07.0-A07.2, A07.9, A08-A09",Infecciosas del aparato digestivo,20,68165,3436995,3422581,Agregado,Exploración,
 Tuberculosis respiratoria,A15-A16,Infecciosas del aparato respiratorio,21,219,16550,17810,Por incorporar,Exploración,35.8
 Otitis media aguda,H65.0-H65.1,Infecciosas del aparato respiratorio,21,11098,459266,495119,Por incorporar,Media,55.0
-Infecciones respiratorias agudas,"J00-J06, J20, J21 excepto J02, J03.0",Infecciosas del aparato respiratorio,22,326751,12048243,13192350,Por incorporar,Media,72.0
+Infecciones respiratorias agudas,"J00-J06, J20, J21 excepto J02, J03.0",Infecciosas del aparato respiratorio,22,326751,12048243,13192350,Rechazada,Revisión metodológica,
 Faringitis y amigdalitis estreptocócicas,"J02.0, J03.0",Infecciosas del aparato respiratorio,22,5123,199176,224051,Por incorporar,Media,52.2
 Neumonías y bronconeumonías,"J12-J18 excepto J18.2, J13 y J14",Infecciosas del aparato respiratorio,23,2679,123829,123988,Por incorporar,Media,65.0
 Covid 19,U07.1,Infecciosas del aparato respiratorio,23,13,3031,6906,Rechazada,Revisión metodológica,
@@ -88,7 +88,7 @@ Oncocercosis,B73,"Interés local, regional o institucional",43,0,0,0,Por incorpo
 Leishmaniasis cutánea,B55.1,"Interés local, regional o institucional",44,2,584,231,Por incorporar,Exploración,
 Leishmaniasis visceral,B55.0,"Interés local, regional o institucional",44,0,0,2,Por incorporar,Exploración,
 Síndrome meníngeo,G00-G03 excepto G00.0 y G00.1,Vigilancia sindromática,45,21,739,803,Por incorporar,Exploración,
-Infección de vías urinarias,"N30, N34, N39.0",Vigilancia sindromática,45,70292,2817390,2873545,Por incorporar,Media,74.8
+Infección de vías urinarias,"N30, N34, N39.0",Vigilancia sindromática,45,70292,2817390,2873545,Publicada,Seguimiento,
 Enfermedad febril  exantemática,U97,Vigilancia sindromática,46,155,30624,12076,Por incorporar,Media,60.4
 Parálisis flácida aguda  (menores de 15 años),U98,Vigilancia sindromática,46,8,326,394,Por incorporar,Exploración,
 Síndrome coqueluchoide,U99,Vigilancia sindromática,46,45,1141,4912,Por incorporar,Exploración,29.4
@@ -97,13 +97,13 @@ Diabetes mellitus (tipo I),E10,No transmisibles,47,85,3238,3233,Publicada,Seguim
 Diabetes mellitus (tipo II),E11-E14,No transmisibles,47,11836,483102,447031,Publicada,Seguimiento,
 Intoxicación aguda por alcohol,F10.0,No transmisibles,48,331,16516,17318,Por incorporar,Media,56.3
 Fiebre reumática aguda,I00-I02,No transmisibles,48,13,883,762,Por incorporar,Exploración,
-Hipertensión arterial,I10-I15,No transmisibles,49,12380,524396,496742,Por incorporar,Alta,81.9
-Enfermedad Isquémica del corazón,"I20, I25",No transmisibles,49,1621,70611,60780,Por incorporar,Alta,82.0
-Enfermedad cerebrovascular,"I60-I67, I69",No transmisibles,49,1441,57217,51198,Por incorporar,Alta,80.3
+Hipertensión arterial,I10-I15,No transmisibles,49,12380,524396,496742,Publicada,Seguimiento,
+Enfermedad Isquémica del corazón,"I20, I25",No transmisibles,49,1621,70611,60780,Control publicado,Seguimiento,
+Enfermedad cerebrovascular,"I60-I67, I69",No transmisibles,49,1441,57217,51198,Control publicado,Seguimiento,
 Insuficiencia venosa periférica,I87.2,No transmisibles,50,4328,188585,179556,Por incorporar,Media,63.1
 Asma,"J45, J46",No transmisibles,50,2561,97682,103907,Por incorporar,Media,72.6
-Gingivitis y enfermedad periodontal,K05,No transmisibles,50,23757,999528,1012659,Por incorporar,Media,64.2
-Úlceras gastritis y duodenitis,K25-K29,No transmisibles,51,16650,713670,744102,Por incorporar,Media,63.7
+Gingivitis y enfermedad periodontal,K05,No transmisibles,50,23757,999528,1012659,Rechazada,Revisión metodológica,
+Úlceras gastritis y duodenitis,K25-K29,No transmisibles,51,16650,713670,744102,Publicada,Seguimiento,
 Enfermedad alcohólica del hígado,K70 excepto K70.3,No transmisibles,51,98,3998,4022,Por incorporar,Media,50.2
 Cirrosis hepática alcohólica,K70.3,No transmisibles,51,113,5965,6045,Por incorporar,Media,52.4
 Hiperplasia de próstata,N40,No transmisibles,52,2546,101522,100854,Por incorporar,Media,60.9
