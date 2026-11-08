@@ -86,6 +86,8 @@ for x in raw+national:
   if r['name']!=byid[ident]['name'] or r['code']!=byid[ident]['code']:aliases.append(dict(id=ident,source=si,page=r['page'],source_name=r['name'],source_code=r['code'],matched=r['matched']))
 (B/'archive-build-issues.json').write_text(json.dumps(issues,ensure_ascii=False,indent=2))
 if issues:raise ValueError(f'{len(issues)} unresolved source/period issues; see archive-build-issues.json')
+stale=[p.name for p in OUT.glob('*.json') if (p.stem.startswith(('historical-','national-')) or re.fullmatch(r'p\d+b\d+',p.stem)) and p.stem not in series]
+if stale:raise ValueError(('Staging contains unindexed shards; preserve them and use a clean staging directory',stale))
 # Preserve repeated observations as revisions; plot only the latest published version.
 revisions={};seen_sources={p['s'] for ps in unplaced.values() for p in ps}
 for ident,ps in series.items():
