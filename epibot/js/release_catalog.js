@@ -94,6 +94,18 @@
         'gastroenteritis'],
     },
     {
+      id: 'ira_j00', pad: 'Infecciones respiratorias agudas', nombre: 'Infecciones respiratorias agudas',
+      nombreCorto: 'IRA', etiqueta: 'Infecciones respiratorias agudas (J00-J06, J20, J21 excepto J02, J03.0)',
+      dataKey: 'ira_j00', marca: 'IRA_J00', pagina: 'ira_j00.html',
+      consulta: 'infecciones respiratorias agudas', cie: 'J00-J06, J20, J21', color: '#818CF8',
+      // «ira » e «iras » con espacio final: palabra completa, para no capturar «Irapuato».
+      alias: ['infecciones respiratorias agudas', 'infeccion respiratoria aguda',
+        'infecciones respiratorias', 'infeccion respiratoria', 'ira ', 'iras ', 'resfriado comun',
+        'catarro', 'rinofaringitis', 'laringitis', 'j00', 'j06', 'acute respiratory infections',
+        'acute respiratory infection'],
+      prefijos: ['infecciones respiratorias', 'infeccion respiratoria', 'acute respiratory'],
+    },
+    {
       id: 'ivu_n39', pad: 'Infección de vías urinarias', nombre: 'Infección de vías urinarias',
       nombreCorto: 'Vías urinarias', etiqueta: 'Infección de vías urinarias (N30, N34, N39.0)',
       dataKey: 'ivu_n39', marca: 'IVU_N39', pagina: 'ivu_n39.html',
@@ -103,6 +115,16 @@
         'urinary tract infection', 'urinary tract infections'],
       prefijos: ['vias urinarias', 'infeccion urinaria', 'infecciones urinarias', 'cistitis',
         'urinary tract'],
+    },
+    {
+      id: 'gingivitis_k05', pad: 'Gingivitis y enfermedad periodontal',
+      nombre: 'Gingivitis y enfermedad periodontal', nombreCorto: 'Gingivitis',
+      etiqueta: 'Gingivitis y enfermedad periodontal (K05)', dataKey: 'gingivitis_k05',
+      marca: 'GINGIVITIS_K05', pagina: 'gingivitis_k05.html', consulta: 'gingivitis', cie: 'K05',
+      color: '#F472B6',
+      alias: ['gingivitis', 'enfermedad periodontal', 'enfermedades periodontales', 'periodontitis',
+        'k05', 'periodontal disease', 'gum disease'],
+      prefijos: ['gingivit', 'periodont', 'gum disease'],
     },
     {
       id: 'ulceras_k25', pad: 'Úlceras, gastritis y duodenitis',
@@ -189,9 +211,6 @@
     'leucemia', 'linfoma', 'tumor', 'neoplasia', 'cardiopatia congenita', 'cardiopatia', 'infarto',
     'ataque al corazon', 'ataque cardiaco',
     'embolia', 'neumonia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
-    // Reprobaron el gate de 2025 (8-nov-2026): sin publicar mientras el autor no decida.
-    'infecciones respiratorias', 'infeccion respiratoria', 'ira ', 'iras ', 'gingivitis',
-    'enfermedad periodontal', 'periodontitis',
     // Fuera del bloque A04, A08-A09: rotavirus es A08.0 y las demás tienen código propio.
     'rotavirus', 'shigelosis', 'amebiasis', 'salmonelosis', 'tifoidea',
     'lupus', 'fibromialgia', 'esclerosis', 'huntington', 'ela ',

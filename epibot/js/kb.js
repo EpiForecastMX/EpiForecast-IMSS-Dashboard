@@ -6,11 +6,11 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=42';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=43';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=1';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=12';
-import { conDiabetesNombrada, conHipertensionNombrada, RELEASES, releaseDePad, respuestaCrisis, VOCAB_RELEASES } from './release_config.js?v=8';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=13';
+import { conDiabetesNombrada, conHipertensionNombrada, RELEASES, releaseDePad, respuestaCrisis, VOCAB_RELEASES } from './release_config.js?v=9';
 
 let DATA = null;
 
@@ -600,18 +600,7 @@ function answerConsultaEnInglesSinPadecimiento(q, ent) {
   return `No identifiqué el padecimiento en tu consulta sobre **${ent.estado}**. Dime cuál de estos quieres consultar: ${nombres.join(', ')}.\n<!--SIN_GRAFICA-->`;
 }
 
-/** Evaluadas y rechazadas en la prueba de 2025 (8-nov-2026): se dice, sin cifras. */
-const RECHAZADA_2025 = {
-  'infecciones respiratorias': 'las infecciones respiratorias agudas', 'infeccion respiratoria': 'las infecciones respiratorias agudas',
-  'ira ': 'las infecciones respiratorias agudas', 'iras ': 'las infecciones respiratorias agudas',
-  gingivitis: 'la gingivitis y enfermedad periodontal', 'enfermedad periodontal': 'la gingivitis y enfermedad periodontal',
-  periodontitis: 'la gingivitis y enfermedad periodontal',
-};
-
 const ROTULO_NO_MODELADA = {
-  'ira ': 'infecciones respiratorias agudas', 'iras ': 'infecciones respiratorias agudas',
-  'infeccion respiratoria': 'infecciones respiratorias agudas',
-  'infecciones respiratorias': 'infecciones respiratorias agudas',
   'ideacion suicida': 'ideación suicida', suicida: 'suicidio', suicide: 'suicidio', suicidal: 'suicidio',
   autolesion: 'autolesiones', 'lesion autoinfligida': 'lesiones autoinfligidas', 'self harm': 'autolesiones',
   hipotension: 'hipotensión', hypotension: 'hipotensión', 'presion baja': 'presión baja',
@@ -670,9 +659,6 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
       '- **Alzheimer** (CIE-10: G30)\n' +
       '- **Dengue** (CIE-10: A97)\n' +
       RELEASES.map((r) => `- **${r.nombre}** (CIE-10: ${r.cie})\n`).join('') + '\n' +
-      (RECHAZADA_2025[matchedDisease]
-        ? `Se evaluaron ${RECHAZADA_2025[matchedDisease]} con el boletín 42, pero su portafolio no superó la prueba de 2025 frente al control estacional, así que no se publican.\n\n`
-        : '') +
       (matchedDisease === 'covid'
         ? 'Covid-19 se analiz\u00f3 y se rechaz\u00f3 en la prueba de 2025: su evidencia y la referencia del control, no validada, est\u00e1n en [Analizados y rechazados](../rechazados.html).\n\n'
         : '') +

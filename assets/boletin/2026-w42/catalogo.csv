@@ -34,7 +34,7 @@ Enterobiasis,B80,Infecciosas del aparato digestivo,20,175,8548,,Por incorporar,E
 Enfermedades infecciosas intestinales,"A01-A03, A04, A05, A06.0-A06.3, A06.9, A07.0-A07.2, A07.9, A08-A09",Infecciosas del aparato digestivo,20,68165,3436995,3422581,Agregado,Exploración,
 Tuberculosis respiratoria,A15-A16,Infecciosas del aparato respiratorio,21,219,16550,17810,Por incorporar,Exploración,35.8
 Otitis media aguda,H65.0-H65.1,Infecciosas del aparato respiratorio,21,11098,459266,495119,Por incorporar,Media,55.0
-Infecciones respiratorias agudas,"J00-J06, J20, J21 excepto J02, J03.0",Infecciosas del aparato respiratorio,22,326751,12048243,13192350,Rechazada,Revisión metodológica,
+Infecciones respiratorias agudas,"J00-J06, J20, J21 excepto J02, J03.0",Infecciosas del aparato respiratorio,22,326751,12048243,13192350,Control publicado,Seguimiento,
 Faringitis y amigdalitis estreptocócicas,"J02.0, J03.0",Infecciosas del aparato respiratorio,22,5123,199176,224051,Por incorporar,Media,52.2
 Neumonías y bronconeumonías,"J12-J18 excepto J18.2, J13 y J14",Infecciosas del aparato respiratorio,23,2679,123829,123988,Por incorporar,Media,65.0
 Covid 19,U07.1,Infecciosas del aparato respiratorio,23,13,3031,6906,Rechazada,Revisión metodológica,
@@ -102,7 +102,7 @@ Enfermedad Isquémica del corazón,"I20, I25",No transmisibles,49,1621,70611,607
 Enfermedad cerebrovascular,"I60-I67, I69",No transmisibles,49,1441,57217,51198,Control publicado,Seguimiento,
 Insuficiencia venosa periférica,I87.2,No transmisibles,50,4328,188585,179556,Por incorporar,Media,63.1
 Asma,"J45, J46",No transmisibles,50,2561,97682,103907,Por incorporar,Media,72.6
-Gingivitis y enfermedad periodontal,K05,No transmisibles,50,23757,999528,1012659,Rechazada,Revisión metodológica,
+Gingivitis y enfermedad periodontal,K05,No transmisibles,50,23757,999528,1012659,Control publicado,Seguimiento,
 Úlceras gastritis y duodenitis,K25-K29,No transmisibles,51,16650,713670,744102,Publicada,Seguimiento,
 Enfermedad alcohólica del hígado,K70 excepto K70.3,No transmisibles,51,98,3998,4022,Por incorporar,Media,50.2
 Cirrosis hepática alcohólica,K70.3,No transmisibles,51,113,5965,6045,Por incorporar,Media,52.4
