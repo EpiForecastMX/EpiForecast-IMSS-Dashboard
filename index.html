@@ -6,20 +6,20 @@
   <title>EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes</title>
 
   <!-- SEO -->
-  <meta name="description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad, trastornos alimentarios, Diabetes tipo I y II, hipertensión, enfermedades isquémica y cerebrovascular, infecciones intestinales, infección de vías urinarias y úlceras, gastritis y duodenitis en las 32 entidades de México, con un horizonte de 52 semanas." />
+  <meta name="description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad, trastornos alimentarios, Diabetes tipo I y II, hipertensión, enfermedades isquémica y cerebrovascular, infecciones intestinales, infecciones respiratorias agudas, infección de vías urinarias, gingivitis y úlceras, gastritis y duodenitis en las 32 entidades de México, con un horizonte de 52 semanas." />
   <link rel="canonical" href="https://epiforecast.mx/" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://epiforecast.mx/" />
   <meta property="og:title" content="EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes" />
-  <meta property="og:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad, trastornos alimentarios, Diabetes tipo I y II, hipertensión, enfermedades isquémica y cerebrovascular, infecciones intestinales, infección de vías urinarias y úlceras, gastritis y duodenitis en las 32 entidades de México, con un horizonte de 52 semanas." />
+  <meta property="og:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad, trastornos alimentarios, Diabetes tipo I y II, hipertensión, enfermedades isquémica y cerebrovascular, infecciones intestinales, infecciones respiratorias agudas, infección de vías urinarias, gingivitis y úlceras, gastritis y duodenitis en las 32 entidades de México, con un horizonte de 52 semanas." />
   <meta property="og:image" content="https://epiforecast.mx/og-image.png" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes" />
-  <meta name="twitter:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad, trastornos alimentarios, Diabetes tipo I y II, hipertensión, enfermedades isquémica y cerebrovascular, infecciones intestinales, infección de vías urinarias y úlceras, gastritis y duodenitis en las 32 entidades de México, con un horizonte de 52 semanas." />
+  <meta name="twitter:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad, trastornos alimentarios, Diabetes tipo I y II, hipertensión, enfermedades isquémica y cerebrovascular, infecciones intestinales, infecciones respiratorias agudas, infección de vías urinarias, gingivitis y úlceras, gastritis y duodenitis en las 32 entidades de México, con un horizonte de 52 semanas." />
   <meta name="twitter:image" content="https://epiforecast.mx/og-image.png" />
 
   <!-- Iconos y tema -->
@@ -880,6 +880,16 @@
     .disease-card--ulc .disease-icon svg { color: #C084FC; }
     .disease-card--ulc h3 { color: #D8B4FE; }
     .disease-card--ulc .disease-tag { background: rgba(192,132,252,0.16); color: #E9D5FF; }
+    .disease-card--ira::before { background: #818CF8; }
+    .disease-card--ira .disease-icon { background: rgba(129,140,248,0.16); }
+    .disease-card--ira .disease-icon svg { color: #818CF8; }
+    .disease-card--ira h3 { color: #A5B4FC; }
+    .disease-card--ira .disease-tag { background: rgba(129,140,248,0.16); color: #C7D2FE; }
+    .disease-card--gin::before { background: #F472B6; }
+    .disease-card--gin .disease-icon { background: rgba(244,114,182,0.16); }
+    .disease-card--gin .disease-icon svg { color: #F472B6; }
+    .disease-card--gin h3 { color: #F9A8D4; }
+    .disease-card--gin .disease-tag { background: rgba(244,114,182,0.16); color: #FBCFE8; }
 
     /* Diabetes tipo I y II */
     .disease-card--dt1::before { background: #22D3EE; }
@@ -2830,7 +2840,7 @@
       .edl-dateline { font-size: 0.6rem; letter-spacing: 0.1em; }
     }
   </style>
-<script src="epibot/js/release_catalog.js?v=7"></script>
+<script src="epibot/js/release_catalog.js?v=8"></script>
 </head>
 <body>
 <!-- build: dengue-methodology-card r1 -->
@@ -2862,7 +2872,9 @@
             <a href="isquemica_i20.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Enfermedad isquémica</a>
             <a href="cerebrovascular_i60.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Enfermedad cerebrovascular</a>
             <a href="intestinales_a04.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Infecciones intestinales</a>
+            <a href="ira_j00.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Infecciones respiratorias agudas</a>
             <a href="ivu_n39.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Infección de vías urinarias</a>
+            <a href="gingivitis_k05.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Gingivitis y enfermedad periodontal</a>
             <a href="ulceras_k25.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Úlceras, gastritis y duodenitis</a>
             <a href="rechazados.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Analizados y rechazados</a>
             <a href="epibot/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>EPI Chatbot</a>
@@ -2946,7 +2958,9 @@
           <a href="isquemica_i20.html">Enfermedad isquémica</a>
           <a href="cerebrovascular_i60.html">Enfermedad cerebrovascular</a>
           <a href="intestinales_a04.html">Infecciones intestinales</a>
+          <a href="ira_j00.html">Infecciones respiratorias agudas</a>
           <a href="ivu_n39.html">Infección de vías urinarias</a>
+          <a href="gingivitis_k05.html">Gingivitis y enfermedad periodontal</a>
           <a href="ulceras_k25.html">Úlceras, gastritis y duodenitis</a>
           <a href="rechazados.html">Analizados y rechazados</a>
           <a href="epibot/index.html">EPI Chatbot</a>
@@ -2995,7 +3009,7 @@
     <div class="edl-wrap edl-article-col">
       <div class="edl-dateline">Pronóstico epidemiológico de México <span>&middot;</span> Edición de la semana 42, 2026</div>
       <h1 class="edl-headline">Anticipar la enfermedad,<br><em>semana a semana</em></h1>
-      <p class="edl-deck">EpiForecast-MX pronostica las notificaciones semanales de catorce padecimientos a 52 semanas. La ronda con corte W37 sostiene 432 series productivas: asigna cuatro motores a las series neuropsiquiátricas y DeepAR o Prophet a las de Dengue. La <a href="obesidad.html">obesidad</a> y la diabetes <a href="diabetes_t1.html">tipo I</a> y <a href="diabetes_t2.html">tipo II</a> publican 111 series cada una desde pronósticos congelados que se comparan cada semana con lo observado. <a href="anorexia_f50.html">Anorexia, bulimia y otros trastornos alimentarios</a> publican el control estacional, porque su portafolio no superó la prueba de 2025. También se incorporan la <a href="hipertension_i10.html">hipertensión arterial</a> y, con el control estacional, las enfermedades <a href="isquemica_i20.html">isquémica</a> y <a href="cerebrovascular_i60.html">cerebrovascular</a>. Del radar del boletín 42 se suman las <a href="intestinales_a04.html">infecciones intestinales por otros organismos y las mal definidas</a>, la <a href="ivu_n39.html">infección de vías urinarias</a> y las <a href="ulceras_k25.html">úlceras, gastritis y duodenitis</a>.</p>
+      <p class="edl-deck">EpiForecast-MX pronostica las notificaciones semanales de dieciséis padecimientos a 52 semanas. La ronda con corte W37 sostiene 432 series productivas: asigna cuatro motores a las series neuropsiquiátricas y DeepAR o Prophet a las de Dengue. La <a href="obesidad.html">obesidad</a> y la diabetes <a href="diabetes_t1.html">tipo I</a> y <a href="diabetes_t2.html">tipo II</a> publican 111 series cada una desde pronósticos congelados que se comparan cada semana con lo observado. <a href="anorexia_f50.html">Anorexia, bulimia y otros trastornos alimentarios</a> publican el control estacional, porque su portafolio no superó la prueba de 2025. También se incorporan la <a href="hipertension_i10.html">hipertensión arterial</a> y, con el control estacional, las enfermedades <a href="isquemica_i20.html">isquémica</a> y <a href="cerebrovascular_i60.html">cerebrovascular</a>. Del radar del boletín 42 se suman las <a href="intestinales_a04.html">infecciones intestinales por otros organismos y las mal definidas</a>, la <a href="ivu_n39.html">infección de vías urinarias</a> y las <a href="ulceras_k25.html">úlceras, gastritis y duodenitis</a>, más el control estacional de las <a href="ira_j00.html">infecciones respiratorias agudas</a> y de la <a href="gingivitis_k05.html">gingivitis y enfermedad periodontal</a>.</p>
       <div class="edl-byline">Una colaboración del Tecnológico de Monterrey con el Instituto Mexicano del Seguro Social. Datos actualizados cada semana desde el Boletín Epidemiológico del SINAVE.</div>
       <div class="edl-ctas">
         <a href="EpiDashboard.html" class="edl-primary">Abrir el tablero <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
@@ -3092,21 +3106,21 @@
           <a href="novedades.html" class="news-lead">
             <div class="news-lead-meta">
               <span class="news-date">8 de noviembre de 2026</span>
-              <span class="news-tag news-tag--radar">Nuevos padecimientos</span>
+              <span class="news-tag news-tag--radar">Control estacional</span>
             </div>
-            <div class="news-lead-title">Infecciones intestinales, vías urinarias y úlceras-gastritis se incorporan al pronóstico</div>
-            <div class="news-lead-sub">Tres padecimientos del radar del boletín 42, a 52 semanas para el país, 4 regiones y las 32 entidades, por sexo. Los tres superaron la prueba de 2025.</div>
+            <div class="news-lead-title">Infecciones respiratorias agudas y gingivitis se publican con el control estacional</div>
+            <div class="news-lead-sub">Su portafolio no superó la prueba de 2025. Se publica el control, que repite los casos de 52 semanas antes, para el país, 4 regiones y las 32 entidades, por sexo.</div>
           </a>
           <div class="news-mini-list">
+            <a href="novedades.html" class="news-mini">
+              <span class="news-tag news-tag--radar">Nuevos padecimientos</span>
+              <span class="news-mini-title">Infecciones intestinales, vías urinarias y úlceras-gastritis se incorporan al pronóstico</span>
+              <span class="news-mini-date">8 de noviembre de 2026</span>
+            </a>
             <a href="novedades.html" class="news-mini">
               <span class="news-tag news-tag--cardio">Nuevos padecimientos</span>
               <span class="news-mini-title">Hipertensión, enfermedad isquémica y cerebrovascular se incorporan al pronóstico</span>
               <span class="news-mini-date">7 de noviembre de 2026</span>
-            </a>
-            <a href="novedades.html" class="news-mini">
-              <span class="news-tag news-tag--f50">Nuevo padecimiento</span>
-              <span class="news-mini-title">Anorexia, bulimia y otros trastornos alimentarios se incorporan con el control estacional</span>
-              <span class="news-mini-date">6 de noviembre de 2026</span>
             </a>
           </div>
         </div>
@@ -3164,7 +3178,7 @@
         </a>
 <a href="intestinales_a04.html" class="edl-index-item">
           <span class="edl-idx-num">09</span>
-          <span class="edl-idx-body"><span class="edl-idx-title">Infecciones intestinales, vías urinarias y úlceras-gastritis</span><span class="edl-idx-desc">Tres padecimientos del radar del boletín 42, a 52 semanas para las 32 entidades, por sexo. Los tres superaron la prueba de 2025; su validación prospectiva está en curso.</span></span>
+          <span class="edl-idx-body"><span class="edl-idx-title">Radar del boletín 42: cinco padecimientos</span><span class="edl-idx-desc">Infecciones intestinales, vías urinarias y úlceras-gastritis superaron la prueba de 2025 y su validación prospectiva está en curso. Infecciones respiratorias agudas y gingivitis publican el control estacional, sin validar.</span></span>
           <span class="edl-idx-go"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></span>
         </a>
 <a href="rechazados.html" class="edl-index-item">
@@ -3306,7 +3320,7 @@
         <span class="disease-tag">CIE-10: I60-I67, I69 · control estacional · 111 series publicadas · pronóstico puntual</span>
       </a>
 
-      <!-- Radar del boletín 42 (8-nov-2026): las tres superaron el gate de 2025 -->
+      <!-- Radar del boletín 42 (8-nov-2026): tres superaron el gate de 2025; IRA y gingivitis publican el control -->
       <a class="disease-card disease-card--int reveal reveal-delay-3" href="intestinales_a04.html">
         <div class="disease-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>
@@ -3316,6 +3330,15 @@
         <span class="disease-tag">CIE-10: A04, A08-A09 · 64 modelos · 111 series publicadas · pronóstico puntual</span>
       </a>
 
+      <a class="disease-card disease-card--ira reveal reveal-delay-3" href="ira_j00.html">
+        <div class="disease-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>
+        </div>
+        <h3>Infecciones respiratorias agudas</h3>
+        <p>Unos 300 mil casos semanales en todo el país. Su portafolio no superó la prueba de 2025, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p>
+        <span class="disease-tag">CIE-10: J00-J06, J20, J21 · control estacional · 111 series publicadas · pronóstico puntual</span>
+      </a>
+
       <a class="disease-card disease-card--ivu reveal reveal-delay-3" href="ivu_n39.html">
         <div class="disease-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>
@@ -3323,6 +3346,15 @@
         <h3>Infección de vías urinarias</h3>
         <p>Unos 70 mil casos semanales en todo el país. Su portafolio superó la prueba de 2025. Usa datos hasta la semana 41 de 2026, se emitió el 8 de noviembre y su validación prospectiva está en curso.</p>
         <span class="disease-tag">CIE-10: N30, N34, N39.0 · 64 modelos · 111 series publicadas · pronóstico puntual</span>
+      </a>
+
+      <a class="disease-card disease-card--gin reveal reveal-delay-3" href="gingivitis_k05.html">
+        <div class="disease-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>
+        </div>
+        <h3>Gingivitis y enfermedad periodontal</h3>
+        <p>Unos 23 mil casos semanales en todo el país. Su portafolio no superó la prueba de 2025, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p>
+        <span class="disease-tag">CIE-10: K05 · control estacional · 111 series publicadas · pronóstico puntual</span>
       </a>
 
       <a class="disease-card disease-card--ulc reveal reveal-delay-3" href="ulceras_k25.html">
@@ -3488,7 +3520,9 @@
       <a href="isquemica_i20.html">Enfermedad isquémica</a>
       <a href="cerebrovascular_i60.html">Enfermedad cerebrovascular</a>
       <a href="intestinales_a04.html">Infecciones intestinales</a>
+      <a href="ira_j00.html">Infecciones respiratorias agudas</a>
       <a href="ivu_n39.html">Infección de vías urinarias</a>
+      <a href="gingivitis_k05.html">Gingivitis y enfermedad periodontal</a>
       <a href="ulceras_k25.html">Úlceras, gastritis y duodenitis</a>
       <a href="rechazados.html">Analizados y rechazados</a>
       <a href="EpiDashboard.html">Dashboard</a>

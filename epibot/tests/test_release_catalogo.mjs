@@ -69,8 +69,9 @@ test('la galería crea una instancia por release', () => {
   vm.runInNewContext(`${conSintetico}\n${leer('Reports/obesidad_galeria.js')}`, ctx);
   assert.deepEqual([...ctx.window.GaleriasRelease].map((g) => g.id),
     ['obesidad', 'anorexia_f50', 'diabetes_t1', 'diabetes_t2', 'hipertension_i10', 'isquemica_i20',
-      'cerebrovascular_i60', 'intestinales_a04', 'ivu_n39', 'ulceras_k25', 'sintetico_x']);
-  assert.equal(ctx.window.GaleriasRelease[10].color, '#123456');
+      'cerebrovascular_i60', 'intestinales_a04', 'ira_j00', 'ivu_n39', 'gingivitis_k05', 'ulceras_k25',
+      'sintetico_x']);
+  assert.equal(ctx.window.GaleriasRelease.at(-1).color, '#123456');
 });
 
 test('galería y portada no conservan listas propias de releases', () => {
