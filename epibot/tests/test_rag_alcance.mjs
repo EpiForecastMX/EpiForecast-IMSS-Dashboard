@@ -33,6 +33,7 @@ test('rag.mjs deriva los releases publicados del catálogo y de su shard', () =>
   const r = JSON.parse(JSON.stringify(ctx.releasesDesdeCatalogo(CAT, leerShard)));
   assert.deepEqual(r, [
     { nombre: 'Anorexia, bulimia y otros trastornos alimentarios', cie: ['F50'] },
+    { nombre: 'Tumor maligno del cuello del útero', cie: ['C53'] },
     { nombre: 'Tumor maligno de la mama', cie: ['C50'] },
     { nombre: 'Enfermedad cerebrovascular', cie: ['I60', 'I61', 'I62', 'I63', 'I64', 'I65', 'I66', 'I67', 'I69'] },
     { nombre: 'Diabetes mellitus tipo I', cie: ['E10'] },
@@ -58,15 +59,15 @@ test('un release no publicado, oculto o sin canal epibot no entra al alcance', (
   assert.equal(ctx.releasesDesdeCatalogo(cat, leerShard).length, 0);
 });
 
-test('las CIFRAS CLAVE nombran los diecisiete padecimientos modelados', () => {
+test('las CIFRAS CLAVE nombran los dieciocho padecimientos modelados', () => {
   const rel = ctx.releasesDesdeCatalogo(CAT, leerShard);
   const s = ctx.structuredSummary(KB, rel);
   const linea = s.split('\n').find((l) => l.startsWith('Alcance vigente'));
   assert.ok(linea, s);
-  assert.match(linea, /modela diecisiete padecimientos/);
+  assert.match(linea, /modela dieciocho padecimientos/);
   for (const p of ['Depresión (F32)', 'Parkinson (G20)', 'Alzheimer (G30)', 'Dengue', 'Obesidad (E66)', 'Anorexia, bulimia y otros trastornos alimentarios (F50)', 'Diabetes mellitus tipo I (E10)', 'Diabetes mellitus tipo II (E11, E12, E13, E14)',
     'Infección de vías urinarias (N30, N34, N39.0)', 'Úlceras, gastritis y duodenitis (K25, K26, K27, K28, K29)',
-    'Infecciones respiratorias agudas (J00, J01, J03, J04, J05, J06, J20, J21)', 'Gingivitis y enfermedad periodontal (K05)', 'Tumor maligno de la mama (C50)']) {
+    'Infecciones respiratorias agudas (J00, J01, J03, J04, J05, J06, J20, J21)', 'Gingivitis y enfermedad periodontal (K05)', 'Tumor maligno de la mama (C50)', 'Tumor maligno del cuello del útero (C53)']) {
     assert.ok(linea.includes(p), `${p} en: ${linea}`);
   }
   assert.match(linea, /Ningún otro padecimiento está modelado/);

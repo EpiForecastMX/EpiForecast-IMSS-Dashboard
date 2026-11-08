@@ -149,6 +149,18 @@
       prefijos: ['cancer de mama', 'cancer de seno', 'cancer mamario', 'tumor maligno de la mama',
         'breast cancer'],
     },
+    {
+      id: 'cancer_cuello_utero_c53', pad: 'Tumor maligno del cuello del útero',
+      nombre: 'Tumor maligno del cuello del útero', nombreCorto: 'Cáncer de cuello del útero',
+      etiqueta: 'Tumor maligno del cuello del útero (C53)', dataKey: 'cancer_cuello_utero_c53',
+      marca: 'CANCER_CUELLO_UTERO_C53', pagina: 'cancer_cuello_utero_c53.html',
+      consulta: 'cancer cervicouterino', cie: 'C53', color: '#A3E635',
+      alias: ['tumor maligno del cuello del utero', 'cancer cervicouterino', 'cancer de cuello uterino',
+        'cancer de cuello del utero', 'cancer del cuello del utero', 'cancer cervical', 'c53',
+        'cervical cancer'],
+      prefijos: ['cancer cervicouterino', 'cancer de cuello uterino', 'cancer de cuello del utero',
+        'tumor maligno del cuello del utero', 'cervical cancer'],
+    },
   ]);
 
   /**
@@ -244,10 +256,10 @@
   ];
 
   /**
-   * Formas del tumor maligno de la mama, el único cáncer publicado. Se retiran antes de buscar no
-   * modelados para que «cáncer» no lo tape; cualquier otro cáncer sigue sin modelarse.
+   * Formas de los cánceres publicados (mama y cuello del útero). Se retiran antes de buscar no
+   * modelados para que «cáncer» no los tape; cualquier otro cáncer sigue sin modelarse.
    */
-  const CANCER_MAMA = /\b(cancer|cancer mamario|tumor(es)? malign[oa]s?|neoplasias? malignas?|carcinomas?)( de| del| en)?( la| las| el| los)? (mamas?|senos?)\b|\bcancer mamario\b|\bbreast cancer\b/g;
+  const CANCER_MAMA = /\b(cancer|tumor(es)? malign[oa]s?|neoplasias? malignas?|carcinomas?)( de| del| en)?( la| las| el| los)? (mamas?|senos?|cuello( del)? (utero|uterino)|cervix)\b|\bcancer (mamario|cervicouterino|cervical)\b|\b(breast|cervical) cancer\b/g;
 
   /** La enfermedad no modelada que nombra la consulta (normalizada), o null. Compara al inicio de palabra. */
   function mencionaNoModelada(qn) {

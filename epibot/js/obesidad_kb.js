@@ -10,12 +10,12 @@
  * follow-ups («¿y hombres?») y en consultas corregidas por typo, donde la consulta cruda ya no
  * nombra a Obesidad.
  */
-import { mencionaNoModelada } from './entities.js?v=44';
+import { mencionaNoModelada } from './entities.js?v=45';
 import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
-} from './obesidad_charts.js?v=12';
-import { releaseConAlias, releaseDePad } from './release_config.js?v=10';
+} from './obesidad_charts.js?v=13';
+import { releaseConAlias, releaseDePad } from './release_config.js?v=11';
 
 const any = (q, ks) => ks.some((k) => q.includes(k));
 const semana = ([a, w]) => `${a}-W${String(w).padStart(2, '0')}`;
@@ -115,14 +115,22 @@ function answerRelease(q, ent, s, d, r) {
     return `La vista de **${r.etiqueta}** todavía se está cargando. Puedes consultarla completa en ` +
       `[la página de ${r.nombre}](../${r.pagina}) o volver a preguntar en unos segundos.`;
   }
-  const tipo = tipoEfectivo(q, ent);
+  // Sin desglose por sexo (cuello del útero): sólo existe el total de cada entidad.
+  const sinSexo = !Object.keys(v.series).some((k) => k.endsWith('|hombres'));
+  const tipoPedido = tipoEfectivo(q, ent);
+  const pidioSexo = sinSexo && ((ent.sexo && ent.sexo !== 'general') || tipoPedido === 'sexo');
+  if (sinSexo) ent = { ...ent, sexo: undefined };
+  const tipo = pidioSexo && tipoPedido === 'sexo' ? tipoEfectivo('', ent) : tipoPedido;
   const etiqueta = `_${v.publication_label}._`;
-  const pie = `\n\nGráfica interactiva por estado y sexo: [${r.nombre} · pronóstico semanal](../${r.pagina}).`;
+  const avisoSexo = pidioSexo
+    ? `El boletín publica **${r.etiqueta}** sin desglose por sexo: se pronostica el total de cada entidad.\n\n`
+    : '';
+  const pie = `\n\nGráfica interactiva por estado${sinSexo ? '' : ' y sexo'}: [${r.nombre} · pronóstico semanal](../${r.pagina}).`;
   const sexo = ent.sexo || 'general';
   const sexoTxt = SEXO_TXT[sexo];
   const est = Object.values(v.series).filter((x) => x.nivel === 'estado' && x.sexo === sexo && x.oos.smape != null);
   const oosTxt = `${est[0]?.oos.semanas ?? 0} semanas observadas tras el origen ${semana(v.origin)}`;
-  const fin = (lineas, estados) => lineas.join('\n') + pie + marca(tipo, ent, estados, r);
+  const fin = (lineas, estados) => avisoSexo + lineas.join('\n') + pie + marca(tipo, ent, estados, r);
   const conOos = est.length > 0;
   const pideError = any(q, ['error', 'smape', 'precision', 'sesgo', 'desempeno']);
 
@@ -179,10 +187,14 @@ function answerRelease(q, ent, s, d, r) {
   if (tipo === 'motores') {
     const cuenta = Object.entries(v.engines).sort((a, b) => b[1] - a[1]);
     return fin([`**${r.etiqueta}: motores del release** \`${v.release_id}\``, '',
-      `Se modelan **${v.models} series** (32 estados × hombres y mujeres); los otros ${v.products - v.models} de los ${v.products} productos (totales estatales, regionales y nacional) se obtienen sumándolas.`, '',
+      sinSexo
+        ? `Se modelan **${v.models} series**, una por estado (el boletín no desglosa sexo); los otros ${v.products - v.models} de los ${v.products} productos (regionales y nacional) se obtienen sumándolas.`
+        : `Se modelan **${v.models} series** (32 estados × hombres y mujeres); los otros ${v.products - v.models} de los ${v.products} productos (totales estatales, regionales y nacional) se obtienen sumándolas.`, '',
       ...cuenta.map(([m, n]) => `- ${OBESIDAD_MOTOR[m] || m}: **${n}** series`), '',
       v.caida_al_control ? avisoControl(v) : 'El motor de cada serie se eligió con validación cruzada temporal en pliegues de 2021 a 2024, en los que el modelo nunca ve el periodo que pronostica.',
-      `Pregunta por un estado y un sexo («motor de ${r.consulta} en Jalisco mujeres») para ver el de esa serie.`, '', etiqueta]);
+      sinSexo
+        ? `Pregunta por un estado («motor de ${r.consulta} en Jalisco») para ver el de esa serie.`
+        : `Pregunta por un estado y un sexo («motor de ${r.consulta} en Jalisco mujeres») para ver el de esa serie.`, '', etiqueta]);
   }
 
   if (tipo === 'comparador') {

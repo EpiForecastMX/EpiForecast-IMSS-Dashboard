@@ -6,20 +6,20 @@
   <title>EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes</title>
 
   <!-- SEO -->
-  <meta name="description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad, trastornos alimentarios, Diabetes tipo I y II, hipertensión, enfermedades isquémica y cerebrovascular, infecciones intestinales, infecciones respiratorias agudas, infección de vías urinarias, gingivitis, úlceras, gastritis y duodenitis y tumor maligno de la mama en las 32 entidades de México, con un horizonte de 52 semanas." />
+  <meta name="description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad, trastornos alimentarios, Diabetes tipo I y II, hipertensión, enfermedades isquémica y cerebrovascular, infecciones intestinales, infecciones respiratorias agudas, infección de vías urinarias, gingivitis, úlceras, gastritis y duodenitis y tumores malignos de la mama y del cuello del útero en las 32 entidades de México, con un horizonte de 52 semanas." />
   <link rel="canonical" href="https://epiforecast.mx/" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://epiforecast.mx/" />
   <meta property="og:title" content="EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes" />
-  <meta property="og:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad, trastornos alimentarios, Diabetes tipo I y II, hipertensión, enfermedades isquémica y cerebrovascular, infecciones intestinales, infecciones respiratorias agudas, infección de vías urinarias, gingivitis, úlceras, gastritis y duodenitis y tumor maligno de la mama en las 32 entidades de México, con un horizonte de 52 semanas." />
+  <meta property="og:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad, trastornos alimentarios, Diabetes tipo I y II, hipertensión, enfermedades isquémica y cerebrovascular, infecciones intestinales, infecciones respiratorias agudas, infección de vías urinarias, gingivitis, úlceras, gastritis y duodenitis y tumores malignos de la mama y del cuello del útero en las 32 entidades de México, con un horizonte de 52 semanas." />
   <meta property="og:image" content="https://epiforecast.mx/og-image.png" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes" />
-  <meta name="twitter:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad, trastornos alimentarios, Diabetes tipo I y II, hipertensión, enfermedades isquémica y cerebrovascular, infecciones intestinales, infecciones respiratorias agudas, infección de vías urinarias, gingivitis, úlceras, gastritis y duodenitis y tumor maligno de la mama en las 32 entidades de México, con un horizonte de 52 semanas." />
+  <meta name="twitter:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad, trastornos alimentarios, Diabetes tipo I y II, hipertensión, enfermedades isquémica y cerebrovascular, infecciones intestinales, infecciones respiratorias agudas, infección de vías urinarias, gingivitis, úlceras, gastritis y duodenitis y tumores malignos de la mama y del cuello del útero en las 32 entidades de México, con un horizonte de 52 semanas." />
   <meta name="twitter:image" content="https://epiforecast.mx/og-image.png" />
 
   <!-- Iconos y tema -->
@@ -895,6 +895,11 @@
     .disease-card--mam .disease-icon svg { color: #FB7185; }
     .disease-card--mam h3 { color: #FDA4AF; }
     .disease-card--mam .disease-tag { background: rgba(251,113,133,0.16); color: #FECDD3; }
+    .disease-card--cu::before { background: #A3E635; }
+    .disease-card--cu .disease-icon { background: rgba(163,230,53,0.16); }
+    .disease-card--cu .disease-icon svg { color: #A3E635; }
+    .disease-card--cu h3 { color: #BEF264; }
+    .disease-card--cu .disease-tag { background: rgba(163,230,53,0.16); color: #D9F99D; }
 
     /* Diabetes tipo I y II */
     .disease-card--dt1::before { background: #22D3EE; }
@@ -2845,7 +2850,7 @@
       .edl-dateline { font-size: 0.6rem; letter-spacing: 0.1em; }
     }
   </style>
-<script src="epibot/js/release_catalog.js?v=9"></script>
+<script src="epibot/js/release_catalog.js?v=10"></script>
 </head>
 <body>
 <!-- build: dengue-methodology-card r1 -->
@@ -2882,6 +2887,7 @@
             <a href="gingivitis_k05.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Gingivitis y enfermedad periodontal</a>
             <a href="ulceras_k25.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Úlceras, gastritis y duodenitis</a>
             <a href="cancer_mama_c50.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Tumor maligno de la mama</a>
+            <a href="cancer_cuello_utero_c53.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Tumor maligno del cuello del útero</a>
             <a href="rechazados.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Analizados y rechazados</a>
             <a href="epibot/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>EPI Chatbot</a>
           </div>
@@ -2969,6 +2975,7 @@
           <a href="gingivitis_k05.html">Gingivitis y enfermedad periodontal</a>
           <a href="ulceras_k25.html">Úlceras, gastritis y duodenitis</a>
           <a href="cancer_mama_c50.html">Tumor maligno de la mama</a>
+          <a href="cancer_cuello_utero_c53.html">Tumor maligno del cuello del útero</a>
           <a href="rechazados.html">Analizados y rechazados</a>
           <a href="epibot/index.html">EPI Chatbot</a>
         </div>
@@ -3016,7 +3023,7 @@
     <div class="edl-wrap edl-article-col">
       <div class="edl-dateline">Pronóstico epidemiológico de México <span>&middot;</span> Edición de la semana 42, 2026</div>
       <h1 class="edl-headline">Anticipar la enfermedad,<br><em>semana a semana</em></h1>
-      <p class="edl-deck">EpiForecast-MX pronostica las notificaciones semanales de diecisiete padecimientos a 52 semanas. La ronda con corte W37 sostiene 432 series productivas: asigna cuatro motores a las series neuropsiquiátricas y DeepAR o Prophet a las de Dengue. La <a href="obesidad.html">obesidad</a> y la diabetes <a href="diabetes_t1.html">tipo I</a> y <a href="diabetes_t2.html">tipo II</a> publican 111 series cada una desde pronósticos congelados que se comparan cada semana con lo observado. <a href="anorexia_f50.html">Anorexia, bulimia y otros trastornos alimentarios</a> publican el control estacional, porque su portafolio no superó la prueba de 2025. También se incorporan la <a href="hipertension_i10.html">hipertensión arterial</a> y, con el control estacional, las enfermedades <a href="isquemica_i20.html">isquémica</a> y <a href="cerebrovascular_i60.html">cerebrovascular</a>. Del radar del boletín 42 se suman las <a href="intestinales_a04.html">infecciones intestinales por otros organismos y las mal definidas</a>, la <a href="ivu_n39.html">infección de vías urinarias</a> y las <a href="ulceras_k25.html">úlceras, gastritis y duodenitis</a>, más el control estacional de las <a href="ira_j00.html">infecciones respiratorias agudas</a> y de la <a href="gingivitis_k05.html">gingivitis y enfermedad periodontal</a>. El <a href="cancer_mama_c50.html">tumor maligno de la mama</a> también publica su control estacional.</p>
+      <p class="edl-deck">EpiForecast-MX pronostica las notificaciones semanales de dieciocho padecimientos a 52 semanas. La ronda con corte W37 sostiene 432 series productivas: asigna cuatro motores a las series neuropsiquiátricas y DeepAR o Prophet a las de Dengue. La <a href="obesidad.html">obesidad</a> y la diabetes <a href="diabetes_t1.html">tipo I</a> y <a href="diabetes_t2.html">tipo II</a> publican 111 series cada una desde pronósticos congelados que se comparan cada semana con lo observado. <a href="anorexia_f50.html">Anorexia, bulimia y otros trastornos alimentarios</a> publican el control estacional, porque su portafolio no superó la prueba de 2025. También se incorporan la <a href="hipertension_i10.html">hipertensión arterial</a> y, con el control estacional, las enfermedades <a href="isquemica_i20.html">isquémica</a> y <a href="cerebrovascular_i60.html">cerebrovascular</a>. Del radar del boletín 42 se suman las <a href="intestinales_a04.html">infecciones intestinales por otros organismos y las mal definidas</a>, la <a href="ivu_n39.html">infección de vías urinarias</a> y las <a href="ulceras_k25.html">úlceras, gastritis y duodenitis</a>, más el control estacional de las <a href="ira_j00.html">infecciones respiratorias agudas</a> y de la <a href="gingivitis_k05.html">gingivitis y enfermedad periodontal</a>. El <a href="cancer_mama_c50.html">tumor maligno de la mama</a> también publica su control estacional, y el <a href="cancer_cuello_utero_c53.html">tumor maligno del cuello del útero</a>, que superó la prueba de 2025, se pronostica sin desglose por sexo.</p>
       <div class="edl-byline">Una colaboración del Tecnológico de Monterrey con el Instituto Mexicano del Seguro Social. Datos actualizados cada semana desde el Boletín Epidemiológico del SINAVE.</div>
       <div class="edl-ctas">
         <a href="EpiDashboard.html" class="edl-primary">Abrir el tablero <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
@@ -3113,20 +3120,20 @@
           <a href="novedades.html" class="news-lead">
             <div class="news-lead-meta">
               <span class="news-date">8 de noviembre de 2026</span>
-              <span class="news-tag news-tag--radar">Control estacional</span>
+              <span class="news-tag news-tag--radar">Nuevo padecimiento</span>
             </div>
-            <div class="news-lead-title">El tumor maligno de la mama se publica con el control estacional</div>
-            <div class="news-lead-sub">Su portafolio no superó la prueba de 2025 en el total nacional. Se publica el control, que repite los casos de 52 semanas antes, para el país, 4 regiones y las 32 entidades, por sexo.</div>
+            <div class="news-lead-title">El tumor maligno del cuello del útero se incorpora al pronóstico</div>
+            <div class="news-lead-sub">Superó la prueba de 2025. Es el primer padecimiento sin desglose por sexo: se pronostica el total de cada entidad, a 52 semanas, para el país, 4 regiones y las 32 entidades.</div>
           </a>
           <div class="news-mini-list">
             <a href="novedades.html" class="news-mini">
               <span class="news-tag news-tag--radar">Control estacional</span>
-              <span class="news-mini-title">Infecciones respiratorias agudas y gingivitis se publican con el control estacional</span>
+              <span class="news-mini-title">El tumor maligno de la mama se publica con el control estacional</span>
               <span class="news-mini-date">8 de noviembre de 2026</span>
             </a>
             <a href="novedades.html" class="news-mini">
-              <span class="news-tag news-tag--radar">Nuevos padecimientos</span>
-              <span class="news-mini-title">Infecciones intestinales, vías urinarias y úlceras-gastritis se incorporan al pronóstico</span>
+              <span class="news-tag news-tag--radar">Control estacional</span>
+              <span class="news-mini-title">Infecciones respiratorias agudas y gingivitis se publican con el control estacional</span>
               <span class="news-mini-date">8 de noviembre de 2026</span>
             </a>
           </div>
@@ -3383,6 +3390,15 @@
         <span class="disease-tag">CIE-10: C50 · control estacional · 111 series publicadas · pronóstico puntual</span>
       </a>
 
+      <a class="disease-card disease-card--cu reveal reveal-delay-3" href="cancer_cuello_utero_c53.html">
+        <div class="disease-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>
+        </div>
+        <h3>Tumor maligno del cuello del útero</h3>
+        <p>Unos 70 casos semanales en todo el país. Su portafolio superó la prueba de 2025. El boletín no lo desglosa por sexo: se pronostica el total de cada entidad. Usa datos hasta la semana 41 de 2026 y su validación prospectiva está en curso.</p>
+        <span class="disease-tag">CIE-10: C53 · 32 modelos · 37 series publicadas · pronóstico puntual</span>
+      </a>
+
       <!-- Diabetes tipo I (publicada desde su release congelado, validación prospectiva en curso) -->
       <a class="disease-card disease-card--dt1 reveal reveal-delay-3" href="diabetes_t1.html">
         <div class="disease-icon">
@@ -3542,6 +3558,7 @@
       <a href="gingivitis_k05.html">Gingivitis y enfermedad periodontal</a>
       <a href="ulceras_k25.html">Úlceras, gastritis y duodenitis</a>
       <a href="cancer_mama_c50.html">Tumor maligno de la mama</a>
+      <a href="cancer_cuello_utero_c53.html">Tumor maligno del cuello del útero</a>
       <a href="rechazados.html">Analizados y rechazados</a>
       <a href="EpiDashboard.html">Dashboard</a>
       <a href="Reports/index.html">Pronósticos</a>

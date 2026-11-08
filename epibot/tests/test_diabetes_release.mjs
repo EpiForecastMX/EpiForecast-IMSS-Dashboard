@@ -12,7 +12,7 @@ const leer = (r) => readFileSync(new URL(`../../${r}`, import.meta.url), 'utf-8'
 const K = readFileSync(new URL('../knowledge.json', import.meta.url), 'utf-8');
 const VISTAS = ['obesidad', 'anorexia_f50', 'diabetes_t1', 'diabetes_t2', 'hipertension_i10',
   'isquemica_i20', 'cerebrovascular_i60', 'intestinales_a04', 'ira_j00', 'ivu_n39', 'gingivitis_k05',
-  'ulceras_k25', 'cancer_mama_c50'];
+  'ulceras_k25', 'cancer_mama_c50', 'cancer_cuello_utero_c53'];
 globalThis.fetch = async (u) => ({
   ok: true,
   json: async () => {
@@ -59,7 +59,7 @@ test('gestacional, insípida y prediabetes siguen sin modelarse', async () => {
   const r = await conversa('casos de diabetes gestacional en jalisco');
   assert.equal(r.handler, 'answerPadecimientoNoModelado');
   assert.match(r.md, /no modela/);
-  assert.match(r.md, /diecisiete padecimientos/);
+  assert.match(r.md, /dieciocho padecimientos/);
 });
 
 test('«diabetes» a secas avisa que se toma como tipo II', async () => {
@@ -315,6 +315,25 @@ test('cáncer de mama responde su control; los demás cánceres siguen sin model
     const r = await conversa(q);
     assert.equal(r.handler, 'answerPadecimientoNoModelado', q);
   }
+});
+
+test('cuello del útero responde su total y avisa que no hay desglose por sexo', async () => {
+  for (const q of ['cancer cervicouterino en jalisco', 'cancer de cuello uterino en sonora']) {
+    const r = await conversa(q);
+    assert.match(r.md, /CANCER_CUELLO_UTERO_C53/, q);
+    assert.match(r.md, /Validación prospectiva en curso/, q);
+    assert.doesNotMatch(r.md, /no modela|sin desglose por sexo/, q);
+  }
+  for (const q of ['cancer cervicouterino en jalisco mujeres', 'cancer cervicouterino por sexo']) {
+    const r = await conversa(q);
+    assert.match(r.md, /sin desglose por sexo/, q);
+    assert.match(r.md, /CANCER_CUELLO_UTERO_C53/, q);
+  }
+  const dos = await conversa('cancer cervicouterino en jalisco', 'y hombres');
+  assert.match(dos.md, /sin desglose por sexo/);
+  const motores = await conversa('motores de cancer cervicouterino');
+  assert.match(motores.md, /una por estado/);
+  assert.doesNotMatch(motores.md, /hombres y mujeres/);
 });
 
 test('rotavirus sigue sin modelarse', async () => {
