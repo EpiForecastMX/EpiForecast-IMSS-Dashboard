@@ -62,7 +62,7 @@ test('la noticia de Obesidad encabeza novedades y la portada la anuncia', () => 
   const portada = leer('index.html');
   assert.match(portada, /\.news-tag--obesidad/);
   assert.match(leer('novedades.html'), /\.news-tag--obesidad/);
-  assert.match(portada, /dieciséis padecimientos/);
+  assert.match(portada, /diecisiete padecimientos/);
   assert.match(portada, /class="disease-card disease-card--obe[^"]*" href="obesidad\.html"/);
 });
 
