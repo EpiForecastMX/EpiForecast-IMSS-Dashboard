@@ -1,0 +1,337 @@
+{
+  "checked": "2026-11-08",
+  "sources": 722,
+  "source_weeks": 721,
+  "categories": 245,
+  "plotted_points": 106403,
+  "baseline_points_unchanged": 17577,
+  "pdf_hashes_checked": 722,
+  "unplaced_points": 51,
+  "unplaced_reason": "2021 rotavirus table caption prints 2020 while issue and column years print 2021",
+  "source_reconciliation_issues": 35,
+  "source_cut_checks": [
+    {
+      "filename": "2015_sem48.pdf",
+      "sha256": "09d8e2ce2524d49f7348c3e891e54570650789534997acea3544a4395ac8d9ac",
+      "code": "A90",
+      "state_page": 31,
+      "summary_page": 9,
+      "original_cut": [
+        2015,
+        47
+      ],
+      "verified_cut": [
+        2015,
+        48
+      ],
+      "verified_values": [
+        802,
+        19708
+      ]
+    },
+    {
+      "filename": "2015_sem48.pdf",
+      "sha256": "09d8e2ce2524d49f7348c3e891e54570650789534997acea3544a4395ac8d9ac",
+      "code": "A91",
+      "state_page": 31,
+      "summary_page": 9,
+      "original_cut": [
+        2015,
+        47
+      ],
+      "verified_cut": [
+        2015,
+        48
+      ],
+      "verified_values": [
+        220,
+        4897
+      ]
+    },
+    {
+      "filename": "2015_sem48.pdf",
+      "sha256": "09d8e2ce2524d49f7348c3e891e54570650789534997acea3544a4395ac8d9ac",
+      "code": "A92.5",
+      "state_page": 31,
+      "summary_page": 9,
+      "original_cut": [
+        2015,
+        47
+      ],
+      "verified_cut": [
+        2015,
+        48
+      ],
+      "verified_values": [
+        0,
+        2
+      ]
+    },
+    {
+      "filename": "2015_sem49.pdf",
+      "sha256": "da64224ee9cb81817a5a653a9248f796be7dc803a63b9ea7dfa60a5786d4a984",
+      "code": "A90",
+      "state_page": 31,
+      "summary_page": 9,
+      "original_cut": [
+        2015,
+        47
+      ],
+      "verified_cut": [
+        2015,
+        49
+      ],
+      "verified_values": [
+        784,
+        20492
+      ]
+    },
+    {
+      "filename": "2015_sem49.pdf",
+      "sha256": "da64224ee9cb81817a5a653a9248f796be7dc803a63b9ea7dfa60a5786d4a984",
+      "code": "A91",
+      "state_page": 31,
+      "summary_page": 9,
+      "original_cut": [
+        2015,
+        47
+      ],
+      "verified_cut": [
+        2015,
+        49
+      ],
+      "verified_values": [
+        236,
+        5133
+      ]
+    },
+    {
+      "filename": "2015_sem49.pdf",
+      "sha256": "da64224ee9cb81817a5a653a9248f796be7dc803a63b9ea7dfa60a5786d4a984",
+      "code": "A92.5",
+      "state_page": 31,
+      "summary_page": 9,
+      "original_cut": [
+        2015,
+        47
+      ],
+      "verified_cut": [
+        2015,
+        49
+      ],
+      "verified_values": [
+        0,
+        2
+      ]
+    },
+    {
+      "filename": "2015_sem50.pdf",
+      "sha256": "7d316b42129a9fd437db816d32f8114b8b2e347a62189386f0230eb2583c5801",
+      "code": "A90",
+      "state_page": 27,
+      "summary_page": 5,
+      "original_cut": [
+        2015,
+        47
+      ],
+      "verified_cut": [
+        2015,
+        50
+      ],
+      "verified_values": [
+        407,
+        20899
+      ]
+    },
+    {
+      "filename": "2015_sem50.pdf",
+      "sha256": "7d316b42129a9fd437db816d32f8114b8b2e347a62189386f0230eb2583c5801",
+      "code": "A91",
+      "state_page": 27,
+      "summary_page": 5,
+      "original_cut": [
+        2015,
+        47
+      ],
+      "verified_cut": [
+        2015,
+        50
+      ],
+      "verified_values": [
+        143,
+        5276
+      ]
+    },
+    {
+      "filename": "2015_sem50.pdf",
+      "sha256": "7d316b42129a9fd437db816d32f8114b8b2e347a62189386f0230eb2583c5801",
+      "code": "A92.5",
+      "state_page": 27,
+      "summary_page": 5,
+      "original_cut": [
+        2015,
+        47
+      ],
+      "verified_cut": [
+        2015,
+        50
+      ],
+      "verified_values": [
+        0,
+        2
+      ]
+    },
+    {
+      "filename": "2015_sem51.pdf",
+      "sha256": "90a4261d07f438161c6f1066b4c5133e7faf1e263a384fdf95b282f7018af86d",
+      "code": "A90",
+      "state_page": 27,
+      "summary_page": 5,
+      "original_cut": [
+        2015,
+        47
+      ],
+      "verified_cut": [
+        2015,
+        51
+      ],
+      "verified_values": [
+        213,
+        21112
+      ]
+    },
+    {
+      "filename": "2015_sem51.pdf",
+      "sha256": "90a4261d07f438161c6f1066b4c5133e7faf1e263a384fdf95b282f7018af86d",
+      "code": "A91",
+      "state_page": 27,
+      "summary_page": 5,
+      "original_cut": [
+        2015,
+        47
+      ],
+      "verified_cut": [
+        2015,
+        51
+      ],
+      "verified_values": [
+        113,
+        5389
+      ]
+    },
+    {
+      "filename": "2015_sem51.pdf",
+      "sha256": "90a4261d07f438161c6f1066b4c5133e7faf1e263a384fdf95b282f7018af86d",
+      "code": "A92.5",
+      "state_page": 27,
+      "summary_page": 5,
+      "original_cut": [
+        2015,
+        47
+      ],
+      "verified_cut": [
+        2015,
+        51
+      ],
+      "verified_values": [
+        0,
+        2
+      ]
+    },
+    {
+      "filename": "2015_sem52.pdf",
+      "sha256": "235a801b8230ef5cecbd07f3a9ac4e88fe6e0e1a1c9ee63e7b9f0c559c101464",
+      "code": "A90",
+      "state_page": 31,
+      "summary_page": 9,
+      "original_cut": [
+        2015,
+        47
+      ],
+      "verified_cut": [
+        2015,
+        52
+      ],
+      "verified_values": [
+        89,
+        21201
+      ]
+    },
+    {
+      "filename": "2015_sem52.pdf",
+      "sha256": "235a801b8230ef5cecbd07f3a9ac4e88fe6e0e1a1c9ee63e7b9f0c559c101464",
+      "code": "A91",
+      "state_page": 31,
+      "summary_page": 9,
+      "original_cut": [
+        2015,
+        47
+      ],
+      "verified_cut": [
+        2015,
+        52
+      ],
+      "verified_values": [
+        75,
+        5464
+      ]
+    },
+    {
+      "filename": "2015_sem52.pdf",
+      "sha256": "235a801b8230ef5cecbd07f3a9ac4e88fe6e0e1a1c9ee63e7b9f0c559c101464",
+      "code": "A92.5",
+      "state_page": 31,
+      "summary_page": 9,
+      "original_cut": [
+        2015,
+        47
+      ],
+      "verified_cut": [
+        2015,
+        52
+      ],
+      "verified_values": [
+        13,
+        15
+      ]
+    }
+  ],
+  "literal_source_glyphs": [
+    {
+      "pdf_sha256": "03547ac043760423b0544a6eadb9bda203366c7e9cb416ba6e3efa1a280a4cc1",
+      "page": 30,
+      "literals": [
+        "Z"
+      ]
+    },
+    {
+      "pdf_sha256": "4a57ac8c7786678fddb5637a625180529c3bbfcd04736c237c2076fee7b8281a",
+      "page": 33,
+      "literals": [
+        "ae"
+      ]
+    },
+    {
+      "pdf_sha256": "9600171099133c37c392832b99d4b5c471043f296edc98a6ad62c77372b35151",
+      "page": 44,
+      "literals": [
+        "o"
+      ]
+    },
+    {
+      "pdf_sha256": "4e3b76f5b802b6ac084a164b2308015d13df5bb25c2c479eff1255e72391b022",
+      "page": 27,
+      "literals": [
+        "."
+      ]
+    },
+    {
+      "pdf_sha256": "0d79c705d64eb1f7b8e1a9e9bd68628e19629e2a94dbcae8db4a388e417a2e17",
+      "page": 50,
+      "literals": [
+        "SanLuisPotosí"
+      ]
+    }
+  ],
+  "archive_note": "2023 W34 alternate preserved; official index links 7afeead2; 2016 archive misnames its W01 PDF as 2015-SE1, but cover verifies 2016-W01."
+}

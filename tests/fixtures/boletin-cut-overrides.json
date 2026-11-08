@@ -1,0 +1,287 @@
+[
+  {
+    "filename": "2015_sem48.pdf",
+    "sha256": "09d8e2ce2524d49f7348c3e891e54570650789534997acea3544a4395ac8d9ac",
+    "code": "A90",
+    "state_page": 31,
+    "summary_page": 9,
+    "original_cut": [
+      2015,
+      47
+    ],
+    "verified_cut": [
+      2015,
+      48
+    ],
+    "verified_values": [
+      802,
+      19708
+    ]
+  },
+  {
+    "filename": "2015_sem48.pdf",
+    "sha256": "09d8e2ce2524d49f7348c3e891e54570650789534997acea3544a4395ac8d9ac",
+    "code": "A91",
+    "state_page": 31,
+    "summary_page": 9,
+    "original_cut": [
+      2015,
+      47
+    ],
+    "verified_cut": [
+      2015,
+      48
+    ],
+    "verified_values": [
+      220,
+      4897
+    ]
+  },
+  {
+    "filename": "2015_sem48.pdf",
+    "sha256": "09d8e2ce2524d49f7348c3e891e54570650789534997acea3544a4395ac8d9ac",
+    "code": "A92.5",
+    "state_page": 31,
+    "summary_page": 9,
+    "original_cut": [
+      2015,
+      47
+    ],
+    "verified_cut": [
+      2015,
+      48
+    ],
+    "verified_values": [
+      0,
+      2
+    ]
+  },
+  {
+    "filename": "2015_sem49.pdf",
+    "sha256": "da64224ee9cb81817a5a653a9248f796be7dc803a63b9ea7dfa60a5786d4a984",
+    "code": "A90",
+    "state_page": 31,
+    "summary_page": 9,
+    "original_cut": [
+      2015,
+      47
+    ],
+    "verified_cut": [
+      2015,
+      49
+    ],
+    "verified_values": [
+      784,
+      20492
+    ]
+  },
+  {
+    "filename": "2015_sem49.pdf",
+    "sha256": "da64224ee9cb81817a5a653a9248f796be7dc803a63b9ea7dfa60a5786d4a984",
+    "code": "A91",
+    "state_page": 31,
+    "summary_page": 9,
+    "original_cut": [
+      2015,
+      47
+    ],
+    "verified_cut": [
+      2015,
+      49
+    ],
+    "verified_values": [
+      236,
+      5133
+    ]
+  },
+  {
+    "filename": "2015_sem49.pdf",
+    "sha256": "da64224ee9cb81817a5a653a9248f796be7dc803a63b9ea7dfa60a5786d4a984",
+    "code": "A92.5",
+    "state_page": 31,
+    "summary_page": 9,
+    "original_cut": [
+      2015,
+      47
+    ],
+    "verified_cut": [
+      2015,
+      49
+    ],
+    "verified_values": [
+      0,
+      2
+    ]
+  },
+  {
+    "filename": "2015_sem50.pdf",
+    "sha256": "7d316b42129a9fd437db816d32f8114b8b2e347a62189386f0230eb2583c5801",
+    "code": "A90",
+    "state_page": 27,
+    "summary_page": 5,
+    "original_cut": [
+      2015,
+      47
+    ],
+    "verified_cut": [
+      2015,
+      50
+    ],
+    "verified_values": [
+      407,
+      20899
+    ]
+  },
+  {
+    "filename": "2015_sem50.pdf",
+    "sha256": "7d316b42129a9fd437db816d32f8114b8b2e347a62189386f0230eb2583c5801",
+    "code": "A91",
+    "state_page": 27,
+    "summary_page": 5,
+    "original_cut": [
+      2015,
+      47
+    ],
+    "verified_cut": [
+      2015,
+      50
+    ],
+    "verified_values": [
+      143,
+      5276
+    ]
+  },
+  {
+    "filename": "2015_sem50.pdf",
+    "sha256": "7d316b42129a9fd437db816d32f8114b8b2e347a62189386f0230eb2583c5801",
+    "code": "A92.5",
+    "state_page": 27,
+    "summary_page": 5,
+    "original_cut": [
+      2015,
+      47
+    ],
+    "verified_cut": [
+      2015,
+      50
+    ],
+    "verified_values": [
+      0,
+      2
+    ]
+  },
+  {
+    "filename": "2015_sem51.pdf",
+    "sha256": "90a4261d07f438161c6f1066b4c5133e7faf1e263a384fdf95b282f7018af86d",
+    "code": "A90",
+    "state_page": 27,
+    "summary_page": 5,
+    "original_cut": [
+      2015,
+      47
+    ],
+    "verified_cut": [
+      2015,
+      51
+    ],
+    "verified_values": [
+      213,
+      21112
+    ]
+  },
+  {
+    "filename": "2015_sem51.pdf",
+    "sha256": "90a4261d07f438161c6f1066b4c5133e7faf1e263a384fdf95b282f7018af86d",
+    "code": "A91",
+    "state_page": 27,
+    "summary_page": 5,
+    "original_cut": [
+      2015,
+      47
+    ],
+    "verified_cut": [
+      2015,
+      51
+    ],
+    "verified_values": [
+      113,
+      5389
+    ]
+  },
+  {
+    "filename": "2015_sem51.pdf",
+    "sha256": "90a4261d07f438161c6f1066b4c5133e7faf1e263a384fdf95b282f7018af86d",
+    "code": "A92.5",
+    "state_page": 27,
+    "summary_page": 5,
+    "original_cut": [
+      2015,
+      47
+    ],
+    "verified_cut": [
+      2015,
+      51
+    ],
+    "verified_values": [
+      0,
+      2
+    ]
+  },
+  {
+    "filename": "2015_sem52.pdf",
+    "sha256": "235a801b8230ef5cecbd07f3a9ac4e88fe6e0e1a1c9ee63e7b9f0c559c101464",
+    "code": "A90",
+    "state_page": 31,
+    "summary_page": 9,
+    "original_cut": [
+      2015,
+      47
+    ],
+    "verified_cut": [
+      2015,
+      52
+    ],
+    "verified_values": [
+      89,
+      21201
+    ]
+  },
+  {
+    "filename": "2015_sem52.pdf",
+    "sha256": "235a801b8230ef5cecbd07f3a9ac4e88fe6e0e1a1c9ee63e7b9f0c559c101464",
+    "code": "A91",
+    "state_page": 31,
+    "summary_page": 9,
+    "original_cut": [
+      2015,
+      47
+    ],
+    "verified_cut": [
+      2015,
+      52
+    ],
+    "verified_values": [
+      75,
+      5464
+    ]
+  },
+  {
+    "filename": "2015_sem52.pdf",
+    "sha256": "235a801b8230ef5cecbd07f3a9ac4e88fe6e0e1a1c9ee63e7b9f0c559c101464",
+    "code": "A92.5",
+    "state_page": 31,
+    "summary_page": 9,
+    "original_cut": [
+      2015,
+      47
+    ],
+    "verified_cut": [
+      2015,
+      52
+    ],
+    "verified_values": [
+      13,
+      15
+    ]
+  }
+]
