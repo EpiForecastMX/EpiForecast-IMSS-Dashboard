@@ -1,0 +1,82 @@
+[
+  {
+    "source": "2013_sem01.pdf",
+    "sha256": "d5682364db8cc367197fbd52bafab9abe6533e83375e74310acc0c8904447c7d",
+    "page": 33,
+    "header": "CUADRO 10.4 Casos por entidad federativa de Enfermedades Transmisibles hasta la semana epidemiológica 52 del 2012; PFA hasta la 1 del 2013 Infección Asintomática Parálisis Flácida Aguda",
+    "name": "Parálisis Flácida Aguda",
+    "code": "S/C",
+    "issue": [
+      2013,
+      1
+    ],
+    "expected": [
+      2013,
+      1
+    ]
+  },
+  {
+    "source": "2014_sem47.pdf",
+    "sha256": "d8ed8bd9b0a05d290a81e186657b871ab23a23a58625d8251128d3e7cdebd8fd",
+    "page": 36,
+    "header": "CUADRO 11. Casos por entidad federativa de Enfermedades de Interés Local, Regional o Institucional hasta la semana epidemiológica 46; E. V. Chikungunya hasta la 47 del 2014 Tracoma Enfermedad por Virus Leishmaniasis Visceral",
+    "name": "Enfermedad por Virus Chikungunya",
+    "code": "A92.0",
+    "issue": [
+      2014,
+      47
+    ],
+    "expected": [
+      2014,
+      47
+    ]
+  },
+  {
+    "source": "2015_sem01.pdf",
+    "sha256": "cdbab2892c160c72b58b6c2b2f0fc5a355ccdc2c772729408e839a62cbcf0923",
+    "page": 31,
+    "header": "CUADRO 8. Casos por entidad federativa de Zoonosis hasta la semana epidemiológica 53 del 2014; Rabia hasta la semana 1 del 2015 Rabia & Brucelosis Leptospirosis",
+    "name": "Rabia",
+    "code": "A82",
+    "issue": [
+      2015,
+      1
+    ],
+    "expected": [
+      2015,
+      1
+    ]
+  },
+  {
+    "source": "2016_sem01.pdf",
+    "sha256": "a635d0d0b767788f38f26196896cc169b22b6021a91f88161598fccaedf4b10b",
+    "page": 15,
+    "header": "CUADRO 3.7 Casos por entidad federativa de Enfermedades Prevenibles por Vacunación hasta la semana 52 del 2015; S.R. Congénita hasta la semana 1 del 2016 § Síndrome de Rubéola Congénita Infección por Virus de Papiloma Humano",
+    "name": "Síndrome de Rubéola Congénita",
+    "code": "P35.0",
+    "issue": [
+      2016,
+      1
+    ],
+    "expected": [
+      2016,
+      1
+    ]
+  },
+  {
+    "source": "2021_sem01.pdf",
+    "sha256": "2b193ad028c38964c8da9aaf600cc90eed924a16da4a980ba788744935752b31",
+    "page": 52,
+    "header": "Vigilancia Epidemiológica Semana 1, 2021 52 CUADRO 13.8 Casos por entidad federativa de Enfermedades No Transmisibles hasta la semana epidemiológica 53 del 2020; ESAVI hasta la semana 1 del 2021 Contacto Traumático Eventos Supuestamente Hipotermia",
+    "name": "Eventos Supuestamente Asociados a la Vacunación § Eventos Asociados a la Vacunación (ESAVI)",
+    "code": "Y58,Y59",
+    "issue": [
+      2021,
+      1
+    ],
+    "expected": [
+      2021,
+      1
+    ]
+  }
+]

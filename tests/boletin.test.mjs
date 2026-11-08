@@ -73,16 +73,22 @@ test('the new page shares the editorial skin and has functional, unambiguous ass
   assert.match(readFileSync(resolve(root, 'sitemap.xml'), 'utf8'), /https:\/\/epiforecast.mx\/boletin.html/);
 });
 
-test('historical manifest covers all 53+42 official bulletins and the 53-week boundary', () => {
+test('historical manifest covers 2013–2026, distinguishes archived editions, and respects 53-week boundaries', () => {
   const history = JSON.parse(readFileSync(resolve(root, 'assets/boletin/history/index.json'), 'utf8'));
-  assert.equal(history.source_count, 95);
-  assert.deepEqual(history.source_years, {'2025':53,'2026':42});
-  assert.equal(new Set(history.sources.map(s => `${s.year}-${s.week}`)).size, 95);
+  assert.equal(history.source_count, 722);
+  assert.equal(history.source_years['2013'],52);
+  assert.equal(history.source_years['2014'],53);
+  assert.equal(history.source_years['2020'],53);
+  assert.equal(history.source_years['2023'],53, '52 weeks plus a distinct archived edition');
+  assert.equal(history.source_years['2025'],53);
+  assert.equal(history.source_years['2026'],42);
+  assert.equal(history.sources.length,history.source_count);
+  assert.equal(new Set(history.sources.map(s => `${s.year}-${s.week}`)).size, 721);
   assert.equal(history.periods.find(p => p.y === 2025 && p.w === 53).start, '2025-12-28');
   assert.equal(history.periods.find(p => p.y === 2026 && p.w === 1).start, '2026-01-04');
   for (const s of history.sources) {
     assert.match(s.sha256, /^[a-f0-9]{64}$/);
-    assert.match(s.url, /^https:\/\/www\.gob\.mx\/cms\/uploads\/attachment\/file\//);
+    assert.match(s.url, /^https:\/\/(?:www\.gob\.mx\/cms\/uploads\/attachment\/file\/|epidemiologia\.salud\.gob\.mx\/gobmx\/salud\/documentos\/boletin\/)/);
     assert.equal(s.path, undefined);
   }
 });
@@ -95,7 +101,7 @@ test('all history shards have unique observed periods and match the audited late
     assert.ok(shard.points.length>0,d.id);
     assert.equal(new Set(shard.points.map(p => `${p.y}-${p.w}`)).size,shard.points.length,d.id);
     for(const p of shard.points){
-      assert.ok(p.s>=0&&p.s<95,d.id);
+      assert.ok(p.s>=0&&p.s<history.source_count,d.id);
       assert.ok(p.p>0,d.id);
       assert.ok(p.n.every(v=>v===null||Number.isInteger(v)),d.id);
       if(p.e)assert.equal(p.e.length,32,d.id);
@@ -142,4 +148,58 @@ test('coverage counters and public links follow every current published category
     }
   }
   assert.match(html,/<script type="module" src="\/assets\/boletin\/radar\.js/);
+});
+
+
+test('historic classifications, missing observations and explicit source editions stay separate', () => {
+  const history=JSON.parse(readFileSync(resolve(root,'assets/boletin/history/index.json'),'utf8'));
+  const read=id=>JSON.parse(readFileSync(resolve(root,history.series[id].path.slice(1)),'utf8'));
+  const depression=data.diseases.find(d=>d.platform_id==='depresion');
+  assert.ok(read(depression.id).points.every(p=>p.y>=2014),'depression was added in 2014');
+  const dengue=history.categories.find(d=>d.historical&&d.code==='A90');
+  assert.ok(dengue,'old dengue classification is retained');
+  assert.ok(read(dengue.id).points.every(p=>p.y<=2018),'old A90 is not relabeled A97.0');
+  const influenza=data.diseases.find(d=>d.name==='Influenza');
+  const shard=read(influenza.id),p=shard.points.find(p=>p.y===2023&&p.w===34);
+  assert.equal(p.n[0],60,'governing edition is the PDF linked by the official index');
+  assert.match(history.sources[p.s].sha256,/^7afeead2/);
+  assert.ok(shard.revisions.some(p=>p.y===2023&&p.w===34&&p.n[0]===123),'alternative figures remain available as a revision');
+  for(const [id,meta] of Object.entries(history.series)){
+    const s=read(id);
+    assert.equal(new Set(s.points.map(p=>`${p.y}-${p.w}`)).size,s.points.length,id);
+    assert.equal(s.points.length,meta.points,id);
+    for(const p of [...s.points,...s.revisions]){
+      assert.ok(p.s>=0&&p.s<history.source_count,id);
+      assert.ok(p.n.every(v=>v===null||Number.isInteger(v)),id);
+      if(p.e)assert.equal(p.e.length,32,id);
+    }
+  }
+});
+
+test('ambiguous rotavirus years cannot overwrite 2020, and independently verified dengue cuts stay in their weeks', () => {
+  const history=JSON.parse(readFileSync(resolve(root,'assets/boletin/history/index.json'),'utf8'));
+  const read=id=>JSON.parse(readFileSync(resolve(root,history.series[id].path.slice(1)),'utf8'));
+  const rota=read('p6b1');
+  assert.equal(rota.unplaced.length,51);
+  assert.ok(rota.unplaced.every(p=>history.sources[p.s].year===2021&&p.flags.includes('source_cut_conflict')));
+  assert.ok(!rota.points.some(p=>p.y===2020&&history.sources[p.s].year===2021&&history.sources[p.s].week>1));
+  const fever=history.categories.find(d=>d.historical&&d.code==='A90'&&/Fiebre.*Dengue/i.test(d.name));
+  const dengue=read(fever.id);
+  for(const [week,cases] of [[47,872],[48,802],[49,784],[50,407],[51,213],[52,89]]){
+    const p=dengue.points.find(p=>p.y===2015&&p.w===week);assert.equal(p.n[0],cases);
+    if(week>=48)assert.ok(p.flags.includes('source_cut_verified_by_national'));
+  }
+  const hemorrhagic=history.categories.find(d=>d.historical&&d.code==='A91'&&/Hemorrágica/i.test(d.name));
+  const p=read(hemorrhagic.id).points.find(p=>p.y===2015&&p.w===48);
+  assert.deepEqual(p.n,[220,4897]);assert.equal(p.in_study,3039);
+  assert.equal(p.in_study_states.reduce((a,b)=>a+b,0),3039);
+});
+
+test('national-only rows retain full coverage and historical printed-code changes', () => {
+  const history=JSON.parse(readFileSync(resolve(root,'assets/boletin/history/index.json'),'utf8'));
+  assert.equal(history.series['national-A80'].points,721);
+  assert.equal(history.series['national-A36'].points,721);
+  for(const id of ['national-A92.2','national-A95','national-A20','national-A92.8','national-A98.4'])assert.equal(history.series[id].points,506,id);
+  const identities=JSON.parse(readFileSync(resolve(root,'assets/boletin/history/identities.json'),'utf8'));
+  assert.ok(identities.some(a=>a.id==='national-A92.2'&&a.source_code==='A95'),'yellow fever is joined by name while its source code is retained');
 });
