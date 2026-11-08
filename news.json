@@ -7,6 +7,25 @@
             "type": "radar",
             "tag": "Control estacional",
             "featured": true,
+            "title": "El tumor maligno de la mama se publica con el control estacional",
+            "summary": "Su portafolio no superó la prueba de 2025 en el total nacional. Se publica el control, que repite los casos de 52 semanas antes, para el país, 4 regiones y las 32 entidades, por sexo.",
+            "body": [
+                "EpiForecast-MX publica el <strong style=\"color:var(--cream)\">tumor maligno de la mama (CIE-10 C50)</strong> con el control estacional: cada semana repite los casos notificados 52 semanas antes, para el país, 4 regiones y las 32 entidades, por sexo (111 series).",
+                "Su portafolio de modelos mejoró las series por estado y sexo en la prueba de 2025, pero empeoró el total nacional frente al control. Por eso se publica el control y no se presenta como validado; las cifras de esa prueba están en su página.",
+                "Usa datos hasta la semana 41 de 2026 y se emitió el 8 de noviembre. Es un pronóstico puntual, sin intervalos de incertidumbre. Los demás tumores malignos del boletín no se publican por ahora: quince sólo tienen datos desde 2023 y el de cuello del útero no se desglosa por sexo."
+            ],
+            "link": {
+                "href": "cancer_mama_c50.html",
+                "text": "Ver el control de tumor maligno de la mama",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
+        {
+            "date": "8 de noviembre de 2026",
+            "iso": "2026-11-08",
+            "type": "radar",
+            "tag": "Control estacional",
+            "featured": true,
             "title": "Infecciones respiratorias agudas y gingivitis se publican con el control estacional",
             "summary": "Su portafolio no superó la prueba de 2025. Se publica el control, que repite los casos de 52 semanas antes, para el país, 4 regiones y las 32 entidades, por sexo.",
             "body": [

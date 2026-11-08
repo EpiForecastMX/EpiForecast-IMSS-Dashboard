@@ -138,6 +138,17 @@
       prefijos: ['gastritis', 'duodenitis', 'ulcera gastric', 'ulceras gastric', 'ulcera peptic',
         'ulceras peptic', 'ulcera duoden', 'ulceras duoden', 'peptic ulcer'],
     },
+    {
+      id: 'cancer_mama_c50', pad: 'Tumor maligno de la mama', nombre: 'Tumor maligno de la mama',
+      nombreCorto: 'Cáncer de mama', etiqueta: 'Tumor maligno de la mama (C50)',
+      dataKey: 'cancer_mama_c50', marca: 'CANCER_MAMA_C50', pagina: 'cancer_mama_c50.html',
+      consulta: 'cancer de mama', cie: 'C50', color: '#FB7185',
+      alias: ['tumor maligno de la mama', 'tumores malignos de la mama', 'tumor maligno de mama',
+        'cancer de mama', 'cancer de mamas', 'cancer de seno', 'cancer mamario', 'carcinoma de mama',
+        'neoplasia maligna de mama', 'c50', 'breast cancer'],
+      prefijos: ['cancer de mama', 'cancer de seno', 'cancer mamario', 'tumor maligno de la mama',
+        'breast cancer'],
+    },
   ]);
 
   /**
@@ -232,10 +243,16 @@
     [/\b(ocular|intraocular)\b/, 'hipertension ocular'],
   ];
 
+  /**
+   * Formas del tumor maligno de la mama, el único cáncer publicado. Se retiran antes de buscar no
+   * modelados para que «cáncer» no lo tape; cualquier otro cáncer sigue sin modelarse.
+   */
+  const CANCER_MAMA = /\b(cancer|cancer mamario|tumor(es)? malign[oa]s?|neoplasias? malignas?|carcinomas?)( de| del| en)?( la| las| el| los)? (mamas?|senos?)\b|\bcancer mamario\b|\bbreast cancer\b/g;
+
   /** La enfermedad no modelada que nombra la consulta (normalizada), o null. Compara al inicio de palabra. */
   function mencionaNoModelada(qn) {
     const canon = canonClinico(qn);
-    const q = ` ${canon} `;
+    const q = ` ${canon.replace(CANCER_MAMA, ' ')} `;
     const directa = noModeladas.find((e) => q.includes(e.endsWith(' ') ? ` ${e}` : ` ${e.trim()}`));
     if (directa) return directa;
     if (!HIPERTENSION.test(canon)) return null;
