@@ -2,6 +2,25 @@
     "_generated": "2026-11-05",
     "items": [
         {
+            "date": "8 de noviembre de 2026",
+            "iso": "2026-11-08",
+            "type": "radar",
+            "tag": "Nuevos padecimientos",
+            "featured": true,
+            "title": "Infecciones intestinales, vías urinarias y úlceras-gastritis se incorporan al pronóstico",
+            "summary": "Tres padecimientos del radar del boletín 42, a 52 semanas para el país, 4 regiones y las 32 entidades, por sexo. Los tres superaron la prueba de 2025.",
+            "body": [
+                "EpiForecast-MX publica las <strong style=\"color:var(--cream)\">infecciones intestinales por otros organismos y las mal definidas (CIE-10 A04, A08-A09 excepto A08.0)</strong>, la <strong style=\"color:var(--cream)\">infección de vías urinarias (N30, N34, N39.0)</strong> y las <strong style=\"color:var(--cream)\">úlceras, gastritis y duodenitis (K25-K29)</strong>: pronósticos semanales a 52 semanas para el país, 4 regiones y las 32 entidades, por sexo (111 series en cada padecimiento).",
+                "Los tres superaron la prueba de 2025 frente al control estacional y su validación prospectiva está en curso. Las infecciones respiratorias agudas y la gingivitis también se evaluaron, pero no superaron esa prueba y no se publican.",
+                "Usan datos hasta la semana 41 de 2026, se emitieron el 8 de noviembre y no se reentrenan. Son pronósticos puntuales, sin intervalos de incertidumbre. Puedes consultarlos en sus páginas, en la galería y en EPI."
+            ],
+            "link": {
+                "href": "intestinales_a04.html",
+                "text": "Ver el pronóstico de infecciones intestinales",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
+        {
             "date": "7 de noviembre de 2026",
             "iso": "2026-11-07",
             "type": "cardio",

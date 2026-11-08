@@ -11,6 +11,9 @@
   <url><loc>https://epiforecast.mx/hipertension_i10.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://epiforecast.mx/isquemica_i20.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://epiforecast.mx/cerebrovascular_i60.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://epiforecast.mx/intestinales_a04.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://epiforecast.mx/ivu_n39.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://epiforecast.mx/ulceras_k25.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://epiforecast.mx/rechazados.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://epiforecast.mx/diabetes_t1.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://epiforecast.mx/diabetes_t2.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>

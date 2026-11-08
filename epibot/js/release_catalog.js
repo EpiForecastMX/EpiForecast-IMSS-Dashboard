@@ -80,6 +80,42 @@
         'stroke'],
       prefijos: ['cerebrovasc'],
     },
+    {
+      id: 'intestinales_a04', pad: 'Infecciones intestinales por otros organismos y las mal definidas',
+      nombre: 'Infecciones intestinales por otros organismos y las mal definidas',
+      nombreCorto: 'Infecciones intestinales',
+      etiqueta: 'Infecciones intestinales por otros organismos y las mal definidas (A04, A08-A09 excepto A08.0)',
+      dataKey: 'intestinales_a04', marca: 'INTESTINALES_A04', pagina: 'intestinales_a04.html',
+      consulta: 'infecciones intestinales', cie: 'A04, A08-A09', color: '#38BDF8',
+      alias: ['infecciones intestinales', 'infeccion intestinal', 'infecciones gastrointestinales',
+        'infeccion gastrointestinal', 'gastroenteritis', 'a04', 'a09', 'intestinal infections',
+        'intestinal infection'],
+      prefijos: ['infecciones intestinales', 'infeccion intestinal', 'gastrointestinal',
+        'gastroenteritis'],
+    },
+    {
+      id: 'ivu_n39', pad: 'Infección de vías urinarias', nombre: 'Infección de vías urinarias',
+      nombreCorto: 'Vías urinarias', etiqueta: 'Infección de vías urinarias (N30, N34, N39.0)',
+      dataKey: 'ivu_n39', marca: 'IVU_N39', pagina: 'ivu_n39.html',
+      consulta: 'infeccion de vias urinarias', cie: 'N30, N34, N39.0', color: '#2DD4BF',
+      alias: ['infeccion de vias urinarias', 'infecciones de vias urinarias', 'infeccion urinaria',
+        'infecciones urinarias', 'vias urinarias', 'ivu', 'cistitis', 'n30', 'n34',
+        'urinary tract infection', 'urinary tract infections'],
+      prefijos: ['vias urinarias', 'infeccion urinaria', 'infecciones urinarias', 'cistitis',
+        'urinary tract'],
+    },
+    {
+      id: 'ulceras_k25', pad: 'Úlceras, gastritis y duodenitis',
+      nombre: 'Úlceras, gastritis y duodenitis', nombreCorto: 'Úlceras y gastritis',
+      etiqueta: 'Úlceras, gastritis y duodenitis (K25-K29)', dataKey: 'ulceras_k25',
+      marca: 'ULCERAS_K25', pagina: 'ulceras_k25.html', consulta: 'gastritis', cie: 'K25-K29',
+      color: '#C084FC',
+      alias: ['gastritis', 'duodenitis', 'ulcera gastrica', 'ulceras gastricas', 'ulcera peptica',
+        'ulceras pepticas', 'ulcera duodenal', 'ulceras duodenales', 'k25', 'k26', 'k27', 'k28',
+        'k29', 'peptic ulcer', 'stomach ulcer', 'gastric ulcer'],
+      prefijos: ['gastritis', 'duodenitis', 'ulcera gastric', 'ulceras gastric', 'ulcera peptic',
+        'ulceras peptic', 'ulcera duoden', 'ulceras duoden', 'peptic ulcer'],
+    },
   ]);
 
   /**
@@ -134,7 +170,11 @@
     return q.includes(` ${alias}${/\d/.test(alias) ? ' ' : ''}`);
   }
 
-  /** Lista única del KB y de rag.mjs. Una consulta que nombra alguna no recibe cifras modeladas. */
+  /**
+   * Lista única del KB y de rag.mjs. Una consulta que nombra alguna no recibe cifras modeladas.
+   * Se compara al inicio de palabra; una entrada que termina en espacio («ira ») exige la palabra
+   * completa, para que una sigla no capture «Irapuato».
+   */
   const noModeladas = Object.freeze([
     'intento de suicidio', 'ideacion suicida', 'autolesion', 'lesion autoinfligida', 'self harm',
     'suicidio', 'suicida', 'suicide', 'suicidal',
@@ -149,6 +189,11 @@
     'leucemia', 'linfoma', 'tumor', 'neoplasia', 'cardiopatia congenita', 'cardiopatia', 'infarto',
     'ataque al corazon', 'ataque cardiaco',
     'embolia', 'neumonia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
+    // Reprobaron el gate de 2025 (8-nov-2026): sin publicar mientras el autor no decida.
+    'infecciones respiratorias', 'infeccion respiratoria', 'ira ', 'iras ', 'gingivitis',
+    'enfermedad periodontal', 'periodontitis',
+    // Fuera del bloque A04, A08-A09: rotavirus es A08.0 y las demás tienen código propio.
+    'rotavirus', 'shigelosis', 'amebiasis', 'salmonelosis', 'tifoidea',
     'lupus', 'fibromialgia', 'esclerosis', 'huntington', 'ela ',
     'insuficiencia renal', 'insuficiencia cardiaca',
     // En inglés: sin esto, «asthma in jalisco» caería en la tabla neuro del estado.
@@ -172,7 +217,7 @@
   function mencionaNoModelada(qn) {
     const canon = canonClinico(qn);
     const q = ` ${canon} `;
-    const directa = noModeladas.find((e) => q.includes(` ${e.trim()}`));
+    const directa = noModeladas.find((e) => q.includes(e.endsWith(' ') ? ` ${e}` : ` ${e.trim()}`));
     if (directa) return directa;
     if (!HIPERTENSION.test(canon)) return null;
     const ajena = HIPERTENSION_AJENA.find(([re]) => re.test(canon));

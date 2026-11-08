@@ -11,7 +11,7 @@ import { readFileSync } from 'node:fs';
 const leer = (r) => readFileSync(new URL(`../../${r}`, import.meta.url), 'utf-8');
 const K = readFileSync(new URL('../knowledge.json', import.meta.url), 'utf-8');
 const VISTAS = ['obesidad', 'anorexia_f50', 'diabetes_t1', 'diabetes_t2', 'hipertension_i10',
-  'isquemica_i20', 'cerebrovascular_i60'];
+  'isquemica_i20', 'cerebrovascular_i60', 'intestinales_a04', 'ivu_n39', 'ulceras_k25'];
 globalThis.fetch = async (u) => ({
   ok: true,
   json: async () => {
@@ -58,7 +58,7 @@ test('gestacional, insípida y prediabetes siguen sin modelarse', async () => {
   const r = await conversa('casos de diabetes gestacional en jalisco');
   assert.equal(r.handler, 'answerPadecimientoNoModelado');
   assert.match(r.md, /no modela/);
-  assert.match(r.md, /once padecimientos/);
+  assert.match(r.md, /catorce padecimientos/);
 });
 
 test('«diabetes» a secas avisa que se toma como tipo II', async () => {
@@ -265,6 +265,46 @@ test('los cardiovasculares responden su release y no los subtipos ajenos', async
   for (const q of ['hipertension gestacional en jalisco', 'hipertension pulmonar en sonora', 'preeclampsia en jalisco']) {
     const r = await conversa(q);
     assert.equal(r.handler, 'answerPadecimientoNoModelado', q);
+  }
+});
+
+test('los tres del radar del boletín 42 responden su release', async () => {
+  const casos = [
+    ['infecciones intestinales en jalisco mujeres', /Infecciones intestinales por otros organismos y las mal definidas \(A04, A08-A09 excepto A08\.0\) · Jalisco · Mujeres/, /INTESTINALES_A04/],
+    ['gastroenteritis en sonora', /Infecciones intestinales por otros organismos y las mal definidas .* · Sonora/, /INTESTINALES_A04/],
+    ['infeccion urinaria en jalisco', /Infección de vías urinarias \(N30, N34, N39\.0\) · Jalisco/, /IVU_N39/],
+    ['cistitis en nuevo leon hombres', /Infección de vías urinarias .* · Nuevo León · Hombres/, /IVU_N39/],
+    ['gastritis en jalisco', /Úlceras, gastritis y duodenitis \(K25-K29\) · Jalisco/, /ULCERAS_K25/],
+    ['ulcera peptica en sonora mujeres', /Úlceras, gastritis y duodenitis .* · Sonora · Mujeres/, /ULCERAS_K25/],
+  ];
+  for (const [q, texto, marca] of casos) {
+    const r = await conversa(q);
+    assert.match(r.md, texto, q);
+    assert.match(r.md, marca, q);
+    assert.match(r.md, /Validación prospectiva en curso/, q);
+  }
+  const dos = await conversa('gastritis en jalisco', 'y hombres');
+  assert.match(dos.md, /Úlceras, gastritis y duodenitis .* · Jalisco · Hombres/);
+});
+
+test('IRA, gingivitis y rotavirus no reciben cifras modeladas', async () => {
+  for (const q of ['infecciones respiratorias en jalisco', 'gingivitis en sonora',
+    'enfermedad periodontal en jalisco', 'gastroenteritis por rotavirus en jalisco', 'iras en jalisco',
+    'casos de ira en sonora']) {
+    const r = await conversa(q);
+    assert.equal(r.handler, 'answerPadecimientoNoModelado', q);
+    assert.match(r.md, /no modela/, q);
+  }
+  const ira = await conversa('iras en jalisco');
+  assert.match(ira.md, /no modela infecciones respiratorias agudas/);
+  assert.match(ira.md, /no superó la prueba de 2025/);
+  assert.doesNotMatch((await conversa('rotavirus en jalisco')).md, /no superó la prueba/);
+});
+
+test('palabras que empiezan como un alias no disparan un release', async () => {
+  for (const q of ['casos de depresion en irapuato', 'utilidad del modelo de depresion en jalisco']) {
+    const r = await conversa(q);
+    assert.doesNotMatch(r.md, /INTESTINALES_A04|IVU_N39|ULCERAS_K25|no modela/, q);
   }
 });
 
