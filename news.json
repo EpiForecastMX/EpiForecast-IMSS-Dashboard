@@ -5,6 +5,25 @@
             "date": "8 de noviembre de 2026",
             "iso": "2026-11-08",
             "type": "radar",
+            "tag": "Nuevo padecimiento",
+            "featured": true,
+            "title": "El tumor maligno del cuello del útero se incorpora al pronóstico",
+            "summary": "Superó la prueba de 2025. Es el primer padecimiento sin desglose por sexo: se pronostica el total de cada entidad, a 52 semanas, para el país, 4 regiones y las 32 entidades.",
+            "body": [
+                "EpiForecast-MX publica el <strong style=\"color:var(--cream)\">tumor maligno del cuello del útero (CIE-10 C53)</strong>: pronósticos semanales a 52 semanas para el país, 4 regiones y las 32 entidades (37 series).",
+                "El boletín lo reporta sin desglose por sexo, así que se modela el total de cada entidad, sin repartirlo entre hombres y mujeres. Su portafolio superó la prueba de 2025 frente al control estacional y su validación prospectiva está en curso.",
+                "Usa datos hasta la semana 41 de 2026, se emitió el 8 de noviembre y no se reentrena. Es un pronóstico puntual, sin intervalos de incertidumbre; con pocos casos por estado, el total nacional es la lectura más estable."
+            ],
+            "link": {
+                "href": "cancer_cuello_utero_c53.html",
+                "text": "Ver el pronóstico de tumor maligno del cuello del útero",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
+        {
+            "date": "8 de noviembre de 2026",
+            "iso": "2026-11-08",
+            "type": "radar",
             "tag": "Control estacional",
             "featured": true,
             "title": "El tumor maligno de la mama se publica con el control estacional",
@@ -12,7 +31,7 @@
             "body": [
                 "EpiForecast-MX publica el <strong style=\"color:var(--cream)\">tumor maligno de la mama (CIE-10 C50)</strong> con el control estacional: cada semana repite los casos notificados 52 semanas antes, para el país, 4 regiones y las 32 entidades, por sexo (111 series).",
                 "Su portafolio de modelos mejoró las series por estado y sexo en la prueba de 2025, pero empeoró el total nacional frente al control. Por eso se publica el control y no se presenta como validado; las cifras de esa prueba están en su página.",
-                "Usa datos hasta la semana 41 de 2026 y se emitió el 8 de noviembre. Es un pronóstico puntual, sin intervalos de incertidumbre. Los demás tumores malignos del boletín no se publican por ahora: quince sólo tienen datos desde 2023 y el de cuello del útero no se desglosa por sexo."
+                "Usa datos hasta la semana 41 de 2026 y se emitió el 8 de noviembre. Es un pronóstico puntual, sin intervalos de incertidumbre. Quince tumores malignos del boletín no se publican por ahora: sólo tienen datos desde 2023."
             ],
             "link": {
                 "href": "cancer_mama_c50.html",

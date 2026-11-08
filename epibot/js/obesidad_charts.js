@@ -15,7 +15,7 @@
  * Vale para cualquier release publicado: título y color salen de `release_config.js` por
  * `disease_id`. Funciones puras: sin DOM, sin fetch.
  */
-import { RELEASES, releaseDeId } from './release_config.js?v=10';
+import { RELEASES, releaseDeId } from './release_config.js?v=11';
 
 const strip = (s) => String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 const has = (q, ks) => ks.some((k) => q.includes(k));
