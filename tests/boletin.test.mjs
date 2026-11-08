@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
@@ -202,4 +202,11 @@ test('national-only rows retain full coverage and historical printed-code change
   for(const id of ['national-A92.2','national-A95','national-A20','national-A92.8','national-A98.4'])assert.equal(history.series[id].points,506,id);
   const identities=JSON.parse(readFileSync(resolve(root,'assets/boletin/history/identities.json'),'utf8'));
   assert.ok(identities.some(a=>a.id==='national-A92.2'&&a.source_code==='A95'),'yellow fever is joined by name while its source code is retained');
+});
+
+
+test('history publishes exactly the indexed disease shards', () => {
+  const history=JSON.parse(readFileSync(resolve(root,'assets/boletin/history/index.json'),'utf8'));
+  const shards=readdirSync(resolve(root,'assets/boletin/history')).filter(n=>/^(?:historical-|national-|p\d+b\d+\.)/.test(n)&&n.endsWith('.json')).map(n=>n.slice(0,-5)).sort();
+  assert.deepEqual(shards,Object.keys(history.series).sort());
 });
