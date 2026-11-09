@@ -131,8 +131,9 @@
       etiqueta: 'Asma (J45, J46)', dataKey: 'asma_j45', marca: 'ASMA_J45', pagina: 'asma_j45.html',
       consulta: 'asma', cie: 'J45, J46', color: '#7DD3FC',
       alias: ['asma', 'asmatico', 'asmatica', 'asmaticos', 'asmaticas', 'estado asmatico',
-        'crisis asmatica', 'j45', 'j46', 'asthma', 'asthmatic'],
-      prefijos: ['asma', 'asmatic', 'asthma'],
+        'crisis asmatica', 'azma', 'j45', 'j46', 'asthma', 'asthmatic'],
+      // «azma» va como alias: el corrector de typos sólo cubre palabras de cinco letras o más.
+      prefijos: ['asma', 'asmatic', 'azma', 'asthma'],
       // Cronología que acota la validación prospectiva: la dicen el bot, el RAG y la página.
       cronologia: 'El boletín 43, que trae la semana 2026-W42, se publicó el 9 de noviembre de 2026, horas '
         + 'antes de emitir este pronóstico. No se usó para entrenar, pero esa semana no cuenta como '

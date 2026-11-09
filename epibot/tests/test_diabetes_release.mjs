@@ -307,6 +307,7 @@ test('asma responde su release, en español e inglés, y dice la cronología de 
     ['crisis asmatica en sonora', /Asma \(J45, J46\) · Sonora/],
     ['asthma in jalisco women', /Asma \(J45, J46\) · Jalisco · Mujeres/],
     ['casos de j45 en nuevo leon hombres', /Asma \(J45, J46\) · Nuevo León · Hombres/],
+    ['azma en jalisco', /Asma \(J45, J46\) · Jalisco/],
   ];
   for (const [q, texto] of casos) {
     const r = await conversa(q);
