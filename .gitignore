@@ -5,3 +5,6 @@ xAvance2.Equipo01.pdf
 # Estaban sin trackear y un `git add -A` los habría barrido al repositorio (6 MB).
 EpiBot_v2_SinFondo.png
 kb.zip
+
+# Cachés de Python de los scripts del radar.
+__pycache__/

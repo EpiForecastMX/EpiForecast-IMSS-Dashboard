@@ -1,14 +1,15 @@
 """Offline extraction with Poppler; production serves only prebuilt JSON.
 BOLETIN_WORK_DIR points to sources.json (local PDF paths) and the working cache.
-BOLETIN_CATALOG defaults to assets/boletin/2026-w42/data.json in the current repo.
+BOLETIN_CATALOG defaults to the current snapshot declared in assets/boletin/actual.json.
 Every original cell, anomaly and reconciliation result remains in the local cache.
 """
 import json,re,hashlib,subprocess,unicodedata,os,xml.etree.ElementTree as E
 from pathlib import Path
+import boletin_foto_actual
 from concurrent.futures import ProcessPoolExecutor
 from difflib import SequenceMatcher
 B=Path(os.environ.get('BOLETIN_WORK_DIR','tmp/boletin-history'))
-CAT=json.loads(Path(os.environ.get('BOLETIN_CATALOG','assets/boletin/2026-w42/data.json')).read_text())['diseases']
+CAT=json.loads(Path(os.environ.get('BOLETIN_CATALOG') or boletin_foto_actual.carpeta(Path(os.environ.get('BOLETIN_FRONTEND','.')))/'data.json').read_text())['diseases']
 NS={'x':'http://www.w3.org/1999/xhtml'}
 def norm(s):return re.sub(r'[^a-z0-9]','',unicodedata.normalize('NFKD',s).encode('ascii','ignore').decode().lower())
 def lines(p):return [dict(t=' '.join(w.text or '' for w in l),x=float(l.get('xMin'))*540/float(p.get('width')),r=float(l.get('xMax'))*540/float(p.get('width')),y=float(l.get('yMin'))*720/float(p.get('height'))) for l in p.findall('.//x:line',NS)]

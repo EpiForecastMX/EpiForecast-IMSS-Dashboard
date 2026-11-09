@@ -6,8 +6,12 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const snapshot = resolve(root, 'assets/boletin/2026-w42');
+// La foto vigente se lee de actual.json: las pruebas siguen a la semana publicada.
+const actual = JSON.parse(readFileSync(resolve(root, 'assets/boletin/actual.json'), 'utf8'));
+const snapshot = resolve(root, actual.carpeta);
 const data = JSON.parse(readFileSync(resolve(snapshot, 'data.json'), 'utf8'));
+const { week, year } = data.meta;
+const validCut = w => w === week || w === week - 1 || (week === 1 && w >= 52);
 const html = readFileSync(resolve(root, 'boletin.html'), 'utf8');
 const home = readFileSync(resolve(root, 'index.html'), 'utf8');
 
@@ -22,7 +26,7 @@ test('all state columns reconcile exactly, including previous-year and HIV-stage
     for (const [i, total] of d.totals.entries()) {
       assert.equal(d.states.reduce((sum, s) => sum + s.values[i], 0), total, `${d.id} column ${i}`);
     }
-    assert.ok([41, 42].includes(d.observed_week), `${d.id} has an explicit observation cut`);
+    assert.ok(validCut(d.observed_week), `${d.id} has an explicit observation cut`);
   }
 });
 
@@ -47,13 +51,15 @@ test('category counts exclude the aggregate and source bytes match the declared 
   assert.equal(data.diseases.filter(d => d.aggregate).length, data.meta.aggregate_rows);
   assert.equal(data.national.length, data.meta.national_rows);
   assert.equal(data.diseases.filter(d => !d.states.length).length, 7);
-  const digest = createHash('sha256').update(readFileSync(resolve(snapshot, 'boletin-4226.pdf'))).digest('hex');
+  const digest = createHash('sha256').update(readFileSync(resolve(snapshot, actual.pdf))).digest('hex');
   assert.equal(digest, data.meta.pdf_sha256);
 });
 
-test('confirmed myiasis uses only its listed states and reconciles counts, without summing rounded percentages', () => {
+test('confirmed myiasis uses only its listed states and reconciles counts, without summing rounded percentages', async () => {
+  const { entidadesAusentesMiasis } = await import('../assets/boletin/textos.mjs');
   const m = data.myiasis;
-  assert.equal(m.states.length, 29);
+  assert.ok(m.states.length > 0 && m.states.length <= 32);
+  assert.equal(m.states.length + entidadesAusentesMiasis(data).length, 32, 'every listed state is a known entity');
   for (const i of [0, 2, 3, 5, 6, 7, 9]) {
     assert.equal(m.states.reduce((sum, s) => sum + s.values[i], 0), m.totals[i]);
   }
@@ -75,15 +81,15 @@ test('the new page shares the editorial skin and has functional, unambiguous ass
 
 test('historical manifest covers 2013–2026, distinguishes archived editions, and respects 53-week boundaries', () => {
   const history = JSON.parse(readFileSync(resolve(root, 'assets/boletin/history/index.json'), 'utf8'));
-  assert.equal(history.source_count, 722);
+  assert.equal(history.source_count, history.sources.length);
   assert.equal(history.source_years['2013'],52);
   assert.equal(history.source_years['2014'],53);
   assert.equal(history.source_years['2020'],53);
   assert.equal(history.source_years['2023'],53, '52 weeks plus a distinct archived edition');
   assert.equal(history.source_years['2025'],53);
-  assert.equal(history.source_years['2026'],42);
+  assert.equal(history.source_years[String(year)], week, 'every week of the current year is present');
   assert.equal(history.sources.length,history.source_count);
-  assert.equal(new Set(history.sources.map(s => `${s.year}-${s.week}`)).size, 721);
+  assert.equal(new Set(history.sources.map(s => `${s.year}-${s.week}`)).size, history.source_count - 1);
   assert.equal(history.periods.find(p => p.y === 2025 && p.w === 53).start, '2025-12-28');
   assert.equal(history.periods.find(p => p.y === 2026 && p.w === 1).start, '2026-01-04');
   for (const s of history.sources) {
@@ -107,7 +113,7 @@ test('all history shards have unique observed periods and match the audited late
       if(p.e)assert.equal(p.e.length,32,d.id);
       if(p.flags.includes('source_cut_conflict'))assert.deepEqual(p.n,[null,null],d.id);
     }
-    const latest=shard.points.find(p=>history.sources[p.s].year===2026&&history.sources[p.s].week===42);
+    const latest=shard.points.find(p=>history.sources[p.s].year===year&&history.sources[p.s].week===week);
     assert.ok(latest,d.id);
     assert.deepEqual(latest.n,[d.weekly,d.cumulative],d.id);
   }
@@ -197,9 +203,10 @@ test('ambiguous rotavirus years cannot overwrite 2020, and independently verifie
 
 test('national-only rows retain full coverage and historical printed-code changes', () => {
   const history=JSON.parse(readFileSync(resolve(root,'assets/boletin/history/index.json'),'utf8'));
-  assert.equal(history.series['national-A80'].points,721);
-  assert.equal(history.series['national-A36'].points,721);
-  for(const id of ['national-A92.2','national-A95','national-A20','national-A92.8','national-A98.4'])assert.equal(history.series[id].points,506,id);
+  const periods=history.source_count-1;
+  assert.equal(history.series['national-A80'].points,periods);
+  assert.equal(history.series['national-A36'].points,periods);
+  for(const id of ['national-A92.2','national-A95','national-A20','national-A92.8','national-A98.4'])assert.equal(history.series[id].points,periods-215,id);
   const identities=JSON.parse(readFileSync(resolve(root,'assets/boletin/history/identities.json'),'utf8'));
   assert.ok(identities.some(a=>a.id==='national-A92.2'&&a.source_code==='A95'),'yellow fever is joined by name while its source code is retained');
 });
@@ -209,4 +216,40 @@ test('history publishes exactly the indexed disease shards', () => {
   const history=JSON.parse(readFileSync(resolve(root,'assets/boletin/history/index.json'),'utf8'));
   const shards=readdirSync(resolve(root,'assets/boletin/history')).filter(n=>/^(?:historical-|national-|p\d+b\d+\.)/.test(n)&&n.endsWith('.json')).map(n=>n.slice(0,-5)).sort();
   assert.deepEqual(shards,Object.keys(history.series).sort());
+});
+
+
+test('the current snapshot is declared in one place and the static page agrees with it', async () => {
+  const { textosRadar, enlacesRadar, rellenar } = await import('../assets/boletin/textos.mjs');
+  assert.match(actual.carpeta, /^assets\/boletin\/\d{4}-w\d{2}$/);
+  assert.equal(actual.carpeta, `assets/boletin/${year}-w${String(week).padStart(2, '0')}`);
+  const history = JSON.parse(readFileSync(resolve(root, 'assets/boletin/history/index.json'), 'utf8'));
+  const textos = textosRadar(data, actual, history), enlaces = enlacesRadar(actual);
+  const spans = [...html.matchAll(/<span data-radar="([^"]+)">([^<]*)<\/span>/g)];
+  assert.ok(spans.length > 20);
+  for (const [, key, value] of spans) assert.equal(value, textos[key], key);
+  for (const [, key, href] of html.matchAll(/<a data-radar-enlace="(\w+)" href="([^"]+)"/g)) {
+    assert.equal(href, enlaces[key], key);
+    assert.ok(existsSync(resolve(root, href.slice(1))), href);
+  }
+  const og = html.match(/content="([^"]+)" data-radar-content="([^"]+)"/);
+  assert.equal(og[1], rellenar(og[2], textos));
+  for (const [, tpl, value] of html.matchAll(/data-radar-plantilla="([^"]+)">([^<]*)</g)) assert.equal(value, rellenar(tpl, textos));
+  for (const file of ['assets/boletin/radar.js', 'assets/boletin/curves.js']) {
+    const code = readFileSync(resolve(root, file), 'utf8');
+    assert.doesNotMatch(code, /\/assets\/boletin\/\d{4}-w\d{2}/, `${file} must read the snapshot from actual.json`);
+  }
+});
+
+test('the weekly texts handle words, ranges and absent myiasis states', async () => {
+  const { numeroEnPalabras, listaConY, entidadesAusentesMiasis, textosRadar } = await import('../assets/boletin/textos.mjs');
+  assert.equal(numeroEnPalabras(33, { mayuscula: true }), 'Treinta y tres');
+  assert.equal(numeroEnPalabras(9), 'nueve');
+  assert.equal(numeroEnPalabras(21), 'veintiuno');
+  assert.equal(numeroEnPalabras(40), 'cuarenta');
+  assert.equal(listaConY(['A', 'B', 'C']), 'A, B y C');
+  assert.equal(listaConY(['A']), 'A');
+  const t = textosRadar(data, actual, null);
+  assert.equal(t.publicados, String(data.meta.platform_published));
+  assert.equal(entidadesAusentesMiasis(data).length, 32 - data.myiasis.states.length);
 });

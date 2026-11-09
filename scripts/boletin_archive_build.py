@@ -1,15 +1,18 @@
-"""Merge the audited 2025–26 history with independently parsed 2013–24 sources.
+"""Merge the audited 2025-onward history with independently parsed 2013–24 sources.
 Writes to a staging directory until all source/identity/cut audits pass.
+The identity catalog and each table lag come from the current snapshot declared in
+assets/boletin/actual.json; BOLETIN_CHECKED_DATE sets the index date (today by default).
 """
 import json,re,os,csv,unicodedata,hashlib
 from pathlib import Path
 from datetime import date,timedelta
 from collections import defaultdict
 import boletin_archive_extract as reader
+import boletin_foto_actual
 B=reader.B;F=Path(os.environ.get('BOLETIN_FRONTEND','.'));OUT=Path(os.environ.get('BOLETIN_ARCHIVE_OUT',str(B/'stage')));OUT.mkdir(exist_ok=True)
 ocr=json.loads((B/'archive-headers-ocr.json').read_text()) if (B/'archive-headers-ocr.json').exists() else {}
 cut_checks={(x['sha256'],x['state_page'],x['code']):x for x in json.loads((F/'tests/fixtures/boletin-cut-overrides.json').read_text())}
-original=json.loads((F/'assets/boletin/history/index.json').read_text());cat=json.loads((F/'assets/boletin/2026-w42/data.json').read_text())['diseases']
+original=json.loads((F/'assets/boletin/history/index.json').read_text());FOTO=boletin_foto_actual.catalogo(F);cat=FOTO['diseases']
 raw=json.loads((B/'archive-extraction.json').read_text());national=json.loads((B/'national-extraction.json').read_text());sources=json.loads((B/'sources.json').read_text());source_id={s['filename']:i for i,s in enumerate(sources)}
 if len(source_id)!=len(sources):raise ValueError('Duplicate source')
 byid={d['id']:{k:d[k] for k in ['id','name','code','aggregate'] if k in d} for d in cat};series={d:[] for d in byid};issues=[];unplaced=defaultdict(list);aliases=[{**a,'source':source_id[original['sources'][a['source']]['filename']]} for a in json.loads((F/'assets/boletin/history/identities.json').read_text()) if original['sources'][a['source']]['year']>=2025]
@@ -30,7 +33,7 @@ for x in raw:
  src=x['source']
  if src['year']!=2025 or src['week']!=1:continue
  for r in x['records']:
-  d=next(d for d in cat if d['id']==r['id']);lag=0 if d['id'].startswith('national-') else 42-d['observed_week'];y,w=period(2025,1,lag)
+  d=next(d for d in cat if d['id']==r['id']);lag=boletin_foto_actual.rezago(FOTO['meta'],d);y,w=period(2025,1,lag)
   if y!=2024:continue
   cols=r['columns'];v=r['totals'];flags=[]
   if not r['reconciled'] and r['reconciled'] is not None:flags.append('state_total_discrepancy')
@@ -103,7 +106,7 @@ years=sorted(set(s['year'] for s in sources));periods=[]
 for y in years:
  lastweek=max(s['week'] for s in sources if s['year']==y)
  for w in range(1,lastweek+1):periods.append(dict(y=y,w=w,start=(first(y)+timedelta(weeks=w-1)).isoformat()))
-index=dict(schema='boletin_history.v2',checked=os.environ.get('BOLETIN_CHECKED_DATE','2026-11-08'),source_count=len(sources),source_years={str(y):sum(s['year']==y for s in sources) for y in years},states=original['states'],sources=[{k:v for k,v in s.items() if k!='path'} for s in sources],periods=periods,categories=list(byid.values()),series={k:dict(path='/assets/boletin/history/'+k+'.json',points=len(ps),state_points=sum(p['e'] is not None for p in ps),flagged_points=sum(bool(p['flags']) for p in ps),revisions=len(revisions[k]),unplaced=len(unplaced[k])) for k,ps in series.items()},source_issues=[dict(source=source_id[x['source']['filename']],**i) for x in raw for i in x['issues']])
+index=dict(schema='boletin_history.v2',checked=os.environ.get('BOLETIN_CHECKED_DATE',date.today().isoformat()),source_count=len(sources),source_years={str(y):sum(s['year']==y for s in sources) for y in years},states=original['states'],sources=[{k:v for k,v in s.items() if k!='path'} for s in sources],periods=periods,categories=list(byid.values()),series={k:dict(path='/assets/boletin/history/'+k+'.json',points=len(ps),state_points=sum(p['e'] is not None for p in ps),flagged_points=sum(bool(p['flags']) for p in ps),revisions=len(revisions[k]),unplaced=len(unplaced[k])) for k,ps in series.items()},source_issues=[dict(source=source_id[x['source']['filename']],**i) for x in raw for i in x['issues']])
 (OUT/'index.json').write_text(json.dumps(index,ensure_ascii=False,separators=(',',':'))+'\n');(OUT/'identities.json').write_text(json.dumps(aliases,ensure_ascii=False,separators=(',',':'))+'\n')
 with (OUT/'nacional-2013-2026.csv').open('w',newline='',encoding='utf-8-sig') as f:
  w=csv.writer(f,lineterminator='\n');w.writerow(['padecimiento','CIE_corte_actual_o_historico','anio_observado','semana_observada','casos_semanales','acumulado_observado','en_estudio_acumulados','boletin_anio','boletin_semana','pagina','fuente','PDF_archivo','avisos','revision_sustituida','fecha_ambigua','semanal_impreso_no_graficado','acumulado_impreso_no_graficado'])
