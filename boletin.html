@@ -8,7 +8,7 @@
 <link rel="canonical" href="https://epiforecast.mx/boletin.html">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <meta property="og:title" content="Radar del boletín | EpiForecast-MX">
-<meta property="og:description" content="Curvas semanales desde 2013, casos y variables de 187 categorías de vigilancia. Explora cifras estatales y prioridades de incorporación.">
+<meta property="og:description" content="Curvas semanales desde 2013, casos y variables de 187 categorías de vigilancia. Explora cifras estatales y prioridades de incorporación." data-radar-content="Curvas semanales desde 2013, casos y variables de {categorias} categorías de vigilancia. Explora cifras estatales y prioridades de incorporación.">
 <meta property="og:url" content="https://epiforecast.mx/boletin.html">
 <meta property="og:type" content="website">
 <link rel="stylesheet" href="/editorial.css?v=1">
@@ -32,7 +32,7 @@
 <main>
 <header class="topbar">
 <span>RADAR DEL BOLETÍN <b>/</b> MÉXICO</span>
-<a href="/assets/boletin/2026-w42/boletin-4226.pdf" target="_blank" rel="noopener">Consultar PDF fuente ↗</a>
+<a data-radar-enlace="pdf" href="/assets/boletin/2026-w42/boletin-4226.pdf" target="_blank" rel="noopener">Consultar PDF fuente ↗</a>
 </header>
 <section id="inicio">
 <div class="eyebrow">
@@ -43,14 +43,14 @@
 <h1>Radar del boletín<br>
 <em>epidemiológico nacional</em>
 </h1>
-<p class="intro">Curvas de cada padecimiento con los boletines disponibles desde 2013, con sus cifras, variables y oportunidades para ampliar EpiForecast-MX. Último corte: boletín 42/2026, verificado el 8 de noviembre.</p>
+<p class="intro">Curvas de cada padecimiento con los boletines disponibles desde 2013, con sus cifras, variables y oportunidades para ampliar EpiForecast-MX. Último corte: boletín <span data-radar="semana">42</span>/<span data-radar="anio">2026</span>, verificado el <span data-radar="comprobado">8 de noviembre</span>.</p>
 </div>
 <div class="issue">
 <span>BOLETÍN NACIONAL</span>
-<strong>42<span>/ 2026</span>
+<strong><span data-radar="semana">42</span><span>/ <span data-radar="anio">2026</span></span>
 </strong>
-<p>18–24 OCTUBRE</p>
-<small>Publicado el 2 de noviembre</small>
+<p><span data-radar="periodo_corto">18–24 OCTUBRE</span></p>
+<small>Publicado el <span data-radar="publicado">2 de noviembre</span></small>
 </div>
 </div>
 <div class="radar-section-nav" aria-label="Secciones del radar">
@@ -75,7 +75,7 @@
 <h2>Las cifras de mayor volumen</h2>
 </div>
 <select aria-label="Métrica de la gráfica" id="chartMetric">
-<option value="cumulative">Acumulado 2026</option>
+<option value="cumulative" data-radar-plantilla="Acumulado {anio}">Acumulado 2026</option>
 <option value="weekly">Semana reportada</option>
 </select>
 </div>
@@ -86,12 +86,12 @@
 </article>
 <article class="coverage-panel">
 <div class="eyebrow">HUELLA DE LA PLATAFORMA</div>
-<h2>Treinta y tres padecimientos.<br>Una agenda por ampliar.</h2>
+<h2><span data-radar="publicados_palabras">Treinta y tres</span> padecimientos.<br>Una agenda por ampliar.</h2>
 <div class="ring">
-<span>33<small>PUBLICADOS</small>
+<span><span data-radar="publicados">33</span><small>PUBLICADOS</small>
 </span>
 </div>
-<p>35 categorías del boletín cubiertas por 33 entradas de EpiForecast. Dengue se reporta en tres formas clínicas.</p>
+<p><span data-radar="cubiertas">35</span> categorías del boletín cubiertas por <span data-radar="publicados">33</span> entradas de EpiForecast. Dengue se reporta en tres formas clínicas.</p>
 <a href="#cobertura" class="text-link">Revisar cobertura y excepciones →</a>
 <div class="coverage-foot">F50, isquémica, cerebrovascular, IRA, gingivitis y cáncer de mama: control estacional publicado.<br>Cuello del útero: publicado sin desglose por sexo.<br>Diez cánceres desde 2023: publicados con la política de historia corta.<br>Riñón, próstata, huesos, hígado y esófago: control estacional publicado.<br>Covid-19: rechazado, solo en <a href="rechazados.html">su sección de evidencia</a>.</div>
 </article>
@@ -104,7 +104,7 @@
 <div class="curve-panel"><div class="curve-chart-head"><h3 id="curveTitle">Curva de notificaciones</h3><div id="curveLegend" class="curve-legend"></div></div><p id="curveScope" class="caption"></p><div id="curveStats" class="curve-stats"></div><div id="curveChart" class="curve-chart"></div><p class="curve-mobile-hint">Desliza la gráfica horizontalmente para recorrer todas las semanas.</p><div id="curvePoint" class="curve-point" aria-live="polite"></div><p id="curveCaption" class="caption"></p></div>
 <p class="context-note">No se interpolan huecos ni se convierten ausencias en ceros. Los valores negativos y avisos impresos se conservan. Los cuadros convencionales suelen observar una semana antes del boletín: la última observación depende del padecimiento. Esto es vigilancia histórica, no un pronóstico ni una validación de modelos.</p>
 <details class="method-details"><summary>Consultar los puntos, sus fuentes y avisos</summary><button class="button secondary" id="curveCsv" type="button">Descargar esta selección CSV</button><div class="table-wrap"><table><thead><tr><th>Periodo observado</th><th class="number">Notificaciones</th><th>Boletín fuente</th><th>Avisos</th></tr></thead><tbody id="curveDataRows"></tbody></table></div></details>
-<details class="method-details"><summary>Cómo se construyeron las curvas desde 2013</summary><p>Se incorporan los PDF disponibles en los archivos oficiales desde 2013 hasta el corte 42 de 2026, comprobado el 7 de noviembre. En 2013 hay ediciones reducidas y ampliadas: los cuadros que no aparecen en una edición se conservan como ausencias. Cada punto conserva el PDF fuente, su huella SHA-256, la página y el periodo observado. Las identidades se comprueban por nombre y códigos. Los cambios de clasificación, como dengue A90/A91 y VIH/SIDA, se conservan en series históricas separadas. Las páginas cambian entre ediciones. La copia alternativa de 2023-W34 se conserva como una revisión; para graficar gobierna el PDF enlazado por el índice oficial.</p><p>Las cifras semanales se transcriben de su columna original. No se restan acumulados, pues pueden revisarse. Los acumulados se separan por año observado. Si el año de las columnas falta o contradice el corte del cuadro, el acumulado ambiguo no se grafica. Las letras, los signos ilegibles y las celdas sin notificación no se convierten en ceros. Los totales impresos se conservan incluso cuando difieren de las sumas estatales, con un aviso consultable. Un encabezado de 2026-W01 invierte los años de varicela, sarampión y rubéola: sus puntos quedan como huecos y se conserva el dato original con aviso. Las categorías que no aparecen aún en un boletín tampoco se rellenan.</p><p>Una discrepancia de origen se mantiene visible: tuberculosis en otras formas, boletín 2026-W07, página 43, imprime 293 hombres acumulados, frente a 286 al sumar las entidades. La curva nacional conserva el total impreso y las curvas estatales conservan sus celdas. Los puntos señalados permiten consultar cada caso. Los bloques con fechas contradictorias se conservan fuera de la curva con sus cifras impresas. En cinco ediciones de 2015, los cortes de dengue y Zika se corroboraron contra el resumen nacional del mismo PDF; el encabezado atrasado queda documentado.</p><a href="/assets/boletin/history/index.json" download>Manifiesto de fuentes y cobertura</a> · <a href="/assets/boletin/history/audit-2013-2024.json" download>Auditoría del histórico desde 2013</a></details>
+<details class="method-details"><summary>Cómo se construyeron las curvas desde 2013</summary><p>Se incorporan los PDF disponibles en los archivos oficiales desde 2013 hasta el corte <span data-radar="historia_corte">42 de 2026</span>, comprobado el <span data-radar="historia_comprobado">8 de noviembre</span>. En 2013 hay ediciones reducidas y ampliadas: los cuadros que no aparecen en una edición se conservan como ausencias. Cada punto conserva el PDF fuente, su huella SHA-256, la página y el periodo observado. Las identidades se comprueban por nombre y códigos. Los cambios de clasificación, como dengue A90/A91 y VIH/SIDA, se conservan en series históricas separadas. Las páginas cambian entre ediciones. La copia alternativa de 2023-W34 se conserva como una revisión; para graficar gobierna el PDF enlazado por el índice oficial.</p><p>Las cifras semanales se transcriben de su columna original. No se restan acumulados, pues pueden revisarse. Los acumulados se separan por año observado. Si el año de las columnas falta o contradice el corte del cuadro, el acumulado ambiguo no se grafica. Las letras, los signos ilegibles y las celdas sin notificación no se convierten en ceros. Los totales impresos se conservan incluso cuando difieren de las sumas estatales, con un aviso consultable. Un encabezado de 2026-W01 invierte los años de varicela, sarampión y rubéola: sus puntos quedan como huecos y se conserva el dato original con aviso. Las categorías que no aparecen aún en un boletín tampoco se rellenan.</p><p>Una discrepancia de origen se mantiene visible: tuberculosis en otras formas, boletín 2026-W07, página 43, imprime 293 hombres acumulados, frente a 286 al sumar las entidades. La curva nacional conserva el total impreso y las curvas estatales conservan sus celdas. Los puntos señalados permiten consultar cada caso. Los bloques con fechas contradictorias se conservan fuera de la curva con sus cifras impresas. En cinco ediciones de 2015, los cortes de dengue y Zika se corroboraron contra el resumen nacional del mismo PDF; el encabezado atrasado queda documentado.</p><a href="/assets/boletin/history/index.json" download>Manifiesto de fuentes y cobertura</a> · <a href="/assets/boletin/history/audit-2013-2024.json" download>Auditoría del histórico desde 2013</a></details>
 </section>
 <section id="catalogo">
 <div class="section-top">
@@ -113,11 +113,11 @@
 <h2>Cada padecimiento, en contexto.</h2>
 <p>Busca una categoría y abre su ficha para consultar variables y cifras por entidad.</p>
 </div>
-<a class="button secondary" href="/assets/boletin/2026-w42/catalogo.csv" download>Descargar catálogo CSV ↓</a>
+<a class="button secondary" data-radar-enlace="catalogo" href="/assets/boletin/2026-w42/catalogo.csv" download>Descargar catálogo CSV ↓</a>
 </div>
 <div class="tabs" role="tablist" aria-label="Tabla a consultar">
 <button class="selected" data-tab="catalogue" role="tab" aria-selected="true">Catálogo completo</button>
-<button data-tab="national" role="tab" aria-selected="false">Resúmenes nacionales · 77 filas</button>
+<button data-tab="national" role="tab" aria-selected="false">Resúmenes nacionales · <span data-radar="filas_nacionales">77</span> filas</button>
 <button data-tab="myiasis" role="tab" aria-selected="false">Miasis confirmada · corte especial</button>
 </div>
 <div id="catalogueView">
@@ -161,8 +161,8 @@
 <tr>
 <th>Padecimiento / evento</th>
 <th class="number">Semana del cuadro</th>
-<th class="number">Acum. 2026</th>
-<th class="number">Vs. 2025</th>
+<th class="number">Acum. <span data-radar="anio">2026</span></th>
+<th class="number">Vs. <span data-radar="anio_previo">2025</span></th>
 <th>Plataforma</th>
 <th>Prioridad</th>
 <th>
@@ -181,17 +181,17 @@
 </div>
 </div>
 <div id="nationalView" hidden>
-<p class="context-note">Transcripción de las páginas 4 y 5. Incluye agregados como diabetes y hepatitis: no sumar estas filas con sus subtipos del catálogo. “n.d.” se conserva como dato no disponible.</p>
+<p class="context-note">Transcripción de las páginas <span data-radar="paginas_nacionales_y">4 y 5</span>. Incluye agregados como diabetes y hepatitis: no sumar estas filas con sus subtipos del catálogo. “n.d.” se conserva como dato no disponible.</p>
 <div class="table-wrap">
 <table>
 <thead>
 <tr>
 <th>Categoría</th>
-<th class="number">Semana 2026</th>
-<th class="number">Acum. 2026</th>
-<th class="number">Mediana 2021–2025</th>
-<th class="number">Semana 2025</th>
-<th class="number">Acum. 2025</th>
+<th class="number">Semana <span data-radar="anio">2026</span></th>
+<th class="number">Acum. <span data-radar="anio">2026</span></th>
+<th class="number">Mediana <span data-radar="mediana_nacional">2021–2025</span></th>
+<th class="number">Semana <span data-radar="anio_previo">2025</span></th>
+<th class="number">Acum. <span data-radar="anio_previo">2025</span></th>
 <th>Fuente</th>
 </tr>
 </thead>
@@ -273,29 +273,29 @@
 <div class="source-grid">
 <article>
 <h3>01 / Fuente oficial</h3>
-<p>Boletín Epidemiológico, volumen 43, número 42. Última publicación comprobada en el índice oficial el 8 de noviembre de 2026: semana 42, publicada el 2 de noviembre.</p>
+<p>Boletín Epidemiológico, volumen <span data-radar="volumen">43</span>, número <span data-radar="semana">42</span>. Última publicación comprobada en el índice oficial el <span data-radar="comprobado_largo">8 de noviembre de 2026</span>: semana <span data-radar="semana">42</span>, publicada el <span data-radar="publicado">2 de noviembre</span>.</p>
 <a href="https://www.gob.mx/salud/documentos/boletinepidemiologico-sistema-nacional-de-vigilancia-epidemiologica-sistema-unico-de-informacion-417103" target="_blank" rel="noopener">Índice oficial ↗</a>
 <br>
-<a href="/assets/boletin/2026-w42/boletin-4226.pdf" target="_blank" rel="noopener">PDF analizado ↗</a>
+<a data-radar-enlace="pdf" href="/assets/boletin/2026-w42/boletin-4226.pdf" target="_blank" rel="noopener">PDF analizado ↗</a>
 </article>
 <article>
 <h3>02 / Extracción y controles</h3>
-<p>181 bloques estatales, páginas 6–80; 77 filas nacionales, páginas 4–5; tabla especial de miasis, página 81. Reconciliación exacta de todas las columnas de los 181 bloques contra sus 32 entidades. Miasis: 29 entidades listadas, sin rellenar las tres ausentes.</p>
-<a href="/assets/boletin/2026-w42/data.json" download>Datos completos JSON ↓</a>
+<p><span data-radar="bloques">181</span> bloques estatales, páginas <span data-radar="paginas_estatales">6–80</span>; <span data-radar="filas_nacionales">77</span> filas nacionales, páginas <span data-radar="paginas_nacionales">4–5</span>; tabla especial de miasis, página <span data-radar="pagina_miasis">81</span>. Reconciliación exacta de todas las columnas de los <span data-radar="bloques">181</span> bloques contra sus 32 entidades. <span data-radar="miasis_resumen">Miasis: 29 entidades listadas, sin rellenar las tres ausentes.</span></p>
+<a data-radar-enlace="datos" href="/assets/boletin/2026-w42/data.json" download>Datos completos JSON ↓</a>
 <br>
-<a href="/assets/boletin/2026-w42/boletin.txt" download>Texto extraído del PDF ↓</a>
+<a data-radar-enlace="texto" href="/assets/boletin/2026-w42/boletin.txt" download>Texto extraído del PDF ↓</a>
 <br>
-<a href="/assets/boletin/2026-w42/encabezados-ocr.json" download>Encabezados OCR originales ↓</a>
+<a data-radar-enlace="ocr" href="/assets/boletin/2026-w42/encabezados-ocr.json" download>Encabezados OCR originales ↓</a>
 </article>
 <article>
 <h3>03 / Qué estamos contando</h3>
-<p>187 categorías de vigilancia = 181 bloques estatales − 1 agregado intestinal + 7 categorías exclusivas del resumen inmediato. No son 187 diagnósticos individuales: algunos bloques agrupan códigos. El detalle confirmado de miasis es un corte complementario de B87, no otra categoría.</p>
+<p><span data-radar="categorias">187</span> categorías de vigilancia = <span data-radar="bloques">181</span> bloques estatales − <span data-radar="agregados">1</span> agregado intestinal + <span data-radar="solo_nacionales">7</span> categorías exclusivas del resumen inmediato. No son <span data-radar="categorias">187</span> diagnósticos individuales: algunos bloques agrupan códigos. El detalle confirmado de miasis es un corte complementario de B87, no otra categoría.</p>
 <p>No se muestra una suma global de casos: hay grupos superpuestos, distintos sistemas de vigilancia y fechas de corte. Los datos son preliminares y no representan prevalencia ni pacientes únicos.</p>
 </article>
 </div>
 <details class="method-details">
 <summary>Notas de la fuente y huellas de verificación</summary>
-<p>Se conservan los rótulos y códigos impresos, incluso discrepancias: P. vivax aparece con B50 en la página 33 y B51 en la 4; cardiopatía isquémica usa I20, I25 en la página 49 e I20–I25 en la 5; páncreas imprime C26 en la página 66. No se corrigen silenciosamente. “−” se interpreta como cero notificado y “n.d.” como ausente. Comparaciones contra acumulados de 2025, no contra el cierre anual.</p>
+<p>Se conservan los rótulos y códigos impresos, incluso discrepancias: P. vivax aparece con B50 en la página <span data-radar="pagina:p33b2">33</span> y B51 en la <span data-radar="pagina-nacional:B51">4</span>; cardiopatía isquémica usa I20, I25 en la página <span data-radar="pagina:p49b2">49</span> e I20–I25 en la <span data-radar="pagina-nacional:I20-I25">5</span>; páncreas imprime C26 en la página <span data-radar="pagina:p66b3">66</span>. No se corrigen silenciosamente. “−” se interpreta como cero notificado y “n.d.” como ausente. Comparaciones contra acumulados de <span data-radar="anio_previo">2025</span>, no contra el cierre anual.</p>
 <p>Los cortes de los cuadros se recuperaron mediante OCR y se muestran por bloque, con enlace a la página original. La fecha de portada no reemplaza el corte del cuadro.</p>
 <p id="hashes" class="hash">
 </p>
@@ -303,7 +303,7 @@
 </details>
 </section>
 <footer class="radar-footer">
-<a href="index.html">EpiForecast-MX</a> <span>Radar de cobertura · Semana 42 / 2026</span>
+<a href="index.html">EpiForecast-MX</a> <span>Radar de cobertura · Semana <span data-radar="semana">42</span> / <span data-radar="anio">2026</span></span>
 <span>Elaborado para planeación de incorporación</span>
 </footer>
 </main>
@@ -317,8 +317,8 @@
 </dialog>
 <div id="error" hidden>
 </div>
-<script type="module" src="/assets/boletin/radar.js?v=20261108">
+<script type="module" src="/assets/boletin/radar.js?v=20261109">
 </script>
-<script src="/assets/boletin/curves.js?v=20261108b" defer></script>
+<script src="/assets/boletin/curves.js?v=20261109" defer></script>
 </body>
 </html>

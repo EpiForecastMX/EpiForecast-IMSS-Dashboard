@@ -111,9 +111,17 @@
   async function init(){
     controls.forEach(id=>$(id).disabled=true);
     try{
-      const [a,b]=await Promise.all([fetch('/assets/boletin/history/index.json'),fetch('/assets/boletin/2026-w42/data.json')]);
-      if(!a.ok||!b.ok)throw new Error('No se pudo cargar el archivo histórico.');
-      index=await a.json();catalog=index.categories || (await b.json()).diseases;
+      const a=await fetch('/assets/boletin/history/index.json');
+      if(!a.ok)throw new Error('No se pudo cargar el archivo histórico.');
+      index=await a.json();
+      window.radarHistoria=index;document.dispatchEvent(new CustomEvent('radar:historia',{detail:index}));
+      if(!index.categories){
+        // Manifiestos anteriores sin catálogo propio: se usa el de la foto semanal vigente.
+        const actual=await (await fetch('/assets/boletin/actual.json')).json();
+        const b=await fetch(`/${actual.carpeta}/data.json`);
+        if(!b.ok)throw new Error('No se pudo cargar el archivo histórico.');
+        catalog=(await b.json()).diseases;
+      }else catalog=index.categories;
       const years=Object.keys(index.source_years).map(Number).sort((a,b)=>a-b);
       $('archiveCoverage').textContent=`ARCHIVO HISTÓRICO · ${index.source_count} PDF · ${years[0]}–${years.at(-1)}`;
       for(const id of ['curveStart','curveEnd'])$(id).innerHTML=years.map(y=>`<option value="${y}">${y}</option>`).join('');
