@@ -506,6 +506,20 @@ const MOTOR_ES = {
 
 const fmt = (n, d = 1) => (n === null || n === undefined ? 'sin dato' : Number(n).toLocaleString('es-MX', { maximumFractionDigits: d, minimumFractionDigits: d }));
 const semana = ([a, s]) => `${a}-W${String(s).padStart(2, '0')}`;
+// Semanas epidemiológicas MMWR del año: la semana 1 es la primera con al menos cuatro días de enero.
+const inicioMmwr = (a) => {
+  const d = new Date(Date.UTC(a, 0, 1));
+  const dow = d.getUTCDay();
+  return Date.UTC(a, 0, 1 + (dow <= 3 ? -dow : 7 - dow));
+};
+const semanasMmwr = (a) => Math.round((inicioMmwr(a + 1) - inicioMmwr(a)) / (7 * 864e5));
+const semanaSiguiente = ([a, s], k) => {
+  let anio = a;
+  let sem = s + k;
+  while (sem > semanasMmwr(anio)) { sem -= semanasMmwr(anio); anio += 1; }
+  return [anio, sem];
+};
+const fechaLarga = (iso) => new Date(`${iso}T00:00:00Z`).toLocaleDateString('es-MX', { timeZone: 'UTC', day: 'numeric', month: 'long', year: 'numeric' });
 
 /**
  * Tarjetas del release publicado a partir de su vista derivada (observado + desempeño fuera de
@@ -527,9 +541,19 @@ function vistaChunks(root, r) {
   const emitido = v.forecast_emitted_at
     ? `, emitido el ${new Date(v.forecast_emitted_at).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City', day: 'numeric', month: 'long', year: 'numeric' })}`
     : '';
+  // El corte de datos (origen) no es la primera semana pronosticada: el horizonte empieza en la
+  // semana siguiente (auditoría 9-nov-2026, R3). Se nombran ambos extremos con su fecha de inicio.
+  const pron = nac.pronostico || [];
+  const primera = semanaSiguiente(v.origin, 1);
+  const ultima = semanaSiguiente(v.origin, v.horizon_weeks);
+  const horizonte = pron.length
+    ? ` Las ${v.horizon_weeks} semanas pronosticadas van de ${semana(primera)} (semana del ${fechaLarga(pron[0][0])}) ` +
+      `a ${semana(ultima)} (semana del ${fechaLarga(pron.at(-1)[0])}); ${semana(v.origin)} es el corte de datos, ` +
+      `no una semana pronosticada.`
+    : '';
   const encabezado =
     `${v.nombre_completo || v.display_name}: pronóstico congelado con datos hasta ${semana(v.origin)}${emitido} ` +
-    `(${v.horizon_weeks} semanas, sin reentrenar${nac.oos.semanas ? '; las semanas evaluadas se registraron después de la emisión' : ''}). ` +
+    `(${v.horizon_weeks} semanas, sin reentrenar${nac.oos.semanas ? '; las semanas evaluadas se registraron después de la emisión' : ''}).${horizonte} ` +
     `${v.publication_label}. Lo observado llega hasta la semana epidemiológica ${semana(v.observation_cutoff)}.`;
   // Lo publicado es el control: ni se valida contra sí mismo ni salió de la selección.
   const sinSexo = !Object.keys(v.series || {}).some((k) => k.endsWith('|hombres'));

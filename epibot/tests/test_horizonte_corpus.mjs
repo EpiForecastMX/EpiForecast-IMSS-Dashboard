@@ -1,0 +1,36 @@
+// Auditoría 9-nov-2026, R3: el corte de datos (origen) no es la primera semana pronosticada. Cada
+// tarjeta nacional de un release nombra ambos extremos del horizonte y aclara qué es el corte.
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
+
+import { buildChunks } from '../scripts/lib/corpus.mjs';
+
+const ROOT = resolve(import.meta.dirname, '..', '..');
+const semana = ([a, s]) => `${a}-W${String(s).padStart(2, '0')}`;
+
+test('cada release nombra la primera y la última semana pronosticadas y no confunde el corte', () => {
+  const { chunks } = buildChunks({});
+  const catalogo = JSON.parse(readFileSync(resolve(ROOT, 'publication', 'catalog.json'), 'utf-8'));
+  const visibles = catalogo.releases.filter((r) => r.visible && r.lifecycle === 'published');
+  assert.ok(visibles.length >= 29);
+  for (const r of visibles) {
+    const v = JSON.parse(readFileSync(resolve(ROOT, 'publication', r.disease_id, 'vista.json'), 'utf-8'));
+    const c = chunks.find((x) => x.id === `release:${r.disease_id}:${r.release_id}:nacional`);
+    assert.ok(c, r.disease_id);
+    const corte = semana(v.origin);
+    assert.match(c.text, new RegExp(`${corte} es el corte de datos, no una semana pronosticada`));
+    assert.doesNotMatch(c.text, new RegExp(`van de ${corte}`), r.disease_id);
+  }
+});
+
+test('el horizonte de 52 semanas cruza el año con el calendario MMWR', () => {
+  const c = buildChunks({}).chunks.find((x) => x.id.startsWith('release:linfoma_hodgkin_c81:') && x.id.endsWith(':nacional'));
+  assert.match(c.text, /van de 2026-W42 \(semana del 19 de octubre de 2026\) a 2027-W41 \(semana del 11 de octubre de 2027\)/);
+});
+
+test('el prompt distingue el corte de datos del inicio del pronóstico', () => {
+  const rag = readFileSync(resolve(ROOT, 'epibot', 'netlify', 'functions', 'rag.mjs'), 'utf-8');
+  assert.match(rag, /«datos hasta» o «corte» es la última semana observada, NO el inicio del pronóstico/);
+});
