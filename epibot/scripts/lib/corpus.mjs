@@ -553,10 +553,14 @@ function vistaChunks(root, r) {
       `a ${semana(ultima)} (semana del ${fechaLarga(pron.at(-1)[0])}); ${semana(v.origin)} es el corte de datos, ` +
       `no una semana pronosticada.`
     : '';
+  // Cronología declarada en el catálogo: acota qué semanas del gate son prospectivas. Va en el
+  // encabezado para que la lleve cada fragmento del release, no sólo el nacional.
+  const nota = releaseDeId(r.disease_id)?.cronologia;
+  const cronologia = nota ? ` ${nota}` : '';
   const encabezado =
     `${v.nombre_completo || v.display_name}: pronóstico congelado con datos hasta ${semana(v.origin)}${emitido} ` +
     `(${v.horizon_weeks} semanas, sin reentrenar${nac.oos.semanas ? '; las semanas evaluadas se registraron después de la emisión' : ''}).${horizonte} ` +
-    `${v.publication_label}. Lo observado llega hasta la semana epidemiológica ${semana(v.observation_cutoff)}.`;
+    `${v.publication_label}. Lo observado llega hasta la semana epidemiológica ${semana(v.observation_cutoff)}.${cronologia}`;
   // Lo publicado es el control: ni se valida contra sí mismo ni salió de la selección.
   const sinSexo = !Object.keys(v.series || {}).some((k) => k.endsWith('|hombres'));
   const caida = v.caida_al_control;
@@ -578,15 +582,12 @@ function vistaChunks(root, r) {
   // auditoría, A3): el dato y el release no se tocan, pero no debe leerse como señal predictiva.
   const picos = picosHeredados(v).map((p) => `Pico heredado de la fuente: ${textoPico(p)}`);
   const avisoPicos = picos.length ? `\n\n${picos.join('\n\n')}` : '';
-  // Cronología declarada en el catálogo: acota qué semanas del gate son prospectivas.
-  const nota = releaseDeId(r.disease_id)?.cronologia;
-  const cronologia = nota ? ` ${nota}` : '';
   const chunks = [{
     ...base,
     id: `release:${r.disease_id}:${r.release_id}:nacional`,
     title: `${v.display_name} — ${nac.oos.semanas ? 'desempeño nacional fuera de muestra' : 'pronóstico nacional, sin semanas observadas aún'}`,
     text:
-      `${encabezado}${cronologia}\n\nNacional (general): ` +
+      `${encabezado}\n\nNacional (general): ` +
       (nac.oos.semanas
         // Un control conserva su explicación con semanas observadas: sigue sin ser validable.
         ? `${control}en ${nac.oos.semanas} semanas ya observadas tras el origen, sMAPE ${fmt(nac.oos.smape)} %, ` +
