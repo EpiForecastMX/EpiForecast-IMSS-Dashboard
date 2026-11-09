@@ -37,11 +37,16 @@ test('rag.mjs deriva los releases publicados del catálogo y de su shard', () =>
     { nombre: 'Tumor maligno del cuello del útero', cie: ['C53'] },
     { nombre: 'Tumor maligno del cuerpo del útero', cie: ['C54'] },
     { nombre: 'Tumores malignos del encéfalo y otras partes del sistema nervioso central', cie: ['C70', 'C71', 'C72'] },
+    { nombre: 'Tumor maligno del esófago', cie: ['C15'] },
     { nombre: 'Tumor maligno del estómago', cie: ['C16'] },
+    { nombre: 'Tumor maligno del hígado y de las vías biliares intrahepáticas', cie: ['C22'] },
+    { nombre: 'Tumores malignos de los huesos y de los cartílagos articulares', cie: ['C40', 'C41'] },
     { nombre: 'Tumor maligno de la mama', cie: ['C50'] },
     { nombre: 'Tumor maligno del ovario', cie: ['C56'] },
     { nombre: 'Tumor maligno del páncreas', cie: ['C26'] },
+    { nombre: 'Tumor maligno de la próstata', cie: ['C61'] },
     { nombre: 'Tumor maligno de tráquea, bronquios y pulmón', cie: ['C33', 'C34'] },
+    { nombre: 'Tumor maligno del riñón', cie: ['C64'] },
     { nombre: 'Enfermedad cerebrovascular', cie: ['I60', 'I61', 'I62', 'I63', 'I64', 'I65', 'I66', 'I67', 'I69'] },
     { nombre: 'Diabetes mellitus tipo I', cie: ['E10'] },
     { nombre: 'Diabetes mellitus tipo II', cie: ['E11', 'E12', 'E13', 'E14'] },
@@ -69,12 +74,12 @@ test('un release no publicado, oculto o sin canal epibot no entra al alcance', (
   assert.equal(ctx.releasesDesdeCatalogo(cat, leerShard).length, 0);
 });
 
-test('las CIFRAS CLAVE nombran los veintiocho padecimientos modelados', () => {
+test('las CIFRAS CLAVE nombran los treinta y tres padecimientos modelados', () => {
   const rel = ctx.releasesDesdeCatalogo(CAT, leerShard);
   const s = ctx.structuredSummary(KB, rel);
   const linea = s.split('\n').find((l) => l.startsWith('Alcance vigente'));
   assert.ok(linea, s);
-  assert.match(linea, /modela veintiocho padecimientos/);
+  assert.match(linea, /modela treinta y tres padecimientos/);
   for (const p of ['Depresión (F32)', 'Parkinson (G20)', 'Alzheimer (G30)', 'Dengue', 'Obesidad (E66)', 'Anorexia, bulimia y otros trastornos alimentarios (F50)', 'Diabetes mellitus tipo I (E10)', 'Diabetes mellitus tipo II (E11, E12, E13, E14)',
     'Infección de vías urinarias (N30, N34, N39.0)', 'Úlceras, gastritis y duodenitis (K25, K26, K27, K28, K29)',
     'Infecciones respiratorias agudas (J00, J01, J03, J04, J05, J06, J20, J21)', 'Gingivitis y enfermedad periodontal (K05)', 'Tumor maligno de la mama (C50)', 'Tumor maligno del cuello del útero (C53)']) {

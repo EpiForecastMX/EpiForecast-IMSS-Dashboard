@@ -5,13 +5,32 @@
             "date": "8 de noviembre de 2026",
             "iso": "2026-11-08",
             "type": "radar",
+            "tag": "Control estacional",
+            "featured": true,
+            "title": "Cinco tipos de cáncer se publican con el control estacional",
+            "summary": "Riñón, próstata, huesos, hígado y esófago no superaron la prueba de 2026. Se publica el control, que repite los casos de 52 semanas antes, para el país, 4 regiones y las 32 entidades.",
+            "body": [
+                "EpiForecast-MX publica con el control estacional los tumores malignos del riñón, la próstata (sin desglose por sexo), los huesos y cartílagos articulares, el hígado y vías biliares intrahepáticas y el esófago: cada semana repite los casos notificados 52 semanas antes.",
+                "Sus series empiezan en 2023 y su portafolio no superó la prueba de las semanas 1 a 41 de 2026 frente a ese control. Por eso se publica el control y no se presenta como validado; las cifras de esa prueba están en la página de cada padecimiento.",
+                "Usan datos hasta la semana 41 de 2026 y se emitieron el 8 de noviembre. Son pronósticos puntuales, sin intervalos de incertidumbre; con pocos casos por estado, el total nacional es la lectura más estable."
+            ],
+            "link": {
+                "href": "cancer_prostata_c61.html",
+                "text": "Ver el control de tumor maligno de la próstata",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
+        {
+            "date": "8 de noviembre de 2026",
+            "iso": "2026-11-08",
+            "type": "radar",
             "tag": "Nuevos padecimientos",
             "featured": true,
             "title": "Diez tipos de cáncer se incorporan al pronóstico",
             "summary": "Pulmón, estómago, colon y recto, linfomas de Hodgkin y no Hodgkin, leucemia, páncreas, encéfalo, cuerpo del útero y ovario, a 52 semanas para el país, 4 regiones y las 32 entidades.",
             "body": [
                 "EpiForecast-MX publica diez tumores malignos que el boletín reporta desde 2023: tráquea, bronquios y pulmón; estómago; colon y recto; linfoma de Hodgkin; linfoma no Hodgkin; leucemia; páncreas; encéfalo y sistema nervioso central; cuerpo del útero y ovario. Los dos últimos no se desglosan por sexo.",
-                "Con sólo dos años previos, su política elige el motor en 2025 y lo prueba en las semanas 1 a 41 de 2026 frente al control estacional: los diez la superaron. Es una evidencia más corta que la de los padecimientos con historia desde 2014, y su validación prospectiva está en curso. Riñón, próstata, huesos, hígado y esófago no la superaron y no se publican.",
+                "Con sólo dos años previos, su política elige el motor en 2025 y lo prueba en las semanas 1 a 41 de 2026 frente al control estacional: los diez la superaron. Es una evidencia más corta que la de los padecimientos con historia desde 2014, y su validación prospectiva está en curso. Riñón, próstata, huesos, hígado y esófago no la superaron.",
                 "Usan datos hasta la semana 41 de 2026, se emitieron el 8 de noviembre y no se reentrenan. Son pronósticos puntuales, sin intervalos de incertidumbre; con pocos casos por estado, el total nacional es la lectura más estable."
             ],
             "link": {
