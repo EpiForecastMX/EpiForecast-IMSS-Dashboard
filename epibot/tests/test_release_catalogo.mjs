@@ -70,7 +70,8 @@ test('la galería crea una instancia por release', () => {
   assert.deepEqual([...ctx.window.GaleriasRelease].map((g) => g.id),
     ['obesidad', 'anorexia_f50', 'diabetes_t1', 'diabetes_t2', 'hipertension_i10', 'isquemica_i20',
       'cerebrovascular_i60', 'intestinales_a04', 'ira_j00', 'ivu_n39', 'gingivitis_k05', 'ulceras_k25',
-      'cancer_mama_c50', 'cancer_cuello_utero_c53', 'sintetico_x']);
+      'cancer_mama_c50', 'cancer_cuello_utero_c53', 'cancer_pulmon_c33', 'cancer_estomago_c16', 'cancer_colon_c18', 'linfoma_hodgkin_c81', 'linfoma_no_hodgkin_c82', 'leucemia_c91', 'cancer_pancreas_c26', 'cancer_encefalo_c70', 'cancer_cuerpo_utero_c54', 'cancer_ovario_c56',
+      'sintetico_x']);
   assert.equal(ctx.window.GaleriasRelease.at(-1).color, '#123456');
 });
 

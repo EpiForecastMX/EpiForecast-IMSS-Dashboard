@@ -15,7 +15,7 @@
  * Vale para cualquier release publicado: título y color salen de `release_config.js` por
  * `disease_id`. Funciones puras: sin DOM, sin fetch.
  */
-import { RELEASES, releaseDeId } from './release_config.js?v=11';
+import { RELEASES, releaseDeId } from './release_config.js?v=13';
 
 const strip = (s) => String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 const has = (q, ks) => ks.some((k) => q.includes(k));
@@ -30,6 +30,7 @@ export const MOTOR_NOMBRE = {
   seasonal_median_3y: 'mediana estacional de 3 años',
   seasonal_mean_5y: 'media estacional de 5 años',
   seasonal_median_5y: 'mediana estacional de 5 años',
+  seasonal_mean_2y: 'media estacional de 2 años',
   portfolio: 'portafolio (suma de las series estatales)',
 };
 
@@ -82,7 +83,9 @@ export const NO_DISPONIBLE = {
 };
 
 /** El texto de una gráfica no disponible, con el nombre del padecimiento consultado. */
-export const noDisponible = (tipo, nombre) => NO_DISPONIBLE[tipo].replaceAll('Obesidad', nombre);
+/** `seleccion` sustituye «en pliegues de 2021 a 2024» en los releases de historia corta. */
+export const noDisponible = (tipo, nombre, seleccion) => NO_DISPONIBLE[tipo].replaceAll('Obesidad', nombre)
+  .replaceAll('en pliegues de 2021 a 2024', seleccion || 'en pliegues de 2021 a 2024');
 
 /** Consultas sugeridas; sin semanas observadas no se ofrecen las de error. */
 export function alternativas(r, conOos = true) {

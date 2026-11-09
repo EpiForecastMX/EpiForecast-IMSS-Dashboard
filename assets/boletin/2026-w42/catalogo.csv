@@ -133,21 +133,21 @@ Tumor maligno de la mama,C50,Displasias y neoplasias,61,522,22250,23970,Control 
 Tumor maligno del cuello del útero,C53,Displasias y neoplasias,61,74,3626,4042,Publicada,Seguimiento,42.1
 Displasia cervical leve y moderada,N87.0-N87.1,Displasias y neoplasias,62,733,29684,37930,Por incorporar,Media,50.0
 Displasia cervical severa y CaCu in situ,"N87.2, D06",Displasias y neoplasias,62,98,4253,4898,Por incorporar,Exploración,42.3
-Tumor maligno de la próstata,C61,Displasias y neoplasias,63,140,6852,5795,Por incorporar,Exploración,49.3
-Tumor maligno del cuerpo del útero,C54,Displasias y neoplasias,63,68,2840,2728,Por incorporar,Exploración,40.6
-Tumor maligno del ovario,C56,Displasias y neoplasias,63,66,2984,2750,Por incorporar,Exploración,39.7
-"Tumor maligno de traquea, bronquios y pulmón",C33-C34,Displasias y neoplasias,64,44,2167,1940,Por incorporar,Exploración,38.6
-Tumor maligno del estómago,C16,Displasias y neoplasias,64,46,1963,2009,Por incorporar,Exploración,35.7
-Tumor maligno del colon y recto,C18-C21,Displasias y neoplasias,64,164,6049,5589,Por incorporar,Exploración,44.6
-Tumor maligno del hígado y de las vías biliares intrahepáticas,C22,Displasias y neoplasias,65,44,1568,1445,Por incorporar,Exploración,38.7
-Linfoma Hodking,C81,Displasias y neoplasias,65,28,728,998,Por incorporar,Exploración,
-Linfoma no Hodking,C82-C85,Displasias y neoplasias,65,42,2102,2473,Por incorporar,Exploración,36.6
-Leucemia,C91-C95,Displasias y neoplasias,66,53,2070,2254,Por incorporar,Exploración,35.8
-Tumor maligno del esófago,C15,Displasias y neoplasias,66,16,476,470,Por incorporar,Exploración,
-Tumor maligno del páncreas,C26,Displasias y neoplasias,66,37,1429,1314,Por incorporar,Exploración,36.3
-Tumores malignos del encéfalo y otras partes del Sistema Nervioso Central,C70-C72,Displasias y neoplasias,67,31,989,896,Por incorporar,Exploración,
-Tumores malignos de los huesos y de los cartílagos articulares,C40-C41,Displasias y neoplasias,67,17,878,1088,Por incorporar,Exploración,
-Tumor maligno del riñón,C64,Displasias y neoplasias,67,56,2452,2311,Por incorporar,Exploración,34.7
+Tumor maligno de la próstata,C61,Displasias y neoplasias,63,140,6852,5795,Rechazada,Revisión metodológica,49.3
+Tumor maligno del cuerpo del útero,C54,Displasias y neoplasias,63,68,2840,2728,Publicada,Seguimiento,40.6
+Tumor maligno del ovario,C56,Displasias y neoplasias,63,66,2984,2750,Publicada,Seguimiento,39.7
+"Tumor maligno de traquea, bronquios y pulmón",C33-C34,Displasias y neoplasias,64,44,2167,1940,Publicada,Seguimiento,38.6
+Tumor maligno del estómago,C16,Displasias y neoplasias,64,46,1963,2009,Publicada,Seguimiento,35.7
+Tumor maligno del colon y recto,C18-C21,Displasias y neoplasias,64,164,6049,5589,Publicada,Seguimiento,44.6
+Tumor maligno del hígado y de las vías biliares intrahepáticas,C22,Displasias y neoplasias,65,44,1568,1445,Rechazada,Revisión metodológica,38.7
+Linfoma Hodking,C81,Displasias y neoplasias,65,28,728,998,Publicada,Seguimiento,
+Linfoma no Hodking,C82-C85,Displasias y neoplasias,65,42,2102,2473,Publicada,Seguimiento,36.6
+Leucemia,C91-C95,Displasias y neoplasias,66,53,2070,2254,Publicada,Seguimiento,35.8
+Tumor maligno del esófago,C15,Displasias y neoplasias,66,16,476,470,Rechazada,Revisión metodológica,
+Tumor maligno del páncreas,C26,Displasias y neoplasias,66,37,1429,1314,Publicada,Seguimiento,36.3
+Tumores malignos del encéfalo y otras partes del Sistema Nervioso Central,C70-C72,Displasias y neoplasias,67,31,989,896,Publicada,Seguimiento,
+Tumores malignos de los huesos y de los cartílagos articulares,C40-C41,Displasias y neoplasias,67,17,878,1088,Rechazada,Revisión metodológica,
+Tumor maligno del riñón,C64,Displasias y neoplasias,67,56,2452,2311,Rechazada,Revisión metodológica,34.7
 Anencefalia,Q00,Defectos al nacimiento,68,1,107,118,Por incorporar,Exploración,
 Encefalocele,Q01,Defectos al nacimiento,68,0,69,62,Por incorporar,Exploración,
 Microcefalia,Q02,Defectos al nacimiento,68,8,300,294,Por incorporar,Exploración,
