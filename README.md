@@ -1,533 +1,447 @@
 # EpiForecast-MX Dashboard
 
-## Salida de sesión WCP — estado único vigente — 9-sep-2026
-
-**Trabajo operativo cerrado por ratificación expresa del autor.** Póster inglés
-cargado al WCP y web publicada. No repetir carga, rediseño o petición de ratificación.
-Par EN ec5ebd80… / ES 8a0a9018… intacto; frontend f02d2d16656ca1365d2b0a351109fb3be396457e.
-35 criterios registrados por hash; 46+52 controles y 22 de exportación correctos.
-Sello 110 piezas; manifiesto documental 103. EN 24/24, ES 23/24+C03 aceptada.
-Salida final: las nueve dependencias recuperadas ya están en RATIFICATION_FILES
-del exportador y son obligatorias también al verificar. No reponerlas sólo a mano
-ni regenerar desde el carril antiguo de 94 piezas. Evidencia exacta en
-`poster/auditorias/ratificacion_2026-09-09/INVENTARIO_RECUPERADO.json` dentro de Mundial.
-Índice de salida desde workspace: `planes/SALIDA_WCP_2026-09-09.md`.
-Gobernante: 13 PASA, 3 EXC, 13 N/A y 4 FALLA por formularios nominales sin
-respuestas/firmas; no confundir la ratificación global del autor con jueces
-independientes. EXC y N/A nunca se suman como aprobaciones. No abrir tareas
-automáticas por esa diferencia documental.
-
-Desde la raíz del workspace, leer únicamente para reanudar:
-- `EpiForecast-MX/Congresos/Mundial/ESTADO_ACTUAL_WCP.md`.
-- `planes/PROMPT_REANUDAR_WCP_ENVIADO_2026-09-09.md`.
-- `POSTER_WCP_2026/RATIFICACION_Y_CIERRE_2026-09-09.md`.
-
-Los checkpoints WCP inferiores son históricos, incluso donde dicen «vigente»,
-«sin ratificar», «no registrado», «no publicado» o manifiesto 93/94. No ejecutarlos.
-No cambia la continuidad de Obesidad u otros carriles. Cambios de memoria locales;
-sin commit/push/deploy en esta salida. Preservar árboles sucios y artefactos sellados.
-
-## WCP — carga registrada y web vigente comprobada — 8/9-sep-2026
-
-**Prevalece para la continuidad WCP sobre las secciones históricas inferiores.**
-El autor ya cargó el póster inglés #3134: el portal muestra
-`WCP2026ePoster3134Rebull`, **09.09.2026 03:19**, E-POSTER VIEWING.
-La subida no es pendiente. Capturas conservadas; no se descargó la copia del
-portal ni se afirma aprobación editorial o carga ES.
-
-El sitio del QR ya sirve el par vigente, verificado por descarga pública:
-EN `ec5ebd80…` / ES `8a0a9018…`, inglés inicial,
-`Reports/wcp2026/2026-09-08-8a0a9018/`.
-Frontend HEAD y referencia local origin/main:
-`f2141bbacbcd8b692fedda1199ace3b889a070a0`.
-No listar como pendiente publicar este par. No se hizo push/deploy en este cierre.
-
-Estado autoritativo y hashes completos, rutas desde la raíz del workspace:
-- `EpiForecast-MX/Congresos/Mundial/ESTADO_ACTUAL_WCP.md`.
-- `POSTER_WCP_2026/REGISTRO_SUBIDA_WCP_2026-09-09.md`.
-- Handoff: `planes/PROMPT_REANUDAR_WCP_ENVIADO_2026-09-09.md`.
-
-Preservar la entrega lema_congreso: EN 24/24; ES 23/24 más excepción de densidad
-ligada al hash, no un PASS adicional. Sello 97 piezas; manifiesto 93 piezas.
-Cuatro revisiones humanas y contrato interno 960×540/12 pt siguen sin cerrarse;
-no se dispensan por la carga. No hubo financiamiento; título aceptado intacto,
-siete apellidos con guion. No reabrir diseño ni ejecutar prompts de opciones 7–9.
-La hoja sellada y las versiones históricas se conservan intactas; el nuevo estado
-documenta los eventos posteriores. Ninguna nueva acción externa está autorizada
-por esta actualización de memorias.
-
-**Plataforma de inteligencia epidemiologica con asistente conversacional, visualizaciones interactivas y pronosticos multi-modelo para el IMSS.**
+**Plataforma de inteligencia epidemiológica con asistente conversacional, visualizaciones interactivas y pronósticos multimodelo para el IMSS.**
 
 Sitio en vivo: [epiforecast.mx](https://epiforecast.mx/)
 
-Estado verificado el 1-sep-2026: `main@5f8666dc`, desplegado y comprobado por contenido
-servido. El comparador conserva el motor por padecimiento, Netlify ejecuta ambos gates de
-deploy y la portada ya no descarga el snapshot histórico `bento.json`. La rama
-`fix/frontend-deudas` sigue local y remota, aunque su punta es ancestro de `main`.
+El estado del e-póster WCP 2026 está en `wcp2026.html` y en la documentación interna del repo
+principal (`Congresos/Mundial/ESTADO_ACTUAL_WCP.md`); este README describe el sitio.
 
 ---
 
----
-
-## Estado — 25 de agosto de 2026
+## Estado: 9 de noviembre de 2026
 
 | | |
 |---|---|
-| Datos reales hasta | **semana 33 de 2026** |
-| Series productivas | **432** = 333 neuro + 99 dengue |
-| Graficos publicados | **432** = 333 neuro + 99 dengue (ronda W37; hasta W33 eran 444 con las 4 regiones de dengue) |
-| Tablero Tableau | `javier.rebull3700` / `viz_epiforecastmx_17873231502650` |
-| Despliegue | Netlify, automatico en push a `main` |
-| Ramas | solo `main` |
+| Padecimientos publicados | **33** = 4 del carril original + 29 releases del runner |
+| Datos reales hasta | **semana 42 de 2026** (carril original y radar); **semana 41** en los releases del runner |
+| Series productivas del carril original | **432** = 333 neuro + 99 dengue |
+| Gráficos publicados del carril original | **432** = 333 neuro + 99 dengue (ronda W37; hasta W33 eran 444 con las 4 regiones de dengue) |
+| Tablero Tableau | histórico, corte W31 de 2026 (`javier.rebull3700` / `viz_epiforecastmx_17873231502650`) |
+| Despliegue | Netlify, en cada push a `main`, tras el comando de build de `netlify.toml` |
+| Ramas | sólo `main` |
 
-### Contrato de cifras publicas
+### Contrato de cifras públicas
 
-Las cuatro cifras de arriba estan **congeladas** y hay un gate que lo comprueba en cada
-despliegue (`npm run deploy:verify`, invocado desde `netlify.toml`, ejecuta siempre
-`cifras:verify` y `rag:ci` y falla si cualquiera falla).
+Las cifras del carril original están **congeladas** y un gate las comprueba en cada despliegue.
+El build de Netlify corre, en orden, las pruebas del radar (`test:boletin`), las del contrato de
+cifras (`cifras:test`) y `npm run deploy:verify`. Éste comprueba primero la nota de picos heredados
+de cada página de release (`picos_heredados.mjs --check`) y después ejecuta `cifras:verify` y
+`rag:ci`, ambos siempre, conservando sus códigos de salida.
 
 **Prohibidas:** `435` (contaba dos veces las tres series `Dengue - Nacional`, una por motor),
-`102`, `145` por sexo y `15` nacionales. Si alguna reaparece, el despliegue falla.
+`102`, `145` por sexo, `15` nacionales, `444 gráficos` (desde W37) y la ecuación «111 x 3 = 435».
+Si alguna reaparece, el despliegue falla.
 
-Y **«motor» es familia algoritmica, nunca una serie**: no se cuentan series por motor.
+Y **«motor» es familia algorítmica, nunca una serie**: no se cuentan series por motor.
 
 Contrato normativo completo: `docs/CONTRATO_VOCABULARIO_CIFRAS.md` del repo principal.
 
-### Ortografia: se corrige al PINTAR, no al guardar
+### Ortografía: se corrige al PINTAR, no al guardar
 
 Las entidades se guardan **sin tilde** (`Nuevo Leon`, `Ciudad de Mexico`) porque ese es su
 **identificador**: es la clave de `knowledge.json` y lo que devuelve el emparejador de
-`entities.js`. **Acentuar esas claves rompe la busqueda en silencio.**
+`entities.js`. **Acentuar esas claves rompe la búsqueda en silencio.**
 
-La correccion vive en **`js/display.js`** (`DISPLAY_NAMES` + `dn()`) y en `polishSpanish()`
-para el markdown. **Regla: `dn()` solo sobre texto que va a pantalla o a voz, jamas sobre una
-clave.** Una vista nueva que imprima nombres tiene que importar `display.js` — `comparador`,
-`semaforo`, `mexico-map` y `timelapse` lo hacen.
-
----
-
-## Descripcion
-
-Dashboard interactivo del proyecto **EpiForecast-MX**, desarrollado en colaboracion entre el **Tecnologico de Monterrey** y el **Instituto Mexicano del Seguro Social (IMSS)**. Cubre cuatro padecimientos:
-
-| Codigo CIE-10 | Padecimiento |
-|:-:|---|
-| F32 | Depresion |
-| G20 | Enfermedad de Parkinson |
-| G30 | Enfermedad de Alzheimer |
-| A97 | Dengue *(4.o padecimiento, vectorial)* |
-
-Los tres neurologicos son la cohorte de produccion principal (333 modelos). **Dengue** se incorporo como cuarto padecimiento, vectorial, con su propio pipeline de conteos: pagina publica en `dengue.html` (pronostico a 1 ano; la proyeccion NB-GLM a 5 anos se retiro en W37) y respuestas del EpiBot. El sitio integra visualizaciones Tableau, un chatbot conversacional con base de conocimiento local + RAG (EpiBot), mapas interactivos de Mexico, y herramientas avanzadas de analisis epidemiologico.
+La corrección vive en **`js/display.js`** (`DISPLAY_NAMES` + `dn()`) y en `polishSpanish()`
+para el markdown. **Regla: `dn()` sólo sobre texto que va a pantalla o a voz, jamás sobre una
+clave.** Una vista nueva que imprima nombres tiene que importar `display.js`; `comparador`,
+`semaforo`, `mexico-map`, `timelapse` y `app` lo hacen.
 
 ---
 
-## EpiBot - Asistente Conversacional
+## Descripción
 
-El componente principal del dashboard es **EpiBot** (`epibot/`), un asistente conversacional que responde preguntas sobre el proyecto con datos reales de los 333 modelos de produccion neurologicos y del 4.o padecimiento, **Dengue** (handler dedicado `answerDengue`, alimentado por una seccion `dengue` de `knowledge.json` derivada de los artefactos de produccion).
+Dashboard interactivo del proyecto **EpiForecast-MX**, desarrollado en colaboración entre el
+**Tecnológico de Monterrey** y el **Instituto Mexicano del Seguro Social (IMSS)**. Cubre
+**treinta y tres padecimientos**:
+
+- **Carril original (cuatro):** Depresión (F32), enfermedad de Parkinson (G20), enfermedad de
+  Alzheimer (G30) y Dengue (A97). Los tres neurológicos son la cohorte de 333 modelos; Dengue tiene
+  su propio pipeline de conteos y página en `dengue.html` (pronóstico a un año; la proyección NB-GLM a
+  cinco años se retiró en W37).
+- **Releases del runner genérico (veintinueve):** publicados desde releases sellados
+  (`publication/catalog.json`): obesidad, diabetes tipo I y II, anorexia y bulimia, hipertensión,
+  enfermedad isquémica y cerebrovascular, cinco padecimientos del radar del boletín y diecisiete
+  cánceres. Cada uno tiene su página `<id>.html`. Los que no superaron la prueba de 2025 se publican
+  con el control estacional y nunca como validados. Covid-19 aparece sólo en `rechazados.html`.
+
+El sitio integra el radar del boletín (`boletin.html`), un chatbot conversacional con base de
+conocimiento local y RAG (EpiBot), mapas interactivos de México y herramientas de análisis
+epidemiológico.
+
+---
+
+## EpiBot: asistente conversacional
+
+El componente principal del dashboard es **EpiBot** (`epibot/`), un asistente conversacional que
+responde con datos reales de los 333 modelos neurológicos, de **Dengue** (handler `answerDengue`,
+alimentado por la sección `dengue` de `knowledge.json`) y de los **veintinueve padecimientos del
+runner**, cuyos alias, marcadores de gráfica y páginas salen de `js/release_catalog.js` y cuyas cifras
+salen de `publication/<id>/vista.json`.
 
 ### Arquitectura
 
 ```
 epibot/
-├── index.html              # UI del chat (HTML5 + CSS custom)
-├── knowledge.json          # Base de datos: metricas, boletin, modelos, config
-├── css/style.css           # Estilos con paleta IMSS 2026
+├── index.html              # UI del chat
+├── knowledge.json          # Base de datos del carril original: boletín, modelos, config
+├── rag_index.json          # Índice RAG (vectores y texto)
+├── rag_sources/            # Fuentes del corpus (paper MICAI)
+├── css/style.css           # Estilos Clinical Indigo
 ├── js/
-│   ├── app.js              # UI principal, renderizado de charts y mensajes
-│   ├── kb.js               # Base de conocimiento: 30+ handlers en cadena de prioridad
-│   ├── entities.js         # Deteccion de entidades (estados, padecimientos, sexo, modelos)
-│   ├── mexico-map.js       # Renderizador SVG de mapas de Mexico (32 entidades)
-│   ├── timelapse.js        # Animacion temporal semana a semana
-│   ├── semaforo.js         # Semaforo epidemiologico por niveles de riesgo
-│   ├── comparador.js       # Comparador visual lado a lado de dos estados
-│   └── voice.js            # Entrada/salida por voz (STT + TTS)
-├── netlify/functions/       # Serverless function para fallback a Gemini
-└── tests/                   # Tests unitarios
+│   ├── app.js              # UI principal, gráficas y mensajes (~4,200 líneas)
+│   ├── kb.js               # Base de conocimiento: handlers en cadena de prioridad (~5,900 líneas)
+│   ├── entities.js         # Detección de entidades (estados, padecimientos, sexo, motores)
+│   ├── release_catalog.js  # Catálogo único de los releases del runner y de los no modelados
+│   ├── release_config.js   # Alias, VOCAB, padMap y marcadores derivados del catálogo
+│   ├── obesidad_kb.js      # Handler genérico de releases (respuestas desde la vista)
+│   ├── obesidad_charts.js  # Gráficas de releases
+│   ├── display.js          # Nombres para pantalla (dn) y polishSpanish
+│   ├── comparador.js, comparador_data.js, mexico-map.js, timelapse.js, semaforo.js, voice.js
+│   └── point_only.js, calendario_boletin.js, comparacion_rondas*.js
+├── netlify/functions/rag.mjs   # RAG con Gemini (recuperación, rerank y generación)
+├── scripts/                # rag:build, install_publication.mjs, picos_heredados.mjs, verify_deploy.mjs
+└── tests/                  # Pruebas unitarias y de conversación
 ```
 
-### Base de Conocimiento (kb.js)
+### Base de conocimiento (kb.js)
 
-- **30+ handlers** en cadena de prioridad que cubren: metricas globales, datos por padecimiento/estado/sexo, historico anual, comparativas entre estados, ranking de modelos, equipo, infraestructura, semanas epidemiologicas, boletin SINAVE y mas.
-- **Cuadros de rendimiento 2026** (`answerRendimientoPorPadecimiento` + `_cuadroDengue`): tabla por padecimiento × motor con **SMAPE y MASE** (mediana/promedio) + fila productivo, para las 3 series neuro y **Dengue** (motores propios DeepAR/Prophet/NBGLM). Disparadores: "rendimiento por padecimiento", "smape y mase por padecimiento", "cuadro de dengue". Datos de la seccion `rendimiento_2026` de `knowledge.json`. Registrado antes de `answerMatrizRendimiento`.
-- Respuestas basadas en **datos reales** de `knowledge.json` (generado por el pipeline del repo principal).
-- Fallback a un **RAG real** (ver abajo) cuando la pregunta excede los handlers locales.
-- Historial conversacional para contexto en preguntas de seguimiento.
-- **Cache-bust al editar `kb.js`/`entities.js`**: sube `app.js?v=N` en `index.html` (la version de **afuera**; `/js/*` se sirve con `max-age=3600`), no solo el `?v` interno del import de `kb.js`. Sin ese bump el navegador sigue corriendo el `app.js` viejo cacheado (que importa el `kb.js` viejo). `knowledge.json` va con `no-cache` (se revalida solo).
+- **Handlers** en cadena de prioridad: métricas globales, datos por padecimiento, estado y sexo,
+  histórico anual, comparativas entre estados, motores, equipo, infraestructura, semanas
+  epidemiológicas, boletín SINAVE y releases del runner.
+- **Métricas de selección retiradas desde W37.** Las métricas de error por serie y por motor (SMAPE,
+  MASE, RMSE, MAE) no se publican: midieron la ventana W28 a W37 con la que se eligió el motor y son
+  diagnóstico de selección, no evaluación independiente (`metricas_seleccion.publicadas = false`).
+  Los handlers, las gráficas y la galería responden con ese aviso y conservan el motor productivo, la
+  distribución de motores y los conteos. Las definiciones de SMAPE y MASE siguen respondiéndose.
+- Respuestas basadas en **datos reales** de `knowledge.json` (generado por el pipeline del repo
+  principal) y de las vistas publicadas de cada release.
+- Recurre al **RAG** (ver abajo) cuando la pregunta excede los handlers locales.
+- Historial conversacional para preguntas de seguimiento.
+- **Cache-bust al editar `kb.js`/`entities.js`**: sube `app.js?v=N` en `index.html` (la versión de
+  **afuera**), no sólo el `?v` interno del import de `kb.js`. `/epibot/js/*` se sirve con
+  `max-age=300` y `knowledge.json` con `max-age=3600` (`netlify.toml` de la raíz).
 
-### RAG Real (rag_index.json + netlify/functions/rag.mjs)
+### RAG (rag_index.json + netlify/functions/rag.mjs)
 
-Para preguntas de conocimiento (metodologia, decisiones de diseno, el paper MICAI, "por que", "como funciona"), EpiBot usa **Retrieval-Augmented Generation** con grounding y citas:
+Para preguntas de conocimiento (metodología, decisiones de diseño, el paper MICAI, «por qué», «cómo
+funciona»), EpiBot usa **Retrieval-Augmented Generation** con grounding y citas:
 
-- **Corpus** (`scripts/lib/corpus.mjs`): paper MICAI 2026 (`rag_sources/micai.txt`) + tarjetas en espanol que lo resumen (recall cross-lingue), notas/reportes HTML del proyecto, tarjetas estructuradas de `knowledge.json` (incluye macrorregiones, top entidades, desempeno por sexo y los **ORCID del equipo**). Chunking **consciente de secciones** (cada chunk lleva su seccion y la URL del documento). ~367 chunks.
-- **Indexado incremental** (`npm run rag:build`): embeddings con **gemini-embedding-001** (768 dims via MRL) -> `rag_index.json` (~3 MB). **Cache por hash** (solo re-embebe lo nuevo), **resiliente** (no degrada un indice bueno) y **auto-rebuild en cada deploy** (`netlify.toml`; requiere `GEMINI_API_KEY` en el entorno de build).
-- **Recuperacion hibrida + reranking** (runtime, `rag.mjs`): **coseno (semantico)** + **BM25 (lexico)** -> pool; **reranker LLM CONDICIONAL** (gemini-3.1-flash-lite) solo cuando la recuperacion no es ya muy confiable (`topSim < 0.72`, ahorra latencia); **diversidad MMR-lite** (max. 3 pasajes por documento). Degrada a lexico sin vectores.
-- **Datos exactos (agentic)**: si la consulta menciona padecimiento+entidad, inyecta las cifras exactas de `knowledge.json` en el contexto (pronosticos precisos, sin deriva).
-- **Confianza**: umbral de similitud (`SIM_MIN`) -> si la recuperacion es debil, EPI lo declara en vez de inventar.
-- **Multi-turno**: reescribe seguimientos ("¿y en Jalisco?") como pregunta autonoma antes de recuperar; el cliente mantiene los seguimientos cortos dentro del RAG.
-- **Generacion + STREAMING**: respuesta token a token (NDJSON; primer token ~1-3 s) citando las fuentes con `[n]`. La UI muestra **chips de fuente clicables** que abren el documento real (PDF/HTML), muestran el **extracto citado** al pasar el cursor y ofrecen "profundizar".
-- **Evaluacion + guardarrail**: `rag:eval` (recall@k/MRR), `rag:eval:quality` (LLM-as-judge: fidelidad/relevancia), `rag:verify` (detecta drift; corre en `npm run check`).
+- **Corpus** (`scripts/lib/corpus.mjs`): paper MICAI 2026 (`rag_sources/micai.txt`) y tarjetas en
+  español que lo resumen, notas y reportes HTML del proyecto, tarjetas estructuradas de
+  `knowledge.json` y el corpus de cada release publicado según `publication/pointers.json` (horizonte,
+  corte de datos, desempeño fuera de muestra, motores, avisos de control y de picos heredados de la
+  fuente). Chunking consciente de secciones. ~560 chunks.
+- **Indexado incremental** (`npm run rag:build`): embeddings con **gemini-embedding-001** (768
+  dimensiones vía MRL) en `rag_index.json` (~4.6 MB). Caché por hash (sólo reembebe lo nuevo) y
+  reconstrucción en cada deploy (`rag:ci`, con `GEMINI_API_KEY` en el entorno de build).
+- **Recuperación híbrida y reranking** (`rag.mjs`): coseno (semántico) y BM25 (léxico); reranker LLM
+  condicional (gemini-3.1-flash-lite) sólo cuando `topSim < 0.72`; diversidad MMR-lite (máximo 3
+  pasajes por documento).
+- **Datos exactos**: si la consulta menciona padecimiento y entidad, inyecta las cifras exactas en el
+  contexto. La línea «Alcance vigente» cuenta los releases visibles con canal `epibot`.
+- **Confianza**: umbral de similitud (`SIM_MIN`); si la recuperación es débil, EPI lo declara.
+- **Multiturno**: reescribe seguimientos («¿y en Jalisco?») como pregunta autónoma antes de recuperar.
+- **Generación con streaming**: respuesta token a token (NDJSON) citando fuentes con `[n]`, con chips
+  de fuente clicables.
+- **Evaluación**: `rag:eval` (recall@k/MRR), `rag:eval:quality` (juez LLM), `rag:verify` (detecta
+  drift; corre en `npm run check`).
 
 ```
 npm run rag:build          # reindexa (incremental; necesita GEMINI_API_KEY)
-npm run rag:eval           # recall@k / MRR del set de evaluacion
-npm run rag:eval:quality   # fidelidad/relevancia (juez LLM)
-npm run rag:verify         # falla si el indice esta desincronizado del corpus
+npm run rag:eval           # recall@k / MRR del set de evaluación
+npm run rag:eval:quality   # fidelidad y relevancia (juez LLM)
+npm run rag:verify         # falla si el índice está desincronizado del corpus
 ```
 
-> Notas de modelos: embeddings = **gemini-embedding-001** (no `text-embedding-004`, da 404). Generacion/expansion/rerank = **gemini-3.1-flash-lite** (con **gemini-2.5-flash** de respaldo); los `gemini-1.5-*` ya no estan disponibles.
-> El `netlify.toml` de la **raiz** es el que manda: necesita `included_files=["epibot/knowledge.json","epibot/rag_index.json"]` o la funcion no encuentra el indice en produccion.
+> Modelos: embeddings = **gemini-embedding-001**. Generación, expansión y rerank =
+> **gemini-3.1-flash-lite**, con **gemini-3.5-flash** de respaldo.
+> El `netlify.toml` de la **raíz** es el que manda: necesita
+> `included_files = ["epibot/knowledge.json", "epibot/rag_index.json", "publication/catalog.json", "publication/*/*/knowledge.json"]`
+> o la función no encuentra el índice ni los releases en producción.
 
-### Deteccion de Entidades (entities.js)
+### Detección de entidades (entities.js)
 
-- **32 estados** + regiones INEGI con aliases (CDMX, Edomex, EdoMex, etc.)
-- **4 padecimientos** con aliases y codigos CIE-10 (F32, G20, G30 y A97 Dengue)
-- **Sexo** (hombres, mujeres, general) con variantes (masculino, femenino)
-- **4 motores** de prediccion (Prophet, DeepAR, Ensemble, Stacking)
-- Extraccion de anios, semanas, meses, rangos de edad, "ultimos N anios"
-- Deteccion de multiples estados para activar el comparador
-- Deteccion de lugares no reconocidos y lugares no mexicanos
+- **32 estados** y regiones con alias (CDMX, Edomex, etc.).
+- Los cuatro padecimientos originales y los alias y códigos CIE-10 de los veintinueve releases del
+  runner (`release_catalog.js`), comparados al inicio de palabra; los no modelados salen de la lista
+  única `noModeladas`.
+- **Sexo** (hombres, mujeres, general) con variantes.
+- **Motores** de predicción.
+- Años, semanas, meses, rangos de edad, «últimos N años».
+- Varios estados para activar el comparador; lugares no reconocidos o no mexicanos.
 
-### Funcionalidades del Chat
+### Funcionalidades del chat
 
 | Funcionalidad | Ejemplo de consulta |
 |---|---|
-| Metricas globales | "metricas globales", "como va el proyecto" |
-| Por padecimiento | "depresion en Jalisco", "parkinson en mujeres" |
-| Historico anual | "casos de alzheimer en 2023", "tendencia 2018-2024" |
-| Comparativa estados | "compara CDMX y Nuevo Leon" |
-| Ranking modelos | "mejores modelos", "peores SMAPE" |
-| Datos del boletin | "boletin epidemiologico", "semana 52" |
-| Resumen por anio | "resumen epidemiologico 2023" |
-| Dengue (4.o padecimiento) | "que es el dengue", "pronostico de dengue", "dengue en Veracruz", "que modelos usan para dengue" |
-| Equipo/infraestructura | "equipo del proyecto", "infraestructura AWS" |
+| Métricas globales | «métricas globales», «cómo va el proyecto» |
+| Por padecimiento | «depresión en Jalisco», «parkinson en mujeres», «obesidad en Sonora hombres» |
+| Histórico anual | «casos de alzheimer en 2023», «tendencia 2018-2024» |
+| Comparativa estados | «compara CDMX y Nuevo León» |
+| Motores | «qué motor usa depresión en Jalisco», «distribución de motores» |
+| Datos del boletín | «boletín epidemiológico», «semana 42» |
+| Resumen por año | «resumen epidemiológico 2023» |
+| Dengue | «qué es el dengue», «pronóstico de dengue», «dengue en Veracruz» |
+| Releases del runner | «hipertensión en Jalisco», «comparar obesidad con diabetes» |
+| Equipo e infraestructura | «equipo del proyecto», «infraestructura AWS» |
 
 ---
 
-## Visualizaciones Interactivas
+## Visualizaciones interactivas
 
-### Charts Inline (Chart.js)
+### Gráficas en el chat (Chart.js)
 
-EpiBot genera graficas en vivo dentro del chat cuando detecta contexto numerico, con acabado unificado (gradientes por canvas, glow en lineas, crosshair, formato es-MX, paleta **Clinical Indigo**):
+EpiBot genera gráficas dentro del chat cuando detecta contexto numérico, con acabado unificado
+(gradientes, crosshair, formato es-MX, paleta **Clinical Indigo**): barras agrupadas y apiladas,
+treemap, radar, sparklines, tendencia histórica, mapa de México, semáforo, timelapse y comparador.
+Las gráficas de un release se dibujan desde el marcador de la respuesta; sin marcador no se dibuja
+ninguna.
 
-- **Barras agrupadas / apiladas** por padecimiento, motor, sexo o anio
-- **Treemap** de casos por entidad · **Radar** de motores · **Sparklines** (16/32 estados)
-- **Tendencia historica** (nacional o **por estado** cuando hay `anual_por_estado_pad`)
-- **Matriz de rendimiento** (burbujas), **Calibracion** (scatter), **Arsenal de motores** (polar)
-- **Medidor (gauge)** de salud, **Caja y bigotes** de SMAPE, **Cascada** (waterfall), **Volumen vs error** (combo doble eje)
-- **Corredor de confianza**, **heatmap de error**, **mapa de Mexico**, **semaforo**, **timelapse**, **comparador**
+Las gráficas de seguimiento **heredan el padecimiento y el estado del contexto** («¿y en Jalisco?»
+tras una pregunta sobre Depresión grafica Depresión en Jalisco).
 
-Los graficos de seguimiento **heredan el padecimiento/estado del contexto** ("¿y en Jalisco?" tras una pregunta sobre Depresion grafica Depresion en Jalisco; "por sexo" cambia a barras por sexo).
+### Mapas de México (mexico-map.js)
 
-### Mapas de Mexico (mexico-map.js)
+Mapas SVG de las 32 entidades: casos por padecimiento y sexo, tooltip, leyenda con gradiente
+dinámico. Accesibles desde el menú del chat.
 
-Mapas SVG interactivos de las 32 entidades federativas:
+### Timelapse (timelapse.js)
 
-- **Mapa de casos** por padecimiento y sexo (3 padecimientos x 3 filtros de sexo)
-- **Mapa de SMAPE** con gradiente de precision por estado
-- Tooltip con nombre del estado, valor y detalle al pasar el cursor
-- Leyenda con gradiente de color dinamico
-- Accesibles desde el menu hamburguesa del chat
+Evolución semana a semana: 52 cuadros, controles de reproducción y velocidad, escala de color
+global.
 
-### Timelapse Animado (timelapse.js)
+### Semáforo epidemiológico (semaforo.js)
 
-Animacion temporal que muestra la evolucion semana a semana:
+Clasificación de riesgo por estado basada en percentiles: cuatro niveles, 32 tarjetas ordenadas,
+tendencia, casos y desglose por padecimiento.
 
-- 52 frames (uno por semana epidemiologica)
-- Distribucion proporcional basada en patron semanal nacional
-- Controles: play/pause, velocidad 1x/2x/4x, slider, contador de semana
-- Escala de color consistente (min/max global)
+### Comparador de estados (comparador.js)
 
-### Semaforo Epidemiologico (semaforo.js)
-
-Clasificacion de riesgo por estado basada en percentiles:
-
-- 4 niveles: verde (< P25), amarillo (P25-P50), naranja (P50-P75), rojo (> P75)
-- Grid de 32 tarjetas ordenadas por nivel de riesgo
-- Cada tarjeta: nombre, tendencia (flecha SVG), casos, desglose por padecimiento, badge SMAPE
-- Barra resumen con conteo por nivel y seccion de alertas
-
-### Comparador de Estados (comparador.js)
-
-Comparacion visual lado a lado de dos entidades:
-
-- Se activa con "compara X y Y" cuando se detectan 2+ estados
-- Layout split: dos columnas con divisor vertical
-- Por columna: header con corona SVG para ganador, casos totales, metricas, barras por padecimiento
-- Seccion versus: barras duales izquierda/derecha por padecimiento
+Comparación lado a lado de dos entidades («compara X y Y»), con casos, motor productivo por
+padecimiento y barras duales.
 
 ### Reporte PDF (generatePDFReport)
 
-Generacion de reporte ejecutivo imprimible:
-
-- KPIs: casos totales, modelos, SMAPE mediano, motores
-- Tabla por padecimiento con casos y SMAPE promedio
-- Top 10 entidades con indicador de riesgo por color
-- Mini semaforo de 32 entidades
-- Distribucion de motores de IA
-- Branding IMSS, boton "Imprimir / Guardar PDF"
+Reporte ejecutivo imprimible: casos totales, series productivas, motores, top 10 entidades, mini
+semáforo y distribución de motores.
 
 ---
 
-## Entrada y Salida por Voz (voice.js)
+## Entrada y salida por voz (voice.js)
 
-### Speech-to-Text (STT)
+### Speech-to-Text
 
-- Boton de microfono al lado del input con animacion pulsante
-- Web Speech API con `lang: 'es-MX'`
-- Texto interim visible en el input como feedback visual
-- Envio automatico al terminar de hablar
-- Compatibilidad Safari (fallback via `onend` cuando `isFinal` no se dispara)
-- Graceful degradation: boton oculto en navegadores sin soporte
+- Botón de micrófono con animación, Web Speech API con `lang: 'es-MX'`.
+- Texto intermedio visible y envío automático al terminar de hablar.
+- Compatibilidad con Safari (respaldo vía `onend`) y botón oculto sin soporte.
 
-### Text-to-Speech (TTS)
+### Text-to-Speech
 
-- Auto-speak cuando la pregunta fue por voz
-- Boton de altavoz en cada respuesta para reproduccion manual
-- **Seleccion inteligente de voz** con scoring:
-  - Google cloud (+80) > Paulina macOS (+60) > otras voces
-  - Penaliza voces novelty roboticas (Eddy, Rocko, Flo, etc.)
-  - Rate/pitch ajustados por tipo de voz para naturalidad
-- Nunca habla con voz en ingles (requiere voz espanola disponible)
-- **Boton Stop** (rojo pulsante) aparece durante la reproduccion
-- **Boton Mute** en header para silenciar/activar TTS globalmente
-- Trunca respuestas largas a 600 caracteres
-- Workaround para bug de Chrome que corta utterances largos
+- Habla sola cuando la pregunta fue por voz; botón de altavoz en cada respuesta.
+- Selección de voz por puntaje (Google cloud > Paulina en macOS > otras), sin voces robóticas.
+- Nunca habla con voz en inglés; botones de detener y silenciar; trunca a 600 caracteres.
 
 ---
 
 ## Visualizaciones Tableau
 
-El dashboard (`EpiDashboard.html`) incluye embeds interactivos de Tableau Public:
-
-- **Tabla de datos consolidada** con datos SINAVE e INEGI
-- **Mapa de Mexico** con densidad poblacional y casos por sexo
-- **Categorias territoriales** por region geografica y socio-urbana
-- **Casos por anio** con desagregacion por sexo
-- **Casos por semana** con dinamica temporal
-- **Predicciones** multi-modelo (Prophet, DeepAR, Ensemble, Stacking)
-
-Son **diez vistas** del workbook `viz_epiforecastmx_17873231502650`, publicado en Tableau
-Public bajo la cuenta **`javier.rebull3700`**.
+`EpiDashboard.html` incluye **diez vistas** del workbook `viz_epiforecastmx_17873231502650`,
+publicado en Tableau Public bajo la cuenta **`javier.rebull3700`**. Es un **tablero histórico (corte
+W31 de 2026)**, rotulado así en la página, y no forma parte del paso semanal.
 
 > **Al republicar, conservar el nombre del workbook.** Los embeds lo alcanzan por
-> `name='viz_epiforecastmx_17873231502650/<vista>'`; si Tableau le anade otra marca de tiempo
+> `name='viz_epiforecastmx_17873231502650/<vista>'`; si Tableau le añade otra marca de tiempo
 > hay que actualizar las **30 referencias** de `EpiDashboard.html` (10 en `name`, 20 en
 > `static_image`).
 
-> **El tablero lleva un extracto, no conexion viva.** El conector de Google Drive de Tableau
-> Desktop Public Edition 2025.3.2 rechaza la lectura aun con el permiso concedido y
-> confirmado (`A7AE75CC`); esta descartado todo lo descartable y documentado en
-> `docs/GUIA_PUBLICAR_TABLEAU_2026-08-25.md` del repo principal. **Consecuencia: hay que
-> republicar el workbook a mano** despues de cada actualizacion semanal.
+> **El tablero lleva un extracto, no conexión viva.** El conector de Google Drive de Tableau
+> Desktop Public Edition rechaza la lectura aun con el permiso concedido; está documentado en
+> `docs/GUIA_PUBLICAR_TABLEAU_2026-08-25.md` del repo principal.
 
 ---
 
-## Galeria de Pronosticos
+## Galería de pronósticos
 
-La seccion **Reports/** contiene una galeria HTML interactiva con graficos de pronostico organizados por padecimiento, entidad y sexo.
-
-- Filtros por padecimiento, nivel (estatal, nacional, regional) y sexo
-- Busqueda por nombre de estado o region
-- Vista grid / lista con lightbox
-- Ficha tecnica en cada grafico: modelo, metricas, tipo (propio vs fallback)
+`Reports/index.html` contiene la galería interactiva organizada por padecimiento, nivel (nacional,
+estatal, regional) y sexo, con búsqueda, vista de cuadrícula o lista y lightbox. Las 432 gráficas del
+carril original están en la lista `DATA`. Los releases del runner se integran en los mismos niveles,
+dibujados con Chart.js desde su vista publicada (`Reports/obesidad_galeria.js`), fuera de `DATA` y
+sin métricas de error.
 
 ---
 
-## Reportes HTML
+## Páginas y reportes
 
 | Archivo | Contenido |
 |---|---|
-| `reporte_resultados.html` | Resultados del modelado: KPIs, ranking de 333 modelos, cobertura |
-| `comparacion_modelos.html` | Comparativa visual de 4 motores (Prophet, DeepAR, Ensemble, Stacking) |
-| `validacion_semanal.html` | Validacion Real vs Forecast con datos del boletin mas reciente |
-| `bitacora_modelado.html` | Bitacora historica del modelado Prophet v1-v6 |
-| `ficha_tecnica_prophet.html` | Ficha tecnica del modelo Prophet |
-| `hiperparametros_modelos.html` | Hiperparametros de los 4 motores |
+| `<id>.html` (29) | Una página por release del runner: pronóstico, validación prospectiva y notas |
+| `boletin.html` | Radar del boletín: 187 categorías y curvas desde 2013 |
+| `rechazados.html` | Padecimientos rechazados por el gate de 2025 (Covid-19) |
+| `dengue.html` | Dengue: EDA, modelado y pronóstico |
+| `reporte_resultados.html` | Resultados del modelado del carril original |
+| `comparacion_modelos.html` | Comparativa de motores |
+| `comparacion_rondas.html` | Comparación entre rondas de selección |
+| `validacion_semanal.html` | Validación real contra pronóstico con el boletín más reciente |
+| `bitacora_modelado.html` | Bitácora histórica del modelado Prophet v1-v6 |
+| `ficha_tecnica_prophet.html` | Ficha técnica del modelo Prophet |
+| `hiperparametros_modelos.html` | Hiperparámetros de los motores |
 | `conclusiones.html` | Conclusiones clave del proyecto |
-| `construccion_dashboard.html` | Documentacion de la construccion del dashboard |
-| `referencias.html` | Referencias bibliograficas |
-| `auditoria_remediacion_2026.html` | Auditoria de calidad y remediacion |
+| `construccion_dashboard.html` | Construcción del dashboard |
+| `referencias.html` | Referencias bibliográficas |
+| `auditoria_remediacion_2026.html` | Auditoría de calidad y remediación |
 
 ---
 
 ## Novedades y prensa
 
-La bitacora publica del proyecto vive en `novedades.html` y se alimenta **sola** de
-`news.json`: la portada toma los items mas recientes para su banner y Novedades los pinta
-todos. Cada hito grande tiene ademas **pagina propia**, enlazada desde su item.
+La bitácora pública vive en `novedades.html` y se alimenta **sola** de `news.json`: la portada toma
+los ítems más recientes para su banner y Novedades los pinta todos. Cada hito grande tiene página
+propia, enlazada desde su ítem.
 
-| Pagina | Hito |
+| Página | Hito |
 |---|---|
-| `calass.html` | CALASS 2026 — XXXVI Congreso de la ALASS, Universite de Montreal, 27-ago-2026 |
-| `helix.html` | Primer lugar en el International Summit HELIX 2026 Mexico |
+| `calass.html` | CALASS 2026, XXXVI Congreso de la ALASS, Université de Montréal, 27-ago-2026 |
+| `helix.html` | Primer lugar en el International Summit HELIX 2026 México |
 | `future_health.html` | Ponencia aceptada en la 2nd Public Health Conference (Skopje) |
-| `micai.html` | Articulo MICAI 2026 (version digital + PDF) |
+| `micai2026.html` | Ponencia y artículo MICAI 2026 (`micai.html` redirige aquí) |
+| `wcp2026.html` | E-póster WCP 2026 (Estocolmo) |
 
 ### Publicar una noticia toca cinco superficies
 
-1. **`news.json`** — el item nuevo va **primero**. Campos: `date`, `iso`, `type`, `tag`,
-   `featured`, `title`, `body[]` (acepta HTML), `link` y el opcional **`summary`**. Sin
-   `summary`, el banner de la portada corta el primer parrafo a 150 caracteres y suele
-   partir la frase por la mitad.
-2. **La pagina del hito**, si lo merece. Se clona el armazon de `helix.html`: nav,
-   tipografia, galeria `.doc-gallery` y lightbox ya vienen resueltos.
-3. **`index.html`** — el color del tag (`.news-tag--<type>`) y, si el `type` es nuevo, el
-   filete de la tarjeta (`.news-card--<type>::before`).
-4. **`index.html` otra vez: el banner estatico.** Es el respaldo para cuando falla el
-   `fetch` de `news.json` y **no se actualiza solo**. Si no se toca, el sitio sigue
-   anunciando como «lo mas nuevo» algo viejo cada vez que la red falla.
-5. **`sitemap.xml`** — alta de la pagina nueva.
+1. **`news.json`**: el ítem nuevo va **primero**. Campos: `date`, `iso`, `type`, `tag`, `featured`,
+   `title`, `body[]` (acepta HTML), `link` y el opcional **`summary`**. Sin `summary`, el banner de
+   la portada corta el primer párrafo a 150 caracteres.
+2. **La página del hito**, si lo merece. Se clona el armazón de `helix.html`.
+3. **`index.html`**: el color del tag (`.news-tag--<type>`) y, si el `type` es nuevo, el filete de la
+   tarjeta (`.news-card--<type>::before`).
+4. **`index.html` otra vez: el banner estático** (`#newsBannerRow`), respaldo para cuando falla el
+   `fetch` de `news.json`. No se actualiza solo en una edición manual, pero `cifras:verify` falla el
+   despliegue si no coincide con `news.json`.
+5. **`sitemap.xml`**: alta de la página nueva.
 
-> **El gate de cifras alcanza a la pagina nueva.** `npm run cifras:verify` recorre **todo**
-> el `.html`/`.json` publicado desde la raiz, no una lista escogida a mano. Una nota que
-> escriba «435 modelos» rompe el despliegue, y hace bien.
+> **El gate de cifras alcanza a la página nueva.** `npm run cifras:verify` recorre **todo** el
+> `.html`/`.json` publicado desde la raíz. Una nota que escriba «435 modelos» rompe el despliegue.
 
 ### Las fotos
 
-Se recortan a una proporcion **comun (3:2)** antes de subirlas: la galeria las coloca en una
-reticula de dos columnas y, con proporciones distintas, los pies quedan desalineados. Las de
-iPhone llegan en HEIC; `sips -s format jpeg` las convierte y, ya en Pillow,
-`ImageOps.exif_transpose` respeta la orientacion (hay fotos con `orientation: 3`, giradas
-180 grados, que sin eso salen de cabeza). Van a `Reports/<hito>/` a 1600 px de ancho y
-calidad 82.
+Se recortan a una proporción **común (3:2)** antes de subirlas: la galería las coloca en una
+retícula de dos columnas y, con proporciones distintas, los pies quedan desalineados. Las de iPhone
+llegan en HEIC; `sips -s format jpeg` las convierte y, ya en Pillow, `ImageOps.exif_transpose` respeta
+la orientación. Van a `Reports/<hito>/` a 1600 px de ancho y calidad 82.
 
 ---
 
-## Estructura del Sitio
+## Estructura del sitio
 
 ```
 EpiForecast-IMSS-Dashboard/
-├── index.html                      # Pagina principal del proyecto
-├── EpiDashboard.html               # Dashboard con visualizaciones Tableau
-├── dengue.html                     # Pagina del 4.o padecimiento (Dengue): EDA, modelado y pronostico
-├── novedades.html                  # Bitacora publica; se pinta desde news.json
-├── news.json                       # Items de novedades, el mas reciente primero
-├── calass.html                     # CALASS 2026, Montreal: la ponencia, con fotos
-├── helix.html                      # Primer lugar en HELIX 2026 Mexico
-├── future_health.html              # Ponencia aceptada en Skopje
-├── micai.html                      # Articulo MICAI 2026 (version digital)
-├── metodologia_dengue.html         # Metodologia del pipeline de Dengue
-├── pipeline_diagramEDA.html        # Diagrama del pipeline de EDA
-├── editorial.css                   # Nav y tipografia editorial, compartidos
-├── sitemap.xml                     # Alta de cada pagina publicada
-├── reporte_resultados.html         # Reporte interactivo de 333 modelos
-├── comparacion_modelos.html        # Comparativa de 4 motores
-├── validacion_semanal.html         # Validacion semanal Real vs Forecast
-├── bitacora_modelado.html          # Bitacora Prophet v1-v6
-├── ficha_tecnica_prophet.html      # Ficha tecnica Prophet
-├── hiperparametros_modelos.html    # Hiperparametros de motores
-├── conclusiones.html               # Conclusiones clave
-├── construccion_dashboard.html     # Documentacion del dashboard
-├── referencias.html                # Referencias bibliograficas
-├── auditoria_remediacion_2026.html # Auditoria de calidad
+├── index.html                      # Portada
+├── <id>.html                       # 29 páginas de releases del runner
+├── boletin.html                    # Radar del boletín
+├── rechazados.html                 # Padecimientos rechazados (Covid-19)
+├── dengue.html                     # Dengue
+├── EpiDashboard.html               # Tableau (histórico)
+├── novedades.html, news.json       # Bitácora pública
+├── calass.html, helix.html, future_health.html, micai2026.html, wcp2026.html
+├── reporte_resultados.html, comparacion_modelos.html, comparacion_rondas.html, validacion_semanal.html
+├── bitacora_modelado.html, ficha_tecnica_prophet.html, hiperparametros_modelos.html
+├── conclusiones.html, construccion_dashboard.html, referencias.html, auditoria_remediacion_2026.html
+├── metodologia_dengue.html, pipeline_diagramEDA.html
+├── editorial.css, sitemap.xml, netlify.toml, package.json
+├── hero_series.json                # Las 4 series de la Figura 1 del carril original
+├── publication/                    # catalog.json, pointers.json y una carpeta por release (vista.json)
+├── assets/boletin/                 # Foto semanal del radar
+├── scripts/                        # Radar del boletín (boletin_semana.py)
+├── tests/                          # Pruebas del radar y del WCP
 ├── Reports/
-│   ├── index.html                  # Galeria interactiva de pronosticos
-│   ├── Alzheimer/                  # PNGs por entidad y sexo
-│   ├── Depresion/
-│   ├── Parkinson/
-│   ├── dengue/                     # Charts y JSON del 4.o padecimiento (mapa, EDA, pronostico)
-│   ├── calass/                     # Fotos del congreso CALASS 2026
-│   ├── helix/                      # Constancia del Summit HELIX 2026
-│   └── future_health/              # Aceptacion de la ponencia de Skopje
-├── epibot/                             # EpiBot - Asistente conversacional
-│   ├── index.html                  # UI del chat
-│   ├── knowledge.json              # Base de datos (metricas, boletin, modelos)
-│   ├── css/style.css               # Estilos IMSS 2026
-│   ├── js/
-│   │   ├── app.js                  # UI, charts, mensajes (~2300 lineas)
-│   │   ├── kb.js                   # Knowledge base, 30+ handlers (~3900 lineas)
-│   │   ├── entities.js             # Deteccion de entidades NLP
-│   │   ├── mexico-map.js           # Mapas SVG interactivos
-│   │   ├── timelapse.js            # Animacion semanal
-│   │   ├── semaforo.js             # Semaforo de riesgo
-│   │   ├── comparador.js           # Comparador lado a lado
-│   │   └── voice.js                # STT + TTS
-│   ├── netlify/functions/          # Gemini fallback
-│   └── tests/                      # Tests unitarios
+│   ├── index.html                  # Galería de pronósticos
+│   ├── Alzheimer/, Depresión/, Parkinson/, dengue/   # Gráficas del carril original
+│   ├── publication/                # Shards de los releases
+│   ├── obesidad_galeria.js         # Galería de releases (desde la vista)
+│   ├── zoom_data_neuro.json, zoom_data_dengue.json
+│   ├── motores/, micai2026/, wcp2026/, calass/, helix/, future_health/
+├── epibot/                         # EpiBot (ver arriba)
 └── README.md
 ```
 
 ---
 
-## Navegacion
+## Navegación
 
 ```
 index.html
-  ├──> EpiDashboard.html            (Dashboard Tableau)
-  ├──> dengue.html                  (Dengue - 4.o padecimiento)
-  ├──> reporte_resultados.html      (Reporte de Modelos)
-  ├──> comparacion_modelos.html     (Comparativa de Motores)
-  ├──> Reports/index.html           (Galeria de Pronosticos)
-  ├──> novedades.html               (Bitacora publica)
-  │      ├──> calass.html           (CALASS 2026, Montreal)
-  │      ├──> helix.html            (HELIX 2026 Mexico)
-  │      └──> future_health.html    (Skopje)
-  └──> epibot/index.html                (EpiBot - Chat Inteligente)
+  ├──> <id>.html (29)                (Releases del runner)
+  ├──> boletin.html                  (Radar del boletín)
+  ├──> rechazados.html               (Rechazados)
+  ├──> dengue.html                   (Dengue)
+  ├──> EpiDashboard.html             (Tableau, histórico)
+  ├──> reporte_resultados.html       (Reporte de modelos)
+  ├──> comparacion_modelos.html      (Comparativa de motores)
+  ├──> Reports/index.html            (Galería de pronósticos)
+  ├──> novedades.html                (Bitácora pública)
+  │      ├──> calass.html, helix.html, future_health.html
+  │      └──> micai2026.html, wcp2026.html
+  └──> epibot/index.html             (EpiBot)
 ```
 
-Todas las paginas incluyen navegacion cruzada entre si.
+Todas las páginas incluyen navegación cruzada.
 
 ---
 
-## Stack Tecnico
+## Stack técnico
 
-| Componente | Tecnologia |
+| Componente | Tecnología |
 |---|---|
 | Frontend | HTML5 + CSS3 + ES Modules (vanilla JS) |
-| Chatbot | Knowledge base local + NLP de entidades |
-| Visualizacion | Chart.js 4.x, SVG maps, Tableau Public |
+| Chatbot | Base de conocimiento local, detección de entidades y RAG híbrido |
+| Visualización | Chart.js 4.x, mapas SVG, Tableau Public |
 | Voz | Web Speech API (SpeechRecognition + SpeechSynthesis) |
 | Markdown | marked.js |
-| IA fallback | Google Gemini via Netlify Functions |
-| Hosting | Netlify (deploy automatico en push a main) |
+| IA | Google Gemini (embeddings, rerank y generación) vía Netlify Functions |
+| Hosting | Netlify (despliegue en push a `main` tras el build) |
 | Repositorio | GitHub (EpiForecastMX) |
 
 ---
 
-## Fuentes de Datos
+## Fuentes de datos
 
-- **SINAVE** -- Boletines epidemiologicos semanales (neurologicos 2014-2026; Dengue 2018-2026), procesados mediante pipeline automatizado. Incluye desglose por sexo y entidad federativa.
-- **INEGI** -- Datos demograficos complementarios por entidad federativa.
-- **knowledge.json** -- Generado por el pipeline del repo principal (`scripts/build_web_knowledge.py`), contiene: estadisticas globales, metricas por modelo/padecimiento/estado/sexo, datos del boletin, comparativa semanal, configuracion de entrenamiento.
+- **SINAVE**: boletines epidemiológicos semanales (neurológicos 2014-2026; Dengue 2018-2026;
+  releases del runner según su cuadro), procesados por pipeline. Incluyen desglose por entidad y,
+  cuando el boletín lo trae, por sexo.
+- **INEGI**: población por entidad federativa.
+- **knowledge.json**: generado por el pipeline del repo principal
+  (`scripts/build_web_knowledge.py`).
+- **publication/**: vistas, punteros y catálogo de los releases sellados, instalados con
+  `epibot/scripts/install_publication.mjs`.
 
-### Actualizacion semanal
+### Actualización semanal
 
-Desde el repo principal, un solo comando descarga el boletin mas reciente, regenera
-`knowledge.json` y hace push a este dashboard:
+La semana avanza por tres carriles y ninguno publica una semana parcial:
 
-```bash
-# En el repo EpiForecast-MX
-make update-week
-```
+1. **Carril original** (cuatro padecimientos): `make update-week` en el repo principal prepara y
+   sella; `make update-week-apply MANIFEST=<ruta>` instala lo sellado.
+2. **Veintinueve releases del runner**: `make semana-revisa`, `make semana-observa PDF=…` y
+   `make semana-vistas N=… FE=…` en el repo principal.
+3. **Radar del boletín**: `python3 scripts/boletin_semana.py --pdf … --url-fuente … --publicacion …`
+   en este repo (ver `scripts/README_radar_boletin.md`).
 
-**Pero eso no lo actualiza todo.** Quedan **dos pasos manuales** despues:
-
-| paso | por que es manual |
-|---|---|
-| Publicar a Google Sheets | `data/processed/tableau_model.xlsx` esta **gitignorado** (11 MB) y ningun workflow lo genera, asi que `gsheets.yml` **no puede correr solo**: fallaria al no encontrarlo. |
-| Republicar el workbook de Tableau | el tablero lleva **extracto**, no conexion viva (ver arriba). |
-
-Hoja de datos vigente: `tableau_epiforecast` en el Drive de `javirebull@gmail.com`
-(ID `1yQ4tL7NzaUBplsoOfP9BVXARwUrb8h0i70vpDGvHpOQ`), con las dos cuentas de servicio como
-editoras. La variable `GSHEETS_SPREADSHEET_ID` del repo principal ya apunta ahi.
+La hoja de Google Sheets y el workbook de Tableau son del tablero histórico (corte W31) y no se
+actualizan con la semana.
 
 ---
 
-## Desarrollo Local
+## Desarrollo local
 
 ```bash
-# Clonar el repositorio
 git clone https://github.com/EpiForecastMX/EpiForecast-IMSS-Dashboard.git
 cd EpiForecast-IMSS-Dashboard
-
-# Servir con Python
 python3 -m http.server 8080
-
-# Abrir en navegador: http://localhost:8080
-# EpiBot: http://localhost:8080/epibot/
+# Sitio: http://localhost:8080 · EpiBot: http://localhost:8080/epibot/
 ```
 
-Para el fallback de Gemini en desarrollo local, se requiere Netlify CLI:
+Para la función RAG en local se requiere Netlify CLI:
 
 ```bash
 npm install
@@ -538,13 +452,17 @@ netlify dev
 
 ## Despliegue
 
-El sitio se despliega automaticamente a traves de **Netlify** al hacer push a la rama `main`. No requiere comandos de build.
+Netlify despliega en cada push a `main` tras correr el comando de build de `netlify.toml` (pruebas
+del radar, contrato de cifras, nota de picos y gates de cifras y RAG). Si cualquiera falla, el
+despliegue no se publica.
 
 ---
 
-## Proyecto Principal
+## Proyecto principal
 
-Este dashboard es el componente de visualizacion del proyecto [EpiForecast-MX](https://github.com/EpiForecastMX/EpiForecast-MX), que incluye el pipeline completo de extraccion, procesamiento, entrenamiento multi-modelo (Prophet, DeepAR, Ensemble, Stacking) y generacion de pronosticos epidemiologicos.
+Este dashboard es el componente de visualización del proyecto
+[EpiForecast-MX](https://github.com/EpiForecastMX/EpiForecast-MX), que incluye el pipeline completo
+de extracción, procesamiento, entrenamiento, selección y generación de pronósticos epidemiológicos.
 
 ---
 
@@ -552,16 +470,17 @@ Este dashboard es el componente de visualizacion del proyecto [EpiForecast-MX](h
 
 | Integrante | Rol |
 |---|---|
-| Javier Rebull | Sr. Associate Application Developer - Santander Bank US |
-| Juan Carlos Perez Nava | Profesional de TI -- IMSS |
-| Luis Gerardo Sanchez Salazar | Sr. Controls Engineer -- Tesla |
+| Javier Rebull | Sr. Associate Application Developer, Santander Bank US |
+| Juan Carlos Pérez Nava | Profesional de TI, IMSS |
+| Luis Gerardo Sánchez Salazar | Sr. Controls Engineer, Tesla |
 
-**Asesora academica:** Dra. Grettel Barcelo Alonso -- Tecnologico de Monterrey
+**Asesora académica:** Dra. Grettel Barceló Alonso, Tecnológico de Monterrey
 
-**Stakeholders IMSS:** Dra. Ruth Perez (Lider de Proyecto) -- Dra. Lina Diaz Castro (Investigadora en Psiquiatria)
+**Stakeholders IMSS:** Dra. Ruth Pérez (líder de proyecto) y Dra. Lina Díaz Castro (investigadora en
+psiquiatría)
 
 ---
 
 <p align="center">
-  <strong>Tecnologico de Monterrey</strong> · <strong>IMSS</strong> · Equipo 01 -- 2026
+  <strong>Tecnológico de Monterrey</strong> · <strong>IMSS</strong> · Equipo 01, 2026
 </p>
