@@ -17,6 +17,7 @@ import { CandidateError, LIFECYCLE_PUBLISHED, findShards } from './candidate.mjs
 import { MODE_PUBLIC, porBytes, readCatalog, readInstalledRelease } from './installer.mjs';
 // Un solo criterio para «métricas de selección retiradas» (W28–W37): el mismo helper que el bot.
 import { metricasRetiradas, avisoMetricas } from '../../js/kb.js';
+import { picosHeredados, textoPico } from './picos_heredados.mjs';
 
 // Catálogo del EpiBot (IIFE que publica globalThis.EPI_CATALOGO): de él sale cómo se eligió el motor
 // de los releases de historia corta, que no usan los pliegues de 2021 a 2024.
@@ -572,6 +573,10 @@ function vistaChunks(root, r) {
       `${fallas.length > 1 ? `${fallas.slice(0, -1).join(', ')} y ${fallas.at(-1)}` : fallas[0] || 'el criterio de aceptación'}. ` +
       `No debe presentarse como validado ni como aceptado; no tiene validación prospectiva que superar. `
     : '';
+  // Un pico aislado impreso en la fuente que el pronóstico repite se contextualiza (tercera
+  // auditoría, A3): el dato y el release no se tocan, pero no debe leerse como señal predictiva.
+  const picos = picosHeredados(v).map((p) => `Pico heredado de la fuente: ${textoPico(p)}`);
+  const avisoPicos = picos.length ? `\n\n${picos.join('\n\n')}` : '';
   const chunks = [{
     ...base,
     id: `release:${r.disease_id}:${r.release_id}:nacional`,
@@ -586,7 +591,7 @@ function vistaChunks(root, r) {
         : control || `la validación prospectiva está en curso (${v.weeks_available} de ${v.weeks_required} semanas): aún no hay semanas observadas tras el origen y no existe desempeño fuera de muestra. `) +
       `Total pronosticado para las 52 semanas: ` +
       `${fmt(nac.pronostico_52_total, 0)} casos. ${v.models} modelos (${sinSexo ? 'uno por estado; el boletín no desglosa sexo' : 'uno por estado y sexo'}) y ` +
-      `${v.products} productos derivados por suma. ${v.uncertainty_label}.`,
+      `${v.products} productos derivados por suma. ${v.uncertainty_label}.${avisoPicos}`,
   }];
   const estados = Object.values(v.series)
     .filter((s) => s.nivel === 'estado' && s.sexo === 'general' && s.oos.smape !== null)
@@ -600,7 +605,7 @@ function vistaChunks(root, r) {
       ...base,
       id: `release:${r.disease_id}:${r.release_id}:estados`,
       title: `${v.display_name} — desempeño por estado fuera de muestra`,
-      text: `${encabezado}\n\nEstados ordenados de menor a mayor sMAPE fuera de muestra:\n${filas.join('\n')}`,
+      text: `${encabezado}\n\nEstados ordenados de menor a mayor sMAPE fuera de muestra:\n${filas.join('\n')}${avisoPicos}`,
     });
   } else {
     const previstos = Object.values(v.series)
@@ -611,7 +616,7 @@ function vistaChunks(root, r) {
       ...base,
       id: `release:${r.disease_id}:${r.release_id}:estados`,
       title: `${v.display_name} — casos pronosticados por estado`,
-      text: `${encabezado}\n\nCasos pronosticados en 52 semanas por estado, de mayor a menor:\n${previstos.join('\n')}`,
+      text: `${encabezado}\n\nCasos pronosticados en 52 semanas por estado, de mayor a menor:\n${previstos.join('\n')}${avisoPicos}`,
     });
   }
   const motores = Object.entries(v.engines).map(([m, n]) => `${MOTOR_ES[m] || m}: ${n} series`);
