@@ -127,6 +127,18 @@
       prefijos: ['gingivit', 'periodont', 'gum disease'],
     },
     {
+      id: 'asma_j45', pad: 'Asma', nombre: 'Asma', nombreCorto: 'Asma',
+      etiqueta: 'Asma (J45, J46)', dataKey: 'asma_j45', marca: 'ASMA_J45', pagina: 'asma_j45.html',
+      consulta: 'asma', cie: 'J45, J46', color: '#7DD3FC',
+      alias: ['asma', 'asmatico', 'asmatica', 'asmaticos', 'asmaticas', 'estado asmatico',
+        'crisis asmatica', 'j45', 'j46', 'asthma', 'asthmatic'],
+      prefijos: ['asma', 'asmatic', 'asthma'],
+      // Cronología que acota la validación prospectiva: la dicen el bot, el RAG y la página.
+      cronologia: 'El boletín 43, que trae la semana 2026-W42, se publicó el 9 de noviembre de 2026, horas '
+        + 'antes de emitir este pronóstico. No se usó para entrenar, pero esa semana no cuenta como '
+        + 'prospectiva respecto de la información; las tres siguientes del gate (W43 a W45) sí.',
+    },
+    {
       id: 'ulceras_k25', pad: 'Úlceras, gastritis y duodenitis',
       nombre: 'Úlceras, gastritis y duodenitis', nombreCorto: 'Úlceras y gastritis',
       etiqueta: 'Úlceras, gastritis y duodenitis (K25-K29)', dataKey: 'ulceras_k25',
@@ -332,7 +344,7 @@
     'tension arterial baja',
     'cancer', 'hipertension gestacional', 'hipertension en el embarazo', 'hipertension del embarazo',
     'hipertension pulmonar', 'preeclampsia', 'eclampsia', 'prediabetes', 'diabetes gestacional', 'diabetes insipida', 'diabetes en el embarazo',
-    'diabetes del embarazo', 'asma', 'epilepsia',
+    'diabetes del embarazo', 'epilepsia',
     'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah',
     'influenza', 'covid', 'tuberculosis', 'vih', 'sida', 'colera',
     'sarampion', 'rubeola', 'hepatitis', 'zika', 'chikungunya', 'malaria',
@@ -343,9 +355,9 @@
     'rotavirus', 'shigelosis', 'amebiasis', 'salmonelosis', 'tifoidea',
     'lupus', 'fibromialgia', 'esclerosis', 'huntington', 'ela ',
     'insuficiencia renal', 'insuficiencia cardiaca',
-    // En inglés: sin esto, «asthma in jalisco» caería en la tabla neuro del estado.
+    // En inglés: sin esto, «epilepsy in jalisco» caería en la tabla neuro del estado.
     'gestational diabetes', 'diabetes gestational', 'diabetes insipidus', 'prediabetic',
-    'asthma', 'epilepsy', 'schizophrenia', 'anxiety', 'tuberculosis', 'hiv', 'aids', 'measles',
+    'epilepsy', 'schizophrenia', 'anxiety', 'tuberculosis', 'hiv', 'aids', 'measles',
     'lymphoma', 'heart attack', 'pneumonia', 'bronchitis', 'arthritis',
     'kidney failure', 'heart failure',
   ]);

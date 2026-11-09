@@ -2,6 +2,25 @@
     "_generated": "2026-11-05",
     "items": [
         {
+            "date": "9 de noviembre de 2026",
+            "iso": "2026-11-09",
+            "type": "radar",
+            "tag": "Nuevo padecimiento",
+            "featured": true,
+            "title": "El asma se incorpora al pronóstico",
+            "summary": "Pronóstico a 52 semanas para el país, 4 regiones y las 32 entidades, por sexo. Superó la prueba de 2025 y su validación prospectiva está en curso.",
+            "body": [
+                "EpiForecast-MX publica el <strong style=\"color:var(--cream)\">asma (CIE-10 J45, J46)</strong>: pronósticos semanales a 52 semanas para el país, 4 regiones y las 32 entidades, en general y por sexo (111 series), a partir del Cuadro 13.3 del Boletín Epidemiológico del SINAVE.",
+                "Su portafolio superó la prueba de 2025 frente al control estacional. Compiten sólo los cinco motores estacionales, porque el motor ETS no produjo un pronóstico utilizable en dos ajustes de Tlaxcala.",
+                "Usa datos hasta la semana 41 de 2026, se emitió el 9 de noviembre y no se reentrena. El boletín con la semana 42 ya era público ese día: no se usó para entrenar, pero la validación prospectiva respecto de la información empieza en la semana 43. Es un pronóstico puntual, sin intervalos de incertidumbre."
+            ],
+            "link": {
+                "href": "asma_j45.html",
+                "text": "Ver el pronóstico de asma",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
+        {
             "date": "8 de noviembre de 2026",
             "iso": "2026-11-08",
             "type": "radar",

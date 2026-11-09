@@ -18,6 +18,7 @@ import { MODE_PUBLIC, porBytes, readCatalog, readInstalledRelease } from './inst
 // Un solo criterio para «métricas de selección retiradas» (W28–W37): el mismo helper que el bot.
 import { metricasRetiradas, avisoMetricas } from '../../js/kb.js';
 import { picosHeredados, textoPico } from './picos_heredados.mjs';
+import { releaseDeId } from '../../js/release_config.js';
 
 // Catálogo del EpiBot (IIFE que publica globalThis.EPI_CATALOGO): de él sale cómo se eligió el motor
 // de los releases de historia corta, que no usan los pliegues de 2021 a 2024.
@@ -577,12 +578,15 @@ function vistaChunks(root, r) {
   // auditoría, A3): el dato y el release no se tocan, pero no debe leerse como señal predictiva.
   const picos = picosHeredados(v).map((p) => `Pico heredado de la fuente: ${textoPico(p)}`);
   const avisoPicos = picos.length ? `\n\n${picos.join('\n\n')}` : '';
+  // Cronología declarada en el catálogo: acota qué semanas del gate son prospectivas.
+  const nota = releaseDeId(r.disease_id)?.cronologia;
+  const cronologia = nota ? ` ${nota}` : '';
   const chunks = [{
     ...base,
     id: `release:${r.disease_id}:${r.release_id}:nacional`,
     title: `${v.display_name} — ${nac.oos.semanas ? 'desempeño nacional fuera de muestra' : 'pronóstico nacional, sin semanas observadas aún'}`,
     text:
-      `${encabezado}\n\nNacional (general): ` +
+      `${encabezado}${cronologia}\n\nNacional (general): ` +
       (nac.oos.semanas
         // Un control conserva su explicación con semanas observadas: sigue sin ser validable.
         ? `${control}en ${nac.oos.semanas} semanas ya observadas tras el origen, sMAPE ${fmt(nac.oos.smape)} %, ` +
