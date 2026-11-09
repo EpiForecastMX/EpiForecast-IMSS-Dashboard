@@ -63,8 +63,10 @@ Dashboard interactivo del proyecto **EpiForecast-MX**, desarrollado en colaborac
 - **Releases del runner genérico (veintinueve):** publicados desde releases sellados
   (`publication/catalog.json`): obesidad, diabetes tipo I y II, anorexia y bulimia, hipertensión,
   enfermedad isquémica y cerebrovascular, cinco padecimientos del radar del boletín y diecisiete
-  cánceres. Cada uno tiene su página `<id>.html`. Los que no superaron la prueba de 2025 se publican
-  con el control estacional y nunca como validados. Covid-19 aparece sólo en `rechazados.html`.
+  cánceres. Cada uno tiene su página `<id>.html`. Los que no superaron su prueba de aceptación
+  (2025 para la mayoría; 2026-W01 a W41 para los quince cánceres con datos sólo desde 2023) se
+  publican con el control estacional y nunca como validados. Covid-19 aparece sólo en
+  `rechazados.html`.
 
 El sitio integra el radar del boletín (`boletin.html`), un chatbot conversacional con base de
 conocimiento local y RAG (EpiBot), mapas interactivos de México y herramientas de análisis
@@ -420,10 +422,12 @@ Todas las páginas incluyen navegación cruzada.
 
 La semana avanza por tres carriles y ninguno publica una semana parcial:
 
-1. **Carril original** (cuatro padecimientos): `make update-week` en el repo principal prepara y
-   sella; `make update-week-apply MANIFEST=<ruta>` instala lo sellado.
-2. **Veintinueve releases del runner**: `make semana-revisa`, `make semana-observa PDF=…` y
-   `make semana-vistas N=… FE=…` en el repo principal.
+1. **Carril original** (Depresión, Parkinson, Alzheimer y Dengue): el productor legacy v5, que vive
+   fuera de los repositorios (`planes/`) y conserva las asignaciones congeladas en la ronda W37.
+   `make update-week` del repo principal es histórico y aborta siempre en el preflight
+   (`scripts/actualiza_semanal.sh`); no es una receta vigente.
+2. **Veintinueve releases del runner**: `make semana-revisa`, `make semana-observa PDF=… SALIDA=…`,
+   `python -m scripts.paso_semanal consolida` y `make semana-vistas N=… FE=…` en el repo principal.
 3. **Radar del boletín**: `python3 scripts/boletin_semana.py --pdf … --url-fuente … --publicacion …`
    en este repo (ver `scripts/README_radar_boletin.md`).
 
