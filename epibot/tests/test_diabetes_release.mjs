@@ -91,16 +91,29 @@ test('con 0/4 no hay métricas vacías ni validación dada por superada', async 
     assert.doesNotMatch(texto, SIN_VALOR, q);
     assert.doesNotMatch(texto, /validación prospectiva (superada|aprobada)|PASS/i, q);
   }
+  // El estado vigente cambia con cada boletín: con 0/4 no hay métricas; con semanas observadas, sí,
+  // pero la validación sigue en curso. El paso semanal no debe romper esta prueba (ensayo 9-nov-2026).
+  const semanas = d.diabetes_t2.weeks_available;
   for (const q of ['ranking de diabetes tipo 2', 'calibracion de diabetes tipo 2', 'mapa de diabetes tipo 2 por error']) {
     const r = await conversa(q);
-    assert.match(r.md, /Validación prospectiva en curso\*\* \(0 de 4 semanas\)/, q);
-    assert.match(r.md, / o «diabetes tipo 2 por sexo»/, q);
-    assert.doesNotMatch(r.md.replace(/<!--.*?-->/g, ''), /sMAPE \d/, q);
+    const limpio = r.md.replace(/<!--.*?-->/g, '');
+    if (semanas === 0) {
+      assert.match(r.md, /Validación prospectiva en curso\*\* \(0 de 4 semanas\)/, q);
+      assert.match(r.md, / o «diabetes tipo 2 por sexo»/, q);
+      assert.doesNotMatch(limpio, /sMAPE \d/, q);
+    } else if (d.diabetes_t2.verdict === 'INCOMPLETE') {
+      assert.match(limpio, new RegExp(`Validación prospectiva en curso.{0,4} \\(${semanas}/4 semanas\\)|en curso\\*\\* \\(${semanas} de 4 semanas\\)`), q);
+    }
   }
 });
 
 test('con 0/4 las gráficas de error no se dibujan y las demás sí', () => {
-  const v = d.diabetes_t2;
+  // Copia en 0/4 del release vigente: la prueba no depende de cuántas semanas lleva registradas.
+  const v = structuredClone(d.diabetes_t2);
+  v.weeks_available = 0;
+  for (const s of Object.values(v.series)) {
+    s.oos = { semanas: 0, smape: null, mae: null, sesgo_pct: null, observado_total: null, pronostico_total: null };
+  }
   assert.equal(oc.graficaObesidad(v, 'ranking', {}, { tipo: 'ranking' }), null);
   assert.equal(oc.graficaObesidad(v, 'calibracion', {}, { tipo: 'calibracion' }), null);
   assert.equal(oc.graficaObesidad(v, 'mapa de error', {}, { tipo: 'mapa' }), null);

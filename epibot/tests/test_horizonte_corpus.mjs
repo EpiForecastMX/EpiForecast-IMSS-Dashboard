@@ -2,7 +2,9 @@
 // tarjeta nacional de un release nombra ambos extremos del horizonte y aclara qué es el corte.
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import * as fs from 'fs';
 import { readFileSync } from 'fs';
+import { tmpdir } from 'os';
 import { resolve } from 'path';
 
 import { buildChunks } from '../scripts/lib/corpus.mjs';
@@ -33,4 +35,28 @@ test('el horizonte de 52 semanas cruza el año con el calendario MMWR', () => {
 test('el prompt distingue el corte de datos del inicio del pronóstico', () => {
   const rag = readFileSync(resolve(ROOT, 'epibot', 'netlify', 'functions', 'rag.mjs'), 'utf-8');
   assert.match(rag, /«datos hasta» o «corte» es la última semana observada, NO el inicio del pronóstico/);
+});
+
+test('un control conserva su explicación cuando ya hay semanas observadas', () => {
+  // Ensayo del paso semanal (9-nov-2026): con 1/4 la tarjeta nacional de un control perdía el aviso.
+  const { cpSync, mkdtempSync, rmSync, writeFileSync } = fs;
+  const tmp = mkdtempSync(resolve(tmpdir(), 'control-oos-'));
+  try {
+    cpSync(resolve(ROOT, 'publication'), resolve(tmp, 'publication'), { recursive: true });
+    cpSync(resolve(ROOT, 'Reports', 'publication'), resolve(tmp, 'Reports', 'publication'), { recursive: true });
+    const ruta = resolve(tmp, 'publication', 'cancer_rinon_c64', 'vista.json');
+    const v = JSON.parse(readFileSync(ruta, 'utf-8'));
+    v.series['nacional|mx|general'].oos = {
+      semanas: 1, smape: 7.4, mae: 4, sesgo_pct: -7.1, observado_total: 56, pronostico_total: 52,
+    };
+    writeFileSync(ruta, JSON.stringify(v));
+    const pointers = JSON.parse(readFileSync(resolve(tmp, 'publication', 'pointers.json'), 'utf-8')).pointers;
+    const { chunks } = buildChunks({ publicationRoot: tmp, publicationMode: 'public', publicationPointers: pointers });
+    const c = chunks.find((x) => x.id.startsWith('release:cancer_rinon_c64:') && x.id.endsWith(':nacional'));
+    assert.match(c.text, /en 1 semanas ya observadas/);
+    assert.match(c.text, /Es el control estacional/);
+    assert.match(c.text, /No debe presentarse como validado/);
+  } finally {
+    rmSync(tmp, { recursive: true, force: true });
+  }
 });
