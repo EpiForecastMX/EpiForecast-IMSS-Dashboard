@@ -1,14 +1,20 @@
 """Build history shards and national CSV from extracted bulletins and OCR.
 Run after boletin_history_extract.py and boletin_history_headers.py.
 BOLETIN_WORK_DIR selects private input/cache; BOLETIN_FRONTEND defaults to cwd.
+--anio/--semana close the period index (default: the current snapshot in actual.json);
+each table lag comes from that snapshot. --comprobado (or BOLETIN_CHECKED_DATE) sets the
+index date, today by default.
 This offline preparation never changes raw PDFs or sealed model artifacts.
 """
-import json,re,unicodedata,csv,hashlib,os
+import json,re,unicodedata,csv,hashlib,os,argparse
 import boletin_history_extract as extractor
+import boletin_foto_actual
 from pathlib import Path
 from datetime import date,timedelta
 B=Path(os.environ.get('BOLETIN_WORK_DIR','tmp/boletin-history'));F=Path(os.environ.get('BOLETIN_FRONTEND','.'));OUT=F/'assets/boletin/history';OUT.mkdir(parents=True,exist_ok=True)
-cat=json.loads((F/'assets/boletin/2026-w42/data.json').read_text())['diseases'];byid={d['id']:d for d in cat}
+FOTO=boletin_foto_actual.catalogo(F);cat=FOTO['diseases'];byid={d['id']:d for d in cat}
+ap=argparse.ArgumentParser(description=__doc__);ap.add_argument('--anio',type=int,default=FOTO['meta']['year']);ap.add_argument('--semana',type=int,default=FOTO['meta']['week']);ap.add_argument('--comprobado',default=os.environ.get('BOLETIN_CHECKED_DATE',date.today().isoformat()));ARGS=ap.parse_args()
+FIRST_YEAR=2025  # audited modern layouts; earlier years come from boletin_archive_build.py
 raw=json.loads((B/'extraction.json').read_text());ocr=json.loads((B/'headers-ocr.json').read_text())
 # Sarampión is absent from some state layouts but still reported in the immediate national table.
 for source_record in raw:
@@ -48,7 +54,7 @@ for si,x in enumerate(raw):
   ident=r['id'];d=byid[ident]
   if ident in seen:issues.append(dict(kind='duplicate_identity',source=si,id=ident));continue
   seen.add(ident)
-  lag=0 if ident.startswith('national-') else 42-d['observed_week']
+  lag=boletin_foto_actual.rezago(FOTO['meta'],d)
   oy,ow=target(src['year'],src['week'],lag)
   ht=headers.get(r['page'],{}).get('text','');ht=ht if 'hasta' in ht.lower() else ocr.get(src['filename'].replace('.pdf','')+f"_p{r['page']}",ht)
   flags=[]
@@ -74,7 +80,7 @@ for si,x in enumerate(raw):
   point=dict(y=oy,w=ow,s=si,p=r['page'],n=[None if 'source_cut_conflict' in flags else v[0],None if any(f in flags for f in ['accumulated_year_conflict','source_cut_conflict']) else c],prev=prev,e=e if r['states'] else None,flags=flags)
   if 'source_cut_conflict' in flags:point['source_header']=ht
   if flags:point['reported_weekly']=v[0];point['reported_year']=r['observed_year'];point['reported_cumulative']=c
-  if (oy>=2025):series[ident].append(point)
+  if (oy>=FIRST_YEAR):series[ident].append(point)
   if norm(r['name'])!=norm(d['name']) or norm(r['code'])!=norm(d['code']):aliases.append(dict(id=ident,source=si,page=r['page'],source_name=r['name'],source_code=r['code'],matched=r['matched']))
 # A future parsing/identity/cut failure must not silently become a published gap.
 parsing_errors=[dict(filename=x['source']['filename'],**e) for x in raw for e in x['issues'] if e['kind']!='reconciliation']
@@ -90,10 +96,11 @@ for k,ps in series.items():
  if len(keys)!=len(set(keys)):issues.append(dict(kind='duplicate_period',id=k))
  payload={'schema':'boletin_history_series.v1','id':k,'points':ps}
  (OUT/(k+'.json')).write_text(json.dumps(payload,ensure_ascii=False,separators=(',',':'))+'\n')
-index={'schema':'boletin_history.v1','checked':'2026-11-07','source_count':len(sources),'source_years':{str(y):sum(s['year']==y for s in sources) for y in [2025,2026]},'states':state_names,'sources':sources,'periods':[dict(y=y,w=w,start=(first(y)+timedelta(weeks=w-1)).isoformat()) for y in [2025,2026] for w in range(1,54 if y==2025 else 43)],'series':{k:{'path':f'/assets/boletin/history/{k}.json','points':len(ps),'state_points':sum(p['e'] is not None for p in ps),'flagged_points':sum(bool(p['flags']) for p in ps)} for k,ps in series.items()},'source_issues':[{**{k:v for k,v in e.items() if k not in ['message']},'source':i} for i,x in enumerate(raw) for e in x['issues']]}
+years=range(FIRST_YEAR,ARGS.anio+1)
+index={'schema':'boletin_history.v1','checked':ARGS.comprobado,'source_count':len(sources),'source_years':{str(y):sum(s['year']==y for s in sources) for y in years},'states':state_names,'sources':sources,'periods':[dict(y=y,w=w,start=(first(y)+timedelta(weeks=w-1)).isoformat()) for y in years for w in range(1,(ARGS.semana if y==ARGS.anio else boletin_foto_actual.semanas_en(y))+1)],'series':{k:{'path':f'/assets/boletin/history/{k}.json','points':len(ps),'state_points':sum(p['e'] is not None for p in ps),'flagged_points':sum(bool(p['flags']) for p in ps)} for k,ps in series.items()},'source_issues':[{**{k:v for k,v in e.items() if k not in ['message']},'source':i} for i,x in enumerate(raw) for e in x['issues']]}
 (OUT/'index.json').write_text(json.dumps(index,ensure_ascii=False,separators=(',',':'))+'\n');(OUT/'identities.json').write_text(json.dumps(aliases,ensure_ascii=False,separators=(',',':'))+'\n')
 (B/'cut-issues.json').write_text(json.dumps(issues,ensure_ascii=False,indent=2))
-with (OUT/'nacional-2025-2026.csv').open('w',newline='',encoding='utf-8-sig') as f:
+with (OUT/f'nacional-{FIRST_YEAR}-{ARGS.anio}.csv').open('w',newline='',encoding='utf-8-sig') as f:
  writer=csv.writer(f,lineterminator='\n');writer.writerow(['padecimiento','CIE_corte_actual','anio_observado','semana_observada','casos_semanales','acumulado_observado','boletin_anio','boletin_semana','pagina','fuente','avisos'])
  for ident,ps in series.items():
   for p in ps:
