@@ -4,7 +4,7 @@
  * Port directo de knowledge_base.py: _norm(), _detect_entities(),
  * alias maps para estados, padecimientos, sexo y modelos.
  */
-import { ALIAS_RELEASES, canonClinico, diabetesEnConsulta, mencionaNoModelada, nombraAlias, noModeladas } from './release_config.js?v=13';
+import { ALIAS_RELEASES, canonClinico, diabetesEnConsulta, mencionaNoModelada, nombraAlias, noModeladas } from './release_config.js?v=14';
 
 // ---------------------------------------------------------------------------
 // Normalizacion

@@ -28,6 +28,11 @@
   <url><loc>https://epiforecast.mx/cancer_encefalo_c70.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://epiforecast.mx/cancer_cuerpo_utero_c54.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://epiforecast.mx/cancer_ovario_c56.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://epiforecast.mx/cancer_rinon_c64.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://epiforecast.mx/cancer_prostata_c61.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://epiforecast.mx/cancer_huesos_c40.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://epiforecast.mx/cancer_higado_c22.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://epiforecast.mx/cancer_esofago_c15.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://epiforecast.mx/rechazados.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
   <url><loc>https://epiforecast.mx/diabetes_t1.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://epiforecast.mx/diabetes_t2.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
