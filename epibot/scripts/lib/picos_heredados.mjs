@@ -3,7 +3,8 @@
  *
  * Un boletín puede imprimir, para una entidad, una semana aislada muy por encima de lo habitual
  * (Morelos, linfoma de Hodgkin, 2025-W43: 213 casos frente a 7 y 2 en las semanas vecinas). Los
- * motores estacionales repiten o promedian la misma semana de años anteriores, así que el pronóstico
+ * motores estacionales lo arrastran (el ingenuo estacional repite lo observado 52 semanas antes; las
+ * medias estacionales promedian la misma semana epidemiológica de años anteriores), así que el pronóstico
  * publicado hereda ese pico y el total nacional de esa semana lo arrastra. El dato es fiel a la fuente
  * y su causa no está establecida: no se corrige ni se califica de errata, se contextualiza.
  *
@@ -64,8 +65,14 @@ export function picosHeredados(v) {
       const heredado = pron.get(dsPron);
       if (!aislado || heredado === undefined || heredado < UMBRALES.herencia * Math.max(med, 1)) return;
       const nacional = pronNac.get(dsPron);
+      // Motores de las series base de la entidad (por sexo, o la general si no hay desglose): la
+      // explicación del arrastre depende del motor (cuarta auditoría, B3).
+      const bases = Object.values(v.series).filter(
+        (b) => b.nivel === 'estado' && b.id === s.id && b.motor !== 'portfolio',
+      );
       out.push({
         estado: s.nombre,
+        motores: [...new Set(bases.map((b) => b.motor))].sort(),
         semanaObservada: semanaDe(ds),
         observado: y,
         previa,
@@ -83,14 +90,39 @@ export function picosHeredados(v) {
   return out;
 }
 
+const ANIOS = { 2: 'dos', 3: 'tres', 4: 'cuatro', 5: 'cinco' };
+
+/** Cómo arrastra el motor la semana observada hasta la pronosticada (cuarta auditoría, B3). */
+export function arrastre(p) {
+  const [aObs, sObs] = p.semanaObservada;
+  const [, sPron] = p.semanaPronosticada;
+  const m = p.motores || [];
+  if (m.length === 1 && m[0] === 'seasonal_naive_lag52') {
+    // El ingenuo estacional desplaza 52 semanas (364 días): tras un año MMWR de 53 semanas, el número
+    // de semana baja uno (2025-W43 cae en 2026-W42).
+    const corrido = sPron !== sObs
+      ? ` (${aObs} tuvo 53 semanas epidemiológicas, por eso ${etiquetaSemana(p.semanaObservada)} cae en ` +
+        `${etiquetaSemana(p.semanaPronosticada)})`
+      : '';
+    return `El motor de esa serie, el ingenuo estacional, repite lo observado 52 semanas antes${corrido}`;
+  }
+  const media = m.length === 1 && /^seasonal_(mean|median)_(\d)y$/.exec(m[0]);
+  if (media) {
+    const tipo = media[1] === 'mean' ? 'La media' : 'La mediana';
+    const anios = ANIOS[media[2]] || media[2];
+    return `${tipo} estacional de ${anios} años, el motor de esa serie, ` +
+      `${media[1] === 'mean' ? 'promedia' : 'toma la mediana de'} la misma semana epidemiológica de años anteriores`;
+  }
+  return 'Los motores de esa serie repiten o promedian semanas de años anteriores';
+}
+
 /** Texto llano del pico, para el corpus y para la nota de la página. */
 export function textoPico(p) {
-  const repite = p.pronosticado === p.observado ? 'repiten' : 'promedian';
   return (
     `En la semana epidemiológica ${etiquetaSemana(p.semanaObservada)} el boletín imprimió ` +
     `${num(p.observado)} casos de ${p.estado}, frente a ${num(p.previa)} y ${num(p.siguiente)} en las ` +
-    `semanas vecinas (mediana semanal de la entidad: ${num(p.medianaEstado)}). Los motores estacionales ` +
-    `${repite} la misma semana de años anteriores, así que el pronóstico de ` +
+    `semanas vecinas (mediana semanal de la entidad: ${num(p.medianaEstado)}). ${arrastre(p)}, ` +
+    `así que el pronóstico de ` +
     `${etiquetaSemana(p.semanaPronosticada)} trae ${num(p.pronosticado)} casos de ${p.estado}: ` +
     `${num(p.participacion)} % de los ${num(p.nacional)} nacionales de esa semana, ` +
     `${num(p.veces)} veces la mediana semanal del horizonte nacional (${num(p.medianaNacional)}). ` +

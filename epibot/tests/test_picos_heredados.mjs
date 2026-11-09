@@ -6,7 +6,7 @@ import { readFileSync } from 'fs';
 import { resolve } from 'path';
 
 import { buildChunks } from '../scripts/lib/corpus.mjs';
-import { htmlPico, picosHeredados, semanaDe } from '../scripts/lib/picos_heredados.mjs';
+import { arrastre, htmlPico, picosHeredados, semanaDe } from '../scripts/lib/picos_heredados.mjs';
 import { paginaEsperada, revisa } from '../scripts/picos_heredados.mjs';
 
 const ROOT = resolve(import.meta.dirname, '..', '..');
@@ -89,4 +89,18 @@ test('el corpus contextualiza el pico en las tarjetas nacional y estatal', () =>
   }
   assert.match(de('cerebrovascular_i60', 'nacional').text, /1,150 casos de Hidalgo/);
   assert.doesNotMatch(de('obesidad', 'nacional').text, /Pico heredado/);
+});
+
+test('la explicación del arrastre sale del motor de la serie (cuarta auditoría, B3)', () => {
+  const [h] = picosHeredados(vista('linfoma_hodgkin_c81'));
+  assert.deepEqual(h.motores, ['seasonal_naive_lag52']);
+  assert.match(arrastre(h), /repite lo observado 52 semanas antes \(2025 tuvo 53 semanas epidemiológicas, por eso 2025-W43 cae en 2026-W42\)/);
+  const [pa] = picosHeredados(vista('cancer_pancreas_c26'));
+  assert.deepEqual(pa.motores, ['seasonal_mean_2y']);
+  assert.match(arrastre(pa), /^La media estacional de dos años, el motor de esa serie, promedia la misma semana epidemiológica/);
+  const [pu] = picosHeredados(vista('cancer_pulmon_c33'));
+  assert.doesNotMatch(arrastre(pu), /53 semanas/, 'sin año de 53 semanas no hay corrimiento');
+  assert.match(arrastre({ ...h, motores: ['seasonal_mean_2y', 'seasonal_naive_lag52'] }), /repiten o promedian/);
+  const hodgkin = readFileSync(resolve(ROOT, 'linfoma_hodgkin_c81.html'), 'utf-8');
+  assert.doesNotMatch(hodgkin, /misma semana de años anteriores/);
 });
