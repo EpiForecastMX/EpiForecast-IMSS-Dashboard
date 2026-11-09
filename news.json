@@ -5,6 +5,24 @@
             "date": "8 de noviembre de 2026",
             "iso": "2026-11-08",
             "type": "radar",
+            "tag": "Corrección de datos",
+            "featured": true,
+            "title": "Nueve tipos de cáncer se reevalúan con los datos corregidos de 2026",
+            "summary": "Una auditoría encontró semanas de 2026 en las que la lectura del boletín perdía estados. Con los datos completos se repitió la prueba y ningún resultado cambió.",
+            "body": [
+                "Una auditoría independiente encontró que la lectura automática de los Cuadros 15.3 a 15.5 del boletín perdía renglones de algunos estados en cuatro boletines (semanas 23 de 2024, 11 de 2025 y 9 y 20 de 2026), y que esos huecos se habían rellenado por imputación. El boletín sí trae los datos.",
+                "Se corrigió la lectura, se comprobó que cada página recuperada cuadra con el total impreso y se repitió la evaluación de los nueve tumores afectados (tráquea, bronquios y pulmón, estómago, colon y recto, hígado, esófago, páncreas, leucemias y los dos linfomas) con los mismos criterios.",
+                "Ningún resultado cambió: siete siguen superando la prueba de las semanas 1 a 41 de 2026 y el hígado y el esófago siguen publicados con el control estacional, nunca como validados. Los pronósticos se volvieron a emitir con los datos corregidos y su validación prospectiva empieza de nuevo (0 de 4 semanas)."
+            ],
+            "link": {
+                "href": "cancer_colon_c18.html",
+                "text": "Ver el pronóstico de tumor maligno del colon y recto"
+            }
+        },
+        {
+            "date": "8 de noviembre de 2026",
+            "iso": "2026-11-08",
+            "type": "radar",
             "tag": "Control estacional",
             "featured": true,
             "title": "Cinco tipos de cáncer se publican con el control estacional",
