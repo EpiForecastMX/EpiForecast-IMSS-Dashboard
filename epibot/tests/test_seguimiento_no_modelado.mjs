@@ -1,7 +1,7 @@
 /**
  * Seguimiento tras una respuesta de padecimiento NO modelado.
  *
- * Regresión (5-nov-2026, hallada al evaluar el skill de padecimientos): «asma en jalisco
+ * Regresión (5-nov-2026, hallada al evaluar el skill de padecimientos): «epilepsia en jalisco
  * mujeres» → «y hombres?» heredaba Jalisco y hombres sin padecimiento y respondía answerEstado con
  * la tabla neuro del estado (Depresión, Alzheimer, Parkinson), con su gráfica.
  */
@@ -40,40 +40,40 @@ async function conversa(...qs) {
 
 const NEURO_TABLA = /casos totales|Se pronostican/;
 
-test('«y hombres?» tras «asma en jalisco mujeres» sigue diciendo que no se modela', async () => {
-  const r = await conversa('asma en jalisco mujeres', 'y hombres?');
+test('«y hombres?» tras «epilepsia en jalisco mujeres» sigue diciendo que no se modela', async () => {
+  const r = await conversa('epilepsia en jalisco mujeres', 'y hombres?');
   assert.equal(r.handler, 'answerPadecimientoNoModelado');
-  assert.match(r.md, /no modela asma/);
+  assert.match(r.md, /no modela epilepsia/);
   assert.doesNotMatch(r.md, NEURO_TABLA);
 });
 
 test('el seguimiento no dibuja la gráfica neuro del estado', async () => {
-  const r = await conversa('asma en jalisco mujeres', 'y hombres?');
+  const r = await conversa('epilepsia en jalisco mujeres', 'y hombres?');
   assert.equal(extract(r.md, r.q), null);
 });
 
-test('«y en sonora?» tras asma tampoco cae en la tabla neuro de Sonora', async () => {
-  const r = await conversa('casos de asma en jalisco', 'y en sonora?');
-  assert.match(r.md, /no modela asma/);
+test('«y en sonora?» tras epilepsia tampoco cae en la tabla neuro de Sonora', async () => {
+  const r = await conversa('casos de epilepsia en jalisco', 'y en sonora?');
+  assert.match(r.md, /no modela epilepsia/);
   assert.doesNotMatch(r.md, NEURO_TABLA);
 });
 
 test('nombrar un padecimiento modelado en el seguimiento sí lo responde, con el estado heredado', async () => {
-  const dep = await conversa('asma en jalisco', 'y depresion?');
+  const dep = await conversa('epilepsia en jalisco', 'y depresion?');
   assert.match(dep.md, /Depresi[oó]n en Jalisco/);
-  const obe = await conversa('asma en jalisco', 'y obesidad?');
+  const obe = await conversa('epilepsia en jalisco', 'y obesidad?');
   assert.equal(obe.handler, 'answerObesidad');
   assert.match(obe.md, /Obesidad \(E66\) · Jalisco/);
 });
 
 test('el recuerdo del no modelado se borra con la siguiente respuesta modelada', async () => {
-  const r = await conversa('asma en jalisco', 'casos de depresion en sonora', 'y hombres?');
+  const r = await conversa('epilepsia en jalisco', 'casos de depresion en sonora', 'y hombres?');
   assert.doesNotMatch(r.md, /no modela/);
   assert.match(r.md, /Sonora/);
 });
 
 test('la respuesta de no modelado no dibuja gráfica ni en la primera consulta', async () => {
-  const r = await conversa('asma en jalisco mujeres');
+  const r = await conversa('epilepsia en jalisco mujeres');
   assert.match(r.md, /<!--SIN_GRAFICA-->/);
   assert.equal(extract(r.md, r.q), null);
 });

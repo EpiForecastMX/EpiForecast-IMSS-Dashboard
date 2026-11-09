@@ -58,8 +58,8 @@ test('«y obesidad?» tras una consulta de Jalisco hereda el estado («obesidad�
 });
 
 test('un no modelado en el follow-up sigue sin heredar contexto', async () => {
-  const r = await sigue('casos de depresion en jalisco', 'y asma?');
-  assert.match(r.md, /no modela asma/);
+  const r = await sigue('casos de depresion en jalisco', 'y epilepsia?');
+  assert.match(r.md, /no modela epilepsia/);
 });
 
 // ── rag.mjs: detectEntities + focusedFacts reales, sin red ─────────────────────────────────
@@ -95,5 +95,5 @@ test('rag.mjs sigue dando los datos exactos neuro cuando se piden', () => {
 test('rag.mjs usa la lista de no modelados del catálogo, sin copia propia', () => {
   assert.doesNotMatch(RAG, /const NO_MODELADAS = \[/);
   assert.match(RAG, /EPI_CATALOGO\.mencionaNoModelada\(qn\)/);
-  assert.ok(ENFERMEDADES_NO_MODELADAS.includes('asma'));
+  assert.ok(ENFERMEDADES_NO_MODELADAS.includes('epilepsia'));
 });

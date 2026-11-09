@@ -35,7 +35,8 @@ test('la noticia distingue siete validaciones prospectivas de dos controles sin 
   assert.match(cuerpo, /Los siete aceptados empiezan de nuevo su validación prospectiva/);
   assert.match(cuerpo, /los dos controles no tienen validación prospectiva/);
   assert.match(n.summary, /siete aceptados y dos con el control estacional/);
-  assert.match(leer('index.html'), /siete aceptados y dos con el control estacional/);
+  // La nota ya no encabeza el banner: la portada conserva su título en la lista secundaria.
+  assert.match(leer('index.html'), /Nueve tipos de cáncer se reevalúan con los datos corregidos de 2026/);
 });
 
 test('cada página reevaluada explica la sustitución del release y su carácter retrospectivo', () => {

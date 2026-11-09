@@ -12,7 +12,7 @@ const leer = (r) => readFileSync(new URL(`../../${r}`, import.meta.url), 'utf-8'
 const K = readFileSync(new URL('../knowledge.json', import.meta.url), 'utf-8');
 const VISTAS = ['obesidad', 'anorexia_f50', 'diabetes_t1', 'diabetes_t2', 'hipertension_i10',
   'isquemica_i20', 'cerebrovascular_i60', 'intestinales_a04', 'ira_j00', 'ivu_n39', 'gingivitis_k05',
-  'ulceras_k25', 'cancer_mama_c50', 'cancer_cuello_utero_c53', 'cancer_pulmon_c33', 'cancer_estomago_c16', 'cancer_colon_c18', 'linfoma_hodgkin_c81', 'linfoma_no_hodgkin_c82', 'leucemia_c91', 'cancer_pancreas_c26', 'cancer_encefalo_c70', 'cancer_cuerpo_utero_c54', 'cancer_ovario_c56', 'cancer_rinon_c64', 'cancer_prostata_c61', 'cancer_huesos_c40', 'cancer_higado_c22', 'cancer_esofago_c15'];
+  'asma_j45', 'ulceras_k25', 'cancer_mama_c50', 'cancer_cuello_utero_c53', 'cancer_pulmon_c33', 'cancer_estomago_c16', 'cancer_colon_c18', 'linfoma_hodgkin_c81', 'linfoma_no_hodgkin_c82', 'leucemia_c91', 'cancer_pancreas_c26', 'cancer_encefalo_c70', 'cancer_cuerpo_utero_c54', 'cancer_ovario_c56', 'cancer_rinon_c64', 'cancer_prostata_c61', 'cancer_huesos_c40', 'cancer_higado_c22', 'cancer_esofago_c15'];
 globalThis.fetch = async (u) => ({
   ok: true,
   json: async () => {
@@ -59,7 +59,7 @@ test('gestacional, insípida y prediabetes siguen sin modelarse', async () => {
   const r = await conversa('casos de diabetes gestacional en jalisco');
   assert.equal(r.handler, 'answerPadecimientoNoModelado');
   assert.match(r.md, /no modela/);
-  assert.match(r.md, /treinta y tres padecimientos/);
+  assert.match(r.md, /treinta y cuatro padecimientos/);
 });
 
 test('«diabetes» a secas avisa que se toma como tipo II', async () => {
@@ -204,8 +204,8 @@ test('en inglés responde el padecimiento pedido o pide precisión', async () =>
   assert.match(o.md, /Obesidad \(E66\) · Jalisco · Mujeres/);
   const t = await conversa('diabetes type 1 in jalisco women');
   assert.match(t.md, /Diabetes tipo I \(E10\) · Jalisco · Mujeres/);
-  const a = await conversa('asthma in jalisco women');
-  assert.match(a.md, /no modela asthma/);
+  const a = await conversa('epilepsy in jalisco women');
+  assert.match(a.md, /no modela epilepsy/);
   const x = await conversa('rare syndrome in jalisco women');
   assert.equal(x.handler, 'answerConsultaEnInglesSinPadecimiento');
   assert.match(x.md, /No identifiqué el padecimiento/);
@@ -251,7 +251,7 @@ test('Covid-19 sigue sin modelarse y remite a la evidencia del rechazo', async (
   assert.equal(r.handler, 'answerPadecimientoNoModelado');
   assert.match(r.md, /no modela/);
   assert.match(r.md, /rechazados\.html/);
-  const otra = await conversa('asma en jalisco');
+  const otra = await conversa('epilepsia en jalisco');
   assert.doesNotMatch(otra.md, /rechazados\.html/);
 });
 
@@ -299,6 +299,37 @@ test('los tres del radar del boletín 42 responden su release', async () => {
   }
   const dos = await conversa('gastritis en jalisco', 'y hombres');
   assert.match(dos.md, /Úlceras, gastritis y duodenitis .* · Jalisco · Hombres/);
+});
+
+test('asma responde su release, en español e inglés, y dice la cronología de la W42', async () => {
+  const casos = [
+    ['asma en jalisco mujeres', /Asma \(J45, J46\) · Jalisco · Mujeres/],
+    ['crisis asmatica en sonora', /Asma \(J45, J46\) · Sonora/],
+    ['asthma in jalisco women', /Asma \(J45, J46\) · Jalisco · Mujeres/],
+    ['casos de j45 en nuevo leon hombres', /Asma \(J45, J46\) · Nuevo León · Hombres/],
+    ['azma en jalisco', /Asma \(J45, J46\) · Jalisco/],
+  ];
+  for (const [q, texto] of casos) {
+    const r = await conversa(q);
+    assert.match(r.md, texto, q);
+    assert.match(r.md, /ASMA_J45/, q);
+    assert.match(r.md, /Validación prospectiva en curso/, q);
+    assert.match(r.md, /boletín 43, que trae la semana 2026-W42, se publicó el 9 de noviembre/, q);
+    assert.match(r.md, /no cuenta como prospectiva respecto de la información/, q);
+    assert.doesNotMatch(r.md, /no modela/, q);
+  }
+  const dos = await conversa('asma en jalisco', 'y hombres');
+  assert.match(dos.md, /Asma \(J45, J46\) · Jalisco · Hombres/);
+  // Los vecinos respiratorios siguen sin modelarse, solos o junto al asma, y «fantasma» no es asma.
+  for (const q of ['bronquitis en jalisco', 'enfisema en sonora', 'neumonia en jalisco', 'comparar asma con bronquitis']) {
+    const r = await conversa(q);
+    assert.equal(r.handler, 'answerPadecimientoNoModelado', q);
+    assert.doesNotMatch(r.md, MARCADOR_RELEASE, q);
+  }
+  assert.equal(detectEntities('un fantasma en jalisco').padecimiento ?? null, null);
+  assert.equal(mencionaNoModelada(norm('asma en jalisco')), null);
+  // Otros releases no cargan la nota de Asma.
+  assert.doesNotMatch((await conversa('gastritis en jalisco')).md, /boletín 43/);
 });
 
 test('IRA y gingivitis responden su control, nunca como validados', async () => {

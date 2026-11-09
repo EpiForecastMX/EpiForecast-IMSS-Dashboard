@@ -32,6 +32,17 @@ test('el horizonte de 52 semanas cruza el año con el calendario MMWR', () => {
   assert.match(c.text, /van de 2026-W42 \(semana del 19 de octubre de 2026\) a 2027-W41 \(semana del 11 de octubre de 2027\)/);
 });
 
+test('la cronología declarada en el catálogo va en cada fragmento generado de ese release y sólo en él', () => {
+  const { chunks } = buildChunks({});
+  const NOTA = /boletín 43, que trae la semana 2026-W42, se publicó el 9 de noviembre de 2026.*no cuenta como prospectiva respecto de la información/;
+  const asma = chunks.filter((x) => /^release:asma_j45:[^:]+:(nacional|estados|motores)$/.test(x.id));
+  assert.equal(asma.length, 3);
+  for (const c of asma) assert.match(c.text, NOTA, c.id);
+  for (const c of chunks.filter((x) => x.id.startsWith('release:') && !x.id.startsWith('release:asma_j45:'))) {
+    assert.doesNotMatch(c.text, /boletín 43, que trae/, c.id);
+  }
+});
+
 test('el prompt distingue el corte de datos del inicio del pronóstico', () => {
   const rag = readFileSync(resolve(ROOT, 'epibot', 'netlify', 'functions', 'rag.mjs'), 'utf-8');
   assert.match(rag, /«datos hasta» o «corte» es la última semana observada, NO el inicio del pronóstico/);

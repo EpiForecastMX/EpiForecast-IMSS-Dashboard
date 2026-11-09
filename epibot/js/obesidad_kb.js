@@ -10,12 +10,12 @@
  * follow-ups («¿y hombres?») y en consultas corregidas por typo, donde la consulta cruda ya no
  * nombra a Obesidad.
  */
-import { mencionaNoModelada } from './entities.js?v=49';
+import { mencionaNoModelada } from './entities.js?v=50';
 import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
-} from './obesidad_charts.js?v=17';
-import { releaseConAlias, releaseDePad } from './release_config.js?v=15';
+} from './obesidad_charts.js?v=18';
+import { releaseConAlias, releaseDePad } from './release_config.js?v=16';
 
 const any = (q, ks) => ks.some((k) => q.includes(k));
 const semana = ([a, w]) => `${a}-W${String(w).padStart(2, '0')}`;
@@ -40,6 +40,8 @@ function ficha(v, x, encabezado, r) {
     '',
     `Pronóstico **congelado**: datos hasta ${semana(v.origin)}, ${emisionTxt(v)}, ${v.horizon_weeks} semanas, sin reentrenar; motor: ${motorDe(v, x)}.`,
     '',
+    // Lo que acota la afirmación prospectiva de este release (p. ej. un boletín ya público al emitir).
+    ...(r.cronologia ? [r.cronologia, ''] : []),
   ];
   if (!x.oos.semanas) return [...inicio, enCurso(v)];
   return [
@@ -160,7 +162,7 @@ function answerRelease(q, ent, s, d, r) {
   }
 
   if (!conOos && (['ranking', 'calibracion', 'volumen_error'].includes(tipo) || (tipo === 'mapa' && pideError))) {
-    return fin([`**${r.etiqueta}: aún no hay desempeño que mostrar.**`, '', enCurso(v), '',
+    return fin([`**${r.etiqueta}: aún no hay desempeño que mostrar.**`, '', enCurso(v), '', ...(r.cronologia ? [r.cronologia, ''] : []),
       `Sí puedes pedir ${alternativas(r, false)}.`, '', etiqueta]);
   }
 
