@@ -361,6 +361,36 @@ test('los cánceres de historia corta responden su release y los rechazados sigu
   assert.doesNotMatch(motores.md, /2021 a 2024/);
 });
 
+test('el aviso de control dice el año y el ámbito reales del rechazo', async () => {
+  const casos = [
+    ['cancer de rinon en jalisco', /prueba de 2026/, /series por estado y sexo/],
+    ['cancer de prostata en jalisco', /prueba de 2026/, /total nacional/],
+    ['cancer de esofago en jalisco', /prueba de 2026/, /conjunto de las series publicadas/],
+    ['enfermedad isquemica en jalisco', /prueba de 2025/, /series por estado y sexo/],
+  ];
+  for (const [q, anio, ambito] of casos) {
+    const r = await conversa(q);
+    assert.match(r.md, anio, q);
+    assert.match(r.md, ambito, q);
+  }
+  assert.doesNotMatch((await conversa('cancer de rinon en jalisco')).md, /2025/);
+});
+
+test('el corpus no atribuye sexo ni pliegues de 2021 a 2024 a quien no los tiene', async () => {
+  const { buildChunks } = await import('../scripts/lib/corpus.mjs');
+  const res = await buildChunks({});
+  const ch = Array.isArray(res) ? res : (res.chunks || Object.values(res).find(Array.isArray));
+  const texto = (id, k) => ch.find((x) => x.id.startsWith(`release:${id}:`) && x.id.endsWith(`:${k}`)).text;
+  for (const id of ['cancer_prostata_c61', 'cancer_ovario_c56', 'cancer_cuerpo_utero_c54', 'cancer_cuello_utero_c53']) {
+    assert.match(texto(id, 'nacional'), /el boletín no desglosa sexo/, id);
+    assert.doesNotMatch(texto(id, 'nacional'), /uno por estado y sexo/, id);
+  }
+  assert.match(texto('cancer_pulmon_c33', 'motores'), /pliegue de 2025/);
+  assert.doesNotMatch(texto('cancer_pulmon_c33', 'motores'), /2021 a 2024/);
+  assert.match(texto('cancer_rinon_c64', 'nacional'), /prueba de 2026/);
+  assert.match(texto('obesidad', 'motores'), /pliegues de 2021 a 2024/);
+});
+
 test('rotavirus sigue sin modelarse', async () => {
   for (const q of ['gastroenteritis por rotavirus en jalisco', 'rotavirus en jalisco']) {
     const r = await conversa(q);

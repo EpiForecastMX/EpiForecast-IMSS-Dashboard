@@ -18,6 +18,14 @@ import { MODE_PUBLIC, porBytes, readCatalog, readInstalledRelease } from './inst
 // Un solo criterio para «métricas de selección retiradas» (W28–W37): el mismo helper que el bot.
 import { metricasRetiradas, avisoMetricas } from '../../js/kb.js';
 
+// Catálogo del EpiBot (IIFE que publica globalThis.EPI_CATALOGO): de él sale cómo se eligió el motor
+// de los releases de historia corta, que no usan los pliegues de 2021 a 2024.
+await import('../../js/release_catalog.js');
+function seleccionDe(id) {
+  const r = (globalThis.EPI_CATALOGO?.releases || []).find((x) => x.id === id);
+  return r?.seleccion || 'en pliegues de 2021 a 2024';
+}
+
 /** Frases de un texto libre que no citan una métrica de error (para notas clínicas con «SMAPE…»). */
 function sinFrasesDeMetrica(txt) {
   return String(txt).split(/(?<=\.)\s+/).filter(f => !/\b(s?mape|mase|rmse|mae)\b/i.test(f)).join(' ').trim();
@@ -492,6 +500,7 @@ const MOTOR_ES = {
   seasonal_median_3y: 'mediana estacional de 3 años',
   seasonal_mean_5y: 'media estacional de 5 años',
   seasonal_median_5y: 'mediana estacional de 5 años',
+  seasonal_mean_2y: 'media estacional de 2 años',
   portfolio: 'portafolio (suma de las series estatales)',
 };
 
@@ -523,12 +532,21 @@ function vistaChunks(root, r) {
     `(${v.horizon_weeks} semanas, sin reentrenar${nac.oos.semanas ? '; las semanas evaluadas se registraron después de la emisión' : ''}). ` +
     `${v.publication_label}. Lo observado llega hasta la semana epidemiológica ${semana(v.observation_cutoff)}.`;
   // Lo publicado es el control: ni se valida contra sí mismo ni salió de la selección.
-  const nacControl = v.caida_al_control?.comprobaciones.find((c) => c.ambito === 'smape_nacional_general');
-  const control = nacControl
-    ? `Es el control estacional: repite los casos de 52 semanas antes. El gate de aceptación de 2025 ` +
-      `rechazó el portafolio seleccionado porque empeoraba el nacional (sMAPE ${fmt(nacControl.portafolio)} ` +
-      `frente a ${fmt(nacControl.control)} del control). No debe presentarse como validado ni como aceptado; ` +
-      `no tiene validación prospectiva que superar. `
+  const sinSexo = !Object.keys(v.series || {}).some((k) => k.endsWith('|hombres'));
+  const caida = v.caida_al_control;
+  const AMBITOS = {
+    smape_bases: sinSexo ? 'las series por estado' : 'las series por estado y sexo',
+    smape_all: 'el conjunto de las series publicadas',
+    smape_nacional_general: 'el total nacional',
+  };
+  const fallas = (caida?.comprobaciones || []).filter((c) => !c.pasa)
+    .map((c) => `${AMBITOS[c.ambito] || c.ambito} (sMAPE ${fmt(c.portafolio)} frente a ${fmt(c.control)} del control)`);
+  const anioPrueba = String(caida?.fold || '').replace(/^test_/, '') || '2025';
+  const control = caida
+    ? `Es el control estacional: repite los casos de 52 semanas antes. El gate de aceptación de la prueba de ` +
+      `${anioPrueba} rechazó el portafolio seleccionado porque empeoraba ` +
+      `${fallas.length > 1 ? `${fallas.slice(0, -1).join(', ')} y ${fallas.at(-1)}` : fallas[0] || 'el criterio de aceptación'}. ` +
+      `No debe presentarse como validado ni como aceptado; no tiene validación prospectiva que superar. `
     : '';
   const chunks = [{
     ...base,
@@ -542,7 +560,7 @@ function vistaChunks(root, r) {
           `${fmt(nac.oos.observado_total, 0)} frente a ${fmt(nac.oos.pronostico_total, 0)} pronosticados). `
         : control || `la validación prospectiva está en curso (${v.weeks_available} de ${v.weeks_required} semanas): aún no hay semanas observadas tras el origen y no existe desempeño fuera de muestra. `) +
       `Total pronosticado para las 52 semanas: ` +
-      `${fmt(nac.pronostico_52_total, 0)} casos. ${v.models} modelos (uno por estado y sexo) y ` +
+      `${fmt(nac.pronostico_52_total, 0)} casos. ${v.models} modelos (${sinSexo ? 'uno por estado; el boletín no desglosa sexo' : 'uno por estado y sexo'}) y ` +
       `${v.products} productos derivados por suma. ${v.uncertainty_label}.`,
   }];
   const estados = Object.values(v.series)
@@ -576,9 +594,9 @@ function vistaChunks(root, r) {
     ...base,
     id: `release:${r.disease_id}:${r.release_id}:motores`,
     title: `${v.display_name} — motores del portafolio`,
-    text: nacControl
+    text: caida
       ? `${encabezado}\n\n${control}Motor publicado: ${motores.join('; ')}.`
-      : `${encabezado}\n\nMotores seleccionados por validación cruzada temporal (rolling-origin, pliegues de 2021 a 2024): ${motores.join('; ')}.`,
+      : `${encabezado}\n\nMotores seleccionados por validación cruzada temporal rolling-origin ${seleccionDe(r.disease_id)}: ${motores.join('; ')}.`,
   });
   return chunks;
 }

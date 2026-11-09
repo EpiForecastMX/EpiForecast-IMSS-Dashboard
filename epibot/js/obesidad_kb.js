@@ -10,12 +10,12 @@
  * follow-ups («¿y hombres?») y en consultas corregidas por typo, donde la consulta cruda ya no
  * nombra a Obesidad.
  */
-import { mencionaNoModelada } from './entities.js?v=48';
+import { mencionaNoModelada } from './entities.js?v=49';
 import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
-} from './obesidad_charts.js?v=16';
-import { releaseConAlias, releaseDePad } from './release_config.js?v=14';
+} from './obesidad_charts.js?v=17';
+import { releaseConAlias, releaseDePad } from './release_config.js?v=15';
 
 const any = (q, ks) => ks.some((k) => q.includes(k));
 const semana = ([a, w]) => `${a}-W${String(w).padStart(2, '0')}`;
@@ -57,8 +57,28 @@ function ficha(v, x, encabezado, r) {
  * que las toma del veredicto sellado; decirlo como validación sería falso.
  */
 function avisoControl(v) {
-  const nac = v.caida_al_control.comprobaciones.find((c) => c.ambito === 'smape_nacional_general');
-  return `**Es el control estacional:** cada semana repite los casos de 52 semanas antes. El portafolio seleccionado se rechazó en 2025 porque empeoraba el total nacional (sMAPE ${num1(nac.portafolio)} frente a ${num1(nac.control)} del control), así que no hay una validación prospectiva que superar: sólo se registrará su error con cada boletín.`;
+  const r = rechazoDe(v);
+  return `**Es el control estacional:** cada semana repite los casos de 52 semanas antes. El portafolio seleccionado se rechazó en la prueba de ${r.anio} porque empeoraba ${r.ambitos}, así que no hay una validación prospectiva que superar: sólo se registrará su error con cada boletín.`;
+}
+
+const AMBITO = {
+  smape_bases: (sinSexo) => (sinSexo ? 'las series por estado' : 'las series por estado y sexo'),
+  smape_all: () => 'el conjunto de las series publicadas',
+  smape_nacional_general: () => 'el total nacional',
+};
+
+/**
+ * Año y ámbitos del rechazo, desde la vista sellada: la prueba es 2025 en las series largas y
+ * 2026 en las de historia corta, y no siempre falla el nacional.
+ */
+export function rechazoDe(v) {
+  const c = v.caida_al_control;
+  const anio = String(c.fold || '').replace(/^test_/, '') || '2025';
+  const sinSexo = !Object.keys(v.series || {}).some((k) => k.endsWith('|hombres'));
+  const fallas = c.comprobaciones.filter((x) => !x.pasa);
+  const partes = fallas.map((x) => `${AMBITO[x.ambito]?.(sinSexo) || x.ambito} (sMAPE ${num1(x.portafolio)} frente a ${num1(x.control)} del control)`);
+  const ambitos = partes.length > 1 ? `${partes.slice(0, -1).join(', ')} y ${partes.at(-1)}` : partes[0] || 'el criterio de aceptación';
+  return { anio, ambitos };
 }
 
 /** Estado de una validación sin semanas observadas: se dice, no se rellena con cifras. */
