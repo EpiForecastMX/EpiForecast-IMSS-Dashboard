@@ -5,6 +5,25 @@
             "date": "8 de noviembre de 2026",
             "iso": "2026-11-08",
             "type": "radar",
+            "tag": "Nuevos padecimientos",
+            "featured": true,
+            "title": "Diez tipos de cáncer se incorporan al pronóstico",
+            "summary": "Pulmón, estómago, colon y recto, linfomas de Hodgkin y no Hodgkin, leucemia, páncreas, encéfalo, cuerpo del útero y ovario, a 52 semanas para el país, 4 regiones y las 32 entidades.",
+            "body": [
+                "EpiForecast-MX publica diez tumores malignos que el boletín reporta desde 2023: tráquea, bronquios y pulmón; estómago; colon y recto; linfoma de Hodgkin; linfoma no Hodgkin; leucemia; páncreas; encéfalo y sistema nervioso central; cuerpo del útero y ovario. Los dos últimos no se desglosan por sexo.",
+                "Con sólo dos años previos, su política elige el motor en 2025 y lo prueba en las semanas 1 a 41 de 2026 frente al control estacional: los diez la superaron. Es una evidencia más corta que la de los padecimientos con historia desde 2014, y su validación prospectiva está en curso. Riñón, próstata, huesos, hígado y esófago no la superaron y no se publican.",
+                "Usan datos hasta la semana 41 de 2026, se emitieron el 8 de noviembre y no se reentrenan. Son pronósticos puntuales, sin intervalos de incertidumbre; con pocos casos por estado, el total nacional es la lectura más estable."
+            ],
+            "link": {
+                "href": "cancer_pulmon_c33.html",
+                "text": "Ver el pronóstico de tumor maligno de pulmón",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
+        {
+            "date": "8 de noviembre de 2026",
+            "iso": "2026-11-08",
+            "type": "radar",
             "tag": "Nuevo padecimiento",
             "featured": true,
             "title": "El tumor maligno del cuello del útero se incorpora al pronóstico",

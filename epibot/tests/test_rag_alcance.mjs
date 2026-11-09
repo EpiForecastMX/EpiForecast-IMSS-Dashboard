@@ -33,8 +33,15 @@ test('rag.mjs deriva los releases publicados del catálogo y de su shard', () =>
   const r = JSON.parse(JSON.stringify(ctx.releasesDesdeCatalogo(CAT, leerShard)));
   assert.deepEqual(r, [
     { nombre: 'Anorexia, bulimia y otros trastornos alimentarios', cie: ['F50'] },
+    { nombre: 'Tumor maligno del colon y recto', cie: ['C18', 'C19', 'C20', 'C21'] },
     { nombre: 'Tumor maligno del cuello del útero', cie: ['C53'] },
+    { nombre: 'Tumor maligno del cuerpo del útero', cie: ['C54'] },
+    { nombre: 'Tumores malignos del encéfalo y otras partes del sistema nervioso central', cie: ['C70', 'C71', 'C72'] },
+    { nombre: 'Tumor maligno del estómago', cie: ['C16'] },
     { nombre: 'Tumor maligno de la mama', cie: ['C50'] },
+    { nombre: 'Tumor maligno del ovario', cie: ['C56'] },
+    { nombre: 'Tumor maligno del páncreas', cie: ['C26'] },
+    { nombre: 'Tumor maligno de tráquea, bronquios y pulmón', cie: ['C33', 'C34'] },
     { nombre: 'Enfermedad cerebrovascular', cie: ['I60', 'I61', 'I62', 'I63', 'I64', 'I65', 'I66', 'I67', 'I69'] },
     { nombre: 'Diabetes mellitus tipo I', cie: ['E10'] },
     { nombre: 'Diabetes mellitus tipo II', cie: ['E11', 'E12', 'E13', 'E14'] },
@@ -44,6 +51,9 @@ test('rag.mjs deriva los releases publicados del catálogo y de su shard', () =>
     { nombre: 'Infecciones respiratorias agudas', cie: ['J00', 'J01', 'J03', 'J04', 'J05', 'J06', 'J20', 'J21'] },
     { nombre: 'Enfermedad isquémica del corazón', cie: ['I20', 'I25'] },
     { nombre: 'Infección de vías urinarias', cie: ['N30', 'N34', 'N39.0'] },
+    { nombre: 'Leucemia', cie: ['C91', 'C92', 'C93', 'C94', 'C95'] },
+    { nombre: 'Linfoma de Hodgkin', cie: ['C81'] },
+    { nombre: 'Linfoma no Hodgkin', cie: ['C82', 'C83', 'C84', 'C85'] },
     { nombre: 'Obesidad', cie: ['E66'] },
     { nombre: 'Úlceras, gastritis y duodenitis', cie: ['K25', 'K26', 'K27', 'K28', 'K29'] },
   ]);
@@ -59,12 +69,12 @@ test('un release no publicado, oculto o sin canal epibot no entra al alcance', (
   assert.equal(ctx.releasesDesdeCatalogo(cat, leerShard).length, 0);
 });
 
-test('las CIFRAS CLAVE nombran los dieciocho padecimientos modelados', () => {
+test('las CIFRAS CLAVE nombran los veintiocho padecimientos modelados', () => {
   const rel = ctx.releasesDesdeCatalogo(CAT, leerShard);
   const s = ctx.structuredSummary(KB, rel);
   const linea = s.split('\n').find((l) => l.startsWith('Alcance vigente'));
   assert.ok(linea, s);
-  assert.match(linea, /modela dieciocho padecimientos/);
+  assert.match(linea, /modela veintiocho padecimientos/);
   for (const p of ['Depresión (F32)', 'Parkinson (G20)', 'Alzheimer (G30)', 'Dengue', 'Obesidad (E66)', 'Anorexia, bulimia y otros trastornos alimentarios (F50)', 'Diabetes mellitus tipo I (E10)', 'Diabetes mellitus tipo II (E11, E12, E13, E14)',
     'Infección de vías urinarias (N30, N34, N39.0)', 'Úlceras, gastritis y duodenitis (K25, K26, K27, K28, K29)',
     'Infecciones respiratorias agudas (J00, J01, J03, J04, J05, J06, J20, J21)', 'Gingivitis y enfermedad periodontal (K05)', 'Tumor maligno de la mama (C50)', 'Tumor maligno del cuello del útero (C53)']) {

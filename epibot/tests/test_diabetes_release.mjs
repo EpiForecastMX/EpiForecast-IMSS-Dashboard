@@ -12,7 +12,7 @@ const leer = (r) => readFileSync(new URL(`../../${r}`, import.meta.url), 'utf-8'
 const K = readFileSync(new URL('../knowledge.json', import.meta.url), 'utf-8');
 const VISTAS = ['obesidad', 'anorexia_f50', 'diabetes_t1', 'diabetes_t2', 'hipertension_i10',
   'isquemica_i20', 'cerebrovascular_i60', 'intestinales_a04', 'ira_j00', 'ivu_n39', 'gingivitis_k05',
-  'ulceras_k25', 'cancer_mama_c50', 'cancer_cuello_utero_c53'];
+  'ulceras_k25', 'cancer_mama_c50', 'cancer_cuello_utero_c53', 'cancer_pulmon_c33', 'cancer_estomago_c16', 'cancer_colon_c18', 'linfoma_hodgkin_c81', 'linfoma_no_hodgkin_c82', 'leucemia_c91', 'cancer_pancreas_c26', 'cancer_encefalo_c70', 'cancer_cuerpo_utero_c54', 'cancer_ovario_c56'];
 globalThis.fetch = async (u) => ({
   ok: true,
   json: async () => {
@@ -59,7 +59,7 @@ test('gestacional, insípida y prediabetes siguen sin modelarse', async () => {
   const r = await conversa('casos de diabetes gestacional en jalisco');
   assert.equal(r.handler, 'answerPadecimientoNoModelado');
   assert.match(r.md, /no modela/);
-  assert.match(r.md, /dieciocho padecimientos/);
+  assert.match(r.md, /veintiocho padecimientos/);
 });
 
 test('«diabetes» a secas avisa que se toma como tipo II', async () => {
@@ -311,7 +311,7 @@ test('cáncer de mama responde su control; los demás cánceres siguen sin model
     assert.match(r.md, /control estacional/i, q);
     assert.doesNotMatch(r.md, /Validación prospectiva en curso|no modela/, q);
   }
-  for (const q of ['cancer de pulmon en jalisco', 'cancer en sonora', 'leucemia en jalisco', 'cancer de prostata en jalisco']) {
+  for (const q of ['cancer de prostata en jalisco', 'cancer en sonora', 'cancer de higado en jalisco']) {
     const r = await conversa(q);
     assert.equal(r.handler, 'answerPadecimientoNoModelado', q);
   }
@@ -334,6 +334,26 @@ test('cuello del útero responde su total y avisa que no hay desglose por sexo',
   const motores = await conversa('motores de cancer cervicouterino');
   assert.match(motores.md, /una por estado/);
   assert.doesNotMatch(motores.md, /hombres y mujeres/);
+});
+
+test('los cánceres de historia corta responden su release y los rechazados siguen fuera', async () => {
+  const casos = [['cancer de pulmon en jalisco', /CANCER_PULMON_C33/], ['leucemia en sonora', /LEUCEMIA_C91/],
+    ['linfoma no hodgkin en jalisco', /LINFOMA_NO_HODGKIN_C82/], ['linfoma de hodgkin en jalisco', /LINFOMA_HODGKIN_C81/],
+    ['cancer de ovario en jalisco', /CANCER_OVARIO_C56/], ['cancer de endometrio en sonora', /CANCER_CUERPO_UTERO_C54/],
+    ['cancer cerebral en jalisco', /CANCER_ENCEFALO_C70/], ['cancer colorrectal en jalisco', /CANCER_COLON_C18/]];
+  for (const [q, marca] of casos) {
+    const r = await conversa(q);
+    assert.match(r.md, marca, q);
+    assert.match(r.md, /Validación prospectiva en curso/, q);
+    assert.doesNotMatch(r.md, /no modela/, q);
+  }
+  for (const q of ['cancer de prostata en jalisco', 'cancer de higado en jalisco', 'cancer de rinon en sonora',
+    'cancer de esofago en jalisco']) {
+    assert.equal((await conversa(q)).handler, 'answerPadecimientoNoModelado', q);
+  }
+  const motores = await conversa('motores de leucemia');
+  assert.match(motores.md, /pliegue de 2025/);
+  assert.doesNotMatch(motores.md, /2021 a 2024/);
 });
 
 test('rotavirus sigue sin modelarse', async () => {

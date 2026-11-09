@@ -10,12 +10,12 @@
  * follow-ups («¿y hombres?») y en consultas corregidas por typo, donde la consulta cruda ya no
  * nombra a Obesidad.
  */
-import { mencionaNoModelada } from './entities.js?v=45';
+import { mencionaNoModelada } from './entities.js?v=47';
 import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
-} from './obesidad_charts.js?v=13';
-import { releaseConAlias, releaseDePad } from './release_config.js?v=11';
+} from './obesidad_charts.js?v=15';
+import { releaseConAlias, releaseDePad } from './release_config.js?v=13';
 
 const any = (q, ks) => ks.some((k) => q.includes(k));
 const semana = ([a, w]) => `${a}-W${String(w).padStart(2, '0')}`;
@@ -135,7 +135,7 @@ function answerRelease(q, ent, s, d, r) {
   const pideError = any(q, ['error', 'smape', 'precision', 'sesgo', 'desempeno']);
 
   if (tipo in NO_DISPONIBLE) {
-    const texto = tipo === 'metricas' && v.caida_al_control ? avisoControl(v) : noDisponible(tipo, r.nombre);
+    const texto = tipo === 'metricas' && v.caida_al_control ? avisoControl(v) : noDisponible(tipo, r.nombre, r.seleccion);
     return `${texto}\n\nPara ${r.etiqueta} sí puedes pedir ${alternativas(r, conOos)}.` + pie + marca(tipo, ent, null, r);
   }
 
@@ -191,7 +191,7 @@ function answerRelease(q, ent, s, d, r) {
         ? `Se modelan **${v.models} series**, una por estado (el boletín no desglosa sexo); los otros ${v.products - v.models} de los ${v.products} productos (regionales y nacional) se obtienen sumándolas.`
         : `Se modelan **${v.models} series** (32 estados × hombres y mujeres); los otros ${v.products - v.models} de los ${v.products} productos (totales estatales, regionales y nacional) se obtienen sumándolas.`, '',
       ...cuenta.map(([m, n]) => `- ${OBESIDAD_MOTOR[m] || m}: **${n}** series`), '',
-      v.caida_al_control ? avisoControl(v) : 'El motor de cada serie se eligió con validación cruzada temporal en pliegues de 2021 a 2024, en los que el modelo nunca ve el periodo que pronostica.',
+      v.caida_al_control ? avisoControl(v) : `El motor de cada serie se eligió con validación cruzada temporal ${r.seleccion || 'en pliegues de 2021 a 2024'}, sin que el modelo vea nunca el periodo que pronostica.`,
       sinSexo
         ? `Pregunta por un estado («motor de ${r.consulta} en Jalisco») para ver el de esa serie.`
         : `Pregunta por un estado y un sexo («motor de ${r.consulta} en Jalisco mujeres») para ver el de esa serie.`, '', etiqueta]);

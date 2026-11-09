@@ -161,6 +161,76 @@
       prefijos: ['cancer cervicouterino', 'cancer de cuello uterino', 'cancer de cuello del utero',
         'tumor maligno del cuello del utero', 'cervical cancer'],
     },
+    {
+      id: 'cancer_pulmon_c33', pad: 'Tumor maligno de tráquea, bronquios y pulmón', nombre: 'Tumor maligno de tráquea, bronquios y pulmón', nombreCorto: 'Cáncer de pulmón', etiqueta: 'Tumor maligno de tráquea, bronquios y pulmón (C33-C34)',
+      dataKey: 'cancer_pulmon_c33', marca: 'CANCER_PULMON_C33', pagina: 'cancer_pulmon_c33.html', consulta: 'cancer de pulmon', cie: 'C33-C34', color: '#94A3B8',
+      seleccion: 'en un pliegue de 2025 (la serie empieza en 2023)',
+      alias: ['tumor maligno de traquea bronquios y pulmon', 'tumor maligno de pulmon', 'cancer de pulmon', 'cancer pulmonar', 'cancer de bronquios', 'c33', 'c34', 'lung cancer'],
+      prefijos: ['cancer de pulmon', 'cancer pulmonar', 'tumor maligno de pulmon', 'lung cancer'],
+    },
+    {
+      id: 'cancer_estomago_c16', pad: 'Tumor maligno del estómago', nombre: 'Tumor maligno del estómago', nombreCorto: 'Cáncer de estómago', etiqueta: 'Tumor maligno del estómago (C16)',
+      dataKey: 'cancer_estomago_c16', marca: 'CANCER_ESTOMAGO_C16', pagina: 'cancer_estomago_c16.html', consulta: 'cancer de estomago', cie: 'C16', color: '#FCD34D',
+      seleccion: 'en un pliegue de 2025 (la serie empieza en 2023)',
+      alias: ['tumor maligno del estomago', 'cancer de estomago', 'cancer gastrico', 'c16', 'stomach cancer', 'gastric cancer'],
+      prefijos: ['cancer de estomago', 'cancer gastrico', 'stomach cancer', 'gastric cancer'],
+    },
+    {
+      id: 'cancer_colon_c18', pad: 'Tumor maligno del colon y recto', nombre: 'Tumor maligno del colon y recto', nombreCorto: 'Cáncer de colon y recto', etiqueta: 'Tumor maligno del colon y recto (C18-C21)',
+      dataKey: 'cancer_colon_c18', marca: 'CANCER_COLON_C18', pagina: 'cancer_colon_c18.html', consulta: 'cancer de colon', cie: 'C18-C21', color: '#FDBA74',
+      seleccion: 'en un pliegue de 2025 (la serie empieza en 2023)',
+      alias: ['tumor maligno del colon y recto', 'cancer de colon y recto', 'cancer de colon', 'cancer de recto', 'cancer colorrectal', 'c18', 'colorectal cancer', 'colon cancer'],
+      prefijos: ['cancer de colon', 'cancer colorrectal', 'cancer de recto', 'colorectal cancer', 'colon cancer'],
+    },
+    {
+      id: 'linfoma_hodgkin_c81', pad: 'Linfoma de Hodgkin', nombre: 'Linfoma de Hodgkin', nombreCorto: 'Linfoma de Hodgkin', etiqueta: 'Linfoma de Hodgkin (C81)',
+      dataKey: 'linfoma_hodgkin_c81', marca: 'LINFOMA_HODGKIN_C81', pagina: 'linfoma_hodgkin_c81.html', consulta: 'linfoma de hodgkin', cie: 'C81', color: '#67E8F9',
+      seleccion: 'en un pliegue de 2025 (la serie empieza en 2023)',
+      alias: ['linfoma de hodgkin', 'linfoma hodgkin', 'enfermedad de hodgkin', 'c81', 'hodgkin lymphoma'],
+      prefijos: ['linfoma de hodgkin', 'linfoma hodgkin', 'hodgkin lymphoma'],
+    },
+    {
+      id: 'linfoma_no_hodgkin_c82', pad: 'Linfoma no Hodgkin', nombre: 'Linfoma no Hodgkin', nombreCorto: 'Linfoma no Hodgkin', etiqueta: 'Linfoma no Hodgkin (C82-C85)',
+      dataKey: 'linfoma_no_hodgkin_c82', marca: 'LINFOMA_NO_HODGKIN_C82', pagina: 'linfoma_no_hodgkin_c82.html', consulta: 'linfoma no hodgkin', cie: 'C82-C85', color: '#22D3EE',
+      seleccion: 'en un pliegue de 2025 (la serie empieza en 2023)',
+      alias: ['linfoma no hodgkin', 'linfomas no hodgkin', 'c82', 'c85', 'non hodgkin lymphoma'],
+      prefijos: ['linfoma no hodgkin', 'linfomas no hodgkin', 'non hodgkin'],
+    },
+    {
+      id: 'leucemia_c91', pad: 'Leucemia', nombre: 'Leucemia', nombreCorto: 'Leucemia', etiqueta: 'Leucemia (C91-C95)',
+      dataKey: 'leucemia_c91', marca: 'LEUCEMIA_C91', pagina: 'leucemia_c91.html', consulta: 'leucemia', cie: 'C91-C95', color: '#F43F5E',
+      seleccion: 'en un pliegue de 2025 (la serie empieza en 2023)',
+      alias: ['leucemia', 'leucemias', 'c91', 'c95', 'leukemia'],
+      prefijos: ['leucemia', 'leukemia'],
+    },
+    {
+      id: 'cancer_pancreas_c26', pad: 'Tumor maligno del páncreas', nombre: 'Tumor maligno del páncreas', nombreCorto: 'Cáncer de páncreas', etiqueta: 'Tumor maligno del páncreas (C26)',
+      dataKey: 'cancer_pancreas_c26', marca: 'CANCER_PANCREAS_C26', pagina: 'cancer_pancreas_c26.html', consulta: 'cancer de pancreas', cie: 'C26', color: '#86EFAC',
+      seleccion: 'en un pliegue de 2025 (la serie empieza en 2023)',
+      alias: ['tumor maligno del pancreas', 'cancer de pancreas', 'c26', 'pancreatic cancer'],
+      prefijos: ['cancer de pancreas', 'pancreatic cancer'],
+    },
+    {
+      id: 'cancer_encefalo_c70', pad: 'Tumores malignos del encéfalo y otras partes del sistema nervioso central', nombre: 'Tumores malignos del encéfalo y otras partes del sistema nervioso central', nombreCorto: 'Cáncer de encéfalo y SNC', etiqueta: 'Tumores malignos del encéfalo y otras partes del sistema nervioso central (C70-C72)',
+      dataKey: 'cancer_encefalo_c70', marca: 'CANCER_ENCEFALO_C70', pagina: 'cancer_encefalo_c70.html', consulta: 'cancer cerebral', cie: 'C70-C72', color: '#C4B5FD',
+      seleccion: 'en un pliegue de 2025 (la serie empieza en 2023)',
+      alias: ['tumores malignos del encefalo', 'tumor maligno del encefalo', 'cancer cerebral', 'cancer de cerebro', 'cancer del sistema nervioso central', 'tumor cerebral maligno', 'c70', 'c71', 'c72', 'brain cancer'],
+      prefijos: ['cancer cerebral', 'cancer de cerebro', 'tumores malignos del encefalo', 'brain cancer'],
+    },
+    {
+      id: 'cancer_cuerpo_utero_c54', pad: 'Tumor maligno del cuerpo del útero', nombre: 'Tumor maligno del cuerpo del útero', nombreCorto: 'Cáncer del cuerpo del útero', etiqueta: 'Tumor maligno del cuerpo del útero (C54)',
+      dataKey: 'cancer_cuerpo_utero_c54', marca: 'CANCER_CUERPO_UTERO_C54', pagina: 'cancer_cuerpo_utero_c54.html', consulta: 'cancer de endometrio', cie: 'C54', color: '#E879F9',
+      seleccion: 'en un pliegue de 2025 (la serie empieza en 2023)',
+      alias: ['tumor maligno del cuerpo del utero', 'cancer del cuerpo del utero', 'cancer de endometrio', 'cancer endometrial', 'c54', 'endometrial cancer'],
+      prefijos: ['cancer de endometrio', 'cancer endometrial', 'cancer del cuerpo del utero', 'endometrial cancer'],
+    },
+    {
+      id: 'cancer_ovario_c56', pad: 'Tumor maligno del ovario', nombre: 'Tumor maligno del ovario', nombreCorto: 'Cáncer de ovario', etiqueta: 'Tumor maligno del ovario (C56)',
+      dataKey: 'cancer_ovario_c56', marca: 'CANCER_OVARIO_C56', pagina: 'cancer_ovario_c56.html', consulta: 'cancer de ovario', cie: 'C56', color: '#F0ABFC',
+      seleccion: 'en un pliegue de 2025 (la serie empieza en 2023)',
+      alias: ['tumor maligno del ovario', 'cancer de ovario', 'cancer ovarico', 'c56', 'ovarian cancer'],
+      prefijos: ['cancer de ovario', 'cancer ovarico', 'ovarian cancer'],
+    },
   ]);
 
   /**
@@ -231,7 +301,7 @@
     'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah',
     'influenza', 'covid', 'tuberculosis', 'vih', 'sida', 'colera',
     'sarampion', 'rubeola', 'hepatitis', 'zika', 'chikungunya', 'malaria',
-    'leucemia', 'linfoma', 'tumor', 'neoplasia', 'cardiopatia congenita', 'cardiopatia', 'infarto',
+    'linfoma', 'tumor', 'neoplasia', 'cardiopatia congenita', 'cardiopatia', 'infarto',
     'ataque al corazon', 'ataque cardiaco',
     'embolia', 'neumonia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
     // Fuera del bloque A04, A08-A09: rotavirus es A08.0 y las demás tienen código propio.
@@ -241,7 +311,7 @@
     // En inglés: sin esto, «asthma in jalisco» caería en la tabla neuro del estado.
     'gestational diabetes', 'diabetes gestational', 'diabetes insipidus', 'prediabetic',
     'asthma', 'epilepsy', 'schizophrenia', 'anxiety', 'tuberculosis', 'hiv', 'aids', 'measles',
-    'leukemia', 'lymphoma', 'heart attack', 'pneumonia', 'bronchitis', 'arthritis',
+    'lymphoma', 'heart attack', 'pneumonia', 'bronchitis', 'arthritis',
     'kidney failure', 'heart failure',
   ]);
 
@@ -261,10 +331,18 @@
    */
   const CANCER_MAMA = /\b(cancer|tumor(es)? malign[oa]s?|neoplasias? malignas?|carcinomas?)( de| del| en)?( la| las| el| los)? (mamas?|senos?|cuello( del)? (utero|uterino)|cervix)\b|\bcancer (mamario|cervicouterino|cervical)\b|\b(breast|cervical) cancer\b/g;
 
+  // Alias de releases publicados, del más largo al más corto: se retiran antes de buscar no modelados
+  // para que «cáncer», «tumor» o «linfoma» genéricos no tapen un cáncer publicado.
+  const ALIAS_PUBLICADOS = releases.flatMap((r) => r.alias).filter((a) => a.trim().length > 3)
+    .sort((a, b) => b.length - a.length);
+  function sinAliasPublicados(q) {
+    return ALIAS_PUBLICADOS.reduce((t, a) => t.split(` ${a.trim()} `).join(' '), q);
+  }
+
   /** La enfermedad no modelada que nombra la consulta (normalizada), o null. Compara al inicio de palabra. */
   function mencionaNoModelada(qn) {
     const canon = canonClinico(qn);
-    const q = ` ${canon.replace(CANCER_MAMA, ' ')} `;
+    const q = sinAliasPublicados(` ${canon.replace(CANCER_MAMA, ' ')} `);
     const directa = noModeladas.find((e) => q.includes(e.endsWith(' ') ? ` ${e}` : ` ${e.trim()}`));
     if (directa) return directa;
     if (!HIPERTENSION.test(canon)) return null;
