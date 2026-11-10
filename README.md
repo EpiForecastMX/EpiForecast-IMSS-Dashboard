@@ -9,12 +9,12 @@ principal (`Congresos/Mundial/ESTADO_ACTUAL_WCP.md`); este README describe el si
 
 ---
 
-## Estado: 9 de noviembre de 2026
+## Estado: 10 de noviembre de 2026
 
 | | |
 |---|---|
-| Padecimientos publicados | **34** = 4 del carril original + 30 releases del runner |
-| Datos reales hasta | **semana 42 de 2026** (carril original y radar); **semana 41** en los releases del runner |
+| Padecimientos publicados | **35** = 4 del carril original + 31 releases del runner |
+| Datos reales hasta | **boletín 43 de 2026** (carril original y radar); **semana 42** observada en los releases del runner |
 | Series productivas del carril original | **432** = 333 neuro + 99 dengue |
 | Gráficos publicados del carril original | **432** = 333 neuro + 99 dengue (ronda W37; hasta W33 eran 444 con las 4 regiones de dengue) |
 | Tablero Tableau | histórico, corte W31 de 2026 (`javier.rebull3700` / `viz_epiforecastmx_17873231502650`) |
@@ -166,7 +166,7 @@ npm run rag:verify         # falla si el índice está desincronizado del corpus
 ### Detección de entidades (entities.js)
 
 - **32 estados** y regiones con alias (CDMX, Edomex, etc.).
-- Los cuatro padecimientos originales y los alias y códigos CIE-10 de los treinta releases del
+- Los cuatro padecimientos originales y los alias y códigos CIE-10 de los treinta y un releases del
   runner (`release_catalog.js`), comparados al inicio de palabra; los no modelados salen de la lista
   única `noModeladas`.
 - **Sexo** (hombres, mujeres, general) con variantes.
@@ -340,7 +340,7 @@ la orientación. Van a `Reports/<hito>/` a 1600 px de ancho y calidad 82.
 ```
 EpiForecast-IMSS-Dashboard/
 ├── index.html                      # Portada
-├── <id>.html                       # 30 páginas de releases del runner
+├── <id>.html                       # 31 páginas de releases del runner
 ├── boletin.html                    # Radar del boletín
 ├── rechazados.html                 # Padecimientos rechazados (Covid-19)
 ├── dengue.html                     # Dengue
@@ -426,7 +426,7 @@ La semana avanza por tres carriles y ninguno publica una semana parcial:
    fuera de los repositorios (`planes/`) y conserva las asignaciones congeladas en la ronda W37.
    `make update-week` del repo principal es histórico y aborta siempre en el preflight
    (`scripts/actualiza_semanal.sh`); no es una receta vigente.
-2. **Treinta releases del runner**: `make semana-revisa`, `make semana-observa PDF=… SALIDA=…`,
+2. **Treinta y un releases del runner**: `make semana-revisa`, `make semana-observa PDF=… SALIDA=…`,
    `python -m scripts.paso_semanal consolida` y `make semana-vistas N=… FE=…` en el repo principal.
 3. **Radar del boletín**: `python3 scripts/boletin_semana.py --pdf … --url-fuente … --publicacion …`
    en este repo (ver `scripts/README_radar_boletin.md`).
