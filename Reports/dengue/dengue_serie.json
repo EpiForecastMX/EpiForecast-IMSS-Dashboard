@@ -1,135 +1,142 @@
 {
   "meta": {
-    "generado": "2026-11-04",
-    "ultima_semana": "2026-W42",
+    "generado": "2026-11-09",
+    "ultima_semana": "2026-W43",
     "anio": 2026,
-    "semana": 42,
+    "semana": 43,
     "cobertura": "2018-2026",
-    "n_boletines": 414,
-    "n_filas": 13248,
-    "casos_semana_nacional": 667,
-    "acum_total_nacional": 8714,
+    "n_boletines": 415,
+    "n_filas": 13280,
+    "casos_semana_nacional": 742,
+    "acum_total_nacional": 9456,
     "nota": "Dengue confirmado agregado (A97.0 + A97.1 + A97.2). Fuente: boletines SINAVE."
   },
   "cuadro_ultima_semana": [
     {
       "entidad": "Sonora",
-      "casos_semana": 226,
-      "acum_hombres": 904,
-      "acum_mujeres": 1184,
-      "acum_total": 2088
+      "casos_semana": 225,
+      "acum_hombres": 1000,
+      "acum_mujeres": 1313,
+      "acum_total": 2313
     },
     {
       "entidad": "Veracruz",
       "casos_semana": 70,
-      "acum_hombres": 615,
-      "acum_mujeres": 750,
-      "acum_total": 1365
+      "acum_hombres": 641,
+      "acum_mujeres": 794,
+      "acum_total": 1435
     },
     {
       "entidad": "Tabasco",
-      "casos_semana": 18,
-      "acum_hombres": 355,
-      "acum_mujeres": 440,
-      "acum_total": 795
+      "casos_semana": 28,
+      "acum_hombres": 367,
+      "acum_mujeres": 456,
+      "acum_total": 823
     },
     {
       "entidad": "Sinaloa",
-      "casos_semana": 76,
-      "acum_hombres": 370,
-      "acum_mujeres": 389,
-      "acum_total": 759
+      "casos_semana": 42,
+      "acum_hombres": 388,
+      "acum_mujeres": 413,
+      "acum_total": 801
     },
     {
       "entidad": "Quintana Roo",
-      "casos_semana": 65,
-      "acum_hombres": 242,
-      "acum_mujeres": 291,
-      "acum_total": 533
+      "casos_semana": 37,
+      "acum_hombres": 259,
+      "acum_mujeres": 311,
+      "acum_total": 570
     },
     {
       "entidad": "Aguascalientes",
-      "casos_semana": 60,
-      "acum_hombres": 226,
-      "acum_mujeres": 257,
-      "acum_total": 483
-    },
-    {
-      "entidad": "Chiapas",
-      "casos_semana": 8,
-      "acum_hombres": 211,
-      "acum_mujeres": 258,
-      "acum_total": 469
+      "casos_semana": 61,
+      "acum_hombres": 252,
+      "acum_mujeres": 292,
+      "acum_total": 544
     },
     {
       "entidad": "Baja California Sur",
-      "casos_semana": 15,
-      "acum_hombres": 183,
-      "acum_mujeres": 235,
-      "acum_total": 418
+      "casos_semana": 118,
+      "acum_hombres": 240,
+      "acum_mujeres": 296,
+      "acum_total": 536
+    },
+    {
+      "entidad": "Chiapas",
+      "casos_semana": 55,
+      "acum_hombres": 233,
+      "acum_mujeres": 291,
+      "acum_total": 524
     },
     {
       "entidad": "Jalisco",
-      "casos_semana": 14,
-      "acum_hombres": 126,
+      "casos_semana": 8,
+      "acum_hombres": 134,
       "acum_mujeres": 130,
-      "acum_total": 256
+      "acum_total": 264
     },
     {
       "entidad": "Michoacán",
-      "casos_semana": 18,
+      "casos_semana": 2,
       "acum_hombres": 130,
-      "acum_mujeres": 125,
-      "acum_total": 255
+      "acum_mujeres": 127,
+      "acum_total": 257
     },
     {
       "entidad": "Nayarit",
-      "casos_semana": 23,
-      "acum_hombres": 105,
-      "acum_mujeres": 125,
-      "acum_total": 230
+      "casos_semana": 22,
+      "acum_hombres": 110,
+      "acum_mujeres": 142,
+      "acum_total": 252
     },
     {
       "entidad": "Guanajuato",
-      "casos_semana": 16,
-      "acum_hombres": 112,
-      "acum_mujeres": 112,
-      "acum_total": 224
+      "casos_semana": 11,
+      "acum_hombres": 119,
+      "acum_mujeres": 116,
+      "acum_total": 235
     },
     {
       "entidad": "Estado de México",
-      "casos_semana": 9,
-      "acum_hombres": 58,
-      "acum_mujeres": 81,
-      "acum_total": 139
+      "casos_semana": 5,
+      "acum_hombres": 59,
+      "acum_mujeres": 85,
+      "acum_total": 144
     },
     {
       "entidad": "Yucatán",
-      "casos_semana": 21,
-      "acum_hombres": 43,
-      "acum_mujeres": 53,
-      "acum_total": 96
+      "casos_semana": 15,
+      "acum_hombres": 50,
+      "acum_mujeres": 61,
+      "acum_total": 111
     },
     {
       "entidad": "Puebla",
-      "casos_semana": 5,
-      "acum_hombres": 34,
-      "acum_mujeres": 43,
-      "acum_total": 77
-    },
-    {
-      "entidad": "Campeche",
-      "casos_semana": 1,
-      "acum_hombres": 33,
-      "acum_mujeres": 38,
-      "acum_total": 71
+      "casos_semana": 7,
+      "acum_hombres": 38,
+      "acum_mujeres": 46,
+      "acum_total": 84
     },
     {
       "entidad": "Oaxaca",
-      "casos_semana": 2,
-      "acum_hombres": 30,
+      "casos_semana": 9,
+      "acum_hombres": 35,
+      "acum_mujeres": 45,
+      "acum_total": 80
+    },
+    {
+      "entidad": "Campeche",
+      "casos_semana": 5,
+      "acum_hombres": 35,
       "acum_mujeres": 41,
-      "acum_total": 71
+      "acum_total": 76
+    },
+    {
+      "entidad": "Coahuila",
+      "casos_semana": 4,
+      "acum_hombres": 24,
+      "acum_mujeres": 39,
+      "acum_total": 63
     },
     {
       "entidad": "Tamaulipas",
@@ -139,32 +146,25 @@
       "acum_total": 62
     },
     {
-      "entidad": "Coahuila",
-      "casos_semana": 1,
-      "acum_hombres": 22,
-      "acum_mujeres": 37,
-      "acum_total": 59
+      "entidad": "Hidalgo",
+      "casos_semana": 5,
+      "acum_hombres": 19,
+      "acum_mujeres": 33,
+      "acum_total": 52
     },
     {
       "entidad": "San Luis Potosí",
-      "casos_semana": 0,
+      "casos_semana": 1,
       "acum_hombres": 19,
-      "acum_mujeres": 30,
-      "acum_total": 49
-    },
-    {
-      "entidad": "Hidalgo",
-      "casos_semana": 8,
-      "acum_hombres": 18,
-      "acum_mujeres": 29,
-      "acum_total": 47
+      "acum_mujeres": 31,
+      "acum_total": 50
     },
     {
       "entidad": "Morelos",
-      "casos_semana": 2,
-      "acum_hombres": 18,
+      "casos_semana": 1,
+      "acum_hombres": 19,
       "acum_mujeres": 24,
-      "acum_total": 42
+      "acum_total": 43
     },
     {
       "entidad": "Guerrero",
@@ -175,45 +175,45 @@
     },
     {
       "entidad": "Nuevo León",
-      "casos_semana": 2,
+      "casos_semana": 1,
       "acum_hombres": 20,
-      "acum_mujeres": 13,
-      "acum_total": 33
+      "acum_mujeres": 14,
+      "acum_total": 34
     },
     {
       "entidad": "Chihuahua",
-      "casos_semana": 6,
-      "acum_hombres": 8,
-      "acum_mujeres": 13,
-      "acum_total": 21
+      "casos_semana": 4,
+      "acum_hombres": 10,
+      "acum_mujeres": 15,
+      "acum_total": 25
     },
     {
       "entidad": "Zacatecas",
-      "casos_semana": 0,
-      "acum_hombres": 6,
-      "acum_mujeres": 7,
-      "acum_total": 13
+      "casos_semana": 2,
+      "acum_hombres": 7,
+      "acum_mujeres": 8,
+      "acum_total": 15
     },
     {
       "entidad": "Durango",
       "casos_semana": 1,
       "acum_hombres": 3,
-      "acum_mujeres": 7,
-      "acum_total": 10
+      "acum_mujeres": 8,
+      "acum_total": 11
     },
     {
       "entidad": "Baja California",
-      "casos_semana": 0,
-      "acum_hombres": 2,
+      "casos_semana": 2,
+      "acum_hombres": 4,
       "acum_mujeres": 6,
-      "acum_total": 8
+      "acum_total": 10
     },
     {
       "entidad": "Colima",
-      "casos_semana": 0,
-      "acum_hombres": 2,
+      "casos_semana": 1,
+      "acum_hombres": 3,
       "acum_mujeres": 1,
-      "acum_total": 3
+      "acum_total": 4
     },
     {
       "entidad": "Querétaro",
@@ -2307,6 +2307,11 @@
       "anio": 2026,
       "semana": 42,
       "casos": 667
+    },
+    {
+      "anio": 2026,
+      "semana": 43,
+      "casos": 742
     }
   ]
 }

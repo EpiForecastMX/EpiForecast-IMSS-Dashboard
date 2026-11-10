@@ -1,12 +1,12 @@
 {
   "meta": {
-    "generado": "2026-11-04",
-    "ultima_real": "2026-10-05",
+    "generado": "2026-11-09",
+    "ultima_real": "2026-10-12",
     "ultima_semana_boletin": {
       "anio": 2026,
-      "semana": 42,
-      "inicio": "2026-10-18",
-      "fin": "2026-10-24"
+      "semana": 43,
+      "inicio": "2026-10-25",
+      "fin": "2026-10-31"
     },
     "corte_modelo": {
       "anio": 2026,
@@ -3175,16 +3175,14 @@
       "ds": "2026-10-05",
       "sem": "2026-W42",
       "y": 667.0
-    }
-  ],
-  "pronostico": [
+    },
     {
       "ds": "2026-10-12",
       "sem": "2026-W43",
-      "yhat": 282.9,
-      "yhat_lower": 257.9,
-      "yhat_upper": 305.7
-    },
+      "y": 742.0
+    }
+  ],
+  "pronostico": [
     {
       "ds": "2026-10-19",
       "sem": "2026-W44",
