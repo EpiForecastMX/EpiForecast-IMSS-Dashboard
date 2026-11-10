@@ -140,6 +140,16 @@
         + 'prospectiva respecto de la información; las tres siguientes del gate (W43 a W45) sí.',
     },
     {
+      id: 'neumonias_j12', pad: 'Neumonías y bronconeumonías', nombre: 'Neumonías y bronconeumonías',
+      nombreCorto: 'Neumonías', etiqueta: 'Neumonías y bronconeumonías (J12-J18 excepto J18.2, J13 y J14)',
+      dataKey: 'neumonias_j12', marca: 'NEUMONIAS_J12', pagina: 'neumonias_j12.html',
+      consulta: 'neumonias', cie: 'J12-J18', color: '#34D399',
+      alias: ['neumonias y bronconeumonias', 'neumonia', 'neumonias', 'bronconeumonia',
+        'bronconeumonias', 'pulmonia', 'pulmonias', 'j12', 'j18', 'pneumonia', 'pneumonias',
+        'bronchopneumonia'],
+      prefijos: ['neumoni', 'bronconeumoni', 'pulmoni', 'pneumoni', 'bronchopneumoni'],
+    },
+    {
       id: 'ulceras_k25', pad: 'Úlceras, gastritis y duodenitis',
       nombre: 'Úlceras, gastritis y duodenitis', nombreCorto: 'Úlceras y gastritis',
       etiqueta: 'Úlceras, gastritis y duodenitis (K25-K29)', dataKey: 'ulceras_k25',
@@ -351,7 +361,7 @@
     'sarampion', 'rubeola', 'hepatitis', 'zika', 'chikungunya', 'malaria',
     'linfoma', 'tumor', 'neoplasia', 'cardiopatia congenita', 'cardiopatia', 'infarto',
     'ataque al corazon', 'ataque cardiaco',
-    'embolia', 'neumonia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
+    'embolia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
     // Fuera del bloque A04, A08-A09: rotavirus es A08.0 y las demás tienen código propio.
     'rotavirus', 'shigelosis', 'amebiasis', 'salmonelosis', 'tifoidea',
     'lupus', 'fibromialgia', 'esclerosis', 'huntington', 'ela ',
@@ -359,7 +369,7 @@
     // En inglés: sin esto, «epilepsy in jalisco» caería en la tabla neuro del estado.
     'gestational diabetes', 'diabetes gestational', 'diabetes insipidus', 'prediabetic',
     'epilepsy', 'schizophrenia', 'anxiety', 'tuberculosis', 'hiv', 'aids', 'measles',
-    'lymphoma', 'heart attack', 'pneumonia', 'bronchitis', 'arthritis',
+    'lymphoma', 'heart attack', 'bronchitis', 'arthritis',
     'kidney failure', 'heart failure',
   ]);
 
