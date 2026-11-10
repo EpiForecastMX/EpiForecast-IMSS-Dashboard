@@ -2,6 +2,25 @@
     "_generated": "2026-11-09",
     "items": [
         {
+            "date": "10 de noviembre de 2026",
+            "iso": "2026-11-10",
+            "type": "radar",
+            "tag": "Control estacional",
+            "featured": true,
+            "title": "Las neumonías y bronconeumonías se publican con el control estacional",
+            "summary": "Pronóstico a 52 semanas para el país, 4 regiones y las 32 entidades, por sexo. Su portafolio no superó la prueba de 2025 en el total nacional, así que se publica el control estacional, sin validar.",
+            "body": [
+                "EpiForecast-MX publica las <strong style=\"color:var(--cream)\">neumonías y bronconeumonías (CIE-10 J12-J18 excepto J18.2, J13 y J14)</strong>: pronósticos semanales a 52 semanas para el país, 4 regiones y las 32 entidades, en general y por sexo (111 series), a partir de los Cuadros 5.1 y 5.2 del Boletín Epidemiológico del SINAVE.",
+                "En la prueba de 2025 su portafolio de modelos cumplió en las series estatales, pero no en el total nacional, frente al control estacional. Por eso se publica el control, que repite los casos notificados 52 semanas antes, y no se presenta como validado; las cifras de esa prueba están en la página del padecimiento.",
+                "Usa datos hasta la semana 42 de 2026 y se emitió el 10 de noviembre, antes de que existiera el boletín 44. Es un pronóstico puntual, sin intervalos de incertidumbre, y no se reentrena: con cada boletín sólo se registrará su error."
+            ],
+            "link": {
+                "href": "neumonias_j12.html",
+                "text": "Ver el control de neumonías y bronconeumonías",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
+        {
             "date": "9 de noviembre de 2026",
             "iso": "2026-11-09",
             "type": "datos",

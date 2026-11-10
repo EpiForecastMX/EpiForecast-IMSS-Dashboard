@@ -54,16 +54,16 @@ clave.** Una vista nueva que imprima nombres tiene que importar `display.js`; `c
 
 Dashboard interactivo del proyecto **EpiForecast-MX**, desarrollado en colaboración entre el
 **Tecnológico de Monterrey** y el **Instituto Mexicano del Seguro Social (IMSS)**. Cubre
-**treinta y cuatro padecimientos**:
+**treinta y cinco padecimientos**:
 
 - **Carril original (cuatro):** Depresión (F32), enfermedad de Parkinson (G20), enfermedad de
   Alzheimer (G30) y Dengue (A97). Los tres neurológicos son la cohorte de 333 modelos; Dengue tiene
   su propio pipeline de conteos y página en `dengue.html` (pronóstico a un año; la proyección NB-GLM a
   cinco años se retiró en W37).
-- **Releases del runner genérico (treinta):** publicados desde releases sellados
+- **Releases del runner genérico (treinta y uno):** publicados desde releases sellados
   (`publication/catalog.json`): obesidad, diabetes tipo I y II, anorexia y bulimia, hipertensión,
-  enfermedad isquémica y cerebrovascular, seis padecimientos del radar del boletín (el sexto, asma)
-  y diecisiete cánceres. Cada uno tiene su página `<id>.html`. Los que no superaron su prueba de aceptación
+  enfermedad isquémica y cerebrovascular, seis padecimientos del radar del boletín (el sexto, asma),
+  neumonías y bronconeumonías y diecisiete cánceres. Cada uno tiene su página `<id>.html`. Los que no superaron su prueba de aceptación
   (2025 para la mayoría; 2026-W01 a W41 para los quince cánceres con datos sólo desde 2023) se
   publican con el control estacional y nunca como validados. Covid-19 aparece sólo en
   `rechazados.html`.
@@ -78,7 +78,7 @@ epidemiológico.
 
 El componente principal del dashboard es **EpiBot** (`epibot/`), un asistente conversacional que
 responde con datos reales de los 333 modelos neurológicos, de **Dengue** (handler `answerDengue`,
-alimentado por la sección `dengue` de `knowledge.json`) y de los **treinta padecimientos del
+alimentado por la sección `dengue` de `knowledge.json`) y de los **treinta y un padecimientos del
 runner**, cuyos alias, marcadores de gráfica y páginas salen de `js/release_catalog.js` y cuyas cifras
 salen de `publication/<id>/vista.json`.
 

@@ -12,7 +12,7 @@ const leer = (r) => readFileSync(new URL(`../../${r}`, import.meta.url), 'utf-8'
 const K = readFileSync(new URL('../knowledge.json', import.meta.url), 'utf-8');
 const VISTAS = ['obesidad', 'anorexia_f50', 'diabetes_t1', 'diabetes_t2', 'hipertension_i10',
   'isquemica_i20', 'cerebrovascular_i60', 'intestinales_a04', 'ira_j00', 'ivu_n39', 'gingivitis_k05',
-  'asma_j45', 'ulceras_k25', 'cancer_mama_c50', 'cancer_cuello_utero_c53', 'cancer_pulmon_c33', 'cancer_estomago_c16', 'cancer_colon_c18', 'linfoma_hodgkin_c81', 'linfoma_no_hodgkin_c82', 'leucemia_c91', 'cancer_pancreas_c26', 'cancer_encefalo_c70', 'cancer_cuerpo_utero_c54', 'cancer_ovario_c56', 'cancer_rinon_c64', 'cancer_prostata_c61', 'cancer_huesos_c40', 'cancer_higado_c22', 'cancer_esofago_c15'];
+  'asma_j45', 'ulceras_k25', 'cancer_mama_c50', 'cancer_cuello_utero_c53', 'cancer_pulmon_c33', 'cancer_estomago_c16', 'cancer_colon_c18', 'linfoma_hodgkin_c81', 'linfoma_no_hodgkin_c82', 'leucemia_c91', 'cancer_pancreas_c26', 'cancer_encefalo_c70', 'cancer_cuerpo_utero_c54', 'cancer_ovario_c56', 'cancer_rinon_c64', 'cancer_prostata_c61', 'cancer_huesos_c40', 'cancer_higado_c22', 'cancer_esofago_c15', 'neumonias_j12'];
 globalThis.fetch = async (u) => ({
   ok: true,
   json: async () => {
@@ -59,7 +59,7 @@ test('gestacional, insípida y prediabetes siguen sin modelarse', async () => {
   const r = await conversa('casos de diabetes gestacional en jalisco');
   assert.equal(r.handler, 'answerPadecimientoNoModelado');
   assert.match(r.md, /no modela/);
-  assert.match(r.md, /treinta y cuatro padecimientos/);
+  assert.match(r.md, /treinta y cinco padecimientos/);
 });
 
 test('«diabetes» a secas avisa que se toma como tipo II', async () => {
@@ -321,7 +321,7 @@ test('asma responde su release, en español e inglés, y dice la cronología de 
   const dos = await conversa('asma en jalisco', 'y hombres');
   assert.match(dos.md, /Asma \(J45, J46\) · Jalisco · Hombres/);
   // Los vecinos respiratorios siguen sin modelarse, solos o junto al asma, y «fantasma» no es asma.
-  for (const q of ['bronquitis en jalisco', 'enfisema en sonora', 'neumonia en jalisco', 'comparar asma con bronquitis']) {
+  for (const q of ['bronquitis en jalisco', 'enfisema en sonora', 'influenza en jalisco', 'comparar asma con bronquitis']) {
     const r = await conversa(q);
     assert.equal(r.handler, 'answerPadecimientoNoModelado', q);
     assert.doesNotMatch(r.md, MARCADOR_RELEASE, q);
@@ -471,3 +471,21 @@ test('las semanas sin observación no se presentan como futuras', async () => {
   assert.match(r.md, /aún sin observación publicada/);
 });
 
+
+test('Neumonías y bronconeumonías responden su control, nunca como validadas', async () => {
+  for (const q of ['neumonia en jalisco', 'neumonías en sonora', 'bronconeumonia en jalisco',
+    'pulmonia en yucatan', 'casos de neumonias en el pais', 'pneumonia in jalisco']) {
+    const r = await conversa(q);
+    assert.match(r.md, /NEUMONIAS_J12/, q);
+    assert.match(r.md, /control estacional/i, q);
+    assert.doesNotMatch(r.md, /Validación prospectiva en curso|no modela/, q);
+  }
+  const dos = await conversa('neumonia en jalisco', 'y hombres');
+  assert.match(dos.md, /Neumonías y bronconeumonías .* · Jalisco · Hombres/);
+  // La neumonía por covid sigue fuera: Covid-19 no está modelado.
+  assert.notEqual((await conversa('neumonia por covid en jalisco')).handler, undefined);
+  assert.doesNotMatch((await conversa('neumonia por covid en jalisco')).md, /NEUMONIAS_J12/);
+  // Las vecinas respiratorias no se vuelven neumonía.
+  assert.equal((await conversa('bronquitis en jalisco')).handler, 'answerPadecimientoNoModelado');
+  assert.doesNotMatch((await conversa('infecciones respiratorias en jalisco')).md, /NEUMONIAS_J12/);
+});

@@ -6,20 +6,20 @@
   <title>EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes</title>
 
   <!-- SEO -->
-  <meta name="description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad, trastornos alimentarios, Diabetes tipo I y II, hipertensión, enfermedades isquémica y cerebrovascular, infecciones intestinales, infecciones respiratorias agudas, infección de vías urinarias, gingivitis, úlceras, gastritis y duodenitis, asma y diecisiete tipos de cáncer en las 32 entidades de México, con un horizonte de 52 semanas." />
+  <meta name="description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad, trastornos alimentarios, Diabetes tipo I y II, hipertensión, enfermedades isquémica y cerebrovascular, infecciones intestinales, infecciones respiratorias agudas, infección de vías urinarias, gingivitis, úlceras, gastritis y duodenitis, asma, neumonías y bronconeumonías, y diecisiete tipos de cáncer en las 32 entidades de México, con un horizonte de 52 semanas." />
   <link rel="canonical" href="https://epiforecast.mx/" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://epiforecast.mx/" />
   <meta property="og:title" content="EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes" />
-  <meta property="og:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad, trastornos alimentarios, Diabetes tipo I y II, hipertensión, enfermedades isquémica y cerebrovascular, infecciones intestinales, infecciones respiratorias agudas, infección de vías urinarias, gingivitis, úlceras, gastritis y duodenitis, asma y diecisiete tipos de cáncer en las 32 entidades de México, con un horizonte de 52 semanas." />
+  <meta property="og:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad, trastornos alimentarios, Diabetes tipo I y II, hipertensión, enfermedades isquémica y cerebrovascular, infecciones intestinales, infecciones respiratorias agudas, infección de vías urinarias, gingivitis, úlceras, gastritis y duodenitis, asma, neumonías y bronconeumonías, y diecisiete tipos de cáncer en las 32 entidades de México, con un horizonte de 52 semanas." />
   <meta property="og:image" content="https://epiforecast.mx/og-image.png" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="EpiForecast-MX — Pronósticos Epidemiológicos Inteligentes" />
-  <meta name="twitter:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad, trastornos alimentarios, Diabetes tipo I y II, hipertensión, enfermedades isquémica y cerebrovascular, infecciones intestinales, infecciones respiratorias agudas, infección de vías urinarias, gingivitis, úlceras, gastritis y duodenitis, asma y diecisiete tipos de cáncer en las 32 entidades de México, con un horizonte de 52 semanas." />
+  <meta name="twitter:description" content="Plataforma de inteligencia epidemiológica multi-modelo que pronostica las notificaciones semanales de Depresión, Parkinson, Alzheimer, Dengue, Obesidad, trastornos alimentarios, Diabetes tipo I y II, hipertensión, enfermedades isquémica y cerebrovascular, infecciones intestinales, infecciones respiratorias agudas, infección de vías urinarias, gingivitis, úlceras, gastritis y duodenitis, asma, neumonías y bronconeumonías, y diecisiete tipos de cáncer en las 32 entidades de México, con un horizonte de 52 semanas." />
   <meta name="twitter:image" content="https://epiforecast.mx/og-image.png" />
 
   <!-- Iconos y tema -->
@@ -885,6 +885,11 @@
     .disease-card--asm .disease-icon svg { color: #7DD3FC; }
     .disease-card--asm h3 { color: #7DD3FC; }
     .disease-card--asm .disease-tag { background: rgba(125,211,252,0.16); color: #BAE6FD; }
+    .disease-card--neu::before { background: #34D399; }
+    .disease-card--neu .disease-icon { background: rgba(52,211,153,0.16); }
+    .disease-card--neu .disease-icon svg { color: #34D399; }
+    .disease-card--neu h3 { color: #34D399; }
+    .disease-card--neu .disease-tag { background: rgba(52,211,153,0.16); color: #A7F3D0; }
     .disease-card--ira::before { background: #818CF8; }
     .disease-card--ira .disease-icon { background: rgba(129,140,248,0.16); }
     .disease-card--ira .disease-icon svg { color: #818CF8; }
@@ -2930,7 +2935,7 @@
       .edl-dateline { font-size: 0.6rem; letter-spacing: 0.1em; }
     }
   </style>
-<script src="epibot/js/release_catalog.js?v=15"></script>
+<script src="epibot/js/release_catalog.js?v=17"></script>
 </head>
 <body>
 <!-- build: dengue-methodology-card r1 -->
@@ -2967,6 +2972,7 @@
             <a href="gingivitis_k05.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Gingivitis y enfermedad periodontal</a>
             <a href="ulceras_k25.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Úlceras, gastritis y duodenitis</a>
             <a href="asma_j45.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Asma</a>
+            <a href="neumonias_j12.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Neumonías y bronconeumonías</a>
             <a href="cancer_mama_c50.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Tumor maligno de la mama</a>
             <a href="cancer_cuello_utero_c53.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Tumor maligno del cuello del útero</a>
             <a href="cancer_pulmon_c33.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Tumor maligno de tráquea, bronquios y pulmón</a>
@@ -3071,6 +3077,7 @@
           <a href="gingivitis_k05.html">Gingivitis y enfermedad periodontal</a>
           <a href="ulceras_k25.html">Úlceras, gastritis y duodenitis</a>
           <a href="asma_j45.html">Asma</a>
+          <a href="neumonias_j12.html">Neumonías y bronconeumonías</a>
           <a href="cancer_mama_c50.html">Tumor maligno de la mama</a>
           <a href="cancer_cuello_utero_c53.html">Tumor maligno del cuello del útero</a>
           <a href="cancer_pulmon_c33.html">Tumor maligno de tráquea, bronquios y pulmón</a>
@@ -3135,7 +3142,7 @@
     <div class="edl-wrap edl-article-col">
       <div class="edl-dateline">Pronóstico epidemiológico de México <span>&middot;</span> Edición de la semana 43, 2026</div>
       <h1 class="edl-headline">Anticipar la enfermedad,<br><em>semana a semana</em></h1>
-      <p class="edl-deck">EpiForecast-MX pronostica las notificaciones semanales de treinta y cuatro padecimientos a 52 semanas. La ronda con corte W37 sostiene 432 series productivas: asigna cuatro motores a las series neuropsiquiátricas y DeepAR o Prophet a las de Dengue. La <a href="obesidad.html">obesidad</a> y la diabetes <a href="diabetes_t1.html">tipo I</a> y <a href="diabetes_t2.html">tipo II</a> publican 111 series cada una desde pronósticos congelados que se comparan cada semana con lo observado. <a href="anorexia_f50.html">Anorexia, bulimia y otros trastornos alimentarios</a> publican el control estacional, porque su portafolio no superó la prueba de 2025. También se incorporan la <a href="hipertension_i10.html">hipertensión arterial</a> y, con el control estacional, las enfermedades <a href="isquemica_i20.html">isquémica</a> y <a href="cerebrovascular_i60.html">cerebrovascular</a>. Del radar del boletín 42 se suman las <a href="intestinales_a04.html">infecciones intestinales por otros organismos y las mal definidas</a>, la <a href="ivu_n39.html">infección de vías urinarias</a> y las <a href="ulceras_k25.html">úlceras, gastritis y duodenitis</a>, más el control estacional de las <a href="ira_j00.html">infecciones respiratorias agudas</a> y de la <a href="gingivitis_k05.html">gingivitis y enfermedad periodontal</a>. El <a href="asma_j45.html">asma</a>, del mismo boletín, superó la prueba de 2025 y se pronostica desde el 9 de noviembre. El <a href="cancer_mama_c50.html">tumor maligno de la mama</a> también publica su control estacional, y el <a href="cancer_cuello_utero_c53.html">tumor maligno del cuello del útero</a>, que superó la prueba de 2025, se pronostica sin desglose por sexo. Diez cánceres que el boletín publica desde 2023 se suman con una política de historia corta: <a href="cancer_pulmon_c33.html">tumor maligno de tráquea, bronquios y pulmón</a>, <a href="cancer_estomago_c16.html">tumor maligno del estómago</a>, <a href="cancer_colon_c18.html">tumor maligno del colon y recto</a>, <a href="linfoma_hodgkin_c81.html">linfoma de Hodgkin</a>, <a href="linfoma_no_hodgkin_c82.html">linfoma no Hodgkin</a>, <a href="leucemia_c91.html">leucemia</a>, <a href="cancer_pancreas_c26.html">tumor maligno del páncreas</a>, <a href="cancer_encefalo_c70.html">tumores malignos del encéfalo y del sistema nervioso central</a>, <a href="cancer_cuerpo_utero_c54.html">tumor maligno del cuerpo del útero</a> y <a href="cancer_ovario_c56.html">tumor maligno del ovario</a>. Otros cinco, que no superaron su prueba, publican el control estacional: <a href="cancer_rinon_c64.html">tumor maligno del riñón</a>, <a href="cancer_prostata_c61.html">tumor maligno de la próstata</a>, <a href="cancer_huesos_c40.html">tumores malignos de los huesos y de los cartílagos articulares</a>, <a href="cancer_higado_c22.html">tumor maligno del hígado y de las vías biliares intrahepáticas</a> y <a href="cancer_esofago_c15.html">tumor maligno del esófago</a>.</p>
+      <p class="edl-deck">EpiForecast-MX pronostica las notificaciones semanales de treinta y cinco padecimientos a 52 semanas. La ronda con corte W37 sostiene 432 series productivas: asigna cuatro motores a las series neuropsiquiátricas y DeepAR o Prophet a las de Dengue. La <a href="obesidad.html">obesidad</a> y la diabetes <a href="diabetes_t1.html">tipo I</a> y <a href="diabetes_t2.html">tipo II</a> publican 111 series cada una desde pronósticos congelados que se comparan cada semana con lo observado. <a href="anorexia_f50.html">Anorexia, bulimia y otros trastornos alimentarios</a> publican el control estacional, porque su portafolio no superó la prueba de 2025. También se incorporan la <a href="hipertension_i10.html">hipertensión arterial</a> y, con el control estacional, las enfermedades <a href="isquemica_i20.html">isquémica</a> y <a href="cerebrovascular_i60.html">cerebrovascular</a>. Del radar del boletín 42 se suman las <a href="intestinales_a04.html">infecciones intestinales por otros organismos y las mal definidas</a>, la <a href="ivu_n39.html">infección de vías urinarias</a> y las <a href="ulceras_k25.html">úlceras, gastritis y duodenitis</a>, más el control estacional de las <a href="ira_j00.html">infecciones respiratorias agudas</a> y de la <a href="gingivitis_k05.html">gingivitis y enfermedad periodontal</a>. El <a href="asma_j45.html">asma</a>, del mismo boletín, superó la prueba de 2025 y se pronostica desde el 9 de noviembre. Del boletín 43 se suman las <a href="neumonias_j12.html">neumonías y bronconeumonías</a> con el control estacional: su portafolio cumplió en las series estatales, pero no en el total nacional. El <a href="cancer_mama_c50.html">tumor maligno de la mama</a> también publica su control estacional, y el <a href="cancer_cuello_utero_c53.html">tumor maligno del cuello del útero</a>, que superó la prueba de 2025, se pronostica sin desglose por sexo. Diez cánceres que el boletín publica desde 2023 se suman con una política de historia corta: <a href="cancer_pulmon_c33.html">tumor maligno de tráquea, bronquios y pulmón</a>, <a href="cancer_estomago_c16.html">tumor maligno del estómago</a>, <a href="cancer_colon_c18.html">tumor maligno del colon y recto</a>, <a href="linfoma_hodgkin_c81.html">linfoma de Hodgkin</a>, <a href="linfoma_no_hodgkin_c82.html">linfoma no Hodgkin</a>, <a href="leucemia_c91.html">leucemia</a>, <a href="cancer_pancreas_c26.html">tumor maligno del páncreas</a>, <a href="cancer_encefalo_c70.html">tumores malignos del encéfalo y del sistema nervioso central</a>, <a href="cancer_cuerpo_utero_c54.html">tumor maligno del cuerpo del útero</a> y <a href="cancer_ovario_c56.html">tumor maligno del ovario</a>. Otros cinco, que no superaron su prueba, publican el control estacional: <a href="cancer_rinon_c64.html">tumor maligno del riñón</a>, <a href="cancer_prostata_c61.html">tumor maligno de la próstata</a>, <a href="cancer_huesos_c40.html">tumores malignos de los huesos y de los cartílagos articulares</a>, <a href="cancer_higado_c22.html">tumor maligno del hígado y de las vías biliares intrahepáticas</a> y <a href="cancer_esofago_c15.html">tumor maligno del esófago</a>.</p>
       <div class="edl-byline">Una colaboración del Tecnológico de Monterrey con el Instituto Mexicano del Seguro Social. Datos actualizados cada semana desde el Boletín Epidemiológico del SINAVE.</div>
       <div class="edl-ctas">
         <a href="EpiDashboard.html" class="edl-primary">Abrir el tablero <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg></a>
@@ -3231,22 +3238,22 @@
         <div class="news-banner-row" id="newsBannerRow">
           <a href="novedades.html" class="news-lead">
             <div class="news-lead-meta">
-              <span class="news-date">9 de noviembre de 2026</span>
-              <span class="news-tag news-tag--datos">Datos</span>
+              <span class="news-date">10 de noviembre de 2026</span>
+              <span class="news-tag news-tag--radar">Control estacional</span>
             </div>
-            <div class="news-lead-title">Ya contamos con la semana epidemiológica 43 de 2026</div>
-            <div class="news-lead-sub">Se integró el Boletín SINAVE en los padecimientos publicados; el detalle por padecimiento aparece en esta sección.</div>
+            <div class="news-lead-title">Las neumonías y bronconeumonías se publican con el control estacional</div>
+            <div class="news-lead-sub">Pronóstico a 52 semanas para el país, 4 regiones y las 32 entidades, por sexo. Su portafolio no superó la prueba de 2025 en el total nacional, así que se publica el control estacional, sin validar.</div>
           </a>
           <div class="news-mini-list">
+            <a href="novedades.html" class="news-mini">
+              <span class="news-tag news-tag--datos">Datos</span>
+              <span class="news-mini-title">Ya contamos con la semana epidemiológica 43 de 2026</span>
+              <span class="news-mini-date">9 de noviembre de 2026</span>
+            </a>
             <a href="novedades.html" class="news-mini">
               <span class="news-tag news-tag--radar">Nuevo padecimiento</span>
               <span class="news-mini-title">El asma se incorpora al pronóstico</span>
               <span class="news-mini-date">9 de noviembre de 2026</span>
-            </a>
-            <a href="novedades.html" class="news-mini">
-              <span class="news-tag news-tag--radar">Corrección de datos</span>
-              <span class="news-mini-title">Nueve tipos de cáncer se reevalúan con los datos corregidos de 2026</span>
-              <span class="news-mini-date">8 de noviembre de 2026</span>
             </a>
           </div>
         </div>
@@ -3500,6 +3507,16 @@
         <h3>Asma</h3>
         <p>Unos 2,300 casos semanales en todo el país en 2026. Su portafolio superó la prueba de 2025. Usa datos hasta la semana 41 de 2026, se emitió el 9 de noviembre y su validación prospectiva está en curso.</p>
         <span class="disease-tag">CIE-10: J45, J46 · 64 modelos · 111 series publicadas · pronóstico puntual</span>
+      </a>
+
+      <!-- Neumonías y bronconeumonías (10-nov-2026): control estacional por orden del autor -->
+      <a class="disease-card disease-card--neu reveal reveal-delay-3" href="neumonias_j12.html">
+        <div class="disease-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>
+        </div>
+        <h3>Neumonías y bronconeumonías</h3>
+        <p>Unos 3,000 casos semanales en todo el país en 2026. Su portafolio no superó la prueba de 2025 en el total nacional, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p>
+        <span class="disease-tag">CIE-10: J12-J18 excepto J18.2, J13 y J14 · control estacional · 111 series publicadas · pronóstico puntual</span>
       </a>
 
       <!-- Cáncer de mama (8-nov-2026): control estacional por orden del autor -->
@@ -3819,6 +3836,7 @@
       <a href="gingivitis_k05.html">Gingivitis y enfermedad periodontal</a>
       <a href="ulceras_k25.html">Úlceras, gastritis y duodenitis</a>
       <a href="asma_j45.html">Asma</a>
+      <a href="neumonias_j12.html">Neumonías y bronconeumonías</a>
       <a href="cancer_mama_c50.html">Tumor maligno de la mama</a>
       <a href="cancer_cuello_utero_c53.html">Tumor maligno del cuello del útero</a>
       <a href="cancer_pulmon_c33.html">Tumor maligno de tráquea, bronquios y pulmón</a>
