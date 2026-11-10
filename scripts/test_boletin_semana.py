@@ -6,8 +6,9 @@ La prueba de extracción vuelve a leer el PDF de la semana 42 con la foto 42 com
 (para heredar la cobertura) y exige los mismos bytes en data.json, catalogo.csv,
 verification.json, boletin.txt y el PDF, y el mismo contenido en encabezados-ocr.json
 (el orden de claves de la primera publicación era arbitrario). Requiere Poppler y Tesseract;
-sin ellos se omite. La prueba del histórico retira la semana 42 de las curvas y la vuelve a
-agregar desde la foto: el resultado debe ser idéntico byte a byte.
+sin ellos se omite. La prueba del histórico retira de las curvas la semana vigente (la que
+declara assets/boletin/actual.json) y la vuelve a agregar desde su foto: el resultado debe ser
+idéntico byte a byte.
 """
 import copy
 import hashlib
@@ -29,6 +30,9 @@ import boletin_semana_historia as historia  # noqa: E402
 RAIZ = Path(__file__).resolve().parents[1]
 W42 = RAIZ / 'assets/boletin/2026-w42'
 URL = 'https://www.gob.mx/cms/uploads/attachment/file/1113914/Boletin-4226.pdf'
+_ACTUAL = json.loads((RAIZ / 'assets/boletin/actual.json').read_text())
+VIGENTE = RAIZ / _ACTUAL['carpeta']
+PDF_VIGENTE = VIGENTE / _ACTUAL['pdf']
 HERRAMIENTAS = all(shutil.which(t) for t in ('pdftotext', 'pdftoppm', 'tesseract'))
 
 
@@ -104,7 +108,7 @@ class ReconciliacionCerrada(unittest.TestCase):
 
 
 class Historico(unittest.TestCase):
-    def test_retirar_y_volver_a_agregar_la_semana_42_es_identico(self):
+    def test_retirar_y_volver_a_agregar_la_semana_vigente_es_identico(self):
         hist = RAIZ / historia.DIR
         index, shards = historia.cargar(hist)
         index0, shards0 = historia.compacto(index), {k: historia.compacto(v)
@@ -112,9 +116,9 @@ class Historico(unittest.TestCase):
         self.assertEqual(historia.csv_nacional(index, shards),
                          (hist / 'nacional-2013-2026.csv').read_bytes())
         historia.retirar_ultima(index, shards)
-        datos = json.loads((W42 / 'data.json').read_text())
-        sha = hashlib.sha256((W42 / 'boletin-4226.pdf').read_bytes()).hexdigest()
-        revisadas = historia.incorporar(index, shards, datos, URL, sha,
+        datos = json.loads((VIGENTE / 'data.json').read_text())
+        sha = hashlib.sha256(PDF_VIGENTE.read_bytes()).hexdigest()
+        revisadas = historia.incorporar(index, shards, datos, datos['meta']['source_url'], sha,
                                         json.loads(index0)['checked'])
         self.assertEqual(revisadas, [])
         self.assertEqual(historia.compacto(index), index0)
@@ -125,12 +129,12 @@ class Historico(unittest.TestCase):
 
     def test_la_misma_semana_no_se_agrega_dos_veces(self):
         index, shards = historia.cargar(RAIZ / historia.DIR)
-        datos = json.loads((W42 / 'data.json').read_text())
-        sha = hashlib.sha256((W42 / 'boletin-4226.pdf').read_bytes()).hexdigest()
+        datos = json.loads((VIGENTE / 'data.json').read_text())
+        sha = hashlib.sha256(PDF_VIGENTE.read_bytes()).hexdigest()
         with self.assertRaises(historia.FalloHistoria):
             historia.incorporar(index, shards, copy.deepcopy(datos), URL, sha, '2026-11-08')
         siguiente = copy.deepcopy(datos)
-        siguiente['meta']['week'] = 42
+        siguiente['meta']['week'] = datos['meta']['week']
         with self.assertRaises(historia.FalloHistoria):
             historia.incorporar(index, shards, siguiente, URL, 'f' * 64, '2026-11-08')
 

@@ -1,0 +1,46 @@
+{
+  "schema": "boletin_radar.v1",
+  "source_pdf_sha256": "f24aea9306d95d1489d3a8f373527918db1ae31a9c6a6f6aeab63826842f3c8a",
+  "source_period": "2026-W43",
+  "checked": "2026-11-09",
+  "state_blocks": 181,
+  "states_per_block": 32,
+  "state_columns_reconciled": true,
+  "national_rows": 77,
+  "national_values_verified": 385,
+  "categories_excluding_aggregate": 187,
+  "published_platform_entries": 34,
+  "scope": "Fixed snapshot of notified cases and incorporation proposal; no new forecast models.",
+  "warnings": [
+    {
+      "tipo": "nota_con_pagina",
+      "id": "p22b1",
+      "pagina": 27,
+      "citadas": [
+        22,
+        5
+      ],
+      "nota": "Discrepancia de origen: página 27 excluye J02, J03.0; el resumen de página 10 imprime J02.0, J03.0. No se corrige la codificación de fuente. Portafolio rechazado en la prueba de 2025; control estacional publicado por orden del autor (8-nov-2026)."
+    },
+    {
+      "tipo": "nota_con_pagina",
+      "id": "p33b2",
+      "pagina": 38,
+      "citadas": [
+        33,
+        4
+      ],
+      "nota": "Discrepancia de origen: la página 38 imprime B50 para P. vivax; el resumen de la página 9 imprime B51. Se conserva el rótulo de cada fuente."
+    },
+    {
+      "tipo": "nota_con_pagina",
+      "id": "p49b2",
+      "pagina": 54,
+      "citadas": [
+        49,
+        5
+      ],
+      "nota": "La página 54 imprime I20, I25; el resumen de la página 10 imprime I20–I25. Se conserva la codificación impresa."
+    }
+  ]
+}
