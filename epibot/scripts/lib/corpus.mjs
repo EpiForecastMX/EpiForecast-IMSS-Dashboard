@@ -590,7 +590,7 @@ function vistaChunks(root, r) {
       `${encabezado}\n\nNacional (general): ` +
       (nac.oos.semanas
         // Un control conserva su explicación con semanas observadas: sigue sin ser validable.
-        ? `${control}en ${nac.oos.semanas} semanas ya observadas tras el origen, sMAPE ${fmt(nac.oos.smape)} %, ` +
+        ? `${control}en ${nac.oos.semanas === 1 ? '1 semana ya observada' : `${nac.oos.semanas} semanas ya observadas`} tras el origen, sMAPE ${fmt(nac.oos.smape)} %, ` +
           `MAE ${fmt(nac.oos.mae, 0)} casos por semana y sesgo ${fmt(nac.oos.sesgo_pct)} % (observados ` +
           `${fmt(nac.oos.observado_total, 0)} frente a ${fmt(nac.oos.pronostico_total, 0)} pronosticados). `
         : control || `la validación prospectiva está en curso (${v.weeks_available} de ${v.weeks_required} semanas): aún no hay semanas observadas tras el origen y no existe desempeño fuera de muestra. `) +

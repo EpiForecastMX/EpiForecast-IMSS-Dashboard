@@ -47,7 +47,7 @@ function ficha(v, x, encabezado, r) {
   return [
     ...inicio,
     ...(v.caida_al_control ? [avisoControl(v), ''] : []),
-    `**Cómo le ha ido fuera de muestra** (${x.oos.semanas} semanas observadas, hasta ${semana(v.observation_cutoff)}):`,
+    `**Cómo le ha ido fuera de muestra** (${x.oos.semanas === 1 ? '1 semana observada' : `${x.oos.semanas} semanas observadas`}, hasta ${semana(v.observation_cutoff)}):`,
     `- sMAPE: **${num1(x.oos.smape)} %**`,
     `- Error medio absoluto: ${ent0(x.oos.mae)} casos por semana`,
     `- Sesgo: ${num1(x.oos.sesgo_pct)} % (observados ${ent0(x.oos.observado_total)} frente a ${ent0(x.oos.pronostico_total)} pronosticados)`,
@@ -151,7 +151,8 @@ function answerRelease(q, ent, s, d, r) {
   const sexo = ent.sexo || 'general';
   const sexoTxt = SEXO_TXT[sexo];
   const est = Object.values(v.series).filter((x) => x.nivel === 'estado' && x.sexo === sexo && x.oos.smape != null);
-  const oosTxt = `${est[0]?.oos.semanas ?? 0} semanas observadas tras el origen ${semana(v.origin)}`;
+  const nOos = est[0]?.oos.semanas ?? 0;
+  const oosTxt = `${nOos === 1 ? '1 semana observada' : `${nOos} semanas observadas`} tras el origen ${semana(v.origin)}`;
   const fin = (lineas, estados) => avisoSexo + lineas.join('\n') + pie + marca(tipo, ent, estados, r);
   const conOos = est.length > 0;
   const pideError = any(q, ['error', 'smape', 'precision', 'sesgo', 'desempeno']);

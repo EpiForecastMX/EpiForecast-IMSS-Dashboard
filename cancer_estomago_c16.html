@@ -570,13 +570,13 @@
       $('chartTitle').textContent = `${s.nombre} · ${s.sexo_nombre}`;
       const o = s.oos;
       $('mSmape').textContent = pct(o.smape);
-      $('mSmapeL').textContent = o.semanas ? `sMAPE fuera de muestra (${o.semanas} semanas)` : 'sMAPE fuera de muestra (sin semanas aún)';
+      $('mSmapeL').textContent = o.semanas ? `sMAPE fuera de muestra (${o.semanas} ${o.semanas === 1 ? 'semana' : 'semanas'})` : 'sMAPE fuera de muestra (sin semanas aún)';
       $('mMae').textContent = o.mae === null ? '—' : nf0.format(o.mae);
       $('mBias').textContent = signo(o.sesgo_pct);
       $('mTotal').textContent = nf0.format(s.pronostico_52_total);
       $('mEngine').textContent = motorDe(s);
       $('chartCap').textContent = o.semanas
-        ? `En las ${o.semanas} semanas ya observadas se reportaron ${nf0.format(o.observado_total)} casos y el pronóstico congelado estimaba ${nf0.format(o.pronostico_total)}.`
+        ? `${o.semanas === 1 ? 'En la semana ya observada' : `En las ${o.semanas} semanas ya observadas`} se reportaron ${nf0.format(o.observado_total)} casos y el pronóstico congelado estimaba ${nf0.format(o.pronostico_total)}.`
         : 'Aún no hay semanas observadas después del origen: la comparación empezará con el siguiente boletín.';
 
       if (!window.Chart) { $('chartCap').textContent = 'No se pudo cargar la librería de gráficos.'; return; }
@@ -629,7 +629,7 @@
       }
       const n = filas[0] ? filas[0].oos.semanas : 0;
       $('tablaNota').textContent = n
-        ? `Semanas evaluadas: ${n}, de la semana ${V.origin[1] + 1} a la ${V.observation_cutoff[1]} de ${V.observation_cutoff[0]}. Observado y pronosticado son casos acumulados en esas semanas.`
+        ? (n === 1 ? `Semanas evaluadas: 1, la semana ${V.observation_cutoff[1]} de ${V.observation_cutoff[0]}. Observado y pronosticado son los casos de esa semana.` : `Semanas evaluadas: ${n}, de la semana ${V.origin[1] + 1} a la ${V.observation_cutoff[1]} de ${V.observation_cutoff[0]}. Observado y pronosticado son casos acumulados en esas semanas.`)
         : `Aún no hay semanas evaluadas: la tabla ordena las entidades por casos pronosticados en ${V.horizon_weeks} semanas. El error aparecerá con los próximos boletines.`;
     }
 

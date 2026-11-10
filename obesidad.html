@@ -566,12 +566,12 @@
       $('chartTitle').textContent = `${s.nombre} · ${s.sexo_nombre}`;
       const o = s.oos;
       $('mSmape').textContent = pct(o.smape);
-      $('mSmapeL').textContent = `sMAPE fuera de muestra (${o.semanas} semanas)`;
+      $('mSmapeL').textContent = `sMAPE fuera de muestra (${o.semanas} ${o.semanas === 1 ? 'semana' : 'semanas'})`;
       $('mMae').textContent = o.mae === null ? '—' : nf0.format(o.mae);
       $('mBias').textContent = signo(o.sesgo_pct);
       $('mTotal').textContent = nf0.format(s.pronostico_52_total);
       $('mEngine').textContent = motorDe(s);
-      $('chartCap').textContent = `En las ${o.semanas} semanas ya observadas se reportaron ${nf0.format(o.observado_total)} casos y el pronóstico congelado estimaba ${nf0.format(o.pronostico_total)}.`;
+      $('chartCap').textContent = `${o.semanas === 1 ? 'En la semana ya observada' : `En las ${o.semanas} semanas ya observadas`} se reportaron ${nf0.format(o.observado_total)} casos y el pronóstico congelado estimaba ${nf0.format(o.pronostico_total)}.`;
 
       if (!window.Chart) { $('chartCap').textContent = 'No se pudo cargar la librería de gráficos.'; return; }
       const datos = {
@@ -620,7 +620,7 @@
         tb.appendChild(tr);
       }
       const n = filas[0] ? filas[0].oos.semanas : 0;
-      $('tablaNota').textContent = `Semanas evaluadas: ${n}, de la semana ${V.origin[1] + 1} a la ${V.observation_cutoff[1]} de ${V.observation_cutoff[0]}. Observado y pronosticado son casos acumulados en esas semanas.`;
+      $('tablaNota').textContent = (n === 1 ? `Semanas evaluadas: 1, la semana ${V.observation_cutoff[1]} de ${V.observation_cutoff[0]}. Observado y pronosticado son los casos de esa semana.` : `Semanas evaluadas: ${n}, de la semana ${V.origin[1] + 1} a la ${V.observation_cutoff[1]} de ${V.observation_cutoff[0]}. Observado y pronosticado son casos acumulados en esas semanas.`);
     }
 
     function cabecera() {
