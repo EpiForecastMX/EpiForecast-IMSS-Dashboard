@@ -64,7 +64,8 @@ test('un control conserva su explicación cuando ya hay semanas observadas', () 
     const pointers = JSON.parse(readFileSync(resolve(tmp, 'publication', 'pointers.json'), 'utf-8')).pointers;
     const { chunks } = buildChunks({ publicationRoot: tmp, publicationMode: 'public', publicationPointers: pointers });
     const c = chunks.find((x) => x.id.startsWith('release:cancer_rinon_c64:') && x.id.endsWith(':nacional'));
-    assert.match(c.text, /en 1 semanas ya observadas/);
+    assert.match(c.text, /en 1 semana ya observada tras el origen/);
+    assert.doesNotMatch(c.text, /1 semanas/);
     assert.match(c.text, /Es el control estacional/);
     assert.match(c.text, /No debe presentarse como validado/);
   } finally {
