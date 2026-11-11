@@ -7,12 +7,16 @@
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <meta name="color-scheme" content="light">
   <title>Dashboard epidemiológico · EpiForecast-MX</title>
-  <meta name="description" content="Series semanales observadas y pronósticos emitidos de Depresión, Parkinson, Alzheimer y Dengue por sexo, entidad federativa y región.">
+  <meta name="description" content="Panorama de los padecimientos publicados, explorador de series semanales observadas y pronósticos emitidos por sexo y territorio, comparador territorial, perfil temporal y vigilancia del boletín.">
   <meta property="og:title" content="Dashboard epidemiológico · EpiForecast-MX">
-  <meta property="og:description" content="Observado y pronóstico emitido a 52 semanas por padecimiento, sexo y territorio.">
+  <meta property="og:description" content="Padecimientos publicados, series por sexo y territorio, comparación, perfil temporal y vigilancia semanal.">
   <meta property="og:type" content="website">
   <link rel="stylesheet" href="assets/dashboard/dashboard.css">
+  <link rel="stylesheet" href="assets/dashboard/surveillance.css">
   <link rel="modulepreload" href="assets/dashboard/data.mjs">
+  <link rel="modulepreload" href="assets/dashboard/unified.mjs">
+  <link rel="modulepreload" href="assets/dashboard/analytics.mjs">
+  <link rel="modulepreload" href="assets/dashboard/svg_export.mjs">
   <script type="module" src="assets/dashboard/dashboard.mjs"></script>
 </head>
 <body>
@@ -40,213 +44,466 @@
     <section class="hero" aria-labelledby="titulo">
       <div class="hero__inner">
         <div class="hero__text">
-          <p class="eyebrow">Observado y pronóstico emitido</p>
+          <p class="eyebrow">Observado, pronóstico emitido y vigilancia</p>
           <h1 id="titulo">Dashboard <em>epidemiológico</em></h1>
-          <p class="hero__desc">Series semanales de Depresión, Parkinson, Alzheimer y Dengue por sexo y territorio, con el pronóstico a 52 semanas que emitió el motor asignado a cada serie.</p>
+          <p class="hero__desc">Todos los padecimientos publicados en un solo lugar: catálogo con su estado de publicación, explorador de cada serie por sexo y territorio, comparación entre territorios, perfil temporal del índice y las categorías del boletín semanal. Cada padecimiento conserva su propio origen, emisión y corte.</p>
         </div>
-        <dl class="hero__meta" id="emision" aria-label="Emisión vigente">
-          <div><dt>Corte del modelo</dt><dd id="em-corte">Cargando…</dd></div>
-          <div><dt>Último índice observado</dt><dd id="em-real">Cargando…</dd></div>
-          <div><dt>Último boletín integrado</dt><dd id="em-boletin">Cargando…</dd></div>
+        <dl class="hero__meta" id="emision" aria-label="Contenido del catálogo">
+          <div><dt>Padecimientos publicados</dt><dd id="em-padecimientos">Cargando…</dd></div>
+          <div><dt>Series semanales</dt><dd id="em-series">Cargando…</dd></div>
+          <div><dt>Cortes</dt><dd id="em-cortes">Individuales por padecimiento</dd></div>
         </dl>
       </div>
     </section>
 
-    <div class="tabs wrap" id="tabs" hidden>
-      <div role="tablist" aria-label="Vistas del dashboard">
-        <button type="button" role="tab" id="tab-tablero" aria-controls="panel-tablero" aria-selected="true">Dashboard</button>
-        <button type="button" role="tab" id="tab-archivo" aria-controls="panel-archivo" aria-selected="false" tabindex="-1">Archivo Tableau (histórico)</button>
+    <div class="toolnav">
+      <div class="wrap">
+        <div role="tablist" id="tabs" aria-label="Herramientas del dashboard">
+          <button type="button" role="tab" id="tab-panorama" data-vista="panorama" aria-controls="panel-panorama" aria-selected="true">Panorama</button>
+          <button type="button" role="tab" id="tab-explorar" data-vista="explorar" aria-controls="panel-explorar" aria-selected="false" tabindex="-1">Explorar series</button>
+          <button type="button" role="tab" id="tab-comparar" data-vista="comparar" aria-controls="panel-comparar" aria-selected="false" tabindex="-1">Comparar territorios</button>
+          <button type="button" role="tab" id="tab-perfil" data-vista="perfil" aria-controls="panel-perfil" aria-selected="false" tabindex="-1">Perfil temporal</button>
+          <button type="button" role="tab" id="tab-vigilancia" data-vista="vigilancia" aria-controls="panel-vigilancia" aria-selected="false" tabindex="-1">Vigilancia</button>
+          <button type="button" role="tab" id="tab-archivo" aria-controls="panel-archivo" aria-selected="false" tabindex="-1" hidden>Archivo Tableau (histórico)</button>
+        </div>
       </div>
     </div>
 
-    <div id="panel-tablero" role="tabpanel" aria-labelledby="tab-tablero">
-      <div class="filters-bar">
-        <form class="filters wrap" id="filtros" aria-label="Filtros de la selección">
-          <fieldset class="seg">
-            <legend>Padecimiento</legend>
-            <div class="seg__opts">
-              <label><input type="radio" name="p" value="depresion"><span>Depresión</span></label>
-              <label><input type="radio" name="p" value="parkinson"><span>Parkinson</span></label>
-              <label><input type="radio" name="p" value="alzheimer"><span>Alzheimer</span></label>
-              <label><input type="radio" name="p" value="dengue"><span>Dengue</span></label>
-            </div>
-          </fieldset>
-          <fieldset class="seg">
-            <legend>Sexo</legend>
-            <div class="seg__opts">
-              <label><input type="radio" name="s" value="general"><span>General</span></label>
-              <label><input type="radio" name="s" value="hombres"><span>Hombres</span></label>
-              <label><input type="radio" name="s" value="mujeres"><span>Mujeres</span></label>
-            </div>
-          </fieldset>
-          <div class="field">
-            <label for="f-territorio">Territorio</label>
-            <select id="f-territorio" name="t" disabled>
-              <option value="nacional">Nacional</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="f-ventana">Ventana temporal</label>
-            <select id="f-ventana" name="v">
-              <option value="todo">Serie completa disponible</option>
-              <option value="reciente">Últimas 26 semanas observadas y pronóstico</option>
-              <option value="observado">Sólo semanas observadas</option>
-              <option value="pronostico">Sólo pronóstico emitido</option>
-            </select>
-          </div>
-          <button type="button" class="btn btn--quiet" id="copiar-enlace">Copiar enlace</button>
-        </form>
+    <div class="wrap">
+      <div class="status" id="estado" role="status" aria-live="polite"></div>
+      <div class="alert" id="catalogo-error" role="alert" hidden>
+        <p id="catalogo-error-msg">No se pudo cargar el catálogo.</p>
+        <button type="button" class="btn" id="catalogo-reintentar">Reintentar</button>
       </div>
+      <div class="loading" id="catalogo-cargando">
+        <span class="loading__bar" aria-hidden="true"></span>
+        <p>Cargando el catálogo de padecimientos publicados…</p>
+      </div>
+    </div>
 
-      <div class="wrap">
-        <div class="status" id="estado" role="status" aria-live="polite"></div>
+    <!-- ── Panorama ─────────────────────────────────────────────────────── -->
+    <div id="panel-panorama" class="wrap panel" role="tabpanel" aria-labelledby="tab-panorama" tabindex="-1">
+      <section class="pano" id="pano" aria-labelledby="pano-titulo" hidden>
+        <header class="pano__head">
+          <div>
+            <p class="eyebrow">Catálogo publicado</p>
+            <h2 id="pano-titulo">Panorama de padecimientos</h2>
+          </div>
+          <ul class="pano__summary" id="pano-resumen" aria-label="Resumen del catálogo"></ul>
+        </header>
 
-        <div class="loading" id="cargando" hidden>
-          <span class="loading__bar" aria-hidden="true"></span>
-          <p id="cargando-msg">Cargando series…</p>
+        <form class="pano__tools" id="pano-filtros" aria-label="Filtros del catálogo">
+          <div class="field field--grow">
+            <label for="pano-buscar">Buscar padecimiento o clave CIE</label>
+            <input type="search" id="pano-buscar" autocomplete="off" spellcheck="false" placeholder="Por ejemplo: dengue, C50, diabetes">
+          </div>
+          <div class="field">
+            <label for="pano-estado">Estado de publicación</label>
+            <select id="pano-estado">
+              <option value="todos">Todos los estados</option>
+              <option value="pass">Validación prospectiva superada</option>
+              <option value="pending">Validación prospectiva en curso</option>
+              <option value="control">Control estacional publicado</option>
+              <option value="legacy">Serie histórica por entidad</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="pano-orden">Orden</label>
+            <select id="pano-orden">
+              <option value="nombre">Nombre</option>
+              <option value="cie">Clave CIE</option>
+              <option value="estado">Estado de publicación</option>
+              <option value="origen">Semana de origen más reciente</option>
+              <option value="observacion">Última observación más reciente</option>
+            </select>
+          </div>
+          <fieldset class="seg seg--compact">
+            <legend>Presentación</legend>
+            <div class="seg__opts">
+              <label><input type="radio" name="pano-modo" value="tarjetas" checked><span>Tarjetas</span></label>
+              <label><input type="radio" name="pano-modo" value="tabla"><span>Tabla</span></label>
+            </div>
+          </fieldset>
+        </form>
+        <p class="pano__count" id="pano-conteo"></p>
+        <p class="hint">Cada padecimiento tiene su propia semana de origen, emisión y corte de observación. Los totales de pronóstico de una tarjeta no se suman ni se ordenan contra los de otra: provienen de horizontes y orígenes distintos. Las minigráficas usan la escala de cada padecimiento.</p>
+        <ul class="pano__grid" id="pano-tarjetas" aria-label="Padecimientos publicados"></ul>
+        <div class="table-scroll" id="pano-tabla-wrap" tabindex="0" role="region" aria-labelledby="pano-tabla-caption" hidden>
+          <table class="weekly pano-table">
+            <caption id="pano-tabla-caption" class="sr-only">Padecimientos publicados del catálogo</caption>
+            <thead>
+              <tr>
+                <th scope="col">Padecimiento</th>
+                <th scope="col">CIE</th>
+                <th scope="col">Estado de publicación</th>
+                <th scope="col">Semana de origen</th>
+                <th scope="col">Última semana observada</th>
+                <th scope="col">Emisión registrada</th>
+                <th scope="col" class="num">Series</th>
+                <th scope="col">Sexos</th>
+                <th scope="col"><span class="sr-only">Acciones</span></th>
+              </tr>
+            </thead>
+            <tbody id="pano-tabla-cuerpo"></tbody>
+          </table>
         </div>
+      </section>
+    </div>
 
-        <div class="alert" id="error" role="alert" hidden>
-          <p id="error-msg">No se pudieron cargar los datos.</p>
-          <button type="button" class="btn" id="reintentar">Reintentar</button>
+    <!-- ── Selección compartida: explorar, comparar y perfil ─────────────── -->
+    <div class="filters-bar" id="barra-seleccion" hidden>
+      <form class="filters wrap" id="filtros" aria-label="Selección de la serie">
+        <div class="field field--disease">
+          <label for="f-padecimiento">Padecimiento</label>
+          <select id="f-padecimiento" name="p" disabled>
+            <option value="">Cargando catálogo…</option>
+          </select>
         </div>
-
-        <div class="dash" id="dash" hidden>
-          <section class="selection" aria-labelledby="sel-titulo">
-            <p class="eyebrow">Selección</p>
-            <h2 id="sel-titulo" class="selection__title">Selección</h2>
-            <dl class="selection__meta" id="sel-meta"></dl>
-          </section>
-
-          <section class="kpis" aria-label="Indicadores de la selección" id="kpis"></section>
-
-          <section class="card card--chart" aria-labelledby="graf-titulo">
-            <header class="card__head">
-              <h2 id="graf-titulo">Serie semanal</h2>
-            </header>
-            <ul class="legend" aria-label="Leyenda del gráfico">
-              <li><span class="sw sw--obs" aria-hidden="true"></span>Observado</li>
-              <li><span class="sw sw--pron" aria-hidden="true"></span>Pronóstico ya observado</li>
-              <li><span class="sw sw--fut" aria-hidden="true"></span>Pronóstico aún no observado</li>
-              <li><span class="sw sw--rev" aria-hidden="true"></span>Valor negativo (revisión)</li>
-            </ul>
-            <p class="legend-marks" id="graf-marcas"></p>
-            <p class="sr-only" id="graf-resumen"></p>
-            <div class="chart" id="chart" role="slider" tabindex="0"
-                 aria-label="Inspección semanal del gráfico" aria-describedby="graf-resumen calendario-nota graf-ayuda"
-                 aria-valuemin="1" aria-valuemax="1" aria-valuenow="1">
-              <svg id="grafico" viewBox="0 0 960 360" aria-hidden="true" focusable="false"></svg>
-              <div class="empty" id="graf-vacio" hidden></div>
-            </div>
-            <!-- Sin aria-live: el slider anuncia la semana con aria-valuetext y el ratón no debe saturar al lector. -->
-            <div class="readout" id="readout"></div>
-            <p class="hint" id="calendario-nota">El eje y la tabla conservan las fechas del índice de la serie. No equivalen al calendario de semanas del boletín, cuyo corte se muestra por separado.</p>
-            <p class="hint" id="graf-ayuda">Recorre las semanas con el ratón o el dedo; con el gráfico enfocado, usa las flechas (Inicio y Fin saltan a los extremos; Re Pág y Av Pág avanzan 4 semanas).</p>
-            <p class="note">
-              <strong>Incertidumbre no representada.</strong> Esta versión no dibuja bandas de intervalo: no
-              están disponibles para todos los motores y mezclarlas haría parecer comparable lo que no lo es.
-              <a id="enlace-metodologia" href="bitacora_modelado.html">Consulta la metodología</a>.
-            </p>
-          </section>
-
-          <section class="card card--motores" aria-labelledby="mot-titulo">
-            <header class="card__head"><h2 id="mot-titulo">Motores asignados</h2></header>
-            <p class="hint" id="mot-nota"></p>
-            <ul class="bars" id="motores"></ul>
-          </section>
-
-          <section class="card card--mapa" aria-labelledby="mapa-titulo">
-            <header class="card__head">
-              <h2 id="mapa-titulo">Mapa por entidad</h2>
-              <div class="field field--inline">
-                <label for="f-metrica">Medida del mapa y del ranking</label>
-                <select id="f-metrica" name="m">
-                  <option value="pronostico">Pronóstico emitido (posterior al corte)</option>
-                  <option value="observado">Observado en la ventana</option>
-                </select>
-              </div>
-            </header>
-            <p class="hint" id="mapa-nota"></p>
-            <div class="map" id="map-wrap">
-              <svg id="mapa" role="group" aria-label="Mapa de las 32 entidades; cada entidad es un botón que selecciona su serie"></svg>
-              <div class="empty" id="mapa-estado" hidden></div>
-            </div>
-            <ul class="scale" id="mapa-leyenda" aria-label="Escala del mapa"></ul>
-          </section>
-
-          <section class="card card--ranking" aria-labelledby="rank-titulo">
-            <header class="card__head"><h2 id="rank-titulo">Ranking de las 32 entidades</h2></header>
-            <p class="hint" id="rank-nota"></p>
-            <ol class="ranking" id="ranking"></ol>
-          </section>
-
-          <section class="card card--tabla" aria-labelledby="tabla-titulo">
-            <header class="card__head">
-              <h2 id="tabla-titulo">Tabla semanal</h2>
-              <button type="button" class="btn" id="descargar-csv" disabled>Descargar CSV</button>
-            </header>
-            <p class="hint" id="csv-nota">El CSV contiene la ventana completa elegida, sin aplicar el filtro de fase ni la paginación.</p>
-            <div class="table-tools">
-              <div class="field field--inline">
-                <label for="f-fase">Fase</label>
-                <select id="f-fase">
-                  <option value="todas">Todas las fases</option>
-                  <option value="observado">Observado, previo al corte</option>
-                  <option value="verificable">Pronóstico ya observado</option>
-                  <option value="futuro">Pronóstico aún no observado</option>
-                </select>
-              </div>
-              <div class="field field--inline">
-                <label for="f-filas">Filas por página</label>
-                <select id="f-filas">
-                  <option value="12">12</option>
-                  <option value="24">24</option>
-                </select>
-              </div>
-            </div>
-            <div class="table-scroll" tabindex="0" role="region" aria-labelledby="tabla-titulo">
-              <table class="weekly">
-                <caption class="sr-only" id="tabla-caption">Semanas de la selección</caption>
-                <thead>
-                  <tr>
-                    <th scope="col">Fecha de la serie</th>
-                    <th scope="col">Fase</th>
-                    <th scope="col" class="num">Observado</th>
-                    <th scope="col" class="num">Pronóstico</th>
-                  </tr>
-                </thead>
-                <tbody id="tabla-cuerpo"></tbody>
-              </table>
-            </div>
-            <nav class="pager" aria-label="Páginas de la tabla semanal">
-              <button type="button" class="btn btn--quiet" id="pag-primera">Primera</button>
-              <button type="button" class="btn btn--quiet" id="pag-anterior">Anterior</button>
-              <p class="pager__status" id="pag-estado" aria-live="polite"></p>
-              <button type="button" class="btn btn--quiet" id="pag-siguiente">Siguiente</button>
-              <button type="button" class="btn btn--quiet" id="pag-ultima">Última</button>
-            </nav>
-          </section>
+        <fieldset class="seg" id="f-sexo">
+          <legend>Sexo</legend>
+          <div class="seg__opts">
+            <label><input type="radio" name="s" value="general"><span>General</span></label>
+            <label><input type="radio" name="s" value="hombres"><span>Hombres</span></label>
+            <label><input type="radio" name="s" value="mujeres"><span>Mujeres</span></label>
+          </div>
+        </fieldset>
+        <div class="field">
+          <label for="f-territorio">Territorio</label>
+          <select id="f-territorio" name="t" disabled>
+            <option value="nacional">Nacional</option>
+          </select>
         </div>
+        <button type="button" class="btn btn--quiet" id="copiar-enlace">Copiar enlace</button>
+      </form>
+    </div>
 
-        <section class="scope" aria-labelledby="alcance-titulo">
-          <h2 id="alcance-titulo">Alcance y lectura</h2>
-          <ul>
-            <li>Este dashboard cubre los cuatro padecimientos con series semanales por entidad: Depresión, Parkinson, Alzheimer y Dengue. Los demás padecimientos publicados se consultan en <a href="Reports/index.html">Pronósticos</a> y en el <a href="boletin.html">boletín semanal</a>.</li>
-            <li>Cada combinación de padecimiento, sexo y territorio conserva su serie y motor asignado. El nacional no es la suma de los estados, y General no es la suma de Hombres y Mujeres; por eso aquí nunca se suman.</li>
-            <li>La serie General usa los casos semanales publicados. Las series de Hombres y Mujeres son incrementos netos del acumulado por sexo: pueden ser negativos cuando el boletín revisa cifras previas, y se muestran sin recortar.</li>
-            <li>Los totales se calculan sumando los valores semanales de la serie visual, que vienen redondeados; pueden diferir del resumen productivo. La tabla muestra hasta un decimal y el CSV conserva el valor de la serie; sus celdas vacías equivalen a «sin dato».</li>
-            <li>Son conteos absolutos: no se ajustan por población ni constituyen tasas, alertas o medidas de precisión.</li>
+    <div class="wrap" id="herramienta-estado" hidden>
+      <div class="notice" id="aviso" hidden></div>
+      <div class="loading" id="cargando" hidden>
+        <span class="loading__bar" aria-hidden="true"></span>
+        <p id="cargando-msg">Cargando series…</p>
+      </div>
+      <div class="alert" id="error" role="alert" hidden>
+        <p id="error-msg">No se pudieron cargar los datos.</p>
+        <button type="button" class="btn" id="reintentar">Reintentar</button>
+      </div>
+    </div>
+
+    <!-- ── Explorar ─────────────────────────────────────────────────────── -->
+    <div id="panel-explorar" class="wrap panel" role="tabpanel" aria-labelledby="tab-explorar" tabindex="-1" hidden>
+      <div class="dash" id="dash" hidden>
+        <section class="selection" aria-labelledby="sel-titulo">
+          <p class="eyebrow" id="sel-eyebrow">Selección</p>
+          <h2 id="sel-titulo" class="selection__title">Selección</h2>
+          <p class="selection__status" id="sel-estado"></p>
+        </section>
+
+        <section class="card card--range" aria-labelledby="rango-titulo">
+          <header class="card__head"><h2 id="rango-titulo">Rango y series visibles</h2></header>
+          <div class="range-tools">
+            <div class="field">
+              <label for="f-ventana">Ventana temporal</label>
+              <select id="f-ventana" name="v">
+                <option value="todo">Serie completa disponible</option>
+                <option value="reciente">Últimas 26 semanas observadas y pronóstico</option>
+                <option value="observado">Sólo semanas observadas</option>
+                <option value="pronostico">Sólo pronóstico emitido</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="f-desde">Desde (fecha del índice)</label>
+              <input type="date" id="f-desde">
+            </div>
+            <div class="field">
+              <label for="f-hasta">Hasta (fecha del índice)</label>
+              <input type="date" id="f-hasta">
+            </div>
+            <button type="button" class="btn btn--quiet" id="limpiar-rango">Quitar rango</button>
+            <fieldset class="checks">
+              <legend>Series en el gráfico</legend>
+              <label><input type="checkbox" id="ver-observado" checked> Observado</label>
+              <label><input type="checkbox" id="ver-pronostico" checked> Pronóstico emitido</label>
+            </fieldset>
+          </div>
+          <p class="hint" id="rango-nota"></p>
+        </section>
+
+        <section class="kpis" aria-label="Indicadores de la selección" id="kpis"></section>
+
+        <section class="card card--chart" aria-labelledby="graf-titulo">
+          <header class="card__head">
+            <h2 id="graf-titulo">Serie semanal</h2>
+            <div class="btn-row">
+              <button type="button" class="btn btn--quiet btn--sm" id="descargar-svg">Descargar SVG</button>
+              <button type="button" class="btn btn--quiet btn--sm" id="imprimir">Imprimir</button>
+            </div>
+          </header>
+          <ul class="legend" aria-label="Leyenda del gráfico">
+            <li><span class="sw sw--obs" aria-hidden="true"></span>Observado</li>
+            <li><span class="sw sw--pron" aria-hidden="true"></span>Pronóstico ya observado</li>
+            <li><span class="sw sw--fut" aria-hidden="true"></span>Pronóstico aún no observado</li>
+            <li><span class="sw sw--rev" aria-hidden="true"></span>Valor negativo (revisión)</li>
           </ul>
+          <p class="legend-marks" id="graf-marcas"></p>
+          <p class="sr-only" id="graf-resumen"></p>
+          <div class="chart" id="chart" role="slider" tabindex="0"
+               aria-label="Inspección semanal del gráfico" aria-describedby="graf-resumen calendario-nota graf-ayuda"
+               aria-valuemin="1" aria-valuemax="1" aria-valuenow="1">
+            <svg id="grafico" viewBox="0 0 960 360" aria-hidden="true" focusable="false"></svg>
+            <div class="empty" id="graf-vacio" hidden></div>
+          </div>
+          <div class="readout" id="readout"></div>
+          <p class="hint" id="calendario-nota">El eje y la tabla usan las fechas del índice de la serie. No equivalen al calendario de semanas del boletín; la semana de origen y la última semana observada se muestran por separado en la ficha.</p>
+          <p class="hint" id="graf-ayuda">Recorre las semanas con el ratón o el dedo; con el gráfico enfocado, usa las flechas (Inicio y Fin saltan a los extremos; Re Pág y Av Pág avanzan 4 semanas).</p>
+          <p class="note">
+            <strong>Incertidumbre no representada.</strong> Los pronósticos publicados son puntuales: no se dibujan bandas de intervalo.
+            <a id="enlace-metodologia" href="bitacora_modelado.html">Consulta la página del padecimiento</a>.
+          </p>
+        </section>
+
+        <section class="card card--ficha" aria-labelledby="ficha-titulo">
+          <header class="card__head"><h2 id="ficha-titulo">Ficha de la fuente</h2></header>
+          <dl class="ficha" id="ficha"></dl>
+          <p class="hint" id="ficha-nota"></p>
+        </section>
+
+        <section class="card card--mapa" aria-labelledby="mapa-titulo">
+          <header class="card__head">
+            <h2 id="mapa-titulo">Mapa por entidad</h2>
+            <div class="field field--inline">
+              <label for="f-metrica">Medida</label>
+              <select id="f-metrica" name="m">
+                <option value="pronostico">Pronóstico emitido (posterior al corte)</option>
+                <option value="observado">Observado en la ventana</option>
+              </select>
+            </div>
+          </header>
+          <p class="hint" id="mapa-nota"></p>
+          <div class="map" id="map-wrap">
+            <svg id="mapa" role="group" aria-label="Mapa de las 32 entidades; cada entidad es un botón que selecciona su serie"></svg>
+            <div class="empty" id="mapa-estado" hidden></div>
+          </div>
+          <ul class="scale" id="mapa-leyenda" aria-label="Escala del mapa"></ul>
+        </section>
+
+        <section class="card card--ranking" aria-labelledby="rank-titulo">
+          <header class="card__head"><h2 id="rank-titulo">Ranking territorial</h2></header>
+          <p class="hint" id="rank-nota"></p>
+          <ol class="ranking" id="ranking"></ol>
+          <div id="otros-territorios"></div>
+        </section>
+
+        <section class="card card--motores" aria-labelledby="mot-titulo">
+          <header class="card__head"><h2 id="mot-titulo">Motores asignados</h2></header>
+          <p class="hint" id="mot-nota"></p>
+          <ul class="bars" id="motores"></ul>
+        </section>
+
+        <section class="card card--tabla" aria-labelledby="tabla-titulo">
+          <header class="card__head">
+            <h2 id="tabla-titulo">Tabla semanal</h2>
+            <button type="button" class="btn" id="descargar-csv" disabled>Descargar CSV</button>
+          </header>
+          <p class="hint" id="csv-nota">El CSV contiene la ventana y el rango elegidos, sin aplicar el filtro de fase ni la paginación, e incluye origen, emisión, estado y fuente en cada fila.</p>
+          <div class="table-tools">
+            <div class="field field--inline">
+              <label for="f-fase">Fase</label>
+              <select id="f-fase">
+                <option value="todas">Todas las fases</option>
+                <option value="observado">Observado, previo al corte</option>
+                <option value="verificable">Pronóstico ya observado</option>
+                <option value="futuro">Pronóstico aún no observado</option>
+              </select>
+            </div>
+            <div class="field field--inline">
+              <label for="f-filas">Filas por página</label>
+              <select id="f-filas">
+                <option value="12">12</option>
+                <option value="24">24</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-scroll" tabindex="0" role="region" aria-labelledby="tabla-titulo">
+            <table class="weekly">
+              <caption class="sr-only" id="tabla-caption">Semanas de la selección</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Fecha del índice</th>
+                  <th scope="col">Fase</th>
+                  <th scope="col" class="num" id="tabla-obs">Observado</th>
+                  <th scope="col" class="num" id="tabla-pron">Pronóstico</th>
+                </tr>
+              </thead>
+              <tbody id="tabla-cuerpo"></tbody>
+            </table>
+          </div>
+          <nav class="pager" aria-label="Páginas de la tabla semanal">
+            <button type="button" class="btn btn--quiet" id="pag-primera">Primera</button>
+            <button type="button" class="btn btn--quiet" id="pag-anterior">Anterior</button>
+            <p class="pager__status" id="pag-estado" aria-live="polite"></p>
+            <button type="button" class="btn btn--quiet" id="pag-siguiente">Siguiente</button>
+            <button type="button" class="btn btn--quiet" id="pag-ultima">Última</button>
+          </nav>
         </section>
       </div>
     </div>
 
-    <div id="panel-archivo" class="wrap" role="tabpanel" aria-labelledby="tab-archivo" hidden>
+    <!-- ── Comparar ─────────────────────────────────────────────────────── -->
+    <div id="panel-comparar" class="wrap panel" role="tabpanel" aria-labelledby="tab-comparar" tabindex="-1" hidden>
+      <div class="dash" id="cmp-body" hidden>
+        <section class="selection" aria-labelledby="cmp-titulo">
+          <p class="eyebrow">Comparación territorial · mismo padecimiento y sexo</p>
+          <h2 id="cmp-titulo" class="selection__title">Comparar territorios</h2>
+          <p class="selection__status" id="cmp-sub"></p>
+        </section>
+
+        <section class="card card--full" aria-labelledby="cmp-sel-titulo">
+          <header class="card__head"><h2 id="cmp-sel-titulo">Territorios comparados (hasta 4)</h2></header>
+          <ul class="chips" id="cmp-chips" aria-label="Territorios en la comparación"></ul>
+          <div class="cmp-tools">
+            <div class="field">
+              <label for="cmp-agregar">Añadir territorio</label>
+              <select id="cmp-agregar"></select>
+            </div>
+            <button type="button" class="btn" id="cmp-agregar-btn">Añadir</button>
+            <fieldset class="seg">
+              <legend>Escala</legend>
+              <div class="seg__opts">
+                <label><input type="radio" name="cm" value="absolute"><span>Valores absolutos</span></label>
+                <label><input type="radio" name="cm" value="indexed"><span>Base 100</span></label>
+              </div>
+            </fieldset>
+          </div>
+          <p class="hint" id="cmp-rango"></p>
+        </section>
+
+        <div class="notice" id="cmp-aviso" hidden></div>
+
+        <section class="card card--full" aria-labelledby="cmp-graf-titulo">
+          <header class="card__head">
+            <h2 id="cmp-graf-titulo">Series alineadas en fechas comunes</h2>
+            <div class="btn-row">
+              <button type="button" class="btn btn--quiet btn--sm" id="cmp-svg">Descargar SVG</button>
+              <button type="button" class="btn btn--sm" id="cmp-csv">Descargar CSV</button>
+            </div>
+          </header>
+          <ul class="legend" id="cmp-leyenda" aria-label="Leyenda de la comparación"></ul>
+          <p class="hint" id="cmp-base"></p>
+          <p class="sr-only" id="cmp-resumen"></p>
+          <div class="chart" id="cmp-chart" role="slider" tabindex="0"
+               aria-label="Inspección semanal de la comparación" aria-describedby="cmp-resumen cmp-ayuda"
+               aria-valuemin="1" aria-valuemax="1" aria-valuenow="1">
+            <svg id="cmp-grafico" viewBox="0 0 960 380" aria-hidden="true" focusable="false"></svg>
+            <div class="empty" id="cmp-vacio" hidden></div>
+          </div>
+          <div class="readout readout--cmp" id="cmp-readout"></div>
+          <p class="hint" id="cmp-ayuda">Línea continua: observado. Línea discontinua: pronóstico emitido después del corte. Sólo se usan fechas presentes en todas las series; no se rellenan huecos ni se suman territorios.</p>
+        </section>
+
+        <section class="card card--full" aria-labelledby="cmp-tabla-titulo">
+          <header class="card__head">
+            <h2 id="cmp-tabla-titulo">Tabla de la comparación</h2>
+            <div class="field field--inline">
+              <label for="cmp-filas">Filas por página</label>
+              <select id="cmp-filas">
+                <option value="12">12</option>
+                <option value="24">24</option>
+              </select>
+            </div>
+          </header>
+          <div class="table-scroll" tabindex="0" role="region" aria-labelledby="cmp-tabla-titulo">
+            <table class="weekly">
+              <caption class="sr-only" id="cmp-caption">Valores de la comparación por fecha del índice</caption>
+              <thead id="cmp-thead"></thead>
+              <tbody id="cmp-tbody"></tbody>
+            </table>
+          </div>
+          <nav class="pager" aria-label="Páginas de la tabla de comparación">
+            <button type="button" class="btn btn--quiet" id="cmp-pag-anterior">Anterior</button>
+            <p class="pager__status" id="cmp-pag-estado" aria-live="polite"></p>
+            <button type="button" class="btn btn--quiet" id="cmp-pag-siguiente">Siguiente</button>
+          </nav>
+        </section>
+      </div>
+    </div>
+
+    <!-- ── Perfil temporal ──────────────────────────────────────────────── -->
+    <div id="panel-perfil" class="wrap panel" role="tabpanel" aria-labelledby="tab-perfil" tabindex="-1" hidden>
+      <div class="dash" id="prof-body" hidden>
+        <section class="selection" aria-labelledby="prof-titulo">
+          <p class="eyebrow">Perfil temporal del observado · diagnóstico del índice</p>
+          <h2 id="prof-titulo" class="selection__title">Perfil temporal</h2>
+          <p class="selection__status" id="prof-sub"></p>
+        </section>
+
+        <section class="card card--full" aria-labelledby="prof-matriz-titulo">
+          <header class="card__head">
+            <h2 id="prof-matriz-titulo">Matriz año × mes</h2>
+            <fieldset class="seg">
+              <legend>Valor de la celda</legend>
+              <div class="seg__opts">
+                <label><input type="radio" name="pm" value="promedio"><span>Promedio semanal</span></label>
+                <label><input type="radio" name="pm" value="suma"><span>Suma</span></label>
+              </div>
+            </fieldset>
+          </header>
+          <p class="hint">Cada celda agrupa las fechas del índice que caen en ese mes. Se indica cuántos valores observados la componen y cuántas fechas no tienen dato: los faltantes no se cuentan como cero. Es un diagnóstico descriptivo, no una alerta ni evidencia causal. Pulsa una celda para fijar su rango en el explorador y la comparación.</p>
+          <div class="table-scroll" tabindex="0" role="region" aria-labelledby="prof-matriz-titulo">
+            <table class="heat" id="prof-tabla">
+              <caption class="sr-only" id="prof-caption">Observado por año y mes</caption>
+              <thead id="prof-thead"></thead>
+              <tbody id="prof-tbody"></tbody>
+            </table>
+          </div>
+          <ul class="scale" id="prof-leyenda" aria-label="Escala de la matriz"></ul>
+        </section>
+
+        <section class="card card--full" aria-labelledby="prof-det-titulo">
+          <header class="card__head">
+            <h2 id="prof-det-titulo">Celda seleccionada</h2>
+            <div class="btn-row">
+              <button type="button" class="btn btn--quiet btn--sm" id="prof-quitar">Quitar rango</button>
+              <button type="button" class="btn btn--sm" id="prof-explorar">Ver el rango en el explorador</button>
+            </div>
+          </header>
+          <div id="prof-detalle" aria-live="polite"></div>
+          <p class="hint" id="prof-resumen"></p>
+        </section>
+      </div>
+    </div>
+
+    <!-- ── Vigilancia (módulo cargado al abrir la pestaña) ─────────────── -->
+    <div id="panel-vigilancia" class="wrap panel" role="tabpanel" aria-labelledby="tab-vigilancia" tabindex="-1" hidden>
+      <div class="loading" id="vig-cargando" hidden>
+        <span class="loading__bar" aria-hidden="true"></span>
+        <p>Cargando el módulo de vigilancia del boletín…</p>
+      </div>
+      <div class="alert" id="vig-error" role="alert" hidden>
+        <p id="vig-error-msg">No se pudo cargar la vigilancia.</p>
+        <button type="button" class="btn" id="vig-reintentar">Reintentar</button>
+      </div>
+      <div id="surveillance-root" class="surveillance-root"></div>
+    </div>
+
+    <div id="panel-archivo" class="wrap panel" role="tabpanel" aria-labelledby="tab-archivo" tabindex="-1" hidden>
       <section class="archive">
         <h2>Archivo histórico de Tableau</h2>
-        <p>Los tableros de Tableau son históricos y sus cifras no corresponden a la emisión vigente. No se cargan hasta que lo solicites.</p>
+        <p>Los tableros de Tableau son históricos y sus cifras no corresponden a las emisiones vigentes. No se cargan hasta que lo solicites.</p>
         <button type="button" class="btn" id="cargar-archivo">Cargar el archivo histórico</button>
         <div class="archive__frame" id="archivo-frame"></div>
+      </section>
+    </div>
+
+    <div class="wrap">
+      <section class="scope" aria-labelledby="alcance-titulo">
+        <h2 id="alcance-titulo">Alcance y lectura</h2>
+        <ul>
+          <li>El catálogo reúne los padecimientos publicados: cuatro series históricas por entidad (Depresión, Parkinson, Alzheimer y Dengue) y los releases publicados del canal web. Cada uno conserva su semana de origen, su emisión registrada y su última semana observada; no se suman casos entre padecimientos.</li>
+          <li>Cada combinación de padecimiento, sexo y territorio conserva su serie. El nacional no es la suma de los estados y General no es la suma de Hombres y Mujeres; aquí nunca se suman. En los releases, los productos publicados incluyen series base y derivadas: un producto no equivale a un modelo entrenado, y los nacionales o regionales derivados no son independientes de las series estatales.</li>
+          <li>En las series históricas, General usa los casos semanales publicados; Hombres y Mujeres son incrementos netos del acumulado y pueden ser negativos cuando el boletín revisa cifras previas. Se muestran sin recortar. Sus totales suman valores visuales redondeados; los de los releases suman los valores publicados en la vista sin redondear.</li>
+          <li>La semana de origen de un pronóstico no acredita que se haya emitido en esa semana: la emisión registrada se muestra aparte. Las fechas del eje son índices de la serie, no el calendario del boletín.</li>
+          <li>Son conteos absolutos: no se ajustan por población ni constituyen tasas, alertas o medidas de precisión. Los faltantes se muestran como «sin dato» y los ceros se conservan.</li>
+        </ul>
       </section>
     </div>
   </main>
