@@ -8,3 +8,6 @@ kb.zip
 
 # Cachés de Python de los scripts del radar.
 __pycache__/
+
+# Catálogo del dashboard calculado desde las fuentes instaladas en cada build.
+/assets/dashboard/catalog.json

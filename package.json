@@ -6,7 +6,8 @@
     "test:wcp": "node --test tests/wcp*.test.mjs",
     "check:wcp": "node --check Reports/wcp2026/wcp.mjs && node --check Reports/wcp2026/wcp-data.mjs && npm run test:wcp",
     "test:boletin": "node --test tests/boletin.test.mjs tests/boletin_marcadores.test.mjs && node --check assets/boletin/celdas.mjs && node --check assets/boletin/radar.js && node --check assets/boletin/curves.js && node --check assets/boletin/textos.mjs",
-    "test:dashboard": "node --check assets/dashboard/dashboard.mjs && node --check assets/dashboard/data.mjs && DASHBOARD_SOURCE=. node --test tests/dashboard*.test.mjs"
+    "test:dashboard": "npm run build:dashboard && node --check assets/dashboard/dashboard.mjs && node --check assets/dashboard/data.mjs && node --check assets/dashboard/unified.mjs && node --check assets/dashboard/analytics.mjs && node --check assets/dashboard/surveillance.mjs && node --check assets/dashboard/svg_export.mjs && node --check assets/dashboard/units.mjs && node --check scripts/build_dashboard_catalog.mjs && DASHBOARD_SOURCE=. node --test tests/dashboard*.test.mjs",
+    "build:dashboard": "node scripts/build_dashboard_catalog.mjs"
   },
   "description": "EpiForecast-MX Knowledge Base - Sitio estatico con Netlify Functions",
   "dependencies": {
