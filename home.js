@@ -23,7 +23,8 @@ function toggleMobileNav(button) {
     card.dataset.search = normalize(card.textContent);
     const link = card.querySelector('h3 a').getAttribute('href');
     const catalog = window.EPI_CATALOGO && window.EPI_CATALOGO.releases;
-    const entry = catalog && catalog.find(r => r.pagina === link);
+    const pageKey = value => value.replace(/^\//, '').replace(/\.html$/, '').toLowerCase();
+    const entry = catalog && catalog.find(r => pageKey(r.pagina) === pageKey(link));
     if (entry) card.dataset.search += ' ' + normalize((entry.alias || []).join(' '));
   });
   function render() {
