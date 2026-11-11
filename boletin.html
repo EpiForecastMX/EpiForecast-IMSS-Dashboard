@@ -11,25 +11,12 @@
 <meta property="og:description" content="Curvas semanales desde 2013, casos y variables de 187 categorías de vigilancia. Explora cifras estatales y prioridades de incorporación." data-radar-content="Curvas semanales desde 2013, casos y variables de {categorias} categorías de vigilancia. Explora cifras estatales y prioridades de incorporación.">
 <meta property="og:url" content="https://epiforecast.mx/boletin.html">
 <meta property="og:type" content="website">
-<link rel="stylesheet" href="/editorial.css?v=1">
-<link rel="stylesheet" href="/assets/boletin/radar.css?v=20261111">
+<link rel="stylesheet" href="/assets/boletin/radar.css?v=20261111ux1">
 </head>
 <body class="boletin-page">
-<a class="skip-link" href="#inicio">Saltar al contenido</a>
-<nav class="nav" aria-label="EpiForecast-MX">
-<div class="nav-inner">
-<a class="nav-logo" href="index.html">EpiForecast<span>-MX</span>
-</a>
-<div class="radar-main-nav">
-<a href="index.html">Inicio</a>
-<a href="Reports/index.html">Pronósticos</a>
-<a href="validacion_semanal.html">Validación semanal</a>
-<a href="boletin.html" aria-current="page">Radar del boletín</a>
-<a href="epibot/index.html">EPI Chatbot</a>
-</div>
-</div>
-</nav>
-<main>
+<a class="skip-link" href="#main">Saltar al contenido</a>
+<nav class="nav" aria-label="EpiForecast-MX"><div class="nav-inner"><a class="radar-brand" href="index.html" aria-label="EpiForecast-MX, inicio"><span class="brand-symbol" aria-hidden="true">E<span>+</span></span><span>EpiForecast<span class="brand-mx">MX</span><small>Inteligencia epidemiológica</small></span></a><div class="radar-main-nav"><a href="index.html">Inicio</a><a href="boletin.html" aria-current="page">Radar del boletín</a><a href="Reports/index.html">Pronósticos</a><a class="epi-link" href="epibot/index.html">Pregúntale a EPI ↗</a></div></div></nav>
+<main id="main">
 <header class="topbar">
 <span>RADAR DEL BOLETÍN <b>/</b> MÉXICO</span>
 <a data-radar-enlace="pdf" href="/assets/boletin/2026-w43-r1/sem43.pdf" target="_blank" rel="noopener">Consultar PDF fuente ↗</a>
@@ -43,7 +30,7 @@
 <h1>Radar del boletín<br>
 <em>epidemiológico nacional</em>
 </h1>
-<p class="intro">Curvas de cada padecimiento con los boletines disponibles desde 2013, con sus cifras, variables y oportunidades para ampliar EpiForecast-MX. Último corte: boletín <span data-radar="semana">43</span>/<span data-radar="anio">2026</span>, verificado el <span data-radar="comprobado">9 de noviembre</span>.</p>
+<p class="intro">Consulta cómo cambian las notificaciones por padecimiento, entidad y año. Datos observados del SINAVE, desde 2013. Último corte: boletín <span data-radar="semana">43</span>/<span data-radar="anio">2026</span>, verificado el <span data-radar="comprobado">9 de noviembre</span>.</p><div class="radar-actions"><a class="button" href="#curvas">Explorar una curva ↓</a><a class="button secondary" href="#catalogo">Buscar en el catálogo</a></div>
 </div>
 <div class="issue">
 <span>BOLETÍN NACIONAL</span>
@@ -53,17 +40,29 @@
 <small>Publicado el <span data-radar="publicado">9 de noviembre</span></small>
 </div>
 </div>
-<div class="radar-section-nav" aria-label="Secciones del radar">
-<a href="#curvas">Curvas desde 2013</a>
+<nav class="radar-section-nav" aria-label="Secciones del radar">
+<a href="#curvas">Curvas históricas</a>
+<a href="#panorama">Panorama del boletín</a>
 <a href="#catalogo">Catálogo de vigilancia</a>
-<a href="#prioridades">Prioridades de incorporación</a>
+<a href="#prioridades">Agenda propuesta</a>
 <a href="#cobertura">Cobertura actual</a>
 <a href="#fuentes">Fuentes y método</a>
-</div>
+</nav>
 <noscript>
 <p class="context-note">Activa JavaScript para explorar las tablas, o descarga el catálogo CSV y consulta el PDF fuente.</p>
 </noscript>
-<p id="loading" class="context-note" role="status">Cargando cifras verificadas del boletín…</p>
+
+</section>
+<section id="curvas" aria-labelledby="curvas-heading">
+<div class="section-top"><div><div id="archiveCoverage" class="eyebrow">ARCHIVO HISTÓRICO · DESDE 2013</div><h2 id="curvas-heading">Explora la evolución de un padecimiento.</h2><p>Elige un padecimiento y una entidad. Después ajusta los años o compara dos periodos. Las curvas muestran notificaciones observadas, no pronósticos.</p></div><a class="button secondary" href="/assets/boletin/history/nacional-2013-2026.csv" download>Descargar histórico nacional CSV</a></div>
+<div class="curve-controls"><label>Padecimiento<select id="curveDisease" disabled aria-label="Padecimiento de la curva"></select></label><label>Ámbito<select id="curveState" disabled aria-label="Entidad de la curva"><option value="-1">Nacional</option></select></label><label>Cifra<select id="curveMetric" disabled aria-label="Métrica de la curva"><option value="0">Casos semanales</option><option value="1">Acumulados del año observado</option><option value="2">En estudio (cuadros históricos de dengue)</option></select></label><label>Vista<select id="curveMode" disabled aria-label="Vista de la curva"><option value="timeline">Secuencia histórica</option><option value="compare">Comparar dos años</option></select></label><label>Desde / Año A<select id="curveStart" disabled aria-label="Año inicial o primer año de comparación"></select></label><label>Hasta / Año B<select id="curveEnd" disabled aria-label="Año final o segundo año de comparación"></select></label></div>
+<p id="curveStatus" class="context-note" role="status">Cargando el archivo histórico…</p>
+<div class="curve-panel"><div class="curve-chart-head"><h3 id="curveTitle">Curva de notificaciones</h3><div id="curveLegend" class="curve-legend"></div></div><p id="curveScope" class="caption"></p><div id="curveStats" class="curve-stats"></div><div id="curveChart" class="curve-chart"></div><p class="curve-mobile-hint">Desliza la gráfica horizontalmente para recorrer todas las semanas.</p><div id="curvePoint" class="curve-point" aria-live="polite"></div><p id="curveCaption" class="caption"></p></div>
+<p class="context-note">No se interpolan huecos ni se convierten ausencias en ceros. Los valores negativos y avisos impresos se conservan. Los cuadros convencionales suelen observar una semana antes del boletín: la última observación depende del padecimiento. Esto es vigilancia histórica, no un pronóstico ni una validación de modelos.</p>
+<details class="method-details"><summary>Consultar los puntos, sus fuentes y avisos</summary><button class="button secondary" id="curveCsv" type="button">Descargar esta selección CSV</button><div class="table-wrap"><table><thead><tr><th>Periodo observado</th><th class="number">Notificaciones</th><th>Boletín fuente</th><th>Avisos</th></tr></thead><tbody id="curveDataRows"></tbody></table></div></details>
+<details class="method-details"><summary>Cómo se construyeron las curvas desde 2013</summary><p>Se incorporan los PDF disponibles en los archivos oficiales desde 2013 hasta el corte <span data-radar="historia_corte">43 de 2026</span>, comprobado el <span data-radar="historia_comprobado">9 de noviembre</span>. En 2013 hay ediciones reducidas y ampliadas: los cuadros que no aparecen en una edición se conservan como ausencias. Cada punto conserva el PDF fuente, su huella SHA-256, la página y el periodo observado. Las identidades se comprueban por nombre y códigos. Los cambios de clasificación, como dengue A90/A91 y VIH/SIDA, se conservan en series históricas separadas. Las páginas cambian entre ediciones. La copia alternativa de 2023-W34 se conserva como una revisión; para graficar gobierna el PDF enlazado por el índice oficial.</p><p>Las cifras semanales se transcriben de su columna original. No se restan acumulados, pues pueden revisarse. Los acumulados se separan por año observado. Si el año de las columnas falta o contradice el corte del cuadro, el acumulado ambiguo no se grafica. Las letras, los signos ilegibles y las celdas sin notificación no se convierten en ceros. Los totales impresos se conservan incluso cuando difieren de las sumas estatales, con un aviso consultable. Un encabezado de 2026-W01 invierte los años de varicela, sarampión y rubéola: sus puntos quedan como huecos y se conserva el dato original con aviso. Las categorías que no aparecen aún en un boletín tampoco se rellenan.</p><p>Una discrepancia de origen se mantiene visible: tuberculosis en otras formas, boletín 2026-W07, página 43, imprime 293 hombres acumulados, frente a 286 al sumar las entidades. La curva nacional conserva el total impreso y las curvas estatales conservan sus celdas. Los puntos señalados permiten consultar cada caso. Los bloques con fechas contradictorias se conservan fuera de la curva con sus cifras impresas. En cinco ediciones de 2015, los cortes de dengue y Zika se corroboraron contra el resumen nacional del mismo PDF; el encabezado atrasado queda documentado.</p><a href="/assets/boletin/history/index.json" download>Manifiesto de fuentes y cobertura</a> · <a href="/assets/boletin/history/audit-2013-2024.json" download>Auditoría del histórico desde 2013</a></details>
+</section>
+<section id="panorama" aria-labelledby="panorama-heading"><div class="section-top"><div><div class="eyebrow">EL BOLETÍN DE UN VISTAZO</div><h2 id="panorama-heading">Panorama de vigilancia</h2><p>Cobertura de la fuente y notificaciones de mayor volumen.</p></div></div><p id="loading" class="context-note" role="status">Cargando cifras verificadas del boletín…</p>
 <div class="metrics" id="metrics" aria-label="Cifras de cobertura" aria-busy="true">
 </div>
 <div class="context-note">El catálogo distingue enfermedades, síndromes, lesiones y otros eventos. Son notificaciones, no personas únicas. Los acumulados y los cortes de observación se conservan por cuadro.</div>
@@ -95,17 +94,7 @@
 <a href="#cobertura" class="text-link">Revisar cobertura y excepciones →</a>
 <div class="coverage-foot">F50, isquémica, cerebrovascular, IRA, gingivitis y cáncer de mama: control estacional publicado.<br>Cuello del útero: publicado sin desglose por sexo.<br>Diez cánceres desde 2023: publicados con la política de historia corta.<br>Riñón, próstata, huesos, hígado y esófago: control estacional publicado.<br>Covid-19: rechazado, solo en <a href="rechazados.html">su sección de evidencia</a>.</div>
 </article>
-</div>
-</section>
-<section id="curvas" aria-labelledby="curvas-heading">
-<div class="section-top"><div><div id="archiveCoverage" class="eyebrow">ARCHIVO HISTÓRICO · DESDE 2013</div><h2 id="curvas-heading">Así viene la curva.</h2><p>Explora cada padecimiento por semana observada. Elige un rango histórico, compara dos años o sigue la secuencia completa, a nivel nacional o estatal.</p></div><a class="button secondary" href="/assets/boletin/history/nacional-2013-2026.csv" download>Descargar histórico nacional CSV</a></div>
-<div class="curve-controls"><label>Padecimiento<select id="curveDisease" disabled aria-label="Padecimiento de la curva"></select></label><label>Ámbito<select id="curveState" disabled aria-label="Entidad de la curva"><option value="-1">Nacional</option></select></label><label>Cifra<select id="curveMetric" disabled aria-label="Métrica de la curva"><option value="0">Casos semanales</option><option value="1">Acumulados del año observado</option><option value="2">En estudio (cuadros históricos de dengue)</option></select></label><label>Vista<select id="curveMode" disabled aria-label="Vista de la curva"><option value="timeline">Secuencia histórica</option><option value="compare">Comparar dos años</option></select></label><label>Desde / Año A<select id="curveStart" disabled aria-label="Año inicial o primer año de comparación"></select></label><label>Hasta / Año B<select id="curveEnd" disabled aria-label="Año final o segundo año de comparación"></select></label></div>
-<p id="curveStatus" class="context-note" role="status">Cargando el archivo histórico…</p>
-<div class="curve-panel"><div class="curve-chart-head"><h3 id="curveTitle">Curva de notificaciones</h3><div id="curveLegend" class="curve-legend"></div></div><p id="curveScope" class="caption"></p><div id="curveStats" class="curve-stats"></div><div id="curveChart" class="curve-chart"></div><p class="curve-mobile-hint">Desliza la gráfica horizontalmente para recorrer todas las semanas.</p><div id="curvePoint" class="curve-point" aria-live="polite"></div><p id="curveCaption" class="caption"></p></div>
-<p class="context-note">No se interpolan huecos ni se convierten ausencias en ceros. Los valores negativos y avisos impresos se conservan. Los cuadros convencionales suelen observar una semana antes del boletín: la última observación depende del padecimiento. Esto es vigilancia histórica, no un pronóstico ni una validación de modelos.</p>
-<details class="method-details"><summary>Consultar los puntos, sus fuentes y avisos</summary><button class="button secondary" id="curveCsv" type="button">Descargar esta selección CSV</button><div class="table-wrap"><table><thead><tr><th>Periodo observado</th><th class="number">Notificaciones</th><th>Boletín fuente</th><th>Avisos</th></tr></thead><tbody id="curveDataRows"></tbody></table></div></details>
-<details class="method-details"><summary>Cómo se construyeron las curvas desde 2013</summary><p>Se incorporan los PDF disponibles en los archivos oficiales desde 2013 hasta el corte <span data-radar="historia_corte">43 de 2026</span>, comprobado el <span data-radar="historia_comprobado">9 de noviembre</span>. En 2013 hay ediciones reducidas y ampliadas: los cuadros que no aparecen en una edición se conservan como ausencias. Cada punto conserva el PDF fuente, su huella SHA-256, la página y el periodo observado. Las identidades se comprueban por nombre y códigos. Los cambios de clasificación, como dengue A90/A91 y VIH/SIDA, se conservan en series históricas separadas. Las páginas cambian entre ediciones. La copia alternativa de 2023-W34 se conserva como una revisión; para graficar gobierna el PDF enlazado por el índice oficial.</p><p>Las cifras semanales se transcriben de su columna original. No se restan acumulados, pues pueden revisarse. Los acumulados se separan por año observado. Si el año de las columnas falta o contradice el corte del cuadro, el acumulado ambiguo no se grafica. Las letras, los signos ilegibles y las celdas sin notificación no se convierten en ceros. Los totales impresos se conservan incluso cuando difieren de las sumas estatales, con un aviso consultable. Un encabezado de 2026-W01 invierte los años de varicela, sarampión y rubéola: sus puntos quedan como huecos y se conserva el dato original con aviso. Las categorías que no aparecen aún en un boletín tampoco se rellenan.</p><p>Una discrepancia de origen se mantiene visible: tuberculosis en otras formas, boletín 2026-W07, página 43, imprime 293 hombres acumulados, frente a 286 al sumar las entidades. La curva nacional conserva el total impreso y las curvas estatales conservan sus celdas. Los puntos señalados permiten consultar cada caso. Los bloques con fechas contradictorias se conservan fuera de la curva con sus cifras impresas. En cinco ediciones de 2015, los cortes de dengue y Zika se corroboraron contra el resumen nacional del mismo PDF; el encabezado atrasado queda documentado.</p><a href="/assets/boletin/history/index.json" download>Manifiesto de fuentes y cobertura</a> · <a href="/assets/boletin/history/audit-2013-2024.json" download>Auditoría del histórico desde 2013</a></details>
-</section>
+</div></section>
 <section id="catalogo">
 <div class="section-top">
 <div>

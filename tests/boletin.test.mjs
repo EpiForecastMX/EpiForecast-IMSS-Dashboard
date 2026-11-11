@@ -70,8 +70,9 @@ test('confirmed myiasis uses only its listed states and reconciles counts, witho
   assert.equal(data.diseases.filter(d => /Miasis/.test(d.name)).length, 1);
 });
 
-test('the new page shares the editorial skin and has functional, unambiguous asset URLs', () => {
-  assert.match(html, /href="\/editorial\.css\?v=1"/);
+test('the radar uses the light visual system and has functional, unambiguous asset URLs', () => {
+  assert.doesNotMatch(html, /href="\/editorial\.css/);
+  assert.ok(html.indexOf('id="curvas"') < html.indexOf('id="panorama"'), 'historical curves precede the coverage overview');
   assert.match(html, /href="\/assets\/boletin\/radar\.css/);
   assert.match(html, /src="\/assets\/boletin\/radar\.js/);
   assert.ok(!existsSync(resolve(root, 'boletin')), 'avoid collision with Netlify Pretty URLs');
