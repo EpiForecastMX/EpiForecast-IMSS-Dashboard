@@ -136,15 +136,15 @@ function polishSpanish(text) {
 
 // Paleta mejorada basada en el logo - más vibrante y diferenciada
 const CHART_COLORS = [
-  '#5B8DEF', // teal IMSS
+  '#17644d', // teal IMSS
   '#2DD4BF', // gold IMSS
   '#F472B6', // burgundy IMSS
-  '#8FB4FF', // teal electric (highlights)
+  '#3c8267', // teal electric (highlights)
   '#5EEAD4', // gold electric
   '#F9A8D4', // burgundy electric
   '#A78BFA', // morado complementario
   '#3B9AE8', // azul claro complementario
-  '#3A6FD8', // teal oscuro
+  '#12513e', // teal oscuro
   '#FF8F4F', // naranja accent
   '#A9C2F0', // mint
   '#BFE9E0', // cream gold
@@ -277,11 +277,11 @@ const epiDoughnutCenterPlugin = {
     ctx.save();
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillStyle = '#E7ECF5';
-    ctx.font = '800 30px Outfit, sans-serif';
+    ctx.fillStyle = '#173c33';
+    ctx.font = '800 30px system-ui, sans-serif';
     ctx.fillText(String(big), cx, cy - 8);
-    ctx.fillStyle = '#6E82A6';
-    ctx.font = '600 10px Outfit, sans-serif';
+    ctx.fillStyle = '#61756c';
+    ctx.font = '600 10px system-ui, sans-serif';
     ctx.fillText(String(sub).toUpperCase(), cx, cy + 16);
     ctx.restore();
   },
@@ -316,7 +316,7 @@ const epiBoxPlotPlugin = {
       ctx.moveTo(xMax, y - half * 0.55); ctx.lineTo(xMax, y + half * 0.55);
       ctx.stroke();
       // Marcador de mediana
-      ctx.strokeStyle = '#E7ECF5';
+      ctx.strokeStyle = '#173c33';
       ctx.lineWidth = 2.5;
       ctx.beginPath();
       ctx.moveTo(xMed, y - half); ctx.lineTo(xMed, y + half);
@@ -373,6 +373,9 @@ async function checkGemini(attempt = 0) {
 async function init() {
   try {
     const data = await loadKnowledge();
+    document.getElementById('startupStatus')?.remove();
+    inputField.disabled = false;
+    sendBtn.disabled = false;
     renderStats(data);
     renderBuildBadge(data);
     addWelcome();
@@ -380,8 +383,12 @@ async function init() {
     console.error('Error cargando knowledge.json:', err);
     const chatEl = document.getElementById('chatArea');
     if (chatEl) {
-      chatEl.innerHTML = `<div style="padding:24px;color:#F472B6;font-weight:600;">
-        Error al cargar la base de conocimiento: ${err.message}</div>`;
+      const panel = document.createElement('div'); panel.className = 'epi-load-error'; panel.setAttribute('role','alert');
+      const title = document.createElement('h2'); title.textContent = 'No pudimos cargar los datos de EPI';
+      const description = document.createElement('p'); description.textContent = 'Comprueba tu conexión y vuelve a intentarlo. También puedes consultar el boletín directamente.';
+      const retry = document.createElement('button'); retry.type = 'button'; retry.textContent = 'Reintentar'; retry.addEventListener('click', () => location.reload());
+      const radar = document.createElement('a'); radar.href = '../boletin.html'; radar.textContent = 'Abrir el radar del boletín';
+      panel.append(title,description,retry,radar); chatEl.replaceChildren(panel);
     }
   }
 
@@ -664,7 +671,7 @@ function renderBuildBadge(data) {
 
 // Padecimientos del hero: orden, etiqueta, color de marca y código CIE-10.
 const HERO_PADS = [
-  { pad: 'Depresion', label: 'Depresión', color: '#5B8DEF', cie: 'F32' },
+  { pad: 'Depresion', label: 'Depresión', color: '#17644d', cie: 'F32' },
   { pad: 'Parkinson', label: 'Parkinson', color: '#2DD4BF', cie: 'G20' },
   { pad: 'Alzheimer', label: 'Alzheimer', color: '#F472B6', cie: 'G30' },
   { pad: 'Dengue', label: 'Dengue', color: '#F59E0B', cie: 'A97' },
@@ -725,15 +732,17 @@ function whenZoomReady(data, cb, tries) {
 function addWelcome() {
   const hero =
     `<div class="welcome-hero welcome-hero--compact">
-       <div class="welcome-hero-title">Hola, soy <span class="welcome-brand">EPI</span></div>
-       <div class="welcome-hero-sub">Copiloto epidemiológico para la salud pública en México. Pregúntame o usa el panel lateral.</div>
+       <div class="epi-welcome-kicker">DATOS DEL SINAVE · PRONÓSTICOS CON FUENTES</div>
+       <div class="welcome-hero-title">¿Qué quieres consultar?</div>
+       <div class="welcome-hero-sub">Pregunta por un padecimiento, una entidad o una semana. EPI te ayuda a explorar lo observado y lo pronosticado, con sus cortes y limitaciones.</div>
+       <div class="epi-welcome-example">Prueba con una pregunta:</div>
      </div>`;
 
   const suggestions = [
-    { text: 'Panorama nacional', q: 'panorama nacional' },
-    { text: 'Motores productivos', q: 'distribucion de motores ganadores' },
-    { text: 'Mapa de México', q: 'mapa de mexico por casos' },
-    { text: 'Equipo', q: 'equipo del proyecto' },
+    { text: 'Depresión en Jalisco', q: 'depresion en Jalisco' },
+    { text: 'Pronóstico de diabetes tipo II', q: 'pronostico diabetes tipo 2' },
+    { text: 'Infecciones intestinales', q: 'infecciones intestinales' },
+    { text: 'Estado de la validación', q: 'validacion semanal' },
   ];
 
   addBotMessage(hero, 'local', suggestions);
@@ -1072,18 +1081,24 @@ const ASK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 // muestra el EXTRACTO citado al pasar el cursor; sub-botón para profundizar.
 function sourceChipsHtml(sources) {
   if (!sources || !sources.length) return '';
-  const seen = new Set();
-  const docs = [];
+  const grouped = new Map();
   for (const s of sources) {
     const name = s.source || s.title || '';
-    if (!name || seen.has(name)) continue;
-    seen.add(name);
-    docs.push({ n: s.n, name, url: safeUrl(s.url || ''), snippet: s.snippet || '' });
+    if (!name) continue;
+    const url = safeUrl(s.url || '');
+    const key = JSON.stringify([name, url]);
+    if (!grouped.has(key)) grouped.set(key, { name, url, numbers: new Set(), snippets: new Set() });
+    const document = grouped.get(key);
+    const n = Number(s.n);
+    if (Number.isInteger(n) && n > 0) document.numbers.add(n);
+    if (s.snippet) document.snippets.add(s.snippet);
   }
+  const docs = [...grouped.values()];
   if (!docs.length) return '';
   return '<div class="msg-sources">' + docs.map(d => {
-    const label = `${DOC_ICON}<span class="src-n">[${d.n}]</span>${escapeHtml(polishSpanish(d.name))}`;
-    const tip = escapeAttr(d.snippet ? `«${polishSpanish(d.snippet)}…»` : 'Abrir fuente');
+    const numbers = [...d.numbers].sort((a,b) => a-b).map(n => `[${n}]`).join(' ');
+    const label = `${DOC_ICON}<span class="src-n">${numbers}</span>${escapeHtml(polishSpanish(d.name))}`;
+    const tip = escapeAttr(d.snippets.size ? [...d.snippets].map(s => `«${polishSpanish(s)}…»`).join(' · ') : 'Abrir fuente');
     const open = d.url
       ? `<a class="src-open" href="${escapeAttr(d.url)}" target="_blank" rel="noopener" title="${tip}">${label}</a>`
       : `<span class="src-open src-open--static" title="${tip}">${label}</span>`;
@@ -1330,7 +1345,7 @@ function addBotMessage(markdown, source, suggestions, chartData, sources) {
     });
   }
 
-  scrollToBottom();
+  revealReplyStart(div);
 }
 
 function addTypingIndicator(label) {
@@ -1403,7 +1418,7 @@ function buildCorridorChart(data, qn) {
   });
   if (!filtered.length) return null;
 
-  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
+  const padColors = { Depresion: '#17644d', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
   const charts = [];
 
   for (const pad of filtered) {
@@ -1411,7 +1426,7 @@ function buildCorridorChart(data, qn) {
     // Sólo semanas aún sin dato, con los 4 motores del mismo corte (antes del corte sería ajuste).
     const sems = semanasDeFase(info, 'pronostico').filter(s => MODELS.every(m => s[m] != null));
     if (!sems.length) continue;
-    const color = padColors[pad] || '#5B8DEF';
+    const color = padColors[pad] || '#17644d';
 
     const labels = sems.map(s => `S${String(s.semana).padStart(2, '0')}`);
     const minData = sems.map(s => Math.min(...MODELS.map(m => s[m] || 0)));
@@ -1521,8 +1536,8 @@ function buildTreemap(data) {
   // retiradas todas las barras van en un solo color: el tamaño (casos) es lo único que se publica.
   const retiradas = metricasRetiradas(data);
   const smapeColor = (s) => {
-    if (retiradas) return '#5B8DEF';
-    if (s <= 30) return '#5B8DEF';
+    if (retiradas) return '#17644d';
+    if (s <= 30) return '#17644d';
     if (s <= 60) return '#2DD4BF';
     return '#F472B6';
   };
@@ -1572,7 +1587,7 @@ function buildRadarChart(data) {
   const maxMae = Math.max(...motors.map(m => pm[m].mae_mean));
 
   const labels = ['Precisión (SMAPE)', 'MASE', 'Series ganadas', 'RMSE', 'MAE'];
-  const motorColors = { Prophet: '#5B8DEF', DeepAR: '#F472B6', Ensemble: '#2DD4BF', Stacking: '#9DB6FF' };
+  const motorColors = { Prophet: '#17644d', DeepAR: '#F472B6', Ensemble: '#2DD4BF', Stacking: '#9DB6FF' };
 
   const datasets = motors.map(m => {
     const color = motorColors[m] || '#7E92B6';
@@ -1610,7 +1625,7 @@ function buildSparklineGrid(data, qn) {
   if (!models.length) return null;
   const wantAll = qn && /\btodos\b|\btodas\b|cada estado|cada entidad|32 estad|32 entidad|completa|completo/.test(qn);
 
-  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
+  const padColors = { Depresion: '#17644d', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
   const pads = ['Depresion', 'Parkinson', 'Alzheimer'];
 
   // Agregar por entidad (general, sin regiones)
@@ -1659,7 +1674,7 @@ function buildStackedArea(data) {
   if (!wc) return null;
 
   const padOrder = ['Depresion', 'Parkinson', 'Alzheimer'];
-  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
+  const padColors = { Depresion: '#17644d', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
 
   // Sólo las semanas posteriores al corte (antes del corte sería el ajuste dentro de muestra).
   const pads = padOrder.filter(p => weeklyV2(wc[p]));
@@ -1695,7 +1710,7 @@ function buildStackedArea(data) {
         y: {
           stacked: true,
           beginAtZero: true,
-          title: { display: true, text: 'Casos', font: { size: 11, family: 'Outfit' }, color: '#7E92B6' },
+          title: { display: true, text: 'Casos', font: { size: 11, family: 'system-ui' }, color: '#7E92B6' },
         },
       },
       plugins: {
@@ -1985,11 +2000,11 @@ function buildErrorHeatmap(data, qn) {
   const seg0 = semanasDeFase(wc[filtered[0]], 'seguimiento');
   if (!seg0.length) return null;
   const labels = seg0.map(w => `Sem ${w.semana} (h=${w.horizonte})`);
-  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
+  const padColors = { Depresion: '#17644d', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
 
   const datasets = filtered.map(pad => {
     const seg = semanasDeFase(wc[pad], 'seguimiento');
-    const color = padColors[pad] || '#5B8DEF';
+    const color = padColors[pad] || '#17644d';
     return {
       label: pad,
       data: seg0.map(w0 => {
@@ -2011,7 +2026,7 @@ function buildErrorHeatmap(data, qn) {
     options: {
       scales: {
         x: { ticks: { font: { size: 10 } } },
-        y: { title: { display: true, text: 'Casos (pron. − obs.)', font: { size: 11, family: 'Outfit' }, color: '#7E92B6' } },
+        y: { title: { display: true, text: 'Casos (pron. − obs.)', font: { size: 11, family: 'system-ui' }, color: '#7E92B6' } },
       },
     },
   };
@@ -2024,8 +2039,8 @@ function buildErrorHeatmap(data, qn) {
 // Chart de zoom para UNA serie (estado × sexo) desde data.zoom_series: real vs pronostico
 // solapados hasta la semana vigente + pronostico al futuro.
 function buildSeriesZoom(s, pad, estado, sexo) {
-  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
-  const color = padColors[pad] || '#5B8DEF';
+  const padColors = { Depresion: '#17644d', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
+  const color = padColors[pad] || '#17644d';
   const estadoLbl = norm(estado) === 'mexico' ? 'Estado de México' : dn(estado);
   const sexoLbl = sexo === 'general' ? 'ambos sexos' : sexo;
   const labels = s.d.map(iso => { const p = iso.split('-'); return `${p[1]}/${p[2].slice(0, 2)} ${p[0].slice(2)}`; });
@@ -2100,7 +2115,7 @@ function buildZoomChart(data, qn, ent) {
   }
   if (!filtered.length) return null;
 
-  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
+  const padColors = { Depresion: '#17644d', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
   const charts = [];
 
   for (const pad of filtered) {
@@ -2115,7 +2130,7 @@ function buildZoomChart(data, qn, ent) {
     // Pronóstico sólo desde el corte: las semanas observadas no llevan el ajuste dentro de muestra.
     const pronData = sems.map(s => (s.fase === 'observado' ? null : s.pronostico ?? null));
     const lastRealIdx = realData.reduce((acc, v, i) => v != null ? i : acc, -1);
-    const color = padColors[pad] || '#5B8DEF';
+    const color = padColors[pad] || '#17644d';
 
     // Pronostico: linea punteada completa
     const datasets = [
@@ -2159,8 +2174,8 @@ function buildZoomChart(data, qn, ent) {
             display: true,
             text: [`${dn(pad)} · nacional`, `Seguimiento · corte ${String(info.corte || '').replace(/^\d{4}-/, '')}`,
               `Semanas ${sems[0].semana}–${sems[sems.length - 1].semana} · ${info.anio}`],
-            font: { size: 13, weight: '700', family: 'Outfit' },
-            color: '#E7ECF5', align: 'start', padding: { bottom: 10, top: 4 },
+            font: { size: 13, weight: '700', family: 'system-ui' },
+            color: '#173c33', align: 'start', padding: { bottom: 10, top: 4 },
           },
         },
         scales: {
@@ -2310,7 +2325,7 @@ function buildPerformanceMatrix(data) {
   if (metricasRetiradas(data)) return null;
   const models = data.prod_models || [];
   if (!models.length) return null;
-  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
+  const padColors = { Depresion: '#17644d', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
   const isState = (m) => {
     const e = m.entidad || '';
     return e && e !== 'Nacional' && !e.startsWith('Region') && !e.startsWith('region_');
@@ -2345,8 +2360,8 @@ function buildPerformanceMatrix(data) {
       label: dn(p.ent),
       casos: p.casos,
     })),
-    backgroundColor: (padColors[pad] || '#5B8DEF') + 'B0',
-    borderColor: padColors[pad] || '#5B8DEF',
+    backgroundColor: (padColors[pad] || '#17644d') + 'B0',
+    borderColor: padColors[pad] || '#17644d',
     borderWidth: 1.5,
     hoverBorderWidth: 2.5,
   }));
@@ -2373,7 +2388,7 @@ function buildMotorPolar(data) {
   if (!dm || !Object.keys(dm).length) return null;
   const labels = Object.keys(dm);
   const total = Object.values(dm).reduce((a, b) => a + b, 0);
-  const colorMap = { Prophet: '#5B8DEF', DeepAR: '#3B9AE8', Ensemble: '#2DD4BF', Stacking: '#F472B6' };
+  const colorMap = { Prophet: '#17644d', DeepAR: '#3B9AE8', Ensemble: '#2DD4BF', Stacking: '#F472B6' };
   return {
     type: 'polarArea',
     title: `Arsenal de modelos — ${total} en producción por motor`,
@@ -2396,7 +2411,7 @@ function buildMotorByPad(data) {
   if (!pp || !Object.keys(pp).length) return null;
   const pads = Object.keys(pp);
   const motors = ['Prophet', 'DeepAR', 'Ensemble', 'Stacking'];
-  const colorMap = { Prophet: '#5B8DEF', DeepAR: '#3B9AE8', Ensemble: '#2DD4BF', Stacking: '#F472B6' };
+  const colorMap = { Prophet: '#17644d', DeepAR: '#3B9AE8', Ensemble: '#2DD4BF', Stacking: '#F472B6' };
   const datasets = motors.map(mt => ({
     label: mt,
     data: pads.map(p => (pp[p].dist_motor || {})[mt] || 0),
@@ -2436,7 +2451,7 @@ function buildBestWorst(data) {
     ...worst.map(r => ({ ...r, kind: 'worst' })),
   ];
   const labels = rows.map(r => `${dn(r.entidad)} · ${dn(r.padecimiento)} (${r.sexo})`);
-  const colors = rows.map(r => r.kind === 'best' ? '#5B8DEF' : '#F472B6');
+  const colors = rows.map(r => r.kind === 'best' ? '#17644d' : '#F472B6');
   return {
     type: 'bar',
     horizontal: true,
@@ -2480,7 +2495,7 @@ function buildVolumeError(data) {
       type: 'bar',
       title: 'Top 10 estados — casos pronosticados (52 sem)',
       labels: entries.map(e => dn(e.name)),
-      datasets: [{ label: 'Casos (52 sem)', data: entries.map(e => e.casos), backgroundColor: '#5B8DEF', borderRadius: 4 }],
+      datasets: [{ label: 'Casos (52 sem)', data: entries.map(e => e.casos), backgroundColor: '#17644d', borderRadius: 4 }],
     };
   }
   return {
@@ -2488,7 +2503,7 @@ function buildVolumeError(data) {
     title: 'Top 10 estados — volumen vs error (SMAPE)',
     labels: entries.map(e => dn(e.name)),
     datasets: [
-      { label: 'Casos (52 sem)', data: entries.map(e => e.casos), backgroundColor: '#5B8DEF', yAxisID: 'y', order: 2 },
+      { label: 'Casos (52 sem)', data: entries.map(e => e.casos), backgroundColor: '#17644d', yAxisID: 'y', order: 2 },
       { label: 'SMAPE (%)', type: 'line', data: entries.map(e => e.smape != null ? +e.smape.toFixed(1) : null), borderColor: '#2DD4BF', backgroundColor: 'transparent', yAxisID: 'y1', order: 1, fill: false, tension: 0.3, pointRadius: 4, pointBackgroundColor: '#2DD4BF', borderWidth: 2.5 },
     ],
     options: {
@@ -2508,7 +2523,7 @@ function buildVolumeError(data) {
 function buildCalibration(data) {
   const models = data.prod_models || [];
   if (!models.length) return null;
-  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
+  const padColors = { Depresion: '#17644d', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
   const byPad = {};
   let maxV = 0;
   for (const m of models) {
@@ -2524,8 +2539,8 @@ function buildCalibration(data) {
     label: dn(pad),
     type: 'scatter',
     data: byPad[pad],
-    backgroundColor: (padColors[pad] || '#5B8DEF') + 'C0',
-    borderColor: padColors[pad] || '#5B8DEF',
+    backgroundColor: (padColors[pad] || '#17644d') + 'C0',
+    borderColor: padColors[pad] || '#17644d',
     pointRadius: 4,
     pointHoverRadius: 7,
   }));
@@ -2569,7 +2584,7 @@ function buildMaseByMotor(data) {
   if (!pm || !Object.keys(pm).length) return null;
   const motors = Object.keys(pm);
   const vals = motors.map(m => pm[m].mase_median != null ? pm[m].mase_median : pm[m].mase_mean);
-  const colors = vals.map(v => v < 1 ? '#5B8DEF' : '#F472B6');
+  const colors = vals.map(v => v < 1 ? '#17644d' : '#F472B6');
   return {
     type: 'bar',
     horizontal: true,
@@ -2615,8 +2630,8 @@ function buildCumulative(data) {
     datasets: [{
       label: 'Casos acumulados',
       data: cum,
-      borderColor: '#5B8DEF',
-      backgroundColor: '#5B8DEF',
+      borderColor: '#17644d',
+      backgroundColor: '#17644d',
       fill: true,
       tension: 0.25,
       pointRadius: 0,
@@ -2644,10 +2659,10 @@ function buildModelHealth(data) {
     title: 'Salud de los modelos — overfitting y fuga de datos',
     labels: ['Overfitting', 'Fuga de datos'],
     datasets: [
-      { label: 'OK', data: [s.overfitting_ok || 0, s.leakage_ok || 0], backgroundColor: '#5B8DEF', stack: 'h', borderRadius: 4 },
+      { label: 'OK', data: [s.overfitting_ok || 0, s.leakage_ok || 0], backgroundColor: '#17644d', stack: 'h', borderRadius: 4 },
       { label: 'Moderado', data: [s.overfitting_moderado || 0, 0], backgroundColor: '#2DD4BF', stack: 'h', borderRadius: 4 },
       { label: 'Alto / Sospechoso', data: [s.overfitting_alto || 0, s.leakage_sospechoso || 0], backgroundColor: '#F472B6', stack: 'h', borderRadius: 4 },
-      { label: 'N/D', data: [s.overfitting_nd || 0, 0], backgroundColor: '#6E82A6', stack: 'h', borderRadius: 4 },
+      { label: 'N/D', data: [s.overfitting_nd || 0, 0], backgroundColor: '#61756c', stack: 'h', borderRadius: 4 },
     ],
     options: {
       scales: {
@@ -2672,7 +2687,7 @@ function buildQualityGauge(data) {
     labels: ['Sanos', 'Con observaciones'],
     datasets: [{
       data: [ok, Math.max(0, total - ok)],
-      backgroundColor: ['#5B8DEF', 'rgba(159, 176, 206, 0.10)'],
+      backgroundColor: ['#17644d', 'rgba(159, 176, 206, 0.10)'],
       borderColor: 'transparent',
       borderWidth: 0,
       _centerText: pct + '%',
@@ -2689,7 +2704,7 @@ function buildSmapeBox(data) {
   if (metricasRetiradas(data)) return null;
   const models = data.prod_models || [];
   if (!models.length) return null;
-  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
+  const padColors = { Depresion: '#17644d', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
   const byPad = {};
   for (const m of models) {
     if (m.sexo !== 'general' || m.smape_prod == null) continue;
@@ -2711,8 +2726,8 @@ function buildSmapeBox(data) {
     datasets: [{
       label: 'SMAPE: caja p25–p75, bigotes mín–máx, línea = mediana',
       data: rows.map(r => [r.p25, r.p75]),
-      backgroundColor: pads.map(p => (padColors[p] || '#5B8DEF') + 'D0'),
-      borderColor: pads.map(p => padColors[p] || '#5B8DEF'),
+      backgroundColor: pads.map(p => (padColors[p] || '#17644d') + 'D0'),
+      borderColor: pads.map(p => padColors[p] || '#17644d'),
       borderWidth: 1,
       borderRadius: 4,
       maxBarThickness: 30,
@@ -2728,7 +2743,7 @@ function buildSmapeBox(data) {
 function buildWaterfall(data) {
   const models = data.prod_models || [];
   if (!models.length) return null;
-  const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
+  const padColors = { Depresion: '#17644d', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
   // Agregado estatal canónico del backend (yhat originales, redondeo único): ni los totales por
   // serie ya redondeados ni el nombre «nacional», que es el de los modelos nacionales.
   const ag = data.agregado_estatal_neuro;
@@ -2738,7 +2753,7 @@ function buildWaterfall(data) {
   const labels = [], dataPairs = [], colors = [];
   for (const p of pads) {
     const v = ag.por_padecimiento[p].suma_original;
-    dataPairs.push([run, run + v]); colors.push(padColors[p] || '#5B8DEF'); labels.push(dn(p)); run += v;
+    dataPairs.push([run, run + v]); colors.push(padColors[p] || '#17644d'); labels.push(dn(p)); run += v;
   }
   labels.push('Agregado estatal neuro'); dataPairs.push([0, ag.valor_mostrado]); colors.push('#A78BFA');
   return {
@@ -2853,8 +2868,8 @@ function extractChartData(markdown, query) {
             {
               label: 'Observado',
               data: realData,
-              backgroundColor: '#5B8DEFCC',
-              borderColor: '#5B8DEF',
+              backgroundColor: '#17644dCC',
+              borderColor: '#17644d',
               borderWidth: 2,
               borderRadius: 4,
               order: 1,
@@ -2983,7 +2998,7 @@ function extractChartData(markdown, query) {
         title: 'SMAPE por motor de predicción',
         labels: Object.keys(pm),
         datasets: [
-          { label: 'SMAPE medio', data: Object.values(pm).map(v => v.smape_mean), backgroundColor: '#5B8DEFCC', borderRadius: 6 },
+          { label: 'SMAPE medio', data: Object.values(pm).map(v => v.smape_mean), backgroundColor: '#17644dCC', borderRadius: 6 },
           { label: 'SMAPE mediano', data: Object.values(pm).map(v => v.smape_median), backgroundColor: '#2DD4BFCC', borderRadius: 6 },
         ],
       };
@@ -3019,7 +3034,7 @@ function extractChartData(markdown, query) {
         labels: ['OK', 'Moderado', 'Alto'],
         datasets: [{
           data: [s.overfitting_ok || 0, s.overfitting_moderado || 0, s.overfitting_alto || 0],
-          backgroundColor: ['#5B8DEF', '#2DD4BF', '#F472B6'],
+          backgroundColor: ['#17644d', '#2DD4BF', '#F472B6'],
           borderWidth: 0,
         }],
       };
@@ -3201,13 +3216,13 @@ function extractChartData(markdown, query) {
       const years = ent._years && ent._years.length ? ent._years : [];
       if (years.length) {
         const pads = Object.keys(anual);
-        const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
+        const padColors = { Depresion: '#17644d', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
         const labels = years.map(String);
         const datasets = pads.map(pad => ({
           label: pad,
           data: years.map(y => anual[pad]?.[String(y)] || 0),
-          backgroundColor: (padColors[pad] || '#5B8DEF') + 'CC',
-          borderColor: padColors[pad] || '#5B8DEF',
+          backgroundColor: (padColors[pad] || '#17644d') + 'CC',
+          borderColor: padColors[pad] || '#17644d',
           borderWidth: 2,
           borderRadius: 4,
         }));
@@ -3243,7 +3258,7 @@ function extractChartData(markdown, query) {
           type: 'bar',
           title: `${dn(entPE.padecimiento)} en ${dn(entPE.estado)}: pronóstico por sexo (52 sem)`,
           labels: matches.map(m => m.sexo.charAt(0).toUpperCase() + m.sexo.slice(1)),
-          datasets: [{ label: 'Casos pronosticados', data: matches.map(m => m.casos_52_semanas_futuro || 0), backgroundColor: ['#5B8DEF', '#F472B6', '#2DD4BF'], borderColor: ['#5B8DEF', '#F472B6', '#2DD4BF'], borderRadius: 6 }],
+          datasets: [{ label: 'Casos pronosticados', data: matches.map(m => m.casos_52_semanas_futuro || 0), backgroundColor: ['#17644d', '#F472B6', '#2DD4BF'], borderColor: ['#17644d', '#F472B6', '#2DD4BF'], borderRadius: 6 }],
         };
       };
       if (sexoIntent) { const b = sexBar(); if (b) return b; }
@@ -3285,7 +3300,7 @@ function extractChartData(markdown, query) {
           datasets: [{
             label: 'Casos pronosticados',
             data: matches.map(m => m.casos_52_semanas_futuro || 0),
-            backgroundColor: ['#5B8DEF', '#2DD4BF', '#F472B6'],
+            backgroundColor: ['#17644d', '#2DD4BF', '#F472B6'],
             borderRadius: 6,
           }],
         };
@@ -3336,7 +3351,7 @@ function extractChartData(markdown, query) {
     // General -> 3 bar charts semanales (uno por padecimiento)
     const wc = data.weekly_comparison;
     if (wc) {
-      const padColors = { Depresion: '#5B8DEF', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
+      const padColors = { Depresion: '#17644d', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
       const charts = [];
       for (const [pad, info] of Object.entries(wc)) {
         // Semanas posteriores al corte: pares del seguimiento y pronóstico de las que no tienen dato.
@@ -3487,7 +3502,7 @@ function extractChartData(markdown, query) {
           title: `${dn(ent.padecimiento)} en ${dn(ent.estado)}: pronóstico 52 sem`,
           labels: matches.map(m => m.sexo.charAt(0).toUpperCase() + m.sexo.slice(1)),
           datasets: [{ label: 'Casos pronosticados', data: matches.map(m => m.casos_52_semanas_futuro || 0),
-            backgroundColor: ['#5B8DEF', '#2DD4BF', '#F472B6'], borderRadius: 6 }],
+            backgroundColor: ['#17644d', '#2DD4BF', '#F472B6'], borderRadius: 6 }],
         };
       }
     }
@@ -3551,7 +3566,7 @@ function extractChartData(markdown, query) {
           datasets: [{
             label: 'Casos pronosticados',
             data: vals,
-            backgroundColor: ['#5B8DEF', '#2DD4BF'],
+            backgroundColor: ['#17644d', '#2DD4BF'],
             borderRadius: 6,
           }],
         };
@@ -3574,7 +3589,7 @@ function extractChartData(markdown, query) {
           datasets: [{
             label: 'Modelos',
             data: vals,
-            backgroundColor: ['#5B8DEF', '#2DD4BF'],
+            backgroundColor: ['#17644d', '#2DD4BF'],
             borderRadius: 6,
           }],
         };
@@ -3634,8 +3649,8 @@ function renderChart(canvasId, chartData) {
         title: {
           display: true,
           text: chartData.title,
-          font: { size: 16, weight: '800', family: 'Outfit' },
-          color: '#E7ECF5',
+          font: { size: 16, weight: '800', family: 'system-ui' },
+          color: '#173c33',
           padding: { bottom: 20, top: 4 },
           align: 'start',
         },
@@ -3644,8 +3659,8 @@ function renderChart(canvasId, chartData) {
           position: (chartData.type === 'doughnut' || chartData.type === 'polarArea') ? 'right' : 'top',
           align: 'end',
           labels: {
-            font: { size: 12, family: 'Outfit', weight: '600' },
-            color: '#9FB0CE',
+            font: { size: 12, family: 'system-ui', weight: '600' },
+            color: '#40594f',
             usePointStyle: true,
             pointStyle: 'circle',
             padding: 18,
@@ -3656,10 +3671,10 @@ function renderChart(canvasId, chartData) {
         tooltip: {
           filter: (item) => !String((item.dataset && item.dataset.label) || '').startsWith('_'),
           backgroundColor: 'rgba(14, 20, 36, 0.96)',
-          titleColor: '#8FB4FF',
-          titleFont: { size: 13, weight: '700', family: 'Outfit' },
-          bodyColor: '#E7ECF5',
-          bodyFont: { size: 12, family: 'Outfit' },
+          titleColor: '#3c8267',
+          titleFont: { size: 13, weight: '700', family: 'system-ui' },
+          bodyColor: '#173c33',
+          bodyFont: { size: 12, family: 'system-ui' },
           borderColor: 'rgba(91, 141, 239, 0.45)',
           borderWidth: 1,
           cornerRadius: 10,
@@ -3702,8 +3717,8 @@ function renderChart(canvasId, chartData) {
         r: {
           angleLines: { color: 'rgba(91, 141, 239, 0.18)' },
           grid: { color: 'rgba(91, 141, 239, 0.12)' },
-          pointLabels: { font: { size: 12, family: 'Outfit', weight: '600' }, color: '#9FB0CE' },
-          ticks: { font: { size: 10 }, color: '#6E82A6', backdropColor: 'transparent' },
+          pointLabels: { font: { size: 12, family: 'system-ui', weight: '600' }, color: '#40594f' },
+          ticks: { font: { size: 10 }, color: '#61756c', backdropColor: 'transparent' },
           beginAtZero: true,
           max: 100,
         },
@@ -3712,18 +3727,18 @@ function renderChart(canvasId, chartData) {
           angleLines: { color: 'rgba(91, 141, 239, 0.12)' },
           grid: { color: 'rgba(91, 141, 239, 0.12)' },
           pointLabels: { display: false },
-          ticks: { font: { size: 10 }, color: '#6E82A6', backdropColor: 'transparent', callback: (v) => fmtAxis(v) },
+          ticks: { font: { size: 10 }, color: '#61756c', backdropColor: 'transparent', callback: (v) => fmtAxis(v) },
           beginAtZero: true,
         },
       } : {
         x: {
           grid: { display: false },
-          ticks: { font: { size: 11, family: 'Outfit', weight: '500' }, color: '#9FB0CE', padding: 6 },
+          ticks: { font: { size: 11, family: 'system-ui', weight: '500' }, color: '#40594f', padding: 6 },
           border: { display: false },
         },
         y: {
           grid: { color: 'rgba(91, 141, 239, 0.08)', drawBorder: false, lineWidth: 1 },
-          ticks: { font: { size: 11, family: 'Outfit', weight: '500' }, color: '#9FB0CE', padding: 8 },
+          ticks: { font: { size: 11, family: 'system-ui', weight: '500' }, color: '#40594f', padding: 8 },
           border: { display: false },
         },
       },
@@ -3762,7 +3777,7 @@ function renderChart(canvasId, chartData) {
       if (ds.borderCapStyle == null) ds.borderCapStyle = 'round';
       if (ds.borderJoinStyle == null) ds.borderJoinStyle = 'round';
       if (ds.pointHoverBackgroundColor == null) ds.pointHoverBackgroundColor = ds.borderColor;
-      if (ds.pointHoverBorderColor == null) ds.pointHoverBorderColor = '#0E1424';
+      if (ds.pointHoverBorderColor == null) ds.pointHoverBorderColor = '#fafbf7';
       if (ds.pointHoverBorderWidth == null) ds.pointHoverBorderWidth = 2;
       // Área rellena (no bandas de confianza) → gradiente vertical.
       const fillOn = ds.fill === true || ds.fill === 'origin' || ds.fill === 'start' || ds.fill === 'end';
@@ -3789,7 +3804,7 @@ function renderChart(canvasId, chartData) {
         if (opts.title) {
           target.title = {
             ...opts.title,
-            font: { size: 12, family: 'Outfit' },
+            font: { size: 12, family: 'system-ui' },
             color: '#7E92B6',
           };
         }
@@ -3925,6 +3940,20 @@ chatArea.addEventListener('scroll', () => {
   lastScrollTop = st;
 }, { passive: true });
 
+// Show the beginning of a completed answer instead of dropping readers below its chart.
+// Preserve the reader's position when they deliberately scrolled away.
+function revealReplyStart(reply) {
+  const following = stickToBottom;
+  requestAnimationFrame(() => {
+    if (!chatArea.querySelector('.msg-user')) { scrollToBottom(); return; }
+    if (!following) { ensureScrollDownBtn().classList.add('visible'); return; }
+    chatArea.scrollTop += reply.getBoundingClientRect().top - chatArea.getBoundingClientRect().top - 20;
+    stickToBottom = isNearBottom();
+    if (!stickToBottom) ensureScrollDownBtn().classList.add('visible');
+    else hideScrollDownBtn();
+  });
+}
+
 function scrollToBottom(force = false) {
   if (force) stickToBottom = true;
   if (!stickToBottom) {
@@ -4038,7 +4067,7 @@ function generatePDFReport(data) {
     if (casos >= p75) return '#F472B6';
     if (casos >= p50) return '#E67E22';
     if (casos >= p25) return '#2DD4BF';
-    return '#5B8DEF';
+    return '#17644d';
   }
 
   const padRows = Object.entries(padStats).map(([pad, ps]) => {
@@ -4080,23 +4109,23 @@ function generatePDFReport(data) {
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Inter', sans-serif; color: #1a1a1a; padding: 40px; max-width: 900px; margin: 0 auto; line-height: 1.5; }
   @media print { body { padding: 20px; } .no-print { display: none; } }
-  .header { border-bottom: 3px solid #3A6FD8; padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; }
-  .header h1 { font-size: 22px; color: #3A6FD8; }
+  .header { border-bottom: 3px solid #12513e; padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .header h1 { font-size: 22px; color: #12513e; }
   .header .subtitle { font-size: 13px; color: #666; }
   .header .date { font-size: 12px; color: #888; text-align: right; }
-  .header .logo { font-size: 11px; color: #3A6FD8; font-weight: 700; letter-spacing: 1px; }
+  .header .logo { font-size: 11px; color: #12513e; font-weight: 700; letter-spacing: 1px; }
   .section { margin-bottom: 24px; }
-  .section h2 { font-size: 16px; color: #3A6FD8; border-bottom: 1px solid #e0e0e0; padding-bottom: 6px; margin-bottom: 12px; }
+  .section h2 { font-size: 16px; color: #12513e; border-bottom: 1px solid #e0e0e0; padding-bottom: 6px; margin-bottom: 12px; }
   .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
   .kpi { background: #f5f7fc; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; text-align: center; }
-  .kpi .val { font-size: 24px; font-weight: 700; color: #3A6FD8; }
+  .kpi .val { font-size: 24px; font-weight: 700; color: #12513e; }
   .kpi .lbl { font-size: 11px; color: #666; margin-top: 2px; }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { background: #3A6FD8; color: #fff; padding: 8px 10px; text-align: left; font-weight: 600; }
+  th { background: #12513e; color: #fff; padding: 8px 10px; text-align: left; font-weight: 600; }
   .semaforo-mini { display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px; }
   .sem-cell { text-align: center; padding: 6px 2px; border-radius: 4px; font-size: 9px; color: #fff; font-weight: 600; }
-  .footer { margin-top: 30px; padding-top: 12px; border-top: 2px solid #3A6FD8; font-size: 10px; color: #888; text-align: center; }
-  .print-btn { position: fixed; top: 20px; right: 20px; padding: 10px 24px; background: #3A6FD8; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; }
+  .footer { margin-top: 30px; padding-top: 12px; border-top: 2px solid #12513e; font-size: 10px; color: #888; text-align: center; }
+  .print-btn { position: fixed; top: 20px; right: 20px; padding: 10px 24px; background: #12513e; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; }
   .print-btn:hover { background: #2A52A8; }
 </style>
 </head>
