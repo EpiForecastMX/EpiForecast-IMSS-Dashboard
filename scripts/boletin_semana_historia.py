@@ -18,6 +18,7 @@ from datetime import date, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from boletin_celdas import GUION, es_marcador  # noqa: E402
 from boletin_semana_extrae import acumulados  # noqa: E402
 
 DIR = 'assets/boletin/history'
@@ -56,10 +57,12 @@ def punto(d: dict, anio: int, semana: int, si: int, estados: list) -> tuple:
         if set(filas) != set(estados):
             raise FalloHistoria('Entidades distintas del histórico',
                                 [dict(id=d['id'], faltan=sorted(set(estados) - set(filas)))])
-        e = [[filas[n][0], acumulados(d['columns'], filas[n], y)] for n in estados]
-        if any(v < 0 for vals in filas.values() for v in vals):
+        # Las celdas conservan el símbolo impreso («-»); nunca se guardan como 0.
+        e = [[filas[n][0], acumulados(d['columns'], filas[n], y, d.get('guion'))]
+             for n in estados]
+        if any(isinstance(v, int) and v < 0 for vals in filas.values() for v in vals):
             flags.append('negative_values_reported')
-    if any(v is None for v in d['totals']):
+    if any(v is None or (es_marcador(v) and v != GUION) for v in d['totals']):
         flags.append('unavailable_source_cells')
     p = dict(y=y, w=obs, s=si, p=d['page'], n=[d['weekly'], d['cumulative']],
              prev=d['previous'], e=e, flags=flags)
@@ -127,8 +130,18 @@ def incorporar(index: dict, shards: dict, datos: dict, url: str, sha: str,
                                      start=(inicio_anio(anio) + timedelta(weeks=semana - 1))
                                      .isoformat()))
     index['checked'] = comprobado
+    if meta.get('symbols'):
+        # Simbología vigente del boletín: las curvas explican cada símbolo con ella.
+        index['symbols'] = meta['symbols']
     revisadas = []
+    categorias = {c['id']: c for c in index['categories']}
     for d in datos['diseases']:
+        # La semántica del guion de la categoría viaja al catálogo de las curvas.
+        if d.get('guion'):
+            categorias[d['id']]['guion'] = {k: v for k, v in d['guion'].items()
+                                            if k != 'filas_nacionales'}
+        else:
+            categorias[d['id']].pop('guion', None)
         clave, p = punto(d, anio, semana, si, index['states'])
         sh = shards[d['id']]
         previo = next((q for q in sh['points'] if (q['y'], q['w']) == clave), None)

@@ -24,7 +24,11 @@ test('all state columns reconcile exactly, including previous-year and HIV-stage
     assert.equal(new Set(d.states.map(s => s.state)).size, 32, d.id);
     assert.equal(d.columns.length, d.totals.length, d.id);
     for (const [i, total] of d.totals.entries()) {
-      assert.equal(d.states.reduce((sum, s) => sum + s.values[i], 0), total, `${d.id} column ${i}`);
+      // Sólo se suman cifras impresas: un guion no aporta cifra y un TOTAL con guion exige guiones.
+      const col = d.states.map(s => s.values[i]);
+      if (typeof total === 'string') assert.ok(total === '-' && col.every(v => v === '-' || v === 0), `${d.id} column ${i}`);
+      else assert.equal(col.reduce((sum, v) => sum + (typeof v === 'number' ? v : 0), 0), total, `${d.id} column ${i}`);
+      assert.ok(col.every(v => typeof v === 'number' || v === '-'), `${d.id} column ${i}: sólo cifras o guion impreso`);
     }
     assert.ok(validCut(d.observed_week), `${d.id} has an explicit observation cut`);
   }
@@ -109,7 +113,7 @@ test('all history shards have unique observed periods and match the audited late
     for(const p of shard.points){
       assert.ok(p.s>=0&&p.s<history.source_count,d.id);
       assert.ok(p.p>0,d.id);
-      assert.ok(p.n.every(v=>v===null||Number.isInteger(v)),d.id);
+      assert.ok(p.n.every(v=>v===null||v==='-'||Number.isInteger(v)),d.id);
       if(p.e)assert.equal(p.e.length,32,d.id);
       if(p.flags.includes('source_cut_conflict'))assert.deepEqual(p.n,[null,null],d.id);
     }
@@ -176,7 +180,7 @@ test('historic classifications, missing observations and explicit source edition
     assert.equal(s.points.length,meta.points,id);
     for(const p of [...s.points,...s.revisions]){
       assert.ok(p.s>=0&&p.s<history.source_count,id);
-      assert.ok(p.n.every(v=>v===null||Number.isInteger(v)),id);
+      assert.ok(p.n.every(v=>v===null||v==='-'||Number.isInteger(v)),id);
       if(p.e)assert.equal(p.e.length,32,id);
     }
   }
@@ -198,7 +202,9 @@ test('ambiguous rotavirus years cannot overwrite 2020, and independently verifie
   const hemorrhagic=history.categories.find(d=>d.historical&&d.code==='A91'&&/Hemorrágica/i.test(d.name));
   const p=read(hemorrhagic.id).points.find(p=>p.y===2015&&p.w===48);
   assert.deepEqual(p.n,[220,4897]);assert.equal(p.in_study,3039);
-  assert.equal(p.in_study_states.reduce((a,b)=>a+b,0),3039);
+  // Guion impreso = «no se presentaron casos» (simbología): vale 0 al sumar, nunca se concatena.
+  assert.equal(p.in_study_states.reduce((a,b)=>a+(b==='-'?0:b),0),3039);
+  assert.ok(p.in_study_states.includes('-'),'los guiones impresos se conservan');
 });
 
 test('national-only rows retain full coverage and historical printed-code changes', () => {
@@ -221,8 +227,8 @@ test('history publishes exactly the indexed disease shards', () => {
 
 test('the current snapshot is declared in one place and the static page agrees with it', async () => {
   const { textosRadar, enlacesRadar, rellenar } = await import('../assets/boletin/textos.mjs');
-  assert.match(actual.carpeta, /^assets\/boletin\/\d{4}-w\d{2}$/);
-  assert.equal(actual.carpeta, `assets/boletin/${year}-w${String(week).padStart(2, '0')}`);
+  assert.match(actual.carpeta, /^assets\/boletin\/\d{4}-w\d{2}(-r\d+)?$/);
+  assert.match(actual.carpeta, new RegExp(`^assets/boletin/${year}-w${String(week).padStart(2, '0')}(-r\\d+)?$`));
   const history = JSON.parse(readFileSync(resolve(root, 'assets/boletin/history/index.json'), 'utf8'));
   const textos = textosRadar(data, actual, history), enlaces = enlacesRadar(actual);
   const spans = [...html.matchAll(/<span data-radar="([^"]+)">([^<]*)<\/span>/g)];

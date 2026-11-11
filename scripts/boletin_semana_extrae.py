@@ -17,6 +17,8 @@ import xml.etree.ElementTree as E
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+from boletin_celdas import GUION, reconcilia, suma
+
 NS = {'x': 'http://www.w3.org/1999/xhtml'}
 ENCABEZADOS_NO_ENTIDAD = {'H', 'M', 'Acum.', 'FEDERATIVA', 'ENTIDAD', 'Sem.'}
 
@@ -75,11 +77,20 @@ def celdas(ws):
     return out
 
 
-def valor(t: str) -> int:
-    """«-» es cero notificado; una cifra con signo se conserva; lo demás es ilegible."""
+# Símbolos de la simbología del boletín, como se imprimen (sin el punto final opcional).
+SIMBOLOS = {'-': GUION, 'n.d.': 'n.d.', 'n.d': 'n.d.', 'n.a.': 'n.a.', 'n.a': 'n.a.',
+            's.n.': 's.n.', 's.n': 's.n.'}
+
+
+def valor(t: str):
+    """Cifra impresa (entero, con signo si lo trae) o el símbolo tal como se imprimió.
+
+    «-» NO se convierte en 0: la simbología lo define y su lectura numérica depende de la
+    categoría (boletin_celdas.numero). Lo que no es cifra ni símbolo es ilegible.
+    """
     t = t.replace(',', '').replace(' ', '')
-    if t == '-':
-        return 0
+    if t in SIMBOLOS:
+        return SIMBOLOS[t]
     # «145-»: guion de la celda vecina fundido en la misma palabra; la reconciliación lo vigila.
     if re.fullmatch(r'\d+-', t):
         t = t[:-1]
@@ -107,10 +118,13 @@ def sin_guiones_pegados(ws):
         for v in ws)]
 
 
-def acumulados(columnas: list, valores: list, observado: int) -> int:
-    """Suma de las columnas de acumulado del año observado: H y M, estadios o la única."""
-    return sum(v for c, v in zip(columnas, valores)
-               if c in ('H', 'M') or ' estadio ' in c or c == f'Acum. {observado}')
+def acumulados(columnas: list, valores: list, observado: int, guion: dict | None = None):
+    """Acumulado del año observado: H y M, estadios o la columna única.
+
+    Todo guion: guion. Algún valor no comparable: None. Si no, la suma (boletin_celdas.suma).
+    """
+    return suma([v for c, v in zip(columnas, valores)
+                 if c in ('H', 'M') or ' estadio ' in c or c == f'Acum. {observado}'], guion)
 
 
 def es_encabezado(t: str) -> bool:
@@ -226,9 +240,15 @@ def bloques_estatales(pn: int, p, anio: int, problemas: list) -> list:
         if ilegibles:
             problemas.append(dict(etiqueta, tipo='celdas_ilegibles', detalle=ilegibles))
             continue
-        sumas = [sum(f['values'][k] for f in filas) for k in range(len(totales))]
-        if sumas != totales:
-            problemas.append(dict(etiqueta, tipo='reconciliacion', impreso=totales, sumado=sumas))
+        # Sólo se comparan valores comparables: un guion no aporta cifra impresa y un n.d. o
+        # s.n. impide comprobar la columna (boletin_celdas.reconcilia).
+        malas = [k for k in range(len(totales))
+                 if not reconcilia([f['values'][k] for f in filas], totales[k])]
+        if malas:
+            sumas = [sum(f['values'][k] for f in filas if isinstance(f['values'][k], int))
+                     for k in range(len(totales))]
+            problemas.append(dict(etiqueta, tipo='reconciliacion', impreso=totales, sumado=sumas,
+                                  columnas=malas))
             continue
         etiqueta_previo = f'Acum. {observado - 1}'
         previo_valor = totales[columnas.index(etiqueta_previo)] if etiqueta_previo in columnas \
@@ -294,7 +314,8 @@ def filas_nacionales(pn: int, p, problemas: list) -> tuple:
                                   valores=[v['t'] for v in vals]))
             continue
         try:
-            v = [None if t in (None, 'n.d.') else valor(t) for t in celdas_fila]
+            # Celda en blanco: None (no se imprimió nada); símbolos y cifras, como se imprimen.
+            v = [None if t is None else valor(t) for t in celdas_fila]
         except ValueError as e:
             problemas.append(dict(pagina=pn, tipo='nacional_ilegible', nombre=nombre,
                                   detalle=str(e)))
@@ -383,6 +404,26 @@ def ocr_encabezados(pdf: Path, paginas: list) -> dict:
         return dict(ex.map(uno, paginas))
 
 
+SIMBOLOGIA = re.compile(r'\(\s*-\s*\)\s*:\s*(.+?)\.?(?:\s{2,}|$)', re.M)
+
+
+def simbologia(paginas_texto: list) -> dict | None:
+    """Simbología impresa en el resumen nacional: significado de cada símbolo y sus páginas."""
+    out, paginas = {}, []
+    for pn, t in enumerate(paginas_texto, 1):
+        if 'Simbolog' not in t:
+            continue
+        paginas.append(pn)
+        m = SIMBOLOGIA.search(t)
+        if m:
+            out.setdefault(GUION, m.group(1).strip())
+        for clave in ('n.d.', 'n.a.', 's.n.'):
+            m = re.search(re.escape(clave) + r'\s*:\s*(.+?)\.?(?:\s{2,}|$)', t, re.M)
+            if m:
+                out.setdefault(clave, m.group(1).strip())
+    return dict(simbolos=out, paginas=paginas) if GUION in out else None
+
+
 def leer(pdf: Path, anio: int, texto: bytes | None = None) -> dict:
     """Extrae todo el boletín; lanza ErrorExtraccion con cada problema encontrado."""
     problemas: list = []
@@ -420,4 +461,4 @@ def leer(pdf: Path, anio: int, texto: bytes | None = None) -> dict:
         raise ErrorExtraccion(problemas)
     return dict(estatales=estatales, nacionales=nacionales, miasis=mias,
                 paginas_estatales=paginas_estatales, rotulos_nacionales=rotulos,
-                titulos=titulos)
+                titulos=titulos, simbologia=simbologia(paginas_texto))

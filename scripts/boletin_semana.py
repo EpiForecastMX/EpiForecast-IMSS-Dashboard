@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import io
 import json
 import math
 import re
@@ -39,10 +40,19 @@ import boletin_semana_activa as activa  # noqa: E402
 import boletin_semana_cortes as cortes  # noqa: E402
 import boletin_semana_extrae as extrae  # noqa: E402
 import boletin_semana_historia as historia  # noqa: E402
+from boletin_celdas import GUION, es_marcador, numero  # noqa: E402
 
 RAIZ = Path(__file__).resolve().parents[1]
 MESES = extrae.MESES
 CAMPOS_COBERTURA = ('aggregate', 'platform_id', 'status', 'source_note', 'reason')
+# Semántica del guion por categoría cuando la fuente contradice la simbología (sarampión,
+# paludismo por P. falciparum). Se hereda por identidad como la cobertura: nunca se infiere.
+CAMPO_GUION = 'guion'
+
+
+def sin_cifra(v) -> bool:
+    """Celda nacional sin cifra comparable: en blanco o n.d./n.a./s.n. (el guion sí es dato)."""
+    return v is None or (es_marcador(v) and v != GUION)
 
 
 class Fallo(Exception):
@@ -135,10 +145,14 @@ def variables(r: dict, anio: int, estadios: bool, rotulos: list) -> list:
 
 
 def puntaje(r: dict, maximo: int, afinidad) -> tuple:
-    activas = sum(s['values'][0] > 0 for s in r['states'])
-    crecimiento = (round(15 * min(1, max(0, (r['cumulative'] / r['previous'] - 1) / .5)), 2)
-                   if r['previous'] else 0)
-    return activas, {'carga': round(25 * math.log1p(r['cumulative']) / math.log1p(maximo), 2),
+    g = r.get(CAMPO_GUION)
+    activas = sum((numero(s['values'][0], g) or 0) > 0 for s in r['states'])
+    acum, previo = numero(r['cumulative'], g), numero(r['previous'], g)
+    crecimiento = (round(15 * min(1, max(0, (acum / previo - 1) / .5)), 2)
+                   if previo and acum is not None else 0)
+    # Sin acumulado comparable (guion no publicado) no hay carga: no se finge un cero.
+    carga = None if acum is None else round(25 * math.log1p(acum) / math.log1p(maximo), 2)
+    return activas, {'carga': carga,
                      'afinidad': afinidad,
                      'dispersion': round(25 * activas / 32, 2),
                      'crecimiento': crecimiento}
@@ -148,11 +162,13 @@ def prioridad(r: dict, previo: dict):
     """Las categorías por incorporar se ordenan con la regla del radar; las demás heredan."""
     partes = r['score_parts']
     # Mismo orden de suma que la foto de la semana 42: el redondeo depende de él.
-    total = round(partes['carga'] + partes['dispersion'] + partes['afinidad']
-                  + partes['crecimiento'], 1)
+    total = (None if partes['carga'] is None else
+             round(partes['carga'] + partes['dispersion'] + partes['afinidad']
+                   + partes['crecimiento'], 1))
     if previo['status'] != 'Por incorporar' or previo['aggregate']:
         return previo['priority'], (None if previo['score'] is None else total)
-    if not r['states'] or r['cumulative'] < 1000:
+    acum = numero(r['cumulative'], r.get(CAMPO_GUION))
+    if not r['states'] or acum is None or acum < 1000:
         return 'Exploración', None
     return ('Alta' if total >= 75 else 'Media' if total >= 50 else 'Exploración'), total
 
@@ -187,6 +203,10 @@ def construir(ext: dict, previa: dict, ocr: dict, anio: int, semana: int) -> tup
                                   anio_columnas=b['anio_observado']))
             continue
         r.update(observed_week=sem, cut_text=cortes.texto_corte(texto))
+        if previos[ident].get(CAMPO_GUION):
+            r[CAMPO_GUION] = previos[ident][CAMPO_GUION]
+            r['cumulative'] = extrae.acumulados(b['columns'], b['totals'], b['anio_observado'],
+                                                r[CAMPO_GUION])
         r['_estadios'], r['_anio'] = b['estadios'], b['anio_observado']
         registros.append(r)
     nacional = ext['nacionales']
@@ -200,7 +220,7 @@ def construir(ext: dict, previa: dict, ocr: dict, anio: int, semana: int) -> tup
                                   coincidencias=len(fila)))
             continue
         n = fila[0]
-        if n['weekly'] is None or n['cumulative'] is None:
+        if sin_cifra(n['weekly']) or sin_cifra(n['cumulative']):
             problemas.append(dict(tipo='nacional_sin_cifra', id=prev['id'], fila=n))
             continue
         registros.append(dict(
@@ -212,10 +232,12 @@ def construir(ext: dict, previa: dict, ocr: dict, anio: int, semana: int) -> tup
             weekly=n['weekly'], cumulative=n['cumulative'], previous=n['previous'], states=[],
             state_count=0, reconciled=None, observed_week=semana,
             cut_text=f'Resumen de notificación inmediata y semanal del boletín {semana}/{anio}',
-            _estadios=False, _anio=anio))
+            _estadios=False, _anio=anio, **({CAMPO_GUION: prev[CAMPO_GUION]}
+                                             if prev.get(CAMPO_GUION) else {})))
     if problemas:
         raise Fallo('Cortes o identidades nacionales sin resolver', problemas)
-    maximo = max(r['cumulative'] for r in registros)
+    maximo = max(v for r in registros
+                 if (v := numero(r['cumulative'], r.get(CAMPO_GUION))) is not None)
     salida = []
     for r in registros:
         p = previos[r['id']]
@@ -234,10 +256,32 @@ def construir(ext: dict, previa: dict, ocr: dict, anio: int, semana: int) -> tup
         orden += (['states', 'reconciled', 'state_count', 'weekly', 'cumulative', 'previous']
                   if r['states'] else
                   ['weekly', 'cumulative', 'previous', 'states', 'state_count', 'reconciled'])
-        orden += ['aggregate', 'platform_id', 'status', 'source_note', 'observed_week', 'cut_text',
+        orden += ['aggregate', 'platform_id', 'status', 'source_note']
+        orden += [CAMPO_GUION] if r.get(CAMPO_GUION) else []
+        orden += ['observed_week', 'cut_text',
                   'variables', 'active_states', 'score_parts', 'score', 'reason', 'priority']
         salida.append({k: r[k] for k in orden})
+    # Filas del resumen nacional de una categoría con guion no publicado: misma semántica.
+    for r in salida:
+        g = r.get(CAMPO_GUION)
+        for nombre in (g or {}).get('filas_nacionales', []):
+            for n in nacional:
+                if norm(n['name'].lstrip('•')) == norm(nombre):
+                    n[CAMPO_GUION] = {k: v for k, v in g.items() if k != 'filas_nacionales'}
     return salida, avisos
+
+
+def marcadores(enfermedades: list, nacional: list) -> dict:
+    """Conteo de símbolos impresos que se conservan como marcador (no como cifra)."""
+    c = Counter()
+    for d in enfermedades:
+        if d['states']:
+            c.update(v for s in d['states'] for v in s['values'] if es_marcador(v))
+            c.update(v for v in d['totals'] if es_marcador(v))
+    for n in nacional:
+        c.update(n[k] for k in ('weekly', 'cumulative', 'median', 'weekly_previous', 'previous')
+                 if es_marcador(n[k]))
+    return dict(sorted(c.items()))
 
 
 # Escritura ------------------------------------------------------------------------------
@@ -287,6 +331,21 @@ def generar(args) -> dict:
                                'tolerancia cero',
                 registry_sha256=(hashlib.sha256(Path(args.registro).read_bytes()).hexdigest()
                                  if args.registro else previa['meta']['registry_sha256']))
+    # La simbología impresa gobierna el significado de cada símbolo. Si una edición no la trae,
+    # se hereda la anterior y se avisa; nunca se inventa.
+    simb = ext.get('simbologia')
+    if simb:
+        meta['symbols'] = simb
+    elif previa['meta'].get('symbols'):
+        meta['symbols'] = previa['meta']['symbols']
+        avisos.append(dict(tipo='simbologia_heredada', paginas=previa['meta']['symbols']['paginas']))
+    marcas = marcadores(enfermedades, nacional)
+    if marcas and not meta.get('symbols'):
+        # Sin simbología impresa ni heredada no se sabe qué significa el guion: no se infiere
+        # «sin casos» por omisión.
+        raise Fallo('Guiones sin simbología verificable',
+                    [dict(tipo='simbologia_ausente', marcadores=marcas,
+                          detalle='el PDF no imprime su simbología y la foto anterior no la trae')])
     datos = dict(meta=meta, diseases=enfermedades, national=nacional, myiasis=ext['miasis'])
     verificacion = dict(schema='boletin_radar.v1', source_pdf_sha256=sha,
                         source_period=f'{anio}-W{semana:02d}', checked=comprobado.isoformat(),
@@ -295,7 +354,11 @@ def generar(args) -> dict:
                         categories_excluding_aggregate=meta['categories'],
                         published_platform_entries=plataforma,
                         scope='Fixed snapshot of notified cases and incorporation proposal; no '
-                              'new forecast models.')
+                              'new forecast models.',
+                        printed_markers=marcas,
+                        dash_semantics_overrides=[
+                            dict(id=d['id'], semantica=d[CAMPO_GUION]['semantica'])
+                            for d in enfermedades if d.get(CAMPO_GUION)])
     if avisos:
         verificacion['warnings'] = avisos
     nombre_pdf = Path(args.url_fuente.split('?')[0]).name.lower()
@@ -303,19 +366,26 @@ def generar(args) -> dict:
                 nombre_pdf=nombre_pdf, anio=anio, semana=semana, volumen=volumen, avisos=avisos)
 
 
+def catalogo_csv(d: dict, anio: int) -> bytes:
+    """Catálogo descargable; un símbolo impreso («-», «n.d.») se exporta tal cual, no como 0."""
+    out = io.StringIO()
+    out.write('\ufeff')
+    w = csv.writer(out, lineterminator='\n')
+    w.writerow(['categoria', 'CIE_impreso', 'grupo', 'pagina', f'semana_{anio}',
+                f'acumulado_{anio}', f'acumulado_{anio - 1}',
+                'estado_plataforma', 'prioridad', 'puntaje'])
+    for x in d['diseases']:
+        w.writerow([x['name'], x['code'], x['group'], x['page'], x['weekly'], x['cumulative'],
+                    x['previous'], x['status'], x['priority'], x['score']])
+    return out.getvalue().encode('utf-8')
+
+
 def escribir(res: dict, destino: Path) -> None:
     destino.mkdir(parents=True)
     d = res['datos']
     (destino / 'data.json').write_text(json.dumps(d, ensure_ascii=False, separators=(',', ':')),
                                        encoding='utf-8')
-    with (destino / 'catalogo.csv').open('w', newline='', encoding='utf-8-sig') as f:
-        w = csv.writer(f, lineterminator='\n')
-        w.writerow(['categoria', 'CIE_impreso', 'grupo', 'pagina', f'semana_{res["anio"]}',
-                    f'acumulado_{res["anio"]}', f'acumulado_{res["anio"] - 1}',
-                    'estado_plataforma', 'prioridad', 'puntaje'])
-        for x in d['diseases']:
-            w.writerow([x['name'], x['code'], x['group'], x['page'], x['weekly'], x['cumulative'],
-                        x['previous'], x['status'], x['priority'], x['score']])
+    (destino / 'catalogo.csv').write_bytes(catalogo_csv(d, res['anio']))
     (destino / 'verification.json').write_text(
         json.dumps(res['verificacion'], ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     (destino / 'boletin.txt').write_bytes(res['texto'])

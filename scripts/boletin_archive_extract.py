@@ -61,6 +61,7 @@ def cells(ws):
 def number(s,source_hash=None,page=None):
  s=s.replace(',','').replace(' ','').replace('−','-').replace('–','-')
  if s in ['n.e.','n.e','n.a.','n.d.','s.n.','s.n','n.a','n.d','n/a','n/d'] or not s:return None
+ # «-» → 0 sólo aquí; tras reconstruir, boletin_marcadores_migra.py restituye el guion (README).
  if set(s)<=set('-'):return 0
  if re.fullmatch(r'#+',s):return None
  if re.fullmatch(r'-?\d+[*/]?',s):return int(s.rstrip('*/'))
