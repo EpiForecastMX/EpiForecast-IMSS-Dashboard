@@ -5,374 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EpiForecast-MX — Tumores malignos del encéfalo y del sistema nervioso central (C70-C72) · Pronóstico semanal</title>
   <meta name="description" content="Pronóstico semanal de casos de tumores malignos del encéfalo y del sistema nervioso central (CIE-10 C70-C72) reportados al SINAVE para las 32 entidades de México, por sexo, a 52 semanas. Serie desde 2023. Sin intervalos de incertidumbre." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=Libre+Caslon+Display&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --bg-deep:#0E1424; --bg-base:#131C30; --bg-raised:#18223A; --bg-card:#1C2740; --bg-card-hover:#243150;
-      --text-primary:#E7ECF5; --text-secondary:#9FB0CE; --text-muted:#6E82A6; --text-faint:#44567A;
-      --burgundy:#F472B6; --teal:#5B8DEF; --gold:#2DD4BF; --amber:#F59E0B; --amber-soft:#FBBF24;
-      --cream:#E7ECF5;
-      --font-display:'Playfair Display',Georgia,serif;
-      --font-body:'Outfit',system-ui,-apple-system,sans-serif;
-      --font-mono:'JetBrains Mono','SF Mono',monospace;
-    }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { font-family:var(--font-body); background:var(--bg-base); color:var(--text-secondary); line-height:1.6; -webkit-font-smoothing:antialiased; }
-    a { color:var(--teal); text-decoration:none; transition:color .2s; }
-    a:hover { color:var(--amber-soft); }
-    .wrap { max-width:1080px; margin:0 auto; padding:0 1.5rem; }
+<link rel="stylesheet" href="disease.css?v=20261111ux1">
 
-    /* Nav */
-    nav { position:sticky; top:0; z-index:50; background:rgba(14,20,36,0.82); backdrop-filter:blur(12px); border-bottom:1px solid var(--bg-card-hover); }
-    .nav-in { max-width:1080px; margin:0 auto; padding:0.9rem 1.5rem; display:flex; align-items:center; justify-content:space-between; }
-    .nav-logo { font-family:var(--font-display); font-weight:800; font-size:1.15rem; color:var(--cream); letter-spacing:.3px; }
-    .nav-logo span { color:var(--gold); }
-    .nav-back { font-family:var(--font-mono); font-size:.78rem; display:inline-flex; align-items:center; gap:.45rem; }
-    .nav-back svg { width:14px; height:14px; }
-
-    /* Hero */
-    .hero { padding:4.5rem 0 2.5rem; }
-    .eyebrow { font-family:var(--font-mono); font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.18em; color:var(--amber-soft); display:inline-flex; align-items:center; gap:.5rem; }
-    .eyebrow::before { content:""; width:26px; height:2px; background:var(--amber); display:inline-block; }
-    h1 { font-family:var(--font-display); font-size:2.7rem; line-height:1.1; color:var(--cream); margin:.8rem 0 1rem; }
-    .lead { font-size:1.12rem; max-width:64ch; color:var(--text-secondary); }
-    .lead strong { color:var(--cream); }
-
-    .stats { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-top:2.4rem; }
-    .stat { background:var(--bg-card); border:1px solid var(--bg-card-hover); border-radius:14px; padding:1.1rem 1.2rem; position:relative; overflow:hidden; }
-    .stat::before { content:""; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--amber); }
-    .stat .v { font-family:var(--font-display); font-size:1.7rem; font-weight:800; color:var(--cream); }
-    .stat .l { font-family:var(--font-mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); margin-top:.25rem; }
-
-    /* Sections */
-    section { padding:3rem 0; border-top:1px solid rgba(36,49,80,0.6); }
-    .label { font-family:var(--font-mono); font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.16em; color:var(--gold); }
-    h2 { font-family:var(--font-display); font-size:1.85rem; color:var(--cream); margin:.5rem 0 1rem; line-height:1.18; }
-    h3.subh { font-family:var(--font-display); color:var(--cream); font-size:1.3rem; margin:2rem 0 .6rem; display:flex; align-items:center; gap:.6rem; }
-    h3.subh svg { width:20px; height:20px; color:var(--amber-soft); flex:none; }
-    .eda-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:.9rem; margin:1.2rem 0; }
-    .eda-grid .stat .v { font-size:1.4rem; }
-    .eda-gallery { display:grid; grid-template-columns:repeat(auto-fit,minmax(330px,1fr)); gap:1.2rem; margin:1.4rem 0; align-items:start; }
-    .eda-gallery figure { margin:0; background:var(--bg-card); border:1px solid var(--bg-card-hover); border-radius:14px; padding:.8rem; }
-    .eda-gallery img { width:100%; border-radius:8px; display:block; background:var(--bg-deep); }
-    .eda-gallery figcaption { font-size:.8rem; color:var(--text-muted); margin-top:.55rem; line-height:1.5; }
-    section p { max-width:72ch; margin-bottom:1rem; }
-    section p strong, li strong { color:var(--cream); }
-
-    .callout { background:linear-gradient(135deg, rgba(245,158,11,0.08), rgba(244,114,182,0.06)); border:1px solid rgba(245,158,11,0.22); border-radius:16px; padding:1.5rem 1.7rem; margin-top:1.2rem; }
-    .callout h3 { font-family:var(--font-display); color:var(--cream); font-size:1.2rem; margin-bottom:.5rem; }
-    .sev { display:flex; flex-wrap:wrap; gap:.6rem; margin:1rem 0 .2rem; }
-    .sev span { font-family:var(--font-mono); font-size:.72rem; background:var(--bg-card); border:1px solid var(--bg-card-hover); border-radius:100px; padding:.3rem .8rem; color:var(--text-secondary); }
-    .sev b { color:var(--amber-soft); }
-
-    /* Figure */
-    figure { margin:1.4rem 0 0; }
-    figure img { width:100%; border-radius:14px; border:1px solid var(--bg-card-hover); background:#fff; display:block; }
-    figcaption { font-size:.85rem; color:var(--text-muted); margin-top:.7rem; font-family:var(--font-mono); }
-
-    /* Pipeline steps */
-    .steps { display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; margin-top:1.6rem; }
-    .step { background:var(--bg-card); border:1px solid var(--bg-card-hover); border-radius:14px; padding:1.1rem 1.2rem; }
-    .step .n { font-family:var(--font-mono); font-weight:700; color:var(--amber-soft); font-size:.8rem; }
-    .step h4 { color:var(--cream); font-size:1rem; margin:.3rem 0 .35rem; }
-    .step p { font-size:.9rem; margin:0; color:var(--text-secondary); }
-
-    /* Charts */
-    .charts { display:grid; gap:1.4rem; margin-top:1.4rem; }
-    .chart-card { background:var(--bg-card); border:1px solid var(--bg-card-hover); border-radius:16px; padding:1rem; }
-    .chart-card img { width:100%; border-radius:10px; display:block; }
-    .chart-card .cap { font-size:.85rem; color:var(--text-muted); margin-top:.6rem; padding:0 .3rem .2rem; }
-
-    /* Live table */
-    .live-head { display:flex; align-items:center; flex-wrap:wrap; gap:.8rem; margin:1.2rem 0 .4rem; }
-    .badge-live { font-family:var(--font-mono); font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:var(--gold); background:var(--gold-glow,rgba(45,212,191,0.14)); border:1px solid rgba(45,212,191,0.3); border-radius:100px; padding:.32rem .8rem; display:inline-flex; align-items:center; gap:.45rem; }
-    .badge-live .dot { width:8px; height:8px; border-radius:50%; background:var(--gold); box-shadow:0 0 0 0 rgba(45,212,191,.6); animation:pulse 2s infinite; }
-    @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(45,212,191,.5)} 70%{box-shadow:0 0 0 8px rgba(45,212,191,0)} 100%{box-shadow:0 0 0 0 rgba(45,212,191,0)} }
-    .live-meta { font-family:var(--font-mono); font-size:.74rem; color:var(--text-muted); }
-    .table-scroll { margin-top:1rem; border:1px solid var(--bg-card-hover); border-radius:14px; overflow:hidden; }
-    table { width:100%; border-collapse:collapse; font-size:.9rem; }
-    thead th { background:var(--bg-raised); color:var(--text-secondary); font-family:var(--font-mono); font-size:.7rem; text-transform:uppercase; letter-spacing:.06em; font-weight:700; padding:.7rem .9rem; text-align:right; position:sticky; top:0; }
-    thead th:first-child { text-align:left; }
-    tbody td { padding:.6rem .9rem; text-align:right; border-top:1px solid rgba(36,49,80,0.5); color:var(--text-secondary); font-variant-numeric:tabular-nums; }
-    tbody td:first-child { text-align:left; color:var(--cream); font-weight:500; }
-    tbody tr:hover { background:var(--bg-card-hover); }
-    tbody td.casos { color:var(--amber-soft); font-weight:600; }
-    tfoot td { padding:.7rem .9rem; text-align:right; border-top:2px solid var(--bg-card-hover); background:var(--bg-raised); color:var(--cream); font-weight:700; font-variant-numeric:tabular-nums; }
-    tfoot td:first-child { text-align:left; font-family:var(--font-mono); font-size:.78rem; }
-    .table-note { font-size:.82rem; color:var(--text-muted); margin-top:.8rem; }
-    .err { color:var(--burgundy); font-family:var(--font-mono); font-size:.85rem; }
-
-    /* Referencias */
-    .refs { list-style:none; margin:1.5rem 0 0; padding:0; display:grid; gap:.9rem; }
-    .refs li { background:var(--bg-card); border:1px solid var(--bg-card-hover); border-left:3px solid var(--gold); border-radius:12px; padding:1rem 1.2rem; }
-    .refs .rt { color:var(--cream); font-weight:600; font-size:.98rem; }
-    .refs .rd { font-size:.86rem; color:var(--text-secondary); margin:.25rem 0 .45rem; }
-    .refs a { font-family:var(--font-mono); font-size:.76rem; word-break:break-word; }
-    .refs .rtag { font-family:var(--font-mono); font-size:.62rem; text-transform:uppercase; letter-spacing:.1em; color:var(--gold); }
-
-    /* Lightbox: ampliar imágenes al hacer clic */
-    .eda-gallery img, figure img, .chart-card img { cursor:zoom-in; transition:filter .15s, transform .15s; }
-    .eda-gallery img:hover, figure img:hover, .chart-card img:hover { filter:brightness(1.06); }
-    .lightbox { position:fixed; inset:0; background:rgba(6,10,20,0.95); display:none; align-items:center; justify-content:center; z-index:200; padding:2.5rem 1.5rem; cursor:zoom-out; }
-    .lightbox.open { display:flex; }
-    .lightbox img { max-width:96vw; max-height:88vh; border-radius:10px; box-shadow:0 24px 70px rgba(0,0,0,.6); background:#fff; }
-    .lightbox .lb-close { position:absolute; top:1.1rem; right:1.3rem; width:42px; height:42px; border:1px solid var(--bg-card-hover); background:var(--bg-card); color:var(--cream); border-radius:10px; font-size:1.5rem; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; }
-    .lightbox .lb-close:hover { background:var(--bg-card-hover); }
-    .lightbox .lb-cap { position:absolute; bottom:1.1rem; left:0; right:0; text-align:center; color:var(--text-secondary); font-family:var(--font-mono); font-size:.78rem; padding:0 1.5rem; pointer-events:none; }
-
-    footer { border-top:1px solid var(--bg-card-hover); padding:2.2rem 0; text-align:center; background:var(--bg-deep); margin-top:1rem; }
-    footer .t { font-family:var(--font-display); color:var(--cream); font-weight:700; }
-    footer .s { font-size:.82rem; color:var(--text-muted); margin-top:.3rem; }
-
-    @media (max-width:760px) {
-      h1 { font-size:2rem; }
-      .stats { grid-template-columns:repeat(2,1fr); }
-      .steps { grid-template-columns:1fr; }
-    }
-    /* Tumores malignos del encéfalo y del sistema nervioso central */
-    :root { --obesidad:#C4B5FD; --obs-line:#9FB0CE; }
-    .hero { background:radial-gradient(1200px 400px at 70% -10%, rgba(217,119,6,0.12), transparent 60%); }
-    .status-card { margin:1.8rem auto 0; text-align:left; background:linear-gradient(135deg, rgba(45,212,191,0.08), rgba(217,119,6,0.07)); border:1px solid rgba(45,212,191,0.28); border-radius:16px; padding:1.2rem 1.4rem; max-width:820px; }
-    .status-badge { display:inline-flex; align-items:center; gap:.55rem; font-family:var(--font-mono); font-size:.78rem; font-weight:700; color:#0B0F1A; background:var(--gold); border-radius:100px; padding:.42rem .95rem; }
-    .status-badge svg { width:16px; height:16px; flex:none; }
-    .status-notes { list-style:none; margin:.9rem 0 0; display:grid; gap:.45rem; font-size:.95rem; }
-    .status-notes li { padding-left:1.1rem; position:relative; }
-    .status-notes li::before { content:""; position:absolute; left:0; top:.62em; width:6px; height:6px; border-radius:50%; background:var(--obesidad); }
-    .status-notes strong { color:var(--cream); }
-    .stat::before { background:var(--obesidad); }
-    .controls { display:flex; flex-wrap:wrap; gap:1rem 1.6rem; align-items:flex-end; margin:1.4rem 0 1rem; }
-    .ctl { display:flex; flex-direction:column; gap:.35rem; }
-    .ctl > span { font-family:var(--font-mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.12em; color:var(--text-muted); }
-    .ctl select { background:var(--bg-card); color:var(--cream); border:1px solid var(--bg-card-hover); border-radius:10px; padding:.55rem .8rem; font:inherit; min-width:260px; max-width:100%; }
-    .seg { display:inline-flex; border:1px solid var(--bg-card-hover); border-radius:10px; overflow:hidden; }
-    .seg button { background:var(--bg-card); color:var(--text-secondary); border:0; padding:.55rem 1rem; font:inherit; cursor:pointer; }
-    .seg button + button { border-left:1px solid var(--bg-card-hover); }
-    .seg button.on { background:var(--obesidad); color:#0B0F1A; font-weight:700; }
-    .chart-title { font-family:var(--font-display); color:var(--cream); font-size:1.15rem; padding:.3rem .4rem .6rem; }
-    .chart-box { position:relative; height:400px; }
-    .legend { display:flex; flex-wrap:wrap; gap:.5rem 1.2rem; font-size:.8rem; color:var(--text-secondary); padding:.8rem .4rem 0; }
-    .legend span { display:inline-flex; align-items:center; gap:.45rem; }
-    .sw { display:inline-block; width:22px; height:3px; border-radius:2px; }
-    .sw-obs { background:var(--obs-line); }
-    .sw-fc { background:var(--obesidad); }
-    .sw-band { height:12px; width:16px; background:rgba(45,212,191,0.18); border:1px solid rgba(45,212,191,0.4); }
-    .sw-origin { width:0; height:14px; border-left:2px dashed var(--text-muted); border-radius:0; }
-    .metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-top:1.2rem; }
-    .metric { background:var(--bg-card); border:1px solid var(--bg-card-hover); border-radius:14px; padding:1rem 1.1rem; }
-    .metric .mv { font-family:var(--font-display); font-size:1.55rem; font-weight:800; color:var(--cream); font-variant-numeric:tabular-nums; }
-    .metric .ml { font-family:var(--font-mono); font-size:.64rem; text-transform:uppercase; letter-spacing:.09em; color:var(--text-muted); margin-top:.25rem; }
-    .engine-line { margin-top:.9rem; font-size:.92rem; }
-    .engine-line strong { color:var(--cream); }
-    #tablaEstados tr { cursor:pointer; }
-    #tablaEstados tr.sel { background:rgba(217,119,6,0.14); }
-    td.motor { font-size:.8rem; color:var(--text-muted); text-align:left !important; }
-    thead th:nth-child(2) { text-align:left; }
-    .mono-meta { font-family:var(--font-mono); font-size:.72rem; color:var(--text-muted); word-break:break-word; margin:0; }
-    .next-links { margin-top:1.4rem; }
-    code { font-family:var(--font-mono); font-size:.86em; color:var(--amber-soft); }
-    .table-scroll { overflow-x:auto; }
-    @media (max-width:760px) {
-      .metrics { grid-template-columns:repeat(2,1fr); }
-      .chart-box { height:300px; }
-      .ctl select { min-width:0; width:100%; }
-      .ctl { width:100%; }
-      .seg { display:flex; }
-      .seg button { flex:1; }
-      table { font-size:.8rem; }
-      thead th, tbody td { padding:.5rem .55rem; }
-    }
-  </style>
-  <link rel="stylesheet" href="editorial.css?v=1">
 </head>
-<body>
-  <nav class="nav" id="nav">
-    <div class="nav-inner">
-      <div class="nav-logo">EpiForecast<span>-MX</span></div>
+<body class="disease-page">
+<a class="skip" href="#explorador">Saltar a la gráfica</a><nav class="disease-nav" id="nav" aria-label="Navegación principal"><div class="disease-nav-in"><a class="brand" href="index.html" aria-label="EpiForecast-MX, inicio"><span class="brand-symbol" aria-hidden="true">E<span>+</span></span><span>EpiForecast<span class="brand-mx">MX</span><small>Inteligencia epidemiológica</small></span></a><div class="disease-nav-links"><a href="index.html">Inicio</a><a href="boletin.html">Radar del boletín</a><a href="Reports/index.html">Pronósticos</a><a href="epibot/index.html">Pregúntale a EPI</a></div></div></nav>
 
-      <ul class="nav-menu">
-        <!-- Proyecto -->
-        <li class="nav-group">
-          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
-          <div class="nav-dropdown">
-            <a href="index.html#hero"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>Inicio</a>
-            <a href="EpiDashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
-            <a href="Reports/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Pronósticos</a>
-            <a href="novedades.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/></svg>Novedades</a>
-            <a href="dengue.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>Dengue</a>
-            <a href="obesidad.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Obesidad</a>
-            <a href="anorexia_f50.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Anorexia, bulimia y otros trastornos alimentarios</a>
-            <a href="diabetes_t1.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Diabetes tipo I</a>
-            <a href="diabetes_t2.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Diabetes tipo II</a>
-            <a href="hipertension_i10.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Hipertensión arterial</a>
-            <a href="isquemica_i20.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Enfermedad isquémica</a>
-            <a href="cerebrovascular_i60.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Enfermedad cerebrovascular</a>
-            <a href="intestinales_a04.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Infecciones intestinales</a>
-            <a href="ira_j00.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Infecciones respiratorias agudas</a>
-            <a href="ivu_n39.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Infección de vías urinarias</a>
-            <a href="gingivitis_k05.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Gingivitis y enfermedad periodontal</a>
-            <a href="ulceras_k25.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Úlceras, gastritis y duodenitis</a>
-            <a href="asma_j45.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Asma</a>
-            <a href="neumonias_j12.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Neumonías y bronconeumonías</a>
-            <a href="cancer_mama_c50.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Tumor maligno de la mama</a>
-            <a href="cancer_cuello_utero_c53.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Tumor maligno del cuello del útero</a>
-            <a href="cancer_pulmon_c33.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Tumor maligno de tráquea, bronquios y pulmón</a>
-            <a href="cancer_estomago_c16.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Tumor maligno del estómago</a>
-            <a href="cancer_colon_c18.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Tumor maligno del colon y recto</a>
-            <a href="linfoma_hodgkin_c81.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Linfoma de Hodgkin</a>
-            <a href="linfoma_no_hodgkin_c82.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Linfoma no Hodgkin</a>
-            <a href="leucemia_c91.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Leucemia</a>
-            <a href="cancer_pancreas_c26.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Tumor maligno del páncreas</a>
-            <a href="cancer_encefalo_c70.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Tumores malignos del encéfalo y del sistema nervioso central</a>
-            <a href="cancer_cuerpo_utero_c54.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Tumor maligno del cuerpo del útero</a>
-            <a href="cancer_ovario_c56.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Tumor maligno del ovario</a>
-            <a href="cancer_rinon_c64.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Tumor maligno del riñón</a>
-            <a href="cancer_prostata_c61.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Tumor maligno de la próstata</a>
-            <a href="cancer_huesos_c40.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Tumores malignos de los huesos y de los cartílagos articulares</a>
-            <a href="cancer_higado_c22.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Tumor maligno del hígado y de las vías biliares intrahepáticas</a>
-            <a href="cancer_esofago_c15.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Tumor maligno del esófago</a>
-            <a href="rechazados.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 16l4-5 3 3 6-7"/></svg>Analizados y rechazados</a>
-            <a href="epibot/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>EPI Chatbot</a>
-          </div>
-        </li>
-
-        <!-- Metodología -->
-        <li class="nav-group">
-          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Metodología <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
-          <div class="nav-dropdown">
-            <a href="bitacora_modelado.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Bitácora v1-v6</a>
-            <a href="ficha_tecnica_prophet.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Ficha Prophet</a>
-            <a href="metodologia_dengue.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>Metodología Dengue</a>
-            <a href="hiperparametros_modelos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>HPs SageMaker</a>
-            <a href="construccion_dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Arquitectura Dashboard</a>
-          </div>
-        </li>
-
-        <!-- Resultados -->
-        <li class="nav-group">
-          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Resultados <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
-          <div class="nav-dropdown">
-            <a href="reporte_resultados.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg>Resultados</a>
-            <a href="comparacion_modelos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Comparación SageMaker</a>
-            <a href="validacion_semanal.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Validación Semanal</a>
-            <a href="auditoria_remediacion_2026.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Auditoría y Remediación</a>
-            <a href="conclusiones.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Conclusiones</a>
-            <a href="referencias.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Referencias</a>
-          </div>
-        </li>
-        <li class="nav-group">
-          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">MICAI 2026 <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
-          <div class="nav-dropdown">
-            <a href="micai.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Ponencia, seguimiento y artículo</a>
-            <a href="/Reports/micai2026/MICAI2026_012_Rebull_accepted_manuscript.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar PDF</a>
-          </div>
-        </li>
-      </ul>
-
-      <!-- CTA buttons -->
-      <div class="nav-ctas">
-        <a href="EpiDashboard.html" class="nav-cta nav-cta--primary">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-          Dashboard
-        </a>
-        <a href="epibot/index.html" class="nav-cta nav-cta--secondary">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          EPI Chatbot
-        </a>
-        <a href="https://github.com/IntegradorIMSS2026Team01" target="_blank" rel="noopener" class="nav-cta nav-cta--secondary" style="padding:0.4rem 0.6rem" title="GitHub">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-        </a>
-      </div>
-
-      <button type="button" class="nav-hamburger" onclick="toggleMobileNav(this)" aria-label="Abrir menú" aria-expanded="false" aria-controls="navMobile">
-        <span></span><span></span><span></span>
-      </button>
-    </div>
-
-    <!-- Mobile menu -->
-    <div class="nav-mobile" id="navMobile">
-      <div class="nav-mobile-group">
-        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items">
-          <a href="index.html#hero">Inicio</a>
-          <a href="EpiDashboard.html">Dashboard</a>
-          <a href="Reports/index.html">Pronósticos</a>
-          <a href="novedades.html">Novedades</a>
-          <a href="dengue.html">Dengue</a>
-          <a href="obesidad.html">Obesidad</a>
-          <a href="anorexia_f50.html">Anorexia, bulimia y otros trastornos alimentarios</a>
-          <a href="diabetes_t1.html">Diabetes tipo I</a>
-          <a href="diabetes_t2.html">Diabetes tipo II</a>
-          <a href="hipertension_i10.html">Hipertensión arterial</a>
-          <a href="isquemica_i20.html">Enfermedad isquémica</a>
-          <a href="cerebrovascular_i60.html">Enfermedad cerebrovascular</a>
-          <a href="intestinales_a04.html">Infecciones intestinales</a>
-          <a href="ira_j00.html">Infecciones respiratorias agudas</a>
-          <a href="ivu_n39.html">Infección de vías urinarias</a>
-          <a href="gingivitis_k05.html">Gingivitis y enfermedad periodontal</a>
-          <a href="ulceras_k25.html">Úlceras, gastritis y duodenitis</a>
-          <a href="asma_j45.html">Asma</a>
-          <a href="neumonias_j12.html">Neumonías y bronconeumonías</a>
-          <a href="cancer_mama_c50.html">Tumor maligno de la mama</a>
-          <a href="cancer_cuello_utero_c53.html">Tumor maligno del cuello del útero</a>
-          <a href="cancer_pulmon_c33.html">Tumor maligno de tráquea, bronquios y pulmón</a>
-          <a href="cancer_estomago_c16.html">Tumor maligno del estómago</a>
-          <a href="cancer_colon_c18.html">Tumor maligno del colon y recto</a>
-          <a href="linfoma_hodgkin_c81.html">Linfoma de Hodgkin</a>
-          <a href="linfoma_no_hodgkin_c82.html">Linfoma no Hodgkin</a>
-          <a href="leucemia_c91.html">Leucemia</a>
-          <a href="cancer_pancreas_c26.html">Tumor maligno del páncreas</a>
-          <a href="cancer_encefalo_c70.html">Tumores malignos del encéfalo y del sistema nervioso central</a>
-          <a href="cancer_cuerpo_utero_c54.html">Tumor maligno del cuerpo del útero</a>
-          <a href="cancer_ovario_c56.html">Tumor maligno del ovario</a>
-          <a href="cancer_rinon_c64.html">Tumor maligno del riñón</a>
-          <a href="cancer_prostata_c61.html">Tumor maligno de la próstata</a>
-          <a href="cancer_huesos_c40.html">Tumores malignos de los huesos y de los cartílagos articulares</a>
-          <a href="cancer_higado_c22.html">Tumor maligno del hígado y de las vías biliares intrahepáticas</a>
-          <a href="cancer_esofago_c15.html">Tumor maligno del esófago</a>
-          <a href="rechazados.html">Analizados y rechazados</a>
-          <a href="epibot/index.html">EPI Chatbot</a>
-        </div>
-      </div>
-      <div class="nav-mobile-group">
-        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Metodología <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items">
-          <a href="bitacora_modelado.html">Bitácora v1-v6</a>
-          <a href="ficha_tecnica_prophet.html">Ficha Prophet</a>
-          <a href="metodologia_dengue.html">Metodología Dengue</a>
-          <a href="hiperparametros_modelos.html">HPs SageMaker</a>
-          <a href="construccion_dashboard.html">Arquitectura Dashboard</a>
-        </div>
-      </div>
-      <div class="nav-mobile-group">
-        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Resultados <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items">
-          <a href="reporte_resultados.html">Resultados</a>
-          <a href="comparacion_modelos.html">Comparación SageMaker</a>
-          <a href="validacion_semanal.html">Validación Semanal</a>
-          <a href="auditoria_remediacion_2026.html">Auditoría y Remediación</a>
-          <a href="conclusiones.html">Conclusiones</a>
-          <a href="referencias.html">Referencias</a>
-        </div>
-      </div>
-      <div class="nav-mobile-group">
-        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">MICAI 2026 <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items">
-          <a href="micai.html">Ponencia, seguimiento y artículo</a>
-          <a href="/Reports/micai2026/MICAI2026_012_Rebull_accepted_manuscript.pdf" target="_blank" rel="noopener">Descargar PDF</a>
-        </div>
-      </div>
-      <div class="nav-mobile-ctas">
-        <a href="EpiDashboard.html" class="nav-cta nav-cta--primary" style="justify-content:center;padding:.6rem 1.5rem">Dashboard</a>
-        <a href="Reports/index.html" class="nav-cta nav-cta--secondary" style="justify-content:center;padding:.6rem 1.5rem">Pronósticos</a>
-      </div>
-    </div>
-  </nav>
-
+  <main>
   <header class="hero">
     <div class="wrap">
-      <div class="eyebrow">Tumores malignos del encéfalo y del sistema nervioso central · Nuevo padecimiento publicado</div>
+      <div class="eyebrow">Pronósticos por padecimiento</div>
       <h1>Tumores malignos del encéfalo y del sistema nervioso central (C70-C72) · Pronóstico semanal</h1>
       <p class="lead">EpiForecast-MX incorpora los <strong>tumores malignos del encéfalo y otras partes del sistema nervioso central (CIE-10 C70-C72)</strong>. Pronosticamos los casos semanales que reporta el Boletín Epidemiológico del SINAVE para las <strong>32 entidades, por sexo</strong>, con un horizonte de <strong>52 semanas</strong>. El pronóstico está <strong>congelado</strong>: se emitió una sola vez y, desde el siguiente boletín, se comparará semana a semana con lo observado. Su serie empieza en 2023; superó la prueba de las semanas 1 a 41 de 2026 frente al control estacional, una evidencia más corta que la de los padecimientos con historia larga.</p>
 
@@ -401,7 +43,7 @@
     <div class="wrap">
       <div class="label">Explorador</div>
       <h2>Pronóstico congelado frente a lo observado</h2>
-      <p>Elige una geografía y un sexo. La línea gris es lo observado en el boletín; la línea de color, el pronóstico emitido con datos hasta la semana de origen. La franja sombreada marcará las semanas del pronóstico que <strong>ya se observaron</strong>; ahí se medirá el desempeño fuera de muestra.</p>
+      <p>Elige una geografía y un sexo. La línea gris es lo observado en el boletín; la línea verde discontinua, el pronóstico emitido con datos hasta la semana de origen. La franja sombreada marcará las semanas del pronóstico que <strong>ya se observaron</strong>; ahí se medirá el desempeño fuera de muestra.</p>
 
       <div class="controls">
         <label class="ctl">
@@ -474,6 +116,7 @@
     </div>
   </section>
 
+</main>
   <footer>
     <div class="wrap">
       <div class="t">EpiForecast-MX · IMSS 2026</div>
@@ -546,12 +189,12 @@
         const x0 = x.getPixelForValue(o.desde) - (x.getPixelForValue(1) - x.getPixelForValue(0)) / 2;
         const x1 = x.getPixelForValue(o.hasta) + (x.getPixelForValue(1) - x.getPixelForValue(0)) / 2;
         ctx.save();
-        ctx.fillStyle = 'rgba(45,212,191,0.10)';
+        ctx.fillStyle = 'rgba(23,100,77,0.08)';
         ctx.fillRect(Math.max(x0, A.left), A.top, Math.min(x1, A.right) - Math.max(x0, A.left), A.bottom - A.top);
         const xo = x0;
-        ctx.strokeStyle = '#6E82A6'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
+        ctx.strokeStyle = '#61756c'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
         ctx.beginPath(); ctx.moveTo(xo, A.top); ctx.lineTo(xo, A.bottom); ctx.stroke();
-        ctx.setLineDash([]); ctx.fillStyle = '#9FB0CE'; ctx.font = '11px JetBrains Mono, monospace';
+        ctx.setLineDash([]); ctx.fillStyle = '#667d8f'; ctx.font = '11px JetBrains Mono, monospace';
         ctx.fillText('Origen', xo + 4, A.top + 12);
         ctx.restore();
       },
@@ -584,8 +227,8 @@
       const datos = {
         labels: etiquetas,
         datasets: [
-          { label: 'Observado', data: obs, borderColor: '#9FB0CE', backgroundColor: '#9FB0CE', borderWidth: 2, pointRadius: 0, spanGaps: false, tension: 0.15 },
-          { label: 'Pronóstico congelado', data: fc, borderColor: '#C4B5FD', backgroundColor: '#C4B5FD', borderWidth: 2.5, pointRadius: 0, tension: 0.15 },
+          { label: 'Observado', data: obs, borderColor: '#667d8f', backgroundColor: '#667d8f', borderWidth: 2, pointRadius: 0, spanGaps: false, tension: 0.15 },
+          { label: 'Pronóstico congelado', data: fc, borderColor: '#17644d', backgroundColor: '#17644d', borderDash: [6, 4], borderWidth: 2.5, pointRadius: 0, tension: 0.15 },
         ],
       };
       const opciones = {
@@ -595,7 +238,7 @@
           legend: { display: false },
           bandaObservada: { desde, hasta: corte === null ? desde - 1 : corte },
           tooltip: {
-            backgroundColor: '#0E1424', borderColor: '#243150', borderWidth: 1, titleColor: '#E7ECF5', bodyColor: '#9FB0CE',
+            backgroundColor: '#ffffff', borderColor: '#dbe3dc', borderWidth: 1, titleColor: '#173c33', bodyColor: '#667d8f',
             callbacks: {
               title: (it) => `Semana del ${fechaLarga(it[0].label)}`,
               label: (it) => (it.raw === null ? null : `${it.dataset.label}: ${nf0.format(it.raw)} casos`),
@@ -603,8 +246,8 @@
           },
         },
         scales: {
-          x: { grid: { color: 'rgba(36,49,80,0.5)' }, ticks: { color: '#6E82A6', maxRotation: 0, autoSkip: true, maxTicksLimit: 9, callback(v) { return fechaCorta(this.getLabelForValue(v)).replace(/^\d+ /, ''); } } },
-          y: { beginAtZero: true, grid: { color: 'rgba(36,49,80,0.5)' }, ticks: { color: '#6E82A6', callback: (v) => nf0.format(v) }, title: { display: true, text: 'Casos por semana', color: '#6E82A6' } },
+          x: { grid: { color: 'rgba(97,117,108,0.16)' }, ticks: { color: '#61756c', maxRotation: 0, autoSkip: true, maxTicksLimit: 9, callback(v) { return fechaCorta(this.getLabelForValue(v)).replace(/^\d+ /, ''); } } },
+          y: { beginAtZero: true, grid: { color: 'rgba(97,117,108,0.16)' }, ticks: { color: '#61756c', callback: (v) => nf0.format(v) }, title: { display: true, text: 'Casos por semana', color: '#61756c' } },
         },
       };
       if (chart) { chart.data = datos; chart.options = opciones; chart.update(); }
@@ -685,38 +328,6 @@
       });
   })();
   </script>
-  <script>
-    function toggleMobileNav(btn) {
-      const mob = document.getElementById('navMobile');
-      const open = mob.classList.toggle('show');
-      const trigger = btn || document.querySelector('.nav-hamburger');
-      if (trigger) {
-        trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
-        trigger.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
-      }
-    }
-    // Close mobile nav on link click
-    document.querySelectorAll('.nav-mobile-items a').forEach(a => {
-      a.addEventListener('click', () => {
-        document.getElementById('navMobile').classList.remove('show');
-        const trigger = document.querySelector('.nav-hamburger');
-        if (trigger) {
-          trigger.setAttribute('aria-expanded', 'false');
-          trigger.setAttribute('aria-label', 'Abrir menú');
-        }
-      });
-    });
 
-    // Sync aria-expanded on desktop hover-driven dropdowns
-    document.querySelectorAll('.nav-group').forEach(group => {
-      const toggle = group.querySelector('.nav-group-toggle');
-      if (!toggle) return;
-      const sync = (state) => toggle.setAttribute('aria-expanded', state ? 'true' : 'false');
-      group.addEventListener('mouseenter', () => sync(true));
-      group.addEventListener('mouseleave', () => sync(false));
-      group.addEventListener('focusin', () => sync(true));
-      group.addEventListener('focusout', () => sync(false));
-    });
-  </script>
 </body>
 </html>
