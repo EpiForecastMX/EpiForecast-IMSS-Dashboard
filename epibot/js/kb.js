@@ -9,6 +9,7 @@
 import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=51';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=1';
+import { cargaRadar, buscaEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=1';
 import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=22';
 import { conDiabetesNombrada, conHipertensionNombrada, RELEASES, releaseDePad, respuestaCrisis, VOCAB_RELEASES } from './release_config.js?v=17';
 
@@ -47,10 +48,13 @@ export async function loadKnowledge() {
     .catch(() => {});
   // Cada release publicado trae su vista (observado + pronóstico + desempeño fuera de muestra),
   // que vive fuera de knowledge.json y se carga aparte.
-  DATA.obesidad_pendiente = Promise.all(RELEASES.map((rel) => fetch(`../publication/${rel.id}/vista.json${cacheBust}`)
+  // La foto vigente del radar del boletín (la misma de boletin.html) da las cifras notificadas de
+  // los padecimientos que no se modelan; viaja en la misma promesa para que las pruebas la esperen.
+  DATA.obesidad_pendiente = Promise.all([...RELEASES.map((rel) => fetch(`../publication/${rel.id}/vista.json${cacheBust}`)
     .then(r => (r.ok ? r.json() : null))
     .then(v => { if (v && v.schema === 'publication_view.v1') DATA[rel.dataKey] = v; })
-    .catch(() => {})));
+    .catch(() => {})),
+  cargaRadar().then((r) => { if (r) DATA.radar_boletin = r; }).catch(() => {})]);
   return DATA;
 }
 
@@ -619,6 +623,33 @@ const NUMERALES_PAD = ['cero', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', '
 /** El número de padecimientos, en letra: cuatro legacy más los releases del catálogo. */
 function numeralPadecimientos(n) {
   return NUMERALES_PAD[n] || String(n);
+}
+
+/** Categorías no modeladas que nombra la consulta según la foto vigente del radar. */
+function enRadar(q) {
+  return DATA?.radar_boletin ? buscaEnRadar(q, DATA.radar_boletin) : [];
+}
+
+/** «¿Cuántos padecimientos tiene el boletín?»: la cobertura del radar vigente, no solo la neuro. */
+function answerRadarResumen(q, ent, s, d) {
+  if (!d?.radar_boletin || ent.padecimiento) return null;
+  const pideRadar = /\bradar (del )?boletin\b/.test(q);
+  const pideCobertura = /\b(boletin|sinave)\b/.test(q) &&
+    /(cuant[oa]s (padecimientos|categorias|enfermedades)|que (padecimientos|categorias|enfermedades)|todos los padecimientos|todas las (categorias|enfermedades)|cobertura|catalogo)/.test(q);
+  return pideRadar || pideCobertura ? resumenRadar(d.radar_boletin) : null;
+}
+
+/**
+ * Padecimientos del boletín que la plataforma no modela: cifras notificadas de la foto vigente,
+ * nunca un pronóstico. Los temas sensibles no entran (siguen en la respuesta de crisis).
+ */
+function answerRadarBoletin(q, ent, s, d) {
+  if (ent.padecimiento || !d?.radar_boletin) return null;
+  const encontradas = buscaEnRadar(q, d.radar_boletin);
+  if (!encontradas.length) return null;
+  const definicion = /\b(que es|que son|sintomas?|como se (contagia|transmite|previene)|tratamiento|causas?)\b/.test(q);
+  if (definicion && !ent.estado && !any(q, ['caso', 'cuanto', 'cifra', 'dato'])) return null;
+  return respuestaRadar(encontradas, d.radar_boletin, ent.estado || null);
 }
 
 function answerPadecimientoNoModelado(q, ent, s, d) {
@@ -5521,7 +5552,7 @@ function answerCodeRequest(q, ent, s, d) {
 
 const HANDLERS = [
   answerComparacionRondas,
-  answerSaludo, answerObesidad, answerDiabetes, answerPadecimientoNoModelado, answerReleasesMixtos, answerConsultaEnInglesSinPadecimiento, answerDengue, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerFechaSemana, answerTemporal, answerProyectoMeta,
+  answerSaludo, answerObesidad, answerDiabetes, answerRadarResumen, answerRadarBoletin, answerPadecimientoNoModelado, answerReleasesMixtos, answerConsultaEnInglesSinPadecimiento, answerDengue, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerFechaSemana, answerTemporal, answerProyectoMeta,
   answerTrainingConfig, answerSemanaActual, answerSemanasBoletin, answerQueEsPadecimiento,
   answerTimelapse, answerSemaforo, answerReportePDF,
   answerComparacionPorSexo,
@@ -5762,12 +5793,13 @@ async function _resolve(query) {
   // no debe heredar estado y sexo hacia la tabla neuro del estado. Sigue en el padecimiento no
   // modelado, salvo que la consulta nombre uno modelado («y depresión?») u otro no modelado.
   const previoNoModelado = lastEntities._noModelado;
-  if (previoNoModelado && !ent.padecimiento && !mencionaNoModelada(q) &&
+  if (previoNoModelado && !ent.padecimiento && !mencionaNoModelada(q) && !enRadar(q).length &&
       (/^y \w/.test(q) || /^(pero|tambien|que hay de|ahora) /.test(q))) {
     const entCtx = { ...ent, estado: ent.estado || lastEntities.estado, sexo: ent.sexo || lastEntities.sexo };
-    const resp = answerPadecimientoNoModelado(`${q} ${previoNoModelado}`, entCtx, s, d);
+    const radar = answerRadarBoletin(`${q} ${previoNoModelado}`, entCtx, s, d);
+    const resp = radar || answerPadecimientoNoModelado(`${q} ${previoNoModelado}`, entCtx, s, d);
     if (resp) {
-      trace.handler = 'answerPadecimientoNoModelado';
+      trace.handler = radar ? 'answerRadarBoletin' : 'answerPadecimientoNoModelado';
       lastEntities = { ...entCtx, _noModelado: previoNoModelado };
       return { response: resp, handler: trace.handler };
     }
@@ -5806,7 +5838,7 @@ async function _resolve(query) {
   // answerPadecimientoNoModelado lo maneje con el query original
   if (isFollowUp) {
     // Inicio de palabra (mencionaNoModelada): «obesidad» contiene «sida» y «demencia» es Alzheimer.
-    const mentionsUnmodeled = !!mencionaNoModelada(q);
+    const mentionsUnmodeled = !!mencionaNoModelada(q) || enRadar(q).length > 0;
 
     if (!mentionsUnmodeled) {
       const merged = mergeWithContext(ent);
@@ -5873,7 +5905,7 @@ async function _resolve(query) {
   const isNewTopic = newTopicSignals.some(t => q.includes(t));
 
   // No heredar contexto si menciona un padecimiento no modelado
-  const mentionsUnmodeledCtx = !!mencionaNoModelada(q);
+  const mentionsUnmodeledCtx = !!mencionaNoModelada(q) || enRadar(q).length > 0;
 
   if (!isFollowUp && !isNewTopic && !mentionsUnmodeledCtx && (lastEntities.padecimiento || lastEntities.estado)) {
     // Solo heredar si la query tiene keywords de datos/epidemiologia
@@ -5910,8 +5942,12 @@ async function _resolve(query) {
  */
 async function _resolveConContexto(query) {
   const r = await _resolve(query);
-  if (r.handler === 'answerPadecimientoNoModelado') {
-    const nm = mencionaNoModelada(norm(query)) || lastEntities._noModelado;
+  if (r.handler === 'answerRadarResumen') return { ...r, response: `${r.response}\n<!--SIN_GRAFICA-->` };
+  if (r.handler === 'answerPadecimientoNoModelado' || r.handler === 'answerRadarBoletin') {
+    const radar = r.handler === 'answerRadarBoletin' ? enRadar(norm(query)) : [];
+    const nm = (radar.length === 1 ? radar[0]._n : null) ||
+      (radar.length ? norm(query).split(' ').find((w) => radar.some((e) => e._n.startsWith(w) && w.length >= 4)) : null) ||
+      mencionaNoModelada(norm(query)) || lastEntities._noModelado;
     if (nm) lastEntities = { ...lastEntities, _noModelado: nm.trim() };
     // app.js no dibuja gráfica con este marcador y lo retira antes de mostrar el texto y del TTS.
     return { ...r, response: `${r.response}\n<!--SIN_GRAFICA-->` };
