@@ -90,7 +90,7 @@
       data: {
         labels: fechas,
         datasets: [
-          { label: 'Observado', data: obs, borderColor: '#C9D3E6', borderWidth: 1.6, pointRadius: 0, tension: 0.2, spanGaps: false },
+          { label: 'Observado', data: obs, borderColor: '#40594f', borderWidth: 1.6, pointRadius: 0, tension: 0.2, spanGaps: false },
           { label: `Pronóstico congelado (origen ${semana(V.origin)})`, data: pron, borderColor: color, borderDash: [6, 4], borderWidth: 1.8, pointRadius: 0, tension: 0.2, spanGaps: false },
         ],
       },
@@ -102,8 +102,8 @@
           tooltip: { callbacks: { title: (it) => `Semana del ${it[0].label}`, label: (it) => (it.raw == null ? null : `${it.dataset.label}: ${Math.round(it.raw).toLocaleString('es-MX')} casos`) } },
         },
         scales: {
-          x: { ticks: { color: '#8A97B1', maxTicksLimit: 6, callback(v) { return fmtMes(this.getLabelForValue(v)); } }, grid: { display: false } },
-          y: { ticks: { color: '#8A97B1', maxTicksLimit: 5 }, grid: { color: 'rgba(138,151,177,0.12)' }, beginAtZero: true },
+          x: { ticks: { color: '#61756c', maxTicksLimit: 6, callback(v) { return fmtMes(this.getLabelForValue(v)); } }, grid: { display: false } },
+          y: { ticks: { color: '#61756c', maxTicksLimit: 5 }, grid: { color: 'rgba(138,151,177,0.12)' }, beginAtZero: true },
         },
       },
     }));

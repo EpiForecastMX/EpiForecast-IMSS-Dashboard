@@ -54,16 +54,17 @@ test('Obesidad no entra en la lista contractual DATA ni pinta métricas en la ga
   assert.doesNotMatch(leer('Reports/obesidad_galeria.js'), /\.oos\b|smape|mase/i);
 });
 
-test('la noticia de Obesidad encabeza novedades y la portada la anuncia', () => {
+test('la noticia de Obesidad y su acceso siguen disponibles en el diseño actual', () => {
   const news = JSON.parse(leer('news.json'));
   const nota = news.items.find((it) => it.type === 'obesidad');
   assert.ok(nota, 'falta la nota de Obesidad');
   assert.equal(nota.link.href, 'obesidad.html');
   const portada = leer('index.html');
-  assert.match(portada, /\.news-tag--obesidad/);
+  assert.match(portada, /href="home\.css\?v=/);
+  assert.match(leer('home.css'), /\.news-tag[\s{]/);
   assert.match(leer('novedades.html'), /\.news-tag--obesidad/);
-  assert.match(portada, /treinta y cinco padecimientos/);
-  assert.match(portada, /class="disease-card disease-card--obe[^"]*" href="obesidad\.html"/);
+  assert.equal((portada.match(/class="condition-card"/g) || []).length, 35);
+  assert.match(portada, /<h3><a href="obesidad\.html">Obesidad/);
 });
 
 test('la página de Obesidad acepta la serie pedida desde la galería', () => {
