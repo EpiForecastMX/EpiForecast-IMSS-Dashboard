@@ -20,7 +20,7 @@ Revisión de la interfaz anterior en escritorio y del rediseño a 1440 y 390 px,
 
 ## Regresión
 
-Doce pruebas nuevas cubren la apertura de respuestas largas, conservación de la posición de lectura, respuestas cortas, bienvenida, cambio de viewport, teclado enfocado, zoom y ausencia de API de viewport, además de conservación de citas y separación de destinos. Forman parte de `epibot/package.json:test:unit`.
+Trece pruebas nuevas cubren la apertura de respuestas largas, conservación de la posición de lectura, respuestas cortas, bienvenida y reinicio sin botón residual, cambio de viewport, teclado enfocado, zoom y ausencia de API de viewport, además de conservación de citas y separación de destinos. Forman parte de `epibot/package.json:test:unit`.
 
 Se ejecutan además las pruebas existentes de EPI, candidatos de publicación, WCP y boletín, y los contratos de cifras e índice RAG. La prueba visual cubre consulta por entidad, seguimiento, sugerencias, reinicio, composición y cajón móvil. La verificación final incluye la vista previa y la versión pública, con los SHA de Git y los hashes de sus archivos.
 
