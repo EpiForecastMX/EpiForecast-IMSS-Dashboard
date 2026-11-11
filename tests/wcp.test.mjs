@@ -87,7 +87,7 @@ test('home provides WCP links in desktop and mobile navigation',()=>{
   const home=readFileSync(resolve(root,'index.html'),'utf8');
   assert.ok((home.match(/href="wcp2026.html"/g)||[]).length>=2);
   assert.match(home,/<ul class="nav-menu">[\s\S]*?href="wcp2026.html"/);
-  assert.match(home,/<div class="nav-mobile-items">[\s\S]*?href="wcp2026.html"/);
+  assert.match(home,/<div class="nav-mobile-items\b[^"]*">[\s\S]*?href="wcp2026.html"/);
 });
 test('clinical caveats, selected-model caveat, and funding remain explicit',()=>{
   for(const s of ['not clinical incidence','not fully prospective','not uniform prospective out-of-sample validation','not the sum of the state forecasts','Benefits for services still need to be tested','No funding was received'])assert.ok(html.includes(s),s);
