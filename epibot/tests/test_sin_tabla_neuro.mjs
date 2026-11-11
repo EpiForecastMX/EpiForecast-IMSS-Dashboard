@@ -34,6 +34,8 @@ const CON_SERIES = new Set(['answerEstado', 'answerSpecificSeries', 'answerPadec
   'answerDengue', 'answerObesidad', 'answerDiabetes']);
 const AJENO = /casos totales|modelos de producci[oó]n|agregado estatal neuro|Se pronostican|Pron[oó]stico \*\*congelado/;
 const LINEA = /L[ií]nea de la Vida/;
+/** Misma regla que el pulidor de app.js: un «publica» verbal sin clítico se volvería «pública». */
+const PULIDOR_PUBLICA = /(?<!\b(?:se|que|no|lo|le|ya|también|tambien|galería|galeria) )\bpublica\b/;
 
 async function conversa(...qs) {
   kb._resetContext();
@@ -46,6 +48,7 @@ async function conversa(...qs) {
 function sinSeriesAjenas(r, q) {
   assert.ok(!CON_SERIES.has(r.handler), `${q} → ${r.handler}`);
   assert.doesNotMatch(r.md, AJENO, q);
+  assert.doesNotMatch(r.md, PULIDOR_PUBLICA, `${q}: el pulidor escribiría «pública»`);
 }
 
 test('violencia intrafamiliar: sin tabla neuro, sin cifras y sin tratarla como crisis', async () => {
@@ -129,4 +132,11 @@ test('los publicados y el resumen del estado no cambian', async () => {
   assert.equal((await conversa('infeccion de vias urinarias en jalisco')).handler, 'answerObesidad');
   assert.equal((await conversa('diabetes en jalisco')).handler, 'answerDiabetes');
   assert.equal((await conversa('neumonias en puebla')).handler, 'answerObesidad');
+});
+
+test('las respuestas sin modelo sobreviven al pulidor ortográfico', async () => {
+  for (const q of ['poliomielitis en jalisco', 'embarazo adolescente en jalisco', 'violencia intrafamiliar en jalisco',
+    'tuberculosis en jalisco', 'cuantos padecimientos tiene el boletin']) {
+    assert.doesNotMatch((await conversa(q)).md, PULIDOR_PUBLICA, q);
+  }
 });

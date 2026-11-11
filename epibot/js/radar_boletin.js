@@ -167,7 +167,7 @@ export function respuestaRadar(encontradas, radar, estado) {
     if (estado && estado !== 'Nacional') {
       const fila = filaEstado(e, estado);
       if (!(e.states || []).length) {
-        lines.push(`\nEl boletín publica esta categoría solo en el resumen nacional; no hay cifra de ${estado}.`);
+        lines.push(`\nEl boletín imprime esta categoría solo en el resumen nacional; no hay cifra de ${estado}.`);
       } else if (!fila) {
         lines.push(`\n${estado} no aparece en el cuadro de esta categoría; no se imputan ceros.`);
       } else {

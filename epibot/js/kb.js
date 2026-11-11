@@ -9,7 +9,7 @@
 import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=52';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=1';
-import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=2';
+import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=3';
 import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=23';
 import { conDiabetesNombrada, conHipertensionNombrada, RELEASES, releaseDePad, respuestaCrisis, VOCAB_RELEASES } from './release_config.js?v=18';
 
@@ -680,7 +680,7 @@ function answerCategoriaNoReconocida(q, ent, s, d) {
   if (!ent.estado && !pideDatos) return null;
   return 'No reconozco esa categoría entre los padecimientos publicados ni como categoría del boletín vigente, ' +
     'así que no doy cifras de otro padecimiento en su lugar.\n\n' +
-    `EpiForecast-MX publica ${numeralPadecimientos(4 + RELEASES.length)} padecimientos (pregúntame «qué padecimientos modelan»). ` +
+    `EpiForecast-MX tiene ${numeralPadecimientos(4 + RELEASES.length)} padecimientos publicados (pregúntame «qué padecimientos modelan»). ` +
     'Las categorías del boletín, con su nombre oficial, están en el [Radar del boletín](../boletin.html).';
 }
 
@@ -717,7 +717,7 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
         ? 'Si tú o alguien cercano necesita apoyo, la **Línea de la Vida** atiende gratis, las 24 horas: **800 911 2000**.\n\n'
         : '') +
       (violencia
-        ? 'No tiene modelo ni pronóstico en la plataforma y EPI no da sus cifras. El boletín publica sus notificaciones semanales por entidad; se consultan, sin modelo, en el [Radar del boletín](../boletin.html).\n\n'
+        ? 'No tiene modelo ni pronóstico en la plataforma y EPI no da sus cifras. Sus notificaciones semanales por entidad aparecen en el boletín y se consultan, sin modelo, en el [Radar del boletín](../boletin.html).\n\n'
         : '') +
       (cardiaco
         ? 'El boletín no publica una serie propia de infarto. Su categoría más cercana es **Enfermedad isquémica del corazón**, rotulada I20, I25 en el cuadro e I20-I25 en el resumen, así que no se puede afirmar si incluye I21. Sus datos están en [su página](../isquemica_i20.html), publicados con el control y sin validar.\n\n'
