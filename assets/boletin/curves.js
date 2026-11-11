@@ -93,10 +93,17 @@
     $('curveChart').innerHTML=svg;
     $('curveLegend').innerHTML = compare ? years.map((y,i)=>`<span class="curve-legend-${i===0?2025:2026}">${y}</span>`).join('') : `<span class="curve-legend-2025">${years[0]}–${years.at(-1)}</span>`;
     $('curveChart').querySelectorAll('[data-point]').forEach(el=>{
-      const show=()=>inspect(current[Number(el.dataset.point)].point);
+      const show=()=>{
+        $('curveChart').querySelector('.curve-active')?.classList.remove('curve-active');
+        el.classList.add('curve-active');
+        inspect(current[Number(el.dataset.point)].point);
+      };
       el.addEventListener('pointerenter',show);el.addEventListener('click',show);el.addEventListener('focus',show);el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')show();});
     });
-    if(last)inspect(last.point);else $('curvePoint').textContent='No hay cifras para esta selección; consulta la cobertura del cuadro o elige Nacional.';
+    if(last){
+      $('curveChart').querySelector(`[data-point="${current.indexOf(last)}"]`)?.classList.add('curve-active');
+      inspect(last.point);
+    }else $('curvePoint').textContent='No hay cifras para esta selección; consulta la cobertura del cuadro o elige Nacional.';
     $('curveDataRows').innerHTML=current.map(t=>{
       const p=t.point;
       const m = meaning(t.raw, t.y);
