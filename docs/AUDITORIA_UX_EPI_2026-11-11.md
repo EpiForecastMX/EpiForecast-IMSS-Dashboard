@@ -8,16 +8,19 @@ Revisión de la interfaz anterior en escritorio y del rediseño a 1440 y 390 px,
 
 1. **Jerarquía inicial.** Cuatro indicadores de la cohorte original y herramientas técnicas aparecían antes de la consulta. Ahora se ofrecen cuatro tareas principales; los indicadores y herramientas permanecen en grupos desplegables, con su alcance explícito.
 2. **Inicio poco orientado a tareas.** La bienvenida remitía al panel lateral. Ahora ofrece preguntas concretas por entidad, padecimiento y validación.
-3. **Descubrimiento de consultas.** El menú largo no permitía buscar. Se añadió búsqueda por categoría, texto y consulta, sin eliminar destinos. Se verificaron coincidencias de diabetes y un término sin resultados.
+3. **Descubrimiento de consultas.** El menú tenía 219 sugerencias estáticas y no permitía buscar. Se añadió búsqueda por categoría, texto y consulta, sin eliminar destinos. Se verificaron coincidencias de diabetes y un término sin resultados.
 4. **Lectura de respuestas extensas.** El desplazamiento al final dejaba fuera de pantalla el texto principal, por encima de la gráfica. Las respuestas completas se muestran desde el inicio; un botón permite ir al final. Si la persona subió a releer, no se mueve su posición. El flujo incremental conserva su seguimiento condicional.
 5. **Composición.** La caja de una línea impedía redactar consultas en varios renglones. Ahora acepta Mayús+Enter, crece hasta una altura limitada y conserva Enter para enviar.
 6. **Navegación móvil.** La detección anterior del teclado se basaba en la altura inicial y confundía un cambio de viewport con el teclado. Ahora requiere un editor enfocado, reducción real del viewport visual y ausencia de zoom. La cabecera permanece disponible.
 7. **Foco y paneles.** Los paneles fuera de pantalla podían seguir recibiendo foco. Ahora los paneles cerrados no son enfocables; el cajón móvil recibe foco al abrir, lo contiene y lo devuelve al cerrar con Escape.
 8. **Consistencia y legibilidad.** Se unificaron superficies claras, acentos verdes y tipografía del sistema. Se retiraron texturas y brillos del marco de conversación; se ajustaron tablas, fuentes y contraste de rótulos de gráficas.
 
+9. **Correspondencia de citas.** La prueba documental mostró referencias [4] y [6] en el texto que no aparecían en los accesos a fuentes: al agrupar extractos se conservaba sólo el número del primero. Ahora cada documento conserva todos los números de sus extractos y sus fragmentos; los títulos iguales con enlaces diferentes no se colapsan.
+10. **Arranque y errores.** El inicio ahora informa de la carga, evita envíos antes de estar listo y ofrece reintento y acceso al radar si falla la carga.
+
 ## Regresión
 
-Ocho pruebas nuevas cubren la apertura de respuestas largas, conservación de la posición de lectura, respuestas cortas, bienvenida, cambio de viewport, teclado enfocado, zoom y ausencia de API de viewport. Forman parte de `epibot/package.json:test:unit`.
+Doce pruebas nuevas cubren la apertura de respuestas largas, conservación de la posición de lectura, respuestas cortas, bienvenida, cambio de viewport, teclado enfocado, zoom y ausencia de API de viewport, además de conservación de citas y separación de destinos. Forman parte de `epibot/package.json:test:unit`.
 
 Se ejecutan además las pruebas existentes de EPI, candidatos de publicación, WCP y boletín, y los contratos de cifras e índice RAG. La prueba visual cubre consulta por entidad, seguimiento, sugerencias, reinicio, composición y cajón móvil. La verificación final incluye la vista previa y la versión pública, con los SHA de Git y los hashes de sus archivos.
 

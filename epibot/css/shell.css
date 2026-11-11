@@ -756,3 +756,5 @@ body.keyboard-open .cc-topbar{display:flex}.input-wrapper .prompt-toggle,.input-
 .msg-content{overflow-x:auto}.msg-content table{display:table;width:100%;table-layout:auto}.msg-content p{max-width:85ch}
 
 .epi-startup{margin:auto;text-align:center;color:#61756c;font-size:14px}.epi-load-error{max-width:700px;margin:auto;padding:28px;background:white;border:1px solid #dbe3dc;border-radius:10px}.epi-load-error h2{font-size:24px;color:#173c33}.epi-load-error p{font-size:15px;line-height:1.7;margin:15px 0}.epi-load-error button{padding:10px 16px;min-height:44px;border:0;border-radius:6px;background:#17644d;color:white;margin-right:18px}.epi-load-error a{color:#17644d}.input-wrapper textarea:disabled{cursor:wait}
+
+.msg-source-chip .src-ask:hover{background:#d4e5cb;color:#173c33}.msg-source-chip:hover{transform:none;box-shadow:none}.msg-source-chip .src-n{white-space:normal}

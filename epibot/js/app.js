@@ -1081,18 +1081,24 @@ const ASK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 // muestra el EXTRACTO citado al pasar el cursor; sub-botón para profundizar.
 function sourceChipsHtml(sources) {
   if (!sources || !sources.length) return '';
-  const seen = new Set();
-  const docs = [];
+  const grouped = new Map();
   for (const s of sources) {
     const name = s.source || s.title || '';
-    if (!name || seen.has(name)) continue;
-    seen.add(name);
-    docs.push({ n: s.n, name, url: safeUrl(s.url || ''), snippet: s.snippet || '' });
+    if (!name) continue;
+    const url = safeUrl(s.url || '');
+    const key = JSON.stringify([name, url]);
+    if (!grouped.has(key)) grouped.set(key, { name, url, numbers: new Set(), snippets: new Set() });
+    const document = grouped.get(key);
+    const n = Number(s.n);
+    if (Number.isInteger(n) && n > 0) document.numbers.add(n);
+    if (s.snippet) document.snippets.add(s.snippet);
   }
+  const docs = [...grouped.values()];
   if (!docs.length) return '';
   return '<div class="msg-sources">' + docs.map(d => {
-    const label = `${DOC_ICON}<span class="src-n">[${d.n}]</span>${escapeHtml(polishSpanish(d.name))}`;
-    const tip = escapeAttr(d.snippet ? `«${polishSpanish(d.snippet)}…»` : 'Abrir fuente');
+    const numbers = [...d.numbers].sort((a,b) => a-b).map(n => `[${n}]`).join(' ');
+    const label = `${DOC_ICON}<span class="src-n">${numbers}</span>${escapeHtml(polishSpanish(d.name))}`;
+    const tip = escapeAttr(d.snippets.size ? [...d.snippets].map(s => `«${polishSpanish(s)}…»`).join(' · ') : 'Abrir fuente');
     const open = d.url
       ? `<a class="src-open" href="${escapeAttr(d.url)}" target="_blank" rel="noopener" title="${tip}">${label}</a>`
       : `<span class="src-open src-open--static" title="${tip}">${label}</span>`;
