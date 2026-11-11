@@ -3945,7 +3945,7 @@ chatArea.addEventListener('scroll', () => {
 function revealReplyStart(reply) {
   const following = stickToBottom;
   requestAnimationFrame(() => {
-    if (!chatArea.querySelector('.msg-user')) { scrollToBottom(); return; }
+    if (!chatArea.querySelector('.msg-user')) { scrollToBottom(true); hideScrollDownBtn(); return; }
     if (!following) { ensureScrollDownBtn().classList.add('visible'); return; }
     chatArea.scrollTop += reply.getBoundingClientRect().top - chatArea.getBoundingClientRect().top - 20;
     stickToBottom = isNearBottom();
