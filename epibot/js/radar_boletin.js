@@ -10,7 +10,7 @@
  */
 import { summarizeCoverage } from '../../assets/boletin/coverage.mjs?v=1';
 
-const SENSIBLE = /suicid|autolesion|autoinfligid|self harm|ideacion|violencia/;
+const SENSIBLE = /suicid|autolesion|autoinfligid|self harm|ideacion|violencia|arma de fuego|abuso sexual|maltrato/;
 
 /** Primeras palabras que no identifican a un padecimiento (o que son de una familia ya modelada). */
 const GENERICAS = new Set([
@@ -53,6 +53,9 @@ const ALIAS = [
   [/\bsarna\b/, /^escabiosis$/],
   [/\bpolio\b/, /^poliomielitis$/],
   [/\bebola\b/, /ebola/],
+  [/\bmordeduras? (de|por) perros?\b/, /^mordeduras por perro$/],
+  [/\baccidentes? (de|en) (transito|transporte|vehiculos?|carretera)\b|\bchoques? (de|vehicular)/, /accidente de transporte|^peaton lesionado/],
+  [/\bintoxicacion (aguda )?(por|de) alcohol\b|\bintoxicacion alcoholica\b|\bintoxicacion etilica\b/, /^intoxicacion aguda por alcohol$/],
 ];
 
 function normaliza(t) {
@@ -97,6 +100,14 @@ export function buscaEnRadar(q, radar) {
   if (completas.length) return completas;
   const palabras = new Set(qq.trim().split(' ').filter((w) => w.length >= 5 && !GENERICAS.has(w)));
   return candidatas.filter((e) => palabras.has(e._n.split(' ')[0]));
+}
+
+/** Categorías no modeladas cuyo nombre completo aparece en la consulta (nunca las sensibles). */
+export function nombreCompletoEnRadar(q, radar) {
+  if (!radar || SENSIBLE.test(q)) return [];
+  const qq = ` ${normaliza(q)} `;
+  return radar.diseases.filter((e) => !e.platform_id && !SENSIBLE.test(e._n) &&
+    e._n.split(' ').length >= 2 && qq.includes(` ${e._n} `));
 }
 
 const fmt = (n) => (Number.isFinite(n) ? n.toLocaleString('es-MX') : 'sin dato');

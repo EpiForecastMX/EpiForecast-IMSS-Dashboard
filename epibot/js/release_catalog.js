@@ -351,6 +351,11 @@
   const noModeladas = Object.freeze([
     'intento de suicidio', 'ideacion suicida', 'autolesion', 'lesion autoinfligida', 'self harm',
     'suicidio', 'suicida', 'suicide', 'suicidal',
+    // Categorías del boletín sobre autolesión y violencias: sin cifras en EPI, y sin caer en la tabla
+    // neuro del estado («violencia intrafamiliar en jalisco» la mostraba).
+    'lesiones autoinfligidas', 'envenenamiento autoinfligido', 'autoinfligid',
+    'violencia', 'abuso sexual', 'agresion sexual', 'violacion', 'maltrato', 'arma de fuego',
+    'herida de bala', 'heridas de bala', 'balazo', 'domestic violence', 'gunshot',
     'hipotension', 'hypotension', 'presion baja', 'presion arterial baja', 'tension baja',
     'tension arterial baja',
     'cancer', 'hipertension gestacional', 'hipertension en el embarazo', 'hipertension del embarazo',

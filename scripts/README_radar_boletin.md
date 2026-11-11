@@ -186,3 +186,9 @@ que comprueba las cifras contra las publicadas antes de escribir.
 - Las notas de la fuente en «Fuentes y método» sólo actualizan sus números de página; los
   códigos que citan son prosa a mano.
 - El CSV del histórico conserva el nombre `nacional-2013-2026.csv` aunque cambie el año.
+- Los guiones del boletín se guardan como 0. En el boletín 43 (10-nov-2026) el Cuadro 3.4 imprime
+  guiones para sarampión y rubéola (vigilancia especial, «información preliminar de casos
+  confirmados»), y `data.json` los registra en cero en todas sus columnas, también en 2025. El dato
+  sellado de la foto no se cambia: EPI avisa que un cuadro con todas sus columnas en cero no se lee
+  como ausencia de casos (`epibot/js/radar_boletin.js`, `sinCifras`). Distinguir guion de cero en
+  el extractor es trabajo pendiente y cambiaría la foto de semanas futuras, no la sellada.
