@@ -10,7 +10,7 @@
 # Vive aquí y no dentro de `rag:ci` porque aquella cadena tiene un contrato propio y
 # probado: sin clave NO construye pero SÍ verifica el índice commiteado, y anteponerle
 # un paso que puede fallar dejaría esa verificación sin correr (el falso verde R68-P0).
-command = "npm run test:boletin && cd epibot && npm install && npm run cifras:test && npm run deploy:verify"
+command = "npm run test:dashboard && npm run test:boletin && cd epibot && npm install && npm run cifras:test && npm run deploy:verify"
 
 [functions]
   node_bundler = "esbuild"
@@ -141,3 +141,19 @@ command = "npm run test:boletin && cd epibot && npm install && npm run cifras:te
   for = "/epibot/comparacion_rondas.json"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
+
+# Dashboard nativo: revalidar código y conservar el archivo histórico fuera de buscadores.
+[[headers]]
+  for = "/assets/dashboard/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/EpiDashboard-tableau.html"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+
+[[headers]]
+  for = "/epidashboard-tableau"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
