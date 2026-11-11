@@ -6,12 +6,12 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=51';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=52';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=1';
-import { cargaRadar, buscaEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=1';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=22';
-import { conDiabetesNombrada, conHipertensionNombrada, RELEASES, releaseDePad, respuestaCrisis, VOCAB_RELEASES } from './release_config.js?v=17';
+import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=3';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=23';
+import { conDiabetesNombrada, conHipertensionNombrada, RELEASES, releaseDePad, respuestaCrisis, VOCAB_RELEASES } from './release_config.js?v=18';
 
 let DATA = null;
 
@@ -607,6 +607,11 @@ function answerConsultaEnInglesSinPadecimiento(q, ent) {
 const ROTULO_NO_MODELADA = {
   'ideacion suicida': 'ideación suicida', suicida: 'suicidio', suicide: 'suicidio', suicidal: 'suicidio',
   autolesion: 'autolesiones', 'lesion autoinfligida': 'lesiones autoinfligidas', 'self harm': 'autolesiones',
+  'envenenamiento autoinfligido': 'envenenamientos autoinfligidos', autoinfligid: 'lesiones autoinfligidas',
+  violencia: 'violencias', 'abuso sexual': 'abuso sexual', 'agresion sexual': 'agresiones sexuales',
+  violacion: 'agresiones sexuales', maltrato: 'maltrato', 'arma de fuego': 'heridas por arma de fuego',
+  'herida de bala': 'heridas por arma de fuego', 'heridas de bala': 'heridas por arma de fuego',
+  balazo: 'heridas por arma de fuego', 'domestic violence': 'violencias', gunshot: 'heridas por arma de fuego',
   hipotension: 'hipotensión', hypotension: 'hipotensión', 'presion baja': 'presión baja',
   'presion arterial baja': 'presión arterial baja', 'tension baja': 'tensión baja',
   'tension arterial baja': 'tensión arterial baja', 'ataque al corazon': 'infarto',
@@ -652,6 +657,33 @@ function answerRadarBoletin(q, ent, s, d) {
   return respuestaRadar(encontradas, d.radar_boletin, ent.estado || null);
 }
 
+/**
+ * El nombre completo de una categoría no modelada gana a un alias parcial de un release:
+ * «otras infecciones intestinales debidas a protozoarios» (A07) no es el release A04, A08-A09.
+ */
+function answerRadarNombreExacto(q, ent, s, d) {
+  if (!ent.padecimiento || !d?.radar_boletin) return null;
+  const exactas = nombreCompletoEnRadar(q, d.radar_boletin);
+  return exactas.length ? respuestaRadar(exactas, d.radar_boletin, ent.estado || null) : null;
+}
+
+/** Términos clínicos o de eventos que no son una entidad ni un padecimiento publicado. */
+const TERMINO_CLINICO = /\b(violen|accidente|mordedura|picadura|intoxica|envenena|herida|lesion|quemadura|embaraz|infeccion|enfermedad|sindrome|tumor|cancer|virus|viral|fiebre|alcohol|droga|adiccion|sobredosis|trastorno|insuficiencia|fractura|alergia|gripe|resfriado)/;
+
+/**
+ * Red de seguridad: una categoría clínica que no se reconoce («embarazo adolescente en jalisco»)
+ * no debe caer en la tabla de pronósticos del estado ni en el agregado neuro. Responde sin cifras.
+ */
+function answerCategoriaNoReconocida(q, ent, s, d) {
+  if (ent.padecimiento || !TERMINO_CLINICO.test(q)) return null;
+  const pideDatos = any(q, ['caso', 'cuanto', 'incidencia', 'dato', 'cifra', 'hubo', 'reporta', 'pronostic', 'tendencia', 'grafica']);
+  if (!ent.estado && !pideDatos) return null;
+  return 'No reconozco esa categoría entre los padecimientos publicados ni como categoría del boletín vigente, ' +
+    'así que no doy cifras de otro padecimiento en su lugar.\n\n' +
+    `EpiForecast-MX tiene ${numeralPadecimientos(4 + RELEASES.length)} padecimientos publicados (pregúntame «qué padecimientos modelan»). ` +
+    'Las categorías del boletín, con su nombre oficial, están en el [Radar del boletín](../boletin.html).';
+}
+
 function answerPadecimientoNoModelado(q, ent, s, d) {
   // Si ya detectamos un padecimiento conocido, no es off-scope. Un release sí lo es si la consulta
   // nombra además una enfermedad no modelada («comparar obesidad con hipertensión»).
@@ -663,7 +695,10 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
 
   const matchedDisease = mencionaNoModelada(q);
   // Estos temas se responden siempre aquí: no deben quedar a la deriva del RAG ni de otro handler.
-  const sensible = /suicid|autolesion|autoinfligida|self harm/.test(matchedDisease || '');
+  const sensible = /suicid|autolesion|autoinfligid|self harm/.test(matchedDisease || '');
+  // Violencias: tema epidemiológico, no una crisis personal. Sin línea de ayuda ni cifras; el radar
+  // del boletín publica sus notificaciones tal como se imprimen.
+  const violencia = /violencia|abuso sexual|agresion sexual|violacion|maltrato|arma de fuego|bala|gunshot/.test(matchedDisease || '');
   const cardiaco = /infarto|ataque|heart attack/.test(matchedDisease || '');
 
   // Solo activar si la pregunta parece pedir datos (casos, incidencia, etc.)
@@ -675,11 +710,14 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
   const isShortFollowUp = q.split(' ').length <= 5 && /^(y |y del |y de |y la |y el )/.test(q);
   // Con un release en la misma consulta («comparar obesidad con hipertensión») se responde siempre:
   // la consulta mezcla un padecimiento modelado con uno que no lo está.
-  if (matchedDisease && (any(q, dataKw) || ent.estado || isShortFollowUp || conRelease || sensible || cardiaco)) {
+  if (matchedDisease && (any(q, dataKw) || ent.estado || isShortFollowUp || conRelease || sensible || cardiaco || violencia)) {
     return (
       `EpiForecast-MX **no modela ${ROTULO_NO_MODELADA[matchedDisease] || matchedDisease}**. ` +
       (sensible
         ? 'Si tú o alguien cercano necesita apoyo, la **Línea de la Vida** atiende gratis, las 24 horas: **800 911 2000**.\n\n'
+        : '') +
+      (violencia
+        ? 'No tiene modelo ni pronóstico en la plataforma y EPI no da sus cifras. Sus notificaciones semanales por entidad aparecen en el boletín y se consultan, sin modelo, en el [Radar del boletín](../boletin.html).\n\n'
         : '') +
       (cardiaco
         ? 'El boletín no publica una serie propia de infarto. Su categoría más cercana es **Enfermedad isquémica del corazón**, rotulada I20, I25 en el cuadro e I20-I25 en el resumen, así que no se puede afirmar si incluye I21. Sus datos están en [su página](../isquemica_i20.html), publicados con el control y sin validar.\n\n'
@@ -5552,7 +5590,7 @@ function answerCodeRequest(q, ent, s, d) {
 
 const HANDLERS = [
   answerComparacionRondas,
-  answerSaludo, answerObesidad, answerDiabetes, answerRadarResumen, answerRadarBoletin, answerPadecimientoNoModelado, answerReleasesMixtos, answerConsultaEnInglesSinPadecimiento, answerDengue, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerFechaSemana, answerTemporal, answerProyectoMeta,
+  answerSaludo, answerRadarNombreExacto, answerObesidad, answerDiabetes, answerRadarResumen, answerRadarBoletin, answerPadecimientoNoModelado, answerCategoriaNoReconocida, answerReleasesMixtos, answerConsultaEnInglesSinPadecimiento, answerDengue, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerFechaSemana, answerTemporal, answerProyectoMeta,
   answerTrainingConfig, answerSemanaActual, answerSemanasBoletin, answerQueEsPadecimiento,
   answerTimelapse, answerSemaforo, answerReportePDF,
   answerComparacionPorSexo,
@@ -5831,7 +5869,10 @@ async function _resolve(query) {
 
   // Pre-calcular corrección fuzzy
   const corrected = fuzzyCorrect(q);
-  const hasFuzzy = corrected && corrected !== q;
+  // Una consulta que ya nombra una categoría del boletín o un no modelado no se «corrige»: «cólera»
+  // se volvía «colima», «depleción» «depresión» y «faringitis» «laringitis» (la IRA publicada).
+  const nombraBoletin = !!mencionaNoModelada(q) || enRadar(q).length > 0;
+  const hasFuzzy = corrected && corrected !== q && !nombraBoletin;
 
   // Si es follow-up, intentar con contexto heredado PRIMERO
   // PERO: si la query menciona un padecimiento no modelado, NO heredar — dejar que
@@ -5943,8 +5984,12 @@ async function _resolve(query) {
 async function _resolveConContexto(query) {
   const r = await _resolve(query);
   if (r.handler === 'answerRadarResumen') return { ...r, response: `${r.response}\n<!--SIN_GRAFICA-->` };
-  if (r.handler === 'answerPadecimientoNoModelado' || r.handler === 'answerRadarBoletin') {
-    const radar = r.handler === 'answerRadarBoletin' ? enRadar(norm(query)) : [];
+  if (r.handler === 'answerCategoriaNoReconocida') {
+    lastEntities = {};
+    return { ...r, response: `${r.response}\n<!--SIN_GRAFICA-->` };
+  }
+  if (['answerPadecimientoNoModelado', 'answerRadarBoletin', 'answerRadarNombreExacto'].includes(r.handler)) {
+    const radar = r.handler !== 'answerPadecimientoNoModelado' ? enRadar(norm(query)) : [];
     const nm = (radar.length === 1 ? radar[0]._n : null) ||
       (radar.length ? norm(query).split(' ').find((w) => radar.some((e) => e._n.startsWith(w) && w.length >= 4)) : null) ||
       mencionaNoModelada(norm(query)) || lastEntities._noModelado;
