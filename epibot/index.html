@@ -3,760 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <meta name="theme-color" content="#0E1424">
+  <meta name="theme-color" content="#fafbf7">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="description" content="Base de Conocimiento EpiForecast-MX (Inteligencia Epidemiológica)">
   <title>Centro de Inteligencia — EpiForecast-MX</title>
   <link rel="icon" href="EpiBot_v2_avatar.png?v=2" type="image/png">
   <link rel="apple-touch-icon" href="EpiBot_v2_avatar.png?v=2">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=48">
+  <link rel="stylesheet" href="css/style.css?v=49">
   <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.2.4/dist/purify.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-  <style>
-    /* ═══════════════════════════════════════════════════════════
-       COMMAND CENTER SHELL — sidebar persistente + área de chat
-       ═══════════════════════════════════════════════════════════ */
-
-    .cc {
-      flex: 1;
-      display: flex;
-      min-height: 0;
-      position: relative;
-      z-index: 1;
-    }
-
-    /* ─────────── SIDEBAR ─────────── */
-
-    .cc-sidebar {
-      width: 304px;
-      flex-shrink: 0;
-      display: flex;
-      flex-direction: column;
-      background:
-        linear-gradient(180deg, rgba(24, 34, 58, 0.96) 0%, rgba(14, 20, 36, 0.96) 100%);
-      border-right: 1px solid var(--border);
-      backdrop-filter: blur(20px) saturate(1.4);
-      -webkit-backdrop-filter: blur(20px) saturate(1.4);
-      overflow-y: auto;
-      position: relative;
-      z-index: 50;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(91, 141, 239, 0.22) transparent;
-    }
-
-    .cc-sidebar::-webkit-scrollbar { width: 5px; }
-    .cc-sidebar::-webkit-scrollbar-thumb { background: rgba(91, 141, 239, 0.22); border-radius: 100px; }
-
-    /* hairline aurora on the right edge */
-    .cc-sidebar::after {
-      content: '';
-      position: absolute;
-      top: 0; bottom: 0; right: 0;
-      width: 1px;
-      background: linear-gradient(180deg,
-        transparent 0%,
-        rgba(91, 141, 239, 0.35) 25%,
-        rgba(45, 212, 191, 0.30) 55%,
-        rgba(244, 114, 182, 0.28) 80%,
-        transparent 100%);
-      pointer-events: none;
-    }
-
-    /* Brand */
-    .cc-brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 18px 18px 16px;
-      border-bottom: 1px solid var(--border);
-      text-decoration: none;
-      position: sticky;
-      top: 0;
-      background: linear-gradient(180deg, rgba(24, 34, 58, 0.98), rgba(24, 34, 58, 0.82));
-      backdrop-filter: blur(12px);
-      z-index: 3;
-    }
-
-    .cc-brand img {
-      height: 46px;
-      width: 46px;
-      object-fit: cover;
-      border-radius: 12px;
-      background: radial-gradient(circle at 50% 32%, #2A3A5E 0%, #1C2740 60%, #18223A 100%);
-      box-shadow: 0 0 0 1px rgba(91, 141, 239, 0.18), var(--shadow-glow-teal);
-      transition: transform var(--dur) var(--ease-out);
-    }
-    .cc-brand:hover img { transform: scale(1.06) rotate(-2deg); }
-
-    .cc-brand-text { display: flex; flex-direction: column; line-height: 1.1; min-width: 0; }
-    .cc-brand-name {
-      font-size: 16px;
-      font-weight: 800;
-      color: var(--text-primary);
-      letter-spacing: -0.4px;
-    }
-    .cc-brand-name span {
-      background: linear-gradient(135deg, var(--teal), var(--gold));
-      -webkit-background-clip: text; background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .cc-brand-sub {
-      font-size: 9.5px;
-      font-weight: 600;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      margin-top: 3px;
-    }
-
-    /* Sections */
-    .cc-section {
-      padding: 16px 16px 4px;
-    }
-    .cc-section + .cc-section { padding-top: 14px; }
-
-    .cc-group-label {
-      font-size: 9px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1.4px;
-      color: var(--text-faint);
-      padding: 0 6px;
-      margin-bottom: 10px;
-      display: flex;
-      align-items: center;
-      gap: 7px;
-    }
-    .cc-group-label::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: linear-gradient(90deg, var(--border), transparent);
-    }
-
-    /* KPI grid */
-    .cc-kpis {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
-    .cc-kpi {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      padding: 11px 12px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-left: 3px solid var(--teal);
-      border-radius: var(--r-md);
-      transition: all var(--dur) var(--ease-out);
-      position: relative;
-      overflow: hidden;
-    }
-    .cc-kpi::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at 100% 0%, rgba(91,141,239,0.10), transparent 60%);
-      opacity: 0;
-      transition: opacity var(--dur) var(--ease-out);
-    }
-    .cc-kpi:hover { transform: translateY(-2px); border-color: var(--border-accent); box-shadow: var(--shadow-sm); }
-    .cc-kpi:hover::after { opacity: 1; }
-    .cc-kpi--gold { border-left-color: var(--gold); }
-    .cc-kpi--burg { border-left-color: var(--burgundy); }
-    .cc-kpi-val {
-      font-size: 19px;
-      font-weight: 800;
-      color: var(--text-primary);
-      letter-spacing: -0.5px;
-      font-variant-numeric: tabular-nums;
-      line-height: 1.1;
-    }
-    .cc-kpi--gold .cc-kpi-val { color: var(--gold-bright); }
-    .cc-kpi--burg .cc-kpi-val { color: var(--burgundy-bright); }
-    .cc-kpi:first-child .cc-kpi-val { color: var(--teal-bright); }
-    .cc-kpi-lbl {
-      font-size: 9px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.7px;
-      color: var(--text-muted);
-    }
-    /* Indicador con denominador: ocupa la fila entera para que el detalle se lea completo. */
-    .cc-kpi--ancho { grid-column: 1 / -1; }
-    .cc-kpi-det {
-      font-size: 10px;
-      line-height: 1.35;
-      color: var(--text-muted);
-    }
-
-    /* Generic interactive row (tools + nav) */
-    .cc-row {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      width: 100%;
-      padding: 9px 12px;
-      border-radius: var(--r-sm);
-      background: transparent;
-      border: 1px solid transparent;
-      color: var(--text-secondary);
-      font-family: var(--font-body);
-      font-size: 12.5px;
-      font-weight: 600;
-      text-align: left;
-      text-decoration: none;
-      cursor: pointer;
-      transition: all 0.22s var(--ease-out);
-      position: relative;
-    }
-    .cc-row svg { width: 17px; height: 17px; flex-shrink: 0; color: var(--text-muted); transition: color 0.22s; }
-    .cc-row span { flex: 1; min-width: 0; }
-    .cc-row:hover {
-      background: var(--teal-dim);
-      color: var(--teal);
-      border-color: var(--border-accent);
-      transform: translateX(3px);
-    }
-    .cc-row:hover svg { color: var(--teal); }
-    .cc-row:active { transform: translateX(1px) scale(0.99); }
-
-    .cc-row.active {
-      background: linear-gradient(135deg, rgba(91,141,239,0.14), rgba(91,141,239,0.04));
-      color: var(--teal);
-      border-color: rgba(91,141,239,0.22);
-    }
-    .cc-row.active svg { color: var(--teal); }
-    .cc-row.active::before {
-      content: '';
-      position: absolute;
-      left: -16px; top: 50%;
-      transform: translateY(-50%);
-      width: 3px; height: 18px;
-      background: var(--teal);
-      border-radius: 0 3px 3px 0;
-      box-shadow: 0 0 8px var(--teal);
-    }
-
-    .cc-row-kbd {
-      font-family: var(--font-mono);
-      font-size: 9px;
-      color: var(--text-faint);
-      background: rgba(255,255,255,0.04);
-      border: 1px solid var(--border-subtle);
-      border-radius: 5px;
-      padding: 1px 5px;
-      flex: 0 0 auto !important;
-    }
-
-    .cc-stack { display: flex; flex-direction: column; gap: 2px; }
-
-    /* Suggestion chips */
-    .cc-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-    .cc-chip {
-      background: rgba(28, 39, 64, 0.7);
-      border: 1px solid rgba(91, 141, 239, 0.12);
-      color: var(--text-secondary);
-      padding: 6px 12px;
-      border-radius: var(--r-pill);
-      font-size: 11px;
-      font-weight: 600;
-      font-family: var(--font-body);
-      cursor: pointer;
-      transition: all 0.22s var(--ease-out);
-    }
-    .cc-chip:hover {
-      background: var(--teal-dim);
-      border-color: var(--teal);
-      color: var(--teal);
-      transform: translateY(-1px);
-    }
-
-    /* Sidebar footer */
-    .cc-sidebar-footer {
-      margin-top: auto;
-      padding: 14px 16px calc(14px + env(safe-area-inset-bottom, 0px));
-      border-top: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      position: sticky;
-      bottom: 0;
-      background: linear-gradient(0deg, rgba(14, 20, 36, 0.98), rgba(14, 20, 36, 0.7));
-      backdrop-filter: blur(12px);
-    }
-    .cc-footer-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-
-    /* ─────────── MAIN COLUMN ─────────── */
-
-    .cc-main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      min-height: 0;
-      position: relative;
-    }
-
-    .cc-main .chat-area { flex: 1; min-height: 0; }
-    .cc-main .input-bar { flex-shrink: 0; }
-
-    .cc-topbar {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 11px 24px;
-      flex-shrink: 0;
-      background: rgba(24, 34, 58, 0.72);
-      border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(20px) saturate(1.4);
-      -webkit-backdrop-filter: blur(20px) saturate(1.4);
-      position: relative;
-      z-index: 40;
-    }
-    .cc-topbar::after {
-      content: '';
-      position: absolute;
-      bottom: -1px; left: 0; right: 0; height: 1px;
-      background: linear-gradient(90deg, transparent, var(--teal) 30%, var(--gold) 70%, transparent);
-      opacity: 0.4;
-    }
-
-    .cc-topbar-title { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
-    .cc-topbar-title h1 {
-      font-size: 15px;
-      font-weight: 700;
-      letter-spacing: -0.3px;
-      color: var(--text-primary);
-      display: flex;
-      align-items: center;
-      gap: 9px;
-    }
-    .cc-live-dot {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: var(--teal);
-      box-shadow: 0 0 8px var(--teal);
-      animation: pulse-dot 2.4s infinite;
-      flex-shrink: 0;
-    }
-    .cc-topbar-title .sub {
-      font-size: 10.5px;
-      color: var(--text-muted);
-      font-weight: 500;
-      letter-spacing: 0.2px;
-    }
-
-    .cc-topbar-actions {
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .cc-menu-btn {
-      display: none;
-      align-items: center;
-      justify-content: center;
-      width: 40px; height: 40px;
-      flex-shrink: 0;
-      background: none;
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
-      color: var(--text-secondary);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .cc-menu-btn:hover { color: var(--teal); border-color: var(--border-accent); background: var(--teal-dim); }
-
-    .cc-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 1000;
-      background: rgba(14, 20, 36, 0.7);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      opacity: 0;
-      transition: opacity 0.3s;
-    }
-    .cc-overlay.open { opacity: 1; }
-
-    /* ─────────── RESPONSIVE ─────────── */
-    @media (max-width: 1024px) {
-      .cc-sidebar {
-        position: fixed;
-        top: 0; left: 0; bottom: 0;
-        width: min(320px, 86vw);
-        transform: translateX(-100%);
-        transition: transform 0.4s var(--ease-out);
-        box-shadow: 0 0 60px rgba(0,0,0,0.5);
-        z-index: 1001;
-      }
-      .cc-sidebar.open { transform: translateX(0); }
-      .cc-menu-btn { display: flex; }
-      .cc-overlay { display: block; pointer-events: none; }
-      .cc-overlay.open { pointer-events: auto; }
-    }
-
-    @media (max-width: 480px) {
-      .cc-topbar { padding: 9px 14px; }
-      .cc-topbar-title h1 { font-size: 14px; }
-      .cc-topbar-title .sub { display: none; }
-    }
-
-    /* Hide topbar when virtual keyboard is open on phones */
-    @media (max-width: 480px) {
-      body.keyboard-open .cc-topbar { display: none; }
-    }
-
-    /* ═══════════ PROMPT MENU ═══════════ */
-
-    .prompt-toggle {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-      flex-shrink: 0;
-      background: none;
-      border: none;
-      color: var(--text-muted, #6E82A6);
-      cursor: pointer;
-      border-radius: 10px;
-      margin-left: 4px;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-      position: relative;
-    }
-
-    .prompt-toggle:hover {
-      color: #5B8DEF;
-      background: rgba(91, 141, 239, 0.08);
-    }
-
-    .prompt-toggle.active {
-      color: #5B8DEF;
-      background: rgba(91, 141, 239, 0.12);
-    }
-
-    .prompt-menu {
-      position: absolute;
-      bottom: calc(100% + 8px);
-      left: 0;
-      right: 0;
-      background: rgba(24, 34, 58, 0.98);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(91, 141, 239, 0.15);
-      border-radius: 16px;
-      box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(91, 141, 239, 0.05);
-      opacity: 0;
-      transform: translateY(12px) scale(0.97);
-      pointer-events: none;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      z-index: 200;
-      max-height: 60vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .prompt-menu.open {
-      opacity: 1;
-      transform: translateY(0) scale(1);
-      pointer-events: auto;
-    }
-
-    .prompt-menu-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 18px 10px;
-      border-bottom: 1px solid rgba(91, 141, 239, 0.08);
-      flex-shrink: 0;
-    }
-
-    .prompt-menu-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      font-weight: 700;
-      color: #E7ECF5;
-      letter-spacing: -0.2px;
-    }
-
-    .prompt-menu-title svg {
-      color: #5B8DEF;
-    }
-
-    .prompt-menu-close {
-      background: none;
-      border: none;
-      color: #6E82A6;
-      cursor: pointer;
-      padding: 4px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-
-    .prompt-menu-close:hover {
-      color: #E7ECF5;
-      background: rgba(255, 255, 255, 0.06);
-    }
-
-    .prompt-menu-body {
-      overflow-y: auto;
-      padding: 10px 14px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      scrollbar-width: thin;
-      scrollbar-color: rgba(91, 141, 239, 0.22) transparent;
-    }
-
-    .prompt-menu-body::-webkit-scrollbar { width: 4px; }
-    .prompt-menu-body::-webkit-scrollbar-track { background: transparent; }
-    .prompt-menu-body::-webkit-scrollbar-thumb { background: rgba(91, 141, 239, 0.22); border-radius: 100px; }
-
-    .prompt-cat {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      align-items: center;
-    }
-
-    .prompt-cat-label {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 9px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #6E82A6;
-      padding: 0 4px 2px;
-    }
-    .prompt-cat-label svg { flex-shrink: 0; color: #5B8DEF; }
-
-    .prompt-item {
-      background: rgba(28, 39, 64, 0.8);
-      border: 1px solid rgba(91, 141, 239, 0.1);
-      color: #9FB0CE;
-      padding: 6px 14px;
-      border-radius: 100px;
-      font-size: 12px;
-      font-weight: 500;
-      cursor: pointer;
-      font-family: 'Outfit', sans-serif;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-      white-space: nowrap;
-    }
-
-    .prompt-item:hover {
-      background: rgba(91, 141, 239, 0.12);
-      border-color: #5B8DEF;
-      color: #5B8DEF;
-      transform: translateY(-1px);
-      box-shadow: 0 2px 12px rgba(91, 141, 239, 0.15);
-    }
-
-    .prompt-item:active {
-      transform: translateY(0) scale(0.97);
-    }
-
-    @media (max-width: 480px) {
-      .prompt-menu {
-        /* Antes -10px a cada lado: a 390 px sobresalía de la pantalla (scroll horizontal). */
-        left: 0;
-        right: 0;
-        border-radius: 14px 14px 0 0;
-        bottom: 100%;
-        max-height: 55vh;
-      }
-      .prompt-item {
-        font-size: 11px;
-        padding: 5px 11px;
-      }
-    }
-
-    /* ═══════════ MEXICO MAP ═══════════ */
-
-    .mexico-map-wrapper {
-      position: relative;
-    }
-
-    .mexico-map-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: #E7ECF5;
-      margin-bottom: 10px;
-      letter-spacing: -0.2px;
-    }
-
-    .mexico-map-svg-wrap {
-      position: relative;
-      width: 100%;
-      max-width: 920px;
-      margin: 0 auto;
-    }
-
-    .mexico-map-svg {
-      width: 100%;
-      height: auto;
-      /* viewBox 980x700: fijar aspect-ratio evita que el SVG colapse a 0 de altura
-         (con solo viewBox + height:auto el alto intrinseco es fragil y el mapa no se ve). */
-      aspect-ratio: 980 / 700;
-      display: block;
-    }
-
-    .mexico-map-tooltip {
-      position: absolute;
-      background: rgba(14, 20, 36, 0.95);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(91, 141, 239, 0.25);
-      border-radius: 8px;
-      padding: 8px 12px;
-      font-size: 12px;
-      color: #E7ECF5;
-      pointer-events: none;
-      z-index: 50;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-      white-space: nowrap;
-      line-height: 1.5;
-    }
-
-    .mexico-map-tooltip strong {
-      color: #5B8DEF;
-    }
-
-    .mexico-map-legend {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      margin-top: 12px;
-    }
-
-    .mexico-map-legend-bar {
-      display: flex;
-      width: 200px;
-      height: 10px;
-      border-radius: 5px;
-      overflow: hidden;
-    }
-
-    .mexico-map-legend-bar span {
-      flex: 1;
-    }
-
-    .mexico-map-legend-labels {
-      display: flex;
-      justify-content: space-between;
-      width: 200px;
-      font-size: 10px;
-      color: #6E82A6;
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    /* ═══════════ TIMELAPSE ═══════════ */
-    .timelapse-wrapper { position: relative; }
-    .timelapse-title { font-size: 13px; font-weight: 700; color: #E7ECF5; margin-bottom: 10px; letter-spacing: -0.2px; }
-    .timelapse-week { font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #5B8DEF; text-align: center; margin: 8px 0 4px; }
-    /* viewBox 980x700 sin width/height: fijar aspect-ratio evita que el SVG colapse a 0 (igual que el mapa). */
-    .timelapse-svg-wrap { position: relative; width: 100%; max-width: 920px; margin: 0 auto; }
-    .timelapse-svg { width: 100%; height: auto; aspect-ratio: 980 / 700; display: block; }
-    .timelapse-controls { display: flex; align-items: center; gap: 10px; justify-content: center; margin-top: 8px; }
-    .timelapse-btn {
-      width: 34px; height: 34px; border-radius: 50%; border: 1px solid rgba(91,141,239,0.35);
-      background: rgba(91,141,239,0.08); color: #5B8DEF; cursor: pointer; display: flex;
-      align-items: center; justify-content: center; transition: background 0.2s, border-color 0.2s;
-    }
-    .timelapse-btn:hover { background: rgba(91,141,239,0.18); border-color: #5B8DEF; }
-    .timelapse-speed { display: flex; gap: 4px; }
-    .timelapse-speed button {
-      padding: 3px 10px; border-radius: 10px; border: 1px solid rgba(91,141,239,0.2);
-      background: transparent; color: #6E82A6; font-size: 11px; cursor: pointer;
-      font-family: 'JetBrains Mono', monospace; transition: all 0.2s;
-    }
-    .timelapse-speed button.active { background: rgba(91,141,239,0.15); color: #5B8DEF; border-color: #5B8DEF; }
-    .timelapse-slider {
-      width: 100%; max-width: 500px; margin: 4px auto; display: block;
-      accent-color: #5B8DEF; cursor: pointer; height: 6px;
-    }
-
-    /* ═══════════ SEMAFORO ═══════════ */
-    .semaforo-wrapper { max-width: 1100px; }
-    .semaforo-title { font-size: 13px; font-weight: 700; color: #E7ECF5; margin-bottom: 10px; }
-    .semaforo-summary { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
-    .semaforo-badge {
-      display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px;
-      border-radius: 16px; font-size: 12px; font-family: 'JetBrains Mono', monospace;
-      background: rgba(255,255,255,0.04);
-    }
-    .semaforo-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-    .semaforo-alerts {
-      background: rgba(244,114,182,0.08); border-left: 3px solid #F472B6;
-      padding: 8px 12px; font-size: 12px; color: #E7ECF5; margin-bottom: 12px;
-      border-radius: 0 6px 6px 0; line-height: 1.7;
-    }
-    .semaforo-alerts-title { font-weight: 700; color: #F472B6; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .semaforo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 8px; }
-    @media (max-width: 600px) { .semaforo-grid { grid-template-columns: repeat(2, 1fr); } }
-    .semaforo-card {
-      background: rgba(255,255,255,0.03); border-radius: 8px; padding: 8px 10px;
-      border-left: 4px solid transparent; transition: transform 0.15s;
-    }
-    .semaforo-card:hover { transform: translateY(-1px); }
-    .semaforo-card-name { font-size: 11px; font-weight: 700; color: #E7ECF5; display: flex; align-items: center; gap: 4px; }
-    .semaforo-card-casos { font-size: 15px; font-weight: 700; color: #E7ECF5; font-family: 'JetBrains Mono', monospace; margin: 2px 0; }
-    .semaforo-card-pads { font-size: 9px; color: #6E82A6; display: flex; gap: 6px; flex-wrap: wrap; }
-    .semaforo-card-pads span { display: inline-flex; align-items: center; gap: 2px; }
-    .semaforo-card-smape { font-size: 9px; font-family: 'JetBrains Mono', monospace; margin-top: 2px; padding: 1px 6px; border-radius: 8px; display: inline-block; }
-
-    /* ═══════════ COMPARADOR ═══════════ */
-    .comparador-wrapper { max-width: 1100px; }
-    .comparador-title { font-size: 13px; font-weight: 700; color: #E7ECF5; margin-bottom: 12px; }
-    .comparador-split { display: flex; gap: 0; }
-    .comparador-col { flex: 1; padding: 10px 14px; }
-    .comparador-col + .comparador-col { border-left: 1px solid rgba(91,141,239,0.15); }
-    .comparador-col.winner { box-shadow: inset 0 0 20px rgba(91,141,239,0.08); border-radius: 8px; }
-    .comparador-header-name { font-size: 16px; font-weight: 700; color: #E7ECF5; display: flex; align-items: center; gap: 6px; }
-    .comparador-header-casos { font-size: 20px; font-weight: 700; color: #5B8DEF; font-family: 'JetBrains Mono', monospace; margin: 2px 0 8px; }
-    .comparador-metrics { font-size: 11px; color: #6E82A6; margin-bottom: 10px; }
-    .comparador-metrics div { display: flex; justify-content: space-between; padding: 3px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
-    .comparador-metrics span:last-child { color: #E7ECF5; font-family: 'JetBrains Mono', monospace; }
-    .comparador-bar-wrap { margin-bottom: 6px; }
-    .comparador-bar-label { font-size: 10px; color: #6E82A6; margin-bottom: 2px; }
-    .comparador-bar { height: 14px; border-radius: 4px; min-width: 4px; transition: width 0.4s; display: flex; align-items: center; justify-content: flex-end; padding-right: 4px; }
-    .comparador-bar span { font-size: 9px; color: #fff; font-family: 'JetBrains Mono', monospace; }
-    .comparador-versus { margin-top: 14px; border-top: 1px solid rgba(91,141,239,0.12); padding-top: 10px; }
-    .comparador-vs-row { display: flex; align-items: center; margin-bottom: 6px; height: 20px; }
-    .comparador-vs-label { width: 70px; font-size: 10px; color: #6E82A6; text-align: center; flex-shrink: 0; }
-    .comparador-vs-left { flex: 1; display: flex; justify-content: flex-end; }
-    .comparador-vs-right { flex: 1; display: flex; justify-content: flex-start; }
-    .comparador-vs-bar { height: 14px; border-radius: 4px; min-width: 2px; transition: width 0.4s; }
-
-    /* ═══════════ REPORTE PDF ═══════════ */
-    .pdf-btn-wrap { margin-top: 10px; }
-    .pdf-btn {
-      padding: 8px 20px; border-radius: 8px; border: 1px solid rgba(91,141,239,0.3);
-      background: rgba(91,141,239,0.1); color: #5B8DEF; cursor: pointer;
-      font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 600;
-      display: inline-flex; align-items: center; gap: 8px; transition: all 0.2s;
-    }
-    .pdf-btn:hover { background: rgba(91,141,239,0.2); border-color: #5B8DEF; }
-  </style>
+<link rel="stylesheet" href="css/shell.css?v=1">
 </head>
-<body>
+<body><a class="epi-skip" href="#inputField">Saltar a la pregunta</a>
 
   <!-- mobile sidebar overlay -->
   <div class="cc-overlay" id="ccOverlay"></div>
@@ -767,19 +26,19 @@
   <div class="cc">
 
     <!-- ─────────── SIDEBAR ─────────── -->
-    <aside class="cc-sidebar" id="ccSidebar" aria-label="Panel de inteligencia">
+    <aside class="cc-sidebar" id="ccSidebar" aria-label="Herramientas y navegación de EPI">
 
-      <a href="../index.html" class="cc-brand">
+      <a href="../index.html" class="cc-brand" aria-label="EpiForecast-MX, inicio">
         <img src="EpiBot_v2_avatar.png" alt="EpiForecast-MX">
         <span class="cc-brand-text">
           <span class="cc-brand-name">EpiForecast<span>-MX</span></span>
-          <span class="cc-brand-sub">Centro de Inteligencia Epidemiológica</span>
+          <span class="cc-brand-sub">Datos y pronósticos de México</span>
         </span>
       </a>
 
-      <!-- Panorama / KPIs -->
-      <div class="cc-section">
-        <div class="cc-group-label">Panorama en vivo</div>
+  <button class="epi-sidebar-close" id="sidebarClose" aria-label="Cerrar panel">Cerrar panel</button><div class="cc-section epi-primary"><div class="cc-group-label">Tu punto de partida</div><a class="cc-row" href="../boletin.html">Consultar el boletín</a><a class="cc-row" href="../Reports/index.html">Explorar pronósticos</a><a class="cc-row" href="../validacion_semanal.html">Revisar la validación</a><button class="cc-row" data-q="depresion en Jalisco">Preguntar por una entidad</button></div>
+    <!-- Panorama / KPIs -->
+      <details class="cc-section epi-sidebar-details"><summary>Datos de la cohorte original</summary>
         <div class="cc-kpis">
           <div class="cc-kpi">
             <span class="cc-kpi-val" id="statModelos">--</span>
@@ -799,11 +58,10 @@
             <span class="cc-kpi-det" id="statForecastDet">32 estados × 3 padecimientos, modo general · 52 pasos desde el corte</span>
           </div>
         </div>
-      </div>
+      </details>
 
       <!-- Herramientas avanzadas -->
-      <div class="cc-section">
-        <div class="cc-group-label">Herramientas</div>
+      <details class="cc-section epi-sidebar-details"><summary>Herramientas avanzadas</summary>
         <div class="cc-stack">
           <button class="cc-row" data-q="matriz de rendimiento">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="15" r="3"/><circle cx="16" cy="9" r="2"/><circle cx="18" cy="17" r="1.5"/><line x1="3" y1="21" x2="3" y2="3"/><line x1="3" y1="21" x2="21" y2="21"/></svg>
@@ -838,11 +96,10 @@
             <span>Reporte ejecutivo PDF</span>
           </button>
         </div>
-      </div>
+      </details>
 
       <!-- Consultas rápidas -->
-      <div class="cc-section">
-        <div class="cc-group-label">Consultas rápidas</div>
+      <details class="cc-section epi-sidebar-details"><summary>Más consultas para explorar</summary>
         <div class="cc-chips">
           <button class="cc-chip" data-q="que es el smape">¿Qué es el SMAPE?</button>
           <button class="cc-chip" data-q="que es la depresion">Depresión</button>
@@ -855,11 +112,10 @@
           <button class="cc-chip" data-q="cuales son los hallazgos clave del estudio">Hallazgos (RAG)</button>
           <button class="cc-chip" data-q="que ventajas tiene elegir un modelo distinto por cada serie">¿Modelo por serie? (RAG)</button>
         </div>
-      </div>
+      </details>
 
       <!-- Navegación del sitio -->
-      <div class="cc-section">
-        <div class="cc-group-label">Navegación</div>
+      <details class="cc-section epi-sidebar-details"><summary>Investigación y recursos</summary>
         <div class="cc-stack">
           <a class="cc-row" href="../index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Inicio</span></a>
           <a class="cc-row" href="../EpiDashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span>Dashboard</span></a>
@@ -871,7 +127,7 @@
           <a class="cc-row" href="../conclusiones.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span>Conclusiones</span></a>
           <a class="cc-row active" href="index.html" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span>Base de Conocimiento</span></a>
         </div>
-      </div>
+      </details>
 
       <!-- Footer -->
       <div class="cc-sidebar-footer">
@@ -882,16 +138,16 @@
           </div>
           <span class="badge badge-build" id="buildBadge"></span>
         </div>
-        <a href="../EpiDashboard.html" class="cc-row" style="justify-content:center;background:linear-gradient(135deg,var(--teal),#3A6FD8);color:#0E1424;border:none;font-weight:700;">
+        <a href="../EpiDashboard.html" class="cc-row" >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
-          <span style="flex:0 0 auto;">Abrir Dashboard</span>
+          <span style="flex:0 0 auto;">Tablero histórico</span>
         </a>
       </div>
 
     </aside>
 
     <!-- ─────────── MAIN COLUMN ─────────── -->
-    <main class="cc-main">
+    <main class="cc-main" id="main">
 
       <!-- Topbar -->
       <header class="cc-topbar">
@@ -900,7 +156,7 @@
         </button>
         <div class="cc-topbar-title">
           <h1><span class="cc-live-dot"></span>Asistente EPI</h1>
-          <span class="sub">Inteligencia epidemiológica conversacional</span>
+          <span class="sub">Pregunta, explora y consulta las fuentes</span>
         </div>
         <div class="cc-topbar-actions">
           <button id="ttsStopBtn" class="voice-header-btn voice-stop-btn" title="Detener audio" style="display:none">
@@ -913,14 +169,14 @@
           </button>
           <button id="resetBtn" class="reset-btn" title="Limpiar conversación y empezar de nuevo" aria-label="Limpiar conversación">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
-            <span class="reset-label">Limpiar</span>
+            <span class="reset-label">Nueva consulta</span>
           </button>
         </div>
       </header>
 
       <!-- Chat area -->
       <div class="chat-area" id="chatArea" role="log" aria-live="polite" aria-relevant="additions" aria-label="Conversación con EPI">
-        <!-- Welcome injected by JS -->
+        <p id="startupStatus" class="epi-startup" role="status">Cargando los datos de EPI…</p><noscript><p class="epi-startup">Activa JavaScript para consultar EPI. También puedes <a href="../boletin.html">abrir el radar del boletín</a>.</p></noscript>
       </div>
 
       <!-- Input -->
@@ -940,7 +196,7 @@
               </svg>
             </button>
           </div>
-          <div class="prompt-menu-body">
+          <div class="epi-prompt-search"><label for="promptSearch">Encuentra una consulta</label><input id="promptSearch" type="search" placeholder="Buscar por padecimiento, mapa, validación…"><p id="promptSearchStatus" role="status"></p></div><div class="prompt-menu-body">
             <div class="prompt-cat">
               <span class="prompt-cat-label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></svg>Visualizaciones avanzadas</span>
               <button class="prompt-item" data-q="arsenal de motores">Arsenal de motores (polar)</button>
@@ -1307,7 +563,7 @@
             </svg>
           </div>
           <label for="inputField" class="sr-only">Escribe tu pregunta para EPI</label>
-          <input type="text" id="inputField" placeholder="Escribe o habla tu pregunta..." autocomplete="off" aria-label="Pregunta para EPI">
+          <textarea id="inputField" disabled rows="1" placeholder="Ej. ¿Cuál es el pronóstico de diabetes tipo II en Jalisco?" autocomplete="off" aria-label="Pregunta para EPI" aria-describedby="composerHint"></textarea>
           <button id="micBtn" class="mic-btn" title="Hablar" aria-label="Hablar (dictado por voz)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17" aria-hidden="true">
               <rect x="9" y="1" width="6" height="12" rx="3"/>
@@ -1316,19 +572,19 @@
               <line x1="8" y1="23" x2="16" y2="23"/>
             </svg>
           </button>
-          <button id="sendBtn" title="Enviar" aria-label="Enviar pregunta">
+          <button id="sendBtn" disabled title="Enviar" aria-label="Enviar pregunta">
             <svg viewBox="0 0 24 24" fill="currentColor" width="17" height="17" aria-hidden="true">
               <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
             </svg>
           </button>
         </div>
-        <div class="input-hint">
+        <div class="input-hint" id="composerHint">
           <span class="hint-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11">
               <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
             </svg>
           </span>
-          Escribe o usa el micrófono. Prueba: «métricas globales», «depresión en Jalisco».
+          Enter para enviar · Mayús + Enter para otra línea. Las respuestas conservan el corte de sus datos.
         </div>
       </footer>
 
@@ -1344,10 +600,10 @@
     // que es module y también diferido pero posterior en el documento, dibuje).
     document.addEventListener('DOMContentLoaded', function () {
       if (typeof Chart !== 'undefined') {
-        Chart.defaults.color = '#9FB0CE';
+        Chart.defaults.color = '#40594f';
         Chart.defaults.borderColor = 'rgba(91, 141, 239, 0.12)';
-        Chart.defaults.plugins.title.color = '#E7ECF5';
-        Chart.defaults.plugins.legend.labels.color = '#9FB0CE';
+        Chart.defaults.plugins.title.color = '#173c33';
+        Chart.defaults.plugins.legend.labels.color = '#40594f';
         Chart.defaults.scale = Chart.defaults.scale || {};
       }
     });
@@ -1399,24 +655,7 @@
     })();
   </script>
 
-  <!-- ═══════════ VIRTUAL KEYBOARD DETECTION ═══════════ -->
-  <script>
-    (function() {
-      if (!window.visualViewport) return;
-      const threshold = 150;
-      let initial = window.visualViewport.height;
-      window.visualViewport.addEventListener('resize', function() {
-        const diff = initial - window.visualViewport.height;
-        if (diff > threshold) {
-          document.body.classList.add('keyboard-open');
-        } else {
-          document.body.classList.remove('keyboard-open');
-          initial = window.visualViewport.height;
-        }
-      });
-    })();
-  </script>
-
-  <script type="module" src="js/app.js?v=186"></script>
+  <script defer src="js/ux.js?v=1"></script>
+  <script type="module" src="js/app.js?v=187"></script>
 </body>
 </html>
