@@ -22,6 +22,7 @@ from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import boletin_celdas as celdas  # noqa: E402
 import boletin_semana as gen  # noqa: E402
 import boletin_semana_cortes as cortes  # noqa: E402
 import boletin_semana_extrae as extrae  # noqa: E402
@@ -54,19 +55,58 @@ class RegresionSemana42(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.tmp = Path(tempfile.mkdtemp(prefix='radar-w42-'))
-        cls.rc, cls.out, cls.err = correr(*base(W42, cls.tmp / 'foto'))
+        # El boletín 42 no imprime su simbología; la foto 42 tampoco la trae. Se toma la impresa
+        # en el boletín 43 (p. 9 y 10), que es la vigente: sin ella el generador se detiene.
+        anterior = cls.tmp / 'anterior-con-simbologia'
+        anterior.mkdir()
+        datos = json.loads((W42 / 'data.json').read_text())
+        datos['meta']['symbols'] = json.loads((VIGENTE / 'data.json').read_text())['meta']['symbols']
+        (anterior / 'data.json').write_text(json.dumps(datos, ensure_ascii=False))
+        cls.rc, cls.out, cls.err = correr(*base(anterior, cls.tmp / 'foto'))
+
+    def test_sin_simbologia_verificable_se_detiene(self):
+        rc, _, err = correr(*base(W42, self.tmp / 'sin-simbologia'))
+        self.assertEqual(rc, 1)
+        self.assertIn('simbología', err)
+        self.assertFalse((self.tmp / 'sin-simbologia').exists())
 
     @classmethod
     def tearDownClass(cls):
         shutil.rmtree(cls.tmp, ignore_errors=True)
 
     def test_reproduce_la_foto_publicada(self):
+        """Mismas cifras que la foto publicada; sólo cambia la representación de los guiones.
+
+        La foto 42 se publicó con el guion como 0. Regenerada, conserva cada «-» impreso; pasada
+        por la representación anterior (boletin_celdas.foto_legada) es byte a byte la publicada.
+        """
         self.assertEqual(self.rc, 0, self.err)
-        for nombre in ('data.json', 'catalogo.csv', 'verification.json', 'boletin.txt',
-                       'boletin-4226.pdf'):
+        foto = self.tmp / 'foto'
+        nuevo = json.loads((foto / 'data.json').read_text())
+        legada = celdas.foto_legada(nuevo)
+        self.assertEqual(json.dumps(legada, ensure_ascii=False, separators=(',', ':')).encode(),
+                         (W42 / 'data.json').read_bytes())
+        self.assertEqual(gen.catalogo_csv(legada, 2026), (W42 / 'catalogo.csv').read_bytes())
+        verif = json.loads((foto / 'verification.json').read_text())
+        marcas = [v for d in nuevo['diseases'] if d['states']
+                  for v in [*d['totals'], *(x for f in d['states'] for x in f['values'])]]
+        marcas += [n[k] for n in nuevo['national'] for k in celdas.CAMPOS_NACIONALES]
+        self.assertEqual(verif.pop('printed_markers'),
+                         {'-': marcas.count('-'), 'n.d.': marcas.count('n.d.')})
+        self.assertEqual(verif.pop('dash_semantics_overrides'), [])
+        # La simbología heredada se declara como aviso; es lo único nuevo en las advertencias.
+        self.assertEqual(verif.pop('warnings'), [dict(tipo='simbologia_heredada', paginas=[9, 10])])
+        self.assertEqual((json.dumps(verif, ensure_ascii=False, indent=2) + '\n').encode(),
+                         (W42 / 'verification.json').read_bytes())
+        # Cada guion conservado era un 0 en la foto publicada; ninguna cifra cambió.
+        viejo = json.loads((W42 / 'data.json').read_text())
+        for a, b in zip(nuevo['diseases'], viejo['diseases']):
+            for fa, fb in zip(a['states'], b['states']):
+                for va, vb in zip(fa['values'], fb['values']):
+                    self.assertTrue(va == vb or (va == '-' and vb == 0), (a['id'], va, vb))
+        for nombre in ('boletin.txt', 'boletin-4226.pdf'):
             with self.subTest(archivo=nombre):
-                self.assertEqual((self.tmp / 'foto' / nombre).read_bytes(),
-                                 (W42 / nombre).read_bytes())
+                self.assertEqual((foto / nombre).read_bytes(), (W42 / nombre).read_bytes())
         leer = lambda p: json.loads((p / 'encabezados-ocr.json').read_text())  # noqa: E731
         self.assertEqual(leer(self.tmp / 'foto'), leer(W42))
 

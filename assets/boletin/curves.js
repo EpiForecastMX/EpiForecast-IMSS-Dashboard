@@ -18,7 +18,12 @@
     source_state_label_missing: 'La fuente omite el rótulo de una entidad. Su fila sin identificar no se asigna a un estado.',
     source_cut_conflict: 'El encabezado de la fuente tiene un corte contradictorio. Este punto queda como hueco en la curva.'
   };
-  let index, catalog, selected, sequence = 0, current = [], view = [];
+  let index, catalog, selected, sequence = 0, current = [], view = [], C;
+  // Valor mostrado = lo impreso (cifra o guion); valor graficado = boletin/celdas.mjs: un guion
+  // vale 0 sólo bajo la simbología; una cifra no publicada queda como hueco, nunca como 0.
+  const cat = () => catalog.find(d => d.id === selected.id) || {};
+  const shown = (raw) => C ? C.muestra(raw) : fmt(raw);
+  const meaning = (raw, y) => C && C.esMarcador(raw) ? C.significado(raw, { guion: cat().guion, simbolos: index.symbols, anio: y }) : '';
   const cache = new Map();
   const controls = ['curveDisease','curveState','curveMetric','curveMode','curveStart','curveEnd'];
   function value(p) {
@@ -36,7 +41,8 @@
   function inspect(p) {
     if (!p) return;
     const s = index.sources[p.s];
-    $('curvePoint').innerHTML = `<strong>${periodLabel(p)}: ${fmt(value(p))} notificaciones</strong><span>${sourceLink(p)} · corte observado distinto de la fecha de publicación cuando corresponde.</span>${p.revisions ? `<span>${p.revisions} versión(es) anterior(es) conservadas en la descarga nacional.</span>` : ''}${p.flags.length ? `<span class="curve-warning">${p.flags.map(f => esc(flags[f] || f)).join(' ')}</span>` : ''}`;
+    const raw = value(p), m = meaning(raw, p.y);
+    $('curvePoint').innerHTML = `<strong>${periodLabel(p)}: ${esc(shown(raw))} notificaciones</strong>${m ? `<span class="curve-warning">${esc(m)}</span>` : ''}<span>${sourceLink(p)} · corte observado distinto de la fecha de publicación cuando corresponde.</span>${p.revisions ? `<span>${p.revisions} versión(es) anterior(es) conservadas en la descarga nacional.</span>` : ''}${p.flags.length ? `<span class="curve-warning">${p.flags.map(f => esc(flags[f] || f)).join(' ')}</span>` : ''}`;
   }
   function draw() {
     if (!selected) return;
@@ -47,18 +53,18 @@
     const years = compare ? [...new Set([start,end])].sort((a,b)=>a-b) : Object.keys(index.source_years).map(Number).filter(y=>y>=Math.min(start,end)&&y<=Math.max(start,end));
     const periods = index.periods.filter(t=>years.includes(t.y));
     const points = new Map(selected.points.map(p => [`${p.y}-${p.w}`, p]));
-    current = periods.map(t => ({...t, point: points.get(`${t.y}-${t.w}`), value: value(points.get(`${t.y}-${t.w}`))}));
+    current = periods.map(t => { const point = points.get(`${t.y}-${t.w}`), raw = value(point); return {...t, point, raw, value: C.numero(raw, d.guion, t.y)}; });
     view = current.filter(t => t.value != null);
     const last = view.at(-1), firstPoint = view[0];
     $('curveStats').innerHTML = [
       ['Última semana disponible', last ? `${last.y}-W${String(last.w).padStart(2,'0')}` : 'Sin dato'],
       ['Primera semana disponible', firstPoint ? `${firstPoint.y}-W${String(firstPoint.w).padStart(2,'0')}` : 'Sin dato'],
-      ['Último valor', last ? fmt(last.value) : 'Sin dato'],
+      ['Último valor', last ? esc(shown(last.raw)) : 'Sin dato'],
       ['Puntos con cifra', `${view.length} / ${current.length}`]
     ].map(([l,v]) => `<div><span>${l}</span><strong>${v}</strong></div>`).join('');
     const flagged = current.filter(t => t.point?.flags.length).length;
     const unplaced=(selected.unplaced || []).filter(p=>years.includes(index.sources[p.s].year));
-    $('curveCaption').textContent = `Eje X: ${compare ? 'semana epidemiológica (1–53), superposición de años' : `fecha de inicio de la semana epidemiológica, ${years[0]}–${years.at(-1)}`}. Eje Y: ${metric ? 'notificaciones acumuladas del año observado' : 'notificaciones semanales publicadas'}. Fuente: ${index.source_count} boletines SINAVE/DGE, ${Object.keys(index.source_years)[0]}–${Object.keys(index.source_years).at(-1)}. ${flagged ? `${flagged} ${flagged===1?'punto del bloque tiene':'puntos del bloque tienen'} avisos consultables.` : ''} ${unplaced.length?`${unplaced.length} bloques con fechas contradictorias quedan fuera de la curva y se conservan debajo, con sus cifras originales.`:''} Los huecos son ausencia o ambigüedad de dato; no son ceros.`;
+    $('curveCaption').textContent = `Eje X: ${compare ? 'semana epidemiológica (1–53), superposición de años' : `fecha de inicio de la semana epidemiológica, ${years[0]}–${years.at(-1)}`}. Eje Y: ${metric ? 'notificaciones acumuladas del año observado' : 'notificaciones semanales publicadas'}. Fuente: ${index.source_count} boletines SINAVE/DGE, ${Object.keys(index.source_years)[0]}–${Object.keys(index.source_years).at(-1)}. ${flagged ? `${flagged} ${flagged===1?'punto del bloque tiene':'puntos del bloque tienen'} avisos consultables.` : ''} ${unplaced.length?`${unplaced.length} bloques con fechas contradictorias quedan fuera de la curva y se conservan debajo, con sus cifras originales.`:''} Los huecos son ausencia o ambigüedad de dato; no son ceros. «–» es el guion impreso por el boletín${d.guion ? `; en esta categoría, desde ${d.guion.desde}, es una cifra no publicada en el cuadro y queda como hueco` : ''}.`;
     $('curveScope').textContent = region >= 0 && !selected.points.some(p => p.e) ? 'Este padecimiento aparece solo en el resumen nacional. No hay desglose estatal en estos cuadros.' : `${d.code} · ${metric ? 'Los acumulados se reinician en cada año observado; no se diferencian para fabricar casos semanales.' : 'La curva usa la columna semanal publicada, sin obtenerla por resta de acumulados.'} Los cambios de definición se conservan como categorías históricas separadas. La ausencia de un padecimiento antes de su incorporación no equivale a cero.`;
     const W=960,H=350,L=83,R=24,T=24,B=65,pw=W-L-R,ph=H-T-B;
     const vals = view.map(t => t.value), min = Math.min(0,...vals), max = Math.max(1,...vals), span = max-min;
@@ -82,7 +88,7 @@
       }
       svg+=`<path d="${path}" class="curve-line curve-year-${!compare||year===years[0]?2025:2026}"/>`;
     }
-    for(const [i,t] of current.entries())if(t.value!=null){const p=t.point;svg+=`<circle cx="${X(t)}" cy="${Y(t.value)}" r="${p.flags.length?4:3}" class="curve-dot curve-year-${!compare||t.y===years[0]?2025:2026}${p.flags.length?' curve-flagged':''}" data-point="${i}" tabindex="0" role="button" aria-label="${periodLabel(t)}: ${fmt(t.value)}. Ver fuente"><title>${periodLabel(t)}: ${fmt(t.value)}</title></circle>`;}
+    for(const [i,t] of current.entries())if(t.value!=null){const p=t.point;svg+=`<circle cx="${X(t)}" cy="${Y(t.value)}" r="${p.flags.length?4:3}" class="curve-dot curve-year-${!compare||t.y===years[0]?2025:2026}${p.flags.length?' curve-flagged':''}" data-point="${i}" tabindex="0" role="button" aria-label="${periodLabel(t)}: ${esc(shown(t.raw))}. Ver fuente"><title>${periodLabel(t)}: ${esc(shown(t.raw))}${meaning(t.raw,t.y)?` · ${esc(meaning(t.raw,t.y))}`:''}</title></circle>`;}
     svg+='</svg>';
     $('curveChart').innerHTML=svg;
     $('curveLegend').innerHTML = compare ? years.map((y,i)=>`<span class="curve-legend-${i===0?2025:2026}">${y}</span>`).join('') : `<span class="curve-legend-2025">${years[0]}–${years.at(-1)}</span>`;
@@ -93,8 +99,9 @@
     if(last)inspect(last.point);else $('curvePoint').textContent='No hay cifras para esta selección; consulta la cobertura del cuadro o elige Nacional.';
     $('curveDataRows').innerHTML=current.map(t=>{
       const p=t.point;
-      return `<tr><td>${periodLabel(t)}</td><td class="number">${fmt(t.value)}</td><td>${p?sourceLink(p):'No aparece este periodo en los cuadros de los boletines analizados'}</td><td>${p?.flags.length?p.flags.map(f=>esc(flags[f]||f)).join(' ')+(p.flags.includes('source_cut_conflict')?` Cifras originales no graficadas: semanal ${fmt(p.reported_weekly)}; acumulado ${fmt(p.reported_cumulative)}.`:''):p?'Sin aviso específico':'Sin dato; no se imputa cero'}</td></tr>`;
-    }).join('') + unplaced.map(p=>`<tr><td>Fecha ambigua · corte impreso ${periodLabel(p)}</td><td class="number">No se grafica</td><td>${sourceLink(p)}</td><td>El encabezado contradice la edición. Semanal nacional impreso: ${fmt(p.reported_weekly)}; acumulado nacional impreso: ${fmt(p.reported_cumulative)}. No se asigna a otra semana.</td></tr>`).join('');
+      const m = meaning(t.raw, t.y);
+      return `<tr><td>${periodLabel(t)}</td><td class="number"${m ? ` title="${esc(m)}"` : ''}>${p ? esc(shown(t.raw)) : 'Sin dato'}</td><td>${p?sourceLink(p):'No aparece este periodo en los cuadros de los boletines analizados'}</td><td>${p?.flags.length?p.flags.map(f=>esc(flags[f]||f)).join(' ')+(p.flags.includes('source_cut_conflict')?` Cifras originales no graficadas: semanal ${esc(shown(p.reported_weekly))}; acumulado ${esc(shown(p.reported_cumulative))}.`:''):p?(m?esc(m):'Sin aviso específico'):'Sin dato; no se imputa cero'}</td></tr>`;
+    }).join('') + unplaced.map(p=>`<tr><td>Fecha ambigua · corte impreso ${periodLabel(p)}</td><td class="number">No se grafica</td><td>${sourceLink(p)}</td><td>El encabezado contradice la edición. Semanal nacional impreso: ${esc(shown(p.reported_weekly))}; acumulado nacional impreso: ${esc(shown(p.reported_cumulative))}. No se asigna a otra semana.</td></tr>`).join('');
     const url = new URL(location.href);url.searchParams.set('padecimiento',d.id);history.replaceState(null,'',url);
   }
   async function choose(id) {
@@ -114,6 +121,7 @@
       const a=await fetch('/assets/boletin/history/index.json');
       if(!a.ok)throw new Error('No se pudo cargar el archivo histórico.');
       index=await a.json();
+      C=await import('/assets/boletin/celdas.mjs?v=1');
       window.radarHistoria=index;document.dispatchEvent(new CustomEvent('radar:historia',{detail:index}));
       if(!index.categories){
         // Manifiestos anteriores sin catálogo propio: se usa el de la foto semanal vigente.
@@ -137,9 +145,9 @@
   ['curveState','curveMetric','curveMode','curveStart','curveEnd'].forEach(id=>$(id).addEventListener('change',draw));
   $('curveCsv').addEventListener('click',()=>{
     if(!selected)return;
-    const rows=[['padecimiento','entidad','anio_observado','semana_observada','valor','metrica','fuente','pagina','avisos']];
+    const rows=[['padecimiento','entidad','anio_observado','semana_observada','valor','lectura_del_simbolo','metrica','fuente','pagina','avisos']];
     const d=catalog.find(d=>d.id===selected.id),r=Number($('curveState').value);
-    for(const t of current){const p=t.point;rows.push([d.name,r<0?'Nacional':index.states[r],t.y,t.w,t.value??'',$('curveMetric').value==='0'?'semanal':$('curveMetric').value==='2'?'en_estudio_acumulados':'acumulado',p?index.sources[p.s].url:'',p?.p??'',p?.flags.join('|')??'sin_dato']);}
+    for(const t of current){const p=t.point;rows.push([d.name,r<0?'Nacional':index.states[r],t.y,t.w,t.raw??'',meaning(t.raw,t.y),$('curveMetric').value==='0'?'semanal':$('curveMetric').value==='2'?'en_estudio_acumulados':'acumulado',p?index.sources[p.s].url:'',p?.p??'',p?.flags.join('|')??'sin_dato']);}
     const csv='\uFEFF'+rows.map(row=>row.map(x=>'"'+String(x).replaceAll('"','""')+'"').join(',')).join('\n');
     const a=document.createElement('a'),url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.href=url;a.download=`curva-${d.id}-${$('curveStart').value}-${$('curveEnd').value}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
   });

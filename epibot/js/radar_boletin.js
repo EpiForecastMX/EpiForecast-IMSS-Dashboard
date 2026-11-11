@@ -9,6 +9,7 @@
  * respuesta de crisis, que no da cifras.
  */
 import { summarizeCoverage } from '../../assets/boletin/coverage.mjs?v=1';
+import { GUION, esMarcador, guionNoPublicado, suma } from '../../assets/boletin/celdas.mjs?v=1';
 
 const SENSIBLE = /suicid|autolesion|autoinfligid|self harm|ideacion|violencia|arma de fuego|abuso sexual|maltrato/;
 
@@ -79,7 +80,7 @@ export async function cargaRadar(base = '../') {
   const ra = await fetch(`${base}assets/boletin/actual.json`);
   if (!ra.ok) return null;
   const actual = await ra.json();
-  if (actual?.schema !== 'boletin_actual.v1' || !/^assets\/boletin\/[0-9]{4}-w[0-9]{2}$/.test(actual.carpeta ?? '')) return null;
+  if (actual?.schema !== 'boletin_actual.v1' || !/^assets\/boletin\/[0-9]{4}-w[0-9]{2}(-r[0-9]+)?$/.test(actual.carpeta ?? '')) return null;
   const rd = await fetch(`${base}${actual.carpeta}/data.json`);
   if (!rd.ok) return null;
   return compactaRadar(actual, await rd.json());
@@ -135,18 +136,35 @@ function filaEstado(e, estado) {
   return (e.states || []).find((s) => normaliza(s.state) === n) || null;
 }
 
-/** Todas las columnas en cero: el cuadro puede imprimir guiones (vigilancia especial), no ausencia. */
-function sinCifras(e) {
-  return (e.totals || []).every((v) => v === 0);
+/**
+ * Una celda tal como la imprime el boletín: cifra, guion o símbolo. El guion nunca se escribe
+ * como 0: bajo la simbología es «no se presentaron casos»; en una categoría cuya propia fuente
+ * lo contradice (guion.semantica === 'no_publicado') es una cifra no publicada.
+ */
+function celda(v, e, anio) {
+  if (v == null) return 'sin dato';
+  if (!esMarcador(v)) return fmt(v);
+  if (v === GUION) return guionNoPublicado(e.guion, anio) ? '– (cifra no publicada en este cuadro)' : '– (sin casos)';
+  return v;
 }
-const AVISO_SIN_CIFRAS = 'El cuadro imprime **guiones o ceros** en todas sus columnas, también en 2025. ' +
-  'No se lee como ausencia de casos: algunas categorías se vigilan en un sistema especial y sus cifras no aparecen en este cuadro.';
+const hayGuion = (vals) => vals.some((v) => v === GUION);
 
-function acumuladoEstado(e, fila) {
-  const i26 = e.columns.indexOf('Acum. 2026');
-  if (i26 >= 0) return fila.values[i26];
-  const iH = e.columns.indexOf('H'); const iM = e.columns.indexOf('M');
-  return iH >= 0 && iM >= 0 ? fila.values[iH] + fila.values[iM] : null;
+/** Nota que explica los guiones mostrados, campo por campo; sin guiones, ninguna. */
+function notaGuion(e, radar, vals) {
+  if (!hayGuion(vals)) return null;
+  if (guionNoPublicado(e.guion, radar.meta.year)) {
+    const ev = (e.guion.evidencia || [])[0];
+    return `${e.guion.nota}${ev ? ` Fuente: ${ev.archivo}, p. ${ev.pagina}.` : ''}`;
+  }
+  const s = radar.meta.symbols;
+  const texto = s?.simbolos?.[GUION] || 'no se presentaron casos';
+  return `«–» es el guion que imprime el boletín; su simbología${s?.paginas?.length ? ` (p. ${s.paginas.join(' y ')})` : ''} lo define como «${texto}». No es un cero escrito por EPI.`;
+}
+
+function acumuladoEstado(e, fila, anio) {
+  const cols = e.columns.map((c, k) => [c, fila.values[k]])
+    .filter(([c]) => c === 'H' || c === 'M' || c === `Acum. ${anio}` || c.includes(' estadio '));
+  return cols.length ? suma(cols.map(([, v]) => v), e.guion, anio) : null;
 }
 
 /** Respuesta en markdown para las categorías encontradas; `estado` es el nombre canónico o null. */
@@ -160,10 +178,10 @@ export function respuestaRadar(encontradas, radar, estado) {
     const lines = [`**${e.name} (${e.code})** · ${cab}\n`,
       `EpiForecast-MX **no modela** este padecimiento. ${estadoPlataforma(e)}\n`,
       `**Nacional**, hasta la semana ${e.observed_week} de ${m.year}:`,
-      `- Casos de la semana: **${fmt(e.weekly)}**`,
-      `- Acumulado ${m.year}: **${fmt(e.cumulative)}**`,
-      `- Acumulado comparable ${m.year - 1}: **${fmt(e.previous)}**`];
-    if (sinCifras(e)) lines.push(`\n${AVISO_SIN_CIFRAS}`);
+      `- Casos de la semana: **${celda(e.weekly, e, m.year)}**`,
+      `- Acumulado ${m.year}: **${celda(e.cumulative, e, m.year)}**`,
+      `- Acumulado comparable ${m.year - 1}: **${celda(e.previous, e, m.year)}**`];
+    const mostrados = [e.weekly, e.cumulative, e.previous];
     if (estado && estado !== 'Nacional') {
       const fila = filaEstado(e, estado);
       if (!(e.states || []).length) {
@@ -172,9 +190,12 @@ export function respuestaRadar(encontradas, radar, estado) {
         lines.push(`\n${estado} no aparece en el cuadro de esta categoría; no se imputan ceros.`);
       } else {
         lines.push(`\n**${fila.state}** (cifras originales del cuadro):`);
-        e.columns.forEach((c, k) => lines.push(`- ${ROTULO_COLUMNA[c] || c}: **${fmt(fila.values[k])}**`));
+        e.columns.forEach((c, k) => lines.push(`- ${ROTULO_COLUMNA[c] || c}: **${celda(fila.values[k], e, m.year)}**`));
+        mostrados.push(...fila.values);
       }
     }
+    const nota = notaGuion(e, radar, mostrados);
+    if (nota) lines.push(`\n${nota}`);
     lines.push(pie);
     return lines.join('\n');
   }
@@ -183,15 +204,21 @@ export function respuestaRadar(encontradas, radar, estado) {
     'EpiForecast-MX **no modela** estas categorías; no hay pronóstico.\n',
     `| Categoría | Código | Semana del cuadro | Casos de la semana | Acumulado ${m.year} | Acumulado comparable ${m.year - 1} |${conEstado ? ` ${estado}: semana / acumulado |` : ''}`,
     `|---|---|---|---|---|---|${conEstado ? '---|' : ''}`];
+  const notas = new Set();
   for (const e of encontradas.slice(0, 8)) {
     let extra = '';
+    const mostrados = [e.weekly, e.cumulative, e.previous];
     if (conEstado) {
       const fila = filaEstado(e, estado);
-      extra = fila ? ` ${fmt(fila.values[0])} / ${fmt(acumuladoEstado(e, fila))} |` : ' sin fila |';
+      const acum = fila ? acumuladoEstado(e, fila, m.year) : null;
+      extra = fila ? ` ${celda(fila.values[0], e, m.year)} / ${celda(acum, e, m.year)} |` : ' sin fila |';
+      if (fila) mostrados.push(fila.values[0], acum);
     }
-    lines.push(`| ${e.name}${e.status === 'Rechazada' ? ' (rechazada)' : ''} | ${e.code} | ${e.observed_week} | ${fmt(e.weekly)} | ${fmt(e.cumulative)} | ${fmt(e.previous)} |${extra}`);
+    lines.push(`| ${e.name}${e.status === 'Rechazada' ? ' (rechazada)' : ''} | ${e.code} | ${e.observed_week} | ${celda(e.weekly, e, m.year)} | ${celda(e.cumulative, e, m.year)} | ${celda(e.previous, e, m.year)} |${extra}`);
+    const nota = notaGuion(e, radar, mostrados);
+    if (nota) notas.add(nota);
   }
-  if (encontradas.some(sinCifras)) lines.push(`\n${AVISO_SIN_CIFRAS}`);
+  for (const nota of notas) lines.push(`\n${nota}`);
   if (encontradas.some((e) => e.status === 'Rechazada')) lines.push('\nLa rechazada se analizó en la prueba de 2025; su evidencia está en [Analizados y rechazados](../rechazados.html).');
   lines.push(pie);
   return lines.join('\n');

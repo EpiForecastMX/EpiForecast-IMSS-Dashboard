@@ -68,10 +68,37 @@ test('Covid-19 dice que se rechazó y remite a rechazados', async () => {
   assert.match(r.md, /rechazados\.html/);
 });
 
-test('un cuadro con guiones no se presenta como ausencia de casos', async () => {
+test('sarampión: cada campo dice que es una cifra no publicada, nunca 0 casos', async () => {
   const r = await conversa('sarampion casos 2026');
   assert.equal(r.handler, 'answerRadarBoletin');
-  assert.match(r.md, /guiones o ceros/);
+  assert.match(r.md, /Casos de la semana: \*\*– \(cifra no publicada en este cuadro\)\*\*/);
+  assert.match(r.md, /Acumulado comparable 2025: \*\*– \(cifra no publicada en este cuadro\)\*\*/);
+  assert.match(r.md, /6,152/);
+  assert.doesNotMatch(r.md, /\*\*0\*\*|guiones o ceros|sin casos/);
+});
+
+test('rubéola: el guion sigue la simbología impresa del boletín, campo por campo', async () => {
+  const r = await conversa('casos de rubeola');
+  assert.equal(r.handler, 'answerRadarBoletin');
+  assert.match(r.md, /Casos de la semana: \*\*– \(sin casos\)\*\*/);
+  assert.match(r.md, /simbología \(p\. 9 y 10\) lo define como «no se presentaron casos»/);
+  assert.doesNotMatch(r.md, /\*\*0\*\*|no publicada/);
+});
+
+test('una fila con guion y cifras muestra cada celda como se imprimió', async () => {
+  const r = await conversa('tuberculosis respiratoria en jalisco');
+  assert.match(r.md, /Casos de la semana: \*\*– \(sin casos\)\*\*/);
+  assert.match(r.md, /Acumulado 2026, hombres: \*\*507\*\*/);
+  assert.match(r.md, /no se presentaron casos/);
+});
+
+test('un cero impreso se muestra como 0 y sin nota de guion', async () => {
+  const { respuestaRadar } = await import('../js/radar_boletin.js');
+  const e = { name: 'Prueba', code: 'X00', status: 'Por incorporar', observed_week: 43, weekly: 0, cumulative: 0,
+    previous: 4, columns: ['Sem.'], totals: [0], states: [] };
+  const md = respuestaRadar([e], d.radar_boletin, null);
+  assert.match(md, /Casos de la semana: \*\*0\*\*/);
+  assert.doesNotMatch(md, /–|guion/);
 });
 
 test('varias categorías salen en tabla, con la columna de la entidad', async () => {
@@ -80,7 +107,8 @@ test('varias categorías salen en tabla, con la columna de la entidad', async ()
   const r = await conversa('tuberculosis en jalisco mujeres', 'y hombres?', 'y en sonora?');
   assert.equal(r.handler, 'answerRadarBoletin');
   assert.match(r.md, /Sonora: semana \/ acumulado/);
-  assert.match(r.md, new RegExp(`Tuberculosis respiratoria \\| A15-A16 \\| ${tb.observed_week} \\|.*\\| ${es(so[0])} / ${es(so[1] + so[2])} \\|`));
+  const sem = so[0] === '-' ? '– \\(sin casos\\)' : es(so[0]);
+  assert.match(r.md, new RegExp(`Tuberculosis respiratoria \\| A15-A16 \\| ${tb.observed_week} \\|.*\\| ${sem} / ${es(so[1] + so[2])} \\|`));
 });
 
 test('el seguimiento de un no modelado no cae en la tabla neuro', async () => {

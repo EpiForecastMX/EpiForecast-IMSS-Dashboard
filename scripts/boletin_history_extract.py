@@ -29,6 +29,8 @@ def cells(ws):
  return out
 def val(s):
  s=s.replace(',','').replace(' ','')
+ # «-» se lee como 0 sólo en la reconstrucción; después es obligatorio boletin_marcadores_migra.py,
+ # que restituye el guion impreso cotejando cada PDF (README_radar_boletin.md, «Guiones y ceros»).
  if s and set(s)<=set('-–−'):return 0
  if re.fullmatch(r'#+',s):return None
  if re.fullmatch(r'-?\d+\*?',s):return int(s.rstrip('*'))
