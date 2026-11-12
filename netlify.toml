@@ -19,7 +19,7 @@ command = "npm run test:dashboard && npm run test:boletin && npm run test:site &
   node_bundler = "esbuild"
   # CRÍTICO: empaqueta los datos que las funciones leen vía fs en runtime.
   # Sin esto, rag.mjs no encuentra el índice en producción (RAG vacío).
-  included_files = ["epibot/knowledge.json", "epibot/rag_index.json", "publication/catalog.json", "publication/*/*/knowledge.json"]
+  included_files = ["epibot/knowledge.json", "epibot/rag_index.json", "publication/catalog.json", "publication/*/*/knowledge.json", "publication/*/vista.json"]
 
 # Compatibilidad: los enlaces viejos a /kb/ redirigen al nuevo /epibot/.
 [[redirects]]

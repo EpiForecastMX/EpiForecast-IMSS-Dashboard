@@ -32,6 +32,7 @@ test('rag.mjs deriva los releases publicados del catálogo y de su shard', () =>
   assert.ok(ctx.releasesDesdeCatalogo, 'rag.mjs define releasesDesdeCatalogo');
   const r = JSON.parse(JSON.stringify(ctx.releasesDesdeCatalogo(CAT, leerShard)));
   assert.deepEqual(r, [
+    { nombre: 'Intoxicación alimentaria bacteriana', cie: ['A05'] },
     { nombre: 'Amebiasis intestinal', cie: ['A06.0', 'A06.1', 'A06.2', 'A06.3', 'A06.9'] },
     { nombre: 'Anorexia, bulimia y otros trastornos alimentarios', cie: ['F50'] },
     { nombre: 'Asma', cie: ['J45', 'J46'] },
@@ -49,16 +50,24 @@ test('rag.mjs deriva los releases publicados del catálogo y de su shard', () =>
     { nombre: 'Tumor maligno de la próstata', cie: ['C61'] },
     { nombre: 'Tumor maligno de tráquea, bronquios y pulmón', cie: ['C33', 'C34'] },
     { nombre: 'Tumor maligno del riñón', cie: ['C64'] },
+    { nombre: 'Candidiasis urogenital', cie: ['B37.3', 'B37.4'] },
     { nombre: 'Enfermedad cerebrovascular', cie: ['I60', 'I61', 'I62', 'I63', 'I64', 'I65', 'I66', 'I67', 'I69'] },
     { nombre: 'Conjuntivitis', cie: ['H10'] },
     { nombre: 'Diabetes mellitus tipo I', cie: ['E10'] },
     { nombre: 'Diabetes mellitus tipo II', cie: ['E11', 'E12', 'E13', 'E14'] },
+    { nombre: 'Displasia cervical leve y moderada', cie: ['N87.0', 'N87.1'] },
+    { nombre: 'Diabetes mellitus en el embarazo', cie: ['O24.4'] },
     { nombre: 'Edema, proteinuria y trastornos hipertensivos en el embarazo, parto y puerperio', cie: ['O10', 'O11', 'O12', 'O13', 'O14', 'O15', 'O16'] },
+    { nombre: 'Erisipela', cie: ['A46'] },
+    { nombre: 'Escabiosis', cie: ['B86'] },
+    { nombre: 'Faringitis y amigdalitis estreptocócicas', cie: ['J02.0', 'J03.0'] },
     { nombre: 'Gingivitis y enfermedad periodontal', cie: ['K05'] },
+    { nombre: 'Hiperplasia de la próstata', cie: ['N40'] },
     { nombre: 'Hipertensión arterial', cie: ['I10', 'I11', 'I12', 'I13', 'I14', 'I15'] },
     { nombre: 'Infecciones intestinales por otros organismos y las mal definidas', cie: ['A04', 'A08', 'A09'] },
     { nombre: 'Infecciones respiratorias agudas', cie: ['J00', 'J01', 'J03', 'J04', 'J05', 'J06', 'J20', 'J21'] },
     { nombre: 'Enfermedad isquémica del corazón', cie: ['I20', 'I25'] },
+    { nombre: 'Insuficiencia venosa periférica', cie: ['I87.2'] },
     { nombre: 'Infección de vías urinarias', cie: ['N30', 'N34', 'N39.0'] },
     { nombre: 'Leucemia', cie: ['C91', 'C92', 'C93', 'C94', 'C95'] },
     { nombre: 'Linfoma de Hodgkin', cie: ['C81'] },
@@ -66,7 +75,13 @@ test('rag.mjs deriva los releases publicados del catálogo y de su shard', () =>
     { nombre: 'Neumonías y bronconeumonías', cie: ['J12', 'J15', 'J16', 'J17', 'J18'] },
     { nombre: 'Obesidad', cie: ['E66'] },
     { nombre: 'Otitis media aguda', cie: ['H65.0', 'H65.1'] },
+    { nombre: 'Parotiditis infecciosa', cie: ['B26'] },
+    { nombre: 'Peatón lesionado en accidente de transporte', cie: ['V01', 'V02', 'V03', 'V04', 'V05', 'V06', 'V07', 'V08', 'V09'] },
+    { nombre: 'Otras infecciones intestinales debidas a protozoarios', cie: ['A07.0', 'A07.2', 'A07.9'] },
+    { nombre: 'Quemaduras', cie: ['T20', 'T21', 'T22', 'T23', 'T24', 'T25', 'T26', 'T27', 'T28', 'T29', 'T30', 'T31', 'T32'] },
+    { nombre: 'Shigelosis', cie: ['A03'] },
     { nombre: 'Úlceras, gastritis y duodenitis', cie: ['K25', 'K26', 'K27', 'K28', 'K29'] },
+    { nombre: 'Varicela', cie: ['B01'] },
     { nombre: 'Accidente de transporte en vehículos con motor', cie: ['V20', 'V40'] },
   ]);
 });
@@ -81,12 +96,12 @@ test('un release no publicado, oculto o sin canal epibot no entra al alcance', (
   assert.equal(ctx.releasesDesdeCatalogo(cat, leerShard).length, 0);
 });
 
-test('las CIFRAS CLAVE nombran los cuarenta padecimientos modelados', () => {
+test('las CIFRAS CLAVE nombran los cincuenta y cinco padecimientos modelados', () => {
   const rel = ctx.releasesDesdeCatalogo(CAT, leerShard);
   const s = ctx.structuredSummary(KB, rel);
   const linea = s.split('\n').find((l) => l.startsWith('Alcance vigente'));
   assert.ok(linea, s);
-  assert.match(linea, /modela cuarenta padecimientos/);
+  assert.match(linea, /modela cincuenta y cinco padecimientos/);
   for (const p of ['Depresión (F32)', 'Parkinson (G20)', 'Alzheimer (G30)', 'Dengue', 'Obesidad (E66)', 'Anorexia, bulimia y otros trastornos alimentarios (F50)', 'Diabetes mellitus tipo I (E10)', 'Diabetes mellitus tipo II (E11, E12, E13, E14)',
     'Infección de vías urinarias (N30, N34, N39.0)', 'Úlceras, gastritis y duodenitis (K25, K26, K27, K28, K29)',
     'Infecciones respiratorias agudas (J00, J01, J03, J04, J05, J06, J20, J21)', 'Gingivitis y enfermedad periodontal (K05)', 'Asma (J45, J46)', 'Tumor maligno de la mama (C50)', 'Tumor maligno del cuello del útero (C53)']) {

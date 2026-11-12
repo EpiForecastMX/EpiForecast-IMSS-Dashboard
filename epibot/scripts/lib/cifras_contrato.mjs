@@ -983,9 +983,13 @@ export function problemasDelCorpusAgregado(chunks, kb) {
     ...Object.entries(ag.por_padecimiento ?? {}).map(([p, x]) => [x.valor_mostrado, `Agregado de sus 32 estados`])];
   for (const c of chunks || []) {
     const t = String(c?.text ?? '');
+    // Los fragmentos de un release del runner hablan de otro padecimiento: una cifra suya que coincide
+    // con un agregado neuro (Guanajuato, 1,899 casos de diabetes en el embarazo = agregado de Alzheimer)
+    // no es ese agregado. El rótulo antiguo sí se revisa en cualquier fragmento.
+    const deRelease = String(c?.id ?? '').startsWith('release:');
     if (/Pron[óo]stico total a 52 semanas/i.test(t)) out.push(`${c.id}: «Pronóstico total a 52 semanas» para la suma de estados`);
     for (const [v, rotulo] of valores) {
-      if (forma(v).test(t) && !t.includes(rotulo)) out.push(`${c.id}: lleva ${v} sin el rótulo «${rotulo}»`);
+      if (!deRelease && forma(v).test(t) && !t.includes(rotulo)) out.push(`${c.id}: lleva ${v} sin el rótulo «${rotulo}»`);
     }
   }
   return out;

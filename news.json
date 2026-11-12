@@ -7,6 +7,25 @@
             "type": "radar",
             "tag": "Pronóstico publicado",
             "featured": true,
+            "title": "Quince padecimientos más: cinco aceptados y diez controles estacionales no validados",
+            "summary": "Intoxicación alimentaria bacteriana, shigelosis, erisipela, candidiasis urogenital y diabetes mellitus en el embarazo superaron la prueba de 2025. Para otros diez, cuyo portafolio no la superó, se publica el control estacional, no validado, por autorización del autor.",
+            "body": [
+                "EpiForecast-MX publica quince padecimientos más del Boletín Epidemiológico del SINAVE. Cinco superaron la prueba de 2025 frente al control estacional: <strong style=\"color:var(--cream)\">intoxicación alimentaria bacteriana (A05), shigelosis (A03), erisipela (A46), candidiasis urogenital (B37.3-B37.4) y diabetes mellitus en el embarazo (O24.4)</strong>. Compitieron sólo los cinco motores estacionales, sin ETS ni regresión armónica, por decisión del autor del 12 de noviembre, porque esos dos motores no producían pronósticos utilizables en algunas series estatales. Su validación prospectiva está en curso (0 de 4 semanas).",
+                "En otros diez el portafolio no superó la prueba de 2025 y, por autorización expresa del autor, se publica el control estacional, que repite los casos de 52 semanas antes: <strong style=\"color:var(--cream)\">quemaduras (T20-T32), insuficiencia venosa periférica (I87.2), hiperplasia de la próstata (N40), escabiosis (B86), otras infecciones intestinales debidas a protozoarios (A07.0, A07.2, A07.9), faringitis y amigdalitis estreptocócicas (J02.0, J03.0), peatón lesionado en accidente de transporte (V01-V09), displasia cervical leve y moderada (N87.0-N87.1), varicela (B01) y parotiditis infecciosa (B26)</strong>. Son controles no validados: no se comparan contra sí mismos ni prometen una validación futura. Cada página da el error del control en esa prueba por estado, en el conjunto de las series y en el total nacional; en parotiditis, peatón lesionado y protozoarios el error por estado fue muy alto y esa referencia es poco informativa.",
+                "Diabetes mellitus en el embarazo, hiperplasia de la próstata y displasia cervical leve y moderada no tienen desglose por sexo en el boletín (37 series); los demás, 111 series por sexo. Todos usan datos hasta la semana 42 de 2026 y se emitieron el 12 de noviembre, antes de que existiera el boletín 44. Son pronósticos puntuales, sin intervalos de incertidumbre."
+            ],
+            "link": {
+                "href": "alimentaria_a05.html",
+                "text": "Ver intoxicación alimentaria bacteriana",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
+        {
+            "date": "12 de noviembre de 2026",
+            "iso": "2026-11-12",
+            "type": "radar",
+            "tag": "Pronóstico publicado",
+            "featured": true,
             "title": "Cinco padecimientos nuevos con pronóstico semanal",
             "summary": "Otitis media aguda, conjuntivitis, amebiasis intestinal, accidentes de transporte en vehículos con motor y trastornos hipertensivos en el embarazo, parto y puerperio superaron la prueba de 2025 frente al control estacional.",
             "body": [

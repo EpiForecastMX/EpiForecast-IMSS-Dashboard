@@ -172,3 +172,17 @@ test('cronología estática de cada ficha = manifiesto congelado y gate prospect
   }
   assert.equal(revisadas, pub.length);
 });
+
+// La política que nombra cada ficha es la del registry del backend (fixture generada desde
+// `config/padecimientos.yaml`). La de O10-O16 decía «rolling_cv_baja_incidencia_v1, de cinco motores»,
+// heredado de su plantilla, cuando su release usó rolling_cv_v1 con siete.
+test('la política nombrada en cada ficha coincide con la del registry', () => {
+  const pol = JSON.parse(leer('tests/fixtures/politica_por_release.json'));
+  const pub = JSON.parse(leer('publication/catalog.json')).releases;
+  assert.equal(Object.keys(pol).length, pub.length);
+  for (const r of pub) {
+    const ficha = RELEASES.find((f) => f.id === r.disease_id);
+    const nombradas = [...new Set([...leer(ficha.page).matchAll(/rolling_cv[a-z_0-9]*/g)].map((m) => m[0]))];
+    assert.deepEqual(nombradas, [pol[r.disease_id]], `${ficha.page}: política`);
+  }
+});

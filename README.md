@@ -13,7 +13,7 @@ principal (`Congresos/Mundial/ESTADO_ACTUAL_WCP.md`); este README describe el si
 
 | | |
 |---|---|
-| Padecimientos publicados | **40** = 4 del carril original + 36 releases del runner |
+| Padecimientos publicados | **55** = 4 del carril original + 51 releases del runner |
 | Datos reales hasta | **boletín 43 de 2026** (carril original y radar); **semana 42** observada en los releases del runner |
 | Series productivas del carril original | **432** = 333 neuro + 99 dengue |
 | Gráficos publicados del carril original | **432** = 333 neuro + 99 dengue (ronda W37; hasta W33 eran 444 con las 4 regiones de dengue) |
@@ -54,18 +54,24 @@ clave.** Una vista nueva que imprima nombres tiene que importar `display.js`; `c
 
 Dashboard interactivo del proyecto **EpiForecast-MX**, desarrollado en colaboración entre el
 **Tecnológico de Monterrey** y el **Instituto Mexicano del Seguro Social (IMSS)**. Cubre
-**cuarenta padecimientos**:
+**cincuenta y cinco padecimientos**:
 
 - **Carril original (cuatro):** Depresión (F32), enfermedad de Parkinson (G20), enfermedad de
   Alzheimer (G30) y Dengue (A97). Los tres neurológicos son la cohorte de 333 modelos; Dengue tiene
   su propio pipeline de conteos y página en `dengue.html` (pronóstico a un año; la proyección NB-GLM a
   cinco años se retiró en W37).
-- **Releases del runner genérico (treinta y seis):** publicados desde releases sellados
+- **Releases del runner genérico (cincuenta y uno):** publicados desde releases sellados
   (`publication/catalog.json`): obesidad, diabetes tipo I y II, anorexia y bulimia, hipertensión,
   enfermedad isquémica y cerebrovascular, seis padecimientos del radar del boletín (el sexto, asma),
   neumonías y bronconeumonías, diecisiete cánceres y, desde el 12-nov-2026, otitis media aguda,
   conjuntivitis, amebiasis intestinal, accidente de transporte en vehículos con motor y los trastornos
-  hipertensivos del embarazo, parto y puerperio. Cada uno tiene su página `<id>.html`. Los que no superaron su prueba de aceptación
+  hipertensivos del embarazo, parto y puerperio. El mismo día se sumaron quince más: intoxicación
+  alimentaria bacteriana, shigelosis, erisipela, candidiasis urogenital y diabetes mellitus en el
+  embarazo, aceptados con la política de cinco motores estacionales por decisión del autor, y diez
+  controles estacionales no validados publicados tras el rechazo de 2025 por autorización nominal del
+  autor (quemaduras, insuficiencia venosa periférica, hiperplasia de la próstata, escabiosis, protozoarios
+  intestinales, faringitis estreptocócica, peatón lesionado, displasia cervical leve y moderada, varicela
+  y parotiditis). Cada uno tiene su página `<id>.html`. Los que no superaron su prueba de aceptación
   (2025 para la mayoría; 2026-W01 a W41 para los quince cánceres con datos sólo desde 2023) se
   publican con el control estacional y nunca como validados. Covid-19 aparece sólo en
   `rechazados.html`.
@@ -80,7 +86,7 @@ epidemiológico.
 
 El componente principal del dashboard es **EpiBot** (`epibot/`), un asistente conversacional que
 responde con datos reales de los 333 modelos neurológicos, de **Dengue** (handler `answerDengue`,
-alimentado por la sección `dengue` de `knowledge.json`) y de los **treinta y seis padecimientos del
+alimentado por la sección `dengue` de `knowledge.json`) y de los **cincuenta y un padecimientos del
 runner**, cuyos alias, marcadores de gráfica y páginas salen de `js/release_catalog.js` y cuyas cifras
 salen de `publication/<id>/vista.json`.
 
@@ -168,7 +174,7 @@ npm run rag:verify         # falla si el índice está desincronizado del corpus
 ### Detección de entidades (entities.js)
 
 - **32 estados** y regiones con alias (CDMX, Edomex, etc.).
-- Los cuatro padecimientos originales y los alias y códigos CIE-10 de los treinta y seis releases del
+- Los cuatro padecimientos originales y los alias y códigos CIE-10 de los cincuenta y un releases del
   runner (`release_catalog.js`), comparados al inicio de palabra; los no modelados salen de la lista
   única `noModeladas`.
 - **Sexo** (hombres, mujeres, general) con variantes.
@@ -368,7 +374,7 @@ la orientación. Van a `Reports/<hito>/` a 1600 px de ancho y calidad 82.
 ```
 EpiForecast-IMSS-Dashboard/
 ├── index.html                      # Portada
-├── <id>.html                       # 36 páginas de releases del runner
+├── <id>.html                       # 51 páginas de releases del runner
 ├── boletin.html                    # Radar del boletín
 ├── rechazados.html                 # Padecimientos rechazados (Covid-19)
 ├── dengue.html                     # Dengue
@@ -455,7 +461,7 @@ La semana avanza por tres carriles y ninguno publica una semana parcial:
    fuera de los repositorios (`planes/`) y conserva las asignaciones congeladas en la ronda W37.
    `make update-week` del repo principal es histórico y aborta siempre en el preflight
    (`scripts/actualiza_semanal.sh`); no es una receta vigente.
-2. **Treinta y seis releases del runner**: `make semana-revisa`, `make semana-observa PDF=… SALIDA=…`,
+2. **Cincuenta y un releases del runner**: `make semana-revisa`, `make semana-observa PDF=… SALIDA=…`,
    `python -m scripts.paso_semanal consolida` y `make semana-vistas N=… FE=…` en el repo principal.
 3. **Radar del boletín**: `python3 scripts/boletin_semana.py --pdf … --url-fuente … --publicacion …`
    en este repo (ver `scripts/README_radar_boletin.md`).

@@ -16,8 +16,8 @@ globalThis.fetch = async (u) => ({
     ? readFileSync(new URL(`../../publication/${vista(u)[1]}/vista.json`, import.meta.url), 'utf-8') : K),
 });
 const kb = await import('../js/kb.js');
-const { detectEntities, norm } = await import('../js/entities.js?v=54');
-const { mencionaNoModelada } = await import('../js/release_config.js?v=20');
+const { detectEntities, norm } = await import('../js/entities.js?v=55');
+const { mencionaNoModelada } = await import('../js/release_config.js?v=21');
 const d = await kb.loadKnowledge();
 await d.obesidad_pendiente;
 
@@ -54,8 +54,6 @@ const NEGATIVOS = [
   ['conjuntivitis viral en Sonora', VECINO.conjuntivitis],
   ['B30.3 en Jalisco', VECINO.conjuntivitis],
   ['conjuntivitis epidémica aguda hemorrágica', VECINO.conjuntivitis],
-  ['peatón lesionado en accidente de tránsito en Jalisco', VECINO.vehiculos],
-  ['peatones atropellados en jalisco', VECINO.vehiculos],
   ['accidente en bicicleta en Jalisco', VECINO.vehiculos],
   ['ciclistas lesionados en accidente de tránsito en Sonora', VECINO.vehiculos],
   ['accidente de transporte V15 en Jalisco', VECINO.vehiculos],
@@ -147,12 +145,10 @@ for (const [q] of NEGATIVOS.slice(0, 6).concat([NEGATIVOS[7], NEGATIVOS[12], NEG
   });
 }
 
-// Presión baja nunca se convierte en hipertensión, y la diabetes del embarazo no se adjudica a O10-O16.
+// Presión baja nunca se convierte en hipertensión.
 const EMBARAZO_AJENO = [
   ['presión arterial baja en el embarazo en Jalisco', /presi[oó]n arterial baja/],
   ['tensión arterial baja en embarazadas en Sonora', /tensi[oó]n arterial baja/],
-  ['diabetes gestacional e hipertensión en Jalisco', /diabetes gestacional/],
-  ['hipertensión y diabetes en el embarazo en Jalisco', /diabetes en el embarazo/],
 ];
 for (const [q, termino] of EMBARAZO_AJENO) {
   test(`embarazo: «${q}» conserva su término no modelado y no responde O10-O16`, async () => {
@@ -163,8 +159,21 @@ for (const [q, termino] of EMBARAZO_AJENO) {
   });
 }
 
+// Desde el lote 17, la diabetes gestacional es el release O24.4: nunca tipo I o II, y el término del
+// embarazo que va con la diabetes no convierte la hipertensión en O10-O16.
+test('mixta: «diabetes gestacional e hipertensión» es O24.4 más hipertensión arterial', () => {
+  const ent = detectEntities('diabetes gestacional e hipertensión en Jalisco');
+  assert.deepEqual([...(ent.padecimientos || [ent.padecimiento])].sort(),
+    ['Diabetes mellitus en el embarazo', 'Hipertensión arterial']);
+});
+test('mixta: «hipertensión y diabetes en el embarazo» es O10-O16 más O24.4', () => {
+  const ent = detectEntities('hipertensión y diabetes en el embarazo en Jalisco');
+  assert.deepEqual([...(ent.padecimientos || [ent.padecimiento])].sort(),
+    ['Diabetes mellitus en el embarazo', 'Edema, proteinuria y trastornos hipertensivos en el embarazo, parto y puerperio']);
+});
+
 // Cada consulta sugerida (botones, zoom, textos) resuelve a su propio release.
-const { RELEASES } = await import('../js/release_config.js?v=20');
+const { RELEASES } = await import('../js/release_config.js?v=21');
 for (const r of RELEASES) {
   test(`consulta sugerida: «${r.consulta}» resuelve a ${r.id}`, async () => {
     const ent = detectEntities(`${r.consulta} en Jalisco`);
@@ -175,7 +184,7 @@ for (const r of RELEASES) {
 }
 
 // Nombres genéricos que abarcan más que el bloque: se aclara sin cifras y se sugiere el nombre completo.
-const { aliasAmbiguo, subtipoAjeno } = await import('../js/release_config.js?v=20');
+const { aliasAmbiguo, subtipoAjeno } = await import('../js/release_config.js?v=21');
 const AMBIGUOS = [
   ['otitis en Jalisco', 'otitis media aguda'],
   ['otitis media en Jalisco', 'otitis media aguda'],
@@ -224,10 +233,10 @@ for (const q of PANEL.filter((x) => /otitis|conjuntivitis|amebiasis|vehiculos|hi
   });
 }
 
-// Función RAG: presión baja y diabetes del embarazo sin otro padecimiento publicado no reciben las cifras
-// que la recuperación trae de O10-O16 o I10-I15 (en la preview respondía con 3,371 casos de O10-O16).
+// Función RAG: presión baja sin otro padecimiento publicado no recibe las cifras que la recuperación trae
+// de O10-O16 o I10-I15 (en la preview respondía con 3,371 casos de O10-O16).
 for (const q of ['presión arterial baja en el embarazo en Jalisco', 'tensión arterial baja en embarazadas en Sonora',
-  'hipotensión en Jalisco', 'diabetes en el embarazo en Jalisco', 'diabetes gestacional en Sonora']) {
+  'hipotensión en Jalisco']) {
   test(`RAG real: «${q}» no recibe cifras de un vecino`, async () => {
     const { status, body } = await postRag(q);
     assert.equal(status, 200);

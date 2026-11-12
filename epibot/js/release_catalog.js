@@ -343,11 +343,154 @@
       prefijos: ['trastornos hipertensivos del embarazo', 'trastornos hipertensivos en el embarazo',
         'preeclamps', 'eclamps', 'hypertensive disorders of pregnancy'],
     },
+    {
+      id: 'alimentaria_a05', pad: 'Intoxicación alimentaria bacteriana', nombre: 'Intoxicación alimentaria bacteriana',
+      nombreCorto: 'Intoxicación alimentaria', etiqueta: 'Intoxicación alimentaria bacteriana (A05)',
+      dataKey: 'alimentaria_a05', marca: 'ALIMENTARIA_A05', pagina: 'alimentaria_a05.html',
+      consulta: 'intoxicacion alimentaria bacteriana', cie: 'A05', color: '#F59E0B',
+      alias: ['intoxicacion alimentaria bacteriana', 'intoxicaciones alimentarias bacterianas',
+        'intoxicacion alimentaria', 'intoxicaciones alimentarias', 'a05', 'bacterial food poisoning'],
+      prefijos: ['intoxicacion alimentaria', 'intoxicaciones alimentarias', 'bacterial food poisoning'],
+    },
+    {
+      id: 'shigelosis_a03', pad: 'Shigelosis', nombre: 'Shigelosis', nombreCorto: 'Shigelosis',
+      etiqueta: 'Shigelosis (A03)', dataKey: 'shigelosis_a03', marca: 'SHIGELOSIS_A03', pagina: 'shigelosis_a03.html',
+      consulta: 'shigelosis', cie: 'A03', color: '#84CC16',
+      alias: ['shigelosis', 'shigellosis', 'disenteria bacilar', 'a03', 'bacillary dysentery'],
+      prefijos: ['shigelosis', 'shigellosis', 'disenteria bacilar'],
+    },
+    {
+      id: 'erisipela_a46', pad: 'Erisipela', nombre: 'Erisipela', nombreCorto: 'Erisipela',
+      etiqueta: 'Erisipela (A46)', dataKey: 'erisipela_a46', marca: 'ERISIPELA_A46', pagina: 'erisipela_a46.html',
+      consulta: 'erisipela', cie: 'A46', color: '#EF4444',
+      // Sin prefijo «erisipel»: el erisipeloide (A26) es otra enfermedad.
+      alias: ['erisipela', 'erisipelas', 'a46', 'erysipelas'],
+      prefijos: [],
+    },
+    {
+      id: 'candidiasis_b37', pad: 'Candidiasis urogenital', nombre: 'Candidiasis urogenital',
+      nombreCorto: 'Candidiasis urogenital', etiqueta: 'Candidiasis urogenital (B37.3-B37.4)',
+      dataKey: 'candidiasis_b37', marca: 'CANDIDIASIS_B37', pagina: 'candidiasis_b37.html',
+      consulta: 'candidiasis urogenital', cie: 'B37.3-B37.4', color: '#C084FC',
+      // B37.3 es la de vulva y vagina; «candidiasis» a secas incluye la oral, la cutánea y la sistémica.
+      alias: ['candidiasis urogenital', 'candidiasis vaginal', 'candidiasis vulvovaginal',
+        'candidiasis de vulva y vagina', 'candidiasis genital', 'b37 3', 'b37 4', 'urogenital candidiasis',
+        'vaginal candidiasis'],
+      prefijos: ['candidiasis urogenital', 'candidiasis vaginal', 'candidiasis vulvovaginal',
+        'candidiasis genital'],
+    },
+    {
+      id: 'embarazo_diabetes_o24', pad: 'Diabetes mellitus en el embarazo', nombre: 'Diabetes mellitus en el embarazo',
+      nombreCorto: 'Diabetes en el embarazo', etiqueta: 'Diabetes mellitus en el embarazo (O24.4)',
+      dataKey: 'embarazo_diabetes_o24', marca: 'EMBARAZO_DIABETES_O24', pagina: 'embarazo_diabetes_o24.html',
+      consulta: 'diabetes mellitus en el embarazo', cie: 'O24.4', color: '#0D9488',
+      // O24.4 es la diabetes que se origina en el embarazo (gestacional); la preexistente es O24.0-O24.3.
+      alias: ['diabetes mellitus en el embarazo', 'diabetes en el embarazo', 'diabetes del embarazo',
+        'diabetes gestacional', 'diabetes mellitus gestacional', 'o24 4', 'gestational diabetes'],
+      prefijos: ['diabetes mellitus en el embarazo', 'diabetes gestacional', 'gestational diabetes'],
+    },
+    // Diez controles estacionales publicados tras el rechazo de 2025 por autorización nominal del autor
+    // (12-nov-2026): nunca validados. `controlEstatalPocoInformativo` marca los tres cuyo error del
+    // control en las series base en esa prueba fue muy alto (sMAPE 97.3, 84.8 y 71.0).
+    {
+      id: 'quemaduras_t20', pad: 'Quemaduras', nombre: 'Quemaduras', nombreCorto: 'Quemaduras',
+      etiqueta: 'Quemaduras (T20-T32)', dataKey: 'quemaduras_t20', marca: 'QUEMADURAS_T20', pagina: 'quemaduras_t20.html',
+      consulta: 'quemaduras', cie: 'T20-T32', color: '#FB923C',
+      alias: ['quemaduras', 'quemadura', 't20', 't31', 'burns', 'burn injuries'],
+      prefijos: ['quemadura', 'burn injur'],
+    },
+    {
+      id: 'ivp_i87', pad: 'Insuficiencia venosa periférica', nombre: 'Insuficiencia venosa periférica',
+      nombreCorto: 'Insuficiencia venosa periférica', etiqueta: 'Insuficiencia venosa periférica (I87.2)',
+      dataKey: 'ivp_i87', marca: 'IVP_I87', pagina: 'ivp_i87.html', consulta: 'insuficiencia venosa periferica',
+      cie: 'I87.2', color: '#7C3AED',
+      alias: ['insuficiencia venosa periferica', 'insuficiencia venosa', 'i87 2', 'venous insufficiency'],
+      prefijos: ['insuficiencia venosa', 'venous insufficiency'],
+    },
+    {
+      id: 'hiperplasia_prostata_n40', pad: 'Hiperplasia de la próstata', nombre: 'Hiperplasia de la próstata',
+      nombreCorto: 'Hiperplasia de la próstata', etiqueta: 'Hiperplasia de la próstata (N40)',
+      dataKey: 'hiperplasia_prostata_n40', marca: 'HIPERPLASIA_PROSTATA_N40', pagina: 'hiperplasia_prostata_n40.html',
+      consulta: 'hiperplasia de la prostata', cie: 'N40', color: '#0284C7',
+      alias: ['hiperplasia de la prostata', 'hiperplasia de prostata', 'hiperplasia prostatica', 'hiperplasia benigna de prostata',
+        'hiperplasia prostatica benigna', 'n40', 'benign prostatic hyperplasia', 'prostatic hyperplasia'],
+      prefijos: ['hiperplasia de la prostata', 'hiperplasia prostatica', 'hiperplasia benigna', 'prostatic hyperplasia'],
+    },
+    {
+      id: 'escabiosis_b86', pad: 'Escabiosis', nombre: 'Escabiosis', nombreCorto: 'Escabiosis',
+      etiqueta: 'Escabiosis (B86)', dataKey: 'escabiosis_b86', marca: 'ESCABIOSIS_B86', pagina: 'escabiosis_b86.html',
+      consulta: 'escabiosis', cie: 'B86', color: '#78716C',
+      alias: ['escabiosis', 'sarna', 'b86', 'scabies'],
+      prefijos: ['escabiosis', 'scabies'],
+    },
+    {
+      id: 'protozoarios_a07', pad: 'Otras infecciones intestinales debidas a protozoarios',
+      nombre: 'Otras infecciones intestinales debidas a protozoarios', nombreCorto: 'Otras protozoosis intestinales',
+      etiqueta: 'Otras infecciones intestinales debidas a protozoarios (A07.0, A07.2, A07.9)',
+      dataKey: 'protozoarios_a07', marca: 'PROTOZOARIOS_A07', pagina: 'protozoarios_a07.html',
+      consulta: 'otras infecciones intestinales debidas a protozoarios', cie: 'A07.0, A07.2, A07.9', color: '#CA8A04',
+      controlEstatalPocoInformativo: true,
+      // La giardiasis (A07.1) y las demás protozoosis con código propio quedan fuera del bloque.
+      alias: ['otras protozoosis intestinales', 'balantidiasis',
+        'criptosporidiosis', 'a07 0', 'a07 2', 'a07 9', 'intestinal protozoal infections'],
+      prefijos: ['otras protozoosis intestinales'],
+    },
+    {
+      id: 'faringitis_j02', pad: 'Faringitis y amigdalitis estreptocócicas', nombre: 'Faringitis y amigdalitis estreptocócicas',
+      nombreCorto: 'Faringitis estreptocócica', etiqueta: 'Faringitis y amigdalitis estreptocócicas (J02.0, J03.0)',
+      dataKey: 'faringitis_j02', marca: 'FARINGITIS_J02', pagina: 'faringitis_j02.html',
+      consulta: 'faringitis y amigdalitis estreptococicas', cie: 'J02.0, J03.0', color: '#FB7185',
+      alias: ['faringitis y amigdalitis estreptococicas', 'faringitis estreptococica', 'faringitis estreptococicas',
+        'amigdalitis estreptococica', 'amigdalitis estreptococicas', 'faringoamigdalitis estreptococica',
+        'faringitis por estreptococo', 'j02 0', 'j03 0', 'strep throat', 'streptococcal pharyngitis',
+        'streptococcal tonsillitis'],
+      prefijos: ['faringitis estreptococ', 'amigdalitis estreptococ', 'faringoamigdalitis estreptococ',
+        'streptococcal pharyngitis', 'streptococcal tonsillitis'],
+    },
+    {
+      id: 'peaton_v01', pad: 'Peatón lesionado en accidente de transporte', nombre: 'Peatón lesionado en accidente de transporte',
+      nombreCorto: 'Peatón lesionado', etiqueta: 'Peatón lesionado en accidente de transporte (V01-V09)',
+      dataKey: 'peaton_v01', marca: 'PEATON_V01', pagina: 'peaton_v01.html',
+      consulta: 'peaton lesionado en accidente de transporte', cie: 'V01-V09', color: '#475569',
+      controlEstatalPocoInformativo: true,
+      alias: ['peaton lesionado en accidente de transporte', 'peatones lesionados en accidentes de transporte',
+        'peaton lesionado', 'peatones lesionados', 'peatones atropellados', 'peaton atropellado',
+        'atropellamientos', 'atropellamiento', 'atropellados', 'atropellado', 'v01', 'pedestrian injured',
+        'pedestrians injured', 'pedestrian injuries'],
+      prefijos: ['peaton lesionado', 'peatones lesionados', 'atropell', 'pedestrian injur'],
+    },
+    {
+      id: 'displasia_leve_n87', pad: 'Displasia cervical leve y moderada', nombre: 'Displasia cervical leve y moderada',
+      nombreCorto: 'Displasia cervical leve y moderada', etiqueta: 'Displasia cervical leve y moderada (N87.0-N87.1)',
+      dataKey: 'displasia_leve_n87', marca: 'DISPLASIA_LEVE_N87', pagina: 'displasia_leve_n87.html',
+      consulta: 'displasia cervical leve y moderada', cie: 'N87.0-N87.1', color: '#F9A8D4',
+      alias: ['displasia cervical leve y moderada', 'displasia cervical leve', 'displasia cervical moderada',
+        'displasia leve y moderada', 'displasia leve', 'displasia moderada', 'n87 0', 'n87 1',
+        'mild cervical dysplasia', 'moderate cervical dysplasia'],
+      prefijos: ['displasia cervical leve', 'displasia cervical moderada', 'mild cervical dysplasia',
+        'moderate cervical dysplasia'],
+    },
+    {
+      id: 'varicela_b01', pad: 'Varicela', nombre: 'Varicela', nombreCorto: 'Varicela',
+      etiqueta: 'Varicela (B01)', dataKey: 'varicela_b01', marca: 'VARICELA_B01', pagina: 'varicela_b01.html',
+      consulta: 'varicela', cie: 'B01', color: '#D946EF',
+      alias: ['varicela', 'b01', 'chickenpox', 'chicken pox', 'varicella'],
+      prefijos: ['varicela', 'chickenpox', 'varicella'],
+    },
+    {
+      id: 'parotiditis_b26', pad: 'Parotiditis infecciosa', nombre: 'Parotiditis infecciosa', nombreCorto: 'Parotiditis',
+      etiqueta: 'Parotiditis infecciosa (B26)', dataKey: 'parotiditis_b26', marca: 'PAROTIDITIS_B26',
+      pagina: 'parotiditis_b26.html', consulta: 'parotiditis infecciosa', cie: 'B26', color: '#C084FC',
+      controlEstatalPocoInformativo: true,
+      alias: ['parotiditis infecciosa', 'parotiditis', 'paperas', 'b26', 'mumps'],
+      prefijos: ['parotiditis', 'paperas', 'mumps'],
+    },
   ]);
 
   /**
    * Subtipos de diabetes que nombra la consulta (ya normalizada), o null si no habla de los que se
-   * modelan. Diabetes gestacional, insípida y prediabetes no se modelan: quedan para el aviso de no
+   * modelan. Diabetes insípida y prediabetes no se modelan; la gestacional y la del embarazo son el release
+   * O24.4 (no tipo 1 ni tipo 2): las tres quedan fuera de este detector.
    * modelados. Devuelve `{ pads, generica }`; `generica` indica que no se nombró ningún subtipo.
    */
   function diabetesEnConsulta(qn) {
@@ -386,6 +529,13 @@
     [/\b(isquemia|isquemica|isquemico|infarto|embolia|ataque|evento|accidente)( vascular)? cerebral(es)?\b/g,
       'enfermedad cerebrovascular'],
     [/\bcardiopatias? isquemicas?\b/g, 'enfermedad isquemica'],
+    // El nombre del bloque A07 contiene «infecciones intestinales», alias de A04: se reduce a un término
+    // propio para que la consulta no nombre los dos releases.
+    // «Otras infecciones intestinales debidas a protozoarios» es el bloque (A07.0, A07.2, A07.9); sin «otras»,
+    // o con «protozoos», la consulta abarca la giardiasis y otras protozoosis con código propio.
+    [/\botras infecci(on|ones) intestinal(es)? (debidas? a|por) protozo(arios?|os?)\b/g, 'otras protozoosis intestinales'],
+    [/(?<!otras )\b(infecci(on|ones) intestinal(es)? (debidas? a|por) protozo(arios?|os?|a)|intestinal infections? due to protozoa|protozoos|protozoarios|protozoosis( intestinal(es)?)?)\b/g,
+      'protozoosis intestinal'],
   ];
   // Un término de hipertensión junto a uno del embarazo, parto o puerperio nombra el bloque O10-O16,
   // no la hipertensión arterial (I10-I15): se reescribe a su forma canónica y se retira el término de
@@ -397,8 +547,17 @@
   // el aviso de no modelado (hipotensión, diabetes del embarazo) siga viendo sus términos.
   const PRESION_BAJA = /\b(hipotension|hypotension|presion( arterial)? baja|tension( arterial)? baja|low blood pressure)\b/;
   function hipertensionDelEmbarazo(q) {
-    if (PRESION_BAJA.test(q) || /\b(diabet|dm ?[12]\b)/.test(q)) return q;
-    if (!new RegExp(HTA_TERMINO.source).test(q) || !new RegExp(EMBARAZO_TERMINO.source).test(q)) return q;
+    if (PRESION_BAJA.test(q)) return q;
+    const hta = new RegExp(HTA_TERMINO.source).exec(q);
+    if (!hta || !new RegExp(EMBARAZO_TERMINO.source).test(q)) return q;
+    // Con diabetes en la consulta, el término del embarazo puede ser de la diabetes («diabetes gestacional
+    // e hipertensión»): sólo cuenta si va DESPUÉS de la hipertensión («hipertensión y diabetes en el
+    // embarazo»), y entonces se reescribe sólo la hipertensión, sin quitar el término de la diabetes.
+    if (/\bdiabet/.test(q)) {
+      const despues = q.slice(hta.index + hta[0].length);
+      if (!new RegExp(EMBARAZO_TERMINO.source).test(despues)) return q;
+      return q.replace(HTA_TERMINO, ' trastornos hipertensivos del embarazo ').replace(/\s+/g, ' ').trim();
+    }
     return `${q.replace(HTA_TERMINO, ' ').replace(EMBARAZO_TERMINO, ' ')} trastornos hipertensivos del embarazo`
       .replace(/\s+/g, ' ').trim();
   }
@@ -427,8 +586,7 @@
     'herida de bala', 'heridas de bala', 'balazo', 'domestic violence', 'gunshot',
     'hipotension', 'hypotension', 'presion baja', 'presion arterial baja', 'tension baja',
     'tension arterial baja',
-    'cancer', 'hipertension pulmonar', 'prediabetes', 'diabetes gestacional', 'diabetes insipida', 'diabetes en el embarazo',
-    'diabetes del embarazo', 'epilepsia',
+    'cancer', 'hipertension pulmonar', 'prediabetes', 'diabetes insipida', 'epilepsia',
     'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah',
     'influenza', 'covid', 'tuberculosis', 'vih', 'sida', 'colera',
     'sarampion', 'rubeola', 'hepatitis', 'zika', 'chikungunya', 'malaria',
@@ -436,11 +594,11 @@
     'ataque al corazon', 'ataque cardiaco',
     'embolia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
     // Fuera de los bloques A04, A08-A09 y A06: rotavirus es A08.0 y las demás tienen código propio.
-    'rotavirus', 'shigelosis', 'salmonelosis', 'tifoidea',
+    'rotavirus', 'salmonelosis', 'tifoidea', 'giardiasis',
     'lupus', 'fibromialgia', 'esclerosis', 'huntington', 'ela ',
     'insuficiencia renal', 'insuficiencia cardiaca',
     // En inglés: sin esto, «epilepsy in jalisco» caería en la tabla neuro del estado.
-    'gestational diabetes', 'diabetes gestational', 'diabetes insipidus', 'prediabetic',
+    'diabetes insipidus', 'prediabetic',
     'epilepsy', 'schizophrenia', 'anxiety', 'tuberculosis', 'hiv', 'aids', 'measles',
     'lymphoma', 'heart attack', 'bronchitis', 'arthritis',
     'kidney failure', 'heart failure',
@@ -501,18 +659,117 @@
       'conjuntivitis fuera de h10',
       'conjuntivitis viral ni epidémica aguda hemorrágica (B30), ni las conjuntivitis gonocócica, por clamidia, herpética o neonatal, que tienen código propio fuera de H10',
       'conjuntivitis_h10'],
-    [/\b(peaton(es)?|atropell[a-z]*|pedestrians?)\b|\bv0[1-9]\b/, 'peaton lesionado',
-      'peatón lesionado en accidente de transporte (V01-V09)', 'vehiculos_v20', TRANSPORTE],
     [/\b(bicicletas?|ciclistas?|bicycles?|cyclists?)\b|\bv1[0-9]\b/, 'ciclista lesionado',
       'ciclista lesionado en accidente de transporte (V10-V19)', 'vehiculos_v20', TRANSPORTE],
+    [subcodigo('b37', '0-25-9'), 'candidiasis fuera de b37.3-b37.4',
+      'candidiasis fuera de la urogenital (B37.0-B37.2, B37.5-B37.9)', 'candidiasis_b37'],
+    [/\b(candidiasis|candida|candidosis|moniliasis)( [a-z]+){0,2} (oral|orales|bucal|boca|esofagica|esofago|cutanea|piel|unas|ungueal|pulmonar|sistemica|invasiva|diseminada|meningea|septicemia|sepsis|endocarditis)\b|\b(algodoncillo|muguet|oral thrush|thrush)\b|\b(oral|esophageal|cutaneous|invasive|systemic) candidiasis\b/,
+      'candidiasis fuera de b37.3-b37.4', 'candidiasis fuera de la urogenital (B37.0-B37.2, B37.5-B37.9)', 'candidiasis_b37'],
+    [subcodigo('o24', '0-35-9'), 'diabetes preexistente en el embarazo',
+      'diabetes preexistente en el embarazo (O24.0-O24.3) ni la no especificada (O24.9)', 'embarazo_diabetes_o24'],
+    [/\bdiabetes( mellitus)? (pregestacional|preexistente|previa)\b|\bdiabetes( mellitus)? (tipo|type) ?(1|2|i|ii|uno|dos|one|two)\b.*\b(embaraz|gestac|pregnan)|\b(embaraz|gestac|pregnan)[a-z]* .*\bdiabetes( mellitus)? (tipo|type) ?(1|2|i|ii|uno|dos|one|two)\b/,
+      'diabetes preexistente en el embarazo', 'diabetes preexistente en el embarazo (O24.0-O24.3)', 'embarazo_diabetes_o24'],
+    [/\berisipeloide\b|\ba26\b|\berysipeloid\b/, 'erisipeloide', 'erisipeloide (A26)', 'erisipela_a46'],
+    // Subtipos con código propio fuera de los bloques de los diez controles (12-nov-2026).
+    [/\bgiardi[a-z]*\b|\blambliasis\b|\bisosporiasis\b|\bciclosporiasis\b|\btricomoniasis intestinal\b/,
+      'giardiasis u otra protozoosis intestinal con codigo propio',
+      'giardiasis (A07.1) ni otras protozoosis intestinales con código propio (A07.3, A07.8)', 'protozoarios_a07'],
+    [subcodigo('a07', '138'), 'giardiasis u otra protozoosis intestinal con codigo propio',
+      'giardiasis (A07.1) ni otras protozoosis intestinales con código propio (A07.3, A07.8)', 'protozoarios_a07'],
+    [/\bfaringitis( aguda)? (viral(es)?|no estreptococic[ao]s?|por virus|bacteriana no estreptococica)\b|\bviral pharyngitis\b/,
+      'faringitis no estreptococica', 'faringitis aguda no estreptocócica (J02.8-J02.9)', 'faringitis_j02'],
+    [subcodigo('j02', '89'), 'faringitis no estreptococica', 'faringitis aguda no estreptocócica (J02.8-J02.9)',
+      'faringitis_j02'],
+    [/\bdisplasia\b[a-z ,]*\b(severa|grave)\b|\bnic ?(3|iii)\b|\b(carcinoma|cancer)( [a-z]+){0,2} in situ\b|\bd06\b|\bcin ?3\b/,
+      'displasia cervical severa', 'displasia cervical severa ni cáncer cervicouterino in situ (N87.2, D06)',
+      'displasia_leve_n87'],
+    [subcodigo('n87', '29'), 'displasia cervical severa', 'displasia cervical severa ni la no especificada (N87.2, N87.9)',
+      'displasia_leve_n87'],
+    [/\b(herpes zoster|culebrilla|shingles)\b|(?<!varicela )\bzoster\b|\bb02\b/, 'herpes zoster', 'herpes zóster (B02)', 'varicela_b01'],
+    [/\bparotiditis (no infecciosa|bacteriana|supurativa|cronica|purulenta)\b|\bk11\b/, 'parotiditis no debida al virus de las paperas',
+      'parotiditis no debida al virus de las paperas ni otras enfermedades de las glándulas salivales (K11)', 'parotiditis_b26'],
+    [/\bquemaduras? (solar(es)?|de sol|por (el )?sol)\b|\bsunburns?\b|\bl55\b/, 'quemaduras solares',
+      'quemaduras solares (L55), que el boletín reporta aparte', 'quemaduras_t20'],
+    [subcodigo('i87', '0189'), 'otra enfermedad venosa', 'otras enfermedades de las venas fuera de I87.2 (I87.0, I87.1, I87.8, I87.9)', 'ivp_i87'],
+    [/\bsindromes? (postromboticos?|post tromboticos?|postfleb[a-z]*|post fleb[a-z]*)\b|\bpost ?thrombotic syndrome\b/, 'sindrome postrombotico',
+      'síndrome postrombótico (I87.0)', 'ivp_i87'],
+    [/\bvarices\b|\bvenas varicosas\b|\bvaricose veins\b|\bi83\b|\btrombosis venosa\b|\bflebitis\b|\bi80\b/,
+      'varices o trombosis venosa', 'várices (I83) ni flebitis o trombosis venosa (I80)', 'ivp_i87'],
     [/\bv(3[0-9]|8[0-9]|9[0-9])\b/, 'otro accidente de transporte',
       'accidentes de transporte fuera de V20-V29 y V40-V79', 'vehiculos_v20'],
   ];
 
+  // Códigos CIE explícitos: una letra, dos dígitos y, opcional, un decimal con punto, espacio o pegado.
+  const CODIGO_CIE = new RegExp(`\\b([a-z])(\\d{2})(?:(?:\\.|(?=\\d)| )(\\d)${NO_UNIDAD})?\\b`, 'g');
+  const claveCie = (letra, num, dec) => (letra.charCodeAt(0) - 97) * 1000 + Number(num) * 10 + Number(dec);
+  /** Intervalos [desde, hasta] que cubre el `cie` de un release («T20-T32», «A07.0, A07.2», «I87.2»). */
+  function intervalosCie(cie) {
+    return String(cie).toLowerCase().split(',').map((parte) => {
+      const [d, h = d] = parte.trim().split('-').map((x) => x.trim().match(/^([a-z])(\d{2})(?:\.(\d))?$/));
+      if (!d || !h) return null;
+      return [claveCie(d[1], d[2], d[3] ?? 0), claveCie(h[1], h[2], h[3] ?? 9)];
+    }).filter(Boolean);
+  }
+  /**
+   * Un código CIE explícito que el release nombrado no cubre («hiperplasia de próstata N41», «escabiosis
+   * B85»): se aclara sin cifras. Sólo cuentan las letras del propio bloque, para que «w42» (una semana)
+   * no se lea como código.
+   */
+  function codigoAjeno(canon) {
+    const nombrado = releases.find((r) => r.cie && r.alias.some((al) => nombraAlias(canon, al)));
+    if (!nombrado) return null;
+    const ints = intervalosCie(nombrado.cie);
+    const letras = new Set(String(nombrado.cie).toLowerCase().match(/[a-z]/g));
+    for (const m of canon.matchAll(CODIGO_CIE)) {
+      const [, letra, num, dec] = m;
+      if (!letras.has(letra)) continue;
+      const decs = dec != null ? [dec] : ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+      const dentro = (x) => ints.some(([lo, hi]) => claveCie(letra, num, x) >= lo && claveCie(letra, num, x) <= hi);
+      // Una categoría de tres caracteres que el bloque cubre sólo en parte («H65», «A06») es un nombre
+      // genérico: la aclara ALIAS_AMBIGUOS. Aquí sólo cuenta lo que queda entero fuera del bloque.
+      const cubierto = dec != null ? dentro(dec) : decs.some(dentro);
+      // Si el código es de otro bloque publicado, no es «no modelado»: lo aclara contradiccionCie.
+      if (!cubierto && !releaseQueCubre(letra, num, dec)) {
+        const codigo = `${letra.toUpperCase()}${num}${dec != null ? `.${dec}` : ''}`;
+        return [null, `codigo ${codigo}`, `el código ${codigo}, que no forma parte de ${nombrado.etiqueta}`, nombrado.id];
+      }
+    }
+    return null;
+  }
+
+  /** Release publicado cuyo `cie` cubre el código (entero, si no trae decimal), o null. */
+  function releaseQueCubre(letra, num, dec) {
+    const decs = dec != null ? [dec] : ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    return releases.find((r) => r.cie && decs.every((x) => intervalosCie(r.cie)
+      .some(([lo, hi]) => claveCie(letra, num, x) >= lo && claveCie(letra, num, x) <= hi))) || null;
+  }
+
+  const COMPARA = /\b(y|vs|versus|contra|frente|compar\w*|entre)\b/;
+  /**
+   * Nombre de un bloque con el código de otro bloque publicado («escabiosis B01», «insuficiencia venosa
+   * N40»), sin pedir una comparación: se aclara la correspondencia sin cifras y sin decir que el código
+   * no se modela. Devuelve el texto o null.
+   */
+  function contradiccionCie(canon) {
+    if (COMPARA.test(canon)) return null;
+    const nombrado = releases.find((r) => r.cie && r.alias.some((al) => !/\d/.test(al) && nombraAlias(canon, al)));
+    if (!nombrado) return null;
+    for (const m of canon.matchAll(CODIGO_CIE)) {
+      const [, letra, num, dec] = m;
+      const otro = releaseQueCubre(letra, num, dec);
+      if (!otro || otro.id === nombrado.id) continue;
+      const codigo = `${letra.toUpperCase()}${num}${dec != null ? `.${dec}` : ''}`;
+      return `El nombre «${nombrado.nombreCorto.toLowerCase()}» corresponde a **${nombrado.etiqueta}**; el código ${codigo} ` +
+        `corresponde a otro bloque publicado, **${otro.etiqueta}**. No doy cifras hasta saber cuál consultas: ` +
+        `pregunta por «${nombrado.consulta}» o por «${otro.consulta}».`;
+    }
+    return null;
+  }
+
   /** El subtipo ajeno que nombra la consulta (normalizada): `{ termino, nombre, release }`, o null. */
   function subtipoAjeno(qn) {
     const canon = canonClinico(String(qn).replace(/[^a-z0-9. ]+/g, ' ').replace(/\s+/g, ' '));
-    const hit = SUBTIPOS_AJENOS.find(([re, , , , ctx]) => re.test(canon) && (!ctx || ctx.test(canon)));
+    const hit = SUBTIPOS_AJENOS.find(([re, , , , ctx]) => re.test(canon) && (!ctx || ctx.test(canon))) || codigoAjeno(canon);
     if (!hit) return null;
     const r = releases.find((x) => x.id === hit[3]);
     return { termino: hit[1], nombre: hit[2], release: hit[3], pad: r ? r.pad : null };
@@ -524,6 +781,19 @@
    * se pronostica y se pide precisar.
    */
   const ALIAS_AMBIGUOS = [
+    { release: 'ivp_i87', generico: /\bi87\b(?![ .]?[0-9])/, especifico: /(?!)/,
+      abarca: '«I87» abarca otras enfermedades de las venas con código propio, como el síndrome postrombótico (I87.0) y la compresión de vena (I87.1).' },
+    { release: 'protozoarios_a07', generico: /\bprotozoosis intestinal\b|\ba07\b(?![ .][0-9])/, especifico: /(?!)/,
+      abarca: '«Infecciones intestinales por protozoarios» abarca la giardiasis (A07.1) y otras protozoosis con código propio, que el boletín reporta aparte.' },
+    { release: 'faringitis_j02', generico: /\b(faringitis|amigdalitis|faringoamigdalitis|anginas|j02|j03)\b/,
+      especifico: new RegExp(`\\b(faringitis|amigdalitis|faringoamigdalitis)( y amigdalitis)? (estreptococic[ao]s?|por estreptococos?)\\b|${subcodigo('j02', '0').source}|${subcodigo('j03', '0').source}`),
+      abarca: '«Faringitis» o «amigdalitis» abarcan formas virales y no estreptocócicas con otro código: la faringitis no estreptocócica (J02.8-J02.9) no está en ningún bloque publicado y la amigdalitis no estreptocócica (J03.8-J03.9) se cuenta dentro de las infecciones respiratorias agudas.' },
+    { release: 'displasia_leve_n87', generico: /\b(displasia (cervical|del cuello)|n87)\b/,
+      especifico: new RegExp(`\\bdisplasia( cervical| del cuello( uterino| del utero)?)? (leve|moderada)\\b|${subcodigo('n87', '01').source}`),
+      abarca: '«Displasia cervical» incluye la severa (N87.2), que el boletín reporta junto con el cáncer cervicouterino in situ.' },
+    { release: 'candidiasis_b37', generico: /\b(candidiasis|candida|candidosis|moniliasis|b37)\b/,
+      especifico: new RegExp(`\\b(candidiasis|candida|candidosis|moniliasis) (urogenital|vaginal|vulvovaginal|genital|de vulva|de la vulva)\\b|\\b(urogenital|vaginal|vulvovaginal|genital) candidiasis\\b|${subcodigo('b37', '34').source}`),
+      abarca: '«Candidiasis» abarca varias localizaciones con código propio: la oral, la cutánea, la esofágica y la sistémica (B37.0-B37.2, B37.5-B37.9).' },
     { release: 'otitis_h65', generico: /\b(otitis|h65)\b/,
       especifico: new RegExp(`\\botitis media aguda\\b|\\bacute otitis media\\b|${subcodigo('h65', '01').source}`),
       abarca: '«Otitis» abarca varias categorías con código propio: la externa (H60), la media crónica (H65.2-H65.9) y la supurativa (H66).' },
@@ -532,11 +802,26 @@
       abarca: '«Amebiasis» incluye formas fuera del intestino: el absceso hepático amebiano (A06.4) y otras amebiasis extraintestinales (A06.5-A06.8).' },
   ];
 
+  /**
+   * Aclaraciones que se evalúan antes de los subtipos: el término no permite elegir el código, o la
+   * categoría está contada dentro de otro bloque sin serie propia.
+   */
+  const ACLARACIONES = [
+    { release: 'varicela_b01', re: /\b(varicela zoster|virus (de la )?varicela|vzv|varicella zoster)\b/,
+      abarca: '«Varicela zóster» es el nombre del virus, que causa la varicela (B01) y el herpes zóster (B02); el término no dice cuál de las dos.' },
+    { release: 'ira_j00', re: /\b(amigdalitis|tonsillitis)( aguda)? (viral(es)?|no estreptococic[ao]s?|por virus)\b|\bviral tonsillitis\b|\bj03[ .]?[89]\b/,
+      abarca: 'La amigdalitis viral o no estreptocócica (J03.8-J03.9) está dentro del bloque de infecciones respiratorias agudas, sin una serie propia.' },
+  ];
+
   /** Aclaración ante un nombre genérico que no basta para elegir el bloque publicado, o null. */
   function aliasAmbiguo(qn) {
     const canon = canonClinico(String(qn).replace(/[^a-z0-9. ]+/g, ' ').replace(/\s+/g, ' '));
-    if (subtipoAjeno(qn)) return null;
-    const hit = ALIAS_AMBIGUOS.find((a) => a.generico.test(canon) && !a.especifico.test(canon));
+    const contradiccion = contradiccionCie(canon);
+    if (contradiccion) return { release: null, pad: null, texto: contradiccion };
+    const previa = ACLARACIONES.find((a) => a.re.test(canon));
+    const hitPrevio = previa ? { release: previa.release, abarca: previa.abarca } : null;
+    if (!hitPrevio && subtipoAjeno(qn)) return null;
+    const hit = hitPrevio || ALIAS_AMBIGUOS.find((a) => a.generico.test(canon) && !a.especifico.test(canon));
     if (!hit) return null;
     const r = releases.find((x) => x.id === hit.release);
     return {
