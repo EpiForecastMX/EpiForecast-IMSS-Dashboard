@@ -223,3 +223,16 @@ for (const q of PANEL.filter((x) => /otitis|conjuntivitis|amebiasis|vehiculos|hi
     assert.match(md, MARCAS);
   });
 }
+
+// Función RAG: presión baja y diabetes del embarazo sin otro padecimiento publicado no reciben las cifras
+// que la recuperación trae de O10-O16 o I10-I15 (en la preview respondía con 3,371 casos de O10-O16).
+for (const q of ['presión arterial baja en el embarazo en Jalisco', 'tensión arterial baja en embarazadas en Sonora',
+  'hipotensión en Jalisco', 'diabetes en el embarazo en Jalisco', 'diabetes gestacional en Sonora']) {
+  test(`RAG real: «${q}» no recibe cifras de un vecino`, async () => {
+    const { status, body } = await postRag(q);
+    assert.equal(status, 200);
+    assert.match(body.answer, /no modela/);
+    assert.doesNotMatch(body.answer, /\d{1,3}(,\d{3})+|casos pronosticados/);
+    assert.deepEqual(body.sources, []);
+  });
+}

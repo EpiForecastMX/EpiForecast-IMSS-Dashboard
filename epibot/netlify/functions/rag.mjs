@@ -320,6 +320,24 @@ function dengueFactLines(d, ent, retiradas = false) {
   return L;
 }
 
+const SIN_VECINO = [
+  [/\b(hipotension|hypotension|presion( arterial)? baja|tension( arterial)? baja|low blood pressure)\b/,
+    'presión arterial baja (hipotensión)', ['Hipertensión arterial', 'Edema, proteinuria y trastornos hipertensivos en el embarazo, parto y puerperio']],
+  [/\b(diabetes (gestacional|en el embarazo|del embarazo|gestational)|gestational diabetes)\b/,
+    'diabetes en el embarazo', ['Edema, proteinuria y trastornos hipertensivos en el embarazo, parto y puerperio']],
+];
+/** Respuesta fija si la consulta sólo nombra una de esas categorías (o la junta con su vecino), o null. */
+function noModeladaSinVecino(q) {
+  const qn = q.replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ');
+  const hit = SIN_VECINO.find(([re]) => re.test(qn));
+  if (!hit) return null;
+  const pad = detectEntities(qn).padecimiento;
+  if (pad && !hit[2].includes(pad)) return null;
+  return `EpiForecast-MX no modela ${hit[1]}. No tiene pronóstico en la plataforma y no se le atribuyen cifras de `
+    + 'otro padecimiento: la hipertensión arterial (I10-I15) y los trastornos hipertensivos del embarazo (O10-O16) '
+    + 'son categorías distintas.';
+}
+
 /** Devuelve un bloque de DATOS EXACTOS para la combinación detectada, o ''. */
 function focusedFacts(kb, query) {
   const ent = detectEntities(query);
@@ -609,6 +627,11 @@ export default async function handler(req) {
   // Nombre genérico que abarca más que el bloque publicado («otitis», «amebiasis»): se aclara sin cifras.
   const ambiguo = globalThis.EPI_CATALOGO.aliasAmbiguo(stripAccents(String(body.query || '')));
   if (ambiguo) return json({ answer: ambiguo.texto, sources: [] }, 200, cors);
+  // Presión baja y diabetes del embarazo no se modelan y su vecino publicado más parecido (O10-O16 o
+  // I10-I15) no las incluye: sin otro padecimiento publicado en la consulta, respuesta fija sin cifras
+  // para que la recuperación no traiga las de ese vecino.
+  const sinVecino = noModeladaSinVecino(stripAccents(String(body.query || '')));
+  if (sinVecino) return json({ answer: sinVecino, sources: [] }, 200, cors);
 
   if (!apiKey) return json({ error: 'GEMINI_API_KEY no configurada' }, 500, cors);
 
