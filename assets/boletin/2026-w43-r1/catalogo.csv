@@ -24,7 +24,7 @@ Otras salmonelosis,A02,Infecciosas del aparato digestivo,20,361,17748,21281,Por 
 Shigelosis,A03,Infecciosas del aparato digestivo,21,58,1406,1508,Por incorporar,Exploración,30.5
 Infecciones intestinales por otros organismos y las mal definidas,"A04, A08-A09 excepto A08.0",Infecciosas del aparato digestivo,21,62268,3351704,3323997,Publicada,Seguimiento,
 Intoxicación alimentaria bacteriana,A05,Infecciosas del aparato digestivo,22,195,14784,18143,Por incorporar,Exploración,45.0
-Amebiasis intestinal,"A06.0-A06.3, A06.9",Infecciosas del aparato digestivo,22,1358,65243,70815,Por incorporar,Media,51.2
+Amebiasis intestinal,"A06.0-A06.3, A06.9",Infecciosas del aparato digestivo,22,1358,65243,70815,Publicada,Seguimiento,
 Absceso hepático amebiano,A06.4,Infecciosas del aparato digestivo,23,10,553,474,Por incorporar,Exploración,
 Otras infecciones intestinales debidas a protozoarios,"A07.0, A07.2, A07.9",Infecciosas del aparato digestivo,23,1092,43907,47747,Por incorporar,Media,51.4
 Giardiasis,A07.1,Infecciosas del aparato digestivo,24,92,5656,5535,Por incorporar,Exploración,42.6
@@ -33,7 +33,7 @@ Ascariasis,B77,Infecciosas del aparato digestivo,25,330,15795,17950,Por incorpor
 Enterobiasis,B80,Infecciosas del aparato digestivo,25,156,8703,6830,Por incorporar,Media,50.1
 Enfermedades infecciosas intestinales,"A01-A03, A04, A05, A06.0-A06.3, A06.9, A07.0-A07.2, A07.9, A08-A09",Infecciosas del aparato digestivo,25,65579,3508736,3499905,Agregado,Exploración,
 Tuberculosis respiratoria,A15-A16,Infecciosas del aparato respiratorio,26,170,16720,18232,Por incorporar,Exploración,35.0
-Otitis media aguda,H65.0-H65.1,Infecciosas del aparato respiratorio,26,11184,472922,506767,Por incorporar,Media,55.0
+Otitis media aguda,H65.0-H65.1,Infecciosas del aparato respiratorio,26,11184,472922,506767,Publicada,Seguimiento,
 Infecciones respiratorias agudas,"J00-J06, J20, J21 excepto J02, J03.0",Infecciosas del aparato respiratorio,27,342915,12400127,13527120,Control publicado,Seguimiento,
 Faringitis y amigdalitis estreptocócicas,"J02.0, J03.0",Infecciosas del aparato respiratorio,27,4618,204142,229653,Por incorporar,Media,52.2
 Neumonías y bronconeumonías,"J12-J18 excepto J18.2, J13 y J14",Infecciosas del aparato respiratorio,28,3021,126983,126878,Control publicado,Seguimiento,
@@ -80,7 +80,7 @@ Tripanosomiasis americana (enfermedad de Chagas) crónica,B57.2-B57.5,Otras tran
 Toxoplasmosis,B58,Otras transmisibles,46,2,112,130,Por incorporar,Exploración,
 Meningoencefalitis amebiana primaria,B60.2,Otras transmisibles,46,-,1,-,Por incorporar,Exploración,
 Escabiosis,B86,Otras transmisibles,47,426,22735,23653,Por incorporar,Media,50.4
-Conjuntivitis,H10,Otras transmisibles,47,13237,630226,655945,Por incorporar,Media,55.4
+Conjuntivitis,H10,Otras transmisibles,47,13237,630226,655945,Publicada,Seguimiento,
 Infección asociada a la atención de la salud,S/C,Otras transmisibles,47,2468,94913,96920,Por incorporar,Media,51.8
 Tracoma,A71,"Interés local, regional o institucional",48,-,2,11,Por incorporar,Exploración,
 Oncocercosis,B73,"Interés local, regional o institucional",48,-,-,-,Por incorporar,Exploración,
@@ -107,7 +107,7 @@ Gingivitis y enfermedad periodontal,K05,No transmisibles,55,23056,1022660,103746
 Enfermedad alcohólica del hígado,K70 excepto K70.3,No transmisibles,56,103,4106,4112,Por incorporar,Exploración,47.1
 Cirrosis hepática alcohólica,K70.3,No transmisibles,56,126,6108,6170,Por incorporar,Media,54.8
 Hiperplasia de próstata,N40,No transmisibles,57,2435,104102,103614,Por incorporar,Media,60.8
-"Edema proteinuria y transtornos hipertensivos en el embarazo, parto y puerperio",O10-O16,No transmisibles,57,1172,48606,48524,Por incorporar,Media,59.6
+"Edema proteinuria y transtornos hipertensivos en el embarazo, parto y puerperio",O10-O16,No transmisibles,57,1172,48606,48524,Publicada,Seguimiento,
 Diabetes mellitus en el embarazo,O24.4,No transmisibles,57,476,19255,17418,Por incorporar,Media,60.5
 Quemaduras,T20-T32,No transmisibles,58,1343,60826,56438,Por incorporar,Media,62.2
 Intoxicación por monóxido de carbono,T58,No transmisibles,58,9,376,331,Por incorporar,Exploración,
@@ -165,7 +165,7 @@ Lesión autoinfligida intencionalmente al saltar desde un lugar elevado,X80,Neur
 Historia personal de lesión autoinfligida intencionalmente (Intento de suicidio),Z91.5,Neurológicas y de salud mental,78,116,4083,3600,Por incorporar,Media,68.3
 Otros síntomas y signos que involucran el estado emocional (Ideación suicida),R45.8,Neurológicas y de salud mental,78,213,6828,4055,Por incorporar,Alta,80.0
 Peatón lesionado en accidente de transporte,V01-V09,Accidentes,79,462,20030,20671,Por incorporar,Media,50.2
-Accidente de transporte en vehículos con motor,"V20-V29, V40-V79",Accidentes,79,4704,209212,201346,Por incorporar,Media,54.9
+Accidente de transporte en vehículos con motor,"V20-V29, V40-V79",Accidentes,79,4704,209212,201346,Publicada,Seguimiento,
 Mordeduras por perro,W54,Accidentes,80,2367,112645,115899,Por incorporar,Media,52.8
 Mordeduras por otros mamíferos,W55,Accidentes,80,408,15431,13482,Por incorporar,Media,54.1
 Mordedura por serpiente de cascabel,U60.0,Accidentes,81,30,1447,1160,Por incorporar,Exploración,43.4

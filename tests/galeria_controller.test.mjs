@@ -35,11 +35,11 @@ const diseaseButton = (id) => dom.$('gDiseases').querySelectorAll('button').find
 const vistaHits = (id) => dom.requests.filter((u) => u.endsWith(`publication/${id}/vista.json`)).length;
 const label = (id) => CATALOG.diseases.find((d) => d.id === id).label;
 
-test('inicio: sólo el catálogo, 35 padecimientos y ninguna vista', async () => {
+test('inicio: sólo el catálogo, 40 padecimientos y ninguna vista', async () => {
   await boot();
   assert.deepEqual(dom.requests, ['../assets/dashboard/catalog.json']);
-  assert.equal(dom.$('gDiseases').children.length, 35);
-  assert.match(dom.$('gSummary').textContent, /^35 padecimientos · 3,577 series$/);
+  assert.equal(dom.$('gDiseases').children.length, 40);
+  assert.match(dom.$('gSummary').textContent, /^40 padecimientos · 4,058 series$/);
 });
 
 test('A1: elegir un padecimiento mientras carga «Todas las series» no deja que la carga pise la selección', async () => {
@@ -111,7 +111,7 @@ test('A2: HTTP 503 seguido de éxito, y reintento por padecimiento en la lista c
   await tick(60);
   const li = dom.$('gAllErrors').children.find((x) => x.dataset.p === 'asma_j45');
   assert.ok(li, 'error visible para asma');
-  assert.match(dom.$('gAllStatus').textContent, /34 de 35 padecimientos cargados · 1 con error/);
+  assert.match(dom.$('gAllStatus').textContent, /39 de 40 padecimientos cargados · 1 con error/);
   li.querySelector('button').click();
   await tick(10);
   assert.equal(vistaHits('asma_j45'), 2);
@@ -127,7 +127,7 @@ test('catálogo inválido con HTTP 200: error humano y «Reintentar» lo vuelve 
   dom.$('gCatalogRetry').click();
   await tick(10);
   assert.equal(calls, 2);
-  assert.equal(dom.$('gDiseases').children.length, 35);
+  assert.equal(dom.$('gDiseases').children.length, 40);
 });
 
 test('M3: con la fuente fallida no aparece «0 resultados» y los filtros quedan deshabilitados', async () => {
@@ -152,7 +152,7 @@ test('M3: si fallan todas las fuentes de la lista completa se informa el error, 
   await tick(80);
   assert.equal(dom.$('gDetailError').hidden, false);
   assert.equal(dom.$('gCardsEmpty').hidden, true);
-  assert.match(dom.$('gAllStatus').textContent, /0 de 35 padecimientos cargados · 35 con error/);
+  assert.match(dom.$('gAllStatus').textContent, /0 de 40 padecimientos cargados · 40 con error/);
 });
 
 test('M1: si falla la lámina de Zoom no se sustituye en silencio por el histórico', async () => {
@@ -212,7 +212,7 @@ test('catálogo: filtro «Validación» inequívoco y mini-gráficas con el colo
   assert.match(PAGE, /<option value="">Todos los estados de validación<\/option>/);
   assert.match(PAGE, /Mini-gráfica: casos observados, últimas 26 semanas/);
   const lines = dom.$('gDiseases').querySelectorAll('polyline');
-  assert.equal(lines.length, 35);
+  assert.equal(lines.length, 40);
   assert.ok(lines.every((l) => l.getAttribute('stroke') === '#173c33'), 'color de observado, no de pronóstico');
   const chip = dom.$('gDiseases').querySelector('.g-chip');
   assert.ok(chip.textContent.length < 40, 'chip corto');

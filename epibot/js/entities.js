@@ -4,7 +4,7 @@
  * Port directo de knowledge_base.py: _norm(), _detect_entities(),
  * alias maps para estados, padecimientos, sexo y modelos.
  */
-import { ALIAS_RELEASES, canonClinico, diabetesEnConsulta, mencionaNoModelada, nombraAlias, noModeladas } from './release_config.js?v=18';
+import { ALIAS_RELEASES, canonClinico, diabetesEnConsulta, mencionaNoModelada, nombraAlias, noModeladas, subtipoAjeno } from './release_config.js?v=20';
 
 // ---------------------------------------------------------------------------
 // Normalizacion
@@ -266,7 +266,10 @@ export function detectEntities(query) {
   // Padecimiento — detectar TODOS los mencionados (no romper en el primero).
   // ent.padecimiento = el primero (compatibilidad); ent.padecimientos = array.
   const allPads = [];
+  // Un subtipo con código propio («A06.4», «otitis supurativa») no es su bloque vecino publicado.
+  const ajeno = subtipoAjeno(qn);
   for (const [alias, canon] of Object.entries(PADECIMIENTO_ALIAS)) {
+    if (ajeno && canon === ajeno.pad) continue;
     if (nombraAlias(canonClinico(qn), alias) && !allPads.includes(canon)) allPads.push(canon);
   }
   const diabetes = diabetesEnConsulta(qn);

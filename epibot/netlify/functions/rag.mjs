@@ -277,7 +277,9 @@ function detectEntities(query) {
   const out = { padecimiento: diabetesDe(qn), entidad: null, sexo: null };
   const padMap = { depresion: 'Depresion', depression: 'Depresion', f32: 'Depresion', parkinson: 'Parkinson', g20: 'Parkinson', alzheimer: 'Alzheimer', alzaimer: 'Alzheimer', g30: 'Alzheimer', dengue: 'Dengue', a97: 'Dengue' };
   for (const r of globalThis.EPI_CATALOGO.releases) for (const k of [...r.alias, ...r.prefijos]) padMap[k] = r.pad;
-  if (!out.padecimiento) for (const [k, v] of Object.entries(padMap)) if (globalThis.EPI_CATALOGO.nombraAlias(qn, k)) { out.padecimiento = v; break; }
+  // Un subtipo con código propio («A06.4», «otitis supurativa») no es su bloque vecino publicado.
+  const ajeno = globalThis.EPI_CATALOGO.subtipoAjeno(qn);
+  if (!out.padecimiento) for (const [k, v] of Object.entries(padMap)) if ((!ajeno || v !== ajeno.pad) && globalThis.EPI_CATALOGO.nombraAlias(qn, k)) { out.padecimiento = v; break; }
   const alias = { cdmx: 'Ciudad de Mexico', df: 'Ciudad de Mexico', 'distrito federal': 'Ciudad de Mexico', 'ciudad de mexico': 'Ciudad de Mexico', edomex: 'Mexico', 'estado de mexico': 'Mexico', 'nuevo leon': 'Nuevo Leon', 'san luis potosi': 'San Luis Potosi', 'baja california sur': 'Baja California Sur', 'baja california': 'Baja California', 'quintana roo': 'Quintana Roo' };
   for (const [k, v] of Object.entries(alias).sort((a, b) => b[0].length - a[0].length)) if (qn.includes(k)) { out.entidad = v; break; }
   if (!out.entidad) {
@@ -316,6 +318,24 @@ function dengueFactLines(d, ent, retiradas = false) {
     if (key) L.push(`Dengue en ${key}: ${fmt(d.por_entidad[key])} casos acumulados registrados.`);
   }
   return L;
+}
+
+const SIN_VECINO = [
+  [/\b(hipotension|hypotension|presion( arterial)? baja|tension( arterial)? baja|low blood pressure)\b/,
+    'presión arterial baja (hipotensión)', ['Hipertensión arterial', 'Edema, proteinuria y trastornos hipertensivos en el embarazo, parto y puerperio']],
+  [/\b(diabetes (gestacional|en el embarazo|del embarazo|gestational)|gestational diabetes)\b/,
+    'diabetes en el embarazo', ['Edema, proteinuria y trastornos hipertensivos en el embarazo, parto y puerperio']],
+];
+/** Respuesta fija si la consulta sólo nombra una de esas categorías (o la junta con su vecino), o null. */
+function noModeladaSinVecino(q) {
+  const qn = q.replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ');
+  const hit = SIN_VECINO.find(([re]) => re.test(qn));
+  if (!hit) return null;
+  const pad = detectEntities(qn).padecimiento;
+  if (pad && !hit[2].includes(pad)) return null;
+  return `EpiForecast-MX no modela ${hit[1]}. No tiene pronóstico en la plataforma y no se le atribuyen cifras de `
+    + 'otro padecimiento: la hipertensión arterial (I10-I15) y los trastornos hipertensivos del embarazo (O10-O16) '
+    + 'son categorías distintas.';
 }
 
 /** Devuelve un bloque de DATOS EXACTOS para la combinación detectada, o ''. */
@@ -437,7 +457,16 @@ function releasesDesdeCatalogo(cat, leerShard) {
 }
 
 const NUMERALES = ['cero', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez', 'once', 'doce',
-  'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve', 'veinte', 'veintiún', 'veintidós', 'veintitrés', 'veinticuatro', 'veinticinco', 'veintiséis', 'veintisiete', 'veintiocho', 'veintinueve', 'treinta', 'treinta y un', 'treinta y dos', 'treinta y tres', 'treinta y cuatro', 'treinta y cinco', 'treinta y seis', 'treinta y siete', 'treinta y ocho', 'treinta y nueve', 'cuarenta'];
+  'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve', 'veinte', 'veintiún', 'veintidós', 'veintitrés', 'veinticuatro', 'veinticinco', 'veintiséis', 'veintisiete', 'veintiocho', 'veintinueve'];
+const DECENAS = { 3: 'treinta', 4: 'cuarenta', 5: 'cincuenta', 6: 'sesenta', 7: 'setenta', 8: 'ochenta', 9: 'noventa' };
+const UNIDADES = ['', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
+/** Número de padecimientos en letra; del treinta al noventa y nueve se compone. */
+function numeral(n) {
+  if (NUMERALES[n]) return NUMERALES[n];
+  if (n < 30 || n > 99) return String(n);
+  const d = Math.floor(n / 10), u = n % 10;
+  return u ? `${DECENAS[d]} y ${UNIDADES[u]}` : DECENAS[d];
+}
 
 /** Línea de alcance vigente: los legacy de knowledge.json más los releases publicados del runner. */
 function alcanceVigente(kb, releases) {
@@ -445,7 +474,7 @@ function alcanceVigente(kb, releases) {
   const runner = (releases || []).map((r) => (r.cie.length ? `${r.nombre} (${r.cie.join(', ')})` : r.nombre));
   const todos = [...legacy, ...runner];
   if (!todos.length) return '';
-  const n = NUMERALES[todos.length] || String(todos.length);
+  const n = numeral(todos.length);
   const lista = todos.length > 1 ? `${todos.slice(0, -1).join(', ')} y ${todos[todos.length - 1]}` : todos[0];
   return `Alcance vigente: EpiForecast-MX modela ${n} padecimientos: ${lista}. ` +
     'Ningún otro padecimiento está modelado. Los pasajes que hablan de tres o cuatro padecimientos ' +
@@ -585,6 +614,24 @@ export default async function handler(req) {
   // Antes de la clave y del límite de consultas: esta respuesta no depende de ningún modelo.
   const crisis = globalThis.EPI_CATALOGO.respuestaCrisis(stripAccents(String(body.query || '')).replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim());
   if (crisis) return json({ answer: crisis.replace('\n<!--SIN_GRAFICA-->', ''), sources: [] }, 200, cors);
+  // Subtipo con código propio vecino de un bloque publicado: respuesta fija, sin modelo ni cifras, para
+  // que ni la recuperación ni Gemini le atribuyan el pronóstico del bloque vecino.
+  const ajeno = globalThis.EPI_CATALOGO.subtipoAjeno(stripAccents(String(body.query || '')));
+  if (ajeno) {
+    const vecino = globalThis.EPI_CATALOGO.releases.find((r) => r.id === ajeno.release);
+    return json({ answer: `EpiForecast-MX no modela ${ajeno.nombre}. `
+      + `El pronóstico publicado más cercano es **${vecino.etiqueta}**, que no incluye esa categoría, `
+      + `así que no se le atribuyen sus cifras. Puedes consultar ese bloque en [su página](../${vecino.pagina}).`,
+    sources: [] }, 200, cors);
+  }
+  // Nombre genérico que abarca más que el bloque publicado («otitis», «amebiasis»): se aclara sin cifras.
+  const ambiguo = globalThis.EPI_CATALOGO.aliasAmbiguo(stripAccents(String(body.query || '')));
+  if (ambiguo) return json({ answer: ambiguo.texto, sources: [] }, 200, cors);
+  // Presión baja y diabetes del embarazo no se modelan y su vecino publicado más parecido (O10-O16 o
+  // I10-I15) no las incluye: sin otro padecimiento publicado en la consulta, respuesta fija sin cifras
+  // para que la recuperación no traiga las de ese vecino.
+  const sinVecino = noModeladaSinVecino(stripAccents(String(body.query || '')));
+  if (sinVecino) return json({ answer: sinVecino, sources: [] }, 200, cors);
 
   if (!apiKey) return json({ error: 'GEMINI_API_KEY no configurada' }, 500, cors);
 

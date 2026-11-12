@@ -2,6 +2,25 @@
     "_generated": "2026-11-09",
     "items": [
         {
+            "date": "12 de noviembre de 2026",
+            "iso": "2026-11-12",
+            "type": "radar",
+            "tag": "Pronóstico publicado",
+            "featured": true,
+            "title": "Cinco padecimientos nuevos con pronóstico semanal",
+            "summary": "Otitis media aguda, conjuntivitis, amebiasis intestinal, accidentes de transporte en vehículos con motor y trastornos hipertensivos en el embarazo, parto y puerperio superaron la prueba de 2025 frente al control estacional.",
+            "body": [
+                "EpiForecast-MX publica cinco padecimientos del Boletín Epidemiológico del SINAVE: <strong style=\"color:var(--cream)\">otitis media aguda (H65.0-H65.1), conjuntivitis (H10), amebiasis intestinal (A06.0-A06.3, A06.9), accidente de transporte en vehículos con motor (V20-V29, V40-V79) y edema, proteinuria y trastornos hipertensivos en el embarazo, parto y puerperio (O10-O16)</strong>. Los cuatro primeros tienen pronósticos para el país, 4 regiones y las 32 entidades, por sexo (111 series); el último, que el boletín no desglosa por sexo, para el país, 4 regiones y las 32 entidades (37 series).",
+                "Los cinco superaron la prueba de 2025 frente al control estacional en las series estatales, en todas las series y en el total nacional. Sus cifras están en la página de cada padecimiento.",
+                "Usan datos hasta la semana 42 de 2026 y se emitieron el 12 de noviembre, antes de que existiera el boletín 44. Son pronósticos puntuales, sin intervalos de incertidumbre, y su validación prospectiva está en curso (0 de 4 semanas)."
+            ],
+            "link": {
+                "href": "otitis_h65.html",
+                "text": "Ver otitis media aguda",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
+        {
             "date": "10 de noviembre de 2026",
             "iso": "2026-11-10",
             "type": "radar",

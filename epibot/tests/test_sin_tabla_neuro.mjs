@@ -107,7 +107,10 @@ test('el nombre completo de una categoría gana al alias parcial de un release',
 
 test('términos coloquiales: radar si la categoría es inequívoca, sin cifras ajenas si no', async () => {
   assert.equal((await conversa('mordedura de perro en jalisco')).handler, 'answerRadarBoletin');
+  // «accidentes de tránsito» es más amplio que el bloque publicado V20-V29, V40-V79: lo responde el
+  // radar con la categoría del boletín, no el pronóstico del bloque.
   assert.equal((await conversa('accidentes de transito en sonora')).handler, 'answerRadarBoletin');
+  assert.equal((await conversa('quemaduras en sonora')).handler, 'answerRadarBoletin');
   assert.equal((await conversa('intoxicacion por alcohol en jalisco')).handler, 'answerRadarBoletin');
   for (const q of ['embarazo adolescente en jalisco', 'alcoholismo en jalisco', 'cuantos casos de alcoholismo hubo']) {
     const r = await conversa(q);

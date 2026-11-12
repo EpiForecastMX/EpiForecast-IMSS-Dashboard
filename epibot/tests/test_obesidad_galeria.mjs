@@ -66,7 +66,7 @@ test('la noticia de Obesidad y su acceso siguen disponibles en el diseño actual
   assert.match(portada, /href="home\.css\?v=/);
   assert.match(leer('home.css'), /\.news-tag[\s{]/);
   assert.match(leer('novedades.html'), /\.news-tag--obesidad/);
-  assert.equal((portada.match(/class="condition-card"/g) || []).length, 35);
+  assert.equal((portada.match(/class="condition-card"/g) || []).length, 40);
   assert.match(portada, /<h3><a href="obesidad\.html">Obesidad/);
 });
 
