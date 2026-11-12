@@ -6,12 +6,12 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=54';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=55';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=1';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=4';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=25';
-import { aliasAmbiguo, conDiabetesNombrada, conHipertensionNombrada, RELEASES, releaseDePad, respuestaCrisis, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=20';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=26';
+import { aliasAmbiguo, conDiabetesNombrada, conHipertensionNombrada, RELEASES, releaseDePad, respuestaCrisis, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=21';
 
 let DATA = null;
 
@@ -459,7 +459,8 @@ function needsGeneralKnowledge(q) {
     'estados unidos', 'espana', 'argentina', 'colombia', 'chile', 'peru',
     'canada', 'brasil', 'francia', 'alemania', 'china', 'india', 'japon',
   ];
-  if (any(q, countryKw)) return true;
+  // Palabra completa: «asia» aparecía dentro de «hiperplasia» y «displasia» y mandaba la consulta al RAG.
+  if (countryKw.some((k) => new RegExp(`\\b${k}\\b`).test(q))) return true;
 
   // Preguntas sobre si alguien tuvo/tiene una enfermedad (persona especifica)
   // "rocky tenia parkinson", "mohamed ali tuvo parkinson", "mi abuelo tiene alzheimer"
@@ -4257,6 +4258,8 @@ const VOCAB = [
  */
 // Palabras comunes del espanol que NO deben corregirse a entidades
 const STOP_WORDS = new Set([
+  // Verbos frecuentes que el corrector acercaba a un alias («esperas» → «paperas»).
+  'esperas', 'espera', 'esperan', 'esperamos', 'esperar', 'esperaria',
   'durante', 'despues', 'antes', 'entre', 'desde', 'hasta', 'sobre',
   'contra', 'hacia', 'para', 'como', 'cuando', 'donde', 'quien',
   'porque', 'aunque', 'mientras', 'siempre', 'nunca', 'apenas',

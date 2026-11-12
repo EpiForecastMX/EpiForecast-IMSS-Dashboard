@@ -18,6 +18,7 @@ import { MODE_PUBLIC, porBytes, readCatalog, readInstalledRelease } from './inst
 // Un solo criterio para «métricas de selección retiradas» (W28–W37): el mismo helper que el bot.
 import { metricasRetiradas, avisoMetricas } from '../../js/kb.js';
 import { picosHeredados, textoPico } from './picos_heredados.mjs';
+import { errorDelControl } from '../../js/obesidad_kb.js?v=26';
 import { releaseDeId } from '../../js/release_config.js';
 
 // Catálogo del EpiBot (IIFE que publica globalThis.EPI_CATALOGO): de él sale cómo se eligió el motor
@@ -576,10 +577,11 @@ function vistaChunks(root, r) {
     .map((c) => `${AMBITOS[c.ambito] || c.ambito} (sMAPE ${fmt(c.portafolio)} frente a ${fmt(c.control)} del control)`);
   const anioPrueba = String(caida?.fold || '').replace(/^test_/, '') || '2025';
   const control = caida
-    ? `Es el control estacional: repite los casos de 52 semanas antes. El gate de aceptación de la prueba de ` +
+    ? `Es el control estacional, no validado: repite los casos de 52 semanas antes. El gate de aceptación de la prueba de ` +
       `${anioPrueba} rechazó el portafolio seleccionado porque empeoraba ` +
       `${fallas.length > 1 ? `${fallas.slice(0, -1).join(', ')} y ${fallas.at(-1)}` : fallas[0] || 'el criterio de aceptación'}. ` +
-      `No debe presentarse como validado ni como aceptado; no tiene validación prospectiva que superar. `
+      `No debe presentarse como validado ni como aceptado; no tiene validación prospectiva que superar. ` +
+      `${errorDelControl(caida, anioPrueba, sinSexo, !!releaseDeId(r.disease_id)?.controlEstatalPocoInformativo)} `
     : '';
   // Un pico aislado impreso en la fuente que el pronóstico repite se contextualiza (tercera
   // auditoría, A3): el dato y el release no se tocan, pero no debe leerse como señal predictiva.

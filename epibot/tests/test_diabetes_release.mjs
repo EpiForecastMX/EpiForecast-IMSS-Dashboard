@@ -52,15 +52,18 @@ test('los subtipos se resuelven sin confundirse', () => {
   assert.deepEqual(detectEntities('diabetes tipo 1 y 2').padecimientos, ['Diabetes tipo I', 'Diabetes tipo II']);
 });
 
-test('gestacional, insípida y prediabetes siguen sin modelarse', async () => {
+test('insípida y prediabetes siguen sin modelarse; la gestacional es O24.4, nunca tipo I o II', async () => {
   for (const q of ['diabetes gestacional', 'diabetes insipida en jalisco', 'casos de prediabetes']) {
     assert.equal(diabetesEnConsulta(norm(q)), null, q);
-    assert.ok(mencionaNoModelada(norm(q)), q);
   }
+  for (const q of ['diabetes insipida en jalisco', 'casos de prediabetes']) assert.ok(mencionaNoModelada(norm(q)), q);
+  assert.equal(mencionaNoModelada(norm('diabetes gestacional')), null);
   const r = await conversa('casos de diabetes gestacional en jalisco');
-  assert.equal(r.handler, 'answerPadecimientoNoModelado');
-  assert.match(r.md, /no modela/);
-  assert.match(r.md, /cuarenta padecimientos/);
+  assert.match(r.md, /Diabetes mellitus en el embarazo/);
+  assert.doesNotMatch(r.md, /DIABETES_T[12]|Diabetes mellitus tipo I/);
+  const i = await conversa('casos de diabetes insipida en jalisco');
+  assert.match(i.md, /no modela/);
+  assert.match(i.md, /cincuenta y cinco padecimientos/);
 });
 
 test('«diabetes» a secas avisa que se toma como tipo II', async () => {
@@ -185,19 +188,21 @@ test('el inglés conserva padecimiento, subtipo y sexo', async () => {
   assert.equal(t.padecimiento, 'Diabetes tipo I');
   assert.equal(t.sexo, 'mujeres');
   assert.equal(detectEntities('diabetes type 2 in jalisco men').sexo, 'hombres');
-  assert.equal(detectEntities('gestational diabetes in jalisco').padecimiento, null);
+  assert.equal(detectEntities('gestational diabetes in jalisco').padecimiento, 'Diabetes mellitus en el embarazo');
 });
 
 test('la conversación cambia de subtipo o avisa que no se modela', async () => {
   const dos = await conversa('diabetes tipo 1 en jalisco mujeres', '¿y tipo 2?');
   assert.match(dos.md, /Diabetes tipo II \(E11-E14\) · Jalisco · Mujeres/);
   assert.doesNotMatch(dos.md, /Diabetes tipo I \(E10\)/);
-  for (const q of ['¿y gestacional?', '¿y insípida?']) {
-    const r = await conversa('diabetes tipo 2 en jalisco', q);
-    assert.equal(r.handler, 'answerPadecimientoNoModelado', q);
-    assert.match(r.md, /no modela/, q);
-    assert.doesNotMatch(r.md, MARCADOR_RELEASE, q);
-  }
+  const ins = await conversa('diabetes tipo 2 en jalisco', '¿y insípida?');
+  assert.equal(ins.handler, 'answerPadecimientoNoModelado');
+  assert.match(ins.md, /no modela/);
+  assert.doesNotMatch(ins.md, MARCADOR_RELEASE);
+  // Desde el lote 17 la gestacional es su propio release (O24.4): nunca hereda el tipo II.
+  const ges = await conversa('diabetes tipo 2 en jalisco', '¿y gestacional?');
+  assert.match(ges.md, /Diabetes mellitus en el embarazo/);
+  assert.doesNotMatch(ges.md, /Diabetes tipo II \(E11-E14\)/);
 });
 
 test('en inglés responde el padecimiento pedido o pide precisión', async () => {
@@ -494,4 +499,22 @@ test('Neumonías y bronconeumonías responden su control, nunca como validadas',
   // Las vecinas respiratorias no se vuelven neumonía.
   assert.equal((await conversa('bronquitis en jalisco')).handler, 'answerPadecimientoNoModelado');
   assert.doesNotMatch((await conversa('infecciones respiratorias en jalisco')).md, /NEUMONIAS_J12/);
+});
+
+// Dictamen de Fable sobre los diez controles (12-nov-2026): si sólo falló el nacional, una consulta por
+// estado mostraba como única cifra de error la nacional. El control da su error en los tres ámbitos.
+test('un control da su error por estado aunque sólo haya fallado el nacional y se declara no validado', async () => {
+  const r = await conversa('neumonías en jalisco');
+  assert.match(r.md, /control estacional, no validado/);
+  assert.match(r.md, /Error del control en la prueba de 2025 \(sMAPE\): 37\.4 en las series por estado y sexo, 32\.3 en el conjunto de las series publicadas y 13\.4 en el total nacional\./);
+  // Sin umbral genérico: F50 (97.8 por estado) no declara la advertencia y no la recibe.
+  const f50 = await conversa('anorexia en jalisco');
+  assert.match(f50.md, /97\.8 en las series por estado y sexo/);
+  assert.doesNotMatch(`${r.md}${f50.md}`, /poco informativa|ceros/);
+});
+
+test('el corpus de un control lleva su error en las series base', async () => {
+  const { buildChunks } = await import('../scripts/lib/corpus.mjs');
+  const nac = buildChunks({}).chunks.find((x) => x.id.startsWith('release:neumonias_j12:') && x.id.endsWith(':nacional'));
+  assert.match(nac.text, /Error del control en la prueba de 2025 \(sMAPE\): 37\.4 en las series por estado y sexo/);
 });

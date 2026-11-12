@@ -468,6 +468,8 @@ for (const [nombre, contenido, debe, desc] of CASOS) {
     [[{ id: 'kb-card#0', text: `${ROT_AG}: 171,524 casos — suma de 96 series estatales.` }], false, 'valor global rotulado'],
     [[{ id: 'kb-card#4', text: 'Agregado de sus 32 estados (modo general): 161,887 casos. Modelo nacional: 160,999.' }], false, 'por padecimiento rotulado'],
     [[{ id: 'y', text: 'el boletín tiene 1171524 registros' }], false, 'el número dentro de otro no cuenta'],
+    [[{ id: 'release:embarazo_diabetes_o24:r:estados', text: '- Guanajuato: 1,899 casos.' }], false, 'cifra de otro padecimiento en un release'],
+    [[{ id: 'release:x:r:nacional', text: 'Pronóstico total a 52 semanas: 9 casos.' }], true, 'rótulo antiguo también en un release'],
   ];
   for (const [chunks, debe, desc] of corpusAg) {
     const r = problemasDelCorpusAgregado(chunks, kbOk());

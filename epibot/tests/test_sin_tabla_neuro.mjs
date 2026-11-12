@@ -90,7 +90,7 @@ test('las autolesiones conservan su respuesta específica con la línea existent
 test('la corrección difusa no convierte un nombre del boletín en otro padecimiento', async () => {
   for (const [q, nombre] of [['cuantos casos de colera hubo', 'Cólera'],
     ['deplecion del volumen deshidratacion en jalisco', 'Depleción del volumen'],
-    ['faringitis y amigdalitis estreptococicas en jalisco', 'Faringitis y amigdalitis']]) {
+    ['otras salmonelosis en jalisco', 'Otras salmonelosis']]) {
     const r = await conversa(q);
     sinSeriesAjenas(r, q);
     assert.doesNotMatch(r.md, /Quisiste decir/, q);
@@ -99,18 +99,22 @@ test('la corrección difusa no convierte un nombre del boletín en otro padecimi
 });
 
 test('el nombre completo de una categoría gana al alias parcial de un release', async () => {
+  // Desde los diez controles (12-nov-2026) A07 es su propio release: su nombre completo, que contiene
+  // «infecciones intestinales», no recibe las cifras de A04.
   const r = await conversa('otras infecciones intestinales debidas a protozoarios en jalisco');
-  assert.equal(r.handler, 'answerRadarNombreExacto');
-  assert.match(r.md, /A07\.0, A07\.2, A07\.9/);
+  assert.match(r.md, /PROTOZOARIOS_A07/);
+  assert.doesNotMatch(r.md, /INTESTINALES_A04/);
   assert.equal((await conversa('infecciones intestinales en jalisco')).handler, 'answerObesidad');
 });
 
 test('términos coloquiales: radar si la categoría es inequívoca, sin cifras ajenas si no', async () => {
   assert.equal((await conversa('mordedura de perro en jalisco')).handler, 'answerRadarBoletin');
-  // «accidentes de tránsito» es más amplio que el bloque publicado V20-V29, V40-V79: lo responde el
-  // radar con la categoría del boletín, no el pronóstico del bloque.
-  assert.equal((await conversa('accidentes de transito en sonora')).handler, 'answerRadarBoletin');
-  assert.equal((await conversa('quemaduras en sonora')).handler, 'answerRadarBoletin');
+  // «accidentes de tránsito» es más amplio que los bloques publicados V01-V09 y V20-V29, V40-V79: no
+  // recibe el pronóstico de ninguno de los dos.
+  const transito = await conversa('accidentes de transito en sonora');
+  sinSeriesAjenas(transito, 'accidentes de transito en sonora');
+  assert.doesNotMatch(transito.md, /VEHICULOS_V20|PEATON_V01|casos pronosticados/);
+  assert.equal((await conversa('escarlatina en sonora')).handler, 'answerRadarBoletin');
   assert.equal((await conversa('intoxicacion por alcohol en jalisco')).handler, 'answerRadarBoletin');
   for (const q of ['embarazo adolescente en jalisco', 'alcoholismo en jalisco', 'cuantos casos de alcoholismo hubo']) {
     const r = await conversa(q);

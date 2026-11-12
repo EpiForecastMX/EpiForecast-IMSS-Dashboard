@@ -41,11 +41,11 @@ const meta = () => ['pvEstado', 'pvCorte', 'pvObs', 'pvCasos', 'pvEmision'].map(
 async function elegir(value) { $('hfSelect').value = value; $('hfSelect').dispatch('change'); await tick(10); }
 const hits = (part) => dom.requests.filter((u) => u.includes(part)).length;
 
-test('carga inicial: sólo hero_series.json, 40 opciones y la serie de Depresión pintada', async () => {
+test('carga inicial: sólo hero_series.json, 55 opciones y la serie de Depresión pintada', async () => {
   await boot();
   assert.deepEqual(dom.requests, ['hero_series.json']);
   const opts = $('hfSelect').querySelectorAll('option');
-  assert.equal(opts.length, 40);
+  assert.equal(opts.length, 55);
   assert.match($('pvEstado').textContent, /Cohorte original/);
   assert.match($('pvGaleria').href, /p=depresion/);
   assert.equal($('pvFuente').querySelector('a').textContent, 'Datos de la serie (JSON)', 'sin nombre de archivo crudo');
@@ -109,7 +109,7 @@ test('si falla hero_series.json, los releases siguen disponibles y no se pide ni
   let calls = 0;
   await boot([['hero_series.json', () => (++calls === 1 ? httpError(500) : okFile(root, 'hero_series.json'))]]);
   assert.equal($('hfSelect').disabled, false);
-  assert.equal($('hfSelect').querySelectorAll('option').length, 37, '«Elige un padecimiento» + 36 releases');
+  assert.equal($('hfSelect').querySelectorAll('option').length, 52, '«Elige un padecimiento» + 51 releases');
   assert.equal(hits('vista.json'), 0);
   assert.match($('pvState').textContent, /Elige un padecimiento/);
   assert.equal($('pvCohortError').hidden, false);
@@ -132,6 +132,6 @@ test('cohorte caída: opción «Elige un padecimiento» y un «Reintentar» prop
   await tick(10);
   assert.equal($('pvCohortError').hidden, true);
   assert.equal($('hfSelect').value, 'release:asma_j45', 'se conserva la selección');
-  assert.equal($('hfSelect').querySelectorAll('option').length, 40);
+  assert.equal($('hfSelect').querySelectorAll('option').length, 55);
   assert.equal(hits('asma_j45'), 1);
 });

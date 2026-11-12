@@ -10,12 +10,12 @@
  * follow-ups («¿y hombres?») y en consultas corregidas por typo, donde la consulta cruda ya no
  * nombra a Obesidad.
  */
-import { mencionaNoModelada } from './entities.js?v=54';
+import { mencionaNoModelada } from './entities.js?v=55';
 import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
-} from './obesidad_charts.js?v=22';
-import { releaseConAlias, releaseDePad } from './release_config.js?v=20';
+} from './obesidad_charts.js?v=23';
+import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=21';
 
 const any = (q, ks) => ks.some((k) => q.includes(k));
 const semana = ([a, w]) => `${a}-W${String(w).padStart(2, '0')}`;
@@ -60,7 +60,7 @@ function ficha(v, x, encabezado, r) {
  */
 function avisoControl(v) {
   const r = rechazoDe(v);
-  return `**Es el control estacional:** cada semana repite los casos de 52 semanas antes. El portafolio seleccionado se rechazó en la prueba de ${r.anio} porque empeoraba ${r.ambitos}, así que no hay una validación prospectiva que superar: sólo se registrará su error con cada boletín.`;
+  return `**Es el control estacional, no validado:** cada semana repite los casos de 52 semanas antes. El portafolio seleccionado se rechazó en la prueba de ${r.anio} porque empeoraba ${r.ambitos}, así que no hay una validación prospectiva que superar: sólo se registrará su error con cada boletín. ${r.errorControl}`;
 }
 
 const AMBITO = {
@@ -80,7 +80,27 @@ export function rechazoDe(v) {
   const fallas = c.comprobaciones.filter((x) => !x.pasa);
   const partes = fallas.map((x) => `${AMBITO[x.ambito]?.(sinSexo) || x.ambito} (sMAPE ${num1(x.portafolio)} frente a ${num1(x.control)} del control)`);
   const ambitos = partes.length > 1 ? `${partes.slice(0, -1).join(', ')} y ${partes.at(-1)}` : partes[0] || 'el criterio de aceptación';
-  return { anio, ambitos };
+  const pocoInformativo = !!releaseDeId(v.disease_id)?.controlEstatalPocoInformativo;
+  return { anio, ambitos, errorControl: errorDelControl(c, anio, sinSexo, pocoInformativo) };
+}
+
+/**
+ * Error del propio control en los tres ámbitos de la prueba, haya fallado o no cada uno: si sólo falló
+ * el nacional, una consulta por estado no puede quedarse con la cifra nacional como única referencia.
+ * Sin umbral genérico: la advertencia estatal sólo la llevan los releases que la declaran en el
+ * catálogo (`controlEstatalPocoInformativo`), con la cifra medida y sin atribuirle causa.
+ */
+export function errorDelControl(c, anio, sinSexo, estatalPocoInformativo = false) {
+  const de = (amb) => c.comprobaciones.find((x) => x.ambito === amb)?.control;
+  const partes = ['smape_bases', 'smape_all', 'smape_nacional_general']
+    .filter((amb) => de(amb) != null)
+    .map((amb) => `${num1(de(amb))} en ${AMBITO[amb](sinSexo)}`);
+  if (!partes.length) return '';
+  const lista = partes.length > 1 ? `${partes.slice(0, -1).join(', ')} y ${partes.at(-1)}` : partes[0];
+  const aviso = estatalPocoInformativo && de('smape_bases') != null
+    ? ` Por estado es una referencia poco informativa: su error en ${AMBITO.smape_bases(sinSexo)} fue sMAPE ${num1(de('smape_bases'))} en esa prueba.`
+    : '';
+  return `Error del control en la prueba de ${anio} (sMAPE): ${lista}.${aviso}`;
 }
 
 /** Estado de una validación sin semanas observadas: se dice, no se rellena con cifras. */
