@@ -38,8 +38,8 @@ cifras vigentes salen de `publication/catalog.json`; los contratos del carril or
 `docs/alta20/DECISIONES_PENDIENTES.md`. En el EpiBot, el alcance por nombre y código CIE vive en
 `epibot/js/release_catalog.js` y el estado de un control en la función RAG sale de su vista
 (`estadoDeControl` en `epibot/netlify/functions/rag.mjs`); pruebas en `epibot/tests/test_alcance_*.mjs`.
-Cierre del lote: frontend `939e1d86`. El `main` del frontend no tiene checks de GitHub: el despliegue se
-verifica por el contenido servido.
+Cierre del lote: frontend `939e1d86`. Al 12-nov-2026 el `main` del frontend no tenía checks de GitHub:
+consultar los del SHA final y, si no hay, verificar el despliegue por el contenido servido.
 
 ## Salida de sesión WCP — estado único vigente — 9-sep-2026
 
