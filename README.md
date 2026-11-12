@@ -13,7 +13,7 @@ principal (`Congresos/Mundial/ESTADO_ACTUAL_WCP.md`); este README describe el si
 
 | | |
 |---|---|
-| Padecimientos publicados | **55** = 4 del carril original + 51 releases del runner |
+| Padecimientos publicados | **55** = 4 del carril original + 51 releases del runner (veinte añadidos el 12-nov-2026: diez aceptados en la prueba de 2025, validación prospectiva 0/4 en curso, y diez controles estacionales no validados) |
 | Datos reales hasta | **boletín 43 de 2026** (carril original y radar); **semana 42** observada en los releases del runner |
 | Series productivas del carril original | **432** = 333 neuro + 99 dengue |
 | Gráficos publicados del carril original | **432** = 333 neuro + 99 dengue (ronda W37; hasta W33 eran 444 con las 4 regiones de dengue) |
