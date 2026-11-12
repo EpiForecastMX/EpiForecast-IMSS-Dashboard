@@ -615,7 +615,7 @@ function vistaChunks(root, r) {
       ...base,
       id: `release:${r.disease_id}:${r.release_id}:estados`,
       title: `${v.display_name} — desempeño por estado fuera de muestra`,
-      text: `${encabezado}\n\nEstados ordenados de menor a mayor sMAPE fuera de muestra:\n${filas.join('\n')}${avisoPicos}`,
+      text: `${encabezado}\n\n${control}Estados ordenados de menor a mayor sMAPE fuera de muestra:\n${filas.join('\n')}${avisoPicos}`,
     });
   } else {
     const previstos = Object.values(v.series)
@@ -626,7 +626,7 @@ function vistaChunks(root, r) {
       ...base,
       id: `release:${r.disease_id}:${r.release_id}:estados`,
       title: `${v.display_name} — casos pronosticados por estado`,
-      text: `${encabezado}\n\nCasos pronosticados en 52 semanas por estado, de mayor a menor:\n${previstos.join('\n')}${avisoPicos}`,
+      text: `${encabezado}\n\n${control}Casos pronosticados en 52 semanas por estado, de mayor a menor:\n${previstos.join('\n')}${avisoPicos}`,
     });
   }
   const motores = Object.entries(v.engines).map(([m, n]) => `${MOTOR_ES[m] || m}: ${n} series`);

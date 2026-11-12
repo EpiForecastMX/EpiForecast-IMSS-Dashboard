@@ -518,3 +518,14 @@ test('el corpus de un control lleva su error en las series base', async () => {
   const nac = buildChunks({}).chunks.find((x) => x.id.startsWith('release:neumonias_j12:') && x.id.endsWith(':nacional'));
   assert.match(nac.text, /Error del control en la prueba de 2025 \(sMAPE\): 37\.4 en las series por estado y sexo/);
 });
+
+// Revisión final de Fable: el fragmento por estado de un control también dice «no validado» y da el error
+// del control por estado (antes sólo lo llevaban el nacional y el de motores).
+test('el fragmento estatal de un control lleva el aviso y el error por estado', async () => {
+  const { buildChunks } = await import('../scripts/lib/corpus.mjs');
+  const est = buildChunks({}).chunks.find((x) => x.id.startsWith('release:parotiditis_b26:') && x.id.endsWith(':estados'));
+  assert.match(est.text, /control estacional, no validado/);
+  assert.match(est.text, /Por estado es una referencia poco informativa: su error en las series por estado y sexo fue sMAPE 97\.3/);
+  const acep = buildChunks({}).chunks.find((x) => x.id.startsWith('release:alimentaria_a05:') && x.id.endsWith(':estados'));
+  assert.doesNotMatch(acep.text, /control estacional/);
+});

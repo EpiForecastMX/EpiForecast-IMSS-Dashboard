@@ -425,15 +425,15 @@
     },
     {
       id: 'protozoarios_a07', pad: 'Otras infecciones intestinales debidas a protozoarios',
-      nombre: 'Otras infecciones intestinales debidas a protozoarios', nombreCorto: 'Infecciones por protozoarios',
+      nombre: 'Otras infecciones intestinales debidas a protozoarios', nombreCorto: 'Otras protozoosis intestinales',
       etiqueta: 'Otras infecciones intestinales debidas a protozoarios (A07.0, A07.2, A07.9)',
       dataKey: 'protozoarios_a07', marca: 'PROTOZOARIOS_A07', pagina: 'protozoarios_a07.html',
-      consulta: 'infecciones intestinales por protozoarios', cie: 'A07.0, A07.2, A07.9', color: '#CA8A04',
+      consulta: 'otras infecciones intestinales debidas a protozoarios', cie: 'A07.0, A07.2, A07.9', color: '#CA8A04',
       controlEstatalPocoInformativo: true,
       // La giardiasis (A07.1) y las demás protozoosis con código propio quedan fuera del bloque.
-      alias: ['protozoosis intestinal', 'balantidiasis',
+      alias: ['otras protozoosis intestinales', 'balantidiasis',
         'criptosporidiosis', 'a07 0', 'a07 2', 'a07 9', 'intestinal protozoal infections'],
-      prefijos: ['protozoosis intestinal', 'intestinal protozoal'],
+      prefijos: ['otras protozoosis intestinales'],
     },
     {
       id: 'faringitis_j02', pad: 'Faringitis y amigdalitis estreptocócicas', nombre: 'Faringitis y amigdalitis estreptocócicas',
@@ -531,7 +531,11 @@
     [/\bcardiopatias? isquemicas?\b/g, 'enfermedad isquemica'],
     // El nombre del bloque A07 contiene «infecciones intestinales», alias de A04: se reduce a un término
     // propio para que la consulta no nombre los dos releases.
-    [/\b(otras )?infecci(on|ones) intestinal(es)? (debidas? a|por) protozoarios\b/g, 'protozoosis intestinal'],
+    // «Otras infecciones intestinales debidas a protozoarios» es el bloque (A07.0, A07.2, A07.9); sin «otras»,
+    // o con «protozoos», la consulta abarca la giardiasis y otras protozoosis con código propio.
+    [/\botras infecci(on|ones) intestinal(es)? (debidas? a|por) protozo(arios?|os?)\b/g, 'otras protozoosis intestinales'],
+    [/(?<!otras )\b(infecci(on|ones) intestinal(es)? (debidas? a|por) protozo(arios?|os?|a)|intestinal infections? due to protozoa|protozoos|protozoarios|protozoosis( intestinal(es)?)?)\b/g,
+      'protozoosis intestinal'],
   ];
   // Un término de hipertensión junto a uno del embarazo, parto o puerperio nombra el bloque O10-O16,
   // no la hipertensión arterial (I10-I15): se reescribe a su forma canónica y se retira el término de
@@ -672,31 +676,70 @@
       'giardiasis (A07.1) ni otras protozoosis intestinales con código propio (A07.3, A07.8)', 'protozoarios_a07'],
     [subcodigo('a07', '138'), 'giardiasis u otra protozoosis intestinal con codigo propio',
       'giardiasis (A07.1) ni otras protozoosis intestinales con código propio (A07.3, A07.8)', 'protozoarios_a07'],
-    [/\b(faringitis|amigdalitis|faringoamigdalitis)( aguda)? (viral(es)?|no estreptococic[ao]s?|por virus|bacteriana no estreptococica)\b|\bviral (pharyngitis|tonsillitis)\b/,
-      'faringitis no estreptococica',
-      'faringitis o amigdalitis no estreptocócica (fuera de J02.0 y J03.0)', 'faringitis_j02'],
+    [/\bfaringitis( aguda)? (viral(es)?|no estreptococic[ao]s?|por virus|bacteriana no estreptococica)\b|\bviral pharyngitis\b/,
+      'faringitis no estreptococica', 'faringitis aguda no estreptocócica (J02.8-J02.9)', 'faringitis_j02'],
     [subcodigo('j02', '89'), 'faringitis no estreptococica', 'faringitis aguda no estreptocócica (J02.8-J02.9)',
       'faringitis_j02'],
-    [/\bdisplasia( cervical| del cuello( uterino| del utero)?)? (severa|grave)\b|\bnic ?(3|iii)\b|\b(carcinoma|cancer)( [a-z]+){0,2} in situ\b|\bd06\b|\bcin ?3\b/,
+    [/\bdisplasia\b[a-z ,]*\b(severa|grave)\b|\bnic ?(3|iii)\b|\b(carcinoma|cancer)( [a-z]+){0,2} in situ\b|\bd06\b|\bcin ?3\b/,
       'displasia cervical severa', 'displasia cervical severa ni cáncer cervicouterino in situ (N87.2, D06)',
       'displasia_leve_n87'],
     [subcodigo('n87', '29'), 'displasia cervical severa', 'displasia cervical severa ni la no especificada (N87.2, N87.9)',
       'displasia_leve_n87'],
-    [/\b(herpes zoster|zoster|culebrilla|shingles)\b|\bb02\b/, 'herpes zoster', 'herpes zóster (B02)', 'varicela_b01'],
-    [/\bparotiditis (no infecciosa|bacteriana|supurativa|cronica)\b|\bk11\b/, 'parotiditis no infecciosa',
-      'parotiditis no infecciosa ni otras enfermedades de las glándulas salivales (K11)', 'parotiditis_b26'],
+    [/\b(herpes zoster|culebrilla|shingles)\b|(?<!varicela )\bzoster\b|\bb02\b/, 'herpes zoster', 'herpes zóster (B02)', 'varicela_b01'],
+    [/\bparotiditis (no infecciosa|bacteriana|supurativa|cronica|purulenta)\b|\bk11\b/, 'parotiditis no debida al virus de las paperas',
+      'parotiditis no debida al virus de las paperas ni otras enfermedades de las glándulas salivales (K11)', 'parotiditis_b26'],
     [/\bquemaduras? (solar(es)?|de sol|por (el )?sol)\b|\bsunburns?\b|\bl55\b/, 'quemaduras solares',
       'quemaduras solares (L55), que el boletín reporta aparte', 'quemaduras_t20'],
+    [subcodigo('i87', '0189'), 'otra enfermedad venosa', 'otras enfermedades de las venas fuera de I87.2 (I87.0, I87.1, I87.8, I87.9)', 'ivp_i87'],
+    [/\bsindromes? (postromboticos?|post tromboticos?|postfleb[a-z]*|post fleb[a-z]*)\b|\bpost ?thrombotic syndrome\b/, 'sindrome postrombotico',
+      'síndrome postrombótico (I87.0)', 'ivp_i87'],
     [/\bvarices\b|\bvenas varicosas\b|\bvaricose veins\b|\bi83\b|\btrombosis venosa\b|\bflebitis\b|\bi80\b/,
       'varices o trombosis venosa', 'várices (I83) ni flebitis o trombosis venosa (I80)', 'ivp_i87'],
     [/\bv(3[0-9]|8[0-9]|9[0-9])\b/, 'otro accidente de transporte',
       'accidentes de transporte fuera de V20-V29 y V40-V79', 'vehiculos_v20'],
   ];
 
+  // Códigos CIE explícitos: una letra, dos dígitos y, opcional, un decimal con punto, espacio o pegado.
+  const CODIGO_CIE = new RegExp(`\\b([a-z])(\\d{2})(?:(?:\\.|(?=\\d)| )(\\d)${NO_UNIDAD})?\\b`, 'g');
+  const claveCie = (letra, num, dec) => (letra.charCodeAt(0) - 97) * 1000 + Number(num) * 10 + Number(dec);
+  /** Intervalos [desde, hasta] que cubre el `cie` de un release («T20-T32», «A07.0, A07.2», «I87.2»). */
+  function intervalosCie(cie) {
+    return String(cie).toLowerCase().split(',').map((parte) => {
+      const [d, h = d] = parte.trim().split('-').map((x) => x.trim().match(/^([a-z])(\d{2})(?:\.(\d))?$/));
+      if (!d || !h) return null;
+      return [claveCie(d[1], d[2], d[3] ?? 0), claveCie(h[1], h[2], h[3] ?? 9)];
+    }).filter(Boolean);
+  }
+  /**
+   * Un código CIE explícito que el release nombrado no cubre («hiperplasia de próstata N41», «escabiosis
+   * B85»): se aclara sin cifras. Sólo cuentan las letras del propio bloque, para que «w42» (una semana)
+   * no se lea como código.
+   */
+  function codigoAjeno(canon) {
+    const nombrado = releases.find((r) => r.cie && r.alias.some((al) => nombraAlias(canon, al)));
+    if (!nombrado) return null;
+    const ints = intervalosCie(nombrado.cie);
+    const letras = new Set(String(nombrado.cie).toLowerCase().match(/[a-z]/g));
+    for (const m of canon.matchAll(CODIGO_CIE)) {
+      const [, letra, num, dec] = m;
+      if (!letras.has(letra)) continue;
+      const decs = dec != null ? [dec] : ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+      const dentro = (x) => ints.some(([lo, hi]) => claveCie(letra, num, x) >= lo && claveCie(letra, num, x) <= hi);
+      // Una categoría de tres caracteres que el bloque cubre sólo en parte («H65», «A06») es un nombre
+      // genérico: la aclara ALIAS_AMBIGUOS. Aquí sólo cuenta lo que queda entero fuera del bloque.
+      const cubierto = dec != null ? dentro(dec) : decs.some(dentro);
+      if (!cubierto) {
+        const codigo = `${letra.toUpperCase()}${num}${dec != null ? `.${dec}` : ''}`;
+        return [null, `codigo ${codigo}`, `el código ${codigo}, que no forma parte de ${nombrado.etiqueta}`, nombrado.id];
+      }
+    }
+    return null;
+  }
+
   /** El subtipo ajeno que nombra la consulta (normalizada): `{ termino, nombre, release }`, o null. */
   function subtipoAjeno(qn) {
     const canon = canonClinico(String(qn).replace(/[^a-z0-9. ]+/g, ' ').replace(/\s+/g, ' '));
-    const hit = SUBTIPOS_AJENOS.find(([re, , , , ctx]) => re.test(canon) && (!ctx || ctx.test(canon)));
+    const hit = SUBTIPOS_AJENOS.find(([re, , , , ctx]) => re.test(canon) && (!ctx || ctx.test(canon))) || codigoAjeno(canon);
     if (!hit) return null;
     const r = releases.find((x) => x.id === hit[3]);
     return { termino: hit[1], nombre: hit[2], release: hit[3], pad: r ? r.pad : null };
@@ -708,9 +751,13 @@
    * se pronostica y se pide precisar.
    */
   const ALIAS_AMBIGUOS = [
+    { release: 'ivp_i87', generico: /\bi87\b(?![ .]?[0-9])/, especifico: /(?!)/,
+      abarca: '«I87» abarca otras enfermedades de las venas con código propio, como el síndrome postrombótico (I87.0) y la compresión de vena (I87.1).' },
+    { release: 'protozoarios_a07', generico: /\bprotozoosis intestinal\b|\ba07\b(?![ .][0-9])/, especifico: /(?!)/,
+      abarca: '«Infecciones intestinales por protozoarios» abarca la giardiasis (A07.1) y otras protozoosis con código propio, que el boletín reporta aparte.' },
     { release: 'faringitis_j02', generico: /\b(faringitis|amigdalitis|faringoamigdalitis|anginas|j02|j03)\b/,
       especifico: new RegExp(`\\b(faringitis|amigdalitis|faringoamigdalitis)( y amigdalitis)? (estreptococic[ao]s?|por estreptococos?)\\b|${subcodigo('j02', '0').source}|${subcodigo('j03', '0').source}`),
-      abarca: '«Faringitis» o «amigdalitis» abarcan formas virales y no estreptocócicas con otro código (J02.8-J02.9, J03.8-J03.9).' },
+      abarca: '«Faringitis» o «amigdalitis» abarcan formas virales y no estreptocócicas con otro código: la faringitis no estreptocócica (J02.8-J02.9) no está en ningún bloque publicado y la amigdalitis no estreptocócica (J03.8-J03.9) se cuenta dentro de las infecciones respiratorias agudas.' },
     { release: 'displasia_leve_n87', generico: /\b(displasia (cervical|del cuello)|n87)\b/,
       especifico: new RegExp(`\\bdisplasia( cervical| del cuello( uterino| del utero)?)? (leve|moderada)\\b|${subcodigo('n87', '01').source}`),
       abarca: '«Displasia cervical» incluye la severa (N87.2), que el boletín reporta junto con el cáncer cervicouterino in situ.' },
@@ -725,11 +772,24 @@
       abarca: '«Amebiasis» incluye formas fuera del intestino: el absceso hepático amebiano (A06.4) y otras amebiasis extraintestinales (A06.5-A06.8).' },
   ];
 
+  /**
+   * Aclaraciones que se evalúan antes de los subtipos: el término no permite elegir el código, o la
+   * categoría está contada dentro de otro bloque sin serie propia.
+   */
+  const ACLARACIONES = [
+    { release: 'varicela_b01', re: /\b(varicela zoster|virus (de la )?varicela|vzv|varicella zoster)\b/,
+      abarca: '«Varicela zóster» es el nombre del virus, que causa la varicela (B01) y el herpes zóster (B02); el término no dice cuál de las dos.' },
+    { release: 'ira_j00', re: /\b(amigdalitis|tonsillitis)( aguda)? (viral(es)?|no estreptococic[ao]s?|por virus)\b|\bviral tonsillitis\b|\bj03[ .]?[89]\b/,
+      abarca: 'La amigdalitis viral o no estreptocócica (J03.8-J03.9) está dentro del bloque de infecciones respiratorias agudas, sin una serie propia.' },
+  ];
+
   /** Aclaración ante un nombre genérico que no basta para elegir el bloque publicado, o null. */
   function aliasAmbiguo(qn) {
     const canon = canonClinico(String(qn).replace(/[^a-z0-9. ]+/g, ' ').replace(/\s+/g, ' '));
-    if (subtipoAjeno(qn)) return null;
-    const hit = ALIAS_AMBIGUOS.find((a) => a.generico.test(canon) && !a.especifico.test(canon));
+    const previa = ACLARACIONES.find((a) => a.re.test(canon));
+    const hitPrevio = previa ? { release: previa.release, abarca: previa.abarca } : null;
+    if (!hitPrevio && subtipoAjeno(qn)) return null;
+    const hit = hitPrevio || ALIAS_AMBIGUOS.find((a) => a.generico.test(canon) && !a.especifico.test(canon));
     if (!hit) return null;
     const r = releases.find((x) => x.id === hit.release);
     return {

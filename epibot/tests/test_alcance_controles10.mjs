@@ -53,7 +53,7 @@ for (const [q, marca] of POSITIVOS) {
 }
 
 test('sólo los tres declarados advierten que por estado son referencia poco informativa', async () => {
-  for (const [q, cifra] of [['parotiditis en jalisco', '97.3'], ['peatón lesionado en jalisco', '84.8'], ['infecciones intestinales por protozoarios en jalisco', '71.0']]) {
+  for (const [q, cifra] of [['parotiditis en jalisco', '97.3'], ['peatón lesionado en jalisco', '84.8'], ['otras infecciones intestinales debidas a protozoarios en jalisco', '71.0']]) {
     const { md } = await pregunta(q);
     assert.match(md, new RegExp(`Por estado es una referencia poco informativa: su error en las series por estado y sexo fue sMAPE ${cifra.replace('.', '\\.')}`), q);
   }
@@ -131,3 +131,61 @@ for (const q of ['giardiasis en Jalisco', 'herpes zóster en Jalisco', 'faringit
     assert.deepEqual(body.sources, []);
   });
 }
+
+// Revisión final de Fable (12-nov-2026): cada hallazgo con su regresión.
+const SIN_CIFRAS = (md) => { assert.doesNotMatch(md, MARCAS); assert.doesNotMatch(md, VECINOS); assert.doesNotMatch(md, /casos pronosticados|Pronóstico \*\*congelado\*\*/); };
+
+for (const q of ['insuficiencia venosa I87.0 en Jalisco', 'insuficiencia venosa I87.1 en Jalisco', 'insuficiencia venosa i87 8 en Jalisco',
+  'insuficiencia venosa I879 en Jalisco', 'síndrome postrombótico en Jalisco', 'hiperplasia de próstata N41 en Jalisco',
+  'escabiosis B85 en Jalisco', 'quemaduras T33 en Jalisco', 'displasia cervical leve, moderada y severa en Jalisco',
+  'infecciones intestinales por protozoos en Jalisco', 'intestinal infections due to protozoa in Jalisco',
+  'infecciones intestinales por protozoarios en Jalisco', 'varicela zoster en Jalisco', 'amigdalitis viral en Jalisco']) {
+  test(`revisión final: «${q}» no recibe cifras de un bloque que no la cubre`, async () => {
+    SIN_CIFRAS((await pregunta(q)).md);
+  });
+}
+
+for (const [q, marca] of [['insuficiencia venosa I87.2 en Jalisco', 'IVP_I87'], ['hiperplasia de la próstata N40 en Jalisco', 'HIPERPLASIA_PROSTATA_N40'],
+  ['escabiosis B86 en Jalisco', 'ESCABIOSIS_B86'], ['quemaduras T20 en Jalisco', 'QUEMADURAS_T20'], ['quemaduras T32 en Jalisco', 'QUEMADURAS_T20'],
+  ['otras infecciones intestinales debidas a protozoarios en Jalisco', 'PROTOZOARIOS_A07'], ['parotiditis en jalisco w42', 'PAROTIDITIS_B26']]) {
+  test(`revisión final: «${q}» conserva su release`, async () => {
+    assert.match((await pregunta(q)).md, new RegExp(marca));
+  });
+}
+
+test('revisión final: textos exactos de parotiditis, varicela zóster y amigdalitis', async () => {
+  const pb = await pregunta('parotiditis bacteriana en Jalisco');
+  assert.doesNotMatch(pb.md, /no infecciosa/);
+  assert.match(pb.md, /no debida al virus de las paperas/);
+  const vz = await pregunta('varicela zoster en Jalisco');
+  assert.doesNotMatch(vz.md, /no modela herpes z/);
+  assert.match(vz.md, /varicela \(B01\) y el herpes zóster \(B02\)/);
+  assert.match((await pregunta('herpes zóster en Jalisco')).md, /no modela herpes zóster \(B02\)/);
+  const am = await pregunta('amigdalitis viral en Jalisco');
+  assert.match(am.md, /dentro del bloque de infecciones respiratorias agudas/);
+  assert.doesNotMatch(am.md, /no modela/);
+  const fv = await pregunta('faringitis viral en Jalisco');
+  assert.match(fv.md, /no modela faringitis aguda no estreptocócica \(J02\.8-J02\.9\)/);
+  const pr = await pregunta('infecciones intestinales por protozoos en Jalisco');
+  assert.match(pr.md, /giardiasis \(A07\.1\)/);
+});
+
+test('revisión final: el nombre corto de A07 no abarca protozoosis no intestinales', async () => {
+  const { releaseDeId } = await import('../js/release_config.js?v=21');
+  assert.equal(releaseDeId('protozoarios_a07').nombreCorto, 'Otras protozoosis intestinales');
+  assert.match((await pregunta(releaseDeId('protozoarios_a07').consulta + ' en jalisco')).md, /PROTOZOARIOS_A07/);
+});
+
+for (const q of ['insuficiencia venosa I87.0 en Jalisco', 'escabiosis B85 en Jalisco', 'varicela zoster en Jalisco', 'infecciones intestinales por protozoos en Jalisco']) {
+  test(`RAG real (revisión final): «${q}» sin cifras`, async () => {
+    const { status, body } = await postRag(q);
+    assert.equal(status, 200);
+    assert.doesNotMatch(body.answer, /\d{1,3}(,\d{3})+|casos pronosticados/);
+    assert.deepEqual(body.sources, []);
+  });
+}
+
+test('revisión final: «I87» sin decimal pide precisar y una unidad no se lee como decimal', async () => {
+  assert.equal(aliasAmbiguo(norm('insuficiencia venosa i87 en jalisco'))?.release, 'ivp_i87');
+  assert.match((await pregunta('quemaduras t20 2 semanas en jalisco')).md, /QUEMADURAS_T20/);
+});
