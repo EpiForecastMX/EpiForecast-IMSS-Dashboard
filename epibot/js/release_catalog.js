@@ -728,10 +728,40 @@
       // Una categoría de tres caracteres que el bloque cubre sólo en parte («H65», «A06») es un nombre
       // genérico: la aclara ALIAS_AMBIGUOS. Aquí sólo cuenta lo que queda entero fuera del bloque.
       const cubierto = dec != null ? dentro(dec) : decs.some(dentro);
-      if (!cubierto) {
+      // Si el código es de otro bloque publicado, no es «no modelado»: lo aclara contradiccionCie.
+      if (!cubierto && !releaseQueCubre(letra, num, dec)) {
         const codigo = `${letra.toUpperCase()}${num}${dec != null ? `.${dec}` : ''}`;
         return [null, `codigo ${codigo}`, `el código ${codigo}, que no forma parte de ${nombrado.etiqueta}`, nombrado.id];
       }
+    }
+    return null;
+  }
+
+  /** Release publicado cuyo `cie` cubre el código (entero, si no trae decimal), o null. */
+  function releaseQueCubre(letra, num, dec) {
+    const decs = dec != null ? [dec] : ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    return releases.find((r) => r.cie && decs.every((x) => intervalosCie(r.cie)
+      .some(([lo, hi]) => claveCie(letra, num, x) >= lo && claveCie(letra, num, x) <= hi))) || null;
+  }
+
+  const COMPARA = /\b(y|vs|versus|contra|frente|compar\w*|entre)\b/;
+  /**
+   * Nombre de un bloque con el código de otro bloque publicado («escabiosis B01», «insuficiencia venosa
+   * N40»), sin pedir una comparación: se aclara la correspondencia sin cifras y sin decir que el código
+   * no se modela. Devuelve el texto o null.
+   */
+  function contradiccionCie(canon) {
+    if (COMPARA.test(canon)) return null;
+    const nombrado = releases.find((r) => r.cie && r.alias.some((al) => !/\d/.test(al) && nombraAlias(canon, al)));
+    if (!nombrado) return null;
+    for (const m of canon.matchAll(CODIGO_CIE)) {
+      const [, letra, num, dec] = m;
+      const otro = releaseQueCubre(letra, num, dec);
+      if (!otro || otro.id === nombrado.id) continue;
+      const codigo = `${letra.toUpperCase()}${num}${dec != null ? `.${dec}` : ''}`;
+      return `El nombre «${nombrado.nombreCorto.toLowerCase()}» corresponde a **${nombrado.etiqueta}**; el código ${codigo} ` +
+        `corresponde a otro bloque publicado, **${otro.etiqueta}**. No doy cifras hasta saber cuál consultas: ` +
+        `pregunta por «${nombrado.consulta}» o por «${otro.consulta}».`;
     }
     return null;
   }
@@ -786,6 +816,8 @@
   /** Aclaración ante un nombre genérico que no basta para elegir el bloque publicado, o null. */
   function aliasAmbiguo(qn) {
     const canon = canonClinico(String(qn).replace(/[^a-z0-9. ]+/g, ' ').replace(/\s+/g, ' '));
+    const contradiccion = contradiccionCie(canon);
+    if (contradiccion) return { release: null, pad: null, texto: contradiccion };
     const previa = ACLARACIONES.find((a) => a.re.test(canon));
     const hitPrevio = previa ? { release: previa.release, abarca: previa.abarca } : null;
     if (!hitPrevio && subtipoAjeno(qn)) return null;

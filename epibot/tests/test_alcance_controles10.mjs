@@ -189,3 +189,21 @@ test('revisión final: «I87» sin decimal pide precisar y una unidad no se lee 
   assert.equal(aliasAmbiguo(norm('insuficiencia venosa i87 en jalisco'))?.release, 'ivp_i87');
   assert.match((await pregunta('quemaduras t20 2 semanas en jalisco')).md, /QUEMADURAS_T20/);
 });
+
+// Supervisor tras la revisión final: un nombre con el código de OTRO bloque publicado no es «no modelado».
+for (const [q, nombre, codigo] of [['escabiosis B01 en Jalisco', 'escabiosis', 'B01'], ['insuficiencia venosa N40 en Jalisco', 'insuficiencia venosa periférica', 'N40']]) {
+  test(`contradicción nombre-código: «${q}» aclara sin cifras ni «no modela»`, async () => {
+    const { md } = await pregunta(q);
+    SIN_CIFRAS(md);
+    assert.doesNotMatch(md, new RegExp(`no modela[^.]*${codigo}`));
+    assert.match(md, new RegExp(`«${nombre}» corresponde a .*el código ${codigo} corresponde a otro bloque publicado`));
+    const { body } = await postRag(q);
+    assert.doesNotMatch(body.answer, /no modela|\d{1,3}(,\d{3})+/);
+    assert.match(body.answer, new RegExp(`el código ${codigo} corresponde a otro bloque publicado`));
+    assert.deepEqual(body.sources, []);
+  });
+}
+
+test('una comparación explícita con código no se trata como contradicción', async () => {
+  assert.equal(aliasAmbiguo(norm('comparar escabiosis y B01 en jalisco')), null);
+});
