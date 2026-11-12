@@ -207,3 +207,25 @@ for (const [q, nombre, codigo] of [['escabiosis B01 en Jalisco', 'escabiosis', '
 test('una comparación explícita con código no se trata como contradicción', async () => {
   assert.equal(aliasAmbiguo(norm('comparar escabiosis y B01 en jalisco')), null);
 });
+
+// Preview real (12-nov-2026): «¿es confiable … parotiditis en Jalisco?» mezcló el pasaje legacy de
+// «fallback regional»; «¿está validado … hiperplasia?» trajo fuentes de C61 y llamó «rechazado» al control.
+// El estado de un control se responde desde su vista, sin recuperación: aunque el índice traiga un
+// pasaje contaminante, no puede entrar en la respuesta.
+test('RAG real: el estado de un control sale de su vista, sin fuentes ajenas', async () => {
+  const conf = await postRag('¿Es confiable el pronóstico de parotiditis infecciosa en Jalisco?');
+  assert.equal(conf.status, 200);
+  assert.match(conf.body.answer, /control estacional, no validado/);
+  assert.match(conf.body.answer, /97\.3 en las series por estado y sexo/);
+  assert.match(conf.body.answer, /Por estado es una referencia poco informativa/);
+  assert.doesNotMatch(conf.body.answer, /regional|fallback|Depresi|Parkinson|Alzheimer/i);
+  assert.deepEqual(conf.body.sources.map((s) => s.url), ['../parotiditis_b26.html']);
+  const hip = await postRag('¿Está validado el pronóstico de hiperplasia de próstata?');
+  assert.match(hip.body.answer, /el rechazado fue el portafolio, no el control/);
+  assert.match(hip.body.answer, /25\.0 en las series por estado/);
+  assert.doesNotMatch(hip.body.answer, /C61|tumor maligno|control rechazado/i);
+  assert.deepEqual(hip.body.sources.map((s) => s.url), ['../hiperplasia_prostata_n40.html']);
+  // Un aceptado no recibe este texto, y una comparación de dos releases tampoco.
+  const acep = await postRag('¿Está validado el pronóstico de shigelosis?');
+  assert.doesNotMatch(String(acep.body.answer || ''), /control estacional, no validado/);
+});

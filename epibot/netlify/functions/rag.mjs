@@ -262,6 +262,52 @@ async function retrieve(genAI, query, expandedText, index) {
 
 function stripAccents(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
 
+// Estado de UN release publicado con el control estacional (validado, confiable, error): respuesta fija
+// desde su vista oficial. En la preview, Gemini mezcló el pasaje de «fallback regional» del carril
+// legacy y fuentes de C61 con parotiditis e hiperplasia; aquí no hay recuperación ni modelo.
+const PIDE_ESTADO = /\b(validad\w*|valida|validacion|confiab\w*|fiable|confiar|aceptad\w*|rechaz\w*|calidad|precis\w*|exactitud|que tan (bueno|exacto|preciso)|error\w*|smape|sirve)\b/;
+const MESES_RAG = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const uno = (n) => Number(n).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const AMBITO_RAG = {
+  smape_bases: (sinSexo) => (sinSexo ? 'las series por estado' : 'las series por estado y sexo'),
+  smape_all: () => 'el conjunto de las series publicadas',
+  smape_nacional_general: () => 'el total nacional',
+};
+const lista = (xs) => (xs.length > 1 ? `${xs.slice(0, -1).join(', ')} y ${xs.at(-1)}` : xs[0]);
+function estadoDeControl(query, leerVista) {
+  const C = globalThis.EPI_CATALOGO;
+  const qn = C.canonClinico(stripAccents(query).replace(/[^a-z0-9. ]+/g, ' ').replace(/\s+/g, ' ').trim());
+  if (!PIDE_ESTADO.test(qn)) return null;
+  const nombrados = C.releases.filter((r) => r.alias.some((a) => C.nombraAlias(qn, a)));
+  if (nombrados.length !== 1) return null;
+  const r = nombrados[0];
+  let v;
+  try { v = leerVista(r.id); } catch { return null; }
+  const caida = v && v.caida_al_control;
+  if (!caida) return null;
+  const sinSexo = !Object.keys(v.series || {}).some((k) => k.endsWith('|hombres'));
+  const anio = String(caida.fold || '').replace(/^test_/, '') || '2025';
+  const comp = Object.fromEntries((caida.comprobaciones || []).map((c) => [c.ambito, c]));
+  const fallas = (caida.comprobaciones || []).filter((c) => !c.pasa)
+    .map((c) => `${AMBITO_RAG[c.ambito](sinSexo)} (sMAPE ${uno(c.portafolio)} frente a ${uno(c.control)} del control)`);
+  const errores = ['smape_bases', 'smape_all', 'smape_nacional_general'].filter((a) => comp[a])
+    .map((a) => `${uno(comp[a].control)} en ${AMBITO_RAG[a](sinSexo)}`);
+  const aviso = r.controlEstatalPocoInformativo && comp.smape_bases
+    ? ` Por estado es una referencia poco informativa: su error en ${AMBITO_RAG.smape_bases(sinSexo)} fue sMAPE ${uno(comp.smape_bases.control)} en esa prueba.`
+    : '';
+  const e = new Date(v.forecast_emitted_at);
+  const emitido = Number.isNaN(e.getTime()) ? '' : `, emitido el ${e.getUTCDate()} de ${MESES_RAG[e.getUTCMonth()]} de ${e.getUTCFullYear()}`;
+  const answer = `**${v.nombre_completo || r.etiqueta}: control estacional, no validado.** Lo publicado repite los ` +
+    `casos de 52 semanas antes. El portafolio de modelos seleccionado se rechazó en la prueba de ${anio} porque ` +
+    `empeoraba ${lista(fallas)}, y por autorización del autor se publica el control estacional; el rechazado fue el ` +
+    `portafolio, no el control. No tiene una validación prospectiva que superar: compararlo consigo mismo no ` +
+    `demostraría nada, y sólo se registrará su error con cada boletín (${v.weeks_available ?? 0} de ${v.weeks_required ?? 4} semanas registradas).\n\n` +
+    `Error del control en la prueba de ${anio} (sMAPE): ${lista(errores)}.${aviso}\n\n` +
+    `Datos hasta la semana ${v.origin[1]} de ${v.origin[0]}${emitido}; ${v.horizon_weeks} semanas, pronóstico puntual sin intervalos. ` +
+    `Detalle en [su página](../${r.pagina}).`;
+  return { answer, sources: [{ n: 1, source: `Release publicado ${v.release_id}`, title: v.nombre_completo || r.etiqueta, section: r.id, url: `../${r.pagina}` }] };
+}
+
 // La lista de no modelados y su comparación viven en release_catalog.js.
 const mencionaNoModelada = (qn) => globalThis.EPI_CATALOGO.mencionaNoModelada(qn);
 
@@ -625,6 +671,8 @@ export default async function handler(req) {
   // Nombre genérico que abarca más que el bloque publicado («otitis», «amebiasis»): se aclara sin cifras.
   const ambiguo = globalThis.EPI_CATALOGO.aliasAmbiguo(stripAccents(String(body.query || '')));
   if (ambiguo) return json({ answer: ambiguo.texto, sources: [] }, 200, cors);
+  const estado = estadoDeControl(String(body.query || ''), (id) => JSON.parse(readDataFile(`../publication/${id}/vista.json`)));
+  if (estado) return json({ ...estado, retrieval: 'vista' }, 200, cors);
   // Presión baja no se modela y sus vecinos publicados más parecidos (O10-O16 o I10-I15) no la
   // incluyen: sin otro padecimiento publicado en la consulta, respuesta fija sin cifras para que la
   // recuperación no traiga las de ese vecino.
