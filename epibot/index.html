@@ -9,21 +9,75 @@
   <title>Centro de Inteligencia — EpiForecast-MX</title>
   <link rel="icon" href="EpiBot_v2_avatar.png?v=2" type="image/png">
   <link rel="apple-touch-icon" href="EpiBot_v2_avatar.png?v=2">
+  <link rel="stylesheet" href="../assets/site/site.css">
   <link rel="stylesheet" href="css/style.css?v=49">
   <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.2.4/dist/purify.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-<link rel="stylesheet" href="css/shell.css?v=2">
+<link rel="stylesheet" href="css/shell.css?v=5">
 </head>
 <body><a class="epi-skip" href="#inputField">Saltar a la pregunta</a>
+<!-- site:header:start -->
+<header class="site-header site-header--app" id="nav" lang="es">
+  <div class="site-header__inner">
+    <a class="site-brand" href="../index.html" aria-label="EpiForecast-MX, inicio"><span class="site-brand__symbol" aria-hidden="true">E<span>+</span></span><span class="site-brand__name"><span class="site-brand__word">EpiForecast<span class="site-brand__mx">MX</span></span><small>Inteligencia epidemiológica</small></span></a>
+    <nav class="site-nav" aria-label="Navegación principal">
+      <ul class="nav-menu">
+        <li><a href="../Reports/index.html">Galería</a></li>
+        <li><a href="index.html" aria-current="page">EpiBot</a></li>
+        <li><a href="../EpiDashboard.html">Dashboard</a></li>
+        <li><a href="../boletin.html">Radar del boletín</a></li>
+        <li><a href="../novedades.html">Noticias</a></li>
+        <li class="nav-group">
+          <button type="button" class="nav-group__toggle" aria-expanded="false" aria-controls="navGroup-congresos">Congresos</button>
+          <ul class="nav-group__list" id="navGroup-congresos">
+            <li><a href="../wcp2026.html">WCP 2026 · Estocolmo</a></li>
+            <li><a href="../micai2026.html">MICAI 2026 · Chihuahua</a></li>
+            <li><a href="../calass.html">CALASS 2026 · Montréal</a></li>
+            <li><a href="../index.html#congresos">Todos los congresos</a></li>
+          </ul>
+        </li>
+        <li class="nav-group">
+          <button type="button" class="nav-group__toggle" aria-expanded="false" aria-controls="navGroup-mas">Más</button>
+          <ul class="nav-group__list" id="navGroup-mas">
+            <li><a href="../index.html#diseases">Padecimientos</a></li>
+            <li><a href="../index.html#metodologia">Evidencia y método</a></li>
+            <li><a href="../index.html#about">Proyecto y equipo</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+    <button type="button" class="site-nav__toggle" aria-controls="navMobile" aria-expanded="false"><span class="site-nav__toggle-icon" aria-hidden="true"></span><span class="site-nav__toggle-text">Menú</span></button>
+  </div>
+  <div id="navMobile" class="site-nav__mobile">
+    <div class="nav-mobile-items">
+      <a class="nav-mobile-link" href="../Reports/index.html">Galería</a>
+      <a class="nav-mobile-link" href="index.html" aria-current="page">EpiBot</a>
+      <a class="nav-mobile-link" href="../EpiDashboard.html">Dashboard</a>
+      <a class="nav-mobile-link" href="../boletin.html">Radar del boletín</a>
+      <a class="nav-mobile-link" href="../novedades.html">Noticias</a>
+      <p class="nav-mobile-group">Congresos</p>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="../wcp2026.html">WCP 2026 · Estocolmo</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="../micai2026.html">MICAI 2026 · Chihuahua</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="../calass.html">CALASS 2026 · Montréal</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="../index.html#congresos">Todos los congresos</a>
+      <p class="nav-mobile-group">Más</p>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="../index.html#diseases">Padecimientos</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="../index.html#metodologia">Evidencia y método</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="../index.html#about">Proyecto y equipo</a>
+    </div>
+  </div>
+</header>
+<!-- site:header:end -->
 
-  <!-- mobile sidebar overlay -->
-  <div class="cc-overlay" id="ccOverlay"></div>
 
   <!-- ═══════════════════════════════════════════════════
        COMMAND CENTER
        ═══════════════════════════════════════════════════ -->
   <div class="cc">
+
+    <!-- overlay del cajón móvil: DENTRO de .cc para compartir su capa con el cajón -->
+    <div class="cc-overlay" id="ccOverlay"></div>
 
     <!-- ─────────── SIDEBAR ─────────── -->
     <aside class="cc-sidebar" id="ccSidebar" aria-label="Herramientas y navegación de EPI">
@@ -36,7 +90,7 @@
         </span>
       </a>
 
-  <button class="epi-sidebar-close" id="sidebarClose" aria-label="Cerrar panel">Cerrar panel</button><div class="cc-section epi-primary"><div class="cc-group-label">Tu punto de partida</div><a class="cc-row" href="../boletin.html">Consultar el boletín</a><a class="cc-row" href="../Reports/index.html">Explorar pronósticos</a><a class="cc-row" href="../validacion_semanal.html">Revisar la validación</a><button class="cc-row" data-q="depresion en Jalisco">Preguntar por una entidad</button></div>
+  <button type="button" class="epi-sidebar-close" id="sidebarClose">Cerrar herramientas</button><div class="cc-section epi-primary"><div class="cc-group-label">Tu punto de partida</div><a class="cc-row" href="../boletin.html">Consultar el boletín</a><a class="cc-row" href="../Reports/index.html">Explorar pronósticos</a><a class="cc-row" href="../validacion_semanal.html">Revisar la validación</a><button class="cc-row" data-q="depresion en Jalisco">Preguntar por una entidad</button></div>
     <!-- Panorama / KPIs -->
       <details class="cc-section epi-sidebar-details"><summary>Datos de la cohorte original</summary>
         <div class="cc-kpis">
@@ -151,12 +205,13 @@
 
       <!-- Topbar -->
       <header class="cc-topbar">
-        <button class="cc-menu-btn" id="ccMenuBtn" aria-label="Abrir panel" aria-controls="ccSidebar" aria-expanded="false">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="20" height="20"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <button type="button" class="cc-menu-btn" id="ccMenuBtn" aria-controls="ccSidebar" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="9" y1="4" x2="9" y2="20"/></svg>
+          <span class="cc-menu-btn__text">Herramientas</span>
         </button>
         <div class="cc-topbar-title">
           <h1><span class="cc-live-dot"></span>Asistente EPI</h1>
-          <span class="sub">Pregunta, explora y consulta las fuentes</span>
+          <span class="sub">Pregunta y explora los pronósticos publicados</span>
         </div>
         <div class="cc-topbar-actions">
           <button id="ttsStopBtn" class="voice-header-btn voice-stop-btn" title="Detener audio" style="display:none">
@@ -551,11 +606,7 @@
 
         <div class="input-wrapper">
           <button class="prompt-toggle" id="promptToggle" title="Ver consultas sugeridas" aria-label="Abrir consultas sugeridas" aria-expanded="false" aria-controls="promptMenu">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="18" height="18" aria-hidden="true">
-              <line x1="4" y1="6" x2="20" y2="6"/>
-              <line x1="4" y1="12" x2="20" y2="12"/>
-              <line x1="4" y1="18" x2="20" y2="18"/>
-            </svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V17h5.2v-1.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/></svg>
           </button>
           <div class="input-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="17" height="17">
@@ -609,53 +660,9 @@
     });
   </script>
 
-  <!-- ═══════════ COMMAND CENTER: sidebar drawer + quick actions ═══════════ -->
-  <script>
-    (function() {
-      const sidebar = document.getElementById('ccSidebar');
-      const overlay = document.getElementById('ccOverlay');
-      const menuBtn = document.getElementById('ccMenuBtn');
-      const input = document.getElementById('inputField');
-      const send = document.getElementById('sendBtn');
-
-      function openSidebar() {
-        sidebar.classList.add('open');
-        overlay.classList.add('open');
-        if (menuBtn) menuBtn.setAttribute('aria-expanded', 'true');
-      }
-      function closeSidebar() {
-        sidebar.classList.remove('open');
-        overlay.classList.remove('open');
-        if (menuBtn) menuBtn.setAttribute('aria-expanded', 'false');
-      }
-
-      if (menuBtn) menuBtn.addEventListener('click', openSidebar);
-      if (overlay) overlay.addEventListener('click', closeSidebar);
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && sidebar.classList.contains('open')) closeSidebar();
-      });
-
-      // Wire sidebar quick-action buttons/chips → fill input & send.
-      // app.js attaches the real handler to #sendBtn; we just trigger it.
-      sidebar.querySelectorAll('[data-q]').forEach(el => {
-        el.addEventListener('click', () => {
-          if (!input || !send) return;
-          input.value = el.dataset.q;
-          send.click();
-          input.focus();
-        });
-      });
-
-      // On mobile, close the drawer after any sidebar action/navigation.
-      sidebar.querySelectorAll('[data-q], a').forEach(el => {
-        el.addEventListener('click', () => {
-          if (window.innerWidth <= 1024) closeSidebar();
-        });
-      });
-    })();
-  </script>
-
-  <script defer src="js/ux.js?v=1"></script>
-  <script type="module" src="js/app.js?v=189"></script>
+  <!-- Panel lateral (cajón en móvil) y acciones rápidas: js/ux.js, un solo manejador. -->
+  <script defer src="js/ux.js?v=3"></script>
+  <script type="module" src="js/app.js?v=190"></script>
+<script src="../assets/site/site-nav.js" defer></script>
 </body>
 </html>

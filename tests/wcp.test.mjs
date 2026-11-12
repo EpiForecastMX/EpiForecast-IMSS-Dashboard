@@ -49,7 +49,12 @@ test('all local page assets and anchor links exist; no empty image src',()=>{
   const ids=[...html.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]);assert.equal(new Set(ids).size,ids.length);
   for(const m of html.matchAll(/(?:href|src)="([^"]+)"/g)){
     const url=m[1];if(url.startsWith('#'))assert.ok(ids.includes(url.slice(1)),url);
-    else if(!/^(https?:|mailto:)/.test(url))assert.ok(existsSync(resolve(root,url==='/'?'index.html':url.replace(/^\//,'').split('?')[0])),url);
+    else if(!/^(https?:|mailto:)/.test(url)){
+      // Enlaces del chrome común a otra página con ancla (index.html#congresos): archivo y id existen.
+      const [file,frag]=(url==='/'?'index.html':url.replace(/^\//,'')).split('?')[0].split('#');
+      assert.ok(existsSync(resolve(root,file)),url);
+      if(frag)assert.ok(readFileSync(resolve(root,file),'utf8').includes(`id="${frag}"`),url);
+    }
   }
   assert.doesNotMatch(html,/<img[^>]+src=""/);assert.doesNotMatch(app,/\.src\s*=\s*['"]['"]/);
 });

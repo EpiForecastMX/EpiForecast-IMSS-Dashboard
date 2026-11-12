@@ -266,11 +266,37 @@ W31 de 2026)**, rotulado así en la página, y no forma parte del paso semanal.
 
 ## Galería de pronósticos
 
-`Reports/index.html` contiene la galería interactiva organizada por padecimiento, nivel (nacional,
-estatal, regional) y sexo, con búsqueda, vista de cuadrícula o lista y lightbox. Las 432 gráficas del
-carril original están en la lista `DATA`. Los releases del runner se integran en los mismos niveles,
-dibujados con Chart.js desde su vista publicada (`Reports/obesidad_galeria.js`), fuera de `DATA` y
-sin métricas de error.
+`Reports/index.html` es la galería por padecimiento: entra por el catálogo del dashboard
+(`assets/dashboard/catalog.json`), abre cada padecimiento en su total nacional y permite cambiar nivel,
+territorio, sexo y vista (`?p=&s=&t=&nivel=&grafica=`, los mismos IDs que el dashboard). La lógica pura
+vive en `Reports/galeria_core.mjs` y el controlador en `Reports/galeria.mjs` (pruebas en
+`tests/galeria*.test.mjs`). Las 432 láminas del carril original siguen en la lista contractual `DATA`;
+los releases del runner se dibujan desde su vista publicada, sin métricas de error.
+
+### Chrome común, noticias y estado de las fichas (rediseño, hito 3)
+
+- `assets/site/shell.config.json` es la fuente única de cabecera y pie; `node scripts/site_shell.mjs`
+  estampa las 62 rutas y escribe `assets/site/shell.fragments.json` para el backend (`--check` en el
+  build). Familias: portada, galería, dashboard, radar, EpiBot (app), fichas, editorial, noticias,
+  congresos, micrositios de congreso (excepción de identidad acotada: cuerpo, idioma y hoja propios) y
+  archivo Tableau. Las páginas con `productor.chrome` (validación, resultados, bitácora, comparación) se
+  regeneran en el backend con `epiforecast.publication.editorial_chrome`; `--check` exige que su
+  cabecera sea idéntica al fragmento de su familia.
+- Recursos comunes versionados en `assets` del manifiesto (`?v=` igual en todas las páginas de la raíz);
+  EpiBot los carga sin `?v` y Netlify los revalida (`must-revalidate` en `/assets/site/*`).
+- `novedades.html` trae el archivo estático completo de `news.json` entre
+  `<!-- noticias:archivo:start/end -->` (lo escribe `build_news_weekly.py`, también con
+  `--solo-estaticos`), con las anclas de `assets/site/nota-ancla.js`; el JS lo repinta igual.
+- Fichas: `assets/site/estado-ficha.js` pone `data-verdict` y `data-publication-kind` en `#statusCard`
+  desde la vista cargada (misma regla que el Dashboard y la Galería) y `disease.css` lo colorea: superada
+  verde, en curso azul, control ocre. Una ficha nueva copiada de otra hereda la llamada
+  `EpiEstadoFicha.aplica($('statusCard'), V)`; no lleva clase de estado estática.
+
+`Reports/obesidad_galeria.js` es el controlador de releases de la galería ANTERIOR. La galería actual
+ya no lo carga; se conserva a propósito como compatibilidad de reversión (si se revierte el rediseño,
+la galería vieja lo necesita) y lo siguen ejercitando `epibot/tests/test_obesidad_galeria.mjs`,
+`test_release_catalogo.mjs` y `test_diabetes_release.mjs`. Retirarlo exige quitar a la vez el módulo,
+esas pruebas y esta nota, en el mismo cambio.
 
 ---
 
@@ -361,7 +387,8 @@ EpiForecast-IMSS-Dashboard/
 │   ├── index.html                  # Galería de pronósticos
 │   ├── Alzheimer/, Depresión/, Parkinson/, dengue/   # Gráficas del carril original
 │   ├── publication/                # Shards de los releases
-│   ├── obesidad_galeria.js         # Galería de releases (desde la vista)
+│   ├── galeria.mjs, galeria_core.mjs # Galería por padecimiento (controlador y lógica pura)
+│   ├── obesidad_galeria.js         # Galería de releases anterior: sólo compatibilidad de reversión
 │   ├── zoom_data_neuro.json, zoom_data_dengue.json
 │   ├── motores/, micai2026/, wcp2026/, calass/, helix/, future_health/
 ├── epibot/                         # EpiBot (ver arriba)

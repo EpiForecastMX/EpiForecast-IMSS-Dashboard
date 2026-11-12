@@ -1022,6 +1022,14 @@ export function problemasDePortada(indexHtml, hero, kb, hayBento) {
       if (s.motor !== nac) out.push(`hero_series ${s.pad}: motor ${s.motor} ≠ modelo nacional ${nac}`);
     }
     if ((hero.series || []).length !== 4) out.push(`hero_series con ${(hero.series || []).length} series (deben ser 4)`);
+    // Banda sólo con bandera: intervalo_disponible falso ⇒ lo/hi nulos (regla de la derivación
+    // build_hero_series.py; el zoom publicado no se toca). La portada también ignora lo/hi sin bandera.
+    for (const s of hero.series || []) {
+      const conValor = (a) => Array.isArray(a) && a.some((v) => v !== null && v !== undefined);
+      if (s.intervalo_disponible !== true && (conValor(s.lo) || conValor(s.hi))) {
+        out.push(`hero_series ${s.pad}: intervalo_disponible es ${s.intervalo_disponible} pero trae banda lo/hi`);
+      }
+    }
   }
   const st = kb?.stats || {};
   const m = String(indexHtml ?? '').match(/id="b-motor-pct">([^<]*)<\/span>%<\/b><span>[^<]*<span id="b-motor">([^<]*)</);

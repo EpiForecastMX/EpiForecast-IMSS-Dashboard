@@ -732,7 +732,7 @@ function whenZoomReady(data, cb, tries) {
 function addWelcome() {
   const hero =
     `<div class="welcome-hero welcome-hero--compact">
-       <div class="epi-welcome-kicker">DATOS DEL SINAVE · PRONÓSTICOS CON FUENTES</div>
+       <div class="epi-welcome-kicker">DATOS DEL SINAVE · PRONÓSTICOS PUBLICADOS</div>
        <div class="welcome-hero-title">¿Qué quieres consultar?</div>
        <div class="welcome-hero-sub">Pregunta por un padecimiento, una entidad o una semana. EPI te ayuda a explorar lo observado y lo pronosticado, con sus cortes y limitaciones.</div>
        <div class="epi-welcome-example">Prueba con una pregunta:</div>

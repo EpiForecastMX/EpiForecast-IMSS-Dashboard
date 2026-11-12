@@ -4,35 +4,32 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hiperparámetros de los Modelos — EpiForecast-MX</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=Libre+Caslon+Display&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+*:not(:where(.site-header, .site-footer) *),*:not(:where(.site-header, .site-footer) *)::before,*:not(:where(.site-header, .site-footer) *)::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   /* Surfaces — Clinical Indigo */
-  --bg-deep:        #0E1424;
-  --bg-base:        #131C30;
-  --bg-raised:      #18223A;
-  --bg-card:        #1C2740;
-  --bg-card-hover:  #243150;
+  --bg-deep:        #fafbf7;
+  --bg-base:        #fafbf7;
+  --bg-raised:      #f1f6ef;
+  --bg-card:        #ffffff;
+  --bg-card-hover:  #dbe3dc;
   /* Texto */
-  --text-primary:   #E7ECF5;
-  --text-secondary: #9FB0CE;
-  --text-muted:     #6E82A6;
-  --text-faint:     #44567A;
+  --text-primary:   #173c33;
+  --text-secondary: #40594f;
+  --text-muted:     #53675e;
+  --text-faint:     #5b6f66;
   /* Acentos */
-  --burgundy:       #F472B6;
+  --burgundy:       #a3367a;
   --dark-burgundy:  #8E2A63;
-  --teal:           #5B8DEF;
-  --gold:           #2DD4BF;
+  --teal:           #2f5f9e;
+  --gold:           #0f6e66;
   /* Aliases legacy */
   --neutral-black:  #0B0F1A;
-  --cool-gray:      #9FB0CE;
-  --dark-teal:      #16203A;
-  --cream:          #E7ECF5;
-  --cream-light:    #1C2740;
-  --cream-pale:     #131C30;
+  --cool-gray:      #40594f;
+  --dark-teal:      #f1f6ef;
+  --cream:          #173c33;
+  --cream-light:    #ffffff;
+  --cream-pale:     #fafbf7;
   --teal-glow:      rgba(91,141,239,0.15);
   --burgundy-glow:  rgba(244,114,182,0.15);
   --gold-glow:      rgba(45,212,191,0.15);
@@ -57,53 +54,53 @@ body{font-family:var(--font-body);background:var(--bg-base);color:var(--text-pri
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.025;pointer-events:none;z-index:0}
 
 /* Unified Nav */
-.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(14,20,36,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(232,213,181,.08);transition:box-shadow .3s,background .3s}
-.nav.scrolled{box-shadow:0 4px 30px rgba(0,0,0,.18);background:rgba(14,20,36,.97)}
-.nav-inner{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;align-items:center;height:64px;gap:1rem}
-.nav-logo{font-family:var(--font-display);font-size:1.3rem;color:var(--cream);letter-spacing:.02em;flex-shrink:0;text-decoration:none}
-.nav-logo span{color:var(--gold)}
-.nav-menu{display:flex;align-items:center;gap:.25rem;list-style:none;flex:1;justify-content:center}
-.nav-group{position:relative}
-.nav-group-toggle{display:flex;align-items:center;gap:.3rem;color:rgba(232,213,181,.65);font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;padding:.5rem .85rem;border-radius:6px;cursor:pointer;transition:color .2s,background .2s;white-space:nowrap;border:none;background:none;font-family:inherit}
-.nav-group-toggle:hover,.nav-group:hover .nav-group-toggle{color:var(--cream);background:rgba(232,213,181,.06)}
-.nav-group-toggle svg{width:10px;height:10px;opacity:.5;transition:transform .2s}
-.nav-group:hover .nav-group-toggle svg{transform:rotate(180deg);opacity:.8}
-.nav-dropdown{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(-4px);background:rgba(14,20,36,.98);backdrop-filter:blur(16px);border:1px solid rgba(232,213,181,.1);border-radius:12px;padding:.5rem;min-width:200px;opacity:0;visibility:hidden;transition:opacity .15s,transform .15s,visibility .15s;box-shadow:0 12px 40px rgba(0,0,0,.25)}
-.nav-group:hover .nav-dropdown{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
-.nav-dropdown::before{content:'';position:absolute;top:-8px;left:0;right:0;height:8px}
-.nav-dropdown a{display:flex;align-items:center;gap:.75rem;padding:.6rem 1rem;color:rgba(232,213,181,.7);font-size:.82rem;font-weight:500;border-radius:8px;transition:background .15s,color .15s;text-decoration:none;white-space:nowrap}
-.nav-dropdown a:hover{background:rgba(232,213,181,.08);color:var(--cream)}
-.nav-dropdown a svg{width:16px;height:16px;opacity:.5;flex-shrink:0}
-.nav-dropdown a:hover svg{opacity:.8}
-.nav-ctas{display:flex;gap:.5rem;align-items:center;flex-shrink:0}
-.nav-cta{display:inline-flex;align-items:center;gap:.4rem;padding:.4rem 1rem;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-radius:100px;text-decoration:none;transition:transform .2s,box-shadow .2s,background .2s;white-space:nowrap}
-.nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(181,133,0,.3)}
-.nav-cta--primary{background:var(--gold);color:var(--dark-teal)}
-.nav-cta--secondary{background:rgba(232,213,181,.1);color:var(--gold);border:1px solid rgba(181,133,0,.3)}
-.nav-cta--secondary:hover{background:rgba(45,212,191,.15);color:var(--gold)}
-.nav-cta svg{width:14px;height:14px}
-.nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
-.nav-hamburger span{width:24px;height:2px;background:var(--cream);transition:transform .3s,opacity .3s}
-.nav-mobile{display:none;flex-direction:column;background:rgba(14,20,36,.98);backdrop-filter:blur(16px);padding:1rem 2rem 1.5rem;border-bottom:1px solid rgba(232,213,181,.1)}
-.nav-mobile.show{display:flex}
-.nav-mobile-group{border-bottom:1px solid rgba(232,213,181,.06)}
-.nav-mobile-heading{display:flex;align-items:center;justify-content:space-between;padding:.85rem 0;color:rgba(232,213,181,.7);font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;cursor:pointer}
-.nav-mobile-heading svg{width:10px;height:10px;transition:transform .2s}
-.nav-mobile-group.open .nav-mobile-heading svg{transform:rotate(180deg)}
-.nav-mobile-items{display:none;flex-direction:column;padding-bottom:.5rem}
-.nav-mobile-group.open .nav-mobile-items{display:flex}
-.nav-mobile-items a{padding:.5rem 1rem;color:rgba(232,213,181,.55);font-size:.82rem;text-decoration:none;border-radius:6px;transition:background .15s,color .15s}
-.nav-mobile-items a:hover{background:rgba(232,213,181,.06);color:var(--cream)}
-.nav-mobile-ctas{display:flex;gap:.5rem;margin-top:1rem}
-@media(max-width:768px){.nav-menu,.nav-ctas{display:none}.nav-hamburger{display:flex}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media(max-width:768px){}
 
 .container{max-width:1200px;margin:0 auto;padding:0 2rem;position:relative;z-index:1}
-section{padding:4rem 0}
+section:not(:where(.site-header, .site-footer) *){padding:4rem 0}
 .section-title{font-family:var(--font-display);font-size:clamp(1.8rem,4vw,2.5rem);margin-bottom:.5rem;color:var(--cream)}
 .section-sub{color:var(--cool-gray);font-size:1rem;margin-bottom:2.5rem}
 
 /* Hero */
-.hero{padding:10rem 2rem 6rem;text-align:center;background:linear-gradient(170deg,#1a0a12 0%,var(--dark-teal) 40%,var(--teal) 70%,var(--dark-burgundy) 100%);color:var(--cream-pale);position:relative;overflow:hidden}
+.hero{padding:10rem 2rem 6rem;text-align:center;background:linear-gradient(170deg,#fafbf7 0%,var(--dark-teal) 40%,var(--teal) 70%,var(--dark-burgundy) 100%);color:var(--cream-pale);position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 800px 600px at 30% 40%,rgba(181,133,0,.12),transparent),radial-gradient(ellipse 900px 700px at 70% 60%,rgba(155,34,66,.15),transparent);pointer-events:none}
 .hero h1{font-family:var(--font-display);font-size:clamp(2.2rem,6vw,4rem);line-height:1.1;margin-bottom:.75rem;position:relative}
 .hero h1 em{font-style:italic;color:var(--gold-light,#D4B24A)}
@@ -152,7 +149,7 @@ section{padding:4rem 0}
 /* Badge */
 .badge{display:inline-block;padding:.2rem .7rem;border-radius:100px;font-family:var(--font-mono);font-size:.8rem;font-weight:500}
 .badge-green{background:rgba(45,212,191,.15);color:var(--gold)}
-.badge-yellow{background:rgba(250,189,47,.12);color:#FBBF24}
+.badge-yellow{background:rgba(250,189,47,.12);color:#7d4400}
 .badge-red{background:rgba(244,114,182,.15);color:var(--burgundy)}
 .badge-teal{background:rgba(91,141,239,.15);color:var(--teal)}
 .badge-blue{background:rgba(91,141,239,.12);color:var(--teal)}
@@ -165,12 +162,12 @@ section{padding:4rem 0}
 .combo-card .combo-detail{font-size:.8rem;color:var(--text-muted);margin-top:.25rem;line-height:1.5}
 
 /* Code block */
-.code-block{background:#1e1e2e;color:#cdd6f4;border-radius:var(--radius-sm);padding:1.5rem;font-family:var(--font-mono);font-size:.82rem;line-height:1.7;overflow-x:auto;margin:1rem 0}
-.code-block .comment{color:#6c7086}
-.code-block .keyword{color:#cba6f7}
-.code-block .string{color:#a6e3a1}
-.code-block .number{color:#fab387}
-.code-block .fn{color:#89b4fa}
+.code-block{background:#f1f6ef;color:#173c33;border-radius:var(--radius-sm);padding:1.5rem;font-family:var(--font-mono);font-size:.82rem;line-height:1.7;overflow-x:auto;margin:1rem 0}
+.code-block .comment{color:#53675e}
+.code-block .keyword{color:#6a4aa6}
+.code-block .string{color:#3d6b1f}
+.code-block .number{color:#9a4a00}
+.code-block .fn{color:#2f5f9e}
 
 /* Stats row */
 .stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;margin:2rem 0}
@@ -202,133 +199,69 @@ section{padding:4rem 0}
   .model-header .model-num{display:none}
   .pros-cons{grid-template-columns:1fr}
   .grid-combos{grid-template-columns:1fr}
-  nav .nav-links{display:none}
+
 }
 </style>
-  <link rel="stylesheet" href="editorial.css?v=1">
+<link rel="stylesheet" href="assets/site/site.css?v=5">
+<link rel="stylesheet" href="editorial.css?v=4">
 </head>
-<body>
+<body class="editorial-page">
 
-  <nav class="nav" id="nav">
-    <div class="nav-inner">
-      <div class="nav-logo">EpiForecast<span>-MX</span></div>
-
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<!-- site:header:start -->
+<header class="site-header" id="nav" lang="es">
+  <div class="site-header__inner">
+    <a class="site-brand" href="index.html" aria-label="EpiForecast-MX, inicio"><span class="site-brand__symbol" aria-hidden="true">E<span>+</span></span><span class="site-brand__name"><span class="site-brand__word">EpiForecast<span class="site-brand__mx">MX</span></span><small>Inteligencia epidemiológica</small></span></a>
+    <nav class="site-nav" aria-label="Navegación principal">
       <ul class="nav-menu">
-        <!-- Proyecto -->
+        <li><a href="Reports/index.html">Galería</a></li>
+        <li><a href="epibot/index.html">EpiBot</a></li>
+        <li><a href="EpiDashboard.html">Dashboard</a></li>
+        <li><a href="boletin.html">Radar del boletín</a></li>
+        <li><a href="novedades.html">Noticias</a></li>
         <li class="nav-group">
-          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
-          <div class="nav-dropdown">
-            <a href="index.html#hero"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>Inicio</a>
-            <a href="EpiDashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
-            <a href="Reports/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Pronósticos</a>
-            <a href="novedades.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/></svg>Novedades</a>
-            <a href="dengue.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>Dengue</a>
-            <a href="epibot/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>EPI Chatbot</a>
-          </div>
-        </li>
-
-        <!-- Metodología -->
-        <li class="nav-group">
-          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Metodología <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
-          <div class="nav-dropdown">
-            <a href="bitacora_modelado.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Bitácora v1-v6</a>
-            <a href="ficha_tecnica_prophet.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Ficha Prophet</a>
-            <a href="metodologia_dengue.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>Metodología Dengue</a>
-            <a href="hiperparametros_modelos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>HPs SageMaker</a>
-            <a href="construccion_dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Arquitectura Dashboard</a>
-          </div>
-        </li>
-
-        <!-- Resultados -->
-        <li class="nav-group">
-          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Resultados <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
-          <div class="nav-dropdown">
-            <a href="reporte_resultados.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg>Resultados</a>
-            <a href="comparacion_modelos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Comparación SageMaker</a>
-            <a href="validacion_semanal.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Validación Semanal</a>
-            <a href="auditoria_remediacion_2026.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Auditoría y Remediación</a>
-            <a href="conclusiones.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Conclusiones</a>
-            <a href="referencias.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Referencias</a>
-          </div>
+          <button type="button" class="nav-group__toggle" aria-expanded="false" aria-controls="navGroup-congresos">Congresos</button>
+          <ul class="nav-group__list" id="navGroup-congresos">
+            <li><a href="wcp2026.html">WCP 2026 · Estocolmo</a></li>
+            <li><a href="micai2026.html">MICAI 2026 · Chihuahua</a></li>
+            <li><a href="calass.html">CALASS 2026 · Montréal</a></li>
+            <li><a href="index.html#congresos">Todos los congresos</a></li>
+          </ul>
         </li>
         <li class="nav-group">
-          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">MICAI 2026 <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
-          <div class="nav-dropdown">
-            <a href="micai.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Ponencia, seguimiento y artículo</a>
-            <a href="/Reports/micai2026/MICAI2026_012_Rebull_accepted_manuscript.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar PDF</a>
-          </div>
+          <button type="button" class="nav-group__toggle" aria-expanded="false" aria-controls="navGroup-mas">Más</button>
+          <ul class="nav-group__list" id="navGroup-mas">
+            <li><a href="index.html#diseases">Padecimientos</a></li>
+            <li><a href="index.html#metodologia">Evidencia y método</a></li>
+            <li><a href="index.html#about">Proyecto y equipo</a></li>
+          </ul>
         </li>
       </ul>
-
-      <!-- CTA buttons -->
-      <div class="nav-ctas">
-        <a href="EpiDashboard.html" class="nav-cta nav-cta--primary">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-          Dashboard
-        </a>
-        <a href="epibot/index.html" class="nav-cta nav-cta--secondary">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          EPI Chatbot
-        </a>
-        <a href="https://github.com/IntegradorIMSS2026Team01" target="_blank" rel="noopener" class="nav-cta nav-cta--secondary" style="padding:0.4rem 0.6rem" title="GitHub">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-        </a>
-      </div>
-
-      <button type="button" class="nav-hamburger" onclick="toggleMobileNav(this)" aria-label="Abrir menú" aria-expanded="false" aria-controls="navMobile">
-        <span></span><span></span><span></span>
-      </button>
+    </nav>
+    <button type="button" class="site-nav__toggle" aria-controls="navMobile" aria-expanded="false"><span class="site-nav__toggle-icon" aria-hidden="true"></span><span class="site-nav__toggle-text">Menú</span></button>
+  </div>
+  <div id="navMobile" class="site-nav__mobile">
+    <div class="nav-mobile-items">
+      <a class="nav-mobile-link" href="Reports/index.html">Galería</a>
+      <a class="nav-mobile-link" href="epibot/index.html">EpiBot</a>
+      <a class="nav-mobile-link" href="EpiDashboard.html">Dashboard</a>
+      <a class="nav-mobile-link" href="boletin.html">Radar del boletín</a>
+      <a class="nav-mobile-link" href="novedades.html">Noticias</a>
+      <p class="nav-mobile-group">Congresos</p>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="wcp2026.html">WCP 2026 · Estocolmo</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="micai2026.html">MICAI 2026 · Chihuahua</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="calass.html">CALASS 2026 · Montréal</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#congresos">Todos los congresos</a>
+      <p class="nav-mobile-group">Más</p>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#diseases">Padecimientos</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#metodologia">Evidencia y método</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#about">Proyecto y equipo</a>
     </div>
+  </div>
+</header>
+<!-- site:header:end -->
 
-    <!-- Mobile menu -->
-    <div class="nav-mobile" id="navMobile">
-      <div class="nav-mobile-group">
-        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items">
-          <a href="index.html#hero">Inicio</a>
-          <a href="EpiDashboard.html">Dashboard</a>
-          <a href="Reports/index.html">Pronósticos</a>
-          <a href="novedades.html">Novedades</a>
-          <a href="dengue.html">Dengue</a>
-          <a href="epibot/index.html">EPI Chatbot</a>
-        </div>
-      </div>
-      <div class="nav-mobile-group">
-        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Metodología <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items">
-          <a href="bitacora_modelado.html">Bitácora v1-v6</a>
-          <a href="ficha_tecnica_prophet.html">Ficha Prophet</a>
-          <a href="metodologia_dengue.html">Metodología Dengue</a>
-          <a href="hiperparametros_modelos.html">HPs SageMaker</a>
-          <a href="construccion_dashboard.html">Arquitectura Dashboard</a>
-        </div>
-      </div>
-      <div class="nav-mobile-group">
-        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Resultados <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items">
-          <a href="reporte_resultados.html">Resultados</a>
-          <a href="comparacion_modelos.html">Comparación SageMaker</a>
-          <a href="validacion_semanal.html">Validación Semanal</a>
-          <a href="auditoria_remediacion_2026.html">Auditoría y Remediación</a>
-          <a href="conclusiones.html">Conclusiones</a>
-          <a href="referencias.html">Referencias</a>
-        </div>
-      </div>
-      <div class="nav-mobile-group">
-        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">MICAI 2026 <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items">
-          <a href="micai.html">Ponencia, seguimiento y artículo</a>
-          <a href="/Reports/micai2026/MICAI2026_012_Rebull_accepted_manuscript.pdf" target="_blank" rel="noopener">Descargar PDF</a>
-        </div>
-      </div>
-      <div class="nav-mobile-ctas">
-        <a href="EpiDashboard.html" class="nav-cta nav-cta--primary" style="justify-content:center;padding:.6rem 1.5rem">Dashboard</a>
-        <a href="Reports/index.html" class="nav-cta nav-cta--secondary" style="justify-content:center;padding:.6rem 1.5rem">Pronósticos</a>
-      </div>
-    </div>
-  </nav>
-
-<div class="hero">
+<div id="contenido" class="hero">
   <h1>Los <em>Hiperparámetros</em> Detrás de Cada Modelo</h1>
   <p class="subtitle">Qué palancas ajustamos, por qué, y cómo afectan el pronóstico epidemiológico.</p>
   <p class="subtitle2">EpiForecast-MX &mdash; 6 modelos &times; 258 series &mdash; AWS SageMaker v5-full</p>
@@ -408,7 +341,7 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
 
   <div class="card reveal" style="margin-top:1.5rem">
     <h3 style="font-family:var(--font-display);font-size:1.3rem;color:var(--cream);margin-bottom:1rem">Períodos atípicos</h3>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,max(12rem,(100% - 1 * 1rem) / 2)),1fr));gap:1rem">
       <div style="padding:1rem;background:var(--bg-card);border-radius:var(--radius-sm);border-left:4px solid var(--burgundy)">
         <h4 style="font-family:var(--font-display);color:var(--burgundy)">COVID-19</h4>
         <p style="font-size:.85rem;color:var(--text-secondary);margin-top:.3rem">Inicio: <span style="font-family:var(--font-mono)">2020-03-23</span><br>Duración: <span style="font-family:var(--font-mono)">913 días</span> (~2.5 años)<br>Prophet lo trata como "holiday" para no ajustar la tendencia al colapso pandémico.</p>
@@ -438,7 +371,7 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
     <p style="font-size:.92rem;color:var(--text-secondary);line-height:1.7;margin-bottom:1rem">
       El Fold 1 contiene el choque de COVID-19, que es un evento anómalo e irrepetible. Si ponderamos todos los folds igual, el modelo se sesga hacia <em>rigidez excesiva</em> (para no sobreajustar al dip pandémico). Por eso penalizamos el Fold 1 y favorecemos los folds recientes.
     </p>
-    <table class="compare-table">
+    <div class="tabla-desplazable"><table class="compare-table">
       <thead><tr><th>Fold</th><th>Período de validación</th><th>Peso</th><th>Contexto</th></tr></thead>
       <tbody>
         <tr><td style="font-family:var(--font-mono);font-weight:600">1</td><td>2020-12 &rarr; 2021-12</td><td><span class="badge badge-red">0.50</span></td><td>Pleno COVID &mdash; anomalía irrepetible, se penaliza</td></tr>
@@ -446,7 +379,7 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
         <tr><td style="font-family:var(--font-mono);font-weight:600">3</td><td>2022-12 &rarr; 2023-12</td><td><span class="badge badge-green">1.00</span></td><td>Normalización</td></tr>
         <tr><td style="font-family:var(--font-mono);font-weight:600">4</td><td>2024-01 &rarr; 2024-12</td><td><span class="badge badge-green">1.25</span></td><td>Datos más recientes &mdash; se favorece</td></tr>
       </tbody>
-    </table>
+    </table></div>
     <p style="font-size:.85rem;color:var(--cool-gray);margin-top:.75rem">El RMSE final ponderado = &sum;(peso<sub>i</sub> &times; RMSE<sub>i</sub>) / &sum;(peso<sub>i</sub>). Esto permite que el modelo priorice el desempeño en datos recientes sin ignorar completamente el período COVID.</p>
   </div>
 </section>
@@ -471,8 +404,8 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
     <h3 class="reveal" style="font-family:var(--font-display);font-size:1.4rem;color:var(--cream);margin:2rem 0 1rem">Hiperparámetros del Grid Search</h3>
 
     <div class="card reveal" style="padding:0;overflow:hidden">
-      <table class="hp-table">
-        <thead style="background:var(--dark-teal)">
+      <div class="tabla-desplazable"><table class="hp-table">
+        <thead style="background:var(--tint)">
           <tr><th>Hiperparámetro</th><th>Valores probados</th><th>Descripción</th></tr>
         </thead>
         <tbody>
@@ -512,7 +445,7 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
             </td>
           </tr>
         </tbody>
-      </table>
+      </table></div>
     </div>
 
     <h3 class="reveal" style="font-family:var(--font-display);font-size:1.3rem;color:var(--cream);margin:2rem 0 1rem">Grid por padecimiento</h3>
@@ -538,8 +471,8 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
 
     <h3 class="reveal" style="font-family:var(--font-display);font-size:1.3rem;color:var(--cream);margin:2rem 0 1rem">Parámetros fijos</h3>
     <div class="card reveal" style="padding:0;overflow:hidden">
-      <table class="hp-table">
-        <thead style="background:var(--dark-teal)"><tr><th>Parámetro</th><th>Valor</th><th>Razón</th></tr></thead>
+      <div class="tabla-desplazable"><table class="hp-table">
+        <thead style="background:var(--tint)"><tr><th>Parámetro</th><th>Valor</th><th>Razón</th></tr></thead>
         <tbody>
           <tr><td class="hp-name">yearly_seasonality</td><td class="hp-val">False</td><td class="hp-desc">Desactivada la estacionalidad anual automática. Usamos una personalizada con <code>add_seasonality('yearly_custom', period=52.18, fourier_order=5)</code> para tener control del fourier_order.</td></tr>
           <tr><td class="hp-name">weekly_seasonality</td><td class="hp-val">False</td><td class="hp-desc">Datos semanales (1 observación/semana), no hay variación intra-semanal.</td></tr>
@@ -547,7 +480,7 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
           <tr><td class="hp-name">holidays</td><td class="hp-val">COVID-19 (913d)</td><td class="hp-desc">El período pandémico se marca como "holiday" para que Prophet no ajuste su tendencia a la caída de 2020-2022.</td></tr>
           <tr><td class="hp-name">cv_timeout_por_combo</td><td class="hp-val">90s</td><td class="hp-desc">Tiempo máximo por combinación. Si Prophet entra en "modo Newton lento" (optimizador L-BFGS diverge), se corta el entrenamiento y se usa el resultado parcial.</td></tr>
         </tbody>
-      </table>
+      </table></div>
     </div>
 
     <div class="pros-cons reveal" style="margin-top:2rem">
@@ -595,7 +528,7 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
     </div>
 
     <div class="card reveal" style="margin-top:1.5rem;padding:0;overflow:hidden">
-      <table class="hp-table">
+      <div class="tabla-desplazable"><table class="hp-table">
         <thead style="background:var(--dark-burgundy)"><tr><th>Hiperparámetro</th><th>Valor</th><th>Descripción</th></tr></thead>
         <tbody>
           <tr>
@@ -634,7 +567,7 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
             <td class="hp-desc">Estandarización (media=0, desviación=1) antes de entrenar. Las redes neuronales requieren inputs normalizados para converger correctamente.</td>
           </tr>
         </tbody>
-      </table>
+      </table></div>
     </div>
 
     <div class="callout reveal" style="margin-top:1.5rem">
@@ -684,7 +617,7 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
     </div>
 
     <div class="card reveal" style="margin-top:1.5rem;padding:0;overflow:hidden">
-      <table class="hp-table">
+      <div class="tabla-desplazable"><table class="hp-table">
         <thead style="background:#7a6200"><tr><th>Hiperparámetro</th><th>Valor</th><th>Descripción</th></tr></thead>
         <tbody>
           <tr>
@@ -718,7 +651,7 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
             <td class="hp-desc">Ventana de 2 años (104 semanas). Idéntico a TFT para comparación justa.</td>
           </tr>
         </tbody>
-      </table>
+      </table></div>
     </div>
 
     <div class="pros-cons reveal" style="margin-top:1.5rem">
@@ -764,7 +697,7 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
     </div>
 
     <div class="card reveal" style="margin-top:1.5rem;padding:0;overflow:hidden">
-      <table class="hp-table">
+      <div class="tabla-desplazable"><table class="hp-table">
         <thead style="background:#1F2C49"><tr><th>Hiperparámetro</th><th>Valor</th><th>Componente</th><th>Descripción</th></tr></thead>
         <tbody>
           <tr>
@@ -804,13 +737,13 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
             <td class="hp-desc"><strong>50% LightGBM + 50% LSTM.</strong> Peso igual a ambos componentes. No se optimizó este peso por serie &mdash; un valor fijo de 0.5 es robusto como punto de partida.</td>
           </tr>
         </tbody>
-      </table>
+      </table></div>
     </div>
 
     <h3 class="reveal" style="font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin:1.5rem 0 1rem">Features de ingeniería (componente LightGBM)</h3>
     <div class="card reveal">
       <p style="font-size:.92rem;color:var(--text-secondary);margin-bottom:1rem">El componente LightGBM necesita <strong>features manuales</strong> (a diferencia de Prophet que las descubre automáticamente):</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,max(12rem,(100% - 1 * 1rem) / 2)),1fr));gap:1rem">
         <div>
           <h4 style="font-family:var(--font-display);font-size:1rem;color:var(--cream);margin-bottom:.5rem">Lags temporales</h4>
           <div style="font-family:var(--font-mono);font-size:.82rem;line-height:2;color:var(--text-primary)">
@@ -880,7 +813,7 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
     </div>
 
     <div class="card reveal" style="margin-top:1.5rem;padding:0;overflow:hidden">
-      <table class="hp-table">
+      <div class="tabla-desplazable"><table class="hp-table">
         <thead style="background:#BF360C"><tr><th>Hiperparámetro</th><th>Valor</th><th>Descripción</th></tr></thead>
         <tbody>
           <tr>
@@ -899,7 +832,7 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
             <td class="hp-desc">Tasa de aprendizaje. 0.05 = cada árbol contribuye poco individualmente. Esto, combinado con 100 árboles, da un modelo conservador y estable.</td>
           </tr>
         </tbody>
-      </table>
+      </table></div>
     </div>
 
     <div class="callout reveal callout-burgundy" style="margin-top:1.5rem">
@@ -949,7 +882,7 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
     </div>
 
     <div class="card reveal" style="margin-top:1.5rem;padding:0;overflow:hidden">
-      <table class="hp-table">
+      <div class="tabla-desplazable"><table class="hp-table">
         <thead style="background:#283593"><tr><th>Hiperparámetro</th><th>Valor</th><th>Descripción</th></tr></thead>
         <tbody>
           <tr>
@@ -969,7 +902,7 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
             <td class="hp-desc">Todas las features se estandarizan (media=0, desviación=1) antes de entrenar. Crítico para Ridge porque la regularización L2 depende de la escala de las features.</td>
           </tr>
         </tbody>
-      </table>
+      </table></div>
     </div>
 
     <div class="callout reveal" style="margin-top:1.5rem">
@@ -1008,7 +941,7 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
 
   <div class="card reveal" style="padding:0;overflow:hidden">
     <div style="overflow-x:auto">
-    <table class="compare-table" style="min-width:900px">
+    <div class="tabla-desplazable"><table class="compare-table" style="min-width:900px">
       <thead>
         <tr>
           <th>Aspecto</th>
@@ -1112,7 +1045,7 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
           <td><span class="badge badge-red">No (recursivo)</span></td>
         </tr>
       </tbody>
-    </table>
+    </table></div>
     </div>
   </div>
 
@@ -1121,7 +1054,7 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
   </div>
 </section>
 
-<footer style="text-align:center;padding:3rem 2rem;color:var(--cool-gray);font-size:.85rem;border-top:1px solid var(--cream-light);margin-top:4rem">
+<div class="legacy-colophon" style="text-align:center;padding:3rem 2rem;color:var(--cool-gray);font-size:.85rem;border-top:1px solid var(--cream-light);margin-top:4rem">
   <p><strong>EpiForecast-MX</strong> &mdash; Instituto Mexicano del Seguro Social &times; Tec de Monterrey</p>
   <p style="margin-top:.75rem">
     <a href="index.html" style="color:var(--gold)">Inicio</a> &middot;
@@ -1140,7 +1073,39 @@ yhat_conteo = yhat_tasa × población / <span class="number">100,000</span>
     <a href="https://github.com/IntegradorIMSS2026Team01" target="_blank" rel="noopener" style="color:var(--gold)">GitHub</a>
   </p>
   <p style="margin-top:.5rem">Hiperparámetros de los 6 Modelos &mdash; Generado feb 2026</p>
+</div>
+<!-- site:footer:start -->
+<footer class="site-footer" lang="es">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <a class="site-brand" href="index.html" aria-label="EpiForecast-MX, inicio"><span class="site-brand__name"><span class="site-brand__word">EpiForecast<span class="site-brand__mx">MX</span></span></span></a>
+      <p>Datos oficiales. Investigación abierta. Una mirada informada a la salud de México.</p>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Explorar</p>
+      <a href="Reports/index.html">Galería de pronósticos</a>
+      <a href="epibot/index.html">Pregúntale a EPI</a>
+      <a href="EpiDashboard.html">Dashboard</a>
+      <a href="boletin.html">Radar del boletín</a>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Evidencia</p>
+      <a href="validacion_semanal.html">Validación semanal</a>
+      <a href="reporte_resultados.html">Resultados</a>
+      <a href="referencias.html">Fuentes y referencias</a>
+      <a href="rechazados.html">Analizados y rechazados</a>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Proyecto</p>
+      <a href="novedades.html">Noticias</a>
+      <a href="index.html#congresos">Congresos</a>
+      <a href="EpiDashboard-tableau.html">Archivo Tableau (corte W31)</a>
+      <a href="https://github.com/IntegradorIMSS2026Team01" rel="noopener" target="_blank">GitHub ↗</a>
+    </div>
+  </div>
+  <div class="site-footer__legal"><span>© 2026 EpiForecast-MX · Tecnológico de Monterrey · IMSS · SINAVE</span><a href="#nav">Volver arriba ↑</a></div>
 </footer>
+<!-- site:footer:end -->
 
 </div><!-- /container -->
 
@@ -1252,5 +1217,6 @@ document.querySelectorAll('nav a, .toc a').forEach(a=>{
       scopeObs.observe(el);
     });
   </script>
+<script src="assets/site/site-nav.js?v=4"></script>
 </body>
 </html>

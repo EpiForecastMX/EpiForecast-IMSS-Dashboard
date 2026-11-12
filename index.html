@@ -28,42 +28,187 @@
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="theme-color" content="#123F35" />
 
-<link rel="stylesheet" href="home.css?v=1">
-<script src="epibot/js/release_catalog.js?v=18"></script>
-</head><body>
+  <link rel="stylesheet" href="assets/site/site.css?v=5">
+  <link rel="stylesheet" href="home.css?v=5">
+<script defer src="epibot/js/release_catalog.js?v=18"></script>
+</head>
+<body class="home">
 <a class="skip" href="#main">Saltar al contenido</a>
-<header id="nav"><div class="wrap nav-inner"><a class="brand" href="index.html" aria-label="EpiForecast-MX, inicio"><span class="brand-symbol" aria-hidden="true">E<span>+</span></span><span>EpiForecast<span class="brand-mx">MX</span><small>Inteligencia epidemiológica</small></span></a>
-<nav aria-label="Navegación principal"><ul class="nav-menu"><li><a href="#diseases">Padecimientos</a></li><li><a href="boletin.html">Radar del boletín</a></li><li><a href="#metodologia">El proyecto</a></li><li><a href="wcp2026.html">WCP 2026</a></li></ul></nav>
-<a class="button small nav-epi" href="epibot/index.html">Pregúntale a EPI <span aria-hidden="true">↗</span></a>
-<button class="nav-hamburger" aria-controls="navMobile" aria-expanded="false" aria-label="Abrir menú" onclick="toggleMobileNav(this)"><span aria-hidden="true">☰</span></button></div>
-<div id="navMobile" hidden><div class="nav-mobile-items wrap"><a href="#diseases">Padecimientos</a><a href="boletin.html">Radar del boletín</a><a href="Reports/index.html">Galería de pronósticos</a><a href="#metodologia">El proyecto</a><a href="wcp2026.html">WCP 2026 · Póster</a><a href="epibot/index.html">Pregúntale a EPI</a></div></div></header><main id="main"><section class="hero" id="hero"><div class="wrap hero-grid"><div class="hero-copy"><div class="edition"><span class="dot"></span> Edición de la semana 43, 2026</div><p class="eyebrow">Vigilancia que mira hacia adelante</p><h1>Entender el presente.<br><em>Anticipar lo que viene.</em></h1><p class="hero-description">Explora cómo evolucionan los padecimientos en México. Consulta datos oficiales y pronósticos semanales, por entidad y a nivel nacional.</p><div class="hero-actions"><a class="button" href="#diseases">Explorar padecimientos <span aria-hidden="true">↓</span></a><a class="text-link" href="boletin.html">Consultar el boletín →</a></div><p class="hero-source">Datos del SINAVE · Proyecto Tec de Monterrey + IMSS</p></div><figure class="edl-figure edl-figure--break">
-      <div class="edl-figkick">Una mirada a los pronósticos nacionales</div>
-      <div class="hf-card">
-        <div class="hf-head">
-          <div class="hf-title"><span class="hf-live"></span>Real vs. pronóstico</div>
-          <label class="hf-select-label" for="hfSelect">Padecimiento<select id="hfSelect"><option>Cargando series…</option></select></label><div id="hfPills" hidden></div>
-        </div>
-        <p class="hf-units">Casos notificados por semana · escala nacional</p><div class="hf-canvas-wrap">
-          <canvas id="hfCanvas" role="img" aria-label="Casos semanales observados y pronóstico nacional; consulta la descripción y la galería para el detalle"></canvas>
-          <div class="hf-legend">
-            <span><i style="border-color:var(--ink-soft)"></i>Observado</span>
-            <span><i style="border-top-style:dashed;border-color:var(--ink-mut)"></i>Pronóstico desde el corte</span>
-          </div>
-        </div>
-        <div class="hf-caption" id="hfCaption" aria-live="polite">Cargando datos del pronóstico…</div>
+<!-- site:header:start -->
+<header class="site-header" id="nav" lang="es">
+  <div class="site-header__inner">
+    <a class="site-brand" href="index.html" aria-label="EpiForecast-MX, inicio" aria-current="page"><span class="site-brand__symbol" aria-hidden="true">E<span>+</span></span><span class="site-brand__name"><span class="site-brand__word">EpiForecast<span class="site-brand__mx">MX</span></span><small>Inteligencia epidemiológica</small></span></a>
+    <nav class="site-nav" aria-label="Navegación principal">
+      <ul class="nav-menu">
+        <li><a href="Reports/index.html">Galería</a></li>
+        <li><a href="epibot/index.html">EpiBot</a></li>
+        <li><a href="EpiDashboard.html">Dashboard</a></li>
+        <li><a href="boletin.html">Radar del boletín</a></li>
+        <li><a href="novedades.html">Noticias</a></li>
+        <li class="nav-group">
+          <button type="button" class="nav-group__toggle" aria-expanded="false" aria-controls="navGroup-congresos">Congresos</button>
+          <ul class="nav-group__list" id="navGroup-congresos">
+            <li><a href="wcp2026.html">WCP 2026 · Estocolmo</a></li>
+            <li><a href="micai2026.html">MICAI 2026 · Chihuahua</a></li>
+            <li><a href="calass.html">CALASS 2026 · Montréal</a></li>
+            <li><a href="#congresos">Todos los congresos</a></li>
+          </ul>
+        </li>
+        <li class="nav-group">
+          <button type="button" class="nav-group__toggle" aria-expanded="false" aria-controls="navGroup-mas">Más</button>
+          <ul class="nav-group__list" id="navGroup-mas">
+            <li><a href="#diseases">Padecimientos</a></li>
+            <li><a href="#metodologia">Evidencia y método</a></li>
+            <li><a href="#about">Proyecto y equipo</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+    <button type="button" class="site-nav__toggle" aria-controls="navMobile" aria-expanded="false"><span class="site-nav__toggle-icon" aria-hidden="true"></span><span class="site-nav__toggle-text">Menú</span></button>
+  </div>
+  <div id="navMobile" class="site-nav__mobile">
+    <div class="nav-mobile-items">
+      <a class="nav-mobile-link" href="Reports/index.html">Galería</a>
+      <a class="nav-mobile-link" href="epibot/index.html">EpiBot</a>
+      <a class="nav-mobile-link" href="EpiDashboard.html">Dashboard</a>
+      <a class="nav-mobile-link" href="boletin.html">Radar del boletín</a>
+      <a class="nav-mobile-link" href="novedades.html">Noticias</a>
+      <p class="nav-mobile-group">Congresos</p>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="wcp2026.html">WCP 2026 · Estocolmo</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="micai2026.html">MICAI 2026 · Chihuahua</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="calass.html">CALASS 2026 · Montréal</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="#congresos">Todos los congresos</a>
+      <p class="nav-mobile-group">Más</p>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="#diseases">Padecimientos</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="#metodologia">Evidencia y método</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="#about">Proyecto y equipo</a>
+    </div>
+  </div>
+</header>
+<!-- site:header:end -->
+<main id="main">
+
+<!-- home:hero:start · Galería protagonista: vista previa nacional ligera (0 vista.json al cargar) -->
+<section class="home-hero" id="hero" aria-labelledby="hero-title">
+  <div class="wrap home-hero__grid">
+    <div class="home-hero__copy">
+      <p class="edition"><span class="dot" aria-hidden="true"></span>Edición de la semana 43, 2026</p>
+      <h1 id="hero-title">Cada padecimiento, <span class="serif-em">su pronóstico.</span></h1>
+      <p class="lead">Compara los casos notificados al SINAVE con el pronóstico de las próximas semanas, en todo el país, por entidad y por sexo.</p>
+      <div class="home-hero__actions">
+        <a class="btn btn--primary btn--lg" href="Reports/index.html">Explorar pronósticos <span aria-hidden="true">→</span></a>
+        <a class="text-link text-link--target" href="#diseases">Buscar un padecimiento</a>
       </div>
-      <figcaption class="edl-figcap">Cada serie conserva su propio corte. <a href="Reports/index.html">Ver las gráficas y el detalle de los datos →</a></figcaption>
-    </figure></div><div class="wrap quick-facts"><div><b>32</b><span>entidades federativas</span></div><div><b>52</b><span>semanas de pronóstico</span></div><div><b>Semanal</b><span>seguimiento con datos oficiales</span></div><a href="validacion_semanal.html">Consulta los cortes y la validación <span aria-hidden="true">↗</span></a></div></section><section class="wrap tools" id="reportes"><div class="section-heading"><div><span class="eyebrow">Tu punto de partida</span><h2>¿Qué necesitas consultar?</h2></div><p>Tres formas de explorar la información.</p></div><div class="tool-grid"><a class="tool-card" href="boletin.html" id="acceso-radar-boletin"><span class="tool-icon" aria-hidden="true">◎</span><span class="tool-kicker">Datos observados</span><h3>Radar del boletín <span aria-hidden="true">↗</span></h3><p>Consulta las notificaciones oficiales. Compara semanas, años y entidades.</p><span class="tool-action">Explorar el radar →</span></a><a class="tool-card" href="Reports/index.html"><span class="tool-icon" aria-hidden="true">⌁</span><span class="tool-kicker">Mirar hacia adelante</span><h3>Pronósticos <span aria-hidden="true">↗</span></h3><p>Explora las curvas y el seguimiento de lo pronosticado frente a lo observado.</p><span class="tool-action">Abrir la galería →</span></a><a class="tool-card epi" href="epibot/index.html"><span class="tool-icon" aria-hidden="true">✳</span><span class="tool-kicker">Una conversación con los datos</span><h3>Pregúntale a EPI <span aria-hidden="true">↗</span></h3><p>Haz una pregunta en lenguaje cotidiano y consulta las fuentes de la respuesta.</p><span class="tool-action">Iniciar una consulta →</span></a></div><p class="tableau-note">¿Buscas Tableau? <a href="EpiDashboard.html">Abrir el tablero histórico (corte W31)</a>. El seguimiento actual está en la galería y en EPI.</p></section><section class="catalog" id="diseases"><div class="wrap"><div class="section-heading"><div><span class="eyebrow">Explora por tema</span><h2>Encuentra un padecimiento</h2></div><p>Acceso directo a sus curvas, datos y método.</p></div><div class="catalog-controls" id="catalogControls" hidden><label class="search-label" for="conditionSearch">Buscar por nombre o código CIE-10<input type="search" id="conditionSearch" placeholder="Ej. diabetes, dengue, C50…" autocomplete="off"></label><label for="conditionGroup">Área de salud<select id="conditionGroup"><option value="">Todas las áreas</option>Salud mental y neurología</option><option>Metabólicos</option><option>Cardiovasculares</option><option>Oncología</option><option>Otros padecimientos</option></select></label></div><p class="catalog-note">La publicación no implica validación prospectiva superada. Los controles estacionales se identifican por separado; consulta el estado vigente en cada página.</p><p id="catalogCount" class="catalog-count" role="status"></p><div class="condition-grid" id="conditionGrid"><article class="condition-card" data-group="Salud mental y neurología"><span class="status">Pronóstico publicado</span><h3><a href="Reports/index.html">Depresión<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: F32 · 111 modelos · pronóstico a 52 semanas</p><details><summary>Cómo se obtuvo</summary><p>Mayor volumen de casos del portafolio. Con la selección fuera de muestra (semanas 28 a 37 de 2026), la asignación quedó: Ensemble 48, Stacking 29, DeepAR 22, Prophet 12. 100% datos suficientes.</p></details></article><article class="condition-card" data-group="Salud mental y neurología"><span class="status">Pronóstico publicado</span><h3><a href="Reports/index.html">Parkinson<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: G20 · 111 modelos · pronóstico a 52 semanas</p><details><summary>Cómo se obtuvo</summary><p>Escenario desafiante con baja incidencia. Con la selección fuera de muestra (semanas 28 a 37 de 2026): Prophet 35, Ensemble 31, Stacking 31, DeepAR 14.</p></details></article><article class="condition-card" data-group="Salud mental y neurología"><span class="status">Pronóstico publicado</span><h3><a href="Reports/index.html">Alzheimer<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: G30 · 111 modelos · pronóstico a 52 semanas</p><details><summary>Cómo se obtuvo</summary><p>Ultra-baja incidencia, donde un caso de diferencia pesa mucho en el error porcentual. Con la selección fuera de muestra (semanas 28 a 37 de 2026): Stacking 47, Prophet 31, Ensemble 30, DeepAR 3.</p></details></article><article class="condition-card" data-group="Otros padecimientos"><span class="status">Pronóstico publicado</span><h3><a href="dengue.html">Dengue<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: A97 · DeepAR + Prophet · 99 series productivas · 2018-2026</p><details><summary>Cómo se obtuvo</summary><p>Cuarto padecimiento y primera arbovirosis (transmitida por mosquito), con estacionalidad climática y grandes brotes cada cuatro a cinco años, ligados a <strong>El Niño</strong>. Se modela en conteos absolutos; en producción quedan <strong>DeepAR y Prophet</strong>, con pronóstico a 52 semanas. NB-GLM queda suspendido en esta ronda por inestabilidad de su predicción recursiva a horizontes largos.</p></details></article><article class="condition-card" data-group="Metabólicos"><span class="status">Pronóstico publicado</span><h3><a href="obesidad.html">Obesidad<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: E66 · 64 modelos · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Quinto padecimiento y el primero que recorre el flujo genérico de entrenamiento, validación prospectiva y publicación. Se modelan 64 series de estado y sexo con seis motores, elegidos por validación cruzada temporal en pliegues de 2021 a 2024; los totales estatales, regionales y nacional se obtienen sumándolas. El pronóstico usa datos hasta la semana 26 de 2026, se emitió el 24 de julio y cada boletín nuevo se compara con él.</p></details></article><article class="condition-card" data-group="Salud mental y neurología"><span class="status control">Control estacional</span><h3><a href="anorexia_f50.html">Anorexia, bulimia y otros trastornos alimentarios<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: F50 · control estacional · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Anorexia, bulimia y otros trastornos alimentarios, con unos 100 casos semanales en todo el país. Su portafolio de motores no superó la prueba de 2025, así que se publica el control estacional, que repite los casos de 52 semanas antes. Usa datos hasta la semana 41 de 2026 y se emitió el 6 de noviembre.</p></details></article><article class="condition-card" data-group="Cardiovasculares"><span class="status">Pronóstico publicado</span><h3><a href="hipertension_i10.html">Hipertensión arterial<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: I10-I15 · 64 modelos · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 12 mil casos semanales en todo el país. Su portafolio superó la prueba de 2025. Usa datos hasta la semana 41 de 2026, se emitió el 7 de noviembre y su validación prospectiva está en curso.</p></details></article><article class="condition-card" data-group="Cardiovasculares"><span class="status control">Control estacional</span><h3><a href="isquemica_i20.html">Enfermedad isquémica del corazón<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: I20, I25 · control estacional · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 1,600 casos semanales en todo el país. Su portafolio no superó la prueba de 2025, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details></article><article class="condition-card" data-group="Cardiovasculares"><span class="status control">Control estacional</span><h3><a href="cerebrovascular_i60.html">Enfermedad cerebrovascular<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: I60-I67, I69 · control estacional · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 1,300 casos semanales en todo el país. Su portafolio no superó la prueba de 2025, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details></article><article class="condition-card" data-group="Otros padecimientos"><span class="status">Pronóstico publicado</span><h3><a href="intestinales_a04.html">Infecciones intestinales por otros organismos y las mal definidas<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: A04, A08-A09 · 64 modelos · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 70 mil casos semanales en todo el país. Su portafolio superó la prueba de 2025. Usa datos hasta la semana 41 de 2026, se emitió el 8 de noviembre y su validación prospectiva está en curso.</p></details></article><article class="condition-card" data-group="Otros padecimientos"><span class="status control">Control estacional</span><h3><a href="ira_j00.html">Infecciones respiratorias agudas<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: J00-J06, J20, J21 · control estacional · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 300 mil casos semanales en todo el país. Su portafolio no superó la prueba de 2025, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details></article><article class="condition-card" data-group="Otros padecimientos"><span class="status">Pronóstico publicado</span><h3><a href="ivu_n39.html">Infección de vías urinarias<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: N30, N34, N39.0 · 64 modelos · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 70 mil casos semanales en todo el país. Su portafolio superó la prueba de 2025. Usa datos hasta la semana 41 de 2026, se emitió el 8 de noviembre y su validación prospectiva está en curso.</p></details></article><article class="condition-card" data-group="Otros padecimientos"><span class="status control">Control estacional</span><h3><a href="gingivitis_k05.html">Gingivitis y enfermedad periodontal<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: K05 · control estacional · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 23 mil casos semanales en todo el país. Su portafolio no superó la prueba de 2025, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details></article><article class="condition-card" data-group="Otros padecimientos"><span class="status">Pronóstico publicado</span><h3><a href="ulceras_k25.html">Úlceras, gastritis y duodenitis<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: K25-K29 · 64 modelos · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 17 mil casos semanales en todo el país. Su portafolio superó la prueba de 2025. Usa datos hasta la semana 41 de 2026, se emitió el 8 de noviembre y su validación prospectiva está en curso.</p></details></article><article class="condition-card" data-group="Otros padecimientos"><span class="status">Pronóstico publicado</span><h3><a href="asma_j45.html">Asma<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: J45, J46 · 64 modelos · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 2,300 casos semanales en todo el país en 2026. Su portafolio superó la prueba de 2025. Usa datos hasta la semana 41 de 2026, se emitió el 9 de noviembre y su validación prospectiva está en curso.</p></details></article><article class="condition-card" data-group="Otros padecimientos"><span class="status control">Control estacional</span><h3><a href="neumonias_j12.html">Neumonías y bronconeumonías<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: J12-J18 excepto J18.2, J13 y J14 · control estacional · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 3,000 casos semanales en todo el país en 2026. Su portafolio no superó la prueba de 2025 en el total nacional, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details></article><article class="condition-card" data-group="Oncología"><span class="status control">Control estacional</span><h3><a href="cancer_mama_c50.html">Tumor maligno de la mama<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: C50 · control estacional · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 470 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details></article><article class="condition-card" data-group="Oncología"><span class="status">Pronóstico publicado</span><h3><a href="cancer_cuello_utero_c53.html">Tumor maligno del cuello del útero<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: C53 · 32 modelos · 37 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 70 casos semanales en todo el país. Su portafolio superó la prueba de 2025. El boletín no lo desglosa por sexo: se pronostica el total de cada entidad. Usa datos hasta la semana 41 de 2026 y su validación prospectiva está en curso.</p></details></article><article class="condition-card" data-group="Oncología"><span class="status">Pronóstico publicado</span><h3><a href="cancer_pulmon_c33.html">Tumor maligno de tráquea, bronquios y pulmón<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: C33-C34 · 64 modelos · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 47 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026. Validación prospectiva en curso.</p></details></article><article class="condition-card" data-group="Oncología"><span class="status">Pronóstico publicado</span><h3><a href="cancer_estomago_c16.html">Tumor maligno del estómago<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: C16 · 64 modelos · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 43 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026. Validación prospectiva en curso.</p></details></article><article class="condition-card" data-group="Oncología"><span class="status">Pronóstico publicado</span><h3><a href="cancer_colon_c18.html">Tumor maligno del colon y recto<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: C18-C21 · 64 modelos · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 126 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026. Validación prospectiva en curso.</p></details></article><article class="condition-card" data-group="Oncología"><span class="status">Pronóstico publicado</span><h3><a href="linfoma_hodgkin_c81.html">Linfoma de Hodgkin<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: C81 · 64 modelos · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 22 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026. Validación prospectiva en curso.</p></details></article><article class="condition-card" data-group="Oncología"><span class="status">Pronóstico publicado</span><h3><a href="linfoma_no_hodgkin_c82.html">Linfoma no Hodgkin<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: C82-C85 · 64 modelos · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 52 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026. Validación prospectiva en curso.</p></details></article><article class="condition-card" data-group="Oncología"><span class="status">Pronóstico publicado</span><h3><a href="leucemia_c91.html">Leucemia<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: C91-C95 · 64 modelos · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 49 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026. Validación prospectiva en curso.</p></details></article><article class="condition-card" data-group="Oncología"><span class="status">Pronóstico publicado</span><h3><a href="cancer_pancreas_c26.html">Tumor maligno del páncreas<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: C26 · 64 modelos · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 35 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026. Validación prospectiva en curso.</p></details></article><article class="condition-card" data-group="Oncología"><span class="status">Pronóstico publicado</span><h3><a href="cancer_encefalo_c70.html">Tumores malignos del encéfalo y del sistema nervioso central<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: C70-C72 · 64 modelos · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 23 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026. Validación prospectiva en curso.</p></details></article><article class="condition-card" data-group="Oncología"><span class="status">Pronóstico publicado</span><h3><a href="cancer_cuerpo_utero_c54.html">Tumor maligno del cuerpo del útero<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: C54 · 32 modelos · 37 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 59 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026; el boletín no lo desglosa por sexo. Validación prospectiva en curso.</p></details></article><article class="condition-card" data-group="Oncología"><span class="status">Pronóstico publicado</span><h3><a href="cancer_ovario_c56.html">Tumor maligno del ovario<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: C56 · 32 modelos · 37 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 63 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026; el boletín no lo desglosa por sexo. Validación prospectiva en curso.</p></details></article><article class="condition-card" data-group="Oncología"><span class="status control">Control estacional</span><h3><a href="cancer_rinon_c64.html">Tumor maligno del riñón<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: C64 · control estacional · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 54 casos semanales en todo el país. Su serie empieza en 2023 y su portafolio no superó la prueba de 2026, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details></article><article class="condition-card" data-group="Oncología"><span class="status control">Control estacional</span><h3><a href="cancer_prostata_c61.html">Tumor maligno de la próstata<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: C61 · control estacional · 37 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 151 casos semanales en todo el país. Su serie empieza en 2023 y su portafolio no superó la prueba de 2026, así que se publica el control estacional, que repite los casos de 52 semanas antes; el boletín no lo desglosa por sexo.</p></details></article><article class="condition-card" data-group="Oncología"><span class="status control">Control estacional</span><h3><a href="cancer_huesos_c40.html">Tumores malignos de los huesos y de los cartílagos articulares<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: C40-C41 · control estacional · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 21 casos semanales en todo el país. Su serie empieza en 2023 y su portafolio no superó la prueba de 2026, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details></article><article class="condition-card" data-group="Oncología"><span class="status control">Control estacional</span><h3><a href="cancer_higado_c22.html">Tumor maligno del hígado y de las vías biliares intrahepáticas<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: C22 · control estacional · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 34 casos semanales en todo el país. Su serie empieza en 2023 y su portafolio no superó la prueba de 2026, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details></article><article class="condition-card" data-group="Oncología"><span class="status control">Control estacional</span><h3><a href="cancer_esofago_c15.html">Tumor maligno del esófago<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: C15 · control estacional · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Unos 11 casos semanales en todo el país. Su serie empieza en 2023 y su portafolio no superó la prueba de 2026, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details></article><article class="condition-card" data-group="Metabólicos"><span class="status">Pronóstico publicado</span><h3><a href="diabetes_t1.html">Diabetes tipo I<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: E10 · 64 modelos · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Diabetes mellitus insulinodependiente, con unos 80 casos semanales en todo el país. Por sus pocos casos compite un portafolio de motores estacionales. El pronóstico usa datos hasta la semana 41 de 2026, se emitió el 5 de noviembre y su validación prospectiva está en curso.</p></details></article><article class="condition-card" data-group="Metabólicos"><span class="status">Pronóstico publicado</span><h3><a href="diabetes_t2.html">Diabetes tipo II<span aria-hidden="true">↗</span></a></h3><p class="condition-meta">CIE-10: E11-E14 · 64 modelos · 111 series publicadas · pronóstico puntual</p><details><summary>Cómo se obtuvo</summary><p>Diabetes mellitus no insulinodependiente, con unos 11 mil casos semanales en todo el país. Se modelan 64 series de estado y sexo. El pronóstico usa datos hasta la semana 41 de 2026, se emitió el 5 de noviembre y su validación prospectiva está en curso.</p></details></article></div><div class="catalog-bottom"><button id="showConditions" class="button secondary" hidden>Ver todos los padecimientos</button><p id="noConditions" hidden>No encontramos coincidencias. Prueba otro nombre o <a href="boletin.html">consulta las categorías del radar</a>.</p><a href="rechazados.html">Ver los analizados y rechazados →</a></div></div></section><section class="news-bg" id="novedades">
-    <div class="wrap">
-      <div class="news-banner reveal">
+      <ul class="home-hero__facts">
+        <li><b id="countPadecimientos">35</b><span>padecimientos</span></li>
+        <li><b>32</b><span>entidades</span></li>
+        <li><b>52</b><span>semanas</span></li>
+      </ul>
+    </div>
+    <figure class="preview" id="pvFigure" aria-labelledby="pvTitle">
+      <div class="preview__head">
+        <p class="preview__kicker" id="pvTitle">Vista previa · total nacional</p>
+        <label class="preview__select" for="hfSelect">Padecimiento
+          <select id="hfSelect" disabled><option>Cargando…</option></select>
+        </label>
+      </div>
+      <p class="preview__units">Casos notificados por semana, ambos sexos</p>
+      <p class="preview__cohort-error" id="pvCohortError" role="status" hidden>Las series de la cohorte original (Depresión, Parkinson, Alzheimer y Dengue) no están disponibles por ahora. <button type="button" class="btn btn--ghost btn--sm" id="pvCohortRetry">Reintentar</button></p>
+      <div class="preview__canvas">
+        <canvas id="hfCanvas" role="img" aria-label="Casos semanales observados y pronóstico nacional; el detalle está en la Galería"></canvas>
+        <div class="preview__state" id="pvState" role="status" aria-live="polite"><p>Cargando la serie nacional…</p></div>
+      </div>
+      <ul class="preview__legend">
+        <li><i class="lg lg--obs" aria-hidden="true"></i>Observado</li>
+        <li><i class="lg lg--pron" aria-hidden="true"></i>Pronóstico desde el corte</li>
+        <li id="pvLegBand" hidden><i class="lg lg--band" aria-hidden="true"></i>Intervalo del motor</li>
+        <li><i class="lg lg--now" aria-hidden="true"></i>Último observado</li>
+      </ul>
+      <dl class="preview__meta">
+        <div class="preview__meta-estado"><dt>Estado</dt><dd id="pvEstado">—</dd></div>
+        <div><dt id="pvCorteRot">Corte</dt><dd id="pvCorte">—</dd></div>
+        <div><dt>Último observado</dt><dd id="pvObs">—</dd></div>
+      </dl>
+      <details class="preview__more">
+        <summary>Origen y detalle</summary>
+        <dl class="preview__meta">
+          <div><dt>Total pronosticado</dt><dd id="pvCasos">—</dd></div>
+          <div><dt>Emisión</dt><dd id="pvEmision">—</dd></div>
+          <div><dt>Fuente</dt><dd id="pvFuente">—</dd></div>
+        </dl>
+        <p class="preview__note">Publicar un pronóstico no equivale a validarlo. <a class="text-link" href="validacion_semanal.html">Cortes y validación</a></p>
+      </details>
+      <figcaption class="preview__foot">
+        <a class="btn btn--ghost" id="pvGaleria" href="Reports/index.html">Ver este padecimiento en la Galería <span aria-hidden="true">→</span></a>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+<!-- home:hero:end -->
+
+<!-- home:epi:start -->
+<section class="home-band home-epi" id="epi" aria-labelledby="epi-title">
+  <span id="reportes"></span><!-- alias: ancla del antiguo bloque «Tu punto de partida» -->
+  <div class="wrap home-split">
+    <div>
+      <p class="eyebrow">EpiBot</p>
+      <h2 id="epi-title">Pregúntale a EPI</h2>
+      <p>Responde con los pronósticos y datos publicados en este sitio. Cuando responde desde los documentos del estudio, cita sus fuentes. No es consejo médico.</p>
+      <a class="btn btn--primary" href="epibot/index.html">Abrir EPI <span aria-hidden="true">↗</span></a>
+    </div>
+    <div>
+      <p class="epi-label">Preguntas que puedes hacer</p>
+      <ul class="epi-examples">
+        <li><p class="epi-q">«pronóstico de depresión en Jalisco»</p></li>
+        <li><p class="epi-q">«real vs pronóstico depresión»</p></li>
+      </ul>
+    </div>
+  </div>
+</section>
+<!-- home:epi:end -->
+
+<!-- home:dashboard:start -->
+<section class="home-band home-dash" id="dashboard" aria-labelledby="dash-title">
+  <div class="wrap home-split">
+    <div>
+      <p class="eyebrow">Dashboard</p>
+      <h2 id="dash-title">Analiza, compara y descarga</h2>
+      <p>Usa el mismo catálogo de padecimientos que la Galería.</p>
+      <a class="btn btn--primary" href="EpiDashboard.html">Abrir el Dashboard <span aria-hidden="true">→</span></a>
+    </div>
+    <ul class="dash-caps">
+      <li><b>Explorar y comparar</b><span>Una serie por entidad y sexo, o hasta cuatro territorios juntos.</span></li>
+      <li><b>Perfil y vigilancia</b><span>Estacionalidad de la serie y lectura del boletín.</span></li>
+      <li><b>Descargas</b><span>CSV con origen, emisión y estado; gráfica en SVG.</span></li>
+    </ul>
+    <p class="dash-archive">¿Buscas el tablero de Tableau? <a class="text-link" href="EpiDashboard-tableau.html">Abre el archivo histórico (corte W31)</a>.</p>
+  </div>
+</section>
+<!-- home:dashboard:end -->
+
+<!-- home:radar:start -->
+<section class="home-radar" aria-label="Radar del boletín">
+  <div class="wrap">
+    <a class="radar-row" href="boletin.html" id="acceso-radar-boletin">
+      <span class="radar-row__kicker">Datos observados</span>
+      <b>Radar del boletín</b>
+      <span class="radar-row__text">Notificaciones oficiales por semana, año y entidad.</span>
+      <span class="radar-row__go" aria-hidden="true">↗</span>
+    </a>
+  </div>
+</section>
+<!-- home:radar:end -->
+
+<!-- home:news:start · el bloque #newsBannerRow lo reescribe EpiForecast-MX scripts/build_news_weekly.py -->
+<section class="home-news" id="novedades" aria-labelledby="news-title">
+  <div class="wrap">
+      <div class="news-banner">
         <div class="news-banner-head">
-          <div><span class="eyebrow">Al día</span><h2>Lo último en EpiForecast</h2></div>
-          <a href="novedades.html" class="news-banner-all">Todas las novedades
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
-          </a>
+          <div><p class="eyebrow">Noticias</p><h2 id="news-title">Lo último en EpiForecast</h2></div>
+          <a href="novedades.html" class="text-link news-banner-all">Todas las noticias <span aria-hidden="true">→</span></a>
         </div>
         <div class="news-banner-row" id="newsBannerRow">
-          <a href="novedades.html" class="news-lead">
+          <a href="novedades.html#nota-2026-11-10-las-neumonias-y-bronconeumonias-se-publican-con" class="news-lead">
             <div class="news-lead-meta">
               <span class="news-date">10 de noviembre de 2026</span>
               <span class="news-tag news-tag--radar">Control estacional</span>
@@ -72,12 +217,12 @@
             <div class="news-lead-sub">Pronóstico a 52 semanas para el país, 4 regiones y las 32 entidades, por sexo. Su portafolio no superó la prueba de 2025 en el total nacional, así que se publica el control estacional, sin validar.</div>
           </a>
           <div class="news-mini-list">
-            <a href="novedades.html" class="news-mini">
+            <a href="novedades.html#nota-2026-11-09-ya-contamos-con-la-semana-epidemiologica-43-de-2" class="news-mini">
               <span class="news-tag news-tag--datos">Datos</span>
               <span class="news-mini-title">Ya contamos con la semana epidemiológica 43 de 2026</span>
               <span class="news-mini-date">9 de noviembre de 2026</span>
             </a>
-            <a href="novedades.html" class="news-mini">
+            <a href="novedades.html#nota-2026-11-09-el-asma-se-incorpora-al-pronostico" class="news-mini">
               <span class="news-tag news-tag--radar">Nuevo padecimiento</span>
               <span class="news-mini-title">El asma se incorpora al pronóstico</span>
               <span class="news-mini-date">9 de noviembre de 2026</span>
@@ -85,14 +230,379 @@
           </div>
         </div>
       </div>
+  </div>
+</section>
+<!-- home:news:end -->
+
+<!-- home:congresos:start · hechos literales de cada página; un estado no se deduce de la fecha -->
+<section class="home-band home-congresos" id="congresos" aria-labelledby="congresos-title">
+  <span id="mundial"></span>
+  <div class="wrap">
+    <div class="section-head">
+      <div><p class="eyebrow">Congresos</p><h2 id="congresos-title">Del proyecto a la comunidad científica</h2></div>
+      <p>Póster, artículo y presentaciones del proyecto: abre cada uno para ver sus materiales.</p>
     </div>
-  </section><section class="wrap methods" id="metodologia"><div class="section-heading"><div><span class="eyebrow">Transparencia desde el origen</span><h2>Datos claros. Alcances visibles.</h2></div><p>Conoce de dónde viene cada resultado.</p></div><div class="method-grid"><div><span class="step">01 / OBSERVAR</span><h3>Una fuente oficial</h3><p>Partimos del Boletín Epidemiológico del SINAVE. El radar permite consultar las notificaciones y sus periodos.</p><a href="boletin.html">Consultar la fuente →</a></div><div><span class="step">02 / PRONOSTICAR</span><h3>Cada padecimiento, su método</h3><p>La plataforma reúne modelos y controles estacionales. Cada página documenta el origen, el horizonte y el estado de validación.</p><a href="metodologia_dengue.html">Explorar una metodología →</a></div><div><span class="step">03 / CONTRASTAR</span><h3>Volver a lo observado</h3><p>Los boletines nuevos se comparan con los pronósticos guardados. El seguimiento permite ver sus alcances y limitaciones.</p><a href="validacion_semanal.html">Ver la validación →</a></div></div><div class="research-links"><a href="reporte_resultados.html">Resultados</a><a href="comparacion_modelos.html">Comparación de modelos</a><a href="auditoria_remediacion_2026.html">Auditoría</a><a href="referencias.html">Referencias</a><a href="bitacora_modelado.html">Bitácora</a><a href="ficha_tecnica_prophet.html">Ficha Prophet</a><a href="hiperparametros_modelos.html">Hiperparámetros</a><a href="construccion_dashboard.html">Arquitectura</a><a href="conclusiones.html">Conclusiones</a></div></section><section class="wrap cohort" id="results"><details><summary>Detalle de la cohorte original · corte W37</summary><p>432 series de la cohorte original (333 neuropsiquiátricas y 99 de Dengue); no representan el total de todos los padecimientos publicados.</p><div class="edl-stats">
-        <div class="edl-stat"><b id="b-motor-total">432</b><span>series en producción</span></div>
-        <div class="edl-stat"><b>32</b><span>entidades + nacional</span></div>
-        <div class="edl-stat"><b>52</b><span>semanas de horizonte</span></div>
-        <div class="edl-stat"><b><span id="b-motor-pct">32.7</span>%</b><span>cuota del motor líder en la cohorte neuro, <span id="b-motor">Ensemble</span></span></div>
+    <div class="congress-grid">
+      <article class="congress-card congress-card--feature">
+        <a class="congress-card__media" href="wcp2026.html" tabindex="-1" aria-hidden="true"><img src="Reports/wcp2026/marca/poster-portada.jpg" width="820" height="461" loading="lazy" alt=""></a>
+        <p class="congress-card__when">Estocolmo · 23 al 26 de septiembre de 2026</p>
+        <h3><a href="wcp2026.html">WCP 2026 · Congreso Mundial de Psiquiatría</a></h3>
+        <p>E-Poster 3134 aceptado en el 26.º Congreso Mundial de Psiquiatría de la WPA: pronóstico de depresión, Alzheimer y Parkinson notificados.</p>
+        <p class="congress-card__status">Póster interactivo en inglés y español</p>
+      </article>
+      <article class="congress-card">
+        <p class="congress-card__when">Chihuahua · 2 al 6 de noviembre de 2026</p>
+        <h3><a href="micai2026.html">MICAI 2026 · Artículo 12</a></h3>
+        <p>Selección de modelo auditable por serie para los casos semanales de depresión notificados en México.</p>
+        <p class="congress-card__status">Aceptado; aparecerá en Springer LNCS 17149 (página en inglés)</p>
+      </article>
+      <article class="congress-card">
+        <p class="congress-card__when">Montréal · 27 de agosto de 2026</p>
+        <h3><a href="calass.html">CALASS 2026 · Comunicación 75</a></h3>
+        <p>XXXVI Congreso de la ALASS, Université de Montréal, sesión 4.1 sobre inteligencia artificial para la gestión de los servicios de salud.</p>
+        <p class="congress-card__status">Presentado el 27 de agosto de 2026</p>
+      </article>
+    </div>
+    <h3 class="congress-more-title">Más congresos y reconocimientos</h3>
+    <ul class="congress-list">
+      <li><a href="future_health.html">Public Health Futures, Skopje</a><span>21 y 22 de mayo de 2026 · aceptado como ponencia oral</span></li>
+      <li><a href="helix.html">International Summit HELIX 2026 México, Cuernavaca</a><span>20 de mayo de 2026 · primer lugar</span></li>
+    </ul>
+  </div>
+</section>
+<!-- home:congresos:end -->
+
+<!-- home:catalogo:start · 35 tarjetas; textos de cada padecimiento sin cambios -->
+<section class="catalog" id="diseases" aria-labelledby="catalog-title">
+  <div class="wrap">
+    <div class="section-head">
+      <div><p class="eyebrow">Padecimientos</p><h2 id="catalog-title">Encuentra un padecimiento</h2></div>
+      <p>Acceso directo a su página, su método y sus gráficas en la galería.</p>
+    </div>
+    <div class="catalog-controls" id="catalogControls" hidden>
+      <label class="search-label" for="conditionSearch">Buscar por nombre o código CIE-10
+        <input type="search" id="conditionSearch" placeholder="Ej. diabetes, dengue, C50…" autocomplete="off">
+      </label>
+      <label for="conditionGroup">Área de salud
+        <select id="conditionGroup">
+                <option value="">Todas las áreas</option>
+                <option>Salud mental y neurología</option>
+                <option>Metabólicos</option>
+                <option>Cardiovasculares</option>
+                <option>Oncología</option>
+                <option>Otros padecimientos</option>
+        </select>
+      </label>
+    </div>
+    <p class="catalog-note">La publicación no implica validación prospectiva superada. Los controles estacionales se identifican por separado; consulta el estado vigente en cada página.</p>
+    <p id="catalogCount" class="catalog-count" role="status"></p>
+    <div class="condition-grid" id="conditionGrid">
+          <article class="condition-card" data-p="depresion" data-group="Salud mental y neurología">
+            <span class="status">Pronóstico publicado</span>
+            <h3><a href="Reports/index.html?p=depresion">Depresión<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: F32 · 111 modelos · pronóstico a 52 semanas</p>
+            <a class="condition-gallery" href="Reports/index.html?p=depresion">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Mayor volumen de casos del portafolio. Con la selección fuera de muestra (semanas 28 a 37 de 2026), la asignación quedó: Ensemble 48, Stacking 29, DeepAR 22, Prophet 12. 100% datos suficientes.</p></details>
+          </article>
+          <article class="condition-card" data-p="parkinson" data-group="Salud mental y neurología">
+            <span class="status">Pronóstico publicado</span>
+            <h3><a href="Reports/index.html?p=parkinson">Parkinson<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: G20 · 111 modelos · pronóstico a 52 semanas</p>
+            <a class="condition-gallery" href="Reports/index.html?p=parkinson">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Escenario desafiante con baja incidencia. Con la selección fuera de muestra (semanas 28 a 37 de 2026): Prophet 35, Ensemble 31, Stacking 31, DeepAR 14.</p></details>
+          </article>
+          <article class="condition-card" data-p="alzheimer" data-group="Salud mental y neurología">
+            <span class="status">Pronóstico publicado</span>
+            <h3><a href="Reports/index.html?p=alzheimer">Alzheimer<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: G30 · 111 modelos · pronóstico a 52 semanas</p>
+            <a class="condition-gallery" href="Reports/index.html?p=alzheimer">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Ultra-baja incidencia, donde un caso de diferencia pesa mucho en el error porcentual. Con la selección fuera de muestra (semanas 28 a 37 de 2026): Stacking 47, Prophet 31, Ensemble 30, DeepAR 3.</p></details>
+          </article>
+          <article class="condition-card" data-p="dengue" data-group="Otros padecimientos">
+            <span class="status">Pronóstico publicado</span>
+            <h3><a href="dengue.html">Dengue<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: A97 · DeepAR + Prophet · 99 series productivas · 2018-2026</p>
+            <a class="condition-gallery" href="Reports/index.html?p=dengue">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Cuarto padecimiento y primera arbovirosis (transmitida por mosquito), con estacionalidad climática y grandes brotes cada cuatro a cinco años, ligados a <strong>El Niño</strong>. Se modela en conteos absolutos; en producción quedan <strong>DeepAR y Prophet</strong>, con pronóstico a 52 semanas. NB-GLM queda suspendido en esta ronda por inestabilidad de su predicción recursiva a horizontes largos.</p></details>
+          </article>
+          <article class="condition-card" data-p="obesidad" data-group="Metabólicos">
+            <span class="status">Pronóstico publicado</span>
+            <h3><a href="obesidad.html">Obesidad<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: E66 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=obesidad">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Quinto padecimiento y el primero que recorre el flujo genérico de entrenamiento, validación prospectiva y publicación. Se modelan 64 series de estado y sexo con seis motores, elegidos por validación cruzada temporal en pliegues de 2021 a 2024; los totales estatales, regionales y nacional se obtienen sumándolas. El pronóstico usa datos hasta la semana 26 de 2026, se emitió el 24 de julio y cada boletín nuevo se compara con él.</p></details>
+          </article>
+          <article class="condition-card" data-p="anorexia_f50" data-group="Salud mental y neurología">
+            <span class="status control">Control estacional</span>
+            <h3><a href="anorexia_f50.html">Anorexia, bulimia y otros trastornos alimentarios<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: F50 · control estacional · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=anorexia_f50">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Anorexia, bulimia y otros trastornos alimentarios, con unos 100 casos semanales en todo el país. Su portafolio de motores no superó la prueba de 2025, así que se publica el control estacional, que repite los casos de 52 semanas antes. Usa datos hasta la semana 41 de 2026 y se emitió el 6 de noviembre.</p></details>
+          </article>
+          <article class="condition-card" data-p="hipertension_i10" data-group="Cardiovasculares">
+            <span class="status">Pronóstico publicado</span>
+            <h3><a href="hipertension_i10.html">Hipertensión arterial<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: I10-I15 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=hipertension_i10">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 12 mil casos semanales en todo el país. Su portafolio superó la prueba de 2025. Usa datos hasta la semana 41 de 2026, se emitió el 7 de noviembre y su validación prospectiva está en curso.</p></details>
+          </article>
+          <article class="condition-card" data-p="isquemica_i20" data-group="Cardiovasculares">
+            <span class="status control">Control estacional</span>
+            <h3><a href="isquemica_i20.html">Enfermedad isquémica del corazón<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: I20, I25 · control estacional · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=isquemica_i20">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 1,600 casos semanales en todo el país. Su portafolio no superó la prueba de 2025, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details>
+          </article>
+          <article class="condition-card" data-p="cerebrovascular_i60" data-group="Cardiovasculares">
+            <span class="status control">Control estacional</span>
+            <h3><a href="cerebrovascular_i60.html">Enfermedad cerebrovascular<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: I60-I67, I69 · control estacional · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=cerebrovascular_i60">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 1,300 casos semanales en todo el país. Su portafolio no superó la prueba de 2025, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details>
+          </article>
+          <article class="condition-card" data-p="intestinales_a04" data-group="Otros padecimientos">
+            <span class="status">Pronóstico publicado</span>
+            <h3><a href="intestinales_a04.html">Infecciones intestinales por otros organismos y las mal definidas<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: A04, A08-A09 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=intestinales_a04">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 70 mil casos semanales en todo el país. Su portafolio superó la prueba de 2025. Usa datos hasta la semana 41 de 2026, se emitió el 8 de noviembre y su validación prospectiva está en curso.</p></details>
+          </article>
+          <article class="condition-card" data-p="ira_j00" data-group="Otros padecimientos">
+            <span class="status control">Control estacional</span>
+            <h3><a href="ira_j00.html">Infecciones respiratorias agudas<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: J00-J06, J20, J21 · control estacional · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=ira_j00">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 300 mil casos semanales en todo el país. Su portafolio no superó la prueba de 2025, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details>
+          </article>
+          <article class="condition-card" data-p="ivu_n39" data-group="Otros padecimientos">
+            <span class="status">Pronóstico publicado</span>
+            <h3><a href="ivu_n39.html">Infección de vías urinarias<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: N30, N34, N39.0 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=ivu_n39">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 70 mil casos semanales en todo el país. Su portafolio superó la prueba de 2025. Usa datos hasta la semana 41 de 2026, se emitió el 8 de noviembre y su validación prospectiva está en curso.</p></details>
+          </article>
+          <article class="condition-card" data-p="gingivitis_k05" data-group="Otros padecimientos">
+            <span class="status control">Control estacional</span>
+            <h3><a href="gingivitis_k05.html">Gingivitis y enfermedad periodontal<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: K05 · control estacional · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=gingivitis_k05">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 23 mil casos semanales en todo el país. Su portafolio no superó la prueba de 2025, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details>
+          </article>
+          <article class="condition-card" data-p="ulceras_k25" data-group="Otros padecimientos">
+            <span class="status">Pronóstico publicado</span>
+            <h3><a href="ulceras_k25.html">Úlceras, gastritis y duodenitis<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: K25-K29 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=ulceras_k25">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 17 mil casos semanales en todo el país. Su portafolio superó la prueba de 2025. Usa datos hasta la semana 41 de 2026, se emitió el 8 de noviembre y su validación prospectiva está en curso.</p></details>
+          </article>
+          <article class="condition-card" data-p="asma_j45" data-group="Otros padecimientos">
+            <span class="status">Pronóstico publicado</span>
+            <h3><a href="asma_j45.html">Asma<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: J45, J46 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=asma_j45">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 2,300 casos semanales en todo el país en 2026. Su portafolio superó la prueba de 2025. Usa datos hasta la semana 41 de 2026, se emitió el 9 de noviembre y su validación prospectiva está en curso.</p></details>
+          </article>
+          <article class="condition-card" data-p="neumonias_j12" data-group="Otros padecimientos">
+            <span class="status control">Control estacional</span>
+            <h3><a href="neumonias_j12.html">Neumonías y bronconeumonías<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: J12-J18 excepto J18.2, J13 y J14 · control estacional · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=neumonias_j12">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 3,000 casos semanales en todo el país en 2026. Su portafolio no superó la prueba de 2025 en el total nacional, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details>
+          </article>
+          <article class="condition-card" data-p="cancer_mama_c50" data-group="Oncología">
+            <span class="status control">Control estacional</span>
+            <h3><a href="cancer_mama_c50.html">Tumor maligno de la mama<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: C50 · control estacional · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=cancer_mama_c50">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 470 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details>
+          </article>
+          <article class="condition-card" data-p="cancer_cuello_utero_c53" data-group="Oncología">
+            <span class="status">Pronóstico publicado</span>
+            <h3><a href="cancer_cuello_utero_c53.html">Tumor maligno del cuello del útero<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: C53 · 32 modelos · 37 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=cancer_cuello_utero_c53">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 70 casos semanales en todo el país. Su portafolio superó la prueba de 2025. El boletín no lo desglosa por sexo: se pronostica el total de cada entidad. Usa datos hasta la semana 41 de 2026 y su validación prospectiva está en curso.</p></details>
+          </article>
+          <article class="condition-card" data-p="cancer_pulmon_c33" data-group="Oncología">
+            <span class="status">Pronóstico publicado</span>
+            <h3><a href="cancer_pulmon_c33.html">Tumor maligno de tráquea, bronquios y pulmón<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: C33-C34 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=cancer_pulmon_c33">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 47 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026. Validación prospectiva en curso.</p></details>
+          </article>
+          <article class="condition-card" data-p="cancer_estomago_c16" data-group="Oncología">
+            <span class="status">Pronóstico publicado</span>
+            <h3><a href="cancer_estomago_c16.html">Tumor maligno del estómago<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: C16 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=cancer_estomago_c16">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 43 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026. Validación prospectiva en curso.</p></details>
+          </article>
+          <article class="condition-card" data-p="cancer_colon_c18" data-group="Oncología">
+            <span class="status">Pronóstico publicado</span>
+            <h3><a href="cancer_colon_c18.html">Tumor maligno del colon y recto<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: C18-C21 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=cancer_colon_c18">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 126 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026. Validación prospectiva en curso.</p></details>
+          </article>
+          <article class="condition-card" data-p="linfoma_hodgkin_c81" data-group="Oncología">
+            <span class="status">Pronóstico publicado</span>
+            <h3><a href="linfoma_hodgkin_c81.html">Linfoma de Hodgkin<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: C81 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=linfoma_hodgkin_c81">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 22 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026. Validación prospectiva en curso.</p></details>
+          </article>
+          <article class="condition-card" data-p="linfoma_no_hodgkin_c82" data-group="Oncología">
+            <span class="status">Pronóstico publicado</span>
+            <h3><a href="linfoma_no_hodgkin_c82.html">Linfoma no Hodgkin<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: C82-C85 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=linfoma_no_hodgkin_c82">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 52 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026. Validación prospectiva en curso.</p></details>
+          </article>
+          <article class="condition-card" data-p="leucemia_c91" data-group="Oncología">
+            <span class="status">Pronóstico publicado</span>
+            <h3><a href="leucemia_c91.html">Leucemia<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: C91-C95 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=leucemia_c91">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 49 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026. Validación prospectiva en curso.</p></details>
+          </article>
+          <article class="condition-card" data-p="cancer_pancreas_c26" data-group="Oncología">
+            <span class="status">Pronóstico publicado</span>
+            <h3><a href="cancer_pancreas_c26.html">Tumor maligno del páncreas<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: C26 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=cancer_pancreas_c26">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 35 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026. Validación prospectiva en curso.</p></details>
+          </article>
+          <article class="condition-card" data-p="cancer_encefalo_c70" data-group="Oncología">
+            <span class="status">Pronóstico publicado</span>
+            <h3><a href="cancer_encefalo_c70.html">Tumores malignos del encéfalo y del sistema nervioso central<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: C70-C72 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=cancer_encefalo_c70">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 23 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026. Validación prospectiva en curso.</p></details>
+          </article>
+          <article class="condition-card" data-p="cancer_cuerpo_utero_c54" data-group="Oncología">
+            <span class="status">Pronóstico publicado</span>
+            <h3><a href="cancer_cuerpo_utero_c54.html">Tumor maligno del cuerpo del útero<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: C54 · 32 modelos · 37 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=cancer_cuerpo_utero_c54">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 59 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026; el boletín no lo desglosa por sexo. Validación prospectiva en curso.</p></details>
+          </article>
+          <article class="condition-card" data-p="cancer_ovario_c56" data-group="Oncología">
+            <span class="status">Pronóstico publicado</span>
+            <h3><a href="cancer_ovario_c56.html">Tumor maligno del ovario<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: C56 · 32 modelos · 37 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=cancer_ovario_c56">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 63 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026; el boletín no lo desglosa por sexo. Validación prospectiva en curso.</p></details>
+          </article>
+          <article class="condition-card" data-p="cancer_rinon_c64" data-group="Oncología">
+            <span class="status control">Control estacional</span>
+            <h3><a href="cancer_rinon_c64.html">Tumor maligno del riñón<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: C64 · control estacional · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=cancer_rinon_c64">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 54 casos semanales en todo el país. Su serie empieza en 2023 y su portafolio no superó la prueba de 2026, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details>
+          </article>
+          <article class="condition-card" data-p="cancer_prostata_c61" data-group="Oncología">
+            <span class="status control">Control estacional</span>
+            <h3><a href="cancer_prostata_c61.html">Tumor maligno de la próstata<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: C61 · control estacional · 37 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=cancer_prostata_c61">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 151 casos semanales en todo el país. Su serie empieza en 2023 y su portafolio no superó la prueba de 2026, así que se publica el control estacional, que repite los casos de 52 semanas antes; el boletín no lo desglosa por sexo.</p></details>
+          </article>
+          <article class="condition-card" data-p="cancer_huesos_c40" data-group="Oncología">
+            <span class="status control">Control estacional</span>
+            <h3><a href="cancer_huesos_c40.html">Tumores malignos de los huesos y de los cartílagos articulares<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: C40-C41 · control estacional · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=cancer_huesos_c40">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 21 casos semanales en todo el país. Su serie empieza en 2023 y su portafolio no superó la prueba de 2026, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details>
+          </article>
+          <article class="condition-card" data-p="cancer_higado_c22" data-group="Oncología">
+            <span class="status control">Control estacional</span>
+            <h3><a href="cancer_higado_c22.html">Tumor maligno del hígado y de las vías biliares intrahepáticas<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: C22 · control estacional · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=cancer_higado_c22">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 34 casos semanales en todo el país. Su serie empieza en 2023 y su portafolio no superó la prueba de 2026, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details>
+          </article>
+          <article class="condition-card" data-p="cancer_esofago_c15" data-group="Oncología">
+            <span class="status control">Control estacional</span>
+            <h3><a href="cancer_esofago_c15.html">Tumor maligno del esófago<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: C15 · control estacional · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=cancer_esofago_c15">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Unos 11 casos semanales en todo el país. Su serie empieza en 2023 y su portafolio no superó la prueba de 2026, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details>
+          </article>
+          <article class="condition-card" data-p="diabetes_t1" data-group="Metabólicos">
+            <span class="status">Pronóstico publicado</span>
+            <h3><a href="diabetes_t1.html">Diabetes tipo I<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: E10 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=diabetes_t1">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Diabetes mellitus insulinodependiente, con unos 80 casos semanales en todo el país. Por sus pocos casos compite un portafolio de motores estacionales. El pronóstico usa datos hasta la semana 41 de 2026, se emitió el 5 de noviembre y su validación prospectiva está en curso.</p></details>
+          </article>
+          <article class="condition-card" data-p="diabetes_t2" data-group="Metabólicos">
+            <span class="status">Pronóstico publicado</span>
+            <h3><a href="diabetes_t2.html">Diabetes tipo II<span aria-hidden="true">↗</span></a></h3>
+            <p class="condition-meta">CIE-10: E11-E14 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
+            <a class="condition-gallery" href="Reports/index.html?p=diabetes_t2">Ver en la galería</a>
+            <details><summary>Cómo se obtuvo</summary><p>Diabetes mellitus no insulinodependiente, con unos 11 mil casos semanales en todo el país. Se modelan 64 series de estado y sexo. El pronóstico usa datos hasta la semana 41 de 2026, se emitió el 5 de noviembre y su validación prospectiva está en curso.</p></details>
+          </article>
+    </div>
+    <div class="catalog-bottom">
+      <button id="showConditions" class="btn btn--ghost" type="button" hidden>Ver todos los padecimientos</button>
+      <p id="noConditions" hidden>No encontramos coincidencias. Prueba otro nombre o <a href="boletin.html">consulta las categorías del radar</a>.</p>
+      <a class="text-link" href="rechazados.html">Ver los analizados y rechazados →</a>
+    </div>
+  </div>
+</section>
+<!-- home:catalogo:end -->
+
+<!-- home:evidencia:start · método, evidencia y cohorte original (sin cambios de contenido) -->
+<section class="wrap methods" id="metodologia">
+<div class="section-heading">
+<div><span class="eyebrow">Transparencia desde el origen</span>
+<h2>Datos claros. Alcances visibles.</h2>
+</div>
+<p>Conoce de dónde viene cada resultado.</p>
+</div>
+<span id="pipeline"></span><!-- alias: ancla antigua del resumen del pipeline -->
+<div class="method-grid">
+<div><span class="step">01 / OBSERVAR</span>
+<h3>Una fuente oficial</h3>
+<p>Partimos del Boletín Epidemiológico del SINAVE. El radar permite consultar las notificaciones y sus periodos.</p><a href="boletin.html">Consultar la fuente →</a>
+</div>
+<div><span class="step">02 / PRONOSTICAR</span>
+<h3>Cada padecimiento, su método</h3>
+<p>La plataforma reúne modelos y controles estacionales. Cada página documenta el origen, el horizonte y el estado de validación.</p><a href="metodologia_dengue.html">Explorar una metodología →</a>
+</div>
+<div><span class="step">03 / CONTRASTAR</span>
+<h3>Volver a lo observado</h3>
+<p>Los boletines nuevos se comparan con los pronósticos guardados. El seguimiento permite ver sus alcances y limitaciones.</p><a href="validacion_semanal.html">Ver la validación →</a>
+</div>
+</div>
+<div class="research-links"><a href="reporte_resultados.html">Resultados</a><a href="comparacion_modelos.html">Comparación de modelos</a><a href="auditoria_remediacion_2026.html">Auditoría</a><a href="referencias.html">Referencias</a><a href="bitacora_modelado.html">Bitácora</a><a href="ficha_tecnica_prophet.html">Ficha Prophet</a><a href="hiperparametros_modelos.html">Hiperparámetros</a><a href="construccion_dashboard.html">Arquitectura</a><a href="conclusiones.html">Conclusiones</a>
+</div>
+</section>
+<section class="wrap cohort" id="results">
+<details>
+<summary>Detalle de la cohorte original · corte W37</summary>
+<p>432 series de la cohorte original (333 neuropsiquiátricas y 99 de Dengue); no representan el total de todos los padecimientos publicados.</p>
+<div class="edl-stats">
+        <div class="edl-stat"><b id="b-motor-total">432</b><span>series en producción</span>
+</div>
+        <div class="edl-stat"><b>32</b><span>entidades + nacional</span>
+</div>
+        <div class="edl-stat"><b>52</b><span>semanas de horizonte</span>
+</div>
+        <div class="edl-stat"><b><span id="b-motor-pct">32.7</span>%</b><span>cuota del motor líder en la cohorte neuro, <span id="b-motor">Ensemble</span></span>
+</div>
       </div>
-    </details></section><section class="research-band" id="mundial"><div class="wrap research-inner"><div><span class="eyebrow">Investigación abierta</span><h2>Del proyecto a la comunidad científica</h2><p>Consulta el póster del WCP 2026 en español e inglés, y el artículo y seguimiento de MICAI.</p><div class="hero-actions"><a class="button secondary" href="wcp2026.html">Ver póster WCP 2026 ↗</a><a class="text-link" href="micai.html">Explorar MICAI 2026 →</a></div></div><a href="wcp2026.html"><img src="Reports/wcp2026/marca/poster-portada.jpg" width="820" height="461" loading="lazy" alt="Consultar el E-Poster 3134 del Congreso Mundial de Psiquiatría"></a></div></section><section class="wrap about" id="about"><span class="eyebrow">Acerca del proyecto</span><h2>Inteligencia artificial para la salud pública mexicana</h2><p>EpiForecast-MX es un proyecto capstone de la Maestría en Inteligencia Artificial Aplicada del Tecnológico de Monterrey, desarrollado en colaboración con el Instituto Mexicano del Seguro Social.</p><p>Los pronósticos se refieren a notificaciones semanales: su utilidad para la planificación debe evaluarse en su contexto. Los datos, métodos y limitaciones están disponibles para consulta.</p></section><section class="team-bg" id="team">
+    </details>
+</section>
+<!-- home:evidencia:end -->
+
+<!-- home:proyecto:start · acerca del proyecto y equipo (sin cambios de contenido) -->
+<section class="wrap about" id="about"><span class="eyebrow">Acerca del proyecto</span>
+<h2>Inteligencia artificial para la salud pública mexicana</h2>
+<p>EpiForecast-MX es un proyecto capstone de la Maestría en Inteligencia Artificial Aplicada del Tecnológico de Monterrey, desarrollado en colaboración con el Instituto Mexicano del Seguro Social.</p>
+<p>Los pronósticos se refieren a notificaciones semanales: su utilidad para la planificación debe evaluarse en su contexto. Los datos, métodos y limitaciones están disponibles para consulta.</p>
+</section>
+<section class="team-bg" id="team">
     <div class="wrap">
       <div class="section-label reveal">Equipo</div>
       <h2 class="section-title reveal">Personas detrás del proyecto</h2>
@@ -120,21 +630,24 @@
 
       <div class="advisors reveal">
         <div class="advisor-card">
-          <div class="advisor-dot advisor-dot--1"></div>
+          <div class="advisor-dot advisor-dot--1">
+</div>
           <div>
             <h5>Dra. Grettel Barceló Alonso</h5>
             <p>Asesora Académica — Tec de Monterrey</p>
           </div>
         </div>
         <div class="advisor-card">
-          <div class="advisor-dot advisor-dot--2"></div>
+          <div class="advisor-dot advisor-dot--2">
+</div>
           <div>
             <h5>Dra. Ruth Pérez</h5>
             <p>Stakeholder IMSS — Epidemiología</p>
           </div>
         </div>
         <div class="advisor-card">
-          <div class="advisor-dot advisor-dot--3"></div>
+          <div class="advisor-dot advisor-dot--3">
+</div>
           <div>
             <h5>Dra. Lina Díaz Castro</h5>
             <p>Stakeholder IMSS — Investigación</p>
@@ -142,375 +655,69 @@
         </div>
       </div>
     </div>
-  </section></main><footer><div class="wrap footer-top"><a class="brand" href="#hero">EpiForecast<span class="brand-mx">MX</span></a><p>Datos oficiales. Investigación abierta.<br>Una mirada informada a la salud de México.</p><div><a href="#diseases">Padecimientos</a><a href="boletin.html">Radar</a><a href="epibot/index.html">EPI</a><a href="referencias.html">Fuentes</a><a href="https://github.com/IntegradorIMSS2026Team01" target="_blank" rel="noopener">GitHub ↗</a></div></div><div class="wrap footer-bottom"><span>© 2026 EpiForecast-MX</span><span>Tecnológico de Monterrey · IMSS · SINAVE</span><a href="#hero">Volver al inicio ↑</a></div></footer><script src="home.js?v=1"></script>
-  <!-- Hidratación dinámica de KPIs desde knowledge.json (con fallback a los valores estáticos) -->
+  </section>
+<!-- home:proyecto:end -->
+
+</main>
+<!-- site:footer:start -->
+<footer class="site-footer" lang="es">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <a class="site-brand" href="index.html" aria-label="EpiForecast-MX, inicio"><span class="site-brand__name"><span class="site-brand__word">EpiForecast<span class="site-brand__mx">MX</span></span></span></a>
+      <p>Datos oficiales. Investigación abierta. Una mirada informada a la salud de México.</p>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Explorar</p>
+      <a href="Reports/index.html">Galería de pronósticos</a>
+      <a href="epibot/index.html">Pregúntale a EPI</a>
+      <a href="EpiDashboard.html">Dashboard</a>
+      <a href="boletin.html">Radar del boletín</a>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Evidencia</p>
+      <a href="validacion_semanal.html">Validación semanal</a>
+      <a href="reporte_resultados.html">Resultados</a>
+      <a href="referencias.html">Fuentes y referencias</a>
+      <a href="rechazados.html">Analizados y rechazados</a>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Proyecto</p>
+      <a href="novedades.html">Noticias</a>
+      <a href="#congresos">Congresos</a>
+      <a href="EpiDashboard-tableau.html">Archivo Tableau (corte W31)</a>
+      <a href="https://github.com/IntegradorIMSS2026Team01" rel="noopener" target="_blank">GitHub ↗</a>
+    </div>
+  </div>
+  <div class="site-footer__legal"><span>© 2026 EpiForecast-MX · Tecnológico de Monterrey · IMSS · SINAVE</span><a href="#nav">Volver arriba ↑</a></div>
+</footer>
+<!-- site:footer:end -->
+
+  <!-- Cifra del motor líder: se refresca desde knowledge.json SÓLO al abrir el detalle de la cohorte
+       (el valor estático es el contrato que verifica cifras:verify; la petición conserva no-store). -->
   <script>
     (function hydrateKpis() {
-      try {
-        fetch('epibot/knowledge.json', { cache: 'no-store' })
-          .then(function (r) { return r.ok ? r.json() : null; })
-          .then(function (data) {
-            if (!data || !data.stats) return;
-            var stats = data.stats;
-            var total = stats.total_modelos;
-            if (total != null) {
-              // KPIs animados: actualizar data-target y, si ya animaron, el texto
-              ['kpi-modelos', 'kpi-modelos-scope'].forEach(function (id) {
-                var el = document.getElementById(id);
-                if (!el) return;
-                el.setAttribute('data-target', String(total));
-                if (el.textContent && el.textContent !== '0') {
-                  el.textContent = Number(total).toLocaleString();
-                }
-              });
-              // KPI estático (pill de resultados)
-              var pill = document.getElementById('kpi-modelos-pill');
-              if (pill) pill.textContent = Number(total).toLocaleString();
-            }
-            // Motor líder de la cohorte neuro (cifra fija con respaldo en knowledge.json)
-            var bm = document.getElementById('b-motor'), bp = document.getElementById('b-motor-pct');
-            if (bm && stats.motor_ganador) bm.textContent = stats.motor_ganador;
-            if (bp && stats.motor_ganador_pct != null) bp.textContent = String(stats.motor_ganador_pct);
-            // Motor líder en la distribución del hero (si existe el nodo)
-            var leader = document.getElementById('kpi-motor-lider');
-            if (leader && stats.motor_ganador) {
-              var pct = stats.motor_ganador_pct != null ? ' (' + stats.motor_ganador_pct + '%)' : '';
-              leader.textContent = stats.motor_ganador + pct;
-            }
-          })
-          .catch(function () { /* fallback silencioso: se conservan los valores estáticos */ });
-      } catch (e) { /* no romper el render */ }
+      var det = document.getElementById('b-motor') && document.getElementById('b-motor').closest('details');
+      function cargar() {
+        try {
+          fetch('epibot/knowledge.json', { cache: 'no-store' })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (data) {
+              if (!data || !data.stats) return;
+              var stats = data.stats;
+              var bm = document.getElementById('b-motor'), bp = document.getElementById('b-motor-pct');
+              if (bm && stats.motor_ganador) bm.textContent = stats.motor_ganador;
+              if (bp && stats.motor_ganador_pct != null) bp.textContent = String(stats.motor_ganador_pct);
+            })
+            .catch(function () { /* se conserva el valor estático */ });
+        } catch (e) { /* no romper el render */ }
+      }
+      if (!det) return;
+      det.addEventListener('toggle', function once() { if (det.open) { det.removeEventListener('toggle', once); cargar(); } });
     })();
   </script>
-
-  <!-- Banner de novedades: lo más fresco desde news.json (fallback = banner estático) -->
-  <script>
-    (function renderNewsBanner() {
-      function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function(c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
-      function plain(html) {
-        var d = document.createElement('div'); d.innerHTML = html || '';
-        return (d.textContent || '').replace(/\s+/g, ' ').trim();
-      }
-      function summary(it) {
-        if (it.summary) return esc(it.summary);
-        var t = plain((it.body || [])[0] || '');
-        return t.length > 150 ? t.slice(0, 147).replace(/\s+\S*$/, '') + '…' : t;
-      }
-      function leadHtml(it) {
-        var type = esc(it.type) || 'datos';
-        return '<a href="novedades.html" class="news-lead">' +
-          '<div class="news-lead-meta"><span class="news-date">' + esc(it.date) + '</span>' +
-          '<span class="news-tag news-tag--' + type + '">' + esc(it.tag) + '</span></div>' +
-          '<div class="news-lead-title">' + esc(it.title) + '</div>' +
-          '<div class="news-lead-sub">' + summary(it) + '</div></a>';
-      }
-      function miniHtml(it) {
-        var type = esc(it.type) || 'datos';
-        return '<a href="novedades.html" class="news-mini">' +
-          '<span class="news-tag news-tag--' + type + '">' + esc(it.tag) + '</span>' +
-          '<span class="news-mini-title">' + esc(it.title) + '</span>' +
-          '<span class="news-mini-date">' + esc(it.date) + '</span></a>';
-      }
-      fetch('news.json', { cache: 'no-store' })
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (d) {
-          if (!d || !Array.isArray(d.items) || !d.items.length) return;
-          var row = document.getElementById('newsBannerRow');
-          if (!row) return;
-          var top = d.items.slice(0, 3);
-          var minis = top.slice(1).map(miniHtml).join('');
-          row.innerHTML = leadHtml(top[0]) +
-            '<div class="news-mini-list">' + minis + '</div>';
-        })
-        .catch(function () { /* fallback silencioso: queda el banner estático */ });
-    })();
-  </script>
-
-  <!-- Hero vivo: pronóstico nacional real que se dibuja solo (canvas, sin librerías) -->
-  <script>
-    (function heroForecast() {
-      var canvas = document.getElementById('hfCanvas');
-      var pillsEl = document.getElementById('hfPills');
-      var selectEl = document.getElementById('hfSelect');
-      var capEl = document.getElementById('hfCaption');
-      var card = canvas && canvas.closest('.hf-card');
-      if (!canvas || !pillsEl || !capEl) return;
-      var ctx = canvas.getContext('2d');
-      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-      var series = [], active = 0, geom = null, startT = 0, raf = 0, dpr = 1;
-      var INTRO = 2400; // ms de la animación de entrada
-
-      function hexToRgb(h) {
-        h = h.replace('#', '');
-        return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
-      }
-      function rgba(rgb, a) { return 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + a + ')'; }
-      function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
-      function clamp01(t) { return t < 0 ? 0 : t > 1 ? 1 : t; }
-      function fmt(n) { return Number(n).toLocaleString('es-MX'); }
-
-      function sizeCanvas() {
-        var wrap = canvas.parentElement;
-        var w = wrap.clientWidth, h = wrap.clientHeight;
-        dpr = Math.min(window.devicePixelRatio || 1, 2);
-        canvas.width = Math.round(w * dpr);
-        canvas.height = Math.round(h * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        computeGeom(w, h);
-      }
-
-      function computeGeom(W, H) {
-        var s = series[active];
-        if (!s) return;
-        var padL = 45, padR = 12, padT = 18, padB = 27;
-        var n = s.d.length;
-        var lastReal = -1;
-        for (var i = 0; i < n; i++) if (s.r[i] != null) lastReal = i;
-        var vals = [];
-        for (i = 0; i < n; i++) {
-          if (s.r[i] != null) vals.push(s.r[i]);
-          if (i >= lastReal && s.y[i] != null) vals.push(s.y[i]);
-          if (s.hi && s.hi[i] != null) vals.push(s.hi[i]);
-          if (s.lo && s.lo[i] != null) vals.push(s.lo[i]);
-        }
-        var mn = Math.min.apply(null, vals), mx = Math.max.apply(null, vals);
-        if (mn === mx) { mx = mn + 1; }
-        var span = mx - mn; mn = Math.max(0, mn - span * 0.10); mx += span * 0.12;
-        var X = function (i) { return padL + (i / (n - 1)) * (W - padL - padR); };
-        var Y = function (v) { return padT + (1 - (v - mn) / (mx - mn)) * (H - padT - padB); };
-        geom = { W: W, H: H, n: n, lastReal: lastReal, X: X, Y: Y, padB: padB, padT: padT, padL: padL, mn: mn, mx: mx };
-      }
-
-      // Construye los puntos [x,y] de un arreglo en el rango [a,b] hasta una fracción prog
-      function segPoints(arr, a, b, prog) {
-        var g = geom, pts = [], k = a + prog * (b - a), ki = Math.floor(k);
-        for (var i = a; i <= Math.min(ki, b); i++) if (arr[i] != null) pts.push([g.X(i), g.Y(arr[i])]);
-        if (ki < b && prog > 0) {
-          var f = k - ki, v0 = arr[ki], v1 = arr[ki + 1];
-          if (v0 != null && v1 != null) {
-            var v = v0 + (v1 - v0) * f;
-            pts.push([g.X(ki) + (g.X(ki + 1) - g.X(ki)) * f, g.Y(v)]);
-          }
-        }
-        return pts;
-      }
-      function stroke(pts, color, width, dash, glow) {
-        if (pts.length < 2) return;
-        ctx.save();
-        ctx.beginPath();
-        ctx.moveTo(pts[0][0], pts[0][1]);
-        for (var i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
-        ctx.lineWidth = width; ctx.strokeStyle = color;
-        ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-        if (dash) ctx.setLineDash(dash);
-        if (glow) { ctx.shadowColor = glow; ctx.shadowBlur = 12; }
-        ctx.stroke();
-        ctx.restore();
-      }
-
-      function draw(now) {
-        var g = geom, s = series[active];
-        if (!g || !s) return;
-        var rgb = hexToRgb(s.color);
-        var t = reduce ? 1e9 : (now - startT);
-        var gridA = clamp01(t / 380);
-        var realP = easeOut(clamp01((t - 250) / 1250));
-        var bandA = clamp01((t - 1300) / 800);
-        var fcP = easeOut(clamp01((t - 1450) / 850));
-        if (reduce) { gridA = bandA = 1; realP = fcP = 1; }
-
-        ctx.clearRect(0, 0, g.W, g.H);
-
-        // Rejilla horizontal
-        ctx.save();
-        ctx.strokeStyle = 'rgba(159,176,206,' + (0.10 * gridA) + ')';
-        ctx.lineWidth = 1;
-        for (var r = 0; r <= 3; r++) {
-          var yy = g.padT + (r / 3) * (g.H - g.padT - g.padB);
-          ctx.beginPath(); ctx.moveTo(g.padL, yy); ctx.lineTo(g.W, yy); ctx.stroke();
-        }
-        ctx.restore();
-
-        // Casos semanales y fechas de los extremos de la serie.
-        ctx.save(); ctx.fillStyle = '#b9d2c2'; ctx.font = '9px system-ui';
-        ctx.textAlign = 'right';
-        for (var tick = 0; tick <= 3; tick++) {
-          var amount = g.mx - tick / 3 * (g.mx - g.mn);
-          ctx.fillText(Math.round(amount).toLocaleString('es-MX'), g.padL - 7, g.padT + tick / 3 * (g.H - g.padT - g.padB) + 3);
-        }
-        function dateLabel(value) { return new Date(value + 'T12:00:00').toLocaleDateString('es-MX', {month:'short',year:'2-digit'}); }
-        ctx.textAlign = 'left'; ctx.fillText(dateLabel(s.d[0]), g.padL, g.H - 5);
-        ctx.textAlign = 'right'; ctx.fillText(dateLabel(s.d[g.n - 1]), g.W - 12, g.H - 5);
-        ctx.restore();
-
-        // Banda de confianza (cola futura)
-        if (bandA > 0 && s.hi) {
-          var hiP = segPoints(s.hi, g.lastReal, g.n - 1, fcP);
-          var loP = segPoints(s.lo, g.lastReal, g.n - 1, fcP);
-          if (hiP.length > 1 && loP.length > 1) {
-            ctx.save();
-            ctx.beginPath();
-            ctx.moveTo(hiP[0][0], hiP[0][1]);
-            for (var i = 1; i < hiP.length; i++) ctx.lineTo(hiP[i][0], hiP[i][1]);
-            for (i = loP.length - 1; i >= 0; i--) ctx.lineTo(loP[i][0], loP[i][1]);
-            ctx.closePath();
-            ctx.fillStyle = rgba(rgb, 0.16 * bandA);
-            ctx.fill();
-            ctx.restore();
-          }
-        }
-
-        // Relleno bajo la línea real (gradiente)
-        var realPts = segPoints(s.r, 0, g.lastReal, realP);
-        if (realPts.length > 1) {
-          ctx.save();
-          var grad = ctx.createLinearGradient(0, g.padT, 0, g.H - g.padB);
-          grad.addColorStop(0, rgba(rgb, 0.22));
-          grad.addColorStop(1, rgba(rgb, 0));
-          ctx.beginPath();
-          ctx.moveTo(realPts[0][0], g.H - g.padB);
-          for (var j = 0; j < realPts.length; j++) ctx.lineTo(realPts[j][0], realPts[j][1]);
-          ctx.lineTo(realPts[realPts.length - 1][0], g.H - g.padB);
-          ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
-          ctx.restore();
-        }
-
-        // Pronóstico (cola futura, punteado)
-        var fcPts = segPoints(s.y, g.lastReal, g.n - 1, fcP);
-        stroke(fcPts, rgba(rgb, 0.92), 2.3, [7, 5], rgba(rgb, 0.35));
-
-        // Línea real (sólida, con glow)
-        stroke(realPts, s.color, 2.6, null, rgba(rgb, 0.5));
-
-        // Marcador "hoy" + punto que late
-        if (realP >= 0.999 && g.lastReal >= 0) {
-          var hx = g.X(g.lastReal), hy = g.Y(s.r[g.lastReal]);
-          ctx.save();
-          ctx.strokeStyle = 'rgba(159,176,206,0.22)';
-          ctx.setLineDash([3, 4]); ctx.lineWidth = 1;
-          ctx.beginPath(); ctx.moveTo(hx, g.padT); ctx.lineTo(hx, g.H - g.padB); ctx.stroke();
-          ctx.restore();
-          var pulse = reduce ? 0.5 : (0.5 + 0.5 * Math.sin(now / 380));
-          ctx.save();
-          ctx.beginPath(); ctx.arc(hx, hy, 7 + pulse * 5, 0, Math.PI * 2);
-          ctx.fillStyle = rgba(rgb, 0.12 + 0.14 * pulse); ctx.fill();
-          ctx.beginPath(); ctx.arc(hx, hy, 4.5, 0, Math.PI * 2);
-          ctx.fillStyle = '#fff'; ctx.shadowColor = s.color; ctx.shadowBlur = 12; ctx.fill();
-          ctx.beginPath(); ctx.arc(hx, hy, 4.5, 0, Math.PI * 2);
-          ctx.lineWidth = 2; ctx.strokeStyle = s.color; ctx.stroke();
-          ctx.restore();
-        }
-      }
-
-      function loop(now) {
-        draw(now);
-        if (reduce) return;
-        raf = requestAnimationFrame(loop);
-      }
-      function start() {
-        if (raf) cancelAnimationFrame(raf);
-        startT = performance.now();
-        if (reduce) { draw(0); return; }
-        raf = requestAnimationFrame(loop);
-      }
-
-      function setActive(i) {
-        active = i;
-        var s = series[i];
-        if (card) card.style.setProperty('--p', s.color);
-        Array.prototype.forEach.call(pillsEl.children, function (b, k) {
-          b.classList.toggle('is-active', k === i);
-          b.setAttribute('aria-pressed', k === i ? 'true' : 'false');
-        });
-        capEl.innerHTML =
-          '<span class="hf-chip hf-chip--motor">Motor <b>' + s.motor + '</b></span>' +
-          '<span class="hf-chip">' + fmt(s.casos) + ' casos · ' + (s.casos_texto || 'pronóstico del modelo nacional, 52 pasos desde el corte') + ' ' + (s.corte || '').replace(/^\d{4}-/, '') + '</span>' +
-          (s.ultima_observada ? '<span class="hf-chip">observado hasta ' + s.ultima_observada.replace(/^(\d{4})-W(\d{2})$/, 'la semana $2 de $1') + '</span>' : '');
-        sizeCanvas();
-        start();
-      }
-
-      fetch('hero_series.json', { cache: 'no-store' })
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (d) {
-          if (!d || !Array.isArray(d.series) || !d.series.length) { hideViz(); return; }
-          series = d.series.slice();
-          pintaPills();
-          setActive(0);
-          // Los releases no están en hero_series.json (contrato: las 4 series del corte W37): su
-          // serie nacional sale de la vista publicada de cada release y se añade en este orden.
-          Promise.all(RELEASES_FIGURA.map(function (cfg) {
-            return fetch('publication/' + cfg.id + '/vista.json', { cache: 'no-cache' })
-              .then(function (r) { return r.ok ? r.json() : null; })
-              .then(function (v) { return v && v.schema === 'publication_view.v1' ? serieRelease(v, cfg) : null; })
-              .catch(function () { return null; /* sin la vista, la figura conserva las demás */ });
-          })).then(function (extra) {
-            extra.forEach(function (s) { if (s) series.push(s); });
-            pintaPills();
-          });
-        })
-        .catch(hideViz);
-
-      function pintaPills() {
-        selectEl.replaceChildren();
-        series.forEach(function(s,i) {
-          var option = document.createElement('option'); option.value = i; option.textContent = s.label;
-          selectEl.appendChild(option);
-        });
-        selectEl.value = String(active);
-        selectEl.onchange = function() { setActive(Number(selectEl.value)); };
-      }
-
-      var RELEASES_FIGURA = window.EPI_CATALOGO.releases.map(function (r) {
-        return { id: r.id, label: r.nombreCorto, color: r.color, cie: r.cie };
-      });
-
-      // Nacional general de un release con la misma forma que hero_series.json: 52 semanas observadas
-      // hasta el último boletín y el pronóstico congelado desde su origen (puntual, sin banda).
-      function serieRelease(v, cfg) {
-        var x = v.series['nacional|mx|general'];
-        if (!x || !x.observado.length || !x.pronostico.length) return null;
-        var obs = {}, pron = {};
-        x.observado.forEach(function (p) { obs[p[0]] = p[1]; });
-        x.pronostico.forEach(function (p) { pron[p[0]] = p[1]; });
-        var corte = v.observation_cutoff_ds;
-        var vistas = x.observado.map(function (p) { return p[0]; }).filter(function (d) { return d <= corte; });
-        var fechas = vistas.slice(-52).concat(x.pronostico.map(function (p) { return p[0]; }).filter(function (d) { return d > corte; }));
-        var sem = function (a) { return a[0] + '-W' + String(a[1]).padStart(2, '0'); };
-        return {
-          pad: cfg.label, key: cfg.id, label: cfg.label, color: cfg.color, cie: cfg.cie,
-          motor: 'portafolio de ' + v.models + ' series',
-          casos: Math.round(x.pronostico_52_total),
-          casos_texto: 'pronóstico congelado, ' + v.horizon_weeks + ' semanas desde el origen',
-          corte: sem(v.origin), ultima_observada: sem(v.observation_cutoff),
-          d: fechas,
-          r: fechas.map(function (d) { return d <= corte && obs[d] != null ? obs[d] : null; }),
-          y: fechas.map(function (d) { return pron[d] != null ? pron[d] : null; }),
-          lo: null, hi: null
-        };
-      }
-
-      function hideViz() {
-        capEl.textContent = 'No se pudieron cargar las series. Consulta las gráficas en la galería de pronósticos.';
-        selectEl.disabled = true;
-        var viz = document.querySelector('.hero-viz');
-        if (viz) viz.style.display = 'none';
-        var split = document.querySelector('.hero-content.hero-split');
-        if (split) split.style.gridTemplateColumns = '1fr';
-      }
-
-      var rt;
-      window.addEventListener('resize', function () {
-        clearTimeout(rt);
-        rt = setTimeout(function () { if (series.length) { sizeCanvas(); draw(performance.now()); } }, 150);
-      });
-      document.addEventListener('visibilitychange', function () {
-        if (document.hidden) { if (raf) { cancelAnimationFrame(raf); raf = 0; } }
-        else if (series.length && !reduce && !raf) { raf = requestAnimationFrame(loop); }
-      });
-    })();
-  </script>
-
+  <script defer src="assets/site/nota-ancla.js?v=1"></script>
+  <script defer src="assets/site/site-nav.js?v=4"></script>
+  <script defer src="home-preview.js?v=3"></script>
+  <script defer src="home.js?v=3"></script>
 </body>
 </html>

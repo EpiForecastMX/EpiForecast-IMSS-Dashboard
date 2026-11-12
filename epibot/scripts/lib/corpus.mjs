@@ -93,7 +93,10 @@ function htmlTitle(html, fallback) {
 
 /** Divide un HTML en secciones {section, text} usando los encabezados h1-h4. */
 function htmlToSections(html, fallbackTitle) {
-  let t = html.replace(/<script[\s\S]*?<\/script>/gi, ' ')
+  // La cabecera y el pie comunes del sitio (scripts/site_shell.mjs) son navegación, no conocimiento:
+  // se excluyen ANTES de quitar comentarios para que migrar una página al shell no cambie su corpus.
+  let t = html.replace(/<!-- site:(header|footer):start -->[\s\S]*?<!-- site:\1:end -->/g, ' ')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
     .replace(/<style[\s\S]*?<\/style>/gi, ' ')
     .replace(/<svg[\s\S]*?<\/svg>/gi, ' ')
     .replace(/<!--[\s\S]*?-->/g, ' ');

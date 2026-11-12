@@ -4,43 +4,40 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Resultados del Modelado — EpiForecast-MX</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;0,800;1,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+*:not(:where(.site-header, .site-footer) *),*:not(:where(.site-header, .site-footer) *)::before,*:not(:where(.site-header, .site-footer) *)::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   /* Superficies — Clinical Indigo */
-  --bg-deep:        #0E1424;
-  --bg-base:        #131C30;
-  --bg-raised:      #18223A;
-  --bg-card:        #1C2740;
-  --bg-card-hover:  #243150;
+  --bg-deep:        #fafbf7;
+  --bg-base:        #fafbf7;
+  --bg-raised:      #f1f6ef;
+  --bg-card:        #ffffff;
+  --bg-card-hover:  #dbe3dc;
   /* Texto */
-  --text-primary:   #E7ECF5;
-  --text-secondary: #9FB0CE;
-  --text-muted:     #6E82A6;
-  --text-faint:     #44567A;
+  --text-primary:   #173c33;
+  --text-secondary: #40594f;
+  --text-muted:     #53675e;
+  --text-faint:     #5b6f66;
   /* Acentos */
-  --burgundy:       #F472B6;
+  --burgundy:       #a3367a;
   --dark-burgundy:  #8E2A63;
-  --teal:           #5B8DEF;
-  --gold:           #2DD4BF;
+  --teal:           #2f5f9e;
+  --gold:           #0f6e66;
   /* Aliases legacy */
   --neutral-black:  #0B0F1A;
-  --cool-gray:      #9FB0CE;
-  --dark-teal:      #16203A;
-  --cream:          #E7ECF5;
-  --cream-light:    #1C2740;
-  --cream-pale:     #131C30;
+  --cool-gray:      #40594f;
+  --dark-teal:      #f1f6ef;
+  --cream:          #173c33;
+  --cream-light:    #ffffff;
+  --cream-pale:     #fafbf7;
   --teal-glow:      rgba(91,141,239,0.15);
   --burgundy-glow:  rgba(244,114,182,0.15);
   --gold-glow:      rgba(45,212,191,0.15);
   /* Extra legacy aliases */
-  --burgundy-light: #F472B6;
+  --burgundy-light: #a3367a;
   --teal-light:     #93C5FD;
-  --gold-light:     #2DD4BF;
+  --gold-light:     #0f6e66;
   /* Tipografía */
   --font-display:   'Playfair Display', Georgia, serif;
   --font-body:      'Outfit', system-ui, -apple-system, sans-serif;
@@ -55,10 +52,10 @@ body{font-family:var(--font-body);background:var(--bg-base);color:var(--text-pri
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.025;pointer-events:none;z-index:0}
 
 /* Nav */
-.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(14,20,36,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(232,213,181,.08);transition:box-shadow .3s,background .3s}.nav.scrolled{box-shadow:0 4px 30px rgba(0,0,0,.18);background:rgba(14,20,36,.97)}.nav-inner{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;align-items:center;height:64px;gap:1rem}.nav-logo{font-family:var(--font-display);font-size:1.3rem;color:var(--cream);letter-spacing:.02em;flex-shrink:0;text-decoration:none}.nav-logo span{color:var(--gold)}.nav-menu{display:flex;align-items:center;gap:.25rem;list-style:none;flex:1;justify-content:center}.nav-group{position:relative}.nav-group-toggle{display:flex;align-items:center;gap:.3rem;color:rgba(232,213,181,.65);font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;padding:.5rem .85rem;border-radius:6px;cursor:pointer;transition:color .2s,background .2s;white-space:nowrap;border:none;background:none;font-family:inherit}.nav-group-toggle:hover,.nav-group:hover .nav-group-toggle{color:var(--cream);background:rgba(232,213,181,.06)}.nav-group-toggle svg{width:10px;height:10px;opacity:.5;transition:transform .2s}.nav-group:hover .nav-group-toggle svg{transform:rotate(180deg);opacity:.8}.nav-dropdown{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(-4px);background:rgba(14,20,36,.98);backdrop-filter:blur(16px);border:1px solid rgba(232,213,181,.1);border-radius:12px;padding:.5rem;min-width:200px;opacity:0;visibility:hidden;transition:opacity .15s,transform .15s,visibility .15s;box-shadow:0 12px 40px rgba(0,0,0,.25)}.nav-group:hover .nav-dropdown{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}.nav-dropdown::before{content:'';position:absolute;top:-8px;left:0;right:0;height:8px}.nav-dropdown a{display:flex;align-items:center;gap:.75rem;padding:.6rem 1rem;color:rgba(232,213,181,.7);font-size:.82rem;font-weight:500;border-radius:8px;transition:background .15s,color .15s;text-decoration:none;white-space:nowrap}.nav-dropdown a:hover{background:rgba(232,213,181,.08);color:var(--cream)}.nav-dropdown a svg{width:16px;height:16px;opacity:.5;flex-shrink:0}.nav-dropdown a:hover svg{opacity:.8}.nav-ctas{display:flex;gap:.5rem;align-items:center;flex-shrink:0}.nav-cta{display:inline-flex;align-items:center;gap:.4rem;padding:.4rem 1rem;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-radius:100px;text-decoration:none;transition:transform .2s,box-shadow .2s,background .2s;white-space:nowrap}.nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(45,212,191,.3)}.nav-cta--primary{background:var(--gold);color:var(--dark-teal)}.nav-cta--secondary{background:rgba(232,213,181,.1);color:var(--gold);border:1px solid rgba(45,212,191,.3)}.nav-cta--secondary:hover{background:rgba(45,212,191,.15);color:var(--gold)}.nav-cta svg{width:14px;height:14px}.nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}.nav-hamburger span{width:24px;height:2px;background:var(--cream);transition:transform .3s,opacity .3s}.nav-mobile{display:none;flex-direction:column;background:rgba(14,20,36,.98);backdrop-filter:blur(16px);padding:1rem 2rem 1.5rem;border-bottom:1px solid rgba(232,213,181,.1)}.nav-mobile.show{display:flex}.nav-mobile-group{border-bottom:1px solid rgba(232,213,181,.06)}.nav-mobile-heading{display:flex;align-items:center;justify-content:space-between;padding:.85rem 0;color:rgba(232,213,181,.7);font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;cursor:pointer}.nav-mobile-heading svg{width:10px;height:10px;transition:transform .2s}.nav-mobile-group.open .nav-mobile-heading svg{transform:rotate(180deg)}.nav-mobile-items{display:none;flex-direction:column;padding-bottom:.5rem}.nav-mobile-group.open .nav-mobile-items{display:flex}.nav-mobile-items a{padding:.5rem 1rem;color:rgba(232,213,181,.55);font-size:.82rem;text-decoration:none;border-radius:6px;transition:background .15s,color .15s}.nav-mobile-items a:hover{background:rgba(232,213,181,.06);color:var(--cream)}.nav-mobile-ctas{display:flex;gap:.5rem;margin-top:1rem}@media(max-width:768px){.nav-menu,.nav-ctas{display:none}.nav-hamburger{display:flex}}
+@media(max-width:768px){}
 
 .container{max-width:1200px;margin:0 auto;padding:0 2rem;position:relative;z-index:1}
-section{padding:4rem 0}
+section:not(:where(.site-header, .site-footer) *){padding:4rem 0}
 .section-title{font-family:var(--font-display);font-size:clamp(1.8rem,4vw,2.5rem);margin-bottom:.5rem;color:var(--cream)}
 .section-sub{color:var(--cool-gray);font-size:1rem;margin-bottom:2.5rem}
 
@@ -117,30 +114,30 @@ section{padding:4rem 0}
 .table-controls input,.table-controls select{font-family:var(--font-body);font-size:.9rem;padding:.5rem 1rem;border:1px solid rgba(91,141,239,.25);border-radius:6px;background:var(--bg-raised);color:var(--text-primary);outline:none;transition:border-color .2s}
 .table-controls input:focus,.table-controls select:focus{border-color:var(--teal)}
 .table-controls input{flex:1;min-width:180px}
-table{width:100%;border-collapse:collapse;font-size:.9rem}
-thead th{padding:1rem 1.25rem;text-align:left;font-weight:600;text-transform:uppercase;font-size:.75rem;letter-spacing:.5px;color:var(--text-secondary);border-bottom:2px solid rgba(91,141,239,.2);cursor:pointer;user-select:none;white-space:nowrap;transition:color .2s}
-thead th:hover{color:var(--teal)}
+table:not(:where(.site-header, .site-footer) *){width:100%;border-collapse:collapse;font-size:.9rem}
+thead th:not(:where(.site-header, .site-footer) *){padding:1rem 1.25rem;text-align:left;font-weight:600;text-transform:uppercase;font-size:.75rem;letter-spacing:.5px;color:var(--text-secondary);border-bottom:2px solid rgba(91,141,239,.2);cursor:pointer;user-select:none;white-space:nowrap;transition:color .2s}
+thead th:hover:not(:where(.site-header, .site-footer) *){color:var(--teal)}
 thead th.sorted-asc::after{content:' \25B2';font-size:.65rem}
 thead th.sorted-desc::after{content:' \25BC';font-size:.65rem}
-tbody td{padding:.85rem 1.25rem;border-bottom:1px solid rgba(91,141,239,.10);vertical-align:middle}
-tbody tr{transition:background .15s}
-tbody tr:hover{background:var(--bg-card-hover)}
-.group-header td{background:var(--dark-teal);color:var(--cream);font-weight:700;font-size:.8rem;text-transform:uppercase;letter-spacing:1px;padding:.6rem 1.25rem;border:none}
+tbody td:not(:where(.site-header, .site-footer) *){padding:.85rem 1.25rem;border-bottom:1px solid rgba(91,141,239,.10);vertical-align:middle}
+tbody tr:not(:where(.site-header, .site-footer) *){transition:background .15s}
+tbody tr:hover:not(:where(.site-header, .site-footer) *){background:var(--bg-card-hover)}
+.group-header td{background:var(--tint);color:var(--cream);font-weight:700;font-size:.8rem;text-transform:uppercase;letter-spacing:1px;padding:.6rem 1.25rem;border:none}
 
 .badge{display:inline-block;padding:.2rem .7rem;border-radius:100px;font-family:var(--font-mono);font-size:.8rem;font-weight:500}
-.badge-green{background:rgba(45,212,191,.15);color:#2DD4BF}
-.badge-yellow{background:rgba(251,191,36,.15);color:#FCD34D}
-.badge-red{background:rgba(244,114,182,.15);color:#F472B6}
+.badge-green{background:rgba(45,212,191,.15);color:#0f6e66}
+.badge-yellow{background:rgba(251,191,36,.15);color:#7d4400}
+.badge-red{background:rgba(244,114,182,.15);color:#a3367a}
 .badge-tipo{font-family:var(--font-body);font-size:.78rem;font-weight:600;padding:.25rem .8rem;border-radius:100px}
-.badge-propio{background:rgba(45,212,191,.15);color:#2DD4BF}
-.badge-fallback{background:rgba(251,146,60,.15);color:#FB923C}
+.badge-propio{background:rgba(45,212,191,.15);color:#0f6e66}
+.badge-fallback{background:rgba(251,146,60,.15);color:#c2410c}
 
 .cob-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:.75rem}
 .cob-item{display:flex;align-items:center;gap:.75rem;background:var(--bg-card);border-radius:var(--radius-sm);padding:.6rem 1rem;box-shadow:var(--shadow-sm);border:1px solid rgba(91,141,239,.12);font-size:.88rem}
 .cob-item .estado-name{flex:1;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cob-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-.cob-dot.propio{background:#2DD4BF;box-shadow:0 0 4px rgba(45,212,191,.4)}
-.cob-dot.fallback{background:#FB923C;box-shadow:0 0 4px rgba(251,146,60,.4)}
+.cob-dot.propio{background:#0f6e66;box-shadow:0 0 4px rgba(45,212,191,.4)}
+.cob-dot.fallback{background:#c2410c;box-shadow:0 0 4px rgba(251,146,60,.4)}
 .cob-dot.sin_modelo{background:var(--cool-gray);opacity:.4}
 .cob-summary{display:flex;gap:2rem;margin-bottom:1.5rem;flex-wrap:wrap}
 .cob-summary-item{display:flex;align-items:center;gap:.5rem;font-size:.85rem}
@@ -148,81 +145,79 @@ tbody tr:hover{background:var(--bg-card-hover)}
 .reveal{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease}
 .reveal.visible{opacity:1;transform:translateY(0)}
 
-footer{background:var(--dark-teal);color:rgba(232,213,181,.7);padding:3rem 2rem;text-align:center;font-size:.85rem;position:relative;z-index:1}
-footer a{color:var(--gold-light);text-decoration:none}
-footer a:hover{color:var(--cream)}
-footer .footer-title{font-family:var(--font-display);color:var(--cream);font-size:1.2rem;margin-bottom:.5rem}
+footer:not(.site-footer){background:var(--tint);color:rgba(232,213,181,.7);padding:3rem 2rem;text-align:center;font-size:.85rem;position:relative;z-index:1}
+footer:not(.site-footer) a{color:var(--gold-light);text-decoration:none}
+footer:not(.site-footer) a:hover{color:var(--cream)}
+footer:not(.site-footer) .footer-title{font-family:var(--font-display);color:var(--cream);font-size:1.2rem;margin-bottom:.5rem}
 
 @media(max-width:768px){
   .hero{padding:8rem 1.5rem 4rem}.hero-kpis{gap:1rem}.hero-kpi{min-width:140px;padding:1.25rem}.hero-kpi .value{font-size:2.2rem}
   .card-grid,.charts-row,.guide-grid,.region-grid{grid-template-columns:1fr}
-  .table-controls{flex-direction:column}section{padding:2.5rem 0}.container{padding:0 1rem}
+  .table-controls{flex-direction:column}section:not(:where(.site-header, .site-footer) *){padding:2.5rem 0}.container{padding:0 1rem}
 }
 </style>
-  <link rel="stylesheet" href="editorial.css?v=1">
+<link rel="stylesheet" href="assets/site/site.css?v=5">
+<link rel="stylesheet" href="editorial.css?v=4">
 </head>
-<body>
+<body class="editorial-page">
 <!-- build: r2 metodologia-dengue link -->
 
-<nav class="nav" id="nav">
-    <div class="nav-inner">
-      <a href="index.html" class="nav-logo" style="text-decoration:none">EpiForecast<span>-MX</span></a>
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<!-- site:header:start -->
+<header class="site-header" id="nav" lang="es">
+  <div class="site-header__inner">
+    <a class="site-brand" href="index.html" aria-label="EpiForecast-MX, inicio"><span class="site-brand__symbol" aria-hidden="true">E<span>+</span></span><span class="site-brand__name"><span class="site-brand__word">EpiForecast<span class="site-brand__mx">MX</span></span><small>Inteligencia epidemiológica</small></span></a>
+    <nav class="site-nav" aria-label="Navegación principal">
       <ul class="nav-menu">
+        <li><a href="Reports/index.html">Galería</a></li>
+        <li><a href="epibot/index.html">EpiBot</a></li>
+        <li><a href="EpiDashboard.html">Dashboard</a></li>
+        <li><a href="boletin.html">Radar del boletín</a></li>
+        <li><a href="novedades.html">Noticias</a></li>
         <li class="nav-group">
-          <button class="nav-group-toggle">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
-          <div class="nav-dropdown">
-            <a href="index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>Inicio</a>
-            <a href="EpiDashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
-            <a href="Reports/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Pronósticos</a>
-          </div>
+          <button type="button" class="nav-group__toggle" aria-expanded="false" aria-controls="navGroup-congresos">Congresos</button>
+          <ul class="nav-group__list" id="navGroup-congresos">
+            <li><a href="wcp2026.html">WCP 2026 · Estocolmo</a></li>
+            <li><a href="micai2026.html">MICAI 2026 · Chihuahua</a></li>
+            <li><a href="calass.html">CALASS 2026 · Montréal</a></li>
+            <li><a href="index.html#congresos">Todos los congresos</a></li>
+          </ul>
         </li>
         <li class="nav-group">
-          <button class="nav-group-toggle">Metodología <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
-          <div class="nav-dropdown">
-            <a href="bitacora_modelado.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Bitácora v1-v6</a>
-            <a href="ficha_tecnica_prophet.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Ficha Prophet</a>
-            <a href="metodologia_dengue.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>Metodología Dengue</a>
-            <a href="hiperparametros_modelos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>HPs SageMaker</a>
-            <a href="construccion_dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Arquitectura Dashboard</a>
-          </div>
-        </li>
-        <li class="nav-group">
-          <button class="nav-group-toggle">Resultados <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
-          <div class="nav-dropdown">
-            <a href="reporte_resultados.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg>Resultados</a>
-            <a href="comparacion_modelos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Comparación SageMaker</a>
-            <a href="validacion_semanal.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>Validación Semanal</a>
-            <a href="auditoria_remediacion_2026.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M9 14l2 2 4-4"/></svg>Auditoría</a>
-            <a href="conclusiones.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Conclusiones</a>
-            <a href="referencias.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Referencias</a>
-          </div>
+          <button type="button" class="nav-group__toggle" aria-expanded="false" aria-controls="navGroup-mas">Más</button>
+          <ul class="nav-group__list" id="navGroup-mas">
+            <li><a href="index.html#diseases">Padecimientos</a></li>
+            <li><a href="index.html#metodologia">Evidencia y método</a></li>
+            <li><a href="index.html#about">Proyecto y equipo</a></li>
+          </ul>
         </li>
       </ul>
-      <div class="nav-ctas">
-        <a href="EpiDashboard.html" class="nav-cta nav-cta--primary">Dashboard</a>
-        <a href="https://github.com/EpiForecastMX" target="_blank" rel="noopener" class="nav-cta nav-cta--secondary" style="padding:0.4rem 0.6rem" title="GitHub"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg></a>
-      </div>
-      <div class="nav-hamburger" onclick="document.getElementById('navMobile').classList.toggle('show')" aria-label="Menú"><span></span><span></span><span></span></div>
+    </nav>
+    <button type="button" class="site-nav__toggle" aria-controls="navMobile" aria-expanded="false"><span class="site-nav__toggle-icon" aria-hidden="true"></span><span class="site-nav__toggle-text">Menú</span></button>
+  </div>
+  <div id="navMobile" class="site-nav__mobile">
+    <div class="nav-mobile-items">
+      <a class="nav-mobile-link" href="Reports/index.html">Galería</a>
+      <a class="nav-mobile-link" href="epibot/index.html">EpiBot</a>
+      <a class="nav-mobile-link" href="EpiDashboard.html">Dashboard</a>
+      <a class="nav-mobile-link" href="boletin.html">Radar del boletín</a>
+      <a class="nav-mobile-link" href="novedades.html">Noticias</a>
+      <p class="nav-mobile-group">Congresos</p>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="wcp2026.html">WCP 2026 · Estocolmo</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="micai2026.html">MICAI 2026 · Chihuahua</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="calass.html">CALASS 2026 · Montréal</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#congresos">Todos los congresos</a>
+      <p class="nav-mobile-group">Más</p>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#diseases">Padecimientos</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#metodologia">Evidencia y método</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#about">Proyecto y equipo</a>
     </div>
-    <div class="nav-mobile" id="navMobile">
-      <div class="nav-mobile-group">
-        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items"><a href="index.html">Inicio</a><a href="EpiDashboard.html">Dashboard</a><a href="Reports/index.html">Pronósticos</a></div>
-      </div>
-      <div class="nav-mobile-group">
-        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Metodología <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items"><a href="bitacora_modelado.html">Bitácora v1-v6</a><a href="ficha_tecnica_prophet.html">Ficha Prophet</a><a href="metodologia_dengue.html">Metodología Dengue</a><a href="hiperparametros_modelos.html">HPs SageMaker</a><a href="construccion_dashboard.html">Arquitectura Dashboard</a></div>
-      </div>
-      <div class="nav-mobile-group">
-        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Resultados <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items"><a href="reporte_resultados.html">Resultados</a><a href="comparacion_modelos.html">Comparación SageMaker</a><a href="validacion_semanal.html">Validación Semanal</a><a href="auditoria_remediacion_2026.html">Auditoría</a><a href="conclusiones.html">Conclusiones</a><a href="referencias.html">Referencias</a></div>
-      </div>
-      <div class="nav-mobile-ctas"><a href="EpiDashboard.html" class="nav-cta nav-cta--primary" style="justify-content:center;padding:.6rem 1.5rem;flex:1">Dashboard</a></div>
-    </div>
-  </nav>
+  </div>
+</header>
+<!-- site:header:end -->
 
 <!-- ═══ HERO ═══ -->
-<section class="hero">
+<section id="contenido" class="hero">
   <h1>Resultados del Modelado</h1>
   <p class="subtitle">EpiForecast-MX &middot; IMSS &times; Tec de Monterrey &middot; 09/11/2026</p>
   <div class="hero-kpis">
@@ -262,7 +257,7 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
         (SMAPE 52 vs Prophet 102). Su pronóstico es recursivo y en muchas series se desboca más allá de ~10 semanas:
         <strong>suspendido en esta ronda</strong>.</p>
       </div>
-      <div class="guide-card reveal" style="border-left-color:#F59E0B">
+      <div class="guide-card reveal" style="border-left-color:#9a5200">
         <h3>Dengue en producción</h3>
         <p>Cuarto padecimiento y primera enfermedad por vector. Serie semanal <strong>2018–2026</strong> de las 32
         entidades, modelada en conteos. Productivos <strong>DeepAR + Prophet</strong>. En vivo en
@@ -361,16 +356,16 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
 <!-- ═══ DENGUE ═══ -->
 <section id="dengue" style="background:linear-gradient(180deg,var(--bg-raised),var(--bg));padding:4.5rem 0;border-top:1px solid rgba(245,158,11,.18)">
   <div class="container">
-    <h2 class="section-title reveal" style="color:#F59E0B">Dengue — 4.º padecimiento</h2>
+    <h2 class="section-title reveal" style="color:#9a5200">Dengue — 4.º padecimiento</h2>
     <p class="section-sub reveal">Primera enfermedad transmitida por vector del proyecto. Serie semanal del dengue confirmado <strong>2018–2026</strong> de las 32 entidades, reconstruida desde los boletines del SINAVE y modelada en <strong>conteos absolutos</strong> (no en tasa, como neuro).</p>
 
     <!-- Stats -->
     <div class="region-grid reveal" style="grid-template-columns:repeat(auto-fill,minmax(190px,1fr))">
-      <div class="region-card"><h4 style="color:#F59E0B">392 sem</h4><p>Serie nacional 2018–2026 (≈8 años)</p></div>
-      <div class="region-card"><h4 style="color:#F59E0B">99 series</h4><p>(Nacional + 32 entidades) × 3 sexos</p></div>
-      <div class="region-card"><h4 style="color:#F59E0B">5 motores</h4><p>Prophet, DeepAR, Ensemble, Stacking, NB-GLM</p></div>
-      <div class="region-card"><h4 style="color:#F59E0B">DeepAR</h4><p>Motor nacional productivo</p></div>
-      <div class="region-card"><h4 style="color:#F59E0B">52 sem</h4><p>Pronóstico a 1 año, sin proyección multi-año</p></div>
+      <div class="region-card"><h4 style="color:#9a5200">392 sem</h4><p>Serie nacional 2018–2026 (≈8 años)</p></div>
+      <div class="region-card"><h4 style="color:#9a5200">99 series</h4><p>(Nacional + 32 entidades) × 3 sexos</p></div>
+      <div class="region-card"><h4 style="color:#9a5200">5 motores</h4><p>Prophet, DeepAR, Ensemble, Stacking, NB-GLM</p></div>
+      <div class="region-card"><h4 style="color:#9a5200">DeepAR</h4><p>Motor nacional productivo</p></div>
+      <div class="region-card"><h4 style="color:#9a5200">52 sem</h4><p>Pronóstico a 1 año, sin proyección multi-año</p></div>
     </div>
 
     <!-- Resultados de modelado (interactivos, propios de esta página) -->
@@ -383,7 +378,7 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
     <!-- Hallazgos -->
     <h3 class="section-title reveal" style="font-size:1.5rem;margin-top:3rem">Hallazgos clave</h3>
     <div class="guide-grid">
-      <div class="guide-card reveal" style="border-left-color:#F59E0B">
+      <div class="guide-card reveal" style="border-left-color:#9a5200">
         <h3>El Niño como regresor</h3>
         <p>El dengue sigue el ciclo ENSO, pero esa señal no vive en los conteos recientes. Al agregar el índice
         <strong>ONI rezagado 16 sem</strong> a Prophet, el backtest leave-one-epidemic-out mejora el nacional de
@@ -416,7 +411,7 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
     <p class="section-sub reveal">Cuántas de las 99 series gana cada motor y cuáles quedan fuera de producción</p>
     <div class="table-wrapper reveal">
       <div style="overflow-x:auto">
-        <table id="dengueMotorTable">
+        <div class="tabla-desplazable"><table id="dengueMotorTable">
           <thead><tr>
             <th>Motor</th>
             <th>Series ganadas</th>
@@ -424,7 +419,7 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
             <th>Nota</th>
           </tr></thead>
           <tbody id="dengueMotorBody"></tbody>
-        </table>
+        </table></div>
       </div>
     </div>
 
@@ -447,7 +442,7 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
         </select>
       </div>
       <div style="overflow-x:auto">
-        <table id="dengueTable">
+        <div class="tabla-desplazable"><table id="dengueTable">
           <thead><tr>
             <th data-col="entidad">Entidad</th>
             <th data-col="modo">Modo</th>
@@ -455,7 +450,7 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
             <th data-col="casos">Casos 2026</th>
           </tr></thead>
           <tbody id="dengueBody"></tbody>
-        </table>
+        </table></div>
       </div>
     </div>
 
@@ -538,19 +533,19 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
 
     <h3 class="ref-cat reveal">Señal climática y fuentes de datos</h3>
     <div class="ref-grid">
-      <div class="ref-item reveal" style="border-left-color:#F59E0B">
+      <div class="ref-item reveal" style="border-left-color:#9a5200">
         <p class="ref-authors">NOAA Climate Prediction Center</p>
         <p class="ref-title">Oceanic Niño Index (ONI) &mdash; ENSO monitoring</p>
         <p class="ref-source">National Weather Service, NOAA</p>
         <a href="https://www.cpc.ncep.noaa.gov/products/analysis_monitoring/ensostuff/ONI_v5.php" target="_blank" rel="noopener" class="ref-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>cpc.ncep.noaa.gov</a>
       </div>
-      <div class="ref-item reveal" style="border-left-color:#F59E0B">
+      <div class="ref-item reveal" style="border-left-color:#9a5200">
         <p class="ref-authors">Secretaría de Salud / SINAVE</p>
         <p class="ref-title">Boletín Epidemiológico &mdash; Sistema Nacional de Vigilancia Epidemiológica</p>
         <p class="ref-source">Gobierno de México, 2012&ndash;2026</p>
         <a href="https://www.gob.mx/salud/acciones-y-programas/historico-boletin-epidemiologico" target="_blank" rel="noopener" class="ref-link"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>gob.mx/salud</a>
       </div>
-      <div class="ref-item reveal" style="border-left-color:#F59E0B">
+      <div class="ref-item reveal" style="border-left-color:#9a5200">
         <p class="ref-authors">INEGI</p>
         <p class="ref-title">Marco geoestadístico y proyecciones demográficas por entidad federativa</p>
         <p class="ref-source">Instituto Nacional de Estadística y Geografía</p>
@@ -561,7 +556,7 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
 </section>
 
 <!-- ═══ FOOTER ═══ -->
-<footer>
+<div class="legacy-colophon">
   <div class="footer-title">EpiForecast-MX</div>
   <p>Plataforma de inteligencia epidemiológica &middot; IMSS &times; Tec de Monterrey</p>
   <p style="margin-top:.75rem">
@@ -582,14 +577,46 @@ footer .footer-title{font-family:var(--font-display);color:var(--cream);font-siz
   </p>
   <p style="margin-top:.5rem">Maestría en Inteligencia Artificial Aplicada &mdash; Proyecto Capstone 2026</p>
   <p style="margin-top:.5rem;font-family:var(--font-mono);font-size:.75rem;opacity:.5">Actualizado: 09/11/2026 &middot; neuro 2014–2026 + Dengue 2018–2026</p>
+</div>
+<!-- site:footer:start -->
+<footer class="site-footer" lang="es">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <a class="site-brand" href="index.html" aria-label="EpiForecast-MX, inicio"><span class="site-brand__name"><span class="site-brand__word">EpiForecast<span class="site-brand__mx">MX</span></span></span></a>
+      <p>Datos oficiales. Investigación abierta. Una mirada informada a la salud de México.</p>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Explorar</p>
+      <a href="Reports/index.html">Galería de pronósticos</a>
+      <a href="epibot/index.html">Pregúntale a EPI</a>
+      <a href="EpiDashboard.html">Dashboard</a>
+      <a href="boletin.html">Radar del boletín</a>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Evidencia</p>
+      <a href="validacion_semanal.html">Validación semanal</a>
+      <a href="reporte_resultados.html">Resultados</a>
+      <a href="referencias.html">Fuentes y referencias</a>
+      <a href="rechazados.html">Analizados y rechazados</a>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Proyecto</p>
+      <a href="novedades.html">Noticias</a>
+      <a href="index.html#congresos">Congresos</a>
+      <a href="EpiDashboard-tableau.html">Archivo Tableau (corte W31)</a>
+      <a href="https://github.com/IntegradorIMSS2026Team01" rel="noopener" target="_blank">GitHub ↗</a>
+    </div>
+  </div>
+  <div class="site-footer__legal"><span>© 2026 EpiForecast-MX · Tecnológico de Monterrey · IMSS · SINAVE</span><a href="#nav">Volver arriba ↑</a></div>
 </footer>
+<!-- site:footer:end -->
 
 <script>
 // Clinical Indigo: set Chart.js global defaults for dark theme
-Chart.defaults.color = '#9FB0CE';
+Chart.defaults.color = '#40594f';
 Chart.defaults.borderColor = 'rgba(91,141,239,0.12)';
 
-const D = {"total_modelos": 333, "cobertura_estatal": 100, "fecha": "09/11/2026", "conteo_tipo": {"nacional": 9, "regional": 36, "estatal": 288}, "dist_neuro": {"Ensemble": 109, "Stacking": 107, "Prophet": 78, "DeepAR": 39}, "por_padecimiento": [{"padecimiento": "Alzheimer", "total": 111, "estatales": 96, "nacionales": 3, "regionales": 12, "insuficientes": 0, "fallback": 0}, {"padecimiento": "Depresión", "total": 111, "estatales": 96, "nacionales": 3, "regionales": 12, "insuficientes": 0, "fallback": 0}, {"padecimiento": "Parkinson", "total": 111, "estatales": 96, "nacionales": 3, "regionales": 12, "insuficientes": 0, "fallback": 0}], "cobertura": [{"estado": "Aguascalientes", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Baja California", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Baja California Sur", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Campeche", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Chiapas", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Chihuahua", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Ciudad de México", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Coahuila", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Colima", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Durango", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Estado de México", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Guanajuato", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Guerrero", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Hidalgo", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Jalisco", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Michoacán", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Morelos", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Nayarit", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Nuevo León", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Oaxaca", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Puebla", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Querétaro", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Quintana Roo", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "San Luis Potosí", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Sinaloa", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Sonora", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Tabasco", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Tamaulipas", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Tlaxcala", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Veracruz", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Yucatán", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Zacatecas", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}], "cobertura_resumen": {"alzheimer": {"propios": 32, "fallback": 0}, "depresion": {"propios": 32, "fallback": 0}, "parkinson": {"propios": 32, "fallback": 0}}, "pad_meta": [{"name": "Alzheimer", "key": "alzheimer", "main": "#2DD4BF", "light": "#5EEAD4", "glow": "rgba(45,212,191,0.12)"}, {"name": "Depresión", "key": "depresion", "main": "#F472B6", "light": "#F9A8D4", "glow": "rgba(244,114,182,0.12)"}, {"name": "Parkinson", "key": "parkinson", "main": "#5B8DEF", "light": "#93C5FD", "glow": "rgba(91,141,239,0.12)"}], "regiones_inegi": {"Metropolitana alta": ["Baja California", "Chihuahua", "Ciudad de México", "Coahuila", "Jalisco", "México", "Nuevo León", "Sinaloa", "Sonora", "Tamaulipas"], "Urbana media": ["Aguascalientes", "Baja California Sur", "Colima", "Durango", "Guanajuato", "Morelos", "Querétaro", "San Luis Potosí", "Zacatecas"], "Sur-Sureste vulnerable": ["Campeche", "Chiapas", "Oaxaca", "Quintana Roo", "Tabasco", "Veracruz", "Yucatán"], "Rural / dispersa": ["Guerrero", "Hidalgo", "Michoacán", "Nayarit", "Puebla", "Tlaxcala"]}, "dengue": {"n_series": 99, "n_semanas_real": 10, "casos_2026": 2686, "dist_all": {"DeepAR": 53, "Prophet": 46}, "dist_general": {"DeepAR": 19, "Prophet": 14}, "nacional_motor": "DeepAR", "backtest": {"prophet": 102, "prophet_enso": 76, "nbglm": 52}, "motor_table": [{"motor": "DeepAR", "ganadas": 53, "en_produccion": true, "nota": "En producción"}, {"motor": "NB-GLM", "ganadas": 0, "en_produccion": false, "nota": "Suspendido en esta ronda: su predicción recursiva es inestable."}, {"motor": "Prophet", "ganadas": 46, "en_produccion": true, "nota": "En producción"}, {"motor": "Ensemble", "ganadas": 0, "en_produccion": false, "nota": "No elegible: los árboles no extrapolan la dinámica epidémica a 52 sem."}, {"motor": "Stacking", "ganadas": 0, "en_produccion": false, "nota": "No elegible: los árboles no extrapolan la dinámica epidémica a 52 sem."}], "ranking": [{"entidad": "Aguascalientes", "modo": "General", "motor": "DeepAR", "casos": 210, "grupo": "Estatal", "orden": 1}, {"entidad": "Aguascalientes", "modo": "Hombres", "motor": "DeepAR", "casos": 95, "grupo": "Estatal", "orden": 1}, {"entidad": "Aguascalientes", "modo": "Mujeres", "motor": "DeepAR", "casos": 115, "grupo": "Estatal", "orden": 1}, {"entidad": "Baja California", "modo": "General", "motor": "DeepAR", "casos": 5, "grupo": "Estatal", "orden": 1}, {"entidad": "Baja California", "modo": "Hombres", "motor": "Prophet", "casos": 2, "grupo": "Estatal", "orden": 1}, {"entidad": "Baja California", "modo": "Mujeres", "motor": "DeepAR", "casos": 3, "grupo": "Estatal", "orden": 1}, {"entidad": "Baja California Sur", "modo": "General", "motor": "DeepAR", "casos": 66, "grupo": "Estatal", "orden": 1}, {"entidad": "Baja California Sur", "modo": "Hombres", "motor": "DeepAR", "casos": 29, "grupo": "Estatal", "orden": 1}, {"entidad": "Baja California Sur", "modo": "Mujeres", "motor": "DeepAR", "casos": 36, "grupo": "Estatal", "orden": 1}, {"entidad": "Campeche", "modo": "General", "motor": "DeepAR", "casos": 32, "grupo": "Estatal", "orden": 1}, {"entidad": "Campeche", "modo": "Hombres", "motor": "DeepAR", "casos": 12, "grupo": "Estatal", "orden": 1}, {"entidad": "Campeche", "modo": "Mujeres", "motor": "DeepAR", "casos": 20, "grupo": "Estatal", "orden": 1}, {"entidad": "Chiapas", "modo": "General", "motor": "Prophet", "casos": 205, "grupo": "Estatal", "orden": 1}, {"entidad": "Chiapas", "modo": "Hombres", "motor": "DeepAR", "casos": 91, "grupo": "Estatal", "orden": 1}, {"entidad": "Chiapas", "modo": "Mujeres", "motor": "Prophet", "casos": 114, "grupo": "Estatal", "orden": 1}, {"entidad": "Chihuahua", "modo": "General", "motor": "DeepAR", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Chihuahua", "modo": "Hombres", "motor": "DeepAR", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Chihuahua", "modo": "Mujeres", "motor": "DeepAR", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Ciudad de México", "modo": "General", "motor": "DeepAR", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Ciudad de México", "modo": "Hombres", "motor": "DeepAR", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Ciudad de México", "modo": "Mujeres", "motor": "DeepAR", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Coahuila", "modo": "General", "motor": "Prophet", "casos": 16, "grupo": "Estatal", "orden": 1}, {"entidad": "Coahuila", "modo": "Hombres", "motor": "Prophet", "casos": 5, "grupo": "Estatal", "orden": 1}, {"entidad": "Coahuila", "modo": "Mujeres", "motor": "Prophet", "casos": 11, "grupo": "Estatal", "orden": 1}, {"entidad": "Colima", "modo": "General", "motor": "Prophet", "casos": 2, "grupo": "Estatal", "orden": 1}, {"entidad": "Colima", "modo": "Hombres", "motor": "Prophet", "casos": 1, "grupo": "Estatal", "orden": 1}, {"entidad": "Colima", "modo": "Mujeres", "motor": "Prophet", "casos": 1, "grupo": "Estatal", "orden": 1}, {"entidad": "Durango", "modo": "General", "motor": "DeepAR", "casos": 6, "grupo": "Estatal", "orden": 1}, {"entidad": "Durango", "modo": "Hombres", "motor": "DeepAR", "casos": 2, "grupo": "Estatal", "orden": 1}, {"entidad": "Durango", "modo": "Mujeres", "motor": "DeepAR", "casos": 4, "grupo": "Estatal", "orden": 1}, {"entidad": "Guanajuato", "modo": "General", "motor": "Prophet", "casos": 107, "grupo": "Estatal", "orden": 1}, {"entidad": "Guanajuato", "modo": "Hombres", "motor": "Prophet", "casos": 53, "grupo": "Estatal", "orden": 1}, {"entidad": "Guanajuato", "modo": "Mujeres", "motor": "Prophet", "casos": 54, "grupo": "Estatal", "orden": 1}, {"entidad": "Guerrero", "modo": "General", "motor": "Prophet", "casos": 12, "grupo": "Estatal", "orden": 1}, {"entidad": "Guerrero", "modo": "Hombres", "motor": "Prophet", "casos": 7, "grupo": "Estatal", "orden": 1}, {"entidad": "Guerrero", "modo": "Mujeres", "motor": "Prophet", "casos": 5, "grupo": "Estatal", "orden": 1}, {"entidad": "Hidalgo", "modo": "General", "motor": "DeepAR", "casos": 19, "grupo": "Estatal", "orden": 1}, {"entidad": "Hidalgo", "modo": "Hombres", "motor": "DeepAR", "casos": 6, "grupo": "Estatal", "orden": 1}, {"entidad": "Hidalgo", "modo": "Mujeres", "motor": "DeepAR", "casos": 13, "grupo": "Estatal", "orden": 1}, {"entidad": "Jalisco", "modo": "General", "motor": "Prophet", "casos": 89, "grupo": "Estatal", "orden": 1}, {"entidad": "Jalisco", "modo": "Hombres", "motor": "Prophet", "casos": 41, "grupo": "Estatal", "orden": 1}, {"entidad": "Jalisco", "modo": "Mujeres", "motor": "Prophet", "casos": 48, "grupo": "Estatal", "orden": 1}, {"entidad": "Michoacán", "modo": "General", "motor": "DeepAR", "casos": 93, "grupo": "Estatal", "orden": 1}, {"entidad": "Michoacán", "modo": "Hombres", "motor": "DeepAR", "casos": 46, "grupo": "Estatal", "orden": 1}, {"entidad": "Michoacán", "modo": "Mujeres", "motor": "DeepAR", "casos": 47, "grupo": "Estatal", "orden": 1}, {"entidad": "Morelos", "modo": "General", "motor": "DeepAR", "casos": 26, "grupo": "Estatal", "orden": 1}, {"entidad": "Morelos", "modo": "Hombres", "motor": "DeepAR", "casos": 11, "grupo": "Estatal", "orden": 1}, {"entidad": "Morelos", "modo": "Mujeres", "motor": "DeepAR", "casos": 15, "grupo": "Estatal", "orden": 1}, {"entidad": "México", "modo": "General", "motor": "Prophet", "casos": 104, "grupo": "Estatal", "orden": 1}, {"entidad": "México", "modo": "Hombres", "motor": "Prophet", "casos": 43, "grupo": "Estatal", "orden": 1}, {"entidad": "México", "modo": "Mujeres", "motor": "Prophet", "casos": 61, "grupo": "Estatal", "orden": 1}, {"entidad": "Nacional", "modo": "General", "motor": "DeepAR", "casos": 2686, "grupo": "Nacional", "orden": 0}, {"entidad": "Nacional", "modo": "Hombres", "motor": "DeepAR", "casos": 1209, "grupo": "Nacional", "orden": 0}, {"entidad": "Nacional", "modo": "Mujeres", "motor": "DeepAR", "casos": 1478, "grupo": "Nacional", "orden": 0}, {"entidad": "Nayarit", "modo": "General", "motor": "DeepAR", "casos": 60, "grupo": "Estatal", "orden": 1}, {"entidad": "Nayarit", "modo": "Hombres", "motor": "DeepAR", "casos": 28, "grupo": "Estatal", "orden": 1}, {"entidad": "Nayarit", "modo": "Mujeres", "motor": "Prophet", "casos": 32, "grupo": "Estatal", "orden": 1}, {"entidad": "Nuevo León", "modo": "General", "motor": "DeepAR", "casos": 11, "grupo": "Estatal", "orden": 1}, {"entidad": "Nuevo León", "modo": "Hombres", "motor": "Prophet", "casos": 6, "grupo": "Estatal", "orden": 1}, {"entidad": "Nuevo León", "modo": "Mujeres", "motor": "Prophet", "casos": 5, "grupo": "Estatal", "orden": 1}, {"entidad": "Oaxaca", "modo": "General", "motor": "Prophet", "casos": 39, "grupo": "Estatal", "orden": 1}, {"entidad": "Oaxaca", "modo": "Hombres", "motor": "Prophet", "casos": 18, "grupo": "Estatal", "orden": 1}, {"entidad": "Oaxaca", "modo": "Mujeres", "motor": "Prophet", "casos": 22, "grupo": "Estatal", "orden": 1}, {"entidad": "Puebla", "modo": "General", "motor": "DeepAR", "casos": 40, "grupo": "Estatal", "orden": 1}, {"entidad": "Puebla", "modo": "Hombres", "motor": "DeepAR", "casos": 17, "grupo": "Estatal", "orden": 1}, {"entidad": "Puebla", "modo": "Mujeres", "motor": "Prophet", "casos": 22, "grupo": "Estatal", "orden": 1}, {"entidad": "Querétaro", "modo": "General", "motor": "Prophet", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Querétaro", "modo": "Hombres", "motor": "Prophet", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Querétaro", "modo": "Mujeres", "motor": "Prophet", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Quintana Roo", "modo": "General", "motor": "DeepAR", "casos": 177, "grupo": "Estatal", "orden": 1}, {"entidad": "Quintana Roo", "modo": "Hombres", "motor": "Prophet", "casos": 76, "grupo": "Estatal", "orden": 1}, {"entidad": "Quintana Roo", "modo": "Mujeres", "motor": "DeepAR", "casos": 101, "grupo": "Estatal", "orden": 1}, {"entidad": "San Luis Potosí", "modo": "General", "motor": "Prophet", "casos": 26, "grupo": "Estatal", "orden": 1}, {"entidad": "San Luis Potosí", "modo": "Hombres", "motor": "DeepAR", "casos": 8, "grupo": "Estatal", "orden": 1}, {"entidad": "San Luis Potosí", "modo": "Mujeres", "motor": "Prophet", "casos": 18, "grupo": "Estatal", "orden": 1}, {"entidad": "Sinaloa", "modo": "General", "motor": "Prophet", "casos": 161, "grupo": "Estatal", "orden": 1}, {"entidad": "Sinaloa", "modo": "Hombres", "motor": "Prophet", "casos": 87, "grupo": "Estatal", "orden": 1}, {"entidad": "Sinaloa", "modo": "Mujeres", "motor": "Prophet", "casos": 75, "grupo": "Estatal", "orden": 1}, {"entidad": "Sonora", "modo": "General", "motor": "Prophet", "casos": 372, "grupo": "Estatal", "orden": 1}, {"entidad": "Sonora", "modo": "Hombres", "motor": "Prophet", "casos": 160, "grupo": "Estatal", "orden": 1}, {"entidad": "Sonora", "modo": "Mujeres", "motor": "Prophet", "casos": 212, "grupo": "Estatal", "orden": 1}, {"entidad": "Tabasco", "modo": "General", "motor": "Prophet", "casos": 229, "grupo": "Estatal", "orden": 1}, {"entidad": "Tabasco", "modo": "Hombres", "motor": "DeepAR", "casos": 112, "grupo": "Estatal", "orden": 1}, {"entidad": "Tabasco", "modo": "Mujeres", "motor": "Prophet", "casos": 117, "grupo": "Estatal", "orden": 1}, {"entidad": "Tamaulipas", "modo": "General", "motor": "DeepAR", "casos": 16, "grupo": "Estatal", "orden": 1}, {"entidad": "Tamaulipas", "modo": "Hombres", "motor": "DeepAR", "casos": 6, "grupo": "Estatal", "orden": 1}, {"entidad": "Tamaulipas", "modo": "Mujeres", "motor": "DeepAR", "casos": 10, "grupo": "Estatal", "orden": 1}, {"entidad": "Tlaxcala", "modo": "General", "motor": "DeepAR", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Tlaxcala", "modo": "Hombres", "motor": "DeepAR", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Tlaxcala", "modo": "Mujeres", "motor": "DeepAR", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Veracruz", "modo": "General", "motor": "DeepAR", "casos": 533, "grupo": "Estatal", "orden": 1}, {"entidad": "Veracruz", "modo": "Hombres", "motor": "DeepAR", "casos": 230, "grupo": "Estatal", "orden": 1}, {"entidad": "Veracruz", "modo": "Mujeres", "motor": "DeepAR", "casos": 304, "grupo": "Estatal", "orden": 1}, {"entidad": "Yucatán", "modo": "General", "motor": "Prophet", "casos": 30, "grupo": "Estatal", "orden": 1}, {"entidad": "Yucatán", "modo": "Hombres", "motor": "Prophet", "casos": 17, "grupo": "Estatal", "orden": 1}, {"entidad": "Yucatán", "modo": "Mujeres", "motor": "Prophet", "casos": 13, "grupo": "Estatal", "orden": 1}, {"entidad": "Zacatecas", "modo": "General", "motor": "DeepAR", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Zacatecas", "modo": "Hombres", "motor": "Prophet", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Zacatecas", "modo": "Mujeres", "motor": "DeepAR", "casos": 0, "grupo": "Estatal", "orden": 1}]}, "metricas_seleccion": {"publicadas": false, "ventana": "W28–W37", "rotulo": "diagnóstico de selección W28–W37; no evaluación independiente", "nota": "Las métricas de error de esta ronda midieron la ventana con la que se eligió el motor de cada serie; no se publican como desempeño del pronóstico."}};
+const D = {"total_modelos": 333, "cobertura_estatal": 100, "fecha": "09/11/2026", "conteo_tipo": {"nacional": 9, "regional": 36, "estatal": 288}, "dist_neuro": {"Ensemble": 109, "Stacking": 107, "Prophet": 78, "DeepAR": 39}, "por_padecimiento": [{"padecimiento": "Alzheimer", "total": 111, "estatales": 96, "nacionales": 3, "regionales": 12, "insuficientes": 0, "fallback": 0}, {"padecimiento": "Depresión", "total": 111, "estatales": 96, "nacionales": 3, "regionales": 12, "insuficientes": 0, "fallback": 0}, {"padecimiento": "Parkinson", "total": 111, "estatales": 96, "nacionales": 3, "regionales": 12, "insuficientes": 0, "fallback": 0}], "cobertura": [{"estado": "Aguascalientes", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Baja California", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Baja California Sur", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Campeche", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Chiapas", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Chihuahua", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Ciudad de México", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Coahuila", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Colima", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Durango", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Estado de México", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Guanajuato", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Guerrero", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Hidalgo", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Jalisco", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Michoacán", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Morelos", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Nayarit", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Nuevo León", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Oaxaca", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Puebla", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Querétaro", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Quintana Roo", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "San Luis Potosí", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Sinaloa", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Sonora", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Tabasco", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Tamaulipas", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Tlaxcala", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Veracruz", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Yucatán", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}, {"estado": "Zacatecas", "alzheimer": "propio", "depresion": "propio", "parkinson": "propio"}], "cobertura_resumen": {"alzheimer": {"propios": 32, "fallback": 0}, "depresion": {"propios": 32, "fallback": 0}, "parkinson": {"propios": 32, "fallback": 0}}, "pad_meta": [{"name": "Alzheimer", "key": "alzheimer", "main": "#0f6e66", "light": "#5EEAD4", "glow": "rgba(45,212,191,0.12)"}, {"name": "Depresión", "key": "depresion", "main": "#a3367a", "light": "#F9A8D4", "glow": "rgba(244,114,182,0.12)"}, {"name": "Parkinson", "key": "parkinson", "main": "#2f5f9e", "light": "#93C5FD", "glow": "rgba(91,141,239,0.12)"}], "regiones_inegi": {"Metropolitana alta": ["Baja California", "Chihuahua", "Ciudad de México", "Coahuila", "Jalisco", "México", "Nuevo León", "Sinaloa", "Sonora", "Tamaulipas"], "Urbana media": ["Aguascalientes", "Baja California Sur", "Colima", "Durango", "Guanajuato", "Morelos", "Querétaro", "San Luis Potosí", "Zacatecas"], "Sur-Sureste vulnerable": ["Campeche", "Chiapas", "Oaxaca", "Quintana Roo", "Tabasco", "Veracruz", "Yucatán"], "Rural / dispersa": ["Guerrero", "Hidalgo", "Michoacán", "Nayarit", "Puebla", "Tlaxcala"]}, "dengue": {"n_series": 99, "n_semanas_real": 10, "casos_2026": 2686, "dist_all": {"DeepAR": 53, "Prophet": 46}, "dist_general": {"DeepAR": 19, "Prophet": 14}, "nacional_motor": "DeepAR", "backtest": {"prophet": 102, "prophet_enso": 76, "nbglm": 52}, "motor_table": [{"motor": "DeepAR", "ganadas": 53, "en_produccion": true, "nota": "En producción"}, {"motor": "NB-GLM", "ganadas": 0, "en_produccion": false, "nota": "Suspendido en esta ronda: su predicción recursiva es inestable."}, {"motor": "Prophet", "ganadas": 46, "en_produccion": true, "nota": "En producción"}, {"motor": "Ensemble", "ganadas": 0, "en_produccion": false, "nota": "No elegible: los árboles no extrapolan la dinámica epidémica a 52 sem."}, {"motor": "Stacking", "ganadas": 0, "en_produccion": false, "nota": "No elegible: los árboles no extrapolan la dinámica epidémica a 52 sem."}], "ranking": [{"entidad": "Aguascalientes", "modo": "General", "motor": "DeepAR", "casos": 210, "grupo": "Estatal", "orden": 1}, {"entidad": "Aguascalientes", "modo": "Hombres", "motor": "DeepAR", "casos": 95, "grupo": "Estatal", "orden": 1}, {"entidad": "Aguascalientes", "modo": "Mujeres", "motor": "DeepAR", "casos": 115, "grupo": "Estatal", "orden": 1}, {"entidad": "Baja California", "modo": "General", "motor": "DeepAR", "casos": 5, "grupo": "Estatal", "orden": 1}, {"entidad": "Baja California", "modo": "Hombres", "motor": "Prophet", "casos": 2, "grupo": "Estatal", "orden": 1}, {"entidad": "Baja California", "modo": "Mujeres", "motor": "DeepAR", "casos": 3, "grupo": "Estatal", "orden": 1}, {"entidad": "Baja California Sur", "modo": "General", "motor": "DeepAR", "casos": 66, "grupo": "Estatal", "orden": 1}, {"entidad": "Baja California Sur", "modo": "Hombres", "motor": "DeepAR", "casos": 29, "grupo": "Estatal", "orden": 1}, {"entidad": "Baja California Sur", "modo": "Mujeres", "motor": "DeepAR", "casos": 36, "grupo": "Estatal", "orden": 1}, {"entidad": "Campeche", "modo": "General", "motor": "DeepAR", "casos": 32, "grupo": "Estatal", "orden": 1}, {"entidad": "Campeche", "modo": "Hombres", "motor": "DeepAR", "casos": 12, "grupo": "Estatal", "orden": 1}, {"entidad": "Campeche", "modo": "Mujeres", "motor": "DeepAR", "casos": 20, "grupo": "Estatal", "orden": 1}, {"entidad": "Chiapas", "modo": "General", "motor": "Prophet", "casos": 205, "grupo": "Estatal", "orden": 1}, {"entidad": "Chiapas", "modo": "Hombres", "motor": "DeepAR", "casos": 91, "grupo": "Estatal", "orden": 1}, {"entidad": "Chiapas", "modo": "Mujeres", "motor": "Prophet", "casos": 114, "grupo": "Estatal", "orden": 1}, {"entidad": "Chihuahua", "modo": "General", "motor": "DeepAR", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Chihuahua", "modo": "Hombres", "motor": "DeepAR", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Chihuahua", "modo": "Mujeres", "motor": "DeepAR", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Ciudad de México", "modo": "General", "motor": "DeepAR", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Ciudad de México", "modo": "Hombres", "motor": "DeepAR", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Ciudad de México", "modo": "Mujeres", "motor": "DeepAR", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Coahuila", "modo": "General", "motor": "Prophet", "casos": 16, "grupo": "Estatal", "orden": 1}, {"entidad": "Coahuila", "modo": "Hombres", "motor": "Prophet", "casos": 5, "grupo": "Estatal", "orden": 1}, {"entidad": "Coahuila", "modo": "Mujeres", "motor": "Prophet", "casos": 11, "grupo": "Estatal", "orden": 1}, {"entidad": "Colima", "modo": "General", "motor": "Prophet", "casos": 2, "grupo": "Estatal", "orden": 1}, {"entidad": "Colima", "modo": "Hombres", "motor": "Prophet", "casos": 1, "grupo": "Estatal", "orden": 1}, {"entidad": "Colima", "modo": "Mujeres", "motor": "Prophet", "casos": 1, "grupo": "Estatal", "orden": 1}, {"entidad": "Durango", "modo": "General", "motor": "DeepAR", "casos": 6, "grupo": "Estatal", "orden": 1}, {"entidad": "Durango", "modo": "Hombres", "motor": "DeepAR", "casos": 2, "grupo": "Estatal", "orden": 1}, {"entidad": "Durango", "modo": "Mujeres", "motor": "DeepAR", "casos": 4, "grupo": "Estatal", "orden": 1}, {"entidad": "Guanajuato", "modo": "General", "motor": "Prophet", "casos": 107, "grupo": "Estatal", "orden": 1}, {"entidad": "Guanajuato", "modo": "Hombres", "motor": "Prophet", "casos": 53, "grupo": "Estatal", "orden": 1}, {"entidad": "Guanajuato", "modo": "Mujeres", "motor": "Prophet", "casos": 54, "grupo": "Estatal", "orden": 1}, {"entidad": "Guerrero", "modo": "General", "motor": "Prophet", "casos": 12, "grupo": "Estatal", "orden": 1}, {"entidad": "Guerrero", "modo": "Hombres", "motor": "Prophet", "casos": 7, "grupo": "Estatal", "orden": 1}, {"entidad": "Guerrero", "modo": "Mujeres", "motor": "Prophet", "casos": 5, "grupo": "Estatal", "orden": 1}, {"entidad": "Hidalgo", "modo": "General", "motor": "DeepAR", "casos": 19, "grupo": "Estatal", "orden": 1}, {"entidad": "Hidalgo", "modo": "Hombres", "motor": "DeepAR", "casos": 6, "grupo": "Estatal", "orden": 1}, {"entidad": "Hidalgo", "modo": "Mujeres", "motor": "DeepAR", "casos": 13, "grupo": "Estatal", "orden": 1}, {"entidad": "Jalisco", "modo": "General", "motor": "Prophet", "casos": 89, "grupo": "Estatal", "orden": 1}, {"entidad": "Jalisco", "modo": "Hombres", "motor": "Prophet", "casos": 41, "grupo": "Estatal", "orden": 1}, {"entidad": "Jalisco", "modo": "Mujeres", "motor": "Prophet", "casos": 48, "grupo": "Estatal", "orden": 1}, {"entidad": "Michoacán", "modo": "General", "motor": "DeepAR", "casos": 93, "grupo": "Estatal", "orden": 1}, {"entidad": "Michoacán", "modo": "Hombres", "motor": "DeepAR", "casos": 46, "grupo": "Estatal", "orden": 1}, {"entidad": "Michoacán", "modo": "Mujeres", "motor": "DeepAR", "casos": 47, "grupo": "Estatal", "orden": 1}, {"entidad": "Morelos", "modo": "General", "motor": "DeepAR", "casos": 26, "grupo": "Estatal", "orden": 1}, {"entidad": "Morelos", "modo": "Hombres", "motor": "DeepAR", "casos": 11, "grupo": "Estatal", "orden": 1}, {"entidad": "Morelos", "modo": "Mujeres", "motor": "DeepAR", "casos": 15, "grupo": "Estatal", "orden": 1}, {"entidad": "México", "modo": "General", "motor": "Prophet", "casos": 104, "grupo": "Estatal", "orden": 1}, {"entidad": "México", "modo": "Hombres", "motor": "Prophet", "casos": 43, "grupo": "Estatal", "orden": 1}, {"entidad": "México", "modo": "Mujeres", "motor": "Prophet", "casos": 61, "grupo": "Estatal", "orden": 1}, {"entidad": "Nacional", "modo": "General", "motor": "DeepAR", "casos": 2686, "grupo": "Nacional", "orden": 0}, {"entidad": "Nacional", "modo": "Hombres", "motor": "DeepAR", "casos": 1209, "grupo": "Nacional", "orden": 0}, {"entidad": "Nacional", "modo": "Mujeres", "motor": "DeepAR", "casos": 1478, "grupo": "Nacional", "orden": 0}, {"entidad": "Nayarit", "modo": "General", "motor": "DeepAR", "casos": 60, "grupo": "Estatal", "orden": 1}, {"entidad": "Nayarit", "modo": "Hombres", "motor": "DeepAR", "casos": 28, "grupo": "Estatal", "orden": 1}, {"entidad": "Nayarit", "modo": "Mujeres", "motor": "Prophet", "casos": 32, "grupo": "Estatal", "orden": 1}, {"entidad": "Nuevo León", "modo": "General", "motor": "DeepAR", "casos": 11, "grupo": "Estatal", "orden": 1}, {"entidad": "Nuevo León", "modo": "Hombres", "motor": "Prophet", "casos": 6, "grupo": "Estatal", "orden": 1}, {"entidad": "Nuevo León", "modo": "Mujeres", "motor": "Prophet", "casos": 5, "grupo": "Estatal", "orden": 1}, {"entidad": "Oaxaca", "modo": "General", "motor": "Prophet", "casos": 39, "grupo": "Estatal", "orden": 1}, {"entidad": "Oaxaca", "modo": "Hombres", "motor": "Prophet", "casos": 18, "grupo": "Estatal", "orden": 1}, {"entidad": "Oaxaca", "modo": "Mujeres", "motor": "Prophet", "casos": 22, "grupo": "Estatal", "orden": 1}, {"entidad": "Puebla", "modo": "General", "motor": "DeepAR", "casos": 40, "grupo": "Estatal", "orden": 1}, {"entidad": "Puebla", "modo": "Hombres", "motor": "DeepAR", "casos": 17, "grupo": "Estatal", "orden": 1}, {"entidad": "Puebla", "modo": "Mujeres", "motor": "Prophet", "casos": 22, "grupo": "Estatal", "orden": 1}, {"entidad": "Querétaro", "modo": "General", "motor": "Prophet", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Querétaro", "modo": "Hombres", "motor": "Prophet", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Querétaro", "modo": "Mujeres", "motor": "Prophet", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Quintana Roo", "modo": "General", "motor": "DeepAR", "casos": 177, "grupo": "Estatal", "orden": 1}, {"entidad": "Quintana Roo", "modo": "Hombres", "motor": "Prophet", "casos": 76, "grupo": "Estatal", "orden": 1}, {"entidad": "Quintana Roo", "modo": "Mujeres", "motor": "DeepAR", "casos": 101, "grupo": "Estatal", "orden": 1}, {"entidad": "San Luis Potosí", "modo": "General", "motor": "Prophet", "casos": 26, "grupo": "Estatal", "orden": 1}, {"entidad": "San Luis Potosí", "modo": "Hombres", "motor": "DeepAR", "casos": 8, "grupo": "Estatal", "orden": 1}, {"entidad": "San Luis Potosí", "modo": "Mujeres", "motor": "Prophet", "casos": 18, "grupo": "Estatal", "orden": 1}, {"entidad": "Sinaloa", "modo": "General", "motor": "Prophet", "casos": 161, "grupo": "Estatal", "orden": 1}, {"entidad": "Sinaloa", "modo": "Hombres", "motor": "Prophet", "casos": 87, "grupo": "Estatal", "orden": 1}, {"entidad": "Sinaloa", "modo": "Mujeres", "motor": "Prophet", "casos": 75, "grupo": "Estatal", "orden": 1}, {"entidad": "Sonora", "modo": "General", "motor": "Prophet", "casos": 372, "grupo": "Estatal", "orden": 1}, {"entidad": "Sonora", "modo": "Hombres", "motor": "Prophet", "casos": 160, "grupo": "Estatal", "orden": 1}, {"entidad": "Sonora", "modo": "Mujeres", "motor": "Prophet", "casos": 212, "grupo": "Estatal", "orden": 1}, {"entidad": "Tabasco", "modo": "General", "motor": "Prophet", "casos": 229, "grupo": "Estatal", "orden": 1}, {"entidad": "Tabasco", "modo": "Hombres", "motor": "DeepAR", "casos": 112, "grupo": "Estatal", "orden": 1}, {"entidad": "Tabasco", "modo": "Mujeres", "motor": "Prophet", "casos": 117, "grupo": "Estatal", "orden": 1}, {"entidad": "Tamaulipas", "modo": "General", "motor": "DeepAR", "casos": 16, "grupo": "Estatal", "orden": 1}, {"entidad": "Tamaulipas", "modo": "Hombres", "motor": "DeepAR", "casos": 6, "grupo": "Estatal", "orden": 1}, {"entidad": "Tamaulipas", "modo": "Mujeres", "motor": "DeepAR", "casos": 10, "grupo": "Estatal", "orden": 1}, {"entidad": "Tlaxcala", "modo": "General", "motor": "DeepAR", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Tlaxcala", "modo": "Hombres", "motor": "DeepAR", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Tlaxcala", "modo": "Mujeres", "motor": "DeepAR", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Veracruz", "modo": "General", "motor": "DeepAR", "casos": 533, "grupo": "Estatal", "orden": 1}, {"entidad": "Veracruz", "modo": "Hombres", "motor": "DeepAR", "casos": 230, "grupo": "Estatal", "orden": 1}, {"entidad": "Veracruz", "modo": "Mujeres", "motor": "DeepAR", "casos": 304, "grupo": "Estatal", "orden": 1}, {"entidad": "Yucatán", "modo": "General", "motor": "Prophet", "casos": 30, "grupo": "Estatal", "orden": 1}, {"entidad": "Yucatán", "modo": "Hombres", "motor": "Prophet", "casos": 17, "grupo": "Estatal", "orden": 1}, {"entidad": "Yucatán", "modo": "Mujeres", "motor": "Prophet", "casos": 13, "grupo": "Estatal", "orden": 1}, {"entidad": "Zacatecas", "modo": "General", "motor": "DeepAR", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Zacatecas", "modo": "Hombres", "motor": "Prophet", "casos": 0, "grupo": "Estatal", "orden": 1}, {"entidad": "Zacatecas", "modo": "Mujeres", "motor": "DeepAR", "casos": 0, "grupo": "Estatal", "orden": 1}]}, "metricas_seleccion": {"publicadas": false, "ventana": "W28–W37", "rotulo": "diagnóstico de selección W28–W37; no evaluación independiente", "nota": "Las métricas de error de esta ronda midieron la ventana con la que se eligió el motor de cada serie; no se publican como desempeño del pronóstico."}};
 
 const PC = {};
 D.pad_meta.forEach(p => { PC[p.name] = {main:p.main,light:p.light,glow:p.glow}; });
@@ -602,7 +629,7 @@ document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 try {
   const ct = document.getElementById('pad-cards');
   D.por_padecimiento.forEach(p => {
-    const c = PC[p.padecimiento] || {main:'#9FB0CE',glow:'rgba(91,141,239,.10)'};
+    const c = PC[p.padecimiento] || {main:'#40594f',glow:'rgba(91,141,239,.10)'};
     const card = document.createElement('div');
     card.className = 'card reveal';
     card.innerHTML = `
@@ -634,8 +661,8 @@ try {
       datasets: pads.map((p, i) => ({
         label: p.padecimiento,
         data: [propios[i], fallbacks[i]],
-        backgroundColor: ['#2DD4BF', '#FB923C'],
-        borderWidth: 2, borderColor: '#1C2740'
+        backgroundColor: ['#0f6e66', '#c2410c'],
+        borderWidth: 2, borderColor: '#ffffff'
       }))
     },
     options: {
@@ -684,12 +711,12 @@ try {
 try {
   const dg = D.dengue;
   const ent = Object.entries(dg.dist_all).sort((a,b)=>b[1]-a[1]);
-  const motorColors = {DeepAR:'#F472B6', NBGLM:'#F59E0B', Prophet:'#2DD4BF', Ensemble:'#FB923C', Stacking:'#8B9DFF'};
+  const motorColors = {DeepAR:'#a3367a', NBGLM:'#9a5200', Prophet:'#0f6e66', Ensemble:'#c2410c', Stacking:'#4b52b8'};
   new Chart(document.getElementById('dengueMotorChart'), {
     type:'doughnut',
     data:{ labels:ent.map(e=>e[0]==='NBGLM'?'NB-GLM':e[0]),
-      datasets:[{ data:ent.map(e=>e[1]), backgroundColor:ent.map(e=>motorColors[e[0]]||'#9FB0CE'),
-        borderWidth:2, borderColor:'#1C2740' }] },
+      datasets:[{ data:ent.map(e=>e[1]), backgroundColor:ent.map(e=>motorColors[e[0]]||'#40594f'),
+        borderWidth:2, borderColor:'#ffffff' }] },
     options:{ responsive:true, cutout:'58%',
       plugins:{
         title:{ display:true, text:`Motor productivo por serie de Dengue (${dg.n_series} series)`, font:{family:"'Outfit'",size:14} },
@@ -710,7 +737,7 @@ try {
     type:'bar',
     data:{ labels:['Prophet','Prophet + El Niño','NB-GLM'],
       datasets:[{ data:[bt.prophet, bt.prophet_enso, bt.nbglm],
-        backgroundColor:['#F472B6','#FCD34D','#2DD4BF'], borderRadius:6, borderSkipped:false }] },
+        backgroundColor:['#a3367a','#7d4400','#0f6e66'], borderRadius:6, borderSkipped:false }] },
     options:{ responsive:true,
       plugins:{
         title:{ display:true, text:'Backtest fuera de muestra (SMAPE nacional, epidemia 2024)', font:{family:"'Outfit'",size:14} },
@@ -726,10 +753,10 @@ try {
 
 /* ── Dengue: tabla de motores ── */
 try {
-  const mc = {DeepAR:'#F472B6','NB-GLM':'#F59E0B',Prophet:'#2DD4BF',Ensemble:'#FB923C',Stacking:'#8B9DFF'};
+  const mc = {DeepAR:'#a3367a','NB-GLM':'#9a5200',Prophet:'#0f6e66',Ensemble:'#c2410c',Stacking:'#4b52b8'};
   const tb = document.getElementById('dengueMotorBody');
   tb.innerHTML = D.dengue.motor_table.map(m => `<tr>
-    <td style="font-weight:600;color:${mc[m.motor]||'#E7ECF5'}">${m.motor}</td>
+    <td style="font-weight:600;color:${mc[m.motor]||'#173c33'}">${m.motor}</td>
     <td style="font-family:var(--font-mono)">${m.ganadas}</td>
     <td>${m.en_produccion?'<span class="badge-tipo badge-propio">Sí</span>':'<span class="badge-tipo badge-fallback">No</span>'}</td>
     <td style="font-size:.85rem;color:var(--text-secondary)">${m.nota}</td>
@@ -741,7 +768,7 @@ try {
   const rows = D.dengue.ranking;
   const tbody = document.getElementById('dengueBody');
   let sortCol = 'orden', sortAsc = true;
-  const motColor = {DeepAR:'#F472B6','NB-GLM':'#F59E0B',Prophet:'#2DD4BF'};
+  const motColor = {DeepAR:'#a3367a','NB-GLM':'#9a5200',Prophet:'#0f6e66'};
   function render(data) {
     const groups = {Nacional:[], Estatal:[]};
     data.forEach(r => groups[r.grupo].push(r));
@@ -754,7 +781,7 @@ try {
         html += `<tr>
           <td style="font-weight:600">${r.entidad}</td>
           <td>${r.modo}</td>
-          <td><span style="color:${motColor[r.motor]||'#E7ECF5'};font-weight:600">${r.motor}</span></td>
+          <td><span style="color:${motColor[r.motor]||'#173c33'};font-weight:600">${r.motor}</span></td>
           <td style="font-family:var(--font-mono)">${r.casos ?? '—'}</td>
         </tr>`;
       });
@@ -806,5 +833,6 @@ document.querySelectorAll('nav a[href^="#"]').forEach(a => {
 <script>
 window.addEventListener('scroll',function(){document.getElementById('nav').classList.toggle('scrolled',window.scrollY>20)});
 </script>
+<script src="assets/site/site-nav.js?v=4"></script>
 </body>
 </html>

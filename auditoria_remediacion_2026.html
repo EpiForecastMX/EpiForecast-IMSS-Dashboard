@@ -4,35 +4,34 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Auditoría y Remediación - EpiForecast-MX</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=Libre+Caslon+Display&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   /* ═══════════════════════════════════════════════════════════════════
      CLINICAL INDIGO THEME 2026
      ═══════════════════════════════════════════════════════════════════ */
   :root {
     /* Superficies — Clinical Indigo */
-    --bg-deep:        #0E1424;
-    --bg-base:        #131C30;
-    --bg-raised:      #18223A;
-    --bg-card:        #1C2740;
-    --bg-card-hover:  #243150;
+    --bg-deep:        #fafbf7;
+    --bg-base:        #fafbf7;
+    --bg-raised:      #f1f6ef;
+    --bg-card:        #ffffff;
+    --bg-card-hover:  #dbe3dc;
     /* Texto */
-    --text-primary:   #E7ECF5;
-    --text-secondary: #9FB0CE;
-    --text-muted:     #6E82A6;
-    --text-faint:     #44567A;
+    --text-primary:   #173c33;
+    --text-secondary: #40594f;
+    --text-muted:     #53675e;
+    --text-faint:     #5b6f66;
     /* Acentos */
-    --burgundy:       #F472B6;   /* rosa  */
+    --burgundy:       #a3367a;   /* rosa  */
     --dark-burgundy:  #8E2A63;
-    --teal:           #5B8DEF;   /* azul  */
-    --gold:           #2DD4BF;   /* menta */
+    --teal:           #2f5f9e;   /* azul  */
+    --gold:           #0f6e66;   /* menta */
     /* Aliases legacy */
     --neutral-black:  #0B0F1A;
-    --cool-gray:      #9FB0CE;
-    --dark-teal:      #16203A;
-    --cream:          #E7ECF5;
-    --cream-light:    #1C2740;
-    --cream-pale:     #131C30;
+    --cool-gray:      #40594f;
+    --dark-teal:      #f1f6ef;
+    --cream:          #173c33;
+    --cream-light:    #ffffff;
+    --cream-pale:     #fafbf7;
     --teal-glow:      rgba(91,141,239,0.15);
     --burgundy-glow:  rgba(244,114,182,0.15);
     --gold-glow:      rgba(45,212,191,0.15);
@@ -42,45 +41,44 @@
     --font-mono:      'JetBrains Mono', 'SF Mono', monospace;
 
     /* Colores diagnóstico — adaptados al tema oscuro */
-    --rojo-critico:      #F87171;
-    --amarillo-moderado: #FBBF24;
-    --verde-limpio:      #34D399;
+    --rojo-critico:      #b0322f;
+    --amarillo-moderado: #7d4400;
+    --verde-limpio:      #3d6b1f;
     --azul-info:         #60A5FA;
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  *:not(:where(.site-header, .site-footer) *) { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
     font-family: var(--font-body);
     color: var(--text-primary);
     background: var(--bg-base);
     line-height: 1.6;
-    padding-top: 64px;
     -webkit-font-smoothing: antialiased;
   }
 
   .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
 
   /* Header */
-  header {
+  header:not(.site-header) {
     background: linear-gradient(135deg, var(--bg-raised) 0%, var(--bg-deep) 100%);
     color: var(--text-primary);
     padding: 2.5rem 0;
     border-bottom: 4px solid var(--teal);
   }
-  header h1 {
+  header:not(.site-header) h1 {
     font-family: var(--font-display);
     font-size: 1.8rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
     color: var(--cream);
   }
-  header .subtitulo { font-size: 1rem; opacity: 0.85; color: var(--text-secondary); }
-  header .meta-info {
+  header:not(.site-header) .subtitulo { font-size: 1rem; opacity: 0.85; color: var(--text-secondary); }
+  header:not(.site-header) .meta-info {
     display: flex; gap: 2rem; margin-top: 1rem;
     font-size: 0.85rem; color: var(--text-muted);
   }
-  header .meta-info code {
+  header:not(.site-header) .meta-info code {
     background: var(--bg-card);
     color: var(--gold);
     padding: 0.1rem 0.4rem;
@@ -90,7 +88,7 @@
   }
 
   /* Sections */
-  section {
+  section:not(:where(.site-header, .site-footer) *) {
     background: var(--bg-card);
     border-radius: 8px;
     padding: 2rem;
@@ -98,7 +96,7 @@
     box-shadow: 0 2px 16px rgba(0,0,0,0.4);
     border: 1px solid rgba(91,141,239,0.08);
   }
-  h2 {
+  h2:not(:where(.site-header, .site-footer) *) {
     font-family: var(--font-display);
     color: var(--teal);
     font-size: 1.4rem;
@@ -106,19 +104,19 @@
     padding-bottom: 0.5rem;
     margin-bottom: 1rem;
   }
-  h3 { color: var(--gold); font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
-  h4 { color: var(--text-secondary); font-size: 1rem; margin: 1rem 0 0.4rem; }
-  p { margin-bottom: 0.75rem; color: var(--text-secondary); }
-  strong { color: var(--text-primary); }
-  em { color: var(--text-muted); font-style: italic; }
-  ul, ol { margin: 0.5rem 0 1rem 1.5rem; color: var(--text-secondary); }
-  li { margin-bottom: 0.3rem; }
-  a { color: var(--teal); text-decoration: none; transition: color .2s; }
-  a:hover { color: var(--burgundy); }
+  h3:not(:where(.site-header, .site-footer) *) { color: var(--gold); font-size: 1.1rem; margin: 1.5rem 0 0.5rem; }
+  h4:not(:where(.site-header, .site-footer) *) { color: var(--text-secondary); font-size: 1rem; margin: 1rem 0 0.4rem; }
+  p:not(:where(.site-header, .site-footer) *) { margin-bottom: 0.75rem; color: var(--text-secondary); }
+  strong:not(:where(.site-header, .site-footer) *) { color: var(--text-primary); }
+  em:not(:where(.site-header, .site-footer) *) { color: var(--text-muted); font-style: italic; }
+  ul:not(:where(.site-header, .site-footer) *), ol:not(:where(.site-header, .site-footer) *) { margin: 0.5rem 0 1rem 1.5rem; color: var(--text-secondary); }
+  li:not(:where(.site-header, .site-footer) *) { margin-bottom: 0.3rem; }
+  a:not(:where(.site-header, .site-footer) *) { color: var(--teal); text-decoration: none; transition: color .2s; }
+  a:hover:not(:where(.site-header, .site-footer) *) { color: var(--burgundy); }
 
   /* Tables */
-  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
-  th {
+  table:not(:where(.site-header, .site-footer) *) { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+  th:not(:where(.site-header, .site-footer) *) {
     background: var(--bg-raised);
     color: var(--text-primary);
     padding: 0.6rem 0.8rem;
@@ -126,13 +124,13 @@
     font-weight: 600;
     border-bottom: 2px solid rgba(91,141,239,0.25);
   }
-  td {
+  td:not(:where(.site-header, .site-footer) *) {
     padding: 0.5rem 0.8rem;
     border-bottom: 1px solid rgba(91,141,239,0.1);
     color: var(--text-secondary);
   }
-  tr:nth-child(even) td { background: var(--bg-raised); }
-  tr:hover td { background: var(--bg-card-hover); }
+  tr:nth-child(even) td:not(:where(.site-header, .site-footer) *) { background: var(--bg-raised); }
+  tr:hover td:not(:where(.site-header, .site-footer) *) { background: var(--bg-card-hover); }
 
   /* Badges */
   .badge {
@@ -146,7 +144,7 @@
   .badge-intencional { background: rgba(159,176,206,0.1); color: var(--text-muted); border: 1px solid rgba(159,176,206,0.2); }
 
   /* Code */
-  code {
+  code:not(:where(.site-header, .site-footer) *) {
     background: var(--bg-raised);
     color: var(--gold);
     padding: 0.1rem 0.4rem;
@@ -154,7 +152,7 @@
     font-family: var(--font-mono);
     font-size: 0.85rem;
   }
-  pre {
+  pre:not(:where(.site-header, .site-footer) *) {
     background: var(--bg-deep);
     color: #C8D6EF;
     padding: 1rem 1.2rem;
@@ -165,11 +163,11 @@
     margin: 0.8rem 0;
     border: 1px solid rgba(91,141,239,0.12);
   }
-  pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+  pre code:not(:where(.site-header, .site-footer) *) { background: none; padding: 0; color: inherit; font-size: inherit; }
 
   /* Diff colors inside pre */
-  .diff-antes  { color: #F87171; }
-  .diff-despues { color: #34D399; }
+  .diff-antes  { color: #b0322f; }
+  .diff-despues { color: #3d6b1f; }
 
   /* Cards */
   .hallazgo-card {
@@ -199,7 +197,7 @@
   .veredicto p  { font-size: 1rem; margin-bottom: 0; color: var(--text-secondary); }
 
   /* Footer */
-  footer {
+  footer:not(.site-footer) {
     text-align: center;
     padding: 1.5rem;
     margin-top: 2rem;
@@ -211,276 +209,125 @@
   /* Responsive */
   @media (max-width: 768px) {
     .container { padding: 1rem; }
-    header h1 { font-size: 1.4rem; }
-    header .meta-info { flex-direction: column; gap: 0.3rem; }
-    table { font-size: 0.8rem; }
-    th, td { padding: 0.4rem; }
+    header:not(.site-header) h1 { font-size: 1.4rem; }
+    header:not(.site-header) .meta-info { flex-direction: column; gap: 0.3rem; }
+    table:not(:where(.site-header, .site-footer) *) { font-size: 0.8rem; }
+    th:not(:where(.site-header, .site-footer) *), td:not(:where(.site-header, .site-footer) *) { padding: 0.4rem; }
   }
 
   /* ═══════════════════════════════════════════════════════════════════
      NAV — Clinical Indigo
      ═══════════════════════════════════════════════════════════════════ */
-  .nav {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-    background: rgba(14,20,36,.92);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(232,213,181,.08);
-    transition: box-shadow .3s, background .3s;
-  }
-  .nav.scrolled {
-    box-shadow: 0 4px 30px rgba(0,0,0,.18);
-    background: rgba(14,20,36,.97);
-  }
-  .nav-inner {
-    max-width: 1200px; margin: 0 auto; padding: 0 2rem;
-    display: flex; align-items: center; height: 64px; gap: 1rem;
-  }
-  .nav-logo {
-    font-family: var(--font-display);
-    font-size: 1.3rem; color: var(--cream);
-    letter-spacing: .02em; flex-shrink: 0; text-decoration: none;
-  }
-  .nav-logo span { color: var(--gold); }
-  .nav-menu {
-    display: flex; align-items: center; gap: .25rem;
-    list-style: none; flex: 1; justify-content: center;
-  }
-  .nav-group { position: relative; }
-  .nav-group-toggle {
-    display: flex; align-items: center; gap: .3rem;
-    color: rgba(232,213,181,.65); font-size: .78rem; font-weight: 600;
-    text-transform: uppercase; letter-spacing: .08em;
-    padding: .5rem .85rem; border-radius: 6px;
-    cursor: pointer; transition: color .2s, background .2s;
-    white-space: nowrap; border: none; background: none; font-family: inherit;
-  }
-  .nav-group-toggle:hover,
-  .nav-group:hover .nav-group-toggle {
-    color: var(--cream); background: rgba(232,213,181,.06);
-  }
-  .nav-group-toggle svg { width: 10px; height: 10px; opacity: .5; transition: transform .2s; }
-  .nav-group:hover .nav-group-toggle svg { transform: rotate(180deg); opacity: .8; }
-  .nav-dropdown {
-    position: absolute; top: calc(100% + 8px); left: 50%;
-    transform: translateX(-50%) translateY(-4px);
-    background: rgba(14,20,36,.98);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(232,213,181,.1);
-    border-radius: 12px; padding: .5rem; min-width: 200px;
-    opacity: 0; visibility: hidden;
-    transition: opacity .15s, transform .15s, visibility .15s;
-    box-shadow: 0 12px 40px rgba(0,0,0,.25);
-  }
-  .nav-group:hover .nav-dropdown {
-    opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0);
-  }
-  .nav-dropdown::before {
-    content: ''; position: absolute; top: -8px; left: 0; right: 0; height: 8px;
-  }
-  .nav-dropdown a {
-    display: flex; align-items: center; gap: .75rem;
-    padding: .6rem 1rem; color: rgba(232,213,181,.7);
-    font-size: .82rem; font-weight: 500; border-radius: 8px;
-    transition: background .15s, color .15s; text-decoration: none; white-space: nowrap;
-  }
-  .nav-dropdown a:hover { background: rgba(232,213,181,.08); color: var(--cream); }
-  .nav-dropdown a svg { width: 16px; height: 16px; opacity: .5; flex-shrink: 0; }
-  .nav-dropdown a:hover svg { opacity: .8; }
-  .nav-ctas { display: flex; gap: .5rem; align-items: center; flex-shrink: 0; }
-  .nav-cta {
-    display: inline-flex; align-items: center; gap: .4rem;
-    padding: .4rem 1rem; font-size: .75rem; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .06em;
-    border-radius: 100px; text-decoration: none;
-    transition: transform .2s, box-shadow .2s, background .2s; white-space: nowrap;
-  }
-  .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(45,212,191,.25); }
-  .nav-cta--primary  { background: var(--gold); color: var(--dark-teal); }
-  .nav-cta--secondary {
-    background: rgba(91,141,239,.1); color: var(--teal);
-    border: 1px solid rgba(91,141,239,.3);
-  }
-  .nav-cta--secondary:hover { background: rgba(91,141,239,.18); color: var(--teal); }
-  .nav-cta svg { width: 14px; height: 14px; }
-  .nav-hamburger {
-    display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px;
-  }
-  .nav-hamburger span { width: 24px; height: 2px; background: var(--cream); transition: transform .3s, opacity .3s; }
-  .nav-mobile {
-    display: none; flex-direction: column;
-    background: rgba(14,20,36,.98);
-    backdrop-filter: blur(16px);
-    padding: 1rem 2rem 1.5rem;
-    border-bottom: 1px solid rgba(232,213,181,.1);
-  }
-  .nav-mobile.show { display: flex; }
-  .nav-mobile-group { border-bottom: 1px solid rgba(232,213,181,.06); }
-  .nav-mobile-heading {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: .85rem 0; color: rgba(232,213,181,.7);
-    font-size: .82rem; font-weight: 600; text-transform: uppercase;
-    letter-spacing: .08em; cursor: pointer;
-  }
-  .nav-mobile-heading svg { width: 10px; height: 10px; transition: transform .2s; }
-  .nav-mobile-group.open .nav-mobile-heading svg { transform: rotate(180deg); }
-  .nav-mobile-items { display: none; flex-direction: column; padding-bottom: .5rem; }
-  .nav-mobile-group.open .nav-mobile-items { display: flex; }
-  .nav-mobile-items a {
-    padding: .5rem 1rem; color: rgba(232,213,181,.55);
-    font-size: .82rem; text-decoration: none; border-radius: 6px;
-    transition: background .15s, color .15s;
-  }
-  .nav-mobile-items a:hover { background: rgba(232,213,181,.06); color: var(--cream); }
-  .nav-mobile-ctas { display: flex; gap: .5rem; margin-top: 1rem; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   @media(max-width:768px) {
-    .nav-menu, .nav-ctas { display: none; }
-    .nav-hamburger { display: flex; }
+
+
   }
-  @media print { .nav { display: none; } }
+  @media print {  }
 
   /* Site footer */
-  footer.site-footer {
-    background: var(--bg-deep);
-    color: var(--text-muted);
-    text-align: center;
-    padding: 3rem 2rem;
-    font-size: .85rem;
-    border-top: 1px solid rgba(91,141,239,0.12);
-  }
-  footer.site-footer .footer-title {
-    font-family: var(--font-display);
-    font-size: 1.3rem;
-    color: var(--cream);
-    margin-bottom: .5rem;
-  }
-  footer.site-footer a { color: var(--text-muted); text-decoration: none; transition: color .2s; }
-  footer.site-footer a:hover { color: var(--cream); }
+
+
+
+
 </style>
-  <link rel="stylesheet" href="editorial.css?v=1">
+<link rel="stylesheet" href="assets/site/site.css?v=5">
+<link rel="stylesheet" href="editorial.css?v=4">
 </head>
-<body>
+<body class="editorial-page">
 
-  <nav class="nav" id="nav">
-    <div class="nav-inner">
-      <div class="nav-logo">EpiForecast<span>-MX</span></div>
-
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<!-- site:header:start -->
+<header class="site-header" id="nav" lang="es">
+  <div class="site-header__inner">
+    <a class="site-brand" href="index.html" aria-label="EpiForecast-MX, inicio"><span class="site-brand__symbol" aria-hidden="true">E<span>+</span></span><span class="site-brand__name"><span class="site-brand__word">EpiForecast<span class="site-brand__mx">MX</span></span><small>Inteligencia epidemiológica</small></span></a>
+    <nav class="site-nav" aria-label="Navegación principal">
       <ul class="nav-menu">
-        <!-- Proyecto -->
+        <li><a href="Reports/index.html">Galería</a></li>
+        <li><a href="epibot/index.html">EpiBot</a></li>
+        <li><a href="EpiDashboard.html">Dashboard</a></li>
+        <li><a href="boletin.html">Radar del boletín</a></li>
+        <li><a href="novedades.html">Noticias</a></li>
         <li class="nav-group">
-          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
-          <div class="nav-dropdown">
-            <a href="index.html#hero"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>Inicio</a>
-            <a href="EpiDashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
-            <a href="Reports/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Pronósticos</a>
-            <a href="novedades.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/></svg>Novedades</a>
-            <a href="dengue.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>Dengue</a>
-            <a href="epibot/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>EPI Chatbot</a>
-          </div>
-        </li>
-
-        <!-- Metodología -->
-        <li class="nav-group">
-          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Metodología <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
-          <div class="nav-dropdown">
-            <a href="bitacora_modelado.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Bitácora v1-v6</a>
-            <a href="ficha_tecnica_prophet.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Ficha Prophet</a>
-            <a href="metodologia_dengue.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>Metodología Dengue</a>
-            <a href="hiperparametros_modelos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>HPs SageMaker</a>
-            <a href="construccion_dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Arquitectura Dashboard</a>
-          </div>
-        </li>
-
-        <!-- Resultados -->
-        <li class="nav-group">
-          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Resultados <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
-          <div class="nav-dropdown">
-            <a href="reporte_resultados.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg>Resultados</a>
-            <a href="comparacion_modelos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Comparación SageMaker</a>
-            <a href="validacion_semanal.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Validación Semanal</a>
-            <a href="auditoria_remediacion_2026.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Auditoría y Remediación</a>
-            <a href="conclusiones.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Conclusiones</a>
-            <a href="referencias.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Referencias</a>
-          </div>
+          <button type="button" class="nav-group__toggle" aria-expanded="false" aria-controls="navGroup-congresos">Congresos</button>
+          <ul class="nav-group__list" id="navGroup-congresos">
+            <li><a href="wcp2026.html">WCP 2026 · Estocolmo</a></li>
+            <li><a href="micai2026.html">MICAI 2026 · Chihuahua</a></li>
+            <li><a href="calass.html">CALASS 2026 · Montréal</a></li>
+            <li><a href="index.html#congresos">Todos los congresos</a></li>
+          </ul>
         </li>
         <li class="nav-group">
-          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">MICAI 2026 <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
-          <div class="nav-dropdown">
-            <a href="micai.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Ponencia, seguimiento y artículo</a>
-            <a href="/Reports/micai2026/MICAI2026_012_Rebull_accepted_manuscript.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar PDF</a>
-          </div>
+          <button type="button" class="nav-group__toggle" aria-expanded="false" aria-controls="navGroup-mas">Más</button>
+          <ul class="nav-group__list" id="navGroup-mas">
+            <li><a href="index.html#diseases">Padecimientos</a></li>
+            <li><a href="index.html#metodologia">Evidencia y método</a></li>
+            <li><a href="index.html#about">Proyecto y equipo</a></li>
+          </ul>
         </li>
       </ul>
-
-      <!-- CTA buttons -->
-      <div class="nav-ctas">
-        <a href="EpiDashboard.html" class="nav-cta nav-cta--primary">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-          Dashboard
-        </a>
-        <a href="epibot/index.html" class="nav-cta nav-cta--secondary">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          EPI Chatbot
-        </a>
-        <a href="https://github.com/IntegradorIMSS2026Team01" target="_blank" rel="noopener" class="nav-cta nav-cta--secondary" style="padding:0.4rem 0.6rem" title="GitHub">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-        </a>
-      </div>
-
-      <button type="button" class="nav-hamburger" onclick="toggleMobileNav(this)" aria-label="Abrir menú" aria-expanded="false" aria-controls="navMobile">
-        <span></span><span></span><span></span>
-      </button>
+    </nav>
+    <button type="button" class="site-nav__toggle" aria-controls="navMobile" aria-expanded="false"><span class="site-nav__toggle-icon" aria-hidden="true"></span><span class="site-nav__toggle-text">Menú</span></button>
+  </div>
+  <div id="navMobile" class="site-nav__mobile">
+    <div class="nav-mobile-items">
+      <a class="nav-mobile-link" href="Reports/index.html">Galería</a>
+      <a class="nav-mobile-link" href="epibot/index.html">EpiBot</a>
+      <a class="nav-mobile-link" href="EpiDashboard.html">Dashboard</a>
+      <a class="nav-mobile-link" href="boletin.html">Radar del boletín</a>
+      <a class="nav-mobile-link" href="novedades.html">Noticias</a>
+      <p class="nav-mobile-group">Congresos</p>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="wcp2026.html">WCP 2026 · Estocolmo</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="micai2026.html">MICAI 2026 · Chihuahua</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="calass.html">CALASS 2026 · Montréal</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#congresos">Todos los congresos</a>
+      <p class="nav-mobile-group">Más</p>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#diseases">Padecimientos</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#metodologia">Evidencia y método</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#about">Proyecto y equipo</a>
     </div>
+  </div>
+</header>
+<!-- site:header:end -->
 
-    <!-- Mobile menu -->
-    <div class="nav-mobile" id="navMobile">
-      <div class="nav-mobile-group">
-        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items">
-          <a href="index.html#hero">Inicio</a>
-          <a href="EpiDashboard.html">Dashboard</a>
-          <a href="Reports/index.html">Pronósticos</a>
-          <a href="novedades.html">Novedades</a>
-          <a href="dengue.html">Dengue</a>
-          <a href="epibot/index.html">EPI Chatbot</a>
-        </div>
-      </div>
-      <div class="nav-mobile-group">
-        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Metodología <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items">
-          <a href="bitacora_modelado.html">Bitácora v1-v6</a>
-          <a href="ficha_tecnica_prophet.html">Ficha Prophet</a>
-          <a href="metodologia_dengue.html">Metodología Dengue</a>
-          <a href="hiperparametros_modelos.html">HPs SageMaker</a>
-          <a href="construccion_dashboard.html">Arquitectura Dashboard</a>
-        </div>
-      </div>
-      <div class="nav-mobile-group">
-        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Resultados <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items">
-          <a href="reporte_resultados.html">Resultados</a>
-          <a href="comparacion_modelos.html">Comparación SageMaker</a>
-          <a href="validacion_semanal.html">Validación Semanal</a>
-          <a href="auditoria_remediacion_2026.html">Auditoría y Remediación</a>
-          <a href="conclusiones.html">Conclusiones</a>
-          <a href="referencias.html">Referencias</a>
-        </div>
-      </div>
-      <div class="nav-mobile-group">
-        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">MICAI 2026 <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items">
-          <a href="micai.html">Ponencia, seguimiento y artículo</a>
-          <a href="/Reports/micai2026/MICAI2026_012_Rebull_accepted_manuscript.pdf" target="_blank" rel="noopener">Descargar PDF</a>
-        </div>
-      </div>
-      <div class="nav-mobile-ctas">
-        <a href="EpiDashboard.html" class="nav-cta nav-cta--primary" style="justify-content:center;padding:.6rem 1.5rem">Dashboard</a>
-        <a href="Reports/index.html" class="nav-cta nav-cta--secondary" style="justify-content:center;padding:.6rem 1.5rem">Pronósticos</a>
-      </div>
-    </div>
-  </nav>
-
-<header>
+<header id="contenido">
   <div class="container">
     <h1>Reporte de Auditoría y Remediación</h1>
     <p class="subtitulo">EpiForecast-MX &mdash; Plataforma de Inteligencia Epidemiológica Multi-Modelo, IMSS</p>
@@ -678,7 +525,7 @@ oof_residual_folds: 3  # 0 = legacy in-sample</code></pre>
   </ul>
 
   <h3>3.1 Componentes auditados y resultado</h3>
-  <table>
+  <div class="tabla-desplazable"><table>
     <thead>
       <tr>
         <th>Componente</th>
@@ -783,7 +630,7 @@ oof_residual_folds: 3  # 0 = legacy in-sample</code></pre>
         <td><span class="badge badge-limpio">Limpio</span> (corregido)</td>
       </tr>
     </tbody>
-  </table>
+  </table></div>
 
   <h3>3.2 Observaciones menores (corregidas)</h3>
 
@@ -875,7 +722,7 @@ oof_residual_folds: 3  # 0 = legacy in-sample</code></pre>
 <section>
   <h2>4. Resumen de cambios por archivo</h2>
 
-  <table>
+  <div class="tabla-desplazable"><table>
     <thead>
       <tr>
         <th>Archivo</th>
@@ -964,7 +811,7 @@ oof_residual_folds: 3  # 0 = legacy in-sample</code></pre>
         <td><code>3fb29ae</code></td>
       </tr>
     </tbody>
-  </table>
+  </table></div>
 </section>
 
 <!-- ================================================================== -->
@@ -972,7 +819,7 @@ oof_residual_folds: 3  # 0 = legacy in-sample</code></pre>
   <h2>5. Validación cruzada temporal: antes vs después</h2>
 
   <h3>5.1 Disciplina temporal por modelo</h3>
-  <table>
+  <div class="tabla-desplazable"><table>
     <thead>
       <tr>
         <th>Modelo</th>
@@ -1031,7 +878,7 @@ oof_residual_folds: 3  # 0 = legacy in-sample</code></pre>
         <td><span class="badge badge-limpio">Retrospectivo</span></td>
       </tr>
     </tbody>
-  </table>
+  </table></div>
 
   <h3>5.2 Diagrama de flujo temporal</h3>
   <pre><code>Datos crudos
@@ -1059,7 +906,7 @@ oof_residual_folds: 3  # 0 = legacy in-sample</code></pre>
 <section>
   <h2>6. Estado de la suite de tests</h2>
 
-  <table>
+  <div class="tabla-desplazable"><table>
     <thead>
       <tr>
         <th>Metrica</th>
@@ -1099,10 +946,10 @@ oof_residual_folds: 3  # 0 = legacy in-sample</code></pre>
         <td>7</td>
       </tr>
     </tbody>
-  </table>
+  </table></div>
 
   <h3>6.1 Desglose de tests nuevos</h3>
-  <table>
+  <div class="tabla-desplazable"><table>
     <thead>
       <tr>
         <th>Test</th>
@@ -1147,7 +994,7 @@ oof_residual_folds: 3  # 0 = legacy in-sample</code></pre>
         <td>Datos insuficientes: fallback a in-sample</td>
       </tr>
     </tbody>
-  </table>
+  </table></div>
 </section>
 
 <!-- ================================================================== -->
@@ -1183,7 +1030,7 @@ oof_residual_folds: 3  # 0 = legacy in-sample</code></pre>
 
 </div>
 
-<footer class="site-footer">
+<div class="legacy-colophon">
   <div class="footer-title">EpiForecast-MX</div>
   <p>Plataforma de inteligencia epidemiológica &middot; IMSS &times; Tec de Monterrey</p>
   <p style="margin-top:.75rem">
@@ -1202,7 +1049,39 @@ oof_residual_folds: 3  # 0 = legacy in-sample</code></pre>
     <a href="referencias.html">Referencias</a>
   </p>
   <p style="margin-top:.5rem">Maestría en Inteligencia Artificial Aplicada &mdash; Proyecto Capstone 2026</p>
+</div>
+<!-- site:footer:start -->
+<footer class="site-footer" lang="es">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <a class="site-brand" href="index.html" aria-label="EpiForecast-MX, inicio"><span class="site-brand__name"><span class="site-brand__word">EpiForecast<span class="site-brand__mx">MX</span></span></span></a>
+      <p>Datos oficiales. Investigación abierta. Una mirada informada a la salud de México.</p>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Explorar</p>
+      <a href="Reports/index.html">Galería de pronósticos</a>
+      <a href="epibot/index.html">Pregúntale a EPI</a>
+      <a href="EpiDashboard.html">Dashboard</a>
+      <a href="boletin.html">Radar del boletín</a>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Evidencia</p>
+      <a href="validacion_semanal.html">Validación semanal</a>
+      <a href="reporte_resultados.html">Resultados</a>
+      <a href="referencias.html">Fuentes y referencias</a>
+      <a href="rechazados.html">Analizados y rechazados</a>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Proyecto</p>
+      <a href="novedades.html">Noticias</a>
+      <a href="index.html#congresos">Congresos</a>
+      <a href="EpiDashboard-tableau.html">Archivo Tableau (corte W31)</a>
+      <a href="https://github.com/IntegradorIMSS2026Team01" rel="noopener" target="_blank">GitHub ↗</a>
+    </div>
+  </div>
+  <div class="site-footer__legal"><span>© 2026 EpiForecast-MX · Tecnológico de Monterrey · IMSS · SINAVE</span><a href="#nav">Volver arriba ↑</a></div>
 </footer>
+<!-- site:footer:end -->
 
 <script>
 window.addEventListener('scroll',function(){document.getElementById('nav').classList.toggle('scrolled',window.scrollY>20)});
@@ -1291,5 +1170,6 @@ window.addEventListener('scroll',function(){document.getElementById('nav').class
       scopeObs.observe(el);
     });
   </script>
+<script src="assets/site/site-nav.js?v=4"></script>
 </body>
 </html>

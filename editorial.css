@@ -1,179 +1,163 @@
-/* ═══════════════════════════════════════════════════════════════════
-   editorial.css — capa compartida que lleva las SUBPÁGINAS al look
-   editorial (estilo periódico) sobre la paleta azul Clinical Indigo.
-   Se enlaza al final del <head> de cada subpágina; gana por !important
-   sobre el CSS inline del template viejo (Outfit/Playfair, nav dorado,
-   hero con degradado verde/teal).
-   Trae sus PROPIAS fuentes (@import), así basta enlazar este archivo
-   en cualquier página o generador — durable ante regeneración.
-   ═══════════════════════════════════════════════════════════════════ */
-@import url('https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=Libre+Caslon+Display&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap');
-
+/* editorial.css — páginas editoriales, de evidencia, avances y congresos (sistema claro común).
+ *
+ * Se enlaza DESPUÉS del <style> en línea de cada página (lo inserta el transformador del backend
+ * src/epiforecast/publication/editorial_chrome.py) y después de assets/site/site.css. Sustituye a la
+ * capa oscura «Clinical Indigo» que forzaba el tema con !important: aquí no hay ninguno.
+ *
+ * 1. Los tokens del template antiguo (--bg-*, --text-*, --cream, --teal, --gold, --burgundy, fuentes)
+ *    apuntan al sistema claro. Los estilos en línea de cada página los usan; los literales de la paleta
+ *    oscura ya los tradujo el transformador.
+ * 2. Tipografía y superficies comunes con especificidad normal: ganan por orden a las reglas del
+ *    template que tienen la misma especificidad, sin pisar la maquetación propia de cada página.
+ */
 :root {
-  --bg: #0E1424;
-  --ink: #EAEFF8;
-  --ink-soft: #B9C5DD;
-  --ink-mut: #8094B8;
-  --rule: rgba(130,160,210,0.16);
-  --rule-strong: rgba(160,185,225,0.40);
-  --accent: #6AA0FF;
-  --serif-head: 'Libre Caslon Display', Georgia, 'Times New Roman', serif;
-  --serif-body: 'Source Serif 4', Georgia, serif;
-  --sans: 'Libre Franklin', system-ui, -apple-system, sans-serif;
-  /* Repunta los tokens legacy del template a la nueva escala */
-  --bg-deep: #0A0E18 !important;
-  --bg-base: #0E1424 !important;
-  --bg-raised: #0E1424 !important;
-  --bg-card: rgba(255,255,255,0.025) !important;
-  --bg-card-hover: rgba(255,255,255,0.05) !important;
-  --text-primary: #EAEFF8 !important;
-  --text-secondary: #B9C5DD !important;
-  --text-muted: #8094B8 !important;
-  --cream: #EAEFF8 !important;
-  --cream-pale: #EAEFF8 !important;
-  --gold: #6AA0FF !important;
-  --teal: #6AA0FF !important;
-  --burgundy: #6AA0FF !important;
-  --dark-teal: #0A0E18 !important;
-  --font-display: 'Libre Caslon Display', Georgia, serif !important;
-  --font-body: 'Source Serif 4', Georgia, serif !important;
+  --bg-deep: var(--paper);
+  --bg-base: var(--paper);
+  --bg-raised: var(--tint);
+  --bg-card: var(--white);
+  --bg-card-hover: var(--line);
+  --bg: var(--paper);
+  --text-primary: var(--ink);
+  --text-secondary: var(--body);
+  --text-muted: var(--muted);
+  --text-faint: var(--muted);
+  --cream: var(--ink);
+  --cream-light: var(--ink);
+  --cream-pale: var(--ink);
+  --neutral-black: var(--ink);
+  --cool-gray: var(--muted);
+  --dark-teal: var(--green-dark);
+  --dark-burgundy: #7a2756;
+  --teal: var(--series-1);
+  --teal-light: var(--series-1);
+  --gold: var(--series-2);
+  --gold-light: var(--series-2);
+  --burgundy: var(--series-3);
+  --burgundy-light: var(--series-3);
+  --amber: var(--series-4);
+  --amber-soft: #7d4400;
+  --teal-glow: rgb(47 95 158 / 10%);
+  --gold-glow: rgb(15 110 102 / 10%);
+  --burgundy-glow: rgb(163 54 122 / 10%);
+  --ink-mut: var(--muted);
+  --link: var(--green-dark);
+  --font-display: var(--sans);
+  --font-body: var(--sans);
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --serif-head: var(--sans);
+  --serif-body: var(--sans);
+  --shadow-sm: 0 1px 3px rgb(23 60 51 / 6%);
+  --shadow-md: var(--shadow);
+  --shadow-lg: var(--shadow);
 }
 
-html, body { overflow-x: clip; }
-body {
-  background: #0E1424 !important;
-  color: var(--ink) !important;
-  font-family: var(--serif-body) !important;
+body.editorial-page {
+  background: var(--paper);
+  color: var(--body);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.65;
 }
-a { color: var(--accent) !important; }
-h1, h2, h3, h4, .section-title, .hero h1 {
-  font-family: var(--serif-head) !important;
-  color: var(--ink) !important;
-  font-weight: 400 !important;
-  letter-spacing: -0.01em;
-}
-.section-label, .eyebrow, [class*="label"] {
-  font-family: var(--sans) !important;
-  color: var(--accent) !important;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
+.editorial-page main,
+.editorial-page section,
+.editorial-page article,
+.editorial-page .container,
+.editorial-page .wrap { min-width: 0; }
+/* Hijos de grid/flex del contenido: pueden encogerse (si no, una tabla o un bloque de código ancho
+   estira la columna y la página entera se desplaza en horizontal). */
+:where(.editorial-page :is(main, section, article, .container, .wrap)) :is(div, li) { min-width: 0; }
+/* Una palabra larga (nombre de función, archivo, término técnico) parte línea antes que desbordar. */
+:where(.editorial-page) :is(main, section, article) { overflow-wrap: break-word; }
+.editorial-page :is(h1, h2, h3, h4) { color: var(--ink); font-family: var(--sans); letter-spacing: -.02em; }
+.editorial-page h1 em, .editorial-page h2 em { font-family: var(--serif); font-style: italic; font-weight: 400; color: var(--green); }
+/* Enlaces del contenido con especificidad de elemento: cualquier regla con clase (botones, pie y
+   cabecera comunes, enlaces con diseño propio) gana sin carrera de especificidad. */
+:where(.editorial-page) a { color: var(--green-dark); }
+:where(.editorial-page) a:hover { color: var(--green); }
+.editorial-page img, .editorial-page svg, .editorial-page canvas { max-width: 100%; }
+.editorial-page code, .editorial-page pre { font-family: var(--font-mono); background: var(--tint); color: var(--ink); }
+.editorial-page pre { max-width: 100%; overflow-x: auto; }
+/* Código en línea e identificadores monoespaciados (nombres de función, archivo, umbrales): parten
+   en cualquier punto antes que desbordar; fuera de tablas, que se desplazan en su contenedor. */
+.editorial-page :is(p, li, dd, h3, h4) code,
+.editorial-page :is(.step-fn, .threshold) { overflow-wrap: anywhere; max-width: 100%; }
+.editorial-page .threshold { flex-wrap: wrap; }
+/* Bloques de código del template (eran oscuros): superficie clara; el resaltado lo traduce el
+   transformador a tonos AA sobre claro. */
+.editorial-page .code-block { background: var(--tint); color: var(--ink); border: 1px solid var(--line); max-width: 100%; }
+.editorial-page :is(.code-block-label, .code-label) { color: var(--muted); opacity: 1; }
 
-/* MASTHEAD — la navbar se vuelve cabecera de periódico.
-   Reglas BASE (autosuficientes) para que el nav se vea bien incluso en
-   subpáginas que NO traen CSS de nav inline. */
-.nav, .nav.scrolled {
-  position: static !important;
-  background: #0E1424 !important;
-  backdrop-filter: none !important;
-  border-top: 2px solid var(--accent) !important;        /* firma editorial: filete de acento arriba */
-  border-bottom: 1px solid var(--rule-strong) !important;
-  box-shadow: none !important;
-  top: 0; left: 0; right: 0; z-index: 1000;
+/* Encabezado de página (.hero, .header del diagrama del pipeline, .dash-hero del archivo Tableau):
+   claro, sin los brillos ni degradados oscuros del template. */
+.editorial-page :is(.hero, .header, .dash-hero) {
+  background: linear-gradient(180deg, var(--white), var(--paper));
+  color: var(--ink);
+  border-bottom: 1px solid var(--line);
 }
-.nav-menu { display: flex; list-style: none; align-items: center; margin: 0; padding: 0; }
-.nav-group { position: relative; }
-.nav-group-toggle {
-  background: none !important; border: none !important; cursor: pointer;
-  display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.5rem 0.6rem;
-  font-family: var(--sans) !important;
-}
-.nav-group-toggle svg { width: 10px; height: 10px; opacity: 0.6; }
-.nav-dropdown {
-  position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
-  background: #121A2C; border: 1px solid var(--rule); border-radius: 12px;
-  padding: 0.5rem; min-width: 210px; opacity: 0; visibility: hidden;
-  transition: opacity .15s, visibility .15s; z-index: 200;
-  box-shadow: 0 14px 36px rgba(0,0,0,0.5);
-}
-.nav-group:hover .nav-dropdown { opacity: 1; visibility: visible; }
-.nav-dropdown::before { content: ''; position: absolute; top: -10px; left: 0; right: 0; height: 10px; }
-.nav-dropdown a { display: flex; align-items: center; gap: 0.7rem; padding: 0.55rem 0.9rem; border-radius: 8px; white-space: nowrap; text-decoration: none; }
-.nav-dropdown a svg { width: 16px; height: 16px; opacity: 0.55; flex: none; }
-.nav-ctas { display: flex; gap: 0.5rem; align-items: center; }
-.nav-cta { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 1rem; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; text-decoration: none; white-space: nowrap; }
-.nav-cta svg { width: 14px; height: 14px; }
-.nav-hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; }
-.nav-hamburger span { width: 24px; height: 2px; display: block; }
-.nav-mobile { display: none; }
-.nav-mobile.show { display: flex; flex-direction: column; }
-@media (max-width: 768px) { .nav-menu, .nav-ctas { display: none !important; } .nav-hamburger { display: flex; } }
-.nav-inner {
-  display: flex !important;
-  flex-wrap: wrap !important; justify-content: center !important; align-items: center !important;
-  height: auto !important; max-width: 1180px; margin: 0 auto; padding: 0.85rem 2rem 0.55rem !important;
-  column-gap: 1.4rem; row-gap: 0.5rem; position: relative;
-}
-.nav-logo {
-  flex-basis: 100% !important; flex-shrink: 1 !important; text-align: center;
-  font-family: var(--serif-head) !important; font-weight: 400 !important;
-  font-size: clamp(1.55rem, 2.6vw, 2rem) !important; letter-spacing: -0.005em !important;
-  color: var(--ink) !important; padding: 0 !important; margin: 0 0 0.15rem !important;
-  border-bottom: none !important;
-}
-.nav-logo span { color: var(--accent) !important; }
-.nav-menu { flex: 0 1 auto !important; justify-content: center !important; gap: 1.3rem !important; flex-wrap: wrap; }
-.nav-group-toggle { color: var(--ink-soft) !important; font-family: var(--sans) !important; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.72rem !important; }
-.nav-group-toggle:hover, .nav-group:hover .nav-group-toggle { color: var(--ink) !important; background: rgba(255,255,255,0.04) !important; }
-.nav-dropdown {
-  background: #131C30 !important; border: 1px solid var(--rule) !important;
-  box-shadow: 0 14px 36px rgba(0,0,0,0.5) !important;
-  backdrop-filter: none !important; -webkit-backdrop-filter: none !important;
-  border-radius: 12px !important; padding: 0.5rem !important; min-width: 210px !important;
-}
-.nav-dropdown a { color: var(--ink-soft) !important; font-family: var(--sans) !important; background: transparent !important; }
-.nav-dropdown a:hover { background: rgba(255,255,255,0.05) !important; color: var(--ink) !important; }
-.nav-dropdown a svg { color: var(--ink-mut) !important; opacity: 1 !important; }
-/* Toggle del menú: misma tinta y peso en todas las páginas */
-.nav-group-toggle, .nav-menu a, .nav a { color: var(--ink-soft) !important; }
-.nav-group:hover .nav-group-toggle, .nav-group-toggle:hover { color: var(--ink) !important; background: transparent !important; }
-.nav-group-toggle svg { color: var(--ink-soft) !important; }
-.nav-cta--primary { background: var(--accent) !important; color: #08111F !important; border-radius: 3px !important; font-family: var(--sans) !important; font-weight: 700 !important; }
-.nav-cta--secondary { background: transparent !important; color: var(--ink) !important; border: 1px solid var(--rule-strong) !important; border-radius: 3px !important; font-family: var(--sans) !important; }
-.nav-hamburger span { background: var(--ink) !important; }
-.nav-mobile { background: #0E1424 !important; border-bottom: 1px solid var(--rule) !important; }
-.nav-mobile a, .nav-mobile-heading { color: var(--ink-soft) !important; }
-@media (max-width: 768px) {
-  .nav-logo { font-size: 1.5rem !important; }
-  .nav-inner { padding: 0.85rem 1.3rem !important; }
-  .nav-hamburger { position: absolute !important; right: 1.2rem; top: 50%; transform: translateY(-50%); }
-}
+.editorial-page :is(.hero, .header, .dash-hero)::before,
+.editorial-page :is(.hero, .header, .dash-hero)::after { background: none; }
+.editorial-page :is(.dash-hero-grid, .dash-hero-mesh) { display: none; }
+.editorial-page :is(.hero, .header, .dash-hero) :is(h1, h2) { color: var(--ink); text-shadow: none; }
+.editorial-page :is(.hero, .header, .dash-hero) :is(p, .subtitle, .subtitle2, .header-subtitle, .dash-sub),
+.editorial-page .hero-sub { color: var(--body); }
 
-/* HERO de subpágina: fuera el degradado verde/teal; índigo plano editorial */
-.hero {
-  background: #0E1424 !important; color: var(--ink) !important;
-  padding: 3.2rem 1.5rem 2.6rem !important; text-align: left !important;
-  border-bottom: 1px solid var(--rule) !important; min-height: auto !important;
+/* Superficies: tarjetas blancas con filete, sin brillos. */
+.editorial-page :is(.card, .hero-kpi, .kpi-card, .stat-card, .stat-box, .metric-card, .info-card, .guide-card, .glass, .toc, .ref-item, .flow-box, .callout) {
+  background: var(--white);
+  border-color: var(--line);
+  box-shadow: none;
+  backdrop-filter: none;
 }
-.hero::before, .hero::after { display: none !important; }
-.hero h1 { color: var(--ink) !important; }
-.hero p, .hero .subtitle, .hero-sub { color: var(--ink-soft) !important; }
+.editorial-page :is(.section-title) { color: var(--ink); }
+.editorial-page :is(.section-label, .label, .eyebrow) { color: var(--green); }
+.editorial-page :is(.section-sub, .section-desc, .stat-desc, .ref-source, .ref-authors) { color: var(--body); }
 
-/* KPIs y tarjetas comunes: aplanar (mata glow/gradiente/sombra dura) */
-.hero-kpi, .kpi-card, .stat-card, .metric-card, .info-card, .glass {
-  background: rgba(255,255,255,0.025) !important; border: 1px solid var(--rule) !important;
-  box-shadow: none !important; backdrop-filter: none !important; border-radius: 12px !important;
+/* Controles del contenido (pestañas, filtros, selectores): objetivo táctil de 44 px. El chrome común
+   (#nav, pie) ya trae los suyos en site.css. */
+.editorial-page :is(button, select, [role="tab"]):not(#nav *, .site-footer *) { min-height: 44px; }
+
+/* Tablas: desplazamiento dentro de su contenedor, nunca de la página. */
+.editorial-page :is(.table-wrapper, .table-wrap, .table-scroll) { max-width: 100%; overflow-x: auto; }
+.editorial-page table { border-color: var(--line); }
+.editorial-page th { background: var(--tint); color: var(--body); }
+.editorial-page td { color: var(--body); border-color: var(--line); }
+
+/* Componentes heredados que el template pintaba sobre fondo oscuro. */
+/* Visores PDF (Avance 1 y 2): con la cabecera común fija y objetivos de 44 px, tres barras apiladas
+   (sitio + documento + visor) se solapaban (el desplazamiento heredado suponía 54 px) y ocupaban un
+   tercio de una pantalla de 640 px. La barra del documento (título, Abrir, Descargar) se desplaza con
+   la página; la del visor (página, zoom, ajustar) queda fija justo bajo la cabecera común. */
+.editorial-page header:not(.site-header):has(> .head-row) { position: relative; }
+.editorial-page #toolbar.toolbar { top: var(--site-header-h, 0px); }
+/* Mensajes de carga y de error y el indicador, sobre el papel claro. */
+.editorial-page .state-msg { color: var(--body); }
+.editorial-page .spinner { border-color: var(--line); border-top-color: var(--green); }
+/* Insignias y botones activos sobre un acento ya oscurecido a AA: texto blanco. */
+.editorial-page :is(.status-badge, .seg button.on) { color: #fff; }
+/* Cabeceras de modelo (hiperparámetros): banda de color propia del modelo con texto blanco. */
+.editorial-page .model-header :is(h2, h3, p, span) { color: #fff; }
+.editorial-page .hp-table thead th { color: var(--ink); }
+/* Celdas de cabecera con el color propio de cada modelo en línea (comparativa de hiperparámetros):
+   el fondo identifica al modelo; el texto, blanco. */
+.editorial-page th[style*="background:var(--"] { color: #fff; }
+/* Cabecera del archivo de noticias: una palabra a texto 200 % no desborda su columna. */
+.editorial-page .edl-headline { overflow-wrap: break-word; hyphens: auto; }
+
+/* Tablas sueltas del contenido: el transformador las envuelve; el contenedor se desplaza, no la página. */
+.editorial-page .tabla-desplazable { max-width: 100%; overflow-x: auto; }
+
+/* Colofón heredado: atribución original de la página, conservada como contenido (texto del corpus). */
+.legacy-colophon {
+  margin: 40px auto 0;
+  padding: 24px var(--gutter) 28px;
+  max-width: var(--wrap);
+  border-top: 1px solid var(--line);
+  background: none;
+  color: var(--muted);
+  font-size: 14px;
+  text-align: center;
 }
-.hero-kpi { color: var(--ink) !important; }
-
-/* Bandas de sección con fondo de color -> índigo plano */
-.section[style*="background"], .pipeline-bg, .results-bg, .about, .team-bg, .scope-bg, .cta-hub, .news-bg {
-  background: #0E1424 !important;
-}
-
-/* Footer */
-.footer { background: #0A0E18 !important; border-top: 1px solid var(--rule-strong) !important; color: var(--ink-soft) !important; }
-.footer a { color: var(--ink-soft) !important; }
-.footer-brand { font-family: var(--serif-head) !important; color: var(--ink) !important; }
-.footer-brand span { color: var(--accent) !important; }
-.footer-links { flex-wrap: wrap !important; }
-.footer-divider { background: var(--accent) !important; }
-
-/* ═══ REFINAMIENTO NYT en subpáginas: encabezados centrados, hero centrado ═══ */
-body { text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-.hero { text-align: center !important; }
-.hero h1 { text-align: center !important; max-width: 18ch; margin-left: auto !important; margin-right: auto !important; }
-.hero .subtitle, .hero p, .hero .lead, .hero .hero-sub { text-align: center !important; margin-left: auto !important; margin-right: auto !important; max-width: 60ch; }
-.section-title { text-align: center !important; }
-.section-label, .eyebrow { justify-content: center !important; text-align: center !important; }
-.section-desc { text-align: center !important; margin-left: auto !important; margin-right: auto !important; max-width: 62ch; }
+.legacy-colophon :is(.footer-title, .footer-brand, .t) { color: var(--ink); font-weight: 700; }
+.legacy-colophon a { color: var(--green-dark); }
+.legacy-colophon .footer-divider { display: none; }
+.legacy-colophon .footer-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 14px; }

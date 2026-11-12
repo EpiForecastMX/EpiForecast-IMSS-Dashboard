@@ -41,19 +41,43 @@
   document.getElementById('promptMenuClose').addEventListener('click', () => document.getElementById('promptToggle').focus());
   new MutationObserver(() => { if (search.value) filterPrompts(); }).observe(document.getElementById('promptEntidades'), { childList: true });
 
+  // Panel lateral de EPI («Herramientas»): en ≤ 1024 px es un cajón. Un solo manejador para abrir,
+  // cerrar (botón, capa, Escape), foco y acciones rápidas; antes había otro en línea en index.html.
   const sidebar = document.getElementById('ccSidebar');
   const menu = document.getElementById('ccMenuBtn');
   const close = document.getElementById('sidebarClose');
   const overlay = document.getElementById('ccOverlay');
-  function closeSidebar() {
-    sidebar.classList.remove('open'); overlay.classList.remove('open'); menu.setAttribute('aria-expanded','false'); menu.focus();
+  const send = document.getElementById('sendBtn');
+  // Dos menús (plataforma y panel local): al abrir el cajón se cierra el de la plataforma y .cc sube
+  // de capa (.cc--drawer-open, respaldo de :has en shell.css) para quedar sobre la barra común.
+  const cc = sidebar.closest('.cc');
+  const platformToggle = document.querySelector('.site-nav__toggle');
+  const isOpen = () => sidebar.classList.contains('open');
+  function setSidebar(open, focusBack) {
+    sidebar.classList.toggle('open', open);
+    overlay.classList.toggle('open', open);
+    menu.setAttribute('aria-expanded', String(open));
+    if (cc) cc.classList.toggle('cc--drawer-open', open);
+    if (open && platformToggle && platformToggle.getAttribute('aria-expanded') === 'true') platformToggle.click();
+    if (open) requestAnimationFrame(() => close.focus());
+    else if (focusBack) menu.focus();
   }
-  close.addEventListener('click', closeSidebar);
-  menu.addEventListener('click', () => requestAnimationFrame(() => close.focus()));
-  overlay.addEventListener('click', () => menu.focus());
+  menu.addEventListener('click', () => setSidebar(true));
+  close.addEventListener('click', () => setSidebar(false, true));
+  overlay.addEventListener('click', () => setSidebar(false, true));
+  // Acciones rápidas del panel: llenan la pregunta y la envían (app.js atiende #sendBtn).
+  sidebar.querySelectorAll('[data-q]').forEach(el => el.addEventListener('click', () => {
+    input.value = el.dataset.q;
+    send.click();
+    input.focus();
+  }));
+  // En el cajón (móvil), cualquier acción o enlace del panel lo cierra.
+  sidebar.querySelectorAll('[data-q], a').forEach(el => el.addEventListener('click', () => {
+    if (window.innerWidth <= 1024 && isOpen()) setSidebar(false);
+  }));
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && sidebar.contains(document.activeElement)) closeSidebar();
-    if (e.key !== 'Tab' || !sidebar.classList.contains('open') || getComputedStyle(sidebar).position !== 'fixed') return;
+    if (e.key === 'Escape' && isOpen()) { setSidebar(false, true); return; }
+    if (e.key !== 'Tab' || !isOpen() || getComputedStyle(sidebar).position !== 'fixed') return;
     const focusable = [...sidebar.querySelectorAll('a,button,summary')].filter(el => el.getClientRects().length && !el.disabled);
     const first = focusable[0], last = focusable.at(-1);
     if(e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }

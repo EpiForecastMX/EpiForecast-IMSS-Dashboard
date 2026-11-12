@@ -516,6 +516,9 @@ for (const [nombre, contenido, debe, desc] of CASOS) {
     [IDX.replace('32.7', '29').replace('>Ensemble<', '>DeepAR<'), heroOk(), kbOk(), false, true, '«29 % DeepAR» fijo'],
     [IDX, heroOk(), (() => { const k = kbOk(); k.dengue.casos_futuro_nacional_52sem = 8350; return k; })(), false, true, 'Dengue «52 sem» con 50 pasos'],
     [IDX, heroOk(), kbOk(), true, true, 'bento.json sigue publicado'],
+    [IDX, { ...heroOk(), series: heroOk().series.map((s, i) => (i ? s : { ...s, intervalo_disponible: false, lo: [null, 4], hi: [null, 6] })) }, kbOk(), false, true, 'banda sin bandera de intervalo'],
+    [IDX, { ...heroOk(), series: heroOk().series.map((s, i) => (i ? s : { ...s, intervalo_disponible: false, lo: [null, null], hi: [null, null] })) }, kbOk(), false, false, 'sin bandera y sin banda pasa'],
+    [IDX, { ...heroOk(), series: heroOk().series.map((s, i) => (i ? s : { ...s, intervalo_disponible: true, lo: [null, 4], hi: [null, 6] })) }, kbOk(), false, false, 'banda con bandera pasa'],
   ];
   for (const [idx, hero, kb, bento, debe, desc] of casos) {
     const r = problemasDePortada(idx, hero, kb, bento);

@@ -28,9 +28,6 @@
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <meta name="theme-color" content="#0E1424" />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=Libre+Caslon+Display&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     /* ═══════════════════════════════════════════════════════════════════
        CLINICAL INDIGO THEME 2026
@@ -38,31 +35,31 @@
        ═══════════════════════════════════════════════════════════════════ */
     :root {
       /* Surfaces — Clinical Indigo (azul pizarra) */
-      --bg-deep:        #0E1424;
-      --bg-base:        #131C30;
-      --bg-raised:      #18223A;
-      --bg-card:        #1C2740;
-      --bg-card-hover:  #243150;
+      --bg-deep:        #fafbf7;
+      --bg-base:        #fafbf7;
+      --bg-raised:      #f1f6ef;
+      --bg-card:        #ffffff;
+      --bg-card-hover:  #dbe3dc;
 
       /* Texto */
-      --text-primary:   #E7ECF5;
-      --text-secondary: #9FB0CE;
-      --text-muted:     #6E82A6;
-      --text-faint:     #44567A;
+      --text-primary:   #173c33;
+      --text-secondary: #40594f;
+      --text-muted:     #53675e;
+      --text-faint:     #5b6f66;
 
       /* Acentos (paleta EpiBot) */
-      --burgundy:       #F472B6;   /* rosa    */
+      --burgundy:       #a3367a;   /* rosa    */
       --dark-burgundy:  #8E2A63;   /* plum profundo (decorativo) */
-      --teal:           #5B8DEF;   /* azul    */
-      --gold:           #2DD4BF;   /* menta   */
+      --teal:           #2f5f9e;   /* azul    */
+      --gold:           #0f6e66;   /* menta   */
 
       /* Aliases de compatibilidad — los nombres legacy que usa el marcado */
       --neutral-black:  #0B0F1A;   /* superficies más profundas (footer/results) */
-      --cool-gray:      #9FB0CE;   /* texto secundario (remapeado claro) */
-      --dark-teal:      #16203A;   /* superficie índigo profunda / texto sobre acento */
-      --cream:          #E7ECF5;   /* texto casi blanco sobre fondo oscuro */
-      --cream-light:    #1C2740;   /* superficie elevada */
-      --cream-pale:     #131C30;   /* base */
+      --cool-gray:      #40594f;   /* texto secundario (remapeado claro) */
+      --dark-teal:      #f1f6ef;   /* superficie índigo profunda / texto sobre acento */
+      --cream:          #173c33;   /* texto casi blanco sobre fondo oscuro */
+      --cream-light:    #ffffff;   /* superficie elevada */
+      --cream-pale:     #fafbf7;   /* base */
       --teal-glow:      rgba(91,141,239,0.15);
       --burgundy-glow:  rgba(244,114,182,0.15);
       --gold-glow:      rgba(45,212,191,0.15);
@@ -76,7 +73,7 @@
     /* ═══════════════════════════════════════════════════════════════════
        RESET & BASE
        ═══════════════════════════════════════════════════════════════════ */
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    *:not(:where(.site-header, .site-footer) *), *:not(:where(.site-header, .site-footer) *)::before, *:not(:where(.site-header, .site-footer) *)::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     html { scroll-behavior: smooth; font-size: 16px; }
 
@@ -89,9 +86,9 @@
       overflow-x: hidden;
     }
 
-    img, svg { display: block; max-width: 100%; }
-    a { color: var(--teal); text-decoration: none; transition: color .2s; }
-    a:hover { color: var(--burgundy); }
+    img:not(:where(.site-header, .site-footer) *), svg:not(:where(.site-header, .site-footer) *) { display: block; max-width: 100%; }
+    a:not(:where(.site-header, .site-footer) *) { color: var(--teal); text-decoration: none; transition: color .2s; }
+    a:hover:not(:where(.site-header, .site-footer) *) { color: var(--burgundy); }
 
     /* Skip link — oculto hasta recibir foco con teclado */
     .skip-link {
@@ -129,202 +126,6 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════════
-       NAVIGATION — Grouped dropdowns
-       ═══════════════════════════════════════════════════════════════════ */
-    .nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-      background: rgba(14, 20, 36, 0.92);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid rgba(232,213,181,0.08);
-      transition: box-shadow .3s, padding .3s;
-    }
-    .nav.scrolled {
-      box-shadow: 0 4px 30px rgba(0,0,0,0.18);
-      background: rgba(14, 20, 36, 0.97);
-    }
-    .nav-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 2rem;
-      display: flex;
-      align-items: center;
-      height: 64px;
-      gap: 1rem;
-    }
-    .nav.scrolled .nav-inner { height: 52px; }
-    .nav-logo {
-      font-family: var(--font-display);
-      font-size: 1.3rem;
-      color: var(--cream);
-      letter-spacing: 0.02em;
-      flex-shrink: 0;
-    }
-    .nav-logo span { color: var(--gold); }
-
-    /* Dropdown menu system */
-    .nav-menu {
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-      list-style: none;
-      flex: 1;
-      justify-content: center;
-    }
-    .nav-group {
-      position: relative;
-    }
-    .nav-group-toggle {
-      display: flex;
-      align-items: center;
-      gap: 0.3rem;
-      color: rgba(232,213,181,0.65);
-      font-size: 0.78rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding: 0.5rem 0.85rem;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: color .2s, background .2s;
-      white-space: nowrap;
-      border: none;
-      background: none;
-      font-family: inherit;
-    }
-    .nav-group-toggle:hover,
-    .nav-group:hover .nav-group-toggle {
-      color: var(--cream);
-      background: rgba(232,213,181,0.06);
-    }
-    .nav-group-toggle svg {
-      width: 10px;
-      height: 10px;
-      opacity: 0.5;
-      transition: transform .2s;
-    }
-    .nav-group:hover .nav-group-toggle svg {
-      transform: rotate(180deg);
-      opacity: 0.8;
-    }
-
-    /* Dropdown panel */
-    .nav-dropdown {
-      position: absolute;
-      top: calc(100% + 8px);
-      left: 50%;
-      transform: translateX(-50%) translateY(-4px);
-      background: rgba(14, 20, 36,0.98);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(232,213,181,0.1);
-      border-radius: 12px;
-      padding: 0.5rem;
-      min-width: 200px;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity .15s, transform .15s, visibility .15s;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.25);
-    }
-    .nav-group:hover .nav-dropdown {
-      opacity: 1;
-      visibility: visible;
-      transform: translateX(-50%) translateY(0);
-    }
-    .nav-dropdown::before {
-      content: '';
-      position: absolute;
-      top: -8px;
-      left: 0;
-      right: 0;
-      height: 8px;
-    }
-    .nav-dropdown a {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.6rem 1rem;
-      color: rgba(232,213,181,0.7);
-      font-size: 0.82rem;
-      font-weight: 500;
-      border-radius: 8px;
-      transition: background .15s, color .15s;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-    .nav-dropdown a:hover {
-      background: rgba(232,213,181,0.08);
-      color: var(--cream);
-    }
-    .nav-dropdown a svg {
-      width: 16px;
-      height: 16px;
-      opacity: 0.5;
-      flex-shrink: 0;
-    }
-    .nav-dropdown a:hover svg { opacity: 0.8; }
-
-    /* CTA buttons (right side) */
-    .nav-ctas {
-      display: flex;
-      gap: 0.5rem;
-      align-items: center;
-      flex-shrink: 0;
-    }
-    .nav-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.4rem 1rem;
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      border-radius: 100px;
-      text-decoration: none;
-      transition: transform .2s, box-shadow .2s, background .2s;
-      white-space: nowrap;
-    }
-    .nav-cta:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 4px 16px rgba(45,212,191,0.3);
-    }
-    .nav-cta--primary {
-      background: var(--gold);
-      color: var(--dark-teal);
-    }
-    .nav-cta--secondary {
-      background: rgba(232,213,181,0.1);
-      color: var(--gold);
-      border: 1px solid rgba(45,212,191,0.3);
-    }
-    .nav-cta--secondary:hover {
-      background: rgba(45,212,191,0.15);
-      color: var(--gold);
-    }
-    .nav-cta svg { width: 14px; height: 14px; }
-
-    /* Hamburger */
-    .nav-hamburger {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      cursor: pointer;
-      padding: 4px;
-      background: none;
-      border: none;
-    }
-    .nav-hamburger span {
-      width: 24px;
-      height: 2px;
-      background: var(--cream);
-      transition: transform .3s, opacity .3s;
-    }
-
-    /* ═══════════════════════════════════════════════════════════════════
        HERO
        ═══════════════════════════════════════════════════════════════════ */
     .hero {
@@ -332,7 +133,7 @@
       min-height: clamp(640px, 88vh, 900px);
       display: flex;
       align-items: center;
-      background: linear-gradient(165deg, var(--bg-deep) 0%, var(--bg-raised) 50%, #1B1733 100%);
+      background: linear-gradient(165deg, var(--bg-deep) 0%, var(--bg-raised) 50%, #f1f6ef 100%);
       overflow: hidden;
     }
     .hero::before {
@@ -500,7 +301,7 @@
     }
     .hf-card {
       position: relative;
-      background: linear-gradient(160deg, rgba(28,39,64,0.78), rgba(16,22,40,0.66));
+      background: linear-gradient(160deg, rgba(255,255,255,0.78), rgba(16,22,40,0.66));
       border: 1px solid rgba(91,141,239,0.22);
       border-radius: 22px;
       padding: 1.3rem 1.4rem 1.1rem;
@@ -525,7 +326,7 @@
     }
     .hf-live {
       width: 7px; height: 7px; border-radius: 50%;
-      background: #34d399;
+      background: #17644d;
       box-shadow: 0 0 0 0 rgba(52,211,153,0.6);
       animation: hfLive 2s ease-out infinite;
     }
@@ -547,11 +348,11 @@
       transition: background .18s, border-color .18s, color .18s, transform .12s;
     }
     .hf-pill:hover { transform: translateY(-1px); color: var(--text-primary); }
-    .hf-pill-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--p, #5B8DEF); box-shadow: 0 0 8px var(--p, #5B8DEF); }
+    .hf-pill-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--p, #2f5f9e); box-shadow: 0 0 8px var(--p, #2f5f9e); }
     .hf-pill.is-active {
       color: var(--text-primary);
       background: color-mix(in srgb, var(--p) 20%, transparent);
-      border-color: var(--p, #5B8DEF);
+      border-color: var(--p, #2f5f9e);
     }
     .hf-canvas-wrap { position: relative; width: 100%; height: 300px; }
     #hfCanvas { width: 100%; height: 100%; display: block; }
@@ -573,7 +374,7 @@
       background: rgba(36,49,79,0.5); border: 1px solid rgba(91,141,239,0.14);
     }
     .hf-chip b { color: var(--text-primary); font-weight: 700; }
-    .hf-chip--motor b { color: var(--p, #5B8DEF); }
+    .hf-chip--motor b { color: var(--p, #2f5f9e); }
     @media (max-width: 980px) {
       .hero-content.hero-split { grid-template-columns: 1fr; gap: 2.2rem; }
       .hero-viz { order: 2; }
@@ -828,17 +629,17 @@
     .disease-card--alz .disease-tag { background: var(--gold-glow); color: var(--gold); }
 
     /* Dengue (4.o padecimiento, ámbar) */
-    .disease-card--den::before { background: #F59E0B; }
+    .disease-card--den::before { background: #9a5200; }
     .disease-card--den .disease-icon { background: rgba(245,158,11,0.15); }
-    .disease-card--den .disease-icon svg { color: #F59E0B; }
-    .disease-card--den h3 { color: #F59E0B; }
-    .disease-card--den .disease-tag { background: rgba(245,158,11,0.15); color: #FBBF24; }
+    .disease-card--den .disease-icon svg { color: #9a5200; }
+    .disease-card--den h3 { color: #9a5200; }
+    .disease-card--den .disease-tag { background: rgba(245,158,11,0.15); color: #7d4400; }
 
     /* ═══════════════════════════════════════════════════════════════════
        PIPELINE
        ═══════════════════════════════════════════════════════════════════ */
     .pipeline-bg {
-      background: var(--dark-teal);
+      background: var(--tint);
       position: relative;
       overflow: hidden;
     }
@@ -1150,7 +951,7 @@
     .stack-pill-dot--lang   { background: var(--teal); }
     .stack-pill-dot--ml     { background: var(--burgundy); }
     .stack-pill-dot--ops    { background: var(--gold); }
-    .stack-pill-dot--viz    { background: var(--dark-teal); }
+    .stack-pill-dot--viz    { background: var(--tint); }
     .stack-pill-dot--cloud  { background: var(--dark-burgundy); }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -1431,7 +1232,7 @@
        FOOTER
        ═══════════════════════════════════════════════════════════════════ */
     .footer {
-      background: var(--neutral-black);
+      background: var(--tint);
       color: rgba(232,213,181,0.5);
       text-align: center;
       padding: 3rem 2rem;
@@ -1516,7 +1317,7 @@
 
     .cta-card {
       position: relative;
-      background: rgba(28,39,64,0.72);
+      background: rgba(255,255,255,0.72);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(91,141,239,0.14);
@@ -1639,8 +1440,8 @@
     }
     .news-card--featured { grid-column: 1 / -1; }
     .news-card--featured::before { background: linear-gradient(180deg, var(--gold), var(--teal)); }
-    .news-card--dengue::before   { background: linear-gradient(180deg, #F59E0B, var(--burgundy)); }
-    .news-card--helix::before    { background: linear-gradient(180deg, var(--gold), #F59E0B); }
+    .news-card--dengue::before   { background: linear-gradient(180deg, #9a5200, var(--burgundy)); }
+    .news-card--helix::before    { background: linear-gradient(180deg, var(--gold), #9a5200); }
     .news-card--future::before   { background: linear-gradient(180deg, var(--teal), var(--gold)); }
     .news-card--epibot::before   { background: var(--teal); }
     .news-card--modelos::before  { background: var(--burgundy); }
@@ -1676,7 +1477,7 @@
     .news-tag--epibot     { background: rgba(91,141,239,0.15);  color: var(--teal); }
     .news-tag--modelos    { background: rgba(244,114,182,0.15); color: var(--burgundy); }
     .news-tag--datos      { background: rgba(45,212,191,0.12);  color: var(--gold); }
-    .news-tag--dengue     { background: rgba(245,158,11,0.16);  color: #FBBF24; }
+    .news-tag--dengue     { background: rgba(245,158,11,0.16);  color: #7d4400; }
     .news-tag--helix      { background: rgba(45,212,191,0.16);  color: var(--gold); }
     .news-tag--future     { background: rgba(91,141,239,0.16);  color: var(--teal); }
     .news-tag--obesidad   { background: rgba(217,119,6,0.18);   color: #FDBA74; }
@@ -1749,7 +1550,7 @@
       border-radius: 14px;
       border: 1px solid rgba(91,141,239,0.14);
       border-left: 3px solid var(--teal);
-      background: rgba(14,20,36,0.35);
+      background: rgba(250,251,247,0.35);
       transition: transform 0.18s, border-color 0.18s, background 0.18s;
     }
     .news-lead:hover { transform: translateY(-2px); border-color: rgba(91,141,239,0.4); background: rgba(20,28,46,0.6); }
@@ -1772,7 +1573,7 @@
       padding: 0.75rem 0.95rem;
       border-radius: 12px;
       border: 1px solid rgba(91,141,239,0.12);
-      background: rgba(14,20,36,0.3);
+      background: rgba(250,251,247,0.3);
       transition: transform 0.18s, border-color 0.18s, background 0.18s;
     }
     .news-mini:hover { transform: translateX(3px); border-color: rgba(91,141,239,0.35); background: rgba(20,28,46,0.55); }
@@ -1810,7 +1611,7 @@
       position: relative;
       padding: 2rem 1.8rem 1.8rem;
       border-radius: 20px;
-      background: linear-gradient(160deg, rgba(28,39,64,0.5), rgba(16,22,40,0.4));
+      background: linear-gradient(160deg, rgba(255,255,255,0.5), rgba(16,22,40,0.4));
       border: 1px solid rgba(91,141,239,0.16);
       transition: transform .22s, border-color .22s, background .22s, box-shadow .22s;
     }
@@ -1862,62 +1663,6 @@
     @media (max-width: 900px) { .explora-grid { grid-template-columns: 1fr; } }
 
     /* ═══════════════════════════════════════════════════════════════════
-       MOBILE NAV
-       ═══════════════════════════════════════════════════════════════════ */
-    .nav-mobile {
-      display: none;
-      flex-direction: column;
-      background: rgba(14, 20, 36,0.98);
-      backdrop-filter: blur(16px);
-      padding: 1rem 2rem 1.5rem;
-      border-bottom: 1px solid rgba(232,213,181,0.1);
-    }
-    .nav-mobile.show { display: flex; }
-    .nav-mobile-group { border-bottom: 1px solid rgba(232,213,181,0.06); }
-    .nav-mobile-heading {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.85rem 0;
-      color: rgba(232,213,181,0.7);
-      font-size: 0.82rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      cursor: pointer;
-    }
-    .nav-mobile-heading svg {
-      width: 10px;
-      height: 10px;
-      transition: transform .2s;
-    }
-    .nav-mobile-group.open .nav-mobile-heading svg { transform: rotate(180deg); }
-    .nav-mobile-items {
-      display: none;
-      flex-direction: column;
-      padding-bottom: 0.5rem;
-    }
-    .nav-mobile-group.open .nav-mobile-items { display: flex; }
-    .nav-mobile-items a {
-      padding: 0.5rem 1rem;
-      color: rgba(232,213,181,0.55);
-      font-size: 0.82rem;
-      text-decoration: none;
-      border-radius: 6px;
-      transition: background .15s, color .15s;
-    }
-    .nav-mobile-items a:hover {
-      background: rgba(232,213,181,0.06);
-      color: var(--cream);
-    }
-    .nav-mobile-ctas {
-      display: flex;
-      gap: 0.5rem;
-      margin-top: 1rem;
-    }
-    .nav-mobile-ctas .nav-cta { flex: 1; font-size: 0.78rem; }
-
-    /* ═══════════════════════════════════════════════════════════════════
        RESPONSIVE
        ═══════════════════════════════════════════════════════════════════ */
     @media (max-width: 1024px) {
@@ -1928,8 +1673,6 @@
     }
 
     @media (max-width: 768px) {
-      .nav-menu, .nav-ctas { display: none; }
-      .nav-hamburger { display: flex; }
 
       .hero-stats { gap: 2rem; }
       .about-grid { grid-template-columns: 1fr; gap: 2rem; }
@@ -1957,7 +1700,7 @@
        ═══════════════════════════════════════════════════════════════════ */
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
-      *, *::before, *::after {
+      *:not(:where(.site-header, .site-footer) *), *:not(:where(.site-header, .site-footer) *)::before, *:not(:where(.site-header, .site-footer) *)::after {
         animation-duration: 0.001ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.001ms !important;
@@ -1976,22 +1719,22 @@
        Override de la estética anterior (gana por orden de cascada).
        ═══════════════════════════════════════════════════════════════════ */
     :root {
-      --bg-deep: #0A0E18;
-      --accent: #6AA0FF;
+      --bg-deep: #fafbf7;
+      --accent: #2f5f9e;
       --line: rgba(255,255,255,0.07);
       --line-strong: rgba(255,255,255,0.14);
       --surface: rgba(255,255,255,0.025);
       /* Tipografía: sin serif. Una sola familia geométrica moderna. */
       --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
     }
-    body { background: #0A0E18; }
+    body { background: #fafbf7; }
     body::before { display: none !important; }            /* textura de ruido fuera */
 
     /* Headings modernos y compactos */
     .hero h1, .section-title { letter-spacing: -0.025em; font-weight: 700; }
 
     /* HERO sin decoración ocupada (la gráfica viva es el único protagonista) */
-    .hero { background: #0A0E18 !important; min-height: auto; }
+    .hero { background: #fafbf7 !important; min-height: auto; }
     .hero::before, .hero::after { display: none !important; }
     .hero-grid, .hero-mesh, .hero-scroll { display: none !important; }
     .hero-content.hero-split { padding-top: 4.5rem; padding-bottom: 5rem; }
@@ -2007,7 +1750,7 @@
     /* SECCIONES: una superficie plana, separadas por una línea fina */
     .about, .results-bg, .team-bg, .news-bg, .diseases, .explora,
     .scope-bg, .pipeline-bg, .cta-hub {
-      background: #0A0E18 !important;
+      background: #fafbf7 !important;
       border-top: 1px solid var(--line) !important;
       border-bottom: none !important;
     }
@@ -2054,13 +1797,13 @@
     .explora-ic { background: rgba(106,160,255,0.10) !important; color: var(--accent) !important; }
     .explora-card--epi .explora-ic { background: rgba(106,160,255,0.14) !important; }
     .explora-go, .news-link, .news-banner-all { color: var(--accent) !important; }
-    .explora-tag { background: var(--accent) !important; color: #0A0E18 !important; }
-    a:hover { color: var(--accent) !important; }
+    .explora-tag { background: var(--accent) !important; color: #fafbf7 !important; }
+    a:hover:not(:where(.site-header, .site-footer) *) { color: var(--accent) !important; }
 
     /* ═══════════════════════════════════════════════════════════════════
        BENTO — SALA DE CONTROL (landing como panel vivo de datos)
        ═══════════════════════════════════════════════════════════════════ */
-    .bento-section { background: #0A0E18; padding: 6.5rem 2rem 3.5rem; }
+    .bento-section { background: #fafbf7; padding: 6.5rem 2rem 3.5rem; }
     .bento-wrap { max-width: 1320px; margin: 0 auto; }
     .bento-head { margin-bottom: 2rem; }
     .bento-eyebrow {
@@ -2068,7 +1811,7 @@
       text-transform: uppercase; color: var(--accent);
       display: inline-flex; align-items: center; gap: 0.55rem; margin-bottom: 1rem;
     }
-    .bento-eyebrow::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #34d399; box-shadow: 0 0 0 0 rgba(52,211,153,0.5); animation: hfLive 2s infinite; }
+    .bento-eyebrow::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #17644d; box-shadow: 0 0 0 0 rgba(52,211,153,0.5); animation: hfLive 2s infinite; }
     .bento-h1 {
       font-family: var(--font-display); font-weight: 700; letter-spacing: -0.03em;
       font-size: clamp(2.4rem, 5.5vw, 4.2rem); line-height: 1.02; color: var(--text-primary);
@@ -2082,7 +1825,7 @@
       padding: 0.7rem 1.3rem; border-radius: 100px; font-size: 0.88rem; font-weight: 600;
     }
     .bento-cta svg { width: 16px; height: 16px; }
-    .bento-cta--primary { background: var(--accent); color: #0A0E18; }
+    .bento-cta--primary { background: var(--accent); color: #fafbf7; }
     .bento-cta--ghost { border: 1px solid var(--line-strong); color: var(--text-primary); }
     .bento-cta--ghost:hover { background: rgba(255,255,255,0.04); }
 
@@ -2137,11 +1880,11 @@
     .t-map { padding-bottom: 1rem; }
     .map-svg-wrap { flex: 1; display: flex; align-items: center; justify-content: center; margin-top: 0.4rem; }
     .map-svg-wrap svg { width: 100%; height: 100%; max-height: 290px; }
-    .map-state { stroke: #0A0E18; stroke-width: 0.8; transition: fill .2s, opacity .2s; cursor: pointer; }
+    .map-state { stroke: #fafbf7; stroke-width: 0.8; transition: fill .2s, opacity .2s; cursor: pointer; }
     .map-state:hover { opacity: 1; stroke: var(--accent); stroke-width: 1.2; }
     .map-tip {
       position: absolute; pointer-events: none; opacity: 0; transition: opacity .15s;
-      background: #0A0E18; border: 1px solid var(--line-strong); border-radius: 8px;
+      background: #fafbf7; border: 1px solid var(--line-strong); border-radius: 8px;
       padding: 0.4rem 0.65rem; font-size: 0.74rem; color: var(--text-primary); z-index: 5; white-space: nowrap;
     }
     .map-tip b { color: var(--accent); }
@@ -2156,7 +1899,7 @@
     .t-epi .epi-title { font-family: var(--font-display); font-size: 1.4rem; font-weight: 700; color: var(--text-primary); }
     .t-epi .epi-go {
       display: inline-flex; align-items: center; gap: 0.5rem; flex: none;
-      padding: 0.65rem 1.2rem; border-radius: 100px; background: var(--accent); color: #0A0E18;
+      padding: 0.65rem 1.2rem; border-radius: 100px; background: var(--accent); color: #fafbf7;
       font-size: 0.85rem; font-weight: 700;
     }
     .t-epi .epi-go svg { width: 16px; height: 16px; }
@@ -2191,69 +1934,52 @@
        Capa final (gana por cascada). Fondo azul oscuro, serif, filetes, sin cajas.
        ═══════════════════════════════════════════════════════════════════ */
     :root {
-      --bg: #0E1424;
-      --bg-deep: #0A0E18;
-      --ink: #EAEFF8;
-      --ink-soft: #B9C5DD;
-      --ink-mut: #8094B8;
+      --bg: #fafbf7;
+      --bg-deep: #fafbf7;
+      --ink: #173c33;
+      --ink-soft: #40594f;
+      --ink-mut: #53675e;
       --rule: rgba(130,160,210,0.16);
       --rule-strong: rgba(160,185,225,0.40);
-      --accent: #6AA0FF;
-      --accent-2: #2DD4BF;
+      --accent: #2f5f9e;
+      --accent-2: #0f6e66;
       --link: #8FB4FF;
       --serif-head: 'Libre Caslon Display', Georgia, 'Times New Roman', serif;
       --serif-body: 'Source Serif 4', Georgia, serif;
       --sans: 'Libre Franklin', system-ui, -apple-system, sans-serif;
       /* Reasignación de tokens base a la escala de tinta sobre índigo */
-      --text-primary: #EAEFF8;
-      --text-secondary: #B9C5DD;
-      --text-muted: #8094B8;
+      --text-primary: #173c33;
+      --text-secondary: #40594f;
+      --text-muted: #53675e;
       --text-faint: #5f739a;
-      --cream: #EAEFF8;
+      --cream: #173c33;
     }
     body {
-      background: #0E1424 !important;
+      background: #fafbf7 !important;
       color: var(--ink) !important;
       font-family: var(--serif-body) !important;
       line-height: 1.6;
     }
     body::before { display: none !important; }
-    a { color: var(--link) !important; }
-    a:hover { color: var(--link) !important; text-decoration: underline; }
-
-    /* MASTHEAD */
-    .nav, .nav.scrolled {
-      background: rgba(14,20,36,0.92) !important;
-      border-bottom: 1px solid var(--rule-strong) !important;
-      backdrop-filter: blur(10px) !important; box-shadow: none !important;
-    }
-    .nav a, .nav-group-toggle, .nav-menu a { color: var(--ink-soft) !important; font-family: var(--sans) !important; }
-    .nav-group-toggle { font-size: 0.82rem; }
-    .nav-dropdown { background: #121A2C !important; border: 1px solid var(--rule) !important; box-shadow: 0 14px 36px rgba(0,0,0,0.5) !important; }
-    .nav-dropdown a { color: var(--ink-soft) !important; }
-    .nav-dropdown a:hover { background: rgba(255,255,255,0.05) !important; color: var(--ink) !important; }
-    .nav-cta--primary { background: var(--accent) !important; color: #08111F !important; border-radius: 3px !important; font-family: var(--sans) !important; font-weight: 700 !important; }
-    .nav-cta--secondary { background: transparent !important; color: var(--ink) !important; border: 1px solid var(--rule-strong) !important; border-radius: 3px !important; font-family: var(--sans) !important; }
-    .nav-hamburger span { background: var(--ink) !important; }
-    .nav-mobile { background: #0E1424 !important; border-bottom: 1px solid var(--rule) !important; }
-    .nav-mobile a, .nav-mobile-heading { color: var(--ink-soft) !important; }
+    a:not(:where(.site-header, .site-footer) *) { color: var(--link) !important; }
+    a:hover:not(:where(.site-header, .site-footer) *) { color: var(--link) !important; text-decoration: underline; }
 
     /* SECCIONES: índigo, separadas por filete fino */
     .edl-hero, .news-bg, .explora, .about, .diseases, .results-bg,
     .team-bg, section.section, .cta-hub, .scope-bg, .pipeline-bg {
-      background: #0E1424 !important;
+      background: #fafbf7 !important;
       border-top: 1px solid var(--rule) !important;
       border-bottom: none !important;
     }
 
     /* TIPOGRAFÍA editorial */
-    h1, h2, h3, h4, .section-title, .edl-headline,
+    h1:not(:where(.site-header, .site-footer) *), h2:not(:where(.site-header, .site-footer) *), h3:not(:where(.site-header, .site-footer) *), h4:not(:where(.site-header, .site-footer) *), .section-title, .edl-headline,
     .explora-card h3, .disease-card h3, .tile-big, .epi-title {
       font-family: var(--serif-head) !important; color: var(--ink) !important;
       font-weight: 400 !important; letter-spacing: -0.01em !important;
     }
     .section-title { font-size: clamp(2rem, 3.6vw, 3rem); line-height: 1.08; }
-    p, .section-desc, .tile-sub, .explora-card p, .disease-card p, .news-lead-sub { color: var(--ink-soft) !important; }
+    p:not(:where(.site-header, .site-footer) *), .section-desc, .tile-sub, .explora-card p, .disease-card p, .news-lead-sub { color: var(--ink-soft) !important; }
     .section-desc { font-family: var(--serif-body) !important; font-size: 1.15rem; }
     .news-lead-title, .news-mini-title { color: var(--ink) !important; }
 
@@ -2294,7 +2020,7 @@
     .hf-chip b { color: var(--ink) !important; }
 
     /* HERO EDITORIAL (lede de artículo) */
-    .edl-hero { background: #0E1424; padding: 3.2rem 1.5rem 3.5rem; }
+    .edl-hero { background: #fafbf7; padding: 3.2rem 1.5rem 3.5rem; }
     .edl-wrap { max-width: 760px; margin: 0 auto; }
     .edl-kicker {
       font-family: var(--sans); text-transform: uppercase; letter-spacing: 0.12em;
@@ -2340,16 +2066,16 @@
     @media (max-width: 560px) { .edl-stats { grid-template-columns: repeat(2, 1fr); gap: 1.3rem 1rem; } }
 
     /* Footer índigo */
-    .footer { background: #0A0E18 !important; border-top: 1px solid var(--rule-strong) !important; color: var(--ink-soft) !important; }
+    .footer { background: #fafbf7 !important; border-top: 1px solid var(--rule-strong) !important; color: var(--ink-soft) !important; }
     .footer a { color: var(--ink-soft) !important; }
 
     /* ═══════════════════════════════════════════════════════════════════
        PORTADA — reinvención del tope (front page de periódico). Override final.
        ═══════════════════════════════════════════════════════════════════ */
-    /* El nav es fixed: damos aire arriba para que NO tape el folio del hero */
+    /* El nav:not(.site-nav) es fixed: damos aire arriba para que NO tape el folio del hero */
     .edl-hero {
       padding: 6.8rem 1.5rem 3.5rem !important;
-      background: #0E1424 !important;
+      background: #fafbf7 !important;
       border-top: none !important;
     }
     .edl-wrap { max-width: 1180px !important; }
@@ -2542,36 +2268,9 @@
       .edl-stat { border-left: none; padding-left: 0 !important; padding-right: 1rem !important; }
       .edl-stat:nth-child(2) { border-left: 1px solid var(--rule); padding-left: 1rem !important; }
     }
-
-    /* ═══════════════════════════════════════════════════════════════════
-       MASTHEAD — cabecera de periódico (la navbar se vuelve nameplate + section bar)
-       ═══════════════════════════════════════════════════════════════════ */
-    .nav { position: static !important; background: var(--bg) !important; backdrop-filter: none !important;
-           border-top: 2px solid var(--accent) !important;
-           border-bottom: 1px solid var(--rule-strong) !important; box-shadow: none !important; }
-    .nav-inner {
-      flex-wrap: wrap !important; justify-content: center !important; align-items: center !important;
-      height: auto !important; max-width: 1180px; padding: 0.85rem 2rem 0.55rem !important;
-      column-gap: 1.4rem; row-gap: 0.5rem; position: relative;
-    }
-    .nav-logo {
-      flex-basis: 100% !important; flex-shrink: 1 !important; text-align: center;
-      font-family: var(--serif-head) !important; font-weight: 400 !important;
-      font-size: clamp(1.55rem, 2.6vw, 2rem) !important; letter-spacing: -0.005em !important;
-      color: var(--ink) !important; padding: 0 !important; margin: 0 0 0.15rem !important;
-      border-bottom: none !important;
-    }
-    .nav-logo span { color: var(--accent) !important; }
-    .nav-menu { flex: 0 1 auto !important; justify-content: center !important; gap: 1.3rem !important; flex-wrap: wrap; }
-    .nav-group-toggle { text-transform: uppercase !important; letter-spacing: 0.08em !important; font-size: 0.72rem !important; font-weight: 600 !important; }
-    .nav-ctas { gap: 0.5rem; flex-shrink: 0; }
-    .nav.scrolled .nav-inner { height: auto !important; }
-    /* el nav ya no es fixed: el hero arranca pegado a la cabecera */
+    /* el nav:not(.site-nav) ya no es fixed: el hero arranca pegado a la cabecera */
     .edl-hero { padding-top: 2.4rem !important; }
     @media (max-width: 768px) {
-      .nav-inner { padding: 0.85rem 1.3rem !important; }
-      .nav-logo { font-size: 1.5rem !important; }
-      .nav-hamburger { position: absolute !important; right: 1.2rem; top: 50%; transform: translateY(-50%); }
     }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -2608,7 +2307,7 @@
     }
 
     /* ═══════════════════════════════════════════════════════════════════
-       FIXES de auditoría (footer, iconos, fuentes muertas)
+       FIXES de auditoría (footer:not(.site-footer), iconos, fuentes muertas)
        ═══════════════════════════════════════════════════════════════════ */
     /* Repunta las vars de fuente legacy a familias REALES cargadas (evita
        fallback silencioso a system-ui en cualquier elemento no cubierto) */
@@ -2718,173 +2417,145 @@
     .arch-nota { font-family:var(--serif-body); font-size:0.9rem; font-style:italic; line-height:1.5; color:var(--ink-soft); max-width:70ch; margin:0 0 0.9rem; padding-left:0.75rem; border-left:2px solid var(--rule); }
     .arch-link { display:inline-block; margin-top:0.5rem; font-family:var(--sans); font-weight:600; font-size:0.85rem; color:var(--accent) !important; }
   </style>
+<link rel="stylesheet" href="assets/site/site.css?v=5">
+<link rel="stylesheet" href="editorial.css?v=4">
 </head>
-<body>
-  <a href="#main" class="skip-link">Saltar al contenido</a>
+<body class="editorial-page">
 
-  <nav class="nav" id="nav">
-    <div class="nav-inner">
-      <div class="nav-logo">EpiForecast<span>-MX</span></div>
-
+<a class="skip" href="#main">Saltar al contenido</a>
+<!-- site:header:start -->
+<header class="site-header" id="nav" lang="es">
+  <div class="site-header__inner">
+    <a class="site-brand" href="index.html" aria-label="EpiForecast-MX, inicio"><span class="site-brand__symbol" aria-hidden="true">E<span>+</span></span><span class="site-brand__name"><span class="site-brand__word">EpiForecast<span class="site-brand__mx">MX</span></span><small>Inteligencia epidemiológica</small></span></a>
+    <nav class="site-nav" aria-label="Navegación principal">
       <ul class="nav-menu">
-        <!-- Proyecto -->
+        <li><a href="Reports/index.html">Galería</a></li>
+        <li><a href="epibot/index.html">EpiBot</a></li>
+        <li><a href="EpiDashboard.html">Dashboard</a></li>
+        <li><a href="boletin.html">Radar del boletín</a></li>
+        <li><a href="novedades.html" aria-current="page">Noticias</a></li>
         <li class="nav-group">
-          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
-          <div class="nav-dropdown">
-            <a href="index.html#hero"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>Inicio</a>
-            <a href="EpiDashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
-            <a href="Reports/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Pronósticos</a>
-            <a href="novedades.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/></svg>Novedades</a>
-            <a href="dengue.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>Dengue</a>
-            <a href="epibot/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>EPI Chatbot</a>
-          </div>
-        </li>
-
-        <!-- Metodología -->
-        <li class="nav-group">
-          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Metodología <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
-          <div class="nav-dropdown">
-            <a href="bitacora_modelado.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Bitácora v1-v6</a>
-            <a href="ficha_tecnica_prophet.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Ficha Prophet</a>
-            <a href="metodologia_dengue.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>Metodología Dengue</a>
-            <a href="hiperparametros_modelos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>HPs SageMaker</a>
-            <a href="construccion_dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Arquitectura Dashboard</a>
-          </div>
-        </li>
-
-        <!-- Resultados -->
-        <li class="nav-group">
-          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Resultados <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
-          <div class="nav-dropdown">
-            <a href="reporte_resultados.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg>Resultados</a>
-            <a href="comparacion_modelos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Comparación SageMaker</a>
-            <a href="validacion_semanal.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Validación Semanal</a>
-            <a href="auditoria_remediacion_2026.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Auditoría y Remediación</a>
-            <a href="conclusiones.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Conclusiones</a>
-            <a href="referencias.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Referencias</a>
-          </div>
+          <button type="button" class="nav-group__toggle" aria-expanded="false" aria-controls="navGroup-congresos">Congresos</button>
+          <ul class="nav-group__list" id="navGroup-congresos">
+            <li><a href="wcp2026.html">WCP 2026 · Estocolmo</a></li>
+            <li><a href="micai2026.html">MICAI 2026 · Chihuahua</a></li>
+            <li><a href="calass.html">CALASS 2026 · Montréal</a></li>
+            <li><a href="index.html#congresos">Todos los congresos</a></li>
+          </ul>
         </li>
         <li class="nav-group">
-          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">MICAI 2026 <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
-          <div class="nav-dropdown">
-            <a href="micai.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Ponencia, seguimiento y artículo</a>
-            <a href="/Reports/micai2026/MICAI2026_012_Rebull_accepted_manuscript.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar PDF</a>
-          </div>
+          <button type="button" class="nav-group__toggle" aria-expanded="false" aria-controls="navGroup-mas">Más</button>
+          <ul class="nav-group__list" id="navGroup-mas">
+            <li><a href="index.html#diseases">Padecimientos</a></li>
+            <li><a href="index.html#metodologia">Evidencia y método</a></li>
+            <li><a href="index.html#about">Proyecto y equipo</a></li>
+          </ul>
         </li>
       </ul>
-
-      <!-- CTA buttons -->
-      <div class="nav-ctas">
-        <a href="EpiDashboard.html" class="nav-cta nav-cta--primary">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-          Dashboard
-        </a>
-        <a href="epibot/index.html" class="nav-cta nav-cta--secondary">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          EPI Chatbot
-        </a>
-        <a href="https://github.com/IntegradorIMSS2026Team01" target="_blank" rel="noopener" class="nav-cta nav-cta--secondary" style="padding:0.4rem 0.6rem" title="GitHub">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-        </a>
-      </div>
-
-      <button type="button" class="nav-hamburger" onclick="toggleMobileNav(this)" aria-label="Abrir menú" aria-expanded="false" aria-controls="navMobile">
-        <span></span><span></span><span></span>
-      </button>
+    </nav>
+    <button type="button" class="site-nav__toggle" aria-controls="navMobile" aria-expanded="false"><span class="site-nav__toggle-icon" aria-hidden="true"></span><span class="site-nav__toggle-text">Menú</span></button>
+  </div>
+  <div id="navMobile" class="site-nav__mobile">
+    <div class="nav-mobile-items">
+      <a class="nav-mobile-link" href="Reports/index.html">Galería</a>
+      <a class="nav-mobile-link" href="epibot/index.html">EpiBot</a>
+      <a class="nav-mobile-link" href="EpiDashboard.html">Dashboard</a>
+      <a class="nav-mobile-link" href="boletin.html">Radar del boletín</a>
+      <a class="nav-mobile-link" href="novedades.html" aria-current="page">Noticias</a>
+      <p class="nav-mobile-group">Congresos</p>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="wcp2026.html">WCP 2026 · Estocolmo</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="micai2026.html">MICAI 2026 · Chihuahua</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="calass.html">CALASS 2026 · Montréal</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#congresos">Todos los congresos</a>
+      <p class="nav-mobile-group">Más</p>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#diseases">Padecimientos</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#metodologia">Evidencia y método</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#about">Proyecto y equipo</a>
     </div>
-
-    <!-- Mobile menu -->
-    <div class="nav-mobile" id="navMobile">
-      <div class="nav-mobile-group">
-        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items">
-          <a href="index.html#hero">Inicio</a>
-          <a href="EpiDashboard.html">Dashboard</a>
-          <a href="Reports/index.html">Pronósticos</a>
-          <a href="novedades.html">Novedades</a>
-          <a href="dengue.html">Dengue</a>
-          <a href="epibot/index.html">EPI Chatbot</a>
-        </div>
-      </div>
-      <div class="nav-mobile-group">
-        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Metodología <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items">
-          <a href="bitacora_modelado.html">Bitácora v1-v6</a>
-          <a href="ficha_tecnica_prophet.html">Ficha Prophet</a>
-          <a href="metodologia_dengue.html">Metodología Dengue</a>
-          <a href="hiperparametros_modelos.html">HPs SageMaker</a>
-          <a href="construccion_dashboard.html">Arquitectura Dashboard</a>
-        </div>
-      </div>
-      <div class="nav-mobile-group">
-        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Resultados <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items">
-          <a href="reporte_resultados.html">Resultados</a>
-          <a href="comparacion_modelos.html">Comparación SageMaker</a>
-          <a href="validacion_semanal.html">Validación Semanal</a>
-          <a href="auditoria_remediacion_2026.html">Auditoría y Remediación</a>
-          <a href="conclusiones.html">Conclusiones</a>
-          <a href="referencias.html">Referencias</a>
-        </div>
-      </div>
-      <div class="nav-mobile-group">
-        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">MICAI 2026 <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items">
-          <a href="micai.html">Ponencia, seguimiento y artículo</a>
-          <a href="/Reports/micai2026/MICAI2026_012_Rebull_accepted_manuscript.pdf" target="_blank" rel="noopener">Descargar PDF</a>
-        </div>
-      </div>
-      <div class="nav-mobile-ctas">
-        <a href="EpiDashboard.html" class="nav-cta nav-cta--primary" style="justify-content:center;padding:.6rem 1.5rem">Dashboard</a>
-        <a href="Reports/index.html" class="nav-cta nav-cta--secondary" style="justify-content:center;padding:.6rem 1.5rem">Pronósticos</a>
-      </div>
-    </div>
-  </nav>
+  </div>
+</header>
+<!-- site:header:end -->
 
   <main id="main">
     <section class="edl-hero" id="archivo">
-      <div class="edl-wrap edl-article-col">
+      <div id="hero" class="edl-wrap edl-article-col">
         <a href="index.html" class="arch-back">&larr; Volver a la portada</a>
         <div class="edl-dateline">Bitácora del proyecto <span>&middot;</span> Edición de la semana 43, 2026</div>
         <h1 class="edl-headline">Novedades</h1>
         <p class="edl-deck">Anuncios de plataforma, mejoras del asistente y actualizaciones de datos y modelos, de lo más reciente a lo más antiguo.</p>
       </div>
-      <div class="arch-list" id="newsGrid"></div>
+      <div class="arch-list" id="newsGrid"><!-- noticias:archivo:start -->
+<article class="arch-item arch-item--featured" id="nota-2026-11-10-las-neumonias-y-bronconeumonias-se-publican-con" tabindex="-1"><div class="arch-meta"><span class="arch-date">10 de noviembre de 2026</span><span class="arch-tag">Control estacional</span></div><h2 class="arch-title"><a href="neumonias_j12.html">Las neumonías y bronconeumonías se publican con el control estacional</a></h2><div class="arch-body"><p>EpiForecast-MX publica las <strong style="color:var(--cream)">neumonías y bronconeumonías (CIE-10 J12-J18 excepto J18.2, J13 y J14)</strong>: pronósticos semanales a 52 semanas para el país, 4 regiones y las 32 entidades, en general y por sexo (111 series), a partir de los Cuadros 5.1 y 5.2 del Boletín Epidemiológico del SINAVE.</p><p>En la prueba de 2025 su portafolio de modelos cumplió en las series estatales, pero no en el total nacional, frente al control estacional. Por eso se publica el control, que repite los casos notificados 52 semanas antes, y no se presenta como validado; las cifras de esa prueba están en la página del padecimiento.</p><p>Usa datos hasta la semana 42 de 2026 y se emitió el 10 de noviembre, antes de que existiera el boletín 44. Es un pronóstico puntual, sin intervalos de incertidumbre, y no se reentrena: con cada boletín sólo se registrará su error.</p></div><a class="arch-link" href="neumonias_j12.html">Ver el control de neumonías y bronconeumonías &rarr;</a></article>
+<article class="arch-item" id="nota-2026-11-09-ya-contamos-con-la-semana-epidemiologica-43-de-2" tabindex="-1"><div class="arch-meta"><span class="arch-date">9 de noviembre de 2026</span><span class="arch-tag">Datos</span></div><h2 class="arch-title"><a href="Reports/index.html">Ya contamos con la semana epidemiológica 43 de 2026</a></h2><div class="arch-body"><p>Se integró el Boletín SINAVE hasta la <strong style="color:var(--cream)">semana 43 de 2026</strong> (25 de octubre al 31 de octubre) en los 34 padecimientos, con las 32 entidades.</p><p>Los pronósticos de Depresión, Parkinson, Alzheimer y Dengue son los de los modelos con corte en la semana 37; no hubo reentrenamiento. La galería publica sus 432 gráficos y la validación muestra el seguimiento de las semanas 38, 39, 40, 41, 42 y 43: el pronóstico guardado frente a lo observado esa misma semana, sin calificarlo. Son semanas de diagnóstico, no el resultado general del modelo. Obesidad conserva su pronóstico, con datos hasta la semana 26 de 2026 y sin reentrenar, y suma 111 series a la galería. Anorexia, bulimia y otros trastornos alimentarios conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería. Diabetes mellitus tipo I conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería. Diabetes mellitus tipo II conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería. Hipertensión arterial conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería. Enfermedad isquémica del corazón conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería. Enfermedad cerebrovascular conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería. Infecciones intestinales por otros organismos y las mal definidas conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería. Infecciones respiratorias agudas conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería. Infección de vías urinarias conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería. Gingivitis y enfermedad periodontal conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería. Asma conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería. Úlceras, gastritis y duodenitis conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería. Tumor maligno de la mama conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería. Tumor maligno del cuello del útero conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 37 series a la galería. Tumor maligno de la próstata conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 37 series a la galería. Tumor maligno del cuerpo del útero conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 37 series a la galería. Tumor maligno del ovario conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 37 series a la galería. Tumor maligno de tráquea, bronquios y pulmón conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería. Tumor maligno del estómago conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería. Tumor maligno del colon y recto conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería. Tumor maligno del hígado y de las vías biliares intrahepáticas conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería. Linfoma de Hodgkin conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería. Linfoma no Hodgkin conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería. Leucemia conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería. Tumor maligno del esófago conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería. Tumor maligno del páncreas conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería. Tumores malignos del encéfalo y otras partes del sistema nervioso central conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería. Tumores malignos de los huesos y de los cartílagos articulares conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería. Tumor maligno del riñón conserva su pronóstico, con datos hasta la semana 41 de 2026 y sin reentrenar, y suma 111 series a la galería.</p></div><a class="arch-link" href="Reports/index.html">Ver observado y pronóstico en la galería &rarr;</a></article>
+<article class="arch-item arch-item--featured" id="nota-2026-11-09-el-asma-se-incorpora-al-pronostico" tabindex="-1"><div class="arch-meta"><span class="arch-date">9 de noviembre de 2026</span><span class="arch-tag">Nuevo padecimiento</span></div><h2 class="arch-title"><a href="asma_j45.html">El asma se incorpora al pronóstico</a></h2><div class="arch-body"><p>EpiForecast-MX publica el <strong style="color:var(--cream)">asma (CIE-10 J45, J46)</strong>: pronósticos semanales a 52 semanas para el país, 4 regiones y las 32 entidades, en general y por sexo (111 series), a partir del Cuadro 13.3 del Boletín Epidemiológico del SINAVE.</p><p>Su portafolio superó la prueba de 2025 frente al control estacional. Compiten sólo los cinco motores estacionales, porque el motor ETS no produjo un pronóstico utilizable en dos ajustes de Tlaxcala.</p><p>Usa datos hasta la semana 41 de 2026, se emitió el 9 de noviembre y no se reentrena. El boletín con la semana 42 ya era público ese día: no se usó para entrenar, pero la validación prospectiva respecto de la información empieza en la semana 43. Es un pronóstico puntual, sin intervalos de incertidumbre.</p></div><a class="arch-link" href="asma_j45.html">Ver el pronóstico de asma &rarr;</a></article>
+<article class="arch-item arch-item--featured" id="nota-2026-11-08-nueve-tipos-de-cancer-se-reevaluan-con-los-datos" tabindex="-1"><div class="arch-meta"><span class="arch-date">8 de noviembre de 2026</span><span class="arch-tag">Corrección de datos</span></div><h2 class="arch-title"><a href="cancer_colon_c18.html">Nueve tipos de cáncer se reevalúan con los datos corregidos de 2026</a></h2><div class="arch-body"><p>Una auditoría independiente encontró que la lectura automática de los Cuadros 15.3 a 15.5 del boletín perdía renglones de algunos estados en cuatro boletines (semanas 23 de 2024, 11 de 2025 y 9 y 20 de 2026), y que esos huecos se habían rellenado por imputación. El boletín sí trae los datos.</p><p>Se corrigió la lectura, se comprobó que cada página recuperada cuadra con el total impreso y se repitió la evaluación de los nueve tumores afectados (tráquea, bronquios y pulmón, estómago, colon y recto, hígado, esófago, páncreas, leucemias y los dos linfomas) con los mismos criterios.</p><p>Ningún resultado cambió: siete siguen superando la prueba de las semanas 1 a 41 de 2026 y el hígado y el esófago siguen publicados con el control estacional, nunca como validados. Los nueve pronósticos se volvieron a emitir con los datos corregidos. Los siete aceptados empiezan de nuevo su validación prospectiva (0 de 4 semanas); los dos controles no tienen validación prospectiva, porque se compararían consigo mismos: sólo se registrará su error con cada boletín.</p></div><a class="arch-link" href="cancer_colon_c18.html">Ver el pronóstico de tumor maligno del colon y recto &rarr;</a></article>
+<article class="arch-item arch-item--featured" id="nota-2026-11-08-cinco-tipos-de-cancer-se-publican-con-el-control" tabindex="-1"><div class="arch-meta"><span class="arch-date">8 de noviembre de 2026</span><span class="arch-tag">Control estacional</span></div><h2 class="arch-title"><a href="cancer_prostata_c61.html">Cinco tipos de cáncer se publican con el control estacional</a></h2><div class="arch-body"><p>EpiForecast-MX publica con el control estacional los tumores malignos del riñón, la próstata (sin desglose por sexo), los huesos y cartílagos articulares, el hígado y vías biliares intrahepáticas y el esófago: cada semana repite los casos notificados 52 semanas antes.</p><p>Sus series empiezan en 2023 y su portafolio no superó la prueba de las semanas 1 a 41 de 2026 frente a ese control. Por eso se publica el control y no se presenta como validado; las cifras de esa prueba están en la página de cada padecimiento.</p><p>Usan datos hasta la semana 41 de 2026 y se emitieron el 8 de noviembre. Son pronósticos puntuales, sin intervalos de incertidumbre; con pocos casos por estado, el total nacional es la lectura más estable.</p></div><a class="arch-link" href="cancer_prostata_c61.html">Ver el control de tumor maligno de la próstata &rarr;</a></article>
+<article class="arch-item arch-item--featured" id="nota-2026-11-08-diez-tipos-de-cancer-se-incorporan-al-pronostico" tabindex="-1"><div class="arch-meta"><span class="arch-date">8 de noviembre de 2026</span><span class="arch-tag">Nuevos padecimientos</span></div><h2 class="arch-title"><a href="cancer_pulmon_c33.html">Diez tipos de cáncer se incorporan al pronóstico</a></h2><div class="arch-body"><p>EpiForecast-MX publica diez tumores malignos que el boletín reporta desde 2023: tráquea, bronquios y pulmón; estómago; colon y recto; linfoma de Hodgkin; linfoma no Hodgkin; leucemia; páncreas; encéfalo y sistema nervioso central; cuerpo del útero y ovario. Los dos últimos no se desglosan por sexo.</p><p>Con sólo dos años previos, su política elige el motor en 2025 y lo prueba en las semanas 1 a 41 de 2026 frente al control estacional: los diez la superaron. Es una evidencia más corta que la de los padecimientos con historia desde 2014, y su validación prospectiva está en curso. Riñón, próstata, huesos, hígado y esófago no la superaron.</p><p>Usan datos hasta la semana 41 de 2026, se emitieron el 8 de noviembre y no se reentrenan. Son pronósticos puntuales, sin intervalos de incertidumbre; con pocos casos por estado, el total nacional es la lectura más estable.</p></div><a class="arch-link" href="cancer_pulmon_c33.html">Ver el pronóstico de tumor maligno de pulmón &rarr;</a></article>
+<article class="arch-item arch-item--featured" id="nota-2026-11-08-el-tumor-maligno-del-cuello-del-utero-se-incorpo" tabindex="-1"><div class="arch-meta"><span class="arch-date">8 de noviembre de 2026</span><span class="arch-tag">Nuevo padecimiento</span></div><h2 class="arch-title"><a href="cancer_cuello_utero_c53.html">El tumor maligno del cuello del útero se incorpora al pronóstico</a></h2><div class="arch-body"><p>EpiForecast-MX publica el <strong style="color:var(--cream)">tumor maligno del cuello del útero (CIE-10 C53)</strong>: pronósticos semanales a 52 semanas para el país, 4 regiones y las 32 entidades (37 series).</p><p>El boletín lo reporta sin desglose por sexo, así que se modela el total de cada entidad, sin repartirlo entre hombres y mujeres. Su portafolio superó la prueba de 2025 frente al control estacional y su validación prospectiva está en curso.</p><p>Usa datos hasta la semana 41 de 2026, se emitió el 8 de noviembre y no se reentrena. Es un pronóstico puntual, sin intervalos de incertidumbre; con pocos casos por estado, el total nacional es la lectura más estable.</p></div><a class="arch-link" href="cancer_cuello_utero_c53.html">Ver el pronóstico de tumor maligno del cuello del útero &rarr;</a></article>
+<article class="arch-item arch-item--featured" id="nota-2026-11-08-el-tumor-maligno-de-la-mama-se-publica-con-el-co" tabindex="-1"><div class="arch-meta"><span class="arch-date">8 de noviembre de 2026</span><span class="arch-tag">Control estacional</span></div><h2 class="arch-title"><a href="cancer_mama_c50.html">El tumor maligno de la mama se publica con el control estacional</a></h2><div class="arch-body"><p>EpiForecast-MX publica el <strong style="color:var(--cream)">tumor maligno de la mama (CIE-10 C50)</strong> con el control estacional: cada semana repite los casos notificados 52 semanas antes, para el país, 4 regiones y las 32 entidades, por sexo (111 series).</p><p>Su portafolio de modelos mejoró las series por estado y sexo en la prueba de 2025, pero empeoró el total nacional frente al control. Por eso se publica el control y no se presenta como validado; las cifras de esa prueba están en su página.</p><p>Usa datos hasta la semana 41 de 2026 y se emitió el 8 de noviembre. Es un pronóstico puntual, sin intervalos de incertidumbre. Quince tumores malignos del boletín no se publican por ahora: sólo tienen datos desde 2023.</p></div><a class="arch-link" href="cancer_mama_c50.html">Ver el control de tumor maligno de la mama &rarr;</a></article>
+<article class="arch-item arch-item--featured" id="nota-2026-11-08-infecciones-respiratorias-agudas-y-gingivitis-se" tabindex="-1"><div class="arch-meta"><span class="arch-date">8 de noviembre de 2026</span><span class="arch-tag">Control estacional</span></div><h2 class="arch-title"><a href="ira_j00.html">Infecciones respiratorias agudas y gingivitis se publican con el control estacional</a></h2><div class="arch-body"><p>EpiForecast-MX publica las <strong style="color:var(--cream)">infecciones respiratorias agudas (CIE-10 J00-J06, J20, J21 excepto J02, J03.0)</strong> y la <strong style="color:var(--cream)">gingivitis y enfermedad periodontal (K05)</strong> con el control estacional: cada semana repite los casos notificados 52 semanas antes, para el país, 4 regiones y las 32 entidades, por sexo (111 series en cada padecimiento).</p><p>Su portafolio de modelos no superó la prueba de 2025 frente a ese control, en las series por estado y sexo ni en el total nacional. Por eso se publica el control y no se presenta como validado; las cifras de esa prueba están en la página de cada padecimiento.</p><p>Usan datos hasta la semana 41 de 2026 y se emitieron el 8 de noviembre. Son pronósticos puntuales, sin intervalos de incertidumbre. Puedes consultarlos en sus páginas, en la galería y en EPI.</p></div><a class="arch-link" href="ira_j00.html">Ver el control de infecciones respiratorias agudas &rarr;</a></article>
+<article class="arch-item arch-item--featured" id="nota-2026-11-08-infecciones-intestinales-vias-urinarias-y-ulcera" tabindex="-1"><div class="arch-meta"><span class="arch-date">8 de noviembre de 2026</span><span class="arch-tag">Nuevos padecimientos</span></div><h2 class="arch-title"><a href="intestinales_a04.html">Infecciones intestinales, vías urinarias y úlceras-gastritis se incorporan al pronóstico</a></h2><div class="arch-body"><p>EpiForecast-MX publica las <strong style="color:var(--cream)">infecciones intestinales por otros organismos y las mal definidas (CIE-10 A04, A08-A09 excepto A08.0)</strong>, la <strong style="color:var(--cream)">infección de vías urinarias (N30, N34, N39.0)</strong> y las <strong style="color:var(--cream)">úlceras, gastritis y duodenitis (K25-K29)</strong>: pronósticos semanales a 52 semanas para el país, 4 regiones y las 32 entidades, por sexo (111 series en cada padecimiento).</p><p>Los tres superaron la prueba de 2025 frente al control estacional y su validación prospectiva está en curso. Las infecciones respiratorias agudas y la gingivitis también se evaluaron, pero no superaron esa prueba.</p><p>Usan datos hasta la semana 41 de 2026, se emitieron el 8 de noviembre y no se reentrenan. Son pronósticos puntuales, sin intervalos de incertidumbre. Puedes consultarlos en sus páginas, en la galería y en EPI.</p></div><a class="arch-link" href="intestinales_a04.html">Ver el pronóstico de infecciones intestinales &rarr;</a></article>
+<article class="arch-item arch-item--featured" id="nota-2026-11-07-hipertension-enfermedad-isquemica-y-cerebrovascu" tabindex="-1"><div class="arch-meta"><span class="arch-date">7 de noviembre de 2026</span><span class="arch-tag">Nuevos padecimientos</span></div><h2 class="arch-title"><a href="hipertension_i10.html">Hipertensión, enfermedad isquémica y cerebrovascular se incorporan al pronóstico</a></h2><div class="arch-body"><p>EpiForecast-MX publica la <strong style="color:var(--cream)">hipertensión arterial (CIE-10 I10-I15)</strong>, la <strong style="color:var(--cream)">enfermedad isquémica del corazón (I20, I25)</strong> y la <strong style="color:var(--cream)">enfermedad cerebrovascular (I60-I67, I69)</strong>: pronósticos semanales a 52 semanas para el país, 4 regiones y las 32 entidades, por sexo (111 series en cada padecimiento).</p><p>La hipertensión superó la prueba de 2025 y su validación prospectiva está en curso. Las enfermedades isquémica y cerebrovascular no la superaron: se publica el control estacional, que repite los casos de 52 semanas antes, y no se presenta como validado.</p><p>Usan datos hasta la semana 41 de 2026, se emitieron el 7 de noviembre y no se reentrenan. Son pronósticos puntuales, sin intervalos de incertidumbre. Puedes consultarlos en sus páginas, en la galería y en EPI.</p></div><a class="arch-link" href="hipertension_i10.html">Ver el pronóstico de hipertensión arterial &rarr;</a></article>
+<article class="arch-item arch-item--featured" id="nota-2026-11-06-anorexia-bulimia-y-otros-trastornos-alimentarios" tabindex="-1"><div class="arch-meta"><span class="arch-date">6 de noviembre de 2026</span><span class="arch-tag">Nuevo padecimiento</span></div><h2 class="arch-title"><a href="anorexia_f50.html">Anorexia, bulimia y otros trastornos alimentarios se incorporan con el control estacional</a></h2><div class="arch-body"><p>EpiForecast-MX publica <strong style="color:var(--cream)">anorexia, bulimia y otros trastornos alimentarios (CIE-10 F50)</strong>: un pronóstico semanal a 52 semanas para el país, 4 regiones y las 32 entidades, por sexo (111 series). Se modelan 64 series de estado y sexo; los totales estatales, regionales y nacional se obtienen sumándolas.</p><p>Es un <strong style="color:var(--cream)">pronóstico de control</strong>: cada semana repite los casos de 52 semanas antes. El portafolio de motores estacionales se rechazó en la prueba de 2025 porque empeoraba el total nacional, y la regla, fijada antes de abrir ese año, deja entonces el control. No se presenta como validado.</p><p>Usa datos hasta la semana 41 de 2026, se emitió el 6 de noviembre y no se reentrena. Es un pronóstico puntual, sin intervalos de incertidumbre. Por estado y sexo hay muy pocos casos, así que el nivel más útil es el nacional. Puedes consultarlo en su página, en la galería y en EPI.</p></div><a class="arch-link" href="anorexia_f50.html">Ver el pronóstico de anorexia, bulimia y otros trastornos alimentarios &rarr;</a></article>
+<article class="arch-item arch-item--featured" id="nota-2026-11-05-la-diabetes-tipo-i-y-tipo-ii-se-incorporan-al-pr" tabindex="-1"><div class="arch-meta"><span class="arch-date">5 de noviembre de 2026</span><span class="arch-tag">Nuevo padecimiento</span></div><h2 class="arch-title"><a href="diabetes_t2.html">La diabetes tipo I y tipo II se incorporan al pronóstico</a></h2><div class="arch-body"><p>EpiForecast-MX publica la <strong style="color:var(--cream)">diabetes tipo I (CIE-10 E10)</strong> y la <strong style="color:var(--cream)">diabetes tipo II (CIE-10 E11-E14)</strong>: dos pronósticos semanales a 52 semanas para el país, 4 regiones y las 32 entidades, cada una por sexo (111 series en cada padecimiento). Se modelan 64 series de estado y sexo; los totales estatales, regionales y nacional se obtienen sumándolas.</p><p>Los pronósticos usan datos hasta la semana 41 de 2026, se emitieron el 5 de noviembre y no se reentrenan. Su validación prospectiva está en curso: se medirá con las semanas 42 a 45, que aún no tenían boletín al emitirlos. Son pronósticos puntuales, sin intervalos de incertidumbre.</p><p>En la diabetes tipo I hay muy pocos casos por estado y sexo, así que el nivel más útil es el nacional. Puedes consultar ambos pronósticos en sus páginas, en la galería y en EPI, que responde por estado y sexo.</p></div><a class="arch-link" href="diabetes_t2.html">Ver el pronóstico de Diabetes &rarr;</a></article>
+<article class="arch-item arch-item--featured" id="nota-2026-11-04-la-obesidad-se-incorpora-como-quinto-padecimient" tabindex="-1"><div class="arch-meta"><span class="arch-date">4 de noviembre de 2026</span><span class="arch-tag">Nuevo padecimiento</span></div><h2 class="arch-title"><a href="obesidad.html">La obesidad se incorpora como quinto padecimiento</a></h2><div class="arch-body"><p>EpiForecast-MX publica la <strong style="color:var(--cream)">obesidad (CIE-10 E66)</strong> como quinto padecimiento: un pronóstico semanal a 52 semanas para el país, 4 regiones y las 32 entidades, cada una por sexo (111 series). Se modelan 64 series de estado y sexo con seis motores distintos; los totales estatales, regionales y nacional se obtienen sumándolas.</p><p>El pronóstico usa datos hasta la semana 26 de 2026, se emitió el 24 de julio y no se reentrena: cada boletín nuevo se compara con él, semana a semana. Antes de publicarse superó una regla fijada de antemano sobre las semanas 27 a 30, cuyos boletines se registraron después de la emisión. Es un pronóstico puntual, sin intervalos de incertidumbre.</p><p>Puedes consultarlo en su página, en la galería de pronósticos y en EPI, que responde por estado y sexo.</p></div><a class="arch-link" href="obesidad.html">Ver el pronóstico de Obesidad &rarr;</a></article>
+<article class="arch-item" id="nota-2026-11-04-ya-contamos-con-la-semana-epidemiologica-42-de-2" tabindex="-1"><div class="arch-meta"><span class="arch-date">4 de noviembre de 2026</span><span class="arch-tag">Datos</span></div><h2 class="arch-title"><a href="Reports/index.html">Ya contamos con la semana epidemiológica 42 de 2026</a></h2><div class="arch-body"><p>Se integró el Boletín SINAVE hasta la <strong style="color:var(--cream)">semana 42 de 2026</strong> (18 de octubre al 24 de octubre) en los cuatro padecimientos, con las 32 entidades.</p><p>Los pronósticos son los de los modelos con corte en la semana 37; no hubo reentrenamiento. La galería publica 432 gráficos y la validación muestra el seguimiento de las semanas 38, 39, 40, 41 y 42: el pronóstico guardado frente a lo observado esa misma semana, sin calificarlo. Son semanas de diagnóstico, no el resultado general del modelo.</p></div><a class="arch-link" href="Reports/index.html">Ver observado y pronóstico en la galería &rarr;</a></article>
+<article class="arch-item" id="nota-2026-10-27-ya-contamos-con-la-semana-epidemiologica-41-de-2" tabindex="-1"><div class="arch-meta"><span class="arch-date">27 de octubre de 2026</span><span class="arch-tag">Datos</span></div><h2 class="arch-title"><a href="Reports/index.html">Ya contamos con la semana epidemiológica 41 de 2026</a></h2><div class="arch-body"><p>Se integró el Boletín SINAVE hasta la <strong style="color:var(--cream)">semana 41 de 2026</strong> (11 de octubre al 17 de octubre) en los cuatro padecimientos, con las 32 entidades.</p><p>Los pronósticos son los de los modelos con corte en la semana 37; no hubo reentrenamiento. La galería publica 432 gráficos y la validación muestra el seguimiento de las semanas 38, 39, 40 y 41: el pronóstico guardado frente a lo observado esa misma semana, sin calificarlo. Son semanas de diagnóstico, no el resultado general del modelo.</p></div><a class="arch-link" href="Reports/index.html">Ver observado y pronóstico en la galería &rarr;</a></article>
+<article class="arch-item" id="nota-2026-10-20-ya-contamos-con-la-semana-epidemiologica-40-de-2" tabindex="-1"><div class="arch-meta"><span class="arch-date">20 de octubre de 2026</span><span class="arch-tag">Datos</span></div><h2 class="arch-title"><a href="Reports/index.html">Ya contamos con la semana epidemiológica 40 de 2026</a></h2><div class="arch-body"><p>Se integró el Boletín SINAVE hasta la <strong style="color:var(--cream)">semana 40 de 2026</strong> (4 de octubre al 10 de octubre) en los cuatro padecimientos, con las 32 entidades.</p><p>Los pronósticos son los de los modelos con corte en la semana 37; no hubo reentrenamiento. La galería publica 432 gráficos y la validación muestra el seguimiento de las semanas 38, 39 y 40: el pronóstico guardado frente a lo observado esa misma semana, sin calificarlo. Son semanas de diagnóstico, no el resultado general del modelo.</p></div><a class="arch-link" href="Reports/index.html">Ver observado y pronóstico en la galería &rarr;</a></article>
+<article class="arch-item" id="nota-2026-10-14-ya-contamos-con-la-semana-epidemiologica-39-de-2" tabindex="-1"><div class="arch-meta"><span class="arch-date">14 de octubre de 2026</span><span class="arch-tag">Datos</span></div><h2 class="arch-title"><a href="Reports/index.html">Ya contamos con la semana epidemiológica 39 de 2026</a></h2><div class="arch-body"><p>Se integró el Boletín SINAVE hasta la <strong style="color:var(--cream)">semana 39 de 2026</strong> (27 de septiembre al 3 de octubre) en los cuatro padecimientos, con las 32 entidades.</p><p>Los pronósticos son los de los modelos con corte en la semana 37; no hubo reentrenamiento. La galería publica 432 gráficos y la validación muestra el seguimiento de las semanas 38 y 39: el pronóstico guardado frente a lo observado esa misma semana, sin calificarlo. Son semanas de diagnóstico, no el resultado general del modelo.</p></div><a class="arch-link" href="Reports/index.html">Ver observado y pronóstico en la galería &rarr;</a></article>
+<article class="arch-item arch-item--featured" id="nota-2026-09-03-epiforecast-mx-va-al-congreso-mundial-de-psiquia" tabindex="-1"><div class="arch-meta"><span class="arch-date">3 de septiembre de 2026</span><span class="arch-tag">Internacional</span></div><h2 class="arch-title"><a href="wcp2026.html">EpiForecast-MX va al Congreso Mundial de Psiquiatría, en Estocolmo</a></h2><div class="arch-body"><p>El <strong style="color:var(--cream)">E-Poster 3134</strong> fue aceptado en el <strong style="color:var(--cream)">26.º Congreso Mundial de Psiquiatría</strong> de la World Psychiatric Association, que se celebra del <strong style="color:var(--cream)">23 al 26 de septiembre de 2026</strong> en Estocolmo. Presenta el pronóstico de incidencia notificada de depresión, Alzheimer y Parkinson con inteligencia artificial sobre datos públicos del SINAVE.</p><p>La afirmación central es de validación prospectiva: el archivo de pronóstico se escribió el <strong style="color:var(--cream)">5 de junio de 2026</strong> y ocho de las semanas que se puntúan <strong style="color:var(--cream)">todavía no habían ocurrido</strong> entonces. En depresión el error fue de <strong style="color:var(--cream)">5.0&#37;</strong> en esas ocho semanas y de <strong style="color:var(--cream)">8.7&#37;</strong> sobre las veinticinco posteriores al corte de entrenamiento.</p><p>La página del congreso publica las dos ventanas juntas, el desglose por sexo, el mapa por entidad —donde la mediana estatal es muy superior al acierto nacional— y lo que el trabajo deliberadamente no afirma.</p></div><a class="arch-link" href="wcp2026.html">Ver el póster y las cifras &rarr;</a></article>
+<article class="arch-item" id="nota-2026-09-02-ya-contamos-con-la-semana-epidemiologica-33-de-2" tabindex="-1"><div class="arch-meta"><span class="arch-date">2 de septiembre de 2026</span><span class="arch-tag">Datos</span></div><h2 class="arch-title"><a href="Reports/index.html">Ya contamos con la semana epidemiológica 33 de 2026</a></h2><div class="arch-body"><p>Se integró el Boletín SINAVE hasta la <strong style="color:var(--cream)">semana 33 de 2026</strong> en los cuatro padecimientos.</p></div><p class="arch-nota">Información histórica anterior a la ronda con corte de modelos en la semana 37 de 2026. Se retiraron de esta nota sus cifras y afirmaciones de desempeño, que no se verificaron con la asignación vigente; el original se conserva archivado.</p><a class="arch-link" href="Reports/index.html">Ver real vs pronóstico en la galería &rarr;</a></article>
+<article class="arch-item arch-item--featured" id="nota-2026-08-27-epiforecast-mx-se-presento-en-el-calass-2026-en" tabindex="-1"><div class="arch-meta"><span class="arch-date">27 de agosto de 2026</span><span class="arch-tag">Internacional</span></div><h2 class="arch-title"><a href="calass.html">EpiForecast-MX se presentó en el CALASS 2026, en Montréal</a></h2><div class="arch-body"><p>El jueves <strong style="color:var(--cream)">27 de agosto de 2026</strong> EpiForecast-MX expuso en el <strong style="color:var(--cream)">XXXVI Congreso de la ALASS (CALASS 2026)</strong>, celebrado en la <strong style="color:var(--cream)">Université de Montréal</strong>. La <strong style="color:var(--cream)">Dra. Ruth Pérez-Hernández</strong> (IMSS) y <strong style="color:var(--cream)">Javier Rebull</strong> (Tecnológico de Monterrey) presentaron la <strong style="color:var(--cream)">Comunicación 75</strong> en la sesión 4.1, «La IA para la gestión de los servicios», con diapositivas en francés y voz en español.</p><p>El aforo fue internacional: en la sala se hablaba <strong style="color:var(--cream)">francés, español, italiano y portugués</strong>. A pesar de las posibles barreras lingüísticas, el mensaje del proyecto y su <strong style="color:var(--cream)">impacto social</strong> llegaron. El equipo fue felicitado por el trabajo y volvió con experiencias, preguntas y contactos que enriquecen lo que sigue.</p></div><a class="arch-link" href="calass.html">Ver la crónica y las fotos &rarr;</a></article>
+<article class="arch-item" id="nota-2026-08-18-ya-contamos-con-la-semana-epidemiologica-31-de-2" tabindex="-1"><div class="arch-meta"><span class="arch-date">18 de agosto de 2026</span><span class="arch-tag">Datos</span></div><h2 class="arch-title"><a href="Reports/index.html">Ya contamos con la semana epidemiológica 31 de 2026</a></h2><div class="arch-body"><p>Se integró el Boletín SINAVE hasta la <strong style="color:var(--cream)">semana 31 de 2026</strong> en los cuatro padecimientos.</p></div><p class="arch-nota">Información histórica anterior a la ronda con corte de modelos en la semana 37 de 2026. Se retiraron de esta nota sus cifras y afirmaciones de desempeño, que no se verificaron con la asignación vigente; el original se conserva archivado.</p><a class="arch-link" href="Reports/index.html">Ver real vs pronóstico en la galería &rarr;</a></article>
+<article class="arch-item" id="nota-2026-07-21-ya-contamos-con-la-semana-epidemiologica-27-de-2" tabindex="-1"><div class="arch-meta"><span class="arch-date">21 de julio de 2026</span><span class="arch-tag">Datos</span></div><h2 class="arch-title"><a href="Reports/index.html">Ya contamos con la semana epidemiológica 27 de 2026</a></h2><div class="arch-body"><p>Se integró el Boletín SINAVE hasta la <strong style="color:var(--cream)">semana 27 de 2026</strong> en los cuatro padecimientos.</p></div><p class="arch-nota">Información histórica anterior a la ronda con corte de modelos en la semana 37 de 2026. Se retiraron de esta nota sus cifras y afirmaciones de desempeño, que no se verificaron con la asignación vigente; el original se conserva archivado.</p><a class="arch-link" href="Reports/index.html">Ver real vs pronóstico en la galería &rarr;</a></article>
+<article class="arch-item" id="nota-2026-07-08-ya-contamos-con-la-semana-epidemiologica-25-de-2" tabindex="-1"><div class="arch-meta"><span class="arch-date">8 de julio de 2026</span><span class="arch-tag">Datos</span></div><h2 class="arch-title"><a href="Reports/index.html">Ya contamos con la semana epidemiológica 25 de 2026</a></h2><div class="arch-body"><p>Se integró el Boletín SINAVE hasta la <strong style="color:var(--cream)">semana 25 de 2026</strong> en los cuatro padecimientos.</p></div><p class="arch-nota">Información histórica anterior a la ronda con corte de modelos en la semana 37 de 2026. Se retiraron de esta nota sus cifras y afirmaciones de desempeño, que no se verificaron con la asignación vigente; el original se conserva archivado.</p><a class="arch-link" href="Reports/index.html">Ver real vs pronóstico en la galería &rarr;</a></article>
+<article class="arch-item" id="nota-2026-06-30-ya-contamos-con-la-semana-epidemiologica-24-de-2" tabindex="-1"><div class="arch-meta"><span class="arch-date">30 de junio de 2026</span><span class="arch-tag">Datos</span></div><h2 class="arch-title"><a href="Reports/index.html">Ya contamos con la semana epidemiológica 24 de 2026</a></h2><div class="arch-body"><p>Se integró el Boletín SINAVE hasta la <strong style="color:var(--cream)">semana 24 de 2026</strong> en los cuatro padecimientos.</p></div><p class="arch-nota">Información histórica anterior a la ronda con corte de modelos en la semana 37 de 2026. Se retiraron de esta nota sus cifras y afirmaciones de desempeño, que no se verificaron con la asignación vigente; el original se conserva archivado.</p><a class="arch-link" href="Reports/index.html">Ver real vs pronóstico en la galería &rarr;</a></article>
+<article class="arch-item" id="nota-2026-06-11-ya-contamos-con-la-semana-epidemiologica-21-de-2" tabindex="-1"><div class="arch-meta"><span class="arch-date">11 de junio de 2026</span><span class="arch-tag">Datos</span></div><h2 class="arch-title"><a href="Reports/index.html">Ya contamos con la semana epidemiológica 21 de 2026</a></h2><div class="arch-body"><p>Se integró el Boletín SINAVE hasta la <strong style="color:var(--cream)">semana 21 de 2026</strong> en los cuatro padecimientos.</p></div><p class="arch-nota">Información histórica anterior a la ronda con corte de modelos en la semana 37 de 2026. Se retiraron de esta nota sus cifras y afirmaciones de desempeño, que no se verificaron con la asignación vigente; el original se conserva archivado.</p><a class="arch-link" href="Reports/index.html">Ver real vs pronóstico en la galería &rarr;</a></article>
+<article class="arch-item" id="nota-2026-06-06-galeria-de-pronosticos-renovada" tabindex="-1"><div class="arch-meta"><span class="arch-date">6 de junio de 2026</span><span class="arch-tag">Reportes</span></div><h2 class="arch-title"><a href="Reports/index.html">Galería de pronósticos renovada</a></h2><div class="arch-body"><p>La sección de <strong style="color:var(--cream)">Reportes</strong> estrena la vista <strong style="color:var(--cream)">Zoom 52 Semanas</strong> (realidad contra pronóstico hasta la semana vigente, interactiva en el visor), con <strong style="color:var(--cream)">banda de confianza</strong> sobre el tramo a futuro. Se incorporaron los <strong style="color:var(--cream)">cuatro clústeres regionales del Dengue</strong> (calculados al agregar sus estados), se marca la <strong style="color:var(--cream)">banda COVID</strong> en todas las series y los ciclos de <strong style="color:var(--cream)">El Niño y La Niña</strong> en Dengue. Las secciones quedaron ordenadas Nacional, Estatal y Regional.</p></div><p class="arch-nota">Información histórica anterior a la ronda con corte de modelos en la semana 37 de 2026. Se retiraron de esta nota sus cifras y afirmaciones de desempeño, que no se verificaron con la asignación vigente; el original se conserva archivado.</p><a class="arch-link" href="Reports/index.html">Ver la galería de pronósticos &rarr;</a></article>
+<article class="arch-item" id="nota-2026-06-05-re-seleccion-de-motores-sobre-pronosticos-fresco" tabindex="-1"><div class="arch-meta"><span class="arch-date">5 de junio de 2026</span><span class="arch-tag">Modelos</span></div><h2 class="arch-title"><a href="reporte_resultados.html">Re-selección de motores sobre pronósticos frescos</a></h2><div class="arch-body"><p>Tras republicar los pronósticos, se volvió a elegir el motor productivo de las <strong style="color:var(--cream)">333 series neuronales</strong> contra la realidad del Boletín SINAVE 2026. Resultado: <strong style="color:var(--cream)">142 reasignaciones</strong> y una nueva distribución productiva (DeepAR 98, Prophet 94, Ensemble 85, Stacking 56).</p></div><p class="arch-nota">Información histórica anterior a la ronda con corte de modelos en la semana 37 de 2026. Se retiraron de esta nota sus cifras y afirmaciones de desempeño, que no se verificaron con la asignación vigente; el original se conserva archivado.</p><a class="arch-link" href="reporte_resultados.html">Ver resultados &rarr;</a></article>
+<article class="arch-item arch-item--featured" id="nota-2026-06-04-el-dengue-ya-esta-en-produccion-en-epiforecast-m" tabindex="-1"><div class="arch-meta"><span class="arch-date">4 de junio de 2026</span><span class="arch-tag">Nueva línea</span></div><h2 class="arch-title"><a href="dengue.html">El Dengue ya está en producción en EpiForecast-MX</a></h2><div class="arch-body"><p>El <strong style="color:var(--cream)">Dengue</strong> se incorpora como cuarto padecimiento y primera enfermedad transmitida por vector del proyecto. Se construyó y validó la <strong style="color:var(--cream)">serie histórica semanal del dengue confirmado (2018 a 2026, las 32 entidades federativas)</strong> directamente desde los boletines del SINAVE, contrastada celda por celda. Con respaldo en la literatura, se modela de forma agregada (en conteos absolutos). Se entrenaron <strong style="color:var(--cream)">cinco motores</strong> y en producción quedan <strong style="color:var(--cream)">DeepAR, Prophet y NB-GLM</strong> (el nuevo motor de conteos con el regresor de El Niño; los modelos de árboles no extrapolan la dinámica epidémica). El asistente EpiBot también responde sobre Dengue y muestra sus gráficas.</p></div><p class="arch-nota">Información histórica anterior a la ronda con corte de modelos en la semana 37 de 2026. Se retiraron de esta nota sus cifras y afirmaciones de desempeño, que no se verificaron con la asignación vigente; el original se conserva archivado.</p><a class="arch-link" href="dengue.html">Ver el pronóstico de Dengue &rarr;</a></article>
+<article class="arch-item" id="nota-2026-05-29-epiforecast-mx-estrena-dominio-propio-epiforecas" tabindex="-1"><div class="arch-meta"><span class="arch-date">29 de mayo de 2026</span><span class="arch-tag">Plataforma</span></div><h2 class="arch-title"><a href="epibot/index.html">EpiForecast-MX estrena dominio propio: epiforecast.mx</a></h2><div class="arch-body"><p>El proyecto migra a su dominio definitivo. Toda la plataforma (dashboard, pronósticos, reportes y el asistente EpiBot) queda disponible bajo <strong style="color:var(--cream)">epiforecast.mx</strong>. El chatbot ahora vive en <strong style="color:var(--cream)">epiforecast.mx/epibot/</strong> y los enlaces previos redirigen de forma automática.</p></div><a class="arch-link" href="epibot/index.html">Conocer EpiBot &rarr;</a></article>
+<article class="arch-item" id="nota-2026-05-28-epibot-ahora-responde-con-rag-real" tabindex="-1"><div class="arch-meta"><span class="arch-date">28 de mayo de 2026</span><span class="arch-tag">EpiBot</span></div><h2 class="arch-title"><a href="epibot/index.html">EpiBot ahora responde con RAG real</a></h2><div class="arch-body"><p>El asistente incorpora Retrieval-Augmented Generation con grounding y citas sobre el corpus del proyecto (embeddings de Gemini, reindexado en cada despliegue). Suma gráficas en vivo dentro del chat y voz (reconocimiento y síntesis).</p></div><a class="arch-link" href="epibot/index.html">Hablar con EPI &rarr;</a></article>
+<article class="arch-item" id="nota-2026-05-21-epiforecast-mx-aceptado-para-presentacion-oral-e" tabindex="-1"><div class="arch-meta"><span class="arch-date">21 de mayo de 2026</span><span class="arch-tag">Internacional</span></div><h2 class="arch-title"><a href="future_health.html">EpiForecast-MX, aceptado para presentación oral en Europa</a></h2><div class="arch-body"><p>El enfoque del proyecto fue <strong style="color:var(--cream)">aceptado como ponencia oral</strong> en la <strong style="color:var(--cream)">2nd Public Health Conference</strong> (Public Health Futures), con la 2nd HSG Europe Preconference, celebrada en <strong style="color:var(--cream)">Skopje, Macedonia del Norte</strong>. El mismo trabajo que ganó el primer lugar en HELIX México llega así a un foro europeo de salud pública.</p></div><a class="arch-link" href="future_health.html">Ver noticia &rarr;</a></article>
+<article class="arch-item" id="nota-2026-05-20-primer-lugar-en-el-international-summit-helix-20" tabindex="-1"><div class="arch-meta"><span class="arch-date">20 de mayo de 2026</span><span class="arch-tag">Reconocimiento</span></div><h2 class="arch-title"><a href="helix.html">Primer lugar en el International Summit HELIX 2026 México</a></h2><div class="arch-body"><p>EpiForecast-MX obtuvo el <strong style="color:var(--cream)">primer lugar</strong> en el International Summit HELIX 2026 México, foro internacional de innovación y educación continua en salud. La <strong style="color:var(--cream)">Dra. Ruth Manuela Pérez Hernández</strong> y <strong style="color:var(--cream)">Juan Carlos Pérez Nava</strong> expusieron en Cuernavaca el enfoque del equipo para transitar de la vigilancia epidemiológica clásica al pronóstico con inteligencia artificial.</p></div><a class="arch-link" href="helix.html">Ver noticia &rarr;</a></article>
+<article class="arch-item" id="nota-2026-04-30-re-seleccion-de-motores-con-realidad-2026" tabindex="-1"><div class="arch-meta"><span class="arch-date">30 de abril de 2026</span><span class="arch-tag">Modelos</span></div><h2 class="arch-title"><a href="comparacion_modelos.html">Re-selección de motores con realidad 2026</a></h2><div class="arch-body"><p>Los 333 modelos de producción de la cohorte neurológica se reevaluaron contra los datos reales del Boletín SINAVE 2026 (SMAPE 2026 como criterio primario, MASE como desempate). El resultado: 227 reasignaciones y una redistribución de los motores productivos.</p></div><a class="arch-link" href="comparacion_modelos.html">Ver comparación &rarr;</a></article>
+<article class="arch-item" id="nota-sin-fecha-boletin-sinave-integrado-automaticamente" tabindex="-1"><div class="arch-meta"><span class="arch-date">Actualización semanal</span><span class="arch-tag">Datos</span></div><h2 class="arch-title"><a href="validacion_semanal.html">Boletín SINAVE integrado automáticamente</a></h2><div class="arch-body"><p>Un pipeline de scraping diario incorpora cada boletín nuevo y regenera el conocimiento del sitio, manteniendo los pronósticos al día con el corte epidemiológico más reciente del Boletín SINAVE.</p></div><a class="arch-link" href="validacion_semanal.html">Validación semanal &rarr;</a></article>
+<!-- noticias:archivo:end --></div>
     </section>
   </main>
 
-  <footer class="footer">
-    <div class="footer-brand">EpiForecast<span>-MX</span></div>
-    <div class="footer-divider"></div>
-    <p>
-      Proyecto capstone de la Maestría en Inteligencia Artificial Aplicada<br>
-      Tecnológico de Monterrey × Instituto Mexicano del Seguro Social
-    </p>
-    <div class="footer-links">
-      <a href="#hero">Inicio</a>
-      <a href="novedades.html">Novedades</a>
-      <a href="dengue.html">Dengue</a>
-      <a href="EpiDashboard.html">Dashboard</a>
-      <a href="Reports/index.html">Pronósticos</a>
-      <a href="reporte_resultados.html">Resultados</a>
-      <a href="bitacora_modelado.html">Bitácora</a>
-      <a href="comparacion_modelos.html">Comparación</a>
-      <a href="ficha_tecnica_prophet.html">Ficha Prophet</a>
-      <a href="metodologia_dengue.html">Metodología Dengue</a>
-      <a href="hiperparametros_modelos.html">HPs SageMaker</a>
-      <a href="construccion_dashboard.html">Arquitectura Dashboard</a>
-      <a href="validacion_semanal.html">Validación Semanal</a>
-      <a href="auditoria_remediacion_2026.html">Auditoría</a>
-      <a href="conclusiones.html">Conclusiones</a>
-      <a href="referencias.html">Referencias</a>
-      <a href="epibot/index.html">EPI Chatbot</a>
-      <a href="https://github.com/IntegradorIMSS2026Team01" target="_blank" rel="noopener">GitHub</a>
+  <!-- site:footer:start -->
+<footer class="site-footer" lang="es">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <a class="site-brand" href="index.html" aria-label="EpiForecast-MX, inicio"><span class="site-brand__name"><span class="site-brand__word">EpiForecast<span class="site-brand__mx">MX</span></span></span></a>
+      <p>Datos oficiales. Investigación abierta. Una mirada informada a la salud de México.</p>
     </div>
-    <p style="margin-top:1.5rem; font-size:0.75rem; opacity:0.5;">
-      © 2026 EpiForecast-MX · epiforecast.mx · Todos los derechos reservados.<br>
-      Tema Clinical Indigo 2026 · Identidad visual EpiForecast-MX.
-    </p>
-  </footer>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Explorar</p>
+      <a href="Reports/index.html">Galería de pronósticos</a>
+      <a href="epibot/index.html">Pregúntale a EPI</a>
+      <a href="EpiDashboard.html">Dashboard</a>
+      <a href="boletin.html">Radar del boletín</a>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Evidencia</p>
+      <a href="validacion_semanal.html">Validación semanal</a>
+      <a href="reporte_resultados.html">Resultados</a>
+      <a href="referencias.html">Fuentes y referencias</a>
+      <a href="rechazados.html">Analizados y rechazados</a>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Proyecto</p>
+      <a href="novedades.html">Noticias</a>
+      <a href="index.html#congresos">Congresos</a>
+      <a href="EpiDashboard-tableau.html">Archivo Tableau (corte W31)</a>
+      <a href="https://github.com/IntegradorIMSS2026Team01" rel="noopener" target="_blank">GitHub ↗</a>
+    </div>
+  </div>
+  <div class="site-footer__legal"><span>© 2026 EpiForecast-MX · Tecnológico de Monterrey · IMSS · SINAVE</span><a href="#nav">Volver arriba ↑</a></div>
+</footer>
+<!-- site:footer:end -->
 
   <script>
     // Nav scroll effect
@@ -3006,10 +2677,12 @@
     });
   </script>
 
+  <script src="assets/site/nota-ancla.js?v=1"></script>
   <script>
     (function(){function esc(s){return String(s==null?'':s);}
-    function ih(it,i){var f=(i===0||it.featured)?' arch-item--featured':'';var b=(it.body||[]).map(function(p){return '<p>'+esc(p)+'</p>';}).join('');var h=(it.link&&it.link.href)||'#';var l=(it.link&&it.link.text)||'Leer más';return '<article class="arch-item'+f+'"><div class="arch-meta"><span class="arch-date">'+esc(it.date)+'</span><span class="arch-tag">'+esc(it.tag)+'</span></div><h2 class="arch-title"><a href="'+esc(h)+'">'+esc(it.title)+'</a></h2><div class="arch-body">'+b+'</div>'+(it.historico?'<p class="arch-nota">'+esc(it.nota_historica)+'</p>':'')+'<a class="arch-link" href="'+esc(h)+'">'+esc(l)+' &rarr;</a></article>';}
-    fetch('news.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(d){if(!d||!Array.isArray(d.items))return;var g=document.getElementById('newsGrid');if(g)g.innerHTML=d.items.map(ih).join('');}).catch(function(){});})();
+    function ih(it,i,ids){var f=(i===0||it.featured)?' arch-item--featured':'';var b=(it.body||[]).map(function(p){return '<p>'+esc(p)+'</p>';}).join('');var h=(it.link&&it.link.href)||'#';var l=(it.link&&it.link.text)||'Leer más';return '<article class="arch-item'+f+'" id="'+ids[i]+'" tabindex="-1"><div class="arch-meta"><span class="arch-date">'+esc(it.date)+'</span><span class="arch-tag">'+esc(it.tag)+'</span></div><h2 class="arch-title"><a href="'+esc(h)+'">'+esc(it.title)+'</a></h2><div class="arch-body">'+b+'</div>'+(it.historico?'<p class="arch-nota">'+esc(it.nota_historica)+'</p>':'')+'<a class="arch-link" href="'+esc(h)+'">'+esc(l)+' &rarr;</a></article>';}
+    fetch('news.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():null;}).then(function(d){if(!d||!Array.isArray(d.items))return;var g=document.getElementById('newsGrid');if(!g||!window.EpiNotas)return;var ids=window.EpiNotas.anclas(d.items);g.innerHTML=d.items.map(function(it,i){return ih(it,i,ids);}).join('');var h=location.hash.slice(1),t=h&&document.getElementById(h);if(t&&g.contains(t)){t.scrollIntoView();t.focus({preventScroll:true});}}).catch(function(){});})();
   </script>
+<script src="assets/site/site-nav.js?v=4"></script>
 </body>
 </html>

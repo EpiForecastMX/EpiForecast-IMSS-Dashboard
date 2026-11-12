@@ -5,11 +5,70 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EpiForecast-MX — Tumor maligno de la mama (C50) · Pronóstico semanal</title>
   <meta name="description" content="Pronóstico semanal de casos de tumor maligno de la mama (CIE-10 C50) reportados al SINAVE para las 32 entidades de México, por sexo, a 52 semanas. Se publica el control estacional, sin intervalos de incertidumbre." />
-<link rel="stylesheet" href="disease.css?v=20261111ux1">
+<link rel="stylesheet" href="assets/site/site.css?v=5">
+<link rel="stylesheet" href="disease.css?v=20261112h3">
 
 </head>
-<body class="disease-page disease-control">
-<a class="skip" href="#explorador">Saltar a la gráfica</a><nav class="disease-nav" id="nav" aria-label="Navegación principal"><div class="disease-nav-in"><a class="brand" href="index.html" aria-label="EpiForecast-MX, inicio"><span class="brand-symbol" aria-hidden="true">E<span>+</span></span><span>EpiForecast<span class="brand-mx">MX</span><small>Inteligencia epidemiológica</small></span></a><div class="disease-nav-links"><a href="index.html">Inicio</a><a href="boletin.html">Radar del boletín</a><a href="Reports/index.html">Pronósticos</a><a href="epibot/index.html">Pregúntale a EPI</a></div></div></nav>
+<body class="disease-page">
+<a class="skip" href="#explorador">Saltar a la gráfica</a>
+<!-- site:header:start -->
+<header class="site-header" id="nav" lang="es">
+  <div class="site-header__inner">
+    <a class="site-brand" href="index.html" aria-label="EpiForecast-MX, inicio"><span class="site-brand__symbol" aria-hidden="true">E<span>+</span></span><span class="site-brand__name"><span class="site-brand__word">EpiForecast<span class="site-brand__mx">MX</span></span><small>Inteligencia epidemiológica</small></span></a>
+    <nav class="site-nav" aria-label="Navegación principal">
+      <ul class="nav-menu">
+        <li><a href="Reports/index.html" aria-current="true">Galería</a></li>
+        <li><a href="epibot/index.html">EpiBot</a></li>
+        <li><a href="EpiDashboard.html">Dashboard</a></li>
+        <li><a href="boletin.html">Radar del boletín</a></li>
+        <li><a href="novedades.html">Noticias</a></li>
+        <li class="nav-group">
+          <button type="button" class="nav-group__toggle" aria-expanded="false" aria-controls="navGroup-congresos">Congresos</button>
+          <ul class="nav-group__list" id="navGroup-congresos">
+            <li><a href="wcp2026.html">WCP 2026 · Estocolmo</a></li>
+            <li><a href="micai2026.html">MICAI 2026 · Chihuahua</a></li>
+            <li><a href="calass.html">CALASS 2026 · Montréal</a></li>
+            <li><a href="index.html#congresos">Todos los congresos</a></li>
+          </ul>
+        </li>
+        <li class="nav-group">
+          <button type="button" class="nav-group__toggle" aria-expanded="false" aria-controls="navGroup-mas">Más</button>
+          <ul class="nav-group__list" id="navGroup-mas">
+            <li><a href="index.html#diseases">Padecimientos</a></li>
+            <li><a href="index.html#metodologia">Evidencia y método</a></li>
+            <li><a href="index.html#about">Proyecto y equipo</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+    <button type="button" class="site-nav__toggle" aria-controls="navMobile" aria-expanded="false"><span class="site-nav__toggle-icon" aria-hidden="true"></span><span class="site-nav__toggle-text">Menú</span></button>
+  </div>
+  <div id="navMobile" class="site-nav__mobile">
+    <div class="nav-mobile-items">
+      <a class="nav-mobile-link" href="Reports/index.html" aria-current="true">Galería</a>
+      <a class="nav-mobile-link" href="epibot/index.html">EpiBot</a>
+      <a class="nav-mobile-link" href="EpiDashboard.html">Dashboard</a>
+      <a class="nav-mobile-link" href="boletin.html">Radar del boletín</a>
+      <a class="nav-mobile-link" href="novedades.html">Noticias</a>
+      <p class="nav-mobile-group">Congresos</p>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="wcp2026.html">WCP 2026 · Estocolmo</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="micai2026.html">MICAI 2026 · Chihuahua</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="calass.html">CALASS 2026 · Montréal</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#congresos">Todos los congresos</a>
+      <p class="nav-mobile-group">Más</p>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#diseases">Padecimientos</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#metodologia">Evidencia y método</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#about">Proyecto y equipo</a>
+    </div>
+  </div>
+</header>
+<!-- site:header:end -->
+<nav class="ficha-context" aria-label="Cáncer de mama en otras herramientas">
+  <div class="wrap ficha-context__inner">
+    <a href="index.html#diseases">Padecimientos</a><span aria-hidden="true">/</span><span aria-current="page">Cáncer de mama</span>
+    <span class="ficha-context__links"><a href="Reports/index.html?p=cancer_mama_c50&amp;s=general&amp;t=nacional">Ver en la Galería</a><a href="EpiDashboard.html?vista=explorar&amp;p=cancer_mama_c50&amp;s=general&amp;t=nacional">Abrir en el Dashboard</a></span>
+  </div>
+</nav>
 
   <main>
   <header class="hero">
@@ -21,7 +80,7 @@
       <div class="status-card" id="statusCard">
         <div class="status-badge">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          <span id="pubLabel">Cargando el estado de la validación…</span>
+          <span class="status-text"><strong id="pubKind" class="status-kind" hidden></strong> <span id="pubLabel">Cargando el estado de la validación…</span></span>
         </div>
         <ul class="status-notes">
           <li><strong>Pronóstico congelado:</strong> usa datos hasta la <span id="originTxt">W41 de 2026</span> y se emitió el <span id="emitTxt">8 de noviembre de 2026</span>; no se ha reentrenado ni ajustado con datos posteriores.</li>
@@ -118,14 +177,41 @@
   </section>
 
 </main>
-  <footer>
-    <div class="wrap">
-      <div class="t">EpiForecast-MX · IMSS 2026</div>
-      <div class="s">Inteligencia epidemiológica multi-modelo · Tecnológico de Monterrey</div>
+<!-- site:footer:start -->
+<footer class="site-footer" lang="es">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <a class="site-brand" href="index.html" aria-label="EpiForecast-MX, inicio"><span class="site-brand__name"><span class="site-brand__word">EpiForecast<span class="site-brand__mx">MX</span></span></span></a>
+      <p>Datos oficiales. Investigación abierta. Una mirada informada a la salud de México.</p>
     </div>
-  </footer>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Explorar</p>
+      <a href="Reports/index.html">Galería de pronósticos</a>
+      <a href="epibot/index.html">Pregúntale a EPI</a>
+      <a href="EpiDashboard.html">Dashboard</a>
+      <a href="boletin.html">Radar del boletín</a>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Evidencia</p>
+      <a href="validacion_semanal.html">Validación semanal</a>
+      <a href="reporte_resultados.html">Resultados</a>
+      <a href="referencias.html">Fuentes y referencias</a>
+      <a href="rechazados.html">Analizados y rechazados</a>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Proyecto</p>
+      <a href="novedades.html">Noticias</a>
+      <a href="index.html#congresos">Congresos</a>
+      <a href="EpiDashboard-tableau.html">Archivo Tableau (corte W31)</a>
+      <a href="https://github.com/IntegradorIMSS2026Team01" rel="noopener" target="_blank">GitHub ↗</a>
+    </div>
+  </div>
+  <div class="site-footer__legal"><span>© 2026 EpiForecast-MX · Tecnológico de Monterrey · IMSS · SINAVE</span><a href="#nav">Volver arriba ↑</a></div>
+</footer>
+<!-- site:footer:end -->
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="assets/site/estado-ficha.js?v=1"></script>
   <script>
   (function () {
     'use strict';
@@ -280,7 +366,9 @@
     }
 
     function cabecera() {
-      $('pubLabel').textContent = V.publication_label;
+      // Estado desde la vista actual (misma regla que el Dashboard y la Galería): data-verdict y
+      // data-publication-kind en la tarjeta; disease.css los colorea. Ver assets/site/estado-ficha.js.
+      EpiEstadoFicha.aplica($('statusCard'), V);
       $('originTxt').textContent = `W${V.origin[1]} de ${V.origin[0]}`;
       if (V.forecast_emitted_at) {
         $('emitTxt').textContent = new Date(V.forecast_emitted_at).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City', day: 'numeric', month: 'long', year: 'numeric' });
@@ -333,5 +421,6 @@
   })();
   </script>
 
+<script src="assets/site/site-nav.js?v=4"></script>
 </body>
 </html>

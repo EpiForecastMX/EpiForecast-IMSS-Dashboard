@@ -10,7 +10,10 @@
 # Vive aquí y no dentro de `rag:ci` porque aquella cadena tiene un contrato propio y
 # probado: sin clave NO construye pero SÍ verifica el índice commiteado, y anteponerle
 # un paso que puede fallar dejaría esa verificación sin correr (el falso verde R68-P0).
-command = "npm run test:dashboard && npm run test:boletin && cd epibot && npm install && npm run cifras:test && npm run deploy:verify"
+# test:site (cabecera/pie generados, portada y galería) va después de test:dashboard, que construye
+# assets/dashboard/catalog.json del que dependen las pruebas de la galería. `npm test` de epibot (EPI,
+# citas de fuentes, intenciones migradas de la galería y el RAG por corpus) corre tras su npm install.
+command = "npm run test:dashboard && npm run test:boletin && npm run test:site && cd epibot && npm install && npm test && npm run cifras:test && npm run deploy:verify"
 
 [functions]
   node_bundler = "esbuild"
@@ -113,6 +116,18 @@ command = "npm run test:dashboard && npm run test:boletin && cd epibot && npm in
 
 [[headers]]
   for = "/Reports/*.json"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Módulos de la galería (galeria.mjs, galeria_core.mjs): /Reports/*.js no cubre .mjs.
+[[headers]]
+  for = "/Reports/*.mjs"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# Capa común del sitio (tokens, cabecera, pie): cambia con cada migración de familias.
+[[headers]]
+  for = "/assets/site/*"
   [headers.values]
     Cache-Control = "public, max-age=0, must-revalidate"
 

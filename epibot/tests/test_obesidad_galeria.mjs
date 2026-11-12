@@ -47,11 +47,14 @@ test('Obesidad no entra en la lista contractual DATA ni pinta métricas en la ga
   const data = JSON.parse(html.match(/^const DATA = (\[.*\]);$/m)[1]);
   assert.equal(data.length, 432);
   assert.ok(!data.some((d) => /obesidad/i.test(d.p)));
-  // Integrada en los niveles existentes, no como sección aparte.
+  // Integrada en los niveles existentes, no como sección aparte. Migración del piloto (nov-2026):
+  // la galería por padecimiento (galeria.mjs + galeria_core.mjs) reparte releases y cohorte
+  // original en los mismos niveles; tests/galeria.test.mjs lo comprueba con la vista real.
   assert.doesNotMatch(html, /id="secObesidad"/);
-  for (const f of ['renderNacional(nac, obeNac)', 'renderRegional(reg, obeReg)', 'renderEstatal(est, obeEst)']) assert.ok(html.includes(f), f);
-  assert.match(html, /<script src="obesidad_galeria\.js\?v=\d+"><\/script>/);
-  assert.doesNotMatch(leer('Reports/obesidad_galeria.js'), /\.oos\b|smape|mase/i);
+  assert.match(html, /<script type="module" src="galeria\.mjs\?v=\d+"><\/script>/);
+  for (const f of ['Reports/obesidad_galeria.js', 'Reports/galeria.mjs', 'Reports/galeria_core.mjs']) {
+    assert.doesNotMatch(leer(f), /\.oos\b|smape|mase/i, f);
+  }
 });
 
 test('la noticia de Obesidad y su acceso siguen disponibles en el diseño actual', () => {
@@ -83,9 +86,12 @@ test('cada estado de Obesidad cae en el acordeón de la galería con el mismo no
 });
 
 test('la Figura 1 de la portada añade Obesidad desde su vista sin tocar hero_series.json', () => {
-  const portada = leer('index.html');
-  assert.match(portada, /fetch\('publication\/' \+ cfg\.id \+ '\/vista\.json'/);
-  assert.match(portada, /function serieRelease\(v, cfg\)/);
+  // Migración del piloto: la vista previa vive en home-preview.js (cargada por la portada) y pide
+  // la vista SÓLO al elegir el release; tests/home.test.mjs cuenta las peticiones.
+  assert.match(leer('index.html'), /<script (?:defer )?src="home-preview\.js\?v=\d+"><\/script>/);
+  const preview = leer('home-preview.js');
+  assert.match(preview, /load\('publication\/' \+ cfg\.id \+ '\/vista\.json'[,)]/);
+  assert.match(preview, /function serieRelease\(v, cfg\)/);
   assert.equal(JSON.parse(leer('hero_series.json')).series.length, 4);
 });
 

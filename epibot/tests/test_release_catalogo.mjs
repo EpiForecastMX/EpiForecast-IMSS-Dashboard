@@ -76,11 +76,28 @@ test('la galería crea una instancia por release', () => {
 });
 
 test('galería y portada no conservan listas propias de releases', () => {
+  // Migración del piloto (nov-2026): la galería lista los padecimientos desde el catálogo del
+  // dashboard (assets/dashboard/catalog.json, derivado de publication/catalog.json) y la portada
+  // desde release_catalog.js. Ninguna de las dos escribe a mano un release.
   const galeria = leer('Reports/index.html');
   assert.doesNotMatch(galeria, /<option value="Diabetes/);
-  assert.match(galeria, /release_catalog\.js\?v=\d+"><\/script>\n<script src="obesidad_galeria/);
-  assert.match(galeria, /GaleriasRelease\.forEach\(g => document\.getElementById\('filterPad'\)/);
+  for (const r of ['obesidad', 'diabetes_t1', 'asma_j45', 'cancer_mama_c50']) {
+    assert.ok(!galeria.includes(`"${r}"`) && !galeria.includes(`'${r}'`), `la galería no nombra ${r}`);
+  }
+  assert.match(leer('Reports/galeria.mjs'), /const CATALOG_URL = '\.\.\/assets\/dashboard\/catalog\.json';/);
   const portada = leer('index.html');
-  assert.match(portada, /var RELEASES_FIGURA = window\.EPI_CATALOGO\.releases\.map/);
+  assert.match(leer('home-preview.js'), /win\.EPI_CATALOGO \? win\.EPI_CATALOGO\.releases : \[\]\)\.map/);
   assert.match(portada, /release_catalog\.js\?v=\d+"><\/script>\n<\/head>/);
+});
+
+test('la vista previa de la portada ofrece el release nuevo sin tocarla', async () => {
+  const ctx = { console, Map, Promise, globalThis: null };
+  ctx.globalThis = ctx;
+  vm.runInNewContext(`${conSintetico}\n${leer('home-preview.js')}`, ctx);
+  const releases = ctx.EPI_CATALOGO.releases.map((r) => ({ id: r.id, label: r.nombreCorto, cie: r.cie }));
+  const hero = JSON.parse(leer('hero_series.json'));
+  const m = ctx.EpiPreview.crearModelo({ fetchJson: async () => hero, releases });
+  const grupos = await m.iniciar();
+  assert.ok(grupos[1].items.some((it) => it.value === 'release:sintetico_x'));
+  assert.equal(grupos[0].items.length + grupos[1].items.length, 4 + ctx.EPI_CATALOGO.releases.length);
 });

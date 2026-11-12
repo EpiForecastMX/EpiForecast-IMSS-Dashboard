@@ -1,0 +1,180 @@
+/* site.css — identidad común de EpiForecast-MX: tokens, tipografía, cabecera y pie.
+ *
+ * Base clara (blanco cálido) y verde institucional, con la misma familia tipográfica que el
+ * dashboard (system-ui + Georgia en los énfasis). Las páginas añaden su propia hoja después de
+ * ésta; aquí no hay reglas universales sobre canvas ni capas de !important.
+ * Paleta de series: tokens presentacionales (--series-*) con contraste ≥ 3:1 sobre --paper y
+ * --white; los colores incrustados en los datos publicados no se usan para dibujar.
+ */
+:root {
+  --ink: #173c33;
+  --body: #40594f;
+  --muted: #5b6f66;
+  --green: #17644d;
+  --green-dark: #0f4938;
+  --mint: #e8f1e9;
+  --tint: #f1f6ef;
+  --line: #dbe3dc;
+  --line-strong: #bdcebf; /* separadores suaves, nunca único indicador de un control */
+  --control-border: #6f8579; /* borde de controles interactivos: ≥ 3:1 sobre blanco, papel y mint */
+  --paper: #fafbf7;
+  --white: #fff;
+  --gold: #d9b864;
+  --brand-gold: #d9b864; /* nombre propio del shell: algunas apps redefinen --gold */
+  --gold-soft: #f7f0dc;
+  --gold-ink: #7d5f17;
+  --focus: #b28224;
+  --danger: #a3282b;
+  --c-obs: #173c33;
+  --series-1: #2f5f9e;
+  --series-2: #0f6e66;
+  --series-3: #a3367a;
+  --series-4: #9a5200;
+  --series-5: #6a4aa6;
+  --series-6: #b0322f;
+  --series-7: #3d6b1f;
+  --series-8: #1d5f86;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 6px 24px rgb(23 60 51 / 6%);
+  --sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --serif: Georgia, 'Times New Roman', serif;
+  --wrap: 1240px;
+  --gutter: clamp(18px, 4vw, 40px);
+  color: var(--ink);
+  background: var(--paper);
+  font-family: var(--sans);
+  font-synthesis: none;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 88px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; font-size: 16px; line-height: 1.6; color: var(--ink); background: var(--paper); }
+img { max-width: 100%; height: auto; }
+button, input, select { font: inherit; color: inherit; }
+a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+:where(a, button, input, select, summary, [tabindex]):focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 3px; }
+[hidden] { display: none !important; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+.skip { position: fixed; top: -100px; left: 16px; z-index: 200; padding: 10px 14px; background: var(--white); color: var(--ink); border: 2px solid var(--green); border-radius: var(--radius-sm); }
+.skip:focus { top: 12px; }
+
+.wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter); }
+.eyebrow { display: block; margin: 0 0 12px; color: var(--green); font-size: 12px; font-weight: 750; letter-spacing: .14em; text-transform: uppercase; }
+.serif-em { font-family: var(--serif); font-style: italic; font-weight: 400; color: var(--green); letter-spacing: -.01em; }
+
+.btn { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 10px 18px; border: 1px solid transparent; border-radius: 999px; font-weight: 650; text-decoration: none; cursor: pointer; transition: background-color .15s, color .15s, border-color .15s; }
+.btn--primary { background: var(--green); color: var(--white); }
+.btn--primary:hover { background: var(--green-dark); }
+.btn--ghost { background: var(--white); color: var(--green-dark); border-color: var(--control-border); }
+.btn--ghost:hover { background: var(--mint); }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
+.text-link { color: var(--green-dark); font-weight: 650; text-decoration: underline; text-decoration-color: var(--control-border); }
+.text-link--target { display: inline-flex; align-items: center; min-height: 44px; }
+summary { min-height: 44px; }
+.text-link:hover { text-decoration-color: currentColor; }
+
+/* ── Cabecera común ───────────────────────────────────────────────────────── */
+.site-header { position: static; z-index: 50; background: rgb(250 251 247 / 94%); border-bottom: 1px solid var(--line); backdrop-filter: saturate(1.2) blur(8px); }
+.site-header[data-enhanced] { position: sticky; top: 0; }
+.site-header__inner { display: flex; align-items: center; gap: 20px; max-width: var(--wrap); min-height: 68px; margin: 0 auto; padding: 0 var(--gutter); }
+.site-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; flex: none; min-height: 44px; }
+.site-brand__symbol { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 9px; background: var(--green); color: var(--white); font-weight: 800; font-size: 17px; line-height: 1; }
+.site-brand__symbol span { position: absolute; top: 3px; right: 4px; color: var(--brand-gold); font-size: 11px; line-height: 1; }
+.site-brand__name { display: flex; flex-direction: column; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; }
+.site-brand__word { white-space: nowrap; }
+.site-brand__mx { margin-left: 3px; color: var(--green); }
+.site-brand__name small { font-size: 12px; font-weight: 550; letter-spacing: .02em; color: var(--muted); }
+.site-nav { flex: 1 1 auto; min-width: 0; display: flex; }
+.site-nav > .nav-menu { margin-left: auto; } /* alineado a la derecha sin desbordar hacia la marca */
+.nav-menu { display: flex; flex-wrap: nowrap; align-items: center; gap: 2px; margin: 0; padding: 0; list-style: none; white-space: nowrap; }
+.nav-menu > li { position: relative; }
+.nav-menu > li > a, .nav-group__toggle { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; border: 0; border-radius: 8px; background: none; color: var(--ink); font-size: 15px; font-weight: 600; text-decoration: none; cursor: pointer; }
+.nav-menu > li > a:hover, .nav-group__toggle:hover { background: var(--mint); }
+.nav-menu > li > a:is([aria-current="page"], [aria-current="true"]), .nav-group__toggle[data-current] { color: var(--green-dark); box-shadow: inset 0 -3px 0 var(--green); border-radius: 8px 8px 0 0; }
+.nav-group__toggle::after { content: ""; width: 7px; height: 7px; margin-left: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateY(-2px) rotate(45deg); }
+.nav-group__toggle[aria-expanded="true"]::after { transform: translateY(2px) rotate(-135deg); }
+.nav-group__list { position: absolute; right: 0; top: calc(100% + 6px); min-width: 250px; margin: 0; padding: 8px; list-style: none; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); display: none; }
+.nav-group__list a { display: block; padding: 10px 12px; border-radius: 6px; color: var(--ink); text-decoration: none; font-weight: 550; }
+.nav-group__list a:hover { background: var(--mint); }
+.site-header:not([data-enhanced]) .nav-group:hover .nav-group__list,
+.site-header:not([data-enhanced]) .nav-group:focus-within .nav-group__list,
+.site-header[data-enhanced] .nav-group.is-open .nav-group__list { display: block; }
+
+.site-nav__toggle { display: none; align-items: center; gap: 8px; min-height: 44px; margin-left: auto; padding: 8px 14px; border: 1px solid var(--control-border); border-radius: 999px; background: var(--white); color: var(--ink); font-weight: 650; cursor: pointer; }
+.site-nav__toggle-icon { width: 16px; height: 2px; background: currentColor; box-shadow: 0 -5px 0 currentColor, 0 5px 0 currentColor; }
+.site-nav__mobile { display: none; border-top: 1px solid var(--line); background: var(--white); }
+/* Dentro del header sticky: nunca más alto que el viewport; desplazamiento propio (360×640, zoom 200 %). */
+.site-header[data-enhanced] .site-nav__mobile { max-height: calc(100vh - var(--site-header-h, 68px)); max-height: calc(100dvh - var(--site-header-h, 68px)); overflow-y: auto; overscroll-behavior: contain; }
+.nav-mobile-items { display: flex; flex-direction: column; max-width: var(--wrap); margin: 0 auto; padding: 10px var(--gutter) 18px; }
+.nav-mobile-link { display: flex; align-items: center; min-height: 44px; padding: 8px 4px; border-bottom: 1px solid var(--line); color: var(--ink); font-weight: 600; text-decoration: none; }
+.nav-mobile-link:is([aria-current="page"], [aria-current="true"]) { color: var(--green-dark); font-weight: 750; }
+.nav-mobile-link--sub { padding-left: 16px; font-weight: 500; }
+.nav-mobile-group { margin: 14px 0 2px; color: var(--muted); font-size: 12px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+
+/* Colapso: con JS se mide (data-collapsed); sin JS, un umbral conservador muestra la lista móvil. */
+.site-header[data-enhanced][data-collapsed] .site-nav { display: none; }
+.site-header[data-enhanced][data-collapsed] .site-nav__toggle { display: inline-flex; }
+.site-header[data-enhanced] .site-nav__mobile:not([hidden]) { display: block; }
+@media (max-width: 1080px) {
+  .site-header:not([data-enhanced]) .site-nav { display: none; }
+  .site-header:not([data-enhanced]) .site-nav__mobile { display: block; }
+}
+
+/* ── Pie común ────────────────────────────────────────────────────────────── */
+.site-footer { margin-top: 0; background: var(--green-dark); color: #e8f1e9; }
+.site-footer a { color: #fff; }
+.site-footer__inner { display: grid; grid-template-columns: 1.4fr repeat(3, 1fr); gap: 32px; max-width: var(--wrap); margin: 0 auto; padding: 48px var(--gutter) 32px; }
+.site-footer__brand p { margin: 12px 0 0; max-width: 32ch; color: #cfe2d6; }
+.site-footer__col { display: flex; flex-direction: column; gap: 8px; }
+.site-footer__col a { text-decoration: none; }
+.site-footer__col a:hover { text-decoration: underline; }
+.site-footer__title { margin: 0 0 4px; color: var(--brand-gold); font-size: 12px; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+.site-footer__legal { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; max-width: var(--wrap); margin: 0 auto; padding: 18px var(--gutter) 28px; border-top: 1px solid rgb(255 255 255 / 16%); color: #cfe2d6; font-size: 14px; }
+@media (max-width: 860px) { .site-footer__inner { grid-template-columns: 1fr 1fr; } .site-footer__brand { grid-column: 1 / -1; } }
+@media (max-width: 480px) { .site-footer__inner { grid-template-columns: 1fr; } }
+
+/* ── Variante app (EpiBot): barra compacta en el flujo de una app a alto completo ── */
+.site-header--app { flex: none; position: relative; z-index: 60; }
+.site-header--app[data-enhanced] { position: relative; }
+.site-header--app .site-header__inner { min-height: 52px; max-width: none; }
+.site-header--app .site-brand__name small { display: none; }
+.site-header--app .nav-menu > li > a, .site-header--app .nav-group__toggle { font-size: 14px; padding: 6px 10px; }
+/* El menú desplegable se superpone a la app en vez de empujar el compositor fuera de la pantalla. */
+.site-header--app[data-enhanced] .site-nav__mobile:not([hidden]) { position: absolute; left: 0; right: 0; top: 100%; box-shadow: var(--shadow); }
+
+/* ── Aislamiento del chrome común frente a hojas de cada página ─────────────
+   Algunas páginas redefinen en :root los mismos nombres de token (--ink, --muted, --line, --gold…) o
+   usan la clase .site-header en su propia barra (micrositios WCP/MICAI con hojas selladas). El chrome
+   común fija sus tokens en sí mismo y reinicia con especificidad de id las propiedades que esas hojas
+   tocan; así no hace falta !important ni editar las hojas selladas. */
+/* Con id/elemento: la barra LOCAL de un micrositio (también .site-header) conserva sus tokens. */
+#nav.site-header, footer.site-footer {
+  --ink: #173c33; --body: #40594f; --muted: #5b6f66; --green: #17644d; --green-dark: #0f4938;
+  --mint: #e8f1e9; --tint: #f1f6ef; --line: #dbe3dc; --line-strong: #bdcebf; --paper: #fafbf7; --white: #fff;
+  --control-border: #6f8579; --focus: #b28224; --brand-gold: #d9b864;
+  --sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--sans);
+}
+#nav.site-header {
+  display: block; min-height: 0; padding: 0; gap: 0; flex-wrap: nowrap;
+  justify-content: normal; align-items: normal; color: var(--ink);
+  background: rgb(250 251 247 / 94%); border-bottom: 1px solid var(--line);
+}
+#nav.site-header .site-nav { gap: 0; font-size: inherit; font-weight: inherit; }
+#nav.site-header:not([data-enhanced]) .site-nav, #nav.site-header[data-enhanced]:not([data-collapsed]) .site-nav { display: flex; }
+#nav.site-header[data-enhanced][data-collapsed] .site-nav { display: none; }
+@media (max-width: 1080px) { #nav.site-header:not([data-enhanced]) .site-nav { display: none; } }
+footer.site-footer { font-size: 16px; line-height: 1.6; border-top: 0; text-align: left; }
+/* El pie es oscuro: sus enlaces, la marca y el sufijo MX no heredan el color de los enlaces del
+   contenido (editorial.css, hojas de cada página). Elemento + clase: más específico que `.x a`. */
+footer.site-footer a, footer.site-footer a:visited, footer.site-footer a:hover { color: #fff; }
+footer.site-footer .site-brand { color: #fff; }
+footer.site-footer .site-brand__mx { color: var(--brand-gold); }
+footer.site-footer .site-footer__brand p, footer.site-footer .site-footer__legal { color: #cfe2d6; }
+footer.site-footer .site-footer__title { color: var(--brand-gold); }
+#nav.site-header .site-brand, #nav.site-header .site-brand:hover { color: var(--ink); }
+/* Micrositios: su barra local es la que se fija arriba; la común se desplaza con la página. */
+#nav.site-header--static, #nav.site-header--static[data-enhanced] { position: relative; z-index: 30; }

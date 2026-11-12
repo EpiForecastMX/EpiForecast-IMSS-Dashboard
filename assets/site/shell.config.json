@@ -1,0 +1,384 @@
+{
+  "schema": "epiforecast.site_shell.v2",
+  "_nota": "Fuente única de la cabecera y el pie comunes. Las rutas son relativas a la raíz del sitio; scripts/site_shell.mjs las ajusta a la profundidad de cada página y estampa el resultado entre marcadores. Orden contractual: Galería, EpiBot, Dashboard, Radar del boletín, Noticias, Congresos y Más. Las familias fijan variante y página/sección actual; las fichas de release_catalog.js se inscriben solas (autoEnroll).",
+  "brand": {
+    "href": "index.html",
+    "label": "EpiForecast-MX, inicio",
+    "tagline": "Inteligencia epidemiológica"
+  },
+  "primary": [
+    {
+      "id": "galeria",
+      "label": "Galería",
+      "href": "Reports/index.html"
+    },
+    {
+      "id": "epibot",
+      "label": "EpiBot",
+      "href": "epibot/index.html"
+    },
+    {
+      "id": "dashboard",
+      "label": "Dashboard",
+      "href": "EpiDashboard.html"
+    },
+    {
+      "id": "radar",
+      "label": "Radar del boletín",
+      "href": "boletin.html"
+    },
+    {
+      "id": "noticias",
+      "label": "Noticias",
+      "href": "novedades.html"
+    },
+    {
+      "id": "congresos",
+      "label": "Congresos",
+      "children": [
+        {
+          "label": "WCP 2026 · Estocolmo",
+          "href": "wcp2026.html"
+        },
+        {
+          "label": "MICAI 2026 · Chihuahua",
+          "href": "micai2026.html"
+        },
+        {
+          "label": "CALASS 2026 · Montréal",
+          "href": "calass.html"
+        },
+        {
+          "label": "Todos los congresos",
+          "href": "index.html#congresos"
+        }
+      ]
+    },
+    {
+      "id": "mas",
+      "label": "Más",
+      "children": [
+        {
+          "label": "Padecimientos",
+          "href": "index.html#diseases"
+        },
+        {
+          "label": "Evidencia y método",
+          "href": "index.html#metodologia"
+        },
+        {
+          "label": "Proyecto y equipo",
+          "href": "index.html#about"
+        }
+      ]
+    }
+  ],
+  "footer": {
+    "tagline": "Datos oficiales. Investigación abierta. Una mirada informada a la salud de México.",
+    "columns": [
+      {
+        "title": "Explorar",
+        "links": [
+          {
+            "label": "Galería de pronósticos",
+            "href": "Reports/index.html"
+          },
+          {
+            "label": "Pregúntale a EPI",
+            "href": "epibot/index.html"
+          },
+          {
+            "label": "Dashboard",
+            "href": "EpiDashboard.html"
+          },
+          {
+            "label": "Radar del boletín",
+            "href": "boletin.html"
+          }
+        ]
+      },
+      {
+        "title": "Evidencia",
+        "links": [
+          {
+            "label": "Validación semanal",
+            "href": "validacion_semanal.html"
+          },
+          {
+            "label": "Resultados",
+            "href": "reporte_resultados.html"
+          },
+          {
+            "label": "Fuentes y referencias",
+            "href": "referencias.html"
+          },
+          {
+            "label": "Analizados y rechazados",
+            "href": "rechazados.html"
+          }
+        ]
+      },
+      {
+        "title": "Proyecto",
+        "links": [
+          {
+            "label": "Noticias",
+            "href": "novedades.html"
+          },
+          {
+            "label": "Congresos",
+            "href": "index.html#congresos"
+          },
+          {
+            "label": "Archivo Tableau (corte W31)",
+            "href": "EpiDashboard-tableau.html"
+          },
+          {
+            "label": "GitHub ↗",
+            "href": "https://github.com/IntegradorIMSS2026Team01",
+            "external": true
+          }
+        ]
+      }
+    ],
+    "legal": "© 2026 EpiForecast-MX · Tecnológico de Monterrey · IMSS · SINAVE"
+  },
+  "assets": {
+    "assets/site/site.css": "5",
+    "assets/site/site-nav.js": "4",
+    "editorial.css": "4",
+    "assets/site/estado-ficha.js": "1",
+    "assets/site/nota-ancla.js": "1"
+  },
+  "families": {
+    "home": {
+      "variant": "default",
+      "current": "inicio",
+      "currentKind": "page",
+      "descripcion": "Portada"
+    },
+    "galeria": {
+      "variant": "default",
+      "current": "galeria",
+      "currentKind": "page",
+      "descripcion": "Galería de pronósticos"
+    },
+    "dashboard": {
+      "variant": "default",
+      "current": "dashboard",
+      "currentKind": "page",
+      "descripcion": "Dashboard (CSP estricta)"
+    },
+    "radar": {
+      "variant": "default",
+      "current": "radar",
+      "currentKind": "page",
+      "descripcion": "Radar del boletín"
+    },
+    "epibot": {
+      "variant": "app",
+      "current": "epibot",
+      "currentKind": "page",
+      "descripcion": "EpiBot: barra compacta, sin pie (app a alto completo)"
+    },
+    "ficha-release": {
+      "variant": "default",
+      "current": "galeria",
+      "currentKind": "section",
+      "descripcion": "Fichas de releases del runner (disease.css)"
+    },
+    "ficha-legacy": {
+      "variant": "default",
+      "current": "galeria",
+      "currentKind": "section",
+      "descripcion": "Ficha de la cohorte original (Dengue)"
+    },
+    "editorial": {
+      "variant": "default",
+      "current": null,
+      "currentKind": "page",
+      "descripcion": "Páginas editoriales, de evidencia y avances (editorial.css claro; generadores del backend vía site_shell.py)"
+    },
+    "noticias": {
+      "variant": "default",
+      "current": "noticias",
+      "currentKind": "page",
+      "descripcion": "Noticias (novedades.html): archivo estático desde news.json"
+    },
+    "congresos": {
+      "variant": "default",
+      "current": "congresos",
+      "currentKind": "section",
+      "descripcion": "Páginas de congresos y reconocimientos en español"
+    },
+    "micrositio-congreso": {
+      "variant": "micrositio",
+      "current": "congresos",
+      "currentKind": "section",
+      "descripcion": "Micrositios académicos (inglés): chrome común; cuerpo, idioma y hoja propia conservados (excepción de identidad acotada)",
+      "excepcion": "identidad académica local: wcp.css / micai.css y el bloque del póster o artículo no se rediseñan"
+    },
+    "archivo": {
+      "variant": "default",
+      "current": "dashboard",
+      "currentKind": "section",
+      "descripcion": "Archivo histórico del tablero Tableau (corte W31)"
+    }
+  },
+  "pages": [
+    {
+      "path": "index.html",
+      "family": "home",
+      "productor": {
+        "script": "EpiForecast-MX scripts/build_news_weekly.py (banner #newsBannerRow)",
+        "chrome": false
+      }
+    },
+    {
+      "path": "Reports/index.html",
+      "family": "galeria"
+    },
+    {
+      "path": "EpiDashboard.html",
+      "family": "dashboard"
+    },
+    {
+      "path": "boletin.html",
+      "family": "radar"
+    },
+    {
+      "path": "epibot/index.html",
+      "family": "epibot"
+    },
+    {
+      "path": "dengue.html",
+      "family": "ficha-legacy"
+    },
+    {
+      "path": "novedades.html",
+      "family": "noticias",
+      "productor": {
+        "script": "EpiForecast-MX scripts/build_news_weekly.py (archivo estático noticias:archivo)",
+        "chrome": false
+      }
+    },
+    {
+      "path": "calass.html",
+      "family": "congresos"
+    },
+    {
+      "path": "helix.html",
+      "family": "congresos"
+    },
+    {
+      "path": "future_health.html",
+      "family": "congresos"
+    },
+    {
+      "path": "micai.html",
+      "family": "congresos"
+    },
+    {
+      "path": "wcp2026.html",
+      "family": "micrositio-congreso"
+    },
+    {
+      "path": "micai2026.html",
+      "family": "micrositio-congreso"
+    },
+    {
+      "path": "micai2026-guion.html",
+      "family": "micrositio-congreso"
+    },
+    {
+      "path": "EpiDashboard-tableau.html",
+      "family": "archivo"
+    },
+    {
+      "path": "Avance1.Equipo01.html",
+      "family": "editorial"
+    },
+    {
+      "path": "Avance2_Equipo01.html",
+      "family": "editorial"
+    },
+    {
+      "path": "auditoria_remediacion_2026.html",
+      "family": "editorial"
+    },
+    {
+      "path": "bitacora_modelado.html",
+      "family": "editorial",
+      "productor": {
+        "script": "EpiForecast-MX scripts/genera_bitacora.py (copia local; histórico)",
+        "chrome": true
+      }
+    },
+    {
+      "path": "comparacion_modelos.html",
+      "family": "editorial",
+      "productor": {
+        "script": "EpiForecast-MX epiforecast.visualization.comparison_report (copia local; histórico)",
+        "chrome": true
+      }
+    },
+    {
+      "path": "comparacion_rondas.html",
+      "family": "editorial"
+    },
+    {
+      "path": "conclusiones.html",
+      "family": "editorial"
+    },
+    {
+      "path": "construccion_dashboard.html",
+      "family": "editorial"
+    },
+    {
+      "path": "ficha_tecnica_prophet.html",
+      "family": "editorial"
+    },
+    {
+      "path": "hiperparametros_modelos.html",
+      "family": "editorial"
+    },
+    {
+      "path": "metodologia_dengue.html",
+      "family": "editorial"
+    },
+    {
+      "path": "pipeline_diagramEDA.html",
+      "family": "editorial"
+    },
+    {
+      "path": "rechazados.html",
+      "family": "editorial"
+    },
+    {
+      "path": "referencias.html",
+      "family": "editorial"
+    },
+    {
+      "path": "reporte_resultados.html",
+      "family": "editorial",
+      "productor": {
+        "script": "EpiForecast-MX scripts/genera_reporte.py --dashboard",
+        "chrome": true
+      }
+    },
+    {
+      "path": "validacion_semanal.html",
+      "family": "editorial",
+      "productor": {
+        "script": "EpiForecast-MX scripts/genera_validacion_semanal.py (refresh semanal)",
+        "chrome": true
+      }
+    }
+  ],
+  "autoEnroll": [
+    {
+      "source": "release_catalog",
+      "family": "ficha-release"
+    }
+  ]
+}

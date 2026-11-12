@@ -4,32 +4,29 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ficha Técnica del Modelo Prophet — EpiForecast-MX</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&family=Libre+Caslon+Display&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+*:not(:where(.site-header, .site-footer) *),*:not(:where(.site-header, .site-footer) *)::before,*:not(:where(.site-header, .site-footer) *)::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   /* Surfaces — Clinical Indigo */
-  --bg-deep:#0E1424;--bg-base:#131C30;--bg-raised:#18223A;
-  --bg-card:#1C2740;--bg-card-hover:#243150;
+  --bg-deep:#fafbf7;--bg-base:#fafbf7;--bg-raised:#f1f6ef;
+  --bg-card:#ffffff;--bg-card-hover:#dbe3dc;
   /* Texto */
-  --text-primary:#E7ECF5;--text-secondary:#9FB0CE;
-  --text-muted:#6E82A6;--text-faint:#44567A;
+  --text-primary:#173c33;--text-secondary:#40594f;
+  --text-muted:#53675e;--text-faint:#5b6f66;
   /* Acentos */
-  --burgundy:#F472B6;--dark-burgundy:#8E2A63;
-  --teal:#5B8DEF;--gold:#2DD4BF;
+  --burgundy:#a3367a;--dark-burgundy:#8E2A63;
+  --teal:#2f5f9e;--gold:#0f6e66;
   /* Aliases legacy */
-  --neutral-black:#0B0F1A;--cool-gray:#9FB0CE;
-  --dark-teal:#16203A;--cream:#E7ECF5;
-  --cream-light:#1C2740;--cream-pale:#131C30;
+  --neutral-black:#0B0F1A;--cool-gray:#40594f;
+  --dark-teal:#f1f6ef;--cream:#173c33;
+  --cream-light:#ffffff;--cream-pale:#fafbf7;
   --teal-glow:rgba(91,141,239,0.15);
   --burgundy-glow:rgba(244,114,182,0.15);
   --gold-glow:rgba(45,212,191,0.15);
   /* Compatibilidad con estilos anteriores */
-  --burgundy-light:#F472B6;--teal-light:#5B8DEF;--gold-light:#2DD4BF;
+  --burgundy-light:#a3367a;--teal-light:#2f5f9e;--gold-light:#0f6e66;
   --font-display:'Playfair Display',Georgia,serif;
   --font-body:'Outfit',system-ui,-apple-system,sans-serif;
   --font-mono:'JetBrains Mono','SF Mono',monospace;
@@ -40,54 +37,54 @@ body{font-family:var(--font-body);background:var(--bg-base);color:var(--text-pri
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.025;pointer-events:none;z-index:0}
 
 /* Unified Nav */
-.nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(14,20,36,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(232,213,181,.08);transition:box-shadow .3s,background .3s}
-.nav.scrolled{box-shadow:0 4px 30px rgba(0,0,0,.18);background:rgba(14,20,36,.97)}
-.nav-inner{max-width:1200px;margin:0 auto;padding:0 2rem;display:flex;align-items:center;height:64px;gap:1rem}
-.nav-logo{font-family:var(--font-display);font-size:1.3rem;color:var(--cream);letter-spacing:.02em;flex-shrink:0;text-decoration:none}
-.nav-logo span{color:var(--gold)}
-.nav-menu{display:flex;align-items:center;gap:.25rem;list-style:none;flex:1;justify-content:center}
-.nav-group{position:relative}
-.nav-group-toggle{display:flex;align-items:center;gap:.3rem;color:rgba(232,213,181,.65);font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;padding:.5rem .85rem;border-radius:6px;cursor:pointer;transition:color .2s,background .2s;white-space:nowrap;border:none;background:none;font-family:inherit}
-.nav-group-toggle:hover,.nav-group:hover .nav-group-toggle{color:var(--cream);background:rgba(232,213,181,.06)}
-.nav-group-toggle svg{width:10px;height:10px;opacity:.5;transition:transform .2s}
-.nav-group:hover .nav-group-toggle svg{transform:rotate(180deg);opacity:.8}
-.nav-dropdown{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%) translateY(-4px);background:rgba(14,20,36,.98);backdrop-filter:blur(16px);border:1px solid rgba(232,213,181,.1);border-radius:12px;padding:.5rem;min-width:200px;opacity:0;visibility:hidden;transition:opacity .15s,transform .15s,visibility .15s;box-shadow:0 12px 40px rgba(0,0,0,.25)}
-.nav-group:hover .nav-dropdown{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
-.nav-dropdown::before{content:'';position:absolute;top:-8px;left:0;right:0;height:8px}
-.nav-dropdown a{display:flex;align-items:center;gap:.75rem;padding:.6rem 1rem;color:rgba(232,213,181,.7);font-size:.82rem;font-weight:500;border-radius:8px;transition:background .15s,color .15s;text-decoration:none;white-space:nowrap}
-.nav-dropdown a:hover{background:rgba(232,213,181,.08);color:var(--cream)}
-.nav-dropdown a svg{width:16px;height:16px;opacity:.5;flex-shrink:0}
-.nav-dropdown a:hover svg{opacity:.8}
-.nav-ctas{display:flex;gap:.5rem;align-items:center;flex-shrink:0}
-.nav-cta{display:inline-flex;align-items:center;gap:.4rem;padding:.4rem 1rem;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-radius:100px;text-decoration:none;transition:transform .2s,box-shadow .2s,background .2s;white-space:nowrap}
-.nav-cta:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(45,212,191,.25)}
-.nav-cta--primary{background:var(--gold);color:var(--dark-teal)}
-.nav-cta--secondary{background:rgba(91,141,239,.1);color:var(--gold);border:1px solid rgba(45,212,191,.3)}
-.nav-cta--secondary:hover{background:rgba(45,212,191,.15);color:var(--gold)}
-.nav-cta svg{width:14px;height:14px}
-.nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
-.nav-hamburger span{width:24px;height:2px;background:var(--cream);transition:transform .3s,opacity .3s}
-.nav-mobile{display:none;flex-direction:column;background:rgba(14,20,36,.98);backdrop-filter:blur(16px);padding:1rem 2rem 1.5rem;border-bottom:1px solid rgba(232,213,181,.1)}
-.nav-mobile.show{display:flex}
-.nav-mobile-group{border-bottom:1px solid rgba(232,213,181,.06)}
-.nav-mobile-heading{display:flex;align-items:center;justify-content:space-between;padding:.85rem 0;color:rgba(232,213,181,.7);font-size:.82rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;cursor:pointer}
-.nav-mobile-heading svg{width:10px;height:10px;transition:transform .2s}
-.nav-mobile-group.open .nav-mobile-heading svg{transform:rotate(180deg)}
-.nav-mobile-items{display:none;flex-direction:column;padding-bottom:.5rem}
-.nav-mobile-group.open .nav-mobile-items{display:flex}
-.nav-mobile-items a{padding:.5rem 1rem;color:rgba(232,213,181,.55);font-size:.82rem;text-decoration:none;border-radius:6px;transition:background .15s,color .15s}
-.nav-mobile-items a:hover{background:rgba(232,213,181,.06);color:var(--cream)}
-.nav-mobile-ctas{display:flex;gap:.5rem;margin-top:1rem}
-@media(max-width:768px){.nav-menu,.nav-ctas{display:none}.nav-hamburger{display:flex}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+@media(max-width:768px){}
 
 /* LAYOUT */
 .container{max-width:1200px;margin:0 auto;padding:0 2rem;position:relative;z-index:1}
-section{padding:4rem 0}
+section:not(:where(.site-header, .site-footer) *){padding:4rem 0}
 .section-title{font-family:var(--font-display);font-size:clamp(1.8rem,4vw,2.5rem);margin-bottom:.5rem;color:var(--cream)}
 .section-sub{color:var(--text-secondary);font-size:1rem;margin-bottom:2.5rem}
 
 /* HERO */
-.hero{padding:10rem 2rem 6rem;text-align:center;background:linear-gradient(170deg,var(--bg-deep) 0%,var(--bg-raised) 50%,#1B1733 100%);color:var(--text-primary);position:relative;overflow:hidden}
+.hero{padding:10rem 2rem 6rem;text-align:center;background:linear-gradient(170deg,var(--bg-deep) 0%,var(--bg-raised) 50%,#f1f6ef 100%);color:var(--text-primary);position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 800px 600px at 20% 30%,rgba(244,114,182,.16),transparent),radial-gradient(ellipse 900px 700px at 80% 70%,rgba(45,212,191,.12),transparent),radial-gradient(ellipse 600px 500px at 60% 40%,rgba(91,141,239,.14),transparent);pointer-events:none}
 .hero::after{content:'';position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");opacity:.04;pointer-events:none}
 .hero h1{font-family:var(--font-display);font-size:clamp(2.5rem,7vw,4.5rem);line-height:1.05;margin-bottom:.5rem;position:relative}
@@ -95,7 +92,7 @@ section{padding:4rem 0}
 .hero .subtitle{font-size:clamp(1rem,2.5vw,1.3rem);opacity:.8;font-weight:300;margin-bottom:.75rem;position:relative}
 .hero .subtitle2{font-size:clamp(.82rem,1.5vw,.95rem);opacity:.5;font-weight:400;margin-bottom:3rem;position:relative;font-family:var(--font-mono)}
 .hero-kpis{display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;position:relative}
-.hero-kpi{background:rgba(28,39,64,.6);border:1px solid rgba(91,141,239,.15);border-radius:var(--radius);padding:1.5rem 2rem;backdrop-filter:blur(8px);min-width:150px;transition:transform .3s,box-shadow .3s}
+.hero-kpi{background:rgba(255,255,255,.6);border:1px solid rgba(91,141,239,.15);border-radius:var(--radius);padding:1.5rem 2rem;backdrop-filter:blur(8px);min-width:150px;transition:transform .3s,box-shadow .3s}
 .hero-kpi:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.3)}
 .hero-kpi .value{font-family:var(--font-display);font-size:2.5rem;display:block;background:linear-gradient(135deg,var(--cream),var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .hero-kpi .label{font-size:.78rem;text-transform:uppercase;letter-spacing:1px;opacity:.75;color:var(--text-secondary)}
@@ -135,9 +132,9 @@ section{padding:4rem 0}
 
 /* BADGE */
 .badge{display:inline-block;padding:.2rem .7rem;border-radius:100px;font-family:var(--font-mono);font-size:.78rem;font-weight:500}
-.badge-green{background:rgba(45,212,191,.15);color:#2DD4BF}
-.badge-yellow{background:rgba(251,191,36,.12);color:#FCD34D}
-.badge-red{background:rgba(244,114,182,.15);color:#F472B6}
+.badge-green{background:rgba(45,212,191,.15);color:#0f6e66}
+.badge-yellow{background:rgba(251,191,36,.12);color:#7d4400}
+.badge-red{background:rgba(244,114,182,.15);color:#a3367a}
 .badge-teal{background:rgba(91,141,239,.15);color:var(--teal)}
 .badge-gray{background:rgba(159,176,206,.1);color:var(--text-secondary)}
 
@@ -148,9 +145,9 @@ table.ref-table thead th{padding:.8rem 1rem;text-align:left;font-weight:600;text
 table.ref-table tbody td{padding:.65rem 1rem;border-bottom:1px solid rgba(91,141,239,.08);vertical-align:middle;color:var(--text-secondary)}
 table.ref-table tbody tr:hover{background:var(--bg-card-hover)}
 table.ref-table .mono{font-family:var(--font-mono);font-size:.82rem;color:var(--teal)}
-table.ref-table .cell-added{background:rgba(45,212,191,.15);color:#2DD4BF;font-weight:600;font-size:.8rem;padding:.3rem .6rem;border-radius:6px;display:inline-block}
-table.ref-table .cell-removed{background:rgba(244,114,182,.15);color:#F472B6;font-weight:600;font-size:.8rem;padding:.3rem .6rem;border-radius:6px;display:inline-block}
-table.ref-table .cell-modified{background:rgba(251,191,36,.12);color:#FCD34D;font-weight:600;font-size:.8rem;padding:.3rem .6rem;border-radius:6px;display:inline-block}
+table.ref-table .cell-added{background:rgba(45,212,191,.15);color:#0f6e66;font-weight:600;font-size:.8rem;padding:.3rem .6rem;border-radius:6px;display:inline-block}
+table.ref-table .cell-removed{background:rgba(244,114,182,.15);color:#a3367a;font-weight:600;font-size:.8rem;padding:.3rem .6rem;border-radius:6px;display:inline-block}
+table.ref-table .cell-modified{background:rgba(251,191,36,.12);color:#7d4400;font-weight:600;font-size:.8rem;padding:.3rem .6rem;border-radius:6px;display:inline-block}
 table.ref-table .cell-same{color:var(--text-muted);font-size:.82rem}
 
 /* TOC */
@@ -185,7 +182,7 @@ table.ref-table .cell-same{color:var(--text-muted);font-size:.82rem}
 .flow-node.decision{border-left-color:var(--gold);background:linear-gradient(135deg,var(--bg-card),rgba(45,212,191,.06))}
 .flow-node.action{border-left-color:var(--teal);background:var(--bg-card)}
 .flow-node.warning{border-left-color:var(--burgundy);background:linear-gradient(135deg,var(--bg-card),rgba(244,114,182,.06))}
-.flow-node.success{border-left-color:#2DD4BF;background:linear-gradient(135deg,var(--bg-card),rgba(45,212,191,.06))}
+.flow-node.success{border-left-color:#0f6e66;background:linear-gradient(135deg,var(--bg-card),rgba(45,212,191,.06))}
 .flow-node h5{font-family:var(--font-mono);font-size:.82rem;font-weight:600;margin-bottom:.25rem;color:var(--cream)}
 .flow-node p{font-size:.85rem;color:var(--text-secondary);margin:0}
 .flow-connector{text-align:center;color:var(--text-muted);font-size:1.2rem;line-height:1}
@@ -196,16 +193,16 @@ table.ref-table .cell-same{color:var(--text-muted);font-size:.82rem}
 .grid-heat thead th:first-child{text-align:left}
 .grid-heat tbody td{padding:.6rem .8rem;text-align:center;border-bottom:1px solid rgba(91,141,239,.08);font-family:var(--font-mono);font-size:.85rem;vertical-align:middle;color:var(--text-secondary)}
 .grid-heat tbody td:first-child{text-align:left;font-family:var(--font-body);font-weight:600;color:var(--teal)}
-.heat-hi{background:rgba(45,212,191,.18);color:#2DD4BF;border-radius:6px;padding:.25rem .5rem;font-weight:700;display:inline-block}
-.heat-mid{background:rgba(251,191,36,.12);color:#FCD34D;border-radius:6px;padding:.25rem .5rem;display:inline-block}
-.heat-lo{background:rgba(244,114,182,.12);color:#F472B6;border-radius:6px;padding:.25rem .5rem;display:inline-block}
+.heat-hi{background:rgba(45,212,191,.18);color:#0f6e66;border-radius:6px;padding:.25rem .5rem;font-weight:700;display:inline-block}
+.heat-mid{background:rgba(251,191,36,.12);color:#7d4400;border-radius:6px;padding:.25rem .5rem;display:inline-block}
+.heat-lo{background:rgba(244,114,182,.12);color:#a3367a;border-radius:6px;padding:.25rem .5rem;display:inline-block}
 .heat-elim{background:rgba(159,176,206,.08);color:var(--text-muted);border-radius:6px;padding:.25rem .5rem;font-style:italic;font-size:.75rem;display:inline-block;text-decoration:line-through}
 
 /* METRIC CARDS */
 .metric-card{background:var(--bg-card);border-radius:var(--radius);padding:1.75rem 2rem;box-shadow:var(--shadow-md);border:1px solid rgba(91,141,239,.1);border-top:4px solid var(--teal)}
 .metric-card.gold{border-top-color:var(--gold)}
 .metric-card.burgundy{border-top-color:var(--burgundy)}
-.metric-card.green{border-top-color:#2DD4BF}
+.metric-card.green{border-top-color:#0f6e66}
 .metric-card h4{font-family:var(--font-display);font-size:1.2rem;color:var(--cream);margin-bottom:.5rem}
 .metric-card .formula-block{font-family:var(--font-mono);font-size:.88rem;background:var(--bg-deep);border:1px solid rgba(91,141,239,.2);border-radius:8px;padding:.75rem 1rem;margin:.75rem 0;color:var(--teal);line-height:1.8}
 .metric-card p{font-size:.88rem;color:var(--text-secondary);line-height:1.65}
@@ -220,8 +217,8 @@ table.ref-table .cell-same{color:var(--text-muted);font-size:.82rem}
 .stat-box.burgundy .big-num{color:var(--burgundy)}
 .stat-box.gold{border-top-color:var(--gold)}
 .stat-box.gold .big-num{color:var(--gold)}
-.stat-box.green{border-top-color:#2DD4BF}
-.stat-box.green .big-num{color:#2DD4BF}
+.stat-box.green{border-top-color:#0f6e66}
+.stat-box.green .big-num{color:#0f6e66}
 
 /* VERDICT */
 .verdict{background:linear-gradient(170deg,var(--bg-raised) 0%,var(--bg-card-hover) 100%);color:var(--text-primary);border-radius:var(--radius);padding:3rem;margin-top:2rem;position:relative;overflow:hidden;border:1px solid rgba(91,141,239,.15)}
@@ -246,13 +243,13 @@ table.ref-table .cell-same{color:var(--text-muted);font-size:.82rem}
 .section-divider{height:1px;background:linear-gradient(90deg,transparent,rgba(91,141,239,.25),transparent);margin:1rem 0}
 
 /* FOOTER */
-footer{background:var(--neutral-black);color:var(--text-secondary);text-align:center;padding:3rem 2rem;font-size:.88rem;line-height:1.8}
-footer strong{color:var(--cream)}
-footer a{color:var(--gold);text-decoration:none;transition:opacity .2s}
-footer a:hover{opacity:.7}
+footer:not(.site-footer){background:var(--tint);color:var(--text-secondary);text-align:center;padding:3rem 2rem;font-size:.88rem;line-height:1.8}
+footer:not(.site-footer) strong{color:var(--cream)}
+footer:not(.site-footer) a{color:var(--gold);text-decoration:none;transition:opacity .2s}
+footer:not(.site-footer) a:hover{opacity:.7}
 
 /* CODE INLINE */
-code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12);color:var(--teal);border-radius:4px;padding:.1rem .4rem}
+code:not(:where(.site-header, .site-footer) *){font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12);color:var(--teal);border-radius:4px;padding:.1rem .4rem}
 
 /* RESPONSIVE */
 @media(max-width:768px){
@@ -260,7 +257,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
   .hero-kpis{gap:1rem}
   .hero-kpi{min-width:130px;padding:1rem 1.5rem}
   .hero-kpi .value{font-size:1.8rem}
-  nav .nav-links{display:none}
+
   .card-grid,.card-grid-3,.param-grid{grid-template-columns:1fr}
   .pipeline{flex-direction:column}
   .pipe-arrow{transform:rotate(90deg)}
@@ -268,138 +265,74 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
 
 /* PRINT */
 @media print{
-  nav,footer{display:none}
+  nav:not(.site-nav),footer:not(.site-footer){display:none}
   body{background:#fff}
   body::before{display:none}
   .reveal{opacity:1;transform:none}
-  section{padding:2rem 0;page-break-inside:avoid}
+  section:not(:where(.site-header, .site-footer) *){padding:2rem 0;page-break-inside:avoid}
 }
 </style>
-  <link rel="stylesheet" href="editorial.css?v=1">
+<link rel="stylesheet" href="assets/site/site.css?v=5">
+<link rel="stylesheet" href="editorial.css?v=4">
 </head>
-<body>
+<body class="editorial-page">
 
-  <nav class="nav" id="nav">
-    <div class="nav-inner">
-      <div class="nav-logo">EpiForecast<span>-MX</span></div>
-
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<!-- site:header:start -->
+<header class="site-header" id="nav" lang="es">
+  <div class="site-header__inner">
+    <a class="site-brand" href="index.html" aria-label="EpiForecast-MX, inicio"><span class="site-brand__symbol" aria-hidden="true">E<span>+</span></span><span class="site-brand__name"><span class="site-brand__word">EpiForecast<span class="site-brand__mx">MX</span></span><small>Inteligencia epidemiológica</small></span></a>
+    <nav class="site-nav" aria-label="Navegación principal">
       <ul class="nav-menu">
-        <!-- Proyecto -->
+        <li><a href="Reports/index.html">Galería</a></li>
+        <li><a href="epibot/index.html">EpiBot</a></li>
+        <li><a href="EpiDashboard.html">Dashboard</a></li>
+        <li><a href="boletin.html">Radar del boletín</a></li>
+        <li><a href="novedades.html">Noticias</a></li>
         <li class="nav-group">
-          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
-          <div class="nav-dropdown">
-            <a href="index.html#hero"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>Inicio</a>
-            <a href="EpiDashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Dashboard</a>
-            <a href="Reports/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Pronósticos</a>
-            <a href="novedades.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8z"/></svg>Novedades</a>
-            <a href="dengue.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>Dengue</a>
-            <a href="epibot/index.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>EPI Chatbot</a>
-          </div>
-        </li>
-
-        <!-- Metodología -->
-        <li class="nav-group">
-          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Metodología <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
-          <div class="nav-dropdown">
-            <a href="bitacora_modelado.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Bitácora v1-v6</a>
-            <a href="ficha_tecnica_prophet.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Ficha Prophet</a>
-            <a href="metodologia_dengue.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>Metodología Dengue</a>
-            <a href="hiperparametros_modelos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>HPs SageMaker</a>
-            <a href="construccion_dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>Arquitectura Dashboard</a>
-          </div>
-        </li>
-
-        <!-- Resultados -->
-        <li class="nav-group">
-          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">Resultados <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
-          <div class="nav-dropdown">
-            <a href="reporte_resultados.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 15l2 2 4-4"/></svg>Resultados</a>
-            <a href="comparacion_modelos.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Comparación SageMaker</a>
-            <a href="validacion_semanal.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Validación Semanal</a>
-            <a href="auditoria_remediacion_2026.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Auditoría y Remediación</a>
-            <a href="conclusiones.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Conclusiones</a>
-            <a href="referencias.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>Referencias</a>
-          </div>
+          <button type="button" class="nav-group__toggle" aria-expanded="false" aria-controls="navGroup-congresos">Congresos</button>
+          <ul class="nav-group__list" id="navGroup-congresos">
+            <li><a href="wcp2026.html">WCP 2026 · Estocolmo</a></li>
+            <li><a href="micai2026.html">MICAI 2026 · Chihuahua</a></li>
+            <li><a href="calass.html">CALASS 2026 · Montréal</a></li>
+            <li><a href="index.html#congresos">Todos los congresos</a></li>
+          </ul>
         </li>
         <li class="nav-group">
-          <button class="nav-group-toggle" aria-haspopup="true" aria-expanded="false">MICAI 2026 <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></button>
-          <div class="nav-dropdown">
-            <a href="micai.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Ponencia, seguimiento y artículo</a>
-            <a href="/Reports/micai2026/MICAI2026_012_Rebull_accepted_manuscript.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Descargar PDF</a>
-          </div>
+          <button type="button" class="nav-group__toggle" aria-expanded="false" aria-controls="navGroup-mas">Más</button>
+          <ul class="nav-group__list" id="navGroup-mas">
+            <li><a href="index.html#diseases">Padecimientos</a></li>
+            <li><a href="index.html#metodologia">Evidencia y método</a></li>
+            <li><a href="index.html#about">Proyecto y equipo</a></li>
+          </ul>
         </li>
       </ul>
-
-      <!-- CTA buttons -->
-      <div class="nav-ctas">
-        <a href="EpiDashboard.html" class="nav-cta nav-cta--primary">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-          Dashboard
-        </a>
-        <a href="epibot/index.html" class="nav-cta nav-cta--secondary">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-          EPI Chatbot
-        </a>
-        <a href="https://github.com/IntegradorIMSS2026Team01" target="_blank" rel="noopener" class="nav-cta nav-cta--secondary" style="padding:0.4rem 0.6rem" title="GitHub">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-        </a>
-      </div>
-
-      <button type="button" class="nav-hamburger" onclick="toggleMobileNav(this)" aria-label="Abrir menú" aria-expanded="false" aria-controls="navMobile">
-        <span></span><span></span><span></span>
-      </button>
+    </nav>
+    <button type="button" class="site-nav__toggle" aria-controls="navMobile" aria-expanded="false"><span class="site-nav__toggle-icon" aria-hidden="true"></span><span class="site-nav__toggle-text">Menú</span></button>
+  </div>
+  <div id="navMobile" class="site-nav__mobile">
+    <div class="nav-mobile-items">
+      <a class="nav-mobile-link" href="Reports/index.html">Galería</a>
+      <a class="nav-mobile-link" href="epibot/index.html">EpiBot</a>
+      <a class="nav-mobile-link" href="EpiDashboard.html">Dashboard</a>
+      <a class="nav-mobile-link" href="boletin.html">Radar del boletín</a>
+      <a class="nav-mobile-link" href="novedades.html">Noticias</a>
+      <p class="nav-mobile-group">Congresos</p>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="wcp2026.html">WCP 2026 · Estocolmo</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="micai2026.html">MICAI 2026 · Chihuahua</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="calass.html">CALASS 2026 · Montréal</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#congresos">Todos los congresos</a>
+      <p class="nav-mobile-group">Más</p>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#diseases">Padecimientos</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#metodologia">Evidencia y método</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#about">Proyecto y equipo</a>
     </div>
-
-    <!-- Mobile menu -->
-    <div class="nav-mobile" id="navMobile">
-      <div class="nav-mobile-group">
-        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Proyecto <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items">
-          <a href="index.html#hero">Inicio</a>
-          <a href="EpiDashboard.html">Dashboard</a>
-          <a href="Reports/index.html">Pronósticos</a>
-          <a href="novedades.html">Novedades</a>
-          <a href="dengue.html">Dengue</a>
-          <a href="epibot/index.html">EPI Chatbot</a>
-        </div>
-      </div>
-      <div class="nav-mobile-group">
-        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Metodología <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items">
-          <a href="bitacora_modelado.html">Bitácora v1-v6</a>
-          <a href="ficha_tecnica_prophet.html">Ficha Prophet</a>
-          <a href="metodologia_dengue.html">Metodología Dengue</a>
-          <a href="hiperparametros_modelos.html">HPs SageMaker</a>
-          <a href="construccion_dashboard.html">Arquitectura Dashboard</a>
-        </div>
-      </div>
-      <div class="nav-mobile-group">
-        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">Resultados <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items">
-          <a href="reporte_resultados.html">Resultados</a>
-          <a href="comparacion_modelos.html">Comparación SageMaker</a>
-          <a href="validacion_semanal.html">Validación Semanal</a>
-          <a href="auditoria_remediacion_2026.html">Auditoría y Remediación</a>
-          <a href="conclusiones.html">Conclusiones</a>
-          <a href="referencias.html">Referencias</a>
-        </div>
-      </div>
-      <div class="nav-mobile-group">
-        <div class="nav-mobile-heading" onclick="this.parentElement.classList.toggle('open')">MICAI 2026 <svg viewBox="0 0 10 6" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 1l4 4 4-4"/></svg></div>
-        <div class="nav-mobile-items">
-          <a href="micai.html">Ponencia, seguimiento y artículo</a>
-          <a href="/Reports/micai2026/MICAI2026_012_Rebull_accepted_manuscript.pdf" target="_blank" rel="noopener">Descargar PDF</a>
-        </div>
-      </div>
-      <div class="nav-mobile-ctas">
-        <a href="EpiDashboard.html" class="nav-cta nav-cta--primary" style="justify-content:center;padding:.6rem 1.5rem">Dashboard</a>
-        <a href="Reports/index.html" class="nav-cta nav-cta--secondary" style="justify-content:center;padding:.6rem 1.5rem">Pronósticos</a>
-      </div>
-    </div>
-  </nav>
+  </div>
+</header>
+<!-- site:header:end -->
 
 <!-- HERO -->
-<div class="hero">
+<div id="contenido" class="hero">
   <h1>Ficha Técnica del<br><em>Modelo Prophet</em></h1>
   <p class="subtitle">Anatomía completa del motor de predicción de EpiForecast-MX</p>
   <p class="subtitle2">v6 &mdash; Febrero 2026 &mdash; 312 modelos &middot; 3 padecimientos &middot; 32 entidades</p>
@@ -469,7 +402,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
       <code class="formula" style="display:block;font-family:var(--font-mono);font-size:.82rem;background:var(--bg-deep);border:1px solid rgba(91,141,239,.2);border-radius:6px;padding:.5rem .8rem;margin:.4rem 0;color:var(--teal)">conteos = (exp(ŷ) - 1) × población / 100,000</code>
     </div>
     <div class="pipe-arrow">&#8594;</div>
-    <div class="pipe-step" style="border-top:4px solid #2DD4BF;background:linear-gradient(135deg,var(--bg-card),rgba(45,212,191,.06))">
+    <div class="pipe-step" style="border-top:4px solid #0f6e66;background:linear-gradient(135deg,var(--bg-card),rgba(45,212,191,.06))">
       <div class="step-num">Salida</div>
       <h4>all_forecast.csv</h4>
       <p>Conteos absolutos desnormalizados por entidad y semana. El CSV sidecar del <code>.pkl</code> guarda <code>y_original</code> y <code>Total</code> (población) para la inversión exacta en producción.</p>
@@ -501,8 +434,8 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
           <div style="font-family:var(--font-mono);font-size:.82rem;font-weight:600;color:var(--burgundy);margin-bottom:.3rem">Restriccion de no-negatividad</div>
           <p style="font-size:.85rem;color:var(--text-secondary)">exp(ŷ) &ge; 0 siempre. Nunca se predice una tasa negativa, lo que elimina post-procesamiento de clipping.</p>
         </div>
-        <div style="padding:1rem;background:var(--bg-raised);border-radius:var(--radius-sm);border-left:3px solid #2DD4BF">
-          <div style="font-family:var(--font-mono);font-size:.82rem;font-weight:600;color:#2DD4BF;margin-bottom:.3rem">Config activa</div>
+        <div style="padding:1rem;background:var(--bg-raised);border-radius:var(--radius-sm);border-left:3px solid #0f6e66">
+          <div style="font-family:var(--font-mono);font-size:.82rem;font-weight:600;color:#0f6e66;margin-bottom:.3rem">Config activa</div>
           <p style="font-size:.85rem;color:var(--text-secondary)"><code>normalizar_tasa: true</code><br><code>log_transform: true</code><br><code>tasa_por: 100000</code><br><code>columna_poblacion: "Total"</code></p>
         </div>
       </div>
@@ -549,37 +482,37 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
   <h3 class="reveal" style="font-family:var(--font-display);font-size:1.4rem;color:var(--cream);margin-bottom:1.5rem;margin-top:2.5rem">Estacionalidad personalizada</h3>
 
   <div class="param-grid reveal">
-    <div class="param-card" style="background:linear-gradient(135deg,#1C2740,#243150)">
+    <div class="param-card" style="background:linear-gradient(135deg,#ffffff,#dbe3dc)">
       <h4>period (estacionalidad anual)</h4>
       <span class="param-value">52.18 semanas</span>
       <p>Equivalente exacto de 365.25 / 7 = 52.1786... semanas. Captura el ciclo anual real con mayor precisión que el periodo default de Prophet en días.</p>
       <p class="param-why">365.25 / 7 = 52.178... — el 0.25 captura los años bisiestos en promedio</p>
     </div>
-    <div class="param-card" style="background:linear-gradient(135deg,#18223A,#1C2740)">
+    <div class="param-card" style="background:linear-gradient(135deg,#f1f6ef,#ffffff)">
       <h4>fourier_order — Nacional</h4>
       <span class="param-value">5 (10 columnas)</span>
       <p>Genera 5 funciones seno + 5 coseno = 10 regresores en la matriz de diseño. Permite patrones estacionales complejos con hasta 5 "armónicos".</p>
       <p class="param-why">Ejemplo: brotes de otoño + temporada navide&ntilde;a + repunte primaveral = 3 armónicos mínimo</p>
     </div>
-    <div class="param-card" style="background:linear-gradient(135deg,#1C2740,#243150)">
+    <div class="param-card" style="background:linear-gradient(135deg,#ffffff,#dbe3dc)">
       <h4>fourier_order — Regional/Estatal</h4>
       <span class="param-value">3 (6 columnas)</span>
       <p>Series estatales son más cortas y volátiles. Con fourier_order=5 en series de ~285 puntos, hay riesgo de overfitting al patrón de entrenamiento. <strong>-40% coeficientes.</strong></p>
       <p class="param-why">Activo cuando: <code>modelado_estados: true</code> en params.yaml</p>
     </div>
-    <div class="param-card" style="background:linear-gradient(135deg,#16203A,#1C2740)">
+    <div class="param-card" style="background:linear-gradient(135deg,#f1f6ef,#ffffff)">
       <h4>n_changepoints — Nacional</h4>
       <span class="param-value">25 (default Prophet)</span>
       <p>1 changepoint cada ~11 semanas en la serie completa (~285 semanas). Captura cambios de tendencia anuales y post-pandemia con suficiente granularidad.</p>
       <p class="param-why">Prophet los distribuye uniformemente en el 80% inicial de la serie</p>
     </div>
-    <div class="param-card" style="background:linear-gradient(135deg,#18223A,#243150)">
+    <div class="param-card" style="background:linear-gradient(135deg,#f1f6ef,#dbe3dc)">
       <h4>n_changepoints — Regional/Estatal</h4>
       <span class="param-value">12</span>
       <p>Con 25 changepoints en series cortas (~150 puntos para estados pequeños), Prophet sobreajusta cambios locales. 12 = 1 changepoint cada ~12 semanas (~1 por trimestre).</p>
       <p class="param-why">Activo cuando: <code>modelado_estados: true</code> — previene overfitting en estados &lt;1M hab.</p>
     </div>
-    <div class="param-card" style="background:linear-gradient(135deg,#18223A,rgba(91,141,239,.3))">
+    <div class="param-card" style="background:linear-gradient(135deg,#f1f6ef,rgba(91,141,239,.3))">
       <h4>growth</h4>
       <span class="param-value">"linear"</span>
       <p>Tendencia lineal (por tramos, ajustada en changepoints). La tendencia "logistic" requiere definir una capacidad de saturación (<code>cap</code>) que no está justificada epidemiológicamente.</p>
@@ -613,16 +546,16 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
       <p style="font-size:.88rem;color:var(--text-secondary);line-height:1.65;margin-bottom:1rem">Controla qué tanto puede cambiar la tendencia en cada changepoint. Es una prior Laplace sobre los deltas de tendencia.</p>
       <div style="display:flex;flex-direction:column;gap:.5rem">
         <div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .6rem;background:rgba(45,212,191,.1);border-radius:6px;font-size:.82rem">
-          <span style="font-family:var(--font-mono);color:#2DD4BF;font-weight:600">cp = 0.01</span>
-          <span style="color:#2DD4BF">Tendencia muy suave, pocos cambios</span>
+          <span style="font-family:var(--font-mono);color:#0f6e66;font-weight:600">cp = 0.01</span>
+          <span style="color:#0f6e66">Tendencia muy suave, pocos cambios</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .6rem;background:rgba(251,191,36,.1);border-radius:6px;font-size:.82rem">
-          <span style="font-family:var(--font-mono);color:#FCD34D;font-weight:600">cp = 0.05</span>
-          <span style="color:#FCD34D">Balance entre flexibilidad y estabilidad</span>
+          <span style="font-family:var(--font-mono);color:#7d4400;font-weight:600">cp = 0.05</span>
+          <span style="color:#7d4400">Balance entre flexibilidad y estabilidad</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .6rem;background:rgba(244,114,182,.1);border-radius:6px;font-size:.82rem">
-          <span style="font-family:var(--font-mono);color:#F472B6;font-weight:600">cp muy bajo</span>
-          <span style="color:#F472B6">Riesgo: activa optimizador Newton (lento)</span>
+          <span style="font-family:var(--font-mono);color:#a3367a;font-weight:600">cp muy bajo</span>
+          <span style="color:#a3367a">Riesgo: activa optimizador Newton (lento)</span>
         </div>
       </div>
     </div>
@@ -633,16 +566,16 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
       <p style="font-size:.88rem;color:var(--text-secondary);line-height:1.65;margin-bottom:1rem">Controla la amplitud de los coeficientes de Fourier. Prior Normal(0, sp). Valores bajos = estacionalidad más suave y regularizada.</p>
       <div style="display:flex;flex-direction:column;gap:.5rem">
         <div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .6rem;background:rgba(45,212,191,.1);border-radius:6px;font-size:.82rem">
-          <span style="font-family:var(--font-mono);color:#2DD4BF;font-weight:600">sp = 0.025</span>
-          <span style="color:#2DD4BF">Alta regularización (series volátiles)</span>
+          <span style="font-family:var(--font-mono);color:#0f6e66;font-weight:600">sp = 0.025</span>
+          <span style="color:#0f6e66">Alta regularización (series volátiles)</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .6rem;background:rgba(251,191,36,.1);border-radius:6px;font-size:.82rem">
-          <span style="font-family:var(--font-mono);color:#FCD34D;font-weight:600">sp = 0.5</span>
-          <span style="color:#FCD34D">Amplitud estacional moderada (ganador frecuente en Parkinson)</span>
+          <span style="font-family:var(--font-mono);color:#7d4400;font-weight:600">sp = 0.5</span>
+          <span style="color:#7d4400">Amplitud estacional moderada (ganador frecuente en Parkinson)</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;padding:.4rem .6rem;background:rgba(244,114,182,.1);border-radius:6px;font-size:.82rem">
-          <span style="font-family:var(--font-mono);color:#F472B6;font-weight:600">sp = 1.0+</span>
-          <span style="color:#F472B6">Riesgo: sobreajuste estacional, peor test RMSE</span>
+          <span style="font-family:var(--font-mono);color:#a3367a;font-weight:600">sp = 1.0+</span>
+          <span style="color:#a3367a">Riesgo: sobreajuste estacional, peor test RMSE</span>
         </div>
       </div>
     </div>
@@ -672,10 +605,10 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
   </div>
 
   <div class="card reveal">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,max(12rem,(100% - 1 * 2rem) / 2)),1fr));gap:2rem;align-items:start">
       <div>
         <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:1rem">Grid activo (v5)</h4>
-        <table class="grid-heat">
+        <div class="tabla-desplazable"><table class="grid-heat">
           <thead>
             <tr>
               <th>cp \ sp</th>
@@ -698,7 +631,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
               <td><span class="heat-lo">Raro</span></td>
             </tr>
           </tbody>
-        </table>
+        </table></div>
         <p style="font-size:.82rem;color:var(--cool-gray);margin-top:.75rem">seasonality_mode: solo <strong>multiplicative</strong> (additive eliminado: +51% RMSE vs multiplicative)</p>
       </div>
       <div>
@@ -717,10 +650,10 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
             <span>seasonality_prior_scale</span><span style="font-family:var(--font-mono);font-size:.82rem;color:var(--teal)">[0.05, 0.1, 0.5]</span>
           </div>
           <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:rgba(244,114,182,.1);border-radius:8px;font-size:.88rem">
-            <span>Eliminado</span><span style="font-family:var(--font-mono);font-size:.82rem;color:#F472B6">additive (+51% RMSE)</span>
+            <span>Eliminado</span><span style="font-family:var(--font-mono);font-size:.82rem;color:#a3367a">additive (+51% RMSE)</span>
           </div>
           <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:rgba(45,212,191,.1);border-radius:8px;font-size:.88rem">
-            <span>RMSE medio v6</span><span style="font-family:var(--font-mono);font-weight:700;color:#2DD4BF">0.027</span>
+            <span>RMSE medio v6</span><span style="font-family:var(--font-mono);font-weight:700;color:#0f6e66">0.027</span>
           </div>
         </div>
       </div>
@@ -735,10 +668,10 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
   </div>
 
   <div class="card reveal">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,max(12rem,(100% - 1 * 2rem) / 2)),1fr));gap:2rem;align-items:start">
       <div>
         <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.75rem">Grid additive (12 combos)</h4>
-        <table class="grid-heat">
+        <div class="tabla-desplazable"><table class="grid-heat">
           <thead>
             <tr>
               <th>cp \ sp</th>
@@ -753,9 +686,9 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
             <tr><td>cp=0.03</td><td><span class="heat-mid">Moderado</span></td><td><span class="heat-hi">Alto</span></td><td><span class="heat-mid">Moderado</span></td><td><span class="heat-lo">Bajo</span></td></tr>
             <tr><td>cp=0.05</td><td><span class="heat-lo">Bajo</span></td><td><span class="heat-mid">Moderado</span></td><td><span class="heat-mid">Moderado</span></td><td><span class="heat-lo">Bajo</span></td></tr>
           </tbody>
-        </table>
+        </table></div>
         <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.75rem;margin-top:1rem">Grid multiplicative (12 combos)</h4>
-        <table class="grid-heat">
+        <div class="tabla-desplazable"><table class="grid-heat">
           <thead>
             <tr>
               <th>cp \ sp</th>
@@ -767,7 +700,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
             <tr><td>cp=0.03</td><td><span class="heat-lo">Bajo</span></td><td><span class="heat-mid">Moderado</span></td><td><span class="heat-hi">Alto</span></td><td><span class="heat-lo">Bajo</span></td></tr>
             <tr><td>cp=0.05</td><td><span class="heat-lo">Bajo</span></td><td><span class="heat-lo">Bajo</span></td><td><span class="heat-mid">Moderado</span></td><td><span class="heat-lo">Bajo</span></td></tr>
           </tbody>
-        </table>
+        </table></div>
       </div>
       <div>
         <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:1rem">Resumen del grid</h4>
@@ -785,16 +718,16 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
             <span>seasonality_prior_scale</span><span style="font-family:var(--font-mono);font-size:.82rem;color:var(--teal)">[0.025, 0.05, 0.1, 0.5]</span>
           </div>
           <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:rgba(244,114,182,.1);border-radius:8px;font-size:.88rem">
-            <span>Eliminado</span><span style="font-family:var(--font-mono);font-size:.82rem;color:#F472B6">sp=1.0 (peor RMSE medio)</span>
+            <span>Eliminado</span><span style="font-family:var(--font-mono);font-size:.82rem;color:#a3367a">sp=1.0 (peor RMSE medio)</span>
           </div>
           <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:rgba(45,212,191,.1);border-radius:8px;font-size:.88rem">
-            <span>Additive RMSE medio</span><span style="font-family:var(--font-mono);font-weight:700;color:#2DD4BF">0.2017</span>
+            <span>Additive RMSE medio</span><span style="font-family:var(--font-mono);font-weight:700;color:#0f6e66">0.2017</span>
           </div>
           <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:rgba(251,191,36,.1);border-radius:8px;font-size:.88rem">
-            <span>Multiplicative RMSE medio</span><span style="font-family:var(--font-mono);font-weight:600;color:#FCD34D">0.2183</span>
+            <span>Multiplicative RMSE medio</span><span style="font-family:var(--font-mono);font-weight:600;color:#7d4400">0.2183</span>
           </div>
           <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:rgba(45,212,191,.1);border-radius:8px;font-size:.88rem">
-            <span>RMSE medio v6</span><span style="font-family:var(--font-mono);font-weight:700;color:#2DD4BF">0.183</span>
+            <span>RMSE medio v6</span><span style="font-family:var(--font-mono);font-weight:700;color:#0f6e66">0.183</span>
           </div>
         </div>
       </div>
@@ -809,10 +742,10 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
   </div>
 
   <div class="card reveal">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,max(12rem,(100% - 1 * 2rem) / 2)),1fr));gap:2rem;align-items:start">
       <div>
         <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:1rem">Grid activo (v5)</h4>
-        <table class="grid-heat">
+        <div class="tabla-desplazable"><table class="grid-heat">
           <thead>
             <tr>
               <th>cp \ sp</th>
@@ -841,8 +774,8 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
               <td><span class="heat-lo">Bajo</span></td>
             </tr>
           </tbody>
-        </table>
-        <div style="margin-top:.75rem;padding:.6rem .75rem;background:rgba(244,114,182,.1);border-radius:8px;font-size:.82rem;color:#F472B6">
+        </table></div>
+        <div style="margin-top:.75rem;padding:.6rem .75rem;background:rgba(244,114,182,.1);border-radius:8px;font-size:.82rem;color:#a3367a">
           <strong>Eliminados:</strong> cp=0.01 (Newton-prone), cp=0.07 (nunca ganaba) — ambos de v4
         </div>
         <p style="font-size:.82rem;color:var(--cool-gray);margin-top:.5rem">seasonality_mode: [multiplicative, additive]</p>
@@ -863,10 +796,10 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
             <span>seasonality_prior_scale</span><span style="font-family:var(--font-mono);font-size:.82rem;color:var(--teal)">[0.1, 0.5, 1.0]</span>
           </div>
           <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:rgba(45,212,191,.1);border-radius:8px;font-size:.88rem">
-            <span>sp ganador</span><span style="font-family:var(--font-mono);font-weight:700;color:#2DD4BF">0.5 (RMSE 0.046)</span>
+            <span>sp ganador</span><span style="font-family:var(--font-mono);font-weight:700;color:#0f6e66">0.5 (RMSE 0.046)</span>
           </div>
           <div style="display:flex;justify-content:space-between;padding:.5rem .75rem;background:rgba(45,212,191,.1);border-radius:8px;font-size:.88rem">
-            <span>RMSE medio v6</span><span style="font-family:var(--font-mono);font-weight:700;color:#2DD4BF">0.057</span>
+            <span>RMSE medio v6</span><span style="font-family:var(--font-mono);font-weight:700;color:#0f6e66">0.057</span>
           </div>
         </div>
       </div>
@@ -1038,7 +971,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
       </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--cream-light)">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,max(12rem,(100% - 1 * 2rem) / 2)),1fr));gap:2rem;margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--cream-light)">
       <div>
         <h4 style="font-family:var(--font-display);font-size:1.1rem;color:var(--cream);margin-bottom:.75rem">Ponderacion progresiva</h4>
         <p style="font-size:.88rem;color:var(--text-secondary);line-height:1.65">En lugar de <code>np.mean(metrics)</code> sobre los 4 folds, se usa:</p>
@@ -1069,7 +1002,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
             <span>Modelo final</span><span style="font-family:var(--font-mono);color:var(--teal)">Reentrenar con serie COMPLETA</span>
           </div>
           <div style="display:flex;justify-content:space-between;padding:.4rem .7rem;background:rgba(45,212,191,.1);border-radius:6px;font-size:.85rem">
-            <span>Timeout por fold</span><span style="font-family:var(--font-mono);color:#2DD4BF">35 segundos</span>
+            <span>Timeout por fold</span><span style="font-family:var(--font-mono);color:#0f6e66">35 segundos</span>
           </div>
         </div>
       </div>
@@ -1092,8 +1025,8 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
         <p style="font-size:.85rem;color:var(--cream);font-weight:600;margin-bottom:.25rem">Razonamiento</p>
         <p style="font-size:.85rem;color:var(--text-secondary)">CV evalúa el desempeño predictivo. El .pkl en producción necesita toda la información disponible para el pronóstico futuro — incluir 2024-2026 mejora la proyección a 52 semanas.</p>
       </div>
-      <div style="margin-top:1rem;padding:1rem;background:rgba(45,212,191,.1);border-radius:8px;border-left:3px solid #2DD4BF">
-        <p style="font-size:.85rem;color:#2DD4BF;font-weight:600;margin-bottom:.25rem">Impacto</p>
+      <div style="margin-top:1rem;padding:1rem;background:rgba(45,212,191,.1);border-radius:8px;border-left:3px solid #0f6e66">
+        <p style="font-size:.85rem;color:#0f6e66;font-weight:600;margin-bottom:.25rem">Impacto</p>
         <p style="font-size:.85rem;color:var(--text-secondary)">+53 semanas de datos adicionales en el modelo final vs v4 (que entrenaba solo hasta el split de CV). Mejora especialmente la proyección en series con tendencia reciente marcada.</p>
       </div>
     </div>
@@ -1183,12 +1116,12 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
           <div style="font-family:var(--font-mono);font-size:.8rem;font-weight:600;color:var(--burgundy);margin-bottom:.25rem">L-BFGS (normal)</div>
           <p style="font-size:.82rem;color:var(--text-secondary)">Optimizador quasi-Newton de memoria limitada. Típicamente converge en 50-200 iteraciones. Tiempo: 2-10 segundos por fold.</p>
         </div>
-        <div style="padding:.75rem;background:rgba(244,114,182,.1);border-radius:8px;border-left:3px solid #F472B6">
-          <div style="font-family:var(--font-mono);font-size:.8rem;font-weight:600;color:#F472B6;margin-bottom:.25rem">Newton (lento)</div>
+        <div style="padding:.75rem;background:rgba(244,114,182,.1);border-radius:8px;border-left:3px solid #a3367a">
+          <div style="font-family:var(--font-mono);font-size:.8rem;font-weight:600;color:#a3367a;margin-bottom:.25rem">Newton (lento)</div>
           <p style="font-size:.82rem;color:var(--text-secondary)">Newton completo requiere la Hessiana exacta. En espacio de alta dimensión (Fourier + changepoints), puede tardar 500-2000 iteraciones. Tiempo: 5-40 minutos por fold.</p>
         </div>
-        <div style="padding:.75rem;background:rgba(45,212,191,.1);border-radius:8px;border-left:3px solid #2DD4BF">
-          <div style="font-family:var(--font-mono);font-size:.8rem;font-weight:600;color:#2DD4BF;margin-bottom:.25rem">Con protección anti-Newton</div>
+        <div style="padding:.75rem;background:rgba(45,212,191,.1);border-radius:8px;border-left:3px solid #0f6e66">
+          <div style="font-family:var(--font-mono);font-size:.8rem;font-weight:600;color:#0f6e66;margin-bottom:.25rem">Con protección anti-Newton</div>
           <p style="font-size:.82rem;color:var(--text-secondary)">cp=0.01 se prueba primero (orden descendente). Si timeout en fold 1, se salta todos los cp menores. Tiempo total: &lt;5 min por serie.</p>
         </div>
       </div>
@@ -1270,22 +1203,22 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
   <div class="card reveal" style="margin-top:2rem">
     <h3 style="font-family:var(--font-display);font-size:1.3rem;color:var(--cream);margin-bottom:1.25rem">Regiones INEGI de Salud Mental</h3>
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem">
-      <div style="padding:1.25rem;background:linear-gradient(135deg,#1C2740,rgba(91,141,239,.4));color:var(--cream);border-radius:var(--radius-sm)">
+      <div style="padding:1.25rem;background:linear-gradient(135deg,#ffffff,rgba(91,141,239,.4));color:var(--cream);border-radius:var(--radius-sm)">
         <div style="font-family:var(--font-mono);font-size:.78rem;opacity:.7;margin-bottom:.4rem">Región 1</div>
         <div style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:.5rem">Metropolitana alta</div>
         <p style="font-size:.82rem;opacity:.8">CDMX, Jalisco, Nuevo León, Estado de México. Alta densidad, servicios de salud mental desarrollados.</p>
       </div>
-      <div style="padding:1.25rem;background:linear-gradient(135deg,#18223A,rgba(91,141,239,.3));color:var(--cream);border-radius:var(--radius-sm)">
+      <div style="padding:1.25rem;background:linear-gradient(135deg,#f1f6ef,rgba(91,141,239,.3));color:var(--cream);border-radius:var(--radius-sm)">
         <div style="font-family:var(--font-mono);font-size:.78rem;opacity:.7;margin-bottom:.4rem">Región 2</div>
         <div style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:.5rem">Urbana media</div>
         <p style="font-size:.82rem;opacity:.8">Aguascalientes, Querétaro, Guanajuato, Coahuila. Urbanización creciente, cobertura IMSS media.</p>
       </div>
-      <div style="padding:1.25rem;background:linear-gradient(135deg,#131C30,#1C2740);color:var(--cream);border-radius:var(--radius-sm)">
+      <div style="padding:1.25rem;background:linear-gradient(135deg,#fafbf7,#ffffff);color:var(--cream);border-radius:var(--radius-sm)">
         <div style="font-family:var(--font-mono);font-size:.78rem;opacity:.7;margin-bottom:.4rem">Región 3</div>
         <div style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:.5rem">Sur-Sureste vulnerable</div>
         <p style="font-size:.82rem;opacity:.8">Chiapas, Oaxaca, Guerrero, Veracruz. Alta marginalidad, sub-registro alto, series más cortas.</p>
       </div>
-      <div style="padding:1.25rem;background:linear-gradient(135deg,#131C30,rgba(91,141,239,.25));color:var(--cream);border-radius:var(--radius-sm)">
+      <div style="padding:1.25rem;background:linear-gradient(135deg,#fafbf7,rgba(91,141,239,.25));color:var(--cream);border-radius:var(--radius-sm)">
         <div style="font-family:var(--font-mono);font-size:.78rem;opacity:.7;margin-bottom:.4rem">Región 4</div>
         <div style="font-family:var(--font-display);font-size:1.1rem;margin-bottom:.5rem">Rural / dispersa</div>
         <p style="font-size:.82rem;opacity:.8">Durango, Zacatecas, Colima, BCS, Nayarit. Baja densidad, mayor proporción de modelos insuficientes.</p>
@@ -1423,14 +1356,14 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
 
     <div class="metric-card green">
       <div style="font-family:var(--font-mono);font-size:.78rem;color:var(--cool-gray);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem">Nuevo en v6 — escala-independiente</div>
-      <h4 style="color:#2DD4BF">MASE</h4>
+      <h4 style="color:#0f6e66">MASE</h4>
       <div class="formula-block">MASE = MAE_modelo / MAE_naive_lag52<br><br>MAE_naive_lag52 = (1/n) &sum; |y(t) - y(t-52)|</div>
       <p>Error absoluto medio escalado. El denominador es el MAE de un modelo naive que predice el mismo valor que hace 52 semanas (lag-52). <strong>MASE &lt; 1</strong> significa que el modelo supera al baseline seasonal naive.</p>
       <div class="threshold">
         <span class="badge badge-green">MASE &lt; 1 = mejor que naive</span>
         <span class="badge badge-red">MASE &gt; 1 = peor que naive</span>
       </div>
-      <div style="margin-top:.75rem;padding:.6rem .8rem;background:rgba(45,212,191,.1);border-radius:6px;font-size:.82rem;color:#2DD4BF">
+      <div style="margin-top:.75rem;padding:.6rem .8rem;background:rgba(45,212,191,.1);border-radius:6px;font-size:.82rem;color:#0f6e66">
         v6: Alzheimer 0.74, Depresión 0.80, Parkinson 0.75 — todos &lt; 1
       </div>
     </div>
@@ -1495,16 +1428,16 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
           <td class="mono">99</td>
           <td class="mono" style="color:var(--burgundy)">36</td>
           <td class="mono" style="color:var(--gold)">36</td>
-          <td class="mono" style="color:#2DD4BF;font-weight:700">0.027</td>
+          <td class="mono" style="color:#0f6e66;font-weight:700">0.027</td>
           <td class="mono">0.021</td>
-          <td class="mono" style="color:#2DD4BF;font-weight:700">0.74</td>
+          <td class="mono" style="color:#0f6e66;font-weight:700">0.74</td>
           <td class="mono">~2 min</td>
         </tr>
         <tr>
           <td><strong>Depresión</strong></td>
           <td class="mono">99</td>
-          <td class="mono" style="color:#2DD4BF">0</td>
-          <td class="mono" style="color:#2DD4BF">0</td>
+          <td class="mono" style="color:#0f6e66">0</td>
+          <td class="mono" style="color:#0f6e66">0</td>
           <td class="mono" style="color:var(--gold);font-weight:700">0.183</td>
           <td class="mono">0.143</td>
           <td class="mono" style="color:var(--gold);font-weight:700">0.80</td>
@@ -1515,9 +1448,9 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
           <td class="mono">99</td>
           <td class="mono" style="color:var(--burgundy)">5</td>
           <td class="mono" style="color:var(--gold)">5</td>
-          <td class="mono" style="color:#2DD4BF;font-weight:700">0.057</td>
+          <td class="mono" style="color:#0f6e66;font-weight:700">0.057</td>
           <td class="mono">0.044</td>
-          <td class="mono" style="color:#2DD4BF;font-weight:700">0.75</td>
+          <td class="mono" style="color:#0f6e66;font-weight:700">0.75</td>
           <td class="mono">~14 min</td>
         </tr>
       </tbody>
@@ -1583,7 +1516,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
         </tr>
       </thead>
       <tbody>
-        <tr><td colspan="6" style="background:var(--dark-teal);color:var(--cream);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;padding:.4rem 1rem">Target y normalización</td></tr>
+        <tr><td colspan="6" style="background:var(--tint);color:var(--cream);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;padding:.4rem 1rem">Target y normalización</td></tr>
         <tr>
           <td class="mono">normalizar_tasa</td><td class="mono">modelado.yaml</td>
           <td><span class="badge badge-teal">true</span></td><td style="font-size:.82rem">bool</td>
@@ -1609,7 +1542,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
           <td style="font-size:.82rem">log(1+y_tasa) — estabiliza varianza</td>
         </tr>
 
-        <tr><td colspan="6" style="background:var(--dark-teal);color:var(--cream);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;padding:.4rem 1rem">Estacionalidad</td></tr>
+        <tr><td colspan="6" style="background:var(--tint);color:var(--cream);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;padding:.4rem 1rem">Estacionalidad</td></tr>
         <tr>
           <td class="mono">yearly_seasonality</td><td class="mono">prophet.py</td>
           <td><span class="badge badge-red">False</span></td><td style="font-size:.82rem">bool</td>
@@ -1647,7 +1580,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
           <td style="font-size:.82rem">6 coeficientes — previene overfitting estatal</td>
         </tr>
 
-        <tr><td colspan="6" style="background:var(--dark-teal);color:var(--cream);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;padding:.4rem 1rem">Tendencia y changepoints</td></tr>
+        <tr><td colspan="6" style="background:var(--tint);color:var(--cream);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;padding:.4rem 1rem">Tendencia y changepoints</td></tr>
         <tr>
           <td class="mono">growth</td><td class="mono">prophet.py</td>
           <td class="mono">"linear"</td><td style="font-size:.82rem">str</td>
@@ -1667,7 +1600,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
           <td style="font-size:.82rem">1 cp cada ~24 sem — evita sobreajuste</td>
         </tr>
 
-        <tr><td colspan="6" style="background:var(--dark-teal);color:var(--cream);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;padding:.4rem 1rem">Hiperparámetros del grid</td></tr>
+        <tr><td colspan="6" style="background:var(--tint);color:var(--cream);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;padding:.4rem 1rem">Hiperparámetros del grid</td></tr>
         <tr>
           <td class="mono">changepoint_prior_scale</td><td class="mono">modelado.yaml</td>
           <td class="mono">[0.01–0.05]</td><td style="font-size:.82rem">float</td>
@@ -1687,7 +1620,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
           <td style="font-size:.82rem">Interacción estacionalidad-tendencia</td>
         </tr>
 
-        <tr><td colspan="6" style="background:var(--dark-teal);color:var(--cream);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;padding:.4rem 1rem">Cross-validation</td></tr>
+        <tr><td colspan="6" style="background:var(--tint);color:var(--cream);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;padding:.4rem 1rem">Cross-validation</td></tr>
         <tr>
           <td class="mono">n_splits</td><td class="mono">modelado.yaml</td>
           <td class="mono">4</td><td style="font-size:.82rem">int</td>
@@ -1707,7 +1640,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
           <td style="font-size:.82rem">Ponderación progresiva — más peso a folds recientes</td>
         </tr>
 
-        <tr><td colspan="6" style="background:var(--dark-teal);color:var(--cream);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;padding:.4rem 1rem">Protección anti-Newton</td></tr>
+        <tr><td colspan="6" style="background:var(--tint);color:var(--cream);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;padding:.4rem 1rem">Protección anti-Newton</td></tr>
         <tr>
           <td class="mono">fold_timeout_seg</td><td class="mono">modelado.yaml</td>
           <td class="mono">35</td><td style="font-size:.82rem">int (seg)</td>
@@ -1721,7 +1654,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
           <td style="font-size:.82rem">Backstop total por combinación de hiperparámetros</td>
         </tr>
 
-        <tr><td colspan="6" style="background:var(--dark-teal);color:var(--cream);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;padding:.4rem 1rem">Modo híbrido y confianza</td></tr>
+        <tr><td colspan="6" style="background:var(--tint);color:var(--cream);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;padding:.4rem 1rem">Modo híbrido y confianza</td></tr>
         <tr>
           <td class="mono">modelado_hibrido</td><td class="mono">params.yaml</td>
           <td><span class="badge badge-teal">true</span></td><td style="font-size:.82rem">bool</td>
@@ -1735,7 +1668,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
           <td style="font-size:.82rem">Casos/sem mínimo para confianza "normal"</td>
         </tr>
 
-        <tr><td colspan="6" style="background:var(--dark-teal);color:var(--cream);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;padding:.4rem 1rem">Periodos atípicos (holidays)</td></tr>
+        <tr><td colspan="6" style="background:var(--tint);color:var(--cream);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;padding:.4rem 1rem">Periodos atípicos (holidays)</td></tr>
         <tr>
           <td class="mono">COVID-19 holiday</td><td class="mono">modelado.yaml</td>
           <td class="mono">2020-03-23 + 913d</td><td style="font-size:.82rem">date + days</td>
@@ -1749,7 +1682,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
           <td style="font-size:.82rem">-6.2% RMSE en esa serie específica</td>
         </tr>
 
-        <tr><td colspan="6" style="background:var(--dark-teal);color:var(--cream);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;padding:.4rem 1rem">Entrenamiento paralelo</td></tr>
+        <tr><td colspan="6" style="background:var(--tint);color:var(--cream);font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:1px;padding:.4rem 1rem">Entrenamiento paralelo</td></tr>
         <tr>
           <td class="mono">n_jobs</td><td class="mono">modelado.yaml</td>
           <td class="mono">-2</td><td style="font-size:.82rem">int</td>
@@ -1770,7 +1703,7 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
 </div><!-- end container part 2 -->
 
 <!-- FOOTER -->
-<footer>
+<div class="legacy-colophon">
   <p><strong>EpiForecast-MX</strong> — IMSS × Tec de Monterrey</p>
   <p style="margin-top:.75rem">
     <a href="index.html">Inicio</a> ·
@@ -1789,7 +1722,39 @@ code{font-family:var(--font-mono);font-size:.85em;background:rgba(91,141,239,.12
     <a href="https://github.com/IntegradorIMSS2026Team01" target="_blank" rel="noopener">GitHub</a>
   </p>
   <p style="margin-top:.5rem">Ficha Técnica Prophet — Generado feb 2026</p>
+</div>
+<!-- site:footer:start -->
+<footer class="site-footer" lang="es">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <a class="site-brand" href="index.html" aria-label="EpiForecast-MX, inicio"><span class="site-brand__name"><span class="site-brand__word">EpiForecast<span class="site-brand__mx">MX</span></span></span></a>
+      <p>Datos oficiales. Investigación abierta. Una mirada informada a la salud de México.</p>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Explorar</p>
+      <a href="Reports/index.html">Galería de pronósticos</a>
+      <a href="epibot/index.html">Pregúntale a EPI</a>
+      <a href="EpiDashboard.html">Dashboard</a>
+      <a href="boletin.html">Radar del boletín</a>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Evidencia</p>
+      <a href="validacion_semanal.html">Validación semanal</a>
+      <a href="reporte_resultados.html">Resultados</a>
+      <a href="referencias.html">Fuentes y referencias</a>
+      <a href="rechazados.html">Analizados y rechazados</a>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Proyecto</p>
+      <a href="novedades.html">Noticias</a>
+      <a href="index.html#congresos">Congresos</a>
+      <a href="EpiDashboard-tableau.html">Archivo Tableau (corte W31)</a>
+      <a href="https://github.com/IntegradorIMSS2026Team01" rel="noopener" target="_blank">GitHub ↗</a>
+    </div>
+  </div>
+  <div class="site-footer__legal"><span>© 2026 EpiForecast-MX · Tecnológico de Monterrey · IMSS · SINAVE</span><a href="#nav">Volver arriba ↑</a></div>
 </footer>
+<!-- site:footer:end -->
 
 <script>
 const nav = document.getElementById('nav');
@@ -1886,7 +1851,7 @@ new Chart(document.getElementById('chartCombos'),{
     responsive:true,
     plugins:{
       legend:{display:false},
-      datalabels:{anchor:'end',align:'top',font:{family:'JetBrains Mono',size:13,weight:'700'},color:'#E7ECF5',formatter:v=>v+' combos'}
+      datalabels:{anchor:'end',align:'top',font:{family:'JetBrains Mono',size:13,weight:'700'},color:'#173c33',formatter:v=>v+' combos'}
     },
     scales:{
       y:{grid:{color:'rgba(91,141,239,.12)'},min:0,max:30,ticks:{stepSize:6}},
@@ -1929,7 +1894,7 @@ new Chart(document.getElementById('chartCvWeights'),{
       label:'Peso en RMSE ponderado',
       data:[0.50,0.75,1.00,1.25],
       backgroundColor:['rgba(244,114,182,.4)','rgba(45,212,191,.5)','rgba(91,141,239,.7)','rgba(91,141,239,.95)'],
-      borderColor:['rgba(244,114,182,1)','rgba(45,212,191,1)','rgba(91,141,239,1)','rgba(14,20,36,1)'],
+      borderColor:['rgba(244,114,182,1)','rgba(45,212,191,1)','rgba(91,141,239,1)','rgba(250,251,247,1)'],
       borderWidth:2,borderRadius:10,barPercentage:.7
     }]
   },
@@ -1937,7 +1902,7 @@ new Chart(document.getElementById('chartCvWeights'),{
     responsive:true,
     plugins:{
       legend:{display:false},
-      datalabels:{anchor:'end',align:'top',font:{family:'JetBrains Mono',size:13,weight:'700'},color:'#E7ECF5',formatter:v=>'×'+v}
+      datalabels:{anchor:'end',align:'top',font:{family:'JetBrains Mono',size:13,weight:'700'},color:'#173c33',formatter:v=>'×'+v}
     },
     scales:{
       y:{grid:{color:'rgba(91,141,239,.12)'},min:0,max:1.5,ticks:{callback:v=>'×'+v}},
@@ -1964,7 +1929,7 @@ new Chart(document.getElementById('chartNewton'),{
     responsive:true,
     plugins:{
       legend:{display:false},
-      datalabels:{anchor:'end',align:'top',font:{family:'JetBrains Mono',size:14,weight:'700'},color:'#E7ECF5',formatter:v=>v+' min'}
+      datalabels:{anchor:'end',align:'top',font:{family:'JetBrains Mono',size:14,weight:'700'},color:'#173c33',formatter:v=>v+' min'}
     },
     scales:{
       y:{grid:{color:'rgba(91,141,239,.12)'},title:{display:true,text:'Tiempo (minutos)'},min:0,max:45},
@@ -2038,7 +2003,7 @@ new Chart(document.getElementById('chartResultRmse'),{
     responsive:true,
     plugins:{
       legend:{display:false},
-      datalabels:{anchor:'end',align:'top',font:{family:'JetBrains Mono',size:13,weight:'700'},color:'#E7ECF5',formatter:v=>v.toFixed(3)}
+      datalabels:{anchor:'end',align:'top',font:{family:'JetBrains Mono',size:13,weight:'700'},color:'#173c33',formatter:v=>v.toFixed(3)}
     },
     scales:{
       y:{grid:{color:'rgba(91,141,239,.12)'},title:{display:true,text:'RMSE (log-tasa por 100K)'}},
@@ -2067,10 +2032,10 @@ new Chart(document.getElementById('chartResultRmse'),{
       responsive:true,
       plugins:{
         legend:{display:false},
-        datalabels:{anchor:'end',align:'top',font:{family:'JetBrains Mono',size:13,weight:'700'},color:'#E7ECF5',formatter:v=>v.toFixed(2)},
+        datalabels:{anchor:'end',align:'top',font:{family:'JetBrains Mono',size:13,weight:'700'},color:'#173c33',formatter:v=>v.toFixed(2)},
         annotation:{
           annotations:{
-            line1:{type:'line',yMin:1,yMax:1,borderColor:'rgba(244,114,182,.7)',borderWidth:2,borderDash:[6,4],label:{display:true,content:'Baseline naive (MASE=1)',position:'end',font:{size:11,family:'Outfit'},color:'rgba(244,114,182,1)',backgroundColor:'rgba(28,39,64,.85)'}}
+            line1:{type:'line',yMin:1,yMax:1,borderColor:'rgba(244,114,182,.7)',borderWidth:2,borderDash:[6,4],label:{display:true,content:'Baseline naive (MASE=1)',position:'end',font:{size:11,family:'Outfit'},color:'rgba(244,114,182,1)',backgroundColor:'rgba(255,255,255,.85)'}}
           }
         }
       },
@@ -2183,5 +2148,6 @@ document.querySelectorAll('nav a[href^="#"], .toc a[href^="#"]').forEach(a=>{
       scopeObs.observe(el);
     });
   </script>
+<script src="assets/site/site-nav.js?v=4"></script>
 </body>
 </html>
