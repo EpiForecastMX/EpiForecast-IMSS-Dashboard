@@ -277,7 +277,9 @@ function detectEntities(query) {
   const out = { padecimiento: diabetesDe(qn), entidad: null, sexo: null };
   const padMap = { depresion: 'Depresion', depression: 'Depresion', f32: 'Depresion', parkinson: 'Parkinson', g20: 'Parkinson', alzheimer: 'Alzheimer', alzaimer: 'Alzheimer', g30: 'Alzheimer', dengue: 'Dengue', a97: 'Dengue' };
   for (const r of globalThis.EPI_CATALOGO.releases) for (const k of [...r.alias, ...r.prefijos]) padMap[k] = r.pad;
-  if (!out.padecimiento) for (const [k, v] of Object.entries(padMap)) if (globalThis.EPI_CATALOGO.nombraAlias(qn, k)) { out.padecimiento = v; break; }
+  // Un subtipo con código propio («A06.4», «otitis supurativa») no es su bloque vecino publicado.
+  const ajeno = globalThis.EPI_CATALOGO.subtipoAjeno(qn);
+  if (!out.padecimiento) for (const [k, v] of Object.entries(padMap)) if ((!ajeno || v !== ajeno.pad) && globalThis.EPI_CATALOGO.nombraAlias(qn, k)) { out.padecimiento = v; break; }
   const alias = { cdmx: 'Ciudad de Mexico', df: 'Ciudad de Mexico', 'distrito federal': 'Ciudad de Mexico', 'ciudad de mexico': 'Ciudad de Mexico', edomex: 'Mexico', 'estado de mexico': 'Mexico', 'nuevo leon': 'Nuevo Leon', 'san luis potosi': 'San Luis Potosi', 'baja california sur': 'Baja California Sur', 'baja california': 'Baja California', 'quintana roo': 'Quintana Roo' };
   for (const [k, v] of Object.entries(alias).sort((a, b) => b[0].length - a[0].length)) if (qn.includes(k)) { out.entidad = v; break; }
   if (!out.entidad) {
@@ -585,6 +587,16 @@ export default async function handler(req) {
   // Antes de la clave y del límite de consultas: esta respuesta no depende de ningún modelo.
   const crisis = globalThis.EPI_CATALOGO.respuestaCrisis(stripAccents(String(body.query || '')).replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim());
   if (crisis) return json({ answer: crisis.replace('\n<!--SIN_GRAFICA-->', ''), sources: [] }, 200, cors);
+  // Subtipo con código propio vecino de un bloque publicado: respuesta fija, sin modelo ni cifras, para
+  // que ni la recuperación ni Gemini le atribuyan el pronóstico del bloque vecino.
+  const ajeno = globalThis.EPI_CATALOGO.subtipoAjeno(stripAccents(String(body.query || '')));
+  if (ajeno) {
+    const vecino = globalThis.EPI_CATALOGO.releases.find((r) => r.id === ajeno.release);
+    return json({ answer: `EpiForecast-MX no modela ${ajeno.nombre}. `
+      + `El pronóstico publicado más cercano es **${vecino.etiqueta}**, que no incluye esa categoría, `
+      + `así que no se le atribuyen sus cifras. Puedes consultar ese bloque en [su página](../${vecino.pagina}).`,
+    sources: [] }, 200, cors);
+  }
 
   if (!apiKey) return json({ error: 'GEMINI_API_KEY no configurada' }, 500, cors);
 

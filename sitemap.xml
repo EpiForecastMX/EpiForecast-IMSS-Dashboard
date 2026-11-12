@@ -18,6 +18,11 @@
   <url><loc>https://epiforecast.mx/ulceras_k25.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://epiforecast.mx/asma_j45.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://epiforecast.mx/neumonias_j12.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://epiforecast.mx/otitis_h65.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://epiforecast.mx/conjuntivitis_h10.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://epiforecast.mx/amebiasis_a06.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://epiforecast.mx/vehiculos_v20.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://epiforecast.mx/embarazo_hipertensivos_o10.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://epiforecast.mx/cancer_mama_c50.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://epiforecast.mx/cancer_cuello_utero_c53.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://epiforecast.mx/cancer_pulmon_c33.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>

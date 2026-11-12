@@ -109,5 +109,5 @@ test('EPI: la promesa de fuentes es condicional y exacta (las respuestas locales
   }
   assert.match(leer('epibot/js/app.js'), /DATOS DEL SINAVE · PRONÓSTICOS PUBLICADOS/);
   // app.js cambió: su ?v= en epibot/index.html debe ser el subido (cadena de caché del EpiBot).
-  assert.match(leer('epibot/index.html'), /<script type="module" src="js\/app\.js\?v=190"><\/script>/);
+  assert.match(leer('epibot/index.html'), /<script type="module" src="js\/app\.js\?v=191"><\/script>/);
 });

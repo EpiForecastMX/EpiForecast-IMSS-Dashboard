@@ -6,12 +6,12 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=52';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=53';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=1';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=4';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=23';
-import { conDiabetesNombrada, conHipertensionNombrada, RELEASES, releaseDePad, respuestaCrisis, VOCAB_RELEASES } from './release_config.js?v=18';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=24';
+import { conDiabetesNombrada, conHipertensionNombrada, RELEASES, releaseDePad, respuestaCrisis, VOCAB_RELEASES } from './release_config.js?v=19';
 
 let DATA = null;
 
@@ -620,6 +620,10 @@ const ROTULO_NO_MODELADA = {
   'hipertension del embarazo': 'hipertensión del embarazo', 'hipertension pulmonar': 'hipertensión pulmonar',
   'hipertension portal': 'hipertensión portal', 'hipertension intracraneal': 'hipertensión intracraneal',
   'hipertension ocular': 'hipertensión ocular',
+  'conjuntivitis hemorragica': 'conjuntivitis epidémica aguda hemorrágica (B30.3)',
+  'absceso hepatico amebiano': 'absceso hepático amebiano (A06.4)',
+  'peaton lesionado': 'peatón lesionado en accidente de transporte (V01-V09)',
+  'otitis externa': 'otitis externa o crónica',
 };
 
 const NUMERALES_PAD = ['cero', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve',

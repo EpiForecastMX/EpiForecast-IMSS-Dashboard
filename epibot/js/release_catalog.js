@@ -289,6 +289,60 @@
       alias: ['tumor maligno del esofago', 'cancer de esofago', 'c15', 'esophageal cancer'],
       prefijos: ['cancer de esofago', 'esophageal cancer'],
     },
+    {
+      id: 'otitis_h65', pad: 'Otitis media aguda', nombre: 'Otitis media aguda', nombreCorto: 'Otitis media aguda',
+      etiqueta: 'Otitis media aguda (H65.0-H65.1)', dataKey: 'otitis_h65', marca: 'OTITIS_H65',
+      pagina: 'otitis_h65.html', consulta: 'otitis media aguda', cie: 'H65.0-H65.1', color: '#0EA5E9',
+      // Sólo nombres del bloque H65.0-H65.1: «infección de oído» no implica otitis media aguda.
+      alias: ['otitis media aguda', 'otitis media', 'otitis aguda', 'otitis', 'h65', 'acute otitis media'],
+      prefijos: ['otitis'],
+    },
+    {
+      id: 'conjuntivitis_h10', pad: 'Conjuntivitis', nombre: 'Conjuntivitis', nombreCorto: 'Conjuntivitis',
+      etiqueta: 'Conjuntivitis (H10)', dataKey: 'conjuntivitis_h10', marca: 'CONJUNTIVITIS_H10',
+      pagina: 'conjuntivitis_h10.html', consulta: 'conjuntivitis', cie: 'H10', color: '#93C5FD',
+      // «ojo rojo» no implica conjuntivitis H10; la viral y la hemorrágica (B30) son ajenas.
+      alias: ['conjuntivitis', 'h10', 'conjunctivitis'],
+      prefijos: ['conjuntivit', 'conjunctivit'],
+    },
+    {
+      id: 'amebiasis_a06', pad: 'Amebiasis intestinal', nombre: 'Amebiasis intestinal',
+      nombreCorto: 'Amebiasis intestinal', etiqueta: 'Amebiasis intestinal (A06.0-A06.3, A06.9)',
+      dataKey: 'amebiasis_a06', marca: 'AMEBIASIS_A06', pagina: 'amebiasis_a06.html',
+      consulta: 'amebiasis intestinal', cie: 'A06.0-A06.3, A06.9', color: '#B45309',
+      alias: ['amebiasis intestinal', 'amebiasis', 'amibiasis', 'disenteria amebiana', 'a06',
+        'intestinal amoebiasis', 'amoebiasis', 'amebic dysentery'],
+      prefijos: ['amebiasis', 'amibiasis', 'amoebiasis', 'disenteria amebiana'],
+    },
+    {
+      id: 'vehiculos_v20', pad: 'Accidente de transporte en vehículos con motor',
+      nombre: 'Accidente de transporte en vehículos con motor', nombreCorto: 'Accidentes en vehículos con motor',
+      etiqueta: 'Accidente de transporte en vehículos con motor (V20-V29, V40-V79)', dataKey: 'vehiculos_v20',
+      marca: 'VEHICULOS_V20', pagina: 'vehiculos_v20.html', consulta: 'accidentes de transito',
+      cie: 'V20-V29, V40-V79', color: '#64748B',
+      // Sólo el bloque V20-V29, V40-V79: «accidente de tránsito» a secas incluye peatones (V01-V09),
+      // ciclistas (V10-V19) y otros transportes, que el bloque no cubre.
+      alias: ['accidente de transporte en vehiculos con motor', 'accidentes de transporte en vehiculos con motor',
+        'accidentes en vehiculos con motor', 'accidente en vehiculo con motor', 'vehiculos con motor',
+        'vehiculos de motor', 'v20', 'motor vehicle accidents', 'motor vehicle accident'],
+      prefijos: ['vehiculos con motor', 'vehiculos de motor', 'motor vehicle accident'],
+    },
+    {
+      id: 'embarazo_hipertensivos_o10',
+      pad: 'Edema, proteinuria y trastornos hipertensivos en el embarazo, parto y puerperio',
+      nombre: 'Edema, proteinuria y trastornos hipertensivos en el embarazo, parto y puerperio',
+      nombreCorto: 'Hipertensión en el embarazo',
+      etiqueta: 'Edema, proteinuria y trastornos hipertensivos en el embarazo, parto y puerperio (O10-O16)',
+      dataKey: 'embarazo_hipertensivos_o10', marca: 'EMBARAZO_HIPERTENSIVOS_O10',
+      pagina: 'embarazo_hipertensivos_o10.html', consulta: 'trastornos hipertensivos del embarazo',
+      cie: 'O10-O16', color: '#BE123C',
+      // Toda consulta con un término de hipertensión y otro del embarazo llega aquí como
+      // «trastornos hipertensivos del embarazo» (canonClinico), sin dejar el término de hipertensión.
+      alias: ['trastornos hipertensivos del embarazo', 'trastornos hipertensivos en el embarazo',
+        'preeclampsia', 'eclampsia', 'o10', 'o16', 'hypertensive disorders of pregnancy'],
+      prefijos: ['trastornos hipertensivos del embarazo', 'trastornos hipertensivos en el embarazo',
+        'preeclamps', 'eclamps', 'hypertensive disorders of pregnancy'],
+    },
   ]);
 
   /**
@@ -333,8 +387,18 @@
       'enfermedad cerebrovascular'],
     [/\bcardiopatias? isquemicas?\b/g, 'enfermedad isquemica'],
   ];
+  // Un término de hipertensión junto a uno del embarazo, parto o puerperio nombra el bloque O10-O16,
+  // no la hipertensión arterial (I10-I15): se reescribe a su forma canónica y se retira el término de
+  // hipertensión, para que ningún detector vea dos padecimientos.
+  const HTA_TERMINO = /\b(hipertension( arterial)?|hipertens[ao]s?|presion( arterial)? alta|tension( arterial)? alta|presion arterial|tension arterial|hypertension|high blood pressure)\b/g;
+  const EMBARAZO_TERMINO = /\b(embaraz\w*|gestacion\w*|gestacional|gestational|gravidez|puerperio|posparto|parto|pregnan\w*)\b/g;
+  function hipertensionDelEmbarazo(q) {
+    if (!new RegExp(HTA_TERMINO.source).test(q) || !new RegExp(EMBARAZO_TERMINO.source).test(q)) return q;
+    return `${q.replace(HTA_TERMINO, ' ').replace(EMBARAZO_TERMINO, ' ')} trastornos hipertensivos del embarazo`
+      .replace(/\s+/g, ' ').trim();
+  }
   function canonClinico(qn) {
-    return CANON_CLINICO.reduce((q, [de, a]) => q.replace(de, a), String(qn));
+    return hipertensionDelEmbarazo(CANON_CLINICO.reduce((q, [de, a]) => q.replace(de, a), String(qn)));
   }
 
   /** Alias al inicio de palabra; un código CIE («i10») debe coincidir completo, no como «i100». */
@@ -358,8 +422,7 @@
     'herida de bala', 'heridas de bala', 'balazo', 'domestic violence', 'gunshot',
     'hipotension', 'hypotension', 'presion baja', 'presion arterial baja', 'tension baja',
     'tension arterial baja',
-    'cancer', 'hipertension gestacional', 'hipertension en el embarazo', 'hipertension del embarazo',
-    'hipertension pulmonar', 'preeclampsia', 'eclampsia', 'prediabetes', 'diabetes gestacional', 'diabetes insipida', 'diabetes en el embarazo',
+    'cancer', 'hipertension pulmonar', 'prediabetes', 'diabetes gestacional', 'diabetes insipida', 'diabetes en el embarazo',
     'diabetes del embarazo', 'epilepsia',
     'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah',
     'influenza', 'covid', 'tuberculosis', 'vih', 'sida', 'colera',
@@ -367,8 +430,8 @@
     'linfoma', 'tumor', 'neoplasia', 'cardiopatia congenita', 'cardiopatia', 'infarto',
     'ataque al corazon', 'ataque cardiaco',
     'embolia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
-    // Fuera del bloque A04, A08-A09: rotavirus es A08.0 y las demás tienen código propio.
-    'rotavirus', 'shigelosis', 'amebiasis', 'salmonelosis', 'tifoidea',
+    // Fuera de los bloques A04, A08-A09 y A06: rotavirus es A08.0 y las demás tienen código propio.
+    'rotavirus', 'shigelosis', 'salmonelosis', 'tifoidea',
     'lupus', 'fibromialgia', 'esclerosis', 'huntington', 'ela ',
     'insuficiencia renal', 'insuficiencia cardiaca',
     // En inglés: sin esto, «epilepsy in jalisco» caería en la tabla neuro del estado.
@@ -381,7 +444,6 @@
   const HIPERTENSION = /\b(hipertens|hypertens|presion alta|presion arterial|tension alta|tension arterial|high blood pressure)/;
   /** Hipertensiones con código propio, fuera de I10-I15: nunca reciben sus cifras. */
   const HIPERTENSION_AJENA = [
-    [/\b(embaraz|gestacion|gestational|pregnan|gravidez|posparto|puerperio)/, 'hipertension gestacional'],
     [/\b(pulmonar|pulmonary)/, 'hipertension pulmonar'],
     [/\bportal\b/, 'hipertension portal'],
     [/\b(intracraneal|intracranial|endocraneal)/, 'hipertension intracraneal'],
@@ -402,9 +464,45 @@
     return ALIAS_PUBLICADOS.reduce((t, a) => t.split(` ${a.trim()} `).join(' '), q);
   }
 
+  /**
+   * Formas con código propio vecinas de un bloque publicado: no reciben sus cifras. Cada entrada lleva
+   * la consulta normalizada que la reconoce, el término de no modelado, su nombre visible y el release
+   * vecino cuyo alias la capturaría. Los códigos se comparan con o sin punto («a06 4», «a06.4»): el
+   * alias «a06» abarca «a06 4» porque nombraAlias cambia la puntuación por espacios.
+   */
+  const SUBTIPOS_AJENOS = [
+    [/\ba06[ .]?[4-8]\b|\babscesos? hepaticos?\b|\bliver abscess\b/, 'absceso hepatico amebiano',
+      'absceso hepático amebiano (A06.4) ni otras amebiasis fuera del intestino (A06.5-A06.8)', 'amebiasis_a06'],
+    [/\bamebiasis (extraintestinal|cutanea|pulmonar|cerebral|hepatica)\b/, 'amebiasis extraintestinal',
+      'amebiasis fuera del intestino (A06.4-A06.8)', 'amebiasis_a06'],
+    [/\bh65[ .]?[2-9]\b|\bh66\b|\botitis media (no aguda|cronica|supurativa|purulenta)\b|\botitis cronica\b|\bchronic otitis\b|\bsuppurative otitis\b/,
+      'otitis media cronica o supurativa',
+      'otitis media crónica (H65.2-H65.9) ni supurativa (H66)', 'otitis_h65'],
+    [/\botitis externa\b|\bswimmer s ear\b|\bh60\b/, 'otitis externa', 'otitis externa (H60)', 'otitis_h65'],
+    [/\bconjuntivitis( epidemica)?( aguda)? hemorragica\b|\bconjuntivitis viral\b|\bb30\b|\bb30[ .]?[0-9]\b|\b(hemorrhagic|viral) conjunctivitis\b/,
+      'conjuntivitis hemorragica', 'conjuntivitis viral o epidémica aguda hemorrágica (B30)', 'conjuntivitis_h10'],
+    [/\b(peaton(es)?|atropell\w*|pedestrians?)\b|\bv0[1-9]\b/, 'peaton lesionado',
+      'peatón lesionado en accidente de transporte (V01-V09)', 'vehiculos_v20'],
+    [/\b(bicicletas?|ciclistas?|bicycles?|cyclists?)\b|\bv1[0-9]\b/, 'ciclista lesionado',
+      'ciclista lesionado en accidente de transporte (V10-V19)', 'vehiculos_v20'],
+    [/\bv(3[0-9]|8[0-9]|9[0-9])\b/, 'otro accidente de transporte',
+      'accidentes de transporte fuera de V20-V29 y V40-V79', 'vehiculos_v20'],
+  ];
+
+  /** El subtipo ajeno que nombra la consulta (normalizada): `{ termino, nombre, release }`, o null. */
+  function subtipoAjeno(qn) {
+    const canon = canonClinico(String(qn).replace(/[^a-z0-9. ]+/g, ' '));
+    const hit = SUBTIPOS_AJENOS.find(([re]) => re.test(canon));
+    if (!hit) return null;
+    const r = releases.find((x) => x.id === hit[3]);
+    return { termino: hit[1], nombre: hit[2], release: hit[3], pad: r ? r.pad : null };
+  }
+
   /** La enfermedad no modelada que nombra la consulta (normalizada), o null. Compara al inicio de palabra. */
   function mencionaNoModelada(qn) {
     const canon = canonClinico(qn);
+    const ajeno = subtipoAjeno(qn);
+    if (ajeno) return ajeno.termino;
     const q = sinAliasPublicados(` ${canon.replace(CANCER_MAMA, ' ')} `);
     const directa = noModeladas.find((e) => q.includes(e.endsWith(' ') ? ` ${e}` : ` ${e.trim()}`));
     if (directa) return directa;
@@ -417,7 +515,10 @@
   function conHipertensionNombrada(qn, padPrevio) {
     if (padPrevio !== 'Hipertensión arterial' || HIPERTENSION.test(qn)) return qn;
     if (!/^(y|pero|tambien|que hay de|ahora|and|what about)\b/.test(qn)) return qn;
-    return HIPERTENSION_AJENA.some(([re]) => re.test(qn)) ? `hipertension ${qn}` : qn;
+    // «¿y gestacional?» nombra el bloque del embarazo: con «hipertension» delante, canonClinico lo
+    // resuelve a O10-O16 en vez de heredar I10-I15.
+    const delEmbarazo = new RegExp(EMBARAZO_TERMINO.source).test(qn);
+    return delEmbarazo || HIPERTENSION_AJENA.some(([re]) => re.test(qn)) ? `hipertension ${qn}` : qn;
   }
 
   const CRISIS_ES = /\b(suicidarme|suicidarse|matarme|matarse|quitarme la vida|quitarse la vida|acabar con mi vida|terminar con mi vida|(me|se) quier[eo] (morir|matar|suicidar)|me voy a (matar|morir|suicidar)|quiero (morir|morirme)|quisiera (morir|morirme|estar muert)|ganas de (morir|morirme|matarme|suicidarme)|(ya )?no quiero (vivir|seguir viviendo|seguir con vida|estar viv|existir)|no vale la pena vivir|hacerme dano|lastimarme|cortarme las venas|autolesionarme|(tengo|con) (pensamientos|ideas) suicidas|tengo ideacion suicida)\b/;
@@ -444,6 +545,6 @@
 
   g.EPI_CATALOGO = Object.freeze({
     releases, diabetesEnConsulta, conDiabetesNombrada, canonClinico, nombraAlias, noModeladas,
-    mencionaNoModelada, conHipertensionNombrada, respuestaCrisis,
+    mencionaNoModelada, conHipertensionNombrada, respuestaCrisis, subtipoAjeno,
   });
 })(globalThis);

@@ -8,10 +8,12 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'fs';
 
 const K = readFileSync(new URL('../knowledge.json', import.meta.url), 'utf-8');
-const V = readFileSync(new URL('../../publication/obesidad/vista.json', import.meta.url), 'utf-8');
+// Cada release lee su propia vista: sin ella, su respuesta sería «se está cargando» y sin marcador.
+const vista = (u) => String(u).match(/publication\/([a-z0-9_]+)\/vista\.json/);
 globalThis.fetch = async (u) => ({
   ok: true,
-  json: async () => JSON.parse(String(u).includes('publication/obesidad/vista.json') ? V : K),
+  json: async () => JSON.parse(vista(u)
+    ? readFileSync(new URL(`../../publication/${vista(u)[1]}/vista.json`, import.meta.url), 'utf-8') : K),
 });
 const kb = await import('../js/kb.js');
 const { detectEntities } = await import('../js/entities.js?v=40');
@@ -106,9 +108,7 @@ test('seguimiento: «y la isquemica?» cambia de padecimiento', async () => {
 });
 
 for (const q of ['cardiopatía en jalisco', 'cardiopatias en sonora', 'cardiopatia reumatica en jalisco',
-  'hipotensión en jalisco', 'presion baja en jalisco', 'hipertension durante el embarazo en jalisco',
-  'presión alta en embarazadas', 'hipertensión inducida por el embarazo', 'gestational hypertension in jalisco',
-  'pulmonary hypertension', 'hipertensión portal en sonora', 'hipertensión intracraneal en jalisco']) {
+  'hipotensión en jalisco', 'presion baja en jalisco', 'pulmonary hypertension', 'hipertensión portal en sonora', 'hipertensión intracraneal en jalisco']) {
   test(`no modelada: «${q}» no recibe cifras de otro padecimiento`, async () => {
     const { handler, md } = await pregunta(q);
     assert.equal(handler, 'answerPadecimientoNoModelado');
@@ -116,12 +116,28 @@ for (const q of ['cardiopatía en jalisco', 'cardiopatias en sonora', 'cardiopat
   });
 }
 
-for (const q of ['y gestacional?', 'y pulmonar?']) {
-  test(`seguimiento de hipertensión: «${q}» no repite I10-I15`, async () => {
-    const { handler } = await pregunta(q, 'hipertension en jalisco');
-    assert.equal(handler, 'answerPadecimientoNoModelado');
+test('seguimiento de hipertensión: «y pulmonar?» no repite I10-I15', async () => {
+  const { handler } = await pregunta('y pulmonar?', 'hipertension en jalisco');
+  assert.equal(handler, 'answerPadecimientoNoModelado');
+});
+
+// Desde el 12-nov-2026 la hipertensión del embarazo tiene release propio (O10-O16): nunca recibe las
+// cifras de la hipertensión arterial (I10-I15) ni se responde como no modelada.
+for (const q of ['hipertension durante el embarazo en jalisco', 'presión alta en embarazadas',
+  'hipertensión inducida por el embarazo', 'gestational hypertension in jalisco', 'preeclampsia en sonora']) {
+  test(`embarazo: «${q}» responde O10-O16 y no I10-I15`, async () => {
+    const { md } = await pregunta(q);
+    assert.match(md, /O10-O16/);
+    assert.match(md, /EMBARAZO_HIPERTENSIVOS_O10/);
+    assert.doesNotMatch(md, /I10-I15|HIPERTENSION_I10/);
   });
 }
+
+test('seguimiento de hipertensión: «y gestacional?» pasa a O10-O16, no repite I10-I15', async () => {
+  const { md } = await pregunta('y gestacional?', 'hipertension en jalisco');
+  assert.match(md, /EMBARAZO_HIPERTENSIVOS_O10/);
+  assert.doesNotMatch(md, /HIPERTENSION_I10/);
+});
 
 for (const q of ['infarto', 'infarto en jalisco', 'ataque al corazón', 'ataque cardiaco en jalisco', 'heart attack']) {
   test(`infarto: «${q}» responde igual y no afirma el alcance de I21`, async () => {
