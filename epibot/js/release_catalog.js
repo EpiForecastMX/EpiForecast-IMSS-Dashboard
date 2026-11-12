@@ -318,7 +318,7 @@
       id: 'vehiculos_v20', pad: 'Accidente de transporte en vehículos con motor',
       nombre: 'Accidente de transporte en vehículos con motor', nombreCorto: 'Accidentes en vehículos con motor',
       etiqueta: 'Accidente de transporte en vehículos con motor (V20-V29, V40-V79)', dataKey: 'vehiculos_v20',
-      marca: 'VEHICULOS_V20', pagina: 'vehiculos_v20.html', consulta: 'accidentes de transito',
+      marca: 'VEHICULOS_V20', pagina: 'vehiculos_v20.html', consulta: 'accidentes en vehiculos con motor',
       cie: 'V20-V29, V40-V79', color: '#64748B',
       // Sólo el bloque V20-V29, V40-V79: «accidente de tránsito» a secas incluye peatones (V01-V09),
       // ciclistas (V10-V19) y otros transportes, que el bloque no cubre.
@@ -392,7 +392,12 @@
   // hipertensión, para que ningún detector vea dos padecimientos.
   const HTA_TERMINO = /\b(hipertension( arterial)?|hipertens[ao]s?|presion( arterial)? alta|tension( arterial)? alta|presion arterial|tension arterial|hypertension|high blood pressure)\b/g;
   const EMBARAZO_TERMINO = /\b(embaraz\w*|gestacion\w*|gestacional|gestational|gravidez|puerperio|posparto|parto|pregnan\w*)\b/g;
+  // Presión baja no es hipertensión, y «diabetes gestacional e hipertensión» o «hipertensión y diabetes
+  // en el embarazo» pueden atar el embarazo a la diabetes: en esos casos no se reescribe nada, para que
+  // el aviso de no modelado (hipotensión, diabetes del embarazo) siga viendo sus términos.
+  const PRESION_BAJA = /\b(hipotension|hypotension|presion( arterial)? baja|tension( arterial)? baja|low blood pressure)\b/;
   function hipertensionDelEmbarazo(q) {
+    if (PRESION_BAJA.test(q) || /\b(diabet|dm ?[12]\b)/.test(q)) return q;
     if (!new RegExp(HTA_TERMINO.source).test(q) || !new RegExp(EMBARAZO_TERMINO.source).test(q)) return q;
     return `${q.replace(HTA_TERMINO, ' ').replace(EMBARAZO_TERMINO, ' ')} trastornos hipertensivos del embarazo`
       .replace(/\s+/g, ' ').trim();
@@ -470,32 +475,75 @@
    * vecino cuyo alias la capturaría. Los códigos se comparan con o sin punto («a06 4», «a06.4»): el
    * alias «a06» abarca «a06 4» porque nombraAlias cambia la puntuación por espacios.
    */
+  // Un código con espacio («a06 4») se lee como subcódigo salvo que el número cuente semanas, días o
+  // meses («a06 4 semanas»).
+  const NO_UNIDAD = '(?! ?(semanas?|sem|dias?|meses|mes|anos?|weeks?|days?|months?|years?)\\b)';
+  const subcodigo = (base, digitos) => new RegExp(`\\b${base}(\\.[${digitos}]|[${digitos}]| [${digitos}]${NO_UNIDAD})\\b`);
+  // Peatones y ciclistas sólo son un subtipo ajeno cuando la consulta habla de un accidente o de
+  // transporte: «obesidad en ciclistas» o «asma en peatones» no preguntan por V01-V19.
+  const TRANSPORTE = /\b(accident\w*|atropell\w*|lesion\w*|choques?|colision\w*|transporte|transito|trafico|vial(es)?|crash\w*|collision\w*|injur\w*|traffic|v[0-9][0-9])\b/;
   const SUBTIPOS_AJENOS = [
-    [/\ba06[ .]?[4-8]\b|\babscesos? hepaticos?\b|\bliver abscess\b/, 'absceso hepatico amebiano',
+    [subcodigo('a06', '4-8'), 'absceso hepatico amebiano',
       'absceso hepático amebiano (A06.4) ni otras amebiasis fuera del intestino (A06.5-A06.8)', 'amebiasis_a06'],
-    [/\bamebiasis (extraintestinal|cutanea|pulmonar|cerebral|hepatica)\b/, 'amebiasis extraintestinal',
-      'amebiasis fuera del intestino (A06.4-A06.8)', 'amebiasis_a06'],
-    [/\bh65[ .]?[2-9]\b|\bh66\b|\botitis media (no aguda|cronica|supurativa|purulenta)\b|\botitis cronica\b|\bchronic otitis\b|\bsuppurative otitis\b/,
+    [/\babscesos? (hepaticos?|amebianos?)\b|\b(amebic |amoebic )?liver abscess\b/, 'absceso hepatico amebiano',
+      'absceso hepático amebiano (A06.4)', 'amebiasis_a06'],
+    [/\b(amebiasis|amibiasis|amoebiasis|amebic|amoebic)( (del|de|en el|en la|of the))? (extraintestinal|cutanea|pulmonar|cerebral|hepatica|higado|liver|hepatic|skin|lung|brain)\b|\bextraintestinal (amebiasis|amibiasis|amoebiasis)\b/,
+      'amebiasis extraintestinal', 'amebiasis fuera del intestino (A06.4-A06.8)', 'amebiasis_a06'],
+    [subcodigo('h65', '2-9'), 'otitis media cronica', 'otitis media crónica (H65.2-H65.9)', 'otitis_h65'],
+    [/\bh66\b|\botitis( [a-z]+){0,3} (no aguda|cronic[ao]s?|chronic|supurativ[ao]s?|suppurative|purulent[ao]s?|purulent)\b|\b(chronic|suppurative|purulent) otitis\b/,
       'otitis media cronica o supurativa',
-      'otitis media crónica (H65.2-H65.9) ni supurativa (H66)', 'otitis_h65'],
-    [/\botitis externa\b|\bswimmer s ear\b|\bh60\b/, 'otitis externa', 'otitis externa (H60)', 'otitis_h65'],
-    [/\bconjuntivitis( epidemica)?( aguda)? hemorragica\b|\bconjuntivitis viral\b|\bb30\b|\bb30[ .]?[0-9]\b|\b(hemorrhagic|viral) conjunctivitis\b/,
-      'conjuntivitis hemorragica', 'conjuntivitis viral o epidémica aguda hemorrágica (B30)', 'conjuntivitis_h10'],
-    [/\b(peaton(es)?|atropell\w*|pedestrians?)\b|\bv0[1-9]\b/, 'peaton lesionado',
-      'peatón lesionado en accidente de transporte (V01-V09)', 'vehiculos_v20'],
+      'otitis media crónica (H65.2-H65.9) ni supurativa o purulenta (H66)', 'otitis_h65'],
+    [/\botitis externa\b|\botitis del nadador\b|\b(external otitis|otitis externa|swimmer s ear)\b|\bh60\b/, 'otitis externa',
+      'otitis externa (H60)', 'otitis_h65'],
+    [/\botitis interna\b|\binternal otitis\b/, 'otitis interna', 'otitis interna, que no forma parte de H65.0-H65.1',
+      'otitis_h65'],
+    [/\bconjuntivitis( [a-z]+){0,3} (hemorragicas?|viral(es)?|viricas?|virus|adenovir[a-z]*|epidemicas?|gonococ[a-z]*|neonatal(es)?|recien nacidos?|herpetic[a-z]*|clamidi[a-z]*|chlamydi[a-z]*)\b|\b(hemorrhagic|viral|adenoviral|epidemic|gonococcal|neonatal|chlamydial|herpetic) conjunctivitis\b|\bb30([ .]?[0-9])?\b/,
+      'conjuntivitis fuera de h10',
+      'conjuntivitis viral ni epidémica aguda hemorrágica (B30), ni las conjuntivitis gonocócica, por clamidia, herpética o neonatal, que tienen código propio fuera de H10',
+      'conjuntivitis_h10'],
+    [/\b(peaton(es)?|atropell[a-z]*|pedestrians?)\b|\bv0[1-9]\b/, 'peaton lesionado',
+      'peatón lesionado en accidente de transporte (V01-V09)', 'vehiculos_v20', TRANSPORTE],
     [/\b(bicicletas?|ciclistas?|bicycles?|cyclists?)\b|\bv1[0-9]\b/, 'ciclista lesionado',
-      'ciclista lesionado en accidente de transporte (V10-V19)', 'vehiculos_v20'],
+      'ciclista lesionado en accidente de transporte (V10-V19)', 'vehiculos_v20', TRANSPORTE],
     [/\bv(3[0-9]|8[0-9]|9[0-9])\b/, 'otro accidente de transporte',
       'accidentes de transporte fuera de V20-V29 y V40-V79', 'vehiculos_v20'],
   ];
 
   /** El subtipo ajeno que nombra la consulta (normalizada): `{ termino, nombre, release }`, o null. */
   function subtipoAjeno(qn) {
-    const canon = canonClinico(String(qn).replace(/[^a-z0-9. ]+/g, ' '));
-    const hit = SUBTIPOS_AJENOS.find(([re]) => re.test(canon));
+    const canon = canonClinico(String(qn).replace(/[^a-z0-9. ]+/g, ' ').replace(/\s+/g, ' '));
+    const hit = SUBTIPOS_AJENOS.find(([re, , , , ctx]) => re.test(canon) && (!ctx || ctx.test(canon)));
     if (!hit) return null;
     const r = releases.find((x) => x.id === hit[3]);
     return { termino: hit[1], nombre: hit[2], release: hit[3], pad: r ? r.pad : null };
+  }
+
+  /**
+   * Nombres genéricos que abarcan más que el bloque publicado: «otitis» incluye la externa y la crónica,
+   * y «amebiasis» incluye el absceso hepático. Sin el nombre del bloque no se dan cifras: se aclara qué
+   * se pronostica y se pide precisar.
+   */
+  const ALIAS_AMBIGUOS = [
+    { release: 'otitis_h65', generico: /\b(otitis|h65)\b/,
+      especifico: new RegExp(`\\botitis media aguda\\b|\\bacute otitis media\\b|${subcodigo('h65', '01').source}`),
+      abarca: '«Otitis» abarca varias categorías con código propio: la externa (H60), la media crónica (H65.2-H65.9) y la supurativa (H66).' },
+    { release: 'amebiasis_a06', generico: /\b(amebiasis|amibiasis|amoebiasis|a06)\b/,
+      especifico: new RegExp(`\\b(amebiasis|amibiasis|amoebiasis) intestinal\\b|\\bintestinal (amebiasis|amoebiasis)\\b|\\bdisenteria amebiana\\b|\\bamebic dysentery\\b|${subcodigo('a06', '0-39').source}`),
+      abarca: '«Amebiasis» incluye formas fuera del intestino: el absceso hepático amebiano (A06.4) y otras amebiasis extraintestinales (A06.5-A06.8).' },
+  ];
+
+  /** Aclaración ante un nombre genérico que no basta para elegir el bloque publicado, o null. */
+  function aliasAmbiguo(qn) {
+    const canon = canonClinico(String(qn).replace(/[^a-z0-9. ]+/g, ' ').replace(/\s+/g, ' '));
+    if (subtipoAjeno(qn)) return null;
+    const hit = ALIAS_AMBIGUOS.find((a) => a.generico.test(canon) && !a.especifico.test(canon));
+    if (!hit) return null;
+    const r = releases.find((x) => x.id === hit.release);
+    return {
+      release: r.id, pad: r.pad,
+      texto: `${hit.abarca} EpiForecast-MX sólo pronostica **${r.etiqueta}**, así que no doy cifras hasta saber ` +
+        `si te refieres a ese bloque. Si es así, pregunta por «${r.consulta}»; por ejemplo, «${r.consulta} en Jalisco».`,
+    };
   }
 
   /** La enfermedad no modelada que nombra la consulta (normalizada), o null. Compara al inicio de palabra. */
@@ -503,6 +551,9 @@
     const canon = canonClinico(qn);
     const ajeno = subtipoAjeno(qn);
     if (ajeno) return ajeno.termino;
+    // Antes de retirar alias: «presión arterial» es alias de hipertensión y taparía «presión arterial baja».
+    const baja = canon.match(PRESION_BAJA);
+    if (baja) return baja[0];
     const q = sinAliasPublicados(` ${canon.replace(CANCER_MAMA, ' ')} `);
     const directa = noModeladas.find((e) => q.includes(e.endsWith(' ') ? ` ${e}` : ` ${e.trim()}`));
     if (directa) return directa;
@@ -545,6 +596,6 @@
 
   g.EPI_CATALOGO = Object.freeze({
     releases, diabetesEnConsulta, conDiabetesNombrada, canonClinico, nombraAlias, noModeladas,
-    mencionaNoModelada, conHipertensionNombrada, respuestaCrisis, subtipoAjeno,
+    mencionaNoModelada, conHipertensionNombrada, respuestaCrisis, subtipoAjeno, aliasAmbiguo,
   });
 })(globalThis);

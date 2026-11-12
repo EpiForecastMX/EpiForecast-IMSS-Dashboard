@@ -83,7 +83,7 @@
           <span class="status-text"><strong id="pubKind" class="status-kind" hidden></strong> <span id="pubLabel">Cargando el estado de la validación…</span></span>
         </div>
         <ul class="status-notes">
-          <li><strong>Pronóstico congelado:</strong> se entrenó con datos hasta la <span id="originTxt">W41 de 2026</span> y se emitió el <span id="emitTxt">8 de noviembre de 2026</span>; no se ha reentrenado ni ajustado con datos posteriores.</li>
+          <li><strong>Pronóstico congelado:</strong> se entrenó con datos hasta la <span id="originTxt">W42 de 2026</span> y se emitió el <span id="emitTxt">12 de noviembre de 2026</span>; no se ha reentrenado ni ajustado con datos posteriores.</li>
           <li><strong>Sin intervalos de incertidumbre:</strong> es un pronóstico puntual. La gráfica no dibuja bandas porque este release no las tiene.</li>
           <li>Datos observados hasta la <strong id="cutoffTxt">—</strong>.</li>
         </ul>
@@ -164,7 +164,7 @@
         <div class="step"><div class="n">01 · Datos</div><h4>Cuadro 4.3 del boletín</h4><p>La serie semanal de amebiasis intestinal por entidad y sexo se extrae del Boletín Epidemiológico del SINAVE desde 2014. Los totales por sexo se reconcilian para que hombres más mujeres sumen exactamente el total.</p></div>
         <div class="step"><div class="n">02 · Modelos</div><h4>64 modelos, uno por serie base</h4><p>Cada combinación de entidad y sexo (32 × 2) tiene su propio modelo. Las <span id="mtProducts">111</span> series publicadas (entidades, regiones y nacional, en general, hombres y mujeres) se derivan sumando esas 64 bases, nunca se modelan por separado.</p></div>
         <div class="step"><div class="n">03 · Selección</div><h4>Validación cruzada rolling-origin</h4><p>El motor de cada serie se eligió con la política <code>rolling_cv_v1</code>: cuatro años de pliegues temporales de 52 semanas en los que el modelo nunca ve el periodo que pronostica. El portafolio combina <span id="mtEngines">varios motores</span>.</p></div>
-        <div class="step"><div class="n">04 · Validación prospectiva</div><h4>Regla fijada antes de ver los datos</h4><p>La regla se fijó antes de registrar la primera semana observada, sobre las cuatro semanas siguientes al origen (W42 a W45 de 2026), comparando con un control estacional. El estado actual es <strong id="mtVerdict">en curso</strong>, con <span id="mtWeeks">0 de 4</span> semanas observadas. Hasta completarlas no se afirma que haya superado la validación.</p></div>
+        <div class="step"><div class="n">04 · Validación prospectiva</div><h4>Regla fijada antes de ver los datos</h4><p>La regla se fijó antes de registrar la primera semana observada, sobre las cuatro semanas siguientes al origen (W43 a W46 de 2026), comparando con un control estacional. El estado actual es <strong id="mtVerdict">en curso</strong>, con <span id="mtWeeks">0 de 4</span> semanas observadas. Hasta completarlas no se afirma que haya superado la validación.</p></div>
       </div>
       <div class="callout">
         <h3>Qué significa y qué no</h3>

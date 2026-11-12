@@ -133,3 +133,42 @@ test('tokens del template antiguo apuntan al sistema claro en :root (los leen es
   for (const k of ['--text-muted', '--text-secondary', '--cream', '--bg-card-hover', '--bg-deep', '--amber', '--teal']) assert.ok(root.includes(`${k}:`), k);
   assert.doesNotMatch(root, /#0E1424|#131C30|#E7ECF5/i, 'sin la paleta oscura');
 });
+
+// Cronología estática (lo que se ve sin JavaScript y mientras carga): origen, fecha de emisión y
+// ventana del gate prospectivo deben salir del manifiesto congelado y de la vista del release, no de la
+// plantilla de la que se copió la ficha. Las cinco del 12-nov-2026 heredaban W41, 8-nov y W42-W45.
+const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre',
+  'octubre', 'noviembre', 'diciembre'];
+const buscar = (o, k) => {
+  if (!o || typeof o !== 'object') return undefined;
+  if (k in o) return o[k];
+  for (const v of Object.values(o)) { const r = buscar(v, k); if (r !== undefined) return r; }
+  return undefined;
+};
+test('cronología estática de cada ficha = manifiesto congelado y gate prospectivo', () => {
+  const pub = JSON.parse(leer('publication/catalog.json')).releases;
+  let revisadas = 0;
+  for (const r of pub) {
+    const ficha = RELEASES.find((f) => f.id === r.disease_id);
+    assert.ok(ficha, `sin ficha: ${r.disease_id}`);
+    const man = JSON.parse(leer(`publication/${r.disease_id}/${r.release_id}/manifest.json`));
+    const vista = JSON.parse(leer(`publication/${r.disease_id}/vista.json`));
+    const origen = buscar(man, 'origin');
+    const semanas = buscar(man, 'target_weeks');
+    assert.deepEqual(vista.origin, origen, `${r.disease_id}: origen de la vista`);
+    const f = new Date(vista.forecast_emitted_at);
+    const [dia, mes, anio] = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Mexico_City', day: 'numeric', month: 'numeric', year: 'numeric' })
+      .formatToParts(f).filter((p) => p.type !== 'literal').sort((a, b) => 'daymonthyear'.indexOf(a.type) - 'daymonthyear'.indexOf(b.type)).map((p) => Number(p.value));
+    const emision = `${dia} de ${MESES[mes - 1]} de ${anio}`;
+    const ventana = `W${semanas[0][1]} a W${semanas.at(-1)[1]} de ${semanas.at(-1)[0]}`;
+    const t = leer(ficha.page);
+    const o = t.match(/id="originTxt">([^<]*)</);
+    const e = t.match(/id="emitTxt">([^<]*)</);
+    assert.ok(o && e, `${ficha.page}: sin originTxt/emitTxt`);
+    assert.equal(o[1], `W${origen[1]} de ${origen[0]}`, `${ficha.page}: origen estático`);
+    assert.equal(e[1], emision, `${ficha.page}: emisión estática`);
+    for (const [, w] of t.matchAll(/\((W\d+ a W\d+ de \d{4})\)/g)) assert.equal(w, ventana, `${ficha.page}: ventana del gate`);
+    revisadas += 1;
+  }
+  assert.equal(revisadas, pub.length);
+});

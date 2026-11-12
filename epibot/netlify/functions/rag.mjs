@@ -439,7 +439,16 @@ function releasesDesdeCatalogo(cat, leerShard) {
 }
 
 const NUMERALES = ['cero', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez', 'once', 'doce',
-  'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve', 'veinte', 'veintiún', 'veintidós', 'veintitrés', 'veinticuatro', 'veinticinco', 'veintiséis', 'veintisiete', 'veintiocho', 'veintinueve', 'treinta', 'treinta y un', 'treinta y dos', 'treinta y tres', 'treinta y cuatro', 'treinta y cinco', 'treinta y seis', 'treinta y siete', 'treinta y ocho', 'treinta y nueve', 'cuarenta'];
+  'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve', 'veinte', 'veintiún', 'veintidós', 'veintitrés', 'veinticuatro', 'veinticinco', 'veintiséis', 'veintisiete', 'veintiocho', 'veintinueve'];
+const DECENAS = { 3: 'treinta', 4: 'cuarenta', 5: 'cincuenta', 6: 'sesenta', 7: 'setenta', 8: 'ochenta', 9: 'noventa' };
+const UNIDADES = ['', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
+/** Número de padecimientos en letra; del treinta al noventa y nueve se compone. */
+function numeral(n) {
+  if (NUMERALES[n]) return NUMERALES[n];
+  if (n < 30 || n > 99) return String(n);
+  const d = Math.floor(n / 10), u = n % 10;
+  return u ? `${DECENAS[d]} y ${UNIDADES[u]}` : DECENAS[d];
+}
 
 /** Línea de alcance vigente: los legacy de knowledge.json más los releases publicados del runner. */
 function alcanceVigente(kb, releases) {
@@ -447,7 +456,7 @@ function alcanceVigente(kb, releases) {
   const runner = (releases || []).map((r) => (r.cie.length ? `${r.nombre} (${r.cie.join(', ')})` : r.nombre));
   const todos = [...legacy, ...runner];
   if (!todos.length) return '';
-  const n = NUMERALES[todos.length] || String(todos.length);
+  const n = numeral(todos.length);
   const lista = todos.length > 1 ? `${todos.slice(0, -1).join(', ')} y ${todos[todos.length - 1]}` : todos[0];
   return `Alcance vigente: EpiForecast-MX modela ${n} padecimientos: ${lista}. ` +
     'Ningún otro padecimiento está modelado. Los pasajes que hablan de tres o cuatro padecimientos ' +
@@ -597,6 +606,9 @@ export default async function handler(req) {
       + `así que no se le atribuyen sus cifras. Puedes consultar ese bloque en [su página](../${vecino.pagina}).`,
     sources: [] }, 200, cors);
   }
+  // Nombre genérico que abarca más que el bloque publicado («otitis», «amebiasis»): se aclara sin cifras.
+  const ambiguo = globalThis.EPI_CATALOGO.aliasAmbiguo(stripAccents(String(body.query || '')));
+  if (ambiguo) return json({ answer: ambiguo.texto, sources: [] }, 200, cors);
 
   if (!apiKey) return json({ error: 'GEMINI_API_KEY no configurada' }, 500, cors);
 

@@ -6,12 +6,12 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=53';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=54';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=1';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=4';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=24';
-import { conDiabetesNombrada, conHipertensionNombrada, RELEASES, releaseDePad, respuestaCrisis, VOCAB_RELEASES } from './release_config.js?v=19';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=25';
+import { aliasAmbiguo, conDiabetesNombrada, conHipertensionNombrada, RELEASES, releaseDePad, respuestaCrisis, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=20';
 
 let DATA = null;
 
@@ -614,7 +614,7 @@ const ROTULO_NO_MODELADA = {
   balazo: 'heridas por arma de fuego', 'domestic violence': 'violencias', gunshot: 'heridas por arma de fuego',
   hipotension: 'hipotensión', hypotension: 'hipotensión', 'presion baja': 'presión baja',
   'presion arterial baja': 'presión arterial baja', 'tension baja': 'tensión baja',
-  'tension arterial baja': 'tensión arterial baja', 'ataque al corazon': 'infarto',
+  'tension arterial baja': 'tensión arterial baja', 'low blood pressure': 'presión arterial baja', 'ataque al corazon': 'infarto',
   'ataque cardiaco': 'infarto', 'heart attack': 'infarto', cardiopatia: 'esa cardiopatía',
   'hipertension gestacional': 'hipertensión gestacional', 'hipertension en el embarazo': 'hipertensión en el embarazo',
   'hipertension del embarazo': 'hipertensión del embarazo', 'hipertension pulmonar': 'hipertensión pulmonar',
@@ -628,10 +628,16 @@ const ROTULO_NO_MODELADA = {
 
 const NUMERALES_PAD = ['cero', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve',
   'diez', 'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho',
-  'diecinueve', 'veinte', 'veintiún', 'veintidós', 'veintitrés', 'veinticuatro', 'veinticinco', 'veintiséis', 'veintisiete', 'veintiocho', 'veintinueve', 'treinta', 'treinta y un', 'treinta y dos', 'treinta y tres', 'treinta y cuatro', 'treinta y cinco', 'treinta y seis', 'treinta y siete', 'treinta y ocho', 'treinta y nueve', 'cuarenta'];
+  'diecinueve', 'veinte', 'veintiún', 'veintidós', 'veintitrés', 'veinticuatro', 'veinticinco', 'veintiséis', 'veintisiete', 'veintiocho', 'veintinueve'];
+// Del treinta en adelante se compone: «cuarenta y un», «cincuenta».
+const DECENAS_PAD = { 3: 'treinta', 4: 'cuarenta', 5: 'cincuenta', 6: 'sesenta', 7: 'setenta', 8: 'ochenta', 9: 'noventa' };
+const UNIDADES_PAD = ['', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
 /** El número de padecimientos, en letra: cuatro legacy más los releases del catálogo. */
 function numeralPadecimientos(n) {
-  return NUMERALES_PAD[n] || String(n);
+  if (NUMERALES_PAD[n]) return NUMERALES_PAD[n];
+  if (n < 30 || n > 99) return String(n);
+  const d = Math.floor(n / 10), u = n % 10;
+  return u ? `${DECENAS_PAD[d]} y ${UNIDADES_PAD[u]}` : DECENAS_PAD[d];
 }
 
 /** Categorías no modeladas que nombra la consulta según la foto vigente del radar. */
@@ -715,8 +721,10 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
   // Con un release en la misma consulta («comparar obesidad con hipertensión») se responde siempre:
   // la consulta mezcla un padecimiento modelado con uno que no lo está.
   if (matchedDisease && (any(q, dataKw) || ent.estado || isShortFollowUp || conRelease || sensible || cardiaco || violencia)) {
+    // Un subtipo con código propio se nombra con su rótulo del catálogo (con tildes y códigos).
+    const ajeno = subtipoAjeno(q);
     return (
-      `EpiForecast-MX **no modela ${ROTULO_NO_MODELADA[matchedDisease] || matchedDisease}**. ` +
+      `EpiForecast-MX **no modela ${ajeno ? ajeno.nombre : (ROTULO_NO_MODELADA[matchedDisease] || matchedDisease)}**. ` +
       (sensible
         ? 'Si tú o alguien cercano necesita apoyo, la **Línea de la Vida** atiende gratis, las 24 horas: **800 911 2000**.\n\n'
         : '') +
@@ -5739,6 +5747,14 @@ async function _resolve(query) {
     lastEntities = {};
     trace.handler = 'answerCrisis';
     return { response: crisis, handler: trace.handler };
+  }
+  // Un nombre genérico («otitis», «amebiasis») abarca más que el bloque publicado: se aclara y no se
+  // dan cifras hasta que la consulta nombre el bloque.
+  const ambiguo = aliasAmbiguo(norm(query));
+  if (ambiguo) {
+    lastEntities = {};
+    trace.handler = 'answerAliasAmbiguo';
+    return { response: `${ambiguo.texto}\n<!--SIN_GRAFICA-->`, handler: trace.handler };
   }
   // Un seguimiento que nombra otro subtipo o categoría se resuelve antes de heredar el contexto.
   const q = conHipertensionNombrada(
