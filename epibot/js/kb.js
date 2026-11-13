@@ -6,12 +6,12 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=55';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=58';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=1';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=4';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=26';
-import { aliasAmbiguo, conDiabetesNombrada, conHipertensionNombrada, RELEASES, releaseDePad, respuestaCrisis, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=21';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=29';
+import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, RELEASES, releaseDePad, respuestaCrisis, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=24';
 
 let DATA = null;
 
@@ -5760,8 +5760,12 @@ async function _resolve(query) {
     return { response: `${ambiguo.texto}\n<!--SIN_GRAFICA-->`, handler: trace.handler };
   }
   // Un seguimiento que nombra otro subtipo o categoría se resuelve antes de heredar el contexto.
-  const q = conHipertensionNombrada(
+  const qBase = conHipertensionNombrada(
     conDiabetesNombrada(norm(query), lastEntities.padecimiento), lastEntities.padecimiento);
+  const q = conFamiliaNombrada(qBase, lastEntities.padecimiento);
+  // El seguimiento reescrito por familia («¿y la C?» → «y hepatitis virica c») nombra un bloque publicado:
+  // la búsqueda del radar por primera palabra («hepatitis» → hepatitis B, sin publicar) no lo vuelve no modelado.
+  const viaFamilia = q !== qBase;
   const ent = detectEntities(q === norm(query) ? query : q);
 
   // Guard: prompt injection / roleplay → rechazar inmediatamente
@@ -5902,7 +5906,7 @@ async function _resolve(query) {
   // answerPadecimientoNoModelado lo maneje con el query original
   if (isFollowUp) {
     // Inicio de palabra (mencionaNoModelada): «obesidad» contiene «sida» y «demencia» es Alzheimer.
-    const mentionsUnmodeled = !!mencionaNoModelada(q) || enRadar(q).length > 0;
+    const mentionsUnmodeled = !(viaFamilia && ent.padecimiento) && (!!mencionaNoModelada(q) || enRadar(q).length > 0);
 
     if (!mentionsUnmodeled) {
       const merged = mergeWithContext(ent);

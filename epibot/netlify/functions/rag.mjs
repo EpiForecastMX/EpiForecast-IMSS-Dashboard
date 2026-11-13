@@ -296,7 +296,12 @@ function estadoDeControl(query, leerVista) {
     ? ` Por estado es una referencia poco informativa: su error en ${AMBITO_RAG.smape_bases(sinSexo)} fue sMAPE ${uno(comp.smape_bases.control)} en esa prueba.`
     : '';
   const e = new Date(v.forecast_emitted_at);
-  const emitido = Number.isNaN(e.getTime()) ? '' : `, emitido el ${e.getUTCDate()} de ${MESES_RAG[e.getUTCMonth()]} de ${e.getUTCFullYear()}`;
+  // Fecha civil de Ciudad de México, como la ficha y el KB local: un release emitido el 13 a las 00:24 UTC se
+  // emitió el 12 en México; con getUTCDate() la respuesta parecía contradecir la ficha.
+  const civil = Number.isNaN(e.getTime()) ? null : Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Mexico_City', year: 'numeric', month: 'numeric', day: 'numeric',
+  }).formatToParts(e).map((x) => [x.type, Number(x.value)]));
+  const emitido = civil ? `, emitido el ${civil.day} de ${MESES_RAG[civil.month - 1]} de ${civil.year} (hora de Ciudad de México)` : '';
   const answer = `**${v.nombre_completo || r.etiqueta}: control estacional, no validado.** Lo publicado repite los ` +
     `casos de 52 semanas antes. El portafolio de modelos seleccionado se rechazó en la prueba de ${anio} porque ` +
     `empeoraba ${lista(fallas)}, y por autorización del autor se publica el control estacional; el rechazado fue el ` +

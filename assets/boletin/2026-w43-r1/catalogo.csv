@@ -11,16 +11,16 @@ Viruela símica,B04,Prevenibles por vacunación,14,2,89,714,Por incorporar,Explo
 Varicela,B01,Prevenibles por vacunación,15,1014,46571,52958,Control publicado,Seguimiento,
 Sarampión,B05,Prevenibles por vacunación,15,-,-,-,Por incorporar,Exploración,
 Rubéola,B06,Prevenibles por vacunación,15,-,-,-,Por incorporar,Exploración,
-Hepatitis vírica A,B15,Prevenibles por vacunación,16,38,2326,3806,Por incorporar,Exploración,34.4
+Hepatitis vírica A,B15,Prevenibles por vacunación,16,38,2326,3806,Publicada,Seguimiento,
 Hepatitis vírica B,B16,Prevenibles por vacunación,16,14,687,851,Por incorporar,Exploración,
 Parotiditis infecciosa,B26,Prevenibles por vacunación,17,90,4117,3268,Control publicado,Seguimiento,
 Influenza,J09-J11,Prevenibles por vacunación,17,119,7615,12136,Por incorporar,Exploración,44.0
 Síndrome de rubéola congénita,P35.0,Prevenibles por vacunación,18,-,-,-,Por incorporar,Exploración,
 Infección por virus de papiloma humano,B97.7,Prevenibles por vacunación,18,487,17870,19846,Por incorporar,Exploración,46.9
 Cólera,A00,Infecciosas del aparato digestivo,19,-,-,-,Por incorporar,Exploración,
-Fiebre tifoidea,A01.0,Infecciosas del aparato digestivo,19,94,4888,6060,Por incorporar,Exploración,33.9
+Fiebre tifoidea,A01.0,Infecciosas del aparato digestivo,19,94,4888,6060,Control publicado,Seguimiento,
 Fiebre paratifoidea,A01.1 - A01.4,Infecciosas del aparato digestivo,20,48,2897,3834,Por incorporar,Exploración,33.9
-Otras salmonelosis,A02,Infecciosas del aparato digestivo,20,361,17748,21281,Por incorporar,Exploración,46.1
+Otras salmonelosis,A02,Infecciosas del aparato digestivo,20,361,17748,21281,Control publicado,Seguimiento,
 Shigelosis,A03,Infecciosas del aparato digestivo,21,58,1406,1508,Publicada,Seguimiento,
 Infecciones intestinales por otros organismos y las mal definidas,"A04, A08-A09 excepto A08.0",Infecciosas del aparato digestivo,21,62268,3351704,3323997,Publicada,Seguimiento,
 Intoxicación alimentaria bacteriana,A05,Infecciosas del aparato digestivo,22,195,14784,18143,Publicada,Seguimiento,
@@ -29,7 +29,7 @@ Absceso hepático amebiano,A06.4,Infecciosas del aparato digestivo,23,10,553,474
 Otras infecciones intestinales debidas a protozoarios,"A07.0, A07.2, A07.9",Infecciosas del aparato digestivo,23,1092,43907,47747,Control publicado,Seguimiento,
 Giardiasis,A07.1,Infecciosas del aparato digestivo,24,92,5656,5535,Por incorporar,Exploración,42.6
 Otras helmintiasis,"B65-B67, B70-B76, B78, B79, B81-B83 excepto B73 y B75",Infecciosas del aparato digestivo,24,1770,82068,80492,Por incorporar,Media,52.9
-Ascariasis,B77,Infecciosas del aparato digestivo,25,330,15795,17950,Por incorporar,Exploración,43.5
+Ascariasis,B77,Infecciosas del aparato digestivo,25,330,15795,17950,Publicada,Seguimiento,
 Enterobiasis,B80,Infecciosas del aparato digestivo,25,156,8703,6830,Por incorporar,Media,50.1
 Enfermedades infecciosas intestinales,"A01-A03, A04, A05, A06.0-A06.3, A06.9, A07.0-A07.2, A07.9, A08-A09",Infecciosas del aparato digestivo,25,65579,3508736,3499905,Agregado,Exploración,
 Tuberculosis respiratoria,A15-A16,Infecciosas del aparato respiratorio,26,170,16720,18232,Por incorporar,Exploración,35.0
@@ -67,13 +67,13 @@ Cisticercosis,B69,Zoonóticas,40,5,159,127,Por incorporar,Exploración,
 Triquinosis,B75,Zoonóticas,40,-,18,12,Por incorporar,Exploración,
 Rabia humana por fauna silvestre,A82.0,Zoonóticas,41,-,-,2,Por incorporar,Exploración,
 Rabia humana por fauna urbana,A82.1,Zoonóticas,41,-,-,1,Por incorporar,Exploración,
-Escarlatina,A38,Exantemáticas,42,33,1426,1218,Por incorporar,Exploración,37.2
+Escarlatina,A38,Exantemáticas,42,33,1426,1218,Control publicado,Seguimiento,
 Erisipela,A46,Exantemáticas,42,166,6614,6246,Publicada,Seguimiento,
 Mal del pinto,A67,Otras transmisibles,43,6,88,62,Por incorporar,Exploración,
 Tuberculosis otras formas,"A17.1, A17.8, A17.9, A18-A19",Otras transmisibles,43,16,3614,3805,Por incorporar,Exploración,28.0
 Lepra°,A30,Otras transmisibles,43,3,62,58,Por incorporar,Exploración,
-Hepatitis vírica C,"B17.1, B18.2",Otras transmisibles,44,177,5804,5563,Por incorporar,Exploración,44.9
-Otras hepatitis víricas,B17-B19 Excepto B17.1 y B18.2,Otras transmisibles,44,21,1428,1671,Por incorporar,Exploración,28.9
+Hepatitis vírica C,"B17.1, B18.2",Otras transmisibles,44,177,5804,5563,Control publicado,Seguimiento,
+Otras hepatitis víricas,B17-B19 Excepto B17.1 y B18.2,Otras transmisibles,44,21,1428,1671,Publicada,Seguimiento,
 Conjuntivitis epidémica aguda hemorrágica,B30.3,Otras transmisibles,44,-,126,130,Por incorporar,Exploración,
 Tripanosomiasis americana (enfermedad de Chagas) aguda,B57.0-B57.1,Otras transmisibles,45,-,45,30,Por incorporar,Exploración,
 Tripanosomiasis americana (enfermedad de Chagas) crónica,B57.2-B57.5,Otras transmisibles,45,5,491,498,Por incorporar,Exploración,
@@ -122,17 +122,17 @@ Picadura o intoxicación por otros animales ponzoñosos,"T63.1, T63.5-T63.9, X27
 Intoxicación por picadura de alacrán,"T63.2, X22",No transmisibles,61,5798,257955,252101,Por incorporar,Media,60.4
 Hipotermia,T68,No transmisibles,62,5,140,103,Por incorporar,Exploración,
 Eventos supuestamente asociados a la vacunación  (ESAVI),"Y58, Y59",No transmisibles,62,275,3742,2354,Por incorporar,Media,62.0
-Efectos del calor y de la luz,"T67, X30",No transmisibles,63,37,4742,3396,Por incorporar,Media,53.0
+Efectos del calor y de la luz,"T67, X30",No transmisibles,63,37,4742,3396,Publicada,Seguimiento,
 Depleción del volumen (deshidratación),E86,No transmisibles,63,122,8443,5913,Por incorporar,Media,66.6
 Desnutrición severa,E40-E43,Trastornos de la nutrición,64,87,4797,5292,Por incorporar,Media,51.3
 Desnutrición moderada,E44.0,Trastornos de la nutrición,64,188,9719,11168,Por incorporar,Media,53.9
-Desnutrición leve,E44.1,Trastornos de la nutrición,64,859,40046,45731,Por incorporar,Media,59.2
+Desnutrición leve,E44.1,Trastornos de la nutrición,64,859,40046,45731,Control publicado,Seguimiento,
 Obesidad,E66,Trastornos de la nutrición,65,14824,719060,576708,Publicada,Seguimiento,
 "Anorexia, bulimia y otros trastornos alimentarios",F50,Trastornos de la nutrición,65,85,4243,4488,Control publicado,Seguimiento,
 Tumor maligno de la mama,C50,Displasias y neoplasias,66,557,22834,24632,Control publicado,Seguimiento,48.8
 Tumor maligno del cuello del útero,C53,Displasias y neoplasias,66,88,3727,4152,Publicada,Seguimiento,42.1
 Displasia cervical leve y moderada,N87.0-N87.1,Displasias y neoplasias,67,695,30381,38796,Control publicado,Seguimiento,
-Displasia cervical severa y CaCu in situ,"N87.2, D06",Displasias y neoplasias,67,124,4374,4983,Por incorporar,Exploración,43.1
+Displasia cervical severa y CaCu in situ,"N87.2, D06",Displasias y neoplasias,67,124,4374,4983,Control publicado,Seguimiento,
 Tumor maligno de la próstata,C61,Displasias y neoplasias,68,200,7057,6015,Control publicado,Seguimiento,49.1
 Tumor maligno del cuerpo del útero,C54,Displasias y neoplasias,68,72,2920,2823,Publicada,Seguimiento,37.3
 Tumor maligno del ovario,C56,Displasias y neoplasias,68,76,3064,2827,Publicada,Seguimiento,38.1

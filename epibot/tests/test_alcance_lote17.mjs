@@ -2,7 +2,8 @@
  * Alcance de los cinco publicados del lote 17 (12-nov-2026): intoxicación alimentaria bacteriana (A05),
  * shigelosis (A03), erisipela (A46), candidiasis urogenital (B37.3-B37.4) y diabetes mellitus en el
  * embarazo (O24.4, sin sexo). Cada consulta clara llega a su release; los subtipos con código propio y
- * los vecinos rechazados sin control autorizado (salmonelosis, tifoidea, hepatitis C)
+ * los vecinos sin publicar (paratifoidea y hepatitis B aguda; salmonelosis, tifoidea y hepatitis A y C se
+ * publicaron con el lote alta10b y tienen su propia prueba)
  * no reciben cifras de un bloque publicado; «candidiasis» a secas pide precisar.
  */
 import { test } from 'node:test';
@@ -73,7 +74,7 @@ for (const q of AJENOS) {
 
 // Rechazados en 2025 o vecinos de bloque: ni el release del lote ni la IRA, A04 o tipo I/II.
 const RECHAZADOS = [
-  'salmonelosis en Jalisco', 'fiebre tifoidea en Sonora', 'hepatitis C en Jalisco', 'hepatitis A en Sonora',
+  'fiebre paratifoidea en Jalisco', 'hepatitis B en Sonora',
 ];
 for (const q of RECHAZADOS) {
   test(`no publicado: «${q}» no recibe cifras de un vecino`, async () => {

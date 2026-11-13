@@ -4,13 +4,14 @@
  * Todo lo que el EpiBot y sus gráficas necesitan de un release se deriva de esa lista.
  * Sin imports de otros módulos: lo cargan también módulos que no pueden depender de kb.js.
  */
-import './release_catalog.js?v=21';
+import './release_catalog.js?v=24';
 
 const CATALOGO = globalThis.EPI_CATALOGO;
 
 export const RELEASES = CATALOGO.releases;
 export const diabetesEnConsulta = CATALOGO.diabetesEnConsulta;
 export const conDiabetesNombrada = CATALOGO.conDiabetesNombrada;
+export const conFamiliaNombrada = CATALOGO.conFamiliaNombrada;
 export const conHipertensionNombrada = CATALOGO.conHipertensionNombrada;
 export const canonClinico = CATALOGO.canonClinico;
 export const nombraAlias = CATALOGO.nombraAlias;

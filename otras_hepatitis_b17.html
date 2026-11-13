@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EpiForecast-MX — Otras hepatitis víricas (B17-B19, excepto B17.1 y B18.2) · Pronóstico semanal</title>
+  <meta name="description" content="Pronóstico semanal de casos de otras hepatitis víricas (CIE-10 B17-B19, excepto B17.1 y B18.2) reportados al SINAVE para las 32 entidades de México, por sexo, a 52 semanas. Validación prospectiva en curso, sin intervalos de incertidumbre." />
+<link rel="stylesheet" href="assets/site/site.css?v=5">
+<link rel="stylesheet" href="disease.css?v=20261112h3">
+
+</head>
+<body class="disease-page">
+<a class="skip" href="#explorador">Saltar a la gráfica</a>
+<!-- site:header:start -->
+<header class="site-header" id="nav" lang="es">
+  <div class="site-header__inner">
+    <a class="site-brand" href="index.html" aria-label="EpiForecast-MX, inicio"><span class="site-brand__symbol" aria-hidden="true">E<span>+</span></span><span class="site-brand__name"><span class="site-brand__word">EpiForecast<span class="site-brand__mx">MX</span></span><small>Inteligencia epidemiológica</small></span></a>
+    <nav class="site-nav" aria-label="Navegación principal">
+      <ul class="nav-menu">
+        <li><a href="Reports/index.html" aria-current="true">Galería</a></li>
+        <li><a href="epibot/index.html">EpiBot</a></li>
+        <li><a href="EpiDashboard.html">Dashboard</a></li>
+        <li><a href="boletin.html">Radar del boletín</a></li>
+        <li><a href="novedades.html">Noticias</a></li>
+        <li class="nav-group">
+          <button type="button" class="nav-group__toggle" aria-expanded="false" aria-controls="navGroup-congresos">Congresos</button>
+          <ul class="nav-group__list" id="navGroup-congresos">
+            <li><a href="wcp2026.html">WCP 2026 · Estocolmo</a></li>
+            <li><a href="micai2026.html">MICAI 2026 · Chihuahua</a></li>
+            <li><a href="calass.html">CALASS 2026 · Montréal</a></li>
+            <li><a href="index.html#congresos">Todos los congresos</a></li>
+          </ul>
+        </li>
+        <li class="nav-group">
+          <button type="button" class="nav-group__toggle" aria-expanded="false" aria-controls="navGroup-mas">Más</button>
+          <ul class="nav-group__list" id="navGroup-mas">
+            <li><a href="index.html#diseases">Padecimientos</a></li>
+            <li><a href="index.html#metodologia">Evidencia y método</a></li>
+            <li><a href="index.html#about">Proyecto y equipo</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+    <button type="button" class="site-nav__toggle" aria-controls="navMobile" aria-expanded="false"><span class="site-nav__toggle-icon" aria-hidden="true"></span><span class="site-nav__toggle-text">Menú</span></button>
+  </div>
+  <div id="navMobile" class="site-nav__mobile">
+    <div class="nav-mobile-items">
+      <a class="nav-mobile-link" href="Reports/index.html" aria-current="true">Galería</a>
+      <a class="nav-mobile-link" href="epibot/index.html">EpiBot</a>
+      <a class="nav-mobile-link" href="EpiDashboard.html">Dashboard</a>
+      <a class="nav-mobile-link" href="boletin.html">Radar del boletín</a>
+      <a class="nav-mobile-link" href="novedades.html">Noticias</a>
+      <p class="nav-mobile-group">Congresos</p>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="wcp2026.html">WCP 2026 · Estocolmo</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="micai2026.html">MICAI 2026 · Chihuahua</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="calass.html">CALASS 2026 · Montréal</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#congresos">Todos los congresos</a>
+      <p class="nav-mobile-group">Más</p>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#diseases">Padecimientos</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#metodologia">Evidencia y método</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#about">Proyecto y equipo</a>
+    </div>
+  </div>
+</header>
+<!-- site:header:end -->
+<nav class="ficha-context" aria-label="Otras hepatitis víricas en otras herramientas">
+  <div class="wrap ficha-context__inner">
+    <a href="index.html#diseases">Padecimientos</a><span aria-hidden="true">/</span><span aria-current="page">Otras hepatitis víricas</span>
+    <span class="ficha-context__links"><a href="Reports/index.html?p=otras_hepatitis_b17&amp;s=general&amp;t=nacional">Ver en la Galería</a><a href="EpiDashboard.html?vista=explorar&amp;p=otras_hepatitis_b17&amp;s=general&amp;t=nacional">Abrir en el Dashboard</a></span>
+  </div>
+</nav>
+
+  <main>
+  <header class="hero">
+    <div class="wrap">
+      <div class="eyebrow">Pronósticos por padecimiento</div>
+      <h1>Otras hepatitis víricas (B17-B19, excepto B17.1 y B18.2) · Pronóstico semanal</h1>
+      <p class="lead">EpiForecast-MX incorpora las <strong>otras hepatitis víricas (CIE-10 B17-B19, excepto B17.1 y B18.2)</strong>. Pronosticamos los casos semanales que reporta el Boletín Epidemiológico del SINAVE para las <strong>32 entidades, por sexo</strong>, con un horizonte de <strong>52 semanas</strong>. El pronóstico está <strong>congelado</strong>: se emitió una sola vez y, desde el siguiente boletín, se comparará semana a semana con lo observado. Superó la prueba de 2025 frente al control estacional con la política de cinco motores.</p>
+
+      <div class="status-card" id="statusCard">
+        <div class="status-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span class="status-text"><strong id="pubKind" class="status-kind" hidden></strong> <span id="pubLabel">Cargando el estado de la validación…</span></span>
+        </div>
+        <ul class="status-notes">
+          <li><strong>Pronóstico congelado:</strong> se entrenó con datos hasta la <span id="originTxt">W42 de 2026</span> y se emitió el <span id="emitTxt">12 de noviembre de 2026</span>; no se ha reentrenado ni ajustado con datos posteriores.</li>
+          <li><strong>Sin intervalos de incertidumbre:</strong> es un pronóstico puntual. La gráfica no dibuja bandas porque este release no las tiene.</li>
+          <li>Datos observados hasta la <strong id="cutoffTxt">—</strong>.</li>
+        </ul>
+      </div>
+
+      <div class="stats" id="heroStats">
+        <div class="stat"><div class="v" id="stModels">64</div><div class="l">Modelos finales</div></div>
+        <div class="stat"><div class="v" id="stProducts">111</div><div class="l">Series publicadas</div></div>
+        <div class="stat"><div class="v" id="stOos">—</div><div class="l">sMAPE nacional fuera de muestra</div></div>
+        <div class="stat"><div class="v" id="stWeeks">—</div><div class="l">Semanas ya observadas</div></div>
+      </div>
+    </div>
+  </header>
+
+  <section id="explorador">
+    <div class="wrap">
+      <div class="label">Explorador</div>
+      <h2>Pronóstico congelado frente a lo observado</h2>
+      <p>Elige una geografía y un sexo. La línea gris es lo observado en el boletín; la línea verde discontinua, el pronóstico emitido con datos hasta la semana de origen. La franja sombreada marcará las semanas del pronóstico que <strong>ya se observaron</strong>; ahí se medirá el desempeño fuera de muestra.</p>
+
+      <div class="controls">
+        <label class="ctl">
+          <span>Geografía</span>
+          <select id="selGeo" aria-label="Geografía"></select>
+        </label>
+        <div class="ctl">
+          <span>Sexo</span>
+          <div class="seg" id="segSexo" role="radiogroup" aria-label="Sexo">
+            <button type="button" role="radio" data-sexo="general" aria-checked="true" class="on">General</button>
+            <button type="button" role="radio" data-sexo="hombres" aria-checked="false">Hombres</button>
+            <button type="button" role="radio" data-sexo="mujeres" aria-checked="false">Mujeres</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-title" id="chartTitle">—</div>
+        <div class="chart-box"><canvas id="chartObesidad" aria-label="Casos semanales de otras hepatitis víricas observados y pronosticados"></canvas></div>
+        <div class="legend">
+          <span><i class="sw sw-obs"></i>Observado (boletín SINAVE)</span>
+          <span><i class="sw sw-fc"></i>Pronóstico congelado</span>
+          <span><i class="sw sw-band"></i>Semanas ya observadas del pronóstico</span>
+          <span><i class="sw sw-origin"></i>Semana de origen</span>
+        </div>
+        <p class="cap" id="chartCap"></p>
+      </div>
+
+      <div class="metrics" id="metrics">
+        <div class="metric"><div class="mv" id="mSmape">—</div><div class="ml" id="mSmapeL">sMAPE fuera de muestra</div></div>
+        <div class="metric"><div class="mv" id="mMae">—</div><div class="ml">Error absoluto medio (casos por semana)</div></div>
+        <div class="metric"><div class="mv" id="mBias">—</div><div class="ml">Sesgo del pronóstico</div></div>
+        <div class="metric"><div class="mv" id="mTotal">—</div><div class="ml">Casos pronosticados en 52 semanas</div></div>
+      </div>
+      <p class="engine-line">Motor de esta serie: <strong id="mEngine">—</strong></p>
+    </div>
+  </section>
+
+  <section id="estados">
+    <div class="wrap">
+      <div class="label">Por entidad</div>
+      <h2>Las 32 entidades</h2>
+      <p>Serie General de cada entidad. El sMAPE fuera de muestra se calcula sólo sobre las semanas posteriores al origen con dato observado, así que estará vacío hasta que lleguen. Un sesgo negativo indica que el pronóstico quedó por debajo de lo observado. Haz clic en una fila para verla en el explorador.</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Entidad</th><th>Motor</th><th>sMAPE</th><th>Sesgo</th><th>Observado</th><th>Pronosticado</th></tr></thead>
+          <tbody id="tablaEstados"><tr><td colspan="6">Cargando…</td></tr></tbody>
+        </table>
+      </div>
+      <p class="table-note" id="tablaNota"></p>
+    </div>
+  </section>
+
+  <section id="metodologia">
+    <div class="wrap">
+      <div class="label">Metodología</div>
+      <h2>Cómo se construyó este pronóstico</h2>
+      <div class="steps">
+        <div class="step"><div class="n">01 · Datos</div><h4>Cuadro 10.1 del boletín</h4><p>La serie semanal de otras hepatitis víricas por entidad y sexo se extrae del Boletín Epidemiológico del SINAVE desde 2014. Los totales por sexo se reconcilian para que hombres más mujeres sumen exactamente el total. Cuando el boletín no permite separar la semana por sexo, el reparto se estima a partir de los acumulados: en 2025 ocurre en 1,726 de 3,392 registros entidad-sexo-semana.</p></div>
+        <div class="step"><div class="n">02 · Modelos</div><h4>64 modelos, uno por serie base</h4><p>Cada combinación de entidad y sexo (32 × 2) tiene su propio modelo. Las <span id="mtProducts">111</span> series publicadas (entidades, regiones y nacional, en general, hombres y mujeres) se derivan sumando esas 64 bases, nunca se modelan por separado.</p></div>
+        <div class="step"><div class="n">03 · Selección</div><h4>Validación cruzada rolling-origin</h4><p>El motor de cada serie se eligió con la política <code>rolling_cv_baja_incidencia_v1</code>: cuatro años de pliegues temporales de 52 semanas en los que el modelo nunca ve el periodo que pronostica. Compiten sólo los cinco motores estacionales: en el desarrollo, ETS y Ridge no produjeron un pronóstico utilizable en algunas series estatales, y el autor decidió el 12 de noviembre de 2026 aplicar esta política sin ETS ni Ridge. El nombre de la política no significa que el padecimiento sea de baja incidencia. El portafolio combina <span id="mtEngines">varios motores</span>.</p></div>
+        <div class="step"><div class="n">04 · Validación prospectiva</div><h4>Regla fijada antes de ver los datos</h4><p>La regla se fijó antes de registrar la primera semana observada, sobre las cuatro semanas siguientes al origen (W43 a W46 de 2026), comparando con un control estacional. El estado actual es <strong id="mtVerdict">en curso</strong>, con <span id="mtWeeks">0 de 4</span> semanas observadas. Hasta completarlas no se afirma que haya superado la validación.</p></div>
+      </div>
+      <div class="callout">
+        <h3>Qué significa y qué no</h3>
+        <p>Es un pronóstico de <strong>casos reportados</strong> al sistema de vigilancia, no de la frecuencia de otras hepatitis víricas en la población. Al no tener intervalos de incertidumbre, las cifras deben leerse como estimaciones puntuales. La comparación con lo observado se actualizará con cada boletín nuevo sin reentrenar los modelos.</p>
+        <p class="mono-meta" id="releaseMeta"></p>
+      </div>
+      <p class="next-links">¿Tienes una pregunta concreta? <a href="epibot/index.html">Pregúntale a EPI</a> o vuelve al <a href="index.html">inicio</a>.</p>
+    </div>
+  </section>
+
+</main>
+<!-- site:footer:start -->
+<footer class="site-footer" lang="es">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <a class="site-brand" href="index.html" aria-label="EpiForecast-MX, inicio"><span class="site-brand__name"><span class="site-brand__word">EpiForecast<span class="site-brand__mx">MX</span></span></span></a>
+      <p>Datos oficiales. Investigación abierta. Una mirada informada a la salud de México.</p>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Explorar</p>
+      <a href="Reports/index.html">Galería de pronósticos</a>
+      <a href="epibot/index.html">Pregúntale a EPI</a>
+      <a href="EpiDashboard.html">Dashboard</a>
+      <a href="boletin.html">Radar del boletín</a>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Evidencia</p>
+      <a href="validacion_semanal.html">Validación semanal</a>
+      <a href="reporte_resultados.html">Resultados</a>
+      <a href="referencias.html">Fuentes y referencias</a>
+      <a href="rechazados.html">Analizados y rechazados</a>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Proyecto</p>
+      <a href="novedades.html">Noticias</a>
+      <a href="index.html#congresos">Congresos</a>
+      <a href="EpiDashboard-tableau.html">Archivo Tableau (corte W31)</a>
+      <a href="https://github.com/IntegradorIMSS2026Team01" rel="noopener" target="_blank">GitHub ↗</a>
+    </div>
+  </div>
+  <div class="site-footer__legal"><span>© 2026 EpiForecast-MX · Tecnológico de Monterrey · IMSS · SINAVE</span><a href="#nav">Volver arriba ↑</a></div>
+</footer>
+<!-- site:footer:end -->
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script src="assets/site/estado-ficha.js?v=1"></script>
+  <script>
+  (function () {
+    'use strict';
+    const MOTORES = {
+      ets_add_damped_log1p: 'ETS amortiguado (log)',
+      prophet_count_log1p: 'Prophet en conteos (log)',
+      prophet_rate_log1p: 'Prophet en tasa (log)',
+      ridge_harmonic_log1p: 'Ridge armónico (log)',
+      seasonal_naive_lag52: 'Naive estacional (lag 52)',
+      seasonal_mean_3y: 'Media estacional 3 años',
+      seasonal_median_3y: 'Mediana estacional 3 años',
+      seasonal_mean_5y: 'Media estacional 5 años',
+      seasonal_median_5y: 'Mediana estacional 5 años',
+      seasonal_mean_2y: 'Media estacional 2 años',
+      portfolio: 'Portafolio (suma de series estatales)',
+    };
+    // Un producto derivado no tiene motor propio: en una entidad es la suma de hombres y mujeres,
+    // en una región o en el nacional, la suma de las series estatales.
+    function motorDe(s, corto = false) {
+      if (s.motor !== 'portfolio') return MOTORES[s.motor] || s.motor;
+      if (s.nivel !== 'estado') return MOTORES.portfolio;
+      const h = V.series[`estado|${s.id}|hombres`], m = V.series[`estado|${s.id}|mujeres`];
+      if (corto) return `H: ${motor(h.motor)} · M: ${motor(m.motor)}`;
+      return `Suma de hombres (${motor(h.motor)}) y mujeres (${motor(m.motor)})`;
+    }
+    const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    const MES_C = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    const nf0 = new Intl.NumberFormat('es-MX', { maximumFractionDigits: 0 });
+    const nf1 = new Intl.NumberFormat('es-MX', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    const $ = (id) => document.getElementById(id);
+    const motor = (m) => MOTORES[m] || m;
+    const fechaLarga = (ds) => { const [y, m, d] = ds.split('-').map(Number); return `${d} de ${MESES[m - 1]} de ${y}`; };
+    const fechaCorta = (ds) => { const [y, m, d] = ds.split('-').map(Number); return `${d} ${MES_C[m - 1]} ${y}`; };
+    const pct = (v) => (v === null || v === undefined ? '—' : `${nf1.format(v)} %`);
+    const signo = (v) => (v === null || v === undefined ? '—' : `${v > 0 ? '+' : v < 0 ? '−' : ''}${nf1.format(Math.abs(v))} %`);
+
+    let V = null, chart = null, sexo = 'general', geo = 'nacional|mx';
+
+    function opcionesGeo() {
+      const vistos = new Map();
+      for (const s of Object.values(V.series)) vistos.set(`${s.nivel}|${s.id}`, s);
+      const por = (n) => [...vistos.entries()].filter(([, s]) => s.nivel === n)
+        .sort((a, b) => a[1].nombre.localeCompare(b[1].nombre, 'es'));
+      const sel = $('selGeo');
+      sel.innerHTML = '';
+      const grupo = (titulo, items) => {
+        const g = document.createElement('optgroup'); g.label = titulo;
+        for (const [k, s] of items) { const o = document.createElement('option'); o.value = k; o.textContent = s.nombre; g.appendChild(o); }
+        sel.appendChild(g);
+      };
+      grupo('Nacional', por('nacional'));
+      grupo('Regiones', por('region'));
+      grupo('Entidades', por('estado'));
+      sel.value = geo;
+    }
+
+    const bandaPlugin = {
+      id: 'bandaObservada',
+      beforeDatasetsDraw(c, _a, o) {
+        const { ctx, chartArea: A, scales: { x } } = c;
+        if (o.desde == null) return;
+        const x0 = x.getPixelForValue(o.desde) - (x.getPixelForValue(1) - x.getPixelForValue(0)) / 2;
+        const x1 = x.getPixelForValue(o.hasta) + (x.getPixelForValue(1) - x.getPixelForValue(0)) / 2;
+        ctx.save();
+        ctx.fillStyle = 'rgba(23,100,77,0.08)';
+        ctx.fillRect(Math.max(x0, A.left), A.top, Math.min(x1, A.right) - Math.max(x0, A.left), A.bottom - A.top);
+        const xo = x0;
+        ctx.strokeStyle = '#61756c'; ctx.setLineDash([5, 4]); ctx.lineWidth = 1.5;
+        ctx.beginPath(); ctx.moveTo(xo, A.top); ctx.lineTo(xo, A.bottom); ctx.stroke();
+        ctx.setLineDash([]); ctx.fillStyle = '#667d8f'; ctx.font = '11px JetBrains Mono, monospace';
+        ctx.fillText('Origen', xo + 4, A.top + 12);
+        ctx.restore();
+      },
+    };
+
+    function dibujar() {
+      const s = V.series[`${geo}|${sexo}`];
+      if (!s) return;
+      const etiquetas = [...new Set([...s.observado.map((p) => p[0]), ...s.pronostico.map((p) => p[0])])].sort();
+      const idx = new Map(etiquetas.map((d, i) => [d, i]));
+      const obs = etiquetas.map(() => null), fc = etiquetas.map(() => null);
+      for (const [d, y] of s.observado) obs[idx.get(d)] = y;
+      for (const [d, y] of s.pronostico) fc[idx.get(d)] = y;
+      const desde = idx.get(s.pronostico[0][0]);
+      const corte = idx.has(V.observation_cutoff_ds) ? idx.get(V.observation_cutoff_ds) : null;
+
+      $('chartTitle').textContent = `${s.nombre} · ${s.sexo_nombre}`;
+      const o = s.oos;
+      $('mSmape').textContent = pct(o.smape);
+      $('mSmapeL').textContent = o.semanas ? `sMAPE fuera de muestra (${o.semanas} ${o.semanas === 1 ? 'semana' : 'semanas'})` : 'sMAPE fuera de muestra (sin semanas aún)';
+      $('mMae').textContent = o.mae === null ? '—' : nf0.format(o.mae);
+      $('mBias').textContent = signo(o.sesgo_pct);
+      $('mTotal').textContent = nf0.format(s.pronostico_52_total);
+      $('mEngine').textContent = motorDe(s);
+      $('chartCap').textContent = o.semanas
+        ? `${o.semanas === 1 ? 'En la semana ya observada' : `En las ${o.semanas} semanas ya observadas`} se reportaron ${nf0.format(o.observado_total)} casos y el pronóstico congelado estimaba ${nf0.format(o.pronostico_total)}.`
+        : 'Aún no hay semanas observadas después del origen: la comparación empezará con el siguiente boletín.';
+
+      if (!window.Chart) { $('chartCap').textContent = 'No se pudo cargar la librería de gráficos.'; return; }
+      const datos = {
+        labels: etiquetas,
+        datasets: [
+          { label: 'Observado', data: obs, borderColor: '#667d8f', backgroundColor: '#667d8f', borderWidth: 2, pointRadius: 0, spanGaps: false, tension: 0.15 },
+          { label: 'Pronóstico congelado', data: fc, borderColor: '#17644d', backgroundColor: '#17644d', borderDash: [6, 4], borderWidth: 2.5, pointRadius: 0, tension: 0.15 },
+        ],
+      };
+      const opciones = {
+        responsive: true, maintainAspectRatio: false, animation: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          bandaObservada: { desde, hasta: corte === null ? desde - 1 : corte },
+          tooltip: {
+            backgroundColor: '#ffffff', borderColor: '#dbe3dc', borderWidth: 1, titleColor: '#173c33', bodyColor: '#667d8f',
+            callbacks: {
+              title: (it) => `Semana del ${fechaLarga(it[0].label)}`,
+              label: (it) => (it.raw === null ? null : `${it.dataset.label}: ${nf0.format(it.raw)} casos`),
+            },
+          },
+        },
+        scales: {
+          x: { grid: { color: 'rgba(97,117,108,0.16)' }, ticks: { color: '#61756c', maxRotation: 0, autoSkip: true, maxTicksLimit: 9, callback(v) { return fechaCorta(this.getLabelForValue(v)).replace(/^\d+ /, ''); } } },
+          y: { beginAtZero: true, grid: { color: 'rgba(97,117,108,0.16)' }, ticks: { color: '#61756c', callback: (v) => nf0.format(v) }, title: { display: true, text: 'Casos por semana', color: '#61756c' } },
+        },
+      };
+      if (chart) { chart.data = datos; chart.options = opciones; chart.update(); }
+      else chart = new Chart($('chartObesidad'), { type: 'line', data: datos, options: opciones, plugins: [bandaPlugin] });
+
+      document.querySelectorAll('#tablaEstados tr').forEach((tr) => tr.classList.toggle('sel', tr.dataset.geo === geo));
+    }
+
+    function tabla() {
+      const filas = Object.values(V.series).filter((s) => s.nivel === 'estado' && s.sexo === 'general')
+        .sort((a, b) => (a.oos.smape ?? 1e9) - (b.oos.smape ?? 1e9) || b.pronostico_52_total - a.pronostico_52_total);
+      const tb = $('tablaEstados');
+      tb.innerHTML = '';
+      for (const s of filas) {
+        const tr = document.createElement('tr');
+        tr.dataset.geo = `estado|${s.id}`;
+        const celdas = s.oos.semanas
+          ? [s.nombre, motorDe(s, true), pct(s.oos.smape), signo(s.oos.sesgo_pct), nf0.format(s.oos.observado_total), nf0.format(s.oos.pronostico_total)]
+          : [s.nombre, motorDe(s, true), '—', '—', '—', nf0.format(s.pronostico_52_total)];
+        celdas.forEach((t, i) => { const td = document.createElement('td'); td.textContent = t; if (i === 1) td.className = 'motor'; tr.appendChild(td); });
+        tr.addEventListener('click', () => { geo = tr.dataset.geo; $('selGeo').value = geo; dibujar(); $('explorador').scrollIntoView({ behavior: 'smooth' }); });
+        tb.appendChild(tr);
+      }
+      const n = filas[0] ? filas[0].oos.semanas : 0;
+      $('tablaNota').textContent = n
+        ? (n === 1 ? `Semanas evaluadas: 1, la semana ${V.observation_cutoff[1]} de ${V.observation_cutoff[0]}. Observado y pronosticado son los casos de esa semana.` : `Semanas evaluadas: ${n}, de la semana ${V.origin[1] + 1} a la ${V.observation_cutoff[1]} de ${V.observation_cutoff[0]}. Observado y pronosticado son casos acumulados en esas semanas.`)
+        : `Aún no hay semanas evaluadas: la tabla ordena las entidades por casos pronosticados en ${V.horizon_weeks} semanas. El error aparecerá con los próximos boletines.`;
+    }
+
+    function cabecera() {
+      // Estado desde la vista actual (misma regla que el Dashboard y la Galería): data-verdict y
+      // data-publication-kind en la tarjeta; disease.css los colorea. Ver assets/site/estado-ficha.js.
+      EpiEstadoFicha.aplica($('statusCard'), V);
+      $('originTxt').textContent = `W${V.origin[1]} de ${V.origin[0]}`;
+      if (V.forecast_emitted_at) {
+        $('emitTxt').textContent = new Date(V.forecast_emitted_at).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City', day: 'numeric', month: 'long', year: 'numeric' });
+      }
+      const [a, w] = V.observation_cutoff;
+      $('cutoffTxt').textContent = `semana epidemiológica ${w} de ${a} (semana del ${fechaLarga(V.observation_cutoff_ds)}), publicada en el boletín de la semana ${w + 1}`;
+      $('stModels').textContent = V.models;
+      $('stProducts').textContent = V.products;
+      $('mtProducts').textContent = V.products;
+      const nac = V.series['nacional|mx|general'];
+      $('stOos').textContent = nac.oos.semanas ? pct(nac.oos.smape) : 'En curso';
+      $('stWeeks').textContent = nac.oos.semanas;
+      const motores = Object.keys(V.engines);
+      $('mtEngines').textContent = `${motores.length} motores (${motores.map(motor).join(', ')})`;
+      $('mtVerdict').textContent = V.verdict === 'INCOMPLETE' ? 'en curso' : V.verdict;
+      $('mtWeeks').textContent = `${V.weeks_available} de ${V.weeks_required}`;
+      $('releaseMeta').textContent = `Release ${V.release_id} · observación ${V.observation_dataset_id}`;
+    }
+
+    document.querySelectorAll('#segSexo button').forEach((b) => b.addEventListener('click', () => {
+      sexo = b.dataset.sexo;
+      document.querySelectorAll('#segSexo button').forEach((x) => { const on = x === b; x.classList.toggle('on', on); x.setAttribute('aria-checked', on ? 'true' : 'false'); });
+      dibujar();
+    }));
+    $('selGeo').addEventListener('change', (e) => { geo = e.target.value; dibujar(); });
+
+    fetch('publication/otras_hepatitis_b17/vista.json', { cache: 'no-cache' })
+      .then((r) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
+      .then((v) => {
+        if (v.schema !== 'publication_view.v1') throw new Error('versión de datos no soportada');
+        V = v; cabecera(); opcionesGeo(); tabla();
+        // ?serie=nivel|id|sexo (enlaces de la galería): preselecciona esa serie si existe.
+        const pedida = new URLSearchParams(location.search).get('serie');
+        if (pedida && V.series[pedida]) {
+          const s = V.series[pedida];
+          geo = `${s.nivel}|${s.id}`; sexo = s.sexo; $('selGeo').value = geo;
+          document.querySelectorAll('#segSexo button').forEach((x) => { const on = x.dataset.sexo === sexo; x.classList.toggle('on', on); x.setAttribute('aria-checked', on ? 'true' : 'false'); });
+          requestAnimationFrame(() => $('explorador').scrollIntoView());
+        }
+        dibujar();
+      })
+      .catch((e) => {
+        $('pubLabel').textContent = 'No se pudieron cargar los datos de otras hepatitis víricas.';
+        $('chartCap').innerHTML = '';
+        const p = document.createElement('span'); p.className = 'err'; p.textContent = `Error al cargar los datos (${e.message}).`;
+        $('chartCap').appendChild(p);
+      });
+  })();
+  </script>
+
+<script src="assets/site/site-nav.js?v=4"></script>
+</body>
+</html>
