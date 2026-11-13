@@ -11,7 +11,7 @@ import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=1';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=4';
 import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=27';
-import { aliasAmbiguo, conDiabetesNombrada, conHipertensionNombrada, RELEASES, releaseDePad, respuestaCrisis, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=22';
+import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, RELEASES, releaseDePad, respuestaCrisis, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=22';
 
 let DATA = null;
 
@@ -5760,8 +5760,8 @@ async function _resolve(query) {
     return { response: `${ambiguo.texto}\n<!--SIN_GRAFICA-->`, handler: trace.handler };
   }
   // Un seguimiento que nombra otro subtipo o categoría se resuelve antes de heredar el contexto.
-  const q = conHipertensionNombrada(
-    conDiabetesNombrada(norm(query), lastEntities.padecimiento), lastEntities.padecimiento);
+  const q = conFamiliaNombrada(conHipertensionNombrada(
+    conDiabetesNombrada(norm(query), lastEntities.padecimiento), lastEntities.padecimiento), lastEntities.padecimiento);
   const ent = detectEntities(q === norm(query) ? query : q);
 
   // Guard: prompt injection / roleplay → rechazar inmediatamente

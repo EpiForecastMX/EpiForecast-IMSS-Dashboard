@@ -497,7 +497,7 @@
       id: 'hepatitis_a_b15', pad: 'Hepatitis vírica A', nombre: 'Hepatitis vírica A', nombreCorto: 'Hepatitis A',
       etiqueta: 'Hepatitis vírica A (B15)', dataKey: 'hepatitis_a_b15', marca: 'HEPATITIS_A_B15',
       pagina: 'hepatitis_a_b15.html', consulta: 'hepatitis virica a', cie: 'B15', color: '#DC2626',
-      alias: ['hepatitis virica a', 'b15', 'hav'],
+      alias: ['hepatitis virica a', 'b15'],
       prefijos: ['hepatitis virica a'],
     },
     {
@@ -519,7 +519,7 @@
       // Incluye la hepatitis B crónica (B18.0-B18.1) y la D y E agudas (B17.0, B17.2); la B aguda (B16) es otro
       // bloque del boletín, sin pronóstico.
       alias: ['otras hepatitis viricas', 'otras hepatitis virales', 'hepatitis virica d', 'hepatitis virica e',
-        'hepatitis virica b cronica', 'hepatitis viral no especificada', 'b17 0', 'b17 2', 'b17 8', 'b17 9',
+        'hepatitis viral no especificada', 'b17 0', 'b17 2', 'b17 8', 'b17 9',
         'b18 0', 'b18 1', 'b18 8', 'b18 9', 'b19'],
       prefijos: ['otras hepatitis viricas', 'otras hepatitis virales'],
     },
@@ -564,7 +564,7 @@
       pagina: 'hepatitis_c_b17.html', consulta: 'hepatitis virica c', cie: 'B17.1, B18.2', color: '#BE185D',
       controlEstatalPocoInformativo: true,
       // Las demás hepatitis víricas tienen código propio (B15, B16, B17.0, B17.2-B17.9): no reciben estas cifras.
-      alias: ['hepatitis virica c', 'b17 1', 'b18 2', 'hcv'],
+      alias: ['hepatitis virica c', 'b17 1', 'b18 2'],
       prefijos: ['hepatitis virica c'],
     },
     {
@@ -576,7 +576,7 @@
       controlEstatalPocoInformativo: true,
       alias: ['displasia cervical severa y cacu in situ', 'displasia cervical severa', 'displasia cervical grave',
         'displasia severa', 'displasia grave', 'cacu in situ', 'carcinoma in situ del cuello del utero',
-        'n87 2', 'd06', 'nic 3', 'nic iii', 'cin 3', 'severe cervical dysplasia'],
+        'n87 2', 'd06', 'severe cervical dysplasia'],
       prefijos: ['displasia cervical severa', 'displasia cervical grave', 'displasia severa', 'displasia grave',
         'cacu in situ', 'severe cervical dysplasia'],
     },
@@ -615,6 +615,27 @@
   }
 
   /**
+   * Seguimiento elíptico dentro de una familia con bloques hermanos: tras «hepatitis A en Jalisco», «¿y la C?»
+   * nombra la C, no hereda la A; tras desnutrición leve, «¿y la severa?» nombra la severa (sin pronóstico), y
+   * tras una displasia, «¿y la severa?» o «¿y la leve?» nombra el bloque hermano.
+   */
+  const FAMILIAS = [
+    { pads: ['Hepatitis vírica A', 'Hepatitis vírica C', 'Otras hepatitis víricas'], ya: /hepatitis/,
+      de: /\b(?:(?:la|el|tipo|de la) )?([abcde])\s*$/, a: ' hepatitis virica $1' },
+    { pads: ['Hepatitis vírica A', 'Hepatitis vírica C', 'Otras hepatitis víricas'], ya: /hepatitis/,
+      de: /\b(?:las )?otras\s*$/, a: ' otras hepatitis viricas' },
+    { pads: ['Desnutrición leve'], ya: /desnutric|malnutri/, de: /\b(?:la )?(leve|moderada|severa|grave)\s*$/,
+      a: ' desnutricion $1' },
+    { pads: ['Displasia cervical leve y moderada', 'Displasia cervical severa y CaCu in situ'], ya: /displasia/,
+      de: /\b(?:la )?(leve|moderada|severa|grave)\s*$/, a: ' displasia cervical $1' },
+  ];
+  function conFamiliaNombrada(qn, padPrevio) {
+    if (!/^(y|pero|tambien|que hay de|ahora|and|what about)\b/.test(qn)) return qn;
+    const f = FAMILIAS.find((x) => x.pads.includes(padPrevio) && !x.ya.test(qn) && x.de.test(qn));
+    return f ? qn.replace(f.de, f.a).replace(/\s+/g, ' ').trim() : qn;
+  }
+
+  /**
    * Formas que describen un padecimiento publicado con palabras que, leídas sueltas, apuntan a otro:
    * «isquemia cerebral» es cerebrovascular y «cardiopatía isquémica» no es una cardiopatía sin modelar.
    */
@@ -626,14 +647,29 @@
     [/\bcardiopatias? isquemicas?\b/g, 'enfermedad isquemica'],
     // Hepatitis víricas: la letra va sola tras «hepatitis» y nombraAlias compara por prefijo («hepatitis e»
     // capturaría «hepatitis en»). Se reescriben a una forma canónica con la letra como palabra completa.
-    [/\bhepatitis (cronica (virica |viral )?b|(virica |viral |por (el )?virus (de la )?)?b cronica)\b/g, 'hepatitis virica b cronica'],
+    // «a» puede ser preposición («hepatitis a nivel nacional», «a partir de 2020») y «e» conjunción ante i/hi
+    // («hepatitis e influenza»): en esos casos no es la letra del virus. Abreviaturas sólo como palabra completa
+    // (`hav` era prefijo de «have»).
+    [/\b(hav|vha|hep a)\b/g, 'hepatitis virica a'],
+    [/\b(hcv|vhc|hep c)\b/g, 'hepatitis virica c'],
+    [/\b(hbv|vhb|hep b)\b/g, 'hepatitis virica b'],
+    [/\bhepatitis (cronica (virica |viral )?b|(virica |viral |por (el )?virus (de la )?)?b (en (fase|etapa) )?cronica)\b/g, 'hepatitis virica b cronica'],
     [/\bhepatitis delta\b/g, 'hepatitis virica d'],
-    [/\bhepatitis (virica |viral |por (el )?virus (de la )?)?([abcde])\b/g, 'hepatitis virica $4'],
+    [/\bhepatitis (tipo |virica |viral |por (el )?virus (de la )?)?([bcd]|a(?! (nivel|partir|la|las|lo|los|el|traves|pesar|mediados|finales|principios|inicios|fin|corto|largo|mediano|futuro|que|su|sus|mi|mis|cada|escala|diario|semana|semanas|mes|meses|ano|anos|un|una|dos|tres|cuatro|cinco)\b| ?[0-9])|e(?! h?i))\b/g,
+      'hepatitis virica $4'],
+    [/\bhepatitis virica ([ace]) (y|e|o) (la |el )?([ace])\b/g, 'hepatitis virica $1 $2 hepatitis virica $4'],
+    [/\bhepatitis virica b (en (fase|etapa) )?cronica\b/g, 'hepatitis virica b cronica'],
+    // «Salmonelosis no tifoidea» es el bloque A02: la palabra «tifoidea» negada no nombra A01.0.
+    [/\b(salmonelosis|salmonell?a|salmonellosis)( no| non)[ -]?(tifoid(ea|ica|eas|icas)?|typhoid(al)?)\b|\bnon[ -]?typhoid(al)? salmonell?(a|osis)\b/g,
+      'otras salmonelosis'],
+    // Neoplasia intraepitelial cervical: grado III es el bloque severo (N87.2), grados I y II el leve (N87.0-N87.1).
+    [/\bneoplasias? intraepitelial(es)? cervical(es)?( de)?( grado)? (3|iii|tres)\b|\b(nic|cin) ?(3|iii)\b/g, 'displasia cervical severa'],
+    [/\bneoplasias? intraepitelial(es)? cervical(es)?( de)?( grado)? (1|2|i|ii|uno|dos)\b|\b(nic|cin) ?(1|2|i|ii)\b/g, 'displasia cervical leve'],
     // Salmonella Typhi causa la fiebre tifoidea (A01.0) y Paratyphi la paratifoidea (A01.1-A01.4), no el bloque A02.
     [/\bsalmonell?a (enterica )?(serovar )?typhi\b|\bs typhi\b/g, 'fiebre tifoidea'],
     [/\bsalmonell?a (enterica )?(serovar )?paratyphi\b|\bs paratyphi\b/g, 'paratifoidea'],
     // El cáncer cervicouterino in situ (D06) es parte del bloque de displasia severa, no del C53 invasor.
-    [/\b(cancer|carcinoma|ca)( de| del)?( cuello( del)? (utero|uterino)| cervicouterino| cervical| cervix)( in situ)\b|\b(cancer|carcinoma) in situ( de| del)?( cuello( del)? (utero|uterino)| cervicouterino| cervical| cervix)\b|\bcervical carcinoma in situ\b/g,
+    [/\b(cancer|carcinoma|ca|tumor|neoplasia)( maligno| maligna)?( de| del)?( cuello( del)? (utero|uterino)| cervicouterino| cervical| cervix)( in situ)\b|\b(cancer|carcinoma|tumor|neoplasia)( maligno| maligna)? in situ( de| del)?( cuello( del)? (utero|uterino)| cervicouterino| cervical| cervix)\b|\bcervical carcinoma in situ\b/g,
       'cacu in situ'],
     // El nombre del bloque A07 contiene «infecciones intestinales», alias de A04: se reduce a un término
     // propio para que la consulta no nombre los dos releases.
@@ -702,8 +738,7 @@
     // Fuera de los bloques A04, A08-A09 y A06: rotavirus es A08.0 y las demás tienen código propio.
     'rotavirus', 'giardiasis', 'paratifoidea', 'paratyphoid',
     // Rechazados en 2025 del lote alta10b, sin control autorizado, y términos que abarcan varios helmintos.
-    'helmintiasis', 'enterobiasis', 'oxiuriasis', 'oxiuros', 'lombriz', 'lombrices', 'parasitos intestinales',
-    'parasitosis intestinal',
+    'helmintiasis', 'enterobiasis', 'oxiuriasis', 'oxiuros',
     'lupus', 'fibromialgia', 'esclerosis', 'huntington', 'ela ',
     'insuficiencia renal', 'insuficiencia cardiaca',
     // En inglés: sin esto, «epilepsy in jalisco» caería en la tabla neuro del estado.
@@ -797,7 +832,9 @@
     [subcodigo('e44', '0'), 'desnutricion moderada o severa', 'desnutrición moderada (E44.0)', 'desnutricion_leve_e441'],
     [/\bparatifoid[a-z]*\b|\bparatyphoid\b/, 'paratifoidea', 'fiebre paratifoidea (A01.1-A01.4)', 'tifoidea_a01'],
     [subcodigo('a01', '1-4'), 'paratifoidea', 'fiebre paratifoidea (A01.1-A01.4)', 'tifoidea_a01'],
-    [/\bhepatitis virica b\b(?! cronica)|\bb16\b/, 'hepatitis virica b aguda', 'hepatitis vírica B aguda (B16)', 'otras_hepatitis_b17'],
+    [/\bhepatitis virica b\b(?! cronica)(?!.*\b(cronica|b18))|\bb16\b/, 'hepatitis virica b aguda', 'hepatitis vírica B aguda (B16)', 'otras_hepatitis_b17'],
+    [/\bparvovirus\b|\beritema infeccioso\b|\bquinta enfermedad\b/, 'parvovirus b19',
+      'infección por parvovirus B19 (B08.3, B34.3), que no es una hepatitis', 'otras_hepatitis_b17'],
     [/\bhepatitis (alcoholica|autoinmune|toxica|medicamentosa|alcoholic|autoimmune|toxic|drug induced)\b|\bk7[0-5]\b/,
       'hepatitis no virica', 'hepatitis no vírica (alcohólica, autoinmune o tóxica), con código propio fuera de B15-B19',
       'hepatitis_c_b17'],
@@ -910,11 +947,16 @@
       uno: new RegExp(`\\b(leve|moderada)s?\\b|${subcodigo('n87', '01').source}`),
       otroEsp: new RegExp(`\\b(severa|grave)s?\\b|\\bcacu in situ\\b|\\bd06\\b|${subcodigo('n87', '2').source}`),
       abarca: '«Displasia cervical» abarca dos bloques publicados con su propio pronóstico: la leve y moderada (N87.0-N87.1) y la severa con el cáncer cervicouterino in situ (N87.2, D06).' },
+    { release: 'tifoidea_a01', generico: /\ba01\b(?![ .]?[0-9])/, especifico: /(?!)/,
+      abarca: '«A01» abarca la fiebre tifoidea (A01.0) y la paratifoidea (A01.1-A01.4), que no se pronostica.' },
+    { release: 'ascariasis_b77', generico: /\b(lombri(z|ces)|gusanos( intestinales)?|parasitos intestinales|parasitosis intestinal(es)?)\b/,
+      especifico: /\b(ascariasis|ascaridiasis|ascaris|b77)\b/,
+      abarca: '«Lombrices» o «parásitos intestinales» abarcan varias parasitosis con código propio (enterobiasis, giardiasis y otras helmintiasis), que no se pronostican.' },
     { release: 'desnutricion_leve_e441', generico: /\b(desnutricion|malnutrition|undernutrition|e4[0-6])\b/,
       especifico: new RegExp(`\\bdesnutricion( de)?( grado)? leve\\b|\\bmild (malnutrition|undernutrition)\\b|${subcodigo('e44', '1').source}`),
       abarca: '«Desnutrición» abarca la moderada (E44.0) y la severa (E40-E43), que el boletín reporta aparte y no se pronostican.' },
     { release: null, bloques: ['hepatitis_a_b15', 'hepatitis_c_b17', 'otras_hepatitis_b17'],
-      generico: /\bhepatitis( viricas?| virales?| viral)?\b(?! (virica |viral )?[abcde]\b)|\bb1[78]\b(?![ .]?[0-9])/,
+      generico: /\bhepatitis( viricas?| virales?| viral)?\b(?! virica [abcde]\b)|\bb1[78]\b(?![ .]?[0-9])/,
       especifico: /\botras hepatitis (viricas|virales)\b|\bhepatitis (alcoholica|autoinmune|toxica|medicamentosa)\b/,
       abarca: '«Hepatitis» abarca varios bloques del boletín con código propio. Se pronostican tres: la hepatitis vírica A (B15), la C (B17.1, B18.2) y las otras hepatitis víricas (B17-B19, excepto B17.1 y B18.2); la hepatitis vírica B aguda (B16) no se pronostica.' },
     { release: 'candidiasis_b37', generico: /\b(candidiasis|candida|candidosis|moniliasis|b37)\b/,
@@ -933,6 +975,8 @@
    * categoría está contada dentro de otro bloque sin serie propia.
    */
   const ACLARACIONES = [
+    { release: 'otras_hepatitis_b17', re: /\bhepatitis virica b cronica\b|\bhepatitis virica b\b.*\bb18[ .]?[01]\b/,
+      abarca: 'La hepatitis B crónica (B18.0-B18.1) se cuenta dentro de las otras hepatitis víricas, sin una serie propia; la hepatitis B aguda (B16) no se pronostica.' },
     { release: 'varicela_b01', re: /\b(varicela zoster|virus (de la )?varicela|vzv|varicella zoster)\b/,
       abarca: '«Varicela zóster» es el nombre del virus, que causa la varicela (B01) y el herpes zóster (B02); el término no dice cuál de las dos.' },
     { release: 'ira_j00', re: /\b(amigdalitis|tonsillitis)( aguda)? (viral(es)?|no estreptococic[ao]s?|por virus)\b|\bviral tonsillitis\b|\bj03[ .]?[89]\b/,
@@ -947,8 +991,10 @@
     const previa = ACLARACIONES.find((a) => a.re.test(canon));
     const hitPrevio = previa ? { release: previa.release, abarca: previa.abarca } : null;
     if (!hitPrevio && subtipoAjeno(qn)) return null;
+    const nombrados = (a) => a.bloques.filter((id) => releases.find((r) => r.id === id).alias
+      .some((al) => nombraAlias(canon, al))).length;
     const hit = hitPrevio || ALIAS_AMBIGUOS.find((a) => a.generico.test(canon) && !a.especifico.test(canon) &&
-      (!a.uno || a.uno.test(canon) === a.otroEsp.test(canon)));
+      (!a.uno || a.uno.test(canon) === a.otroEsp.test(canon)) && (!a.bloques || nombrados(a) !== 1));
     if (!hit) return null;
     if (hit.bloques) {
       const rs = hit.bloques.map((id) => releases.find((x) => x.id === id));
@@ -983,7 +1029,11 @@
     const baja = canon.match(PRESION_BAJA);
     if (baja) return baja[0];
     const q = sinAliasPublicados(` ${canon.replace(CANCER_MAMA, ' ')} `);
-    const directa = noModeladas.find((e) => q.includes(e.endsWith(' ') ? ` ${e}` : ` ${e.trim()}`));
+    // Un término genérico que forma parte del nombre de un release nombrado («hepatitis B15») no lo niega.
+    const sinTilde = (t) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const nombrados = releases.filter((r) => r.alias.some((al) => nombraAlias(canon, al)));
+    const directa = noModeladas.find((e) => q.includes(e.endsWith(' ') ? ` ${e}` : ` ${e.trim()}`) &&
+      !nombrados.some((r) => sinTilde(r.nombre).includes(e.trim())));
     if (directa) return directa;
     if (!HIPERTENSION.test(canon)) return null;
     const ajena = HIPERTENSION_AJENA.find(([re]) => re.test(canon));
@@ -1023,7 +1073,7 @@
   }
 
   g.EPI_CATALOGO = Object.freeze({
-    releases, diabetesEnConsulta, conDiabetesNombrada, canonClinico, nombraAlias, noModeladas,
+    releases, diabetesEnConsulta, conDiabetesNombrada, conFamiliaNombrada, canonClinico, nombraAlias, noModeladas,
     mencionaNoModelada, conHipertensionNombrada, respuestaCrisis, subtipoAjeno, aliasAmbiguo,
   });
 })(globalThis);

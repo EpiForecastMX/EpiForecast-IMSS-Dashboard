@@ -39,7 +39,7 @@ const ACEPTADOS = [
   ['ascariasis en Chiapas', 'ASCARIASIS_B77'], ['hepatitis A en Sonora', 'HEPATITIS_A_B15'],
   ['hepatitis vírica A en Jalisco', 'HEPATITIS_A_B15'], ['golpe de calor en Sonora', 'CALOR_T67'],
   ['efectos del calor y de la luz en Nuevo León', 'CALOR_T67'], ['otras hepatitis víricas en Jalisco', 'OTRAS_HEPATITIS_B17'],
-  ['hepatitis E en Jalisco', 'OTRAS_HEPATITIS_B17'], ['hepatitis B crónica en Jalisco', 'OTRAS_HEPATITIS_B17'],
+  ['hepatitis E en Jalisco', 'OTRAS_HEPATITIS_B17'], ['B18.1 en Jalisco', 'OTRAS_HEPATITIS_B17'],
 ];
 for (const [q, marca] of ACEPTADOS) {
   test(`aceptado: «${q}» responde su release con validación en curso`, async () => {
@@ -134,6 +134,100 @@ async function postRag(query) {
 }
 for (const q of ['hepatitis B en Jalisco', 'desnutrición moderada en Jalisco', 'fiebre paratifoidea en Sonora']) {
   test(`RAG real: «${q}» responde sin modelo ni cifras`, async () => {
+    const { status, body } = await postRag(q);
+    assert.equal(status, 200);
+    assert.doesNotMatch(body.answer, /\d{1,3}(,\d{3})+|casos pronosticados/);
+    assert.deepEqual(body.sources, []);
+  });
+}
+
+// Revisión de alias de Fable (FABLE_ALIAS_1) reproducida por root contra el KB vivo: cada caso falló antes.
+async function conversa(...qs) {
+  kb._resetContext();
+  let r;
+  for (const q of qs) r = await kb.answerWithTrace(q);
+  kb._resetContext();
+  return { handler: r.handler, md: String(r.response ?? '') };
+}
+
+for (const q of ['casos de hepatitis a nivel nacional', 'hepatitis a partir de 2020', 'hepatitis a la semana 42',
+  'hepatitis e influenza en Jalisco']) {
+  test(`A1: «${q}» no lee la preposición o la conjunción como letra del virus`, async () => {
+    const { handler, md } = await conversa(q);
+    assert.equal(handler, 'answerAliasAmbiguo', q);
+    SIN_CIFRAS(md, q);
+  });
+}
+
+test('A2: «have» no es la abreviatura HAV y las abreviaturas completas sí nombran su bloque', async () => {
+  for (const q of ['what data do you have for Jalisco', 'do you have asthma data']) {
+    assert.doesNotMatch((await conversa(q)).md, /HEPATITIS_A_B15|Hepatitis vírica A \(B15\) ·/, q);
+  }
+  assert.match((await conversa('VHA en Jalisco')).md, /HEPATITIS_A_B15/);
+  assert.match((await conversa('VHC en Jalisco')).md, /HEPATITIS_C_B17/);
+});
+
+test('M1: la salmonelosis no tifoidea es A02 y no mezcla la tifoidea', async () => {
+  for (const q of ['salmonelosis no tifoidea en Jalisco', 'non-typhoidal salmonella in Jalisco']) {
+    const { md } = await conversa(q);
+    assert.match(md, /SALMONELOSIS_A02/, q);
+    assert.doesNotMatch(md, /TIFOIDEA_A01|Fiebre tifoidea/, q);
+  }
+});
+
+test('M2: la hepatitis B crónica se aclara dentro de otras hepatitis, sin negarla como B16 ni darle cifras propias', async () => {
+  for (const q of ['hepatitis B B18.1 en Jalisco', 'hepatitis B en fase crónica en Jalisco', 'hepatitis B crónica en Jalisco']) {
+    const { handler, md } = await conversa(q);
+    assert.equal(handler, 'answerAliasAmbiguo', q);
+    assert.match(md, /otras hepatitis víricas/, q);
+    assert.doesNotMatch(md, /no modela hepatitis vírica B aguda/, q);
+    SIN_CIFRAS(md, q);
+  }
+  assert.match((await conversa('B18.1 en Jalisco')).md, /OTRAS_HEPATITIS_B17/);
+});
+
+test('M3: el seguimiento elíptico nombra el bloque hermano y no hereda el anterior', async () => {
+  const c = await conversa('hepatitis A en Jalisco', '¿y la C?');
+  assert.match(c.md, /HEPATITIS_C_B17/);
+  assert.doesNotMatch(c.md, /HEPATITIS_A_B15/);
+  const b = await conversa('hepatitis A en Jalisco', '¿y la B?');
+  assert.doesNotMatch(b.md, /HEPATITIS_A_B15/);
+  SIN_CIFRAS(b.md, 'y la B');
+  const sev = await conversa('desnutrición leve en Jalisco', '¿y la severa?');
+  assert.doesNotMatch(sev.md, /DESNUTRICION_LEVE_E441/);
+  SIN_CIFRAS(sev.md, 'y la severa (desnutrición)');
+  const dis = await conversa('displasia cervical leve en Jalisco', '¿y la severa?');
+  assert.match(dis.md, /DISPLASIA_SEVERA_N87/);
+  assert.doesNotMatch(dis.md, /DISPLASIA_LEVE_N87/);
+});
+
+test('M4: un código o nombre específico de un bloque de hepatitis no cae en la aclaración genérica', async () => {
+  assert.match((await conversa('hepatitis B15 en Jalisco')).md, /HEPATITIS_A_B15/);
+  assert.match((await conversa('hepatitis viral no especificada en Jalisco')).md, /OTRAS_HEPATITIS_B17/);
+});
+
+test('M5: «lombrices» junto a ascariasis no la niega; sola, pide precisar', async () => {
+  assert.match((await conversa('ascariasis (lombrices intestinales) en Jalisco')).md, /ASCARIASIS_B77/);
+  const l = await conversa('lombrices en Jalisco');
+  assert.equal(l.handler, 'answerAliasAmbiguo');
+  SIN_CIFRAS(l.md, 'lombrices');
+});
+
+test('extra: parvovirus B19 no es hepatitis, NIC III y el tumor in situ son D06, A01 pide precisar', async () => {
+  SIN_CIFRAS((await conversa('parvovirus B19 en Jalisco')).md, 'parvovirus');
+  for (const q of ['neoplasia intraepitelial cervical grado III en Jalisco', 'tumor in situ del cuello del útero en Jalisco']) {
+    const { md } = await conversa(q);
+    assert.match(md, /DISPLASIA_SEVERA_N87/, q);
+    assert.doesNotMatch(md, /CANCER_CUELLO_UTERO_C53/, q);
+  }
+  const a01 = await conversa('A01 en Jalisco');
+  assert.equal(a01.handler, 'answerAliasAmbiguo');
+  assert.doesNotMatch(a01.md, /Alzheimer|Depresi|Parkinson/);
+  SIN_CIFRAS(a01.md, 'A01');
+});
+
+for (const q of ['casos de hepatitis a nivel nacional', 'hepatitis B B18.1 en Jalisco', 'parvovirus B19 en Jalisco', 'A01 en Jalisco']) {
+  test(`RAG real tras la revisión: «${q}» sin cifras ni fuentes`, async () => {
     const { status, body } = await postRag(q);
     assert.equal(status, 200);
     assert.doesNotMatch(body.answer, /\d{1,3}(,\d{3})+|casos pronosticados/);
