@@ -32,12 +32,13 @@ test('Hodgkin: el pico de Morelos de 2025-W43 se repite en 2026-W42', () => {
   assert.ok(Math.abs(p.participacion - 93.83) < 0.01 && Math.abs(p.veces - 12.97) < 0.01);
 });
 
-test('sólo diez releases publicados heredan un pico aislado de su fuente', () => {
+test('sólo once releases publicados heredan un pico aislado de su fuente', () => {
   const { resumen } = revisa(ROOT);
   const con = Object.entries(resumen).filter(([, n]) => n).map(([id]) => id).sort();
   assert.deepEqual(con, [
     'alimentaria_a05', 'cancer_ovario_c56', 'cancer_pancreas_c26', 'cancer_prostata_c61', 'cancer_pulmon_c33',
-    'cerebrovascular_i60', 'displasia_leve_n87', 'linfoma_hodgkin_c81', 'peaton_v01', 'protozoarios_a07',
+    'cerebrovascular_i60', 'displasia_leve_n87', 'hepatitis_c_b17', 'linfoma_hodgkin_c81', 'peaton_v01',
+    'protozoarios_a07',
   ]);
 });
 

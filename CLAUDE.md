@@ -28,7 +28,20 @@ que terminaban dejando el checkout en una rama de trabajo.
 
 # Instrucciones para Claude Code
 
-## Checkpoint vigente — lote alta20 publicado — 12-nov-2026
+## Checkpoint vigente — lote alta10b publicado — 12-nov-2026
+
+Prevalece sobre la sección siguiente en cuanto a conteos. El sitio sirve 65 padecimientos: 4 del carril
+original y 61 releases del runner. Diez se añadieron con el lote alta10b: cuatro portafolios aceptados en
+la prueba única de 2025 con la política de cinco motores (ascariasis, hepatitis vírica A, efectos del calor y
+de la luz, otras hepatitis víricas; validación prospectiva 0/4 en curso) y seis controles estacionales no
+validados por autorización nominal del autor (desnutrición leve, otras salmonelosis, fiebre tifoidea,
+escarlatina, hepatitis vírica C y displasia cervical severa con el cáncer cervicouterino in situ, sin sexo).
+Guía en el backend: `docs/C7_16_ALTA10B.md`. Alcance del EpiBot: «hepatitis» a secas, «displasia
+cervical» y «desnutrición» piden precisar; la hepatitis B aguda (B16), la paratifoidea, la desnutrición
+moderada y severa y la displasia N87.9 no reciben cifras de un vecino (`epibot/tests/test_alcance_alta10b.mjs`).
+Las letras de hepatitis se reescriben a «hepatitis vírica X» porque `nombraAlias` compara por prefijo.
+
+## Checkpoint — lote alta20 publicado — 12-nov-2026
 
 El sitio sirve 55 padecimientos: 4 del carril original y 51 releases del runner. Veinte se añadieron el
 12-nov-2026: diez portafolios aceptados en la prueba de 2025 (validación prospectiva 0/4 en curso) y diez

@@ -7,6 +7,25 @@
             "type": "radar",
             "tag": "Pronóstico publicado",
             "featured": true,
+            "title": "Diez padecimientos más: cuatro aceptados y seis controles estacionales no validados",
+            "summary": "Ascariasis, hepatitis vírica A, efectos del calor y de la luz y otras hepatitis víricas superaron la prueba de 2025. Para otros seis, cuyo portafolio no la superó en el total nacional, se publica el control estacional, no validado, por autorización del autor.",
+            "body": [
+                "EpiForecast-MX publica diez padecimientos más del Boletín Epidemiológico del SINAVE. Cuatro superaron la prueba de 2025 frente al control estacional: <strong style=\"color:var(--cream)\">ascariasis (B77), hepatitis vírica A (B15), efectos del calor y de la luz (T67, X30) y otras hepatitis víricas (B17-B19, excepto B17.1 y B18.2)</strong>. Compitieron sólo los cinco motores estacionales, sin ETS ni regresión armónica, por decisión del autor del 12 de noviembre, porque esos dos motores no producían pronósticos utilizables en algunas series estatales. Se evaluaron en un orden fijado antes de abrir 2025 y la serie se detuvo al llegar a cuatro aceptados; cinco candidatos que no superaron la prueba quedan sin publicar. Su validación prospectiva está en curso (0 de 4 semanas).",
+                "En otros seis el portafolio no superó la prueba de 2025 en el total nacional y, por autorización expresa del autor, se publica el control estacional, que repite los casos de 52 semanas antes: <strong style=\"color:var(--cream)\">desnutrición leve (E44.1), otras salmonelosis (A02), fiebre tifoidea (A01.0), escarlatina (A38), hepatitis vírica C (B17.1, B18.2) y displasia cervical severa y cáncer cervicouterino in situ (N87.2, D06)</strong>. Son controles no validados: no se comparan contra sí mismos ni prometen una validación futura. Cada página da el error del control en esa prueba por estado, en el conjunto de las series y en el total nacional; salvo en desnutrición leve, el error por estado fue muy alto y esa referencia es poco informativa.",
+                "Displasia cervical severa y cáncer cervicouterino in situ no tiene desglose por sexo en el boletín (37 series); los demás, 111 series por sexo. Todos usan datos hasta la semana 42 de 2026 y se emitieron el 12 de noviembre, antes de que existiera el boletín 44. Son pronósticos puntuales, sin intervalos de incertidumbre."
+            ],
+            "link": {
+                "href": "ascariasis_b77.html",
+                "text": "Ver ascariasis",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
+        {
+            "date": "12 de noviembre de 2026",
+            "iso": "2026-11-12",
+            "type": "radar",
+            "tag": "Pronóstico publicado",
+            "featured": true,
             "title": "Quince padecimientos más: cinco aceptados y diez controles estacionales no validados",
             "summary": "Intoxicación alimentaria bacteriana, shigelosis, erisipela, candidiasis urogenital y diabetes mellitus en el embarazo superaron la prueba de 2025. Para otros diez, cuyo portafolio no la superó, se publica el control estacional, no validado, por autorización del autor.",
             "body": [

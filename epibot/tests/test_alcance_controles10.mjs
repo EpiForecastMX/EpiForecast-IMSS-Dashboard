@@ -72,7 +72,7 @@ test('sin sexo: hiperplasia y displasia no ofrecen desglose por sexo', async () 
 
 const AJENOS = [
   'giardiasis en Jalisco', 'A07.1 en Sonora', 'faringitis viral en Jalisco', 'J02.9 en Sonora',
-  'displasia cervical severa en Jalisco', 'cáncer cervicouterino in situ en Sonora', 'N87.2 en Jalisco',
+  'N87.9 en Jalisco',
   'herpes zóster en Jalisco', 'quemaduras solares en Sonora', 'várices en Jalisco', 'parotiditis bacteriana en Puebla',
 ];
 for (const q of AJENOS) {
@@ -85,7 +85,8 @@ for (const q of AJENOS) {
   });
 }
 
-for (const [q, release] of [['faringitis en Jalisco', 'faringitis_j02'], ['amigdalitis en Sonora', 'faringitis_j02'], ['displasia cervical en Jalisco', 'displasia_leve_n87']]) {
+// «Displasia cervical» abarca dos bloques publicados desde alta10b: release null y ambos nombrados (test_alcance_alta10b.mjs).
+for (const [q, release] of [['faringitis en Jalisco', 'faringitis_j02'], ['amigdalitis en Sonora', 'faringitis_j02'], ['displasia cervical en Jalisco', null]]) {
   test(`ambiguo: «${q}» pide precisar sin cifras`, async () => {
     assert.equal(aliasAmbiguo(norm(q))?.release, release);
     const { md } = await pregunta(q);
@@ -109,7 +110,8 @@ test('vecinos: el cáncer de próstata sigue en C61, peatones no son vehículos 
   assert.equal(subtipoAjeno(norm('peatón lesionado en jalisco')), null);
 });
 
-for (const q of ['salmonelosis en Jalisco', 'fiebre tifoidea en Sonora', 'escarlatina en Jalisco', 'hepatitis C en Jalisco', 'displasia cervical severa y cáncer in situ en Sonora']) {
+// Salmonelosis, tifoidea, escarlatina, hepatitis C y displasia severa se publicaron como controles en alta10b.
+for (const q of ['fiebre paratifoidea en Sonora', 'hepatitis B en Jalisco', 'desnutrición moderada en Jalisco', 'enterobiasis en Jalisco']) {
   test(`rechazo no autorizado: «${q}» sigue sin cifras de un release`, async () => {
     const { md } = await pregunta(q);
     assert.doesNotMatch(md, /MARCA:|casos pronosticados|Pronóstico \*\*congelado\*\*/);
@@ -123,7 +125,7 @@ async function postRag(query) {
   }));
   return { status: res.status, body: await res.json() };
 }
-for (const q of ['giardiasis en Jalisco', 'herpes zóster en Jalisco', 'faringitis en Jalisco', 'displasia cervical severa en Jalisco']) {
+for (const q of ['giardiasis en Jalisco', 'herpes zóster en Jalisco', 'faringitis en Jalisco', 'hepatitis B en Jalisco']) {
   test(`RAG real: «${q}» responde sin modelo ni cifras`, async () => {
     const { status, body } = await postRag(q);
     assert.equal(status, 200);

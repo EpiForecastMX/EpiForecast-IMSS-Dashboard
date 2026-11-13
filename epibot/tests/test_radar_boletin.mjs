@@ -55,10 +55,10 @@ test('un no modelado con entidad da las cifras impresas del cuadro, sin pronóst
   assert.match(r.md, /<!--SIN_GRAFICA-->/);
 });
 
-test('sin handler previo: «casos de escarlatina» ya no queda sin respuesta', async () => {
-  const r = await conversa('casos de escarlatina');
+test('sin handler previo: «casos de brucelosis» ya no queda sin respuesta', async () => {
+  const r = await conversa('casos de brucelosis');
   assert.equal(r.handler, 'answerRadarBoletin');
-  assert.match(r.md, new RegExp(es(por('Escarlatina').cumulative)));
+  assert.match(r.md, new RegExp(es(por('Brucelosis').cumulative)));
 });
 
 test('Covid-19 dice que se rechazó y remite a rechazados', async () => {
@@ -115,7 +115,7 @@ test('el seguimiento de un no modelado no cae en la tabla neuro', async () => {
   const r = await conversa('vih en veracruz', 'y en puebla?');
   assert.equal(r.handler, 'answerRadarBoletin');
   assert.match(r.md, /\*\*Puebla\*\*/);
-  const s = await conversa('depresion en sonora', 'y escarlatina?');
+  const s = await conversa('depresion en sonora', 'y brucelosis?');
   assert.equal(s.handler, 'answerRadarBoletin');
   assert.doesNotMatch(s.md, /Depresion/);
 });

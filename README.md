@@ -13,7 +13,7 @@ principal (`Congresos/Mundial/ESTADO_ACTUAL_WCP.md`); este README describe el si
 
 | | |
 |---|---|
-| Padecimientos publicados | **55** = 4 del carril original + 51 releases del runner (veinte añadidos el 12-nov-2026: diez aceptados en la prueba de 2025, validación prospectiva 0/4 en curso, y diez controles estacionales no validados) |
+| Padecimientos publicados | **65** = 4 del carril original + 61 releases del runner (treinta añadidos el 12-nov-2026: catorce aceptados en la prueba de 2025, validación prospectiva 0/4 en curso, y dieciséis controles estacionales no validados) |
 | Datos reales hasta | **boletín 43 de 2026** (carril original y radar); **semana 42** observada en los releases del runner |
 | Series productivas del carril original | **432** = 333 neuro + 99 dengue |
 | Gráficos publicados del carril original | **432** = 333 neuro + 99 dengue (ronda W37; hasta W33 eran 444 con las 4 regiones de dengue) |
@@ -54,13 +54,13 @@ clave.** Una vista nueva que imprima nombres tiene que importar `display.js`; `c
 
 Dashboard interactivo del proyecto **EpiForecast-MX**, desarrollado en colaboración entre el
 **Tecnológico de Monterrey** y el **Instituto Mexicano del Seguro Social (IMSS)**. Cubre
-**cincuenta y cinco padecimientos**:
+**sesenta y cinco padecimientos**:
 
 - **Carril original (cuatro):** Depresión (F32), enfermedad de Parkinson (G20), enfermedad de
   Alzheimer (G30) y Dengue (A97). Los tres neurológicos son la cohorte de 333 modelos; Dengue tiene
   su propio pipeline de conteos y página en `dengue.html` (pronóstico a un año; la proyección NB-GLM a
   cinco años se retiró en W37).
-- **Releases del runner genérico (cincuenta y uno):** publicados desde releases sellados
+- **Releases del runner genérico (sesenta y uno):** publicados desde releases sellados
   (`publication/catalog.json`): obesidad, diabetes tipo I y II, anorexia y bulimia, hipertensión,
   enfermedad isquémica y cerebrovascular, seis padecimientos del radar del boletín (el sexto, asma),
   neumonías y bronconeumonías, diecisiete cánceres y, desde el 12-nov-2026, otitis media aguda,
@@ -71,7 +71,11 @@ Dashboard interactivo del proyecto **EpiForecast-MX**, desarrollado en colaborac
   controles estacionales no validados publicados tras el rechazo de 2025 por autorización nominal del
   autor (quemaduras, insuficiencia venosa periférica, hiperplasia de la próstata, escabiosis, protozoarios
   intestinales, faringitis estreptocócica, peatón lesionado, displasia cervical leve y moderada, varicela
-  y parotiditis). Cada uno tiene su página `<id>.html`. Los que no superaron su prueba de aceptación
+  y parotiditis). Con el lote alta10b se sumaron diez más: ascariasis, hepatitis vírica A, efectos del calor
+  y de la luz y otras hepatitis víricas, aceptados con la política de cinco motores en un orden de apertura
+  fijado antes de abrir 2025 (tope de cuatro), y seis controles estacionales no validados por autorización
+  nominal del autor (desnutrición leve, otras salmonelosis, fiebre tifoidea, escarlatina, hepatitis vírica C
+  y displasia cervical severa con el cáncer cervicouterino in situ). Cada uno tiene su página `<id>.html`. Los que no superaron su prueba de aceptación
   (2025 para la mayoría; 2026-W01 a W41 para los quince cánceres con datos sólo desde 2023) se
   publican con el control estacional y nunca como validados. Covid-19 aparece sólo en
   `rechazados.html`.
@@ -374,7 +378,7 @@ la orientación. Van a `Reports/<hito>/` a 1600 px de ancho y calidad 82.
 ```
 EpiForecast-IMSS-Dashboard/
 ├── index.html                      # Portada
-├── <id>.html                       # 51 páginas de releases del runner
+├── <id>.html                       # 61 páginas de releases del runner
 ├── boletin.html                    # Radar del boletín
 ├── rechazados.html                 # Padecimientos rechazados (Covid-19)
 ├── dengue.html                     # Dengue
