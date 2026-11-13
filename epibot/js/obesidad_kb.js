@@ -10,12 +10,12 @@
  * follow-ups («¿y hombres?») y en consultas corregidas por typo, donde la consulta cruda ya no
  * nombra a Obesidad.
  */
-import { mencionaNoModelada } from './entities.js?v=57';
+import { mencionaNoModelada } from './entities.js?v=58';
 import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
-} from './obesidad_charts.js?v=25';
-import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=23';
+} from './obesidad_charts.js?v=26';
+import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=24';
 
 const any = (q, ks) => ks.some((k) => q.includes(k));
 const semana = ([a, w]) => `${a}-W${String(w).padStart(2, '0')}`;

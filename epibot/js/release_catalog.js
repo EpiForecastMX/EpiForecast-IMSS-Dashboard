@@ -497,8 +497,10 @@
       id: 'hepatitis_a_b15', pad: 'Hepatitis vírica A', nombre: 'Hepatitis vírica A', nombreCorto: 'Hepatitis A',
       etiqueta: 'Hepatitis vírica A (B15)', dataKey: 'hepatitis_a_b15', marca: 'HEPATITIS_A_B15',
       pagina: 'hepatitis_a_b15.html', consulta: 'hepatitis virica a', cie: 'B15', color: '#DC2626',
-      alias: ['hepatitis virica a', 'b15'],
-      prefijos: ['hepatitis virica a'],
+      // La letra suelta va con espacio final: nombraAlias compara por prefijo y «hepatitis virica a»
+      // capturaría «hepatitis virica aguda».
+      alias: ['hepatitis virica a ', 'b15'],
+      prefijos: ['hepatitis virica a '],
     },
     {
       id: 'calor_t67', pad: 'Efectos del calor y de la luz', nombre: 'Efectos del calor y de la luz',
@@ -518,7 +520,7 @@
       consulta: 'otras hepatitis viricas', cie: 'B17.0, B17.2-B17.9, B18.0-B18.1, B18.8-B18.9, B19', color: '#4F46E5',
       // Incluye la hepatitis B crónica (B18.0-B18.1) y la D y E agudas (B17.0, B17.2); la B aguda (B16) es otro
       // bloque del boletín, sin pronóstico.
-      alias: ['otras hepatitis viricas', 'otras hepatitis virales', 'hepatitis virica d', 'hepatitis virica e',
+      alias: ['otras hepatitis viricas', 'otras hepatitis virales', 'hepatitis virica d ', 'hepatitis virica e ',
         'hepatitis viral no especificada', 'b17 0', 'b17 2', 'b17 8', 'b17 9',
         'b18 0', 'b18 1', 'b18 8', 'b18 9', 'b19'],
       prefijos: ['otras hepatitis viricas', 'otras hepatitis virales'],
@@ -564,8 +566,8 @@
       pagina: 'hepatitis_c_b17.html', consulta: 'hepatitis virica c', cie: 'B17.1, B18.2', color: '#BE185D',
       controlEstatalPocoInformativo: true,
       // Las demás hepatitis víricas tienen código propio (B15, B16, B17.0, B17.2-B17.9): no reciben estas cifras.
-      alias: ['hepatitis virica c', 'b17 1', 'b18 2'],
-      prefijos: ['hepatitis virica c'],
+      alias: ['hepatitis virica c ', 'b17 1', 'b18 2'],
+      prefijos: ['hepatitis virica c '],
     },
     {
       id: 'displasia_severa_n87', pad: 'Displasia cervical severa y CaCu in situ',
@@ -655,9 +657,9 @@
     [/\b(hbv|vhb|hep b)\b/g, 'hepatitis virica b'],
     [/\bhepatitis (cronica (virica |viral )?b|(virica |viral |por (el )?virus (de la )?)?b (en (fase|etapa) )?cronica)\b/g, 'hepatitis virica b cronica'],
     [/\bhepatitis delta\b/g, 'hepatitis virica d'],
-    [/\bhepatitis (tipo |virica |viral |por (el )?virus (de la )?)?([bcd]|a(?! (nivel|partir|la|las|lo|los|el|traves|pesar|mediados|finales|principios|inicios|fin|corto|largo|mediano|futuro|que|su|sus|mi|mis|cada|escala|diario|semana|semanas|mes|meses|ano|anos|un|una|dos|tres|cuatro|cinco)\b| ?[0-9])|e(?! h?i))\b/g,
+    [/\bhepatitis (tipo |virica |viral |por (el )?virus (de la )?)?([bcd]|a(?! (nivel|partir|la|las|lo|los|el|traves|pesar|mediados|finales|principios|inicios|fin|corto|largo|mediano|futuro|que|su|sus|mi|mis|cada|escala|diario|semana|semanas|mes|meses|ano|anos|un|una|dos|tres|cuatro|cinco|detalle|fondo|tiempo|dia|hoy|enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)\b| ?[0-9])|e(?! h?i))\b/g,
       'hepatitis virica $4'],
-    [/\bhepatitis virica ([ace]) (y|e|o) (la |el )?([ace])\b/g, 'hepatitis virica $1 $2 hepatitis virica $4'],
+    [/\bhepatitis virica ([abcde]) (y|e|o) (la |el )?([abcde])\b/g, 'hepatitis virica $1 $2 hepatitis virica $4'],
     [/\bhepatitis virica b (en (fase|etapa) )?cronica\b/g, 'hepatitis virica b cronica'],
     // «Salmonelosis no tifoidea» es el bloque A02: la palabra «tifoidea» negada no nombra A01.0.
     [/\b(salmonelosis|salmonell?a|salmonellosis)( no| non)[ -]?(tifoid(ea|ica|eas|icas)?|typhoid(al)?)\b|\bnon[ -]?typhoid(al)? salmonell?(a|osis)\b/g,
@@ -1033,7 +1035,7 @@
     const sinTilde = (t) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     const nombrados = releases.filter((r) => r.alias.some((al) => nombraAlias(canon, al)));
     const directa = noModeladas.find((e) => q.includes(e.endsWith(' ') ? ` ${e}` : ` ${e.trim()}`) &&
-      !nombrados.some((r) => sinTilde(r.nombre).includes(e.trim())));
+      !(e.trim() === 'hepatitis' && nombrados.some((r) => sinTilde(r.nombre).includes('hepatitis'))));
     if (directa) return directa;
     if (!HIPERTENSION.test(canon)) return null;
     const ajena = HIPERTENSION_AJENA.find(([re]) => re.test(canon));

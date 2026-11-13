@@ -234,3 +234,37 @@ for (const q of ['casos de hepatitis a nivel nacional', 'hepatitis B B18.1 en Ja
     assert.deepEqual(body.sources, []);
   });
 }
+
+// Revisión final del frontend de Fable (B1): las formas con «vírica» y una palabra que empieza con la letra.
+for (const q of ['hepatitis vírica en Jalisco', 'hepatitis vírica de Jalisco', 'hepatitis vírica aguda en Jalisco',
+  'hepatitis vírica crónica en Jalisco']) {
+  test(`B1: «${q}» pide precisar sin cifras de un bloque`, async () => {
+    const { handler, md } = await conversa(q);
+    assert.equal(handler, 'answerAliasAmbiguo', q);
+    SIN_CIFRAS(md, q);
+  });
+  test(`B1 RAG real: «${q}» sin cifras ni fuentes`, async () => {
+    const { status, body } = await postRag(q);
+    assert.equal(status, 200);
+    assert.doesNotMatch(body.answer, /\d{1,3}(,\d{3})+|casos pronosticados/);
+    assert.deepEqual(body.sources, []);
+  });
+}
+
+test('B1: las formas completas siguen resolviendo y el seguimiento también', async () => {
+  assert.match((await conversa('hepatitis vírica A en Jalisco')).md, /HEPATITIS_A_B15/);
+  assert.match((await conversa('hepatitis vírica C en Jalisco')).md, /HEPATITIS_C_B17/);
+  assert.match((await conversa('hepatitis vírica E en Jalisco')).md, /OTRAS_HEPATITIS_B17/);
+  const c = await conversa('hepatitis vírica A en Jalisco', '¿y la C?');
+  assert.match(c.md, /HEPATITIS_C_B17/);
+  assert.doesNotMatch(c.md, /HEPATITIS_A_B15/);
+});
+
+test('la exención de «hepatitis» no alcanza a otros términos genéricos («tumor»)', async () => {
+  const { md } = await conversa('cáncer de mama y tumor de tiroides en Jalisco');
+  assert.doesNotMatch(md, /Pronóstico \*\*congelado\*\*/);
+});
+
+test('«hepatitis A y B» no da cifras de A callando la B', async () => {
+  assert.doesNotMatch((await conversa('hepatitis A y B en Jalisco')).md, /HEPATITIS_A_B15/);
+});
