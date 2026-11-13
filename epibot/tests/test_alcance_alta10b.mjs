@@ -268,3 +268,9 @@ test('la exención de «hepatitis» no alcanza a otros términos genéricos («t
 test('«hepatitis A y B» no da cifras de A callando la B', async () => {
   assert.doesNotMatch((await conversa('hepatitis A y B en Jalisco')).md, /HEPATITIS_A_B15/);
 });
+
+test('RAG: la fecha de emisión del control es la civil de Ciudad de México, como la ficha', async () => {
+  const { body } = await postRag('¿la escarlatina está validada?');
+  assert.match(body.answer, /emitido el 12 de noviembre de 2026 \(hora de Ciudad de México\)/);
+  assert.doesNotMatch(body.answer, /emitido el 13 de noviembre/);
+});
