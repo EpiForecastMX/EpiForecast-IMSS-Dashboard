@@ -95,6 +95,14 @@ function loadPublishedReleases() {
   return releasesCache;
 }
 
+// Vista oficial de un release y ficha publicada (página .html en la raíz del sitio). netlify.toml debe empaquetar
+// ambas en included_files para que la función las lea en producción.
+const leerVista = (id) => JSON.parse(readDataFile(`../publication/${id}/vista.json`));
+const leerFicha = (pagina) => {
+  if (!/^[a-z0-9_]+\.html$/.test(String(pagina))) throw new Error(`página no válida: ${pagina}`);
+  return readDataFile(`../${pagina}`);
+};
+
 function loadKnowledge() {
   if (knowledgeCache) return knowledgeCache;
   try {
@@ -220,7 +228,7 @@ function normalize(arr) {
 
 /** Recuperación híbrida → devuelve hasta RERANK_POOL candidatos con score.
  *  La parte léxica usa la consulta original; la semántica, el texto expandido. */
-async function retrieve(genAI, query, expandedText, index) {
+async function retrieve(genAI, query, expandedText, index, foco = []) {
   const lex = buildLexical(index);
   // BM25 con expansión estática de sinónimos del dominio (mejora el recall léxico).
   const lexScores = normalize(bm25Scores(expandTokens(tokenize(query)), lex));
@@ -228,6 +236,7 @@ async function retrieve(genAI, query, expandedText, index) {
   let semScores = new Array(index.chunks.length).fill(0);
   let mode = 'lexical';
   let topSim = 0;   // similitud coseno cruda máxima (para umbral de confianza)
+  let raw = null;
   if (index.vectors && index.vectors.length === index.chunks.length && genAI) {
     const a = withAbort(T_FAST);
     try {
@@ -238,7 +247,7 @@ async function retrieve(genAI, query, expandedText, index) {
         outputDimensionality: index.dim || EMBED_DIM,
       }, { signal: a.signal });
       const qv = res.embedding.values.slice(0, index.dim || EMBED_DIM);
-      const raw = index.vectors.map(v => cosine(qv, v));
+      raw = index.vectors.map(v => cosine(qv, v));
       topSim = raw.reduce((m, v) => v > m ? v : m, 0);
       semScores = normalize(raw);
       mode = 'semantic';
@@ -249,12 +258,23 @@ async function retrieve(genAI, query, expandedText, index) {
     }
   }
 
-  const combined = index.chunks.map((c, i) => ({
+  let combined = index.chunks.map((c, i) => ({
     chunk: c,
     score: mode === 'semantic' ? 0.75 * semScores[i] + 0.25 * lexScores[i] : lexScores[i],
+    sim: raw ? raw[i] : 0,
   }));
+  // Consulta que nombra releases publicados del runner: sólo compiten sus propios fragmentos. En la preview 98 la
+  // pregunta por vulvovaginitis en hombres trajo el «meta_modo» de Prophet del carril legacy y la del mal del pinto
+  // el «fallback regional» y otro release; esos pasajes no describen estos pronósticos. Sin fragmentos propios en el
+  // índice, la recuperación sigue como antes.
+  const propios = new Set(foco);
+  const enFoco = propios.size ? combined.filter((h) => propios.has(h.chunk.section) && String(h.chunk.id || '').startsWith('release:')) : [];
+  if (enFoco.length) {
+    combined = enFoco;
+    if (raw) topSim = enFoco.reduce((m, h) => (h.sim > m ? h.sim : m), 0);
+  }
   combined.sort((a, b) => b.score - a.score);
-  return { candidates: combined.slice(0, RERANK_POOL).filter(h => h.score > 0.01), mode, topSim };
+  return { candidates: combined.slice(0, RERANK_POOL).filter(h => h.score > 0.01 || enFoco.length), mode, topSim };
 }
 
 // ---------------------------------------------------------------------------
@@ -298,11 +318,132 @@ function acotaCie(salida) {
   }));
 }
 
-function estadoDeControl(query, leerVista) {
+/** Consulta normalizada como la comparan los alias del catálogo. */
+const consultaCanon = (query) => globalThis.EPI_CATALOGO.canonClinico(
+  stripAccents(query).replace(/[^a-z0-9. ]+/g, ' ').replace(/\s+/g, ' ').trim());
+/** Releases publicados del runner que la consulta nombra por alias. */
+function releasesNombrados(query) {
   const C = globalThis.EPI_CATALOGO;
-  const qn = C.canonClinico(stripAccents(query).replace(/[^a-z0-9. ]+/g, ' ').replace(/\s+/g, ' ').trim());
-  if (!PIDE_ESTADO.test(qn)) return null;
-  const nombrados = C.releases.filter((r) => r.alias.some((a) => C.nombraAlias(qn, a)));
+  const qn = consultaCanon(query);
+  return C.releases.filter((r) => r.alias.some((a) => C.nombraAlias(qn, a)));
+}
+// Padecimientos del carril original (knowledge.json) y del artículo MICAI: si la consulta los nombra, los pasajes
+// legacy sí son pertinentes y la recuperación no se acota a los releases del runner.
+const NOMBRA_LEGACY = /\b(depresion|depression|f32|parkinson|g20|alzheimer|alzaimer|g30|dengue|a97|micai)\b/;
+/** Ids de los releases del runner cuyos fragmentos deben recuperarse en exclusiva, o [] si no aplica. */
+function focoReleases(query) {
+  if (NOMBRA_LEGACY.test(stripAccents(query))) return [];
+  return releasesNombrados(query).map((r) => r.id);
+}
+
+const ENTIDADES_HTML = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', laquo: '«', raquo: '»' };
+const textoPlano = (h) => String(h || '').replace(/<[^>]+>/g, '')
+  .replace(/&(#\d+|[a-z]+);/g, (m, e) => (e[0] === '#' ? String.fromCodePoint(Number(e.slice(1))) : ENTIDADES_HTML[e] ?? m))
+  .replace(/\s+/g, ' ').trim();
+
+/**
+ * Notas con rótulo («<strong>Error alto aunque aceptado:</strong> …», «<strong>Cambio de nivel en 2024.</strong> …»)
+ * de la sección «Qué significa y qué no» de la ficha publicada del release: son las limitaciones que su página
+ * declara con cifras de su propia fuente. Los párrafos `aviso-fuente` se omiten porque llegan de avisos_fuente.js.
+ */
+function notasFicha(html) {
+  const s = String(html || '');
+  const ini = s.indexOf('<h3>Qué significa y qué no</h3>');
+  if (ini < 0) return [];
+  const fin = s.indexOf('</div>', ini);
+  const notas = [];
+  for (const m of s.slice(ini, fin < 0 ? undefined : fin).matchAll(/<p(\s[^>]*)?>([\s\S]*?)<\/p>/g)) {
+    if (/class="[^"]*\baviso-fuente\b/.test(m[1] || '')) continue;
+    for (const parte of m[2].split(/(?=<strong>[^<]*[.:]<\/strong>)/)) {
+      const r = parte.match(/^<strong>([^<]*[.:])<\/strong>([\s\S]*)$/);
+      if (r) notas.push({ titulo: textoPlano(r[1]), texto: textoPlano(r[2]) });
+    }
+  }
+  return notas;
+}
+/** Frase de la ficha con el resultado de la prueba única («Superó la prueba de 2025 frente al control…»), o null. */
+function pruebaSuperada(html) {
+  const m = textoPlano(String(html || '').replace(/<script[\s\S]*?<\/script>/g, ''))
+    .match(/Superó la prueba de (\d{4}) frente al control estacional[^.]*\./);
+  return m ? { frase: m[0], anio: m[1] } : null;
+}
+
+/** Fecha civil de emisión en Ciudad de México, como la ficha y el KB local, o ''. */
+function emitidoCivil(v) {
+  const e = new Date(v.forecast_emitted_at);
+  // Un release emitido el 13 a las 00:24 UTC se emitió el 12 en México; con getUTCDate() la respuesta parecía
+  // contradecir la ficha.
+  const civil = Number.isNaN(e.getTime()) ? null : Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Mexico_City', year: 'numeric', month: 'numeric', day: 'numeric',
+  }).formatToParts(e).map((x) => [x.type, Number(x.value)]));
+  return civil ? `, emitido el ${civil.day} de ${MESES_RAG[civil.month - 1]} de ${civil.year} (hora de Ciudad de México)` : '';
+}
+
+/**
+ * Estado de UN release publicado y aceptado en su prueba única (sin `caida_al_control`): respuesta fija desde su
+ * vista y su ficha. En la preview 98, «¿El mal del pinto está validado y qué tan preciso fue su pronóstico?» fue a la
+ * recuperación semántica y contestó que no existía información de precisión, sin el error alto de la prueba ni el
+ * cambio de nivel de 2024 que su página declara. La prueba retrospectiva no es la validación prospectiva: ésta se
+ * cuenta con la vista y aquí no se inventa ninguna métrica fuera de muestra.
+ */
+function estadoDeAceptado(query, leerVista, leerFicha) {
+  if (!PIDE_ESTADO.test(consultaCanon(query))) return null;
+  const nombrados = releasesNombrados(query);
+  if (nombrados.length !== 1) return null;
+  const r = nombrados[0];
+  let v, html;
+  try { v = leerVista(r.id); } catch { return null; }
+  if (!v || v.caida_al_control) return null;
+  try { html = leerFicha(r.pagina); } catch (err) {
+    console.error(`Ficha ${r.pagina} no disponible para la función RAG:`, err.message);
+    return null;
+  }
+  const prueba = pruebaSuperada(html);
+  if (!prueba) return null;
+  const notas = notasFicha(html);
+  const wa = v.weeks_available ?? 0, wr = v.weeks_required ?? 4;
+  const prospectiva = wa === 0
+    ? `La validación prospectiva está en curso (0 de ${wr} semanas): todavía no hay semanas observadas después del origen, así que no existe desempeño fuera de muestra de este pronóstico.`
+    : `La validación prospectiva lleva ${wa} de ${wr} semanas (veredicto ${v.verdict}); su desempeño fuera de muestra se consulta en su página.`;
+  const answer = `**${v.nombre_completo || r.etiqueta}: su portafolio se aceptó en la prueba de ${prueba.anio}; el pronóstico todavía no está validado.** ` +
+    `${prueba.frase} Esa prueba retrospectiva no es la validación del pronóstico publicado. ${prospectiva}` +
+    (notas.length ? `\n\nLo que dice su página sobre el error y los datos:\n${notas.map((n) => `- **${n.titulo}** ${n.texto}`).join('\n')}` : '') +
+    `\n\nDatos hasta la semana ${v.origin[1]} de ${v.origin[0]}${emitidoCivil(v)}; ${v.horizon_weeks} semanas, pronóstico puntual sin intervalos. ` +
+    `Detalle en [su página](../${r.pagina}).${avisosFuenteRag(r.id)}`;
+  return { answer, sources: [{ n: 1, source: `Release publicado ${v.release_id}`, title: v.nombre_completo || r.etiqueta, section: r.id, url: `../${r.pagina}` }] };
+}
+
+/**
+ * Datos propios de los releases nombrados para el contexto de Gemini: falta de desglose por sexo (vista), resultado
+ * de la prueba y notas de su ficha, y avisos de la fuente. Vacío si no hay ninguno.
+ */
+function hechosDeFoco(foco, query, leerVista, leerFicha) {
+  const C = globalThis.EPI_CATALOGO;
+  const sexo = detectEntities(query).sexo;
+  const L = [];
+  for (const id of foco.slice(0, 3)) {
+    const r = C.releases.find((x) => x.id === id);
+    if (!r) continue;
+    let v = null, html = '';
+    try { v = leerVista(id); } catch { /* sin vista */ }
+    try { html = leerFicha(r.pagina); } catch { /* sin ficha empaquetada */ }
+    const nombre = (v && v.nombre_completo) || r.etiqueta;
+    const series = v && v.series ? Object.keys(v.series) : [];
+    if (sexo && series.length && !series.some((k) => k.endsWith('|hombres'))) {
+      L.push(`${nombre}: el boletín no desglosa sexo; sus ${series.length} series publicadas son por entidad y nacional, así que no existe pronóstico para ${sexo}.`);
+    }
+    const prueba = v && !v.caida_al_control ? pruebaSuperada(html) : null;
+    if (prueba) L.push(`${nombre}: ${prueba.frase} No es la validación prospectiva (${v.weeks_available ?? 0} de ${v.weeks_required ?? 4} semanas).`);
+    for (const n of notasFicha(html)) L.push(`${nombre} — ${n.titulo} ${n.texto}`);
+    const av = avisosFuenteRag(id);
+    if (av) L.push(`${nombre} — ${av.trim()}`);
+  }
+  return L.length ? ['=== DATOS PROPIOS DEL PADECIMIENTO CONSULTADO (de su vista y su página; decláralos si la pregunta toca sexo, error, precisión, nivel o avisos) ===', ...L].join('\n') : '';
+}
+
+function estadoDeControl(query, leerVista) {
+  if (!PIDE_ESTADO.test(consultaCanon(query))) return null;
+  const nombrados = releasesNombrados(query);
   if (nombrados.length !== 1) return null;
   const r = nombrados[0];
   let v;
@@ -319,13 +460,7 @@ function estadoDeControl(query, leerVista) {
   const aviso = r.controlEstatalPocoInformativo && comp.smape_bases
     ? ` Por estado es una referencia poco informativa: su error en ${AMBITO_RAG.smape_bases(sinSexo)} fue sMAPE ${uno(comp.smape_bases.control)} en esa prueba.`
     : '';
-  const e = new Date(v.forecast_emitted_at);
-  // Fecha civil de Ciudad de México, como la ficha y el KB local: un release emitido el 13 a las 00:24 UTC se
-  // emitió el 12 en México; con getUTCDate() la respuesta parecía contradecir la ficha.
-  const civil = Number.isNaN(e.getTime()) ? null : Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'America/Mexico_City', year: 'numeric', month: 'numeric', day: 'numeric',
-  }).formatToParts(e).map((x) => [x.type, Number(x.value)]));
-  const emitido = civil ? `, emitido el ${civil.day} de ${MESES_RAG[civil.month - 1]} de ${civil.year} (hora de Ciudad de México)` : '';
+  const emitido = emitidoCivil(v);
   const answer = `**${v.nombre_completo || r.etiqueta}: control estacional, no validado.** Lo publicado repite los ` +
     `casos de 52 semanas antes. El portafolio de modelos seleccionado se rechazó en la prueba de ${anio} porque ` +
     `empeoraba ${lista(fallas)}, y ${r.controlDelegado ? 'por un dictamen tomado bajo delegación del autor' : 'por autorización del autor'} se publica el control estacional; el rechazado fue el ` +
@@ -700,7 +835,8 @@ export default async function handler(req) {
   // Nombre genérico que abarca más que el bloque publicado («otitis», «amebiasis»): se aclara sin cifras.
   const ambiguo = globalThis.EPI_CATALOGO.aliasAmbiguo(stripAccents(String(body.query || '')));
   if (ambiguo) return json({ answer: ambiguo.texto, sources: [] }, 200, cors);
-  const estado = estadoDeControl(String(body.query || ''), (id) => JSON.parse(readDataFile(`../publication/${id}/vista.json`)));
+  const estado = estadoDeControl(String(body.query || ''), leerVista)
+    || estadoDeAceptado(String(body.query || ''), leerVista, leerFicha);
   if (estado) return json({ ...estado, retrieval: 'vista' }, 200, cors);
   // Presión baja no se modela y sus vecinos publicados más parecidos (O10-O16 o I10-I15) no la
   // incluyen: sin otro padecimiento publicado en la consulta, respuesta fija sin cifras para que la
@@ -736,8 +872,9 @@ export default async function handler(req) {
   // 1. Recuperación híbrida (embebe la consulta directa; sin expansión LLM en el
   //    camino crítico para reducir latencia al primer token).
   let candidates = [], mode = 'lexical', topSim = 0;
+  const foco = focoReleases(searchQuery);
   try {
-    const r = await retrieve(genAI, searchQuery, searchQuery, index);
+    const r = await retrieve(genAI, searchQuery, searchQuery, index, foco);
     candidates = r.candidates; mode = r.mode; topSim = r.topSim;
   } catch (err) {
     console.error('Retrieve error:', err.message);
@@ -756,7 +893,8 @@ export default async function handler(req) {
   // Agentic: datos EXACTOS de la combinación entidad/padecimiento detectada.
   // Usa la consulta CONTEXTUALIZADA para que los seguimientos ("¿y en Jalisco?")
   // inyecten las cifras correctas.
-  const facts = focusedFacts(kb, searchQuery);
+  const facts = [focusedFacts(kb, searchQuery), hechosDeFoco(foco, searchQuery, leerVista, leerFicha)]
+    .filter(Boolean).join('\n\n');
 
   // Confianza: recuperación débil y sin datos exactos → avisar para no inventar
   const lowConfidence = mode === 'semantic' && topSim < SIM_MIN && !facts;
