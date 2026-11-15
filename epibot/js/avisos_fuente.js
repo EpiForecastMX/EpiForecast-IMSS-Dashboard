@@ -46,7 +46,11 @@
           "clave": "Morelos|2026-W24",
           "estado": "retirado",
           "titulo": "Un valor que la propia fuente retiró.",
-          "texto": "El boletín 2026_sem25 imprimió 22 casos de Morelos en la semana 2026-W24, con un acumulado anual de 55; el boletín siguiente, 2026_sem26, imprimió un acumulado de 9 con 1 caso nuevo: un retiro neto de 47 casos, más que los 22 de esa semana. En 2026_sem43 el acumulado anual era 11. El control repite lo impreso 52 semanas antes y no hay un criterio vigente para excluir un valor impreso y luego retirado: el pronóstico de 2027-W24 trae esos 22 casos de Morelos, de 46 nacionales. Esa semana no debe leerse como un aumento esperado. El dato y el pronóstico se publican sin modificar."
+          "texto": "El boletín 2026_sem25 imprimió 22 casos de Morelos en la semana 2026-W24, con un acumulado anual de 55; el boletín siguiente, 2026_sem26, imprimió un acumulado de 9 con 1 caso nuevo: un retiro neto de 47 casos, más que los 22 de esa semana. En 2026_sem43 el acumulado anual era 11. El control repite lo impreso 52 semanas antes y no hay un criterio vigente para excluir un valor impreso y luego retirado: el pronóstico de 2027-W24 trae esos 22 casos de Morelos, de 46 nacionales. Esa semana no debe leerse como un aumento esperado. El dato y el pronóstico se publican sin modificar.",
+          "entidad": "Morelos",
+          "de_nombre": "de Morelos",
+          "retiro_neto": 47,
+          "casos": 22
         }
       ],
       "nota": {
@@ -98,7 +102,11 @@
           "clave": "México|2026-W01",
           "estado": "retirado",
           "titulo": "Un valor que la propia fuente retiró.",
-          "texto": "El boletín 2026_sem02 imprimió 125 casos del Estado de México en la semana 2026-W01, con un acumulado anual de 125; el boletín siguiente, 2026_sem03, imprimió un acumulado de 1 con 0 casos nuevos: un retiro neto de 124 de los 125 de esa semana. En 2026_sem43 el acumulado anual era 8. El control repite lo impreso 52 semanas antes y no hay un criterio vigente para excluir un valor impreso y luego retirado: el pronóstico de 2027-W01 trae esos 125 casos del Estado de México, de 141 nacionales. Esa semana no debe leerse como un aumento esperado. El dato y el pronóstico se publican sin modificar."
+          "texto": "El boletín 2026_sem02 imprimió 125 casos del Estado de México en la semana 2026-W01, con un acumulado anual de 125; el boletín siguiente, 2026_sem03, imprimió un acumulado de 1 con 0 casos nuevos: un retiro neto de 124 de los 125 de esa semana. En 2026_sem43 el acumulado anual era 8. El control repite lo impreso 52 semanas antes y no hay un criterio vigente para excluir un valor impreso y luego retirado: el pronóstico de 2027-W01 trae esos 125 casos del Estado de México, de 141 nacionales. Esa semana no debe leerse como un aumento esperado. El dato y el pronóstico se publican sin modificar.",
+          "entidad": "México",
+          "de_nombre": "del Estado de México",
+          "retiro_neto": 124,
+          "casos": 125
         }
       ],
       "nota": {
@@ -157,7 +165,11 @@
           "clave": "Oaxaca|2025-W52",
           "estado": "retirado",
           "titulo": "Un valor que la propia fuente retiró.",
-          "texto": "El boletín 2025_sem53 imprimió 139 casos de Oaxaca en la semana 2025-W52, con un acumulado anual de 490; el boletín siguiente, 2026_sem01, imprimió un acumulado de 364 con 2 casos nuevos: un retiro neto de 128 de los 139 de esa semana. El control repite lo impreso 52 semanas antes y no hay un criterio vigente para excluir un valor impreso y luego retirado: el pronóstico de 2026-W51 trae esos 139 casos de Oaxaca, de 249 nacionales. Esa semana no debe leerse como un aumento esperado. El dato y el pronóstico se publican sin modificar."
+          "texto": "El boletín 2025_sem53 imprimió 139 casos de Oaxaca en la semana 2025-W52, con un acumulado anual de 490; el boletín siguiente, 2026_sem01, imprimió un acumulado de 364 con 2 casos nuevos: un retiro neto de 128 de los 139 de esa semana. El control repite lo impreso 52 semanas antes y no hay un criterio vigente para excluir un valor impreso y luego retirado: el pronóstico de 2026-W51 trae esos 139 casos de Oaxaca, de 249 nacionales. Esa semana no debe leerse como un aumento esperado. El dato y el pronóstico se publican sin modificar.",
+          "entidad": "Oaxaca",
+          "de_nombre": "de Oaxaca",
+          "retiro_neto": 128,
+          "casos": 139
         }
       ],
       "nota": {
@@ -244,7 +256,11 @@
           "clave": "Chiapas|2026-W16",
           "estado": "retirado",
           "titulo": "Un valor que la propia fuente retiró.",
-          "texto": "El boletín 2026_sem16 imprimió 39 casos de Chiapas en la semana 2026-W16, con un acumulado anual de 60; el boletín siguiente, 2026_sem17, imprimió un acumulado de 24 con 0 casos nuevos: un retiro neto de 36 de los 39 de esa semana. En 2026_sem43 el acumulado anual era 57. El control repite lo impreso 52 semanas antes y no hay un criterio vigente para excluir un valor impreso y luego retirado: el pronóstico de 2027-W16 trae esos 39 casos de Chiapas, de 52 nacionales. Esa semana no debe leerse como un aumento esperado. El dato y el pronóstico se publican sin modificar."
+          "texto": "El boletín 2026_sem16 imprimió 39 casos de Chiapas en la semana 2026-W16, con un acumulado anual de 60; el boletín siguiente, 2026_sem17, imprimió un acumulado de 24 con 0 casos nuevos: un retiro neto de 36 de los 39 de esa semana. En 2026_sem43 el acumulado anual era 57. El control repite lo impreso 52 semanas antes y no hay un criterio vigente para excluir un valor impreso y luego retirado: el pronóstico de 2027-W16 trae esos 39 casos de Chiapas, de 52 nacionales. Esa semana no debe leerse como un aumento esperado. El dato y el pronóstico se publican sin modificar.",
+          "entidad": "Chiapas",
+          "de_nombre": "de Chiapas",
+          "retiro_neto": 36,
+          "casos": 39
         }
       ],
       "nota": {
@@ -263,10 +279,20 @@
     "plaguicidas_t60": {
       "avisos": [
         {
+          "clave": "d7-intencion",
+          "estado": "alcance",
+          "titulo": "No distingue intención.",
+          "texto": "El código T60 describe la naturaleza de la lesión, no si fue accidental, laboral, autoinfligida o por agresión: la serie cuenta intoxicaciones notificadas de cualquier intención. El sitio no describe mecanismos, productos ni dosis. Si estás pensando en hacerte daño, llama a la Línea de la Vida, gratis y las 24 horas: 800 911 2000, o al 911 en una emergencia."
+        },
+        {
           "clave": "México|2026-W16",
           "estado": "retirado",
           "titulo": "Un valor que la propia fuente retiró.",
-          "texto": "El boletín 2026_sem17 imprimió 60 casos del Estado de México en la semana 2026-W16, con un acumulado anual de 100; el boletín siguiente, 2026_sem18, imprimió un acumulado de 46 con 3 casos nuevos: un retiro neto de 57 de los 60 de esa semana. En 2026_sem43 el acumulado anual era 118. El control repite lo impreso 52 semanas antes y no hay un criterio vigente para excluir un valor impreso y luego retirado: el pronóstico de 2027-W16 trae esos 60 casos del Estado de México, de 91 nacionales. Esa semana no debe leerse como un aumento esperado. El dato y el pronóstico se publican sin modificar."
+          "texto": "El boletín 2026_sem17 imprimió 60 casos del Estado de México en la semana 2026-W16, con un acumulado anual de 100; el boletín siguiente, 2026_sem18, imprimió un acumulado de 46 con 3 casos nuevos: un retiro neto de 57 de los 60 de esa semana. En 2026_sem43 el acumulado anual era 118. El control repite lo impreso 52 semanas antes y no hay un criterio vigente para excluir un valor impreso y luego retirado: el pronóstico de 2027-W16 trae esos 60 casos del Estado de México, de 91 nacionales. Esa semana no debe leerse como un aumento esperado. El dato y el pronóstico se publican sin modificar.",
+          "entidad": "México",
+          "de_nombre": "del Estado de México",
+          "retiro_neto": 57,
+          "casos": 60
         }
       ],
       "nota": {
@@ -303,7 +329,11 @@
           "clave": "Ciudad de México|2026-W26",
           "estado": "retirado",
           "titulo": "Un valor que la propia fuente retiró.",
-          "texto": "El boletín 2026_sem27 imprimió 32 casos de la Ciudad de México en la semana 2026-W26, con un acumulado anual de 83; el boletín siguiente, 2026_sem28, imprimió un acumulado de 54 con 2 casos nuevos: un retiro neto de 31 de los 32 de esa semana. En 2026_sem43 el acumulado anual era 91. El control repite lo impreso 52 semanas antes y no hay un criterio vigente para excluir un valor impreso y luego retirado: el pronóstico de 2027-W26 trae esos 32 casos de la Ciudad de México, de 49 nacionales. Esa semana no debe leerse como un aumento esperado. El dato y el pronóstico se publican sin modificar."
+          "texto": "El boletín 2026_sem27 imprimió 32 casos de la Ciudad de México en la semana 2026-W26, con un acumulado anual de 83; el boletín siguiente, 2026_sem28, imprimió un acumulado de 54 con 2 casos nuevos: un retiro neto de 31 de los 32 de esa semana. En 2026_sem43 el acumulado anual era 91. El control repite lo impreso 52 semanas antes y no hay un criterio vigente para excluir un valor impreso y luego retirado: el pronóstico de 2027-W26 trae esos 32 casos de la Ciudad de México, de 49 nacionales. Esa semana no debe leerse como un aumento esperado. El dato y el pronóstico se publican sin modificar.",
+          "entidad": "Ciudad de México",
+          "de_nombre": "de la Ciudad de México",
+          "retiro_neto": 31,
+          "casos": 32
         }
       ],
       "nota": {
@@ -320,7 +350,14 @@
       }
     },
     "monoxido_t58": {
-      "avisos": [],
+      "avisos": [
+        {
+          "clave": "d7-intencion",
+          "estado": "alcance",
+          "titulo": "No distingue intención.",
+          "texto": "El código T58 describe la naturaleza de la lesión, no si fue accidental, laboral, autoinfligida o por agresión: la serie cuenta intoxicaciones notificadas de cualquier intención. El sitio no describe mecanismos, productos ni dosis. Si estás pensando en hacerte daño, llama a la Línea de la Vida, gratis y las 24 horas: 800 911 2000, o al 911 en una emergencia."
+        }
+      ],
       "nota": {
         "clave": "bajas-acumulado",
         "titulo": "Correcciones de la fuente en la ventana que repite el control.",

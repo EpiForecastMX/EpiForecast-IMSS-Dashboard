@@ -17,7 +17,7 @@ import {
 } from './obesidad_charts.js?v=32';
 import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=29';
 // Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
-import './avisos_fuente.js?v=1';
+import './avisos_fuente.js?v=2';
 
 const any = (q, ks) => ks.some((k) => q.includes(k));
 const semana = ([a, w]) => `${a}-W${String(w).padStart(2, '0')}`;
