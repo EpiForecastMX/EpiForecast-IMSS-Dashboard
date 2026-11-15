@@ -238,6 +238,102 @@
         "ultimo_boletin": 43
       }
     },
+    "coqueluchoide_u99": {
+      "avisos": [
+        {
+          "clave": "Chiapas|2026-W16",
+          "estado": "retirado",
+          "titulo": "Un valor que la propia fuente retiró.",
+          "texto": "El boletín 2026_sem16 imprimió 39 casos de Chiapas en la semana 2026-W16, con un acumulado anual de 60; el boletín siguiente, 2026_sem17, imprimió un acumulado de 24 con 0 casos nuevos: un retiro neto de 36 de los 39 de esa semana. En 2026_sem43 el acumulado anual era 57. El control repite lo impreso 52 semanas antes y no hay un criterio vigente para excluir un valor impreso y luego retirado: el pronóstico de 2027-W16 trae esos 39 casos de Chiapas, de 52 nacionales. Esa semana no debe leerse como un aumento esperado. El dato y el pronóstico se publican sin modificar."
+        }
+      ],
+      "nota": {
+        "clave": "bajas-acumulado",
+        "titulo": "Correcciones de la fuente en la ventana que repite el control.",
+        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W45 a 2026-W43) repite este control, el acumulado anual impreso de alguna entidad bajó 3 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 39 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja, de 36 casos, fue en Chiapas (acumulado 60 a 24 entre 2026_sem16 y 2026_sem17). El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
+        "bajas": 3,
+        "retiro_bruto": 39
+      },
+      "indice_posterior": {
+        "consulta": "2026-11-15T13:22:54Z",
+        "emision": "2026-11-15T13:22:50.451038+00:00",
+        "ultimo_boletin": 43
+      }
+    },
+    "plaguicidas_t60": {
+      "avisos": [
+        {
+          "clave": "México|2026-W16",
+          "estado": "retirado",
+          "titulo": "Un valor que la propia fuente retiró.",
+          "texto": "El boletín 2026_sem17 imprimió 60 casos del Estado de México en la semana 2026-W16, con un acumulado anual de 100; el boletín siguiente, 2026_sem18, imprimió un acumulado de 46 con 3 casos nuevos: un retiro neto de 57 de los 60 de esa semana. En 2026_sem43 el acumulado anual era 118. El control repite lo impreso 52 semanas antes y no hay un criterio vigente para excluir un valor impreso y luego retirado: el pronóstico de 2027-W16 trae esos 60 casos del Estado de México, de 91 nacionales. Esa semana no debe leerse como un aumento esperado. El dato y el pronóstico se publican sin modificar."
+        }
+      ],
+      "nota": {
+        "clave": "bajas-acumulado",
+        "titulo": "Correcciones de la fuente en la ventana que repite el control.",
+        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 16 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 112 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja, de 54 casos, fue en México (acumulado 100 a 46 entre 2026_sem17 y 2026_sem18). El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
+        "bajas": 16,
+        "retiro_bruto": 112
+      },
+      "indice_posterior": {
+        "consulta": "2026-11-15T13:23:00Z",
+        "emision": "2026-11-15T13:22:56.831448+00:00",
+        "ultimo_boletin": 43
+      }
+    },
+    "tos_ferina_a37": {
+      "avisos": [],
+      "nota": {
+        "clave": "bajas-acumulado",
+        "titulo": "Correcciones de la fuente en la ventana que repite el control.",
+        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W45 a 2026-W43) repite este control, el acumulado anual impreso de alguna entidad bajó 2 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 2 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja, de 1 caso, se repite dos veces, empatada: en Hidalgo (acumulado 1 a 0 entre 2026_sem04 y 2026_sem05) y en Hidalgo (acumulado 1 a 0 entre 2026_sem11 y 2026_sem12). El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
+        "bajas": 2,
+        "retiro_bruto": 2
+      },
+      "indice_posterior": {
+        "consulta": "2026-11-15T13:23:06Z",
+        "emision": "2026-11-15T13:23:03.134372+00:00",
+        "ultimo_boletin": 43
+      }
+    },
+    "sindrome_meningeo_g00": {
+      "avisos": [
+        {
+          "clave": "Ciudad de México|2026-W26",
+          "estado": "retirado",
+          "titulo": "Un valor que la propia fuente retiró.",
+          "texto": "El boletín 2026_sem27 imprimió 32 casos de la Ciudad de México en la semana 2026-W26, con un acumulado anual de 83; el boletín siguiente, 2026_sem28, imprimió un acumulado de 54 con 2 casos nuevos: un retiro neto de 31 de los 32 de esa semana. En 2026_sem43 el acumulado anual era 91. El control repite lo impreso 52 semanas antes y no hay un criterio vigente para excluir un valor impreso y luego retirado: el pronóstico de 2027-W26 trae esos 32 casos de la Ciudad de México, de 49 nacionales. Esa semana no debe leerse como un aumento esperado. El dato y el pronóstico se publican sin modificar."
+        }
+      ],
+      "nota": {
+        "clave": "bajas-acumulado",
+        "titulo": "Correcciones de la fuente en la ventana que repite el control.",
+        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 27 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 191 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja, de 56 casos, fue en Tamaulipas (acumulado 118 a 62 entre 2025_sem46 y 2025_sem47). El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
+        "bajas": 27,
+        "retiro_bruto": 191
+      },
+      "indice_posterior": {
+        "consulta": "2026-11-15T13:23:13Z",
+        "emision": "2026-11-15T13:23:09.506995+00:00",
+        "ultimo_boletin": 43
+      }
+    },
+    "monoxido_t58": {
+      "avisos": [],
+      "nota": {
+        "clave": "bajas-acumulado",
+        "titulo": "Correcciones de la fuente en la ventana que repite el control.",
+        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 21 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 48 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja, de 10 casos, fue en Nuevo León (acumulado 24 a 14 entre 2025_sem47 y 2025_sem48). El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
+        "bajas": 21,
+        "retiro_bruto": 48
+      },
+      "indice_posterior": {
+        "consulta": "2026-11-15T13:24:22Z",
+        "emision": "2026-11-15T13:23:15.977516+00:00",
+        "ultimo_boletin": 43
+      }
+    },
     "paratifoidea_a011": {
       "avisos": [
         {

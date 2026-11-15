@@ -58,6 +58,7 @@ test('rag.mjs deriva los releases publicados del catálogo y de su shard', () =>
     { nombre: 'Candidiasis urogenital', cie: ['B37.3', 'B37.4'] },
     { nombre: 'Enfermedad cerebrovascular', cie: ['I60', 'I61', 'I62', 'I63', 'I64', 'I65', 'I66', 'I67', 'I69'] },
     { nombre: 'Conjuntivitis', cie: ['H10'] },
+    { nombre: 'Síndrome coqueluchoide', cie: ['U99'] },
     { nombre: 'Desnutrición leve', cie: ['E44.1'] },
     { nombre: 'Desnutrición moderada', cie: ['E44.0'] },
     { nombre: 'Desnutrición severa', cie: ['E40', 'E41', 'E42', 'E43'] },
@@ -90,6 +91,7 @@ test('rag.mjs deriva los releases publicados del catálogo y de su shard', () =>
     { nombre: 'Linfoma de Hodgkin', cie: ['C81'] },
     { nombre: 'Linfoma no Hodgkin', cie: ['C82', 'C83', 'C84', 'C85'] },
     { nombre: 'Mal del pinto', cie: ['A67'] },
+    { nombre: 'Intoxicación por monóxido de carbono', cie: ['T58'] },
     { nombre: 'Neumonías y bronconeumonías', cie: ['J12', 'J15', 'J16', 'J17', 'J18'] },
     { nombre: 'Obesidad', cie: ['E66'] },
     { nombre: 'Otitis media aguda', cie: ['H65.0', 'H65.1'] },
@@ -97,13 +99,16 @@ test('rag.mjs deriva los releases publicados del catálogo y de su shard', () =>
     { nombre: 'Fiebre paratifoidea', cie: ['A01.1', 'A01.2', 'A01.3', 'A01.4'] },
     { nombre: 'Parotiditis infecciosa', cie: ['B26'] },
     { nombre: 'Peatón lesionado en accidente de transporte', cie: ['V01', 'V02', 'V03', 'V04', 'V05', 'V06', 'V07', 'V08', 'V09'] },
+    { nombre: 'Intoxicación por plaguicidas', cie: ['T60'] },
     { nombre: 'Otras infecciones intestinales debidas a protozoarios', cie: ['A07.0', 'A07.2', 'A07.9'] },
     { nombre: 'Quemaduras', cie: ['T20', 'T21', 'T22', 'T23', 'T24', 'T25', 'T26', 'T27', 'T28', 'T29', 'T30', 'T31', 'T32'] },
     { nombre: 'Fiebre reumática aguda', cie: ['I00', 'I01', 'I02'] },
     { nombre: 'Enteritis debida a rotavirus', cie: ['A08.0'] },
     { nombre: 'Otras salmonelosis', cie: ['A02'] },
     { nombre: 'Shigelosis', cie: ['A03'] },
+    { nombre: 'Síndrome meníngeo', cie: ['G00.2', 'G00.3', 'G00.8', 'G00.9', 'G01', 'G02', 'G03'] },
     { nombre: 'Fiebre tifoidea', cie: ['A01.0'] },
+    { nombre: 'Tos ferina', cie: ['A37'] },
     { nombre: 'Úlceras, gastritis y duodenitis', cie: ['K25', 'K26', 'K27', 'K28', 'K29'] },
     { nombre: 'Varicela', cie: ['B01'] },
     { nombre: 'Accidente de transporte en vehículos con motor', cie: ['V20', 'V40'] },
@@ -121,12 +126,12 @@ test('un release no publicado, oculto o sin canal epibot no entra al alcance', (
   assert.equal(ctx.releasesDesdeCatalogo(cat, leerShard).length, 0);
 });
 
-test('las CIFRAS CLAVE nombran los ochenta padecimientos modelados', () => {
+test('las CIFRAS CLAVE nombran los ochenta y cinco padecimientos modelados', () => {
   const rel = ctx.releasesDesdeCatalogo(CAT, leerShard);
   const s = ctx.structuredSummary(KB, rel);
   const linea = s.split('\n').find((l) => l.startsWith('Alcance vigente'));
   assert.ok(linea, s);
-  assert.match(linea, /modela ochenta padecimientos/);
+  assert.match(linea, /modela ochenta y cinco padecimientos/);
   for (const p of ['Depresión (F32)', 'Parkinson (G20)', 'Alzheimer (G30)', 'Dengue', 'Obesidad (E66)', 'Anorexia, bulimia y otros trastornos alimentarios (F50)', 'Diabetes mellitus tipo I (E10)', 'Diabetes mellitus tipo II (E11, E12, E13, E14)',
     'Infección de vías urinarias (N30, N34, N39.0)', 'Úlceras, gastritis y duodenitis (K25, K26, K27, K28, K29)',
     'Infecciones respiratorias agudas (J00, J01, J03 excepto J03.0, J04, J05, J06, J20, J21)', 'Gingivitis y enfermedad periodontal (K05)', 'Asma (J45, J46)', 'Tumor maligno de la mama (C50)', 'Tumor maligno del cuello del útero (C53)']) {

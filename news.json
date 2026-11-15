@@ -5,6 +5,25 @@
             "date": "15 de noviembre de 2026",
             "iso": "2026-11-15",
             "type": "radar",
+            "tag": "Control estacional",
+            "featured": true,
+            "title": "Cinco padecimientos más, publicados como controles estacionales no validados",
+            "summary": "El portafolio de modelos de cinco padecimientos no superó la prueba de 2025 en el total nacional. Por un dictamen tomado bajo delegación del autor se publica su control estacional, no validado, que repite los casos de 52 semanas antes.",
+            "body": [
+                "EpiForecast-MX publica como controles estacionales el <strong style=\"color:var(--cream)\">síndrome coqueluchoide (U99), la intoxicación por plaguicidas (T60), la tos ferina (A37), el síndrome meníngeo (G00-G03, excepto G00.0 y G00.1) y la intoxicación por monóxido de carbono (T58)</strong>. En los cinco, el portafolio de modelos empeoró el total nacional en su única prueba de 2025 más de lo que permite la regla, que deja entonces el control. La decisión de publicarlo la tomó un dictamen bajo la delegación expresa del autor, no una revisión clínica. Son controles no validados: repiten lo observado 52 semanas antes, incluidos sus picos y los valores que la fuente retiró después, y no prometen una validación futura.",
+                "La tos ferina y el síndrome coqueluchoide son series distintas del boletín y no se suman; ninguno de los dos controles anticipa brotes, y sus páginas dan el error de 2025. El síndrome meníngeo no es el total de meningitis. Las series de plaguicidas y de monóxido de carbono no distinguen la intención de la intoxicación; si estás pensando en hacerte daño, llama a la Línea de la Vida, 800 911 2000.",
+                "Tres páginas avisan de un valor que la propia fuente retiró en el boletín siguiente y que el control repite: síndrome coqueluchoide en Chiapas, plaguicidas en el Estado de México y síndrome meníngeo en la Ciudad de México. Todos usan datos hasta la semana 42 o 43 de 2026, según el rezago de su cuadro, y se emitieron el 15 de noviembre, antes de que existiera el boletín 44. Son pronósticos puntuales, sin intervalos de incertidumbre."
+            ],
+            "link": {
+                "href": "coqueluchoide_u99.html",
+                "text": "Ver síndrome coqueluchoide",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
+        {
+            "date": "15 de noviembre de 2026",
+            "iso": "2026-11-15",
+            "type": "radar",
             "tag": "Pronóstico publicado",
             "featured": true,
             "title": "Mal del pinto y vulvovaginitis se publican tras superar la prueba de 2025",

@@ -712,6 +712,52 @@
       alias: ['vulvovaginitis', 'vulvovaginitis inespecifica', 'n76'],
       prefijos: ['vulvovaginitis'],
     },
+    // Cinco controles nuevos de alta20c (dictamen delegado complementario, 15-nov-2026), nunca validados.
+    {
+      id: 'coqueluchoide_u99', controlDelegado: true, pad: 'Síndrome coqueluchoide', nombre: 'Síndrome coqueluchoide',
+      nombreCorto: 'Síndrome coqueluchoide', etiqueta: 'Síndrome coqueluchoide (U99)', dataKey: 'coqueluchoide_u99',
+      marca: 'COQUELUCHOIDE_U99', pagina: 'coqueluchoide_u99.html', consulta: 'sindrome coqueluchoide', cie: 'U99', color: '#5B21B6',
+      controlEstatalPocoInformativo: true,
+      // Definición sindrómica, distinta de la tos ferina confirmada (A37): series distintas, no se suman.
+      alias: ['sindrome coqueluchoide', 'coqueluchoide', 'u99', 'pertussis like syndrome'],
+      prefijos: ['sindrome coqueluchoide', 'coqueluchoide'],
+    },
+    {
+      id: 'plaguicidas_t60', controlDelegado: true, pad: 'Intoxicación por plaguicidas', nombre: 'Intoxicación por plaguicidas',
+      nombreCorto: 'Plaguicidas', etiqueta: 'Intoxicación por plaguicidas (T60)', dataKey: 'plaguicidas_t60',
+      marca: 'PLAGUICIDAS_T60', pagina: 'plaguicidas_t60.html', consulta: 'intoxicacion por plaguicidas', cie: 'T60', color: '#3F6212',
+      controlEstatalPocoInformativo: true,
+      // D7: la serie no distingue intención; las consultas de riesgo personal ganan la respuesta de crisis.
+      alias: ['intoxicacion por plaguicidas', 'intoxicaciones por plaguicidas', 'plaguicidas', 'plaguicida', 'pesticidas',
+        't60', 'pesticide poisoning'],
+      prefijos: ['intoxicacion por plaguicidas', 'intoxicaciones por plaguicidas', 'plaguicida', 'pesticida', 'pesticide poisoning'],
+    },
+    {
+      id: 'tos_ferina_a37', controlDelegado: true, pad: 'Tos ferina', nombre: 'Tos ferina', nombreCorto: 'Tos ferina',
+      etiqueta: 'Tos ferina (A37)', dataKey: 'tos_ferina_a37', marca: 'TOS_FERINA_A37', pagina: 'tos_ferina_a37.html',
+      consulta: 'tos ferina', cie: 'A37', color: '#155E75',
+      alias: ['tos ferina', 'tosferina', 'pertussis', 'coqueluche', 'a37', 'whooping cough'],
+      prefijos: ['tos ferina', 'tosferina', 'pertussis', 'coqueluche', 'whooping cough'],
+    },
+    {
+      id: 'sindrome_meningeo_g00', controlDelegado: true, pad: 'Síndrome meníngeo', nombre: 'Síndrome meníngeo',
+      nombreCorto: 'Síndrome meníngeo', etiqueta: 'Síndrome meníngeo (G00-G03, excepto G00.0 y G00.1)',
+      dataKey: 'sindrome_meningeo_g00', marca: 'SINDROME_MENINGEO_G00', pagina: 'sindrome_meningeo_g00.html',
+      consulta: 'sindrome meningeo', cie: 'G00.2-G00.9, G01-G03', color: '#0E7490',
+      // No es la meningitis meningocócica, por Haemophilus (G00.0), por neumococo (G00.1) ni tuberculosa: «meningitis»
+      // a secas pide precisar (ALIAS_AMBIGUOS).
+      alias: ['sindrome meningeo', 'g00 2', 'g00 3', 'g00 8', 'g00 9', 'g01', 'g02', 'g03'],
+      prefijos: ['sindrome meningeo'],
+    },
+    {
+      id: 'monoxido_t58', controlDelegado: true, pad: 'Intoxicación por monóxido de carbono',
+      nombre: 'Intoxicación por monóxido de carbono', nombreCorto: 'Monóxido de carbono',
+      etiqueta: 'Intoxicación por monóxido de carbono (T58)', dataKey: 'monoxido_t58', marca: 'MONOXIDO_T58',
+      pagina: 'monoxido_t58.html', consulta: 'intoxicacion por monoxido de carbono', cie: 'T58', color: '#52525B',
+      // D7: la serie no distingue intención; las consultas de riesgo personal ganan la respuesta de crisis.
+      alias: ['intoxicacion por monoxido de carbono', 'monoxido de carbono', 'monoxido', 't58', 'carbon monoxide'],
+      prefijos: ['intoxicacion por monoxido', 'monoxido', 'carbon monoxide'],
+    },
   ]);
 
   /**
@@ -1107,6 +1153,10 @@
       generico: /\bvaginitis\b|\bvulvovaginitis (candidiasica|candidosica|micotica|por (candida|hongos|tricomonas|trichomonas)|tricomoniasica)\b|\binfecci(on|ones) vaginal(es)?\b/,
       especifico: /(?!)/,
       abarca: '«Vaginitis», o una vulvovaginitis con el agente nombrado, abarca bloques distintos del boletín: la vulvovaginitis (N76), con su propio pronóstico; la candidiasis urogenital (B37.3-B37.4), también publicada; y la tricomoniasis urogenital, que no se pronostica.' },
+    // «Meningitis» a secas abarca renglones distintos del boletín; los tipos nombrados (meningocócica, tuberculosa) van al radar.
+    { release: 'sindrome_meningeo_g00', generico: /\bmeningitis\b/,
+      especifico: /\b(meningococ[a-z]*|tuberculos[a-z]*|haemophilus|neumococ[a-z]*|pneumococ[a-z]*)\b|\bsindrome meningeo\b/,
+      abarca: '«Meningitis» abarca renglones distintos del boletín: la meningitis meningocócica, la tuberculosa, la debida a Haemophilus influenzae (G00.0) y la neumocócica (G00.1) se notifican aparte y no se pronostican.' },
     { release: 'candidiasis_b37', generico: /\b(candidiasis|candida|candidosis|moniliasis|b37)\b/,
       especifico: new RegExp(`\\b(candidiasis|candida|candidosis|moniliasis) (urogenital|vaginal|vulvovaginal|genital|de vulva|de la vulva)\\b|\\b(urogenital|vaginal|vulvovaginal|genital) candidiasis\\b|${subcodigo('b37', '34').source}`),
       abarca: '«Candidiasis» abarca varias localizaciones con código propio: la oral, la cutánea, la esofágica y la sistémica (B37.0-B37.2, B37.5-B37.9).' },

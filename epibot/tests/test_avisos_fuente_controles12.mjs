@@ -38,8 +38,10 @@ test('los avisos se generan por script versionado y cubren los doce', () => {
   const A = globalThis.EPI_AVISOS_FUENTE;
   assert.ok(A, 'EPI_AVISOS_FUENTE no está cargado en el EpiBot');
   // Los doce controles, más los aceptados con una celda de picos_heredados (sin nota general de la ventana del control).
-  for (const id of DOCE) assert.ok(A[id] && A[id].nota, id);
-  for (const id of Object.keys(A).filter((x) => !DOCE.includes(x))) assert.equal(A[id].nota, null, id);
+  // Los cinco controles nuevos (dictamen complementario) también llevan nota; los aceptados con pico, sólo su aviso.
+  const CINCO = ['coqueluchoide_u99', 'plaguicidas_t60', 'tos_ferina_a37', 'sindrome_meningeo_g00', 'monoxido_t58'];
+  for (const id of [...DOCE, ...CINCO]) assert.ok(A[id] && A[id].nota, id);
+  for (const id of Object.keys(A).filter((x) => !DOCE.includes(x) && !CINCO.includes(x))) assert.equal(A[id].nota, null, id);
   assert.match(readFileSync(new URL('epibot/js/avisos_fuente.js', raiz), 'utf-8'), /Generado por docs\/alta20c\/operacion\/avisos_controles12\.py/);
   // Bajas del acumulado medidas (mismas cifras que el JSON de la revisión de Fable y qa/retiros_ventana_controles12.tsv).
   const esperadas = { brucelosis_a23: [30, 74], reumatica_i00: [14, 91], bocio_e01: [36, 136], hepatitis_b_b16: [14, 19],

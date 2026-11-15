@@ -3,7 +3,7 @@ Enteritis debida a rotavirus,A08.0,Prevenibles por vacunación,11,13,503,985,Con
 Meningitis tuberculosa,A17.0,Prevenibles por vacunación,11,8,465,519,Por incorporar,Exploración,
 Tétanos neonatal,A33,Prevenibles por vacunación,12,-,1,1,Por incorporar,Exploración,
 Tétanos,"A34, A35",Prevenibles por vacunación,12,-,26,34,Por incorporar,Exploración,
-Tos ferina,A37,Prevenibles por vacunación,13,5,203,1521,Por incorporar,Exploración,
+Tos ferina,A37,Prevenibles por vacunación,13,5,203,1521,Control publicado,Seguimiento,
 Meningitis meningocócica,A39.0,Prevenibles por vacunación,13,7,17,-,Por incorporar,Exploración,
 Enfermedad invasiva por  neumococo,"A40.3, G00.1, J13",Prevenibles por vacunación,14,10,136,-,Por incorporar,Exploración,
 Infecciones invasivas por Haemophilus influenzae,"A41.3, G00.0, J14",Prevenibles por vacunación,14,3,93,-,Por incorporar,Exploración,
@@ -87,11 +87,11 @@ Oncocercosis,B73,"Interés local, regional o institucional",48,-,-,-,Por incorpo
 ^Miasis,B87,"Interés local, regional o institucional",48,13,875,177,Por incorporar,Exploración,
 Leishmaniasis cutánea,B55.1,"Interés local, regional o institucional",49,5,589,236,Por incorporar,Exploración,
 Leishmaniasis visceral,B55.0,"Interés local, regional o institucional",49,-,-,2,Por incorporar,Exploración,
-Síndrome meníngeo,G00-G03 excepto G00.0 y G00.1,Vigilancia sindromática,50,7,739,815,Por incorporar,Exploración,
+Síndrome meníngeo,G00-G03 excepto G00.0 y G00.1,Vigilancia sindromática,50,7,739,815,Control publicado,Seguimiento,
 Infección de vías urinarias,"N30, N34, N39.0",Vigilancia sindromática,50,66682,2887018,2948849,Publicada,Seguimiento,
 Enfermedad febril exantemática,U97,Vigilancia sindromática,51,100,30724,12406,Por incorporar,Media,60.4
 Parálisis flácida aguda  (menores de 15 años),U98,Vigilancia sindromática,51,16,342,404,Por incorporar,Exploración,
-Síndrome coqueluchoide,U99,Vigilancia sindromática,51,35,1176,4941,Por incorporar,Exploración,23.9
+Síndrome coqueluchoide,U99,Vigilancia sindromática,51,35,1176,4941,Control publicado,Seguimiento,
 Bocio endémico,E01,No transmisibles,52,16,619,584,Control publicado,Seguimiento,
 Diabetes mellitus (tipo I),E10,No transmisibles,52,80,3321,3293,Publicada,Seguimiento,
 Diabetes mellitus (tipo II),E11-E14,No transmisibles,52,10789,494691,458329,Publicada,Seguimiento,
@@ -110,8 +110,8 @@ Hiperplasia de próstata,N40,No transmisibles,57,2435,104102,103614,Control publ
 "Edema proteinuria y transtornos hipertensivos en el embarazo, parto y puerperio",O10-O16,No transmisibles,57,1172,48606,48524,Publicada,Seguimiento,
 Diabetes mellitus en el embarazo,O24.4,No transmisibles,57,476,19255,17418,Publicada,Seguimiento,
 Quemaduras,T20-T32,No transmisibles,58,1343,60826,56438,Control publicado,Seguimiento,
-Intoxicación por monóxido de carbono,T58,No transmisibles,58,9,376,331,Por incorporar,Exploración,
-Intoxicación por plaguicidas,T60,No transmisibles,58,53,2230,1938,Por incorporar,Exploración,49.9
+Intoxicación por monóxido de carbono,T58,No transmisibles,58,9,376,331,Control publicado,Seguimiento,
+Intoxicación por plaguicidas,T60,No transmisibles,58,53,2230,1938,Control publicado,Seguimiento,
 Mordedura de araña viuda negra,U60.2,No transmisibles,59,104,3526,2807,Por incorporar,Media,54.6
 Mordedura de araña violinista,U60.3,No transmisibles,59,20,783,677,Por incorporar,Exploración,
 Mordedura de otras arañas,"T63.3, X21 Excepto U60.2 y U60.3",No transmisibles,59,87,4734,4217,Por incorporar,Media,53.4

@@ -83,7 +83,8 @@ test('la galería crea una instancia por release', () => {
       'displasia_severa_n87', 'brucelosis_a23', 'reumatica_i00', 'bocio_e01', 'hepatitis_b_b16',
       'rotavirus_a080', 'absceso_hepatico_a064', 'leptospirosis_a27', 'helmintiasis_b65',
       'desnutricion_moderada_e440', 'desnutricion_severa_e40', 'enterobiasis_b80', 'giardiasis_a071',
-      'paratifoidea_a011', 'mal_del_pinto_a67', 'vulvovaginitis_n76', 'sintetico_x']);
+      'paratifoidea_a011', 'mal_del_pinto_a67', 'vulvovaginitis_n76', 'coqueluchoide_u99', 'plaguicidas_t60',
+      'tos_ferina_a37', 'sindrome_meningeo_g00', 'monoxido_t58', 'sintetico_x']);
   assert.equal(ctx.window.GaleriasRelease.at(-1).color, '#123456');
 });
 

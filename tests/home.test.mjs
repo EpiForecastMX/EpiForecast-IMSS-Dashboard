@@ -164,10 +164,10 @@ test('congresos: WCP, MICAI y CALASS destacados, todos listados, enlaces reales 
   assert.match(leer('netlify.toml'), /from = "\/micai\.html"\s*\n\s*to = "\/micai2026\.html"/);
 });
 
-test('catálogo: 80 tarjetas con id del catálogo, enlace a la galería, grupos en HTML válido y cifra estática al día', () => {
+test('catálogo: 85 tarjetas con id del catálogo, enlace a la galería, grupos en HTML válido y cifra estática al día', () => {
   const ids = new Set(catalog.diseases.map((d) => d.id));
   const cards = [...HOME.matchAll(/<article class="condition-card" data-p="([a-z0-9_]+)"/g)].map((m) => m[1]);
-  assert.equal(cards.length, 80);
+  assert.equal(cards.length, 85);
   assert.deepEqual(new Set(cards), ids);
   for (const id of cards) assert.ok(HOME.includes(`href="Reports/index.html?p=${id}">Ver en la galería`), id);
   const select = HOME.match(/<select id="conditionGroup">([\s\S]*?)<\/select>/)[1];
