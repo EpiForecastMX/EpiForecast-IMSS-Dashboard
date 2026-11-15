@@ -14,7 +14,7 @@ import { mencionaNoModelada } from './entities.js?v=58';
 import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
-} from './obesidad_charts.js?v=26';
+} from './obesidad_charts.js?v=27';
 import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=24';
 
 const any = (q, ks) => ks.some((k) => q.includes(k));

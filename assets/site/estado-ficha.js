@@ -48,5 +48,22 @@
     return kind;
   }
 
-  g.EpiEstadoFicha = { CORTO: CORTO, tipo: tipo, detalle: detalle, aplica: aplica };
+  /* Semana epidemiológica (domingo–sábado, regla del 4 de enero; misma que epibot/js/calendario_boletin.js y
+   * epi_calendar.py) desplazada k semanas. Para rótulos de la ficha que hoy hacen `semana + 1` a mano: la semana
+   * del boletín que publica un corte (k = rezago impreso del cuadro, 0 o 1) y la primera semana fuera de muestra
+   * (k = 1). Cruza 52/53 → 1 con el calendario; una semana fuera de rango es error, no se corrige en silencio. */
+  var DIA = 86400000;
+  function inicioAnio(y) { var j4 = Date.UTC(y, 0, 4); return j4 - new Date(j4).getUTCDay() * DIA; }
+  function semanasDelAnio(y) { return Math.round((inicioAnio(y + 1) - inicioAnio(y)) / (7 * DIA)); }
+  function semanaMas(year, week, k) {
+    var y = Number(year), w = Number(week), d = k === undefined ? 1 : Number(k);
+    if (!(y % 1 === 0 && w % 1 === 0 && d % 1 === 0) || w < 1 || w > semanasDelAnio(y)) {
+      throw new RangeError('Semana epidemiológica no válida: ' + year + '-W' + week + ' (+' + k + ')');
+    }
+    var t = inicioAnio(y) + (w - 1 + d) * 7 * DIA, a = new Date(t).getUTCFullYear() + 1;
+    while (inicioAnio(a) > t) a--;
+    return [a, Math.floor((t - inicioAnio(a)) / (7 * DIA)) + 1];
+  }
+
+  g.EpiEstadoFicha = { CORTO: CORTO, tipo: tipo, detalle: detalle, aplica: aplica, semanaMas: semanaMas, semanasDelAnio: semanasDelAnio };
 })(typeof window !== 'undefined' ? window : globalThis);
