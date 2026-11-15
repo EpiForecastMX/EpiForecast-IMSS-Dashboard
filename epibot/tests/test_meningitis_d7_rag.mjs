@@ -137,3 +137,54 @@ test('M: el EpiBot responde el mismo texto fijo, sin cifras de ningún pronósti
     globalThis.fetch = previa;
   }
 });
+
+// Misma familia (ROOT_FEEDBACK «misma familia negativa»): códigos solos, «G00» a secas y el nombre publicado completo.
+test('M: G00.0 y G00.1 a secas reciben el texto fijo, sin modelo ni cifras; «G00» a secas pide precisar', async () => {
+  for (const q of ['G00.0 nacional', 'G00.1 nacional', 'g00 0 en Jalisco']) {
+    const out = await consultar(q, { texto: CON_861, vector: V_G00 });
+    assert.equal(out.generaciones, 0, q);
+    assert.match(out.r.answer, /no pronostica la meningitis meningocócica/, q);
+    assert.doesNotMatch(out.r.answer, /861/, q);
+  }
+  const g00 = await consultar('G00 nacional', { texto: CON_861, vector: V_G00 });
+  assert.equal(g00.generaciones, 0);
+  assert.match(g00.r.answer, /No doy cifras hasta saber cuál consultas/);
+  assert.doesNotMatch(g00.r.answer, /861/);
+});
+
+test('M: el nombre publicado completo resuelve su release y no se lee como petición de un subtipo excluido', async () => {
+  for (const q of ['Síndrome meníngeo (G00-G03, excepto G00.0 y G00.1) nacional', 'síndrome meníngeo G00-G03 excepto G00.0 y G00.1']) {
+    const out = await consultar(q, { texto: 'Pronóstico del síndrome meníngeo.', vector: V_G00 });
+    assert.equal(out.status, 200, q);
+    assert.doesNotMatch(out.r.answer, /no modela el código G00\.0|no pronostica la meningitis/, q);
+    assert.equal(out.r.answer, 'Pronóstico del síndrome meníngeo.', q);
+    assert.ok(out.r.sources.length && out.r.sources.every((s) => s.section === 'sindrome_meningeo_g00'), q);
+  }
+  assert.equal((await consultar('G00.2 nacional', { texto: 'x', vector: V_G00 })).r.answer, 'x', 'G00.2 es del síndrome');
+});
+
+test('M: en el EpiBot, códigos solos sin cifras y nombre completo con su release', async () => {
+  const K = readFileSync(new URL('../knowledge.json', import.meta.url), 'utf-8');
+  const previa = globalThis.fetch;
+  globalThis.fetch = async (u) => {
+    const m = String(u).match(/publication\/([a-z0-9_]+)\/vista\.json/);
+    return { ok: true, json: async () => JSON.parse(m ? readFileSync(new URL(`../../publication/${m[1]}/vista.json`, import.meta.url), 'utf-8') : K) };
+  };
+  try {
+    const kb = await import('../js/kb.js');
+    const d = await kb.loadKnowledge(); await d.obesidad_pendiente;
+    assert.equal(kb.MENINGITIS_G00_TEXTO, rag.MENINGITIS_G00_TEXTO_RAG, 'paridad de texto');
+    for (const q of ['G00.0 nacional', 'G00.1 nacional', 'G00 nacional']) {
+      kb._resetContext();
+      const r = await kb.answerWithTrace(q);
+      assert.equal(r.handler, 'answerMeningitisTipo', q);
+      assert.doesNotMatch(String(r.response), /casos totales|SINDROME_MENINGEO_G00/, q);
+    }
+    for (const q of ['Síndrome meníngeo (G00-G03, excepto G00.0 y G00.1) nacional', 'síndrome meníngeo G00-G03 excepto G00.0 y G00.1']) {
+      kb._resetContext();
+      assert.match(String((await kb.answerWithTrace(q)).response), /SINDROME_MENINGEO_G00/, q);
+    }
+  } finally {
+    globalThis.fetch = previa;
+  }
+});

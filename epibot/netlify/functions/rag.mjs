@@ -345,10 +345,27 @@ const MENINGITIS_TEXTO_RAG = 'EpiForecast-MX no pronostica la meningitis meningo
   '*Haemophilus influenzae* (G00.0) ni la neumocócica (G00.1): se notifican aparte en el boletín. El **síndrome meníngeo** ' +
   'publicado (G00-G03, excepto G00.0 y G00.1) no las incluye, así que no se le atribuyen sus cifras. Puedes consultar ' +
   'ese bloque en [su página](../sindrome_meningeo_g00.html).';
+const MENINGITIS_G00_TEXTO_RAG = '«G00» abarca la meningitis por *Haemophilus influenzae* (G00.0) y la neumocócica (G00.1), que ' +
+  'no se pronostican, y el resto de G00 (G00.2-G00.9), que forma parte del **síndrome meníngeo** publicado (G00-G03, ' +
+  'excepto G00.0 y G00.1). No doy cifras hasta saber cuál consultas; por ejemplo, «síndrome meníngeo en Jalisco».';
+const MENINGITIS_CODIGO_RAG = /\bg00 ?[01]\b/;
+const G00_SOLO_RAG = /\bg00\b(?! ?[0-9])/;
+/** Texto fijo para una meningitis de tipo nombrado, G00.0, G00.1 o «G00» a secas (consulta cruda), o null. */
 function guardaMeningitisTipoRag(query) {
   const qn = normGuarda(String(query || ''));
   if (/\bsindrome meningeo\b/.test(qn)) return null;
-  return MENINGITIS_TIPO_RAG.test(qn) && MENINGITIS_NOMBRADA_RAG.test(qn) ? MENINGITIS_TEXTO_RAG : null;
+  if (MENINGITIS_CODIGO_RAG.test(qn) || (MENINGITIS_TIPO_RAG.test(qn) && MENINGITIS_NOMBRADA_RAG.test(qn))) return MENINGITIS_TEXTO_RAG;
+  return G00_SOLO_RAG.test(qn) ? MENINGITIS_G00_TEXTO_RAG : null;
+}
+
+/**
+ * El nombre publicado completo («Síndrome meníngeo (G00-G03, excepto G00.0 y G00.1)») cita los códigos que EXCLUYE: se
+ * retiran de la consulta para que no se lean como una petición de esos subtipos. Sólo con el síndrome meníngeo nombrado.
+ */
+function sinExclusionG00Rag(query) {
+  const raw = String(query || '');
+  if (!/\bsindrome meningeo\b/.test(stripAccents(raw))) return raw;
+  return raw.replace(/\b(excepto|except|salvo|excluyendo|excluding)\s+G00\s?[.]?\s?[01](\s*(y|e|ni|and|,)\s*G00\s?[.]?\s?[01])?/gi, ' ');
 }
 
 // A1 garantizado: la nota D7 de los avisos generados (avisos_fuente.js, estado «alcance») de T60 y T58 se añade a la
@@ -792,7 +809,7 @@ function structuredSummary(kb, releases = []) {
 
 // Guardas M3/B3 exportadas para su prueba de paridad; se exportan aquí, fuera del tramo de rag.mjs que otras
 // pruebas evalúan como script (stripAccents … Rate limit).
-export { D7_TEXTO_ES_RAG, D7_TEXTO_EN_RAG, guardaD7Rag, guardaSumaA37U99Rag, MENINGITIS_TEXTO_RAG, guardaMeningitisTipoRag, notaD7Rag };
+export { D7_TEXTO_ES_RAG, D7_TEXTO_EN_RAG, guardaD7Rag, guardaSumaA37U99Rag, MENINGITIS_TEXTO_RAG, MENINGITIS_G00_TEXTO_RAG, guardaMeningitisTipoRag, sinExclusionG00Rag, notaD7Rag };
 
 const RATE_LIMIT = { windowMs: 60_000, max: 20 };
 const rateBucket = new Map();
@@ -896,6 +913,7 @@ export default async function handler(req) {
 
   let body;
   try { body = await req.json(); } catch { return json({ error: 'Body inválido' }, 400, cors); }
+  if (typeof body?.query === 'string') body = { ...body, query: sinExclusionG00Rag(body.query) };
 
   if (body.health === true) {
     const idx = loadIndex();

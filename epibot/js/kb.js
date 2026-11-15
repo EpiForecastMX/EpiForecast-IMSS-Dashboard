@@ -5797,10 +5797,27 @@ export const MENINGITIS_TEXTO = 'EpiForecast-MX no pronostica la meningitis meni
   'publicado (G00-G03, excepto G00.0 y G00.1) no las incluye, así que no se le atribuyen sus cifras. Puedes consultar ' +
   'ese bloque en [su página](../sindrome_meningeo_g00.html).';
 /** Texto fijo para una meningitis de tipo nombrado (consulta cruda), o null. */
+export const MENINGITIS_G00_TEXTO = '«G00» abarca la meningitis por *Haemophilus influenzae* (G00.0) y la neumocócica (G00.1), que ' +
+  'no se pronostican, y el resto de G00 (G00.2-G00.9), que forma parte del **síndrome meníngeo** publicado (G00-G03, ' +
+  'excepto G00.0 y G00.1). No doy cifras hasta saber cuál consultas; por ejemplo, «síndrome meníngeo en Jalisco».';
+const MENINGITIS_CODIGO = /\bg00 ?[01]\b/;
+const G00_SOLO = /\bg00\b(?! ?[0-9])/;
+/** Texto fijo para una meningitis de tipo nombrado, G00.0, G00.1 o «G00» a secas (consulta cruda), o null. */
 export function guardaMeningitisTipo(query) {
   const qn = norm(String(query || '')).replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ');
   if (/\bsindrome meningeo\b/.test(qn)) return null;
-  return MENINGITIS_TIPO.test(qn) && MENINGITIS_NOMBRADA.test(qn) ? MENINGITIS_TEXTO : null;
+  if (MENINGITIS_CODIGO.test(qn) || (MENINGITIS_TIPO.test(qn) && MENINGITIS_NOMBRADA.test(qn))) return MENINGITIS_TEXTO;
+  return G00_SOLO.test(qn) ? MENINGITIS_G00_TEXTO : null;
+}
+
+/**
+ * El nombre publicado completo («Síndrome meníngeo (G00-G03, excepto G00.0 y G00.1)») cita los códigos que EXCLUYE: se
+ * retiran de la consulta para que no se lean como una petición de esos subtipos. Sólo con el síndrome meníngeo nombrado.
+ */
+export function sinExclusionG00(query) {
+  const raw = String(query || '');
+  if (!/\bsindrome meningeo\b/.test(norm(raw).replace(/[^a-z0-9 ]/g, ' '))) return raw;
+  return raw.replace(/\b(excepto|except|salvo|excluyendo|excluding)\s+G00\s?[.]?\s?[01](\s*(y|e|ni|and|,)\s*G00\s?[.]?\s?[01])?/gi, ' ');
 }
 
 // Contexto conversacional: entidades de la ultima pregunta exitosa
@@ -5817,7 +5834,8 @@ export function _resetContext() { lastEntities = {}; _lastDistribMetric = null; 
  * `answer()` delega aquí y expone sólo la respuesta, así que no hay una segunda ruta de producción
  * "para pruebas": la que se mide es exactamente la que corre en el sitio.
  */
-async function _resolve(query) {
+async function _resolve(consulta) {
+  const query = sinExclusionG00(consulta);
   const trace = { handler: null };   // por llamada, no global: no puede quedar obsoleto
   const d = await loadKnowledge();
   const s = d.stats || {};
