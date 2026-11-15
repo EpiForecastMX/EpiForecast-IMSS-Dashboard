@@ -9,12 +9,12 @@ principal (`Congresos/Mundial/ESTADO_ACTUAL_WCP.md`); este README describe el si
 
 ---
 
-## Estado: 12 de noviembre de 2026
+## Estado: 15 de noviembre de 2026
 
 | | |
 |---|---|
 | Padecimientos publicados | **85** = 4 del carril original + 81 releases del runner (veinte añadidos el 15-nov-2026 con alta20c: tres aceptados en la prueba de 2025, validación prospectiva 0/4 en curso, y diecisiete controles estacionales no validados) |
-| Datos reales hasta | **boletín 43 de 2026** (carril original y radar); **semana 42** observada en los releases del runner |
+| Datos reales hasta | **boletín 43 de 2026** (carril original y radar); en los releases del runner, semana fuente 43: **semana 42** observada (semana 43 en síndrome coqueluchoide y tos ferina, con rezago impreso 0) |
 | Series productivas del carril original | **432** = 333 neuro + 99 dengue |
 | Gráficos publicados del carril original | **432** = 333 neuro + 99 dengue (ronda W37; hasta W33 eran 444 con las 4 regiones de dengue) |
 | Tablero Tableau | histórico, corte W31 de 2026 (`javier.rebull3700` / `viz_epiforecastmx_17873231502650`) |
@@ -60,7 +60,7 @@ Dashboard interactivo del proyecto **EpiForecast-MX**, desarrollado en colaborac
   Alzheimer (G30) y Dengue (A97). Los tres neurológicos son la cohorte de 333 modelos; Dengue tiene
   su propio pipeline de conteos y página en `dengue.html` (pronóstico a un año; la proyección NB-GLM a
   cinco años se retiró en W37).
-- **Releases del runner genérico (sesenta y uno):** publicados desde releases sellados
+- **Releases del runner genérico (ochenta y uno):** publicados desde releases sellados
   (`publication/catalog.json`): obesidad, diabetes tipo I y II, anorexia y bulimia, hipertensión,
   enfermedad isquémica y cerebrovascular, seis padecimientos del radar del boletín (el sexto, asma),
   neumonías y bronconeumonías, diecisiete cánceres y, desde el 12-nov-2026, otitis media aguda,
@@ -75,7 +75,12 @@ Dashboard interactivo del proyecto **EpiForecast-MX**, desarrollado en colaborac
   y de la luz y otras hepatitis víricas, aceptados con la política de cinco motores en un orden de apertura
   fijado antes de abrir 2025 (tope de cuatro), y seis controles estacionales no validados por autorización
   nominal del autor (desnutrición leve, otras salmonelosis, fiebre tifoidea, escarlatina, hepatitis vírica C
-  y displasia cervical severa con el cáncer cervicouterino in situ). Cada uno tiene su página `<id>.html`. Los que no superaron su prueba de aceptación
+  y displasia cervical severa con el cáncer cervicouterino in situ). El 15-nov-2026, con el lote alta20c, se sumaron
+  veinte: fiebre paratifoidea, mal del pinto y vulvovaginitis, aceptados en su prueba única de 2025, y diecisiete
+  controles estacionales no validados por dictámenes delegados de Fable bajo la delegación literal del autor (no firma
+  humana): brucelosis, fiebre reumática, bocio, hepatitis B aguda, rotavirus, absceso hepático amebiano, leptospirosis,
+  helmintiasis, desnutrición moderada y severa, enterobiasis, giardiasis, síndrome coqueluchoide, intoxicación por
+  plaguicidas, tos ferina, síndrome meníngeo e intoxicación por monóxido de carbono. Cada uno tiene su página `<id>.html`. Los que no superaron su prueba de aceptación
   (2025 para la mayoría; 2026-W01 a W41 para los quince cánceres con datos sólo desde 2023) se
   publican con el control estacional y nunca como validados. Covid-19 aparece sólo en
   `rechazados.html`.

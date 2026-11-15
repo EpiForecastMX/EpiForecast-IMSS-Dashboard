@@ -28,7 +28,7 @@ que terminaban dejando el checkout en una rama de trabajo.
 
 # Instrucciones del repositorio
 
-## Checkpoint vigente — lote alta20c (publicado al fusionar y desplegar este cambio) — 15-nov-2026
+## Checkpoint vigente — lote alta20c publicado — 15-nov-2026
 
 Prevalece sobre las secciones siguientes en cuanto a conteos. El sitio sirve 85 padecimientos: 4 del carril original
 y 81 releases del runner. Veinte se añadieron con alta20c: tres portafolios aceptados en su prueba única de 2025
@@ -42,6 +42,15 @@ excepto G00.0 y G00.1); coqueluchoide y tos ferina son series distintas (rezago 
 objetivo W44); plaguicidas y monóxido no distinguen intención y las consultas de riesgo personal reciben la respuesta
 de crisis sin cifras (`epibot/tests/test_alcance_controles5.mjs`). La función RAG lee fichas HTML: deben ir en
 `included_files` de `netlify.toml` (prueba `epibot/tests/test_rag_preview_aceptados3.mjs`).
+Publicado y medido en producción: main `f065b839` (PR #98), Netlify `6af9d133`; 26/26 consultas a la API real, 141/141
+archivos servidos byte iguales y navegador real. La nota D7 se añade de forma determinista a la respuesta generada
+(`notaD7Rag`) porque el modelo puede omitirla; meningitis de tipo nombrado y G00.0/G00.1 reciben texto fijo
+(`epibot/tests/test_meningitis_d7_rag.mjs`, `test_d7_guardas_alta20c.mjs`, `test_fable_pub5.mjs`). Tocar
+`obesidad_kb.js` obliga a subir la cadena de caché `obesidad_kb.js` → `kb.js` → `app.js`, y
+`tests/herramientas.test.mjs` fija la versión de `app.js`. Limitación ambiental: en este checkout, `npm run test:site`
+da 106/107 porque `LuisMNA.jpeg` lleva un atributo de privacidad de macOS y el caso 101 de `tests/site_shell.test.mjs`
+no puede copiarlo (EPERM); el mismo árbol da 107/107 en copia hermética. No tocar el archivo ni la prueba.
+Mantenimiento pendiente, no ejecutado: O1 a O3 de la revisión final (`docs/DEUDAS_VIGENTES.md` del backend).
 
 ## Checkpoint — lote alta10b publicado — 12-nov-2026
 
