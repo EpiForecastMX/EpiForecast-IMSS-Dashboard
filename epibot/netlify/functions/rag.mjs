@@ -283,6 +283,59 @@ async function retrieve(genAI, query, expandedText, index, foco = []) {
 
 function stripAccents(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
 
+// ---------------------------------------------------------------------------
+// Guardas deterministas de la revisión focal de Fable (FABLE_CONTROLES5_PUBLICACION_REVISION, M3 y B3).
+// Van después de la respuesta de crisis (que conserva la precedencia) y antes del estado de la vista, de
+// la clave y de cualquier llamada a Gemini: no hay recuperación, modelo ni cifras. Copia independiente de
+// la de kb.js, con el mismo texto (tests/test_d7_guardas_alta20c.mjs comprueba la paridad).
+// ---------------------------------------------------------------------------
+
+const normGuarda = (s) => stripAccents(s).replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim();
+function aliasDeReleaseRag(id) {
+  const r = globalThis.EPI_CATALOGO.releases.find((x) => x.id === id);
+  return r ? [...new Set([...r.alias, ...(r.prefijos || [])])] : [];
+}
+const nombraAlgunoRag = (qn, aliases) => aliases.some((a) => globalThis.EPI_CATALOGO.nombraAlias(qn, a));
+
+// D7 (T60 y T58): dosis, letalidad, cómo intoxicar(se) o envenenar. Exige un alias propio de T60 o T58.
+const D7_ALIAS_RAG = [...aliasDeReleaseRag('plaguicidas_t60'), ...aliasDeReleaseRag('monoxido_t58'), 'pesticide'];
+const D7_METODO_ES_RAG = /\b(dosis|letal|letales|letalidad|(intoxicar|envenenar)(me|te|se|lo|la|los|las|le|les|nos)?|como (me |te |se |lo |la |los |las |le |les )?(intoxic|envenen)[a-z]*|para (morir|morirme|morirse|matar|matarme|matarse|matarlo|matarla))\b/;
+const D7_METODO_EN_RAG = /\b(lethal|doses?|dosage|overdose|how (to|do i|can i|do you) (poison|intoxicate)|poison (myself|yourself|someone|somebody|him|her|them)|to (die|kill))\b/;
+const D7_TEXTO_ES_RAG = 'Este sitio sólo publica conteos de casos notificados y su pronóstico: no describe mecanismos, ' +
+  'productos ni dosis, y la serie no distingue intención.\n\n' +
+  'Si tú o alguien cercano necesita apoyo, la **Línea de la Vida** atiende gratis, las 24 horas: **800 911 2000**.' +
+  ' Si alguien está en peligro o ya estuvo expuesto, llama al **911** o acude a urgencias.';
+const D7_TEXTO_EN_RAG = 'This site only publishes counts of reported cases and their forecast: it does not describe ' +
+  'mechanisms, products or doses, and the series does not distinguish intent.\n\n' +
+  'If you or someone close to you needs support, **Línea de la Vida** in Mexico is free and open 24 hours: **800 911 2000**. ' +
+  'If someone is in danger or has been exposed, call **911** or go to an emergency room.';
+function guardaD7Rag(query) {
+  const qn = normGuarda(String(query || ''));
+  if (!nombraAlgunoRag(qn, D7_ALIAS_RAG)) return null;
+  if (D7_METODO_ES_RAG.test(qn)) return D7_TEXTO_ES_RAG;
+  return D7_METODO_EN_RAG.test(qn) ? D7_TEXTO_EN_RAG : null;
+}
+
+// B3: tos ferina (A37) y síndrome coqueluchoide (U99) no se suman; sin cifras ni equivalencia clínica.
+const SUMA_RAG = /\b(suma|sumas|sumar|sumarl[ao]s|sumal[ao]s|suman|sumen|sumad[oa]s?|sumando|juntas|juntos|en conjunto|combinad[oa]s?|combinar|combinarl[ao]s|total de (ambas|ambos|las dos|los dos)|sum|summed|add up|added up|combined|together)\b/;
+function guardaSumaA37U99Rag(query) {
+  const raw = String(query || '');
+  const qn = normGuarda(raw);
+  const u99 = aliasDeReleaseRag('coqueluchoide_u99').sort((a, b) => b.length - a.length);
+  if (!nombraAlgunoRag(qn, u99)) return null;
+  // «pertussis like syndrome» (U99) contiene «pertussis» y «coqueluchoide» empieza por «coqueluche» (A37).
+  const resto = u99.reduce((q, a) => q.replace(new RegExp(`(^| )${a}[a-z0-9]*`, 'g'), ' '), qn);
+  if (!nombraAlgunoRag(resto, aliasDeReleaseRag('tos_ferina_a37'))) return null;
+  if (!SUMA_RAG.test(qn) && !raw.includes('+')) return null;
+  const rs = globalThis.EPI_CATALOGO.releases;
+  const a37 = rs.find((r) => r.id === 'tos_ferina_a37');
+  const u = rs.find((r) => r.id === 'coqueluchoide_u99');
+  return `**${a37.etiqueta}** y **${u.etiqueta}** no se suman: son series distintas, cada una con su código CIE, ` +
+    'su propio conteo y su propio pronóstico congelado. El sitio no las combina ni las trata como equivalentes.\n\n' +
+    `Consulta cada una por separado («tos ferina en Jalisco», «coqueluchoide en Jalisco») o en su página: ` +
+    `[${a37.nombre}](../${a37.pagina}) y [${u.nombre}](../${u.pagina}).`;
+}
+
 // Estado de UN release publicado con el control estacional (validado, confiable, error): respuesta fija
 // desde su vista oficial. En la preview, Gemini mezcló el pasaje de «fallback regional» del carril
 // legacy y fuentes de C61 con parotiditis e hiperplasia; aquí no hay recuperación ni modelo.
@@ -711,6 +764,10 @@ function structuredSummary(kb, releases = []) {
 // Rate limit + CORS
 // ---------------------------------------------------------------------------
 
+// Guardas M3/B3 exportadas para su prueba de paridad; se exportan aquí, fuera del tramo de rag.mjs que otras
+// pruebas evalúan como script (stripAccents … Rate limit).
+export { D7_TEXTO_ES_RAG, D7_TEXTO_EN_RAG, guardaD7Rag, guardaSumaA37U99Rag };
+
 const RATE_LIMIT = { windowMs: 60_000, max: 20 };
 const rateBucket = new Map();
 
@@ -822,6 +879,10 @@ export default async function handler(req) {
   // Antes de la clave y del límite de consultas: esta respuesta no depende de ningún modelo.
   const crisis = globalThis.EPI_CATALOGO.respuestaCrisis(stripAccents(String(body.query || '')).replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim());
   if (crisis) return json({ answer: crisis.replace('\n<!--SIN_GRAFICA-->', ''), sources: [] }, 200, cors);
+  const d7 = guardaD7Rag(body.query);
+  if (d7) return json({ answer: d7, sources: [], retrieval: 'none', guarda: 'd7' }, 200, cors);
+  const suma = guardaSumaA37U99Rag(body.query);
+  if (suma) return json({ answer: suma, sources: [], retrieval: 'none', guarda: 'suma_a37_u99' }, 200, cors);
   // Subtipo con código propio vecino de un bloque publicado: respuesta fija, sin modelo ni cifras, para
   // que ni la recuperación ni Gemini le atribuyan el pronóstico del bloque vecino.
   const ajeno = globalThis.EPI_CATALOGO.subtipoAjeno(stripAccents(String(body.query || '')));

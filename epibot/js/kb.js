@@ -11,7 +11,7 @@ import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=4';
 import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=35';
-import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, RELEASES, releaseDePad, respuestaCrisis, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=29';
+import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=29';
 
 let DATA = null;
 
@@ -726,7 +726,7 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
     return (
       `EpiForecast-MX **no modela ${ajeno ? ajeno.nombre : (ROTULO_NO_MODELADA[matchedDisease] || matchedDisease)}**. ` +
       (sensible
-        ? 'Si tú o alguien cercano necesita apoyo, la **Línea de la Vida** atiende gratis, las 24 horas: **800 911 2000**.\n\n'
+        ? `${LINEA_DE_LA_VIDA}\n\n`
         : '') +
       (violencia
         ? 'No tiene modelo ni pronóstico en la plataforma y EPI no da sus cifras. Sus notificaciones semanales por entidad aparecen en el boletín y se consultan, sin modelo, en el [Radar del boletín](../boletin.html).\n\n'
@@ -5725,6 +5725,67 @@ function isOffTopic(q, ent) {
   return false;
 }
 
+// ---------------------------------------------------------------------------
+// Guardas deterministas de la revisión focal de Fable (FABLE_CONTROLES5_PUBLICACION_REVISION, M3 y B3).
+// Corren después de la respuesta de crisis (que conserva la precedencia) y antes de cualquier handler
+// con cifras. rag.mjs tiene su propia copia, independiente, con el mismo texto.
+// ---------------------------------------------------------------------------
+
+/** Frase vigente del EpiBot para la Línea de la Vida (la usa también la respuesta de temas sensibles). */
+const LINEA_DE_LA_VIDA = 'Si tú o alguien cercano necesita apoyo, la **Línea de la Vida** atiende gratis, las 24 horas: **800 911 2000**.';
+
+/** Alias y prefijos propios de un release del catálogo (consulta ya normalizada, sin tildes). */
+function aliasDeRelease(id) {
+  const r = RELEASES.find((x) => x.id === id);
+  return r ? [...new Set([...r.alias, ...(r.prefijos || [])])] : [];
+}
+const nombraAlguno = (qn, aliases) => aliases.some((a) => nombraAlias(qn, a));
+
+// D7 (plaguicidas T60 y monóxido T58): una consulta de dosis, letalidad o de cómo intoxicar(se) o envenenar
+// recibe un texto fijo, sin mecanismos, productos, dosis ni cifras. Ejecuta la condición D7 vigente; no es un
+// criterio nuevo y no toca a ningún otro padecimiento: exige un alias propio de T60 o T58.
+const D7_ALIAS = [...aliasDeRelease('plaguicidas_t60'), ...aliasDeRelease('monoxido_t58'), 'pesticide'];
+const D7_METODO_ES = /\b(dosis|letal|letales|letalidad|(intoxicar|envenenar)(me|te|se|lo|la|los|las|le|les|nos)?|como (me |te |se |lo |la |los |las |le |les )?(intoxic|envenen)[a-z]*|para (morir|morirme|morirse|matar|matarme|matarse|matarlo|matarla))\b/;
+const D7_METODO_EN = /\b(lethal|doses?|dosage|overdose|how (to|do i|can i|do you) (poison|intoxicate)|poison (myself|yourself|someone|somebody|him|her|them)|to (die|kill))\b/;
+export const D7_TEXTO_ES = 'Este sitio sólo publica conteos de casos notificados y su pronóstico: no describe mecanismos, ' +
+  'productos ni dosis, y la serie no distingue intención.\n\n' + LINEA_DE_LA_VIDA +
+  ' Si alguien está en peligro o ya estuvo expuesto, llama al **911** o acude a urgencias.';
+export const D7_TEXTO_EN = 'This site only publishes counts of reported cases and their forecast: it does not describe ' +
+  'mechanisms, products or doses, and the series does not distinguish intent.\n\n' +
+  'If you or someone close to you needs support, **Línea de la Vida** in Mexico is free and open 24 hours: **800 911 2000**. ' +
+  'If someone is in danger or has been exposed, call **911** or go to an emergency room.';
+
+/** Texto fijo de D7 para una consulta (cruda), o null. */
+export function guardaD7(query) {
+  const qn = norm(String(query || ''));
+  if (!nombraAlguno(qn, D7_ALIAS)) return null;
+  if (D7_METODO_ES.test(qn)) return D7_TEXTO_ES;
+  return D7_METODO_EN.test(qn) ? D7_TEXTO_EN : null;
+}
+
+// B3: tos ferina (A37) y síndrome coqueluchoide (U99) son series distintas; una consulta que pide sumarlas
+// recibe la aclaración explícita y ninguna cifra (ni suma ni equivalencia clínica).
+const SUMA = /\b(suma|sumas|sumar|sumarl[ao]s|sumal[ao]s|suman|sumen|sumad[oa]s?|sumando|juntas|juntos|en conjunto|combinad[oa]s?|combinar|combinarl[ao]s|total de (ambas|ambos|las dos|los dos)|sum|summed|add up|added up|combined|together)\b/;
+
+/** Texto fijo cuando la consulta pide sumar A37 y U99, o null. */
+export function guardaSumaA37U99(query) {
+  const raw = String(query || '');
+  const qn = norm(raw);
+  const u99 = aliasDeRelease('coqueluchoide_u99').sort((a, b) => b.length - a.length);
+  if (!nombraAlguno(qn, u99)) return null;
+  // «pertussis like syndrome» (U99) contiene «pertussis» y «coqueluchoide» empieza por «coqueluche» (A37): se
+  // retiran las menciones de U99 antes de buscar A37.
+  const resto = u99.reduce((q, a) => q.replace(new RegExp(`(^| )${a}[a-z0-9]*`, 'g'), ' '), qn);
+  if (!nombraAlguno(resto, aliasDeRelease('tos_ferina_a37'))) return null;
+  if (!SUMA.test(qn) && !raw.includes('+')) return null;
+  const a37 = RELEASES.find((r) => r.id === 'tos_ferina_a37');
+  const u = RELEASES.find((r) => r.id === 'coqueluchoide_u99');
+  return `**${a37.etiqueta}** y **${u.etiqueta}** no se suman: son series distintas, cada una con su código CIE, ` +
+    'su propio conteo y su propio pronóstico congelado. El sitio no las combina ni las trata como equivalentes.\n\n' +
+    `Consulta cada una por separado («tos ferina en Jalisco», «coqueluchoide en Jalisco») o en su página: ` +
+    `[${a37.nombre}](../${a37.pagina}) y [${u.nombre}](../${u.pagina}).`;
+}
+
 // Contexto conversacional: entidades de la ultima pregunta exitosa
 let lastEntities = {};
 let _lastDistribMetric = null;   // {metric, label} de la ultima distribucion
@@ -5749,6 +5810,18 @@ async function _resolve(query) {
     lastEntities = {};
     trace.handler = 'answerCrisis';
     return { response: crisis, handler: trace.handler };
+  }
+  const d7 = guardaD7(query);
+  if (d7) {
+    lastEntities = {};
+    trace.handler = 'answerGuardaD7';
+    return { response: `${d7}\n<!--SIN_GRAFICA-->`, handler: trace.handler };
+  }
+  const suma = guardaSumaA37U99(query);
+  if (suma) {
+    lastEntities = {};
+    trace.handler = 'answerSumaSeriesDistintas';
+    return { response: `${suma}\n<!--SIN_GRAFICA-->`, handler: trace.handler };
   }
   // Un nombre genérico («otitis», «amebiasis») abarca más que el bloque publicado: se aclara y no se
   // dan cifras hasta que la consulta nombre el bloque.
