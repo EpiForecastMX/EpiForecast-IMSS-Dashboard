@@ -28,9 +28,24 @@ que terminaban dejando el checkout en una rama de trabajo.
 
 # Instrucciones para Claude Code
 
-## Checkpoint vigente — lote alta10b (publicado al fusionar y desplegar este cambio) — 12-nov-2026
+## Checkpoint vigente — lote alta20c (publicado al fusionar y desplegar este cambio) — 15-nov-2026
 
-Prevalece sobre la sección siguiente en cuanto a conteos. El sitio sirve 65 padecimientos: 4 del carril
+Prevalece sobre las secciones siguientes en cuanto a conteos. El sitio sirve 85 padecimientos: 4 del carril original
+y 81 releases del runner. Veinte se añadieron con alta20c: tres portafolios aceptados en su prueba única de 2025
+(fiebre paratifoidea, mal del pinto y vulvovaginitis; validación prospectiva 0/4 en curso) y diecisiete controles
+estacionales no validados por dictámenes delegados de Fable (delegación literal del autor del 15-nov; no son firma
+humana): brucelosis, fiebre reumática, bocio, hepatitis B, rotavirus, absceso hepático amebiano, leptospirosis,
+helmintiasis, desnutrición moderada y severa, enterobiasis, giardiasis, síndrome coqueluchoide, intoxicación por
+plaguicidas, tos ferina, síndrome meníngeo e intoxicación por monóxido de carbono. Guía en el backend:
+`docs/C7_17_ALTA20C.md`. Alcance del EpiBot: «meningitis» a secas pide precisar (el síndrome meníngeo es G00-G03
+excepto G00.0 y G00.1); coqueluchoide y tos ferina son series distintas (rezago impreso 0: origen W43, primer
+objetivo W44); plaguicidas y monóxido no distinguen intención y las consultas de riesgo personal reciben la respuesta
+de crisis sin cifras (`epibot/tests/test_alcance_controles5.mjs`). La función RAG lee fichas HTML: deben ir en
+`included_files` de `netlify.toml` (prueba `epibot/tests/test_rag_preview_aceptados3.mjs`).
+
+## Checkpoint — lote alta10b publicado — 12-nov-2026
+
+Historia: tras alta10b el sitio servía 65 padecimientos: 4 del carril
 original y 61 releases del runner. Diez se añadieron con el lote alta10b: cuatro portafolios aceptados en
 la prueba única de 2025 con la política de cinco motores (ascariasis, hepatitis vírica A, efectos del calor y
 de la luz, otras hepatitis víricas; validación prospectiva 0/4 en curso) y seis controles estacionales no
