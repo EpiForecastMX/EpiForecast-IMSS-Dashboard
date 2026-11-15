@@ -24,8 +24,8 @@ principal (`Congresos/Mundial/ESTADO_ACTUAL_WCP.md`); este README describe el si
 ### Contrato de cifras públicas
 
 Las cifras del carril original están **congeladas** y un gate las comprueba en cada despliegue.
-El build de Netlify corre, en orden, las pruebas del radar (`test:boletin`), las del contrato de
-cifras (`cifras:test`) y `npm run deploy:verify`. Éste comprueba primero la nota de picos heredados
+El build de Netlify (`command` de `netlify.toml`) corre, en orden, `test:dashboard`, `test:boletin`, `test:site`,
+las pruebas del EpiBot (`npm test` en `epibot/`), las del contrato de cifras (`cifras:test`) y `npm run deploy:verify`. Éste comprueba primero la nota de picos heredados
 de cada página de release (`picos_heredados.mjs --check`) y después ejecuta `cifras:verify` y
 `rag:ci`, ambos siempre, conservando sus códigos de salida.
 
@@ -54,7 +54,7 @@ clave.** Una vista nueva que imprima nombres tiene que importar `display.js`; `c
 
 Dashboard interactivo del proyecto **EpiForecast-MX**, desarrollado en colaboración entre el
 **Tecnológico de Monterrey** y el **Instituto Mexicano del Seguro Social (IMSS)**. Cubre
-**sesenta y cinco padecimientos**:
+**ochenta y cinco padecimientos**:
 
 - **Carril original (cuatro):** Depresión (F32), enfermedad de Parkinson (G20), enfermedad de
   Alzheimer (G30) y Dengue (A97). Los tres neurológicos son la cohorte de 333 modelos; Dengue tiene
@@ -95,7 +95,7 @@ epidemiológico.
 
 El componente principal del dashboard es **EpiBot** (`epibot/`), un asistente conversacional que
 responde con datos reales de los 333 modelos neurológicos, de **Dengue** (handler `answerDengue`,
-alimentado por la sección `dengue` de `knowledge.json`) y de los **cincuenta y un padecimientos del
+alimentado por la sección `dengue` de `knowledge.json`) y de los **ochenta y un padecimientos del
 runner**, cuyos alias, marcadores de gráfica y páginas salen de `js/release_catalog.js` y cuyas cifras
 salen de `publication/<id>/vista.json`.
 
@@ -183,7 +183,7 @@ npm run rag:verify         # falla si el índice está desincronizado del corpus
 ### Detección de entidades (entities.js)
 
 - **32 estados** y regiones con alias (CDMX, Edomex, etc.).
-- Los cuatro padecimientos originales y los alias y códigos CIE-10 de los cincuenta y un releases del
+- Los cuatro padecimientos originales y los alias y códigos CIE-10 de los ochenta y un releases del
   runner (`release_catalog.js`), comparados al inicio de palabra; los no modelados salen de la lista
   única `noModeladas`.
 - **Sexo** (hombres, mujeres, general) con variantes.
