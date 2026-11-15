@@ -86,7 +86,7 @@
       nombreCorto: 'Infecciones intestinales',
       etiqueta: 'Infecciones intestinales por otros organismos y las mal definidas (A04, A08-A09 excepto A08.0)',
       dataKey: 'intestinales_a04', marca: 'INTESTINALES_A04', pagina: 'intestinales_a04.html',
-      consulta: 'infecciones intestinales', cie: 'A04, A08-A09', color: '#38BDF8',
+      consulta: 'infecciones intestinales', cie: 'A04, A08.1-A08.5, A09', color: '#38BDF8',
       alias: ['infecciones intestinales', 'infeccion intestinal', 'infecciones gastrointestinales',
         'infeccion gastrointestinal', 'gastroenteritis', 'a04', 'a09', 'intestinal infections',
         'intestinal infection'],
@@ -519,7 +519,7 @@
       dataKey: 'otras_hepatitis_b17', marca: 'OTRAS_HEPATITIS_B17', pagina: 'otras_hepatitis_b17.html',
       consulta: 'otras hepatitis viricas', cie: 'B17.0, B17.2-B17.9, B18.0-B18.1, B18.8-B18.9, B19', color: '#4F46E5',
       // Incluye la hepatitis B crónica (B18.0-B18.1) y la D y E agudas (B17.0, B17.2); la B aguda (B16) es otro
-      // bloque del boletín, sin pronóstico.
+      // bloque del boletín, con su propio control estacional (hepatitis_b_b16).
       alias: ['otras hepatitis viricas', 'otras hepatitis virales', 'hepatitis virica d ', 'hepatitis virica e ',
         'hepatitis viral no especificada', 'b17 0', 'b17 2', 'b17 8', 'b17 9',
         'b18 0', 'b18 1', 'b18 8', 'b18 9', 'b19'],
@@ -582,6 +582,110 @@
       prefijos: ['displasia cervical severa', 'displasia cervical grave', 'displasia severa', 'displasia grave',
         'cacu in situ', 'severe cervical dysplasia'],
     },
+    // Controles estacionales de alta20c (15-nov-2026): rechazo de 2025 en el total nacional y publicación del control
+    // por un dictamen tomado bajo delegación del autor (controlDelegado), nunca validados.
+    {
+      id: 'brucelosis_a23', controlDelegado: true, pad: 'Brucelosis', nombre: 'Brucelosis', nombreCorto: 'Brucelosis',
+      etiqueta: 'Brucelosis (A23)', dataKey: 'brucelosis_a23', marca: 'BRUCELOSIS_A23', pagina: 'brucelosis_a23.html',
+      consulta: 'brucelosis', cie: 'A23', color: '#4D7C0F',
+      alias: ['brucelosis', 'fiebre de malta', 'fiebre ondulante', 'fiebre mediterranea', 'a23', 'brucellosis',
+        'malta fever', 'undulant fever'],
+      prefijos: ['brucelosis', 'fiebre de malta', 'fiebre ondulante', 'fiebre mediterranea', 'brucellosis'],
+    },
+    {
+      id: 'reumatica_i00', controlDelegado: true, pad: 'Fiebre reumática aguda', nombre: 'Fiebre reumática aguda', nombreCorto: 'Fiebre reumática',
+      etiqueta: 'Fiebre reumática aguda (I00-I02)', dataKey: 'reumatica_i00', marca: 'REUMATICA_I00',
+      pagina: 'reumatica_i00.html', consulta: 'fiebre reumatica aguda', cie: 'I00-I02', color: '#BE123C',
+      // La cardiopatía reumática crónica (I05-I09) tiene código propio y no está en este bloque.
+      alias: ['fiebre reumatica aguda', 'fiebre reumatica', 'corea de sydenham', 'i00', 'i01', 'i02',
+        'acute rheumatic fever', 'rheumatic fever'],
+      prefijos: ['fiebre reumatica', 'corea de sydenham', 'acute rheumatic fever', 'rheumatic fever'],
+    },
+    {
+      id: 'bocio_e01', controlDelegado: true, pad: 'Bocio endémico', nombre: 'Bocio endémico', nombreCorto: 'Bocio endémico',
+      etiqueta: 'Bocio endémico (E01)', dataKey: 'bocio_e01', marca: 'BOCIO_E01', pagina: 'bocio_e01.html',
+      consulta: 'bocio endemico', cie: 'E01', color: '#0F766E',
+      alias: ['bocio endemico', 'bocio por deficiencia de yodo', 'e01', 'endemic goiter', 'endemic goitre'],
+      prefijos: ['bocio endemico', 'bocio por deficiencia de yodo', 'endemic goiter', 'endemic goitre'],
+    },
+    {
+      id: 'hepatitis_b_b16', controlDelegado: true, pad: 'Hepatitis vírica B', nombre: 'Hepatitis vírica B', nombreCorto: 'Hepatitis B',
+      etiqueta: 'Hepatitis vírica B aguda (B16)', dataKey: 'hepatitis_b_b16', marca: 'HEPATITIS_B_B16',
+      pagina: 'hepatitis_b_b16.html', consulta: 'hepatitis virica b aguda', cie: 'B16', color: '#EA580C',
+      // Sólo la aguda (B16). La crónica (B18.0-B18.1) se cuenta dentro de otras hepatitis víricas; «hepatitis B» a
+      // secas pide precisar (ALIAS_AMBIGUOS).
+      alias: ['hepatitis virica b aguda', 'hepatitis virica b', 'b16', 'acute hepatitis b'],
+      prefijos: ['hepatitis virica b'],
+    },
+    {
+      id: 'rotavirus_a080', controlDelegado: true, pad: 'Enteritis debida a rotavirus', nombre: 'Enteritis debida a rotavirus',
+      nombreCorto: 'Rotavirus', etiqueta: 'Enteritis debida a rotavirus (A08.0)', dataKey: 'rotavirus_a080',
+      marca: 'ROTAVIRUS_A080', pagina: 'rotavirus_a080.html', consulta: 'enteritis por rotavirus', cie: 'A08.0',
+      color: '#B91C1C',
+      alias: ['enteritis debida a rotavirus', 'enteritis por rotavirus', 'rotavirus', 'a08 0', 'rotaviral enteritis'],
+      prefijos: ['enteritis debida a rotavirus', 'enteritis por rotavirus', 'rotavirus', 'rotaviral enteritis'],
+    },
+    {
+      id: 'absceso_hepatico_a064', controlDelegado: true, pad: 'Absceso hepático amebiano', nombre: 'Absceso hepático amebiano',
+      nombreCorto: 'Absceso hepático amebiano', etiqueta: 'Absceso hepático amebiano (A06.4)',
+      dataKey: 'absceso_hepatico_a064', marca: 'ABSCESO_HEPATICO_A064', pagina: 'absceso_hepatico_a064.html',
+      consulta: 'absceso hepatico amebiano', cie: 'A06.4', color: '#9A3412',
+      alias: ['absceso hepatico amebiano', 'absceso hepatico amibiano', 'absceso amebiano del higado',
+        'absceso amebiano hepatico', 'a06 4', 'amebic liver abscess', 'amoebic liver abscess'],
+      prefijos: ['absceso hepatico amebiano', 'absceso hepatico amibiano', 'absceso amebiano', 'amebic liver abscess',
+        'amoebic liver abscess'],
+    },
+    {
+      id: 'leptospirosis_a27', controlDelegado: true, pad: 'Leptospirosis', nombre: 'Leptospirosis', nombreCorto: 'Leptospirosis',
+      etiqueta: 'Leptospirosis (A27)', dataKey: 'leptospirosis_a27', marca: 'LEPTOSPIROSIS_A27',
+      pagina: 'leptospirosis_a27.html', consulta: 'leptospirosis', cie: 'A27', color: '#0E7490',
+      alias: ['leptospirosis', 'enfermedad de weil', 'a27', 'weil disease'],
+      prefijos: ['leptospirosis', 'enfermedad de weil', 'weil disease'],
+    },
+    {
+      id: 'helmintiasis_b65', controlDelegado: true, pad: 'Otras helmintiasis', nombre: 'Otras helmintiasis', nombreCorto: 'Otras helmintiasis',
+      etiqueta: 'Otras helmintiasis (B65-B67, B70-B76, B78, B79, B81-B83, excepto B73 y B75)',
+      dataKey: 'helmintiasis_b65', marca: 'HELMINTIASIS_B65', pagina: 'helmintiasis_b65.html',
+      consulta: 'otras helmintiasis', cie: 'B65-B67, B70-B72, B74, B76, B78-B79, B81-B83', color: '#65A30D',
+      // La ascariasis (B77) y la enterobiasis (B80) son bloques propios; «helmintiasis» o «lombrices» a secas piden precisar.
+      alias: ['otras helmintiasis', 'b65', 'b66', 'b67', 'b70', 'b71', 'b72', 'b74', 'b76', 'b78', 'b79', 'b81', 'b82', 'b83'],
+      prefijos: ['otras helmintiasis'],
+    },
+    {
+      id: 'desnutricion_moderada_e440', controlDelegado: true, pad: 'Desnutrición moderada', nombre: 'Desnutrición moderada',
+      nombreCorto: 'Desnutrición moderada', etiqueta: 'Desnutrición moderada (E44.0)',
+      dataKey: 'desnutricion_moderada_e440', marca: 'DESNUTRICION_MODERADA_E440', pagina: 'desnutricion_moderada_e440.html',
+      consulta: 'desnutricion moderada', cie: 'E44.0', color: '#B45309', controlEstatalPocoInformativo: true,
+      alias: ['desnutricion moderada', 'desnutricion grado moderado', 'desnutricion de grado moderado', 'e44 0',
+        'moderate malnutrition', 'moderate undernutrition'],
+      prefijos: ['desnutricion moderada', 'desnutricion grado moderado', 'moderate malnutrition', 'moderate undernutrition'],
+    },
+    {
+      id: 'desnutricion_severa_e40', controlDelegado: true, pad: 'Desnutrición severa', nombre: 'Desnutrición severa',
+      nombreCorto: 'Desnutrición severa', etiqueta: 'Desnutrición severa (E40-E43)',
+      dataKey: 'desnutricion_severa_e40', marca: 'DESNUTRICION_SEVERA_E40', pagina: 'desnutricion_severa_e40.html',
+      consulta: 'desnutricion severa', cie: 'E40-E43', color: '#92400E', controlEstatalPocoInformativo: true,
+      alias: ['desnutricion severa', 'desnutricion grave', 'desnutricion calorico proteica severa', 'kwashiorkor',
+        'marasmo', 'marasmus', 'e40', 'e41', 'e42', 'e43', 'severe malnutrition', 'severe undernutrition'],
+      prefijos: ['desnutricion severa', 'desnutricion grave', 'kwashiorkor', 'marasmo', 'marasmus', 'severe malnutrition',
+        'severe undernutrition'],
+    },
+    {
+      id: 'enterobiasis_b80', controlDelegado: true, pad: 'Enterobiasis', nombre: 'Enterobiasis', nombreCorto: 'Enterobiasis',
+      etiqueta: 'Enterobiasis (B80)', dataKey: 'enterobiasis_b80', marca: 'ENTEROBIASIS_B80',
+      pagina: 'enterobiasis_b80.html', consulta: 'enterobiasis', cie: 'B80', color: '#84CC16',
+      controlEstatalPocoInformativo: true,
+      alias: ['enterobiasis', 'oxiuriasis', 'oxiuros', 'b80', 'pinworm', 'pinworms'],
+      prefijos: ['enterobiasis', 'oxiuriasis', 'oxiuros', 'pinworm'],
+    },
+    {
+      id: 'giardiasis_a071', controlDelegado: true, pad: 'Giardiasis', nombre: 'Giardiasis', nombreCorto: 'Giardiasis',
+      etiqueta: 'Giardiasis (A07.1)', dataKey: 'giardiasis_a071', marca: 'GIARDIASIS_A071',
+      pagina: 'giardiasis_a071.html', consulta: 'giardiasis', cie: 'A07.1', color: '#BEF264',
+      controlEstatalPocoInformativo: true,
+      alias: ['giardiasis', 'giardia', 'lambliasis', 'a07 1', 'giardiosis'],
+      prefijos: ['giardiasis', 'giardia', 'lambliasis', 'giardiosis'],
+    },
   ]);
 
   /**
@@ -618,15 +722,15 @@
 
   /**
    * Seguimiento elíptico dentro de una familia con bloques hermanos: tras «hepatitis A en Jalisco», «¿y la C?»
-   * nombra la C, no hereda la A; tras desnutrición leve, «¿y la severa?» nombra la severa (sin pronóstico), y
+   * nombra la C, no hereda la A; tras desnutrición leve, «¿y la severa?» nombra la severa, y
    * tras una displasia, «¿y la severa?» o «¿y la leve?» nombra el bloque hermano.
    */
   const FAMILIAS = [
-    { pads: ['Hepatitis vírica A', 'Hepatitis vírica C', 'Otras hepatitis víricas'], ya: /hepatitis/,
+    { pads: ['Hepatitis vírica A', 'Hepatitis vírica B', 'Hepatitis vírica C', 'Otras hepatitis víricas'], ya: /hepatitis/,
       de: /\b(?:(?:la|el|tipo|de la) )?([abcde])\s*$/, a: ' hepatitis virica $1' },
-    { pads: ['Hepatitis vírica A', 'Hepatitis vírica C', 'Otras hepatitis víricas'], ya: /hepatitis/,
+    { pads: ['Hepatitis vírica A', 'Hepatitis vírica B', 'Hepatitis vírica C', 'Otras hepatitis víricas'], ya: /hepatitis/,
       de: /\b(?:las )?otras\s*$/, a: ' otras hepatitis viricas' },
-    { pads: ['Desnutrición leve'], ya: /desnutric|malnutri/, de: /\b(?:la )?(leve|moderada|severa|grave)\s*$/,
+    { pads: ['Desnutrición leve', 'Desnutrición moderada', 'Desnutrición severa'], ya: /desnutric|malnutri/, de: /\b(?:la )?(leve|moderada|severa|grave)\s*$/,
       a: ' desnutricion $1' },
     { pads: ['Displasia cervical leve y moderada', 'Displasia cervical severa y CaCu in situ'], ya: /displasia/,
       de: /\b(?:la )?(leve|moderada|severa|grave)\s*$/, a: ' displasia cervical $1' },
@@ -670,6 +774,13 @@
     // Salmonella Typhi causa la fiebre tifoidea (A01.0) y Paratyphi la paratifoidea (A01.1-A01.4), no el bloque A02.
     [/\bsalmonell?a (enterica )?(serovar )?typhi\b|\bs typhi\b/g, 'fiebre tifoidea'],
     [/\bsalmonell?a (enterica )?(serovar )?paratyphi\b|\bs paratyphi\b/g, 'paratifoidea'],
+    // La gastroenteritis o diarrea por rotavirus es el bloque A08.0, no el de infecciones intestinales (A04, A08-A09).
+    [/\b(gastro ?enteritis|diarreas?|infecci(on|ones) intestinal(es)?|infecci(on|ones) gastrointestinal(es)?) (debidas? a|por) (el )?rotavirus\b|\brotavirus (gastroenteritis|diarrhea|diarrhoea)\b/g,
+      'enteritis por rotavirus'],
+    // La amebiasis del hígado es el absceso hepático amebiano (A06.4), con bloque propio fuera de la intestinal.
+    [/\b(amebiasis|amibiasis|amoebiasis)( del| de)? (hepatica|higado)\b|\bhepatic (amebiasis|amoebiasis)\b/g, 'absceso hepatico amebiano'],
+    // «a06» es alias de la amebiasis intestinal y captaría «a06.4»: el código del absceso se nombra por su bloque.
+    [/\ba06(\.4|4| 4(?! ?(semanas?|sem|dias?|meses|mes|anos?|weeks?|days?|months?|years?)\b))\b/g, 'absceso hepatico amebiano'],
     // El cáncer cervicouterino in situ (D06) es parte del bloque de displasia severa, no del C53 invasor.
     [/\b(cancer|carcinoma|ca|tumor|neoplasia)( maligno| maligna)?( de| del)?( cuello( del)? (utero|uterino)| cervicouterino| cervical| cervix)( in situ)\b|\b(cancer|carcinoma|tumor|neoplasia)( maligno| maligna)? in situ( de| del)?( cuello( del)? (utero|uterino)| cervicouterino| cervical| cervix)\b|\bcervical carcinoma in situ\b/g,
       'cacu in situ'],
@@ -737,10 +848,8 @@
     'linfoma', 'tumor', 'neoplasia', 'cardiopatia congenita', 'cardiopatia', 'infarto',
     'ataque al corazon', 'ataque cardiaco',
     'embolia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
-    // Fuera de los bloques A04, A08-A09 y A06: rotavirus es A08.0 y las demás tienen código propio.
-    'rotavirus', 'giardiasis', 'paratifoidea', 'paratyphoid',
-    // Rechazados en 2025 del lote alta10b, sin control autorizado, y términos que abarcan varios helmintos.
-    'helmintiasis', 'enterobiasis', 'oxiuriasis', 'oxiuros',
+    // Fuera de A01.0: la paratifoidea tiene código propio y no se pronostica.
+    'paratifoidea', 'paratyphoid',
     'lupus', 'fibromialgia', 'esclerosis', 'huntington', 'ela ',
     'insuficiencia renal', 'insuficiencia cardiaca',
     // En inglés: sin esto, «epilepsy in jalisco» caería en la tabla neuro del estado.
@@ -787,12 +896,10 @@
   // transporte: «obesidad en ciclistas» o «asma en peatones» no preguntan por V01-V19.
   const TRANSPORTE = /\b(accident\w*|atropell\w*|lesion\w*|choques?|colision\w*|transporte|transito|trafico|vial(es)?|crash\w*|collision\w*|injur\w*|traffic|v[0-9][0-9])\b/;
   const SUBTIPOS_AJENOS = [
-    [subcodigo('a06', '4-8'), 'absceso hepatico amebiano',
-      'absceso hepático amebiano (A06.4) ni otras amebiasis fuera del intestino (A06.5-A06.8)', 'amebiasis_a06'],
-    [/\babscesos? (hepaticos?|amebianos?)\b|\b(amebic |amoebic )?liver abscess\b/, 'absceso hepatico amebiano',
-      'absceso hepático amebiano (A06.4)', 'amebiasis_a06'],
-    [/\b(amebiasis|amibiasis|amoebiasis|amebic|amoebic)( (del|de|en el|en la|of the))? (extraintestinal|cutanea|pulmonar|cerebral|hepatica|higado|liver|hepatic|skin|lung|brain)\b|\bextraintestinal (amebiasis|amibiasis|amoebiasis)\b/,
-      'amebiasis extraintestinal', 'amebiasis fuera del intestino (A06.4-A06.8)', 'amebiasis_a06'],
+    [subcodigo('a06', '5-8'), 'otra amebiasis extraintestinal',
+      'otras amebiasis fuera del intestino (A06.5-A06.8)', 'amebiasis_a06'],
+    [/\b(amebiasis|amibiasis|amoebiasis|amebic|amoebic)( (del|de|en el|en la|of the))? (extraintestinal|cutanea|pulmonar|cerebral|skin|lung|brain)\b|\bextraintestinal (amebiasis|amibiasis|amoebiasis)\b/,
+      'otra amebiasis extraintestinal', 'otras amebiasis fuera del intestino (A06.5-A06.8)', 'amebiasis_a06'],
     [subcodigo('h65', '2-9'), 'otitis media cronica', 'otitis media crónica (H65.2-H65.9)', 'otitis_h65'],
     [/\bh66\b|\botitis( [a-z]+){0,3} (no aguda|cronic[ao]s?|chronic|supurativ[ao]s?|suppurative|purulent[ao]s?|purulent)\b|\b(chronic|suppurative|purulent) otitis\b/,
       'otitis media cronica o supurativa',
@@ -816,25 +923,23 @@
     [/\bdiabetes( mellitus)? (pregestacional|preexistente|previa)\b|\bdiabetes( mellitus)? (tipo|type) ?(1|2|i|ii|uno|dos|one|two)\b.*\b(embaraz|gestac|pregnan)|\b(embaraz|gestac|pregnan)[a-z]* .*\bdiabetes( mellitus)? (tipo|type) ?(1|2|i|ii|uno|dos|one|two)\b/,
       'diabetes preexistente en el embarazo', 'diabetes preexistente en el embarazo (O24.0-O24.3)', 'embarazo_diabetes_o24'],
     [/\berisipeloide\b|\ba26\b|\berysipeloid\b/, 'erisipeloide', 'erisipeloide (A26)', 'erisipela_a46'],
-    // Subtipos con código propio fuera de los bloques de los diez controles (12-nov-2026).
-    [/\bgiardi[a-z]*\b|\blambliasis\b|\bisosporiasis\b|\bciclosporiasis\b|\btricomoniasis intestinal\b/,
-      'giardiasis u otra protozoosis intestinal con codigo propio',
-      'giardiasis (A07.1) ni otras protozoosis intestinales con código propio (A07.3, A07.8)', 'protozoarios_a07'],
-    [subcodigo('a07', '138'), 'giardiasis u otra protozoosis intestinal con codigo propio',
-      'giardiasis (A07.1) ni otras protozoosis intestinales con código propio (A07.3, A07.8)', 'protozoarios_a07'],
+    // Subtipos con código propio fuera de los bloques de los diez controles (12-nov-2026). La giardiasis (A07.1)
+    // tiene su propio control desde alta20c (15-nov-2026).
+    [/\bisosporiasis\b|\bciclosporiasis\b|\btricomoniasis intestinal\b/,
+      'otra protozoosis intestinal con codigo propio',
+      'otras protozoosis intestinales con código propio (A07.3, A07.8)', 'protozoarios_a07'],
+    [subcodigo('a07', '38'), 'otra protozoosis intestinal con codigo propio',
+      'otras protozoosis intestinales con código propio (A07.3, A07.8)', 'protozoarios_a07'],
     [/\bfaringitis( aguda)? (viral(es)?|no estreptococic[ao]s?|por virus|bacteriana no estreptococica)\b|\bviral pharyngitis\b/,
       'faringitis no estreptococica', 'faringitis aguda no estreptocócica (J02.8-J02.9)', 'faringitis_j02'],
     [subcodigo('j02', '89'), 'faringitis no estreptococica', 'faringitis aguda no estreptocócica (J02.8-J02.9)',
       'faringitis_j02'],
     [subcodigo('n87', '9'), 'displasia cervical no especificada', 'displasia cervical no especificada (N87.9)',
       'displasia_leve_n87'],
-    // Subtipos con código propio vecinos de los seis controles de alta10b (12-nov-2026).
-    [/\bdesnutricion( [a-z]+){0,2} (moderada|severa|grave|calorico proteica severa)\b|\bkwashiorkor\b|\bmarasmo\b|\bmarasmus\b|\b(moderate|severe) (malnutrition|undernutrition)\b/,
-      'desnutricion moderada o severa', 'desnutrición moderada (E44.0) ni severa (E40-E43)', 'desnutricion_leve_e441'],
-    [subcodigo('e44', '0'), 'desnutricion moderada o severa', 'desnutrición moderada (E44.0)', 'desnutricion_leve_e441'],
+    // Subtipos con código propio vecinos de los seis controles de alta10b (12-nov-2026). La desnutrición moderada y
+    // la severa tienen su propio control desde alta20c (15-nov-2026).
     [/\bparatifoid[a-z]*\b|\bparatyphoid\b/, 'paratifoidea', 'fiebre paratifoidea (A01.1-A01.4)', 'tifoidea_a01'],
     [subcodigo('a01', '1-4'), 'paratifoidea', 'fiebre paratifoidea (A01.1-A01.4)', 'tifoidea_a01'],
-    [/\bhepatitis virica b\b(?! cronica)(?!.*\b(cronica|b18))|\bb16\b/, 'hepatitis virica b aguda', 'hepatitis vírica B aguda (B16)', 'otras_hepatitis_b17'],
     [/\bparvovirus\b|\beritema infeccioso\b|\bquinta enfermedad\b/, 'parvovirus b19',
       'infección por parvovirus B19 (B08.3, B34.3), que no es una hepatitis', 'otras_hepatitis_b17'],
     [/\bhepatitis (alcoholica|autoinmune|toxica|medicamentosa|alcoholic|autoimmune|toxic|drug induced)\b|\bk7[0-5]\b/,
@@ -939,7 +1044,7 @@
     { release: 'ivp_i87', generico: /\bi87\b(?![ .]?[0-9])/, especifico: /(?!)/,
       abarca: '«I87» abarca otras enfermedades de las venas con código propio, como el síndrome postrombótico (I87.0) y la compresión de vena (I87.1).' },
     { release: 'protozoarios_a07', generico: /\bprotozoosis intestinal\b|\ba07\b(?![ .][0-9])/, especifico: /(?!)/,
-      abarca: '«Infecciones intestinales por protozoarios» abarca la giardiasis (A07.1) y otras protozoosis con código propio, que el boletín reporta aparte.' },
+      abarca: '«Infecciones intestinales por protozoarios» abarca la giardiasis (A07.1), con su propio control estacional, y otras protozoosis con código propio (A07.3, A07.8), que el boletín reporta aparte.' },
     { release: 'faringitis_j02', generico: /\b(faringitis|amigdalitis|faringoamigdalitis|anginas|j02|j03)\b/,
       especifico: new RegExp(`\\b(faringitis|amigdalitis|faringoamigdalitis)( y amigdalitis)? (estreptococic[ao]s?|por estreptococos?)\\b|${subcodigo('j02', '0').source}|${subcodigo('j03', '0').source}`),
       abarca: '«Faringitis» o «amigdalitis» abarcan formas virales y no estreptocócicas con otro código: la faringitis no estreptocócica (J02.8-J02.9) no está en ningún bloque publicado y la amigdalitis no estreptocócica (J03.8-J03.9) se cuenta dentro de las infecciones respiratorias agudas.' },
@@ -951,25 +1056,39 @@
       abarca: '«Displasia cervical» abarca dos bloques publicados con su propio pronóstico: la leve y moderada (N87.0-N87.1) y la severa con el cáncer cervicouterino in situ (N87.2, D06).' },
     { release: 'tifoidea_a01', generico: /\ba01\b(?![ .]?[0-9])/, especifico: /(?!)/,
       abarca: '«A01» abarca la fiebre tifoidea (A01.0) y la paratifoidea (A01.1-A01.4), que no se pronostica.' },
-    { release: 'ascariasis_b77', generico: /\b(lombri(z|ces)|gusanos( intestinales)?|parasitos intestinales|parasitosis intestinal(es)?)\b/,
-      especifico: /\b(ascariasis|ascaridiasis|ascaris|b77)\b/,
-      abarca: '«Lombrices» o «parásitos intestinales» abarcan varias parasitosis con código propio (enterobiasis, giardiasis y otras helmintiasis), que no se pronostican.' },
-    { release: 'desnutricion_leve_e441', generico: /\b(desnutricion|malnutrition|undernutrition|e4[0-6])\b/,
-      especifico: new RegExp(`\\bdesnutricion( de)?( grado)? leve\\b|\\bmild (malnutrition|undernutrition)\\b|${subcodigo('e44', '1').source}`),
-      abarca: '«Desnutrición» abarca la moderada (E44.0) y la severa (E40-E43), que el boletín reporta aparte y no se pronostican.' },
-    { release: null, bloques: ['hepatitis_a_b15', 'hepatitis_c_b17', 'otras_hepatitis_b17'],
+    // Varios helmintos con bloque propio: ambiguo si no nombra exactamente uno de los tres.
+    { release: null, bloques: ['ascariasis_b77', 'enterobiasis_b80', 'helmintiasis_b65'],
+      generico: /\b(lombri(z|ces)|gusanos( intestinales)?|parasitos intestinales|parasitosis intestinal(es)?|helmint[a-z]*|geohelmint[a-z]*)\b/,
+      especifico: /(?!)/,
+      abarca: '«Lombrices», «helmintiasis» o «parásitos intestinales» abarcan varios bloques del boletín con código propio. Se publican tres: la ascariasis (B77), la enterobiasis (B80) y otras helmintiasis (B65-B67, B70-B76, B78, B79, B81-B83, excepto B73 y B75); los parásitos intestinales incluyen además protozoarios como la amebiasis y la giardiasis.' },
+    { release: null, bloques: ['desnutricion_leve_e441', 'desnutricion_moderada_e440', 'desnutricion_severa_e40'],
+      generico: /\b(desnutricion|malnutrition|undernutrition|e4[0-6])\b/,
+      especifico: /(?!)/,
+      abarca: '«Desnutrición» abarca tres bloques del boletín, cada uno con su propio control estacional: la leve (E44.1), la moderada (E44.0) y la severa (E40-E43).' },
+    { release: null, bloques: ['hepatitis_a_b15', 'hepatitis_b_b16', 'hepatitis_c_b17', 'otras_hepatitis_b17'],
       generico: /\bhepatitis( viricas?| virales?| viral)?\b(?! virica [abcde]\b)|\bb1[78]\b(?![ .]?[0-9])/,
       especifico: /\botras hepatitis (viricas|virales)\b|\bhepatitis (alcoholica|autoinmune|toxica|medicamentosa)\b/,
-      abarca: '«Hepatitis» abarca varios bloques del boletín con código propio. Se pronostican tres: la hepatitis vírica A (B15), la C (B17.1, B18.2) y las otras hepatitis víricas (B17-B19, excepto B17.1 y B18.2); la hepatitis vírica B aguda (B16) no se pronostica.' },
+      abarca: '«Hepatitis» abarca varios bloques del boletín con código propio. Se pronostican cuatro: la hepatitis vírica A (B15), la B aguda (B16), la C (B17.1, B18.2) y las otras hepatitis víricas (B17-B19, excepto B17.1 y B18.2).' },
+    // «Hepatitis B» sin decir aguda ni crónica: la aguda (B16) y la crónica (B18.0-B18.1, dentro de otras hepatitis
+    // víricas) son bloques distintos.
+    { release: 'hepatitis_b_b16', otro: 'otras_hepatitis_b17', generico: /\bhepatitis virica b\b/, especifico: /(?!)/,
+      uno: /\b(aguda|acute)\b|\bb16\b/, otroEsp: /\bcronica\b|\bb18[ .]?[01]\b/,
+      abarca: '«Hepatitis B» abarca la aguda (B16), con su propio control estacional, y la crónica (B18.0-B18.1), que se cuenta dentro de las otras hepatitis víricas.' },
+    { release: 'bocio_e01', generico: /\b(bocio|goiter|goitre)\b/,
+      especifico: /\bbocio endemico\b|\bendemic goit(er|re)\b|\be01\b|\bdeficiencia de yodo\b|\biodine deficiency\b/,
+      abarca: '«Bocio» abarca formas con código propio fuera de E01, como el bocio no tóxico (E04) y el tóxico (E05), que no se pronostican.' },
+    { release: 'absceso_hepatico_a064', generico: /\babscesos? (hepaticos?|del higado)\b|\bliver abscess\b/,
+      especifico: /\b(amebian[oa]s?|amibian[oa]s?|amebic|amoebic)\b|\ba06[ .]?4\b/,
+      abarca: '«Absceso hepático» abarca el absceso del hígado no amebiano, piógeno o bacteriano (K75.0), con código propio fuera de A06.4.' },
     { release: 'candidiasis_b37', generico: /\b(candidiasis|candida|candidosis|moniliasis|b37)\b/,
       especifico: new RegExp(`\\b(candidiasis|candida|candidosis|moniliasis) (urogenital|vaginal|vulvovaginal|genital|de vulva|de la vulva)\\b|\\b(urogenital|vaginal|vulvovaginal|genital) candidiasis\\b|${subcodigo('b37', '34').source}`),
       abarca: '«Candidiasis» abarca varias localizaciones con código propio: la oral, la cutánea, la esofágica y la sistémica (B37.0-B37.2, B37.5-B37.9).' },
     { release: 'otitis_h65', generico: /\b(otitis|h65)\b/,
       especifico: new RegExp(`\\botitis media aguda\\b|\\bacute otitis media\\b|${subcodigo('h65', '01').source}`),
       abarca: '«Otitis» abarca varias categorías con código propio: la externa (H60), la media crónica (H65.2-H65.9) y la supurativa (H66).' },
-    { release: 'amebiasis_a06', generico: /\b(amebiasis|amibiasis|amoebiasis|a06)\b/,
+    { release: 'amebiasis_a06', generico: new RegExp(`\\b(amebiasis|amibiasis|amoebiasis)\\b|\\ba06\\b(?!\\.[0-9]|[0-9]| [0-9]${NO_UNIDAD})`),
       especifico: new RegExp(`\\b(amebiasis|amibiasis|amoebiasis) intestinal\\b|\\bintestinal (amebiasis|amoebiasis)\\b|\\bdisenteria amebiana\\b|\\bamebic dysentery\\b|${subcodigo('a06', '0-39').source}`),
-      abarca: '«Amebiasis» incluye formas fuera del intestino: el absceso hepático amebiano (A06.4) y otras amebiasis extraintestinales (A06.5-A06.8).' },
+      abarca: '«Amebiasis» incluye formas fuera del intestino: el absceso hepático amebiano (A06.4), con su propio control estacional, y otras amebiasis extraintestinales (A06.5-A06.8).' },
   ];
 
   /**
@@ -978,7 +1097,7 @@
    */
   const ACLARACIONES = [
     { release: 'otras_hepatitis_b17', re: /\bhepatitis virica b cronica\b|\bhepatitis virica b\b.*\bb18[ .]?[01]\b/,
-      abarca: 'La hepatitis B crónica (B18.0-B18.1) se cuenta dentro de las otras hepatitis víricas, sin una serie propia; la hepatitis B aguda (B16) no se pronostica.' },
+      abarca: 'La hepatitis B crónica (B18.0-B18.1) se cuenta dentro de las otras hepatitis víricas, sin una serie propia; la hepatitis B aguda (B16) es otro bloque, con su propio control estacional («hepatitis virica b aguda»).' },
     { release: 'varicela_b01', re: /\b(varicela zoster|virus (de la )?varicela|vzv|varicella zoster)\b/,
       abarca: '«Varicela zóster» es el nombre del virus, que causa la varicela (B01) y el herpes zóster (B02); el término no dice cuál de las dos.' },
     { release: 'ira_j00', re: /\b(amigdalitis|tonsillitis)( aguda)? (viral(es)?|no estreptococic[ao]s?|por virus)\b|\bviral tonsillitis\b|\bj03[ .]?[89]\b/,
@@ -988,9 +1107,10 @@
   /** Aclaración ante un nombre genérico que no basta para elegir el bloque publicado, o null. */
   function aliasAmbiguo(qn) {
     const canon = canonClinico(String(qn).replace(/[^a-z0-9. ]+/g, ' ').replace(/\s+/g, ' '));
-    const contradiccion = contradiccionCie(canon);
-    if (contradiccion) return { release: null, pad: null, texto: contradiccion };
+    // Una aclaración («hepatitis B crónica B18.1») explica mejor que la contradicción entre nombre y código.
     const previa = ACLARACIONES.find((a) => a.re.test(canon));
+    const contradiccion = previa ? null : contradiccionCie(canon);
+    if (contradiccion) return { release: null, pad: null, texto: contradiccion };
     const hitPrevio = previa ? { release: previa.release, abarca: previa.abarca } : null;
     if (!hitPrevio && subtipoAjeno(qn)) return null;
     const nombrados = (a) => a.bloques.filter((id) => releases.find((r) => r.id === id).alias

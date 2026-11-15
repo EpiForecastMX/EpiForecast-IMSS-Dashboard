@@ -55,10 +55,11 @@ test('un no modelado con entidad da las cifras impresas del cuadro, sin pronóst
   assert.match(r.md, /<!--SIN_GRAFICA-->/);
 });
 
-test('sin handler previo: «casos de brucelosis» ya no queda sin respuesta', async () => {
-  const r = await conversa('casos de brucelosis');
+// Brucelosis tiene su propio control desde alta20c (15-nov-2026); triquinosis sigue sin modelarse.
+test('sin handler previo: «casos de triquinosis» ya no queda sin respuesta', async () => {
+  const r = await conversa('casos de triquinosis');
   assert.equal(r.handler, 'answerRadarBoletin');
-  assert.match(r.md, new RegExp(es(por('Brucelosis').cumulative)));
+  assert.match(r.md, new RegExp(es(por('Triquinosis').cumulative)));
 });
 
 test('Covid-19 dice que se rechazó y remite a rechazados', async () => {
@@ -115,7 +116,7 @@ test('el seguimiento de un no modelado no cae en la tabla neuro', async () => {
   const r = await conversa('vih en veracruz', 'y en puebla?');
   assert.equal(r.handler, 'answerRadarBoletin');
   assert.match(r.md, /\*\*Puebla\*\*/);
-  const s = await conversa('depresion en sonora', 'y brucelosis?');
+  const s = await conversa('depresion en sonora', 'y triquinosis?');
   assert.equal(s.handler, 'answerRadarBoletin');
   assert.doesNotMatch(s.md, /Depresion/);
 });

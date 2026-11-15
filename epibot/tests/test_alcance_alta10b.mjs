@@ -82,10 +82,10 @@ test('sin sexo: la displasia severa no ofrece desglose por sexo', async () => {
 });
 
 // Subtipos con código propio o categorías vecinas sin pronóstico.
+// La hepatitis B aguda (B16) y la desnutrición moderada y severa tienen su propio control desde alta20c
+// (test_alcance_controles12.mjs).
 const AJENOS = [
-  'hepatitis B en Jalisco', 'B16 en Sonora', 'hepatitis alcohólica en Jalisco', 'fiebre paratifoidea en Sonora',
-  'A01.2 en Jalisco', 'desnutrición moderada en Jalisco', 'desnutrición severa en Sonora', 'kwashiorkor en Chiapas',
-  'E44.0 en Jalisco', 'N87.9 en Jalisco',
+  'hepatitis alcohólica en Jalisco', 'fiebre paratifoidea en Sonora', 'A01.2 en Jalisco', 'N87.9 en Jalisco',
 ];
 for (const q of AJENOS) {
   test(`fuera del bloque: «${q}» no recibe cifras`, async () => {
@@ -117,9 +117,9 @@ for (const q of ['hepatitis en Sonora', 'hepatitis aguda en Jalisco', 'hepatitis
   });
 }
 
-// Rechazados en 2025 sin control autorizado y candidatos no abiertos: siguen sin cifras.
-for (const q of ['helmintiasis en Jalisco', 'enterobiasis en Sonora', 'giardiasis en Jalisco', 'lombrices en Chiapas',
-  'brucelosis en Sonora', 'leptospirosis en Veracruz']) {
+// Términos que abarcan varios helmintos: siguen sin cifras (piden precisar). Enterobiasis, giardiasis, brucelosis y
+// leptospirosis tienen su propio control desde alta20c (test_alcance_controles12.mjs).
+for (const q of ['helmintiasis en Jalisco', 'lombrices en Chiapas']) {
   test(`no publicado: «${q}» no recibe cifras`, async () => {
     SIN_CIFRAS((await pregunta(q)).md, q);
   });
@@ -132,7 +132,7 @@ async function postRag(query) {
   }));
   return { status: res.status, body: await res.json() };
 }
-for (const q of ['hepatitis B en Jalisco', 'desnutrición moderada en Jalisco', 'fiebre paratifoidea en Sonora']) {
+for (const q of ['hepatitis B en Jalisco', 'fiebre paratifoidea en Sonora']) {
   test(`RAG real: «${q}» responde sin modelo ni cifras`, async () => {
     const { status, body } = await postRag(q);
     assert.equal(status, 200);
@@ -195,7 +195,7 @@ test('M3: el seguimiento elíptico nombra el bloque hermano y no hereda el anter
   SIN_CIFRAS(b.md, 'y la B');
   const sev = await conversa('desnutrición leve en Jalisco', '¿y la severa?');
   assert.doesNotMatch(sev.md, /DESNUTRICION_LEVE_E441/);
-  SIN_CIFRAS(sev.md, 'y la severa (desnutrición)');
+  assert.match(sev.md, /DESNUTRICION_SEVERA_E40/);
   const dis = await conversa('displasia cervical leve en Jalisco', '¿y la severa?');
   assert.match(dis.md, /DISPLASIA_SEVERA_N87/);
   assert.doesNotMatch(dis.md, /DISPLASIA_LEVE_N87/);

@@ -304,7 +304,7 @@ function estadoDeControl(query, leerVista) {
   const emitido = civil ? `, emitido el ${civil.day} de ${MESES_RAG[civil.month - 1]} de ${civil.year} (hora de Ciudad de México)` : '';
   const answer = `**${v.nombre_completo || r.etiqueta}: control estacional, no validado.** Lo publicado repite los ` +
     `casos de 52 semanas antes. El portafolio de modelos seleccionado se rechazó en la prueba de ${anio} porque ` +
-    `empeoraba ${lista(fallas)}, y por autorización del autor se publica el control estacional; el rechazado fue el ` +
+    `empeoraba ${lista(fallas)}, y ${r.controlDelegado ? 'por un dictamen tomado bajo delegación del autor' : 'por autorización del autor'} se publica el control estacional; el rechazado fue el ` +
     `portafolio, no el control. No tiene una validación prospectiva que superar: compararlo consigo mismo no ` +
     `demostraría nada, y sólo se registrará su error con cada boletín (${v.weeks_available ?? 0} de ${v.weeks_required ?? 4} semanas registradas).\n\n` +
     `Error del control en la prueba de ${anio} (sMAPE): ${lista(errores)}.${aviso}\n\n` +

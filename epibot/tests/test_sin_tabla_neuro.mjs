@@ -114,7 +114,7 @@ test('términos coloquiales: radar si la categoría es inequívoca, sin cifras a
   const transito = await conversa('accidentes de transito en sonora');
   sinSeriesAjenas(transito, 'accidentes de transito en sonora');
   assert.doesNotMatch(transito.md, /VEHICULOS_V20|PEATON_V01|casos pronosticados/);
-  assert.equal((await conversa('brucelosis en sonora')).handler, 'answerRadarBoletin');
+  assert.equal((await conversa('triquinosis en sonora')).handler, 'answerRadarBoletin');
   assert.equal((await conversa('intoxicacion por alcohol en jalisco')).handler, 'answerRadarBoletin');
   for (const q of ['embarazo adolescente en jalisco', 'alcoholismo en jalisco', 'cuantos casos de alcoholismo hubo']) {
     const r = await conversa(q);

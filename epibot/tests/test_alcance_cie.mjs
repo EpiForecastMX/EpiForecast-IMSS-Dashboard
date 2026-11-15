@@ -35,12 +35,13 @@ const VECINO = {
 };
 
 const NEGATIVOS = [
-  ['pronostico de A06.4 en Jalisco', VECINO.amebiasis],
+  // A06.4 (absceso hepático amebiano) tiene su propio control desde alta20c: va en POSITIVOS.
+  ['pronostico de A06.5 en Jalisco', VECINO.amebiasis],
   ['pronóstico de A06.5 en Oaxaca', VECINO.amebiasis],
   ['casos de A06.6', VECINO.amebiasis],
   ['A06.7 en Chiapas', VECINO.amebiasis],
   ['a06 8 en sonora', VECINO.amebiasis],
-  ['absceso hepático amebiano en Oaxaca', VECINO.amebiasis],
+  ['amebiasis cutánea en Oaxaca', VECINO.amebiasis],
   ['amebiasis extraintestinal en jalisco', VECINO.amebiasis],
   ['pronostico de H65.2 en Jalisco', VECINO.otitis],
   ['H65.3 en Sonora', VECINO.otitis],
@@ -59,10 +60,10 @@ const NEGATIVOS = [
   ['accidente de transporte V15 en Jalisco', VECINO.vehiculos],
   ['V85 en Jalisco', VECINO.vehiculos],
   // Segunda revisión de Fable (12-nov-2026): variantes que recibían cifras del bloque vecino.
-  ['amibiasis hepática en Oaxaca', VECINO.amebiasis],
+  ['amebiasis pulmonar en Oaxaca', VECINO.amebiasis],
   ['amibiasis extraintestinal en Jalisco', VECINO.amebiasis],
-  ['amoebiasis hepática en Oaxaca', VECINO.amebiasis],
-  ['amebiasis del hígado en Oaxaca', VECINO.amebiasis],
+  ['amibiasis cerebral en Oaxaca', VECINO.amebiasis],
+  ['amoebiasis cutánea en Jalisco', VECINO.amebiasis],
   ['otitis supurativa en Jalisco', VECINO.otitis],
   ['otitis media aguda supurativa en Jalisco', VECINO.otitis],
   ['otitis purulenta en Jalisco', VECINO.otitis],
@@ -101,6 +102,12 @@ const POSITIVOS = [
   ['A06.3 en Oaxaca', /AMEBIASIS_A06/],
   ['A06.9 en Oaxaca', /AMEBIASIS_A06/],
   ['amebiasis intestinal en Oaxaca', /AMEBIASIS_A06/],
+  // Absceso hepático amebiano (A06.4): bloque propio con su control estacional desde alta20c (15-nov-2026).
+  ['pronostico de A06.4 en Jalisco', /ABSCESO_HEPATICO_A064/],
+  ['absceso hepático amebiano en Oaxaca', /ABSCESO_HEPATICO_A064/],
+  ['amibiasis hepática en Oaxaca', /ABSCESO_HEPATICO_A064/],
+  ['amoebiasis hepática en Oaxaca', /ABSCESO_HEPATICO_A064/],
+  ['amebiasis del hígado en Oaxaca', /ABSCESO_HEPATICO_A064/],
   ['H65.0 en Jalisco', /OTITIS_H65/],
   ['H65.1 en Jalisco mujeres', /OTITIS_H65/],
   ['otitis media aguda en Jalisco', /OTITIS_H65/],

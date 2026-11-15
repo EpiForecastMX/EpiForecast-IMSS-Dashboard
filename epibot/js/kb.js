@@ -6,12 +6,12 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=58';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=59';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=4';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=30';
-import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, RELEASES, releaseDePad, respuestaCrisis, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=24';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=31';
+import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, RELEASES, releaseDePad, respuestaCrisis, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=25';
 
 let DATA = null;
 
@@ -622,7 +622,6 @@ const ROTULO_NO_MODELADA = {
   'hipertension portal': 'hipertensión portal', 'hipertension intracraneal': 'hipertensión intracraneal',
   'hipertension ocular': 'hipertensión ocular',
   'conjuntivitis hemorragica': 'conjuntivitis epidémica aguda hemorrágica (B30.3)',
-  'absceso hepatico amebiano': 'absceso hepático amebiano (A06.4)',
   'peaton lesionado': 'peatón lesionado en accidente de transporte (V01-V09)',
   'otitis externa': 'otitis externa o crónica',
 };
@@ -5766,6 +5765,13 @@ async function _resolve(query) {
   // El seguimiento reescrito por familia («¿y la C?» → «y hepatitis virica c») nombra un bloque publicado:
   // la búsqueda del radar por primera palabra («hepatitis» → hepatitis B, sin publicar) no lo vuelve no modelado.
   const viaFamilia = q !== qBase;
+  // El bloque hermano nombrado por familia puede ser a su vez genérico («¿y la B?» tras hepatitis A: aguda o crónica).
+  const ambiguoFamilia = viaFamilia ? aliasAmbiguo(q) : null;
+  if (ambiguoFamilia) {
+    lastEntities = {};
+    trace.handler = 'answerAliasAmbiguo';
+    return { response: `${ambiguoFamilia.texto}\n<!--SIN_GRAFICA-->`, handler: trace.handler };
+  }
   const ent = detectEntities(q === norm(query) ? query : q);
 
   // Guard: prompt injection / roleplay → rechazar inmediatamente

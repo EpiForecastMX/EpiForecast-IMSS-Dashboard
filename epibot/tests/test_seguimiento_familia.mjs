@@ -49,9 +49,11 @@ test('displasia leve en Jalisco → «¿y la severa?» conserva el estado (bloqu
   assert.match(md, /DISPLASIA_SEVERA_N87:\{"tipo":"serie","estado":"Jalisco"/);
 });
 
-test('desnutrición leve → «¿y la severa?» no da cifras de un bloque sin pronóstico', async () => {
+// Desde alta20c (15-nov-2026) la desnutrición severa tiene su propio control: el seguimiento la nombra y no hereda la leve.
+test('desnutrición leve → «¿y la severa?» responde la severa, no la leve', async () => {
   const md = await conversa('desnutrición leve en Jalisco', '¿y la severa?');
-  assert.doesNotMatch(md, /DESNUTRICION_LEVE_E441|casos pronosticados|Pronóstico \*\*congelado\*\*/);
+  assert.doesNotMatch(md, /DESNUTRICION_LEVE_E441/);
+  assert.match(md, /DESNUTRICION_SEVERA_E40/);
 });
 
 test('«¿y la B?» tras hepatitis A no hereda cifras', async () => {

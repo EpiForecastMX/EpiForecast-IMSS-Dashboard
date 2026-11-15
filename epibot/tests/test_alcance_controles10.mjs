@@ -71,7 +71,8 @@ test('sin sexo: hiperplasia y displasia no ofrecen desglose por sexo', async () 
 });
 
 const AJENOS = [
-  'giardiasis en Jalisco', 'A07.1 en Sonora', 'faringitis viral en Jalisco', 'J02.9 en Sonora',
+  // La giardiasis (A07.1) tiene su propio control desde alta20c (test_alcance_controles12.mjs).
+  'isosporiasis en Jalisco', 'A07.3 en Sonora', 'faringitis viral en Jalisco', 'J02.9 en Sonora',
   'N87.9 en Jalisco',
   'herpes zóster en Jalisco', 'quemaduras solares en Sonora', 'várices en Jalisco', 'parotiditis bacteriana en Puebla',
 ];
@@ -110,8 +111,9 @@ test('vecinos: el cáncer de próstata sigue en C61, peatones no son vehículos 
   assert.equal(subtipoAjeno(norm('peatón lesionado en jalisco')), null);
 });
 
-// Salmonelosis, tifoidea, escarlatina, hepatitis C y displasia severa se publicaron como controles en alta10b.
-for (const q of ['fiebre paratifoidea en Sonora', 'hepatitis B en Jalisco', 'desnutrición moderada en Jalisco', 'enterobiasis en Jalisco']) {
+// Salmonelosis, tifoidea, escarlatina, hepatitis C y displasia severa se publicaron como controles en alta10b; la
+// desnutrición moderada y la enterobiasis, en alta20c. «Hepatitis B» a secas pide precisar (aguda o crónica).
+for (const q of ['fiebre paratifoidea en Sonora', 'hepatitis B en Jalisco']) {
   test(`rechazo no autorizado: «${q}» sigue sin cifras de un release`, async () => {
     const { md } = await pregunta(q);
     assert.doesNotMatch(md, /MARCA:|casos pronosticados|Pronóstico \*\*congelado\*\*/);
@@ -125,7 +127,7 @@ async function postRag(query) {
   }));
   return { status: res.status, body: await res.json() };
 }
-for (const q of ['giardiasis en Jalisco', 'herpes zóster en Jalisco', 'faringitis en Jalisco', 'hepatitis B en Jalisco']) {
+for (const q of ['isosporiasis en Jalisco', 'herpes zóster en Jalisco', 'faringitis en Jalisco', 'hepatitis B en Jalisco']) {
   test(`RAG real: «${q}» responde sin modelo ni cifras`, async () => {
     const { status, body } = await postRag(q);
     assert.equal(status, 200);
