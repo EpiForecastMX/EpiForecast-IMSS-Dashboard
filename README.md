@@ -470,7 +470,7 @@ La semana avanza por tres carriles y ninguno publica una semana parcial:
    fuera de los repositorios (`planes/`) y conserva las asignaciones congeladas en la ronda W37.
    `make update-week` del repo principal es histórico y aborta siempre en el preflight
    (`scripts/actualiza_semanal.sh`); no es una receta vigente.
-2. **Cincuenta y un releases del runner**: `make semana-revisa`, `make semana-observa PDF=… SALIDA=…`,
+2. **Releases publicados del runner** (81 al 15-nov-2026; el conjunto sale del registry): `make semana-revisa`, `make semana-observa PDF=… SALIDA=…`,
    `python -m scripts.paso_semanal consolida` y `make semana-vistas N=… FE=…` en el repo principal.
 3. **Radar del boletín**: `python3 scripts/boletin_semana.py --pdf … --url-fuente … --publicacion …`
    en este repo (ver `scripts/README_radar_boletin.md`).

@@ -68,7 +68,8 @@ Las letras de hepatitis se reescriben a «hepatitis vírica X» y esos alias lle
 
 ## Checkpoint — lote alta20 publicado — 12-nov-2026
 
-El sitio sirve 55 padecimientos: 4 del carril original y 51 releases del runner. Veinte se añadieron el
+Historia (superada por alta10b y alta20c): el sitio servía entonces 55 padecimientos, 4 del carril original y 51
+releases del runner. Veinte se añadieron el
 12-nov-2026: diez portafolios aceptados en la prueba de 2025 (validación prospectiva 0/4 en curso) y diez
 controles estacionales no validados, publicados tras su rechazo por autorización nominal del autor. Las
 cifras vigentes salen de `publication/catalog.json`; los contratos del carril original (432 series, hero con
