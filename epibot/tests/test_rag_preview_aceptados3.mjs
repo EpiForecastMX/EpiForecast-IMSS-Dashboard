@@ -16,7 +16,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'fs';
+import { readFileSync, existsSync } from 'fs';
 
 const raiz = new URL('../../', import.meta.url);
 const INDICE = JSON.parse(readFileSync(new URL('epibot/rag_index.json', raiz), 'utf8'));
@@ -92,7 +92,7 @@ test('mal del pinto: el estado declara error alto de la prueba y cambio de nivel
 
 test('la función no escribe a mano las cifras del mal del pinto', () => {
   const src = readFileSync(modulo, 'utf8');
-  for (const cifra of ['111.3', '115.8', '133 en 2024']) assert.ok(!src.includes(cifra), cifra);
+  for (const cifra of ['111.3', '115.8', '133 en 2024', '22.7', '27.6', '8.9', '11.4']) assert.ok(!src.includes(cifra), cifra);
 });
 
 test('mal del pinto por la vía semántica: sólo pasajes propios y sus notas de error y nivel en el contexto', async () => {
@@ -138,8 +138,16 @@ test('otros aceptados: estado desde vista y ficha, sin métricas que su página 
   assert.equal(r.retrieval, 'vista');
   assert.match(r.answer, /Superó la prueba de 2025 frente al control estacional\./);
   assert.match(r.answer, /todavía no está validado/);
-  assert.doesNotMatch(r.answer, /sMAPE/);
+  // La prueba retrospectiva sale de la nota de su ficha (generada desde el acceptance.json sellado), no de la función:
+  // cada sMAPE citado está en la ficha y ninguno se presenta como desempeño fuera de muestra.
+  assert.match(r.answer, /\*\*Error en la prueba de 2025:\*\* en esa prueba retrospectiva su error en el total nacional fue sMAPE 8\.9, frente a 11\.4 del control estacional/);
+  assert.match(r.answer, /no el desempeño del pronóstico publicado/);
+  const fv = fichaPlana('vulvovaginitis_n76.html');
+  for (const m of r.answer.matchAll(/sMAPE (\d+\.\d), frente a (\d+\.\d)/g)) assert.ok(fv.includes(m[0]), `${m[0]} no está en la ficha`);
+  assert.doesNotMatch(r.answer, /sMAPE[^.]*fuera de muestra/);
   const p = (await consultar('¿es confiable la fiebre paratifoidea?', { sinClave: true })).r.answer;
+  assert.match(p, /sMAPE 22\.7, frente a 27\.6 del control estacional/);
+  assert.ok(fichaPlana('paratifoidea_a011.html').includes('sMAPE 22.7, frente a 27.6 del control estacional'));
   assert.match(p, /Un pico que la fuente conserva\./);
   assert.equal(p.match(/Un pico que la fuente conserva\./g).length, 1, 'el aviso de la fuente no se duplica');
 });
@@ -158,4 +166,14 @@ test('netlify.toml empaqueta las fichas que lee la función', () => {
   const toml = readFileSync(new URL('netlify.toml', raiz), 'utf8');
   const inc = (toml.match(/included_files\s*=\s*\[([^\]]*)\]/) || [])[1] || '';
   assert.match(inc, /"[^"]*\.html"/, 'included_files no incluye las fichas .html de la raíz');
+  // Cada página que leerFicha puede pedir (catálogo del runner) existe en la raíz y la cubre un patrón de
+  // included_files. Glob de Netlify: «*» no cruza «/», así que un patrón sin «/» sólo cubre la raíz.
+  const patrones = JSON.parse(`[${inc}]`).map((p) => new RegExp(
+    `^${p.replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*\*/g, '\u0000').replace(/\*/g, '[^/]*').replace(/\u0000/g, '.*')}$`));
+  const paginas = [...new Set(globalThis.EPI_CATALOGO.releases.map((r) => r.pagina))];
+  assert.ok(paginas.includes('mal_del_pinto_a67.html') && paginas.includes('vulvovaginitis_n76.html'));
+  for (const p of paginas) {
+    assert.ok(existsSync(new URL(p, raiz)), `ficha ${p} ausente de la raíz`);
+    assert.ok(patrones.some((re) => re.test(p)), `ficha ${p} no la empaqueta included_files`);
+  }
 });
