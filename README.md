@@ -9,12 +9,12 @@ principal (`Congresos/Mundial/ESTADO_ACTUAL_WCP.md`); este README describe el si
 
 ---
 
-## Estado: 12 de noviembre de 2026
+## Estado: 15 de noviembre de 2026
 
 | | |
 |---|---|
 | Padecimientos publicados | **85** = 4 del carril original + 81 releases del runner (veinte añadidos el 15-nov-2026 con alta20c: tres aceptados en la prueba de 2025, validación prospectiva 0/4 en curso, y diecisiete controles estacionales no validados) |
-| Datos reales hasta | **boletín 43 de 2026** (carril original y radar); **semana 42** observada en los releases del runner |
+| Datos reales hasta | **boletín 43 de 2026** (carril original y radar); en los releases del runner, semana fuente 43: **semana 42** observada (semana 43 en síndrome coqueluchoide y tos ferina, con rezago impreso 0) |
 | Series productivas del carril original | **432** = 333 neuro + 99 dengue |
 | Gráficos publicados del carril original | **432** = 333 neuro + 99 dengue (ronda W37; hasta W33 eran 444 con las 4 regiones de dengue) |
 | Tablero Tableau | histórico, corte W31 de 2026 (`javier.rebull3700` / `viz_epiforecastmx_17873231502650`) |
@@ -24,8 +24,8 @@ principal (`Congresos/Mundial/ESTADO_ACTUAL_WCP.md`); este README describe el si
 ### Contrato de cifras públicas
 
 Las cifras del carril original están **congeladas** y un gate las comprueba en cada despliegue.
-El build de Netlify corre, en orden, las pruebas del radar (`test:boletin`), las del contrato de
-cifras (`cifras:test`) y `npm run deploy:verify`. Éste comprueba primero la nota de picos heredados
+El build de Netlify (`command` de `netlify.toml`) corre, en orden, `test:dashboard`, `test:boletin`, `test:site`,
+las pruebas del EpiBot (`npm test` en `epibot/`), las del contrato de cifras (`cifras:test`) y `npm run deploy:verify`. Éste comprueba primero la nota de picos heredados
 de cada página de release (`picos_heredados.mjs --check`) y después ejecuta `cifras:verify` y
 `rag:ci`, ambos siempre, conservando sus códigos de salida.
 
@@ -54,13 +54,13 @@ clave.** Una vista nueva que imprima nombres tiene que importar `display.js`; `c
 
 Dashboard interactivo del proyecto **EpiForecast-MX**, desarrollado en colaboración entre el
 **Tecnológico de Monterrey** y el **Instituto Mexicano del Seguro Social (IMSS)**. Cubre
-**sesenta y cinco padecimientos**:
+**ochenta y cinco padecimientos**:
 
 - **Carril original (cuatro):** Depresión (F32), enfermedad de Parkinson (G20), enfermedad de
   Alzheimer (G30) y Dengue (A97). Los tres neurológicos son la cohorte de 333 modelos; Dengue tiene
   su propio pipeline de conteos y página en `dengue.html` (pronóstico a un año; la proyección NB-GLM a
   cinco años se retiró en W37).
-- **Releases del runner genérico (sesenta y uno):** publicados desde releases sellados
+- **Releases del runner genérico (ochenta y uno):** publicados desde releases sellados
   (`publication/catalog.json`): obesidad, diabetes tipo I y II, anorexia y bulimia, hipertensión,
   enfermedad isquémica y cerebrovascular, seis padecimientos del radar del boletín (el sexto, asma),
   neumonías y bronconeumonías, diecisiete cánceres y, desde el 12-nov-2026, otitis media aguda,
@@ -75,7 +75,12 @@ Dashboard interactivo del proyecto **EpiForecast-MX**, desarrollado en colaborac
   y de la luz y otras hepatitis víricas, aceptados con la política de cinco motores en un orden de apertura
   fijado antes de abrir 2025 (tope de cuatro), y seis controles estacionales no validados por autorización
   nominal del autor (desnutrición leve, otras salmonelosis, fiebre tifoidea, escarlatina, hepatitis vírica C
-  y displasia cervical severa con el cáncer cervicouterino in situ). Cada uno tiene su página `<id>.html`. Los que no superaron su prueba de aceptación
+  y displasia cervical severa con el cáncer cervicouterino in situ). El 15-nov-2026, con el lote alta20c, se sumaron
+  veinte: fiebre paratifoidea, mal del pinto y vulvovaginitis, aceptados en su prueba única de 2025, y diecisiete
+  controles estacionales no validados por dictámenes delegados de Fable bajo la delegación literal del autor (no firma
+  humana): brucelosis, fiebre reumática, bocio, hepatitis B aguda, rotavirus, absceso hepático amebiano, leptospirosis,
+  helmintiasis, desnutrición moderada y severa, enterobiasis, giardiasis, síndrome coqueluchoide, intoxicación por
+  plaguicidas, tos ferina, síndrome meníngeo e intoxicación por monóxido de carbono. Cada uno tiene su página `<id>.html`. Los que no superaron su prueba de aceptación
   (2025 para la mayoría; 2026-W01 a W41 para los quince cánceres con datos sólo desde 2023) se
   publican con el control estacional y nunca como validados. Covid-19 aparece sólo en
   `rechazados.html`.
@@ -90,7 +95,7 @@ epidemiológico.
 
 El componente principal del dashboard es **EpiBot** (`epibot/`), un asistente conversacional que
 responde con datos reales de los 333 modelos neurológicos, de **Dengue** (handler `answerDengue`,
-alimentado por la sección `dengue` de `knowledge.json`) y de los **cincuenta y un padecimientos del
+alimentado por la sección `dengue` de `knowledge.json`) y de los **ochenta y un padecimientos del
 runner**, cuyos alias, marcadores de gráfica y páginas salen de `js/release_catalog.js` y cuyas cifras
 salen de `publication/<id>/vista.json`.
 
@@ -178,7 +183,7 @@ npm run rag:verify         # falla si el índice está desincronizado del corpus
 ### Detección de entidades (entities.js)
 
 - **32 estados** y regiones con alias (CDMX, Edomex, etc.).
-- Los cuatro padecimientos originales y los alias y códigos CIE-10 de los cincuenta y un releases del
+- Los cuatro padecimientos originales y los alias y códigos CIE-10 de los ochenta y un releases del
   runner (`release_catalog.js`), comparados al inicio de palabra; los no modelados salen de la lista
   única `noModeladas`.
 - **Sexo** (hombres, mujeres, general) con variantes.
@@ -465,7 +470,7 @@ La semana avanza por tres carriles y ninguno publica una semana parcial:
    fuera de los repositorios (`planes/`) y conserva las asignaciones congeladas en la ronda W37.
    `make update-week` del repo principal es histórico y aborta siempre en el preflight
    (`scripts/actualiza_semanal.sh`); no es una receta vigente.
-2. **Cincuenta y un releases del runner**: `make semana-revisa`, `make semana-observa PDF=… SALIDA=…`,
+2. **Releases publicados del runner** (81 al 15-nov-2026; el conjunto sale del registry): `make semana-revisa`, `make semana-observa PDF=… SALIDA=…`,
    `python -m scripts.paso_semanal consolida` y `make semana-vistas N=… FE=…` en el repo principal.
 3. **Radar del boletín**: `python3 scripts/boletin_semana.py --pdf … --url-fuente … --publicacion …`
    en este repo (ver `scripts/README_radar_boletin.md`).
