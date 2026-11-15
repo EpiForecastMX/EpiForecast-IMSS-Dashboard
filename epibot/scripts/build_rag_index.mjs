@@ -8,17 +8,23 @@
  *   toleraba todo eso y terminaba en verde con un índice degradado a modo léxico; un canal RAG al
  *   que le faltan vectores no está listo, y decir que sí es un falso verde.
  * - La escritura es atómica y ocurre sólo después de validar el frame completo.
+ * - NOOP sin cambios materiales: si chunks, vectores, modelo, dimensión y esquema son los del índice
+ *   previo, conserva su `built` y no toca el archivo (mismos bytes, mismo mtime). Antes cada
+ *   `rag:ci` con clave (p. ej. en cada deploy) reescribía `built` y el JSON servido dejaba de ser
+ *   byte-idéntico al commiteado aunque nada hubiera cambiado.
  *
  * Toda la lógica de caché, generación y validación vive en scripts/lib/rag_index.mjs.
  *
  * Uso:   GEMINI_API_KEY=... npm run rag:build
+ *        node scripts/build_rag_index.mjs --out=<ruta>   (destino alterno; por omisión kb/rag_index.json)
  */
 
 import { resolve } from 'path';
 import { buildChunks, KB_DIR, EMBED_MODEL, EMBED_DIM } from './lib/corpus.mjs';
-import { buildIndex, readIndex, writeAtomic, geminiEmbedder, RagIndexError } from './lib/rag_index.mjs';
+import { buildIndex, readIndex, writeAtomicIfChanged, geminiEmbedder, RagIndexError } from './lib/rag_index.mjs';
 
-const OUT_PATH = resolve(KB_DIR, 'rag_index.json');
+const outArg = process.argv.slice(2).find((a) => a.startsWith('--out='));
+const OUT_PATH = outArg ? resolve(outArg.slice('--out='.length)) : resolve(KB_DIR, 'rag_index.json');
 
 async function main() {
   console.log('▶ Construyendo índice RAG de EpiForecast-MX (incremental)\n');
@@ -30,7 +36,7 @@ async function main() {
   const apiKey = process.env.GEMINI_API_KEY;   // sólo se usa; nunca se imprime ni se serializa
   const embed = apiKey ? await geminiEmbedder(apiKey) : null;
 
-  const { index, reused, generated } = await buildIndex({
+  const { index, reused, generated, unchanged } = await buildIndex({
     chunks,
     previous,
     embed,
@@ -42,7 +48,13 @@ async function main() {
   });
   if (generated) process.stdout.write('\n');
 
-  writeAtomic(OUT_PATH, index);
+  const escrito = writeAtomicIfChanged(OUT_PATH, index);
+  if (!escrito) {
+    console.log(`\n✔ rag_index.json sin cambios materiales — NOOP: no se reescribe; built ${index.built} ` +
+      `(${chunks.length} chunks, reusados ${reused}, nuevos ${generated})`);
+    return;
+  }
+  if (unchanged) console.log('\n  (contenido material idéntico; se normalizan bytes conservando built)');
   const mb = (Buffer.byteLength(JSON.stringify(index)) / 1e6).toFixed(2);
   console.log(`\n✔ rag_index.json — ${chunks.length} chunks con vector válido ` +
     `(reusados ${reused}, nuevos ${generated}), ${mb} MB`);

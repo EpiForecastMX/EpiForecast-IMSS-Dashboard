@@ -13,17 +13,17 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, writeFileSync, readFileSync, existsSync, readdirSync, rmSync } from 'fs';
-import { execFileSync } from 'child_process';
+import { mkdtempSync, writeFileSync, readFileSync, existsSync, readdirSync, rmSync, statSync } from 'fs';
+import { execFileSync, spawnSync } from 'child_process';
 import { createHash } from 'crypto';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import {
   buildIndex, frameFor, applyCache, assignVector, cacheFrom, fillMissing, problemsOf,
-  problemsAgainstCorpus, sameEmbeddingIdentity, serialize, writeAtomic, readIndex, vectorProblem,
-  RagIndexError,
+  problemsAgainstCorpus, sameEmbeddingIdentity, serialize, writeAtomic, writeAtomicIfChanged, readIndex,
+  vectorProblem, RagIndexError,
 } from '../scripts/lib/rag_index.mjs';
-import { chunkHash } from '../scripts/lib/corpus.mjs';
+import { chunkHash, buildChunks, EMBED_MODEL, EMBED_DIM } from '../scripts/lib/corpus.mjs';
 
 const DIM = 8;   // dimensión pequeña: el contrato no depende del tamaño real del modelo
 
@@ -341,3 +341,128 @@ test('fillMissing no reintenta indefinidamente y reporta cada chunk fallido', as
   );
   assert.equal(intentos, 9, '3 chunks × 3 intentos');
 });
+
+// ── NOOP sin cambios materiales: `built` y bytes reproducibles ──────────────────────────────────
+//
+// Hallazgo root (preview 98): `rag:ci` con clave corre `rag:build` en cada deploy, y el builder
+// reescribía `built` con la hora actual aunque chunks y vectores fueran idénticos. El JSON servido
+// difería del commiteado SÓLO en `built`. `built` fecha la última generación MATERIAL; sin cambios
+// materiales el builder es NOOP. Cualquier cambio real sí obtiene un `built` nuevo.
+
+const BUILT_PREVIO = '2026-01-01T00:00:00.000Z';
+const BUILT_NUEVO = '2026-02-02T00:00:00.000Z';
+
+async function indicePrevio() {
+  const { index } = await buildIndex({ chunks: CORPUS, embed: proveedor().embed, dim: DIM, built: BUILT_PREVIO });
+  // Como llega del disco: parseado, no el mismo objeto en memoria.
+  return JSON.parse(JSON.stringify(index));
+}
+
+test('NOOP: corpus, vectores, modelo, dim y esquema idénticos conservan built y bytes, sin pedir embeddings', async () => {
+  const previo = await indicePrevio();
+  const p = proveedor();
+  const r = await buildIndex({ chunks: CORPUS, previous: previo, embed: p.embed, dim: DIM, built: BUILT_NUEVO });
+  assert.deepEqual(p.pedidos, [], 'sin cambios no se llama al proveedor');
+  assert.equal(r.unchanged, true);
+  assert.equal(r.index.built, BUILT_PREVIO, 'built es la fecha de la última generación material');
+  assert.equal(JSON.stringify(r.index), JSON.stringify(previo), 'mismos bytes');
+});
+
+test('cambios materiales reales SÍ producen built nuevo (texto, metadata fuera del hash, orden, modelo, esquema)', async () => {
+  const previo = await indicePrevio();
+  const casos = {
+    'texto de un chunk': { chunks: [CORPUS[0], CORPUS[1], chunk('c', 'gama nueva')] },
+    'metadata que no entra al hash (url)': { chunks: [CORPUS[0], CORPUS[1], { ...CORPUS[2], url: 'https://x/y' }] },
+    'metadata que no entra al hash (id)': { chunks: [CORPUS[0], CORPUS[1], { ...CORPUS[2], id: 'c2' }] },
+    'orden de los chunks': { chunks: [CORPUS[1], CORPUS[0], CORPUS[2]] },
+    'chunk eliminado': { chunks: [CORPUS[0], CORPUS[1]] },
+    'modelo distinto': { chunks: CORPUS, model: 'otro-modelo' },
+  };
+  for (const [nombre, extra] of Object.entries(casos)) {
+    const r = await buildIndex({ previous: previo, embed: proveedor().embed, dim: DIM, built: BUILT_NUEVO, ...extra });
+    assert.equal(r.unchanged, false, nombre);
+    assert.equal(r.index.built, BUILT_NUEVO, `${nombre}: built nuevo`);
+  }
+  // Esquema del previo distinto (clave extra o sin built): no es «el mismo índice».
+  for (const [nombre, prev] of Object.entries({
+    'clave extra en el previo': { ...previo, legacy: true },
+    'previo sin built': (({ built, ...resto }) => resto)(previo),
+    // Un vector previo inválido no se recicla: se regenera, y eso es una generación material.
+    'vector previo inválido': { ...previo, vectors: previo.vectors.map((v, i) => (i ? v : [])) },
+  })) {
+    const r = await buildIndex({ chunks: CORPUS, previous: prev, embed: proveedor().embed, dim: DIM, built: BUILT_NUEVO });
+    assert.equal(r.unchanged, false, nombre);
+    assert.equal(r.index.built, BUILT_NUEVO, `${nombre}: built nuevo`);
+  }
+});
+
+test('cambio de dimensión: regenera todo y fecha built nuevo', async () => {
+  const previo = await indicePrevio();
+  const p = proveedor({ dim: 4 });
+  const r = await buildIndex({ chunks: CORPUS, previous: previo, embed: p.embed, dim: 4, built: BUILT_NUEVO });
+  assert.equal(p.pedidos.length, 3);
+  assert.equal(r.unchanged, false);
+  assert.equal(r.index.built, BUILT_NUEVO);
+});
+
+test('writeAtomicIfChanged: mismos bytes no toca el archivo (ni mtime); bytes distintos escribe', () => conDir(async (dir) => {
+  const destino = join(dir, 'rag_index.json');
+  const obj = { model: 'm', dim: 1, built: BUILT_PREVIO, count: 0, chunks: [], vectors: [] };
+  assert.equal(writeAtomicIfChanged(destino, obj), true, 'no existía: escribe');
+  const antes = statSync(destino).mtimeMs;
+  await new Promise((r) => setTimeout(r, 20));
+  assert.equal(writeAtomicIfChanged(destino, JSON.parse(JSON.stringify(obj))), false, 'idéntico: NOOP');
+  assert.equal(statSync(destino).mtimeMs, antes, 'NOOP no toca mtime');
+  assert.equal(writeAtomicIfChanged(destino, { ...obj, built: BUILT_NUEVO }), true);
+  assert.equal(JSON.parse(readFileSync(destino, 'utf-8')).built, BUILT_NUEVO);
+  assert.deepEqual(readdirSync(dir), ['rag_index.json'], 'sin temporales');
+}));
+
+/**
+ * El BUILDER REAL sobre el corpus REAL (cientos de chunks), hermético: el índice previo se arma con
+ * vectores simulados de la dimensión real, así que todo sale de la caché. Corre dos veces: sin
+ * clave y con una clave falsa; si el builder llamara a la API, la clave falsa lo haría fallar.
+ */
+test('builder real sobre el corpus real: sin cambios materiales es NOOP byte a byte, sin llamar a la API', () => conDir(async (dir) => {
+  const { chunks } = buildChunks();
+  assert.ok(chunks.length > 100, `corpus real (${chunks.length} chunks)`);
+  const vector = (c) => {
+    const h = createHash('sha256').update(chunkHash(c)).digest();
+    return Array.from({ length: EMBED_DIM }, (_, i) => +(h[i % h.length] / 255 - 0.5).toFixed(6));
+  };
+  const previo = {
+    model: EMBED_MODEL, dim: EMBED_DIM, built: BUILT_PREVIO, count: chunks.length,
+    chunks, vectors: chunks.map(vector),
+  };
+  const destino = join(dir, 'rag_index.json');
+  writeFileSync(destino, JSON.stringify(previo));
+  const bytes = readFileSync(destino);
+  const mtime = statSync(destino).mtimeMs;
+  const script = new URL('../scripts/build_rag_index.mjs', import.meta.url).pathname;
+
+  for (const clave of [null, 'clave-falsa-no-valida']) {
+    const env = { ...process.env };
+    if (clave) env.GEMINI_API_KEY = clave; else delete env.GEMINI_API_KEY;
+    const r = spawnSync(process.execPath, [script, `--out=${destino}`], { env, encoding: 'utf-8' });
+    assert.equal(r.status, 0, `rc del builder (${clave ? 'clave falsa' : 'sin clave'}): ${r.stderr}`);
+    assert.match(r.stdout, /NOOP/);
+    assert.match(r.stdout, /nuevos 0\)/);
+    assert.ok(readFileSync(destino).equals(bytes), 'bytes idénticos, built incluido');
+    assert.equal(statSync(destino).mtimeMs, mtime, 'el archivo no se reescribió');
+  }
+  assert.deepEqual(readdirSync(dir), ['rag_index.json'], 'sin temporales');
+
+  // Contraprueba: un cambio material real (metadata fuera del hash) SÍ reescribe con built nuevo,
+  // reutilizando vectores (sin API).
+  const cambiado = { ...previo, chunks: previo.chunks.map((c, i) => (i ? c : { ...c, url: 'https://cambio.invalid/' })) };
+  writeFileSync(destino, JSON.stringify(cambiado));
+  const env = { ...process.env };
+  delete env.GEMINI_API_KEY;
+  const r = spawnSync(process.execPath, [script, `--out=${destino}`], { env, encoding: 'utf-8' });
+  assert.equal(r.status, 0, r.stderr);
+  const nuevo = JSON.parse(readFileSync(destino, 'utf-8'));
+  assert.notEqual(nuevo.built, BUILT_PREVIO, 'cambio real: built nuevo');
+  assert.ok(Date.parse(nuevo.built) > Date.parse(BUILT_PREVIO));
+  assert.deepEqual(nuevo.chunks, chunks, 'vuelve al corpus vigente');
+  assert.deepEqual(nuevo.vectors, previo.vectors, 'vectores reutilizados por hash');
+}));
