@@ -10,12 +10,14 @@
  * follow-ups («¿y hombres?») y en consultas corregidas por typo, donde la consulta cruda ya no
  * nombra a Obesidad.
  */
-import { mencionaNoModelada } from './entities.js?v=59';
+import { mencionaNoModelada } from './entities.js?v=60';
 import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
-} from './obesidad_charts.js?v=28';
-import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=25';
+} from './obesidad_charts.js?v=29';
+import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=26';
+// Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
+import './avisos_fuente.js?v=1';
 
 const any = (q, ks) => ks.some((k) => q.includes(k));
 const semana = ([a, w]) => `${a}-W${String(w).padStart(2, '0')}`;
@@ -43,7 +45,7 @@ function ficha(v, x, encabezado, r) {
     // Lo que acota la afirmación prospectiva de este release (p. ej. un boletín ya público al emitir).
     ...(r.cronologia ? [r.cronologia, ''] : []),
   ];
-  if (!x.oos.semanas) return [...inicio, enCurso(v)];
+  if (!x.oos.semanas) return [...inicio, enCurso(v), ...avisosFuente(v.disease_id)];
   return [
     ...inicio,
     ...(v.caida_al_control ? [avisoControl(v), ''] : []),
@@ -51,7 +53,18 @@ function ficha(v, x, encabezado, r) {
     `- sMAPE: **${num1(x.oos.smape)} %**`,
     `- Error medio absoluto: ${ent0(x.oos.mae)} casos por semana`,
     `- Sesgo: ${num1(x.oos.sesgo_pct)} % (observados ${ent0(x.oos.observado_total)} frente a ${ent0(x.oos.pronostico_total)} pronosticados)`,
+    ...avisosFuente(v.disease_id),
   ];
+}
+
+/**
+ * Avisos de la fuente del release (valores retirados o conservados y la nota medida de bajas del acumulado),
+ * tal como los dice su ficha. Sólo los doce controles de alta20c los tienen; los demás no reciben nada.
+ */
+export function avisosFuente(id) {
+  const a = (globalThis.EPI_AVISOS_FUENTE || {})[id];
+  if (!a) return [];
+  return ['', '**Avisos de la fuente:**', ...[...a.avisos, a.nota].map((x) => `- **${x.titulo}** ${x.texto}`)];
 }
 
 /**

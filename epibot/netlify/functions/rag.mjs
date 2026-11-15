@@ -15,6 +15,7 @@
  * léxico. Si no hay GEMINI_API_KEY, devuelve error claro.
  */
 import '../../js/release_catalog.js';
+import '../../js/avisos_fuente.js';
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { readFileSync } from 'fs';
@@ -274,6 +275,29 @@ const AMBITO_RAG = {
   smape_nacional_general: () => 'el total nacional',
 };
 const lista = (xs) => (xs.length > 1 ? `${xs.slice(0, -1).join(', ')} y ${xs.at(-1)}` : xs[0]);
+/** Avisos de la fuente del release (avisos_fuente.js), en el mismo orden que su ficha; vacío si no tiene. */
+function avisosFuenteRag(id) {
+  const a = (globalThis.EPI_AVISOS_FUENTE || {})[id];
+  return a ? `\n\nAvisos de la fuente:\n${[...a.avisos, a.nota].map((x) => `- **${x.titulo}** ${x.texto}`).join('\n')}` : '';
+}
+
+/**
+ * Un código de tres caracteres del shard sellado que abarca el subcódigo de OTRO release publicado se acota en el
+ * alcance: el shard de infecciones intestinales dice A08, pero A08.0 (rotavirus) es su propio release. El shard no
+ * se toca; sólo cambia lo que el contexto del RAG dice del alcance.
+ */
+function acotaCie(salida) {
+  const todos = salida.flatMap((x) => x.cie);
+  return salida.map((x) => ({
+    ...x,
+    cie: x.cie.map((c) => {
+      if (!/^[A-Z]\d{2}$/.test(c)) return c;
+      const sub = todos.filter((o) => o.startsWith(`${c}.`) && !x.cie.includes(o));
+      return sub.length ? `${c} excepto ${sub.join(', ')}` : c;
+    }),
+  }));
+}
+
 function estadoDeControl(query, leerVista) {
   const C = globalThis.EPI_CATALOGO;
   const qn = C.canonClinico(stripAccents(query).replace(/[^a-z0-9. ]+/g, ' ').replace(/\s+/g, ' ').trim());
@@ -309,7 +333,7 @@ function estadoDeControl(query, leerVista) {
     `demostraría nada, y sólo se registrará su error con cada boletín (${v.weeks_available ?? 0} de ${v.weeks_required ?? 4} semanas registradas).\n\n` +
     `Error del control en la prueba de ${anio} (sMAPE): ${lista(errores)}.${aviso}\n\n` +
     `Datos hasta la semana ${v.origin[1]} de ${v.origin[0]}${emitido}; ${v.horizon_weeks} semanas, pronóstico puntual sin intervalos. ` +
-    `Detalle en [su página](../${r.pagina}).`;
+    `Detalle en [su página](../${r.pagina}).${avisosFuenteRag(r.id)}`;
   return { answer, sources: [{ n: 1, source: `Release publicado ${v.release_id}`, title: v.nombre_completo || r.etiqueta, section: r.id, url: `../${r.pagina}` }] };
 }
 
@@ -502,7 +526,7 @@ function releasesDesdeCatalogo(cat, leerShard) {
     }
     out.push({ nombre, cie });
   }
-  return out;
+  return acotaCie(out);
 }
 
 const NUMERALES = ['cero', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez', 'once', 'doce',

@@ -80,8 +80,8 @@ test('rag.mjs deriva los releases publicados del catálogo y de su shard', () =>
     { nombre: 'Hepatitis vírica C', cie: ['B17.1', 'B18.2'] },
     { nombre: 'Hiperplasia de la próstata', cie: ['N40'] },
     { nombre: 'Hipertensión arterial', cie: ['I10', 'I11', 'I12', 'I13', 'I14', 'I15'] },
-    { nombre: 'Infecciones intestinales por otros organismos y las mal definidas', cie: ['A04', 'A08', 'A09'] },
-    { nombre: 'Infecciones respiratorias agudas', cie: ['J00', 'J01', 'J03', 'J04', 'J05', 'J06', 'J20', 'J21'] },
+    { nombre: 'Infecciones intestinales por otros organismos y las mal definidas', cie: ['A04', 'A08 excepto A08.0', 'A09'] },
+    { nombre: 'Infecciones respiratorias agudas', cie: ['J00', 'J01', 'J03 excepto J03.0', 'J04', 'J05', 'J06', 'J20', 'J21'] },
     { nombre: 'Enfermedad isquémica del corazón', cie: ['I20', 'I25'] },
     { nombre: 'Insuficiencia venosa periférica', cie: ['I87.2'] },
     { nombre: 'Infección de vías urinarias', cie: ['N30', 'N34', 'N39.0'] },
@@ -126,7 +126,7 @@ test('las CIFRAS CLAVE nombran los setenta y siete padecimientos modelados', () 
   assert.match(linea, /modela setenta y siete padecimientos/);
   for (const p of ['Depresión (F32)', 'Parkinson (G20)', 'Alzheimer (G30)', 'Dengue', 'Obesidad (E66)', 'Anorexia, bulimia y otros trastornos alimentarios (F50)', 'Diabetes mellitus tipo I (E10)', 'Diabetes mellitus tipo II (E11, E12, E13, E14)',
     'Infección de vías urinarias (N30, N34, N39.0)', 'Úlceras, gastritis y duodenitis (K25, K26, K27, K28, K29)',
-    'Infecciones respiratorias agudas (J00, J01, J03, J04, J05, J06, J20, J21)', 'Gingivitis y enfermedad periodontal (K05)', 'Asma (J45, J46)', 'Tumor maligno de la mama (C50)', 'Tumor maligno del cuello del útero (C53)']) {
+    'Infecciones respiratorias agudas (J00, J01, J03 excepto J03.0, J04, J05, J06, J20, J21)', 'Gingivitis y enfermedad periodontal (K05)', 'Asma (J45, J46)', 'Tumor maligno de la mama (C50)', 'Tumor maligno del cuello del útero (C53)']) {
     assert.ok(linea.includes(p), `${p} en: ${linea}`);
   }
   assert.match(linea, /Ningún otro padecimiento está modelado/);

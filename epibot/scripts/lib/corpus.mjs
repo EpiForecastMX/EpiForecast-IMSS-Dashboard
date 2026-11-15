@@ -18,6 +18,7 @@ import { MODE_PUBLIC, porBytes, readCatalog, readInstalledRelease } from './inst
 // Un solo criterio para «métricas de selección retiradas» (W28–W37): el mismo helper que el bot.
 import { metricasRetiradas, avisoMetricas } from '../../js/kb.js';
 import { picosHeredados, textoPico } from './picos_heredados.mjs';
+import '../../js/avisos_fuente.js';
 import { errorDelControl } from '../../js/obesidad_kb.js?v=26';
 import { releaseDeId } from '../../js/release_config.js';
 
@@ -627,6 +628,16 @@ function vistaChunks(root, r) {
       id: `release:${r.disease_id}:${r.release_id}:estados`,
       title: `${v.display_name} — casos pronosticados por estado`,
       text: `${encabezado}\n\n${control}Casos pronosticados en 52 semanas por estado, de mayor a menor:\n${previstos.join('\n')}${avisoPicos}`,
+    });
+  }
+  // Avisos de la fuente (alta20c): valores retirados o conservados y la nota medida de bajas del acumulado.
+  const avisos = (globalThis.EPI_AVISOS_FUENTE || {})[r.disease_id];
+  if (avisos) {
+    chunks.push({
+      ...base,
+      id: `release:${r.disease_id}:${r.release_id}:avisos-fuente`,
+      title: `${v.display_name} — avisos de la fuente (valores retirados o conservados y correcciones del acumulado)`,
+      text: `${encabezado}\n\n${control}${[...avisos.avisos, avisos.nota].map((x) => `${x.titulo} ${x.texto}`).join('\n\n')}`,
     });
   }
   const motores = Object.entries(v.engines).map(([m, n]) => `${MOTOR_ES[m] || m}: ${n} series`);
