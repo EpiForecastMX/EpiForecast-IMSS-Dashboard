@@ -10,12 +10,14 @@
  * follow-ups («¿y hombres?») y en consultas corregidas por typo, donde la consulta cruda ya no
  * nombra a Obesidad.
  */
-import { mencionaNoModelada } from './entities.js?v=58';
+import { mencionaNoModelada } from './entities.js?v=63';
 import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
-} from './obesidad_charts.js?v=26';
-import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=24';
+} from './obesidad_charts.js?v=32';
+import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=29';
+// Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
+import './avisos_fuente.js?v=2';
 
 const any = (q, ks) => ks.some((k) => q.includes(k));
 const semana = ([a, w]) => `${a}-W${String(w).padStart(2, '0')}`;
@@ -43,7 +45,7 @@ function ficha(v, x, encabezado, r) {
     // Lo que acota la afirmación prospectiva de este release (p. ej. un boletín ya público al emitir).
     ...(r.cronologia ? [r.cronologia, ''] : []),
   ];
-  if (!x.oos.semanas) return [...inicio, enCurso(v)];
+  if (!x.oos.semanas) return [...inicio, enCurso(v), ...avisosFuente(v.disease_id)];
   return [
     ...inicio,
     ...(v.caida_al_control ? [avisoControl(v), ''] : []),
@@ -51,7 +53,18 @@ function ficha(v, x, encabezado, r) {
     `- sMAPE: **${num1(x.oos.smape)} %**`,
     `- Error medio absoluto: ${ent0(x.oos.mae)} casos por semana`,
     `- Sesgo: ${num1(x.oos.sesgo_pct)} % (observados ${ent0(x.oos.observado_total)} frente a ${ent0(x.oos.pronostico_total)} pronosticados)`,
+    ...avisosFuente(v.disease_id),
   ];
+}
+
+/**
+ * Avisos de la fuente del release (valores retirados o conservados y la nota medida de bajas del acumulado),
+ * tal como los dice su ficha. Sólo los doce controles de alta20c los tienen; los demás no reciben nada.
+ */
+export function avisosFuente(id) {
+  const a = (globalThis.EPI_AVISOS_FUENTE || {})[id];
+  if (!a) return [];
+  return ['', '**Avisos de la fuente:**', ...[...a.avisos, a.nota].filter(Boolean).map((x) => `- **${x.titulo}** ${x.texto}`)];
 }
 
 /**
@@ -278,7 +291,7 @@ function answerRelease(q, ent, s, d, r) {
   }
   const futuras = x.pronostico.filter(([ds]) => ds > v.observation_cutoff_ds).slice(0, 4);
   if (futuras.length) {
-    lineas.push('', '**Siguientes semanas del pronóstico, aún sin observación publicada:**', ...futuras.map(([ds, y]) => `- Semana del ${ds}: ${ent0(y)} casos`));
+    lineas.push('', '**Siguientes semanas del pronóstico, aún sin observación publicada:**', ...futuras.map(([ds, y]) => `- Semana del ${ds}: ${ent0(y)} ${ent0(y) === '1' ? 'caso' : 'casos'}`));
   }
   lineas.push('', `Total pronosticado en las ${v.horizon_weeks} semanas: **${ent0(x.pronostico_52_total)} casos**.`, '', etiqueta, `_${v.uncertainty_label}._`);
   if (tipo === 'banda') lineas.push('', `${r.nombre} se publica **sin intervalos**: la gráfica muestra sólo el pronóstico puntual, no un corredor ni una banda de confianza.`);

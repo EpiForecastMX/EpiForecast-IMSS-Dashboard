@@ -15,7 +15,8 @@
  * Vale para cualquier release publicado: título y color salen de `release_config.js` por
  * `disease_id`. Funciones puras: sin DOM, sin fetch.
  */
-import { RELEASES, releaseDeId } from './release_config.js?v=24';
+import { RELEASES, releaseDeId } from './release_config.js?v=29';
+import { semanaSiguiente } from './calendario_boletin.js?v=2';
 
 const strip = (s) => String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 const has = (q, ks) => ks.some((k) => q.includes(k));
@@ -192,7 +193,8 @@ export function graficaObesidad(v, qn, ent = {}, opciones = {}) {
   const tipo = opciones.tipo || tipoEfectivo(qn, ent);
   const sexo = ent.sexo || 'general';
   const x = serieObesidad(v, ent);
-  const oos = `fuera de muestra, ${semana([v.origin[0], v.origin[1] + 1])}–${semana(v.observation_cutoff)}`;
+  // Primera semana fuera de muestra = la siguiente al origen en el calendario MMWR (52 o 53 semanas).
+  const oos = `fuera de muestra, ${semana(semanaSiguiente(v.origin[0], v.origin[1], 1))}–${semana(v.observation_cutoff)}`;
   if (!x) return null;
 
   if (tipo in NO_DISPONIBLE) return null;

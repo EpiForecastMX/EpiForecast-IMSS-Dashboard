@@ -195,9 +195,13 @@ export function serialize(frame, { model = EMBED_MODEL, dim = EMBED_DIM, built =
  * sobrevive ningún temporal. Escribir directo dejaba un índice a medias si el proceso moría.
  */
 export function writeAtomic(path, obj) {
+  writeTextAtomic(path, JSON.stringify(obj));
+}
+
+function writeTextAtomic(path, data) {
   const tmp = `${path}.tmp-${process.pid}`;
   try {
-    writeFileSync(tmp, JSON.stringify(obj));
+    writeFileSync(tmp, data);
     renameSync(tmp, path);
   } finally {
     if (existsSync(tmp)) unlinkSync(tmp);
@@ -205,8 +209,21 @@ export function writeAtomic(path, obj) {
 }
 
 /**
+ * Como `writeAtomic`, pero si el destino YA contiene exactamente esos bytes no lo toca (ni bytes ni
+ * mtime). → true si escribió, false si fue NOOP. El índice se sirve como JSON estático y se exige
+ * byte-idéntico entre builds: reescribirlo sin cambios materiales es drift, no regeneración.
+ */
+export function writeAtomicIfChanged(path, obj) {
+  const data = JSON.stringify(obj);
+  if (existsSync(path) && readFileSync(path).equals(Buffer.from(data))) return false;
+  writeTextAtomic(path, data);
+  return true;
+}
+
+/**
  * Construcción completa: caché → generación → validación → objeto serializable.
  * No escribe nada: quien llama decide dónde, y sólo se escribe lo ya validado.
+ * `unchanged` = el índice resultante es materialmente el previo (y conserva su `built`).
  */
 export async function buildIndex({ chunks, previous = null, embed = null, dim = EMBED_DIM, model = EMBED_MODEL, built, concurrency, retries, onProgress } = {}) {
   if (!chunks?.length) throw new RagIndexError(['el corpus está vacío']);
@@ -216,7 +233,16 @@ export async function buildIndex({ chunks, previous = null, embed = null, dim = 
   const reused = applyCache(frame, cacheFrom(previous, { dim, model }));
   const { generated } = await fillMissing(frame, { embed, dim, concurrency, retries, onProgress });
   assertValid(frame, { dim, expected: frame.map((e) => e.hash) });
-  return { frame, reused, generated, index: serialize(frame, { model, dim, built }) };
+  // `built` fecha la última generación MATERIAL. Si el resultado es idéntico al índice previo en
+  // todo lo demás —modelo, dimensión, count, chunks completos (con su metadata), vectores, orden y
+  // claves del esquema—, se conserva su `built` y el objeto sale igual byte a byte: no hubo
+  // generación nueva que fechar. Cualquier diferencia real produce un `built` nuevo.
+  const estable = typeof previous?.built === 'string'
+    ? serialize(frame, { model, dim, built: previous.built })
+    : null;
+  const unchanged = !!estable && JSON.stringify(estable) === JSON.stringify(previous);
+  const index = unchanged ? estable : serialize(frame, { model, dim, built });
+  return { frame, reused, generated, unchanged, index };
 }
 
 /**

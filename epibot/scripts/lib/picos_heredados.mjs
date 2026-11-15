@@ -12,6 +12,8 @@
  * para cualquier release: la usan el corpus del RAG y la nota estática de cada página.
  */
 
+import '../../js/avisos_fuente.js';
+
 const DIA = 864e5;
 // Umbrales: una semana aislada (5 veces la mayor vecina), muy por encima de la mediana de la entidad
 // (10 veces), con volumen suficiente (50 casos) y heredada por el pronóstico (5 veces la mediana).
@@ -70,7 +72,7 @@ export function picosHeredados(v) {
       const bases = Object.values(v.series).filter(
         (b) => b.nivel === 'estado' && b.id === s.id && b.motor !== 'portfolio',
       );
-      out.push({
+      const pico = {
         estado: s.nombre,
         motores: [...new Set(bases.map((b) => b.motor))].sort(),
         semanaObservada: semanaDe(ds),
@@ -84,10 +86,23 @@ export function picosHeredados(v) {
         participacion: nacional ? (100 * heredado) / nacional : null,
         medianaNacional: medNac,
         veces: medNac > 0 ? nacional / medNac : null,
-      });
+      };
+      out.push({ ...pico, retiro: retiroDeLaFuente(v.disease_id, pico) });
     });
   }
   return out;
+}
+
+/**
+ * Aviso de la fuente que retiró ese mismo valor (avisos_fuente.js), o null. Si la fuente retiró la celda del pico,
+ * la nota no puede decir que su causa no está establecida: lo dice el aviso (revisión focal de Fable, M2).
+ */
+function retiroDeLaFuente(id, p) {
+  const avisos = (globalThis.EPI_AVISOS_FUENTE || {})[id]?.avisos || [];
+  const a = avisos.find((x) => x.estado === 'retirado' && x.clave === `${p.estado}|${etiquetaSemana(p.semanaObservada)}`);
+  if (!a) return null;
+  if (a.casos !== p.observado) throw new Error(`${id}: el aviso de retiro (${a.casos}) no es el pico (${p.observado})`);
+  return { deNombre: a.de_nombre, neto: a.retiro_neto, casos: a.casos };
 }
 
 const ANIOS = { 2: 'dos', 3: 'tres', 4: 'cuatro', 5: 'cinco' };
@@ -118,15 +133,21 @@ export function arrastre(p) {
 
 /** Texto llano del pico, para el corpus y para la nota de la página. */
 export function textoPico(p) {
+  const de = p.retiro ? p.retiro.deNombre : `de ${p.estado}`;
+  const causa = !p.retiro
+    ? 'El valor es fiel a la fuente y su causa no está establecida'
+    : `El boletín lo imprimió así y la fuente retiró después ${num(p.retiro.neto)} ` +
+      (p.retiro.neto <= p.retiro.casos ? `de los ${num(p.retiro.casos)}` : `casos, más que los ${num(p.retiro.casos)} de esa semana`) +
+      ' (ver el aviso siguiente)';
   return (
     `En la semana epidemiológica ${etiquetaSemana(p.semanaObservada)} el boletín imprimió ` +
-    `${num(p.observado)} casos de ${p.estado}, frente a ${num(p.previa)} y ${num(p.siguiente)} en las ` +
+    `${num(p.observado)} casos ${de}, frente a ${num(p.previa)} y ${num(p.siguiente)} en las ` +
     `semanas vecinas (mediana semanal de la entidad: ${num(p.medianaEstado)}). ${arrastre(p)}, ` +
     `así que el pronóstico de ` +
-    `${etiquetaSemana(p.semanaPronosticada)} trae ${num(p.pronosticado)} casos de ${p.estado}: ` +
+    `${etiquetaSemana(p.semanaPronosticada)} trae ${num(p.pronosticado)} casos ${de}: ` +
     `${num(p.participacion)} % de los ${num(p.nacional)} nacionales de esa semana, ` +
     `${num(p.veces)} veces la mediana semanal del horizonte nacional (${num(p.medianaNacional)}). ` +
-    `El valor es fiel a la fuente y su causa no está establecida; esa semana no debe leerse como un ` +
+    `${causa}; esa semana no debe leerse como un ` +
     `aumento esperado. El dato y el pronóstico se publican sin modificar.`
   );
 }

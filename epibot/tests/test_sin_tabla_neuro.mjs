@@ -89,8 +89,9 @@ test('las autolesiones conservan su respuesta específica con la línea existent
 
 test('la corrección difusa no convierte un nombre del boletín en otro padecimiento', async () => {
   for (const [q, nombre] of [['cuantos casos de colera hubo', 'Cólera'],
+    // La fiebre paratifoidea se publicó aceptada en alta20c: ya no es un nombre del radar sin modelo.
     ['deplecion del volumen deshidratacion en jalisco', 'Depleción del volumen'],
-    ['fiebre paratifoidea en jalisco', 'Fiebre paratifoidea']]) {
+    ['triquinosis en jalisco', 'Triquinosis']]) {
     const r = await conversa(q);
     sinSeriesAjenas(r, q);
     assert.doesNotMatch(r.md, /Quisiste decir/, q);
@@ -114,7 +115,7 @@ test('términos coloquiales: radar si la categoría es inequívoca, sin cifras a
   const transito = await conversa('accidentes de transito en sonora');
   sinSeriesAjenas(transito, 'accidentes de transito en sonora');
   assert.doesNotMatch(transito.md, /VEHICULOS_V20|PEATON_V01|casos pronosticados/);
-  assert.equal((await conversa('brucelosis en sonora')).handler, 'answerRadarBoletin');
+  assert.equal((await conversa('triquinosis en sonora')).handler, 'answerRadarBoletin');
   assert.equal((await conversa('intoxicacion por alcohol en jalisco')).handler, 'answerRadarBoletin');
   for (const q of ['embarazo adolescente en jalisco', 'alcoholismo en jalisco', 'cuantos casos de alcoholismo hubo']) {
     const r = await conversa(q);

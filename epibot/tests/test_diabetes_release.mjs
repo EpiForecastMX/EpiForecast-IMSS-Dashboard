@@ -13,7 +13,7 @@ const K = readFileSync(new URL('../knowledge.json', import.meta.url), 'utf-8');
 const VISTAS = ['obesidad', 'anorexia_f50', 'diabetes_t1', 'diabetes_t2', 'hipertension_i10',
   'isquemica_i20', 'cerebrovascular_i60', 'intestinales_a04', 'ira_j00', 'ivu_n39', 'gingivitis_k05',
   'asma_j45', 'ulceras_k25', 'cancer_mama_c50', 'cancer_cuello_utero_c53', 'cancer_pulmon_c33', 'cancer_estomago_c16', 'cancer_colon_c18', 'linfoma_hodgkin_c81', 'linfoma_no_hodgkin_c82', 'leucemia_c91', 'cancer_pancreas_c26', 'cancer_encefalo_c70', 'cancer_cuerpo_utero_c54', 'cancer_ovario_c56', 'cancer_rinon_c64', 'cancer_prostata_c61', 'cancer_huesos_c40', 'cancer_higado_c22', 'cancer_esofago_c15', 'neumonias_j12',
-  'otitis_h65', 'conjuntivitis_h10', 'amebiasis_a06', 'vehiculos_v20', 'embarazo_hipertensivos_o10'];
+  'otitis_h65', 'conjuntivitis_h10', 'amebiasis_a06', 'vehiculos_v20', 'embarazo_hipertensivos_o10', 'rotavirus_a080'];
 globalThis.fetch = async (u) => ({
   ok: true,
   json: async () => {
@@ -63,7 +63,7 @@ test('insípida y prediabetes siguen sin modelarse; la gestacional es O24.4, nun
   assert.doesNotMatch(r.md, /DIABETES_T[12]|Diabetes mellitus tipo I/);
   const i = await conversa('casos de diabetes insipida en jalisco');
   assert.match(i.md, /no modela/);
-  assert.match(i.md, /sesenta y cinco padecimientos/);
+  assert.match(i.md, /ochenta y cinco padecimientos/);
 });
 
 test('«diabetes» a secas avisa que se toma como tipo II', async () => {
@@ -446,11 +446,13 @@ test('el corpus no atribuye sexo ni pliegues de 2021 a 2024 a quien no los tiene
   assert.match(texto('obesidad', 'motores'), /pliegues de 2021 a 2024/);
 });
 
-test('rotavirus sigue sin modelarse', async () => {
+// Desde alta20c (15-nov-2026) la enteritis por rotavirus (A08.0) tiene su propio control estacional: ya no es un no
+// modelado, y nunca recibe cifras de las infecciones intestinales (A04, A08-A09).
+test('rotavirus responde su propio control, no las infecciones intestinales', async () => {
   for (const q of ['gastroenteritis por rotavirus en jalisco', 'rotavirus en jalisco']) {
     const r = await conversa(q);
-    assert.equal(r.handler, 'answerPadecimientoNoModelado', q);
-    assert.match(r.md, /no modela/, q);
+    assert.match(r.md, /ROTAVIRUS_A080/, q);
+    assert.doesNotMatch(r.md, /INTESTINALES_A04/, q);
   }
 });
 

@@ -73,14 +73,18 @@ test('la galería crea una instancia por release', () => {
       'neumonias_j12', 'ulceras_k25', 'cancer_mama_c50', 'cancer_cuello_utero_c53', 'cancer_pulmon_c33',
       'cancer_estomago_c16', 'cancer_colon_c18', 'linfoma_hodgkin_c81', 'linfoma_no_hodgkin_c82',
       'leucemia_c91', 'cancer_pancreas_c26', 'cancer_encefalo_c70', 'cancer_cuerpo_utero_c54',
-      'cancer_ovario_c56', 'cancer_rinon_c64', 'cancer_prostata_c61', 'cancer_huesos_c40',
-      'cancer_higado_c22', 'cancer_esofago_c15', 'otitis_h65', 'conjuntivitis_h10', 'amebiasis_a06',
-      'vehiculos_v20', 'embarazo_hipertensivos_o10', 'alimentaria_a05', 'shigelosis_a03', 'erisipela_a46',
-      'candidiasis_b37', 'embarazo_diabetes_o24', 'quemaduras_t20', 'ivp_i87', 'hiperplasia_prostata_n40',
-      'escabiosis_b86', 'protozoarios_a07', 'faringitis_j02', 'peaton_v01', 'displasia_leve_n87',
-      'varicela_b01', 'parotiditis_b26', 'ascariasis_b77', 'hepatitis_a_b15', 'calor_t67', 'otras_hepatitis_b17',
+      'cancer_ovario_c56', 'cancer_rinon_c64', 'cancer_prostata_c61', 'cancer_huesos_c40', 'cancer_higado_c22',
+      'cancer_esofago_c15', 'otitis_h65', 'conjuntivitis_h10', 'amebiasis_a06', 'vehiculos_v20',
+      'embarazo_hipertensivos_o10', 'alimentaria_a05', 'shigelosis_a03', 'erisipela_a46', 'candidiasis_b37',
+      'embarazo_diabetes_o24', 'quemaduras_t20', 'ivp_i87', 'hiperplasia_prostata_n40', 'escabiosis_b86',
+      'protozoarios_a07', 'faringitis_j02', 'peaton_v01', 'displasia_leve_n87', 'varicela_b01',
+      'parotiditis_b26', 'ascariasis_b77', 'hepatitis_a_b15', 'calor_t67', 'otras_hepatitis_b17',
       'desnutricion_leve_e441', 'salmonelosis_a02', 'tifoidea_a01', 'escarlatina_a38', 'hepatitis_c_b17',
-      'displasia_severa_n87', 'sintetico_x']);
+      'displasia_severa_n87', 'brucelosis_a23', 'reumatica_i00', 'bocio_e01', 'hepatitis_b_b16',
+      'rotavirus_a080', 'absceso_hepatico_a064', 'leptospirosis_a27', 'helmintiasis_b65',
+      'desnutricion_moderada_e440', 'desnutricion_severa_e40', 'enterobiasis_b80', 'giardiasis_a071',
+      'paratifoidea_a011', 'mal_del_pinto_a67', 'vulvovaginitis_n76', 'coqueluchoide_u99', 'plaguicidas_t60',
+      'tos_ferina_a37', 'sindrome_meningeo_g00', 'monoxido_t58', 'sintetico_x']);
   assert.equal(ctx.window.GaleriasRelease.at(-1).color, '#123456');
 });
 

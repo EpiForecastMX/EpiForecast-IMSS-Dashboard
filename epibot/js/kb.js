@@ -6,12 +6,12 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=58';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=63';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
-import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=1';
+import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=4';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=29';
-import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, RELEASES, releaseDePad, respuestaCrisis, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=24';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=37';
+import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=29';
 
 let DATA = null;
 
@@ -622,7 +622,6 @@ const ROTULO_NO_MODELADA = {
   'hipertension portal': 'hipertensión portal', 'hipertension intracraneal': 'hipertensión intracraneal',
   'hipertension ocular': 'hipertensión ocular',
   'conjuntivitis hemorragica': 'conjuntivitis epidémica aguda hemorrágica (B30.3)',
-  'absceso hepatico amebiano': 'absceso hepático amebiano (A06.4)',
   'peaton lesionado': 'peatón lesionado en accidente de transporte (V01-V09)',
   'otitis externa': 'otitis externa o crónica',
 };
@@ -727,7 +726,7 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
     return (
       `EpiForecast-MX **no modela ${ajeno ? ajeno.nombre : (ROTULO_NO_MODELADA[matchedDisease] || matchedDisease)}**. ` +
       (sensible
-        ? 'Si tú o alguien cercano necesita apoyo, la **Línea de la Vida** atiende gratis, las 24 horas: **800 911 2000**.\n\n'
+        ? `${LINEA_DE_LA_VIDA}\n\n`
         : '') +
       (violencia
         ? 'No tiene modelo ni pronóstico en la plataforma y EPI no da sus cifras. Sus notificaciones semanales por entidad aparecen en el boletín y se consultan, sin modelo, en el [Radar del boletín](../boletin.html).\n\n'
@@ -5726,6 +5725,101 @@ function isOffTopic(q, ent) {
   return false;
 }
 
+// ---------------------------------------------------------------------------
+// Guardas deterministas de la revisión focal de Fable (FABLE_CONTROLES5_PUBLICACION_REVISION, M3 y B3).
+// Corren después de la respuesta de crisis (que conserva la precedencia) y antes de cualquier handler
+// con cifras. rag.mjs tiene su propia copia, independiente, con el mismo texto.
+// ---------------------------------------------------------------------------
+
+/** Frase vigente del EpiBot para la Línea de la Vida (la usa también la respuesta de temas sensibles). */
+const LINEA_DE_LA_VIDA = 'Si tú o alguien cercano necesita apoyo, la **Línea de la Vida** atiende gratis, las 24 horas: **800 911 2000**.';
+
+/** Alias y prefijos propios de un release del catálogo (consulta ya normalizada, sin tildes). */
+function aliasDeRelease(id) {
+  const r = RELEASES.find((x) => x.id === id);
+  return r ? [...new Set([...r.alias, ...(r.prefijos || [])])] : [];
+}
+const nombraAlguno = (qn, aliases) => aliases.some((a) => nombraAlias(qn, a));
+
+// D7 (plaguicidas T60 y monóxido T58): una consulta de dosis, letalidad o de cómo intoxicar(se) o envenenar
+// recibe un texto fijo, sin mecanismos, productos, dosis ni cifras. Ejecuta la condición D7 vigente; no es un
+// criterio nuevo y no toca a ningún otro padecimiento: exige un alias propio de T60 o T58.
+const D7_ALIAS = [...aliasDeRelease('plaguicidas_t60'), ...aliasDeRelease('monoxido_t58'), 'pesticide'];
+const D7_METODO_ES = /\b(dosis|letal|letales|letalidad|(intoxicar|envenenar)(me|te|se|lo|la|los|las|le|les|nos)?|como (me |te |se |lo |la |los |las |le |les )?(intoxic|envenen)[a-z]*|para (morir|morirme|morirse|matar|matarme|matarse|matarlo|matarla))\b/;
+const D7_METODO_EN = /\b(lethal|doses?|dosage|overdose|how (to|do i|can i|do you) (poison|intoxicate)|poison (myself|yourself|someone|somebody|him|her|them)|to (die|kill))\b/;
+export const D7_TEXTO_ES = 'Este sitio sólo publica conteos de casos notificados y su pronóstico: no describe mecanismos, ' +
+  'productos ni dosis, y la serie no distingue intención.\n\n' + LINEA_DE_LA_VIDA +
+  ' Si alguien está en peligro o ya estuvo expuesto, llama al **911** o acude a urgencias.';
+export const D7_TEXTO_EN = 'This site only publishes counts of reported cases and their forecast: it does not describe ' +
+  'mechanisms, products or doses, and the series does not distinguish intent.\n\n' +
+  'If you or someone close to you needs support, **Línea de la Vida** in Mexico is free and open 24 hours: **800 911 2000**. ' +
+  'If someone is in danger or has been exposed, call **911** or go to an emergency room.';
+
+/** Texto fijo de D7 para una consulta (cruda), o null. */
+export function guardaD7(query) {
+  const qn = norm(String(query || ''));
+  if (!nombraAlguno(qn, D7_ALIAS)) return null;
+  if (D7_METODO_ES.test(qn)) return D7_TEXTO_ES;
+  return D7_METODO_EN.test(qn) ? D7_TEXTO_EN : null;
+}
+
+// B3: tos ferina (A37) y síndrome coqueluchoide (U99) son series distintas; una consulta que pide sumarlas
+// recibe la aclaración explícita y ninguna cifra (ni suma ni equivalencia clínica).
+const SUMA = /\b(suma|sumas|sumar|sumarl[ao]s|sumal[ao]s|suman|sumen|sumad[oa]s?|sumando|juntas|juntos|en conjunto|combinad[oa]s?|combinar|combinarl[ao]s|total de (ambas|ambos|las dos|los dos)|sum|summed|add up|added up|combined|together)\b/;
+
+/** Texto fijo cuando la consulta pide sumar A37 y U99, o null. */
+export function guardaSumaA37U99(query) {
+  const raw = String(query || '');
+  const qn = norm(raw);
+  const u99 = aliasDeRelease('coqueluchoide_u99').sort((a, b) => b.length - a.length);
+  if (!nombraAlguno(qn, u99)) return null;
+  // «pertussis like syndrome» (U99) contiene «pertussis» y «coqueluchoide» empieza por «coqueluche» (A37): se
+  // retiran las menciones de U99 antes de buscar A37.
+  const resto = u99.reduce((q, a) => q.replace(new RegExp(`(^| )${a}[a-z0-9]*`, 'g'), ' '), qn);
+  if (!nombraAlguno(resto, aliasDeRelease('tos_ferina_a37'))) return null;
+  if (!SUMA.test(qn) && !raw.includes('+')) return null;
+  const a37 = RELEASES.find((r) => r.id === 'tos_ferina_a37');
+  const u = RELEASES.find((r) => r.id === 'coqueluchoide_u99');
+  return `**${a37.etiqueta}** y **${u.etiqueta}** no se suman: son series distintas, cada una con su código CIE, ` +
+    'su propio conteo y su propio pronóstico congelado. El sitio no las combina ni las trata como equivalentes.\n\n' +
+    `Consulta cada una por separado («tos ferina en Jalisco», «coqueluchoide en Jalisco») o en su página: ` +
+    `[${a37.nombre}](../${a37.pagina}) y [${u.nombre}](../${u.pagina}).`;
+}
+
+// Meningitis de un tipo nombrado (meningocócica, tuberculosa, por Haemophilus, neumocócica) o con su código
+// (G00.0, G00.1): no es el síndrome meníngeo publicado (G00-G03, excepto G00.0 y G00.1) ni ningún otro pronóstico.
+// Texto fijo sin cifras, antes de cualquier otra ruta (hallazgo de la API real de la preview 82cf0812). Copia
+// independiente en rag.mjs, con el mismo texto (tests/test_meningitis_d7_rag.mjs comprueba la paridad).
+const MENINGITIS_TIPO = /\b(meningitis|meningoencefalitis|meningococ[a-z]*|enfermedad meningococica)\b/;
+const MENINGITIS_NOMBRADA = /\b(meningococ[a-z]*|tuberculos[a-z]*|haemophilus|hemophilus|neumococ[a-z]*|pneumococ[a-z]*|g00 ?[01])\b/;
+export const MENINGITIS_TEXTO = 'EpiForecast-MX no pronostica la meningitis meningocócica, la tuberculosa, la debida a ' +
+  '*Haemophilus influenzae* (G00.0) ni la neumocócica (G00.1): se notifican aparte en el boletín. El **síndrome meníngeo** ' +
+  'publicado (G00-G03, excepto G00.0 y G00.1) no las incluye, así que no se le atribuyen sus cifras. Puedes consultar ' +
+  'ese bloque en [su página](../sindrome_meningeo_g00.html).';
+/** Texto fijo para una meningitis de tipo nombrado (consulta cruda), o null. */
+export const MENINGITIS_G00_TEXTO = '«G00» abarca la meningitis por *Haemophilus influenzae* (G00.0) y la neumocócica (G00.1), que ' +
+  'no se pronostican, y el resto de G00 (G00.2-G00.9), que forma parte del **síndrome meníngeo** publicado (G00-G03, ' +
+  'excepto G00.0 y G00.1). No doy cifras hasta saber cuál consultas; por ejemplo, «síndrome meníngeo en Jalisco».';
+const MENINGITIS_CODIGO = /\bg00 ?[01]\b/;
+const G00_SOLO = /\bg00\b(?! ?[0-9])/;
+/** Texto fijo para una meningitis de tipo nombrado, G00.0, G00.1 o «G00» a secas (consulta cruda), o null. */
+export function guardaMeningitisTipo(query) {
+  const qn = norm(String(query || '')).replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ');
+  if (/\bsindrome meningeo\b/.test(qn)) return null;
+  if (MENINGITIS_CODIGO.test(qn) || (MENINGITIS_TIPO.test(qn) && MENINGITIS_NOMBRADA.test(qn))) return MENINGITIS_TEXTO;
+  return G00_SOLO.test(qn) ? MENINGITIS_G00_TEXTO : null;
+}
+
+/**
+ * El nombre publicado completo («Síndrome meníngeo (G00-G03, excepto G00.0 y G00.1)») cita los códigos que EXCLUYE: se
+ * retiran de la consulta para que no se lean como una petición de esos subtipos. Sólo con el síndrome meníngeo nombrado.
+ */
+export function sinExclusionG00(query) {
+  const raw = String(query || '');
+  if (!/\bsindrome meningeo\b/.test(norm(raw).replace(/[^a-z0-9 ]/g, ' '))) return raw;
+  return raw.replace(/\b(excepto|except|salvo|excluyendo|excluding)\s+G00\s?[.]?\s?[01](\s*(y|e|ni|and|,)\s*G00\s?[.]?\s?[01])?/gi, ' ');
+}
+
 // Contexto conversacional: entidades de la ultima pregunta exitosa
 let lastEntities = {};
 let _lastDistribMetric = null;   // {metric, label} de la ultima distribucion
@@ -5740,7 +5834,8 @@ export function _resetContext() { lastEntities = {}; _lastDistribMetric = null; 
  * `answer()` delega aquí y expone sólo la respuesta, así que no hay una segunda ruta de producción
  * "para pruebas": la que se mide es exactamente la que corre en el sitio.
  */
-async function _resolve(query) {
+async function _resolve(consulta) {
+  const query = sinExclusionG00(consulta);
   const trace = { handler: null };   // por llamada, no global: no puede quedar obsoleto
   const d = await loadKnowledge();
   const s = d.stats || {};
@@ -5750,6 +5845,24 @@ async function _resolve(query) {
     lastEntities = {};
     trace.handler = 'answerCrisis';
     return { response: crisis, handler: trace.handler };
+  }
+  const d7 = guardaD7(query);
+  if (d7) {
+    lastEntities = {};
+    trace.handler = 'answerGuardaD7';
+    return { response: `${d7}\n<!--SIN_GRAFICA-->`, handler: trace.handler };
+  }
+  const meningitis = guardaMeningitisTipo(query);
+  if (meningitis) {
+    lastEntities = {};
+    trace.handler = 'answerMeningitisTipo';
+    return { response: `${meningitis}\n<!--SIN_GRAFICA-->`, handler: trace.handler };
+  }
+  const suma = guardaSumaA37U99(query);
+  if (suma) {
+    lastEntities = {};
+    trace.handler = 'answerSumaSeriesDistintas';
+    return { response: `${suma}\n<!--SIN_GRAFICA-->`, handler: trace.handler };
   }
   // Un nombre genérico («otitis», «amebiasis») abarca más que el bloque publicado: se aclara y no se
   // dan cifras hasta que la consulta nombre el bloque.
@@ -5766,6 +5879,13 @@ async function _resolve(query) {
   // El seguimiento reescrito por familia («¿y la C?» → «y hepatitis virica c») nombra un bloque publicado:
   // la búsqueda del radar por primera palabra («hepatitis» → hepatitis B, sin publicar) no lo vuelve no modelado.
   const viaFamilia = q !== qBase;
+  // El bloque hermano nombrado por familia puede ser a su vez genérico («¿y la B?» tras hepatitis A: aguda o crónica).
+  const ambiguoFamilia = viaFamilia ? aliasAmbiguo(q) : null;
+  if (ambiguoFamilia) {
+    lastEntities = {};
+    trace.handler = 'answerAliasAmbiguo';
+    return { response: `${ambiguoFamilia.texto}\n<!--SIN_GRAFICA-->`, handler: trace.handler };
+  }
   const ent = detectEntities(q === norm(query) ? query : q);
 
   // Guard: prompt injection / roleplay → rechazar inmediatamente

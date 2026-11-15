@@ -13,7 +13,7 @@ principal (`Congresos/Mundial/ESTADO_ACTUAL_WCP.md`); este README describe el si
 
 | | |
 |---|---|
-| Padecimientos publicados | **65** = 4 del carril original + 61 releases del runner (treinta añadidos el 12-nov-2026: catorce aceptados en la prueba de 2025, validación prospectiva 0/4 en curso, y dieciséis controles estacionales no validados) |
+| Padecimientos publicados | **85** = 4 del carril original + 81 releases del runner (veinte añadidos el 15-nov-2026 con alta20c: tres aceptados en la prueba de 2025, validación prospectiva 0/4 en curso, y diecisiete controles estacionales no validados) |
 | Datos reales hasta | **boletín 43 de 2026** (carril original y radar); **semana 42** observada en los releases del runner |
 | Series productivas del carril original | **432** = 333 neuro + 99 dengue |
 | Gráficos publicados del carril original | **432** = 333 neuro + 99 dengue (ronda W37; hasta W33 eran 444 con las 4 regiones de dengue) |
@@ -378,7 +378,7 @@ la orientación. Van a `Reports/<hito>/` a 1600 px de ancho y calidad 82.
 ```
 EpiForecast-IMSS-Dashboard/
 ├── index.html                      # Portada
-├── <id>.html                       # 61 páginas de releases del runner
+├── <id>.html                       # 81 páginas de releases del runner
 ├── boletin.html                    # Radar del boletín
 ├── rechazados.html                 # Padecimientos rechazados (Covid-19)
 ├── dengue.html                     # Dengue

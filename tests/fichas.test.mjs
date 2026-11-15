@@ -3,7 +3,7 @@
 // contexto Galería/Dashboard que el destino acepta sin avisos.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildCatalog } from '../scripts/build_dashboard_catalog.mjs';
@@ -185,4 +185,34 @@ test('la política nombrada en cada ficha coincide con la del registry', () => {
     const nombradas = [...new Set([...leer(ficha.page).matchAll(/rolling_cv[a-z_0-9]*/g)].map((m) => m[0]))];
     assert.deepEqual(nombradas, [pol[r.disease_id]], `${ficha.page}: política`);
   }
+});
+
+test('semanaMas (MMWR) del ayudante de fichas coincide con calendario_boletin y cruza 52/53 → 1', async () => {
+  const ctx = {};
+  vm.createContext(ctx);
+  vm.runInContext(leer('assets/site/estado-ficha.js'), ctx);
+  const E = ctx.EpiEstadoFicha;
+  const { semanaSiguiente, semanasDelAnio } = await import('../epibot/js/calendario_boletin.js');
+  assert.deepEqual([...E.semanaMas(2025, 53, 1)], [2026, 1]);
+  assert.deepEqual([...E.semanaMas(2026, 52, 1)], [2027, 1]);
+  assert.deepEqual([...E.semanaMas(2020, 53, 1)], [2021, 1]);
+  assert.deepEqual([...E.semanaMas(2026, 43, 0)], [2026, 43]);
+  assert.deepEqual([...E.semanaMas(2021, 1, -1)], [2020, 53]);
+  assert.throws(() => E.semanaMas(2026, 53, 1), /no válida/);  // otro realm (vm): se compara el mensaje
+  for (let y = 2014; y <= 2027; y++) {
+    assert.equal(E.semanasDelAnio(y), semanasDelAnio(y), `${y}`);
+    for (let w = 1; w <= semanasDelAnio(y); w++) for (const k of [0, 1]) {
+      assert.deepEqual([...E.semanaMas(y, w, k)], semanaSiguiente(y, w, k), `${y}-W${w}+${k}`);
+    }
+  }
+});
+
+test('las fichas no hacen aritmética de semana a mano: boletín y primera semana fuera de muestra con semanaMas (MMWR)', () => {
+  const malas = [];
+  for (const f of readdirSync(root).filter((x) => x.endsWith('.html'))) {
+    const t = leer(f);
+    if (t.includes('publicada en el boletín de la semana ${w + 1}') || t.includes('${V.origin[1] + 1}')) malas.push(f);
+    if (t.includes('EpiEstadoFicha.semanaMas')) assert.match(t, /estado-ficha\.js\?v=([2-9]|\d{2,})"/, `${f}: semanaMas exige estado-ficha v>=2`);
+  }
+  assert.deepEqual(malas, [], `fichas con semana + 1 a mano: ${malas.length}`);
 });
