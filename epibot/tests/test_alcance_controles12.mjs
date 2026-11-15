@@ -89,7 +89,7 @@ for (const [q, nombra] of [
 }
 
 // Subtipos o categorías vecinas con código propio: sin cifras.
-for (const q of ['fiebre paratifoidea en Sonora', 'hepatitis alcohólica en Jalisco', 'A06.5 en Jalisco',
+for (const q of ['hepatitis alcohólica en Jalisco', 'A06.5 en Jalisco',
   'isosporiasis en Jalisco']) {
   test(`fuera del bloque: «${q}» no recibe cifras`, async () => {
     assert.ok(mencionaNoModelada(norm(q)), 'mencionaNoModelada');
@@ -129,7 +129,7 @@ async function postRag(query) {
   }));
   return { status: res.status, body: await res.json() };
 }
-for (const q of ['desnutrición en Jalisco', 'hepatitis B en Jalisco', 'fiebre paratifoidea en Sonora']) {
+for (const q of ['desnutrición en Jalisco', 'hepatitis B en Jalisco', 'A01 en Jalisco']) {
   test(`RAG real: «${q}» responde sin modelo ni cifras`, async () => {
     const { status, body } = await postRag(q);
     assert.equal(status, 200);

@@ -113,7 +113,8 @@ test('vecinos: el cáncer de próstata sigue en C61, peatones no son vehículos 
 
 // Salmonelosis, tifoidea, escarlatina, hepatitis C y displasia severa se publicaron como controles en alta10b; la
 // desnutrición moderada y la enterobiasis, en alta20c. «Hepatitis B» a secas pide precisar (aguda o crónica).
-for (const q of ['fiebre paratifoidea en Sonora', 'hepatitis B en Jalisco']) {
+// La paratifoidea se publicó aceptada en alta20c (test_alcance_paratifoidea.mjs).
+for (const q of ['hepatitis B en Jalisco']) {
   test(`rechazo no autorizado: «${q}» sigue sin cifras de un release`, async () => {
     const { md } = await pregunta(q);
     assert.doesNotMatch(md, /MARCA:|casos pronosticados|Pronóstico \*\*congelado\*\*/);

@@ -5,6 +5,25 @@
             "date": "15 de noviembre de 2026",
             "iso": "2026-11-15",
             "type": "radar",
+            "tag": "Pronóstico publicado",
+            "featured": true,
+            "title": "La fiebre paratifoidea se publica tras superar la prueba de 2025",
+            "summary": "El portafolio de la fiebre paratifoidea (A01.1-A01.4) superó la prueba de 2025 frente al control estacional en las series por estado, en el conjunto y en el total nacional. Su validación prospectiva está en curso (0 de 4 semanas).",
+            "body": [
+                "EpiForecast-MX publica el pronóstico semanal de la <strong style=\"color:var(--cream)\">fiebre paratifoidea (A01.1-A01.4)</strong> para las 32 entidades, por sexo, a 52 semanas. Su portafolio superó la prueba única de 2025 frente al control estacional en las series por estado, en el conjunto de las series y en el total nacional. Compitieron sólo los cinco motores estacionales, sin ETS ni regresión armónica, porque esos dos motores no producían pronósticos utilizables en algunas series estatales; esa política la decidió un dictamen tomado bajo delegación del autor. Su validación prospectiva está en curso (0 de 4 semanas) y no se presenta como superada.",
+                "En el formato oficial de notificación SUIVE-1 (2014 y 2019) la fiebre paratifoidea es un solo renglón con alcance A01.1-A01.4; el boletín abrevió el rótulo como «A01.1» en algunos años. Los casos notificados por año bajaron de forma sostenida desde 2014, con repuntes; son notificaciones y no permiten atribuir la baja a una causa. «Tifoidea» a secas sigue siendo la fiebre tifoidea (A01.0), publicada como control estacional.",
+                "Usa datos hasta la semana 42 de 2026 y se emitió el 15 de noviembre, antes de que existiera el boletín 44. Es un pronóstico puntual, sin intervalos de incertidumbre."
+            ],
+            "link": {
+                "href": "paratifoidea_a011.html",
+                "text": "Ver fiebre paratifoidea",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
+        {
+            "date": "15 de noviembre de 2026",
+            "iso": "2026-11-15",
+            "type": "radar",
             "tag": "Control estacional",
             "featured": true,
             "title": "Doce padecimientos más, publicados como controles estacionales no validados",

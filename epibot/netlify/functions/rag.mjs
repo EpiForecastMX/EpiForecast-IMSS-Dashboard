@@ -278,7 +278,7 @@ const lista = (xs) => (xs.length > 1 ? `${xs.slice(0, -1).join(', ')} y ${xs.at(
 /** Avisos de la fuente del release (avisos_fuente.js), en el mismo orden que su ficha; vacío si no tiene. */
 function avisosFuenteRag(id) {
   const a = (globalThis.EPI_AVISOS_FUENTE || {})[id];
-  return a ? `\n\nAvisos de la fuente:\n${[...a.avisos, a.nota].map((x) => `- **${x.titulo}** ${x.texto}`).join('\n')}` : '';
+  return a ? `\n\nAvisos de la fuente:\n${[...a.avisos, a.nota].filter(Boolean).map((x) => `- **${x.titulo}** ${x.texto}`).join('\n')}` : '';
 }
 
 /**

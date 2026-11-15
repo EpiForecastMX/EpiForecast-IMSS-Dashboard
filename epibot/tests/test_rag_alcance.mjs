@@ -93,6 +93,7 @@ test('rag.mjs deriva los releases publicados del catálogo y de su shard', () =>
     { nombre: 'Obesidad', cie: ['E66'] },
     { nombre: 'Otitis media aguda', cie: ['H65.0', 'H65.1'] },
     { nombre: 'Otras hepatitis víricas', cie: ['B17.0', 'B17.2', 'B17.8', 'B17.9', 'B18.0', 'B18.1', 'B18.8', 'B18.9', 'B19'] },
+    { nombre: 'Fiebre paratifoidea', cie: ['A01.1', 'A01.2', 'A01.3', 'A01.4'] },
     { nombre: 'Parotiditis infecciosa', cie: ['B26'] },
     { nombre: 'Peatón lesionado en accidente de transporte', cie: ['V01', 'V02', 'V03', 'V04', 'V05', 'V06', 'V07', 'V08', 'V09'] },
     { nombre: 'Otras infecciones intestinales debidas a protozoarios', cie: ['A07.0', 'A07.2', 'A07.9'] },
@@ -118,12 +119,12 @@ test('un release no publicado, oculto o sin canal epibot no entra al alcance', (
   assert.equal(ctx.releasesDesdeCatalogo(cat, leerShard).length, 0);
 });
 
-test('las CIFRAS CLAVE nombran los setenta y siete padecimientos modelados', () => {
+test('las CIFRAS CLAVE nombran los setenta y ocho padecimientos modelados', () => {
   const rel = ctx.releasesDesdeCatalogo(CAT, leerShard);
   const s = ctx.structuredSummary(KB, rel);
   const linea = s.split('\n').find((l) => l.startsWith('Alcance vigente'));
   assert.ok(linea, s);
-  assert.match(linea, /modela setenta y siete padecimientos/);
+  assert.match(linea, /modela setenta y ocho padecimientos/);
   for (const p of ['Depresión (F32)', 'Parkinson (G20)', 'Alzheimer (G30)', 'Dengue', 'Obesidad (E66)', 'Anorexia, bulimia y otros trastornos alimentarios (F50)', 'Diabetes mellitus tipo I (E10)', 'Diabetes mellitus tipo II (E11, E12, E13, E14)',
     'Infección de vías urinarias (N30, N34, N39.0)', 'Úlceras, gastritis y duodenitis (K25, K26, K27, K28, K29)',
     'Infecciones respiratorias agudas (J00, J01, J03 excepto J03.0, J04, J05, J06, J20, J21)', 'Gingivitis y enfermedad periodontal (K05)', 'Asma (J45, J46)', 'Tumor maligno de la mama (C50)', 'Tumor maligno del cuello del útero (C53)']) {

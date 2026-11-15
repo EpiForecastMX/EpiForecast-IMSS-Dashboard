@@ -74,7 +74,8 @@ for (const q of AJENOS) {
 
 // Rechazados en 2025 o vecinos de bloque: ni el release del lote ni la IRA, A04 o tipo I/II.
 const RECHAZADOS = [
-  'fiebre paratifoidea en Jalisco', 'hepatitis B en Sonora',
+  // La paratifoidea se publicó aceptada en alta20c (test_alcance_paratifoidea.mjs).
+  'hepatitis B en Sonora',
 ];
 for (const q of RECHAZADOS) {
   test(`no publicado: «${q}» no recibe cifras de un vecino`, async () => {

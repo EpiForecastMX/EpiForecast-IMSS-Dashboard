@@ -10,12 +10,12 @@
  * follow-ups («¿y hombres?») y en consultas corregidas por typo, donde la consulta cruda ya no
  * nombra a Obesidad.
  */
-import { mencionaNoModelada } from './entities.js?v=60';
+import { mencionaNoModelada } from './entities.js?v=61';
 import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
-} from './obesidad_charts.js?v=29';
-import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=26';
+} from './obesidad_charts.js?v=30';
+import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=27';
 // Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
 import './avisos_fuente.js?v=1';
 
@@ -64,7 +64,7 @@ function ficha(v, x, encabezado, r) {
 export function avisosFuente(id) {
   const a = (globalThis.EPI_AVISOS_FUENTE || {})[id];
   if (!a) return [];
-  return ['', '**Avisos de la fuente:**', ...[...a.avisos, a.nota].map((x) => `- **${x.titulo}** ${x.texto}`)];
+  return ['', '**Avisos de la fuente:**', ...[...a.avisos, a.nota].filter(Boolean).map((x) => `- **${x.titulo}** ${x.texto}`)];
 }
 
 /**

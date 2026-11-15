@@ -637,7 +637,7 @@ function vistaChunks(root, r) {
       ...base,
       id: `release:${r.disease_id}:${r.release_id}:avisos-fuente`,
       title: `${v.display_name} — avisos de la fuente (valores retirados o conservados y correcciones del acumulado)`,
-      text: `${encabezado}\n\n${control}${[...avisos.avisos, avisos.nota].map((x) => `${x.titulo} ${x.texto}`).join('\n\n')}`,
+      text: `${encabezado}\n\n${control}${[...avisos.avisos, avisos.nota].filter(Boolean).map((x) => `${x.titulo} ${x.texto}`).join('\n\n')}`,
     });
   }
   const motores = Object.entries(v.engines).map(([m, n]) => `${MOTOR_ES[m] || m}: ${n} series`);
@@ -699,13 +699,37 @@ export function conEstadoVigente(texto, r, root, publico) {
   const ruta = resolve(root, 'publication', r.disease_id, 'vista.json');
   if (!publico || !existsSync(ruta)) return texto;
   const v = JSON.parse(readFileSync(ruta, 'utf-8'));
-  return texto
+  return alcanceAcotado(texto, r, root)
     .replaceAll(r.publication_label, v.publication_label)
     .replace(
       /El veredicto del gate congelado es \S+ con \d+ de \d+ semanas objetivo observadas/,
       `El veredicto del gate congelado es ${v.verdict} con ${v.weeks_available} de ` +
         `${v.weeks_required} semanas objetivo observadas`,
     );
+}
+
+/**
+ * El corpus sellado nombra el alcance con los códigos del shard: el de infecciones intestinales dice «A08», pero
+ * A08.0 (rotavirus) es otro release publicado. Como `acotaCie` de rag.mjs, un código de tres caracteres del shard que
+ * abarca el subcódigo de OTRO release del catálogo se escribe «A08 excepto A08.0». El shard no se toca.
+ */
+export function alcanceAcotado(texto, r, root) {
+  if (!r.release_id) return texto;
+  const kn = resolve(root, 'publication', r.disease_id, r.release_id, 'knowledge.json');
+  if (!existsSync(kn)) return texto;
+  const cie = (JSON.parse(readFileSync(kn, 'utf-8')).release || {}).cie_codes || [];
+  const C = globalThis.EPI_CATALOGO;
+  if (!C || !cie.length) return texto;
+  const propio = String(releaseDeId(r.disease_id)?.cie || '');
+  const ajenos = C.releases.filter((x) => x.id !== r.disease_id)
+    .flatMap((x) => String(x.cie || '').match(/[A-Z]\d{2}\.\d/g) || []);
+  const acotado = cie.map((c) => {
+    if (!/^[A-Z]\d{2}$/.test(c)) return c;
+    const sub = [...new Set(ajenos.filter((o) => o.startsWith(`${c}.`) && !propio.includes(o)))].sort();
+    return sub.length ? `${c} excepto ${sub.join(', ')}` : c;
+  });
+  const antes = `(${cie.join(', ')})`, despues = `(${acotado.join(', ')})`;
+  return antes === despues ? texto : texto.replaceAll(antes, despues);
 }
 
 /** Chunks de los shards candidate de un staging root: uno por archivo del corpus generado. */

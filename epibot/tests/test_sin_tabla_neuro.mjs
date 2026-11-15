@@ -89,8 +89,9 @@ test('las autolesiones conservan su respuesta específica con la línea existent
 
 test('la corrección difusa no convierte un nombre del boletín en otro padecimiento', async () => {
   for (const [q, nombre] of [['cuantos casos de colera hubo', 'Cólera'],
+    // La fiebre paratifoidea se publicó aceptada en alta20c: ya no es un nombre del radar sin modelo.
     ['deplecion del volumen deshidratacion en jalisco', 'Depleción del volumen'],
-    ['fiebre paratifoidea en jalisco', 'Fiebre paratifoidea']]) {
+    ['triquinosis en jalisco', 'Triquinosis']]) {
     const r = await conversa(q);
     sinSeriesAjenas(r, q);
     assert.doesNotMatch(r.md, /Quisiste decir/, q);

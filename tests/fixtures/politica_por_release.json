@@ -60,6 +60,7 @@
  "obesidad": "rolling_cv_v1",
  "otitis_h65": "rolling_cv_v1",
  "otras_hepatitis_b17": "rolling_cv_baja_incidencia_v1",
+ "paratifoidea_a011": "rolling_cv_baja_incidencia_v1",
  "parotiditis_b26": "rolling_cv_baja_incidencia_v1",
  "peaton_v01": "rolling_cv_baja_incidencia_v1",
  "protozoarios_a07": "rolling_cv_baja_incidencia_v1",

@@ -85,7 +85,8 @@ test('sin sexo: la displasia severa no ofrece desglose por sexo', async () => {
 // La hepatitis B aguda (B16) y la desnutrición moderada y severa tienen su propio control desde alta20c
 // (test_alcance_controles12.mjs).
 const AJENOS = [
-  'hepatitis alcohólica en Jalisco', 'fiebre paratifoidea en Sonora', 'A01.2 en Jalisco', 'N87.9 en Jalisco',
+  // La fiebre paratifoidea (A01.1-A01.4) se publicó aceptada en alta20c (test_alcance_paratifoidea.mjs).
+  'hepatitis alcohólica en Jalisco', 'N87.9 en Jalisco',
 ];
 for (const q of AJENOS) {
   test(`fuera del bloque: «${q}» no recibe cifras`, async () => {
@@ -132,7 +133,7 @@ async function postRag(query) {
   }));
   return { status: res.status, body: await res.json() };
 }
-for (const q of ['hepatitis B en Jalisco', 'fiebre paratifoidea en Sonora']) {
+for (const q of ['hepatitis B en Jalisco']) {
   test(`RAG real: «${q}» responde sin modelo ni cifras`, async () => {
     const { status, body } = await postRag(q);
     assert.equal(status, 200);

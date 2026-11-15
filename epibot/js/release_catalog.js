@@ -540,7 +540,7 @@
       etiqueta: 'Otras salmonelosis (A02)', dataKey: 'salmonelosis_a02', marca: 'SALMONELOSIS_A02',
       pagina: 'salmonelosis_a02.html', consulta: 'otras salmonelosis', cie: 'A02', color: '#0891B2',
       controlEstatalPocoInformativo: true,
-      // La fiebre tifoidea (A01.0) y la paratifoidea (A01.1-A01.4) quedan fuera del bloque A02.
+      // La fiebre tifoidea (A01.0) y la paratifoidea (A01.1-A01.4) son bloques propios, fuera de A02.
       alias: ['otras salmonelosis', 'salmonelosis', 'salmonella', 'salmonela', 'a02', 'salmonellosis'],
       prefijos: ['salmonelosis', 'salmonella', 'salmonela', 'salmonellosis'],
     },
@@ -685,6 +685,15 @@
       controlEstatalPocoInformativo: true,
       alias: ['giardiasis', 'giardia', 'lambliasis', 'a07 1', 'giardiosis'],
       prefijos: ['giardiasis', 'giardia', 'lambliasis', 'giardiosis'],
+    },
+    // Aceptada en su prueba única de 2025 (alta20c, 15-nov-2026): validación prospectiva en curso, nunca PASS.
+    {
+      id: 'paratifoidea_a011', pad: 'Fiebre paratifoidea', nombre: 'Fiebre paratifoidea', nombreCorto: 'Fiebre paratifoidea',
+      etiqueta: 'Fiebre paratifoidea (A01.1-A01.4)', dataKey: 'paratifoidea_a011', marca: 'PARATIFOIDEA_A011',
+      pagina: 'paratifoidea_a011.html', consulta: 'fiebre paratifoidea', cie: 'A01.1-A01.4', color: '#B45309',
+      // «Tifoidea» a secas es A01.0 (fiebre tifoidea) y «salmonelosis» es A02: no reciben estas cifras.
+      alias: ['fiebre paratifoidea', 'paratifoidea', 'a01 1', 'a01 2', 'a01 3', 'a01 4', 'paratyphoid fever', 'paratyphoid'],
+      prefijos: ['fiebre paratifoidea', 'paratifoidea', 'paratyphoid'],
     },
   ]);
 
@@ -848,8 +857,6 @@
     'linfoma', 'tumor', 'neoplasia', 'cardiopatia congenita', 'cardiopatia', 'infarto',
     'ataque al corazon', 'ataque cardiaco',
     'embolia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
-    // Fuera de A01.0: la paratifoidea tiene código propio y no se pronostica.
-    'paratifoidea', 'paratyphoid',
     'lupus', 'fibromialgia', 'esclerosis', 'huntington', 'ela ',
     'insuficiencia renal', 'insuficiencia cardiaca',
     // En inglés: sin esto, «epilepsy in jalisco» caería en la tabla neuro del estado.
@@ -938,8 +945,6 @@
       'displasia_leve_n87'],
     // Subtipos con código propio vecinos de los seis controles de alta10b (12-nov-2026). La desnutrición moderada y
     // la severa tienen su propio control desde alta20c (15-nov-2026).
-    [/\bparatifoid[a-z]*\b|\bparatyphoid\b/, 'paratifoidea', 'fiebre paratifoidea (A01.1-A01.4)', 'tifoidea_a01'],
-    [subcodigo('a01', '1-4'), 'paratifoidea', 'fiebre paratifoidea (A01.1-A01.4)', 'tifoidea_a01'],
     [/\bparvovirus\b|\beritema infeccioso\b|\bquinta enfermedad\b/, 'parvovirus b19',
       'infección por parvovirus B19 (B08.3, B34.3), que no es una hepatitis', 'otras_hepatitis_b17'],
     [/\bhepatitis (alcoholica|autoinmune|toxica|medicamentosa|alcoholic|autoimmune|toxic|drug induced)\b|\bk7[0-5]\b/,
@@ -1054,8 +1059,8 @@
       uno: new RegExp(`\\b(leve|moderada)s?\\b|${subcodigo('n87', '01').source}`),
       otroEsp: new RegExp(`\\b(severa|grave)s?\\b|\\bcacu in situ\\b|\\bd06\\b|${subcodigo('n87', '2').source}`),
       abarca: '«Displasia cervical» abarca dos bloques publicados con su propio pronóstico: la leve y moderada (N87.0-N87.1) y la severa con el cáncer cervicouterino in situ (N87.2, D06).' },
-    { release: 'tifoidea_a01', generico: /\ba01\b(?![ .]?[0-9])/, especifico: /(?!)/,
-      abarca: '«A01» abarca la fiebre tifoidea (A01.0) y la paratifoidea (A01.1-A01.4), que no se pronostica.' },
+    { release: null, bloques: ['tifoidea_a01', 'paratifoidea_a011'], generico: /\ba01\b(?![ .]?[0-9])/, especifico: /(?!)/,
+      abarca: '«A01» abarca dos bloques del boletín, cada uno con su propio pronóstico: la fiebre tifoidea (A01.0) y la paratifoidea (A01.1-A01.4).' },
     // Varios helmintos con bloque propio: ambiguo si no nombra exactamente uno de los tres.
     { release: null, bloques: ['ascariasis_b77', 'enterobiasis_b80', 'helmintiasis_b65'],
       generico: /\b(lombri(z|ces)|gusanos( intestinales)?|parasitos intestinales|parasitosis intestinal(es)?|helmint[a-z]*|geohelmint[a-z]*)\b/,

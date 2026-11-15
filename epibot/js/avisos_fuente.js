@@ -8,7 +8,7 @@
       "nota": {
         "clave": "bajas-acumulado",
         "titulo": "Correcciones de la fuente en la ventana que repite el control.",
-        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 30 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 74 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja fue en Morelos: acumulado 14 a 6 entre 2026_sem30 y 2026_sem31. El mayor retiro en un solo boletín fue en Michoacán: acumulado 191 a 183 con 1 casos nuevos (9 casos), entre 2026_sem35 y 2026_sem36. El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
+        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 30 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 74 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja, de 8 casos, se repite dos veces, empatada: en Morelos (acumulado 14 a 6 entre 2026_sem30 y 2026_sem31) y en Michoacán (acumulado 191 a 183 entre 2026_sem35 y 2026_sem36). El mayor retiro en un solo boletín, de 9 casos, fue en Michoacán (acumulado 191 a 183 entre 2026_sem35 y 2026_sem36, con 1 caso nuevo). El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
         "bajas": 30,
         "retiro_bruto": 74
       },
@@ -30,7 +30,7 @@
       "nota": {
         "clave": "bajas-acumulado",
         "titulo": "Correcciones de la fuente en la ventana que repite el control.",
-        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 14 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 91 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja fue en Querétaro: acumulado 59 a 7 entre 2026_sem28 y 2026_sem29. El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
+        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 14 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 91 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja, de 52 casos, fue en Querétaro (acumulado 59 a 7 entre 2026_sem28 y 2026_sem29). El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
         "bajas": 14,
         "retiro_bruto": 91
       },
@@ -46,13 +46,13 @@
           "clave": "Morelos|2026-W24",
           "estado": "retirado",
           "titulo": "Un valor que la propia fuente retiró.",
-          "texto": "El boletín 2026_sem25 imprimió 22 casos de Morelos en la semana 2026-W24, con un acumulado anual de 55; el boletín siguiente, 2026_sem26, imprimió un acumulado de 9 con 1 casos nuevos: un retiro neto de 47 casos, más que los 22 de esa semana. En 2026_sem43 el acumulado anual era 11. El control repite lo impreso 52 semanas antes y no hay un criterio vigente para excluir un valor impreso y luego retirado: el pronóstico de 2027-W24 trae esos 22 casos de Morelos, de 46 nacionales. Esa semana no debe leerse como un aumento esperado. El dato y el pronóstico se publican sin modificar."
+          "texto": "El boletín 2026_sem25 imprimió 22 casos de Morelos en la semana 2026-W24, con un acumulado anual de 55; el boletín siguiente, 2026_sem26, imprimió un acumulado de 9 con 1 caso nuevo: un retiro neto de 47 casos, más que los 22 de esa semana. En 2026_sem43 el acumulado anual era 11. El control repite lo impreso 52 semanas antes y no hay un criterio vigente para excluir un valor impreso y luego retirado: el pronóstico de 2027-W24 trae esos 22 casos de Morelos, de 46 nacionales. Esa semana no debe leerse como un aumento esperado. El dato y el pronóstico se publican sin modificar."
         }
       ],
       "nota": {
         "clave": "bajas-acumulado",
         "titulo": "Correcciones de la fuente en la ventana que repite el control.",
-        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 36 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 136 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja fue en Morelos: acumulado 55 a 9 entre 2026_sem25 y 2026_sem26. El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
+        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 36 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 136 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja, de 46 casos, fue en Morelos (acumulado 55 a 9 entre 2026_sem25 y 2026_sem26). El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
         "bajas": 36,
         "retiro_bruto": 136
       },
@@ -67,7 +67,7 @@
       "nota": {
         "clave": "bajas-acumulado",
         "titulo": "Correcciones de la fuente en la ventana que repite el control.",
-        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 14 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 19 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja fue en Tamaulipas: acumulado 31 a 28 entre 2026_sem30 y 2026_sem31. El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
+        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 14 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 19 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja, de 3 casos, fue en Tamaulipas (acumulado 31 a 28 entre 2026_sem30 y 2026_sem31). El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
         "bajas": 14,
         "retiro_bruto": 19
       },
@@ -82,7 +82,7 @@
       "nota": {
         "clave": "bajas-acumulado",
         "titulo": "Correcciones de la fuente en la ventana que repite el control.",
-        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 24 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 149 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja fue en Guerrero: acumulado 19 a 0 entre 2026_sem29 y 2026_sem30. El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
+        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 24 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 149 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja, de 19 casos, fue en Guerrero (acumulado 19 a 0 entre 2026_sem29 y 2026_sem30). El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
         "bajas": 24,
         "retiro_bruto": 149
       },
@@ -104,7 +104,7 @@
       "nota": {
         "clave": "bajas-acumulado",
         "titulo": "Correcciones de la fuente en la ventana que repite el control.",
-        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 17 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 145 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja fue en México: acumulado 125 a 1 entre 2026_sem02 y 2026_sem03. El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
+        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 17 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 145 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja, de 124 casos, fue en México (acumulado 125 a 1 entre 2026_sem02 y 2026_sem03). El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
         "bajas": 17,
         "retiro_bruto": 145
       },
@@ -126,7 +126,7 @@
       "nota": {
         "clave": "bajas-acumulado",
         "titulo": "Correcciones de la fuente en la ventana que repite el control.",
-        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 6 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 36 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja fue en Veracruz: acumulado 107 a 89 entre 2026_sem34 y 2026_sem35. El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
+        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 6 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 36 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja, de 18 casos, fue en Veracruz (acumulado 107 a 89 entre 2026_sem34 y 2026_sem35). El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
         "bajas": 6,
         "retiro_bruto": 36
       },
@@ -141,7 +141,7 @@
       "nota": {
         "clave": "bajas-acumulado",
         "titulo": "Correcciones de la fuente en la ventana que repite el control.",
-        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 4 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 276 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja fue en Nuevo León: acumulado 1,256 a 1,136 entre 2025_sem52 y 2025_sem53. El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
+        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 4 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 276 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja, de 120 casos, fue en Nuevo León (acumulado 1,256 a 1,136 entre 2025_sem52 y 2025_sem53). El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
         "bajas": 4,
         "retiro_bruto": 276
       },
@@ -163,7 +163,7 @@
       "nota": {
         "clave": "bajas-acumulado",
         "titulo": "Correcciones de la fuente en la ventana que repite el control.",
-        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 25 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 834 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja fue en Oaxaca: acumulado 490 a 364 entre 2025_sem53 y 2026_sem01. El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
+        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 25 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 834 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja, de 126 casos, fue en Oaxaca (acumulado 490 a 364 entre 2025_sem53 y 2026_sem01). El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
         "bajas": 25,
         "retiro_bruto": 834
       },
@@ -191,7 +191,7 @@
       "nota": {
         "clave": "bajas-acumulado",
         "titulo": "Correcciones de la fuente en la ventana que repite el control.",
-        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 25 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 223 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja fue en Sinaloa: acumulado 197 a 158 entre 2026_sem31 y 2026_sem32. El mayor retiro en un solo boletín fue en Coahuila: acumulado 62 a 25 con 2 casos nuevos (39 casos), entre 2026_sem30 y 2026_sem31. El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
+        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 25 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 223 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja, de 39 casos, fue en Sinaloa (acumulado 197 a 158 entre 2026_sem31 y 2026_sem32). El mayor retiro en un solo boletín, de 39 casos, se repite dos veces, empatado: en Coahuila (acumulado 62 a 25 entre 2026_sem30 y 2026_sem31, con 2 casos nuevos) y en Sinaloa (acumulado 197 a 158 entre 2026_sem31 y 2026_sem32, con 0 casos nuevos). El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
         "bajas": 25,
         "retiro_bruto": 223
       },
@@ -213,7 +213,7 @@
       "nota": {
         "clave": "bajas-acumulado",
         "titulo": "Correcciones de la fuente en la ventana que repite el control.",
-        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 26 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 179 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja fue en Jalisco: acumulado 255 a 233 entre 2026_sem23 y 2026_sem24. El mayor retiro en un solo boletín fue en Tamaulipas: acumulado 310 a 291 con 14 casos nuevos (33 casos), entre 2026_sem40 y 2026_sem41. El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
+        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 26 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 179 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja, de 22 casos, fue en Jalisco (acumulado 255 a 233 entre 2026_sem23 y 2026_sem24). El mayor retiro en un solo boletín, de 33 casos, fue en Tamaulipas (acumulado 310 a 291 entre 2026_sem40 y 2026_sem41, con 14 casos nuevos). El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
         "bajas": 26,
         "retiro_bruto": 179
       },
@@ -228,13 +228,29 @@
       "nota": {
         "clave": "bajas-acumulado",
         "titulo": "Correcciones de la fuente en la ventana que repite el control.",
-        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 21 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 92 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja fue en Chihuahua: acumulado 41 a 23 entre 2026_sem38 y 2026_sem39. El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
+        "texto": "Entre los boletines 2025_sem45 y 2026_sem43, cuyas semanas (2025-W44 a 2026-W42) repite este control, el acumulado anual impreso de alguna entidad bajó 21 veces de un boletín al siguiente (se compara cada boletín con el siguiente dentro del mismo año epidemiológico; no se cuenta el reinicio anual). En esas bajas la fuente quitó en bruto 92 casos, contados como la baja del acumulado más los casos nuevos del boletín siguiente; la cifra incluye bajas transitorias que después se restituyen. La mayor baja, de 18 casos, fue en Chihuahua (acumulado 41 a 23 entre 2026_sem38 y 2026_sem39). El control repite el valor semanal impreso en cada boletín y no descuenta estas correcciones posteriores.",
         "bajas": 21,
         "retiro_bruto": 92
       },
       "indice_posterior": {
         "consulta": "2026-11-15T12:29:20Z",
         "emision": "2026-11-15T06:07:27.910470+00:00",
+        "ultimo_boletin": 43
+      }
+    },
+    "paratifoidea_a011": {
+      "avisos": [
+        {
+          "clave": "Michoacán|2026-W32|sostenido",
+          "estado": "conservado",
+          "titulo": "Un pico que la fuente conserva.",
+          "texto": "Los 121 casos de Michoacán en 2026-W32 siguen en el acumulado anual: 250 antes, 372 con esa semana y 398 en 2026_sem43, el último boletín disponible. Los motores de esa serie repiten o promedian semanas de años anteriores: el pronóstico de 2027-W32 trae 112 casos de Michoacán, de unos 180 nacionales. Esa semana no debe leerse como un aumento esperado."
+        }
+      ],
+      "nota": null,
+      "indice_posterior": {
+        "consulta": "2026-11-15T12:44:26Z",
+        "emision": "2026-11-15T12:43:11.315431+00:00",
         "ultimo_boletin": 43
       }
     }

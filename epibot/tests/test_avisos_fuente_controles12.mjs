@@ -37,7 +37,9 @@ test('los avisos se generan por script versionado y cubren los doce', () => {
   assert.ok(existsSync(new URL('epibot/js/avisos_fuente.js', raiz)), 'falta epibot/js/avisos_fuente.js');
   const A = globalThis.EPI_AVISOS_FUENTE;
   assert.ok(A, 'EPI_AVISOS_FUENTE no está cargado en el EpiBot');
-  assert.deepEqual(Object.keys(A).sort(), [...DOCE].sort());
+  // Los doce controles, más los aceptados con una celda de picos_heredados (sin nota general de la ventana del control).
+  for (const id of DOCE) assert.ok(A[id] && A[id].nota, id);
+  for (const id of Object.keys(A).filter((x) => !DOCE.includes(x))) assert.equal(A[id].nota, null, id);
   assert.match(readFileSync(new URL('epibot/js/avisos_fuente.js', raiz), 'utf-8'), /Generado por docs\/alta20c\/operacion\/avisos_controles12\.py/);
   // Bajas del acumulado medidas (mismas cifras que el JSON de la revisión de Fable y qa/retiros_ventana_controles12.tsv).
   const esperadas = { brucelosis_a23: [30, 74], reumatica_i00: [14, 91], bocio_e01: [36, 136], hepatitis_b_b16: [14, 19],
@@ -52,7 +54,7 @@ test('los avisos se generan por script versionado y cubren los doce', () => {
 
 const NOMINALES = [
   ['absceso hepático amebiano en México', /fuente retiró[\s\S]*acumulado de 1 con 0 casos nuevos: un retiro neto de 124 de los 125/],
-  ['bocio endémico en Morelos', /fuente retiró[\s\S]*acumulado anual de 55[\s\S]*acumulado de 9 con 1 casos nuevos/],
+  ['bocio endémico en Morelos', /fuente retiró[\s\S]*acumulado anual de 55[\s\S]*acumulado de 9 con 1 caso nuevo/],
   ['desnutrición moderada en Oaxaca', /retiro neto de 128 de los 139[\s\S]*acumulado de 364 con 2 casos nuevos|acumulado de 364 con 2 casos nuevos: un retiro neto de 128 de los 139/],
   ['leptospirosis en Veracruz', /fuente conserva[\s\S]*130, 65 y 29 casos de Veracruz[\s\S]*cerró 2025 en 378/],
   ['pronostico de leptospirosis', /130, 65 y 29 casos de Veracruz/],
@@ -119,4 +121,28 @@ test('función RAG: el alcance de las infecciones intestinales excluye A08.0, qu
   assert.ok(!a04.cie.includes('A08'), JSON.stringify(a04.cie));
   assert.ok(a04.cie.includes('A08 excepto A08.0'), JSON.stringify(a04.cie));
   assert.deepEqual(r.find((x) => x.nombre === 'Enteritis debida a rotavirus').cie, ['A08.0']);
+});
+
+// Revisión final de Fable (FABLE_PUB12_FIXES_FINAL_REVISION.md): empates dichos, «1 caso» en singular y el fragmento
+// base del corpus de infecciones intestinales sin A08.0.
+test('nota medida: los empates se nombran y no se desempatan en silencio', () => {
+  const A = globalThis.EPI_AVISOS_FUENTE;
+  assert.match(A.brucelosis_a23.nota.texto, /La mayor baja, de 8 casos, se repite dos veces, empatada: en Morelos \(acumulado 14 a 6[^)]*\) y en Michoacán \(acumulado 191 a 183/);
+  assert.match(A.desnutricion_severa_e40.nota.texto, /mayor retiro en un solo boletín, de 39 casos, se repite dos veces, empatado: en Coahuila \(acumulado 62 a 25[^)]*\) y en Sinaloa \(acumulado 197 a 158/);
+});
+
+test('ningún aviso dice «1 casos»', () => {
+  for (const [id, a] of Object.entries(globalThis.EPI_AVISOS_FUENTE)) {
+    for (const x of [...a.avisos, a.nota].filter(Boolean)) assert.doesNotMatch(x.texto, /\b1 casos\b/, id);
+  }
+});
+
+test('corpus RAG: el fragmento base de infecciones intestinales dice «A08 excepto A08.0», sin tocar el shard', async () => {
+  const { buildChunks } = await import('../scripts/lib/corpus.mjs');
+  const c = buildChunks({}).chunks.find((x) => /^release:intestinales_a04:[a-z0-9_]+$/.test(x.id));
+  assert.ok(c);
+  assert.match(c.text, /\(A04, A08 excepto A08\.0, A09\)/);
+  assert.doesNotMatch(c.text, /\(A04, A08, A09\)/);
+  const md = readFileSync(new URL(`publication/intestinales_a04/${c.id.split(':')[2]}/corpus/intestinales_a04.md`, raiz), 'utf-8');
+  assert.match(md, /\(A04, A08, A09\)/, 'el shard sellado no se toca');
 });
