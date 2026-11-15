@@ -56,6 +56,7 @@
  "leucemia_c91": "rolling_cv_historia_corta_2023_v1",
  "linfoma_hodgkin_c81": "rolling_cv_historia_corta_2023_v1",
  "linfoma_no_hodgkin_c82": "rolling_cv_historia_corta_2023_v1",
+ "mal_del_pinto_a67": "rolling_cv_baja_incidencia_v1",
  "neumonias_j12": "rolling_cv_v1",
  "obesidad": "rolling_cv_v1",
  "otitis_h65": "rolling_cv_v1",
@@ -72,5 +73,6 @@
  "tifoidea_a01": "rolling_cv_baja_incidencia_v1",
  "ulceras_k25": "rolling_cv_v1",
  "varicela_b01": "rolling_cv_baja_incidencia_v1",
- "vehiculos_v20": "rolling_cv_v1"
+ "vehiculos_v20": "rolling_cv_v1",
+ "vulvovaginitis_n76": "rolling_cv_v1"
 }

@@ -7,6 +7,25 @@
             "type": "radar",
             "tag": "Pronóstico publicado",
             "featured": true,
+            "title": "Mal del pinto y vulvovaginitis se publican tras superar la prueba de 2025",
+            "summary": "Los portafolios del mal del pinto (A67) y de la vulvovaginitis (N76) superaron la prueba de 2025 frente al control estacional. Su validación prospectiva está en curso (0 de 4 semanas).",
+            "body": [
+                "EpiForecast-MX publica el pronóstico semanal del <strong style=\"color:var(--cream)\">mal del pinto (A67)</strong> y de la <strong style=\"color:var(--cream)\">vulvovaginitis (N76)</strong>. Ambos portafolios superaron la prueba única de 2025 frente al control estacional en las series por estado, en el conjunto y en el total nacional. Su validación prospectiva está en curso (0 de 4 semanas) y no se presenta como superada.",
+                "El mal del pinto es muy escaso, unos dos casos por semana en todo el país: superar la prueba significa no empeorar al control más de lo que permite la regla, y su error en el total nacional sigue siendo alto. Sus notificaciones cambiaron de nivel en 2024 en casi todas las entidades con el mismo renglón y código del boletín; su página lo explica y no lo lee como menor incidencia. Compitieron sólo los cinco motores estacionales, por un dictamen tomado bajo delegación del autor.",
+                "La vulvovaginitis no tiene desglose por sexo en el boletín (37 series). Hasta 2017 el boletín la imprimía como «Vulvovaginitis Inespecífica» con el código A76.0 y desde entonces con N76; la serie es continua en ese cambio. La candidiasis urogenital se publica aparte. Ambos usan datos hasta la semana 42 de 2026 y se emitieron el 15 de noviembre, antes de que existiera el boletín 44. Son pronósticos puntuales, sin intervalos de incertidumbre."
+            ],
+            "link": {
+                "href": "mal_del_pinto_a67.html",
+                "text": "Ver mal del pinto",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
+        {
+            "date": "15 de noviembre de 2026",
+            "iso": "2026-11-15",
+            "type": "radar",
+            "tag": "Pronóstico publicado",
+            "featured": true,
             "title": "La fiebre paratifoidea se publica tras superar la prueba de 2025",
             "summary": "El portafolio de la fiebre paratifoidea (A01.1-A01.4) superó la prueba de 2025 frente al control estacional en las series por estado, en el conjunto y en el total nacional. Su validación prospectiva está en curso (0 de 4 semanas).",
             "body": [

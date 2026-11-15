@@ -44,7 +44,7 @@ Infección gonocócica del tracto genitourinario,A54.0-A54.2,Transmisión sexual
 Linfogranuloma venéreo por Clamidias,A55,Transmisión sexual,30,4,398,295,Por incorporar,Exploración,
 Chancro blando,A57,Transmisión sexual,30,23,585,635,Por incorporar,Exploración,
 Herpes genital,A60.0,Transmisión sexual,31,111,4779,4884,Por incorporar,Exploración,43.3
-Vulvovaginitis,N76,Transmisión sexual,31,12357,518004,573987,Por incorporar,Media,55.1
+Vulvovaginitis,N76,Transmisión sexual,31,12357,518004,573987,Publicada,Seguimiento,
 Infección por el virus de la inmunodeficiencia humana,"B20-B24,Z21",Transmisión sexual,32,426,15020,15142,Por incorporar,Exploración,44.2
 Candidiasis urogenital,B37.3-B37.4,Transmisión sexual,33,2313,93986,101608,Publicada,Seguimiento,
 Tricomoniasis urogenital,A59.0,Transmisión sexual,33,266,11439,13068,Por incorporar,Exploración,47.0
@@ -69,7 +69,7 @@ Rabia humana por fauna silvestre,A82.0,Zoonóticas,41,-,-,2,Por incorporar,Explo
 Rabia humana por fauna urbana,A82.1,Zoonóticas,41,-,-,1,Por incorporar,Exploración,
 Escarlatina,A38,Exantemáticas,42,33,1426,1218,Control publicado,Seguimiento,
 Erisipela,A46,Exantemáticas,42,166,6614,6246,Publicada,Seguimiento,
-Mal del pinto,A67,Otras transmisibles,43,6,88,62,Por incorporar,Exploración,
+Mal del pinto,A67,Otras transmisibles,43,6,88,62,Publicada,Seguimiento,
 Tuberculosis otras formas,"A17.1, A17.8, A17.9, A18-A19",Otras transmisibles,43,16,3614,3805,Por incorporar,Exploración,28.0
 Lepra°,A30,Otras transmisibles,43,3,62,58,Por incorporar,Exploración,
 Hepatitis vírica C,"B17.1, B18.2",Otras transmisibles,44,177,5804,5563,Control publicado,Seguimiento,

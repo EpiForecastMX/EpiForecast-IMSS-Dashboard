@@ -695,6 +695,23 @@
       alias: ['fiebre paratifoidea', 'paratifoidea', 'a01 1', 'a01 2', 'a01 3', 'a01 4', 'paratyphoid fever', 'paratyphoid'],
       prefijos: ['fiebre paratifoidea', 'paratifoidea', 'paratyphoid'],
     },
+    {
+      id: 'mal_del_pinto_a67', pad: 'Mal del pinto', nombre: 'Mal del pinto', nombreCorto: 'Mal del pinto',
+      etiqueta: 'Mal del pinto (A67)', dataKey: 'mal_del_pinto_a67', marca: 'MAL_DEL_PINTO_A67',
+      pagina: 'mal_del_pinto_a67.html', consulta: 'mal del pinto', cie: 'A67', color: '#155E75',
+      // Sin «pinta» suelta: es una palabra común («¿cómo pinta…?»).
+      alias: ['mal del pinto', 'a67'],
+      prefijos: ['mal del pinto'],
+    },
+    {
+      id: 'vulvovaginitis_n76', pad: 'Vulvovaginitis', nombre: 'Vulvovaginitis', nombreCorto: 'Vulvovaginitis',
+      etiqueta: 'Vulvovaginitis (N76)', dataKey: 'vulvovaginitis_n76', marca: 'VULVOVAGINITIS_N76',
+      pagina: 'vulvovaginitis_n76.html', consulta: 'vulvovaginitis', cie: 'N76', color: '#DB2777',
+      // Sin desglose por sexo (37 series). «Vaginitis» y la vulvovaginitis con agente nombrado piden precisar: la
+      // candidiasis urogenital (B37.3-B37.4) es otro bloque publicado y la tricomoniasis no se modela.
+      alias: ['vulvovaginitis', 'vulvovaginitis inespecifica', 'n76'],
+      prefijos: ['vulvovaginitis'],
+    },
   ]);
 
   /**
@@ -1085,6 +1102,11 @@
     { release: 'absceso_hepatico_a064', generico: /\babscesos? (hepaticos?|del higado)\b|\bliver abscess\b/,
       especifico: /\b(amebian[oa]s?|amibian[oa]s?|amebic|amoebic)\b|\ba06[ .]?4\b/,
       abarca: '«Absceso hepático» abarca el absceso del hígado no amebiano, piógeno o bacteriano (K75.0), con código propio fuera de A06.4.' },
+    // «Vaginitis» o una vulvovaginitis con agente nombrado: varios bloques, aunque la consulta nombre «vulvovaginitis».
+    { release: null, bloques: ['vulvovaginitis_n76', 'candidiasis_b37'], siempre: true,
+      generico: /\bvaginitis\b|\bvulvovaginitis (candidiasica|candidosica|micotica|por (candida|hongos|tricomonas|trichomonas)|tricomoniasica)\b|\binfecci(on|ones) vaginal(es)?\b/,
+      especifico: /(?!)/,
+      abarca: '«Vaginitis», o una vulvovaginitis con el agente nombrado, abarca bloques distintos del boletín: la vulvovaginitis (N76), con su propio pronóstico; la candidiasis urogenital (B37.3-B37.4), también publicada; y la tricomoniasis urogenital, que no se pronostica.' },
     { release: 'candidiasis_b37', generico: /\b(candidiasis|candida|candidosis|moniliasis|b37)\b/,
       especifico: new RegExp(`\\b(candidiasis|candida|candidosis|moniliasis) (urogenital|vaginal|vulvovaginal|genital|de vulva|de la vulva)\\b|\\b(urogenital|vaginal|vulvovaginal|genital) candidiasis\\b|${subcodigo('b37', '34').source}`),
       abarca: '«Candidiasis» abarca varias localizaciones con código propio: la oral, la cutánea, la esofágica y la sistémica (B37.0-B37.2, B37.5-B37.9).' },
@@ -1121,7 +1143,7 @@
     const nombrados = (a) => a.bloques.filter((id) => releases.find((r) => r.id === id).alias
       .some((al) => nombraAlias(canon, al))).length;
     const hit = hitPrevio || ALIAS_AMBIGUOS.find((a) => a.generico.test(canon) && !a.especifico.test(canon) &&
-      (!a.uno || a.uno.test(canon) === a.otroEsp.test(canon)) && (!a.bloques || nombrados(a) !== 1));
+      (!a.uno || a.uno.test(canon) === a.otroEsp.test(canon)) && (!a.bloques || a.siempre || nombrados(a) !== 1));
     if (!hit) return null;
     if (hit.bloques) {
       const rs = hit.bloques.map((id) => releases.find((x) => x.id === id));
