@@ -336,6 +336,32 @@ function guardaSumaA37U99Rag(query) {
     `[${a37.nombre}](../${a37.pagina}) y [${u.nombre}](../${u.pagina}).`;
 }
 
+// Meningitis de un tipo nombrado (copia de kb.js, mismo texto). En la preview 82cf0812, «meningitis meningocócica
+// nacional» fue a la recuperación semántica y Gemini respondió los 861 casos del síndrome meníngeo y confundió G00.0 y
+// G00.1 con la meningocócica: ahora hay una respuesta fija, sin recuperación, modelo ni cifras.
+const MENINGITIS_TIPO_RAG = /\b(meningitis|meningoencefalitis|meningococ[a-z]*|enfermedad meningococica)\b/;
+const MENINGITIS_NOMBRADA_RAG = /\b(meningococ[a-z]*|tuberculos[a-z]*|haemophilus|hemophilus|neumococ[a-z]*|pneumococ[a-z]*|g00 ?[01])\b/;
+const MENINGITIS_TEXTO_RAG = 'EpiForecast-MX no pronostica la meningitis meningocócica, la tuberculosa, la debida a ' +
+  '*Haemophilus influenzae* (G00.0) ni la neumocócica (G00.1): se notifican aparte en el boletín. El **síndrome meníngeo** ' +
+  'publicado (G00-G03, excepto G00.0 y G00.1) no las incluye, así que no se le atribuyen sus cifras. Puedes consultar ' +
+  'ese bloque en [su página](../sindrome_meningeo_g00.html).';
+function guardaMeningitisTipoRag(query) {
+  const qn = normGuarda(String(query || ''));
+  if (/\bsindrome meningeo\b/.test(qn)) return null;
+  return MENINGITIS_TIPO_RAG.test(qn) && MENINGITIS_NOMBRADA_RAG.test(qn) ? MENINGITIS_TEXTO_RAG : null;
+}
+
+// A1 garantizado: la nota D7 de los avisos generados (avisos_fuente.js, estado «alcance») de T60 y T58 se añade a la
+// respuesta generada cuando la consulta nombra esos releases y el modelo la omitió. No depende del modelo ni lleva
+// cifras escritas aquí. En la preview 82cf0812, «plaguicidas nacional» omitió la nota.
+function notaD7Rag(query, texto) {
+  if (/no distingue intenci[oó]n/i.test(texto)) return '';
+  const ids = releasesNombrados(query).map((r) => r.id);
+  const notas = ids.flatMap((id) => ((globalThis.EPI_AVISOS_FUENTE || {})[id]?.avisos || [])
+    .filter((x) => x.estado === 'alcance').map((x) => `**${x.titulo}** ${x.texto}`));
+  return notas.length ? `\n\n${[...new Set(notas)].join('\n\n')}` : '';
+}
+
 // Estado de UN release publicado con el control estacional (validado, confiable, error): respuesta fija
 // desde su vista oficial. En la preview, Gemini mezcló el pasaje de «fallback regional» del carril
 // legacy y fuentes de C61 con parotiditis e hiperplasia; aquí no hay recuperación ni modelo.
@@ -766,7 +792,7 @@ function structuredSummary(kb, releases = []) {
 
 // Guardas M3/B3 exportadas para su prueba de paridad; se exportan aquí, fuera del tramo de rag.mjs que otras
 // pruebas evalúan como script (stripAccents … Rate limit).
-export { D7_TEXTO_ES_RAG, D7_TEXTO_EN_RAG, guardaD7Rag, guardaSumaA37U99Rag };
+export { D7_TEXTO_ES_RAG, D7_TEXTO_EN_RAG, guardaD7Rag, guardaSumaA37U99Rag, MENINGITIS_TEXTO_RAG, guardaMeningitisTipoRag, notaD7Rag };
 
 const RATE_LIMIT = { windowMs: 60_000, max: 20 };
 const rateBucket = new Map();
@@ -883,6 +909,8 @@ export default async function handler(req) {
   if (d7) return json({ answer: d7, sources: [], retrieval: 'none', guarda: 'd7' }, 200, cors);
   const suma = guardaSumaA37U99Rag(body.query);
   if (suma) return json({ answer: suma, sources: [], retrieval: 'none', guarda: 'suma_a37_u99' }, 200, cors);
+  const meningitis = guardaMeningitisTipoRag(body.query);
+  if (meningitis) return json({ answer: meningitis, sources: [], retrieval: 'none', guarda: 'meningitis_tipo' }, 200, cors);
   // Subtipo con código propio vecino de un bloque publicado: respuesta fija, sin modelo ni cifras, para
   // que ni la recuperación ni Gemini le atribuyan el pronóstico del bloque vecino.
   const ajeno = globalThis.EPI_CATALOGO.subtipoAjeno(stripAccents(String(body.query || '')));
@@ -998,7 +1026,7 @@ export default async function handler(req) {
       async start(controller) {
         const enq = (obj) => controller.enqueue(encoder.encode(JSON.stringify(obj) + '\n'));
         enq({ type: 'meta', retrieval: mode, reranked, sources });
-        let ok = false, usedModel = null, lastE = null;
+        let ok = false, usedModel = null, lastE = null, generado = '';
         for (const modelName of GEN_MODELS) {
           const a = withAbort(T_GEN);
           try {
@@ -1006,8 +1034,10 @@ export default async function handler(req) {
             const result = await model.generateContentStream({ contents }, { signal: a.signal });
             for await (const chunk of result.stream) {
               const t = typeof chunk.text === 'function' ? chunk.text() : '';
-              if (t) enq({ type: 'delta', text: t });
+              if (t) { generado += t; enq({ type: 'delta', text: t }); }
             }
+            const nota = notaD7Rag(searchQuery, generado);
+            if (nota) enq({ type: 'delta', text: nota });
             ok = true; usedModel = modelName; break;
           } catch (err) {
             lastE = err;
@@ -1035,7 +1065,8 @@ export default async function handler(req) {
     try {
       const model = genAI.getGenerativeModel({ model: modelName, systemInstruction: systemMsg });
       const result = await model.generateContent({ contents }, { signal: a.signal });
-      const text = (result.response.text() || '').replace(CIFRAS_RE, '');
+      const generado = (result.response.text() || '').replace(CIFRAS_RE, '');
+      const text = generado + notaD7Rag(searchQuery, generado);
       return json({ answer: text, model: modelName, retrieval: mode, reranked, sources }, 200, cors);
     } catch (err) {
       lastErr = err;

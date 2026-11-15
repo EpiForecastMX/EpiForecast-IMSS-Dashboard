@@ -5786,6 +5786,23 @@ export function guardaSumaA37U99(query) {
     `[${a37.nombre}](../${a37.pagina}) y [${u.nombre}](../${u.pagina}).`;
 }
 
+// Meningitis de un tipo nombrado (meningocócica, tuberculosa, por Haemophilus, neumocócica) o con su código
+// (G00.0, G00.1): no es el síndrome meníngeo publicado (G00-G03, excepto G00.0 y G00.1) ni ningún otro pronóstico.
+// Texto fijo sin cifras, antes de cualquier otra ruta (hallazgo de la API real de la preview 82cf0812). Copia
+// independiente en rag.mjs, con el mismo texto (tests/test_meningitis_d7_rag.mjs comprueba la paridad).
+const MENINGITIS_TIPO = /\b(meningitis|meningoencefalitis|meningococ[a-z]*|enfermedad meningococica)\b/;
+const MENINGITIS_NOMBRADA = /\b(meningococ[a-z]*|tuberculos[a-z]*|haemophilus|hemophilus|neumococ[a-z]*|pneumococ[a-z]*|g00 ?[01])\b/;
+export const MENINGITIS_TEXTO = 'EpiForecast-MX no pronostica la meningitis meningocócica, la tuberculosa, la debida a ' +
+  '*Haemophilus influenzae* (G00.0) ni la neumocócica (G00.1): se notifican aparte en el boletín. El **síndrome meníngeo** ' +
+  'publicado (G00-G03, excepto G00.0 y G00.1) no las incluye, así que no se le atribuyen sus cifras. Puedes consultar ' +
+  'ese bloque en [su página](../sindrome_meningeo_g00.html).';
+/** Texto fijo para una meningitis de tipo nombrado (consulta cruda), o null. */
+export function guardaMeningitisTipo(query) {
+  const qn = norm(String(query || '')).replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ');
+  if (/\bsindrome meningeo\b/.test(qn)) return null;
+  return MENINGITIS_TIPO.test(qn) && MENINGITIS_NOMBRADA.test(qn) ? MENINGITIS_TEXTO : null;
+}
+
 // Contexto conversacional: entidades de la ultima pregunta exitosa
 let lastEntities = {};
 let _lastDistribMetric = null;   // {metric, label} de la ultima distribucion
@@ -5816,6 +5833,12 @@ async function _resolve(query) {
     lastEntities = {};
     trace.handler = 'answerGuardaD7';
     return { response: `${d7}\n<!--SIN_GRAFICA-->`, handler: trace.handler };
+  }
+  const meningitis = guardaMeningitisTipo(query);
+  if (meningitis) {
+    lastEntities = {};
+    trace.handler = 'answerMeningitisTipo';
+    return { response: `${meningitis}\n<!--SIN_GRAFICA-->`, handler: trace.handler };
   }
   const suma = guardaSumaA37U99(query);
   if (suma) {
