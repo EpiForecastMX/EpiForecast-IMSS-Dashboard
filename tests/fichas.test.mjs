@@ -3,7 +3,7 @@
 // contexto Galería/Dashboard que el destino acepta sin avisos.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildCatalog } from '../scripts/build_dashboard_catalog.mjs';
@@ -205,4 +205,14 @@ test('semanaMas (MMWR) del ayudante de fichas coincide con calendario_boletin y 
       assert.deepEqual([...E.semanaMas(y, w, k)], semanaSiguiente(y, w, k), `${y}-W${w}+${k}`);
     }
   }
+});
+
+test('las fichas no hacen aritmética de semana a mano: boletín y primera semana fuera de muestra con semanaMas (MMWR)', () => {
+  const malas = [];
+  for (const f of readdirSync(root).filter((x) => x.endsWith('.html'))) {
+    const t = leer(f);
+    if (t.includes('publicada en el boletín de la semana ${w + 1}') || t.includes('${V.origin[1] + 1}')) malas.push(f);
+    if (t.includes('EpiEstadoFicha.semanaMas')) assert.match(t, /estado-ficha\.js\?v=([2-9]|\d{2,})"/, `${f}: semanaMas exige estado-ficha v>=2`);
+  }
+  assert.deepEqual(malas, [], `fichas con semana + 1 a mano: ${malas.length}`);
 });

@@ -362,7 +362,7 @@
       }
       const n = filas[0] ? filas[0].oos.semanas : 0;
       $('tablaNota').textContent = n
-        ? (n === 1 ? `Semanas evaluadas: 1, la semana ${V.observation_cutoff[1]} de ${V.observation_cutoff[0]}. Observado y pronosticado son los casos de esa semana.` : `Semanas evaluadas: ${n}, de la semana ${V.origin[1] + 1} a la ${V.observation_cutoff[1]} de ${V.observation_cutoff[0]}. Observado y pronosticado son casos acumulados en esas semanas.`)
+        ? (n === 1 ? `Semanas evaluadas: 1, la semana ${V.observation_cutoff[1]} de ${V.observation_cutoff[0]}. Observado y pronosticado son los casos de esa semana.` : `Semanas evaluadas: ${n}, de la semana ${EpiEstadoFicha.semanaMas(V.origin[0], V.origin[1], 1)[1]} a la ${V.observation_cutoff[1]} de ${V.observation_cutoff[0]}. Observado y pronosticado son casos acumulados en esas semanas.`)
         : `Aún no hay semanas evaluadas: la tabla ordena las entidades por casos pronosticados en ${V.horizon_weeks} semanas. El error aparecerá con los próximos boletines.`;
     }
 
@@ -375,7 +375,7 @@
         $('emitTxt').textContent = new Date(V.forecast_emitted_at).toLocaleDateString('es-MX', { timeZone: 'America/Mexico_City', day: 'numeric', month: 'long', year: 'numeric' });
       }
       const [a, w] = V.observation_cutoff;
-      $('cutoffTxt').textContent = `semana epidemiológica ${w} de ${a} (semana del ${fechaLarga(V.observation_cutoff_ds)}), publicada en el boletín de la semana ${w + 1}`;
+      $('cutoffTxt').textContent = `semana epidemiológica ${w} de ${a} (semana del ${fechaLarga(V.observation_cutoff_ds)}), publicada en el boletín de la semana ${EpiEstadoFicha.semanaMas(a, w, 1)[1]}`;
       $('stModels').textContent = V.models;
       $('stProducts').textContent = V.products;
       $('mtProducts').textContent = V.products;
