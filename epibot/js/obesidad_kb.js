@@ -291,7 +291,7 @@ function answerRelease(q, ent, s, d, r) {
   }
   const futuras = x.pronostico.filter(([ds]) => ds > v.observation_cutoff_ds).slice(0, 4);
   if (futuras.length) {
-    lineas.push('', '**Siguientes semanas del pronóstico, aún sin observación publicada:**', ...futuras.map(([ds, y]) => `- Semana del ${ds}: ${ent0(y)} casos`));
+    lineas.push('', '**Siguientes semanas del pronóstico, aún sin observación publicada:**', ...futuras.map(([ds, y]) => `- Semana del ${ds}: ${ent0(y)} ${ent0(y) === '1' ? 'caso' : 'casos'}`));
   }
   lineas.push('', `Total pronosticado en las ${v.horizon_weeks} semanas: **${ent0(x.pronostico_52_total)} casos**.`, '', etiqueta, `_${v.uncertainty_label}._`);
   if (tipo === 'banda') lineas.push('', `${r.nombre} se publica **sin intervalos**: la gráfica muestra sólo el pronóstico puntual, no un corredor ni una banda de confianza.`);
