@@ -53,10 +53,15 @@
   "warnings": [
     {
       "tipo": "simbologia_heredada",
+      "origen": "HEREDADO",
       "paginas": [
         9,
         10
-      ]
+      ],
+      "heredada_de": {
+        "periodo": "2026-W43",
+        "pdf_sha256": "f24aea9306d95d1489d3a8f373527918db1ae31a9c6a6f6aeab63826842f3c8a"
+      }
     }
   ]
 }
