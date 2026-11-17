@@ -930,6 +930,10 @@ export default async function handler(req) {
   if (suma) return json({ answer: suma, sources: [], retrieval: 'none', guarda: 'suma_a37_u99' }, 200, cors);
   const meningitis = guardaMeningitisTipoRag(body.query);
   if (meningitis) return json({ answer: meningitis, sources: [], retrieval: 'none', guarda: 'meningitis_tipo' }, 200, cors);
+  // Presión baja no se modela y sus vecinos publicados más parecidos (O10-O16 o I10-I15) no la
+  // incluyen: respuesta fija antes de vista y de recuperación para no atribuir cifras vecinas.
+  const sinVecinoCrudo = noModeladaSinVecino(stripAccents(String(body.query || '')));
+  if (sinVecinoCrudo) return json({ answer: sinVecinoCrudo, sources: [] }, 200, cors);
   const turno = resolverConsultaRag(body.query, body.history);
   const qEfectiva = String(turno.query || '');
   if (qEfectiva !== String(body.query || '')) {
@@ -951,16 +955,18 @@ export default async function handler(req) {
   // Nombre genérico que abarca más que el bloque publicado («otitis», «amebiasis»): se aclara sin cifras.
   const ambiguo = globalThis.EPI_CATALOGO.aliasAmbiguo(stripAccents(qEfectiva));
   if (ambiguo) return json({ answer: ambiguo.texto, sources: [] }, 200, cors);
+  const sinVecino = noModeladaSinVecino(stripAccents(qEfectiva));
+  if (sinVecino) return json({ answer: sinVecino, sources: [] }, 200, cors);
+  if (!turno.debeDetallarSerieVista) {
+    const estadoPuro = estadoDeControl(qEfectiva, leerVista)
+      || estadoDeAceptado(qEfectiva, leerVista, leerFicha);
+    if (estadoPuro) return json({ ...estadoPuro, retrieval: 'vista' }, 200, cors);
+  }
   const vistaAns = vistaGroundedAnswer(body.query, body.history, { leerVista, leerFicha, notasFicha, pruebaSuperada, emitidoCivil, avisosFuenteRag });
   if (vistaAns) return json(vistaAns, 200, cors);
   const estado = estadoDeControl(qEfectiva, leerVista)
     || estadoDeAceptado(qEfectiva, leerVista, leerFicha);
   if (estado) return json({ ...estado, retrieval: 'vista' }, 200, cors);
-  // Presión baja no se modela y sus vecinos publicados más parecidos (O10-O16 o I10-I15) no la
-  // incluyen: sin otro padecimiento publicado en la consulta, respuesta fija sin cifras para que la
-  // recuperación no traiga las de ese vecino.
-  const sinVecino = noModeladaSinVecino(stripAccents(qEfectiva));
-  if (sinVecino) return json({ answer: sinVecino, sources: [] }, 200, cors);
 
   if (!apiKey) return json({ error: 'GEMINI_API_KEY no configurada' }, 500, cors);
 
