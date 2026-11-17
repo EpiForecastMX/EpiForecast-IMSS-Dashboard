@@ -499,15 +499,31 @@ function estadoDeAceptado(query, leerVista, leerFicha) {
   if (!prueba) return null;
   const notas = notasFicha(html);
   const wa = v.weeks_available ?? 0, wr = v.weeks_required ?? 4;
-  const prospectiva = wa === 0
-    ? `La validación prospectiva está en curso (0 de ${wr} semanas): todavía no hay semanas observadas después del origen, así que no existe desempeño fuera de muestra de este pronóstico.`
-    : `La validación prospectiva lleva ${wa} de ${wr} semanas (veredicto ${v.verdict}); su desempeño fuera de muestra se consulta en su página.`;
-  const answer = `**${v.nombre_completo || r.etiqueta}: su portafolio se aceptó en la prueba de ${prueba.anio}; el pronóstico todavía no está validado.** ` +
+  const nombre = v.nombre_completo || r.etiqueta;
+  const veredicto = String(v.verdict || '').trim();
+  let cabecera, prospectiva;
+  if (veredicto === 'INCOMPLETE') {
+    cabecera = 'el pronóstico todavía no está validado.';
+    prospectiva = wa === 0
+      ? `La validación prospectiva está en curso (0 de ${wr} semanas): todavía no hay semanas observadas después del origen, así que no existe desempeño fuera de muestra de este pronóstico.`
+      : `La validación prospectiva lleva ${wa} de ${wr} semanas (veredicto INCOMPLETE); su desempeño fuera de muestra se consulta en su página.`;
+  } else if (veredicto === 'PASS') {
+    cabecera = `el pronóstico superó la validación prospectiva (${wa} de ${wr} semanas, veredicto PASS).`;
+    prospectiva = `En la validación prospectiva cuenta con ${wa} de ${wr} semanas evaluadas y veredicto PASS (superó la compuerta prospectiva); su desempeño fuera de muestra se consulta en su página.`;
+  } else if (veredicto === 'FAIL') {
+    cabecera = `el pronóstico no superó la validación prospectiva (${wa} de ${wr} semanas, veredicto FAIL).`;
+    prospectiva = `La validación prospectiva registró ${wa} de ${wr} semanas con veredicto FAIL: el pronóstico falló esa evaluación y no quedó validado; su desempeño fuera de muestra se consulta en su página.`;
+  } else {
+    const lit = veredicto || 'sin veredicto';
+    cabecera = `el pronóstico no está validado (veredicto prospectivo ${lit}).`;
+    prospectiva = `La validación prospectiva registra ${wa} de ${wr} semanas con veredicto ${lit} (sin validación prospectiva aprobada); su desempeño fuera de muestra se consulta en su página.`;
+  }
+  const answer = `**${nombre}: su portafolio se aceptó en la prueba de ${prueba.anio}; ${cabecera}** ` +
     `${prueba.frase} Esa prueba retrospectiva no es la validación del pronóstico publicado. ${prospectiva}` +
     (notas.length ? `\n\nLo que dice su página sobre el error y los datos:\n${notas.map((n) => `- **${n.titulo}** ${n.texto}`).join('\n')}` : '') +
     `\n\nDatos hasta la semana ${v.origin[1]} de ${v.origin[0]}${emitidoCivil(v)}; ${v.horizon_weeks} semanas, pronóstico puntual sin intervalos. ` +
     `Detalle en [su página](../${r.pagina}).${avisosFuenteRag(r.id)}`;
-  return { answer, sources: [{ n: 1, source: `Release publicado ${v.release_id}`, title: v.nombre_completo || r.etiqueta, section: r.id, url: `../${r.pagina}` }] };
+  return { answer, sources: [{ n: 1, source: `Release publicado ${v.release_id}`, title: nombre, section: r.id, url: `../${r.pagina}` }] };
 }
 
 /**
