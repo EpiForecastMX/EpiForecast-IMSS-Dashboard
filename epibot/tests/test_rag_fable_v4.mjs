@@ -1,15 +1,11 @@
 /**
- * Regresión focal Fable Prelim + hallazgos contrastados por ROOT (17 nov 2026, V4):
- * - B1: métricas OOS `null` (p. ej. `sesgo_pct: null` en parotiditis Jalisco 0 vs 5, A51 Campeche mujeres 0 vs 3,
- *   mal del pinto Chiapas / monóxido Jalisco 0 vs 0) jamás se imprimen como `0.0 %`, ni en ruta vista ni en semántica.
- * - B2: rango OOS estatal en `enriquecerSemanticoVista` derivado de `s.oos.semanas` y calendario MMWR (obesidad 17 sem
- *   `2026-W27 a 2026-W43`, hipertensión 2 sem `2026-W42 a 2026-W43`), sin rotular acumulados multi-semana como 1 semana.
- * - M1: cambios de tema (alcance de EpiForecast, motores evaluados, cortesía «ok gracias») no heredan pronóstico previo.
- * - M2/M4/S4: veredicto `FAIL` explícito (nunca «en curso» ni «sin fallo»), `INCOMPLETE` y rangos 2/4 y 4/4 en memoria,
- *   y `semanas > 0` con métricas nulas sin afirmar «aún no hay semanas observadas».
- * - M3: cronología preemisión en multi-semana (`asma_j45` 2/4) acota sólo la primera semana y preserva las posteriores.
- * - S1/S2/S3/S8: tratamiento clínico y ranking estatal van a semántico; grupos de edad declaran ausencia de desglose
- *   etario sin atribuir serie general; seguimiento aditivo A37+U99 activa `guardaSumaA37U99Rag`.
+ * Regresión focal Fable Prelim + estabilidad ante avances semanales de boletín (17 nov 2026, V5):
+ * - B1 hermético (siempre activo, independiente del boletín): copias en memoria con `sesgo_pct: null` (0 vs 5,
+ *   0 vs 3, 0 vs 0) jamás imprimen `sesgo 0.0 %` en `vistaGroundedAnswer` ni en `enriquecerSemanticoVista`, mientras
+ *   que `sesgo_pct: 0` real (observados === pronosticados > 0) sí se conserva como `0.0 %`.
+ * - B1 integración viva + simulación de avance semanal (2/4 sesgo no nulo y 4/4 sesgo real 0.0 %): las aserciones
+ *   sobre `handler` derivan expectativas del `oos` vigente (sin skips ni exigir `null` perpetuo ni 1 semana fija).
+ * - B2/M1/K6/M2/M3/M4/S1/S2/S3/S4/S8: todos los totales y rangos MMWR se derivan de `origin` y `semanas` sin literales.
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -18,9 +14,19 @@ import { readFileSync } from 'node:fs';
 const raiz = new URL('../../', import.meta.url);
 const leerJson = (rel) => JSON.parse(readFileSync(new URL(rel, raiz), 'utf8'));
 const INDICE = leerJson('epibot/rag_index.json');
-const [VISTA_A51, VISTA_PARO, VISTA_OBE, VISTA_HIP, VISTA_ASMA, VISTA_PINTO] = [
-  'sifilis_adquirida_a51', 'parotiditis_b26', 'obesidad', 'hipertension_i10', 'asma_j45', 'mal_del_pinto_a67',
-].map((id) => leerJson(`publication/${id}/vista.json`));
+const VISTAS_VIVAS = Object.fromEntries([
+  'sifilis_adquirida_a51', 'parotiditis_b26', 'obesidad', 'hipertension_i10',
+  'asma_j45', 'mal_del_pinto_a67', 'monoxido_t58',
+].map((id) => [id, leerJson(`publication/${id}/vista.json`)]));
+const {
+  sifilis_adquirida_a51: VISTA_A51,
+  parotiditis_b26: VISTA_PARO,
+  obesidad: VISTA_OBE,
+  hipertension_i10: VISTA_HIP,
+  asma_j45: VISTA_ASMA,
+  mal_del_pinto_a67: VISTA_PINTO,
+  monoxido_t58: VISTA_MONO,
+} = VISTAS_VIVAS;
 
 const moduloUrl = process.env.RAG_MODULE
   ? new URL(process.env.RAG_MODULE, `file://${process.cwd()}/`)
@@ -29,6 +35,7 @@ const { default: handler } = await import(moduloUrl.href);
 const { vistaGroundedAnswer, enriquecerSemanticoVista } = await import(new URL('../lib/vista_grounding.mjs', moduloUrl).href);
 
 const ent = (n) => Math.round(Number(n)).toLocaleString('en-US');
+const pct = (n) => Number(n).toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 2 });
 const sem = ([a, s]) => `${a}-W${String(s).padStart(2, '0')}`;
 const inicioMmwr = (a) => { const d = new Date(Date.UTC(a, 0, 1)).getUTCDay(); return Date.UTC(a, 0, 1 + (d <= 3 ? -d : 7 - d)); };
 const semsMmwr = (a) => Math.round((inicioMmwr(a + 1) - inicioMmwr(a)) / (7 * 864e5));
@@ -37,10 +44,11 @@ const rangoEsp = (or, n, sep = ' a ') => (n === 1 ? sem(semSig(or, 1)) : `${sem(
 
 const idxA51 = INDICE.chunks.findIndex((c) => c.section === 'sifilis_adquirida_a51');
 const VEC_DEF = idxA51 >= 0 ? INDICE.vectors[idxA51] : new Array(768).fill(0.01);
+const TOTAL_NAC_A51 = ent(VISTA_A51.series['nacional|mx|general'].pronostico_52_total);
 
 const HISTORIA_A51_NACIONAL = [
   { role: 'user', text: '¿Cuántos casos de sífilis adquirida A51-A53 se pronostican en México en las 52 semanas?' },
-  { role: 'assistant', text: 'El pronóstico de **Sífilis adquirida (A51-A53)** a nivel **nacional** (general) es de **23,405 casos** [1].' },
+  { role: 'assistant', text: `El pronóstico de **Sífilis adquirida (A51-A53)** a nivel **nacional** (general) es de **${TOTAL_NAC_A51} casos** [1].` },
 ];
 
 async function consultar(query, { history = [], sinClave = false, vector = VEC_DEF } = {}) {
@@ -75,35 +83,93 @@ async function consultar(query, { history = [], sinClave = false, vector = VEC_D
   }
 }
 
-test('B1 (determinista + semántica): sesgo_pct null jamás se imprime como 0.0 % en parotiditis Jalisco (0 vs 5), A51 Campeche mujeres (0 vs 3) ni casos 0 vs 0', async () => {
-  const paroJal = VISTA_PARO.series['estado|14|general'];
-  assert.equal(paroJal.oos.sesgo_pct, null, 'parotiditis Jalisco tiene sesgo_pct null en la vista pública');
-  const { r: rParo } = await consultar('¿Cuántos casos de parotiditis infecciosa se pronostican en Jalisco?', { sinClave: true });
-  assert.equal(rParo.retrieval, 'vista');
-  assert.ok(rParo.answer.includes(ent(paroJal.pronostico_52_total)));
-  assert.ok(rParo.answer.includes(`${ent(paroJal.oos.observado_total)} casos observados`) && rParo.answer.includes(`${ent(paroJal.oos.pronostico_total)} pronosticados`));
-  assert.doesNotMatch(rParo.answer, /sesgo(?: de)?\s*0(?:\.0+)?\s*%/i, 'B1: prohibido fabricar sesgo 0.0 % cuando sesgo_pct es null');
+function clonarConOos(vistaBase, serieKey, oosNuevo, metaExtra = {}) {
+  const copia = structuredClone(vistaBase);
+  Object.assign(copia, metaExtra);
+  copia.series[serieKey].oos = { ...copia.series[serieKey].oos, ...oosNuevo };
+  return copia;
+}
 
-  const campMuj = VISTA_A51.series['estado|04|mujeres'];
-  assert.equal(campMuj.oos.sesgo_pct, null, 'A51 Campeche mujeres tiene sesgo_pct null en la vista pública');
-  const { r: rCamp } = await consultar('¿Cuántos casos de sífilis adquirida en mujeres se pronostican en Campeche?', { sinClave: true });
-  assert.equal(rCamp.retrieval, 'vista');
-  assert.ok(rCamp.answer.includes(ent(campMuj.pronostico_52_total)));
-  assert.doesNotMatch(rCamp.answer, /sesgo(?: de)?\s*0(?:\.0+)?\s*%/i, 'B1: Campeche mujeres no debe imprimir sesgo 0.0 %');
-
-  for (const q0 of ['¿Cuántos casos de mal del pinto se esperan en Chiapas?', 'intoxicación por monóxido de carbono en Jalisco']) {
-    const { r } = await consultar(q0, { sinClave: true });
-    assert.doesNotMatch(r.answer, /sesgo(?: de)?\s*0(?:\.0+)?\s*%/i, q0);
+function verificarSesgoDerivadoVista(answer, v, serieKey, etiqueta) {
+  const s = v.series[serieKey];
+  assert.ok(answer.includes(ent(s.pronostico_52_total)), `${etiqueta}: falta total 52 sem`);
+  if (s.oos?.semanas > 0) {
+    assert.ok(answer.includes(rangoEsp(v.origin, s.oos.semanas, ' a ')), `${etiqueta}: falta rango OOS`);
+    assert.ok(answer.includes(`${ent(s.oos.observado_total)} casos observados`), `${etiqueta}: falta observados`);
+    assert.ok(answer.includes(`${ent(s.oos.pronostico_total)} pronosticados`), `${etiqueta}: falta pronosticados`);
+    if (s.oos.sesgo_pct === null || s.oos.sesgo_pct === undefined) {
+      assert.doesNotMatch(answer, /sesgo(?: de)?\s*-?\d/i, `${etiqueta}: prohibido inventar sesgo numérico cuando sesgo_pct es null`);
+    } else {
+      assert.ok(answer.includes(`sesgo de ${pct(s.oos.sesgo_pct)} %`), `${etiqueta}: falta sesgo real (${pct(s.oos.sesgo_pct)} %)`);
+    }
   }
+}
 
-  // Ruta semántica: Serie Jalisco en CONTRATO TEMPORAL tampoco imprime sesgo 0 % cuando sesgo_pct es null.
+test('B1 hermético (independiente del boletín): copias sintéticas null (0 vs 5, 0 vs 3, 0 vs 0) jamás imprimen 0.0 % y sesgo real 0.0 % sí se conserva', () => {
+  const casosNulos = [
+    ['parotiditis 0 vs 5', '¿Cuántos casos de parotiditis infecciosa se pronostican en Jalisco?', 'parotiditis_b26', VISTA_PARO, 'estado|14|general',
+      { semanas: 1, observado_total: 0, pronostico_total: 5, mae: 5, smape: 200.0, sesgo_pct: null }],
+    ['A51 Campeche mujeres 0 vs 3', '¿Cuántos casos de sífilis adquirida en mujeres se pronostican en Campeche?', 'sifilis_adquirida_a51', VISTA_A51, 'estado|04|mujeres',
+      { semanas: 1, observado_total: 0, pronostico_total: 3, mae: 3, smape: 200.0, sesgo_pct: null }],
+    ['pinto Chiapas 0 vs 0', '¿Cuántos casos de mal del pinto se esperan en Chiapas?', 'mal_del_pinto_a67', VISTA_PINTO, 'estado|07|general',
+      { semanas: 1, observado_total: 0, pronostico_total: 0, mae: 0, smape: 0.0, sesgo_pct: null }],
+    ['monóxido Jalisco 0 vs 0', 'intoxicación por monóxido de carbono en Jalisco', 'monoxido_t58', VISTA_MONO, 'estado|14|general',
+      { semanas: 1, observado_total: 0, pronostico_total: 0, mae: 0, smape: 0.0, sesgo_pct: null }],
+  ];
+  for (const [eti, q, id, base, skey, oosNulo] of casosNulos) {
+    const vSint = clonarConOos(base, skey, oosNulo);
+    const ans = vistaGroundedAnswer(q, [], { leerVista: () => vSint, leerFicha: () => '' });
+    assert.ok(ans, eti);
+    verificarSesgoDerivadoVista(ans.answer, vSint, skey, eti);
+    const enr = enriquecerSemanticoVista({ foco: [id], searchQuery: q, hits: [], leerVista: () => vSint });
+    assert.doesNotMatch(enr.extraFacts, /Serie [^\n]*sesgo/i, `${eti} (semántico): no debe imprimir sesgo cuando es null`);
+  }
+  // Contraparte hermética: cuando sesgo_pct es 0 real (5 observados vs 5 pronosticados), 0.0 % sí debe mostrarse.
+  const vCeroReal = clonarConOos(VISTA_PARO, 'estado|14|general', { semanas: 2, observado_total: 5, pronostico_total: 5, mae: 0, smape: 0.0, sesgo_pct: 0.0 }, { weeks_available: 2 });
+  const ansCero = vistaGroundedAnswer('¿Cuántos casos de parotiditis infecciosa se pronostican en Jalisco?', [], { leerVista: () => vCeroReal, leerFicha: () => '' });
+  verificarSesgoDerivadoVista(ansCero.answer, vCeroReal, 'estado|14|general', 'parotiditis sesgo 0.0 % real');
+  const enrCero = enriquecerSemanticoVista({ foco: ['parotiditis_b26'], searchQuery: 'parotiditis infecciosa en Jalisco', hits: [], leerVista: () => vCeroReal });
+  assert.match(enrCero.extraFacts, /Serie Jalisco \(general\):[^\n]*sesgo 0\.0 %/);
+});
+
+test('B1 integración viva + simulación de avance semanal (2/4 sesgo no nulo y 4/4 sesgo 0.0 % real sin mutar archivos reales)', async () => {
+  const citasVivas = [
+    ['¿Cuántos casos de parotiditis infecciosa se pronostican en Jalisco?', 'parotiditis_b26', 'estado|14|general'],
+    ['¿Cuántos casos de sífilis adquirida en mujeres se pronostican en Campeche?', 'sifilis_adquirida_a51', 'estado|04|mujeres'],
+    ['¿Cuántos casos de mal del pinto se esperan en Chiapas?', 'mal_del_pinto_a67', 'estado|07|general'],
+    ['intoxicación por monóxido de carbono en Jalisco', 'monoxido_t58', 'estado|14|general'],
+  ];
+  for (const [q, id, skey] of citasVivas) {
+    const { status, r } = await consultar(q, { sinClave: true });
+    assert.equal(status, 200, q);
+    assert.equal(r.retrieval, 'vista', q);
+    verificarSesgoDerivadoVista(r.answer, VISTAS_VIVAS[id], skey, `vivo ${id}`);
+  }
   const { r: rSemParo, sistema } = await consultar('¿Por qué los motores estacionales de parotiditis infecciosa en Jalisco tienen error alto?');
   assert.equal(rSemParo.retrieval, 'semantic');
   assert.match(sistema, /Serie Jalisco \(general\):/);
-  assert.doesNotMatch(sistema, /Serie Jalisco[^\n]*sesgo 0(?:\.0+)?\s*%/i);
+  const sesgoParoVivo = VISTA_PARO.series['estado|14|general'].oos?.sesgo_pct;
+  if (sesgoParoVivo === null || sesgoParoVivo === undefined) {
+    assert.doesNotMatch(sistema, /Serie Jalisco[^\n]*sesgo/i);
+  } else {
+    assert.ok(sistema.includes(`sesgo ${pct(sesgoParoVivo)} %`));
+  }
+
+  // Simulación de boletines futuros sobre las mismas 4 consultas (2/4 con sesgo no-null y 4/4 con sesgo real 0.0 %):
+  // demuestra que la lógica de verificación derivada jamás rompe cuando desaparecen los nulls o aparece un 0.0 % real.
+  for (const [escenario, meta, oosSim] of [
+    ['avance 2/4 sesgo no nulo', { weeks_available: 2, verdict: 'INCOMPLETE' }, { semanas: 2, observado_total: 8, pronostico_total: 10, mae: 1, smape: 22.22, sesgo_pct: 25.0 }],
+    ['avance 4/4 sesgo 0.0 % real', { weeks_available: 4, verdict: 'CONTROL_ONLY' }, { semanas: 4, observado_total: 12, pronostico_total: 12, mae: 0, smape: 0.0, sesgo_pct: 0.0 }],
+  ]) {
+    for (const [q, id, skey] of citasVivas) {
+      const vMut = clonarConOos(VISTAS_VIVAS[id], skey, oosSim, id === 'mal_del_pinto_a67' && meta.weeks_available === 4 ? { ...meta, verdict: 'PASS' } : meta);
+      const ansMut = vistaGroundedAnswer(q, [], { leerVista: () => vMut, leerFicha: () => '' });
+      verificarSesgoDerivadoVista(ansMut.answer, vMut, skey, `${escenario} ${id}`);
+    }
+  }
 });
 
-test('B2 (contexto semántico estatal multi-semana): obesidad (17 sem) e hipertensión (2 sem) declaran el rango completo y conteo de observaciones', async () => {
+test('B2 (contexto semántico estatal multi-semana): obesidad e hipertensión declaran el rango completo derivado y conteo de observaciones', async () => {
   const obeJal = VISTA_OBE.series['estado|14|general'];
   const hipJal = VISTA_HIP.series['estado|14|general'];
   assert.ok(obeJal.oos.semanas > 1 && hipJal.oos.semanas > 1);
@@ -112,33 +178,36 @@ test('B2 (contexto semántico estatal multi-semana): obesidad (17 sem) e hiperte
 
   const { r, sistema } = await consultar('Compara hipertensión arterial y obesidad en Jalisco');
   assert.equal(r.retrieval, 'semantic');
-  assert.ok(sistema.includes(`vista ${wObe} (${obeJal.oos.semanas} obs.`), `falta rango estatal de obesidad (${wObe}): ${sistema}`);
-  assert.ok(sistema.includes(`vista ${wHip} (${hipJal.oos.semanas} obs.`), `falta rango estatal de hipertensión (${wHip}): ${sistema}`);
-  assert.doesNotMatch(sistema, new RegExp(`vista ${sem(semSig(VISTA_OBE.origin, 1))}:`), 'no debe atribuir 17 semanas sólo a la primera semana');
-  assert.doesNotMatch(sistema, new RegExp(`vista ${sem(semSig(VISTA_HIP.origin, 1))}:`), 'no debe atribuir 2 semanas sólo a la primera semana');
+  assert.ok(sistema.includes(`vista ${wObe} (${obeJal.oos.semanas} obs.`), `falta rango estatal de obesidad (${wObe})`);
+  assert.ok(sistema.includes(`vista ${wHip} (${hipJal.oos.semanas} obs.`), `falta rango estatal de hipertensión (${wHip})`);
+  assert.doesNotMatch(sistema, new RegExp(`vista ${sem(semSig(VISTA_OBE.origin, 1))}:`));
+  assert.doesNotMatch(sistema, new RegExp(`vista ${sem(semSig(VISTA_HIP.origin, 1))}:`));
 });
 
-test('M1 (no sobre-capturar seguimientos): alcance de EpiForecast, motores evaluados y «ok gracias» no devuelven el pronóstico previo de A51', async () => {
-  const nacA51 = ent(VISTA_A51.series['nacional|mx|general'].pronostico_52_total);
+test('M1 y V3 K6: alcance de EpiForecast, motores evaluados, «ok gracias» y reparto por sexo van a vía semántica sin reimprimir A51', async () => {
   const rScope = await consultar('¿Cuántos padecimientos modela EpiForecast?', { history: HISTORIA_A51_NACIONAL });
-  assert.equal(rScope.r.retrieval, 'semantic', 'pregunta de alcance del proyecto debe ir a vía semántica');
+  assert.equal(rScope.r.retrieval, 'semantic');
   assert.match(rScope.sistema, /Alcance vigente:/);
-  assert.ok(!rScope.r.answer.includes(nacA51));
+  assert.ok(!rScope.r.answer.includes(TOTAL_NAC_A51));
 
   const rMotores = await consultar('¿Y qué motores se evaluaron?', { history: HISTORIA_A51_NACIONAL });
-  assert.equal(rMotores.r.retrieval, 'semantic', 'pregunta metodológica en seguimiento debe ir a vía semántica');
+  assert.equal(rMotores.r.retrieval, 'semantic');
   assert.ok(rMotores.gemini > 0 && rMotores.sistema);
 
   const rGracias = await consultar('ok gracias', { history: HISTORIA_A51_NACIONAL });
-  assert.equal(rGracias.r.retrieval, 'semantic', 'cortesía/cierre no debe reimprimir el bloque de pronóstico nacional');
-  assert.ok(!rGracias.r.answer.includes(nacA51));
+  assert.equal(rGracias.r.retrieval, 'semantic');
+  assert.ok(!rGracias.r.answer.includes(TOTAL_NAC_A51));
+
+  const rK6 = await consultar('¿Cómo influyen los problemas del reparto por sexo en el pronóstico de sífilis adquirida A51-A53?');
+  assert.equal(rK6.r.retrieval, 'semantic');
+  assert.ok(rK6.gemini > 0 && rK6.sistema);
 });
 
-test('M2, M3, M4 y S4: asma_j45 multi-semana preemisión real + vistas sintéticas en memoria (FAIL explícito, 2/4, 4/4 y semanas>0 sin métricas)', async () => {
-  // M3 con vista pública real de asma_j45 (2 semanas observadas: W42 preemisión, W43 posterior a la emisión).
+test('M2, M3, M4 y S4: asma_j45 preemisión multi-semana real + sintéticas FAIL, 2/4, 4/4 derivadas por calendario desde origin y semanas>0 sin métricas', async () => {
   const idxAsma = INDICE.chunks.findIndex((c) => c.section === 'asma_j45');
   const vecAsma = idxAsma >= 0 ? INDICE.vectors[idxAsma] : VEC_DEF;
   const wIniAsma = sem(semSig(VISTA_ASMA.origin, 1));
+  assert.ok(VISTA_ASMA.series['estado|14|general'].oos.semanas > 1);
   const { r: rAsmaVista } = await consultar('¿Cuántos casos de asma se pronostican en Jalisco?', { sinClave: true });
   assert.equal(rAsmaVista.retrieval, 'vista');
   assert.match(rAsmaVista.answer, new RegExp(`primera semana \\(\\*\\*${wIniAsma}\\*\\*\\) ya era pública antes de emitir`));
@@ -149,60 +218,40 @@ test('M2, M3, M4 y S4: asma_j45 multi-semana preemisión real + vistas sintétic
   assert.doesNotMatch(sisAsma, /las semanas evaluadas se registraron después de la emisión/);
   assert.match(sisAsma, new RegExp(`la primera semana evaluada \\(${wIniAsma}\\) ya era pública antes de emitir`));
 
-  // M2 + M4 + S4 con copias sintéticas en memoria de VISTA_PINTO (sin tocar ningún archivo vista.json real).
-  const basePinto = structuredClone(VISTA_PINTO);
-  const sintetica = (mut) => { const c = structuredClone(basePinto); mut(c); return c; };
-
-  const vistaFail = sintetica((c) => { c.weeks_available = 4; c.weeks_required = 4; c.verdict = 'FAIL'; c.series['estado|07|general'].oos.semanas = 4; });
+  const vistaFail = clonarConOos(VISTA_PINTO, 'estado|07|general', { semanas: 4 }, { weeks_available: 4, weeks_required: 4, verdict: 'FAIL' });
   const ansFail = vistaGroundedAnswer('¿Cuántos casos de mal del pinto se esperan en Chiapas?', [], { leerVista: () => vistaFail, leerFicha: () => '' });
   assert.match(ansFail.answer, /veredicto \*\*FAIL\*\*/);
-  assert.doesNotMatch(ansFail.answer, /en curso|sin fallo/i, 'M2: un veredicto FAIL jamás puede decir en curso ni sin fallo');
+  assert.doesNotMatch(ansFail.answer, /en curso|sin fallo/i);
 
-  for (const [wa, verdict, sepFin] of [[2, 'INCOMPLETE', '2026-W43–2026-W44'], [4, 'PASS', '2026-W43–2026-W46']]) {
-    const vN = sintetica((c) => {
-      c.weeks_available = wa;
-      c.verdict = verdict;
-      c.series['nacional|mx|general'].oos = { semanas: wa, observado_total: 6, pronostico_total: 5, mae: 0.5, smape: 18.0, sesgo_pct: -16.7 };
-    });
-    const enr = enriquecerSemanticoVista({
-      foco: ['mal_del_pinto_a67'],
-      searchQuery: 'mal del pinto en Chiapas',
-      hits: [{ chunk: { id: `release:mal_del_pinto_a67:${vN.release_id}:nacional`, section: 'mal_del_pinto_a67', text: 'texto' } }],
-      leerVista: () => vN,
-    });
-    const sn = enr.snippets.get(`release:mal_del_pinto_a67:${vN.release_id}:nacional`);
-    assert.ok(sn.includes(`vista ${sepFin} (no 2025)`), `M4 snippet multi-semana (${wa}/4): ${sn}`);
+  for (const [wa, verdict] of [[2, 'INCOMPLETE'], [4, 'PASS']]) {
+    const rangoDerivado = rangoEsp(VISTA_PINTO.origin, wa, '–');
+    const vN = clonarConOos(VISTA_PINTO, 'nacional|mx|general', { semanas: wa, observado_total: 6, pronostico_total: 5, mae: 0.5, smape: 18.0, sesgo_pct: -16.7 }, { weeks_available: wa, verdict });
+    const cid = `release:mal_del_pinto_a67:${vN.release_id}:nacional`;
+    const enr = enriquecerSemanticoVista({ foco: ['mal_del_pinto_a67'], searchQuery: 'mal del pinto en Chiapas', hits: [{ chunk: { id: cid, section: 'mal_del_pinto_a67', text: 'texto' } }], leerVista: () => vN });
+    assert.ok(enr.snippets.get(cid).includes(`vista ${rangoDerivado} (no 2025)`));
   }
 
-  const vistaSinMet = sintetica((c) => {
-    c.series['estado|07|general'].oos = { semanas: 1, observado_total: 0, pronostico_total: 0, mae: null, smape: null, sesgo_pct: null };
-  });
+  const vistaSinMet = clonarConOos(VISTA_PINTO, 'estado|07|general', { semanas: 1, observado_total: 0, pronostico_total: 0, mae: null, smape: null, sesgo_pct: null });
   const ansSinMet = vistaGroundedAnswer('¿Cuántos casos de mal del pinto se esperan en Chiapas?', [], { leerVista: () => vistaSinMet, leerFicha: () => '' });
   assert.match(ansSinMet.answer, /1 observación semanal registrada/);
-  assert.doesNotMatch(ansSinMet.answer, /aún no hay semanas observadas evaluadas/i, 'S4: no negar semanas observadas cuando semanas > 0');
+  assert.doesNotMatch(ansSinMet.answer, /aún no hay semanas observadas evaluadas/i);
 });
 
 test('S1, S2, S3 y S8: tratamiento clínico, grupo etario adultos mayores, ranking estatal y suma en seguimiento A37+U99', async () => {
   const jalA51 = ent(VISTA_A51.series['estado|14|general'].pronostico_52_total);
-  const nacA51 = ent(VISTA_A51.series['nacional|mx|general'].pronostico_52_total);
-
-  // S1: consulta de tratamiento clínico en estado no devuelve bloque de pronóstico estatal.
   const rClin = await consultar('¿Cómo se trata la sífilis adquirida en Jalisco?');
   assert.equal(rClin.r.retrieval, 'semantic');
   assert.ok(!rClin.r.answer.includes(jalA51));
 
-  // S2: grupo etario no modelado («adultos mayores») aclara ausencia de desglose por edad sin atribuirle 2,147 casos.
   const { r: rEdad } = await consultar('sífilis adquirida en adultos mayores en Jalisco', { sinClave: true });
   assert.equal(rEdad.retrieval, 'vista');
   assert.match(rEdad.answer, /sin estratificación por grupos de edad|no existe pronóstico específico por edad/i);
-  assert.ok(!rEdad.answer.includes(jalA51), 'S2: no atribuir serie general a adultos mayores');
+  assert.ok(!rEdad.answer.includes(jalA51));
 
-  // S3: ranking estatal sin entidad nombrada va a semántico (:estados), nunca devuelve sólo el total nacional.
   const rRank = await consultar('¿Qué estado tiene más casos de sífilis adquirida?');
   assert.equal(rRank.r.retrieval, 'semantic');
-  assert.ok(!rRank.r.answer.includes(nacA51));
+  assert.ok(!rRank.r.answer.includes(TOTAL_NAC_A51));
 
-  // S8: seguimiento aditivo tras tos ferina activa guardaSumaA37U99Rag sin llamar a Gemini.
   const rSumaSeg = await consultar('¿y cuántos casos suma con síndrome coqueluchoide?', {
     history: [{ role: 'user', text: 'tos ferina en Jalisco' }, { role: 'assistant', text: 'Pronóstico de tos ferina.' }],
     sinClave: true,
