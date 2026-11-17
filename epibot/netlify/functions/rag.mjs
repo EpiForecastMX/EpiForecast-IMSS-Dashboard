@@ -939,6 +939,8 @@ export default async function handler(req) {
   if (qEfectiva !== String(body.query || '')) {
     const d7Seg = guardaD7Rag(qEfectiva);
     if (d7Seg) return json({ answer: d7Seg, sources: [], retrieval: 'none', guarda: 'd7' }, 200, cors);
+    const sumaSeg = guardaSumaA37U99Rag(qEfectiva);
+    if (sumaSeg) return json({ answer: sumaSeg, sources: [], retrieval: 'none', guarda: 'suma_a37_u99' }, 200, cors);
     const menSeg = guardaMeningitisTipoRag(qEfectiva);
     if (menSeg) return json({ answer: menSeg, sources: [], retrieval: 'none', guarda: 'meningitis_tipo' }, 200, cors);
   }
@@ -957,16 +959,18 @@ export default async function handler(req) {
   if (ambiguo) return json({ answer: ambiguo.texto, sources: [] }, 200, cors);
   const sinVecino = noModeladaSinVecino(stripAccents(qEfectiva));
   if (sinVecino) return json({ answer: sinVecino, sources: [] }, 200, cors);
-  if (!turno.debeDetallarSerieVista) {
+  if (!turno.esMetodologica && !turno.debeDetallarSerieVista) {
     const estadoPuro = estadoDeControl(qEfectiva, leerVista)
       || estadoDeAceptado(qEfectiva, leerVista, leerFicha);
     if (estadoPuro) return json({ ...estadoPuro, retrieval: 'vista' }, 200, cors);
   }
-  const vistaAns = vistaGroundedAnswer(body.query, body.history, { leerVista, leerFicha, notasFicha, pruebaSuperada, emitidoCivil, avisosFuenteRag });
+  const vistaAns = vistaGroundedAnswer(body.query, body.history, { turno, leerVista, leerFicha, notasFicha, pruebaSuperada, emitidoCivil, avisosFuenteRag });
   if (vistaAns) return json(vistaAns, 200, cors);
-  const estado = estadoDeControl(qEfectiva, leerVista)
-    || estadoDeAceptado(qEfectiva, leerVista, leerFicha);
-  if (estado) return json({ ...estado, retrieval: 'vista' }, 200, cors);
+  if (!turno.esMetodologica) {
+    const estado = estadoDeControl(qEfectiva, leerVista)
+      || estadoDeAceptado(qEfectiva, leerVista, leerFicha);
+    if (estado) return json({ ...estado, retrieval: 'vista' }, 200, cors);
+  }
 
   if (!apiKey) return json({ error: 'GEMINI_API_KEY no configurada' }, 500, cors);
 

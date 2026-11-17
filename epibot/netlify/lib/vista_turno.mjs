@@ -1,6 +1,6 @@
 /**
- * vista_turno.mjs — Detección geográfica/demográfica, calendario MMWR y resolución conversacional
- * determinista previa a las guardas clínicas, categorías no modeladas y estado de vista en rag.mjs.
+ * vista_turno.mjs — Detección geográfica/demográfica, intención metodológica vs numérica/estado,
+ * calendario MMWR y resolución conversacional determinista previa a guardas y vista en rag.mjs.
  */
 
 export const strip = (s) => String(s ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -48,16 +48,30 @@ export function semanaSig([a, s], pasos) {
 }
 
 const NOMBRA_LEGACY_DOC = /\b(depresion|depression|f32|parkinson|g20|alzheimer|alzaimer|g30|dengue|a97|micai|wcp|congreso mundial|world congress|calass|alass|helix|public health futures|skopje|oneplus|plos)\b/;
+const CORTESIA_O_CIERRE = /^(?:ok|okay|vale|bien|bueno|gracias|muchas gracias|perfecto|entendido|claro|listo|de acuerdo|excelente|genial|hola|buenos dias|buenas tardes|buenas noches|thank you|thanks|got it)(?:\s+(?:gracias|muchas gracias|por la informacion|entendido|perfecto|claro|listo|epi))*\s*$/;
+const CAMBIO_TEMA_PROYECTO = /\b(padecimientos?|enfermedades|catalogo|epiforecast|epibot|dashboard|plataforma|proyecto|sitio web|cuantos modelos tiene|que modela\w*|cuales modela\w*)\b/;
 const PIDE_CALIDAD_ESTADO = /\b(validad\w*|valida|validacion|confiab\w*|fiable|confiar|aceptad\w*|rechaz\w*|calidad|precis\w*|exactitud|que tan (bueno|exacto|preciso)|sirve)\b/;
 const PIDE_METRICA_ERROR = /\b(error\w*|smape)\b/;
 const PIDE_ESTADO_RE = /\b(validad\w*|valida|validacion|confiab\w*|fiable|confiar|aceptad\w*|rechaz\w*|calidad|precis\w*|exactitud|que tan (bueno|exacto|preciso)|error\w*|smape|sirve)\b/;
 const PIDE_CIFRAS_ESTRICTO = /\b(cuantos?|cuantas?|total(es)?|pronostican|pronosticad[oa]s?|esperan|esperad[oa]s?|previst[oa]s?|proyecta\w*|52 semanas|horizonte|observad\w*|fuera de muestra|202\d ?w\d{1,2}|semana \d{1,2}|boletin \d{1,2}|mae|sesgo|bias|how many|forecasted|expected)\b/;
-const PIDE_PRONOSTICO_O_SERIE = /\b(pronostico|prediccion|casos|serie|series|hay pronostico|existe pronostico|forecast|prediction|cases)\b/;
+const PIDE_PRONOSTICO_DIRECTO = /^(?:el |un |ver |dame |deme |mostrar |muestrame |consultar )?(?:pronostico|prediccion|forecast)\b|\b(?:cual es|cuales son|dame|deme|ver|mostrar|muestrame|consultar|hay|existe|is there|what is)\s+(?:el\s+|un\s+|la\s+|a\s+|the\s+)?(?:pronostico|prediccion|forecast|prediction)\b|\bcasos\s+(?:de|en|para|del)\b/;
 const PIDE_NACIONAL = /\b(nacional(es)?|a nivel nacional|total nacional|en mexico|de mexico|todo el pais|en el pais|republica mexicana|nationwide|in mexico)\b/;
 const MOD_FAMILIA = /\b(congenit[a-z]*|neonatal\w*|connatal\w*|perinatal\w*|vertical|fetal\w*|mortinat\w*|stillbirth\w*|gestacional|gestational|gestantes?|matern[ao]s?|maternal|embaraz\w*|pregnan\w*|puerper\w*|parto|childbirth|recien nacid[oa]s?|newborns?|bebes?|babies|baby|lactantes?|infants?|nin[oa]s?|children|child|menores?|adolescentes?|pediatric[oa]?s?|tipo (?:1|2|i|ii|uno|dos)|pulmonar)\b/;
+const SUMA_SEGUIMIENTO = /\b(sum\w*|junt[oa]s?|combinad[oa]s?|mas el|mas la)\b/;
 
-export const CONSEJO_CLINICO = /\b(creo que tengo|como se cura|cura para|tratamientos?|medicamentos?|que tomar|antibioticos?|penicilina|receta|sintomas?|como se contagia|como se transmite|prueba de sangre|vdrl|consulta medica|me contagi\w*)\b/;
-export const GENERICO_ESTATAL = /\b(por (estado|entidad)|cada (estado|entidad)|ranking|ordenad[oa]s|mayor incidencia|menor error|todos los estados)\b/;
+const PREGUNTA_METODO = /\b(por que|a que se debe\w*|de que manera|en que medida|en que consiste\w*|como (?:se )?(?:influy\w*|afect\w*|impact\w*|incid\w*|alter\w*|distorsion\w*|sesg\w*|repercut\w*|explic\w*|interpreta\w*|lee\w*|entiend\w*|funcion\w*|oper\w*|construy\w*|calcul\w*|estim\w*|reconstruy\w*|reconcili\w*|seleccion\w*|elig\w*|evalua\w*|entren\w*|model\w*|manej\w*|corrig\w*|imput\w*|obtien\w*|deriv\w*|agreg\w*)|que (?:efecto\w*|impacto\w*|influencia\w*|consecuencia\w*|problema\w*|limitacion\w*|implicacion\w*|alcance|significa\w*|papel|rol|discrepancia\w*|diferencia\w*|motores?|modelos?|algoritmos?|candidatos?|metodos?|politica\w*|ocurri\w*|paso|sucedi\w*)|why (?:did|was|were|is|are|do|does)|how (?:does|do|did|is|was|were) [\w ]{1,30} (?:affect\w*|influenc\w*|impact\w*|select\w*|buil\w*|reconstruct\w*|imput\w*)|what (?:effect\w*|impact\w*|problem\w*|limitation\w*|engines?|models?))\b/;
+const TEMA_METODO_FUENTE = /\b(metodologi\w*|imputad[oa]s?|imputacion\w*|imputed|imputation|raster|encabezados?|subregistro|cambio de nivel|ruptura de nivel|picos? heredados?|rolling|validacion cruzada|cross validation|pliegues?|folds?|reentren\w*|hiperparametro\w*|motores? candidatos?|seleccion de (?:motores|modelos)|compitieron|se evaluaron|mase|modelo\w* ets|motor\w* ets|candidato\w* ets|ets amortiguad\w*|ets y ridge|ridge y ets|sin ets|ridge|prophet|sex distribution|sex reconstruction|source quality|data quality)\b/;
+const TEMA_SEXO_O_FUENTE = /\b(reparto|reconstruccion|reconciliacion|redistribucion|discrepancia|desajuste|inconsistencia|problema\w*)s?(?:\s+\w+){0,4}\s+sexo\b|\bsexo(?:\s+\w+){0,4}\s+(reparto|reconstruccion|reconciliacion|discrepancia|desajuste|inconsistencia)\b|\b(?:bajas?|correccion\w*|reconciliacion|discrepancia\w*|ajuste\w*|reconstruccion) (?:de |del |con el |a partir de )?(?:los )?acumulad[oa]s?\b|\bacumulad[oa]s? del boletin\b|\bcalidad de (?:la |los |las )?(?:fuente\w*|dato\w*|registro\w*|boletin\w*|captura)\b|\bproblemas? de(?:l| la| los| las)? (?:fuente\w*|dato\w*|boletin\w*|captura|registro|notificacion)\b/;
+
+export const CONSEJO_CLINICO = /\b(creo que tengo|tengo sintomas|como se (?:cura\w*|trata\w*|previene\w*|diagnostica\w*|contagia\w*|transmite\w*)|cura para|tratar\b|tratamientos?|prevencion|prevenir|diagnostico|diagnosticar|medicamentos?|que tomar|antibioticos?|penicilina|receta|vacuna\w*|sintomas?|prueba de sangre|vdrl|consulta medica|me contagi\w*)\b/;
+export const GENERICO_ESTATAL = /\b(por (?:estado|entidad)|cada (?:estado|entidad)|ranking|ordenad[oa]s|(?:que|cual|cuales) (?:estado|entidad)\w*|(?:estados?|entidades) (?:con )?(?:mas|menos|mayor\w*|menor\w*|peor\w*|mejor\w*)|mayor incidencia|menor incidencia|menor error|mayor error|mas casos|menos casos|todos los estados|comparar estados)\b/;
+export const PIDE_ESTRATO_EDAD = /\b(adultos? mayores?|ancian[oa]s?|tercera edad|vejez|geriatric[oa]s?|senescentes?|(?:por|segun) (?:grupo\w* de )?edad(?:es)?|estratificad[oa]\w* por edad|desglose por edad|grupo\w* etario\w*|grupos? de edad|\d{1,2}\s*a\s*\d{1,2}\s*anos|(?:mayores|menores) de \d{1,3}\s*anos)\b/;
+
+export function esIntencionMetodologica(query) {
+  const qp = normPal(query);
+  if (!qp || CONSEJO_CLINICO.test(qp)) return false;
+  return PREGUNTA_METODO.test(qp) || TEMA_METODO_FUENTE.test(qp) || TEMA_SEXO_O_FUENTE.test(qp);
+}
 
 export function detectarGeos(query) {
   let q = normPal(query);
@@ -70,9 +84,7 @@ export function detectarGeos(query) {
   }
   for (const [re, nombre] of ESTADOS_NOMBRES) {
     if (re.test(q)) {
-      if (!out.some((x) => x.nivel === 'estado' && x.nombre === nombre)) {
-        out.push({ nivel: 'estado', nombre });
-      }
+      if (!out.some((x) => x.nivel === 'estado' && x.nombre === nombre)) out.push({ nivel: 'estado', nombre });
       q = q.replace(re, ' ');
     }
   }
@@ -94,61 +106,56 @@ function releasesEn(query) {
   if (!C) return [];
   const qn = C.canonClinico(normEsp(query));
   const d = C.diabetesEnConsulta(qn.replace(/[^a-z0-9 ]/g, ' '));
-  if (d && !d.generica) {
-    return d.pads.map((p) => C.releases.find((r) => r.pad === p)).filter(Boolean);
-  }
+  if (d && !d.generica) return d.pads.map((p) => C.releases.find((r) => r.pad === p)).filter(Boolean);
   const aj = C.subtipoAjeno(strip(query));
   return C.releases.filter((r) => (!aj || r.pad !== aj.pad) && r.alias.some((a) => C.nombraAlias(qn, a)));
 }
 
 function esTurnoSeguimiento(raw) {
   const q = normPal(raw);
-  if (!q) return false;
-  if (/^(y|pero|ademas|entonces|ok|tambien|ahora|que hay de|que tal|and|but|also|what about|how about)\b/.test(q)) {
+  if (!q || CORTESIA_O_CIERRE.test(q) || CAMBIO_TEMA_PROYECTO.test(q)) return false;
+  if (/^(y|pero|ademas|tambien|que hay de|que tal|and|but|also|what about|how about)\b/.test(q)) return true;
+  if (/\b(eso|ese|esa|ahi|alli|el mismo|la misma|este padecimiento|este pronostico|ese pronostico|ese modelo|esa serie|su error|su pronostico|su fuente|su reparto|su metodologia|esta validad[oa]|es confiable)\b/.test(q)) {
     return true;
   }
-  if (/\b(eso|ese|esa|ahi|alli|el mismo|la misma|este padecimiento|esa serie|su error|su pronostico|esta validad[oa]|es confiable)\b/.test(q)) {
-    return true;
-  }
-  return q.split(' ').length <= 9 && (
+  return q.split(' ').length <= 8 && (
     detectarGeos(raw).length > 0 ||
     PIDE_NACIONAL.test(q) ||
     Boolean(detectarSexo(raw)) ||
-    PIDE_ESTADO_RE.test(q) ||
-    PIDE_CIFRAS_ESTRICTO.test(q) ||
-    MOD_FAMILIA.test(q)
+    MOD_FAMILIA.test(q) ||
+    PIDE_ESTRATO_EDAD.test(q) ||
+    /^(?:esta |es |fue )?(?:validad[oa]|confiable|fiable|precis[oa]|aceptad[oa])\b/.test(q)
   );
 }
 
 function analizarTurno(t, prev) {
   const C = globalThis.EPI_CATALOGO;
   let evalTxt = t;
-  if (prev?.pad && C) {
+  if (prev?.pad && C && !CAMBIO_TEMA_PROYECTO.test(normPal(t)) && !CORTESIA_O_CIERRE.test(normPal(t))) {
     const tn = normPal(t);
     const base = /^(y|pero|tambien|que hay de|ahora|and|what about)\b/.test(tn) ? tn : `y ${tn}`;
-    const r1 = C.conDiabetesNombrada(base, prev.pad);
-    const r2 = C.conFamiliaNombrada(r1, prev.pad);
-    const r3 = C.conHipertensionNombrada(r2, prev.pad);
+    const r3 = C.conHipertensionNombrada(C.conFamiliaNombrada(C.conDiabetesNombrada(base, prev.pad), prev.pad), prev.pad);
     if (r3 !== base) evalTxt = r3;
   }
   const qs = strip(evalTxt);
   const qp = normPal(evalTxt);
+  if (CORTESIA_O_CIERRE.test(qp)) return { tipo: 'cortesia', query: t };
   if (NOMBRA_LEGACY_DOC.test(qs)) return { tipo: 'legacy', query: evalTxt };
   if (C?.subtipoAjeno(qs)) return { tipo: 'ajeno', query: evalTxt };
   if (C?.aliasAmbiguo(qs)) return { tipo: 'ambiguo', query: evalTxt };
-  if (C?.mencionaNoModelada(qs)) {
-    return { tipo: 'noModelada', query: evalTxt, termino: C.mencionaNoModelada(qs) };
-  }
+  if (C?.mencionaNoModelada(qs)) return { tipo: 'noModelada', query: evalTxt, termino: C.mencionaNoModelada(qs) };
   const rels = releasesEn(evalTxt);
   if (rels.length > 0) {
     const canon = C.canonClinico(normEsp(evalTxt));
     const geos = detectarGeos(evalTxt);
     const sexo = detectarSexo(evalTxt);
+    const estratoEdad = PIDE_ESTRATO_EDAD.test(qp);
+    const esMetodologica = esIntencionMetodologica(evalTxt);
     const estricto = PIDE_CIFRAS_ESTRICTO.test(qp);
-    const pronSerie = PIDE_PRONOSTICO_O_SERIE.test(qp);
+    const pronDirecto = PIDE_PRONOSTICO_DIRECTO.test(qp);
     const pideCalidad = PIDE_CALIDAD_ESTADO.test(canon);
     const pideError = PIDE_METRICA_ERROR.test(canon);
-    const detallarSerie = estricto || (pideError && !pideCalidad && (geos.length > 0 || Boolean(sexo)));
+    const detallarSerie = !esMetodologica && (estricto || (pideError && !pideCalidad && (geos.length > 0 || Boolean(sexo))));
     return {
       tipo: 'release',
       releases: rels,
@@ -156,67 +163,84 @@ function analizarTurno(t, prev) {
       geos,
       nacional: PIDE_NACIONAL.test(qp),
       sexo,
-      pideEstado: PIDE_ESTADO_RE.test(canon),
+      estratoEdad,
+      pideEstado: !esMetodologica && PIDE_ESTADO_RE.test(canon),
+      esMetodologica,
       debeDetallarSerieVista: detallarSerie,
-      pideVista: detallarSerie || (!PIDE_ESTADO_RE.test(canon) && (pronSerie || geos.length > 0 || Boolean(sexo))),
+      pideVista: !esMetodologica && (detallarSerie || (!PIDE_ESTADO_RE.test(canon) && (pronDirecto || geos.length > 0 || Boolean(sexo) || estratoEdad))),
     };
   }
+  if (CAMBIO_TEMA_PROYECTO.test(qp)) return { tipo: 'alcance_proyecto', query: t };
   if (!prev || !esTurnoSeguimiento(t)) return null;
   if (prev.tipo !== 'release' || prev.releases.length !== 1) return prev;
   const r = prev.releases[0];
   const comb = `${r.consulta} ${t}`;
   if (C?.subtipoAjeno(strip(comb))) return { tipo: 'ajeno', query: comb };
   if (C?.aliasAmbiguo(strip(comb))) return { tipo: 'ambiguo', query: comb };
-  if (C?.mencionaNoModelada(strip(comb))) {
-    return { tipo: 'noModelada', query: comb, termino: C.mencionaNoModelada(strip(comb)) };
-  }
+  if (C?.mencionaNoModelada(strip(comb))) return { tipo: 'noModelada', query: comb, termino: C.mencionaNoModelada(strip(comb)) };
   const ownGeos = detectarGeos(t);
   const ownNac = PIDE_NACIONAL.test(qp);
   const ownSexo = detectarSexo(t);
+  const ownEdad = PIDE_ESTRATO_EDAD.test(qp);
   const newGeo = ownGeos.length > 0 || ownNac;
   const canonOwn = C.canonClinico(normEsp(t));
   const ownEst = PIDE_ESTADO_RE.test(canonOwn);
   const ownCal = PIDE_CALIDAD_ESTADO.test(canonOwn);
   const ownErr = PIDE_METRICA_ERROR.test(canonOwn);
   const ownCif = PIDE_CIFRAS_ESTRICTO.test(qp);
-  const detallarOwn = ownCif || (ownErr && !ownCal && (newGeo || Boolean(ownSexo) || prev.geos.length > 0));
+  const ownMetodo = esIntencionMetodologica(t);
+  const detallarOwn = !ownMetodo && (ownCif || (ownErr && !ownCal && (newGeo || Boolean(ownSexo) || prev.geos.length > 0)));
   return {
     ...prev,
     geos: newGeo ? ownGeos : prev.geos,
     nacional: newGeo ? (ownNac && !ownGeos.length) : prev.nacional,
     sexo: ownSexo || prev.sexo,
-    pideEstado: ownEst,
+    estratoEdad: ownEdad,
+    pideEstado: !ownMetodo && ownEst,
+    esMetodologica: ownMetodo,
     debeDetallarSerieVista: detallarOwn,
-    pideVista: ownEst
-      ? detallarOwn
-      : (prev.pideVista || ownCif || newGeo || Boolean(ownSexo) || PIDE_PRONOSTICO_O_SERIE.test(qp)),
+    pideVista: ownMetodo
+      ? false
+      : (ownEst ? detallarOwn : (ownCif || newGeo || Boolean(ownSexo) || ownEdad || PIDE_PRONOSTICO_DIRECTO.test(qp))),
   };
 }
 
-export function resolverConsultaRag(query, history = []) {
-  const raw = String(query ?? '').trim();
-  if (!raw || !Array.isArray(history) || !history.length) {
-    const est = analizarTurno(raw, null);
-    return { query: raw, contextualizada: null, estado: est, debeDetallarSerieVista: Boolean(est?.debeDetallarSerieVista) };
-  }
-  const propio = analizarTurno(raw, null);
-  if (propio) {
-    return { query: raw, contextualizada: null, estado: propio, debeDetallarSerieVista: Boolean(propio.debeDetallarSerieVista) };
-  }
-  if (!esTurnoSeguimiento(raw)) {
-    return { query: raw, contextualizada: null, estado: null, debeDetallarSerieVista: false };
-  }
+function estadoHistorial(history) {
   let est = null;
   for (const h of history.filter((x) => x && x.role === 'user' && typeof x.text === 'string').slice(-6)) {
     est = analizarTurno(h.text.trim(), est) || est;
   }
-  const final = analizarTurno(raw, est);
-  if (!final || final.tipo === 'legacy') {
-    return { query: raw, contextualizada: null, estado: final, debeDetallarSerieVista: false };
+  return est;
+}
+
+export function resolverConsultaRag(query, history = []) {
+  const raw = String(query ?? '').trim();
+  const armar = (q, ctx, est) => ({
+    query: q,
+    contextualizada: ctx,
+    estado: est,
+    esMetodologica: Boolean(est?.esMetodologica),
+    debeDetallarSerieVista: Boolean(est?.debeDetallarSerieVista),
+  });
+  if (!raw || !Array.isArray(history) || !history.length) return armar(raw, null, analizarTurno(raw, null));
+  const propio = analizarTurno(raw, null);
+  if (propio) {
+    const qp = normPal(raw);
+    if (propio.tipo === 'release' && propio.releases.length === 1 && SUMA_SEGUIMIENTO.test(qp) && (/^(?:y|pero|tambien|sum\w*|mas)\b/.test(qp) || /\b(?:con|mas)\b/.test(qp))) {
+      const prev = estadoHistorial(history);
+      if (prev?.tipo === 'release' && prev.releases.length === 1 && prev.releases[0].id !== propio.releases[0].id) {
+        const ctxSuma = `${prev.releases[0].consulta} + ${raw}`;
+        return armar(ctxSuma, ctxSuma, { tipo: 'release', releases: [prev.releases[0], propio.releases[0]] });
+      }
+    }
+    return armar(raw, null, propio);
   }
-  if (final.tipo !== 'release') {
-    return { query: final.query, contextualizada: final.query, estado: final, debeDetallarSerieVista: false };
+  if (!esTurnoSeguimiento(raw)) return armar(raw, null, null);
+  const final = analizarTurno(raw, estadoHistorial(history));
+  if (!final || final.tipo === 'legacy' || final.tipo === 'cortesia' || final.tipo === 'alcance_proyecto') {
+    return armar(raw, null, final);
   }
+  if (final.tipo !== 'release') return armar(final.query, final.query, final);
   const r = final.releases[0];
   const geoTxt = final.geos.length
     ? ` en ${final.geos.map((g) => (g.nombre === 'México' ? 'Estado de México' : g.nombre)).join(' y ')}`
@@ -225,5 +249,5 @@ export function resolverConsultaRag(query, history = []) {
     ? ` (${final.sexo === 'ambos' ? 'hombres y mujeres' : final.sexo})`
     : '';
   const ctx = `${r.consulta}${geoTxt}${sexTxt}: ${raw}`;
-  return { query: ctx, contextualizada: ctx, estado: final, debeDetallarSerieVista: Boolean(final.debeDetallarSerieVista) };
+  return armar(ctx, ctx, final);
 }

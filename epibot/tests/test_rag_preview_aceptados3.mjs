@@ -98,6 +98,7 @@ test('la función no escribe a mano las cifras del mal del pinto', () => {
     readFileSync(modulo, 'utf8'),
     readFileSync(new URL('../netlify/lib/vista_grounding.mjs', import.meta.url), 'utf8'),
     readFileSync(new URL('../netlify/lib/vista_turno.mjs', import.meta.url), 'utf8'),
+    readFileSync(new URL('../netlify/lib/vista_formato.mjs', import.meta.url), 'utf8'),
   ].join('\n');
   for (const cifra of ['111.3', '115.8', '133 en 2024', '22.7', '27.6', '8.9', '11.4']) assert.ok(!src.includes(cifra), cifra);
 });
@@ -136,7 +137,7 @@ test('vulvovaginitis en hombres: vista declara ausencia de desglose por sexo sin
   assert.deepEqual(rv.sources.map((s) => s.section), ['vulvovaginitis_n76']);
   assert.match(rv.answer, /no desglosa sexo; sus 37 series publicadas son por entidad y nacional, así que no existe pronóstico para hombres/);
 
-  const { r, sistema } = await consultar('¿Cómo se seleccionaron los motores de vulvovaginitis?', { vector: LLAVES });
+  const { r, sistema } = await consultar('¿Por qué vulvovaginitis no tiene modelos para hombres y cómo se seleccionaron sus motores?', { vector: LLAVES });
   assert.equal(r.retrieval, 'semantic');
   assert.ok(r.sources.length > 0);
   for (const s of r.sources) {
@@ -144,6 +145,7 @@ test('vulvovaginitis en hombres: vista declara ausencia de desglose por sexo sin
     assert.notEqual(s.source, 'Construcción del dashboard');
   }
   assert.doesNotMatch(sistema, /meta_modo/);
+  assert.match(sistema, /no desglosa sexo; sus 37 series publicadas son por entidad y nacional, así que no existe pronóstico para hombres/);
 });
 
 test('comparación tifoidea-paratifoidea: sólo pasajes de los dos releases nombrados', async () => {
