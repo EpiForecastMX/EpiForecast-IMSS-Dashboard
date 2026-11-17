@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
@@ -178,12 +178,19 @@ test('JS-1: verificarMiasis exige proyección técnica exacta + SHA64 y rechaza 
   assert.equal(typeof mod.verificarMiasis, 'function', 'textos.mjs debe exportar verificarMiasis');
 
   mod.verificarMiasis(w43Data, w43Verif);
+  const actualSinDisp = structuredClone(w43Data);
+  delete actualSinDisp.meta.myiasis_status;
+  delete actualSinDisp.myiasis.reconciliation;
+  const actualVerifSinDisp = structuredClone(w43Verif);
+  delete actualVerifSinDisp.myiasis_reconciled;
+  delete actualVerifSinDisp.source_discrepancies;
+  assert.throws(() => mod.verificarMiasis(actualSinDisp, actualVerifSinDisp), /830|831|reconcil/i);
+  assert.throws(() => mod.verificarMiasis(actualSinDisp), /830|831|reconcil/i);
+
   const w42Dir = resolve(root, 'assets/boletin/2026-w42');
-  if (existsSync(resolve(w42Dir, 'data.json')) && existsSync(resolve(w42Dir, 'verification.json'))) {
-    const w42Data = JSON.parse(readFileSync(resolve(w42Dir, 'data.json'), 'utf8'));
-    const w42Verif = JSON.parse(readFileSync(resolve(w42Dir, 'verification.json'), 'utf8'));
-    mod.verificarMiasis(w42Data, w42Verif);
-  }
+  const w42Data = JSON.parse(readFileSync(resolve(w42Dir, 'data.json'), 'utf8'));
+  const w42Verif = JSON.parse(readFileSync(resolve(w42Dir, 'verification.json'), 'utf8'));
+  mod.verificarMiasis(w42Data, w42Verif);
 
   const sinDisp = buildSyntheticW44({ withDisposition: false });
   assert.throws(() => mod.verificarMiasis(sinDisp.data, sinDisp.verif), /830|831|reconcil/i);

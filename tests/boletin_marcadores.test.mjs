@@ -60,6 +60,8 @@ test('archivo histórico 2026-w43-r1: revisión corregida, original sellado y gu
 });
 
 test('foto vigente 2026-w44: digest del PDF, páginas y simbología verificados', () => {
+  const w43PdfSha = 'f24aea9306d95d1489d3a8f373527918db1ae31a9c6a6f6aeab63826842f3c8a';
+  const heredadaDeW43 = { periodo: '2026-W43', pdf_sha256: w43PdfSha };
   assert.match(actual.carpeta, /^assets\/boletin\/2026-w44$/);
   assert.equal(data.meta.year, 2026);
   assert.equal(data.meta.week, 44);
@@ -67,6 +69,23 @@ test('foto vigente 2026-w44: digest del PDF, páginas y simbología verificados'
   assert.equal(data.meta.platform_published, 86);
   assert.equal(data.meta.symbols.simbolos['-'], 'no se presentaron casos');
   assert.deepEqual(data.meta.symbols.paginas, [9, 10]);
+  assert.equal(data.meta.symbols.origen, 'HEREDADO');
+  assert.equal(data.meta.symbols.heredada_de?.periodo, '2026-W43');
+  assert.equal(data.meta.symbols.heredada_de?.pdf_sha256, w43PdfSha);
+  assert.deepEqual(data.meta.symbols.heredada_de, heredadaDeW43);
+  const verification = leer(`${actual.carpeta}/verification.json`);
+  assert.ok(Array.isArray(verification.warnings), 'verification.json debe listar warnings');
+  const warningsSimbologia = verification.warnings.filter(w => w?.tipo === 'simbologia_heredada');
+  assert.equal(warningsSimbologia.length, 1);
+  assert.deepEqual(warningsSimbologia[0], {
+    tipo: 'simbologia_heredada',
+    origen: 'HEREDADO',
+    paginas: [9, 10],
+    heredada_de: heredadaDeW43,
+  });
+  assert.equal(warningsSimbologia[0].origen, data.meta.symbols.origen);
+  assert.deepEqual(warningsSimbologia[0].paginas, data.meta.symbols.paginas);
+  assert.deepEqual(warningsSimbologia[0].heredada_de, data.meta.symbols.heredada_de);
   assert.equal(ids.p10b2.page, 10);
   assert.equal(ids.p10b3.page, 10);
   assert.equal(ids.p21b1.page, 21);
