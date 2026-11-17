@@ -177,8 +177,24 @@ test('M3 RAG: consultas normales de T60/T58 siguen su camino (vista o recuperaci
     assert.equal(gemini, 0, q);
     assert.match(body.answer, /control estacional, no validado/, q);
   }
-  for (const q of ['plaguicidas nacional', 'intoxicación por monóxido de carbono en Jalisco',
-    'envenenamiento por plaguicidas en México', 'letalidad del dengue', 'tos ferina en Jalisco']) {
+  for (const [q, id] of [
+    ['intoxicación por monóxido de carbono en Jalisco', 'monoxido_t58'],
+    ['tos ferina en Jalisco', 'tos_ferina_a37'],
+  ]) {
+    const v = JSON.parse(readFileSync(new URL(`../../publication/${id}/vista.json`, import.meta.url), 'utf-8'));
+    const esperadoJal = Math.round(Number(v.series['estado|14|general'].pronostico_52_total)).toLocaleString('en-US');
+    const { status, body, gemini } = await postRag(q);
+    assert.equal(status, 200, q);
+    assert.equal(body.retrieval, 'vista', q);
+    assert.equal(body.guarda, undefined, q);
+    assert.equal(gemini, 0, q);
+    assert.deepEqual(body.sources.map((s) => s.section), [id], q);
+    assert.ok(body.answer.includes(esperadoJal), `${q}: falta total de vista (${esperadoJal})`);
+    assert.match(body.answer, /control estacional, no validado/, q);
+    assert.doesNotMatch(body.answer, GUARDA_D7, q);
+    assert.doesNotMatch(body.answer, /sifilis_adquirida_a51|a18527def134|0cc942faddb8|eaca7efc1a11|Sífilis adquirida/i, q);
+  }
+  for (const q of ['plaguicidas nacional', 'envenenamiento por plaguicidas en México', 'letalidad del dengue']) {
     const { body, gemini } = await postRag(q);
     assert.equal(body.guarda, undefined, q);
     assert.ok(gemini > 0, `${q}: debía llegar a la recuperación normal`);

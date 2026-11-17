@@ -22,6 +22,7 @@ import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { micaiGroundedAnswer } from '../lib/micai_grounding.mjs';
+import { resolverConsultaRag, vistaGroundedAnswer, enriquecerSemanticoVista } from '../lib/vista_grounding.mjs';
 
 const EMBED_MODEL = 'gemini-embedding-001';
 const EMBED_DIM = 768;
@@ -498,15 +499,31 @@ function estadoDeAceptado(query, leerVista, leerFicha) {
   if (!prueba) return null;
   const notas = notasFicha(html);
   const wa = v.weeks_available ?? 0, wr = v.weeks_required ?? 4;
-  const prospectiva = wa === 0
-    ? `La validación prospectiva está en curso (0 de ${wr} semanas): todavía no hay semanas observadas después del origen, así que no existe desempeño fuera de muestra de este pronóstico.`
-    : `La validación prospectiva lleva ${wa} de ${wr} semanas (veredicto ${v.verdict}); su desempeño fuera de muestra se consulta en su página.`;
-  const answer = `**${v.nombre_completo || r.etiqueta}: su portafolio se aceptó en la prueba de ${prueba.anio}; el pronóstico todavía no está validado.** ` +
+  const nombre = v.nombre_completo || r.etiqueta;
+  const veredicto = String(v.verdict || '').trim();
+  let cabecera, prospectiva;
+  if (veredicto === 'INCOMPLETE') {
+    cabecera = 'el pronóstico todavía no está validado.';
+    prospectiva = wa === 0
+      ? `La validación prospectiva está en curso (0 de ${wr} semanas): todavía no hay semanas observadas después del origen, así que no existe desempeño fuera de muestra de este pronóstico.`
+      : `La validación prospectiva lleva ${wa} de ${wr} semanas (veredicto INCOMPLETE); su desempeño fuera de muestra se consulta en su página.`;
+  } else if (veredicto === 'PASS') {
+    cabecera = `el pronóstico superó la validación prospectiva (${wa} de ${wr} semanas, veredicto PASS).`;
+    prospectiva = `En la validación prospectiva cuenta con ${wa} de ${wr} semanas evaluadas y veredicto PASS (superó la compuerta prospectiva); su desempeño fuera de muestra se consulta en su página.`;
+  } else if (veredicto === 'FAIL') {
+    cabecera = `el pronóstico no superó la validación prospectiva (${wa} de ${wr} semanas, veredicto FAIL).`;
+    prospectiva = `La validación prospectiva registró ${wa} de ${wr} semanas con veredicto FAIL: el pronóstico falló esa evaluación y no quedó validado; su desempeño fuera de muestra se consulta en su página.`;
+  } else {
+    const lit = veredicto || 'sin veredicto';
+    cabecera = `el pronóstico no está validado (veredicto prospectivo ${lit}).`;
+    prospectiva = `La validación prospectiva registra ${wa} de ${wr} semanas con veredicto ${lit} (sin validación prospectiva aprobada); su desempeño fuera de muestra se consulta en su página.`;
+  }
+  const answer = `**${nombre}: su portafolio se aceptó en la prueba de ${prueba.anio}; ${cabecera}** ` +
     `${prueba.frase} Esa prueba retrospectiva no es la validación del pronóstico publicado. ${prospectiva}` +
     (notas.length ? `\n\nLo que dice su página sobre el error y los datos:\n${notas.map((n) => `- **${n.titulo}** ${n.texto}`).join('\n')}` : '') +
     `\n\nDatos hasta la semana ${v.origin[1]} de ${v.origin[0]}${emitidoCivil(v)}; ${v.horizon_weeks} semanas, pronóstico puntual sin intervalos. ` +
     `Detalle en [su página](../${r.pagina}).${avisosFuenteRag(r.id)}`;
-  return { answer, sources: [{ n: 1, source: `Release publicado ${v.release_id}`, title: v.nombre_completo || r.etiqueta, section: r.id, url: `../${r.pagina}` }] };
+  return { answer, sources: [{ n: 1, source: `Release publicado ${v.release_id}`, title: nombre, section: r.id, url: `../${r.pagina}` }] };
 }
 
 /**
@@ -929,9 +946,23 @@ export default async function handler(req) {
   if (suma) return json({ answer: suma, sources: [], retrieval: 'none', guarda: 'suma_a37_u99' }, 200, cors);
   const meningitis = guardaMeningitisTipoRag(body.query);
   if (meningitis) return json({ answer: meningitis, sources: [], retrieval: 'none', guarda: 'meningitis_tipo' }, 200, cors);
+  // Presión baja no se modela y sus vecinos publicados más parecidos (O10-O16 o I10-I15) no la
+  // incluyen: respuesta fija antes de vista y de recuperación para no atribuir cifras vecinas.
+  const sinVecinoCrudo = noModeladaSinVecino(stripAccents(String(body.query || '')));
+  if (sinVecinoCrudo) return json({ answer: sinVecinoCrudo, sources: [] }, 200, cors);
+  const turno = resolverConsultaRag(body.query, body.history);
+  const qEfectiva = String(turno.query || '');
+  if (qEfectiva !== String(body.query || '')) {
+    const d7Seg = guardaD7Rag(qEfectiva);
+    if (d7Seg) return json({ answer: d7Seg, sources: [], retrieval: 'none', guarda: 'd7' }, 200, cors);
+    const sumaSeg = guardaSumaA37U99Rag(qEfectiva);
+    if (sumaSeg) return json({ answer: sumaSeg, sources: [], retrieval: 'none', guarda: 'suma_a37_u99' }, 200, cors);
+    const menSeg = guardaMeningitisTipoRag(qEfectiva);
+    if (menSeg) return json({ answer: menSeg, sources: [], retrieval: 'none', guarda: 'meningitis_tipo' }, 200, cors);
+  }
   // Subtipo con código propio vecino de un bloque publicado: respuesta fija, sin modelo ni cifras, para
   // que ni la recuperación ni Gemini le atribuyan el pronóstico del bloque vecino.
-  const ajeno = globalThis.EPI_CATALOGO.subtipoAjeno(stripAccents(String(body.query || '')));
+  const ajeno = globalThis.EPI_CATALOGO.subtipoAjeno(stripAccents(qEfectiva));
   if (ajeno) {
     const vecino = globalThis.EPI_CATALOGO.releases.find((r) => r.id === ajeno.release);
     return json({ answer: `EpiForecast-MX no modela ${ajeno.nombre}. `
@@ -940,16 +971,22 @@ export default async function handler(req) {
     sources: [] }, 200, cors);
   }
   // Nombre genérico que abarca más que el bloque publicado («otitis», «amebiasis»): se aclara sin cifras.
-  const ambiguo = globalThis.EPI_CATALOGO.aliasAmbiguo(stripAccents(String(body.query || '')));
+  const ambiguo = globalThis.EPI_CATALOGO.aliasAmbiguo(stripAccents(qEfectiva));
   if (ambiguo) return json({ answer: ambiguo.texto, sources: [] }, 200, cors);
-  const estado = estadoDeControl(String(body.query || ''), leerVista)
-    || estadoDeAceptado(String(body.query || ''), leerVista, leerFicha);
-  if (estado) return json({ ...estado, retrieval: 'vista' }, 200, cors);
-  // Presión baja no se modela y sus vecinos publicados más parecidos (O10-O16 o I10-I15) no la
-  // incluyen: sin otro padecimiento publicado en la consulta, respuesta fija sin cifras para que la
-  // recuperación no traiga las de ese vecino.
-  const sinVecino = noModeladaSinVecino(stripAccents(String(body.query || '')));
+  const sinVecino = noModeladaSinVecino(stripAccents(qEfectiva));
   if (sinVecino) return json({ answer: sinVecino, sources: [] }, 200, cors);
+  if (!turno.esMetodologica && !turno.debeDetallarSerieVista) {
+    const estadoPuro = estadoDeControl(qEfectiva, leerVista)
+      || estadoDeAceptado(qEfectiva, leerVista, leerFicha);
+    if (estadoPuro) return json({ ...estadoPuro, retrieval: 'vista' }, 200, cors);
+  }
+  const vistaAns = vistaGroundedAnswer(body.query, body.history, { turno, leerVista, leerFicha, notasFicha, pruebaSuperada, emitidoCivil, avisosFuenteRag });
+  if (vistaAns) return json(vistaAns, 200, cors);
+  if (!turno.esMetodologica) {
+    const estado = estadoDeControl(qEfectiva, leerVista)
+      || estadoDeAceptado(qEfectiva, leerVista, leerFicha);
+    if (estado) return json({ ...estado, retrieval: 'vista' }, 200, cors);
+  }
 
   if (!apiKey) return json({ error: 'GEMINI_API_KEY no configurada' }, 500, cors);
 
@@ -974,7 +1011,7 @@ export default async function handler(req) {
   const genAI = new GoogleGenerativeAI(apiKey);
 
   // 0. Multi-turno: reescribe el seguimiento como pregunta autónoma (solo si aplica)
-  const searchQuery = await contextualizeQuery(genAI, query, history);
+  const searchQuery = turno.contextualizada || await contextualizeQuery(genAI, query, history);
 
   // 1. Recuperación híbrida (embebe la consulta directa; sin expansión LLM en el
   //    camino crítico para reducir latencia al primer token).
@@ -995,12 +1032,13 @@ export default async function handler(req) {
     const rr = await rerank(genAI, searchQuery, candidates);
     if (rr) { ordered = rr; reranked = true; }
   }
-  const hits = selectDiverse(ordered, TOP_K, DIVERSITY_CAP);
+  const hitsBase = selectDiverse(ordered, TOP_K, DIVERSITY_CAP);
+  const { hits, extraFacts, snippets } = enriquecerSemanticoVista({ foco, searchQuery, hits: hitsBase, leerVista });
 
   // Agentic: datos EXACTOS de la combinación entidad/padecimiento detectada.
   // Usa la consulta CONTEXTUALIZADA para que los seguimientos ("¿y en Jalisco?")
   // inyecten las cifras correctas.
-  const facts = [focusedFacts(kb, searchQuery), hechosDeFoco(foco, searchQuery, leerVista, leerFicha)]
+  const facts = [focusedFacts(kb, searchQuery), hechosDeFoco(foco, searchQuery, leerVista, leerFicha), extraFacts]
     .filter(Boolean).join('\n\n');
 
   // Confianza: recuperación débil y sin datos exactos → avisar para no inventar
@@ -1026,7 +1064,7 @@ export default async function handler(req) {
     title: h.chunk.title,
     section: h.chunk.section || h.chunk.title,
     url: h.chunk.url || null,
-    snippet: (h.chunk.text || '').replace(/\s+/g, ' ').slice(0, 240),
+    snippet: snippets.get(h.chunk.id) || (h.chunk.text || '').replace(/\s+/g, ' ').slice(0, 240),
   }));
 
   const contents = [];
