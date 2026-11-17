@@ -77,7 +77,7 @@ test('mal del pinto: el estado declara error alto de la prueba y cambio de nivel
   assert.match(a, /Cambio de nivel en 2024\./);
   assert.match(a, /280 en 2023 a 133 en 2024 y 78 en 2025/);
   assert.match(a, /no debe leerse como menor incidencia/);
-  assert.match(a, /0 de 4 semanas/);
+  assert.match(a, /1 de 4 semanas/);
   assert.doesNotMatch(a, /no existe información sobre su precisión/);
   // Ninguna cifra de error prospectiva: sólo la de la prueba de 2025.
   assert.doesNotMatch(a, /fuera de muestra (fue|de) \d/);
