@@ -66,17 +66,10 @@ const W44_MIASIS_STATES = [
 
 function buildPrivateLocalInput() {
   return {
-    pdf_sha256: PDF44_SHA,
-    pagina: 81,
-    cuadro: 'miasis',
-    columna: 7,
-    nombre_columna: 'Casos 2025–2026',
-    suma_estados: 830,
-    total_impreso: 831,
-    delta: 1,
+    pdf_sha256: PDF44_SHA, pagina: 81, cuadro: 'miasis', columna: 7,
+    nombre_columna: 'Casos 2025–2026', suma_estados: 830, total_impreso: 831, delta: 1,
     filas_con_identidad_rota: [{ estado: 'Chihuahua', col0: 0, col3: 2, col7_impreso: 1 }],
-    estado: 'NO_RECONCILIADO',
-    celdas_modificadas: 0,
+    estado: 'NO_RECONCILIADO', celdas_modificadas: 0,
     decision: {
       autor: 'TEST_ONLY SYNTHETIC_AUTHOR_PRIVATE_MARKER',
       fecha: '2026-11-15',
@@ -103,20 +96,23 @@ function buildSyntheticW44({ withDisposition = true, legacyUnprojected = false }
   const data = structuredClone(w43Data);
   data.meta.week = 44;
   data.meta.pdf_sha256 = PDF44_SHA;
+  delete data.meta.myiasis_status;
   data.myiasis = {
-    ...data.myiasis,
-    page: 81,
-    cut: '13 de noviembre de 2026',
+    name: data.myiasis.name,
+    page: 81, cut: '13 de noviembre de 2026',
+    columns: data.myiasis.columns,
     totals: [117, 100, 0, 714, 100, 9, 11, 831, 100, 9],
     states: structuredClone(W44_MIASIS_STATES),
+    reclassified_to_discarded: data.myiasis.reclassified_to_discarded,
+    notes: data.myiasis.notes,
   };
   const verif = { ...structuredClone(w43Verif), source_pdf_sha256: PDF44_SHA, source_period: '2026-W44' };
+  delete verif.myiasis_reconciled;
+  delete verif.source_discrepancies;
   if (withDisposition) {
     data.meta.myiasis_status = 'NO_RECONCILIADO';
     data.myiasis.reconciliation = {
-      status: 'NO_RECONCILIADO',
-      columnas_ok: [0, 2, 3, 5, 6, 9],
-      discrepancias: [structuredClone(disp)],
+      status: 'NO_RECONCILIADO', columnas_ok: [0, 2, 3, 5, 6, 9], discrepancias: [structuredClone(disp)],
     };
     verif.myiasis_reconciled = false;
     verif.source_discrepancies = [
@@ -140,11 +136,8 @@ async function runRadarDom(dataFixture) {
     let inner = '';
     let text = '';
     const el = {
-      id,
-      value: id === 'chartMetric' || id === 'sort' ? 'cumulative' : '',
-      disabled: false,
-      hidden: false,
-      dataset: {},
+      id, value: id === 'chartMetric' || id === 'sort' ? 'cumulative' : '',
+      disabled: false, hidden: false, dataset: {},
       classList: { toggle() {}, add() {}, remove() {} },
       get innerHTML() { return inner; },
       set innerHTML(v) { inner = String(v); text = inner.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(); },
@@ -152,9 +145,7 @@ async function runRadarDom(dataFixture) {
       set textContent(v) { text = String(v); inner = text; },
       setAttribute(k, v) { attrs[k] = String(v); },
       getAttribute(k) { return attrs[k] ?? null; },
-      addEventListener() {},
-      showModal() {},
-      close() {},
+      addEventListener() {}, showModal() {}, close() {},
       getBoundingClientRect: () => ({ left: 0, right: 100, top: 0, bottom: 100 }),
     };
     if (id) byId.set(id, el);
@@ -186,31 +177,26 @@ test('JS-1: verificarMiasis exige proyección técnica exacta + SHA64 y rechaza 
   const mod = await import('../assets/boletin/textos.mjs');
   assert.equal(typeof mod.verificarMiasis, 'function', 'textos.mjs debe exportar verificarMiasis');
 
-  // Fotos vigentes sin opt-in (W43-r1 y W42 si está presente): reconcilian intactas.
   mod.verificarMiasis(w43Data, w43Verif);
   const w42Dir = resolve(root, 'assets/boletin/2026-w42');
-  if (existsSync(resolve(w42Dir, 'data.json'))) {
+  if (existsSync(resolve(w42Dir, 'data.json')) && existsSync(resolve(w42Dir, 'verification.json'))) {
     const w42Data = JSON.parse(readFileSync(resolve(w42Dir, 'data.json'), 'utf8'));
     const w42Verif = JSON.parse(readFileSync(resolve(w42Dir, 'verification.json'), 'utf8'));
     mod.verificarMiasis(w42Data, w42Verif);
   }
 
-  // W44 sin disposición: 830 != 831 falla cerrado.
   const sinDisp = buildSyntheticW44({ withDisposition: false });
   assert.throws(() => mod.verificarMiasis(sinDisp.data, sinDisp.verif), /830|831|reconcil/i);
 
-  // Formato antiguo "antes" (con decision/autor/fecha/texto_literal/enlace_evidencia públicos): RECHAZADO.
   const antes = buildSyntheticW44({ withDisposition: true, legacyUnprojected: true });
   assert.throws(() => mod.verificarMiasis(antes.data, antes.verif), /privad|prohibid|claves/i);
   assert.throws(() => mod.verificarMiasis(antes.data), /privad|prohibid|claves/i);
 
-  // W44 con proyección pública exacta (sólo campos técnicos + hashes SHA-256): PASA.
   const conDisp = buildSyntheticW44({ withDisposition: true });
   mod.verificarMiasis(conDisp.data, conDisp.verif);
   assertNoPrivateMarkers(JSON.stringify(conDisp.data), 'data proyectado');
   assertNoPrivateMarkers(JSON.stringify(conDisp.verif), 'verification proyectado');
 
-  // Negativos técnicos, de gobernanza y de privacidad (decision/autor/chat/rutas/tolerancia/herencia/otras categorías).
   const mutaciones = [
     (x) => { x.data.myiasis.reconciliation.discrepancias[0].pdf_sha256 = 'a'.repeat(64); },
     (x) => { x.data.myiasis.reconciliation.discrepancias[0].pdf_sha256 = PDF44_SHA.slice(0, 40); },
@@ -248,23 +234,21 @@ test('JS-1: verificarMiasis exige proyección técnica exacta + SHA64 y rechaza 
     assert.throws(() => mod.verificarMiasis(copia.data, copia.verif));
   }
 
-  // Disposición sobrante aplicada sobre W43-r1 (donde 820 == 820 sí reconcilia) falla cerrado.
-  const sobranteW43 = structuredClone(w43Data);
+  const w43Clean = JSON.parse(readFileSync(resolve(root, 'assets/boletin/2026-w43-r1/data.json'), 'utf8'));
+  const sobranteW43 = structuredClone(w43Clean);
   sobranteW43.meta.myiasis_status = 'NO_RECONCILIADO';
   sobranteW43.myiasis.reconciliation = {
-    status: 'NO_RECONCILIADO',
-    columnas_ok: [0, 2, 3, 5, 6, 9],
-    discrepancias: [{ ...conDisp.disp, pdf_sha256: w43Data.meta.pdf_sha256, pagina: w43Data.myiasis.page }],
+    status: 'NO_RECONCILIADO', columnas_ok: [0, 2, 3, 5, 6, 9],
+    discrepancias: [{ ...conDisp.disp, pdf_sha256: w43Clean.meta.pdf_sha256, pagina: w43Clean.myiasis.page }],
   };
   assert.throws(() => mod.verificarMiasis(sobranteW43));
 });
 
-test('JS-2: radar.js y textos.mjs conservan aviso UI y cifras originales sin exponer ningún marcador privado en HTML/DOM', async () => {
+test('JS-2: radar.js y textos.mjs muestran etiqueta humana «NO RECONCILIADO» con espacio y cifras intactas sin exponer marcadores privados', async () => {
   const mod = await import('../assets/boletin/textos.mjs');
-  assert.equal(typeof mod.avisoDiscrepanciaMiasis, 'function', 'textos.mjs debe exportar avisoDiscrepanciaMiasis');
-
-  assert.equal(mod.avisoDiscrepanciaMiasis(w43Data.myiasis, w43Data.meta.year), '');
-  const txtW43 = mod.textosRadar(w43Data, actual, null);
+  const w43Clean = JSON.parse(readFileSync(resolve(root, 'assets/boletin/2026-w43-r1/data.json'), 'utf8'));
+  assert.equal(mod.avisoDiscrepanciaMiasis(w43Clean.myiasis, w43Clean.meta.year), '');
+  const txtW43 = mod.textosRadar(w43Clean, { carpeta: 'assets/boletin/2026-w43-r1', pdf: 'sem43.pdf', volumen: 43 }, null);
   assert.equal(txtW43.miasis_resumen, 'Miasis: 29 entidades listadas, sin rellenar las tres ausentes.');
 
   const { data: w44, verif: w44Verif } = buildSyntheticW44({ withDisposition: true });
@@ -276,29 +260,29 @@ test('JS-2: radar.js y textos.mjs conservan aviso UI y cifras originales sin exp
   assertNoPrivateMarkers(aviso, 'avisoDiscrepanciaMiasis');
 
   const txtW44 = mod.textosRadar(w44, actual, null);
+  assert.match(txtW44.miasis_resumen, /Estado NO RECONCILIADO:/);
+  assert.doesNotMatch(txtW44.miasis_resumen, /NO_RECONCILIADO/);
   assertNoPrivateMarkers(JSON.stringify(txtW44), 'textosRadar W44');
 
-  const domW43 = await runRadarDom(w43Data);
-  assert.doesNotMatch(domW43.get('myiasisIntro').innerHTML, /NO_RECONCILIADO|no reconciliada/i);
+  const domW43 = await runRadarDom(w43Clean);
+  assert.doesNotMatch(domW43.get('myiasisIntro').innerHTML, /NO_RECONCILIADO|NO RECONCILIADO|no reconciliada/i);
 
   const domW44 = await runRadarDom(w44);
   const introHtml = domW44.get('myiasisIntro').innerHTML;
   const rowsHtml = domW44.get('myiasisRows').innerHTML;
   const headHtml = domW44.get('myiasisHead').innerHTML;
-  const hashesText = domW44.get('hashes').textContent;
-  assert.match(introHtml, /NO_RECONCILIADO/);
+  assert.match(introHtml, /Estado NO RECONCILIADO/);
+  assert.doesNotMatch(introHtml, /NO_RECONCILIADO/);
   assert.match(introHtml, /831/);
   assert.match(introHtml, /830/);
   assert.match(introHtml, /Chihuahua imprime 1 en el total con 0 en 2025 y 2 en 2026/);
   assert.match(introHtml, /tabla no reconciliada/);
   assert.doesNotMatch(introHtml, /\bPASS\b/i);
-  assert.equal((headHtml.match(/<th/g) || []).length, 11, 'Estado notificante + 10 columnas intactas');
+  assert.equal((headHtml.match(/<th/g) || []).length, 11);
   assert.match(rowsHtml, /<tr><td>Chihuahua<\/td><td class="number">0<\/td><td class="number">0%<\/td><td class="number">0<\/td><td class="number">2<\/td><td class="number">0\.3%<\/td><td class="number">0<\/td><td class="number">1<\/td><td class="number">1<\/td><td class="number">0\.1%<\/td><td class="number">0<\/td><\/tr>/);
   assert.match(rowsHtml, /<tr class="state-total"><td>Total<\/td>.*<td class="number">831<\/td><td class="number">100%<\/td><td class="number">9<\/td><\/tr>/);
 
-  for (const [id, el] of domW44.entries()) {
-    assertNoPrivateMarkers(el.innerHTML, `DOM #${id}`);
-  }
-  assertNoPrivateMarkers(hashesText, 'DOM #hashes');
+  for (const [id, el] of domW44.entries()) assertNoPrivateMarkers(el.innerHTML, `DOM #${id}`);
+  assertNoPrivateMarkers(domW44.get('hashes').textContent, 'DOM #hashes');
   assertNoPrivateMarkers(JSON.stringify(w44Verif), 'w44Verif');
 });

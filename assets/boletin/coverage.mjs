@@ -21,7 +21,7 @@ export function platformPage(id) {
 
 export function publicationNote(disease) {
   const id = disease.platform_id;
-  if (disease.status === 'Control publicado') return 'Control estacional con rezago de 52 semanas; sin intervalos.';
+  if (disease.status === 'Control publicado') return 'Control estacional no validado con rezago de 52 semanas; sin intervalos ni validación en curso.';
   if (id?.startsWith('diabetes')) return disease.source_note || 'Consulta su validación prospectiva en la ficha.';
   if (id === 'obesidad') return 'Release publicado; prospectiva 4/4.';
   return LEGACY_PAGES[id] ? 'Pronósticos publicados en EpiForecast.' : 'Consulta su evaluación y estado de validación en la ficha.';

@@ -2,8 +2,9 @@
 
 assets/boletin/actual.json es el único lugar que dice cuál foto está vigente; la página
 lo lee al cargar. El HTML conserva además el texto ya rellenado (para lectura sin
-JavaScript y para buscadores): este módulo lo recalcula con assets/boletin/textos.mjs,
-la misma función que usa el navegador, de modo que ambos no pueden divergir.
+JavaScript y para buscadores): este módulo valida primero la foto con `verificarMiasis`
+y recalcula los textos con `assets/boletin/textos.mjs` en memoria antes de tocar ningún
+archivo en disco, de modo que un fallo deja intactos `actual.json` y `boletin.html`.
 
 Uso independiente (por ejemplo, tras editar a mano la cobertura de data.json):
 
@@ -21,26 +22,54 @@ import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from boletin_guardas_radar import resolver_modulo_textos  # noqa: E402
+
 RAIZ = Path(__file__).resolve().parents[1]
 ACTUAL = 'assets/boletin/actual.json'
 
 NODO = """
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-const [raiz] = process.argv.slice(1);
-const m = await import(pathToFileURL(raiz + '/assets/boletin/textos.mjs').href);
-const leer = r => JSON.parse(readFileSync(raiz + '/' + r, 'utf8'));
-const actual = leer('assets/boletin/actual.json');
-const data = leer(actual.carpeta + '/data.json');
-const historia = leer('assets/boletin/history/index.json');
-process.stdout.write(JSON.stringify({ textos: m.textosRadar(data, actual, historia),
-  enlaces: m.enlacesRadar(actual) }));
+try {
+  const [raiz, textosPath, actualJson] = process.argv.slice(1);
+  const m = await import(pathToFileURL(textosPath).href);
+  const leer = r => JSON.parse(readFileSync(resolve(raiz, r), 'utf8'));
+  const actual = JSON.parse(actualJson);
+  const data = leer(actual.carpeta + '/data.json');
+  const verifRel = actual.carpeta + '/verification.json';
+  const tieneVerif = existsSync(resolve(raiz, verifRel));
+  if (data?.myiasis?.reconciliation && !tieneVerif) {
+    throw new Error('verification.json es obligatorio cuando miasis declara reconciliation');
+  }
+  const verification = tieneVerif ? leer(verifRel) : null;
+  m.verificarMiasis(data, verification);
+  const histRel = 'assets/boletin/history/index.json';
+  const historia = existsSync(resolve(raiz, histRel)) ? leer(histRel) : null;
+  process.stdout.write(JSON.stringify({
+    textos: m.textosRadar(data, actual, historia),
+    enlaces: m.enlacesRadar(actual),
+  }));
+} catch (e) {
+  process.stderr.write(String(e?.message || e) + '\\n');
+  process.exit(1);
+}
 """
 
 
-def calcular(raiz: Path) -> dict:
-    r = subprocess.run(['node', '--input-type=module', '-e', NODO, str(raiz)],
-                       capture_output=True, text=True, check=True)
+def calcular(raiz: Path, actual: dict | None = None) -> dict:
+    raiz = Path(raiz).expanduser()
+    if actual is None:
+        actual = json.loads((raiz / ACTUAL).read_text(encoding='utf-8'))
+    modulo = resolver_modulo_textos(raiz, RAIZ)
+    r = subprocess.run(
+        ['node', '--input-type=module', '-e', NODO, str(raiz), str(modulo), json.dumps(actual)],
+        capture_output=True, text=True,
+    )
+    if r.returncode != 0:
+        detalle = (r.stderr or r.stdout).strip() or 'falló verificación de la foto'
+        raise SystemExit(f'ERROR: no se puede activar la foto: {detalle}')
     return json.loads(r.stdout)
 
 
@@ -88,33 +117,46 @@ def sincronizar_html(texto: str, textos: dict, enlaces: dict) -> tuple:
 
 def activar(raiz: Path, carpeta: str | None = None, pdf: str | None = None,
             volumen: int | None = None) -> None:
+    raiz = Path(raiz).expanduser()
     ruta = raiz / ACTUAL
-    actual = json.loads(ruta.read_text()) if ruta.exists() else {}
+    previo = json.loads(ruta.read_text(encoding='utf-8')) if ruta.exists() else {}
     if carpeta:
         actual = dict(schema='boletin_actual.v1', carpeta=carpeta, pdf=pdf,
-                      volumen=volumen if volumen is not None else actual.get('volumen'))
-        ruta.write_text(json.dumps(actual, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
-    if not (raiz / actual['carpeta'] / actual['pdf']).exists():
+                      volumen=volumen if volumen is not None else previo.get('volumen'))
+    else:
+        actual = previo
+    if not actual.get('carpeta') or not actual.get('pdf'):
+        raise SystemExit('ERROR: actual.json incompleto (faltan carpeta o pdf)')
+    if not (raiz / actual['carpeta'] / actual['pdf']).is_file():
         raise SystemExit(f'ERROR: no existe {actual["carpeta"]}/{actual["pdf"]}')
-    valores = calcular(raiz)
+    if not (raiz / actual['carpeta'] / 'data.json').is_file():
+        raise SystemExit(f'ERROR: no existe {actual["carpeta"]}/data.json')
     pagina = raiz / 'boletin.html'
-    nuevo, faltan = sincronizar_html(pagina.read_text(), valores['textos'], valores['enlaces'])
+    html_previo = pagina.read_text(encoding='utf-8')
+    valores = calcular(raiz, actual)
+    nuevo, faltan = sincronizar_html(html_previo, valores['textos'], valores['enlaces'])
     if faltan:
         raise SystemExit(f'ERROR: claves sin valor en boletin.html: {sorted(set(faltan))}')
-    pagina.write_text(nuevo, encoding='utf-8')
+    if carpeta:
+        tmp_actual = ruta.with_suffix('.json.tmp')
+        tmp_actual.write_text(json.dumps(actual, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+        tmp_actual.replace(ruta)
+    tmp_pagina = pagina.with_suffix('.html.tmp')
+    tmp_pagina.write_text(nuevo, encoding='utf-8')
+    tmp_pagina.replace(pagina)
 
 
-def main() -> int:
+def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--carpeta')
     ap.add_argument('--pdf')
     ap.add_argument('--volumen', type=int)
     ap.add_argument('--raiz', default=str(RAIZ))
-    a = ap.parse_args()
+    a = ap.parse_args(argv)
     if bool(a.carpeta) != bool(a.pdf):
         ap.error('--carpeta y --pdf van juntos')
-    activar(Path(a.raiz), a.carpeta, a.pdf, a.volumen)
+    activar(Path(a.raiz).expanduser(), a.carpeta, a.pdf, a.volumen)
     print('boletin.html sincronizado con', ACTUAL)
     return 0
 

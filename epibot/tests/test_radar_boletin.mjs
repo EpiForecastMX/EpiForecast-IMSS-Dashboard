@@ -3,8 +3,8 @@
  * notificadas de la foto vigente (`assets/boletin/actual.json`), con su semana de corte y sin
  * pronóstico. Los publicados conservan sus handlers y los temas sensibles la respuesta de crisis.
  *
- * Las cifras esperadas se leen de la foto vigente, no se escriben aquí: la prueba sigue válida
- * cuando el boletín avanza.
+ * Las cifras vigentes se leen de la foto activa y la regresión histórica de 2026-w43-r1 preserva
+ * la revisión archivada inmutable.
  */
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -17,6 +17,7 @@ globalThis.fetch = async (u) => {
   return { ok: true, json: async () => JSON.parse(m ? leer(m[1]) : K) };
 };
 const kb = await import('../js/kb.js');
+const { compactaRadar, buscaEnRadar, respuestaRadar } = await import('../js/radar_boletin.js');
 const d = await kb.loadKnowledge();
 await d.obesidad_pendiente;
 
@@ -87,14 +88,60 @@ test('rubéola: el guion sigue la simbología impresa del boletín, campo por ca
 });
 
 test('una fila con guion y cifras muestra cada celda como se imprimió', async () => {
-  const r = await conversa('tuberculosis respiratoria en jalisco');
+  const tb = por('Tuberculosis respiratoria');
+  const filaGuion = tb.states.find((s) => s.values[0] === '-' && s.values.slice(1).every((v) => typeof v === 'number'));
+  assert.ok(filaGuion, 'la fuente vigente debe tener al menos una entidad con guion semanal y acumulados numéricos');
+  const r = await conversa(`tuberculosis respiratoria en ${filaGuion.state.toLowerCase()}`);
+  assert.equal(r.handler, 'answerRadarBoletin');
   assert.match(r.md, /Casos de la semana: \*\*– \(sin casos\)\*\*/);
-  assert.match(r.md, /Acumulado 2026, hombres: \*\*507\*\*/);
+  assert.match(r.md, new RegExp(`Acumulado ${FOTO.meta.year}, hombres: \\*\\*${es(filaGuion.values[1])}\\*\\*`));
+  assert.match(r.md, new RegExp(`Acumulado ${FOTO.meta.year}, mujeres: \\*\\*${es(filaGuion.values[2])}\\*\\*`));
+  assert.match(r.md, new RegExp(`Acumulado comparable ${FOTO.meta.year - 1}: \\*\\*${es(filaGuion.values[3])}\\*\\*`));
   assert.match(r.md, /no se presentaron casos/);
+
+  if (ACTUAL.carpeta === 'assets/boletin/2026-w44') {
+    const jal = tb.states.find((s) => s.state === 'Jalisco');
+    assert.deepEqual(jal.values, [8, 513, 258, 821]);
+    const rJal = await conversa('tuberculosis respiratoria en jalisco');
+    assert.equal(rJal.handler, 'answerRadarBoletin');
+    assert.match(rJal.md, /Casos de la semana: \*\*8\*\*/);
+    assert.match(rJal.md, /Acumulado 2026, hombres: \*\*513\*\*/);
+    assert.match(rJal.md, /Acumulado 2026, mujeres: \*\*258\*\*/);
+    assert.match(rJal.md, /Acumulado comparable 2025: \*\*821\*\*/);
+    assert.doesNotMatch(rJal.md, /– \(sin casos\)|no se presentaron casos/);
+  }
 });
 
-test('un cero impreso se muestra como 0 y sin nota de guion', async () => {
-  const { respuestaRadar } = await import('../js/radar_boletin.js');
+test('regresión archivada 2026-w43-r1: tuberculosis respiratoria en Jalisco conserva su guion y cifras', async () => {
+  const foto43 = JSON.parse(leer('assets/boletin/2026-w43-r1/data.json'));
+  const radar43 = compactaRadar({ schema: 'boletin_actual.v1', carpeta: 'assets/boletin/2026-w43-r1' }, foto43);
+  assert.ok(radar43, 'el archivo histórico 2026-w43-r1 debe compactarse con la API vigente');
+  const encontradas = buscaEnRadar('tuberculosis respiratoria en jalisco', radar43);
+  assert.equal(encontradas.length, 1);
+  const mdDirecto = respuestaRadar(encontradas, radar43, 'Jalisco');
+  assert.match(mdDirecto, /Boletín Epidemiológico 43 de 2026/);
+  assert.match(mdDirecto, /Casos de la semana: \*\*– \(sin casos\)\*\*/);
+  assert.match(mdDirecto, /Acumulado 2026, hombres: \*\*507\*\*/);
+  assert.match(mdDirecto, /Acumulado 2026, mujeres: \*\*256\*\*/);
+  assert.match(mdDirecto, /Acumulado comparable 2025: \*\*808\*\*/);
+  assert.match(mdDirecto, /no se presentaron casos/);
+
+  const radarVigente = d.radar_boletin;
+  try {
+    d.radar_boletin = radar43;
+    const r = await conversa('tuberculosis respiratoria en jalisco');
+    assert.equal(r.handler, 'answerRadarBoletin');
+    assert.match(r.md, /Casos de la semana: \*\*– \(sin casos\)\*\*/);
+    assert.match(r.md, /Acumulado 2026, hombres: \*\*507\*\*/);
+    assert.match(r.md, /no se presentaron casos/);
+  } finally {
+    d.radar_boletin = radarVigente;
+    kb._resetContext();
+  }
+  assert.equal(d.radar_boletin.meta.week, FOTO.meta.week);
+});
+
+test('un cero impreso se muestra como 0 y sin nota de guion', () => {
   const e = { name: 'Prueba', code: 'X00', status: 'Por incorporar', observed_week: 43, weekly: 0, cumulative: 0,
     previous: 4, columns: ['Sem.'], totals: [0], states: [] };
   const md = respuestaRadar([e], d.radar_boletin, null);
@@ -132,7 +179,7 @@ test('los temas sensibles no reciben cifras del radar', async () => {
   for (const q of ['tengo ganas de morir', 'suicidio en jalisco', 'intento de suicidio casos', 'ideacion suicida en sonora']) {
     const r = await conversa(q);
     assert.notEqual(r.handler, 'answerRadarBoletin', q);
-    assert.doesNotMatch(r.md, /Boletín Epidemiológico \d+ de \d{4}, publicado/, q);
+    assert.doesNotMatch(r.md, /Boletín Epidemiológico \d+ de \d{4}/, q);
   }
 });
 

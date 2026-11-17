@@ -13,6 +13,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import vm from 'node:vm';
+import { summarizeCoverage } from '../../assets/boletin/coverage.mjs';
 
 const leer = (r) => readFileSync(new URL(`../../${r}`, import.meta.url), 'utf-8');
 const K = leer('epibot/knowledge.json');
@@ -21,11 +23,22 @@ globalThis.fetch = async (u) => {
   return { ok: true, json: async () => JSON.parse(m ? leer(m[1]) : K) };
 };
 const kb = await import('../js/kb.js');
+const { detectEntities } = await import('../js/entities.js');
+const oc = await import('../js/obesidad_charts.js');
+const rc = await import('../js/release_config.js');
 const d = await kb.loadKnowledge();
 await d.obesidad_pendiente;
 
+const app = leer('epibot/js/app.js');
+const between = (a, b) => app.slice(app.indexOf(a), app.indexOf(b, app.indexOf(a)));
+const extract = vm.runInNewContext(`(${between('function extractChartData(', '\nfunction ')})`, {
+  getData: () => d, detectEntities, releaseConAlias: rc.releaseConAlias, graficaObesidad: oc.graficaObesidad, ...rc,
+  graficoRondas: () => null, buildDengueAnual: () => ({ type: 'dengue' }), console,
+});
+
 const ACTUAL = JSON.parse(leer('assets/boletin/actual.json'));
 const FOTO = JSON.parse(leer(`${ACTUAL.carpeta}/data.json`));
+const CATALOG = JSON.parse(leer('publication/catalog.json'));
 
 /** Handlers que muestran series publicadas o tablas por estado: nunca para una categoría no modelada. */
 const CON_SERIES = new Set(['answerEstado', 'answerSpecificSeries', 'answerPadecimiento',
@@ -82,7 +95,7 @@ test('las autolesiones conservan su respuesta específica con la línea existent
     sinSeriesAjenas(r, q);
     assert.match(r.md, LINEA, q);
     assert.match(r.md, /800 911 2000/, q);
-    assert.doesNotMatch(r.md, /Boletín Epidemiológico \d+ de \d{4}, publicado/, q);
+    assert.doesNotMatch(r.md, /Boletín Epidemiológico \d+ de \d{4}/, q);
   }
   assert.equal((await conversa('tengo ganas de morir')).handler, 'answerCrisis');
 });
@@ -124,12 +137,61 @@ test('términos coloquiales: radar si la categoría es inequívoca, sin cifras a
   }
 });
 
-test('barrido: ninguna categoría no modelada del radar vigente cae en series ajenas', async () => {
+test('barrido: ninguna categoría no modelada del radar vigente cae en series ajenas, gráficas ni sexo', async () => {
+  const runnerIds = new Set(
+    CATALOG.releases
+      .filter((r) => r.lifecycle === 'published' && r.visible && r.channels?.includes('epibot'))
+      .map((r) => r.disease_id),
+  );
+  assert.ok(runnerIds.size > 0, 'el catálogo instalado del runner no puede estar vacío');
+  assert.ok(runnerIds.has('sifilis_adquirida_a51'), 'sífilis adquirida A51 ya está publicada en el catálogo');
+  const legacyIds = new Set([
+    ...Object.keys(d.stats?.por_pad || {}).map((k) => k.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')),
+    ...(d.dengue ? ['dengue'] : []),
+  ]);
+  assert.deepEqual([...legacyIds].sort(), ['alzheimer', 'dengue', 'depresion', 'parkinson']);
+  const publicadosEsperados = new Set([...runnerIds, ...legacyIds]);
+  assert.equal(FOTO.meta.platform_published, publicadosEsperados.size);
+
+  const cob = summarizeCoverage(FOTO.diseases);
+  assert.equal(cob.published, publicadosEsperados.size);
+  assert.equal(FOTO.diseases.length, FOTO.meta.categories + FOTO.meta.aggregate_rows);
+  const cubiertas = FOTO.diseases.filter((e) => !e.aggregate && publicadosEsperados.has(e.platform_id));
+  assert.deepEqual([...new Set(cubiertas.map((e) => e.platform_id))].sort(), [...publicadosEsperados].sort());
+  assert.equal(cubiertas.length, cob.covered);
+  assert.equal(FOTO.meta.categories - cubiertas.length, cob.uncovered);
+
+  const agregadas = FOTO.diseases.filter((e) => Boolean(e.aggregate));
+  assert.ok(agregadas.length > 0 && agregadas.length === FOTO.meta.aggregate_rows);
+  const noCubiertasSinAgregado = FOTO.diseases.filter((e) => !e.aggregate && !publicadosEsperados.has(e.platform_id));
+  assert.ok(noCubiertasSinAgregado.length > 0 && noCubiertasSinAgregado.length === cob.uncovered);
+
+  const esperadasSinModelo = FOTO.diseases.filter((e) => Boolean(e.aggregate) || !publicadosEsperados.has(e.platform_id));
+  const sinModelo = FOTO.diseases.filter((e) => !e.platform_id);
+  assert.equal(sinModelo.length, cob.uncovered + FOTO.meta.aggregate_rows);
+  assert.deepEqual(sinModelo.map((e) => e.id), esperadasSinModelo.map((e) => e.id));
+  assert.deepEqual(new Set(sinModelo.map((e) => e.name)), new Set(esperadasSinModelo.map((e) => e.name)));
+  assert.ok(sinModelo.some((e) => e.name === 'Sífilis congénita'));
+  assert.ok(!sinModelo.some((e) => e.platform_id === 'sifilis_adquirida_a51'));
+
   const limpio = (s) => s.replace(/[°^•§]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
-  const nombres = FOTO.diseases.filter((e) => !e.platform_id).map((e) => limpio(e.name));
-  assert.ok(nombres.length > 100);
+  const nombres = sinModelo.map((e) => limpio(e.name));
+  assert.ok(nombres.length > 0);
   for (const nom of nombres) {
-    for (const q of [`${nom} en jalisco`, `cuantos casos de ${nom} hubo`]) sinSeriesAjenas(await conversa(q), q);
+    const esAutolesion = /autoinfligid|suicid|ideacion/.test(nom);
+    for (const q of [`${nom} en jalisco`, `cuantos casos de ${nom} hubo`, `${nom} en jalisco mujeres`]) {
+      const r = await conversa(q);
+      sinSeriesAjenas(r, q);
+      assert.match(r.md, /<!--SIN_GRAFICA-->/, q);
+      assert.doesNotMatch(r.md, rc.MARCADOR_RELEASE, q);
+      assert.equal(extract(r.md, q), null, `${q}: no debe dibujar gráfica`);
+      if (esAutolesion) {
+        assert.match(r.md, LINEA, q);
+        assert.doesNotMatch(r.md, /Boletín Epidemiológico \d+ de \d{4}/, q);
+      } else {
+        assert.doesNotMatch(r.md, LINEA, q);
+      }
+    }
   }
 });
 
