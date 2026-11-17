@@ -758,6 +758,43 @@
       alias: ['intoxicacion por monoxido de carbono', 'monoxido de carbono', 'monoxido', 't58', 'carbon monoxide'],
       prefijos: ['intoxicacion por monoxido', 'monoxido', 'carbon monoxide'],
     },
+    // Control estacional autorizado nominalmente por el autor tras el rechazo de la prueba única de 2025 (16-nov-2026):
+    // nunca validado, sin validación prospectiva propia.
+    {
+      id: 'sifilis_adquirida_a51', pad: 'Sífilis adquirida', nombre: 'Sífilis adquirida',
+      nombreCorto: 'Sífilis adquirida', etiqueta: 'Sífilis adquirida (A51-A53)',
+      dataKey: 'sifilis_adquirida_a51', marca: 'SIFILIS_ADQUIRIDA_A51', pagina: 'sifilis_adquirida_a51.html',
+      consulta: 'sifilis adquirida', cie: 'A51-A53', color: '#0F766E',
+      controlEstatalPocoInformativo: true,
+      // Sin «sífilis» ni «lúes» a secas: abarcan la sífilis congénita (A50), que el boletín reporta aparte y no se modela,
+      // y la sífilis en el embarazo (O98.1). «ALIAS_AMBIGUOS» pide precisar y «SUBTIPOS_AJENOS» excluye A50 y vecinos.
+      alias: [
+        'sifilis adquirida', 'sifilis precoz', 'sifilis temprana', 'sifilis primaria', 'sifilis secundaria',
+        'sifilis tardia', 'sifilis terciaria', 'sifilis latente', 'sifilis cardiovascular', 'neurosifilis',
+        'sifilis no especificada', 'otras sifilis',
+        'lues adquirida', 'lues precoz', 'lues primaria', 'lues secundaria', 'lues tardia', 'lues terciaria',
+        'a51', 'a52', 'a53',
+        'acquired syphilis', 'early syphilis', 'primary syphilis', 'secondary syphilis',
+        'late syphilis', 'tertiary syphilis', 'latent syphilis', 'cardiovascular syphilis', 'neurosyphilis',
+        'unspecified syphilis', 'acquired lues',
+      ],
+      prefijos: [
+        'sifilis adquirida', 'sifilis precoz', 'sifilis temprana', 'sifilis primaria', 'sifilis secundaria',
+        'sifilis tardia', 'sifilis terciaria', 'sifilis latente', 'sifilis cardiovascular', 'neurosifilis',
+        'acquired syphilis', 'early syphilis', 'primary syphilis', 'secondary syphilis',
+        'late syphilis', 'tertiary syphilis', 'latent syphilis', 'neurosyphilis',
+      ],
+      // Cronología real del corte y emisión: la dicen el bot, el corpus RAG y la página.
+      cronologia: 'Se entrenó con datos hasta 2026-W42 (boletín 43, dataset sifilis_adquirida_a51_0cc942faddb8) '
+        + 'y su único pronóstico congelado se creó el 2026-11-17T01:32:25.156213+00:00 (16 de noviembre de 2026 en '
+        + 'Ciudad de México), para 52 semanas desde el origen (2026-W43 a 2027-W42, no 52 semanas futuras). El '
+        + 'boletín 44 (semana 2026-W43, primera disponibilidad verificable 2026-11-17T01:23:31.237010+00:00 UTC) ya '
+        + 'era público antes de emitir y antes de congelar el gate técnico (5987a061): no se usó para entrenar y se '
+        + 'registró por separado en sifilis_adquirida_a51_eaca7efc1a11, así que el primer objetivo (2026-W43) no es '
+        + 'prospectivo respecto de la información. Como control estacional no tiene validación prospectiva propia: el '
+        + 'registro técnico de cuatro semanas (W43 a W46 de 2026; 1/4 INCOMPLETE al corte del boletín 44) pasa a '
+        + 'CONTROL_ONLY al reunir las cuatro observaciones, sin obtener nunca aprobación prospectiva.',
+    },
   ]);
 
   /**
@@ -806,6 +843,15 @@
       a: ' desnutricion $1' },
     { pads: ['Displasia cervical leve y moderada', 'Displasia cervical severa y CaCu in situ'], ya: /displasia/,
       de: /\b(?:la )?(leve|moderada|severa|grave)\s*$/, a: ' displasia cervical $1' },
+    { pads: ['Sífilis adquirida'], ya: /\b(sifilis|syphilis|lues|neurosifilis|neurosyphilis)\b/,
+      de: /^(?:y|pero|tambien|que hay de|ahora|and|what about)\b.*\b(congenit[a-z]*|neonatal\w*|connatal\w*|perinatal\w*|vertical|materno ?infantil|fetal\w*|mortinat\w*|stillbirth\w*)\b.*$/,
+      a: 'y sifilis congenita' },
+    { pads: ['Sífilis adquirida'], ya: /\b(sifilis|syphilis|lues|neurosifilis|neurosyphilis)\b/,
+      de: /^(?:y|pero|tambien|que hay de|ahora|and|what about)\b.*\b(gestacional|gestational|gestantes?|matern[ao]s?|maternal|embaraz\w*|pregnan\w*|puerper\w*|parto|childbirth)\b.*$/,
+      a: 'y sifilis en el embarazo' },
+    { pads: ['Sífilis adquirida'], ya: /\b(sifilis|syphilis|lues|neurosifilis|neurosyphilis)\b/,
+      de: /^(?:y|pero|tambien|que hay de|ahora|and|what about)\b.*\b(recien nacid[oa]s?|newborns?|neonat[oa]s?|bebes?|babies|baby|lactantes?|infants?|nin[oa]s?|children|child|menores?(?: de \d{1,3}(?: anos?)?| de edad)?|adolescentes?|teenagers?|teens?|pediatric[oa]?s?|paediatric\w*|(?:menores?|mayores?) de \d{1,3}(?: anos?)?|under \d{1,3}(?: years?(?: old)?)?)\b.*$/,
+      a: 'y sifilis en menores' },
   ];
   function conFamiliaNombrada(qn, padPrevio) {
     if (!/^(y|pero|tambien|que hay de|ahora|and|what about)\b/.test(qn)) return qn;
@@ -863,6 +909,12 @@
     [/\botras infecci(on|ones) intestinal(es)? (debidas? a|por) protozo(arios?|os?)\b/g, 'otras protozoosis intestinales'],
     [/(?<!otras )\b(infecci(on|ones) intestinal(es)? (debidas? a|por) protozo(arios?|os?|a)|intestinal infections? due to protozoa|protozoos|protozoarios|protozoosis( intestinal(es)?)?)\b/g,
       'protozoosis intestinal'],
+    // Formas clínicas y subcódigos pegados de sífilis adquirida (A51-A53): A51.0 y A51.1 nombran el sitio entre «sífilis» y «primaria».
+    [/\bsifilis (genital|anal) primaria\b/g, 'sifilis primaria'],
+    [/\bprimary (genital|anal) syphilis\b/g, 'primary syphilis'],
+    [/\bchancros? (sifilitic[oa]s?|duros?)\b|\bsyphilitic chancres?\b/g, 'sifilis primaria'],
+    [/\btabes dorsal(is)?\b/g, 'neurosifilis'],
+    [/\b(a5[123])([0-9])\b/g, '$1.$2'],
   ];
   // Un término de hipertensión junto a uno del embarazo, parto o puerperio nombra el bloque O10-O16,
   // no la hipertensión arterial (I10-I15): se reescribe a su forma canónica y se retira el término de
@@ -1025,6 +1077,31 @@
       'varices o trombosis venosa', 'várices (I83) ni flebitis o trombosis venosa (I80)', 'ivp_i87'],
     [/\bv(3[0-9]|8[0-9]|9[0-9])\b/, 'otro accidente de transporte',
       'accidentes de transporte fuera de V20-V29 y V40-V79', 'vehiculos_v20'],
+    // Categorías vecinas de Sífilis adquirida (A51-A53) en el Cuadro 6 y códigos relacionados fuera del bloque:
+    // la sífilis congénita (A50, incluidas precoz, tardía, latente y neurosífilis juvenil), la sífilis en el embarazo (O98.1),
+    // la sífilis no venérea (A65), la frambesia (A66) y las demás ITS (A54-A64) nunca reciben cifras de A51-A53.
+    [new RegExp(`\\ba50(?:\\.[0-9]|[0-9]| [0-9]${NO_UNIDAD})?\\b`), 'sifilis congenita',
+      'sífilis congénita (A50), que el boletín reporta aparte', 'sifilis_adquirida_a51'],
+    [/\b(sifilis|syphilis|lues|neurosifilis|neurosyphilis|sifilitic[oa]s?|syphilitic)\b.*\b(congenit[a-z]*|neonatal\w*|connatal\w*|perinatal\w*|materno ?infantil|vertical|fetal\w*|mortinat\w*|stillbirth\w*|juvenil|juvenile)\b|\b(congenit[a-z]*|neonatal\w*|connatal\w*|perinatal\w*|materno ?infantil|vertical|fetal\w*|mortinat\w*|stillbirth\w*|juvenil|juvenile)\b.*\b(sifilis|syphilis|lues|neurosifilis|neurosyphilis|sifilitic[oa]s?|syphilitic)\b/,
+      'sifilis congenita', 'sífilis congénita (A50), que el boletín reporta aparte', 'sifilis_adquirida_a51'],
+    [new RegExp(`\\bo98(?:\\.1|1| 1${NO_UNIDAD})?\\b|\\b(sifilis|syphilis|lues|neurosifilis|neurosyphilis|sifilitic[oa]s?|syphilitic)\\b.*\\b(embaraz\\w*|gestacion\\w*|gestantes?|gestational|matern[ao]s?|maternal|puerper\\w*|parto|pregnan\\w*|childbirth)\\b|\\b(matern[ao]s?|maternal|gestacion\\w*|gestantes?|gestational|embaraz\\w*|pregnan\\w*|puerper\\w*|parto|childbirth)\\b.*\\b(sifilis|syphilis|lues|neurosifilis|neurosyphilis|sifilitic[oa]s?|syphilitic)\\b`),
+      'sifilis en el embarazo', 'sífilis que complica el embarazo, el parto y el puerperio (O98.1), ni desglosa A51-A53 por embarazo', 'sifilis_adquirida_a51'],
+    [new RegExp(`\\ba65(?:\\.[0-9]|[0-9]| [0-9]${NO_UNIDAD})?\\b|\\b(sifilis|syphilis|lues) (no venere[ao]s?|non ?venereal|endemic[ao]s?)\\b|\\b(non ?venereal|endemic) (syphilis|lues)\\b|\\bbejel\\b`),
+      'sifilis no venerea', 'sífilis no venérea o bejel (A65)', 'sifilis_adquirida_a51'],
+    [new RegExp(`\\ba66(?:\\.[0-9]|[0-9]| [0-9]${NO_UNIDAD})?\\b|\\b(frambesia|pian|yaws)\\b`),
+      'frambesia', 'frambesia o pian (A66)', 'sifilis_adquirida_a51'],
+    [new RegExp(`\\ba54(?:\\.[0-9]|[0-9]| [0-9]${NO_UNIDAD})?\\b|\\b(gonorrea|gonorrhea|gonorrhoea|gonococ[a-z]*)\\b`),
+      'infeccion gonococica', 'infección gonocócica o gonorrea (A54)', 'sifilis_adquirida_a51'],
+    [new RegExp(`\\ba5[56](?:\\.[0-9]|[0-9]| [0-9]${NO_UNIDAD})?\\b|\\blinfogranuloma( venereo)?\\b|\\blymphogranuloma venereum\\b|\\b(clamidia|clamidias|clamidiasis|chlamydia)\\b`),
+      'infeccion por clamidias', 'linfogranuloma venéreo ni otras infecciones de transmisión sexual por clamidias (A55-A56)', 'sifilis_adquirida_a51'],
+    [new RegExp(`\\ba57(?:\\.[0-9]|[0-9]| [0-9]${NO_UNIDAD})?\\b|\\bchancro blando\\b|\\b(chancroide|chancroid)\\b`),
+      'chancro blando', 'chancro blando (A57)', 'sifilis_adquirida_a51'],
+    [new RegExp(`\\ba59(?:\\.[0-9]|[0-9]| [0-9]${NO_UNIDAD})?\\b`),
+      'tricomoniasis', 'tricomoniasis (A59)', 'sifilis_adquirida_a51'],
+    [/^(?!.*\bvulvovaginitis\b).*\b(tricomoniasis|trichomoniasis)\b(?! intestinal)/,
+      'tricomoniasis', 'tricomoniasis (A59)', 'sifilis_adquirida_a51'],
+    [new RegExp(`\\ba(58|60|63|64)(?:\\.[0-9]|[0-9]| [0-9]${NO_UNIDAD})?\\b|\\bgranuloma inguinal\\b|\\bdonovanosis\\b|\\bherpes (genital|anogenital)\\b|\\b(genital|anogenital) herpes\\b|\\bverrugas? (anogenital(es)?|venereas?)\\b|\\bcondilomas?( acuminados?)?\\b`),
+      'otra infeccion de transmision sexual', 'otras infecciones de transmisión sexual con código propio (A58-A64)', 'sifilis_adquirida_a51'],
   ];
 
   // Códigos CIE explícitos: una letra, dos dígitos y, opcional, un decimal con punto, espacio o pegado.
@@ -1166,6 +1243,22 @@
     { release: 'amebiasis_a06', generico: new RegExp(`\\b(amebiasis|amibiasis|amoebiasis)\\b|\\ba06\\b(?!\\.[0-9]|[0-9]| [0-9]${NO_UNIDAD})`),
       especifico: new RegExp(`\\b(amebiasis|amibiasis|amoebiasis) intestinal\\b|\\bintestinal (amebiasis|amoebiasis)\\b|\\bdisenteria amebiana\\b|\\bamebic dysentery\\b|${subcodigo('a06', '0-39').source}`),
       abarca: '«Amebiasis» incluye formas fuera del intestino: el absceso hepático amebiano (A06.4), con su propio control estacional, y otras amebiasis extraintestinales (A06.5-A06.8).' },
+    { release: 'sifilis_adquirida_a51',
+      generico: /\b(sifilis|syphilis|lues|treponema pallidum)\b/,
+      especifico: new RegExp(
+        '\\b(sifilis|lues) (adquirida|precoz|temprana|primaria|secundaria|tardia|terciaria|latente|cardiovascular|no especificada)\\b'
+        + '|\\botras sifilis\\b|\\bneurosifilis\\b|\\bneurosyphilis\\b'
+        + '|\\b(acquired|early|primary|secondary|late|tertiary|latent|cardiovascular|unspecified) (syphilis|lues)\\b'
+        + '|\\ba5[123]\\b',
+      ),
+      abarca: '«Sífilis» abarca renglones distintos del boletín con código propio: la sífilis adquirida (A51-A53) y la sífilis congénita (A50), que se notifica aparte y no se pronostica, además de la sífilis en el embarazo (O98.1) y la sífilis no venérea (A65).' },
+    { release: 'sifilis_adquirida_a51',
+      generico: /\bchancros?\b/,
+      especifico: /\bchancros? (blandos?|sifilitic[oa]s?|duros?)\b/,
+      abarca: '«Chancro» puede referirse al chancro sifilítico de la sífilis primaria (A51.0) o al chancro blando (A57), que es otra infección y no se pronostica.' },
+    { release: null, bloques: ['sifilis_adquirida_a51', 'mal_del_pinto_a67'],
+      generico: /\btreponematosis\b/, especifico: /(?!)/,
+      abarca: '«Treponematosis» abarca varias infecciones por espiroquetas del género Treponema: se publican la sífilis adquirida (A51-A53) y el mal del pinto (A67); la sífilis congénita (A50), la no venérea (A65) y la frambesia (A66) tienen código propio y no se pronostican.' },
   ];
 
   /**
@@ -1179,6 +1272,9 @@
       abarca: '«Varicela zóster» es el nombre del virus, que causa la varicela (B01) y el herpes zóster (B02); el término no dice cuál de las dos.' },
     { release: 'ira_j00', re: /\b(amigdalitis|tonsillitis)( aguda)? (viral(es)?|no estreptococic[ao]s?|por virus)\b|\bviral tonsillitis\b|\bj03[ .]?[89]\b/,
       abarca: 'La amigdalitis viral o no estreptocócica (J03.8-J03.9) está dentro del bloque de infecciones respiratorias agudas, sin una serie propia.' },
+    { release: 'sifilis_adquirida_a51',
+      re: /^(?!.*\b(?:congenit[a-z]*|neonatal\w*|connatal\w*|perinatal\w*|materno ?infantil|vertical|fetal\w*|mortinat\w*|stillbirth\w*|juvenil|juvenile|a50|o98|embaraz\w*|gestacion\w*|gestantes?|gestational|matern[ao]s?|maternal|puerper\w*|parto|pregnan\w*|childbirth)\b)(?=.*\b(?:sifilis|syphilis|lues|neurosifilis|neurosyphilis|treponema pallidum|a5[123])\b).*\b(recien nacid[oa]s?|newborns?|neonat[oa]s?|bebes?|babies|baby|lactantes?|infants?|nin[oa]s?|children|child|menores?(?: de \d{1,3}(?: anos?)?| de edad)?|adolescentes?|teenagers?|teens?|pediatric[oa]?s?|paediatric\w*|(?:menores?|mayores?) de \d{1,3}(?: anos?)?|under \d{1,3}(?: years?(?: old)?)?|\d{1,3} anos? de edad)\b/,
+      abarca: 'Las series publicadas de sífilis adquirida (A51-A53) sólo desglosan por entidad y sexo (sin estratificación por edad ni por embarazo), y no debe clasificarse automáticamente toda consulta en recién nacidos, bebés, lactantes o menores como sífilis congénita: el boletín reporta aparte la sífilis congénita explícita (A50, que no se modela), mientras que la sífilis adquirida (A51-A53) también puede presentarse en menores.' },
   ];
 
   /** Aclaración ante un nombre genérico que no basta para elegir el bloque publicado, o null. */

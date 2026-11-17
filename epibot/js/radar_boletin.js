@@ -20,7 +20,7 @@ const GENERICAS = new Set([
   'lesion', 'envenenamiento', 'fiebre', 'historia', 'eventos', 'efectos', 'contacto', 'exposicion',
   'accidente', 'peaton', 'herida', 'edema', 'deplecion', 'paralisis', 'diabetes', 'hipertension',
   'dengue', 'neumonias', 'obesidad', 'anorexia', 'depresion', 'asma', 'gingivitis', 'ulceras',
-  'casos', 'boletin',
+  'sifilis', 'casos', 'boletin',
 ]);
 
 /** Nombres coloquiales → patrón sobre el nombre normalizado de la categoría. */
