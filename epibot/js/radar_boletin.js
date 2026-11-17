@@ -20,7 +20,7 @@ const GENERICAS = new Set([
   'lesion', 'envenenamiento', 'fiebre', 'historia', 'eventos', 'efectos', 'contacto', 'exposicion',
   'accidente', 'peaton', 'herida', 'edema', 'deplecion', 'paralisis', 'diabetes', 'hipertension',
   'dengue', 'neumonias', 'obesidad', 'anorexia', 'depresion', 'asma', 'gingivitis', 'ulceras',
-  'casos', 'boletin',
+  'sifilis', 'casos', 'boletin',
 ]);
 
 /** Nombres coloquiales → patrón sobre el nombre normalizado de la categoría. */
@@ -167,10 +167,16 @@ function acumuladoEstado(e, fila, anio) {
   return cols.length ? suma(cols.map(([, v]) => v), e.guion, anio) : null;
 }
 
+function etiquetaFechaBoletin(m) {
+  return m?.publication_date_basis === 'first_verified_availability'
+    ? `fecha de referencia / primera disponibilidad comprobada: ${m.publication}`
+    : `publicado el ${m.publication}`;
+}
+
 /** Respuesta en markdown para las categorías encontradas; `estado` es el nombre canónico o null. */
 export function respuestaRadar(encontradas, radar, estado) {
   const m = radar.meta;
-  const cab = `Boletín Epidemiológico ${m.week} de ${m.year}, publicado el ${m.publication}`;
+  const cab = `Boletín Epidemiológico ${m.week} de ${m.year}, ${etiquetaFechaBoletin(m)}`;
   const pie = `\nCurva semanal desde 2013 y las 32 entidades en el [Radar del boletín](../boletin.html). ` +
     'Son casos notificados tal como los imprime el boletín, sin modelo ni pronóstico de EpiForecast-MX.';
   if (encontradas.length === 1) {
@@ -228,7 +234,7 @@ export function respuestaRadar(encontradas, radar, estado) {
 export function resumenRadar(radar) {
   const m = radar.meta; const c = radar.cobertura;
   return [
-    `**Radar del Boletín Epidemiológico ${m.week} de ${m.year}** (publicado el ${m.publication})\n`,
+    `**Radar del Boletín Epidemiológico ${m.week} de ${m.year}** (${etiquetaFechaBoletin(m)})\n`,
     `- Categorías de vigilancia: **${fmt(m.categories)}** (enfermedades, síndromes y eventos); ${fmt(m.territorial_blocks)} bloques traen las 32 entidades y el resto solo el resumen nacional.`,
     `- Padecimientos publicados en EpiForecast-MX: **${fmt(c.published)}**, ${fmt(c.controls)} de ellos con el control estacional.`,
     `- Categorías sin cobertura: **${fmt(c.uncovered)}**: sus cifras notificadas se consultan sin modelo ni pronóstico.`,

@@ -6,12 +6,12 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=63';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=64';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
-import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=4';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=37';
-import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=29';
+import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=5';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=38';
+import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=30';
 
 let DATA = null;
 
@@ -23,7 +23,7 @@ function isNeuro(p) { return NEURO_PADS.includes(p); }
 
 // Version de los datos para cache-bust estable (evita re-descargar 1.3 MB por visita).
 // Subir esta constante cuando cambie knowledge.json / zoom_series.json.
-const DATA_VERSION = '20261109';
+const DATA_VERSION = '20261116';
 
 export async function loadKnowledge() {
   if (DATA) return DATA;

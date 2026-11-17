@@ -18,6 +18,12 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from boletin_celdas import GUION, reconcilia, suma
+from boletin_discrepancias_fuente import (
+    COLUMNAS_CONTEO_MIASIS,
+    aplicar_a_miasis,
+    construir_problema_miasis,
+    problemas_horizontales_sin_discrepancia_vertical,
+)
 
 NS = {'x': 'http://www.w3.org/1999/xhtml'}
 ENCABEZADOS_NO_ENTIDAD = {'H', 'M', 'Acum.', 'FEDERATIVA', 'ENTIDAD', 'Sem.'}
@@ -348,7 +354,7 @@ FILA_MIASIS = re.compile(r'^\s*(?:\d+\s+)?([^\d\s].*?)\s+((?:-?\d[\d.,]*%?\s+){9
 
 def miasis(pn: int, texto: str, anio: int, problemas: list):
     """Tabla de casos confirmados por estado notificante, desde el texto con diseño."""
-    filas, totales = [], None
+    filas, totales, conteos_no_enteros = [], None, False
     for linea in texto.splitlines():
         m = FILA_MIASIS.match(linea)
         if not m:
@@ -359,16 +365,32 @@ def miasis(pn: int, texto: str, anio: int, problemas: list):
         except ValueError:
             problemas.append(dict(pagina=pn, tipo='miasis_ilegible', fila=linea.strip()))
             continue
+        if any(not valores[k].is_integer() for k in COLUMNAS_CONTEO_MIASIS):
+            problemas.append(dict(pagina=pn, tipo='miasis_conteo_no_entero', fila=linea.strip()))
+            conteos_no_enteros = True
+            continue
         if nombre.startswith('Total'):
-            totales = [int(v) for v in valores]
+            totales = [int(v) if k in COLUMNAS_CONTEO_MIASIS or v.is_integer() else v
+                       for k, v in enumerate(valores)]
         else:
             filas.append(dict(state=nombre, values=valores))
+    if conteos_no_enteros:
+        return None
     if totales is None or not filas:
         problemas.append(dict(pagina=pn, tipo='miasis_estructura', filas=len(filas)))
         return None
-    for k in (0, 2, 3, 5, 6, 7, 9):
-        if sum(f['values'][k] for f in filas) != totales[k]:
-            problemas.append(dict(pagina=pn, tipo='miasis_reconciliacion', columna=k))
+    columnas = [f'Casos {anio - 1}', f'% {anio - 1}', f'Defunciones {anio - 1}', f'Casos {anio}',
+                f'% {anio}', f'Defunciones {anio}', 'Confirmados últimos 7 días',
+                f'Casos {anio - 1}–{anio}', '% total', 'Defunciones totales']
+    verticales_rotas: set[int] = set()
+    for k in COLUMNAS_CONTEO_MIASIS:
+        prob = construir_problema_miasis(pn, k, columnas[k], filas, totales)
+        if prob is not None:
+            problemas.append(prob)
+            verticales_rotas.add(k)
+    problemas.extend(problemas_horizontales_sin_discrepancia_vertical(
+        pn, columnas, filas, verticales_rotas,
+    ))
     plano = ' '.join(texto.split())
     corte = re.search(r'Fecha de corte:\s*(\d{1,2} de (?:%s) de \d{4})' % '|'.join(MESES), plano)
     if not corte:
@@ -377,9 +399,6 @@ def miasis(pn: int, texto: str, anio: int, problemas: list):
     reclasificados = re.search(r'Se reclasificaron (\d+) casos? a descartados', plano)
     notas = [' '.join(linea.split()) for linea in texto.splitlines()
              if linea.strip().startswith('*')]
-    columnas = [f'Casos {anio - 1}', f'% {anio - 1}', f'Defunciones {anio - 1}', f'Casos {anio}',
-                f'% {anio}', f'Defunciones {anio}', 'Confirmados últimos 7 días',
-                f'Casos {anio - 1}–{anio}', '% total', 'Defunciones totales']
     return dict(name='Miasis humana confirmada por Cochliomyia hominivorax', page=pn,
                 cut=corte.group(1), columns=columnas, totals=totales, states=filas,
                 reclassified_to_discarded=int(reclasificados.group(1)) if reclasificados else None,
@@ -424,14 +443,17 @@ def simbologia(paginas_texto: list) -> dict | None:
     return dict(simbolos=out, paginas=paginas) if GUION in out else None
 
 
-def leer(pdf: Path, anio: int, texto: bytes | None = None) -> dict:
+def leer(pdf: Path, anio: int, texto: bytes | None = None,
+         disposiciones: dict | None = None) -> dict:
     """Extrae todo el boletín; lanza ErrorExtraccion con cada problema encontrado."""
     problemas: list = []
+    problemas_miasis: list = []
     texto = texto if texto is not None else texto_layout(pdf)
     paginas_texto = texto.decode('utf-8', 'replace').split('\f')
     with tempfile.TemporaryDirectory(prefix='boletin-xml-') as tmp:
         paginas = paginas_xml(pdf, Path(tmp))
     estatales, nacionales, mias, paginas_estatales, rotulos = [], [], None, [], []
+    paginas_miasis = []
     titulos = {}
     for pn, p in enumerate(paginas, 1):
         ws = sin_duplicados(palabras(p))
@@ -450,12 +472,20 @@ def leer(pdf: Path, anio: int, texto: bytes | None = None) -> dict:
             nacionales += filas
             rotulos = rotulos or rot
         elif pn <= len(paginas_texto) and es_pagina_miasis(paginas_texto[pn - 1]):
-            mias = miasis(pn, paginas_texto[pn - 1], anio, problemas)
+            paginas_miasis.append(pn)
+            tabla_pn = miasis(pn, paginas_texto[pn - 1], anio, problemas_miasis)
+            if len(paginas_miasis) == 1:
+                mias = tabla_pn
+    if len(paginas_miasis) > 1:
+        problemas += problemas_miasis
+        problemas.append(dict(tipo='miasis_paginas_multiples', paginas=paginas_miasis))
+    else:
+        problemas += aplicar_a_miasis(mias, problemas_miasis, disposiciones)
     if not estatales:
         problemas.append(dict(tipo='sin_cuadros_estatales'))
     if not nacionales:
         problemas.append(dict(tipo='sin_resumen_nacional'))
-    if mias is None:
+    if mias is None and len(paginas_miasis) <= 1:
         problemas.append(dict(tipo='sin_miasis'))
     if problemas:
         raise ErrorExtraccion(problemas)

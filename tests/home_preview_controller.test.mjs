@@ -41,11 +41,11 @@ const meta = () => ['pvEstado', 'pvCorte', 'pvObs', 'pvCasos', 'pvEmision'].map(
 async function elegir(value) { $('hfSelect').value = value; $('hfSelect').dispatch('change'); await tick(10); }
 const hits = (part) => dom.requests.filter((u) => u.includes(part)).length;
 
-test('carga inicial: sólo hero_series.json, 85 opciones y la serie de Depresión pintada', async () => {
+test('carga inicial: sólo hero_series.json, 86 opciones y la serie de Depresión pintada', async () => {
   await boot();
   assert.deepEqual(dom.requests, ['hero_series.json']);
   const opts = $('hfSelect').querySelectorAll('option');
-  assert.equal(opts.length, 85);
+  assert.equal(opts.length, 86);
   assert.match($('pvEstado').textContent, /Cohorte original/);
   assert.match($('pvGaleria').href, /p=depresion/);
   assert.equal($('pvFuente').querySelector('a').textContent, 'Datos de la serie (JSON)', 'sin nombre de archivo crudo');
@@ -98,7 +98,7 @@ test('rótulos: corte y último observado distintos; total con su periodo; emisi
   await boot();
   assert.equal($('pvCorteRot').textContent, 'Corte del modelo');
   assert.equal($('pvCorte').textContent, 'semana 37 de 2026');
-  assert.equal($('pvObs').textContent, 'semana 43 de 2026');
+  assert.equal($('pvObs').textContent, 'semana 44 de 2026');
   assert.match($('pvCasos').textContent, /casos en 52 semanas desde el corte/);
   assert.equal($('pvEmision').textContent, 'fecha no documentada');
   assert.doesNotMatch(HOME, /<dt>Horizonte<\/dt>/);
@@ -109,7 +109,7 @@ test('si falla hero_series.json, los releases siguen disponibles y no se pide ni
   let calls = 0;
   await boot([['hero_series.json', () => (++calls === 1 ? httpError(500) : okFile(root, 'hero_series.json'))]]);
   assert.equal($('hfSelect').disabled, false);
-  assert.equal($('hfSelect').querySelectorAll('option').length, 82, '«Elige un padecimiento» + 81 releases');
+  assert.equal($('hfSelect').querySelectorAll('option').length, 83, '«Elige un padecimiento» + 82 releases');
   assert.equal(hits('vista.json'), 0);
   assert.match($('pvState').textContent, /Elige un padecimiento/);
   assert.equal($('pvCohortError').hidden, false);
@@ -132,6 +132,6 @@ test('cohorte caída: opción «Elige un padecimiento» y un «Reintentar» prop
   await tick(10);
   assert.equal($('pvCohortError').hidden, true);
   assert.equal($('hfSelect').value, 'release:asma_j45', 'se conserva la selección');
-  assert.equal($('hfSelect').querySelectorAll('option').length, 85);
+  assert.equal($('hfSelect').querySelectorAll('option').length, 86);
   assert.equal(hits('asma_j45'), 1);
 });

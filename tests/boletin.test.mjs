@@ -59,14 +59,14 @@ test('category counts exclude the aggregate and source bytes match the declared 
   assert.equal(digest, data.meta.pdf_sha256);
 });
 
-test('confirmed myiasis uses only its listed states and reconciles counts, without summing rounded percentages', async () => {
-  const { entidadesAusentesMiasis } = await import('../assets/boletin/textos.mjs');
+test('confirmed myiasis uses only its listed states and reconciles counts (or exact nominal source discrepancy), without summing rounded percentages', async () => {
+  const { entidadesAusentesMiasis, verificarMiasis } = await import('../assets/boletin/textos.mjs');
+  const verification = JSON.parse(readFileSync(resolve(snapshot, 'verification.json'), 'utf8'));
   const m = data.myiasis;
   assert.ok(m.states.length > 0 && m.states.length <= 32);
   assert.equal(m.states.length + entidadesAusentesMiasis(data).length, 32, 'every listed state is a known entity');
-  for (const i of [0, 2, 3, 5, 6, 7, 9]) {
-    assert.equal(m.states.reduce((sum, s) => sum + s.values[i], 0), m.totals[i]);
-  }
+  assert.equal(typeof verificarMiasis, 'function', 'textos.mjs must export verificarMiasis');
+  verificarMiasis(data, verification);
   assert.equal(data.diseases.filter(d => /Miasis/.test(d.name)).length, 1);
 });
 
@@ -259,4 +259,23 @@ test('the weekly texts handle words, ranges and absent myiasis states', async ()
   const t = textosRadar(data, actual, null);
   assert.equal(t.publicados, String(data.meta.platform_published));
   assert.equal(entidadesAusentesMiasis(data).length, 32 - data.myiasis.states.length);
+});
+
+test('radar GENERICAS (M3): generic «sífilis» never resolves to remaining A50 row once A51 is published, while A50 and neighbor STIs remain intact', async () => {
+  const { compactaRadar, buscaEnRadar } = await import('../epibot/js/radar_boletin.js');
+  const dataConA51 = {
+    ...data,
+    diseases: data.diseases.map((e) => (e.code && e.code.startsWith('A51')
+      ? { ...e, platform_id: 'sifilis_adquirida_a51', status: 'Control publicado' }
+      : e)),
+  };
+  const radar = compactaRadar(actual, dataConA51);
+  assert.deepEqual(buscaEnRadar('sífilis en el boletín', radar).map((e) => e.name), []);
+  assert.deepEqual(buscaEnRadar('sífilis adquirida en mujeres embarazadas', radar).map((e) => e.name), []);
+  assert.deepEqual(buscaEnRadar('sífilis congénita en el boletín', radar).map((e) => e.name), ['Sífilis congénita']);
+  assert.deepEqual(buscaEnRadar('gonorrea en el boletín', radar).map((e) => e.code), ['A54.0-A54.2']);
+  assert.deepEqual(buscaEnRadar('herpes genital en el boletín', radar).map((e) => e.code), ['A60.0']);
+  assert.deepEqual(buscaEnRadar('clamidia en el boletín', radar).map((e) => e.code), ['A55']);
+  assert.deepEqual(buscaEnRadar('diabetes en el boletín', radar), []);
+  assert.deepEqual(buscaEnRadar('asma en el boletín', radar), []);
 });

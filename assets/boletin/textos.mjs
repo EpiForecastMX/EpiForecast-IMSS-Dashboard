@@ -2,6 +2,25 @@
 // Única implementación: radar.js los aplica en el navegador y scripts/boletin_semana_activa.py
 // los escribe en el HTML estático (sin JavaScript y para buscadores) llamando a este módulo.
 import { summarizeCoverage } from './coverage.mjs';
+import {
+  CLAVES_PROYECCION_MIASIS,
+  COLUMNAS_CONTEO_MIASIS,
+  avisoDiscrepanciaMiasis,
+  entidadesAusentesMiasis,
+  filasIdentidadRotaMiasis,
+  notaSimbologiaHeredada,
+  verificarMiasis,
+} from './miasis_verificacion.mjs';
+
+export {
+  CLAVES_PROYECCION_MIASIS,
+  COLUMNAS_CONTEO_MIASIS,
+  avisoDiscrepanciaMiasis,
+  entidadesAusentesMiasis,
+  filasIdentidadRotaMiasis,
+  notaSimbologiaHeredada,
+  verificarMiasis,
+};
 
 const UNIDADES = ['cero', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez',
   'once', 'doce', 'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve', 'veinte',
@@ -31,14 +50,6 @@ export function rutaFoto(actual, archivo) {
   return `/${actual.carpeta.replace(/^\/+|\/+$/g, '')}/${archivo}`;
 }
 
-// Entidades del cuadro de miasis que no aparecen, con los nombres de los cuadros estatales.
-export function entidadesAusentesMiasis(data) {
-  const todas = data.diseases.find(d => d.states.length)?.states.map(s => s.state) ?? [];
-  const canon = s => { const t = s.replace(/\*+$/, '').trim(); return t === 'Estado de México' ? 'México' : t; };
-  const listadas = new Set(data.myiasis.states.map(s => canon(s.state)));
-  return todas.filter(s => !listadas.has(s));
-}
-
 export function listaConY(xs) {
   return xs.length < 2 ? xs.join('') : `${xs.slice(0, -1).join(', ')} y ${xs.at(-1)}`;
 }
@@ -51,13 +62,15 @@ export function textosRadar(data, actual, historia) {
   const paginasNacionales = [...new Set(data.national.map(d => d.page))].sort((a, b) => a - b);
   const mediana = data.diseases.find(d => !d.states.length)?.columns.find(c => c.startsWith('Mediana '));
   const listadas = data.myiasis.states.length, ausentes = 32 - listadas;
+  const baseMiasis = `Miasis: ${listadas} entidades listadas${ausentes > 0 ? `, sin rellenar ${ausentes === 1 ? 'la ausente' : `las ${numeroEnPalabras(ausentes)} ausentes`}` : ''}.`;
+  const avisoMiasis = avisoDiscrepanciaMiasis(data.myiasis, m.year);
   const t = {
     semana: String(m.week),
     anio: String(m.year),
     anio_previo: String(m.year - 1),
     mediana_nacional: mediana ? mediana.slice('Mediana '.length) : '',
     paginas_nacionales_y: listaConY(paginasNacionales.map(String)),
-    miasis_resumen: `Miasis: ${listadas} entidades listadas${ausentes > 0 ? `, sin rellenar ${ausentes === 1 ? 'la ausente' : `las ${numeroEnPalabras(ausentes)} ausentes`}` : ''}.`,
+    miasis_resumen: avisoMiasis ? `${baseMiasis} Estado NO RECONCILIADO: ${avisoMiasis}` : baseMiasis,
     periodo_corto: sinAnio(m.period).replaceAll(' de ', ' ').toUpperCase(),
     publicado: sinAnio(m.publication),
     comprobado: sinAnio(m.checked),

@@ -10,9 +10,9 @@ Lee la foto vigente (assets/boletin/actual.json), extrae los 181 bloques estatal
 con reconciliación exacta de sus 32 entidades, el resumen nacional y la tabla de
 miasis; asigna a cada bloque su identidad estable (p70b1, ...) por nombre y código, y
 hereda de la foto anterior los campos de cobertura (estado de publicación, plataforma,
-notas, razones y prioridad), que nunca se recalculan desde cero. Escribe
-assets/boletin/<año>-w<NN>/, activa esa foto en actual.json y en el texto estático de
-boletin.html, y agrega la semana al histórico de curvas.
+notas, razones y prioridad), que nunca se recalculan desde cero. Valida los artefactos
+con `verificarMiasis(data, verification)` antes de escribir la carpeta final, tocar el
+histórico o activar `actual.json`/`boletin.html`.
 
 Falla cerrado (código 1, sin escribir nada) si un bloque no reconcilia, una celda es
 ilegible, un corte no se puede leer o una identidad no se puede asignar.
@@ -36,11 +36,18 @@ from difflib import SequenceMatcher
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import boletin_discrepancias_fuente as bdf  # noqa: E402
 import boletin_semana_activa as activa  # noqa: E402
 import boletin_semana_cortes as cortes  # noqa: E402
 import boletin_semana_extrae as extrae  # noqa: E402
 import boletin_semana_historia as historia  # noqa: E402
 from boletin_celdas import GUION, es_marcador, numero  # noqa: E402
+from boletin_guardas_radar import (  # noqa: E402
+    bajo_directorio,
+    en_cualquier_sitio_publico,
+    heredar_simbologia,
+    verificar_miasis_artefactos,
+)
 
 RAIZ = Path(__file__).resolve().parents[1]
 MESES = extrae.MESES
@@ -295,18 +302,36 @@ def leer_semana(texto: str) -> tuple:
 
 
 def generar(args) -> dict:
-    pdf = Path(args.pdf).resolve()
-    previa_dir = Path(args.anterior)
-    previa = json.loads((previa_dir / 'data.json').read_text())
+    pdf = Path(args.pdf).expanduser().resolve()
+    sha = hashlib.sha256(pdf.read_bytes()).hexdigest()
+    disposiciones = None
+    if getattr(args, 'discrepancias_fuente', None):
+        try:
+            disposiciones = bdf.cargar_disposiciones(Path(args.discrepancias_fuente).expanduser(), sha)
+        except bdf.ErrorDisposicion as e:
+            raise Fallo('Disposición de discrepancia de fuente rechazada', [e.problema]) from e
+        if not isinstance(disposiciones, dict):
+            raise Fallo('Disposición de discrepancia de fuente rechazada',
+                        [dict(tipo='disposicion_esquema_invalido', detalle='cargadas no es objeto')])
+        if disposiciones.get('tiene_solo_pruebas') and not (args.sin_activar and args.sin_historia):
+            raise Fallo(
+                'Disposición solo_pruebas / TEST_ONLY no es publicable',
+                [dict(tipo='disposicion_solo_pruebas_no_publicable',
+                      detalle='un registro solo_pruebas exige --sin-activar y --sin-historia')],
+            )
+    previa_dir = Path(args.anterior).expanduser()
+    previa = json.loads((previa_dir / 'data.json').read_text(encoding='utf-8'))
     texto = extrae.texto_layout(pdf)
     anio, semana, volumen = leer_semana(texto.decode('utf-8', 'replace'))
     if args.semana and (args.anio, args.semana) != (anio, semana):
         raise Fallo('La semana indicada no coincide con el PDF',
                     [dict(indicada=[args.anio, args.semana], pdf=[anio, semana])])
     try:
-        ext = extrae.leer(pdf, anio, texto)
+        ext = extrae.leer(pdf, anio, texto, disposiciones=disposiciones)
     except extrae.ErrorExtraccion as e:
         raise Fallo('El PDF no se pudo leer sin ambigüedad', e.problemas) from e
+    except bdf.ErrorDisposicion as e:
+        raise Fallo('Disposición de discrepancia de fuente rechazada', [e.problema]) from e
     # El título del cuadro se lee del texto del PDF; sólo si es imagen se recurre al OCR.
     ocr = extrae.ocr_encabezados(pdf, [pn for pn in ext['paginas_estatales']
                                        if not ext['titulos'].get(pn)])
@@ -315,7 +340,6 @@ def generar(args) -> dict:
     for n in nacional:
         if not n['code']:
             raise Fallo('Fila nacional sin código', [n])
-    sha = hashlib.sha256(pdf.read_bytes()).hexdigest()
     bloques = sum(1 for d in enfermedades if d['states'])
     agregados = sum(1 for d in enfermedades if d['aggregate'])
     plataforma = len({d['platform_id'] for d in enfermedades if d['platform_id']})
@@ -329,16 +353,16 @@ def generar(args) -> dict:
                 platform_published=plataforma,
                 reconciliation=f'{bloques}/{bloques} bloques; 32 entidades por bloque; '
                                'tolerancia cero',
-                registry_sha256=(hashlib.sha256(Path(args.registro).read_bytes()).hexdigest()
+                registry_sha256=(hashlib.sha256(Path(args.registro).expanduser().read_bytes()).hexdigest()
                                  if args.registro else previa['meta']['registry_sha256']))
-    # La simbología impresa gobierna el significado de cada símbolo. Si una edición no la trae,
-    # se hereda la anterior y se avisa; nunca se inventa.
+    # Si esta corrida no extrae un bloque de simbología, reutiliza el de la foto inmediata
+    # anterior marcándolo explícitamente como HEREDADO (con periodo y SHA-256 de esa foto).
     simb = ext.get('simbologia')
     if simb:
         meta['symbols'] = simb
     elif previa['meta'].get('symbols'):
-        meta['symbols'] = previa['meta']['symbols']
-        avisos.append(dict(tipo='simbologia_heredada', paginas=previa['meta']['symbols']['paginas']))
+        meta['symbols'], aviso_simb = heredar_simbologia(previa['meta'])
+        avisos.append(aviso_simb)
     marcas = marcadores(enfermedades, nacional)
     if marcas and not meta.get('symbols'):
         # Sin simbología impresa ni heredada no se sabe qué significa el guion: no se infiere
@@ -346,6 +370,9 @@ def generar(args) -> dict:
         raise Fallo('Guiones sin simbología verificable',
                     [dict(tipo='simbologia_ausente', marcadores=marcas,
                           detalle='el PDF no imprime su simbología y la foto anterior no la trae')])
+    rec_miasis = ext['miasis'].get('reconciliation')
+    if rec_miasis:
+        meta['myiasis_status'] = rec_miasis['status']
     datos = dict(meta=meta, diseases=enfermedades, national=nacional, myiasis=ext['miasis'])
     verificacion = dict(schema='boletin_radar.v1', source_pdf_sha256=sha,
                         source_period=f'{anio}-W{semana:02d}', checked=comprobado.isoformat(),
@@ -359,11 +386,21 @@ def generar(args) -> dict:
                         dash_semantics_overrides=[
                             dict(id=d['id'], semantica=d[CAMPO_GUION]['semantica'])
                             for d in enfermedades if d.get(CAMPO_GUION)])
+    if rec_miasis and disposiciones:
+        verificacion['myiasis_reconciled'] = False
+        try:
+            verificacion['source_discrepancies'] = [
+                bdf.proyectar_discrepancia_publica(r, disposiciones.get('file_sha256'))
+                for r in disposiciones.get('registros', [])
+            ]
+        except bdf.ErrorDisposicion as e:
+            raise Fallo('Disposición de discrepancia de fuente rechazada', [e.problema]) from e
     if avisos:
         verificacion['warnings'] = avisos
     nombre_pdf = Path(args.url_fuente.split('?')[0]).name.lower()
     return dict(datos=datos, verificacion=verificacion, texto=texto, ocr=ocr, pdf=pdf,
-                nombre_pdf=nombre_pdf, anio=anio, semana=semana, volumen=volumen, avisos=avisos)
+                nombre_pdf=nombre_pdf, anio=anio, semana=semana, volumen=volumen, avisos=avisos,
+                tiene_solo_pruebas=bool(disposiciones and disposiciones.get('tiene_solo_pruebas')))
 
 
 def catalogo_csv(d: dict, anio: int) -> bytes:
@@ -408,16 +445,30 @@ def main(argv=None) -> int:
     p.add_argument('--anio', type=int, help='año esperado; se comprueba contra el PDF')
     p.add_argument('--semana', type=int, help='semana esperada; se comprueba contra el PDF')
     p.add_argument('--registro', help='config/padecimientos.yaml del backend, si cambió')
+    p.add_argument('--discrepancias-fuente',
+                   help='JSON nominal de disposición para discrepancias impresas en miasis '
+                        '(nunca se hereda)')
     p.add_argument('--raiz', default=str(RAIZ), help='raíz del sitio')
     p.add_argument('--reemplazar', action='store_true', help='sobrescribe una foto existente')
     p.add_argument('--sin-activar', action='store_true',
                    help='no toca actual.json ni boletin.html')
     p.add_argument('--sin-historia', action='store_true', help='no agrega la semana al histórico')
     args = p.parse_args(argv)
-    raiz = Path(args.raiz)
+    raiz = Path(args.raiz).expanduser()
+    raiz_resuelta = raiz.resolve()
+    if args.discrepancias_fuente:
+        ruta_disp = Path(args.discrepancias_fuente).expanduser()
+        if en_cualquier_sitio_publico(ruta_disp, raiz):
+            print('ERROR: --discrepancias-fuente debe conservarse fuera de toda raíz del sitio público (incluido assets/)',
+                  file=sys.stderr)
+            return 1
+        if args.salida and bajo_directorio(ruta_disp, Path(args.salida).expanduser()):
+            print('ERROR: --discrepancias-fuente no puede ubicarse dentro de la carpeta de salida pública',
+                  file=sys.stderr)
+            return 1
     actual = raiz / 'assets/boletin/actual.json'
     if not args.anterior:
-        args.anterior = str(raiz / json.loads(actual.read_text())['carpeta'])
+        args.anterior = str(raiz / json.loads(actual.read_text(encoding='utf-8'))['carpeta'])
     try:
         res = generar(args)
     except Fallo as e:
@@ -426,12 +477,21 @@ def main(argv=None) -> int:
             print('  ' + json.dumps(prob, ensure_ascii=False)[:600], file=sys.stderr)
         return 1
     carpeta = f'assets/boletin/{res["anio"]}-w{res["semana"]:02d}'
-    destino = (Path(args.salida) if args.salida else raiz / carpeta).resolve()
+    destino_raw = Path(args.salida).expanduser() if args.salida else raiz / carpeta
+    destino = destino_raw.resolve()
+    if args.discrepancias_fuente and bajo_directorio(Path(args.discrepancias_fuente).expanduser(), destino_raw):
+        print('ERROR: --discrepancias-fuente no puede ubicarse dentro de la carpeta de salida pública',
+              file=sys.stderr)
+        return 1
+    if res['tiene_solo_pruebas'] and en_cualquier_sitio_publico(destino_raw, raiz):
+        print('ERROR: un registro solo_pruebas / TEST_ONLY no puede escribir en ninguna raíz del sitio público (incluido assets/boletin/)',
+              file=sys.stderr)
+        return 1
     if destino.exists() and not args.reemplazar:
         print(f'ERROR: {destino} ya existe; usa --reemplazar para regenerarla', file=sys.stderr)
         return 1
     try:
-        carpeta = destino.relative_to(raiz.resolve()).as_posix()
+        carpeta = destino.relative_to(raiz_resuelta).as_posix()
     except ValueError:
         if not (args.sin_activar and args.sin_historia):
             print('ERROR: una salida fuera del sitio exige --sin-activar y --sin-historia',
@@ -449,13 +509,21 @@ def main(argv=None) -> int:
             for prob in e.problemas:
                 print('  ' + json.dumps(prob, ensure_ascii=False)[:600], file=sys.stderr)
             return 1
-    destino.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix='boletin-semana-', dir=destino.parent) as tmp:
-        temporal = Path(tmp) / 'foto'
-        escribir(res, temporal)
-        if destino.exists():
-            shutil.rmtree(destino)
-        temporal.rename(destino)
+    with tempfile.TemporaryDirectory(prefix='boletin-semana-check-') as tmp_chk:
+        pre = Path(tmp_chk) / 'foto'
+        escribir(res, pre)
+        try:
+            verificar_miasis_artefactos(raiz, pre, RAIZ, exigir_verification=True)
+        except ValueError as e:
+            print(f'ERROR: Verificación previa a escritura falló: {e}', file=sys.stderr)
+            return 1
+        destino.parent.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix='boletin-semana-', dir=destino.parent) as tmp:
+            temporal = Path(tmp) / 'foto'
+            shutil.copytree(pre, temporal)
+            if destino.exists():
+                shutil.rmtree(destino)
+            temporal.rename(destino)
     for aviso in res['avisos']:
         print('AVISO: ' + json.dumps(aviso, ensure_ascii=False), file=sys.stderr)
     m = res['datos']['meta']

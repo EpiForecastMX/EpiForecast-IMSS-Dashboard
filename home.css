@@ -89,7 +89,7 @@
 .news-date, .news-mini-date { font-size: 14px; color: var(--muted); }
 .news-tag { width: fit-content; padding: 2px 8px; border: 1px solid var(--line-strong); border-radius: 4px; color: var(--green-dark); font-size: 12px; font-weight: 700; }
 .news-tag--radar, .news-tag--datos { background: var(--mint); }
-.news-tag--wcp, .news-tag--calass, .news-tag--future, .news-tag--helix { background: var(--gold-soft); color: var(--gold-ink); border-color: #e3d3a4; }
+.news-tag--wcp, .news-tag--calass, .news-tag--future, .news-tag--helix, .news-tag--a51 { background: var(--gold-soft); color: var(--gold-ink); border-color: #e3d3a4; }
 .news-lead-title { font-size: 26px; font-weight: 700; letter-spacing: -.02em; line-height: 1.25; }
 .news-lead-sub { margin-top: 12px; font-size: 16px; line-height: 1.65; color: var(--body); }
 .news-mini-list { display: flex; flex-direction: column; gap: 18px; }
@@ -121,6 +121,7 @@
 .catalog-count { margin-bottom: 12px; font-size: 14px; font-weight: 650; color: var(--muted); }
 .condition-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
 .condition-card { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; padding: 18px; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); }
+.condition-card[data-p="sifilis_adquirida_a51"] { --card-accent: #0f766e; border-top: 3px solid var(--card-accent); }
 .status { display: inline-block; margin-bottom: 12px; padding: 3px 8px; border-radius: 4px; background: var(--mint); color: #2e5440; font-size: 12px; font-weight: 700; }
 .status.control { background: var(--gold-soft); color: var(--gold-ink); }
 .condition-card h3 { width: 100%; font-size: 17px; }

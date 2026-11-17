@@ -35,11 +35,11 @@ const diseaseButton = (id) => dom.$('gDiseases').querySelectorAll('button').find
 const vistaHits = (id) => dom.requests.filter((u) => u.endsWith(`publication/${id}/vista.json`)).length;
 const label = (id) => CATALOG.diseases.find((d) => d.id === id).label;
 
-test('inicio: sólo el catálogo, 85 padecimientos y ninguna vista', async () => {
+test('inicio: sólo el catálogo, 86 padecimientos y ninguna vista', async () => {
   await boot();
   assert.deepEqual(dom.requests, ['../assets/dashboard/catalog.json']);
-  assert.equal(dom.$('gDiseases').children.length, 85);
-  assert.match(dom.$('gSummary').textContent, /^85 padecimientos · 8,683 series$/);
+  assert.equal(dom.$('gDiseases').children.length, 86);
+  assert.match(dom.$('gSummary').textContent, /^86 padecimientos · 8,794 series$/);
 });
 
 test('A1: elegir un padecimiento mientras carga «Todas las series» no deja que la carga pise la selección', async () => {
@@ -51,7 +51,7 @@ test('A1: elegir un padecimiento mientras carga «Todas las series» no deja que
   diseaseButton('asma_j45').click();
   await tick();
   // Llegan todas las respuestas pendientes (de la corrida abandonada y de la selección).
-  for (let i = 0; i < 85 && pend.length; i++) { const [u, d] = pend.shift(); d.resolve(okFile(root, u.replace(/^\.\.\//, ''))); await tick(); }
+  for (let i = 0; i < 86 && pend.length; i++) { const [u, d] = pend.shift(); d.resolve(okFile(root, u.replace(/^\.\.\//, ''))); await tick(); }
   await tick(20);
   assert.match(dom.location.search, /p=asma_j45/);
   assert.equal(dom.$('gDetailTitle').textContent, label('asma_j45'));
@@ -111,7 +111,7 @@ test('A2: HTTP 503 seguido de éxito, y reintento por padecimiento en la lista c
   await tick(60);
   const li = dom.$('gAllErrors').children.find((x) => x.dataset.p === 'asma_j45');
   assert.ok(li, 'error visible para asma');
-  assert.match(dom.$('gAllStatus').textContent, /84 de 85 padecimientos cargados · 1 con error/);
+  assert.match(dom.$('gAllStatus').textContent, /85 de 86 padecimientos cargados · 1 con error/);
   li.querySelector('button').click();
   await tick(10);
   assert.equal(vistaHits('asma_j45'), 2);
@@ -127,7 +127,7 @@ test('catálogo inválido con HTTP 200: error humano y «Reintentar» lo vuelve 
   dom.$('gCatalogRetry').click();
   await tick(10);
   assert.equal(calls, 2);
-  assert.equal(dom.$('gDiseases').children.length, 85);
+  assert.equal(dom.$('gDiseases').children.length, 86);
 });
 
 test('M3: con la fuente fallida no aparece «0 resultados» y los filtros quedan deshabilitados', async () => {
@@ -152,7 +152,7 @@ test('M3: si fallan todas las fuentes de la lista completa se informa el error, 
   await tick(80);
   assert.equal(dom.$('gDetailError').hidden, false);
   assert.equal(dom.$('gCardsEmpty').hidden, true);
-  assert.match(dom.$('gAllStatus').textContent, /0 de 85 padecimientos cargados · 85 con error/);
+  assert.match(dom.$('gAllStatus').textContent, /0 de 86 padecimientos cargados · 86 con error/);
 });
 
 test('M1: si falla la lámina de Zoom no se sustituye en silencio por el histórico', async () => {
@@ -212,7 +212,7 @@ test('catálogo: filtro «Validación» inequívoco y mini-gráficas con el colo
   assert.match(PAGE, /<option value="">Todos los estados de validación<\/option>/);
   assert.match(PAGE, /Mini-gráfica: casos observados, últimas 26 semanas/);
   const lines = dom.$('gDiseases').querySelectorAll('polyline');
-  assert.equal(lines.length, 85);
+  assert.equal(lines.length, 86);
   assert.ok(lines.every((l) => l.getAttribute('stroke') === '#173c33'), 'color de observado, no de pronóstico');
   const chip = dom.$('gDiseases').querySelector('.g-chip');
   assert.ok(chip.textContent.length < 40, 'chip corto');
@@ -253,4 +253,50 @@ test('«Atrás» con el visor abierto en «Todas» cierra el visor antes de camb
   assert.equal(dom.$('gDetailTitle').textContent, label('obesidad'));
   // Las flechas del visor ya no operan sobre una lista vaciada.
   assert.doesNotThrow(() => dom.$('gViewerNext').click());
+});
+
+test('P5 cronología en detalle: A51 muestra control sin validar (1/4, nunca PASS), boletín 44 público antes de emitir y W43 no prospectiva', async () => {
+  await boot({ search: '?p=sifilis_adquirida_a51' });
+  await tick(10);
+  assert.deepEqual(dom.requests, ['../assets/dashboard/catalog.json', '../publication/sifilis_adquirida_a51/vista.json']);
+  const statusEl = dom.$('gDetailStatus');
+  const chip = statusEl.querySelector('.g-chip');
+  assert.ok(chip.classList.contains('g-chip--control'));
+  assert.equal(chip.textContent, 'Control estacional publicado');
+  const fullStatus = statusEl.textContent;
+  assert.match(fullStatus, /sin contraste prospectivo/);
+  assert.match(fullStatus, /\b1\/4 semanas\b/);
+  assert.doesNotMatch(fullStatus, /\bPASS\b|Validación prospectiva en curso|Validación prospectiva superada/);
+  const cronoEl = statusEl.querySelector('.g-status__cronologia');
+  assert.ok(cronoEl, 'debe renderizar la nota de cronología en el detalle');
+  assert.equal(cronoEl.childElementCount, 0, 'texto plano sin marcado inyectado');
+  const cronoTxt = cronoEl.textContent;
+  assert.match(cronoTxt, /2026-W42.*boletín 43/);
+  assert.match(cronoTxt, /2026-11-17T01:32:25\.156213\+00:00/);
+  assert.match(cronoTxt, /52 semanas desde el origen \(2026-W43 a 2027-W42, no 52 semanas futuras\)/);
+  assert.match(cronoTxt, /boletín 44.*2026-11-17T01:23:31\.237010\+00:00 UTC.*ya era público antes de emitir y antes de congelar el gate técnico \(5987a061\)/);
+  assert.match(cronoTxt, /sifilis_adquirida_a51_eaca7efc1a11/);
+  assert.match(cronoTxt, /primer objetivo \(2026-W43\) no es prospectivo respecto de la información/);
+  assert.match(cronoTxt, /1\/4 INCOMPLETE.*CONTROL_ONLY.*sin obtener nunca aprobación prospectiva/);
+});
+
+test('P5 cronología genérica y sin regresión: asma muestra su cronología; cohorte original y releases sin cronología no se alteran', async () => {
+  await boot({ search: '?p=asma_j45' });
+  await tick(10);
+  const asmaCrono = dom.$('gDetailStatus').querySelector('.g-status__cronologia');
+  assert.ok(asmaCrono, 'asma_j45 también muestra su cronología');
+  assert.match(asmaCrono.textContent, /boletín 43.*2026-W42.*antes de emitir este pronóstico.*no cuenta como prospectiva respecto de la información.*W43 a W45/);
+
+  dom.popstate('?p=obesidad');
+  await tick(10);
+  assert.equal(dom.$('gDetailStatus').querySelector('.g-status__cronologia'), null, 'release sin cronología no añade nodo');
+  assert.match(dom.$('gDetailStatus').textContent, /Validación prospectiva superada \(4\/4 semanas\)/);
+  assert.doesNotMatch(dom.$('gDetailStatus').textContent, /boletín 43|boletín 44|5987a061/);
+
+  dom.popstate('?p=depresion');
+  await tick(10);
+  assert.equal(dom.$('gDetailStatus').querySelector('.g-status__cronologia'), null, 'cohorte original sin cronología');
+  assert.equal(dom.$('gDetailStatus').querySelector('.g-chip').textContent, 'Cohorte original');
+  assert.match(dom.$('gDetailStatus').textContent, /pronóstico a 52 semanas desde el corte, con valores redondeados/);
+  assert.equal(dom.requests.some((u) => u.endsWith('.csv') || u.includes('zoom_data_')), false, 'sin pedidos CSV ni zoom extra');
 });
