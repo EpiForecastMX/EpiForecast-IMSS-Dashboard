@@ -18,6 +18,11 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from boletin_celdas import GUION, reconcilia, suma
+from boletin_discrepancias_fuente import (
+    COLUMNAS_CONTEO_MIASIS,
+    aplicar_a_miasis,
+    construir_problema_miasis,
+)
 
 NS = {'x': 'http://www.w3.org/1999/xhtml'}
 ENCABEZADOS_NO_ENTIDAD = {'H', 'M', 'Acum.', 'FEDERATIVA', 'ENTIDAD', 'Sem.'}
@@ -366,9 +371,13 @@ def miasis(pn: int, texto: str, anio: int, problemas: list):
     if totales is None or not filas:
         problemas.append(dict(pagina=pn, tipo='miasis_estructura', filas=len(filas)))
         return None
-    for k in (0, 2, 3, 5, 6, 7, 9):
-        if sum(f['values'][k] for f in filas) != totales[k]:
-            problemas.append(dict(pagina=pn, tipo='miasis_reconciliacion', columna=k))
+    columnas = [f'Casos {anio - 1}', f'% {anio - 1}', f'Defunciones {anio - 1}', f'Casos {anio}',
+                f'% {anio}', f'Defunciones {anio}', 'Confirmados últimos 7 días',
+                f'Casos {anio - 1}–{anio}', '% total', 'Defunciones totales']
+    for k in COLUMNAS_CONTEO_MIASIS:
+        prob = construir_problema_miasis(pn, k, columnas[k], filas, totales)
+        if prob is not None:
+            problemas.append(prob)
     plano = ' '.join(texto.split())
     corte = re.search(r'Fecha de corte:\s*(\d{1,2} de (?:%s) de \d{4})' % '|'.join(MESES), plano)
     if not corte:
@@ -377,9 +386,6 @@ def miasis(pn: int, texto: str, anio: int, problemas: list):
     reclasificados = re.search(r'Se reclasificaron (\d+) casos? a descartados', plano)
     notas = [' '.join(linea.split()) for linea in texto.splitlines()
              if linea.strip().startswith('*')]
-    columnas = [f'Casos {anio - 1}', f'% {anio - 1}', f'Defunciones {anio - 1}', f'Casos {anio}',
-                f'% {anio}', f'Defunciones {anio}', 'Confirmados últimos 7 días',
-                f'Casos {anio - 1}–{anio}', '% total', 'Defunciones totales']
     return dict(name='Miasis humana confirmada por Cochliomyia hominivorax', page=pn,
                 cut=corte.group(1), columns=columnas, totals=totales, states=filas,
                 reclassified_to_discarded=int(reclasificados.group(1)) if reclasificados else None,
@@ -424,9 +430,11 @@ def simbologia(paginas_texto: list) -> dict | None:
     return dict(simbolos=out, paginas=paginas) if GUION in out else None
 
 
-def leer(pdf: Path, anio: int, texto: bytes | None = None) -> dict:
+def leer(pdf: Path, anio: int, texto: bytes | None = None,
+         disposiciones: dict | None = None) -> dict:
     """Extrae todo el boletín; lanza ErrorExtraccion con cada problema encontrado."""
     problemas: list = []
+    problemas_miasis: list = []
     texto = texto if texto is not None else texto_layout(pdf)
     paginas_texto = texto.decode('utf-8', 'replace').split('\f')
     with tempfile.TemporaryDirectory(prefix='boletin-xml-') as tmp:
@@ -450,7 +458,8 @@ def leer(pdf: Path, anio: int, texto: bytes | None = None) -> dict:
             nacionales += filas
             rotulos = rotulos or rot
         elif pn <= len(paginas_texto) and es_pagina_miasis(paginas_texto[pn - 1]):
-            mias = miasis(pn, paginas_texto[pn - 1], anio, problemas)
+            mias = miasis(pn, paginas_texto[pn - 1], anio, problemas_miasis)
+    problemas += aplicar_a_miasis(mias, problemas_miasis, disposiciones)
     if not estatales:
         problemas.append(dict(tipo='sin_cuadros_estatales'))
     if not nacionales:

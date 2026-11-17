@@ -254,3 +254,49 @@ test('«Atrás» con el visor abierto en «Todas» cierra el visor antes de camb
   // Las flechas del visor ya no operan sobre una lista vaciada.
   assert.doesNotThrow(() => dom.$('gViewerNext').click());
 });
+
+test('P5 cronología en detalle: A51 muestra control sin validar (1/4, nunca PASS), boletín 44 público antes de emitir y W43 no prospectiva', async () => {
+  await boot({ search: '?p=sifilis_adquirida_a51' });
+  await tick(10);
+  assert.deepEqual(dom.requests, ['../assets/dashboard/catalog.json', '../publication/sifilis_adquirida_a51/vista.json']);
+  const statusEl = dom.$('gDetailStatus');
+  const chip = statusEl.querySelector('.g-chip');
+  assert.ok(chip.classList.contains('g-chip--control'));
+  assert.equal(chip.textContent, 'Control estacional publicado');
+  const fullStatus = statusEl.textContent;
+  assert.match(fullStatus, /sin contraste prospectivo/);
+  assert.match(fullStatus, /\b1\/4 semanas\b/);
+  assert.doesNotMatch(fullStatus, /\bPASS\b|Validación prospectiva en curso|Validación prospectiva superada/);
+  const cronoEl = statusEl.querySelector('.g-status__cronologia');
+  assert.ok(cronoEl, 'debe renderizar la nota de cronología en el detalle');
+  assert.equal(cronoEl.childElementCount, 0, 'texto plano sin marcado inyectado');
+  const cronoTxt = cronoEl.textContent;
+  assert.match(cronoTxt, /2026-W42.*boletín 43/);
+  assert.match(cronoTxt, /2026-11-17T01:32:25\.156213\+00:00/);
+  assert.match(cronoTxt, /52 semanas desde el origen \(2026-W43 a 2027-W42, no 52 semanas futuras\)/);
+  assert.match(cronoTxt, /boletín 44.*2026-11-17T01:23:31\.237010\+00:00 UTC.*ya era público antes de emitir y antes de congelar el gate técnico \(5987a061\)/);
+  assert.match(cronoTxt, /sifilis_adquirida_a51_eaca7efc1a11/);
+  assert.match(cronoTxt, /primer objetivo \(2026-W43\) no es prospectivo respecto de la información/);
+  assert.match(cronoTxt, /1\/4 INCOMPLETE.*CONTROL_ONLY.*sin obtener nunca aprobación prospectiva/);
+});
+
+test('P5 cronología genérica y sin regresión: asma muestra su cronología; cohorte original y releases sin cronología no se alteran', async () => {
+  await boot({ search: '?p=asma_j45' });
+  await tick(10);
+  const asmaCrono = dom.$('gDetailStatus').querySelector('.g-status__cronologia');
+  assert.ok(asmaCrono, 'asma_j45 también muestra su cronología');
+  assert.match(asmaCrono.textContent, /boletín 43.*2026-W42.*antes de emitir este pronóstico.*no cuenta como prospectiva respecto de la información.*W43 a W45/);
+
+  dom.popstate('?p=obesidad');
+  await tick(10);
+  assert.equal(dom.$('gDetailStatus').querySelector('.g-status__cronologia'), null, 'release sin cronología no añade nodo');
+  assert.match(dom.$('gDetailStatus').textContent, /Validación prospectiva superada \(4\/4 semanas\)/);
+  assert.doesNotMatch(dom.$('gDetailStatus').textContent, /boletín 43|boletín 44|5987a061/);
+
+  dom.popstate('?p=depresion');
+  await tick(10);
+  assert.equal(dom.$('gDetailStatus').querySelector('.g-status__cronologia'), null, 'cohorte original sin cronología');
+  assert.equal(dom.$('gDetailStatus').querySelector('.g-chip').textContent, 'Cohorte original');
+  assert.match(dom.$('gDetailStatus').textContent, /pronóstico a 52 semanas desde el corte, con valores redondeados/);
+  assert.equal(dom.requests.some((u) => u.endsWith('.csv') || u.includes('zoom_data_')), false, 'sin pedidos CSV ni zoom extra');
+});

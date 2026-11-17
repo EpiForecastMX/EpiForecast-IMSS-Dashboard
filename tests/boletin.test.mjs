@@ -59,14 +59,14 @@ test('category counts exclude the aggregate and source bytes match the declared 
   assert.equal(digest, data.meta.pdf_sha256);
 });
 
-test('confirmed myiasis uses only its listed states and reconciles counts, without summing rounded percentages', async () => {
-  const { entidadesAusentesMiasis } = await import('../assets/boletin/textos.mjs');
+test('confirmed myiasis uses only its listed states and reconciles counts (or exact nominal source discrepancy), without summing rounded percentages', async () => {
+  const { entidadesAusentesMiasis, verificarMiasis } = await import('../assets/boletin/textos.mjs');
+  const verification = JSON.parse(readFileSync(resolve(snapshot, 'verification.json'), 'utf8'));
   const m = data.myiasis;
   assert.ok(m.states.length > 0 && m.states.length <= 32);
   assert.equal(m.states.length + entidadesAusentesMiasis(data).length, 32, 'every listed state is a known entity');
-  for (const i of [0, 2, 3, 5, 6, 7, 9]) {
-    assert.equal(m.states.reduce((sum, s) => sum + s.values[i], 0), m.totals[i]);
-  }
+  assert.equal(typeof verificarMiasis, 'function', 'textos.mjs must export verificarMiasis');
+  verificarMiasis(data, verification);
   assert.equal(data.diseases.filter(d => /Miasis/.test(d.name)).length, 1);
 });
 

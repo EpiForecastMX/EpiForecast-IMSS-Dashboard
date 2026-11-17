@@ -63,7 +63,34 @@ cambió su código, y comprobar la página servida.
 - La semana ya existe (`--reemplazar` para regenerarla) o el histórico ya llega a ella.
 
 Cada problema se lista con su página y su identidad. No hay opción para publicar con un bloque
-que no reconcilia: una discrepancia de la fuente exige una decisión explícita.
+estatal ni con una fila del resumen nacional que no reconcilie: toda discrepancia de la fuente
+exige una decisión explícita.
+
+### Disposición nominal excepcional en la tabla complementaria de miasis
+
+Únicamente cuando el cuadro complementario de miasis presenta una discrepancia interna impresa
+en el PDF oficial y existe decisión nominal explícita del autor registrada por escrito, puede
+pasarse `--discrepancias-fuente <archivo.json>` (`schema: boletin_discrepancias_fuente.v1`),
+conservando ese JSON completo y el acta de autorización exclusivamente en local fuera de
+`assets/` y fuera del repositorio web (nunca se copia ni se publica un JSON de autor):
+
+- El cargador local valida la coincidencia exacta de `pdf_sha256` (SHA-256 de 64 hex del PDF
+  leído), `pagina`, `cuadro: "miasis"`, `columna`, `nombre_columna`, `suma_estados`,
+  `total_impreso`, `delta`, `filas_con_identidad_rota`, `estado: "NO_RECONCILIADO"`,
+  `celdas_modificadas: 0` y `decision` (`autor`, `fecha` ISO, `texto_literal`,
+  `enlace_evidencia`, `evidencia_sha256`), sin inventar firmas criptográficas humanas.
+- La disposición nunca se hereda entre semanas ni aplica a bloques estatales ni al resumen
+  nacional; si cualquier campo difiere o si la disposición sobra (el PDF sí reconcilia), el
+  comando se detiene con código 1 sin escribir nada. Un registro `solo_pruebas` / `TEST_ONLY`
+  tampoco puede activar `actual.json`/`boletin.html`, tocar el histórico ni escribir en
+  `assets/boletin/`.
+- Las celdas y totales impresos se conservan intactos. En los artefactos públicos (`data.json` y
+  `verification.json`, con `myiasis_reconciled: false`) se proyectan únicamente los campos
+  técnicos exactos más los dos hashes SHA-256 de trazabilidad (`authorization_sha256` y
+  `disposition_file_sha256`), omitiendo `decision`, `autor`, `fecha`, `texto_literal`,
+  `enlace_evidencia`, rutas locales y metadatos de chat. `verificarMiasis` falla cerrado si
+  algún artefacto público expone esos metadatos privados; la interfaz muestra el aviso explícito
+  de tabla no reconciliada con las cifras originales.
 
 ### Avisos que no detienen
 
@@ -220,6 +247,8 @@ y sus manifiestos (`--fuentes <carpeta>` con `manifiesto.json`).
 | --- | --- |
 | `scripts/boletin_semana.py` | comando semanal, herencia de cobertura, escritura de la foto |
 | `scripts/boletin_semana_extrae.py` | lectura del PDF: bloques estatales, resumen nacional, miasis, OCR |
+| `scripts/boletin_discrepancias_fuente.py` | validación exacta fail-closed de `--discrepancias-fuente` (sólo miasis) |
+| `scripts/test_boletin_discrepancias_fuente.py`, `tests/radar_source_disposition.test.mjs` | pruebas focales de disposición nominal y aviso `NO_RECONCILIADO` |
 | `scripts/boletin_semana_cortes.py` | corte observado de cada bloque a partir del título del cuadro |
 | `scripts/boletin_semana_historia.py` | agregado incremental al histórico de curvas |
 | `scripts/boletin_semana_activa.py` | `actual.json` y texto estático de `boletin.html` |

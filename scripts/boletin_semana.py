@@ -36,6 +36,7 @@ from difflib import SequenceMatcher
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import boletin_discrepancias_fuente as bdf  # noqa: E402
 import boletin_semana_activa as activa  # noqa: E402
 import boletin_semana_cortes as cortes  # noqa: E402
 import boletin_semana_extrae as extrae  # noqa: E402
@@ -296,6 +297,19 @@ def leer_semana(texto: str) -> tuple:
 
 def generar(args) -> dict:
     pdf = Path(args.pdf).resolve()
+    sha = hashlib.sha256(pdf.read_bytes()).hexdigest()
+    disposiciones = None
+    if getattr(args, 'discrepancias_fuente', None):
+        try:
+            disposiciones = bdf.cargar_disposiciones(Path(args.discrepancias_fuente), sha)
+        except bdf.ErrorDisposicion as e:
+            raise Fallo('Disposición de discrepancia de fuente rechazada', [e.problema]) from e
+        if disposiciones['tiene_solo_pruebas'] and not (args.sin_activar and args.sin_historia):
+            raise Fallo(
+                'Disposición solo_pruebas / TEST_ONLY no es publicable',
+                [dict(tipo='disposicion_solo_pruebas_no_publicable',
+                      detalle='un registro solo_pruebas exige --sin-activar y --sin-historia')],
+            )
     previa_dir = Path(args.anterior)
     previa = json.loads((previa_dir / 'data.json').read_text())
     texto = extrae.texto_layout(pdf)
@@ -304,7 +318,7 @@ def generar(args) -> dict:
         raise Fallo('La semana indicada no coincide con el PDF',
                     [dict(indicada=[args.anio, args.semana], pdf=[anio, semana])])
     try:
-        ext = extrae.leer(pdf, anio, texto)
+        ext = extrae.leer(pdf, anio, texto, disposiciones=disposiciones)
     except extrae.ErrorExtraccion as e:
         raise Fallo('El PDF no se pudo leer sin ambigüedad', e.problemas) from e
     # El título del cuadro se lee del texto del PDF; sólo si es imagen se recurre al OCR.
@@ -315,7 +329,6 @@ def generar(args) -> dict:
     for n in nacional:
         if not n['code']:
             raise Fallo('Fila nacional sin código', [n])
-    sha = hashlib.sha256(pdf.read_bytes()).hexdigest()
     bloques = sum(1 for d in enfermedades if d['states'])
     agregados = sum(1 for d in enfermedades if d['aggregate'])
     plataforma = len({d['platform_id'] for d in enfermedades if d['platform_id']})
@@ -346,6 +359,9 @@ def generar(args) -> dict:
         raise Fallo('Guiones sin simbología verificable',
                     [dict(tipo='simbologia_ausente', marcadores=marcas,
                           detalle='el PDF no imprime su simbología y la foto anterior no la trae')])
+    rec_miasis = ext['miasis'].get('reconciliation')
+    if rec_miasis:
+        meta['myiasis_status'] = rec_miasis['status']
     datos = dict(meta=meta, diseases=enfermedades, national=nacional, myiasis=ext['miasis'])
     verificacion = dict(schema='boletin_radar.v1', source_pdf_sha256=sha,
                         source_period=f'{anio}-W{semana:02d}', checked=comprobado.isoformat(),
@@ -359,11 +375,18 @@ def generar(args) -> dict:
                         dash_semantics_overrides=[
                             dict(id=d['id'], semantica=d[CAMPO_GUION]['semantica'])
                             for d in enfermedades if d.get(CAMPO_GUION)])
+    if rec_miasis and disposiciones:
+        verificacion['myiasis_reconciled'] = False
+        verificacion['source_discrepancies'] = [
+            bdf.proyectar_discrepancia_publica(r, disposiciones['file_sha256'])
+            for r in disposiciones['registros']
+        ]
     if avisos:
         verificacion['warnings'] = avisos
     nombre_pdf = Path(args.url_fuente.split('?')[0]).name.lower()
     return dict(datos=datos, verificacion=verificacion, texto=texto, ocr=ocr, pdf=pdf,
-                nombre_pdf=nombre_pdf, anio=anio, semana=semana, volumen=volumen, avisos=avisos)
+                nombre_pdf=nombre_pdf, anio=anio, semana=semana, volumen=volumen, avisos=avisos,
+                tiene_solo_pruebas=bool(disposiciones and disposiciones['tiene_solo_pruebas']))
 
 
 def catalogo_csv(d: dict, anio: int) -> bytes:
@@ -408,6 +431,9 @@ def main(argv=None) -> int:
     p.add_argument('--anio', type=int, help='año esperado; se comprueba contra el PDF')
     p.add_argument('--semana', type=int, help='semana esperada; se comprueba contra el PDF')
     p.add_argument('--registro', help='config/padecimientos.yaml del backend, si cambió')
+    p.add_argument('--discrepancias-fuente',
+                   help='JSON nominal de disposición para discrepancias impresas en miasis '
+                        '(nunca se hereda)')
     p.add_argument('--raiz', default=str(RAIZ), help='raíz del sitio')
     p.add_argument('--reemplazar', action='store_true', help='sobrescribe una foto existente')
     p.add_argument('--sin-activar', action='store_true',
@@ -415,6 +441,12 @@ def main(argv=None) -> int:
     p.add_argument('--sin-historia', action='store_true', help='no agrega la semana al histórico')
     args = p.parse_args(argv)
     raiz = Path(args.raiz)
+    if args.discrepancias_fuente:
+        ruta_disp = Path(args.discrepancias_fuente).resolve()
+        if ruta_disp.is_relative_to((raiz / 'assets').resolve()):
+            print('ERROR: --discrepancias-fuente debe conservarse fuera de assets/ y del sitio público',
+                  file=sys.stderr)
+            return 1
     actual = raiz / 'assets/boletin/actual.json'
     if not args.anterior:
         args.anterior = str(raiz / json.loads(actual.read_text())['carpeta'])
@@ -427,8 +459,16 @@ def main(argv=None) -> int:
         return 1
     carpeta = f'assets/boletin/{res["anio"]}-w{res["semana"]:02d}'
     destino = (Path(args.salida) if args.salida else raiz / carpeta).resolve()
+    if args.discrepancias_fuente and Path(args.discrepancias_fuente).resolve().is_relative_to(destino):
+        print('ERROR: --discrepancias-fuente no puede ubicarse dentro de la carpeta de salida pública',
+              file=sys.stderr)
+        return 1
     if destino.exists() and not args.reemplazar:
         print(f'ERROR: {destino} ya existe; usa --reemplazar para regenerarla', file=sys.stderr)
+        return 1
+    if res['tiene_solo_pruebas'] and destino.is_relative_to((raiz / 'assets/boletin').resolve()):
+        print('ERROR: un registro solo_pruebas / TEST_ONLY no puede escribir en assets/boletin/',
+              file=sys.stderr)
         return 1
     try:
         carpeta = destino.relative_to(raiz.resolve()).as_posix()

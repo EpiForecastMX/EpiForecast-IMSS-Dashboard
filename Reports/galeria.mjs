@@ -6,7 +6,9 @@
 // Probado con DOM simulado en tests/galeria_controller.test.mjs.
 import * as C from './galeria_core.mjs?v=2';
 import { validateCatalog } from '../assets/dashboard/unified.mjs';
+import { statusText } from '../assets/dashboard/units.mjs';
 import { COHORTS } from '../assets/dashboard/data.mjs';
+import { releaseDeId } from '../epibot/js/release_config.js?v=30';
 
 const $ = (id) => document.getElementById(id);
 const CATALOG_URL = '../assets/dashboard/catalog.json';
@@ -195,9 +197,13 @@ function linksFor(entry) {
 function renderDetailHead(entry) {
   const f = C.entryFacts(entry);
   const caps = C.capabilities(entry);
+  const det = statusText(f.estadoDetalle, entry.status?.weeksAvailable, entry.status?.weeksRequired);
+  const cronologia = entry.kind === 'release' ? releaseDeId(entry.id)?.cronologia || null : null;
   $('gDetailKicker').textContent = [entry.cie ? `CIE-10 ${entry.cie}` : null, entry.group].filter(Boolean).join(' · ');
   $('gDetailTitle').textContent = entry.label;
-  $('gDetailStatus').replaceChildren(el('span', { class: `g-chip g-chip--${entry.status.kind}` }, f.estadoCorto), f.estadoDetalle ? ` ${f.estadoDetalle}` : '');
+  const statusNodes = [el('span', { class: `g-chip g-chip--${entry.status.kind}` }, f.estadoCorto), det ? ` ${det}` : ''];
+  if (cronologia) statusNodes.push(el('br'), ' ', el('span', { class: 'g-status__cronologia' }, cronologia));
+  $('gDetailStatus').replaceChildren(...statusNodes);
   $('gDetailLinks').replaceChildren(...linksFor(entry));
   const facts = [
     [f.corteRotulo, f.corte], ['Último observado', f.observado], ['Emisión', f.emision],
