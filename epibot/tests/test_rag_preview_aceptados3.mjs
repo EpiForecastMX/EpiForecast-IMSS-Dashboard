@@ -91,12 +91,23 @@ test('mal del pinto: el estado declara error alto de la prueba y cambio de nivel
 });
 
 test('la función no escribe a mano las cifras del mal del pinto', () => {
-  const src = readFileSync(modulo, 'utf8');
+  const src = readFileSync(modulo, 'utf8') + '\n' + readFileSync(new URL('../netlify/lib/vista_grounding.mjs', import.meta.url), 'utf8');
   for (const cifra of ['111.3', '115.8', '133 en 2024', '22.7', '27.6', '8.9', '11.4']) assert.ok(!src.includes(cifra), cifra);
 });
 
-test('mal del pinto por la vía semántica: sólo pasajes propios y sus notas de error y nivel en el contexto', async () => {
-  const { r, sistema } = await consultar('¿Cuántos casos de mal del pinto se esperan en Chiapas?', { vector: FALLBACK });
+test('mal del pinto: pronóstico estatal sale de su vista con estado aceptado 1/4 y notas de su ficha sin modelo; consulta abierta conserva vía semántica acotada', async () => {
+  const { r: rv, sistema: sv } = await consultar('¿Cuántos casos de mal del pinto se esperan en Chiapas?', { sinClave: true });
+  assert.equal(sv, null, 'pronóstico numérico sale de vista sin llamar a Gemini');
+  assert.equal(rv.retrieval, 'vista');
+  assert.deepEqual(rv.sources.map((s) => s.section), ['mal_del_pinto_a67']);
+  assert.match(rv.answer, /aceptado en la prueba única retrospectiva de 2025/);
+  assert.match(rv.answer, /1 de 4.*INCOMPLETE/);
+  assert.doesNotMatch(rv.answer, /rechazad[oa]|control estacional, no validado/i);
+  assert.match(rv.answer, /Error alto aunque aceptado:/);
+  assert.match(rv.answer, /Cambio de nivel en 2024\./);
+  assert.doesNotMatch(rv.answer, /fallback.{0,10}regional/i);
+
+  const { r, sistema } = await consultar('¿Cómo se seleccionaron los motores del mal del pinto y qué ocurrió en 2024?', { vector: FALLBACK });
   assert.equal(r.retrieval, 'semantic');
   assert.ok(r.sources.length > 0);
   for (const s of r.sources) assert.equal(s.section, 'mal_del_pinto_a67', `${s.source} — ${s.title}`);
@@ -106,8 +117,14 @@ test('mal del pinto por la vía semántica: sólo pasajes propios y sus notas de
   assert.doesNotMatch(sistema, /fallback.{0,10}regional/i);
 });
 
-test('vulvovaginitis en hombres: sin pasajes legacy de meta_modo/Prophet y con la falta de desglose por sexo', async () => {
-  const { r, sistema } = await consultar('¿Hay pronóstico de vulvovaginitis para hombres?', { vector: LLAVES });
+test('vulvovaginitis en hombres: vista declara ausencia de desglose por sexo sin modelo y la vía semántica excluye pasajes legacy', async () => {
+  const { r: rv, sistema: sv } = await consultar('¿Hay pronóstico de vulvovaginitis para hombres?', { sinClave: true });
+  assert.equal(sv, null);
+  assert.equal(rv.retrieval, 'vista');
+  assert.deepEqual(rv.sources.map((s) => s.section), ['vulvovaginitis_n76']);
+  assert.match(rv.answer, /no desglosa sexo; sus 37 series publicadas son por entidad y nacional, así que no existe pronóstico para hombres/);
+
+  const { r, sistema } = await consultar('¿Cómo se seleccionaron los motores de vulvovaginitis?', { vector: LLAVES });
   assert.equal(r.retrieval, 'semantic');
   assert.ok(r.sources.length > 0);
   for (const s of r.sources) {
@@ -115,7 +132,6 @@ test('vulvovaginitis en hombres: sin pasajes legacy de meta_modo/Prophet y con l
     assert.notEqual(s.source, 'Construcción del dashboard');
   }
   assert.doesNotMatch(sistema, /meta_modo/);
-  assert.match(sistema, /no desglosa sexo; sus 37 series publicadas son por entidad y nacional, así que no existe pronóstico para hombres/);
 });
 
 test('comparación tifoidea-paratifoidea: sólo pasajes de los dos releases nombrados', async () => {

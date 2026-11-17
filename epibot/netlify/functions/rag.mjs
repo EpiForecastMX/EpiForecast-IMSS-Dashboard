@@ -22,6 +22,7 @@ import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { micaiGroundedAnswer } from '../lib/micai_grounding.mjs';
+import { resolverConsultaRag, vistaGroundedAnswer, enriquecerSemanticoVista } from '../lib/vista_grounding.mjs';
 
 const EMBED_MODEL = 'gemini-embedding-001';
 const EMBED_DIM = 768;
@@ -929,9 +930,17 @@ export default async function handler(req) {
   if (suma) return json({ answer: suma, sources: [], retrieval: 'none', guarda: 'suma_a37_u99' }, 200, cors);
   const meningitis = guardaMeningitisTipoRag(body.query);
   if (meningitis) return json({ answer: meningitis, sources: [], retrieval: 'none', guarda: 'meningitis_tipo' }, 200, cors);
+  const turno = resolverConsultaRag(body.query, body.history);
+  const qEfectiva = String(turno.query || '');
+  if (qEfectiva !== String(body.query || '')) {
+    const d7Seg = guardaD7Rag(qEfectiva);
+    if (d7Seg) return json({ answer: d7Seg, sources: [], retrieval: 'none', guarda: 'd7' }, 200, cors);
+    const menSeg = guardaMeningitisTipoRag(qEfectiva);
+    if (menSeg) return json({ answer: menSeg, sources: [], retrieval: 'none', guarda: 'meningitis_tipo' }, 200, cors);
+  }
   // Subtipo con código propio vecino de un bloque publicado: respuesta fija, sin modelo ni cifras, para
   // que ni la recuperación ni Gemini le atribuyan el pronóstico del bloque vecino.
-  const ajeno = globalThis.EPI_CATALOGO.subtipoAjeno(stripAccents(String(body.query || '')));
+  const ajeno = globalThis.EPI_CATALOGO.subtipoAjeno(stripAccents(qEfectiva));
   if (ajeno) {
     const vecino = globalThis.EPI_CATALOGO.releases.find((r) => r.id === ajeno.release);
     return json({ answer: `EpiForecast-MX no modela ${ajeno.nombre}. `
@@ -940,15 +949,17 @@ export default async function handler(req) {
     sources: [] }, 200, cors);
   }
   // Nombre genérico que abarca más que el bloque publicado («otitis», «amebiasis»): se aclara sin cifras.
-  const ambiguo = globalThis.EPI_CATALOGO.aliasAmbiguo(stripAccents(String(body.query || '')));
+  const ambiguo = globalThis.EPI_CATALOGO.aliasAmbiguo(stripAccents(qEfectiva));
   if (ambiguo) return json({ answer: ambiguo.texto, sources: [] }, 200, cors);
-  const estado = estadoDeControl(String(body.query || ''), leerVista)
-    || estadoDeAceptado(String(body.query || ''), leerVista, leerFicha);
+  const vistaAns = vistaGroundedAnswer(body.query, body.history, { leerVista, leerFicha, notasFicha, pruebaSuperada, emitidoCivil, avisosFuenteRag });
+  if (vistaAns) return json(vistaAns, 200, cors);
+  const estado = estadoDeControl(qEfectiva, leerVista)
+    || estadoDeAceptado(qEfectiva, leerVista, leerFicha);
   if (estado) return json({ ...estado, retrieval: 'vista' }, 200, cors);
   // Presión baja no se modela y sus vecinos publicados más parecidos (O10-O16 o I10-I15) no la
   // incluyen: sin otro padecimiento publicado en la consulta, respuesta fija sin cifras para que la
   // recuperación no traiga las de ese vecino.
-  const sinVecino = noModeladaSinVecino(stripAccents(String(body.query || '')));
+  const sinVecino = noModeladaSinVecino(stripAccents(qEfectiva));
   if (sinVecino) return json({ answer: sinVecino, sources: [] }, 200, cors);
 
   if (!apiKey) return json({ error: 'GEMINI_API_KEY no configurada' }, 500, cors);
@@ -974,7 +985,7 @@ export default async function handler(req) {
   const genAI = new GoogleGenerativeAI(apiKey);
 
   // 0. Multi-turno: reescribe el seguimiento como pregunta autónoma (solo si aplica)
-  const searchQuery = await contextualizeQuery(genAI, query, history);
+  const searchQuery = turno.contextualizada || await contextualizeQuery(genAI, query, history);
 
   // 1. Recuperación híbrida (embebe la consulta directa; sin expansión LLM en el
   //    camino crítico para reducir latencia al primer token).
@@ -995,12 +1006,13 @@ export default async function handler(req) {
     const rr = await rerank(genAI, searchQuery, candidates);
     if (rr) { ordered = rr; reranked = true; }
   }
-  const hits = selectDiverse(ordered, TOP_K, DIVERSITY_CAP);
+  const hitsBase = selectDiverse(ordered, TOP_K, DIVERSITY_CAP);
+  const { hits, extraFacts, snippets } = enriquecerSemanticoVista({ foco, searchQuery, hits: hitsBase, leerVista });
 
   // Agentic: datos EXACTOS de la combinación entidad/padecimiento detectada.
   // Usa la consulta CONTEXTUALIZADA para que los seguimientos ("¿y en Jalisco?")
   // inyecten las cifras correctas.
-  const facts = [focusedFacts(kb, searchQuery), hechosDeFoco(foco, searchQuery, leerVista, leerFicha)]
+  const facts = [focusedFacts(kb, searchQuery), hechosDeFoco(foco, searchQuery, leerVista, leerFicha), extraFacts]
     .filter(Boolean).join('\n\n');
 
   // Confianza: recuperación débil y sin datos exactos → avisar para no inventar
@@ -1026,7 +1038,7 @@ export default async function handler(req) {
     title: h.chunk.title,
     section: h.chunk.section || h.chunk.title,
     url: h.chunk.url || null,
-    snippet: (h.chunk.text || '').replace(/\s+/g, ' ').slice(0, 240),
+    snippet: snippets.get(h.chunk.id) || (h.chunk.text || '').replace(/\s+/g, ' ').slice(0, 240),
   }));
 
   const contents = [];
