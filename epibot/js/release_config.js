@@ -4,7 +4,8 @@
  * Todo lo que el EpiBot y sus gráficas necesitan de un release se deriva de esa lista.
  * Sin imports de otros módulos: lo cargan también módulos que no pueden depender de kb.js.
  */
-import './release_catalog.js?v=34';
+import './vocab_cerrado.js?v=1';
+import './release_catalog.js?v=35';
 
 const CATALOGO = globalThis.EPI_CATALOGO;
 
@@ -23,6 +24,7 @@ export const crisisEnTurnos = CATALOGO.crisisEnTurnos;
 export const respuestaMixtaSensible = CATALOGO.respuestaMixtaSensible;
 export const fueraDeListaBlanca = CATALOGO.fueraDeListaBlanca;
 export const IDS_LISTA_BLANCA = CATALOGO.IDS_LISTA_BLANCA;
+export const respuestaFueraDeVocabulario = CATALOGO.respuestaFueraDeVocabulario;
 export const subtipoAjeno = CATALOGO.subtipoAjeno;
 export const aliasAmbiguo = CATALOGO.aliasAmbiguo;
 

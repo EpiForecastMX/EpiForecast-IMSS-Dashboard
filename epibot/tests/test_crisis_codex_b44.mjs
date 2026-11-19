@@ -178,10 +178,11 @@ for (const q of ['intoxicación por alcohol metílico en Jalisco', 'intoxicació
     const { md } = await conversa(q);
     assert.doesNotMatch(md, /<!--INTOX_ALCOHOL_F100:/, q);
     assert.doesNotMatch(md, /\*\*Intoxicación aguda por alcohol \(F10\.0\) ·/, q);
-    assert.match(md, /no modela/i, q);
+    // Con la lista blanca global (cuarta auditoría Codex) un calificativo fuera del vocabulario recibe el apoyo fijo.
+    assert.match(md, /no modela|No reconozco|I do not recognize/i, q);
     const r = await ragTurno(q);
-    assert.match(String(r.answer), /no modela/, q);
-    assert.ok(!/\d/.test(String(r.answer).replace(/\([A-Z]\d[\d.\-A-Z, ]*\)|\(\.\.\/[a-z0-9_]+\.html\)|F10\.0|T51\.\d/g, '')), `${q}: ${r.answer}`);
+    assert.match(String(r.answer), /no modela|No reconozco|I do not recognize/, q);
+    assert.ok(!/\d/.test(String(r.answer).replace(/\([A-Z]\d[\d.\-A-Z, ]*\)|\(\.\.\/[a-z0-9_]+\.html\)|F10\.0|T51\.\d|800 911 2000|\b911\b|\b24 (horas|hours)\b/g, '')), `${q}: ${r.answer}`);
   });
 }
 

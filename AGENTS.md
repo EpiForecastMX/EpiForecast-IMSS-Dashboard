@@ -51,6 +51,11 @@ contenido servido. Conteos del catálogo (`publication/catalog.json`, 141 releas
   padecimiento no se resuelva, cualquier verbo de consumo en primera persona (falso positivo aceptado: «me tomé un café»),
   emojis de riesgo como señal explícita y otros símbolos como tokens no técnicos; sólo un turno enteramente técnico levanta
   la crisis (`epibot/tests/test_crisis3_codex_b44.mjs`).
+- **Lista blanca global** (cuarta auditoría): todo turno con un token fuera del vocabulario cerrado
+  (`epibot/js/vocab_cerrado.js`, generado por `npm run vocab:build` desde el catálogo, los handlers, `knowledge.json`, el
+  radar, el corpus RAG y las consultas de las pruebas; `npm run vocab:check` lo verifica) no recibe cifras, gráfica ni ficha:
+  recibe un apoyo fijo con la Línea de la Vida y la invitación a reformular, y el apoyo persiste hasta un turno técnico.
+  Regenerar el vocabulario tras cambiar el corpus RAG, `knowledge.json` o las pruebas (`epibot/tests/test_vocab_codex_b44.mjs`).
 - Las fichas muestran la **media observada** del total nacional en las 52 semanas hasta el corte, con su periodo, no la
   media del pronóstico (`epibot/tests/test_fichas_media_observada.mjs`).
 

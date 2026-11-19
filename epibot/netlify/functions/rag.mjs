@@ -14,6 +14,7 @@
  * Degradación: si no existe rag_index.json o no hay embeddings, opera en modo
  * léxico. Si no hay GEMINI_API_KEY, devuelve error claro.
  */
+import '../../js/vocab_cerrado.js';
 import '../../js/release_catalog.js';
 import '../../js/avisos_fuente.js';
 
@@ -969,6 +970,9 @@ export default async function handler(req) {
   const apoyo = globalThis.EPI_CATALOGO.respuestaCrisisSeguimiento(String(body.query || ''),
     crisisEnHistorial(body.history), nombraPadecimientoNoSensible);
   if (apoyo) return json({ answer: apoyo.replace('\n<!--SIN_GRAFICA-->', ''), sources: [], retrieval: 'none', guarda: 'crisis' }, 200, cors);
+  // Cuarta auditoría Codex: lista blanca global; un token fuera del vocabulario cerrado no recibe cifras ni ficha.
+  const fuera = globalThis.EPI_CATALOGO.respuestaFueraDeVocabulario(String(body.query || ''));
+  if (fuera) return json({ answer: fuera.replace('\n<!--SIN_GRAFICA-->', ''), sources: [], retrieval: 'none', guarda: 'vocabulario' }, 200, cors);
   // Re-auditoría Codex: consulta mixta con un id sensible y sin riesgo; no se combinan cifras.
   const mixta = globalThis.EPI_CATALOGO.respuestaMixtaSensible(String(body.query || ''));
   if (mixta) return json({ answer: mixta.replace('\n<!--SIN_GRAFICA-->', ''), sources: [], retrieval: 'none', guarda: 'mixta_sensible' }, 200, cors);

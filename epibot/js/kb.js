@@ -6,12 +6,12 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=68';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=69';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=5';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=42';
-import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=34';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=43';
+import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=35';
 
 let DATA = null;
 
@@ -5842,7 +5842,7 @@ let _lastChartHandler = null;    // nombre del ultimo handler que genero grafico
 let _lastHandlerFn = null;       // referencia al ultimo handler que respondio
 // Auditoría Codex de alta_b44 (19-nov-2026): tras una respuesta de crisis, los seguimientos que no nombran por sí mismos
 // un padecimiento no sensible reciben apoyo, sin cifras ni herencia de padecimiento o estado.
-let _crisisActiva = false;
+let _crisisActiva = null;   // 'crisis', 'apoyo' o null
 // Tras una aclaración sin cifras (nombre genérico, subtipo, guarda fija), «¿y en Sonora?» no hereda nada: se repite
 // la petición de precisar en vez de caer en la tabla neuro del estado.
 let _aclaracionPendiente = null;
@@ -5850,7 +5850,7 @@ let _aclaracionPendiente = null;
 /** Reset conversacional — solo para tests. */
 export function _resetContext() {
   lastEntities = {}; _lastDistribMetric = null; _lastChartHandler = null; _lastHandlerFn = null;
-  _crisisActiva = false; _aclaracionPendiente = null;
+  _crisisActiva = null; _aclaracionPendiente = null;
 }
 
 /** La consulta nombra por sí misma un padecimiento que no es sensible (legacy, release o no modelado). */
@@ -5888,7 +5888,7 @@ async function _resolve(consulta) {
   const crisis = respuestaCrisis(query);
   if (crisis) {
     lastEntities = {};
-    _crisisActiva = true;
+    _crisisActiva = 'crisis';
     _aclaracionPendiente = null;
     trace.handler = 'answerCrisis';
     return { response: crisis, handler: trace.handler };
@@ -5896,8 +5896,17 @@ async function _resolve(consulta) {
   const apoyo = respuestaCrisisSeguimiento(query, _crisisActiva, nombraPadecimientoNoSensible);
   if (apoyo) {
     lastEntities = {};
-    trace.handler = 'answerCrisisSeguimiento';
+    trace.handler = _crisisActiva === 'apoyo' ? 'answerApoyoSeguimiento' : 'answerCrisisSeguimiento';
     return { response: apoyo, handler: trace.handler };
+  }
+  // Cuarta auditoría Codex: lista blanca global; un token fuera del vocabulario cerrado no recibe cifras ni ficha.
+  const fuera = respuestaFueraDeVocabulario(query);
+  if (fuera) {
+    lastEntities = {};
+    _crisisActiva = 'apoyo';
+    _aclaracionPendiente = null;
+    trace.handler = 'answerFueraDeVocabulario';
+    return { response: fuera, handler: trace.handler };
   }
   // Re-auditoría Codex: un seguimiento sin padecimiento propio tras una respuesta de un id sensible pasa por la misma lista
   // blanca («¿y si me tomo 30?» tras «X60 en Jalisco»).
@@ -5905,11 +5914,11 @@ async function _resolve(consulta) {
   if (relPrevio && IDS_LISTA_BLANCA.has(relPrevio.id) && esSeguimientoSinPadecimiento(query) &&
       fueraDeListaBlanca(query, true)) {
     lastEntities = {};
-    _crisisActiva = true;
+    _crisisActiva = 'crisis';
     trace.handler = 'answerCrisis';
     return { response: respuestaCrisis('quiero morir'), handler: trace.handler };
   }
-  _crisisActiva = false;
+  _crisisActiva = null;
   // Consulta mixta con un id sensible y sin riesgo: no se combinan cifras.
   const mixta = respuestaMixtaSensible(norm(query));
   if (mixta) {

@@ -1755,8 +1755,8 @@
   const CRISIS_ES = /\b(suicidarme|suicidarse|matarme|matarse|quitarme la vida|quitarse la vida|acabar con mi vida|terminar con mi vida|(me|se) quier[eo] (morir|matar|suicidar)|me voy a (matar|morir|suicidar)|quiero (morir|morirme)|quisiera (morir|morirme|estar muert)|ganas de (morir|morirme|matarme|suicidarme)|(ya )?no quiero (vivir|seguir viviendo|seguir con vida|estar viv|existir)|no vale la pena vivir|hacerme dano|lastimarme|cortarme las venas|autolesionarme|(tengo|con) (pensamientos|ideas) suicidas|tengo ideacion suicida)\b/;
   const CRISIS_EN = /\b(kill(ing)? myself|want to die|wanna die|end my life|take my own life|hurt myself|harm myself|suicidal thoughts|im suicidal|i am suicidal)\b/;
   // alta_b44 (19-nov-2026): violencia vivida en primera persona («me pegan», «mi pareja me golpea»).
-  const VIOLENCIA_ES = /\b(me (pega|pegan|pego|pegaron|golpea|golpean|golpeo|golpearon|maltrata|maltratan|amenaza|amenazan|viola|violan|violo|violaron|abusa|abusan|abuso|abusaron|lastima|lastiman|agrede|agreden|encierra|encierran)|(abusa|abusan|abuso|abusaron) de mi|sufro (violencia|maltrato|abuso)|vivo violencia|tengo miedo de mi (pareja|esposo|esposa|novio|novia|papa|mama|padre|madre))\b/;
-  const VIOLENCIA_EN = /\b((he|she|they) (hits|beats|hurts|abuses|rapes) me|my (partner|husband|wife|boyfriend|girlfriend|father|mother|dad|mom) (hits|beats|hurts|abuses) me|i am being (abused|hit|beaten)|im being (abused|hit|beaten))\b/;
+  const VIOLENCIA_ES = /\b(me (pega|pegan|pego|pegaron|golpea|golpean|golpeo|golpearon|maltrata|maltratan|amenaza|amenazan|viola|violan|violo|violaron|abusa|abusan|abuso|abusaron|lastima|lastiman|agrede|agreden|encierra|encierran)|(abusa|abusan|abuso|abusaron) de mi|me (esta|estan|estaba|estaban) (pegando|golpeando|maltratando|lastimando|amenazando|violando|abusando|agrediendo|madreando)|me (madrea|madrean|madreo|madrearon|putea|putean|puteo|partio la madre|partieron la madre|surte|surten|cachetea|cachetean|patea|patean|pateo|ahorca|ahorco)|sufro (violencia|maltrato|abuso)|vivo violencia|tengo miedo de mi (pareja|esposo|esposa|novio|novia|papa|mama|padre|madre))\b/;
+  const VIOLENCIA_EN = /\b((he|she|they) (hits|beats|hurts|abuses|rapes) me|my (partner|husband|wife|boyfriend|girlfriend|father|mother|dad|mom) (hits|beats|hurts|abuses) me|i am being (abused|hit|beaten)|im being (abused|hit|beaten)|(is|are|was|were) (beating|hitting|hurting|abusing|choking|kicking|threatening) me|(beats|beat|hit|hits|hurt|hurts|kicked|kicks|chokes|choked) me)\b/;
   // Temas sensibles a secas («suicidio en jalisco», «intento de suicidio», «autolesiones»): respuesta de crisis, sin cifras.
   // Sólo el rótulo técnico completo o el código de un release sensible (X60, X61, X70, X72, X78, X80, Z91.5, R45.8)
   // abre su ficha, y nunca si la consulta trae además una señal de riesgo personal.
@@ -1907,8 +1907,48 @@
   // Emojis y símbolos: no se retiran antes de comprobar. Unos son señal explícita de riesgo; cualquier carácter fuera de
   // letras, dígitos, espacios y puntuación básica cuenta como token no técnico.
   const EMOJI_RIESGO = /\u{1F198}|\u{1F48A}|☠|\u{1FA62}|\u{1F52A}|\u{1F52B}|\u{1FA78}|⚰|\u{1F480}|\u{1FA93}/u;
-  const simbolosNoTecnicos = (raw) => /[^\p{L}\p{N}\s.,;:¿?¡!'"()\-\/«»%#+]/u.test(String(raw).normalize('NFC'));
+  const simbolosNoTecnicos = (raw) => /[^\p{L}\p{N}\s.,;:¿?¡!'"()\-\/«»%#+_\u2013\u2014\u2026\u2018\u2019\u201C\u201D]/u.test(String(raw).normalize('NFC'));
+  // ── Lista blanca GLOBAL (cuarta auditoría Codex, 19-nov-2026) ─────────────────────────────────────────────────────────
+  // Un léxico de riesgo no puede ser exhaustivo (sinónimos, leetspeak, espaciado, inglés coloquial). Todo turno con un
+  // token fuera del vocabulario cerrado no recibe cifras, gráfica ni ficha: recibe un apoyo fijo con la Línea de la Vida y
+  // la invitación a reformular. El vocabulario lo genera `epibot/scripts/build_vocab_cerrado.mjs` en `js/vocab_cerrado.js`
+  // (globalThis.EPI_VOCAB_CERRADO); sin él la comprobación falla cerrada con el vocabulario técnico de este módulo.
+  const APOYO_ES = 'No reconozco algunos términos de tu mensaje, así que no muestro cifras ni gráficas.\n\n' +
+    'Si buscas datos, escribe el nombre del padecimiento y el estado; por ejemplo, «dengue en Jalisco» o «asma en Sonora».\n\n' +
+    'Si tú o alguien cercano necesita apoyo, la **Línea de la Vida** atiende gratis, las 24 horas, todos los días: ' +
+    '**800 911 2000**. Si alguien está en peligro inmediato, llama al **911**.\n<!--SIN_GRAFICA-->';
+  const APOYO_EN = 'I do not recognize some terms in your message, so I will not show figures, charts or condition pages.\n\n' +
+    'If you are looking for data, write the name of the condition and the state; for example, «dengue in Jalisco».\n\n' +
+    'If you or someone near you needs support, **Línea de la Vida** in Mexico is free and open 24 hours a day, every ' +
+    'day: **800 911 2000**. If someone is in immediate danger, call **911**.\n<!--SIN_GRAFICA-->';
+  /** Token del vocabulario cerrado: números, códigos CIE y semanas por forma; el resto por el vocabulario generado. */
+  function tokenEnVocab(w) {
+    if (/^\d+$/.test(w) || /^[a-z]\d{2,3}$/.test(w) || /^w\d{1,2}$/.test(w)) return true;
+    const V = globalThis.EPI_VOCAB_CERRADO;
+    return (V && V.has(w)) || VOCAB_TECNICO.has(w) || VOCAB_NEUTRO.has(w) || ALCOHOL_PERMITIDO.has(w);
+  }
+  /** El turno trae algún token fuera del vocabulario cerrado (o un símbolo no técnico). */
+  function fueraDeVocabulario(raw) {
+    if (simbolosNoTecnicos(raw)) return true;
+    const toks = normLB(raw).split(' ').filter(Boolean);
+    // Palabras partidas letra a letra («s.u.i.c.i.d.i.o», «m-a-t-a-r-m-e»): cinco o más letras sueltas seguidas («hepatitis a, b y c» queda dentro).
+    if (/(^| )([a-z] ){4,}[a-z]( |$)/.test(` ${toks.join(' ')} `)) return true;
+    return toks.some((w) => !tokenEnVocab(w));
+  }
+  const pareceIngles = (raw) => {
+    const q = ` ${normLB(raw)} `;
+    return /\b(the|what|how|in|of|and|i|my|is|am|are|you|me|to)\b/.test(q) && !/\b(en|de|del|y|la|el|que|los|las)\b/.test(q);
+  };
+  /** Apoyo fijo ante un turno fuera del vocabulario cerrado, o null. */
+  function respuestaFueraDeVocabulario(raw) {
+    if (!normLB(raw) && !simbolosNoTecnicos(raw)) return null;
+    if (!fueraDeVocabulario(raw)) return null;
+    return pareceIngles(raw) ? APOYO_EN : APOYO_ES;
+  }
+
   /** Todo el turno es vocabulario técnico cerrado (cualquier padecimiento), sin símbolos. */
+  // Levantar la crisis o el apoyo exige el vocabulario técnico ESTRICTO (rótulos, alias, códigos, geografía, sexo y
+  // palabras neutras de consulta), más estrecho que el global: «hoy», «me» o «gracias» lo mantienen.
   function turnoTecnico(raw) {
     return !simbolosNoTecnicos(raw) &&
       tokensLibres(raw).every((w) => VOCAB_NEUTRO.has(w) || VOCAB_TECNICO.has(w) || ALCOHOL_PERMITIDO.has(w));
@@ -1924,8 +1964,8 @@
   // Tercera auditoría Codex: cualquier verbo de consumo en primera persona da la crisis, sin exclusiones por objeto
   // («me tomé agua con cianuro»). Falso positivo aceptado y documentado: «me tomé un café», «tomé nota» o «tome en cuenta»
   // (sin tilde, «tomé» y «tome» se normalizan igual) también reciben la respuesta de crisis.
-  const INGESTION_PROPIA_ES = /\b(me (bebi|tome|trague|inyecte|meti|he tomado|he bebido|he tragado|he inyectado|acabo de tomar|acabo de beber|acabo de tragar)|he (tomado|bebido|tragado|ingerido)|ingeri|trague|bebi|tome)\b/;
-  const INGESTION_PROPIA_EN = /\bi (drank|swallowed|ingested|injected|have taken|ve taken|have drunk|ve drunk|took|just took|just drank)\b/;
+  const INGESTION_PROPIA_ES = /\b(me (bebi|tome|trague|inyecte|meti|zampe|empine|he tomado|he bebido|he tragado|he inyectado|acabo de tomar|acabo de beber|acabo de tragar)|he (tomado|bebido|tragado|ingerido|consumido)|(acabo|acababa) de (tomar|beber|tragar|ingerir|consumir|inyectar)|(estoy|estaba|voy a|sigo) (tomando|bebiendo|tragando|ingiriendo|consumiendo|inyectando|tomar|beber|tragar|ingerir|consumir)|ingeri|trague|bebi|tome|consumi|zampe)\b/;
+  const INGESTION_PROPIA_EN = /\bi (drank|swallowed|ingested|injected|took|consumed|just (took|drank|swallowed|ingested)|(have|ve) (taken|drunk|swallowed|ingested|consumed|injected)|(am|m) (taking|drinking|swallowing|ingesting))\b/;
   function ingestionPropia(q) {
     const n = normLB(q);
     if (INGESTION_PROPIA_ES.test(n)) return 'es';
@@ -2009,12 +2049,14 @@
    * activa; sólo lo desactiva un turno que nombra por sí mismo un padecimiento no sensible (`nombraPadLimpio`).
    */
   function crisisEnTurnos(turnos, nombraPadLimpio) {
-    let activa = false;
+    // Estado: 'crisis' (señal de riesgo), 'apoyo' (turno fuera del vocabulario cerrado) o null.
+    let estado = null;
     for (const t of turnos) {
-      if (respuestaCrisis(t)) activa = true;
-      else if (activa && levantaCrisis(t, nombraPadLimpio)) activa = false;
+      if (respuestaCrisis(t)) estado = 'crisis';
+      else if (fueraDeVocabulario(t)) estado = estado === 'crisis' ? 'crisis' : 'apoyo';
+      else if (estado && levantaCrisis(t, nombraPadLimpio)) estado = null;
     }
-    return activa;
+    return estado;
   }
   /** Respuesta de apoyo para un seguimiento tras una crisis, o null si la crisis no sigue activa. */
   /**
@@ -2028,7 +2070,9 @@
   function respuestaCrisisSeguimiento(qn, crisisPrevia, nombraPadLimpio) {
     if (!crisisPrevia || levantaCrisis(qn, nombraPadLimpio)) return null;
     const q = String(qn).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9 ]+/g, ' ');
-    return TURNO_EN.test(q) ? CRISIS_SEGUIMIENTO_EN : CRISIS_SEGUIMIENTO_ES;
+    const en = TURNO_EN.test(q) || pareceIngles(qn);
+    if (crisisPrevia === 'apoyo') return en ? APOYO_EN : APOYO_ES;
+    return en ? CRISIS_SEGUIMIENTO_EN : CRISIS_SEGUIMIENTO_ES;
   }
 
   /**
@@ -2058,6 +2102,7 @@
     releases, diabetesEnConsulta, conDiabetesNombrada, conFamiliaNombrada, canonClinico, nombraAlias, noModeladas,
     mencionaNoModelada, conHipertensionNombrada, respuestaCrisis, subtipoAjeno, aliasAmbiguo,
     crisisEnTurnos, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, idsSensiblesEn,
-    alcoholCalificado, IDS_LISTA_BLANCA, _VOCAB_TECNICO: VOCAB_TECNICO,
+    alcoholCalificado, IDS_LISTA_BLANCA, _VOCAB_TECNICO: VOCAB_TECNICO, fueraDeVocabulario, respuestaFueraDeVocabulario,
+    tokenEnVocab,
   });
 })(globalThis);
