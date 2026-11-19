@@ -134,16 +134,18 @@ test('persistencia de apoyo: un turno técnico de un padecimiento no sensible la
   assert.notEqual(r.guarda, 'vocabulario');
 });
 
-// El vocabulario es reproducible y no contiene las evasiones conocidas.
+// El vocabulario es reproducible y no contiene las evasiones conocidas (diseño de la quinta auditoría: fragmentos completos
+// generados desde el catálogo y lista curada a mano).
 test('vocabulario cerrado: reproducible y sin las evasiones de las auditorías', async () => {
-  const V = globalThis.EPI_VOCAB_CERRADO;
-  assert.ok(V instanceof Set && V.size > 1000);
+  const P = globalThis.EPI_VOCAB_CONSULTA.palabras;
+  const T = globalThis.EPI_TERMINOS_CLINICOS;
+  assert.ok(Array.isArray(globalThis.EPI_FRAGMENTOS) && globalThis.EPI_FRAGMENTOS.length > 1000);
   for (const w of ['desvivirme', 'm4tar', 'matarrme', 'off', 'myself', 'cianuro', 'ingerir', 'zampe', 'golpeando', 'madreo',
-    'beating', 'husband', 'swallowed', 'ingested', 'petatear', 'unalive', 'hopeless']) {
-    assert.ok(!V.has(w) || w === 'off' ? true : false, w);
+    'beating', 'husband', 'swallowed', 'ingested', 'petatear', 'unalive', 'hopeless', 'vivo', 'viva', 'tomo', 'tabletas',
+    'sedantes', 'golpes', 'pills', 'poison', 'morir', 'matar', 'pastillas', 'veneno']) {
+    assert.equal(P.has(w), false, `curada: ${w}`);
+    assert.equal(T.has(w), false, `clínicos: ${w}`);
   }
-  for (const w of ['desvivirme', 'm4tar', 'matarrme', 'cianuro', 'ingerir', 'zampe', 'golpeando', 'madreo', 'beating',
-    'husband', 'swallowed', 'ingested', 'petatear', 'unalive', 'hopeless', 'myself']) assert.equal(V.has(w), false, w);
   const { execFileSync } = await import('child_process');
   execFileSync(process.execPath, [new URL('../scripts/build_vocab_cerrado.mjs', import.meta.url).pathname, '--check']);
 });

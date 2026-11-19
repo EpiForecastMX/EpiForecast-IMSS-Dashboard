@@ -1911,8 +1911,8 @@
   // ── Lista blanca GLOBAL (cuarta auditoría Codex, 19-nov-2026) ─────────────────────────────────────────────────────────
   // Un léxico de riesgo no puede ser exhaustivo (sinónimos, leetspeak, espaciado, inglés coloquial). Todo turno con un
   // token fuera del vocabulario cerrado no recibe cifras, gráfica ni ficha: recibe un apoyo fijo con la Línea de la Vida y
-  // la invitación a reformular. El vocabulario lo genera `epibot/scripts/build_vocab_cerrado.mjs` en `js/vocab_cerrado.js`
-  // (globalThis.EPI_VOCAB_CERRADO); sin él la comprobación falla cerrada con el vocabulario técnico de este módulo.
+  // la invitación a reformular. Quinta auditoría: fragmentos completos (js/vocab_cerrado.js, generado desde el catálogo) y
+  // lista curada corta (js/vocab_consulta.js, a mano); ver analizaTurno.
   const APOYO_ES = 'No reconozco algunos términos de tu mensaje, así que no muestro cifras ni gráficas.\n\n' +
     'Si buscas datos, escribe el nombre del padecimiento y el estado; por ejemplo, «dengue en Jalisco» o «asma en Sonora».\n\n' +
     'Si tú o alguien cercano necesita apoyo, la **Línea de la Vida** atiende gratis, las 24 horas, todos los días: ' +
@@ -1921,28 +1921,64 @@
     'If you are looking for data, write the name of the condition and the state; for example, «dengue in Jalisco».\n\n' +
     'If you or someone near you needs support, **Línea de la Vida** in Mexico is free and open 24 hours a day, every ' +
     'day: **800 911 2000**. If someone is in immediate danger, call **911**.\n<!--SIN_GRAFICA-->';
-  /** Token del vocabulario cerrado: números, códigos CIE y semanas por forma; el resto por el vocabulario generado. */
-  function tokenEnVocab(w) {
-    if (/^\d+$/.test(w) || /^[a-z]\d{2,3}$/.test(w) || /^w\d{1,2}$/.test(w)) return true;
-    const V = globalThis.EPI_VOCAB_CERRADO;
-    return (V && V.has(w)) || VOCAB_TECNICO.has(w) || VOCAB_NEUTRO.has(w) || ALCOHOL_PERMITIDO.has(w);
+  // Quinta auditoría Codex: el vocabulario ya no admite palabras sueltas del corpus ni de las pruebas. (a) Se RETIRAN del
+  // turno los fragmentos que coinciden completos con nombres, alias y códigos de padecimientos, geografía reconocida
+  // (js/vocab_cerrado.js, generado) y frases técnicas (js/vocab_consulta.js); (b) lo que queda debe estar en la lista curada
+  // de palabras de consulta neutras (js/vocab_consulta.js, versionada a mano); (c) números sólo como año 2014-2027 o dentro
+  // de una frase técnica. Sin los dos archivos la comprobación falla cerrada.
+  const DATOS_RUTA = /\b(panorama|kpis|tablero nacional|nacional|national)\b/;
+  const DATOS_RUTA_INTERFAZ = /\b(panorama|kpis|tablero nacional)\b/;
+  function analizaTurno(raw) {
+    // canonClinico reescribe variantes clínicas («amebiasis del hígado», «presión alta en embarazadas») a su forma canónica
+    // antes de buscar fragmentos completos: mismo criterio que los detectores de padecimiento.
+    let n = ` ${canonClinico(normLB(raw)).replace(/[^a-z0-9]+/g, ' ').trim()} `;
+    const cur = globalThis.EPI_VOCAB_CONSULTA;
+    let fragmentosCie = 0;
+    for (const re of (cur ? cur.frases : [])) n = n.replace(re, ' ');
+    // Códigos con forma CIE («h66 0», «a06 8», «a510», «n87»): técnicos aunque no sean de un bloque publicado.
+    n = n.replace(/ [a-z]\d{2}\d?( \d{1,2})?(?= )/g, (m) => (fragmentosCie++, ' '));
+    let fragmentos = 0;
+    for (const f of (globalThis.EPI_FRAGMENTOS || [])) {
+      if (n.includes(` ${f} `)) { n = n.split(` ${f} `).join('  '); fragmentos++; }
+    }
+    const clin = globalThis.EPI_TERMINOS_CLINICOS;
+    const todos = n.split(' ').filter(Boolean).filter((w) => !(/^\d{4}$/.test(w) && +w >= 2014 && +w <= 2027));
+    const pref = globalThis.EPI_PREFIJOS_CLINICOS || [];
+    const resto = todos.filter((w) => !(cur && cur.palabras.has(w)) && !(clin && clin.has(w)) && !ALCOHOL_PERMITIDO.has(w) &&
+      !pref.some((p) => w.startsWith(p)));
+    return { resto, todos, fragmentos: fragmentos + fragmentosCie };
   }
-  /** El turno trae algún token fuera del vocabulario cerrado (o un símbolo no técnico). */
+  /** Tokens que quedan fuera del vocabulario cerrado tras retirar fragmentos y frases técnicas. */
+  function restoFuera(raw) { return analizaTurno(raw).resto; }
+  /** El turno nombra un dato (padecimiento, código, estado, región, «nacional» o «panorama»). */
+  function tieneFragmentoDeDatos(raw) { return analizaTurno(raw).fragmentos > 0 || DATOS_RUTA.test(normLB(raw)); }
+  /** El turno trae algún token fuera del vocabulario cerrado (o un símbolo no técnico o una palabra partida). */
   function fueraDeVocabulario(raw) {
     if (simbolosNoTecnicos(raw)) return true;
     const toks = normLB(raw).split(' ').filter(Boolean);
-    // Palabras partidas letra a letra («s.u.i.c.i.d.i.o», «m-a-t-a-r-m-e»): cinco o más letras sueltas seguidas («hepatitis a, b y c» queda dentro).
+    // Palabras partidas letra a letra («s.u.i.c.i.d.i.o», «m-a-t-a-r-m-e»): cinco o más letras sueltas seguidas.
     if (/(^| )([a-z] ){4,}[a-z]( |$)/.test(` ${toks.join(' ')} `)) return true;
-    return toks.some((w) => !tokenEnVocab(w));
+    return restoFuera(raw).length > 0;
+  }
+  /** La respuesta lleva cifras o una gráfica (fuera de teléfonos de ayuda, códigos CIE, semanas y años). */
+  function respuestaConDatos(md) {
+    const t = String(md || '');
+    if (/<!--[A-Z0-9_]+:\{/.test(t)) return true;
+    return /\d/.test(t.replace(/<!--[\s\S]*?-->/g, '').replace(/\]\([^)]*\)/g, ']').replace(/800 911 2000|\b911\b|\b24 (horas|hours)\b|CIE-10|\b[A-Z]\d{2}(\.\d+)?\b|\bW\d{1,2}\b|\b20[12]\d\b/g, ''));
   }
   const pareceIngles = (raw) => {
     const q = ` ${normLB(raw)} `;
     return /\b(the|what|how|in|of|and|i|my|is|am|are|you|me|to)\b/.test(q) && !/\b(en|de|del|y|la|el|que|los|las)\b/.test(q);
   };
   /** Apoyo fijo ante un turno fuera del vocabulario cerrado, o null. */
-  function respuestaFueraDeVocabulario(raw) {
+  function respuestaFueraDeVocabulario(raw, { siempre = false } = {}) {
     if (!normLB(raw) && !simbolosNoTecnicos(raw)) return null;
     if (!fueraDeVocabulario(raw)) return null;
+    // La guarda posterior (kb.js y rag.mjs) revisa toda respuesta: si lleva cifras o gráfica y el turno está fuera del
+    // vocabulario, la sustituye por este mismo apoyo.
+    // Antes de responder sólo en las rutas de la interfaz que muestran datos sin pasar por un handler («panorama», «kpis»).
+    // El resto lo decide la guarda posterior (kb.js y rag.mjs): sin cifras ni respuesta de datos de un padecimiento.
+    if (!siempre && !DATOS_RUTA_INTERFAZ.test(normLB(raw))) return null;
     return pareceIngles(raw) ? APOYO_EN : APOYO_ES;
   }
 
@@ -1950,15 +1986,18 @@
   // Levantar la crisis o el apoyo exige el vocabulario técnico ESTRICTO (rótulos, alias, códigos, geografía, sexo y
   // palabras neutras de consulta), más estrecho que el global: «hoy», «me» o «gracias» lo mantienen.
   function turnoTecnico(raw) {
-    return !simbolosNoTecnicos(raw) &&
-      tokensLibres(raw).every((w) => VOCAB_NEUTRO.has(w) || VOCAB_TECNICO.has(w) || ALCOHOL_PERMITIDO.has(w));
+    // Levantar la crisis exige el vocabulario neutro estricto: «hoy», «me» o «gracias» la mantienen.
+    return !fueraDeVocabulario(raw) &&
+      analizaTurno(raw).todos.every((w) => VOCAB_NEUTRO.has(w) || ALCOHOL_PERMITIDO.has(w));
   }
 
   /** La consulta nombra un id sensible y trae algún token fuera del vocabulario técnico cerrado. */
   function fueraDeListaBlanca(q, contextoSensible = false) {
     if (!contextoSensible && !idsSensiblesEn(q).length) return false;
     if (simbolosNoTecnicos(q)) return true;
-    return tokensLibres(q).some((w) => !VOCAB_NEUTRO.has(w) && !VOCAB_TECNICO.has(w) && !ALCOHOL_PERMITIDO.has(w));
+    // Quinta auditoría: los términos de un rótulo sólo cuentan dentro del fragmento completo (analizaTurno).
+    // Con un id sensible sólo vale el vocabulario neutro estricto (VOCAB_NEUTRO): ni primera persona ni «quiero».
+    return analizaTurno(q).todos.some((w) => !VOCAB_NEUTRO.has(w) && !ALCOHOL_PERMITIDO.has(w));
   }
   // Ingestión explícita en primera persona de cualquier sustancia, modelada o no.
   // Tercera auditoría Codex: cualquier verbo de consumo en primera persona da la crisis, sin exclusiones por objeto
@@ -2053,7 +2092,7 @@
     let estado = null;
     for (const t of turnos) {
       if (respuestaCrisis(t)) estado = 'crisis';
-      else if (fueraDeVocabulario(t)) estado = estado === 'crisis' ? 'crisis' : 'apoyo';
+      else if (fueraDeVocabulario(t) && tieneFragmentoDeDatos(t)) estado = estado === 'crisis' ? 'crisis' : 'apoyo';
       else if (estado && levantaCrisis(t, nombraPadLimpio)) estado = null;
     }
     return estado;
@@ -2103,6 +2142,6 @@
     mencionaNoModelada, conHipertensionNombrada, respuestaCrisis, subtipoAjeno, aliasAmbiguo,
     crisisEnTurnos, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, idsSensiblesEn,
     alcoholCalificado, IDS_LISTA_BLANCA, _VOCAB_TECNICO: VOCAB_TECNICO, fueraDeVocabulario, respuestaFueraDeVocabulario,
-    tokenEnVocab,
+    restoFuera, tieneFragmentoDeDatos, respuestaConDatos, APOYO_ES, APOYO_EN, pareceIngles,
   });
 })(globalThis);

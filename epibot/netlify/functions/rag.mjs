@@ -15,6 +15,7 @@
  * léxico. Si no hay GEMINI_API_KEY, devuelve error claro.
  */
 import '../../js/vocab_cerrado.js';
+import '../../js/vocab_consulta.js';
 import '../../js/release_catalog.js';
 import '../../js/avisos_fuente.js';
 
@@ -945,7 +946,28 @@ Responde ahora, citando los pasajes que uses con [n].`;
 // Handler
 // ---------------------------------------------------------------------------
 
+/**
+ * Quinta auditoría Codex: guarda de vocabulario de la función RAG. Si la consulta trae un token fuera del vocabulario
+ * cerrado, sólo se conserva una respuesta fija sin cifras (crisis, aclaraciones y guardas, que no pasan por recuperación
+ * ni modelo); cualquier otra (vista, recuperación semántica, Gemini o error) se sustituye por el apoyo fijo con la Línea de
+ * la Vida. Así una consulta libre («hola, no quiero estar vivo») nunca recibe cifras ni una respuesta generada.
+ */
 export default async function handler(req) {
+  if (req.method !== 'POST') return handlerInterno(req);
+  let body = null;
+  try { body = JSON.parse(await req.clone().text()); } catch { return handlerInterno(req); }
+  const C = globalThis.EPI_CATALOGO;
+  const q = typeof body?.query === 'string' ? body.query : '';
+  if (!q || body.health === true || !C.fueraDeVocabulario(q)) return handlerInterno(req);
+  const res = await handlerInterno(new Request(req.url, { method: 'POST', headers: req.headers, body: JSON.stringify({ ...body, stream: false }) }));
+  const datos = await res.clone().json().catch(() => null);
+  if (datos && typeof datos.answer === 'string' && (!datos.retrieval || datos.retrieval === 'none') &&
+      !C.respuestaConDatos(datos.answer)) return res;
+  const apoyo = (C.pareceIngles(q) ? C.APOYO_EN : C.APOYO_ES).replace('\n<!--SIN_GRAFICA-->', '');
+  return json({ answer: apoyo, sources: [], retrieval: 'none', guarda: 'vocabulario' }, 200, corsHeaders(req));
+}
+
+async function handlerInterno(req) {
   const cors = corsHeaders(req);
   if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
   if (req.method !== 'POST') return json({ error: 'Método no permitido' }, 405, cors);

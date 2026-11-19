@@ -7,17 +7,17 @@ import { graficoRondas } from './comparacion_rondas.js?v=3';
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=171';
-import { detectEntities, norm } from './entities.js?v=69';
+import { loadKnowledge, getStats, getData, answer, guardaInicial, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=172';
+import { detectEntities, norm } from './entities.js?v=70';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
 import { renderMexicoMap } from './mexico-map.js?v=3';
 import { renderTimelapse } from './timelapse.js?v=4';
 import { renderSemaforo } from './semaforo.js?v=3';
 import { renderComparador } from './comparador.js?v=4';
 import { buildComparadorState } from './comparador_data.js?v=1';
-import { graficaObesidad } from './obesidad_charts.js?v=38';
+import { graficaObesidad } from './obesidad_charts.js?v=39';
 import { UNCERTAINTY_LABEL } from './point_only.js?v=1';
-import { MARCADOR_RELEASE, releaseConAlias, releaseDeMarca, releaseDePad } from './release_config.js?v=35';
+import { MARCADOR_RELEASE, releaseConAlias, releaseDeMarca, releaseDePad } from './release_config.js?v=36';
 import { initSTT, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking, toggleMute, isTTSEnabled, onSpeakingStateChange } from './voice.js?v=3';
 
 // ---------------------------------------------------------------------------
@@ -888,6 +888,16 @@ async function handleSend() {
 }
 
 async function routeQuery(text, typingEl) {
+  // Quinta auditoría Codex: TODAS las rutas (panorama, botones, atajos y consultas escritas) pasan primero por la misma
+  // guarda del KB: crisis, estado de crisis/apoyo, lista blanca global y de sensibles. Sin cifras ni gráfica si responde.
+  const guarda = guardaInicial(text);
+  if (guarda) {
+    removeTyping(typingEl);
+    lastAnswerWasRag = false;
+    addBotMessage(guarda.response, 'local', [], null);
+    pushHistory(text, guarda.response);
+    return;
+  }
   // Panorama nacional a demanda: KPIs + gráfico vivo por padecimiento.
   if (isPanoramaQuery(text)) {
     removeTyping(typingEl);
@@ -1068,6 +1078,9 @@ async function askAboutSource(sourceName) {
   setSendBusy(true);
   addUserMessage(q);
   try {
+    // Mismo estado de crisis/apoyo que el resto de las rutas: con una crisis activa no se consulta la fuente.
+    const guarda = guardaInicial('¿y?');
+    if (guarda) { addBotMessage(guarda.response, 'local', [], null); pushHistory(q, guarda.response); return; }
     await callRag(q);
   } finally {
     setSendBusy(false);

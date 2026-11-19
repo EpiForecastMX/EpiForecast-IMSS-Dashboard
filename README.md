@@ -32,11 +32,13 @@ contenido servido. Conteos del catálogo (`publication/catalog.json`, 141 releas
   padecimiento no se resuelva, cualquier verbo de consumo en primera persona (falso positivo aceptado: «me tomé un café»),
   emojis de riesgo como señal explícita y otros símbolos como tokens no técnicos; sólo un turno enteramente técnico levanta
   la crisis (`epibot/tests/test_crisis3_codex_b44.mjs`).
-- **Lista blanca global** (cuarta auditoría): todo turno con un token fuera del vocabulario cerrado
-  (`epibot/js/vocab_cerrado.js`, generado por `npm run vocab:build` desde el catálogo, los handlers, `knowledge.json`, el
-  radar, el corpus RAG y las consultas de las pruebas; `npm run vocab:check` lo verifica) no recibe cifras, gráfica ni ficha:
-  recibe un apoyo fijo con la Línea de la Vida y la invitación a reformular, y el apoyo persiste hasta un turno técnico.
-  Regenerar el vocabulario tras cambiar el corpus RAG, `knowledge.json` o las pruebas (`epibot/tests/test_vocab_codex_b44.mjs`).
+- **Lista blanca global** (cuarta y quinta auditorías): se retiran del turno los fragmentos completos de padecimientos,
+  códigos y geografía, más términos clínicos sueltos de releases no sensibles y de las guardas de alcance, filtrados contra
+  riesgo, numerales y ánimo (`epibot/js/vocab_cerrado.js`, generado por `npm run vocab:build`; `vocab:check` lo verifica) y lo que queda debe estar en la lista curada a mano `epibot/js/vocab_consulta.js` (palabras de consulta
+  neutras, nunca riesgo, edades, cantidades ni estados de ánimo; números sólo como año o en una frase técnica). Un turno
+  fuera de vocabulario no recibe cifras, gráfica ni ficha: apoyo fijo con la Línea de la Vida, persistente hasta un turno
+  técnico. Todas las rutas de la interfaz, incluido «panorama», pasan por la misma guarda
+  (`epibot/tests/test_vocab_codex_b44.mjs`, `epibot/tests/test_vocab5_codex_b44.mjs`).
 - Las fichas muestran la **media observada** del total nacional en las 52 semanas hasta el corte, con su periodo, no la
   media del pronóstico (`epibot/tests/test_fichas_media_observada.mjs`).
 

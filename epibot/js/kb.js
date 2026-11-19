@@ -6,12 +6,12 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=69';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=70';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=5';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=43';
-import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=35';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=44';
+import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, respuestaConDatos, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=36';
 
 let DATA = null;
 
@@ -5874,16 +5874,13 @@ function esSeguimientoSinPadecimiento(query) {
 }
 
 /**
- * Núcleo ÚNICO de resolución: devuelve la respuesta y la identidad de quien la produjo.
- * `answer()` delega aquí y expone sólo la respuesta, así que no hay una segunda ruta de producción
- * "para pruebas": la que se mide es exactamente la que corre en el sitio.
+ * Guarda inicial ÚNICA de todas las rutas (consulta escrita, panorama, botones y atajos de app.js): crisis, estado de
+ * crisis/apoyo persistente, lista blanca global y lista blanca de sensibles. Quinta auditoría Codex: «panorama» llamaba a
+ * cifras sin pasar por aquí. Devuelve { response, handler } o null.
  */
-async function _resolve(consulta) {
+export function guardaInicial(consulta) {
   const query = sinExclusionG00(consulta);
-  const trace = { handler: null };   // por llamada, no global: no puede quedar obsoleto
-  const d = await loadKnowledge();
-  const s = d.stats || {};
-  // Un seguimiento que nombra otro subtipo de diabetes se resuelve antes de heredar el contexto.
+  const trace = { handler: null };
   // Sin normalizar: emojis y símbolos cuentan en la lista blanca (tercera auditoría Codex).
   const crisis = respuestaCrisis(query);
   if (crisis) {
@@ -5919,6 +5916,22 @@ async function _resolve(consulta) {
     return { response: respuestaCrisis('quiero morir'), handler: trace.handler };
   }
   _crisisActiva = null;
+  return null;
+}
+
+/**
+ * Núcleo ÚNICO de resolución: devuelve la respuesta y la identidad de quien la produjo.
+ * `answer()` delega aquí y expone sólo la respuesta, así que no hay una segunda ruta de producción
+ * "para pruebas": la que se mide es exactamente la que corre en el sitio.
+ */
+async function _resolve(consulta) {
+  const query = sinExclusionG00(consulta);
+  const trace = { handler: null };   // por llamada, no global: no puede quedar obsoleto
+  const d = await loadKnowledge();
+  const s = d.stats || {};
+  // Un seguimiento que nombra otro subtipo de diabetes se resuelve antes de heredar el contexto.
+  const guarda = guardaInicial(query);
+  if (guarda) return guarda;
   // Consulta mixta con un id sensible y sin riesgo: no se combinan cifras.
   const mixta = respuestaMixtaSensible(norm(query));
   if (mixta) {
@@ -6216,8 +6229,22 @@ async function _resolve(consulta) {
  */
 const HANDLERS_ACLARACION = new Set(['answerAliasAmbiguo', 'answerGuardaD7', 'answerMeningitisTipo',
   'answerSumaSeriesDistintas', 'answerAclaracionPendiente']);
+const HANDLERS_DE_AYUDA = new Set(['answerCrisis', 'answerCrisisSeguimiento', 'answerApoyoSeguimiento', 'answerFueraDeVocabulario']);
+// Respuestas fijas sin cifras (aclaraciones, alcance, no modelados, guardas): con un token fuera del vocabulario se
+// conservan si no llevan cifras, porque ya no dan datos de ningún padecimiento.
+const HANDLERS_SIN_DATOS = new Set(['answerAliasAmbiguo', 'answerGuardaD7', 'answerMeningitisTipo', 'answerSumaSeriesDistintas',
+  'answerMixtaSensible', 'answerAclaracionPendiente', 'answerPadecimientoNoModelado', 'answerCategoriaNoReconocida',
+  'answerFueraDeTema', 'answerInjectionGuard', 'answerCodeRequest', 'answerLugarDesconocido']);
 async function _resolveConContexto(query) {
-  const r = await _resolve(query);
+  const r0 = await _resolve(query);
+  // Guarda posterior (cuarta y quinta auditorías Codex): un turno con un token fuera del vocabulario cerrado nunca recibe
+  // cifras ni gráfica, ni la respuesta de datos de un padecimiento que nombra; se sustituye por el apoyo fijo y lo activa.
+  const daDatos = r0.response && (respuestaConDatos(r0.response) ||
+    (tieneFragmentoDeDatos(query) && !HANDLERS_SIN_DATOS.has(r0.handler)));
+  const r = (r0.response && !HANDLERS_DE_AYUDA.has(r0.handler) && daDatos && fueraDeVocabulario(query))
+    ? (() => { lastEntities = {}; _crisisActiva = _crisisActiva || 'apoyo'; _aclaracionPendiente = null;
+      return { response: pareceIngles(query) ? APOYO_EN : APOYO_ES, handler: 'answerFueraDeVocabulario' }; })()
+    : r0;
   if (HANDLERS_ACLARACION.has(r.handler)) {
     if (r.handler !== 'answerAclaracionPendiente') {
       _aclaracionPendiente = String(r.response || '').replace(/\n?<!--SIN_GRAFICA-->/g, '').trim();
