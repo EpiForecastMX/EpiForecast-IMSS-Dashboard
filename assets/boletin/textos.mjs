@@ -28,12 +28,17 @@ const UNIDADES = ['cero', 'uno', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siet
   'veintiocho', 'veintinueve'];
 const DECENAS = ['', '', '', 'treinta', 'cuarenta', 'cincuenta', 'sesenta', 'setenta', 'ochenta', 'noventa'];
 
-// Número cardinal en palabras (0 a 99); fuera de ese rango se devuelven las cifras.
+const CENTENAS = ['', 'ciento', 'doscientos', 'trescientos', 'cuatrocientos', 'quinientos', 'seiscientos', 'setecientos',
+  'ochocientos', 'novecientos'];
+const menorQueCien = n => (n < 30 ? UNIDADES[n] : DECENAS[Math.floor(n / 10)] + (n % 10 ? ` y ${UNIDADES[n % 10]}` : ''));
+
+// Número cardinal en palabras (0 a 999: «cien», «ciento cuarenta y cinco»); fuera de ese rango se devuelven las cifras.
 export function numeroEnPalabras(n, { mayuscula = false } = {}) {
   let t;
-  if (!Number.isInteger(n) || n < 0 || n > 99) t = String(n);
-  else if (n < 30) t = UNIDADES[n];
-  else t = DECENAS[Math.floor(n / 10)] + (n % 10 ? ` y ${UNIDADES[n % 10]}` : '');
+  if (!Number.isInteger(n) || n < 0 || n > 999) t = String(n);
+  else if (n < 100) t = menorQueCien(n);
+  else if (n === 100) t = 'cien';
+  else t = CENTENAS[Math.floor(n / 100)] + (n % 100 ? ` ${menorQueCien(n % 100)}` : '');
   return mayuscula ? t.charAt(0).toUpperCase() + t.slice(1) : t;
 }
 

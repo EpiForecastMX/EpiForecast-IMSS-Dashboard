@@ -1,6 +1,26 @@
 {
-    "_generated": "2026-11-17",
+    "_generated": "2026-11-19",
     "items": [
+        {
+            "date": "19 de noviembre de 2026",
+            "iso": "2026-11-19",
+            "type": "radar",
+            "tag": "Pronóstico publicado",
+            "featured": true,
+            "title": "Cincuenta y nueve padecimientos más del boletín: el sitio llega a ciento cuarenta y cinco",
+            "summary": "Se incorporan cincuenta y nueve categorías del boletín 44: catorce superaron su prueba única frente al control estacional; en treinta y cinco el portafolio no la superó y se publica el control estacional, no validado, por autorización del autor; y diez, con un año de historia, sólo tienen el control estacional.",
+            "body": [
+                "EpiForecast-MX publica <strong style=\"color:var(--cream)\">cincuenta y nueve padecimientos más</strong> del Boletín Epidemiológico del SINAVE, con lo que el sitio llega a <strong style=\"color:var(--cream)\">ciento cuarenta y cinco</strong>: cuatro del carril original y 141 pronósticos del ejecutor genérico. Entre ellos hay intoxicaciones y mordeduras por animales ponzoñosos, infecciones de transmisión sexual, malformaciones congénitas, parasitosis, infecciones prevenibles por vacunación, lesiones y la infección por VIH. Cada uno conserva el nombre y el código CIE del boletín, y su página explica de dónde salen los datos.",
+                "En catorce el portafolio de modelos superó su prueba única frente al control estacional; su validación prospectiva está en curso y no se presenta como superada. En treinta y cinco el portafolio no superó esa prueba y, por autorización nominal del autor para cada uno, se publica el control estacional, que repite los casos de 52 semanas antes: no está validado ni promete una validación futura. Las diez categorías de picaduras y mordeduras que se modelan desde 2024 tienen un año de historia, así que no hubo alternativa que elegir: también son controles estacionales, no validados.",
+                "Las categorías de lesiones autoinfligidas, ideación suicida, violencia intrafamiliar, heridas por arma de fuego, intoxicación por alcohol y VIH se publican por decisión nominal del autor, sin una revisión clínica acreditada. El EpiBot sólo las reconoce por su nombre técnico completo o su código; ante cualquier consulta de riesgo personal responde con la Línea de la Vida (800 911 2000) y sin cifras.",
+                "Las páginas de cada padecimiento declaran los avisos medidos de la fuente: saltos de nivel sin atribuirles causa, reparaciones y celdas imputadas, cambios de rótulo o de definición y picos impresos que el control repite."
+            ],
+            "link": {
+                "href": "boletin.html",
+                "text": "Ver el radar del boletín",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
         {
             "date": "17 de noviembre de 2026",
             "iso": "2026-11-17",

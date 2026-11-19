@@ -254,6 +254,11 @@ test('the weekly texts handle words, ranges and absent myiasis states', async ()
   assert.equal(numeroEnPalabras(9), 'nueve');
   assert.equal(numeroEnPalabras(21), 'veintiuno');
   assert.equal(numeroEnPalabras(40), 'cuarenta');
+  // Más de noventa y nueve publicados (alta_b44): en palabras, nunca en cifras.
+  assert.equal(numeroEnPalabras(145, { mayuscula: true }), 'Ciento cuarenta y cinco');
+  assert.equal(numeroEnPalabras(100), 'cien');
+  assert.equal(numeroEnPalabras(101), 'ciento uno');
+  assert.equal(numeroEnPalabras(200), 'doscientos');
   assert.equal(listaConY(['A', 'B', 'C']), 'A, B y C');
   assert.equal(listaConY(['A']), 'A');
   const t = textosRadar(data, actual, null);
@@ -263,11 +268,14 @@ test('the weekly texts handle words, ranges and absent myiasis states', async ()
 
 test('radar GENERICAS (M3): generic «sífilis» never resolves to remaining A50 row once A51 is published, while A50 and neighbor STIs remain intact', async () => {
   const { compactaRadar, buscaEnRadar } = await import('../epibot/js/radar_boletin.js');
+  // Estado previo a alta_b44: A50 y las ITS vecinas aún sin publicar (la foto vigente ya las publica).
+  const B44_ITS = new Set(['sifilis_congenita_a50', 'gonococica_a54', 'linfogranuloma_a55', 'chancro_blando_a57',
+    'herpes_genital_a600', 'tricomoniasis_a590']);
   const dataConA51 = {
     ...data,
     diseases: data.diseases.map((e) => (e.code && e.code.startsWith('A51')
       ? { ...e, platform_id: 'sifilis_adquirida_a51', status: 'Control publicado' }
-      : e)),
+      : B44_ITS.has(e.platform_id) ? { ...e, platform_id: null, status: 'Por incorporar' } : e)),
   };
   const radar = compactaRadar(actual, dataConA51);
   assert.deepEqual(buscaEnRadar('sífilis en el boletín', radar).map((e) => e.name), []);
@@ -278,4 +286,9 @@ test('radar GENERICAS (M3): generic «sífilis» never resolves to remaining A50
   assert.deepEqual(buscaEnRadar('clamidia en el boletín', radar).map((e) => e.code), ['A55']);
   assert.deepEqual(buscaEnRadar('diabetes en el boletín', radar), []);
   assert.deepEqual(buscaEnRadar('asma en el boletín', radar), []);
+  // Foto vigente (alta_b44): A50 y las ITS publicadas ya no son filas sin modelar del radar.
+  const vigente = compactaRadar(actual, data);
+  for (const q of ['sífilis congénita en el boletín', 'gonorrea en el boletín', 'herpes genital en el boletín', 'clamidia en el boletín']) {
+    assert.deepEqual(buscaEnRadar(q, vigente), [], q);
+  }
 });
