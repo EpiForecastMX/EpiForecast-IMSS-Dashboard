@@ -276,7 +276,7 @@ for (const q of AMBIGUOS) {
 test('«treponematosis» pide precisar entre sífilis adquirida (A51-A53) y mal del pinto (A67)', async () => {
   const { handler, md } = await conversa('treponematosis en Jalisco');
   assert.equal(handler, 'answerAliasAmbiguo');
-  assert.match(md, /sifilis adquirida.*mal del pinto/s);
+  assert.match(md, /«sífilis adquirida».*«mal del pinto»/s);
   SIN_CIFRAS_A51(md, 'treponematosis');
 });
 

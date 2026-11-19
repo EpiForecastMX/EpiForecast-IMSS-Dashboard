@@ -71,11 +71,11 @@ test('los bloques vecinos conservan su serie: gastroenteritis, amebiasis intesti
 
 // Términos genéricos: piden precisar sin cifras y nombran los bloques publicados.
 for (const [q, nombra] of [
-  ['desnutrición en Jalisco', /desnutricion leve.*desnutricion moderada.*desnutricion severa/s],
-  ['hepatitis en Jalisco', /hepatitis virica a.*hepatitis virica b aguda.*hepatitis virica c.*otras hepatitis viricas/s],
-  ['hepatitis B en Jalisco', /hepatitis virica b aguda.*otras hepatitis viricas/s],
-  ['bocio en Morelos', /bocio endemico/],
-  ['absceso hepático en Jalisco', /absceso hepatico amebiano/],
+  ['desnutrición en Jalisco', /«desnutrición leve».*«desnutrición moderada».*«desnutrición severa»/s],
+  ['hepatitis en Jalisco', /«hepatitis vírica a».*«hepatitis vírica b aguda».*«hepatitis vírica c».*«otras hepatitis víricas»/s],
+  ['hepatitis B en Jalisco', /«hepatitis vírica b aguda».*«otras hepatitis víricas»/s],
+  ['bocio en Morelos', /«bocio endémico»/],
+  ['absceso hepático en Jalisco', /«absceso hepático amebiano»/],
   ['lombrices en Chiapas', /ascariasis.*enterobiasis.*otras helmintiasis/s],
   ['helmintiasis en Jalisco', /ascariasis.*enterobiasis.*otras helmintiasis/s],
 ]) {

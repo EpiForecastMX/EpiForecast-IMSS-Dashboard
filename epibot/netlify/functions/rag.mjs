@@ -23,6 +23,7 @@ import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { micaiGroundedAnswer } from '../lib/micai_grounding.mjs';
 import { resolverConsultaRag, vistaGroundedAnswer, enriquecerSemanticoVista } from '../lib/vista_grounding.mjs';
+import { crisisEnHistorial, nombraPadecimientoNoSensible } from '../lib/vista_turno.mjs';
 
 const EMBED_MODEL = 'gemini-embedding-001';
 const EMBED_DIM = 768;
@@ -962,6 +963,11 @@ export default async function handler(req) {
   // Antes de la clave y del límite de consultas: esta respuesta no depende de ningún modelo.
   const crisis = globalThis.EPI_CATALOGO.respuestaCrisis(stripAccents(String(body.query || '')).replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim());
   if (crisis) return json({ answer: crisis.replace('\n<!--SIN_GRAFICA-->', ''), sources: [] }, 200, cors);
+  // La crisis persiste: tras una respuesta de crisis en el historial, un seguimiento sin padecimiento no sensible propio
+  // recibe apoyo, sin vista, recuperación, modelo ni cifras.
+  const apoyo = globalThis.EPI_CATALOGO.respuestaCrisisSeguimiento(String(body.query || ''),
+    crisisEnHistorial(body.history), nombraPadecimientoNoSensible);
+  if (apoyo) return json({ answer: apoyo.replace('\n<!--SIN_GRAFICA-->', ''), sources: [], retrieval: 'none', guarda: 'crisis' }, 200, cors);
   const d7 = guardaD7Rag(body.query);
   if (d7) return json({ answer: d7, sources: [], retrieval: 'none', guarda: 'd7' }, 200, cors);
   const suma = guardaSumaA37U99Rag(body.query);

@@ -205,6 +205,28 @@ function analizarTurno(t, prev) {
   };
 }
 
+/**
+ * Auditoría Codex de alta_b44 (19-nov-2026): el turno nombra por sí mismo un padecimiento que no es sensible (legacy,
+ * release o no modelado). Sólo eso levanta el estado de crisis de la conversación.
+ */
+export function nombraPadecimientoNoSensible(raw) {
+  const C = globalThis.EPI_CATALOGO;
+  if (!C) return false;
+  const qs = strip(raw);
+  if (/\b(depresion|depression|f32|parkinson|g20|alzheimer|alzaimer|g30|dengue|a97)\b/.test(normPal(raw))) return true;
+  const rels = releasesEn(raw);
+  if (rels.length) return rels.every((r) => !r.sensible);
+  return Boolean(C.subtipoAjeno(qs) || C.aliasAmbiguo(qs) || C.mencionaNoModelada(qs));
+}
+
+/** Crisis activa según los turnos previos del usuario en el historial. */
+export function crisisEnHistorial(history = []) {
+  const C = globalThis.EPI_CATALOGO;
+  if (!C || !Array.isArray(history)) return false;
+  const turnos = history.filter((x) => x && x.role === 'user' && typeof x.text === 'string').map((x) => normPal(x.text));
+  return C.crisisEnTurnos(turnos, nombraPadecimientoNoSensible);
+}
+
 function estadoHistorial(history) {
   let est = null;
   for (const h of history.filter((x) => x && x.role === 'user' && typeof x.text === 'string').slice(-6)) {

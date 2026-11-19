@@ -6,12 +6,12 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=65';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=66';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=5';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=39';
-import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=31';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=40';
+import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=32';
 
 let DATA = null;
 
@@ -5840,9 +5840,38 @@ let lastEntities = {};
 let _lastDistribMetric = null;   // {metric, label} de la ultima distribucion
 let _lastChartHandler = null;    // nombre del ultimo handler que genero grafico
 let _lastHandlerFn = null;       // referencia al ultimo handler que respondio
+// Auditoría Codex de alta_b44 (19-nov-2026): tras una respuesta de crisis, los seguimientos que no nombran por sí mismos
+// un padecimiento no sensible reciben apoyo, sin cifras ni herencia de padecimiento o estado.
+let _crisisActiva = false;
+// Tras una aclaración sin cifras (nombre genérico, subtipo, guarda fija), «¿y en Sonora?» no hereda nada: se repite
+// la petición de precisar en vez de caer en la tabla neuro del estado.
+let _aclaracionPendiente = null;
 
 /** Reset conversacional — solo para tests. */
-export function _resetContext() { lastEntities = {}; _lastDistribMetric = null; _lastChartHandler = null; _lastHandlerFn = null; }
+export function _resetContext() {
+  lastEntities = {}; _lastDistribMetric = null; _lastChartHandler = null; _lastHandlerFn = null;
+  _crisisActiva = false; _aclaracionPendiente = null;
+}
+
+/** La consulta nombra por sí misma un padecimiento que no es sensible (legacy, release o no modelado). */
+function nombraPadecimientoNoSensible(query) {
+  const qn = norm(String(query || ''));
+  const pad = detectEntities(qn).padecimiento;
+  if (pad) {
+    const r = releaseDePad(pad);
+    return !(r && r.sensible);
+  }
+  return Boolean(mencionaNoModelada(qn)) || Boolean(aliasAmbiguo(qn)) || Boolean(subtipoAjeno(qn));
+}
+
+/** Seguimiento sin padecimiento propio («¿y en Sonora?», «¿y en hombres?», «¿y el año pasado?»). */
+function esSeguimientoSinPadecimiento(query) {
+  const qn = norm(String(query || '')).replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  if (nombraPadecimientoNoSensible(qn)) return false;
+  const ent = detectEntities(qn);
+  return /^(y|pero|tambien|que hay de|ahora|and|what about)\b/.test(qn) ||
+    (qn.split(' ').length <= 6 && Boolean(ent.estado || ent.sexo || (ent._years || []).length));
+}
 
 /**
  * Núcleo ÚNICO de resolución: devuelve la respuesta y la identidad de quien la produjo.
@@ -5858,8 +5887,23 @@ async function _resolve(consulta) {
   const crisis = respuestaCrisis(norm(query));
   if (crisis) {
     lastEntities = {};
+    _crisisActiva = true;
+    _aclaracionPendiente = null;
     trace.handler = 'answerCrisis';
     return { response: crisis, handler: trace.handler };
+  }
+  const apoyo = respuestaCrisisSeguimiento(norm(query), _crisisActiva, nombraPadecimientoNoSensible);
+  if (apoyo) {
+    lastEntities = {};
+    trace.handler = 'answerCrisisSeguimiento';
+    return { response: apoyo, handler: trace.handler };
+  }
+  _crisisActiva = false;
+  if (_aclaracionPendiente && esSeguimientoSinPadecimiento(query)) {
+    lastEntities = {};
+    trace.handler = 'answerAclaracionPendiente';
+    return { response: `Todavía no sé qué padecimiento consultas, así que no doy cifras. ${_aclaracionPendiente}\n<!--SIN_GRAFICA-->`,
+      handler: trace.handler };
   }
   const d7 = guardaD7(query);
   if (d7) {
@@ -6143,8 +6187,17 @@ async function _resolve(consulta) {
  * Recuerda si la última respuesta fue de un padecimiento NO modelado, para que su seguimiento
  * («y hombres?») no caiga en datos de otro padecimiento. Cualquier otra respuesta lo olvida.
  */
+const HANDLERS_ACLARACION = new Set(['answerAliasAmbiguo', 'answerGuardaD7', 'answerMeningitisTipo',
+  'answerSumaSeriesDistintas', 'answerAclaracionPendiente']);
 async function _resolveConContexto(query) {
   const r = await _resolve(query);
+  if (HANDLERS_ACLARACION.has(r.handler)) {
+    if (r.handler !== 'answerAclaracionPendiente') {
+      _aclaracionPendiente = String(r.response || '').replace(/\n?<!--SIN_GRAFICA-->/g, '').trim();
+    }
+  } else {
+    _aclaracionPendiente = null;
+  }
   if (r.handler === 'answerRadarResumen') return { ...r, response: `${r.response}\n<!--SIN_GRAFICA-->` };
   if (r.handler === 'answerCategoriaNoReconocida') {
     lastEntities = {};

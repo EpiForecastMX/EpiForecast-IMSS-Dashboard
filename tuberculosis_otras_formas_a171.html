@@ -75,7 +75,7 @@
     <div class="wrap">
       <div class="eyebrow">Pronósticos por padecimiento</div>
       <h1>Tuberculosis otras formas (A17.1, A17.8, A17.9, A18-A19) · Pronóstico semanal</h1>
-      <p class="lead">EpiForecast-MX incorpora la <strong>tuberculosis otras formas (CIE-10 A17.1, A17.8, A17.9, A18-A19)</strong>. Publicamos los casos semanales esperados para las <strong>32 entidades, por sexo</strong>, con un horizonte de <strong>52 semanas</strong>. <strong>Es un control estacional, no validado:</strong> cada semana repite los casos de 52 semanas antes, porque el portafolio de modelos no superó la prueba de 2025 y el autor autorizó publicar el control. Se notifican unos <span id="casosSemana">—</span> casos por semana en todo el país.</p>
+      <p class="lead">EpiForecast-MX incorpora la <strong>tuberculosis otras formas (CIE-10 A17.1, A17.8, A17.9, A18-A19)</strong>. Publicamos los casos semanales esperados para las <strong>32 entidades, por sexo</strong>, con un horizonte de <strong>52 semanas</strong>. <strong>Es un control estacional, no validado:</strong> cada semana repite los casos de 52 semanas antes, porque el portafolio de modelos no superó la prueba de 2025 y el autor autorizó publicar el control. En el último año observado se notificaron en promedio unos <span id="casosSemana">—</span> casos por semana en todo el país<span id="casosSemanaPeriodo"></span>.</p>
 
       <div class="status-card" id="statusCard">
         <div class="status-badge">
@@ -383,7 +383,16 @@
       $('stOos').textContent = nac.oos.semanas ? pct(nac.oos.smape) : 'Sin observar';
       $('stWeeks').textContent = nac.oos.semanas;
       $('mtEngines').textContent = Object.keys(V.engines).map(motor).join(', ');
-      $('casosSemana').textContent = nf0.format(nac.pronostico_52_total / V.horizon_weeks);
+      {
+        // Media observada del total nacional en las 52 semanas más recientes hasta el corte, no la del pronóstico.
+        const fin = Date.parse(`${V.observation_cutoff_ds}T00:00:00Z`);
+        const ventana = nac.observado.filter(([ds, y]) => y != null && Date.parse(`${ds}T00:00:00Z`) <= fin
+          && Date.parse(`${ds}T00:00:00Z`) > fin - 52 * 7 * 864e5);
+        $('casosSemana').textContent = ventana.length ? nf0.format(ventana.reduce((t, [, y]) => t + y, 0) / ventana.length) : '—';
+        $('casosSemanaPeriodo').textContent = ventana.length
+          ? ` (media de ${ventana.length} semanas con dato, de la semana del ${fechaLarga(ventana[0][0])} a la del ${fechaLarga(ventana[ventana.length - 1][0])})`
+          : '';
+      }
       $('mtWeeks').textContent = `${V.weeks_available} de ${V.weeks_required}`;
       $('releaseMeta').textContent = `Release ${V.release_id} · observación ${V.observation_dataset_id}`;
     }

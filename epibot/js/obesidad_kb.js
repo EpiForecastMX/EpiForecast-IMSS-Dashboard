@@ -10,12 +10,12 @@
  * follow-ups («¿y hombres?») y en consultas corregidas por typo, donde la consulta cruda ya no
  * nombra a Obesidad.
  */
-import { mencionaNoModelada } from './entities.js?v=65';
+import { mencionaNoModelada } from './entities.js?v=66';
 import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
-} from './obesidad_charts.js?v=34';
-import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=31';
+} from './obesidad_charts.js?v=35';
+import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=32';
 // Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
 import './avisos_fuente.js?v=3';
 
@@ -269,8 +269,8 @@ function answerRelease(q, ent, s, d, r) {
       ...cuenta.map(([m, n]) => `- ${OBESIDAD_MOTOR[m] || m}: **${n}** series`), '',
       esControl(v) ? avisoDeControl(v) : `El motor de cada serie se eligió con validación cruzada temporal ${r.seleccion || 'en pliegues de 2021 a 2024'}, sin que el modelo vea nunca el periodo que pronostica.`,
       sinSexo
-        ? `Pregunta por un estado («motor de ${r.consulta} en Jalisco») para ver el de esa serie.`
-        : `Pregunta por un estado y un sexo («motor de ${r.consulta} en Jalisco mujeres») para ver el de esa serie.`, '', etiqueta]);
+        ? `Pregunta por un estado («motor de ${r.consultaVisible || r.consulta} en Jalisco») para ver el de esa serie.`
+        : `Pregunta por un estado y un sexo («motor de ${r.consultaVisible || r.consulta} en Jalisco mujeres») para ver el de esa serie.`, '', etiqueta]);
   }
 
   if (tipo === 'comparador') {

@@ -1103,6 +1103,22 @@
     },
   ]);
 
+  // Auditoría Codex de alta_b44 (19-nov-2026): los ejemplos visibles («pregunta por «…»») salían de `consulta`, que va sin
+  // tildes porque es la forma normalizada que detectan los alias. Cada palabra se acentúa desde los nombres de
+  // presentación del catálogo (nombre, etiqueta, pad y nombre corto); `consulta` sigue intacta para la detección.
+  const TILDES = new Map();
+  const sinTildeMin = (t) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  for (const r of releases) {
+    for (const w of [r.nombre, r.etiqueta, r.pad, r.nombreCorto].join(' ').split(/[^A-Za-zÀ-ÿ]+/)) {
+      if (w && sinTildeMin(w) !== w.toLowerCase()) TILDES.set(sinTildeMin(w), w.toLowerCase());
+    }
+  }
+  /** Texto normalizado con las tildes de los nombres de presentación del catálogo. */
+  function conTildes(texto) {
+    return String(texto).replace(/[a-z]+/g, (w) => TILDES.get(w) || w);
+  }
+  for (const r of releases) r.consultaVisible = conTildes(r.consulta);
+
   /**
    * Subtipos de diabetes que nombra la consulta (ya normalizada), o null si no habla de los que se
    * modelan. Diabetes insípida y prediabetes no se modelan; la gestacional y la del embarazo son el release
@@ -1371,6 +1387,11 @@
     [/\bdiabetes( mellitus)? (pregestacional|preexistente|previa)\b|\bdiabetes( mellitus)? (tipo|type) ?(1|2|i|ii|uno|dos|one|two)\b.*\b(embaraz|gestac|pregnan)|\b(embaraz|gestac|pregnan)[a-z]* .*\bdiabetes( mellitus)? (tipo|type) ?(1|2|i|ii|uno|dos|one|two)\b/,
       'diabetes preexistente en el embarazo', 'diabetes preexistente en el embarazo (O24.0-O24.3)', 'embarazo_diabetes_o24'],
     [/\berisipeloide\b|\ba26\b|\berysipeloid\b/, 'erisipeloide', 'erisipeloide (A26)', 'erisipela_a46'],
+    // Auditoría Codex de alta_b44 (19-nov-2026): «alcohol» capturaba por prefijo el metílico y el isopropílico, que son
+    // intoxicaciones por otros alcoholes (T51.1-T51.9) y no la intoxicación aguda por alcohol etílico (F10.0).
+    [/\b(alcohol(es)? (metilic[oa]s?|isopropilic[oa]s?|de madera|desnaturalizad[oa]s?|de curacion|para curar|no etilic[oa]s?|industrial(es)?|de quemar)|otros alcoholes|metanol|isopropanol|propanol|etilenglicol|methanol|isopropanol|(methyl|isopropyl|rubbing|wood|denatured) alcohol|other alcohols|t51( [0-9])?)\b/,
+      'alcohol no etilico',
+      'la intoxicación por alcohol metílico, isopropílico ni por otros alcoholes no etílicos (T51.1-T51.9)', 'intox_alcohol_f100'],
     // Subtipos con código propio fuera de los bloques de los diez controles (12-nov-2026). La giardiasis (A07.1)
     // tiene su propio control desde alta20c (15-nov-2026).
     [/\bisosporiasis\b|\bciclosporiasis\b|\btricomoniasis intestinal\b/,
@@ -1501,7 +1522,7 @@
       const codigo = `${letra.toUpperCase()}${num}${dec != null ? `.${dec}` : ''}`;
       return `El nombre «${nombrado.nombreCorto.toLowerCase()}» corresponde a **${nombrado.etiqueta}**; el código ${codigo} ` +
         `corresponde a otro bloque publicado, **${otro.etiqueta}**. No doy cifras hasta saber cuál consultas: ` +
-        `pregunta por «${nombrado.consulta}» o por «${otro.consulta}».`;
+        `pregunta por «${nombrado.consultaVisible}» o por «${otro.consultaVisible}».`;
     }
     return null;
   }
@@ -1651,7 +1672,7 @@
       abarca: 'Las series publicadas de sífilis adquirida (A51-A53) sólo desglosan por entidad y sexo (sin estratificación por edad ni por embarazo), y no debe clasificarse automáticamente toda consulta en recién nacidos, bebés, lactantes o menores como sífilis congénita: el boletín reporta aparte la sífilis congénita explícita (A50, con su propio control estacional), mientras que la sífilis adquirida (A51-A53) también puede presentarse en menores.' },
     // alta_b44: subtipos contados dentro de otro bloque publicado, sin serie propia.
     { release: 'alcoholica_higado_k70', re: /\bhepatitis alcoholica\b|\balcoholic hepatitis\b|\bk70 ?[.]?1\b/,
-      abarca: 'La hepatitis alcohólica (K70.1) se cuenta dentro de la enfermedad alcohólica del hígado (K70, excepto K70.3), sin una serie propia; pregunta por «enfermedad alcoholica del higado».' },
+      abarca: 'La hepatitis alcohólica (K70.1) se cuenta dentro de la enfermedad alcohólica del hígado (K70, excepto K70.3), sin una serie propia; pregunta por «enfermedad alcohólica del hígado».' },
     { release: 'neumococo_a40', re: /\b(neumonia|neumonias|pneumonia) (neumococic[ao]s?|por neumococos?|por streptococcus pneumoniae|pneumococcal)\b|\bpneumococcal pneumonia\b|\bj13\b/,
       abarca: 'La neumonía por neumococo (J13) no forma parte del bloque de neumonías y bronconeumonías: se cuenta dentro de la enfermedad invasiva por neumococo (A40.3, G00.1, J13), sin una serie propia; pregunta por «enfermedad invasiva por neumococo».' },
     { release: 'haemophilus_a41', re: /\b(neumonia|neumonias|pneumonia) (por )?(haemophilus|hemophilus|h influenzae)\b|\bj14\b/,
@@ -1677,7 +1698,7 @@
       return {
         release: null, pad: null,
         texto: `${hit.abarca} No doy cifras hasta saber cuál consultas: ` +
-          `${rs.map((x) => `«${x.consulta}»`).join(', ').replace(/, ([^,]*)$/, ' o $1')}; por ejemplo, «${rs[0].consulta} en Jalisco».`,
+          `${rs.map((x) => `«${x.consultaVisible}»`).join(', ').replace(/, ([^,]*)$/, ' o $1')}; por ejemplo, «${rs[0].consultaVisible} en Jalisco».`,
       };
     }
     const r = releases.find((x) => x.id === hit.release);
@@ -1685,14 +1706,14 @@
     if (otro) {
       return {
         release: null, pad: null,
-        texto: `${hit.abarca} No doy cifras hasta saber cuál consultas: pregunta por «${r.consulta}» ` +
-          `(**${r.etiqueta}**) o por «${otro.consulta}» (**${otro.etiqueta}**); por ejemplo, «${r.consulta} en Jalisco».`,
+        texto: `${hit.abarca} No doy cifras hasta saber cuál consultas: pregunta por «${r.consultaVisible}» ` +
+          `(**${r.etiqueta}**) o por «${otro.consultaVisible}» (**${otro.etiqueta}**); por ejemplo, «${r.consultaVisible} en Jalisco».`,
       };
     }
     return {
       release: r.id, pad: r.pad,
       texto: `${hit.abarca} EpiForecast-MX sólo pronostica **${r.etiqueta}**, así que no doy cifras hasta saber ` +
-        `si te refieres a ese bloque. Si es así, pregunta por «${r.consulta}»; por ejemplo, «${r.consulta} en Jalisco».`,
+        `si te refieres a ese bloque. Si es así, pregunta por «${r.consultaVisible}»; por ejemplo, «${r.consultaVisible} en Jalisco».`,
     };
   }
 
@@ -1754,14 +1775,89 @@
     'I am an epidemiological data assistant and cannot provide care. Calling that service or talking ' +
     'to someone you trust today can help.\n<!--SIN_GRAFICA-->';
 
+  // Auditoría Codex de alta_b44 (19-nov-2026): una señal de riesgo personal tiene precedencia ABSOLUTA sobre cualquier
+  // alias técnico o código («Tengo 15 años y pienso en ahorcarme, X70 en Jalisco» devolvía la ficha con 42 casos).
+  // Métodos en primera persona, autolesión, ingestiones, dosis, ideación con un tema sensible y menores en peligro.
+  const METODO_PROPIO_ES = /\b(ahorcarme|colgarme|ahorcar me|envenenarme|cortarme|rajarme las venas|dispararme|balacearme|pegarme un (tiro|balazo)|darme un (tiro|balazo)|volarme la cabeza|(tirarme|aventarme|lanzarme|arrojarme|echarme) (de|desde|del|al|a la|a las|por|bajo|frente)|sofocarme|asfixiarme|ahogarme|apunalarme|acuchillarme|autolesionarme|herirme|tomarme (todas |unas |muchas |varias |un frasco de |una caja de |las )?(pastillas|pildoras|tabletas|medicinas|medicamentos|veneno|cloro|raticida))\b/;
+  const AUTOLESION_ES = /\b(me (corte|cortaba|corto|ahorque|colgue|envenene|intoxique|dispare|lastime|lastimo|lesione|autolesione|autolesiono|hice dano|hago dano|quise (matar|suicidar|morir)|trate de (matar|suicidar)|intente (matar|suicidar|quitar))|intente (suicidarme|matarme|quitarme la vida))\b/;
+  const CANTIDAD = '(todas|muchas|varias|un frasco|una caja|un monton|un puno|demasiadas|[0-9]+|diez|veinte|treinta|cincuenta|cien)';
+  const FARMACO = '(pastillas|pildoras|tabletas|capsulas|medicamentos|medicinas)';
+  const TOXICO = '(veneno|cloro|raticida|matarratas|insecticida|plaguicidas?|pesticidas?|acido|sosa|anticongelante|metanol|alcohol metilico|thinner)';
+  // Ingestión de una cantidad de fármacos o de un tóxico, propia o de alguien cercano («mi hijo se tomó veneno»).
+  const INGESTION_ES = new RegExp(`\\b((me|se|te) (tome|tomo|trague|trago|bebi|bebio|tomaste|tragaste)|tome|trague|ingeri|ingirio|bebi|bebio)( [a-z]+){0,3} (${CANTIDAD}( [a-z]+){0,3} ${FARMACO}|${TOXICO})\\b`);
+  const DOSIS_ES = /\b(cuant[oa]s (pastillas|pildoras|tabletas|capsulas)|cuant[oa]s? [a-z ]{0,40}(necesito|me tomo|tomarme|hace falta|se necesita[n]?) (para|de)|para (morir|morirme|matarme|suicidarme|quitarme la vida)|cuanto (veneno|cloro|raticida))\b/;
+  const INTENCION_ES = /\b(pienso en|pensando en|he pensado en|pense en|quiero|quisiera|voy a|planeo|estoy planeando|estoy por|me dan ganas de|tengo ganas de|me gustaria|deseo|necesito|ayudame a)\b/;
+  // Verbos de consulta: «quiero ver X60 en Jalisco» pide datos, no expresa intención de dañarse.
+  const CONSULTA_DATOS_ES = /\b(quiero|quisiera|necesito|me gustaria|deseo) (ver|saber|conocer|consultar|revisar|comparar|entender|descargar|los datos|las cifras|el pronostico|la grafica|informacion|info)\b/g;
+  const METODO_TEMA_ES = /\b(ahorc\w*|colgar\w*|soga|cuerda|veneno|envenen\w*|intoxicarme|intoxicarse|pastillas|pildoras|sobredosis|arma|pistola|disparo|dispararme|navaja|cuchillo|cortarme|saltar|tirarme|sobredosis|aventarme|puente|azotea|morir|morirme|muerte|matarme|suicid\w*|autolesion\w*|lastimarme|desaparecer)\b/;
+  const MENOR_ES = /\b(tengo (1[0-7]|[1-9]) anos|soy (menor|un nino|una nina|nino|nina|adolescente|menor de edad)|(mi|mis) (hijo|hija|hijos|hermano|hermana|sobrino|sobrina|alumno|alumna) (de|tiene) (1[0-7]|[1-9]) anos)\b/;
+  const PELIGRO_ES = /\b(peligro|miedo|me (hacen|tocan|obligan|amenazan)|me quiero ir de mi casa|no quiero volver a mi casa)\b/;
+  const METODO_PROPIO_EN = /\b(hang myself|cut myself|shoot myself|poison myself|stab myself|drown myself|suffocate myself|jump off|overdose|od on)\b/;
+  const AUTOLESION_EN = /\b(i (cut|hurt|harmed|poisoned) myself|i tried to (kill myself|die|end my life)|i attempted suicide)\b/;
+  const INGESTION_EN = /\b(i|she|he|they) (took|swallowed|drank|ingested)( [a-z0-9]+){0,5} (pills|tablets|poison|bleach|pesticide|rat poison|methanol|antifreeze)\b/;
+  const DOSIS_EN = /\b(how many (pills|tablets|capsules)|how much [a-z ]{0,30}(to die|to kill myself|do i need)|enough to die)\b/;
+  const INTENCION_EN = /\b(thinking (about|of)|i want to|i wanna|i am going to|im going to|i will|planning to|plan to)\b/;
+  const METODO_TEMA_EN = /\b(hang\w*|rope|poison|pills|overdose|gun|shoot|knife|cut|jump|bridge|die|death|kill|suicid\w*|self ?harm)\b/;
+  const MENOR_EN = /\b(i am (1[0-7]|[1-9])( years old)?|im (1[0-7]|[1-9])( years old)?|i m (1[0-7]|[1-9])|my (son|daughter|brother|sister) is (1[0-7]|[1-9]))\b/;
+
+  const temaSensible = (q) => nombraReleaseSensible(q) || SENSIBLE_ES.test(q) || SENSIBLE_EN.test(q);
+  /** Riesgo personal en la consulta normalizada: idioma de la respuesta («es», «en») o null. */
+  function riesgoPersonal(q) {
+    const qsDatos = q.replace(CONSULTA_DATOS_ES, ' ');
+    if (METODO_PROPIO_ES.test(q) || AUTOLESION_ES.test(q) || INGESTION_ES.test(q) || DOSIS_ES.test(q)) return 'es';
+    if (INTENCION_ES.test(qsDatos) && (temaSensible(qsDatos) || METODO_TEMA_ES.test(qsDatos))) return 'es';
+    if (MENOR_ES.test(q) && (temaSensible(q) || METODO_TEMA_ES.test(q) || PELIGRO_ES.test(q))) return 'es';
+    if (METODO_PROPIO_EN.test(q) || AUTOLESION_EN.test(q) || INGESTION_EN.test(q) || DOSIS_EN.test(q)) return 'en';
+    if (INTENCION_EN.test(q) && (temaSensible(q) || METODO_TEMA_EN.test(q))) return 'en';
+    if (MENOR_EN.test(q) && (temaSensible(q) || METODO_TEMA_EN.test(q))) return 'en';
+    return null;
+  }
+
   /** Texto fijo ante una señal de riesgo personal, o null. No pasa por ningún modelo. */
   function respuestaCrisis(qn) {
-    const q = String(qn);
+    const q = ` ${String(qn).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()} `;
+    const riesgo = riesgoPersonal(q);
+    if (riesgo === 'es') return CRISIS_TEXTO_ES;
+    if (riesgo === 'en') return CRISIS_TEXTO_EN;
     if (CRISIS_ES.test(q) || VIOLENCIA_ES.test(q)) return CRISIS_TEXTO_ES;
     if (CRISIS_EN.test(q) || VIOLENCIA_EN.test(q)) return CRISIS_TEXTO_EN;
     if (nombraReleaseSensible(q)) return null;
     if (SENSIBLE_ES.test(q)) return CRISIS_TEXTO_ES;
     return SENSIBLE_EN.test(q) ? CRISIS_TEXTO_EN : null;
+  }
+
+  // Auditoría Codex de alta_b44 (19-nov-2026): la crisis persiste en la conversación. «X60 en Jalisco» → «me quiero
+  // morir» → «¿y en Sonora?» devolvía cifras (4,203 casos legacy en el KB; X60 de Sonora en la función RAG). Tras una
+  // respuesta de crisis, todo turno que no nombre por sí mismo un padecimiento no sensible recibe apoyo, sin cifras,
+  // sin gráfica y sin heredar padecimiento ni estado.
+  const CRISIS_SEGUIMIENTO_ES = 'Sigo aquí contigo. Por lo que me contaste, en esta conversación no voy a mostrar cifras ni gráficas.\n\n' +
+    'Si tú o alguien cercano está en peligro inmediato, llama al **911**.\n\n' +
+    'En México, la **Línea de la Vida** atiende gratis, las 24 horas, todos los días: **800 911 2000**. ' +
+    'Te contesta un profesional de salud mental.\n\n' +
+    'Hablar hoy con ese servicio o con una persona de confianza puede ayudar.\n<!--SIN_GRAFICA-->';
+  const CRISIS_SEGUIMIENTO_EN = 'I am still here. Because of what you told me, I will not show figures or charts in this conversation.\n\n' +
+    'If you or someone near you is in immediate danger, call **911**.\n\n' +
+    'In Mexico, **Línea de la Vida** is free and open 24 hours a day, every day: **800 911 2000**. ' +
+    'A mental health professional answers.\n\n' +
+    'Calling that service or talking to someone you trust today can help.\n<!--SIN_GRAFICA-->';
+  const TURNO_EN = /^\s*(and|what|how|in|for|about|men|women|last|next|show)\b/;
+  /**
+   * Estado de crisis tras una secuencia de turnos del usuario (del más antiguo al más reciente). Una señal de riesgo lo
+   * activa; sólo lo desactiva un turno que nombra por sí mismo un padecimiento no sensible (`nombraPadLimpio`).
+   */
+  function crisisEnTurnos(turnos, nombraPadLimpio) {
+    let activa = false;
+    for (const t of turnos) {
+      if (respuestaCrisis(t)) activa = true;
+      else if (activa && nombraPadLimpio(t)) activa = false;
+    }
+    return activa;
+  }
+  /** Respuesta de apoyo para un seguimiento tras una crisis, o null si la crisis no sigue activa. */
+  function respuestaCrisisSeguimiento(qn, crisisPrevia, nombraPadLimpio) {
+    if (!crisisPrevia || nombraPadLimpio(qn)) return null;
+    const q = String(qn).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9 ]+/g, ' ');
+    return TURNO_EN.test(q) ? CRISIS_SEGUIMIENTO_EN : CRISIS_SEGUIMIENTO_ES;
   }
 
   /**
@@ -1790,5 +1886,6 @@
     ETIQUETA_SIN_ALTERNATIVA, textoSinAlternativa,
     releases, diabetesEnConsulta, conDiabetesNombrada, conFamiliaNombrada, canonClinico, nombraAlias, noModeladas,
     mencionaNoModelada, conHipertensionNombrada, respuestaCrisis, subtipoAjeno, aliasAmbiguo,
+    crisisEnTurnos, respuestaCrisisSeguimiento,
   });
 })(globalThis);

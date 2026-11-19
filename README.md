@@ -9,6 +9,25 @@ principal (`Congresos/Mundial/ESTADO_ACTUAL_WCP.md`); este README describe el si
 
 ---
 
+## Versión candidata alta_b44 (boletín 44, 19-nov-2026)
+
+Prevalece en conteos sobre las secciones inferiores, que quedan como historia. **Versión candidata, sin desplegar:** la
+producción servida sigue con la versión anterior hasta la revisión final, la integración en `main` y la comprobación del
+contenido servido. Conteos del catálogo (`publication/catalog.json`, 141 releases visibles y `published`):
+
+- **145 padecimientos en el sitio** = 4 del carril original + **141 releases del runner** (82 previos + 59 del lote
+  alta_b44).
+- Los 59 del lote: **14 portafolios aceptados** en su prueba única, **35 controles estacionales tras rechazo** (orden
+  nominal del autor por id) y **10 controles sin alternativa** (un año de historia, el control fue el único candidato).
+  Ningún control se presenta como validado ni como «validación en curso».
+- **12 releases sensibles** (autolesión, ideación, violencia intrafamiliar, heridas por arma de fuego, intoxicación por
+  alcohol y VIH): sólo se reconocen por su rótulo técnico o su código. Toda señal de riesgo personal (primera persona,
+  menores, métodos, dosis, ingestiones, autolesión) recibe únicamente la respuesta de crisis con la Línea de la Vida
+  (800 911 2000), sin cifras ni gráfica, y esa respuesta persiste en los seguimientos de la conversación
+  (`epibot/tests/test_crisis_codex_b44.mjs`).
+- Las fichas muestran la **media observada** del total nacional en las 52 semanas hasta el corte, con su periodo, no la
+  media del pronóstico (`epibot/tests/test_fichas_media_observada.mjs`).
+
 ## Versión con control A51 y fuente 2026-W44
 
 Esta versión incorpora —como **versión candidata** previa al despliegue efectivo (mientras la producción actualmente servida en `https://epiforecast.mx/` permanece en **`85` padecimientos / `81` releases del runner y piloto `0/1`** hasta consumar la publicación real)— la configuración conjunta de **86 padecimientos para el sitio** (`4` del carril original + **82 releases del runner**, gobernados por `publication/catalog.json` y `config/padecimientos.yaml` del backend) en paridad `F5` sobre la **semana fuente `2026-W44`** (`dataset_boletin_epidemiologico.csv` consolidado candidato, sha256 `0f6252f94e78b4af62044f81abe3977006f7e1cadb45bab8baf1512fb823ad44`, `92,155,130` B; `BASE_85_W43` `8c21883a…` es prefijo byte a byte de `BASE_86_W43` `82b6bd85…`, y `BASE_86_W43` es prefijo byte a byte de este consolidado `W44`), junto con el `raw` actualizado de COVID-19 `2026-W44` (`cf66c8704d57d8239156a46d396da2c8edf2758b0ec9a783ca3b6d53a0e1daa4`) y su emisión protocolaria `2026-W44.json` (`c8c88c36…`, sin evaluación acumulada) en el backend como base previa para `N=45`.
