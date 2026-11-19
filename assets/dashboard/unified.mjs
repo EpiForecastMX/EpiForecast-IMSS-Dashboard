@@ -139,12 +139,24 @@ export function selectPublishedMembers(publication) {
 
 // ── estado de publicación desde la vista ────────────────────────────────────
 const CONTROL_RE = /control estacional/i;
+/**
+ * Portafolio igual al control (rolling_cv_historia_corta_2024_v1, un año de historia): el único candidato fue el control
+ * estacional. Se presenta como control publicado, nunca como validación en curso, aunque la etiqueta sellada del shard
+ * diga «Validación prospectiva en curso». Misma frase que assets/site/estado-ficha.js.
+ */
+export const ETIQUETA_SIN_ALTERNATIVA = 'Control estacional publicado: con un año de historia no hubo alternativa que elegir, no validado y sin validación prospectiva propia · pronóstico puntual sin intervalos';
+
+/** Etiqueta visible de una vista: la sellada, salvo un portafolio igual al control. */
+export function etiquetaVisible(view) {
+  if (view?.portafolio_igual_al_control === true) return ETIQUETA_SIN_ALTERNATIVA;
+  return typeof view?.publication_label === 'string' ? view.publication_label : '';
+}
 
 /** Estado visible desde LA VISTA actual. FAIL o veredictos desconocidos lanzan. */
 export function statusFromView(view) {
   const verdict = view?.verdict;
-  const label = typeof view?.publication_label === 'string' ? view.publication_label : '';
-  if (!label) fail(`vista ${view?.disease_id} sin publication_label`);
+  if (typeof view?.publication_label !== 'string' || !view.publication_label) fail(`vista ${view?.disease_id} sin publication_label`);
+  const label = etiquetaVisible(view);
   const weeksAvailable = view.weeks_available;
   const weeksRequired = view.weeks_required;
   if (!Number.isInteger(weeksAvailable) || !Number.isInteger(weeksRequired)) {

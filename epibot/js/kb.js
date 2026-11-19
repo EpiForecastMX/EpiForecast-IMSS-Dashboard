@@ -6,12 +6,12 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=64';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=65';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=5';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=38';
-import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=30';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=39';
+import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=31';
 
 let DATA = null;
 
@@ -635,6 +635,8 @@ const UNIDADES_PAD = ['', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete
 /** El número de padecimientos, en letra: cuatro legacy más los releases del catálogo. */
 function numeralPadecimientos(n) {
   if (NUMERALES_PAD[n]) return NUMERALES_PAD[n];
+  // alta_b44 (19-nov-2026): del cien al ciento noventa y nueve («ciento cuarenta y cinco»); desde 200, cifras.
+  if (n >= 100 && n <= 199) return n === 100 ? 'cien' : `ciento ${numeralPadecimientos(n - 100)}`;
   if (n < 30 || n > 99) return String(n);
   const d = Math.floor(n / 10), u = n % 10;
   return u ? `${DECENAS_PAD[d]} y ${UNIDADES_PAD[u]}` : DECENAS_PAD[d];
@@ -714,7 +716,9 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
   // Solo activar si la pregunta parece pedir datos (casos, incidencia, etc.)
   const dataKw = ['caso', 'cuanto', 'incidencia', 'dato', 'estadistica',
     'numero', 'cifra', 'hubo', 'reporta', 'registro', 'pronostic',
-    'prediccion', 'modelo', 'grafica', 'tendencia'];
+    'prediccion', 'modelo', 'grafica', 'tendencia',
+    // alta_b44: «clamidia en el boletín» caía en la tabla neuro del boletín al dejar el radar de listar A55 como no modelado.
+    'boletin'];
 
   // Activar si tiene data keywords, menciona un estado, o es un follow-up corto ("y del cancer")
   const isShortFollowUp = q.split(' ').length <= 5 && /^(y |y del |y de |y la |y el )/.test(q);
@@ -729,7 +733,8 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
         ? `${LINEA_DE_LA_VIDA}\n\n`
         : '') +
       (violencia
-        ? 'No tiene modelo ni pronóstico en la plataforma y EPI no da sus cifras. Sus notificaciones semanales por entidad aparecen en el boletín y se consultan, sin modelo, en el [Radar del boletín](../boletin.html).\n\n'
+        ? 'No tiene modelo ni pronóstico en la plataforma y EPI no da sus cifras. Sus notificaciones semanales por entidad aparecen en el boletín y se consultan, sin modelo, en el [Radar del boletín](../boletin.html). ' +
+          'Dos categorías relacionadas sí tienen página propia y se consultan por su nombre técnico: [Violencia intrafamiliar (Y07.0-Y07.2)](../violencia_intrafamiliar_y07.html) y [Herida por arma de fuego (W32-W34)](../herida_arma_fuego_w32.html).\n\n'
         : '') +
       (cardiaco
         ? 'El boletín no publica una serie propia de infarto. Su categoría más cercana es **Enfermedad isquémica del corazón**, rotulada I20, I25 en el cuadro e I20-I25 en el resumen, así que no se puede afirmar si incluye I21. Sus datos están en [su página](../isquemica_i20.html), publicados con el control y sin validar.\n\n'
@@ -5786,27 +5791,37 @@ export function guardaSumaA37U99(query) {
     `[${a37.nombre}](../${a37.pagina}) y [${u.nombre}](../${u.pagina}).`;
 }
 
-// Meningitis de un tipo nombrado (meningocócica, tuberculosa, por Haemophilus, neumocócica) o con su código
-// (G00.0, G00.1): no es el síndrome meníngeo publicado (G00-G03, excepto G00.0 y G00.1) ni ningún otro pronóstico.
-// Texto fijo sin cifras, antes de cualquier otra ruta (hallazgo de la API real de la preview 82cf0812). Copia
+// Meningitis tuberculosa, por Haemophilus o neumocócica, o con su código (G00.0, G00.1): no es el síndrome meníngeo
+// publicado (G00-G03, excepto G00.0 y G00.1). Texto fijo sin cifras, antes de cualquier otra ruta (hallazgo de la API
+// real de la preview 82cf0812; alta_b44 añade los bloques invasivos de Haemophilus y neumococo). Copia
 // independiente en rag.mjs, con el mismo texto (tests/test_meningitis_d7_rag.mjs comprueba la paridad).
-const MENINGITIS_TIPO = /\b(meningitis|meningoencefalitis|meningococ[a-z]*|enfermedad meningococica)\b/;
-const MENINGITIS_NOMBRADA = /\b(meningococ[a-z]*|tuberculos[a-z]*|haemophilus|hemophilus|neumococ[a-z]*|pneumococ[a-z]*|g00 ?[01])\b/;
-export const MENINGITIS_TEXTO = 'EpiForecast-MX no pronostica la meningitis meningocócica, la tuberculosa, la debida a ' +
-  '*Haemophilus influenzae* (G00.0) ni la neumocócica (G00.1): se notifican aparte en el boletín. El **síndrome meníngeo** ' +
-  'publicado (G00-G03, excepto G00.0 y G00.1) no las incluye, así que no se le atribuyen sus cifras. Puedes consultar ' +
-  'ese bloque en [su página](../sindrome_meningeo_g00.html).';
-/** Texto fijo para una meningitis de tipo nombrado (consulta cruda), o null. */
-export const MENINGITIS_G00_TEXTO = '«G00» abarca la meningitis por *Haemophilus influenzae* (G00.0) y la neumocócica (G00.1), que ' +
-  'no se pronostican, y el resto de G00 (G00.2-G00.9), que forma parte del **síndrome meníngeo** publicado (G00-G03, ' +
-  'excepto G00.0 y G00.1). No doy cifras hasta saber cuál consultas; por ejemplo, «síndrome meníngeo en Jalisco».';
-const MENINGITIS_CODIGO = /\bg00 ?[01]\b/;
+const MENINGITIS_TIPO = /\b(meningitis|meningoencefalitis)\b/;
+export const MENINGITIS_TEXTO = 'La meningitis tuberculosa (A17.0) se notifica aparte en el boletín y EpiForecast-MX no la pronostica. No forma parte del ' +
+  '**síndrome meníngeo** publicado (G00-G03, excepto G00.0 y G00.1) ni de la **tuberculosis otras formas** (A17.1, A17.8, A17.9, ' +
+  'A18-A19), así que no se le atribuyen sus cifras.';
+export const MENINGITIS_HIB_TEXTO = 'La meningitis por *Haemophilus influenzae* (G00.0) no forma parte del **síndrome meníngeo** publicado (G00-G03, excepto ' +
+  'G00.0 y G00.1): se cuenta dentro de las **infecciones invasivas por Haemophilus influenzae** (A41.3, G00.0, J14), sin una ' +
+  'serie propia. Puedes consultar ese bloque en [su página](../haemophilus_a41.html) o preguntar por «haemophilus influenzae en Jalisco».';
+export const MENINGITIS_NEUMO_TEXTO = 'La meningitis neumocócica (G00.1) no forma parte del **síndrome meníngeo** publicado (G00-G03, excepto G00.0 y G00.1): ' +
+  'se cuenta dentro de la **enfermedad invasiva por neumococo** (A40.3, G00.1, J13), sin una serie propia. Puedes consultar ese ' +
+  'bloque en [su página](../neumococo_a40.html) o preguntar por «enfermedad invasiva por neumococo en Jalisco».';
+export const MENINGITIS_G00_TEXTO = '«G00» abarca la meningitis por *Haemophilus influenzae* (G00.0), contada dentro de las infecciones invasivas por ' +
+  'Haemophilus influenzae, la neumocócica (G00.1), contada dentro de la enfermedad invasiva por neumococo, y el resto de G00 ' +
+  '(G00.2-G00.9), que forma parte del **síndrome meníngeo** publicado (G00-G03, excepto G00.0 y G00.1). No doy cifras hasta ' +
+  'saber cuál consultas; por ejemplo, «síndrome meníngeo en Jalisco».';
 const G00_SOLO = /\bg00\b(?! ?[0-9])/;
-/** Texto fijo para una meningitis de tipo nombrado, G00.0, G00.1 o «G00» a secas (consulta cruda), o null. */
+/**
+ * alta_b44 (19-nov-2026): la meningocócica (A39.0) tiene release propio y la resuelve su alias; G00.0 y G00.1 se cuentan
+ * dentro de los bloques invasivos de su agente (A41.3, G00.0, J14 y A40.3, G00.1, J13); la tuberculosa (A17.0) sigue sin
+ * pronóstico. Texto fijo para G00.0, G00.1, una meningitis tuberculosa, por Haemophilus o neumocócica, o «G00» a secas.
+ */
 export function guardaMeningitisTipo(query) {
   const qn = norm(String(query || '')).replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ');
   if (/\bsindrome meningeo\b/.test(qn)) return null;
-  if (MENINGITIS_CODIGO.test(qn) || (MENINGITIS_TIPO.test(qn) && MENINGITIS_NOMBRADA.test(qn))) return MENINGITIS_TEXTO;
+  const men = MENINGITIS_TIPO.test(qn);
+  if (/\bg00 ?0\b/.test(qn) || (men && /\b(haemophilus|hemophilus|influenzae)\b/.test(qn))) return MENINGITIS_HIB_TEXTO;
+  if (/\bg00 ?1\b/.test(qn) || (men && /\b(neumococ[a-z]*|pneumococ[a-z]*)\b/.test(qn))) return MENINGITIS_NEUMO_TEXTO;
+  if (men && /\btuberculos[a-z]*\b/.test(qn)) return MENINGITIS_TEXTO;
   return G00_SOLO.test(qn) ? MENINGITIS_G00_TEXTO : null;
 }
 

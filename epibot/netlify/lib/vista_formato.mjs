@@ -73,11 +73,14 @@ export function metaVista(r, v, pruebaAnio = null) {
   const nac = v.series['nacional|mx|general'];
   const wa = v.weeks_available ?? 0;
   const wr = v.weeks_required ?? 4;
-  const anio = String(v.caida_al_control?.fold || '').replace(/^test_/, '') || pruebaAnio || '2025';
+  const sinAlt = v.portafolio_igual_al_control === true ? r.pruebaSinAlternativa : null;
+  const anio = String(v.caida_al_control?.fold || sinAlt?.fold || '').replace(/^test_/, '') || pruebaAnio || '2025';
   const wOos = rangoOos(v.origin, nac?.oos?.semanas, '–');
   const preEm = Boolean(r.cronologia && /antes de emitir/i.test(r.cronologia));
   const estCorto = v.caida_al_control
     ? `Control estacional no validado (portafolio rechazado en prueba única ${anio}; ${wa}/${wr} contador técnico)`
+    : v.portafolio_igual_al_control === true
+    ? `Control estacional no validado (sin alternativa con un año de historia; ${wa}/${wr} contador técnico)`
     : (v.verdict === 'FAIL'
       ? `Portafolio aceptado en prueba ${anio}; validación prospectiva ${wa}/${wr} FAIL`
       : `Portafolio aceptado en ${anio} (${wa}/${wr} ${v.verdict})`);
@@ -104,6 +107,11 @@ export function resumenMetodo(r, v, m, prueba, serieRef, sinSexo) {
       `El portafolio de modelos seleccionado fue rechazado en la prueba única retrospectiva de **${m.anio}** porque empeoraba ${lista(fallas)}, y ${aut} se publica el control estacional; **el rechazado fue el portafolio seleccionado, no el control publicado** [1]. ` +
       `Como control estacional no tiene validación prospectiva que superar: el avance **${m.wa} de ${m.wr}** semanas (**${v.verdict}**) es únicamente un contador técnico de registro con cada boletín, no un indicador de calidad ni una validación en curso [1]. ` +
       `Error del control en aquella prueba retrospectiva de ${m.anio} (distinta de la vista de ${v.origin[0]}, sMAPE): ${lista(errs)}.${pocoInf}`;
+  }
+  if (v.portafolio_igual_al_control === true) {
+    return `Lo publicado corresponde al **control estacional, no validado** (repite los casos de 52 semanas antes) [1]. ` +
+      `${globalThis.EPI_CATALOGO.textoSinAlternativa(r.id, sinSexo).replace(/^Es el control estacional, no validado: cada semana repite los casos de 52 semanas antes\. /, '')} ` +
+      `El avance **${m.wa} de ${m.wr}** semanas (**${v.verdict}**) es sólo un contador técnico de registro, no una validación en curso [1].`;
   }
   const motorTxt = serieRef ? `Motor de la serie: **${MOTOR_ES[serieRef.motor] || serieRef.motor}** [1]. ` : '';
   let prosp;

@@ -56,11 +56,12 @@ test('un no modelado con entidad da las cifras impresas del cuadro, sin pronóst
   assert.match(r.md, /<!--SIN_GRAFICA-->/);
 });
 
-// Brucelosis tiene su propio control desde alta20c (15-nov-2026); triquinosis sigue sin modelarse.
-test('sin handler previo: «casos de triquinosis» ya no queda sin respuesta', async () => {
-  const r = await conversa('casos de triquinosis');
+// Brucelosis tiene su propio control desde alta20c (15-nov-2026) y triquinosis desde alta_b44 (19-nov-2026); la
+// leishmaniasis cutánea sigue sin modelarse.
+test('sin handler previo: «casos de leishmaniasis cutánea» ya no queda sin respuesta', async () => {
+  const r = await conversa('casos de leishmaniasis cutanea');
   assert.equal(r.handler, 'answerRadarBoletin');
-  assert.match(r.md, new RegExp(es(por('Triquinosis').cumulative)));
+  assert.match(r.md, new RegExp(es(por('Leishmaniasis cutánea').cumulative)));
 });
 
 test('Covid-19 dice que se rechazó y remite a rechazados', async () => {
@@ -150,20 +151,22 @@ test('un cero impreso se muestra como 0 y sin nota de guion', () => {
 });
 
 test('varias categorías salen en tabla, con la columna de la entidad', async () => {
-  const tb = por('Tuberculosis respiratoria');
+  // alta_b44: la tuberculosis otras formas se publicó; «leishmaniasis» sigue nombrando dos categorías sin modelo.
+  const tb = por('Leishmaniasis cutánea');
   const so = tb.states.find((s) => s.state === 'Sonora').values;
-  const r = await conversa('tuberculosis en jalisco mujeres', 'y hombres?', 'y en sonora?');
+  const r = await conversa('leishmaniasis en jalisco mujeres', 'y hombres?', 'y en sonora?');
   assert.equal(r.handler, 'answerRadarBoletin');
   assert.match(r.md, /Sonora: semana \/ acumulado/);
   const sem = so[0] === '-' ? '– \\(sin casos\\)' : es(so[0]);
-  assert.match(r.md, new RegExp(`Tuberculosis respiratoria \\| A15-A16 \\| ${tb.observed_week} \\|.*\\| ${sem} / ${es(so[1] + so[2])} \\|`));
+  assert.match(r.md, new RegExp(`Leishmaniasis cutánea \\| B55\\.1 \\| ${tb.observed_week} \\|.*\\| ${sem} / ${so[1] === '-' ? '– \\(sin casos\\)' : es(so[1] + so[2])} \\|`));
 });
 
 test('el seguimiento de un no modelado no cae en la tabla neuro', async () => {
-  const r = await conversa('vih en veracruz', 'y en puebla?');
+  // alta_b44: el VIH tiene su propio control; se usa una categoría que sigue sin modelarse.
+  const r = await conversa('leishmaniasis cutanea en veracruz', 'y en puebla?');
   assert.equal(r.handler, 'answerRadarBoletin');
   assert.match(r.md, /\*\*Puebla\*\*/);
-  const s = await conversa('depresion en sonora', 'y triquinosis?');
+  const s = await conversa('depresion en sonora', 'y leishmaniasis cutanea?');
   assert.equal(s.handler, 'answerRadarBoletin');
   assert.doesNotMatch(s.md, /Depresion/);
 });

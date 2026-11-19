@@ -153,9 +153,9 @@ test('seguimientos clínicos y prioridad de crisis: O98.1 embarazo, A50 congéni
     assert.match(r.answer, /no modela[\s\S]*O98\.1/i, seg);
     assert.doesNotMatch(r.answer, reCifrasA51, seg);
   }
+  // alta_b44 (19-nov-2026): la sífilis congénita (A50) tiene su propio control; el seguimiento nunca da cifras de A51-A53.
   for (const seg of ['¿y la congénita?', 'and congenital?', '¿y neonatal?']) {
     const { r } = await consultar(seg, { history: histA51 });
-    assert.match(r.answer, /no modela[\s\S]*A50/i, seg);
     assert.doesNotMatch(r.answer, reCifrasA51, seg);
   }
   for (const seg of ['¿y en bebés?', '¿y en recién nacidos?', '¿y en menores?', 'and in babies?', 'sífilis adquirida en niños en Jalisco']) {
@@ -164,7 +164,7 @@ test('seguimientos clínicos y prioridad de crisis: O98.1 embarazo, A50 congéni
     assert.match(r.answer, /A50/, seg);
     assert.doesNotMatch(r.answer, reCifrasA51, seg);
   }
-  for (const prev of ['sífilis congénita en Jalisco', 'sífilis en el embarazo en Jalisco']) {
+  for (const prev of ['sífilis en el embarazo en Jalisco']) {
     const { r } = await consultar('¿y en Sonora?', { history: [{ role: 'user', text: prev }] });
     assert.match(r.answer, /no modela/i, prev);
     assert.doesNotMatch(r.answer, /\d{1,3}(,\d{3})+/, prev);

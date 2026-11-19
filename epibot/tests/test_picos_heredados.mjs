@@ -38,14 +38,17 @@ test('Hodgkin: el pico de Morelos de 2025-W43 se repite en 2026-W42', () => {
 // paratifoidea (aceptada) hereda el de Michoacán 2026-W32 (121 casos, conservado en el acumulado); plaguicidas, el del
 // Estado de México 2026-W16 (60 casos, retirado por la fuente; aviso en ficha, EpiBot y corpus). En W44 se suma sífilis
 // adquirida (Coahuila, 250 casos en fuente abierta p. 24 PDF W12, proyectado en 2027-W11).
-test('sólo diecinueve releases publicados heredan un pico aislado de su fuente', () => {
+// alta_b44 (19-nov-2026): ocho releases más heredan un pico aislado (abeja, avispa, conjuntivitis hemorrágica, ESAVI,
+// ideación suicida R45.8, teniasis, VIH y VPH), cotejado contra el raw en planes/alta_b44_2026-11-19/frontend/fichas/.
+test('sólo veintisiete releases publicados heredan un pico aislado de su fuente', () => {
   const { resumen } = revisa(ROOT);
   const con = Object.entries(resumen).filter(([, n]) => n).map(([id]) => id).sort();
   assert.deepEqual(con, [
-    'absceso_hepatico_a064', 'alimentaria_a05', 'cancer_ovario_c56', 'cancer_pancreas_c26', 'cancer_prostata_c61',
-    'cancer_pulmon_c33', 'cerebrovascular_i60', 'desnutricion_moderada_e440', 'desnutricion_severa_e40',
-    'displasia_leve_n87', 'enterobiasis_b80', 'hepatitis_c_b17', 'linfoma_hodgkin_c81', 'paratifoidea_a011', 'peaton_v01', 'plaguicidas_t60',
-    'protozoarios_a07', 'reumatica_i00', 'sifilis_adquirida_a51',
+    'abeja_u604', 'absceso_hepatico_a064', 'alimentaria_a05', 'avispa_u605', 'cancer_ovario_c56', 'cancer_pancreas_c26',
+    'cancer_prostata_c61', 'cancer_pulmon_c33', 'cerebrovascular_i60', 'conjuntivitis_hemorragica_b303',
+    'desnutricion_moderada_e440', 'desnutricion_severa_e40', 'displasia_leve_n87', 'enterobiasis_b80', 'esavi_y58',
+    'hepatitis_c_b17', 'ideacion_suicida_r458', 'linfoma_hodgkin_c81', 'paratifoidea_a011', 'peaton_v01',
+    'plaguicidas_t60', 'protozoarios_a07', 'reumatica_i00', 'sifilis_adquirida_a51', 'teniasis_b68', 'vih_b20', 'vph_b97',
   ]);
   const picosA51 = picosHeredados(vista('sifilis_adquirida_a51'));
   assert.ok(picosA51.some((p) => /Coahuila/i.test(p.estado) && p.observado === 250 && p.semanaPronosticada[0] === 2027 && p.semanaPronosticada[1] === 11));

@@ -10,14 +10,14 @@
  * follow-ups («¿y hombres?») y en consultas corregidas por typo, donde la consulta cruda ya no
  * nombra a Obesidad.
  */
-import { mencionaNoModelada } from './entities.js?v=64';
+import { mencionaNoModelada } from './entities.js?v=65';
 import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
-} from './obesidad_charts.js?v=33';
-import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=30';
+} from './obesidad_charts.js?v=34';
+import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=31';
 // Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
-import './avisos_fuente.js?v=2';
+import './avisos_fuente.js?v=3';
 
 const any = (q, ks) => ks.some((k) => q.includes(k));
 const semana = ([a, w]) => `${a}-W${String(w).padStart(2, '0')}`;
@@ -48,7 +48,7 @@ function ficha(v, x, encabezado, r) {
   if (!x.oos.semanas) return [...inicio, enCurso(v), ...avisosFuente(v.disease_id)];
   return [
     ...inicio,
-    ...(v.caida_al_control ? [avisoControl(v), ''] : []),
+    ...(esControl(v) ? [avisoDeControl(v), ''] : []),
     `**Cómo le ha ido fuera de muestra** (${x.oos.semanas === 1 ? '1 semana observada' : `${x.oos.semanas} semanas observadas`}, hasta ${semana(v.observation_cutoff)}):`,
     `- sMAPE: **${num1(x.oos.smape)} %**`,
     `- Error medio absoluto: ${ent0(x.oos.mae)} casos por semana`,
@@ -75,6 +75,26 @@ function avisoControl(v) {
   const r = rechazoDe(v);
   return `**Es el control estacional, no validado:** cada semana repite los casos de 52 semanas antes. El portafolio seleccionado se rechazó en la prueba de ${r.anio} porque empeoraba ${r.ambitos}, así que no hay una validación prospectiva que superar: sólo se registrará su error con cada boletín. ${r.errorControl}`;
 }
+
+/**
+ * alta_b44 (19-nov-2026): con un año de historia (rolling_cv_historia_corta_2024_v1) el único candidato fue el control y
+ * el portafolio es idéntico a él (`portafolio_igual_al_control`). Se presenta como control estacional publicado, no
+ * validado, nunca como «validación en curso»; su error en la prueba única sale del catálogo (`pruebaSinAlternativa`,
+ * tomado del acceptance.json sellado).
+ */
+export const esControl = (v) => !!v?.caida_al_control || v?.portafolio_igual_al_control === true;
+export const ETIQUETA_SIN_ALTERNATIVA = globalThis.EPI_CATALOGO.ETIQUETA_SIN_ALTERNATIVA;
+/** Etiqueta visible: la sellada, salvo un portafolio igual al control (misma frase que assets/dashboard/unified.mjs). */
+export const etiquetaVisible = (v) => (v?.portafolio_igual_al_control === true ? ETIQUETA_SIN_ALTERNATIVA : v.publication_label);
+
+function avisoSinAlternativa(v) {
+  const sinSexo = !Object.keys(v.series || {}).some((k) => k.endsWith('|hombres'));
+  return globalThis.EPI_CATALOGO.textoSinAlternativa(v.disease_id, sinSexo)
+    .replace(/^Es el control estacional, no validado:/, '**Es el control estacional, no validado:**');
+}
+
+/** Aviso de un release del control: caída tras rechazo o control sin alternativa. */
+export const avisoDeControl = (v) => (v.caida_al_control ? avisoControl(v) : avisoSinAlternativa(v));
 
 const AMBITO = {
   smape_bases: (sinSexo) => (sinSexo ? 'las series por estado' : 'las series por estado y sexo'),
@@ -117,7 +137,7 @@ export function errorDelControl(c, anio, sinSexo, estatalPocoInformativo = false
 }
 
 /** Estado de una validación sin semanas observadas: se dice, no se rellena con cifras. */
-const enCurso = (v) => (v.caida_al_control ? avisoControl(v) : `**Validación prospectiva en curso** (${v.weeks_available} de ${v.weeks_required} semanas): todavía no hay semanas observadas después del origen, así que aún no se publica su desempeño fuera de muestra.`);
+const enCurso = (v) => (esControl(v) ? avisoDeControl(v) : `**Validación prospectiva en curso** (${v.weeks_available} de ${v.weeks_required} semanas): todavía no hay semanas observadas después del origen, así que aún no se publica su desempeño fuera de muestra.`);
 
 /** Desempeño de una fila, o lo que hay mientras no exista ninguna semana observada. */
 const desempeno = (x, v) => (x.oos.semanas
@@ -176,7 +196,7 @@ function answerRelease(q, ent, s, d, r) {
   const pidioSexo = sinSexo && ((ent.sexo && ent.sexo !== 'general') || tipoPedido === 'sexo');
   if (sinSexo) ent = { ...ent, sexo: undefined };
   const tipo = pidioSexo && tipoPedido === 'sexo' ? tipoEfectivo('', ent) : tipoPedido;
-  const etiqueta = `_${v.publication_label}._`;
+  const etiqueta = `_${etiquetaVisible(v)}._`;
   const avisoSexo = pidioSexo
     ? `El boletín publica **${r.etiqueta}** sin desglose por sexo: se pronostica el total de cada entidad.\n\n`
     : '';
@@ -191,7 +211,7 @@ function answerRelease(q, ent, s, d, r) {
   const pideError = any(q, ['error', 'smape', 'precision', 'sesgo', 'desempeno']);
 
   if (tipo in NO_DISPONIBLE) {
-    const texto = tipo === 'metricas' && v.caida_al_control ? avisoControl(v) : noDisponible(tipo, r.nombre, r.seleccion);
+    const texto = tipo === 'metricas' && esControl(v) ? avisoDeControl(v) : noDisponible(tipo, r.nombre, r.seleccion);
     return `${texto}\n\nPara ${r.etiqueta} sí puedes pedir ${alternativas(r, conOos)}.` + pie + marca(tipo, ent, null, r);
   }
 
@@ -247,7 +267,7 @@ function answerRelease(q, ent, s, d, r) {
         ? `Se modelan **${v.models} series**, una por estado (el boletín no desglosa sexo); los otros ${v.products - v.models} de los ${v.products} productos (regionales y nacional) se obtienen sumándolas.`
         : `Se modelan **${v.models} series** (32 estados × hombres y mujeres); los otros ${v.products - v.models} de los ${v.products} productos (totales estatales, regionales y nacional) se obtienen sumándolas.`, '',
       ...cuenta.map(([m, n]) => `- ${OBESIDAD_MOTOR[m] || m}: **${n}** series`), '',
-      v.caida_al_control ? avisoControl(v) : `El motor de cada serie se eligió con validación cruzada temporal ${r.seleccion || 'en pliegues de 2021 a 2024'}, sin que el modelo vea nunca el periodo que pronostica.`,
+      esControl(v) ? avisoDeControl(v) : `El motor de cada serie se eligió con validación cruzada temporal ${r.seleccion || 'en pliegues de 2021 a 2024'}, sin que el modelo vea nunca el periodo que pronostica.`,
       sinSexo
         ? `Pregunta por un estado («motor de ${r.consulta} en Jalisco») para ver el de esa serie.`
         : `Pregunta por un estado y un sexo («motor de ${r.consulta} en Jalisco mujeres») para ver el de esa serie.`, '', etiqueta]);

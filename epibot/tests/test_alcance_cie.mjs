@@ -51,10 +51,7 @@ const NEGATIVOS = [
   ['otitis media supurativa en Jalisco', VECINO.otitis],
   ['otitis media crónica en Jalisco', VECINO.otitis],
   ['otitis externa en Jalisco', VECINO.otitis],
-  ['conjuntivitis hemorrágica en Jalisco', VECINO.conjuntivitis],
   ['conjuntivitis viral en Sonora', VECINO.conjuntivitis],
-  ['B30.3 en Jalisco', VECINO.conjuntivitis],
-  ['conjuntivitis epidémica aguda hemorrágica', VECINO.conjuntivitis],
   ['accidente en bicicleta en Jalisco', VECINO.vehiculos],
   ['ciclistas lesionados en accidente de tránsito en Sonora', VECINO.vehiculos],
   ['accidente de transporte V15 en Jalisco', VECINO.vehiculos],
@@ -71,7 +68,6 @@ const NEGATIVOS = [
   ['conjuntivitis vírica en Sonora', VECINO.conjuntivitis],
   ['conjuntivitis por adenovirus en Sonora', VECINO.conjuntivitis],
   ['conjuntivitis adenoviral en Sonora', VECINO.conjuntivitis],
-  ['conjuntivitis aguda epidémica hemorrágica en Sonora', VECINO.conjuntivitis],
   ['conjuntivitis gonocócica en Sonora', VECINO.conjuntivitis],
   ['conjuntivitis neonatal en Sonora', VECINO.conjuntivitis],
 ];
@@ -86,6 +82,20 @@ for (const [q, vecino] of NEGATIVOS) {
     const { md } = await pregunta(q);
     assert.doesNotMatch(md, MARCAS, md.slice(0, 200));
     assert.doesNotMatch(md, /casos pronosticados|Pronóstico \*\*congelado\*\*/);
+  });
+}
+
+// alta_b44 (19-nov-2026): la conjuntivitis epidémica aguda hemorrágica (B30.3) tiene su propio control estacional:
+// responde ese release, nunca el de Conjuntivitis (H10).
+for (const q of ['conjuntivitis hemorrágica en Jalisco', 'B30.3 en Jalisco', 'conjuntivitis epidémica aguda hemorrágica',
+  'conjuntivitis aguda epidémica hemorrágica en Sonora']) {
+  test(`B30.3: «${q}» responde su propio release, no Conjuntivitis (H10)`, async () => {
+    const ent = detectEntities(q);
+    assert.equal(ent.padecimiento, 'Conjuntivitis epidémica aguda hemorrágica', q);
+    assert.ok(!(ent.padecimientos || []).includes(VECINO.conjuntivitis), q);
+    const { md } = await pregunta(q);
+    assert.match(md, /CONJUNTIVITIS_HEMORRAGICA_B303/, q);
+    assert.doesNotMatch(md, /CONJUNTIVITIS_H10/, q);
   });
 }
 

@@ -795,6 +795,312 @@
         + 'registro técnico de cuatro semanas (W43 a W46 de 2026; 1/4 INCOMPLETE al corte del boletín 44) pasa a '
         + 'CONTROL_ONLY al reunir las cuatro observaciones, sin obtener nunca aprobación prospectiva.',
     },
+    // Lote alta_b44 (19-nov-2026): 58 releases del boletín 44. Controles estacionales tras rechazo (orden nominal
+    // del autor por id), diez controles sin alternativa con un año de historia (rolling_cv_historia_corta_2024_v1,
+    // portafolio igual al control: `controlSinAlternativa`) y aceptados en su prueba única. Los sensibles (`sensible`)
+    // sólo se reconocen por su rótulo técnico completo o su código: los términos genéricos dan la respuesta de crisis.
+    {
+      id: 'alacran_t63', pad: 'Intoxicación por picadura de alacrán', nombre: 'Intoxicación por picadura de alacrán', nombreCorto: 'Picadura de alacrán', etiqueta: 'Intoxicación por picadura de alacrán (T63.2, X22)', dataKey: 'alacran_t63', marca: 'ALACRAN_T63', pagina: 'alacran_t63.html', consulta: 'intoxicacion por picadura de alacran', cie: 'T63.2, X22', color: '#92400E',
+      alias: ['intoxicacion por picadura de alacran', 'picadura de alacran', 'picaduras de alacran', 'piquete de alacran', 'alacranismo', 'alacran', 'alacranes', 't63 2', 'x22', 'scorpion sting', 'scorpion stings'],
+      prefijos: ['picadura de alacran', 'picaduras de alacran', 'alacran', 'scorpion sting'],
+    },
+    {
+      id: 'mordedura_perro_w54', pad: 'Mordeduras por perro', nombre: 'Mordeduras por perro', nombreCorto: 'Mordeduras por perro', etiqueta: 'Mordeduras por perro (W54)', dataKey: 'mordedura_perro_w54', marca: 'MORDEDURA_PERRO_W54', pagina: 'mordedura_perro_w54.html', consulta: 'mordeduras por perro', cie: 'W54', color: '#57534E',
+      alias: ['mordeduras por perro', 'mordedura de perro', 'mordedura por perro', 'mordeduras de perro', 'w54', 'dog bite', 'dog bites'],
+      prefijos: ['mordedura de perro', 'mordeduras de perro', 'mordedura por perro', 'mordeduras por perro', 'dog bite'],
+    },
+    {
+      id: 'mordedura_mamiferos_w55', pad: 'Mordeduras por otros mamíferos', nombre: 'Mordeduras por otros mamíferos', nombreCorto: 'Mordeduras por otros mamíferos', etiqueta: 'Mordeduras por otros mamíferos (W55)', dataKey: 'mordedura_mamiferos_w55', marca: 'MORDEDURA_MAMIFEROS_W55', pagina: 'mordedura_mamiferos_w55.html', consulta: 'mordeduras por otros mamiferos', cie: 'W55', color: '#A8A29E',
+      alias: ['mordeduras por otros mamiferos', 'mordedura de otros mamiferos', 'mordedura por otros mamiferos', 'mordeduras de otros mamiferos', 'w55', 'other mammal bites'],
+      prefijos: ['mordedura de otros mamiferos', 'mordeduras de otros mamiferos', 'mordedura por otros mamiferos', 'mordeduras por otros mamiferos'],
+    },
+    {
+      id: 'toxoplasmosis_b58', pad: 'Toxoplasmosis', nombre: 'Toxoplasmosis', nombreCorto: 'Toxoplasmosis', etiqueta: 'Toxoplasmosis (B58)', dataKey: 'toxoplasmosis_b58', marca: 'TOXOPLASMOSIS_B58', pagina: 'toxoplasmosis_b58.html', consulta: 'toxoplasmosis', cie: 'B58', color: '#854D0E',
+      alias: ['toxoplasmosis', 'b58'],
+      prefijos: ['toxoplasm'],
+      cronologia: 'Se entrenó con datos hasta 2026-W42 y su único pronóstico congelado se creó el 2026-11-19T13:29:16.735688+00:00 (19 de noviembre de 2026 en Ciudad de México). El boletín 44 (semana 2026-W43, primera disponibilidad verificable 2026-11-17T01:23:31.237010+00:00 UTC) ya era público antes de emitir: no se usó para entrenar y se registró por separado en toxoplasmosis_b58_57c2305d7e99, así que el primer objetivo (2026-W43) no es prospectivo respecto de la información. Como control estacional no tiene validación prospectiva propia: el registro técnico de cuatro semanas (1/4 INCOMPLETE al corte del boletín 44) pasa a CONTROL_ONLY al reunir las cuatro observaciones, sin obtener nunca aprobación prospectiva.',
+    },
+    {
+      id: 'teniasis_b68', pad: 'Teniasis', nombre: 'Teniasis', nombreCorto: 'Teniasis', etiqueta: 'Teniasis (B68)', dataKey: 'teniasis_b68', marca: 'TENIASIS_B68', pagina: 'teniasis_b68.html', consulta: 'teniasis', cie: 'B68', color: '#3F6212',
+      alias: ['teniasis', 'taeniasis', 'b68'],
+      prefijos: ['teniasis', 'taeniasis'],
+      cronologia: 'Se entrenó con datos hasta 2026-W42 y su único pronóstico congelado se creó el 2026-11-19T13:29:30.068368+00:00 (19 de noviembre de 2026 en Ciudad de México). El boletín 44 (semana 2026-W43, primera disponibilidad verificable 2026-11-17T01:23:31.237010+00:00 UTC) ya era público antes de emitir: no se usó para entrenar y se registró por separado en teniasis_b68_5df03584bac6, así que el primer objetivo (2026-W43) no es prospectivo respecto de la información. Como control estacional no tiene validación prospectiva propia: el registro técnico de cuatro semanas (1/4 INCOMPLETE al corte del boletín 44) pasa a CONTROL_ONLY al reunir las cuatro observaciones, sin obtener nunca aprobación prospectiva.',
+    },
+    {
+      id: 'cisticercosis_b69', pad: 'Cisticercosis', nombre: 'Cisticercosis', nombreCorto: 'Cisticercosis', etiqueta: 'Cisticercosis (B69)', dataKey: 'cisticercosis_b69', marca: 'CISTICERCOSIS_B69', pagina: 'cisticercosis_b69.html', consulta: 'cisticercosis', cie: 'B69', color: '#166534',
+      alias: ['cisticercosis', 'neurocisticercosis', 'b69', 'cysticercosis'],
+      prefijos: ['cisticercosis', 'neurocisticercosis', 'cysticercosis'],
+      cronologia: 'Se entrenó con datos hasta 2026-W42 y su único pronóstico congelado se creó el 2026-11-19T13:29:21.600870+00:00 (19 de noviembre de 2026 en Ciudad de México). El boletín 44 (semana 2026-W43, primera disponibilidad verificable 2026-11-17T01:23:31.237010+00:00 UTC) ya era público antes de emitir: no se usó para entrenar y se registró por separado en cisticercosis_b69_fe1c2b19bed3, así que el primer objetivo (2026-W43) no es prospectivo respecto de la información. Como control estacional no tiene validación prospectiva propia: el registro técnico de cuatro semanas (1/4 INCOMPLETE al corte del boletín 44) pasa a CONTROL_ONLY al reunir las cuatro observaciones, sin obtener nunca aprobación prospectiva.',
+    },
+    {
+      id: 'triquinosis_b75', pad: 'Triquinosis', nombre: 'Triquinosis', nombreCorto: 'Triquinosis', etiqueta: 'Triquinosis (B75)', dataKey: 'triquinosis_b75', marca: 'TRIQUINOSIS_B75', pagina: 'triquinosis_b75.html', consulta: 'triquinosis', cie: 'B75', color: '#7F1D1D',
+      alias: ['triquinosis', 'triquinelosis', 'b75', 'trichinosis', 'trichinellosis'],
+      prefijos: ['triquinosis', 'triquinelosis', 'trichinosis', 'trichinellosis'],
+      cronologia: 'Se entrenó con datos hasta 2026-W42 y su único pronóstico congelado se creó el 2026-11-19T13:29:34.120104+00:00 (19 de noviembre de 2026 en Ciudad de México). El boletín 44 (semana 2026-W43, primera disponibilidad verificable 2026-11-17T01:23:31.237010+00:00 UTC) ya era público antes de emitir: no se usó para entrenar y se registró por separado en triquinosis_b75_248ad10f21a7, así que el primer objetivo (2026-W43) no es prospectivo respecto de la información. Como control estacional no tiene validación prospectiva propia: el registro técnico de cuatro semanas (1/4 INCOMPLETE al corte del boletín 44) pasa a CONTROL_ONLY al reunir las cuatro observaciones, sin obtener nunca aprobación prospectiva.',
+    },
+    {
+      id: 'conjuntivitis_hemorragica_b303', pad: 'Conjuntivitis epidémica aguda hemorrágica', nombre: 'Conjuntivitis epidémica aguda hemorrágica', nombreCorto: 'Conjuntivitis epidémica aguda hemorrágica', etiqueta: 'Conjuntivitis epidémica aguda hemorrágica (B30.3)', dataKey: 'conjuntivitis_hemorragica_b303', marca: 'CONJUNTIVITIS_HEMORRAGICA_B303', pagina: 'conjuntivitis_hemorragica_b303.html', consulta: 'hemorragica conjuntival epidemica', cie: 'B30.3', color: '#BE185D',
+      alias: ['hemorragica conjuntival epidemica', 'b30 3'],
+      prefijos: ['hemorragica conjuntival epidemica'],
+      cronologia: 'Se entrenó con datos hasta 2026-W42 y su único pronóstico congelado se creó el 2026-11-19T13:29:11.713796+00:00 (19 de noviembre de 2026 en Ciudad de México). El boletín 44 (semana 2026-W43, primera disponibilidad verificable 2026-11-17T01:23:31.237010+00:00 UTC) ya era público antes de emitir: no se usó para entrenar y se registró por separado en conjuntivitis_hemorragica_b303_f0c4a3215b7e, así que el primer objetivo (2026-W43) no es prospectivo respecto de la información. Como control estacional no tiene validación prospectiva propia: el registro técnico de cuatro semanas (1/4 INCOMPLETE al corte del boletín 44) pasa a CONTROL_ONLY al reunir las cuatro observaciones, sin obtener nunca aprobación prospectiva.',
+    },
+    {
+      id: 'tracoma_a71', pad: 'Tracoma', nombre: 'Tracoma', nombreCorto: 'Tracoma', etiqueta: 'Tracoma (A71)', dataKey: 'tracoma_a71', marca: 'TRACOMA_A71', pagina: 'tracoma_a71.html', consulta: 'tracoma', cie: 'A71', color: '#4338CA',
+      alias: ['tracoma', 'a71', 'trachoma'],
+      prefijos: ['tracoma', 'trachoma'],
+      cronologia: 'Se entrenó con datos hasta 2026-W42 y su único pronóstico congelado se creó el 2026-11-19T13:29:38.036780+00:00 (19 de noviembre de 2026 en Ciudad de México). El boletín 44 (semana 2026-W43, primera disponibilidad verificable 2026-11-17T01:23:31.237010+00:00 UTC) ya era público antes de emitir: no se usó para entrenar y se registró por separado en tracoma_a71_e19dc92ac6d6, así que el primer objetivo (2026-W43) no es prospectivo respecto de la información. Como control estacional no tiene validación prospectiva propia: el registro técnico de cuatro semanas (1/4 INCOMPLETE al corte del boletín 44) pasa a CONTROL_ONLY al reunir las cuatro observaciones, sin obtener nunca aprobación prospectiva.',
+    },
+    {
+      id: 'hipotermia_t68', pad: 'Hipotermia', nombre: 'Hipotermia', nombreCorto: 'Hipotermia', etiqueta: 'Hipotermia (T68)', dataKey: 'hipotermia_t68', marca: 'HIPOTERMIA_T68', pagina: 'hipotermia_t68.html', consulta: 'hipotermia', cie: 'T68', color: '#1E40AF',
+      alias: ['hipotermia', 't68', 'hypothermia'],
+      prefijos: ['hipotermia', 'hypothermia'],
+      cronologia: 'Se entrenó con datos hasta 2026-W42 y su único pronóstico congelado se creó el 2026-11-19T13:29:25.994619+00:00 (19 de noviembre de 2026 en Ciudad de México). El boletín 44 (semana 2026-W43, primera disponibilidad verificable 2026-11-17T01:23:31.237010+00:00 UTC) ya era público antes de emitir: no se usó para entrenar y se registró por separado en hipotermia_t68_18d7d58ccaa7, así que el primer objetivo (2026-W43) no es prospectivo respecto de la información. Como control estacional no tiene validación prospectiva propia: el registro técnico de cuatro semanas (1/4 INCOMPLETE al corte del boletín 44) pasa a CONTROL_ONLY al reunir las cuatro observaciones, sin obtener nunca aprobación prospectiva.',
+    },
+    {
+      id: 'tetanos_a34', pad: 'Tétanos', nombre: 'Tétanos', nombreCorto: 'Tétanos', etiqueta: 'Tétanos (A34, A35)', dataKey: 'tetanos_a34', marca: 'TETANOS_A34', pagina: 'tetanos_a34.html', consulta: 'tetanos a34', cie: 'A34, A35', color: '#7C2D12',
+      alias: ['tetanos obstetrico', 'otros tetanos', 'tetanos no neonatal', 'a34', 'a35', 'obstetrical tetanus'],
+      prefijos: ['tetanos obstetrico', 'otros tetanos', 'tetanos no neonatal'],
+    },
+    {
+      id: 'viruela_simica_b04', pad: 'Viruela símica', nombre: 'Viruela símica', nombreCorto: 'Viruela símica', etiqueta: 'Viruela símica (B04)', dataKey: 'viruela_simica_b04', marca: 'VIRUELA_SIMICA_B04', pagina: 'viruela_simica_b04.html', consulta: 'viruela simica', cie: 'B04', color: '#A16207', seleccion: 'en un pliegue de 2025 (la serie empieza en 2023)',
+      alias: ['viruela simica', 'viruela del mono', 'viruela de los monos', 'mpox', 'monkeypox', 'b04'],
+      prefijos: ['viruela simica', 'viruela del mono', 'mpox', 'monkeypox'],
+    },
+    {
+      id: 'vph_b97', pad: 'Infección por virus de papiloma humano', nombre: 'Infección por virus de papiloma humano', nombreCorto: 'Virus de papiloma humano', etiqueta: 'Infección por virus de papiloma humano (B97.7)', dataKey: 'vph_b97', marca: 'VPH_B97', pagina: 'vph_b97.html', consulta: 'infeccion por virus de papiloma humano', cie: 'B97.7', color: '#BE185D',
+      alias: ['infeccion por virus de papiloma humano', 'virus de papiloma humano', 'virus del papiloma humano', 'papiloma humano', 'papilomavirus', 'vph', 'b97 7', 'hpv', 'human papillomavirus'],
+      prefijos: ['virus de papiloma humano', 'virus del papiloma humano', 'papiloma humano', 'papilomavirus', 'human papillomavirus'],
+    },
+    {
+      id: 'gonococica_a54', pad: 'Infección gonocócica del tracto genitourinario', nombre: 'Infección gonocócica del tracto genitourinario', nombreCorto: 'Infección gonocócica', etiqueta: 'Infección gonocócica del tracto genitourinario (A54.0-A54.2)', dataKey: 'gonococica_a54', marca: 'GONOCOCICA_A54', pagina: 'gonococica_a54.html', consulta: 'infeccion gonococica del tracto genitourinario', cie: 'A54.0-A54.2', color: '#9D174D',
+      alias: ['infeccion gonococica del tracto genitourinario', 'infeccion gonococica genitourinaria', 'gonorrea genitourinaria', 'gonorrea urogenital', 'a54 0', 'a54 1', 'a54 2', 'genitourinary gonococcal infection'],
+      prefijos: ['infeccion gonococica del tracto genitourinario', 'infeccion gonococica genitourinaria', 'gonorrea genitourinaria', 'gonorrea urogenital'],
+    },
+    {
+      id: 'linfogranuloma_a55', pad: 'Linfogranuloma venéreo por Clamidias', nombre: 'Linfogranuloma venéreo por Clamidias', nombreCorto: 'Linfogranuloma venéreo', etiqueta: 'Linfogranuloma venéreo por Clamidias (A55)', dataKey: 'linfogranuloma_a55', marca: 'LINFOGRANULOMA_A55', pagina: 'linfogranuloma_a55.html', consulta: 'linfogranuloma venereo por clamidias', cie: 'A55', color: '#7C2D12',
+      alias: ['linfogranuloma venereo por clamidias', 'linfogranuloma venereo', 'linfogranuloma', 'a55', 'lymphogranuloma venereum'],
+      prefijos: ['linfogranuloma', 'lymphogranuloma'],
+    },
+    {
+      id: 'chancro_blando_a57', pad: 'Chancro blando', nombre: 'Chancro blando', nombreCorto: 'Chancro blando', etiqueta: 'Chancro blando (A57)', dataKey: 'chancro_blando_a57', marca: 'CHANCRO_BLANDO_A57', pagina: 'chancro_blando_a57.html', consulta: 'chancro blando', cie: 'A57', color: '#A21CAF',
+      alias: ['chancro blando', 'chancroide', 'a57', 'chancroid'],
+      prefijos: ['chancro blando', 'chancroide', 'chancroid'],
+    },
+    {
+      id: 'herpes_genital_a600', pad: 'Herpes genital', nombre: 'Herpes genital', nombreCorto: 'Herpes genital', etiqueta: 'Herpes genital (A60.0)', dataKey: 'herpes_genital_a600', marca: 'HERPES_GENITAL_A600', pagina: 'herpes_genital_a600.html', consulta: 'herpes genital', cie: 'A60.0', color: '#4C1D95',
+      alias: ['herpes genital', 'a60 0', 'genital herpes'],
+      prefijos: ['herpes genital', 'genital herpes'],
+    },
+    {
+      id: 'tricomoniasis_a590', pad: 'Tricomoniasis urogenital', nombre: 'Tricomoniasis urogenital', nombreCorto: 'Tricomoniasis urogenital', etiqueta: 'Tricomoniasis urogenital (A59.0)', dataKey: 'tricomoniasis_a590', marca: 'TRICOMONIASIS_A590', pagina: 'tricomoniasis_a590.html', consulta: 'tricomoniasis urogenital', cie: 'A59.0', color: '#0369A1',
+      alias: ['tricomoniasis urogenital', 'tricomoniasis', 'a59 0', 'urogenital trichomoniasis', 'trichomoniasis'],
+      prefijos: ['tricomoniasis urogenital', 'tricomoniasis', 'trichomoniasis'],
+    },
+    {
+      id: 'paralisis_flacida_u98', pad: 'Parálisis flácida aguda (menores de 15 años)', nombre: 'Parálisis flácida aguda (menores de 15 años)', nombreCorto: 'Parálisis flácida aguda', etiqueta: 'Parálisis flácida aguda en menores de 15 años (U98)', dataKey: 'paralisis_flacida_u98', marca: 'PARALISIS_FLACIDA_U98', pagina: 'paralisis_flacida_u98.html', consulta: 'paralisis flacida aguda', cie: 'U98', color: '#7C3AED',
+      alias: ['paralisis flacida aguda', 'paralisis flacida aguda en menores de 15 anos', 'paralisis flacida', 'u98', 'acute flaccid paralysis'],
+      prefijos: ['paralisis flacida', 'acute flaccid paralysis'],
+    },
+    {
+      id: 'iaas_sc', pad: 'Infección asociada a la atención de la salud', nombre: 'Infección asociada a la atención de la salud', nombreCorto: 'Infección asociada a la atención de la salud', etiqueta: 'Infección asociada a la atención de la salud (sin código CIE)', dataKey: 'iaas_sc', marca: 'IAAS_SC', pagina: 'iaas_sc.html', consulta: 'infeccion asociada a la atencion de la salud', cie: 'S/C', color: '#0E7490',
+      alias: ['infeccion asociada a la atencion de la salud', 'infecciones asociadas a la atencion de la salud', 'iaas', 'infeccion nosocomial', 'infecciones nosocomiales', 'afeccion nosocomial', 'y95', 'healthcare associated infection', 'healthcare associated infections', 'nosocomial infection'],
+      prefijos: ['infeccion asociada a la atencion', 'infecciones asociadas a la atencion', 'infeccion nosocomial', 'infecciones nosocomiales', 'healthcare associated infection', 'nosocomial infection'],
+    },
+    {
+      id: 'intox_alcohol_f100', sensible: true, pad: 'Intoxicación aguda por alcohol', nombre: 'Intoxicación aguda por alcohol', nombreCorto: 'Intoxicación por alcohol', etiqueta: 'Intoxicación aguda por alcohol (F10.0)', dataKey: 'intox_alcohol_f100', marca: 'INTOX_ALCOHOL_F100', pagina: 'intox_alcohol_f100.html', consulta: 'intoxicacion aguda por alcohol', cie: 'F10.0', color: '#9A3412',
+      alias: ['intoxicacion aguda por alcohol', 'intoxicacion por alcohol', 'intoxicacion alcoholica', 'f10 0', 'acute alcohol intoxication'],
+      prefijos: ['intoxicacion aguda por alcohol', 'intoxicacion por alcohol', 'intoxicacion alcoholica', 'acute alcohol intoxication'],
+    },
+    {
+      id: 'alcoholica_higado_k70', pad: 'Enfermedad alcohólica del hígado', nombre: 'Enfermedad alcohólica del hígado', nombreCorto: 'Enfermedad alcohólica del hígado', etiqueta: 'Enfermedad alcohólica del hígado (K70 excepto K70.3)', dataKey: 'alcoholica_higado_k70', marca: 'ALCOHOLICA_HIGADO_K70', pagina: 'alcoholica_higado_k70.html', consulta: 'enfermedad alcoholica del higado', cie: 'K70.0-K70.2, K70.4-K70.9', color: '#854D0E',
+      alias: ['enfermedad alcoholica del higado', 'hepatopatia alcoholica', 'k70 0', 'k70 2', 'k70 4', 'k70 9', 'alcoholic liver disease'],
+      prefijos: ['enfermedad alcoholica del higado', 'hepatopatia alcoholica', 'alcoholic liver disease'],
+    },
+    {
+      id: 'anencefalia_q00', pad: 'Anencefalia', nombre: 'Anencefalia', nombreCorto: 'Anencefalia', etiqueta: 'Anencefalia (Q00)', dataKey: 'anencefalia_q00', marca: 'ANENCEFALIA_Q00', pagina: 'anencefalia_q00.html', consulta: 'anencefalia', cie: 'Q00', color: '#BE185D',
+      alias: ['anencefalia', 'q00', 'anencephaly'],
+      prefijos: ['anencefalia', 'anencephaly'],
+    },
+    {
+      id: 'encefalocele_q01', pad: 'Encefalocele', nombre: 'Encefalocele', nombreCorto: 'Encefalocele', etiqueta: 'Encefalocele (Q01)', dataKey: 'encefalocele_q01', marca: 'ENCEFALOCELE_Q01', pagina: 'encefalocele_q01.html', consulta: 'encefalocele', cie: 'Q01', color: '#9D174D',
+      alias: ['encefalocele', 'q01', 'encephalocele'],
+      prefijos: ['encefalocele', 'encephalocele'],
+    },
+    {
+      id: 'microcefalia_q02', pad: 'Microcefalia', nombre: 'Microcefalia', nombreCorto: 'Microcefalia', etiqueta: 'Microcefalia (Q02)', dataKey: 'microcefalia_q02', marca: 'MICROCEFALIA_Q02', pagina: 'microcefalia_q02.html', consulta: 'microcefalia', cie: 'Q02', color: '#831843', seleccion: 'en pliegues de 2023 y 2024',
+      alias: ['microcefalia', 'q02', 'microcephaly'],
+      prefijos: ['microcefalia', 'microcephaly'],
+    },
+    {
+      id: 'espina_bifida_q05', pad: 'Espina bífida', nombre: 'Espina bífida', nombreCorto: 'Espina bífida', etiqueta: 'Espina bífida (Q05)', dataKey: 'espina_bifida_q05', marca: 'ESPINA_BIFIDA_Q05', pagina: 'espina_bifida_q05.html', consulta: 'espina bifida', cie: 'Q05', color: '#A21CAF',
+      alias: ['espina bifida', 'q05', 'spina bifida'],
+      prefijos: ['espina bifida', 'spina bifida'],
+    },
+    {
+      id: 'labio_paladar_q35', pad: 'Labio y paladar hendido', nombre: 'Labio y paladar hendido', nombreCorto: 'Labio y paladar hendido', etiqueta: 'Labio y paladar hendido (Q35-Q37)', dataKey: 'labio_paladar_q35', marca: 'LABIO_PALADAR_Q35', pagina: 'labio_paladar_q35.html', consulta: 'labio y paladar hendido', cie: 'Q35-Q37', color: '#86198F',
+      alias: ['labio y paladar hendido', 'labio hendido', 'paladar hendido', 'labio leporino', 'fisura palatina', 'q35', 'q36', 'q37', 'cleft lip', 'cleft palate'],
+      prefijos: ['labio y paladar hendido', 'labio hendido', 'paladar hendido', 'labio leporino', 'cleft lip', 'cleft palate'],
+    },
+    {
+      id: 'viuda_negra_u602', controlSinAlternativa: true, pruebaSinAlternativa: { fold: 'test_2026', semanas: 43, smape_bases: 80.8, smape_all: 79.1, smape_nacional_general: 26.7 }, pad: 'Mordedura de araña viuda negra', nombre: 'Mordedura de araña viuda negra', nombreCorto: 'Araña viuda negra', etiqueta: 'Mordedura de araña viuda negra (U60.2)', dataKey: 'viuda_negra_u602', marca: 'VIUDA_NEGRA_U602', pagina: 'viuda_negra_u602.html', consulta: 'mordedura de arana viuda negra', cie: 'U60.2', color: '#3F3F46', seleccion: 'en un pliegue de 2025 (la serie empieza en 2024)',
+      alias: ['mordedura de arana viuda negra', 'picadura de arana viuda negra', 'arana viuda negra', 'viuda negra', 'latrodectismo', 'u60 2', 'black widow'],
+      prefijos: ['arana viuda negra', 'viuda negra', 'black widow'],
+    },
+    {
+      id: 'violinista_u603', controlSinAlternativa: true, pruebaSinAlternativa: { fold: 'test_2026', semanas: 43, smape_bases: 58.9, smape_all: 72.9, smape_nacional_general: 34.9 }, pad: 'Mordedura de araña violinista', nombre: 'Mordedura de araña violinista', nombreCorto: 'Araña violinista', etiqueta: 'Mordedura de araña violinista (U60.3)', dataKey: 'violinista_u603', marca: 'VIOLINISTA_U603', pagina: 'violinista_u603.html', consulta: 'mordedura de arana violinista', cie: 'U60.3', color: '#78350F', seleccion: 'en un pliegue de 2025 (la serie empieza en 2024)',
+      alias: ['mordedura de arana violinista', 'picadura de arana violinista', 'arana violinista', 'arana reclusa', 'loxoscelismo', 'u60 3', 'brown recluse'],
+      prefijos: ['arana violinista', 'arana reclusa', 'loxoscel', 'brown recluse'],
+    },
+    {
+      id: 'otras_aranas_t633', controlSinAlternativa: true, pruebaSinAlternativa: { fold: 'test_2026', semanas: 43, smape_bases: 93.0, smape_all: 84.7, smape_nacional_general: 17.8 }, pad: 'Mordedura de otras arañas', nombre: 'Mordedura de otras arañas', nombreCorto: 'Otras arañas', etiqueta: 'Mordedura de otras arañas (T63.3, X21 excepto U60.2 y U60.3)', dataKey: 'otras_aranas_t633', marca: 'OTRAS_ARANAS_T633', pagina: 'otras_aranas_t633.html', consulta: 'mordedura de otras aranas', cie: 'T63.3, X21', color: '#57534E', seleccion: 'en un pliegue de 2025 (la serie empieza en 2024)',
+      alias: ['mordedura de otras aranas', 'picadura de otras aranas', 'otras aranas', 't63 3', 'x21'],
+      prefijos: ['otras aranas'],
+    },
+    {
+      id: 'abeja_u604', controlSinAlternativa: true, pruebaSinAlternativa: { fold: 'test_2026', semanas: 43, smape_bases: 77.0, smape_all: 63.5, smape_nacional_general: 20.8 }, pad: 'Picadura de abeja', nombre: 'Picadura de abeja', nombreCorto: 'Picadura de abeja', etiqueta: 'Picadura de abeja (U60.4)', dataKey: 'abeja_u604', marca: 'ABEJA_U604', pagina: 'abeja_u604.html', consulta: 'picadura de abeja', cie: 'U60.4', color: '#CA8A04', seleccion: 'en un pliegue de 2025 (la serie empieza en 2024)',
+      alias: ['picadura de abeja', 'picaduras de abeja', 'piquete de abeja', 'u60 4', 'bee sting', 'bee stings'],
+      prefijos: ['picadura de abeja', 'picaduras de abeja', 'piquete de abeja', 'bee sting'],
+    },
+    {
+      id: 'avispa_u605', controlSinAlternativa: true, pruebaSinAlternativa: { fold: 'test_2026', semanas: 43, smape_bases: 92.6, smape_all: 86.2, smape_nacional_general: 25.5 }, pad: 'Picadura de avispa', nombre: 'Picadura de avispa', nombreCorto: 'Picadura de avispa', etiqueta: 'Picadura de avispa (U60.5)', dataKey: 'avispa_u605', marca: 'AVISPA_U605', pagina: 'avispa_u605.html', consulta: 'picadura de avispa', cie: 'U60.5', color: '#B45309', seleccion: 'en un pliegue de 2025 (la serie empieza en 2024)',
+      alias: ['picadura de avispa', 'picaduras de avispa', 'piquete de avispa', 'u60 5', 'wasp sting', 'wasp stings'],
+      prefijos: ['picadura de avispa', 'picaduras de avispa', 'piquete de avispa', 'wasp sting'],
+    },
+    {
+      id: 'otros_artropodos_t634', controlSinAlternativa: true, pruebaSinAlternativa: { fold: 'test_2026', semanas: 43, smape_bases: 93.2, smape_all: 87.6, smape_nacional_general: 21.9 }, pad: 'Picadura por otros artrópodos', nombre: 'Picadura por otros artrópodos', nombreCorto: 'Otros artrópodos', etiqueta: 'Picadura por otros artrópodos (T63.4 excepto U60.4 y U60.5)', dataKey: 'otros_artropodos_t634', marca: 'OTROS_ARTROPODOS_T634', pagina: 'otros_artropodos_t634.html', consulta: 'picadura por otros artropodos', cie: 'T63.4', color: '#4D7C0F', seleccion: 'en un pliegue de 2025 (la serie empieza en 2024)',
+      alias: ['picadura por otros artropodos', 'picadura de otros artropodos', 'otros artropodos', 't63 4'],
+      prefijos: ['otros artropodos'],
+    },
+    {
+      id: 'otros_ponzonosos_t631', controlSinAlternativa: true, pruebaSinAlternativa: { fold: 'test_2026', semanas: 43, smape_bases: 88.2, smape_all: 78.1, smape_nacional_general: 18.1 }, pad: 'Picadura o intoxicación por otros animales ponzoñosos', nombre: 'Picadura o intoxicación por otros animales ponzoñosos', nombreCorto: 'Otros animales ponzoñosos', etiqueta: 'Picadura o intoxicación por otros animales ponzoñosos (T63.1, T63.5-T63.9, X27, U60.8)', dataKey: 'otros_ponzonosos_t631', marca: 'OTROS_PONZONOSOS_T631', pagina: 'otros_ponzonosos_t631.html', consulta: 'picadura o intoxicacion por otros animales ponzonosos', cie: 'T63.1, T63.5-T63.9, X27, U60.8', color: '#7E22CE', seleccion: 'en un pliegue de 2025 (la serie empieza en 2024)',
+      alias: ['picadura o intoxicacion por otros animales ponzonosos', 'intoxicacion por otros animales ponzonosos', 'otros animales ponzonosos', 'u60 8', 'x27'],
+      prefijos: ['otros animales ponzonosos'],
+    },
+    {
+      id: 'mordedura_cascabel_u600', controlSinAlternativa: true, pruebaSinAlternativa: { fold: 'test_2026', semanas: 43, smape_bases: 62.8, smape_all: 74.4, smape_nacional_general: 44.3 }, pad: 'Mordedura por serpiente de cascabel', nombre: 'Mordedura por serpiente de cascabel', nombreCorto: 'Mordedura por serpiente de cascabel', etiqueta: 'Mordedura por serpiente de cascabel (U60.0)', dataKey: 'mordedura_cascabel_u600', marca: 'MORDEDURA_CASCABEL_U600', pagina: 'mordedura_cascabel_u600.html', consulta: 'mordedura por serpiente de cascabel', cie: 'U60.0', color: '#8A6A3B', seleccion: 'en un pliegue de 2025 (la serie empieza en 2024)',
+      alias: ['mordedura por serpiente de cascabel', 'mordedura de serpiente de cascabel', 'mordedura de cascabel', 'serpiente de cascabel', 'vibora de cascabel', 'u60 0', 'rattlesnake bite'],
+      prefijos: ['serpiente de cascabel', 'vibora de cascabel', 'mordedura de cascabel', 'rattlesnake'],
+    },
+    {
+      id: 'mordedura_coral_u601', controlSinAlternativa: true, pruebaSinAlternativa: { fold: 'test_2026', semanas: 43, smape_bases: 9.3, smape_all: 9.3, smape_nacional_general: 84.7 }, pad: 'Mordedura por serpiente coral', nombre: 'Mordedura por serpiente coral', nombreCorto: 'Mordedura por serpiente coral', etiqueta: 'Mordedura por serpiente coral (U60.1)', dataKey: 'mordedura_coral_u601', marca: 'MORDEDURA_CORAL_U601', pagina: 'mordedura_coral_u601.html', consulta: 'mordedura por serpiente coral', cie: 'U60.1', color: '#7C5E3C', seleccion: 'en un pliegue de 2025 (la serie empieza en 2024)',
+      alias: ['mordedura por serpiente coral', 'mordedura de serpiente coral', 'mordedura de coralillo', 'serpiente coral', 'coralillo', 'u60 1', 'coral snake bite'],
+      prefijos: ['serpiente coral', 'coralillo', 'coral snake'],
+    },
+    {
+      id: 'mordedura_otras_serpientes_t630', controlSinAlternativa: true, pruebaSinAlternativa: { fold: 'test_2026', semanas: 43, smape_bases: 67.4, smape_all: 72.1, smape_nacional_general: 32.5 }, pad: 'Mordedura por otras serpientes', nombre: 'Mordedura por otras serpientes', nombreCorto: 'Mordedura por otras serpientes', etiqueta: 'Mordedura por otras serpientes (T63.0, X20 excepto U60.0 y U60.1)', dataKey: 'mordedura_otras_serpientes_t630', marca: 'MORDEDURA_OTRAS_SERPIENTES_T630', pagina: 'mordedura_otras_serpientes_t630.html', consulta: 'mordedura por otras serpientes', cie: 'T63.0, X20', color: '#6B4F2A', seleccion: 'en un pliegue de 2025 (la serie empieza en 2024)',
+      alias: ['mordedura por otras serpientes', 'mordedura de otras serpientes', 'otras serpientes', 't63 0', 'x20'],
+      prefijos: ['otras serpientes'],
+    },
+    {
+      id: 'cirrosis_alcoholica_k703', pad: 'Cirrosis hepática alcohólica', nombre: 'Cirrosis hepática alcohólica', nombreCorto: 'Cirrosis alcohólica', etiqueta: 'Cirrosis hepática alcohólica (K70.3)', dataKey: 'cirrosis_alcoholica_k703', marca: 'CIRROSIS_ALCOHOLICA_K703', pagina: 'cirrosis_alcoholica_k703.html', consulta: 'cirrosis hepatica alcoholica', cie: 'K70.3', color: '#713F12',
+      alias: ['cirrosis hepatica alcoholica', 'cirrosis alcoholica', 'k70 3', 'alcoholic cirrhosis'],
+      prefijos: ['cirrosis hepatica alcoholica', 'cirrosis alcoholica', 'alcoholic cirrhosis'],
+    },
+    {
+      id: 'chikungunya_a920', pad: 'Enfermedad por virus Chikungunya', nombre: 'Enfermedad por virus Chikungunya', nombreCorto: 'Chikungunya', etiqueta: 'Enfermedad por virus Chikungunya (A92.0)', dataKey: 'chikungunya_a920', marca: 'CHIKUNGUNYA_A920', pagina: 'chikungunya_a920.html', consulta: 'enfermedad por virus chikungunya', cie: 'A92.0', color: '#B91C1C',
+      alias: ['enfermedad por virus chikungunya', 'chikungunya', 'chikunguna', 'fiebre chikungunya', 'a92 0'],
+      prefijos: ['chikungun', 'chikunguna'],
+    },
+    {
+      id: 'envenenamiento_analgesicos_x60', sensible: true, pad: 'Envenenamiento autoinfligido intencionalmente por analgésicos no narcóticos, antipiréticos y antirreumáticos', nombre: 'Envenenamiento autoinfligido intencionalmente por analgésicos no narcóticos, antipiréticos y antirreumáticos', nombreCorto: 'Envenenamiento autoinfligido por analgésicos', etiqueta: 'Envenenamiento autoinfligido intencionalmente por analgésicos no narcóticos, antipiréticos y antirreumáticos (X60)', dataKey: 'envenenamiento_analgesicos_x60', marca: 'ENVENENAMIENTO_ANALGESICOS_X60', pagina: 'envenenamiento_analgesicos_x60.html', consulta: 'envenenamiento autoinfligido intencionalmente por analgesicos no narcoticos antipireticos y antirreumaticos', cie: 'X60', color: '#7C3AED', seleccion: 'en un pliegue de 2025 (la serie empieza en 2023)',
+      alias: ['envenenamiento autoinfligido intencionalmente por analgesicos no narcoticos antipireticos y antirreumaticos', 'x60'],
+      prefijos: ['envenenamiento autoinfligido intencionalmente por analgesicos'],
+    },
+    {
+      id: 'envenenamiento_psicotropicos_x61', sensible: true, pad: 'Envenenamiento autoinfligido intencionalmente por drogas antiepilépticas, sedantes, hipnóticas, antiparkinsonianas y psicotrópicas', nombre: 'Envenenamiento autoinfligido intencionalmente por drogas antiepilépticas, sedantes, hipnóticas, antiparkinsonianas y psicotrópicas', nombreCorto: 'Envenenamiento autoinfligido por psicotrópicos', etiqueta: 'Envenenamiento autoinfligido intencionalmente por drogas antiepilépticas, sedantes, hipnóticas, antiparkinsonianas y psicotrópicas (X61)', dataKey: 'envenenamiento_psicotropicos_x61', marca: 'ENVENENAMIENTO_PSICOTROPICOS_X61', pagina: 'envenenamiento_psicotropicos_x61.html', consulta: 'envenenamiento autoinfligido intencionalmente por drogas antiepilepticas sedantes hipnoticas antiparkinsonianas y psicotropicas', cie: 'X61', color: '#6D28D9', seleccion: 'en un pliegue de 2025 (la serie empieza en 2023)',
+      alias: ['envenenamiento autoinfligido intencionalmente por drogas antiepilepticas sedantes hipnoticas antiparkinsonianas y psicotropicas', 'x61'],
+      prefijos: ['envenenamiento autoinfligido intencionalmente por drogas'],
+    },
+    {
+      id: 'ahorcamiento_x70', sensible: true, pad: 'Lesión autoinfligida intencionalmente por ahorcamiento, estrangulamiento o sofocación', nombre: 'Lesión autoinfligida intencionalmente por ahorcamiento, estrangulamiento o sofocación', nombreCorto: 'Lesión autoinfligida por ahorcamiento', etiqueta: 'Lesión autoinfligida intencionalmente por ahorcamiento, estrangulamiento o sofocación (X70)', dataKey: 'ahorcamiento_x70', marca: 'AHORCAMIENTO_X70', pagina: 'ahorcamiento_x70.html', consulta: 'lesion autoinfligida intencionalmente por ahorcamiento estrangulamiento o sofocacion', cie: 'X70', color: '#5B21B6', seleccion: 'en un pliegue de 2025 (la serie empieza en 2023)',
+      alias: ['lesion autoinfligida intencionalmente por ahorcamiento estrangulamiento o sofocacion', 'x70'],
+      prefijos: ['lesion autoinfligida intencionalmente por ahorcamiento'],
+    },
+    {
+      id: 'disparo_arma_corta_x72', sensible: true, pad: 'Lesión autoinfligida intencionalmente por disparo de arma corta', nombre: 'Lesión autoinfligida intencionalmente por disparo de arma corta', nombreCorto: 'Lesión autoinfligida por arma corta', etiqueta: 'Lesión autoinfligida intencionalmente por disparo de arma corta (X72)', dataKey: 'disparo_arma_corta_x72', marca: 'DISPARO_ARMA_CORTA_X72', pagina: 'disparo_arma_corta_x72.html', consulta: 'lesion autoinfligida intencionalmente por disparo de arma corta', cie: 'X72', color: '#4C1D95', seleccion: 'en un pliegue de 2025 (la serie empieza en 2023)',
+      alias: ['lesion autoinfligida intencionalmente por disparo de arma corta', 'x72'],
+      prefijos: ['lesion autoinfligida intencionalmente por disparo'],
+    },
+    {
+      id: 'objeto_cortante_x78', sensible: true, pad: 'Lesión autoinfligida intencionalmente por objeto cortante', nombre: 'Lesión autoinfligida intencionalmente por objeto cortante', nombreCorto: 'Lesión autoinfligida por objeto cortante', etiqueta: 'Lesión autoinfligida intencionalmente por objeto cortante (X78)', dataKey: 'objeto_cortante_x78', marca: 'OBJETO_CORTANTE_X78', pagina: 'objeto_cortante_x78.html', consulta: 'lesion autoinfligida intencionalmente por objeto cortante', cie: 'X78', color: '#8B5CF6', seleccion: 'en un pliegue de 2025 (la serie empieza en 2023)',
+      alias: ['lesion autoinfligida intencionalmente por objeto cortante', 'x78'],
+      prefijos: ['lesion autoinfligida intencionalmente por objeto cortante'],
+    },
+    {
+      id: 'salto_lugar_elevado_x80', sensible: true, pad: 'Lesión autoinfligida intencionalmente al saltar desde un lugar elevado', nombre: 'Lesión autoinfligida intencionalmente al saltar desde un lugar elevado', nombreCorto: 'Lesión autoinfligida al saltar', etiqueta: 'Lesión autoinfligida intencionalmente al saltar desde un lugar elevado (X80)', dataKey: 'salto_lugar_elevado_x80', marca: 'SALTO_LUGAR_ELEVADO_X80', pagina: 'salto_lugar_elevado_x80.html', consulta: 'lesion autoinfligida intencionalmente al saltar desde un lugar elevado', cie: 'X80', color: '#A78BFA', seleccion: 'en un pliegue de 2025 (la serie empieza en 2023)',
+      alias: ['lesion autoinfligida intencionalmente al saltar desde un lugar elevado', 'x80'],
+      prefijos: ['lesion autoinfligida intencionalmente al saltar'],
+    },
+    {
+      id: 'intento_suicidio_z915', sensible: true, pad: 'Historia personal de lesión autoinfligida intencionalmente (intento de suicidio)', nombre: 'Historia personal de lesión autoinfligida intencionalmente (intento de suicidio)', nombreCorto: 'Historia personal de lesión autoinfligida', etiqueta: 'Historia personal de lesión autoinfligida intencionalmente (intento de suicidio) (Z91.5)', dataKey: 'intento_suicidio_z915', marca: 'INTENTO_SUICIDIO_Z915', pagina: 'intento_suicidio_z915.html', consulta: 'historia personal de lesion autoinfligida intencionalmente', cie: 'Z91.5', color: '#9333EA', seleccion: 'en un pliegue de 2025 (la serie empieza en 2023)',
+      alias: ['historia personal de lesion autoinfligida intencionalmente', 'z91 5'],
+      prefijos: ['historia personal de lesion autoinfligida'],
+    },
+    {
+      id: 'ideacion_suicida_r458', sensible: true, pad: 'Otros síntomas y signos que involucran el estado emocional (ideación suicida)', nombre: 'Otros síntomas y signos que involucran el estado emocional (ideación suicida)', nombreCorto: 'Síntomas del estado emocional (R45.8)', etiqueta: 'Otros síntomas y signos que involucran el estado emocional (ideación suicida) (R45.8)', dataKey: 'ideacion_suicida_r458', marca: 'IDEACION_SUICIDA_R458', pagina: 'ideacion_suicida_r458.html', consulta: 'otros sintomas y signos que involucran el estado emocional', cie: 'R45.8', color: '#A855F7', seleccion: 'en un pliegue de 2025 (la serie empieza en 2023)',
+      alias: ['otros sintomas y signos que involucran el estado emocional', 'r45 8'],
+      prefijos: ['otros sintomas y signos que involucran el estado emocional'],
+    },
+    {
+      id: 'violencia_intrafamiliar_y07', sensible: true, pad: 'Violencia intrafamiliar', nombre: 'Violencia intrafamiliar', nombreCorto: 'Violencia intrafamiliar', etiqueta: 'Violencia intrafamiliar (Y07.0-Y07.2)', dataKey: 'violencia_intrafamiliar_y07', marca: 'VIOLENCIA_INTRAFAMILIAR_Y07', pagina: 'violencia_intrafamiliar_y07.html', consulta: 'violencia intrafamiliar', cie: 'Y07.0-Y07.2', color: '#B91C1C',
+      alias: ['violencia intrafamiliar', 'y07 0', 'y07 1', 'y07 2', 'y07'],
+      prefijos: ['violencia intrafamiliar'],
+    },
+    {
+      id: 'tuberculosis_otras_formas_a171', pad: 'Tuberculosis otras formas', nombre: 'Tuberculosis otras formas', nombreCorto: 'Tuberculosis otras formas', etiqueta: 'Tuberculosis otras formas (A17.1, A17.8, A17.9, A18-A19)', dataKey: 'tuberculosis_otras_formas_a171', marca: 'TUBERCULOSIS_OTRAS_FORMAS_A171', pagina: 'tuberculosis_otras_formas_a171.html', consulta: 'tuberculosis otras formas', cie: 'A17.1, A17.8-A17.9, A18-A19', color: '#7F1D1D',
+      alias: ['tuberculosis otras formas', 'otras formas de tuberculosis', 'tuberculosis extrapulmonar', 'a18', 'a19', 'extrapulmonary tuberculosis'],
+      prefijos: ['tuberculosis otras formas', 'otras formas de tuberculosis', 'tuberculosis extrapulmonar', 'extrapulmonary tuberculosis'],
+    },
+    {
+      id: 'chagas_aguda_b570', pad: 'Tripanosomiasis americana (enfermedad de Chagas) aguda', nombre: 'Tripanosomiasis americana (enfermedad de Chagas) aguda', nombreCorto: 'Chagas aguda', etiqueta: 'Tripanosomiasis americana (enfermedad de Chagas) aguda (B57.0-B57.1)', dataKey: 'chagas_aguda_b570', marca: 'CHAGAS_AGUDA_B570', pagina: 'chagas_aguda_b570.html', consulta: 'tripanosomiasis americana aguda', cie: 'B57.0-B57.1', color: '#9A3412', seleccion: 'en pliegues de 2023 y 2024',
+      alias: ['tripanosomiasis americana aguda', 'enfermedad de chagas aguda', 'chagas aguda', 'chagas agudo', 'b57 0', 'b57 1', 'acute chagas'],
+      prefijos: ['chagas aguda', 'chagas agudo', 'enfermedad de chagas aguda', 'tripanosomiasis americana aguda', 'acute chagas'],
+    },
+    {
+      id: 'tifo_murino_a752', pad: 'Tifo murino', nombre: 'Tifo murino', nombreCorto: 'Tifo murino', etiqueta: 'Tifo murino (A75.2)', dataKey: 'tifo_murino_a752', marca: 'TIFO_MURINO_A752', pagina: 'tifo_murino_a752.html', consulta: 'tifo murino', cie: 'A75.2', color: '#A16207',
+      alias: ['tifo murino', 'tifus murino', 'tifo endemico', 'a75 2', 'murine typhus'],
+      prefijos: ['tifo murino', 'tifus murino', 'tifo endemico', 'murine typhus'],
+    },
+    {
+      id: 'sifilis_congenita_a50', pad: 'Sífilis congénita', nombre: 'Sífilis congénita', nombreCorto: 'Sífilis congénita', etiqueta: 'Sífilis congénita (A50)', dataKey: 'sifilis_congenita_a50', marca: 'SIFILIS_CONGENITA_A50', pagina: 'sifilis_congenita_a50.html', consulta: 'sifilis congenita', cie: 'A50', color: '#BE185D',
+      alias: ['sifilis congenita', 'lues congenita', 'a50', 'congenital syphilis'],
+      prefijos: ['sifilis congenita', 'lues congenita', 'congenital syphilis'],
+    },
+    {
+      id: 'esavi_y58', pad: 'Eventos supuestamente asociados a la vacunación (ESAVI)', nombre: 'Eventos supuestamente asociados a la vacunación (ESAVI)', nombreCorto: 'ESAVI', etiqueta: 'Eventos supuestamente asociados a la vacunación, ESAVI (Y58, Y59)', dataKey: 'esavi_y58', marca: 'ESAVI_Y58', pagina: 'esavi_y58.html', consulta: 'eventos supuestamente asociados a la vacunacion', cie: 'Y58, Y59', color: '#4338CA',
+      alias: ['eventos supuestamente asociados a la vacunacion', 'evento supuestamente asociado a la vacunacion', 'esavi', 'efectos adversos temporalmente asociados a vacunas', 'y58', 'y59'],
+      prefijos: ['eventos supuestamente asociados', 'evento supuestamente asociado', 'esavi'],
+    },
+    {
+      id: 'meningococica_a39', pad: 'Meningitis meningocócica', nombre: 'Meningitis meningocócica', nombreCorto: 'Meningitis meningocócica', etiqueta: 'Meningitis meningocócica (A39.0)', dataKey: 'meningococica_a39', marca: 'MENINGOCOCICA_A39', pagina: 'meningococica_a39.html', consulta: 'meningitis meningococica', cie: 'A39.0', color: '#9F1239',
+      alias: ['meningitis meningococica', 'a39 0', 'meningococcal meningitis'],
+      prefijos: ['meningitis meningococica', 'meningococcal meningitis'],
+    },
+    {
+      id: 'neumococo_a40', pad: 'Enfermedad invasiva por neumococo', nombre: 'Enfermedad invasiva por neumococo', nombreCorto: 'Neumococo invasivo', etiqueta: 'Enfermedad invasiva por neumococo (A40.3, G00.1, J13)', dataKey: 'neumococo_a40', marca: 'NEUMOCOCO_A40', pagina: 'neumococo_a40.html', consulta: 'enfermedad invasiva por neumococo', cie: 'A40.3, G00.1, J13', color: '#1E3A8A',
+      alias: ['enfermedad invasiva por neumococo', 'enfermedad neumococica invasiva', 'neumococo invasivo', 'a40 3', 'invasive pneumococcal disease'],
+      prefijos: ['enfermedad invasiva por neumococo', 'enfermedad neumococica invasiva', 'neumococo invasivo', 'invasive pneumococcal'],
+    },
+    {
+      id: 'haemophilus_a41', pad: 'Infecciones invasivas por Haemophilus influenzae', nombre: 'Infecciones invasivas por Haemophilus influenzae', nombreCorto: 'Haemophilus influenzae invasivo', etiqueta: 'Infecciones invasivas por Haemophilus influenzae (A41.3, G00.0, J14)', dataKey: 'haemophilus_a41', marca: 'HAEMOPHILUS_A41', pagina: 'haemophilus_a41.html', consulta: 'infecciones invasivas por haemophilus influenzae', cie: 'A41.3, G00.0, J14', color: '#4C1D95',
+      alias: ['infecciones invasivas por haemophilus influenzae', 'infeccion invasiva por haemophilus influenzae', 'haemophilus influenzae', 'h influenzae', 'haemophilus', 'hemophilus', 'a41 3', 'invasive haemophilus influenzae'],
+      prefijos: ['haemophilus', 'hemophilus', 'h influenzae'],
+    },
+    {
+      id: 'herida_arma_fuego_w32', sensible: true, pad: 'Herida por arma de fuego', nombre: 'Herida por arma de fuego', nombreCorto: 'Herida por arma de fuego', etiqueta: 'Herida por arma de fuego (W32-W34)', dataKey: 'herida_arma_fuego_w32', marca: 'HERIDA_ARMA_FUEGO_W32', pagina: 'herida_arma_fuego_w32.html', consulta: 'herida por arma de fuego', cie: 'W32-W34', color: '#7F1D1D',
+      alias: ['herida por arma de fuego', 'heridas por arma de fuego', 'w32', 'w33', 'w34'],
+      prefijos: ['herida por arma de fuego', 'heridas por arma de fuego'],
+    },
+    {
+      id: 'chagas_cronica_b572', pad: 'Tripanosomiasis americana (enfermedad de Chagas) crónica', nombre: 'Tripanosomiasis americana (enfermedad de Chagas) crónica', nombreCorto: 'Chagas crónica', etiqueta: 'Tripanosomiasis americana (enfermedad de Chagas) crónica (B57.2-B57.5)', dataKey: 'chagas_cronica_b572', marca: 'CHAGAS_CRONICA_B572', pagina: 'chagas_cronica_b572.html', consulta: 'tripanosomiasis americana cronica', cie: 'B57.2-B57.5', color: '#7C2D12', seleccion: 'en pliegues de 2023 y 2024',
+      alias: ['tripanosomiasis americana cronica', 'enfermedad de chagas cronica', 'chagas cronica', 'chagas cronico', 'b57 2', 'b57 3', 'b57 4', 'b57 5', 'chronic chagas'],
+      prefijos: ['chagas cronica', 'chagas cronico', 'enfermedad de chagas cronica', 'tripanosomiasis americana cronica', 'chronic chagas'],
+    },
+    {
+      id: 'vih_b20', sensible: true, pad: 'Infección por el virus de la inmunodeficiencia humana', nombre: 'Infección por el virus de la inmunodeficiencia humana', nombreCorto: 'VIH', etiqueta: 'Infección por el virus de la inmunodeficiencia humana (B20-B24, Z21)', dataKey: 'vih_b20', marca: 'VIH_B20', pagina: 'vih_b20.html', consulta: 'infeccion por el virus de la inmunodeficiencia humana', cie: 'B20-B24, Z21', color: '#7C2D12', seleccion: 'en pliegues de 2023 y 2024',
+      alias: ['infeccion por el virus de la inmunodeficiencia humana', 'virus de la inmunodeficiencia humana', 'infeccion por vih', 'vih', 'b20', 'b21', 'b22', 'b23', 'b24', 'z21', 'hiv', 'hiv infection'],
+      prefijos: ['infeccion por el virus de la inmunodeficiencia humana', 'virus de la inmunodeficiencia humana', 'infeccion por vih', 'hiv infection'],
+    },
   ]);
 
   /**
@@ -853,6 +1159,10 @@
       de: /^(?:y|pero|tambien|que hay de|ahora|and|what about)\b.*\b(recien nacid[oa]s?|newborns?|neonat[oa]s?|bebes?|babies|baby|lactantes?|infants?|nin[oa]s?|children|child|menores?(?: de \d{1,3}(?: anos?)?| de edad)?|adolescentes?|teenagers?|teens?|pediatric[oa]?s?|paediatric\w*|(?:menores?|mayores?) de \d{1,3}(?: anos?)?|under \d{1,3}(?: years?(?: old)?)?)\b.*$/,
       a: 'y sifilis en menores' },
   ];
+  FAMILIAS.push(
+    { pads: ['Tripanosomiasis americana (enfermedad de Chagas) aguda', 'Tripanosomiasis americana (enfermedad de Chagas) crónica'],
+      ya: /chagas|tripanosomiasis/, de: /\b(?:la |el )?(aguda|agudo|cronica|cronico)\s*$/, a: ' chagas $1' },
+  );
   function conFamiliaNombrada(qn, padPrevio) {
     if (!/^(y|pero|tambien|que hay de|ahora|and|what about)\b/.test(qn)) return qn;
     const f = FAMILIAS.find((x) => x.pads.includes(padPrevio) && !x.ya.test(qn) && x.de.test(qn));
@@ -915,6 +1225,18 @@
     [/\bchancros? (sifilitic[oa]s?|duros?)\b|\bsyphilitic chancres?\b/g, 'sifilis primaria'],
     [/\btabes dorsal(is)?\b/g, 'neurosifilis'],
     [/\b(a5[123])([0-9])\b/g, '$1.$2'],
+    // alta_b44 (19-nov-2026). La sífilis neonatal, connatal, perinatal o juvenil es la congénita (A50), con su propio control.
+    [/\b(sifilis|lues) (neonatal|connatal|perinatal|vertical|materno ?infantil|congenita (precoz|tardia|latente))\b|\bneurosifilis (juvenil|congenita)\b|\bsifilis juvenil\b/g, 'sifilis congenita'],
+    [/\b(sifilis|lues) (adquirida|congenita) (y|e|o|vs|versus) (la )?(adquirida|congenita)\b/g, 'sifilis $2 y sifilis $5'],
+    [/\b(early |late )?congenital neurosyphilis\b|\b(neonatal|fetal) syphilis\b|\b(early|late) congenital syphilis\b/g, 'congenital syphilis'],
+    // «conjuntivitis» sola es H10: la epidémica aguda hemorrágica (B30.3) se reescribe a una forma que no empiece por «conjuntivit».
+    [/\bconjuntivitis ((aguda|epidemica) )*hemorragica( (aguda|epidemica))*\b|\b((acute|epidemic) )*hemorrhagic conjunctivitis\b/g, 'hemorragica conjuntival epidemica'],
+    // Rótulo técnico completo de Z91.5 y R45.8: el paréntesis del boletín («intento de suicidio», «ideación suicida») es parte
+    // del nombre del bloque publicado, no una consulta genérica aparte.
+    [/\b(historia personal de lesion autoinfligida intencionalmente)\W+intento de suicidio\b/g, '$1'],
+    [/\b(otros sintomas y signos que involucran el estado emocional)\W+ideacion suicida\b/g, '$1'],
+    // Códigos pegados de los bloques nuevos con decimal («t632», «z915», «r458», «a390»).
+    [/\b(t63|u60|a54|a59|a60|a39|a40|a41|a92|a75|b57|k70|f10|z91|r45|y07|b97|b30)([0-9])\b/g, '$1.$2'],
   ];
   // Un término de hipertensión junto a uno del embarazo, parto o puerperio nombra el bloque O10-O16,
   // no la hipertensión arterial (I10-I15): se reescribe a su forma canónica y se retira el término de
@@ -956,6 +1278,8 @@
    * completa, para que una sigla no capture «Irapuato».
    */
   const noModeladas = Object.freeze([
+    // Los términos genéricos de suicidio y autolesión dan la respuesta de crisis (`respuestaCrisis`) antes de llegar
+    // aquí; siguen en la lista para que ningún otro detector los lea como padecimiento (alta_b44, 19-nov-2026).
     'intento de suicidio', 'ideacion suicida', 'autolesion', 'lesion autoinfligida', 'self harm',
     'suicidio', 'suicida', 'suicide', 'suicidal',
     // Categorías del boletín sobre autolesión y violencias: sin cifras en EPI, y sin caer en la tabla
@@ -967,16 +1291,17 @@
     'tension arterial baja',
     'cancer', 'hipertension pulmonar', 'prediabetes', 'diabetes insipida', 'epilepsia',
     'esquizofrenia', 'ansiedad', 'bipolar', 'autismo', 'tdah',
-    'influenza', 'covid', 'tuberculosis', 'vih', 'sida', 'colera',
-    'sarampion', 'rubeola', 'hepatitis', 'zika', 'chikungunya', 'malaria',
+    // alta_b44: el VIH (B20-B24, Z21, desde 2020-W28) está publicado; «sida» es otra definición y sigue sin modelarse.
+    'influenza', 'covid', 'sida', 'colera',
+    'sarampion', 'rubeola', 'hepatitis', 'zika', 'malaria',
     'linfoma', 'tumor', 'neoplasia', 'cardiopatia congenita', 'cardiopatia', 'infarto',
     'ataque al corazon', 'ataque cardiaco',
-    'embolia', 'bronquitis', 'enfisema', 'cirrosis', 'artritis',
+    'embolia', 'bronquitis', 'enfisema', 'artritis',
     'lupus', 'fibromialgia', 'esclerosis', 'huntington', 'ela ',
     'insuficiencia renal', 'insuficiencia cardiaca',
     // En inglés: sin esto, «epilepsy in jalisco» caería en la tabla neuro del estado.
     'diabetes insipidus', 'prediabetic',
-    'epilepsy', 'schizophrenia', 'anxiety', 'tuberculosis', 'hiv', 'aids', 'measles',
+    'epilepsy', 'schizophrenia', 'anxiety', 'aids', 'measles',
     'lymphoma', 'heart attack', 'bronchitis', 'arthritis',
     'kidney failure', 'heart failure',
   ]);
@@ -1030,9 +1355,10 @@
       'otitis externa (H60)', 'otitis_h65'],
     [/\botitis interna\b|\binternal otitis\b/, 'otitis interna', 'otitis interna, que no forma parte de H65.0-H65.1',
       'otitis_h65'],
-    [/\bconjuntivitis( [a-z]+){0,3} (hemorragicas?|viral(es)?|viricas?|virus|adenovir[a-z]*|epidemicas?|gonococ[a-z]*|neonatal(es)?|recien nacidos?|herpetic[a-z]*|clamidi[a-z]*|chlamydi[a-z]*)\b|\b(hemorrhagic|viral|adenoviral|epidemic|gonococcal|neonatal|chlamydial|herpetic) conjunctivitis\b|\bb30([ .]?[0-9])?\b/,
+    // La epidémica aguda hemorrágica (B30.3) tiene su propio control desde alta_b44 (CANON_CLINICO la reescribe antes).
+    [/\bconjuntivitis( [a-z]+){0,3} (viral(es)?|viricas?|virus|adenovir[a-z]*|epidemicas?|gonococ[a-z]*|neonatal(es)?|recien nacidos?|herpetic[a-z]*|clamidi[a-z]*|chlamydi[a-z]*)\b|\b(viral|adenoviral|epidemic|gonococcal|neonatal|chlamydial|herpetic) conjunctivitis\b|\bb30(?![ .]?3\b)([ .]?[0-9])?\b/,
       'conjuntivitis fuera de h10',
-      'conjuntivitis viral ni epidémica aguda hemorrágica (B30), ni las conjuntivitis gonocócica, por clamidia, herpética o neonatal, que tienen código propio fuera de H10',
+      'conjuntivitis viral fuera de la epidémica aguda hemorrágica (B30, excepto B30.3, que tiene su propio control estacional), ni las conjuntivitis gonocócica, por clamidia, herpética o neonatal, que tienen código propio fuera de H10',
       'conjuntivitis_h10'],
     [/\b(bicicletas?|ciclistas?|bicycles?|cyclists?)\b|\bv1[0-9]\b/, 'ciclista lesionado',
       'ciclista lesionado en accidente de transporte (V10-V19)', 'vehiculos_v20', TRANSPORTE],
@@ -1062,8 +1388,9 @@
     // la severa tienen su propio control desde alta20c (15-nov-2026).
     [/\bparvovirus\b|\beritema infeccioso\b|\bquinta enfermedad\b/, 'parvovirus b19',
       'infección por parvovirus B19 (B08.3, B34.3), que no es una hepatitis', 'otras_hepatitis_b17'],
-    [/\bhepatitis (alcoholica|autoinmune|toxica|medicamentosa|alcoholic|autoimmune|toxic|drug induced)\b|\bk7[0-5]\b/,
-      'hepatitis no virica', 'hepatitis no vírica (alcohólica, autoinmune o tóxica), con código propio fuera de B15-B19',
+    // La hepatitis alcohólica (K70.1) se cuenta dentro de la enfermedad alcohólica del hígado (ACLARACIONES, alta_b44).
+    [/\bhepatitis (autoinmune|toxica|medicamentosa|autoimmune|toxic|drug induced)\b|\bk7[1-5]\b/,
+      'hepatitis no virica', 'hepatitis no vírica (autoinmune o tóxica), con código propio fuera de B15-B19',
       'hepatitis_c_b17'],
     [/\b(herpes zoster|culebrilla|shingles)\b|(?<!varicela )\bzoster\b|\bb02\b/, 'herpes zoster', 'herpes zóster (B02)', 'varicela_b01'],
     [/\bparotiditis (no infecciosa|bacteriana|supurativa|cronica|purulenta)\b|\bk11\b/, 'parotiditis no debida al virus de las paperas',
@@ -1077,31 +1404,39 @@
       'varices o trombosis venosa', 'várices (I83) ni flebitis o trombosis venosa (I80)', 'ivp_i87'],
     [/\bv(3[0-9]|8[0-9]|9[0-9])\b/, 'otro accidente de transporte',
       'accidentes de transporte fuera de V20-V29 y V40-V79', 'vehiculos_v20'],
-    // Categorías vecinas de Sífilis adquirida (A51-A53) en el Cuadro 6 y códigos relacionados fuera del bloque:
-    // la sífilis congénita (A50, incluidas precoz, tardía, latente y neurosífilis juvenil), la sífilis en el embarazo (O98.1),
-    // la sífilis no venérea (A65), la frambesia (A66) y las demás ITS (A54-A64) nunca reciben cifras de A51-A53.
-    [new RegExp(`\\ba50(?:\\.[0-9]|[0-9]| [0-9]${NO_UNIDAD})?\\b`), 'sifilis congenita',
-      'sífilis congénita (A50), que el boletín reporta aparte', 'sifilis_adquirida_a51'],
-    [/\b(sifilis|syphilis|lues|neurosifilis|neurosyphilis|sifilitic[oa]s?|syphilitic)\b.*\b(congenit[a-z]*|neonatal\w*|connatal\w*|perinatal\w*|materno ?infantil|vertical|fetal\w*|mortinat\w*|stillbirth\w*|juvenil|juvenile)\b|\b(congenit[a-z]*|neonatal\w*|connatal\w*|perinatal\w*|materno ?infantil|vertical|fetal\w*|mortinat\w*|stillbirth\w*|juvenil|juvenile)\b.*\b(sifilis|syphilis|lues|neurosifilis|neurosyphilis|sifilitic[oa]s?|syphilitic)\b/,
-      'sifilis congenita', 'sífilis congénita (A50), que el boletín reporta aparte', 'sifilis_adquirida_a51'],
+    // Categorías vecinas de Sífilis adquirida (A51-A53) en el Cuadro 6 y códigos relacionados fuera de los bloques publicados.
+    // Desde alta_b44 (19-nov-2026) tienen release propio la sífilis congénita (A50), la gonocócica genitourinaria
+    // (A54.0-A54.2), el linfogranuloma (A55), el chancro blando (A57), la tricomoniasis urogenital (A59.0) y el herpes
+    // genital (A60.0): sólo quedan aquí sus códigos hermanos fuera de esos bloques.
     [new RegExp(`\\bo98(?:\\.1|1| 1${NO_UNIDAD})?\\b|\\b(sifilis|syphilis|lues|neurosifilis|neurosyphilis|sifilitic[oa]s?|syphilitic)\\b.*\\b(embaraz\\w*|gestacion\\w*|gestantes?|gestational|matern[ao]s?|maternal|puerper\\w*|parto|pregnan\\w*|childbirth)\\b|\\b(matern[ao]s?|maternal|gestacion\\w*|gestantes?|gestational|embaraz\\w*|pregnan\\w*|puerper\\w*|parto|childbirth)\\b.*\\b(sifilis|syphilis|lues|neurosifilis|neurosyphilis|sifilitic[oa]s?|syphilitic)\\b`),
       'sifilis en el embarazo', 'sífilis que complica el embarazo, el parto y el puerperio (O98.1), ni desglosa A51-A53 por embarazo', 'sifilis_adquirida_a51'],
     [new RegExp(`\\ba65(?:\\.[0-9]|[0-9]| [0-9]${NO_UNIDAD})?\\b|\\b(sifilis|syphilis|lues) (no venere[ao]s?|non ?venereal|endemic[ao]s?)\\b|\\b(non ?venereal|endemic) (syphilis|lues)\\b|\\bbejel\\b`),
       'sifilis no venerea', 'sífilis no venérea o bejel (A65)', 'sifilis_adquirida_a51'],
     [new RegExp(`\\ba66(?:\\.[0-9]|[0-9]| [0-9]${NO_UNIDAD})?\\b|\\b(frambesia|pian|yaws)\\b`),
       'frambesia', 'frambesia o pian (A66)', 'sifilis_adquirida_a51'],
-    [new RegExp(`\\ba54(?:\\.[0-9]|[0-9]| [0-9]${NO_UNIDAD})?\\b|\\b(gonorrea|gonorrhea|gonorrhoea|gonococ[a-z]*)\\b`),
-      'infeccion gonococica', 'infección gonocócica o gonorrea (A54)', 'sifilis_adquirida_a51'],
-    [new RegExp(`\\ba5[56](?:\\.[0-9]|[0-9]| [0-9]${NO_UNIDAD})?\\b|\\blinfogranuloma( venereo)?\\b|\\blymphogranuloma venereum\\b|\\b(clamidia|clamidias|clamidiasis|chlamydia)\\b`),
-      'infeccion por clamidias', 'linfogranuloma venéreo ni otras infecciones de transmisión sexual por clamidias (A55-A56)', 'sifilis_adquirida_a51'],
-    [new RegExp(`\\ba57(?:\\.[0-9]|[0-9]| [0-9]${NO_UNIDAD})?\\b|\\bchancro blando\\b|\\b(chancroide|chancroid)\\b`),
-      'chancro blando', 'chancro blando (A57)', 'sifilis_adquirida_a51'],
-    [new RegExp(`\\ba59(?:\\.[0-9]|[0-9]| [0-9]${NO_UNIDAD})?\\b`),
-      'tricomoniasis', 'tricomoniasis (A59)', 'sifilis_adquirida_a51'],
-    [/^(?!.*\bvulvovaginitis\b).*\b(tricomoniasis|trichomoniasis)\b(?! intestinal)/,
-      'tricomoniasis', 'tricomoniasis (A59)', 'sifilis_adquirida_a51'],
-    [new RegExp(`\\ba(58|60|63|64)(?:\\.[0-9]|[0-9]| [0-9]${NO_UNIDAD})?\\b|\\bgranuloma inguinal\\b|\\bdonovanosis\\b|\\bherpes (genital|anogenital)\\b|\\b(genital|anogenital) herpes\\b|\\bverrugas? (anogenital(es)?|venereas?)\\b|\\bcondilomas?( acuminados?)?\\b`),
-      'otra infeccion de transmision sexual', 'otras infecciones de transmisión sexual con código propio (A58-A64)', 'sifilis_adquirida_a51'],
+    [new RegExp(`\\ba54(?:\\.[3-9]|[3-9]| [3-9]${NO_UNIDAD})\\b|\\b(gonorrea|gonorrhea|infeccion gonococica|gonococ[a-z]*) (faringea|de (la )?garganta|anorrectal|rectal|anal|ocular|oftalmica|articular|diseminada|musculoesqueletica)\\b|\\b(faringitis|proctitis|artritis|oftalmia) gonococica\\b|\\bgonococcal (pharyngitis|proctitis|arthritis)\\b`),
+      'otra infeccion gonococica', 'infecciones gonocócicas fuera del tracto genitourinario (A54.3-A54.9)', 'gonococica_a54'],
+    [new RegExp(`\\ba56(?:\\.[0-9]|[0-9]| [0-9]${NO_UNIDAD})?\\b|^(?!.*\\b(linfogranuloma|lymphogranuloma)\\b).*\\b(clamidia|clamidias|clamidiasis|chlamydia)\\b`),
+      'infeccion por clamidias', 'otras infecciones de transmisión sexual por clamidias (A56), fuera del linfogranuloma venéreo (A55)', 'linfogranuloma_a55'],
+    [new RegExp(`\\ba59(?:\\.[89]|[89]| [89]${NO_UNIDAD})\\b`),
+      'otra tricomoniasis', 'otras tricomoniasis fuera de la urogenital (A59.8-A59.9)', 'tricomoniasis_a590'],
+    [new RegExp(`\\ba60(?:\\.[19]|[19]| [19]${NO_UNIDAD})\\b|\\bherpes (perianal|anorrectal)\\b`),
+      'otra infeccion herpetica anogenital', 'infección herpética perianal o anogenital no especificada (A60.1, A60.9)', 'herpes_genital_a600'],
+    [new RegExp(`\\ba(58|63|64)(?:\\.[0-9]|[0-9]| [0-9]${NO_UNIDAD})?\\b|\\bgranuloma inguinal\\b|\\bdonovanosis\\b|\\bverrugas? (anogenital(es)?|venereas?)\\b|\\bcondilomas?( acuminados?)?\\b`),
+      'otra infeccion de transmision sexual', 'otras infecciones de transmisión sexual con código propio (A58, A63, A64)', 'sifilis_adquirida_a51'],
+    // Vecinos de los bloques nuevos de alta_b44 con código propio, sin cifras.
+    [new RegExp(`\\ba33\\b|\\btetanos (neonatal|del recien nacido)\\b|\\bneonatal tetanus\\b`), 'tetanos neonatal',
+      'tétanos neonatal (A33), que el boletín notifica aparte', 'tetanos_a34'],
+    [new RegExp(`\\btuberculosis (pulmonar|respiratoria)\\b|\\b(pulmonary|respiratory) tuberculosis\\b|\\ba1[56](?:\\.[0-9]|[0-9]| [0-9]${NO_UNIDAD})?\\b`),
+      'tuberculosis respiratoria', 'tuberculosis respiratoria (A15-A16), que el boletín notifica aparte', 'tuberculosis_otras_formas_a171'],
+    [new RegExp(`\\bmeningitis tuberculosa\\b|\\btuberculous meningitis\\b|\\ba17(?:\\.0|0| 0${NO_UNIDAD})\\b`),
+      'meningitis tuberculosa', 'meningitis tuberculosa (A17.0), que el boletín notifica aparte', 'tuberculosis_otras_formas_a171'],
+    [new RegExp(`\\ba39(?:\\.[1-9]|[1-9]| [1-9]${NO_UNIDAD})\\b|\\b(meningococemia|meningococcemia)\\b`),
+      'otra infeccion meningococica', 'infecciones meningocócicas fuera de la meningitis (A39.1-A39.9, como la meningococemia)', 'meningococica_a39'],
+    [/\b(tifo|tifus) (epidemico|exantematico|transmitido por piojos)\b|\bepidemic typhus\b|\ba75 ?[.]?0\b/,
+      'tifo epidemico', 'tifo epidémico (A75.0), que el boletín notifica aparte', 'tifo_murino_a752'],
+    [/\bcirrosis (biliar|no alcoholica|hepatica no alcoholica|criptogenica)\b|\bk74\b/,
+      'otra cirrosis', 'cirrosis no alcohólica (K74), con código propio fuera de K70.3', 'cirrosis_alcoholica_k703'],
   ];
 
   // Códigos CIE explícitos: una letra, dos dígitos y, opcional, un decimal con punto, espacio o pegado.
@@ -1202,10 +1537,10 @@
     { release: null, bloques: ['tifoidea_a01', 'paratifoidea_a011'], generico: /\ba01\b(?![ .]?[0-9])/, especifico: /(?!)/,
       abarca: '«A01» abarca dos bloques del boletín, cada uno con su propio pronóstico: la fiebre tifoidea (A01.0) y la paratifoidea (A01.1-A01.4).' },
     // Varios helmintos con bloque propio: ambiguo si no nombra exactamente uno de los tres.
-    { release: null, bloques: ['ascariasis_b77', 'enterobiasis_b80', 'helmintiasis_b65'],
+    { release: null, bloques: ['ascariasis_b77', 'enterobiasis_b80', 'helmintiasis_b65', 'teniasis_b68'],
       generico: /\b(lombri(z|ces)|gusanos( intestinales)?|parasitos intestinales|parasitosis intestinal(es)?|helmint[a-z]*|geohelmint[a-z]*)\b/,
       especifico: /(?!)/,
-      abarca: '«Lombrices», «helmintiasis» o «parásitos intestinales» abarcan varios bloques del boletín con código propio. Se publican tres: la ascariasis (B77), la enterobiasis (B80) y otras helmintiasis (B65-B67, B70-B76, B78, B79, B81-B83, excepto B73 y B75); los parásitos intestinales incluyen además protozoarios como la amebiasis y la giardiasis.' },
+      abarca: '«Lombrices», «helmintiasis» o «parásitos intestinales» abarcan varios bloques del boletín con código propio. Se publican cuatro: la ascariasis (B77), la enterobiasis (B80), la teniasis (B68) y otras helmintiasis (B65-B67, B70-B76, B78, B79, B81-B83, excepto B73 y B75); la cisticercosis (B69) y la triquinosis (B75) tienen además su propio control estacional, y los parásitos intestinales incluyen protozoarios como la amebiasis y la giardiasis.' },
     { release: null, bloques: ['desnutricion_leve_e441', 'desnutricion_moderada_e440', 'desnutricion_severa_e40'],
       generico: /\b(desnutricion|malnutrition|undernutrition|e4[0-6])\b/,
       especifico: /(?!)/,
@@ -1226,14 +1561,57 @@
       especifico: /\b(amebian[oa]s?|amibian[oa]s?|amebic|amoebic)\b|\ba06[ .]?4\b/,
       abarca: '«Absceso hepático» abarca el absceso del hígado no amebiano, piógeno o bacteriano (K75.0), con código propio fuera de A06.4.' },
     // «Vaginitis» o una vulvovaginitis con agente nombrado: varios bloques, aunque la consulta nombre «vulvovaginitis».
-    { release: null, bloques: ['vulvovaginitis_n76', 'candidiasis_b37'], siempre: true,
+    { release: null, bloques: ['vulvovaginitis_n76', 'candidiasis_b37', 'tricomoniasis_a590'], siempre: true,
       generico: /\bvaginitis\b|\bvulvovaginitis (candidiasica|candidosica|micotica|por (candida|hongos|tricomonas|trichomonas)|tricomoniasica)\b|\binfecci(on|ones) vaginal(es)?\b/,
       especifico: /(?!)/,
-      abarca: '«Vaginitis», o una vulvovaginitis con el agente nombrado, abarca bloques distintos del boletín: la vulvovaginitis (N76), con su propio pronóstico; la candidiasis urogenital (B37.3-B37.4), también publicada; y la tricomoniasis urogenital, que no se pronostica.' },
-    // «Meningitis» a secas abarca renglones distintos del boletín; los tipos nombrados (meningocócica, tuberculosa) van al radar.
-    { release: 'sindrome_meningeo_g00', generico: /\bmeningitis\b/,
-      especifico: /\b(meningococ[a-z]*|tuberculos[a-z]*|haemophilus|neumococ[a-z]*|pneumococ[a-z]*)\b|\bsindrome meningeo\b/,
-      abarca: '«Meningitis» abarca renglones distintos del boletín: la meningitis meningocócica, la tuberculosa, la debida a Haemophilus influenzae (G00.0) y la neumocócica (G00.1) se notifican aparte y no se pronostican.' },
+      abarca: '«Vaginitis», o una vulvovaginitis con el agente nombrado, abarca bloques distintos del boletín: la vulvovaginitis (N76), con su propio pronóstico; la candidiasis urogenital (B37.3-B37.4), también publicada; y la tricomoniasis urogenital (A59.0), con su propio pronóstico.' },
+    // «Meningitis» a secas abarca renglones distintos del boletín; los tipos nombrados los resuelven sus guardas.
+    { release: null, bloques: ['sindrome_meningeo_g00', 'meningococica_a39'], generico: /\bmeningitis\b/,
+      especifico: /\b(meningococ[a-z]*|tuberculos[a-z]*|haemophilus|hemophilus|influenzae|neumococ[a-z]*|pneumococ[a-z]*)\b|\bsindrome meningeo\b/,
+      abarca: '«Meningitis» abarca renglones distintos del boletín: el síndrome meníngeo (G00-G03, excepto G00.0 y G00.1) y la meningitis meningocócica (A39.0) tienen cada uno su control estacional; la meningitis por Haemophilus influenzae (G00.0) y la neumocócica (G00.1) se cuentan dentro de las infecciones invasivas de su agente, y la tuberculosa (A17.0) se notifica aparte y no se pronostica.' },
+    { release: 'meningococica_a39', generico: /\b(meningococ[a-z]*|enfermedad meningococica|meningococcal|a39)\b(?![ .]?[0-9])/,
+      especifico: /\bmeningitis meningococica\b|\bmeningococcal meningitis\b/,
+      abarca: '«Meningococo» abarca la meningitis meningocócica (A39.0) y otras infecciones meningocócicas con código propio (A39.1-A39.9, como la meningococemia), que no se pronostican.' },
+    { release: 'neumococo_a40', generico: /\b(neumococ[a-z]*|pneumococ[a-z]*|streptococcus pneumoniae)\b/,
+      especifico: /\b(invasiv[ao]s?|invasive)\b|\bmeningitis\b|\bneumonia\b|\bpneumonia\b/,
+      abarca: '«Neumococo» abarca infecciones no invasivas, como la otitis o la sinusitis neumocócica, que no forman parte del bloque publicado de enfermedad invasiva por neumococo (A40.3, G00.1, J13).' },
+    { release: null, bloques: ['gonococica_a54'], siempre: true,
+      generico: /\b(gonorrea|gonorrhea|gonorrhoea|gonococ[a-z]*|a54)\b(?![ .]?[0-9])(?!.*\b(genitourinari[ao]|urogenital|tracto genitourinario|genitourinary)\b)/,
+      especifico: /\b(genitourinari[ao]|urogenital|tracto genitourinario|genitourinary)\b/,
+      abarca: '«Gonorrea» abarca formas con código propio fuera del tracto genitourinario (faríngea, anorrectal u ocular, A54.3-A54.9), que no se pronostican; el bloque publicado es la infección gonocócica del tracto genitourinario (A54.0-A54.2).' },
+    { release: null, bloques: ['tetanos_a34'], siempre: true,
+      generico: /\b(tetanos|tetanus)\b(?!.*\b(obstetric[oa]|otros tetanos|no neonatal|a3[45])\b)/, especifico: /(?!)/,
+      abarca: '«Tétanos» abarca el tétanos neonatal (A33), que el boletín notifica aparte y no se pronostica, y el tétanos (A34, A35), con su control estacional.' },
+    { release: null, bloques: ['tuberculosis_otras_formas_a171'], siempre: true,
+      generico: /\b(tuberculosis|tb|tbc)\b(?!.*\b(otras formas|extrapulmonar|extrapulmonary)\b)|\ba17\b(?![ .]?[0-9])/, especifico: /(?!)/,
+      abarca: '«Tuberculosis» abarca la respiratoria (A15-A16) y la meningitis tuberculosa (A17.0), que se notifican aparte y no se pronostican, y la tuberculosis otras formas (A17.1, A17.8, A17.9, A18-A19), con su control estacional.' },
+    { release: null, bloques: ['chagas_aguda_b570', 'chagas_cronica_b572'],
+      generico: /\b(chagas|tripanosomiasis americana|trypanosomiasis|b57)\b(?![ .]?[0-9])/, especifico: /(?!)/,
+      abarca: '«Chagas» abarca dos bloques del boletín, cada uno con su propio pronóstico: la enfermedad de Chagas aguda (B57.0-B57.1) y la crónica (B57.2-B57.5).' },
+    { release: null, bloques: ['alcoholica_higado_k70', 'cirrosis_alcoholica_k703'],
+      generico: /\bk70\b(?![ .]?[0-9])|\b(hepatopatia|higado|liver)\b.*\balcohol\w*|\balcohol\w*\b.*\b(hepatopatia|higado|liver)\b/, especifico: /(?!)/,
+      abarca: '«K70» y la enfermedad hepática por alcohol abarcan dos bloques del boletín, cada uno con su propio control estacional: la enfermedad alcohólica del hígado (K70, excepto K70.3) y la cirrosis hepática alcohólica (K70.3).' },
+    { release: null, bloques: ['cirrosis_alcoholica_k703'], siempre: true,
+      generico: /\b(cirrosis|cirrhosis)\b(?!.*\b(alcoholica|alcoholic|k70 ?[.]?3)\b)/, especifico: /(?!)/,
+      abarca: '«Cirrosis» abarca la cirrosis hepática alcohólica (K70.3), con su control estacional, y otras cirrosis con código propio (K74), que no se pronostican.' },
+    { release: null, bloques: ['mordedura_cascabel_u600', 'mordedura_coral_u601', 'mordedura_otras_serpientes_t630'],
+      generico: /\b(serpientes?|viboras?|culebras?|ofidi[a-z]*|snakes?|snakebites?)\b/, especifico: /(?!)/,
+      abarca: '«Mordedura de serpiente» abarca tres bloques del boletín, cada uno con su propio control estacional: la serpiente de cascabel (U60.0), la serpiente coral (U60.1) y otras serpientes (T63.0, X20, excepto U60.0 y U60.1).' },
+    { release: null, bloques: ['viuda_negra_u602', 'violinista_u603', 'otras_aranas_t633'],
+      generico: /\b(aranas?|aracnidos?|spiders?)\b/, especifico: /(?!)/,
+      abarca: '«Araña» abarca tres bloques del boletín, cada uno con su propio control estacional: la viuda negra (U60.2), la violinista (U60.3) y otras arañas (T63.3, X21, excepto U60.2 y U60.3).' },
+    { release: null, bloques: ['alacran_t63', 'abeja_u604', 'avispa_u605', 'otros_artropodos_t634', 'otros_ponzonosos_t631'],
+      generico: /\b(picaduras?|piquetes?|stings?|ponzon[a-z]*|venenos? animal(es)?)\b(?!.*\b(aranas?|spiders?|serpientes?|viboras?|culebras?|coral|coralillo|cascabel|viuda|violinista|snakes?)\b)(?<!\b(aranas?|spiders?|serpientes?|viboras?|viuda negra|violinista)\b.*)/, especifico: /(?!)/,
+      abarca: '«Picadura» abarca varios bloques del boletín con su propio pronóstico: el alacrán (T63.2, X22), la abeja (U60.4), la avispa (U60.5), otros artrópodos (T63.4) y otros animales ponzoñosos (T63.1, T63.5-T63.9, X27, U60.8); las arañas y las serpientes tienen bloques aparte.' },
+    { release: null, bloques: ['mordedura_perro_w54', 'mordedura_mamiferos_w55'],
+      generico: /\b(mordeduras?|mordidas?|bites?)\b(?!.*\b(serpiente|vibora|culebra|coral|cascabel|arana|snake|spider)\w*)/, especifico: /(?!)/,
+      abarca: '«Mordedura» abarca varios bloques del boletín con su propio control estacional: por perro (W54), por otros mamíferos (W55), por serpientes (cascabel, coral y otras) y por arañas.' },
+    { release: null, bloques: ['tifo_murino_a752'], siempre: true,
+      generico: /\b(tifo|tifus|typhus)\b(?!.*\b(murino|endemico|murine)\b)/, especifico: /(?!)/,
+      abarca: '«Tifo» abarca el tifo epidémico (A75.0), que se notifica aparte y no se pronostica, y el tifo murino (A75.2), con su control estacional; la fiebre tifoidea (A01.0) es otra enfermedad.' },
+    { release: null, bloques: ['intox_alcohol_f100', 'alcoholica_higado_k70', 'cirrosis_alcoholica_k703'],
+      generico: /\b(alcohol|alcoholismo|alcoholic[oa]s?|alcoholism)\b/, especifico: /(?!)/,
+      abarca: '«Alcohol» abarca tres bloques del boletín, cada uno con su propio pronóstico: la intoxicación aguda por alcohol (F10.0), la enfermedad alcohólica del hígado (K70, excepto K70.3) y la cirrosis hepática alcohólica (K70.3).' },
     { release: 'candidiasis_b37', generico: /\b(candidiasis|candida|candidosis|moniliasis|b37)\b/,
       especifico: new RegExp(`\\b(candidiasis|candida|candidosis|moniliasis) (urogenital|vaginal|vulvovaginal|genital|de vulva|de la vulva)\\b|\\b(urogenital|vaginal|vulvovaginal|genital) candidiasis\\b|${subcodigo('b37', '34').source}`),
       abarca: '«Candidiasis» abarca varias localizaciones con código propio: la oral, la cutánea, la esofágica y la sistémica (B37.0-B37.2, B37.5-B37.9).' },
@@ -1243,22 +1621,18 @@
     { release: 'amebiasis_a06', generico: new RegExp(`\\b(amebiasis|amibiasis|amoebiasis)\\b|\\ba06\\b(?!\\.[0-9]|[0-9]| [0-9]${NO_UNIDAD})`),
       especifico: new RegExp(`\\b(amebiasis|amibiasis|amoebiasis) intestinal\\b|\\bintestinal (amebiasis|amoebiasis)\\b|\\bdisenteria amebiana\\b|\\bamebic dysentery\\b|${subcodigo('a06', '0-39').source}`),
       abarca: '«Amebiasis» incluye formas fuera del intestino: el absceso hepático amebiano (A06.4), con su propio control estacional, y otras amebiasis extraintestinales (A06.5-A06.8).' },
-    { release: 'sifilis_adquirida_a51',
+    { release: null, bloques: ['sifilis_adquirida_a51', 'sifilis_congenita_a50'],
       generico: /\b(sifilis|syphilis|lues|treponema pallidum)\b/,
-      especifico: new RegExp(
-        '\\b(sifilis|lues) (adquirida|precoz|temprana|primaria|secundaria|tardia|terciaria|latente|cardiovascular|no especificada)\\b'
-        + '|\\botras sifilis\\b|\\bneurosifilis\\b|\\bneurosyphilis\\b'
-        + '|\\b(acquired|early|primary|secondary|late|tertiary|latent|cardiovascular|unspecified) (syphilis|lues)\\b'
-        + '|\\ba5[123]\\b',
-      ),
-      abarca: '«Sífilis» abarca renglones distintos del boletín con código propio: la sífilis adquirida (A51-A53) y la sífilis congénita (A50), que se notifica aparte y no se pronostica, además de la sífilis en el embarazo (O98.1) y la sífilis no venérea (A65).' },
-    { release: 'sifilis_adquirida_a51',
+      // Ambiguo si no nombra exactamente uno de los dos bloques (ninguno, o ambos a la vez).
+      especifico: /(?!)/,
+      abarca: '«Sífilis» abarca renglones distintos del boletín con código propio: la sífilis adquirida (A51-A53) y la sífilis congénita (A50), cada una con su control estacional, además de la sífilis en el embarazo (O98.1) y la sífilis no venérea (A65), que no se pronostican.' },
+    { release: null, bloques: ['sifilis_adquirida_a51', 'chancro_blando_a57'],
       generico: /\bchancros?\b/,
-      especifico: /\bchancros? (blandos?|sifilitic[oa]s?|duros?)\b/,
-      abarca: '«Chancro» puede referirse al chancro sifilítico de la sífilis primaria (A51.0) o al chancro blando (A57), que es otra infección y no se pronostica.' },
-    { release: null, bloques: ['sifilis_adquirida_a51', 'mal_del_pinto_a67'],
+      especifico: /(?!)/,
+      abarca: '«Chancro» puede referirse al chancro sifilítico de la sífilis primaria (A51.0) o al chancro blando (A57), que es otra infección; cada una tiene su control estacional.' },
+    { release: null, bloques: ['sifilis_adquirida_a51', 'sifilis_congenita_a50', 'mal_del_pinto_a67'],
       generico: /\btreponematosis\b/, especifico: /(?!)/,
-      abarca: '«Treponematosis» abarca varias infecciones por espiroquetas del género Treponema: se publican la sífilis adquirida (A51-A53) y el mal del pinto (A67); la sífilis congénita (A50), la no venérea (A65) y la frambesia (A66) tienen código propio y no se pronostican.' },
+      abarca: '«Treponematosis» abarca varias infecciones por espiroquetas del género Treponema: se publican la sífilis adquirida (A51-A53), la congénita (A50) y el mal del pinto (A67); la no venérea (A65) y la frambesia (A66) tienen código propio y no se pronostican.' },
   ];
 
   /**
@@ -1274,7 +1648,14 @@
       abarca: 'La amigdalitis viral o no estreptocócica (J03.8-J03.9) está dentro del bloque de infecciones respiratorias agudas, sin una serie propia.' },
     { release: 'sifilis_adquirida_a51',
       re: /^(?!.*\b(?:congenit[a-z]*|neonatal\w*|connatal\w*|perinatal\w*|materno ?infantil|vertical|fetal\w*|mortinat\w*|stillbirth\w*|juvenil|juvenile|a50|o98|embaraz\w*|gestacion\w*|gestantes?|gestational|matern[ao]s?|maternal|puerper\w*|parto|pregnan\w*|childbirth)\b)(?=.*\b(?:sifilis|syphilis|lues|neurosifilis|neurosyphilis|treponema pallidum|a5[123])\b).*\b(recien nacid[oa]s?|newborns?|neonat[oa]s?|bebes?|babies|baby|lactantes?|infants?|nin[oa]s?|children|child|menores?(?: de \d{1,3}(?: anos?)?| de edad)?|adolescentes?|teenagers?|teens?|pediatric[oa]?s?|paediatric\w*|(?:menores?|mayores?) de \d{1,3}(?: anos?)?|under \d{1,3}(?: years?(?: old)?)?|\d{1,3} anos? de edad)\b/,
-      abarca: 'Las series publicadas de sífilis adquirida (A51-A53) sólo desglosan por entidad y sexo (sin estratificación por edad ni por embarazo), y no debe clasificarse automáticamente toda consulta en recién nacidos, bebés, lactantes o menores como sífilis congénita: el boletín reporta aparte la sífilis congénita explícita (A50, que no se modela), mientras que la sífilis adquirida (A51-A53) también puede presentarse en menores.' },
+      abarca: 'Las series publicadas de sífilis adquirida (A51-A53) sólo desglosan por entidad y sexo (sin estratificación por edad ni por embarazo), y no debe clasificarse automáticamente toda consulta en recién nacidos, bebés, lactantes o menores como sífilis congénita: el boletín reporta aparte la sífilis congénita explícita (A50, con su propio control estacional), mientras que la sífilis adquirida (A51-A53) también puede presentarse en menores.' },
+    // alta_b44: subtipos contados dentro de otro bloque publicado, sin serie propia.
+    { release: 'alcoholica_higado_k70', re: /\bhepatitis alcoholica\b|\balcoholic hepatitis\b|\bk70 ?[.]?1\b/,
+      abarca: 'La hepatitis alcohólica (K70.1) se cuenta dentro de la enfermedad alcohólica del hígado (K70, excepto K70.3), sin una serie propia; pregunta por «enfermedad alcoholica del higado».' },
+    { release: 'neumococo_a40', re: /\b(neumonia|neumonias|pneumonia) (neumococic[ao]s?|por neumococos?|por streptococcus pneumoniae|pneumococcal)\b|\bpneumococcal pneumonia\b|\bj13\b/,
+      abarca: 'La neumonía por neumococo (J13) no forma parte del bloque de neumonías y bronconeumonías: se cuenta dentro de la enfermedad invasiva por neumococo (A40.3, G00.1, J13), sin una serie propia; pregunta por «enfermedad invasiva por neumococo».' },
+    { release: 'haemophilus_a41', re: /\b(neumonia|neumonias|pneumonia) (por )?(haemophilus|hemophilus|h influenzae)\b|\bj14\b/,
+      abarca: 'La neumonía por Haemophilus influenzae (J14) no forma parte del bloque de neumonías y bronconeumonías: se cuenta dentro de las infecciones invasivas por Haemophilus influenzae (A41.3, G00.0, J14), sin una serie propia; pregunta por «haemophilus influenzae».' },
   ];
 
   /** Aclaración ante un nombre genérico que no basta para elegir el bloque publicado, o null. */
@@ -1347,6 +1728,18 @@
 
   const CRISIS_ES = /\b(suicidarme|suicidarse|matarme|matarse|quitarme la vida|quitarse la vida|acabar con mi vida|terminar con mi vida|(me|se) quier[eo] (morir|matar|suicidar)|me voy a (matar|morir|suicidar)|quiero (morir|morirme)|quisiera (morir|morirme|estar muert)|ganas de (morir|morirme|matarme|suicidarme)|(ya )?no quiero (vivir|seguir viviendo|seguir con vida|estar viv|existir)|no vale la pena vivir|hacerme dano|lastimarme|cortarme las venas|autolesionarme|(tengo|con) (pensamientos|ideas) suicidas|tengo ideacion suicida)\b/;
   const CRISIS_EN = /\b(kill(ing)? myself|want to die|wanna die|end my life|take my own life|hurt myself|harm myself|suicidal thoughts|im suicidal|i am suicidal)\b/;
+  // alta_b44 (19-nov-2026): violencia vivida en primera persona («me pegan», «mi pareja me golpea»).
+  const VIOLENCIA_ES = /\b(me (pega|pegan|pego|pegaron|golpea|golpean|golpeo|golpearon|maltrata|maltratan|amenaza|amenazan|viola|violan|violo|violaron|abusa|abusan|abuso|abusaron|lastima|lastiman|agrede|agreden|encierra|encierran)|(abusa|abusan|abuso|abusaron) de mi|sufro (violencia|maltrato|abuso)|vivo violencia|tengo miedo de mi (pareja|esposo|esposa|novio|novia|papa|mama|padre|madre))\b/;
+  const VIOLENCIA_EN = /\b((he|she|they) (hits|beats|hurts|abuses|rapes) me|my (partner|husband|wife|boyfriend|girlfriend|father|mother|dad|mom) (hits|beats|hurts|abuses) me|i am being (abused|hit|beaten)|im being (abused|hit|beaten))\b/;
+  // Temas sensibles a secas («suicidio en jalisco», «intento de suicidio», «autolesiones»): respuesta de crisis, sin cifras.
+  // Sólo el rótulo técnico completo o el código de un release sensible (X60, X61, X70, X72, X78, X80, Z91.5, R45.8)
+  // abre su ficha, y nunca si la consulta trae además una señal de riesgo personal.
+  const SENSIBLE_ES = /\b(suicid\w*|intento de suicidio|ideacion suicida|autolesion\w*|autoinflig\w*|lesiones autoinfligidas)\b/;
+  const SENSIBLE_EN = /\b(suicide|suicidal|self ?harm|self injury|self inflicted)\b/;
+  function nombraReleaseSensible(qn) {
+    const canon = canonClinico(String(qn).replace(/[^a-z0-9. ]+/g, ' ').replace(/\s+/g, ' '));
+    return releases.some((r) => r.sensible && r.alias.some((al) => nombraAlias(canon, al)));
+  }
 
   const CRISIS_TEXTO_ES = 'Lamento que estés pasando por esto. No tienes que enfrentarlo a solas.\n\n' +
     'Si tú o alguien cercano está en peligro inmediato, llama al **911**.\n\n' +
@@ -1363,11 +1756,38 @@
 
   /** Texto fijo ante una señal de riesgo personal, o null. No pasa por ningún modelo. */
   function respuestaCrisis(qn) {
-    if (CRISIS_ES.test(qn)) return CRISIS_TEXTO_ES;
-    return CRISIS_EN.test(qn) ? CRISIS_TEXTO_EN : null;
+    const q = String(qn);
+    if (CRISIS_ES.test(q) || VIOLENCIA_ES.test(q)) return CRISIS_TEXTO_ES;
+    if (CRISIS_EN.test(q) || VIOLENCIA_EN.test(q)) return CRISIS_TEXTO_EN;
+    if (nombraReleaseSensible(q)) return null;
+    if (SENSIBLE_ES.test(q)) return CRISIS_TEXTO_ES;
+    return SENSIBLE_EN.test(q) ? CRISIS_TEXTO_EN : null;
+  }
+
+  /**
+   * alta_b44 (19-nov-2026): controles sin alternativa (rolling_cv_historia_corta_2024_v1, portafolio igual al control). Con
+   * un año de historia el único candidato fue el control estacional: se presentan como control publicado, no validado,
+   * nunca como «validación en curso», aunque la etiqueta sellada del shard lo diga. Misma frase en unified.mjs,
+   * estado-ficha.js, home-preview.js y obesidad_kb.js.
+   */
+  const ETIQUETA_SIN_ALTERNATIVA = 'Control estacional publicado: con un año de historia no hubo alternativa que elegir, no validado y sin validación prospectiva propia · pronóstico puntual sin intervalos';
+  const uno = (x) => Number(x).toLocaleString('es-MX', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  /** Explicación fija de un control sin alternativa, con el error de su prueba única (del acceptance.json sellado). */
+  function textoSinAlternativa(id, sinSexo) {
+    const r = releases.find((x) => x.id === id);
+    const p = r && r.pruebaSinAlternativa;
+    const bases = sinSexo ? 'las series por estado' : 'las series por estado y sexo';
+    const error = p
+      ? ` Error del control en su prueba única (semanas 1 a ${p.semanas} de ${String(p.fold).replace(/^test_/, '')}, sMAPE): ${uno(p.smape_bases)} en ${bases}, ${uno(p.smape_all)} en el conjunto de las series publicadas y ${uno(p.smape_nacional_general)} en el total nacional.`
+      : '';
+    return 'Es el control estacional, no validado: cada semana repite los casos de 52 semanas antes. La serie sólo tiene un año de historia ' +
+      'antes del pliegue de desarrollo, así que no hubo otro motor que elegir: el único candidato fue el control, y no tiene una ' +
+      'validación prospectiva propia; sólo se registra su error con cada boletín, y al reunir cuatro semanas el veredicto técnico ' +
+      `será CONTROL_ONLY, nunca una validación superada.${error}`;
   }
 
   g.EPI_CATALOGO = Object.freeze({
+    ETIQUETA_SIN_ALTERNATIVA, textoSinAlternativa,
     releases, diabetesEnConsulta, conDiabetesNombrada, conFamiliaNombrada, canonClinico, nombraAlias, noModeladas,
     mencionaNoModelada, conHipertensionNombrada, respuestaCrisis, subtipoAjeno, aliasAmbiguo,
   });

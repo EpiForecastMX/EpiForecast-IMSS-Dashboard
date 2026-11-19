@@ -340,22 +340,33 @@ function guardaSumaA37U99Rag(query) {
 // Meningitis de un tipo nombrado (copia de kb.js, mismo texto). En la preview 82cf0812, «meningitis meningocócica
 // nacional» fue a la recuperación semántica y Gemini respondió los 861 casos del síndrome meníngeo y confundió G00.0 y
 // G00.1 con la meningocócica: ahora hay una respuesta fija, sin recuperación, modelo ni cifras.
-const MENINGITIS_TIPO_RAG = /\b(meningitis|meningoencefalitis|meningococ[a-z]*|enfermedad meningococica)\b/;
-const MENINGITIS_NOMBRADA_RAG = /\b(meningococ[a-z]*|tuberculos[a-z]*|haemophilus|hemophilus|neumococ[a-z]*|pneumococ[a-z]*|g00 ?[01])\b/;
-const MENINGITIS_TEXTO_RAG = 'EpiForecast-MX no pronostica la meningitis meningocócica, la tuberculosa, la debida a ' +
-  '*Haemophilus influenzae* (G00.0) ni la neumocócica (G00.1): se notifican aparte en el boletín. El **síndrome meníngeo** ' +
-  'publicado (G00-G03, excepto G00.0 y G00.1) no las incluye, así que no se le atribuyen sus cifras. Puedes consultar ' +
-  'ese bloque en [su página](../sindrome_meningeo_g00.html).';
-const MENINGITIS_G00_TEXTO_RAG = '«G00» abarca la meningitis por *Haemophilus influenzae* (G00.0) y la neumocócica (G00.1), que ' +
-  'no se pronostican, y el resto de G00 (G00.2-G00.9), que forma parte del **síndrome meníngeo** publicado (G00-G03, ' +
-  'excepto G00.0 y G00.1). No doy cifras hasta saber cuál consultas; por ejemplo, «síndrome meníngeo en Jalisco».';
-const MENINGITIS_CODIGO_RAG = /\bg00 ?[01]\b/;
+const MENINGITIS_TIPO_RAG = /\b(meningitis|meningoencefalitis)\b/;
+const MENINGITIS_TEXTO_RAG = 'La meningitis tuberculosa (A17.0) se notifica aparte en el boletín y EpiForecast-MX no la pronostica. No forma parte del ' +
+  '**síndrome meníngeo** publicado (G00-G03, excepto G00.0 y G00.1) ni de la **tuberculosis otras formas** (A17.1, A17.8, A17.9, ' +
+  'A18-A19), así que no se le atribuyen sus cifras.';
+const MENINGITIS_HIB_TEXTO_RAG = 'La meningitis por *Haemophilus influenzae* (G00.0) no forma parte del **síndrome meníngeo** publicado (G00-G03, excepto ' +
+  'G00.0 y G00.1): se cuenta dentro de las **infecciones invasivas por Haemophilus influenzae** (A41.3, G00.0, J14), sin una ' +
+  'serie propia. Puedes consultar ese bloque en [su página](../haemophilus_a41.html) o preguntar por «haemophilus influenzae en Jalisco».';
+const MENINGITIS_NEUMO_TEXTO_RAG = 'La meningitis neumocócica (G00.1) no forma parte del **síndrome meníngeo** publicado (G00-G03, excepto G00.0 y G00.1): ' +
+  'se cuenta dentro de la **enfermedad invasiva por neumococo** (A40.3, G00.1, J13), sin una serie propia. Puedes consultar ese ' +
+  'bloque en [su página](../neumococo_a40.html) o preguntar por «enfermedad invasiva por neumococo en Jalisco».';
+const MENINGITIS_G00_TEXTO_RAG = '«G00» abarca la meningitis por *Haemophilus influenzae* (G00.0), contada dentro de las infecciones invasivas por ' +
+  'Haemophilus influenzae, la neumocócica (G00.1), contada dentro de la enfermedad invasiva por neumococo, y el resto de G00 ' +
+  '(G00.2-G00.9), que forma parte del **síndrome meníngeo** publicado (G00-G03, excepto G00.0 y G00.1). No doy cifras hasta ' +
+  'saber cuál consultas; por ejemplo, «síndrome meníngeo en Jalisco».';
 const G00_SOLO_RAG = /\bg00\b(?! ?[0-9])/;
-/** Texto fijo para una meningitis de tipo nombrado, G00.0, G00.1 o «G00» a secas (consulta cruda), o null. */
+/**
+ * alta_b44 (19-nov-2026): la meningocócica (A39.0) tiene release propio y la resuelve su alias; G00.0 y G00.1 se cuentan
+ * dentro de los bloques invasivos de su agente (A41.3, G00.0, J14 y A40.3, G00.1, J13); la tuberculosa (A17.0) sigue sin
+ * pronóstico. Texto fijo para G00.0, G00.1, una meningitis tuberculosa, por Haemophilus o neumocócica, o «G00» a secas.
+ */
 function guardaMeningitisTipoRag(query) {
   const qn = normGuarda(String(query || ''));
   if (/\bsindrome meningeo\b/.test(qn)) return null;
-  if (MENINGITIS_CODIGO_RAG.test(qn) || (MENINGITIS_TIPO_RAG.test(qn) && MENINGITIS_NOMBRADA_RAG.test(qn))) return MENINGITIS_TEXTO_RAG;
+  const men = MENINGITIS_TIPO_RAG.test(qn);
+  if (/\bg00 ?0\b/.test(qn) || (men && /\b(haemophilus|hemophilus|influenzae)\b/.test(qn))) return MENINGITIS_HIB_TEXTO_RAG;
+  if (/\bg00 ?1\b/.test(qn) || (men && /\b(neumococ[a-z]*|pneumococ[a-z]*)\b/.test(qn))) return MENINGITIS_NEUMO_TEXTO_RAG;
+  if (men && /\btuberculos[a-z]*\b/.test(qn)) return MENINGITIS_TEXTO_RAG;
   return G00_SOLO_RAG.test(qn) ? MENINGITIS_G00_TEXTO_RAG : null;
 }
 
@@ -490,7 +501,7 @@ function estadoDeAceptado(query, leerVista, leerFicha) {
   const r = nombrados[0];
   let v, html;
   try { v = leerVista(r.id); } catch { return null; }
-  if (!v || v.caida_al_control) return null;
+  if (!v || v.caida_al_control || v.portafolio_igual_al_control === true) return null;
   try { html = leerFicha(r.pagina); } catch (err) {
     console.error(`Ficha ${r.pagina} no disponible para la función RAG:`, err.message);
     return null;
@@ -545,7 +556,7 @@ function hechosDeFoco(foco, query, leerVista, leerFicha) {
     if (sexo && series.length && !series.some((k) => k.endsWith('|hombres'))) {
       L.push(`${nombre}: el boletín no desglosa sexo; sus ${series.length} series publicadas son por entidad y nacional, así que no existe pronóstico para ${sexo}.`);
     }
-    const prueba = v && !v.caida_al_control ? pruebaSuperada(html) : null;
+    const prueba = v && !v.caida_al_control && v.portafolio_igual_al_control !== true ? pruebaSuperada(html) : null;
     if (prueba) L.push(`${nombre}: ${prueba.frase} No es la validación prospectiva (${v.weeks_available ?? 0} de ${v.weeks_required ?? 4} semanas).`);
     for (const n of notasFicha(html)) L.push(`${nombre} — ${n.titulo} ${n.texto}`);
     const av = avisosFuenteRag(id);
@@ -562,8 +573,17 @@ function estadoDeControl(query, leerVista) {
   let v;
   try { v = leerVista(r.id); } catch { return null; }
   const caida = v && v.caida_al_control;
+  const sinSexo = !Object.keys(v?.series || {}).some((k) => k.endsWith('|hombres'));
+  if (v && !caida && v.portafolio_igual_al_control === true) {
+    // alta_b44: control sin alternativa (un año de historia); nunca «validación en curso».
+    const answer = `**${v.nombre_completo || r.etiqueta}: control estacional, no validado.** ` +
+      `${globalThis.EPI_CATALOGO.textoSinAlternativa(r.id, sinSexo).replace(/^Es el control estacional, no validado: /, 'Lo publicado ')} ` +
+      `(${v.weeks_available ?? 0} de ${v.weeks_required ?? 4} semanas registradas).\n\n` +
+      `Datos hasta la semana ${v.origin[1]} de ${v.origin[0]}${emitidoCivil(v)}; ${v.horizon_weeks} semanas, pronóstico puntual sin intervalos. ` +
+      `Detalle en [su página](../${r.pagina}).${avisosFuenteRag(r.id)}`;
+    return { answer, sources: [{ n: 1, source: `Release publicado ${v.release_id}`, title: v.nombre_completo || r.etiqueta, section: r.id, url: `../${r.pagina}` }] };
+  }
   if (!caida) return null;
-  const sinSexo = !Object.keys(v.series || {}).some((k) => k.endsWith('|hombres'));
   const anio = String(caida.fold || '').replace(/^test_/, '') || '2025';
   const comp = Object.fromEntries((caida.comprobaciones || []).map((c) => [c.ambito, c]));
   const fallas = (caida.comprobaciones || []).filter((c) => !c.pasa)
@@ -781,9 +801,11 @@ const NUMERALES = ['cero', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siet
   'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve', 'veinte', 'veintiún', 'veintidós', 'veintitrés', 'veinticuatro', 'veinticinco', 'veintiséis', 'veintisiete', 'veintiocho', 'veintinueve'];
 const DECENAS = { 3: 'treinta', 4: 'cuarenta', 5: 'cincuenta', 6: 'sesenta', 7: 'setenta', 8: 'ochenta', 9: 'noventa' };
 const UNIDADES = ['', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
-/** Número de padecimientos en letra; del treinta al noventa y nueve se compone. */
+/** Número de padecimientos en letra; del treinta al ciento noventa y nueve se compone. */
 function numeral(n) {
   if (NUMERALES[n]) return NUMERALES[n];
+  // alta_b44 (19-nov-2026): del cien al ciento noventa y nueve («ciento cuarenta y cinco»); desde 200, cifras.
+  if (n >= 100 && n <= 199) return n === 100 ? 'cien' : `ciento ${numeral(n - 100)}`;
   if (n < 30 || n > 99) return String(n);
   const d = Math.floor(n / 10), u = n % 10;
   return u ? `${DECENAS[d]} y ${UNIDADES[u]}` : DECENAS[d];
@@ -826,7 +848,7 @@ function structuredSummary(kb, releases = []) {
 
 // Guardas M3/B3 exportadas para su prueba de paridad; se exportan aquí, fuera del tramo de rag.mjs que otras
 // pruebas evalúan como script (stripAccents … Rate limit).
-export { D7_TEXTO_ES_RAG, D7_TEXTO_EN_RAG, guardaD7Rag, guardaSumaA37U99Rag, MENINGITIS_TEXTO_RAG, MENINGITIS_G00_TEXTO_RAG, guardaMeningitisTipoRag, sinExclusionG00Rag, notaD7Rag };
+export { D7_TEXTO_ES_RAG, D7_TEXTO_EN_RAG, guardaD7Rag, guardaSumaA37U99Rag, MENINGITIS_TEXTO_RAG, MENINGITIS_HIB_TEXTO_RAG, MENINGITIS_NEUMO_TEXTO_RAG, MENINGITIS_G00_TEXTO_RAG, guardaMeningitisTipoRag, sinExclusionG00Rag, notaD7Rag };
 
 const RATE_LIMIT = { windowMs: 60_000, max: 20 };
 const rateBucket = new Map();

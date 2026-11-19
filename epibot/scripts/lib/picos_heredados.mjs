@@ -146,7 +146,7 @@ export function textoPico(p) {
     `así que el pronóstico de ` +
     `${etiquetaSemana(p.semanaPronosticada)} trae ${num(p.pronosticado)} casos ${de}: ` +
     `${num(p.participacion)} % de los ${num(p.nacional)} nacionales de esa semana, ` +
-    `${num(p.veces)} veces la mediana semanal del horizonte nacional (${num(p.medianaNacional)}). ` +
+    `${num(p.veces)} ${num(p.veces) === '1' ? 'vez' : 'veces'} la mediana semanal del horizonte nacional (${num(p.medianaNacional)}). ` +
     `${causa}; esa semana no debe leerse como un ` +
     `aumento esperado. El dato y el pronóstico se publican sin modificar.`
   );
