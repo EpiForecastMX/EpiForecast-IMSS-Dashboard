@@ -24,7 +24,10 @@ contenido servido. Conteos del catálogo (`publication/catalog.json`, 141 releas
   alcohol y VIH): sólo se reconocen por su rótulo técnico o su código. Toda señal de riesgo personal (primera persona,
   menores, métodos, dosis, ingestiones, autolesión) recibe únicamente la respuesta de crisis con la Línea de la Vida
   (800 911 2000), sin cifras ni gráfica, y esa respuesta persiste en los seguimientos de la conversación
-  (`epibot/tests/test_crisis_codex_b44.mjs`).
+  (`epibot/tests/test_crisis_codex_b44.mjs`). Con un id sensible, sólo hay cifras si todos los términos de la consulta
+  son vocabulario técnico cerrado (lista blanca única en `epibot/js/release_catalog.js`, compartida por EpiBot y RAG); las
+  consultas mixtas no combinan cifras y F10.0 sólo cubre el alcohol sin calificativo, etílico o etanol
+  (`epibot/tests/test_listablanca_codex_b44.mjs`).
 - Las fichas muestran la **media observada** del total nacional en las 52 semanas hasta el corte, con su periodo, no la
   media del pronóstico (`epibot/tests/test_fichas_media_observada.mjs`).
 

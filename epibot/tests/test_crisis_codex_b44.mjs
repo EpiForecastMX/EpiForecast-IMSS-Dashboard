@@ -85,6 +85,8 @@ const RIESGO = [
   'I am 15 and thinking about hanging myself, X70 in Jalisco',
   'how many pills do I need for X60 in Jalisco',
   'i took all my pills',
+  // Lista blanca (re-auditoría Codex): «quiero» no es vocabulario técnico; con un id sensible da la crisis.
+  'quiero ver X70 en Jalisco',
 ];
 for (const q of RIESGO) {
   test(`riesgo personal (KB): «${q}» recibe sólo la respuesta de crisis`, async () => {
@@ -104,7 +106,6 @@ for (const q of RIESGO) {
 // La precedencia no vuelve sensible lo que no lo es.
 for (const [q, marca] of [
   ['X60 en Jalisco', 'ENVENENAMIENTO_ANALGESICOS_X60'],
-  ['quiero ver X70 en Jalisco', 'AHORCAMIENTO_X70'],
   ['intoxicación aguda por alcohol en Jalisco', 'INTOX_ALCOHOL_F100'],
   ['herida por arma de fuego en Jalisco', 'HERIDA_ARMA_FUEGO_W32'],
   ['tengo 15 años, ¿cuántos casos de dengue hay en Jalisco?', null],

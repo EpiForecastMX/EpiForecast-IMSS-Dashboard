@@ -968,6 +968,9 @@ export default async function handler(req) {
   const apoyo = globalThis.EPI_CATALOGO.respuestaCrisisSeguimiento(String(body.query || ''),
     crisisEnHistorial(body.history), nombraPadecimientoNoSensible);
   if (apoyo) return json({ answer: apoyo.replace('\n<!--SIN_GRAFICA-->', ''), sources: [], retrieval: 'none', guarda: 'crisis' }, 200, cors);
+  // Re-auditoría Codex: consulta mixta con un id sensible y sin riesgo; no se combinan cifras.
+  const mixta = globalThis.EPI_CATALOGO.respuestaMixtaSensible(String(body.query || ''));
+  if (mixta) return json({ answer: mixta.replace('\n<!--SIN_GRAFICA-->', ''), sources: [], retrieval: 'none', guarda: 'mixta_sensible' }, 200, cors);
   const d7 = guardaD7Rag(body.query);
   if (d7) return json({ answer: d7, sources: [], retrieval: 'none', guarda: 'd7' }, 200, cors);
   const suma = guardaSumaA37U99Rag(body.query);
@@ -979,6 +982,12 @@ export default async function handler(req) {
   const sinVecinoCrudo = noModeladaSinVecino(stripAccents(String(body.query || '')));
   if (sinVecinoCrudo) return json({ answer: sinVecinoCrudo, sources: [] }, 200, cors);
   const turno = resolverConsultaRag(body.query, body.history);
+  // Seguimiento sin padecimiento propio tras un id sensible: misma lista blanca que el EpiBot.
+  if (turno.estado?.releases?.some((r) => globalThis.EPI_CATALOGO.IDS_LISTA_BLANCA.has(r.id)) &&
+      !nombraPadecimientoNoSensible(String(body.query || '')) &&
+      globalThis.EPI_CATALOGO.fueraDeListaBlanca(String(body.query || ''), true)) {
+    return json({ answer: globalThis.EPI_CATALOGO.respuestaCrisis('quiero morir').replace('\n<!--SIN_GRAFICA-->', ''), sources: [], retrieval: 'none', guarda: 'crisis' }, 200, cors);
+  }
   const qEfectiva = String(turno.query || '');
   if (qEfectiva !== String(body.query || '')) {
     const d7Seg = guardaD7Rag(qEfectiva);

@@ -1530,6 +1530,11 @@
   /** El subtipo ajeno que nombra la consulta (normalizada): `{ termino, nombre, release }`, o null. */
   function subtipoAjeno(qn) {
     const canon = canonClinico(String(qn).replace(/[^a-z0-9. ]+/g, ' ').replace(/\s+/g, ' '));
+    // Re-auditoría Codex (19-nov-2026): F10.0 sólo para «alcohol» sin calificativo o con etílico, etanol o aguda; cualquier
+    // otro calificativo (butílico, amílico, metílico…) es un alcohol que no se modela.
+    if (alcoholCalificado(canon)) {
+      return { termino: 'alcohol no etilico', nombre: ALCOHOL_NO_ETILICO, release: 'intox_alcohol_f100', pad: 'Intoxicación aguda por alcohol' };
+    }
     const hit = SUBTIPOS_AJENOS.find(([re, , , , ctx]) => re.test(canon) && (!ctx || ctx.test(canon))) || codigoAjeno(canon);
     if (!hit) return null;
     const r = releases.find((x) => x.id === hit[3]);
@@ -1800,6 +1805,129 @@
   const METODO_TEMA_EN = /\b(hang\w*|rope|poison|pills|overdose|gun|shoot|knife|cut|jump|bridge|die|death|kill|suicid\w*|self ?harm)\b/;
   const MENOR_EN = /\b(i am (1[0-7]|[1-9])( years old)?|im (1[0-7]|[1-9])( years old)?|i m (1[0-7]|[1-9])|my (son|daughter|brother|sister) is (1[0-7]|[1-9]))\b/;
 
+  // ── Lista blanca de ids sensibles (re-auditoría Codex de alta_b44, 19-nov-2026) ──────────────────────────────────────
+  // Los parches por lista de frases dejaban variantes abiertas («Me he tomado 30 pastillas, X60 en Jalisco», «X70 en Jalisco,
+  // hoy me colgaré»). Diseño único para el EpiBot y la función RAG (los dos leen este módulo): cuando la consulta nombra un id
+  // sensible, sólo se dan cifras si TODOS sus tokens pertenecen a un vocabulario técnico cerrado. Cualquier otro token da la
+  // respuesta de crisis exclusiva.
+  const IDS_LISTA_BLANCA = new Set([
+    'envenenamiento_analgesicos_x60', 'envenenamiento_psicotropicos_x61', 'ahorcamiento_x70', 'disparo_arma_corta_x72',
+    'objeto_cortante_x78', 'salto_lugar_elevado_x80', 'intento_suicidio_z915', 'ideacion_suicida_r458',
+    'violencia_intrafamiliar_y07', 'herida_arma_fuego_w32', 'intox_alcohol_f100', 'alcoholica_higado_k70',
+    'cirrosis_alcoholica_k703', 'vih_b20',
+  ]);
+  const ESTADOS = [
+    ['aguascalientes', 'Aguascalientes'], ['baja california sur', 'Baja California Sur'], ['baja california', 'Baja California'],
+    ['campeche', 'Campeche'], ['coahuila', 'Coahuila'], ['colima', 'Colima'], ['chiapas', 'Chiapas'], ['chihuahua', 'Chihuahua'],
+    ['ciudad de mexico', 'Ciudad de México'], ['cdmx', 'Ciudad de México'], ['durango', 'Durango'], ['guanajuato', 'Guanajuato'],
+    ['guerrero', 'Guerrero'], ['hidalgo', 'Hidalgo'], ['jalisco', 'Jalisco'], ['estado de mexico', 'Estado de México'],
+    ['edomex', 'Estado de México'], ['michoacan', 'Michoacán'], ['morelos', 'Morelos'], ['nayarit', 'Nayarit'],
+    ['nuevo leon', 'Nuevo León'], ['oaxaca', 'Oaxaca'], ['puebla', 'Puebla'], ['queretaro', 'Querétaro'],
+    ['quintana roo', 'Quintana Roo'], ['san luis potosi', 'San Luis Potosí'], ['sinaloa', 'Sinaloa'], ['sonora', 'Sonora'],
+    ['tabasco', 'Tabasco'], ['tamaulipas', 'Tamaulipas'], ['tlaxcala', 'Tlaxcala'], ['veracruz', 'Veracruz'],
+    ['yucatan', 'Yucatán'], ['zacatecas', 'Zacatecas'],
+  ];
+  const VOCAB_NEUTRO = new Set((
+    // geografía
+    ESTADOS.map(([e]) => e).join(' ') + ' coahuila de zaragoza michoacan de ocampo veracruz de ignacio de la llave queretaro de arteaga ' +
+    'distrito federal df mexico mexicana republica pais nacional nacionales national nationwide country entidad entidades estado ' +
+    'estados region regiones regional noroeste noreste norte centro occidente sur sureste' +
+    // sexo
+    ' sexo sexos hombre hombres mujer mujeres masculino femenino general ambos varones men women male female males females' +
+    // consulta neutra
+    ' casos caso cuantos cuantas cuanto cuantos numero total totales promedio pronostico pronosticos pronosticado pronosticados' +
+    ' prediccion proyeccion tendencia tendencias semana semanas semanal semanales ano anos anual mes meses en de del y e o u la el' +
+    ' los las lo al a por para con sobre que cual cuales como es son fue hay hubo habra sera seran esta estan va van se espera' +
+    ' esperan esperados esperado notificados notificadas reportados registrados observado observados historico historica' +
+    ' historia datos dato cifra cifras grafica grafico serie series ficha pagina informacion info fuente boletin modelo motor' +
+    ' modelos motores control estacional validacion validado validada error smape mase metricas proximas proximos siguientes' +
+    ' ultima ultimas ultimo ultimos actual mas menos mayor menor tiene tienen comparar compara comparacion vs ver mostrar' +
+    ' muestra muestrame dame dime consulta consultar tasa incidencia' +
+    // inglés
+    ' what is are the of for in and how many much cases case forecast forecasts trend week weeks year years total show data' +
+    ' state states region by'
+  ).split(/\s+/).filter(Boolean));
+  // Palabras genéricas de riesgo que sólo aparecen dentro del rótulo completo de Z91.5 y R45.8: canonClinico retira ese
+  // paréntesis cuando acompaña al rótulo; sueltas no son vocabulario técnico.
+  const RIESGO_EN_ROTULO = new Set(['suicidio', 'suicida', 'suicidas', 'ideacion', 'intento', 'suicide', 'attempt']);
+  const NOMBRES_LEGACY = ['depresion', 'parkinson', 'alzheimer', 'dengue', 'f32', 'g20', 'g30', 'a97'];
+  const sinTildeMin2 = (t) => String(t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  // Vocabulario técnico: palabras de los rótulos, nombres y alias de todos los releases y de los cuatro legacy.
+  const VOCAB_TECNICO = new Set(releases.flatMap((r) => [r.nombre, r.etiqueta, r.pad, r.nombreCorto, r.consulta, ...r.alias]
+    .flatMap((t) => sinTildeMin2(t).split(/[^a-z0-9]+/))).filter((w) => w && !/^\d+$/.test(w) && !RIESGO_EN_ROTULO.has(w))
+    .concat(NOMBRES_LEGACY));
+  /** Normalización de la lista blanca: minúsculas sin tildes, sólo [a-z0-9] separados por un espacio. */
+  const normLB = (q) => sinTildeMin2(q).replace(/[^a-z0-9]+/g, ' ').trim();
+  /** Tokens que quedan tras retirar códigos CIE, años y semanas, que son técnicos. */
+  function tokensLibres(q) {
+    return canonClinico(normLB(q)).replace(/[^a-z0-9]+/g, ' ')
+      .replace(/\b(semanas?|sem|weeks?) \d{1,2}\b|\b\d{1,2} (semanas|weeks)\b/g, ' ')
+      .replace(/\b(19|20)\d{2}( w\d{1,2})?\b|\bw\d{1,2}\b/g, ' ')
+      .replace(/\b[a-z]\d{2}( \d{1,2})?\b/g, ' ')
+      .split(' ').filter(Boolean);
+  }
+  const ALCOHOL_PERMITIDO = new Set(['etilico', 'etilica', 'etanol', 'aguda', 'agudo', 'ethyl', 'ethanol', 'acute', 'intoxication']);
+  const ALCOHOL_NO_ETILICO = 'la intoxicación por alcohol metílico, isopropílico ni por otros alcoholes no etílicos (T51.1-T51.9)';
+  /** «alcohol» con un calificativo fuera de la lista blanca (etílico, etanol, aguda): no es F10.0. */
+  function alcoholCalificado(q) {
+    const t = normLB(q).split(' ');
+    for (let i = 0; i < t.length; i++) {
+      if (!/^alcohol(es)?$/.test(t[i])) continue;
+      if (t[i] === 'alcoholes' && t[i - 1] === 'otros') return true;
+      const permitido = (w) => !w || ALCOHOL_PERMITIDO.has(w) || NOMBRES_LEGACY.includes(w) || (VOCAB_NEUTRO.has(w) && !/^\d/.test(w));
+      if (!permitido(t[i + 1])) return true;
+      // «alcohol de 96», «alcohol de caña», «alcohol para curar»: el calificativo va tras la preposición.
+      if (['de', 'del', 'para'].includes(t[i + 1]) && t[i + 2] && (/^\d/.test(t[i + 2]) || !permitido(t[i + 2]))) return true;
+    }
+    return /\b(metanol|isopropanol|propanol|butanol|etilenglicol|methanol|isopropanol)\b/.test(normLB(q));
+  }
+  /** Releases de la lista blanca que nombra la consulta (F10.0 no cuenta si el alcohol está calificado). */
+  function idsSensiblesEn(q) {
+    const canon = canonClinico(normLB(q));
+    return releases.filter((r) => IDS_LISTA_BLANCA.has(r.id) && r.alias.some((al) => nombraAlias(canon, al)) &&
+      !(r.id === 'intox_alcohol_f100' && alcoholCalificado(q)));
+  }
+  /** La consulta nombra un id sensible y trae algún token fuera del vocabulario técnico cerrado. */
+  function fueraDeListaBlanca(q, contextoSensible = false) {
+    if (!contextoSensible && !idsSensiblesEn(q).length) return false;
+    return tokensLibres(q).some((w) => !VOCAB_NEUTRO.has(w) && !VOCAB_TECNICO.has(w) && !ALCOHOL_PERMITIDO.has(w));
+  }
+  // Ingestión explícita en primera persona de cualquier sustancia, modelada o no.
+  const INGESTION_PROPIA_ES = /\b(me (bebi|tome|trague|inyecte|meti|he tomado|he bebido|he tragado|acabo de tomar|acabo de beber|acabo de tragar)|he (tomado|bebido|tragado|ingerido)|ingeri|trague|bebi)\b(?! (la presion|la temperatura|el pulso|la glucosa|una foto|un descanso|un respiro|vacaciones|un cafe|agua|cafe|el tiempo)\b)/;
+  const INGESTION_PROPIA_EN = /\bi (drank|swallowed|ingested|have taken|ve taken|took)( [a-z0-9]+){0,4} (pills|tablets|poison|bleach|alcohol|methanol|antifreeze|pesticide|too many|a lot|\d+)\b/;
+  function ingestionPropia(q) {
+    const n = normLB(q);
+    if (INGESTION_PROPIA_ES.test(n)) return 'es';
+    return INGESTION_PROPIA_EN.test(n) ? 'en' : null;
+  }
+  /** Estados nombrados, con su nombre de presentación. */
+  function estadosEn(q) {
+    const n = ` ${normLB(q)} `;
+    const out = [];
+    for (const [e, nombre] of ESTADOS) if (n.includes(` ${e} `) && !out.includes(nombre)) out.push(nombre);
+    return out.filter((x) => !(x === 'Baja California' && out.includes('Baja California Sur')));
+  }
+  /**
+   * Consulta mixta con un id sensible y sin riesgo: no se combinan cifras. Texto fijo con el aviso y la Línea de la Vida,
+   * que respeta el estado pedido (nunca el nacional cuando se pidió un estado), o null.
+   */
+  function respuestaMixtaSensible(qn) {
+    const sens = idsSensiblesEn(qn);
+    if (!sens.length) return null;
+    const canon = canonClinico(normLB(qn));
+    const otros = releases.filter((r) => !sens.includes(r) && r.alias.some((al) => nombraAlias(canon, al)) &&
+      !(sens.some((x) => x.alias.some((al) => nombraAlias(canon, al) && r.alias.some((b) => al.includes(b))))));
+    const legacy = NOMBRES_LEGACY.filter((l) => !/\d/.test(l) && new RegExp(`\\b${l}\\b`).test(normLB(qn)));
+    if (!otros.length && !legacy.length && sens.length < 2) return null;
+    const est = estadosEn(qn);
+    const lugar = est.length ? ` en ${est.join(' y ')}` : '';
+    const ejemplo = `«${sens[0].consultaVisible}${est.length ? ` en ${est[0]}` : ' en Jalisco'}»`;
+    return `No combino en una misma respuesta las cifras de ${sens.map((r) => `**${r.etiqueta}**`).join(' y ')} con las de otros ` +
+      `padecimientos${lugar}. Si necesitas esos datos, pregúntalos por separado; por ejemplo, ${ejemplo}.\n\n` +
+      'Si tú o alguien cercano necesita apoyo, la **Línea de la Vida** atiende gratis, las 24 horas, todos los días: ' +
+      '**800 911 2000**. Si alguien está en peligro inmediato, llama al **911**.\n<!--SIN_GRAFICA-->';
+  }
+
   const temaSensible = (q) => nombraReleaseSensible(q) || SENSIBLE_ES.test(q) || SENSIBLE_EN.test(q);
   /** Riesgo personal en la consulta normalizada: idioma de la respuesta («es», «en») o null. */
   function riesgoPersonal(q) {
@@ -1816,7 +1944,8 @@
   /** Texto fijo ante una señal de riesgo personal, o null. No pasa por ningún modelo. */
   function respuestaCrisis(qn) {
     const q = ` ${String(qn).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()} `;
-    const riesgo = riesgoPersonal(q);
+    const riesgo = riesgoPersonal(q) || ingestionPropia(q) ||
+      (fueraDeListaBlanca(q) ? (/\b(the|what|how|in|of|and|i|my)\b/.test(q) && !/\b(en|de|del|y|la|el)\b/.test(q) ? 'en' : 'es') : null);
     if (riesgo === 'es') return CRISIS_TEXTO_ES;
     if (riesgo === 'en') return CRISIS_TEXTO_EN;
     if (CRISIS_ES.test(q) || VIOLENCIA_ES.test(q)) return CRISIS_TEXTO_ES;
@@ -1849,13 +1978,20 @@
     let activa = false;
     for (const t of turnos) {
       if (respuestaCrisis(t)) activa = true;
-      else if (activa && nombraPadLimpio(t)) activa = false;
+      else if (activa && levantaCrisis(t, nombraPadLimpio)) activa = false;
     }
     return activa;
   }
   /** Respuesta de apoyo para un seguimiento tras una crisis, o null si la crisis no sigue activa. */
+  /**
+   * Re-auditoría Codex: sólo levanta la crisis un turno que nombra EXCLUSIVAMENTE padecimientos no sensibles y no trae
+   * riesgo. Cualquier turno que nombre un id de la lista blanca (también junto a otro padecimiento) la mantiene.
+   */
+  function levantaCrisis(t, nombraPadLimpio) {
+    return !idsSensiblesEn(t).length && !nombraReleaseSensible(normLB(t)) && !respuestaCrisis(t) && nombraPadLimpio(t);
+  }
   function respuestaCrisisSeguimiento(qn, crisisPrevia, nombraPadLimpio) {
-    if (!crisisPrevia || nombraPadLimpio(qn)) return null;
+    if (!crisisPrevia || levantaCrisis(qn, nombraPadLimpio)) return null;
     const q = String(qn).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9 ]+/g, ' ');
     return TURNO_EN.test(q) ? CRISIS_SEGUIMIENTO_EN : CRISIS_SEGUIMIENTO_ES;
   }
@@ -1886,6 +2022,7 @@
     ETIQUETA_SIN_ALTERNATIVA, textoSinAlternativa,
     releases, diabetesEnConsulta, conDiabetesNombrada, conFamiliaNombrada, canonClinico, nombraAlias, noModeladas,
     mencionaNoModelada, conHipertensionNombrada, respuestaCrisis, subtipoAjeno, aliasAmbiguo,
-    crisisEnTurnos, respuestaCrisisSeguimiento,
+    crisisEnTurnos, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, idsSensiblesEn,
+    alcoholCalificado, IDS_LISTA_BLANCA, _VOCAB_TECNICO: VOCAB_TECNICO,
   });
 })(globalThis);

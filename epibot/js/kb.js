@@ -6,12 +6,12 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=66';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=67';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=5';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=40';
-import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=32';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=41';
+import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=33';
 
 let DATA = null;
 
@@ -5898,7 +5898,24 @@ async function _resolve(consulta) {
     trace.handler = 'answerCrisisSeguimiento';
     return { response: apoyo, handler: trace.handler };
   }
+  // Re-auditoría Codex: un seguimiento sin padecimiento propio tras una respuesta de un id sensible pasa por la misma lista
+  // blanca («¿y si me tomo 30?» tras «X60 en Jalisco»).
+  const relPrevio = lastEntities.padecimiento ? releaseDePad(lastEntities.padecimiento) : null;
+  if (relPrevio && IDS_LISTA_BLANCA.has(relPrevio.id) && esSeguimientoSinPadecimiento(query) &&
+      fueraDeListaBlanca(norm(query), true)) {
+    lastEntities = {};
+    _crisisActiva = true;
+    trace.handler = 'answerCrisis';
+    return { response: respuestaCrisis('quiero morir'), handler: trace.handler };
+  }
   _crisisActiva = false;
+  // Consulta mixta con un id sensible y sin riesgo: no se combinan cifras.
+  const mixta = respuestaMixtaSensible(norm(query));
+  if (mixta) {
+    lastEntities = {};
+    trace.handler = 'answerMixtaSensible';
+    return { response: mixta, handler: trace.handler };
+  }
   if (_aclaracionPendiente && esSeguimientoSinPadecimiento(query)) {
     lastEntities = {};
     trace.handler = 'answerAclaracionPendiente';
