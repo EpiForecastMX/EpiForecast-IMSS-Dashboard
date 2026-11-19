@@ -87,7 +87,13 @@ test('estado: el script lo toma de la vista actual (misma regla que Dashboard/Ga
     assert.equal(nodos.pubKind.textContent, STATUS_SHORT[esperado], id);
     assert.equal(nodos.pubKind.hidden, false, id);
     assert.equal(`${nodos.pubKind.textContent} ${nodos.pubLabel.textContent}`.replace(/\s+/g, ' ').trim().length > 0, true);
-    assert.ok(vista.publication_label.includes(nodos.pubLabel.textContent), `${id}: el detalle es parte literal de la etiqueta`);
+    // El detalle es parte literal de la etiqueta visible: la sellada, salvo un portafolio igual al control (un año de
+    // historia), que se presenta como control publicado con la frase común de estado-ficha.js y unified.mjs.
+    assert.ok(E.etiqueta(vista).includes(nodos.pubLabel.textContent), `${id}: el detalle es parte literal de la etiqueta`);
+    if (vista.portafolio_igual_al_control === true) {
+      assert.equal(esperado, 'control', `${id}: portafolio igual al control se presenta como control`);
+      assert.equal(E.etiqueta(vista), E.SIN_ALTERNATIVA, id);
+    } else assert.equal(E.etiqueta(vista), vista.publication_label, id);
     visto[id] = esperado;
   }
   // Casos de la auditoría: control por caída al control (veredicto INCOMPLETE) ≠ PENDING genuino.
@@ -216,3 +222,55 @@ test('las fichas no hacen aritmética de semana a mano: boletín y primera seman
   }
   assert.deepEqual(malas, [], `fichas con semana + 1 a mano: ${malas.length}`);
 });
+
+// Lote alta_b44 (19-nov-2026): controles tras rechazo y controles sin alternativa (un año de historia) nunca dicen
+// «validación en curso»; los temas sensibles llevan el recuadro visible de la Línea de la Vida y el 911; los avisos
+// medidos de la fuente (avisos_fuente.js) se pintan en la ficha con el mismo texto.
+const SENSIBLES_B44 = ['envenenamiento_analgesicos_x60', 'envenenamiento_psicotropicos_x61', 'ahorcamiento_x70',
+  'disparo_arma_corta_x72', 'objeto_cortante_x78', 'salto_lugar_elevado_x80', 'intento_suicidio_z915', 'ideacion_suicida_r458',
+  'violencia_intrafamiliar_y07', 'herida_arma_fuego_w32', 'intox_alcohol_f100', 'vih_b20'];
+test('alta_b44: controles sin «validación en curso», sensibles con Línea de la Vida y avisos de la fuente en la ficha', () => {
+  const ctx = {};
+  vm.createContext(ctx);
+  vm.runInContext(leer('epibot/js/avisos_fuente.js'), ctx);
+  const A = ctx.EPI_AVISOS_FUENTE;
+  let controles = 0, sinAlternativa = 0, lote = 0;
+  for (const r of JSON.parse(leer('publication/catalog.json')).releases) {
+    const vista = JSON.parse(leer(`publication/${r.disease_id}/vista.json`));
+    const t = leer(`${r.disease_id}.html`);
+    const visible = t.slice(t.indexOf('<main>'), t.indexOf('</main>')).replace(/<[^>]+>/g, ' ');
+    if (vista.portafolio_igual_al_control === true) {
+      sinAlternativa += 1;
+      assert.match(visible, /Es un control estacional, no validado/, r.disease_id);
+      assert.match(visible, /no hubo ningún otro motor que elegir/, r.disease_id);
+      assert.match(visible, /Sin validación prospectiva propia/, r.disease_id);
+    }
+    if (vista.caida_al_control || vista.portafolio_igual_al_control === true) {
+      controles += 1;
+      assert.doesNotMatch(visible, /validación (prospectiva )?en curso/i, `${r.disease_id}: un control no está «en curso»`);
+    }
+    // Releases del lote: emitidos el 19-nov-2026 (las fichas anteriores tienen su propia redacción).
+    const delLote = String(vista.forecast_emitted_at).startsWith('2026-11-19');
+    if (delLote) lote += 1;
+    if (vista.caida_al_control && delLote) {
+      // Ambas cifras de la prueba (portafolio y control) del ámbito nacional, como en la vista sellada.
+      const nac = vista.caida_al_control.comprobaciones.find((c) => c.ambito === 'smape_nacional_general');
+      if (!(nac.portafolio === 0 && nac.control === 0)) {
+        assert.ok(visible.includes(`${nac.portafolio.toFixed(1)} frente a ${nac.control.toFixed(1)}`), `${r.disease_id}: cifras de la prueba`);
+      }
+    }
+    for (const a of (delLote ? A[r.disease_id]?.avisos || [] : []).filter((x) => x.estado !== 'apoyo')) {
+      assert.ok(t.includes(`<p class="aviso-fuente" data-aviso="${a.clave}"><strong>${a.titulo}</strong> ${a.texto}</p>`),
+        `${r.disease_id}: aviso ${a.clave} en la ficha`);
+    }
+  }
+  assert.equal(sinAlternativa, 10);
+  assert.equal(lote, 59);
+  assert.ok(controles >= 45, `${controles}`);
+  for (const id of SENSIBLES_B44) {
+    const t = leer(`${id}.html`);
+    assert.match(t, /<aside class="callout" role="note" aria-label="Línea de ayuda">[\s\S]*Línea de la Vida[\s\S]*800 911 2000[\s\S]*911/, id);
+    assert.ok(A[id]?.avisos.some((x) => x.estado === 'apoyo' && /800 911 2000/.test(x.texto)), `${id}: aviso de apoyo para el bot`);
+  }
+});
+
