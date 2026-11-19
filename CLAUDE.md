@@ -47,6 +47,10 @@ contenido servido. Conteos del catálogo (`publication/catalog.json`, 141 releas
   son vocabulario técnico cerrado (lista blanca única en `epibot/js/release_catalog.js`, compartida por EpiBot y RAG); las
   consultas mixtas no combinan cifras y F10.0 sólo cubre el alcohol sin calificativo, etílico o etanol
   (`epibot/tests/test_listablanca_codex_b44.mjs`).
+  Criterio uniforme de fallar hacia la crisis: léxico de riesgo por formas verbales en español e inglés aunque el
+  padecimiento no se resuelva, cualquier verbo de consumo en primera persona (falso positivo aceptado: «me tomé un café»),
+  emojis de riesgo como señal explícita y otros símbolos como tokens no técnicos; sólo un turno enteramente técnico levanta
+  la crisis (`epibot/tests/test_crisis3_codex_b44.mjs`).
 - Las fichas muestran la **media observada** del total nacional en las 52 semanas hasta el corte, con su periodo, no la
   media del pronóstico (`epibot/tests/test_fichas_media_observada.mjs`).
 

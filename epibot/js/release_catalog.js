@@ -1887,14 +1887,45 @@
     return releases.filter((r) => IDS_LISTA_BLANCA.has(r.id) && r.alias.some((al) => nombraAlias(canon, al)) &&
       !(r.id === 'intox_alcohol_f100' && alcoholCalificado(q)));
   }
+  // Tercera auditoría Codex: léxico de riesgo por formas verbales (futuro, infinitivo, pronominal), independiente de que se
+  // resuelva un padecimiento («X7O en Jalisco, hoy me colgaré» caía en la tabla legacy). Se evalúa tras retirar los rótulos y
+  // alias de los releases («…al saltar desde un lugar elevado» es el nombre de X80, no una intención).
+  const RIESGO_LEX_ES = /\b(colgar(me|se|te)?|colgare|colgaria|ahorcar(me|se|te)?|ahorcare|ahorcaria|matar(me|se|te)?|matare|mataria|morir(me|se)?|morire|moriria|muero|cortar(me|se)?|cortare|me voy a (cortar|colgar|ahorcar|matar|tirar|aventar|lanzar|envenenar|disparar|morir)|saltar(e|ia)?|aventar(me|se)|aventare|tirar(me|se)|tirare|lanzar(me|se)|lanzare|envenenar(me|se)?|envenenare|intoxicar(me|se)|disparar(me|se)|dispararia|suicid[a-z]*|no quiero vivir|no quiero seguir|acabar con todo|acabar con mi vida|quitarme la vida|desaparecer|sobredosis)\b/;
+  const RIESGO_LEX_EN = /\b(kill(ing)? myself|hang(ing)? myself|cut(ting)? myself|poison(ing)? myself|shoot(ing)? myself|overdos(e|ing)|suicid[a-z]*|die|dying|end it all|end my life|jump(ing)? off|want to die)\b/;
+  const ALIAS_LARGOS = [...new Set(releases.flatMap((r) => [r.consulta, ...r.alias]).map((a) => sinTildeMin2(a).replace(/[^a-z0-9]+/g, ' ').trim())
+    .filter((a) => a.includes(' ')))].sort((x, y) => y.length - x.length);
+  function sinRotulos(q) {
+    let n = ` ${canonClinico(normLB(q)).replace(/[^a-z0-9]+/g, ' ').trim()} `;
+    for (const a of ALIAS_LARGOS) n = n.split(` ${a} `).join(' ');
+    return n;
+  }
+  function lexicoRiesgo(q) {
+    const n = sinRotulos(q);
+    if (RIESGO_LEX_ES.test(n)) return 'es';
+    return RIESGO_LEX_EN.test(n) ? 'en' : null;
+  }
+  // Emojis y símbolos: no se retiran antes de comprobar. Unos son señal explícita de riesgo; cualquier carácter fuera de
+  // letras, dígitos, espacios y puntuación básica cuenta como token no técnico.
+  const EMOJI_RIESGO = /\u{1F198}|\u{1F48A}|☠|\u{1FA62}|\u{1F52A}|\u{1F52B}|\u{1FA78}|⚰|\u{1F480}|\u{1FA93}/u;
+  const simbolosNoTecnicos = (raw) => /[^\p{L}\p{N}\s.,;:¿?¡!'"()\-\/«»%#+]/u.test(String(raw).normalize('NFC'));
+  /** Todo el turno es vocabulario técnico cerrado (cualquier padecimiento), sin símbolos. */
+  function turnoTecnico(raw) {
+    return !simbolosNoTecnicos(raw) &&
+      tokensLibres(raw).every((w) => VOCAB_NEUTRO.has(w) || VOCAB_TECNICO.has(w) || ALCOHOL_PERMITIDO.has(w));
+  }
+
   /** La consulta nombra un id sensible y trae algún token fuera del vocabulario técnico cerrado. */
   function fueraDeListaBlanca(q, contextoSensible = false) {
     if (!contextoSensible && !idsSensiblesEn(q).length) return false;
+    if (simbolosNoTecnicos(q)) return true;
     return tokensLibres(q).some((w) => !VOCAB_NEUTRO.has(w) && !VOCAB_TECNICO.has(w) && !ALCOHOL_PERMITIDO.has(w));
   }
   // Ingestión explícita en primera persona de cualquier sustancia, modelada o no.
-  const INGESTION_PROPIA_ES = /\b(me (bebi|tome|trague|inyecte|meti|he tomado|he bebido|he tragado|acabo de tomar|acabo de beber|acabo de tragar)|he (tomado|bebido|tragado|ingerido)|ingeri|trague|bebi)\b(?! (la presion|la temperatura|el pulso|la glucosa|una foto|un descanso|un respiro|vacaciones|un cafe|agua|cafe|el tiempo)\b)/;
-  const INGESTION_PROPIA_EN = /\bi (drank|swallowed|ingested|have taken|ve taken|took)( [a-z0-9]+){0,4} (pills|tablets|poison|bleach|alcohol|methanol|antifreeze|pesticide|too many|a lot|\d+)\b/;
+  // Tercera auditoría Codex: cualquier verbo de consumo en primera persona da la crisis, sin exclusiones por objeto
+  // («me tomé agua con cianuro»). Falso positivo aceptado y documentado: «me tomé un café», «tomé nota» o «tome en cuenta»
+  // (sin tilde, «tomé» y «tome» se normalizan igual) también reciben la respuesta de crisis.
+  const INGESTION_PROPIA_ES = /\b(me (bebi|tome|trague|inyecte|meti|he tomado|he bebido|he tragado|he inyectado|acabo de tomar|acabo de beber|acabo de tragar)|he (tomado|bebido|tragado|ingerido)|ingeri|trague|bebi|tome)\b/;
+  const INGESTION_PROPIA_EN = /\bi (drank|swallowed|ingested|injected|have taken|ve taken|have drunk|ve drunk|took|just took|just drank)\b/;
   function ingestionPropia(q) {
     const n = normLB(q);
     if (INGESTION_PROPIA_ES.test(n)) return 'es';
@@ -1943,9 +1974,12 @@
 
   /** Texto fijo ante una señal de riesgo personal, o null. No pasa por ningún modelo. */
   function respuestaCrisis(qn) {
-    const q = ` ${String(qn).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()} `;
-    const riesgo = riesgoPersonal(q) || ingestionPropia(q) ||
-      (fueraDeListaBlanca(q) ? (/\b(the|what|how|in|of|and|i|my)\b/.test(q) && !/\b(en|de|del|y|la|el)\b/.test(q) ? 'en' : 'es') : null);
+    const raw = String(qn);
+    const q = ` ${raw.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()} `;
+    const idioma = () => (/\b(the|what|how|in|of|and|i|my)\b/.test(q) && !/\b(en|de|del|y|la|el)\b/.test(q) ? 'en' : 'es');
+    const riesgo = riesgoPersonal(q) || ingestionPropia(q) || lexicoRiesgo(raw) ||
+      (EMOJI_RIESGO.test(raw) ? idioma() : null) ||
+      ((idsSensiblesEn(q).length && simbolosNoTecnicos(raw)) || fueraDeListaBlanca(q) ? idioma() : null);
     if (riesgo === 'es') return CRISIS_TEXTO_ES;
     if (riesgo === 'en') return CRISIS_TEXTO_EN;
     if (CRISIS_ES.test(q) || VIOLENCIA_ES.test(q)) return CRISIS_TEXTO_ES;
@@ -1988,7 +2022,8 @@
    * riesgo. Cualquier turno que nombre un id de la lista blanca (también junto a otro padecimiento) la mantiene.
    */
   function levantaCrisis(t, nombraPadLimpio) {
-    return !idsSensiblesEn(t).length && !nombraReleaseSensible(normLB(t)) && !respuestaCrisis(t) && nombraPadLimpio(t);
+    return turnoTecnico(t) && !idsSensiblesEn(t).length && !nombraReleaseSensible(normLB(t)) && !respuestaCrisis(t) &&
+      nombraPadLimpio(t);
   }
   function respuestaCrisisSeguimiento(qn, crisisPrevia, nombraPadLimpio) {
     if (!crisisPrevia || levantaCrisis(qn, nombraPadLimpio)) return null;

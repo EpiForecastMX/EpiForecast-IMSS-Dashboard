@@ -961,7 +961,8 @@ export default async function handler(req) {
   }
 
   // Antes de la clave y del límite de consultas: esta respuesta no depende de ningún modelo.
-  const crisis = globalThis.EPI_CATALOGO.respuestaCrisis(stripAccents(String(body.query || '')).replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim());
+  // Sin normalizar: emojis y símbolos cuentan en la lista blanca (tercera auditoría Codex).
+  const crisis = globalThis.EPI_CATALOGO.respuestaCrisis(String(body.query || ''));
   if (crisis) return json({ answer: crisis.replace('\n<!--SIN_GRAFICA-->', ''), sources: [] }, 200, cors);
   // La crisis persiste: tras una respuesta de crisis en el historial, un seguimiento sin padecimiento no sensible propio
   // recibe apoyo, sin vista, recuperación, modelo ni cifras.

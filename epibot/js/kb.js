@@ -6,12 +6,12 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=67';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=68';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=5';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=41';
-import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=33';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=42';
+import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=34';
 
 let DATA = null;
 
@@ -5884,7 +5884,8 @@ async function _resolve(consulta) {
   const d = await loadKnowledge();
   const s = d.stats || {};
   // Un seguimiento que nombra otro subtipo de diabetes se resuelve antes de heredar el contexto.
-  const crisis = respuestaCrisis(norm(query));
+  // Sin normalizar: emojis y símbolos cuentan en la lista blanca (tercera auditoría Codex).
+  const crisis = respuestaCrisis(query);
   if (crisis) {
     lastEntities = {};
     _crisisActiva = true;
@@ -5892,7 +5893,7 @@ async function _resolve(consulta) {
     trace.handler = 'answerCrisis';
     return { response: crisis, handler: trace.handler };
   }
-  const apoyo = respuestaCrisisSeguimiento(norm(query), _crisisActiva, nombraPadecimientoNoSensible);
+  const apoyo = respuestaCrisisSeguimiento(query, _crisisActiva, nombraPadecimientoNoSensible);
   if (apoyo) {
     lastEntities = {};
     trace.handler = 'answerCrisisSeguimiento';
@@ -5902,7 +5903,7 @@ async function _resolve(consulta) {
   // blanca («¿y si me tomo 30?» tras «X60 en Jalisco»).
   const relPrevio = lastEntities.padecimiento ? releaseDePad(lastEntities.padecimiento) : null;
   if (relPrevio && IDS_LISTA_BLANCA.has(relPrevio.id) && esSeguimientoSinPadecimiento(query) &&
-      fueraDeListaBlanca(norm(query), true)) {
+      fueraDeListaBlanca(query, true)) {
     lastEntities = {};
     _crisisActiva = true;
     trace.handler = 'answerCrisis';

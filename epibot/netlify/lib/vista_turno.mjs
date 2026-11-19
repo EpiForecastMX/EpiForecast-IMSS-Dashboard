@@ -223,7 +223,7 @@ export function nombraPadecimientoNoSensible(raw) {
 export function crisisEnHistorial(history = []) {
   const C = globalThis.EPI_CATALOGO;
   if (!C || !Array.isArray(history)) return false;
-  const turnos = history.filter((x) => x && x.role === 'user' && typeof x.text === 'string').map((x) => normPal(x.text));
+  const turnos = history.filter((x) => x && x.role === 'user' && typeof x.text === 'string').map((x) => x.text);
   return C.crisisEnTurnos(turnos, nombraPadecimientoNoSensible);
 }
 
