@@ -113,6 +113,8 @@
   }
   async function choose(id) {
     if (!index || !index.series[id]) return;
+    // El panel de pronóstico se entera antes de cargar la serie: si la curva falla, no queda el padecimiento anterior.
+    document.dispatchEvent(new CustomEvent('radar:curva',{detail:{id}}));
     const request=++sequence;
     $('curveStatus').hidden=false;$('curveStatus').textContent='Cargando la serie del padecimiento…';
     try {
@@ -120,7 +122,6 @@
       if(!series){const res=await fetch(index.series[id].path);if(!res.ok)throw new Error('No se pudo cargar la serie.');series=await res.json();cache.set(id,series);}
       if(request!==sequence)return;
       selected=series;$('curveDisease').value=id;const studyOption=$('curveMetric').querySelector('[value="2"]');studyOption.disabled=!series.points.some(p=>Object.hasOwn(p,'in_study'));if(studyOption.disabled&&$('curveMetric').value==='2')$('curveMetric').value='0';const hasStates=series.points.some(p=>p.e);$('curveState').disabled=!hasStates;if(!hasStates)$('curveState').value='-1';$('curveStatus').hidden=true;draw();
-      document.dispatchEvent(new CustomEvent('radar:curva',{detail:{id}}));
     }catch(e){if(request===sequence)$('curveStatus').textContent=e.message;}
   }
   async function init(){

@@ -467,3 +467,23 @@ test('Codex 2: EpiBot y RAG nombran el método real de cada categoría, leído d
   assert.match(leer('netlify.toml'), /"assets\/boletin\/\*\/pronostico_exploratorio\.json"/);
   assert.match(leer('epibot/js/radar_boletin.js'), /pronostico_exploratorio\.json`\)/);
 });
+
+test('Reauditoría: F50 → hipertensión con fallo de la carga histórica cambia el pronóstico sin depender de la curva', async () => {
+  // La serie histórica de hipertensión falla; el pronóstico se carga igual desde el selector.
+  const v = await bootVista('?padecimiento=p60b2&vista=pronostico', (rel) => rel.startsWith('assets/boletin/history/p49b1'));
+  try {
+    assert.match(v.el('forecastTitle').textContent, /Anorexia/);
+    const sel = v.el('curveDisease');
+    sel.value = 'p49b1';
+    sel.dispatch('change', { target: sel });
+    await v.espera();
+    assert.match(v.el('forecastTitle').textContent, /^Hipertensión arterial/);
+    assert.doesNotMatch(v.el('forecastLabel').innerHTML + v.el('forecastCaption').textContent, /Anorexia|anorexia_f50/);
+    assert.equal(v.el('forecastBody').hidden, false);
+    assert.ok(v.el('forecastChart').innerHTML.includes('<svg'));
+  } finally { v.restaura(); }
+  // curves.js avisa del cambio antes de pedir la serie (si la carga falla, el panel ya cambió).
+  const curves = leer('assets/boletin/curves.js');
+  const i = curves.indexOf("new CustomEvent('radar:curva'"), j = curves.indexOf('fetch(index.series[id].path)');
+  assert.ok(i > 0 && j > 0 && i < j, 'radar:curva antes de cargar la serie');
+});

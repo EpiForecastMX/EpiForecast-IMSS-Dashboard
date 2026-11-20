@@ -172,7 +172,10 @@ function fijarModo(nuevo, { url = true } = {}) {
 }
 
 actualId = new URLSearchParams(location.search).get('padecimiento') || null;
-document.addEventListener('radar:curva', (e) => { actualId = e.detail.id; render(); });
+// Cambio de categoría: por el evento que curves.js emite antes de cargar la serie y, además, por el selector mismo,
+// para no depender de que la carga histórica termine bien. render() descarta pedidos superados.
+document.addEventListener('radar:curva', (e) => { if (e.detail.id !== actualId) { actualId = e.detail.id; render(); } });
+$('curveDisease').addEventListener('change', (e) => { if (e.target.value && e.target.value !== actualId) { actualId = e.target.value; render(); } });
 $('tabSerie').addEventListener('click', () => fijarModo('serie'));
 $('tabPronostico').addEventListener('click', () => fijarModo('pronostico'));
 // Patrón ARIA de pestañas: flechas, Inicio y Fin mueven el foco y activan la pestaña (activación automática).
