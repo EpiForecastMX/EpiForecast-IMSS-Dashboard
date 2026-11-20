@@ -561,14 +561,16 @@ function vistaChunks(root, r) {
   // Cronología declarada en el catálogo: acota qué semanas del gate son prospectivas. Va en el
   // encabezado para que la lleve cada fragmento del release, no sólo el nacional.
   const nota = releaseDeId(r.disease_id)?.cronologia;
+  const sinAlternativa = v.portafolio_igual_al_control === true;
   const cronologia = nota ? ` ${nota}` : '';
   const encabezado =
     `${v.nombre_completo || v.display_name}: pronóstico congelado con datos hasta ${semana(v.origin)}${emitido} ` +
     `(${v.horizon_weeks} semanas, sin reentrenar${nac.oos.semanas ? '; las semanas evaluadas se registraron después de la emisión' : ''}).${horizonte} ` +
-    `${v.publication_label}. Lo observado llega hasta la semana epidemiológica ${semana(v.observation_cutoff)}.${cronologia}`;
+    `${sinAlternativa ? globalThis.EPI_CATALOGO.ETIQUETA_SIN_ALTERNATIVA : v.publication_label}. Lo observado llega hasta la semana epidemiológica ${semana(v.observation_cutoff)}.${cronologia}`;
   // Lo publicado es el control: ni se valida contra sí mismo ni salió de la selección.
   const sinSexo = !Object.keys(v.series || {}).some((k) => k.endsWith('|hombres'));
   const caida = v.caida_al_control;
+  const esControl = !!caida || sinAlternativa;
   const AMBITOS = {
     smape_bases: sinSexo ? 'las series por estado' : 'las series por estado y sexo',
     smape_all: 'el conjunto de las series publicadas',
@@ -579,11 +581,11 @@ function vistaChunks(root, r) {
   const anioPrueba = String(caida?.fold || '').replace(/^test_/, '') || '2025';
   const control = caida
     ? `Es el control estacional, no validado: repite los casos de 52 semanas antes. El gate de aceptación de la prueba de ` +
-      `${anioPrueba} rechazó el portafolio seleccionado porque empeoraba ` +
-      `${fallas.length > 1 ? `${fallas.slice(0, -1).join(', ')} y ${fallas.at(-1)}` : fallas[0] || 'el criterio de aceptación'}. ` +
+      `${anioPrueba} rechazó el portafolio seleccionado porque ` +
+      `${globalThis.EPI_CATALOGO.motivoRechazo((caida?.comprobaciones || []).filter((c) => !c.pasa).map((c) => ({ nombre: AMBITOS[c.ambito] || c.ambito, portafolio: c.portafolio, control: c.control })))}. ` +
       `No debe presentarse como validado ni como aceptado; no tiene validación prospectiva que superar. ` +
       `${errorDelControl(caida, anioPrueba, sinSexo, !!releaseDeId(r.disease_id)?.controlEstatalPocoInformativo)} `
-    : '';
+    : (sinAlternativa ? `${globalThis.EPI_CATALOGO.textoSinAlternativa(r.disease_id, sinSexo)} ` : '');
   // Un pico aislado impreso en la fuente que el pronóstico repite se contextualiza (tercera
   // auditoría, A3): el dato y el release no se tocan, pero no debe leerse como señal predictiva.
   const picos = picosHeredados(v).map((p) => `Pico heredado de la fuente: ${textoPico(p)}`);
@@ -645,7 +647,7 @@ function vistaChunks(root, r) {
     ...base,
     id: `release:${r.disease_id}:${r.release_id}:motores`,
     title: `${v.display_name} — motores del portafolio`,
-    text: caida
+    text: esControl
       ? `${encabezado}\n\n${control}Motor publicado: ${motores.join('; ')}.`
       : `${encabezado}\n\nMotores seleccionados por validación cruzada temporal rolling-origin ${seleccionDe(r.disease_id)}: ${motores.join('; ')}.`,
   });
@@ -699,6 +701,16 @@ export function conEstadoVigente(texto, r, root, publico) {
   const ruta = resolve(root, 'publication', r.disease_id, 'vista.json');
   if (!publico || !existsSync(ruta)) return texto;
   const v = JSON.parse(readFileSync(ruta, 'utf-8'));
+  if (v.portafolio_igual_al_control === true) {
+    // Control sin alternativa: ni la etiqueta sellada «en curso» ni el veredicto INCOMPLETE del gate se leen como validación.
+    return alcanceAcotado(texto, r, root)
+      .replaceAll(r.publication_label, globalThis.EPI_CATALOGO.ETIQUETA_SIN_ALTERNATIVA)
+      .replace(
+        /El veredicto del gate congelado es \S+ con \d+ de \d+ semanas objetivo observadas/,
+        `Es un control estacional sin alternativa, no validado: el registro técnico lleva ${v.weeks_available} de ` +
+          `${v.weeks_required} semanas objetivo observadas y, al completarlas, sólo puede dar CONTROL_ONLY`,
+      );
+  }
   return alcanceAcotado(texto, r, root)
     .replaceAll(r.publication_label, v.publication_label)
     .replace(

@@ -133,7 +133,7 @@ export function vistaGroundedAnswer(query, history, {
   }
   if (!elegidas.length) return null;
 
-  const notas = !v.caida_al_control ? notasFicha(html) : [];
+  const notas = !v.caida_al_control && v.portafolio_igual_al_control !== true ? notasFicha(html) : [];
   const notasTxt = notas.length ? `\n\nLo que declara su página sobre el error y los datos:\n${notas.map((n) => `- **${n.titulo}** ${n.texto}`).join('\n')}` : '';
   const s0 = elegidas[0];
   const w0 = rangoOos(v.origin, s0.oos?.semanas, '–');

@@ -78,7 +78,9 @@
     return {
       key: cfg.id, label: cfg.label, cie: cfg.cie, origen: 'release',
       motor: 'portafolio de ' + v.models + ' series',
-      estado: v.publication_label,
+      // Portafolio igual al control (un año de historia): control publicado, nunca «validación en curso» (misma frase que
+      // assets/dashboard/unified.mjs ETIQUETA_SIN_ALTERNATIVA).
+      estado: v.portafolio_igual_al_control === true ? 'Control estacional publicado: con un año de historia no hubo alternativa que elegir, no validado y sin validación prospectiva propia · pronóstico puntual sin intervalos' : v.publication_label,
       corte: semana(v.origin), corteRotulo: 'Datos del pronóstico hasta',
       ultima_observada: semana(v.observation_cutoff),
       casos: x.pronostico_52_total == null ? null : Math.round(x.pronostico_52_total),

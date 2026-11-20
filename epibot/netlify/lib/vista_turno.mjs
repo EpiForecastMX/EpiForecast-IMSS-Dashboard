@@ -108,7 +108,8 @@ function releasesEn(query) {
   const d = C.diabetesEnConsulta(qn.replace(/[^a-z0-9 ]/g, ' '));
   if (d && !d.generica) return d.pads.map((p) => C.releases.find((r) => r.pad === p)).filter(Boolean);
   const aj = C.subtipoAjeno(strip(query));
-  return C.releases.filter((r) => (!aj || r.pad !== aj.pad) && r.alias.some((a) => C.nombraAlias(qn, a)));
+  // Decimoséptima auditoría: delega en el resolutor único del catálogo.
+  return C.releasesEnConsulta(qn, { parcial: false }).filter((r) => !aj || r.pad !== aj.pad);
 }
 
 function esTurnoSeguimiento(raw) {
@@ -203,6 +204,28 @@ function analizarTurno(t, prev) {
       ? false
       : (ownEst ? detallarOwn : (ownCif || newGeo || Boolean(ownSexo) || ownEdad || PIDE_PRONOSTICO_DIRECTO.test(qp))),
   };
+}
+
+/**
+ * Auditoría Codex de alta_b44 (19-nov-2026): el turno nombra por sí mismo un padecimiento que no es sensible (legacy,
+ * release o no modelado). Sólo eso levanta el estado de crisis de la conversación.
+ */
+export function nombraPadecimientoNoSensible(raw) {
+  const C = globalThis.EPI_CATALOGO;
+  if (!C) return false;
+  const qs = strip(raw);
+  if (/\b(depresion|depression|f32|parkinson|g20|alzheimer|alzaimer|g30|dengue|a97)\b/.test(normPal(raw))) return true;
+  const rels = releasesEn(raw);
+  if (rels.length) return rels.every((r) => !r.sensible);
+  return Boolean(C.subtipoAjeno(qs) || C.aliasAmbiguo(qs) || C.mencionaNoModelada(qs));
+}
+
+/** Crisis activa según los turnos previos del usuario en el historial. */
+export function crisisEnHistorial(history = []) {
+  const C = globalThis.EPI_CATALOGO;
+  if (!C || !Array.isArray(history)) return false;
+  const turnos = history.filter((x) => x && x.role === 'user' && typeof x.text === 'string').map((x) => x.text);
+  return C.crisisEnTurnos(turnos, nombraPadecimientoNoSensible);
 }
 
 function estadoHistorial(history) {

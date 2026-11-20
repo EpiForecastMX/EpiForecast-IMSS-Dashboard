@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { makeCatalog, normalizeDataset, datasetSexes } from '../assets/dashboard/unified.mjs';
+import { makeCatalog, normalizeDataset, datasetSexes, etiquetaVisible } from '../assets/dashboard/unified.mjs';
 import { PADECIMIENTOS, COHORTS, getSeries, buildRows, slugify, ESTADOS } from '../assets/dashboard/data.mjs';
 import { temporalProfile, buildComparison } from '../assets/dashboard/analytics.mjs';
 const root = process.env.DASHBOARD_SOURCE || resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -28,7 +28,7 @@ test('all installed release values and actual sex availability survive the adapt
   const normalizedKeys=[...ds.index.entities.values()].flatMap(e=>Object.values(e.keys));
   assert.equal(normalizedKeys.length,Object.keys(v.series).length,entry.id);
   assert.equal(new Set(normalizedKeys).size,normalizedKeys.length,entry.id);
-  assert.equal(entry.status.label,v.publication_label,entry.id+' current view label');
+  assert.equal(entry.status.label,etiquetaVisible(v),entry.id+' current view label');
   assert.equal(entry.status.weeksAvailable,v.weeks_available,entry.id+' current follow-up');
   assert.equal(entry.emittedAt,v.forecast_emitted_at,entry.id+' actual emission');
   assert.deepEqual(entry.origin,{anio:v.origin[0],semana:v.origin[1]});
@@ -61,7 +61,7 @@ test('all installed release values and actual sex availability survive the adapt
 test('control labels remain controls while pending and passed views retain their real verdicts', () => {
  for(const entry of catalog.diseases.filter(d=>d.kind==='release')){
   const v=views[entry.id];
-  const expected=/control estacional|portafolio rechazado/i.test(v.publication_label)?'control':v.verdict==='PASS'?'pass':'pending';
+  const expected=v.portafolio_igual_al_control===true||/control estacional|portafolio rechazado/i.test(v.publication_label)?'control':v.verdict==='PASS'?'pass':'pending';
   assert.equal(entry.status.kind,expected,entry.id);
  }
 });

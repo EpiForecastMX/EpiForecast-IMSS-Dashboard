@@ -97,10 +97,10 @@ for (const q of AJENOS) {
 
 // Términos genéricos: piden precisar sin cifras.
 for (const [q, nombra] of [
-  ['hepatitis en Jalisco', /hepatitis virica a.*hepatitis virica c.*otras hepatitis viricas/s],
+  ['hepatitis en Jalisco', /«hepatitis vírica a».*«hepatitis vírica c».*«otras hepatitis víricas»/s],
   ['displasia cervical en Jalisco', /displasia cervical leve y moderada.*displasia cervical severa/s],
   ['displasia cervical leve, moderada y severa en Jalisco', /displasia cervical leve y moderada.*displasia cervical severa/s],
-  ['desnutrición en Jalisco', /desnutricion leve/],
+  ['desnutrición en Jalisco', /«desnutrición leve»/],
 ]) {
   test(`ambiguo: «${q}» pide precisar sin cifras`, async () => {
     assert.ok(aliasAmbiguo(norm(q)), 'aliasAmbiguo');

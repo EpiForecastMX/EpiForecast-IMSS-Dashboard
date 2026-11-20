@@ -18,10 +18,19 @@
     control: 'Control estacional publicado',
   };
   var CONTROL_RE = /control estacional/i;
+  /* Portafolio igual al control (rolling_cv_historia_corta_2024_v1, un año de historia): el único candidato fue el
+   * control estacional, así que se presenta como control publicado, nunca como validación en curso, aunque la
+   * etiqueta sellada del shard diga «Validación prospectiva en curso». Misma frase que unified.mjs. */
+  var SIN_ALTERNATIVA = 'Control estacional publicado: con un año de historia no hubo alternativa que elegir, no validado y sin validación prospectiva propia · pronóstico puntual sin intervalos';
+
+  function etiqueta(v) {
+    if (v && v.portafolio_igual_al_control === true) return SIN_ALTERNATIVA;
+    return v && typeof v.publication_label === 'string' ? v.publication_label : '';
+  }
 
   function tipo(v) {
     var verdict = v && v.verdict;
-    var label = v && typeof v.publication_label === 'string' ? v.publication_label : '';
+    var label = etiqueta(v);
     if (verdict === 'PASS') return 'pass';
     if (verdict === 'CONTROL_ONLY') return 'control';
     if (verdict === 'INCOMPLETE') return CONTROL_RE.test(label) ? 'control' : 'pending';
@@ -36,7 +45,7 @@
   function aplica(card, v, doc) {
     var d = doc || g.document;
     var kind = tipo(v);
-    var label = v && typeof v.publication_label === 'string' ? v.publication_label : '';
+    var label = etiqueta(v);
     card.setAttribute('data-verdict', String((v && v.verdict) || ''));
     if (kind) card.setAttribute('data-publication-kind', kind);
     else card.removeAttribute('data-publication-kind');
@@ -65,5 +74,5 @@
     return [a, Math.floor((t - inicioAnio(a)) / (7 * DIA)) + 1];
   }
 
-  g.EpiEstadoFicha = { CORTO: CORTO, tipo: tipo, detalle: detalle, aplica: aplica, semanaMas: semanaMas, semanasDelAnio: semanasDelAnio };
+  g.EpiEstadoFicha = { CORTO: CORTO, SIN_ALTERNATIVA: SIN_ALTERNATIVA, etiqueta: etiqueta, tipo: tipo, detalle: detalle, aplica: aplica, semanaMas: semanaMas, semanasDelAnio: semanasDelAnio };
 })(typeof window !== 'undefined' ? window : globalThis);

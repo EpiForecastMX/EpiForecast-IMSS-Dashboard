@@ -84,7 +84,24 @@ test('la galería crea una instancia por release', () => {
       'rotavirus_a080', 'absceso_hepatico_a064', 'leptospirosis_a27', 'helmintiasis_b65',
       'desnutricion_moderada_e440', 'desnutricion_severa_e40', 'enterobiasis_b80', 'giardiasis_a071',
       'paratifoidea_a011', 'mal_del_pinto_a67', 'vulvovaginitis_n76', 'coqueluchoide_u99', 'plaguicidas_t60',
-      'tos_ferina_a37', 'sindrome_meningeo_g00', 'monoxido_t58', 'sifilis_adquirida_a51', 'sintetico_x']);
+      'tos_ferina_a37', 'sindrome_meningeo_g00', 'monoxido_t58', 'sifilis_adquirida_a51', 'alacran_t63',
+      'mordedura_perro_w54', 'mordedura_mamiferos_w55', 'toxoplasmosis_b58', 'teniasis_b68',
+      'cisticercosis_b69', 'triquinosis_b75', 'conjuntivitis_hemorragica_b303', 'tracoma_a71',
+      'hipotermia_t68', 'tetanos_a34', 'viruela_simica_b04', 'vph_b97', 'gonococica_a54', 'linfogranuloma_a55',
+      'chancro_blando_a57', 'herpes_genital_a600', 'tricomoniasis_a590', 'paralisis_flacida_u98', 'iaas_sc',
+      'intox_alcohol_f100', 'alcoholica_higado_k70', 'anencefalia_q00', 'encefalocele_q01', 'microcefalia_q02',
+      'espina_bifida_q05', 'labio_paladar_q35', 'viuda_negra_u602', 'violinista_u603', 'otras_aranas_t633',
+      'abeja_u604', 'avispa_u605', 'otros_artropodos_t634', 'otros_ponzonosos_t631', 'mordedura_cascabel_u600',
+      'mordedura_coral_u601', 'mordedura_otras_serpientes_t630', 'cirrosis_alcoholica_k703',
+      'chikungunya_a920', 'envenenamiento_analgesicos_x60', 'envenenamiento_psicotropicos_x61',
+      'ahorcamiento_x70', 'disparo_arma_corta_x72', 'objeto_cortante_x78', 'salto_lugar_elevado_x80',
+      'intento_suicidio_z915', 'ideacion_suicida_r458', 'violencia_intrafamiliar_y07',
+      'tuberculosis_otras_formas_a171', 'chagas_aguda_b570', 'tifo_murino_a752', 'sifilis_congenita_a50',
+      'esavi_y58', 'meningococica_a39', 'neumococo_a40', 'haemophilus_a41', 'herida_arma_fuego_w32',
+      'chagas_cronica_b572', 'vih_b20',
+      // Lote 6 de alta_b44 (19-nov-2026).
+      'tuberculosis_respiratoria_a15', 'meningitis_tuberculosa_a170', 'lepra_a30', 'otras_rickettsiosis_a79', 'fiebre_manchada_a770',
+      'leishmaniasis_cutanea_b551', 'paludismo_vivax_b51', 'sintetico_x']);
   assert.equal(ctx.window.GaleriasRelease.at(-1).color, '#123456');
 });
 

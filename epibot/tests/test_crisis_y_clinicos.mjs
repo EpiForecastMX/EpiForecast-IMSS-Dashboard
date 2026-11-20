@@ -54,11 +54,14 @@ for (const q of ['estadisticas de depresion en jalisco', 'quiero ver la tension 
 
 for (const q of ['ideación suicida en jalisco', 'suicidio en jalisco', 'cuantos suicidios hubo en 2025',
   'intento de suicidio en coahuila', 'autolesiones en mujeres', 'ideacion suicida']) {
-  test(`suicidio: «${q}» no se modela y da la línea de ayuda`, async () => {
+  // alta_b44 (19-nov-2026): los releases de autolesión se publicaron con OK nominal del autor sin revisión clínica; los
+  // términos genéricos dan la respuesta de crisis (sin cifras ni gráfica) y sólo el rótulo técnico o el código abren la ficha.
+  test(`suicidio: «${q}» recibe la respuesta de crisis con la línea de ayuda`, async () => {
     const { handler, md } = await pregunta(q);
-    assert.equal(handler, 'answerPadecimientoNoModelado');
-    assert.match(md, /no modela/);
+    assert.equal(handler, 'answerCrisis');
     assert.match(md, /800 911 2000/);
+    assert.match(md, /SIN_GRAFICA/);
+    assert.doesNotMatch(md, /casos|motor|pronóstico/i);
     assert.doesNotMatch(md, /12,914|Resumen epidemiológico/);
   });
 }

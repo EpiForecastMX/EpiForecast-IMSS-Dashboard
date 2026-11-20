@@ -6,12 +6,12 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=64';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=86';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=5';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=38';
-import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=30';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=60';
+import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, respuestaConDatos, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=52';
 
 let DATA = null;
 
@@ -635,6 +635,8 @@ const UNIDADES_PAD = ['', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete
 /** El número de padecimientos, en letra: cuatro legacy más los releases del catálogo. */
 function numeralPadecimientos(n) {
   if (NUMERALES_PAD[n]) return NUMERALES_PAD[n];
+  // alta_b44 (19-nov-2026): del cien al ciento noventa y nueve («ciento cuarenta y cinco»); desde 200, cifras.
+  if (n >= 100 && n <= 199) return n === 100 ? 'cien' : `ciento ${numeralPadecimientos(n - 100)}`;
   if (n < 30 || n > 99) return String(n);
   const d = Math.floor(n / 10), u = n % 10;
   return u ? `${DECENAS_PAD[d]} y ${UNIDADES_PAD[u]}` : DECENAS_PAD[d];
@@ -714,7 +716,9 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
   // Solo activar si la pregunta parece pedir datos (casos, incidencia, etc.)
   const dataKw = ['caso', 'cuanto', 'incidencia', 'dato', 'estadistica',
     'numero', 'cifra', 'hubo', 'reporta', 'registro', 'pronostic',
-    'prediccion', 'modelo', 'grafica', 'tendencia'];
+    'prediccion', 'modelo', 'grafica', 'tendencia',
+    // alta_b44: «clamidia en el boletín» caía en la tabla neuro del boletín al dejar el radar de listar A55 como no modelado.
+    'boletin'];
 
   // Activar si tiene data keywords, menciona un estado, o es un follow-up corto ("y del cancer")
   const isShortFollowUp = q.split(' ').length <= 5 && /^(y |y del |y de |y la |y el )/.test(q);
@@ -729,7 +733,8 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
         ? `${LINEA_DE_LA_VIDA}\n\n`
         : '') +
       (violencia
-        ? 'No tiene modelo ni pronóstico en la plataforma y EPI no da sus cifras. Sus notificaciones semanales por entidad aparecen en el boletín y se consultan, sin modelo, en el [Radar del boletín](../boletin.html).\n\n'
+        ? 'No tiene modelo ni pronóstico en la plataforma y EPI no da sus cifras. Sus notificaciones semanales por entidad aparecen en el boletín y se consultan, sin modelo, en el [Radar del boletín](../boletin.html). ' +
+          'Dos categorías relacionadas sí tienen página propia y se consultan por su nombre técnico: [Violencia intrafamiliar (Y07.0-Y07.2)](../violencia_intrafamiliar_y07.html) y [Herida por arma de fuego (W32-W34)](../herida_arma_fuego_w32.html).\n\n'
         : '') +
       (cardiaco
         ? 'El boletín no publica una serie propia de infarto. Su categoría más cercana es **Enfermedad isquémica del corazón**, rotulada I20, I25 en el cuadro e I20-I25 en el resumen, así que no se puede afirmar si incluye I21. Sus datos están en [su página](../isquemica_i20.html), publicados con el control y sin validar.\n\n'
@@ -5739,12 +5744,12 @@ function aliasDeRelease(id) {
   const r = RELEASES.find((x) => x.id === id);
   return r ? [...new Set([...r.alias, ...(r.prefijos || [])])] : [];
 }
-const nombraAlguno = (qn, aliases) => aliases.some((a) => nombraAlias(qn, a));
+// Decimoséptima auditoría: la detección delega en el resolutor único del catálogo (alias, prefijos y códigos).
+const nombraRelease = (qn, ...ids) => releasesEnConsulta(qn, { prefijos: true }).some((r) => ids.includes(r.id));
 
 // D7 (plaguicidas T60 y monóxido T58): una consulta de dosis, letalidad o de cómo intoxicar(se) o envenenar
 // recibe un texto fijo, sin mecanismos, productos, dosis ni cifras. Ejecuta la condición D7 vigente; no es un
 // criterio nuevo y no toca a ningún otro padecimiento: exige un alias propio de T60 o T58.
-const D7_ALIAS = [...aliasDeRelease('plaguicidas_t60'), ...aliasDeRelease('monoxido_t58'), 'pesticide'];
 const D7_METODO_ES = /\b(dosis|letal|letales|letalidad|(intoxicar|envenenar)(me|te|se|lo|la|los|las|le|les|nos)?|como (me |te |se |lo |la |los |las |le |les )?(intoxic|envenen)[a-z]*|para (morir|morirme|morirse|matar|matarme|matarse|matarlo|matarla))\b/;
 const D7_METODO_EN = /\b(lethal|doses?|dosage|overdose|how (to|do i|can i|do you) (poison|intoxicate)|poison (myself|yourself|someone|somebody|him|her|them)|to (die|kill))\b/;
 export const D7_TEXTO_ES = 'Este sitio sólo publica conteos de casos notificados y su pronóstico: no describe mecanismos, ' +
@@ -5758,7 +5763,7 @@ export const D7_TEXTO_EN = 'This site only publishes counts of reported cases an
 /** Texto fijo de D7 para una consulta (cruda), o null. */
 export function guardaD7(query) {
   const qn = norm(String(query || ''));
-  if (!nombraAlguno(qn, D7_ALIAS)) return null;
+  if (!nombraRelease(qn, 'plaguicidas_t60', 'monoxido_t58') && !/(^| )pesticide/.test(qn)) return null;
   if (D7_METODO_ES.test(qn)) return D7_TEXTO_ES;
   return D7_METODO_EN.test(qn) ? D7_TEXTO_EN : null;
 }
@@ -5772,11 +5777,11 @@ export function guardaSumaA37U99(query) {
   const raw = String(query || '');
   const qn = norm(raw);
   const u99 = aliasDeRelease('coqueluchoide_u99').sort((a, b) => b.length - a.length);
-  if (!nombraAlguno(qn, u99)) return null;
+  if (!nombraRelease(qn, 'coqueluchoide_u99')) return null;
   // «pertussis like syndrome» (U99) contiene «pertussis» y «coqueluchoide» empieza por «coqueluche» (A37): se
   // retiran las menciones de U99 antes de buscar A37.
   const resto = u99.reduce((q, a) => q.replace(new RegExp(`(^| )${a}[a-z0-9]*`, 'g'), ' '), qn);
-  if (!nombraAlguno(resto, aliasDeRelease('tos_ferina_a37'))) return null;
+  if (!nombraRelease(resto, 'tos_ferina_a37')) return null;
   if (!SUMA.test(qn) && !raw.includes('+')) return null;
   const a37 = RELEASES.find((r) => r.id === 'tos_ferina_a37');
   const u = RELEASES.find((r) => r.id === 'coqueluchoide_u99');
@@ -5786,27 +5791,37 @@ export function guardaSumaA37U99(query) {
     `[${a37.nombre}](../${a37.pagina}) y [${u.nombre}](../${u.pagina}).`;
 }
 
-// Meningitis de un tipo nombrado (meningocócica, tuberculosa, por Haemophilus, neumocócica) o con su código
-// (G00.0, G00.1): no es el síndrome meníngeo publicado (G00-G03, excepto G00.0 y G00.1) ni ningún otro pronóstico.
-// Texto fijo sin cifras, antes de cualquier otra ruta (hallazgo de la API real de la preview 82cf0812). Copia
+// Meningitis tuberculosa, por Haemophilus o neumocócica, o con su código (G00.0, G00.1): no es el síndrome meníngeo
+// publicado (G00-G03, excepto G00.0 y G00.1). Texto fijo sin cifras, antes de cualquier otra ruta (hallazgo de la API
+// real de la preview 82cf0812; alta_b44 añade los bloques invasivos de Haemophilus y neumococo). Copia
 // independiente en rag.mjs, con el mismo texto (tests/test_meningitis_d7_rag.mjs comprueba la paridad).
-const MENINGITIS_TIPO = /\b(meningitis|meningoencefalitis|meningococ[a-z]*|enfermedad meningococica)\b/;
-const MENINGITIS_NOMBRADA = /\b(meningococ[a-z]*|tuberculos[a-z]*|haemophilus|hemophilus|neumococ[a-z]*|pneumococ[a-z]*|g00 ?[01])\b/;
-export const MENINGITIS_TEXTO = 'EpiForecast-MX no pronostica la meningitis meningocócica, la tuberculosa, la debida a ' +
-  '*Haemophilus influenzae* (G00.0) ni la neumocócica (G00.1): se notifican aparte en el boletín. El **síndrome meníngeo** ' +
-  'publicado (G00-G03, excepto G00.0 y G00.1) no las incluye, así que no se le atribuyen sus cifras. Puedes consultar ' +
-  'ese bloque en [su página](../sindrome_meningeo_g00.html).';
-/** Texto fijo para una meningitis de tipo nombrado (consulta cruda), o null. */
-export const MENINGITIS_G00_TEXTO = '«G00» abarca la meningitis por *Haemophilus influenzae* (G00.0) y la neumocócica (G00.1), que ' +
-  'no se pronostican, y el resto de G00 (G00.2-G00.9), que forma parte del **síndrome meníngeo** publicado (G00-G03, ' +
-  'excepto G00.0 y G00.1). No doy cifras hasta saber cuál consultas; por ejemplo, «síndrome meníngeo en Jalisco».';
-const MENINGITIS_CODIGO = /\bg00 ?[01]\b/;
+const MENINGITIS_TIPO = /\b(meningitis|meningoencefalitis)\b/;
+export const MENINGITIS_TEXTO = 'La meningitis tuberculosa (A17.0) se notifica aparte en el boletín y EpiForecast-MX no la pronostica. No forma parte del ' +
+  '**síndrome meníngeo** publicado (G00-G03, excepto G00.0 y G00.1) ni de la **tuberculosis otras formas** (A17.1, A17.8, A17.9, ' +
+  'A18-A19), así que no se le atribuyen sus cifras.';
+export const MENINGITIS_HIB_TEXTO = 'La meningitis por *Haemophilus influenzae* (G00.0) no forma parte del **síndrome meníngeo** publicado (G00-G03, excepto ' +
+  'G00.0 y G00.1): se cuenta dentro de las **infecciones invasivas por Haemophilus influenzae** (A41.3, G00.0, J14), sin una ' +
+  'serie propia. Puedes consultar ese bloque en [su página](../haemophilus_a41.html) o preguntar por «haemophilus influenzae en Jalisco».';
+export const MENINGITIS_NEUMO_TEXTO = 'La meningitis neumocócica (G00.1) no forma parte del **síndrome meníngeo** publicado (G00-G03, excepto G00.0 y G00.1): ' +
+  'se cuenta dentro de la **enfermedad invasiva por neumococo** (A40.3, G00.1, J13), sin una serie propia. Puedes consultar ese ' +
+  'bloque en [su página](../neumococo_a40.html) o preguntar por «enfermedad invasiva por neumococo en Jalisco».';
+export const MENINGITIS_G00_TEXTO = '«G00» abarca la meningitis por *Haemophilus influenzae* (G00.0), contada dentro de las infecciones invasivas por ' +
+  'Haemophilus influenzae, la neumocócica (G00.1), contada dentro de la enfermedad invasiva por neumococo, y el resto de G00 ' +
+  '(G00.2-G00.9), que forma parte del **síndrome meníngeo** publicado (G00-G03, excepto G00.0 y G00.1). No doy cifras hasta ' +
+  'saber cuál consultas; por ejemplo, «síndrome meníngeo en Jalisco».';
 const G00_SOLO = /\bg00\b(?! ?[0-9])/;
-/** Texto fijo para una meningitis de tipo nombrado, G00.0, G00.1 o «G00» a secas (consulta cruda), o null. */
+/**
+ * alta_b44 (19-nov-2026): la meningocócica (A39.0) tiene release propio y la resuelve su alias; G00.0 y G00.1 se cuentan
+ * dentro de los bloques invasivos de su agente (A41.3, G00.0, J14 y A40.3, G00.1, J13); la tuberculosa (A17.0) tiene release
+ * propio desde el lote 6. Texto fijo para G00.0, G00.1, una meningitis por Haemophilus o neumocócica, o «G00» a secas.
+ */
 export function guardaMeningitisTipo(query) {
   const qn = norm(String(query || '')).replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ');
   if (/\bsindrome meningeo\b/.test(qn)) return null;
-  if (MENINGITIS_CODIGO.test(qn) || (MENINGITIS_TIPO.test(qn) && MENINGITIS_NOMBRADA.test(qn))) return MENINGITIS_TEXTO;
+  const men = MENINGITIS_TIPO.test(qn);
+  if (/\bg00 ?0\b/.test(qn) || (men && /\b(haemophilus|hemophilus|influenzae)\b/.test(qn))) return MENINGITIS_HIB_TEXTO;
+  if (/\bg00 ?1\b/.test(qn) || (men && /\b(neumococ[a-z]*|pneumococ[a-z]*)\b/.test(qn))) return MENINGITIS_NEUMO_TEXTO;
+  // Lote 6: la meningitis tuberculosa (A17.0) tiene su propio control estacional y la resuelve su alias.
   return G00_SOLO.test(qn) ? MENINGITIS_G00_TEXTO : null;
 }
 
@@ -5825,9 +5840,102 @@ let lastEntities = {};
 let _lastDistribMetric = null;   // {metric, label} de la ultima distribucion
 let _lastChartHandler = null;    // nombre del ultimo handler que genero grafico
 let _lastHandlerFn = null;       // referencia al ultimo handler que respondio
+// Auditoría Codex de alta_b44 (19-nov-2026): tras una respuesta de crisis, los seguimientos que no nombran por sí mismos
+// un padecimiento no sensible reciben apoyo, sin cifras ni herencia de padecimiento o estado.
+let _crisisActiva = null;   // 'crisis', 'apoyo' o null
+// Tras una aclaración sin cifras (nombre genérico, subtipo, guarda fija), «¿y en Sonora?» no hereda nada: se repite
+// la petición de precisar en vez de caer en la tabla neuro del estado.
+let _aclaracionPendiente = null;
+
+/**
+ * Séptima auditoría Codex: la interfaz incorpora el estado que devuelve la función RAG (respuesta de apoyo o crisis) y el
+ * que se deduce del historial antes de cualquier ruta, panorama incluido.
+ */
+export function registraEstadoAyuda(estado) {
+  if (estado === 'crisis' || estado === 'apoyo') _crisisActiva = _crisisActiva === 'crisis' ? 'crisis' : estado;
+}
+export function estadoDesdeHistorial(turnosUsuario) {
+  registraEstadoAyuda(crisisEnTurnos(turnosUsuario.map(normalizaEntrada), nombraPadecimientoNoSensible));
+}
+/** Respuesta de la función RAG que es apoyo o crisis (texto fijo con la Línea de la Vida), con su estado, o null. */
+export function estadoDeRespuesta(texto) {
+  const t = String(texto || '');
+  if (/Lamento que estés pasando por esto|I am sorry you are going through this|Sigo aquí contigo|I am still here/.test(t)) return 'crisis';
+  if (/No reconozco algunos términos|I do not recognize some terms/.test(t)) return 'apoyo';
+  return null;
+}
 
 /** Reset conversacional — solo para tests. */
-export function _resetContext() { lastEntities = {}; _lastDistribMetric = null; _lastChartHandler = null; _lastHandlerFn = null; }
+export function _resetContext() {
+  lastEntities = {}; _lastDistribMetric = null; _lastChartHandler = null; _lastHandlerFn = null;
+  _crisisActiva = null; _aclaracionPendiente = null;
+}
+
+/** La consulta nombra por sí misma un padecimiento que no es sensible (legacy, release o no modelado). */
+function nombraPadecimientoNoSensible(query) {
+  const qn = norm(String(query || ''));
+  const pad = detectEntities(qn).padecimiento;
+  if (pad) {
+    const r = releaseDePad(pad);
+    return !(r && r.sensible);
+  }
+  return Boolean(mencionaNoModelada(qn)) || Boolean(aliasAmbiguo(qn)) || Boolean(subtipoAjeno(qn));
+}
+
+/** Seguimiento sin padecimiento propio («¿y en Sonora?», «¿y en hombres?», «¿y el año pasado?»). */
+function esSeguimientoSinPadecimiento(query) {
+  const qn = norm(String(query || '')).replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  if (nombraPadecimientoNoSensible(qn)) return false;
+  const ent = detectEntities(qn);
+  return /^(y|pero|tambien|que hay de|ahora|and|what about)\b/.test(qn) ||
+    (qn.split(' ').length <= 6 && Boolean(ent.estado || ent.sexo || (ent._years || []).length));
+}
+
+/**
+ * Guarda inicial ÚNICA de todas las rutas (consulta escrita, panorama, botones y atajos de app.js): crisis, estado de
+ * crisis/apoyo persistente, lista blanca global y lista blanca de sensibles. Quinta auditoría Codex: «panorama» llamaba a
+ * cifras sin pasar por aquí. Devuelve { response, handler } o null.
+ */
+export function guardaInicial(consulta) {
+  const query = sinExclusionG00(normalizaEntrada(consulta));
+  const trace = { handler: null };
+  // Sin normalizar: emojis y símbolos cuentan en la lista blanca (tercera auditoría Codex).
+  const crisis = respuestaCrisis(query);
+  if (crisis) {
+    lastEntities = {};
+    _crisisActiva = 'crisis';
+    _aclaracionPendiente = null;
+    trace.handler = 'answerCrisis';
+    return { response: crisis, handler: trace.handler };
+  }
+  const apoyo = respuestaCrisisSeguimiento(query, _crisisActiva, nombraPadecimientoNoSensible);
+  if (apoyo) {
+    lastEntities = {};
+    trace.handler = _crisisActiva === 'apoyo' ? 'answerApoyoSeguimiento' : 'answerCrisisSeguimiento';
+    return { response: apoyo, handler: trace.handler };
+  }
+  // Cuarta auditoría Codex: lista blanca global; un token fuera del vocabulario cerrado no recibe cifras ni ficha.
+  const fuera = respuestaFueraDeVocabulario(query);
+  if (fuera) {
+    lastEntities = {};
+    _crisisActiva = 'apoyo';
+    _aclaracionPendiente = null;
+    trace.handler = 'answerFueraDeVocabulario';
+    return { response: fuera, handler: trace.handler };
+  }
+  // Re-auditoría Codex: un seguimiento sin padecimiento propio tras una respuesta de un id sensible pasa por la misma lista
+  // blanca («¿y si me tomo 30?» tras «X60 en Jalisco»).
+  const relPrevio = lastEntities.padecimiento ? releaseDePad(lastEntities.padecimiento) : null;
+  if (relPrevio && IDS_LISTA_BLANCA.has(relPrevio.id) && esSeguimientoSinPadecimiento(query) &&
+      fueraDeListaBlanca(query, true)) {
+    lastEntities = {};
+    _crisisActiva = 'crisis';
+    trace.handler = 'answerCrisis';
+    return { response: respuestaCrisis('quiero morir'), handler: trace.handler };
+  }
+  _crisisActiva = null;
+  return null;
+}
 
 /**
  * Núcleo ÚNICO de resolución: devuelve la respuesta y la identidad de quien la produjo.
@@ -5840,11 +5948,20 @@ async function _resolve(consulta) {
   const d = await loadKnowledge();
   const s = d.stats || {};
   // Un seguimiento que nombra otro subtipo de diabetes se resuelve antes de heredar el contexto.
-  const crisis = respuestaCrisis(norm(query));
-  if (crisis) {
+  const guarda = guardaInicial(query);
+  if (guarda) return guarda;
+  // Consulta mixta con un id sensible y sin riesgo: no se combinan cifras.
+  const mixta = respuestaMixtaSensible(norm(query));
+  if (mixta) {
     lastEntities = {};
-    trace.handler = 'answerCrisis';
-    return { response: crisis, handler: trace.handler };
+    trace.handler = 'answerMixtaSensible';
+    return { response: mixta, handler: trace.handler };
+  }
+  if (_aclaracionPendiente && esSeguimientoSinPadecimiento(query)) {
+    lastEntities = {};
+    trace.handler = 'answerAclaracionPendiente';
+    return { response: `Todavía no sé qué padecimiento consultas, así que no doy cifras. ${_aclaracionPendiente}\n<!--SIN_GRAFICA-->`,
+      handler: trace.handler };
   }
   const d7 = guardaD7(query);
   if (d7) {
@@ -6128,8 +6245,39 @@ async function _resolve(consulta) {
  * Recuerda si la última respuesta fue de un padecimiento NO modelado, para que su seguimiento
  * («y hombres?») no caiga en datos de otro padecimiento. Cualquier otra respuesta lo olvida.
  */
+const HANDLERS_ACLARACION = new Set(['answerAliasAmbiguo', 'answerGuardaD7', 'answerMeningitisTipo',
+  'answerSumaSeriesDistintas', 'answerAclaracionPendiente']);
+const HANDLERS_DE_AYUDA = new Set(['answerCrisis', 'answerCrisisSeguimiento', 'answerApoyoSeguimiento', 'answerFueraDeVocabulario']);
+// Respuestas fijas sin cifras (aclaraciones, alcance, no modelados, guardas): con un token fuera del vocabulario se
+// conservan si no llevan cifras, porque ya no dan datos de ningún padecimiento.
+const HANDLERS_SIN_DATOS = new Set(['answerAliasAmbiguo', 'answerGuardaD7', 'answerMeningitisTipo', 'answerSumaSeriesDistintas',
+  'answerMixtaSensible', 'answerAclaracionPendiente', 'answerPadecimientoNoModelado', 'answerCategoriaNoReconocida',
+  'answerFueraDeTema', 'answerInjectionGuard', 'answerCodeRequest', 'answerLugarDesconocido',
+  // Respuestas informativas de texto (qué es un padecimiento, preguntas al asistente, metodología): sin cifras se conservan.
+  'answerQueEsPadecimiento', 'answerPreguntaPersonal', 'answerProyectoMeta']);
 async function _resolveConContexto(query) {
-  const r = await _resolve(query);
+  const r0 = await _resolve(query);
+  // Guarda posterior (cuarta y quinta auditorías Codex): un turno con un token fuera del vocabulario cerrado nunca recibe
+  // cifras ni gráfica, ni la respuesta de datos de un padecimiento que nombra; se sustituye por el apoyo fijo y lo activa.
+  // Sin respuesta local para un turno que nombra un dato y trae un token fuera de vocabulario: también apoyo (no se cede al
+  // modelo).
+  // Séptima auditoría: un turno fuera de vocabulario siempre deja activo el apoyo persistente (también si se cede a la
+  // función RAG, que responde el apoyo fijo); con cifras, gráfica o datos de un padecimiento se sustituye por el apoyo.
+  const fuera = !HANDLERS_DE_AYUDA.has(r0.handler) && fueraDeVocabulario(query);
+  if (fuera) _crisisActiva = _crisisActiva || 'apoyo';
+  const daDatos = r0.response ? (respuestaConDatos(r0.response) ||
+    (tieneFragmentoDeDatos(query) && !HANDLERS_SIN_DATOS.has(r0.handler))) : false;
+  const r = (fuera && daDatos)
+    ? (() => { lastEntities = {}; _crisisActiva = _crisisActiva || 'apoyo'; _aclaracionPendiente = null;
+      return { response: pareceIngles(query) ? APOYO_EN : APOYO_ES, handler: 'answerFueraDeVocabulario' }; })()
+    : r0;
+  if (HANDLERS_ACLARACION.has(r.handler)) {
+    if (r.handler !== 'answerAclaracionPendiente') {
+      _aclaracionPendiente = String(r.response || '').replace(/\n?<!--SIN_GRAFICA-->/g, '').trim();
+    }
+  } else {
+    _aclaracionPendiente = null;
+  }
   if (r.handler === 'answerRadarResumen') return { ...r, response: `${r.response}\n<!--SIN_GRAFICA-->` };
   if (r.handler === 'answerCategoriaNoReconocida') {
     lastEntities = {};
@@ -6150,11 +6298,13 @@ async function _resolveConContexto(query) {
   return r;
 }
 
+// Decimoquinta auditoría: NFKC UNA vez en el punto de entrada; entidades, guardas, geografía, consultas mixtas y handlers
+// ven el mismo texto.
 export async function answer(query) {
-  return (await _resolveConContexto(query)).response;
+  return (await _resolveConContexto(normalizaEntrada(query))).response;
 }
 
 /** API diagnóstica para pruebas: MISMO núcleo, con la identidad del handler observado. */
 export async function answerWithTrace(query) {
-  return _resolveConContexto(query);
+  return _resolveConContexto(normalizaEntrada(query));
 }

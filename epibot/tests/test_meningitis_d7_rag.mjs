@@ -91,17 +91,21 @@ test('A1: monóxido también; la nota no se duplica si el modelo ya la dio, y no
   assert.doesNotMatch(otro, /No distingue intención/);
 });
 
-test('M: «meningitis meningocócica nacional» recibe un texto fijo, sin modelo ni cifras del síndrome', async () => {
-  for (const q of ['meningitis meningocócica nacional', 'meningitis neumocócica en Jalisco', 'meningitis por Haemophilus',
-    'meningitis tuberculosa en Chiapas', 'meningitis G00.0', 'enfermedad meningocócica en México']) {
+// alta_b44 (19-nov-2026): la meningitis meningocócica (A39.0) tiene release propio; la meningitis por Haemophilus (G00.0) y
+// la neumocócica (G00.1) se cuentan dentro de sus bloques invasivos; la tuberculosa (A17.0) tiene release propio desde el lote 6. Todas
+// reciben un texto fijo sin modelo ni cifras del síndrome meníngeo, salvo la meningocócica, que responde su release.
+const TEXTO_FIJO = /no la pronostica|no forma parte del \*\*síndrome meníngeo\*\*/;
+test('M: meningitis por Haemophilus o neumocócica reciben un texto fijo, sin modelo ni cifras del síndrome', async () => {
+  for (const q of ['meningitis neumocócica en Jalisco', 'meningitis por Haemophilus',
+    'meningitis G00.0']) {
     for (const stream of [false, true]) {
       const out = await consultar(q, { texto: CON_861, vector: V_G00, stream });
       assert.equal(out.generaciones, 0, `${q}: no debe llamar al modelo`);
       const a = stream ? (out.eventos?.[0]?.answer ?? out.answer) : out.r.answer;
       const texto = stream ? JSON.stringify(out.eventos ?? out) : a;
       assert.doesNotMatch(texto, /861/, q);
-      assert.match(texto, /no pronostica la meningitis meningocócica/, q);
-      assert.doesNotMatch(texto.replace(/\(\.\.\/[a-z0-9_]+\.html\)/g, '').replace(/G0[0-3](\.[01])?/g, ''), /\d/, q);
+      assert.match(texto, TEXTO_FIJO, q);
+      assert.doesNotMatch(texto.replace(/\(\.\.\/[a-z0-9_]+\.html\)/g, '').replace(/[A-Z]\d{2}(\.\d)?/g, ''), /\d/, q);
     }
   }
 });
@@ -110,6 +114,9 @@ test('M: las consultas propias del síndrome meníngeo y «meningitis» a secas 
   assert.equal(rag.guardaMeningitisTipoRag('síndrome meníngeo nacional'), null);
   assert.equal(rag.guardaMeningitisTipoRag('meningitis en Jalisco'), null);
   assert.equal(rag.guardaMeningitisTipoRag('síndrome meníngeo y meningitis meningocócica'), null);
+  // La meningocócica ya no es un texto fijo: la resuelve el alias de su release (o la aclaración de «meningococo»).
+  assert.equal(rag.guardaMeningitisTipoRag('meningitis meningocócica nacional'), null);
+  assert.equal(rag.guardaMeningitisTipoRag('enfermedad meningocócica en México'), null);
 });
 
 test('M: el EpiBot responde el mismo texto fijo, sin cifras de ningún pronóstico', async () => {
@@ -123,12 +130,23 @@ test('M: el EpiBot responde el mismo texto fijo, sin cifras de ningún pronósti
     const kb = await import('../js/kb.js');
     const d = await kb.loadKnowledge(); await d.obesidad_pendiente;
     assert.equal(kb.MENINGITIS_TEXTO, rag.MENINGITIS_TEXTO_RAG, 'paridad de texto con la función RAG');
-    for (const q of ['meningitis meningocócica nacional', 'meningitis neumocócica en Jalisco', 'meningitis tuberculosa']) {
+    assert.equal(kb.MENINGITIS_HIB_TEXTO, rag.MENINGITIS_HIB_TEXTO_RAG, 'paridad de texto con la función RAG');
+    assert.equal(kb.MENINGITIS_NEUMO_TEXTO, rag.MENINGITIS_NEUMO_TEXTO_RAG, 'paridad de texto con la función RAG');
+    kb._resetContext();
+    const mc = await kb.answerWithTrace('meningitis meningocócica nacional');
+    assert.match(String(mc.response), /MENINGOCOCICA_A39/);
+    assert.doesNotMatch(String(mc.response), /SINDROME_MENINGEO_G00/);
+    for (const q of ['meningitis neumocócica en Jalisco']) {
       kb._resetContext();
       const r = await kb.answerWithTrace(q);
       assert.equal(r.handler, 'answerMeningitisTipo', q);
       assert.doesNotMatch(String(r.response), /casos totales|SINDROME_MENINGEO_G00/, q);
     }
+    // Lote 6: la meningitis tuberculosa (A17.0) responde su propio control, nunca el síndrome meníngeo.
+    kb._resetContext();
+    const tb = await kb.answerWithTrace('meningitis tuberculosa en Chiapas');
+    assert.match(String(tb.response), /<!--MENINGITIS_TUBERCULOSA_A170:/);
+    assert.doesNotMatch(String(tb.response), /SINDROME_MENINGEO_G00/);
     kb._resetContext();
     assert.notEqual((await kb.answerWithTrace('síndrome meníngeo en Jalisco')).handler, 'answerMeningitisTipo');
     kb._resetContext();
@@ -140,10 +158,11 @@ test('M: el EpiBot responde el mismo texto fijo, sin cifras de ningún pronósti
 
 // Misma familia (ROOT_FEEDBACK «misma familia negativa»): códigos solos, «G00» a secas y el nombre publicado completo.
 test('M: G00.0 y G00.1 a secas reciben el texto fijo, sin modelo ni cifras; «G00» a secas pide precisar', async () => {
-  for (const q of ['G00.0 nacional', 'G00.1 nacional', 'g00 0 en Jalisco']) {
+  for (const [q, bloque] of [['G00.0 nacional', /haemophilus_a41/], ['G00.1 nacional', /neumococo_a40/], ['g00 0 en Jalisco', /haemophilus_a41/]]) {
     const out = await consultar(q, { texto: CON_861, vector: V_G00 });
     assert.equal(out.generaciones, 0, q);
-    assert.match(out.r.answer, /no pronostica la meningitis meningocócica/, q);
+    assert.match(out.r.answer, TEXTO_FIJO, q);
+    assert.match(out.r.answer, bloque, q);
     assert.doesNotMatch(out.r.answer, /861/, q);
   }
   const g00 = await consultar('G00 nacional', { texto: CON_861, vector: V_G00 });

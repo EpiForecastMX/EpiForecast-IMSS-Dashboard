@@ -1064,6 +1064,21 @@ export function problemasDeVistaPublicada(archivo, v) {
     return [`${archivo}: veredicto ${v.verdict} no es publicable`];
   }
   const etiqueta = String(v.publication_label ?? '');
+  // alta_b44 (19-nov-2026): un portafolio igual al control (un año de historia) sólo puede ser el control estacional, sin
+  // caída tras rechazo, y el catálogo del EpiBot debe declararlo para que ninguna superficie lo pinte «en curso».
+  if (v.portafolio_igual_al_control === true) {
+    const p = [];
+    const motores = Object.keys(v.engines || {});
+    if (v.caida_al_control) p.push(`${archivo}: portafolio igual al control y caída al control a la vez`);
+    if (motores.length !== 1 || motores[0] !== 'seasonal_naive_lag52') {
+      p.push(`${archivo}: portafolio igual al control con motores ${motores.join(', ')}`);
+    }
+    const fila = (globalThis.EPI_CATALOGO?.releases || []).find((r) => r.id === v.disease_id);
+    if (globalThis.EPI_CATALOGO && !(fila?.controlSinAlternativa && fila?.pruebaSinAlternativa)) {
+      p.push(`${archivo}: el catálogo del EpiBot no declara controlSinAlternativa ni su prueba`);
+    }
+    if (p.length) return p;
+  }
   if (v.caida_al_control) {
     return etiqueta.startsWith('Control estacional publicado')
       ? []

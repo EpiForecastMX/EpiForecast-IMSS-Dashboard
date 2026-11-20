@@ -4,7 +4,9 @@
  * Todo lo que el EpiBot y sus gráficas necesitan de un release se deriva de esa lista.
  * Sin imports de otros módulos: lo cargan también módulos que no pueden depender de kb.js.
  */
-import './release_catalog.js?v=30';
+import './vocab_cerrado.js?v=5';
+import './vocab_consulta.js?v=9';
+import './release_catalog.js?v=52';
 
 const CATALOGO = globalThis.EPI_CATALOGO;
 
@@ -18,8 +20,24 @@ export const nombraAlias = CATALOGO.nombraAlias;
 export const noModeladas = CATALOGO.noModeladas;
 export const mencionaNoModelada = CATALOGO.mencionaNoModelada;
 export const respuestaCrisis = CATALOGO.respuestaCrisis;
+export const respuestaCrisisSeguimiento = CATALOGO.respuestaCrisisSeguimiento;
+export const crisisEnTurnos = CATALOGO.crisisEnTurnos;
+export const respuestaMixtaSensible = CATALOGO.respuestaMixtaSensible;
+export const fueraDeListaBlanca = CATALOGO.fueraDeListaBlanca;
+export const IDS_LISTA_BLANCA = CATALOGO.IDS_LISTA_BLANCA;
+export const respuestaFueraDeVocabulario = CATALOGO.respuestaFueraDeVocabulario;
+export const fueraDeVocabulario = CATALOGO.fueraDeVocabulario;
+export const respuestaConDatos = CATALOGO.respuestaConDatos;
+export const tieneFragmentoDeDatos = CATALOGO.tieneFragmentoDeDatos;
+export const pareceIngles = CATALOGO.pareceIngles;
+export const APOYO_ES = CATALOGO.APOYO_ES;
+export const APOYO_EN = CATALOGO.APOYO_EN;
 export const subtipoAjeno = CATALOGO.subtipoAjeno;
 export const aliasAmbiguo = CATALOGO.aliasAmbiguo;
+export const normalizaEntrada = CATALOGO.normalizaEntrada;
+export const ALIAS_LEGACY = CATALOGO.ALIAS_LEGACY;
+export const padecimientosEnConsulta = CATALOGO.padecimientosEnConsulta;
+export const releasesEnConsulta = CATALOGO.releasesEnConsulta;
 
 export const releaseDePad = (pad) => RELEASES.find((r) => r.pad === pad) || null;
 export const releaseDeId = (id) => RELEASES.find((r) => r.id === id) || null;
@@ -39,6 +57,6 @@ const strip = (s) => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g
 
 /** Primer release que la consulta nombra por uno de sus alias, o null. */
 export function releaseConAlias(q) {
-  const qn = canonClinico(strip(q));
-  return RELEASES.find((r) => r.alias.some((a) => nombraAlias(qn, a))) || null;
+  // Decimoséptima auditoría: delega en el resolutor único (alias y códigos con subcódigos que el release cubre entero).
+  return CATALOGO.releasesEnConsulta(canonClinico(strip(q)), { parcial: false })[0] || null;
 }

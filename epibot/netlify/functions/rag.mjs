@@ -14,6 +14,8 @@
  * Degradación: si no existe rag_index.json o no hay embeddings, opera en modo
  * léxico. Si no hay GEMINI_API_KEY, devuelve error claro.
  */
+import '../../js/vocab_cerrado.js';
+import '../../js/vocab_consulta.js';
 import '../../js/release_catalog.js';
 import '../../js/avisos_fuente.js';
 
@@ -23,6 +25,7 @@ import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { micaiGroundedAnswer } from '../lib/micai_grounding.mjs';
 import { resolverConsultaRag, vistaGroundedAnswer, enriquecerSemanticoVista } from '../lib/vista_grounding.mjs';
+import { crisisEnHistorial, nombraPadecimientoNoSensible } from '../lib/vista_turno.mjs';
 
 const EMBED_MODEL = 'gemini-embedding-001';
 const EMBED_DIM = 768;
@@ -296,10 +299,10 @@ function aliasDeReleaseRag(id) {
   const r = globalThis.EPI_CATALOGO.releases.find((x) => x.id === id);
   return r ? [...new Set([...r.alias, ...(r.prefijos || [])])] : [];
 }
-const nombraAlgunoRag = (qn, aliases) => aliases.some((a) => globalThis.EPI_CATALOGO.nombraAlias(qn, a));
+// Decimoséptima auditoría: la detección delega en el resolutor único del catálogo (alias, prefijos y códigos).
+const nombraReleaseRag = (qn, ...ids) => globalThis.EPI_CATALOGO.releasesEnConsulta(qn, { prefijos: true }).some((r) => ids.includes(r.id));
 
 // D7 (T60 y T58): dosis, letalidad, cómo intoxicar(se) o envenenar. Exige un alias propio de T60 o T58.
-const D7_ALIAS_RAG = [...aliasDeReleaseRag('plaguicidas_t60'), ...aliasDeReleaseRag('monoxido_t58'), 'pesticide'];
 const D7_METODO_ES_RAG = /\b(dosis|letal|letales|letalidad|(intoxicar|envenenar)(me|te|se|lo|la|los|las|le|les|nos)?|como (me |te |se |lo |la |los |las |le |les )?(intoxic|envenen)[a-z]*|para (morir|morirme|morirse|matar|matarme|matarse|matarlo|matarla))\b/;
 const D7_METODO_EN_RAG = /\b(lethal|doses?|dosage|overdose|how (to|do i|can i|do you) (poison|intoxicate)|poison (myself|yourself|someone|somebody|him|her|them)|to (die|kill))\b/;
 const D7_TEXTO_ES_RAG = 'Este sitio sólo publica conteos de casos notificados y su pronóstico: no describe mecanismos, ' +
@@ -312,7 +315,7 @@ const D7_TEXTO_EN_RAG = 'This site only publishes counts of reported cases and t
   'If someone is in danger or has been exposed, call **911** or go to an emergency room.';
 function guardaD7Rag(query) {
   const qn = normGuarda(String(query || ''));
-  if (!nombraAlgunoRag(qn, D7_ALIAS_RAG)) return null;
+  if (!nombraReleaseRag(qn, 'plaguicidas_t60', 'monoxido_t58') && !/(^| )pesticide/.test(qn)) return null;
   if (D7_METODO_ES_RAG.test(qn)) return D7_TEXTO_ES_RAG;
   return D7_METODO_EN_RAG.test(qn) ? D7_TEXTO_EN_RAG : null;
 }
@@ -323,10 +326,10 @@ function guardaSumaA37U99Rag(query) {
   const raw = String(query || '');
   const qn = normGuarda(raw);
   const u99 = aliasDeReleaseRag('coqueluchoide_u99').sort((a, b) => b.length - a.length);
-  if (!nombraAlgunoRag(qn, u99)) return null;
+  if (!nombraReleaseRag(qn, 'coqueluchoide_u99')) return null;
   // «pertussis like syndrome» (U99) contiene «pertussis» y «coqueluchoide» empieza por «coqueluche» (A37).
   const resto = u99.reduce((q, a) => q.replace(new RegExp(`(^| )${a}[a-z0-9]*`, 'g'), ' '), qn);
-  if (!nombraAlgunoRag(resto, aliasDeReleaseRag('tos_ferina_a37'))) return null;
+  if (!nombraReleaseRag(resto, 'tos_ferina_a37')) return null;
   if (!SUMA_RAG.test(qn) && !raw.includes('+')) return null;
   const rs = globalThis.EPI_CATALOGO.releases;
   const a37 = rs.find((r) => r.id === 'tos_ferina_a37');
@@ -340,22 +343,33 @@ function guardaSumaA37U99Rag(query) {
 // Meningitis de un tipo nombrado (copia de kb.js, mismo texto). En la preview 82cf0812, «meningitis meningocócica
 // nacional» fue a la recuperación semántica y Gemini respondió los 861 casos del síndrome meníngeo y confundió G00.0 y
 // G00.1 con la meningocócica: ahora hay una respuesta fija, sin recuperación, modelo ni cifras.
-const MENINGITIS_TIPO_RAG = /\b(meningitis|meningoencefalitis|meningococ[a-z]*|enfermedad meningococica)\b/;
-const MENINGITIS_NOMBRADA_RAG = /\b(meningococ[a-z]*|tuberculos[a-z]*|haemophilus|hemophilus|neumococ[a-z]*|pneumococ[a-z]*|g00 ?[01])\b/;
-const MENINGITIS_TEXTO_RAG = 'EpiForecast-MX no pronostica la meningitis meningocócica, la tuberculosa, la debida a ' +
-  '*Haemophilus influenzae* (G00.0) ni la neumocócica (G00.1): se notifican aparte en el boletín. El **síndrome meníngeo** ' +
-  'publicado (G00-G03, excepto G00.0 y G00.1) no las incluye, así que no se le atribuyen sus cifras. Puedes consultar ' +
-  'ese bloque en [su página](../sindrome_meningeo_g00.html).';
-const MENINGITIS_G00_TEXTO_RAG = '«G00» abarca la meningitis por *Haemophilus influenzae* (G00.0) y la neumocócica (G00.1), que ' +
-  'no se pronostican, y el resto de G00 (G00.2-G00.9), que forma parte del **síndrome meníngeo** publicado (G00-G03, ' +
-  'excepto G00.0 y G00.1). No doy cifras hasta saber cuál consultas; por ejemplo, «síndrome meníngeo en Jalisco».';
-const MENINGITIS_CODIGO_RAG = /\bg00 ?[01]\b/;
+const MENINGITIS_TIPO_RAG = /\b(meningitis|meningoencefalitis)\b/;
+const MENINGITIS_TEXTO_RAG = 'La meningitis tuberculosa (A17.0) se notifica aparte en el boletín y EpiForecast-MX no la pronostica. No forma parte del ' +
+  '**síndrome meníngeo** publicado (G00-G03, excepto G00.0 y G00.1) ni de la **tuberculosis otras formas** (A17.1, A17.8, A17.9, ' +
+  'A18-A19), así que no se le atribuyen sus cifras.';
+const MENINGITIS_HIB_TEXTO_RAG = 'La meningitis por *Haemophilus influenzae* (G00.0) no forma parte del **síndrome meníngeo** publicado (G00-G03, excepto ' +
+  'G00.0 y G00.1): se cuenta dentro de las **infecciones invasivas por Haemophilus influenzae** (A41.3, G00.0, J14), sin una ' +
+  'serie propia. Puedes consultar ese bloque en [su página](../haemophilus_a41.html) o preguntar por «haemophilus influenzae en Jalisco».';
+const MENINGITIS_NEUMO_TEXTO_RAG = 'La meningitis neumocócica (G00.1) no forma parte del **síndrome meníngeo** publicado (G00-G03, excepto G00.0 y G00.1): ' +
+  'se cuenta dentro de la **enfermedad invasiva por neumococo** (A40.3, G00.1, J13), sin una serie propia. Puedes consultar ese ' +
+  'bloque en [su página](../neumococo_a40.html) o preguntar por «enfermedad invasiva por neumococo en Jalisco».';
+const MENINGITIS_G00_TEXTO_RAG = '«G00» abarca la meningitis por *Haemophilus influenzae* (G00.0), contada dentro de las infecciones invasivas por ' +
+  'Haemophilus influenzae, la neumocócica (G00.1), contada dentro de la enfermedad invasiva por neumococo, y el resto de G00 ' +
+  '(G00.2-G00.9), que forma parte del **síndrome meníngeo** publicado (G00-G03, excepto G00.0 y G00.1). No doy cifras hasta ' +
+  'saber cuál consultas; por ejemplo, «síndrome meníngeo en Jalisco».';
 const G00_SOLO_RAG = /\bg00\b(?! ?[0-9])/;
-/** Texto fijo para una meningitis de tipo nombrado, G00.0, G00.1 o «G00» a secas (consulta cruda), o null. */
+/**
+ * alta_b44 (19-nov-2026): la meningocócica (A39.0) tiene release propio y la resuelve su alias; G00.0 y G00.1 se cuentan
+ * dentro de los bloques invasivos de su agente (A41.3, G00.0, J14 y A40.3, G00.1, J13); la tuberculosa (A17.0) tiene release
+ * propio desde el lote 6. Texto fijo para G00.0, G00.1, una meningitis por Haemophilus o neumocócica, o «G00» a secas.
+ */
 function guardaMeningitisTipoRag(query) {
   const qn = normGuarda(String(query || ''));
   if (/\bsindrome meningeo\b/.test(qn)) return null;
-  if (MENINGITIS_CODIGO_RAG.test(qn) || (MENINGITIS_TIPO_RAG.test(qn) && MENINGITIS_NOMBRADA_RAG.test(qn))) return MENINGITIS_TEXTO_RAG;
+  const men = MENINGITIS_TIPO_RAG.test(qn);
+  if (/\bg00 ?0\b/.test(qn) || (men && /\b(haemophilus|hemophilus|influenzae)\b/.test(qn))) return MENINGITIS_HIB_TEXTO_RAG;
+  if (/\bg00 ?1\b/.test(qn) || (men && /\b(neumococ[a-z]*|pneumococ[a-z]*)\b/.test(qn))) return MENINGITIS_NEUMO_TEXTO_RAG;
+  // Lote 6: la meningitis tuberculosa (A17.0) tiene su propio control estacional y la resuelve su alias.
   return G00_SOLO_RAG.test(qn) ? MENINGITIS_G00_TEXTO_RAG : null;
 }
 
@@ -421,8 +435,7 @@ const consultaCanon = (query) => globalThis.EPI_CATALOGO.canonClinico(
 /** Releases publicados del runner que la consulta nombra por alias. */
 function releasesNombrados(query) {
   const C = globalThis.EPI_CATALOGO;
-  const qn = consultaCanon(query);
-  return C.releases.filter((r) => r.alias.some((a) => C.nombraAlias(qn, a)));
+  return C.releasesEnConsulta(consultaCanon(query), { parcial: false });
 }
 // Padecimientos del carril original (knowledge.json) y del artículo MICAI: si la consulta los nombra, los pasajes
 // legacy sí son pertinentes y la recuperación no se acota a los releases del runner.
@@ -490,7 +503,7 @@ function estadoDeAceptado(query, leerVista, leerFicha) {
   const r = nombrados[0];
   let v, html;
   try { v = leerVista(r.id); } catch { return null; }
-  if (!v || v.caida_al_control) return null;
+  if (!v || v.caida_al_control || v.portafolio_igual_al_control === true) return null;
   try { html = leerFicha(r.pagina); } catch (err) {
     console.error(`Ficha ${r.pagina} no disponible para la función RAG:`, err.message);
     return null;
@@ -545,7 +558,7 @@ function hechosDeFoco(foco, query, leerVista, leerFicha) {
     if (sexo && series.length && !series.some((k) => k.endsWith('|hombres'))) {
       L.push(`${nombre}: el boletín no desglosa sexo; sus ${series.length} series publicadas son por entidad y nacional, así que no existe pronóstico para ${sexo}.`);
     }
-    const prueba = v && !v.caida_al_control ? pruebaSuperada(html) : null;
+    const prueba = v && !v.caida_al_control && v.portafolio_igual_al_control !== true ? pruebaSuperada(html) : null;
     if (prueba) L.push(`${nombre}: ${prueba.frase} No es la validación prospectiva (${v.weeks_available ?? 0} de ${v.weeks_required ?? 4} semanas).`);
     for (const n of notasFicha(html)) L.push(`${nombre} — ${n.titulo} ${n.texto}`);
     const av = avisosFuenteRag(id);
@@ -562,8 +575,17 @@ function estadoDeControl(query, leerVista) {
   let v;
   try { v = leerVista(r.id); } catch { return null; }
   const caida = v && v.caida_al_control;
+  const sinSexo = !Object.keys(v?.series || {}).some((k) => k.endsWith('|hombres'));
+  if (v && !caida && v.portafolio_igual_al_control === true) {
+    // alta_b44: control sin alternativa (un año de historia); nunca «validación en curso».
+    const answer = `**${v.nombre_completo || r.etiqueta}: control estacional, no validado.** ` +
+      `${globalThis.EPI_CATALOGO.textoSinAlternativa(r.id, sinSexo).replace(/^Es el control estacional, no validado: /, 'Lo publicado ')} ` +
+      `(${v.weeks_available ?? 0} de ${v.weeks_required ?? 4} semanas registradas).\n\n` +
+      `Datos hasta la semana ${v.origin[1]} de ${v.origin[0]}${emitidoCivil(v)}; ${v.horizon_weeks} semanas, pronóstico puntual sin intervalos. ` +
+      `Detalle en [su página](../${r.pagina}).${avisosFuenteRag(r.id)}`;
+    return { answer, sources: [{ n: 1, source: `Release publicado ${v.release_id}`, title: v.nombre_completo || r.etiqueta, section: r.id, url: `../${r.pagina}` }] };
+  }
   if (!caida) return null;
-  const sinSexo = !Object.keys(v.series || {}).some((k) => k.endsWith('|hombres'));
   const anio = String(caida.fold || '').replace(/^test_/, '') || '2025';
   const comp = Object.fromEntries((caida.comprobaciones || []).map((c) => [c.ambito, c]));
   const fallas = (caida.comprobaciones || []).filter((c) => !c.pasa)
@@ -576,7 +598,8 @@ function estadoDeControl(query, leerVista) {
   const emitido = emitidoCivil(v);
   const answer = `**${v.nombre_completo || r.etiqueta}: control estacional, no validado.** Lo publicado repite los ` +
     `casos de 52 semanas antes. El portafolio de modelos seleccionado se rechazó en la prueba de ${anio} porque ` +
-    `empeoraba ${lista(fallas)}, y ${r.controlDelegado ? 'por un dictamen tomado bajo delegación del autor' : 'por autorización del autor'} se publica el control estacional; el rechazado fue el ` +
+    `${globalThis.EPI_CATALOGO.motivoRechazo((caida.comprobaciones || []).filter((c) => !c.pasa)
+      .map((c) => ({ nombre: AMBITO_RAG[c.ambito](sinSexo), portafolio: c.portafolio, control: c.control })))}, y ${r.controlDelegado ? 'por un dictamen tomado bajo delegación del autor' : 'por autorización del autor'} se publica el control estacional; el rechazado fue el ` +
     `portafolio, no el control. No tiene una validación prospectiva que superar: compararlo consigo mismo no ` +
     `demostraría nada, y sólo se registrará su error con cada boletín (${v.weeks_available ?? 0} de ${v.weeks_required ?? 4} semanas registradas).\n\n` +
     `Error del control en la prueba de ${anio} (sMAPE): ${lista(errores)}.${aviso}\n\n` +
@@ -598,11 +621,13 @@ function diabetesDe(qn) {
 function detectEntities(query) {
   const qn = globalThis.EPI_CATALOGO.canonClinico(stripAccents(query));
   const out = { padecimiento: diabetesDe(qn), entidad: null, sexo: null };
-  const padMap = { depresion: 'Depresion', depression: 'Depresion', f32: 'Depresion', parkinson: 'Parkinson', g20: 'Parkinson', alzheimer: 'Alzheimer', alzaimer: 'Alzheimer', g30: 'Alzheimer', dengue: 'Dengue', a97: 'Dengue' };
-  for (const r of globalThis.EPI_CATALOGO.releases) for (const k of [...r.alias, ...r.prefijos]) padMap[k] = r.pad;
+  // Decimoséptima auditoría: padecimiento por el resolutor único (originales primero, luego releases en orden de catálogo).
   // Un subtipo con código propio («A06.4», «otitis supurativa») no es su bloque vecino publicado.
   const ajeno = globalThis.EPI_CATALOGO.subtipoAjeno(qn);
-  if (!out.padecimiento) for (const [k, v] of Object.entries(padMap)) if ((!ajeno || v !== ajeno.pad) && globalThis.EPI_CATALOGO.nombraAlias(qn, k)) { out.padecimiento = v; break; }
+  if (!out.padecimiento) {
+    const m = globalThis.EPI_CATALOGO.padecimientosEnConsulta(qn, { parcial: false, prefijos: true });
+    out.padecimiento = [...m.legacy, ...m.releases.map((r) => r.pad)].find((v) => !ajeno || v !== ajeno.pad) || null;
+  }
   const alias = { cdmx: 'Ciudad de Mexico', df: 'Ciudad de Mexico', 'distrito federal': 'Ciudad de Mexico', 'ciudad de mexico': 'Ciudad de Mexico', edomex: 'Mexico', 'estado de mexico': 'Mexico', 'nuevo leon': 'Nuevo Leon', 'san luis potosi': 'San Luis Potosi', 'baja california sur': 'Baja California Sur', 'baja california': 'Baja California', 'quintana roo': 'Quintana Roo' };
   for (const [k, v] of Object.entries(alias).sort((a, b) => b[0].length - a[0].length)) if (qn.includes(k)) { out.entidad = v; break; }
   if (!out.entidad) {
@@ -781,9 +806,11 @@ const NUMERALES = ['cero', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siet
   'trece', 'catorce', 'quince', 'dieciséis', 'diecisiete', 'dieciocho', 'diecinueve', 'veinte', 'veintiún', 'veintidós', 'veintitrés', 'veinticuatro', 'veinticinco', 'veintiséis', 'veintisiete', 'veintiocho', 'veintinueve'];
 const DECENAS = { 3: 'treinta', 4: 'cuarenta', 5: 'cincuenta', 6: 'sesenta', 7: 'setenta', 8: 'ochenta', 9: 'noventa' };
 const UNIDADES = ['', 'un', 'dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve'];
-/** Número de padecimientos en letra; del treinta al noventa y nueve se compone. */
+/** Número de padecimientos en letra; del treinta al ciento noventa y nueve se compone. */
 function numeral(n) {
   if (NUMERALES[n]) return NUMERALES[n];
+  // alta_b44 (19-nov-2026): del cien al ciento noventa y nueve («ciento cuarenta y cinco»); desde 200, cifras.
+  if (n >= 100 && n <= 199) return n === 100 ? 'cien' : `ciento ${numeral(n - 100)}`;
   if (n < 30 || n > 99) return String(n);
   const d = Math.floor(n / 10), u = n % 10;
   return u ? `${DECENAS[d]} y ${UNIDADES[u]}` : DECENAS[d];
@@ -826,7 +853,7 @@ function structuredSummary(kb, releases = []) {
 
 // Guardas M3/B3 exportadas para su prueba de paridad; se exportan aquí, fuera del tramo de rag.mjs que otras
 // pruebas evalúan como script (stripAccents … Rate limit).
-export { D7_TEXTO_ES_RAG, D7_TEXTO_EN_RAG, guardaD7Rag, guardaSumaA37U99Rag, MENINGITIS_TEXTO_RAG, MENINGITIS_G00_TEXTO_RAG, guardaMeningitisTipoRag, sinExclusionG00Rag, notaD7Rag };
+export { D7_TEXTO_ES_RAG, D7_TEXTO_EN_RAG, guardaD7Rag, guardaSumaA37U99Rag, MENINGITIS_TEXTO_RAG, MENINGITIS_HIB_TEXTO_RAG, MENINGITIS_NEUMO_TEXTO_RAG, MENINGITIS_G00_TEXTO_RAG, guardaMeningitisTipoRag, sinExclusionG00Rag, notaD7Rag };
 
 const RATE_LIMIT = { windowMs: 60_000, max: 20 };
 const rateBucket = new Map();
@@ -921,7 +948,36 @@ Responde ahora, citando los pasajes que uses con [n].`;
 // Handler
 // ---------------------------------------------------------------------------
 
+/**
+ * Quinta auditoría Codex: guarda de vocabulario de la función RAG. Si la consulta trae un token fuera del vocabulario
+ * cerrado, sólo se conserva una respuesta fija sin cifras (crisis, aclaraciones y guardas, que no pasan por recuperación
+ * ni modelo); cualquier otra (vista, recuperación semántica, Gemini o error) se sustituye por el apoyo fijo con la Línea de
+ * la Vida. Así una consulta libre («hola, no quiero estar vivo») nunca recibe cifras ni una respuesta generada.
+ */
 export default async function handler(req) {
+  if (req.method !== 'POST') return handlerInterno(req);
+  let body = null;
+  try { body = JSON.parse(await req.clone().text()); } catch { return handlerInterno(req); }
+  const C = globalThis.EPI_CATALOGO;
+  // Decimoquinta auditoría: NFKC UNA vez en la entrada, a la consulta y a cada turno del historial, antes de entidades,
+  // guardas, geografía, consultas mixtas, vista y recuperación: toda la función ve el mismo texto.
+  if (body && typeof body === 'object') {
+    const nfkc = (t) => (typeof t === 'string' ? C.normalizaEntrada(t) : t);
+    body = { ...body, query: nfkc(body.query),
+      ...(Array.isArray(body.history) ? { history: body.history.map((h) => (h && typeof h === 'object' ? { ...h, text: nfkc(h.text) } : h)) } : {}) };
+    req = new Request(req.url, { method: 'POST', headers: req.headers, body: JSON.stringify(body) });
+  }
+  const q = typeof body?.query === 'string' ? body.query : '';
+  if (!q || body.health === true || !C.fueraDeVocabulario(q)) return handlerInterno(req);
+  const res = await handlerInterno(new Request(req.url, { method: 'POST', headers: req.headers, body: JSON.stringify({ ...body, stream: false }) }));
+  const datos = await res.clone().json().catch(() => null);
+  if (datos && typeof datos.answer === 'string' && (!datos.retrieval || datos.retrieval === 'none') &&
+      !C.respuestaConDatos(datos.answer)) return res;
+  const apoyo = (C.pareceIngles(q) ? C.APOYO_EN : C.APOYO_ES).replace('\n<!--SIN_GRAFICA-->', '');
+  return json({ answer: apoyo, sources: [], retrieval: 'none', guarda: 'vocabulario' }, 200, corsHeaders(req));
+}
+
+async function handlerInterno(req) {
   const cors = corsHeaders(req);
   if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors });
   if (req.method !== 'POST') return json({ error: 'Método no permitido' }, 405, cors);
@@ -938,8 +994,20 @@ export default async function handler(req) {
   }
 
   // Antes de la clave y del límite de consultas: esta respuesta no depende de ningún modelo.
-  const crisis = globalThis.EPI_CATALOGO.respuestaCrisis(stripAccents(String(body.query || '')).replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim());
+  // Sin normalizar: emojis y símbolos cuentan en la lista blanca (tercera auditoría Codex).
+  const crisis = globalThis.EPI_CATALOGO.respuestaCrisis(String(body.query || ''));
   if (crisis) return json({ answer: crisis.replace('\n<!--SIN_GRAFICA-->', ''), sources: [] }, 200, cors);
+  // La crisis persiste: tras una respuesta de crisis en el historial, un seguimiento sin padecimiento no sensible propio
+  // recibe apoyo, sin vista, recuperación, modelo ni cifras.
+  const apoyo = globalThis.EPI_CATALOGO.respuestaCrisisSeguimiento(String(body.query || ''),
+    crisisEnHistorial(body.history), nombraPadecimientoNoSensible);
+  if (apoyo) return json({ answer: apoyo.replace('\n<!--SIN_GRAFICA-->', ''), sources: [], retrieval: 'none', guarda: 'crisis' }, 200, cors);
+  // Cuarta auditoría Codex: lista blanca global; un token fuera del vocabulario cerrado no recibe cifras ni ficha.
+  const fuera = globalThis.EPI_CATALOGO.respuestaFueraDeVocabulario(String(body.query || ''));
+  if (fuera) return json({ answer: fuera.replace('\n<!--SIN_GRAFICA-->', ''), sources: [], retrieval: 'none', guarda: 'vocabulario' }, 200, cors);
+  // Re-auditoría Codex: consulta mixta con un id sensible y sin riesgo; no se combinan cifras.
+  const mixta = globalThis.EPI_CATALOGO.respuestaMixtaSensible(String(body.query || ''));
+  if (mixta) return json({ answer: mixta.replace('\n<!--SIN_GRAFICA-->', ''), sources: [], retrieval: 'none', guarda: 'mixta_sensible' }, 200, cors);
   const d7 = guardaD7Rag(body.query);
   if (d7) return json({ answer: d7, sources: [], retrieval: 'none', guarda: 'd7' }, 200, cors);
   const suma = guardaSumaA37U99Rag(body.query);
@@ -951,6 +1019,12 @@ export default async function handler(req) {
   const sinVecinoCrudo = noModeladaSinVecino(stripAccents(String(body.query || '')));
   if (sinVecinoCrudo) return json({ answer: sinVecinoCrudo, sources: [] }, 200, cors);
   const turno = resolverConsultaRag(body.query, body.history);
+  // Seguimiento sin padecimiento propio tras un id sensible: misma lista blanca que el EpiBot.
+  if (turno.estado?.releases?.some((r) => globalThis.EPI_CATALOGO.IDS_LISTA_BLANCA.has(r.id)) &&
+      !nombraPadecimientoNoSensible(String(body.query || '')) &&
+      globalThis.EPI_CATALOGO.fueraDeListaBlanca(String(body.query || ''), true)) {
+    return json({ answer: globalThis.EPI_CATALOGO.respuestaCrisis('quiero morir').replace('\n<!--SIN_GRAFICA-->', ''), sources: [], retrieval: 'none', guarda: 'crisis' }, 200, cors);
+  }
   const qEfectiva = String(turno.query || '');
   if (qEfectiva !== String(body.query || '')) {
     const d7Seg = guardaD7Rag(qEfectiva);
@@ -965,6 +1039,12 @@ export default async function handler(req) {
   const ajeno = globalThis.EPI_CATALOGO.subtipoAjeno(stripAccents(qEfectiva));
   if (ajeno) {
     const vecino = globalThis.EPI_CATALOGO.releases.find((r) => r.id === ajeno.release);
+    // Código sin ningún bloque publicado (novena auditoría): no modelado, sin vecino ni cifras.
+    if (!vecino) {
+      return json({ answer: `EpiForecast-MX no modela ${ajeno.nombre}. No tiene pronóstico ni se le atribuyen las cifras de `
+        + 'otro padecimiento. Puedes consultar los padecimientos publicados en la [galería de pronósticos](../Reports/index.html).',
+      sources: [] }, 200, cors);
+    }
     return json({ answer: `EpiForecast-MX no modela ${ajeno.nombre}. `
       + `El pronóstico publicado más cercano es **${vecino.etiqueta}**, que no incluye esa categoría, `
       + `así que no se le atribuyen sus cifras. Puedes consultar ese bloque en [su página](../${vecino.pagina}).`,

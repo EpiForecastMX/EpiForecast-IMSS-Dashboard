@@ -64,12 +64,22 @@ function sinSeriesAjenas(r, q) {
   assert.doesNotMatch(r.md, PULIDOR_PUBLICA, `${q}: el pulidor escribiría «pública»`);
 }
 
-test('violencia intrafamiliar: sin tabla neuro, sin cifras y sin tratarla como crisis', async () => {
-  for (const q of ['violencia intrafamiliar en jalisco', 'casos de violencia intrafamiliar en sonora',
-    'violencia intrafamiliar en jalisco mujeres', 'cuantos casos de violencia intrafamiliar hubo',
-    'violencia familiar en jalisco', 'violencia de genero en jalisco', 'cuantos casos de violencia de genero hubo',
-    'abuso sexual en jalisco', 'maltrato infantil en jalisco', 'herida por arma de fuego en sonora',
-    'heridas de bala en jalisco']) {
+// alta_b44 (19-nov-2026): la violencia intrafamiliar (Y07.0-Y07.2) y la herida por arma de fuego (W32-W34) se publicaron con
+// OK nominal del autor; su rótulo técnico responde su propio release, nunca la tabla neuro. Los términos genéricos siguen sin cifras.
+test('violencia intrafamiliar y herida por arma de fuego: su propio release, nunca la tabla neuro', async () => {
+  for (const [q, marca] of [['violencia intrafamiliar en jalisco', 'VIOLENCIA_INTRAFAMILIAR_Y07'],
+    ['violencia intrafamiliar en jalisco mujeres', 'VIOLENCIA_INTRAFAMILIAR_Y07'],
+    ['herida por arma de fuego en sonora', 'HERIDA_ARMA_FUEGO_W32']]) {
+    const r = await conversa(q);
+    assert.equal(r.handler, 'answerObesidad', q);
+    assert.match(r.md, new RegExp(marca), q);
+    assert.doesNotMatch(r.md, /casos totales|modelos de producci[oó]n|agregado estatal neuro/, q);
+  }
+});
+
+test('violencias genéricas: sin tabla neuro, sin cifras y sin tratarlas como crisis', async () => {
+  for (const q of ['violencia familiar en jalisco', 'violencia de genero en jalisco', 'cuantos casos de violencia de genero hubo',
+    'abuso sexual en jalisco', 'maltrato infantil en jalisco', 'heridas de bala en jalisco']) {
     const r = await conversa(q);
     sinSeriesAjenas(r, q);
     assert.equal(r.handler, 'answerPadecimientoNoModelado', q);
@@ -82,17 +92,18 @@ test('violencia intrafamiliar: sin tabla neuro, sin cifras y sin tratarla como c
 
 test('el seguimiento tras una violencia no hereda el estado hacia la tabla neuro', async () => {
   for (const sig of ['y en sonora?', 'y hombres?', 'y mujeres?']) {
-    const r = await conversa('violencia intrafamiliar en jalisco', sig);
+    const r = await conversa('violencia de genero en jalisco', sig);
     sinSeriesAjenas(r, sig);
   }
 });
 
 test('las autolesiones conservan su respuesta específica con la línea existente', async () => {
+  // alta_b44: los términos genéricos dan la respuesta de crisis; el rótulo técnico completo (X78) abre su release.
   for (const q of ['intento de suicidio en jalisco', 'envenenamiento autoinfligido en jalisco',
-    'lesiones autoinfligidas en sonora',
-    'lesion autoinfligida intencionalmente por objeto cortante en jalisco']) {
+    'lesiones autoinfligidas en sonora']) {
     const r = await conversa(q);
     sinSeriesAjenas(r, q);
+    assert.equal(r.handler, 'answerCrisis', q);
     assert.match(r.md, LINEA, q);
     assert.match(r.md, /800 911 2000/, q);
     assert.doesNotMatch(r.md, /Boletín Epidemiológico \d+ de \d{4}/, q);
@@ -104,7 +115,8 @@ test('la corrección difusa no convierte un nombre del boletín en otro padecimi
   for (const [q, nombre] of [['cuantos casos de colera hubo', 'Cólera'],
     // La fiebre paratifoidea se publicó aceptada en alta20c: ya no es un nombre del radar sin modelo.
     ['deplecion del volumen deshidratacion en jalisco', 'Depleción del volumen'],
-    ['triquinosis en jalisco', 'Triquinosis']]) {
+    // Lote 6: la leishmaniasis cutánea se publicó; la oncocercosis sigue sin modelarse.
+    ['oncocercosis en jalisco', 'Oncocercosis']]) {
     const r = await conversa(q);
     sinSeriesAjenas(r, q);
     assert.doesNotMatch(r.md, /Quisiste decir/, q);
@@ -122,15 +134,22 @@ test('el nombre completo de una categoría gana al alias parcial de un release',
 });
 
 test('términos coloquiales: radar si la categoría es inequívoca, sin cifras ajenas si no', async () => {
-  assert.equal((await conversa('mordedura de perro en jalisco')).handler, 'answerRadarBoletin');
+  // alta_b44: mordeduras por perro, triquinosis e intoxicación por alcohol tienen release propio.
+  assert.match((await conversa('mordedura de perro en jalisco')).md, /MORDEDURA_PERRO_W54/);
   // «accidentes de tránsito» es más amplio que los bloques publicados V01-V09 y V20-V29, V40-V79: no
   // recibe el pronóstico de ninguno de los dos.
   const transito = await conversa('accidentes de transito en sonora');
   sinSeriesAjenas(transito, 'accidentes de transito en sonora');
   assert.doesNotMatch(transito.md, /VEHICULOS_V20|PEATON_V01|casos pronosticados/);
-  assert.equal((await conversa('triquinosis en sonora')).handler, 'answerRadarBoletin');
-  assert.equal((await conversa('intoxicacion por alcohol en jalisco')).handler, 'answerRadarBoletin');
-  for (const q of ['embarazo adolescente en jalisco', 'alcoholismo en jalisco', 'cuantos casos de alcoholismo hubo']) {
+  assert.match((await conversa('triquinosis en sonora')).md, /TRIQUINOSIS_B75/);
+  assert.match((await conversa('intoxicacion por alcohol en jalisco')).md, /INTOX_ALCOHOL_F100/);
+  // «alcoholismo» abarca tres bloques publicados (F10.0, K70 y K70.3): pide precisar, sin cifras.
+  for (const q of ['alcoholismo en jalisco', 'cuantos casos de alcoholismo hubo']) {
+    const r = await conversa(q);
+    sinSeriesAjenas(r, q);
+    assert.equal(r.handler, 'answerAliasAmbiguo', q);
+  }
+  for (const q of ['embarazo adolescente en jalisco']) {
     const r = await conversa(q);
     sinSeriesAjenas(r, q);
     assert.equal(r.handler, 'answerCategoriaNoReconocida', q);
@@ -171,7 +190,7 @@ test('barrido: ninguna categoría no modelada del radar vigente cae en series aj
   assert.equal(sinModelo.length, cob.uncovered + FOTO.meta.aggregate_rows);
   assert.deepEqual(sinModelo.map((e) => e.id), esperadasSinModelo.map((e) => e.id));
   assert.deepEqual(new Set(sinModelo.map((e) => e.name)), new Set(esperadasSinModelo.map((e) => e.name)));
-  assert.ok(sinModelo.some((e) => e.name === 'Sífilis congénita'));
+  assert.ok(sinModelo.some((e) => e.name === 'Tétanos neonatal'));
   assert.ok(!sinModelo.some((e) => e.platform_id === 'sifilis_adquirida_a51'));
 
   const limpio = (s) => s.replace(/[°^•§]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();

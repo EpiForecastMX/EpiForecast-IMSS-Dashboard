@@ -63,7 +63,7 @@ test('insípida y prediabetes siguen sin modelarse; la gestacional es O24.4, nun
   assert.doesNotMatch(r.md, /DIABETES_T[12]|Diabetes mellitus tipo I/);
   const i = await conversa('casos de diabetes insipida en jalisco');
   assert.match(i.md, /no modela/);
-  assert.match(i.md, /ochenta y seis padecimientos/);
+  assert.match(i.md, /ciento cincuenta y dos padecimientos/);
 });
 
 test('«diabetes» a secas avisa que se toma como tipo II', async () => {

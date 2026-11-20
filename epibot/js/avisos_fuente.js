@@ -1,6 +1,7 @@
 // Generado por docs/alta20c/operacion/avisos_controles12.py (backend EpiForecast-MX); no editar a mano.
 // Avisos de la fuente de los doce controles de alta20c: nominales (dictamen §1 y picos heredados) y nota general
 // medida de bajas del acumulado en la ventana que repite el control. Los leen obesidad_kb.js, rag.mjs y corpus.mjs.
+// Entradas de alta_b44 (19-nov-2026): generadas por planes/alta_b44_2026-11-19/frontend/scripts/avisos_b44.py desde el dataset, el raw y el QA del lote.
 (function (g) {
   g.EPI_AVISOS_FUENTE = Object.freeze({
     "brucelosis_a23": {
@@ -386,6 +387,551 @@
         "emision": "2026-11-15T12:43:11.315431+00:00",
         "ultimo_boletin": 43
       }
+    },
+    // alta_b44:start
+    "alacran_t63": {
+      "avisos": [
+        {
+          "clave": "reparacion-2024",
+          "estado": "medido",
+          "titulo": "Reparación declarada de 2024.",
+          "texto": "En los 52 boletines de 2024_sem02 a 2025_sem01 la fuente imprimió en la columna semanal el acumulado del año de hombres y mujeres. Por decisión del autor, la semana se reconstruyó como la diferencia de ese acumulado frente al boletín previo, y en 17 entidad-semanas de 2024 en que el acumulado impreso baja (la diferencia sería negativa) el total se imputó de forma causal y queda marcado. Con esa reparación, 2024 suma 313,270 casos, frente a 287,213 en 2023 (+9.1 %) y 284,994 en 2025 (+9.9 % de 2024 frente a 2025): la serie de 2024 suma diferencias del acumulado, que incluyen revisiones tardías, y su nivel no es del todo comparable con el de los demás años. Las cifras impresas no se modificaron."
+        }
+      ],
+      "nota": null
+    },
+    "mordedura_perro_w54": {
+      "avisos": [
+        {
+          "clave": "salto-nivel",
+          "estado": "medido",
+          "titulo": "Cambio de nivel en la serie, sin atribuir causa.",
+          "texto": "Casos notificados por año epidemiológico en el dataset del pronóstico: 2014: 115,571; 2015: 109,273; 2016: 112,503; 2017: 115,428; 2018: 113,220; 2019: 118,251; 2020: 78,524; 2021: 90,460; 2022: 106,062; 2023: 125,939; 2024: 126,592; 2025: 139,056; 2026 (hasta la semana 43): 111,329. La mediana semanal nacional fue de 1,378 en 2020 y de 2,657 en 2025. El autor decidió modelarla con aviso del salto de nivel señalado al cambiar el renglón de cuadro en el boletín de 2024. Con estos datos no se puede distinguir si cambió la frecuencia de casos o su registro, y no se atribuye causa."
+        }
+      ],
+      "nota": null
+    },
+    "mordedura_mamiferos_w55": {
+      "avisos": [
+        {
+          "clave": "salto-nivel",
+          "estado": "medido",
+          "titulo": "Cambio de nivel en la serie, sin atribuir causa.",
+          "texto": "Casos notificados por año epidemiológico en el dataset del pronóstico: 2014: 9,797; 2015: 8,768; 2016: 9,047; 2017: 9,314; 2018: 9,311; 2019: 9,605; 2020: 6,158; 2021: 6,926; 2022: 8,969; 2023: 12,722; 2024: 13,932; 2025: 16,165; 2026 (hasta la semana 43): 15,310. La mediana semanal nacional fue de 107 en 2020 y de 300 en 2025. El autor decidió modelarla con aviso del salto de nivel señalado al cambiar el renglón de cuadro en el boletín de 2024. Con estos datos no se puede distinguir si cambió la frecuencia de casos o su registro, y no se atribuye causa."
+        }
+      ],
+      "nota": null
+    },
+    "conjuntivitis_hemorragica_b303": {
+      "avisos": [
+        {
+          "clave": "Ciudad de México|2026-W36",
+          "estado": "retirado",
+          "titulo": "Un valor que la propia fuente retiró.",
+          "texto": "El boletín 2026_sem37 imprimió 100 casos de Ciudad de México en la semana 2026-W36, con un acumulado anual de 113; el boletín siguiente, 2026_sem38, imprimió un acumulado de 29 con 0 casos nuevos: un retiro neto de 84 casos. En 2026_sem44 el acumulado anual era 20. El control repite lo impreso 52 semanas antes y no hay un criterio vigente para excluir un valor impreso y luego retirado: el pronóstico de 2027-W36 trae esos 100 casos de Ciudad de México, de 110 nacionales. Esa semana no debe leerse como un aumento esperado. El dato y el pronóstico se publican sin modificar.",
+          "entidad": "Ciudad de México",
+          "de_nombre": "de Ciudad de México",
+          "retiro_neto": 84,
+          "casos": 100
+        }
+      ],
+      "nota": null
+    },
+    "tetanos_a34": {
+      "avisos": [
+        {
+          "clave": "alcance-a33",
+          "estado": "alcance",
+          "titulo": "No incluye el tétanos neonatal.",
+          "texto": "La serie es el renglón «Tétanos» (A34, A35) del boletín; el tétanos neonatal (A33) se vigila en el renglón vecino del mismo cuadro y no se pronostica."
+        }
+      ],
+      "nota": null
+    },
+    "gonococica_a54": {
+      "avisos": [
+        {
+          "clave": "salto-nivel",
+          "estado": "medido",
+          "titulo": "Cambio de nivel en la serie, sin atribuir causa.",
+          "texto": "Casos notificados por año epidemiológico en el dataset del pronóstico: 2014: 2,203; 2015: 2,071; 2016: 2,008; 2017: 4,678; 2018: 4,143; 2019: 4,367; 2020: 6,877; 2021: 9,791; 2022: 11,158; 2023: 7,421; 2024: 5,277; 2025: 5,399; 2026 (hasta la semana 43): 4,340. La mediana semanal nacional fue de 35.5 en 2016 y de 215 en 2022. Con estos datos no se puede distinguir si cambió la frecuencia de casos o su registro, y no se atribuye causa."
+        }
+      ],
+      "nota": null
+    },
+    "herpes_genital_a600": {
+      "avisos": [
+        {
+          "clave": "salto-nivel",
+          "estado": "medido",
+          "titulo": "Cambio de nivel en la serie, sin atribuir causa.",
+          "texto": "Casos notificados por año epidemiológico en el dataset del pronóstico: 2014: 4,143; 2015: 3,739; 2016: 4,045; 2017: 5,963; 2018: 5,764; 2019: 6,919; 2020: 5,950; 2021: 7,343; 2022: 9,059; 2023: 9,408; 2024: 6,674; 2025: 5,875; 2026 (hasta la semana 43): 4,693. La mediana semanal nacional fue de 69 en 2015 y de 187 en 2023. Con estos datos no se puede distinguir si cambió la frecuencia de casos o su registro, y no se atribuye causa."
+        }
+      ],
+      "nota": null
+    },
+    "tricomoniasis_a590": {
+      "avisos": [
+        {
+          "clave": "salto-nivel",
+          "estado": "medido",
+          "titulo": "Cambio de nivel en la serie, sin atribuir causa.",
+          "texto": "Casos notificados por año epidemiológico en el dataset del pronóstico: 2014: 77,181; 2015: 61,005; 2016: 47,410; 2017: 46,737; 2018: 42,294; 2019: 38,529; 2020: 22,933; 2021: 22,293; 2022: 21,221; 2023: 19,876; 2024: 17,034; 2025: 15,523; 2026 (hasta la semana 43): 11,263. La mediana semanal nacional fue de 295 en 2025 y de 1,508 en 2014. Con estos datos no se puede distinguir si cambió la frecuencia de casos o su registro, y no se atribuye causa."
+        }
+      ],
+      "nota": null
+    },
+    "iaas_sc": {
+      "avisos": [
+        {
+          "clave": "salto-nivel",
+          "estado": "medido",
+          "titulo": "Cambio de nivel en la serie, sin atribuir causa.",
+          "texto": "Casos notificados por año epidemiológico en el dataset del pronóstico: 2014: 8,758; 2015: 15,736; 2016: 20,806; 2017: 16,278; 2018: 20,145; 2019: 22,347; 2020: 18,517; 2021: 32,154; 2022: 64,930; 2023: 74,879; 2024: 86,595; 2025: 103,175; 2026 (hasta la semana 43): 91,737. La mediana semanal nacional fue de 174 en 2014 y de 2,007 en 2025. Hasta el boletín 2017_sem01 el renglón se rotulaba «Afección nosocomial» (Y95). Con estos datos no se puede distinguir si cambió la frecuencia de casos o su registro, y no se atribuye causa."
+        }
+      ],
+      "nota": null
+    },
+    "intox_alcohol_f100": {
+      "avisos": [
+        {
+          "clave": "apoyo",
+          "estado": "apoyo",
+          "titulo": "Tema sensible.",
+          "texto": "Esta serie cuenta casos notificados al sistema de vigilancia y no describe métodos ni circunstancias. Si tú o alguien cercano necesita apoyo, la Línea de la Vida atiende gratis, las 24 horas: 800 911 2000; si alguien está en peligro inmediato, llama al 911."
+        },
+        {
+          "clave": "salto-nivel",
+          "estado": "medido",
+          "titulo": "Cambio de nivel en la serie, sin atribuir causa.",
+          "texto": "Casos notificados por año epidemiológico en el dataset del pronóstico: 2014: 41,174; 2015: 42,509; 2016: 42,800; 2017: 38,580; 2018: 39,824; 2019: 39,048; 2020: 20,719; 2021: 20,673; 2022: 24,248; 2023: 24,722; 2024: 22,040; 2025: 21,673; 2026 (hasta la semana 43): 16,697. La mediana semanal nacional fue de 308 en 2020 y de 828 en 2016. Con estos datos no se puede distinguir si cambió la frecuencia de casos o su registro, y no se atribuye causa."
+        }
+      ],
+      "nota": null
+    },
+    "encefalocele_q01": {
+      "avisos": [
+        {
+          "clave": "picos-conservados",
+          "estado": "conservado",
+          "titulo": "Picos impresos y retirados, conservados.",
+          "texto": "La fuente imprimió valores aislados de una sola entidad que el boletín siguiente retiró del acumulado: 36 casos de México en 2016_sem24; 26 casos de Chiapas en 2017_sem30; 12 casos de Tamaulipas en 2020_sem22; 31 casos de Ciudad de México en 2024_sem06. Por decisión del autor se conservan tal como se imprimieron, con este aviso. Ninguno cae en las 52 semanas que repite el control (2025-W45 a 2026-W43)."
+        }
+      ],
+      "nota": null
+    },
+    "abeja_u604": {
+      "avisos": [
+        {
+          "clave": "Tamaulipas|2026-W33",
+          "estado": "retirado",
+          "titulo": "Un valor que la propia fuente retiró.",
+          "texto": "El boletín 2026_sem34 imprimió 1,134 casos de Tamaulipas en la semana 2026-W33, con un acumulado anual de 1,390; el boletín siguiente, 2026_sem35, imprimió un acumulado de 280 con 13 casos nuevos: un retiro neto de 1,123 casos. En 2026_sem44 el acumulado anual era 352. El control repite lo impreso 52 semanas antes y no hay un criterio vigente para excluir un valor impreso y luego retirado: el pronóstico de 2027-W33 trae esos 1,134 casos de Tamaulipas, de 1,403 nacionales. Esa semana no debe leerse como un aumento esperado. El dato y el pronóstico se publican sin modificar.",
+          "entidad": "Tamaulipas",
+          "de_nombre": "de Tamaulipas",
+          "retiro_neto": 1123,
+          "casos": 1134
+        }
+      ],
+      "nota": null
+    },
+    "chikungunya_a920": {
+      "avisos": [
+        {
+          "clave": "salto-nivel",
+          "estado": "medido",
+          "titulo": "Cambio de nivel en la serie, sin atribuir causa.",
+          "texto": "Casos notificados por año epidemiológico en el dataset del pronóstico: 2014 (desde la semana 47): 141; 2015: 11,577; 2016: 757; 2017: 62; 2018: 43; 2019: 9; 2020: 7; 2021: 4; 2022: 4; 2023: 3; 2024: 0; 2025: 14; 2026 (hasta la semana 44): 15. La mediana semanal nacional fue de 0 en 2018 y de 156.5 en 2015. Con estos datos no se puede distinguir si cambió la frecuencia de casos o su registro, y no se atribuye causa."
+        }
+      ],
+      "nota": null
+    },
+    "envenenamiento_analgesicos_x60": {
+      "avisos": [
+        {
+          "clave": "apoyo",
+          "estado": "apoyo",
+          "titulo": "Tema sensible.",
+          "texto": "Esta serie cuenta casos notificados al sistema de vigilancia y no describe métodos ni circunstancias. Si tú o alguien cercano necesita apoyo, la Línea de la Vida atiende gratis, las 24 horas: 800 911 2000; si alguien está en peligro inmediato, llama al 911."
+        }
+      ],
+      "nota": null
+    },
+    "envenenamiento_psicotropicos_x61": {
+      "avisos": [
+        {
+          "clave": "apoyo",
+          "estado": "apoyo",
+          "titulo": "Tema sensible.",
+          "texto": "Esta serie cuenta casos notificados al sistema de vigilancia y no describe métodos ni circunstancias. Si tú o alguien cercano necesita apoyo, la Línea de la Vida atiende gratis, las 24 horas: 800 911 2000; si alguien está en peligro inmediato, llama al 911."
+        }
+      ],
+      "nota": null
+    },
+    "ahorcamiento_x70": {
+      "avisos": [
+        {
+          "clave": "apoyo",
+          "estado": "apoyo",
+          "titulo": "Tema sensible.",
+          "texto": "Esta serie cuenta casos notificados al sistema de vigilancia y no describe métodos ni circunstancias. Si tú o alguien cercano necesita apoyo, la Línea de la Vida atiende gratis, las 24 horas: 800 911 2000; si alguien está en peligro inmediato, llama al 911."
+        }
+      ],
+      "nota": null
+    },
+    "disparo_arma_corta_x72": {
+      "avisos": [
+        {
+          "clave": "apoyo",
+          "estado": "apoyo",
+          "titulo": "Tema sensible.",
+          "texto": "Esta serie cuenta casos notificados al sistema de vigilancia y no describe métodos ni circunstancias. Si tú o alguien cercano necesita apoyo, la Línea de la Vida atiende gratis, las 24 horas: 800 911 2000; si alguien está en peligro inmediato, llama al 911."
+        }
+      ],
+      "nota": null
+    },
+    "objeto_cortante_x78": {
+      "avisos": [
+        {
+          "clave": "apoyo",
+          "estado": "apoyo",
+          "titulo": "Tema sensible.",
+          "texto": "Esta serie cuenta casos notificados al sistema de vigilancia y no describe métodos ni circunstancias. Si tú o alguien cercano necesita apoyo, la Línea de la Vida atiende gratis, las 24 horas: 800 911 2000; si alguien está en peligro inmediato, llama al 911."
+        }
+      ],
+      "nota": null
+    },
+    "salto_lugar_elevado_x80": {
+      "avisos": [
+        {
+          "clave": "apoyo",
+          "estado": "apoyo",
+          "titulo": "Tema sensible.",
+          "texto": "Esta serie cuenta casos notificados al sistema de vigilancia y no describe métodos ni circunstancias. Si tú o alguien cercano necesita apoyo, la Línea de la Vida atiende gratis, las 24 horas: 800 911 2000; si alguien está en peligro inmediato, llama al 911."
+        }
+      ],
+      "nota": null
+    },
+    "intento_suicidio_z915": {
+      "avisos": [
+        {
+          "clave": "apoyo",
+          "estado": "apoyo",
+          "titulo": "Tema sensible.",
+          "texto": "Esta serie cuenta casos notificados al sistema de vigilancia y no describe métodos ni circunstancias. Si tú o alguien cercano necesita apoyo, la Línea de la Vida atiende gratis, las 24 horas: 800 911 2000; si alguien está en peligro inmediato, llama al 911."
+        }
+      ],
+      "nota": null
+    },
+    "ideacion_suicida_r458": {
+      "avisos": [
+        {
+          "clave": "apoyo",
+          "estado": "apoyo",
+          "titulo": "Tema sensible.",
+          "texto": "Esta serie cuenta casos notificados al sistema de vigilancia y no describe métodos ni circunstancias. Si tú o alguien cercano necesita apoyo, la Línea de la Vida atiende gratis, las 24 horas: 800 911 2000; si alguien está en peligro inmediato, llama al 911."
+        }
+      ],
+      "nota": null
+    },
+    "violencia_intrafamiliar_y07": {
+      "avisos": [
+        {
+          "clave": "apoyo",
+          "estado": "apoyo",
+          "titulo": "Tema sensible.",
+          "texto": "Esta serie cuenta casos notificados al sistema de vigilancia y no describe métodos ni circunstancias. Si tú o alguien cercano necesita apoyo, la Línea de la Vida atiende gratis, las 24 horas: 800 911 2000; si alguien está en peligro inmediato, llama al 911."
+        }
+      ],
+      "nota": null
+    },
+    "tuberculosis_otras_formas_a171": {
+      "avisos": [
+        {
+          "clave": "hueco-rezago",
+          "estado": "medido",
+          "titulo": "Semana 2020-W53 imputada por el cambio de rezago.",
+          "texto": "La semana 53 de 2020 no se imprimió en ningún boletín: desde el boletín 2021_sem01 el cuadro pasó a reportar la semana del propio boletín (antes, la anterior), y esa semana quedó sin fuente. Por decisión del autor se imputó de forma causal en las 32 entidades (64 registros entidad-sexo-semana) y queda marcada (lag_regime_gap); no es un dato observado."
+        }
+      ],
+      "nota": null
+    },
+    "chagas_aguda_b570": {
+      "avisos": [
+        {
+          "clave": "hueco-rezago",
+          "estado": "medido",
+          "titulo": "Semana 2020-W53 imputada por el cambio de rezago.",
+          "texto": "La semana 53 de 2020 no se imprimió en ningún boletín: desde el boletín 2021_sem01 el cuadro pasó a reportar la semana del propio boletín (antes, la anterior), y esa semana quedó sin fuente. Por decisión del autor se imputó de forma causal en las 32 entidades (64 registros entidad-sexo-semana) y queda marcada (lag_regime_gap); no es un dato observado."
+        }
+      ],
+      "nota": null
+    },
+    "tifo_murino_a752": {
+      "avisos": [
+        {
+          "clave": "hueco-rezago",
+          "estado": "medido",
+          "titulo": "Semana 2015-W48 imputada por el cambio de rezago.",
+          "texto": "La semana 48 de 2015 no se imprimió en ningún boletín: desde el boletín 2015_sem49 el cuadro pasó a reportar la semana del propio boletín (antes, la anterior), y esa semana quedó sin fuente. Por decisión del autor se imputó de forma causal en las 32 entidades (64 registros entidad-sexo-semana) y queda marcada (lag_regime_gap); no es un dato observado."
+        }
+      ],
+      "nota": null
+    },
+    "sifilis_congenita_a50": {
+      "avisos": [
+        {
+          "clave": "hueco-rezago",
+          "estado": "medido",
+          "titulo": "Semana 2020-W53 imputada por el cambio de rezago.",
+          "texto": "La semana 53 de 2020 no se imprimió en ningún boletín: desde el boletín 2021_sem01 el cuadro pasó a reportar la semana del propio boletín (antes, la anterior), y esa semana quedó sin fuente. Por decisión del autor se imputó de forma causal en las 32 entidades (64 registros entidad-sexo-semana) y queda marcada (lag_regime_gap); no es un dato observado."
+        }
+      ],
+      "nota": null
+    },
+    "esavi_y58": {
+      "avisos": [
+        {
+          "clave": "salto-nivel",
+          "estado": "medido",
+          "titulo": "Cambio de nivel en la serie, sin atribuir causa.",
+          "texto": "Casos notificados por año epidemiológico en el dataset del pronóstico: 2014: 1,390; 2015: 1,463; 2016: 1,724; 2017: 2,141; 2018: 2,566; 2019: 3,146; 2020: 1,741; 2021: 33,451; 2022: 5,234; 2023: 2,114; 2024: 2,642; 2025: 3,120; 2026 (hasta la semana 44): 3,977. La mediana semanal nacional fue de 14.5 en 2022 y de 607.5 en 2021. Además, los boletines 2023_sem02 a 2023_sem08 imprimieron «-» en las 32 entidades: la serie lleva cero en las semanas 2 a 8 de 2023 tal como se imprimieron (el total nacional también vale cero en las semanas 11, 50 y 51 de 2023). Con estos datos no se puede distinguir si cambió la frecuencia de casos o su registro, y no se atribuye causa."
+        },
+        {
+          "clave": "hueco-rezago",
+          "estado": "medido",
+          "titulo": "Semana 2020-W53 imputada por el cambio de rezago.",
+          "texto": "La semana 53 de 2020 no se imprimió en ningún boletín: desde el boletín 2021_sem01 el cuadro pasó a reportar la semana del propio boletín (antes, la anterior), y esa semana quedó sin fuente. Por decisión del autor se imputó de forma causal en las 32 entidades (64 registros entidad-sexo-semana) y queda marcada (lag_regime_gap); no es un dato observado."
+        }
+      ],
+      "nota": null
+    },
+    "meningococica_a39": {
+      "avisos": [
+        {
+          "clave": "hueco-rezago",
+          "estado": "medido",
+          "titulo": "Semana 2020-W53 imputada por el cambio de rezago.",
+          "texto": "La semana 53 de 2020 no se imprimió en ningún boletín: desde el boletín 2021_sem01 el cuadro pasó a reportar la semana del propio boletín (antes, la anterior), y esa semana quedó sin fuente. Por decisión del autor se imputó de forma causal en las 32 entidades (64 registros entidad-sexo-semana) y queda marcada (lag_regime_gap); no es un dato observado."
+        },
+        {
+          "clave": "guion-2025",
+          "estado": "supuesto",
+          "titulo": "«-» de 2025 tratado como cero.",
+          "texto": "En los boletines de 2025 la fuente imprimió «-» en este renglón. Por un supuesto del autor, no verificable con la fuente, ese «-» se trata como cero: la serie suma 0 casos en 2025, frente a 24 en 2024. El «-» no distingue un cero real de una falta de registro, y la prueba de 2025 se calculó con esos ceros."
+        }
+      ],
+      "nota": null
+    },
+    "neumococo_a40": {
+      "avisos": [
+        {
+          "clave": "hueco-rezago",
+          "estado": "medido",
+          "titulo": "Semana 2020-W53 imputada por el cambio de rezago.",
+          "texto": "La semana 53 de 2020 no se imprimió en ningún boletín: desde el boletín 2021_sem01 el cuadro pasó a reportar la semana del propio boletín (antes, la anterior), y esa semana quedó sin fuente. Por decisión del autor se imputó de forma causal en las 32 entidades (64 registros entidad-sexo-semana) y queda marcada (lag_regime_gap); no es un dato observado."
+        },
+        {
+          "clave": "guion-2025",
+          "estado": "supuesto",
+          "titulo": "«-» de 2025 tratado como cero.",
+          "texto": "En los boletines de 2025 la fuente imprimió «-» en este renglón. Por un supuesto del autor, no verificable con la fuente, ese «-» se trata como cero: la serie suma 15 casos en 2025, frente a 160 en 2024. El «-» no distingue un cero real de una falta de registro, y la prueba de 2025 se calculó con esos ceros. Los únicos casos de 2025 (15) vienen de tres boletines consecutivos que reimprimieron los mismos 5 casos de cuatro entidades."
+        }
+      ],
+      "nota": null
+    },
+    "haemophilus_a41": {
+      "avisos": [
+        {
+          "clave": "hueco-rezago",
+          "estado": "medido",
+          "titulo": "Semana 2020-W53 imputada por el cambio de rezago.",
+          "texto": "La semana 53 de 2020 no se imprimió en ningún boletín: desde el boletín 2021_sem01 el cuadro pasó a reportar la semana del propio boletín (antes, la anterior), y esa semana quedó sin fuente. Por decisión del autor se imputó de forma causal en las 32 entidades (64 registros entidad-sexo-semana) y queda marcada (lag_regime_gap); no es un dato observado."
+        },
+        {
+          "clave": "guion-2025",
+          "estado": "supuesto",
+          "titulo": "«-» de 2025 tratado como cero.",
+          "texto": "En los boletines de 2025 la fuente imprimió «-» en este renglón. Por un supuesto del autor, no verificable con la fuente, ese «-» se trata como cero: la serie suma 0 casos en 2025, frente a 100 en 2024. El «-» no distingue un cero real de una falta de registro, y la prueba de 2025 se calculó con esos ceros."
+        }
+      ],
+      "nota": null
+    },
+    "herida_arma_fuego_w32": {
+      "avisos": [
+        {
+          "clave": "apoyo",
+          "estado": "apoyo",
+          "titulo": "Tema sensible.",
+          "texto": "Esta serie cuenta casos notificados al sistema de vigilancia y no describe métodos ni circunstancias. Si tú o alguien cercano necesita apoyo, la Línea de la Vida atiende gratis, las 24 horas: 800 911 2000; si alguien está en peligro inmediato, llama al 911."
+        },
+        {
+          "clave": "rotulo-2025",
+          "estado": "medido",
+          "titulo": "Cambio de rótulo en 2025.",
+          "texto": "Hasta el boletín 2025_sem06 el renglón se rotulaba «Herida por arma de fuego y punzocortante»; desde 2025_sem07, «Herida por arma de fuego», con los mismos códigos (W32-W34). La mediana semanal nacional fue de 1,017 casos en los 26 boletines anteriores al cambio y de 1,014 en los 26 siguientes; con 52 boletines a cada lado la diferencia es mayor, así que la cifra depende de la ventana. Por decisión del autor la serie se trata como comparable; no se afirma que haya cambiado la definición ni se atribuye causa."
+        }
+      ],
+      "nota": null
+    },
+    "chagas_cronica_b572": {
+      "avisos": [
+        {
+          "clave": "salto-nivel",
+          "estado": "medido",
+          "titulo": "Cambio de nivel en la serie, sin atribuir causa.",
+          "texto": "Casos notificados por año epidemiológico en el dataset del pronóstico: 2017: 226; 2018: 479; 2019: 596; 2020: 182; 2021: 306; 2022: 884; 2023: 901; 2024: 725; 2025: 624; 2026 (hasta la semana 44): 509. La mediana semanal nacional fue de 1 en 2021 y de 17 en 2022. Con estos datos no se puede distinguir si cambió la frecuencia de casos o su registro, y no se atribuye causa."
+        },
+        {
+          "clave": "hueco-rezago",
+          "estado": "medido",
+          "titulo": "Semana 2020-W53 imputada por el cambio de rezago.",
+          "texto": "La semana 53 de 2020 no se imprimió en ningún boletín: desde el boletín 2021_sem01 el cuadro pasó a reportar la semana del propio boletín (antes, la anterior), y esa semana quedó sin fuente. Por decisión del autor se imputó de forma causal en las 32 entidades (64 registros entidad-sexo-semana) y queda marcada (lag_regime_gap); no es un dato observado."
+        },
+        {
+          "clave": "menos-uno-2025",
+          "estado": "supuesto",
+          "titulo": "«-1» impreso tratado como cero.",
+          "texto": "El boletín 2025_sem17 imprimió «-1» en la semana de Nuevo León. Por un supuesto del autor, declarado y no medido, esa celda se trata como 0; los acumulados impresos no cambian."
+        }
+      ],
+      "nota": null
+    },
+    "vih_b20": {
+      "avisos": [
+        {
+          "clave": "apoyo",
+          "estado": "apoyo",
+          "titulo": "Tema sensible.",
+          "texto": "Esta serie cuenta casos notificados al sistema de vigilancia y no describe métodos ni circunstancias. Si tú o alguien cercano necesita apoyo, la Línea de la Vida atiende gratis, las 24 horas: 800 911 2000; si alguien está en peligro inmediato, llama al 911."
+        },
+        {
+          "clave": "definicion-vih",
+          "estado": "alcance",
+          "titulo": "Definición desde 2020-W28.",
+          "texto": "La serie cuenta sólo la definición de infección por VIH (B20-B24, Z21) que el boletín imprime desde la semana 28 de 2020. Los boletines anteriores imprimían SIDA (B20-B24), otra definición, y quedan fuera de la serie: no se empalman."
+        },
+        {
+          "clave": "salto-nivel",
+          "estado": "medido",
+          "titulo": "Cambio de nivel en la serie, sin atribuir causa.",
+          "texto": "Casos notificados por año epidemiológico en el dataset del pronóstico: 2020 (desde la semana 28): 3,824; 2021: 13,924; 2022: 15,911; 2023: 16,146; 2024: 17,953; 2025: 18,822; 2026 (hasta la semana 44): 15,378. La mediana semanal nacional fue de 274.5 en 2021 y de 365 en 2025. La serie empieza en la semana 28 de 2020: la mediana semanal nacional pasó de 146 casos en 2020 (desde esa semana) a 274.5 en 2021. Con estos datos no se puede distinguir si cambió la frecuencia de casos o su registro, y no se atribuye causa."
+        }
+      ],
+      "nota": null
+    },
+    "tuberculosis_respiratoria_a15": {
+      "avisos": [
+        {
+          "clave": "salto-nivel",
+          "estado": "medido",
+          "titulo": "Pico de 2019-2020 en la serie, sin atribuir causa.",
+          "texto": "Casos notificados por año epidemiológico en el dataset del pronóstico: 2014: 13,454; 2015: 13,871; 2016: 13,987; 2017: 14,374; 2018: 15,285; 2019: 36,761; 2020: 26,259; 2021: 16,008; 2022: 19,603; 2023: 20,036; 2024: 20,689; 2025: 21,291; 2026 (hasta la semana 44): 16,837. La mediana semanal nacional fue de 259 en 2014 y de 763 en 2019. Por decisión del autor se publica con este aviso del pico de 2019-2020, sin atribuirle causa. Con estos datos no se puede distinguir si cambió la frecuencia de casos o su registro, y no se atribuye causa."
+        },
+        {
+          "clave": "hueco-rezago",
+          "estado": "medido",
+          "titulo": "Semana 2020-W53 imputada por el cambio de rezago.",
+          "texto": "La semana 53 de 2020 no se imprimió en ningún boletín: desde el boletín 2021_sem01 el cuadro pasó a reportar la semana del propio boletín (antes, la anterior), y esa semana quedó sin fuente. Por decisión del autor se imputó de forma causal en las 32 entidades (64 registros entidad-sexo-semana) y queda marcada (lag_regime_gap); no es un dato observado."
+        }
+      ],
+      "nota": null
+    },
+    "meningitis_tuberculosa_a170": {
+      "avisos": [
+        {
+          "clave": "salto-nivel",
+          "estado": "medido",
+          "titulo": "Cambio de nivel en la serie, sin atribuir causa.",
+          "texto": "Casos notificados por año epidemiológico en el dataset del pronóstico: 2014: 203; 2015: 213; 2016: 203; 2017: 234; 2018: 316; 2019: 334; 2020: 230; 2021: 455; 2022: 567; 2023: 520; 2024: 517; 2025: 590; 2026 (hasta la semana 44): 470. La mediana semanal nacional fue de 3 en 2014 y de 12 en 2025. Con estos datos no se puede distinguir si cambió la frecuencia de casos o su registro, y no se atribuye causa."
+        },
+        {
+          "clave": "hueco-rezago",
+          "estado": "medido",
+          "titulo": "Semana 2020-W53 imputada por el cambio de rezago.",
+          "texto": "La semana 53 de 2020 no se imprimió en ningún boletín: desde el boletín 2021_sem01 el cuadro pasó a reportar la semana del propio boletín (antes, la anterior), y esa semana quedó sin fuente. Por decisión del autor se imputó de forma causal en las 32 entidades (64 registros entidad-sexo-semana) y queda marcada (lag_regime_gap); no es un dato observado."
+        }
+      ],
+      "nota": null
+    },
+    "lepra_a30": {
+      "avisos": [
+        {
+          "clave": "hueco-rezago",
+          "estado": "medido",
+          "titulo": "Semana 2020-W53 imputada por el cambio de rezago.",
+          "texto": "La semana 53 de 2020 no se imprimió en ningún boletín: desde el boletín 2021_sem01 el cuadro pasó a reportar la semana del propio boletín (antes, la anterior), y esa semana quedó sin fuente. Por decisión del autor se imputó de forma causal en las 32 entidades (64 registros entidad-sexo-semana) y queda marcada (lag_regime_gap); no es un dato observado."
+        }
+      ],
+      "nota": null
+    },
+    "otras_rickettsiosis_a79": {
+      "avisos": [
+        {
+          "clave": "salto-nivel",
+          "estado": "medido",
+          "titulo": "Cambio de nivel en la serie, sin atribuir causa.",
+          "texto": "Casos notificados por año epidemiológico en el dataset del pronóstico: 2017 (desde la semana 2): 147; 2018: 159; 2019: 143; 2020: 59; 2021: 185; 2022: 600; 2023: 497; 2024: 499; 2025: 544; 2026 (hasta la semana 44): 543. La mediana semanal nacional fue de 0 en 2020 y de 10 en 2022. El renglón A79 se imprime desde el boletín 2017_sem02: la serie es corta. Con estos datos no se puede distinguir si cambió la frecuencia de casos o su registro, y no se atribuye causa."
+        }
+      ],
+      "nota": null
+    },
+    "fiebre_manchada_a770": {
+      "avisos": [
+        {
+          "clave": "salto-nivel",
+          "estado": "medido",
+          "titulo": "Niveles cambiantes en la serie, sin atribuir causa.",
+          "texto": "Casos notificados por año epidemiológico en el dataset del pronóstico: 2014: 208; 2015: 501; 2016: 81; 2017: 181; 2018: 315; 2019: 305; 2020: 107; 2021: 124; 2022: 131; 2023: 42; 2024: 35; 2025: 23; 2026 (hasta la semana 44): 236. La mediana semanal nacional fue de 0 en 2016 y de 6 en 2019. Con estos datos no se puede distinguir si cambió la frecuencia de casos o su registro, y no se atribuye causa."
+        },
+        {
+          "clave": "hueco-rezago",
+          "estado": "medido",
+          "titulo": "Semana 2015-W48 imputada por el cambio de rezago.",
+          "texto": "La semana 48 de 2015 no se imprimió en ningún boletín: desde el boletín 2015_sem49 el cuadro pasó a reportar la semana del propio boletín (antes, la anterior), y esa semana quedó sin fuente. Por decisión del autor se imputó de forma causal en las 32 entidades (64 registros entidad-sexo-semana) y queda marcada (lag_regime_gap); no es un dato observado."
+        }
+      ],
+      "nota": null
+    },
+    "leishmaniasis_cutanea_b551": {
+      "avisos": [
+        {
+          "clave": "hueco-rezago",
+          "estado": "medido",
+          "titulo": "Semana 2020-W53 imputada por el cambio de rezago.",
+          "texto": "La semana 53 de 2020 no se imprimió en ningún boletín: desde el boletín 2021_sem01 el cuadro pasó a reportar la semana del propio boletín (antes, la anterior), y esa semana quedó sin fuente. Por decisión del autor se imputó de forma causal en las 32 entidades (64 registros entidad-sexo-semana) y queda marcada (lag_regime_gap); no es un dato observado."
+        }
+      ],
+      "nota": null
+    },
+    "paludismo_vivax_b51": {
+      "avisos": [
+        {
+          "clave": "serie-2015",
+          "estado": "alcance",
+          "titulo": "Serie desde 2015-W01.",
+          "texto": "Por decisión del autor la serie empieza en la semana 1 de 2015: en 2014 el boletín imprimió «s.n.» en la columna semanal de 185 celdas, así que ese año queda fuera."
+        },
+        {
+          "clave": "sin-sexo",
+          "estado": "alcance",
+          "titulo": "Sin desglose por sexo.",
+          "texto": "Hasta 2020 el cuadro imprime sólo el total por entidad; desde el boletín 2021_sem01 imprime hombres y mujeres, y por decisión del autor la serie usa su suma, cotejada contra el total impreso en los 617 boletines. Se modela sin sexo: 32 series por entidad y 37 publicadas."
+        },
+        {
+          "clave": "salto-nivel",
+          "estado": "medido",
+          "titulo": "Niveles cambiantes en la serie, sin atribuir causa.",
+          "texto": "Casos notificados por año epidemiológico en el dataset del pronóstico: 2015: 502; 2016: 511; 2017: 718; 2018: 802; 2019: 611; 2020: 348; 2021: 232; 2022: 161; 2023: 39; 2024: 269; 2025: 166; 2026 (hasta la semana 44): 189. La mediana semanal nacional fue de 0 en 2023 y de 11.5 en 2018. Con estos datos no se puede distinguir si cambió la frecuencia de casos o su registro, y no se atribuye causa."
+        },
+        {
+          "clave": "hueco-rezago",
+          "estado": "medido",
+          "titulo": "Semana 2017-W01 imputada por el cambio de rezago.",
+          "texto": "La semana 1 de 2017 no se imprimió en ningún boletín: desde el boletín 2017_sem02 el cuadro pasó a reportar la semana del propio boletín (antes, la anterior), y esa semana quedó sin fuente. Por decisión del autor se imputó de forma causal en las 32 entidades (32 registros entidad-semana) y queda marcada (lag_regime_gap); no es un dato observado."
+        }
+      ],
+      "nota": null
     }
   });
 })(globalThis);

@@ -75,7 +75,7 @@
     <div class="wrap">
       <div class="eyebrow">Pronósticos por padecimiento</div>
       <h1>Tumor maligno de la mama (C50) · Pronóstico semanal</h1>
-      <p class="lead">EpiForecast-MX incorpora el <strong>tumor maligno de la mama (CIE-10 C50)</strong>. Publicamos los casos semanales esperados para las <strong>32 entidades, por sexo</strong>, con un horizonte de <strong>52 semanas</strong>. <strong>Es un pronóstico de control:</strong> cada semana repite los casos de 52 semanas antes, porque el portafolio de modelos no superó la prueba de 2025. Se notifican unos <span id="casosSemana">—</span> casos por semana en todo el país.</p>
+      <p class="lead">EpiForecast-MX incorpora el <strong>tumor maligno de la mama (CIE-10 C50)</strong>. Publicamos los casos semanales esperados para las <strong>32 entidades, por sexo</strong>, con un horizonte de <strong>52 semanas</strong>. <strong>Es un pronóstico de control:</strong> cada semana repite los casos de 52 semanas antes, porque el portafolio de modelos no superó la prueba de 2025. En el último año observado se notificaron en promedio unos <span id="casosSemana">—</span> casos por semana en todo el país<span id="casosSemanaPeriodo"></span>.</p>
 
       <div class="status-card" id="statusCard">
         <div class="status-badge">
@@ -211,7 +211,7 @@
 <!-- site:footer:end -->
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-  <script src="assets/site/estado-ficha.js?v=2"></script>
+  <script src="assets/site/estado-ficha.js?v=3"></script>
   <script>
   (function () {
     'use strict';
@@ -385,7 +385,16 @@
       const rechazo = V.caida_al_control.comprobaciones.find((c) => c.ambito === 'smape_nacional_general');
       $('rejPortafolio').textContent = nf1.format(rechazo.portafolio);
       $('rejControl').textContent = nf1.format(rechazo.control);
-      $('casosSemana').textContent = nf0.format(nac.pronostico_52_total / V.horizon_weeks);
+      {
+        // Media observada del total nacional en las 52 semanas más recientes hasta el corte, no la del pronóstico.
+        const fin = Date.parse(`${V.observation_cutoff_ds}T00:00:00Z`);
+        const ventana = nac.observado.filter(([ds, y]) => y != null && Date.parse(`${ds}T00:00:00Z`) <= fin
+          && Date.parse(`${ds}T00:00:00Z`) > fin - 52 * 7 * 864e5);
+        $('casosSemana').textContent = ventana.length ? nf0.format(ventana.reduce((t, [, y]) => t + y, 0) / ventana.length) : '—';
+        $('casosSemanaPeriodo').textContent = ventana.length
+          ? ` (media de ${ventana.length} semanas con dato, de la semana del ${fechaLarga(ventana[0][0])} a la del ${fechaLarga(ventana[ventana.length - 1][0])})`
+          : '';
+      }
       $('mtWeeks').textContent = `${V.weeks_available} de ${V.weeks_required}`;
       $('releaseMeta').textContent = `Release ${V.release_id} · observación ${V.observation_dataset_id}`;
     }

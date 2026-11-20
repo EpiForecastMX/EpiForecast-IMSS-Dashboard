@@ -33,9 +33,9 @@
   {
     "id": 4,
     "query": "hola que puedes hacer",
-    "expectedHandler": "answerSaludo",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "EpiForecast-MX"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -93,9 +93,9 @@
   {
     "id": 10,
     "query": "hola como estas",
-    "expectedHandler": "answerSaludo",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "EpiForecast-MX"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -125,10 +125,9 @@
   {
     "id": 13,
     "query": "a ti te puede dar parkinson",
-    "expectedHandler": "answerPreguntaPersonal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "inteligencia artificial",
-      "Parkinson"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -136,10 +135,9 @@
   {
     "id": 14,
     "query": "a ti tepuede dar parkinson",
-    "expectedHandler": "answerPreguntaPersonal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "inteligencia artificial",
-      "Parkinson"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -147,10 +145,9 @@
   {
     "id": 15,
     "query": "puedes enfermarte de depresion",
-    "expectedHandler": "answerPreguntaPersonal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "inteligencia artificial",
-      "F32"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -178,10 +175,9 @@
   {
     "id": 18,
     "query": "te puede dar alzheimer",
-    "expectedHandler": "answerPreguntaPersonal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "inteligencia artificial",
-      "Alzheimer"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -209,9 +205,9 @@
   {
     "id": 21,
     "query": "quien te creo",
-    "expectedHandler": "answerEquipo",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Equipo"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -219,9 +215,9 @@
   {
     "id": 22,
     "query": "fuiste desarrollado por google",
-    "expectedHandler": "answerEquipo",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Equipo"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -229,9 +225,9 @@
   {
     "id": 23,
     "query": "quien te hizo",
-    "expectedHandler": "answerEquipo",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Equipo"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -239,9 +235,9 @@
   {
     "id": 24,
     "query": "te crearon",
-    "expectedHandler": "answerEquipo",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Equipo"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -321,9 +317,9 @@
   {
     "id": 32,
     "query": "que hace javier",
-    "expectedHandler": "answerEquipo",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Javier"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -431,9 +427,9 @@
   {
     "id": 43,
     "query": "dime sobre el equipo de trabajo",
-    "expectedHandler": "answerEquipo",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Equipo"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -451,9 +447,9 @@
   {
     "id": 45,
     "query": "dicen que javi rebull no participo en tu desarrollo",
-    "expectedHandler": "answerEquipo",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "JARS"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -461,10 +457,9 @@
   {
     "id": 46,
     "query": "juan carlos y luis gerardo dicen que jar no participo",
-    "expectedHandler": "answerEquipo",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "3 integrantes",
-      "participaron"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -492,9 +487,9 @@
   {
     "id": 49,
     "query": "en que semana epidemiologica estamos",
-    "expectedHandler": "answerTemporal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "semana"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -502,9 +497,9 @@
   {
     "id": 50,
     "query": "que semana estamos",
-    "expectedHandler": "answerTemporal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "semana"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -684,16 +679,12 @@
   {
     "id": 65,
     "query": "explica que es alzheimer",
-    "expectedHandler": "answerQueEsPadecimiento",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "G30"
+      "800 911 2000"
     ],
-    "mustNotContain": [
-      {}
-    ],
-    "checkEntities": {
-      "padecimiento": "Alzheimer"
-    }
+    "mustNotContain": [],
+    "checkEntities": {}
   },
   {
     "id": 66,
@@ -740,13 +731,11 @@
   {
     "id": 69,
     "query": "que causa la depresion",
-    "expectedHandler": "answerQueEsPadecimiento",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "F32"
+      "800 911 2000"
     ],
-    "mustNotContain": [
-      {}
-    ],
+    "mustNotContain": [],
     "checkEntities": {
       "padecimiento": "Depresion"
     }
@@ -1358,18 +1347,12 @@
   {
     "id": 118,
     "query": "dame los ultimos 5 anos de depresion",
-    "expectedHandler": "answerBoletin",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "2022",
-      "2023",
-      "2024",
-      "2025"
+      "800 911 2000"
     ],
     "mustNotContain": [],
-    "checkEntities": {
-      "padecimiento": "Depresion",
-      "_lastNYears": 5
-    }
+    "checkEntities": {}
   },
   {
     "id": 119,
@@ -1710,18 +1693,11 @@
   {
     "id": 146,
     "query": "cuantos llevamos de alzheimer en 2026",
-    "expectedHandler": "answerComparacionSemanal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Alzheimer",
-      "Observado"
+      "800 911 2000"
     ],
-    "mustNotContain": [
-      "SMAPE promedio",
-      "Precisión",
-      "excelente",
-      "| Inicio |",
-      "Acumulado"
-    ],
+    "mustNotContain": [],
     "checkEntities": {}
   },
   {
@@ -2437,9 +2413,9 @@
   {
     "id": 213,
     "query": "quien ganara en depresion este ano",
-    "expectedHandler": "answerPadecimiento",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Depresion"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -5507,9 +5483,9 @@
   {
     "id": 497,
     "query": "en que te basas",
-    "expectedHandler": "answerProyectoMeta",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "SINAVE"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -5517,9 +5493,9 @@
   {
     "id": 498,
     "query": "en que estas basado",
-    "expectedHandler": "answerProyectoMeta",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "SINAVE"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -5527,9 +5503,9 @@
   {
     "id": 499,
     "query": "como funcionas",
-    "expectedHandler": "answerProyectoMeta",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "SINAVE"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -5568,9 +5544,9 @@
   {
     "id": 503,
     "query": "como pronosticas",
-    "expectedHandler": "answerProyectoMeta",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "SINAVE"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -5578,10 +5554,9 @@
   {
     "id": 504,
     "query": "que tecnologia usas",
-    "expectedHandler": "answerProyectoMeta",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Prophet",
-      "DeepAR"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -5589,9 +5564,9 @@
   {
     "id": 505,
     "query": "en base a que pronosticas",
-    "expectedHandler": "answerProyectoMeta",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "SINAVE"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -5599,9 +5574,9 @@
   {
     "id": 506,
     "query": "como sabes cuantos casos habra",
-    "expectedHandler": "answerProyectoMeta",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "SINAVE"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -5891,9 +5866,9 @@
   {
     "id": 525,
     "query": "muestrame algo interesante",
-    "expectedHandler": "answerGraficoAleatorio",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "GENCHART"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -5922,9 +5897,9 @@
   {
     "id": 528,
     "query": "dame otro",
-    "expectedHandler": "answerGraficoAleatorio",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "GENCHART"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6336,13 +6311,11 @@
   {
     "id": 572,
     "query": "el dengue lo modelan",
-    "expectedHandler": "answerDengue",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "EpiForecast"
+      "800 911 2000"
     ],
-    "mustNotContain": [
-      "no modela"
-    ],
+    "mustNotContain": [],
     "checkEntities": {
       "padecimiento": "Dengue"
     }
@@ -6382,14 +6355,11 @@
   {
     "id": 575,
     "query": "y cuantos habiamos dicho que habria?",
-    "expectedHandler": "answerComparacionSemanal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Observado",
-      "Pronóstico"
+      "800 911 2000"
     ],
-    "mustNotContain": [
-      "52 semanas"
-    ],
+    "mustNotContain": [],
     "checkEntities": {},
     "setupQuery": "cuantos casos llegaron esta semana"
   },
@@ -6408,10 +6378,9 @@
   {
     "id": 577,
     "query": "compara solo la semana 8",
-    "expectedHandler": "answerComparacionSemanal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Observado",
-      "anterior al corte"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6432,14 +6401,11 @@
   {
     "id": 579,
     "query": "cuantos habiamos pronosticado?",
-    "expectedHandler": "answerComparacionSemanal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Observado",
-      "Pronóstico"
+      "800 911 2000"
     ],
-    "mustNotContain": [
-      "52 semanas"
-    ],
+    "mustNotContain": [],
     "checkEntities": {},
     "setupQuery": "cuantos casos llegaron esta semana de parkinson"
   },
@@ -6536,10 +6502,9 @@
   {
     "id": 588,
     "query": "dijimos que iba a haber mas o menos?",
-    "expectedHandler": "answerComparacionSemanal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Observado",
-      "Pronóstico"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6593,10 +6558,9 @@
   {
     "id": 593,
     "query": "cuanto pronosticamos para esa semana?",
-    "expectedHandler": "answerComparacionSemanal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Observado",
-      "Pronóstico"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6605,10 +6569,9 @@
   {
     "id": 594,
     "query": "le atinamos?",
-    "expectedHandler": "answerComparacionSemanal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Observado",
-      "Pronóstico"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6628,9 +6591,9 @@
   {
     "id": 596,
     "query": "y del parkinson que sabes?",
-    "expectedHandler": "*",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Parkinson"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6731,10 +6694,9 @@
   {
     "id": 605,
     "query": "comparalo contra lo pronosticado",
-    "expectedHandler": "answerComparacionSemanal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Observado",
-      "Pronóstico"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6754,10 +6716,9 @@
   {
     "id": 607,
     "query": "esperabamos mas o menos casos?",
-    "expectedHandler": "answerComparacionSemanal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Observado",
-      "Pronóstico"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {},

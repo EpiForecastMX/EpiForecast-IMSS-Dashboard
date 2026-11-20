@@ -4,7 +4,7 @@
  * Port directo de knowledge_base.py: _norm(), _detect_entities(),
  * alias maps para estados, padecimientos, sexo y modelos.
  */
-import { ALIAS_RELEASES, canonClinico, diabetesEnConsulta, mencionaNoModelada, nombraAlias, noModeladas, subtipoAjeno } from './release_config.js?v=30';
+import { ALIAS_LEGACY, ALIAS_RELEASES, padecimientosEnConsulta, canonClinico, diabetesEnConsulta, mencionaNoModelada, noModeladas, subtipoAjeno } from './release_config.js?v=52';
 
 // ---------------------------------------------------------------------------
 // Normalizacion
@@ -93,38 +93,9 @@ export function canonEstado(nombre) {
 }
 
 const PADECIMIENTO_ALIAS = {
-  // Depresión + variantes y typos comunes
-  'depresion': 'Depresion',
-  'depression': 'Depresion',
-  'depre': 'Depresion',
-  'deprecion': 'Depresion',
-  'depresiva': 'Depresion',
-  'depresivo': 'Depresion',
-  'trastorno depresivo': 'Depresion',
-  'f32': 'Depresion',
-  // Parkinson + typos
-  'parkinson': 'Parkinson',
-  'parkinsons': 'Parkinson',
-  'parquinson': 'Parkinson',
-  'parkison': 'Parkinson',
-  'enfermedad de parkinson': 'Parkinson',
-  'g20': 'Parkinson',
-  // Alzheimer + typos
-  'alzheimer': 'Alzheimer',
-  'alzaimer': 'Alzheimer',
-  'arzheimer': 'Alzheimer',
-  'alzheimers': 'Alzheimer',
-  'alzhaimer': 'Alzheimer',
-  'enfermedad de alzheimer': 'Alzheimer',
-  'demencia': 'Alzheimer',
-  'g30': 'Alzheimer',
-  // Dengue (4.o padecimiento, cohorte de conteos) + variantes / CIE-10 A97
-  'dengue': 'Dengue',
-  'dengues': 'Dengue',
-  'denge': 'Dengue',
-  'dengeu': 'Dengue',
-  'arbovirosis': 'Dengue',
-  'a97': 'Dengue',
+  // Decimosexta auditoría: los alias de los cuatro originales (nombres en español e inglés, typos y códigos F32, G20, G30 y
+  // A97) viven en release_catalog.js (ALIAS_LEGACY), el mismo resolutor que usa la guarda de consultas mixtas en KB y RAG.
+  ...ALIAS_LEGACY,
   // Releases del runner: sus alias salen de release_catalog.js. Los typos de distancia 2
   // («obesdiad») los corrige fuzzyCorrect contra VOCAB.
   ...ALIAS_RELEASES,
@@ -268,9 +239,12 @@ export function detectEntities(query) {
   const allPads = [];
   // Un subtipo con código propio («A06.4», «otitis supurativa») no es su bloque vecino publicado.
   const ajeno = subtipoAjeno(qn);
-  for (const [alias, canon] of Object.entries(PADECIMIENTO_ALIAS)) {
-    if (ajeno && canon === ajeno.pad) continue;
-    if (nombraAlias(canonClinico(qn), alias) && !allPads.includes(canon)) allPads.push(canon);
+  // Decimoséptima auditoría: los padecimientos salen del resolutor único del catálogo (alias, códigos con subcódigos con y
+  // sin punto o compactos, nombres en inglés); los originales primero y luego los releases en orden de catálogo.
+  const menciones = padecimientosEnConsulta(qn, { parcial: false });
+  for (const pad of [...menciones.legacy, ...menciones.releases.map((r) => r.pad)]) {
+    if (ajeno && pad === ajeno.pad) continue;
+    if (!allPads.includes(pad)) allPads.push(pad);
   }
   const diabetes = diabetesEnConsulta(qn);
   if (diabetes) {

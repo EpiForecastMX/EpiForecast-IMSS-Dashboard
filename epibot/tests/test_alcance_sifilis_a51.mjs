@@ -212,7 +212,9 @@ const POSITIVOS = [
   'A52.1 en Jalisco',
   'A53.0 en Jalisco',
   'A53.9 en Sonora',
-  'a51 0 en jalisco',
+  // Decimoctava auditoría: un dígito separado por espacio tras el código ya no se toma como subcódigo («a51 0» queda fuera
+  // de vocabulario; ver test_vocab19_codex_b44.mjs); la forma con punto o compacta sí resuelve.
+  'a51.0 en jalisco',
   'A510 en Jalisco',
   'sífilis A51 en Jalisco',
   'sífilis precoz en Jalisco',
@@ -267,7 +269,7 @@ for (const q of AMBIGUOS) {
     assert.ok(amb, `aliasAmbiguo(${q})`);
     const { handler, md } = await conversa(q);
     assert.equal(handler, 'answerAliasAmbiguo', q);
-    assert.match(md, /Sífilis adquirida \(A51-A53\)/, q);
+    assert.match(md, /A51/, q);
     assert.match(md, /A50|A57/, q);
     SIN_CIFRAS_A51(md, q);
   });
@@ -276,12 +278,14 @@ for (const q of AMBIGUOS) {
 test('«treponematosis» pide precisar entre sífilis adquirida (A51-A53) y mal del pinto (A67)', async () => {
   const { handler, md } = await conversa('treponematosis en Jalisco');
   assert.equal(handler, 'answerAliasAmbiguo');
-  assert.match(md, /sifilis adquirida.*mal del pinto/s);
+  assert.match(md, /«sífilis adquirida».*«mal del pinto»/s);
   SIN_CIFRAS_A51(md, 'treponematosis');
 });
 
-const AJENOS_NO_CUBIERTOS = [
-  // A50: sífilis congénita y variantes con etapa que no deben caer en precoz/tardía/latente/neurosífilis de A51-A52
+// alta_b44 (19-nov-2026): la sífilis congénita (A50), la gonocócica genitourinaria (A54.0-A54.2), el linfogranuloma (A55),
+// el chancro blando (A57), la tricomoniasis urogenital (A59.0) y el herpes genital (A60.0) tienen release propio. Siguen sin
+// recibir cifras de A51-A53, pero ya no son «no modelados»: se comprueban en VECINOS_PUBLICADOS_B44.
+const VECINOS_PUBLICADOS_B44 = [
   'sífilis congénita en Jalisco',
   'sifilis congenita en Sonora',
   'sífilis congénita precoz en Jalisco',
@@ -311,6 +315,36 @@ const AJENOS_NO_CUBIERTOS = [
   'A500 en Jalisco',
   'sífilis adquirida y congénita en Jalisco',
   'sífilis congénita y adquirida en Sonora',
+  'gonorrea en Jalisco',
+  'infección gonocócica en Sonora',
+  'gonorrhea in Jalisco',
+  'A54 en Jalisco',
+  'A54.0 en Sonora',
+  'linfogranuloma venéreo en Jalisco',
+  'A55 en Jalisco',
+  'chancro blando en Jalisco',
+  'chancroide en Sonora',
+  'chancroid in Jalisco',
+  'A57 en Jalisco',
+  'tricomoniasis en Jalisco',
+  'A59 en Sonora',
+  'herpes genital en Jalisco',
+  'genital herpes in Jalisco',
+  'A60 en Jalisco',
+  'sífilis adquirida A50 en Jalisco',
+];
+
+for (const q of VECINOS_PUBLICADOS_B44) {
+  test(`vecino publicado (alta_b44): «${q}» nunca recibe cifras de A51-A53`, async () => {
+    if (!/adquirida/i.test(q)) assert.notEqual(detectEntities(q).padecimiento, 'Sífilis adquirida', q);
+    const { md } = await conversa(q);
+    // Puede recibir las cifras de SU release (A50, A54.0-A54.2, A55, A57, A59.0, A60.0), nunca las de A51-A53.
+    assert.doesNotMatch(md, /SIFILIS_ADQUIRIDA_A51|MAL_DEL_PINTO_A67/, q);
+    assert.doesNotMatch(md, /\*\*Sífilis adquirida \(A51-A53\) ·/, q);
+  });
+}
+
+const AJENOS_NO_CUBIERTOS = [
   // O98.1: sífilis que complica embarazo, parto y puerperio (incluidos sustantivo intermedio y etapa neurológica)
   'sífilis en el embarazo en Jalisco',
   'sífilis en embarazadas en Sonora',
@@ -332,32 +366,15 @@ const AJENOS_NO_CUBIERTOS = [
   'yaws in Jalisco',
   'A66 en Sonora',
   // A54-A64: otras infecciones de transmisión sexual vecinas del Cuadro 6
-  'gonorrea en Jalisco',
-  'infección gonocócica en Sonora',
-  'gonorrhea in Jalisco',
-  'A54 en Jalisco',
-  'A54.0 en Sonora',
   'clamidia en Jalisco',
-  'linfogranuloma venéreo en Jalisco',
   'chlamydia in Jalisco',
-  'A55 en Jalisco',
   'A56 en Sonora',
-  'chancro blando en Jalisco',
-  'chancroide en Sonora',
-  'chancroid in Jalisco',
-  'A57 en Jalisco',
   'granuloma inguinal en Jalisco',
   'A58 en Jalisco',
-  'tricomoniasis en Jalisco',
-  'A59 en Sonora',
-  'herpes genital en Jalisco',
-  'genital herpes in Jalisco',
-  'A60 en Jalisco',
   'verrugas anogenitales en Jalisco',
   'A63 en Jalisco',
   'A64 en Jalisco',
   // Códigos CIE ajenos junto al nombre del bloque
-  'sífilis adquirida A50 en Jalisco',
   'sífilis adquirida A54 en Jalisco',
   'sífilis adquirida A65 en Jalisco',
   'sífilis adquirida A99 en Jalisco',
@@ -421,12 +438,11 @@ test('seguimientos conversacionales (M1 y M2): heredan contexto válido, bloquea
   const hom = await conversa('sífilis adquirida en Jalisco mujeres', '¿y hombres?');
   assert.match(hom.md, /SIFILIS_ADQUIRIDA_A51:\{"tipo":"serie","estado":"Jalisco","sexo":"hombres"/);
 
-  // Seguimientos explícitamente congénitos / perinatales / fetales → A50 (no modelado)
+  // Seguimientos explícitamente congénitos / perinatales / fetales → A50, con su propio control desde alta_b44 (19-nov-2026)
   for (const seg of ['¿y la congénita?', '¿y congénita?', '¿y neonatal?', '¿y perinatal?', '¿y fetal?', 'and congenital?', 'what about congenital?']) {
     const r = await conversa('sífilis adquirida en Jalisco', seg);
-    SIN_CIFRAS_A51(r.md, `followup A50 ${seg}`);
+    assert.doesNotMatch(r.md, /SIFILIS_ADQUIRIDA_A51/, `followup A50 ${seg}`);
     assert.match(r.md, /Sífilis congénita \(A50\)|sífilis congénita \(A50\)/, `followup A50 ${seg}`);
-    assert.match(r.md, /no modela/i, `followup A50 ${seg}`);
   }
 
   // M1: seguimientos de embarazo (incluidos sustantivos intermedios ES/EN) → O98.1 no modelado, sin cifras de A51-A53 ni sustitución por A50 del radar
@@ -473,12 +489,10 @@ test('seguimientos conversacionales (M1 y M2): heredan contexto válido, bloquea
 
   // Seguimiento tras A50 en radar («sífilis congénita» / «sífilis neonatal») y fuera del radar («sífilis en el embarazo») nunca cae en A51 ni en tabla neuro
   for (const seg of ['¿y hombres?', '¿y en Sonora?']) {
+    // alta_b44: A50 tiene su propio release; el seguimiento hereda A50, nunca A51-A53.
     const rRadar = await conversa('sífilis congénita en Jalisco mujeres', seg);
-    assert.equal(rRadar.handler, 'answerRadarBoletin', `post-A50 radar ${seg}`);
-    assert.match(rRadar.md, /Sífilis congénita \(A50\)/, `post-A50 radar ${seg}`);
-    assert.match(rRadar.md, /no modela/i, `post-A50 radar ${seg}`);
-    SIN_CIFRAS_A51(rRadar.md, `post-A50 radar ${seg}`);
-    assert.doesNotMatch(rRadar.md, /casos totales|Se pronostican/, `post-A50 radar ${seg}`);
+    assert.match(rRadar.md, /SIFILIS_CONGENITA_A50/, `post-A50 ${seg}`);
+    assert.doesNotMatch(rRadar.md, /SIFILIS_ADQUIRIDA_A51/, `post-A50 ${seg}`);
 
     const rNoMod = await conversa('sífilis en el embarazo en Jalisco', seg);
     assert.equal(rNoMod.handler, 'answerPadecimientoNoModelado', `post-O98.1 noModelado ${seg}`);
@@ -489,34 +503,29 @@ test('seguimientos conversacionales (M1 y M2): heredan contexto válido, bloquea
 });
 
 test('M3 rutas del radar del boletín: ITS vecinas conservan el radar y «sífilis en el boletín» desambigua A50 vs A51-A53 sin sustituir', async () => {
-  const gono = await conversa('gonorrea en el boletín');
-  assert.equal(gono.handler, 'answerRadarBoletin');
-  assert.match(gono.md, /Infección gonocócica.*A54/);
-  assert.doesNotMatch(gono.md, /Sífilis|sifilis_adquirida_a51/i);
-  SIN_CIFRAS_A51(gono.md, 'gonorrea en el boletín');
+  // alta_b44 (19-nov-2026): la gonocócica genitourinaria (A54.0-A54.2) y el herpes genital (A60.0) tienen release propio:
+  // «gonorrea» a secas pide precisar y el herpes genital responde su propio release; ninguno recibe cifras de A51-A53.
+  for (const q of ['gonorrea en el boletín', 'herpes genital en el boletín']) {
+    const r = await conversa(q);
+    assert.doesNotMatch(r.md, /SIFILIS_ADQUIRIDA_A51|\*\*Sífilis adquirida \(A51-A53\) ·/, q);
+  }
 
-  const herpes = await conversa('herpes genital en el boletín');
-  assert.equal(herpes.handler, 'answerRadarBoletin');
-  assert.match(herpes.md, /Herpes genital.*A60/);
-  assert.doesNotMatch(herpes.md, /Sífilis|sifilis_adquirida_a51/i);
-  SIN_CIFRAS_A51(herpes.md, 'herpes genital en el boletín');
-
+  // alta_b44: el radar ya no lista A55 como no modelado; «clamidia» (A56) se aclara sin cifras y nunca cae en la tabla neuro.
   const clam = await conversa('clamidia en el boletín');
-  assert.equal(clam.handler, 'answerRadarBoletin');
-  assert.match(clam.md, /Clamidias.*A5[56]/);
+  assert.equal(clam.handler, 'answerPadecimientoNoModelado');
+  assert.match(clam.md, /A56/);
   SIN_CIFRAS_A51(clam.md, 'clamidia en el boletín');
 
   const sifGen = await conversa('sífilis en el boletín');
   assert.equal(sifGen.handler, 'answerAliasAmbiguo');
-  assert.match(sifGen.md, /Sífilis adquirida \(A51-A53\)/);
+  assert.match(sifGen.md, /sífilis adquirida \(A51-A53\)/i);
   assert.match(sifGen.md, /sífilis congénita \(A50\)/i);
   assert.doesNotMatch(sifGen.md, /Casos de la semana:/);
   SIN_CIFRAS_A51(sifGen.md, 'sífilis en el boletín');
 
   const sifCong = await conversa('sífilis congénita en el boletín');
-  assert.equal(sifCong.handler, 'answerRadarBoletin');
-  assert.match(sifCong.md, /\*\*Sífilis congénita \(A50\)\*\*/);
-  SIN_CIFRAS_A51(sifCong.md, 'sífilis congénita en el boletín');
+  assert.match(sifCong.md, /Sífilis congénita \(A50\)/);
+  assert.doesNotMatch(sifCong.md, /SIFILIS_ADQUIRIDA_A51/);
 });
 
 test('no consejo médico individual y prioridad de crisis', async () => {
@@ -575,8 +584,9 @@ test('núcleo de rag.mjs (B1/B2/M2): estadoDeControl (1 de 4), hechosDeFoco/nota
 
   assert.deepEqual([...ctx.focoReleases('casos de sífilis adquirida en Jalisco')], ['sifilis_adquirida_a51']);
   assert.equal(ctx.detectEntities('acquired syphilis in jalisco').padecimiento, 'Sífilis adquirida');
-  assert.equal(ctx.detectEntities('congenital syphilis in jalisco').padecimiento, null);
-  assert.equal(ctx.detectEntities('A50 en jalisco').padecimiento, null);
+  // alta_b44: A50 tiene su propio release.
+  assert.equal(ctx.detectEntities('congenital syphilis in jalisco').padecimiento, 'Sífilis congénita');
+  assert.equal(ctx.detectEntities('A50 en jalisco').padecimiento, 'Sífilis congénita');
 
   const hechos = ctx.hechosDeFoco(['sifilis_adquirida_a51'], 'cronología, precisión y desglose por sexo de sífilis adquirida', leerVista, leerFicha);
   assert.match(hechos, /A50/);
@@ -607,7 +617,7 @@ test('ficha sifilis_adquirida_a51.html (B1/B2): shell común, cronología real s
   const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]).join('\n');
   const ids = new Set([...scripts.matchAll(/(?:getElementById\(|\$\()'([A-Za-z][\w-]*)'\)/g)].map((m) => m[1]));
   for (const id of ids) assert.ok(html.includes(`id="${id}"`), `falta #${id}`);
-  assert.match(html, /estado-ficha\.js\?v=2"/);
+  assert.match(html, /estado-ficha\.js\?v=3"/);
   assert.match(html, /EpiEstadoFicha\.aplica\(\$\('statusCard'\), V\);/);
   assert.match(html, /semanaMas\(a, w, 1\)/);
 

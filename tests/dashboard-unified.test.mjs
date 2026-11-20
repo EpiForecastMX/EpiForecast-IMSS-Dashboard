@@ -420,7 +420,7 @@ test('real: every published disease and series uses status from current views', 
   for (const e of c.diseases.filter((x) => x.kind === 'release')) {
     const v = inputs.views[e.id];
     assert.equal(e.releaseId, v.release_id);
-    assert.equal(e.status.label, v.publication_label, e.id);
+    assert.equal(e.status.label, u.etiquetaVisible(v), e.id);
     assert.equal(e.status.verdict, v.verdict, e.id);
     assert.equal(e.status.weeksAvailable, v.weeks_available, e.id);
     assert.equal(e.status.weeksRequired, v.weeks_required, e.id);
@@ -429,7 +429,7 @@ test('real: every published disease and series uses status from current views', 
     assert.equal(e.label, v.nombre_completo);
     assert.equal(e.labelShort, v.display_name);
     assert.ok(e.cie, `${e.id} sin CIE`);
-    if (/control estacional/i.test(v.publication_label)) assert.equal(e.status.kind, 'control', e.id);
+    if (v.portafolio_igual_al_control === true || /control estacional/i.test(v.publication_label)) assert.equal(e.status.kind, 'control', e.id);
     else if (v.verdict === 'INCOMPLETE') assert.equal(e.status.kind, 'pending', e.id);
     const nat = v.series['nacional|mx|general'];
     assert.equal(e.national.general.forecastTotal, nat.pronostico_52_total, e.id);
@@ -497,4 +497,30 @@ test('real: sex-specific releases are general-only and fallback is explicit', { 
   assert.deepEqual([...ds.index.entities.values()].filter((x) => x.tipo === 'region').map((x) => x.slug).sort(),
     ['region-centro', 'region-norte', 'region-occidente', 'region-sureste']);
   assert.equal(ds.index.entities.size, 37);
+});
+
+// alta_b44: diez releases con un año de historia (rolling_cv_historia_corta_2024_v1) cuyo portafolio es el control estacional.
+// La etiqueta sellada dice «Validación prospectiva en curso», pero la superficie los presenta como control publicado: falla con
+// el statusFromView anterior, que los marcaba «pending» con esa etiqueta.
+test('portafolio igual al control: control publicado, nunca validación en curso', () => {
+  const vista = { disease_id: 'demo_u602', verdict: 'INCOMPLETE', weeks_available: 0, weeks_required: 4,
+    portafolio_igual_al_control: true,
+    publication_label: 'Validación prospectiva en curso (0/4 semanas) · pronóstico puntual sin intervalos' };
+  const st = u.statusFromView(vista);
+  assert.equal(st.kind, 'control');
+  assert.equal(st.label, u.ETIQUETA_SIN_ALTERNATIVA);
+  assert.doesNotMatch(st.label, /en curso/i);
+  assert.match(st.label, /no validado/);
+  assert.equal(st.verdict, 'INCOMPLETE');
+  assert.equal(u.statusFromView({ ...vista, portafolio_igual_al_control: false }).kind, 'pending');
+  if (!REAL) return;
+  const inputs = realInputs();
+  const iguales = Object.values(inputs.views).filter((v) => v.portafolio_igual_al_control === true);
+  assert.equal(iguales.length, 10);
+  const c = u.makeCatalog(inputs);
+  for (const v of iguales) {
+    const e = u.catalogEntry(c, v.disease_id);
+    assert.equal(e.status.kind, 'control', v.disease_id);
+    assert.doesNotMatch(e.status.label, /validación prospectiva en curso/i, v.disease_id);
+  }
 });
