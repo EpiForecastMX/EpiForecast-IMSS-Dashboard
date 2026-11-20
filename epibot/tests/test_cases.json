@@ -610,12 +610,16 @@
   {
     "id": 60,
     "query": "dime sobre la depresion",
-    "expectedHandler": "answerFueraDeVocabulario",
+    "expectedHandler": "answerQueEsPadecimiento",
     "mustContain": [
-      "800 911 2000"
+      "F32"
     ],
-    "mustNotContain": [],
-    "checkEntities": {}
+    "mustNotContain": [
+      {}
+    ],
+    "checkEntities": {
+      "padecimiento": "Depresion"
+    }
   },
   {
     "id": 61,
@@ -2947,11 +2951,16 @@
   {
     "id": 260,
     "query": "dame las metricas",
-    "expectedHandler": "answerFueraDeVocabulario",
+    "expectedHandler": "answerMetricaGlobal",
     "mustContain": [
-      "800 911 2000"
+      "diagnóstico de selección"
     ],
-    "mustNotContain": [],
+    "mustNotContain": [
+      "undefined",
+      " NaN",
+      "NaN%",
+      "<!--DISTRIB:"
+    ],
     "checkEntities": {}
   },
   {
@@ -5446,9 +5455,10 @@
   {
     "id": 494,
     "query": "que sabes del parkinson en el 2017",
-    "expectedHandler": "answerFueraDeVocabulario",
+    "expectedHandler": "answerBoletin",
     "mustContain": [
-      "800 911 2000"
+      "2017",
+      "Parkinson"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -5456,9 +5466,10 @@
   {
     "id": 495,
     "query": "que sabes de la depresion en 2020",
-    "expectedHandler": "answerFueraDeVocabulario",
+    "expectedHandler": "answerBoletin",
     "mustContain": [
-      "800 911 2000"
+      "2020",
+      "Depresion"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -5466,9 +5477,10 @@
   {
     "id": 496,
     "query": "que sabes del alzheimer en jalisco",
-    "expectedHandler": "answerFueraDeVocabulario",
+    "expectedHandler": "answerSpecificSeries",
     "mustContain": [
-      "800 911 2000"
+      "Alzheimer",
+      "Jalisco"
     ],
     "mustNotContain": [],
     "checkEntities": {}

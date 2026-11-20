@@ -16,7 +16,9 @@
  * Las únicas formas de primera o segunda persona que se retiran están en `frases` (décima auditoría): una petición al bot
  * seguida INMEDIATAMENTE, con artículos o preposiciones opcionales, de un sustantivo de datos de la lista cerrada
  * `OBJETO_DATOS` («dame los casos de», «quiero ver la gráfica de», «give me the data»), o una pregunta con interrogativo
- * cuyo objeto es ese sustantivo («¿qué modelos usas?»). El resto del turno sigue sometido a esta lista; cualquier verbo de
+ * cuyo objeto es ese sustantivo («¿qué modelos usas?»), o una petición de conocimiento («dime», «qué sabes», «háblame»,
+ * «cuéntame», «tell me») seguida de «sobre/de/del/acerca de» y del fragmento COMPLETO de un padecimiento no sensible y sin
+ * término de lesión o daño (lo comprueba `analizaTurno` en js/release_catalog.js). El resto del turno sigue sometido a esta lista; cualquier verbo de
  * petición o de segunda persona (`VERBOS_PETICION`) impide retirar la edad y, con un id sensible, da la crisis.
  * Los padecimientos, códigos y estados NO van aquí: los reconoce como fragmentos completos `js/vocab_cerrado.js`.
  * Los números sólo valen como año (2014-2027) o dentro de una frase técnica de abajo; cualquier otro número (edades,
@@ -31,12 +33,14 @@ const EDAD_DE_A = /\bde \d{1,2} a \d{1,2} anos\b/g;
 // Décima auditoría: peticiones al bot. Sólo se retiran ancladas a un sustantivo de datos de esta lista cerrada.
 const OBJETO_DATOS = '(?:casos|caso|cifras|cifra|datos|dato|numero|numeros|pronostico|pronosticos|tendencia|tendencias|tasa|tasas|' +
   'estadisticas|estadistica|informacion|serie|series|grafica|graficas|grafico|graficos|modelos|modelo|' +
+  // Undécima instrucción: métricas, resultados y motores también son sustantivos de datos.
+  'metricas|metrica|resultados|resultado|motores|motor|' +
   'cases|data|numbers|forecast|forecasts|figures|stats|statistics)';
 const ENLACE = '(?: (?:los|las|el|la|un|una|unos|unas|de|del|sobre|con|contra|me|mas|tus|sus|the|some|any|your|more|of))*';
 // Verbos de petición o de segunda persona: también impiden retirar la edad aunque la petición sea válida.
 const VERBOS_PETICION = ['quiero', 'quisiera', 'queremos', 'necesito', 'necesitamos', 'deseo', 'gustaria', 'dame', 'dime',
   'muestrame', 'ensename', 'comparalo', 'sorprendeme', 'podrias', 'puedes', 'sabes', 'usas', 'sacas', 'tienes', 'esperas',
-  'generas', 'pronosticas', 'funcionas', 'give', 'show', 'tell', 'can', 'could', 'you', 'do'];
+  'generas', 'pronosticas', 'funcionas', 'hablame', 'cuentame', 'platicame', 'give', 'show', 'tell', 'can', 'could', 'you', 'do'];
 const PETICION_DESEO = new RegExp(`\\b(quiero|quisiera|queremos|necesito|necesitamos|deseo|me gustaria)( (ver|consultar|saber|conocer|revisar|comparar))?${ENLACE} ${OBJETO_DATOS}\\b`, 'g');
 const PETICION_IMPERATIVO = new RegExp(`\\b(dame|dime|muestrame|ensename|comparalo|sorprendeme)${ENLACE} ${OBJETO_DATOS}\\b`, 'g');
 const PETICION_CORTES = new RegExp(`\\b(podrias|puedes) (mostrar|mostrarme|decir|decirme|dar|darme|explicar|explicarme|ensenar|ensenarme|informar|consultar|comparar)${ENLACE} ${OBJETO_DATOS}\\b`, 'g');

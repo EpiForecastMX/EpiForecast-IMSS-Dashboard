@@ -2077,7 +2077,7 @@
     return cur.verbosPeticion.some((v) => toks.has(v)) || /\bme gustaria\b/.test(normLB(texto));
   }
   // Fragmentos de lesión o daño que, pedidos al bot sin un sustantivo de datos, se leen como una petición de daño.
-  const DANO = /\b(herida|heridas|herir|lesion|lesiones|lesionar|dano|danos|golpe|golpes|intoxicacion|intoxicar|envenenamiento|envenenar|veneno|quemadura|quemaduras|asfixia|ahogamiento|ahorcamiento|sofocacion|estrangulamiento|disparo|arma|armas|bala|corte|cortante|navaja|cuchillo|sobredosis|mordedura|picadura|wound|wounds|injury|injuries|harm|poison|poisoning|overdose|burn|burns|choking|gun|knife|bullet)\b/;
+  const DANO = /\b(herida|heridas|herir|lesion|lesiones|lesionar|dano|danos|golpe|golpes|intoxicacion|intoxicar|envenenamiento|envenenar|veneno|quemadura|quemaduras|asfixia|ahogamiento|ahorcamiento|sofocacion|estrangulamiento|disparo|arma|armas|bala|corte|cortante|navaja|cuchillo|sobredosis|mordedura|mordeduras|picadura|picaduras|intoxicaciones|envenenamientos|disparos|cortes|ahogamientos|wound|wounds|injury|injuries|harm|poison|poisoning|overdose|burn|burns|choking|gun|knife|bullet)\b/;
   /** Petición al bot que no va seguida de un sustantivo de datos y nombra un id sensible o un fragmento de daño. */
   function peticionDeDano(raw) {
     if (!peticionEn(raw)) return false;
@@ -2085,6 +2085,19 @@
     for (const re of (globalThis.EPI_VOCAB_CONSULTA?.peticiones || [])) n = n.replace(re, ' ');
     if (!peticionEn(n)) return false;
     return idsSensiblesEn(raw).length > 0 || DANO.test(n);
+  }
+  // Undécima instrucción: petición o interrogativo de conocimiento seguido de «sobre/de/del/acerca de» y del fragmento
+  // completo de un padecimiento. Sólo se retira si el padecimiento no es sensible y su nombre no lleva un término de lesión o
+  // daño («dime sobre quemaduras» no vale; «dame los casos de quemaduras» sí, por el sustantivo de datos).
+  const CONOCIMIENTO = / (dime|que sabes|hablame|cuentame|platicame|tell me|what do you know)( algo)? (sobre|acerca de|de|del|about)( (el|la|los|las|the))?(?= )/g;
+  function retiraConocimiento(n) {
+    return n.replace(CONOCIMIENTO, (m, ...args) => {
+      const pos = args[args.length - 2];
+      const resto = n.slice(pos + m.length);
+      const f = todosLosFragmentos().find((x) => resto.startsWith(` ${x} `));
+      if (!f || DANO.test(f) || idsSensiblesEn(f).length || nombraReleaseSensible(f)) return m;
+      return ' ';
+    });
   }
   const DATOS_RUTA_INTERFAZ = /\b(panorama|kpis|tablero nacional)\b/;
   function analizaTurno(raw) {
@@ -2097,6 +2110,7 @@
     // segunda persona o de
     // un familiar («tengo», «soy», «mi hijo tiene», «I am») las frases de edad no se aplican y el número queda fuera.
     const primeraPersona = /\b(tengo|tenia|tendre|soy|estoy|estaba|yo|me|conmigo|nosotros|nosotras|nos|nuestro|nuestra|nuestros|nuestras|estamos|tenemos|somos|vamos|podemos|queremos|cumplimos|cumplo|cumpli|tiene|tienen|mi|mis|my|we|our|us|i|im|i m|i ve|tienes|tenias|tendras|eres|te|tu|tus|ti|contigo|usted|ustedes|you|your|youre|you re)\b/.test(n) || peticionEn(n);
+    n = retiraConocimiento(n);
     for (const re of (cur ? cur.frases : [])) if (!(primeraPersona && cur.frasesEdad && cur.frasesEdad.includes(re))) n = n.replace(re, ' ');
     // Códigos con forma CIE («h66 0», «a06 8», «a510», «n87»): técnicos aunque no sean de un bloque publicado.
     n = n.replace(/ [a-z]\d{2}\d?( \d{1,2})?(?= )/g, (m) => (fragmentosCie++, ' '));

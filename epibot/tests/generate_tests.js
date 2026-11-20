@@ -123,7 +123,8 @@ add('quienes son el equipo', 'answerEquipo', ['Equipo']);
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
 add('quien te creo', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
 // Novena y décima auditorías: una petición o una segunda persona sólo es vocabulario anclada a un sustantivo de datos de la
-// lista cerrada; «fuiste», «dime sobre…», «qué sabes…», «cómo funcionas», «dame otro» o «dame las métricas» reciben el apoyo.
+// lista cerrada (o una petición de conocimiento sobre un padecimiento no sensible); «fuiste», «dime sobre el equipo», «cómo
+// funcionas» o «dame otro» reciben el apoyo.
 add('fuiste desarrollado por google', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
 add('quien te hizo', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
@@ -178,7 +179,7 @@ add('que semana es hoy', 'answerTemporal', ['semana']);
 add('que es la depresion', 'answerQueEsPadecimiento', ['F32'], {}, {padecimiento: 'Depresion'});
 add('que es el parkinson', 'answerQueEsPadecimiento', ['G20'], {}, {padecimiento: 'Parkinson'});
 add('que es el alzheimer', 'answerQueEsPadecimiento', ['G30'], {}, {padecimiento: 'Alzheimer'});
-add('dime sobre la depresion', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('dime sobre la depresion', 'answerQueEsPadecimiento', ['F32'], {}, {padecimiento: 'Depresion'});
 add('informacion sobre parkinson', 'answerQueEsPadecimiento', ['G20'], {}, {padecimiento: 'Parkinson'});
 add('que es f32', 'answerQueEsPadecimiento', ['F32'], {}, {padecimiento: 'Depresion'});
 add('que es g20', 'answerQueEsPadecimiento', ['G20'], {}, {padecimiento: 'Parkinson'});
@@ -441,7 +442,7 @@ add('smape promedio del proyecto', 'answerMetricaGlobal', [AVISO], SIN_VALORES);
 add('que tan preciso es el modelo', 'answerValidacion', ['Validaci', AVISO], ['precisión histórica promedio']);
 add('rendimiento general de los modelos', 'answerMetricaGlobal', [AVISO], SIN_VALORES);
 add('metricas de rendimiento', 'answerMetricaGlobal', [AVISO], SIN_VALORES);
-add('dame las metricas', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('dame las metricas', 'answerMetricaGlobal', [AVISO], SIN_VALORES);
 add('que rmse tienen los modelos', 'answerMetricaGlobal', [AVISO], SIN_VALORES);
 add('cual es el mase promedio', 'answerMetricaGlobal', [AVISO], SIN_VALORES);
 add('precision de los modelos', '*', []);
@@ -859,9 +860,9 @@ add('parkinson en veracruz 2024', 'answerBoletin', ['2024', 'Veracruz']);
 add('alzheimer en yucatan 2019', 'answerHistorico', ['2019', 'Yucatan']);
 add('depresion en coahuila del 2020 al 2024', 'answerHistorico', ['2020', '2021', '2022', '2023', '2024', 'Coahuila']);
 add('historico de alzheimer en tamaulipas', 'answerBoletin', ['Tamaulipas']);
-add('que sabes del parkinson en el 2017', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
-add('que sabes de la depresion en 2020', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
-add('que sabes del alzheimer en jalisco', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('que sabes del parkinson en el 2017', 'answerBoletin', ['2017', 'Parkinson']);
+add('que sabes de la depresion en 2020', 'answerBoletin', ['2020', 'Depresion']);
+add('que sabes del alzheimer en jalisco', 'answerSpecificSeries', ['Alzheimer', 'Jalisco']);
 
 // =====================================================================
 // SECCION 36: PROYECTO META — en que te basas (10 tests)
