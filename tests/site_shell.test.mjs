@@ -296,7 +296,7 @@ test('páginas editoriales/noticias/congresos/archivo: sin barra ni tema viejos,
   const corpus = new Set([...leer('epibot/scripts/lib/corpus.mjs').split('HTML_NOTES = [')[1].split('];')[0].matchAll(/file: '([^']+)'/g)].map((m) => m[1]));
   const fams = new Set(['editorial', 'noticias', 'congresos', 'archivo']);
   const sel = cfg.pages.filter((p) => fams.has(p.family));
-  assert.equal(sel.length, 22);
+  assert.equal(sel.length, 23);   // alta_b44: no_modelables.html (categorías sin pronóstico)
   for (const p of sel) {
     const html = leer(p.path);
     assert.doesNotMatch(html, /<nav class="nav" id="nav">|id="navMobile" class="nav-mobile"|fonts\.googleapis|editorial\.css\?v=1"/, p.path);

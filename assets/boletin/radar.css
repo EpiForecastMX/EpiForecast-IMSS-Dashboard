@@ -254,3 +254,5 @@ dialog{background:white;border-radius:12px;padding:28px;box-shadow:0 20px 70px #
 .boletin-page main :is(.bar-row, .curve-controls, .curve-stats, .hero, .method-grid, .metrics, .overview-grid, .platform-grid, .priority-grid, .source-grid, .variables-block, .section-top, .table-meta, .filters, .detail-stats, .radar-actions, .radar-footer) > * { min-width: 0; overflow-wrap: break-word; }
 .boletin-page main > section, #catalogueView { min-width: 0; max-width: 100%; }
 .boletin-page .table-wrap { max-width: 100%; overflow-x: auto; }
+.badge.unmodelable{background:rgba(120,130,150,.14);color:#3f4a5c}
+.priority-empty{grid-column:1/-1}

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EpiForecast-MX — Categorías del boletín sin pronóstico</title>
+  <meta name="description" content="Categorías del Boletín Epidemiológico que EpiForecast-MX no puede modelar: el motivo medido de cada una y sus cifras impresas, sin pronóstico." />
+  <style>
+    .wrap { max-width:1120px; margin:0 auto; padding:0 1.5rem; }
+    .hero { padding:4rem 0 2rem; }
+    .eyebrow { font-family:var(--font-mono); font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.18em; color:var(--amber-soft); }
+    .hero h1 { font-size:2.5rem; line-height:1.12; margin:.8rem 0 1rem; }
+    .lead { font-size:1.1rem; max-width:68ch; }
+    .status-card { margin-top:1.6rem; background:var(--bg-raised); border:1px solid var(--bg-card-hover); border-radius:16px; padding:1.1rem 1.3rem; max-width:860px; }
+    .status-card ul { margin:.4rem 0 0 1.1rem; display:grid; gap:.35rem; }
+    .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin:0 0 1.6rem; max-width:860px; }
+    .stat { background:var(--bg-card); border:1px solid var(--bg-card-hover); border-radius:14px; padding:1rem 1.1rem; }
+    .stat .v { font-size:1.7rem; font-weight:800; color:var(--cream); font-variant-numeric:tabular-nums; }
+    .stat .l { font-family:var(--font-mono); font-size:.66rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-muted); margin-top:.25rem; }
+    main section { padding:2.4rem 0; border-top:1px solid var(--bg-card-hover); }
+    main section p { max-width:74ch; margin-bottom:1rem; }
+    .nm-indice ul { list-style:none; margin:0 0 1rem; padding:0; display:flex; flex-wrap:wrap; gap:.6rem; }
+    .nm-indice li { background:var(--bg-card); border:1px solid var(--bg-card-hover); border-radius:100px; padding:.3rem .85rem; font-size:.9rem; }
+    .nm-indice li span, .nm-cuenta { font-family:var(--font-mono); color:var(--text-muted); font-size:.8em; }
+    .nm-grupo { border-top:none; padding:1.6rem 0 .6rem; }
+    .nm-grupo h2 { font-size:1.45rem; margin:.4rem 0 .6rem; }
+    .table-scroll { overflow-x:auto; border:1px solid var(--bg-card-hover); border-radius:14px; background:var(--bg-card); }
+    .nm-tabla { width:100%; border-collapse:collapse; font-size:.9rem; }
+    .nm-tabla caption { text-align:left; font-size:.8rem; color:var(--text-muted); padding:.6rem .9rem; caption-side:bottom; }
+    .nm-tabla th, .nm-tabla td { padding:.6rem .8rem; border-top:1px solid var(--bg-card-hover); vertical-align:top; text-align:left; }
+    .nm-tabla thead th { background:var(--bg-raised); font-family:var(--font-mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; border-top:none; }
+    .nm-tabla tbody th { color:var(--cream); font-weight:600; min-width:13rem; }
+    .nm-tabla .num { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+    .nm-tabla .nm-cie { font-family:var(--font-mono); font-size:.82rem; white-space:nowrap; }
+    .nm-tabla .nm-motivo { min-width:18rem; color:var(--text-secondary); }
+    .nm-sub { display:block; font-weight:400; font-size:.78rem; color:var(--text-muted); margin-top:.15rem; }
+    .marcador { color:var(--text-muted); }
+    .marcador.no-publicado { text-decoration:underline dotted; }
+    .table-note { font-size:.84rem; color:var(--text-muted); margin-top:1rem; max-width:80ch; }
+    .next-links { display:flex; flex-wrap:wrap; gap:1rem 1.6rem; margin-top:1rem; }
+    @media (max-width:760px) {
+      .hero h1 { font-size:1.9rem; }
+      .stats { grid-template-columns:1fr; }
+      .nm-tabla { font-size:.8rem; }
+    }
+  </style>
+<link rel="stylesheet" href="assets/site/site.css?v=5">
+<link rel="stylesheet" href="editorial.css?v=4">
+</head>
+<body class="editorial-page">
+<a class="skip" href="#contenido">Saltar al contenido</a>
+<!-- site:header:start -->
+<header class="site-header" id="nav" lang="es">
+  <div class="site-header__inner">
+    <a class="site-brand" href="index.html" aria-label="EpiForecast-MX, inicio"><span class="site-brand__symbol" aria-hidden="true">E<span>+</span></span><span class="site-brand__name"><span class="site-brand__word">EpiForecast<span class="site-brand__mx">MX</span></span><small>Inteligencia epidemiológica</small></span></a>
+    <nav class="site-nav" aria-label="Navegación principal">
+      <ul class="nav-menu">
+        <li><a href="Reports/index.html">Galería</a></li>
+        <li><a href="epibot/index.html">EpiBot</a></li>
+        <li><a href="EpiDashboard.html">Dashboard</a></li>
+        <li><a href="boletin.html">Radar del boletín</a></li>
+        <li><a href="novedades.html">Noticias</a></li>
+        <li class="nav-group">
+          <button type="button" class="nav-group__toggle" aria-expanded="false" aria-controls="navGroup-congresos">Congresos</button>
+          <ul class="nav-group__list" id="navGroup-congresos">
+            <li><a href="wcp2026.html">WCP 2026 · Estocolmo</a></li>
+            <li><a href="micai2026.html">MICAI 2026 · Chihuahua</a></li>
+            <li><a href="calass.html">CALASS 2026 · Montréal</a></li>
+            <li><a href="index.html#congresos">Todos los congresos</a></li>
+          </ul>
+        </li>
+        <li class="nav-group">
+          <button type="button" class="nav-group__toggle" aria-expanded="false" aria-controls="navGroup-mas">Más</button>
+          <ul class="nav-group__list" id="navGroup-mas">
+            <li><a href="index.html#diseases">Padecimientos</a></li>
+            <li><a href="index.html#metodologia">Evidencia y método</a></li>
+            <li><a href="index.html#about">Proyecto y equipo</a></li>
+          </ul>
+        </li>
+      </ul>
+    </nav>
+    <button type="button" class="site-nav__toggle" aria-controls="navMobile" aria-expanded="false"><span class="site-nav__toggle-icon" aria-hidden="true"></span><span class="site-nav__toggle-text">Menú</span></button>
+  </div>
+  <div id="navMobile" class="site-nav__mobile">
+    <div class="nav-mobile-items">
+      <a class="nav-mobile-link" href="Reports/index.html">Galería</a>
+      <a class="nav-mobile-link" href="epibot/index.html">EpiBot</a>
+      <a class="nav-mobile-link" href="EpiDashboard.html">Dashboard</a>
+      <a class="nav-mobile-link" href="boletin.html">Radar del boletín</a>
+      <a class="nav-mobile-link" href="novedades.html">Noticias</a>
+      <p class="nav-mobile-group">Congresos</p>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="wcp2026.html">WCP 2026 · Estocolmo</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="micai2026.html">MICAI 2026 · Chihuahua</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="calass.html">CALASS 2026 · Montréal</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#congresos">Todos los congresos</a>
+      <p class="nav-mobile-group">Más</p>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#diseases">Padecimientos</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#metodologia">Evidencia y método</a>
+      <a class="nav-mobile-link nav-mobile-link--sub" href="index.html#about">Proyecto y equipo</a>
+    </div>
+  </div>
+</header>
+<!-- site:header:end -->
+<main>
+  <header id="contenido" class="hero">
+    <div class="wrap">
+      <div class="eyebrow">Radar del boletín · sin pronóstico</div>
+      <h1>Categorías del boletín sin pronóstico</h1>
+      <p class="lead">El boletín vigila más categorías de las que se pueden pronosticar con rigor. Estas no cumplen una condición técnica que exige el método de EpiForecast-MX, así que <strong>no tienen pronóstico ni control estacional</strong>: aquí están sus cifras impresas y el motivo medido de cada una.</p>
+      <div class="status-card">
+        <strong>Por qué no hay pronóstico</strong>
+        <ul>
+          <li>EpiForecast-MX sólo publica un pronóstico cuando la serie permite elegir un modelo con datos anteriores y probarlo una sola vez frente al control estacional.</li>
+          <li>Estas categorías no cumplen una de esas condiciones, medida en el boletín; ninguna regla se relajó para incluirlas.</li>
+          <li>No se inventa un pronóstico: las cifras son las que imprime el boletín, tal como aparecen en el radar.</li>
+        </ul>
+      </div>
+    </div>
+  </header>
+  <section id="categorias">
+    <div class="wrap">
+<!-- no-modelables:start · generado por scripts/no_modelables_pagina.mjs; no editar a mano -->
+<div class="stats" aria-label="Conteos"><div class="stat"><div class="v">152</div><div class="l">Padecimientos con pronóstico publicado</div></div><div class="stat"><div class="v">32</div><div class="l">Categorías sin pronóstico</div></div><div class="stat"><div class="v">4</div><div class="l">Motivos medidos</div></div></div>
+<p class="nm-resumen" id="nmResumen"><strong>Treinta y dos categorías</strong> del Boletín Epidemiológico 44 de 2026 no tienen pronóstico en EpiForecast-MX: siete sin desglose estatal, catorce con casos insuficientes o no publicados en el cuadro, dos con total imputado en el año de prueba y nueve con historia insuficiente.</p>
+<nav class="nm-indice" aria-label="Grupos de motivo"><ul><li><a href="#grupo-solo_nacional">Sin desglose estatal</a> <span>7</span></li><li><a href="#grupo-sin_casos">Casos insuficientes o no publicados</a> <span>14</span></li><li><a href="#grupo-sem_menos_uno">Total imputado en el año de prueba</a> <span>2</span></li><li><a href="#grupo-sin_pliegues">Historia insuficiente</a> <span>9</span></li></ul></nav>
+<section class="nm-grupo" id="grupo-solo_nacional" aria-labelledby="titulo-solo_nacional">
+<h2 id="titulo-solo_nacional">Sin desglose estatal <span class="nm-cuenta">7</span></h2>
+<p>Los pronósticos de EpiForecast-MX se construyen con series por entidad federativa y el total nacional sale de sumarlas. Estas categorías sólo aparecen en el resumen nacional de notificación inmediata del boletín, sin cifras por entidad, así que no existen las series que el método necesita.</p>
+<div class="table-scroll"><table class="nm-tabla">
+<caption>Sin desglose estatal: cifras impresas del boletín 44 de 2026 y motivo medido</caption>
+<thead><tr><th scope="col">Categoría</th><th scope="col">CIE impreso</th><th scope="col">Semana del cuadro</th><th scope="col">Casos de la semana</th><th scope="col">Acumulado 2026</th><th scope="col">Acumulado comparable 2025</th><th scope="col">Motivo medido</th></tr></thead><tbody>
+<tr id="cat-national-A36"><th scope="row">Difteria<span class="nm-sub">Notificación inmediata, solo resumen nacional · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=4" target="_blank" rel="noopener">PDF, p. 4</a></span></th><td class="nm-cie">A36</td><td class="num">44</td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="nm-motivo">El boletín sólo la imprime en el resumen nacional de notificación inmediata, sin cifras por entidad.</td></tr>
+<tr id="cat-national-A95"><th scope="row">Encefalitis equina venezolana<span class="nm-sub">Notificación inmediata, solo resumen nacional · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=4" target="_blank" rel="noopener">PDF, p. 4</a></span></th><td class="nm-cie">A95</td><td class="num">44</td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="nm-motivo">El boletín sólo la imprime en el resumen nacional de notificación inmediata, sin cifras por entidad.</td></tr>
+<tr id="cat-national-A98.4"><th scope="row">Enfermedad por virus Ébola<span class="nm-sub">Notificación inmediata, solo resumen nacional · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=4" target="_blank" rel="noopener">PDF, p. 4</a></span></th><td class="nm-cie">A98.4</td><td class="num">44</td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="nm-motivo">El boletín sólo la imprime en el resumen nacional de notificación inmediata, sin cifras por entidad.</td></tr>
+<tr id="cat-national-A92.2"><th scope="row">Fiebre amarilla<span class="nm-sub">Notificación inmediata, solo resumen nacional · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=4" target="_blank" rel="noopener">PDF, p. 4</a></span></th><td class="nm-cie">A92.2</td><td class="num">44</td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="nm-motivo">El boletín sólo la imprime en el resumen nacional de notificación inmediata, sin cifras por entidad.</td></tr>
+<tr id="cat-national-A92.8"><th scope="row">Fiebre por virus Mayaro<span class="nm-sub">Notificación inmediata, solo resumen nacional · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=4" target="_blank" rel="noopener">PDF, p. 4</a></span></th><td class="nm-cie">A92.8</td><td class="num">44</td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="nm-motivo">El boletín sólo la imprime en el resumen nacional de notificación inmediata, sin cifras por entidad.</td></tr>
+<tr id="cat-national-A20"><th scope="row">Peste<span class="nm-sub">Notificación inmediata, solo resumen nacional · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=4" target="_blank" rel="noopener">PDF, p. 4</a></span></th><td class="nm-cie">A20</td><td class="num">44</td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="nm-motivo">El boletín sólo la imprime en el resumen nacional de notificación inmediata, sin cifras por entidad.</td></tr>
+<tr id="cat-national-A80"><th scope="row">Poliomielitis<span class="nm-sub">Notificación inmediata, solo resumen nacional · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=4" target="_blank" rel="noopener">PDF, p. 4</a></span></th><td class="nm-cie">A80</td><td class="num">44</td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="nm-motivo">El boletín sólo la imprime en el resumen nacional de notificación inmediata, sin cifras por entidad.</td></tr>
+</tbody></table></div>
+</section>
+<section class="nm-grupo" id="grupo-sin_casos" aria-labelledby="titulo-sin_casos">
+<h2 id="titulo-sin_casos">Casos insuficientes o no publicados <span class="nm-cuenta">14</span></h2>
+<p>Con acumulados vacíos o de tres casos o menos en todo el país, la serie es casi toda cero. La prueba única de 2025 compara errores relativos y, entre ceros, ese error no está definido; el control estacional sólo repetiría ceros. En sarampión y paludismo por P. falciparum el guion del cuadro no significa ausencia de casos: es una cifra que el cuadro no publica.</p>
+<div class="table-scroll"><table class="nm-tabla">
+<caption>Casos insuficientes o no publicados: cifras impresas del boletín 44 de 2026 y motivo medido</caption>
+<thead><tr><th scope="col">Categoría</th><th scope="col">CIE impreso</th><th scope="col">Semana del cuadro</th><th scope="col">Casos de la semana</th><th scope="col">Acumulado 2026</th><th scope="col">Acumulado comparable 2025</th><th scope="col">Motivo medido</th></tr></thead><tbody>
+<tr id="cat-p14b1"><th scope="row">Cólera<span class="nm-sub">Infecciosas del aparato digestivo · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=14" target="_blank" rel="noopener">PDF, p. 14</a></span></th><td class="nm-cie">A00</td><td class="num">44</td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="nm-motivo">En el boletín 44 no imprime casos en 2026 ni en el acumulado comparable de 2025.</td></tr>
+<tr id="cat-p32b2"><th scope="row">Fiebre del oeste del Nilo<span class="nm-sub">Transmitidas por vector · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=32" target="_blank" rel="noopener">PDF, p. 32</a></span></th><td class="nm-cie">A92.3</td><td class="num">44</td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="nm-motivo">En el boletín 44 no imprime casos en 2026 ni en el acumulado comparable de 2025.</td></tr>
+<tr id="cat-p32b3"><th scope="row">Infección por virus Zika<span class="nm-sub">Transmitidas por vector · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=32" target="_blank" rel="noopener">PDF, p. 32</a></span></th><td class="nm-cie">U06.9</td><td class="num">44</td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num">3</td><td class="nm-motivo">En el boletín 44 no imprime casos en 2026; el acumulado comparable de 2025 suma tres casos en todo el país.</td></tr>
+<tr id="cat-p44b2"><th scope="row">Leishmaniasis visceral<span class="nm-sub">Interés local, regional o institucional · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=44" target="_blank" rel="noopener">PDF, p. 44</a></span></th><td class="nm-cie">B55.0</td><td class="num">44</td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num">2</td><td class="nm-motivo">En el boletín 44 no imprime casos en 2026; el acumulado comparable de 2025 suma dos casos en todo el país.</td></tr>
+<tr id="cat-p41b2"><th scope="row">Meningoencefalitis amebiana primaria<span class="nm-sub">Otras transmisibles · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=41" target="_blank" rel="noopener">PDF, p. 41</a></span></th><td class="nm-cie">B60.2</td><td class="num">44</td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num">1</td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="nm-motivo">En el boletín 44 el acumulado de 2026 suma un caso en todo el país; el comparable de 2025 no imprime casos.</td></tr>
+<tr id="cat-p43b2"><th scope="row">Oncocercosis<span class="nm-sub">Interés local, regional o institucional · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=43" target="_blank" rel="noopener">PDF, p. 43</a></span></th><td class="nm-cie">B73</td><td class="num">43</td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="nm-motivo">En el boletín 44 no imprime casos en 2026 ni en el acumulado comparable de 2025.</td></tr>
+<tr id="cat-p33b1"><th scope="row">Paludismo por Plasmodium falciparum<span class="nm-sub">Transmitidas por vector · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=33" target="_blank" rel="noopener">PDF, p. 33</a></span></th><td class="nm-cie">B50</td><td class="num">44</td><td class="num"><span class="marcador no-publicado" title="Cifra no publicada en este cuadro, no cero">–</span></td><td class="num"><span class="marcador no-publicado" title="Cifra no publicada en este cuadro, no cero">–</span></td><td class="num"><span class="marcador no-publicado" title="Cifra no publicada en este cuadro, no cero">–</span></td><td class="nm-motivo">El cuadro imprime guiones, también en 2025, aunque sus notas registran siete casos importados confirmados a la semana 53 de 2025: la cifra no se publica por entidad y no hay serie que modelar.</td></tr>
+<tr id="cat-p36b1"><th scope="row">Rabia humana por fauna silvestre<span class="nm-sub">Zoonóticas · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=36" target="_blank" rel="noopener">PDF, p. 36</a></span></th><td class="nm-cie">A82.0</td><td class="num">44</td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num">2</td><td class="nm-motivo">En el boletín 44 no imprime casos en 2026; el acumulado comparable de 2025 suma dos casos en todo el país.</td></tr>
+<tr id="cat-p36b2"><th scope="row">Rabia humana por fauna urbana<span class="nm-sub">Zoonóticas · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=36" target="_blank" rel="noopener">PDF, p. 36</a></span></th><td class="nm-cie">A82.1</td><td class="num">44</td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num">1</td><td class="nm-motivo">En el boletín 44 no imprime casos en 2026; el acumulado comparable de 2025 suma un caso en todo el país.</td></tr>
+<tr id="cat-p10b3"><th scope="row">Rubéola<span class="nm-sub">Prevenibles por vacunación · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=10" target="_blank" rel="noopener">PDF, p. 10</a></span></th><td class="nm-cie">B06</td><td class="num">44</td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="nm-motivo">En el boletín 44 no imprime casos en 2026 ni en el acumulado comparable de 2025.</td></tr>
+<tr id="cat-p10b2"><th scope="row">Sarampión<span class="nm-sub">Prevenibles por vacunación · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=10" target="_blank" rel="noopener">PDF, p. 10</a></span></th><td class="nm-cie">B05</td><td class="num">44</td><td class="num"><span class="marcador no-publicado" title="Cifra no publicada en este cuadro, no cero">–</span></td><td class="num"><span class="marcador no-publicado" title="Cifra no publicada en este cuadro, no cero">–</span></td><td class="num"><span class="marcador no-publicado" title="Cifra no publicada en este cuadro, no cero">–</span></td><td class="nm-motivo">El cuadro imprime guiones en todas sus columnas, también en 2025, aunque sus notas registran 6,152 casos confirmados a la semana 53 de 2025: la cifra no se publica por entidad y no hay serie que modelar.</td></tr>
+<tr id="cat-p13b1"><th scope="row">Síndrome de rubéola congénita<span class="nm-sub">Prevenibles por vacunación · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=13" target="_blank" rel="noopener">PDF, p. 13</a></span></th><td class="nm-cie">P35.0</td><td class="num">44</td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="nm-motivo">En el boletín 44 no imprime casos en 2026 ni en el acumulado comparable de 2025.</td></tr>
+<tr id="cat-p7b1"><th scope="row">Tétanos neonatal<span class="nm-sub">Prevenibles por vacunación · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=7" target="_blank" rel="noopener">PDF, p. 7</a></span></th><td class="nm-cie">A33</td><td class="num">44</td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num">1</td><td class="num">1</td><td class="nm-motivo">En el boletín 44 el acumulado de 2026 suma un caso y el comparable de 2025, un caso, en todo el país.</td></tr>
+<tr id="cat-p29b1"><th scope="row">Tifo epidémico<span class="nm-sub">Transmitidas por vector · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=29" target="_blank" rel="noopener">PDF, p. 29</a></span></th><td class="nm-cie">A75.0</td><td class="num">44</td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="num"><span class="marcador" title="Guion impreso: no se presentaron casos">–</span></td><td class="nm-motivo">En el boletín 44 no imprime casos en 2026 ni en el acumulado comparable de 2025.</td></tr>
+</tbody></table></div>
+</section>
+<section class="nm-grupo" id="grupo-sem_menos_uno" aria-labelledby="titulo-sem_menos_uno">
+<h2 id="titulo-sem_menos_uno">Total imputado en el año de prueba <span class="nm-cuenta">2</span></h2>
+<p>La regla del proyecto exige que el año de la prueba única, 2025, no tenga totales imputados. En estas categorías el boletín imprimió «-1» como casos de la semana en alguna entidad; esa celda no es un conteo y su semana tendría que imputarse.</p>
+<div class="table-scroll"><table class="nm-tabla">
+<caption>Total imputado en el año de prueba: cifras impresas del boletín 44 de 2026 y motivo medido</caption>
+<thead><tr><th scope="col">Categoría</th><th scope="col">CIE impreso</th><th scope="col">Semana del cuadro</th><th scope="col">Casos de la semana</th><th scope="col">Acumulado 2026</th><th scope="col">Acumulado comparable 2025</th><th scope="col">Motivo medido</th></tr></thead><tbody>
+<tr id="cat-p46b1"><th scope="row">Enfermedad febril exantemática<span class="nm-sub">Vigilancia sindromática · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=46" target="_blank" rel="noopener">PDF, p. 46</a></span></th><td class="nm-cie">U97</td><td class="num">44</td><td class="num">124</td><td class="num">30,847</td><td class="num">12,698</td><td class="nm-motivo">En 2025 el boletín imprimió «-1» como casos de la semana en Nayarit (boletín 18): esa semana se imputa y la prueba de 2025 no admite totales imputados.</td></tr>
+<tr id="cat-p12b2"><th scope="row">Influenza<span class="nm-sub">Prevenibles por vacunación · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=12" target="_blank" rel="noopener">PDF, p. 12</a></span></th><td class="nm-cie">J09-J11</td><td class="num">44</td><td class="num">374</td><td class="num">7,989</td><td class="num">12,225</td><td class="nm-motivo">En 2025 el boletín imprimió «-1» como casos de la semana en Jalisco (boletín 38) y Guanajuato (boletín 45): esas semanas se imputan y la prueba de 2025 no admite totales imputados.</td></tr>
+</tbody></table></div>
+</section>
+<section class="nm-grupo" id="grupo-sin_pliegues" aria-labelledby="titulo-sin_pliegues">
+<h2 id="titulo-sin_pliegues">Historia insuficiente <span class="nm-cuenta">9</span></h2>
+<p>Su cuadro propio existe sólo desde 2025 o 2026. La política más corta del proyecto exige al menos un año completo de historia antes del año de prueba para elegir un modelo y probarlo una sola vez; con estas series no lo hay.</p>
+<div class="table-scroll"><table class="nm-tabla">
+<caption>Historia insuficiente: cifras impresas del boletín 44 de 2026 y motivo medido</caption>
+<thead><tr><th scope="col">Categoría</th><th scope="col">CIE impreso</th><th scope="col">Semana del cuadro</th><th scope="col">Casos de la semana</th><th scope="col">Acumulado 2026</th><th scope="col">Acumulado comparable 2025</th><th scope="col">Motivo medido</th></tr></thead><tbody>
+<tr id="cat-p80b2"><th scope="row">Ahogamiento y sumersión no mortal<span class="nm-sub">Accidentes · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=80" target="_blank" rel="noopener">PDF, p. 80</a></span></th><td class="nm-cie">T75.1</td><td class="num">43</td><td class="num">3</td><td class="num">133</td><td class="num">41</td><td class="nm-motivo">Su cuadro propio aparece desde el boletín 48 de 2025: no hay un año completo de historia antes del año de prueba.</td></tr>
+<tr id="cat-p80b1"><th scope="row">Asfixia<span class="nm-sub">Accidentes · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=80" target="_blank" rel="noopener">PDF, p. 80</a></span></th><td class="nm-cie">T17.2 - T17.3</td><td class="num">43</td><td class="num">34</td><td class="num">1,575</td><td class="num">477</td><td class="nm-motivo">Su cuadro propio aparece desde el boletín 48 de 2025: no hay un año completo de historia antes del año de prueba.</td></tr>
+<tr id="cat-p79b2"><th scope="row">Contacto con calor y sustancias calientes<span class="nm-sub">Accidentes · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=79" target="_blank" rel="noopener">PDF, p. 79</a></span></th><td class="nm-cie">X10-X19</td><td class="num">43</td><td class="num">32</td><td class="num">1,837</td><td class="num">1,786</td><td class="nm-motivo">Su cuadro propio aparece desde el boletín 2 de 2025: no hay un año completo de historia antes del año de prueba.</td></tr>
+<tr id="cat-p78b2"><th scope="row">Contacto traumático con animales y plantas venenosas<span class="nm-sub">Accidentes · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=78" target="_blank" rel="noopener">PDF, p. 78</a></span></th><td class="nm-cie">X24-X29 excepto X26, X27</td><td class="num">43</td><td class="num">31</td><td class="num">897</td><td class="num">636</td><td class="nm-motivo">Su cuadro propio aparece desde el boletín 26 de 2025: no hay un año completo de historia antes del año de prueba.</td></tr>
+<tr id="cat-p58b2"><th scope="row">Depleción del volumen (deshidratación)<span class="nm-sub">No transmisibles · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=58" target="_blank" rel="noopener">PDF, p. 58</a></span></th><td class="nm-cie">E86</td><td class="num">43</td><td class="num">149</td><td class="num">8,610</td><td class="num">6,055</td><td class="nm-motivo">Su cuadro propio aparece desde el boletín 2 de 2025: no hay un año completo de historia antes del año de prueba.</td></tr>
+<tr id="cat-p78b1"><th scope="row">Envenenamiento accidental por, y exposición a sustancias nocivas<span class="nm-sub">Accidentes · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=78" target="_blank" rel="noopener">PDF, p. 78</a></span></th><td class="nm-cie">X40 - X49</td><td class="num">43</td><td class="num">68</td><td class="num">2,399</td><td class="num">1,429</td><td class="nm-motivo">Su cuadro propio aparece desde el boletín 2 de 2025: no hay un año completo de historia antes del año de prueba.</td></tr>
+<tr id="cat-p79b1"><th scope="row">Exposición al humo, fuego y llamas<span class="nm-sub">Accidentes · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=79" target="_blank" rel="noopener">PDF, p. 79</a></span></th><td class="nm-cie">X00-X09</td><td class="num">43</td><td class="num">38</td><td class="num">1,492</td><td class="num">1,467</td><td class="nm-motivo">Su cuadro propio aparece desde el boletín 2 de 2025: no hay un año completo de historia antes del año de prueba.</td></tr>
+<tr id="cat-p43b3"><th scope="row">Miasis<span class="nm-sub">Interés local, regional o institucional · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=43" target="_blank" rel="noopener">PDF, p. 43</a></span></th><td class="nm-cie">B87</td><td class="num">43</td><td class="num">26</td><td class="num">904</td><td class="num">182</td><td class="nm-motivo">Su cuadro propio aparece desde el boletín 2 de 2025: no hay un año completo de historia antes del año de prueba.</td></tr>
+<tr id="cat-p80b3"><th scope="row">Quemaduras solares<span class="nm-sub">Accidentes · <a href="/assets/boletin/2026-w44/boletin-4426.pdf#page=80" target="_blank" rel="noopener">PDF, p. 80</a></span></th><td class="nm-cie">L55</td><td class="num">43</td><td class="num">9</td><td class="num">665</td><td class="num">2</td><td class="nm-motivo">Su cuadro propio aparece desde el boletín 2 de 2026: no hay un año completo de historia antes del año de prueba.</td></tr>
+</tbody></table></div>
+</section>
+<p class="table-note" id="nmNota">«–» es el guion que imprime el boletín; su simbología lo define como «no se presentaron casos». En sarampión y paludismo por P. falciparum es una cifra que el cuadro no publica, no un cero (sus notas registran casos). Fuente: Boletín Epidemiológico 44 de 2026 del SINAVE, fecha de referencia / primera disponibilidad comprobada: 16 de noviembre de 2026. Las cifras se actualizan con cada boletín junto con el radar.</p>
+<!-- no-modelables:end -->
+      <div class="next-links">
+        <a href="boletin.html#catalogo">Ver cada categoría por entidad en el radar</a>
+        <a href="rechazados.html">Padecimientos analizados y rechazados</a>
+        <a href="epibot/index.html">Preguntar a EPI por una categoría</a>
+      </div>
+    </div>
+  </section>
+</main>
+<!-- site:footer:start -->
+<footer class="site-footer" lang="es">
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <a class="site-brand" href="index.html" aria-label="EpiForecast-MX, inicio"><span class="site-brand__name"><span class="site-brand__word">EpiForecast<span class="site-brand__mx">MX</span></span></span></a>
+      <p>Datos oficiales. Investigación abierta. Una mirada informada a la salud de México.</p>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Explorar</p>
+      <a href="Reports/index.html">Galería de pronósticos</a>
+      <a href="epibot/index.html">Pregúntale a EPI</a>
+      <a href="EpiDashboard.html">Dashboard</a>
+      <a href="boletin.html">Radar del boletín</a>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Evidencia</p>
+      <a href="validacion_semanal.html">Validación semanal</a>
+      <a href="reporte_resultados.html">Resultados</a>
+      <a href="referencias.html">Fuentes y referencias</a>
+      <a href="rechazados.html">Analizados y rechazados</a>
+      <a href="no_modelables.html">Categorías sin pronóstico</a>
+    </div>
+    <div class="site-footer__col">
+      <p class="site-footer__title">Proyecto</p>
+      <a href="novedades.html">Noticias</a>
+      <a href="index.html#congresos">Congresos</a>
+      <a href="EpiDashboard-tableau.html">Archivo Tableau (corte W31)</a>
+      <a href="https://github.com/IntegradorIMSS2026Team01" rel="noopener" target="_blank">GitHub ↗</a>
+    </div>
+  </div>
+  <div class="site-footer__legal"><span>© 2026 EpiForecast-MX · Tecnológico de Monterrey · IMSS · SINAVE</span><a href="#nav">Volver arriba ↑</a></div>
+</footer>
+<!-- site:footer:end -->
+<script src="assets/site/site-nav.js?v=4"></script>
+</body>
+</html>
