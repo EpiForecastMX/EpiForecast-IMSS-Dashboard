@@ -101,7 +101,9 @@ for (const q of CRISIS) {
 // Con vocabulario técnico, el id sensible conserva sus cifras.
 for (const [q, marca] of [
   ['X60 en Jalisco', 'ENVENENAMIENTO_ANALGESICOS_X60'],
-  ['¿cuántos casos de X60 hay en Jalisco en 2026?', 'ENVENENAMIENTO_ANALGESICOS_X60'],
+  // Decimotercera auditoría: un id sensible con cualquier verbo de petición en el turno («hay») da la crisis; la consulta
+  // técnica sin verbo conserva la ficha (la forma con «hay» se prueba en test_vocab14_codex_b44.mjs).
+  ['¿cuántos casos de X60 en Jalisco en 2026?', 'ENVENENAMIENTO_ANALGESICOS_X60'],
   ['pronóstico de VIH para mujeres en Sonora', 'VIH_B20'],
   ['cirrosis alcohólica en Jalisco hombres', 'CIRROSIS_ALCOHOLICA_K703'],
   ['Historia personal de lesión autoinfligida intencionalmente (intento de suicidio) en Jalisco', 'INTENTO_SUICIDIO_Z915'],

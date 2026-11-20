@@ -2096,18 +2096,20 @@
   /** Petición al bot que no va seguida de un sustantivo de datos y nombra un id sensible o un fragmento de daño. */
   function peticionDeDano(raw) {
     if (!peticionEn(raw)) return false;
-    if (idsSensiblesEn(raw).length && peticionDirecta(raw)) return true;
-    // Undécima auditoría: sin retorno temprano. Con un verbo de petición en el turno, todo fragmento de lesión o daño debe ir
-    // inmediatamente tras un sustantivo de datos («casos de asfixia»); en cualquier otra posición («dame datos y una herida»,
-    // «muestra una herida») es una petición de daño.
-    const toks = canonClinico(normLB(raw)).replace(/[^a-z0-9]+/g, ' ').trim().split(' ');
-    // Duodécima auditoría: ninguna exención por rótulo cuando hay un verbo de petición en cualquier posición del turno.
-    return toks.some((w, i) => {
-      if (!DANO.test(w)) return false;
-      let k = i - 1;
-      if (['la', 'el', 'los', 'las', 'un', 'una'].includes(toks[k])) k--;
-      if (['de', 'del', 'por', 'sobre'].includes(toks[k])) k--;
-      return !(k >= 0 && SUSTANTIVO_DATOS.test(toks[k]));
+    // Decimotercera auditoría: con un verbo de petición en cualquier parte del turno, toda cláusula que nombre un id sensible
+    // da la crisis, y en cada cláusula todo fragmento de lesión o daño debe ir inmediatamente tras un sustantivo de datos de
+    // ESA cláusula («dame datos, una intoxicación…» no lo justifica «datos»). Sin exención por rótulo.
+    return clausulasSignos(raw).some((toks) => {
+      if (idsSensiblesEn(toks.join(' ')).length) return true;
+      return toks.some((w, i) => {
+        if (!DANO.test(w)) return false;
+        // Sólo «sustantivo de datos + de/del/por/sobre (+ artículo) + daño» («casos de asfixia»); «datos una herida» no.
+        let k = i - 1;
+        if (['la', 'el', 'los', 'las', 'un', 'una'].includes(toks[k])) k--;
+        if (!['de', 'del', 'por', 'sobre'].includes(toks[k])) return true;
+        k--;
+        return !(k >= 0 && SUSTANTIVO_DATOS.test(toks[k]));
+      });
     });
   }
 
@@ -2171,16 +2173,20 @@
   // Duodécima auditoría: el anclaje no cruza coma, punto, punto y coma, dos puntos, signos de interrogación o exclamación ni
   // conjunción coordinante; cada cláusula se evalúa por separado y el turno vale sólo si todas sus cláusulas valen.
   const CONJUNCION = new Set(['y', 'e', 'o', 'u', 'ni', 'pero', 'sino', 'and', 'or', 'but', 'nor']);
-  function clausulas(raw) {
-    // Separadores como token «|»; un separador o una conjunción dentro del rótulo completo de un padecimiento o categoría
-    // («envenenamiento accidental por, y exposición a sustancias nocivas») no corta la cláusula.
-    const base = String(raw).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[,.;:!?¿¡\n]+/g, ' | ');
-    const toks = canonClinico(sinEstadoTecnico(base.replace(/\|/g, ' qqsepqq '))).replace(/[^a-z0-9]+/g, ' ').trim().split(' ')
+  // Decimotercera auditoría: DIVISOR ÚNICO de cláusulas, aplicado sobre el texto original antes de cualquier normalización.
+  // Todo carácter que no sea letra (con tildes y ñ), dígito o espacio separa cláusulas («,», «.», «…», «—», «–», «-»,
+  // comillas, paréntesis, barras, «:», «¿?», «¡!», saltos de línea…), salvo dentro de un fragmento completo reconocido: el
+  // punto decimal de un código CIE («A54.0») o el rótulo de un padecimiento o categoría que lleva signos.
+  function segmentos(raw) {
+    // Un guion entre dos letras o dígitos une una palabra compuesta («non-typhoidal», «2026-W43», «CIE-10»): no es un guion
+    // suelto. El punto decimal de un código CIE tampoco separa.
+    const conCodigo = String(raw).replace(/([A-Za-z]\d{2})\.(\d)/g, '$1 $2').replace(/([\p{L}\p{N}])-(?=[\p{L}\p{N}])/gu, '$1 ');
+    const base = conCodigo.replace(/[^\p{L}\p{N}\s]+/gu, ' qqsepqq ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const toks = canonClinico(sinEstadoTecnico(base)).replace(/[^a-z0-9]+/g, ' ').trim().split(' ')
       .filter(Boolean).map((w) => (w === 'qqsepqq' ? '|' : w));
     const palabrasIdx = toks.map((w, k) => k).filter((k) => toks[k] !== '|');
-    const plano = palabrasIdx.map((k) => toks[k]);
+    const txt = ` ${palabrasIdx.map((k) => toks[k]).join(' ')} `;
     const protegido = new Set();
-    const txt = ` ${plano.join(' ')} `;
     for (const f of todosLosFragmentos()) {
       if (!f.includes(' ')) continue;
       let desde = 0;
@@ -2190,9 +2196,28 @@
         const ini = txt.slice(0, pos + 1).trim().split(' ').filter(Boolean).length;
         const fin = ini + f.split(' ').length - 1;
         for (let k = palabrasIdx[ini]; k <= palabrasIdx[fin]; k++) protegido.add(k);
+        // Si el rótulo abre un signo dentro («volumen (deshidratación)»), el signo que lo cierra justo después también es suyo.
+        const abre = toks.slice(palabrasIdx[ini], palabrasIdx[fin] + 1).includes('|');
+        if (abre && toks[palabrasIdx[fin] + 1] === '|') protegido.add(palabrasIdx[fin] + 1);
         desde = pos + 1;
       }
     }
+    return { toks, protegido };
+  }
+  /** Cláusulas separadas sólo por signos (lista de tokens normalizados por cláusula). */
+  function clausulasSignos(raw) {
+    const { toks, protegido } = segmentos(raw);
+    const out = [];
+    let actual = [];
+    toks.forEach((w, k) => {
+      if (w === '|' && !protegido.has(k)) { if (actual.length) out.push(actual); actual = []; } else if (w !== '|') actual.push(w);
+    });
+    if (actual.length) out.push(actual);
+    return out;
+  }
+  /** Cláusulas para el anclaje de verbos: signos y además conjunciones coordinantes (fuera de un rótulo protegido). */
+  function clausulas(raw) {
+    const { toks, protegido } = segmentos(raw);
     const out = [];
     let actual = [];
     toks.forEach((w, k) => {
@@ -2211,16 +2236,25 @@
   }
   const DATOS_RUTA_INTERFAZ = /\b(panorama|kpis|tablero nacional)\b/;
   function analizaTurno(raw) {
-    // canonClinico reescribe variantes clínicas («amebiasis del hígado», «presión alta en embarazadas») a su forma canónica
-    // antes de buscar fragmentos completos: mismo criterio que los detectores de padecimiento.
-    let n = ` ${canonClinico(normLB(raw)).replace(/[^a-z0-9]+/g, ' ').trim()} `;
+    // Decimotercera auditoría: el turno se analiza cláusula por cláusula (divisor único `clausulasSignos`); una frase de
+    // petición, de edad o de consulta nunca se completa con palabras de otra cláusula.
+    const turno = ` ${canonClinico(normLB(raw)).replace(/[^a-z0-9]+/g, ' ').trim()} `;
+    // Sexta y novena auditorías: la edad sólo se retira en forma poblacional en tercera persona. Con una marca de primera o
+    // segunda persona, de un familiar o un verbo de petición EN CUALQUIER CLÁUSULA las frases de edad no se aplican.
+    const primeraPersona = /\b(tengo|tenia|tendre|soy|estoy|estaba|yo|me|conmigo|nosotros|nosotras|nos|nuestro|nuestra|nuestros|nuestras|estamos|tenemos|somos|vamos|podemos|queremos|cumplimos|cumplo|cumpli|tiene|tienen|mi|mis|my|we|our|us|i|im|i m|i ve|tienes|tenias|tendras|eres|estas|estes|estabas|te|tu|tus|ti|contigo|usted|ustedes|you|your|youre|you re)\b/.test(turno) || peticionEn(turno);
+    const partes = clausulasSignos(raw);
+    const acc = { resto: [], todos: [], fragmentos: 0 };
+    for (const p of (partes.length ? partes : [[]])) {
+      const r = analizaClausula(` ${p.join(' ')} `, primeraPersona);
+      acc.resto.push(...r.resto); acc.todos.push(...r.todos); acc.fragmentos += r.fragmentos;
+    }
+    for (const v of verbosSinAncla(raw)) if (!acc.resto.includes(v)) acc.resto.push(v);
+    return acc;
+  }
+  function analizaClausula(texto, primeraPersona) {
+    let n = texto;
     const cur = globalThis.EPI_VOCAB_CONSULTA;
     let fragmentosCie = 0;
-    const sinAncla = verbosSinAncla(raw);
-    // Sexta y novena auditorías: la edad sólo se retira en forma poblacional en tercera persona. Con una marca de primera o
-    // segunda persona o de
-    // un familiar («tengo», «soy», «mi hijo tiene», «I am») las frases de edad no se aplican y el número queda fuera.
-    const primeraPersona = /\b(tengo|tenia|tendre|soy|estoy|estaba|yo|me|conmigo|nosotros|nosotras|nos|nuestro|nuestra|nuestros|nuestras|estamos|tenemos|somos|vamos|podemos|queremos|cumplimos|cumplo|cumpli|tiene|tienen|mi|mis|my|we|our|us|i|im|i m|i ve|tienes|tenias|tendras|eres|estas|estes|estabas|te|tu|tus|ti|contigo|usted|ustedes|you|your|youre|you re)\b/.test(n) || peticionEn(n);
     n = retiraConocimiento(n);
     for (const re of (cur ? cur.frases : [])) if (!(primeraPersona && cur.frasesEdad && cur.frasesEdad.includes(re))) n = n.replace(re, ' ');
     // Códigos con forma CIE («h66 0», «a06 8», «a510», «n87»): técnicos aunque no sean de un bloque publicado.
@@ -2234,7 +2268,6 @@
     n = retiraFragmentosDeGuardas(n);
     const todos = n.split(' ').filter(Boolean).filter((w) => !(/^\d{4}$/.test(w) && +w >= 2014 && +w <= 2027));
     const resto = todos.filter((w) => !(cur && cur.palabras.has(w)) && !ALCOHOL_PERMITIDO.has(w));
-    for (const v of sinAncla) if (!resto.includes(v)) resto.push(v);
     return { resto, todos, fragmentos: fragmentos + fragmentosCie };
   }
   /** Tokens que quedan fuera del vocabulario cerrado tras retirar fragmentos y frases técnicas. */
@@ -2346,6 +2379,15 @@
 
   /** Texto fijo ante una señal de riesgo personal, o null. No pasa por ningún modelo. */
   function respuestaCrisis(qn) {
+    const r = respuestaCrisisTexto(String(qn));
+    if (r) return r;
+    // Decimotercera auditoría: el estado de crisis del turno es el OR de todas sus cláusulas.
+    const partes = clausulasSignos(String(qn));
+    if (partes.length < 2) return null;
+    for (const p of partes) { const rc = respuestaCrisisTexto(p.join(' ')); if (rc) return rc; }
+    return null;
+  }
+  function respuestaCrisisTexto(qn) {
     const raw = String(qn);
     const q = ` ${raw.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()} `;
     const idioma = () => (/\b(the|what|how|in|of|and|i|my)\b/.test(q) && !/\b(en|de|del|y|la|el)\b/.test(q) ? 'en' : 'es');
