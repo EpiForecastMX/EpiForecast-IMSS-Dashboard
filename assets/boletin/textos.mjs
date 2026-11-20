@@ -62,6 +62,41 @@ export function listaConY(xs) {
 const n = v => v.toLocaleString('es-MX');
 const pctTxt = v => `${v.toLocaleString('es-MX')} %`;
 
+/** Desglose de la cuarta tarjeta del panorama (publicado, exploratorio no validado y sin pronóstico). */
+export function detalleTarjeta(p) {
+  const partes = [`${n(p.publicado)} con pronóstico publicado`];
+  if (p.exploratorio) partes.push(`${n(p.exploratorio)} con pronóstico exploratorio, no validado`);
+  if (p.sin_pronostico) partes.push(`${n(p.sin_pronostico)} sin pronóstico`);
+  return `De ${n(p.total)}: ${partes.join('; ')}`;
+}
+
+const CLAVES_PANORAMA = ['con_pronostico', 'con_pronostico_palabras', 'categorias_total', 'categorias_publicadas', 'exploratorias',
+  'sin_pronostico', 'tarjeta_pronostico_detalle', 'panorama_resumen', 'anillo_estilo', 'anillo_aria'];
+
+/**
+ * Textos del panorama tal como los dejó en el HTML estático scripts/boletin_semana_activa.py (respaldo mientras
+ * llega pronostico_exploratorio.json, o si falla). Devuelve null si el respaldo falta o no cuadra con la foto:
+ * entonces sólo vale lo que se sabe sin el exploratorio (`textosPanorama(data, null)`), nunca un número inventado.
+ */
+export function panoramaDesdeRespaldo(doc, data) {
+  const t = {};
+  doc.querySelectorAll('[data-radar]').forEach(el => { if (CLAVES_PANORAMA.includes(el.dataset.radar)) t[el.dataset.radar] ??= el.textContent; });
+  doc.querySelectorAll('[data-radar-aria]').forEach(el => { if (CLAVES_PANORAMA.includes(el.dataset.radarAria)) t[el.dataset.radarAria] = el.getAttribute('aria-label'); });
+  doc.querySelectorAll('[data-radar-estilo]').forEach(el => { if (CLAVES_PANORAMA.includes(el.dataset.radarEstilo)) t[el.dataset.radarEstilo] = el.getAttribute('style'); });
+  const base = coberturaPanorama(data.diseases, null);
+  const ent = k => (/^\d+$/.test(t[k] ?? '') ? Number(t[k]) : NaN);
+  const con = ent('con_pronostico'), pub = ent('categorias_publicadas'), expl = ent('exploratorias');
+  const cuadra = pub === base.publicado && con === pub + expl && expl <= base.total - pub &&
+    t.con_pronostico_palabras && t.panorama_resumen && t.anillo_estilo && t.anillo_aria;
+  if (!cuadra) return null;
+  return {
+    ...t,
+    categorias_total: String(base.total),
+    sin_pronostico: String(base.total - con),
+    tarjeta_pronostico_detalle: detalleTarjeta({ total: base.total, publicado: pub, exploratorio: expl, sin_pronostico: base.total - con }),
+  };
+}
+
 /**
  * Textos de la huella de la plataforma y de la cuarta tarjeta del panorama, desde los datos: publicado y
  * exploratorio no validado siempre por separado. `pronostico` es pronostico_exploratorio.json (o null).
@@ -78,9 +113,6 @@ export function textosPanorama(data, pronostico) {
   const otras = sinRelease.length - noModelables - rechazadas;
   if (otras > 0) motivos.push(`${n(otras)} ${otras === 1 ? 'está' : 'están'} por incorporar`);
   const porque = motivos.length ? ` (${listaConY(motivos)})` : '';
-  const partes = [`${n(p.publicado)} con pronóstico publicado`];
-  if (p.exploratorio) partes.push(`${n(p.exploratorio)} con pronóstico exploratorio, no validado`);
-  if (p.sin_pronostico) partes.push(`${n(p.sin_pronostico)} sin pronóstico`);
   const formasDengue = data.diseases.filter(d => !d.aggregate && d.platform_id === 'dengue' && ['Publicada', 'Control publicado'].includes(d.status)).length;
   const dengue = formasDengue > 1 ? ` Dengue se reporta en ${numeroEnPalabras(formasDengue)} formas clínicas.` : '';
   const pctExpl = Math.round((p.pct_con_pronostico - p.pct_publicado) * 10) / 10;
@@ -102,7 +134,7 @@ export function textosPanorama(data, pronostico) {
     categorias_publicadas: String(p.publicado),
     exploratorias: String(p.exploratorio),
     sin_pronostico: String(p.sin_pronostico),
-    tarjeta_pronostico_detalle: `De ${n(p.total)}: ${partes.join('; ')}`,
+    tarjeta_pronostico_detalle: detalleTarjeta(p),
     panorama_resumen: `${n(p.publicados)} padecimientos publicados cubren ${n(p.publicado)} categorías del boletín.${dengue}${restantes}`,
     anillo_estilo: `--publicado:${p.pct_publicado}%;--con-pronostico:${p.pct_con_pronostico}%`,
     anillo_aria: `${n(p.con_pronostico)} de ${n(p.total)} categorías con pronóstico: ${n(p.publicado)} con pronóstico publicado (${pctTxt(p.pct_publicado)})` +

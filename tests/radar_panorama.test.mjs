@@ -104,8 +104,19 @@ print(json.dumps({'igual': nuevo == html, 'faltan': faltan}))
   assert.match(leer('scripts/boletin_semana_activa.py'), /pronostico_exploratorio\.json/);
 });
 
-/** DOM mínimo para correr radar.js en node, con fetch servido desde el disco. */
-async function bootRadar() {
+/** Elementos del respaldo estático de boletin.html (data-radar, data-radar-aria, data-radar-estilo). */
+function estaticos() {
+  const html = leer('boletin.html');
+  const mk = (attrs, text = '') => ({ dataset: attrs.dataset, textContent: unesc(text), _a: attrs.a,
+    getAttribute(k) { return this._a[k] ?? null; }, setAttribute(k, v) { this._a[k] = String(v); } });
+  const spans = [...html.matchAll(/<span data-radar="([^"]+)">([^<]*)<\/span>/g)].map(([, k, v]) => mk({ dataset: { radar: k }, a: {} }, v));
+  const tag = (attr, prop) => [...html.matchAll(new RegExp(`<\\w+\\b[^>]*\\b${attr}="([^"]+)"[^>]*>`, 'g'))].map(([t, k]) => mk({
+    dataset: { [prop]: k }, a: { 'aria-label': unesc(t.match(/aria-label="([^"]*)"/)?.[1] ?? ''), style: t.match(/style="([^"]*)"/)?.[1] ?? '' } }));
+  return { '[data-radar]': spans, '[data-radar-aria]': tag('data-radar-aria', 'radarAria'), '[data-radar-estilo]': tag('data-radar-estilo', 'radarEstilo') };
+}
+
+/** DOM mínimo para correr radar.js en node; `exploratorio(rel)` decide la respuesta de pronostico_exploratorio.json. */
+async function bootRadar({ exploratorio = null, conEstatico = false } = {}) {
   const byId = new Map();
   const el = (id) => {
     if (!byId.has(id)) {
@@ -116,26 +127,32 @@ async function bootRadar() {
     }
     return byId.get(id);
   };
+  const controles = [{ disabled: false }, { disabled: false }];
+  const est = conEstatico ? estaticos() : {};
   const saved = { document: globalThis.document, window: globalThis.window, fetch: globalThis.fetch, err: console.error };
   globalThis.window = { radarHistoria: historia };
-  globalThis.document = { getElementById: el, querySelectorAll: () => [], addEventListener() {} };
+  globalThis.document = {
+    getElementById: el, addEventListener() {},
+    querySelectorAll: (sel) => (sel.startsWith('.filters') ? controles : est[sel] ?? []),
+  };
   globalThis.fetch = async (url) => {
     const rel = String(url).replace(/^\//, '').replace(/\?.*$/, '');
+    if (rel.endsWith('pronostico_exploratorio.json') && exploratorio) return exploratorio(rel);
     return { ok: true, json: async () => JSON.parse(leer(rel)) };
   };
   const errores = [];
   console.error = (e) => { if (e instanceof Error) errores.push(e); };
   await import(`${pathToFileURL(resolve(root, 'assets/boletin/radar.js')).href}?t=${Math.random()}`);
   await new Promise((r) => setTimeout(r, 150));
-  Object.assign(globalThis, { document: saved.document, window: saved.window, fetch: saved.fetch });
-  console.error = saved.err;
-  return { el, errores };
+  const restaura = () => { Object.assign(globalThis, { document: saved.document, window: saved.window, fetch: saved.fetch }); console.error = saved.err; };
+  return { el, errores, controles, est, restaura };
 }
 
 test('radar.js: la cuarta tarjeta es «Categorías con pronóstico» con su desglose; se conserva «Padecimientos publicados»', async () => {
   const { textosPanorama } = await imp('assets/boletin/textos.mjs');
   const t = textosPanorama(data, doc);
-  const { el, errores } = await bootRadar();
+  const { el, errores, restaura } = await bootRadar();
+  restaura();
   assert.deepEqual(errores, []);
   const m = el('metrics').innerHTML;
   assert.doesNotMatch(m, /sin cobertura/);
@@ -155,4 +172,57 @@ test('EpiBot: la línea de cobertura dice lo mismo, sin cifras del exploratorio 
   const s = resumenRadar(compactaRadar(actual, data, null));
   assert.ok(s.includes(`- Categorías sin pronóstico publicado: **${E}**`), s);
   assert.doesNotMatch(s, /exploratorio/);
+});
+
+// Auditoría Codex (AUDITORIA_PANORAMA.md, media): con e16f974b el radar esperaba al exploratorio antes de pintar nada.
+test('exploratorio pendiente: métricas, tabla y controles disponibles; tarjeta y anillo con el respaldo estático', async () => {
+  const { textosPanorama } = await imp('assets/boletin/textos.mjs');
+  const t = textosPanorama(data, doc);
+  const v = await bootRadar({ conEstatico: true, exploratorio: () => new Promise(() => {}) });
+  try {
+    assert.deepEqual(v.errores, []);
+    assert.equal(v.el('loading').hidden, true, 'sin «Cargando…» permanente');
+    assert.equal(v.el('metrics').getAttribute('aria-busy'), 'false');
+    assert.ok(v.el('rows').innerHTML.includes('<tr>'), 'tabla del catálogo pintada');
+    assert.ok(v.controles.every((c) => c.disabled === false), 'controles habilitados');
+    const m = v.el('metrics').innerHTML;
+    assert.ok(m.includes(`<div class="metric-label">Categorías con pronóstico</div><strong>${t.con_pronostico}</strong><small>${t.tarjeta_pronostico_detalle}</small>`), m);
+    const anillo = v.est['[data-radar-aria]'][0];
+    assert.equal(anillo.getAttribute('aria-label'), t.anillo_aria);
+    assert.equal(v.est['[data-radar-estilo]'][0].getAttribute('style'), t.anillo_estilo);
+  } finally { v.restaura(); }
+  assert.match(leer('assets/boletin/radar.js'), /new AbortController\(\),t=setTimeout\(\(\)=>ctl\.abort\(\),EXPL_TIMEOUT_MS\)/);
+  assert.match(leer('assets/boletin/radar.js'), /const EXPL_TIMEOUT_MS=8000;/);
+});
+
+test('exploratorio fallido: queda el respaldo estático coherente, nunca «sin pronóstico» inventado', async () => {
+  const { textosPanorama } = await imp('assets/boletin/textos.mjs');
+  const t = textosPanorama(data, doc);
+  const v = await bootRadar({ conEstatico: true, exploratorio: async () => ({ ok: false, json: async () => null }) });
+  try {
+    assert.ok(v.el('metrics').innerHTML.includes(`<strong>${t.con_pronostico}</strong><small>${t.tarjeta_pronostico_detalle}</small>`));
+    assert.doesNotMatch(v.el('metrics').innerHTML, /sin pronóstico/);
+    assert.match(v.el('forecastCoverage').innerHTML, /No se pudo cargar el pronóstico exploratorio/);
+  } finally { v.restaura(); }
+});
+
+test('respaldo ausente o incoherente: sólo lo que se sabe sin el exploratorio, y se actualiza al llegar', async () => {
+  const { panoramaDesdeRespaldo, textosPanorama } = await imp('assets/boletin/textos.mjs');
+  const vacio = { querySelectorAll: () => [] };
+  assert.equal(panoramaDesdeRespaldo(vacio, data), null);
+  const est = estaticos();
+  est['[data-radar]'].find((e) => e.dataset.radar === 'categorias_publicadas').textContent = '999';
+  assert.equal(panoramaDesdeRespaldo({ querySelectorAll: (s) => est[s] ?? [] }, data), null, 'no cuadra con la foto');
+  const bien = panoramaDesdeRespaldo({ querySelectorAll: (s) => estaticos()[s] ?? [] }, data);
+  assert.deepEqual(bien, textosPanorama(data, doc));
+  let suelta;
+  const v = await bootRadar({ exploratorio: () => new Promise((r) => { suelta = r; }) });
+  try {
+    const sin = textosPanorama(data, null);
+    assert.ok(v.el('metrics').innerHTML.includes(`<strong>${sin.con_pronostico}</strong><small>${sin.tarjeta_pronostico_detalle}</small>`));
+    suelta({ ok: true, json: async () => doc });
+    await new Promise((r) => setTimeout(r, 50));
+    const con = textosPanorama(data, doc);
+    assert.ok(v.el('metrics').innerHTML.includes(`<strong>${con.con_pronostico}</strong><small>${con.tarjeta_pronostico_detalle}</small>`));
+  } finally { v.restaura(); }
 });
