@@ -93,9 +93,9 @@
   {
     "id": 10,
     "query": "hola como estas",
-    "expectedHandler": "answerSaludo",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "EpiForecast-MX"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -2413,9 +2413,9 @@
   {
     "id": 213,
     "query": "quien ganara en depresion este ano",
-    "expectedHandler": "answerPadecimiento",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Depresion"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -5493,9 +5493,9 @@
   {
     "id": 498,
     "query": "en que estas basado",
-    "expectedHandler": "answerProyectoMeta",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "SINAVE"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}

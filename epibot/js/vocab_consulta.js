@@ -6,7 +6,8 @@
  * artículos, conjunciones, interrogativos, cortesía sin verbo, nombres públicos del equipo, meses, variantes ortográficas de
  * esos términos y verbos impersonales o en tercera persona sin sujeto personal («afecta», «pronostican», «se esperan»). Una
  * forma cuya lectura en tercera persona es idéntica (imperfecto o condicional: «iba», «podría»; pretérito sin tilde:
- * «entrenó», «llegó», «construyó») se admite sólo por esa lectura.
+ * «entrenó», «llegó», «construyó») se admite sólo por esa lectura; una forma ambigua entre demostrativo y verbo de 1.ª o
+ * 2.ª persona («estas/estás», «este/esté») no entra (duodécima auditoría).
  * NUNCA entra como palabra suelta una forma verbal conjugada en primera o segunda persona, singular o plural (puedo, puedes,
  * tienes, sabes, quieres, siento, aguanto, soporto, estamos, dame, dime, muéstrame…), ni pronombres personales, posesivos o
  * reflexivos, parentesco o relaciones (yo, me, mi, te, tú, su, familiar, pareja, hijo…), verbos de deseo o necesidad (quiero,
@@ -73,7 +74,7 @@ globalThis.EPI_VOCAB_CONSULTA = Object.freeze({
     comparativa con contra crecido cual cuales cuando
     cuantas cuanto cuantos de del desarrollado desde dia dias dicho
     disminuido donde en entre esa ese
-    estas este favor gracias habido
+    favor gracias habido
     hasta hey hola hoy la las
     los mas menos nada no noches o onda para pero por
     pronosticado pronosticados que quien quienes

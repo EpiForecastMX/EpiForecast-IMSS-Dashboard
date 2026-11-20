@@ -10,12 +10,12 @@
  * follow-ups («¿y hombres?») y en consultas corregidas por typo, donde la consulta cruda ya no
  * nombra a Obesidad.
  */
-import { mencionaNoModelada } from './entities.js?v=79';
+import { mencionaNoModelada } from './entities.js?v=80';
 import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
-} from './obesidad_charts.js?v=48';
-import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=45';
+} from './obesidad_charts.js?v=49';
+import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=46';
 // Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
 import './avisos_fuente.js?v=5';
 

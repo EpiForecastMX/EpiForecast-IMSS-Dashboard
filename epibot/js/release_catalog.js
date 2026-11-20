@@ -2070,11 +2070,16 @@
   }
   // Décima auditoría Codex: verbos de petición o de segunda persona (`VERBOS_PETICION` de js/vocab_consulta.js). Con uno de
   // ellos la edad no se retira, un id sensible da la crisis y el turno nunca levanta la crisis.
+  // Duodécima auditoría: el predicado técnico de estado de un pronóstico («¿está validada…?», «¿es confiable…?», «¿fue
+  // rechazado…?») es una construcción fija sin sujeto personal, no un verbo de petición. Es la única excepción.
+  const ESTADO_TECNICO = /\b(esta|estan|es|son|fue|fueron|sera|seran) (validad[oa]s?|confiables?|aceptad[oa]s?|rechazad[oa]s?|publicad[oa]s?)\b/g;
+  const sinEstadoTecnico = (t) => normLB(t).replace(ESTADO_TECNICO, (m, v, adj) => adj);
   function peticionEn(texto) {
     const cur = globalThis.EPI_VOCAB_CONSULTA;
     if (!cur || !cur.verbosPeticion) return false;
-    const toks = new Set(normLB(texto).split(' '));
-    return cur.verbosPeticion.some((v) => toks.has(v)) || /\bme gustaria\b/.test(normLB(texto));
+    const limpio = sinEstadoTecnico(texto);
+    const toks = new Set(limpio.split(' '));
+    return cur.verbosPeticion.some((v) => toks.has(v)) || /\bme gustaria\b/.test(limpio);
   }
   /** Petición directa al bot: un verbo de petición propio («dame», «can you») o un verbo de la lista curada sin ancla. */
   function peticionDirecta(texto) {
@@ -2084,7 +2089,7 @@
     const n = ` ${canonClinico(normLB(texto)).replace(/[^a-z0-9]+/g, ' ').trim()} `;
     const toks = new Set(n.split(' '));
     return cur.verbosPeticion.some((v) => !curados.has(v) && toks.has(v)) || /\bme gustaria\b/.test(n) ||
-      verbosSinAncla(n).length > 0;
+      verbosSinAncla(texto).length > 0;
   }
   // Fragmentos de lesión o daño que, pedidos al bot sin un sustantivo de datos, se leen como una petición de daño.
   const DANO = /\b(herida|heridas|herir|lesion|lesiones|lesionar|dano|danos|golpe|golpes|intoxicacion|intoxicar|envenenamiento|envenenar|veneno|quemadura|quemaduras|asfixia|ahogamiento|ahorcamiento|sofocacion|estrangulamiento|disparo|arma|armas|bala|corte|cortante|navaja|cuchillo|sobredosis|mordedura|mordeduras|picadura|picaduras|intoxicaciones|envenenamientos|disparos|cortes|ahogamientos|wound|wounds|injury|injuries|harm|poison|poisoning|overdose|burn|burns|choking|gun|knife|bullet)\b/;
@@ -2096,19 +2101,9 @@
     // inmediatamente tras un sustantivo de datos («casos de asfixia»); en cualquier otra posición («dame datos y una herida»,
     // «muestra una herida») es una petición de daño.
     const toks = canonClinico(normLB(raw)).replace(/[^a-z0-9]+/g, ' ').trim().split(' ');
-    // Sin petición directa (sólo verbos curados anclados: «¿está validada la intoxicación por plaguicidas?»), un término de
-    // daño vale dentro del rótulo completo de un padecimiento publicado no sensible; nunca suelto («una herida»).
-    const enRotulo = new Set();
-    if (!peticionDirecta(raw)) {
-      const txt = ` ${toks.join(' ')} `;
-      for (const f of todosLosFragmentos()) {
-        if (!f.includes(' ') || idsSensiblesEn(f).length || nombraReleaseSensible(f) || !txt.includes(` ${f} `)) continue;
-        const ini = txt.slice(0, txt.indexOf(` ${f} `) + 1).trim().split(' ').filter(Boolean).length;
-        f.split(' ').forEach((_, d) => enRotulo.add(ini + d));
-      }
-    }
+    // Duodécima auditoría: ninguna exención por rótulo cuando hay un verbo de petición en cualquier posición del turno.
     return toks.some((w, i) => {
-      if (!DANO.test(w) || enRotulo.has(i)) return false;
+      if (!DANO.test(w)) return false;
       let k = i - 1;
       if (['la', 'el', 'los', 'las', 'un', 'una'].includes(toks[k])) k--;
       if (['de', 'del', 'por', 'sobre'].includes(toks[k])) k--;
@@ -2173,13 +2168,46 @@
     return toks.slice(0, i).some((w) => INTERROGATIVO.has(w));
   }
 
-  /** Verbos de la lista curada que aparecen sin ancla en el turno normalizado. */
-  function verbosSinAncla(n) {
+  // Duodécima auditoría: el anclaje no cruza coma, punto, punto y coma, dos puntos, signos de interrogación o exclamación ni
+  // conjunción coordinante; cada cláusula se evalúa por separado y el turno vale sólo si todas sus cláusulas valen.
+  const CONJUNCION = new Set(['y', 'e', 'o', 'u', 'ni', 'pero', 'sino', 'and', 'or', 'but', 'nor']);
+  function clausulas(raw) {
+    // Separadores como token «|»; un separador o una conjunción dentro del rótulo completo de un padecimiento o categoría
+    // («envenenamiento accidental por, y exposición a sustancias nocivas») no corta la cláusula.
+    const base = String(raw).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[,.;:!?¿¡\n]+/g, ' | ');
+    const toks = canonClinico(sinEstadoTecnico(base.replace(/\|/g, ' qqsepqq '))).replace(/[^a-z0-9]+/g, ' ').trim().split(' ')
+      .filter(Boolean).map((w) => (w === 'qqsepqq' ? '|' : w));
+    const palabrasIdx = toks.map((w, k) => k).filter((k) => toks[k] !== '|');
+    const plano = palabrasIdx.map((k) => toks[k]);
+    const protegido = new Set();
+    const txt = ` ${plano.join(' ')} `;
+    for (const f of todosLosFragmentos()) {
+      if (!f.includes(' ')) continue;
+      let desde = 0;
+      for (;;) {
+        const pos = txt.indexOf(` ${f} `, desde);
+        if (pos < 0) break;
+        const ini = txt.slice(0, pos + 1).trim().split(' ').filter(Boolean).length;
+        const fin = ini + f.split(' ').length - 1;
+        for (let k = palabrasIdx[ini]; k <= palabrasIdx[fin]; k++) protegido.add(k);
+        desde = pos + 1;
+      }
+    }
+    const out = [];
+    let actual = [];
+    toks.forEach((w, k) => {
+      if (protegido.has(k)) { if (w !== '|') actual.push(w); return; }
+      if (w === '|' || CONJUNCION.has(w)) { if (actual.length) out.push(actual); actual = []; } else actual.push(w);
+    });
+    if (actual.length) out.push(actual);
+    return out;
+  }
+  /** Verbos de la lista curada que aparecen sin ancla en alguna cláusula del turno. */
+  function verbosSinAncla(raw) {
     const cur = globalThis.EPI_VOCAB_CONSULTA;
     if (!cur || !cur.verbosCurados) return [];
     const V = new Set(cur.verbosCurados);
-    const toks = n.split(' ').filter(Boolean);
-    return toks.filter((w, i) => V.has(w) && !verboAnclado(toks, i));
+    return clausulas(raw).flatMap((toks) => toks.filter((w, i) => V.has(w) && !verboAnclado(toks, i)));
   }
   const DATOS_RUTA_INTERFAZ = /\b(panorama|kpis|tablero nacional)\b/;
   function analizaTurno(raw) {
@@ -2188,11 +2216,11 @@
     let n = ` ${canonClinico(normLB(raw)).replace(/[^a-z0-9]+/g, ' ').trim()} `;
     const cur = globalThis.EPI_VOCAB_CONSULTA;
     let fragmentosCie = 0;
-    const sinAncla = verbosSinAncla(n);
+    const sinAncla = verbosSinAncla(raw);
     // Sexta y novena auditorías: la edad sólo se retira en forma poblacional en tercera persona. Con una marca de primera o
     // segunda persona o de
     // un familiar («tengo», «soy», «mi hijo tiene», «I am») las frases de edad no se aplican y el número queda fuera.
-    const primeraPersona = /\b(tengo|tenia|tendre|soy|estoy|estaba|yo|me|conmigo|nosotros|nosotras|nos|nuestro|nuestra|nuestros|nuestras|estamos|tenemos|somos|vamos|podemos|queremos|cumplimos|cumplo|cumpli|tiene|tienen|mi|mis|my|we|our|us|i|im|i m|i ve|tienes|tenias|tendras|eres|te|tu|tus|ti|contigo|usted|ustedes|you|your|youre|you re)\b/.test(n) || peticionEn(n);
+    const primeraPersona = /\b(tengo|tenia|tendre|soy|estoy|estaba|yo|me|conmigo|nosotros|nosotras|nos|nuestro|nuestra|nuestros|nuestras|estamos|tenemos|somos|vamos|podemos|queremos|cumplimos|cumplo|cumpli|tiene|tienen|mi|mis|my|we|our|us|i|im|i m|i ve|tienes|tenias|tendras|eres|estas|estes|estabas|te|tu|tus|ti|contigo|usted|ustedes|you|your|youre|you re)\b/.test(n) || peticionEn(n);
     n = retiraConocimiento(n);
     for (const re of (cur ? cur.frases : [])) if (!(primeraPersona && cur.frasesEdad && cur.frasesEdad.includes(re))) n = n.replace(re, ' ');
     // Códigos con forma CIE («h66 0», «a06 8», «a510», «n87»): técnicos aunque no sean de un bloque publicado.
@@ -2323,7 +2351,7 @@
     const idioma = () => (/\b(the|what|how|in|of|and|i|my)\b/.test(q) && !/\b(en|de|del|y|la|el)\b/.test(q) ? 'en' : 'es');
     const riesgo = riesgoPersonal(q) || ingestionPropia(q) || lexicoRiesgo(raw) || (peticionDeDano(raw) ? idioma() : null) ||
       (EMOJI_RIESGO.test(raw) ? idioma() : null) ||
-      ((idsSensiblesEn(q).length && simbolosNoTecnicos(raw)) || fueraDeListaBlanca(q) ? idioma() : null);
+      ((idsSensiblesEn(q).length && simbolosNoTecnicos(raw)) || fueraDeListaBlanca(raw) ? idioma() : null);
     if (riesgo === 'es') return CRISIS_TEXTO_ES;
     if (riesgo === 'en') return CRISIS_TEXTO_EN;
     if (CRISIS_ES.test(q) || VIOLENCIA_ES.test(q)) return CRISIS_TEXTO_ES;

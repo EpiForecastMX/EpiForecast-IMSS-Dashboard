@@ -95,7 +95,8 @@ add('saludos', 'answerSaludo', ['EpiForecast-MX']);
 add('hola buenos dias', 'answerSaludo', ['EpiForecast-MX']);
 add('que onda', 'answerSaludo', ['EpiForecast-MX']);
 add('buenas noches', 'answerSaludo', ['EpiForecast-MX']);
-add('hola como estas', 'answerSaludo', ['EpiForecast-MX']);
+// Duodécima auditoría: «estás/estas» y «esté/este» (ambiguas con verbo de 1.ª o 2.ª persona) ya no son vocabulario.
+add('hola como estas', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
 add('EpiForecast-MX', 'answerSaludo', ['Ordename', 'Generalizaci']);
 add('epiforecast', 'answerSaludo', ['Ordename', 'Generalizaci']);
 
@@ -379,7 +380,8 @@ add('estadisticas de alzheimer', 'answerPadecimiento', ['Alzheimer']);
 add('modelo ganador de depresion', 'answerPadecimiento', ['Depresion']);
 add('rendimiento de los modelos de parkinson', 'answerPadecimiento', ['Parkinson', AVISO], SIN_VALORES);
 add('que modelo gana en depresion', 'answerPadecimiento', ['Depresion']);
-add('quien ganara en depresion este ano', 'answerPadecimiento', ['Depresion']);
+// Duodécima auditoría: «estás/estas» y «esté/este» (ambiguas con verbo de 1.ª o 2.ª persona) ya no son vocabulario.
+add('quien ganara en depresion este ano', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
 add('ranking de depresion', 'answerBoletin', ['Depresion']);
 add('que estados tienen mas parkinson', 'answerBoletin', ['Parkinson']);
 add('donde hay mas alzheimer', 'answerBoletin', ['Alzheimer']);
@@ -871,7 +873,8 @@ add('que sabes del alzheimer en jalisco', 'answerSpecificSeries', ['Alzheimer', 
 
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
 add('en que te basas', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
-add('en que estas basado', 'answerProyectoMeta', ['SINAVE']);
+// Duodécima auditoría: «estás/estas» y «esté/este» (ambiguas con verbo de 1.ª o 2.ª persona) ya no son vocabulario.
+add('en que estas basado', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
 add('como funcionas', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
 add('de donde sacas los datos', 'answerProyectoMeta', ['SINAVE']);
 add('que modelos usas', 'answerProyectoMeta', ['Prophet', 'DeepAR']);
