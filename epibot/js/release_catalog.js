@@ -2329,17 +2329,28 @@
     return /800 911 2000/.test(t) && !respuestaConDatos(t) && !/\]\([^)]*\)|\.html\b|href=/.test(t);
   }
   // Primera persona: el turno habla de quien escribe («me quemé», «tengo 15 años», «estoy…», «I…», «my…»).
-  const PRIMERA_PERSONA = /\b(me|mi|mis|yo|conmigo|tengo|tenia|tuve|estoy|estaba|estuve|soy|siento|sentia|quiero|quisiera|puedo|ando|hice|i|im|ive|my|me|myself|mine)\b/;
+  const PRIMERA_PERSONA = /\b(me|mi|mis|yo|conmigo|nos|nosotros|nosotras|nuestro|nuestra|nuestros|nuestras|tengo|tenia|tuve|estoy|estaba|estuve|soy|siento|sentia|quiero|quisiera|puedo|ando|hice|i|im|ive|my|me|myself|mine)\b/;
+  const BLOQUE_APOYO_ES = 'Si tú o alguien cercano necesita apoyo, la **Línea de la Vida** atiende gratis, las 24 horas, ' +
+    'todos los días: **800 911 2000**. Si alguien está en peligro inmediato, llama al **911**.';
+  const BLOQUE_APOYO_EN = 'If you or someone near you needs support, **Línea de la Vida** in Mexico is free and open 24 hours a ' +
+    'day, every day: **800 911 2000**. If someone is in immediate danger, call **911**.';
+  /** Texto de un enlace sin su destino (markdown o HTML): ante vocabulario desconocido no se enlaza ninguna página. */
+  const sinEnlaces = (md) => String(md).replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/<a\b[^>]*>([\s\S]*?)<\/a>/gi, '$1');
   /**
-   * Auditoría Codex de no modelables: ¿puede emitirse esta respuesta local ante un turno fuera del vocabulario? La de ayuda
-   * (crisis o apoyo con la Línea de la Vida) siempre; cualquier otra nunca si lleva cifras o el turno habla en primera
-   * persona («Quemaduras solares en Jalisco, me quemé»), aunque no tenga cifras y enlace una ficha. Las aclaraciones sin
-   * cifras de un turno técnico («chagas en Jalisco», «eres humano») se conservan.
+   * Re-auditoría Codex de no modelables: salida ÚNICA ante un turno con al menos un token fuera del vocabulario, en KB y RAG.
+   * Nunca sale sin la Línea de la Vida. La respuesta de ayuda (crisis o apoyo) pasa tal cual; si la alternativa lleva cifras
+   * o gráfica, está vacía o el turno habla en primera persona, sólo el apoyo fijo; en otro caso se conserva el texto
+   * aclaratorio sin enlaces a páginas y se le añade el bloque de apoyo.
    */
-  function conservaFueraDeVocabulario(raw, md) {
-    if (esRespuestaDeAyuda(md)) return true;
-    if (respuestaConDatos(md)) return false;
-    return !PRIMERA_PERSONA.test(` ${normLB(raw)} `);
+  function salidaFueraDeVocabulario(raw, md) {
+    const t = String(md ?? '');
+    if (esRespuestaDeAyuda(t)) return t;
+    const en = pareceIngles(raw);
+    if (!t.replace(/<!--[\s\S]*?-->/g, '').trim() || respuestaConDatos(t) || PRIMERA_PERSONA.test(` ${normLB(raw)} `)) {
+      return en ? APOYO_EN : APOYO_ES;
+    }
+    const limpio = sinEnlaces(t).replace(/\n?<!--SIN_GRAFICA-->/g, '').trim();
+    return `${limpio}\n\n${en ? BLOQUE_APOYO_EN : BLOQUE_APOYO_ES}\n<!--SIN_GRAFICA-->`;
   }
   const pareceIngles = (raw) => {
     const q = ` ${normLB(raw)} `;
@@ -2604,7 +2615,7 @@
     mencionaNoModelada, conHipertensionNombrada, respuestaCrisis, subtipoAjeno, aliasAmbiguo,
     motivoRechazo, crisisEnTurnos, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, idsSensiblesEn,
     alcoholCalificado, IDS_LISTA_BLANCA, _VOCAB_TECNICO: VOCAB_TECNICO, _FRAGMENTOS_GUARDAS: FRAGMENTOS_GUARDAS, fueraDeVocabulario, respuestaFueraDeVocabulario,
-    restoFuera, tieneFragmentoDeDatos, respuestaConDatos, esRespuestaDeAyuda, conservaFueraDeVocabulario, APOYO_ES, APOYO_EN, pareceIngles, normalizaEntrada,
+    restoFuera, tieneFragmentoDeDatos, respuestaConDatos, esRespuestaDeAyuda, salidaFueraDeVocabulario, APOYO_ES, APOYO_EN, pareceIngles, normalizaEntrada,
     ALIAS_LEGACY, padecimientosEnConsulta, releasesEnConsulta,
   });
 })(globalThis);

@@ -128,7 +128,10 @@ for (const conv of NO_PUBLICADOS) {
     assert.match(k.md, /no modela/, `${conv.join(' → ')}: ${k.md.slice(0, 200)}`);
     const r = String((await ragTurno(...conv)).answer);
     assert.match(r, /no modela/, `${conv.join(' → ')}: ${r.slice(0, 200)}`);
-    assert.doesNotMatch(r, /\bcasos\b/, conv.join(' → '));
+    // Re-auditoría Codex de no modelables (20-nov-2026): los 32 códigos no modelables del radar llegan en la función RAG a su
+    // tarjeta con motivo medido y cifras impresas; «A00» es la de cólera (sin pronóstico). Los demás siguen sin «casos».
+    if (conv.at(-1) === 'A00 en Sonora') assert.match(r, /^\*\*Cólera \(A00\)\*\*: EpiForecast-MX \*\*no modela\*\*/, r.slice(0, 120));
+    else assert.doesNotMatch(r, /\bcasos\b/, conv.join(' → '));
   });
 }
 for (const q of ['B50.0 en Jalisco', 'B50.9', 'b50 0 en Sonora', 'falciparum']) {

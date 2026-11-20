@@ -986,10 +986,14 @@ export default async function handler(req) {
   if (!q || body.health === true || !C.fueraDeVocabulario(q)) return handlerInterno(req);
   const res = await handlerInterno(new Request(req.url, { method: 'POST', headers: req.headers, body: JSON.stringify({ ...body, stream: false }) }));
   const datos = await res.clone().json().catch(() => null);
-  // Auditoría Codex de no modelables: con un token fuera del vocabulario, una respuesta con cifras, o cualquiera ante un turno
-  // en primera persona («…, me quemé»), sólo pasa si es la de ayuda (crisis o apoyo con la Línea de la Vida).
-  if (datos && typeof datos.answer === 'string' && (!datos.retrieval || datos.retrieval === 'none') &&
-      C.conservaFueraDeVocabulario(q, datos.answer)) return res;
+  // Re-auditoría Codex de no modelables: con un token fuera del vocabulario nunca sale una respuesta sin la Línea de la Vida.
+  // Una respuesta fija (sin recuperación ni modelo) pasa por la salida única del catálogo: la de ayuda tal cual; con cifras,
+  // gráfica o primera persona, el apoyo; si no, la aclaración sin enlaces y con el bloque de apoyo.
+  if (datos && typeof datos.answer === 'string' && C.esRespuestaDeAyuda(datos.answer)) return res;
+  if (res.status === 200 && datos && typeof datos.answer === 'string' && (!datos.retrieval || datos.retrieval === 'none')) {
+    const salida = C.salidaFueraDeVocabulario(q, datos.answer).replace(/\n?<!--SIN_GRAFICA-->/g, '');
+    return json({ ...datos, answer: salida, sources: [], retrieval: 'none', guarda: datos.guarda || 'vocabulario' }, 200, corsHeaders(req));
+  }
   const apoyo = (C.pareceIngles(q) ? C.APOYO_EN : C.APOYO_ES).replace('\n<!--SIN_GRAFICA-->', '');
   return json({ answer: apoyo, sources: [], retrieval: 'none', guarda: 'vocabulario' }, 200, corsHeaders(req));
 }
@@ -1053,12 +1057,10 @@ async function handlerInterno(req) {
   }
   // Subtipo con código propio vecino de un bloque publicado: respuesta fija, sin modelo ni cifras, para
   // que ni la recuperación ni Gemini le atribuyan el pronóstico del bloque vecino.
-  // Categoría del boletín sin pronóstico pedida por su nombre completo, o por su código cuando la guarda de vecinos la
-  // taparía con la aclaración de un bloque publicado (alta_b44): motivo medido y cifras impresas («tétanos neonatal» o
-  // «A33» no son «Tétanos (A34, A35)»). Un código sin vecino publicado conserva la respuesta fija sin cifras.
+  // Categoría del boletín sin pronóstico pedida por su nombre completo o su código (alta_b44; re-auditoría: los 32 códigos):
+  // motivo medido y cifras impresas, antes de la guarda de vecinos («tétanos neonatal» o «A33» no son «Tétanos (A34, A35)»).
   const ajeno = globalThis.EPI_CATALOGO.subtipoAjeno(stripAccents(qEfectiva));
-  const conVecino = Boolean(ajeno && globalThis.EPI_CATALOGO.releases.some((r) => r.id === ajeno.release));
-  const noModelable = respuestaNoModelableRag(qEfectiva, leerRadar(), { codigos: conVecino });
+  const noModelable = respuestaNoModelableRag(qEfectiva, leerRadar());
   if (noModelable) return json({ answer: noModelable, sources: [], retrieval: 'none', guarda: 'no_modelable' }, 200, cors);
   if (ajeno) {
     const vecino = globalThis.EPI_CATALOGO.releases.find((r) => r.id === ajeno.release);

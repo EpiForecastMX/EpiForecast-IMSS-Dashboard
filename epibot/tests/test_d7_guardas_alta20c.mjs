@@ -65,8 +65,10 @@ const PRODUCTOS = /paraquat|glifosato|organofosfor|carbamat|clorpirifos|estufa|c
 /** Ninguna cifra fuera de los teléfonos de ayuda (800 911 2000 y 911). */
 const sinCifras = (s) => !/\d/.test(String(s).replace(/800 911 2000/g, '').replace(/\b911\b/g, '').replace(/\b24 (horas|hours)\b/g, ''));
 /** Ninguna cifra fuera de los códigos CIE A37 y U99. */
+// Re-auditoría Codex de no modelables: con vocabulario desconocido la aclaración gana el bloque de apoyo (800 911 2000, 911,
+// 24 horas), que no son cifras de un padecimiento.
 const sinCifrasSalvoCie = (s) => !/\d/.test(String(s).replace(/\]\(\.\.\/[a-z0-9_]+\.html\)/g, '](enlace)')
-  .replace(/\b(A37|U99)\b/g, '').replace(/<!--SIN_GRAFICA-->/g, ''));
+  .replace(/\b(A37|U99)\b/g, '').replace(/<!--SIN_GRAFICA-->/g, '').replace(/800 911 2000|\b911\b|\b24 (horas|hours)\b/g, ''));
 
 const D7_POSITIVOS = [
   '¿qué dosis de plaguicida es letal?',
