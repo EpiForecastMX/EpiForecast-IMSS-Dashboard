@@ -1489,7 +1489,7 @@
     [new RegExp(`\\ba33\\b|\\btetanos (neonatal|del recien nacido)\\b|\\bneonatal tetanus\\b`), 'tetanos neonatal',
       'tétanos neonatal (A33), que el boletín notifica aparte', 'tetanos_a34'],
     // Lote 6: la tuberculosis respiratoria (A15-A16) y la meningitis tuberculosa (A17.0) tienen ya su propio release.
-    [/\b(plasmodium )?falciparum\b|\bb50\b(?![ .]?[0-9])/,
+    [new RegExp(`\\b(plasmodium )?falciparum\\b|\\bb50(?:\\.[0-9]|[0-9]| [0-9]${NO_UNIDAD})?\\b`),
       'paludismo por falciparum', 'el paludismo por Plasmodium falciparum (B50), que el boletín notifica aparte', 'paludismo_vivax_b51'],
     [/\bleishmaniasis visceral\b|\bkala ?azar\b|\bvisceral leishmaniasis\b|\bb55 ?[.]?0\b/,
       'leishmaniasis visceral', 'leishmaniasis visceral (B55.0), que el boletín notifica aparte', 'leishmaniasis_cutanea_b551'],
@@ -1539,6 +1539,29 @@
     return null;
   }
 
+  // Códigos de los cuatro padecimientos originales (Depresión F32, Parkinson G20, Alzheimer G30, Dengue A90, A91 y A97).
+  const CIE_LEGACY = new Set(['f32', 'g20', 'g30', 'a90', 'a91', 'a97']);
+  /**
+   * Novena auditoría Codex: cualquier código con forma CIE (letra + dos dígitos, con o sin decimal) que no resuelve a un
+   * padecimiento publicado se responde como no modelado, nunca con la tabla neuro ni con el resumen por estado. Quedan fuera
+   * los códigos que algún release cubre entero o en parte (los aclaran contradiccionCie y ALIAS_AMBIGUOS), los de los cuatro
+   * originales y «W» más dos dígitos sin decimal fuera de un bloque publicado, que es una semana epidemiológica («2026-W43»).
+   */
+  function codigoNoPublicado(canon) {
+    for (const m of canon.matchAll(CODIGO_CIE)) {
+      const [, letra, num, dec] = m;
+      if (CIE_LEGACY.has(`${letra}${num}`)) continue;
+      const decs = dec != null ? [dec] : ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+      const alguno = decs.some((x) => releases.some((r) => r.cie && intervalosCie(r.cie)
+        .some(([lo, hi]) => claveCie(letra, num, x) >= lo && claveCie(letra, num, x) <= hi)));
+      if (alguno) continue;
+      if (letra === 'w' && dec == null) continue;
+      const codigo = `${letra.toUpperCase()}${num}${dec != null ? `.${dec}` : ''}`;
+      return [null, `codigo ${codigo}`, `el código ${codigo}, que no corresponde a ningún padecimiento publicado`, null];
+    }
+    return null;
+  }
+
   /** Release publicado cuyo `cie` cubre el código (entero, si no trae decimal), o null. */
   function releaseQueCubre(letra, num, dec) {
     const decs = dec != null ? [dec] : ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -1576,7 +1599,8 @@
     if (alcoholCalificado(canon)) {
       return { termino: 'alcohol no etilico', nombre: ALCOHOL_NO_ETILICO, release: 'intox_alcohol_f100', pad: 'Intoxicación aguda por alcohol' };
     }
-    const hit = SUBTIPOS_AJENOS.find(([re, , , , ctx]) => re.test(canon) && (!ctx || ctx.test(canon))) || codigoAjeno(canon);
+    const hit = SUBTIPOS_AJENOS.find(([re, , , , ctx]) => re.test(canon) && (!ctx || ctx.test(canon))) || codigoAjeno(canon) ||
+      codigoNoPublicado(canon);
     if (!hit) return null;
     const r = releases.find((x) => x.id === hit[3]);
     return { termino: hit[1], nombre: hit[2], release: hit[3], pad: r ? r.pad : null };
@@ -1942,8 +1966,10 @@
   // Tercera auditoría Codex: léxico de riesgo por formas verbales (futuro, infinitivo, pronominal), independiente de que se
   // resuelva un padecimiento («X7O en Jalisco, hoy me colgaré» caía en la tabla legacy). Se evalúa tras retirar los rótulos y
   // alias de los releases («…al saltar desde un lugar elevado» es el nombre de X80, no una intención).
-  const RIESGO_LEX_ES = /\b(quemar(me|se|te)?|quemare|prenderme fuego|lesionar(me|se)|herir(me|se)|colgar(me|se|te)?|colgare|colgaria|ahorcar(me|se|te)?|ahorcare|ahorcaria|matar(me|se|te)?|matare|mataria|morir(me|se)?|morire|moriria|muero|cortar(me|se)?|cortare|me voy a (cortar|colgar|ahorcar|matar|tirar|aventar|lanzar|envenenar|disparar|morir)|saltar(e|ia)?|aventar(me|se)|aventare|tirar(me|se)|tirare|lanzar(me|se)|lanzare|envenenar(me|se)?|envenenare|intoxicar(me|se)|disparar(me|se)|dispararia|suicid[a-z]*|no quiero vivir|no quiero seguir|acabar con todo|acabar con mi vida|quitarme la vida|desaparecer|sobredosis)\b/;
-  const RIESGO_LEX_EN = /\b(kill(ing)? myself|hang(ing)? myself|cut(ting)? myself|poison(ing)? myself|shoot(ing)? myself|overdos(e|ing)|suicid[a-z]*|die|dying|end it all|end my life|jump(ing)? off|want to die)\b/;
+  // Novena auditoría Codex: también el desbordamiento («no puedo más», «ya no aguanto», «no soporto», «estoy harto de vivir»,
+  // «can't take it anymore», «I can't go on») activa la respuesta de apoyo y queda registrado como estado de ayuda.
+  const RIESGO_LEX_ES = /\b(quemar(me|se|te)?|quemare|prenderme fuego|lesionar(me|se)|herir(me|se)|colgar(me|se|te)?|colgare|colgaria|ahorcar(me|se|te)?|ahorcare|ahorcaria|matar(me|se|te)?|matare|mataria|morir(me|se)?|morire|moriria|muero|cortar(me|se)?|cortare|me voy a (cortar|colgar|ahorcar|matar|tirar|aventar|lanzar|envenenar|disparar|morir)|saltar(e|ia)?|aventar(me|se)|aventare|tirar(me|se)|tirare|lanzar(me|se)|lanzare|envenenar(me|se)?|envenenare|intoxicar(me|se)|disparar(me|se)|dispararia|suicid[a-z]*|no quiero vivir|no quiero seguir|(ya )?no (puedo|podemos|aguanto|aguantamos|soporto|soportamos) (mas|seguir|con esto|con todo|con mi vida|con la vida|vivir)|ya no (puedo|podemos|aguanto|aguantamos|soporto|soportamos)|ya no (quiero|queremos) (seguir|vivir|existir|estar aqui)|no (aguanto|soporto)|no lo (aguanto|soporto)|(estoy|estamos|ando|me siento|me tiene|me tienen) (harto|harta|hartos|hartas|cansado|cansada|cansados|cansadas) de (vivir|la vida|todo|existir)|(harto|harta|hartos|hartas|cansado|cansada|cansados|cansadas) de (vivir|la vida|existir)|me rindo|acabar con todo|acabar con mi vida|quitarme la vida|desaparecer|sobredosis)\b/;
+  const RIESGO_LEX_EN = /\b(kill(ing)? myself|hang(ing)? myself|cut(ting)? myself|poison(ing)? myself|shoot(ing)? myself|overdos(e|ing)|suicid[a-z]*|die|dying|end it all|end my life|jump(ing)? off|want to die|can ?t take (it|this|any ?more)( any ?more)?|cannot take (it|this)( any ?more)?|can ?t go on|cannot go on|can ?t do this any ?more|can ?t cope|tired of (living|life)|sick of (living|life)|done with life|give up on life)\b/;
   const ALIAS_LARGOS = [...new Set(releases.flatMap((r) => [r.consulta, ...r.alias]).map((a) => sinTildeMin2(a).replace(/[^a-z0-9]+/g, ' ').trim())
     .filter((a) => a.includes(' ')))].sort((x, y) => y.length - x.length);
   function sinRotulos(q) {
@@ -2049,9 +2075,10 @@
     let n = ` ${canonClinico(normLB(raw)).replace(/[^a-z0-9]+/g, ' ').trim()} `;
     const cur = globalThis.EPI_VOCAB_CONSULTA;
     let fragmentosCie = 0;
-    // Sexta auditoría: la edad sólo se retira en forma poblacional en tercera persona. Con una marca de primera persona o de
+    // Sexta y novena auditorías: la edad sólo se retira en forma poblacional en tercera persona. Con una marca de primera o
+    // segunda persona o de
     // un familiar («tengo», «soy», «mi hijo tiene», «I am») las frases de edad no se aplican y el número queda fuera.
-    const primeraPersona = /\b(tengo|tenia|tendre|soy|estoy|estaba|yo|me|conmigo|nosotros|nosotras|nos|nuestro|nuestra|nuestros|nuestras|estamos|tenemos|somos|vamos|podemos|queremos|cumplimos|cumplo|cumpli|tiene|tienen|mi|mis|my|we|our|us|i|im|i m|i ve)\b/.test(n);
+    const primeraPersona = /\b(tengo|tenia|tendre|soy|estoy|estaba|yo|me|conmigo|nosotros|nosotras|nos|nuestro|nuestra|nuestros|nuestras|estamos|tenemos|somos|vamos|podemos|queremos|cumplimos|cumplo|cumpli|tiene|tienen|mi|mis|my|we|our|us|i|im|i m|i ve|tienes|tenias|tendras|eres|te|tu|tus|ti|contigo|usted|ustedes|you|your|youre|you re)\b/.test(n);
     for (const re of (cur ? cur.frases : [])) if (!(primeraPersona && cur.frasesEdad && cur.frasesEdad.includes(re))) n = n.replace(re, ' ');
     // Códigos con forma CIE («h66 0», «a06 8», «a510», «n87»): técnicos aunque no sean de un bloque publicado.
     n = n.replace(/ [a-z]\d{2}\d?( \d{1,2})?(?= )/g, (m) => (fragmentosCie++, ' '));

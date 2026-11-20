@@ -1,20 +1,29 @@
 /**
- * Lista curada de palabras de consulta neutras del EpiBot y de la función RAG (quinta auditoría Codex, 19-nov-2026).
- * VERSIONADA A MANO y revisable: no la genera ningún script. Criterio de admisión: una palabra entra sólo si es de consulta
- * neutra (interrogativos, artículos, preposiciones, conectores, cortesía o verbos de consulta), un
- * término de datos o técnico del proyecto, un nombre público del equipo, un mes, o una variante ortográfica o palabra de
- * consulta que ya usan los 616 casos funcionales con una respuesta que lleva cifras.
- * NUNCA entran pronombres personales, posesivos ni reflexivos, parentesco o relaciones (yo, me, mi, estoy, soy, tengo, te,
- * su, familiar, pareja, papá, hijo…), primera persona plural (estamos, tenemos, somos, vamos…), verbos de deseo o
- * necesidad sueltos (quiero, quisiera, deseo, necesito; sólo en una frase de consulta de abajo), verbos causativos o de acción sobre personas (causa, hace, da, pega, quema…; el «se»
- * sólo vale en una construcción impersonal de abajo), ni palabras de riesgo (métodos, sustancias, autolesión, violencia, ingestión), edades, cantidades ni estados de
- * ánimo: «vivo», «tomo», «tabletas», «sedantes», «golpes», «pills» o «poison» sólo cuentan dentro de un alias completo.
+ * Lista curada de palabras de consulta neutras del EpiBot y de la función RAG (quinta auditoría Codex, 19-nov-2026; criterio
+ * gramatical cerrado en la novena, `codex/REAUDITORIA8_FE.md`). VERSIONADA A MANO y revisable: no la genera ningún script.
+ *
+ * CRITERIO DE ADMISIÓN DE `palabras` (una palabra suelta): sólo sustantivos técnicos o de datos del proyecto, preposiciones,
+ * artículos, conjunciones, interrogativos, cortesía sin verbo, nombres públicos del equipo, meses, variantes ortográficas de
+ * esos términos y verbos impersonales o en tercera persona sin sujeto personal («afecta», «pronostican», «se esperan»). Una
+ * forma cuya lectura en tercera persona es idéntica (imperfecto o condicional: «iba», «podría»; pretérito sin tilde:
+ * «entrenó», «llegó», «construyó») se admite sólo por esa lectura.
+ * NUNCA entra como palabra suelta una forma verbal conjugada en primera o segunda persona, singular o plural (puedo, puedes,
+ * tienes, sabes, quieres, siento, aguanto, soporto, estamos, dame, dime, muéstrame…), ni pronombres personales, posesivos o
+ * reflexivos, parentesco o relaciones (yo, me, mi, te, tú, su, familiar, pareja, hijo…), verbos de deseo o necesidad (quiero,
+ * necesito…), causativos o de acción sobre personas (causa, hace, da, pega, quema…), palabras de riesgo (métodos, sustancias,
+ * autolesión, violencia, ingestión), edades, cantidades ni estados de ánimo: «vivo», «tomo», «tabletas», «sedantes»,
+ * «golpes», «pills» o «poison» sólo cuentan dentro de un alias completo.
+ * Las únicas formas de primera o segunda persona que se retiran están en `frases` y siempre ancladas: una petición de
+ * consulta seguida de su objeto de datos («quiero ver», «necesito datos de», «dame los», «dime sobre») o una pregunta al bot
+ * que empieza por interrogativo («¿qué modelos usas?», «¿cuántos casos esperas?») o una petición cortés con infinitivo de
+ * consulta («¿podrías mostrar…?»). El resto del turno sigue sometido a esta
+ * lista, y la primera o segunda persona impide retirar la edad.
  * Los padecimientos, códigos y estados NO van aquí: los reconoce como fragmentos completos `js/vocab_cerrado.js`.
  * Los números sólo valen como año (2014-2027) o dentro de una frase técnica de abajo; cualquier otro número (edades,
  * cantidades) queda fuera de vocabulario.
  */
 // Edad en forma POBLACIONAL en tercera persona («mujeres de 30 años», «entre 40 y 45 años», «menores de 18», «de 15 a 19 años»).
-// No se aplican si el turno trae primera persona o un familiar («tengo», «soy», «mi hijo tiene»): el número queda fuera.
+// No se aplican si el turno trae primera o segunda persona o un familiar («tengo», «soy», «tienes», «mi hijo tiene»): el número queda fuera.
 const EDAD_POBLACION = /\b(mujeres|hombres|personas|pacientes|adultos|jovenes|ninos|ninas|mayores|menores) de \d{1,2}( (a|y) \d{1,2})? anos( de edad)?\b/g;
 const EDAD_RANGO = /\bentre \d{1,2} y \d{1,2} anos\b/g;
 const EDAD_UMBRAL = /\b(mayores|menores) de \d{1,2}( anos)?\b/g;
@@ -23,17 +32,17 @@ globalThis.EPI_VOCAB_CONSULTA = Object.freeze({
   frasesEdad: [EDAD_POBLACION, EDAD_RANGO, EDAD_UMBRAL, EDAD_DE_A],
   palabras: new Set(`
     // Interrogativos, artículos, preposiciones, conectores, cortesía y verbos de consulta neutros.
-    a afecta ahora al algo el e otro uno siguiente llegaron nuevos pinta sigue tienes cifras cifra consultar
-    podrias podria saber conocer informar numeros mostrar ensename porfa porfavor decir basado basas base buenas buenos cada como compara comparacion comparalo
-    comparan comparar comparativa comporta con configuro contra contrasta crearon crecido creo cual cuales cuando
-    cuantas cuanto cuantos dame de decia del desarrollado describe desde dia dias dicen dicho dime
-    dirige disminuido donde en entre entreno es esa ese esperaba esperan esperas esta
-    estas este estiman explica favor filtra fuiste funciona funcionas generas gracias ha haber habido habra
+    a afecta ahora al algo el e otro uno siguiente llegaron nuevos pinta sigue cifras cifra consultar
+    podria saber conocer informar numeros mostrar porfa porfavor decir basado base buenas buenos cada como compara comparacion
+    comparan comparar comparativa comporta con configuro contra contrasta crearon crecido cual cuales cuando
+    cuantas cuanto cuantos de decia del desarrollado describe desde dia dias dicen dicho
+    dirige disminuido donde en entre entreno es esa ese esperaba esperan esta
+    estas este estiman explica favor filtra funciona gracias ha haber habido habra
     habria hasta hay hey hola hoy hubiera hubo iba iban la las llama llega llegan llego
-    los mas menos modelan muestra muestrame nada no noches o onda para participo pasa pero por
-    pronosticado pronosticados pronostican pronosticas puede puedes puedo que quien quienes
-    sabes sacas saludos segun selecciona ser si sido significa sobre solamente solo son sorprendeme tal tambien
-    tan tardes tiene tienen trabaja un una usa usan usas va van ver versus viene vs y
+    los mas menos modelan muestra nada no noches o onda para participo pasa pero por
+    pronosticado pronosticados pronostican puede que quien quienes
+    saludos segun selecciona ser si sido significa sobre solamente solo son tal tambien
+    tan tardes tiene tienen trabaja un una usa usan va van ver versus viene vs y
     // Términos de datos epidemiológicos y de la respuesta.
     actual actuales tendencias tasa tasas prevalencia comportamiento variacion estimacion proyeccion mensual series
     violin histograma mae reciente
@@ -66,7 +75,7 @@ globalThis.EPI_VOCAB_CONSULTA = Object.freeze({
     abril agosto diciembre enero febrero julio junio marzo mayo noviembre octubre septiembre
     // Variantes ortográficas de términos técnicos que ya usan los casos funcionales.
     alzeimer alzheimr chiuahua depresoin depreson glovales jalsico parkinsn parkison pronositco puebal tendncia
-    tepuede veracurz
+    veracurz
     // Términos clínicos y de población que usan las guardas de alcance (subtipos y vecinos no modelados) y sus pruebas.
     embarazadas ciclistas cardiopatias pulmonary portal intracraneal inducida durante demencia perinatal vejiga
     lombrices women men pregnant newborns infants babies c obesdiad fetal tiroides infantil bebes recien nacidos ninos
@@ -79,12 +88,22 @@ globalThis.EPI_VOCAB_CONSULTA = Object.freeze({
     // Palabras de consultas fuera de tema de los casos funcionales (lugares y objetos; la respuesta las declina).
     atlantida california cuesta fantasma irapuato mordor narnia tesla texas viajar
     // Inglés de consulta neutro.
-    and are cases data for forecast how in is many of show state the trend week weeks what year do you have
+    and are cases data for forecast how in is many of show state the trend week weeks what year do have
 `.split('\n').filter((l) => !l.trim().startsWith('//')).join(' ').split(/\s+/).filter(Boolean)),
   frases: [
     // Octava auditoría: los verbos de deseo o necesidad sólo valen en una frase de consulta inequívoca seguida del dato
     // («quiero ver», «quisiera consultar», «necesito datos de», «dame los casos de»); sueltos quedan fuera de vocabulario.
     /\b(quiero|quisiera|queremos|necesito|necesitamos|deseo|me gustaria) (ver|consultar|saber|conocer|revisar|comparar|los datos de|datos de|las cifras de|cifras de|el pronostico de|la grafica de|informacion de|informacion sobre|los casos de)\b/g,
+    // Novena auditoría: segunda persona dirigida al bot, sólo anclada. (a) Petición seguida de su objeto de datos: «dame los
+    // casos», «dime sobre», «muéstrame algo», «compáralo contra», «sorpréndeme con»; (b) pregunta que empieza por un
+    // interrogativo, con a lo sumo un sustantivo de datos entre ambos: «¿qué modelos usas?», «¿cuántos casos esperas?»,
+    // «¿de dónde sacas…?», «¿qué sabes del…?»; (c) abajo. Sueltas («tienes entre 14 y 15 años», «no puedes») quedan fuera.
+    /\b(dame|dime|muestrame|ensename|comparalo|sorprendeme) (los|las|el|la|lo|un|una|unos|unas|otro|otra|datos|cifras|informacion|sobre|de|del|algo|con|contra|cuantos|cuantas)\b/g,
+    // (b) en inglés: pregunta al bot con interrogativo o con el auxiliar al frente («what data do you have», «do you have»).
+    /\b((what|which|how many|how much)( (data|cases|models|series))? do you (have|use|show)|(do|can) you (have|show|tell|give)( me)?)\b/g,
+    // (c) Petición cortés seguida de un infinitivo de consulta: «¿podrías mostrar…?», «¿puedes decirme…?».
+    /\b(podrias|puedes) (mostrar|mostrarme|decir|decirme|dar|darme|explicar|explicarme|ensenar|ensenarme|informar|consultar|comparar)\b/g,
+    /\b(que|como|cuantos|cuantas|cuanto|donde|cual|cuales) ((modelos|casos|datos|tecnologia|metricas|motores|graficos|series) )?(sabes|usas|sacas|tienes|esperas|generas|pronosticas|funcionas)\b/g,
     // Construcciones impersonales con «se» (no reflexivas sobre una persona): «se esperan», «se pronostican», «se llama».
     /\bse (esperan?|esperaba|pronostic[a-z]*|estiman?|llama|entreno|comporta|selecciona[a-z]*|compara[a-z]*|modelan?|configuro|cura|trata|identifico|puede|sabe|reporta[a-z]*|notifica[a-z]*|registra[a-z]*|presentan?|obtiene|calcula|genera|usa|utiliza|construyo|eligi[a-z]*|valida[a-z]*|guardan|cubren|seleccionaron|excluyo|evaluaron|basa|define|mide|actualiza)\b/g,
     // «lo» como artículo neutro («lo que llegó», «lo pronosticado»), no como pronombre de persona.

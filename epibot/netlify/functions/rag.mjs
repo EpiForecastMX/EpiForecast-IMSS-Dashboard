@@ -1030,6 +1030,12 @@ async function handlerInterno(req) {
   const ajeno = globalThis.EPI_CATALOGO.subtipoAjeno(stripAccents(qEfectiva));
   if (ajeno) {
     const vecino = globalThis.EPI_CATALOGO.releases.find((r) => r.id === ajeno.release);
+    // Código sin ningún bloque publicado (novena auditoría): no modelado, sin vecino ni cifras.
+    if (!vecino) {
+      return json({ answer: `EpiForecast-MX no modela ${ajeno.nombre}. No tiene pronóstico ni se le atribuyen las cifras de `
+        + 'otro padecimiento. Puedes consultar los padecimientos publicados en la [galería de pronósticos](../Reports/index.html).',
+      sources: [] }, 200, cors);
+    }
     return json({ answer: `EpiForecast-MX no modela ${ajeno.nombre}. `
       + `El pronóstico publicado más cercano es **${vecino.etiqueta}**, que no incluye esa categoría, `
       + `así que no se le atribuyen sus cifras. Puedes consultar ese bloque en [su página](../${vecino.pagina}).`,

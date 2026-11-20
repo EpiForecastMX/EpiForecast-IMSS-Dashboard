@@ -122,7 +122,8 @@ add('las maquinas se enferman', 'answerPreguntaPersonal', ['inteligencia artific
 add('quienes son el equipo', 'answerEquipo', ['Equipo']);
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
 add('quien te creo', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
-add('fuiste desarrollado por google', 'answerEquipo', ['Equipo']);
+// Novena auditoría: «fuiste» (segunda persona suelta) ya no es vocabulario de consulta.
+add('fuiste desarrollado por google', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
 add('quien te hizo', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.

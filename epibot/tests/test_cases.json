@@ -215,9 +215,9 @@
   {
     "id": 22,
     "query": "fuiste desarrollado por google",
-    "expectedHandler": "answerEquipo",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Equipo"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
