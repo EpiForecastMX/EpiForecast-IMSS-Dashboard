@@ -1,5 +1,5 @@
 import { summarizeCoverage, platformPage, publicationNote, predictorDescription } from './coverage.mjs?v=2';
-import { GRUPOS_NO_MODELABLES, grupoNoModelable, PAGINA_NO_MODELABLES } from './no_modelables.mjs?v=1';
+import { GRUPOS_NO_MODELABLES, grupoNoModelable, PAGINA_NO_MODELABLES } from './no_modelables.mjs?v=2';
 import { numero, suma, compararDesc, significado, muestra, clase, esMarcador } from './celdas.mjs?v=1';
 import { textosRadar, enlacesRadar, aplicarTextos, entidadesAusentesMiasis, listaConY, numeroEnPalabras, avisoDiscrepanciaMiasis, notaSimbologiaHeredada, verificarMiasis } from './textos.mjs?v=3';
 'use strict';

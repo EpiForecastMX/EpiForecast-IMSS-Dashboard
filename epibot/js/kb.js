@@ -9,9 +9,9 @@
 import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=87';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
-import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=6';
+import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=7';
 import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=61';
-import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, respuestaConDatos, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=53';
+import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, respuestaConDatos, conservaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=53';
 
 let DATA = null;
 
@@ -6267,7 +6267,10 @@ async function _resolveConContexto(query) {
   if (fuera) _crisisActiva = _crisisActiva || 'apoyo';
   const daDatos = r0.response ? (respuestaConDatos(r0.response) ||
     (tieneFragmentoDeDatos(query) && !HANDLERS_SIN_DATOS.has(r0.handler))) : false;
-  const r = (fuera && daDatos)
+  // Auditoría Codex de no modelables: con un token fuera del vocabulario y un turno en primera persona sólo se emite la
+  // respuesta de ayuda (crisis o apoyo con la Línea de la Vida), también si la otra no lleva cifras.
+  const r = (fuera && (daDatos || (r0.response &&
+    !conservaFueraDeVocabulario(query, String(r0.response)))))
     ? (() => { lastEntities = {}; _crisisActiva = _crisisActiva || 'apoyo'; _aclaracionPendiente = null;
       return { response: pareceIngles(query) ? APOYO_EN : APOYO_ES, handler: 'answerFueraDeVocabulario' }; })()
     : r0;

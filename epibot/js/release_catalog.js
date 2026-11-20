@@ -2319,6 +2319,28 @@
     if (/<!--[A-Z0-9_]+:\{/.test(t)) return true;
     return /\d/.test(t.replace(/<!--[\s\S]*?-->/g, '').replace(/\]\([^)]*\)/g, ']').replace(/800 911 2000|\b911\b|\b24 (horas|hours)\b|CIE-10|\b[A-Z]\d{2}(\.\d+)?\b|\bW\d{1,2}\b|\b20[12]\d\b/g, ''));
   }
+  /**
+   * Respuesta de ayuda (crisis, seguimiento de crisis, apoyo fijo o consulta mixta sensible): lleva la Línea de la Vida, no
+   * lleva cifras ni marcador de datos y no enlaza a ninguna página. Es lo único que puede emitirse ante un token fuera del
+   * vocabulario o una señal de riesgo (auditoría Codex de no modelables).
+   */
+  function esRespuestaDeAyuda(md) {
+    const t = String(md || '');
+    return /800 911 2000/.test(t) && !respuestaConDatos(t) && !/\]\([^)]*\)|\.html\b|href=/.test(t);
+  }
+  // Primera persona: el turno habla de quien escribe («me quemé», «tengo 15 años», «estoy…», «I…», «my…»).
+  const PRIMERA_PERSONA = /\b(me|mi|mis|yo|conmigo|tengo|tenia|tuve|estoy|estaba|estuve|soy|siento|sentia|quiero|quisiera|puedo|ando|hice|i|im|ive|my|me|myself|mine)\b/;
+  /**
+   * Auditoría Codex de no modelables: ¿puede emitirse esta respuesta local ante un turno fuera del vocabulario? La de ayuda
+   * (crisis o apoyo con la Línea de la Vida) siempre; cualquier otra nunca si lleva cifras o el turno habla en primera
+   * persona («Quemaduras solares en Jalisco, me quemé»), aunque no tenga cifras y enlace una ficha. Las aclaraciones sin
+   * cifras de un turno técnico («chagas en Jalisco», «eres humano») se conservan.
+   */
+  function conservaFueraDeVocabulario(raw, md) {
+    if (esRespuestaDeAyuda(md)) return true;
+    if (respuestaConDatos(md)) return false;
+    return !PRIMERA_PERSONA.test(` ${normLB(raw)} `);
+  }
   const pareceIngles = (raw) => {
     const q = ` ${normLB(raw)} `;
     return /\b(the|what|how|in|of|and|i|my|is|am|are|you|me|to)\b/.test(q) && !/\b(en|de|del|y|la|el|que|los|las)\b/.test(q);
@@ -2582,7 +2604,7 @@
     mencionaNoModelada, conHipertensionNombrada, respuestaCrisis, subtipoAjeno, aliasAmbiguo,
     motivoRechazo, crisisEnTurnos, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, idsSensiblesEn,
     alcoholCalificado, IDS_LISTA_BLANCA, _VOCAB_TECNICO: VOCAB_TECNICO, _FRAGMENTOS_GUARDAS: FRAGMENTOS_GUARDAS, fueraDeVocabulario, respuestaFueraDeVocabulario,
-    restoFuera, tieneFragmentoDeDatos, respuestaConDatos, APOYO_ES, APOYO_EN, pareceIngles, normalizaEntrada,
+    restoFuera, tieneFragmentoDeDatos, respuestaConDatos, esRespuestaDeAyuda, conservaFueraDeVocabulario, APOYO_ES, APOYO_EN, pareceIngles, normalizaEntrada,
     ALIAS_LEGACY, padecimientosEnConsulta, releasesEnConsulta,
   });
 })(globalThis);

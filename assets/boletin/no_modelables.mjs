@@ -70,3 +70,34 @@ export function filasNoModelables(diseases) {
 export function nombreLimpio(nombre) {
   return String(nombre ?? '').replace(/^[\^•]+/, '').replace(/\s+/g, ' ').trim();
 }
+
+/** Código impreso de una categoría («B55.0», «A33», «T17.2 - T17.3») como palabra completa de la consulta. */
+export function codigoEnConsulta(codigo, q) {
+  const c = String(codigo ?? '').toLowerCase().replace(/[^a-z0-9.]+/g, ' ').trim();
+  if (!/^[a-z][0-9]/.test(c)) return false;
+  const qq = ` ${String(q ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9.]+/g, ' ').replace(/\.(?![0-9])/g, ' ').trim()} `;
+  // La consulta puede llegar ya normalizada sin puntos («b55 0»).
+  return qq.includes(` ${c} `) || qq.includes(` ${c.replace(/\./g, ' ')} `);
+}
+
+const normaliza = (t) => String(t ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  .replace(/[^a-z0-9]+/g, ' ').trim();
+
+/**
+ * Categorías no modelables que la consulta pide por su nombre impreso completo o por su código. Un nombre contenido en otro
+ * más largo sólo cuenta si también aparece fuera de él («rubéola y síndrome de rubéola congénita» pide las dos).
+ */
+export function noModelablesEnConsulta(q, diseases, { codigos = true } = {}) {
+  const filas = diseases.filter((e) => e.status === ESTADO_NO_MODELABLE && !e.platform_id)
+    .map((e) => ({ e, n: normaliza(nombreLimpio(e.name)) }));
+  const qq = ` ${normaliza(q)} `;
+  const completas = filas.filter((x) => x.n.length > 3 && qq.includes(` ${x.n} `));
+  const fuera = (x) => {
+    let resto = qq;
+    for (const o of completas) if (o !== x && o.n.length > x.n.length && o.n.includes(x.n)) resto = resto.split(` ${o.n} `).join('  ');
+    return resto.includes(` ${x.n} `);
+  };
+  const porNombre = completas.filter(fuera).map((x) => x.e);
+  const porCodigo = codigos ? filas.filter((x) => !porNombre.includes(x.e) && codigoEnConsulta(x.e.code, q)).map((x) => x.e) : [];
+  return [...porNombre, ...porCodigo];
+}

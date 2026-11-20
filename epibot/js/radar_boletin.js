@@ -9,7 +9,7 @@
  * respuesta de crisis, que no da cifras.
  */
 import { summarizeCoverage } from '../../assets/boletin/coverage.mjs?v=2';
-import { GRUPOS_NO_MODELABLES, grupoNoModelable } from '../../assets/boletin/no_modelables.mjs?v=1';
+import { ESTADO_NO_MODELABLE, GRUPOS_NO_MODELABLES, codigoEnConsulta, grupoNoModelable } from '../../assets/boletin/no_modelables.mjs?v=2';
 import { GUION, esMarcador, guionNoPublicado, suma } from '../../assets/boletin/celdas.mjs?v=1';
 
 const SENSIBLE = /suicid|autolesion|autoinfligid|self harm|ideacion|violencia|arma de fuego|abuso sexual|maltrato/;
@@ -87,6 +87,13 @@ export async function cargaRadar(base = '../') {
   return compactaRadar(actual, await rd.json());
 }
 
+/** ¿El nombre de `e` aparece en `qq` también fuera de los nombres más largos de `otras` que lo contienen? */
+function fueraDeNombresMayores(qq, e, otras) {
+  let resto = qq;
+  for (const o of otras) if (o !== e && o._n.length > e._n.length && o._n.includes(e._n)) resto = resto.split(` ${o._n} `).join('  ');
+  return resto.includes(` ${e._n} `);
+}
+
 /** Categorías no modeladas que nombra la consulta (ya normalizada). Vacío si no hay o es sensible. */
 export function buscaEnRadar(q, radar) {
   if (!radar || SENSIBLE.test(q)) return [];
@@ -99,8 +106,11 @@ export function buscaEnRadar(q, radar) {
     }
   }
   const completas = candidatas.filter((e) => e._n.length > 3 && qq.includes(` ${e._n} `));
-  // «síndrome de rubéola congénita» nombra entera a esa categoría; «rubéola» sólo aparece dentro de su nombre.
-  if (completas.length) return completas.filter((e) => !completas.some((o) => o !== e && o._n.includes(` ${e._n}`)));
+  // «síndrome de rubéola congénita» nombra entera a esa categoría; «rubéola» sólo cuenta si también aparece fuera de los
+  // nombres más largos que la contienen («casos de rubéola y síndrome de rubéola congénita» pide las dos).
+  if (completas.length) return completas.filter((e) => fueraDeNombresMayores(qq, e, completas));
+  const porCodigo = candidatas.filter((e) => e.status === ESTADO_NO_MODELABLE && codigoEnConsulta(e.code, q));
+  if (porCodigo.length) return porCodigo;
   const palabras = new Set(qq.trim().split(' ').filter((w) => w.length >= 5 && !GENERICAS.has(w)));
   return candidatas.filter((e) => palabras.has(e._n.split(' ')[0]));
 }
