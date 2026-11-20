@@ -66,7 +66,7 @@ test('foto vigente 2026-w44: digest del PDF, páginas y simbología verificados'
   assert.equal(data.meta.year, 2026);
   assert.equal(data.meta.week, 44);
   assert.equal(data.meta.pdf_sha256, 'c6b328e4a88c293cbd9b912403b14f8e8a27ab54b780566fc51537b03b52d1a3');
-  assert.equal(data.meta.platform_published, 151);
+  assert.equal(data.meta.platform_published, 152);
   assert.equal(data.meta.symbols.simbolos['-'], 'no se presentaron casos');
   assert.deepEqual(data.meta.symbols.paginas, [9, 10]);
   assert.equal(data.meta.symbols.origen, 'HEREDADO');

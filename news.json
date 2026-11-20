@@ -7,6 +7,25 @@
             "type": "radar",
             "tag": "Pronóstico publicado",
             "featured": true,
+            "title": "Paludismo por Plasmodium vivax: el sitio llega a ciento cincuenta y dos padecimientos",
+            "summary": "Se incorpora el paludismo por Plasmodium vivax (B51): su portafolio no superó la prueba única y, por autorización del autor, se publica el control estacional, no validado, sin desglose por sexo.",
+            "body": [
+                "EpiForecast-MX publica el <strong style=\"color:var(--cream)\">paludismo por Plasmodium vivax</strong> (B51), con lo que el sitio llega a <strong style=\"color:var(--cream)\">ciento cincuenta y dos</strong> padecimientos: cuatro del carril original y 148 pronósticos del ejecutor genérico.",
+                "El portafolio no superó su prueba única de 2025: en las series por estado y en el conjunto de las series publicadas, portafolio y control tuvieron error cero, y el cambio relativo frente a un control de cero queda indefinido, así que la regla lo trata como rechazo. Por autorización nominal del autor se publica el control estacional, que repite los casos de 52 semanas antes: no está validado ni promete una validación futura.",
+                "La serie empieza en 2015 y se modela sin desglose por sexo: hasta 2020 el boletín imprime sólo el total por entidad y desde 2021 la serie suma hombres y mujeres. Su página declara además la semana imputada por el cambio de rezago y el cambio de nivel de la serie, sin atribuirle causa. El paludismo por Plasmodium falciparum no se pronostica."
+            ],
+            "link": {
+                "href": "paludismo_vivax_b51.html",
+                "text": "Ver la página del padecimiento",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
+        {
+            "date": "19 de noviembre de 2026",
+            "iso": "2026-11-19",
+            "type": "radar",
+            "tag": "Pronóstico publicado",
+            "featured": true,
             "title": "Seis padecimientos más del boletín: el sitio llega a ciento cincuenta y uno",
             "summary": "Se incorporan la tuberculosis respiratoria, que superó su prueba única frente al control estacional, y cinco categorías cuyo portafolio no la superó y se publican con el control estacional, no validado, por autorización del autor: meningitis tuberculosa, lepra, otras rickettsiosis, fiebre manchada y leishmaniasis cutánea.",
             "body": [

@@ -59,7 +59,7 @@ Enfermedad por virus Chikungunya,A92.0,Transmitidas por vector,32,-,15,-,Control
 Fiebre del oeste del Nilo,A92.3,Transmitidas por vector,32,-,-,-,Por incorporar,Exploración,
 Infección por virus Zika,U06.9,Transmitidas por vector,32,-,-,3,Por incorporar,Exploración,
 Paludismo por Plasmodium falciparum,B50,Transmitidas por vector,33,-,-,-,Por incorporar,Exploración,
-Paludismo por Plasmodium vivax,B50,Transmitidas por vector,33,-,189,152,Por incorporar,Exploración,
+Paludismo por Plasmodium vivax,B50,Transmitidas por vector,33,-,189,152,Control publicado,Seguimiento,
 Brucelosis,A23,Zoonóticas,34,29,1269,1415,Control publicado,Seguimiento,
 Leptospirosis,A27,Zoonóticas,34,5,476,421,Control publicado,Seguimiento,
 Teniasis,B68,Zoonóticas,35,1,192,98,Control publicado,Seguimiento,

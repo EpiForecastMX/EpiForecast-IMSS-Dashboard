@@ -89,11 +89,11 @@ test('rubéola: el guion sigue la simbología impresa del boletín, campo por ca
 });
 
 test('una fila con guion y cifras muestra cada celda como se imprimió', async () => {
-  // Lote 6: la tuberculosis respiratoria tiene su propio release; se usa una categoría que sigue sin modelarse.
-  const tb = por('Paludismo por Plasmodium vivax');
+  // Lote 6 y P. vivax tienen su propio release; se usa una categoría que sigue sin modelarse.
+  const tb = por('Depleción del volumen (deshidratación)');
   const filaGuion = tb.states.find((s) => s.values[0] === '-' && s.values.slice(1).every((v) => typeof v === 'number'));
   assert.ok(filaGuion, 'la fuente vigente debe tener al menos una entidad con guion semanal y acumulados numéricos');
-  const r = await conversa(`paludismo por plasmodium vivax en ${filaGuion.state.toLowerCase()}`);
+  const r = await conversa(`deplecion del volumen deshidratacion en ${filaGuion.state.toLowerCase()}`);
   assert.equal(r.handler, 'answerRadarBoletin');
   assert.match(r.md, /Casos de la semana: \*\*– \(sin casos\)\*\*/);
   assert.match(r.md, new RegExp(`Acumulado ${FOTO.meta.year}, hombres: \\*\\*${es(filaGuion.values[1])}\\*\\*`));
@@ -132,15 +132,14 @@ test('un cero impreso se muestra como 0 y sin nota de guion', () => {
 });
 
 test('varias categorías salen en tabla, con la columna de la entidad', async () => {
-  // Lote 6: la leishmaniasis cutánea y la tuberculosis respiratoria se publicaron; «paludismo» sigue nombrando dos
-  // categorías sin modelo (P. falciparum y P. vivax).
-  const tb = por('Paludismo por Plasmodium vivax');
+  // Lote 6 y P. vivax se publicaron; «rabia» sigue nombrando dos categorías sin modelo (fauna silvestre y urbana).
+  const tb = por('Rabia humana por fauna urbana');
   const so = tb.states.find((s) => s.state === 'Sonora').values;
-  const r = await conversa('paludismo en jalisco mujeres', 'y hombres?', 'y en sonora?');
+  const r = await conversa('rabia en jalisco mujeres', 'y hombres?', 'y en sonora?');
   assert.equal(r.handler, 'answerRadarBoletin');
   assert.match(r.md, /Sonora: semana \/ acumulado/);
   const sem = so[0] === '-' ? '– \\(sin casos\\)' : es(so[0]);
-  assert.match(r.md, new RegExp(`Paludismo por Plasmodium vivax \\| B50 \\| ${tb.observed_week} \\|.*\\| ${sem} / ${so[1] === '-' ? '– \\(sin casos\\)' : es(so[1] + so[2])} \\|`));
+  assert.match(r.md, new RegExp(`Rabia humana por fauna urbana \\| A82\\.1 \\| ${tb.observed_week} \\|.*\\| ${sem} / ${so[1] === '-' ? '– \\(sin casos\\)' : es(so[1] + so[2])} \\|`));
 });
 
 test('el seguimiento de un no modelado no cae en la tabla neuro', async () => {

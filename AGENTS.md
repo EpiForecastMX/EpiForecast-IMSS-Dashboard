@@ -32,11 +32,12 @@ que terminaban dejando el checkout en una rama de trabajo.
 
 Prevalece en conteos sobre las secciones inferiores, que quedan como historia. **Versión candidata, sin desplegar:** la
 producción servida sigue con la versión anterior hasta la revisión final, la integración en `main` y la comprobación del
-contenido servido. Conteos del catálogo (`publication/catalog.json`, 147 releases visibles y `published`):
+contenido servido. Conteos del catálogo (`publication/catalog.json`, 148 releases visibles y `published`):
 
-- **151 padecimientos en el sitio** = 4 del carril original + **147 releases del runner** (82 previos, 59 del lote
-  alta_b44 y 6 del lote 6: tuberculosis respiratoria, aceptada, y cinco controles estacionales tras rechazo por orden
-  nominal del autor: meningitis tuberculosa, lepra, otras rickettsiosis, fiebre manchada y leishmaniasis cutánea).
+- **152 padecimientos en el sitio** = 4 del carril original + **148 releases del runner** (82 previos, 59 del lote
+  alta_b44, 6 del lote 6: tuberculosis respiratoria, aceptada, y cinco controles estacionales tras rechazo por orden
+  nominal del autor: meningitis tuberculosa, lepra, otras rickettsiosis, fiebre manchada y leishmaniasis cutánea; y el
+  paludismo por P. vivax, control estacional sin desglose por sexo, 32 bases y 37 series).
 - Los 59 del lote: **14 portafolios aceptados** en su prueba única, **35 controles estacionales tras rechazo** (orden
   nominal del autor por id) y **10 controles sin alternativa** (un año de historia, el control fue el único candidato).
   Ningún control se presenta como validado ni como «validación en curso».

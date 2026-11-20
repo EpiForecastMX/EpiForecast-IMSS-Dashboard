@@ -1134,6 +1134,13 @@
       alias: ['leishmaniasis cutanea', 'ulcera de los chicleros', 'b55 1', 'cutaneous leishmaniasis'],
       prefijos: ['leishmaniasis cutanea', 'ulcera de los chicleros', 'cutaneous leishmaniasis'],
     },
+    // Último id de alta_b44 (19-nov-2026): paludismo por P. vivax, control estacional tras rechazo (sólo por 0 frente a 0 en
+    // las series), autorizado por el autor; sin desglose por sexo (32 bases, 37 series).
+    {
+      id: 'paludismo_vivax_b51', pad: 'Paludismo por Plasmodium vivax', nombre: 'Paludismo por Plasmodium vivax', nombreCorto: 'Paludismo por P. vivax', etiqueta: 'Paludismo por Plasmodium vivax (B51)', dataKey: 'paludismo_vivax_b51', marca: 'PALUDISMO_VIVAX_B51', pagina: 'paludismo_vivax_b51.html', consulta: 'paludismo por plasmodium vivax', cie: 'B51', color: '#115E59',
+      alias: ['paludismo por plasmodium vivax', 'paludismo por vivax', 'paludismo vivax', 'malaria por vivax', 'malaria vivax', 'plasmodium vivax', 'p vivax', 'b51', 'vivax malaria', 'plasmodium vivax malaria'],
+      prefijos: ['paludismo por plasmodium vivax', 'paludismo por vivax', 'paludismo vivax', 'malaria vivax', 'plasmodium vivax', 'vivax malaria'],
+    },
   ]);
 
   // Auditoría Codex de alta_b44 (19-nov-2026): los ejemplos visibles («pregunta por «…»») salían de `consulta`, que va sin
@@ -1482,6 +1489,8 @@
     [new RegExp(`\\ba33\\b|\\btetanos (neonatal|del recien nacido)\\b|\\bneonatal tetanus\\b`), 'tetanos neonatal',
       'tétanos neonatal (A33), que el boletín notifica aparte', 'tetanos_a34'],
     // Lote 6: la tuberculosis respiratoria (A15-A16) y la meningitis tuberculosa (A17.0) tienen ya su propio release.
+    [/\b(plasmodium )?falciparum\b|\bb50\b(?![ .]?[0-9])/,
+      'paludismo por falciparum', 'el paludismo por Plasmodium falciparum (B50), que el boletín notifica aparte', 'paludismo_vivax_b51'],
     [/\bleishmaniasis visceral\b|\bkala ?azar\b|\bvisceral leishmaniasis\b|\bb55 ?[.]?0\b/,
       'leishmaniasis visceral', 'leishmaniasis visceral (B55.0), que el boletín notifica aparte', 'leishmaniasis_cutanea_b551'],
     [new RegExp(`\\ba39(?:\\.[1-9]|[1-9]| [1-9]${NO_UNIDAD})\\b|\\b(meningococemia|meningococcemia)\\b`),
@@ -1647,6 +1656,10 @@
     { release: null, bloques: ['otras_rickettsiosis_a79', 'fiebre_manchada_a770', 'tifo_murino_a752'], siempre: true,
       generico: /(?<!\b(otras|other) )\b(rickettsiosis|rickettsiasis|rickettsioses)\b/, especifico: /(?!)/,
       abarca: '«Rickettsiosis» abarca bloques distintos del boletín, cada uno con su control estacional: la fiebre manchada (A77.0), el tifo murino (A75.2) y las otras rickettsiosis (A79); el tifo epidémico (A75.0) se notifica aparte y no se pronostica.' },
+    // «Paludismo» o «malaria» a secas abarcan el paludismo por P. falciparum (B50), que no se pronostica.
+    { release: 'paludismo_vivax_b51', generico: /\b(paludismo|malaria)\b/,
+      especifico: /\bvivax\b|\bb51\b|\bfalciparum\b/,
+      abarca: '«Paludismo» o «malaria» abarcan el paludismo por Plasmodium falciparum (B50), que el boletín notifica aparte y no se pronostica, y el paludismo por Plasmodium vivax (B51), con su control estacional.' },
     { release: 'leishmaniasis_cutanea_b551', generico: /\b(leishmaniasis|leishmaniosis)\b/,
       especifico: /\bleishmaniasis cutanea\b|\bulcera de los chicleros\b|\bcutaneous leishmaniasis\b|\b(leishmaniasis|leishmaniosis) visceral\b|\bvisceral leishmaniasis\b/,
       abarca: '«Leishmaniasis» abarca la leishmaniasis visceral (B55.0), que el boletín notifica aparte y no se pronostica, y la leishmaniasis cutánea (B55.1), con su control estacional.' },
@@ -1971,7 +1984,7 @@
   // completo; nunca habilitan sus palabras sueltas en otra frase.
   const FRASES_GUARDAS_EXTRA = [
     // diabetesEnConsulta / conDiabetesNombrada y ALIAS_AMBIGUOS genéricos de un bloque.
-    'diabetes', 'sifilis', 'tuberculosis', 'rickettsiosis', 'leishmaniasis', 'leishmaniasis visceral', 'hepatitis', 'otitis', 'amebiasis', 'candidiasis',
+    'diabetes', 'sifilis', 'tuberculosis', 'rickettsiosis', 'leishmaniasis', 'leishmaniasis visceral', 'paludismo', 'malaria', 'hepatitis', 'otitis', 'amebiasis', 'candidiasis',
     'conjuntivitis', 'meningitis', 'desnutricion', 'displasia', 'displasia cervical', 'lombrices', 'mordedura', 'picadura',
     // conFamiliaNombrada / FAMILIAS: subtipos que nombra un seguimiento («¿y la severa?», «¿y las otras?»).
     'leve', 'moderada', 'severa', 'aguda', 'cronica', 'la severa', 'las otras', 'otras', 'congenita', 'gestacional',

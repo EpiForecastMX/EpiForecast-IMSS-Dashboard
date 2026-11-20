@@ -101,7 +101,7 @@ test('la galería crea una instancia por release', () => {
       'chagas_cronica_b572', 'vih_b20',
       // Lote 6 de alta_b44 (19-nov-2026).
       'tuberculosis_respiratoria_a15', 'meningitis_tuberculosa_a170', 'lepra_a30', 'otras_rickettsiosis_a79', 'fiebre_manchada_a770',
-      'leishmaniasis_cutanea_b551', 'sintetico_x']);
+      'leishmaniasis_cutanea_b551', 'paludismo_vivax_b51', 'sintetico_x']);
   assert.equal(ctx.window.GaleriasRelease.at(-1).color, '#123456');
 });
 

@@ -903,6 +903,35 @@
         }
       ],
       "nota": null
+    },
+    "paludismo_vivax_b51": {
+      "avisos": [
+        {
+          "clave": "serie-2015",
+          "estado": "alcance",
+          "titulo": "Serie desde 2015-W01.",
+          "texto": "Por decisión del autor la serie empieza en la semana 1 de 2015: en 2014 el boletín imprimió «s.n.» en la columna semanal de 185 celdas, así que ese año queda fuera."
+        },
+        {
+          "clave": "sin-sexo",
+          "estado": "alcance",
+          "titulo": "Sin desglose por sexo.",
+          "texto": "Hasta 2020 el cuadro imprime sólo el total por entidad; desde el boletín 2021_sem01 imprime hombres y mujeres, y por decisión del autor la serie usa su suma, cotejada contra el total impreso en los 617 boletines. Se modela sin sexo: 32 series por entidad y 37 publicadas."
+        },
+        {
+          "clave": "salto-nivel",
+          "estado": "medido",
+          "titulo": "Niveles cambiantes en la serie, sin atribuir causa.",
+          "texto": "Casos notificados por año epidemiológico en el dataset del pronóstico: 2015: 502; 2016: 511; 2017: 718; 2018: 802; 2019: 611; 2020: 348; 2021: 232; 2022: 161; 2023: 39; 2024: 269; 2025: 166; 2026 (hasta la semana 44): 189. La mediana semanal nacional fue de 0 en 2023 y de 11.5 en 2018. Con estos datos no se puede distinguir si cambió la frecuencia de casos o su registro, y no se atribuye causa."
+        },
+        {
+          "clave": "hueco-rezago",
+          "estado": "medido",
+          "titulo": "Semana 2017-W01 imputada por el cambio de rezago.",
+          "texto": "La semana 1 de 2017 no se imprimió en ningún boletín: desde el boletín 2017_sem02 el cuadro pasó a reportar la semana del propio boletín (antes, la anterior), y esa semana quedó sin fuente. Por decisión del autor se imputó de forma causal en las 32 entidades (32 registros entidad-semana) y queda marcada (lag_regime_gap); no es un dato observado."
+        }
+      ],
+      "nota": null
     }
   });
 })(globalThis);

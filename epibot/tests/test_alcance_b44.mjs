@@ -73,10 +73,10 @@ async function postRag(query) {
   return { status: res.status, body: await res.json() };
 }
 
-test('catálogo: los 59 releases del lote (y los 6 del lote 6) están instalados y declarados, con 151 padecimientos en el sitio', () => {
+test('catálogo: los 59 releases del lote (y los 6 del lote 6) están instalados y declarados, con 152 padecimientos en el sitio', () => {
   const instalados = new Set(JSON.parse(readFileSync(new URL('publication/catalog.json', raiz), 'utf-8')).releases.map((r) => r.disease_id));
   for (const id of IDS) assert.ok(releaseDeId(id) && instalados.has(id), id);
-  assert.equal(RELEASES.length + 4, 151);
+  assert.equal(RELEASES.length + 4, 152);
   assert.deepEqual(RELEASES.filter((r) => r.sensible).map((r) => r.id).sort(), [...SENSIBLES].sort());
   assert.equal(SIN_ALT.length, 10);
   assert.deepEqual(RELEASES.filter((r) => r.controlSinAlternativa).map((r) => r.id).sort(), [...SIN_ALT].sort());
@@ -221,5 +221,5 @@ for (const [q, nombra] of [['tuberculosis en Jalisco', /tuberculosis respiratori
 
 test('el número de padecimientos se escribe en letra más allá de noventa y nueve', async () => {
   const { md } = await pregunta('casos de diabetes insipida en jalisco');
-  assert.match(md, /ciento cincuenta y un padecimientos/);
+  assert.match(md, /ciento cincuenta y dos padecimientos/);
 });

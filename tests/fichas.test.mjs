@@ -265,7 +265,7 @@ test('alta_b44: controles sin «validación en curso», sensibles con Línea de 
     }
   }
   assert.equal(sinAlternativa, 10);
-  assert.equal(lote, 59 + 6);  // 59 de alta_b44 y 6 del lote 6
+  assert.equal(lote, 59 + 6);  // 59 de alta_b44 y 6 del lote 6 (P. vivax se emitió el 20-nov UTC)
   assert.ok(controles >= 45, `${controles}`);
   for (const id of SENSIBLES_B44) {
     const t = leer(`${id}.html`);
