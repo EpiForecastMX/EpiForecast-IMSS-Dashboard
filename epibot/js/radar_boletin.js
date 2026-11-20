@@ -11,10 +11,11 @@
 import { summarizeCoverage } from '../../assets/boletin/coverage.mjs?v=2';
 import { ESTADO_NO_MODELABLE, GRUPOS_NO_MODELABLES, codigoEnConsulta, grupoNoModelable } from '../../assets/boletin/no_modelables.mjs?v=2';
 import { GUION, esMarcador, guionNoPublicado, suma } from '../../assets/boletin/celdas.mjs?v=1';
-import { ROTULO_EXPLORATORIO } from '../../assets/boletin/pronostico.mjs?v=4';
+import { referenciaExploratoria } from '../../assets/boletin/pronostico.mjs?v=9';
 
-// Opción «Pronóstico» del radar (alta_b44): se menciona sin cifras; el bot no da valores del exploratorio.
-const REFERENCIA_EXPLORATORIA = `El [Radar del boletín](../boletin.html) muestra además, en la opción «Pronóstico», una referencia «${ROTULO_EXPLORATORIO}»: media estacional nacional simple, sin prueba de desempeño ni intervalos, que no es un pronóstico de EpiForecast-MX.`;
+// Opción «Pronóstico» del radar (alta_b44): se menciona sin cifras y con el método real de cada categoría, leído de
+// pronostico_exploratorio.json de la foto (estacional, nivel reciente o nivel derivado de las notas).
+const referencia = (e, radar) => referenciaExploratoria(radar?.exploratorio?.[e.id] ?? null, '[Radar del boletín](../boletin.html)');
 
 const SENSIBLE = /suicid|autolesion|autoinfligid|self harm|ideacion|violencia|arma de fuego|abuso sexual|maltrato/;
 
@@ -70,9 +71,10 @@ function normaliza(t) {
 }
 
 /** Índice compacto de la foto vigente; null si los archivos no son los esperados. */
-export function compactaRadar(actual, data) {
+export function compactaRadar(actual, data, exploratorio = null) {
   if (actual?.schema !== 'boletin_actual.v1' || !Array.isArray(data?.diseases) || !data.meta) return null;
   return {
+    exploratorio: exploratorio?.categorias ?? null,
     meta: data.meta,
     carpeta: actual.carpeta,
     cobertura: summarizeCoverage(data.diseases),
@@ -88,7 +90,12 @@ export async function cargaRadar(base = '../') {
   if (actual?.schema !== 'boletin_actual.v1' || !/^assets\/boletin\/[0-9]{4}-w[0-9]{2}(-r[0-9]+)?$/.test(actual.carpeta ?? '')) return null;
   const rd = await fetch(`${base}${actual.carpeta}/data.json`);
   if (!rd.ok) return null;
-  return compactaRadar(actual, await rd.json());
+  let expl = null;
+  try {
+    const rx = await fetch(`${base}${actual.carpeta}/pronostico_exploratorio.json`);
+    if (rx.ok) expl = await rx.json();
+  } catch { expl = null; }
+  return compactaRadar(actual, await rd.json(), expl);
 }
 
 /** ¿El nombre de `e` aparece en `qq` también fuera de los nombres más largos de `otras` que lo contienen? */
@@ -142,16 +149,16 @@ const ROTULO_COLUMNA = {
 /** «En el boletín…» tras dos puntos: minúscula inicial (no toca siglas ni nombres propios con mayúscula interna). */
 const minusculaInicial = (t) => (/^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]/.test(t) ? t[0].toLowerCase() + t.slice(1) : t);
 
-function estadoPlataforma(e) {
+function estadoPlataforma(e, radar) {
   if (e.status === 'Rechazada') {
-    return 'Se analizó y se **rechazó** en la prueba de 2025: no hay pronóstico publicado. Su evidencia está en [Analizados y rechazados](../rechazados.html). ' + REFERENCIA_EXPLORATORIA;
+    return 'Se analizó y se **rechazó** en la prueba de 2025: no hay pronóstico publicado. Su evidencia está en [Analizados y rechazados](../rechazados.html). ' + referencia(e, radar);
   }
   if (e.status === 'Agregado') return 'Es un **agregado** del boletín que suma varias categorías; no se modela.';
   const g = grupoNoModelable(e);
   if (g) {
     return `Estado en la plataforma: **no modelable** (${GRUPOS_NO_MODELABLES[g].etiqueta.toLowerCase()}). Motivo medido: ${minusculaInicial(e.reason)} ` +
       'No hay pronóstico ni control estacional. El motivo y las cifras de todas las categorías sin pronóstico están en ' +
-      '[Categorías sin pronóstico](../no_modelables.html). ' + REFERENCIA_EXPLORATORIA;
+      '[Categorías sin pronóstico](../no_modelables.html). ' + referencia(e, radar);
   }
   return 'Estado en la plataforma: **por incorporar**. No hay modelo ni pronóstico.';
 }
@@ -207,7 +214,7 @@ export function respuestaRadar(encontradas, radar, estado) {
   if (encontradas.length === 1) {
     const e = encontradas[0];
     const lines = [`**${e.name} (${e.code})** · ${cab}\n`,
-      `EpiForecast-MX **no modela** este padecimiento. ${estadoPlataforma(e)}\n`,
+      `EpiForecast-MX **no modela** este padecimiento. ${estadoPlataforma(e, radar)}\n`,
       `**Nacional**, hasta la semana ${e.observed_week} de ${m.year}:`,
       `- Casos de la semana: **${celda(e.weekly, e, m.year)}**`,
       `- Acumulado ${m.year}: **${celda(e.cumulative, e, m.year)}**`,

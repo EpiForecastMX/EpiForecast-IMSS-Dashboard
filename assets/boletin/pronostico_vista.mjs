@@ -3,7 +3,7 @@
 // la Figura 1 de la portada (hero_series.json). Sin release: el pronóstico exploratorio, no validado, de la foto
 // vigente (pronostico_exploratorio.json), con su rótulo, su motivo y su advertencia. No calcula cifras: las lee.
 import { numero } from './celdas.mjs?v=1';
-import { fuentePronostico, desdeVista, desdeLegacy, desdeExploratorio } from './pronostico.mjs?v=7';
+import { fuentePronostico, desdeVista, desdeLegacy, desdeExploratorio } from './pronostico.mjs?v=9';
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -115,22 +115,38 @@ function pintar(m) {
     ['Tipo', m.tipo === 'exploratorio' ? (m.sin_pronostico ? 'Sin pronóstico' : m.notas ? 'Exploratorio desde las notas, no validado' : m.nivel_reciente ? 'Exploratorio de nivel reciente, no validado' : 'Exploratorio, no validado') : 'Pronóstico publicado'],
     ['Origen', m.origen || 'Sin dato'],
     ['Semanas pronosticadas', String(pro.length)],
-    ['Suma de las semanas', m.total == null ? 'Sin dato' : fmt(m.total)],
+    ['Suma de las semanas mostradas', m.total == null ? 'Sin dato' : fmt(m.total)],
   ].map(([l, v]) => `<div><span>${l}</span><strong>${esc(v)}</strong></div>`).join('');
   $('forecastChart').innerHTML = grafica(m);
   $('forecastLegend').innerHTML = `<span class="curve-legend-2025">Observado</span>${pro.length ? `<span class="forecast-legend${m.tipo === 'exploratorio' ? ' forecast-legend--exploratorio' : ''}">${m.tipo === 'exploratorio' ? (m.notas ? 'Exploratorio desde las notas, no validado' : m.nivel_reciente ? 'Exploratorio de nivel reciente, no validado' : 'Exploratorio, no validado') : 'Pronóstico publicado'}</span>` : ''}`;
-  $('forecastCaption').textContent = `Ámbito: ${m.serie_nombre}. Fuente: ${m.fuente}.${m.anios?.length ? ` Años base de la media: ${m.anios.join(', ')}.` : ''}${m.base ? ` Semanas base del nivel: ${m.base.periodo}.` : ''} Pronóstico puntual, sin intervalos en esta gráfica. Se muestran hasta ${OBSERVADO_SEMANAS} semanas observadas.`;
+  $('forecastCaption').textContent = `Ámbito: ${m.serie_nombre}. Fuente: ${m.fuente}.${m.anios?.length ? ` Años base de la media: ${m.anios.join(', ')}.` : ''}${m.base ? ` Semanas base del nivel: ${m.base.periodo}.` : ''} Pronóstico puntual, sin intervalos en esta gráfica. Se muestran hasta ${OBSERVADO_SEMANAS} semanas observadas.${totalPublicado(m)}`;
+}
+
+/** Si el total publicado difiere de la suma de las cifras semanales mostradas, se dice por qué. */
+function totalPublicado(m) {
+  if (m.total_publicado == null || m.total == null || Math.abs(m.total_publicado - m.total) < 0.05) return '';
+  return ` La fuente publica un total de ${fmt(m.total_publicado)} para estas 52 semanas; la suma de las cifras semanales mostradas es ${fmt(m.total)} porque cada semana se publica redondeada.`;
+}
+
+/** Vacía y oculta el resultado anterior: al cambiar de categoría o si la carga falla no queda nada de la previa. */
+function limpiar() {
+  $('forecastBody').hidden = true;
+  $('forecastTitle').textContent = 'Pronóstico';
+  for (const id of ['forecastLabel', 'forecastStats', 'forecastChart', 'forecastLegend']) $(id).innerHTML = '';
+  $('forecastCaption').textContent = '';
 }
 
 async function render() {
   if (modo !== 'pronostico' || !actualId) return;
   const n = ++pedido;
+  limpiar();
   $('forecastStatus').hidden = false; $('forecastStatus').textContent = 'Cargando el pronóstico…';
   try {
     await cargarBase();
     const m = await modelo(actualId);
     if (n !== pedido) return;
     pintar({ observado: [], pronostico: [], ...m });
+    $('forecastBody').hidden = false;
     $('forecastStatus').hidden = true;
   } catch (e) {
     if (n === pedido) $('forecastStatus').textContent = e.message;
@@ -142,6 +158,7 @@ function fijarModo(nuevo, { url = true } = {}) {
   modo = nuevo === 'pronostico' ? 'pronostico' : 'serie';
   for (const [tab, m] of [['tabSerie', 'serie'], ['tabPronostico', 'pronostico']]) {
     $(tab).setAttribute('aria-selected', String(modo === m)); $(tab).classList.toggle('selected', modo === m);
+    $(tab).setAttribute('tabindex', modo === m ? '0' : '-1');
   }
   $('seriePanel').hidden = modo !== 'serie';
   $('forecastPanel').hidden = modo !== 'pronostico';
@@ -158,6 +175,17 @@ actualId = new URLSearchParams(location.search).get('padecimiento') || null;
 document.addEventListener('radar:curva', (e) => { actualId = e.detail.id; render(); });
 $('tabSerie').addEventListener('click', () => fijarModo('serie'));
 $('tabPronostico').addEventListener('click', () => fijarModo('pronostico'));
+// Patrón ARIA de pestañas: flechas, Inicio y Fin mueven el foco y activan la pestaña (activación automática).
+function teclaPestanas(e) {
+  const orden = ['serie', 'pronostico'], i = orden.indexOf(modo);
+  const destino = { ArrowRight: orden[(i + 1) % 2], ArrowLeft: orden[(i + 1) % 2], Home: 'serie', End: 'pronostico' }[e.key];
+  if (!destino) return;
+  e.preventDefault();
+  fijarModo(destino);
+  $(destino === 'serie' ? 'tabSerie' : 'tabPronostico').focus();
+}
+$('tabSerie').addEventListener('keydown', teclaPestanas);
+$('tabPronostico').addEventListener('keydown', teclaPestanas);
 document.addEventListener('click', (e) => {
   const b = e.target.closest('[data-forecast]');
   if (!b) return;

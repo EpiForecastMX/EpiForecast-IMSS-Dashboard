@@ -61,7 +61,8 @@ test('publicados del runner: la gráfica lee la serie nacional de su vista tal c
     assert.ok(nac, `${f.id}: serie nacional general`);
     assert.deepEqual(m.pronostico, nac.pronostico.map(([ds, y]) => ({ ds, y })), f.id);
     assert.equal(m.pronostico.length, v.horizon_weeks, f.id);
-    assert.equal(m.total, nac.pronostico_52_total, f.id);
+    assert.equal(m.total_publicado, nac.pronostico_52_total, f.id);
+    assert.equal(m.total, Math.round(m.pronostico.reduce((t, p) => t + p.y, 0) * 10) / 10, f.id);
     assert.equal(m.origen, `${v.origin[0]}-W${String(v.origin[1]).padStart(2, '0')}`, f.id);
     assert.equal(m.pagina, `${f.id}.html`);
     assert.ok(existsSync(resolve(root, m.pagina)), m.pagina);
@@ -266,13 +267,13 @@ test('EpiBot: menciona la referencia exploratoria de una no modelable sin dar su
   const { respuestaNoModelableRag } = await imp('epibot/netlify/lib/radar_no_modelable.mjs');
   const doc = json(`${actual.carpeta}/pronostico_exploratorio.json`);
   const e = data.diseases.find((x) => x.id === 'p12b2');
-  const r = respuestaNoModelableRag('influenza J09-J11', data);
+  const r = respuestaNoModelableRag('influenza J09-J11', data, { exploratorio: doc });
   assert.ok(r && r.includes(`«${ROTULO}»`), r);
   assert.match(r, /no tiene pronóstico ni control estacional/);
   const total = Math.round(doc.categorias[e.id].pronostico.reduce((t, s) => t + s.valor, 0)).toLocaleString('es-MX');
   assert.ok(!r.includes(total), 'sin cifras del exploratorio');
   const bot = leer('epibot/js/radar_boletin.js');
-  assert.match(bot, /'\[Categorías sin pronóstico\]\(\.\.\/no_modelables\.html\)\. ' \+ REFERENCIA_EXPLORATORIA/);
+  assert.match(bot, /'\[Categorías sin pronóstico\]\(\.\.\/no_modelables\.html\)\. ' \+ referencia\(e, radar\)/);
 });
 
 test('notas del boletín: acumulados nacionales con evidencia, tramo consistente y casos semanales por diferencia', async () => {
@@ -333,4 +334,136 @@ test('notas del boletín: acumulados nacionales con evidencia, tramo consistente
   const { ROTULO_NOTAS: R } = await imp('assets/boletin/pronostico.mjs');
   assert.equal(R, ROTULO_NOTAS);
   assert.match(leer('assets/boletin/radar.js'), /<b>\$\{esc\(ROTULO_NOTAS\)\}\.<\/b> «Ver pronóstico» muestra un valor plano de 52 semanas/);
+});
+
+// --- Auditoría Codex (AUDITORIA_RADAR_PRON.md): con 3d8ca2f8 fallan las cuatro. ---
+
+/** DOM mínimo para correr pronostico_vista.mjs en node, con fetch servido desde el disco. */
+async function bootVista(search, falla = () => false) {
+  const byId = new Map(), docListeners = {};
+  const el = (id) => {
+    if (byId.has(id)) return byId.get(id);
+    const attrs = {}, listeners = {};
+    let inner = '', text = '';
+    const e = {
+      id, hidden: false, value: '', options: [], focused: false,
+      classList: { toggle() {}, add() {}, remove() {} },
+      get innerHTML() { return inner; }, set innerHTML(v) { inner = String(v); text = inner.replace(/<[^>]+>/g, ''); },
+      get textContent() { return text; }, set textContent(v) { text = String(v); inner = text; },
+      setAttribute(k, v) { attrs[k] = String(v); }, getAttribute(k) { return attrs[k] ?? null; },
+      addEventListener(t, f) { (listeners[t] ??= []).push(f); },
+      dispatch(t, ev = {}) { for (const f of listeners[t] ?? []) f({ preventDefault() {}, ...ev }); },
+      focus() { e.focused = true; }, close() {}, scrollIntoView() {}, dispatchEvent() {},
+    };
+    byId.set(id, e);
+    return e;
+  };
+  const saved = { document: globalThis.document, location: globalThis.location, history: globalThis.history, fetch: globalThis.fetch, matchMedia: globalThis.matchMedia, err: console.error };
+  globalThis.document = { getElementById: el, addEventListener(t, f) { (docListeners[t] ??= []).push(f); } };
+  globalThis.location = new URL(`http://x/boletin.html${search}`);
+  globalThis.history = { replaceState() {} };
+  globalThis.matchMedia = () => ({ matches: true });
+  globalThis.fetch = async (url) => {
+    const rel = String(url).replace(/^\//, '').replace(/\?.*$/, '');
+    if (falla(rel)) return { ok: false, json: async () => null };
+    return { ok: true, json: async () => JSON.parse(leer(rel)) };
+  };
+  console.error = () => {};
+  const espera = () => new Promise((r) => setTimeout(r, 60));
+  await import(`${pathToFileURL(resolve(root, 'assets/boletin/pronostico_vista.mjs')).href}?t=${Math.random()}`);
+  await espera();
+  const restaura = () => Object.assign(globalThis, { document: saved.document, location: saved.location, history: saved.history, fetch: saved.fetch, matchMedia: saved.matchMedia }) && (console.error = saved.err);
+  return { el, espera, restaura, curva: async (id) => { for (const f of docListeners['radar:curva'] ?? []) f({ detail: { id } }); await espera(); } };
+}
+
+test('Codex 1: al cambiar de categoría se limpia el panel y, si la carga falla, sólo queda el error', async () => {
+  let fallar = false;
+  const v = await bootVista('?padecimiento=p60b2&vista=pronostico', (rel) => fallar && rel.includes('publication/hipertension_i10/'));
+  try {
+    assert.match(v.el('forecastTitle').textContent, /Anorexia/);
+    assert.ok(v.el('forecastChart').innerHTML.includes('<svg'));
+    assert.equal(v.el('forecastBody').hidden, false);
+    fallar = true;
+    await v.curva('p49b1');
+    assert.equal(v.el('forecastBody').hidden, true, 'resultado anterior oculto');
+    assert.doesNotMatch(v.el('forecastTitle').textContent, /Anorexia/);
+    assert.equal(v.el('forecastChart').innerHTML, '');
+    assert.equal(v.el('forecastStats').innerHTML, '');
+    assert.equal(v.el('forecastStatus').hidden, false);
+    assert.match(v.el('forecastStatus').textContent, /No se pudo cargar \/publication\/hipertension_i10\/vista\.json/);
+  } finally { v.restaura(); }
+  assert.match(leer('boletin.html'), /<div class="curve-panel forecast-panel" id="forecastBody" hidden>/);
+});
+
+test('Codex 4: pestañas con flechas, Inicio y Fin, y tabindex según el patrón ARIA', async () => {
+  const html = leer('boletin.html');
+  assert.match(html, /id="tabSerie" role="tab" aria-selected="true" aria-controls="seriePanel" tabindex="0"/);
+  assert.match(html, /id="tabPronostico" role="tab" aria-selected="false" aria-controls="forecastPanel" tabindex="-1"/);
+  const v = await bootVista('?padecimiento=p70b1');
+  try {
+    const s = v.el('tabSerie'), p = v.el('tabPronostico');
+    assert.equal(s.getAttribute('tabindex'), '0');
+    assert.equal(p.getAttribute('tabindex'), '-1');
+    s.dispatch('keydown', { key: 'ArrowRight' });
+    await v.espera();
+    assert.equal(p.getAttribute('aria-selected'), 'true');
+    assert.equal(p.getAttribute('tabindex'), '0');
+    assert.equal(s.getAttribute('tabindex'), '-1');
+    assert.equal(p.focused, true);
+    assert.equal(v.el('forecastPanel').hidden, false);
+    p.dispatch('keydown', { key: 'Home' });
+    assert.equal(s.getAttribute('aria-selected'), 'true');
+    assert.equal(s.focused, true);
+    s.dispatch('keydown', { key: 'End' });
+    assert.equal(p.getAttribute('aria-selected'), 'true');
+    p.dispatch('keydown', { key: 'ArrowLeft' });
+    assert.equal(s.getAttribute('aria-selected'), 'true');
+    await v.espera();
+  } finally { v.restaura(); }
+});
+
+test('Codex 3: la suma mostrada coincide con los puntos y el total publicado distinto se explica', async () => {
+  const { desdeLegacy } = await imp('assets/boletin/pronostico.mjs');
+  const hero = json('hero_series.json');
+  for (const id of LEGACY) {
+    const m = desdeLegacy(hero, id);
+    assert.equal(m.total, m.pronostico.reduce((t, p) => t + p.y, 0), id);
+    assert.equal(m.total_publicado, hero.series.find((x) => x.key === id).casos, id);
+  }
+  const v = await bootVista('?padecimiento=p70b1&vista=pronostico');
+  try {
+    const m = desdeLegacy(hero, 'depresion');
+    assert.match(v.el('forecastStats').innerHTML, new RegExp(`Suma de las semanas mostradas</span><strong>${m.total.toLocaleString('es-MX')}<`));
+    if (m.total !== m.total_publicado) {
+      assert.ok(v.el('forecastCaption').textContent.includes(`La fuente publica un total de ${m.total_publicado.toLocaleString('es-MX')} para estas 52 semanas; la suma de las cifras semanales mostradas es ${m.total.toLocaleString('es-MX')} porque cada semana se publica redondeada.`));
+    }
+  } finally { v.restaura(); }
+});
+
+test('Codex 2: EpiBot y RAG nombran el método real de cada categoría, leído del JSON, sin cifras', async () => {
+  const doc = json(`${actual.carpeta}/pronostico_exploratorio.json`);
+  const { respuestaNoModelableRag } = await imp('epibot/netlify/lib/radar_no_modelable.mjs');
+  const { compactaRadar, respuestaRadar } = await imp('epibot/js/radar_boletin.js');
+  const radar = compactaRadar(actual, data, doc);
+  const casos = [
+    ['sarampión B05', 'p10b2', /media de los casos semanales recientes que salen del acumulado nacional publicado en las notas del boletín \(no del cuadro estatal\), sin estacionalidad/, ROTULO_NOTAS],
+    ['asfixia W75-W84', 'p80b1', /un valor plano igual a la media de las últimas semanas con cifra impresa, sin estacionalidad/, ROTULO_NIVEL],
+    ['influenza J09-J11', 'p12b2', /la media de la misma semana epidemiológica en los años anteriores impresos/, ROTULO],
+  ];
+  for (const [q, id, metodo, rotulo] of casos) {
+    const c = doc.categorias[id];
+    const r = respuestaNoModelableRag(q, data, { exploratorio: doc });
+    assert.ok(r, q);
+    assert.match(r, metodo, q);
+    assert.ok(r.includes(`«${rotulo}»`), q);
+    if (c.metodo !== 'media_estacional_misma_semana') assert.doesNotMatch(r, /media estacional|misma semana/, q);
+    if (c.nivel != null) assert.ok(!r.includes(String(c.nivel)) && !r.includes(c.nivel.toLocaleString('es-MX')), `${q}: sin cifras`);
+    const e = radar.diseases.find((x) => x.id === id);
+    const kb = respuestaRadar([e], radar, null);
+    assert.match(kb, metodo, `KB ${q}`);
+    if (c.metodo !== 'media_estacional_misma_semana') assert.doesNotMatch(kb, /media estacional|misma semana/, `KB ${q}`);
+  }
+  assert.match(leer('epibot/netlify/functions/rag.mjs'), /respuestaNoModelableRag\(qEfectiva, leerRadar\(\), \{ exploratorio: leerExploratorioRadar\(\) \}\)/);
+  assert.match(leer('netlify.toml'), /"assets\/boletin\/\*\/pronostico_exploratorio\.json"/);
+  assert.match(leer('epibot/js/radar_boletin.js'), /pronostico_exploratorio\.json`\)/);
 });

@@ -78,6 +78,9 @@ export function serieNacional(v) {
   return k ? { clave: k, serie: s[k] } : null;
 }
 
+/** Suma de las cifras semanales que muestra la gráfica (a un decimal, como el exploratorio). */
+const suma = (ps) => Math.round(ps.reduce((t, p) => t + (p.y ?? 0), 0) * 10) / 10;
+
 const semanaTxt = (yw) => (Array.isArray(yw) ? `${yw[0]}-W${String(yw[1]).padStart(2, '0')}` : '');
 
 /** Modelo de gráfica de un release del runner. Lanza si la vista no trae la serie nacional de 52 semanas. */
@@ -91,7 +94,7 @@ export function desdeVista(v, id) {
     origen: semanaTxt(v.origin), serie_nombre: `${n.serie.nombre} · ${n.serie.sexo_nombre ?? 'General'}`,
     observado: (n.serie.observado ?? []).map(([ds, y]) => ({ ds, y })),
     pronostico: n.serie.pronostico.map(([ds, y]) => ({ ds, y })),
-    total: n.serie.pronostico_52_total ?? null,
+    total: suma(n.serie.pronostico.map(([, y]) => ({ y }))), total_publicado: n.serie.pronostico_52_total ?? null,
   };
 }
 
@@ -109,7 +112,8 @@ export function desdeLegacy(hero, id) {
     rotulo: `Pronóstico publicado del carril original · motor nacional ${s.motor} · corte ${s.corte}`,
     etiqueta: '', detalle: `Definición publicada: ${s.casos_definicion}. Son los mismos datos de la Figura 1 de la portada.`,
     incertidumbre: s.intervalo_disponible ? 'Pronóstico puntual; su intervalo se consulta en la ficha' : 'Pronóstico puntual; sin intervalo de incertidumbre',
-    origen: s.corte, serie_nombre: 'Nacional · General', observado, pronostico, total: s.casos ?? null,
+    origen: s.corte, serie_nombre: 'Nacional · General', observado, pronostico,
+    total: suma(pronostico), total_publicado: s.casos ?? null,
   };
 }
 
@@ -155,4 +159,32 @@ export function coberturaPronostico(diseases, doc) {
     con_opcion: con, con_pronostico: conPronostico,
     pct: total ? Math.round((con / total) * 1000) / 10 : 0,
     pct_pronostico: total ? Math.round((conPronostico / total) * 1000) / 10 : 0 };
+}
+
+/** Método de una categoría del exploratorio, en palabras y sin cifras (EpiBot y función RAG). */
+export function descripcionMetodo(c) {
+  if (!c?.pronostico) return null;
+  if (c.metodo === 'nivel_reciente_acumulado_de_notas') {
+    return 'un valor plano igual a la media de los casos semanales recientes que salen del acumulado nacional publicado en las notas del boletín (no del cuadro estatal)';
+  }
+  if (c.metodo === 'nivel_reciente_sin_estacionalidad') {
+    return 'un valor plano igual a la media de las últimas semanas con cifra impresa';
+  }
+  return 'la media de la misma semana epidemiológica en los años anteriores impresos (hasta tres)';
+}
+
+/**
+ * Frase que menciona la opción «Pronóstico» del radar para una categoría sin release, sin dar cifras.
+ * `c` es su registro de pronostico_exploratorio.json (o null si no se cargó); `radar` es el enlace al radar.
+ */
+export function referenciaExploratoria(c, radar = 'Radar del boletín') {
+  const d = descripcionMetodo(c);
+  if (d) {
+    const sin = c.metodo === 'media_estacional_misma_semana' ? 'sin prueba de desempeño ni intervalos' : 'sin estacionalidad, prueba de desempeño ni intervalos';
+    return `En su opción «Pronóstico», el ${radar} muestra además una referencia «${c.rotulo ?? ROTULO_EXPLORATORIO}»: ${d}, ` +
+      `${sin}, que no es un pronóstico de EpiForecast-MX.`;
+  }
+  if (c && !c.pronostico) return `El ${radar} no tiene base para una referencia exploratoria de esta categoría.`;
+  return `En su opción «Pronóstico», el ${radar} muestra además una referencia exploratoria, no validada, sin prueba de ` +
+    'desempeño ni intervalos, que no es un pronóstico de EpiForecast-MX.';
 }

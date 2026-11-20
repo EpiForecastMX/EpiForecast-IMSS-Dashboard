@@ -37,7 +37,7 @@ export function predictorDescription(disease) {
 
 // Opción «Pronóstico» del radar (alta_b44, 20-nov-2026): toda categoría no agregada la tiene, con pronóstico
 // publicado, con pronóstico exploratorio no validado o, si su historia semanal no alcanza, con la serie y el motivo.
-export { coberturaPronostico } from './pronostico.mjs?v=7';
+export { coberturaPronostico } from './pronostico.mjs?v=9';
 
 const pct = (n, t) => `${(t ? Math.round((n / t) * 1000) / 10 : 0).toLocaleString('es-MX')} %`;
 
