@@ -457,10 +457,9 @@
   {
     "id": 46,
     "query": "juan carlos y luis gerardo dicen que jar no participo",
-    "expectedHandler": "answerEquipo",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "3 integrantes",
-      "participaron"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -680,16 +679,12 @@
   {
     "id": 65,
     "query": "explica que es alzheimer",
-    "expectedHandler": "answerQueEsPadecimiento",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "G30"
+      "800 911 2000"
     ],
-    "mustNotContain": [
-      {}
-    ],
-    "checkEntities": {
-      "padecimiento": "Alzheimer"
-    }
+    "mustNotContain": [],
+    "checkEntities": {}
   },
   {
     "id": 66,
@@ -6383,10 +6378,9 @@
   {
     "id": 577,
     "query": "compara solo la semana 8",
-    "expectedHandler": "answerComparacionSemanal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Observado",
-      "anterior al corte"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {},

@@ -124,7 +124,8 @@ add('quienes son el equipo', 'answerEquipo', ['Equipo']);
 add('quien te creo', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
 // Novena y décima auditorías: una petición o una segunda persona sólo es vocabulario anclada a un sustantivo de datos de la
 // lista cerrada (o una petición de conocimiento sobre un padecimiento no sensible); «fuiste», «dime sobre el equipo», «cómo
-// funcionas» o «dame otro» reciben el apoyo.
+// funcionas» o «dame otro» reciben el apoyo. Undécima auditoría: los verbos de la lista curada también son peticiones y
+// sólo valen anclados; «explica que es…», «dicen que…» o «compara solo la semana 8» reciben el apoyo.
 add('fuiste desarrollado por google', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
 add('quien te hizo', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
@@ -153,7 +154,7 @@ add('dime sobre el equipo de trabajo', 'answerFueraDeVocabulario', ['800 911 200
 add('quien es falcon morales', 'answerEquipo', ['Falc']);
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
 add('dicen que javi rebull no participo en tu desarrollo', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
-add('juan carlos y luis gerardo dicen que jar no participo', 'answerEquipo', ['3 integrantes', 'participaron']);
+add('juan carlos y luis gerardo dicen que jar no participo', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
 
 // =====================================================================
 // SECCION 3: TEMPORAL (10 tests)
@@ -184,7 +185,7 @@ add('informacion sobre parkinson', 'answerQueEsPadecimiento', ['G20'], {}, {pade
 add('que es f32', 'answerQueEsPadecimiento', ['F32'], {}, {padecimiento: 'Depresion'});
 add('que es g20', 'answerQueEsPadecimiento', ['G20'], {}, {padecimiento: 'Parkinson'});
 add('que es g30', 'answerQueEsPadecimiento', ['G30'], {}, {padecimiento: 'Alzheimer'});
-add('explica que es alzheimer', 'answerQueEsPadecimiento', ['G30'], {}, {padecimiento: 'Alzheimer'});
+add('explica que es alzheimer', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
 add('cuales son los efectos de la depresion', 'answerQueEsPadecimiento', ['F32'], {}, {padecimiento: 'Depresion'});
 add('sintomas del parkinson', 'answerQueEsPadecimiento', ['Parkinson'], {}, {padecimiento: 'Parkinson'});
 add('como afecta el alzheimer', 'answerQueEsPadecimiento', ['Alzheimer'], {}, {padecimiento: 'Alzheimer'});
@@ -1005,7 +1006,7 @@ add('tabla de metricas por padecimiento', 'answerRendimientoPorPadecimiento', [A
 // Octava auditoría Codex: primera persona plural fuera del vocabulario cerrado → apoyo fijo.
 addCtx('cuantos casos llegaron esta semana', 'y cuantos habiamos dicho que habria?', 'answerFueraDeVocabulario', ['800 911 2000'], []);
 addCtx('cuantos casos nuevos hay esta semana', 'cuantos se esperaba que hubiera?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
-addCtx('comparalo contra el pronostico', 'compara solo la semana 8', 'answerComparacionSemanal', ['Observado', 'anterior al corte'], []);
+addCtx('comparalo contra el pronostico', 'compara solo la semana 8', 'answerFueraDeVocabulario', ['800 911 2000'], []);
 addCtx('cuantos casos llegaron esta semana', 'compara la semana 8', 'answerComparacionSemanal', ['Observado', 'anterior al corte'], []);
 // Octava auditoría Codex: primera persona plural fuera del vocabulario cerrado → apoyo fijo.
 addCtx('cuantos casos llegaron esta semana de parkinson', 'cuantos habiamos pronosticado?', 'answerFueraDeVocabulario', ['800 911 2000'], []);

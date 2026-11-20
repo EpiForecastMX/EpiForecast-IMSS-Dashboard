@@ -2076,16 +2076,46 @@
     const toks = new Set(normLB(texto).split(' '));
     return cur.verbosPeticion.some((v) => toks.has(v)) || /\bme gustaria\b/.test(normLB(texto));
   }
+  /** Petición directa al bot: un verbo de petición propio («dame», «can you») o un verbo de la lista curada sin ancla. */
+  function peticionDirecta(texto) {
+    const cur = globalThis.EPI_VOCAB_CONSULTA;
+    if (!cur || !cur.verbosPeticion) return false;
+    const curados = new Set(cur.verbosCurados || []);
+    const n = ` ${canonClinico(normLB(texto)).replace(/[^a-z0-9]+/g, ' ').trim()} `;
+    const toks = new Set(n.split(' '));
+    return cur.verbosPeticion.some((v) => !curados.has(v) && toks.has(v)) || /\bme gustaria\b/.test(n) ||
+      verbosSinAncla(n).length > 0;
+  }
   // Fragmentos de lesión o daño que, pedidos al bot sin un sustantivo de datos, se leen como una petición de daño.
   const DANO = /\b(herida|heridas|herir|lesion|lesiones|lesionar|dano|danos|golpe|golpes|intoxicacion|intoxicar|envenenamiento|envenenar|veneno|quemadura|quemaduras|asfixia|ahogamiento|ahorcamiento|sofocacion|estrangulamiento|disparo|arma|armas|bala|corte|cortante|navaja|cuchillo|sobredosis|mordedura|mordeduras|picadura|picaduras|intoxicaciones|envenenamientos|disparos|cortes|ahogamientos|wound|wounds|injury|injuries|harm|poison|poisoning|overdose|burn|burns|choking|gun|knife|bullet)\b/;
   /** Petición al bot que no va seguida de un sustantivo de datos y nombra un id sensible o un fragmento de daño. */
   function peticionDeDano(raw) {
     if (!peticionEn(raw)) return false;
-    let n = ` ${canonClinico(normLB(raw)).replace(/[^a-z0-9]+/g, ' ').trim()} `;
-    for (const re of (globalThis.EPI_VOCAB_CONSULTA?.peticiones || [])) n = n.replace(re, ' ');
-    if (!peticionEn(n)) return false;
-    return idsSensiblesEn(raw).length > 0 || DANO.test(n);
+    if (idsSensiblesEn(raw).length && peticionDirecta(raw)) return true;
+    // Undécima auditoría: sin retorno temprano. Con un verbo de petición en el turno, todo fragmento de lesión o daño debe ir
+    // inmediatamente tras un sustantivo de datos («casos de asfixia»); en cualquier otra posición («dame datos y una herida»,
+    // «muestra una herida») es una petición de daño.
+    const toks = canonClinico(normLB(raw)).replace(/[^a-z0-9]+/g, ' ').trim().split(' ');
+    // Sin petición directa (sólo verbos curados anclados: «¿está validada la intoxicación por plaguicidas?»), un término de
+    // daño vale dentro del rótulo completo de un padecimiento publicado no sensible; nunca suelto («una herida»).
+    const enRotulo = new Set();
+    if (!peticionDirecta(raw)) {
+      const txt = ` ${toks.join(' ')} `;
+      for (const f of todosLosFragmentos()) {
+        if (!f.includes(' ') || idsSensiblesEn(f).length || nombraReleaseSensible(f) || !txt.includes(` ${f} `)) continue;
+        const ini = txt.slice(0, txt.indexOf(` ${f} `) + 1).trim().split(' ').filter(Boolean).length;
+        f.split(' ').forEach((_, d) => enRotulo.add(ini + d));
+      }
+    }
+    return toks.some((w, i) => {
+      if (!DANO.test(w) || enRotulo.has(i)) return false;
+      let k = i - 1;
+      if (['la', 'el', 'los', 'las', 'un', 'una'].includes(toks[k])) k--;
+      if (['de', 'del', 'por', 'sobre'].includes(toks[k])) k--;
+      return !(k >= 0 && SUSTANTIVO_DATOS.test(toks[k]));
+    });
   }
+
   // Undécima instrucción: petición o interrogativo de conocimiento seguido de «sobre/de/del/acerca de» y del fragmento
   // completo de un padecimiento. Sólo se retira si el padecimiento no es sensible y su nombre no lleva un término de lesión o
   // daño («dime sobre quemaduras» no vale; «dame los casos de quemaduras» sí, por el sustantivo de datos).
@@ -2099,6 +2129,58 @@
       return ' ';
     });
   }
+  // Undécima auditoría: los verbos de la lista curada (VERBOS_CURADOS, fuente única) sólo son vocabulario anclados: seguidos,
+  // con artículos o preposiciones opcionales, de un sustantivo de datos; seguidos de «sobre/de/del/acerca de» y del fragmento
+  // completo de un padecimiento no sensible ni de daño; o precedidos en el turno por un interrogativo o por «se» impersonal.
+  const SUSTANTIVO_DATOS = /^(casos|caso|cifras|cifra|datos|dato|numero|numeros|pronostico|pronosticos|tendencia|tendencias|tasa|tasas|estadisticas|estadistica|informacion|serie|series|grafica|graficas|grafico|graficos|modelos|modelo|metricas|metrica|resultados|resultado|motores|motor|cases|data|numbers|forecast|forecasts|figures|stats|statistics)$/;
+  const ENLACE_PAL = new Set(['los', 'las', 'el', 'la', 'un', 'una', 'unos', 'unas', 'de', 'del', 'sobre', 'con', 'contra', 'me',
+    'mas', 'tus', 'sus', 'the', 'some', 'any', 'your', 'more', 'of', 'al', 'a', 'lo']);
+  const INTERROGATIVO = new Set(['que', 'como', 'cual', 'cuales', 'cuantos', 'cuantas', 'cuanto', 'donde', 'cuando', 'quien',
+    'quienes', 'what', 'how', 'which', 'who', 'when', 'where', 'why']);
+  const REGION_GEO = /^(region|regiones|nacional|noroeste|noreste|norte|centro|occidente|sur|sureste|pais|republica|mexico|metropolitana)\b/;
+  /** Fragmento completo de un padecimiento o de una geografía, no sensible y sin término de daño. */
+  const fragmentoBenigno = (f) => Boolean(f) && !DANO.test(f) && !idsSensiblesEn(f).length && !nombraReleaseSensible(f);
+  // Palabras funcionales y de cortesía: nunca anclan un verbo como objeto.
+  const FUNCIONALES = new Set(['y', 'e', 'o', 'u', 'pero', 'no', 'si', 'tal', 'tan', 'tambien', 'solo', 'solamente', 'mas', 'menos',
+    'algo', 'nada', 'otro', 'otra', 'uno', 'una', 'cada', 'hasta', 'desde', 'entre', 'para', 'por', 'segun', 'versus', 'vs',
+    'hola', 'hey', 'gracias', 'favor', 'porfa', 'porfavor', 'saludos', 'buenas', 'buenos', 'tardes', 'noches', 'dia', 'dias',
+    'ahora', 'hoy', 'siguiente', 'onda', 'and', 'for', 'in', 'of', 'the', 'excepto', 'frente', 'mismo', 'about']);
+  function verboAnclado(toks, i) {
+    let j = i + 1;
+    while (j < toks.length && (ENLACE_PAL.has(toks[j]) || toks[j] === 'por' || toks[j] === 'en' || toks[j] === 'acerca')) j++;
+    // (a) sustantivo de datos de la lista cerrada.
+    if (j < toks.length && SUSTANTIVO_DATOS.test(toks[j])) return true;
+    // (a') objeto: una palabra técnica de la lista curada que no es verbo ni palabra funcional («hay overfitting», «está
+    // validado», «es confiable», «compara la semana 8»). Un fragmento de daño nunca es palabra curada y lo trata peticionDeDano.
+    const cur = globalThis.EPI_VOCAB_CONSULTA;
+    if (j < toks.length && cur && cur.palabras.has(toks[j]) && !(cur.verbosCurados || []).includes(toks[j]) &&
+      !FUNCIONALES.has(toks[j]) && !INTERROGATIVO.has(toks[j])) return true;
+    // (b) objeto: el fragmento completo de un padecimiento o una geografía no sensible ni de daño («compara depresión en
+    // Jalisco», «describe el alzheimer», «háblame sobre la lepra»).
+    const despues = ` ${toks.slice(j).join(' ')} `;
+    if (fragmentoBenigno(todosLosFragmentos().find((x) => despues.startsWith(` ${x} `)))) return true;
+    // (c) sujeto no personal inmediatamente antes: un sustantivo de datos o un fragmento benigno («la depresión ha crecido»,
+    // «el pronóstico decía»).
+    let k = i - 1;
+    while (k >= 0 && ['el', 'la', 'los', 'las', 'no'].includes(toks[k])) k--;
+    if (k >= 0 && SUSTANTIVO_DATOS.test(toks[k])) return true;
+    // El sujeto es un padecimiento, nunca una geografía («asma en Jalisco, describe» no ancla el verbo).
+    const antes = ` ${toks.slice(0, k + 1).join(' ')} `;
+    const sujeto = todosLosFragmentos().find((x) => antes.endsWith(` ${x} `));
+    if (fragmentoBenigno(sujeto) && !estadosEn(sujeto).length && !REGION_GEO.test(sujeto)) return true;
+    // (d) construcción impersonal con «se» o pregunta con un interrogativo previo.
+    if (toks[i - 1] === 'se') return true;
+    return toks.slice(0, i).some((w) => INTERROGATIVO.has(w));
+  }
+
+  /** Verbos de la lista curada que aparecen sin ancla en el turno normalizado. */
+  function verbosSinAncla(n) {
+    const cur = globalThis.EPI_VOCAB_CONSULTA;
+    if (!cur || !cur.verbosCurados) return [];
+    const V = new Set(cur.verbosCurados);
+    const toks = n.split(' ').filter(Boolean);
+    return toks.filter((w, i) => V.has(w) && !verboAnclado(toks, i));
+  }
   const DATOS_RUTA_INTERFAZ = /\b(panorama|kpis|tablero nacional)\b/;
   function analizaTurno(raw) {
     // canonClinico reescribe variantes clínicas («amebiasis del hígado», «presión alta en embarazadas») a su forma canónica
@@ -2106,6 +2188,7 @@
     let n = ` ${canonClinico(normLB(raw)).replace(/[^a-z0-9]+/g, ' ').trim()} `;
     const cur = globalThis.EPI_VOCAB_CONSULTA;
     let fragmentosCie = 0;
+    const sinAncla = verbosSinAncla(n);
     // Sexta y novena auditorías: la edad sólo se retira en forma poblacional en tercera persona. Con una marca de primera o
     // segunda persona o de
     // un familiar («tengo», «soy», «mi hijo tiene», «I am») las frases de edad no se aplican y el número queda fuera.
@@ -2123,6 +2206,7 @@
     n = retiraFragmentosDeGuardas(n);
     const todos = n.split(' ').filter(Boolean).filter((w) => !(/^\d{4}$/.test(w) && +w >= 2014 && +w <= 2027));
     const resto = todos.filter((w) => !(cur && cur.palabras.has(w)) && !ALCOHOL_PERMITIDO.has(w));
+    for (const v of sinAncla) if (!resto.includes(v)) resto.push(v);
     return { resto, todos, fragmentos: fragmentos + fragmentosCie };
   }
   /** Tokens que quedan fuera del vocabulario cerrado tras retirar fragmentos y frases técnicas. */
@@ -2174,8 +2258,8 @@
     if (simbolosNoTecnicos(q)) return true;
     // Con un id sensible, un verbo de deseo o necesidad nunca se lee como consulta neutra («quiero ver X70»): crisis.
     if (/\b(quiero|quisiera|queremos|necesito|necesitamos|deseo|deseamos|gustaria)\b/.test(normLB(q))) return true;
-    // Décima auditoría: lo mismo con cualquier verbo de petición o de segunda persona («dame», «can you give me»).
-    if (peticionEn(q)) return true;
+    // Décima auditoría: lo mismo con una petición directa («dame», «can you give me» o un verbo curado sin ancla).
+    if (peticionDirecta(q)) return true;
     // Quinta auditoría: los términos de un rótulo sólo cuentan dentro del fragmento completo (analizaTurno).
     // Con un id sensible sólo vale el vocabulario neutro estricto (VOCAB_NEUTRO): ni primera persona ni «quiero».
     return analizaTurno(q).todos.some((w) => !VOCAB_NEUTRO.has(w) && !ALCOHOL_PERMITIDO.has(w));

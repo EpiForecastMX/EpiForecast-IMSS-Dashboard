@@ -30,6 +30,19 @@ const EDAD_POBLACION = /\b(mujeres|hombres|personas|pacientes|adultos|jovenes|ni
 const EDAD_RANGO = /\bentre \d{1,2} y \d{1,2} anos\b/g;
 const EDAD_UMBRAL = /\b(mayores|menores) de \d{1,2}( anos)?\b/g;
 const EDAD_DE_A = /\bde \d{1,2} a \d{1,2} anos\b/g;
+// Undécima auditoría (`codex/REAUDITORIA10_FE.md`): FUENTE ÚNICA de los verbos de la lista curada. Todos son verbos de
+// petición (VERBOS_PETICION se genera de aquí): sólo valen anclados (sustantivo de datos inmediato, «sobre/de/del» + un
+// padecimiento no sensible, o una pregunta con interrogativo), impiden retirar la edad, nunca levantan la crisis y con
+// ellos un fragmento de daño sólo vale inmediatamente tras un sustantivo de datos. Los participios usados como adjetivo
+// («validado», «pronosticado», «publicado») no se cuentan como verbos.
+const VERBOS_CURADOS = Object.freeze(`
+  afecta llegaron pinta sigue consultar podria saber conocer informar mostrar decir compara comparan comparar comporta
+  configuro contrasta crearon decia describe dicen dirige entreno es esperaba esperan esta estiman explica filtra
+  funciona ha haber habra habria hay hubiera hubo iba iban llama llega llegan llego modelan muestra participo pasa
+  pronostican puede selecciona ser significa son tiene tienen trabaja usa usan va van ver viene gana ganara reporto
+  construyo influyen fallaron excluyo seleccionaron ocurrio modela evaluaron trata fue suma predice equivale queda
+  publica quedo tuvieron cura descubrio diagnosticaron identifico prevenir viajar cuesta are is follow
+`.split(/\s+/).filter(Boolean));
 // Décima auditoría: peticiones al bot. Sólo se retiran ancladas a un sustantivo de datos de esta lista cerrada.
 const OBJETO_DATOS = '(?:casos|caso|cifras|cifra|datos|dato|numero|numeros|pronostico|pronosticos|tendencia|tendencias|tasa|tasas|' +
   'estadisticas|estadistica|informacion|serie|series|grafica|graficas|grafico|graficos|modelos|modelo|' +
@@ -40,7 +53,8 @@ const ENLACE = '(?: (?:los|las|el|la|un|una|unos|unas|de|del|sobre|con|contra|me
 // Verbos de petición o de segunda persona: también impiden retirar la edad aunque la petición sea válida.
 const VERBOS_PETICION = ['quiero', 'quisiera', 'queremos', 'necesito', 'necesitamos', 'deseo', 'gustaria', 'dame', 'dime',
   'muestrame', 'ensename', 'comparalo', 'sorprendeme', 'podrias', 'puedes', 'sabes', 'usas', 'sacas', 'tienes', 'esperas',
-  'generas', 'pronosticas', 'funcionas', 'hablame', 'cuentame', 'platicame', 'give', 'show', 'tell', 'can', 'could', 'you', 'do'];
+  'generas', 'pronosticas', 'funcionas', 'hablame', 'cuentame', 'platicame', 'give', 'show', 'tell', 'can', 'could', 'you', 'do',
+  ...VERBOS_CURADOS];
 const PETICION_DESEO = new RegExp(`\\b(quiero|quisiera|queremos|necesito|necesitamos|deseo|me gustaria)( (ver|consultar|saber|conocer|revisar|comparar))?${ENLACE} ${OBJETO_DATOS}\\b`, 'g');
 const PETICION_IMPERATIVO = new RegExp(`\\b(dame|dime|muestrame|ensename|comparalo|sorprendeme)${ENLACE} ${OBJETO_DATOS}\\b`, 'g');
 const PETICION_CORTES = new RegExp(`\\b(podrias|puedes) (mostrar|mostrarme|decir|decirme|dar|darme|explicar|explicarme|ensenar|ensenarme|informar|consultar|comparar)${ENLACE} ${OBJETO_DATOS}\\b`, 'g');
@@ -52,39 +66,39 @@ globalThis.EPI_VOCAB_CONSULTA = Object.freeze({
   frasesEdad: [EDAD_POBLACION, EDAD_RANGO, EDAD_UMBRAL, EDAD_DE_A],
   verbosPeticion: Object.freeze(VERBOS_PETICION),
   peticiones: Object.freeze([PETICION_DESEO, PETICION_IMPERATIVO, PETICION_CORTES, PETICION_PREGUNTA_OBJETO, PETICION_PREGUNTA_VERBO, PETICION_INGLES, PETICION_INGLES_PREGUNTA]),
-  palabras: new Set(`
+  palabras: new Set([...VERBOS_CURADOS, ...`
     // Interrogativos, artículos, preposiciones, conectores, cortesía y verbos de consulta neutros.
-    a afecta ahora al algo el e otro uno siguiente llegaron nuevos pinta sigue cifras cifra consultar
-    podria saber conocer informar numeros mostrar porfa porfavor decir basado base buenas buenos cada como compara comparacion
-    comparan comparar comparativa comporta con configuro contra contrasta crearon crecido cual cuales cuando
-    cuantas cuanto cuantos de decia del desarrollado describe desde dia dias dicen dicho
-    dirige disminuido donde en entre entreno es esa ese esperaba esperan esta
-    estas este estiman explica favor filtra funciona gracias ha haber habido habra
-    habria hasta hay hey hola hoy hubiera hubo iba iban la las llama llega llegan llego
-    los mas menos modelan muestra nada no noches o onda para participo pasa pero por
-    pronosticado pronosticados pronostican puede que quien quienes
-    saludos segun selecciona ser si sido significa sobre solamente solo son tal tambien
-    tan tardes tiene tienen trabaja un una usa usan va van ver versus viene vs y
+    a ahora al algo el e otro uno siguiente nuevos cifras cifra
+    numeros porfa porfavor basado base buenas buenos cada como comparacion
+    comparativa con contra crecido cual cuales cuando
+    cuantas cuanto cuantos de del desarrollado desde dia dias dicho
+    disminuido donde en entre esa ese
+    estas este favor gracias habido
+    hasta hey hola hoy la las
+    los mas menos nada no noches o onda para pero por
+    pronosticado pronosticados que quien quienes
+    saludos segun si sido sobre solamente solo tal tambien
+    tan tardes un una versus vs y
     // Términos de datos epidemiológicos y de la respuesta.
     actual actuales tendencias tasa tasas prevalencia comportamiento variacion estimacion proyeccion mensual series
     violin histograma mae reciente
     acierto alcance aleatorio alto ano anos boletin brecha caso casos cobertura completo composicion corte dato
     datos demografica demografico desglose diferencia disponible distribucion efectos entidad entidades
-    epidemiologica estadisticas estado estados evolucion fecha femenino forecast fuente futuro gana ganador
-    ganadores ganara general genero grafica grafico historica historico historicos hombres horizonte incidencia
+    epidemiologica estadisticas estado estados evolucion fecha femenino forecast fuente futuro ganador
+    ganadores general genero grafica grafico historica historico historicos hombres horizonte incidencia
     informacion interesante masculino mayor mejor mejores menor mes meses mujeres nacional nivel numero padecimiento
     padecimientos periodo precision preciso prediccion promedio pronostico pronosticos proporcion proximas proximos
-    ranking real realidad recientes regional reporte reporto resumen semana semanal semanas series sexo sintomas
+    ranking real realidad recientes regional reporte resumen semana semanal semanas series sexo sintomas
     tabla temporal tendencia top total ultima ultimas ultimo ultimos visualizacion
     // Términos técnicos del proyecto, sus métricas, motores e infraestructura.
     zoom mapa acumulado calibracion semaforo corredor radar avisos aviso validada validado confiable seguimiento curso
-    ok excepto desempeno error volumen panorama kpis tablero dashboard meta modo control construyo construccion
+    ok excepto desempeno error volumen panorama kpis tablero dashboard meta modo control construccion
     // Preguntas de método sobre un release o el estudio MICAI que ya responden las pruebas de la función RAG.
-    efecto valores imputados influyen reparto calidad candidatos fallaron ets ridge excluyo seleccionaron ocurrio
-    estacionales modela evaluaron trata mismo fue suma rondas comparativo picos autores ponencia wcp predice micai
-    cita textual estudio afiliaciones equivale independientes queda asignacion archivada ingenuo revision optima frente
-    treemap letalidad vacuna about pdf publica galeria peores graficos graficas area apilada sparklines timelapse heatmap
-    quedo estacional ooad ventana tuvieron naive follow up
+    efecto valores imputados reparto calidad candidatos ets ridge
+    estacionales mismo rondas comparativo picos autores ponencia wcp micai
+    cita textual estudio afiliaciones independientes asignacion archivada ingenuo revision optima frente
+    treemap letalidad vacuna about pdf galeria peores graficos graficas area apilada sparklines timelapse heatmap
+    estacional ooad ventana naive up
     futuras previas utilidad
     analisis ar archivos articulo aws cd ci codigo commits configuracion cross deep deepar diagnostico diagnosticos
     ensemble entrenamiento epiforecast equipo fallback folds globales google infraestructura integrantes leakage
@@ -105,13 +119,14 @@ globalThis.EPI_VOCAB_CONSULTA = Object.freeze({
     mortinato syphilitic stillbirth rare materna lactantes clamidia ojo rojo infection endemica nonvenereal anogenitales
     insulina hipertensos
     // Preguntas de divulgación de los casos funcionales: personajes públicos, historia del padecimiento y comparación mundial.
-    alguien ali artistas celebridades cura descubrio diagnosticaron famoso famosos historia identifico indices
-    mohamed mundial mundo origen pais paises pakistan personajes prevenir robin rocky tratamiento unidos williams
+    alguien ali artistas celebridades famoso famosos historia indices
+    mohamed mundial mundo origen pais paises pakistan personajes robin rocky tratamiento unidos williams
     // Palabras de consultas fuera de tema de los casos funcionales (lugares y objetos; la respuesta las declina).
-    atlantida california cuesta fantasma irapuato mordor narnia tesla texas viajar
+    atlantida california fantasma irapuato mordor narnia tesla texas
     // Inglés de consulta neutro.
-    and are cases data for forecast how in is many of state the trend week weeks what year
-`.split('\n').filter((l) => !l.trim().startsWith('//')).join(' ').split(/\s+/).filter(Boolean)),
+    and cases data for forecast how in many of state the trend week weeks what year
+`.split('\n').filter((l) => !l.trim().startsWith('//')).join(' ').split(/\s+/).filter(Boolean)]),
+  verbosCurados: VERBOS_CURADOS,
   frases: [
     // Décima auditoría (`codex/REAUDITORIA9_FE.md`): toda petición al bot (deseo, imperativo, cortesía, segunda persona o su
     // equivalente inglés) sólo se retira si va seguida INMEDIATAMENTE, con artículos o preposiciones opcionales, de un
