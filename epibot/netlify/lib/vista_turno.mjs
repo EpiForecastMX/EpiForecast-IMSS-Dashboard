@@ -108,7 +108,8 @@ function releasesEn(query) {
   const d = C.diabetesEnConsulta(qn.replace(/[^a-z0-9 ]/g, ' '));
   if (d && !d.generica) return d.pads.map((p) => C.releases.find((r) => r.pad === p)).filter(Boolean);
   const aj = C.subtipoAjeno(strip(query));
-  return C.releases.filter((r) => (!aj || r.pad !== aj.pad) && r.alias.some((a) => C.nombraAlias(qn, a)));
+  // Decimoséptima auditoría: delega en el resolutor único del catálogo.
+  return C.releasesEnConsulta(qn, { parcial: false }).filter((r) => !aj || r.pad !== aj.pad);
 }
 
 function esTurnoSeguimiento(raw) {

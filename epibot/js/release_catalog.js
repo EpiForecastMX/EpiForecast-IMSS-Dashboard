@@ -1518,7 +1518,7 @@
    * no se lea como código.
    */
   function codigoAjeno(canon) {
-    const nombrado = releases.find((r) => r.cie && r.alias.some((al) => nombraAlias(canon, al)));
+    const nombrado = releasesEnConsulta(canon, { codigos: false }).find((r) => r.cie);
     if (!nombrado) return null;
     const ints = intervalosCie(nombrado.cie);
     const letras = new Set(String(nombrado.cie).toLowerCase().match(/[a-z]/g));
@@ -1577,7 +1577,7 @@
    */
   function contradiccionCie(canon) {
     if (COMPARA.test(canon)) return null;
-    const nombrado = releases.find((r) => r.cie && r.alias.some((al) => !/\d/.test(al) && nombraAlias(canon, al)));
+    const nombrado = releasesEnConsulta(canon, { codigos: false, soloNombres: true }).find((r) => r.cie);
     if (!nombrado) return null;
     for (const m of canon.matchAll(CODIGO_CIE)) {
       const [, letra, num, dec] = m;
@@ -1769,8 +1769,8 @@
     if (contradiccion) return { release: null, pad: null, texto: contradiccion };
     const hitPrevio = previa ? { release: previa.release, abarca: previa.abarca } : null;
     if (!hitPrevio && subtipoAjeno(qn)) return null;
-    const nombrados = (a) => a.bloques.filter((id) => releases.find((r) => r.id === id).alias
-      .some((al) => nombraAlias(canon, al))).length;
+    const porNombre = releasesEnConsulta(canon, { codigos: false }).map((r) => r.id);
+    const nombrados = (a) => a.bloques.filter((id) => porNombre.includes(id)).length;
     const hit = hitPrevio || ALIAS_AMBIGUOS.find((a) => a.generico.test(canon) && !a.especifico.test(canon) &&
       (!a.uno || a.uno.test(canon) === a.otroEsp.test(canon)) && (!a.bloques || a.siempre || nombrados(a) !== 1));
     if (!hit) return null;
@@ -1809,7 +1809,7 @@
     const q = sinAliasPublicados(` ${canon.replace(CANCER_MAMA, ' ')} `);
     // Un término genérico que forma parte del nombre de un release nombrado («hepatitis B15») no lo niega.
     const sinTilde = (t) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    const nombrados = releases.filter((r) => r.alias.some((al) => nombraAlias(canon, al)));
+    const nombrados = releasesEnConsulta(canon, { codigos: false });
     const directa = noModeladas.find((e) => q.includes(e.endsWith(' ') ? ` ${e}` : ` ${e.trim()}`) &&
       !(e.trim() === 'hepatitis' && nombrados.some((r) => sinTilde(r.nombre).includes('hepatitis'))));
     if (directa) return directa;
@@ -1839,8 +1839,7 @@
   const SENSIBLE_ES = /\b(suicid\w*|intento de suicidio|ideacion suicida|autolesion\w*|autoinflig\w*|lesiones autoinfligidas)\b/;
   const SENSIBLE_EN = /\b(suicide|suicidal|self ?harm|self injury|self inflicted)\b/;
   function nombraReleaseSensible(qn) {
-    const canon = canonClinico(String(qn).replace(/[^a-z0-9. ]+/g, ' ').replace(/\s+/g, ' '));
-    return releases.some((r) => r.sensible && r.alias.some((al) => nombraAlias(canon, al)));
+    return releasesEnConsulta(qn, { prefijos: true }).some((r) => r.sensible);
   }
 
   const CRISIS_TEXTO_ES = 'Lamento que estés pasando por esto. No tienes que enfrentarlo a solas.\n\n' +
@@ -1963,8 +1962,8 @@
   }
   /** Releases de la lista blanca que nombra la consulta (F10.0 no cuenta si el alcohol está calificado). */
   function idsSensiblesEn(q) {
-    const canon = canonClinico(normLB(q));
-    return releases.filter((r) => IDS_LISTA_BLANCA.has(r.id) && r.alias.some((al) => nombraAlias(canon, al)) &&
+    // Decimoséptima auditoría: por el resolutor único (alias, prefijos y códigos con subcódigos, también compactos «X600»).
+    return releasesEnConsulta(q, { prefijos: true }).filter((r) => IDS_LISTA_BLANCA.has(r.id) &&
       !(r.id === 'intox_alcohol_f100' && alcoholCalificado(q)));
   }
   // Tercera auditoría Codex: léxico de riesgo por formas verbales (futuro, infinitivo, pronominal), independiente de que se
@@ -2373,34 +2372,52 @@
   });
   const CODIGO_LEGACY = { f32: 'Depresion', g20: 'Parkinson', g30: 'Alzheimer', a97: 'Dengue', a90: 'Dengue', a91: 'Dengue' };
   /**
-   * Todas las menciones de padecimientos de la consulta: { legacy: [pads], releases: [releases] }. Releases por alias o por
-   * código CIE (entero o con subcódigo, cubierto total o parcialmente); los cuatro originales por alias o por código.
+   * RESOLUTOR ÚNICO de menciones de padecimientos (decimosexta y decimoséptima auditorías). Toda detección (guardas,
+   * crisis, levantamiento, consultas mixtas, entities.js, la función RAG y su vista) delega aquí; ningún otro código
+   * compara alias. Devuelve { legacy: [pads], releases: [releases en orden de catálogo], coincidencias: Map(release → alias) }.
+   * Opciones: `codigos` (códigos CIE de releases y de los originales, enteros, con subcódigo con o sin punto o compactos:
+   * «X60», «X60.0», «X600»), `parcial` (un código cuenta para todo release que cubre alguno de sus subcódigos; si no, debe
+   * cubrirlo entero o exacto), `soloNombres` (sólo alias sin dígitos) y `prefijos` (también los prefijos de typos).
    */
-  function padecimientosEnConsulta(qn) {
+  function padecimientosEnConsulta(qn, { codigos = true, parcial = true, soloNombres = false, prefijos = false } = {}) {
     const canon = canonClinico(normLB(qn));
     const legacy = new Set();
-    for (const [al, pad] of Object.entries(ALIAS_LEGACY)) if (new RegExp(`\\b${al}\\b`).test(canon)) legacy.add(pad);
-    const conPunto = canonClinico(String(normalizaEntrada(qn)).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-z0-9. ]+/g, ' ').replace(/\s+/g, ' '));
-    const rel = new Set(releases.filter((r) => r.alias.some((al) => nombraAlias(canon, al))));
-    for (const m of conPunto.matchAll(CODIGO_CIE)) {
-      const [, letra, num, dec] = m;
-      if (CODIGO_LEGACY[`${letra}${num}`]) { legacy.add(CODIGO_LEGACY[`${letra}${num}`]); continue; }
-      const decs = dec != null ? [dec] : ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-      for (const r of releases) {
-        if (r.cie && decs.some((x) => intervalosCie(r.cie).some(([lo, hi]) => claveCie(letra, num, x) >= lo && claveCie(letra, num, x) <= hi))) rel.add(r);
+    for (const [al, pad] of Object.entries(ALIAS_LEGACY)) {
+      if ((!soloNombres || !/\d/.test(al)) && nombraAlias(canon, al)) legacy.add(pad);
+    }
+    const coincidencias = new Map();
+    for (const r of releases) {
+      const als = [...r.alias, ...(prefijos ? (r.prefijos || []) : [])].filter((al) => (!soloNombres || !/\d/.test(al)) && nombraAlias(canon, al));
+      if (als.length) coincidencias.set(r, als);
+    }
+    const rel = new Set(coincidencias.keys());
+    if (codigos) {
+      const conPunto = canonClinico(normalizaEntrada(qn).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9. ]+/g, ' ').replace(/\s+/g, ' '));
+      for (const m of conPunto.matchAll(CODIGO_CIE)) {
+        const [, letra, num, dec] = m;
+        if (CODIGO_LEGACY[`${letra}${num}`]) { legacy.add(CODIGO_LEGACY[`${letra}${num}`]); continue; }
+        const decs = dec != null ? [dec] : ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        const cubre = (r, x) => intervalosCie(r.cie).some(([lo, hi]) => claveCie(letra, num, x) >= lo && claveCie(letra, num, x) <= hi);
+        for (const r of releases) if (r.cie && (parcial ? decs.some((x) => cubre(r, x)) : decs.every((x) => cubre(r, x)))) rel.add(r);
       }
     }
-    return { legacy: [...legacy], releases: [...rel] };
+    return { legacy: [...legacy], releases: releases.filter((r) => rel.has(r)), coincidencias };
   }
+  /** Releases que nombra la consulta (delegado del resolutor único). */
+  const releasesEnConsulta = (qn, op) => padecimientosEnConsulta(qn, op).releases;
   function respuestaMixtaSensible(qn) {
     const sens = idsSensiblesEn(qn);
     if (!sens.length) return null;
+    // Un código genérico que abarca varios bloques («K70») pide precisar, también sin cifras (ALIAS_AMBIGUOS).
+    if (aliasAmbiguo(qn)) return null;
     const canon = canonClinico(normLB(qn));
     const menciones = padecimientosEnConsulta(qn);
     // Otro release nombrado (por alias o por código), salvo el que sólo aparece como parte del rótulo del sensible.
+    const coinc = menciones.coincidencias;
+    // Otro release cuya única mención es parte del rótulo del sensible («antiparkinsonianas» no es Parkinson) no cuenta.
     const otros = menciones.releases.filter((r) => !sens.includes(r) &&
-      !(sens.some((x) => x.alias.some((al) => nombraAlias(canon, al) && r.alias.some((b) => al.includes(b))))));
+      !(coinc.has(r) && sens.some((x) => (coinc.get(x) || []).some((al) => (coinc.get(r) || []).every((b) => al.includes(b))))));
     const legacy = menciones.legacy;
     if (!otros.length && !legacy.length && sens.length < 2) return null;
     const est = estadosEn(qn);
@@ -2547,6 +2564,6 @@
     motivoRechazo, crisisEnTurnos, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, idsSensiblesEn,
     alcoholCalificado, IDS_LISTA_BLANCA, _VOCAB_TECNICO: VOCAB_TECNICO, _FRAGMENTOS_GUARDAS: FRAGMENTOS_GUARDAS, fueraDeVocabulario, respuestaFueraDeVocabulario,
     restoFuera, tieneFragmentoDeDatos, respuestaConDatos, APOYO_ES, APOYO_EN, pareceIngles, normalizaEntrada,
-    ALIAS_LEGACY, padecimientosEnConsulta,
+    ALIAS_LEGACY, padecimientosEnConsulta, releasesEnConsulta,
   });
 })(globalThis);

@@ -4,7 +4,7 @@
  * Port directo de knowledge_base.py: _norm(), _detect_entities(),
  * alias maps para estados, padecimientos, sexo y modelos.
  */
-import { ALIAS_LEGACY, ALIAS_RELEASES, canonClinico, diabetesEnConsulta, mencionaNoModelada, nombraAlias, noModeladas, subtipoAjeno } from './release_config.js?v=50';
+import { ALIAS_LEGACY, ALIAS_RELEASES, padecimientosEnConsulta, canonClinico, diabetesEnConsulta, mencionaNoModelada, noModeladas, subtipoAjeno } from './release_config.js?v=51';
 
 // ---------------------------------------------------------------------------
 // Normalizacion
@@ -239,9 +239,12 @@ export function detectEntities(query) {
   const allPads = [];
   // Un subtipo con código propio («A06.4», «otitis supurativa») no es su bloque vecino publicado.
   const ajeno = subtipoAjeno(qn);
-  for (const [alias, canon] of Object.entries(PADECIMIENTO_ALIAS)) {
-    if (ajeno && canon === ajeno.pad) continue;
-    if (nombraAlias(canonClinico(qn), alias) && !allPads.includes(canon)) allPads.push(canon);
+  // Decimoséptima auditoría: los padecimientos salen del resolutor único del catálogo (alias, códigos con subcódigos con y
+  // sin punto o compactos, nombres en inglés); los originales primero y luego los releases en orden de catálogo.
+  const menciones = padecimientosEnConsulta(qn, { parcial: false });
+  for (const pad of [...menciones.legacy, ...menciones.releases.map((r) => r.pad)]) {
+    if (ajeno && pad === ajeno.pad) continue;
+    if (!allPads.includes(pad)) allPads.push(pad);
   }
   const diabetes = diabetesEnConsulta(qn);
   if (diabetes) {

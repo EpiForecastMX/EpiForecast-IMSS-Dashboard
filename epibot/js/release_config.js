@@ -6,7 +6,7 @@
  */
 import './vocab_cerrado.js?v=5';
 import './vocab_consulta.js?v=9';
-import './release_catalog.js?v=50';
+import './release_catalog.js?v=51';
 
 const CATALOGO = globalThis.EPI_CATALOGO;
 
@@ -37,6 +37,7 @@ export const aliasAmbiguo = CATALOGO.aliasAmbiguo;
 export const normalizaEntrada = CATALOGO.normalizaEntrada;
 export const ALIAS_LEGACY = CATALOGO.ALIAS_LEGACY;
 export const padecimientosEnConsulta = CATALOGO.padecimientosEnConsulta;
+export const releasesEnConsulta = CATALOGO.releasesEnConsulta;
 
 export const releaseDePad = (pad) => RELEASES.find((r) => r.pad === pad) || null;
 export const releaseDeId = (id) => RELEASES.find((r) => r.id === id) || null;
@@ -56,6 +57,6 @@ const strip = (s) => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g
 
 /** Primer release que la consulta nombra por uno de sus alias, o null. */
 export function releaseConAlias(q) {
-  const qn = canonClinico(strip(q));
-  return RELEASES.find((r) => r.alias.some((a) => nombraAlias(qn, a))) || null;
+  // Decimoséptima auditoría: delega en el resolutor único (alias y códigos con subcódigos que el release cubre entero).
+  return CATALOGO.releasesEnConsulta(canonClinico(strip(q)), { parcial: false })[0] || null;
 }

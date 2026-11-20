@@ -24,6 +24,8 @@ function cargarTramoEstadoRag() {
 
   const catalogoStub = {
     motivoRechazo: motivoRechazoReal,
+    // Decimoséptima auditoría: rag.mjs detecta por el resolutor único; el stub lo emula sobre sus releases sintéticos.
+    releasesEnConsulta(qn) { return this.releases.filter((r) => r.alias.some((a) => this.nombraAlias(qn, a))); },
     canonClinico: (s) => s,
     nombraAlias: (qn, alias) => {
       const esc = String(alias).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

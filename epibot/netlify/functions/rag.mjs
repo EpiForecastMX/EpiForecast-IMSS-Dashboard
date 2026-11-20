@@ -299,10 +299,10 @@ function aliasDeReleaseRag(id) {
   const r = globalThis.EPI_CATALOGO.releases.find((x) => x.id === id);
   return r ? [...new Set([...r.alias, ...(r.prefijos || [])])] : [];
 }
-const nombraAlgunoRag = (qn, aliases) => aliases.some((a) => globalThis.EPI_CATALOGO.nombraAlias(qn, a));
+// Decimoséptima auditoría: la detección delega en el resolutor único del catálogo (alias, prefijos y códigos).
+const nombraReleaseRag = (qn, ...ids) => globalThis.EPI_CATALOGO.releasesEnConsulta(qn, { prefijos: true }).some((r) => ids.includes(r.id));
 
 // D7 (T60 y T58): dosis, letalidad, cómo intoxicar(se) o envenenar. Exige un alias propio de T60 o T58.
-const D7_ALIAS_RAG = [...aliasDeReleaseRag('plaguicidas_t60'), ...aliasDeReleaseRag('monoxido_t58'), 'pesticide'];
 const D7_METODO_ES_RAG = /\b(dosis|letal|letales|letalidad|(intoxicar|envenenar)(me|te|se|lo|la|los|las|le|les|nos)?|como (me |te |se |lo |la |los |las |le |les )?(intoxic|envenen)[a-z]*|para (morir|morirme|morirse|matar|matarme|matarse|matarlo|matarla))\b/;
 const D7_METODO_EN_RAG = /\b(lethal|doses?|dosage|overdose|how (to|do i|can i|do you) (poison|intoxicate)|poison (myself|yourself|someone|somebody|him|her|them)|to (die|kill))\b/;
 const D7_TEXTO_ES_RAG = 'Este sitio sólo publica conteos de casos notificados y su pronóstico: no describe mecanismos, ' +
@@ -315,7 +315,7 @@ const D7_TEXTO_EN_RAG = 'This site only publishes counts of reported cases and t
   'If someone is in danger or has been exposed, call **911** or go to an emergency room.';
 function guardaD7Rag(query) {
   const qn = normGuarda(String(query || ''));
-  if (!nombraAlgunoRag(qn, D7_ALIAS_RAG)) return null;
+  if (!nombraReleaseRag(qn, 'plaguicidas_t60', 'monoxido_t58') && !/(^| )pesticide/.test(qn)) return null;
   if (D7_METODO_ES_RAG.test(qn)) return D7_TEXTO_ES_RAG;
   return D7_METODO_EN_RAG.test(qn) ? D7_TEXTO_EN_RAG : null;
 }
@@ -326,10 +326,10 @@ function guardaSumaA37U99Rag(query) {
   const raw = String(query || '');
   const qn = normGuarda(raw);
   const u99 = aliasDeReleaseRag('coqueluchoide_u99').sort((a, b) => b.length - a.length);
-  if (!nombraAlgunoRag(qn, u99)) return null;
+  if (!nombraReleaseRag(qn, 'coqueluchoide_u99')) return null;
   // «pertussis like syndrome» (U99) contiene «pertussis» y «coqueluchoide» empieza por «coqueluche» (A37).
   const resto = u99.reduce((q, a) => q.replace(new RegExp(`(^| )${a}[a-z0-9]*`, 'g'), ' '), qn);
-  if (!nombraAlgunoRag(resto, aliasDeReleaseRag('tos_ferina_a37'))) return null;
+  if (!nombraReleaseRag(resto, 'tos_ferina_a37')) return null;
   if (!SUMA_RAG.test(qn) && !raw.includes('+')) return null;
   const rs = globalThis.EPI_CATALOGO.releases;
   const a37 = rs.find((r) => r.id === 'tos_ferina_a37');
@@ -435,8 +435,7 @@ const consultaCanon = (query) => globalThis.EPI_CATALOGO.canonClinico(
 /** Releases publicados del runner que la consulta nombra por alias. */
 function releasesNombrados(query) {
   const C = globalThis.EPI_CATALOGO;
-  const qn = consultaCanon(query);
-  return C.releases.filter((r) => r.alias.some((a) => C.nombraAlias(qn, a)));
+  return C.releasesEnConsulta(consultaCanon(query), { parcial: false });
 }
 // Padecimientos del carril original (knowledge.json) y del artículo MICAI: si la consulta los nombra, los pasajes
 // legacy sí son pertinentes y la recuperación no se acota a los releases del runner.
@@ -622,11 +621,13 @@ function diabetesDe(qn) {
 function detectEntities(query) {
   const qn = globalThis.EPI_CATALOGO.canonClinico(stripAccents(query));
   const out = { padecimiento: diabetesDe(qn), entidad: null, sexo: null };
-  const padMap = { depresion: 'Depresion', depression: 'Depresion', f32: 'Depresion', parkinson: 'Parkinson', g20: 'Parkinson', alzheimer: 'Alzheimer', alzaimer: 'Alzheimer', g30: 'Alzheimer', dengue: 'Dengue', a97: 'Dengue' };
-  for (const r of globalThis.EPI_CATALOGO.releases) for (const k of [...r.alias, ...r.prefijos]) padMap[k] = r.pad;
+  // Decimoséptima auditoría: padecimiento por el resolutor único (originales primero, luego releases en orden de catálogo).
   // Un subtipo con código propio («A06.4», «otitis supurativa») no es su bloque vecino publicado.
   const ajeno = globalThis.EPI_CATALOGO.subtipoAjeno(qn);
-  if (!out.padecimiento) for (const [k, v] of Object.entries(padMap)) if ((!ajeno || v !== ajeno.pad) && globalThis.EPI_CATALOGO.nombraAlias(qn, k)) { out.padecimiento = v; break; }
+  if (!out.padecimiento) {
+    const m = globalThis.EPI_CATALOGO.padecimientosEnConsulta(qn, { parcial: false, prefijos: true });
+    out.padecimiento = [...m.legacy, ...m.releases.map((r) => r.pad)].find((v) => !ajeno || v !== ajeno.pad) || null;
+  }
   const alias = { cdmx: 'Ciudad de Mexico', df: 'Ciudad de Mexico', 'distrito federal': 'Ciudad de Mexico', 'ciudad de mexico': 'Ciudad de Mexico', edomex: 'Mexico', 'estado de mexico': 'Mexico', 'nuevo leon': 'Nuevo Leon', 'san luis potosi': 'San Luis Potosi', 'baja california sur': 'Baja California Sur', 'baja california': 'Baja California', 'quintana roo': 'Quintana Roo' };
   for (const [k, v] of Object.entries(alias).sort((a, b) => b[0].length - a[0].length)) if (qn.includes(k)) { out.entidad = v; break; }
   if (!out.entidad) {

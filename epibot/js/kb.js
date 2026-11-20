@@ -6,12 +6,12 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=84';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=85';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=5';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=58';
-import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, respuestaConDatos, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=50';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=59';
+import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, respuestaConDatos, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=51';
 
 let DATA = null;
 
@@ -5744,12 +5744,12 @@ function aliasDeRelease(id) {
   const r = RELEASES.find((x) => x.id === id);
   return r ? [...new Set([...r.alias, ...(r.prefijos || [])])] : [];
 }
-const nombraAlguno = (qn, aliases) => aliases.some((a) => nombraAlias(qn, a));
+// Decimoséptima auditoría: la detección delega en el resolutor único del catálogo (alias, prefijos y códigos).
+const nombraRelease = (qn, ...ids) => releasesEnConsulta(qn, { prefijos: true }).some((r) => ids.includes(r.id));
 
 // D7 (plaguicidas T60 y monóxido T58): una consulta de dosis, letalidad o de cómo intoxicar(se) o envenenar
 // recibe un texto fijo, sin mecanismos, productos, dosis ni cifras. Ejecuta la condición D7 vigente; no es un
 // criterio nuevo y no toca a ningún otro padecimiento: exige un alias propio de T60 o T58.
-const D7_ALIAS = [...aliasDeRelease('plaguicidas_t60'), ...aliasDeRelease('monoxido_t58'), 'pesticide'];
 const D7_METODO_ES = /\b(dosis|letal|letales|letalidad|(intoxicar|envenenar)(me|te|se|lo|la|los|las|le|les|nos)?|como (me |te |se |lo |la |los |las |le |les )?(intoxic|envenen)[a-z]*|para (morir|morirme|morirse|matar|matarme|matarse|matarlo|matarla))\b/;
 const D7_METODO_EN = /\b(lethal|doses?|dosage|overdose|how (to|do i|can i|do you) (poison|intoxicate)|poison (myself|yourself|someone|somebody|him|her|them)|to (die|kill))\b/;
 export const D7_TEXTO_ES = 'Este sitio sólo publica conteos de casos notificados y su pronóstico: no describe mecanismos, ' +
@@ -5763,7 +5763,7 @@ export const D7_TEXTO_EN = 'This site only publishes counts of reported cases an
 /** Texto fijo de D7 para una consulta (cruda), o null. */
 export function guardaD7(query) {
   const qn = norm(String(query || ''));
-  if (!nombraAlguno(qn, D7_ALIAS)) return null;
+  if (!nombraRelease(qn, 'plaguicidas_t60', 'monoxido_t58') && !/(^| )pesticide/.test(qn)) return null;
   if (D7_METODO_ES.test(qn)) return D7_TEXTO_ES;
   return D7_METODO_EN.test(qn) ? D7_TEXTO_EN : null;
 }
@@ -5777,11 +5777,11 @@ export function guardaSumaA37U99(query) {
   const raw = String(query || '');
   const qn = norm(raw);
   const u99 = aliasDeRelease('coqueluchoide_u99').sort((a, b) => b.length - a.length);
-  if (!nombraAlguno(qn, u99)) return null;
+  if (!nombraRelease(qn, 'coqueluchoide_u99')) return null;
   // «pertussis like syndrome» (U99) contiene «pertussis» y «coqueluchoide» empieza por «coqueluche» (A37): se
   // retiran las menciones de U99 antes de buscar A37.
   const resto = u99.reduce((q, a) => q.replace(new RegExp(`(^| )${a}[a-z0-9]*`, 'g'), ' '), qn);
-  if (!nombraAlguno(resto, aliasDeRelease('tos_ferina_a37'))) return null;
+  if (!nombraRelease(resto, 'tos_ferina_a37')) return null;
   if (!SUMA.test(qn) && !raw.includes('+')) return null;
   const a37 = RELEASES.find((r) => r.id === 'tos_ferina_a37');
   const u = RELEASES.find((r) => r.id === 'coqueluchoide_u99');
