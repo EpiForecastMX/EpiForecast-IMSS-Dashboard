@@ -10,12 +10,12 @@
  * follow-ups («¿y hombres?») y en consultas corregidas por typo, donde la consulta cruda ya no
  * nombra a Obesidad.
  */
-import { mencionaNoModelada } from './entities.js?v=83';
+import { mencionaNoModelada } from './entities.js?v=84';
 import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
-} from './obesidad_charts.js?v=52';
-import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=49';
+} from './obesidad_charts.js?v=53';
+import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=50';
 // Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
 import './avisos_fuente.js?v=5';
 
@@ -172,12 +172,23 @@ export function answerDiabetes(q, ent, s, d) {
 export function answerReleasesMixtos(q, ent, s, d) {
   const pads = ent.padecimientos || [];
   if (pads.length < 2 || !pads.some(releaseDePad) || mencionaNoModelada(q)) return null;
+  // Decimosexta auditoría: con un id sensible entre los padecimientos, nunca se combinan cifras (guarda mixta compartida).
+  if (pads.some((p) => releaseDePad(p)?.sensible)) {
+    return globalThis.EPI_CATALOGO.respuestaMixtaSensible(q) ||
+      'No combino en una misma respuesta las cifras de estos padecimientos; pregúntalos por separado.\n\n' +
+      'Si tú o alguien cercano necesita apoyo, la **Línea de la Vida** atiende gratis, las 24 horas, todos los días: **800 911 2000**. ' +
+      'Si alguien está en peligro inmediato, llama al **911**.\n<!--SIN_GRAFICA-->';
+  }
   const filas = pads.map((pad) => {
     const r = releaseDePad(pad);
-    const nac = r && d[r.dataKey]?.series['nacional|mx|general'];
     if (!r) return `- **${pad}**: pregunta por este padecimiento por separado.`;
-    if (!nac) return `- **${r.etiqueta}**: consulta [su página](../${r.pagina}).`;
-    return `- **${r.etiqueta}**: ${ent0(nac.pronostico_52_total)} casos pronosticados en ${d[r.dataKey].horizon_weeks} semanas, con datos hasta ${semana(d[r.dataKey].origin)}. [Ver su página](../${r.pagina}).`;
+    const v = d[r.dataKey];
+    // Con un estado pedido, sólo la serie de ese estado; nunca el total nacional en su lugar.
+    let x = v && !ent.estado ? v.series['nacional|mx|general'] : null;
+    if (v && ent.estado) { const y = serieObesidad(v, { ...ent, sexo: 'general' }); x = y && y.nivel === 'estado' ? y : null; }
+    const lugar = ent.estado && x ? ` en ${x.nombre}` : '';
+    if (!x) return `- **${r.etiqueta}**: consulta [su página](../${r.pagina})${ent.estado ? ` para ${ent.estado}` : ''}.`;
+    return `- **${r.etiqueta}**${lugar}: ${ent0(x.pronostico_52_total)} casos pronosticados en ${v.horizon_weeks} semanas, con datos hasta ${semana(v.origin)}. [Ver su página](../${r.pagina}).`;
   });
   return ['Cada padecimiento tiene su propio pronóstico congelado, así que no los mezclo en una gráfica:', '', ...filas, '<!--SIN_GRAFICA-->'].join('\n');
 }

@@ -2360,13 +2360,48 @@
    * Consulta mixta con un id sensible y sin riesgo: no se combinan cifras. Texto fijo con el aviso y la Línea de la Vida,
    * que respeta el estado pedido (nunca el nacional cuando se pidió un estado), o null.
    */
+  // Decimosexta auditoría: resolutor ÚNICO de menciones de padecimientos para las guardas (KB y RAG) y para entities.js.
+  // Alias de los cuatro originales: nombres en español e inglés, typos y códigos (con subcódigos, «F32.1», «A97.0»).
+  const ALIAS_LEGACY = Object.freeze({
+    depresion: 'Depresion', depression: 'Depresion', depre: 'Depresion', deprecion: 'Depresion', depresiva: 'Depresion',
+    depresivo: 'Depresion', 'trastorno depresivo': 'Depresion', f32: 'Depresion',
+    parkinson: 'Parkinson', parkinsons: 'Parkinson', parquinson: 'Parkinson', parkison: 'Parkinson',
+    'enfermedad de parkinson': 'Parkinson', g20: 'Parkinson',
+    alzheimer: 'Alzheimer', alzaimer: 'Alzheimer', arzheimer: 'Alzheimer', alzheimers: 'Alzheimer', alzhaimer: 'Alzheimer',
+    'enfermedad de alzheimer': 'Alzheimer', demencia: 'Alzheimer', g30: 'Alzheimer',
+    dengue: 'Dengue', dengues: 'Dengue', denge: 'Dengue', dengeu: 'Dengue', arbovirosis: 'Dengue', a97: 'Dengue',
+  });
+  const CODIGO_LEGACY = { f32: 'Depresion', g20: 'Parkinson', g30: 'Alzheimer', a97: 'Dengue', a90: 'Dengue', a91: 'Dengue' };
+  /**
+   * Todas las menciones de padecimientos de la consulta: { legacy: [pads], releases: [releases] }. Releases por alias o por
+   * código CIE (entero o con subcódigo, cubierto total o parcialmente); los cuatro originales por alias o por código.
+   */
+  function padecimientosEnConsulta(qn) {
+    const canon = canonClinico(normLB(qn));
+    const legacy = new Set();
+    for (const [al, pad] of Object.entries(ALIAS_LEGACY)) if (new RegExp(`\\b${al}\\b`).test(canon)) legacy.add(pad);
+    const conPunto = canonClinico(String(normalizaEntrada(qn)).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9. ]+/g, ' ').replace(/\s+/g, ' '));
+    const rel = new Set(releases.filter((r) => r.alias.some((al) => nombraAlias(canon, al))));
+    for (const m of conPunto.matchAll(CODIGO_CIE)) {
+      const [, letra, num, dec] = m;
+      if (CODIGO_LEGACY[`${letra}${num}`]) { legacy.add(CODIGO_LEGACY[`${letra}${num}`]); continue; }
+      const decs = dec != null ? [dec] : ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+      for (const r of releases) {
+        if (r.cie && decs.some((x) => intervalosCie(r.cie).some(([lo, hi]) => claveCie(letra, num, x) >= lo && claveCie(letra, num, x) <= hi))) rel.add(r);
+      }
+    }
+    return { legacy: [...legacy], releases: [...rel] };
+  }
   function respuestaMixtaSensible(qn) {
     const sens = idsSensiblesEn(qn);
     if (!sens.length) return null;
     const canon = canonClinico(normLB(qn));
-    const otros = releases.filter((r) => !sens.includes(r) && r.alias.some((al) => nombraAlias(canon, al)) &&
+    const menciones = padecimientosEnConsulta(qn);
+    // Otro release nombrado (por alias o por código), salvo el que sólo aparece como parte del rótulo del sensible.
+    const otros = menciones.releases.filter((r) => !sens.includes(r) &&
       !(sens.some((x) => x.alias.some((al) => nombraAlias(canon, al) && r.alias.some((b) => al.includes(b))))));
-    const legacy = NOMBRES_LEGACY.filter((l) => !/\d/.test(l) && new RegExp(`\\b${l}\\b`).test(normLB(qn)));
+    const legacy = menciones.legacy;
     if (!otros.length && !legacy.length && sens.length < 2) return null;
     const est = estadosEn(qn);
     const lugar = est.length ? ` en ${est.join(' y ')}` : '';
@@ -2512,5 +2547,6 @@
     motivoRechazo, crisisEnTurnos, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, idsSensiblesEn,
     alcoholCalificado, IDS_LISTA_BLANCA, _VOCAB_TECNICO: VOCAB_TECNICO, _FRAGMENTOS_GUARDAS: FRAGMENTOS_GUARDAS, fueraDeVocabulario, respuestaFueraDeVocabulario,
     restoFuera, tieneFragmentoDeDatos, respuestaConDatos, APOYO_ES, APOYO_EN, pareceIngles, normalizaEntrada,
+    ALIAS_LEGACY, padecimientosEnConsulta,
   });
 })(globalThis);

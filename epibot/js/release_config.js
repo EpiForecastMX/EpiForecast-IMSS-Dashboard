@@ -6,7 +6,7 @@
  */
 import './vocab_cerrado.js?v=5';
 import './vocab_consulta.js?v=9';
-import './release_catalog.js?v=49';
+import './release_catalog.js?v=50';
 
 const CATALOGO = globalThis.EPI_CATALOGO;
 
@@ -35,6 +35,8 @@ export const APOYO_EN = CATALOGO.APOYO_EN;
 export const subtipoAjeno = CATALOGO.subtipoAjeno;
 export const aliasAmbiguo = CATALOGO.aliasAmbiguo;
 export const normalizaEntrada = CATALOGO.normalizaEntrada;
+export const ALIAS_LEGACY = CATALOGO.ALIAS_LEGACY;
+export const padecimientosEnConsulta = CATALOGO.padecimientosEnConsulta;
 
 export const releaseDePad = (pad) => RELEASES.find((r) => r.pad === pad) || null;
 export const releaseDeId = (id) => RELEASES.find((r) => r.id === id) || null;
