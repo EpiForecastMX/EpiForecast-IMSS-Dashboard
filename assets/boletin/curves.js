@@ -113,7 +113,16 @@
   }
   async function choose(id) {
     if (!index || !index.series[id]) return;
-    // El panel de pronóstico se entera antes de cargar la serie: si la curva falla, no queda el padecimiento anterior.
+    // Selector, URL, curva y pronóstico pasan al nuevo padecimiento ANTES de cargar la serie, por cualquier ruta
+    // (selector, «Ver curva histórica», «Ver pronóstico», URL inicial, atrás/adelante): si la carga falla, queda el
+    // error visible del nuevo padecimiento y nada del anterior.
+    const nombre=(catalog.find(d=>d.id===id)||{}).name||id;
+    $('curveDisease').value=id;
+    const url=new URL(location.href);url.searchParams.set('padecimiento',id);history.replaceState(null,'',url);
+    selected=null;current=[];view=[];
+    $('curveTitle').textContent=`${nombre} · Nacional`;
+    for(const k of ['curveChart','curveStats','curveDataRows','curveLegend'])$(k).innerHTML='';
+    for(const k of ['curvePoint','curveCaption','curveScope'])$(k).textContent='';
     document.dispatchEvent(new CustomEvent('radar:curva',{detail:{id}}));
     const request=++sequence;
     $('curveStatus').hidden=false;$('curveStatus').textContent='Cargando la serie del padecimiento…';
@@ -122,8 +131,10 @@
       if(!series){const res=await fetch(index.series[id].path);if(!res.ok)throw new Error('No se pudo cargar la serie.');series=await res.json();cache.set(id,series);}
       if(request!==sequence)return;
       selected=series;$('curveDisease').value=id;const studyOption=$('curveMetric').querySelector('[value="2"]');studyOption.disabled=!series.points.some(p=>Object.hasOwn(p,'in_study'));if(studyOption.disabled&&$('curveMetric').value==='2')$('curveMetric').value='0';const hasStates=series.points.some(p=>p.e);$('curveState').disabled=!hasStates;if(!hasStates)$('curveState').value='-1';$('curveStatus').hidden=true;draw();
-    }catch(e){if(request===sequence)$('curveStatus').textContent=e.message;}
+    }catch(e){if(request===sequence)$('curveStatus').textContent=`${e.message} Padecimiento: ${nombre}.`;}
   }
+  // Atrás/adelante: la URL manda; el selector, la curva y el pronóstico la siguen.
+  window.addEventListener('popstate',()=>{const id=new URLSearchParams(location.search).get('padecimiento');if(id&&index?.series[id]&&id!==$('curveDisease').value)choose(id);});
   async function init(){
     controls.forEach(id=>$(id).disabled=true);
     try{

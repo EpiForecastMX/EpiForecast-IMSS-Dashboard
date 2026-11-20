@@ -202,3 +202,5 @@ document.addEventListener('click', (e) => {
   $('curvas').scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
 });
 fijarModo(new URLSearchParams(location.search).get('vista'), { url: false });
+// Atrás/adelante: la vista (serie o pronóstico) sale de la URL; el padecimiento lo sincroniza curves.js.
+window.addEventListener('popstate', () => fijarModo(new URLSearchParams(location.search).get('vista'), { url: false }));

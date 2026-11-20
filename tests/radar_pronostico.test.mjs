@@ -358,7 +358,8 @@ async function bootVista(search, falla = () => false) {
     byId.set(id, e);
     return e;
   };
-  const saved = { document: globalThis.document, location: globalThis.location, history: globalThis.history, fetch: globalThis.fetch, matchMedia: globalThis.matchMedia, err: console.error };
+  const saved = { document: globalThis.document, window: globalThis.window, location: globalThis.location, history: globalThis.history, fetch: globalThis.fetch, matchMedia: globalThis.matchMedia, err: console.error };
+  globalThis.window = { addEventListener() {} };
   globalThis.document = { getElementById: el, addEventListener(t, f) { (docListeners[t] ??= []).push(f); } };
   globalThis.location = new URL(`http://x/boletin.html${search}`);
   globalThis.history = { replaceState() {} };
@@ -372,7 +373,7 @@ async function bootVista(search, falla = () => false) {
   const espera = () => new Promise((r) => setTimeout(r, 60));
   await import(`${pathToFileURL(resolve(root, 'assets/boletin/pronostico_vista.mjs')).href}?t=${Math.random()}`);
   await espera();
-  const restaura = () => Object.assign(globalThis, { document: saved.document, location: saved.location, history: saved.history, fetch: saved.fetch, matchMedia: saved.matchMedia }) && (console.error = saved.err);
+  const restaura = () => Object.assign(globalThis, { document: saved.document, window: saved.window, location: saved.location, history: saved.history, fetch: saved.fetch, matchMedia: saved.matchMedia }) && (console.error = saved.err);
   return { el, espera, restaura, curva: async (id) => { for (const f of docListeners['radar:curva'] ?? []) f({ detail: { id } }); await espera(); } };
 }
 
@@ -486,4 +487,89 @@ test('Reauditoría: F50 → hipertensión con fallo de la carga histórica cambi
   const curves = leer('assets/boletin/curves.js');
   const i = curves.indexOf("new CustomEvent('radar:curva'"), j = curves.indexOf('fetch(index.series[id].path)');
   assert.ok(i > 0 && j > 0 && i < j, 'radar:curva antes de cargar la serie');
+});
+
+/** curves.js y pronostico_vista.mjs reales sobre un DOM mínimo, con fetch del disco y fallos a elección. */
+async function bootRadarCompleto(search, falla) {
+  const byId = new Map(), docL = {}, winL = {};
+  const el = (id) => {
+    if (byId.has(id)) return byId.get(id);
+    const attrs = {}, L = {};
+    let inner = '', text = '';
+    const e = {
+      id, hidden: false, value: '', disabled: false, focused: false,
+      get options() { return [...inner.matchAll(/<option value="([^"]*)"/g)].map((m) => ({ value: m[1] })); },
+      classList: { toggle() {}, add() {}, remove() {} },
+      get innerHTML() { return inner; }, set innerHTML(v) { inner = String(v); text = inner.replace(/<[^>]+>/g, ''); },
+      get textContent() { return text; }, set textContent(v) { text = String(v); inner = text; },
+      setAttribute(k, v) { attrs[k] = String(v); }, getAttribute(k) { return attrs[k] ?? null; },
+      addEventListener(t, f) { (L[t] ??= []).push(f); },
+      dispatchEvent(ev) { for (const f of L[ev.type] ?? []) f({ type: ev.type, target: e, preventDefault() {} }); },
+      dispatch(t, ev = {}) { for (const f of L[t] ?? []) f({ type: t, target: e, preventDefault() {}, ...ev }); },
+      querySelector: () => ({ disabled: false, classList: { add() {}, remove() {} } }), querySelectorAll: () => [],
+      focus() { e.focused = true; }, close() {}, scrollIntoView() {},
+    };
+    byId.set(id, e);
+    return e;
+  };
+  const saved = {};
+  for (const k of ['document', 'window', 'location', 'history', 'fetch', 'matchMedia']) saved[k] = globalThis[k];
+  const savedErr = console.error;
+  let loc = new URL(`http://x/boletin.html${search}`);
+  globalThis.location = loc;
+  globalThis.history = { replaceState(_, __, u) { loc = new URL(String(u)); globalThis.location = loc; } };
+  globalThis.document = { getElementById: el, addEventListener(t, f) { (docL[t] ??= []).push(f); },
+    dispatchEvent(ev) { for (const f of docL[ev.type] ?? []) f(ev); return true; } };
+  globalThis.window = { addEventListener(t, f) { (winL[t] ??= []).push(f); } };
+  globalThis.matchMedia = () => ({ matches: true });
+  globalThis.fetch = async (url) => {
+    const rel = String(url).replace(/^\//, '').replace(/\?.*$/, '');
+    if (falla(rel)) return { ok: false, json: async () => null };
+    return { ok: true, json: async () => JSON.parse(leer(rel)) };
+  };
+  console.error = () => {};
+  const espera = (ms = 120) => new Promise((r) => setTimeout(r, ms));
+  await import(`${pathToFileURL(resolve(root, 'assets/boletin/pronostico_vista.mjs')).href}?t=${Math.random()}`);
+  const celdas = pathToFileURL(resolve(root, 'assets/boletin/celdas.mjs')).href;
+  new Function(leer('assets/boletin/curves.js').replace("import('/assets/boletin/celdas.mjs?v=1')", `import('${celdas}')`))();
+  await espera(400);
+  return {
+    el, espera,
+    url: () => new URLSearchParams(globalThis.location.search).get('padecimiento'),
+    click: async (attr, id) => { const t = { closest: (sel) => (sel === `[data-${attr}]` ? { dataset: { [attr]: id } } : null) }; for (const f of docL.click ?? []) f({ target: t }); await espera(400); },
+    popstate: async (search2) => { loc = new URL(`http://x/boletin.html${search2}`); globalThis.location = loc; for (const f of winL.popstate ?? []) f({}); await espera(400); },
+    restaura: () => { Object.assign(globalThis, saved); console.error = savedErr; },
+  };
+}
+
+test('Reauditoría 2: selector, URL, curva (o su error) y pronóstico muestran el mismo padecimiento por cada ruta, con fallo de carga', async () => {
+  const nombre = (id) => indice.categories.find((c) => c.id === id).name;
+  const coherente = (v, id, ruta) => {
+    assert.equal(v.el('curveDisease').value, id, `${ruta}: selector`);
+    assert.equal(v.url(), id, `${ruta}: URL`);
+    assert.ok(v.el('curveTitle').textContent.startsWith(nombre(id)), `${ruta}: título de la curva`);
+    assert.equal(v.el('curveChart').innerHTML, '', `${ruta}: nada de la curva anterior`);
+    assert.match(v.el('curveStatus').textContent, /No se pudo cargar la serie/, `${ruta}: error visible`);
+    assert.equal(v.el('curveStatus').hidden, false, `${ruta}: error visible`);
+    assert.match(v.el('forecastTitle').textContent, /^Hipertensión arterial/, `${ruta}: pronóstico`);
+  };
+  const fallaHta = (rel) => rel.startsWith('assets/boletin/history/p49b1');
+  const rutas = [
+    ['selector', async (v) => { const s = v.el('curveDisease'); s.value = 'p49b1'; s.dispatch('change'); await v.espera(400); }],
+    ['Ver curva histórica', (v) => v.click('curve', 'p49b1')],
+    ['Ver pronóstico', (v) => v.click('forecast', 'p49b1')],
+    ['atrás/adelante', (v) => v.popstate('?padecimiento=p49b1&vista=pronostico')],
+  ];
+  for (const [ruta, accion] of rutas) {
+    const v = await bootRadarCompleto('?padecimiento=p60b2&vista=pronostico', fallaHta);
+    try {
+      assert.equal(v.el('curveDisease').value, 'p60b2', `${ruta}: arranque`);
+      assert.match(v.el('forecastTitle').textContent, /Anorexia/, `${ruta}: arranque`);
+      await accion(v);
+      coherente(v, 'p49b1', ruta);
+    } finally { v.restaura(); }
+  }
+  // URL inicial con la carga histórica fallando.
+  const v = await bootRadarCompleto('?padecimiento=p49b1&vista=pronostico', fallaHta);
+  try { coherente(v, 'p49b1', 'URL inicial'); } finally { v.restaura(); }
 });
