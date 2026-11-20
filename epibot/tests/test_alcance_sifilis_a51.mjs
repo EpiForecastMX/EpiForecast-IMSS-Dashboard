@@ -212,7 +212,9 @@ const POSITIVOS = [
   'A52.1 en Jalisco',
   'A53.0 en Jalisco',
   'A53.9 en Sonora',
-  'a51 0 en jalisco',
+  // Decimoctava auditoría: un dígito separado por espacio tras el código ya no se toma como subcódigo («a51 0» queda fuera
+  // de vocabulario; ver test_vocab19_codex_b44.mjs); la forma con punto o compacta sí resuelve.
+  'a51.0 en jalisco',
   'A510 en Jalisco',
   'sífilis A51 en Jalisco',
   'sífilis precoz en Jalisco',

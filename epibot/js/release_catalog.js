@@ -1593,6 +1593,7 @@
 
   /** El subtipo ajeno que nombra la consulta (normalizada): `{ termino, nombre, release }`, o null. */
   function subtipoAjeno(qn) {
+    qn = sinTildeMin2(qn);
     const canon = canonClinico(String(qn).replace(/[^a-z0-9. ]+/g, ' ').replace(/\s+/g, ' '));
     // Re-auditoría Codex (19-nov-2026): F10.0 sólo para «alcohol» sin calificativo o con etílico, etanol o aguda; cualquier
     // otro calificativo (butílico, amílico, metílico…) es un alcohol que no se modela.
@@ -1762,6 +1763,8 @@
 
   /** Aclaración ante un nombre genérico que no basta para elegir el bloque publicado, o null. */
   function aliasAmbiguo(qn) {
+    // Decimoctava auditoría: NFKC y minúsculas también aquí (RAG pasa la consulta cruda: «K70», «Ｋ７０»).
+    qn = sinTildeMin2(qn);
     const canon = canonClinico(String(qn).replace(/[^a-z0-9. ]+/g, ' ').replace(/\s+/g, ' '));
     // Una aclaración («hepatitis B crónica B18.1») explica mejor que la contradicción entre nombre y código.
     const previa = ACLARACIONES.find((a) => a.re.test(canon));
@@ -1800,6 +1803,7 @@
 
   /** La enfermedad no modelada que nombra la consulta (normalizada), o null. Compara al inicio de palabra. */
   function mencionaNoModelada(qn) {
+    qn = sinTildeMin2(qn);
     const canon = canonClinico(qn);
     const ajeno = subtipoAjeno(qn);
     if (ajeno) return ajeno.termino;
@@ -2189,10 +2193,12 @@
   // entre segmentos se representa con `null` en el arreglo de tokens: ninguna palabra que escriba el usuario puede hacerse
   // pasar por separador (una palabra desconocida, como cualquier otra, queda fuera de vocabulario).
   function segmentos(raw) {
-    const conCodigo = normalizaEntrada(raw).replace(/([A-Za-z]\d{2})\.(\d)/g, '$1 $2').replace(/([\p{L}\p{N}])-(?=[\p{L}\p{N}])/gu, '$1 ');
+    // Decimoctava auditoría: el subcódigo con punto se une en un solo token compacto («A54.0» → «a540»); un número separado
+    // por espacio tras un código nunca forma parte de él.
+    const conCodigo = normalizaEntrada(raw).replace(/([A-Za-z]\d{2})\.(\d)(?!\d)/g, '$1$2').replace(/([\p{L}\p{N}])-(?=[\p{L}\p{N}])/gu, '$1 ');
     const toks = [];
     for (const trozo of conCodigo.split(/[^\p{L}\p{N}\s]+/u)) {
-      const palabras = canonClinico(sinEstadoTecnico(trozo)).replace(/[^a-z0-9]+/g, ' ').trim().split(' ').filter(Boolean);
+      const palabras = canonClinico(sinEstadoTecnico(trozo)).replace(/([a-z]\d{2})\.(\d)(?!\d)/g, '$1$2').replace(/[^a-z0-9]+/g, ' ').trim().split(' ').filter(Boolean);
       if (toks.length) toks.push(null);
       toks.push(...palabras);
     }
@@ -2255,22 +2261,33 @@
     // segunda persona, de un familiar o un verbo de petición EN CUALQUIER CLÁUSULA las frases de edad no se aplican.
     const primeraPersona = /\b(tengo|tenia|tendre|soy|estoy|estaba|yo|me|conmigo|nosotros|nosotras|nos|nuestro|nuestra|nuestros|nuestras|estamos|tenemos|somos|vamos|podemos|queremos|cumplimos|cumplo|cumpli|tiene|tienen|mi|mis|my|we|our|us|i|im|i m|i ve|tienes|tenias|tendras|eres|estas|estes|estabas|te|tu|tus|ti|contigo|usted|ustedes|you|your|youre|you re)\b/.test(turno) || peticionEn(turno);
     const partes = clausulasSignos(raw);
+    // Subcódigos escritos con punto («B50.0», «Z99.9»): son forma CIE aunque no los cubra un bloque publicado.
+    const conPunto = new Set([...normalizaEntrada(raw).toLowerCase().matchAll(/([a-z]\d{2})\.(\d)(?!\d)/g)].map((m) => `${m[1]}${m[2]}`));
     const acc = { resto: [], todos: [], fragmentos: 0 };
     for (const p of (partes.length ? partes : [[]])) {
-      const r = analizaClausula(` ${p.join(' ')} `, primeraPersona);
+      const r = analizaClausula(` ${p.join(' ')} `, primeraPersona, conPunto);
       acc.resto.push(...r.resto); acc.todos.push(...r.todos); acc.fragmentos += r.fragmentos;
     }
     for (const v of verbosSinAncla(raw)) if (!acc.resto.includes(v)) acc.resto.push(v);
     return acc;
   }
-  function analizaClausula(texto, primeraPersona) {
+  function analizaClausula(texto, primeraPersona, conPunto = new Set()) {
     let n = texto;
     const cur = globalThis.EPI_VOCAB_CONSULTA;
     let fragmentosCie = 0;
     n = retiraConocimiento(n);
     for (const re of (cur ? cur.frases : [])) if (!(primeraPersona && cur.frasesEdad && cur.frasesEdad.includes(re))) n = n.replace(re, ' ');
     // Códigos con forma CIE («h66 0», «a06 8», «a510», «n87»): técnicos aunque no sean de un bloque publicado.
-    n = n.replace(/ [a-z]\d{2}\d?( \d{1,2})?(?= )/g, (m) => (fragmentosCie++, ' '));
+    // Decimoctava auditoría: sólo el token del código válido: «b54», «x60» (forma CIE de tres caracteres) o un subcódigo compacto
+    // («x600», «a540») que el resolutor reconoce. Nunca números sueltos tras el código («x600 30»): siguen las reglas normales.
+    n = n.replace(/ ([a-z]\d{2})(\d)?(?= )/g, (m, cod, sub) => {
+      if (sub != null && !conPunto.has(`${cod}${sub}`)) {
+        const r = padecimientosEnConsulta(`${cod}.${sub}`, { parcial: false });
+        if (!r.legacy.length && !r.releases.length) return m;
+      }
+      fragmentosCie++;
+      return ' ';
+    });
     let fragmentos = 0;
     // Fragmentos completos del catálogo (generados) y de las guardas de alcance, de más largo a más corto, por secuencia de
     // tokens: nunca palabra por palabra.

@@ -115,8 +115,9 @@ for (const [q, marca] of [['dame los casos de asma en Jalisco', 'ASMA_J45'], ['m
 // 2. Códigos CIE sin padecimiento publicado.
 /** Cifras de la tabla neuro o del resumen por estado («12,914 casos totales», «9 modelos de producción»). */
 const NEURO = /[0-9][0-9,]* casos|modelos de producci/;
+// Decimoctava auditoría: «B50 1» (dígito separado por espacio) ya no es subcódigo; se prueba sin cifras en test_vocab19.
 const NO_PUBLICADOS = [['B50.0 en Jalisco'], ['B50.9 en Jalisco'], ['paludismo vivax', 'B50.0 en Jalisco'],
-  ['paludismo vivax', 'B50.9 en Jalisco'], ['B50 1 en Jalisco'], ['B54 en Jalisco'], ['Z99.9 en Jalisco'], ['A00 en Sonora'],
+  ['paludismo vivax', 'B50.9 en Jalisco'], ['B50.1 en Jalisco'], ['B54 en Jalisco'], ['Z99.9 en Jalisco'], ['A00 en Sonora'],
   ['Q99 en Puebla'], ['paludismo vivax en Jalisco', 'y B50.0?']];
 for (const conv of NO_PUBLICADOS) {
   test(`código sin padecimiento publicado (KB y RAG): ${conv.join(' → ')} es no modelado`, async () => {
