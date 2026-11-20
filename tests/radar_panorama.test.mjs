@@ -116,7 +116,7 @@ function estaticos() {
 }
 
 /** DOM mínimo para correr radar.js en node; `exploratorio(rel)` decide la respuesta de pronostico_exploratorio.json. */
-async function bootRadar({ exploratorio = null, conEstatico = false } = {}) {
+async function bootRadar({ exploratorio = null, conEstatico = false, mutar = () => {} } = {}) {
   const byId = new Map();
   const el = (id) => {
     if (!byId.has(id)) {
@@ -129,6 +129,7 @@ async function bootRadar({ exploratorio = null, conEstatico = false } = {}) {
   };
   const controles = [{ disabled: false }, { disabled: false }];
   const est = conEstatico ? estaticos() : {};
+  if (conEstatico) mutar(est);
   const saved = { document: globalThis.document, window: globalThis.window, fetch: globalThis.fetch, err: console.error };
   globalThis.window = { radarHistoria: historia };
   globalThis.document = {
@@ -224,5 +225,36 @@ test('respaldo ausente o incoherente: sólo lo que se sabe sin el exploratorio, 
     await new Promise((r) => setTimeout(r, 50));
     const con = textosPanorama(data, doc);
     assert.ok(v.el('metrics').innerHTML.includes(`<strong>${con.con_pronostico}</strong><small>${con.tarjeta_pronostico_detalle}</small>`));
+  } finally { v.restaura(); }
+});
+
+// Reauditoría Codex (REAUDITORIA_PANORAMA.md, media): con 31983e9a se copiaban del HTML el anillo y su etiqueta.
+const estropea = (est) => {
+  est['[data-radar-estilo]'][0].setAttribute('style', '--publicado:1%;--con-pronostico:1%');
+  est['[data-radar-aria]'][0].setAttribute('aria-label', '0 de 187 categorías con pronóstico.');
+  for (const e of est['[data-radar]']) if (e.dataset.radar === 'panorama_resumen') e.textContent = 'texto viejo';
+};
+
+test('respaldo: sólo se aceptan los conteos; anillo, etiqueta y textos se recalculan siempre', async () => {
+  const { panoramaDesdeRespaldo, textosPanorama } = await imp('assets/boletin/textos.mjs');
+  const esperado = textosPanorama(data, doc);
+  const est = estaticos();
+  estropea(est);
+  assert.deepEqual(panoramaDesdeRespaldo({ querySelectorAll: (s) => est[s] ?? [] }, data), esperado);
+  // Conteos que no cuadran entre sí: 187 con pronóstico con 0 exploratorias, o un conteo repetido con dos valores.
+  for (const [k, v] of [['exploratorias', '0'], ['con_pronostico', '186'], ['exploratorias', '34']]) {
+    const e = estaticos();
+    e['[data-radar]'].find((x) => x.dataset.radar === k).textContent = v;
+    assert.equal(panoramaDesdeRespaldo({ querySelectorAll: (s) => e[s] ?? [] }, data), null, `${k}=${v}`);
+  }
+  const dup = estaticos();
+  dup['[data-radar]'].push({ ...dup['[data-radar]'].find((x) => x.dataset.radar === 'con_pronostico'), textContent: '1' });
+  assert.equal(panoramaDesdeRespaldo({ querySelectorAll: (s) => dup[s] ?? [] }, data), null, 'conteo repetido con otro valor');
+  // En el radar, con el exploratorio fallido, el anillo estropeado queda corregido desde los conteos.
+  const v = await bootRadar({ conEstatico: true, mutar: estropea, exploratorio: async () => ({ ok: false, json: async () => null }) });
+  try {
+    assert.equal(v.est['[data-radar-estilo]'][0].getAttribute('style'), esperado.anillo_estilo);
+    assert.equal(v.est['[data-radar-aria]'][0].getAttribute('aria-label'), esperado.anillo_aria);
+    assert.ok(v.el('metrics').innerHTML.includes(`<strong>${esperado.con_pronostico}</strong><small>${esperado.tarjeta_pronostico_detalle}</small>`));
   } finally { v.restaura(); }
 });

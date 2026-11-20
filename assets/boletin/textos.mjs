@@ -70,31 +70,31 @@ export function detalleTarjeta(p) {
   return `De ${n(p.total)}: ${partes.join('; ')}`;
 }
 
-const CLAVES_PANORAMA = ['con_pronostico', 'con_pronostico_palabras', 'categorias_total', 'categorias_publicadas', 'exploratorias',
-  'sin_pronostico', 'tarjeta_pronostico_detalle', 'panorama_resumen', 'anillo_estilo', 'anillo_aria'];
-
 /**
- * Textos del panorama tal como los dejó en el HTML estático scripts/boletin_semana_activa.py (respaldo mientras
- * llega pronostico_exploratorio.json, o si falla). Devuelve null si el respaldo falta o no cuadra con la foto:
- * entonces sólo vale lo que se sabe sin el exploratorio (`textosPanorama(data, null)`), nunca un número inventado.
+ * Respaldo estático del panorama (lo dejó en el HTML scripts/boletin_semana_activa.py), mientras llega
+ * pronostico_exploratorio.json o si falla. Del HTML sólo se leen los CONTEOS (con pronóstico, publicadas y
+ * exploratorias) y se aceptan si cuadran entre sí y con la foto; porcentajes, estilo y etiqueta del anillo,
+ * leyenda y textos se recalculan siempre desde ellos, nunca se copian. Devuelve null si el respaldo falta o no
+ * cuadra: entonces sólo vale lo que se sabe sin el exploratorio (`textosPanorama(data, null)`).
  */
 export function panoramaDesdeRespaldo(doc, data) {
   const t = {};
-  doc.querySelectorAll('[data-radar]').forEach(el => { if (CLAVES_PANORAMA.includes(el.dataset.radar)) t[el.dataset.radar] ??= el.textContent; });
-  doc.querySelectorAll('[data-radar-aria]').forEach(el => { if (CLAVES_PANORAMA.includes(el.dataset.radarAria)) t[el.dataset.radarAria] = el.getAttribute('aria-label'); });
-  doc.querySelectorAll('[data-radar-estilo]').forEach(el => { if (CLAVES_PANORAMA.includes(el.dataset.radarEstilo)) t[el.dataset.radarEstilo] = el.getAttribute('style'); });
+  doc.querySelectorAll('[data-radar]').forEach(el => {
+    if (['con_pronostico', 'categorias_publicadas', 'exploratorias'].includes(el.dataset.radar)) (t[el.dataset.radar] ??= []).push(el.textContent);
+  });
+  const ent = k => (t[k]?.length && t[k].every(v => v === t[k][0]) && /^\d+$/.test(t[k][0]) ? Number(t[k][0]) : NaN);
   const base = coberturaPanorama(data.diseases, null);
-  const ent = k => (/^\d+$/.test(t[k] ?? '') ? Number(t[k]) : NaN);
   const con = ent('con_pronostico'), pub = ent('categorias_publicadas'), expl = ent('exploratorias');
-  const cuadra = pub === base.publicado && con === pub + expl && expl <= base.total - pub &&
-    t.con_pronostico_palabras && t.panorama_resumen && t.anillo_estilo && t.anillo_aria;
-  if (!cuadra) return null;
-  return {
-    ...t,
-    categorias_total: String(base.total),
-    sin_pronostico: String(base.total - con),
-    tarjeta_pronostico_detalle: detalleTarjeta({ total: base.total, publicado: pub, exploratorio: expl, sin_pronostico: base.total - con }),
-  };
+  if (!(pub === base.publicado && Number.isInteger(expl) && expl <= base.total - pub && con === pub + expl)) return null;
+  return textosDesdeCobertura(data, coberturaConExploratorias(base, expl));
+}
+
+/** Cobertura del panorama con un número dado de categorías con pronóstico exploratorio (desde la base publicada). */
+function coberturaConExploratorias(base, exploratorio) {
+  const con = base.publicado + exploratorio;
+  const pct = v => (base.total ? Math.round((v / base.total) * 1000) / 10 : 0);
+  return { ...base, exploratorio, con_pronostico: con, sin_pronostico: base.total - con,
+    completo: base.total > 0 && con === base.total, pct_con_pronostico: pct(con) };
 }
 
 /**
@@ -102,7 +102,11 @@ export function panoramaDesdeRespaldo(doc, data) {
  * exploratorio no validado siempre por separado. `pronostico` es pronostico_exploratorio.json (o null).
  */
 export function textosPanorama(data, pronostico) {
-  const p = coberturaPanorama(data.diseases, pronostico);
+  return textosDesdeCobertura(data, coberturaPanorama(data.diseases, pronostico));
+}
+
+/** Todos los textos del panorama desde los conteos de cobertura `p` (coberturaPanorama) y la foto. */
+function textosDesdeCobertura(data, p) {
   const sinRelease = data.diseases.filter(d => !d.aggregate && !(d.platform_id && ['Publicada', 'Control publicado'].includes(d.status)));
   const noModelables = sinRelease.filter(d => d.status === 'No modelable').length;
   const rechazadas = sinRelease.filter(d => d.status === 'Rechazada').length;
