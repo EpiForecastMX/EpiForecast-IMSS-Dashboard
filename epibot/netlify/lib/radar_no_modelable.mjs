@@ -6,6 +6,7 @@
  */
 import { GUION, guionNoPublicado } from '../../../assets/boletin/celdas.mjs';
 import { GRUPOS_NO_MODELABLES, grupoNoModelable, noModelablesEnConsulta, nombreLimpio } from '../../../assets/boletin/no_modelables.mjs';
+import { ROTULO_EXPLORATORIO } from '../../../assets/boletin/pronostico.mjs';
 
 const fmt = (v) => v.toLocaleString('es-MX');
 
@@ -34,6 +35,8 @@ export function respuestaNoModelableRag(q, data, { codigos = true } = {}) {
       `- Acumulado comparable ${m.year - 1}: **${celda(e.previous, e, anio)}**${nota}`;
   });
   return `${partes.join('\n\n')}\n\nEl motivo y las cifras de todas las categorías sin pronóstico están en ` +
-    '[Categorías sin pronóstico](../no_modelables.html); por entidad, en el [Radar del boletín](../boletin.html).';
+    '[Categorías sin pronóstico](../no_modelables.html); por entidad, en el [Radar del boletín](../boletin.html). ' +
+    `En su opción «Pronóstico», el radar muestra además una referencia «${ROTULO_EXPLORATORIO}»: media estacional nacional ` +
+    'simple, sin prueba de desempeño ni intervalos, que no es un pronóstico de EpiForecast-MX.';
 }
 

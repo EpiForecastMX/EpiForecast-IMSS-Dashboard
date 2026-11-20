@@ -11,6 +11,10 @@
 import { summarizeCoverage } from '../../assets/boletin/coverage.mjs?v=2';
 import { ESTADO_NO_MODELABLE, GRUPOS_NO_MODELABLES, codigoEnConsulta, grupoNoModelable } from '../../assets/boletin/no_modelables.mjs?v=2';
 import { GUION, esMarcador, guionNoPublicado, suma } from '../../assets/boletin/celdas.mjs?v=1';
+import { ROTULO_EXPLORATORIO } from '../../assets/boletin/pronostico.mjs?v=4';
+
+// Opción «Pronóstico» del radar (alta_b44): se menciona sin cifras; el bot no da valores del exploratorio.
+const REFERENCIA_EXPLORATORIA = `El [Radar del boletín](../boletin.html) muestra además, en la opción «Pronóstico», una referencia «${ROTULO_EXPLORATORIO}»: media estacional nacional simple, sin prueba de desempeño ni intervalos, que no es un pronóstico de EpiForecast-MX.`;
 
 const SENSIBLE = /suicid|autolesion|autoinfligid|self harm|ideacion|violencia|arma de fuego|abuso sexual|maltrato/;
 
@@ -140,14 +144,14 @@ const minusculaInicial = (t) => (/^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]/.test(t) ?
 
 function estadoPlataforma(e) {
   if (e.status === 'Rechazada') {
-    return 'Se analizó y se **rechazó** en la prueba de 2025: no hay pronóstico publicado. Su evidencia está en [Analizados y rechazados](../rechazados.html).';
+    return 'Se analizó y se **rechazó** en la prueba de 2025: no hay pronóstico publicado. Su evidencia está en [Analizados y rechazados](../rechazados.html). ' + REFERENCIA_EXPLORATORIA;
   }
   if (e.status === 'Agregado') return 'Es un **agregado** del boletín que suma varias categorías; no se modela.';
   const g = grupoNoModelable(e);
   if (g) {
     return `Estado en la plataforma: **no modelable** (${GRUPOS_NO_MODELABLES[g].etiqueta.toLowerCase()}). Motivo medido: ${minusculaInicial(e.reason)} ` +
       'No hay pronóstico ni control estacional. El motivo y las cifras de todas las categorías sin pronóstico están en ' +
-      '[Categorías sin pronóstico](../no_modelables.html).';
+      '[Categorías sin pronóstico](../no_modelables.html). ' + REFERENCIA_EXPLORATORIA;
   }
   return 'Estado en la plataforma: **por incorporar**. No hay modelo ni pronóstico.';
 }
