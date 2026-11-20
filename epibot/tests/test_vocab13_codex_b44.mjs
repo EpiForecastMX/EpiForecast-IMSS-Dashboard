@@ -94,21 +94,9 @@ function rutaReal() {
 
 
 
-// Formas de 1.ª o 2.ª persona (presente, pretérito, imperfecto, futuro y subjuntivo de 2.ª y de 1.ª plural) de los verbos
-// comunes; las de subjuntivo de 1.ª singular que coinciden con la 3.ª («sea», «tenga», «dé») no cuentan, salvo «este».
-const CONJUGACIONES = {
-  estar: 'estoy estas estamos estais estuve estuviste estuvimos estabas estabamos estare estaras estaremos estes estemos este',
-  ser: 'soy eres somos sois fui fuiste fuimos eras eramos sere seras seremos seas seamos sea',
-  tener: 'tengo tienes tenemos teneis tuve tuviste tuvimos tenias teniamos tendre tendras tendremos tengas tengamos tenga',
-  poder: 'puedo puedes podemos podeis pude pudiste pudimos podias podiamos podre podras podremos puedas podamos pueda podrias podriamos',
-  querer: 'quiero quieres queremos quereis quise quisiste quisimos querias queriamos querre querras querremos quieras queramos quiera quisiera quisieras',
-  ir: 'voy vas vamos vais fui fuiste fuimos ibas ibamos ire iras iremos vayas vayamos vaya',
-  hacer: 'hago haces hacemos haceis hice hiciste hicimos hacias haciamos hare haras haremos hagas hagamos haga haz',
-  saber: 'se sabes sabemos sabeis supe supiste supimos sabias sabiamos sabre sabras sabremos sepas sepamos sepa',
-  dar: 'doy das damos dais di diste dimos dabas dabamos dare daras daremos des demos de',
-  ver: 'veo ves vemos veis vi viste vimos veias veiamos vere veras veremos veas veamos vea',
-  decir: 'digo dices decimos decis dije dijiste dijimos decias deciamos dire diras diremos digas digamos diga di',
-};
+// La tabla de formas de 1.ª o 2.ª persona de los verbos comunes vive en js/release_catalog.js (CONJUGACIONES_COMUNES): de
+// ella sale también la primera persona plural de la salida ante vocabulario desconocido (tercera auditoría de no modelables).
+const CONJUGACIONES = globalThis.EPI_CATALOGO.CONJUGACIONES_COMUNES;
 
 const AMBIGUAS_1_3 = new Set(['sea', 'tenga', 'pueda', 'quiera', 'vaya', 'haga', 'sepa', 'de', 'vea', 'diga', 'quisiera']);
 test('ninguna palabra curada es forma de 1.ª o 2.ª persona de los verbos comunes', () => {

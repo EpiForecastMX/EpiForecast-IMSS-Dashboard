@@ -2328,8 +2328,31 @@
     const t = String(md || '');
     return /800 911 2000/.test(t) && !respuestaConDatos(t) && !/\]\([^)]*\)|\.html\b|href=/.test(t);
   }
-  // Primera persona: el turno habla de quien escribe («me quemé», «tengo 15 años», «estoy…», «I…», «my…»).
-  const PRIMERA_PERSONA = /\b(me|mi|mis|yo|conmigo|nos|nosotros|nosotras|nuestro|nuestra|nuestros|nuestras|tengo|tenia|tuve|estoy|estaba|estuve|soy|siento|sentia|quiero|quisiera|puedo|ando|hice|i|im|ive|my|me|myself|mine)\b/;
+  // Formas de 1.ª o 2.ª persona (presente, pretérito, imperfecto, futuro y subjuntivo de 2.ª y de 1.ª plural) de los verbos
+  // comunes; las de subjuntivo de 1.ª singular que coinciden con la 3.ª («sea», «tenga», «dé») no cuentan, salvo «este».
+  const CONJUGACIONES_COMUNES = Object.freeze({
+    estar: 'estoy estas estamos estais estuve estuviste estuvimos estabas estabamos estare estaras estaremos estes estemos este',
+    ser: 'soy eres somos sois fui fuiste fuimos eras eramos sere seras seremos seas seamos sea',
+    tener: 'tengo tienes tenemos teneis tuve tuviste tuvimos tenias teniamos tendre tendras tendremos tengas tengamos tenga',
+    poder: 'puedo puedes podemos podeis pude pudiste pudimos podias podiamos podre podras podremos puedas podamos pueda podrias podriamos',
+    querer: 'quiero quieres queremos quereis quise quisiste quisimos querias queriamos querre querras querremos quieras queramos quiera quisiera quisieras',
+    ir: 'voy vas vamos vais fui fuiste fuimos ibas ibamos ire iras iremos vayas vayamos vaya',
+    hacer: 'hago haces hacemos haceis hice hiciste hicimos hacias haciamos hare haras haremos hagas hagamos haga haz',
+    saber: 'se sabes sabemos sabeis supe supiste supimos sabias sabiamos sabre sabras sabremos sepas sepamos sepa',
+    dar: 'doy das damos dais di diste dimos dabas dabamos dare daras daremos des demos de',
+    ver: 'veo ves vemos veis vi viste vimos veias veiamos vere veras veremos veas veamos vea',
+    decir: 'digo dices decimos decis dije dijiste dijimos decias deciamos dire diras diremos digas digamos diga di',
+  });
+
+  // Toda la primera persona plural de esa tabla (las formas en «-mos»: estamos, tenemos, somos, podemos, queremos, vamos,
+  // hacemos, sabemos, damos, vemos, decimos y sus otros tiempos), más «sentimos» (sentir no está en la tabla).
+  const PRIMERA_PLURAL = [...new Set(Object.values(CONJUGACIONES_COMUNES).flatMap((s) => s.split(' '))
+    .filter((f) => f.endsWith('mos')).concat(['sentimos', 'sentiamos']))];
+  // Primera persona: el turno habla de quien escribe («me quemé», «tengo 15 años», «estamos…», «I…», «we…»). Tercera
+  // auditoría de no modelables: plural completo desde la tabla de conjugaciones y pronombres ingleses.
+  const PRIMERA_PERSONA = new RegExp('\\b(me|mi|mis|yo|conmigo|nos|nosotros|nosotras|nuestro|nuestra|nuestros|nuestras|tengo|' +
+    'tenia|tuve|estoy|estaba|estuve|soy|siento|sentia|quiero|quisiera|puedo|ando|hice|i|im|ive|my|mine|myself|we|our|ours|' +
+    `us|ourselves|${PRIMERA_PLURAL.join('|')})\\b`);
   const BLOQUE_APOYO_ES = 'Si tú o alguien cercano necesita apoyo, la **Línea de la Vida** atiende gratis, las 24 horas, ' +
     'todos los días: **800 911 2000**. Si alguien está en peligro inmediato, llama al **911**.';
   const BLOQUE_APOYO_EN = 'If you or someone near you needs support, **Línea de la Vida** in Mexico is free and open 24 hours a ' +
@@ -2616,6 +2639,6 @@
     motivoRechazo, crisisEnTurnos, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, idsSensiblesEn,
     alcoholCalificado, IDS_LISTA_BLANCA, _VOCAB_TECNICO: VOCAB_TECNICO, _FRAGMENTOS_GUARDAS: FRAGMENTOS_GUARDAS, fueraDeVocabulario, respuestaFueraDeVocabulario,
     restoFuera, tieneFragmentoDeDatos, respuestaConDatos, esRespuestaDeAyuda, salidaFueraDeVocabulario, APOYO_ES, APOYO_EN, pareceIngles, normalizaEntrada,
-    ALIAS_LEGACY, padecimientosEnConsulta, releasesEnConsulta,
+    ALIAS_LEGACY, padecimientosEnConsulta, releasesEnConsulta, CONJUGACIONES_COMUNES,
   });
 })(globalThis);
