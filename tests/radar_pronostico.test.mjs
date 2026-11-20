@@ -18,6 +18,7 @@ const indice = json('assets/boletin/history/index.json');
 const cats = data.diseases.filter((e) => !e.aggregate);
 const LEGACY = new Set(['depresion', 'parkinson', 'alzheimer', 'dengue']);
 const ROTULO = 'Pronóstico exploratorio, no validado';
+const ROTULO_NIVEL = 'Pronóstico exploratorio, no validado: nivel reciente sin estacionalidad';
 
 function estadoFicha() {
   const ctx = {};
@@ -130,16 +131,40 @@ test('exploratorio: archivo al día, método declarado, 52 semanas consecutivas 
     if (e.status === 'No modelable') assert.ok(c.motivo_sin_modelo.endsWith(`: ${e.reason.charAt(0).toLowerCase()}${e.reason.slice(1)}`), e.id);
     if (e.status === 'Rechazada') assert.match(c.motivo_sin_modelo, /^Rechazada/, e.id);
     const v = independiente(e);
+    const puntos = json(indice.series[e.id].path.slice(1)).points;
+    const conCifra = puntos.filter((p) => v.get(`${p.y}-${p.w}`) != null);
     if (!c.pronostico) {
-      assert.ok(c.sin_pronostico.length > 40, e.id);
+      // Sólo sin pronóstico si nunca hubo una cifra semanal en toda la historia del radar.
+      assert.equal(conCifra.length, 0, `${e.id}: tiene cifras y quedó sin pronóstico`);
+      assert.match(c.sin_pronostico, /^Nunca se imprimió una cifra semanal de esta categoría en ninguna foto del radar/, e.id);
       continue;
     }
     assert.equal(c.pronostico.length, 52, e.id);
-    assert.equal(v.get(`${c.origen[0]}-${c.origen[1]}`) != null, true, `${e.id}: origen con cifra`);
-    const ultimo = json(indice.series[e.id].path.slice(1)).points.at(-1);
+    const ultimo = puntos.at(-1);
     assert.deepEqual(c.origen, [ultimo.y, ultimo.w], `${e.id}: origen = último periodo impreso`);
-    c.pronostico.forEach((s, k) => {
-      assert.deepEqual([s.y, s.w], [...E.semanaMas(c.origen[0], c.origen[1], k + 1)], `${e.id} semana ${k + 1}`);
+    c.pronostico.forEach((s, k) => assert.deepEqual([s.y, s.w], [...E.semanaMas(c.origen[0], c.origen[1], k + 1)], `${e.id} semana ${k + 1}`));
+    // ¿Tenía base la referencia estacional? (origen con cifra y las 52 semanas con al menos un año base)
+    const estacionalPosible = v.get(`${c.origen[0]}-${c.origen[1]}`) != null &&
+      c.pronostico.every((s) => [1, 2, 3].some((d) => v.get(`${s.y - d}-${s.w}`) != null));
+    if (c.metodo === 'nivel_reciente_sin_estacionalidad') {
+      assert.equal(estacionalPosible, false, `${e.id}: respaldo sólo si la estacional no tiene base`);
+      assert.equal(c.rotulo, ROTULO_NIVEL);
+      assert.ok(c.motivo_respaldo.length > 40, e.id);
+      const usadas = conCifra.slice(-8);
+      assert.equal(c.n_semanas_base, usadas.length, e.id);
+      assert.deepEqual(c.semanas_base.map((b) => [b.y, b.w, b.valor]), usadas.map((p) => [p.y, p.w, v.get(`${p.y}-${p.w}`)]), e.id);
+      const nivel = Math.round((usadas.reduce((t, p) => t + v.get(`${p.y}-${p.w}`), 0) / usadas.length) * 10) / 10;
+      assert.equal(c.nivel, nivel, e.id);
+      for (const s of c.pronostico) assert.equal(s.valor, nivel, `${e.id}: plano`);
+      const yw = (p) => `${p.y}-W${String(p.w).padStart(2, '0')}`;
+      assert.equal(c.periodo_base, `${yw(usadas[0])} a ${yw(usadas.at(-1))}`, e.id);
+      if (usadas.some((p) => p.n?.[0] === '-')) assert.match(c.nota_base, /(guiones impresos|un guion impreso) que la simbología/, e.id);
+      continue;
+    }
+    assert.equal(c.metodo, 'media_estacional_misma_semana', e.id);
+    assert.equal(c.rotulo, ROTULO);
+    assert.equal(estacionalPosible, true, e.id);
+    c.pronostico.forEach((s) => {
       const base = [1, 2, 3].map((d) => [s.y - d, v.get(`${s.y - d}-${s.w}`)]).filter(([, x]) => x != null);
       assert.ok(base.length >= 1, `${e.id} ${s.y}-W${s.w}: sin base no hay cifra`);
       assert.deepEqual(s.anios, base.map(([a]) => a), `${e.id} ${s.y}-W${s.w}`);
@@ -147,9 +172,16 @@ test('exploratorio: archivo al día, método declarado, 52 semanas consecutivas 
       assert.equal(s.valor, Math.round(media * 10) / 10, `${e.id} ${s.y}-W${s.w}`);
     });
   }
-  // Una categoría sin cifras recientes publicadas (sarampión: guion de cifra no publicada) no recibe un cero inventado.
-  const sarampion = sinRelease.find((e) => e.guion?.semantica === 'no_publicado');
-  assert.equal(doc.categorias[sarampion.id].pronostico, null);
+  // Respaldo de nivel reciente para todas las que no tenían base estacional; sarampión nunca imprimió una cifra
+  // semanal (guion de cifra no publicada desde que existe su cuadro, 2025): no recibe un cero inventado.
+  assert.equal(doc.respaldo.nombre, 'nivel_reciente_sin_estacionalidad');
+  assert.equal(doc.respaldo.rotulo, ROTULO_NIVEL);
+  assert.equal(doc.respaldo.max_semanas, 8);
+  assert.deepEqual(Object.entries(doc.categorias).filter(([, c]) => !c.pronostico).map(([k]) => k), ['p10b2']);
+  assert.deepEqual(Object.entries(doc.categorias).filter(([, c]) => c.metodo === 'nivel_reciente_sin_estacionalidad').map(([k]) => k).sort(),
+    ['p33b1', 'p80b1', 'p80b2', 'p80b3']);
+  assert.equal(doc.conteo.con_pronostico, doc.conteo.estacional + doc.conteo.nivel_reciente);
+  assert.equal(doc.conteo.sin_pronostico, 1);
 });
 
 test('exploratorio: el rótulo obligatorio aparece en la gráfica, la ficha, la cobertura y la página', async () => {
@@ -158,8 +190,8 @@ test('exploratorio: el rótulo obligatorio aparece en la gráfica, la ficha, la 
   assert.match(ADVERTENCIA_EXPLORATORIO, /sin prueba de desempeño|No tiene prueba de desempeño/);
   assert.match(ADVERTENCIA_EXPLORATORIO, /intervalos/);
   const vista = leer('assets/boletin/pronostico_vista.mjs');
-  assert.match(vista, /class="forecast-watermark">\$\{esc\(ROTULO_EXPLORATORIO\)\}/, 'rótulo dentro de la gráfica');
-  assert.match(vista, /<b>\$\{esc\(ROTULO_EXPLORATORIO\)\}\.<\/b> \$\{esc\(m\.motivo\)\} \$\{esc\(m\.advertencia\)\}/, 'rótulo, motivo y advertencia');
+  assert.match(vista, /if \(m\.tipo === 'exploratorio' && pro\.length\) svg \+= `<text[^`]*class="forecast-watermark">\$\{esc\(m\.rotulo\)\}/, 'rótulo dentro de la gráfica');
+  assert.match(vista, /<b>\$\{esc\(m\.rotulo\)\}\.<\/b> \$\{esc\(m\.motivo\)\} \$\{esc\(m\.advertencia\)\}\$\{base\}/, 'rótulo, motivo, advertencia y semanas base');
   const radar = leer('assets/boletin/radar.js');
   assert.match(radar, /<b>\$\{esc\(ROTULO_EXPLORATORIO\)\}\.<\/b> «Ver pronóstico» muestra una referencia estacional nacional simple/);
   assert.match(leer('boletin.html'), /«Pronóstico exploratorio, no validado»/);
@@ -169,6 +201,18 @@ test('exploratorio: el rótulo obligatorio aparece en la gráfica, la ficha, la 
   assert.equal(m.rotulo, ROTULO);
   assert.equal(m.pronostico.length, 52);
   assert.ok(m.motivo && m.advertencia && m.enlace.href);
+  const { ROTULO_NIVEL_RECIENTE, ADVERTENCIA_NIVEL_RECIENTE } = await imp('assets/boletin/pronostico.mjs');
+  assert.equal(ROTULO_NIVEL_RECIENTE, ROTULO_NIVEL);
+  assert.match(ADVERTENCIA_NIVEL_RECIENTE, /No tiene estacionalidad, prueba de desempeño ni intervalos/);
+  for (const k of ['p33b1', 'p80b1', 'p80b2', 'p80b3']) {
+    const n = desdeExploratorio(doc, k);
+    assert.equal(n.rotulo, ROTULO_NIVEL, k);
+    assert.equal(n.advertencia, ADVERTENCIA_NIVEL_RECIENTE, k);
+    assert.ok(n.base && n.base.n >= 1 && n.base.periodo && n.motivo_respaldo, k);
+    assert.equal(n.pronostico.length, 52, k);
+  }
+  assert.match(radar, /<b>\$\{esc\(ROTULO_NIVEL_RECIENTE\)\}\.<\/b> «Ver pronóstico» muestra un valor plano de 52 semanas/);
+  assert.match(leer('boletin.html'), /«Pronóstico exploratorio, no validado: nivel reciente sin estacionalidad»/);
 });
 
 test('cobertura: 100 % de las categorías con opción «Pronóstico», desglosada en publicado, exploratorio y sin historia', async () => {
@@ -180,14 +224,19 @@ test('cobertura: 100 % de las categorías con opción «Pronóstico», desglosad
   assert.equal(c.sin_opcion, 0);
   assert.equal(c.pct, 100);
   assert.equal(c.publicado, summarizeCoverage(data.diseases).covered);
-  assert.equal(c.exploratorio, doc.conteo.con_pronostico);
-  assert.equal(c.sin_historia, doc.conteo.sin_historia_suficiente);
-  assert.equal(c.publicado + c.exploratorio + c.sin_historia, c.total);
+  assert.equal(c.exploratorio, doc.conteo.estacional);
+  assert.equal(c.nivel_reciente, doc.conteo.nivel_reciente);
+  assert.equal(c.sin_historia, doc.conteo.sin_pronostico);
+  assert.equal(c.publicado + c.exploratorio + c.nivel_reciente + c.sin_historia, c.total);
+  assert.equal(c.con_pronostico, c.total - 1, 'todas con pronóstico salvo sarampión, que nunca imprimió una cifra semanal');
+  assert.equal(c.pct_pronostico, Math.round(((c.total - 1) / c.total) * 1000) / 10);
   const t = textoCoberturaPronostico(c);
   assert.ok(t.startsWith(`${c.total} de ${c.total} categorías (100 %) tienen la opción «Pronóstico»`), t);
   assert.ok(t.includes(`${c.publicado} con pronóstico publicado`), t);
-  assert.ok(t.includes(`${c.exploratorio} con pronóstico exploratorio, no validado`), t);
-  if (c.sin_historia) assert.ok(t.includes(`${c.sin_historia} sin historia semanal suficiente`), t);
+  assert.ok(t.includes(`${c.exploratorio} con pronóstico exploratorio estacional, no validado`), t);
+  assert.ok(t.includes(`${c.nivel_reciente} con pronóstico exploratorio de nivel reciente sin estacionalidad, no validado`), t);
+  assert.ok(t.includes(`${c.sin_historia} sin ningún pronóstico porque nunca se imprimió una cifra semanal`), t);
+  assert.match(leer('assets/boletin/radar.js'), /c\.pct_pronostico\.toLocaleString\('es-MX'\)\)\} %<\/strong> de las categorías con pronóstico/);
   assert.match(leer('assets/boletin/radar.js'), /renderForecastCoverage\(\)/);
   assert.match(leer('boletin.html'), /<div id="forecastCoverage" class="forecast-coverage"/);
   // Sin el exploratorio, la cobertura lo dice: las categorías sin release no cuentan como cubiertas.

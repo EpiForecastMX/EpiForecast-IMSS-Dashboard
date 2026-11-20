@@ -160,8 +160,10 @@ Junto a la serie observada, cada categoría no agregada tiene la opción «Pron�
 - sin release (no modelables y rechazadas), el «Pronóstico exploratorio, no validado» de
   `<foto>/pronostico_exploratorio.json`: media de la misma semana en los tres años anteriores
   impresos (o uno solo si no hay más), sin prueba de desempeño ni intervalos. Si el último periodo
-  impreso no tiene cifra o alguna de las 52 semanas no tiene año base, la categoría queda sin
-  pronóstico y se explica por qué.
+  impreso no tiene cifra o alguna de las 52 semanas no tiene año base, se usa el respaldo
+  «nivel reciente sin estacionalidad»: valor plano igual a la media de las últimas semanas con
+  cifra de toda la serie (hasta ocho), con semanas y periodos declarados. Sólo una categoría que
+  nunca tuvo una cifra semanal impresa queda sin pronóstico, con ese motivo.
 
 `boletin_semana_activa.py` lo regenera al activar cada foto
 (`node scripts/radar_pronostico_exploratorio.mjs`); `--check` comprueba que esté al día.

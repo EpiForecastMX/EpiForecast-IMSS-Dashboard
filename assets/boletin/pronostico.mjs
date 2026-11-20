@@ -8,6 +8,11 @@ export const ADVERTENCIA_EXPLORATORIO = 'Referencia estacional nacional simple: 
   'semana epidemiológica en los años anteriores disponibles (hasta tres). No tiene prueba de desempeño ni ' +
   'intervalos de incertidumbre y no es un pronóstico de EpiForecast-MX.';
 
+export const ROTULO_NIVEL_RECIENTE = 'Pronóstico exploratorio, no validado: nivel reciente sin estacionalidad';
+export const ADVERTENCIA_NIVEL_RECIENTE = 'Respaldo cuando la referencia estacional no tiene base: un valor plano igual a la ' +
+  'media de las últimas semanas con cifra impresa (hasta ocho). No tiene estacionalidad, prueba de desempeño ni ' +
+  'intervalos de incertidumbre y no es un pronóstico de EpiForecast-MX.';
+
 export const ESTADOS_PUBLICADOS = Object.freeze(['Publicada', 'Control publicado']);
 export const LEGACY = Object.freeze({
   depresion: { pagina: 'Reports/index.html', nombre: 'Depresión' },
@@ -108,7 +113,11 @@ export function desdeExploratorio(doc, id, observado = []) {
   if (!c) throw new Error(`pronóstico exploratorio sin la categoría: ${id}`);
   return {
     tipo: 'exploratorio', fuente: 'pronostico_exploratorio.json', nombre: c.nombre,
-    rotulo: ROTULO_EXPLORATORIO, advertencia: ADVERTENCIA_EXPLORATORIO, motivo: c.motivo_sin_modelo,
+    metodo: c.metodo ?? null, nivel_reciente: c.metodo === 'nivel_reciente_sin_estacionalidad',
+    rotulo: c.metodo === 'nivel_reciente_sin_estacionalidad' ? ROTULO_NIVEL_RECIENTE : ROTULO_EXPLORATORIO,
+    advertencia: c.metodo === 'nivel_reciente_sin_estacionalidad' ? ADVERTENCIA_NIVEL_RECIENTE : ADVERTENCIA_EXPLORATORIO,
+    motivo: c.motivo_sin_modelo, motivo_respaldo: c.motivo_respaldo ?? null,
+    base: c.semanas_base ? { n: c.n_semanas_base, periodo: c.periodo_base, nivel: c.nivel, nota: c.nota_base } : null,
     enlace: c.estado_radar === 'Rechazada' ? { href: 'rechazados.html', texto: 'Evidencia en analizados y rechazados' }
       : { href: `no_modelables.html#cat-${id}`, texto: 'Motivo y cifras de las categorías sin pronóstico' },
     sin_pronostico: c.sin_pronostico ?? null, origen: semanaTxt(c.origen), anios: c.anios_usados ?? [],
@@ -121,15 +130,20 @@ export function desdeExploratorio(doc, id, observado = []) {
 /** Cobertura de la opción Pronóstico sobre las categorías no agregadas de la foto. */
 export function coberturaPronostico(diseases, doc) {
   const cats = diseases.filter((e) => !e.aggregate);
-  let publicado = 0, exploratorio = 0, sinHistoria = 0, sinOpcion = 0;
+  let publicado = 0, exploratorio = 0, nivel = 0, sinHistoria = 0, sinOpcion = 0;
   for (const e of cats) {
     const f = fuentePronostico(e);
     if (f.tipo === 'publicado') publicado++;
-    else if (doc?.categorias?.[e.id]?.pronostico) exploratorio++;
+    else if (doc?.categorias?.[e.id]?.pronostico) {
+      if (doc.categorias[e.id].metodo === 'nivel_reciente_sin_estacionalidad') nivel++; else exploratorio++;
+    }
     else if (doc?.categorias?.[e.id]) sinHistoria++;
     else sinOpcion++;
   }
-  const total = cats.length, con = total - sinOpcion;
-  return { total, publicado, exploratorio, sin_historia: sinHistoria, sin_opcion: sinOpcion, con_opcion: con,
-    pct: total ? Math.round((con / total) * 1000) / 10 : 0 };
+  const total = cats.length, con = total - sinOpcion, conPronostico = publicado + exploratorio + nivel;
+  // exploratorio = referencia estacional; nivel_reciente = respaldo plano; sin_historia = sin ningún pronóstico.
+  return { total, publicado, exploratorio, nivel_reciente: nivel, sin_historia: sinHistoria, sin_opcion: sinOpcion,
+    con_opcion: con, con_pronostico: conPronostico,
+    pct: total ? Math.round((con / total) * 1000) / 10 : 0,
+    pct_pronostico: total ? Math.round((conPronostico / total) * 1000) / 10 : 0 };
 }

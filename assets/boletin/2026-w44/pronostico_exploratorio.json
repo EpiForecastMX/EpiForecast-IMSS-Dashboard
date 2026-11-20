@@ -1,7 +1,14 @@
 {
- "schema": "radar_pronostico_exploratorio.v1",
+ "schema": "radar_pronostico_exploratorio.v2",
  "rotulo": "Pronóstico exploratorio, no validado",
  "advertencia": "Referencia estacional nacional simple: cada semana es la media de la misma semana epidemiológica en los años anteriores disponibles (hasta tres). No tiene prueba de desempeño ni intervalos de incertidumbre y no es un pronóstico de EpiForecast-MX.",
+ "respaldo": {
+  "nombre": "nivel_reciente_sin_estacionalidad",
+  "rotulo": "Pronóstico exploratorio, no validado: nivel reciente sin estacionalidad",
+  "advertencia": "Respaldo cuando la referencia estacional no tiene base: un valor plano igual a la media de las últimas semanas con cifra impresa (hasta ocho). No tiene estacionalidad, prueba de desempeño ni intervalos de incertidumbre y no es un pronóstico de EpiForecast-MX.",
+  "descripcion": "Cuando la referencia estacional no tiene base: pronóstico plano de 52 semanas igual a la media de las últimas semanas con cifra de toda la serie nacional semanal impresa (hasta 8), con las semanas y periodos usados declarados por categoría. Sin estacionalidad, sin prueba de desempeño ni intervalos.",
+  "max_semanas": 8
+ },
  "metodo": {
   "nombre": "media_estacional_misma_semana",
   "descripcion": "Para cada una de las 52 semanas siguientes al último periodo impreso: media de la misma semana epidemiológica en los años anteriores disponibles (hasta 3); con un solo año, la misma semana del año anterior disponible. Serie nacional semanal impresa del boletín; un guion vale 0 sólo bajo la simbología del boletín y una cifra no publicada no cuenta.",
@@ -19,8 +26,10 @@
  },
  "conteo": {
   "categorias": 33,
-  "con_pronostico": 28,
-  "sin_historia_suficiente": 5
+  "con_pronostico": 32,
+  "estacional": 28,
+  "nivel_reciente": 4,
+  "sin_pronostico": 1
  },
  "categorias": {
   "p7b1": {
@@ -29,6 +38,8 @@
    "codigo": "A33",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (casos insuficientes o no publicados): en el boletín 44 el acumulado de 2026 suma un caso y el comparable de 2025, un caso, en todo el país.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     44
@@ -628,7 +639,8 @@
    ],
    "puntos_con_cifra": 0,
    "pronostico": null,
-   "sin_pronostico": "El último periodo impreso (2026-W44) no tiene cifra semanal numérica (guion de cifra no publicada, «n.d.» o celda vacía): no hay base actual para una referencia estacional."
+   "motivo_respaldo": "El último periodo impreso (2026-W44) no tiene cifra semanal numérica (guion de cifra no publicada, «n.d.» o celda vacía): no hay base actual para una referencia estacional.",
+   "sin_pronostico": "Nunca se imprimió una cifra semanal de esta categoría en ninguna foto del radar: todas sus celdas semanales son guiones de cifra no publicada, «n.d.» o vacías, así que no hay base para ningún pronóstico, ni siquiera de nivel reciente."
   },
   "p10b3": {
    "id": "p10b3",
@@ -636,6 +648,8 @@
    "codigo": "B06",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (casos insuficientes o no publicados): en el boletín 44 no imprime casos en 2026 ni en el acumulado comparable de 2025.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     44
@@ -1228,6 +1242,8 @@
    "codigo": "J09-J11",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (total imputado en el año de prueba): en 2025 el boletín imprimió «-1» como casos de la semana en Jalisco (boletín 38) y Guanajuato (boletín 45): esas semanas se imputan y la prueba de 2025 no admite totales imputados.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     44
@@ -1821,6 +1837,8 @@
    "codigo": "P35.0",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (casos insuficientes o no publicados): en el boletín 44 no imprime casos en 2026 ni en el acumulado comparable de 2025.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     44
@@ -2414,6 +2432,8 @@
    "codigo": "A00",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (casos insuficientes o no publicados): en el boletín 44 no imprime casos en 2026 ni en el acumulado comparable de 2025.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     44
@@ -3006,6 +3026,8 @@
    "codigo": "U07.1",
    "estado_radar": "Rechazada",
    "motivo_sin_modelo": "Rechazada: su portafolio no superó la prueba única de 2025 y no se publica; la evidencia está en la sección de analizados y rechazados.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     44
@@ -3599,6 +3621,8 @@
    "codigo": "A75.0",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (casos insuficientes o no publicados): en el boletín 44 no imprime casos en 2026 ni en el acumulado comparable de 2025.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     44
@@ -4192,6 +4216,8 @@
    "codigo": "A92.3",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (casos insuficientes o no publicados): en el boletín 44 no imprime casos en 2026 ni en el acumulado comparable de 2025.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     44
@@ -4785,6 +4811,8 @@
    "codigo": "U06.9",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (casos insuficientes o no publicados): en el boletín 44 no imprime casos en 2026; el acumulado comparable de 2025 suma tres casos en todo el país.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     44
@@ -5383,8 +5411,429 @@
     44
    ],
    "puntos_con_cifra": 624,
-   "pronostico": null,
-   "sin_pronostico": "El último periodo impreso (2026-W44) no tiene cifra semanal numérica (guion de cifra no publicada, «n.d.» o celda vacía): no hay base actual para una referencia estacional."
+   "metodo": "nivel_reciente_sin_estacionalidad",
+   "rotulo": "Pronóstico exploratorio, no validado: nivel reciente sin estacionalidad",
+   "motivo_respaldo": "El último periodo impreso (2026-W44) no tiene cifra semanal numérica (guion de cifra no publicada, «n.d.» o celda vacía): no hay base actual para una referencia estacional.",
+   "semanas_base": [
+    {
+     "y": 2024,
+     "w": 45,
+     "valor": 0,
+     "impreso": "-"
+    },
+    {
+     "y": 2024,
+     "w": 46,
+     "valor": 0,
+     "impreso": "-"
+    },
+    {
+     "y": 2024,
+     "w": 47,
+     "valor": 0,
+     "impreso": "-"
+    },
+    {
+     "y": 2024,
+     "w": 48,
+     "valor": 0,
+     "impreso": "-"
+    },
+    {
+     "y": 2024,
+     "w": 49,
+     "valor": 0,
+     "impreso": "-"
+    },
+    {
+     "y": 2024,
+     "w": 50,
+     "valor": 0,
+     "impreso": "-"
+    },
+    {
+     "y": 2024,
+     "w": 51,
+     "valor": 0,
+     "impreso": "-"
+    },
+    {
+     "y": 2024,
+     "w": 52,
+     "valor": 0,
+     "impreso": "-"
+    }
+   ],
+   "n_semanas_base": 8,
+   "periodo_base": "2024-W45 a 2024-W52",
+   "nivel": 0,
+   "nota_base": "8 de las 8 semanas base son guiones impresos que la simbología del boletín de ese año lee como «no se presentaron casos» (cero). Las semanas base terminan en 2024-W52, antes del último periodo impreso (2026-W44), porque después la serie no tiene cifra semanal.",
+   "pronostico": [
+    {
+     "y": 2026,
+     "w": 45,
+     "ds": "2026-11-08",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 46,
+     "ds": "2026-11-15",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 47,
+     "ds": "2026-11-22",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 48,
+     "ds": "2026-11-29",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 49,
+     "ds": "2026-12-06",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 50,
+     "ds": "2026-12-13",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 51,
+     "ds": "2026-12-20",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 52,
+     "ds": "2026-12-27",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 1,
+     "ds": "2027-01-03",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 2,
+     "ds": "2027-01-10",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 3,
+     "ds": "2027-01-17",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 4,
+     "ds": "2027-01-24",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 5,
+     "ds": "2027-01-31",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 6,
+     "ds": "2027-02-07",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 7,
+     "ds": "2027-02-14",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 8,
+     "ds": "2027-02-21",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 9,
+     "ds": "2027-02-28",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 10,
+     "ds": "2027-03-07",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 11,
+     "ds": "2027-03-14",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 12,
+     "ds": "2027-03-21",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 13,
+     "ds": "2027-03-28",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 14,
+     "ds": "2027-04-04",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 15,
+     "ds": "2027-04-11",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 16,
+     "ds": "2027-04-18",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 17,
+     "ds": "2027-04-25",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 18,
+     "ds": "2027-05-02",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 19,
+     "ds": "2027-05-09",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 20,
+     "ds": "2027-05-16",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 21,
+     "ds": "2027-05-23",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 22,
+     "ds": "2027-05-30",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 23,
+     "ds": "2027-06-06",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 24,
+     "ds": "2027-06-13",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 25,
+     "ds": "2027-06-20",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 26,
+     "ds": "2027-06-27",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 27,
+     "ds": "2027-07-04",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 28,
+     "ds": "2027-07-11",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 29,
+     "ds": "2027-07-18",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 30,
+     "ds": "2027-07-25",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 31,
+     "ds": "2027-08-01",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 32,
+     "ds": "2027-08-08",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 33,
+     "ds": "2027-08-15",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 34,
+     "ds": "2027-08-22",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 35,
+     "ds": "2027-08-29",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 36,
+     "ds": "2027-09-05",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 37,
+     "ds": "2027-09-12",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 38,
+     "ds": "2027-09-19",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 39,
+     "ds": "2027-09-26",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 40,
+     "ds": "2027-10-03",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 41,
+     "ds": "2027-10-10",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 42,
+     "ds": "2027-10-17",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 43,
+     "ds": "2027-10-24",
+     "valor": 0,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 44,
+     "ds": "2027-10-31",
+     "valor": 0,
+     "anios": []
+    }
+   ]
   },
   "p36b1": {
    "id": "p36b1",
@@ -5392,6 +5841,8 @@
    "codigo": "A82.0",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (casos insuficientes o no publicados): en el boletín 44 no imprime casos en 2026; el acumulado comparable de 2025 suma dos casos en todo el país.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     44
@@ -5985,6 +6436,8 @@
    "codigo": "A82.1",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (casos insuficientes o no publicados): en el boletín 44 no imprime casos en 2026; el acumulado comparable de 2025 suma un caso en todo el país.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     44
@@ -6578,6 +7031,8 @@
    "codigo": "B60.2",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (casos insuficientes o no publicados): en el boletín 44 el acumulado de 2026 suma un caso en todo el país; el comparable de 2025 no imprime casos.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     44
@@ -7171,6 +7626,8 @@
    "codigo": "B73",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (casos insuficientes o no publicados): en el boletín 44 no imprime casos en 2026 ni en el acumulado comparable de 2025.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     43
@@ -7764,6 +8221,8 @@
    "codigo": "B87",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (historia insuficiente): su cuadro propio aparece desde el boletín 2 de 2025: no hay un año completo de historia antes del año de prueba.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     43
@@ -8294,6 +8753,8 @@
    "codigo": "B55.0",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (casos insuficientes o no publicados): en el boletín 44 no imprime casos en 2026; el acumulado comparable de 2025 suma dos casos en todo el país.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     44
@@ -8887,6 +9348,8 @@
    "codigo": "U97",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (total imputado en el año de prueba): en 2025 el boletín imprimió «-1» como casos de la semana en Nayarit (boletín 18): esa semana se imputa y la prueba de 2025 no admite totales imputados.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     44
@@ -9480,6 +9943,8 @@
    "codigo": "E86",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (historia insuficiente): su cuadro propio aparece desde el boletín 2 de 2025: no hay un año completo de historia antes del año de prueba.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     43
@@ -10010,6 +10475,8 @@
    "codigo": "X40 - X49",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (historia insuficiente): su cuadro propio aparece desde el boletín 2 de 2025: no hay un año completo de historia antes del año de prueba.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     43
@@ -10540,6 +11007,8 @@
    "codigo": "X24-X29 excepto X26, X27",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (historia insuficiente): su cuadro propio aparece desde el boletín 26 de 2025: no hay un año completo de historia antes del año de prueba.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     43
@@ -11070,6 +11539,8 @@
    "codigo": "X00-X09",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (historia insuficiente): su cuadro propio aparece desde el boletín 2 de 2025: no hay un año completo de historia antes del año de prueba.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     43
@@ -11600,6 +12071,8 @@
    "codigo": "X10-X19",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (historia insuficiente): su cuadro propio aparece desde el boletín 2 de 2025: no hay un año completo de historia antes del año de prueba.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     43
@@ -12135,8 +12608,429 @@
     43
    ],
    "puntos_con_cifra": 50,
-   "pronostico": null,
-   "sin_pronostico": "3 de las 52 semanas siguientes al origen no tienen la misma semana impresa en ninguno de los 3 años anteriores: la historia semanal no alcanza y no se rellena con ceros."
+   "metodo": "nivel_reciente_sin_estacionalidad",
+   "rotulo": "Pronóstico exploratorio, no validado: nivel reciente sin estacionalidad",
+   "motivo_respaldo": "3 de las 52 semanas siguientes al origen no tienen la misma semana impresa en ninguno de los 3 años anteriores: la historia semanal no alcanza para la referencia estacional y no se rellena con ceros.",
+   "semanas_base": [
+    {
+     "y": 2026,
+     "w": 36,
+     "valor": 36,
+     "impreso": 36
+    },
+    {
+     "y": 2026,
+     "w": 37,
+     "valor": 26,
+     "impreso": 26
+    },
+    {
+     "y": 2026,
+     "w": 38,
+     "valor": 37,
+     "impreso": 37
+    },
+    {
+     "y": 2026,
+     "w": 39,
+     "valor": 42,
+     "impreso": 42
+    },
+    {
+     "y": 2026,
+     "w": 40,
+     "valor": 49,
+     "impreso": 49
+    },
+    {
+     "y": 2026,
+     "w": 41,
+     "valor": 34,
+     "impreso": 34
+    },
+    {
+     "y": 2026,
+     "w": 42,
+     "valor": 36,
+     "impreso": 36
+    },
+    {
+     "y": 2026,
+     "w": 43,
+     "valor": 34,
+     "impreso": 34
+    }
+   ],
+   "n_semanas_base": 8,
+   "periodo_base": "2026-W36 a 2026-W43",
+   "nivel": 36.8,
+   "nota_base": null,
+   "pronostico": [
+    {
+     "y": 2026,
+     "w": 44,
+     "ds": "2026-11-01",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 45,
+     "ds": "2026-11-08",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 46,
+     "ds": "2026-11-15",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 47,
+     "ds": "2026-11-22",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 48,
+     "ds": "2026-11-29",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 49,
+     "ds": "2026-12-06",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 50,
+     "ds": "2026-12-13",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 51,
+     "ds": "2026-12-20",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 52,
+     "ds": "2026-12-27",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 1,
+     "ds": "2027-01-03",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 2,
+     "ds": "2027-01-10",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 3,
+     "ds": "2027-01-17",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 4,
+     "ds": "2027-01-24",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 5,
+     "ds": "2027-01-31",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 6,
+     "ds": "2027-02-07",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 7,
+     "ds": "2027-02-14",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 8,
+     "ds": "2027-02-21",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 9,
+     "ds": "2027-02-28",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 10,
+     "ds": "2027-03-07",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 11,
+     "ds": "2027-03-14",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 12,
+     "ds": "2027-03-21",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 13,
+     "ds": "2027-03-28",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 14,
+     "ds": "2027-04-04",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 15,
+     "ds": "2027-04-11",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 16,
+     "ds": "2027-04-18",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 17,
+     "ds": "2027-04-25",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 18,
+     "ds": "2027-05-02",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 19,
+     "ds": "2027-05-09",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 20,
+     "ds": "2027-05-16",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 21,
+     "ds": "2027-05-23",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 22,
+     "ds": "2027-05-30",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 23,
+     "ds": "2027-06-06",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 24,
+     "ds": "2027-06-13",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 25,
+     "ds": "2027-06-20",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 26,
+     "ds": "2027-06-27",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 27,
+     "ds": "2027-07-04",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 28,
+     "ds": "2027-07-11",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 29,
+     "ds": "2027-07-18",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 30,
+     "ds": "2027-07-25",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 31,
+     "ds": "2027-08-01",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 32,
+     "ds": "2027-08-08",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 33,
+     "ds": "2027-08-15",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 34,
+     "ds": "2027-08-22",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 35,
+     "ds": "2027-08-29",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 36,
+     "ds": "2027-09-05",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 37,
+     "ds": "2027-09-12",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 38,
+     "ds": "2027-09-19",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 39,
+     "ds": "2027-09-26",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 40,
+     "ds": "2027-10-03",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 41,
+     "ds": "2027-10-10",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 42,
+     "ds": "2027-10-17",
+     "valor": 36.8,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 43,
+     "ds": "2027-10-24",
+     "valor": 36.8,
+     "anios": []
+    }
+   ]
   },
   "p80b2": {
    "id": "p80b2",
@@ -12149,8 +13043,429 @@
     43
    ],
    "puntos_con_cifra": 50,
-   "pronostico": null,
-   "sin_pronostico": "3 de las 52 semanas siguientes al origen no tienen la misma semana impresa en ninguno de los 3 años anteriores: la historia semanal no alcanza y no se rellena con ceros."
+   "metodo": "nivel_reciente_sin_estacionalidad",
+   "rotulo": "Pronóstico exploratorio, no validado: nivel reciente sin estacionalidad",
+   "motivo_respaldo": "3 de las 52 semanas siguientes al origen no tienen la misma semana impresa en ninguno de los 3 años anteriores: la historia semanal no alcanza para la referencia estacional y no se rellena con ceros.",
+   "semanas_base": [
+    {
+     "y": 2026,
+     "w": 36,
+     "valor": 2,
+     "impreso": 2
+    },
+    {
+     "y": 2026,
+     "w": 37,
+     "valor": 3,
+     "impreso": 3
+    },
+    {
+     "y": 2026,
+     "w": 38,
+     "valor": 5,
+     "impreso": 5
+    },
+    {
+     "y": 2026,
+     "w": 39,
+     "valor": 5,
+     "impreso": 5
+    },
+    {
+     "y": 2026,
+     "w": 40,
+     "valor": 4,
+     "impreso": 4
+    },
+    {
+     "y": 2026,
+     "w": 41,
+     "valor": 0,
+     "impreso": "-"
+    },
+    {
+     "y": 2026,
+     "w": 42,
+     "valor": 2,
+     "impreso": 2
+    },
+    {
+     "y": 2026,
+     "w": 43,
+     "valor": 3,
+     "impreso": 3
+    }
+   ],
+   "n_semanas_base": 8,
+   "periodo_base": "2026-W36 a 2026-W43",
+   "nivel": 3,
+   "nota_base": "1 de las 8 semanas base es un guion impreso que la simbología del boletín de ese año lee como «no se presentaron casos» (cero).",
+   "pronostico": [
+    {
+     "y": 2026,
+     "w": 44,
+     "ds": "2026-11-01",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 45,
+     "ds": "2026-11-08",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 46,
+     "ds": "2026-11-15",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 47,
+     "ds": "2026-11-22",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 48,
+     "ds": "2026-11-29",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 49,
+     "ds": "2026-12-06",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 50,
+     "ds": "2026-12-13",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 51,
+     "ds": "2026-12-20",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 52,
+     "ds": "2026-12-27",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 1,
+     "ds": "2027-01-03",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 2,
+     "ds": "2027-01-10",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 3,
+     "ds": "2027-01-17",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 4,
+     "ds": "2027-01-24",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 5,
+     "ds": "2027-01-31",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 6,
+     "ds": "2027-02-07",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 7,
+     "ds": "2027-02-14",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 8,
+     "ds": "2027-02-21",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 9,
+     "ds": "2027-02-28",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 10,
+     "ds": "2027-03-07",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 11,
+     "ds": "2027-03-14",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 12,
+     "ds": "2027-03-21",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 13,
+     "ds": "2027-03-28",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 14,
+     "ds": "2027-04-04",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 15,
+     "ds": "2027-04-11",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 16,
+     "ds": "2027-04-18",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 17,
+     "ds": "2027-04-25",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 18,
+     "ds": "2027-05-02",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 19,
+     "ds": "2027-05-09",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 20,
+     "ds": "2027-05-16",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 21,
+     "ds": "2027-05-23",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 22,
+     "ds": "2027-05-30",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 23,
+     "ds": "2027-06-06",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 24,
+     "ds": "2027-06-13",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 25,
+     "ds": "2027-06-20",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 26,
+     "ds": "2027-06-27",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 27,
+     "ds": "2027-07-04",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 28,
+     "ds": "2027-07-11",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 29,
+     "ds": "2027-07-18",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 30,
+     "ds": "2027-07-25",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 31,
+     "ds": "2027-08-01",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 32,
+     "ds": "2027-08-08",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 33,
+     "ds": "2027-08-15",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 34,
+     "ds": "2027-08-22",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 35,
+     "ds": "2027-08-29",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 36,
+     "ds": "2027-09-05",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 37,
+     "ds": "2027-09-12",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 38,
+     "ds": "2027-09-19",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 39,
+     "ds": "2027-09-26",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 40,
+     "ds": "2027-10-03",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 41,
+     "ds": "2027-10-10",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 42,
+     "ds": "2027-10-17",
+     "valor": 3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 43,
+     "ds": "2027-10-24",
+     "valor": 3,
+     "anios": []
+    }
+   ]
   },
   "p80b3": {
    "id": "p80b3",
@@ -12163,8 +13478,429 @@
     43
    ],
    "puntos_con_cifra": 43,
-   "pronostico": null,
-   "sin_pronostico": "9 de las 52 semanas siguientes al origen no tienen la misma semana impresa en ninguno de los 3 años anteriores: la historia semanal no alcanza y no se rellena con ceros."
+   "metodo": "nivel_reciente_sin_estacionalidad",
+   "rotulo": "Pronóstico exploratorio, no validado: nivel reciente sin estacionalidad",
+   "motivo_respaldo": "9 de las 52 semanas siguientes al origen no tienen la misma semana impresa en ninguno de los 3 años anteriores: la historia semanal no alcanza para la referencia estacional y no se rellena con ceros.",
+   "semanas_base": [
+    {
+     "y": 2026,
+     "w": 36,
+     "valor": 8,
+     "impreso": 8
+    },
+    {
+     "y": 2026,
+     "w": 37,
+     "valor": 18,
+     "impreso": 18
+    },
+    {
+     "y": 2026,
+     "w": 38,
+     "valor": 11,
+     "impreso": 11
+    },
+    {
+     "y": 2026,
+     "w": 39,
+     "valor": 17,
+     "impreso": 17
+    },
+    {
+     "y": 2026,
+     "w": 40,
+     "valor": 4,
+     "impreso": 4
+    },
+    {
+     "y": 2026,
+     "w": 41,
+     "valor": 12,
+     "impreso": 12
+    },
+    {
+     "y": 2026,
+     "w": 42,
+     "valor": 11,
+     "impreso": 11
+    },
+    {
+     "y": 2026,
+     "w": 43,
+     "valor": 9,
+     "impreso": 9
+    }
+   ],
+   "n_semanas_base": 8,
+   "periodo_base": "2026-W36 a 2026-W43",
+   "nivel": 11.3,
+   "nota_base": null,
+   "pronostico": [
+    {
+     "y": 2026,
+     "w": 44,
+     "ds": "2026-11-01",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 45,
+     "ds": "2026-11-08",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 46,
+     "ds": "2026-11-15",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 47,
+     "ds": "2026-11-22",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 48,
+     "ds": "2026-11-29",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 49,
+     "ds": "2026-12-06",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 50,
+     "ds": "2026-12-13",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 51,
+     "ds": "2026-12-20",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 52,
+     "ds": "2026-12-27",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 1,
+     "ds": "2027-01-03",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 2,
+     "ds": "2027-01-10",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 3,
+     "ds": "2027-01-17",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 4,
+     "ds": "2027-01-24",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 5,
+     "ds": "2027-01-31",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 6,
+     "ds": "2027-02-07",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 7,
+     "ds": "2027-02-14",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 8,
+     "ds": "2027-02-21",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 9,
+     "ds": "2027-02-28",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 10,
+     "ds": "2027-03-07",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 11,
+     "ds": "2027-03-14",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 12,
+     "ds": "2027-03-21",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 13,
+     "ds": "2027-03-28",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 14,
+     "ds": "2027-04-04",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 15,
+     "ds": "2027-04-11",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 16,
+     "ds": "2027-04-18",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 17,
+     "ds": "2027-04-25",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 18,
+     "ds": "2027-05-02",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 19,
+     "ds": "2027-05-09",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 20,
+     "ds": "2027-05-16",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 21,
+     "ds": "2027-05-23",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 22,
+     "ds": "2027-05-30",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 23,
+     "ds": "2027-06-06",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 24,
+     "ds": "2027-06-13",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 25,
+     "ds": "2027-06-20",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 26,
+     "ds": "2027-06-27",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 27,
+     "ds": "2027-07-04",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 28,
+     "ds": "2027-07-11",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 29,
+     "ds": "2027-07-18",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 30,
+     "ds": "2027-07-25",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 31,
+     "ds": "2027-08-01",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 32,
+     "ds": "2027-08-08",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 33,
+     "ds": "2027-08-15",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 34,
+     "ds": "2027-08-22",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 35,
+     "ds": "2027-08-29",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 36,
+     "ds": "2027-09-05",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 37,
+     "ds": "2027-09-12",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 38,
+     "ds": "2027-09-19",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 39,
+     "ds": "2027-09-26",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 40,
+     "ds": "2027-10-03",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 41,
+     "ds": "2027-10-10",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 42,
+     "ds": "2027-10-17",
+     "valor": 11.3,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 43,
+     "ds": "2027-10-24",
+     "valor": 11.3,
+     "anios": []
+    }
+   ]
   },
   "national-A80": {
    "id": "national-A80",
@@ -12172,6 +13908,8 @@
    "codigo": "A80",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (sin desglose estatal): el boletín sólo la imprime en el resumen nacional de notificación inmediata, sin cifras por entidad.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     44
@@ -12765,6 +14503,8 @@
    "codigo": "A36",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (sin desglose estatal): el boletín sólo la imprime en el resumen nacional de notificación inmediata, sin cifras por entidad.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     44
@@ -13358,6 +15098,8 @@
    "codigo": "A92.2",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (sin desglose estatal): el boletín sólo la imprime en el resumen nacional de notificación inmediata, sin cifras por entidad.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     44
@@ -13951,6 +15693,8 @@
    "codigo": "A95",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (sin desglose estatal): el boletín sólo la imprime en el resumen nacional de notificación inmediata, sin cifras por entidad.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     44
@@ -14544,6 +16288,8 @@
    "codigo": "A20",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (sin desglose estatal): el boletín sólo la imprime en el resumen nacional de notificación inmediata, sin cifras por entidad.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     44
@@ -15137,6 +16883,8 @@
    "codigo": "A92.8",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (sin desglose estatal): el boletín sólo la imprime en el resumen nacional de notificación inmediata, sin cifras por entidad.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     44
@@ -15730,6 +17478,8 @@
    "codigo": "A98.4",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (sin desglose estatal): el boletín sólo la imprime en el resumen nacional de notificación inmediata, sin cifras por entidad.",
+   "metodo": "media_estacional_misma_semana",
+   "rotulo": "Pronóstico exploratorio, no validado",
    "origen": [
     2026,
     44
