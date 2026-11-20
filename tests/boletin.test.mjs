@@ -231,7 +231,9 @@ test('the current snapshot is declared in one place and the static page agrees w
   assert.match(actual.carpeta, /^assets\/boletin\/\d{4}-w\d{2}(-r\d+)?$/);
   assert.match(actual.carpeta, new RegExp(`^assets/boletin/${year}-w${String(week).padStart(2, '0')}(-r\\d+)?$`));
   const history = JSON.parse(readFileSync(resolve(root, 'assets/boletin/history/index.json'), 'utf8'));
-  const textos = textosRadar(data, actual, history), enlaces = enlacesRadar(actual);
+  // La huella del panorama cuenta además el pronóstico exploratorio de la foto (como boletin_semana_activa.py).
+  const pronostico = JSON.parse(readFileSync(resolve(root, actual.carpeta, 'pronostico_exploratorio.json'), 'utf8'));
+  const textos = textosRadar(data, actual, history, pronostico), enlaces = enlacesRadar(actual);
   const spans = [...html.matchAll(/<span data-radar="([^"]+)">([^<]*)<\/span>/g)];
   assert.ok(spans.length > 20);
   for (const [, key, value] of spans) assert.equal(value, textos[key], key);

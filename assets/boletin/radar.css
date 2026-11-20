@@ -56,7 +56,15 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{ou
 .coverage-panel{padding:26px;border-left:1px solid var(--rule);background:rgba(106,160,255,.04)}
 .coverage-panel h2{font-size:29px}
 .coverage-panel p{font-size:14px;color:var(--ink-soft)}
-.ring{border:8px solid rgba(130,160,210,.18);border-right-color:var(--accent);border-radius:50%;width:116px;height:116px;display:flex;align-items:center;justify-content:center;margin:22px 0}
+.ring-wrap{display:flex;align-items:center;gap:22px;flex-wrap:wrap;margin:22px 0}
+.ring{--ring-publicado:var(--accent);--ring-exploratorio:#98621c;--ring-pista:rgba(23,100,77,.12);position:relative;border-radius:50%;width:116px;height:116px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;background:conic-gradient(var(--ring-publicado) 0 var(--publicado,0%),#edf3e9 0 calc(var(--publicado,0%) + .4%),var(--ring-exploratorio) 0 var(--con-pronostico,0%),var(--ring-pista) 0 100%)}
+.ring::before{content:'';position:absolute;inset:9px;border-radius:50%;background:#edf3e9}
+.ring>span{position:relative}
+.ring-legend{list-style:none;margin:0;padding:0;font:12px/1.7 var(--sans);color:var(--ink-soft)}
+.ring-legend li::before{content:'';display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:8px;vertical-align:-1px}
+.ring-legend-publicado::before{background:var(--accent)}
+.ring-legend-exploratorio::before{background:#98621c}
+.ring-legend b{color:var(--ink)}
 .ring span{font:43px var(--serif-head);text-align:center;color:var(--ink)}
 .ring small{display:block;font:8px var(--sans);letter-spacing:.1em}
 .text-link{font:11px var(--sans)}
@@ -230,7 +238,7 @@ select{font:13px var(--sans)!important;min-height:44px;border-radius:6px;backgro
 .priority-grid,.platform-grid{gap:15px;border:0}.priority-card,.platform-card{background:white;border:1px solid var(--rule);border-radius:9px;padding:20px}.priority-card h3,.platform-card h3{font-size:23px}.priority-card p{font-size:14px}.priority-card button{font-size:13px;min-height:44px}.platform-card .code{font-size:12px}.platform-card .platform-link,.platform-card .disease-name{font-size:13px!important}.radar-footer{font-size:12px}
 dialog{background:white;border-radius:12px;padding:28px;box-shadow:0 20px 70px #173c3330}.dialog-top button{min-width:44px;min-height:44px}.detail-stats{padding:16px;background:#f0f5ec;border-radius:8px}.detail-stats small{font-size:12px}.chip{border-radius:5px;font-size:12px}.hash{font-size:11px!important}#error{color:#873b25;border-top:1px solid #ce9986}
 @media(max-width:1000px){.curve-controls{grid-template-columns:1fr 1fr}.curve-controls label:first-child{grid-column:1/-1}.curve-stats{grid-template-columns:1fr 1fr}.boletin-page .hero{grid-template-columns:1fr 210px}}
-@media(max-width:800px){.boletin-page .hero{display:grid!important;grid-template-columns:1fr}.issue{margin:0;max-width:none;display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;text-align:left;padding:15px 20px;min-width:0}.issue strong{font-size:38px}.issue>span{flex-basis:100%}.issue p{margin:0!important;text-align:left!important}.section-top{gap:15px}.curve-panel{padding:20px}.section-top>.button{font-size:12px!important}.curve-controls{padding:16px}.metrics{grid-template-columns:1fr 1fr}.overview-grid{gap:16px}.bar-row{grid-template-columns:minmax(0,160px) minmax(20px,1fr) 75px}.ring{width:96px;height:96px;border-width:6px}.ring span{font-size:32px}}
+@media(max-width:800px){.boletin-page .hero{display:grid!important;grid-template-columns:1fr}.issue{margin:0;max-width:none;display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;text-align:left;padding:15px 20px;min-width:0}.issue strong{font-size:38px}.issue>span{flex-basis:100%}.issue p{margin:0!important;text-align:left!important}.section-top{gap:15px}.curve-panel{padding:20px}.section-top>.button{font-size:12px!important}.curve-controls{padding:16px}.metrics{grid-template-columns:1fr 1fr}.overview-grid{gap:16px}.bar-row{grid-template-columns:minmax(0,160px) minmax(20px,1fr) 75px}.ring{width:96px;height:96px}.ring::before{inset:7px}.ring small{font-size:7px;letter-spacing:.04em}.ring span{font-size:32px}}
 @media(max-width:480px){.radar-section-nav{gap:7px}.radar-section-nav a{font-size:12px;padding:9px 10px}.boletin-page h1{font-size:35px}.intro{font-size:15px}.topbar{font-size:10px}.topbar a{font-size:11px}.curve-controls label:first-child{grid-column:1/-1}.curve-controls{gap:14px 10px}.curve-controls select{font-size:12px!important}.curve-stats div{padding:12px}.curve-stats strong{font-size:22px}.curve-panel{padding:16px}.curve-chart-head h3{font-size:22px}.metric strong{font-size:30px}.metric-label,.metric small{font-size:11px}.metric{padding:14px}.filters{padding:12px}.filters select{min-width:120px}.method-details{padding:16px}.bar-row{grid-template-columns:minmax(0,130px) minmax(12px,1fr) 68px}.radar-actions .button{font-size:12px!important}.detail-stats{gap:20px}.priority-grid,.platform-grid{grid-template-columns:1fr}}
 
 .issue strong>span:first-child{font:inherit;color:inherit}.issue strong>span+span{margin-left:5px}

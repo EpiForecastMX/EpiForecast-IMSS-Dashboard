@@ -104,7 +104,8 @@ test('varias no modelables en una consulta: tabla y lista de motivos', async () 
 test('resumen del radar: cuántas no son modelables y dónde está su motivo', async () => {
   const r = await conversa('radar del boletín');
   assert.equal(r.handler, 'answerRadarResumen');
-  assert.match(r.md, /De ellas, \*\*32\*\* no son modelables con el método actual/);
+  assert.match(r.md, /De las 33 sin modelo validado, \*\*32\*\* no son modelables con el método actual/);
+  assert.match(r.md, /Categorías con pronóstico: \*\*187 de 187\*\*: 154 con pronóstico publicado y 33 con pronóstico exploratorio, no validado/);
 });
 
 // Nombres de categorías que rozan el léxico de daño: con cualquier señal de riesgo gana la crisis (texto fijo, sin cifras).

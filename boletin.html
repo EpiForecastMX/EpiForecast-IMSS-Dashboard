@@ -12,7 +12,7 @@
 <meta property="og:url" content="https://epiforecast.mx/boletin.html">
 <meta property="og:type" content="website">
 <link rel="stylesheet" href="assets/site/site.css?v=5">
-<link rel="stylesheet" href="/assets/boletin/radar.css?v=20261120p">
+<link rel="stylesheet" href="/assets/boletin/radar.css?v=20261120r">
 </head>
 <body class="boletin-page">
 <a class="skip-link" href="#main">Saltar al contenido</a>
@@ -146,12 +146,18 @@
 </article>
 <article class="coverage-panel">
 <div class="eyebrow">HUELLA DE LA PLATAFORMA</div>
-<h2><span data-radar="publicados_palabras">Ciento cincuenta y dos</span> padecimientos.<br>Una agenda por ampliar.</h2>
-<div class="ring">
-<span><span data-radar="publicados">152</span><small>PUBLICADOS</small>
-</span>
+<h2><span data-radar="con_pronostico_palabras">Ciento ochenta y siete</span> categorías con pronóstico.</h2>
+<div class="ring-wrap">
+<div class="ring" id="ringPronostico" role="img" data-radar-aria="anillo_aria" aria-label="187 de 187 categorías con pronóstico: 154 con pronóstico publicado (82.4 %) y 33 con pronóstico exploratorio, no validado (17.6 %)." data-radar-estilo="anillo_estilo" style="--publicado:82.4%;--con-pronostico:100%">
+<span aria-hidden="true"><span data-radar="con_pronostico">187</span><small>CON PRONÓSTICO</small></span>
 </div>
-<p><span data-radar="cubiertas">154</span> categorías del boletín cubiertas por <span data-radar="publicados">152</span> entradas de EpiForecast. Dengue se reporta en tres formas clínicas.</p>
+<ul class="ring-legend" aria-label="Leyenda del anillo">
+<li class="ring-legend-publicado"><b><span data-radar="categorias_publicadas">154</span></b> con pronóstico publicado</li>
+<li class="ring-legend-exploratorio"><b><span data-radar="exploratorias">33</span></b> con pronóstico exploratorio, no validado</li>
+</ul>
+</div>
+<p><span data-radar="panorama_resumen">152 padecimientos publicados cubren 154 categorías del boletín. Dengue se reporta en tres formas clínicas. Las 33 restantes no tienen modelo validado (32 no son modelables con el método actual y 1 fue rechazada en su prueba): muestran un pronóstico exploratorio, no validado, que no es un pronóstico de EpiForecast-MX.</span></p>
+<a href="no_modelables.html" class="text-link">Ver las categorías sin modelo validado →</a><br>
 <a href="#cobertura" class="text-link">Revisar cobertura y excepciones →</a>
 <div class="coverage-foot">F50, isquémica, cerebrovascular, IRA, gingivitis y cáncer de mama: control estacional publicado.<br>Cuello del útero: publicado sin desglose por sexo.<br>Diez cánceres desde 2023: publicados con la política de historia corta.<br>Riñón, próstata, huesos, hígado y esófago: control estacional publicado.<br>Covid-19: rechazado, solo en <a href="rechazados.html">su sección de evidencia</a>.<br><span data-radar="no_modelables_palabras">Treinta y dos</span> categorías no son modelables con el método actual (sin modelo validado): <a href="no_modelables.html">motivo medido y cifras impresas de cada una</a>. Sin pronóstico publicado: tienen un pronóstico exploratorio, no validado, en el radar.</div>
 </article>
@@ -403,7 +409,7 @@
 </dialog>
 <div id="error" hidden>
 </div>
-<script type="module" src="/assets/boletin/radar.js?v=20261120n">
+<script type="module" src="/assets/boletin/radar.js?v=20261120q">
 </script>
 <script type="module" src="/assets/boletin/pronostico_vista.mjs?v=18"></script>
 <script src="/assets/boletin/curves.js?v=20261120r" defer></script>

@@ -37,7 +37,8 @@ export function predictorDescription(disease) {
 
 // Opción «Pronóstico» del radar (alta_b44, 20-nov-2026): toda categoría no agregada la tiene, con pronóstico
 // publicado, con pronóstico exploratorio no validado o, si su historia semanal no alcanza, con la serie y el motivo.
-export { coberturaPronostico } from './pronostico.mjs?v=10';
+import { coberturaPronostico } from './pronostico.mjs?v=10';
+export { coberturaPronostico };
 
 const pct = (n, t) => `${(t ? Math.round((n / t) * 1000) / 10 : 0).toLocaleString('es-MX')} %`;
 
@@ -53,4 +54,28 @@ export function textoCoberturaPronostico(c) {
   const lista = partes.length > 2 ? `${partes.slice(0, -1).join(', ')} y ${partes.at(-1)}` : partes.join(' y ');
   const faltan = c.sin_opcion ? ` Faltan ${c.sin_opcion} sin opción.` : '';
   return `${c.con_opcion.toLocaleString('es-MX')} de ${c.total.toLocaleString('es-MX')} categorías (${pct(c.con_opcion, c.total)}) tienen la opción «Pronóstico»: ${lista}.${faltan}`;
+}
+
+/**
+ * Cobertura de pronóstico del panorama del radar: publicado frente a exploratorio no validado, sin mezclarlos.
+ * `doc` es pronostico_exploratorio.json (o null si no se cargó: entonces sólo cuenta lo publicado).
+ * Los porcentajes son de categorías no agregadas y sirven para dibujar los dos segmentos del anillo.
+ */
+export function coberturaPanorama(diseases, doc) {
+  const s = summarizeCoverage(diseases);
+  const c = coberturaPronostico(diseases, doc);
+  const exploratorio = c.exploratorio + c.nivel_reciente + c.notas;
+  const p = n => (c.total ? Math.round((n / c.total) * 1000) / 10 : 0);
+  return {
+    total: c.total,
+    con_pronostico: c.con_pronostico,
+    publicado: c.publicado,
+    publicados: s.published,
+    controles: s.controls,
+    exploratorio,
+    sin_pronostico: c.total - c.con_pronostico,
+    completo: c.total > 0 && c.con_pronostico === c.total,
+    pct_publicado: p(c.publicado),
+    pct_con_pronostico: p(c.con_pronostico),
+  };
 }
