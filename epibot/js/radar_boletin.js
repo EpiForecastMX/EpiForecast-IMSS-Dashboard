@@ -1,6 +1,6 @@
 /**
  * Radar del boletín en EPI: cifras notificadas de la foto vigente para los padecimientos que la
- * plataforma NO modela (por incorporar, rechazados o agregados).
+ * plataforma NO modela (no modelables, por incorporar, rechazados o agregados).
  *
  * La foto es la misma que lee `boletin.html` (`assets/boletin/actual.json` → `data.json`), así que
  * cada boletín nuevo llega a EPI sin tocar este archivo. Nunca da un pronóstico: repite las cifras
@@ -8,7 +8,8 @@
  * siguen en sus handlers y los temas sensibles (autolesiones, ideación suicida, violencias) en la
  * respuesta de crisis, que no da cifras.
  */
-import { summarizeCoverage } from '../../assets/boletin/coverage.mjs?v=1';
+import { summarizeCoverage } from '../../assets/boletin/coverage.mjs?v=2';
+import { GRUPOS_NO_MODELABLES, grupoNoModelable } from '../../assets/boletin/no_modelables.mjs?v=1';
 import { GUION, esMarcador, guionNoPublicado, suma } from '../../assets/boletin/celdas.mjs?v=1';
 
 const SENSIBLE = /suicid|autolesion|autoinfligid|self harm|ideacion|violencia|arma de fuego|abuso sexual|maltrato/;
@@ -98,7 +99,8 @@ export function buscaEnRadar(q, radar) {
     }
   }
   const completas = candidatas.filter((e) => e._n.length > 3 && qq.includes(` ${e._n} `));
-  if (completas.length) return completas;
+  // «síndrome de rubéola congénita» nombra entera a esa categoría; «rubéola» sólo aparece dentro de su nombre.
+  if (completas.length) return completas.filter((e) => !completas.some((o) => o !== e && o._n.includes(` ${e._n}`)));
   const palabras = new Set(qq.trim().split(' ').filter((w) => w.length >= 5 && !GENERICAS.has(w)));
   return candidatas.filter((e) => palabras.has(e._n.split(' ')[0]));
 }
@@ -123,11 +125,20 @@ const ROTULO_COLUMNA = {
   'Sem. 2025': 'Semana comparable 2025',
 };
 
+/** «En el boletín…» tras dos puntos: minúscula inicial (no toca siglas ni nombres propios con mayúscula interna). */
+const minusculaInicial = (t) => (/^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]/.test(t) ? t[0].toLowerCase() + t.slice(1) : t);
+
 function estadoPlataforma(e) {
   if (e.status === 'Rechazada') {
     return 'Se analizó y se **rechazó** en la prueba de 2025: no hay pronóstico publicado. Su evidencia está en [Analizados y rechazados](../rechazados.html).';
   }
   if (e.status === 'Agregado') return 'Es un **agregado** del boletín que suma varias categorías; no se modela.';
+  const g = grupoNoModelable(e);
+  if (g) {
+    return `Estado en la plataforma: **no modelable** (${GRUPOS_NO_MODELABLES[g].etiqueta.toLowerCase()}). Motivo medido: ${minusculaInicial(e.reason)} ` +
+      'No hay pronóstico ni control estacional. El motivo y las cifras de todas las categorías sin pronóstico están en ' +
+      '[Categorías sin pronóstico](../no_modelables.html).';
+  }
   return 'Estado en la plataforma: **por incorporar**. No hay modelo ni pronóstico.';
 }
 
@@ -226,6 +237,11 @@ export function respuestaRadar(encontradas, radar, estado) {
   }
   for (const nota of notas) lines.push(`\n${nota}`);
   if (encontradas.some((e) => e.status === 'Rechazada')) lines.push('\nLa rechazada se analizó en la prueba de 2025; su evidencia está en [Analizados y rechazados](../rechazados.html).');
+  const nm = encontradas.slice(0, 8).filter((e) => grupoNoModelable(e));
+  if (nm.length) {
+    lines.push(`\nNo modelables con el método actual: ${nm.map((e) => `${e.name} (${GRUPOS_NO_MODELABLES[grupoNoModelable(e)].etiqueta.toLowerCase()})`).join('; ')}. ` +
+      'El motivo medido de cada una está en [Categorías sin pronóstico](../no_modelables.html).');
+  }
   lines.push(pie);
   return lines.join('\n');
 }
@@ -238,6 +254,7 @@ export function resumenRadar(radar) {
     `- Categorías de vigilancia: **${fmt(m.categories)}** (enfermedades, síndromes y eventos); ${fmt(m.territorial_blocks)} bloques traen las 32 entidades y el resto solo el resumen nacional.`,
     `- Padecimientos publicados en EpiForecast-MX: **${fmt(c.published)}**, ${fmt(c.controls)} de ellos con el control estacional.`,
     `- Categorías sin cobertura: **${fmt(c.uncovered)}**: sus cifras notificadas se consultan sin modelo ni pronóstico.`,
+    ...(c.unmodelable ? [`- De ellas, **${fmt(c.unmodelable)}** no son modelables con el método actual; el motivo medido de cada una está en [Categorías sin pronóstico](../no_modelables.html).`] : []),
     '\nPregúntame por cualquiera («tuberculosis en Jalisco», «casos de varicela») o recorre las curvas desde 2013 en el [Radar del boletín](../boletin.html).',
   ].join('\n');
 }
