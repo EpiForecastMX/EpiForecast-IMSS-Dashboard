@@ -2346,14 +2346,30 @@
 
   // Primera persona plural por regla general (verificación final de no modelables): todo token normalizado de cinco letras
   // o más que termina en «mos» (-amos, -emos, -imos, -íamos, -ríamos, -remos, -semos…: estamos, estaríamos, tendríamos,
-  // vivimos, sentimos) cuenta como primera persona plural. Excepciones: palabras no verbales en «-mos». Criterio: se revisaron
-  // todas las palabras en «mos» del vocabulario cerrado (vocab_consulta.js, vocab_cerrado.js), del corpus RAG, de
-  // knowledge.json y de las consultas de prueba; entran las que no son formas verbales (sustantivos y adjetivos), más los
-  // adjetivos de orden o medida que una consulta de datos puede usar. Una forma verbal nunca entra en esta lista.
-  const NO_VERBALES_MOS = new Set(['mismos', 'ultimos', 'proximos', 'maximos', 'minimos', 'optimos', 'extremos', 'supremos',
-    'intimos', 'legitimos', 'organismos', 'mecanismos', 'algoritmos', 'logaritmos', 'ritmos', 'tramos', 'ramos', 'cosmos',
-    'primos', 'animos', 'racimos', 'septimos']);
-  const PLURAL_MOS = (w) => w.length >= 5 && w.endsWith('mos') && !NO_VERBALES_MOS.has(w);
+  // vivimos, sentimos) cuenta como primera persona plural. Cuarta verificación: también los pronombres enclíticos de primera
+  // persona, todo token de cinco letras o más en «nos», «me», «melo/mela/melos/melas» o «noslo/nosla/noslos/noslas»
+  // (ayúdanos, cuídame, dímelo, vámonos, cuidémonos, tranquilicémonos, matarme, ayudarnos). Excepciones (NO_VERBALES_MOS):
+  // palabras no verbales o que no son de primera persona con esas terminaciones. Criterio: se revisaron todas las palabras
+  // con esas terminaciones del vocabulario cerrado (vocab_consulta.js, vocab_cerrado.js), del corpus RAG, de knowledge.json
+  // y de las consultas de prueba; entran sustantivos, adjetivos, términos en inglés y formas de tercera persona («imprime»,
+  // «comprime»), más los adjetivos de orden o medida y los indefinidos que una consulta de datos puede usar. Una forma
+  // verbal de primera persona nunca entra en esta lista.
+  const NO_VERBALES_MOS = new Set([
+    // «-mos»
+    'mismos', 'ultimos', 'proximos', 'maximos', 'minimos', 'optimos', 'extremos', 'supremos', 'intimos', 'legitimos',
+    'organismos', 'mecanismos', 'algoritmos', 'logaritmos', 'ritmos', 'tramos', 'ramos', 'cosmos', 'primos', 'animos',
+    'racimos', 'septimos',
+    // «-nos»
+    'menos', 'buenos', 'algunos', 'ningunos', 'unos', 'cercanos', 'malignos', 'benignos', 'pequenos', 'planos', 'signos',
+    'terminos', 'tetanos', 'trastornos', 'transtornos', 'vecinos', 'ninos', 'monos', 'chronos', 'humanos', 'hermanos',
+    'sanos', 'ancianos', 'mexicanos', 'internos', 'externos', 'urbanos', 'medianos', 'tempranos', 'plenos',
+    'llenos', 'ajenos',
+    // «-me»
+    'informe', 'enorme', 'uniforme', 'conforme', 'deforme', 'firme', 'derrame', 'sindrome', 'syndrome',
+    'imprime', 'comprime', 'regime', 'scheme', 'volume', 'become', 'dataframe', 'datetime', 'frame', 'welcome',
+  ]);
+  const PLURAL_MOS = (w) => w.length >= 5 && /(mos|nos|me|melo|mela|melos|melas|noslo|nosla|noslos|noslas)$/.test(w) &&
+    !NO_VERBALES_MOS.has(w);
   // Primera persona: el turno habla de quien escribe («me quemé», «tengo 15 años», «estamos…», «I…», «we…»).
   const PRIMERA_PERSONA_LEX = /\b(me|mi|mis|yo|conmigo|nos|nosotros|nosotras|nuestro|nuestra|nuestros|nuestras|tengo|tenia|tuve|estoy|estaba|estuve|soy|siento|sentia|quiero|quisiera|puedo|ando|hice|i|im|ive|my|mine|myself|we|our|ours|us|ourselves)\b/;
   const primeraPersona = (raw) => {
