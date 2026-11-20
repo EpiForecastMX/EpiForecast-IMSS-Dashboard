@@ -13,11 +13,11 @@
  * necesito…), causativos o de acción sobre personas (causa, hace, da, pega, quema…), palabras de riesgo (métodos, sustancias,
  * autolesión, violencia, ingestión), edades, cantidades ni estados de ánimo: «vivo», «tomo», «tabletas», «sedantes»,
  * «golpes», «pills» o «poison» sólo cuentan dentro de un alias completo.
- * Las únicas formas de primera o segunda persona que se retiran están en `frases` y siempre ancladas: una petición de
- * consulta seguida de su objeto de datos («quiero ver», «necesito datos de», «dame los», «dime sobre») o una pregunta al bot
- * que empieza por interrogativo («¿qué modelos usas?», «¿cuántos casos esperas?») o una petición cortés con infinitivo de
- * consulta («¿podrías mostrar…?»). El resto del turno sigue sometido a esta
- * lista, y la primera o segunda persona impide retirar la edad.
+ * Las únicas formas de primera o segunda persona que se retiran están en `frases` (décima auditoría): una petición al bot
+ * seguida INMEDIATAMENTE, con artículos o preposiciones opcionales, de un sustantivo de datos de la lista cerrada
+ * `OBJETO_DATOS` («dame los casos de», «quiero ver la gráfica de», «give me the data»), o una pregunta con interrogativo
+ * cuyo objeto es ese sustantivo («¿qué modelos usas?»). El resto del turno sigue sometido a esta lista; cualquier verbo de
+ * petición o de segunda persona (`VERBOS_PETICION`) impide retirar la edad y, con un id sensible, da la crisis.
  * Los padecimientos, códigos y estados NO van aquí: los reconoce como fragmentos completos `js/vocab_cerrado.js`.
  * Los números sólo valen como año (2014-2027) o dentro de una frase técnica de abajo; cualquier otro número (edades,
  * cantidades) queda fuera de vocabulario.
@@ -28,8 +28,26 @@ const EDAD_POBLACION = /\b(mujeres|hombres|personas|pacientes|adultos|jovenes|ni
 const EDAD_RANGO = /\bentre \d{1,2} y \d{1,2} anos\b/g;
 const EDAD_UMBRAL = /\b(mayores|menores) de \d{1,2}( anos)?\b/g;
 const EDAD_DE_A = /\bde \d{1,2} a \d{1,2} anos\b/g;
+// Décima auditoría: peticiones al bot. Sólo se retiran ancladas a un sustantivo de datos de esta lista cerrada.
+const OBJETO_DATOS = '(?:casos|caso|cifras|cifra|datos|dato|numero|numeros|pronostico|pronosticos|tendencia|tendencias|tasa|tasas|' +
+  'estadisticas|estadistica|informacion|serie|series|grafica|graficas|grafico|graficos|modelos|modelo|' +
+  'cases|data|numbers|forecast|forecasts|figures|stats|statistics)';
+const ENLACE = '(?: (?:los|las|el|la|un|una|unos|unas|de|del|sobre|con|contra|me|mas|tus|sus|the|some|any|your|more|of))*';
+// Verbos de petición o de segunda persona: también impiden retirar la edad aunque la petición sea válida.
+const VERBOS_PETICION = ['quiero', 'quisiera', 'queremos', 'necesito', 'necesitamos', 'deseo', 'gustaria', 'dame', 'dime',
+  'muestrame', 'ensename', 'comparalo', 'sorprendeme', 'podrias', 'puedes', 'sabes', 'usas', 'sacas', 'tienes', 'esperas',
+  'generas', 'pronosticas', 'funcionas', 'give', 'show', 'tell', 'can', 'could', 'you', 'do'];
+const PETICION_DESEO = new RegExp(`\\b(quiero|quisiera|queremos|necesito|necesitamos|deseo|me gustaria)( (ver|consultar|saber|conocer|revisar|comparar))?${ENLACE} ${OBJETO_DATOS}\\b`, 'g');
+const PETICION_IMPERATIVO = new RegExp(`\\b(dame|dime|muestrame|ensename|comparalo|sorprendeme)${ENLACE} ${OBJETO_DATOS}\\b`, 'g');
+const PETICION_CORTES = new RegExp(`\\b(podrias|puedes) (mostrar|mostrarme|decir|decirme|dar|darme|explicar|explicarme|ensenar|ensenarme|informar|consultar|comparar)${ENLACE} ${OBJETO_DATOS}\\b`, 'g');
+const PETICION_PREGUNTA_OBJETO = new RegExp(`\\b(que|como|cuantos|cuantas|cuanto|donde|cual|cuales) ${OBJETO_DATOS} (sabes|usas|sacas|tienes|esperas|generas|pronosticas)\\b`, 'g');
+const PETICION_PREGUNTA_VERBO = new RegExp(`\\b(que|como|cuantos|cuantas|cuanto|donde|cual|cuales) (sabes|usas|sacas|tienes|esperas|generas|pronosticas)${ENLACE} ${OBJETO_DATOS}\\b`, 'g');
+const PETICION_INGLES = new RegExp(`\\b((can|could) you )?((give|show|tell) me|show|give|do you have)${ENLACE} ${OBJETO_DATOS}\\b`, 'g');
+const PETICION_INGLES_PREGUNTA = new RegExp(`\\b(what|which|how many|how much) ${OBJETO_DATOS} do you (have|use|show)\\b`, 'g');
 globalThis.EPI_VOCAB_CONSULTA = Object.freeze({
   frasesEdad: [EDAD_POBLACION, EDAD_RANGO, EDAD_UMBRAL, EDAD_DE_A],
+  verbosPeticion: Object.freeze(VERBOS_PETICION),
+  peticiones: Object.freeze([PETICION_DESEO, PETICION_IMPERATIVO, PETICION_CORTES, PETICION_PREGUNTA_OBJETO, PETICION_PREGUNTA_VERBO, PETICION_INGLES, PETICION_INGLES_PREGUNTA]),
   palabras: new Set(`
     // Interrogativos, artículos, preposiciones, conectores, cortesía y verbos de consulta neutros.
     a afecta ahora al algo el e otro uno siguiente llegaron nuevos pinta sigue cifras cifra consultar
@@ -88,22 +106,22 @@ globalThis.EPI_VOCAB_CONSULTA = Object.freeze({
     // Palabras de consultas fuera de tema de los casos funcionales (lugares y objetos; la respuesta las declina).
     atlantida california cuesta fantasma irapuato mordor narnia tesla texas viajar
     // Inglés de consulta neutro.
-    and are cases data for forecast how in is many of show state the trend week weeks what year do have
+    and are cases data for forecast how in is many of state the trend week weeks what year
 `.split('\n').filter((l) => !l.trim().startsWith('//')).join(' ').split(/\s+/).filter(Boolean)),
   frases: [
-    // Octava auditoría: los verbos de deseo o necesidad sólo valen en una frase de consulta inequívoca seguida del dato
-    // («quiero ver», «quisiera consultar», «necesito datos de», «dame los casos de»); sueltos quedan fuera de vocabulario.
-    /\b(quiero|quisiera|queremos|necesito|necesitamos|deseo|me gustaria) (ver|consultar|saber|conocer|revisar|comparar|los datos de|datos de|las cifras de|cifras de|el pronostico de|la grafica de|informacion de|informacion sobre|los casos de)\b/g,
-    // Novena auditoría: segunda persona dirigida al bot, sólo anclada. (a) Petición seguida de su objeto de datos: «dame los
-    // casos», «dime sobre», «muéstrame algo», «compáralo contra», «sorpréndeme con»; (b) pregunta que empieza por un
-    // interrogativo, con a lo sumo un sustantivo de datos entre ambos: «¿qué modelos usas?», «¿cuántos casos esperas?»,
-    // «¿de dónde sacas…?», «¿qué sabes del…?»; (c) abajo. Sueltas («tienes entre 14 y 15 años», «no puedes») quedan fuera.
-    /\b(dame|dime|muestrame|ensename|comparalo|sorprendeme) (los|las|el|la|lo|un|una|unos|unas|otro|otra|datos|cifras|informacion|sobre|de|del|algo|con|contra|cuantos|cuantas)\b/g,
-    // (b) en inglés: pregunta al bot con interrogativo o con el auxiliar al frente («what data do you have», «do you have»).
-    /\b((what|which|how many|how much)( (data|cases|models|series))? do you (have|use|show)|(do|can) you (have|show|tell|give)( me)?)\b/g,
-    // (c) Petición cortés seguida de un infinitivo de consulta: «¿podrías mostrar…?», «¿puedes decirme…?».
-    /\b(podrias|puedes) (mostrar|mostrarme|decir|decirme|dar|darme|explicar|explicarme|ensenar|ensenarme|informar|consultar|comparar)\b/g,
-    /\b(que|como|cuantos|cuantas|cuanto|donde|cual|cuales) ((modelos|casos|datos|tecnologia|metricas|motores|graficos|series) )?(sabes|usas|sacas|tienes|esperas|generas|pronosticas|funcionas)\b/g,
+    // Décima auditoría (`codex/REAUDITORIA9_FE.md`): toda petición al bot (deseo, imperativo, cortesía, segunda persona o su
+    // equivalente inglés) sólo se retira si va seguida INMEDIATAMENTE, con artículos o preposiciones opcionales, de un
+    // sustantivo de datos de la lista cerrada OBJETO_DATOS («dame los casos de», «quiero ver la gráfica de», «¿podrías mostrar
+    // las estadísticas…?», «give me the data», «do you have cases»), o si es una pregunta con interrogativo cuyo objeto es ese
+    // sustantivo («¿qué modelos usas?», «what data do you have»). «dame una herida…», «give me intoxicación…», «podrías dar
+    // asfixia» o «qué sabes» quedan fuera de vocabulario.
+    PETICION_DESEO,
+    PETICION_IMPERATIVO,
+    PETICION_CORTES,
+    PETICION_PREGUNTA_OBJETO,
+    PETICION_PREGUNTA_VERBO,
+    PETICION_INGLES,
+    PETICION_INGLES_PREGUNTA,
     // Construcciones impersonales con «se» (no reflexivas sobre una persona): «se esperan», «se pronostican», «se llama».
     /\bse (esperan?|esperaba|pronostic[a-z]*|estiman?|llama|entreno|comporta|selecciona[a-z]*|compara[a-z]*|modelan?|configuro|cura|trata|identifico|puede|sabe|reporta[a-z]*|notifica[a-z]*|registra[a-z]*|presentan?|obtiene|calcula|genera|usa|utiliza|construyo|eligi[a-z]*|valida[a-z]*|guardan|cubren|seleccionaron|excluyo|evaluaron|basa|define|mide|actualiza)\b/g,
     // «lo» como artículo neutro («lo que llegó», «lo pronosticado»), no como pronombre de persona.

@@ -122,7 +122,8 @@ add('las maquinas se enferman', 'answerPreguntaPersonal', ['inteligencia artific
 add('quienes son el equipo', 'answerEquipo', ['Equipo']);
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
 add('quien te creo', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
-// Novena auditoría: «fuiste» (segunda persona suelta) ya no es vocabulario de consulta.
+// Novena y décima auditorías: una petición o una segunda persona sólo es vocabulario anclada a un sustantivo de datos de la
+// lista cerrada; «fuiste», «dime sobre…», «qué sabes…», «cómo funcionas», «dame otro» o «dame las métricas» reciben el apoyo.
 add('fuiste desarrollado por google', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
 add('quien te hizo', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
@@ -147,7 +148,7 @@ add('quien es el dr falcon', 'answerEquipo', ['Falc']);
 add('quien dirige el proyecto', 'answerEquipo', ['Equipo']);
 add('integrantes del equipo', 'answerEquipo', ['Equipo']);
 add('quien es perez nava', 'answerEquipo', ['Juan Carlos']);
-add('dime sobre el equipo de trabajo', 'answerEquipo', ['Equipo']);
+add('dime sobre el equipo de trabajo', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
 add('quien es falcon morales', 'answerEquipo', ['Falc']);
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
 add('dicen que javi rebull no participo en tu desarrollo', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
@@ -177,7 +178,7 @@ add('que semana es hoy', 'answerTemporal', ['semana']);
 add('que es la depresion', 'answerQueEsPadecimiento', ['F32'], {}, {padecimiento: 'Depresion'});
 add('que es el parkinson', 'answerQueEsPadecimiento', ['G20'], {}, {padecimiento: 'Parkinson'});
 add('que es el alzheimer', 'answerQueEsPadecimiento', ['G30'], {}, {padecimiento: 'Alzheimer'});
-add('dime sobre la depresion', 'answerQueEsPadecimiento', ['F32'], {}, {padecimiento: 'Depresion'});
+add('dime sobre la depresion', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
 add('informacion sobre parkinson', 'answerQueEsPadecimiento', ['G20'], {}, {padecimiento: 'Parkinson'});
 add('que es f32', 'answerQueEsPadecimiento', ['F32'], {}, {padecimiento: 'Depresion'});
 add('que es g20', 'answerQueEsPadecimiento', ['G20'], {}, {padecimiento: 'Parkinson'});
@@ -238,9 +239,7 @@ add('alzheimer del 2016 al 2020', 'answerBoletin',
   {padecimiento: 'Alzheimer', _years: [2016,2017,2018,2019,2020]});
 
 // Ultimos N anos
-add('dame los ultimos 5 anos de depresion', 'answerBoletin',
-  ['2022', '2023', '2024', '2025'], [],
-  {padecimiento: 'Depresion', _lastNYears: 5});
+add('dame los ultimos 5 anos de depresion', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
 
 add('tendencia de parkinson ultimos 3 anos', 'answerBoletin',
   ['2023', '2024', '2025'], [],
@@ -442,7 +441,7 @@ add('smape promedio del proyecto', 'answerMetricaGlobal', [AVISO], SIN_VALORES);
 add('que tan preciso es el modelo', 'answerValidacion', ['Validaci', AVISO], ['precisión histórica promedio']);
 add('rendimiento general de los modelos', 'answerMetricaGlobal', [AVISO], SIN_VALORES);
 add('metricas de rendimiento', 'answerMetricaGlobal', [AVISO], SIN_VALORES);
-add('dame las metricas', 'answerMetricaGlobal', [AVISO], SIN_VALORES);
+add('dame las metricas', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
 add('que rmse tienen los modelos', 'answerMetricaGlobal', [AVISO], SIN_VALORES);
 add('cual es el mase promedio', 'answerMetricaGlobal', [AVISO], SIN_VALORES);
 add('precision de los modelos', '*', []);
@@ -860,9 +859,9 @@ add('parkinson en veracruz 2024', 'answerBoletin', ['2024', 'Veracruz']);
 add('alzheimer en yucatan 2019', 'answerHistorico', ['2019', 'Yucatan']);
 add('depresion en coahuila del 2020 al 2024', 'answerHistorico', ['2020', '2021', '2022', '2023', '2024', 'Coahuila']);
 add('historico de alzheimer en tamaulipas', 'answerBoletin', ['Tamaulipas']);
-add('que sabes del parkinson en el 2017', 'answerBoletin', ['2017', 'Parkinson']);
-add('que sabes de la depresion en 2020', 'answerBoletin', ['2020', 'Depresion']);
-add('que sabes del alzheimer en jalisco', 'answerSpecificSeries', ['Alzheimer', 'Jalisco']);
+add('que sabes del parkinson en el 2017', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('que sabes de la depresion en 2020', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('que sabes del alzheimer en jalisco', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
 
 // =====================================================================
 // SECCION 36: PROYECTO META — en que te basas (10 tests)
@@ -871,14 +870,14 @@ add('que sabes del alzheimer en jalisco', 'answerSpecificSeries', ['Alzheimer', 
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
 add('en que te basas', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
 add('en que estas basado', 'answerProyectoMeta', ['SINAVE']);
-add('como funcionas', 'answerProyectoMeta', ['SINAVE']);
+add('como funcionas', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
 add('de donde sacas los datos', 'answerProyectoMeta', ['SINAVE']);
 add('que modelos usas', 'answerProyectoMeta', ['Prophet', 'DeepAR']);
 add('como generas los pronosticos', 'answerProyectoMeta', ['SINAVE']);
-add('como pronosticas', 'answerProyectoMeta', ['SINAVE']);
-add('que tecnologia usas', 'answerProyectoMeta', ['Prophet', 'DeepAR']);
-add('en base a que pronosticas', 'answerProyectoMeta', ['SINAVE']);
-add('como sabes cuantos casos habra', 'answerProyectoMeta', ['SINAVE']);
+add('como pronosticas', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('que tecnologia usas', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('en base a que pronosticas', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('como sabes cuantos casos habra', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
 
 // =====================================================================
 // SECCION 37a: DISTRIBUCION / VIOLIN (8 tests)
@@ -912,10 +911,10 @@ add('dame un grafico interesante', 'answerGraficoAleatorio', ['GENCHART']);
 add('sorprendeme con un grafico', 'answerGraficoAleatorio', ['GENCHART']);
 add('grafico aleatorio', 'answerGraficoAleatorio', ['GENCHART']);
 add('dame una grafica interesante', 'answerGraficoAleatorio', ['GENCHART']);
-add('muestrame algo interesante', 'answerGraficoAleatorio', ['GENCHART']);
+add('muestrame algo interesante', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
 add('visualizacion interesante', 'answerGraficoAleatorio', ['GENCHART']);
 addCtx('dame un grafico interesante', 'otro', 'answerGraficoAleatorio', ['GENCHART']);
-addCtx('dame un grafico interesante', 'dame otro', 'answerGraficoAleatorio', ['GENCHART']);
+addCtx('dame un grafico interesante', 'dame otro', 'answerFueraDeVocabulario', ['800 911 2000'], []);
 addCtx('dame un grafico interesante', 'uno mas', 'answerGraficoAleatorio', ['GENCHART']);
 addCtx('sorprendeme con un grafico', 'siguiente', 'answerGraficoAleatorio', ['GENCHART']);
 
@@ -1028,7 +1027,7 @@ addCtx('datos de la semana mas reciente', 'cuanto pronosticamos para esa semana?
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
 addCtx('cuantos casos llegaron esta semana', 'le atinamos?', 'answerFueraDeVocabulario', ['800 911 2000'], []);
 addCtx('depresion en Nuevo Leon', 'y tambien en Tamaulipas?', '*', ['Tamaulipas'], []);
-addCtx('que es la depresion', 'y del parkinson que sabes?', '*', ['Parkinson'], []);
+addCtx('que es la depresion', 'y del parkinson que sabes?', 'answerFueraDeVocabulario', ['800 911 2000'], []);
 addCtx('cuantos casos llegaron esta semana de alzheimer', 'y como va contra el pronostico?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
 addCtx('casos de depresion en Sonora', 'pero en Chihuahua', '*', ['Chihuahua'], []);
 addCtx('pronostico de depresion en Jalisco', 'y para mujeres como va?', '*', ['mujer'], []);
@@ -1037,7 +1036,7 @@ addCtx('modelo de depresion en Guanajuato', 'y en Aguascalientes?', '*', ['Aguas
 addCtx('ultimo dato del boletin', 'el pronostico decia que iban a ser mas?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
 addCtx('cuantos casos de alzheimer en Jalisco', 'y Michoacan?', '*', ['Michoac'], []);
 addCtx('comparar pronostico vs real', 'pero solo semana 8', 'answerComparacionSemanal', ['Observado', 'anterior al corte'], []);
-addCtx('cuantos casos llegaron esta semana', 'comparalo contra lo pronosticado', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
+addCtx('cuantos casos llegaron esta semana', 'comparalo contra lo pronosticado', 'answerFueraDeVocabulario', ['800 911 2000'], []);
 addCtx('pronostico de depresion en Nuevo Leon', 'y en Coahuila que onda?', '*', ['Coahuila'], []);
 // Octava auditoría Codex: primera persona plural fuera del vocabulario cerrado → apoyo fijo.
 addCtx('datos recientes del boletin', 'esperabamos mas o menos casos?', 'answerFueraDeVocabulario', ['800 911 2000'], []);

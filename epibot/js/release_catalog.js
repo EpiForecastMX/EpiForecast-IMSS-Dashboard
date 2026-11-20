@@ -2068,6 +2068,24 @@
     _fragmentosCache = { base: globalThis.EPI_FRAGMENTOS, lista };
     return lista;
   }
+  // Décima auditoría Codex: verbos de petición o de segunda persona (`VERBOS_PETICION` de js/vocab_consulta.js). Con uno de
+  // ellos la edad no se retira, un id sensible da la crisis y el turno nunca levanta la crisis.
+  function peticionEn(texto) {
+    const cur = globalThis.EPI_VOCAB_CONSULTA;
+    if (!cur || !cur.verbosPeticion) return false;
+    const toks = new Set(normLB(texto).split(' '));
+    return cur.verbosPeticion.some((v) => toks.has(v)) || /\bme gustaria\b/.test(normLB(texto));
+  }
+  // Fragmentos de lesión o daño que, pedidos al bot sin un sustantivo de datos, se leen como una petición de daño.
+  const DANO = /\b(herida|heridas|herir|lesion|lesiones|lesionar|dano|danos|golpe|golpes|intoxicacion|intoxicar|envenenamiento|envenenar|veneno|quemadura|quemaduras|asfixia|ahogamiento|ahorcamiento|sofocacion|estrangulamiento|disparo|arma|armas|bala|corte|cortante|navaja|cuchillo|sobredosis|mordedura|picadura|wound|wounds|injury|injuries|harm|poison|poisoning|overdose|burn|burns|choking|gun|knife|bullet)\b/;
+  /** Petición al bot que no va seguida de un sustantivo de datos y nombra un id sensible o un fragmento de daño. */
+  function peticionDeDano(raw) {
+    if (!peticionEn(raw)) return false;
+    let n = ` ${canonClinico(normLB(raw)).replace(/[^a-z0-9]+/g, ' ').trim()} `;
+    for (const re of (globalThis.EPI_VOCAB_CONSULTA?.peticiones || [])) n = n.replace(re, ' ');
+    if (!peticionEn(n)) return false;
+    return idsSensiblesEn(raw).length > 0 || DANO.test(n);
+  }
   const DATOS_RUTA_INTERFAZ = /\b(panorama|kpis|tablero nacional)\b/;
   function analizaTurno(raw) {
     // canonClinico reescribe variantes clínicas («amebiasis del hígado», «presión alta en embarazadas») a su forma canónica
@@ -2078,7 +2096,7 @@
     // Sexta y novena auditorías: la edad sólo se retira en forma poblacional en tercera persona. Con una marca de primera o
     // segunda persona o de
     // un familiar («tengo», «soy», «mi hijo tiene», «I am») las frases de edad no se aplican y el número queda fuera.
-    const primeraPersona = /\b(tengo|tenia|tendre|soy|estoy|estaba|yo|me|conmigo|nosotros|nosotras|nos|nuestro|nuestra|nuestros|nuestras|estamos|tenemos|somos|vamos|podemos|queremos|cumplimos|cumplo|cumpli|tiene|tienen|mi|mis|my|we|our|us|i|im|i m|i ve|tienes|tenias|tendras|eres|te|tu|tus|ti|contigo|usted|ustedes|you|your|youre|you re)\b/.test(n);
+    const primeraPersona = /\b(tengo|tenia|tendre|soy|estoy|estaba|yo|me|conmigo|nosotros|nosotras|nos|nuestro|nuestra|nuestros|nuestras|estamos|tenemos|somos|vamos|podemos|queremos|cumplimos|cumplo|cumpli|tiene|tienen|mi|mis|my|we|our|us|i|im|i m|i ve|tienes|tenias|tendras|eres|te|tu|tus|ti|contigo|usted|ustedes|you|your|youre|you re)\b/.test(n) || peticionEn(n);
     for (const re of (cur ? cur.frases : [])) if (!(primeraPersona && cur.frasesEdad && cur.frasesEdad.includes(re))) n = n.replace(re, ' ');
     // Códigos con forma CIE («h66 0», «a06 8», «a510», «n87»): técnicos aunque no sean de un bloque publicado.
     n = n.replace(/ [a-z]\d{2}\d?( \d{1,2})?(?= )/g, (m) => (fragmentosCie++, ' '));
@@ -2142,6 +2160,8 @@
     if (simbolosNoTecnicos(q)) return true;
     // Con un id sensible, un verbo de deseo o necesidad nunca se lee como consulta neutra («quiero ver X70»): crisis.
     if (/\b(quiero|quisiera|queremos|necesito|necesitamos|deseo|deseamos|gustaria)\b/.test(normLB(q))) return true;
+    // Décima auditoría: lo mismo con cualquier verbo de petición o de segunda persona («dame», «can you give me»).
+    if (peticionEn(q)) return true;
     // Quinta auditoría: los términos de un rótulo sólo cuentan dentro del fragmento completo (analizaTurno).
     // Con un id sensible sólo vale el vocabulario neutro estricto (VOCAB_NEUTRO): ni primera persona ni «quiero».
     return analizaTurno(q).todos.some((w) => !VOCAB_NEUTRO.has(w) && !ALCOHOL_PERMITIDO.has(w));
@@ -2203,7 +2223,7 @@
     const raw = String(qn);
     const q = ` ${raw.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()} `;
     const idioma = () => (/\b(the|what|how|in|of|and|i|my)\b/.test(q) && !/\b(en|de|del|y|la|el)\b/.test(q) ? 'en' : 'es');
-    const riesgo = riesgoPersonal(q) || ingestionPropia(q) || lexicoRiesgo(raw) ||
+    const riesgo = riesgoPersonal(q) || ingestionPropia(q) || lexicoRiesgo(raw) || (peticionDeDano(raw) ? idioma() : null) ||
       (EMOJI_RIESGO.test(raw) ? idioma() : null) ||
       ((idsSensiblesEn(q).length && simbolosNoTecnicos(raw)) || fueraDeListaBlanca(q) ? idioma() : null);
     if (riesgo === 'es') return CRISIS_TEXTO_ES;
@@ -2251,7 +2271,8 @@
    * riesgo. Cualquier turno que nombre un id de la lista blanca (también junto a otro padecimiento) la mantiene.
    */
   function levantaCrisis(t, nombraPadLimpio) {
-    return turnoTecnico(t) && !idsSensiblesEn(t).length && !nombraReleaseSensible(normLB(t)) && !respuestaCrisis(t) &&
+    // Décima auditoría: un turno con una petición al bot nunca levanta la crisis, aunque la petición sea válida.
+    return turnoTecnico(t) && !peticionEn(t) && !idsSensiblesEn(t).length && !nombraReleaseSensible(normLB(t)) && !respuestaCrisis(t) &&
       nombraPadLimpio(t);
   }
   function respuestaCrisisSeguimiento(qn, crisisPrevia, nombraPadLimpio) {
