@@ -6,12 +6,12 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=82';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=83';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=5';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=56';
-import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, respuestaConDatos, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=48';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=57';
+import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, respuestaConDatos, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=49';
 
 let DATA = null;
 
@@ -5855,7 +5855,7 @@ export function registraEstadoAyuda(estado) {
   if (estado === 'crisis' || estado === 'apoyo') _crisisActiva = _crisisActiva === 'crisis' ? 'crisis' : estado;
 }
 export function estadoDesdeHistorial(turnosUsuario) {
-  registraEstadoAyuda(crisisEnTurnos(turnosUsuario.map(String), nombraPadecimientoNoSensible));
+  registraEstadoAyuda(crisisEnTurnos(turnosUsuario.map(normalizaEntrada), nombraPadecimientoNoSensible));
 }
 /** Respuesta de la función RAG que es apoyo o crisis (texto fijo con la Línea de la Vida), con su estado, o null. */
 export function estadoDeRespuesta(texto) {
@@ -5897,7 +5897,7 @@ function esSeguimientoSinPadecimiento(query) {
  * cifras sin pasar por aquí. Devuelve { response, handler } o null.
  */
 export function guardaInicial(consulta) {
-  const query = sinExclusionG00(consulta);
+  const query = sinExclusionG00(normalizaEntrada(consulta));
   const trace = { handler: null };
   // Sin normalizar: emojis y símbolos cuentan en la lista blanca (tercera auditoría Codex).
   const crisis = respuestaCrisis(query);
@@ -6298,11 +6298,13 @@ async function _resolveConContexto(query) {
   return r;
 }
 
+// Decimoquinta auditoría: NFKC UNA vez en el punto de entrada; entidades, guardas, geografía, consultas mixtas y handlers
+// ven el mismo texto.
 export async function answer(query) {
-  return (await _resolveConContexto(query)).response;
+  return (await _resolveConContexto(normalizaEntrada(query))).response;
 }
 
 /** API diagnóstica para pruebas: MISMO núcleo, con la identidad del handler observado. */
 export async function answerWithTrace(query) {
-  return _resolveConContexto(query);
+  return _resolveConContexto(normalizaEntrada(query));
 }

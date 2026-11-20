@@ -958,6 +958,14 @@ export default async function handler(req) {
   let body = null;
   try { body = JSON.parse(await req.clone().text()); } catch { return handlerInterno(req); }
   const C = globalThis.EPI_CATALOGO;
+  // Decimoquinta auditoría: NFKC UNA vez en la entrada, a la consulta y a cada turno del historial, antes de entidades,
+  // guardas, geografía, consultas mixtas, vista y recuperación: toda la función ve el mismo texto.
+  if (body && typeof body === 'object') {
+    const nfkc = (t) => (typeof t === 'string' ? C.normalizaEntrada(t) : t);
+    body = { ...body, query: nfkc(body.query),
+      ...(Array.isArray(body.history) ? { history: body.history.map((h) => (h && typeof h === 'object' ? { ...h, text: nfkc(h.text) } : h)) } : {}) };
+    req = new Request(req.url, { method: 'POST', headers: req.headers, body: JSON.stringify(body) });
+  }
   const q = typeof body?.query === 'string' ? body.query : '';
   if (!q || body.health === true || !C.fueraDeVocabulario(q)) return handlerInterno(req);
   const res = await handlerInterno(new Request(req.url, { method: 'POST', headers: req.headers, body: JSON.stringify({ ...body, stream: false }) }));

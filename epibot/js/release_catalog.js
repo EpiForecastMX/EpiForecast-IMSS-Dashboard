@@ -1927,6 +1927,9 @@
   // paréntesis cuando acompaña al rótulo; sueltas no son vocabulario técnico.
   const RIESGO_EN_ROTULO = new Set(['suicidio', 'suicida', 'suicidas', 'ideacion', 'intento', 'suicide', 'attempt']);
   const NOMBRES_LEGACY = ['depresion', 'parkinson', 'alzheimer', 'dengue', 'f32', 'g20', 'g30', 'a97'];
+  /** Decimoquinta auditoría: normalización ÚNICA de entrada (NFKC) que aplican kb.js, app.js y rag.mjs a la consulta y al
+   * historial antes de cualquier otra cosa; el catálogo la repite (idempotente) para quien lo llame directamente. */
+  const normalizaEntrada = (t) => String(t ?? '').normalize('NFKC');
   // Decimocuarta auditoría: NFKC antes de todo (ancho completo y formas compatibles pasan a ASCII y el riesgo las ve).
   const sinTildeMin2 = (t) => String(t).normalize('NFKC').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   // Vocabulario técnico: palabras de los rótulos, nombres y alias de todos los releases y de los cuatro legacy.
@@ -2183,14 +2186,18 @@
   // Todo carácter que no sea letra (con tildes y ñ), dígito o espacio separa cláusulas («,», «.», «…», «—», «–», «-»,
   // comillas, paréntesis, barras, «:», «¿?», «¡!», saltos de línea…), salvo dentro de un fragmento completo reconocido: el
   // punto decimal de un código CIE («A54.0») o el rótulo de un padecimiento o categoría que lleva signos.
+  // Decimoquinta auditoría: sin marcas de texto. El texto se divide en una LISTA de segmentos por los signos y la frontera
+  // entre segmentos se representa con `null` en el arreglo de tokens: ninguna palabra que escriba el usuario puede hacerse
+  // pasar por separador (una palabra desconocida, como cualquier otra, queda fuera de vocabulario).
   function segmentos(raw) {
-    // Un guion entre dos letras o dígitos une una palabra compuesta («non-typhoidal», «2026-W43», «CIE-10»): no es un guion
-    // suelto. El punto decimal de un código CIE tampoco separa.
-    const conCodigo = String(raw).normalize('NFKC').replace(/([A-Za-z]\d{2})\.(\d)/g, '$1 $2').replace(/([\p{L}\p{N}])-(?=[\p{L}\p{N}])/gu, '$1 ');
-    const base = conCodigo.replace(/[^\p{L}\p{N}\s]+/gu, ' qqsepqq ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    const toks = canonClinico(sinEstadoTecnico(base)).replace(/[^a-z0-9]+/g, ' ').trim().split(' ')
-      .filter(Boolean).map((w) => (w === 'qqsepqq' ? '|' : w));
-    const palabrasIdx = toks.map((w, k) => k).filter((k) => toks[k] !== '|');
+    const conCodigo = normalizaEntrada(raw).replace(/([A-Za-z]\d{2})\.(\d)/g, '$1 $2').replace(/([\p{L}\p{N}])-(?=[\p{L}\p{N}])/gu, '$1 ');
+    const toks = [];
+    for (const trozo of conCodigo.split(/[^\p{L}\p{N}\s]+/u)) {
+      const palabras = canonClinico(sinEstadoTecnico(trozo)).replace(/[^a-z0-9]+/g, ' ').trim().split(' ').filter(Boolean);
+      if (toks.length) toks.push(null);
+      toks.push(...palabras);
+    }
+    const palabrasIdx = toks.map((w, k) => k).filter((k) => toks[k] !== null);
     const txt = ` ${palabrasIdx.map((k) => toks[k]).join(' ')} `;
     const protegido = new Set();
     for (const f of todosLosFragmentos()) {
@@ -2203,8 +2210,8 @@
         const fin = ini + f.split(' ').length - 1;
         for (let k = palabrasIdx[ini]; k <= palabrasIdx[fin]; k++) protegido.add(k);
         // Si el rótulo abre un signo dentro («volumen (deshidratación)»), el signo que lo cierra justo después también es suyo.
-        const abre = toks.slice(palabrasIdx[ini], palabrasIdx[fin] + 1).includes('|');
-        if (abre && toks[palabrasIdx[fin] + 1] === '|') protegido.add(palabrasIdx[fin] + 1);
+        const abre = toks.slice(palabrasIdx[ini], palabrasIdx[fin] + 1).includes(null);
+        if (abre && toks[palabrasIdx[fin] + 1] === null) protegido.add(palabrasIdx[fin] + 1);
         desde = pos + 1;
       }
     }
@@ -2216,7 +2223,7 @@
     const out = [];
     let actual = [];
     toks.forEach((w, k) => {
-      if (w === '|' && !protegido.has(k)) { if (actual.length) out.push(actual); actual = []; } else if (w !== '|') actual.push(w);
+      if (w === null && !protegido.has(k)) { if (actual.length) out.push(actual); actual = []; } else if (w !== null) actual.push(w);
     });
     if (actual.length) out.push(actual);
     return out;
@@ -2227,8 +2234,8 @@
     const out = [];
     let actual = [];
     toks.forEach((w, k) => {
-      if (protegido.has(k)) { if (w !== '|') actual.push(w); return; }
-      if (w === '|' || CONJUNCION.has(w)) { if (actual.length) out.push(actual); actual = []; } else actual.push(w);
+      if (protegido.has(k)) { if (w !== null) actual.push(w); return; }
+      if (w === null || CONJUNCION.has(w)) { if (actual.length) out.push(actual); actual = []; } else actual.push(w);
     });
     if (actual.length) out.push(actual);
     return out;
@@ -2504,6 +2511,6 @@
     mencionaNoModelada, conHipertensionNombrada, respuestaCrisis, subtipoAjeno, aliasAmbiguo,
     motivoRechazo, crisisEnTurnos, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, idsSensiblesEn,
     alcoholCalificado, IDS_LISTA_BLANCA, _VOCAB_TECNICO: VOCAB_TECNICO, _FRAGMENTOS_GUARDAS: FRAGMENTOS_GUARDAS, fueraDeVocabulario, respuestaFueraDeVocabulario,
-    restoFuera, tieneFragmentoDeDatos, respuestaConDatos, APOYO_ES, APOYO_EN, pareceIngles,
+    restoFuera, tieneFragmentoDeDatos, respuestaConDatos, APOYO_ES, APOYO_EN, pareceIngles, normalizaEntrada,
   });
 })(globalThis);
