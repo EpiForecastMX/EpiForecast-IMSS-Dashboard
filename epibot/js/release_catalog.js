@@ -2344,15 +2344,22 @@
     decir: 'digo dices decimos decis dije dijiste dijimos decias deciamos dire diras diremos digas digamos diga di',
   });
 
-  // Toda la primera persona plural de esa tabla (las formas en «-mos»: estamos, tenemos, somos, podemos, queremos, vamos,
-  // hacemos, sabemos, damos, vemos, decimos y sus otros tiempos), más «sentimos» (sentir no está en la tabla).
-  const PRIMERA_PLURAL = [...new Set(Object.values(CONJUGACIONES_COMUNES).flatMap((s) => s.split(' '))
-    .filter((f) => f.endsWith('mos')).concat(['sentimos', 'sentiamos']))];
-  // Primera persona: el turno habla de quien escribe («me quemé», «tengo 15 años», «estamos…», «I…», «we…»). Tercera
-  // auditoría de no modelables: plural completo desde la tabla de conjugaciones y pronombres ingleses.
-  const PRIMERA_PERSONA = new RegExp('\\b(me|mi|mis|yo|conmigo|nos|nosotros|nosotras|nuestro|nuestra|nuestros|nuestras|tengo|' +
-    'tenia|tuve|estoy|estaba|estuve|soy|siento|sentia|quiero|quisiera|puedo|ando|hice|i|im|ive|my|mine|myself|we|our|ours|' +
-    `us|ourselves|${PRIMERA_PLURAL.join('|')})\\b`);
+  // Primera persona plural por regla general (verificación final de no modelables): todo token normalizado de cinco letras
+  // o más que termina en «mos» (-amos, -emos, -imos, -íamos, -ríamos, -remos, -semos…: estamos, estaríamos, tendríamos,
+  // vivimos, sentimos) cuenta como primera persona plural. Excepciones: palabras no verbales en «-mos». Criterio: se revisaron
+  // todas las palabras en «mos» del vocabulario cerrado (vocab_consulta.js, vocab_cerrado.js), del corpus RAG, de
+  // knowledge.json y de las consultas de prueba; entran las que no son formas verbales (sustantivos y adjetivos), más los
+  // adjetivos de orden o medida que una consulta de datos puede usar. Una forma verbal nunca entra en esta lista.
+  const NO_VERBALES_MOS = new Set(['mismos', 'ultimos', 'proximos', 'maximos', 'minimos', 'optimos', 'extremos', 'supremos',
+    'intimos', 'legitimos', 'organismos', 'mecanismos', 'algoritmos', 'logaritmos', 'ritmos', 'tramos', 'ramos', 'cosmos',
+    'primos', 'animos', 'racimos', 'septimos']);
+  const PLURAL_MOS = (w) => w.length >= 5 && w.endsWith('mos') && !NO_VERBALES_MOS.has(w);
+  // Primera persona: el turno habla de quien escribe («me quemé», «tengo 15 años», «estamos…», «I…», «we…»).
+  const PRIMERA_PERSONA_LEX = /\b(me|mi|mis|yo|conmigo|nos|nosotros|nosotras|nuestro|nuestra|nuestros|nuestras|tengo|tenia|tuve|estoy|estaba|estuve|soy|siento|sentia|quiero|quisiera|puedo|ando|hice|i|im|ive|my|mine|myself|we|our|ours|us|ourselves)\b/;
+  const primeraPersona = (raw) => {
+    const n = ` ${normLB(raw)} `;
+    return PRIMERA_PERSONA_LEX.test(n) || n.split(/[^a-z0-9]+/).some(PLURAL_MOS);
+  };
   const BLOQUE_APOYO_ES = 'Si tú o alguien cercano necesita apoyo, la **Línea de la Vida** atiende gratis, las 24 horas, ' +
     'todos los días: **800 911 2000**. Si alguien está en peligro inmediato, llama al **911**.';
   const BLOQUE_APOYO_EN = 'If you or someone near you needs support, **Línea de la Vida** in Mexico is free and open 24 hours a ' +
@@ -2369,7 +2376,7 @@
     const t = String(md ?? '');
     if (esRespuestaDeAyuda(t)) return t;
     const en = pareceIngles(raw);
-    if (!t.replace(/<!--[\s\S]*?-->/g, '').trim() || respuestaConDatos(t) || PRIMERA_PERSONA.test(` ${normLB(raw)} `)) {
+    if (!t.replace(/<!--[\s\S]*?-->/g, '').trim() || respuestaConDatos(t) || primeraPersona(raw)) {
       return en ? APOYO_EN : APOYO_ES;
     }
     const limpio = sinEnlaces(t).replace(/\n?<!--SIN_GRAFICA-->/g, '').trim();
@@ -2639,6 +2646,6 @@
     motivoRechazo, crisisEnTurnos, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, idsSensiblesEn,
     alcoholCalificado, IDS_LISTA_BLANCA, _VOCAB_TECNICO: VOCAB_TECNICO, _FRAGMENTOS_GUARDAS: FRAGMENTOS_GUARDAS, fueraDeVocabulario, respuestaFueraDeVocabulario,
     restoFuera, tieneFragmentoDeDatos, respuestaConDatos, esRespuestaDeAyuda, salidaFueraDeVocabulario, APOYO_ES, APOYO_EN, pareceIngles, normalizaEntrada,
-    ALIAS_LEGACY, padecimientosEnConsulta, releasesEnConsulta, CONJUGACIONES_COMUNES,
+    ALIAS_LEGACY, padecimientosEnConsulta, releasesEnConsulta, CONJUGACIONES_COMUNES, NO_VERBALES_MOS,
   });
 })(globalThis);
