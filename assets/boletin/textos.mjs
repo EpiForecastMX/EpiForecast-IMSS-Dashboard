@@ -112,7 +112,8 @@ export function enlacesRadar(actual) {
     datos: rutaFoto(actual, 'data.json'),
     catalogo: rutaFoto(actual, 'catalogo.csv'),
     texto: rutaFoto(actual, 'boletin.txt'),
-    ocr: rutaFoto(actual, 'encabezados-ocr.json')
+    ocr: rutaFoto(actual, 'encabezados-ocr.json'),
+    pronostico: rutaFoto(actual, 'pronostico_exploratorio.json')
   };
 }
 

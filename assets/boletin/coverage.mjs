@@ -34,3 +34,21 @@ export function predictorDescription(disease) {
   if (!LEGACY_PAGES[disease.platform_id]) return 'modelos por entidad y sexo; historia de conteos y calendario. Los predictores efectivos dependen del motor seleccionado. Consulta su evaluación en la ficha del padecimiento.';
   return 'historia temporal, rezagos y calendario según motor. INEGI es externo; ONI/ENSO solo está habilitado en motores específicos de dengue.';
 }
+
+// Opción «Pronóstico» del radar (alta_b44, 20-nov-2026): toda categoría no agregada la tiene, con pronóstico
+// publicado, con pronóstico exploratorio no validado o, si su historia semanal no alcanza, con la serie y el motivo.
+export { coberturaPronostico } from './pronostico.mjs?v=4';
+
+const pct = (n, t) => `${(t ? Math.round((n / t) * 1000) / 10 : 0).toLocaleString('es-MX')} %`;
+
+/** Desglose visible de la cobertura de la opción Pronóstico (sin HTML). */
+export function textoCoberturaPronostico(c) {
+  const partes = [
+    `${c.publicado.toLocaleString('es-MX')} con pronóstico publicado (${pct(c.publicado, c.total)})`,
+    `${c.exploratorio.toLocaleString('es-MX')} con pronóstico exploratorio, no validado (${pct(c.exploratorio, c.total)})`,
+  ];
+  if (c.sin_historia) partes.push(`${c.sin_historia.toLocaleString('es-MX')} sin historia semanal suficiente para el exploratorio, que muestran su serie y el motivo (${pct(c.sin_historia, c.total)})`);
+  const lista = partes.length > 2 ? `${partes.slice(0, -1).join(', ')} y ${partes.at(-1)}` : partes.join(' y ');
+  const faltan = c.sin_opcion ? ` Faltan ${c.sin_opcion} sin opción.` : '';
+  return `${c.con_opcion.toLocaleString('es-MX')} de ${c.total.toLocaleString('es-MX')} categorías (${pct(c.con_opcion, c.total)}) tienen la opción «Pronóstico»: ${lista}.${faltan}`;
+}

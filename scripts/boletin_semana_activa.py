@@ -153,6 +153,13 @@ def activar(raiz: Path, carpeta: str | None = None, pdf: str | None = None,
         if r.returncode != 0:
             raise SystemExit('ERROR: no se pudo actualizar no_modelables.html: '
                              + ((r.stderr or r.stdout).strip() or 'sin detalle'))
+    # Opción «Pronóstico» del radar: exploratorio, no validado, de las categorías sin release (alta_b44).
+    if (raiz / 'assets/boletin/history/index.json').is_file():
+        r = subprocess.run(['node', str(RAIZ / 'scripts/radar_pronostico_exploratorio.mjs'), '--root', str(raiz)],
+                           capture_output=True, text=True)
+        if r.returncode != 0:
+            raise SystemExit('ERROR: no se pudo generar el pronóstico exploratorio del radar: '
+                             + ((r.stderr or r.stdout).strip() or 'sin detalle'))
 
 
 def main(argv=None) -> int:

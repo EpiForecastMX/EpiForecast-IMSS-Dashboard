@@ -150,6 +150,22 @@ npm run test:boletin
 El texto de `.coverage-foot` («F50, isquémica, ... control estacional publicado») sigue
 siendo prosa a mano.
 
+## Opción «Pronóstico» de cada categoría
+
+Junto a la serie observada, cada categoría no agregada tiene la opción «Pronóstico»
+(`assets/boletin/pronostico.mjs` y `assets/boletin/pronostico_vista.mjs`):
+
+- con release del runner, la serie nacional de `publication/<id>/vista.json` y su etiqueta;
+- legacy (depresión, Parkinson, Alzheimer y dengue), los datos publicados en `hero_series.json`;
+- sin release (no modelables y rechazadas), el «Pronóstico exploratorio, no validado» de
+  `<foto>/pronostico_exploratorio.json`: media de la misma semana en los tres años anteriores
+  impresos (o uno solo si no hay más), sin prueba de desempeño ni intervalos. Si el último periodo
+  impreso no tiene cifra o alguna de las 52 semanas no tiene año base, la categoría queda sin
+  pronóstico y se explica por qué.
+
+`boletin_semana_activa.py` lo regenera al activar cada foto
+(`node scripts/radar_pronostico_exploratorio.mjs`); `--check` comprueba que esté al día.
+
 ## Histórico de curvas y migración de guiones
 
 - `scripts/boletin_semana.py` agrega cada semana con `scripts/boletin_semana_historia.py` y la
