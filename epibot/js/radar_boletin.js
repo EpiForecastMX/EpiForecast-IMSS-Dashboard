@@ -8,7 +8,7 @@
  * siguen en sus handlers y los temas sensibles (autolesiones, ideación suicida, violencias) en la
  * respuesta de crisis, que no da cifras.
  */
-import { summarizeCoverage } from '../../assets/boletin/coverage.mjs?v=2';
+import { summarizeCoverage, coberturaPanorama } from '../../assets/boletin/coverage.mjs?v=3';
 import { ESTADO_NO_MODELABLE, GRUPOS_NO_MODELABLES, codigoEnConsulta, grupoNoModelable } from '../../assets/boletin/no_modelables.mjs?v=2';
 import { GUION, esMarcador, guionNoPublicado, suma } from '../../assets/boletin/celdas.mjs?v=1';
 import { referenciaExploratoria } from '../../assets/boletin/pronostico.mjs?v=10';
@@ -78,6 +78,8 @@ export function compactaRadar(actual, data, exploratorio = null) {
     meta: data.meta,
     carpeta: actual.carpeta,
     cobertura: summarizeCoverage(data.diseases),
+    // Opción «Pronóstico» del radar: publicado y exploratorio no validado por separado (sólo conteos).
+    pronostico: coberturaPanorama(data.diseases, exploratorio?.schema === 'radar_pronostico_exploratorio.v3' ? exploratorio : null),
     diseases: data.diseases.map((e) => ({ ...e, _n: normaliza(e.name) })),
   };
 }
@@ -267,6 +269,16 @@ export function respuestaRadar(encontradas, radar, estado) {
   return lines.join('\n');
 }
 
+/** Línea de cobertura de pronóstico: publicado y exploratorio no validado, sólo con su conteo. */
+function lineaPronostico(p, c) {
+  if (p?.exploratorio) {
+    const sin = p.sin_pronostico ? `; ${fmt(p.sin_pronostico)} siguen sin pronóstico` : '';
+    return `- Categorías con pronóstico: **${fmt(p.con_pronostico)} de ${fmt(p.total)}**: ${fmt(p.publicado)} con pronóstico publicado y ` +
+      `${fmt(p.exploratorio)} con pronóstico exploratorio, no validado, que no es un pronóstico de EpiForecast-MX${sin}.`;
+  }
+  return `- Categorías sin pronóstico publicado: **${fmt(c.uncovered)}**: sus cifras notificadas se consultan sin modelo validado.`;
+}
+
 /** Resumen de cobertura: cuántas categorías vigila el boletín y cuántas publica la plataforma. */
 export function resumenRadar(radar) {
   const m = radar.meta; const c = radar.cobertura;
@@ -274,8 +286,8 @@ export function resumenRadar(radar) {
     `**Radar del Boletín Epidemiológico ${m.week} de ${m.year}** (${etiquetaFechaBoletin(m)})\n`,
     `- Categorías de vigilancia: **${fmt(m.categories)}** (enfermedades, síndromes y eventos); ${fmt(m.territorial_blocks)} bloques traen las 32 entidades y el resto solo el resumen nacional.`,
     `- Padecimientos publicados en EpiForecast-MX: **${fmt(c.published)}**, ${fmt(c.controls)} de ellos con el control estacional.`,
-    `- Categorías sin cobertura: **${fmt(c.uncovered)}**: sus cifras notificadas se consultan sin modelo validado ni pronóstico publicado.`,
-    ...(c.unmodelable ? [`- De ellas, **${fmt(c.unmodelable)}** no son modelables con el método actual; el motivo medido de cada una está en [Categorías sin modelo validado](../no_modelables.html).`] : []),
+    lineaPronostico(radar.pronostico, c),
+    ...(c.unmodelable ? [`- De las ${fmt(c.uncovered)} sin modelo validado, **${fmt(c.unmodelable)}** no son modelables con el método actual; el motivo medido de cada una está en [Categorías sin modelo validado](../no_modelables.html).`] : []),
     '\nPregúntame por cualquiera («tuberculosis en Jalisco», «casos de varicela») o recorre las curvas desde 2013 en el [Radar del boletín](../boletin.html).',
   ].join('\n');
 }

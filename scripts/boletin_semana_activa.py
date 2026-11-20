@@ -47,10 +47,14 @@ try {
   }
   const verification = tieneVerif ? leer(verifRel) : null;
   m.verificarMiasis(data, verification);
+  // Pronóstico exploratorio de la foto (opción «Pronóstico»): la huella del panorama lo cuenta aparte de lo publicado.
+  const explRel = actual.carpeta + '/pronostico_exploratorio.json';
+  const expl = existsSync(resolve(raiz, explRel)) ? leer(explRel) : null;
+  const pronostico = expl?.schema === 'radar_pronostico_exploratorio.v3' ? expl : null;
   const histRel = 'assets/boletin/history/index.json';
   const historia = existsSync(resolve(raiz, histRel)) ? leer(histRel) : null;
   process.stdout.write(JSON.stringify({
-    textos: m.textosRadar(data, actual, historia),
+    textos: m.textosRadar(data, actual, historia, pronostico),
     enlaces: m.enlacesRadar(actual),
   }));
 } catch (e) {
@@ -105,6 +109,20 @@ def sincronizar_html(texto: str, textos: dict, enlaces: dict) -> tuple:
         return re.sub(r'(?<![\w-])content="[^"]*"', f'content="{nuevo}"', tag)
 
     texto = re.sub(r'<meta\b[^>]*\bdata-radar-content="([^"]*)"[^>]*>', contenido, texto)
+
+    def atributo(nombre):
+        def cambiar(m):
+            tag, clave = m.group(0), m.group(1)
+            if clave not in textos:
+                faltan.append(clave)
+                return tag
+            return re.sub(rf'(?<![\w-]){nombre}="[^"]*"',
+                          f'{nombre}="{html.escape(textos[clave], quote=True)}"', tag)
+        return cambiar
+
+    # Anillo del panorama: etiqueta accesible y segmentos calculados desde los datos.
+    texto = re.sub(r'<\w+\b[^>]*\bdata-radar-aria="([^"]+)"[^>]*>', atributo('aria-label'), texto)
+    texto = re.sub(r'<\w+\b[^>]*\bdata-radar-estilo="([^"]+)"[^>]*>', atributo('style'), texto)
 
     def enlace(m):
         tag, clave = m.group(0), m.group(1)
@@ -170,6 +188,14 @@ def activar(raiz: Path, carpeta: str | None = None, pdf: str | None = None,
         if r.returncode != 0:
             raise SystemExit('ERROR: no se pudo generar el pronóstico exploratorio del radar: '
                              + ((r.stderr or r.stdout).strip() or 'sin detalle'))
+        # El texto estático de la huella cuenta el exploratorio recién generado: se resincroniza la página.
+        valores = calcular(raiz, actual)
+        nuevo, faltan = sincronizar_html(pagina.read_text(encoding='utf-8'), valores['textos'],
+                                         valores['enlaces'])
+        if faltan:
+            raise SystemExit(f'ERROR: claves sin valor en boletin.html: {sorted(set(faltan))}')
+        tmp_pagina.write_text(nuevo, encoding='utf-8')
+        tmp_pagina.replace(pagina)
 
 
 def main(argv=None) -> int:
