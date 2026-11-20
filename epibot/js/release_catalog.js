@@ -1147,7 +1147,7 @@
   // tildes porque es la forma normalizada que detectan los alias. Cada palabra se acentúa desde los nombres de
   // presentación del catálogo (nombre, etiqueta, pad y nombre corto); `consulta` sigue intacta para la detección.
   const TILDES = new Map();
-  const sinTildeMin = (t) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const sinTildeMin = (t) => String(t).normalize('NFKC').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   for (const r of releases) {
     for (const w of [r.nombre, r.etiqueta, r.pad, r.nombreCorto].join(' ').split(/[^A-Za-zÀ-ÿ]+/)) {
       if (w && sinTildeMin(w) !== w.toLowerCase()) TILDES.set(sinTildeMin(w), w.toLowerCase());
@@ -1927,7 +1927,8 @@
   // paréntesis cuando acompaña al rótulo; sueltas no son vocabulario técnico.
   const RIESGO_EN_ROTULO = new Set(['suicidio', 'suicida', 'suicidas', 'ideacion', 'intento', 'suicide', 'attempt']);
   const NOMBRES_LEGACY = ['depresion', 'parkinson', 'alzheimer', 'dengue', 'f32', 'g20', 'g30', 'a97'];
-  const sinTildeMin2 = (t) => String(t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  // Decimocuarta auditoría: NFKC antes de todo (ancho completo y formas compatibles pasan a ASCII y el riesgo las ve).
+  const sinTildeMin2 = (t) => String(t).normalize('NFKC').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   // Vocabulario técnico: palabras de los rótulos, nombres y alias de todos los releases y de los cuatro legacy.
   const VOCAB_TECNICO = new Set(releases.flatMap((r) => [r.nombre, r.etiqueta, r.pad, r.nombreCorto, r.consulta, ...r.alias]
     .flatMap((t) => sinTildeMin2(t).split(/[^a-z0-9]+/))).filter((w) => w && !/^\d+$/.test(w) && !RIESGO_EN_ROTULO.has(w))
@@ -1985,7 +1986,12 @@
   // Emojis y símbolos: no se retiran antes de comprobar. Unos son señal explícita de riesgo; cualquier carácter fuera de
   // letras, dígitos, espacios y puntuación básica cuenta como token no técnico.
   const EMOJI_RIESGO = /\u{1F198}|\u{1F48A}|☠|\u{1FA62}|\u{1F52A}|\u{1F52B}|\u{1FA78}|⚰|\u{1F480}|\u{1FA93}/u;
-  const simbolosNoTecnicos = (raw) => /[^\p{L}\p{N}\s.,;:¿?¡!'"()\-\/«»%#+_\u2013\u2014\u2026\u2018\u2019\u201C\u201D]/u.test(String(raw).normalize('NFC'));
+  // Decimocuarta auditoría: tras NFKC, sólo valen letras latinas básicas (con tildes, ñ y ü), dígitos ASCII, espacio, tabulador
+  // o salto de línea y la puntuación que trata el divisor. Cualquier otro carácter (otros alfabetos, homoglifos cirílicos o
+  // griegos, caracteres invisibles o de ancho cero, marcas combinantes sueltas, símbolos) deja el turno fuera de vocabulario:
+  // nunca se elimina en silencio.
+  const simbolosNoTecnicos = (raw) => /[^A-Za-z0-9áéíóúüñÁÉÍÓÚÜÑ \t\n\r.,;:¿?¡!'"()\-\/«»%#+_\u2013\u2014\u2026\u2018\u2019\u201C\u201D]/u
+    .test(String(raw).normalize('NFKC').normalize('NFC'));
   // ── Lista blanca GLOBAL (cuarta auditoría Codex, 19-nov-2026) ─────────────────────────────────────────────────────────
   // Un léxico de riesgo no puede ser exhaustivo (sinónimos, leetspeak, espaciado, inglés coloquial). Todo turno con un
   // token fuera del vocabulario cerrado no recibe cifras, gráfica ni ficha: recibe un apoyo fijo con la Línea de la Vida y
@@ -2180,7 +2186,7 @@
   function segmentos(raw) {
     // Un guion entre dos letras o dígitos une una palabra compuesta («non-typhoidal», «2026-W43», «CIE-10»): no es un guion
     // suelto. El punto decimal de un código CIE tampoco separa.
-    const conCodigo = String(raw).replace(/([A-Za-z]\d{2})\.(\d)/g, '$1 $2').replace(/([\p{L}\p{N}])-(?=[\p{L}\p{N}])/gu, '$1 ');
+    const conCodigo = String(raw).normalize('NFKC').replace(/([A-Za-z]\d{2})\.(\d)/g, '$1 $2').replace(/([\p{L}\p{N}])-(?=[\p{L}\p{N}])/gu, '$1 ');
     const base = conCodigo.replace(/[^\p{L}\p{N}\s]+/gu, ' qqsepqq ').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     const toks = canonClinico(sinEstadoTecnico(base)).replace(/[^a-z0-9]+/g, ' ').trim().split(' ')
       .filter(Boolean).map((w) => (w === 'qqsepqq' ? '|' : w));
@@ -2389,7 +2395,7 @@
   }
   function respuestaCrisisTexto(qn) {
     const raw = String(qn);
-    const q = ` ${raw.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()} `;
+    const q = ` ${raw.normalize('NFKC').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()} `;
     const idioma = () => (/\b(the|what|how|in|of|and|i|my)\b/.test(q) && !/\b(en|de|del|y|la|el)\b/.test(q) ? 'en' : 'es');
     const riesgo = riesgoPersonal(q) || ingestionPropia(q) || lexicoRiesgo(raw) || (peticionDeDano(raw) ? idioma() : null) ||
       (EMOJI_RIESGO.test(raw) ? idioma() : null) ||
@@ -2445,7 +2451,7 @@
   }
   function respuestaCrisisSeguimiento(qn, crisisPrevia, nombraPadLimpio) {
     if (!crisisPrevia || levantaCrisis(qn, nombraPadLimpio)) return null;
-    const q = String(qn).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9 ]+/g, ' ');
+    const q = String(qn).normalize('NFKC').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9 ]+/g, ' ');
     const en = TURNO_EN.test(q) || pareceIngles(qn);
     if (crisisPrevia === 'apoyo') return en ? APOYO_EN : APOYO_ES;
     return en ? CRISIS_SEGUIMIENTO_EN : CRISIS_SEGUIMIENTO_ES;
