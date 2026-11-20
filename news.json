@@ -7,6 +7,25 @@
             "type": "radar",
             "tag": "Pronóstico publicado",
             "featured": true,
+            "title": "Seis padecimientos más del boletín: el sitio llega a ciento cincuenta y uno",
+            "summary": "Se incorporan la tuberculosis respiratoria, que superó su prueba única frente al control estacional, y cinco categorías cuyo portafolio no la superó y se publican con el control estacional, no validado, por autorización del autor: meningitis tuberculosa, lepra, otras rickettsiosis, fiebre manchada y leishmaniasis cutánea.",
+            "body": [
+                "EpiForecast-MX publica <strong style=\"color:var(--cream)\">seis padecimientos más</strong> del Boletín Epidemiológico del SINAVE, con lo que el sitio llega a <strong style=\"color:var(--cream)\">ciento cincuenta y uno</strong>: cuatro del carril original y 147 pronósticos del ejecutor genérico. Cada uno conserva el nombre y el código CIE del boletín, y su página explica de dónde salen los datos.",
+                "La tuberculosis respiratoria (A15-A16) superó su prueba única frente al control estacional; su validación prospectiva está en curso y no se presenta como superada. En la meningitis tuberculosa, la lepra, las otras rickettsiosis, la fiebre manchada y la leishmaniasis cutánea el portafolio no superó esa prueba y, por autorización nominal del autor, se publica el control estacional, que repite los casos de 52 semanas antes: no está validado ni promete una validación futura.",
+                "Las páginas declaran los avisos medidos de la fuente: el pico de 2019-2020 de la tuberculosis respiratoria y los cambios de nivel de la meningitis tuberculosa, las otras rickettsiosis y la fiebre manchada, sin atribuirles causa, y las semanas imputadas por el cambio de rezago del boletín."
+            ],
+            "link": {
+                "href": "boletin.html",
+                "text": "Ver el radar del boletín",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
+        {
+            "date": "19 de noviembre de 2026",
+            "iso": "2026-11-19",
+            "type": "radar",
+            "tag": "Pronóstico publicado",
+            "featured": true,
             "title": "Cincuenta y nueve padecimientos más del boletín: el sitio llega a ciento cuarenta y cinco",
             "summary": "Se incorporan cincuenta y nueve categorías del boletín 44: catorce superaron su prueba única frente al control estacional; en treinta y cinco el portafolio no la superó y se publica el control estacional, no validado, por autorización del autor; y diez, con un año de historia, sólo tienen el control estacional.",
             "body": [

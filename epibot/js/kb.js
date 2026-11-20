@@ -6,12 +6,12 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=72';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=73';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=5';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=46';
-import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, respuestaConDatos, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=38';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=47';
+import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, respuestaConDatos, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=39';
 
 let DATA = null;
 
@@ -5812,8 +5812,8 @@ export const MENINGITIS_G00_TEXTO = '«G00» abarca la meningitis por *Haemophil
 const G00_SOLO = /\bg00\b(?! ?[0-9])/;
 /**
  * alta_b44 (19-nov-2026): la meningocócica (A39.0) tiene release propio y la resuelve su alias; G00.0 y G00.1 se cuentan
- * dentro de los bloques invasivos de su agente (A41.3, G00.0, J14 y A40.3, G00.1, J13); la tuberculosa (A17.0) sigue sin
- * pronóstico. Texto fijo para G00.0, G00.1, una meningitis tuberculosa, por Haemophilus o neumocócica, o «G00» a secas.
+ * dentro de los bloques invasivos de su agente (A41.3, G00.0, J14 y A40.3, G00.1, J13); la tuberculosa (A17.0) tiene release
+ * propio desde el lote 6. Texto fijo para G00.0, G00.1, una meningitis por Haemophilus o neumocócica, o «G00» a secas.
  */
 export function guardaMeningitisTipo(query) {
   const qn = norm(String(query || '')).replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ');
@@ -5821,7 +5821,7 @@ export function guardaMeningitisTipo(query) {
   const men = MENINGITIS_TIPO.test(qn);
   if (/\bg00 ?0\b/.test(qn) || (men && /\b(haemophilus|hemophilus|influenzae)\b/.test(qn))) return MENINGITIS_HIB_TEXTO;
   if (/\bg00 ?1\b/.test(qn) || (men && /\b(neumococ[a-z]*|pneumococ[a-z]*)\b/.test(qn))) return MENINGITIS_NEUMO_TEXTO;
-  if (men && /\btuberculos[a-z]*\b/.test(qn)) return MENINGITIS_TEXTO;
+  // Lote 6: la meningitis tuberculosa (A17.0) tiene su propio control estacional y la resuelve su alias.
   return G00_SOLO.test(qn) ? MENINGITIS_G00_TEXTO : null;
 }
 

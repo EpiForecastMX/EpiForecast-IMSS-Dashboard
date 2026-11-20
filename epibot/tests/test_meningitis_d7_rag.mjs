@@ -92,12 +92,12 @@ test('A1: monóxido también; la nota no se duplica si el modelo ya la dio, y no
 });
 
 // alta_b44 (19-nov-2026): la meningitis meningocócica (A39.0) tiene release propio; la meningitis por Haemophilus (G00.0) y
-// la neumocócica (G00.1) se cuentan dentro de sus bloques invasivos, y la tuberculosa (A17.0) sigue sin pronóstico. Todas
+// la neumocócica (G00.1) se cuentan dentro de sus bloques invasivos; la tuberculosa (A17.0) tiene release propio desde el lote 6. Todas
 // reciben un texto fijo sin modelo ni cifras del síndrome meníngeo, salvo la meningocócica, que responde su release.
 const TEXTO_FIJO = /no la pronostica|no forma parte del \*\*síndrome meníngeo\*\*/;
-test('M: meningitis tuberculosa, por Haemophilus o neumocócica reciben un texto fijo, sin modelo ni cifras del síndrome', async () => {
+test('M: meningitis por Haemophilus o neumocócica reciben un texto fijo, sin modelo ni cifras del síndrome', async () => {
   for (const q of ['meningitis neumocócica en Jalisco', 'meningitis por Haemophilus',
-    'meningitis tuberculosa en Chiapas', 'meningitis G00.0']) {
+    'meningitis G00.0']) {
     for (const stream of [false, true]) {
       const out = await consultar(q, { texto: CON_861, vector: V_G00, stream });
       assert.equal(out.generaciones, 0, `${q}: no debe llamar al modelo`);
@@ -136,12 +136,17 @@ test('M: el EpiBot responde el mismo texto fijo, sin cifras de ningún pronósti
     const mc = await kb.answerWithTrace('meningitis meningocócica nacional');
     assert.match(String(mc.response), /MENINGOCOCICA_A39/);
     assert.doesNotMatch(String(mc.response), /SINDROME_MENINGEO_G00/);
-    for (const q of ['meningitis neumocócica en Jalisco', 'meningitis tuberculosa']) {
+    for (const q of ['meningitis neumocócica en Jalisco']) {
       kb._resetContext();
       const r = await kb.answerWithTrace(q);
       assert.equal(r.handler, 'answerMeningitisTipo', q);
       assert.doesNotMatch(String(r.response), /casos totales|SINDROME_MENINGEO_G00/, q);
     }
+    // Lote 6: la meningitis tuberculosa (A17.0) responde su propio control, nunca el síndrome meníngeo.
+    kb._resetContext();
+    const tb = await kb.answerWithTrace('meningitis tuberculosa en Chiapas');
+    assert.match(String(tb.response), /<!--MENINGITIS_TUBERCULOSA_A170:/);
+    assert.doesNotMatch(String(tb.response), /SINDROME_MENINGEO_G00/);
     kb._resetContext();
     assert.notEqual((await kb.answerWithTrace('síndrome meníngeo en Jalisco')).handler, 'answerMeningitisTipo');
     kb._resetContext();

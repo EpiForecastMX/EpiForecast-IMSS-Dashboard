@@ -1101,6 +1101,39 @@
       alias: ['infeccion por el virus de la inmunodeficiencia humana', 'virus de la inmunodeficiencia humana', 'infeccion por vih', 'vih', 'b20', 'b21', 'b22', 'b23', 'b24', 'z21', 'hiv', 'hiv infection'],
       prefijos: ['infeccion por el virus de la inmunodeficiencia humana', 'virus de la inmunodeficiencia humana', 'infeccion por vih', 'hiv infection'],
     },
+    // Lote 6 de alta_b44 (19-nov-2026): tuberculosis respiratoria (aceptada en su prueba única) y cinco controles estacionales
+    // tras rechazo por orden nominal del autor (meningitis tuberculosa, lepra, otras rickettsiosis, fiebre manchada y
+    // leishmaniasis cutánea), nunca validados.
+    {
+      id: 'tuberculosis_respiratoria_a15', pad: 'Tuberculosis respiratoria', nombre: 'Tuberculosis respiratoria', nombreCorto: 'Tuberculosis respiratoria', etiqueta: 'Tuberculosis respiratoria (A15-A16)', dataKey: 'tuberculosis_respiratoria_a15', marca: 'TUBERCULOSIS_RESPIRATORIA_A15', pagina: 'tuberculosis_respiratoria_a15.html', consulta: 'tuberculosis respiratoria', cie: 'A15-A16', color: '#9F1239',
+      alias: ['tuberculosis respiratoria', 'tuberculosis pulmonar', 'tb pulmonar', 'tb respiratoria', 'a15', 'a16', 'respiratory tuberculosis', 'pulmonary tuberculosis'],
+      prefijos: ['tuberculosis respiratoria', 'tuberculosis pulmonar', 'respiratory tuberculosis', 'pulmonary tuberculosis'],
+    },
+    {
+      id: 'meningitis_tuberculosa_a170', pad: 'Meningitis tuberculosa', nombre: 'Meningitis tuberculosa', nombreCorto: 'Meningitis tuberculosa', etiqueta: 'Meningitis tuberculosa (A17.0)', dataKey: 'meningitis_tuberculosa_a170', marca: 'MENINGITIS_TUBERCULOSA_A170', pagina: 'meningitis_tuberculosa_a170.html', consulta: 'meningitis tuberculosa', cie: 'A17.0', color: '#881337',
+      alias: ['meningitis tuberculosa', 'meningitis por tuberculosis', 'tuberculosis meningea', 'a17 0', 'tuberculous meningitis'],
+      prefijos: ['meningitis tuberculosa', 'meningitis por tuberculosis', 'tuberculosis meningea', 'tuberculous meningitis'],
+    },
+    {
+      id: 'lepra_a30', pad: 'Lepra', nombre: 'Lepra', nombreCorto: 'Lepra', etiqueta: 'Lepra (A30)', dataKey: 'lepra_a30', marca: 'LEPRA_A30', pagina: 'lepra_a30.html', consulta: 'lepra', cie: 'A30', color: '#78350F',
+      alias: ['lepra', 'enfermedad de hansen', 'hansen', 'a30', 'leprosy', 'hansen disease'],
+      prefijos: ['lepra', 'enfermedad de hansen', 'leprosy'],
+    },
+    {
+      id: 'otras_rickettsiosis_a79', pad: 'Otras rickettsiosis', nombre: 'Otras rickettsiosis', nombreCorto: 'Otras rickettsiosis', etiqueta: 'Otras rickettsiosis (A79)', dataKey: 'otras_rickettsiosis_a79', marca: 'OTRAS_RICKETTSIOSIS_A79', pagina: 'otras_rickettsiosis_a79.html', consulta: 'otras rickettsiosis', cie: 'A79', color: '#A16207', seleccion: 'en pliegues de 2023 y 2024',
+      alias: ['otras rickettsiosis', 'rickettsiosis sin clasificacion de especie', 'a79', 'other rickettsioses'],
+      prefijos: ['otras rickettsiosis', 'other rickettsioses'],
+    },
+    {
+      id: 'fiebre_manchada_a770', pad: 'Fiebre manchada', nombre: 'Fiebre manchada', nombreCorto: 'Fiebre manchada', etiqueta: 'Fiebre manchada (A77.0)', dataKey: 'fiebre_manchada_a770', marca: 'FIEBRE_MANCHADA_A770', pagina: 'fiebre_manchada_a770.html', consulta: 'fiebre manchada', cie: 'A77.0', color: '#B45309',
+      alias: ['fiebre manchada', 'fiebre manchada de las montanas rocosas', 'rickettsia rickettsii', 'a77 0', 'rocky mountain spotted fever', 'spotted fever'],
+      prefijos: ['fiebre manchada', 'rocky mountain spotted fever', 'spotted fever'],
+    },
+    {
+      id: 'leishmaniasis_cutanea_b551', pad: 'Leishmaniasis cutánea', nombre: 'Leishmaniasis cutánea', nombreCorto: 'Leishmaniasis cutánea', etiqueta: 'Leishmaniasis cutánea (B55.1)', dataKey: 'leishmaniasis_cutanea_b551', marca: 'LEISHMANIASIS_CUTANEA_B551', pagina: 'leishmaniasis_cutanea_b551.html', consulta: 'leishmaniasis cutanea', cie: 'B55.1', color: '#4D7C0F',
+      alias: ['leishmaniasis cutanea', 'ulcera de los chicleros', 'b55 1', 'cutaneous leishmaniasis'],
+      prefijos: ['leishmaniasis cutanea', 'ulcera de los chicleros', 'cutaneous leishmaniasis'],
+    },
   ]);
 
   // Auditoría Codex de alta_b44 (19-nov-2026): los ejemplos visibles («pregunta por «…»») salían de `consulta`, que va sin
@@ -1448,10 +1481,9 @@
     // Vecinos de los bloques nuevos de alta_b44 con código propio, sin cifras.
     [new RegExp(`\\ba33\\b|\\btetanos (neonatal|del recien nacido)\\b|\\bneonatal tetanus\\b`), 'tetanos neonatal',
       'tétanos neonatal (A33), que el boletín notifica aparte', 'tetanos_a34'],
-    [new RegExp(`\\btuberculosis (pulmonar|respiratoria)\\b|\\b(pulmonary|respiratory) tuberculosis\\b|\\ba1[56](?:\\.[0-9]|[0-9]| [0-9]${NO_UNIDAD})?\\b`),
-      'tuberculosis respiratoria', 'tuberculosis respiratoria (A15-A16), que el boletín notifica aparte', 'tuberculosis_otras_formas_a171'],
-    [new RegExp(`\\bmeningitis tuberculosa\\b|\\btuberculous meningitis\\b|\\ba17(?:\\.0|0| 0${NO_UNIDAD})\\b`),
-      'meningitis tuberculosa', 'meningitis tuberculosa (A17.0), que el boletín notifica aparte', 'tuberculosis_otras_formas_a171'],
+    // Lote 6: la tuberculosis respiratoria (A15-A16) y la meningitis tuberculosa (A17.0) tienen ya su propio release.
+    [/\bleishmaniasis visceral\b|\bkala ?azar\b|\bvisceral leishmaniasis\b|\bb55 ?[.]?0\b/,
+      'leishmaniasis visceral', 'leishmaniasis visceral (B55.0), que el boletín notifica aparte', 'leishmaniasis_cutanea_b551'],
     [new RegExp(`\\ba39(?:\\.[1-9]|[1-9]| [1-9]${NO_UNIDAD})\\b|\\b(meningococemia|meningococcemia)\\b`),
       'otra infeccion meningococica', 'infecciones meningocócicas fuera de la meningitis (A39.1-A39.9, como la meningococemia)', 'meningococica_a39'],
     [/\b(tifo|tifus) (epidemico|exantematico|transmitido por piojos)\b|\bepidemic typhus\b|\ba75 ?[.]?0\b/,
@@ -1594,7 +1626,7 @@
     // «Meningitis» a secas abarca renglones distintos del boletín; los tipos nombrados los resuelven sus guardas.
     { release: null, bloques: ['sindrome_meningeo_g00', 'meningococica_a39'], generico: /\bmeningitis\b/,
       especifico: /\b(meningococ[a-z]*|tuberculos[a-z]*|haemophilus|hemophilus|influenzae|neumococ[a-z]*|pneumococ[a-z]*)\b|\bsindrome meningeo\b/,
-      abarca: '«Meningitis» abarca renglones distintos del boletín: el síndrome meníngeo (G00-G03, excepto G00.0 y G00.1) y la meningitis meningocócica (A39.0) tienen cada uno su control estacional; la meningitis por Haemophilus influenzae (G00.0) y la neumocócica (G00.1) se cuentan dentro de las infecciones invasivas de su agente, y la tuberculosa (A17.0) se notifica aparte y no se pronostica.' },
+      abarca: '«Meningitis» abarca renglones distintos del boletín: el síndrome meníngeo (G00-G03, excepto G00.0 y G00.1) y la meningitis meningocócica (A39.0) tienen cada uno su control estacional; la meningitis por Haemophilus influenzae (G00.0) y la neumocócica (G00.1) se cuentan dentro de las infecciones invasivas de su agente, y la meningitis tuberculosa (A17.0) tiene su propio control estacional.' },
     { release: 'meningococica_a39', generico: /\b(meningococ[a-z]*|enfermedad meningococica|meningococcal|a39)\b(?![ .]?[0-9])/,
       especifico: /\bmeningitis meningococica\b|\bmeningococcal meningitis\b/,
       abarca: '«Meningococo» abarca la meningitis meningocócica (A39.0) y otras infecciones meningocócicas con código propio (A39.1-A39.9, como la meningococemia), que no se pronostican.' },
@@ -1608,9 +1640,16 @@
     { release: null, bloques: ['tetanos_a34'], siempre: true,
       generico: /\b(tetanos|tetanus)\b(?!.*\b(obstetric[oa]|otros tetanos|no neonatal|a3[45])\b)/, especifico: /(?!)/,
       abarca: '«Tétanos» abarca el tétanos neonatal (A33), que el boletín notifica aparte y no se pronostica, y el tétanos (A34, A35), con su control estacional.' },
-    { release: null, bloques: ['tuberculosis_otras_formas_a171'], siempre: true,
-      generico: /\b(tuberculosis|tb|tbc)\b(?!.*\b(otras formas|extrapulmonar|extrapulmonary)\b)|\ba17\b(?![ .]?[0-9])/, especifico: /(?!)/,
-      abarca: '«Tuberculosis» abarca la respiratoria (A15-A16) y la meningitis tuberculosa (A17.0), que se notifican aparte y no se pronostican, y la tuberculosis otras formas (A17.1, A17.8, A17.9, A18-A19), con su control estacional.' },
+    { release: null, bloques: ['tuberculosis_respiratoria_a15', 'meningitis_tuberculosa_a170', 'tuberculosis_otras_formas_a171'], siempre: true,
+      generico: /\b(tuberculosis|tb|tbc)\b(?!.*\b(otras formas|extrapulmonar|extrapulmonary|respiratoria|pulmonar|respiratory|pulmonary|meningea)\b)|\ba17\b(?![ .]?[0-9])/, especifico: /(?!)/,
+      abarca: '«Tuberculosis» abarca tres bloques del boletín: la tuberculosis respiratoria (A15-A16), con su propio pronóstico, y la meningitis tuberculosa (A17.0) y la tuberculosis otras formas (A17.1, A17.8, A17.9, A18-A19), cada una con su control estacional.' },
+    // Lote 6: «rickettsiosis» a secas abarca tres bloques; «leishmaniasis» a secas abarca la visceral (B55.0).
+    { release: null, bloques: ['otras_rickettsiosis_a79', 'fiebre_manchada_a770', 'tifo_murino_a752'], siempre: true,
+      generico: /(?<!\b(otras|other) )\b(rickettsiosis|rickettsiasis|rickettsioses)\b/, especifico: /(?!)/,
+      abarca: '«Rickettsiosis» abarca bloques distintos del boletín, cada uno con su control estacional: la fiebre manchada (A77.0), el tifo murino (A75.2) y las otras rickettsiosis (A79); el tifo epidémico (A75.0) se notifica aparte y no se pronostica.' },
+    { release: 'leishmaniasis_cutanea_b551', generico: /\b(leishmaniasis|leishmaniosis)\b/,
+      especifico: /\bleishmaniasis cutanea\b|\bulcera de los chicleros\b|\bcutaneous leishmaniasis\b|\b(leishmaniasis|leishmaniosis) visceral\b|\bvisceral leishmaniasis\b/,
+      abarca: '«Leishmaniasis» abarca la leishmaniasis visceral (B55.0), que el boletín notifica aparte y no se pronostica, y la leishmaniasis cutánea (B55.1), con su control estacional.' },
     { release: null, bloques: ['chagas_aguda_b570', 'chagas_cronica_b572'],
       generico: /\b(chagas|tripanosomiasis americana|trypanosomiasis|b57)\b(?![ .]?[0-9])/, especifico: /(?!)/,
       abarca: '«Chagas» abarca dos bloques del boletín, cada uno con su propio pronóstico: la enfermedad de Chagas aguda (B57.0-B57.1) y la crónica (B57.2-B57.5).' },
@@ -1932,7 +1971,7 @@
   // completo; nunca habilitan sus palabras sueltas en otra frase.
   const FRASES_GUARDAS_EXTRA = [
     // diabetesEnConsulta / conDiabetesNombrada y ALIAS_AMBIGUOS genéricos de un bloque.
-    'diabetes', 'sifilis', 'tuberculosis', 'tuberculosis pulmonar', 'hepatitis', 'otitis', 'amebiasis', 'candidiasis',
+    'diabetes', 'sifilis', 'tuberculosis', 'rickettsiosis', 'leishmaniasis', 'leishmaniasis visceral', 'hepatitis', 'otitis', 'amebiasis', 'candidiasis',
     'conjuntivitis', 'meningitis', 'desnutricion', 'displasia', 'displasia cervical', 'lombrices', 'mordedura', 'picadura',
     // conFamiliaNombrada / FAMILIAS: subtipos que nombra un seguimiento («¿y la severa?», «¿y las otras?»).
     'leve', 'moderada', 'severa', 'aguda', 'cronica', 'la severa', 'las otras', 'otras', 'congenita', 'gestacional',

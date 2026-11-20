@@ -56,12 +56,12 @@ test('un no modelado con entidad da las cifras impresas del cuadro, sin pronóst
   assert.match(r.md, /<!--SIN_GRAFICA-->/);
 });
 
-// Brucelosis tiene su propio control desde alta20c (15-nov-2026) y triquinosis desde alta_b44 (19-nov-2026); la
-// leishmaniasis cutánea sigue sin modelarse.
-test('sin handler previo: «casos de leishmaniasis cutánea» ya no queda sin respuesta', async () => {
-  const r = await conversa('casos de leishmaniasis cutanea');
+// Brucelosis tiene su propio control desde alta20c (15-nov-2026), triquinosis desde alta_b44 y la leishmaniasis cutánea
+// desde el lote 6 (19-nov-2026); la oncocercosis sigue sin modelarse.
+test('sin handler previo: «casos de oncocercosis» ya no queda sin respuesta', async () => {
+  const r = await conversa('casos de oncocercosis');
   assert.equal(r.handler, 'answerRadarBoletin');
-  assert.match(r.md, new RegExp(es(por('Leishmaniasis cutánea').cumulative)));
+  assert.match(r.md, new RegExp(es(por('Oncocercosis').cumulative)));
 });
 
 test('Covid-19 dice que se rechazó y remite a rechazados', async () => {
@@ -89,28 +89,20 @@ test('rubéola: el guion sigue la simbología impresa del boletín, campo por ca
 });
 
 test('una fila con guion y cifras muestra cada celda como se imprimió', async () => {
-  const tb = por('Tuberculosis respiratoria');
+  // Lote 6: la tuberculosis respiratoria tiene su propio release; se usa una categoría que sigue sin modelarse.
+  const tb = por('Paludismo por Plasmodium vivax');
   const filaGuion = tb.states.find((s) => s.values[0] === '-' && s.values.slice(1).every((v) => typeof v === 'number'));
   assert.ok(filaGuion, 'la fuente vigente debe tener al menos una entidad con guion semanal y acumulados numéricos');
-  const r = await conversa(`tuberculosis respiratoria en ${filaGuion.state.toLowerCase()}`);
+  const r = await conversa(`paludismo por plasmodium vivax en ${filaGuion.state.toLowerCase()}`);
   assert.equal(r.handler, 'answerRadarBoletin');
   assert.match(r.md, /Casos de la semana: \*\*– \(sin casos\)\*\*/);
   assert.match(r.md, new RegExp(`Acumulado ${FOTO.meta.year}, hombres: \\*\\*${es(filaGuion.values[1])}\\*\\*`));
   assert.match(r.md, new RegExp(`Acumulado ${FOTO.meta.year}, mujeres: \\*\\*${es(filaGuion.values[2])}\\*\\*`));
   assert.match(r.md, new RegExp(`Acumulado comparable ${FOTO.meta.year - 1}: \\*\\*${es(filaGuion.values[3])}\\*\\*`));
   assert.match(r.md, /no se presentaron casos/);
-
-  if (ACTUAL.carpeta === 'assets/boletin/2026-w44') {
-    const jal = tb.states.find((s) => s.state === 'Jalisco');
-    assert.deepEqual(jal.values, [8, 513, 258, 821]);
-    const rJal = await conversa('tuberculosis respiratoria en jalisco');
-    assert.equal(rJal.handler, 'answerRadarBoletin');
-    assert.match(rJal.md, /Casos de la semana: \*\*8\*\*/);
-    assert.match(rJal.md, /Acumulado 2026, hombres: \*\*513\*\*/);
-    assert.match(rJal.md, /Acumulado 2026, mujeres: \*\*258\*\*/);
-    assert.match(rJal.md, /Acumulado comparable 2025: \*\*821\*\*/);
-    assert.doesNotMatch(rJal.md, /– \(sin casos\)|no se presentaron casos/);
-  }
+  // La tuberculosis respiratoria responde su release, no el radar.
+  const rJal = await conversa('tuberculosis respiratoria en jalisco');
+  assert.match(rJal.md, /<!--TUBERCULOSIS_RESPIRATORIA_A15:/);
 });
 
 test('regresión archivada 2026-w43-r1: tuberculosis respiratoria en Jalisco conserva su guion y cifras', async () => {
@@ -127,18 +119,7 @@ test('regresión archivada 2026-w43-r1: tuberculosis respiratoria en Jalisco con
   assert.match(mdDirecto, /Acumulado comparable 2025: \*\*808\*\*/);
   assert.match(mdDirecto, /no se presentaron casos/);
 
-  const radarVigente = d.radar_boletin;
-  try {
-    d.radar_boletin = radar43;
-    const r = await conversa('tuberculosis respiratoria en jalisco');
-    assert.equal(r.handler, 'answerRadarBoletin');
-    assert.match(r.md, /Casos de la semana: \*\*– \(sin casos\)\*\*/);
-    assert.match(r.md, /Acumulado 2026, hombres: \*\*507\*\*/);
-    assert.match(r.md, /no se presentaron casos/);
-  } finally {
-    d.radar_boletin = radarVigente;
-    kb._resetContext();
-  }
+  // Lote 6: en la conversación la tuberculosis respiratoria ya responde su release; el radar archivado se prueba directo.
   assert.equal(d.radar_boletin.meta.week, FOTO.meta.week);
 });
 
@@ -151,22 +132,23 @@ test('un cero impreso se muestra como 0 y sin nota de guion', () => {
 });
 
 test('varias categorías salen en tabla, con la columna de la entidad', async () => {
-  // alta_b44: la tuberculosis otras formas se publicó; «leishmaniasis» sigue nombrando dos categorías sin modelo.
-  const tb = por('Leishmaniasis cutánea');
+  // Lote 6: la leishmaniasis cutánea y la tuberculosis respiratoria se publicaron; «paludismo» sigue nombrando dos
+  // categorías sin modelo (P. falciparum y P. vivax).
+  const tb = por('Paludismo por Plasmodium vivax');
   const so = tb.states.find((s) => s.state === 'Sonora').values;
-  const r = await conversa('leishmaniasis en jalisco mujeres', 'y hombres?', 'y en sonora?');
+  const r = await conversa('paludismo en jalisco mujeres', 'y hombres?', 'y en sonora?');
   assert.equal(r.handler, 'answerRadarBoletin');
   assert.match(r.md, /Sonora: semana \/ acumulado/);
   const sem = so[0] === '-' ? '– \\(sin casos\\)' : es(so[0]);
-  assert.match(r.md, new RegExp(`Leishmaniasis cutánea \\| B55\\.1 \\| ${tb.observed_week} \\|.*\\| ${sem} / ${so[1] === '-' ? '– \\(sin casos\\)' : es(so[1] + so[2])} \\|`));
+  assert.match(r.md, new RegExp(`Paludismo por Plasmodium vivax \\| B50 \\| ${tb.observed_week} \\|.*\\| ${sem} / ${so[1] === '-' ? '– \\(sin casos\\)' : es(so[1] + so[2])} \\|`));
 });
 
 test('el seguimiento de un no modelado no cae en la tabla neuro', async () => {
-  // alta_b44: el VIH tiene su propio control; se usa una categoría que sigue sin modelarse.
-  const r = await conversa('leishmaniasis cutanea en veracruz', 'y en puebla?');
+  // Lote 6: la leishmaniasis cutánea tiene su propio control; se usa una categoría que sigue sin modelarse.
+  const r = await conversa('oncocercosis en veracruz', 'y en puebla?');
   assert.equal(r.handler, 'answerRadarBoletin');
   assert.match(r.md, /\*\*Puebla\*\*/);
-  const s = await conversa('depresion en sonora', 'y leishmaniasis cutanea?');
+  const s = await conversa('depresion en sonora', 'y oncocercosis?');
   assert.equal(s.handler, 'answerRadarBoletin');
   assert.doesNotMatch(s.md, /Depresion/);
 });

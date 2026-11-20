@@ -819,6 +819,90 @@
         }
       ],
       "nota": null
+    },
+    "tuberculosis_respiratoria_a15": {
+      "avisos": [
+        {
+          "clave": "salto-nivel",
+          "estado": "medido",
+          "titulo": "Pico de 2019-2020 en la serie, sin atribuir causa.",
+          "texto": "Casos notificados por año epidemiológico en el dataset del pronóstico: 2014: 13,454; 2015: 13,871; 2016: 13,987; 2017: 14,374; 2018: 15,285; 2019: 36,761; 2020: 26,259; 2021: 16,008; 2022: 19,603; 2023: 20,036; 2024: 20,689; 2025: 21,291; 2026 (hasta la semana 44): 16,837. La mediana semanal nacional fue de 259 en 2014 y de 763 en 2019. Por decisión del autor se publica con este aviso del pico de 2019-2020, sin atribuirle causa. Con estos datos no se puede distinguir si cambió la frecuencia de casos o su registro, y no se atribuye causa."
+        },
+        {
+          "clave": "hueco-rezago",
+          "estado": "medido",
+          "titulo": "Semana 2020-W53 imputada por el cambio de rezago.",
+          "texto": "La semana 53 de 2020 no se imprimió en ningún boletín: desde el boletín 2021_sem01 el cuadro pasó a reportar la semana del propio boletín (antes, la anterior), y esa semana quedó sin fuente. Por decisión del autor se imputó de forma causal en las 32 entidades (64 registros entidad-sexo-semana) y queda marcada (lag_regime_gap); no es un dato observado."
+        }
+      ],
+      "nota": null
+    },
+    "meningitis_tuberculosa_a170": {
+      "avisos": [
+        {
+          "clave": "salto-nivel",
+          "estado": "medido",
+          "titulo": "Cambio de nivel en la serie, sin atribuir causa.",
+          "texto": "Casos notificados por año epidemiológico en el dataset del pronóstico: 2014: 203; 2015: 213; 2016: 203; 2017: 234; 2018: 316; 2019: 334; 2020: 230; 2021: 455; 2022: 567; 2023: 520; 2024: 517; 2025: 590; 2026 (hasta la semana 44): 470. La mediana semanal nacional fue de 3 en 2014 y de 12 en 2025. Con estos datos no se puede distinguir si cambió la frecuencia de casos o su registro, y no se atribuye causa."
+        },
+        {
+          "clave": "hueco-rezago",
+          "estado": "medido",
+          "titulo": "Semana 2020-W53 imputada por el cambio de rezago.",
+          "texto": "La semana 53 de 2020 no se imprimió en ningún boletín: desde el boletín 2021_sem01 el cuadro pasó a reportar la semana del propio boletín (antes, la anterior), y esa semana quedó sin fuente. Por decisión del autor se imputó de forma causal en las 32 entidades (64 registros entidad-sexo-semana) y queda marcada (lag_regime_gap); no es un dato observado."
+        }
+      ],
+      "nota": null
+    },
+    "lepra_a30": {
+      "avisos": [
+        {
+          "clave": "hueco-rezago",
+          "estado": "medido",
+          "titulo": "Semana 2020-W53 imputada por el cambio de rezago.",
+          "texto": "La semana 53 de 2020 no se imprimió en ningún boletín: desde el boletín 2021_sem01 el cuadro pasó a reportar la semana del propio boletín (antes, la anterior), y esa semana quedó sin fuente. Por decisión del autor se imputó de forma causal en las 32 entidades (64 registros entidad-sexo-semana) y queda marcada (lag_regime_gap); no es un dato observado."
+        }
+      ],
+      "nota": null
+    },
+    "otras_rickettsiosis_a79": {
+      "avisos": [
+        {
+          "clave": "salto-nivel",
+          "estado": "medido",
+          "titulo": "Cambio de nivel en la serie, sin atribuir causa.",
+          "texto": "Casos notificados por año epidemiológico en el dataset del pronóstico: 2017 (desde la semana 2): 147; 2018: 159; 2019: 143; 2020: 59; 2021: 185; 2022: 600; 2023: 497; 2024: 499; 2025: 544; 2026 (hasta la semana 44): 543. La mediana semanal nacional fue de 0 en 2020 y de 10 en 2022. El renglón A79 se imprime desde el boletín 2017_sem02: la serie es corta. Con estos datos no se puede distinguir si cambió la frecuencia de casos o su registro, y no se atribuye causa."
+        }
+      ],
+      "nota": null
+    },
+    "fiebre_manchada_a770": {
+      "avisos": [
+        {
+          "clave": "salto-nivel",
+          "estado": "medido",
+          "titulo": "Niveles cambiantes en la serie, sin atribuir causa.",
+          "texto": "Casos notificados por año epidemiológico en el dataset del pronóstico: 2014: 208; 2015: 501; 2016: 81; 2017: 181; 2018: 315; 2019: 305; 2020: 107; 2021: 124; 2022: 131; 2023: 42; 2024: 35; 2025: 23; 2026 (hasta la semana 44): 236. La mediana semanal nacional fue de 0 en 2016 y de 6 en 2019. Con estos datos no se puede distinguir si cambió la frecuencia de casos o su registro, y no se atribuye causa."
+        },
+        {
+          "clave": "hueco-rezago",
+          "estado": "medido",
+          "titulo": "Semana 2015-W48 imputada por el cambio de rezago.",
+          "texto": "La semana 48 de 2015 no se imprimió en ningún boletín: desde el boletín 2015_sem49 el cuadro pasó a reportar la semana del propio boletín (antes, la anterior), y esa semana quedó sin fuente. Por decisión del autor se imputó de forma causal en las 32 entidades (64 registros entidad-sexo-semana) y queda marcada (lag_regime_gap); no es un dato observado."
+        }
+      ],
+      "nota": null
+    },
+    "leishmaniasis_cutanea_b551": {
+      "avisos": [
+        {
+          "clave": "hueco-rezago",
+          "estado": "medido",
+          "titulo": "Semana 2020-W53 imputada por el cambio de rezago.",
+          "texto": "La semana 53 de 2020 no se imprimió en ningún boletín: desde el boletín 2021_sem01 el cuadro pasó a reportar la semana del propio boletín (antes, la anterior), y esa semana quedó sin fuente. Por decisión del autor se imputó de forma causal en las 32 entidades (64 registros entidad-sexo-semana) y queda marcada (lag_regime_gap); no es un dato observado."
+        }
+      ],
+      "nota": null
     }
   });
 })(globalThis);

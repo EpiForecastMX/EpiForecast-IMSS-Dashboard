@@ -98,7 +98,10 @@ test('la galería crea una instancia por release', () => {
       'intento_suicidio_z915', 'ideacion_suicida_r458', 'violencia_intrafamiliar_y07',
       'tuberculosis_otras_formas_a171', 'chagas_aguda_b570', 'tifo_murino_a752', 'sifilis_congenita_a50',
       'esavi_y58', 'meningococica_a39', 'neumococo_a40', 'haemophilus_a41', 'herida_arma_fuego_w32',
-      'chagas_cronica_b572', 'vih_b20', 'sintetico_x']);
+      'chagas_cronica_b572', 'vih_b20',
+      // Lote 6 de alta_b44 (19-nov-2026).
+      'tuberculosis_respiratoria_a15', 'meningitis_tuberculosa_a170', 'lepra_a30', 'otras_rickettsiosis_a79', 'fiebre_manchada_a770',
+      'leishmaniasis_cutanea_b551', 'sintetico_x']);
   assert.equal(ctx.window.GaleriasRelease.at(-1).color, '#123456');
 });
 

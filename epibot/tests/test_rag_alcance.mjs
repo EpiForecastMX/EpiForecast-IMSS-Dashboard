@@ -92,6 +92,7 @@ test('rag.mjs deriva los releases publicados del catálogo y de su shard', () =>
     { nombre: 'Escarlatina', cie: ['A38'] },
     { nombre: 'Espina bífida', cie: ['Q05'] },
     { nombre: 'Faringitis y amigdalitis estreptocócicas', cie: ['J02.0', 'J03.0'] },
+    { nombre: 'Fiebre manchada', cie: ['A77.0'] },
     { nombre: 'Giardiasis', cie: ['A07.1'] },
     { nombre: 'Gingivitis y enfermedad periodontal', cie: ['K05'] },
     { nombre: 'Infección gonocócica del tracto genitourinario', cie: ['A54.0', 'A54.1', 'A54.2'] },
@@ -115,12 +116,15 @@ test('rag.mjs deriva los releases publicados del catálogo y de su shard', () =>
     { nombre: 'Insuficiencia venosa periférica', cie: ['I87.2'] },
     { nombre: 'Infección de vías urinarias', cie: ['N30', 'N34', 'N39.0'] },
     { nombre: 'Labio y paladar hendido', cie: ['Q35', 'Q36', 'Q37'] },
+    { nombre: 'Leishmaniasis cutánea', cie: ['B55.1'] },
+    { nombre: 'Lepra', cie: ['A30'] },
     { nombre: 'Leptospirosis', cie: ['A27'] },
     { nombre: 'Leucemia', cie: ['C91', 'C92', 'C93', 'C94', 'C95'] },
     { nombre: 'Linfogranuloma venéreo por Clamidias', cie: ['A55'] },
     { nombre: 'Linfoma de Hodgkin', cie: ['C81'] },
     { nombre: 'Linfoma no Hodgkin', cie: ['C82', 'C83', 'C84', 'C85'] },
     { nombre: 'Mal del pinto', cie: ['A67'] },
+    { nombre: 'Meningitis tuberculosa', cie: ['A17.0'] },
     { nombre: 'Meningitis meningocócica', cie: ['A39.0'] },
     { nombre: 'Microcefalia', cie: ['Q02'] },
     { nombre: 'Intoxicación por monóxido de carbono', cie: ['T58'] },
@@ -136,6 +140,7 @@ test('rag.mjs deriva los releases publicados del catálogo y de su shard', () =>
     { nombre: 'Otitis media aguda', cie: ['H65.0', 'H65.1'] },
     { nombre: 'Mordedura de otras arañas', cie: ['T63.3', 'X21'] },
     { nombre: 'Otras hepatitis víricas', cie: ['B17.0', 'B17.2', 'B17.8', 'B17.9', 'B18.0', 'B18.1', 'B18.8', 'B18.9', 'B19'] },
+    { nombre: 'Otras rickettsiosis', cie: ['A79'] },
     { nombre: 'Picadura por otros artrópodos', cie: ['T63.4'] },
     { nombre: 'Picadura o intoxicación por otros animales ponzoñosos', cie: ['T63.1', 'T63.5', 'T63.6', 'T63.7', 'T63.8', 'T63.9', 'X27', 'U60.8'] },
     { nombre: 'Parálisis flácida aguda (menores de 15 años)', cie: ['U98'] },
@@ -163,6 +168,7 @@ test('rag.mjs deriva los releases publicados del catálogo y de su shard', () =>
     { nombre: 'Tricomoniasis urogenital', cie: ['A59.0'] },
     { nombre: 'Triquinosis', cie: ['B75'] },
     { nombre: 'Tuberculosis otras formas', cie: ['A17.1', 'A17.8', 'A17.9', 'A18', 'A19'] },
+    { nombre: 'Tuberculosis respiratoria', cie: ['A15', 'A16'] },
     { nombre: 'Úlceras, gastritis y duodenitis', cie: ['K25', 'K26', 'K27', 'K28', 'K29'] },
     { nombre: 'Varicela', cie: ['B01'] },
     { nombre: 'Accidente de transporte en vehículos con motor', cie: ['V20', 'V40'] },
@@ -186,12 +192,12 @@ test('un release no publicado, oculto o sin canal epibot no entra al alcance', (
   assert.equal(ctx.releasesDesdeCatalogo(cat, leerShard).length, 0);
 });
 
-test('las CIFRAS CLAVE nombran los ciento cuarenta y cinco padecimientos modelados', () => {
+test('las CIFRAS CLAVE nombran los ciento cincuenta y un padecimientos modelados', () => {
   const rel = ctx.releasesDesdeCatalogo(CAT, leerShard);
   const s = ctx.structuredSummary(KB, rel);
   const linea = s.split('\n').find((l) => l.startsWith('Alcance vigente'));
   assert.ok(linea, s);
-  assert.match(linea, /modela ciento cuarenta y cinco padecimientos/);
+  assert.match(linea, /modela ciento cincuenta y un padecimientos/);
   for (const p of ['Depresión (F32)', 'Parkinson (G20)', 'Alzheimer (G30)', 'Dengue', 'Obesidad (E66)', 'Anorexia, bulimia y otros trastornos alimentarios (F50)', 'Diabetes mellitus tipo I (E10)', 'Diabetes mellitus tipo II (E11, E12, E13, E14)',
     'Infección de vías urinarias (N30, N34, N39.0)', 'Úlceras, gastritis y duodenitis (K25, K26, K27, K28, K29)',
     'Infecciones respiratorias agudas (J00, J01, J03 excepto J03.0, J04, J05, J06, J20, J21)', 'Gingivitis y enfermedad periodontal (K05)', 'Asma (J45, J46)', 'Tumor maligno de la mama (C50)', 'Tumor maligno del cuello del útero (C53)']) {

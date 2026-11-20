@@ -115,7 +115,8 @@ test('la corrección difusa no convierte un nombre del boletín en otro padecimi
   for (const [q, nombre] of [['cuantos casos de colera hubo', 'Cólera'],
     // La fiebre paratifoidea se publicó aceptada en alta20c: ya no es un nombre del radar sin modelo.
     ['deplecion del volumen deshidratacion en jalisco', 'Depleción del volumen'],
-    ['leishmaniasis cutanea en jalisco', 'Leishmaniasis cutánea']]) {
+    // Lote 6: la leishmaniasis cutánea se publicó; la oncocercosis sigue sin modelarse.
+    ['oncocercosis en jalisco', 'Oncocercosis']]) {
     const r = await conversa(q);
     sinSeriesAjenas(r, q);
     assert.doesNotMatch(r.md, /Quisiste decir/, q);

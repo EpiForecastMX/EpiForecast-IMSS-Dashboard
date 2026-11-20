@@ -73,10 +73,10 @@ async function postRag(query) {
   return { status: res.status, body: await res.json() };
 }
 
-test('catálogo: los 59 releases del lote están instalados y declarados, con 145 padecimientos en el sitio', () => {
+test('catálogo: los 59 releases del lote (y los 6 del lote 6) están instalados y declarados, con 151 padecimientos en el sitio', () => {
   const instalados = new Set(JSON.parse(readFileSync(new URL('publication/catalog.json', raiz), 'utf-8')).releases.map((r) => r.disease_id));
   for (const id of IDS) assert.ok(releaseDeId(id) && instalados.has(id), id);
-  assert.equal(RELEASES.length + 4, 145);
+  assert.equal(RELEASES.length + 4, 151);
   assert.deepEqual(RELEASES.filter((r) => r.sensible).map((r) => r.id).sort(), [...SENSIBLES].sort());
   assert.equal(SIN_ALT.length, 10);
   assert.deepEqual(RELEASES.filter((r) => r.controlSinAlternativa).map((r) => r.id).sort(), [...SIN_ALT].sort());
@@ -191,7 +191,7 @@ for (const [q, marca] of [['sífilis congénita en Jalisco', 'SIFILIS_CONGENITA_
 
 for (const [q, re] of [['meningitis por Haemophilus en Jalisco', /haemophilus_a41\.html/], ['G00.1 en Jalisco', /neumococo_a40\.html/],
   ['neumonía neumocócica en Jalisco', /enfermedad invasiva por neumococo/], ['hepatitis alcohólica en Jalisco', /K70\.1/],
-  ['tétanos neonatal en Jalisco', /A33/], ['tuberculosis pulmonar en Jalisco', /A15-A16/]]) {
+  ['tétanos neonatal en Jalisco', /A33/], ['leishmaniasis visceral en Jalisco', /B55\.0/]]) {
   test(`subtipo sin serie propia: «${q}» se aclara sin cifras`, async () => {
     const { md } = await pregunta(q);
     assert.match(md, re, q);
@@ -199,7 +199,27 @@ for (const [q, re] of [['meningitis por Haemophilus en Jalisco', /haemophilus_a4
   });
 }
 
+// Lote 6 (19-nov-2026): la tuberculosis respiratoria, la meningitis tuberculosa y la leishmaniasis cutánea tienen su propio
+// release; «tuberculosis», «rickettsiosis» y «leishmaniasis» a secas piden precisar sin cifras.
+for (const [q, marca] of [['tuberculosis pulmonar en Jalisco', 'TUBERCULOSIS_RESPIRATORIA_A15'],
+  ['meningitis tuberculosa en Jalisco', 'MENINGITIS_TUBERCULOSA_A170'], ['lepra en Sonora', 'LEPRA_A30'],
+  ['otras rickettsiosis en Sonora', 'OTRAS_RICKETTSIOSIS_A79'], ['fiebre manchada en Sonora', 'FIEBRE_MANCHADA_A770'],
+  ['leishmaniasis cutánea en Quintana Roo', 'LEISHMANIASIS_CUTANEA_B551']]) {
+  test(`lote 6: «${q}» responde su release`, async () => {
+    const { md } = await pregunta(q);
+    assert.match(md, new RegExp(`<!--${marca}:`), q);
+  });
+}
+for (const [q, nombra] of [['tuberculosis en Jalisco', /tuberculosis respiratoria.*meningitis tuberculosa.*otras formas/s],
+  ['rickettsiosis en Sonora', /fiebre manchada.*tifo murino.*otras rickettsiosis/s], ['leishmaniasis en Jalisco', /visceral/]]) {
+  test(`lote 6: «${q}» pide precisar sin cifras`, async () => {
+    const { md } = await pregunta(q);
+    assert.match(md, nombra, q);
+    assert.doesNotMatch(md, /Pronóstico \*\*congelado\*\*|<!--[A-Z0-9_]+:\{/, q);
+  });
+}
+
 test('el número de padecimientos se escribe en letra más allá de noventa y nueve', async () => {
   const { md } = await pregunta('casos de diabetes insipida en jalisco');
-  assert.match(md, /ciento cuarenta y cinco padecimientos/);
+  assert.match(md, /ciento cincuenta y un padecimientos/);
 });

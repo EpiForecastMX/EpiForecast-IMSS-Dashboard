@@ -4,9 +4,9 @@
  * Todo lo que el EpiBot y sus gráficas necesitan de un release se deriva de esa lista.
  * Sin imports de otros módulos: lo cargan también módulos que no pueden depender de kb.js.
  */
-import './vocab_cerrado.js?v=3';
+import './vocab_cerrado.js?v=4';
 import './vocab_consulta.js?v=3';
-import './release_catalog.js?v=38';
+import './release_catalog.js?v=39';
 
 const CATALOGO = globalThis.EPI_CATALOGO;
 
