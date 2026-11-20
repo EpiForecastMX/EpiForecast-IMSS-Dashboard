@@ -158,7 +158,7 @@ test('corpus RAG: una tarjeta por categoría con su motivo y sus cifras, y el í
     const c = cards.find((x) => x.id === `no-modelable#${e.id}`);
     assert.ok(c, e.id);
     assert.ok(c.text.includes(e.reason), e.id);
-    assert.match(c.text, /no tiene pronóstico ni control estacional/, e.id);
+    assert.match(c.text, /no tiene modelo validado, pronóstico publicado ni control estacional; el radar le muestra un pronóstico exploratorio, no validado/, e.id);
     assert.equal(c.url, `../no_modelables.html#cat-${e.id}`);
     if (Number.isInteger(e.cumulative)) assert.ok(c.text.includes(`acumulado ${FOTO.meta.year}, ${e.cumulative === 1 ? '1 caso' : `${e.cumulative.toLocaleString('es-MX')} casos`}`), e.id);
   }

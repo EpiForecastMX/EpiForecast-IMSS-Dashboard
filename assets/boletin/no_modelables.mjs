@@ -44,8 +44,9 @@ export const GRUPOS_NO_MODELABLES = Object.freeze({
 
 export const POR_QUE_SIN_PRONOSTICO = 'EpiForecast-MX sólo publica un pronóstico cuando la serie permite elegir un ' +
   'modelo con datos anteriores y probarlo una sola vez frente al control estacional. Estas categorías no cumplen una ' +
-  'condición técnica medida, y ninguna regla se relajó para incluirlas: no se inventa un pronóstico. Sus cifras son ' +
-  'las que imprime el boletín, tal como aparecen en el radar.';
+  'condición técnica medida, y ninguna regla se relajó para incluirlas: no tienen modelo validado ni pronóstico ' +
+  'publicado. El radar del boletín les muestra un pronóstico exploratorio, no validado, sin prueba de desempeño ni ' +
+  'intervalos. Sus cifras son las que imprime el boletín, tal como aparecen en el radar.';
 
 /** Grupo de una fila del radar, o null si no es una categoría no modelable bien formada. */
 export function grupoNoModelable(e) {

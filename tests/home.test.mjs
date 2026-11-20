@@ -120,6 +120,8 @@ test('anclas de noticias: mismos vectores que el backend y el banner estático a
     [{ iso: 'x', title: '***' }, 'nota-sin-fecha-sin-titulo'],
   ];
   for (const [it, esperado] of V) assert.equal(N.notaAncla(it), esperado);
+  assert.equal(N.anclaVigente('#nota-2026-11-19-treinta-y-dos-categorias-del-boletin-sin-pronost'), 'nota-2026-11-19-treinta-y-dos-categorias-del-boletin-sin-modelo');
+  assert.equal(N.anclaVigente('#nota-2026-11-10-las-neumonias-y-bronconeumonias-se-publican-con'), 'nota-2026-11-10-las-neumonias-y-bronconeumonias-se-publican-con');
   assert.deepEqual(N.anclas([V[0][0], V[0][0]]), [V[0][1], `${V[0][1]}-2`]);
   const news = JSON.parse(leer('news.json')).items;
   const ids = N.anclas(news);

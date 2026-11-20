@@ -117,6 +117,20 @@ function leerRadar() {
   }
   return radarCache;
 }
+// Pronóstico exploratorio de la misma foto: sólo se usa para nombrar el método de cada categoría, sin cifras.
+let exploratorioCache = null;
+function leerExploratorioRadar() {
+  if (exploratorioCache) return exploratorioCache;
+  try {
+    const actual = JSON.parse(readDataFile('../assets/boletin/actual.json'));
+    if (!/^assets\/boletin\/[0-9]{4}-w[0-9]{2}(-r[0-9]+)?$/.test(actual?.carpeta ?? '')) return null;
+    exploratorioCache = JSON.parse(readDataFile(`../${actual.carpeta}/pronostico_exploratorio.json`));
+  } catch (err) {
+    console.error('Error cargando el pronóstico exploratorio del radar:', err.message);
+    return null;
+  }
+  return exploratorioCache;
+}
 const leerFicha = (pagina) => {
   if (!/^[a-z0-9_]+\.html$/.test(String(pagina))) throw new Error(`página no válida: ${pagina}`);
   return readDataFile(`../${pagina}`);
@@ -1060,7 +1074,7 @@ async function handlerInterno(req) {
   // Categoría del boletín sin pronóstico pedida por su nombre completo o su código (alta_b44; re-auditoría: los 32 códigos):
   // motivo medido y cifras impresas, antes de la guarda de vecinos («tétanos neonatal» o «A33» no son «Tétanos (A34, A35)»).
   const ajeno = globalThis.EPI_CATALOGO.subtipoAjeno(stripAccents(qEfectiva));
-  const noModelable = respuestaNoModelableRag(qEfectiva, leerRadar());
+  const noModelable = respuestaNoModelableRag(qEfectiva, leerRadar(), { exploratorio: leerExploratorioRadar() });
   if (noModelable) return json({ answer: noModelable, sources: [], retrieval: 'none', guarda: 'no_modelable' }, 200, cors);
   if (ajeno) {
     const vecino = globalThis.EPI_CATALOGO.releases.find((r) => r.id === ajeno.release);

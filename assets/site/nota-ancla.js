@@ -26,5 +26,19 @@
       return vistos[a] > 1 ? a + '-' + vistos[a] : a;
     });
   }
-  g.EpiNotas = { slug: slug, notaAncla: notaAncla, anclas: anclas };
+  /** Anclas antiguas de notas cuyo título cambió: el enlace guardado sigue llevando a la nota. */
+  var ALIAS = {
+    'nota-2026-11-19-treinta-y-dos-categorias-del-boletin-sin-pronost':
+      'nota-2026-11-19-treinta-y-dos-categorias-del-boletin-sin-modelo'
+  };
+  function anclaVigente(hash) {
+    var id = String(hash || '').replace(/^#/, '');
+    return Object.prototype.hasOwnProperty.call(ALIAS, id) ? ALIAS[id] : id;
+  }
+  if (g.document && g.location && g.history) {
+    var actual = String(g.location.hash || '').replace(/^#/, '');
+    var vigente = anclaVigente(actual);
+    if (vigente && vigente !== actual) g.history.replaceState(null, '', '#' + vigente);
+  }
+  g.EpiNotas = { slug: slug, notaAncla: notaAncla, anclas: anclas, anclaVigente: anclaVigente, ALIAS: ALIAS };
 })(typeof window !== 'undefined' ? window : globalThis);

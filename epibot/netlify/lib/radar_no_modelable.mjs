@@ -6,6 +6,7 @@
  */
 import { GUION, guionNoPublicado } from '../../../assets/boletin/celdas.mjs';
 import { GRUPOS_NO_MODELABLES, grupoNoModelable, noModelablesEnConsulta, nombreLimpio } from '../../../assets/boletin/no_modelables.mjs';
+import { referenciaExploratoria } from '../../../assets/boletin/pronostico.mjs';
 
 const fmt = (v) => v.toLocaleString('es-MX');
 
@@ -18,7 +19,7 @@ function celda(v, e, anio) {
 const minusculaInicial = (t) => (/^[A-ZÁÉÍÓÚÑ][a-záéíóúñ]/.test(t) ? t[0].toLowerCase() + t.slice(1) : t);
 
 /** Respuesta fija para las categorías no modelables que nombra la consulta, o null. `data` es data.json del radar. */
-export function respuestaNoModelableRag(q, data, { codigos = true } = {}) {
+export function respuestaNoModelableRag(q, data, { codigos = true, exploratorio = null } = {}) {
   if (!data?.meta || !Array.isArray(data.diseases)) return null;
   const es = noModelablesEnConsulta(q, data.diseases, { codigos }).filter((e) => grupoNoModelable(e));
   if (!es.length) return null;
@@ -27,13 +28,15 @@ export function respuestaNoModelableRag(q, data, { codigos = true } = {}) {
     const anio = e.observed_week > m.week ? m.year - 1 : m.year;
     const g = GRUPOS_NO_MODELABLES[grupoNoModelable(e)];
     const nota = e.guion && guionNoPublicado(e.guion, anio) ? `\n\n${e.guion.nota}` : '';
-    return `**${nombreLimpio(e.name)} (${e.code})**: EpiForecast-MX **no modela** esta categoría; no tiene pronóstico ni ` +
+    return `**${nombreLimpio(e.name)} (${e.code})**: EpiForecast-MX **no modela** esta categoría; no tiene modelo validado, pronóstico publicado ni ` +
       `control estacional. Estado: **no modelable** (${g.etiqueta.toLowerCase()}). Motivo medido: ${minusculaInicial(e.reason)}\n\n` +
       `Cifras impresas en el Boletín Epidemiológico ${m.week} de ${m.year}, nacional, hasta la semana ${e.observed_week} de ${anio}:\n` +
       `- Casos de la semana: **${celda(e.weekly, e, anio)}**\n- Acumulado ${m.year}: **${celda(e.cumulative, e, anio)}**\n` +
-      `- Acumulado comparable ${m.year - 1}: **${celda(e.previous, e, anio)}**${nota}`;
+      `- Acumulado comparable ${m.year - 1}: **${celda(e.previous, e, anio)}**${nota}\n\n` +
+      // Método real de su referencia exploratoria (pronostico_exploratorio.json de la foto), sin cifras.
+      referenciaExploratoria(exploratorio?.categorias?.[e.id] ?? null, 'radar');
   });
-  return `${partes.join('\n\n')}\n\nEl motivo y las cifras de todas las categorías sin pronóstico están en ` +
-    '[Categorías sin pronóstico](../no_modelables.html); por entidad, en el [Radar del boletín](../boletin.html).';
+  return `${partes.join('\n\n')}\n\nEl motivo y las cifras de todas las categorías sin modelo validado están en ` +
+    '[Categorías sin modelo validado](../no_modelables.html); por entidad, en el [Radar del boletín](../boletin.html).';
 }
 

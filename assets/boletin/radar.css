@@ -256,3 +256,21 @@ dialog{background:white;border-radius:12px;padding:28px;box-shadow:0 20px 70px #
 .boletin-page .table-wrap { max-width: 100%; overflow-x: auto; }
 .badge.unmodelable{background:rgba(120,130,150,.14);color:#3f4a5c}
 .priority-empty{grid-column:1/-1}
+/* Opción «Pronóstico» del radar (alta_b44): pestañas junto a la serie, panel y cobertura. */
+.curve-view-tabs{display:flex;gap:8px;margin:0 0 18px;flex-wrap:wrap}
+.curve-view-tabs button{min-height:44px;padding:8px 18px;border:1px solid var(--rule-strong);border-radius:999px;background:#fff;color:var(--ink-soft);font:600 13px/1.4 var(--sans);cursor:pointer}
+.curve-view-tabs button.selected{background:var(--accent);border-color:var(--accent);color:#fff}
+.curve-view-tabs button:focus-visible{outline:2px solid #315e91;outline-offset:2px}
+#curvas.modo-pronostico .curve-controls label:not(:first-child){display:none}
+.forecast-line{fill:none;stroke:#315e91;stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.forecast-line--exploratorio{stroke:#98621c;stroke-dasharray:7 5}
+.forecast-origin{stroke:var(--ink-mut);stroke-width:1;stroke-dasharray:3 4}
+.forecast-watermark{fill:#805c16;font:600 13px var(--sans)}
+.forecast-legend::before{background:#315e91!important}
+.forecast-legend--exploratorio::before{background:none!important;height:0!important;border-top:3px dashed #98621c}
+.forecast-label{font-size:14px;line-height:1.6;background:rgba(106,160,255,.07);border-left:3px solid #315e91;padding:12px 15px;margin:16px 0 0}
+.forecast-label--exploratorio{background:rgba(245,158,11,.1);border-left-color:#98621c}
+.forecast-label--sin{background:rgba(120,130,150,.1);border-left-color:#3f4a5c}
+.detail-actions{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0}
+.forecast-coverage{border:1px solid var(--rule);border-radius:12px;background:#fff;padding:20px 24px;margin:0 0 24px}
+.forecast-coverage-total{margin:6px 0}.forecast-coverage-total strong{font-size:34px;color:var(--accent)}
