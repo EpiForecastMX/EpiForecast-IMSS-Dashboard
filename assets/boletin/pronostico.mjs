@@ -13,6 +13,12 @@ export const ADVERTENCIA_NIVEL_RECIENTE = 'Respaldo cuando la referencia estacio
   'media de las últimas semanas con cifra impresa (hasta ocho). No tiene estacionalidad, prueba de desempeño ni ' +
   'intervalos de incertidumbre y no es un pronóstico de EpiForecast-MX.';
 
+export const ROTULO_NOTAS = 'Pronóstico exploratorio, no validado: nacional, derivado del acumulado publicado en las notas del boletín (no del cuadro estatal)';
+export const ADVERTENCIA_NOTAS = 'El cuadro estatal no publica esta cifra; las notas del boletín imprimen un acumulado nacional. ' +
+  'Los casos semanales se obtienen por diferencia de acumulados en el tramo consistente más reciente y el pronóstico es un ' +
+  'valor plano igual a su media de las últimas semanas (hasta ocho). Sin estacionalidad, prueba de desempeño ni intervalos; ' +
+  'no es un pronóstico de EpiForecast-MX.';
+
 export const ESTADOS_PUBLICADOS = Object.freeze(['Publicada', 'Control publicado']);
 export const LEGACY = Object.freeze({
   depresion: { pagina: 'Reports/index.html', nombre: 'Depresión' },
@@ -114,14 +120,16 @@ export function desdeExploratorio(doc, id, observado = []) {
   return {
     tipo: 'exploratorio', fuente: 'pronostico_exploratorio.json', nombre: c.nombre,
     metodo: c.metodo ?? null, nivel_reciente: c.metodo === 'nivel_reciente_sin_estacionalidad',
-    rotulo: c.metodo === 'nivel_reciente_sin_estacionalidad' ? ROTULO_NIVEL_RECIENTE : ROTULO_EXPLORATORIO,
-    advertencia: c.metodo === 'nivel_reciente_sin_estacionalidad' ? ADVERTENCIA_NIVEL_RECIENTE : ADVERTENCIA_EXPLORATORIO,
+    notas: c.metodo === 'nivel_reciente_acumulado_de_notas', fuente_notas: c.fuente_notas ?? null,
+    rotulo: c.rotulo ?? ROTULO_EXPLORATORIO,
+    advertencia: { nivel_reciente_sin_estacionalidad: ADVERTENCIA_NIVEL_RECIENTE, nivel_reciente_acumulado_de_notas: ADVERTENCIA_NOTAS }[c.metodo] ?? ADVERTENCIA_EXPLORATORIO,
     motivo: c.motivo_sin_modelo, motivo_respaldo: c.motivo_respaldo ?? null,
     base: c.semanas_base ? { n: c.n_semanas_base, periodo: c.periodo_base, nivel: c.nivel, nota: c.nota_base } : null,
     enlace: c.estado_radar === 'Rechazada' ? { href: 'rechazados.html', texto: 'Evidencia en analizados y rechazados' }
       : { href: `no_modelables.html#cat-${id}`, texto: 'Motivo y cifras de las categorías sin pronóstico' },
     sin_pronostico: c.sin_pronostico ?? null, origen: semanaTxt(c.origen), anios: c.anios_usados ?? [],
-    serie_nombre: 'Nacional · serie semanal impresa del boletín', observado,
+    serie_nombre: c.fuente_notas ? 'Nacional · casos semanales derivados del acumulado de las notas del boletín' : 'Nacional · serie semanal impresa del boletín',
+    observado: c.fuente_notas ? c.fuente_notas.semanales_derivadas.map((x) => ({ ds: x.ds, y: x.valor })) : observado,
     pronostico: (c.pronostico ?? []).map((s) => ({ ds: s.ds, y: s.valor, anios: s.anios })),
     total: c.pronostico ? Math.round(c.pronostico.reduce((a, s) => a + s.valor, 0)) : null,
   };
@@ -130,19 +138,20 @@ export function desdeExploratorio(doc, id, observado = []) {
 /** Cobertura de la opción Pronóstico sobre las categorías no agregadas de la foto. */
 export function coberturaPronostico(diseases, doc) {
   const cats = diseases.filter((e) => !e.aggregate);
-  let publicado = 0, exploratorio = 0, nivel = 0, sinHistoria = 0, sinOpcion = 0;
+  let publicado = 0, exploratorio = 0, nivel = 0, notas = 0, sinHistoria = 0, sinOpcion = 0;
   for (const e of cats) {
     const f = fuentePronostico(e);
     if (f.tipo === 'publicado') publicado++;
     else if (doc?.categorias?.[e.id]?.pronostico) {
-      if (doc.categorias[e.id].metodo === 'nivel_reciente_sin_estacionalidad') nivel++; else exploratorio++;
+      const met = doc.categorias[e.id].metodo;
+      if (met === 'nivel_reciente_sin_estacionalidad') nivel++; else if (met === 'nivel_reciente_acumulado_de_notas') notas++; else exploratorio++;
     }
     else if (doc?.categorias?.[e.id]) sinHistoria++;
     else sinOpcion++;
   }
-  const total = cats.length, con = total - sinOpcion, conPronostico = publicado + exploratorio + nivel;
+  const total = cats.length, con = total - sinOpcion, conPronostico = publicado + exploratorio + nivel + notas;
   // exploratorio = referencia estacional; nivel_reciente = respaldo plano; sin_historia = sin ningún pronóstico.
-  return { total, publicado, exploratorio, nivel_reciente: nivel, sin_historia: sinHistoria, sin_opcion: sinOpcion,
+  return { total, publicado, exploratorio, nivel_reciente: nivel, notas, sin_historia: sinHistoria, sin_opcion: sinOpcion,
     con_opcion: con, con_pronostico: conPronostico,
     pct: total ? Math.round((con / total) * 1000) / 10 : 0,
     pct_pronostico: total ? Math.round((conPronostico / total) * 1000) / 10 : 0 };

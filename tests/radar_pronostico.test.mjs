@@ -19,6 +19,7 @@ const cats = data.diseases.filter((e) => !e.aggregate);
 const LEGACY = new Set(['depresion', 'parkinson', 'alzheimer', 'dengue']);
 const ROTULO = 'Pronóstico exploratorio, no validado';
 const ROTULO_NIVEL = 'Pronóstico exploratorio, no validado: nivel reciente sin estacionalidad';
+const ROTULO_NOTAS = 'Pronóstico exploratorio, no validado: nacional, derivado del acumulado publicado en las notas del boletín (no del cuadro estatal)';
 
 function estadoFicha() {
   const ctx = {};
@@ -143,6 +144,12 @@ test('exploratorio: archivo al día, método declarado, 52 semanas consecutivas 
     const ultimo = puntos.at(-1);
     assert.deepEqual(c.origen, [ultimo.y, ultimo.w], `${e.id}: origen = último periodo impreso`);
     c.pronostico.forEach((s, k) => assert.deepEqual([s.y, s.w], [...E.semanaMas(c.origen[0], c.origen[1], k + 1)], `${e.id} semana ${k + 1}`));
+    if (c.metodo === 'nivel_reciente_acumulado_de_notas') {
+      // Sólo cuando el cuadro nunca publicó una cifra semanal reciente; se verifica aparte con las notas.
+      assert.equal(v.get(`${ultimo.y}-${ultimo.w}`), null, `${e.id}: el cuadro sí tiene cifra en el último periodo`);
+      assert.equal(c.rotulo, ROTULO_NOTAS);
+      continue;
+    }
     // ¿Tenía base la referencia estacional? (origen con cifra y las 52 semanas con al menos un año base)
     const estacionalPosible = v.get(`${c.origen[0]}-${c.origen[1]}`) != null &&
       c.pronostico.every((s) => [1, 2, 3].some((d) => v.get(`${s.y - d}-${s.w}`) != null));
@@ -177,11 +184,13 @@ test('exploratorio: archivo al día, método declarado, 52 semanas consecutivas 
   assert.equal(doc.respaldo.nombre, 'nivel_reciente_sin_estacionalidad');
   assert.equal(doc.respaldo.rotulo, ROTULO_NIVEL);
   assert.equal(doc.respaldo.max_semanas, 8);
-  assert.deepEqual(Object.entries(doc.categorias).filter(([, c]) => !c.pronostico).map(([k]) => k), ['p10b2']);
+  assert.deepEqual(Object.entries(doc.categorias).filter(([, c]) => !c.pronostico).map(([k]) => k), []);
   assert.deepEqual(Object.entries(doc.categorias).filter(([, c]) => c.metodo === 'nivel_reciente_sin_estacionalidad').map(([k]) => k).sort(),
-    ['p33b1', 'p80b1', 'p80b2', 'p80b3']);
-  assert.equal(doc.conteo.con_pronostico, doc.conteo.estacional + doc.conteo.nivel_reciente);
-  assert.equal(doc.conteo.sin_pronostico, 1);
+    ['p80b1', 'p80b2', 'p80b3']);
+  assert.deepEqual(Object.entries(doc.categorias).filter(([, c]) => c.metodo === 'nivel_reciente_acumulado_de_notas').map(([k]) => k).sort(),
+    ['p10b2', 'p33b1']);
+  assert.equal(doc.conteo.con_pronostico, doc.conteo.estacional + doc.conteo.nivel_reciente + doc.conteo.notas);
+  assert.equal(doc.conteo.sin_pronostico, 0);
 });
 
 test('exploratorio: el rótulo obligatorio aparece en la gráfica, la ficha, la cobertura y la página', async () => {
@@ -190,7 +199,7 @@ test('exploratorio: el rótulo obligatorio aparece en la gráfica, la ficha, la 
   assert.match(ADVERTENCIA_EXPLORATORIO, /sin prueba de desempeño|No tiene prueba de desempeño/);
   assert.match(ADVERTENCIA_EXPLORATORIO, /intervalos/);
   const vista = leer('assets/boletin/pronostico_vista.mjs');
-  assert.match(vista, /if \(m\.tipo === 'exploratorio' && pro\.length\) svg \+= `<text[^`]*class="forecast-watermark">\$\{esc\(m\.rotulo\)\}/, 'rótulo dentro de la gráfica');
+  assert.match(vista, /class="forecast-watermark" aria-label="\$\{esc\(m\.rotulo\)\}">\$\{esc\(l1\)\}\$\{l2 \? `<tspan[^`]*>\$\{esc\(l2\)\}<\/tspan>` : ''\}/, 'rótulo completo dentro de la gráfica');
   assert.match(vista, /<b>\$\{esc\(m\.rotulo\)\}\.<\/b> \$\{esc\(m\.motivo\)\} \$\{esc\(m\.advertencia\)\}\$\{base\}/, 'rótulo, motivo, advertencia y semanas base');
   const radar = leer('assets/boletin/radar.js');
   assert.match(radar, /<b>\$\{esc\(ROTULO_EXPLORATORIO\)\}\.<\/b> «Ver pronóstico» muestra una referencia estacional nacional simple/);
@@ -204,7 +213,7 @@ test('exploratorio: el rótulo obligatorio aparece en la gráfica, la ficha, la 
   const { ROTULO_NIVEL_RECIENTE, ADVERTENCIA_NIVEL_RECIENTE } = await imp('assets/boletin/pronostico.mjs');
   assert.equal(ROTULO_NIVEL_RECIENTE, ROTULO_NIVEL);
   assert.match(ADVERTENCIA_NIVEL_RECIENTE, /No tiene estacionalidad, prueba de desempeño ni intervalos/);
-  for (const k of ['p33b1', 'p80b1', 'p80b2', 'p80b3']) {
+  for (const k of ['p80b1', 'p80b2', 'p80b3']) {
     const n = desdeExploratorio(doc, k);
     assert.equal(n.rotulo, ROTULO_NIVEL, k);
     assert.equal(n.advertencia, ADVERTENCIA_NIVEL_RECIENTE, k);
@@ -227,15 +236,18 @@ test('cobertura: 100 % de las categorías con opción «Pronóstico», desglosad
   assert.equal(c.exploratorio, doc.conteo.estacional);
   assert.equal(c.nivel_reciente, doc.conteo.nivel_reciente);
   assert.equal(c.sin_historia, doc.conteo.sin_pronostico);
-  assert.equal(c.publicado + c.exploratorio + c.nivel_reciente + c.sin_historia, c.total);
-  assert.equal(c.con_pronostico, c.total - 1, 'todas con pronóstico salvo sarampión, que nunca imprimió una cifra semanal');
-  assert.equal(c.pct_pronostico, Math.round(((c.total - 1) / c.total) * 1000) / 10);
+  assert.equal(c.notas, doc.conteo.notas);
+  assert.equal(c.publicado + c.exploratorio + c.nivel_reciente + c.notas + c.sin_historia, c.total);
+  assert.equal(c.con_pronostico, c.total, 'todas las categorías con pronóstico');
+  assert.equal(c.pct_pronostico, 100);
+  assert.equal(c.sin_historia, 0);
   const t = textoCoberturaPronostico(c);
   assert.ok(t.startsWith(`${c.total} de ${c.total} categorías (100 %) tienen la opción «Pronóstico»`), t);
   assert.ok(t.includes(`${c.publicado} con pronóstico publicado`), t);
   assert.ok(t.includes(`${c.exploratorio} con pronóstico exploratorio estacional, no validado`), t);
   assert.ok(t.includes(`${c.nivel_reciente} con pronóstico exploratorio de nivel reciente sin estacionalidad, no validado`), t);
-  assert.ok(t.includes(`${c.sin_historia} sin ningún pronóstico porque nunca se imprimió una cifra semanal`), t);
+  assert.ok(t.includes(`${c.notas} con pronóstico exploratorio nacional derivado del acumulado publicado en las notas del boletín, no validado`), t);
+  assert.ok(!t.includes('sin ningún pronóstico'), t);
   assert.match(leer('assets/boletin/radar.js'), /c\.pct_pronostico\.toLocaleString\('es-MX'\)\)\} %<\/strong> de las categorías con pronóstico/);
   assert.match(leer('assets/boletin/radar.js'), /renderForecastCoverage\(\)/);
   assert.match(leer('boletin.html'), /<div id="forecastCoverage" class="forecast-coverage"/);
@@ -261,4 +273,64 @@ test('EpiBot: menciona la referencia exploratoria de una no modelable sin dar su
   assert.ok(!r.includes(total), 'sin cifras del exploratorio');
   const bot = leer('epibot/js/radar_boletin.js');
   assert.match(bot, /'\[Categorías sin pronóstico\]\(\.\.\/no_modelables\.html\)\. ' \+ REFERENCIA_EXPLORATORIA/);
+});
+
+test('notas del boletín: acumulados nacionales con evidencia, tramo consistente y casos semanales por diferencia', async () => {
+  const notas = json('assets/boletin/history/notas_acumulados.json');
+  const { leerBoletin, agregar } = await imp('scripts/radar_notas_acumulados.mjs');
+  const { tramoNotas } = await imp('scripts/radar_pronostico_exploratorio.mjs');
+  assert.equal(notas.schema, 'radar_notas_acumulados.v1');
+  assert.deepEqual(Object.values(notas.series).map((s) => s.categoria).sort(), ['p10b2', 'p33b1']);
+  for (const s of Object.values(notas.series)) {
+    assert.ok(s.puntos.length >= 20, s.nombre);
+    for (const p of s.puntos) {
+      assert.match(p.boletin, /^\d{4}_sem\d{2}$/);
+      assert.equal(p.archivo, `${p.boletin}.txt`);
+      assert.ok(Number.isInteger(p.pagina) && p.pagina > 0, p.boletin);
+      assert.ok(Number.isInteger(p.acumulado) && p.acumulado >= 0, p.boletin);
+      assert.ok(p.frase.length > 30, p.boletin);
+    }
+  }
+  // La foto vigente trae su boletin.txt: reagregarlo reproduce el mismo documento (idempotente).
+  const txt = leer(`${actual.carpeta}/boletin.txt`);
+  assert.deepEqual(agregar(notas, txt, '2026_sem44'), notas);
+  const f44 = leerBoletin(txt, '2026_sem44').falciparum;
+  assert.equal(f44.acumulado, 6);
+  assert.match(f44.frase, /en seis la especie Plasmodium falciparum/);
+  // Tramo: corta en el cambio de año, en un boletín faltante y si el acumulado baja (falla cerrado).
+  const P = (anio, semana, acumulado) => ({ boletin: `${anio}_sem${String(semana).padStart(2, '0')}`, anio, semana, acumulado, se_impresa: semana });
+  assert.deepEqual(tramoNotas([P(2025, 52, 7), P(2026, 1, 1), P(2026, 2, 3)]).semanales, [{ y: 2026, w: 2, valor: 2 }]);
+  assert.match(tramoNotas([P(2026, 1, 1), P(2026, 3, 3), P(2026, 4, 5)]).corte, /falta el boletín entre 2026_sem01 y 2026_sem03/);
+  assert.deepEqual(tramoNotas([P(2026, 1, 1), P(2026, 3, 3), P(2026, 4, 5)]).semanales, [{ y: 2026, w: 4, valor: 2 }]);
+  const baja = tramoNotas([P(2026, 1, 4), P(2026, 2, 6), P(2026, 3, 5), P(2026, 4, 7)]);
+  assert.match(baja.corte, /el acumulado baja de 6 \(2026_sem02\) a 5 \(2026_sem03\)/);
+  assert.deepEqual(baja.semanales, [{ y: 2026, w: 4, valor: 2 }]);
+  // Recalculo independiente de los dos pronósticos derivados de las notas.
+  const doc = json(`${actual.carpeta}/pronostico_exploratorio.json`);
+  for (const s of Object.values(notas.series)) {
+    const c = doc.categorias[s.categoria];
+    const ps = s.puntos;
+    let i = ps.length - 1;
+    while (i > 0 && ps[i - 1].anio === ps[i].anio && ps[i - 1].semana === ps[i].semana - 1 && ps[i].acumulado >= ps[i - 1].acumulado) i--;
+    const tramo = ps.slice(i);
+    const sem = tramo.slice(1).map((b, k) => b.acumulado - tramo[k].acumulado).slice(-8);
+    const nivel = Math.round((sem.reduce((a, b) => a + b, 0) / sem.length) * 10) / 10;
+    assert.equal(c.metodo, 'nivel_reciente_acumulado_de_notas', s.nombre);
+    assert.equal(c.rotulo, ROTULO_NOTAS);
+    assert.equal(c.nivel, nivel, s.nombre);
+    assert.deepEqual(c.semanas_base.map((b) => b.valor), sem, s.nombre);
+    assert.equal(c.fuente_notas.tramo.length, tramo.length, s.nombre);
+    assert.ok(c.pronostico.every((x) => x.valor === nivel) && c.pronostico.length === 52, s.nombre);
+  }
+  // Sarampión: el tramo termina en 2025-W53 (las notas no imprimen el acumulado en 2026) y se declara.
+  assert.match(doc.categorias.p10b2.nota_base, /por última vez en el boletín 2025_sem53/);
+  assert.match(doc.categorias.p10b2.nota_base, /2025_sem36 la frase dice semana 35/);
+  // P. falciparum: tramo 2026-W25..W44 (cambio de año antes) en lugar del nivel 0 de los guiones de 2024.
+  assert.equal(doc.categorias.p33b1.fuente_notas.tramo[0].boletin, '2026_sem25');
+  assert.ok(doc.categorias.p33b1.nivel > 0);
+  // La activación semanal agrega el boletín de la foto antes de generar el exploratorio.
+  assert.match(leer('scripts/boletin_semana_activa.py'), /radar_notas_acumulados\.mjs'\), '--root', str\(raiz\),\s*'--agrega', str\(txt\)/);
+  const { ROTULO_NOTAS: R } = await imp('assets/boletin/pronostico.mjs');
+  assert.equal(R, ROTULO_NOTAS);
+  assert.match(leer('assets/boletin/radar.js'), /<b>\$\{esc\(ROTULO_NOTAS\)\}\.<\/b> «Ver pronóstico» muestra un valor plano de 52 semanas/);
 });

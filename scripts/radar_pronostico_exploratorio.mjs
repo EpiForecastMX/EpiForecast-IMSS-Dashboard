@@ -27,7 +27,8 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { numero } from '../assets/boletin/celdas.mjs';
 import { GRUPOS_NO_MODELABLES, grupoNoModelable } from '../assets/boletin/no_modelables.mjs';
-import { ROTULO_EXPLORATORIO, ADVERTENCIA_EXPLORATORIO, ROTULO_NIVEL_RECIENTE, ADVERTENCIA_NIVEL_RECIENTE } from '../assets/boletin/pronostico.mjs';
+import { ROTULO_EXPLORATORIO, ADVERTENCIA_EXPLORATORIO, ROTULO_NIVEL_RECIENTE, ADVERTENCIA_NIVEL_RECIENTE, ROTULO_NOTAS, ADVERTENCIA_NOTAS } from '../assets/boletin/pronostico.mjs';
+import { ARCHIVO as ARCHIVO_NOTAS, SERIES as SERIES_NOTAS } from './radar_notas_acumulados.mjs';
 
 export const ARCHIVO = 'pronostico_exploratorio.json';
 export const HORIZONTE = 52;
@@ -35,6 +36,7 @@ export const MAX_ANIOS = 3;
 export const MAX_SEMANAS_NIVEL = 8;
 export const METODO_ESTACIONAL = 'media_estacional_misma_semana';
 export const METODO_NIVEL = 'nivel_reciente_sin_estacionalidad';
+export const METODO_NOTAS = 'nivel_reciente_acumulado_de_notas';
 
 const DIA = 86400000;
 function inicioAnio(y) { const j4 = Date.UTC(y, 0, 4); return j4 - new Date(j4).getUTCDay() * DIA; }
@@ -133,21 +135,83 @@ export function nivelReciente(e, puntos, valor, base, motivoRespaldo) {
     nota_base: notas.join(' ') || null, pronostico: semanas };
 }
 
+/**
+ * Tramo consistente más reciente de acumulados de notas: boletines consecutivos del mismo año con acumulado que no
+ * baja. Se recorre desde el último boletín hacia atrás y se corta en el primer cambio de año, boletín faltante o
+ * acumulado que baja (falla cerrado: lo anterior no se usa). Casos semanales = diferencia de acumulados.
+ */
+export function tramoNotas(puntos) {
+  const ps = [...puntos].sort((a, b) => a.anio - b.anio || a.semana - b.semana);
+  if (!ps.length) return { tramo: [], semanales: [], corte: 'sin acumulados impresos en las notas' };
+  let i = ps.length - 1, corte = 'inicio de la serie de notas';
+  while (i > 0) {
+    const a = ps[i - 1], b = ps[i];
+    if (a.anio !== b.anio) { corte = `cambio de año entre ${a.boletin} y ${b.boletin} (el acumulado se reinicia)`; break; }
+    if (a.semana !== b.semana - 1) { corte = `falta el boletín entre ${a.boletin} y ${b.boletin}`; break; }
+    if (b.acumulado < a.acumulado) { corte = `el acumulado baja de ${a.acumulado} (${a.boletin}) a ${b.acumulado} (${b.boletin})`; break; }
+    i--;
+  }
+  const tramo = ps.slice(i);
+  const semanales = tramo.slice(1).map((b, k) => ({ y: b.anio, w: b.semana, valor: b.acumulado - tramo[k].acumulado }));
+  return { tramo, semanales, corte };
+}
+
+/** Nivel reciente desde los casos semanales derivados del acumulado de las notas. */
+export function nivelNotas(e, puntosCuadro, serieNotas) {
+  const { tramo, semanales, corte } = tramoNotas(serieNotas.puntos);
+  if (!semanales.length) return null;
+  const ultimo = puntosCuadro.reduce((a, p) => (p.y > a.y || (p.y === a.y && p.w > a.w) ? p : a));
+  const usadas = semanales.slice(-MAX_SEMANAS_NIVEL);
+  const nivel = Math.round((usadas.reduce((t, s) => t + s.valor, 0) / usadas.length) * 10) / 10;
+  const semanas = [];
+  for (let k = 1; k <= HORIZONTE; k++) {
+    const [y, w] = semanaMas(ultimo.y, ultimo.w, k);
+    semanas.push({ y, w, ds: inicioSemana(y, w), valor: nivel, anios: [] });
+  }
+  const notas = [];
+  const fin = tramo.at(-1);
+  if (fin.anio !== ultimo.y || fin.semana !== ultimo.w) notas.push(`Las notas imprimen este acumulado por última vez en el boletín ${fin.boletin}; después no lo publican, así que el nivel se refiere a esas semanas y no al último periodo impreso del cuadro (${ultimo.y}-W${String(ultimo.w).padStart(2, '0')}).`);
+  const discrepa = tramo.filter((p) => p.se_impresa !== p.semana);
+  if (discrepa.length) notas.push(`En ${discrepa.map((p) => `${p.boletin} la frase dice semana ${p.se_impresa}`).join('; ')}: se toma la semana del boletín, cuya cifra difiere de la del boletín anterior.`);
+  return {
+    id: e.id, nombre: e.name, codigo: e.code, estado_radar: e.status, motivo_sin_modelo: motivoSinModelo(e),
+    metodo: METODO_NOTAS, rotulo: ROTULO_NOTAS, origen: [ultimo.y, ultimo.w],
+    motivo_respaldo: 'El cuadro estatal no publica la cifra semanal (guion de cifra no publicada), pero las notas del boletín imprimen un acumulado nacional boletín a boletín.',
+    fuente_notas: { serie: serieNotas.nombre, descripcion: serieNotas.descripcion, corte_del_tramo: corte,
+      tramo: tramo.map((p) => ({ boletin: p.boletin, pagina: p.pagina, se_impresa: p.se_impresa, acumulado: p.acumulado, frase: p.frase })),
+      semanales_derivadas: semanales.map((x) => ({ ...x, ds: inicioSemana(x.y, x.w) })) },
+    semanas_base: usadas, n_semanas_base: usadas.length, periodo_base: `${yw(usadas[0])} a ${yw(usadas.at(-1))}`, nivel,
+    nota_base: notas.join(' ') || null, pronostico: semanas,
+  };
+}
+
 /** Documento completo para la foto (data, índice histórico, lector de series). */
-export function construir(data, indice, leerSerie) {
+export function construir(data, indice, leerSerie, notasDoc = null) {
   const cats = categoriasSinRelease(data.diseases);
   const categorias = {};
+  const porCategoria = Object.fromEntries(Object.values(notasDoc?.series ?? {}).map((s) => [s.categoria, s]));
   for (const e of cats) {
     const ref = indice.series?.[e.id];
-    categorias[e.id] = pronosticarSerie(e, ref ? leerSerie(ref.path).points : []);
+    const puntos = ref ? leerSerie(ref.path).points : [];
+    // Cuadro sin cifra semanal publicada pero acumulado nacional en las notas: se usa esa vía (no el cuadro).
+    const viaNotas = porCategoria[e.id] && puntos.length ? nivelNotas(e, puntos, porCategoria[e.id]) : null;
+    categorias[e.id] = viaNotas ?? pronosticarSerie(e, puntos);
   }
   const vals = Object.values(categorias);
   const con = vals.filter((c) => c.pronostico).length;
   const nivel = vals.filter((c) => c.metodo === METODO_NIVEL).length;
+  const notas = vals.filter((c) => c.metodo === METODO_NOTAS).length;
   return {
-    schema: 'radar_pronostico_exploratorio.v2',
+    schema: 'radar_pronostico_exploratorio.v3',
     rotulo: ROTULO_EXPLORATORIO,
     advertencia: ADVERTENCIA_EXPLORATORIO,
+    via_notas: {
+      nombre: METODO_NOTAS,
+      rotulo: ROTULO_NOTAS,
+      advertencia: ADVERTENCIA_NOTAS,
+      descripcion: `Cuando el cuadro estatal no publica la cifra pero las notas del boletín imprimen un acumulado nacional (${ARCHIVO_NOTAS}): casos semanales por diferencia de acumulados en el tramo consistente más reciente (boletines consecutivos del mismo año, sin que el acumulado baje) y pronóstico plano igual a la media de las últimas ${MAX_SEMANAS_NIVEL} semanas derivadas. Dentro de un solo año no hay la misma semana de años anteriores, así que no se puede aplicar la referencia estacional.`,
+      categorias: Object.fromEntries(Object.entries(SERIES_NOTAS).map(([k, s]) => [s.categoria, k])),
+    },
     respaldo: {
       nombre: METODO_NIVEL,
       rotulo: ROTULO_NIVEL_RECIENTE,
@@ -170,7 +234,7 @@ export function construir(data, indice, leerSerie) {
       historia_comprobada: indice.checked ?? null,
       historia_fuentes: indice.source_count ?? null,
     },
-    conteo: { categorias: cats.length, con_pronostico: con, estacional: con - nivel, nivel_reciente: nivel, sin_pronostico: cats.length - con },
+    conteo: { categorias: cats.length, con_pronostico: con, estacional: con - nivel - notas, nivel_reciente: nivel, notas, sin_pronostico: cats.length - con },
     categorias,
   };
 }
@@ -179,7 +243,9 @@ export function generar(root) {
   const actual = JSON.parse(readFileSync(resolve(root, 'assets/boletin/actual.json'), 'utf8'));
   const data = JSON.parse(readFileSync(resolve(root, actual.carpeta, 'data.json'), 'utf8'));
   const indice = JSON.parse(readFileSync(resolve(root, 'assets/boletin/history/index.json'), 'utf8'));
-  const doc = construir(data, indice, (ruta) => JSON.parse(readFileSync(resolve(root, ruta.replace(/^\//, '')), 'utf8')));
+  const rutaNotas = resolve(root, ARCHIVO_NOTAS);
+  const notas = existsSync(rutaNotas) ? JSON.parse(readFileSync(rutaNotas, 'utf8')) : null;
+  const doc = construir(data, indice, (ruta) => JSON.parse(readFileSync(resolve(root, ruta.replace(/^\//, '')), 'utf8')), notas);
   return { ruta: resolve(root, actual.carpeta, ARCHIVO), texto: `${JSON.stringify(doc, null, 1)}\n`, doc };
 }
 
@@ -198,7 +264,7 @@ function main(argv) {
     return 0;
   }
   writeFileSync(ruta, texto);
-  console.log(`${ruta}: ${doc.conteo.con_pronostico} de ${doc.conteo.categorias} con pronóstico exploratorio (${doc.conteo.estacional} estacional, ${doc.conteo.nivel_reciente} de nivel reciente); ${doc.conteo.sin_pronostico} sin pronóstico.`);
+  console.log(`${ruta}: ${doc.conteo.con_pronostico} de ${doc.conteo.categorias} con pronóstico exploratorio (${doc.conteo.estacional} estacional, ${doc.conteo.nivel_reciente} de nivel reciente, ${doc.conteo.notas} desde las notas); ${doc.conteo.sin_pronostico} sin pronóstico.`);
   return 0;
 }
 

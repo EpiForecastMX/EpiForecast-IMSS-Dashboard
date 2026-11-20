@@ -165,6 +165,11 @@ Junto a la serie observada, cada categoría no agregada tiene la opción «Pron�
   cifra de toda la serie (hasta ocho), con semanas y periodos declarados. Sólo una categoría que
   nunca tuvo una cifra semanal impresa queda sin pronóstico, con ese motivo.
 
+Sarampión y P. falciparum, cuyo cuadro estatal no publica la cifra, usan el acumulado nacional que
+imprimen las notas del boletín (`assets/boletin/history/notas_acumulados.json`, con archivo, página y
+frase por boletín; `node scripts/radar_notas_acumulados.mjs --txt-dir <dir de AAAA_semNN.txt>` lo
+reconstruye): casos semanales por diferencia en el tramo consistente más reciente y nivel reciente.
+
 `boletin_semana_activa.py` lo regenera al activar cada foto
 (`node scripts/radar_pronostico_exploratorio.mjs`); `--check` comprueba que esté al día.
 

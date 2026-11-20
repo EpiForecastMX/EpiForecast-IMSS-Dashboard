@@ -3,7 +3,7 @@
 // la Figura 1 de la portada (hero_series.json). Sin release: el pronóstico exploratorio, no validado, de la foto
 // vigente (pronostico_exploratorio.json), con su rótulo, su motivo y su advertencia. No calcula cifras: las lee.
 import { numero } from './celdas.mjs?v=1';
-import { fuentePronostico, desdeVista, desdeLegacy, desdeExploratorio } from './pronostico.mjs?v=5';
+import { fuentePronostico, desdeVista, desdeLegacy, desdeExploratorio } from './pronostico.mjs?v=7';
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -58,7 +58,8 @@ function grafica(m) {
   if (!todos.length) return '';
   const W = 960, H = 340, L = 83, R = 24, T = 24, B = 60, pw = W - L - R, ph = H - T - B;
   const t = (ds) => Date.parse(`${ds}T00:00:00Z`);
-  const t0 = t(todos[0].ds), t1 = t(todos.at(-1).ds), max = Math.max(1, ...todos.map((p) => p.y)) * 1.08;
+  // Con el rótulo dentro de la gráfica se deja espacio arriba para que la línea no lo cubra.
+  const t0 = t(todos[0].ds), t1 = t(todos.at(-1).ds), max = Math.max(1, ...todos.map((p) => p.y)) * (m.tipo === 'exploratorio' ? 1.35 : 1.08);
   const X = (ds) => L + ((t(ds) - t0) / Math.max(1, t1 - t0)) * pw, Y = (v) => T + (1 - v / max) * ph;
   const ruta = (ps) => ps.map((p, i) => `${i ? 'L' : 'M'}${X(p.ds).toFixed(2)},${Y(p.y).toFixed(2)}`).join(' ');
   const clase = m.tipo === 'exploratorio' ? 'forecast-line forecast-line--exploratorio' : 'forecast-line';
@@ -78,7 +79,11 @@ function grafica(m) {
   svg += `<text x="${W / 2}" y="${H - 8}" text-anchor="middle" class="curve-axis">Inicio de la semana epidemiológica</text><text transform="translate(16 ${T + ph / 2}) rotate(-90)" text-anchor="middle" class="curve-axis">Casos por semana</text>`;
   if (obs.length) svg += `<path d="${ruta(obs)}" class="curve-line curve-year-2025"/>`;
   if (pro.length) svg += `<path d="${ruta(pro)}" class="${clase}"/>`;
-  if (m.tipo === 'exploratorio' && pro.length) svg += `<text x="${W - R}" y="${T + 14}" text-anchor="end" class="forecast-watermark">${esc(m.rotulo)}</text>`;
+  if (m.tipo === 'exploratorio' && pro.length) {
+    // Rótulo completo dentro de la gráfica; si es largo, en dos renglones partidos tras «no validado:».
+    const [l1, l2] = m.rotulo.length > 70 && m.rotulo.includes(': ') ? [m.rotulo.slice(0, m.rotulo.indexOf(': ') + 1), m.rotulo.slice(m.rotulo.indexOf(': ') + 2)] : [m.rotulo, ''];
+    svg += `<text x="${W - R}" y="${T + 14}" text-anchor="end" class="forecast-watermark" aria-label="${esc(m.rotulo)}">${esc(l1)}${l2 ? `<tspan x="${W - R}" dy="16">${esc(l2)}</tspan>` : ''}</text>`;
+  }
   return `${svg}</svg>`;
 }
 
@@ -90,7 +95,8 @@ function rotuloHtml(m) {
     return `<p class="forecast-label forecast-label--sin" role="note"><b>Sin pronóstico exploratorio.</b> ${esc(m.sin_pronostico)} Se muestra sólo la serie observada. Motivo por el que no tiene modelo: ${esc(m.motivo)} ${enlaceHtml(m)}</p>`;
   }
   if (m.tipo === 'exploratorio') {
-    const base = m.base ? ` Respaldo usado porque ${esc(minuscula(m.motivo_respaldo))} Nivel: media de ${m.base.n} ${m.base.n === 1 ? 'semana' : 'semanas'} con cifra impresa, de ${esc(m.base.periodo)}.${m.base.nota ? ` ${esc(m.base.nota)}` : ''}` : '';
+    const ult = m.fuente_notas?.tramo?.at(-1);
+    const base = m.base ? ` ${m.notas ? 'Se usa porque' : 'Respaldo usado porque'} ${esc(minuscula(m.motivo_respaldo))} Nivel: media de ${m.base.n} ${m.base.n === 1 ? 'semana' : 'semanas'} ${m.notas ? 'derivadas del acumulado' : 'con cifra impresa'}, de ${esc(m.base.periodo)}.${ult ? ` Última nota usada: boletín ${esc(ult.boletin)}, página ${ult.pagina}, «${esc(ult.frase)}» (acumulado ${esc(ult.acumulado)}); ${m.fuente_notas.tramo.length} boletines consecutivos en el tramo.` : ''}${m.base.nota ? ` ${esc(m.base.nota)}` : ''}` : '';
     return `<p class="forecast-label forecast-label--exploratorio" role="note"><b>${esc(m.rotulo)}.</b> ${esc(m.motivo)} ${esc(m.advertencia)}${base} ${enlaceHtml(m)}</p>`;
   }
   return `<p class="forecast-label" role="note"><b>${esc(m.rotulo)}.</b> ${esc(m.incertidumbre)}. ${m.etiqueta ? `Etiqueta publicada: «${esc(m.etiqueta)}».` : esc(m.detalle ?? '')} <a href="/${esc(m.pagina)}">Ver su ficha en EpiForecast</a>.</p>`;
@@ -106,13 +112,13 @@ function pintar(m) {
   }
   $('forecastLabel').innerHTML = rotuloHtml(m);
   $('forecastStats').innerHTML = [
-    ['Tipo', m.tipo === 'exploratorio' ? (m.sin_pronostico ? 'Sin pronóstico' : m.nivel_reciente ? 'Exploratorio de nivel reciente, no validado' : 'Exploratorio, no validado') : 'Pronóstico publicado'],
+    ['Tipo', m.tipo === 'exploratorio' ? (m.sin_pronostico ? 'Sin pronóstico' : m.notas ? 'Exploratorio desde las notas, no validado' : m.nivel_reciente ? 'Exploratorio de nivel reciente, no validado' : 'Exploratorio, no validado') : 'Pronóstico publicado'],
     ['Origen', m.origen || 'Sin dato'],
     ['Semanas pronosticadas', String(pro.length)],
     ['Suma de las semanas', m.total == null ? 'Sin dato' : fmt(m.total)],
   ].map(([l, v]) => `<div><span>${l}</span><strong>${esc(v)}</strong></div>`).join('');
   $('forecastChart').innerHTML = grafica(m);
-  $('forecastLegend').innerHTML = `<span class="curve-legend-2025">Observado</span>${pro.length ? `<span class="forecast-legend${m.tipo === 'exploratorio' ? ' forecast-legend--exploratorio' : ''}">${m.tipo === 'exploratorio' ? (m.nivel_reciente ? 'Exploratorio de nivel reciente, no validado' : 'Exploratorio, no validado') : 'Pronóstico publicado'}</span>` : ''}`;
+  $('forecastLegend').innerHTML = `<span class="curve-legend-2025">Observado</span>${pro.length ? `<span class="forecast-legend${m.tipo === 'exploratorio' ? ' forecast-legend--exploratorio' : ''}">${m.tipo === 'exploratorio' ? (m.notas ? 'Exploratorio desde las notas, no validado' : m.nivel_reciente ? 'Exploratorio de nivel reciente, no validado' : 'Exploratorio, no validado') : 'Pronóstico publicado'}</span>` : ''}`;
   $('forecastCaption').textContent = `Ámbito: ${m.serie_nombre}. Fuente: ${m.fuente}.${m.anios?.length ? ` Años base de la media: ${m.anios.join(', ')}.` : ''}${m.base ? ` Semanas base del nivel: ${m.base.periodo}.` : ''} Pronóstico puntual, sin intervalos en esta gráfica. Se muestran hasta ${OBSERVADO_SEMANAS} semanas observadas.`;
 }
 

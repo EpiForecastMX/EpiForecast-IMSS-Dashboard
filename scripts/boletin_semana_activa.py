@@ -155,6 +155,16 @@ def activar(raiz: Path, carpeta: str | None = None, pdf: str | None = None,
                              + ((r.stderr or r.stdout).strip() or 'sin detalle'))
     # Opción «Pronóstico» del radar: exploratorio, no validado, de las categorías sin release (alta_b44).
     if (raiz / 'assets/boletin/history/index.json').is_file():
+        # Acumulados nacionales de las notas del boletín (sarampión, P. falciparum): se agrega el boletín de la foto.
+        txt = raiz / actual['carpeta'] / 'boletin.txt'
+        m = re.search(r'(\d{4})-w(\d{2})', actual['carpeta'])
+        if txt.is_file() and m and (raiz / 'assets/boletin/history/notas_acumulados.json').is_file():
+            r = subprocess.run(['node', str(RAIZ / 'scripts/radar_notas_acumulados.mjs'), '--root', str(raiz),
+                                '--agrega', str(txt), '--boletin', f'{m.group(1)}_sem{m.group(2)}'],
+                               capture_output=True, text=True)
+            if r.returncode != 0:
+                raise SystemExit('ERROR: no se pudieron leer los acumulados de las notas del boletín: '
+                                 + ((r.stderr or r.stdout).strip() or 'sin detalle'))
         r = subprocess.run(['node', str(RAIZ / 'scripts/radar_pronostico_exploratorio.mjs'), '--root', str(raiz)],
                            capture_output=True, text=True)
         if r.returncode != 0:

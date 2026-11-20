@@ -1,7 +1,17 @@
 {
- "schema": "radar_pronostico_exploratorio.v2",
+ "schema": "radar_pronostico_exploratorio.v3",
  "rotulo": "Pronóstico exploratorio, no validado",
  "advertencia": "Referencia estacional nacional simple: cada semana es la media de la misma semana epidemiológica en los años anteriores disponibles (hasta tres). No tiene prueba de desempeño ni intervalos de incertidumbre y no es un pronóstico de EpiForecast-MX.",
+ "via_notas": {
+  "nombre": "nivel_reciente_acumulado_de_notas",
+  "rotulo": "Pronóstico exploratorio, no validado: nacional, derivado del acumulado publicado en las notas del boletín (no del cuadro estatal)",
+  "advertencia": "El cuadro estatal no publica esta cifra; las notas del boletín imprimen un acumulado nacional. Los casos semanales se obtienen por diferencia de acumulados en el tramo consistente más reciente y el pronóstico es un valor plano igual a su media de las últimas semanas (hasta ocho). Sin estacionalidad, prueba de desempeño ni intervalos; no es un pronóstico de EpiForecast-MX.",
+  "descripcion": "Cuando el cuadro estatal no publica la cifra pero las notas del boletín imprimen un acumulado nacional (assets/boletin/history/notas_acumulados.json): casos semanales por diferencia de acumulados en el tramo consistente más reciente (boletines consecutivos del mismo año, sin que el acumulado baje) y pronóstico plano igual a la media de las últimas 8 semanas derivadas. Dentro de un solo año no hay la misma semana de años anteriores, así que no se puede aplicar la referencia estacional.",
+  "categorias": {
+   "p10b2": "sarampion",
+   "p33b1": "falciparum"
+  }
+ },
  "respaldo": {
   "nombre": "nivel_reciente_sin_estacionalidad",
   "rotulo": "Pronóstico exploratorio, no validado: nivel reciente sin estacionalidad",
@@ -26,10 +36,11 @@
  },
  "conteo": {
   "categorias": 33,
-  "con_pronostico": 32,
+  "con_pronostico": 33,
   "estacional": 28,
-  "nivel_reciente": 4,
-  "sin_pronostico": 1
+  "nivel_reciente": 3,
+  "notas": 2,
+  "sin_pronostico": 0
  },
  "categorias": {
   "p7b1": {
@@ -633,14 +644,922 @@
    "codigo": "B05",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (casos insuficientes o no publicados): el cuadro imprime guiones en todas sus columnas, también en 2025, aunque sus notas registran 6,152 casos confirmados a la semana 53 de 2025: la cifra no se publica por entidad y no hay serie que modelar.",
+   "metodo": "nivel_reciente_acumulado_de_notas",
+   "rotulo": "Pronóstico exploratorio, no validado: nacional, derivado del acumulado publicado en las notas del boletín (no del cuadro estatal)",
    "origen": [
     2026,
     44
    ],
-   "puntos_con_cifra": 0,
-   "pronostico": null,
-   "motivo_respaldo": "El último periodo impreso (2026-W44) no tiene cifra semanal numérica (guion de cifra no publicada, «n.d.» o celda vacía): no hay base actual para una referencia estacional.",
-   "sin_pronostico": "Nunca se imprimió una cifra semanal de esta categoría en ninguna foto del radar: todas sus celdas semanales son guiones de cifra no publicada, «n.d.» o vacías, así que no hay base para ningún pronóstico, ni siquiera de nivel reciente."
+   "motivo_respaldo": "El cuadro estatal no publica la cifra semanal (guion de cifra no publicada), pero las notas del boletín imprimen un acumulado nacional boletín a boletín.",
+   "fuente_notas": {
+    "serie": "Sarampión",
+    "descripcion": "Casos confirmados de sarampión acumulados en el año, nacional, según la nota del cuadro de enfermedades prevenibles por vacunación.",
+    "corte_del_tramo": "inicio de la serie de notas",
+    "tramo": [
+     {
+      "boletin": "2025_sem16",
+      "pagina": 18,
+      "se_impresa": 16,
+      "acumulado": 583,
+      "frase": "A la SE. 16, se registran 583 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem17",
+      "pagina": 15,
+      "se_impresa": 17,
+      "acumulado": 789,
+      "frase": "A la SE. 17, se registran 789 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem18",
+      "pagina": 14,
+      "se_impresa": 18,
+      "acumulado": 1003,
+      "frase": "A la SE. 18, se registran 1003 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem19",
+      "pagina": 14,
+      "se_impresa": 19,
+      "acumulado": 1152,
+      "frase": "A la SE. 19, se registran 1 152 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem20",
+      "pagina": 14,
+      "se_impresa": 20,
+      "acumulado": 1520,
+      "frase": "A la SE. 20, se registran 1 520 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem21",
+      "pagina": 18,
+      "se_impresa": 21,
+      "acumulado": 1789,
+      "frase": "A la SE. 21, se registran 1 789 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem22",
+      "pagina": 14,
+      "se_impresa": 22,
+      "acumulado": 1926,
+      "frase": "A la SE. 22, se registran 1 926 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem23",
+      "pagina": 14,
+      "se_impresa": 23,
+      "acumulado": 2153,
+      "frase": "A la SE. 23, se registran 2 153 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem24",
+      "pagina": 14,
+      "se_impresa": 24,
+      "acumulado": 2434,
+      "frase": "A la SE. 24, se registran 2 434 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem25",
+      "pagina": 14,
+      "se_impresa": 25,
+      "acumulado": 2597,
+      "frase": "A la SE. 25, se registran 2,597 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem26",
+      "pagina": 21,
+      "se_impresa": 26,
+      "acumulado": 2942,
+      "frase": "A la SE. 26, se registran 2,942 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem27",
+      "pagina": 12,
+      "se_impresa": 27,
+      "acumulado": 3124,
+      "frase": "A la SE. 27, se registran 3,124 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem28",
+      "pagina": 14,
+      "se_impresa": 28,
+      "acumulado": 3360,
+      "frase": "A la SE. 28, se registran 3,360 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem29",
+      "pagina": 14,
+      "se_impresa": 29,
+      "acumulado": 3533,
+      "frase": "A la SE. 29, se registran 3,533 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem30",
+      "pagina": 14,
+      "se_impresa": 30,
+      "acumulado": 3748,
+      "frase": "A la SE. 30, se registran 3,748 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem31",
+      "pagina": 13,
+      "se_impresa": 31,
+      "acumulado": 3911,
+      "frase": "A la SE. 31, se registran 3,911 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem32",
+      "pagina": 14,
+      "se_impresa": 32,
+      "acumulado": 4006,
+      "frase": "A la SE. 32, se registran 4,006 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem33",
+      "pagina": 14,
+      "se_impresa": 33,
+      "acumulado": 4140,
+      "frase": "A la SE. 33, se registran 4,140 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem34",
+      "pagina": 14,
+      "se_impresa": 34,
+      "acumulado": 4266,
+      "frase": "A la SE. 34, se registran 4,266 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem35",
+      "pagina": 14,
+      "se_impresa": 35,
+      "acumulado": 4353,
+      "frase": "A la SE 35, se registran 4,353 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem36",
+      "pagina": 14,
+      "se_impresa": 35,
+      "acumulado": 4452,
+      "frase": "A la SE 35, se registran 4,452 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem37",
+      "pagina": 14,
+      "se_impresa": 37,
+      "acumulado": 4572,
+      "frase": "A la SE 37, se registran 4 572 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem38",
+      "pagina": 14,
+      "se_impresa": 38,
+      "acumulado": 4645,
+      "frase": "A la SE 38, se registran 4,645 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem39",
+      "pagina": 14,
+      "se_impresa": 39,
+      "acumulado": 4737,
+      "frase": "A la SE 39, se registran 4,737 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem40",
+      "pagina": 14,
+      "se_impresa": 40,
+      "acumulado": 4849,
+      "frase": "A la SE 40, se registran 4,849 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem41",
+      "pagina": 14,
+      "se_impresa": 41,
+      "acumulado": 4915,
+      "frase": "A la SE 41, se registran 4,915 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem42",
+      "pagina": 14,
+      "se_impresa": 42,
+      "acumulado": 5019,
+      "frase": "A la SE 42, se registran 5,019 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem43",
+      "pagina": 15,
+      "se_impresa": 43,
+      "acumulado": 5089,
+      "frase": "A la SE 43, se registran 5,089 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem44",
+      "pagina": 15,
+      "se_impresa": 44,
+      "acumulado": 5153,
+      "frase": "A la SE 44, se registran 5,153 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem45",
+      "pagina": 16,
+      "se_impresa": 45,
+      "acumulado": 5231,
+      "frase": "A la SE 45, se registran 5,231 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem46",
+      "pagina": 20,
+      "se_impresa": 46,
+      "acumulado": 5292,
+      "frase": "A la SE 46, se registran 5,292 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem47",
+      "pagina": 16,
+      "se_impresa": 47,
+      "acumulado": 5352,
+      "frase": "A la SE 47, se registran 5,352 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem48",
+      "pagina": 16,
+      "se_impresa": 48,
+      "acumulado": 5465,
+      "frase": "A la SE 48, se registran 5,465 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem49",
+      "pagina": 15,
+      "se_impresa": 49,
+      "acumulado": 5580,
+      "frase": "A la SE 49, se registran 5,580 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem50",
+      "pagina": 16,
+      "se_impresa": 50,
+      "acumulado": 5741,
+      "frase": "A la SE 50, se registran 5,741 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem51",
+      "pagina": 16,
+      "se_impresa": 51,
+      "acumulado": 5943,
+      "frase": "A la SE 51, se registran 5,943 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem52",
+      "pagina": 10,
+      "se_impresa": 52,
+      "acumulado": 6152,
+      "frase": "A la SE 52, se registran 6,152 casos confirmados de sarampión"
+     },
+     {
+      "boletin": "2025_sem53",
+      "pagina": 11,
+      "se_impresa": 53,
+      "acumulado": 6152,
+      "frase": "A la SE 53, se registran 6,152 casos confirmados de sarampión"
+     }
+    ],
+    "semanales_derivadas": [
+     {
+      "y": 2025,
+      "w": 17,
+      "valor": 206,
+      "ds": "2025-04-20"
+     },
+     {
+      "y": 2025,
+      "w": 18,
+      "valor": 214,
+      "ds": "2025-04-27"
+     },
+     {
+      "y": 2025,
+      "w": 19,
+      "valor": 149,
+      "ds": "2025-05-04"
+     },
+     {
+      "y": 2025,
+      "w": 20,
+      "valor": 368,
+      "ds": "2025-05-11"
+     },
+     {
+      "y": 2025,
+      "w": 21,
+      "valor": 269,
+      "ds": "2025-05-18"
+     },
+     {
+      "y": 2025,
+      "w": 22,
+      "valor": 137,
+      "ds": "2025-05-25"
+     },
+     {
+      "y": 2025,
+      "w": 23,
+      "valor": 227,
+      "ds": "2025-06-01"
+     },
+     {
+      "y": 2025,
+      "w": 24,
+      "valor": 281,
+      "ds": "2025-06-08"
+     },
+     {
+      "y": 2025,
+      "w": 25,
+      "valor": 163,
+      "ds": "2025-06-15"
+     },
+     {
+      "y": 2025,
+      "w": 26,
+      "valor": 345,
+      "ds": "2025-06-22"
+     },
+     {
+      "y": 2025,
+      "w": 27,
+      "valor": 182,
+      "ds": "2025-06-29"
+     },
+     {
+      "y": 2025,
+      "w": 28,
+      "valor": 236,
+      "ds": "2025-07-06"
+     },
+     {
+      "y": 2025,
+      "w": 29,
+      "valor": 173,
+      "ds": "2025-07-13"
+     },
+     {
+      "y": 2025,
+      "w": 30,
+      "valor": 215,
+      "ds": "2025-07-20"
+     },
+     {
+      "y": 2025,
+      "w": 31,
+      "valor": 163,
+      "ds": "2025-07-27"
+     },
+     {
+      "y": 2025,
+      "w": 32,
+      "valor": 95,
+      "ds": "2025-08-03"
+     },
+     {
+      "y": 2025,
+      "w": 33,
+      "valor": 134,
+      "ds": "2025-08-10"
+     },
+     {
+      "y": 2025,
+      "w": 34,
+      "valor": 126,
+      "ds": "2025-08-17"
+     },
+     {
+      "y": 2025,
+      "w": 35,
+      "valor": 87,
+      "ds": "2025-08-24"
+     },
+     {
+      "y": 2025,
+      "w": 36,
+      "valor": 99,
+      "ds": "2025-08-31"
+     },
+     {
+      "y": 2025,
+      "w": 37,
+      "valor": 120,
+      "ds": "2025-09-07"
+     },
+     {
+      "y": 2025,
+      "w": 38,
+      "valor": 73,
+      "ds": "2025-09-14"
+     },
+     {
+      "y": 2025,
+      "w": 39,
+      "valor": 92,
+      "ds": "2025-09-21"
+     },
+     {
+      "y": 2025,
+      "w": 40,
+      "valor": 112,
+      "ds": "2025-09-28"
+     },
+     {
+      "y": 2025,
+      "w": 41,
+      "valor": 66,
+      "ds": "2025-10-05"
+     },
+     {
+      "y": 2025,
+      "w": 42,
+      "valor": 104,
+      "ds": "2025-10-12"
+     },
+     {
+      "y": 2025,
+      "w": 43,
+      "valor": 70,
+      "ds": "2025-10-19"
+     },
+     {
+      "y": 2025,
+      "w": 44,
+      "valor": 64,
+      "ds": "2025-10-26"
+     },
+     {
+      "y": 2025,
+      "w": 45,
+      "valor": 78,
+      "ds": "2025-11-02"
+     },
+     {
+      "y": 2025,
+      "w": 46,
+      "valor": 61,
+      "ds": "2025-11-09"
+     },
+     {
+      "y": 2025,
+      "w": 47,
+      "valor": 60,
+      "ds": "2025-11-16"
+     },
+     {
+      "y": 2025,
+      "w": 48,
+      "valor": 113,
+      "ds": "2025-11-23"
+     },
+     {
+      "y": 2025,
+      "w": 49,
+      "valor": 115,
+      "ds": "2025-11-30"
+     },
+     {
+      "y": 2025,
+      "w": 50,
+      "valor": 161,
+      "ds": "2025-12-07"
+     },
+     {
+      "y": 2025,
+      "w": 51,
+      "valor": 202,
+      "ds": "2025-12-14"
+     },
+     {
+      "y": 2025,
+      "w": 52,
+      "valor": 209,
+      "ds": "2025-12-21"
+     },
+     {
+      "y": 2025,
+      "w": 53,
+      "valor": 0,
+      "ds": "2025-12-28"
+     }
+    ]
+   },
+   "semanas_base": [
+    {
+     "y": 2025,
+     "w": 46,
+     "valor": 61
+    },
+    {
+     "y": 2025,
+     "w": 47,
+     "valor": 60
+    },
+    {
+     "y": 2025,
+     "w": 48,
+     "valor": 113
+    },
+    {
+     "y": 2025,
+     "w": 49,
+     "valor": 115
+    },
+    {
+     "y": 2025,
+     "w": 50,
+     "valor": 161
+    },
+    {
+     "y": 2025,
+     "w": 51,
+     "valor": 202
+    },
+    {
+     "y": 2025,
+     "w": 52,
+     "valor": 209
+    },
+    {
+     "y": 2025,
+     "w": 53,
+     "valor": 0
+    }
+   ],
+   "n_semanas_base": 8,
+   "periodo_base": "2025-W46 a 2025-W53",
+   "nivel": 115.1,
+   "nota_base": "Las notas imprimen este acumulado por última vez en el boletín 2025_sem53; después no lo publican, así que el nivel se refiere a esas semanas y no al último periodo impreso del cuadro (2026-W44). En 2025_sem36 la frase dice semana 35: se toma la semana del boletín, cuya cifra difiere de la del boletín anterior.",
+   "pronostico": [
+    {
+     "y": 2026,
+     "w": 45,
+     "ds": "2026-11-08",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 46,
+     "ds": "2026-11-15",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 47,
+     "ds": "2026-11-22",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 48,
+     "ds": "2026-11-29",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 49,
+     "ds": "2026-12-06",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 50,
+     "ds": "2026-12-13",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 51,
+     "ds": "2026-12-20",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2026,
+     "w": 52,
+     "ds": "2026-12-27",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 1,
+     "ds": "2027-01-03",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 2,
+     "ds": "2027-01-10",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 3,
+     "ds": "2027-01-17",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 4,
+     "ds": "2027-01-24",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 5,
+     "ds": "2027-01-31",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 6,
+     "ds": "2027-02-07",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 7,
+     "ds": "2027-02-14",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 8,
+     "ds": "2027-02-21",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 9,
+     "ds": "2027-02-28",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 10,
+     "ds": "2027-03-07",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 11,
+     "ds": "2027-03-14",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 12,
+     "ds": "2027-03-21",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 13,
+     "ds": "2027-03-28",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 14,
+     "ds": "2027-04-04",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 15,
+     "ds": "2027-04-11",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 16,
+     "ds": "2027-04-18",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 17,
+     "ds": "2027-04-25",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 18,
+     "ds": "2027-05-02",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 19,
+     "ds": "2027-05-09",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 20,
+     "ds": "2027-05-16",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 21,
+     "ds": "2027-05-23",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 22,
+     "ds": "2027-05-30",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 23,
+     "ds": "2027-06-06",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 24,
+     "ds": "2027-06-13",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 25,
+     "ds": "2027-06-20",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 26,
+     "ds": "2027-06-27",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 27,
+     "ds": "2027-07-04",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 28,
+     "ds": "2027-07-11",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 29,
+     "ds": "2027-07-18",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 30,
+     "ds": "2027-07-25",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 31,
+     "ds": "2027-08-01",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 32,
+     "ds": "2027-08-08",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 33,
+     "ds": "2027-08-15",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 34,
+     "ds": "2027-08-22",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 35,
+     "ds": "2027-08-29",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 36,
+     "ds": "2027-09-05",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 37,
+     "ds": "2027-09-12",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 38,
+     "ds": "2027-09-19",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 39,
+     "ds": "2027-09-26",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 40,
+     "ds": "2027-10-03",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 41,
+     "ds": "2027-10-10",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 42,
+     "ds": "2027-10-17",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 43,
+     "ds": "2027-10-24",
+     "valor": 115.1,
+     "anios": []
+    },
+    {
+     "y": 2027,
+     "w": 44,
+     "ds": "2027-10-31",
+     "valor": 115.1,
+     "anios": []
+    }
+   ]
   },
   "p10b3": {
    "id": "p10b3",
@@ -5406,431 +6325,685 @@
    "codigo": "B50",
    "estado_radar": "No modelable",
    "motivo_sin_modelo": "No modelable (casos insuficientes o no publicados): el cuadro imprime guiones, también en 2025, aunque sus notas registran siete casos importados confirmados a la semana 53 de 2025: la cifra no se publica por entidad y no hay serie que modelar.",
+   "metodo": "nivel_reciente_acumulado_de_notas",
+   "rotulo": "Pronóstico exploratorio, no validado: nacional, derivado del acumulado publicado en las notas del boletín (no del cuadro estatal)",
    "origen": [
     2026,
     44
    ],
-   "puntos_con_cifra": 624,
-   "metodo": "nivel_reciente_sin_estacionalidad",
-   "rotulo": "Pronóstico exploratorio, no validado: nivel reciente sin estacionalidad",
-   "motivo_respaldo": "El último periodo impreso (2026-W44) no tiene cifra semanal numérica (guion de cifra no publicada, «n.d.» o celda vacía): no hay base actual para una referencia estacional.",
+   "motivo_respaldo": "El cuadro estatal no publica la cifra semanal (guion de cifra no publicada), pero las notas del boletín imprimen un acumulado nacional boletín a boletín.",
+   "fuente_notas": {
+    "serie": "Paludismo por Plasmodium falciparum",
+    "descripcion": "Casos importados de paludismo por P. falciparum confirmados por laboratorio, acumulados en el año, nacional, según la nota del cuadro de paludismo.",
+    "corte_del_tramo": "cambio de año entre 2025_sem53 y 2026_sem25 (el acumulado se reinicia)",
+    "tramo": [
+     {
+      "boletin": "2026_sem25",
+      "pagina": 33,
+      "se_impresa": 25,
+      "acumulado": 2,
+      "frase": "A la semana epidemiológica No.25 se han identificado seis casos importados de paludismo confirmados por laboratorio. En cuatro se identificó la especie Plasmodium vivax y en dos la especie Plasmodium falciparum."
+     },
+     {
+      "boletin": "2026_sem26",
+      "pagina": 33,
+      "se_impresa": 26,
+      "acumulado": 2,
+      "frase": "A la semana epidemiológica No.26 se han identificado cinco casos importados de paludismo confirmados por laboratorio. En tres se identificó la especie Plasmodium vivax y en dos la especie Plasmodium falciparum."
+     },
+     {
+      "boletin": "2026_sem27",
+      "pagina": 35,
+      "se_impresa": 27,
+      "acumulado": 2,
+      "frase": "A la semana epidemiológica No.27 se han identificado cinco casos importados de paludismo confirmados por laboratorio. En tres se identificó la especie Plasmodium vivax y en dos la especie Plasmodium falciparum."
+     },
+     {
+      "boletin": "2026_sem28",
+      "pagina": 33,
+      "se_impresa": 28,
+      "acumulado": 2,
+      "frase": "A la semana epidemiológica No.28 se han identificado cinco casos importados de paludismo confirmados por laboratorio. En tres se identificó la especie Plasmodium vivax y en dos la especie Plasmodium falciparum."
+     },
+     {
+      "boletin": "2026_sem29",
+      "pagina": 33,
+      "se_impresa": 29,
+      "acumulado": 2,
+      "frase": "A la semana epidemiológica No.29 se han identificado cinco casos importados de paludismo confirmados por laboratorio. En dos se identificó la especie Plasmodium vivax, en dos la especie Plasmodium falciparum y en uno la especie Plasmodium malariae."
+     },
+     {
+      "boletin": "2026_sem30",
+      "pagina": 36,
+      "se_impresa": 30,
+      "acumulado": 2,
+      "frase": "A la semana epidemiológica No.30 se han identificado cinco casos importados de paludismo confirmados por laboratorio. En dos se identificó la especie Plasmodium vivax, en dos la especie Plasmodium falciparum y en uno la especie Plasmodium malariae."
+     },
+     {
+      "boletin": "2026_sem31",
+      "pagina": 37,
+      "se_impresa": 31,
+      "acumulado": 3,
+      "frase": "A la semana epidemiológica No.31 se han identificado seis casos importados de paludismo confirmados por laboratorio. En dos se identificó la especie Plasmodium vivax, en tres la especie Plasmodium falciparum y en uno la especie Plasmodium malariae."
+     },
+     {
+      "boletin": "2026_sem32",
+      "pagina": 33,
+      "se_impresa": 32,
+      "acumulado": 3,
+      "frase": "A la semana epidemiológica No.32 se han identificado seis casos importados de paludismo confirmados por laboratorio. En dos se identificó la especie Plasmodium vivax, en tres la especie Plasmodium falciparum y en uno la especie Plasmodium malariae."
+     },
+     {
+      "boletin": "2026_sem33",
+      "pagina": 38,
+      "se_impresa": 33,
+      "acumulado": 3,
+      "frase": "A la semana epidemiológica No.33 se han identificado seis casos importados de paludismo confirmados por laboratorio. En dos se identificó la especie Plasmodium vivax, en tres la especie Plasmodium falciparum y en uno la especie Plasmodium malariae."
+     },
+     {
+      "boletin": "2026_sem34",
+      "pagina": 33,
+      "se_impresa": 34,
+      "acumulado": 3,
+      "frase": "A la semana epidemiológica No.34 se han identificado seis casos importados de paludismo confirmados por laboratorio. En dos se identificó la especie Plasmodium vivax, en tres la especie Plasmodium falciparum y en uno la especie Plasmodium malariae."
+     },
+     {
+      "boletin": "2026_sem35",
+      "pagina": 33,
+      "se_impresa": 35,
+      "acumulado": 3,
+      "frase": "A la semana epidemiológica No.35 se han identificado seis casos importados de paludismo confirmados por laboratorio. En dos se identificó la especie Plasmodium vivax, en tres la especie Plasmodium falciparum y en uno la especie Plasmodium malariae."
+     },
+     {
+      "boletin": "2026_sem36",
+      "pagina": 37,
+      "se_impresa": 36,
+      "acumulado": 3,
+      "frase": "A la semana epidemiológica No.36 se han identificado seis casos importados de paludismo confirmados por laboratorio. En dos se identificó la especie Plasmodium vivax, en tres la especie Plasmodium falciparum y en uno la especie Plasmodium malariae."
+     },
+     {
+      "boletin": "2026_sem37",
+      "pagina": 33,
+      "se_impresa": 37,
+      "acumulado": 3,
+      "frase": "A la semana epidemiológica No.37 se han identificado seis casos importados de paludismo confirmados por laboratorio. En dos se identificó la especie Plasmodium vivax, en tres la especie Plasmodium falciparum y en uno la especie Plasmodium malariae."
+     },
+     {
+      "boletin": "2026_sem38",
+      "pagina": 33,
+      "se_impresa": 38,
+      "acumulado": 4,
+      "frase": "A la semana epidemiológica No.38 se han identificado ocho casos importados de paludismo confirmados por laboratorio. En tres se identificó la especie Plasmodium vivax, en cuatro la especie Plasmodium falciparum y en uno la especie Plasmodium malariae."
+     },
+     {
+      "boletin": "2026_sem39",
+      "pagina": 33,
+      "se_impresa": 39,
+      "acumulado": 4,
+      "frase": "A la semana epidemiológica No.39 se han identificado ocho casos importados de paludismo confirmados por laboratorio. En dos se identificó la especie Plasmodium vivax, en cuatro la especie Plasmodium falciparum, en uno la especie Plasmodium malariae y en uno la especie Plasmodium ovale."
+     },
+     {
+      "boletin": "2026_sem40",
+      "pagina": 35,
+      "se_impresa": 40,
+      "acumulado": 4,
+      "frase": "A la semana epidemiológica No.40 se han identificado ocho casos importados de paludismo confirmados por laboratorio. En dos se identificó la especie Plasmodium vivax, en cuatro la especie Plasmodium falciparum, en uno la especie Plasmodium malariae y en uno la especie Plasmodium ovale."
+     },
+     {
+      "boletin": "2026_sem41",
+      "pagina": 36,
+      "se_impresa": 41,
+      "acumulado": 5,
+      "frase": "A la semana epidemiológica No.41 se han identificado nueve casos importados de paludismo confirmados por laboratorio. En dos se identificó la especie Plasmodium vivax, en cinco la especie Plasmodium falciparum, en uno la especie Plasmodium malariae y en uno la especie Plasmodium ovale."
+     },
+     {
+      "boletin": "2026_sem42",
+      "pagina": 33,
+      "se_impresa": 42,
+      "acumulado": 6,
+      "frase": "A la semana epidemiológica No.42 se han identificado diez casos importados de paludismo confirmados por laboratorio. En dos se identificó la especie Plasmodium vivax, en seis la especie Plasmodium falciparum, en uno la especie Plasmodium malariae y en uno la especie Plasmodium ovale."
+     },
+     {
+      "boletin": "2026_sem43",
+      "pagina": 38,
+      "se_impresa": 43,
+      "acumulado": 6,
+      "frase": "A la semana epidemiológica No.43 se han identificado diez casos importados de paludismo confirmados por laboratorio. En dos se identificó la especie Plasmodium vivax, en seis la especie Plasmodium falciparum, en uno la especie Plasmodium malariae y en uno la especie Plasmodium ovale."
+     },
+     {
+      "boletin": "2026_sem44",
+      "pagina": 33,
+      "se_impresa": 44,
+      "acumulado": 6,
+      "frase": "A la semana epidemiológica No.44 se han identificado diez casos importados de paludismo confirmados por laboratorio. En dos se identificó la especie Plasmodium vivax, en seis la especie Plasmodium falciparum, en uno la especie Plasmodium malariae y en uno la especie Plasmodium ovale."
+     }
+    ],
+    "semanales_derivadas": [
+     {
+      "y": 2026,
+      "w": 26,
+      "valor": 0,
+      "ds": "2026-06-28"
+     },
+     {
+      "y": 2026,
+      "w": 27,
+      "valor": 0,
+      "ds": "2026-07-05"
+     },
+     {
+      "y": 2026,
+      "w": 28,
+      "valor": 0,
+      "ds": "2026-07-12"
+     },
+     {
+      "y": 2026,
+      "w": 29,
+      "valor": 0,
+      "ds": "2026-07-19"
+     },
+     {
+      "y": 2026,
+      "w": 30,
+      "valor": 0,
+      "ds": "2026-07-26"
+     },
+     {
+      "y": 2026,
+      "w": 31,
+      "valor": 1,
+      "ds": "2026-08-02"
+     },
+     {
+      "y": 2026,
+      "w": 32,
+      "valor": 0,
+      "ds": "2026-08-09"
+     },
+     {
+      "y": 2026,
+      "w": 33,
+      "valor": 0,
+      "ds": "2026-08-16"
+     },
+     {
+      "y": 2026,
+      "w": 34,
+      "valor": 0,
+      "ds": "2026-08-23"
+     },
+     {
+      "y": 2026,
+      "w": 35,
+      "valor": 0,
+      "ds": "2026-08-30"
+     },
+     {
+      "y": 2026,
+      "w": 36,
+      "valor": 0,
+      "ds": "2026-09-06"
+     },
+     {
+      "y": 2026,
+      "w": 37,
+      "valor": 0,
+      "ds": "2026-09-13"
+     },
+     {
+      "y": 2026,
+      "w": 38,
+      "valor": 1,
+      "ds": "2026-09-20"
+     },
+     {
+      "y": 2026,
+      "w": 39,
+      "valor": 0,
+      "ds": "2026-09-27"
+     },
+     {
+      "y": 2026,
+      "w": 40,
+      "valor": 0,
+      "ds": "2026-10-04"
+     },
+     {
+      "y": 2026,
+      "w": 41,
+      "valor": 1,
+      "ds": "2026-10-11"
+     },
+     {
+      "y": 2026,
+      "w": 42,
+      "valor": 1,
+      "ds": "2026-10-18"
+     },
+     {
+      "y": 2026,
+      "w": 43,
+      "valor": 0,
+      "ds": "2026-10-25"
+     },
+     {
+      "y": 2026,
+      "w": 44,
+      "valor": 0,
+      "ds": "2026-11-01"
+     }
+    ]
+   },
    "semanas_base": [
     {
-     "y": 2024,
-     "w": 45,
-     "valor": 0,
-     "impreso": "-"
+     "y": 2026,
+     "w": 37,
+     "valor": 0
     },
     {
-     "y": 2024,
-     "w": 46,
-     "valor": 0,
-     "impreso": "-"
+     "y": 2026,
+     "w": 38,
+     "valor": 1
     },
     {
-     "y": 2024,
-     "w": 47,
-     "valor": 0,
-     "impreso": "-"
+     "y": 2026,
+     "w": 39,
+     "valor": 0
     },
     {
-     "y": 2024,
-     "w": 48,
-     "valor": 0,
-     "impreso": "-"
+     "y": 2026,
+     "w": 40,
+     "valor": 0
     },
     {
-     "y": 2024,
-     "w": 49,
-     "valor": 0,
-     "impreso": "-"
+     "y": 2026,
+     "w": 41,
+     "valor": 1
     },
     {
-     "y": 2024,
-     "w": 50,
-     "valor": 0,
-     "impreso": "-"
+     "y": 2026,
+     "w": 42,
+     "valor": 1
     },
     {
-     "y": 2024,
-     "w": 51,
-     "valor": 0,
-     "impreso": "-"
+     "y": 2026,
+     "w": 43,
+     "valor": 0
     },
     {
-     "y": 2024,
-     "w": 52,
-     "valor": 0,
-     "impreso": "-"
+     "y": 2026,
+     "w": 44,
+     "valor": 0
     }
    ],
    "n_semanas_base": 8,
-   "periodo_base": "2024-W45 a 2024-W52",
-   "nivel": 0,
-   "nota_base": "8 de las 8 semanas base son guiones impresos que la simbología del boletín de ese año lee como «no se presentaron casos» (cero). Las semanas base terminan en 2024-W52, antes del último periodo impreso (2026-W44), porque después la serie no tiene cifra semanal.",
+   "periodo_base": "2026-W37 a 2026-W44",
+   "nivel": 0.4,
+   "nota_base": null,
    "pronostico": [
     {
      "y": 2026,
      "w": 45,
      "ds": "2026-11-08",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2026,
      "w": 46,
      "ds": "2026-11-15",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2026,
      "w": 47,
      "ds": "2026-11-22",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2026,
      "w": 48,
      "ds": "2026-11-29",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2026,
      "w": 49,
      "ds": "2026-12-06",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2026,
      "w": 50,
      "ds": "2026-12-13",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2026,
      "w": 51,
      "ds": "2026-12-20",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2026,
      "w": 52,
      "ds": "2026-12-27",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 1,
      "ds": "2027-01-03",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 2,
      "ds": "2027-01-10",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 3,
      "ds": "2027-01-17",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 4,
      "ds": "2027-01-24",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 5,
      "ds": "2027-01-31",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 6,
      "ds": "2027-02-07",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 7,
      "ds": "2027-02-14",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 8,
      "ds": "2027-02-21",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 9,
      "ds": "2027-02-28",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 10,
      "ds": "2027-03-07",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 11,
      "ds": "2027-03-14",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 12,
      "ds": "2027-03-21",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 13,
      "ds": "2027-03-28",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 14,
      "ds": "2027-04-04",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 15,
      "ds": "2027-04-11",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 16,
      "ds": "2027-04-18",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 17,
      "ds": "2027-04-25",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 18,
      "ds": "2027-05-02",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 19,
      "ds": "2027-05-09",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 20,
      "ds": "2027-05-16",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 21,
      "ds": "2027-05-23",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 22,
      "ds": "2027-05-30",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 23,
      "ds": "2027-06-06",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 24,
      "ds": "2027-06-13",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 25,
      "ds": "2027-06-20",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 26,
      "ds": "2027-06-27",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 27,
      "ds": "2027-07-04",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 28,
      "ds": "2027-07-11",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 29,
      "ds": "2027-07-18",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 30,
      "ds": "2027-07-25",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 31,
      "ds": "2027-08-01",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 32,
      "ds": "2027-08-08",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 33,
      "ds": "2027-08-15",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 34,
      "ds": "2027-08-22",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 35,
      "ds": "2027-08-29",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 36,
      "ds": "2027-09-05",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 37,
      "ds": "2027-09-12",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 38,
      "ds": "2027-09-19",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 39,
      "ds": "2027-09-26",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 40,
      "ds": "2027-10-03",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 41,
      "ds": "2027-10-10",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 42,
      "ds": "2027-10-17",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 43,
      "ds": "2027-10-24",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     },
     {
      "y": 2027,
      "w": 44,
      "ds": "2027-10-31",
-     "valor": 0,
+     "valor": 0.4,
      "anios": []
     }
    ]
