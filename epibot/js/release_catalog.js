@@ -1890,7 +1890,7 @@
   // Tercera auditoría Codex: léxico de riesgo por formas verbales (futuro, infinitivo, pronominal), independiente de que se
   // resuelva un padecimiento («X7O en Jalisco, hoy me colgaré» caía en la tabla legacy). Se evalúa tras retirar los rótulos y
   // alias de los releases («…al saltar desde un lugar elevado» es el nombre de X80, no una intención).
-  const RIESGO_LEX_ES = /\b(colgar(me|se|te)?|colgare|colgaria|ahorcar(me|se|te)?|ahorcare|ahorcaria|matar(me|se|te)?|matare|mataria|morir(me|se)?|morire|moriria|muero|cortar(me|se)?|cortare|me voy a (cortar|colgar|ahorcar|matar|tirar|aventar|lanzar|envenenar|disparar|morir)|saltar(e|ia)?|aventar(me|se)|aventare|tirar(me|se)|tirare|lanzar(me|se)|lanzare|envenenar(me|se)?|envenenare|intoxicar(me|se)|disparar(me|se)|dispararia|suicid[a-z]*|no quiero vivir|no quiero seguir|acabar con todo|acabar con mi vida|quitarme la vida|desaparecer|sobredosis)\b/;
+  const RIESGO_LEX_ES = /\b(quemar(me|se|te)?|quemare|prenderme fuego|lesionar(me|se)|herir(me|se)|colgar(me|se|te)?|colgare|colgaria|ahorcar(me|se|te)?|ahorcare|ahorcaria|matar(me|se|te)?|matare|mataria|morir(me|se)?|morire|moriria|muero|cortar(me|se)?|cortare|me voy a (cortar|colgar|ahorcar|matar|tirar|aventar|lanzar|envenenar|disparar|morir)|saltar(e|ia)?|aventar(me|se)|aventare|tirar(me|se)|tirare|lanzar(me|se)|lanzare|envenenar(me|se)?|envenenare|intoxicar(me|se)|disparar(me|se)|dispararia|suicid[a-z]*|no quiero vivir|no quiero seguir|acabar con todo|acabar con mi vida|quitarme la vida|desaparecer|sobredosis)\b/;
   const RIESGO_LEX_EN = /\b(kill(ing)? myself|hang(ing)? myself|cut(ting)? myself|poison(ing)? myself|shoot(ing)? myself|overdos(e|ing)|suicid[a-z]*|die|dying|end it all|end my life|jump(ing)? off|want to die)\b/;
   const ALIAS_LARGOS = [...new Set(releases.flatMap((r) => [r.consulta, ...r.alias]).map((a) => sinTildeMin2(a).replace(/[^a-z0-9]+/g, ' ').trim())
     .filter((a) => a.includes(' ')))].sort((x, y) => y.length - x.length);
@@ -1927,6 +1927,67 @@
   // de palabras de consulta neutras (js/vocab_consulta.js, versionada a mano); (c) números sólo como año 2014-2027 o dentro
   // de una frase técnica. Sin los dos archivos la comprobación falla cerrada.
   const DATOS_RUTA = /\b(panorama|kpis|tablero nacional|nacional|national)\b/;
+  // Sexta auditoría Codex: frases completas que reconocen las guardas y los detectores (nombres genéricos que piden precisar,
+  // subtipos de familia en un seguimiento, vecinos clínicos), escritas a mano por guarda. Se consumen sólo como fragmento
+  // completo; nunca habilitan sus palabras sueltas en otra frase.
+  const FRASES_GUARDAS_EXTRA = [
+    // diabetesEnConsulta / conDiabetesNombrada y ALIAS_AMBIGUOS genéricos de un bloque.
+    'diabetes', 'sifilis', 'tuberculosis', 'tuberculosis pulmonar', 'hepatitis', 'otitis', 'amebiasis', 'candidiasis',
+    'conjuntivitis', 'meningitis', 'desnutricion', 'displasia', 'displasia cervical', 'lombrices', 'mordedura', 'picadura',
+    // conFamiliaNombrada / FAMILIAS: subtipos que nombra un seguimiento («¿y la severa?», «¿y las otras?»).
+    'leve', 'moderada', 'severa', 'aguda', 'cronica', 'la severa', 'las otras', 'otras', 'congenita', 'gestacional',
+    'pulmonar', 'perinatal', 'neonatal', 'fetal', 'embarazo', 'en el embarazo', 'durante el embarazo', 'congenital',
+    // Vecinos clínicos de las guardas de subtipo y de transporte.
+    'tracto genitourinario', 'gonococica', 'urogenital', 'cardiopatia reumatica', 'peatones', 'intoxicaciones por monoxido de carbono',
+    'hepatitis virica', 'lombrices intestinales', 'parotiditis bacteriana', 'amigdalitis viral', 'faringitis viral', 'rare syndrome',
+    // Subtipos y vecinos que nombran las pruebas de alcance (SUBTIPOS_AJENOS, ALIAS_AMBIGUOS y noModeladas).
+    'amebiasis cutanea', 'amibiasis cutanea', 'amoebiasis cutanea', 'amebiasis cerebral', 'amibiasis cerebral',
+    'amebiasis extraintestinal', 'amibiasis extraintestinal', 'conjuntivitis viral', 'conjuntivitis virica',
+    'conjuntivitis por adenovirus', 'conjuntivitis adenoviral', 'ear infection', 'candidiasis oral', 'candidiasis esofagica',
+    'candidiasis cutanea', 'algodoncillo', 'diabetes pregestacional', 'diabetes mellitus', 'maternal syphilis', 'bejel', 'yaws',
+    'chlamydia', 'granuloma inguinal', 'verrugas anogenitales', 'mortalidad', 'depresion alta', 'salud publica',
+    // Letras de la familia de hepatitis en un seguimiento («¿y la B?»).
+    'la a', 'la b', 'la c', 'la d', 'la e', 'y b', 'y c',
+  ];
+  // Frases completas de las guardas de alcance: el término y el rótulo de cada subtipo o vecino no modelado
+  // (SUBTIPOS_AJENOS) y los vecinos de hipertensión, normalizados y sin paréntesis. Se consumen sólo completas.
+  const FRAGMENTOS_GUARDAS = [...new Set([
+    ...SUBTIPOS_AJENOS.flatMap(([, termino, nombre]) => [termino, ...String(nombre).replace(/\([^)]*\)/g, ',').split(/,| ni | y | o /)]),
+    ...HIPERTENSION_AJENA.map(([, t]) => t),
+  ].map((t) => normLB(String(t)).replace(/^(la|el|los|las|otra|otras|otro|otros) /, '').trim()).filter((t) => t.includes(' ') || t.length >= 6)),
+  ...FRASES_GUARDAS_EXTRA.map((t) => normLB(t))]
+    .sort((a, b) => b.length - a.length);
+  // Fragmentos que reconocen las propias guardas de alcance y los detectores clínicos: el texto EXACTO que casa con su
+  // expresión regular (por secuencia de tokens). Se omiten las expresiones que admiten palabras arbitrarias entre medias
+  // («.*», «( [a-z]+)», «[a-z ]{…}») y todo fragmento que, solo o tras «me»/«quiero», dispara la crisis.
+  let _guardasRe = null;
+  function regexDeGuardas() {
+    if (_guardasRe) return _guardasRe;
+    const lista = [SUBTIPO_DIABETES, HTA_TERMINO, EMBARAZO_TERMINO, PRESION_BAJA, HIPERTENSION, CANCER_MAMA,
+      ...CANON_CLINICO.map(([de]) => de), ...HIPERTENSION_AJENA.map(([re]) => re),
+      ...SUBTIPOS_AJENOS.flatMap(([re, , , , ctx]) => [re, ctx]),
+      ...ALIAS_AMBIGUOS.flatMap((a) => [a.generico, a.especifico, a.uno, a.otroEsp]),
+      ...ACLARACIONES.map((a) => a.re)]
+      .filter((re) => re instanceof RegExp && !/\.\*|\.\+|\( \[a-z\]\+\)|\[a-z \]\{|\(\?!|\^/.test(re.source) && re.source !== '(?!)');
+    _guardasRe = lista.map((re) => new RegExp(re.source, 'g'));
+    return _guardasRe;
+  }
+  function retiraFragmentosDeGuardas(n) {
+    let t = n;
+    for (const re of regexDeGuardas()) {
+      // Tampoco cuentan formas pronominales de verbo («lesionarme», «quemarse»): nunca son el rótulo de una guarda.
+      t = t.replace(re, (m) => (/[a-z]/.test(m) && !/(arme|erme|irme|arse|erse|irse|arte|erte|irte)\b/.test(m) &&
+        !respuestaCrisis(m) && !respuestaCrisis(`me ${m}`) && !respuestaCrisis(`quiero ${m}`) ? ' ' : m));
+    }
+    return t;
+  }
+  let _fragmentosCache = null;
+  function todosLosFragmentos() {
+    if (_fragmentosCache && _fragmentosCache.base === globalThis.EPI_FRAGMENTOS) return _fragmentosCache.lista;
+    const lista = [...new Set([...(globalThis.EPI_FRAGMENTOS || []), ...FRAGMENTOS_GUARDAS])].sort((a, b) => b.length - a.length);
+    _fragmentosCache = { base: globalThis.EPI_FRAGMENTOS, lista };
+    return lista;
+  }
   const DATOS_RUTA_INTERFAZ = /\b(panorama|kpis|tablero nacional)\b/;
   function analizaTurno(raw) {
     // canonClinico reescribe variantes clínicas («amebiasis del hígado», «presión alta en embarazadas») a su forma canónica
@@ -1934,18 +1995,21 @@
     let n = ` ${canonClinico(normLB(raw)).replace(/[^a-z0-9]+/g, ' ').trim()} `;
     const cur = globalThis.EPI_VOCAB_CONSULTA;
     let fragmentosCie = 0;
-    for (const re of (cur ? cur.frases : [])) n = n.replace(re, ' ');
+    // Sexta auditoría: la edad sólo se retira en forma poblacional en tercera persona. Con una marca de primera persona o de
+    // un familiar («tengo», «soy», «mi hijo tiene», «I am») las frases de edad no se aplican y el número queda fuera.
+    const primeraPersona = /\b(tengo|tenia|tendre|soy|cumplo|cumpli|tiene|tienen|mi|mis|my|i am|im|i m|i ve)\b/.test(n);
+    for (const re of (cur ? cur.frases : [])) if (!(primeraPersona && cur.frasesEdad && cur.frasesEdad.includes(re))) n = n.replace(re, ' ');
     // Códigos con forma CIE («h66 0», «a06 8», «a510», «n87»): técnicos aunque no sean de un bloque publicado.
     n = n.replace(/ [a-z]\d{2}\d?( \d{1,2})?(?= )/g, (m) => (fragmentosCie++, ' '));
     let fragmentos = 0;
-    for (const f of (globalThis.EPI_FRAGMENTOS || [])) {
+    // Fragmentos completos del catálogo (generados) y de las guardas de alcance, de más largo a más corto, por secuencia de
+    // tokens: nunca palabra por palabra.
+    for (const f of todosLosFragmentos()) {
       if (n.includes(` ${f} `)) { n = n.split(` ${f} `).join('  '); fragmentos++; }
     }
-    const clin = globalThis.EPI_TERMINOS_CLINICOS;
+    n = retiraFragmentosDeGuardas(n);
     const todos = n.split(' ').filter(Boolean).filter((w) => !(/^\d{4}$/.test(w) && +w >= 2014 && +w <= 2027));
-    const pref = globalThis.EPI_PREFIJOS_CLINICOS || [];
-    const resto = todos.filter((w) => !(cur && cur.palabras.has(w)) && !(clin && clin.has(w)) && !ALCOHOL_PERMITIDO.has(w) &&
-      !pref.some((p) => w.startsWith(p)));
+    const resto = todos.filter((w) => !(cur && cur.palabras.has(w)) && !ALCOHOL_PERMITIDO.has(w));
     return { resto, todos, fragmentos: fragmentos + fragmentosCie };
   }
   /** Tokens que quedan fuera del vocabulario cerrado tras retirar fragmentos y frases técnicas. */
@@ -2141,7 +2205,7 @@
     releases, diabetesEnConsulta, conDiabetesNombrada, conFamiliaNombrada, canonClinico, nombraAlias, noModeladas,
     mencionaNoModelada, conHipertensionNombrada, respuestaCrisis, subtipoAjeno, aliasAmbiguo,
     crisisEnTurnos, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, idsSensiblesEn,
-    alcoholCalificado, IDS_LISTA_BLANCA, _VOCAB_TECNICO: VOCAB_TECNICO, fueraDeVocabulario, respuestaFueraDeVocabulario,
+    alcoholCalificado, IDS_LISTA_BLANCA, _VOCAB_TECNICO: VOCAB_TECNICO, _FRAGMENTOS_GUARDAS: FRAGMENTOS_GUARDAS, fueraDeVocabulario, respuestaFueraDeVocabulario,
     restoFuera, tieneFragmentoDeDatos, respuestaConDatos, APOYO_ES, APOYO_EN, pareceIngles,
   });
 })(globalThis);

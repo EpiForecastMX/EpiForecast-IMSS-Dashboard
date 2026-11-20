@@ -10,10 +10,18 @@
  * Los números sólo valen como año (2014-2027) o dentro de una frase técnica de abajo; cualquier otro número (edades,
  * cantidades) queda fuera de vocabulario.
  */
+// Edad en forma POBLACIONAL en tercera persona («mujeres de 30 años», «entre 40 y 45 años», «menores de 18», «de 15 a 19 años»).
+// No se aplican si el turno trae primera persona o un familiar («tengo», «soy», «mi hijo tiene»): el número queda fuera.
+const EDAD_POBLACION = /\b(mujeres|hombres|personas|pacientes|adultos|jovenes|ninos|ninas|mayores|menores) de \d{1,2}( (a|y) \d{1,2})? anos( de edad)?\b/g;
+const EDAD_RANGO = /\bentre \d{1,2} y \d{1,2} anos\b/g;
+const EDAD_UMBRAL = /\b(mayores|menores) de \d{1,2}( anos)?\b/g;
+const EDAD_DE_A = /\bde \d{1,2} a \d{1,2} anos\b/g;
 globalThis.EPI_VOCAB_CONSULTA = Object.freeze({
+  frasesEdad: [EDAD_POBLACION, EDAD_RANGO, EDAD_UMBRAL, EDAD_DE_A],
   palabras: new Set(`
     // Interrogativos, artículos, preposiciones, pronombres de trato, conectores, cortesía y verbos de consulta neutros.
-    a afecta ahora al algo el e otro uno siguiente llegaron nuevos pinta sigue atinamos basado basas base buenas buenos cada causa como compara comparacion comparalo
+    a afecta ahora al algo el e otro uno siguiente llegaron nuevos pinta sigue cifras cifra quisiera quisieras consultar
+    podrias podria saber conocer informar numeros mostrar ensename gustaria porfa porfavor decir atinamos basado basas base buenas buenos cada causa como compara comparacion comparalo
     comparan comparar comparativa comporta con configuro contra contrasta crearon crecido creo cual cuales cuando
     cuantas cuanto cuantos dame dar de decia del desarrollado describe desde dia dias dicen dicho dijimos dime
     dirige disminuido donde en enfermarte entre entreno es esa ese esperaba esperabamos esperan esperas esta estamos
@@ -35,7 +43,7 @@ globalThis.EPI_VOCAB_CONSULTA = Object.freeze({
     tabla temporal tendencia top total ultima ultimas ultimo ultimos visualizacion
     // Términos técnicos del proyecto, sus métricas, motores e infraestructura.
     zoom mapa acumulado calibracion semaforo corredor radar avisos aviso validada validado confiable seguimiento curso
-    ok excepto desempeno error volumen panorama kpis tablero dashboard meta modo control
+    ok excepto desempeno error volumen panorama kpis tablero dashboard meta modo control construyo construccion
     // Preguntas de método sobre un release o el estudio MICAI que ya responden las pruebas de la función RAG.
     efecto valores imputados influyen reparto calidad candidatos fallaron ets ridge excluyo seleccionaron ocurrio
     estacionales modela evaluaron trata mismo fue su sus suma rondas comparativo picos autores ponencia wcp predice micai
@@ -79,9 +87,10 @@ globalThis.EPI_VOCAB_CONSULTA = Object.freeze({
     /\bcie 10\b/g,
     // Estratos de edad de una POBLACIÓN (no una edad en primera persona): «mujeres de 30 años», «menores de 18 años»,
     // «personas de 40 a 60 años», «entre 40 y 45 años». El handler responde que no hay desglose por edad.
-    /\b(mujeres|hombres|personas|pacientes|adultos|jovenes|ninos|ninas|mayores|menores) de \d{1,2}( (a|y) \d{1,2})? anos( de edad)?\b/g,
-    /\bentre \d{1,2} y \d{1,2} anos\b/g,
-    /\b(mayores|menores) de \d{1,2}\b/g,
+    EDAD_POBLACION,
+    EDAD_RANGO,
+    EDAD_UMBRAL,
+    EDAD_DE_A,
     // Duración en semanas del horizonte («52 semanas», «51 semanas»).
     /\b\d{1,2} (semanas|weeks)\b/g,
     // Preguntas clínicas y de divulgación de los casos funcionales: el verbo o el número sólo valen en la frase completa.

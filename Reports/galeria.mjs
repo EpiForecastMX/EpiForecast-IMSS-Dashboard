@@ -8,7 +8,7 @@ import * as C from './galeria_core.mjs?v=2';
 import { validateCatalog } from '../assets/dashboard/unified.mjs';
 import { statusText } from '../assets/dashboard/units.mjs';
 import { COHORTS } from '../assets/dashboard/data.mjs';
-import { releaseDeId } from '../epibot/js/release_config.js?v=36';
+import { releaseDeId } from '../epibot/js/release_config.js?v=37';
 
 const $ = (id) => document.getElementById(id);
 const CATALOG_URL = '../assets/dashboard/catalog.json';

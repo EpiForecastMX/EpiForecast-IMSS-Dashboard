@@ -6,12 +6,12 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=70';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=71';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=5';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=44';
-import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, respuestaConDatos, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=36';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=45';
+import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, respuestaConDatos, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=37';
 
 let DATA = null;
 
@@ -6239,9 +6239,11 @@ async function _resolveConContexto(query) {
   const r0 = await _resolve(query);
   // Guarda posterior (cuarta y quinta auditorías Codex): un turno con un token fuera del vocabulario cerrado nunca recibe
   // cifras ni gráfica, ni la respuesta de datos de un padecimiento que nombra; se sustituye por el apoyo fijo y lo activa.
-  const daDatos = r0.response && (respuestaConDatos(r0.response) ||
-    (tieneFragmentoDeDatos(query) && !HANDLERS_SIN_DATOS.has(r0.handler)));
-  const r = (r0.response && !HANDLERS_DE_AYUDA.has(r0.handler) && daDatos && fueraDeVocabulario(query))
+  // Sin respuesta local para un turno que nombra un dato y trae un token fuera de vocabulario: también apoyo (no se cede al
+  // modelo).
+  const daDatos = r0.response ? (respuestaConDatos(r0.response) ||
+    (tieneFragmentoDeDatos(query) && !HANDLERS_SIN_DATOS.has(r0.handler))) : tieneFragmentoDeDatos(query);
+  const r = (!HANDLERS_DE_AYUDA.has(r0.handler) && daDatos && fueraDeVocabulario(query))
     ? (() => { lastEntities = {}; _crisisActiva = _crisisActiva || 'apoyo'; _aclaracionPendiente = null;
       return { response: pareceIngles(query) ? APOYO_EN : APOYO_ES, handler: 'answerFueraDeVocabulario' }; })()
     : r0;
