@@ -269,11 +269,11 @@ test('EpiBot: menciona la referencia exploratoria de una no modelable sin dar su
   const e = data.diseases.find((x) => x.id === 'p12b2');
   const r = respuestaNoModelableRag('influenza J09-J11', data, { exploratorio: doc });
   assert.ok(r && r.includes(`«${ROTULO}»`), r);
-  assert.match(r, /no tiene pronóstico ni control estacional/);
+  assert.match(r, /no tiene modelo validado, pronóstico publicado ni control estacional/);
   const total = Math.round(doc.categorias[e.id].pronostico.reduce((t, s) => t + s.valor, 0)).toLocaleString('es-MX');
   assert.ok(!r.includes(total), 'sin cifras del exploratorio');
   const bot = leer('epibot/js/radar_boletin.js');
-  assert.match(bot, /'\[Categorías sin pronóstico\]\(\.\.\/no_modelables\.html\)\. ' \+ referencia\(e, radar\)/);
+  assert.match(bot, /'\[Categorías sin modelo validado\]\(\.\.\/no_modelables\.html\)\. ' \+ referencia\(e, radar\)/);
 });
 
 test('notas del boletín: acumulados nacionales con evidencia, tramo consistente y casos semanales por diferencia', async () => {

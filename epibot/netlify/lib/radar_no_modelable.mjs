@@ -28,7 +28,7 @@ export function respuestaNoModelableRag(q, data, { codigos = true, exploratorio 
     const anio = e.observed_week > m.week ? m.year - 1 : m.year;
     const g = GRUPOS_NO_MODELABLES[grupoNoModelable(e)];
     const nota = e.guion && guionNoPublicado(e.guion, anio) ? `\n\n${e.guion.nota}` : '';
-    return `**${nombreLimpio(e.name)} (${e.code})**: EpiForecast-MX **no modela** esta categoría; no tiene pronóstico ni ` +
+    return `**${nombreLimpio(e.name)} (${e.code})**: EpiForecast-MX **no modela** esta categoría; no tiene modelo validado, pronóstico publicado ni ` +
       `control estacional. Estado: **no modelable** (${g.etiqueta.toLowerCase()}). Motivo medido: ${minusculaInicial(e.reason)}\n\n` +
       `Cifras impresas en el Boletín Epidemiológico ${m.week} de ${m.year}, nacional, hasta la semana ${e.observed_week} de ${anio}:\n` +
       `- Casos de la semana: **${celda(e.weekly, e, anio)}**\n- Acumulado ${m.year}: **${celda(e.cumulative, e, anio)}**\n` +
@@ -36,7 +36,7 @@ export function respuestaNoModelableRag(q, data, { codigos = true, exploratorio 
       // Método real de su referencia exploratoria (pronostico_exploratorio.json de la foto), sin cifras.
       referenciaExploratoria(exploratorio?.categorias?.[e.id] ?? null, 'radar');
   });
-  return `${partes.join('\n\n')}\n\nEl motivo y las cifras de todas las categorías sin pronóstico están en ` +
-    '[Categorías sin pronóstico](../no_modelables.html); por entidad, en el [Radar del boletín](../boletin.html).';
+  return `${partes.join('\n\n')}\n\nEl motivo y las cifras de todas las categorías sin modelo validado están en ` +
+    '[Categorías sin modelo validado](../no_modelables.html); por entidad, en el [Radar del boletín](../boletin.html).';
 }
 

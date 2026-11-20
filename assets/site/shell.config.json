@@ -117,7 +117,7 @@
             "href": "rechazados.html"
           },
           {
-            "label": "Categorías sin pronóstico",
+            "label": "Categorías sin modelo validado",
             "href": "no_modelables.html"
           }
         ]

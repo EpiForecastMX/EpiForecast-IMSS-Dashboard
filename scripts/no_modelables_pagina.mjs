@@ -40,7 +40,7 @@ export function bloqueNoModelables(data, actual) {
   const out = [INICIO];
   out.push('<div class="stats" aria-label="Conteos">' +
     `<div class="stat"><div class="v">${m.platform_published}</div><div class="l">Padecimientos con pronóstico publicado</div></div>` +
-    `<div class="stat"><div class="v">${total}</div><div class="l">Categorías sin pronóstico</div></div>` +
+    `<div class="stat"><div class="v">${total}</div><div class="l">Categorías sin modelo validado</div></div>` +
     `<div class="stat"><div class="v">${porGrupo.length}</div><div class="l">Motivos medidos</div></div></div>`);
   out.push(`<p class="nm-resumen" id="nmResumen"><strong>${esc(numeroEnPalabras(total, { mayuscula: true }))} categorías</strong> ` +
     `del Boletín Epidemiológico ${m.week} de ${m.year} no tienen pronóstico en EpiForecast-MX: ` +

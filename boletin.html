@@ -120,7 +120,7 @@
 <p id="forecastStatus" class="context-note" role="status">Elige un padecimiento para ver su pronóstico.</p>
 <div class="curve-panel forecast-panel" id="forecastBody" hidden><div class="curve-chart-head"><h3 id="forecastTitle">Pronóstico</h3><div id="forecastLegend" class="curve-legend"></div></div><div id="forecastLabel"></div><div id="forecastStats" class="curve-stats"></div><div id="forecastChart" class="curve-chart"></div><p id="forecastCaption" class="caption"></p></div>
 <p class="context-note">Pronóstico nacional de 52 semanas. Un padecimiento publicado muestra la serie nacional de su release (o, en el carril original, los datos publicados en la portada) con su etiqueta de validación. Una categoría sin pronóstico publicado muestra un «Pronóstico exploratorio, no validado»: la media de la misma semana en los años anteriores impresos (hasta tres), sin prueba de desempeño ni intervalos. Si esa media no tiene base, un respaldo rotulado «Pronóstico exploratorio, no validado: nivel reciente sin estacionalidad» repite la media de las últimas semanas con cifra impresa (hasta ocho). Nunca se rellena con ceros.</p>
-<details class="method-details"><summary>Cómo se construye el pronóstico exploratorio</summary><p>Lo genera <code>scripts/radar_pronostico_exploratorio.mjs</code> con cada foto semanal, desde la serie nacional semanal impresa del archivo histórico. Origen: el último periodo impreso de la categoría, que debe tener cifra. Para cada una de las 52 semanas siguientes se promedia la misma semana epidemiológica de los tres años anteriores que la tengan impresa; con un solo año disponible, se repite esa semana. Un guion cuenta como cero sólo cuando la simbología del boletín lo define así; una cifra no publicada, «n.d.» o un hueco no cuentan. Si alguna de las 52 semanas no tiene ningún año base, o el último periodo no tiene cifra, se usa el respaldo de nivel reciente: un valor plano de 52 semanas igual a la media de las últimas semanas con cifra de toda la serie impresa (hasta ocho), con las semanas usadas declaradas. Para sarampión y paludismo por P. falciparum, cuyo cuadro estatal no publica la cifra, se usa el acumulado nacional que imprimen las notas del boletín (<code>assets/boletin/history/notas_acumulados.json</code>, con archivo, página y frase de cada boletín): los casos semanales salen de la diferencia de acumulados en el tramo más reciente de boletines consecutivos del mismo año sin que el acumulado baje, rotulados «Pronóstico exploratorio, no validado: nacional, derivado del acumulado publicado en las notas del boletín (no del cuadro estatal)». Sólo una categoría que nunca tuvo una cifra semanal impresa quedaría sin pronóstico, y se explicaría por qué. No es un modelo de EpiForecast-MX ni se evaluó fuera de muestra.</p><a data-radar-enlace="pronostico" href="/assets/boletin/2026-w44/pronostico_exploratorio.json" download>Pronóstico exploratorio JSON ↓</a></details>
+<details class="method-details"><summary>Cómo se construye el pronóstico exploratorio</summary><p>Lo genera <code>scripts/radar_pronostico_exploratorio.mjs</code> con cada foto semanal, desde la serie nacional semanal impresa del archivo histórico. Origen: el último periodo impreso de la categoría, que debe tener cifra. Para cada una de las 52 semanas siguientes se promedia la misma semana epidemiológica de los tres años anteriores que la tengan impresa; con un solo año disponible, se repite esa semana. Un guion cuenta como cero sólo cuando la simbología del boletín lo define así; una cifra no publicada, «n.d.» o un hueco no cuentan. Si alguna de las 52 semanas no tiene ningún año base, o el último periodo no tiene cifra, se usa el respaldo de nivel reciente: un valor plano de 52 semanas igual a la media de las últimas semanas con cifra de toda la serie impresa (hasta ocho), con las semanas usadas declaradas. Para sarampión y paludismo por P. falciparum, cuyo cuadro estatal no publica la cifra, se usa el acumulado nacional que imprimen las notas del boletín (<code>assets/boletin/history/notas_acumulados.json</code>, con archivo, página y frase de cada boletín): los casos semanales salen de la diferencia de acumulados en el tramo más reciente de boletines consecutivos del mismo año sin que el acumulado baje, rotulados «Pronóstico exploratorio, no validado: nacional, derivado del acumulado publicado en las notas del boletín (no del cuadro estatal)». Sólo una categoría que nunca tuvo una cifra semanal impresa quedaría sin pronóstico exploratorio, y se explicaría por qué. No es un modelo de EpiForecast-MX ni se evaluó fuera de muestra.</p><a data-radar-enlace="pronostico" href="/assets/boletin/2026-w44/pronostico_exploratorio.json" download>Pronóstico exploratorio JSON ↓</a></details>
 </div>
 </section>
 <section id="panorama" aria-labelledby="panorama-heading"><div class="section-top"><div><div class="eyebrow">EL BOLETÍN DE UN VISTAZO</div><h2 id="panorama-heading">Panorama de vigilancia</h2><p>Cobertura de la fuente y notificaciones de mayor volumen.</p></div></div><p id="loading" class="context-note" role="status">Cargando cifras verificadas del boletín…</p>
@@ -153,7 +153,7 @@
 </div>
 <p><span data-radar="cubiertas">154</span> categorías del boletín cubiertas por <span data-radar="publicados">152</span> entradas de EpiForecast. Dengue se reporta en tres formas clínicas.</p>
 <a href="#cobertura" class="text-link">Revisar cobertura y excepciones →</a>
-<div class="coverage-foot">F50, isquémica, cerebrovascular, IRA, gingivitis y cáncer de mama: control estacional publicado.<br>Cuello del útero: publicado sin desglose por sexo.<br>Diez cánceres desde 2023: publicados con la política de historia corta.<br>Riñón, próstata, huesos, hígado y esófago: control estacional publicado.<br>Covid-19: rechazado, solo en <a href="rechazados.html">su sección de evidencia</a>.<br><span data-radar="no_modelables_palabras">Treinta y dos</span> categorías no son modelables con el método actual: <a href="no_modelables.html">motivo medido y cifras impresas de cada una</a>. El radar les muestra un pronóstico exploratorio, no validado.</div>
+<div class="coverage-foot">F50, isquémica, cerebrovascular, IRA, gingivitis y cáncer de mama: control estacional publicado.<br>Cuello del útero: publicado sin desglose por sexo.<br>Diez cánceres desde 2023: publicados con la política de historia corta.<br>Riñón, próstata, huesos, hígado y esófago: control estacional publicado.<br>Covid-19: rechazado, solo en <a href="rechazados.html">su sección de evidencia</a>.<br><span data-radar="no_modelables_palabras">Treinta y dos</span> categorías no son modelables con el método actual (sin modelo validado): <a href="no_modelables.html">motivo medido y cifras impresas de cada una</a>. Sin pronóstico publicado: tienen un pronóstico exploratorio, no validado, en el radar.</div>
 </article>
 </div></section>
 <section id="catalogo">
@@ -352,7 +352,7 @@
 <p>Los cortes de los cuadros se recuperaron mediante OCR y se muestran por bloque, con enlace a la página original. La fecha de portada no reemplaza el corte del cuadro.</p>
 <p id="hashes" class="hash">
 </p>
-<p>Estado basado en el registro público de padecimientos del proyecto, identificado por su huella SHA-256. Consulta los detalles públicos de <a href="anorexia_f50.html">F50</a>, los <a href="rechazados.html">padecimientos rechazados</a> y las <a href="no_modelables.html">categorías sin pronóstico</a>. Esta sección describe vigilancia y planeación; no incorpora nuevos modelos.</p>
+<p>Estado basado en el registro público de padecimientos del proyecto, identificado por su huella SHA-256. Consulta los detalles públicos de <a href="anorexia_f50.html">F50</a>, los <a href="rechazados.html">padecimientos rechazados</a> y las <a href="no_modelables.html">categorías sin modelo validado</a>. Esta sección describe vigilancia y planeación; no incorpora nuevos modelos.</p>
 </details>
 </section>
 <footer class="radar-footer">
@@ -380,7 +380,7 @@
       <a href="reporte_resultados.html">Resultados</a>
       <a href="referencias.html">Fuentes y referencias</a>
       <a href="rechazados.html">Analizados y rechazados</a>
-      <a href="no_modelables.html">Categorías sin pronóstico</a>
+      <a href="no_modelables.html">Categorías sin modelo validado</a>
     </div>
     <div class="site-footer__col">
       <p class="site-footer__title">Proyecto</p>
@@ -403,9 +403,9 @@
 </dialog>
 <div id="error" hidden>
 </div>
-<script type="module" src="/assets/boletin/radar.js?v=20261120m">
+<script type="module" src="/assets/boletin/radar.js?v=20261120n">
 </script>
-<script type="module" src="/assets/boletin/pronostico_vista.mjs?v=17"></script>
+<script type="module" src="/assets/boletin/pronostico_vista.mjs?v=18"></script>
 <script src="/assets/boletin/curves.js?v=20261120r" defer></script>
 <script src="assets/site/site-nav.js?v=4" defer></script>
 </body>

@@ -130,7 +130,7 @@ export function desdeExploratorio(doc, id, observado = []) {
     motivo: c.motivo_sin_modelo, motivo_respaldo: c.motivo_respaldo ?? null,
     base: c.semanas_base ? { n: c.n_semanas_base, periodo: c.periodo_base, nivel: c.nivel, nota: c.nota_base } : null,
     enlace: c.estado_radar === 'Rechazada' ? { href: 'rechazados.html', texto: 'Evidencia en analizados y rechazados' }
-      : { href: `no_modelables.html#cat-${id}`, texto: 'Motivo y cifras de las categorías sin pronóstico' },
+      : { href: `no_modelables.html#cat-${id}`, texto: 'Motivo y cifras de las categorías sin modelo validado' },
     sin_pronostico: c.sin_pronostico ?? null, origen: semanaTxt(c.origen), anios: c.anios_usados ?? [],
     serie_nombre: c.fuente_notas ? 'Nacional · casos semanales derivados del acumulado de las notas del boletín' : 'Nacional · serie semanal impresa del boletín',
     observado: c.fuente_notas ? c.fuente_notas.semanales_derivadas.map((x) => ({ ds: x.ds, y: x.valor })) : observado,

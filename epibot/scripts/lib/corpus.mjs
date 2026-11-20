@@ -345,7 +345,7 @@ function dengueCards(kb) {
   return cards.map((c, i) => ({ id: `dengue-card#${i}`, ...c }));
 }
 
-// --- Categorías del boletín sin pronóstico (alta_b44): foto vigente del radar, motivo medido y cifras impresas ---
+// --- Categorías del boletín sin modelo validado (alta_b44): foto vigente del radar, motivo medido y cifras impresas ---
 function celdaNoModelable(v, e, anio) {
   if (v === '-') return e.guion?.semantica === 'no_publicado' && (e.guion.desde == null || anio >= e.guion.desde)
     ? 'cifra no publicada en el cuadro (guion impreso, no cero)' : 'sin casos (guion impreso)';
@@ -363,9 +363,9 @@ export function noModelablesCards(root = ROOT_DIR) {
   const cab = `Boletín Epidemiológico ${m.week} de ${m.year} del SINAVE`;
   const cards = [{
     id: 'no-modelable#resumen',
-    source: 'Radar del boletín: categorías sin pronóstico', section: 'Por qué hay categorías sin pronóstico',
-    title: 'Categorías del boletín sin pronóstico',
-    text: `${filas.length} categorías del ${cab} no tienen pronóstico ni control estacional en EpiForecast-MX, que publica ` +
+    source: 'Radar del boletín: categorías sin modelo validado', section: 'Por qué hay categorías sin modelo validado',
+    title: 'Categorías del boletín sin modelo validado',
+    text: `${filas.length} categorías del ${cab} no tienen modelo validado, pronóstico publicado ni control estacional en EpiForecast-MX, que publica ` +
       `${m.platform_published} padecimientos con pronóstico. ${POR_QUE_SIN_PRONOSTICO} Motivos: ` +
       Object.entries(GRUPOS_NO_MODELABLES).map(([g, info]) => {
         const fs = filas.filter((e) => e.no_modelable.grupo === g);
@@ -378,15 +378,15 @@ export function noModelablesCards(root = ROOT_DIR) {
     const nombre = nombreLimpio(e.name);
     cards.push({
       id: `no-modelable#${e.id}`,
-      source: 'Radar del boletín: categorías sin pronóstico', section: `${nombre} (${e.code})`,
-      title: `${nombre}: sin pronóstico`,
+      source: 'Radar del boletín: categorías sin modelo validado', section: `${nombre} (${e.code})`,
+      title: `${nombre}: sin modelo validado`,
       text: `${nombre} (CIE impreso ${e.code}; grupo del boletín: ${e.group}) es una categoría del ${cab} que EpiForecast-MX ` +
-        `no modela: no tiene pronóstico ni control estacional. Motivo medido (${g.etiqueta.toLowerCase()}). ${e.reason} ` +
+        `no modela: no tiene modelo validado, pronóstico publicado ni control estacional; el radar le muestra un pronóstico exploratorio, no validado. Motivo medido (${g.etiqueta.toLowerCase()}). ${e.reason} ` +
         `${e.guion?.semantica === 'no_publicado' ? '' : `${g.explicacion} `}` +
         `Cifras impresas en el boletín, nacional, hasta la semana ${e.observed_week} de ${anio}: casos de la semana, ` +
         `${celdaNoModelable(e.weekly, e, anio)}; acumulado ${m.year}, ${celdaNoModelable(e.cumulative, e, anio)}; acumulado ` +
         `comparable ${m.year - 1}, ${celdaNoModelable(e.previous, e, anio)}. Son casos notificados tal como los imprime el ` +
-        'boletín, sin modelo ni pronóstico.',
+        'boletín.',
     });
   }
   return cards.map((c) => ({ ...c, url: `../no_modelables.html${c.id === 'no-modelable#resumen' ? '' : `#cat-${c.id.split('#')[1]}`}` }));
@@ -522,9 +522,9 @@ export function buildChunks({
     if (dCards.length) { chunks.push(...dCards); log.push(['Dengue (tarjetas)', dCards.length]); }
   }
 
-  // 3b. Categorías del boletín sin pronóstico (foto vigente del radar).
+  // 3b. Categorías del boletín sin modelo validado (foto vigente del radar).
   const nmCards = noModelablesCards();
-  if (nmCards.length) { chunks.push(...nmCards); log.push(['Radar: categorías sin pronóstico', nmCards.length]); }
+  if (nmCards.length) { chunks.push(...nmCards); log.push(['Radar: categorías sin modelo validado', nmCards.length]); }
 
   // 4. Corpus CANDIDATE (staging). Sólo si se pide explícitamente.
   if (candidateRoot) {

@@ -3,7 +3,7 @@
 // la Figura 1 de la portada (hero_series.json). Sin release: el pronóstico exploratorio, no validado, de la foto
 // vigente (pronostico_exploratorio.json), con su rótulo, su motivo y su advertencia. No calcula cifras: las lee.
 import { numero } from './celdas.mjs?v=1';
-import { fuentePronostico, desdeVista, desdeLegacy, desdeExploratorio } from './pronostico.mjs?v=9';
+import { fuentePronostico, desdeVista, desdeLegacy, desdeExploratorio } from './pronostico.mjs?v=10';
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
