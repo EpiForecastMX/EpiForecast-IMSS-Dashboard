@@ -6,12 +6,12 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=86';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=87';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
-import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=5';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=60';
-import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, respuestaConDatos, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=52';
+import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=7';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=61';
+import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, respuestaConDatos, salidaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=53';
 
 let DATA = null;
 
@@ -6267,10 +6267,16 @@ async function _resolveConContexto(query) {
   if (fuera) _crisisActiva = _crisisActiva || 'apoyo';
   const daDatos = r0.response ? (respuestaConDatos(r0.response) ||
     (tieneFragmentoDeDatos(query) && !HANDLERS_SIN_DATOS.has(r0.handler))) : false;
-  const r = (fuera && daDatos)
-    ? (() => { lastEntities = {}; _crisisActiva = _crisisActiva || 'apoyo'; _aclaracionPendiente = null;
-      return { response: pareceIngles(query) ? APOYO_EN : APOYO_ES, handler: 'answerFueraDeVocabulario' }; })()
-    : r0;
+  // Re-auditoría Codex de no modelables: con un token fuera del vocabulario nunca sale una respuesta sin la Línea de la Vida
+  // (salidaFueraDeVocabulario): con cifras, gráfica o primera persona, sólo el apoyo; si no, la aclaración sin enlaces y con
+  // el bloque de apoyo.
+  const aApoyo = () => { lastEntities = {}; _crisisActiva = _crisisActiva || 'apoyo'; _aclaracionPendiente = null;
+    return { response: pareceIngles(query) ? APOYO_EN : APOYO_ES, handler: 'answerFueraDeVocabulario' }; };
+  const salida = fuera && r0.response && !daDatos ? salidaFueraDeVocabulario(query, String(r0.response)) : null;
+  // Sin respuesta local se cede a la función RAG, cuya salida con vocabulario desconocido pasa por la misma regla.
+  const r = !fuera || !r0.response ? r0
+    : daDatos || salida === APOYO_ES || salida === APOYO_EN ? aApoyo()
+      : { ...r0, response: salida };
   if (HANDLERS_ACLARACION.has(r.handler)) {
     if (r.handler !== 'answerAclaracionPendiente') {
       _aclaracionPendiente = String(r.response || '').replace(/\n?<!--SIN_GRAFICA-->/g, '').trim();

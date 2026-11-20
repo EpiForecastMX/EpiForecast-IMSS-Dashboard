@@ -158,11 +158,14 @@ test('M: el EpiBot responde el mismo texto fijo, sin cifras de ningún pronósti
 
 // Misma familia (ROOT_FEEDBACK «misma familia negativa»): códigos solos, «G00» a secas y el nombre publicado completo.
 test('M: G00.0 y G00.1 a secas reciben el texto fijo, sin modelo ni cifras; «G00» a secas pide precisar', async () => {
-  for (const [q, bloque] of [['G00.0 nacional', /haemophilus_a41/], ['G00.1 nacional', /neumococo_a40/], ['g00 0 en Jalisco', /haemophilus_a41/]]) {
+  // Re-auditoría Codex de no modelables: si el turno trae vocabulario desconocido, la aclaración se conserva sin el enlace a
+  // la ficha y con el bloque de la Línea de la Vida; si no, conserva el enlace.
+  for (const [q, bloque] of [['G00.0 nacional', /haemophilus_a41|Haemophilus influenzae/], ['G00.1 nacional', /neumococo_a40|neumococo/i], ['g00 0 en Jalisco', /haemophilus_a41|Haemophilus influenzae/]]) {
     const out = await consultar(q, { texto: CON_861, vector: V_G00 });
     assert.equal(out.generaciones, 0, q);
     assert.match(out.r.answer, TEXTO_FIJO, q);
     assert.match(out.r.answer, bloque, q);
+    if (!/\.html/.test(out.r.answer)) assert.match(out.r.answer, /800 911 2000/, q);
     assert.doesNotMatch(out.r.answer, /861/, q);
   }
   const g00 = await consultar('G00 nacional', { texto: CON_861, vector: V_G00 });

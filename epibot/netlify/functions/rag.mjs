@@ -26,6 +26,7 @@ import { fileURLToPath } from 'url';
 import { micaiGroundedAnswer } from '../lib/micai_grounding.mjs';
 import { resolverConsultaRag, vistaGroundedAnswer, enriquecerSemanticoVista } from '../lib/vista_grounding.mjs';
 import { crisisEnHistorial, nombraPadecimientoNoSensible } from '../lib/vista_turno.mjs';
+import { respuestaNoModelableRag } from '../lib/radar_no_modelable.mjs';
 
 const EMBED_MODEL = 'gemini-embedding-001';
 const EMBED_DIM = 768;
@@ -102,6 +103,20 @@ function loadPublishedReleases() {
 // Vista oficial de un release y ficha publicada (página .html en la raíz del sitio). netlify.toml debe empaquetar
 // ambas en included_files para que la función las lea en producción.
 const leerVista = (id) => JSON.parse(readDataFile(`../publication/${id}/vista.json`));
+// Foto vigente del radar del boletín (la misma de boletin.html y del EpiBot): categorías sin pronóstico.
+let radarCache = null;
+function leerRadar() {
+  if (radarCache) return radarCache;
+  try {
+    const actual = JSON.parse(readDataFile('../assets/boletin/actual.json'));
+    if (!/^assets\/boletin\/[0-9]{4}-w[0-9]{2}(-r[0-9]+)?$/.test(actual?.carpeta ?? '')) return null;
+    radarCache = JSON.parse(readDataFile(`../${actual.carpeta}/data.json`));
+  } catch (err) {
+    console.error('Error cargando la foto del radar:', err.message);
+    return null;
+  }
+  return radarCache;
+}
 const leerFicha = (pagina) => {
   if (!/^[a-z0-9_]+\.html$/.test(String(pagina))) throw new Error(`página no válida: ${pagina}`);
   return readDataFile(`../${pagina}`);
@@ -971,8 +986,14 @@ export default async function handler(req) {
   if (!q || body.health === true || !C.fueraDeVocabulario(q)) return handlerInterno(req);
   const res = await handlerInterno(new Request(req.url, { method: 'POST', headers: req.headers, body: JSON.stringify({ ...body, stream: false }) }));
   const datos = await res.clone().json().catch(() => null);
-  if (datos && typeof datos.answer === 'string' && (!datos.retrieval || datos.retrieval === 'none') &&
-      !C.respuestaConDatos(datos.answer)) return res;
+  // Re-auditoría Codex de no modelables: con un token fuera del vocabulario nunca sale una respuesta sin la Línea de la Vida.
+  // Una respuesta fija (sin recuperación ni modelo) pasa por la salida única del catálogo: la de ayuda tal cual; con cifras,
+  // gráfica o primera persona, el apoyo; si no, la aclaración sin enlaces y con el bloque de apoyo.
+  if (datos && typeof datos.answer === 'string' && C.esRespuestaDeAyuda(datos.answer)) return res;
+  if (res.status === 200 && datos && typeof datos.answer === 'string' && (!datos.retrieval || datos.retrieval === 'none')) {
+    const salida = C.salidaFueraDeVocabulario(q, datos.answer).replace(/\n?<!--SIN_GRAFICA-->/g, '');
+    return json({ ...datos, answer: salida, sources: [], retrieval: 'none', guarda: datos.guarda || 'vocabulario' }, 200, corsHeaders(req));
+  }
   const apoyo = (C.pareceIngles(q) ? C.APOYO_EN : C.APOYO_ES).replace('\n<!--SIN_GRAFICA-->', '');
   return json({ answer: apoyo, sources: [], retrieval: 'none', guarda: 'vocabulario' }, 200, corsHeaders(req));
 }
@@ -1036,7 +1057,11 @@ async function handlerInterno(req) {
   }
   // Subtipo con código propio vecino de un bloque publicado: respuesta fija, sin modelo ni cifras, para
   // que ni la recuperación ni Gemini le atribuyan el pronóstico del bloque vecino.
+  // Categoría del boletín sin pronóstico pedida por su nombre completo o su código (alta_b44; re-auditoría: los 32 códigos):
+  // motivo medido y cifras impresas, antes de la guarda de vecinos («tétanos neonatal» o «A33» no son «Tétanos (A34, A35)»).
   const ajeno = globalThis.EPI_CATALOGO.subtipoAjeno(stripAccents(qEfectiva));
+  const noModelable = respuestaNoModelableRag(qEfectiva, leerRadar());
+  if (noModelable) return json({ answer: noModelable, sources: [], retrieval: 'none', guarda: 'no_modelable' }, 200, cors);
   if (ajeno) {
     const vecino = globalThis.EPI_CATALOGO.releases.find((r) => r.id === ajeno.release);
     // Código sin ningún bloque publicado (novena auditoría): no modelado, sin vecino ni cifras.

@@ -1973,9 +1973,11 @@
   // Tercera auditoría Codex: léxico de riesgo por formas verbales (futuro, infinitivo, pronominal), independiente de que se
   // resuelva un padecimiento («X7O en Jalisco, hoy me colgaré» caía en la tabla legacy). Se evalúa tras retirar los rótulos y
   // alias de los releases («…al saltar desde un lugar elevado» es el nombre de X80, no una intención).
+  // alta_b44 (no modelables): asfixia, ahogamiento y quemaduras entran al radar sin pronóstico; los verbos de método
+  // propio («me quiero asfixiar», «ahogarme») siguen dando la crisis, nunca cifras.
   // Novena auditoría Codex: también el desbordamiento («no puedo más», «ya no aguanto», «no soporto», «estoy harto de vivir»,
   // «can't take it anymore», «I can't go on») activa la respuesta de apoyo y queda registrado como estado de ayuda.
-  const RIESGO_LEX_ES = /\b(quemar(me|se|te)?|quemare|prenderme fuego|lesionar(me|se)|herir(me|se)|colgar(me|se|te)?|colgare|colgaria|ahorcar(me|se|te)?|ahorcare|ahorcaria|matar(me|se|te)?|matare|mataria|morir(me|se)?|morire|moriria|muero|cortar(me|se)?|cortare|me voy a (cortar|colgar|ahorcar|matar|tirar|aventar|lanzar|envenenar|disparar|morir)|saltar(e|ia)?|aventar(me|se)|aventare|tirar(me|se)|tirare|lanzar(me|se)|lanzare|envenenar(me|se)?|envenenare|intoxicar(me|se)|disparar(me|se)|dispararia|suicid[a-z]*|no quiero vivir|no quiero seguir|(ya )?no (puedo|podemos|aguanto|aguantamos|soporto|soportamos) (mas|seguir|con esto|con todo|con mi vida|con la vida|vivir)|ya no (puedo|podemos|aguanto|aguantamos|soporto|soportamos)|ya no (quiero|queremos) (seguir|vivir|existir|estar aqui)|no (aguanto|soporto)|no lo (aguanto|soporto)|(estoy|estamos|ando|me siento|me tiene|me tienen) (harto|harta|hartos|hartas|cansado|cansada|cansados|cansadas) de (vivir|la vida|todo|existir)|(harto|harta|hartos|hartas|cansado|cansada|cansados|cansadas) de (vivir|la vida|existir)|me rindo|acabar con todo|acabar con mi vida|quitarme la vida|desaparecer|sobredosis)\b/;
+  const RIESGO_LEX_ES = /\b(quemar(me|se|te)?|quemare|prenderme fuego|asfixiar(me|se|te)?|asfixiare|ahogar(me|se|te)?|ahogare|sofocar(me|se|te)?|lesionar(me|se)|herir(me|se)|colgar(me|se|te)?|colgare|colgaria|ahorcar(me|se|te)?|ahorcare|ahorcaria|matar(me|se|te)?|matare|mataria|morir(me|se)?|morire|moriria|muero|cortar(me|se)?|cortare|me voy a (cortar|colgar|ahorcar|matar|tirar|aventar|lanzar|envenenar|disparar|morir)|saltar(e|ia)?|aventar(me|se)|aventare|tirar(me|se)|tirare|lanzar(me|se)|lanzare|envenenar(me|se)?|envenenare|intoxicar(me|se)|disparar(me|se)|dispararia|suicid[a-z]*|no quiero vivir|no quiero seguir|(ya )?no (puedo|podemos|aguanto|aguantamos|soporto|soportamos) (mas|seguir|con esto|con todo|con mi vida|con la vida|vivir)|ya no (puedo|podemos|aguanto|aguantamos|soporto|soportamos)|ya no (quiero|queremos) (seguir|vivir|existir|estar aqui)|no (aguanto|soporto)|no lo (aguanto|soporto)|(estoy|estamos|ando|me siento|me tiene|me tienen) (harto|harta|hartos|hartas|cansado|cansada|cansados|cansadas) de (vivir|la vida|todo|existir)|(harto|harta|hartos|hartas|cansado|cansada|cansados|cansadas) de (vivir|la vida|existir)|me rindo|acabar con todo|acabar con mi vida|quitarme la vida|desaparecer|sobredosis)\b/;
   const RIESGO_LEX_EN = /\b(kill(ing)? myself|hang(ing)? myself|cut(ting)? myself|poison(ing)? myself|shoot(ing)? myself|overdos(e|ing)|suicid[a-z]*|die|dying|end it all|end my life|jump(ing)? off|want to die|can ?t take (it|this|any ?more)( any ?more)?|cannot take (it|this)( any ?more)?|can ?t go on|cannot go on|can ?t do this any ?more|can ?t cope|tired of (living|life)|sick of (living|life)|done with life|give up on life)\b/;
   const ALIAS_LARGOS = [...new Set(releases.flatMap((r) => [r.consulta, ...r.alias]).map((a) => sinTildeMin2(a).replace(/[^a-z0-9]+/g, ' ').trim())
     .filter((a) => a.includes(' ')))].sort((x, y) => y.length - x.length);
@@ -2317,6 +2319,85 @@
     if (/<!--[A-Z0-9_]+:\{/.test(t)) return true;
     return /\d/.test(t.replace(/<!--[\s\S]*?-->/g, '').replace(/\]\([^)]*\)/g, ']').replace(/800 911 2000|\b911\b|\b24 (horas|hours)\b|CIE-10|\b[A-Z]\d{2}(\.\d+)?\b|\bW\d{1,2}\b|\b20[12]\d\b/g, ''));
   }
+  /**
+   * Respuesta de ayuda (crisis, seguimiento de crisis, apoyo fijo o consulta mixta sensible): lleva la Línea de la Vida, no
+   * lleva cifras ni marcador de datos y no enlaza a ninguna página. Es lo único que puede emitirse ante un token fuera del
+   * vocabulario o una señal de riesgo (auditoría Codex de no modelables).
+   */
+  function esRespuestaDeAyuda(md) {
+    const t = String(md || '');
+    return /800 911 2000/.test(t) && !respuestaConDatos(t) && !/\]\([^)]*\)|\.html\b|href=/.test(t);
+  }
+  // Formas de 1.ª o 2.ª persona (presente, pretérito, imperfecto, futuro y subjuntivo de 2.ª y de 1.ª plural) de los verbos
+  // comunes; las de subjuntivo de 1.ª singular que coinciden con la 3.ª («sea», «tenga», «dé») no cuentan, salvo «este».
+  const CONJUGACIONES_COMUNES = Object.freeze({
+    estar: 'estoy estas estamos estais estuve estuviste estuvimos estabas estabamos estare estaras estaremos estes estemos este',
+    ser: 'soy eres somos sois fui fuiste fuimos eras eramos sere seras seremos seas seamos sea',
+    tener: 'tengo tienes tenemos teneis tuve tuviste tuvimos tenias teniamos tendre tendras tendremos tengas tengamos tenga',
+    poder: 'puedo puedes podemos podeis pude pudiste pudimos podias podiamos podre podras podremos puedas podamos pueda podrias podriamos',
+    querer: 'quiero quieres queremos quereis quise quisiste quisimos querias queriamos querre querras querremos quieras queramos quiera quisiera quisieras',
+    ir: 'voy vas vamos vais fui fuiste fuimos ibas ibamos ire iras iremos vayas vayamos vaya',
+    hacer: 'hago haces hacemos haceis hice hiciste hicimos hacias haciamos hare haras haremos hagas hagamos haga haz',
+    saber: 'se sabes sabemos sabeis supe supiste supimos sabias sabiamos sabre sabras sabremos sepas sepamos sepa',
+    dar: 'doy das damos dais di diste dimos dabas dabamos dare daras daremos des demos de',
+    ver: 'veo ves vemos veis vi viste vimos veias veiamos vere veras veremos veas veamos vea',
+    decir: 'digo dices decimos decis dije dijiste dijimos decias deciamos dire diras diremos digas digamos diga di',
+  });
+
+  // Primera persona plural por regla general (verificación final de no modelables): todo token normalizado de cinco letras
+  // o más que termina en «mos» (-amos, -emos, -imos, -íamos, -ríamos, -remos, -semos…: estamos, estaríamos, tendríamos,
+  // vivimos, sentimos) cuenta como primera persona plural. Cuarta verificación: también los pronombres enclíticos de primera
+  // persona, todo token de cinco letras o más en «nos», «me», «melo/mela/melos/melas» o «noslo/nosla/noslos/noslas»
+  // (ayúdanos, cuídame, dímelo, vámonos, cuidémonos, tranquilicémonos, matarme, ayudarnos). Excepciones (NO_VERBALES_MOS):
+  // palabras no verbales o que no son de primera persona con esas terminaciones. Criterio: se revisaron todas las palabras
+  // con esas terminaciones del vocabulario cerrado (vocab_consulta.js, vocab_cerrado.js), del corpus RAG, de knowledge.json
+  // y de las consultas de prueba; entran sustantivos, adjetivos, términos en inglés y formas de tercera persona («imprime»,
+  // «comprime»), más los adjetivos de orden o medida y los indefinidos que una consulta de datos puede usar. Una forma
+  // verbal de primera persona nunca entra en esta lista.
+  const NO_VERBALES_MOS = new Set([
+    // «-mos»
+    'mismos', 'ultimos', 'proximos', 'maximos', 'minimos', 'optimos', 'extremos', 'supremos', 'intimos', 'legitimos',
+    'organismos', 'mecanismos', 'algoritmos', 'logaritmos', 'ritmos', 'tramos', 'ramos', 'cosmos', 'primos', 'animos',
+    'racimos', 'septimos',
+    // «-nos»
+    'menos', 'buenos', 'algunos', 'ningunos', 'unos', 'cercanos', 'malignos', 'benignos', 'pequenos', 'planos', 'signos',
+    'terminos', 'tetanos', 'trastornos', 'transtornos', 'vecinos', 'ninos', 'monos', 'chronos', 'humanos', 'hermanos',
+    'sanos', 'ancianos', 'mexicanos', 'internos', 'externos', 'urbanos', 'medianos', 'tempranos', 'plenos',
+    'llenos', 'ajenos',
+    // «-me»
+    'informe', 'enorme', 'uniforme', 'conforme', 'deforme', 'firme', 'derrame', 'sindrome', 'syndrome',
+    'imprime', 'comprime', 'regime', 'scheme', 'volume', 'become', 'dataframe', 'datetime', 'frame', 'welcome',
+  ]);
+  const PLURAL_MOS = (w) => w.length >= 5 && /(mos|nos|me|melo|mela|melos|melas|noslo|nosla|noslos|noslas)$/.test(w) &&
+    !NO_VERBALES_MOS.has(w);
+  // Primera persona: el turno habla de quien escribe («me quemé», «tengo 15 años», «estamos…», «I…», «we…»).
+  const PRIMERA_PERSONA_LEX = /\b(me|mi|mis|yo|conmigo|nos|nosotros|nosotras|nuestro|nuestra|nuestros|nuestras|tengo|tenia|tuve|estoy|estaba|estuve|soy|siento|sentia|quiero|quisiera|puedo|ando|hice|i|im|ive|my|mine|myself|we|our|ours|us|ourselves)\b/;
+  const primeraPersona = (raw) => {
+    const n = ` ${normLB(raw)} `;
+    return PRIMERA_PERSONA_LEX.test(n) || n.split(/[^a-z0-9]+/).some(PLURAL_MOS);
+  };
+  const BLOQUE_APOYO_ES = 'Si tú o alguien cercano necesita apoyo, la **Línea de la Vida** atiende gratis, las 24 horas, ' +
+    'todos los días: **800 911 2000**. Si alguien está en peligro inmediato, llama al **911**.';
+  const BLOQUE_APOYO_EN = 'If you or someone near you needs support, **Línea de la Vida** in Mexico is free and open 24 hours a ' +
+    'day, every day: **800 911 2000**. If someone is in immediate danger, call **911**.';
+  /** Texto de un enlace sin su destino (markdown o HTML): ante vocabulario desconocido no se enlaza ninguna página. */
+  const sinEnlaces = (md) => String(md).replace(/\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/<a\b[^>]*>([\s\S]*?)<\/a>/gi, '$1');
+  /**
+   * Re-auditoría Codex de no modelables: salida ÚNICA ante un turno con al menos un token fuera del vocabulario, en KB y RAG.
+   * Nunca sale sin la Línea de la Vida. La respuesta de ayuda (crisis o apoyo) pasa tal cual; si la alternativa lleva cifras
+   * o gráfica, está vacía o el turno habla en primera persona, sólo el apoyo fijo; en otro caso se conserva el texto
+   * aclaratorio sin enlaces a páginas y se le añade el bloque de apoyo.
+   */
+  function salidaFueraDeVocabulario(raw, md) {
+    const t = String(md ?? '');
+    if (esRespuestaDeAyuda(t)) return t;
+    const en = pareceIngles(raw);
+    if (!t.replace(/<!--[\s\S]*?-->/g, '').trim() || respuestaConDatos(t) || primeraPersona(raw)) {
+      return en ? APOYO_EN : APOYO_ES;
+    }
+    const limpio = sinEnlaces(t).replace(/\n?<!--SIN_GRAFICA-->/g, '').trim();
+    return `${limpio}\n\n${en ? BLOQUE_APOYO_EN : BLOQUE_APOYO_ES}\n<!--SIN_GRAFICA-->`;
+  }
   const pareceIngles = (raw) => {
     const q = ` ${normLB(raw)} `;
     return /\b(the|what|how|in|of|and|i|my|is|am|are|you|me|to)\b/.test(q) && !/\b(en|de|del|y|la|el|que|los|las)\b/.test(q);
@@ -2580,7 +2661,7 @@
     mencionaNoModelada, conHipertensionNombrada, respuestaCrisis, subtipoAjeno, aliasAmbiguo,
     motivoRechazo, crisisEnTurnos, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, idsSensiblesEn,
     alcoholCalificado, IDS_LISTA_BLANCA, _VOCAB_TECNICO: VOCAB_TECNICO, _FRAGMENTOS_GUARDAS: FRAGMENTOS_GUARDAS, fueraDeVocabulario, respuestaFueraDeVocabulario,
-    restoFuera, tieneFragmentoDeDatos, respuestaConDatos, APOYO_ES, APOYO_EN, pareceIngles, normalizaEntrada,
-    ALIAS_LEGACY, padecimientosEnConsulta, releasesEnConsulta,
+    restoFuera, tieneFragmentoDeDatos, respuestaConDatos, esRespuestaDeAyuda, salidaFueraDeVocabulario, APOYO_ES, APOYO_EN, pareceIngles, normalizaEntrada,
+    ALIAS_LEGACY, padecimientosEnConsulta, releasesEnConsulta, CONJUGACIONES_COMUNES, NO_VERBALES_MOS,
   });
 })(globalThis);

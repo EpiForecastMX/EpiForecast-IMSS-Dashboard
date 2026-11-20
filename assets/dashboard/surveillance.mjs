@@ -48,6 +48,7 @@ const STATUS_NOTES = Object.freeze({
   'Control publicado': 'Estado de incorporación en el radar del boletín: control estacional publicado (rezago de 52 semanas, sin intervalos). No es una validación en curso.',
   'Rechazada': 'Estado de incorporación en el radar del boletín: el portafolio candidato fue rechazado y no hay pronóstico público. No describe la situación epidemiológica.',
   'Por incorporar': 'Estado de incorporación en el radar del boletín: sin modelo público. Las cifras son las impresas en el cuadro.',
+  'No modelable': 'Estado de incorporación en el radar del boletín: no modelable con el método actual por un motivo medido (sin desglose estatal, casos insuficientes o no publicados, total imputado en 2025 o historia insuficiente). No hay pronóstico; las cifras son las impresas en el cuadro.',
 });
 
 // ── Utilidades puras ───────────────────────────────────────────────────────

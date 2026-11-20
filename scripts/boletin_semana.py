@@ -52,6 +52,8 @@ from boletin_guardas_radar import (  # noqa: E402
 RAIZ = Path(__file__).resolve().parents[1]
 MESES = extrae.MESES
 CAMPOS_COBERTURA = ('aggregate', 'platform_id', 'status', 'source_note', 'reason')
+# Categorías no modelables (alta_b44): su grupo de motivo medido se hereda como la cobertura.
+CAMPO_NO_MODELABLE = 'no_modelable'
 # Semántica del guion por categoría cuando la fuente contradice la simbología (sarampión,
 # paludismo por P. falciparum). Se hereda por identidad como la cobertura: nunca se infiere.
 CAMPO_GUION = 'guion'
@@ -250,6 +252,8 @@ def construir(ext: dict, previa: dict, ocr: dict, anio: int, semana: int) -> tup
         p = previos[r['id']]
         for campo in CAMPOS_COBERTURA:
             r[campo] = p[campo]
+        if p.get(CAMPO_NO_MODELABLE):
+            r[CAMPO_NO_MODELABLE] = p[CAMPO_NO_MODELABLE]
         r['variables'] = variables(r, r['_anio'], r['_estadios'], rotulos)
         r['active_states'], r['score_parts'] = puntaje(r, maximo, p['score_parts']['afinidad'])
         r['priority'], r['score'] = prioridad(r, p)
@@ -264,6 +268,7 @@ def construir(ext: dict, previa: dict, ocr: dict, anio: int, semana: int) -> tup
                   if r['states'] else
                   ['weekly', 'cumulative', 'previous', 'states', 'state_count', 'reconciled'])
         orden += ['aggregate', 'platform_id', 'status', 'source_note']
+        orden += [CAMPO_NO_MODELABLE] if r.get(CAMPO_NO_MODELABLE) else []
         orden += [CAMPO_GUION] if r.get(CAMPO_GUION) else []
         orden += ['observed_week', 'cut_text',
                   'variables', 'active_states', 'score_parts', 'score', 'reason', 'priority']

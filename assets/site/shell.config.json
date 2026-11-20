@@ -115,6 +115,10 @@
           {
             "label": "Analizados y rechazados",
             "href": "rechazados.html"
+          },
+          {
+            "label": "Categorías sin pronóstico",
+            "href": "no_modelables.html"
           }
         ]
       },
@@ -352,6 +356,10 @@
     },
     {
       "path": "rechazados.html",
+      "family": "editorial"
+    },
+    {
+      "path": "no_modelables.html",
       "family": "editorial"
     },
     {

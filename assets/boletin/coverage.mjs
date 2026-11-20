@@ -10,7 +10,9 @@ export function summarizeCoverage(diseases) {
     published: new Set(covered.map(d => d.platform_id)).size,
     covered: covered.length,
     uncovered: categories.length - covered.length,
-    controls: new Set(covered.filter(d => d.status === 'Control publicado').map(d => d.platform_id)).size
+    controls: new Set(covered.filter(d => d.status === 'Control publicado').map(d => d.platform_id)).size,
+    // Categorías sin pronóstico por un motivo medido (no_modelables.html); son parte de las no cubiertas.
+    unmodelable: categories.filter(d => d.status === 'No modelable' && !d.platform_id).length
   };
 }
 

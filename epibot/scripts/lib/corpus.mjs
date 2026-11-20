@@ -21,6 +21,7 @@ import { picosHeredados, textoPico } from './picos_heredados.mjs';
 import '../../js/avisos_fuente.js';
 import { errorDelControl } from '../../js/obesidad_kb.js?v=26';
 import { releaseDeId } from '../../js/release_config.js';
+import { GRUPOS_NO_MODELABLES, POR_QUE_SIN_PRONOSTICO, filasNoModelables, nombreLimpio } from '../../../assets/boletin/no_modelables.mjs';
 
 // Catálogo del EpiBot (IIFE que publica globalThis.EPI_CATALOGO): de él sale cómo se eligió el motor
 // de los releases de historia corta, que no usan los pliegues de 2021 a 2024.
@@ -344,6 +345,53 @@ function dengueCards(kb) {
   return cards.map((c, i) => ({ id: `dengue-card#${i}`, ...c }));
 }
 
+// --- Categorías del boletín sin pronóstico (alta_b44): foto vigente del radar, motivo medido y cifras impresas ---
+function celdaNoModelable(v, e, anio) {
+  if (v === '-') return e.guion?.semantica === 'no_publicado' && (e.guion.desde == null || anio >= e.guion.desde)
+    ? 'cifra no publicada en el cuadro (guion impreso, no cero)' : 'sin casos (guion impreso)';
+  if (typeof v === 'number') return v === 1 ? '1 caso' : `${v.toLocaleString('es-MX')} casos`;
+  return v == null ? 'sin dato' : `«${v}» impreso`;
+}
+export function noModelablesCards(root = ROOT_DIR) {
+  const ra = resolve(root, 'assets/boletin/actual.json');
+  if (!existsSync(ra)) return [];
+  const actual = JSON.parse(readFileSync(ra, 'utf-8'));
+  const data = JSON.parse(readFileSync(resolve(root, actual.carpeta, 'data.json'), 'utf-8'));
+  const filas = filasNoModelables(data.diseases);
+  if (!filas.length) return [];
+  const m = data.meta;
+  const cab = `Boletín Epidemiológico ${m.week} de ${m.year} del SINAVE`;
+  const cards = [{
+    id: 'no-modelable#resumen',
+    source: 'Radar del boletín: categorías sin pronóstico', section: 'Por qué hay categorías sin pronóstico',
+    title: 'Categorías del boletín sin pronóstico',
+    text: `${filas.length} categorías del ${cab} no tienen pronóstico ni control estacional en EpiForecast-MX, que publica ` +
+      `${m.platform_published} padecimientos con pronóstico. ${POR_QUE_SIN_PRONOSTICO} Motivos: ` +
+      Object.entries(GRUPOS_NO_MODELABLES).map(([g, info]) => {
+        const fs = filas.filter((e) => e.no_modelable.grupo === g);
+        return fs.length ? `${info.etiqueta.toLowerCase()} (${fs.length}: ${fs.map((e) => nombreLimpio(e.name)).join(', ')}). ${info.explicacion}` : '';
+      }).filter(Boolean).join(' '),
+  }];
+  for (const e of filas) {
+    const g = GRUPOS_NO_MODELABLES[e.no_modelable.grupo];
+    const anio = e.observed_week > m.week ? m.year - 1 : m.year;
+    const nombre = nombreLimpio(e.name);
+    cards.push({
+      id: `no-modelable#${e.id}`,
+      source: 'Radar del boletín: categorías sin pronóstico', section: `${nombre} (${e.code})`,
+      title: `${nombre}: sin pronóstico`,
+      text: `${nombre} (CIE impreso ${e.code}; grupo del boletín: ${e.group}) es una categoría del ${cab} que EpiForecast-MX ` +
+        `no modela: no tiene pronóstico ni control estacional. Motivo medido (${g.etiqueta.toLowerCase()}). ${e.reason} ` +
+        `${e.guion?.semantica === 'no_publicado' ? '' : `${g.explicacion} `}` +
+        `Cifras impresas en el boletín, nacional, hasta la semana ${e.observed_week} de ${anio}: casos de la semana, ` +
+        `${celdaNoModelable(e.weekly, e, anio)}; acumulado ${m.year}, ${celdaNoModelable(e.cumulative, e, anio)}; acumulado ` +
+        `comparable ${m.year - 1}, ${celdaNoModelable(e.previous, e, anio)}. Son casos notificados tal como los imprime el ` +
+        'boletín, sin modelo ni pronóstico.',
+    });
+  }
+  return cards.map((c) => ({ ...c, url: `../no_modelables.html${c.id === 'no-modelable#resumen' ? '' : `#cat-${c.id.split('#')[1]}`}` }));
+}
+
 /**
  * Tarjetas en ESPAÑOL que resumen el paper MICAI (que está en inglés). Mejoran
  * el recall cross-lingüe: garantizan que preguntas conceptuales en español sobre
@@ -473,6 +521,10 @@ export function buildChunks({
     const dCards = dengueCards(kbObj);
     if (dCards.length) { chunks.push(...dCards); log.push(['Dengue (tarjetas)', dCards.length]); }
   }
+
+  // 3b. Categorías del boletín sin pronóstico (foto vigente del radar).
+  const nmCards = noModelablesCards();
+  if (nmCards.length) { chunks.push(...nmCards); log.push(['Radar: categorías sin pronóstico', nmCards.length]); }
 
   // 4. Corpus CANDIDATE (staging). Sólo si se pide explícitamente.
   if (candidateRoot) {

@@ -6,6 +6,8 @@ JavaScript y para buscadores): este módulo valida primero la foto con `verifica
 y recalcula los textos con `assets/boletin/textos.mjs` en memoria antes de tocar ningún
 archivo en disco, de modo que un fallo deja intactos `actual.json` y `boletin.html`.
 
+Si existe no_modelables.html, también reescribe sus tablas (scripts/no_modelables_pagina.mjs).
+
 Uso independiente (por ejemplo, tras editar a mano la cobertura de data.json):
 
     python3 scripts/boletin_semana_activa.py            # resincroniza con actual.json
@@ -144,6 +146,13 @@ def activar(raiz: Path, carpeta: str | None = None, pdf: str | None = None,
     tmp_pagina = pagina.with_suffix('.html.tmp')
     tmp_pagina.write_text(nuevo, encoding='utf-8')
     tmp_pagina.replace(pagina)
+    # La página de categorías sin pronóstico (alta_b44) repite las cifras impresas de la foto vigente.
+    if (raiz / 'no_modelables.html').is_file():
+        r = subprocess.run(['node', str(RAIZ / 'scripts/no_modelables_pagina.mjs'), '--root', str(raiz)],
+                           capture_output=True, text=True)
+        if r.returncode != 0:
+            raise SystemExit('ERROR: no se pudo actualizar no_modelables.html: '
+                             + ((r.stderr or r.stdout).strip() or 'sin detalle'))
 
 
 def main(argv=None) -> int:

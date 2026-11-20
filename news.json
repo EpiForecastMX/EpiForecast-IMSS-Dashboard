@@ -5,6 +5,25 @@
             "date": "19 de noviembre de 2026",
             "iso": "2026-11-19",
             "type": "radar",
+            "tag": "Datos",
+            "featured": true,
+            "title": "Treinta y dos categorías del boletín, sin pronóstico y con su motivo medido",
+            "summary": "Las 32 categorías del boletín 44 que seguían por incorporar no se pueden modelar con el método actual. El radar, el EpiBot y una página nueva las muestran como no modelables, con el motivo de cada una y sus cifras impresas, sin inventar un pronóstico.",
+            "body": [
+                "El sitio tiene <strong style=\"color:var(--cream)\">ciento cincuenta y dos padecimientos con pronóstico</strong> publicado. Las <strong style=\"color:var(--cream)\">treinta y dos</strong> categorías del Boletín Epidemiológico que quedaban por incorporar no cumplen una condición técnica que exige el método, así que no tienen pronóstico ni control estacional; ninguna regla se relajó para incluirlas.",
+                "Siete sólo aparecen en el resumen nacional, sin cifras por entidad (entre ellas peste, difteria y poliomielitis). Catorce tienen tres casos o menos en todo el país, o cifras que el cuadro no publica: en sarampión y paludismo por P. falciparum el guion del cuadro no es un cero. En influenza y enfermedad febril exantemática el boletín imprimió «-1» como casos de una semana de 2025, el año de la prueba única. Las otras nueve, como miasis, asfixia o quemaduras solares, tienen cuadro propio apenas desde 2025 o 2026.",
+                "El radar del boletín las marca como no modelables, EPI responde con su motivo y sus cifras impresas, y la página de categorías sin pronóstico reúne las treinta y dos. Ante cualquier consulta de riesgo personal, EPI sigue respondiendo con la Línea de la Vida (800 911 2000) y sin cifras."
+            ],
+            "link": {
+                "href": "no_modelables.html",
+                "text": "Ver las categorías sin pronóstico",
+                "svg": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M5 12h14\"/><path d=\"M12 5l7 7-7 7\"/></svg>"
+            }
+        },
+        {
+            "date": "19 de noviembre de 2026",
+            "iso": "2026-11-19",
+            "type": "radar",
             "tag": "Pronóstico publicado",
             "featured": true,
             "title": "Paludismo por Plasmodium vivax: el sitio llega a ciento cincuenta y dos padecimientos",

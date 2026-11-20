@@ -89,6 +89,8 @@ export function textosRadar(data, actual, historia) {
     publicados: String(cobertura.published),
     publicados_palabras: numeroEnPalabras(cobertura.published, { mayuscula: true }),
     cubiertas: String(cobertura.covered),
+    no_modelables: String(cobertura.unmodelable),
+    no_modelables_palabras: numeroEnPalabras(cobertura.unmodelable, { mayuscula: true }),
     paginas_estatales: rango(estatales.map(d => d.page)),
     paginas_nacionales: rango(data.national.map(d => d.page)),
     pagina_miasis: String(data.myiasis.page),
