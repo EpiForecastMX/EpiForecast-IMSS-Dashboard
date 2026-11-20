@@ -7,17 +7,17 @@ import { graficoRondas } from './comparacion_rondas.js?v=3';
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, guardaInicial, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=173';
-import { detectEntities, norm } from './entities.js?v=71';
+import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=174';
+import { detectEntities, norm } from './entities.js?v=72';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
 import { renderMexicoMap } from './mexico-map.js?v=3';
 import { renderTimelapse } from './timelapse.js?v=4';
 import { renderSemaforo } from './semaforo.js?v=3';
 import { renderComparador } from './comparador.js?v=4';
 import { buildComparadorState } from './comparador_data.js?v=1';
-import { graficaObesidad } from './obesidad_charts.js?v=40';
+import { graficaObesidad } from './obesidad_charts.js?v=41';
 import { UNCERTAINTY_LABEL } from './point_only.js?v=1';
-import { MARCADOR_RELEASE, releaseConAlias, releaseDeMarca, releaseDePad } from './release_config.js?v=37';
+import { MARCADOR_RELEASE, releaseConAlias, releaseDeMarca, releaseDePad } from './release_config.js?v=38';
 import { initSTT, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking, toggleMute, isTTSEnabled, onSpeakingStateChange } from './voice.js?v=3';
 
 // ---------------------------------------------------------------------------
@@ -890,6 +890,8 @@ async function handleSend() {
 async function routeQuery(text, typingEl) {
   // Quinta auditoría Codex: TODAS las rutas (panorama, botones, atajos y consultas escritas) pasan primero por la misma
   // guarda del KB: crisis, estado de crisis/apoyo, lista blanca global y de sensibles. Sin cifras ni gráfica si responde.
+  // Séptima auditoría: el estado de apoyo o crisis también sale del historial (respuestas previas de la función RAG).
+  estadoDesdeHistorial(history.filter((h) => h.role === 'user').map((h) => h.text));
   const guarda = guardaInicial(text);
   if (guarda) {
     removeTyping(typingEl);
@@ -3898,6 +3900,8 @@ function getSuggestions(query) {
 // ---------------------------------------------------------------------------
 
 function pushHistory(userText, botText) {
+  // Séptima auditoría: una respuesta de apoyo o crisis (del KB o de la función RAG) activa el estado persistente del KB.
+  registraEstadoAyuda(estadoDeRespuesta(botText));
   history.push({ role: 'user', text: userText });
   history.push({ role: 'assistant', text: botText.substring(0, 300) });
   while (history.length > MAX_HISTORY * 2) history.shift();

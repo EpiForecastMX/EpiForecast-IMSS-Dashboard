@@ -124,6 +124,7 @@ function rutaReal() {
   const deps = {
     norm: (t) => String(t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9 ]/g, ' ').replace(/\s+/g, ' ').trim(),
     detectEntities: () => ({}), answer: kb.answer, guardaInicial: kb.guardaInicial,
+    estadoDesdeHistorial: kb.estadoDesdeHistorial, history: [],
     getData: () => ({ ok: true }), appendPanorama: () => { llamadas.panorama++; },
     removeTyping: () => {}, addBotMessage: (md) => { llamadas.mensajes.push(String(md)); }, pushHistory: () => {},
     callRag: async () => { llamadas.rag++; }, extractChartData: () => null, getSuggestions: () => [],

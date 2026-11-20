@@ -5,8 +5,8 @@
  * Sin imports de otros módulos: lo cargan también módulos que no pueden depender de kb.js.
  */
 import './vocab_cerrado.js?v=3';
-import './vocab_consulta.js?v=2';
-import './release_catalog.js?v=37';
+import './vocab_consulta.js?v=3';
+import './release_catalog.js?v=38';
 
 const CATALOGO = globalThis.EPI_CATALOGO;
 

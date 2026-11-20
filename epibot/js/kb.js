@@ -6,12 +6,12 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=71';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=72';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=5';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=45';
-import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, respuestaConDatos, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=37';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=46';
+import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, respuestaConDatos, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=38';
 
 let DATA = null;
 
@@ -5847,6 +5847,24 @@ let _crisisActiva = null;   // 'crisis', 'apoyo' o null
 // la petición de precisar en vez de caer en la tabla neuro del estado.
 let _aclaracionPendiente = null;
 
+/**
+ * Séptima auditoría Codex: la interfaz incorpora el estado que devuelve la función RAG (respuesta de apoyo o crisis) y el
+ * que se deduce del historial antes de cualquier ruta, panorama incluido.
+ */
+export function registraEstadoAyuda(estado) {
+  if (estado === 'crisis' || estado === 'apoyo') _crisisActiva = _crisisActiva === 'crisis' ? 'crisis' : estado;
+}
+export function estadoDesdeHistorial(turnosUsuario) {
+  registraEstadoAyuda(crisisEnTurnos(turnosUsuario.map(String), nombraPadecimientoNoSensible));
+}
+/** Respuesta de la función RAG que es apoyo o crisis (texto fijo con la Línea de la Vida), con su estado, o null. */
+export function estadoDeRespuesta(texto) {
+  const t = String(texto || '');
+  if (/Lamento que estés pasando por esto|I am sorry you are going through this|Sigo aquí contigo|I am still here/.test(t)) return 'crisis';
+  if (/No reconozco algunos términos|I do not recognize some terms/.test(t)) return 'apoyo';
+  return null;
+}
+
 /** Reset conversacional — solo para tests. */
 export function _resetContext() {
   lastEntities = {}; _lastDistribMetric = null; _lastChartHandler = null; _lastHandlerFn = null;
@@ -6234,16 +6252,22 @@ const HANDLERS_DE_AYUDA = new Set(['answerCrisis', 'answerCrisisSeguimiento', 'a
 // conservan si no llevan cifras, porque ya no dan datos de ningún padecimiento.
 const HANDLERS_SIN_DATOS = new Set(['answerAliasAmbiguo', 'answerGuardaD7', 'answerMeningitisTipo', 'answerSumaSeriesDistintas',
   'answerMixtaSensible', 'answerAclaracionPendiente', 'answerPadecimientoNoModelado', 'answerCategoriaNoReconocida',
-  'answerFueraDeTema', 'answerInjectionGuard', 'answerCodeRequest', 'answerLugarDesconocido']);
+  'answerFueraDeTema', 'answerInjectionGuard', 'answerCodeRequest', 'answerLugarDesconocido',
+  // Respuestas informativas de texto (qué es un padecimiento, preguntas al asistente, metodología): sin cifras se conservan.
+  'answerQueEsPadecimiento', 'answerPreguntaPersonal', 'answerProyectoMeta']);
 async function _resolveConContexto(query) {
   const r0 = await _resolve(query);
   // Guarda posterior (cuarta y quinta auditorías Codex): un turno con un token fuera del vocabulario cerrado nunca recibe
   // cifras ni gráfica, ni la respuesta de datos de un padecimiento que nombra; se sustituye por el apoyo fijo y lo activa.
   // Sin respuesta local para un turno que nombra un dato y trae un token fuera de vocabulario: también apoyo (no se cede al
   // modelo).
+  // Séptima auditoría: un turno fuera de vocabulario siempre deja activo el apoyo persistente (también si se cede a la
+  // función RAG, que responde el apoyo fijo); con cifras, gráfica o datos de un padecimiento se sustituye por el apoyo.
+  const fuera = !HANDLERS_DE_AYUDA.has(r0.handler) && fueraDeVocabulario(query);
+  if (fuera) _crisisActiva = _crisisActiva || 'apoyo';
   const daDatos = r0.response ? (respuestaConDatos(r0.response) ||
-    (tieneFragmentoDeDatos(query) && !HANDLERS_SIN_DATOS.has(r0.handler))) : tieneFragmentoDeDatos(query);
-  const r = (!HANDLERS_DE_AYUDA.has(r0.handler) && daDatos && fueraDeVocabulario(query))
+    (tieneFragmentoDeDatos(query) && !HANDLERS_SIN_DATOS.has(r0.handler))) : false;
+  const r = (fuera && daDatos)
     ? (() => { lastEntities = {}; _crisisActiva = _crisisActiva || 'apoyo'; _aclaracionPendiente = null;
       return { response: pareceIngles(query) ? APOYO_EN : APOYO_ES, handler: 'answerFueraDeVocabulario' }; })()
     : r0;

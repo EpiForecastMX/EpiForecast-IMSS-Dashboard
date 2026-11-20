@@ -39,7 +39,9 @@ contenido servido. Conteos del catálogo (`publication/catalog.json`, 141 releas
   fuera de vocabulario no recibe cifras, gráfica ni ficha: apoyo fijo con la Línea de la Vida, persistente hasta un turno
   técnico. Todas las rutas de la interfaz, incluido «panorama», pasan por la misma guarda
   (`epibot/tests/test_vocab_codex_b44.mjs`, `epibot/tests/test_vocab5_codex_b44.mjs`,
-  `epibot/tests/test_vocab6_codex_b44.mjs`). La edad sólo se retira en forma poblacional en tercera persona.
+  `epibot/tests/test_vocab6_codex_b44.mjs`, `epibot/tests/test_vocab7_codex_b44.mjs`). La edad sólo se retira en forma
+  poblacional en tercera persona. La lista curada no admite pronombres, posesivos, parentesco ni verbos causativos, y toda
+  respuesta de apoyo o crisis (KB o RAG) activa el estado persistente que la interfaz incorpora antes de cualquier ruta.
 - Las fichas muestran la **media observada** del total nacional en las 52 semanas hasta el corte, con su periodo, no la
   media del pronóstico (`epibot/tests/test_fichas_media_observada.mjs`).
 

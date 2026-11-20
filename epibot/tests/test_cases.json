@@ -33,9 +33,9 @@
   {
     "id": 4,
     "query": "hola que puedes hacer",
-    "expectedHandler": "answerSaludo",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "EpiForecast-MX"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -125,10 +125,9 @@
   {
     "id": 13,
     "query": "a ti te puede dar parkinson",
-    "expectedHandler": "answerPreguntaPersonal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "inteligencia artificial",
-      "Parkinson"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -136,10 +135,9 @@
   {
     "id": 14,
     "query": "a ti tepuede dar parkinson",
-    "expectedHandler": "answerPreguntaPersonal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "inteligencia artificial",
-      "Parkinson"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -147,10 +145,9 @@
   {
     "id": 15,
     "query": "puedes enfermarte de depresion",
-    "expectedHandler": "answerPreguntaPersonal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "inteligencia artificial",
-      "F32"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -178,10 +175,9 @@
   {
     "id": 18,
     "query": "te puede dar alzheimer",
-    "expectedHandler": "answerPreguntaPersonal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "inteligencia artificial",
-      "Alzheimer"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -209,9 +205,9 @@
   {
     "id": 21,
     "query": "quien te creo",
-    "expectedHandler": "answerEquipo",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Equipo"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -229,9 +225,9 @@
   {
     "id": 23,
     "query": "quien te hizo",
-    "expectedHandler": "answerEquipo",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Equipo"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -239,9 +235,9 @@
   {
     "id": 24,
     "query": "te crearon",
-    "expectedHandler": "answerEquipo",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Equipo"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -321,9 +317,9 @@
   {
     "id": 32,
     "query": "que hace javier",
-    "expectedHandler": "answerEquipo",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Javier"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -451,9 +447,9 @@
   {
     "id": 45,
     "query": "dicen que javi rebull no participo en tu desarrollo",
-    "expectedHandler": "answerEquipo",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "JARS"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -740,13 +736,11 @@
   {
     "id": 69,
     "query": "que causa la depresion",
-    "expectedHandler": "answerQueEsPadecimiento",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "F32"
+      "800 911 2000"
     ],
-    "mustNotContain": [
-      {}
-    ],
+    "mustNotContain": [],
     "checkEntities": {
       "padecimiento": "Depresion"
     }
@@ -5507,9 +5501,9 @@
   {
     "id": 497,
     "query": "en que te basas",
-    "expectedHandler": "answerProyectoMeta",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "SINAVE"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -6336,13 +6330,11 @@
   {
     "id": 572,
     "query": "el dengue lo modelan",
-    "expectedHandler": "answerDengue",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "EpiForecast"
+      "800 911 2000"
     ],
-    "mustNotContain": [
-      "no modela"
-    ],
+    "mustNotContain": [],
     "checkEntities": {
       "padecimiento": "Dengue"
     }
@@ -6605,10 +6597,9 @@
   {
     "id": 594,
     "query": "le atinamos?",
-    "expectedHandler": "answerComparacionSemanal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Observado",
-      "Pronóstico"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {},

@@ -1946,6 +1946,8 @@
     'conjuntivitis por adenovirus', 'conjuntivitis adenoviral', 'ear infection', 'candidiasis oral', 'candidiasis esofagica',
     'candidiasis cutanea', 'algodoncillo', 'diabetes pregestacional', 'diabetes mellitus', 'maternal syphilis', 'bejel', 'yaws',
     'chlamydia', 'granuloma inguinal', 'verrugas anogenitales', 'mortalidad', 'depresion alta', 'salud publica',
+    // Violencias genéricas no modeladas (noModeladas): la frase completa, nunca «familiar» suelto.
+    'violencia familiar',
     // Letras de la familia de hepatitis en un seguimiento («¿y la B?»).
     'la a', 'la b', 'la c', 'la d', 'la e', 'y b', 'y c',
   ];
@@ -1997,7 +1999,7 @@
     let fragmentosCie = 0;
     // Sexta auditoría: la edad sólo se retira en forma poblacional en tercera persona. Con una marca de primera persona o de
     // un familiar («tengo», «soy», «mi hijo tiene», «I am») las frases de edad no se aplican y el número queda fuera.
-    const primeraPersona = /\b(tengo|tenia|tendre|soy|cumplo|cumpli|tiene|tienen|mi|mis|my|i am|im|i m|i ve)\b/.test(n);
+    const primeraPersona = /\b(tengo|tenia|tendre|soy|estoy|estaba|yo|me|conmigo|nosotros|nosotras|cumplo|cumpli|tiene|tienen|mi|mis|my|i|im|i m|i ve|me)\b/.test(n);
     for (const re of (cur ? cur.frases : [])) if (!(primeraPersona && cur.frasesEdad && cur.frasesEdad.includes(re))) n = n.replace(re, ' ');
     // Códigos con forma CIE («h66 0», «a06 8», «a510», «n87»): técnicos aunque no sean de un bloque publicado.
     n = n.replace(/ [a-z]\d{2}\d?( \d{1,2})?(?= )/g, (m) => (fragmentosCie++, ' '));
@@ -2156,7 +2158,8 @@
     let estado = null;
     for (const t of turnos) {
       if (respuestaCrisis(t)) estado = 'crisis';
-      else if (fueraDeVocabulario(t) && tieneFragmentoDeDatos(t)) estado = estado === 'crisis' ? 'crisis' : 'apoyo';
+      // Séptima auditoría: cualquier turno fuera de vocabulario registra el apoyo, nombre o no un dato.
+      else if (fueraDeVocabulario(t)) estado = estado === 'crisis' ? 'crisis' : 'apoyo';
       else if (estado && levantaCrisis(t, nombraPadLimpio)) estado = null;
     }
     return estado;
