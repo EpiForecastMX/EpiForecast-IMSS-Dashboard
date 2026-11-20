@@ -6,12 +6,12 @@
  * con estimaciones mensuales, contexto hist\u00f3rico e interpretaci\u00f3n.
  */
 
-import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=73';
+import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=74';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=5';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=47';
-import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, respuestaConDatos, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=39';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=48';
+import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, nombraAlias, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, respuestaConDatos, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES } from './release_config.js?v=40';
 
 let DATA = null;
 

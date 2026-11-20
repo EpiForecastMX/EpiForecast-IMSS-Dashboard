@@ -158,8 +158,10 @@ add('juan carlos y luis gerardo dicen que jar no participo', 'answerEquipo', ['3
 
 add('que dia es hoy', 'answerTemporal', ['2026']);
 add('que fecha es', 'answerTemporal', ['2026']);
-add('en que semana epidemiologica estamos', 'answerTemporal', ['semana']);
-add('que semana estamos', 'answerTemporal', ['semana']);
+// Octava auditoría Codex: primera persona plural fuera del vocabulario cerrado → apoyo fijo.
+add('en que semana epidemiologica estamos', 'answerFueraDeVocabulario', ['800 911 2000'], []);
+// Octava auditoría Codex: primera persona plural fuera del vocabulario cerrado → apoyo fijo.
+add('que semana estamos', 'answerFueraDeVocabulario', ['800 911 2000'], []);
 add('hasta cuando llegan los datos', 'answerTemporal', ['semana']);
 add('cual es la cobertura temporal', 'answerTemporal', ['2014']);
 add('hasta que fecha tienen datos', 'answerTemporal', ['semana']);
@@ -287,7 +289,8 @@ add('comparacion semanal', 'answerComparacionSemanal', ['Sem 38', 'Sem 39', 'Hor
 add('como se comporta el modelo de parkinson', 'answerComparacionSemanal', ['Parkinson', 'Observado'], ['SMAPE promedio', 'Precisión', 'excelente', '| Inicio |', 'Acumulado']);
 add('compara real vs pronostico', 'answerComparacionSemanal', ['Seguimiento del pronóstico', 'Estado del par'], ['SMAPE promedio', 'Precisión', 'excelente', '| Inicio |', 'Acumulado']);
 add('acierto semanal de depresion', 'answerComparacionSemanal', ['Depresión', 'ajuste dentro de muestra'], ['SMAPE promedio', 'Precisión', 'excelente', '| Inicio |', 'Acumulado']);
-add('cuantos llevamos de alzheimer en 2026', 'answerComparacionSemanal', ['Alzheimer', 'Observado'], ['SMAPE promedio', 'Precisión', 'excelente', '| Inicio |', 'Acumulado']);
+// Octava auditoría Codex: primera persona plural fuera del vocabulario cerrado → apoyo fijo.
+add('cuantos llevamos de alzheimer en 2026', 'answerFueraDeVocabulario', ['800 911 2000'], []);
 
 // =====================================================================
 // SECCION 8: PRONOSTICO (12 tests)
@@ -998,11 +1001,13 @@ add('rango de smape', 'answerSmapeBox', ['Rango de SMAPE', AVISO], SIN_VALORES);
 add('tabla de metricas por padecimiento', 'answerRendimientoPorPadecimiento', [AVISO, 'Motores productivos'], SIN_VALORES);
 
 // --- Contexto conversacional (35) ---
-addCtx('cuantos casos llegaron esta semana', 'y cuantos habiamos dicho que habria?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], ['52 semanas']);
+// Octava auditoría Codex: primera persona plural fuera del vocabulario cerrado → apoyo fijo.
+addCtx('cuantos casos llegaron esta semana', 'y cuantos habiamos dicho que habria?', 'answerFueraDeVocabulario', ['800 911 2000'], []);
 addCtx('cuantos casos nuevos hay esta semana', 'cuantos se esperaba que hubiera?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
 addCtx('comparalo contra el pronostico', 'compara solo la semana 8', 'answerComparacionSemanal', ['Observado', 'anterior al corte'], []);
 addCtx('cuantos casos llegaron esta semana', 'compara la semana 8', 'answerComparacionSemanal', ['Observado', 'anterior al corte'], []);
-addCtx('cuantos casos llegaron esta semana de parkinson', 'cuantos habiamos pronosticado?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], ['52 semanas']);
+// Octava auditoría Codex: primera persona plural fuera del vocabulario cerrado → apoyo fijo.
+addCtx('cuantos casos llegaron esta semana de parkinson', 'cuantos habiamos pronosticado?', 'answerFueraDeVocabulario', ['800 911 2000'], []);
 addCtx('cuantos casos hay de depresion en Nuevo Leon', 'y en Jalisco?', 'answerSpecificSeries', ['Jalisco'], []);
 addCtx('pronostico de alzheimer en Ciudad de Mexico', 'y para hombres?', '*', ['hombre'], []);
 addCtx('pronostico de depresion en Sonora', 'y el de mujeres?', '*', ['mujer'], []);
@@ -1011,12 +1016,14 @@ addCtx('pronostico de parkinson en Jalisco', 'ahora muestra depresion', '*', ['D
 addCtx('incidencia de depresion en Veracruz', 'y que hay de Tabasco?', '*', ['Tabasco'], []);
 addCtx('ranking de entidades por incidencia de depresion', 'pero de alzheimer', '*', ['Alzheimer'], []);
 addCtx('cuantos casos de depresion hay en Sinaloa', 'y en Baja California?', '*', ['Baja California'], []);
-addCtx('cuantos casos llegaron esta semana', 'dijimos que iba a haber mas o menos?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
+// Octava auditoría Codex: primera persona plural fuera del vocabulario cerrado → apoyo fijo.
+addCtx('cuantos casos llegaron esta semana', 'dijimos que iba a haber mas o menos?', 'answerFueraDeVocabulario', ['800 911 2000'], []);
 addCtx('cuantos casos nuevos hay esta semana de depresion', 'se esperaba mas o menos de lo que llego?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
 addCtx('pronostico de alzheimer en Guerrero', 'que modelo usa?', '*', ['Motor'], []);
 addCtx('cuantos casos de depresion en Puebla para hombres', 'y para el general?', '*', ['general'], []);
 addCtx('pronostico de parkinson en Yucatan', 'y en Quintana Roo?', '*', ['Quintana Roo'], []);
-addCtx('datos de la semana mas reciente', 'cuanto pronosticamos para esa semana?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
+// Octava auditoría Codex: primera persona plural fuera del vocabulario cerrado → apoyo fijo.
+addCtx('datos de la semana mas reciente', 'cuanto pronosticamos para esa semana?', 'answerFueraDeVocabulario', ['800 911 2000'], []);
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
 addCtx('cuantos casos llegaron esta semana', 'le atinamos?', 'answerFueraDeVocabulario', ['800 911 2000'], []);
 addCtx('depresion en Nuevo Leon', 'y tambien en Tamaulipas?', '*', ['Tamaulipas'], []);
@@ -1031,7 +1038,8 @@ addCtx('cuantos casos de alzheimer en Jalisco', 'y Michoacan?', '*', ['Michoac']
 addCtx('comparar pronostico vs real', 'pero solo semana 8', 'answerComparacionSemanal', ['Observado', 'anterior al corte'], []);
 addCtx('cuantos casos llegaron esta semana', 'comparalo contra lo pronosticado', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
 addCtx('pronostico de depresion en Nuevo Leon', 'y en Coahuila que onda?', '*', ['Coahuila'], []);
-addCtx('datos recientes del boletin', 'esperabamos mas o menos casos?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
+// Octava auditoría Codex: primera persona plural fuera del vocabulario cerrado → apoyo fijo.
+addCtx('datos recientes del boletin', 'esperabamos mas o menos casos?', 'answerFueraDeVocabulario', ['800 911 2000'], []);
 addCtx('casos de parkinson en Veracruz', 'y para depresion en ese estado?', '*', ['Depresion'], []);
 addCtx('cuantos casos nuevos hay esta semana', 'cuanto se pronostico para esa semana?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
 

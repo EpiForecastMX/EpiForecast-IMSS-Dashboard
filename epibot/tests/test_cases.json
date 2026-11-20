@@ -488,9 +488,9 @@
   {
     "id": 49,
     "query": "en que semana epidemiologica estamos",
-    "expectedHandler": "answerTemporal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "semana"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -498,9 +498,9 @@
   {
     "id": 50,
     "query": "que semana estamos",
-    "expectedHandler": "answerTemporal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "semana"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -1704,18 +1704,11 @@
   {
     "id": 146,
     "query": "cuantos llevamos de alzheimer en 2026",
-    "expectedHandler": "answerComparacionSemanal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Alzheimer",
-      "Observado"
+      "800 911 2000"
     ],
-    "mustNotContain": [
-      "SMAPE promedio",
-      "Precisión",
-      "excelente",
-      "| Inicio |",
-      "Acumulado"
-    ],
+    "mustNotContain": [],
     "checkEntities": {}
   },
   {
@@ -6374,14 +6367,11 @@
   {
     "id": 575,
     "query": "y cuantos habiamos dicho que habria?",
-    "expectedHandler": "answerComparacionSemanal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Observado",
-      "Pronóstico"
+      "800 911 2000"
     ],
-    "mustNotContain": [
-      "52 semanas"
-    ],
+    "mustNotContain": [],
     "checkEntities": {},
     "setupQuery": "cuantos casos llegaron esta semana"
   },
@@ -6424,14 +6414,11 @@
   {
     "id": 579,
     "query": "cuantos habiamos pronosticado?",
-    "expectedHandler": "answerComparacionSemanal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Observado",
-      "Pronóstico"
+      "800 911 2000"
     ],
-    "mustNotContain": [
-      "52 semanas"
-    ],
+    "mustNotContain": [],
     "checkEntities": {},
     "setupQuery": "cuantos casos llegaron esta semana de parkinson"
   },
@@ -6528,10 +6515,9 @@
   {
     "id": 588,
     "query": "dijimos que iba a haber mas o menos?",
-    "expectedHandler": "answerComparacionSemanal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Observado",
-      "Pronóstico"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6585,10 +6571,9 @@
   {
     "id": 593,
     "query": "cuanto pronosticamos para esa semana?",
-    "expectedHandler": "answerComparacionSemanal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Observado",
-      "Pronóstico"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {},
@@ -6745,10 +6730,9 @@
   {
     "id": 607,
     "query": "esperabamos mas o menos casos?",
-    "expectedHandler": "answerComparacionSemanal",
+    "expectedHandler": "answerFueraDeVocabulario",
     "mustContain": [
-      "Observado",
-      "Pronóstico"
+      "800 911 2000"
     ],
     "mustNotContain": [],
     "checkEntities": {},

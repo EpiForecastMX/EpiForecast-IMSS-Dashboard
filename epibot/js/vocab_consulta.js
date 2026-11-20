@@ -5,7 +5,8 @@
  * término de datos o técnico del proyecto, un nombre público del equipo, un mes, o una variante ortográfica o palabra de
  * consulta que ya usan los 616 casos funcionales con una respuesta que lleva cifras.
  * NUNCA entran pronombres personales, posesivos ni reflexivos, parentesco o relaciones (yo, me, mi, estoy, soy, tengo, te,
- * su, familiar, pareja, papá, hijo…), verbos causativos o de acción sobre personas (causa, hace, da, pega, quema…; el «se»
+ * su, familiar, pareja, papá, hijo…), primera persona plural (estamos, tenemos, somos, vamos…), verbos de deseo o
+ * necesidad sueltos (quiero, quisiera, deseo, necesito; sólo en una frase de consulta de abajo), verbos causativos o de acción sobre personas (causa, hace, da, pega, quema…; el «se»
  * sólo vale en una construcción impersonal de abajo), ni palabras de riesgo (métodos, sustancias, autolesión, violencia, ingestión), edades, cantidades ni estados de
  * ánimo: «vivo», «tomo», «tabletas», «sedantes», «golpes», «pills» o «poison» sólo cuentan dentro de un alias completo.
  * Los padecimientos, códigos y estados NO van aquí: los reconoce como fragmentos completos `js/vocab_cerrado.js`.
@@ -22,15 +23,15 @@ globalThis.EPI_VOCAB_CONSULTA = Object.freeze({
   frasesEdad: [EDAD_POBLACION, EDAD_RANGO, EDAD_UMBRAL, EDAD_DE_A],
   palabras: new Set(`
     // Interrogativos, artículos, preposiciones, conectores, cortesía y verbos de consulta neutros.
-    a afecta ahora al algo el e otro uno siguiente llegaron nuevos pinta sigue tienes cifras cifra quisiera quisieras consultar
-    podrias podria saber conocer informar numeros mostrar ensename gustaria porfa porfavor decir atinamos basado basas base buenas buenos cada como compara comparacion comparalo
+    a afecta ahora al algo el e otro uno siguiente llegaron nuevos pinta sigue tienes cifras cifra consultar
+    podrias podria saber conocer informar numeros mostrar ensename porfa porfavor decir basado basas base buenas buenos cada como compara comparacion comparalo
     comparan comparar comparativa comporta con configuro contra contrasta crearon crecido creo cual cuales cuando
-    cuantas cuanto cuantos dame de decia del desarrollado describe desde dia dias dicen dicho dijimos dime
-    dirige disminuido donde en entre entreno es esa ese esperaba esperabamos esperan esperas esta estamos
-    estas este estiman explica favor filtra fuiste funciona funcionas generas gracias ha haber habiamos habido habra
-    habria hasta hay hey hola hoy hubiera hubo iba iban la las llama llega llegan llego llevamos
-    los mas menos modelan muestra muestrame nada necesito no noches o onda para participo pasa pero por
-    pronosticado pronosticados pronosticamos pronostican pronosticas puede puedes puedo que quien quienes quiero
+    cuantas cuanto cuantos dame de decia del desarrollado describe desde dia dias dicen dicho dime
+    dirige disminuido donde en entre entreno es esa ese esperaba esperan esperas esta
+    estas este estiman explica favor filtra fuiste funciona funcionas generas gracias ha haber habido habra
+    habria hasta hay hey hola hoy hubiera hubo iba iban la las llama llega llegan llego
+    los mas menos modelan muestra muestrame nada no noches o onda para participo pasa pero por
+    pronosticado pronosticados pronostican pronosticas puede puedes puedo que quien quienes
     sabes sacas saludos segun selecciona ser si sido significa sobre solamente solo son sorprendeme tal tambien
     tan tardes tiene tienen trabaja un una usa usan usas va van ver versus viene vs y
     // Términos de datos epidemiológicos y de la respuesta.
@@ -78,8 +79,12 @@ globalThis.EPI_VOCAB_CONSULTA = Object.freeze({
     // Palabras de consultas fuera de tema de los casos funcionales (lugares y objetos; la respuesta las declina).
     atlantida california cuesta fantasma irapuato mordor narnia tesla texas viajar
     // Inglés de consulta neutro.
-    and are cases data for forecast how in is many of show state the trend week weeks what year do you have`.split('\n').filter((l) => !l.trim().startsWith('//')).join(' ').split(/\s+/).filter(Boolean)),
+    and are cases data for forecast how in is many of show state the trend week weeks what year do you have
+`.split('\n').filter((l) => !l.trim().startsWith('//')).join(' ').split(/\s+/).filter(Boolean)),
   frases: [
+    // Octava auditoría: los verbos de deseo o necesidad sólo valen en una frase de consulta inequívoca seguida del dato
+    // («quiero ver», «quisiera consultar», «necesito datos de», «dame los casos de»); sueltos quedan fuera de vocabulario.
+    /\b(quiero|quisiera|queremos|necesito|necesitamos|deseo|me gustaria) (ver|consultar|saber|conocer|revisar|comparar|los datos de|datos de|las cifras de|cifras de|el pronostico de|la grafica de|informacion de|informacion sobre|los casos de)\b/g,
     // Construcciones impersonales con «se» (no reflexivas sobre una persona): «se esperan», «se pronostican», «se llama».
     /\bse (esperan?|esperaba|pronostic[a-z]*|estiman?|llama|entreno|comporta|selecciona[a-z]*|compara[a-z]*|modelan?|configuro|cura|trata|identifico|puede|sabe|reporta[a-z]*|notifica[a-z]*|registra[a-z]*|presentan?|obtiene|calcula|genera|usa|utiliza|construyo|eligi[a-z]*|valida[a-z]*|guardan|cubren|seleccionaron|excluyo|evaluaron|basa|define|mide|actualiza)\b/g,
     // «lo» como artículo neutro («lo que llegó», «lo pronosticado»), no como pronombre de persona.
@@ -101,7 +106,6 @@ globalThis.EPI_VOCAB_CONSULTA = Object.freeze({
     /\b\d{1,2} (semanas|weeks)\b/g,
     // Preguntas clínicas y de divulgación de los casos funcionales: el verbo o el número sólo valen en la frase completa.
     /\b(que|cual|cuales) (medicamento|medicamentos|tratamiento|tratamientos) (tomar|usar)\b/g,
-    /\ben riesgo de\b/g,
     /\b\d{1,2} (personajes|famosos|celebridades)\b/g,
     // Subtipos numerados de diabetes («tipo 2», «type 1», «tipo 1 y 2») y la dosis de una vacuna (no de un fármaco).
     /\b(tipo|type) (1|2|i|ii|uno|dos)( (y|o|and|or) (1|2|i|ii|uno|dos))?\b/g,

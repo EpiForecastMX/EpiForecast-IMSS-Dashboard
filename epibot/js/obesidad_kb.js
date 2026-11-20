@@ -10,12 +10,12 @@
  * follow-ups («¿y hombres?») y en consultas corregidas por typo, donde la consulta cruda ya no
  * nombra a Obesidad.
  */
-import { mencionaNoModelada } from './entities.js?v=73';
+import { mencionaNoModelada } from './entities.js?v=74';
 import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
-} from './obesidad_charts.js?v=42';
-import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=39';
+} from './obesidad_charts.js?v=43';
+import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=40';
 // Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
 import './avisos_fuente.js?v=4';
 
@@ -73,7 +73,7 @@ export function avisosFuente(id) {
  */
 function avisoControl(v) {
   const r = rechazoDe(v);
-  return `**Es el control estacional, no validado:** cada semana repite los casos de 52 semanas antes. El portafolio seleccionado se rechazó en la prueba de ${r.anio} porque empeoraba ${r.ambitos}, así que no hay una validación prospectiva que superar: sólo se registrará su error con cada boletín. ${r.errorControl}`;
+  return `**Es el control estacional, no validado:** cada semana repite los casos de 52 semanas antes. El portafolio seleccionado se rechazó en la prueba de ${r.anio} porque ${r.motivo}, así que no hay una validación prospectiva que superar: sólo se registrará su error con cada boletín. ${r.errorControl}`;
 }
 
 /**
@@ -114,7 +114,9 @@ export function rechazoDe(v) {
   const partes = fallas.map((x) => `${AMBITO[x.ambito]?.(sinSexo) || x.ambito} (sMAPE ${num1(x.portafolio)} frente a ${num1(x.control)} del control)`);
   const ambitos = partes.length > 1 ? `${partes.slice(0, -1).join(', ')} y ${partes.at(-1)}` : partes[0] || 'el criterio de aceptación';
   const pocoInformativo = !!releaseDeId(v.disease_id)?.controlEstatalPocoInformativo;
-  return { anio, ambitos, errorControl: errorDelControl(c, anio, sinSexo, pocoInformativo) };
+  const motivo = globalThis.EPI_CATALOGO.motivoRechazo(fallas.map((x) => ({ nombre: AMBITO[x.ambito]?.(sinSexo) || x.ambito,
+    portafolio: x.portafolio, control: x.control })));
+  return { anio, ambitos, motivo, errorControl: errorDelControl(c, anio, sinSexo, pocoInformativo) };
 }
 
 /**

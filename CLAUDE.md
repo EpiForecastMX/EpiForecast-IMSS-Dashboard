@@ -60,7 +60,8 @@ contenido servido. Conteos del catálogo (`publication/catalog.json`, 147 releas
   técnico. Todas las rutas de la interfaz, incluido «panorama», pasan por la misma guarda
   (`epibot/tests/test_vocab_codex_b44.mjs`, `epibot/tests/test_vocab5_codex_b44.mjs`,
   `epibot/tests/test_vocab6_codex_b44.mjs`, `epibot/tests/test_vocab7_codex_b44.mjs`). La edad sólo se retira en forma
-  poblacional en tercera persona. La lista curada no admite pronombres, posesivos, parentesco ni verbos causativos, y toda
+  poblacional en tercera persona. La lista curada no admite pronombres, posesivos, parentesco, primera persona plural,
+  verbos de deseo sueltos (sólo en frases de consulta como «quiero ver») ni verbos causativos, y toda
   respuesta de apoyo o crisis (KB o RAG) activa el estado persistente que la interfaz incorpora antes de cualquier ruta.
 - Las fichas muestran la **media observada** del total nacional en las 52 semanas hasta el corte, con su periodo, no la
   media del pronóstico (`epibot/tests/test_fichas_media_observada.mjs`).

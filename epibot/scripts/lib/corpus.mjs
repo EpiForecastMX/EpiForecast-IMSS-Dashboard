@@ -581,8 +581,8 @@ function vistaChunks(root, r) {
   const anioPrueba = String(caida?.fold || '').replace(/^test_/, '') || '2025';
   const control = caida
     ? `Es el control estacional, no validado: repite los casos de 52 semanas antes. El gate de aceptación de la prueba de ` +
-      `${anioPrueba} rechazó el portafolio seleccionado porque empeoraba ` +
-      `${fallas.length > 1 ? `${fallas.slice(0, -1).join(', ')} y ${fallas.at(-1)}` : fallas[0] || 'el criterio de aceptación'}. ` +
+      `${anioPrueba} rechazó el portafolio seleccionado porque ` +
+      `${globalThis.EPI_CATALOGO.motivoRechazo((caida?.comprobaciones || []).filter((c) => !c.pasa).map((c) => ({ nombre: AMBITOS[c.ambito] || c.ambito, portafolio: c.portafolio, control: c.control })))}. ` +
       `No debe presentarse como validado ni como aceptado; no tiene validación prospectiva que superar. ` +
       `${errorDelControl(caida, anioPrueba, sinSexo, !!releaseDeId(r.disease_id)?.controlEstatalPocoInformativo)} `
     : (sinAlternativa ? `${globalThis.EPI_CATALOGO.textoSinAlternativa(r.disease_id, sinSexo)} ` : '');

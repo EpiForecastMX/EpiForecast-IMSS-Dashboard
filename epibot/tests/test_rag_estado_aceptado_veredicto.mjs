@@ -10,6 +10,9 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
+// Octava auditoría: el motivo del rechazo sale del catálogo real (motivoRechazo, mismo texto en KB, RAG, fichas y corpus).
+await import('../js/release_catalog.js');
+const motivoRechazoReal = globalThis.EPI_CATALOGO.motivoRechazo;
 
 const RAG_PATH = fileURLToPath(new URL('../netlify/functions/rag.mjs', import.meta.url));
 
@@ -20,6 +23,7 @@ function cargarTramoEstadoRag() {
   assert.ok(ini > 0 && fin > ini, 'No se localizó el tramo acotado stripAccents..Rate limit en rag.mjs');
 
   const catalogoStub = {
+    motivoRechazo: motivoRechazoReal,
     canonClinico: (s) => s,
     nombraAlias: (qn, alias) => {
       const esc = String(alias).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

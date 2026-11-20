@@ -104,7 +104,7 @@ export function resumenMetodo(r, v, m, prueba, serieRef, sinSexo) {
       : '';
     const aut = r.controlDelegado ? 'por un dictamen tomado bajo delegación del autor' : 'por autorización del autor';
     return `Lo publicado corresponde al **control estacional, no validado** (${comoSerie}) [1]. ` +
-      `El portafolio de modelos seleccionado fue rechazado en la prueba única retrospectiva de **${m.anio}** porque empeoraba ${lista(fallas)}, y ${aut} se publica el control estacional; **el rechazado fue el portafolio seleccionado, no el control publicado** [1]. ` +
+      `El portafolio de modelos seleccionado fue rechazado en la prueba única retrospectiva de **${m.anio}** porque ${globalThis.EPI_CATALOGO.motivoRechazo((caida.comprobaciones || []).filter((c) => !c.pasa).map((c) => ({ nombre: AMBITO_CONTROL[c.ambito](sinSexo), portafolio: c.portafolio, control: c.control })))}, y ${aut} se publica el control estacional; **el rechazado fue el portafolio seleccionado, no el control publicado** [1]. ` +
       `Como control estacional no tiene validación prospectiva que superar: el avance **${m.wa} de ${m.wr}** semanas (**${v.verdict}**) es únicamente un contador técnico de registro con cada boletín, no un indicador de calidad ni una validación en curso [1]. ` +
       `Error del control en aquella prueba retrospectiva de ${m.anio} (distinta de la vista de ${v.origin[0]}, sMAPE): ${lista(errs)}.${pocoInf}`;
   }

@@ -2038,7 +2038,7 @@
     let fragmentosCie = 0;
     // Sexta auditoría: la edad sólo se retira en forma poblacional en tercera persona. Con una marca de primera persona o de
     // un familiar («tengo», «soy», «mi hijo tiene», «I am») las frases de edad no se aplican y el número queda fuera.
-    const primeraPersona = /\b(tengo|tenia|tendre|soy|estoy|estaba|yo|me|conmigo|nosotros|nosotras|cumplo|cumpli|tiene|tienen|mi|mis|my|i|im|i m|i ve|me)\b/.test(n);
+    const primeraPersona = /\b(tengo|tenia|tendre|soy|estoy|estaba|yo|me|conmigo|nosotros|nosotras|nos|nuestro|nuestra|nuestros|nuestras|estamos|tenemos|somos|vamos|podemos|queremos|cumplimos|cumplo|cumpli|tiene|tienen|mi|mis|my|we|our|us|i|im|i m|i ve)\b/.test(n);
     for (const re of (cur ? cur.frases : [])) if (!(primeraPersona && cur.frasesEdad && cur.frasesEdad.includes(re))) n = n.replace(re, ' ');
     // Códigos con forma CIE («h66 0», «a06 8», «a510», «n87»): técnicos aunque no sean de un bloque publicado.
     n = n.replace(/ [a-z]\d{2}\d?( \d{1,2})?(?= )/g, (m) => (fragmentosCie++, ' '));
@@ -2100,6 +2100,8 @@
   function fueraDeListaBlanca(q, contextoSensible = false) {
     if (!contextoSensible && !idsSensiblesEn(q).length) return false;
     if (simbolosNoTecnicos(q)) return true;
+    // Con un id sensible, un verbo de deseo o necesidad nunca se lee como consulta neutra («quiero ver X70»): crisis.
+    if (/\b(quiero|quisiera|queremos|necesito|necesitamos|deseo|deseamos|gustaria)\b/.test(normLB(q))) return true;
     // Quinta auditoría: los términos de un rótulo sólo cuentan dentro del fragmento completo (analizaTurno).
     // Con un id sensible sólo vale el vocabulario neutro estricto (VOCAB_NEUTRO): ni primera persona ni «quiero».
     return analizaTurno(q).todos.some((w) => !VOCAB_NEUTRO.has(w) && !ALCOHOL_PERMITIDO.has(w));
@@ -2242,11 +2244,30 @@
       `será CONTROL_ONLY, nunca una validación superada.${error}`;
   }
 
+  /**
+   * Octava auditoría Codex: motivo del rechazo del portafolio en la prueba única, desde las comprobaciones de la vista. Un
+   * ámbito con portafolio y control en 0.0 no «empeora»: el cambio relativo frente a un control de cero queda indefinido y
+   * la regla lo trata como rechazo, igual que las fichas. Recibe [{ nombre, portafolio, control }] de los ámbitos fallidos
+   * y devuelve el texto que sigue a «porque».
+   */
+  function motivoRechazo(fallas) {
+    const f1 = (x) => Number(x).toLocaleString('es-MX', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+    const cero = (x) => Math.round(Number(x.portafolio) * 10) === 0 && Math.round(Number(x.control) * 10) === 0;
+    const y = (xs) => (xs.length > 1 ? `${xs.slice(0, -1).join(', ')} y ${xs.at(-1)}` : xs[0]);
+    const empeora = fallas.filter((x) => !cero(x)).map((x) => `${x.nombre} (sMAPE ${f1(x.portafolio)} frente a ${f1(x.control)} del control)`);
+    const ceros = fallas.filter(cero).map((x) => x.nombre);
+    const indef = ceros.length ? `en ${y(ceros)} portafolio y control dieron sMAPE 0.0: el cambio relativo frente a un control de ` +
+      'cero queda indefinido y la regla, fijada antes de abrir la prueba, lo trata como rechazo' : '';
+    if (empeora.length && ceros.length) return `empeoraba ${y(empeora)}; además, ${indef}`;
+    if (ceros.length) return indef;
+    return empeora.length ? `empeoraba ${y(empeora)}` : 'no cumplió el criterio de aceptación';
+  }
+
   g.EPI_CATALOGO = Object.freeze({
     ETIQUETA_SIN_ALTERNATIVA, textoSinAlternativa,
     releases, diabetesEnConsulta, conDiabetesNombrada, conFamiliaNombrada, canonClinico, nombraAlias, noModeladas,
     mencionaNoModelada, conHipertensionNombrada, respuestaCrisis, subtipoAjeno, aliasAmbiguo,
-    crisisEnTurnos, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, idsSensiblesEn,
+    motivoRechazo, crisisEnTurnos, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, idsSensiblesEn,
     alcoholCalificado, IDS_LISTA_BLANCA, _VOCAB_TECNICO: VOCAB_TECNICO, _FRAGMENTOS_GUARDAS: FRAGMENTOS_GUARDAS, fueraDeVocabulario, respuestaFueraDeVocabulario,
     restoFuera, tieneFragmentoDeDatos, respuestaConDatos, APOYO_ES, APOYO_EN, pareceIngles,
   });
