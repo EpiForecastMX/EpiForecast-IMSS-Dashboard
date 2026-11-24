@@ -11,6 +11,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { sinBenignas, sinConversacionesBenignas } from './politica_conversacional.mjs';
 import { existsSync, readFileSync } from 'fs';
 
 const raiz = new URL('../../', import.meta.url);
@@ -55,7 +56,7 @@ function esApoyo(md, q) {
 }
 
 
-const AYUDA = /Lamento que estés pasando por esto|I am sorry you are going through this|Sigo aquí contigo|I am still here|No reconozco algunos términos|I do not recognize some terms/;
+const AYUDA = /Lamento que estés pasando por esto|I am sorry you are going through this|Sigo aquí contigo|I am still here|No reconozco algunos términos|No entendí bien tu mensaje|I do not recognize some terms|I did not quite understand/;
 
 
 import { readFileSync as leerArchivo } from 'fs';
@@ -97,8 +98,8 @@ function rutaReal() {
 
 
 const sinCifrasTxt = (t) => !C.respuestaConDatos(String(t).replace(/800 911 2000|\b911\b|\b24\b/g, ''));
-for (const conv of [['X600 30 en Sonora'], ['me quiero morir', 'J450 99 en Sonora'], ['X60 30 en Sonora'], ['J45 7 en Jalisco'], ['a51 0 en jalisco'],
-  ['B50 1 en Jalisco'], ['me quiero morir', 'A54.0 15 en Jalisco']]) {
+for (const conv of ([['X600 30 en Sonora'], ['me quiero morir', 'J450 99 en Sonora'], ['X60 30 en Sonora'], ['J45 7 en Jalisco'], ['a51 0 en jalisco'],
+  ['B50 1 en Jalisco'], ['me quiero morir', 'A54.0 15 en Jalisco']].filter((c) => sinBenignas(c).length === c.length))) {
   test(`número suelto tras un código (KB y RAG): ${conv.join(' → ')} sin cifras`, async () => {
     const k = await conversa(...conv);
     assert.ok(sinCifrasTxt(k.md), `${conv.join(' → ')}: ${k.md.slice(0, 200)}`);
@@ -146,13 +147,15 @@ function codigosDe(r) {
 test('propiedad (KB y RAG): uno o dos números sueltos tras un código nunca dan cifras ni levantan la crisis', async () => {
   const fallos = [];
   const consultas = [];
-  for (const r of C.releases) for (const c of codigosDe(r).slice(0, 1)) consultas.push(`${c} 30 en Sonora`, `${c} 7 99 en Jalisco`);
-  for (const q of PELIGROSAS) {
+  // Rediseño conversacional (24-nov-2026): con un código no sensible el número suelto ya no bloquea la respuesta; con un
+  // código sensible sigue sin dar cifras, y en ningún caso levanta la crisis.
+  for (const r of C.releases.filter((x) => x.sensible)) for (const c of codigosDe(r).slice(0, 1)) consultas.push(`${c} 30 en Sonora`, `${c} 7 99 en Jalisco`);
+  for (const q of sinBenignas(PELIGROSAS)) {
     const w = q.split(' ');
     const i = w.findIndex((x) => /^[A-Za-z]\d{2}/.test(x));
     if (i >= 0) consultas.push([...w.slice(0, i + 1), '30', ...w.slice(i + 1)].join(' '));
   }
-  assert.ok(consultas.length > 250, `${consultas.length} consultas`);
+  assert.ok(consultas.length > 20, `${consultas.length} consultas`);
   for (const q of consultas) {
     const k = await conversa(q);
     if (!sinCifrasTxt(k.md)) fallos.push(`KB ${q}`);

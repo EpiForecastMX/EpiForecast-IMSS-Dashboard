@@ -53,7 +53,7 @@ function esApoyo(md, q) {
 }
 
 
-const AYUDA = /Lamento que estés pasando por esto|I am sorry you are going through this|Sigo aquí contigo|I am still here|No reconozco algunos términos|I do not recognize some terms/;
+const AYUDA = /Lamento que estés pasando por esto|I am sorry you are going through this|Sigo aquí contigo|I am still here|No reconozco algunos términos|No entendí bien tu mensaje|I do not recognize some terms|I did not quite understand/;
 
 
 import { readFileSync as leerArchivo } from 'fs';

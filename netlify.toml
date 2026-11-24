@@ -12,8 +12,9 @@
 # un paso que puede fallar dejaría esa verificación sin correr (el falso verde R68-P0).
 # test:site (cabecera/pie generados, portada y galería) va después de test:dashboard, que construye
 # assets/dashboard/catalog.json del que dependen las pruebas de la galería. `npm test` de epibot (EPI,
-# citas de fuentes, intenciones migradas de la galería y el RAG por corpus) corre tras su npm install.
-command = "npm run test:dashboard && npm run test:boletin && npm run test:site && cd epibot && npm install && npm test && npm run cifras:test && npm run deploy:verify"
+# citas de fuentes, intenciones migradas de la galería y el RAG por corpus) corre tras su npm install. `resumen:build`
+# regenera el resumen nacional del EpiBot (ranking «qué enfermedades van al alza») desde las vistas publicadas.
+command = "npm run test:dashboard && npm run test:boletin && npm run test:site && cd epibot && npm install && npm run resumen:build && npm test && npm run cifras:test && npm run deploy:verify"
 
 [functions]
   node_bundler = "esbuild"

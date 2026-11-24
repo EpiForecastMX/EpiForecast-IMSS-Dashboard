@@ -428,7 +428,9 @@ test('el aviso de control dice el año y el ámbito reales del rechazo', async (
     assert.match(r.md, anio, q);
     assert.match(r.md, ambito, q);
   }
-  assert.doesNotMatch((await conversa('cancer de rinon en jalisco')).md, /2025/);
+  // Rediseño conversacional (24-nov-2026): la respuesta llana compara lo observado con las mismas semanas de 2025, que es
+  // un dato y no el año de la prueba; el año de la prueba se comprueba en la ficha técnica plegada.
+  assert.doesNotMatch((await conversa('cancer de rinon en jalisco')).md.split('<!--DETALLE-->')[1], /2025/);
 });
 
 test('el corpus no atribuye sexo ni pliegues de 2021 a 2024 a quien no los tiene', async () => {

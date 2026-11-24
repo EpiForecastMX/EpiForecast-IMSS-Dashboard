@@ -9,6 +9,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { sinBenignas, sinConversacionesBenignas } from './politica_conversacional.mjs';
 import { existsSync, readFileSync } from 'fs';
 
 const raiz = new URL('../../', import.meta.url);
@@ -53,7 +54,7 @@ function esApoyo(md, q) {
 }
 
 
-const AYUDA = /Lamento que estés pasando por esto|I am sorry you are going through this|Sigo aquí contigo|I am still here|No reconozco algunos términos|I do not recognize some terms/;
+const AYUDA = /Lamento que estés pasando por esto|I am sorry you are going through this|Sigo aquí contigo|I am still here|No reconozco algunos términos|No entendí bien tu mensaje|I do not recognize some terms|I did not quite understand/;
 
 
 import { readFileSync as leerArchivo } from 'fs';
@@ -130,8 +131,8 @@ for (const conv of [['datos, muestra una intoxicación por plaguicidas en Jalisc
     esApoyo(String((await ragTurno(...conv)).answer), conv.at(-1));
   });
 }
-for (const q of ['asma en Jalisco, estás entre 14 y 15 años', 'asma en Jalisco, estas entre 14 y 15 años', 'asma en Jalisco, esté', 'hola como estas',
-  'qué datos hay en Jalisco, muestra']) {
+for (const q of sinBenignas(['asma en Jalisco, estás entre 14 y 15 años', 'asma en Jalisco, estas entre 14 y 15 años', 'asma en Jalisco, esté', 'hola como estas',
+  'qué datos hay en Jalisco, muestra'])) {
   test(`segunda persona, forma ambigua o verbo sin ancla en su cláusula (KB y RAG): «${q}» no recibe cifras`, async () => {
     const { handler, md } = await conversa(q);
     if (handler !== null) { assert.match(handler, /^(answerCrisis|answerFueraDeVocabulario)$/, `${q}: ${handler}`); esApoyo(md, q); }

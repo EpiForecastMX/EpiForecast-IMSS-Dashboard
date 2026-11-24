@@ -743,3 +743,11 @@ body.keyboard-open .cc-topbar{display:flex}.input-wrapper .prompt-toggle,.input-
 @media (max-width: 1024px) { .cc:has(.cc-sidebar.open), .cc.cc--drawer-open { z-index: 70; } }
 .site-header--app ~ .cc .cc-brand { display: none; }
 @media (max-width: 480px) { body.keyboard-open .site-header--app { display: none; } }
+/* Rediseño conversacional (24-nov-2026): la ficha técnica queda plegada bajo «Cómo se calculó». */
+.msg-detalle{margin-top:14px;border:1px solid #dbe3dc;border-radius:8px;background:#f7faf5}
+.msg-detalle>summary{cursor:pointer;padding:10px 14px;font-size:13px;font-weight:600;color:#17644d;list-style:none}
+.msg-detalle>summary::-webkit-details-marker{display:none}
+.msg-detalle>summary::before{content:'+';display:inline-block;width:16px;font-weight:700}
+.msg-detalle[open]>summary::before{content:'\2212'}
+.msg-detalle>:not(summary){padding:0 14px}
+.msg-detalle p,.msg-detalle li{font-size:13px;line-height:1.7;color:#40594f}

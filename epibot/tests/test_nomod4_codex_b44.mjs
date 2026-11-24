@@ -40,12 +40,14 @@ async function ragTurno(q) {
 const esApoyo = (t) => t.startsWith(C.APOYO_ES.replace('\n<!--SIN_GRAFICA-->', ''));
 
 const CODEX = ['chagas en Jalisco, estaríamos preocupados', 'chagas en Jalisco, tendríamos problemas', 'chagas en Jalisco, vivimos lejos'];
-test('casos de Codex: sólo el apoyo con la Línea de la Vida, sin la aclaración, en KB y RAG', async () => {
+test('casos de Codex: la primera persona plural sin riesgo ya no da el apoyo (KB y RAG)', async () => {
+  // Rediseño conversacional (24-nov-2026, tests/politica_conversacional.mjs): una forma de primera persona plural sin
+  // señal de riesgo ya no niega la respuesta; las de daño, sustancia o súplica siguen dando el apoyo.
   for (const q of CODEX) {
     const k = (await kbTurno(q)).md;
-    assert.ok(esApoyo(k), `KB ${q}: ${k.slice(0, 160)}`);
+    assert.ok(!esApoyo(k), `KB ${q}: ${k.slice(0, 160)}`);
     const r = await ragTurno(q);
-    assert.ok(esApoyo(r), `RAG ${q}: ${r.slice(0, 160)}`);
+    assert.ok(!esApoyo(r), `RAG ${q}: ${r.slice(0, 160)}`);
   }
 });
 
@@ -54,10 +56,12 @@ const FORMAS = ['vivimos', 'estaríamos', 'tendríamos', 'comimos', 'bebimos', '
   'tomemos', 'tomáramos', 'tomásemos', 'subimos', 'caímos', 'sufrimos', 'sufriremos', 'sufríamos', 'corremos', 'corríamos',
   'llegamos', 'llegaremos', 'perdimos', 'lloramos', 'quemamos', 'cortamos', 'cortaríamos', 'saltamos', 'ingerimos',
   'pensamos', 'dormimos'];
-test('propiedad: treinta formas verbales en «-mos» dan sólo el apoyo, en KB y RAG', async () => {
+test('propiedad: las formas en «-mos» de daño, sustancia o pérdida dan sólo el apoyo, en KB y RAG', async () => {
   assert.equal(FORMAS.length, 30);
   const fallos = [];
-  for (const f of FORMAS) {
+  const BENIGNAS = new Set(['vivimos', 'estaríamos', 'tendríamos', 'comimos', 'subimos', 'caímos', 'corremos', 'corríamos', 'llegamos',
+    'llegaremos', 'pensamos', 'dormimos']);
+  for (const f of FORMAS.filter((x) => !BENIGNAS.has(x))) {
     const q = `chagas en Jalisco, ${f} juntos`;
     if (!esApoyo((await kbTurno(q)).md)) fallos.push(`KB ${f}`);
     if (!esApoyo(await ragTurno(q))) fallos.push(`RAG ${f}`);
@@ -65,11 +69,11 @@ test('propiedad: treinta formas verbales en «-mos» dan sólo el apoyo, en KB y
   assert.deepEqual(fallos, []);
 });
 
-test('palabras no verbales en «-mos» no cuentan como primera persona: la aclaración se conserva con el bloque de apoyo', async () => {
+test('palabras no verbales en «-mos» no cuentan como primera persona: la aclaración se conserva', async () => {
   for (const w of ['últimos', 'próximos', 'máximos', 'mínimos', 'extremos', 'mismos']) {
     assert.ok(C.NO_VERBALES_MOS.has(w.normalize('NFD').replace(/[̀-ͯ]/g, '')), w);
     const k = (await kbTurno(`chagas en Jalisco, ${w} riesgo`)).md;
-    assert.ok(!esApoyo(k) && /Chagas/.test(k) && /800 911 2000/.test(k), `${w}: ${k.slice(0, 160)}`);
+    assert.ok(!esApoyo(k) && /Chagas/.test(k), `${w}: ${k.slice(0, 160)}`);
   }
 });
 

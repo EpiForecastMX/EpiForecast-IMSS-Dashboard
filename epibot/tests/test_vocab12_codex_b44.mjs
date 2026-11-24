@@ -8,6 +8,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { sinBenignas, sinConversacionesBenignas } from './politica_conversacional.mjs';
 import { existsSync, readFileSync } from 'fs';
 
 const raiz = new URL('../../', import.meta.url);
@@ -52,7 +53,7 @@ function esApoyo(md, q) {
 }
 
 
-const AYUDA = /Lamento que estés pasando por esto|I am sorry you are going through this|Sigo aquí contigo|I am still here|No reconozco algunos términos|I do not recognize some terms/;
+const AYUDA = /Lamento que estés pasando por esto|I am sorry you are going through this|Sigo aquí contigo|I am still here|No reconozco algunos términos|No entendí bien tu mensaje|I do not recognize some terms|I did not quite understand/;
 
 
 import { readFileSync as leerArchivo } from 'fs';
@@ -115,7 +116,7 @@ const FUERA = [
   // propias
   'asma en Jalisco, explica mujeres de 30 años', 'asma en Jalisco, describe', 'asma en Jalisco, filtra', 'asma en Jalisco, selecciona algo',
 ];
-for (const q of FUERA) {
+for (const q of sinBenignas(FUERA)) {
   test(`verbo curado sin ancla o con edad (KB y RAG): «${q}» no recibe cifras`, async () => {
     const { handler, md } = await conversa(q);
     if (handler !== null) { assert.match(handler, /^(answerCrisis|answerFueraDeVocabulario)$/, `${q}: ${handler}`); esApoyo(md, q); }

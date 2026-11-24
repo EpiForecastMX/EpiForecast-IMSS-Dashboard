@@ -11,6 +11,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { sinBenignas, sinConversacionesBenignas } from './politica_conversacional.mjs';
 import { existsSync, readFileSync } from 'fs';
 
 const raiz = new URL('../../', import.meta.url);
@@ -56,7 +57,7 @@ function esApoyo(md, q) {
 
 
 import { readFileSync as leerArchivo } from 'fs';
-const AYUDA = /Lamento que estés pasando por esto|I am sorry you are going through this|Sigo aquí contigo|I am still here|No reconozco algunos términos|I do not recognize some terms/;
+const AYUDA = /Lamento que estés pasando por esto|I am sorry you are going through this|Sigo aquí contigo|I am still here|No reconozco algunos términos|No entendí bien tu mensaje|I do not recognize some terms|I did not quite understand/;
 
 const SIN_CIFRAS = [
   // Codex, quinta auditoría (exactos)
@@ -77,7 +78,7 @@ const SIN_CIFRAS = [
   'cuántos casos de dengue hay, tengo 12 años',
   'asma en Jalisco, mis papás me pegan',
 ];
-for (const q of SIN_CIFRAS) {
+for (const q of sinBenignas(SIN_CIFRAS)) {
   test(`vocabulario curado (KB): «${q}» no recibe cifras y lleva la Línea de la Vida`, async () => {
     const { handler, md } = await conversa(q);
     assert.match(handler, /^(answerCrisis|answerFueraDeVocabulario)$/, `${q}: ${handler}`);
@@ -136,8 +137,8 @@ function rutaReal() {
     return routeQuery;`);
   return { routeQuery: fabrica(...nombres.map((k) => deps[k])), llamadas };
 }
-for (const conv of [['panorama, me quiero morir'], ['panorama xyzfuera'], ['me quiero morir', 'panorama'],
-  ['asma en Jalisco, no quiero estar vivo', 'panorama'], ['panorama 🆘']]) {
+for (const conv of sinConversacionesBenignas([['panorama, me quiero morir'], ['panorama xyzfuera'], ['me quiero morir', 'panorama'],
+  ['asma en Jalisco, no quiero estar vivo', 'panorama'], ['panorama 🆘']])) {
   test(`routeQuery real: ${conv.join(' → ')} no dibuja el panorama y responde con la Línea de la Vida`, async () => {
     kb._resetContext();
     const { routeQuery, llamadas } = rutaReal();
