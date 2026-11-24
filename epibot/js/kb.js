@@ -10,9 +10,9 @@ import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaN
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=13';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=62';
-import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano } from './conversacion.js?v=1';
-import { respuestaLlana, confiabilidadLegacy } from './resumen_llano.js?v=1';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=63';
+import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, ciudadesAEstados } from './conversacion.js?v=2';
+import { respuestaLlana, confiabilidadLegacy } from './resumen_llano.js?v=2';
 /** Los cuatro originales en lenguaje llano (consulta general), antes de sus handlers específicos. */
 function answerLegacyLlano(q, ent, s, d) { return legacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadLegacy }); }
 import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaConDatos, salidaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=54';
@@ -6311,7 +6311,19 @@ const HANDLERS_SIN_DATOS = new Set(['answerAliasAmbiguo', 'answerGuardaD7', 'ans
   'answerFueraDeTema', 'answerInjectionGuard', 'answerCodeRequest', 'answerLugarDesconocido',
   // Respuestas informativas de texto (qué es un padecimiento, preguntas al asistente, metodología): sin cifras se conservan.
   'answerQueEsPadecimiento', 'answerPreguntaPersonal', 'answerProyectoMeta']);
+/**
+ * Rediseño conversacional: una ciudad conocida («Monterrey», «Guadalajara») se responde para su estado y se dice. La crisis
+ * y el apoyo se evalúan sobre el texto original (el reemplazo sólo cambia el nombre del lugar).
+ */
 async function _resolveConContexto(query) {
+  const { texto, notas } = ciudadesAEstados(query);
+  const r = await _resolveConContextoBase(notas.length ? texto : query);
+  if (!notas.length || !r.response || HANDLERS_DE_AYUDA.has(r.handler)) return r;
+  const nota = notas.map((n) => `${n.ciudad} está en ${n.estado}`).join('; ');
+  return { ...r, response: `_${nota}: el boletín publica por estado, así que te respondo para ${notas.length > 1 ? 'esos estados' : 'el estado'}._\n\n${r.response}` };
+}
+
+async function _resolveConContextoBase(query) {
   const r0 = await _resolve(query);
   // Rediseño conversacional (24-nov-2026, mesa redonda): la lista blanca global ya no bloquea las consultas naturales.
   // Sólo un turno personal que no nombra ningún dato y trae palabras fuera del vocabulario (apoyoSuave) no recibe cifras,

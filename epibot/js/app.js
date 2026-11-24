@@ -7,7 +7,7 @@ import { graficoRondas } from './comparacion_rondas.js?v=3';
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=197';
+import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=198';
 import { detectEntities, norm } from './entities.js?v=87';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
 import { renderMexicoMap } from './mexico-map.js?v=3';
@@ -936,14 +936,26 @@ async function routeQuery(text, typingEl) {
   if (!result && !triedLocal) {
     try { result = await answer(text); } catch (err) { console.error('KB error:', err); }
   }
+  // Rediseño conversacional (24-nov-2026): si el KB no reconoce ningún padecimiento, Gemini sólo clasifica la frase contra
+  // listas cerradas (netlify/lib/nlu.mjs) y el KB responde la consulta canónica con sus propios datos.
+  let consultaNlu = null;
+  if (!result && debeInterpretar(text)) {
+    consultaNlu = await interpretaConGemini(text);
+    if (consultaNlu) {
+      let r2 = null;
+      try { r2 = await answer(consultaNlu); } catch (err) { console.error('KB error:', err); }
+      if (r2 && !/No entendí bien|Lamento que estés|Sigo aquí contigo/.test(r2)) result = `_Entendí: «${consultaNlu}»._\n\n${r2}`;
+      else consultaNlu = null;
+    }
+  }
 
   if (result) {
     // Hereda el padecimiento/estado del contexto para que el GR\u00c1FICO de un
     // seguimiento coincida con el texto (ej. \u00ab\u00bfy en Sonora?\u00bb tras Parkinson \u2192
     // gr\u00e1fico de Parkinson en Sonora; \u00abevoluci\u00f3n hist\u00f3rica en Sonora\u00bb \u2192
     // tendencia SOLO de Parkinson, no de los 3 padecimientos).
-    const ent = detectEntities(text);
-    let chartQuery = text;
+    const ent = detectEntities(consultaNlu || text);
+    let chartQuery = consultaNlu || text;
     // En seguimientos, completa el padecimiento/estado faltante desde el contexto
     // (ej. «¿y en Puebla?» o «por sexo» heredan «Depresión» y/o «Puebla»).
     const needsCtx = isShortFollowUp || (ent.estado && !ent.padecimiento) || (ent.padecimiento && !ent.estado);
@@ -973,7 +985,7 @@ async function routeQuery(text, typingEl) {
     }
     if (chartData) lastChartQuery = chartQuery;
     lastAnswerWasRag = false;
-    const suggestions = sugerenciasDeRespuesta(result) || getSuggestions(text);
+    const suggestions = sugerenciasDeRespuesta(result) || getSuggestions(consultaNlu || text);
     removeTyping(typingEl);
     addBotMessage(result, 'local', suggestions, chartData);
     pushHistory(text, result);
@@ -989,6 +1001,30 @@ async function routeQuery(text, typingEl) {
 // Reutilizable por el fallback de handleSend y por los chips de fuentes.
 // ---------------------------------------------------------------------------
 const STRIP_CIFRAS = /\s*\[\s*(cifras?\s*clave|datos del proyecto)\s*\]/gi;
+
+/** ¿Vale la pena pedir a Gemini que interprete la frase? Sólo si no nombra un padecimiento ni es una pregunta de método. */
+function debeInterpretar(text) {
+  const t = norm(text);
+  if (t.split(' ').filter(Boolean).length < 2) return false;
+  const ent = detectEntities(text);
+  if (ent.padecimiento || (ent.padecimientos || []).length) return false;
+  return !/\b(paper|micai|articulo|metodolog|modelo|modelos|motor|motores|smape|mase|equipo|proyecto|quien|hiperparam|epiforecast|rag|gemini|como funcion)/.test(t);
+}
+
+/** Pide a la función RAG (modo nlu) la consulta canónica; null si no entiende, tarda o falla. */
+async function interpretaConGemini(text) {
+  const ac = new AbortController();
+  const t = setTimeout(() => ac.abort(), 4500);
+  try {
+    const resp = await fetch('/.netlify/functions/rag', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: text, modo: 'nlu' }), signal: ac.signal,
+    });
+    if (!resp.ok) return null;
+    const data = await resp.json().catch(() => null);
+    return data && typeof data.consulta === 'string' && data.consulta.length < 200 ? data.consulta : null;
+  } catch { return null; } finally { clearTimeout(t); }
+}
 
 async function callRag(text) {
   const typingEl = addTypingIndicator('EPI está consultando la base de conocimiento');
