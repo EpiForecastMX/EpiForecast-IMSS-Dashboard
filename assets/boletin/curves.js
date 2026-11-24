@@ -112,11 +112,11 @@
     view = current.filter(t => t.value != null);
     const last = view.at(-1), firstPoint = view[0];
     $('curveStats').innerHTML = [
-      ['Última semana disponible', last ? `${last.y}-W${String(last.w).padStart(2,'0')}` : 'Sin dato'],
-      ['Primera semana disponible', firstPoint ? `${firstPoint.y}-W${String(firstPoint.w).padStart(2,'0')}` : 'Sin dato'],
+      ['Última semana con dato', last ? `Semana ${last.w} de ${last.y}` : 'Sin dato'],
       ['Último valor', last ? esc(shown(last.raw)) : 'Sin dato'],
-      ['Puntos con cifra', `${view.length} / ${current.length}`]
-    ].map(([l,v]) => `<div><span>${l}</span><strong>${v}</strong></div>`).join('');
+      ['Primera semana con dato', firstPoint ? `Semana ${firstPoint.w} de ${firstPoint.y}` : 'Sin dato'],
+      ['Semanas con dato', `${view.length.toLocaleString('es-MX')} de ${current.length.toLocaleString('es-MX')}`]
+    ].map(([l,v]) => `<div><span>${l}</span><strong${String(v).length>10?' class="stat-texto"':''}>${v}</strong></div>`).join('');
     const flagged = current.filter(t => t.point?.flags.length).length;
     const unplaced=(selected.unplaced || []).filter(p=>years.includes(index.sources[p.s].year));
     $('curveCaption').textContent = `Eje X: ${compare ? 'semana epidemiológica (1–53), superposición de años' : `fecha de inicio de la semana epidemiológica, ${years[0]}–${years.at(-1)}`}. Eje Y: ${metric ? 'notificaciones acumuladas del año observado' : 'notificaciones semanales publicadas'}. Fuente: ${index.source_count} boletines SINAVE/DGE, ${Object.keys(index.source_years)[0]}–${Object.keys(index.source_years).at(-1)}. ${flagged ? `${flagged} ${flagged===1?'punto del bloque tiene':'puntos del bloque tienen'} avisos consultables.` : ''} ${unplaced.length?`${unplaced.length} bloques con fechas contradictorias quedan fuera de la curva y se conservan debajo, con sus cifras originales.`:''} Los huecos son ausencia o ambigüedad de dato; no son ceros. «–» es el guion impreso por el boletín${d.guion ? `; en esta categoría, desde ${d.guion.desde}, es una cifra no publicada en el cuadro y queda como hueco` : ''}.`;
@@ -125,27 +125,38 @@
     $('curveScope').textContent = a.tipo !== 'nacional' && !selected.points.some(p => p.e) ? 'Este padecimiento aparece solo en el resumen nacional. No hay desglose estatal en estos cuadros.' : `${d.code} · ${metric ? 'Los acumulados se reinician en cada año observado; no se diferencian para fabricar casos semanales.' : 'La curva usa la columna semanal publicada, sin obtenerla por resta de acumulados.'}${notaRegion}${notaSexo} Los cambios de definición se conservan como categorías históricas separadas. La ausencia de un padecimiento antes de su incorporación no equivale a cero.`;
     const W=960,H=350,L=83,R=24,T=24,B=65,pw=W-L-R,ph=H-T-B;
     const vals = view.map(t => t.value), min = Math.min(0,...vals), max = Math.max(1,...vals), span = max-min;
-    const low=min < 0 ? min-span*.07 : 0, high=max+span*.08;
+    // Marcas «redondas» del eje Y (1, 2, 2.5 o 5 por potencia de 10), con el máximo dentro de la escala.
+    const paso=(()=>{const bruto=Math.max(span,1)/5,p10=10**Math.floor(Math.log10(bruto));return [1,2,2.5,5,10].map(k=>k*p10).find(k=>k>=bruto);})();
+    const low=min < 0 ? Math.floor(min/paso)*paso : 0, high=Math.max(paso,Math.ceil(max*1.02/paso)*paso);
+    const marcasY=[];for(let v=low;v<=high+paso/1e6;v+=paso)marcasY.push(Math.round(v*1e6)/1e6);
     const Y=v=>T+(1-(v-low)/(high-low))*ph;
     const X=t=>L+((compare ? t.w-1 : periods.findIndex(p=>p.y===t.y&&p.w===t.w))/(compare?52:Math.max(1,periods.length-1)))*pw;
     let svg=`<svg viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="curveSvgTitle curveSvgDesc"><title id="curveSvgTitle">${esc(d.name)}, ${metric?'acumulados':'casos semanales'}, ${years[0]}–${years.at(-1)}</title><desc id="curveSvgDesc">${esc($('curveCaption').textContent)} Tabla accesible de cifras debajo de la gráfica.</desc>`;
-    for(let i=0;i<=5;i++){
-      const v=low+(high-low)*i/5,y=Y(v);
-      svg+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" class="curve-grid"/><text x="${L-12}" y="${y+4}" text-anchor="end" class="curve-tick">${esc(Math.round(v).toLocaleString('es-MX'))}</text>`;
+    for(const v of marcasY){
+      const y=Y(v);
+      svg+=`<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" class="curve-grid"/><text x="${L-12}" y="${y+4}" text-anchor="end" class="curve-tick">${esc(v.toLocaleString('es-MX'))}</text>`;
     }
     if(min<0)svg+=`<line x1="${L}" y1="${Y(0)}" x2="${W-R}" y2="${Y(0)}" class="curve-zero"/>`;
-    const ticks=compare?[1,9,17,25,33,41,49,53].map(w=>({w,y:years[0],label:String(w)})):periods.filter((t,i)=>i===0||i===periods.length-1||(t.w===1&&(years.length<=7||t.y%2===0))).map(t=>({...t,label:years.length>3?String(t.y):`${t.y} W${t.w}`}));
+    const ticks=compare?[1,9,17,25,33,41,49,53].map(w=>({w,y:years[0],label:String(w)})):(()=>{
+      // Una marca por año (cada dos con más de siete años), en su primera semana disponible; nunca repetida.
+      const cada=years.length>7?2:1, out=[];
+      for(const y of years){if((y-years[0])%cada)continue;const t=periods.find(p=>p.y===y);if(t)out.push({...t,label:years.length>3?String(y):`${y} W${t.w}`});}
+      if(years.length<=3){const u=periods.at(-1);if(u&&!out.some(t=>t.y===u.y&&t.w===u.w))out.push({...u,label:`${u.y} W${u.w}`});}
+      return out;
+    })();
     for(const t of ticks)svg+=`<text x="${X(t)}" y="${H-B+26}" text-anchor="middle" class="curve-tick">${t.label}</text>`;
     svg+=`<text x="${W/2}" y="${H-9}" text-anchor="middle" class="curve-axis">${compare?'Semana epidemiológica':'Año y semana epidemiológica observados'}</text><text transform="translate(16 ${T+ph/2}) rotate(-90)" text-anchor="middle" class="curve-axis">Notificaciones ${metric?'acumuladas':'por semana'}</text>`;
     for(const year of years){
-      let path='', started=false;
+      // Tramos entre huecos; una semana aislada se dibuja como punto (con el extremo redondo de la línea).
+      let path='', n=0;
       for(const t of current.filter(t=>t.y===year)){
-        if(t.value==null){started=false;continue;}
-        path+=`${started?'L':'M'}${X(t).toFixed(2)},${Y(t.value).toFixed(2)} `;started=true;
+        if(t.value==null){if(n===1)path+='h0.01 ';n=0;continue;}
+        path+=`${n?'L':'M'}${X(t).toFixed(2)},${Y(t.value).toFixed(2)} `;n++;
       }
-      svg+=`<path d="${path}" class="curve-line curve-year-${!compare||year===years[0]?2025:2026}"/>`;
+      if(n===1)path+='h0.01 ';
+      svg+=`<path d="${path}" class="curve-line curve-year-${!compare||year===years[0]?2025:2026}${!compare&&periods.length>260?' curve-line--densa':''}"/>`;
     }
-    for(const [i,t] of current.entries())if(t.value!=null){const p=t.point;svg+=`<circle cx="${X(t)}" cy="${Y(t.value)}" r="${p.flags.length?4:3}" class="curve-dot curve-year-${!compare||t.y===years[0]?2025:2026}${p.flags.length?' curve-flagged':''}" data-point="${i}" tabindex="0" role="button" aria-label="${periodLabel(t)}: ${esc(shown(t.raw))}. Ver fuente"><title>${periodLabel(t)}: ${esc(shown(t.raw))}${meaning(t.raw,t.y)?` · ${esc(meaning(t.raw,t.y))}`:''}</title></circle>`;}
+    for(const [i,t] of current.entries())if(t.value!=null){const p=t.point;svg+=`<circle cx="${X(t)}" cy="${Y(t.value)}" r="${p.flags.length?4:3}" class="curve-dot curve-year-${!compare||t.y===years[0]?2025:2026}${p.flags.length?' curve-flagged':''}" data-point="${i}" tabindex="-1" role="button" aria-label="${periodLabel(t)}: ${esc(shown(t.raw))}. Ver fuente"><title>${periodLabel(t)}: ${esc(shown(t.raw))}${meaning(t.raw,t.y)?` · ${esc(meaning(t.raw,t.y))}`:''}</title></circle>`;}
     svg+='</svg>';
     $('curveChart').innerHTML=svg;
     $('curveLegend').innerHTML = compare ? years.map((y,i)=>`<span class="curve-legend-${i===0?2025:2026}">${y}</span>`).join('') : `<span class="curve-legend-2025">${years[0]}–${years.at(-1)}</span>`;
@@ -155,10 +166,21 @@
         el.classList.add('curve-active');
         inspect(current[Number(el.dataset.point)].point);
       };
-      el.addEventListener('pointerenter',show);el.addEventListener('click',show);el.addEventListener('focus',show);el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')show();});
+      el.addEventListener('pointerenter',show);el.addEventListener('click',show);el.addEventListener('focus',show);
+      // Un solo punto en el orden de tabulación; las flechas, Inicio y Fin recorren las semanas.
+      el.addEventListener('keydown',e=>{
+        if(e.key==='Enter'||e.key===' '){e.preventDefault();show();return;}
+        const dots=[...$('curveChart').querySelectorAll('[data-point]')],k=dots.indexOf(el);
+        const destino={ArrowRight:k+1,ArrowLeft:k-1,ArrowUp:k+1,ArrowDown:k-1,Home:0,End:dots.length-1,PageUp:k+52,PageDown:k-52}[e.key];
+        if(destino===undefined)return;e.preventDefault();
+        const d=dots[Math.max(0,Math.min(dots.length-1,destino))];el.setAttribute('tabindex','-1');d.setAttribute('tabindex','0');d.focus();
+      });
     });
     if(last){
-      $('curveChart').querySelector(`[data-point="${current.indexOf(last)}"]`)?.classList.add('curve-active');
+      const ultimo=$('curveChart').querySelector(`[data-point="${current.indexOf(last)}"]`);
+      ultimo?.classList.add('curve-active');ultimo?.setAttribute?.('tabindex','0');
+      // En pantallas angostas la gráfica se desliza: se abre en lo más reciente.
+      const caja=$('curveChart');if(caja.scrollWidth>caja.clientWidth)caja.scrollLeft=caja.scrollWidth;
       inspect(last.point);
     }else $('curvePoint').textContent='No hay cifras para esta selección; consulta la cobertura del cuadro o elige Nacional.';
     $('curveDataRows').innerHTML=current.map(t=>{

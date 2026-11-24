@@ -81,13 +81,16 @@ function grafica(m) {
   const W = 960, H = 340, L = 83, R = 24, T = 24, B = 60, pw = W - L - R, ph = H - T - B;
   const t = (ds) => Date.parse(`${ds}T00:00:00Z`);
   // Con el rótulo dentro de la gráfica se deja espacio arriba para que la línea no lo cubra.
-  const t0 = t(todos[0].ds), t1 = t(todos.at(-1).ds), max = Math.max(1, ...todos.map((p) => p.y)) * (m.tipo === 'exploratorio' ? 1.35 : 1.08);
+  // Escala con marcas «redondas» (1, 2, 2.5 o 5 por potencia de 10); el exploratorio deja aire para su rótulo.
+  const tope = Math.max(1, ...todos.map((p) => p.y)) * (m.tipo === 'exploratorio' ? 1.35 : 1.02);
+  const paso = (() => { const b = tope / 5, p10 = 10 ** Math.floor(Math.log10(b)); return [1, 2, 2.5, 5, 10].map((k) => k * p10).find((k) => k >= b); })();
+  const t0 = t(todos[0].ds), t1 = t(todos.at(-1).ds), max = Math.ceil(tope / paso) * paso;
   const X = (ds) => L + ((t(ds) - t0) / Math.max(1, t1 - t0)) * pw, Y = (v) => T + (1 - v / max) * ph;
   const ruta = (ps) => ps.map((p, i) => `${i ? 'L' : 'M'}${X(p.ds).toFixed(2)},${Y(p.y).toFixed(2)}`).join(' ');
   const clase = m.tipo === 'exploratorio' ? 'forecast-line forecast-line--exploratorio' : 'forecast-line';
   let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-labelledby="forecastSvgTitle forecastSvgDesc"><title id="forecastSvgTitle">${esc(m.nombre)}: ${esc(m.tipo === 'exploratorio' ? m.rotulo : 'pronóstico publicado')}</title><desc id="forecastSvgDesc">Serie observada de las últimas semanas y ${pro.length} semanas de pronóstico desde ${esc(m.origen)}. ${esc(m.rotulo)}.</desc>`;
-  for (let i = 0; i <= 5; i++) {
-    const v = (max * i) / 5, y = Y(v);
+  for (let v = 0; v <= max + paso / 1e6; v += paso) {
+    const y = Y(v);
     svg += `<line x1="${L}" y1="${y}" x2="${W - R}" y2="${y}" class="curve-grid"/><text x="${L - 12}" y="${y + 4}" text-anchor="end" class="curve-tick">${esc((max < 10 ? Math.round(v * 10) / 10 : Math.round(v)).toLocaleString('es-MX'))}</text>`;
   }
   // Una marca por año, en su primera semana (la que empieza entre el 29 de diciembre y el 4 de enero).
@@ -135,13 +138,24 @@ function pintar(m) {
   $('forecastLabel').innerHTML = (m.aviso_ambito ? `<p class="forecast-label forecast-label--ambito" role="note">${esc(m.aviso_ambito)}</p>` : '') + rotuloHtml(m);
   $('forecastStats').innerHTML = [
     ['Tipo', m.tipo === 'exploratorio' ? (m.sin_pronostico ? 'Sin pronóstico' : m.notas ? 'Exploratorio desde las notas, no validado' : m.nivel_reciente ? 'Exploratorio de nivel reciente, no validado' : 'Exploratorio, no validado') : 'Pronóstico publicado'],
-    ['Origen', m.origen || 'Sin dato'],
+    ['Origen', semanaLegible(m.origen) || 'Sin dato'],
     ['Semanas pronosticadas', String(pro.length)],
-    ['Suma de las semanas mostradas', m.total == null ? 'Sin dato' : fmt(m.total)],
-  ].map(([l, v]) => `<div><span>${l}</span><strong>${esc(v)}</strong></div>`).join('');
+    ['Suma de las semanas mostradas', m.total == null ? 'Sin dato' : Number.isInteger(m.total) ? fmt(m.total) : `≈ ${Math.round(m.total).toLocaleString('es-MX')}`],
+  ].map(([l, v]) => `<div><span>${l}</span><strong${String(v).length > 16 ? ' class="stat-texto"' : ''}>${esc(v)}</strong></div>`).join('');
   $('forecastChart').innerHTML = grafica(m);
   $('forecastLegend').innerHTML = `<span class="curve-legend-2025">Observado</span>${pro.length ? `<span class="forecast-legend${m.tipo === 'exploratorio' ? ' forecast-legend--exploratorio' : ''}">${m.tipo === 'exploratorio' ? (m.notas ? 'Exploratorio desde las notas, no validado' : m.nivel_reciente ? 'Exploratorio de nivel reciente, no validado' : 'Exploratorio, no validado') : 'Pronóstico publicado'}</span>` : ''}`;
-  $('forecastCaption').textContent = `Ámbito: ${m.serie_nombre}. Fuente: ${m.fuente}.${m.anios?.length ? ` Años base de la media: ${m.anios.join(', ')}.` : ''}${m.base ? ` Semanas base del nivel: ${m.base.periodo}.` : ''} Pronóstico puntual, sin intervalos en esta gráfica.${notaAmbito(m)} Se muestran hasta ${OBSERVADO_SEMANAS} semanas observadas.${totalPublicado(m)}`;
+  $('forecastCaption').textContent = `Ámbito: ${m.serie_nombre}. Fuente: ${fuenteLegible(m)}.${m.anios?.length ? ` Años base de la media: ${m.anios.join(', ')}.` : ''}${m.base ? ` Semanas base del nivel: ${m.base.periodo}.` : ''} Pronóstico puntual, sin intervalos en esta gráfica.${notaAmbito(m)} Se muestran hasta ${OBSERVADO_SEMANAS} semanas observadas.${totalPublicado(m)}`;
+}
+
+/** «2026-W41» → «Semana 41 de 2026» (sólo presentación). */
+const semanaLegible = (t) => String(t ?? '').replace(/^(\d{4})-W0?(\d{1,2})$/, (s, y, w) => `Semana ${w} de ${y}`);
+
+/** La fuente en palabras (la ruta del archivo queda en el código, no en la página). */
+function fuenteLegible(m) {
+  if (m.tipo === 'exploratorio') return 'pronóstico exploratorio del radar, calculado de la serie impresa del boletín';
+  if (m.fuente === 'hero_series.json') return 'pronóstico publicado del carril original, el mismo de la portada';
+  if (m.legacy) return 'pronóstico publicado del carril original, el mismo de la galería por entidad y sexo';
+  return 'pronóstico publicado de EpiForecast-MX (release vigente del padecimiento)';
 }
 
 /** Qué es una serie por sexo o por región del pronóstico publicado: no son cifras impresas del boletín. */
