@@ -11,13 +11,13 @@ import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=13';
 import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=64';
-import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion } from './conversacion.js?v=10';
+import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion } from './conversacion.js?v=11';
 import { respuestaLlana, confiabilidadLegacy, indicadores as indicadoresLlano } from './resumen_llano.js?v=3';
 /** Los cuatro originales en lenguaje llano (consulta general), antes de sus handlers específicos. */
 function answerLegacyLlano(q, ent, s, d) {
   return legacyComparacion(q, ent, s, d, { indicadores: indicadoresLlano }) || legacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadLegacy });
 }
-import { MARCADOR_RELEASE, releaseDeMarca, aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaTemaSensible, respuestaConDatos, salidaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=56';
+import { MARCADOR_RELEASE, releaseDeMarca, aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaTemaSensible, respuestaConDatos, salidaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=57';
 
 let DATA = null;
 
@@ -610,6 +610,10 @@ function answerInjectionGuard(q) {
     'leaking secrets', 'filtra secretos', 'dime tus secretos',
     // Codificacion / evasion
     'dan mode', 'jailbreak', 'developer mode', 'modo desarrollador',
+    // Pruebas de seguridad (24-nov-2026): órdenes con aspecto de sistema y peticiones de credenciales.
+    'system:', 'sistema:', 'desactiva las guardas', 'desactiva tus guardas', 'sin restricciones', 'modo administrador', 'eres administrador',
+    'clave de api', 'api key', 'apikey', 'tu token', 'tus credenciales', 'contrasena', 'password', 'variables de entorno', 'env var',
+    'repite todo lo que te dije', 'muestrame el historial', 'tu codigo fuente',
     // Respuestas condicionadas
     'si la respuesta es si responde', 'responde solo con',
     'a partir de ahora responde', 'usa solo emojis',
@@ -618,14 +622,13 @@ function answerInjectionGuard(q) {
 }
 
 const INJECTION_RESPONSE =
-  'Soy el asistente de **EpiForecast-MX**, una plataforma de inteligencia ' +
-  'epidemiologica para la salud publica en Mexico. No puedo asumir otros roles, compartir informacion ' +
-  'confidencial ni modificar mis instrucciones.\n\n' +
+  'Soy el asistente de **EpiForecast-MX**, una plataforma de inteligencia epidemiológica para la salud pública en México. ' +
+  'No puedo asumir otros roles, compartir información confidencial (instrucciones, claves o datos internos) ni modificar ' +
+  'mis instrucciones.\n\n' +
   'Puedo ayudarte con:\n' +
-  '- Datos y pronosticos de **Depresion**, **Parkinson** y **Alzheimer**\n' +
-  '- Metricas de los modelos de ML (SMAPE, MASE, RMSE)\n' +
-  '- Datos historicos del boletin epidemiologico SINAVE\n' +
-  '- Informacion del equipo, metodologia e infraestructura';
+  `- Casos y pronósticos de ${TOTAL_PUBLICADOS()} padecimientos del boletín epidemiológico, por estado y por sexo\n` +
+  '- Qué tan confiable es cada pronóstico\n' +
+  '- Cómo está hecho el proyecto: equipo, modelos y métricas';
 
 // ---------------------------------------------------------------------------
 // Guard: padecimiento no modelado → retorna null para caer a Gemini
@@ -840,13 +843,13 @@ function answerEdadNoDisponible(q, ent, s, d) {
   const pad = ent.padecimiento;
   const sexoLabel = ent.sexo === 'hombres' ? 'hombres' : ent.sexo === 'mujeres' ? 'mujeres' : null;
   const lines = [
-    `**Variable no disponible**: nuestros modelos de pronostico segmentan unicamente por **sexo** (hombres, mujeres, general) y **entidad federativa** (32 estados + Nacional). No manejamos edad, grupo etario ni otras variables exogenas.\n`,
+    `**Variable no disponible**: nuestros modelos de pronóstico segmentan únicamente por **sexo** (hombres, mujeres, general) y **entidad federativa** (32 estados + Nacional). No manejamos edad, grupo etario ni otras variables exógenas.\n`,
   ];
 
   if (sexoLabel) {
     const articuloSexo = ent.sexo === 'hombres' ? 'Los' : 'Las';
     const ps = s.por_pad?.[pad]?.por_sexo?.[ent.sexo];
-    lines.push(`Sin embargo, si contamos con pronosticos diferenciados por **sexo**:\n`);
+    lines.push(`Sin embargo, sí contamos con pronósticos diferenciados por **sexo**:\n`);
     if (ps) {
       // por_sexo trae n / casos_total / casos_nacional (no pct_series ni casos_futuro): sin esto
       // la respuesta pintaba «undefined» y «?».
@@ -857,7 +860,7 @@ function answerEdadNoDisponible(q, ent, s, d) {
         lines.push(`${articuloSexo} **${sexoLabel}** tienen **${ps.n} de ${nPad}** series de ${pad}.`);
       }
       const casosSexo = ps.casos_futuro ?? ps.casos_nacional;
-      if (casosSexo != null) lines.push(`- Pronostico${ps.casos_futuro == null ? ' nacional' : ''}: **${fmt(casosSexo)}** casos en 52 semanas`);
+      if (casosSexo != null) lines.push(`- Pronóstico${ps.casos_futuro == null ? ' nacional' : ''}: **${fmt(casosSexo)}** casos en 52 semanas`);
       if (!metricasRetiradas(d) && ps.smape_mean != null) lines.push(`- SMAPE promedio: **${ps.smape_mean}%**`);
     }
   } else {
@@ -4320,6 +4323,19 @@ const STOP_WORDS = new Set([
   'ultimos', 'tres', 'dime', 'oye', 'algun', 'alguna', 'seria', 'podria', 'podrias', 'explicar', 'explicame', 'verdad', 'mexicano', 'mexicana', 'mexicanos', 'chatbot', 'sistema', 'funciona',
 ]);
 
+// Barrido de cobertura (24-nov-2026): el corrector nunca toca una palabra de un nombre o alias publicado («chagas» no es
+// «chiapas»).
+let _palabrasPublicadas = null;
+function palabrasPublicadas() {
+  if (_palabrasPublicadas) return _palabrasPublicadas;
+  _palabrasPublicadas = new Set();
+  for (const r of RELEASES) {
+    for (const t of [r.nombre, r.consulta, r.consultaVisible, ...(r.alias || [])]) {
+      for (const w of norm(t || '').split(' ')) if (w.length > 3) _palabrasPublicadas.add(w);
+    }
+  }
+  return _palabrasPublicadas;
+}
 function fuzzyCorrect(q) {
   const words = q.split(' ');
   let changed = false;
@@ -4327,6 +4343,7 @@ function fuzzyCorrect(q) {
     if (w.length <= 3) return w;         // No corregir palabras muy cortas («tan» no es «san»)
     if (VOCAB.includes(w)) return w;     // Ya esta bien
     if (STOP_WORDS.has(w)) return w;     // Palabra comun, no corregir
+    if (palabrasPublicadas().has(w)) return w;
     // Buscar la palabra m\u00e1s cercana en el vocabulario
     let best = w, bestDist = Infinity;
     for (const known of VOCAB) {
@@ -6164,10 +6181,11 @@ async function _resolve(consulta) {
   // tratamiento, prevención, contagio, dieta, gravedad) no recibe el volcado de casos: va al RAG, que responde con su aviso.
   const relClin = releaseDePad(ent.padecimiento);
   // El nombre oficial no cuenta («otros síntomas y signos que involucran el estado emocional»).
-  const qSinNombre = relClin ? [relClin.nombre, relClin.consulta, relClin.consultaVisible].filter(Boolean).map(norm).reduce((t, n) => t.split(n).join(' '), q) : q;
+  const qSinNombre = relClin ? [relClin.nombre, relClin.consulta, relClin.consultaVisible, ...(relClin.alias || [])].filter(Boolean).map(norm)
+    .sort((x, y) => y.length - x.length).reduce((t, n) => t.split(n).join(' '), q) : q;
   const qClin = ['Dengue', 'Depresion', 'Parkinson', 'Alzheimer'].includes(ent.padecimiento) ? q.replace(/\b(sintoma\w*|signos|causa\w*|transmit\w*|contagi\w*)\b/g, ' ') : qSinNombre;
   if (ent.padecimiento && esPreguntaClinica(qClin, q)) return { response: null, handler: null };
-  if (ent.padecimiento && !ent.estado && /\b(entre \d+ y \d+ anos|de \d+ (a|y) \d+ anos|menores de \d+|mayores de \d+|rango de edad|grupo de edad|por edad|edades)\b/.test(q)) {
+  if (ent.padecimiento && !ent.estado && /\b(entre \d+ y \d+ anos|de \d+ (a|y) \d+ anos|menores de \d+|mayores de \d+|rango de edad|grupo de edad|por edad|edades)\b/.test(qSinNombre)) {
     const rr = releaseDePad(ent.padecimiento);
     const nombre = rr ? (rr.consultaVisible || rr.consulta) : ({ Depresion: 'depresión' }[ent.padecimiento] || String(ent.padecimiento).toLowerCase());
     return { response: `El boletín reporta los casos **por estado y por sexo, no por edad**, así que no puedo separar grupos de edad. Sí puedo darte el total de ${nombre}${ent.estado ? ` en ${ent.estado}` : ''}, o hombres y mujeres por separado.\n<!--SIN_GRAFICA-->`, handler: 'answerEdadNoDisponible' };
