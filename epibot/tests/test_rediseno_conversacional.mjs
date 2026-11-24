@@ -182,3 +182,19 @@ test('el ranking entre padecimientos excluye los sensibles y avisa del umbral de
   const ids = new Set(d.resumen_padecimientos.padecimientos.map((x) => x.id));
   for (const r of C.releases.filter((x) => x.sensible)) assert.ok(!ids.has(r.id), r.id);
 });
+
+test('un padecimiento sensible lleva la Línea de la Vida a la vista, no plegada', async () => {
+  for (const q of ['X60 en Jalisco', 'X70 en Sonora']) {
+    const { md } = await conversa(q);
+    assert.match(md.split('<!--DETALLE-->')[0], /800 911 2000/, q);
+  }
+});
+test('un tema sensible preguntado en tercera persona recibe un texto neutral, no la crisis', async () => {
+  const k = await conversa('Cuantos casos de violencia intrafamiliar reporta el boletin en el Edomex');
+  assert.equal(k.handler, 'answerTemaSensible');
+  assert.match(k.md, /800 911 2000/);
+  assert.ok(sinCifras(k.md));
+  for (const q of ['¿Cuántos golpes de calor hubo en Mexicali el verano pasado?', 'intoxicacion por comida en navidad hay mas?', '¿Tienen casos de VIH?']) {
+    assert.equal(C.respuestaCrisis(C.normalizaEntrada(q)), null, q);
+  }
+});

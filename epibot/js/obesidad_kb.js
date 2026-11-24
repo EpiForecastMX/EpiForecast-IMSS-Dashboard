@@ -18,7 +18,7 @@ import {
 import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=54';
 // Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
 import './avisos_fuente.js?v=5';
-import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion } from './resumen_llano.js?v=2';
+import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion, indicadores, nombreEstado } from './resumen_llano.js?v=2';
 import { DEFINICIONES } from './definiciones.js?v=1';
 
 const any = (q, ks) => ks.some((k) => q.includes(k));
@@ -188,11 +188,14 @@ export function answerReleasesMixtos(q, ent, s, d) {
     // Con un estado pedido, sólo la serie de ese estado; nunca el total nacional en su lugar.
     let x = v && !ent.estado ? v.series['nacional|mx|general'] : null;
     if (v && ent.estado) { const y = serieObesidad(v, { ...ent, sexo: 'general' }); x = y && y.nivel === 'estado' ? y : null; }
-    const lugar = ent.estado && x ? ` en ${x.nombre}` : '';
+    const lugar = ent.estado && x ? ` en ${nombreEstado(x.nombre)}` : ' en el país';
     if (!x) return `- **${r.etiqueta}**: consulta [su página](../${r.pagina})${ent.estado ? ` para ${ent.estado}` : ''}.`;
-    return `- **${r.etiqueta}**${lugar}: ${ent0(x.pronostico_52_total)} casos pronosticados en ${v.horizon_weeks} semanas, con datos hasta ${semana(v.origin)}. [Ver su página](../${r.pagina}).`;
+    const ind = indicadores(v, x);
+    const TEND = { sube: 'se espera que suba', baja: 'se espera que baje', estable: 'estable', incierto: 'sin señal clara', atipico: 'notificación atípica', pocos: 'muy pocos casos' };
+    if (!ind || ind.F4 == null) return `- **${r.etiqueta}**${lugar}: ${ent0(x.pronostico_52_total)} casos pronosticados en ${v.horizon_weeks} semanas. [Ver su página](../${r.pagina}).`;
+    return `- **${r.etiqueta}**${lugar}: ${ent0(ind.O4)} casos en las últimas 4 semanas; unos ${ent0(ind.F4)} en las próximas 4 (${TEND[ind.tendencia]}, confiabilidad ${confiabilidad(v, x, esControl(v)).nivel}). [Ver su página](../${r.pagina}).`;
   });
-  return ['Cada padecimiento tiene su propio pronóstico congelado, así que no los mezclo en una gráfica:', '', ...filas, '<!--SIN_GRAFICA-->'].join('\n');
+  return ['Cada padecimiento tiene su propio pronóstico, así que los doy por separado:', '', ...filas, '<!--SIN_GRAFICA-->'].join('\n');
 }
 
 function answerRelease(q, ent, s, d, r) {
@@ -207,7 +210,12 @@ function answerRelease(q, ent, s, d, r) {
   }
   // Sin desglose por sexo (cuello del útero): sólo existe el total de cada entidad.
   const sinSexo = !Object.keys(v.series).some((k) => k.endsWith('|hombres'));
-  const tipoPedido = tipoEfectivo(q, ent);
+  // El nombre del padecimiento no cuenta para la intención («vehículos con motor» no pide los motores).
+  const qTipo = [r.nombre, r.consulta, ...(r.alias || [])].map((a) => String(a).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase())
+    .sort((a, b) => b.length - a.length).reduce((acc, a) => (a && a.length > 3 ? acc.split(a).join(' ') : acc), q);
+  let tipoPedido = tipoEfectivo(qTipo, ent);
+  // Dos estados nombrados («compárame candidiasis entre CDMX y Edomex») piden la comparación.
+  if (tipoPedido === 'serie' && estadosEnConsulta(v, q).length >= 2) tipoPedido = 'comparador';
   const pidioSexo = sinSexo && ((ent.sexo && ent.sexo !== 'general') || tipoPedido === 'sexo');
   if (sinSexo) ent = { ...ent, sexo: undefined };
   const tipo = pidioSexo && tipoPedido === 'sexo' ? tipoEfectivo('', ent) : tipoPedido;
@@ -253,12 +261,23 @@ function answerRelease(q, ent, s, d, r) {
         `Mediana estatal: **${num1(mediana(est.map((x) => x.oos.smape)))} %**. Estados con mayor error:`,
         ...orden.map((x) => `- **${x.nombre}**: ${num1(x.oos.smape)} %`), '', etiqueta]);
     }
-    const todos = Object.values(v.series).filter((x) => x.nivel === 'estado' && x.sexo === sexo);
-    const orden = [...todos].sort((a, b) => b.pronostico_52_total - a.pronostico_52_total).slice(0, 5);
+    // Rediseño conversacional: los estados con más casos esperados (o con mayor aumento, si se pide), con lo observado.
+    const todos = Object.values(v.series).filter((x) => x.nivel === 'estado' && x.sexo === sexo)
+      .map((x) => ({ x, ind: indicadores(v, x) })).filter((y) => y.ind && y.ind.F4 != null);
+    const pideAumento = /\b(incremento|aumento|subiendo|suben|crece|crecen)\b/.test(q);
+    const pideAcum = /\b(acumulad\w*|en lo que va|este ano|en el ano)\b/.test(q);
+    const orden = [...todos].sort(pideAumento
+      ? (a, b) => (b.ind.F4 - b.ind.O4) - (a.ind.F4 - a.ind.O4)
+      : pideAcum ? (a, b) => b.ind.ytd - a.ind.ytd : (a, b) => b.ind.F4 - a.ind.F4).slice(0, /top 10/.test(q) ? 10 : 5);
+    const fila = ({ x, ind }) => pideAcum
+      ? `- **${nombreEstado(x.nombre)}**: ${ent0(ind.ytd)} casos en lo que va de ${ind.anio}.`
+      : `- **${nombreEstado(x.nombre)}**: unos ${ent0(ind.F4)} casos en las próximas 4 semanas (${ent0(ind.O4)} en las 4 anteriores).`;
+    const titulo = pideAumento ? 'estados donde más se espera que aumente' : pideAcum ? 'estados con más casos en lo que va del año' : 'estados con más casos esperados';
     const nac = v.series[`nacional|mx|${sexo}`];
-    return fin([`**${r.etiqueta}: casos pronosticados por estado en ${v.horizon_weeks} semanas, ${sexoTxt}**`, '',
-      `Total nacional: **${ent0(nac.pronostico_52_total)} casos**. Estados con más casos pronosticados:`,
-      ...orden.map((x) => `- **${x.nombre}**: ${ent0(x.pronostico_52_total)} casos`), '', etiqueta, `_${v.uncertainty_label}._`]);
+    return fin([`**${r.etiqueta}: ${titulo}, ${sexoTxt}**`, '', ...orden.map(fila), '',
+      '_Casos notificados, sin ajustar por población: un estado más poblado tiene más casos aunque su riesgo no sea mayor._',
+      '<!--DETALLE-->', `Total nacional pronosticado en ${v.horizon_weeks} semanas: **${ent0(nac.pronostico_52_total)} casos**.`, '', etiqueta, `_${v.uncertainty_label}._`],
+    orden.map((y) => y.x.nombre));
   }
 
   if (tipo === 'calibracion' || tipo === 'volumen_error') {
@@ -293,8 +312,17 @@ function answerRelease(q, ent, s, d, r) {
     const top = nombres.length < 2;
     if (top) nombres = Object.values(v.series).filter((x) => x.nivel === 'estado' && x.sexo === 'general').sort((a, b) => b.pronostico_52_total - a.pronostico_52_total).slice(0, 5).map((x) => x.nombre);
     const filas = nombres.slice(0, 6).map((n) => Object.values(v.series).find((x) => x.nivel === 'estado' && x.sexo === sexo && x.nombre === n)).filter(Boolean);
-    return fin([`**${r.etiqueta}: comparación de estados, ${sexoTxt}**${top ? ' (los cinco con más casos pronosticados; nombra dos o más estados para compararlos)' : ''}`, '',
-      ...filas.map((x) => `- **${x.nombre}**: ${desempeno(x, v)}`),
+    // Rediseño conversacional: la comparación dice casos recientes, lo esperado y la tendencia; el error queda en la ficha.
+    const TEND = { sube: 'va a subir', baja: 'va a bajar', estable: 'estable', incierto: 'sin señal clara', atipico: 'notificación atípica', pocos: 'muy pocos casos' };
+    const llana = (x) => {
+      const ind = indicadores(v, x);
+      if (!ind || ind.F4 == null) return `- **${nombreEstado(x.nombre)}**: ${desempeno(x, v)}`;
+      const vs = !ind.O4py ? '' : Math.round(Math.abs(ind.O4 / ind.O4py - 1) * 100) === 0 ? ', igual que hace un año' : ind.O4py ? `, ${ind.O4 >= ind.O4py ? `${Math.round((ind.O4 / ind.O4py - 1) * 100)} % más` : `${Math.round((1 - ind.O4 / ind.O4py) * 100)} % menos`} que hace un año` : '';
+      return `- **${nombreEstado(x.nombre)}**: ${ent0(ind.O4)} casos en las últimas 4 semanas${vs}; se esperan unos ${ent0(ind.F4)} en las próximas 4 (${TEND[ind.tendencia]}; confiabilidad ${confiabilidad(v, x, esControl(v)).nivel}).`;
+    };
+    return fin([`**${r.etiqueta}: comparación de estados, ${sexoTxt}**${top ? ' (los cinco con más casos esperados; nombra dos o más estados para compararlos)' : ''}`, '',
+      ...filas.map(llana), '', '_Casos notificados, sin ajustar por población. Pregunta «¿qué tan confiable es?» para ver el detalle de la confiabilidad._', '<!--DETALLE-->',
+      ...filas.map((x) => `- **${nombreEstado(x.nombre)}**: ${desempeno(x, v)}`),
       '', etiqueta], filas.map((x) => x.nombre));
   }
 
@@ -303,17 +331,25 @@ function answerRelease(q, ent, s, d, r) {
 
   if (tipo === 'sexo') {
     const base = x.nivel === 'nacional' ? 'nacional|mx' : `estado|${x.id}`;
-    const lugar = x.nivel === 'nacional' ? 'Nacional' : x.nombre;
-    const fila = (sx) => { const y = v.series[`${base}|${sx}`]; return `- **${y.sexo_nombre}**: ${desempeno(y, v)} (${motorDe(v, y)})`; };
-    return fin([`**${r.etiqueta} · ${lugar}: hombres y mujeres**${conOos ? ` (${oosTxt})` : ''}.`, '', fila('hombres'), fila('mujeres'), '', etiqueta]);
+    const lugar = x.nivel === 'nacional' ? 'en el país' : `en ${nombreEstado(x.nombre)}`;
+    const h = v.series[`${base}|hombres`], m = v.series[`${base}|mujeres`];
+    const ih = indicadores(v, h), im = indicadores(v, m);
+    const tot = (ih?.O4 || 0) + (im?.O4 || 0);
+    const pct = (a) => (tot ? Math.round(a / tot * 100) : 0);
+    const fila = (nombre, i) => `- **${nombre}**: ${ent0(i.O4)} casos en las últimas 4 semanas (${pct(i.O4)} %); se esperan unos ${ent0(i.F4)} en las próximas 4.`;
+    return fin([`**${r.etiqueta} ${lugar}: hombres y mujeres**`, '', fila('Mujeres', im), fila('Hombres', ih), '',
+      '<!--DETALLE-->', `- Hombres: ${desempeno(h, v)} (${motorDe(v, h)})`, `- Mujeres: ${desempeno(m, v)} (${motorDe(v, m)})`, '', etiqueta]);
   }
 
   if (tipo === 'acumulado') {
-    const total = (xs) => xs.reduce((a, [, y]) => a + Math.round(y * 10), 0) / 10;
-    const vistas = x.pronostico.filter(([ds]) => ds <= v.observation_cutoff_ds);
-    return fin([...ficha(v, x, 'acumulado', r), '',
-      ...(x.oos.semanas ? [`Acumulado del pronóstico hasta ${semana(v.observation_cutoff)}: ${ent0(total(vistas))} casos; observado: ${ent0(x.oos.observado_total)}.`] : []),
-      `Acumulado de las ${v.horizon_weeks} semanas: **${ent0(x.pronostico_52_total)} casos**.`, '', etiqueta]);
+    const ind = indicadores(v, x);
+    const lugar = x.nivel === 'nacional' ? 'en el país' : `en ${nombreEstado(x.nombre)}`;
+    const resto = ind ? ind.fut.filter(([ds]) => ds.startsWith(ind.anio)).reduce((a, [, y]) => a + y, 0) : 0;
+    const vs = ind?.ytdPrevio ? `, ${ind.ytd >= ind.ytdPrevio ? `${Math.round((ind.ytd / ind.ytdPrevio - 1) * 100)} % más` : `${Math.round((1 - ind.ytd / ind.ytdPrevio) * 100)} % menos`} que a la misma fecha de ${Number(ind.anio) - 1}` : '';
+    const tasa = /\b(tasa|por 100 ?mil|incidencia)\b/.test(q) ? ['', '_No calculo tasas por 100 mil habitantes: el boletín reporta casos notificados._'] : [];
+    return fin([`**${r.nombre} ${lugar}: ${ent0(ind?.ytd)} casos en lo que va de ${ind?.anio}**${vs}.`,
+      ...(resto ? ['', `Para lo que resta del año se esperan unos ${ent0(resto)} casos más.`] : []), ...tasa, '',
+      '<!--DETALLE-->', ...ficha(v, x, 'acumulado', r), '', `Acumulado de las ${v.horizon_weeks} semanas del pronóstico: **${ent0(x.pronostico_52_total)} casos**.`, '', etiqueta]);
   }
 
   // Rediseño conversacional (24-nov-2026): la consulta general, la de confiabilidad y la de «qué es» responden primero en
@@ -343,6 +379,12 @@ function answerRelease(q, ent, s, d, r) {
       if (futurasT.length) tecnico.push('', '**Siguientes semanas del pronóstico, aún sin observación publicada:**', ...futurasT.map(([ds, y]) => `- Semana del ${ds}: ${ent0(y)} ${ent0(y) === '1' ? 'caso' : 'casos'}`));
       tecnico.push('', `Total pronosticado en las ${v.horizon_weeks} semanas: **${ent0(x.pronostico_52_total)} casos**.`, '', etiqueta, `_${v.uncertainty_label}._`);
       const cuerpo = tipo === 'confianza' ? llano.filter((l) => !/^\*\*Confiabilidad/.test(l)) : llano;
+      // Tema sensible: el aviso con la Línea de la Vida va siempre a la vista, nunca plegado en la ficha técnica.
+      if (r.sensible) {
+        cuerpo.push('', '**Tema sensible.** Esta serie cuenta casos notificados al sistema de vigilancia y no describe métodos ni ' +
+          'circunstancias. Si tú o alguien cercano necesita apoyo, la **Línea de la Vida** atiende gratis, las 24 horas: ' +
+          '**800 911 2000**; si alguien está en peligro inmediato, llama al **911**.');
+      }
       return avisoSexo + [...arriba, ...cuerpo].join('\n') + pie + '\n\n<!--DETALLE-->\n' + tecnico.join('\n') +
         marca(tipo === 'confianza' ? 'serie' : tipo, ent, null, r) + siguientes(r, x, sinSexo);
     }

@@ -29,6 +29,7 @@ export const respuestaFueraDeVocabulario = CATALOGO.respuestaFueraDeVocabulario;
 export const fueraDeVocabulario = CATALOGO.fueraDeVocabulario;
 export const apoyoSuave = CATALOGO.apoyoSuave;
 export const apoyoInmediato = CATALOGO.apoyoInmediato;
+export const respuestaTemaSensible = CATALOGO.respuestaTemaSensible;
 export const respuestaConDatos = CATALOGO.respuestaConDatos;
 export const esRespuestaDeAyuda = CATALOGO.esRespuestaDeAyuda;
 export const salidaFueraDeVocabulario = CATALOGO.salidaFueraDeVocabulario;

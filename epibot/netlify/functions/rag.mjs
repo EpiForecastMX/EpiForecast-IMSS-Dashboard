@@ -1044,6 +1044,8 @@ async function handlerInterno(req) {
   // Rediseño conversacional (24-nov-2026): sólo una señal débil o una escritura no latina recibe aquí el «no entendí» con la
   // Línea de la Vida; la lista blanca global ya no bloquea las consultas naturales.
   const C0 = globalThis.EPI_CATALOGO;
+  const tema = C0.respuestaTemaSensible(String(body.query || ''));
+  if (tema) return json({ answer: tema.replace('\n<!--SIN_GRAFICA-->', ''), sources: [], retrieval: 'none', guarda: 'tema_sensible' }, 200, cors);
   const fuera = C0.apoyoInmediato(String(body.query || '')) && !guardaD7Rag(body.query) ? (C0.pareceIngles(String(body.query || '')) ? C0.APOYO_EN : C0.APOYO_ES) : null;
   if (fuera) return json({ answer: fuera.replace('\n<!--SIN_GRAFICA-->', ''), sources: [], retrieval: 'none', guarda: 'vocabulario' }, 200, cors);
   // Re-auditoría Codex: consulta mixta con un id sensible y sin riesgo; no se combinan cifras.

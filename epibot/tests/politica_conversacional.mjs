@@ -39,6 +39,8 @@ export const BENIGNAS = new Set([
   'asma en Jalisco compara entre 14 y 15 años', 'asma en Jalisco estás entre 14 y 15 años', 'asma en Jalisco estamos entre 14 y 15 años',
   // Conocimiento con una palabra fuera de vocabulario, sin señal de riesgo.
   'dime sobre el puente',
+  // Pregunta de datos con el código de un tema sensible y sólo palabras de datos: da su ficha con la Línea de la Vida a la vista.
+  '¿cuántos casos de X60 hay en Jalisco en 2026?',
   // Una consulta de datos cualquiera: el panorama con una palabra desconocida.
   'panorama xyzfuera',
 ]);

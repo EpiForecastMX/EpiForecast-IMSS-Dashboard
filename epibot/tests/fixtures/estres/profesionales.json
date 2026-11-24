@@ -1,0 +1,1649 @@
+[
+ {
+  "turnos": [
+   "¿Cuántos casos de diabetes tipo 2 (E11) se notificaron en Jalisco en la semana 44?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "diabetes mellitus tipo 2",
+  "estado": "Jalisco"
+ },
+ {
+  "turnos": [
+   "Tengo varios niños con varicela en el consultorio, ¿está subiendo en Puebla?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "varicela",
+  "estado": "Puebla"
+ },
+ {
+  "turnos": [
+   "¿Cuándo es el pico de varicela normalmente?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "varicela",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "cuantos casos de escabiosis B86 hay en oaxaca este año"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "escabiosis",
+  "estado": "Oaxaca"
+ },
+ {
+  "turnos": [
+   "¿Qué pronóstico hay para infecciones de vías urinarias en mujeres de Nuevo León para las próximas semanas?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "infección de vías urinarias",
+  "estado": "Nuevo León"
+ },
+ {
+  "turnos": [
+   "¿El pronóstico de asma J45 en la CDMX es confiable?"
+  ],
+  "persona": "medico",
+  "espera": "confiabilidad",
+  "padecimiento": "asma",
+  "estado": "Ciudad de México"
+ },
+ {
+  "turnos": [
+   "¿tienen datos de sarampión? tengo un caso sospechoso en la clínica"
+  ],
+  "persona": "medico",
+  "espera": "no_modelado",
+  "padecimiento": "sarampión",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Puedo ver los casos de hipertensión por municipio? Trabajo en Tlalnepantla"
+  ],
+  "persona": "medico",
+  "espera": "alcance",
+  "padecimiento": "hipertensión arterial",
+  "estado": "México"
+ },
+ {
+  "turnos": [
+   "¿Hay desglose por grupo de edad para otitis media aguda? Me interesan los menores de 5"
+  ],
+  "persona": "medico",
+  "espera": "alcance",
+  "padecimiento": "otitis media aguda",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "dengue en veracruz semana 43"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "dengue",
+  "estado": "Veracruz"
+ },
+ {
+  "turnos": [
+   "¿Cuándo es el pico de dengue en Guerrero?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "dengue",
+  "estado": "Guerrero"
+ },
+ {
+  "turnos": [
+   "¿Qué incluye la conjuntivitis del boletín, qué códigos CIE abarca?"
+  ],
+  "persona": "medico",
+  "espera": "definicion",
+  "padecimiento": "conjuntivitis",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿cuantos casos de amebiasis intestinal hubo en chiapas el año pasado vs este año?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "amebiasis intestinal",
+  "estado": "Chiapas"
+ },
+ {
+  "turnos": [
+   "¿Están aumentando las infecciones intestinales en Yucatán? Estoy viendo muchas diarreas"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "infecciones intestinales por otros organismos",
+  "estado": "Yucatán"
+ },
+ {
+  "turnos": [
+   "¿Hay pronóstico de influenza? Ya empezó la temporada y quiero saber qué esperar"
+  ],
+  "persona": "medico",
+  "espera": "no_modelado",
+  "padecimiento": "influenza",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Necesito el número de casos de faringitis estreptocócica en Coahuila"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "faringitis y amigdalitis estreptocócicas",
+  "estado": "Coahuila"
+ },
+ {
+  "turnos": [
+   "hola, buenas tardes"
+  ],
+  "persona": "medico",
+  "espera": "charla",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "gracias, muy útil la info"
+  ],
+  "persona": "medico",
+  "espera": "charla",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué padecimientos respiratorios tienen disponibles?"
+  ],
+  "persona": "medico",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Tienen tuberculosis pulmonar A15?"
+  ],
+  "persona": "medico",
+  "espera": "no_modelado",
+  "padecimiento": "tuberculosis respiratoria",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuántas neumonías J18 lleva Sonora en lo que va de 2026?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "neumonías y bronconeumonías",
+  "estado": "Sonora"
+ },
+ {
+  "turnos": [
+   "escarlatina en durango, ¿va subiendo?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "escarlatina",
+  "estado": "Durango"
+ },
+ {
+  "turnos": [
+   "¿Cuál es la tasa de obesidad E66 por 100 mil habitantes en Tabasco?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "obesidad",
+  "estado": "Tabasco"
+ },
+ {
+  "turnos": [
+   "¿Qué tan bueno es el pronóstico de hepatitis A?"
+  ],
+  "persona": "medico",
+  "espera": "confiabilidad",
+  "padecimiento": "hepatitis vírica a",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Tienen casos de VIH?"
+  ],
+  "persona": "medico",
+  "espera": "no_modelado",
+  "padecimiento": "vih",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué significa que un pronóstico diga 'control estacional no validado'?"
+  ],
+  "persona": "medico",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "hepatitis A en niños de Michoacán, ¿cuántos casos?"
+  ],
+  "persona": "medico",
+  "espera": "alcance",
+  "padecimiento": "hepatitis vírica a",
+  "estado": "Michoacán"
+ },
+ {
+  "turnos": [
+   "cuantos casos de gingivitis K05 en Hidalgo semana 44"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "gingivitis y enfermedad periodontal",
+  "estado": "Hidalgo"
+ },
+ {
+  "turnos": [
+   "¿Están altas las quemaduras en Chihuahua ahora con el frío?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "quemaduras",
+  "estado": "Chihuahua"
+ },
+ {
+  "turnos": [
+   "¿Cuántos casos de candidiasis urogenital en mujeres de Querétaro?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "candidiasis urogenital",
+  "estado": "Querétaro"
+ },
+ {
+  "turnos": [
+   "¿Hay pronóstico de shigelosis A03 para Sinaloa?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "shigelosis",
+  "estado": "Sinaloa"
+ },
+ {
+  "turnos": [
+   "¿diabetes gestacional en edomex?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "diabetes mellitus en el embarazo",
+  "estado": "México"
+ },
+ {
+  "turnos": [
+   "¿Cuántos casos de mal del pinto hay? Nunca he visto uno en mi vida"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "mal del pinto",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Puedo ver datos por unidad médica? Quiero los de mi UMF"
+  ],
+  "persona": "medico",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué diferencia hay entre casos notificados y casos confirmados en el boletín?"
+  ],
+  "persona": "medico",
+  "espera": "definicion",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "erisipela A46 en Tamaulipas, ¿hay más en hombres o en mujeres?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "erisipela",
+  "estado": "Tamaulipas"
+ },
+ {
+  "turnos": [
+   "¿cuál es el padecimiento con más casos esta semana en Guanajuato?"
+  ],
+  "persona": "medico",
+  "espera": "ranking",
+  "padecimiento": null,
+  "estado": "Guanajuato"
+ },
+ {
+  "turnos": [
+   "¿Tienen datos de chikungunya o zika?"
+  ],
+  "persona": "medico",
+  "espera": "no_modelado",
+  "padecimiento": "chikungunya",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿En qué meses sube la parotiditis?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "parotiditis infecciosa",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿cuantos casos de ascariasis B77 hay en Chiapas?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "ascariasis",
+  "estado": "Chiapas"
+ },
+ {
+  "turnos": [
+   "¿El pronóstico de infecciones respiratorias agudas incluye COVID?"
+  ],
+  "persona": "medico",
+  "espera": "definicion",
+  "padecimiento": "infecciones respiratorias agudas",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Por qué el número de esta semana es distinto al que trae el boletín impreso?"
+  ],
+  "persona": "medico",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Tengo un brote de intoxicación alimentaria en una escuela, ¿hay más casos en Morelos?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "intoxicación alimentaria bacteriana",
+  "estado": "Morelos"
+ },
+ {
+  "turnos": [
+   "¿Qué es el sMAPE? ¿Un 30 es bueno o malo?"
+  ],
+  "persona": "medico",
+  "espera": "confiabilidad",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿hay datos de cancer de mama C50 en Baja California?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "tumor maligno de la mama",
+  "estado": "Baja California"
+ },
+ {
+  "turnos": [
+   "¿Puedo descargar los datos en Excel?"
+  ],
+  "persona": "medico",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Hay pronóstico de depresión F32 en Zacatecas?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "depresión",
+  "estado": "Zacatecas"
+ },
+ {
+  "turnos": [
+   "¿pediculosis?"
+  ],
+  "persona": "medico",
+  "espera": "no_modelado",
+  "padecimiento": "pediculosis",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuántas vulvovaginitis hay en Campeche?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "vulvovaginitis",
+  "estado": "Campeche"
+ },
+ {
+  "turnos": [
+   "¿Qué es la fiebre paratifoidea y cuántos casos hay en el país?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "fiebre paratifoidea",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "dime casos de insufiencia venosa periferica en colima"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "insuficiencia venosa periférica",
+  "estado": "Colima"
+ },
+ {
+  "turnos": [
+   "¿Hiperplasia de próstata viene desglosada por sexo?"
+  ],
+  "persona": "medico",
+  "espera": "alcance",
+  "padecimiento": "hiperplasia de la próstata",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuántos casos de cáncer de cuello uterino hay en hombres en Jalisco?"
+  ],
+  "persona": "medico",
+  "espera": "aclaracion",
+  "padecimiento": "tumor maligno del cuello del útero",
+  "estado": "Jalisco"
+ },
+ {
+  "turnos": [
+   "¿Cuántos golpes de calor hubo en Mexicali el verano pasado?"
+  ],
+  "persona": "medico",
+  "espera": "alcance",
+  "padecimiento": "efectos del calor y de la luz",
+  "estado": "Baja California"
+ },
+ {
+  "turnos": [
+   "¿Leptospirosis en Tabasco? Estuvo inundado"
+  ],
+  "persona": "medico",
+  "espera": "no_modelado",
+  "padecimiento": "leptospirosis",
+  "estado": "Tabasco"
+ },
+ {
+  "turnos": [
+   "¿Cuántos casos de otitis media aguda H66 en Aguascalientes este mes?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "otitis media aguda",
+  "estado": "Aguascalientes"
+ },
+ {
+  "turnos": [
+   "¿Hay más diabetes tipo 1 E10 en niños o en adultos?"
+  ],
+  "persona": "medico",
+  "espera": "alcance",
+  "padecimiento": "diabetes mellitus tipo 1",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Las úlceras, gastritis y duodenitis están subiendo en San Luis Potosí?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "úlceras, gastritis y duodenitis",
+  "estado": "San Luis Potosí"
+ },
+ {
+  "turnos": [
+   "¿Tienen tos ferina? He visto varios cuadros coqueluchoides"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "tos ferina",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuál es el error del pronóstico de hipertensión en Veracruz?"
+  ],
+  "persona": "medico",
+  "espera": "confiabilidad",
+  "padecimiento": "hipertensión arterial",
+  "estado": "Veracruz"
+ },
+ {
+  "turnos": [
+   "¿Qué es el boletín epidemiológico y cada cuándo sale?"
+  ],
+  "persona": "medico",
+  "espera": "definicion",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿desnutricion leve en guerrero?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "desnutrición leve",
+  "estado": "Guerrero"
+ },
+ {
+  "turnos": [
+   "¿Puedo usar estos pronósticos para pedir medicamento a mi jurisdicción?"
+  ],
+  "persona": "medico",
+  "espera": "confiabilidad",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Hay datos de rabia humana?"
+  ],
+  "persona": "medico",
+  "espera": "no_modelado",
+  "padecimiento": "rabia humana",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuántos casos de dengue hay en Yucatán esta semana?",
+   "¿y en hombres?",
+   "compáralo con Quintana Roo"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "dengue",
+  "estado": "Quintana Roo"
+ },
+ {
+  "turnos": [
+   "varicela en jalisco",
+   "¿y el año pasado en la misma semana?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "varicela",
+  "estado": "Jalisco"
+ },
+ {
+  "turnos": [
+   "¿Qué pronóstico tienen de asma para Nuevo León?",
+   "¿qué tan confiable es?",
+   "¿qué motor usaron para ese?"
+  ],
+  "persona": "medico",
+  "espera": "metodologia",
+  "padecimiento": "asma",
+  "estado": "Nuevo León"
+ },
+ {
+  "turnos": [
+   "¿Cuántas infecciones de vías urinarias hay en Sonora?",
+   "¿y en mujeres?",
+   "¿y Sinaloa?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "infección de vías urinarias",
+  "estado": "Sinaloa"
+ },
+ {
+  "turnos": [
+   "¿tienen influenza?",
+   "ok, ¿y neumonías?",
+   "en Chihuahua"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "neumonías y bronconeumonías",
+  "estado": "Chihuahua"
+ },
+ {
+  "turnos": [
+   "escabiosis en Oaxaca de la SE 40 a la 44",
+   "¿está por arriba de lo que esperaba el pronóstico?"
+  ],
+  "persona": "medico",
+  "espera": "datos",
+  "padecimiento": "escabiosis",
+  "estado": "Oaxaca"
+ },
+ {
+  "turnos": [
+   "Necesito la tasa de incidencia de dengue A97 por 100 mil hab. en Colima, SE 40 a 43 de 2026 vs 2025"
+  ],
+  "persona": "epidemiologo",
+  "espera": "datos",
+  "padecimiento": "dengue",
+  "estado": "Colima"
+ },
+ {
+  "turnos": [
+   "¿Qué denominador poblacional usan para las tasas? ¿CONAPO o censo 2020?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Top 10 padecimientos con mayor incremento porcentual SE 44 2026 vs SE 44 2025, nivel nacional"
+  ],
+  "persona": "epidemiologo",
+  "espera": "ranking",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuáles estados tienen más casos acumulados de hepatitis C (B17.1)?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "ranking",
+  "padecimiento": "hepatitis vírica c",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cómo validan prospectivamente? ¿Qué significa el 0/4 o 1/4?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuál fue el sMAPE nacional del portafolio de IRA en la prueba de 2025?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "confiabilidad",
+  "padecimiento": "infecciones respiratorias agudas",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Por qué gingivitis está publicada con el control y no con el modelo?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "confiabilidad",
+  "padecimiento": "gingivitis y enfermedad periodontal",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué motores usan? ¿ETS, Prophet, Ridge, naive estacional?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿El pronóstico trae intervalos de predicción al 95 %?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Curva epidémica de varicela en Baja California Sur 2023-2026"
+  ],
+  "persona": "epidemiologo",
+  "espera": "datos",
+  "padecimiento": "varicela",
+  "estado": "Baja California Sur"
+ },
+ {
+  "turnos": [
+   "¿En qué SE se alcanzó el máximo de dengue en Jalisco en 2025?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "datos",
+  "padecimiento": "dengue",
+  "estado": "Jalisco"
+ },
+ {
+  "turnos": [
+   "Ranking de entidades por casos de neumonías J12-J18 en la SE 44"
+  ],
+  "persona": "epidemiologo",
+  "espera": "ranking",
+  "padecimiento": "neumonías y bronconeumonías",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuántos casos de diabetes en el embarazo O24 hay en la región sur?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "datos",
+  "padecimiento": "diabetes mellitus en el embarazo",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cómo definen las macrorregiones? ¿Qué estados entran en el centro?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "definicion",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Los datos están ajustados por rezago de notificación o son los crudos del boletín?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cómo manejan los años MMWR de 53 semanas, como 2025, en el pronóstico?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Tienen paludismo B50-B54?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "no_modelado",
+  "padecimiento": "paludismo",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Tienen el canal endémico disponible para comparar?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "intoxicacion por picadura de alacran T63.2 en morelos"
+  ],
+  "persona": "epidemiologo",
+  "espera": "no_modelado",
+  "padecimiento": "intoxicación por picadura de alacrán",
+  "estado": "Morelos"
+ },
+ {
+  "turnos": [
+   "Comparativo de salmonelosis A02 entre Sonora y Sinaloa, SE 1 a 44"
+  ],
+  "persona": "epidemiologo",
+  "espera": "datos",
+  "padecimiento": "otras salmonelosis",
+  "estado": "Sonora"
+ },
+ {
+  "turnos": [
+   "¿Cuáles padecimientos tienen pronóstico aceptado y cuáles son sólo control?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿cuál es el MASE del control en sífilis adquirida?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "confiabilidad",
+  "padecimiento": "sífilis adquirida",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuántos padecimientos tienen publicados en total?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Por qué no hay pronóstico de influenza si viene en el boletín?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "no_modelado",
+  "padecimiento": "influenza",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Hay tendencia al alza en enfermedad cerebrovascular I60-I67 en Nuevo León?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "datos",
+  "padecimiento": "enfermedad cerebrovascular",
+  "estado": "Nuevo León"
+ },
+ {
+  "turnos": [
+   "Razón hombre/mujer de enfermedad isquémica del corazón en Coahuila"
+  ],
+  "persona": "epidemiologo",
+  "espera": "datos",
+  "padecimiento": "enfermedad isquémica del corazón",
+  "estado": "Coahuila"
+ },
+ {
+  "turnos": [
+   "¿Qué entidad tiene la tasa más alta de obesidad?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "ranking",
+  "padecimiento": "obesidad",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿El horizonte del pronóstico es de 52 semanas? ¿Desde qué origen?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cómo manejan los ceros en series de baja incidencia como mal del pinto?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "metodologia",
+  "padecimiento": "mal del pinto",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Tienen datos de covid-19?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "no_modelado",
+  "padecimiento": "covid-19",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué tan bien le ha ido al pronóstico de diabetes tipo 2 en las últimas 4 semanas?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "confiabilidad",
+  "padecimiento": "diabetes mellitus tipo 2",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "SE 44: casos observados de amebiasis vs lo esperado por el pronóstico en Tabasco"
+  ],
+  "persona": "epidemiologo",
+  "espera": "datos",
+  "padecimiento": "amebiasis intestinal",
+  "estado": "Tabasco"
+ },
+ {
+  "turnos": [
+   "¿Por qué el total nacional no coincide con la suma de los estados?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Distribución por sexo de faringitis estreptocócica en Durango"
+  ],
+  "persona": "epidemiologo",
+  "espera": "datos",
+  "padecimiento": "faringitis y amigdalitis estreptocócicas",
+  "estado": "Durango"
+ },
+ {
+  "turnos": [
+   "¿Desde qué año está disponible la serie histórica? ¿2014?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Tienen datos por jurisdicción sanitaria?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Pronóstico de fiebre tifoidea A01.0 para Chiapas las próximas 8 semanas?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "datos",
+  "padecimiento": "fiebre tifoidea",
+  "estado": "Chiapas"
+ },
+ {
+  "turnos": [
+   "¿Qué padecimientos tuvieron mayor desviación respecto a su pronóstico esta semana?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "ranking",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuáles son los 5 padecimientos que más han bajado en 2026?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "ranking",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuándo es el pico estacional de IRA en los estados del norte?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "datos",
+  "padecimiento": "infecciones respiratorias agudas",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Hepatitis A en Yucatan va subiendo?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "datos",
+  "padecimiento": "hepatitis vírica a",
+  "estado": "Yucatán"
+ },
+ {
+  "turnos": [
+   "¿El control estacional sólo repite el valor del año pasado, el lag 52?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "parotiditis B26 tasa por 100k en zacatecas"
+  ],
+  "persona": "epidemiologo",
+  "espera": "datos",
+  "padecimiento": "parotiditis infecciosa",
+  "estado": "Zacatecas"
+ },
+ {
+  "turnos": [
+   "¿Cuántas semanas de validación prospectiva lleva el pronóstico de otitis?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "confiabilidad",
+  "padecimiento": "otitis media aguda",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Leishmaniasis?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "no_modelado",
+  "padecimiento": "leishmaniasis",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Casos de peatón lesionado V09 en CDMX: 2024 vs 2025 vs 2026"
+  ],
+  "persona": "epidemiologo",
+  "espera": "datos",
+  "padecimiento": "peatón lesionado en accidente de transporte",
+  "estado": "Ciudad de México"
+ },
+ {
+  "turnos": [
+   "¿Los accidentes de transporte en vehículos con motor subieron en vacaciones en Guanajuato?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "datos",
+  "padecimiento": "accidentes de transporte en vehículos con motor",
+  "estado": "Guanajuato"
+ },
+ {
+  "turnos": [
+   "¿Por qué displasia cervical no tiene desglose por sexo?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "definicion",
+  "padecimiento": "displasia cervical leve y moderada",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué padecimientos sólo tienen datos desde 2023?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿La escabiosis B86 tiene estacionalidad marcada?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "datos",
+  "padecimiento": "escabiosis",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Edema, proteinuria y trastornos hipertensivos del embarazo: Chiapas vs Oaxaca"
+  ],
+  "persona": "epidemiologo",
+  "espera": "datos",
+  "padecimiento": "edema, proteinuria y trastornos hipertensivos del embarazo",
+  "estado": "Chiapas"
+ },
+ {
+  "turnos": [
+   "¿Qué significa la 'Sem -1' que aparece en el boletín?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "definicion",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuánto debo confiar en un pronóstico con sMAPE de 80?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "confiabilidad",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Las cifras del radar están disponibles para las categorías que no modelan?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Tienen brucelosis A23?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "no_modelado",
+  "padecimiento": "brucelosis",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Top 5 estados con más casos de conjuntivitis en 2026"
+  ],
+  "persona": "epidemiologo",
+  "espera": "ranking",
+  "padecimiento": "conjuntivitis",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué significa CONTROL_ONLY en la validación?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuál fue el error del modelo de Alzheimer G30 en Jalisco?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "confiabilidad",
+  "padecimiento": "alzheimer",
+  "estado": "Jalisco"
+ },
+ {
+  "turnos": [
+   "¿Cuántos casos de otras infecciones por protozoarios intestinales hay en Puebla?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "datos",
+  "padecimiento": "otras infecciones intestinales debidas a protozoarios",
+  "estado": "Puebla"
+ },
+ {
+  "turnos": [
+   "¿hay datos de enf. de chagas?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "no_modelado",
+  "padecimiento": "enfermedad de chagas",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Las cifras son preliminares o definitivas? ¿Se corrigen después?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "definicion",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿El pronóstico de dengue considera El Niño / ONI?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "metodologia",
+  "padecimiento": "dengue",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuál es la incidencia acumulada de erisipela en Veracruz por 100 mil?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "datos",
+  "padecimiento": "erisipela",
+  "estado": "Veracruz"
+ },
+ {
+  "turnos": [
+   "¿Cómo se compara el pronóstico de ascariasis contra el naive estacional?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "confiabilidad",
+  "padecimiento": "ascariasis",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Casos de dengue en Guerrero, SE 40 a 44",
+   "¿y en la misma ventana de 2025?",
+   "¿y como tasa por 100 mil?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "datos",
+  "padecimiento": "dengue",
+  "estado": "Guerrero"
+ },
+ {
+  "turnos": [
+   "Top de padecimientos que más suben en Sinaloa",
+   "sólo los infecciosos",
+   "¿y en mujeres?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "ranking",
+  "padecimiento": null,
+  "estado": "Sinaloa"
+ },
+ {
+  "turnos": [
+   "¿Qué tan bueno es el pronóstico de hipertensión?",
+   "¿y el de enfermedad isquémica?",
+   "¿por qué ese quedó como control?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "metodologia",
+  "padecimiento": "enfermedad isquémica del corazón",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "neumonías en la región norte",
+   "desglósalo por estado",
+   "¿cuál tiene la tasa más alta?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "ranking",
+  "padecimiento": "neumonías y bronconeumonías",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuándo es el pico de varicela?",
+   "¿y en Chihuahua específicamente?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "datos",
+  "padecimiento": "varicela",
+  "estado": "Chihuahua"
+ },
+ {
+  "turnos": [
+   "Casos de escarlatina A38 en Nuevo León",
+   "¿y en hombres?",
+   "¿cuál es el sMAPE de ese pronóstico?",
+   "¿y comparado con Coahuila?"
+  ],
+  "persona": "epidemiologo",
+  "espera": "confiabilidad",
+  "padecimiento": "escarlatina",
+  "estado": "Coahuila"
+ },
+ {
+  "turnos": [
+   "¿Cuáles son los 10 padecimientos con más casos en el país esta semana?"
+  ],
+  "persona": "funcionario",
+  "espera": "ranking",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Necesito un resumen para el secretario: ¿qué está subiendo en Nuevo León?"
+  ],
+  "persona": "funcionario",
+  "espera": "ranking",
+  "padecimiento": null,
+  "estado": "Nuevo León"
+ },
+ {
+  "turnos": [
+   "¿Cuántos casos de dengue esperamos en Veracruz para fin de año?"
+  ],
+  "persona": "funcionario",
+  "espera": "datos",
+  "padecimiento": "dengue",
+  "estado": "Veracruz"
+ },
+ {
+  "turnos": [
+   "¿Qué tan confiables son estos pronósticos para planear presupuesto?"
+  ],
+  "persona": "funcionario",
+  "espera": "confiabilidad",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿De dónde sacan los datos?"
+  ],
+  "persona": "funcionario",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Quién valida estos modelos? ¿Es información oficial de la Secretaría de Salud?"
+  ],
+  "persona": "funcionario",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Tenemos que preocuparnos por la influenza este invierno?"
+  ],
+  "persona": "funcionario",
+  "espera": "no_modelado",
+  "padecimiento": "influenza",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuántos padecimientos monitorean?"
+  ],
+  "persona": "funcionario",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Hay datos por municipio para Hidalgo?"
+  ],
+  "persona": "funcionario",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": "Hidalgo"
+ },
+ {
+  "turnos": [
+   "Diabetes e hipertensión en el Estado de México, ¿cómo van?"
+  ],
+  "persona": "funcionario",
+  "espera": "aclaracion",
+  "padecimiento": null,
+  "estado": "México"
+ },
+ {
+  "turnos": [
+   "¿Qué estado tiene más casos de dengue?"
+  ],
+  "persona": "funcionario",
+  "espera": "ranking",
+  "padecimiento": "dengue",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuántas camas vamos a necesitar para neumonías en enero en la CDMX?"
+  ],
+  "persona": "funcionario",
+  "espera": "alcance",
+  "padecimiento": "neumonías y bronconeumonías",
+  "estado": "Ciudad de México"
+ },
+ {
+  "turnos": [
+   "¿Cómo estamos en obesidad respecto al año pasado en Campeche?"
+  ],
+  "persona": "funcionario",
+  "espera": "datos",
+  "padecimiento": "obesidad",
+  "estado": "Campeche"
+ },
+ {
+  "turnos": [
+   "¿Cuál es la región con más infecciones respiratorias?"
+  ],
+  "persona": "funcionario",
+  "espera": "ranking",
+  "padecimiento": "infecciones respiratorias agudas",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Hay alerta de sarampión en el país?"
+  ],
+  "persona": "funcionario",
+  "espera": "no_modelado",
+  "padecimiento": "sarampión",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Por qué algunos pronósticos dicen 'no validado'?"
+  ],
+  "persona": "funcionario",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué padecimientos crónicos van al alza?"
+  ],
+  "persona": "funcionario",
+  "espera": "ranking",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿cuantos casos de diabetes tipo 2 hay en todo mexico este año?"
+  ],
+  "persona": "funcionario",
+  "espera": "datos",
+  "padecimiento": "diabetes mellitus tipo 2",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Tienen información de coberturas de vacunación?"
+  ],
+  "persona": "funcionario",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué es EpiForecast-MX?"
+  ],
+  "persona": "funcionario",
+  "espera": "definicion",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Buenos días, ¿qué puedes hacer?"
+  ],
+  "persona": "funcionario",
+  "espera": "charla",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuánto nos cuesta atender los casos de dengue?"
+  ],
+  "persona": "funcionario",
+  "espera": "alcance",
+  "padecimiento": "dengue",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿En qué semana epidemiológica estamos?"
+  ],
+  "persona": "funcionario",
+  "espera": "definicion",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué entidades del sureste tienen más infecciones intestinales?"
+  ],
+  "persona": "funcionario",
+  "espera": "ranking",
+  "padecimiento": "infecciones intestinales por otros organismos",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿El pronóstico de cáncer de mama sirve para planear mastografías?"
+  ],
+  "persona": "funcionario",
+  "espera": "confiabilidad",
+  "padecimiento": "tumor maligno de la mama",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Las cifras incluyen IMSS, ISSSTE y SSA o sólo IMSS?"
+  ],
+  "persona": "funcionario",
+  "espera": "definicion",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Se espera un repunte de varicela en primavera en Querétaro?"
+  ],
+  "persona": "funcionario",
+  "espera": "datos",
+  "padecimiento": "varicela",
+  "estado": "Querétaro"
+ },
+ {
+  "turnos": [
+   "¿Cuánto bajaron los accidentes de transporte en Jalisco en 2026?"
+  ],
+  "persona": "funcionario",
+  "espera": "datos",
+  "padecimiento": "accidentes de transporte en vehículos con motor",
+  "estado": "Jalisco"
+ },
+ {
+  "turnos": [
+   "dame los padecimientos con mas casos en mujeres en Puebla"
+  ],
+  "persona": "funcionario",
+  "espera": "ranking",
+  "padecimiento": null,
+  "estado": "Puebla"
+ },
+ {
+  "turnos": [
+   "¿Hay un brote de hepatitis A en Sonora?"
+  ],
+  "persona": "funcionario",
+  "espera": "datos",
+  "padecimiento": "hepatitis vírica a",
+  "estado": "Sonora"
+ },
+ {
+  "turnos": [
+   "¿Qué tan seguido se actualiza la información?"
+  ],
+  "persona": "funcionario",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Tienen mortalidad o defunciones por padecimiento?"
+  ],
+  "persona": "funcionario",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Podemos comparar a Tlaxcala con el promedio nacional en IRA?"
+  ],
+  "persona": "funcionario",
+  "espera": "datos",
+  "padecimiento": "infecciones respiratorias agudas",
+  "estado": "Tlaxcala"
+ },
+ {
+  "turnos": [
+   "¿Cuál es el padecimiento que más subió respecto al año pasado en Baja California?"
+  ],
+  "persona": "funcionario",
+  "espera": "ranking",
+  "padecimiento": null,
+  "estado": "Baja California"
+ },
+ {
+  "turnos": [
+   "Gracias, eso es todo por hoy"
+  ],
+  "persona": "funcionario",
+  "espera": "charla",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿El modelo predice cuántos casos de COVID va a haber?"
+  ],
+  "persona": "funcionario",
+  "espera": "no_modelado",
+  "padecimiento": "covid-19",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuántos casos de depresión hay en Aguascalientes?"
+  ],
+  "persona": "funcionario",
+  "espera": "datos",
+  "padecimiento": "depresión",
+  "estado": "Aguascalientes"
+ },
+ {
+  "turnos": [
+   "¿Cómo va el dengue en Tabasco?",
+   "¿y comparado con el año pasado?",
+   "¿cuándo va a ser el pico?"
+  ],
+  "persona": "funcionario",
+  "espera": "datos",
+  "padecimiento": "dengue",
+  "estado": "Tabasco"
+ },
+ {
+  "turnos": [
+   "¿Qué padecimientos subieron más en Michoacán?",
+   "¿y en Guerrero?"
+  ],
+  "persona": "funcionario",
+  "espera": "ranking",
+  "padecimiento": null,
+  "estado": "Guerrero"
+ },
+ {
+  "turnos": [
+   "¿Hay pronóstico de infecciones respiratorias para Chihuahua?",
+   "¿qué tan confiable es?",
+   "¿qué es eso del sMAPE?"
+  ],
+  "persona": "funcionario",
+  "espera": "confiabilidad",
+  "padecimiento": "infecciones respiratorias agudas",
+  "estado": "Chihuahua"
+ }
+]

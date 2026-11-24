@@ -90,9 +90,9 @@ const SPANISH_FIXES = [
   [/\bsimetric([oa]s?)\b/g, 'simétric$1'],
   [/\bmetric([oa]s?)\b/g, 'métric$1'],
   [/\bMetric([oa]s?)\b/g, 'Métric$1'],
-  // «publica» también es verbo («se publica», «la galería publica»): sin tilde tras un sujeto o
-  // clítico verbal; con tilde como adjetivo («salud publica» -> «salud pública»).
-  [/(?<!\b(?:se|que|no|lo|le|ya|también|tambien|galería|galeria) )\bpublica\b/g, 'pública'],
+  // «publica» es casi siempre verbo («el boletín publica», «se publica»): sólo lleva tilde como adjetivo tras un
+  // sustantivo conocido («salud publica» -> «salud pública»).
+  [/\b(salud|vía|via|información|informacion|versión|version|consulta|administración|administracion|opinión|opinion|obra|deuda|educación|educacion|institución|institucion|seguridad|política|politica|red|cuenta) publica\b/gi, '$1 pública'],
   [/\bpublic(os?|as)\b/g, 'públic$1'],
   [/\bPublic([oa]s?)\b/g, 'Públic$1'],
   // Sustantivos
