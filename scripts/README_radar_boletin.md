@@ -201,8 +201,9 @@ macrorregiones de EpiForecast-MX y el sexo (`assets/boletin/ambitos.mjs`). La UR
   `assets/boletin/history/sexo/<id>.json` (`boletin_history_sex.v1`: `{y, w, s, x: [H, M], e: [[H, M] x 32]}`
   más `sexo/index.json`); las series publicadas no cambian. Se generaron con
   `scripts/boletin_history_sexo.py`, que relee cada PDF por sha256 y aborta si H + M difiere del
-  acumulado publicado (nacional y por entidad); conserva los guiones impresos. Los 52 boletines de
-  2013 no estaban en local: sus puntos no tienen sexo y la curva los muestra como hueco.
+  acumulado publicado (nacional y por entidad); conserva los guiones impresos. Cubre 723 de 724 PDF (2013 desde el zip oficial
+  `boletin/2013.zip`, verificado por sha256); sólo falta `2023_sem34_vcaa81398.pdf`, que aporta
+  revisiones no graficadas.
 - **Paso semanal.** `boletin_semana_historia.preparar` agrega también la entrada de sexo de cada
   punto nuevo, con la misma compuerta H + M; una revisión sustituye la entrada del boletín anterior.
 - **Pronóstico.** El ámbito y el sexo también eligen la serie de la vista publicada
