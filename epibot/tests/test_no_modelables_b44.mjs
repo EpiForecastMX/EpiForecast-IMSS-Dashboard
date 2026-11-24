@@ -9,6 +9,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'fs';
+import { nombreVisible } from '../../assets/boletin/nombres.mjs';
 
 const raiz = new URL('../../', import.meta.url);
 const leer = (rel) => readFileSync(new URL(rel, raiz), 'utf-8');
@@ -53,7 +54,8 @@ test('las 32 categorías: «no modelable», motivo medido, cifras impresas nacio
     for (const q of [nombre, `casos de ${nombre.toLowerCase()}`]) {
       const r = await conversa(q);
       assert.equal(r.handler, 'answerRadarBoletin', q);
-      assert.ok(r.md.startsWith(`**${e.name} (${e.code})**`), `${q}: una sola categoría\n${r.md.slice(0, 200)}`);
+      // Nombre visible corregido (assets/boletin/nombres.mjs): «^Miasis» se muestra «Miasis».
+      assert.ok(r.md.startsWith(`**${nombreVisible(e.id, e.name)} (${e.code})**`), `${q}: una sola categoría\n${r.md.slice(0, 200)}`);
       assert.match(r.md, /Estado en la plataforma: \*\*no modelable\*\*/, q);
       const motivo = e.reason.charAt(0).toLowerCase() + e.reason.slice(1);
       assert.ok(r.md.includes(`Motivo medido: ${motivo}`), `${q}: motivo`);
