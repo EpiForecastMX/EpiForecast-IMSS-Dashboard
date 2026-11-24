@@ -10,12 +10,14 @@ import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaN
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=13';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=63';
-import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar } from './conversacion.js?v=9';
-import { respuestaLlana, confiabilidadLegacy } from './resumen_llano.js?v=2';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=64';
+import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion } from './conversacion.js?v=10';
+import { respuestaLlana, confiabilidadLegacy, indicadores as indicadoresLlano } from './resumen_llano.js?v=3';
 /** Los cuatro originales en lenguaje llano (consulta general), antes de sus handlers específicos. */
-function answerLegacyLlano(q, ent, s, d) { return legacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadLegacy }); }
-import { MARCADOR_RELEASE, releaseDeMarca, aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaTemaSensible, respuestaConDatos, salidaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=55';
+function answerLegacyLlano(q, ent, s, d) {
+  return legacyComparacion(q, ent, s, d, { indicadores: indicadoresLlano }) || legacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadLegacy });
+}
+import { MARCADOR_RELEASE, releaseDeMarca, aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaTemaSensible, respuestaConDatos, salidaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=56';
 
 let DATA = null;
 
@@ -825,7 +827,7 @@ function answerLugarDesconocido(q, ent, s, d) {
 // Guard: edad como variable exogena no disponible
 // ---------------------------------------------------------------------------
 
-const PREGUNTA_CLINICA = /\b(causa\w*|por que (da|se da|sube mi)|tratamiento\w*|tratar\w*|se trata|como (la|lo|se) curas?|se cura|curar\w*|sintoma\w*|signos|prevenir\w*|prevencion|preven\w*|evitar\w*|contagi\w*|contrae\w*|transmit\w*|dieta|perder peso|bajar de peso|remedio\w*|medicamento\w*|medicina\w*|es peligros\w*|tan peligros\w*|es grave|cuanto (tiempo )?dura|que se siente|debo preocuparme|deberia preocuparme|que hago|que puedo hacer|que se puede hacer|consejos?|recomienda\w*|colesterol|en el bano|en la escuela|es lo mismo que|relacion (entre|tiene)|estres|comer|comiendo|infectad\w*|no se que hacer|como se si|como saber si|medidas|combatir|lo peor de|es cierto|es verdad|es correcto)\b/;
+const PREGUNTA_CLINICA = /\b(causa\w*|por que (da|se da|sube mi)|tratamiento\w*|tratar\w*|se trata|como (la|lo|se) curas?|se cura|curar\w*|sintoma\w*|signos|prevenir\w*|prevencion|preven\w*|evitar\w*|contagi\w*|contrae\w*|transmit\w*|dieta|perder peso|bajar de peso|remedio\w*|medicamento\w*|medicina\w*|es peligros\w*|tan peligros\w*|es grave|cuanto (tiempo )?dura|que se siente|debo preocuparme|deberia preocuparme|que hago|que puedo hacer|que se puede hacer|consejos?|recomienda\w*|colesterol|en el bano|en la escuela|es lo mismo que|relacion (entre|tiene)|estres|comer|comiendo|infectad\w*|no se que hacer|como se si|como saber si|medidas|combatir|lo peor de)\b/;
 function esPreguntaClinica(qc, q = qc) {
   return PREGUNTA_CLINICA.test(qc) && !PREGUNTA_DE_DATOS.test(q.replace(/\bcuanto (tiempo )?(dura|tarda|lleva)\w*\b|\bcuanto tiempo\b/g, ' '));
 }
@@ -1761,6 +1763,10 @@ function answerDengue(q, ent, s, d) {
       const sin = (dg.sin_casos || []).find((x) => norm(x) === norm(ent.estado));
       if (hit) return `En **${hit.entidad}**, el dengue confirmado acumulado (${dg.cobertura}) suma **${num(hit.casos)} casos**: es una de las entidades de mayor carga del país.`;
       if (sin) return `**${sin}** no registra transmisión de dengue confirmada en todo el periodo (${dg.cobertura}). Pertenece al centro-altiplano, fuera del rango del vector *Aedes aegypti*.`;
+      const comp = legacyComparacion(q, ent, s, d, { indicadores: indicadoresLlano });
+      if (comp) return comp;
+      const llano = answerLegacyLlano(`dengue en ${ent.estado}`, { ...ent, padecimientos: [] }, s, d);
+      if (llano) return llano;
       return `El dengue se concentra en el **sureste tropical y las costas** (${(dg.top_entidades || []).slice(0, 3).map((e) => e.entidad).join(', ')}). No tengo el desglose por entidad de ${ent.estado} en el bot; pídeme el **mapa de dengue** para ver la geografía completa.`;
     }
     // "peor / mayor" = mas carga (default). "menor / menos / pocas" = entidades con menos casos.
@@ -2680,7 +2686,7 @@ function answerSparklines(q, ent, s, d) {
 
 function answerStackedArea(q, ent, s, d) {
   const triggers = ['apilad', 'stacked', 'composicion', 'composicion semanal'];
-  const triggerAlt = (any(q, ['proporcion', 'distribucion']) && any(q, ['semanal', 'semana'])) ||
+  const triggerAlt = (/\b(proporcion|proporciones|distribucion)\b/.test(q) && /\b(semanal|semana)\b/.test(q)) ||
     (any(q, ['area']) && any(q, ['padecimiento', 'enfermedad']));
   if (!any(q, triggers) && !triggerAlt) return null;
 
@@ -4307,14 +4313,18 @@ const STOP_WORDS = new Set([
   // Palabras reales que el corrector convertía en otra entidad: hipotensión es la condición opuesta.
   'presion', 'tension', 'hipotension', 'hipotenso', 'hipotensa', 'prueba', 'pruebas',
   // Ronda ciega con Ollama: «médico» no es «México», «gente» no es un estado.
-  'medico', 'medica', 'medicos', 'medicas', 'gente', 'consejo', 'consejos', 'ejercicio', 'rutina', 'mexicano', 'mexicana', 'mexicanos', 'chatbot', 'sistema', 'funciona',
+  'medico', 'medica', 'medicos', 'medicas', 'gente', 'consejo', 'consejos', 'ejercicio', 'rutina',
+  'factor', 'factores', 'cuenta', 'cuentas', 'acceso', 'atencion', 'mental', 'relacionado', 'relacionada', 'ambientales',
+  'socioeconomicos', 'socioeconomico', 'porcentaje', 'situacion', 'favor', 'informacion', 'distribucion', 'medidas', 'tomando',
+  'quieres', 'quiere', 'queremos', 'decir', 'dices', 'crees', 'creo', 'buena', 'bueno', 'grafica', 'tendencia', 'ultimas',
+  'ultimos', 'tres', 'dime', 'oye', 'algun', 'alguna', 'seria', 'podria', 'podrias', 'explicar', 'explicame', 'verdad', 'mexicano', 'mexicana', 'mexicanos', 'chatbot', 'sistema', 'funciona',
 ]);
 
 function fuzzyCorrect(q) {
   const words = q.split(' ');
   let changed = false;
   const fixed = words.map(w => {
-    if (w.length < 3) return w;          // No corregir palabras muy cortas
+    if (w.length <= 3) return w;         // No corregir palabras muy cortas («tan» no es «san»)
     if (VOCAB.includes(w)) return w;     // Ya esta bien
     if (STOP_WORDS.has(w)) return w;     // Palabra comun, no corregir
     // Buscar la palabra m\u00e1s cercana en el vocabulario
@@ -5674,6 +5684,8 @@ function runHandlers(q, ent, s, d, trace = null) {
     if (handler === answerValidacion && !/\b(validacion|real vs|precis\w*|acert\w*|seguimiento)\b/.test(q)) continue;
     if (handler === answerDefinicion && /\b(cancer|curar|cura|tratamiento|medicina|enfermedad)\b/.test(q) && !/\b(smape|mase|rmse|mae|wape|sesgo|metrica\w*)\b/.test(q)) continue;
     if (handler === answerSexo && /\b(estudio|estudios|relacion entre|por que|investigacion)\b/.test(q) && !ent.padecimiento) continue;
+    // Reliquia de la cohorte neuro: el glosario de métricas sólo ante preguntas de métricas o definiciones.
+    if (handler === answerDefinicion && !/\b(smape|mase|rmse|mae|wape|sesgo|metric\w*|definicion\w*|glosario|significa|que es|que son|terminos?)\b/.test(q)) continue;
     // Rankings, métricas y conteos de la cohorte neuro sólo cuando la pregunta es sobre modelos o métricas.
     if ((handler === answerRanking || handler === answerMetricaGlobal || handler === answerConteo) && !ent.padecimiento &&
       !/\b(modelo|modelos|motor|motores|smape|mase|rmse|mae|metric\w*|series|serie|commits|tests|lineas|archivos|equipo|proyecto|padecimientos|ranking|mejores|peores|datos|entreno|entrenamiento|entrenado|graficos|grafico|galeria|paginas|reportes)\b/.test(q)) continue;
@@ -5917,6 +5929,7 @@ export function estadoDeRespuesta(texto) {
 
 /** Reset conversacional — solo para tests. */
 export function _resetContext() {
+  _comparacionPrevia = null;
   lastEntities = {}; _lastDistribMetric = null; _lastChartHandler = null; _lastHandlerFn = null;
   _crisisActiva = null; _aclaracionPendiente = null;
 }
@@ -6362,7 +6375,7 @@ const HANDLERS_SIN_DATOS = new Set(['answerAliasAmbiguo', 'answerGuardaD7', 'ans
  * «¿comparado con Querétaro?», «¿cuándo es el pico?», «¿qué tan confiable es?»). Se completan con el padecimiento y el
  * estado del contexto para que respondan sobre lo mismo.
  */
-const SEGUIMIENTO_CTX = /^(y |pero |entonces |ok |oye )?(es mucho|es poco|esta peor|esta mejor|y el ano pasado|el ano pasado|comparado con|compara(lo)? con|como se compara con|y comparado con|vs |contra |que tan confiable|es confiable|cuando (es|va a ser|sera) el pico|y el pico|el pico|pronostico (de las )?proximas|las proximas|proximas \d+ semanas|tiene estacionalidad|esta subiendo|va a subir|sube o baja|y en la misma ventana|y la semana pasada|y este ano|y en (hombres|mujeres)|cual es el smape|smape|el error|que error|ese pronostico|este pronostico|esta peor|esta mejor|subio o bajo|sube o baja|o sea|y el pronostico|que tan seguro|es seguro el|(en )?(las |los )?(mujeres|hombres)$|y en (las |los )?(mujeres|hombres)|por sexo|se pronostica|puro humo|esta chido|semana que viene|proxima semana|la que viene|hay brote|hay muchos casos|y hay brote|hay muchos casos asi|casos asi)/;
+const SEGUIMIENTO_CTX = /^(y |pero |entonces |ok |oye )?(es mucho|es poco|esta peor|esta mejor|y el ano pasado|el ano pasado|comparado con|compara(lo)? con|como se compara con|y comparado con|vs |contra |que tan confiable|es confiable|cuando (es|va a ser|sera) el pico|y el pico|el pico|pronostico (de las )?proximas|las proximas|proximas \d+ semanas|tiene estacionalidad|esta subiendo|va a subir|sube o baja|y en la misma ventana|y la semana pasada|y este ano|y en (hombres|mujeres)|cual es el smape|smape|el error|que error|ese pronostico|este pronostico|esta peor|esta mejor|subio o bajo|sube o baja|o sea|y el pronostico|que tan seguro|es seguro el|(en )?(las |los )?(mujeres|hombres)$|y en (las |los )?(mujeres|hombres)|por sexo|se pronostica|puro humo|esta chido|semana que viene|proxima semana|la que viene|hay brote|hay muchos casos|y hay brote|hay muchos casos asi|casos asi|hay diferencia entre (hombres|mujeres)|diferencia (por|entre) sexo|(hombres|mujeres) (y|o|vs|contra) (hombres|mujeres)|(y )?cuando es su pico|(y )?su pico|en que (mes|meses|semana)|es estacional|que estado tiene mas|cual estado|en que estado|donde hay mas|donde esta peor|que estados)/;
 /** Botones con las opciones que nombra una aclaración («hepatitis vírica A», «hepatitis C»…), conservando el estado. */
 function botonesDeOpciones(texto, estado) {
   const nombres = [...new Set([...String(texto).matchAll(/«([^»]+)»/g)].map((m) => m[1]))]
@@ -6372,24 +6385,67 @@ function botonesDeOpciones(texto, estado) {
   return `\n<!--SIGUE:${JSON.stringify(nombres.map((n) => ({ t: `${n.charAt(0).toUpperCase()}${n.slice(1).replace(/ ([abcde])\b/g, (m, l) => ` ${l.toUpperCase()}`)}${lugar}`, q: `${n}${lugar}` })))}-->`;
 }
 
+let _comparacionPrevia = null;
 function seguimientoConContexto(texto) {
   const qn = norm(texto);
   const ent = detectEntities(qn);
+  const CORRIGE = /\b(quise decir|me equivoque|perdon|no era|me referia|me refiero|hablaba de|digo|corrijo)\b/;
+  const sexoPrev = lastEntities.sexo && lastEntities.sexo !== 'general' && !ent.sexo && !/\b(general|total|ambos sexos|todos|en conjunto)\b/.test(qn)
+    ? ` ${lastEntities.sexo}` : '';
   // «¿Cuál de las dos…?» tras nombrar dos padecimientos.
-  if (/\bcual de (las|los) dos\b/.test(qn) && (lastEntities._padsPrevios || []).length >= 2 && !ent.padecimiento) {
-    return `${lastEntities._padsPrevios.join(' y ')}${ent.estado ? ` en ${ent.estado}` : lastEntities.estado ? ` en ${lastEntities.estado}` : ''}`;
+  if (/\bcual (de (las|los) dos|(va|esta|anda) (peor|mejor)|sube mas|tiene mas( casos)?|es peor|es mas grave)\b/.test(qn) && (lastEntities._padsPrevios || []).length >= 2 && !ent.padecimiento) {
+    const sx = ent.sexo || (lastEntities.sexo && lastEntities.sexo !== 'general' ? lastEntities.sexo : '');
+    return `${lastEntities._padsPrevios.join(' y ')}${ent.estado ? ` en ${ent.estado}` : lastEntities.estado ? ` en ${lastEntities.estado}` : ''}${sx ? ` ${sx}` : ''} ${qn.match(/\b(peor|mejor|sube mas|tiene mas|mas grave)\b/)?.[0] || 'cual'}`;
   }
-  // «Olvídalo, mejor dime la varicela»: nuevo padecimiento, mismo estado.
-  if (ent.padecimiento && !ent.estado && lastEntities.estado && /\b(olvidalo|mejor|ahora|y ahora|cambiando de tema)\b/.test(qn)) {
-    return `${texto} en ${lastEntities.estado}`;
+  // Tras comparar dos padecimientos, «¿y en total?», «¿y en hombres?» o «¿y en Jalisco?» repiten la comparación.
+  if (_comparacionPrevia && !ent.padecimiento && !(ent.padecimientos || []).length && qn.split(' ').length <= 6 &&
+    (ent.estado || ent.sexo || /\b(total|general|ambos sexos|en conjunto)\b/.test(qn))) {
+    const est = ent.estado || _comparacionPrevia.estado;
+    const sx = ent.sexo && ent.sexo !== 'general' ? ent.sexo : /\b(total|general|ambos sexos|en conjunto)\b/.test(qn) ? '' : (_comparacionPrevia.sexo || '');
+    return `${_comparacionPrevia.pads.join(' y ')}${est ? ` en ${est}` : ''}${sx ? ` ${sx}` : ''} cual`;
+  }
+  // El sexo pedido en un turno anterior («¿y en mujeres?») se conserva en los seguimientos hasta que se cambie (sexoPrev).
+  // «Olvídalo, mejor dime la varicela» o «perdón, quise decir parotiditis»: nuevo padecimiento, mismo estado (y sexo si corrige).
+  if (ent.padecimiento && !ent.estado && lastEntities.estado && (/\b(olvidalo|mejor|ahora|y ahora|cambiando de tema)\b/.test(qn) || CORRIGE.test(qn))) {
+    return `${texto} en ${lastEntities.estado}${CORRIGE.test(qn) ? sexoPrev : ''}`;
   }
   const pad = lastEntities.padecimiento;
   if (!pad) return texto;
   if (ent.padecimiento || (ent.padecimientos || []).length) return texto;
+  const relCtx = releaseDePad(pad);
+  const nombreCtx = relCtx ? (relCtx.consultaVisible || relCtx.consulta) : norm(pad);
+  // «¿Y lo otro que te pregunté?»: el padecimiento anterior al cambio de tema.
+  if (/\b(lo otro|lo anterior|lo de antes|lo primero|lo que te pregunte antes|el otro|la otra|el de antes|la de antes)\b/.test(qn) && lastEntities._padAnterior) {
+    return `${lastEntities._padAnterior}${lastEntities.estado ? ` en ${lastEntities.estado}` : ''}${sexoPrev}`;
+  }
+  // Corrección o cambio con sólo un estado o un sexo («no, me refería a Sonora, ¿me das esa información?», «no, me refiero a
+  // las mujeres», «olvídalo, mejor dime cuánto tienen en hombres»): el mismo padecimiento con el dato corregido.
+  if ((CORRIGE.test(qn) || /\b(olvidalo|mejor)\b/.test(qn)) && (ent.estado || ent.sexo) && qn.split(' ').length <= 14) {
+    const est = ent.estado || lastEntities.estado;
+    const sx = ent.sexo && ent.sexo !== 'general' ? ` ${ent.sexo}` : (ent.estado ? sexoPrev : '');
+    return `${nombreCtx}${est ? ` en ${est}` : ''}${sx}`;
+  }
+  // «¿la misma entre hombres y mujeres?» (reescrito a «por sexo»): el padecimiento y el lugar anteriores, por sexo.
+  if (/\bpor sexo\b/.test(qn) && qn.split(' ').length <= 12 && !/\b(modelo|modelos|motor|smape|mase)\b/.test(qn)) {
+    const est = ent.estado || lastEntities.estado;
+    return `${nombreCtx}${est ? ` en ${est}` : ''} hombres y mujeres`;
+  }
+  // «¿cómo se distribuyen estos casos por sexo?»: el pronombre remite al padecimiento anterior.
+  if (/\b(estos|esos|estas|esas) (casos|datos|cifras|numeros)\b|\bde (esto|eso)\b|\b(ese|este|esa|esta) (informe|pronostico|reporte|dato|grafica|resultado)\b|\b(una|la|el) (grafica|grafico|tendencia)\b/.test(qn) && qn.split(' ').length <= 18) {
+    const est = ent.estado || lastEntities.estado;
+    const sx = /\b(por sexo|hombres y mujeres|mujeres y hombres|entre hombres|entre mujeres|sexos?)\b/.test(qn) ? ' hombres y mujeres' : (ent.sexo && ent.sexo !== 'general' ? ` ${ent.sexo}` : sexoPrev);
+    return `${nombreCtx}${est ? ` en ${est}` : ''}${sx} ${texto}`;
+  }
+  // Un turno corto que sólo cambia el sexo («ok y cuántos en mujeres», «nada más hombres»): mismo padecimiento y lugar.
+  if (ent.sexo && ent.sexo !== 'general' && !ent.estado && qn.split(' ').length <= 8 && !/\b(modelo|modelos|motor|smape|mase|embaraz\w*|gestant\w*|pregnan\w*|menor\w*|nin[oa]s?|edad\w*|anos|bebes?|adolescent\w*|jovenes|mayores)\b/.test(qn)) {
+    return `${nombreCtx}${lastEntities.estado ? ` en ${lastEntities.estado}` : ''} ${ent.sexo}`;
+  }
+  // «el estado con más (o menos) casos», dicho como comentario.
+  if (/\b(estado|lugar|entidad) con (mas|menos) casos\b/.test(qn)) return `${nombreCtx} que estado tiene mas casos`;
   // Sólo un lugar («en Yucatán», «¿y Sonora?», «para Chihuahua»): el mismo padecimiento en ese estado.
-  const soloLugar = ent.estado && qn.replace(/\b(y|en|para|de|del|que tal|como va|como esta|y en|ahora|no|me equivoque|quise decir|perdon|era|es|digo|mejor)\b/g, ' ')
+  const soloLugar = ent.estado && qn.replace(/\b(y|en|para|de|del|a|que tal|como va|como esta|y en|ahora|no|me equivoque|quise decir|perdon|era|es|digo|mejor|me referia|me refiero|hablaba de|corrijo)\b/g, ' ')
     .replace(norm(ent.estado), ' ').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean).length <= 1;
-  const datosEnEstado = ent.estado && qn.split(' ').length <= 8 && /\b(casos|hay|cuantos|cuantas|como va|como esta|y en)\b/.test(qn);
+  const datosEnEstado = ent.estado && qn.split(' ').length <= 12 && /\b(casos|hay|cuantos|cuantas|como va|como esta|y en|porcentaje|aumentado|subido|bajado|numero|cifras|datos)\b/.test(qn);
   if (!soloLugar && !datosEnEstado && !SEGUIMIENTO_CTX.test(qn)) return texto;
   const rel = releaseDePad(pad);
   const nombre = rel ? (rel.consultaVisible || rel.consulta) : norm(pad);
@@ -6397,18 +6453,44 @@ function seguimientoConContexto(texto) {
   if (/\b(compar\w*|vs|contra)\b/.test(qn) && ent.estado && previo && norm(ent.estado) !== norm(previo)) {
     return `compara ${nombre} en ${previo} y ${ent.estado}`;
   }
-  return `${nombre}${previo && !ent.estado ? ` en ${previo}` : ''} ${texto}`;
+  if (soloLugar && CORRIGE.test(qn)) return `${nombre} en ${ent.estado}${sexoPrev}`;
+  return `${nombre}${previo && !ent.estado ? ` en ${previo}` : ''} ${texto}${sexoPrev}`;
 }
 
 /**
  * Rediseño conversacional: una ciudad conocida («Monterrey», «Guadalajara») se responde para su estado y se dice. La crisis
  * y el apoyo se evalúan sobre el texto original (el reemplazo sólo cambia el nombre del lugar).
  */
+const COMENTARIO = /^(eso|esto|ok|okay|va|vale|ya veo|entiendo|entendido|ah|aja|me parece|creo que|interesante|que mal|que bien|que bueno|uf|vaya|orale|wow|perfecto|excelente|genial|muy bien|correcto|bueno|me preocupa|me ayuda|que interesante|super|sale|de acuerdo)\b/;
+/** Un comentario tras una respuesta con datos («eso me ayudará», «qué mal», «me preocupa») no es una consulta nueva. */
+function respuestaComentario(query) {
+  const qn = norm(query);
+  const pad = lastEntities.padecimiento;
+  if (!pad || !COMENTARIO.test(qn) || qn.split(' ').length > 16) return null;
+  const ent = detectEntities(qn);
+  if (ent.padecimiento || (ent.padecimientos || []).length || ent.estado || (ent.sexo && ent.sexo !== 'general')) return null;
+  if (/\b(cuant\w*|como va|y en|que tal|cual|cuando|donde|por que|porque|que es|pico|confiable|compar\w*|estado con|lugar con|100 mil|tasa|edad|municipio|muertes|mortal)\b|\?/.test(qn)) return null;
+  if (apoyoInmediato(query) || apoyoSuave(query) && /\b(triste|solo|sola|mal yo|no puedo|cansad\w*|ansios\w*|deprimid\w*)\b/.test(qn)) return null;
+  const rel = releaseDePad(pad);
+  const nombre = rel ? (rel.consultaVisible || rel.consulta) : norm(pad);
+  const est = lastEntities.estado ? (ESTADOS_NOMBRE[norm(lastEntities.estado)] || lastEntities.estado) : null;
+  const opciones = [
+    est ? { t: 'Ver el total nacional', q: `${nombre} nacional` } : { t: '¿Dónde hay más casos?', q: `${nombre} que estado tiene mas casos` },
+    { t: '¿Y en mujeres?', q: `${nombre}${est ? ` en ${est}` : ''} mujeres` },
+    { t: 'Frente al año pasado', q: `${nombre}${est ? ` en ${est}` : ''} y el año pasado` },
+  ];
+  return { response: `Entendido. ¿Quieres ver algo más de ${nombre}${est ? ` en ${est}` : ''}? Puedo darte otro estado, hombres o mujeres por separado, o compararlo con el año pasado.\n<!--SIN_GRAFICA-->\n<!--SIGUE:${JSON.stringify(opciones)}-->`, handler: 'answerComentario' };
+}
+
 async function _resolveConContexto(query) {
   // Crisis primero sobre el texto original; después sinónimos, abreviaturas y ciudades.
   if (respuestaCrisis(normalizaEntrada(query))) return _resolveConContextoBase(query);
+  const comentario = respuestaComentario(query);
+  if (comentario) return comentario;
   const { texto: texto0, notas } = reescribeConsulta(query);
   const texto = seguimientoConContexto(texto0);
+  const padAntes = lastEntities.padecimiento;
+  const padAnteriorPrev = lastEntities._padAnterior;
   const r = await _resolveConContextoBase(texto);
   // El padecimiento que respondió un release queda en el contexto aunque la consulta lo nombrara por sinónimo.
   const mr = String(r.response || '').match(MARCADOR_RELEASE);
@@ -6418,10 +6500,23 @@ async function _resolveConContexto(query) {
     try { meta = JSON.parse(mr[2]); } catch { /* sin metadatos */ }
     if (rel) lastEntities = { ...lastEntities, padecimiento: rel.pad, ...(meta.estado ? { estado: meta.estado } : {}) };
   }
+  // «hombres y mujeres» compara ambos sexos: no deja un sexo fijo para los turnos siguientes.
+  if (/\bhombres\b/.test(norm(texto)) && /\bmujeres\b/.test(norm(texto))) lastEntities = { ...lastEntities, sexo: null };
   const padsTurno = detectEntities(norm(texto)).padecimientos || [];
+  const entTurno = detectEntities(norm(texto));
+  _comparacionPrevia = r.handler === 'answerReleasesMixtos' && padsTurno.length >= 2
+    ? { pads: padsTurno.map((p) => { const rr = releaseDePad(p); return rr ? (rr.consultaVisible || rr.consulta) : norm(p); }), estado: entTurno.estado || null, sexo: entTurno.sexo && entTurno.sexo !== 'general' ? entTurno.sexo : null }
+    : null;
+  const nombreCtx = (p) => { const rr = releaseDePad(p); return rr ? (rr.consultaVisible || rr.consulta) : norm(p); };
   if (padsTurno.length >= 2) {
-    lastEntities = { ...lastEntities, _padsPrevios: padsTurno.map((p) => { const rr = releaseDePad(p); return rr ? (rr.consultaVisible || rr.consulta) : norm(p); }) };
+    lastEntities = { ...lastEntities, _padsPrevios: padsTurno.map(nombreCtx) };
+  } else if (padAntes && lastEntities.padecimiento && padAntes !== lastEntities.padecimiento) {
+    // Dos padecimientos en turnos seguidos («varicela…», «quise decir parotiditis») también valen para «¿cuál de las dos?».
+    lastEntities = { ...lastEntities, _padsPrevios: [nombreCtx(padAntes), nombreCtx(lastEntities.padecimiento)], _padAnterior: nombreCtx(padAntes) };
+  } else if (padAntes && !lastEntities.padecimiento) {
+    lastEntities = { ...lastEntities, _padAnterior: nombreCtx(padAntes) };
   }
+  if (!lastEntities._padAnterior && padAnteriorPrev && lastEntities.padecimiento) lastEntities = { ...lastEntities, _padAnterior: padAnteriorPrev };
   if (!lastEntities.estado && detectEntities(norm(texto)).estado) lastEntities = { ...lastEntities, estado: detectEntities(norm(texto)).estado };
   const sint = notaSintomas(norm(query));
   if (sint && r.response && !HANDLERS_DE_AYUDA.has(r.handler) && r.handler !== 'answerSintomas') notas.unshift(sint.replace(/^_|_$/g, '').replace(/\.$/, ''));

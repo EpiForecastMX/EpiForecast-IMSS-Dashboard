@@ -166,7 +166,9 @@ for (const id of SIN_ALT) {
   });
 }
 
-for (const q of ['sífilis en Jalisco', 'tétanos en Jalisco', 'tuberculosis en Jalisco', 'chagas en Jalisco',
+// «tuberculosis» a secas ya no pide precisar: se toma la respiratoria con nota (ronda de conversaciones, 24-nov-2026;
+// prueba en test_rediseno_conversacional.mjs).
+for (const q of ['sífilis en Jalisco', 'tétanos en Jalisco', 'chagas en Jalisco',
   'picadura en Sonora', 'mordedura en Sonora', 'mordedura de serpiente en Jalisco', 'mordedura de araña en Jalisco',
   'alcohol en Jalisco', 'cirrosis en Jalisco', 'meningococo en Jalisco', 'neumococo en Jalisco', 'gonorrea en Jalisco',
   'tifo en Jalisco', 'K70 en Jalisco', 'meningitis en Jalisco', 'chancro en Jalisco']) {
@@ -210,8 +212,7 @@ for (const [q, marca] of [['tuberculosis pulmonar en Jalisco', 'TUBERCULOSIS_RES
     assert.match(md, new RegExp(`<!--${marca}:`), q);
   });
 }
-for (const [q, nombra] of [['tuberculosis en Jalisco', /tuberculosis respiratoria.*meningitis tuberculosa.*otras formas/s],
-  ['rickettsiosis en Sonora', /fiebre manchada.*tifo murino.*otras rickettsiosis/s], ['leishmaniasis en Jalisco', /visceral/]]) {
+for (const [q, nombra] of [['rickettsiosis en Sonora', /fiebre manchada.*tifo murino.*otras rickettsiosis/s], ['leishmaniasis en Jalisco', /visceral/]]) {
   test(`lote 6: «${q}» pide precisar sin cifras`, async () => {
     const { md } = await pregunta(q);
     assert.match(md, nombra, q);

@@ -95,3 +95,22 @@ el hueco principal: preguntas clínicas sobre un padecimiento nombrado recibían
 
 Resultado: las baterías curadas siguen en 90 % (ahora más preguntas clínicas van al RAG a propósito) y las de Ollama
 pasan el piso de 90 % contando la cesión al RAG como correcta; ninguna crisis falsa.
+
+## Quinta tanda (mismo día): conversaciones seriadas, trampas y contexto con Ollama
+
+Tres baterías de conversaciones de 2 a 8 turnos escritas por qwen2.5, llama3.1 y llama3.2 (seriadas, cambios de contexto y
+correcciones, preguntas trampa y repreguntas de especialista; 277 conversaciones en `tests/fixtures/estres/ollama_conv_*.json`),
+evaluadas turno por turno (pierde estado, pierde sexo, «no entendí», crisis) y con un juez de conversación completa. Antes
+de ajustar: 55 % y 74 % de conversaciones limpias; después 78 % y 84 %. La tercera (llama3.2) se midió a ciegas después de
+los ajustes: 76 %, y 87 % tras corregir lo que destapó. El juez de 8B reprueba casi todo por «contexto» y no sirve como
+métrica; sí sirvió para encontrar fallos concretos.
+
+| Cambio | Dónde |
+|---|---|
+| Correcciones y cambios: «no, me refiero a las mujeres», «no, me refería a Sonora, ¿me das esa información?», «perdón, quise decir parotiditis» (conserva estado y sexo), «olvídalo, mejor dime cuánto tienen en hombres», «¿y lo otro que te pregunté?» (vuelve al padecimiento anterior), «ok y cuántos en mujeres». | `js/kb.js` (`seguimientoConContexto`) |
+| El sexo pedido se conserva en los seguimientos («¿y el año pasado?» tras «¿y en mujeres?») y se dice en la respuesta; «hombres y mujeres» en el mismo turno pide la comparación por sexo y no deja un sexo fijo. | `js/kb.js`, `js/conversacion.js`, `js/resumen_llano.js` |
+| «¿Cuál de las dos va peor?» con dos padecimientos de turnos seguidos: veredicto (más casos esperados, cuál crece más; «comparo casos, no gravedad») y «¿y en total?», «¿y en Jalisco?» repiten la comparación. «¿Cuál estado tiene más X: A o B?» compara esos dos estados con veredicto, también para dengue, depresión, Parkinson y Alzheimer. | `js/obesidad_kb.js`, `js/conversacion.js` (`answerLegacyComparacion`) |
+| Comentarios tras una respuesta («eso me ayudará», «me parece que es el estado con menos casos») reciben un «entendido» con opciones, no el «no entendí». Pronombres («estos casos», «ese pronóstico», «una gráfica de la tendencia») remiten al padecimiento anterior. | `js/kb.js` (`respuestaComentario`) |
+| Trampas: lugares fuera de México («sólo tengo datos de México»), años fuera de los datos («no hay pronóstico para 2035»), premisas con cifras («no puedo confirmar el 500 %»), frases dictadas y peticiones de inventar, «¿por qué mentiste?» (un pronóstico no es una promesa), «mortal» (no hay defunciones). | `js/conversacion.js` (`reescribeConsulta`) |
+| «tuberculosis» y «otitis» a secas toman la forma común (respiratoria; media aguda) con nota, en vez de detener la conversación; «otitis media» e «otitis interna» siguen aclarando. **Cambia el contrato de auditorías anteriores** (pedían precisar sin cifras): revisar. | `js/conversacion.js`, `tests/test_alcance_*.mjs` |
+| Reliquias y corrector: «quieres» ya no se corrige a «mujeres», «tan» a «san», «factores» a «autores» ni «cuenta» a «cuantas»; «proporcionarme» ya no dispara el área apilada neuro ni «uno por ciento» el glosario de métricas. Con menos de 10 casos de base no se da un porcentaje («445 % más»). | `js/kb.js`, `js/resumen_llano.js` |

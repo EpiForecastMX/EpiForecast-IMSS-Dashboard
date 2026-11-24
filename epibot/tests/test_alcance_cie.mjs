@@ -202,8 +202,8 @@ for (const r of RELEASES) {
 
 // Nombres genéricos que abarcan más que el bloque: se aclara sin cifras y se sugiere el nombre completo.
 const { aliasAmbiguo, subtipoAjeno } = await import('../js/release_config.js?v=21');
+// «otitis» a secas ya no pide precisar: se toma la media aguda con nota (prueba en test_rediseno_conversacional.mjs).
 const AMBIGUOS = [
-  ['otitis en Jalisco', 'otitis media aguda'],
   ['otitis media en Jalisco', 'otitis media aguda'],
   ['pronóstico de H65 en Sonora', 'otitis media aguda'],
   ['h65 2 semanas en Jalisco', 'otitis media aguda'],

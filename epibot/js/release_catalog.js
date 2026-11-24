@@ -2626,7 +2626,9 @@
     const conSintomas = /\b(fiebre|tos|dolor|gripa|gripe|diarrea|vomito|calentura|ronchas|garganta|cabeza|catarro|resfriado)\b/.test(sin);
     const sinTomar = conSintomas ? sin.replace(/\b(tomo|tomar|me tomo|que me tomo)\b/g, ' ') : sin;
     // Frases hechas sin señal: «no puedo creer», «si no tomo la medicina» (adherencia), «no se tome las cosas en serio».
-    const sinFrases = sinTomar.replace(/\bme siento (un poco |algo |muy )?(nervios[oa]|preocupad[oa]|asustad[oa]|inquiet[oa]) (con|por) (tantas |las |la |los )?(enfermedad\w*|epidemia\w*|brotes?|contagios?|noticias)\b/g, ' ').replace(/\b(lo )?siento (preguntar|molestar|molestarte|la molestia|interrumpir|la tardanza|no saber)\b/g, ' ').replace(/\bno puedo (creer|entender|encontrar|abrir|descargar|ver la|ver el|ver las|ver los)\b/g, ' ')
+    // «No, lo siento por eso. Quiero saber del cáncer de mama»: la disculpa junto a un dato no es una señal.
+    const sinDisculpa = tieneFragmentoDeDatos(raw) ? sinTomar.replace(/\b(lo )?siento (por eso|por la confusion|mucho|el error)\b|\blo siento\b/g, ' ') : sinTomar;
+    const sinFrases = sinDisculpa.replace(/\bme siento (un poco |algo |muy )?(nervios[oa]|preocupad[oa]|asustad[oa]|inquiet[oa]) (con|por) (tantas |las |la |los )?(enfermedad\w*|epidemia\w*|brotes?|contagios?|noticias)\b/g, ' ').replace(/\b(lo )?siento (preguntar|molestar|molestarte|la molestia|interrumpir|la tardanza|no saber)\b/g, ' ').replace(/\bno puedo (creer|entender|encontrar|abrir|descargar|ver la|ver el|ver las|ver los)\b/g, ' ')
       .replace(/\b(si )?no (tomo|tomar|me tomo) (la |el |mi |mis )?(medicina|medicinas|medicamento|medicamentos|tratamiento|insulina)\b/g, ' ');
     return [sinFrases, ...variantesRiesgo(sinFrases)].some((v) => SENAL_DEBIL.test(v.trim()));
   }

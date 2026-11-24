@@ -6,7 +6,7 @@
  * la cadena de kb.js. Ninguno da consejo médico ni cifras inventadas: el ranking sale de resumen_padecimientos.json, que
  * genera scripts/build_resumen_padecimientos.mjs desde las vistas publicadas.
  */
-import { RELEASES } from './release_config.js?v=55';
+import { RELEASES } from './release_config.js?v=56';
 
 const LEGACY = 4;
 export const TOTAL_PUBLICADOS = () => RELEASES.length + LEGACY;
@@ -131,7 +131,7 @@ export function answerSintomas(q, ent) {
 }
 
 // «¿Qué enfermedades van al alza?», «¿qué está subiendo?», «¿qué padecimientos tienen más casos?».
-const RANKING = /\b(enfermedad|enfermedades|padecimiento|padecimientos|infecciones|males)\b.*\b(alza|aumentar|aumentando|aumentan|aumento|en aumento|incremento|suben|subiendo|subir|subio|crecen|creciendo|crecio|repuntan|preocupar|preocupantes|mas casos|bajan|bajando|bajaron|bajado|bajo|disminuyen|disminuyendo|disminuyo|pegando)\b|\b(que|cuales?)\b.*\b(enfermedades|padecimientos)\b.*\b(alza|aumentar|aumentando|aumentan|suben|subiendo|subir|crecen|creciendo|repuntan|preocupar|preocupantes|mas casos|bajan|bajando|disminuyen)\b|\b(que esta subiendo|que va al alza|que sube|que esta aumentando|que esta bajando|lo que sube|lo que mas sube|que esta pegando|que pega mas|que anda (mas )?fuerte|que esta circulando|que circula mas|que hay mas|vamos a tener mas casos|pronostico (para|de) esta semana|pronostico general)\b/;
+const RANKING = /\b(enfermedad|enfermedades|padecimiento|padecimientos|infecciones|males)\b.*\b(alza|aumentar|aumentando|aumentan|aumento|en aumento|incremento|suben|subiendo|subir|subio|crecen|creciendo|crecio|repuntan|preocupar|preocupantes|mas casos|bajan|bajando|bajaron|bajado|bajo|disminuyen|disminuyendo|disminuyo|pegando)\b|\b(que|cuales?)\b.*\b(enfermedades|padecimientos)\b.*\b(alza|aumentar|aumentando|aumentan|suben|subiendo|subir|crecen|creciendo|repuntan|preocupar|preocupantes|mas casos|bajan|bajando|disminuyen)\b|\b(que esta subiendo|que va al alza|que sube|que esta aumentando|que esta bajando|lo que sube|lo que mas sube|que esta pegando|que pega mas|que anda (mas )?fuerte|que esta circulando|que circula mas|que hay mas|vamos a tener mas casos|pronostico (para|de) esta semana|pronostico general|enfermedad mas comun|enfermedades mas comunes|enfermedad mas frecuente|enfermedad\w* (ha|han|que han|que ha) aumentado)\b/;
 
 const RESUMEN_NACIONAL = /\b(resumen|panorama general|situacion epidemiologica|como esta el pais|como va el pais|que esta pasando en el pais)\b/;
 export function answerRankingPadecimientos(q, ent, s, d) {
@@ -187,7 +187,7 @@ export function answerRankingPadecimientos(q, ent, s, d) {
 const LEGACY_PAD = { Dengue: 'dengue', Depresion: 'depresion', Parkinson: 'parkinson', Alzheimer: 'alzheimer' };
 const LEGACY_NOMBRE = { Dengue: 'Dengue', Depresion: 'Depresión', Parkinson: 'Parkinson', Alzheimer: 'Alzheimer' };
 const LEGACY_ESPECIFICO = /\b(historic\w*|proximo brote|nino|enso|oni|2018|2019|2020|2021|2022|acumulad\w*|motor\w*|metric\w*|smape|mase|zoom|mapa|ranking|compar\w*|vs|contra|sintoma\w*|que es|que son|prevencion|prevenir|causa\w*|tratamiento|clima|lluvia\w*|modelo\w*|escenario|proyeccion|anos|rondas?|semaforo|timelapse|treemap|radar|pdf|reporte|validacion|seguimiento|calibracion|grafic\w*|tabla|por sexo|hombres y mujeres|region\w*|macrorregion\w*|mas casos|que estado|cual estado|estados|lugar|mosquito|aedes|serotipo\w*|grave|hemorragic\w*|muertes|defunciones|letalidad|edad|edades|te puede|a ti|puedes enfermarte|enfermarte|modela\w*|gana|ganara|ganador|que sabes|sabes)\b/;
-const ESTADOS_NOMBRE = Object.fromEntries(['Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas',
+export const ESTADOS_NOMBRE = Object.fromEntries(['Aguascalientes', 'Baja California', 'Baja California Sur', 'Campeche', 'Chiapas',
   'Chihuahua', 'Ciudad de México', 'Coahuila', 'Colima', 'Durango', 'Estado de México', 'Guanajuato', 'Guerrero', 'Hidalgo',
   'Jalisco', 'Michoacán', 'Morelos', 'Nayarit', 'Nuevo León', 'Oaxaca', 'Puebla', 'Querétaro', 'Quintana Roo',
   'San Luis Potosí', 'Sinaloa', 'Sonora', 'Tabasco', 'Tamaulipas', 'Tlaxcala', 'Veracruz', 'Yucatán', 'Zacatecas']
@@ -207,6 +207,31 @@ function serieLegacy(z, pad, geo, sexo) {
     zz, observado, pronostico,
     oos: { semanas: seg.length, observado_total: O, pronostico_total: P, sesgo_pct: O > 0 ? (P - O) / O * 100 : 0 },
   };
+}
+
+/** Dos o más estados de un padecimiento original («dengue en Jalisco vs Tamaulipas»): cuál tendrá más casos y cada uno. */
+export function answerLegacyComparacion(q, ent, s, d, { indicadores }) {
+  const pad = ent.padecimiento;
+  if (!LEGACY_PAD[pad] || (ent.padecimientos || []).length > 1 || !d?.zoom_series) return null;
+  const n = ` ${norm0(q).replace(/[^a-z0-9]+/g, ' ')} `;
+  const claves = Object.keys(ESTADOS_NOMBRE).filter((e) => n.includes(` ${e} `) && !(e === 'baja california' && n.includes(' baja california sur ')));
+  if (claves.length < 2) return null;
+  const z = d.zoom_series;
+  const sexo = ent.sexo && ent.sexo !== 'general' ? ent.sexo : 'general';
+  const filas = claves.slice(0, 6).map((k) => {
+    const geo = k === 'estado de mexico' && !z[`${LEGACY_PAD[pad]}|estado de mexico|${sexo}`] ? 'mexico' : k;
+    const b = serieLegacy(z, pad, geo, sexo);
+    if (!b) return null;
+    const ind = indicadores({ uncertainty_label: '', observation_cutoff: null }, { ...b, nivel: 'estado', nombre: ESTADOS_NOMBRE[k], id: geo, sexo });
+    return ind && ind.F4 != null ? { nombre: ESTADOS_NOMBRE[k], ind } : null;
+  }).filter(Boolean);
+  if (filas.length < 2) return null;
+  const TEND = { sube: 'va a subir', baja: 'va a bajar', estable: 'estable', incierto: 'sin señal clara', atipico: 'notificación atípica', pocos: 'muy pocos casos' };
+  const orden = [...filas].sort((a, b) => b.ind.F4 - a.ind.F4);
+  return [`**${LEGACY_NOMBRE[pad]}: comparación de estados${sexo === 'general' ? '' : ` (${sexo})`}**`, '',
+    `**Más casos esperados:** ${orden[0].nombre} (unos ${ent0(orden[0].ind.F4)} en las próximas 4 semanas, frente a ${ent0(orden[1].ind.F4)} en ${orden[1].nombre}).`, '',
+    ...filas.map((f) => `- **${f.nombre}**: ${ent0(f.ind.O4)} casos en las últimas 4 semanas; se esperan unos ${ent0(f.ind.F4)} en las próximas 4 (${TEND[f.ind.tendencia] || 'estable'}).`),
+    '', '_Casos notificados, sin ajustar por población._', '<!--SIN_GRAFICA-->'].join('\n');
 }
 
 export function answerLegacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadLegacy }) {
@@ -374,8 +399,54 @@ export function reescribeConsulta(raw) {
   if (/\b(bronquiolitis|virus sincitial|vsr)\b/.test(t)) notas.push('La bronquiolitis y el virus sincitial no se reportan aparte: se cuentan dentro de las infecciones respiratorias agudas');
   if (NOTA_GRIPA.test(t)) notas.push('Por «gripa» entiendo infecciones respiratorias agudas (resfriado, faringitis y similares); la influenza se notifica aparte y no tiene pronóstico');
   // Abreviaturas de chat: «q» → «que», «xq» → «por que», «tmb» → «también».
+  if (t.split(' ').length >= 5) t = t.replace(/\bpor (genero|generos)\b/g, 'por sexo').replace(/\bgenero\b/g, 'sexo');
   t = t.replace(/\bq\b/g, 'que').replace(/\b(xq|pq|porq)\b/g, 'por que').replace(/\b(tmb|tb)\b/g, 'tambien').replace(/\bk\b/g, 'que')
     .replace(/\bd\b/g, 'de').replace(/\bx\b(?! ?\d)/g, 'por').replace(/\b(plis|pls|porfis|xfa|xfavor|xd|jaja\w*|jeje\w*|ntp|alv|wey|we|neta)\b/g, ' ').replace(/\btodo mx\b|\ben mx\b/g, 'nacional');
+  // «tuberculosis» y «otitis» a secas: se toma la forma que casi siempre se quiere decir (la única con pronóstico propio en
+  // otitis) y se avisa, en vez de detener la conversación con la aclaración de bloques (ronda de conversaciones con Ollama).
+  if (/\btuberculosis\b/.test(t) && !/\b(respiratoria|pulmonar|meningitis|meningea|tuberculosa|otras formas|extrapulmonar|a1[5-9]\w*)\b/.test(t)) {
+    t = t.replace(/\b(la )?tuberculosis\b/, 'tuberculosis respiratoria');
+    notas.push('Tomo «tuberculosis» como **tuberculosis respiratoria** (A15-A16), la forma más común; la meningitis tuberculosa y las otras formas tienen su propio pronóstico');
+  }
+  if (/\botitis\b/.test(t) && !/\b(externa|interna|cronica|supurativa|media|h6\d\w*)\b/.test(t)) {
+    t = t.replace(/\b(la )?otitis\b/, 'otitis media aguda');
+    notas.push('Tomo «otitis» como **otitis media aguda** (H65.0-H65.1), la única con pronóstico; la externa y la crónica se reportan aparte');
+  }
+  // Preguntas trampa (ronda de conversaciones con Ollama): lugares fuera de México, años fuera de los datos, premisas con
+  // cifras, frases dictadas y peticiones de inventar. Se dice con claridad y se responde con lo que sí hay.
+  const extranjero = t.match(/\b(texas|(?<!baja )california|arizona|florida|nueva york|estados unidos|eeuu|eua|usa|guatemala|belice|honduras|el salvador|colombia|venezuela|peru|brasil|argentina|chile|cuba|espana|canada)\b/);
+  if (extranjero) {
+    t = t.replace(new RegExp(`\\b(en |de |para )?${extranjero[1]}\\b`, 'g'), ' nacional');
+    notas.push(`Sólo tengo datos de México, no de ${extranjero[1].replace(/\b\w/g, (c) => c.toUpperCase())}; te doy el total del país`);
+  }
+  const anioFuera = t.match(/\b(20[3-9]\d|202[89]|19\d\d|200\d|201[0-3])\b/);
+  if (anioFuera) {
+    const a = Number(anioFuera[1]);
+    t = t.replace(new RegExp(`\\b(para |en |de |del )?(ano )?${a}\\b`, 'g'), ' ');
+    notas.push(a > 2027 ? `No hay pronóstico para ${a}: sólo cubren las próximas 52 semanas. Te doy lo más reciente` : `Los datos empiezan en 2014: no tengo ${a}. Te doy lo más reciente`);
+  }
+  const premisa = t.match(/(?<!\b(un|el|del|de|una|gran|significativo) )\b(subio|bajo|aumento|crecio|disminuyo|cayo|se disparo|se duplico|se triplico)\b[^?.,]{0,30}?\b(\d+ ?(%|por ciento)|al doble|al triple)/) ||
+    t.match(/\b(\d+ ?(%|por ciento))\b[^?.,]{0,20}\b(mas|menos)\b/);
+  const dictado = /\b((dime|di|afirma|escribe|confirma) que (el|la|los|las|ya|no|si|todo|todos|hay|es|esta|son|estan)\b|repite (despues de mi|conmigo|esto)|inventa\w*|invent(alo|ame|a uno|a un numero)|numero cualquiera)\b/.test(t);
+  if (premisa && !dictado) notas.push(`No puedo confirmar el «${(premisa[0].match(/\d+ ?(%|por ciento)|al doble|al triple/) || [premisa[0]])[0].trim()}» que mencionas; esto es lo que dicen los datos del boletín`);
+  if (/\b((dime|di|afirma|escribe|confirma) que (el|la|los|las|ya|no|si|todo|todos|hay|es|esta|son|estan)\b|repite (despues de mi|conmigo|esto)|inventa\w*|invent(alo|ame|a uno|a un numero)|numero cualquiera)\b/.test(t)) {
+    notas.push('No repito frases dictadas ni invento cifras: sólo doy las del boletín');
+  }
+  if (/\b(mentiste|mientes|me mintio|mentira|te equivocaste|fallaste|fallo tu)\b/.test(t)) {
+    notas.push('Un pronóstico no es una promesa y puede fallar; por eso cada respuesta dice qué tan confiable es y cuánto se equivocó en las semanas ya comprobadas');
+  }
+  if (premisa) t = t.replace(premisa[0], ' ').replace(/\b(que tan grave es|es grave|que hago|que hacemos)\b/g, 'como va');
+  // «¿Cuál estado tiene más casos de X: Chihuahua o Nuevo León?»: con dos estados nombrados es una comparación, no el ranking.
+  const estadosEn = Object.keys(ESTADOS_NOMBRE).filter((e) => new RegExp(`\\b${e}\\b`).test(t) && !(e === 'baja california' && /\bbaja california sur\b/.test(t)));
+  if (estadosEn.length >= 2 && /\b(cual|donde|que estado|en cual)\b.*\b(mas|menos|peor|mejor)\b/.test(t)) {
+    t = `${t.replace(/\b(cual|que) (estado|de los dos|de los estados) tiene (mas|menos)( casos)?( de)?\b|\bdonde hay (mas|menos)\b|\bcual tiene (mas|menos)( casos)?\b|\ben cual hay (mas|menos)\b/g, ' ')} compara`;
+  }
+  // Los dos sexos en el mismo turno («¿es igual en hombres y mujeres?», «tanto para hombres como para mujeres», «varones y
+  // hembras») piden la comparación por sexo, no sólo el primero que aparece.
+  // «¿hombres o mujeres tienen más depresión?» lo responde la composición histórica por sexo; no se reescribe.
+  if (/\b(hombres|varones|hombre)\b/.test(t) && /\b(mujeres|hembras|mujer)\b/.test(t) && !/\b(hombres|mujeres) o (hombres|mujeres) (tienen|padecen|sufren)\b/.test(t)) {
+    t = `${t.replace(/\b(tanto )?(para |en |entre |los |las |de )?(hombres|varones|hombre|mujeres|hembras|mujer)\b( (y|o|como|vs|que) (para |en |los |las |de )?)?/g, ' ')} por sexo`.replace(/\s+/g, ' ');
+  }
   // «en México» a secas es el país; el Estado de México se nombra completo («Estado de México», «Edomex»).
   const conPais = t.replace(/(^|[^a-z])((?:en|para|todo|toda|de|del) )mexico\b/g, (m, pre, prep, off, str) =>
     (/\b(estado|edo|ciudad|valle|gobierno|universidad|nuevo) $/.test(str.slice(0, off + pre.length)) ? m : `${pre}${prep === 'de ' || prep === 'del ' ? 'a nivel ' : prep}nacional`));
@@ -398,7 +469,7 @@ const NO_TRANSMISIBLE = /tumor|cancer|isquemica|hipertension|diabetes|obesidad|d
 export function answerEstadoLlano(q, ent, s, d, { forzar = false, transmisibles = false } = {}) {
   if (!ent.estado || ent.padecimiento || (ent.padecimientos || []).length) return null;
   const palabras = q.split(' ').filter(Boolean).length;
-  const pideRanking = RANKING.test(q) || /\b(subiendo|al alza|pegando|que hay|como (va|esta|anda)|creciendo|aumentando|siguen (creciendo|subiendo|aumentando)|mas comunes|mas frecuentes|lista de (las )?enfermedades)\b/.test(q);
+  const pideRanking = RANKING.test(q) || /\b(subiendo|al alza|pegando|que hay|como (va|esta|anda)|creciendo|aumentando|siguen (creciendo|subiendo|aumentando)|mas comunes?|mas frecuentes?|lista de (las )?enfermedades)\b/.test(q);
   if (!(pideRanking || palabras <= 4 || forzar)) return null;
   if (/\b(motor|modelo|modelos|smape|mase|metrica|validacion|equipo|zoom|mapa|semaforo|timelapse|comparar|compara|vs)\b/.test(q)) return null;
   const res = d?.resumen_padecimientos;
@@ -435,9 +506,9 @@ const FAQ = [
     'El boletín epidemiológico, y por eso EpiForecast-MX, reporta los casos **por estado y por sexo, no por edad**. No puedo separar niños, jóvenes o adultos mayores; sí puedo darte el total de un padecimiento en tu estado, o hombres y mujeres por separado.'],
   [/\b(municipio|municipios|jurisdiccion|jurisdicciones|unidad medica|umf|por hospital|por clinica|colonia|colonias|localidad|alcaldia|alcaldias|ciudad por ciudad|por ciudad|entre ciudades)\b/,
     'Los datos llegan **sólo hasta el nivel de estado** (32 entidades, cuatro macrorregiones y el total nacional), por sexo. El boletín semanal no publica municipios, jurisdicciones ni unidades médicas. Si me dices tu ciudad, te respondo para su estado.'],
-  [/\b(defunciones|muertes|mortalidad|letalidad|cuantos murieron|fallecidos|fallecimientos)\b/,
+  [/\b(defunciones|muertes|mortalidad|letalidad|cuantos murieron|fallecidos|fallecimientos|mortal|mortales|casos mortales)\b/,
     'No. El boletín semanal reporta **casos nuevos notificados**, no defunciones, así que no hay mortalidad ni letalidad en EpiForecast-MX.'],
-  [/\b(por 100 ?mil|por cien mil|tasa de incidencia|tasas de incidencia|incidencia por|tasa por|denominador|ajustad[oa]s? por poblacion|conapo|per capita)\b/,
+  [/\b(por 100 ?mil|por cada 100 ?mil|por cada cien mil|por cien mil|tasa de incidencia|tasas de incidencia|incidencia por|tasa por|denominador|ajustad[oa]s? por poblacion|conapo|per capita)\b/,
     'Trabajo con **casos notificados**, no con tasas por 100 mil habitantes: no ajusto por población. Cuando comparo estados lo aclaro («sin ajustar por población»), porque un estado más poblado tendrá más casos aunque su riesgo no sea mayor.'],
   [/\b(oficial|oficiales|secretaria de salud|de donde (salen|vienen|sacan) (los )?datos|imss bienestar|issste|instituciones|solo imss|sector privado|privados)\b/,
     'Los datos vienen del **Boletín Epidemiológico** de la Dirección General de Epidemiología (Sistema Nacional de Vigilancia Epidemiológica), que reúne las notificaciones de las instituciones del Sistema Nacional de Salud, no sólo del IMSS. Los **pronósticos** son de EpiForecast-MX, un proyecto académico: no son cifras oficiales de la Secretaría de Salud.'],
@@ -647,7 +718,7 @@ const FAMILIAR = /\b(mi|a mi) (hij[oa]|nin[oa]|bebe|abuel[ao]|abuelita|abuelito|
 const PADECE = /\b(tiene|tuvo|le dio|le diagnosticaron|padece|sufre|tiene la|tiene el|enfermo de|enferma de)\b/;
 export function answerFamiliar(q, ent) {
   if (!ent.padecimiento || !FAMILIAR.test(q) || !PADECE.test(q)) return null;
-  if (/\b(cuant\w*|casos|hay|como va|estadistica\w*|brote|que tan comun|comun)\b/.test(q)) return null;
+  if (ent.estado || /\b(cuant\w*|casos|hay|como va|estadistica\w*|brote|que tan comun|comun|frecuente|aumento|aumentando|sube|subiendo|baja|bajando|tendencia)\b/.test(q)) return null;
   const ACENTO = { mama: 'mamá', papa: 'papá', bebe: 'bebé', tio: 'tío', tia: 'tía', nino: 'niño', nina: 'niña', suegro: 'suegro', suegra: 'suegra' };
   const crudo = q.match(FAMILIAR)[2];
   const familiar = ACENTO[crudo] || crudo;

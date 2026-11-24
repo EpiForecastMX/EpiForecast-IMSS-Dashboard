@@ -24,7 +24,9 @@ const kb = await import('../js/kb.js');
 await kb.loadKnowledge();
 const carga = (n) => JSON.parse(readFileSync(new URL(`./fixtures/estres/${n}.json`, import.meta.url), 'utf-8'));
 const BATERIAS = { ciudadanos: carga('ciudadanos'), profesionales: carga('profesionales'), ciega: carga('ciega'), ciega2: carga('ciega2'), coloquial: carga('coloquial'),
-  ollama_llama31: carga('ollama_llama31'), ollama_llama32: carga('ollama_llama32'), ollama_qwen25: carga('ollama_qwen25') };
+  ollama_llama31: carga('ollama_llama31'), ollama_llama32: carga('ollama_llama32'), ollama_qwen25: carga('ollama_qwen25'),
+  // Conversaciones de varios turnos (seriadas, cambios de contexto, trampas y repreguntas de especialista) escritas por Ollama.
+  ollama_conv_qwen25: carga('ollama_conv_qwen25'), ollama_conv_llama31: carga('ollama_conv_llama31'), ollama_conv_llama32: carga('ollama_conv_llama32') };
 
 async function corre(item) {
   kb._resetContext();
@@ -52,7 +54,7 @@ for (const [nombre, items] of Object.entries(BATERIAS)) {
       if ((md || cedeOk) && !/No entendí bien|No reconozco algunos/.test(md) && !crisisFalsa && !roto && !neuro) limpias++;
     }
     assert.deepEqual(malos, [], `${malos.length} respuestas inaceptables`);
-    const piso = nombre.startsWith('ollama') ? 0.9 : nombre.startsWith('ciega') ? 0.85 : 0.9;
+    const piso = nombre.startsWith('ollama_conv') ? 0.85 : nombre.startsWith('ollama') ? 0.9 : nombre.startsWith('ciega') ? 0.85 : 0.9;
     assert.ok(limpias / items.length >= piso, `${nombre}: ${limpias}/${items.length} limpias, piso ${piso}`);
   });
 }
