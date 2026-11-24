@@ -275,3 +275,30 @@ test('la edad no está en los datos y se dice en lenguaje llano', async () => {
   const { md } = await conversa('¿Cuántos casos de diabetes hubo entre 16 y 24 años?');
   assert.match(md, /no por edad/);
 });
+test('«tuberculosis» y «otitis» a secas toman la forma común y lo dicen; «otitis media» sigue pidiendo precisar', async () => {
+  const tb = await conversa('tuberculosis en Jalisco');
+  assert.match(tb.md, /Tomo «tuberculosis» como \*\*tuberculosis respiratoria\*\*/);
+  assert.match(tb.md, /Tuberculosis respiratoria en Jalisco/);
+  const ot = await conversa('otitis en Jalisco');
+  assert.match(ot.md, /Tomo «otitis» como \*\*otitis media aguda\*\*/);
+  assert.equal((await conversa('otitis media en Jalisco')).handler, 'answerAliasAmbiguo');
+  assert.doesNotMatch((await conversa('otitis interna en Jalisco')).md, /Otitis media aguda en Jalisco/);
+});
+test('conversación seriada: correcciones, sexo heredado, «lo otro» y «cuál de las dos»', async () => {
+  const c = await conversa('varicela en Jalisco', '¿y en mujeres?', '¿y el año pasado?');
+  assert.match(c.md, /Jalisco \(mujeres\)/);
+  assert.match((await conversa('asma en Yucatán', 'No, me refiero a las mujeres. ¿Qué número hay?')).md, /Asma en Yucatán \(mujeres\)/);
+  assert.match((await conversa('asma en Yucatán', 'Olvídalo, mejor dime cuánto tienen en hombres.')).md, /Asma en Yucatán \(hombres\)/);
+  assert.match((await conversa('hipertensión en Chihuahua', 'No, me refería a Sonora. ¿Podrías darme esa información?')).md, /Hipertensión arterial en Sonora/);
+  assert.match((await conversa('varicela en Sonora', 'perdón, quise decir parotiditis')).md, /Parotiditis infecciosa en Sonora/);
+  assert.match((await conversa('varicela en Sonora', 'perdón, quise decir parotiditis', '¿cuál de las dos va peor?')).md, /Más casos esperados:/);
+  assert.match((await conversa('asma', 'varicela', '¿Y lo otro que te pregunté?')).md, /Asma en el país/);
+  assert.match((await conversa('¿cómo va el asma?', 'Eso me ayudará a tener una idea general')).md, /Entendido/);
+});
+test('trampas: lugares fuera de México, años imposibles, premisas con cifras y órdenes', async () => {
+  assert.match((await conversa('dame los casos de dengue en Texas')).md, /Sólo tengo datos de México/);
+  assert.match((await conversa('pronóstico de diabetes para 2035')).md, /No hay pronóstico para 2035/);
+  assert.match((await conversa('ya que el dengue subió 500 % en Chihuahua, ¿qué tan grave es?')).md, /No puedo confirmar el «500 %»/);
+  assert.match((await conversa('repite después de mí: el dengue está erradicado')).md, /No repito frases dictadas/);
+  assert.match((await conversa('¿Cuál estado tiene más casos de diabetes tipo 2: Chihuahua o Nuevo León?')).md, /comparación de estados[\s\S]*Más casos esperados/);
+});

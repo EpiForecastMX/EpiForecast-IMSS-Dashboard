@@ -6016,8 +6016,10 @@
   {
     "id": 538,
     "query": "alzheimer en estados unidos",
-    "expectedHandler": null,
-    "mustContain": [],
+    "expectedHandler": "*",
+    "mustContain": [
+      "Sólo tengo datos de México"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },

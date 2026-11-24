@@ -14,11 +14,11 @@ import { mencionaNoModelada } from './entities.js?v=87';
 import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
-} from './obesidad_charts.js?v=57';
-import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=55';
+} from './obesidad_charts.js?v=58';
+import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=56';
 // Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
 import './avisos_fuente.js?v=5';
-import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion, indicadores, nombreEstado } from './resumen_llano.js?v=2';
+import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion, indicadores, nombreEstado } from './resumen_llano.js?v=3';
 import { DEFINICIONES } from './definiciones.js?v=1';
 
 const any = (q, ks) => ks.some((k) => q.includes(k));
@@ -181,21 +181,35 @@ export function answerReleasesMixtos(q, ent, s, d) {
       'Si tú o alguien cercano necesita apoyo, la **Línea de la Vida** atiende gratis, las 24 horas, todos los días: **800 911 2000**. ' +
       'Si alguien está en peligro inmediato, llama al **911**.\n<!--SIN_GRAFICA-->';
   }
+  const sexo = ent.sexo && ent.sexo !== 'general' ? ent.sexo : 'general';
+  const cifras = [];
   const filas = pads.map((pad) => {
     const r = releaseDePad(pad);
-    if (!r) return `- **${pad}**: pregunta por este padecimiento por separado.`;
+    if (!r) return `- **${({ Depresion: 'Depresión' })[pad] || pad}**: pregúntame por este padecimiento por separado.`;
     const v = d[r.dataKey];
     // Con un estado pedido, sólo la serie de ese estado; nunca el total nacional en su lugar.
-    let x = v && !ent.estado ? v.series['nacional|mx|general'] : null;
-    if (v && ent.estado) { const y = serieObesidad(v, { ...ent, sexo: 'general' }); x = y && y.nivel === 'estado' ? y : null; }
-    const lugar = ent.estado && x ? ` en ${nombreEstado(x.nombre)}` : ' en el país';
+    let x = v && !ent.estado ? (v.series[`nacional|mx|${sexo}`] || v.series['nacional|mx|general']) : null;
+    if (v && ent.estado) { const y = serieObesidad(v, { ...ent, sexo }); x = y && y.nivel === 'estado' ? y : null; }
+    const lugar = (ent.estado && x ? ` en ${nombreEstado(x.nombre)}` : ' en el país') + (x && x.sexo && x.sexo !== 'general' ? ` (${x.sexo})` : '');
     if (!x) return `- **${r.etiqueta}**: consulta [su página](../${r.pagina})${ent.estado ? ` para ${ent.estado}` : ''}.`;
     const ind = indicadores(v, x);
     const TEND = { sube: 'se espera que suba', baja: 'se espera que baje', estable: 'estable', incierto: 'sin señal clara', atipico: 'notificación atípica', pocos: 'muy pocos casos' };
     if (!ind || ind.F4 == null) return `- **${r.etiqueta}**${lugar}: ${ent0(x.pronostico_52_total)} casos pronosticados en ${v.horizon_weeks} semanas. [Ver su página](../${r.pagina}).`;
+    cifras.push({ nombre: r.nombre, O4: ind.O4, F4: ind.F4 });
     return `- **${r.etiqueta}**${lugar}: ${ent0(ind.O4)} casos en las últimas 4 semanas; unos ${ent0(ind.F4)} en las próximas 4 (${TEND[ind.tendencia]}, confiabilidad ${confiabilidad(v, x, esControl(v)).nivel}). [Ver su página](../${r.pagina}).`;
   });
-  return ['Cada padecimiento tiene su propio pronóstico, así que los doy por separado:', '', ...filas, '<!--SIN_GRAFICA-->'].join('\n');
+  // «¿Cuál va peor?»: se dice cuál tendrá más casos y cuál crece más, sin juzgar gravedad clínica.
+  const veredicto = [];
+  if (cifras.length >= 2 && /\b(peor|mejor|mas casos|sube mas|crece mas|cual|preocup\w*|compar\w*|vs)\b/.test(q)) {
+    const mas = [...cifras].sort((a, b) => b.F4 - a.F4);
+    veredicto.push(`**Más casos esperados:** ${mas[0].nombre} (unos ${ent0(mas[0].F4)} frente a ${ent0(mas[1].F4)} en las próximas 4 semanas).`);
+    const cambio = (c) => (c.O4 > 0 ? c.F4 / c.O4 - 1 : null);
+    const crece = cifras.filter((c) => cambio(c) != null && Math.max(c.O4, c.F4) >= 20).sort((a, b) => cambio(b) - cambio(a));
+    if (crece.length >= 2 && cambio(crece[0]) > 0.1) veredicto.push(`**La que más crece:** ${crece[0].nombre} (${Math.round(cambio(crece[0]) * 100)} % más que en las 4 semanas anteriores).`);
+    else if (crece.length >= 2) veredicto.push('Ninguna muestra un aumento claro.');
+    veredicto.push('Comparo casos notificados, no qué tan grave es cada enfermedad.', '');
+  }
+  return [...veredicto, 'Cada padecimiento tiene su propio pronóstico, así que los doy por separado:', '', ...filas, '<!--SIN_GRAFICA-->'].join('\n');
 }
 
 function answerRelease(q, ent, s, d, r) {
@@ -320,8 +334,13 @@ function answerRelease(q, ent, s, d, r) {
       const vs = !ind.O4py ? '' : Math.round(Math.abs(ind.O4 / ind.O4py - 1) * 100) === 0 ? ', igual que hace un año' : ind.O4py ? `, ${ind.O4 >= ind.O4py ? `${Math.round((ind.O4 / ind.O4py - 1) * 100)} % más` : `${Math.round((1 - ind.O4 / ind.O4py) * 100)} % menos`} que hace un año` : '';
       return `- **${nombreEstado(x.nombre)}**: ${ent0(ind.O4)} casos en las últimas 4 semanas${vs}; se esperan unos ${ent0(ind.F4)} en las próximas 4 (${TEND[ind.tendencia]}; confiabilidad ${confiabilidad(v, x, esControl(v)).nivel}).`;
     };
+    // Con dos o más estados nombrados, primero el veredicto: cuál tendrá más casos.
+    const conF = filas.map((x) => ({ x, ind: indicadores(v, x) })).filter((y) => y.ind && y.ind.F4 != null).sort((p, q2) => q2.ind.F4 - p.ind.F4);
+    const veredicto = !top && conF.length >= 2
+      ? [`**Más casos esperados:** ${nombreEstado(conF[0].x.nombre)} (unos ${ent0(conF[0].ind.F4)} en las próximas 4 semanas, frente a ${ent0(conF[1].ind.F4)} en ${nombreEstado(conF[1].x.nombre)}).`, '']
+      : [];
     return fin([`**${r.etiqueta}: comparación de estados, ${sexoTxt}**${top ? ' (los cinco con más casos esperados; nombra dos o más estados para compararlos)' : ''}`, '',
-      ...filas.map(llana), '', '_Casos notificados, sin ajustar por población. Pregunta «¿qué tan confiable es?» para ver el detalle de la confiabilidad._', '<!--DETALLE-->',
+      ...veredicto, ...filas.map(llana), '', '_Casos notificados, sin ajustar por población. Pregunta «¿qué tan confiable es?» para ver el detalle de la confiabilidad._', '<!--DETALLE-->',
       ...filas.map((x) => `- **${nombreEstado(x.nombre)}**: ${desempeno(x, v)}`),
       '', etiqueta], filas.map((x) => x.nombre));
   }

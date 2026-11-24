@@ -936,7 +936,7 @@ add('alguien famoso con parkinson', null, []);
 add('que pais tiene mas indices de depresion', null, []);
 add('paises con mas parkinson en el mundo', null, []);
 add('depresion a nivel mundial', null, []);
-add('alzheimer en estados unidos', null, []);
+add('alzheimer en estados unidos', '*', ['Sólo tengo datos de México']);
 // Personas especificas con enfermedad
 add('rocky tenia parkinson', null, []);
 add('mohamed ali tuvo parkinson', null, []);

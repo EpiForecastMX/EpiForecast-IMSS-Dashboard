@@ -127,8 +127,9 @@ function periodoPedido(q) {
   return null;
 }
 
-function respuestaPeriodo(p, ind, x, lugar) {
+function respuestaPeriodo(p, ind, x, lugar0) {
   if (!p) return null;
+  const lugar = `${lugar0}${x?.sexo && x.sexo !== 'general' ? ` (${x.sexo})` : ''}`;
   if (p.tipo === 'vsanio') {
     if (!ind.O4py) return null;
     const d = ind.O4 / ind.O4py - 1;
@@ -196,7 +197,8 @@ export function respuestaLlana({ v, x, r, q, esControl, estados, sinSexo, confia
     : '';
   const si = c ? 'si se repite lo del año pasado, ' : '';
   const frase = {
-    sube: `${si}se espera que **aumente**: unos ${casos(ind.F4)} en las próximas 4 semanas, ${pct0((d ?? 0) * 100)} más que en las 4 anteriores (${ent0(ind.O4)}).`,
+    // Con menos de 10 casos de base, un porcentaje («445 % más») exagera: se dan las dos cifras.
+    sube: ind.O4 < 10 ? `${si}se espera que **aumente**: unos ${casos(ind.F4)} en las próximas 4 semanas, frente a sólo ${ent0(ind.O4)} en las 4 anteriores.` : `${si}se espera que **aumente**: unos ${casos(ind.F4)} en las próximas 4 semanas, ${pct0((d ?? 0) * 100)} más que en las 4 anteriores (${ent0(ind.O4)}).`,
     baja: `${si}se espera que **disminuya**: unos ${casos(ind.F4)} en las próximas 4 semanas, ${pct0((d ?? 0) * 100)} menos que en las 4 anteriores (${ent0(ind.O4)}).`,
     estable: `${si}se espera que **se mantenga estable**: unos ${casos(ind.F4)} en las próximas 4 semanas, frente a ${ent0(ind.O4)} en las 4 anteriores.`,
     pocos: `hay **muy pocos casos**: ${casos(ind.O4)} en las últimas 4 semanas y ${Math.round(ind.F4) === 0 ? 'ninguno esperado' : `unos ${casos(ind.F4)} esperados`} en las próximas 4; con números tan pequeños no se puede hablar de una tendencia.`,
