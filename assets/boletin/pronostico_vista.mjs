@@ -5,6 +5,7 @@
 import { numero } from './celdas.mjs?v=1';
 import { fuentePronostico, desdeVista, desdeLegacy, desdeLegacyZoom, desdeExploratorio, LEGACY_ZOOM } from './pronostico.mjs?v=11';
 import { parseAmbito, parseSexo, claveVista, nombreAmbito, ENTIDADES } from './ambitos.mjs?v=1';
+import { nombreVisible } from './nombres.mjs?v=1';
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -63,11 +64,12 @@ async function modelo(id) {
   const e = DATA.diseases.find((x) => x.id === id);
   if (!e) return { aviso: 'Esta clasificación histórica no está en la foto vigente del boletín: su serie se conserva en el archivo, pero no tiene pronóstico.' };
   const f = fuentePronostico(e);
-  if (!f) return { nombre: e.name, aviso: 'Este bloque es un agregado de subtipos que el catálogo ya cuenta por separado: el pronóstico se consulta en cada subtipo.' };
+  if (!f) return { nombre: nombreVisible(e.id, e.name), aviso: 'Este bloque es un agregado de subtipos que el catálogo ya cuenta por separado: el pronóstico se consulta en cada subtipo.' };
   if (f.tipo === 'publicado') {
     return f.legacy ? legacy(f.id, sel) : desdeVista(await json(`/publication/${f.id}/vista.json`), f.id, claveVista(sel.ambito, sel.sexo));
   }
   const m = desdeExploratorio(EXPL, e.id, await observadoImpreso(e));
+  m.nombre = nombreVisible(e.id, m.nombre ?? e.name);
   if (sel.ambito.tipo !== 'nacional' || sel.sexo !== 'general') {
     m.aviso_ambito = 'El pronóstico exploratorio sólo existe para el total nacional: se muestra el nacional general.';
   }

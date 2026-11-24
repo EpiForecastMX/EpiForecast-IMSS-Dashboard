@@ -533,7 +533,8 @@ async function bootRadarCompleto(search, falla) {
   const celdas = pathToFileURL(resolve(root, 'assets/boletin/celdas.mjs')).href;
   const ambitos = pathToFileURL(resolve(root, 'assets/boletin/ambitos.mjs')).href;
   new Function(leer('assets/boletin/curves.js').replace("import('/assets/boletin/celdas.mjs?v=1')", `import('${celdas}')`)
-    .replace("import('/assets/boletin/ambitos.mjs?v=1')", `import('${ambitos}')`))();
+    .replace("import('/assets/boletin/ambitos.mjs?v=1')", `import('${ambitos}')`)
+    .replace("import('/assets/boletin/nombres.mjs?v=1')", `import('${pathToFileURL(resolve(root, 'assets/boletin/nombres.mjs')).href}')`))();
   await espera(400);
   return {
     el, espera,
