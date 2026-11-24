@@ -128,7 +128,7 @@ function respuestaPeriodo(p, ind, x, lugar) {
     const [ds, y] = x.observado.at(-1);
     return `**En la última semana con datos** (la del ${fechaLarga(ds)}) se notificaron **${casos(y)}**${lugar}.`;
   }
-  if (p.tipo === 'proximo' && ind.F4 != null) return `**En las próximas 4 semanas** se esperan unos **${casos(ind.F4)}**${lugar}.`;
+  // «El próximo mes» lo responde la línea de tendencia, que ya da las próximas 4 semanas.
   if (p.tipo === 'anio_actual') return `**En lo que va de ${ind.anio}** se han notificado **${casos(ind.ytd)}**${lugar}.`;
   if (p.tipo === 'anio') {
     const obs = x.observado.filter(([ds]) => ds.startsWith(String(p.anio)));
@@ -188,7 +188,7 @@ export function respuestaLlana({ v, x, r, q, esControl, estados, sinSexo, confia
     incierto: `no hay una señal clara de cambio: el pronóstico espera unos ${casos(ind.F4)} en las próximas 4 semanas (${d >= 0 ? '+' : '−'}${pct0((d ?? 0) * 100)} frente a las 4 anteriores), pero en las semanas ya comprobadas se ha ${x.oos.sesgo_pct > 0 ? 'pasado' : 'quedado corto'} por ${pct0(x.oos.sesgo_pct)}, una diferencia de ese mismo tamaño.`,
   }[ind.tendencia];
   let sino = '';
-  if (pidio && !['incierto', 'atipico'].includes(ind.tendencia)) sino = ind.tendencia === pidio ? 'Sí. ' : 'No. ';
+  if (pidio && !/^\W*por ?que\b/.test(norm(q)) && !['incierto', 'atipico'].includes(ind.tendencia)) sino = ind.tendencia === pidio ? 'Sí. ' : 'No. ';
   if (x.nivel === 'nacional' && /\bmi (estado|ciudad|municipio|entidad|region|zona)\b/.test(norm(q))) {
     lineas.push('No sé en qué estado estás: dime cuál (por ejemplo, «en Jalisco») y te digo cómo va ahí. Mientras, así va en todo el país:', '');
   }
