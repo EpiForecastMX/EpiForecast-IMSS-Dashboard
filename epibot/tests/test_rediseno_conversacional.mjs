@@ -198,3 +198,80 @@ test('un tema sensible preguntado en tercera persona recibe un texto neutral, no
     assert.equal(C.respuestaCrisis(C.normalizaEntrada(q)), null, q);
   }
 });
+
+// Ronda ciega con modelos locales (Ollama, 24-nov-2026).
+test('frases hechas sin señal no disparan la crisis ni el apoyo; las señales reales sí', async () => {
+  for (const q of ['No puedo creer que la gente no se tome las cosas en serio', 'Si tengo diabetes, ¿qué pasa si no tomo medicina?']) {
+    const { md } = await conversa(q);
+    assert.doesNotMatch(md, /Lamento que estés|No entendí bien/, q);
+  }
+  for (const q of ['no puedo más', 'me tomé todas las pastillas', 'si no tomo mis pastillas me muero']) {
+    assert.ok(C.apoyoInmediato(q) || C.respuestaCrisis(C.normalizaEntrada(q)), q);
+  }
+});
+test('una urgencia médica remite al 911 sin diagnosticar', async () => {
+  for (const q of ['mi hijo está sangrando por el ojo', 'mi abuela se desmayó y no respira', 'mi bebé tuvo una convulsión']) {
+    const { md, handler } = await conversa(q);
+    assert.equal(handler, 'answerSintomas', q);
+    assert.match(md, /\*\*911\*\*/, q);
+    assert.ok(sinCifras(md.replace(/911/g, '')), q);
+  }
+});
+test('preguntas sobre la fuente, la privacidad y quién usa el sistema se contestan', async () => {
+  for (const [q, re] of [['¿los datos son actuales?', /Boletín Epidemiológico/], ['¿sabes quién soy?', /No sé quién eres/],
+    ['¿los médicos usan tu sistema?', /proyecto académico/], ['¿cómo se cuentan los casos?', /notificaciones semanales/]]) {
+    const { md } = await conversa(q);
+    assert.match(md, re, q);
+  }
+});
+test('un familiar con un padecimiento crónico no recibe «que se recupere pronto»', async () => {
+  const { md, handler } = await conversa('mi abuelo tiene alzheimer');
+  assert.equal(handler, 'answerFamiliar');
+  assert.doesNotMatch(md, /recupere/);
+});
+test('«en México» a secas es el país, con nota; el Estado de México se nombra completo', async () => {
+  const k = await conversa('cuantos casos de dengue hay en mexico');
+  assert.match(k.md, /Tomo «México» como todo el país/);
+  assert.match(k.md, /Dengue en el país/);
+  const e = await conversa('varicela en el estado de mexico');
+  assert.match(e.md, /Varicela en Estado de México/);
+  assert.doesNotMatch(e.md, /Tomo «México»/);
+});
+test('cortesías y preguntas sobre el bot no reciben el «no entendí»', async () => {
+  for (const q of ['Siento preguntar, pero ¿qué significa obesidad?', '¿Cómo puede el chatbot predecir los pronósticos semanales?',
+    '¿Puedo hacer una pregunta sobre un estado específico?', '¿Qué tipo de datos tiene el chatbot?', '¿Cómo clasifica el chatbot las enfermedades según el sexo?']) {
+    const { md } = await conversa(q);
+    assert.ok(md, q);
+    assert.doesNotMatch(md, /No entendí bien|Lamento que estés/, q);
+  }
+  assert.match((await conversa('lo siento mucho, ya no puedo')).md, LINEA);
+});
+test('el pronóstico anual de dengue va en lenguaje llano, con el modelo en el detalle', async () => {
+  const { md } = await conversa('¿qué pronóstico hay de dengue para los próximos años?');
+  const a = md.split('<!--DETALLE-->')[0];
+  assert.doesNotMatch(a, /motor productivo|pasos semanales|\bW\d\d\b/);
+});
+test('«¿siguen creciendo los casos en Tabasco?» responde con el panorama del estado', async () => {
+  const { handler } = await conversa('¿Podrías confirmar si los casos siguen creciendo en Tabasco?');
+  assert.equal(handler, 'answerEstadoLlano');
+});
+test('una pregunta clínica sobre un padecimiento va al RAG; la de datos se queda en el KB', async () => {
+  for (const q of ['¿Cuál es la causa de la obesidad?', '¿qué tipo de dieta se recomienda para las personas con diabetes?',
+    '¿Qué es la hepatitis y cómo se transmite?', '¿Cuánto tiempo dura un caso de dengue?', '¿Qué hace que la escabiosis sea tan contagiosa?']) {
+    const { md } = await conversa(q);
+    assert.equal(md, '', q);
+  }
+  for (const q of ['¿Cuántos hombres tienen obesidad?', '¿cuántos casos de escabiosis hay en Sonora?', 'que causa la depresion']) {
+    const { md } = await conversa(q);
+    assert.ok(md, q);
+  }
+});
+test('«consejo» no se corrige a «consenso», el fútbol no es política y los datos del gobierno no son política', async () => {
+  assert.doesNotMatch((await conversa('¿Puedes darme algún consejo para mantener la salud?')).md, /consenso|Corredor/);
+  assert.doesNotMatch((await conversa('¿quién ganó el partido de Chivas vs Tigres?')).md, /política/);
+  assert.doesNotMatch((await conversa('¿cómo se mide la confiabilidad de los datos del gobierno?')).md, /política/);
+});
+test('la edad no está en los datos y se dice en lenguaje llano', async () => {
+  const { md } = await conversa('¿Cuántos casos de diabetes hubo entre 16 y 24 años?');
+  assert.match(md, /no por edad/);
+});

@@ -27,7 +27,7 @@ import { micaiGroundedAnswer } from '../lib/micai_grounding.mjs';
 import { resolverConsultaRag, vistaGroundedAnswer, enriquecerSemanticoVista } from '../lib/vista_grounding.mjs';
 import { crisisEnHistorial, nombraPadecimientoNoSensible } from '../lib/vista_turno.mjs';
 import { respuestaNoModelableRag } from '../lib/radar_no_modelable.mjs';
-import { interpretaConsulta } from '../lib/nlu.mjs';
+import { interpretaConsulta, generadorOllama } from '../lib/nlu.mjs';
 
 const EMBED_MODEL = 'gemini-embedding-001';
 const EMBED_DIM = 768;
@@ -1054,6 +1054,10 @@ async function handlerInterno(req) {
   // Rediseño conversacional (24-nov-2026): respaldo de comprensión. Después de la crisis y de las guardas de sensibles, Gemini
   // sólo clasifica la frase contra listas cerradas (netlify/lib/nlu.mjs); el cliente responde la consulta canónica con su KB.
   if (body.modo === 'nlu') {
+    // Desarrollo local: con EPI_LLM_LOCAL («url|modelo» de Ollama) clasifica un modelo local en lugar de Gemini.
+    if (process.env.EPI_LLM_LOCAL) {
+      return json(await interpretaConsulta(String(body.query || ''), globalThis.EPI_CATALOGO.releases, generadorOllama(process.env.EPI_LLM_LOCAL)), 200, cors);
+    }
     if (!apiKey) return json({ consulta: null, entendido: null }, 200, cors);
     const rlNlu = checkRateLimit(getClientIp(req));
     if (!rlNlu.ok) return json({ consulta: null, entendido: null }, 200, cors);

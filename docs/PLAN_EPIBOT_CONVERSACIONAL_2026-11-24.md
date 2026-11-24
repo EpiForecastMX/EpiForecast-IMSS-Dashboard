@@ -74,3 +74,24 @@ falla con un mensaje claro si quedó desfasado y el build de Netlify lo regenera
 
 Se conserva a propósito: «Nueva consulta» no levanta una crisis activa; se levanta al preguntar por un padecimiento no
 sensible o al recargar la página.
+
+## Cuarta tanda (mismo día): rondas ciegas con modelos locales (Ollama)
+
+Tres baterías nuevas escritas por modelos locales con personas distintas (llama3.1, llama3.2 y qwen2.5; 475 preguntas,
+en `tests/fixtures/estres/ollama_*.json`) y un juez de pertinencia con llama3.1 que lee pregunta y respuesta. Medidas
+antes de ajustar: 78 %, 71 % y 84 % limpias. El juez es estricto (reprueba respuestas correctas con datos), pero destapó
+el hueco principal: preguntas clínicas sobre un padecimiento nombrado recibían el volcado de casos.
+
+| Cambio | Dónde |
+|---|---|
+| Pregunta clínica sobre un padecimiento (causas, tratamiento, prevención, contagio, dieta, duración, gravedad, «¿es cierto que…?») sin palabras de datos: va al RAG, también con nombres genéricos como «hepatitis». La edad no está en los datos y se dice en llano. | `js/kb.js` (`esPreguntaClinica`) |
+| «en México» a secas es el país, con nota; el Estado de México se nombra completo. | `js/conversacion.js` (`reescribeConsulta`) |
+| Frases hechas sin señal de riesgo («no puedo creer», «no se tome las cosas en serio», «si no tomo la medicina», «siento preguntar», «me siento nervioso con tantas enfermedades») ya no dan la crisis ni el «no entendí»; las señales reales siguen. | `js/release_catalog.js` |
+| Urgencias («sangra por el ojo», «no respira», «convulsión») remiten al 911. | `js/conversacion.js` (`answerSintomas`) |
+| Respuestas nuevas: cómo funciona el bot y cómo se calculan los pronósticos, de dónde salen y qué tan actuales son los datos, subregistro, privacidad, quién lo usa, si es gratuito, cómo comparar, consejos generales (remite al médico), familiares con un padecimiento, ánimo y preocupación (con la Línea), invitaciones. | `js/conversacion.js` |
+| Metodología y alcance reescritos al estado actual (152 padecimientos; antes decían que sólo había tres). Pronóstico anual de dengue en llano, con el modelo en el detalle. | `js/kb.js` |
+| Corrector ortográfico: «médico» ya no se corrige a «México» ni «consejo» a «consenso». «Partido» no es política. | `js/kb.js`, `js/conversacion.js` |
+| Modo NLU local para desarrollo: `EPI_LLM_LOCAL="http://localhost:11434|llama3.1"` usa Ollama en vez de Gemini. | `netlify/lib/nlu.mjs`, `netlify/functions/rag.mjs` |
+
+Resultado: las baterías curadas siguen en 90 % (ahora más preguntas clínicas van al RAG a propósito) y las de Ollama
+pasan el piso de 90 % contando la cesión al RAG como correcta; ninguna crisis falsa.

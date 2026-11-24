@@ -3490,7 +3490,8 @@
     "query": "alcance del proyecto",
     "expectedHandler": "answerProyectoMeta",
     "mustContain": [
-      "333"
+      "padecimientos",
+      "confiable"
     ],
     "mustNotContain": [],
     "checkEntities": {}
@@ -3886,7 +3887,7 @@
     "query": "casos de depresion entre 40 y 45 anos",
     "expectedHandler": "*",
     "mustContain": [
-      "Variable no disponible"
+      "no por edad"
     ],
     "mustNotContain": [],
     "checkEntities": {
@@ -3899,7 +3900,7 @@
     "query": "depresion en mayores de 60 anos",
     "expectedHandler": "*",
     "mustContain": [
-      "Variable no disponible"
+      "no por edad"
     ],
     "mustNotContain": [],
     "checkEntities": {
@@ -3951,7 +3952,7 @@
     "query": "depresion en menores de 18 anos",
     "expectedHandler": "*",
     "mustContain": [
-      "Variable no disponible"
+      "no por edad"
     ],
     "mustNotContain": [],
     "checkEntities": {
@@ -3976,7 +3977,7 @@
     "query": "depresion ultimos 10 anos entre 40 y 45 anos",
     "expectedHandler": "*",
     "mustContain": [
-      "Variable no disponible"
+      "no por edad"
     ],
     "mustNotContain": [],
     "checkEntities": {
@@ -6039,9 +6040,14 @@
   {
     "id": 541,
     "query": "mi abuelo tiene alzheimer",
-    "expectedHandler": null,
-    "mustContain": [],
-    "mustNotContain": [],
+    "expectedHandler": "answerFamiliar",
+    "mustContain": [
+      "Lamento",
+      "orientación médica"
+    ],
+    "mustNotContain": [
+      "recupere"
+    ],
     "checkEntities": {}
   },
   {

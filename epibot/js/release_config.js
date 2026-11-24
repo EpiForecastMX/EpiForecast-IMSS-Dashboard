@@ -6,7 +6,7 @@
  */
 import './vocab_cerrado.js?v=5';
 import './vocab_consulta.js?v=9';
-import './release_catalog.js?v=54';
+import './release_catalog.js?v=55';
 
 const CATALOGO = globalThis.EPI_CATALOGO;
 

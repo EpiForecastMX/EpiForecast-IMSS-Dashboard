@@ -11,11 +11,11 @@ import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=13';
 import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=63';
-import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial } from './conversacion.js?v=8';
+import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar } from './conversacion.js?v=9';
 import { respuestaLlana, confiabilidadLegacy } from './resumen_llano.js?v=2';
 /** Los cuatro originales en lenguaje llano (consulta general), antes de sus handlers específicos. */
 function answerLegacyLlano(q, ent, s, d) { return legacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadLegacy }); }
-import { MARCADOR_RELEASE, releaseDeMarca, aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaTemaSensible, respuestaConDatos, salidaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=54';
+import { MARCADOR_RELEASE, releaseDeMarca, aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaTemaSensible, respuestaConDatos, salidaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=55';
 
 let DATA = null;
 
@@ -825,6 +825,11 @@ function answerLugarDesconocido(q, ent, s, d) {
 // Guard: edad como variable exogena no disponible
 // ---------------------------------------------------------------------------
 
+const PREGUNTA_CLINICA = /\b(causa\w*|por que (da|se da|sube mi)|tratamiento\w*|tratar\w*|se trata|como (la|lo|se) curas?|se cura|curar\w*|sintoma\w*|signos|prevenir\w*|prevencion|preven\w*|evitar\w*|contagi\w*|contrae\w*|transmit\w*|dieta|perder peso|bajar de peso|remedio\w*|medicamento\w*|medicina\w*|es peligros\w*|tan peligros\w*|es grave|cuanto (tiempo )?dura|que se siente|debo preocuparme|deberia preocuparme|que hago|que puedo hacer|que se puede hacer|consejos?|recomienda\w*|colesterol|en el bano|en la escuela|es lo mismo que|relacion (entre|tiene)|estres|comer|comiendo|infectad\w*|no se que hacer|como se si|como saber si|medidas|combatir|lo peor de|es cierto|es verdad|es correcto)\b/;
+function esPreguntaClinica(qc, q = qc) {
+  return PREGUNTA_CLINICA.test(qc) && !PREGUNTA_DE_DATOS.test(q.replace(/\bcuanto (tiempo )?(dura|tarda|lleva)\w*\b|\bcuanto tiempo\b/g, ' '));
+}
+const PREGUNTA_DE_DATOS = /\b(cuant\w*|casos|brotes?|pronostic\w*|tendencia|sube|subiendo|baja|bajando|estadistic\w*|incidencia|notificad\w*|cada estado|que estado|confiable\w*|confiabilidad|mapa|grafic\w*|ranking|comparar|compara)\b/;
 function answerEdadNoDisponible(q, ent, s, d) {
   if (!ent._ageFilter || !ent.padecimiento) return null;
   // Si tiene estado, dejar que answerSpecificSeries maneje
@@ -1477,68 +1482,22 @@ function answerProyectoMeta(q, ent, s, d) {
   ];
   if (any(q, basisTriggers)) {
     const meta = d.boletin?.meta;
-    const dist = s.dist_motor || {};
-    const tc = d.training_config || {};
-    const lines = [
-      '**Metodologia de EpiForecast-MX**\n',
-      '**1. Fuente de datos**',
-      'Los datos provienen del **Boletin Epidemiologico del SINAVE** (Sistema Nacional de Vigilancia Epidemiologica), publicado semanalmente por la Secretaria de Salud de Mexico.',
-    ];
-    if (meta) {
-      lines.push(`- Periodo: **${meta.min_anio}** a **${meta.max_anio}** (semana ${meta.max_semana})`);
-      lines.push(`- Registros: **${fmt(meta.total_registros)}** observaciones semanales`);
-    }
-    lines.push('- Padecimientos: **Depresion** (F32), **Parkinson** (G20), **Alzheimer** (G30)');
-    lines.push('- Cobertura: 32 entidades federativas + 4 regiones INEGI + Nacional\n');
-
-    lines.push('**2. Modelos de Machine Learning**');
-    lines.push(`Se entrenan **${s.total_modelos || 333} modelos** (3 padecimientos x 37 geografias x 3 sexos), cada uno evaluado con 4 motores:\n`);
-    lines.push('| Motor | Tipo | Descripcion |');
-    lines.push('|-------|------|-------------|');
-    lines.push('| **Prophet** | Aditivo/multiplicativo | Modelo de Meta (Facebook) para series de tiempo con estacionalidad y cambios de tendencia |');
-    lines.push('| **DeepAR** | Red neuronal recurrente | Modelo de Amazon (GluonTS + PyTorch) que aprende patrones complejos de multiples series |');
-    lines.push('| **Ensemble** | Hibrido | Combinacion de Prophet + XGBoost con features temporales |');
-    lines.push('| **Stacking** | Meta-learner | Prophet + ETS + LightGBM apilados con Ridge como meta-modelo |\n');
-
-    // Distribucion actual
-    if (Object.keys(dist).length) {
-      lines.push('**Distribución actual de motores ganadores:**');
-      for (const [motor, n] of Object.entries(dist)) {
-        const pct = s.total_modelos ? (n / s.total_modelos * 100).toFixed(1) : '?';
-        lines.push(`- ${motor}: **${n}** series (${pct}%)`);
-      }
-      lines.push('');
-    }
-
-    lines.push('**3. Seleccion del modelo productivo**');
-    lines.push('Para cada serie, se elige el motor con menor **SMAPE** (error porcentual simetrico) en validacion cruzada temporal. MASE y RMSE se usan como desempate.\n');
-
-    lines.push('**4. Pronostico**');
-    lines.push(`Horizonte de **${tc.horizonte || 52} semanas** hacia adelante (corte: ${corteModelos(d)}).`);
-    if (s.smape_prod_median != null && !metricasRetiradas(d)) {
-      lines.push(`Precision global: SMAPE mediano **${s.smape_prod_median}%**.`);
-    }
-
-    return lines.join('\n');
+    const periodo = meta ? `de ${meta.min_anio} a la semana ${meta.max_semana} de ${meta.max_anio}` : 'desde 2014';
+    return [
+      '**Cómo funciona EpiForecast-MX**', '',
+      `1. **Datos.** Los casos nuevos notificados cada semana al Boletín Epidemiológico de la Secretaría de Salud (SINAVE), ${periodo}: ${TOTAL_PUBLICADOS()} padecimientos con pronóstico, por estado, por macrorregión y para todo el país, y por sexo. Son casos notificados, no todas las personas enfermas.`,
+      '2. **Pronóstico.** Para cada padecimiento se prueban varios modelos estadísticos con semanas que no vieron y se queda el que mejor acierta. Si ninguno supera a la regla simple «lo mismo que en las mismas semanas del año pasado», se publica esa regla como referencia y se dice que no está validada.',
+      '3. **Seguimiento.** Cada semana, al salir el boletín, se compara lo que se esperaba con lo que llegó. Por eso cada pronóstico trae su confiabilidad: alta, media o baja.',
+      '<!--DETALLE-->',
+      `Depresión, Parkinson, Alzheimer y Dengue usan los motores originales (Prophet, DeepAR, Ensemble y Stacking; en dengue sólo DeepAR y Prophet), elegidos por su error fuera de muestra (semanas 28 a 37 de 2026). Los demás padecimientos usan el runner genérico: medias y medianas estacionales, ETS y regresión armónica, evaluados con validación móvil y una prueba única con datos no vistos; el control es el naive estacional de 52 semanas. Horizonte de ${d.training_config?.horizonte || 52} semanas (corte de los modelos originales: ${corteModelos(d)}).`,
+    ].join('\n');
   }
 
   const alcanceTriggers = ['que sabe', 'que puede', 'de que sabe', 'que conoce', 'que informacion tiene', 'que datos tiene', 'que cubre', 'alcance', 'capacidad', 'sobre que me puede'];
   // No disparar si preguntan por un padecimiento/estado/ano especifico ("que sabes del parkinson en 2017")
   if (any(q, alcanceTriggers) && !ent.padecimiento && !ent.estado && !(ent._years || []).length) {
     return (
-      '**Puedo responder sobre el proyecto EpiForecast-MX**:\n\n' +
-      '- **Padecimientos**: Depresi\u00f3n (F32), Parkinson (G20), Alzheimer (G30), Dengue (A97)\n' +
-      '- **Geograf\u00edas**: 32 entidades + 4 regiones INEGI + Nacional\n' +
-      `- **Modelos**: Prophet, DeepAR, Ensemble, Stacking (${s.total_modelos || 333} en producci\u00f3n)\n` +
-      (metricasRetiradas(d)
-        ? '- **M\u00e9tricas**: qu\u00e9 miden SMAPE, MASE, RMSE y MAE (los valores de esta ronda son diagn\u00f3stico de selecci\u00f3n y no se publican)\n'
-        : '- **M\u00e9tricas**: SMAPE, MASE, RMSE, MAE por serie\n') +
-      '- **Bolet\u00edn epidemiol\u00f3gico**: datos hist\u00f3ricos 2014\u20132026\n' +
-      '- **Equipo**: integrantes, roles, contribuciones\n' +
-      '- **Infraestructura**: tests, CI/CD, SageMaker, costos\n' +
-      '- **Franja COVID**: per\u00edodo, impacto, changepoints\n' +
-      '- **Pron\u00f3sticos**: acumulados a 52 semanas por serie\n\n' +
-      '\u00bfSobre cu\u00e1l de estos temas quieres saber m\u00e1s?'
+      `Puedo decirte cómo van **${TOTAL_PUBLICADOS()} padecimientos** en México (casos notificados y pronóstico), por estado, macrorregión y sexo; qué enfermedades van al alza; qué tan confiable es cada pronóstico; qué es cada padecimiento, y cómo está hecho el proyecto (equipo, modelos, métricas). Por ejemplo: «¿cómo va el dengue en Veracruz?» o «¿qué enfermedades van al alza en Jalisco?».\n<!--SIN_GRAFICA-->`
     );
   }
 
@@ -1730,11 +1689,15 @@ function answerDengue(q, ent, s, d) {
     // Ronda W37: sólo se publica el pronóstico a 52 semanas. La proyección NB-GLM multi-año y el
     // escenario El Niño se retiraron (ENMIENDA_DENGUE_NBGLM_W37): reajustaban el motor suspendido.
     const fut = dg.casos_futuro_nacional_52sem;
+    const obs = d.weekly_comparison?.Dengue?.ultima_semana_observada;
+    const corte = tituloSeguimientoMin(d.weekly_comparison?.Dengue || {}).replace('seguimiento del pronóstico con ', '');
     return [
-      '**Pronóstico de Dengue a 52 semanas**', '',
-      `El motor productivo nacional es **${dg.motor_nacional}**. El pronóstico publicado son **${dg.horizonte_semanas || 52} pasos semanales desde el corte** de los modelos (${tituloSeguimientoMin(d.weekly_comparison?.Dengue || {}).replace('seguimiento del pronóstico con ', '')})${fut ? `: alrededor de **${num(fut)} casos** a nivel nacional (media prevista del modelo nacional)` : ''}.${d.weekly_comparison?.Dengue?.ultima_semana_observada ? ` Lo observado llega hasta la ${semanaLegible(d.weekly_comparison.Dengue.ultima_semana_observada)}.` : ''}`, '',
-      'No publicamos proyecciones a varios años: con pocos ciclos epidémicos en los datos, el momento y la magnitud del próximo gran brote no pueden pronosticarse con fiabilidad.', '',
-      `Los grandes brotes de ${(dg.anios_epidemicos || [2014, 2019, 2024]).join(', ')} coincidieron con años de **El Niño**; por eso el índice ONI se usa como señal climática en el modelado.`,
+      '**Pronóstico de dengue para el próximo año**', '',
+      `${fut ? `En las 52 semanas que cubre el pronóstico se esperan alrededor de **${num(fut)} casos** de dengue en todo el país.` : 'El pronóstico cubre 52 semanas.'}${obs ? ` Los casos reales llegan hasta la ${semanaLegible(obs)}.` : ''} Para ver cómo va ahora, pregúntame «¿cómo va el dengue?» o por tu estado.`, '',
+      'No hacemos pronósticos a varios años: con pocas epidemias en los datos, no se puede anticipar con confianza cuándo ni de qué tamaño será el próximo gran brote.', '',
+      `Los grandes brotes de ${(dg.anios_epidemicos || [2014, 2019, 2024]).join(', ')} coincidieron con años de **El Niño**; por eso el modelo usa esa señal del clima.`,
+      '<!--DETALLE-->',
+      `Modelo nacional: **${dg.motor_nacional}**; ${dg.horizonte_semanas || 52} semanas desde el corte de los modelos (${corte}). La cifra es la media prevista del modelo nacional.`,
     ].join('\n');
   }
 
@@ -4343,6 +4306,8 @@ const STOP_WORDS = new Set([
   'narcisista', 'narcicista', 'narcisistas', 'psicotico', 'psicotica',
   // Palabras reales que el corrector convertía en otra entidad: hipotensión es la condición opuesta.
   'presion', 'tension', 'hipotension', 'hipotenso', 'hipotensa', 'prueba', 'pruebas',
+  // Ronda ciega con Ollama: «médico» no es «México», «gente» no es un estado.
+  'medico', 'medica', 'medicos', 'medicas', 'gente', 'consejo', 'consejos', 'ejercicio', 'rutina', 'mexicano', 'mexicana', 'mexicanos', 'chatbot', 'sistema', 'funciona',
 ]);
 
 function fuzzyCorrect(q) {
@@ -5706,6 +5671,9 @@ function runHandlers(q, ent, s, d, trace = null) {
     }
     if (NEURO_GENERICOS.has(handler) && !ent.padecimiento && fueraDeVocabulario(q)) continue;
     if (handler === answerSemaforo && !/\bsemaforo\b/.test(q)) continue;
+    if (handler === answerValidacion && !/\b(validacion|real vs|precis\w*|acert\w*|seguimiento)\b/.test(q)) continue;
+    if (handler === answerDefinicion && /\b(cancer|curar|cura|tratamiento|medicina|enfermedad)\b/.test(q) && !/\b(smape|mase|rmse|mae|wape|sesgo|metrica\w*)\b/.test(q)) continue;
+    if (handler === answerSexo && /\b(estudio|estudios|relacion entre|por que|investigacion)\b/.test(q) && !ent.padecimiento) continue;
     // Rankings, métricas y conteos de la cohorte neuro sólo cuando la pregunta es sobre modelos o métricas.
     if ((handler === answerRanking || handler === answerMetricaGlobal || handler === answerConteo) && !ent.padecimiento &&
       !/\b(modelo|modelos|motor|motores|smape|mase|rmse|mae|metric\w*|series|serie|commits|tests|lineas|archivos|equipo|proyecto|padecimientos|ranking|mejores|peores|datos|entreno|entrenamiento|entrenado|graficos|grafico|galeria|paginas|reportes)\b/.test(q)) continue;
@@ -6074,6 +6042,8 @@ async function _resolve(consulta) {
   // Un nombre genérico («otitis», «amebiasis») abarca más que el bloque publicado: se aclara y no se
   // dan cifras hasta que la consulta nombre el bloque.
   const ambiguo = aliasAmbiguo(norm(query));
+  // Una pregunta clínica sobre un nombre genérico («¿qué es la hepatitis y cómo se transmite?») va al RAG, sin aclaración de bloques.
+  if (ambiguo && esPreguntaClinica(norm(query))) return { response: null, handler: null };
   if (ambiguo) {
     lastEntities = {};
     trace.handler = 'answerAliasAmbiguo';
@@ -6110,7 +6080,7 @@ async function _resolve(consulta) {
     trace.handler = 'answerVago';
     return { response: `El resumen de ${lastEntities.estado} es para ambos sexos. Dime un padecimiento y te doy mujeres y hombres por separado; por ejemplo, «diabetes en ${lastEntities.estado} mujeres».\n<!--SIN_GRAFICA-->`, handler: trace.handler };
   }
-  for (const h of [answerCharla, answerQueja, answerVago, answerAmbiguoColoquial, answerSemanaFutura, answerNoReportado, answerFueraDeAlcance, answerSintomas, answerFAQ, answerRankingPadecimientos, answerConfianzaGeneral, answerViaje, answerEstadoLlano]) {
+  for (const h of [answerCharla, answerQueja, answerVago, answerFamiliar, answerAmbiguoColoquial, answerSemanaFutura, answerNoReportado, answerFueraDeAlcance, answerSintomas, answerFAQ, answerRankingPadecimientos, answerConfianzaGeneral, answerViaje, answerEstadoLlano]) {
     if (h === answerConfianzaGeneral && lastEntities.padecimiento) continue;
     // Con un padecimiento en el contexto, «¿y en Sonora?» es un seguimiento de ese padecimiento, no el resumen del estado.
     if ((h === answerEstadoLlano || h === answerFAQ || h === answerViaje) && (mencionaNoModelada(q) || enRadar(q).length)) continue;
@@ -6119,6 +6089,7 @@ async function _resolve(consulta) {
     if (r) {
       trace.handler = h.name;
       if (h === answerEstadoLlano) lastEntities = { estado: ent.estado, _resumenEstado: true };
+      else if (h === answerFamiliar) lastEntities = { padecimiento: ent.padecimiento, ...(ent.estado ? { estado: ent.estado } : {}) };
       else if (h !== answerSintomas) lastEntities = {};
       return { response: r, handler: trace.handler };
     }
@@ -6175,7 +6146,19 @@ async function _resolve(consulta) {
   // Rediseño conversacional: una pregunta de datos sobre un padecimiento publicado («¿cuánta gente tiene diabetes en Nuevo
   // León?», «¿tiene estacionalidad?») se responde localmente; los guardas que ceden al modelo quedan para lo demás.
   // Preguntas clínicas sobre un padecimiento («diferencia entre dengue con signos de alarma y dengue grave») van al RAG.
-  if (ent.padecimiento && /\b(diferencia entre|signos de alarma|clasificacion (clinica|que usan)|como se contagia|como se transmite|como se previene)\b/.test(q)) return { response: null, handler: null };
+  if (ent.padecimiento && /\b(diferencia entre|signos de alarma|clasificacion (clinica|que usan)|como se contagia|como se transmite|como se previene)\b/.test(q) && !/\b(cuant\w*|casos|pronostico|hombres|mujeres)\b/.test(q)) return { response: null, handler: null };
+  // Ronda ciega con Ollama (juez de pertinencia): una pregunta clínica sobre un padecimiento nombrado (causas, síntomas,
+  // tratamiento, prevención, contagio, dieta, gravedad) no recibe el volcado de casos: va al RAG, que responde con su aviso.
+  const relClin = releaseDePad(ent.padecimiento);
+  // El nombre oficial no cuenta («otros síntomas y signos que involucran el estado emocional»).
+  const qSinNombre = relClin ? [relClin.nombre, relClin.consulta, relClin.consultaVisible].filter(Boolean).map(norm).reduce((t, n) => t.split(n).join(' '), q) : q;
+  const qClin = ['Dengue', 'Depresion', 'Parkinson', 'Alzheimer'].includes(ent.padecimiento) ? q.replace(/\b(sintoma\w*|signos|causa\w*|transmit\w*|contagi\w*)\b/g, ' ') : qSinNombre;
+  if (ent.padecimiento && esPreguntaClinica(qClin, q)) return { response: null, handler: null };
+  if (ent.padecimiento && !ent.estado && /\b(entre \d+ y \d+ anos|de \d+ (a|y) \d+ anos|menores de \d+|mayores de \d+|rango de edad|grupo de edad|por edad|edades)\b/.test(q)) {
+    const rr = releaseDePad(ent.padecimiento);
+    const nombre = rr ? (rr.consultaVisible || rr.consulta) : ({ Depresion: 'depresión' }[ent.padecimiento] || String(ent.padecimiento).toLowerCase());
+    return { response: `El boletín reporta los casos **por estado y por sexo, no por edad**, así que no puedo separar grupos de edad. Sí puedo darte el total de ${nombre}${ent.estado ? ` en ${ent.estado}` : ''}, o hombres y mujeres por separado.\n<!--SIN_GRAFICA-->`, handler: 'answerEdadNoDisponible' };
+  }
   const datosPad = !!ent.padecimiento && (!!ent.estado || /\b(cuant\w*|casos|gente|hay|anda|virus|circulando|sigue existiendo|existe|todavia hay|comun|frecuente|como (va|esta|anda)|estacional\w*|temporada|pico|sube|subiendo|baja|bajando|tendencia|brote|aumento|aumentando)\b/.test(q)) &&
     !/\b(tratamiento|cura|curar|se cura|sintoma\w*|que hago|medicina|medicamento|causa|causas|por que da|contagia|prevenir|famos\w*)\b/.test(q);
   if (!datosPad && needsGeminiReasoning(q)) return { response: null, handler: null };
@@ -6366,7 +6349,7 @@ const HANDLERS_ACLARACION = new Set(['answerAliasAmbiguo', 'answerGuardaD7', 'an
   'answerSumaSeriesDistintas', 'answerAclaracionPendiente']);
 const HANDLERS_DE_AYUDA = new Set(['answerCrisis', 'answerCrisisSeguimiento', 'answerApoyoSeguimiento', 'answerFueraDeVocabulario', 'answerTemaSensible']);
 // Rediseño conversacional: charla, ayuda y síntomas responden aunque el turno sea personal y no nombre un dato.
-const HANDLERS_CONVERSACION = new Set(['answerSaludo', 'answerCharla', 'answerQueja', 'answerVago', 'answerAmbiguoColoquial', 'answerSemanaFutura', 'answerNoReportado', 'answerFueraDeAlcance', 'answerFAQ', 'answerSintomas', 'answerRankingPadecimientos', 'answerConfianzaGeneral', 'answerViaje', 'answerEstadoLlano']);
+const HANDLERS_CONVERSACION = new Set(['answerSaludo', 'answerCharla', 'answerQueja', 'answerVago', 'answerFamiliar', 'answerAmbiguoColoquial', 'answerSemanaFutura', 'answerNoReportado', 'answerFueraDeAlcance', 'answerFAQ', 'answerSintomas', 'answerRankingPadecimientos', 'answerConfianzaGeneral', 'answerViaje', 'answerEstadoLlano']);
 // Respuestas fijas sin cifras (aclaraciones, alcance, no modelados, guardas): con un token fuera del vocabulario se
 // conservan si no llevan cifras, porque ya no dan datos de ningún padecimiento.
 const HANDLERS_SIN_DATOS = new Set(['answerAliasAmbiguo', 'answerGuardaD7', 'answerMeningitisTipo', 'answerSumaSeriesDistintas',
@@ -6379,7 +6362,7 @@ const HANDLERS_SIN_DATOS = new Set(['answerAliasAmbiguo', 'answerGuardaD7', 'ans
  * «¿comparado con Querétaro?», «¿cuándo es el pico?», «¿qué tan confiable es?»). Se completan con el padecimiento y el
  * estado del contexto para que respondan sobre lo mismo.
  */
-const SEGUIMIENTO_CTX = /^(y |pero |entonces |ok |oye )?(es mucho|es poco|esta peor|esta mejor|y el ano pasado|el ano pasado|comparado con|compara(lo)? con|como se compara con|y comparado con|vs |contra |que tan confiable|es confiable|cuando (es|va a ser|sera) el pico|y el pico|el pico|pronostico (de las )?proximas|las proximas|proximas \d+ semanas|tiene estacionalidad|esta subiendo|va a subir|sube o baja|y en la misma ventana|y la semana pasada|y este ano|y en (hombres|mujeres)|cual es el smape|smape|el error|que error|ese pronostico|este pronostico|esta peor|esta mejor|subio o bajo|sube o baja|o sea|y el pronostico|que tan seguro|es seguro el|(en )?(las |los )?(mujeres|hombres)$|y en (las |los )?(mujeres|hombres)|por sexo|se pronostica|puro humo|esta chido|semana que viene|proxima semana|la que viene|hay brote|hay muchos casos)/;
+const SEGUIMIENTO_CTX = /^(y |pero |entonces |ok |oye )?(es mucho|es poco|esta peor|esta mejor|y el ano pasado|el ano pasado|comparado con|compara(lo)? con|como se compara con|y comparado con|vs |contra |que tan confiable|es confiable|cuando (es|va a ser|sera) el pico|y el pico|el pico|pronostico (de las )?proximas|las proximas|proximas \d+ semanas|tiene estacionalidad|esta subiendo|va a subir|sube o baja|y en la misma ventana|y la semana pasada|y este ano|y en (hombres|mujeres)|cual es el smape|smape|el error|que error|ese pronostico|este pronostico|esta peor|esta mejor|subio o bajo|sube o baja|o sea|y el pronostico|que tan seguro|es seguro el|(en )?(las |los )?(mujeres|hombres)$|y en (las |los )?(mujeres|hombres)|por sexo|se pronostica|puro humo|esta chido|semana que viene|proxima semana|la que viene|hay brote|hay muchos casos|y hay brote|hay muchos casos asi|casos asi)/;
 /** Botones con las opciones que nombra una aclaración («hepatitis vírica A», «hepatitis C»…), conservando el estado. */
 function botonesDeOpciones(texto, estado) {
   const nombres = [...new Set([...String(texto).matchAll(/«([^»]+)»/g)].map((m) => m[1]))]
