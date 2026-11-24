@@ -213,7 +213,9 @@ function answerRelease(q, ent, s, d, r) {
   // El nombre del padecimiento no cuenta para la intención («vehículos con motor» no pide los motores).
   const qTipo = [r.nombre, r.consulta, ...(r.alias || [])].map((a) => String(a).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase())
     .sort((a, b) => b.length - a.length).reduce((acc, a) => (a && a.length > 3 ? acc.split(a).join(' ') : acc), q);
-  const tipoPedido = tipoEfectivo(qTipo, ent);
+  let tipoPedido = tipoEfectivo(qTipo, ent);
+  // Dos estados nombrados («compárame candidiasis entre CDMX y Edomex») piden la comparación.
+  if (tipoPedido === 'serie' && estadosEnConsulta(v, q).length >= 2) tipoPedido = 'comparador';
   const pidioSexo = sinSexo && ((ent.sexo && ent.sexo !== 'general') || tipoPedido === 'sexo');
   if (sinSexo) ent = { ...ent, sexo: undefined };
   const tipo = pidioSexo && tipoPedido === 'sexo' ? tipoEfectivo('', ent) : tipoPedido;

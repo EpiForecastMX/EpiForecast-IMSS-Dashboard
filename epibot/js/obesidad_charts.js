@@ -58,7 +58,7 @@ const REGLAS = [
   ['acumulado', ['acumulad', 'cascada', 'waterfall', 'aporte']],
   ['sexo', ['apilad', 'stacked', 'composicion', 'por sexo', 'hombres y mujeres', 'hombres vs mujeres', 'mujeres y hombres', 'mujeres vs hombres']],
   ['motores', ['motor', 'arsenal', 'polar', 'rosa de']],
-  ['comparador', ['comparador', 'comparar', 'compara ', 'comparativo', 'comparativa entre', 'comparacion de estados', 'comparacion entre', 'sparkline', 'mini grafic', ' vs ', ' contra ']],
+  ['comparador', ['comparador', 'comparar', 'compara ', 'comparame', 'comparalo', 'comparativo', 'comparativa entre', 'comparacion de estados', 'comparacion entre', 'sparkline', 'mini grafic', ' vs ', ' contra ']],
   ['metricas', ['radar', 'spider', 'boxplot', 'box plot', 'caja y bigotes', 'gauge', 'medidor', 'velocimetro', 'salud de los modelos', 'salud de modelos', 'mase']],
   ['seguimiento', ['zoom', 'detalle semanal', 'seguimiento', 'validacion', 'cercano', 'ultimas semanas', 'semana a semana']],
 ];

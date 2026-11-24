@@ -2618,7 +2618,7 @@
   /** Turno con una señal débil o en escritura no latina: «no entendí» con la Línea de la Vida, sin cifras. */
   function apoyoInmediato(raw) {
     if (escrituraNoLatina(raw)) return true;
-    const sin = sinRotulos(raw).replace(/\s+/g, ' ').trim();
+    const sin = sinRotulos(raw).replace(/\s+/g, ' ').trim().replace(/\bcapsulas? (de salud|informativas?|de radio|de video)\b/g, ' ');
     if (primeraPersona(raw) && PELIGRO_PROPIO.test(sin)) return true;
     // Accidente doméstico de un tercero («mi hijo se quemó con un cuete»): lo atiende la respuesta de síntomas, no el apoyo.
     if (/\b(cuete|cohete|polvora|aceite|agua caliente|estufa|plancha|comal|sol|vapor)\b/.test(sin) && !/\b(me queme|me quemo|quemarme|nos quemamos)\b/.test(sin)) return false;

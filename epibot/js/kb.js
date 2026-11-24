@@ -11,7 +11,7 @@ import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=13';
 import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=63';
-import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje } from './conversacion.js?v=7';
+import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial } from './conversacion.js?v=8';
 import { respuestaLlana, confiabilidadLegacy } from './resumen_llano.js?v=2';
 /** Los cuatro originales en lenguaje llano (consulta general), antes de sus handlers específicos. */
 function answerLegacyLlano(q, ent, s, d) { return legacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadLegacy }); }
@@ -5705,6 +5705,7 @@ function runHandlers(q, ent, s, d, trace = null) {
       }
     }
     if (NEURO_GENERICOS.has(handler) && !ent.padecimiento && fueraDeVocabulario(q)) continue;
+    if (handler === answerSemaforo && !/\bsemaforo\b/.test(q)) continue;
     // Rankings, métricas y conteos de la cohorte neuro sólo cuando la pregunta es sobre modelos o métricas.
     if ((handler === answerRanking || handler === answerMetricaGlobal || handler === answerConteo) && !ent.padecimiento &&
       !/\b(modelo|modelos|motor|motores|smape|mase|rmse|mae|metric\w*|series|serie|commits|tests|lineas|archivos|equipo|proyecto|padecimientos|ranking|mejores|peores|datos|entreno|entrenamiento|entrenado|graficos|grafico|galeria|paginas|reportes)\b/.test(q)) continue;
@@ -6109,10 +6110,11 @@ async function _resolve(consulta) {
     trace.handler = 'answerVago';
     return { response: `El resumen de ${lastEntities.estado} es para ambos sexos. Dime un padecimiento y te doy mujeres y hombres por separado; por ejemplo, «diabetes en ${lastEntities.estado} mujeres».\n<!--SIN_GRAFICA-->`, handler: trace.handler };
   }
-  for (const h of [answerCharla, answerQueja, answerVago, answerSemanaFutura, answerNoReportado, answerFueraDeAlcance, answerSintomas, answerFAQ, answerRankingPadecimientos, answerConfianzaGeneral, answerViaje, answerEstadoLlano]) {
+  for (const h of [answerCharla, answerQueja, answerVago, answerAmbiguoColoquial, answerSemanaFutura, answerNoReportado, answerFueraDeAlcance, answerSintomas, answerFAQ, answerRankingPadecimientos, answerConfianzaGeneral, answerViaje, answerEstadoLlano]) {
     if (h === answerConfianzaGeneral && lastEntities.padecimiento) continue;
     // Con un padecimiento en el contexto, «¿y en Sonora?» es un seguimiento de ese padecimiento, no el resumen del estado.
-    if (h === answerEstadoLlano && (lastEntities.padecimiento || mencionaNoModelada(q) || enRadar(q).length)) continue;
+    if ((h === answerEstadoLlano || h === answerFAQ || h === answerViaje) && (mencionaNoModelada(q) || enRadar(q).length)) continue;
+    if ((h === answerEstadoLlano || h === answerViaje) && lastEntities.padecimiento) continue;
     const r = h(q, ent, s, d);
     if (r) {
       trace.handler = h.name;
@@ -6172,7 +6174,9 @@ async function _resolve(consulta) {
   // Si requiere razonamiento temporal fino (diario), ceder a Gemini
   // Rediseño conversacional: una pregunta de datos sobre un padecimiento publicado («¿cuánta gente tiene diabetes en Nuevo
   // León?», «¿tiene estacionalidad?») se responde localmente; los guardas que ceden al modelo quedan para lo demás.
-  const datosPad = !!ent.padecimiento && (!!ent.estado || /\b(cuant\w*|casos|gente|hay|anda|virus|circulando|como (va|esta|anda)|estacional\w*|temporada|pico|sube|subiendo|baja|bajando|tendencia|brote|aumento|aumentando)\b/.test(q)) &&
+  // Preguntas clínicas sobre un padecimiento («diferencia entre dengue con signos de alarma y dengue grave») van al RAG.
+  if (ent.padecimiento && /\b(diferencia entre|signos de alarma|clasificacion (clinica|que usan)|como se contagia|como se transmite|como se previene)\b/.test(q)) return { response: null, handler: null };
+  const datosPad = !!ent.padecimiento && (!!ent.estado || /\b(cuant\w*|casos|gente|hay|anda|virus|circulando|sigue existiendo|existe|todavia hay|comun|frecuente|como (va|esta|anda)|estacional\w*|temporada|pico|sube|subiendo|baja|bajando|tendencia|brote|aumento|aumentando)\b/.test(q)) &&
     !/\b(tratamiento|cura|curar|se cura|sintoma\w*|que hago|medicina|medicamento|causa|causas|por que da|contagia|prevenir|famos\w*)\b/.test(q);
   if (!datosPad && needsGeminiReasoning(q)) return { response: null, handler: null };
 
@@ -6362,7 +6366,7 @@ const HANDLERS_ACLARACION = new Set(['answerAliasAmbiguo', 'answerGuardaD7', 'an
   'answerSumaSeriesDistintas', 'answerAclaracionPendiente']);
 const HANDLERS_DE_AYUDA = new Set(['answerCrisis', 'answerCrisisSeguimiento', 'answerApoyoSeguimiento', 'answerFueraDeVocabulario', 'answerTemaSensible']);
 // Rediseño conversacional: charla, ayuda y síntomas responden aunque el turno sea personal y no nombre un dato.
-const HANDLERS_CONVERSACION = new Set(['answerSaludo', 'answerCharla', 'answerQueja', 'answerVago', 'answerSemanaFutura', 'answerNoReportado', 'answerFueraDeAlcance', 'answerFAQ', 'answerSintomas', 'answerRankingPadecimientos', 'answerConfianzaGeneral', 'answerViaje', 'answerEstadoLlano']);
+const HANDLERS_CONVERSACION = new Set(['answerSaludo', 'answerCharla', 'answerQueja', 'answerVago', 'answerAmbiguoColoquial', 'answerSemanaFutura', 'answerNoReportado', 'answerFueraDeAlcance', 'answerFAQ', 'answerSintomas', 'answerRankingPadecimientos', 'answerConfianzaGeneral', 'answerViaje', 'answerEstadoLlano']);
 // Respuestas fijas sin cifras (aclaraciones, alcance, no modelados, guardas): con un token fuera del vocabulario se
 // conservan si no llevan cifras, porque ya no dan datos de ningún padecimiento.
 const HANDLERS_SIN_DATOS = new Set(['answerAliasAmbiguo', 'answerGuardaD7', 'answerMeningitisTipo', 'answerSumaSeriesDistintas',
@@ -6375,7 +6379,7 @@ const HANDLERS_SIN_DATOS = new Set(['answerAliasAmbiguo', 'answerGuardaD7', 'ans
  * «¿comparado con Querétaro?», «¿cuándo es el pico?», «¿qué tan confiable es?»). Se completan con el padecimiento y el
  * estado del contexto para que respondan sobre lo mismo.
  */
-const SEGUIMIENTO_CTX = /^(y |pero |entonces |ok |oye )?(es mucho|es poco|esta peor|esta mejor|y el ano pasado|el ano pasado|comparado con|compara(lo)? con|como se compara con|y comparado con|vs |contra |que tan confiable|es confiable|cuando (es|va a ser|sera) el pico|y el pico|el pico|pronostico (de las )?proximas|las proximas|proximas \d+ semanas|tiene estacionalidad|esta subiendo|va a subir|sube o baja|y en la misma ventana|y la semana pasada|y este ano|y en (hombres|mujeres)|cual es el smape|smape|el error|que error|ese pronostico|este pronostico|esta peor|esta mejor|subio o bajo|sube o baja|o sea|y el pronostico|que tan seguro|es seguro el|(en )?(las |los )?(mujeres|hombres)$)/;
+const SEGUIMIENTO_CTX = /^(y |pero |entonces |ok |oye )?(es mucho|es poco|esta peor|esta mejor|y el ano pasado|el ano pasado|comparado con|compara(lo)? con|como se compara con|y comparado con|vs |contra |que tan confiable|es confiable|cuando (es|va a ser|sera) el pico|y el pico|el pico|pronostico (de las )?proximas|las proximas|proximas \d+ semanas|tiene estacionalidad|esta subiendo|va a subir|sube o baja|y en la misma ventana|y la semana pasada|y este ano|y en (hombres|mujeres)|cual es el smape|smape|el error|que error|ese pronostico|este pronostico|esta peor|esta mejor|subio o bajo|sube o baja|o sea|y el pronostico|que tan seguro|es seguro el|(en )?(las |los )?(mujeres|hombres)$|y en (las |los )?(mujeres|hombres)|por sexo|se pronostica|puro humo|esta chido|semana que viene|proxima semana|la que viene|hay brote|hay muchos casos)/;
 /** Botones con las opciones que nombra una aclaración («hepatitis vírica A», «hepatitis C»…), conservando el estado. */
 function botonesDeOpciones(texto, estado) {
   const nombres = [...new Set([...String(texto).matchAll(/«([^»]+)»/g)].map((m) => m[1]))]
@@ -6386,13 +6390,21 @@ function botonesDeOpciones(texto, estado) {
 }
 
 function seguimientoConContexto(texto) {
-  const pad = lastEntities.padecimiento;
-  if (!pad) return texto;
   const qn = norm(texto);
   const ent = detectEntities(qn);
+  // «¿Cuál de las dos…?» tras nombrar dos padecimientos.
+  if (/\bcual de (las|los) dos\b/.test(qn) && (lastEntities._padsPrevios || []).length >= 2 && !ent.padecimiento) {
+    return `${lastEntities._padsPrevios.join(' y ')}${ent.estado ? ` en ${ent.estado}` : lastEntities.estado ? ` en ${lastEntities.estado}` : ''}`;
+  }
+  // «Olvídalo, mejor dime la varicela»: nuevo padecimiento, mismo estado.
+  if (ent.padecimiento && !ent.estado && lastEntities.estado && /\b(olvidalo|mejor|ahora|y ahora|cambiando de tema)\b/.test(qn)) {
+    return `${texto} en ${lastEntities.estado}`;
+  }
+  const pad = lastEntities.padecimiento;
+  if (!pad) return texto;
   if (ent.padecimiento || (ent.padecimientos || []).length) return texto;
   // Sólo un lugar («en Yucatán», «¿y Sonora?», «para Chihuahua»): el mismo padecimiento en ese estado.
-  const soloLugar = ent.estado && qn.replace(/\b(y|en|para|de|del|que tal|como va|como esta|y en|ahora)\b/g, ' ')
+  const soloLugar = ent.estado && qn.replace(/\b(y|en|para|de|del|que tal|como va|como esta|y en|ahora|no|me equivoque|quise decir|perdon|era|es|digo|mejor)\b/g, ' ')
     .replace(norm(ent.estado), ' ').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean).length <= 1;
   const datosEnEstado = ent.estado && qn.split(' ').length <= 8 && /\b(casos|hay|cuantos|cuantas|como va|como esta|y en)\b/.test(qn);
   if (!soloLugar && !datosEnEstado && !SEGUIMIENTO_CTX.test(qn)) return texto;
@@ -6423,10 +6435,16 @@ async function _resolveConContexto(query) {
     try { meta = JSON.parse(mr[2]); } catch { /* sin metadatos */ }
     if (rel) lastEntities = { ...lastEntities, padecimiento: rel.pad, ...(meta.estado ? { estado: meta.estado } : {}) };
   }
-  const sint = notaSintomas(texto);
+  const padsTurno = detectEntities(norm(texto)).padecimientos || [];
+  if (padsTurno.length >= 2) {
+    lastEntities = { ...lastEntities, _padsPrevios: padsTurno.map((p) => { const rr = releaseDePad(p); return rr ? (rr.consultaVisible || rr.consulta) : norm(p); }) };
+  }
+  if (!lastEntities.estado && detectEntities(norm(texto)).estado) lastEntities = { ...lastEntities, estado: detectEntities(norm(texto)).estado };
+  const sint = notaSintomas(norm(query));
   if (sint && r.response && !HANDLERS_DE_AYUDA.has(r.handler) && r.handler !== 'answerSintomas') notas.unshift(sint.replace(/^_|_$/g, '').replace(/\.$/, ''));
   if (!notas.length || !r.response || HANDLERS_DE_AYUDA.has(r.handler)) return r;
-  return { ...r, response: `_${notas.join('. ')}._\n\n${r.response}` };
+  // Cada nota en su propia línea, en cursiva.
+  return { ...r, response: `${notas.map((n) => `_${n.replace(/\.$/, '')}._`).join('\n')}\n\n${r.response}` };
 }
 
 async function _resolveConContextoBase(query) {

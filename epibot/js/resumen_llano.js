@@ -199,7 +199,7 @@ export function respuestaLlana({ v, x, r, q, esControl, estados, sinSexo, confia
     sube: `${si}se espera que **aumente**: unos ${casos(ind.F4)} en las próximas 4 semanas, ${pct0((d ?? 0) * 100)} más que en las 4 anteriores (${ent0(ind.O4)}).`,
     baja: `${si}se espera que **disminuya**: unos ${casos(ind.F4)} en las próximas 4 semanas, ${pct0((d ?? 0) * 100)} menos que en las 4 anteriores (${ent0(ind.O4)}).`,
     estable: `${si}se espera que **se mantenga estable**: unos ${casos(ind.F4)} en las próximas 4 semanas, frente a ${ent0(ind.O4)} en las 4 anteriores.`,
-    pocos: `hay **muy pocos casos**: ${casos(ind.O4)} en las últimas 4 semanas y unos ${casos(ind.F4)} esperados en las próximas 4; con números tan pequeños no se puede hablar de una tendencia.`,
+    pocos: `hay **muy pocos casos**: ${casos(ind.O4)} en las últimas 4 semanas y ${Math.round(ind.F4) === 0 ? 'ninguno esperado' : `unos ${casos(ind.F4)} esperados`} en las próximas 4; con números tan pequeños no se puede hablar de una tendencia.`,
     atipico: `las últimas 4 semanas vienen **muy por debajo de lo habitual** (${ent0(ind.O4)} casos frente a unos ${ent0(ind.habitual)} en las 4 semanas típicas previas); puede deberse a un retraso o a un cambio en la notificación, así que no afirmo una tendencia. El pronóstico espera unos ${casos(ind.F4)} en las próximas 4 semanas, más cerca de lo habitual.`,
     incierto: `no hay una señal clara de cambio: el pronóstico espera unos ${casos(ind.F4)} en las próximas 4 semanas (${d >= 0 ? '+' : '−'}${pct0((d ?? 0) * 100)} frente a las 4 anteriores), pero en las semanas ya comprobadas se ha ${x.oos.sesgo_pct > 0 ? 'pasado' : 'quedado corto'} por ${pct0(x.oos.sesgo_pct)}, una diferencia de ese mismo tamaño.`,
   }[ind.tendencia];
