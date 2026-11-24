@@ -11,6 +11,9 @@ import { RELEASES } from './release_config.js?v=54';
 const LEGACY = 4;
 export const TOTAL_PUBLICADOS = () => RELEASES.length + LEGACY;
 const ent0 = (n) => Math.round(n).toLocaleString('es-MX');
+const MESES_C = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+/** «2 de noviembre de 2026» desde una fecha ISO. */
+const fecha = (ds) => { const [a, m, d] = String(ds).split('-').map(Number); return d ? `${d} de ${MESES_C[m - 1]} de ${a}` : String(ds); };
 const pct0 = (n) => `${Math.round(Math.abs(n * 100))} %`;
 const palabras = (q) => q.split(' ').filter(Boolean);
 const sigue = (xs) => `\n<!--SIGUE:${JSON.stringify(xs)}-->`;
@@ -25,7 +28,7 @@ const EJEMPLOS = [
 const SALUDO = /^(hola|holi|hey|buenas|buenos dias|buenas tardes|buenas noches|buen dia|que tal|que onda|saludos|hello|hi)\b/;
 const GRACIAS = /^(muchas |mil )?(gracias|grax|thanks|thank you|te agradezco|muy amable|excelente gracias|ok gracias|vale gracias|perfecto gracias)\b/;
 const DESPEDIDA = /^(adios|bye|hasta luego|hasta pronto|nos vemos|chao|chau|me voy)\b/;
-const AYUDA = /\b(que puedes hacer|que sabes hacer|que haces|en que me ayudas|en que me puedes ayudar|como te uso|como funciona esto|ayuda|help|que te puedo preguntar|que puedo preguntar|para que sirves|instrucciones)\b/;
+const AYUDA = /\b(como le hago|como veo|como busco|como se escribe|como pregunto|como lo uso|que puedes hacer|que sabes hacer|que haces|en que me ayudas|en que me puedes ayudar|como te uso|como funciona esto|ayuda|help|que te puedo preguntar|que puedo preguntar|para que sirves|instrucciones)\b/;
 
 export function saludo() {
   return `¡Hola! Soy **EPI**. Te digo cómo van **${TOTAL_PUBLICADOS()} padecimientos** en México, por estado y por sexo, con los datos ` +
@@ -39,7 +42,7 @@ export function saludo() {
 export function answerCharla(q, ent) {
   const conDatos = !!(ent.padecimiento || ent.estado || (ent.padecimientos || []).length);
   const n = palabras(q).length;
-  if (!conDatos && GRACIAS.test(q) && n <= 6) {
+  if (!conDatos && (GRACIAS.test(q) || (/\bgracias\b/.test(q) && n <= 6)) && n <= 8) {
     return 'Con gusto. ¿Quieres revisar otro padecimiento o estado?\n<!--SIN_GRAFICA-->' + sigue(EJEMPLOS.slice(0, 3));
   }
   if (!conDatos && DESPEDIDA.test(q) && n <= 5) {
@@ -60,7 +63,7 @@ export function answerCharla(q, ent) {
 }
 
 // Síntomas o petición de diagnóstico: nunca se diagnostica ni se receta.
-const SINTOMA = /\b(infecciones intestinales|infecciones respiratorias agudas|tos|tose|fiebre|ronchas?|manchas?|granitos?|granos con agua|acne|vomita|vomitando|no quiere comer|muy flac[oa]|dejo de comer|presion en \d+|se quemo|quemadura|piojos|liendres|sarna|comezon|calentura|diarrea|vomito|vomitos|nauseas|ronchas|sarpullido|comezon|dolor de cabeza|dolor de garganta|dolor de estomago|dolor de huesos|escalofrios|gripa|gripe|moqueo|mareo|mareos|sangrado|granos|manchas en la piel|ojos rojos|cansancio)\b/;
+const SINTOMA = /\b(me duele|le duele|duele|dolor|azucar alta|diabetes|infecciones intestinales|infecciones respiratorias agudas|tos(?! ferina)|tose|fiebre|ronchas?|manchas?|granitos?|granos con agua|acne|vomita|vomitando|no quiere comer|muy flac[oa]|dejo de comer|presion en \d+|se quemo|quemadura|piojos|liendres|sarna|comezon|calentura|diarrea|vomito|vomitos|nauseas|ronchas|sarpullido|comezon|dolor de cabeza|dolor de garganta|dolor de estomago|dolor de huesos|escalofrios|gripa|gripe|moqueo|mareo|mareos|sangrado|granos|manchas en la piel|ojos rojos|cansancio)\b/;
 const PERSONAL = /\b(mi (hij[oa]|nin[oa]|bebe|abuel[ao]|abuelita|abuelito|mama|papa|espos[oa]|herman[oa]|niet[oa])|a mi (hij[oa]|nin[oa]|bebe)|tengo|me duele|me salio|me salieron|me siento|ando con|estoy con|amaneci con|mi (hijo|hija|mama|papa|bebe|esposa|esposo|abuelo|abuela|nino|nina) (tiene|trae|anda con)|me pico|me mordio)\b/;
 const PIDE_DX = /\b(es grave|es normal|que hago|que debo hacer|que me tomo|que tomo|que le doy|es dengue|sera dengue|tengo dengue|sera que tengo|me estoy enfermando|a donde voy|a donde acudo)\b/;
 
@@ -76,6 +79,10 @@ export function answerSintomas(q, ent) {
   const pad = ent.padecimiento;
   // Si además pide datos («mi hijo se quemó, ¿cuántos casos de quemaduras hay?»), responde los datos con la nota de seguridad.
   if (pad && /\b(cuantos|cuantas|casos|hay|como va|brote|estadisticas|anda un|anda la|anda el)\b/.test(q)) return null;
+  if (/\b(que (debe|puede|deberia) comer|que le doy de comer|dieta|que alimentos|que comida)\b/.test(q)) {
+    return 'No doy indicaciones de alimentación ni de tratamiento: eso debe definirlo su médico o un nutriólogo, según su caso. ' +
+      'Si hay síntomas de alarma, acude a urgencias o llama al **911**.\n<!--SIN_GRAFICA-->';
+  }
   if (/\b(no quiere comer|muy flac[oa]|dejo de comer|vomita a proposito)\b/.test(q)) {
     return 'Si notas que alguien deja de comer, baja mucho de peso o vomita a propósito, consulta pronto a un médico: puede tratarse de un trastorno de la conducta alimentaria, que tiene tratamiento. ' +
       'Para orientación en salud mental, la **Línea de la Vida** atiende gratis, las 24 horas: **800 911 2000**.\n\nSi te sirve, puedo darte cómo van los casos de anorexia, bulimia y otros trastornos alimentarios en tu estado.\n<!--SIN_GRAFICA-->' +
@@ -99,9 +106,12 @@ export function answerSintomas(q, ent) {
 // «¿Qué enfermedades van al alza?», «¿qué está subiendo?», «¿qué padecimientos tienen más casos?».
 const RANKING = /\b(enfermedad|enfermedades|padecimiento|padecimientos|infecciones|males)\b.*\b(alza|aumentar|aumentando|aumentan|aumento|en aumento|incremento|suben|subiendo|subir|subio|crecen|creciendo|crecio|repuntan|preocupar|preocupantes|mas casos|bajan|bajando|bajaron|bajado|disminuyen|disminuyendo|pegando)\b|\b(que|cuales?)\b.*\b(enfermedades|padecimientos)\b.*\b(alza|aumentar|aumentando|aumentan|suben|subiendo|subir|crecen|creciendo|repuntan|preocupar|preocupantes|mas casos|bajan|bajando|disminuyen)\b|\b(que esta subiendo|que va al alza|que sube|que esta aumentando|que esta bajando|lo que sube|lo que mas sube|que esta pegando|que pega mas|que anda (mas )?fuerte|que esta circulando|que circula mas|que hay mas)\b/;
 
+const RESUMEN_NACIONAL = /\b(resumen|panorama general|situacion epidemiologica|como esta el pais|como va el pais|que esta pasando en el pais)\b/;
 export function answerRankingPadecimientos(q, ent, s, d) {
-  if (ent.padecimiento || (ent.padecimientos || []).length || ent.estado) return null;
-  if (!RANKING.test(q)) return null;
+  const nacional = !ent.estado || /^nacional$/i.test(String(ent.estado));
+  if (ent.padecimiento || (ent.padecimientos || []).length || !nacional) return null;
+  const resumen = RESUMEN_NACIONAL.test(q);
+  if (!RANKING.test(q) && !resumen) return null;
   const res = d?.resumen_padecimientos;
   if (!res || !Array.isArray(res.padecimientos)) {
     return 'Todavía no tengo el resumen de todos los padecimientos. Pregúntame por uno en particular; por ejemplo, «¿cómo va la varicela?».\n<!--SIN_GRAFICA-->';
@@ -110,7 +120,7 @@ export function answerRankingPadecimientos(q, ent, s, d) {
   const orden = (xs) => [...xs].sort((a, b) => (a.confiabilidad === 'baja') - (b.confiabilidad === 'baja') || Math.abs(b.delta) - Math.abs(a.delta));
   const suben = orden(relevantes.filter((x) => x.tendencia === 'sube')).slice(0, 6);
   const bajan = orden(relevantes.filter((x) => x.tendencia === 'baja')).slice(0, 4);
-  const masCasos = /\bmas casos\b/.test(q);
+  const masCasos = /\bmas casos\b/.test(q) && !resumen;
   const pideBaja = /\b(bajan|bajando|bajaron|bajado|disminuyen|disminuyendo|a la baja)\b/.test(q);
   const etq = (x) => (x.confiabilidad === 'baja' ? ' · _confiabilidad baja_' : x.confiabilidad === 'alta' ? ' · confiabilidad alta' : ' · confiabilidad media');
   const fila = (x) => `- **${x.nombre}**: unos ${ent0(x.F4)} casos en las próximas 4 semanas, ${x.delta >= 0 ? `${pct0(x.delta)} más` : `${pct0(x.delta)} menos`} que en las 4 anteriores (${ent0(x.O4)})${etq(x)}.`;
@@ -131,7 +141,12 @@ export function answerRankingPadecimientos(q, ent, s, d) {
       if (bajan.length) lineas.push('', '**Lo que más se espera que baje:**', '', ...bajan.map(fila));
     }
   }
-  lineas.push('', `Comparo ${res.padecimientos.length} padecimientos con datos hasta la semana del ${res.corte}; dejo fuera los de menos de 50 casos, donde un cambio porcentual engaña, ` +
+  if (resumen) {
+    const top = [...res.padecimientos].sort((a, b) => b.F4 - a.F4).slice(0, 5);
+    lineas.unshift(`**Panorama nacional** (casos notificados al boletín epidemiológico, datos hasta la semana del ${fecha(res.corte)})`, '');
+    lineas.push('', '**Los que más casos tendrán:**', '', ...top.map((x) => `- **${x.nombre}**: unos ${ent0(x.F4)} casos en las próximas 4 semanas.`));
+  }
+  lineas.push('', `Comparo ${res.padecimientos.length} padecimientos con datos hasta la semana del ${fecha(res.corte)}; dejo fuera los de menos de 50 casos, donde un cambio porcentual engaña, ` +
     'y los temas sensibles. «Confiabilidad baja» quiere decir que el pronóstico repite el patrón del año pasado o que ya se ha desviado.',
   '', '_Son casos notificados al boletín epidemiológico; no es consejo médico._', '<!--SIN_GRAFICA-->');
   const sig = suben.slice(0, 3).map((x) => ({ t: `¿Cómo va ${x.nombre.toLowerCase()}?`, q: `¿cómo va ${x.consulta}?` }));
@@ -201,7 +216,7 @@ export function answerLegacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadL
 }
 
 // «¿Qué tan confiables son sus pronósticos?» sin padecimiento: la escala de tres niveles y cuántos hay en cada uno.
-const CONFIANZA_GENERAL = /\b(que tan|son|es|que tanto|se puede|puedo)\b.*\b(confiables?|fiables?|precisos?|exactos?|confiar|creer|atinan|aciertan|le atinan|son buenos|sirven)\b|\b(le atinan|atinan|aciertan|son confiables|son buenos tus|son buenos sus)\b|\b(confiabilidad|precision) de (sus|tus|los|las)\b/;
+const CONFIANZA_GENERAL = /\b(que tan|son|es|que tanto|se puede|puedo)\b.*\b(confiables?|fiables?|precisos?|exactos?|confiar|creer|atinan|aciertan|le atinan|son buenos|sirven)\b|\b(le atinan|atinan|aciertan|son confiables|son buenos tus|son buenos sus|fallaron|se equivocaron|error de su modelo|el error de|debo creerle|creerle a un bot)\b|\b(confiabilidad|precision) de (sus|tus|los|las)\b/;
 export function answerConfianzaGeneral(q, ent, s, d) {
   if (ent.padecimiento || (ent.padecimientos || []).length || ent.estado) return null;
   if (!CONFIANZA_GENERAL.test(q) || ent.modelo || /\b(prophet|deepar|ensemble|stacking|nbglm|motor|motores|modelos?|smape|mase)\b/.test(q)) return null;
@@ -223,6 +238,11 @@ export function answerConfianzaGeneral(q, ent, s, d) {
 // El boletín publica por entidad federativa: «el dengue en Monterrey» se responde para Nuevo León y se dice. Sólo ciudades
 // sin ambigüedad con un nombre de estado («León» se omite porque forma parte de «Nuevo León»).
 const CIUDADES = [
+  ['Chihuahua', ['sierra tarahumara', 'tarahumara']],
+  ['Quintana Roo', ['riviera maya', 'costa maya']],
+  ['Chiapas', ['selva lacandona']],
+  ['San Luis Potosí', ['huasteca potosina', 'san luis(?! rio colorado)(?! potosi)']],
+  ['Guanajuato', ['guanajuato capital']],
   ['Ciudad de México', ['iztapalapa', 'coyoacan', 'tlalpan', 'gustavo a madero', 'xochimilco', 'azcapotzalco', 'miguel hidalgo', 'venustiano carranza', 'iztacalco', 'alvaro obregon', 'magdalena contreras', 'cuajimalpa', 'milpa alta', 'tlahuac']],
   ['Nuevo León', ['mty', 'monterrey', 'san pedro garza garcia', 'apodaca', 'san nicolas de los garza', 'escobedo']],
   ['Jalisco', ['gdl', 'guadalajara', 'zapopan', 'tlaquepaque', 'tonala', 'puerto vallarta']],
@@ -253,9 +273,9 @@ const CIUDADES = [
   ['Zacatecas', ['fresnillo']],
   ['Sinaloa', ['guasave']],
 ];
-const CIUDAD_RE = CIUDADES.flatMap(([estado, cs]) => cs.map((c) => [estado, c, new RegExp(`\\b${c}\\b`)]))
+const CIUDAD_RE = CIUDADES.flatMap(([estado, cs]) => cs.map((c) => [estado, c.replace(/\(\?!.*?\)/g, ''), new RegExp(`\\b${c}\\b`)]))
   .sort((a, b) => b[1].length - a[1].length);
-const CIUDAD_ACENTOS = { coyoacan: 'Coyoacán', 'alvaro obregon': 'Álvaro Obregón', tlahuac: 'Tláhuac', mty: 'Monterrey', gdl: 'Guadalajara', 'leon gto': 'León', 'leon guanajuato': 'León', cancun: 'Cancún', merida: 'Mérida', culiacan: 'Culiacán', mazatlan: 'Mazatlán', torreon: 'Torreón',
+const CIUDAD_ACENTOS = { 'sierra tarahumara': 'Sierra Tarahumara', tarahumara: 'Sierra Tarahumara', 'riviera maya': 'Riviera Maya', 'costa maya': 'Costa Maya', 'selva lacandona': 'Selva Lacandona', 'huasteca potosina': 'Huasteca Potosina', 'san luis': 'San Luis', 'guanajuato capital': 'Guanajuato capital', coyoacan: 'Coyoacán', 'alvaro obregon': 'Álvaro Obregón', tlahuac: 'Tláhuac', mty: 'Monterrey', gdl: 'Guadalajara', 'leon gto': 'León', 'leon guanajuato': 'León', cancun: 'Cancún', merida: 'Mérida', culiacan: 'Culiacán', mazatlan: 'Mazatlán', torreon: 'Torreón',
   'tuxtla gutierrez': 'Tuxtla Gutiérrez', 'san cristobal de las casas': 'San Cristóbal de las Casas', 'ciudad juarez': 'Ciudad Juárez',
   'cd juarez': 'Ciudad Juárez', 'juarez chihuahua': 'Ciudad Juárez', 'ciudad obregon': 'Ciudad Obregón', nezahualcoyotl: 'Nezahualcóyotl',
   chimalhuacan: 'Chimalhuacán', 'san nicolas de los garza': 'San Nicolás de los Garza', 'san pedro garza garcia': 'San Pedro Garza García',
@@ -285,9 +305,18 @@ const SINONIMOS = [
   [/\binfeccion(es)? (de (la )?orina|urinaria(s)?|de vias urinarias)\b|\bmal de orin\b|\bardor al orinar\b/g, 'infeccion de vias urinarias'],
   [/\b(chikunguna|chicungunya|chikungunia|chikungunya|chicunguya)\b/g, 'chikungunya'],
   [/\b(gripa|gripe|resfriado|resfriados|catarro|catarros)\b/g, 'infecciones respiratorias agudas'],
+  [/\btos\b(?! ferina)(?=.*\b(hay|casos|cuantos|brote|anda|pegando|circulando)\b)/g, 'infecciones respiratorias agudas'],
   [/\b(el bicho|coronavirus|covid ?19)\b/g, 'covid'],
   [/\b(diarrea|diarreas|chorrillo|enfermedades? de la panza|se enferma de la panza|dolor de panza|infeccion(es)? (del estomago|estomacal(es)?|de la panza))\b/g, 'infecciones intestinales'],
   [/\b(salmonela|salmonella)\b(?! (paratyphi|typhi|enterica))/g, 'salmonelosis'],
+  [/\binsufiencia\b/g, 'insuficiencia'], [/\bparquinson\b/g, 'parkinson'],
+  [/\b(embolia|embolias|derrame cerebral|infarto cerebral|ataque cerebral)\b/g, 'enfermedad cerebrovascular'],
+  [/\b(paperas)\b/g, 'parotiditis infecciosa'], [/\b(venganza de moctezuma|diarrea del viajero)\b/g, 'infecciones intestinales'],
+  [/\b(gusano barrenador|gusanos en (la )?herida)\b/g, 'miasis'], [/\bulceras? (de|del) estomago\b/g, 'ulceras gastritis y duodenitis'],
+  [/\bcancer (de|en) (la )?matriz\b/g, 'cancer de utero'],
+  [/\baccidentes? de transito con vehiculos? (de|con) motor\b/g, 'accidente de transporte en vehiculos con motor'],
+  [/\b(en|para|durante) (semana santa|navidad|las vacaciones|vacaciones|el puente|fin de ano|ano nuevo)\b/g, ' '], [/\bhipertencion\b/g, 'hipertension'], [/\bneumonia\b/g, 'neumonias'],
+  [/\b(cifras del radar|el radar)\b(?=.*\b(categorias|modelan|modelables|boletin)\b)/g, 'radar del boletin'],
   [/\b(bronquiolitis|virus sincitial( respiratorio)?|vsr)\b/g, 'infecciones respiratorias agudas'],
   [/\b(amibas|amibiasis)\b/g, 'amebiasis'],
   [/^(?!.*\b(peaton|ciclista|motociclista|lesionado|atropell\w*)\b)(.*)\baccidentes? (de transporte|de coche|de carro|automovilisticos?)\b(?! en vehiculos)/, '$2accidente de transporte en vehiculos con motor'],
@@ -347,13 +376,13 @@ export function answerEstadoLlano(q, ent, s, d, { forzar = false } = {}) {
   lineas.push(suben.length ? '**Lo que más se espera que suba:**' : 'Ningún padecimiento con al menos 20 casos muestra un aumento claro ahí.', '');
   lineas.push(...suben.map((y) => `- **${y.x.nombre}**: unos ${ent0(y.e[1])} casos${pct(y)}${y.x.confiabilidad === 'baja' ? ' · _confiabilidad baja_' : ''}.`));
   lineas.push('', '**Los que tendrán más casos:**', '', ...mas.map((y) => `- **${y.x.nombre}**: unos ${ent0(y.e[1])} casos.`));
-  lineas.push('', `Pregúntame por uno en particular («¿cómo va ${mas[0].x.consulta} en ${est}?») o por dengue, depresión, Parkinson o Alzheimer, que se publican aparte. Datos hasta la semana del ${res.corte}; no incluye temas sensibles.`, '<!--SIN_GRAFICA-->');
+  lineas.push('', `Pregúntame por uno en particular («¿cómo va ${mas[0].x.consulta} en ${est}?») o por dengue, depresión, Parkinson o Alzheimer, que se publican aparte. Datos hasta la semana del ${fecha(res.corte)}; no incluye temas sensibles.`, '<!--SIN_GRAFICA-->');
   const sig = [...suben, ...mas].slice(0, 3).map((y) => ({ t: `${y.x.nombre} en ${est}`, q: `¿cómo va ${y.x.consulta} en ${est}?` }));
   return lineas.join('\n') + sigue(sig);
 }
 
 // ── Quejas: disculpa breve y opciones concretas ───────────────────────────────────────────────────────────────────────
-const QUEJA = /\b(no sirves|no sirve|eres inutil|inutil|no entiendes|no me entiendes|no me ayudas|pesimo|malisimo|que mal|eres malo|eres tonto|bot tonto|no funciona|no funcionas|no contestas|no respondes|ya me harte de ti|peor que siri|peor que alexa|no entiendo nada|habla claro|no le entiendo|no se te entiende|no me contestas|no me respondes|contestas mal|respondes mal|responde bien|contesta bien)\b/;
+const QUEJA = /\b(no sirves|no sirve|eres inutil|inutil|no entiendes|no me entiendes|no me ayudas|pesimo|malisimo|que mal|eres malo|eres tonto|bot tonto|no funciona|no funcionas|no contestas|no respondes|ya me harte de ti|peor que siri|peor que alexa|no entiendo nada|habla claro|no le entiendo|no se te entiende|no me contestas|no me respondes|contestas mal|respondes mal|responde bien|contesta bien|me dio datos de otro|datos de otro lado|que clase de bot|no sirve este bot)\b/;
 export function answerQueja(q, ent) {
   if (!QUEJA.test(q) || ent.padecimiento || ent.estado) return null;
   return 'Lamento no haberte ayudado. Dime con tus palabras qué buscas y lo intento de nuevo; por ejemplo, el padecimiento y el ' +
@@ -382,7 +411,7 @@ const FAQ = [
     'Cada padecimiento tiene su página con gráfica interactiva en la [galería de pronósticos](../Reports/index.html), y el [radar del boletín](../boletin.html) permite descargar las cifras en CSV.'],
   [/\b(canal endemico|corredor endemico|umbral epidemico|alerta epidemiologica)\b/,
     'No tengo canal endémico. Para saber si algo está alto, comparo las últimas 4 semanas con las mismas semanas del año anterior y digo si se espera que suba, baje o se mantenga.'],
-  [/\b(control estacional|naive estacional|lag 52|no validado|que significa no validado|control only|control_only)\b/,
+  [/\b(control estacional|naive estacional|lag 52|no validado|que significa no validado|control only|control_only|mismo ano copiado|ano copiado|copian el ano|copia del ano)\b/,
     'Un **control estacional** es el pronóstico más simple: repetir lo que pasó la misma semana del año anterior. A cada padecimiento se le prueban varios modelos; si ninguno lo supera en una prueba con datos que no vio, se publica el control y lo marco con **confiabilidad baja**, porque no es un modelo validado.'],
   [/\b(inteligencia artificial|machine learning|aprendizaje automatico|redes neuronales|usan ia|usas ia|es ia)\b/,
     'Sí: para cada padecimiento se prueban métodos estadísticos y de aprendizaje automático, y se elige el que mejor predijo años que no vio. Si ninguno supera al control estacional (repetir el año anterior), se publica ese control con confiabilidad baja. No uso inteligencia artificial para inventar cifras: todos los números salen de los datos publicados.'],
@@ -396,6 +425,24 @@ const FAQ = [
     () => `**EpiForecast-MX** es un proyecto académico que pronostica cada semana los casos notificados de ${TOTAL_PUBLICADOS()} padecimientos en México, por estado y por sexo, con los datos del Boletín Epidemiológico de la Secretaría de Salud. Cada pronóstico se compara con lo que va llegando y lleva su nivel de confiabilidad. No son cifras oficiales.`],
   [/\b(intervalo|intervalos|rango de error|margen de error|incertidumbre|intervalo de confianza|intervalos de prediccion|al 95|al 80)\b/,
     'No: son **pronósticos puntuales, sin intervalos** de predicción. Por eso cada respuesta dice qué tan confiable es el pronóstico y cuánto se ha desviado en las semanas ya comprobadas.'],
+  [/\bsmape (de|del|en|igual a|=)? ?\d+/,
+    'El **sMAPE** mide el error porcentual promedio entre lo pronosticado y lo observado (0 % sería perfecto). Como guía práctica: menos de 20 % es bueno, de 20 a 50 % es moderado y más de 50 % es alto; en series con muy pocos casos el sMAPE se dispara aunque el error en casos sea pequeño. Por eso en cada respuesta doy la confiabilidad en palabras.'],
+  [/\b(eres (un )?(doctor|medico|maquina|robot|chatgpt|gemini)|es una maquina|es usted doctor|usted es doctor|eres chatgpt)\b/,
+    'Soy **EPI**, un asistente automático: no soy una persona ni un médico. Las cifras salen siempre de los datos publicados del boletín epidemiológico; para preguntas abiertas me apoyo en un modelo de lenguaje (Gemini de Google), pero nunca para inventar números.'],
+  [/\b(quien paga|quien lo paga|lo hizo el imss|es del imss|es del gobierno|4t|marketing|propaganda|lo recomienda la sep|avalado|patrocin\w*)\b/,
+    'EpiForecast-MX es un **proyecto académico** de la Maestría en Inteligencia Artificial Aplicada del Tecnológico de Monterrey, hecho para la salud pública en México. No es un producto del gobierno ni de un partido, y no está avalado por la Secretaría de Salud ni por la SEP. Los datos son los del boletín oficial; los pronósticos son del proyecto.'],
+  [/\b(mis datos|datos personales|que guardan|guardan lo que|vendieron|privacidad|me espian|rastrean)\b/,
+    'No te pido datos personales. Cuando una pregunta necesita el modelo de lenguaje, su texto se envía a Google Gemini para generar la respuesta, así que no escribas nombres, teléfonos ni datos que te identifiquen.'],
+  [/\b(quien se hace responsable|quien es responsable|me equivoco por sus|si me equivoco|responsabilidad)\b/,
+    'Es información estadística orientativa: no es consejo médico ni una cifra oficial. Cada respuesta dice qué tan confiable es el pronóstico; para decisiones de salud o de servicios, contrástalo con tu médico o con la información de tu jurisdicción.'],
+  [/\b(inventan|inventados|inventadas|son reales los|numeros falsos|datos falsos)\b/,
+    'No se inventan: los casos observados son exactamente los que imprime el boletín epidemiológico, estado por estado, y los pronósticos se calculan con la serie de cada estado. En estados con pocos casos te lo digo («hay muy pocos casos») y no hablo de tendencias.'],
+  [/\b(como (validan|prueban|evaluan|saben que sirve)|backtesting|validacion cruzada|como se valida)\b/,
+    'Cada pronóstico se prueba con un año que el modelo **no vio** (2025 en la mayoría) contra el control estacional, que repite el año anterior; si no lo supera, se publica ese control y lo marco con confiabilidad baja. Después, cada semana se compara con lo que llega en el boletín.'],
+  [/\b(pronostico nacional|total nacional|el nacional se calcula|sumando estados|suma de los estados)\b/,
+    'En 148 padecimientos el total nacional es la **suma de los pronósticos por estado y sexo**. En dengue, depresión, Parkinson y Alzheimer el nacional tiene su propio modelo, así que puede no coincidir exactamente con la suma de los estados.'],
+  [/\b(para que sirve esto|de que sirve|para que sirves si|usar sus graficas|usar sus datos|usar la informacion)\b/,
+    'Sirve para ver de un vistazo cómo van los casos de un padecimiento en tu estado, si se espera que suban o bajen y qué tan confiable es esa expectativa, con datos oficiales. Puedes usar las gráficas y cifras citando a EpiForecast-MX y al Boletín Epidemiológico, aclarando que los pronósticos no son cifras oficiales.'],
   [/\b(sirven para planear|para pedir medicamento|para planear|para la planeacion|toma de decisiones|puedo usar estos pronosticos)\b/,
     'Son una referencia orientativa, no oficial: sirven para ver tendencias y comparar con años anteriores, siempre revisando la confiabilidad que acompaña a cada pronóstico. Para decisiones de abasto o de servicios, contrástalos con la información de tu jurisdicción.'],
 ];
@@ -417,6 +464,10 @@ export function answerFAQ(q, ent) {
 
 // ── Fuera de alcance: lugares, horarios, medicamentos, política, deportes, dinero ──────────────────────────────────────
 const FUERA = [
+  [/\b(cita|citas|agendar|sacar ficha|ficha para)\b.*\b(seguro|imss|issste|clinica|doctor|medico|centro de salud)\b|\b(dar|darme|sacar|agendar) (la |una )?cita\b/,
+    'No agendo citas. Para una cita usa la aplicación o el teléfono de tu institución (por ejemplo, IMSS Digital) o acude a tu unidad de salud.'],
+  [/\b(vacunas? (necesito|para viajar|para ir)|agua de la llave|que precauciones|hotel|hoteles|donde hospedarme)\b/,
+    'No doy recomendaciones de viaje, de vacunas ni de hospedaje: consulta a tu médico o a los servicios de salud de tu estado. Sí puedo decirte cómo van los casos de un padecimiento en el estado al que vas.'],
   [/\b(recomiendas un (doctor|medico)|un doctor en|un medico en|buen doctor|buen medico|hospital mas cercano|clinica mas cercana|a que hora abre|horario|donde queda|direccion del|telefono del|centro de salud mas cercano|farmacia)\b/,
     'No tengo un directorio de hospitales ni de centros de salud. En una urgencia llama al **911**; para ubicar tu unidad, consulta la página de tu institución (IMSS, ISSSTE o la Secretaría de Salud de tu estado).'],
   [/\b(paracetamol|ibuprofeno|aspirina|antibiotico|antibioticos|vaporub|remedio|remedios|que medicina|que medicamento|que le doy|que me tomo|dosis|jarabe|te de)\b/,
@@ -437,6 +488,8 @@ export function answerFueraDeAlcance(q, ent) {
 
 // ── Lo que el boletín no reporta como categoría propia ──────────────────────────────────────────────────────────────────
 const NO_REPORTADOS = [
+  [/^(?!.*\b(cancer|tumor)\b).*\b(tiroides|hipotiroidismo|hipertiroidismo)\b/, 'El boletín epidemiológico **no reporta las enfermedades de la tiroides** en general; sólo el **bocio endémico**, que sí tiene pronóstico. Pregúntame «¿cómo va el bocio endémico?» si te interesa.'],
+  [/\b(mano pie (y )?boca|mano, pie y boca|coxsackie)\b/, 'El boletín epidemiológico **no reporta por separado la enfermedad de mano, pie y boca**, así que no tengo datos de casos. Si un niño tiene fiebre que no baja, no quiere tomar líquidos o se ve muy decaído, acude a revisión.'],
   [/\b(piojos|liendres|pediculosis)\b/, 'El boletín epidemiológico **no reporta la pediculosis (piojos)**, así que no tengo datos de casos. Para orientación, consulta a tu médico o a la escuela; no requiere aislamiento ni es una enfermedad de notificación semanal.'],
 ];
 export function answerNoReportado(q) {
@@ -454,4 +507,29 @@ export function answerVago(q, ent) {
     return '¿De qué padecimiento o estado? Por ejemplo: «dengue en Veracruz», «¿qué enfermedades van al alza?» o «diabetes en Nuevo León».\n<!--SIN_GRAFICA-->' + sigue(EJEMPLOS);
   }
   return null;
+}
+
+// ── Semana que todavía no tiene boletín («datos de la semana 45») ───────────────────────────────────────────────────────
+export function answerSemanaFutura(q, ent, s, d) {
+  const m = q.match(/\bsemana (\d{1,2})\b/);
+  const meta = d?.radar_boletin?.meta;
+  if (!m || !meta || ent.padecimiento) return null;
+  const n = Number(m[1]);
+  if (n <= meta.week || n > 53) return null;
+  return `La semana ${n} todavía no tiene boletín publicado. El más reciente llega hasta la **semana ${meta.week} de ${meta.year}** ` +
+    `(${meta.period}) y se publicó el ${meta.publication}; el boletín suele salir con dos o tres semanas de rezago.\n<!--SIN_GRAFICA-->`;
+}
+/** Línea sobre el último boletín (para «¿en qué semana estamos?»), desde la foto del radar. */
+export function lineaUltimoBoletin(d) {
+  const meta = d?.radar_boletin?.meta;
+  return meta ? `El boletín más reciente llega hasta la **semana ${meta.week} de ${meta.year}** (${meta.period}) y se publicó el ${meta.publication}.` : null;
+}
+
+// ── Viajes y escuelas: «¿conviene ir a Acapulco?», «¿hay brotes de algo en Mérida?» → resumen del estado ─────────────────
+const VIAJE = /\b(ir a|viajo|viajar|vamos a|voy a|vacaciones|conviene ir|es seguro ir|hay brotes? de algo|que enfermedades hay|que hay de enfermedades|que anda|algo raro)\b/;
+export function answerViaje(q, ent, s, d) {
+  if (!ent.estado || ent.padecimiento || (ent.padecimientos || []).length || !VIAJE.test(q)) return null;
+  const resumen = answerEstadoLlano(q, ent, s, d, { forzar: true });
+  if (!resumen) return null;
+  return 'No doy recomendaciones de viaje, pero esto es lo que muestran los casos notificados:\n\n' + resumen;
 }

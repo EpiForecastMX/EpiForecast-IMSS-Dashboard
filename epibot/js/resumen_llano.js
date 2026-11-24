@@ -72,6 +72,8 @@ export function indicadores(v, x) {
   const habitual = previas8.length === 8 ? suma(previas8) / 2 : null;
   const atipico = habitual != null && habitual >= 20 && O4 < 0.6 * habitual && (O4py == null || O4 < 0.6 * O4py);
   if (atipico && F4 != null) tendencia = 'atipico';
+  // Muy pocos casos: con menos de 10 en ambas ventanas un cambio porcentual engaña («de 1 a 3 es +200 %»).
+  if (F4 != null && Math.max(O4, F4) < 10) tendencia = 'pocos';
   const pico = fut.length ? fut.reduce((a, b) => (b[1] > a[1] ? b : a)) : null;
   const promedioFut = fut.length ? suma(fut) / fut.length : 0;
   return { ultimo, O4, O4py, F4, ytd, ytdPrevio, anio, tendencia, delta, fut, pico, promedioFut, mapa, habitual };
@@ -82,7 +84,8 @@ export function confiabilidad(v, x, esControl) {
   const o = x.oos || {};
   const comprobado = o.semanas
     ? ` En ${o.semanas === 1 ? 'la semana ya comprobada' : `las ${o.semanas} semanas ya comprobadas`} esperaba ${casos(o.pronostico_total)} y llegaron ${ent0(o.observado_total)}` +
-      (Math.abs(o.sesgo_pct) >= 1 ? ` (${o.sesgo_pct > 0 ? 'se pasó' : 'se quedó corto'} ${pct0(o.sesgo_pct)}).` : ', prácticamente lo mismo.')
+      (o.observado_total < 10 && o.pronostico_total < 10 ? '.'
+        : Math.abs(o.sesgo_pct) >= 1 ? ` (${o.sesgo_pct > 0 ? 'se pasó' : 'se quedó corto'} ${pct0(o.sesgo_pct)}).` : ', prácticamente lo mismo.')
     : '';
   const sinRango = /sin interval/i.test(v.uncertainty_label || '') ? ' Es una cifra única, sin rango de error.' : '';
   if (esControl) {
@@ -94,7 +97,7 @@ export function confiabilidad(v, x, esControl) {
   if (v.verdict === 'FAIL') {
     return { nivel: 'baja', texto: `**Confiabilidad: baja.** No superó la comprobación con datos reales posteriores a su emisión.${comprobado}${sinRango}` };
   }
-  if (o.semanas >= 2 && Math.abs(o.sesgo_pct) > 20) {
+  if (o.semanas >= 2 && Math.abs(o.sesgo_pct) > 20 && Math.max(o.observado_total, o.pronostico_total) >= 10) {
     return {
       nivel: 'baja',
       texto: `**Confiabilidad: baja aquí.** El modelo superó su prueba de aceptación, pero en esta serie se ha desviado.${comprobado}${sinRango}`,
@@ -196,11 +199,12 @@ export function respuestaLlana({ v, x, r, q, esControl, estados, sinSexo, confia
     sube: `${si}se espera que **aumente**: unos ${casos(ind.F4)} en las próximas 4 semanas, ${pct0((d ?? 0) * 100)} más que en las 4 anteriores (${ent0(ind.O4)}).`,
     baja: `${si}se espera que **disminuya**: unos ${casos(ind.F4)} en las próximas 4 semanas, ${pct0((d ?? 0) * 100)} menos que en las 4 anteriores (${ent0(ind.O4)}).`,
     estable: `${si}se espera que **se mantenga estable**: unos ${casos(ind.F4)} en las próximas 4 semanas, frente a ${ent0(ind.O4)} en las 4 anteriores.`,
+    pocos: `hay **muy pocos casos**: ${casos(ind.O4)} en las últimas 4 semanas y unos ${casos(ind.F4)} esperados en las próximas 4; con números tan pequeños no se puede hablar de una tendencia.`,
     atipico: `las últimas 4 semanas vienen **muy por debajo de lo habitual** (${ent0(ind.O4)} casos frente a unos ${ent0(ind.habitual)} en las 4 semanas típicas previas); puede deberse a un retraso o a un cambio en la notificación, así que no afirmo una tendencia. El pronóstico espera unos ${casos(ind.F4)} en las próximas 4 semanas, más cerca de lo habitual.`,
     incierto: `no hay una señal clara de cambio: el pronóstico espera unos ${casos(ind.F4)} en las próximas 4 semanas (${d >= 0 ? '+' : '−'}${pct0((d ?? 0) * 100)} frente a las 4 anteriores), pero en las semanas ya comprobadas se ha ${x.oos.sesgo_pct > 0 ? 'pasado' : 'quedado corto'} por ${pct0(x.oos.sesgo_pct)}, una diferencia de ese mismo tamaño.`,
   }[ind.tendencia];
   let sino = '';
-  if (pidio && !/^\W*por ?que\b/.test(norm(q)) && !['incierto', 'atipico'].includes(ind.tendencia)) sino = ind.tendencia === pidio ? 'Sí. ' : 'No. ';
+  if (pidio && !/^\W*por ?que\b/.test(norm(q)) && !['incierto', 'atipico', 'pocos'].includes(ind.tendencia)) sino = ind.tendencia === pidio ? 'Sí. ' : 'No. ';
   if (x.nivel === 'nacional' && /\bmi (estado|ciudad|municipio|entidad|region|zona)\b/.test(norm(q))) {
     lineas.push('No sé en qué estado estás: dime cuál (por ejemplo, «en Jalisco») y te digo cómo va ahí. Mientras, así va en todo el país:', '');
   }
@@ -221,7 +225,7 @@ export function respuestaLlana({ v, x, r, q, esControl, estados, sinSexo, confia
   lineas.push(`- **Ahora:** ${casos(ind.O4)} en las ${semanaTxt}${vsPrevio}.`);
   const vsYtd = ind.ytdPrevio ? `, ${ind.ytd >= ind.ytdPrevio ? `${pct0((ind.ytd / ind.ytdPrevio - 1) * 100)} más` : `${pct0((1 - ind.ytd / ind.ytdPrevio) * 100)} menos`} que a la misma fecha de ${Number(ind.anio) - 1}` : '';
   lineas.push(`- **En lo que va de ${ind.anio}:** ${casos(ind.ytd)}${vsYtd}.`);
-  if (ind.pico && ind.promedioFut > 0 && ind.pico[1] >= 1.25 * ind.promedioFut && ind.pico[1] >= 3 && ind.pico[0] > isoMenos(ind.fut[Math.min(4, ind.fut.length - 1)][0], 0)) {
+  if (ind.pico && ind.promedioFut > 0 && ind.pico[1] >= 1.25 * ind.promedioFut && ind.pico[1] >= 10 && ind.pico[0] > isoMenos(ind.fut[Math.min(4, ind.fut.length - 1)][0], 0)) {
     lineas.push(`- **Pico esperado en los próximos 12 meses:** la semana del ${fechaLarga(ind.pico[0])}, con unos ${casos(ind.pico[1])}.`);
   }
   if (estados && estados.length) {
@@ -245,9 +249,10 @@ export function confiabilidadLegacy(x, zz) {
   const o = x.oos;
   const comprobado = o.semanas
     ? ` Desde que se emitió, en ${o.semanas === 1 ? 'la semana comprobada' : `las ${o.semanas} semanas comprobadas`} esperaba ${casos(o.pronostico_total)} y llegaron ${ent0(o.observado_total)}` +
-      (Math.abs(o.sesgo_pct) >= 1 ? ` (${o.sesgo_pct > 0 ? 'se pasó' : 'se quedó corto'} ${pct0(o.sesgo_pct)}).` : ', prácticamente lo mismo.')
+      (o.observado_total < 10 && o.pronostico_total < 10 ? '.'
+        : Math.abs(o.sesgo_pct) >= 1 ? ` (${o.sesgo_pct > 0 ? 'se pasó' : 'se quedó corto'} ${pct0(o.sesgo_pct)}).` : ', prácticamente lo mismo.')
     : '';
-  const nivel = o.semanas >= 2 && Math.abs(o.sesgo_pct) > 20 ? 'baja' : 'media';
+  const nivel = o.semanas >= 2 && Math.abs(o.sesgo_pct) > 20 && Math.max(o.observado_total, o.pronostico_total) >= 10 ? 'baja' : 'media';
   const sinRango = zz.intervalo_disponible ? '' : ' Es una cifra única, sin rango de error.';
   return `**Confiabilidad: ${nivel}.** El motor de esta serie se eligió por su error con datos que no vio (semanas 28 a 37 de 2026).${comprobado}${sinRango}`;
 }

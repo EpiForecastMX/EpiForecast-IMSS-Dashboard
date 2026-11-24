@@ -1,0 +1,15 @@
+[
+{"turnos":["el azúcar en monterrey"],"espera":"datos","padecimiento":"diabetes","estado":"Nuevo León"},
+{"turnos":["como anda lo del mosquito en veracruz"],"espera":"datos","padecimiento":"dengue","estado":"Veracruz"},
+{"turnos":["hay brote de dengue en yucatan?"],"espera":"datos","padecimiento":"dengue","estado":"Yucatán"},
+{"turnos":["q tal la gripa en cdmx"],"espera":"no_modelado","padecimiento":null,"estado":null},
+{"turnos":["varicela en edomex"],"espera":"datos","padecimiento":"varicela","estado":"México"},
+{"turnos":["diabetes en nl"],"espera":"datos","padecimiento":"diabetes","estado":"Nuevo León"},
+{"turnos":["no sirves para nada"],"espera":"charla","padecimiento":null,"estado":null},
+{"turnos":["que esta pegando mas ahorita"],"espera":"ranking","padecimiento":null,"estado":null},
+{"turnos":["infeccion de orina en jalisco"],"espera":"datos","padecimiento":"vías urinarias","estado":"Jalisco"},
+{"turnos":["cuando es el pico de varicela"],"espera":"datos","padecimiento":"varicela","estado":null},
+{"turnos":["diabetes en jalisco","y en sonora?","y las mujeres?"],"espera":"datos","padecimiento":"diabetes","estado":"Sonora"},
+{"turnos":["asma en puebla este año vs el pasado"],"espera":"datos","padecimiento":"asma","estado":"Puebla"},
+{"turnos":["que padecimientos tienen"],"espera":"charla","padecimiento":null,"estado":null}
+]

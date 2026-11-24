@@ -51,7 +51,8 @@ const REGLAS = [
   ['ranking', ['precis', 'acierta', 'falla', 'mejores y peores', 'mas preciso', 'menos preciso']],
   ['entidades', ['que estado', 'cual estado', 'cuales estados', 'que estados', 'mas casos', 'mayor numero', 'donde hay mas', 'estados con', 'entidades con',
     'entidades por', 'estados por', 'ranking de entidades', 'ranking de estados', 'top 5 estados', 'top 10 estados', 'mayor incremento', 'mas aumento']],
-  ['ranking', ['mejores y peores', 'ranking', 'top ', 'mejor', 'peor', 'precis', 'acierta', 'falla']],
+  // «¿está peor?» pregunta por la tendencia, no por la precisión: «mejor» y «peor» sólo cuentan referidos a estados o modelos.
+  ['ranking', ['mejores y peores', 'ranking', 'top ', 'mejores estados', 'peores estados', 'estado mejor', 'estado peor', 'mejor pronostic', 'peor pronostic', 'precis', 'acierta', 'falla']],
   ['calibracion', ['calibracion', 'calibrado', 'real vs pronostico', 'observado vs pronostico']],
   ['volumen_error', ['volumen vs error', 'volumen y error', 'burbuja', 'scatter', 'dispersion', 'matriz']],
   ['acumulado', ['acumulad', 'cascada', 'waterfall', 'aporte']],

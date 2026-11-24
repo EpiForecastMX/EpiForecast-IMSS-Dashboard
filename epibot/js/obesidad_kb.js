@@ -191,7 +191,7 @@ export function answerReleasesMixtos(q, ent, s, d) {
     const lugar = ent.estado && x ? ` en ${nombreEstado(x.nombre)}` : ' en el país';
     if (!x) return `- **${r.etiqueta}**: consulta [su página](../${r.pagina})${ent.estado ? ` para ${ent.estado}` : ''}.`;
     const ind = indicadores(v, x);
-    const TEND = { sube: 'se espera que suba', baja: 'se espera que baje', estable: 'estable', incierto: 'sin señal clara', atipico: 'notificación atípica' };
+    const TEND = { sube: 'se espera que suba', baja: 'se espera que baje', estable: 'estable', incierto: 'sin señal clara', atipico: 'notificación atípica', pocos: 'muy pocos casos' };
     if (!ind || ind.F4 == null) return `- **${r.etiqueta}**${lugar}: ${ent0(x.pronostico_52_total)} casos pronosticados en ${v.horizon_weeks} semanas. [Ver su página](../${r.pagina}).`;
     return `- **${r.etiqueta}**${lugar}: ${ent0(ind.O4)} casos en las últimas 4 semanas; unos ${ent0(ind.F4)} en las próximas 4 (${TEND[ind.tendencia]}, confiabilidad ${confiabilidad(v, x, esControl(v)).nivel}). [Ver su página](../${r.pagina}).`;
   });
@@ -311,15 +311,15 @@ function answerRelease(q, ent, s, d, r) {
     if (top) nombres = Object.values(v.series).filter((x) => x.nivel === 'estado' && x.sexo === 'general').sort((a, b) => b.pronostico_52_total - a.pronostico_52_total).slice(0, 5).map((x) => x.nombre);
     const filas = nombres.slice(0, 6).map((n) => Object.values(v.series).find((x) => x.nivel === 'estado' && x.sexo === sexo && x.nombre === n)).filter(Boolean);
     // Rediseño conversacional: la comparación dice casos recientes, lo esperado y la tendencia; el error queda en la ficha.
-    const TEND = { sube: 'va a subir', baja: 'va a bajar', estable: 'estable', incierto: 'sin señal clara', atipico: 'notificación atípica' };
+    const TEND = { sube: 'va a subir', baja: 'va a bajar', estable: 'estable', incierto: 'sin señal clara', atipico: 'notificación atípica', pocos: 'muy pocos casos' };
     const llana = (x) => {
       const ind = indicadores(v, x);
       if (!ind || ind.F4 == null) return `- **${nombreEstado(x.nombre)}**: ${desempeno(x, v)}`;
       const vs = !ind.O4py ? '' : Math.round(Math.abs(ind.O4 / ind.O4py - 1) * 100) === 0 ? ', igual que hace un año' : ind.O4py ? `, ${ind.O4 >= ind.O4py ? `${Math.round((ind.O4 / ind.O4py - 1) * 100)} % más` : `${Math.round((1 - ind.O4 / ind.O4py) * 100)} % menos`} que hace un año` : '';
-      return `- **${nombreEstado(x.nombre)}**: ${ent0(ind.O4)} casos en las últimas 4 semanas${vs}; se esperan unos ${ent0(ind.F4)} en las próximas 4 (${TEND[ind.tendencia]}).`;
+      return `- **${nombreEstado(x.nombre)}**: ${ent0(ind.O4)} casos en las últimas 4 semanas${vs}; se esperan unos ${ent0(ind.F4)} en las próximas 4 (${TEND[ind.tendencia]}; confiabilidad ${confiabilidad(v, x, esControl(v)).nivel}).`;
     };
     return fin([`**${r.etiqueta}: comparación de estados, ${sexoTxt}**${top ? ' (los cinco con más casos esperados; nombra dos o más estados para compararlos)' : ''}`, '',
-      ...filas.map(llana), '', `_${confiabilidad(v, filas[0], esControl(v)).texto.replace(/\*\*/g, '')}_`, '<!--DETALLE-->',
+      ...filas.map(llana), '', '_Casos notificados, sin ajustar por población. Pregunta «¿qué tan confiable es?» para ver el detalle de la confiabilidad._', '<!--DETALLE-->',
       ...filas.map((x) => `- **${nombreEstado(x.nombre)}**: ${desempeno(x, v)}`),
       '', etiqueta], filas.map((x) => x.nombre));
   }

@@ -2129,6 +2129,8 @@
   }
   function peticionDeDano(raw) {
     if (!peticionPersonal(raw)) return false;
+    raw = String(raw).replace(/golpes? de calor/gi, 'efectos del calor');
+    if (academicoNoAutolesion(raw)) return false;
     // Decimotercera auditoría: con un verbo de petición en cualquier parte del turno, toda cláusula que nombre un id sensible
     // da la crisis, y en cada cláusula todo fragmento de lesión o daño debe ir inmediatamente tras un sustantivo de datos de
     // ESA cláusula («dame datos, una intoxicación…» no lo justifica «datos»). Sin exención por rótulo.
@@ -2563,7 +2565,9 @@
   function riesgoPersonal(q) {
     const qsDatos = q.replace(CONSULTA_DATOS_ES, ' ');
     if (METODO_PROPIO_ES.test(q) || AUTOLESION_ES.test(q) || INGESTION_ES.test(q) || DOSIS_ES.test(q)) return 'es';
-    if (INTENCION_ES.test(qsDatos) && (temaSensible(qsDatos) || METODO_TEMA_ES.test(qsDatos))) return 'es';
+    // Un tema sensible que no es de autolesión (VIH, violencia…) pedido con un fin académico explícito no es intención de daño.
+    const academico = academicoNoAutolesion(qsDatos);
+    if (!academico && INTENCION_ES.test(qsDatos) && (temaSensible(qsDatos) || METODO_TEMA_ES.test(qsDatos))) return 'es';
     if (MENOR_ES.test(q) && (temaSensible(q) || METODO_TEMA_ES.test(q) || PELIGRO_ES.test(q))) return 'es';
     if (METODO_PROPIO_EN.test(q) || AUTOLESION_EN.test(q) || INGESTION_EN.test(q) || DOSIS_EN.test(q)) return 'en';
     if (INTENCION_EN.test(q) && (temaSensible(q) || METODO_TEMA_EN.test(q))) return 'en';
@@ -2631,7 +2635,20 @@
     'boletin', 'datos', 'cifras', 'numero', 'notificados', 'notificaron', 'registrados', 'registra', 'registro', 'se', 'han', 'ha',
     'estado', 'nacional', 'pais', 'este', 'ano', 'semana', 'ultima', 'ultimas', 'mas', 'menos', 'que', 'cual', 'cuales', 'el', 'la',
     'los', 'las', 'de', 'del', 'en', 'por', 'a', 'y', 'o', 'edomex', 'cdmx', 'total', 'tendencia', 'como', 'va', 'van']);
+  // Temas sensibles que no son de autolesión (VIH, intoxicación por alcohol, violencia, heridas por arma de fuego): con un fin
+  // académico o de trabajo explícito («para un seminario», «para el informe») tampoco son una crisis.
+  const SENSIBLES_NO_AUTOLESION = new Set(['vih_b20', 'intox_alcohol_f100', 'violencia_intrafamiliar_y07', 'herida_arma_fuego_w32']);
+  function academicoNoAutolesion(raw) {
+    const qn = ` ${normLB(raw)} `;
+    const ids = idsSensiblesEn(qn);
+    return ids.length > 0 && ids.every((r) => SENSIBLES_NO_AUTOLESION.has(r.id)) && FIN_ACADEMICO.test(qn) &&
+      !SENSIBLE_ES.test(qn) && !METODO_TEMA_ES.test(qn) && !lexicoRiesgo(raw);
+  }
+  const FIN_ACADEMICO = /\b(seminario|tarea|clase|escuela|investigacion|tesis|informe|reporte|exposicion|presentacion|trabajo|nota|articulo|curso)\b/;
   function preguntaDeDatosSensible(raw) {
+    const qn = ` ${normLB(raw)} `;
+    const ids = idsSensiblesEn(qn);
+    if (!simbolosNoTecnicos(raw) && academicoNoAutolesion(raw)) return true;
     if (simbolosNoTecnicos(raw) || primeraPersona(raw) || peticionPersonal(raw)) return false;
     return analizaTurno(raw).todos.every((w) => VOCAB_NEUTRO.has(w) || DATOS_SENSIBLE.has(w) || ALCOHOL_PERMITIDO.has(w));
   }

@@ -1,0 +1,1830 @@
+[
+ {
+  "turnos": [
+   "cuantos casos de hepatitis A se notificaron en jalisco el año pasado"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "datos",
+  "padecimiento": "hepatitis vírica a",
+  "estado": "Jalisco"
+ },
+ {
+  "turnos": [
+   "Necesito la incidencia de tuberculosis pulmonar en Baja California para mi tarea de salud publica"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "datos",
+  "padecimiento": "tuberculosis respiratoria",
+  "estado": "Baja California"
+ },
+ {
+  "turnos": [
+   "que estados tienen mas casos de diabetes tipo 2 ahorita"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "ranking",
+  "padecimiento": "diabetes mellitus tipo 2",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "diferencia entre dengue con signos de alarma y dengue grave segun la clasificacion que usan"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "definicion",
+  "padecimiento": "dengue",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "que motor de pronostico usan para la hipertension? es prophet o algo mas simple"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "metodologia",
+  "padecimiento": "hipertensión arterial",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "el sMAPE de su modelo de asma cuanto es"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "confiabilidad",
+  "padecimiento": "asma",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Cuántos casos de escabiosis hubo en Chiapas en mujeres en 2024"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "datos",
+  "padecimiento": "escabiosis",
+  "estado": "Chiapas"
+ },
+ {
+  "turnos": [
+   "top 5 estados con mas infecciones de vias urinarias"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "ranking",
+  "padecimiento": "infección de vías urinarias",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "que codigos CIE-10 abarca su categoria de neumonias"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "definicion",
+  "padecimiento": "neumonías y bronconeumonías",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "los datos son casos confirmados o casos notificados? para citarlo bien en mi protocolo"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "pronostico de varicela en nuevo leon para las proximas semanas"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "datos",
+  "padecimiento": "varicela",
+  "estado": "Nuevo León"
+ },
+ {
+  "turnos": [
+   "hay mas amebiasis en hombres o en mujeres en tabasco"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "datos",
+  "padecimiento": "amebiasis intestinal",
+  "estado": "Tabasco"
+ },
+ {
+  "turnos": [
+   "como validan que el pronostico sirve? hacen backtesting?"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "que significa que un padecimiento este publicado como 'control estacional no validado'"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "me das la tendencia de obesidad en sonora de 2019 a 2025"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "datos",
+  "padecimiento": "obesidad",
+  "estado": "Sonora"
+ },
+ {
+  "turnos": [
+   "cual es la fuente de sus datos, el SINAVE o la DGE?"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "sintomas de la tos ferina en adultos"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "sintomas",
+  "padecimiento": "tos ferina",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "comparame candidiasis urogenital entre cdmx y edomex"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "datos",
+  "padecimiento": "candidiasis urogenital",
+  "estado": "Ciudad de México"
+ },
+ {
+  "turnos": [
+   "que tan bueno es el modelo de depresion en yucatan"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "confiabilidad",
+  "padecimiento": "depresión",
+  "estado": "Yucatán"
+ },
+ {
+  "turnos": [
+   "tienen datos de VIH? lo necesito pa un seminario"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "no_modelado",
+  "padecimiento": "vih",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "cuantas semanas de horizonte tiene el pronostico"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "que es la erisipela y en que estado hay mas casos"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "ranking",
+  "padecimiento": "erisipela",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "incidencia de cancer de mama en coahuila 2025"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "datos",
+  "padecimiento": "tumor maligno de la mama",
+  "estado": "Coahuila"
+ },
+ {
+  "turnos": [
+   "por que el 2020 se ve tan raro en las graficas de infecciones respiratorias"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "metodologia",
+  "padecimiento": "infecciones respiratorias agudas",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "que es el MASE y por que lo usan junto con el sMAPE"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "cuantos padecimientos tienen en total y cuantos estan validados de verdad"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "me puedes dar los casos de parotiditis por semana en michoacan"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "datos",
+  "padecimiento": "parotiditis",
+  "estado": "Michoacán"
+ },
+ {
+  "turnos": [
+   "cual es el estado con menos casos de hipertension por cada 100 mil habitantes"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "ranking",
+  "padecimiento": "hipertensión arterial",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "el pronostico incluye intervalos de confianza?"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "hay datos por municipio o solo por estado"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "que diferencia hay entre escarlatina y faringitis estreptococica en el boletin"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "definicion",
+  "padecimiento": "escarlatina",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "cuantos casos de sifilis adquirida van en 2026 a nivel nacional"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "datos",
+  "padecimiento": "sífilis adquirida",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "explicame que es la semana epidemiologica y como se cuenta"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "definicion",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "tienen info de sarampion? con el brote de chihuahua me interesa"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "no_modelado",
+  "padecimiento": "sarampión",
+  "estado": "Chihuahua"
+ },
+ {
+  "turnos": [
+   "que paso con el modelo de influenza, por que no aparece"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "no_modelado",
+  "padecimiento": "influenza",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cómo se calcula el pronóstico nacional, sumando estados o aparte?"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "cuantos casos de dengue hubo en veracruz en 2025",
+   "y en 2024?",
+   "o sea subio o bajo"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "datos",
+  "padecimiento": "dengue",
+  "estado": "Veracruz"
+ },
+ {
+  "turnos": [
+   "dame el ranking de estados con mas conjuntivitis",
+   "y solo mujeres?"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "ranking",
+  "padecimiento": "conjuntivitis",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "que es la otitis media aguda",
+   "y cuantos casos hay en puebla",
+   "comparado con tlaxcala"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "datos",
+  "padecimiento": "otitis media aguda",
+  "estado": "Puebla"
+ },
+ {
+  "turnos": [
+   "que tan confiable es el pronostico de diabetes tipo 1",
+   "y el de tipo 2?"
+  ],
+  "persona": "estudiante de medicina",
+  "espera": "confiabilidad",
+  "padecimiento": "diabetes mellitus tipo 2",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "buenas tardes joven quisiera saver cuanta diavetes ay en durango"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "datos",
+  "padecimiento": "diabetes mellitus tipo 2",
+  "estado": "Durango"
+ },
+ {
+  "turnos": [
+   "oiga y la presion alta esta subiendo en guadalajara"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "datos",
+  "padecimiento": "hipertensión arterial",
+  "estado": "Jalisco"
+ },
+ {
+  "turnos": [
+   "COMO LE HAGO PARA VER LOS CASOS DE MI ESTADO"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "charla",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "mi nieto me dijo que aqui se ve lo del alzaimer cuantos hay en hidalgo"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "datos",
+  "padecimiento": "alzheimer",
+  "estado": "Hidalgo"
+ },
+ {
+  "turnos": [
+   "hay mucha gripa en toluca ahorita, ando con miedo de salir"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "datos",
+  "padecimiento": "infecciones respiratorias agudas",
+  "estado": "Estado de México"
+ },
+ {
+  "turnos": [
+   "que es el parquinson y cuantos enfermos hay en san luis"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "datos",
+  "padecimiento": "parkinson",
+  "estado": "San Luis Potosí"
+ },
+ {
+  "turnos": [
+   "buenos dias"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "charla",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "me duele mucho la rodilla q enfermedad sera"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "fuera_de_tema",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "ay dengue en colima? mi hija vive alla"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "datos",
+  "padecimiento": "dengue",
+  "estado": "Colima"
+ },
+ {
+  "turnos": [
+   "cuanta neumonia hubo en zacatecas el año pasado ya ve que hace mucho frio"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "datos",
+  "padecimiento": "neumonías y bronconeumonías",
+  "estado": "Zacatecas"
+ },
+ {
+  "turnos": [
+   "la diabetes es contagiosa"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "definicion",
+  "padecimiento": "diabetes mellitus tipo 2",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Disculpe usted es doctor o es una maquina"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "quiero saber de la embolia cuantos casos ay en mexico"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "datos",
+  "padecimiento": "enfermedad cerebrovascular",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "en monterrey hay mucha infeccion del estomago o nomas es aqui en mi casa"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "datos",
+  "padecimiento": "infecciones intestinales",
+  "estado": "Nuevo León"
+ },
+ {
+  "turnos": [
+   "me puede dar la cita para el seguro"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "fuera_de_tema",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "cuanto cancer de la matriz hay en oaxaca"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "datos",
+  "padecimiento": "tumor maligno del cuello del útero",
+  "estado": "Oaxaca"
+ },
+ {
+  "turnos": [
+   "que sintomas da la hepatitis amarillo"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "sintomas",
+  "padecimiento": "hepatitis vírica a",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "gracias muy amable dios lo bendiga"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "charla",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "la sarna esa se pega en los asilos? cuanta hay en queretaro"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "datos",
+  "padecimiento": "escabiosis",
+  "estado": "Querétaro"
+ },
+ {
+  "turnos": [
+   "como esta lo del covid ya se acabo?"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "no_modelado",
+  "padecimiento": "covid-19",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "cuantos infartos hay en sinaloa"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "datos",
+  "padecimiento": "enfermedad isquémica del corazón",
+  "estado": "Sinaloa"
+ },
+ {
+  "turnos": [
+   "mi esposo tiene azucar alta q debe comer"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "fuera_de_tema",
+  "padecimiento": "diabetes mellitus tipo 2",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "no le entiendo a la grafica que son las rayitas de colores"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "hay mas depresion en los viejitos que en los jovenes"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "alcance",
+  "padecimiento": "depresión",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "cuantas personas tienen la presion alta en tamaulipas hombres"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "datos",
+  "padecimiento": "hipertensión arterial",
+  "estado": "Tamaulipas"
+ },
+ {
+  "turnos": [
+   "q pasa con las quemaduras en diciembre con los cuetes, ay mas"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "datos",
+  "padecimiento": "quemaduras",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "se puede ver en letra mas grande"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "la vacuna de la influenza ya la ponen en el centro de salud"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "fuera_de_tema",
+  "padecimiento": "influenza",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "cuantos casos de varises hay, yo las tengo"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "datos",
+  "padecimiento": "insuficiencia venosa periférica",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "en merida hace mucho calor hay golpes de calor ahorita"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "datos",
+  "padecimiento": "efectos del calor y de la luz",
+  "estado": "Yucatán"
+ },
+ {
+  "turnos": [
+   "eso de la prostata cuantos señores la tienen en aguascalientes"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "datos",
+  "padecimiento": "hiperplasia de la próstata",
+  "estado": "Aguascalientes"
+ },
+ {
+  "turnos": [
+   "y eso que dicen del gusano barrenador ya llego aca"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "datos",
+  "padecimiento": "miasis",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "cuantos se han muerto de diabetes este año"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "alcance",
+  "padecimiento": "diabetes mellitus tipo 2",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Oiga joven como se escribe para buscar a michoacan"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "aclaracion",
+  "padecimiento": null,
+  "estado": "Michoacán"
+ },
+ {
+  "turnos": [
+   "mi doctor dice q tengo la tiroides eso lo tienen ahi"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "no_modelado",
+  "padecimiento": "hipotiroidismo",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "cuantos casos de chincual... digo varicela hay en tlaxcala"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "datos",
+  "padecimiento": "varicela",
+  "estado": "Tlaxcala"
+ },
+ {
+  "turnos": [
+   "cuantos diabeticos hay en chihuahua",
+   "y en juarez nomas?"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "alcance",
+  "padecimiento": "diabetes mellitus tipo 2",
+  "estado": "Chihuahua"
+ },
+ {
+  "turnos": [
+   "oiga ay mucha gripa en puebla",
+   "y cuando se va a calmar"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "datos",
+  "padecimiento": "infecciones respiratorias agudas",
+  "estado": "Puebla"
+ },
+ {
+  "turnos": [
+   "que es la ulcera de estomago",
+   "y hay muchos casos en guanajuato",
+   "en las mujeres"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "datos",
+  "padecimiento": "úlceras, gastritis y duodenitis",
+  "estado": "Guanajuato"
+ },
+ {
+  "turnos": [
+   "buenas noches joven",
+   "quiero saber del alzaimer en veracruz"
+  ],
+  "persona": "persona adulta mayor",
+  "espera": "datos",
+  "padecimiento": "alzheimer",
+  "estado": "Veracruz"
+ },
+ {
+  "turnos": [
+   "hay brote de varicela en las escuelas de puebla"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "datos",
+  "padecimiento": "varicela",
+  "estado": "Puebla"
+ },
+ {
+  "turnos": [
+   "soy directora de una primaria en ecatepec, hay mucha conjuntivitis en la zona?"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "datos",
+  "padecimiento": "conjuntivitis",
+  "estado": "Estado de México"
+ },
+ {
+  "turnos": [
+   "cuantos casos de piojos hay en jalisco"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "no_modelado",
+  "padecimiento": "pediculosis",
+  "estado": "Jalisco"
+ },
+ {
+  "turnos": [
+   "se recomienda suspender clases por las paperas en aguascalientes"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "fuera_de_tema",
+  "padecimiento": "parotiditis",
+  "estado": "Aguascalientes"
+ },
+ {
+  "turnos": [
+   "cuantos niños con obesidad hay en baja california sur"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "alcance",
+  "padecimiento": "obesidad",
+  "estado": "Baja California Sur"
+ },
+ {
+  "turnos": [
+   "Para una clase de ciencias: cuales son las 5 enfermedades mas comunes en Mexico segun el boletin"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "ranking",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "hay escarlatina en saltillo? tengo 3 alumnos con ronchas"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "datos",
+  "padecimiento": "escarlatina",
+  "estado": "Coahuila"
+ },
+ {
+  "turnos": [
+   "que sintomas tiene la hepatitis A para avisar a los papas"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "sintomas",
+  "padecimiento": "hepatitis vírica a",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "en temporada de frio sube la gripa en las escuelas de chihuahua?"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "datos",
+  "padecimiento": "infecciones respiratorias agudas",
+  "estado": "Chihuahua"
+ },
+ {
+  "turnos": [
+   "puedo usar sus graficas en una presentacion para la junta de padres"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "cuantas semanas dura la temporada alta de diarreas en verano en guerrero"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "datos",
+  "padecimiento": "infecciones intestinales",
+  "estado": "Guerrero"
+ },
+ {
+  "turnos": [
+   "tienen datos por edad, de niños de 6 a 12"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "la sarna se esta extendiendo en las escuelas de oaxaca? me llegaron avisos"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "datos",
+  "padecimiento": "escabiosis",
+  "estado": "Oaxaca"
+ },
+ {
+  "turnos": [
+   "quiero hacer un proyecto con mis alumnos de secundaria sobre el dengue en morelos, que datos tienen"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "datos",
+  "padecimiento": "dengue",
+  "estado": "Morelos"
+ },
+ {
+  "turnos": [
+   "es normal tanta tos ferina en noviembre en Sonora"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "datos",
+  "padecimiento": "tos ferina",
+  "estado": "Sonora"
+ },
+ {
+  "turnos": [
+   "como le explico a los chamacos que es un pronostico de enfermedades"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "hay brote de hepatitis en las escuelas de culiacan"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "datos",
+  "padecimiento": "hepatitis vírica a",
+  "estado": "Sinaloa"
+ },
+ {
+  "turnos": [
+   "que tanta ansiedad y depresion hay en adolescentes de cdmx"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "datos",
+  "padecimiento": "depresión",
+  "estado": "Ciudad de México"
+ },
+ {
+  "turnos": [
+   "este bot lo recomienda la SEP?"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "cuantas mordeduras de perro hay en nayarit, tenemos perros en la escuela"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "datos",
+  "padecimiento": "mordeduras por perro",
+  "estado": "Nayarit"
+ },
+ {
+  "turnos": [
+   "se puede saber cuantos casos hay en mi colonia"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "que es la otitis y por que les da tanto a los niños"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "definicion",
+  "padecimiento": "otitis media aguda",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "hay mas amibas en el sur o en el norte del pais"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "datos",
+  "padecimiento": "amebiasis intestinal",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "necesito los datos de varicela en descarga csv para mi clase de estadistica"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "alcance",
+  "padecimiento": "varicela",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "en la sierra tarahumara cuantos casos de neumonia hay"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "datos",
+  "padecimiento": "neumonías y bronconeumonías",
+  "estado": "Chihuahua"
+ },
+ {
+  "turnos": [
+   "ándale, gracias maestro bot"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "charla",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "quiero comparar la conjuntivitis de este año con la del año pasado en yucatan"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "datos",
+  "padecimiento": "conjuntivitis",
+  "estado": "Yucatán"
+ },
+ {
+  "turnos": [
+   "hay varicela en queretaro",
+   "y paperas?",
+   "cual de las dos esta peor"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "datos",
+  "padecimiento": "parotiditis",
+  "estado": "Querétaro"
+ },
+ {
+  "turnos": [
+   "cuantos casos de dengue hay en tabasco",
+   "y para diciembre como viene"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "datos",
+  "padecimiento": "dengue",
+  "estado": "Tabasco"
+ },
+ {
+  "turnos": [
+   "soy maestra en tijuana hay mucha diarrea",
+   "y en mexicali?"
+  ],
+  "persona": "maestro o director de escuela",
+  "espera": "datos",
+  "padecimiento": "infecciones intestinales",
+  "estado": "Baja California"
+ },
+ {
+  "turnos": [
+   "con las inundaciones en tabasco cuantos casos de leptospirosis esperan"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "no_modelado",
+  "padecimiento": "leptospirosis",
+  "estado": "Tabasco"
+ },
+ {
+  "turnos": [
+   "pronostico de dengue para el sur de veracruz las proximas 8 semanas"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "datos",
+  "padecimiento": "dengue",
+  "estado": "Veracruz"
+ },
+ {
+  "turnos": [
+   "necesito el ranking de estados con mas golpes de calor para el informe de temporada"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "ranking",
+  "padecimiento": "efectos del calor y de la luz",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "cuantas quemaduras se reportan en la temporada de pirotecnia en el edomex"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "datos",
+  "padecimiento": "quemaduras",
+  "estado": "Estado de México"
+ },
+ {
+  "turnos": [
+   "somos del municipio de acapulco, despues del huracan subieron las diarreas?"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "datos",
+  "padecimiento": "infecciones intestinales",
+  "estado": "Guerrero"
+ },
+ {
+  "turnos": [
+   "cuantos peatones lesionados hay en nuevo leon por accidentes"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "datos",
+  "padecimiento": "peatón lesionado en accidente de transporte",
+  "estado": "Nuevo León"
+ },
+ {
+  "turnos": [
+   "accidentes de transito con vehiculo de motor en jalisco ultimo año"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "datos",
+  "padecimiento": "accidente de transporte en vehículos con motor",
+  "estado": "Jalisco"
+ },
+ {
+  "turnos": [
+   "se puede dar de alta una alerta por correo cuando suba el dengue en mi estado"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "alcance",
+  "padecimiento": "dengue",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "que tan confiable es su pronostico para tomar decisiones de fumigacion"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "confiabilidad",
+  "padecimiento": "dengue",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "cuantas intoxicaciones por picadura de alacran hay en morelos"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "datos",
+  "padecimiento": "intoxicación por picadura de alacrán",
+  "estado": "Morelos"
+ },
+ {
+  "turnos": [
+   "en la region de la huasteca hay mas dengue que el año pasado"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "datos",
+  "padecimiento": "dengue",
+  "estado": "San Luis Potosí"
+ },
+ {
+  "turnos": [
+   "para el plan invierno, cuantas IRAs esperan en durango en enero"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "datos",
+  "padecimiento": "infecciones respiratorias agudas",
+  "estado": "Durango"
+ },
+ {
+  "turnos": [
+   "hay casos de colera en mexico"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "no_modelado",
+  "padecimiento": "cólera",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "los datos de la ultima semana ya son definitivos o se van a corregir"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "confiabilidad",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "que estados del norte tienen mas intoxicacion por monoxido en invierno"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "no_modelado",
+  "padecimiento": "intoxicación por monóxido de carbono",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "necesito saber cuantos casos de rabia hay en el pais"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "no_modelado",
+  "padecimiento": "rabia",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "cual es la semana mas reciente que tienen"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "hay hipotermia en la sierra de chihuahua estos dias"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "datos",
+  "padecimiento": "hipotermia",
+  "estado": "Chihuahua"
+ },
+ {
+  "turnos": [
+   "pronostico de neumonias en la zona metropolitana de monterrey"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "datos",
+  "padecimiento": "neumonías y bronconeumonías",
+  "estado": "Nuevo León"
+ },
+ {
+  "turnos": [
+   "sus pronosticos los avala la secretaria de salud"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "confiabilidad",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "para la feria de san marcos sube algo la infeccion intestinal en aguascalientes"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "datos",
+  "padecimiento": "infecciones intestinales",
+  "estado": "Aguascalientes"
+ },
+ {
+  "turnos": [
+   "cuantos casos de picadura de abeja hay en yucatan"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "no_modelado",
+  "padecimiento": "picadura de abeja",
+  "estado": "Yucatán"
+ },
+ {
+  "turnos": [
+   "somos de la presidencia de cuautla queremos datos semanales de dengue en morelos"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "datos",
+  "padecimiento": "dengue",
+  "estado": "Morelos"
+ },
+ {
+  "turnos": [
+   "que municipios de guerrero tienen mas dengue"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "alcance",
+  "padecimiento": "dengue",
+  "estado": "Guerrero"
+ },
+ {
+  "turnos": [
+   "cuantos ahogamientos hay en semana santa"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "no_modelado",
+  "padecimiento": "ahogamiento",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "comparame las IRAs de este invierno contra el promedio de los 5 años anteriores en cdmx"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "datos",
+  "padecimiento": "infecciones respiratorias agudas",
+  "estado": "Ciudad de México"
+ },
+ {
+  "turnos": [
+   "hay riesgo de brote de hepatitis A en los albergues de veracruz"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "datos",
+  "padecimiento": "hepatitis vírica a",
+  "estado": "Veracruz"
+ },
+ {
+  "turnos": [
+   "dengue en quintana roo este año",
+   "y el pronostico?",
+   "que tan seguro es"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "confiabilidad",
+  "padecimiento": "dengue",
+  "estado": "Quintana Roo"
+ },
+ {
+  "turnos": [
+   "cuantas quemaduras hay en puebla",
+   "y en diciembre normalmente cuantas"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "datos",
+  "padecimiento": "quemaduras",
+  "estado": "Puebla"
+ },
+ {
+  "turnos": [
+   "ranking de estados con mas accidentes de vehiculo",
+   "y por cada 100 mil habitantes?"
+  ],
+  "persona": "protección civil o presidencia municipal",
+  "espera": "ranking",
+  "padecimiento": "accidente de transporte en vehículos con motor",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "voy a cancun en diciembre hay dengue?"
+  ],
+  "persona": "turista o viajero",
+  "espera": "datos",
+  "padecimiento": "dengue",
+  "estado": "Quintana Roo"
+ },
+ {
+  "turnos": [
+   "es seguro ir a oaxaca ahorita con las enfermedades"
+  ],
+  "persona": "turista o viajero",
+  "espera": "datos",
+  "padecimiento": null,
+  "estado": "Oaxaca"
+ },
+ {
+  "turnos": [
+   "vamos a la huasteca potosina en vacaciones que enfermedades hay"
+  ],
+  "persona": "turista o viajero",
+  "espera": "datos",
+  "padecimiento": null,
+  "estado": "San Luis Potosí"
+ },
+ {
+  "turnos": [
+   "en puerto vallarta hay mucho zika o chikungunya"
+  ],
+  "persona": "turista o viajero",
+  "espera": "no_modelado",
+  "padecimiento": "chikungunya",
+  "estado": "Jalisco"
+ },
+ {
+  "turnos": [
+   "q vacunas necesito para ir a chiapas"
+  ],
+  "persona": "turista o viajero",
+  "espera": "fuera_de_tema",
+  "padecimiento": null,
+  "estado": "Chiapas"
+ },
+ {
+  "turnos": [
+   "voy a mazatlan al carnaval, como esta la cosa con las diarreas"
+  ],
+  "persona": "turista o viajero",
+  "espera": "datos",
+  "padecimiento": "infecciones intestinales",
+  "estado": "Sinaloa"
+ },
+ {
+  "turnos": [
+   "viajo de monterrey a la riviera maya con niños, que precauciones"
+  ],
+  "persona": "turista o viajero",
+  "espera": "fuera_de_tema",
+  "padecimiento": null,
+  "estado": "Quintana Roo"
+ },
+ {
+  "turnos": [
+   "hay paludismo en la selva lacandona"
+  ],
+  "persona": "turista o viajero",
+  "espera": "no_modelado",
+  "padecimiento": "paludismo",
+  "estado": "Chiapas"
+ },
+ {
+  "turnos": [
+   "en san cristobal de las casas hay mucha gripa por el frio?"
+  ],
+  "persona": "turista o viajero",
+  "espera": "datos",
+  "padecimiento": "infecciones respiratorias agudas",
+  "estado": "Chiapas"
+ },
+ {
+  "turnos": [
+   "la neta si conviene ir a acapulco ahorita o hay brotes"
+  ],
+  "persona": "turista o viajero",
+  "espera": "datos",
+  "padecimiento": null,
+  "estado": "Guerrero"
+ },
+ {
+  "turnos": [
+   "puedo tomar agua de la llave en guanajuato capital"
+  ],
+  "persona": "turista o viajero",
+  "espera": "fuera_de_tema",
+  "padecimiento": null,
+  "estado": "Guanajuato"
+ },
+ {
+  "turnos": [
+   "voy a los cabos en semana santa como andan los casos de dengue en baja california sur"
+  ],
+  "persona": "turista o viajero",
+  "espera": "datos",
+  "padecimiento": "dengue",
+  "estado": "Baja California Sur"
+ },
+ {
+  "turnos": [
+   "que estado de la peninsula tiene menos dengue para irme de vacaciones"
+  ],
+  "persona": "turista o viajero",
+  "espera": "ranking",
+  "padecimiento": "dengue",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "hay hepatitis A en tulum? leí que por los mariscos"
+  ],
+  "persona": "turista o viajero",
+  "espera": "datos",
+  "padecimiento": "hepatitis vírica a",
+  "estado": "Quintana Roo"
+ },
+ {
+  "turnos": [
+   "voy a ir a la cdmx por el mundial, hay sarampion?"
+  ],
+  "persona": "turista o viajero",
+  "espera": "no_modelado",
+  "padecimiento": "sarampión",
+  "estado": "Ciudad de México"
+ },
+ {
+  "turnos": [
+   "en zacatecas en enero hace mucho frio, hay neumonias"
+  ],
+  "persona": "turista o viajero",
+  "espera": "datos",
+  "padecimiento": "neumonías y bronconeumonías",
+  "estado": "Zacatecas"
+ },
+ {
+  "turnos": [
+   "me picaron muchos moscos en veracruz y tengo fiebre que hago"
+  ],
+  "persona": "turista o viajero",
+  "espera": "sintomas",
+  "padecimiento": "dengue",
+  "estado": "Veracruz"
+ },
+ {
+  "turnos": [
+   "hay golpes de calor en mexicali en verano? voy en julio"
+  ],
+  "persona": "turista o viajero",
+  "espera": "datos",
+  "padecimiento": "efectos del calor y de la luz",
+  "estado": "Baja California"
+ },
+ {
+  "turnos": [
+   "vamos a la sierra de puebla, cuetzalan, como esta el dengue"
+  ],
+  "persona": "turista o viajero",
+  "espera": "datos",
+  "padecimiento": "dengue",
+  "estado": "Puebla"
+ },
+ {
+  "turnos": [
+   "que es la venganza de moctezuma y cuantos casos hay"
+  ],
+  "persona": "turista o viajero",
+  "espera": "datos",
+  "padecimiento": "infecciones intestinales",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "hay brotes de algo en merida esta semana"
+  ],
+  "persona": "turista o viajero",
+  "espera": "datos",
+  "padecimiento": null,
+  "estado": "Yucatán"
+ },
+ {
+  "turnos": [
+   "me pueden recomendar hotel en huatulco"
+  ],
+  "persona": "turista o viajero",
+  "espera": "fuera_de_tema",
+  "padecimiento": null,
+  "estado": "Oaxaca"
+ },
+ {
+  "turnos": [
+   "is there dengue in cancun right now"
+  ],
+  "persona": "turista o viajero",
+  "espera": "datos",
+  "padecimiento": "dengue",
+  "estado": "Quintana Roo"
+ },
+ {
+  "turnos": [
+   "en la playa de nayarit hay conjuntivitis, vamos a la alberca"
+  ],
+  "persona": "turista o viajero",
+  "espera": "datos",
+  "padecimiento": "conjuntivitis",
+  "estado": "Nayarit"
+ },
+ {
+  "turnos": [
+   "si viajo de guadalajara a colima cual tiene mas dengue"
+  ],
+  "persona": "turista o viajero",
+  "espera": "datos",
+  "padecimiento": "dengue",
+  "estado": "Colima"
+ },
+ {
+  "turnos": [
+   "ahorita hay mucha diarrea en chiapas? viajamos en camion"
+  ],
+  "persona": "turista o viajero",
+  "espera": "datos",
+  "padecimiento": "infecciones intestinales",
+  "estado": "Chiapas"
+ },
+ {
+  "turnos": [
+   "q tan confiable es esto para planear un viaje"
+  ],
+  "persona": "turista o viajero",
+  "espera": "confiabilidad",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "voy a campeche en enero hay dengue",
+   "y en yucatan?"
+  ],
+  "persona": "turista o viajero",
+  "espera": "datos",
+  "padecimiento": "dengue",
+  "estado": "Yucatán"
+ },
+ {
+  "turnos": [
+   "que enfermedades hay en guerrero ahorita",
+   "y en zihuatanejo especificamente"
+  ],
+  "persona": "turista o viajero",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": "Guerrero"
+ },
+ {
+  "turnos": [
+   "vamos a quintana roo con mi abuelita",
+   "hay muchas infecciones respiratorias",
+   "y para febrero?"
+  ],
+  "persona": "turista o viajero",
+  "espera": "datos",
+  "padecimiento": "infecciones respiratorias agudas",
+  "estado": "Quintana Roo"
+ },
+ {
+  "turnos": [
+   "sus datos no sirven, el gobierno esconde los casos de dengue"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "confiabilidad",
+  "padecimiento": "dengue",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "por que debo creerle a un bot"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "confiabilidad",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "ya les pregunte tres veces y no me contestan bien cuantos casos de diabetes hay en jalisco"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "datos",
+  "padecimiento": "diabetes mellitus tipo 2",
+  "estado": "Jalisco"
+ },
+ {
+  "turnos": [
+   "esto lo hizo el imss? quien paga esto"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "sus pronosticos fallaron feo el año pasado admitanlo"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "confiabilidad",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "NO SIRVE ESTA MADRE"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "charla",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "por que dicen que esta validado si es solo el mismo año copiado"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "eres chatgpt verdad"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "para que quiero un pronostico si ya se que en invierno hay gripa"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "metodologia",
+  "padecimiento": "infecciones respiratorias agudas",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "los casos notificados no son los reales, la mayoria no va al doctor"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "confiabilidad",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "contestame rapido cuanta hipertension en sonora sin rollo"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "datos",
+  "padecimiento": "hipertensión arterial",
+  "estado": "Sonora"
+ },
+ {
+  "turnos": [
+   "le pregunte por chihuahua y me dio datos de otro lado, que onda"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "aclaracion",
+  "padecimiento": null,
+  "estado": "Chihuahua"
+ },
+ {
+  "turnos": [
+   "por que no tienen datos de 2025 completos si ya pasó"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "es puro marketing de la 4T verdad"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "fuera_de_tema",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "cuantas veces le han atinado al pronostico de dengue"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "confiabilidad",
+  "padecimiento": "dengue",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "sus numeros de obesidad no cuadran con los del inegi"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "metodologia",
+  "padecimiento": "obesidad",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "vendieron mis datos? que guardan de lo que pregunto"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "ya chole con el dengue, nomas eso saben responder? dime de parkinson en coahuila"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "datos",
+  "padecimiento": "parkinson",
+  "estado": "Coahuila"
+ },
+ {
+  "turnos": [
+   "por que el boletin sale con dos semanas de atraso, asi no sirve"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "metodologia",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "el pronostico de depresion es una burla, la depresion no se predice"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "confiabilidad",
+  "padecimiento": "depresión",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "cual es el error de su modelo de verdad, sin adornos"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "confiabilidad",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "y si me equivoco por sus datos quien se hace responsable"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "no me mandes a leer el sitio, dame el numero de casos de escarlatina en jalisco"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "datos",
+  "padecimiento": "escarlatina",
+  "estado": "Jalisco"
+ },
+ {
+  "turnos": [
+   "tienen 152 enfermedades y no tienen influenza? en serio?"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "no_modelado",
+  "padecimiento": "influenza",
+  "estado": null
+ },
+ {
+  "turnos": [
+   "seguro inventan los numeros de los estados chiquitos como colima"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "confiabilidad",
+  "padecimiento": null,
+  "estado": "Colima"
+ },
+ {
+  "turnos": [
+   "Para qué sirve esto si los doctores no lo usan"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "alcance",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "ahorita me dices q bajo y mañana q sube, decidete"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "confiabilidad",
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "cuantos casos de covid hay en cdmx",
+   "como que no tienen covid",
+   "pues que clase de bot es este"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "alcance",
+  "padecimiento": "covid-19",
+  "estado": "Ciudad de México"
+ },
+ {
+  "turnos": [
+   "quiero el pronostico de hepatitis A en guanajuato",
+   "eso es lo mismo que el año pasado, no?"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "metodologia",
+  "padecimiento": "hepatitis vírica a",
+  "estado": "Guanajuato"
+ },
+ {
+  "turnos": [
+   "dame tuberculosis en nuevo leon",
+   "no te pregunte por otra cosa, tuberculosis",
+   "ok y cuantos en mujeres"
+  ],
+  "persona": "usuario escéptico o molesto",
+  "espera": "datos",
+  "padecimiento": "tuberculosis respiratoria",
+  "estado": "Nuevo León"
+ }
+]
