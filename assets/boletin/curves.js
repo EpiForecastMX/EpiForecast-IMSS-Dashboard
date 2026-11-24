@@ -18,7 +18,7 @@
     source_state_label_missing: 'La fuente omite el rótulo de una entidad. Su fila sin identificar no se asigna a un estado.',
     source_cut_conflict: 'El encabezado de la fuente tiene un corte contradictorio. Este punto queda como hueco en la curva.'
   };
-  let index, catalog, selected, sequence = 0, current = [], view = [], C, A, cambioCifra = false;
+  let index, catalog, selected, sequence = 0, current = [], view = [], C, A, N, cambioCifra = false;
   // Valor mostrado = lo impreso (cifra o guion); valor graficado = boletin/celdas.mjs: un guion
   // vale 0 sólo bajo la simbología; una cifra no publicada queda como hueco, nunca como 0.
   const cat = () => catalog.find(d => d.id === selected.id) || {};
@@ -247,6 +247,7 @@
       index=await a.json();
       C=await import('/assets/boletin/celdas.mjs?v=1');
       A=await import('/assets/boletin/ambitos.mjs?v=1');
+      N=await import('/assets/boletin/nombres.mjs?v=1');
       window.radarHistoria=index;document.dispatchEvent(new CustomEvent('radar:historia',{detail:index}));
       if(!index.categories){
         // Manifiestos anteriores sin catálogo propio: se usa el de la foto semanal vigente.
@@ -255,11 +256,13 @@
         if(!b.ok)throw new Error('No se pudo cargar el archivo histórico.');
         catalog=(await b.json()).diseases;
       }else catalog=index.categories;
+      // Nombre visible corregido (erratas y marcas del cuadro); el impreso se conserva para la búsqueda y las descargas.
+      catalog=catalog.map(c=>({...c,impreso:c.name,name:N.nombreVisible(c.id,c.name)}));
       const years=Object.keys(index.source_years).map(Number).sort((a,b)=>a-b);
       $('archiveCoverage').textContent=`ARCHIVO HISTÓRICO · ${index.source_count} PDF · ${years[0]}–${years.at(-1)}`;
       for(const id of ['curveStart','curveEnd'])$(id).innerHTML=years.map(y=>`<option value="${y}">${y}</option>`).join('');
       $('curveStart').value=String(years[0]);$('curveEnd').value=String(years.at(-1));
-      $('curveDisease').innerHTML=[...catalog].sort((a,b)=>a.name.localeCompare(b.name,'es')).map(d=>`<option value="${d.id}">${esc(d.name)} · ${esc(d.code)}${d.aggregate?' (agregado)':''}${d.historical?' · clasificación histórica':''}</option>`).join('');
+      $('curveDisease').innerHTML=[...catalog].sort((a,b)=>a.name.localeCompare(b.name,'es')).map(d=>`<option value="${d.id}" data-impreso="${esc(d.impreso)}">${esc(d.name)} · ${esc(d.code)}${d.aggregate?' (agregado)':''}${d.historical?' · clasificación histórica':''}</option>`).join('');
       const regiones=A.estadosCompatibles(index.states)?`<optgroup label="Macrorregiones (suma de entidades)">${A.REGIONES.map(r=>`<option value="region:${r.id}">Región ${esc(r.nombre)} (${r.claves.length} entidades)</option>`).join('')}</optgroup>`:'';
       $('curveState').innerHTML='<option value="nacional">Nacional</option>'+regiones+`<optgroup label="Entidades federativas">${index.states.map((s,i)=>`<option value="estado:${A.clave(i)}">${esc(s)}</option>`).join('')}</optgroup>`;
       aplicaAmbito(new URLSearchParams(location.search));
@@ -277,7 +280,7 @@
     if(!selected)return;
     const rows=[['padecimiento','entidad','anio_observado','semana_observada','valor','lectura_del_simbolo','metrica','fuente','pagina','avisos']];
     const d=catalog.find(d=>d.id===selected.id),amb=ambito(),lugar=(amb.tipo==='region'?A.rotuloRegion(amb.id):nombreAmbito())+(sexo()!=='general'?` · ${nombreSexo()}`:'');
-    for(const t of current){const p=t.point;rows.push([d.name,lugar,t.y,t.w,t.raw??'',meaning(t.raw,t.y),$('curveMetric').value==='0'?'semanal':$('curveMetric').value==='2'?'en_estudio_acumulados':'acumulado',p?index.sources[p.s].url:'',p?.p??'',p?[...p.flags,...(amb.tipo==='region'?['suma_de_entidades']:[])].join('|'):'sin_dato']);}
+    for(const t of current){const p=t.point;rows.push([d.impreso??d.name,lugar,t.y,t.w,t.raw??'',meaning(t.raw,t.y),$('curveMetric').value==='0'?'semanal':$('curveMetric').value==='2'?'en_estudio_acumulados':'acumulado',p?index.sources[p.s].url:'',p?.p??'',p?[...p.flags,...(amb.tipo==='region'?['suma_de_entidades']:[])].join('|'):'sin_dato']);}
     const csv='\uFEFF'+rows.map(row=>row.map(x=>'"'+String(x).replaceAll('"','""')+'"').join(',')).join('\n');
     const a=document.createElement('a'),url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.href=url;a.download=`curva-${d.id}-${$('curveState').value.replace(':','-')}${sexo()!=='general'?'-'+sexo():''}-${$('curveStart').value}-${$('curveEnd').value}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
   });

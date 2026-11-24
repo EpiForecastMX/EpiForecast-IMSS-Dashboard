@@ -373,3 +373,4 @@ dialog{background:white;border-radius:12px;padding:28px;box-shadow:0 20px 70px #
 .boletin-page .platform-card h3{font-size:20px;letter-spacing:-.01em;line-height:1.25}
 .ring-sub{font:14px/1.6 var(--sans);color:var(--ink-soft);margin:12px 0 0}
 .ring small{font-size:8px}
+.detail-impreso{font:13px/1.5 var(--sans);color:var(--ink-mut);margin:-6px 0 12px}

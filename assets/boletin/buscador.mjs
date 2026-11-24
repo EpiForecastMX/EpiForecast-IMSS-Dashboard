@@ -15,8 +15,8 @@ export function entradas(opciones, grupos = {}) {
     const [nombre, ...resto] = texto.split(' · ');
     const codigo = (resto[0] ?? '').replace(/\s*\(agregado\)$/, '');
     const grupo = grupos[o.value] ?? (/clasificación histórica/.test(texto) ? 'Clasificaciones históricas' : 'Otras categorías');
-    const n = normaliza(nombre), c = normaliza(codigo);
-    return { id: o.value, texto, nombre, codigo, grupo, n, c, cc: c.replace(/ /g, ''), g: normaliza(grupo) };
+    const n = normaliza(nombre), c = normaliza(codigo), impreso = normaliza(o.impreso ?? o.dataset?.impreso ?? '');
+    return { id: o.value, texto, nombre, codigo, grupo, n, c, cc: c.replace(/ /g, ''), g: normaliza(grupo), impreso };
   });
 }
 
@@ -26,7 +26,7 @@ export function busca(lista, consulta) {
   if (!q) return lista;
   const palabras = q.split(' '), qc = q.replace(/ /g, '');
   const puntaje = (e) => {
-    const todo = `${e.n} ${e.c} ${e.cc} ${e.g}`;
+    const todo = `${e.n} ${e.c} ${e.cc} ${e.g} ${e.impreso ?? ''}`;
     if (!palabras.every((p) => todo.includes(p))) return -1;
     if (e.cc === qc || e.c === q) return 0;
     if (e.cc.startsWith(qc)) return 1;
