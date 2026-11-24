@@ -1,5 +1,5 @@
-import { summarizeCoverage, platformPage, publicationNote, predictorDescription, coberturaPronostico, textoCoberturaPronostico } from './coverage.mjs?v=14';
-import { fuentePronostico, ROTULO_EXPLORATORIO, ROTULO_NIVEL_RECIENTE, ROTULO_NOTAS } from './pronostico.mjs?v=10';
+import { summarizeCoverage, platformPage, publicationNote, predictorDescription, coberturaPronostico, textoCoberturaPronostico } from './coverage.mjs?v=15';
+import { fuentePronostico, ROTULO_EXPLORATORIO, ROTULO_NIVEL_RECIENTE, ROTULO_NOTAS } from './pronostico.mjs?v=11';
 import { GRUPOS_NO_MODELABLES, grupoNoModelable, PAGINA_NO_MODELABLES } from './no_modelables.mjs?v=2';
 import { numero, suma, compararDesc, significado, muestra, clase, esMarcador } from './celdas.mjs?v=1';
 import { textosRadar, textosPanorama, panoramaDesdeRespaldo, enlacesRadar, aplicarTextos, entidadesAusentesMiasis, listaConY, numeroEnPalabras, avisoDiscrepanciaMiasis, notaSimbologiaHeredada, verificarMiasis } from './textos.mjs?v=7';

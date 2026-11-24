@@ -167,6 +167,36 @@ class Historico(unittest.TestCase):
         self.assertEqual(historia.csv_nacional(index, shards),
                          (hist / 'nacional-2013-2026.csv').read_bytes())
 
+    def test_el_sexo_de_la_semana_vigente_coincide_con_el_releido_del_pdf(self):
+        hist = RAIZ / historia.DIR
+        index, shards = historia.cargar(hist)
+        historia.retirar_ultima(index, shards)
+        datos = json.loads((VIGENTE / 'data.json').read_text())
+        sha = hashlib.sha256(PDF_VIGENTE.read_bytes()).hexdigest()
+        nuevos = {}
+        historia.incorporar(index, shards, datos, datos['meta']['source_url'], sha, '2026-11-17', nuevos)
+        comparadas = 0
+        for ident, (d, p) in nuevos.items():
+            entrada = historia.punto_sexo(d, p, index['states'])
+            ruta = hist / historia.SEXO / f'{ident}.json'
+            releida = None
+            if ruta.exists():
+                releida = next((q for q in json.loads(ruta.read_text())['points']
+                                if (q['y'], q['w'], q['s']) == (p['y'], p['w'], p['s'])), None)
+            self.assertEqual(entrada, releida, ident)
+            comparadas += entrada is not None
+        self.assertEqual(comparadas, 171)  # 167 con H y M, 3 sin acumulado anterior y VIH
+
+    def test_la_compuerta_de_sexo_rechaza_h_mas_m_distinto_del_acumulado(self):
+        d = dict(id='x', columns=['Sem.', 'H', 'M', 'Acum. 2025'], totals=[1, 2, 3, 4],
+                 states=[dict(state='A', values=[1, 2, 3, 4])])
+        p = dict(y=2026, w=1, s=0, n=[1, 6], e=[[1, 5]])
+        with self.assertRaises(historia.FalloHistoria):
+            historia.punto_sexo(d, p, ['A'])
+        p['e'] = [[1, 5 + 0]]
+        p['n'] = [1, 5]
+        self.assertEqual(historia.punto_sexo(d, p, ['A']), dict(y=2026, w=1, s=0, x=[2, 3], e=[[2, 3]]))
+
     def test_la_misma_semana_no_se_agrega_dos_veces(self):
         index, shards = historia.cargar(RAIZ / historia.DIR)
         datos = json.loads((VIGENTE / 'data.json').read_text())
