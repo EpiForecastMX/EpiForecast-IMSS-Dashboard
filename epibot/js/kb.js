@@ -11,11 +11,11 @@ import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=13';
 import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=63';
-import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, ciudadesAEstados } from './conversacion.js?v=2';
+import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas } from './conversacion.js?v=5';
 import { respuestaLlana, confiabilidadLegacy } from './resumen_llano.js?v=2';
 /** Los cuatro originales en lenguaje llano (consulta general), antes de sus handlers específicos. */
 function answerLegacyLlano(q, ent, s, d) { return legacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadLegacy }); }
-import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaConDatos, salidaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=54';
+import { MARCADOR_RELEASE, releaseDeMarca, aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaTemaSensible, respuestaConDatos, salidaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=54';
 
 let DATA = null;
 
@@ -778,16 +778,13 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
       (cardiaco
         ? 'El boletín no publica una serie propia de infarto. Su categoría más cercana es **Enfermedad isquémica del corazón**, rotulada I20, I25 en el cuadro e I20-I25 en el resumen, así que no se puede afirmar si incluye I21. Sus datos están en [su página](../isquemica_i20.html), publicados con el control y sin validar.\n\n'
         : '') +
-      `Nuestro proyecto se enfoca en ${numeralPadecimientos(4 + RELEASES.length)} padecimientos del Bolet\u00edn Epidemiol\u00f3gico SINAVE:\n\n` +
-      '- **Depresi\u00f3n** (CIE-10: F32)\n' +
-      '- **Parkinson** (CIE-10: G20)\n' +
-      '- **Alzheimer** (CIE-10: G30)\n' +
-      '- **Dengue** (CIE-10: A97)\n' +
-      RELEASES.map((r) => `- **${r.nombre}** (CIE-10: ${r.cie})\n`).join('') + '\n' +
+      // Rediseño conversacional: ya no se listan los 152 padecimientos (más de 8,000 caracteres); se da el total y la galería.
+      `Sí tengo pronóstico de ${numeralPadecimientos(4 + RELEASES.length)} padecimientos del Bolet\u00edn Epidemiol\u00f3gico SINAVE; ` +
+      'puedes verlos todos en la [galería de pronósticos](../Reports/index.html).\n\n' +
       (matchedDisease === 'covid'
         ? 'Covid-19 se analiz\u00f3 y se rechaz\u00f3 en la prueba de 2025: su evidencia y la referencia del control, no validada, est\u00e1n en [Analizados y rechazados](../rechazados.html).\n\n'
         : '') +
-      '\u00bfTe gustar\u00eda consultar datos de alguno de estos padecimientos?'
+      'Pregúntame por alguno de ellos; por ejemplo, «¿cómo va el dengue en Veracruz?».'
     );
   }
 
@@ -5671,8 +5668,17 @@ const HANDLERS = [
  * que realmente respondió: la identidad viaja CON la resolución, no se deduce después de un global
  * mutable como `_lastHandlerFn`, que además no cubre los guards previos a la cadena (R52-A.7).
  */
+// Manejadores de la cohorte neuro original que responden consultas genéricas con datos de Depresión, Parkinson y Alzheimer.
+// Rediseño conversacional: con un término desconocido y sin padecimiento nombrado ya no contestan (cede a la comprensión
+// con Gemini o al RAG); un estado solo recibe el resumen del estado.
+const NEURO_GENERICOS = new Set([answerEstado, answerBoletin, answerSemanaActual, answerPronostico]);
 function runHandlers(q, ent, s, d, trace = null) {
   for (const handler of HANDLERS) {
+    if (NEURO_GENERICOS.has(handler) && !ent.padecimiento && fueraDeVocabulario(q)) continue;
+    if (handler === answerEstado && !ent.padecimiento) {
+      const llano = answerEstadoLlano(q, ent, s, d, { forzar: true });
+      if (llano) { if (trace) trace.handler = 'answerEstadoLlano'; return llano; }
+    }
     const result = handler(q, ent, s, d);
     if (result) {
       if (trace) trace.handler = handler.name;
@@ -5969,6 +5975,13 @@ export function guardaInicial(consulta) {
   // Rediseño conversacional (24-nov-2026): una señal débil (sustancias, desbordamiento, escritura no latina) recibe una vez
   // el «no entendí» con la Línea de la Vida, sin cifras y sin dejar estado persistente. Las guardas fijas sin cifras (D7)
   // conservan su texto.
+  const tema = respuestaTemaSensible(query);
+  if (tema) {
+    lastEntities = {};
+    _aclaracionPendiente = null;
+    trace.handler = 'answerTemaSensible';
+    return { response: tema, handler: trace.handler };
+  }
   if (apoyoInmediato(query) && !guardaD7(query)) {
     lastEntities = {};
     _aclaracionPendiente = null;
@@ -6058,7 +6071,10 @@ async function _resolve(consulta) {
 
   // Rediseño conversacional (24-nov-2026): charla, ayuda, síntomas y ranking entre padecimientos responden antes de los
   // guardas que ceden al modelo; ninguno da cifras inventadas ni consejo médico.
-  for (const h of [answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral]) {
+  for (const h of [answerCharla, answerQueja, answerVago, answerNoReportado, answerFueraDeAlcance, answerSintomas, answerFAQ, answerRankingPadecimientos, answerConfianzaGeneral, answerEstadoLlano]) {
+    if (h === answerConfianzaGeneral && lastEntities.padecimiento) continue;
+    // Con un padecimiento en el contexto, «¿y en Sonora?» es un seguimiento de ese padecimiento, no el resumen del estado.
+    if (h === answerEstadoLlano && (lastEntities.padecimiento || mencionaNoModelada(q) || enRadar(q).length)) continue;
     const r = h(q, ent, s, d);
     if (r) {
       trace.handler = h.name;
@@ -6115,19 +6131,23 @@ async function _resolve(consulta) {
   if (!esRefProyecto && any(q, ragIntent) && !ent.estado) return { response: null, handler: null };
 
   // Si requiere razonamiento temporal fino (diario), ceder a Gemini
-  if (needsGeminiReasoning(q)) return { response: null, handler: null };
+  // Rediseño conversacional: una pregunta de datos sobre un padecimiento publicado («¿cuánta gente tiene diabetes en Nuevo
+  // León?», «¿tiene estacionalidad?») se responde localmente; los guardas que ceden al modelo quedan para lo demás.
+  const datosPad = !!ent.padecimiento && /\b(cuant\w*|casos|gente|hay|como (va|esta|anda)|estacional\w*|temporada|pico|sube|subiendo|baja|bajando|tendencia|brote|aumento|aumentando)\b/.test(q) &&
+    !/\b(tratamiento|cura|curar|se cura|sintoma\w*|que hago|medicina|medicamento|causa|causas|por que da|contagia|prevenir|famos\w*)\b/.test(q);
+  if (!datosPad && needsGeminiReasoning(q)) return { response: null, handler: null };
 
   // Guard: consejo clinico / recomendacion para una persona → ceder a Gemini
   // (con disclaimer medico). Va ANTES del fuzzy para que un adjetivo como
   // "depresivo" no se autocorrija a "depresion" y dispare un volcado de datos.
-  if (needsMedicalAdvice(q)) return { response: null, handler: null };
+  if (!datosPad && needsMedicalAdvice(q)) return { response: null, handler: null };
 
   // Guard: tema fuera de alcance → ceder a Gemini
-  if (isOffTopic(q, ent)) return { response: null, handler: null };
+  if (!datosPad && isOffTopic(q, ent)) return { response: null, handler: null };
 
   // Guard: conocimiento general sobre padecimientos → ceder a Gemini
   // (el proyecto solo tiene datos epidemiologicos de Mexico, no info general)
-  if (ent.padecimiento && needsGeneralKnowledge(q)) return { response: null, handler: null };
+  if (!datosPad && ent.padecimiento && needsGeneralKnowledge(q)) return { response: null, handler: null };
 
   // Prioridad: follow-up de distribucion ("solo de la depresion" tras un violin/histograma)
   if (_lastDistribMetric) {
@@ -6301,9 +6321,9 @@ async function _resolve(consulta) {
  */
 const HANDLERS_ACLARACION = new Set(['answerAliasAmbiguo', 'answerGuardaD7', 'answerMeningitisTipo',
   'answerSumaSeriesDistintas', 'answerAclaracionPendiente']);
-const HANDLERS_DE_AYUDA = new Set(['answerCrisis', 'answerCrisisSeguimiento', 'answerApoyoSeguimiento', 'answerFueraDeVocabulario']);
+const HANDLERS_DE_AYUDA = new Set(['answerCrisis', 'answerCrisisSeguimiento', 'answerApoyoSeguimiento', 'answerFueraDeVocabulario', 'answerTemaSensible']);
 // Rediseño conversacional: charla, ayuda y síntomas responden aunque el turno sea personal y no nombre un dato.
-const HANDLERS_CONVERSACION = new Set(['answerSaludo', 'answerCharla', 'answerSintomas', 'answerRankingPadecimientos', 'answerConfianzaGeneral']);
+const HANDLERS_CONVERSACION = new Set(['answerSaludo', 'answerCharla', 'answerQueja', 'answerVago', 'answerNoReportado', 'answerFueraDeAlcance', 'answerFAQ', 'answerSintomas', 'answerRankingPadecimientos', 'answerConfianzaGeneral', 'answerEstadoLlano']);
 // Respuestas fijas sin cifras (aclaraciones, alcance, no modelados, guardas): con un token fuera del vocabulario se
 // conservan si no llevan cifras, porque ya no dan datos de ningún padecimiento.
 const HANDLERS_SIN_DATOS = new Set(['answerAliasAmbiguo', 'answerGuardaD7', 'answerMeningitisTipo', 'answerSumaSeriesDistintas',
@@ -6312,15 +6332,52 @@ const HANDLERS_SIN_DATOS = new Set(['answerAliasAmbiguo', 'answerGuardaD7', 'ans
   // Respuestas informativas de texto (qué es un padecimiento, preguntas al asistente, metodología): sin cifras se conservan.
   'answerQueEsPadecimiento', 'answerPreguntaPersonal', 'answerProyectoMeta']);
 /**
+ * Rediseño conversacional: seguimientos sin padecimiento propio que dependen del turno anterior («¿es mucho o poco?»,
+ * «¿comparado con Querétaro?», «¿cuándo es el pico?», «¿qué tan confiable es?»). Se completan con el padecimiento y el
+ * estado del contexto para que respondan sobre lo mismo.
+ */
+const SEGUIMIENTO_CTX = /^(y |pero |entonces |ok |oye )?(es mucho|es poco|esta peor|esta mejor|y el ano pasado|el ano pasado|comparado con|compara(lo)? con|como se compara con|y comparado con|vs |contra |que tan confiable|es confiable|cuando (es|va a ser|sera) el pico|y el pico|el pico|pronostico (de las )?proximas|las proximas|proximas \d+ semanas|tiene estacionalidad|esta subiendo|va a subir|sube o baja|y en la misma ventana|y la semana pasada|y este ano|y en (hombres|mujeres))/;
+function seguimientoConContexto(texto) {
+  const pad = lastEntities.padecimiento;
+  if (!pad) return texto;
+  const qn = norm(texto);
+  const ent = detectEntities(qn);
+  if (ent.padecimiento || (ent.padecimientos || []).length) return texto;
+  // Sólo un lugar («en Yucatán», «¿y Sonora?», «para Chihuahua»): el mismo padecimiento en ese estado.
+  const soloLugar = ent.estado && qn.replace(/\b(y|en|para|de|del|que tal|como va|como esta|y en|ahora)\b/g, ' ')
+    .replace(norm(ent.estado), ' ').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean).length <= 1;
+  if (!soloLugar && !SEGUIMIENTO_CTX.test(qn)) return texto;
+  const rel = releaseDePad(pad);
+  const nombre = rel ? (rel.consultaVisible || rel.consulta) : norm(pad);
+  const previo = lastEntities.estado;
+  if (/\b(compar\w*|vs|contra)\b/.test(qn) && ent.estado && previo && norm(ent.estado) !== norm(previo)) {
+    return `compara ${nombre} en ${previo} y ${ent.estado}`;
+  }
+  return `${nombre}${previo && !ent.estado ? ` en ${previo}` : ''} ${texto}`;
+}
+
+/**
  * Rediseño conversacional: una ciudad conocida («Monterrey», «Guadalajara») se responde para su estado y se dice. La crisis
  * y el apoyo se evalúan sobre el texto original (el reemplazo sólo cambia el nombre del lugar).
  */
 async function _resolveConContexto(query) {
-  const { texto, notas } = ciudadesAEstados(query);
-  const r = await _resolveConContextoBase(notas.length ? texto : query);
+  // Crisis primero sobre el texto original; después sinónimos, abreviaturas y ciudades.
+  if (respuestaCrisis(normalizaEntrada(query))) return _resolveConContextoBase(query);
+  const { texto: texto0, notas } = reescribeConsulta(query);
+  const texto = seguimientoConContexto(texto0);
+  const r = await _resolveConContextoBase(texto);
+  // El padecimiento que respondió un release queda en el contexto aunque la consulta lo nombrara por sinónimo.
+  const mr = String(r.response || '').match(MARCADOR_RELEASE);
+  if (mr) {
+    const rel = releaseDeMarca(mr[1]);
+    let meta = {};
+    try { meta = JSON.parse(mr[2]); } catch { /* sin metadatos */ }
+    if (rel) lastEntities = { ...lastEntities, padecimiento: rel.pad, ...(meta.estado ? { estado: meta.estado } : {}) };
+  }
+  const sint = notaSintomas(texto);
+  if (sint && r.response && !HANDLERS_DE_AYUDA.has(r.handler) && r.handler !== 'answerSintomas') notas.unshift(sint.replace(/^_|_$/g, '').replace(/\.$/, ''));
   if (!notas.length || !r.response || HANDLERS_DE_AYUDA.has(r.handler)) return r;
-  const nota = notas.map((n) => `${n.ciudad} está en ${n.estado}`).join('; ');
-  return { ...r, response: `_${nota}: el boletín publica por estado, así que te respondo para ${notas.length > 1 ? 'esos estados' : 'el estado'}._\n\n${r.response}` };
+  return { ...r, response: `_${notas.join('. ')}._\n\n${r.response}` };
 }
 
 async function _resolveConContextoBase(query) {

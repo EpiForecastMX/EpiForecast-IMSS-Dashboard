@@ -46,14 +46,18 @@ const REGLAS = [
   ['heatmap', ['heatmap', 'mapa de calor', 'error semanal', 'diferencias del seguimiento']],
   ['entidades', ['treemap', 'mapa de entidad', 'por entidad', 'panorama', 'casos por estado']],
   ['mapa', ['mapa', 'coropletico', 'geografico']],
+  // Rediseño conversacional: la precisión por estado va primero; «top 5 estados con más casos» o «ranking de entidades por
+  // casos» piden estados con más casos, no precisión.
+  ['ranking', ['precis', 'acierta', 'falla', 'mejores y peores', 'mas preciso', 'menos preciso']],
+  ['entidades', ['que estado', 'cual estado', 'cuales estados', 'que estados', 'mas casos', 'mayor numero', 'donde hay mas', 'estados con', 'entidades con',
+    'entidades por', 'estados por', 'ranking de entidades', 'ranking de estados', 'top 5 estados', 'top 10 estados', 'mayor incremento', 'mas aumento']],
   ['ranking', ['mejores y peores', 'ranking', 'top ', 'mejor', 'peor', 'precis', 'acierta', 'falla']],
-  ['entidades', ['que estado', 'cual estado', 'cuales estados', 'mas casos', 'mayor numero', 'donde hay mas']],
   ['calibracion', ['calibracion', 'calibrado', 'real vs pronostico', 'observado vs pronostico']],
   ['volumen_error', ['volumen vs error', 'volumen y error', 'burbuja', 'scatter', 'dispersion', 'matriz']],
   ['acumulado', ['acumulad', 'cascada', 'waterfall', 'aporte']],
   ['sexo', ['apilad', 'stacked', 'composicion', 'por sexo', 'hombres y mujeres', 'hombres vs mujeres', 'mujeres y hombres', 'mujeres vs hombres']],
   ['motores', ['motor', 'arsenal', 'polar', 'rosa de']],
-  ['comparador', ['comparador', 'comparar', 'compara ', 'comparacion de estados', 'comparacion entre', 'sparkline', 'mini grafic', ' vs ', ' contra ']],
+  ['comparador', ['comparador', 'comparar', 'compara ', 'comparativo', 'comparativa entre', 'comparacion de estados', 'comparacion entre', 'sparkline', 'mini grafic', ' vs ', ' contra ']],
   ['metricas', ['radar', 'spider', 'boxplot', 'box plot', 'caja y bigotes', 'gauge', 'medidor', 'velocimetro', 'salud de los modelos', 'salud de modelos', 'mase']],
   ['seguimiento', ['zoom', 'detalle semanal', 'seguimiento', 'validacion', 'cercano', 'ultimas semanas', 'semana a semana']],
 ];

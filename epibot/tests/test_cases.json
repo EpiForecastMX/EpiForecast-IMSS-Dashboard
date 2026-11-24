@@ -4232,9 +4232,13 @@
   {
     "id": 380,
     "query": "quien es el presidente",
-    "expectedHandler": null,
-    "mustContain": [],
-    "mustNotContain": [],
+    "expectedHandler": "answerFueraDeAlcance",
+    "mustContain": [
+      "No"
+    ],
+    "mustNotContain": [
+      "800 911 2000"
+    ],
     "checkEntities": {}
   },
   {

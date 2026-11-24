@@ -2114,8 +2114,21 @@
   // Fragmentos de lesión o daño que, pedidos al bot sin un sustantivo de datos, se leen como una petición de daño.
   const DANO = /\b(herida|heridas|herir|lesion|lesiones|lesionar|dano|danos|golpe|golpes|intoxicacion|intoxicar|envenenamiento|envenenar|veneno|quemadura|quemaduras|asfixia|ahogamiento|ahorcamiento|sofocacion|estrangulamiento|disparo|arma|armas|bala|corte|cortante|navaja|cuchillo|sobredosis|mordedura|mordeduras|picadura|picaduras|intoxicaciones|envenenamientos|disparos|cortes|ahogamientos|wound|wounds|injury|injuries|harm|poison|poisoning|overdose|burn|burns|choking|gun|knife|bullet)\b/;
   /** Petición al bot que no va seguida de un sustantivo de datos y nombra un id sensible o un fragmento de daño. */
+  // Rediseño conversacional (24-nov-2026): los verbos impersonales o de tercera persona («hay», «hubo», «tienen», «reporta»)
+  // preguntan por datos; sólo una petición en primera o segunda persona o un imperativo («dame», «muéstrame», «quiero»,
+  // «can you») junto a un término de daño se lee como petición de daño. «¿Cuántos golpes de calor hubo?» no lo es.
+  const IMPERSONALES = new Set(['hay', 'hubo', 'habra', 'habria', 'hubiera', 'tiene', 'tienen', 'es', 'son', 'fue', 'ha', 'va', 'van',
+    'esta', 'reporto', 'llega', 'llegan', 'llego', 'llegaron', 'afecta', 'sigue', 'viene', 'pasa', 'queda', 'quedo', 'suma', 'gana',
+    'iba', 'iban', 'puede', 'podria', 'ser', 'haber', 'esperaba', 'esperan', 'estiman', 'dicen', 'decia', 'tuvieron', 'ocurrio',
+    'equivale', 'predice', 'publica', 'cuesta', 'trata', 'pronostican', 'modela', 'modelan', 'usa', 'usan', 'llama', 'is', 'are']);
+  function peticionPersonal(raw) {
+    const cur = globalThis.EPI_VOCAB_CONSULTA;
+    if (!cur || !cur.verbosPeticion) return false;
+    const toks = new Set(sinEstadoTecnico(raw).split(' '));
+    return cur.verbosPeticion.some((v) => !IMPERSONALES.has(v) && toks.has(v)) || /\bme gustaria\b/.test(sinEstadoTecnico(raw));
+  }
   function peticionDeDano(raw) {
-    if (!peticionEn(raw)) return false;
+    if (!peticionPersonal(raw)) return false;
     // Decimotercera auditoría: con un verbo de petición en cualquier parte del turno, toda cláusula que nombre un id sensible
     // da la crisis, y en cada cláusula todo fragmento de lesión o daño debe ir inmediatamente tras un sustantivo de datos de
     // ESA cláusula («dame datos, una intoxicación…» no lo justifica «datos»). Sin exención por rótulo.
@@ -2603,9 +2616,37 @@
     if (escrituraNoLatina(raw)) return true;
     const sin = sinRotulos(raw).replace(/\s+/g, ' ').trim();
     if (primeraPersona(raw) && PELIGRO_PROPIO.test(sin)) return true;
-    return [sin, ...variantesRiesgo(sin)].some((v) => SENAL_DEBIL.test(v.trim()));
+    // Accidente doméstico de un tercero («mi hijo se quemó con un cuete»): lo atiende la respuesta de síntomas, no el apoyo.
+    if (/\b(cuete|cohete|polvora|aceite|agua caliente|estufa|plancha|comal|sol|vapor)\b/.test(sin) && !/\b(me queme|me quemo|quemarme|nos quemamos)\b/.test(sin)) return false;
+    // Con síntomas («fiebre y tos, ¿qué me tomo?») «tomo» o «tomar» no son señal de ingestión.
+    const conSintomas = /\b(fiebre|tos|dolor|gripa|gripe|diarrea|vomito|calentura|ronchas|garganta|cabeza|catarro|resfriado)\b/.test(sin);
+    const sinTomar = conSintomas ? sin.replace(/\b(tomo|tomar|me tomo|que me tomo)\b/g, ' ') : sin;
+    return [sinTomar, ...variantesRiesgo(sinTomar)].some((v) => SENAL_DEBIL.test(v.trim()));
   }
 
+  // Una pregunta de datos en tercera persona sobre un tema sensible («¿cuántos casos de violencia intrafamiliar reporta el
+  // boletín?») no es una crisis: sólo palabras de datos, sin símbolos, sin primera persona ni petición. Cualquier otra
+  // palabra («desde el puente», «dosis letal», «mañana», «navaja», «bebo») mantiene la crisis.
+  const DATOS_SENSIBLE = new Set(['cuantos', 'cuantas', 'casos', 'caso', 'hay', 'hubo', 'tienen', 'tiene', 'reporta', 'reportan', 'reporto',
+    'boletin', 'datos', 'cifras', 'numero', 'notificados', 'notificaron', 'registrados', 'registra', 'registro', 'se', 'han', 'ha',
+    'estado', 'nacional', 'pais', 'este', 'ano', 'semana', 'ultima', 'ultimas', 'mas', 'menos', 'que', 'cual', 'cuales', 'el', 'la',
+    'los', 'las', 'de', 'del', 'en', 'por', 'a', 'y', 'o', 'edomex', 'cdmx', 'total', 'tendencia', 'como', 'va', 'van']);
+  function preguntaDeDatosSensible(raw) {
+    if (simbolosNoTecnicos(raw) || primeraPersona(raw) || peticionPersonal(raw)) return false;
+    return analizaTurno(raw).todos.every((w) => VOCAB_NEUTRO.has(w) || DATOS_SENSIBLE.has(w) || ALCOHOL_PERMITIDO.has(w));
+  }
+  const sensibleFuera = (raw, q) => Boolean((idsSensiblesEn(q).length && simbolosNoTecnicos(raw)) || fueraDeListaBlanca(raw));
+  /** Tema sensible preguntado en tercera persona con palabras fuera del vocabulario neutro: texto neutral, sin cifras. */
+  function respuestaTemaSensible(raw) {
+    const q = ` ${String(raw).normalize('NFKC').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim()} `;
+    if (!sensibleFuera(raw, q) || !preguntaDeDatosSensible(raw) || respuestaCrisis(raw)) return null;
+    const r = idsSensiblesEn(q)[0];
+    const ejemplo = r ? `«${r.consultaVisible || r.consulta} en Jalisco»` : '«X60 en Jalisco»';
+    return 'Este es un tema sensible: sólo muestro sus cifras cuando la pregunta nombra el padecimiento y el estado, sin nada más; ' +
+      `por ejemplo, ${ejemplo}.\n\n` +
+      'Si tú o alguien cercano necesita apoyo, la **Línea de la Vida** atiende gratis, las 24 horas: **800 911 2000**. ' +
+      'Si alguien está en peligro inmediato, llama al **911**.\n<!--SIN_GRAFICA-->';
+  }
   /** Texto fijo ante una señal de riesgo personal, o null. No pasa por ningún modelo. */
   function respuestaCrisis(qn) {
     const r = respuestaCrisisTexto(String(qn));
@@ -2624,7 +2665,9 @@
     const idioma = () => (/\b(the|what|how|in|of|and|i|my)\b/.test(q) && !/\b(en|de|del|y|la|el)\b/.test(q) ? 'en' : 'es');
     const riesgo = riesgoPersonal(q) || ingestionPropia(q) || lexicoRiesgo(raw) || (peticionDeDano(raw) ? idioma() : null) ||
       (EMOJI_RIESGO.test(raw) ? idioma() : null) ||
-      ((idsSensiblesEn(q).length && simbolosNoTecnicos(raw)) || fueraDeListaBlanca(raw) ? idioma() : null);
+      // Rediseño conversacional: un tema sensible fuera del vocabulario neutro da la crisis sólo si el turno habla en primera
+      // persona o pide algo; si no, respuestaTemaSensible da un texto neutral, sin cifras y sin estado persistente.
+      (sensibleFuera(raw, q) && !preguntaDeDatosSensible(raw) ? idioma() : null);
     if (riesgo === 'es') return CRISIS_TEXTO_ES;
     if (riesgo === 'en') return CRISIS_TEXTO_EN;
     if (CRISIS_ES.test(q) || VIOLENCIA_ES.test(q)) return CRISIS_TEXTO_ES;
@@ -2727,7 +2770,7 @@
     releases, diabetesEnConsulta, conDiabetesNombrada, conFamiliaNombrada, canonClinico, nombraAlias, noModeladas,
     mencionaNoModelada, conHipertensionNombrada, respuestaCrisis, subtipoAjeno, aliasAmbiguo,
     motivoRechazo, crisisEnTurnos, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, idsSensiblesEn,
-    alcoholCalificado, IDS_LISTA_BLANCA, _VOCAB_TECNICO: VOCAB_TECNICO, _FRAGMENTOS_GUARDAS: FRAGMENTOS_GUARDAS, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaFueraDeVocabulario,
+    alcoholCalificado, IDS_LISTA_BLANCA, _VOCAB_TECNICO: VOCAB_TECNICO, _FRAGMENTOS_GUARDAS: FRAGMENTOS_GUARDAS, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaTemaSensible, respuestaFueraDeVocabulario,
     restoFuera, tieneFragmentoDeDatos, respuestaConDatos, esRespuestaDeAyuda, salidaFueraDeVocabulario, APOYO_ES, APOYO_EN, pareceIngles, normalizaEntrada,
     ALIAS_LEGACY, padecimientosEnConsulta, releasesEnConsulta, CONJUGACIONES_COMUNES, NO_VERBALES_MOS,
   });

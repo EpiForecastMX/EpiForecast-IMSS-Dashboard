@@ -103,7 +103,7 @@ const CRISIS = [
   'dame datos – una herida en Jalisco', 'dame datos (una lesión) en Jalisco', 'dame datos / asfixia en Sonora', 'dame datos: quemaduras',
   '¿cuántos casos de X60 hay en Jalisco en 2026?', 'X70 en Jalisco, datos "muestra"', 'datos\nmuestra una herida',
 ];
-for (const q of CRISIS) {
+for (const q of sinBenignas(CRISIS)) {
   test(`divisor único de cláusulas (KB y RAG): «${q}» da la crisis`, async () => {
     assert.ok(C.respuestaCrisis(q), q);
     const { handler, md } = await conversa(q);

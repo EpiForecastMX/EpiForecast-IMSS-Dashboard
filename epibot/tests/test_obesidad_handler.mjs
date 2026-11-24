@@ -55,5 +55,6 @@ test('Obesidad ya no se responde como padecimiento no modelado', async () => {
   assert.doesNotMatch(r, /no modela/);
   const otro = await kb.answer('casos de epilepsia en jalisco');
   assert.match(otro, /no modela epilepsia/);
-  assert.match(otro, /Obesidad\*\* \(CIE-10: E66\)/);
+  // Rediseño conversacional: ya no se listan los 152 padecimientos; se remite a la galería, donde está Obesidad.
+  assert.match(otro, /galería de pronósticos/);
 });

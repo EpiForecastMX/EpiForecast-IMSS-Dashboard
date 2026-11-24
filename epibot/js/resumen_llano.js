@@ -112,6 +112,8 @@ export function confiabilidad(v, x, esControl) {
 /** Periodo pedido en la consulta: semana pasada, un mes, un año o el año en curso. */
 function periodoPedido(q) {
   const n = ` ${norm(q).replace(/[^a-z0-9]+/g, ' ')} `;
+  if (/ (mucho o poco|es mucho|es poco|esta peor|esta mejor|el ano pasado|ano anterior|comparado con el ano|misma ventana) /.test(n)) return { tipo: 'vsanio' };
+  if (/ (pico|temporada alta|cuando (sube|aumenta|hay) mas|cuando es la temporada|en que mes|estacionalidad|estacional|temporada) /.test(n)) return { tipo: 'pico' };
   if (/ (semana pasada|ultima semana|esta semana|semana anterior) /.test(n)) return { tipo: 'semana' };
   if (/ (proximo mes|siguiente mes|el mes que viene|proximas semanas|proximas 4 semanas) /.test(n)) return { tipo: 'proximo' };
   if (/ (este ano|en lo que va del ano|en lo que va de) /.test(n)) return { tipo: 'anio_actual' };
@@ -124,6 +126,16 @@ function periodoPedido(q) {
 
 function respuestaPeriodo(p, ind, x, lugar) {
   if (!p) return null;
+  if (p.tipo === 'vsanio') {
+    if (!ind.O4py) return null;
+    const d = ind.O4 / ind.O4py - 1;
+    const como = Math.abs(d) < 0.1 ? 'una cifra parecida a la de' : d > 0 ? `${pct0(d * 100)} más que en` : `${pct0(d * 100)} menos que en`;
+    return `**Frente al año pasado:** en las últimas 4 semanas hubo ${casos(ind.O4)}${lugar}, ${como} las mismas semanas de ${Number(ind.anio) - 1} (${ent0(ind.O4py)}).`;
+  }
+  if (p.tipo === 'pico') {
+    if (!ind.pico) return null;
+    return `**El pico esperado en los próximos 12 meses** es la semana del ${fechaLarga(ind.pico[0])}, con unos **${casos(ind.pico[1])}**${lugar}.`;
+  }
   if (p.tipo === 'semana') {
     const [ds, y] = x.observado.at(-1);
     return `**En la última semana con datos** (la del ${fechaLarga(ds)}) se notificaron **${casos(y)}**${lugar}.`;
@@ -191,6 +203,9 @@ export function respuestaLlana({ v, x, r, q, esControl, estados, sinSexo, confia
   if (pidio && !/^\W*por ?que\b/.test(norm(q)) && !['incierto', 'atipico'].includes(ind.tendencia)) sino = ind.tendencia === pidio ? 'Sí. ' : 'No. ';
   if (x.nivel === 'nacional' && /\bmi (estado|ciudad|municipio|entidad|region|zona)\b/.test(norm(q))) {
     lineas.push('No sé en qué estado estás: dime cuál (por ejemplo, «en Jalisco») y te digo cómo va ahí. Mientras, así va en todo el país:', '');
+  }
+  if (/\b(tasa|por 100 ?mil|por cien mil|incidencia por|per capita)\b/.test(norm(q))) {
+    lineas.push('_No calculo tasas por 100 mil habitantes: el boletín reporta casos notificados y aquí comparo casos._', '');
   }
   const periodo = respuestaPeriodo(periodoPedido(q), ind, x, lugar);
   if (periodo) lineas.push(periodo, '');

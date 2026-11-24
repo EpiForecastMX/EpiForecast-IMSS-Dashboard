@@ -655,7 +655,7 @@ add('como va el bitcoin', 'answerFueraDeTema', ['EPI', 'fuera del proyecto']);
 add('clima en cancun', '*', [], [], {});
 // Rechazo local explícito: contrato vigente. Se exige contenido mínimo estable, no el párrafo completo.
 add('receta de tacos', 'answerFueraDeTema', ['EPI', 'fuera del proyecto']);
-add('quien es el presidente', null, [], [], {});
+add('quien es el presidente', 'answerFueraDeAlcance', ['No'], ['800 911 2000']);
 add('formula 1 resultados', null, [], [], {});
 add('donde puedo viajar', '*', [], [], {});
 add('como hacer un pastel', null, [], [], {});
