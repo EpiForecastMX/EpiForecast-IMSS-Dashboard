@@ -1675,7 +1675,7 @@
       generico: /\b(tetanos|tetanus)\b(?!.*\b(obstetric[oa]|otros tetanos|no neonatal|a3[45])\b)/, especifico: /(?!)/,
       abarca: '«Tétanos» abarca el tétanos neonatal (A33), que el boletín notifica aparte y no se pronostica, y el tétanos (A34, A35), con su control estacional.' },
     { release: null, bloques: ['tuberculosis_respiratoria_a15', 'meningitis_tuberculosa_a170', 'tuberculosis_otras_formas_a171'], siempre: true,
-      generico: /\b(tuberculosis|tb|tbc)\b(?!.*\b(otras formas|extrapulmonar|extrapulmonary|respiratoria|pulmonar|respiratory|pulmonary|meningea)\b)|\ba17\b(?![ .]?[0-9])/, especifico: /(?!)/,
+      generico: /^(?!.*\b(otras formas|extrapulmonar|extrapulmonary|respiratoria|pulmonar|respiratory|pulmonary|meningea|meningitis|tuberculosa|tuberculous)\b).*\b(tuberculosis|tb|tbc)\b|\ba17\b(?![ .]?[0-9])/, especifico: /(?!)/,
       abarca: '«Tuberculosis» abarca tres bloques del boletín: la tuberculosis respiratoria (A15-A16), con su propio pronóstico, y la meningitis tuberculosa (A17.0) y la tuberculosis otras formas (A17.1, A17.8, A17.9, A18-A19), cada una con su control estacional.' },
     // Lote 6: «rickettsiosis» a secas abarca tres bloques; «leishmaniasis» a secas abarca la visceral (B55.0).
     { release: null, bloques: ['otras_rickettsiosis_a79', 'fiebre_manchada_a770', 'tifo_murino_a752'], siempre: true,
@@ -2521,6 +2521,12 @@
       const als = [...r.alias, ...(prefijos ? (r.prefijos || []) : [])].filter((al) => (!soloNombres || !/\d/.test(al)) && nombraAlias(canon, al));
       if (als.length) coincidencias.set(r, als);
     }
+    // Barrido de cobertura (24-nov-2026): un release cuyos alias nombrados quedan todos dentro del alias más largo de otro
+    // («accidentes de transporte» dentro de «peatones lesionados en accidentes de transporte») no es un segundo padecimiento.
+    for (const [r, als] of [...coincidencias]) {
+      const dentro = [...coincidencias].some(([r2, als2]) => r2 !== r && als.every((a) => als2.some((b) => b.length > a.length && ` ${b} `.includes(` ${a} `))));
+      if (dentro) coincidencias.delete(r);
+    }
     const rel = new Set(coincidencias.keys());
     if (codigos) {
       const conPunto = canonClinico(normalizaEntrada(qn).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -2578,7 +2584,7 @@
   // ── Rediseño conversacional (24-nov-2026, mesa redonda) ────────────────────────────────────────────────────────────
   // Al retirar la lista blanca global, las frases de riesgo que sólo ella frenaba pasan a este detector explícito: jergas,
   // inglés coloquial, violencia vivida y escritura disfrazada (leet, letras repetidas, letras separadas).
-  const RIESGO_JERGA_ES = /\b(petatear(me|se)?|desvivir(me|se)?|dar(me|le)? cuello|(echar|pegar|dar)(me)? un (tiro|plomazo|balazo)|me voy a echar un tiro|(aventar|tirar|lanzar)(me|se)? (del|de la|desde|por) |me quiero (aventar|tirar|lanzar)|ya vali|ya no (quiero|puedo) (mas|seguir)|mejor muert[oa]s?|estaria mejor muert[oa]|nadie me (extranaria|va a extranar)|(quiero|quisiera|voy a) tomar (veneno|venenos|cloro|raticida|matarratas)|(tomo|tome|tomare|voy a tomar|quiero tomar|me voy a tomar) (\d+|muchas|todas|un frasco de|una caja de) (pastillas|pildoras|tabletas|capsulas|sedantes))\b/;
+  const RIESGO_JERGA_ES = /\b(petatear(me|se)?|desvivir(me|se)?|dar(me|le)? cuello|(echar|pegar|dar)(me)? un (tiro|plomazo|balazo)|me voy a echar un tiro|(aventar|tirar|lanzar)(me|se)? (del|de la|desde|por) |me quiero (aventar|tirar|lanzar)|ya vali|ya no (quiero|puedo) (mas|seguir)|mejor muert[oa]s?|estaria mejor muert[oa]|(?<!\b(pronostico|grafica|dato|datos|esto|eso|modelo|numero|bot|chatbot|respuesta|pagina) )(ya )?no le (veo|encuentro) (sentido|caso) (a nada|a la vida|a vivir|a seguir)|(seria|estaria|estarian|seria todo) mejor si (yo )?no (existiera|estuviera|hubiera nacido)(?! (el|la|los|las|ese|esa|este|esta|eso|esto|un|una)\b)|mejor no existir|no quisiera existir|ojala no hubiera nacido|quisiera no despertar|nadie me (extranaria|va a extranar)|(quiero|quisiera|voy a) tomar (veneno|venenos|cloro|raticida|matarratas)|(tomo|tome|tomare|voy a tomar|quiero tomar|me voy a tomar) (\d+|muchas|todas|un frasco de|una caja de) (pastillas|pildoras|tabletas|capsulas|sedantes))\b/;
   const RIESGO_JERGA_EN = /\b(off myself|unalive( myself)?|hopeless|nobody would miss me|no one would miss me|better off dead|end it|want to disappear|kms|kys)\b/;
   const VIOLENCIA_EXTRA_ES = /\b(me (da|dan|daba|daban|dio|dieron) (golpes|de golpes|una golpiza|cachetadas|patadas)|me (hace|hacen|hacia|hacian|hizo|hicieron) dano|me (causa|causan|causo) (asfixia|quemaduras|dano|golpes|heridas|moretones)|(mi|su) ([a-z]+ ){0,2}(me|la|lo|nos|les) (ahoga|ahogan|ahorca|ahorcan|quema|queman|golpea|golpean|pega|pegan|asfixia|asfixian))\b/;
   // Variante sin espacios: «me quiero ma tar», «s u i c i d i o».

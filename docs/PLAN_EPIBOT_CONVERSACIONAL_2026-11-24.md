@@ -114,3 +114,16 @@ métrica; sí sirvió para encontrar fallos concretos.
 | Trampas: lugares fuera de México («sólo tengo datos de México»), años fuera de los datos («no hay pronóstico para 2035»), premisas con cifras («no puedo confirmar el 500 %»), frases dictadas y peticiones de inventar, «¿por qué mentiste?» (un pronóstico no es una promesa), «mortal» (no hay defunciones). | `js/conversacion.js` (`reescribeConsulta`) |
 | «tuberculosis» y «otitis» a secas toman la forma común (respiratoria; media aguda) con nota, en vez de detener la conversación; «otitis media» e «otitis interna» siguen aclarando. Cambia el contrato de auditorías anteriores (pedían precisar sin cifras); **aprobado por el autor el 24-nov-2026** («mantenlo así»). | `js/conversacion.js`, `tests/test_alcance_*.mjs` |
 | Reliquias y corrector: «quieres» ya no se corrige a «mujeres», «tan» a «san», «factores» a «autores» ni «cuenta» a «cuantas»; «proporcionarme» ya no dispara el área apilada neuro ni «uno por ciento» el glosario de métricas. Con menos de 10 casos de base no se da un porcentaje («445 % más»). | `js/kb.js`, `js/resumen_llano.js` |
+
+## Sexta tanda (mismo día): ataque por todos los frentes, en local
+
+| Frente | Prueba | Antes | Después | Cambio |
+|---|---|---|---|---|
+| Cobertura | Los 148 padecimientos del runner por nombre y por cada alias, nacional y en un estado (1,492 consultas) | 34 con problema | 12 (aclaraciones deliberadas y alias en inglés) | El corrector ya no toca palabras de nombres publicados («chagas» se corregía a «Chiapas»); «tb pulmonar» es tuberculosis (no «también»); «otras formas de tuberculosis» y «meningitis por tuberculosis» ya no piden precisar; el alias contenido en otro más largo no cuenta como segundo padecimiento («peatones lesionados en accidentes de transporte»); el nombre propio «(menores de 15 años)» ya no dispara el aviso de edad. |
+| Robustez | 22 preguntas × 10 mutaciones (sin tildes, mayúsculas, erratas, letras dobles, emojis, signos, muletillas, espacios, comillas) | 28 respuestas distintas | 2 («¿qué pudees hacer?») | Corrector temprano de erratas sólo hacia nombres publicados en español, con transposiciones, que respeta el vocabulario cerrado del boletín, no toca terminaciones («candidiásica») ni textos en inglés y lo dice («Entendí «varicela»»). Espacios normalizados. |
+| Seguridad | 104 inyecciones de HTML, script, `javascript:` y marcadores internos falsos; órdenes de sistema y peticiones de credenciales | 0 ecos; 3 órdenes sin bloquear | 0; 0 | `sanitizeHtml` ya no falla abierto sin el CDN de DOMPurify: lista de permitidos local probada en un navegador real (13 cargas, 0 alertas). Guarda de inyección ampliada («SYSTEM:», «clave de API», «desactiva las guardas») y su texto con tildes y al día. |
+| Riesgo | 28 frases indirectas que deben dar la Línea y 15 coloquiales que no; crisis a mitad de conversación | 2 omisiones | 0 | «ya no le veo sentido a nada», «sería mejor si no existiera» (sin activar «…si no existiera el dengue» ni «este pronóstico no le veo sentido»). |
+| Exactitud | Casos de las últimas 4 semanas, esperados en las próximas 4 y acumulado del año recalculados desde las vistas sin usar el código del bot | 407 respuestas | 0 discrepancias | — |
+| Latencia | Consultas locales del barrido | p50 14 ms, p99 31 ms | — | — |
+
+Pruebas permanentes: `tests/test_frentes_epibot.mjs`.

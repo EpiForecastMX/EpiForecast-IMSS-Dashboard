@@ -7,7 +7,7 @@ import { graficoRondas } from './comparacion_rondas.js?v=3';
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=200';
+import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=201';
 import { detectEntities, norm } from './entities.js?v=87';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
 import { renderMexicoMap } from './mexico-map.js?v=3';
@@ -17,7 +17,7 @@ import { renderComparador } from './comparador.js?v=4';
 import { buildComparadorState } from './comparador_data.js?v=1';
 import { graficaObesidad } from './obesidad_charts.js?v=58';
 import { UNCERTAINTY_LABEL } from './point_only.js?v=1';
-import { MARCADOR_RELEASE, RELEASES, releaseConAlias, releaseDeMarca, releaseDePad } from './release_config.js?v=56';
+import { MARCADOR_RELEASE, RELEASES, releaseConAlias, releaseDeMarca, releaseDePad } from './release_config.js?v=57';
 import { initSTT, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking, toggleMute, isTTSEnabled, onSpeakingStateChange } from './voice.js?v=3';
 
 // ---------------------------------------------------------------------------
@@ -4054,15 +4054,36 @@ function escapeAttr(text) {
 // listas, code, énfasis, enlaces, imágenes) y la política de URI por defecto
 // de DOMPurify, que ya bloquea javascript:/data: en href y src.
 // ---------------------------------------------------------------------------
+const SANEADO_TAGS = ['a', 'b', 'strong', 'i', 'em', 'u', 's', 'del', 'p', 'br', 'hr',
+  'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote',
+  'code', 'pre', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td',
+  'img', 'span', 'div'];
+const SANEADO_ATTR = ['href', 'target', 'rel', 'title', 'src', 'alt', 'class', 'align'];
 function sanitizeHtml(html) {
-  if (typeof DOMPurify === 'undefined') return html;   // CDN caído: degradación
-  return DOMPurify.sanitize(html, {
-    ALLOWED_TAGS: ['a', 'b', 'strong', 'i', 'em', 'u', 's', 'del', 'p', 'br', 'hr',
-      'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote',
-      'code', 'pre', 'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td',
-      'img', 'span', 'div'],
-    ALLOWED_ATTR: ['href', 'target', 'rel', 'title', 'src', 'alt', 'class', 'align'],
-  });
+  if (typeof DOMPurify !== 'undefined') return DOMPurify.sanitize(html, { ALLOWED_TAGS: SANEADO_TAGS, ALLOWED_ATTR: SANEADO_ATTR });
+  // Pruebas de seguridad (24-nov-2026): sin el CDN de DOMPurify ya no se degrada a HTML sin limpiar. Se recorre el árbol con
+  // la misma lista de permitidos: las etiquetas ajenas quedan como texto y los atributos ajenos o con esquemas peligrosos
+  // se eliminan.
+  const tpl = document.createElement('template');
+  tpl.innerHTML = String(html);
+  const limpia = (nodo) => {
+    for (const hijo of [...nodo.childNodes]) {
+      if (hijo.nodeType === 1) {
+        const tag = hijo.tagName.toLowerCase();
+        if (!SANEADO_TAGS.includes(tag)) { hijo.replaceWith(document.createTextNode(['script', 'style', 'iframe', 'object', 'embed'].includes(tag) ? '' : hijo.textContent)); continue; }
+        for (const at of [...hijo.attributes]) {
+          // Los navegadores ignoran espacios y controles dentro del esquema («jav&#9;ascript:»): se quitan antes de validar.
+          const v = at.value.replace(/[\s\u0000-\u001f]/g, '');
+          const esquema = (v.match(/^([a-z][a-z0-9+.-]*):/i) || [])[1];
+          const urlMala = (at.name === 'href' || at.name === 'src') && ((esquema && !/^(https?|mailto)$/i.test(esquema)) || v.startsWith('//'));
+          if (!SANEADO_ATTR.includes(at.name.toLowerCase()) || urlMala) hijo.removeAttribute(at.name);
+        }
+        limpia(hijo);
+      } else if (hijo.nodeType !== 3) hijo.remove();
+    }
+  };
+  limpia(tpl.content);
+  return tpl.innerHTML;
 }
 
 // Valida el esquema de un href de fuente RAG: solo http(s) o rutas relativas.

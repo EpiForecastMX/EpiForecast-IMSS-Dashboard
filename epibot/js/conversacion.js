@@ -6,7 +6,7 @@
  * la cadena de kb.js. Ninguno da consejo médico ni cifras inventadas: el ranking sale de resumen_padecimientos.json, que
  * genera scripts/build_resumen_padecimientos.mjs desde las vistas publicadas.
  */
-import { RELEASES } from './release_config.js?v=56';
+import { RELEASES } from './release_config.js?v=57';
 
 const LEGACY = 4;
 export const TOTAL_PUBLICADOS = () => RELEASES.length + LEGACY;
@@ -367,14 +367,14 @@ const SINONIMOS = [
   [/\b(gusano barrenador|gusanos en (la )?herida)\b/g, 'miasis'], [/\bulceras? (de|del) estomago\b/g, 'ulceras gastritis y duodenitis'],
   [/\bcancer (de|en) (la )?matriz\b/g, 'cancer de utero'],
   [/\baccidentes? de transito con vehiculos? (de|con) motor\b/g, 'accidente de transporte en vehiculos con motor'],
-  [/^(?!.*\b(peaton|ciclista|atropell\w*)\b)(.*)\baccidentes? (de|en|con) (moto|motos|motocicleta|motocicletas|vehiculos? de motor|carro|carros|coche|coches|auto|autos)\b/, '$2accidente de transporte en vehiculos con motor'],
+  [/^(?!.*\b(peaton\w*|ciclista\w*|atropell\w*)\b)(.*)\baccidentes? (de|en|con) (moto|motos|motocicleta|motocicletas|vehiculos? de motor|carro|carros|coche|coches|auto|autos)\b/, '$2accidente de transporte en vehiculos con motor'],
   [/\b(quemados|quemadas|quemado|quemada)\b/g, 'quemaduras'],
   [/\b(preeclampsia|eclampsia)\b|\b(presion alta|presion|hipertension)\b(?=.*\bembarazad\w*)|\bembarazad\w*\b(?=.*\b(presion|hipertension)\b)/g, 'trastornos hipertensivos del embarazo'],
   [/\b(en|para|durante) (semana santa|navidad|las vacaciones|vacaciones|el puente|fin de ano|ano nuevo)\b/g, ' '], [/\bhipertencion\b/g, 'hipertension'], [/\bneumonia\b/g, 'neumonias'],
   [/\b(cifras del radar|el radar)\b(?=.*\b(categorias|modelan|modelables|boletin)\b)/g, 'radar del boletin'],
   [/\b(bronquiolitis|virus sincitial( respiratorio)?|vsr)\b/g, 'infecciones respiratorias agudas'],
   [/\b(amibas|amibiasis)\b/g, 'amebiasis'],
-  [/^(?!.*\b(peaton|ciclista|motociclista|lesionado|atropell\w*)\b)(.*)\baccidentes? (de transporte|de coche|de carro|automovilisticos?)\b(?! en vehiculos)/, '$2accidente de transporte en vehiculos con motor'],
+  [/^(?!.*\b(peaton\w*|ciclista\w*|motociclista\w*|lesionad\w*|atropell\w*)\b)(.*)\baccidentes? (de transporte|de coche|de carro|automovilisticos?)\b(?! en vehiculos)/, '$2accidente de transporte en vehiculos con motor'],
   [/\b(golpes? de calor|insolacion)\b/g, 'efectos del calor y de la luz'],
   [/\b(intoxicacion(es)? (por|con) (comida|alimentos)|intoxicacion alimentaria|comida en mal estado)\b/g, 'intoxicacion alimentaria bacteriana'],
   [/\b(\d{4}) (vs|versus|contra) (\d{4})\b/g, 'este ano'],
@@ -391,16 +391,90 @@ const ABREVIATURAS = [
   ['nayarit', /\bnay\b/], ['tlaxcala', /\btlax\b/], ['campeche', /\bcamp\b/],
 ];
 /** Reescribe sinónimos, abreviaturas y ciudades. Devuelve el texto y las notas que la respuesta debe decir. */
+const ESTADOS_PALABRAS = new Set(Object.keys(ESTADOS_NOMBRE).flatMap((k) => k.split(' ')));
+// ── Erratas en nombres de padecimientos (prueba de robustez, 24-nov-2026) ─────────────────────────────────────────────
+// «vaircela en Jalisco» respondía el panorama de Jalisco ignorando la enfermedad. Antes de enrutar, una palabra desconocida
+// de cinco letras o más a una edición (o a dos si es larga), contando transposiciones, de una palabra de algún nombre o alias
+// publicado se corrige y se dice. Nunca se toca una palabra del vocabulario de consulta.
+const OBJETIVOS_EXTRA = ['dengue', 'depresion', 'parkinson', 'alzheimer', 'enfermedades', 'enfermedad', 'padecimientos', 'padecimiento',
+  'gracias', 'confiable', 'confiabilidad'];
+// Palabras comunes que aparecen en algún nombre publicado y no deben ser destino de una corrección.
+const NO_OBJETIVO = new Set(['personal', 'personas', 'otras', 'otros', 'agudas', 'agudo', 'aguda', 'cronica', 'cronico', 'general',
+  'sistema', 'mental', 'partes', 'parte', 'causa', 'casos', 'estado', 'animales', 'organismos', 'definidas', 'excepto', 'formas',
+  'intencionalmente', 'historia', 'transporte', 'vehiculos', 'motor', 'lesion', 'lesionado', 'accidente', 'embarazo', 'parto',
+  'trastornos', 'efectos', 'calor', 'otras', 'sitios', 'especificados', 'centro', 'nervioso', 'similares']);
+let _objetivos = null;
+let _fragmentos = null;
+function objetivosErratas() {
+  if (_objetivos) return _objetivos;
+  _objetivos = new Set(OBJETIVOS_EXTRA);
+  for (const r of RELEASES.filter((x) => !x.sensible)) {
+    for (const t of [r.nombre, r.consultaVisible || r.consulta, ...(r.alias || [])]) {
+      // Sólo palabras en español: las de los alias en inglés («gestational», «paratyphoid») no son destino.
+      for (const w of norm0(t || '').split(/[^a-z0-9]+/)) if (w.length >= 5 && !/\d/.test(w) && !NO_OBJETIVO.has(w) && !/tion|ous|ph|th|ck|sh|w|k|y/.test(w)) _objetivos.add(w);
+    }
+  }
+  return _objetivos;
+}
+/** Distancia de edición con transposiciones (OSA), cortada en 3. */
+function distancia(a, b) {
+  if (Math.abs(a.length - b.length) > 2) return 3;
+  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+  for (let j = 1; j <= b.length; j++) d[0][j] = j;
+  for (let i = 1; i <= a.length; i++) {
+    for (let j = 1; j <= b.length; j++) {
+      const c = a[i - 1] === b[j - 1] ? 0 : 1;
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + c);
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+    }
+  }
+  return d[a.length][b.length];
+}
+function corrigeErratas(t) {
+  // En inglés no se corrige («pertussis like syndrome» no es «síndrome»).
+  if (/\b(the|of|in|is|how|what|like|acute|and|with|for|cases|disease)\b/.test(t)) return { texto: t, cambios: [] };
+  const objetivos = objetivosErratas();
+  const vc = globalThis.EPI_VOCAB_CONSULTA;
+  // Toda palabra del vocabulario cerrado del boletín (nombres del radar, no modelados, geografía, catálogo) es conocida.
+  if (!_fragmentos && Array.isArray(globalThis.EPI_FRAGMENTOS)) _fragmentos = new Set(globalThis.EPI_FRAGMENTOS.flatMap((f) => f.split(' ')));
+  const conocidas = (w) => objetivos.has(w) || vc?.palabras?.has(w) || vc?.verbosCurados?.has?.(w) || ESTADOS_PALABRAS.has(w) || _fragmentos?.has(w);
+  const cambios = [];
+  const texto = t.split(' ').map((w) => {
+    if (w.length < 5 || /\d/.test(w) || conocidas(w)) return w;
+    let mejor = null; let dMin = w.length >= 9 ? 2 : 1; let empate = false;
+    for (const o of objetivos) {
+      if (o[0] !== w[0]) continue; // casi toda errata conserva la primera letra
+      // Una diferencia sólo en la terminación es otra palabra («candidiásica» no es «candidiasis», «paratyphi» no es
+      // «paratyphoid»), salvo la última letra repetida («graciass»).
+      let pre = 0; while (pre < w.length && pre < o.length && w[pre] === o[pre]) pre++;
+      if (pre >= Math.min(w.length, o.length) - 2 && w !== o + o.at(-1)) continue;
+      const dd = distancia(w, o);
+      if (dd < dMin || (dd === dMin && !mejor)) { if (dd < dMin) empate = false; mejor = o; dMin = dd; } else if (dd === dMin && mejor && o !== mejor) empate = true;
+    }
+    if (!mejor || empate || distancia(w, mejor) > (w.length >= 9 ? 2 : 1)) return w;
+    cambios.push(mejor);
+    return mejor;
+  }).join(' ');
+  return { texto, cambios };
+}
+
 export function reescribeConsulta(raw) {
+  let notasErratas = [];
   const base = ciudadesAEstados(raw);
-  let t = base.notas.length ? base.texto : norm0(raw);
+  let t = (base.notas.length ? base.texto : norm0(raw)).replace(/\s+/g, ' ').trim();
   const antes = t;
+  const erratas = corrigeErratas(t);
+  if (erratas.cambios.length) {
+    t = erratas.texto;
+    notasErratas = erratas.cambios;
+  }
   const notas = [...base.notas.map((n) => `${n.ciudad} está en ${n.estado}: el boletín da los datos por estado, así que te respondo para ${n.estado}`)];
+  if (notasErratas.length) notas.push(`Entendí «${notasErratas.join('», «')}»`);
   if (/\b(bronquiolitis|virus sincitial|vsr)\b/.test(t)) notas.push('La bronquiolitis y el virus sincitial no se reportan aparte: se cuentan dentro de las infecciones respiratorias agudas');
   if (NOTA_GRIPA.test(t)) notas.push('Por «gripa» entiendo infecciones respiratorias agudas (resfriado, faringitis y similares); la influenza se notifica aparte y no tiene pronóstico');
   // Abreviaturas de chat: «q» → «que», «xq» → «por que», «tmb» → «también».
   if (t.split(' ').length >= 5) t = t.replace(/\bpor (genero|generos)\b/g, 'por sexo').replace(/\bgenero\b/g, 'sexo');
-  t = t.replace(/\bq\b/g, 'que').replace(/\b(xq|pq|porq)\b/g, 'por que').replace(/\b(tmb|tb)\b/g, 'tambien').replace(/\bk\b/g, 'que')
+  t = t.replace(/\bq\b/g, 'que').replace(/\b(xq|pq|porq)\b/g, 'por que').replace(/\btb (pulmonar|respiratoria|meningea|extrapulmonar|osea|latente)\b/g, 'tuberculosis $1').replace(/\b(tmb|tb)\b/g, 'tambien').replace(/\bk\b/g, 'que')
     .replace(/\bd\b/g, 'de').replace(/\bx\b(?! ?\d)/g, 'por').replace(/\b(plis|pls|porfis|xfa|xfavor|xd|jaja\w*|jeje\w*|ntp|alv|wey|we|neta)\b/g, ' ').replace(/\btodo mx\b|\ben mx\b/g, 'nacional');
   // «tuberculosis» y «otitis» a secas: se toma la forma que casi siempre se quiere decir (la única con pronóstico propio en
   // otitis) y se avisa, en vez de detener la conversación con la aclaración de bloques (ronda de conversaciones con Ollama).
