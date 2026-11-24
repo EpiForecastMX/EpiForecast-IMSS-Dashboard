@@ -21,7 +21,8 @@ import { picosHeredados, textoPico } from './picos_heredados.mjs';
 import '../../js/avisos_fuente.js';
 import { errorDelControl } from '../../js/obesidad_kb.js?v=26';
 import { releaseDeId } from '../../js/release_config.js';
-import { GRUPOS_NO_MODELABLES, POR_QUE_SIN_PRONOSTICO, filasNoModelables, nombreLimpio } from '../../../assets/boletin/no_modelables.mjs';
+import { GRUPOS_NO_MODELABLES, POR_QUE_SIN_PRONOSTICO, filasNoModelables } from '../../../assets/boletin/no_modelables.mjs';
+import { nombreVisible } from '../../../assets/boletin/nombres.mjs';
 
 // Catálogo del EpiBot (IIFE que publica globalThis.EPI_CATALOGO): de él sale cómo se eligió el motor
 // de los releases de historia corta, que no usan los pliegues de 2021 a 2024.
@@ -369,13 +370,13 @@ export function noModelablesCards(root = ROOT_DIR) {
       `${m.platform_published} padecimientos con pronóstico. ${POR_QUE_SIN_PRONOSTICO} Motivos: ` +
       Object.entries(GRUPOS_NO_MODELABLES).map(([g, info]) => {
         const fs = filas.filter((e) => e.no_modelable.grupo === g);
-        return fs.length ? `${info.etiqueta.toLowerCase()} (${fs.length}: ${fs.map((e) => nombreLimpio(e.name)).join(', ')}). ${info.explicacion}` : '';
+        return fs.length ? `${info.etiqueta.toLowerCase()} (${fs.length}: ${fs.map((e) => nombreVisible(e.id, e.name)).join(', ')}). ${info.explicacion}` : '';
       }).filter(Boolean).join(' '),
   }];
   for (const e of filas) {
     const g = GRUPOS_NO_MODELABLES[e.no_modelable.grupo];
     const anio = e.observed_week > m.week ? m.year - 1 : m.year;
-    const nombre = nombreLimpio(e.name);
+    const nombre = nombreVisible(e.id, e.name);
     cards.push({
       id: `no-modelable#${e.id}`,
       source: 'Radar del boletín: categorías sin modelo validado', section: `${nombre} (${e.code})`,

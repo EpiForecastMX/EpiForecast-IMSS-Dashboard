@@ -5,7 +5,8 @@
  * (radar_boletin.js) y que no_modelables.html. Sin `?v=` en los imports: el empaquetador de Netlify los resuelve tal cual.
  */
 import { GUION, guionNoPublicado } from '../../../assets/boletin/celdas.mjs';
-import { GRUPOS_NO_MODELABLES, grupoNoModelable, noModelablesEnConsulta, nombreLimpio } from '../../../assets/boletin/no_modelables.mjs';
+import { nombreVisible } from '../../../assets/boletin/nombres.mjs';
+import { GRUPOS_NO_MODELABLES, grupoNoModelable, noModelablesEnConsulta } from '../../../assets/boletin/no_modelables.mjs';
 import { referenciaExploratoria } from '../../../assets/boletin/pronostico.mjs';
 
 const fmt = (v) => v.toLocaleString('es-MX');
@@ -28,7 +29,7 @@ export function respuestaNoModelableRag(q, data, { codigos = true, exploratorio 
     const anio = e.observed_week > m.week ? m.year - 1 : m.year;
     const g = GRUPOS_NO_MODELABLES[grupoNoModelable(e)];
     const nota = e.guion && guionNoPublicado(e.guion, anio) ? `\n\n${e.guion.nota}` : '';
-    return `**${nombreLimpio(e.name)} (${e.code})**: EpiForecast-MX **no modela** esta categoría; no tiene modelo validado, pronóstico publicado ni ` +
+    return `**${nombreVisible(e.id, e.name)} (${e.code})**: EpiForecast-MX **no modela** esta categoría; no tiene modelo validado, pronóstico publicado ni ` +
       `control estacional. Estado: **no modelable** (${g.etiqueta.toLowerCase()}). Motivo medido: ${minusculaInicial(e.reason)}\n\n` +
       `Cifras impresas en el Boletín Epidemiológico ${m.week} de ${m.year}, nacional, hasta la semana ${e.observed_week} de ${anio}:\n` +
       `- Casos de la semana: **${celda(e.weekly, e, anio)}**\n- Acumulado ${m.year}: **${celda(e.cumulative, e, anio)}**\n` +

@@ -12,6 +12,7 @@ import { summarizeCoverage, coberturaPanorama } from '../../assets/boletin/cover
 import { ESTADO_NO_MODELABLE, GRUPOS_NO_MODELABLES, codigoEnConsulta, grupoNoModelable } from '../../assets/boletin/no_modelables.mjs?v=2';
 import { GUION, esMarcador, guionNoPublicado, suma } from '../../assets/boletin/celdas.mjs?v=1';
 import { referenciaExploratoria } from '../../assets/boletin/pronostico.mjs?v=10';
+import { nombreVisible } from '../../assets/boletin/nombres.mjs?v=1';
 
 // Opción «Pronóstico» del radar (alta_b44): se menciona sin cifras y con el método real de cada categoría, leído de
 // pronostico_exploratorio.json de la foto (estacional, nivel reciente o nivel derivado de las notas).
@@ -80,7 +81,11 @@ export function compactaRadar(actual, data, exploratorio = null) {
     cobertura: summarizeCoverage(data.diseases),
     // Opción «Pronóstico» del radar: publicado y exploratorio no validado por separado (sólo conteos).
     pronostico: coberturaPanorama(data.diseases, exploratorio?.schema === 'radar_pronostico_exploratorio.v3' ? exploratorio : null),
-    diseases: data.diseases.map((e) => ({ ...e, _n: normaliza(e.name) })),
+    // Nombre visible corregido (erratas y marcas del cuadro, assets/boletin/nombres.mjs); el impreso se conserva.
+    diseases: data.diseases.map((e) => {
+      const name = nombreVisible(e.id, e.name);
+      return { ...e, nombre_impreso: e.name, name, _n: normaliza(name) };
+    }),
   };
 }
 
