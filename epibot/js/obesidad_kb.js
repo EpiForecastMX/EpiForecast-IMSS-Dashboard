@@ -18,7 +18,8 @@ import {
 import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=54';
 // Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
 import './avisos_fuente.js?v=5';
-import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion } from './resumen_llano.js?v=1';
+import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion } from './resumen_llano.js?v=2';
+import { DEFINICIONES } from './definiciones.js?v=1';
 
 const any = (q, ks) => ks.some((k) => q.includes(k));
 const semana = ([a, w]) => `${a}-W${String(w).padStart(2, '0')}`;
@@ -327,9 +328,14 @@ function answerRelease(q, ent, s, d, r) {
       const cie = (v.nombre_completo || '').match(/\(([^()]+)\)\s*$/)?.[1];
       const arriba = [];
       if (defin) {
-        arriba.push(`**${r.nombre}** es una de las categorías que notifica el boletín epidemiológico de la Secretaría de Salud` +
-          `${cie ? ` (CIE-10 ${cie})` : ''}${completo && completo.toLowerCase() !== r.nombre.toLowerCase() ? `: ${completo}` : ''}. ` +
-          `Para saber qué es y cómo se atiende, consulta [MedlinePlus en español](${enlaceDefinicion(r.nombre)}) o a tu médico. Así va en el país:`, '');
+        // Rediseño conversacional: definición propia en lenguaje llano (js/definiciones.js, revisada por un médico),
+        // con la aclaración de que es informativa y el enlace a MedlinePlus en español para saber más.
+        const def = DEFINICIONES[r.id];
+        arriba.push(def
+          ? `**${r.nombre}**${cie ? ` (CIE-10 ${cie})` : ''}. ${def}`
+          : `**${r.nombre}** es una de las categorías que notifica el boletín epidemiológico de la Secretaría de Salud` +
+            `${cie ? ` (CIE-10 ${cie})` : ''}${completo && completo.toLowerCase() !== r.nombre.toLowerCase() ? `: ${completo}` : ''}.`, '',
+          `_Información general, no sustituye la consulta médica. Para saber más: [MedlinePlus en español](${enlaceDefinicion(r.nombre)})._ Así va:`, '');
       }
       if (tipo === 'confianza') arriba.push(confiabilidad(v, x, esControl(v)).texto, '');
       const tecnico = ficha(v, x, '', r);

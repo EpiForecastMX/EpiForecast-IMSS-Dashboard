@@ -27,6 +27,7 @@ import { micaiGroundedAnswer } from '../lib/micai_grounding.mjs';
 import { resolverConsultaRag, vistaGroundedAnswer, enriquecerSemanticoVista } from '../lib/vista_grounding.mjs';
 import { crisisEnHistorial, nombraPadecimientoNoSensible } from '../lib/vista_turno.mjs';
 import { respuestaNoModelableRag } from '../lib/radar_no_modelable.mjs';
+import { interpretaConsulta } from '../lib/nlu.mjs';
 
 const EMBED_MODEL = 'gemini-embedding-001';
 const EMBED_DIM = 768;
@@ -40,6 +41,7 @@ const GEN_MODELS = ['gemini-3.1-flash-lite', 'gemini-3.5-flash'];
 // Timeouts (ms) por tipo de llamada a Gemini.
 const T_FAST = 4000;     // embed, contextualize, rerank
 const T_GEN = 20000;     // generación (incl. streaming)
+const T_NLU = 3500;      // respaldo de comprensión (modo nlu)
 
 /** AbortController con disparo por tiempo. Llamar done() en finally. */
 function withAbort(ms) {
@@ -1047,6 +1049,23 @@ async function handlerInterno(req) {
   // Re-auditoría Codex: consulta mixta con un id sensible y sin riesgo; no se combinan cifras.
   const mixta = globalThis.EPI_CATALOGO.respuestaMixtaSensible(String(body.query || ''));
   if (mixta) return json({ answer: mixta.replace('\n<!--SIN_GRAFICA-->', ''), sources: [], retrieval: 'none', guarda: 'mixta_sensible' }, 200, cors);
+  // Rediseño conversacional (24-nov-2026): respaldo de comprensión. Después de la crisis y de las guardas de sensibles, Gemini
+  // sólo clasifica la frase contra listas cerradas (netlify/lib/nlu.mjs); el cliente responde la consulta canónica con su KB.
+  if (body.modo === 'nlu') {
+    if (!apiKey) return json({ consulta: null, entendido: null }, 200, cors);
+    const rlNlu = checkRateLimit(getClientIp(req));
+    if (!rlNlu.ok) return json({ consulta: null, entendido: null }, 200, cors);
+    const genAINlu = new GoogleGenerativeAI(apiKey);
+    const generar = async (prompt) => {
+      const a = withAbort(T_NLU);
+      try {
+        const model = genAINlu.getGenerativeModel({ model: GEN_MODELS[0], generationConfig: { responseMimeType: 'application/json', temperature: 0 } });
+        const r = await model.generateContent(prompt, { signal: a.signal });
+        return r.response.text();
+      } finally { a.done(); }
+    };
+    return json(await interpretaConsulta(String(body.query || ''), globalThis.EPI_CATALOGO.releases, generar), 200, cors);
+  }
   const d7 = guardaD7Rag(body.query);
   if (d7) return json({ answer: d7, sources: [], retrieval: 'none', guarda: 'd7' }, 200, cors);
   const suma = guardaSumaA37U99Rag(body.query);

@@ -194,3 +194,60 @@ export function answerConfianzaGeneral(q, ent, s, d) {
     '\n<!--SIN_GRAFICA-->' + sigue([{ t: '¿Qué tan confiable es el de varicela?', q: '¿qué tan confiable es el pronóstico de varicela?' },
       { t: '¿Qué enfermedades van al alza?', q: '¿qué enfermedades van al alza?' }]);
 }
+
+// ── Ciudades → estado ───────────────────────────────────────────────────────────────────────────────────────────────────
+// El boletín publica por entidad federativa: «el dengue en Monterrey» se responde para Nuevo León y se dice. Sólo ciudades
+// sin ambigüedad con un nombre de estado («León» se omite porque forma parte de «Nuevo León»).
+const CIUDADES = [
+  ['Nuevo León', ['monterrey', 'san pedro garza garcia', 'apodaca', 'san nicolas de los garza', 'escobedo']],
+  ['Jalisco', ['guadalajara', 'zapopan', 'tlaquepaque', 'tonala', 'puerto vallarta']],
+  ['Baja California', ['tijuana', 'mexicali', 'ensenada', 'rosarito', 'tecate']],
+  ['Baja California Sur', ['los cabos', 'cabo san lucas', 'san jose del cabo']],
+  ['Yucatán', ['merida', 'valladolid', 'progreso']],
+  ['Quintana Roo', ['cancun', 'playa del carmen', 'chetumal', 'cozumel', 'tulum']],
+  ['Guanajuato', ['irapuato', 'celaya', 'salamanca', 'san miguel de allende']],
+  ['Chihuahua', ['ciudad juarez', 'cd juarez', 'juarez chihuahua', 'delicias', 'cuauhtemoc chihuahua']],
+  ['Sinaloa', ['culiacan', 'mazatlan', 'los mochis']],
+  ['Sonora', ['hermosillo', 'ciudad obregon', 'nogales', 'guaymas', 'navojoa']],
+  ['Guerrero', ['acapulco', 'chilpancingo', 'iguala', 'zihuatanejo', 'taxco']],
+  ['Coahuila', ['saltillo', 'torreon', 'monclova', 'piedras negras']],
+  ['Estado de México', ['toluca', 'ecatepec', 'nezahualcoyotl', 'naucalpan', 'tlalnepantla', 'chimalhuacan', 'texcoco']],
+  ['Michoacán', ['morelia', 'uruapan', 'zamora', 'lazaro cardenas']],
+  ['Tabasco', ['villahermosa', 'cardenas tabasco']],
+  ['Chiapas', ['tuxtla gutierrez', 'tuxtla', 'tapachula', 'san cristobal de las casas', 'comitan']],
+  ['Veracruz', ['xalapa', 'jalapa', 'coatzacoalcos', 'boca del rio', 'poza rica', 'cordoba veracruz', 'orizaba', 'minatitlan']],
+  ['Morelos', ['cuernavaca', 'cuautla', 'jiutepec']],
+  ['Hidalgo', ['pachuca', 'tulancingo']],
+  ['Nayarit', ['tepic']],
+  ['Colima', ['manzanillo']],
+  ['Tamaulipas', ['reynosa', 'matamoros', 'nuevo laredo', 'tampico', 'ciudad victoria', 'ciudad madero']],
+  ['Oaxaca', ['juchitan', 'salina cruz', 'puerto escondido', 'huatulco']],
+  ['Puebla', ['tehuacan', 'cholula', 'atlixco']],
+  ['Durango', ['gomez palacio', 'lerdo']],
+  ['San Luis Potosí', ['ciudad valles', 'matehuala']],
+  ['Zacatecas', ['fresnillo']],
+  ['Sinaloa', ['guasave']],
+];
+const CIUDAD_RE = CIUDADES.flatMap(([estado, cs]) => cs.map((c) => [estado, c, new RegExp(`\\b${c}\\b`)]))
+  .sort((a, b) => b[1].length - a[1].length);
+const CIUDAD_ACENTOS = { cancun: 'Cancún', merida: 'Mérida', culiacan: 'Culiacán', mazatlan: 'Mazatlán', torreon: 'Torreón',
+  'tuxtla gutierrez': 'Tuxtla Gutiérrez', 'san cristobal de las casas': 'San Cristóbal de las Casas', 'ciudad juarez': 'Ciudad Juárez',
+  'cd juarez': 'Ciudad Juárez', 'juarez chihuahua': 'Ciudad Juárez', 'ciudad obregon': 'Ciudad Obregón', nezahualcoyotl: 'Nezahualcóyotl',
+  chimalhuacan: 'Chimalhuacán', 'san nicolas de los garza': 'San Nicolás de los Garza', 'san pedro garza garcia': 'San Pedro Garza García',
+  tonala: 'Tonalá', 'lazaro cardenas': 'Lázaro Cárdenas', 'cardenas tabasco': 'Cárdenas', 'boca del rio': 'Boca del Río',
+  minatitlan: 'Minatitlán', 'cordoba veracruz': 'Córdoba', juchitan: 'Juchitán', tehuacan: 'Tehuacán', 'gomez palacio': 'Gómez Palacio',
+  comitan: 'Comitán', 'san jose del cabo': 'San José del Cabo', 'cuauhtemoc chihuahua': 'Cuauhtémoc', 'puerto vallarta': 'Puerto Vallarta',
+  'ciudad madero': 'Ciudad Madero', 'san miguel de allende': 'San Miguel de Allende', jalapa: 'Xalapa' };
+const NOMBRE_CIUDAD = (c) => c.replace(/\b\w/g, (x) => x.toUpperCase()).replace(/\b(De|Del|La|Las|Los)\b/g, (x) => x.toLowerCase());
+/** Sustituye ciudades conocidas por su estado. Devuelve el texto (sin tildes, en minúsculas) y las notas que se dicen. */
+export function ciudadesAEstados(raw) {
+  let t = norm0(raw);
+  const notas = [];
+  for (const [estado, ciudad, re] of CIUDAD_RE) {
+    if (re.test(t)) {
+      t = t.replace(re, estado.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase());
+      if (!notas.some((n) => n.estado === estado)) notas.push({ ciudad: CIUDAD_ACENTOS[ciudad] || NOMBRE_CIUDAD(ciudad), estado });
+    }
+  }
+  return notas.length ? { texto: t, notas } : { texto: raw, notas };
+}

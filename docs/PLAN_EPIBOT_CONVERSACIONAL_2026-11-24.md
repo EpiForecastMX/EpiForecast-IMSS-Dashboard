@@ -63,5 +63,14 @@ Crítica recibida: «no sirve, es peor que hablarle a Alexa o a Siri». Prueba e
 **Mantenimiento semanal.** Tras instalar vistas nuevas, `npm run resumen:build` regenera el resumen nacional; `npm test`
 falla con un mensaje claro si quedó desfasado y el build de Netlify lo regenera antes de las pruebas.
 
-**Pendiente.** Definiciones clínicas propias de los 148 padecimientos (hoy se enlaza a MedlinePlus) y un respaldo de
-comprensión con Gemini en modo JSON para frases que el parser no entiende.
+## Segunda tanda (mismo día): sin pendientes
+
+| Cambio | Dónde |
+|---|---|
+| Definiciones propias en lenguaje llano de los 136 padecimientos no sensibles, redactadas por tres redactores médicos en paralelo y revisadas por un médico independiente (17 corregidas). «¿Qué es…?» las muestra con la aclaración de que son información general y el enlace a MedlinePlus en español. Los padecimientos sensibles no tienen definición a propósito. El boletín imprime C26 para el cáncer de páncreas (en la CIE-10 es C25): la definición lo aclara. | `js/definiciones.js` |
+| Respaldo de comprensión con Gemini: si el KB no reconoce ningún padecimiento, la función RAG en `modo: 'nlu'` pide a Gemini sólo una clasificación JSON contra listas cerradas (padecimientos no sensibles, 32 estados, intención, periodo); se valida campo por campo y el KB responde la consulta canónica con sus datos («Entendí: «¿cómo va dengue en Veracruz?»»). Gemini nunca da texto ni cifras al usuario; la crisis y las guardas van antes. | `netlify/lib/nlu.mjs`, `netlify/functions/rag.mjs`, `js/app.js` |
+| Ciudades a estados: «el dengue en Monterrey» se responde para Nuevo León y se dice; unas 120 ciudades sin ambigüedad. | `js/conversacion.js` (`ciudadesAEstados`) |
+| Pruebas: `tests/test_nlu.mjs` (validación, listas cerradas, sensibles excluidos, crisis primero, tolerancia a fallos y definiciones completas). | `tests/` |
+
+Se conserva a propósito: «Nueva consulta» no levanta una crisis activa; se levanta al preguntar por un padecimiento no
+sensible o al recargar la página.
