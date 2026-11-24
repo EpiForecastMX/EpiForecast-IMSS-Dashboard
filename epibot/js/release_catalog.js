@@ -1832,7 +1832,7 @@
     return delEmbarazo || HIPERTENSION_AJENA.some(([re]) => re.test(qn)) ? `hipertension ${qn}` : qn;
   }
 
-  const CRISIS_ES = /\b(suicidarme|suicidarse|matarme|matarse|quitarme la vida|quitarse la vida|acabar con mi vida|terminar con mi vida|(me|se) quier[eo] (morir|matar|suicidar)|me voy a (matar|morir|suicidar)|quiero (morir|morirme)|quisiera (morir|morirme|estar muert)|ganas de (morir|morirme|matarme|suicidarme)|(ya )?no quiero (vivir|seguir viviendo|seguir con vida|estar viv|existir)|no vale la pena vivir|hacerme dano|lastimarme|cortarme las venas|autolesionarme|(tengo|con) (pensamientos|ideas) suicidas|tengo ideacion suicida)\b/;
+  const CRISIS_ES = /\b(suicidarme|suicidarse|matarme|matarse|quitarme la vida|quitarse la vida|acabar con mi vida|terminar con mi vida|(me|se) quier[eo] (morir|matar|suicidar)|me voy a (matar|morir|suicidar)|quiero (morir|morirme)|quisiera (morir|morirme|estar muert)|ganas de (morir|morirme|matarme|suicidarme)|(ya )?no quiero (vivir|seguir viviendo|seguir con vida|estar viv[oa]s?|seguir viv[oa]s?|existir)|no vale la pena vivir|hacerme dano|lastimarme|cortarme las venas|autolesionarme|(tengo|con) (pensamientos|ideas) suicidas|tengo ideacion suicida)\b/;
   const CRISIS_EN = /\b(kill(ing)? myself|want to die|wanna die|end my life|take my own life|hurt myself|harm myself|suicidal thoughts|im suicidal|i am suicidal)\b/;
   // alta_b44 (19-nov-2026): violencia vivida en primera persona («me pegan», «mi pareja me golpea»).
   const VIOLENCIA_ES = /\b(me (pega|pegan|pego|pegaron|golpea|golpean|golpeo|golpearon|maltrata|maltratan|amenaza|amenazan|viola|violan|violo|violaron|abusa|abusan|abuso|abusaron|lastima|lastiman|agrede|agreden|encierra|encierran)|(abusa|abusan|abuso|abusaron) de mi|me (esta|estan|estaba|estaban) (pegando|golpeando|maltratando|lastimando|amenazando|violando|abusando|agrediendo|madreando)|me (madrea|madrean|madreo|madrearon|putea|putean|puteo|partio la madre|partieron la madre|surte|surten|cachetea|cachetean|patea|patean|pateo|ahorca|ahorco)|sufro (violencia|maltrato|abuso)|vivo violencia|tengo miedo de mi (pareja|esposo|esposa|novio|novia|papa|mama|padre|madre))\b/;
@@ -1932,7 +1932,9 @@
   const NOMBRES_LEGACY = ['depresion', 'parkinson', 'alzheimer', 'dengue', 'f32', 'g20', 'g30', 'a97'];
   /** Decimoquinta auditoría: normalización ÚNICA de entrada (NFKC) que aplican kb.js, app.js y rag.mjs a la consulta y al
    * historial antes de cualquier otra cosa; el catálogo la repite (idempotente) para quien lo llame directamente. */
-  const normalizaEntrada = (t) => String(t ?? '').normalize('NFKC');
+  // Rediseño conversacional (24-nov-2026): los caracteres de ancho cero se retiran tras NFKC; una palabra partida con ellos
+  // («ma\u200btar») queda unida y el detector de riesgo la ve.
+  const normalizaEntrada = (t) => String(t ?? '').normalize('NFKC').replace(/[\u00AD\u180E\u200B-\u200F\u2060-\u2064\uFEFF]/g, '');
   // Decimocuarta auditoría: NFKC antes de todo (ancho completo y formas compatibles pasan a ASCII y el riesgo las ve).
   const sinTildeMin2 = (t) => String(t).normalize('NFKC').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   // Vocabulario técnico: palabras de los rótulos, nombres y alias de todos los releases y de los cuatro legacy.
@@ -1977,7 +1979,7 @@
   // propio («me quiero asfixiar», «ahogarme») siguen dando la crisis, nunca cifras.
   // Novena auditoría Codex: también el desbordamiento («no puedo más», «ya no aguanto», «no soporto», «estoy harto de vivir»,
   // «can't take it anymore», «I can't go on») activa la respuesta de apoyo y queda registrado como estado de ayuda.
-  const RIESGO_LEX_ES = /\b(quemar(me|se|te)?|quemare|prenderme fuego|asfixiar(me|se|te)?|asfixiare|ahogar(me|se|te)?|ahogare|sofocar(me|se|te)?|lesionar(me|se)|herir(me|se)|colgar(me|se|te)?|colgare|colgaria|ahorcar(me|se|te)?|ahorcare|ahorcaria|matar(me|se|te)?|matare|mataria|morir(me|se)?|morire|moriria|muero|cortar(me|se)?|cortare|me voy a (cortar|colgar|ahorcar|matar|tirar|aventar|lanzar|envenenar|disparar|morir)|saltar(e|ia)?|aventar(me|se)|aventare|tirar(me|se)|tirare|lanzar(me|se)|lanzare|envenenar(me|se)?|envenenare|intoxicar(me|se)|disparar(me|se)|dispararia|suicid[a-z]*|no quiero vivir|no quiero seguir|(ya )?no (puedo|podemos|aguanto|aguantamos|soporto|soportamos) (mas|seguir|con esto|con todo|con mi vida|con la vida|vivir)|ya no (puedo|podemos|aguanto|aguantamos|soporto|soportamos)|ya no (quiero|queremos) (seguir|vivir|existir|estar aqui)|no (aguanto|soporto)|no lo (aguanto|soporto)|(estoy|estamos|ando|me siento|me tiene|me tienen) (harto|harta|hartos|hartas|cansado|cansada|cansados|cansadas) de (vivir|la vida|todo|existir)|(harto|harta|hartos|hartas|cansado|cansada|cansados|cansadas) de (vivir|la vida|existir)|me rindo|acabar con todo|acabar con mi vida|quitarme la vida|desaparecer|sobredosis)\b/;
+  const RIESGO_LEX_ES = /\b(quemar(me|se|te)?|quemare|prenderme fuego|asfixiar(me|se|te)?|asfixiare|ahogar(me|se|te)?|ahogare|sofocar(me|se|te)?|lesionar(me|se)|herir(me|se)|colgar(me|se|te)?|colgare|colgaria|ahorcar(me|se|te)?|ahorcare|ahorcaria|matar(me|se|te)|matare|mataria|morir(me|se)|morire|moriria|cortar(me|se)?|cortare|me voy a (cortar|colgar|ahorcar|matar|tirar|aventar|lanzar|envenenar|disparar|morir|lesionar|herir|lastimar|quemar|asfixiar|ahogar)|saltar(e|ia)?|aventar(me|se)|aventare|tirar(me|se)|tirare|lanzar(me|se)|lanzare|envenenar(me|se)?|envenenare|intoxicar(me|se)|disparar(me|se)|dispararia|suicid[a-z]*|no quiero vivir|no quiero seguir|(ya )?no (puedo|podemos|aguanto|aguantamos|soporto|soportamos) (mas|seguir|con esto|con todo|con mi vida|con la vida|vivir)|ya no (puedo|podemos|aguanto|aguantamos|soporto|soportamos)|ya no (quiero|queremos) (seguir|vivir|existir|estar aqui)|no (aguanto|soporto)|no lo (aguanto|soporto)|(estoy|estamos|ando|me siento|me tiene|me tienen) (harto|harta|hartos|hartas|cansado|cansada|cansados|cansadas) de (vivir|la vida|todo|existir)|(harto|harta|hartos|hartas|cansado|cansada|cansados|cansadas) de (vivir|la vida|existir)|me rindo|acabar con todo|acabar con mi vida|quitarme la vida|desaparecerme|(quiero|quisiera|me gustaria|ganas de) desaparecer|sobredosis)\b/;
   const RIESGO_LEX_EN = /\b(kill(ing)? myself|hang(ing)? myself|cut(ting)? myself|poison(ing)? myself|shoot(ing)? myself|overdos(e|ing)|suicid[a-z]*|die|dying|end it all|end my life|jump(ing)? off|want to die|can ?t take (it|this|any ?more)( any ?more)?|cannot take (it|this)( any ?more)?|can ?t go on|cannot go on|can ?t do this any ?more|can ?t cope|tired of (living|life)|sick of (living|life)|done with life|give up on life)\b/;
   const ALIAS_LARGOS = [...new Set(releases.flatMap((r) => [r.consulta, ...r.alias]).map((a) => sinTildeMin2(a).replace(/[^a-z0-9]+/g, ' ').trim())
     .filter((a) => a.includes(' ')))].sort((x, y) => y.length - x.length);
@@ -2005,14 +2007,18 @@
   // token fuera del vocabulario cerrado no recibe cifras, gráfica ni ficha: recibe un apoyo fijo con la Línea de la Vida y
   // la invitación a reformular. Quinta auditoría: fragmentos completos (js/vocab_cerrado.js, generado desde el catálogo) y
   // lista curada corta (js/vocab_consulta.js, a mano); ver analizaTurno.
-  const APOYO_ES = 'No reconozco algunos términos de tu mensaje, así que no muestro cifras ni gráficas.\n\n' +
-    'Si buscas datos, escribe el nombre del padecimiento y el estado; por ejemplo, «dengue en Jalisco» o «asma en Sonora».\n\n' +
-    'Si tú o alguien cercano necesita apoyo, la **Línea de la Vida** atiende gratis, las 24 horas, todos los días: ' +
-    '**800 911 2000**. Si alguien está en peligro inmediato, llama al **911**.\n<!--SIN_GRAFICA-->';
-  const APOYO_EN = 'I do not recognize some terms in your message, so I will not show figures, charts or condition pages.\n\n' +
-    'If you are looking for data, write the name of the condition and the state; for example, «dengue in Jalisco».\n\n' +
-    'If you or someone near you needs support, **Línea de la Vida** in Mexico is free and open 24 hours a day, every ' +
-    'day: **800 911 2000**. If someone is in immediate danger, call **911**.\n<!--SIN_GRAFICA-->';
+  // Rediseño conversacional (24-nov-2026, mesa redonda): la lista blanca global ya no rechaza las consultas naturales. Sólo
+  // un turno personal (primera persona) que no nombra ningún dato reconocible recibe esta respuesta, una vez y sin estado
+  // persistente: no entendimos y, por si la persona atraviesa un momento difícil, la Línea de la Vida.
+  const APOYO_ES = 'No entendí bien tu mensaje y prefiero no adivinar.\n\n' +
+    'Puedo contarte cómo va un padecimiento en tu estado; por ejemplo, «¿cómo va el dengue en Jalisco?» o ' +
+    '«¿está subiendo la diabetes en Nuevo León?».\n\n' +
+    'Si estás pasando por un momento difícil, la **Línea de la Vida** atiende gratis, las 24 horas: **800 911 2000**. ' +
+    'Si alguien está en peligro inmediato, llama al **911**.\n<!--SIN_GRAFICA-->';
+  const APOYO_EN = 'I did not quite understand your message and I would rather not guess.\n\n' +
+    'I can tell you how a condition is going in a Mexican state; for example, «dengue in Jalisco».\n\n' +
+    'If you are going through a hard time, **Línea de la Vida** in Mexico is free and open 24 hours a day: ' +
+    '**800 911 2000**. If someone is in immediate danger, call **911**.\n<!--SIN_GRAFICA-->';
   // Quinta auditoría Codex: el vocabulario ya no admite palabras sueltas del corpus ni de las pruebas. (a) Se RETIRAN del
   // turno los fragmentos que coinciden completos con nombres, alias y códigos de padecimientos, geografía reconocida
   // (js/vocab_cerrado.js, generado) y frases técnicas (js/vocab_consulta.js); (b) lo que queda debe estar en la lista curada
@@ -2313,6 +2319,17 @@
     if (/(^| )([a-z] ){4,}[a-z]( |$)/.test(` ${toks.join(' ')} `)) return true;
     return restoFuera(raw).length > 0;
   }
+  /**
+   * Rediseño conversacional (24-nov-2026): turno personal que no se entiende. Trae algún token fuera del vocabulario cerrado,
+   * habla en primera persona y no nombra ningún dato (padecimiento, código, estado, región o «nacional»). Es el único caso,
+   * aparte de la crisis y de los padecimientos sensibles, en que no se cede a los handlers con datos ni al modelo.
+   */
+  function apoyoSuave(raw) {
+    if (!normLB(raw) && !escrituraNoLatina(raw)) return false;
+    // Primera persona explícita (yo, me, mi, tengo, estoy…); la regla general de «-mos» y enclíticos («¿le atinamos?»,
+    // «muéstrame algo») ya no basta para negar la respuesta: con ella se bloqueaban preguntas conversacionales.
+    return apoyoInmediato(raw) || (fueraDeVocabulario(raw) && PRIMERA_PERSONA_LEX.test(` ${normLB(raw)} `) && !tieneFragmentoDeDatos(raw));
+  }
   /** La respuesta lleva cifras o una gráfica (fuera de teléfonos de ayuda, códigos CIE, semanas y años). */
   function respuestaConDatos(md) {
     const t = String(md || '');
@@ -2405,7 +2422,7 @@
   /** Apoyo fijo ante un turno fuera del vocabulario cerrado, o null. */
   function respuestaFueraDeVocabulario(raw, { siempre = false } = {}) {
     if (!normLB(raw) && !simbolosNoTecnicos(raw)) return null;
-    if (!fueraDeVocabulario(raw)) return null;
+    if (!apoyoSuave(raw)) return null;
     // La guarda posterior (kb.js y rag.mjs) revisa toda respuesta: si lleva cifras o gráfica y el turno está fuera del
     // vocabulario, la sustituye por este mismo apoyo.
     // Antes de responder sólo en las rutas de la interfaz que muestran datos sin pasar por un handler («panorama», «kpis»).
@@ -2442,7 +2459,8 @@
   const INGESTION_PROPIA_ES = /\b(me (bebi|tome|trague|inyecte|meti|zampe|empine|he tomado|he bebido|he tragado|he inyectado|acabo de tomar|acabo de beber|acabo de tragar)|he (tomado|bebido|tragado|ingerido|consumido)|(acabo|acababa) de (tomar|beber|tragar|ingerir|consumir|inyectar)|(estoy|estaba|voy a|sigo) (tomando|bebiendo|tragando|ingiriendo|consumiendo|inyectando|tomar|beber|tragar|ingerir|consumir)|ingeri|trague|bebi|tome|consumi|zampe)\b/;
   const INGESTION_PROPIA_EN = /\bi (drank|swallowed|ingested|injected|took|consumed|just (took|drank|swallowed|ingested)|(have|ve) (taken|drunk|swallowed|ingested|consumed|injected)|(am|m) (taking|drinking|swallowing|ingesting))\b/;
   function ingestionPropia(q) {
-    const n = normLB(q);
+    // Rediseño conversacional: «me tomé la presión», «tomé nota» o «me tomé un café» no son ingestión de riesgo.
+    const n = normLB(q).replace(/\b(me )?(tome|tomo|tomamos|bebi) (la |el |una |un |mi |unos |unas )?(presion|temperatura|nota|notas|foto|fotos|tiempo|glucosa|azucar|muestra|muestras|medida|medidas|en cuenta|decision|vacuna|vacunas|prueba|pruebas|signos vitales)\b/g, ' ');
     if (INGESTION_PROPIA_ES.test(n)) return 'es';
     return INGESTION_PROPIA_EN.test(n) ? 'en' : null;
   }
@@ -2540,10 +2558,60 @@
     return null;
   }
 
+  // ── Rediseño conversacional (24-nov-2026, mesa redonda) ────────────────────────────────────────────────────────────
+  // Al retirar la lista blanca global, las frases de riesgo que sólo ella frenaba pasan a este detector explícito: jergas,
+  // inglés coloquial, violencia vivida y escritura disfrazada (leet, letras repetidas, letras separadas).
+  const RIESGO_JERGA_ES = /\b(petatear(me|se)?|desvivir(me|se)?|dar(me|le)? cuello|(echar|pegar|dar)(me)? un (tiro|plomazo|balazo)|me voy a echar un tiro|(aventar|tirar|lanzar)(me|se)? (del|de la|desde|por) |me quiero (aventar|tirar|lanzar)|ya vali|ya no (quiero|puedo) (mas|seguir)|mejor muert[oa]s?|estaria mejor muert[oa]|nadie me (extranaria|va a extranar)|(quiero|quisiera|voy a) tomar (veneno|venenos|cloro|raticida|matarratas)|(tomo|tome|tomare|voy a tomar|quiero tomar|me voy a tomar) (\d+|muchas|todas|un frasco de|una caja de) (pastillas|pildoras|tabletas|capsulas|sedantes))\b/;
+  const RIESGO_JERGA_EN = /\b(off myself|unalive( myself)?|hopeless|nobody would miss me|no one would miss me|better off dead|end it|want to disappear|kms|kys)\b/;
+  const VIOLENCIA_EXTRA_ES = /\b(me (da|dan|daba|daban|dio|dieron) (golpes|de golpes|una golpiza|cachetadas|patadas)|me (hace|hacen|hacia|hacian|hizo|hicieron) dano|me (causa|causan|causo) (asfixia|quemaduras|dano|golpes|heridas|moretones)|(mi|su) ([a-z]+ ){0,2}(me|la|lo|nos|les) (ahoga|ahogan|ahorca|ahorcan|quema|queman|golpea|golpean|pega|pegan|asfixia|asfixian))\b/;
+  // Variante sin espacios: «me quiero ma tar», «s u i c i d i o».
+  const RIESGO_SIN_ESPACIOS = /(suicid|matarme|quieromatar|quieromorir|voyamatar|voyamorir|ahorcarme|colgarme|envenenarme|desvivir|unalive|killmyself|offmyself)/;
+  const LEET = { 0: 'o', 1: 'i', 3: 'e', 4: 'a', 5: 's', 7: 't', '@': 'a', $: 's' };
+  /** Versiones del turno para el detector: leet en palabras mixtas, letras repetidas colapsadas y letras sueltas unidas. */
+  function variantesRiesgo(raw) {
+    const base = String(raw).normalize('NFKC').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    const leet = base.replace(/[a-z0-9@$]+/g, (w) => (/[a-z]/.test(w) && /[0-9@$]/.test(w) ? w.replace(/[013457@$]/g, (c) => LEET[c]) : w));
+    const plano = (t) => t.replace(/[^a-z0-9]+/g, ' ').trim();
+    const unidas = (t) => ` ${t} `.replace(/(?: [a-z](?= [a-z] ))+ [a-z](?= )/g, (m) => ` ${m.replace(/ /g, '')}`).trim();
+    const colapsa = (t) => t.replace(/([a-z])\1+/g, '$1');
+    const v1 = plano(leet);
+    return [...new Set([v1, unidas(v1), colapsa(v1), colapsa(unidas(v1))])];
+  }
+  function riesgoAmpliado(raw) {
+    // Los rótulos técnicos completos («intento de suicidio», «envenenamiento autoinfligido…») no son señal.
+    for (const v of variantesRiesgo(sinRotulos(raw))) {
+      const n = ` ${v} `;
+      if (RIESGO_JERGA_ES.test(n) || VIOLENCIA_EXTRA_ES.test(n)) return 'es';
+      if (RIESGO_JERGA_EN.test(n)) return 'en';
+      if (RIESGO_SIN_ESPACIOS.test(v.replace(/ /g, ''))) return /\b(i|my|myself|the)\b/.test(n) && !/\b(en|de|me|quiero)\b/.test(n) ? 'en' : 'es';
+      // Sólo léxico y frases de riesgo: la lista blanca de sensibles ya se aplicó al texto original (aquí se pierden puntos).
+      const r = riesgoPersonal(n) || lexicoRiesgo(v);
+      if (r) return r;
+      if (CRISIS_ES.test(n) || VIOLENCIA_ES.test(n)) return 'es';
+      if (CRISIS_EN.test(n) || VIOLENCIA_EN.test(n)) return 'en';
+    }
+    return null;
+  }
+  // Señales débiles: palabras que en un turno de datos no tienen lectura técnica (sustancias, desbordamiento, el puente,
+  // la muerte sin «de <padecimiento>», peligro en primera persona) y escritura no latina. No dan la crisis: dan una vez
+  // el «no entendí» con la Línea de la Vida, sin cifras y sin estado persistente.
+  const SENAL_DEBIL = /\b(sedantes?|pastillas?|pildoras?|tabletas?|capsulas?|frascos?|pastas|chelas|venenos?|pills?|poison|puente|siento|sentia|aguanto|soporto|no puedo|harto|harta|hartos|hartas|vivo sol[oa]|tomo|tomar$|me queme|me quemo|nos quemamos|se quemo|me corte|me lastime|con acido|ingerir|(morir|matar|morirme|matarme)$|alone|lonely|empty|worthless|quemamos|cortamos|cortariamos|saltamos|ingerimos|tomamos|tomariamos|tomabamos|tomaremos|tomemos|tomaramos|tomasemos|bebimos|sufrimos|sufriremos|sufriamos|lloramos|perdimos|quemarnos|cortarnos|lastimarnos|hiriendome|hiriendonos|lastimarme|ayudame|ayudanos|salvame|salvanos|cuidame|protegeme|protegenos|escondamonos|abrazame|olvidame|perdoname|perdonanos|escuchame|entiendeme|acompaname|calmame|tranquilicemonos|calmemonos)\b/;
+  const PELIGRO_PROPIO = /\b(riesgo|peligro)\b.*\b(asfixia|ahog\w*|golpes?|dano|muerte|morir|vida|quemadura\w*)\b/;
+  const escrituraNoLatina = (raw) => /[^\p{Script=Latin}\P{L}]/u.test(normalizaEntrada(raw));
+  /** Turno con una señal débil o en escritura no latina: «no entendí» con la Línea de la Vida, sin cifras. */
+  function apoyoInmediato(raw) {
+    if (escrituraNoLatina(raw)) return true;
+    const sin = sinRotulos(raw).replace(/\s+/g, ' ').trim();
+    if (primeraPersona(raw) && PELIGRO_PROPIO.test(sin)) return true;
+    return [sin, ...variantesRiesgo(sin)].some((v) => SENAL_DEBIL.test(v.trim()));
+  }
+
   /** Texto fijo ante una señal de riesgo personal, o null. No pasa por ningún modelo. */
   function respuestaCrisis(qn) {
     const r = respuestaCrisisTexto(String(qn));
     if (r) return r;
+    const amp = riesgoAmpliado(String(qn));
+    if (amp) return amp === 'en' ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
     // Decimotercera auditoría: el estado de crisis del turno es el OR de todas sus cláusulas.
     const partes = clausulasSignos(String(qn));
     if (partes.length < 2) return null;
@@ -2590,8 +2658,7 @@
     let estado = null;
     for (const t of turnos) {
       if (respuestaCrisis(t)) estado = 'crisis';
-      // Séptima auditoría: cualquier turno fuera de vocabulario registra el apoyo, nombre o no un dato.
-      else if (fueraDeVocabulario(t)) estado = estado === 'crisis' ? 'crisis' : 'apoyo';
+      // Rediseño conversacional: un turno que no se entiende ya no deja un estado de apoyo persistente.
       else if (estado && levantaCrisis(t, nombraPadLimpio)) estado = null;
     }
     return estado;
@@ -2610,7 +2677,7 @@
     if (!crisisPrevia || levantaCrisis(qn, nombraPadLimpio)) return null;
     const q = String(qn).normalize('NFKC').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9 ]+/g, ' ');
     const en = TURNO_EN.test(q) || pareceIngles(qn);
-    if (crisisPrevia === 'apoyo') return en ? APOYO_EN : APOYO_ES;
+    if (crisisPrevia !== 'crisis') return null;
     return en ? CRISIS_SEGUIMIENTO_EN : CRISIS_SEGUIMIENTO_ES;
   }
 
@@ -2660,7 +2727,7 @@
     releases, diabetesEnConsulta, conDiabetesNombrada, conFamiliaNombrada, canonClinico, nombraAlias, noModeladas,
     mencionaNoModelada, conHipertensionNombrada, respuestaCrisis, subtipoAjeno, aliasAmbiguo,
     motivoRechazo, crisisEnTurnos, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, idsSensiblesEn,
-    alcoholCalificado, IDS_LISTA_BLANCA, _VOCAB_TECNICO: VOCAB_TECNICO, _FRAGMENTOS_GUARDAS: FRAGMENTOS_GUARDAS, fueraDeVocabulario, respuestaFueraDeVocabulario,
+    alcoholCalificado, IDS_LISTA_BLANCA, _VOCAB_TECNICO: VOCAB_TECNICO, _FRAGMENTOS_GUARDAS: FRAGMENTOS_GUARDAS, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaFueraDeVocabulario,
     restoFuera, tieneFragmentoDeDatos, respuestaConDatos, esRespuestaDeAyuda, salidaFueraDeVocabulario, APOYO_ES, APOYO_EN, pareceIngles, normalizaEntrada,
     ALIAS_LEGACY, padecimientosEnConsulta, releasesEnConsulta, CONJUGACIONES_COMUNES, NO_VERBALES_MOS,
   });

@@ -42,8 +42,9 @@ const pregunta = async (q) => { kb._resetContext?.(); return kb.answerWithTrace(
 
 test('el EpiBot no recalcula el indicador desde totales redondeados', async () => {
   assert.equal(kb.getStats().pronostico_total, 171524);
-  const r = await pregunta('hola');
-  assert.match(r.response, new RegExp(`${ROT}: \\*\\*171,524\\*\\*`));
+  // Rediseño conversacional (24-nov-2026): el saludo ya no muestra el indicador neuro; lo da la consulta de pronóstico.
+  const r = await pregunta('pronostico total');
+  assert.match(r.response, new RegExp(`(\\*\\*)?${ROT}(\\*\\*)?: \\*\\*171,524\\*\\*`));
   assert.ok(r.response.includes(DEN));
   assert.doesNotMatch(r.response, /171,525/);
 });

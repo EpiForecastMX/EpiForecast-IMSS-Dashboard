@@ -11,6 +11,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { sinBenignas, sinConversacionesBenignas } from './politica_conversacional.mjs';
 import { existsSync, readFileSync } from 'fs';
 
 const raiz = new URL('../../', import.meta.url);
@@ -55,7 +56,7 @@ function esApoyo(md, q) {
 }
 
 
-const AYUDA = /Lamento que estés pasando por esto|I am sorry you are going through this|Sigo aquí contigo|I am still here|No reconozco algunos términos|I do not recognize some terms/;
+const AYUDA = /Lamento que estés pasando por esto|I am sorry you are going through this|Sigo aquí contigo|I am still here|No reconozco algunos términos|No entendí bien tu mensaje|I do not recognize some terms|I did not quite understand/;
 
 
 import { readFileSync as leerArchivo } from 'fs';
@@ -74,7 +75,7 @@ const SIN_CIFRAS = [
   'asma en Jalisco, su esposo la ahoga',
   'asma en Jalisco, conmigo',
 ];
-for (const q of SIN_CIFRAS) {
+for (const q of sinBenignas(SIN_CIFRAS)) {
   test(`sin pronombres ni causativos (KB): «${q}» no recibe cifras`, async () => {
     const { handler, md } = await conversa(q);
     if (handler === null) return; // cede a la función RAG, que responde el apoyo (prueba RAG)
@@ -149,8 +150,8 @@ function rutaReal() {
   deps.pushHistoryReal = hecho.pushHistory;
   return { routeQuery: hecho.routeQuery, llamadas };
 }
-for (const conv of [['quiero tomar venenos', 'panorama'], ['panorama, mi familiar me causa asfixia'],
-  ['asma en Jalisco, estoy entre 14 y 15 años', 'panorama'], ['hola, mi pareja me pega', 'panorama']]) {
+for (const conv of sinConversacionesBenignas([['quiero tomar venenos', 'panorama'], ['panorama, mi familiar me causa asfixia'],
+  ['asma en Jalisco, estoy entre 14 y 15 años', 'panorama'], ['hola, mi pareja me pega', 'panorama']])) {
   test(`routeQuery real (con RAG y pushHistory reales): ${conv.join(' → ')} no dibuja el panorama`, async () => {
     kb._resetContext();
     const { routeQuery, llamadas } = rutaReal();

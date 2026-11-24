@@ -15,7 +15,7 @@
  * Vale para cualquier release publicado: título y color salen de `release_config.js` por
  * `disease_id`. Funciones puras: sin DOM, sin fetch.
  */
-import { RELEASES, releaseDeId } from './release_config.js?v=53';
+import { RELEASES, releaseDeId } from './release_config.js?v=54';
 import { semanaSiguiente } from './calendario_boletin.js?v=2';
 
 const strip = (s) => String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -40,6 +40,8 @@ const REGLAS = [
   ['timelapse', ['timelapse', 'mapa animado', 'animacion', 'animado']],
   ['semaforo', ['semaforo', 'nivel de riesgo', 'alerta epidemiolog']],
   ['pdf', ['reporte pdf', 'reporte ejecutivo', 'pdf', 'exportar', 'descargar']],
+  // Rediseño conversacional: «¿qué tan confiable es?» pide la confiabilidad en lenguaje llano, no la banda.
+  ['confianza', ['confiable', 'confiabilidad', 'fiable', 'que tan bueno', 'que tan preciso', 'que tan exacto', 'le atina', 'que tan cierto', 'puedo creer', 'creible']],
   ['banda', ['corredor', 'confianza', 'banda', 'intervalo', 'incertidumbre']],
   ['heatmap', ['heatmap', 'mapa de calor', 'error semanal', 'diferencias del seguimiento']],
   ['entidades', ['treemap', 'mapa de entidad', 'por entidad', 'panorama', 'casos por estado']],
@@ -198,7 +200,7 @@ export function graficaObesidad(v, qn, ent = {}, opciones = {}) {
   if (!x) return null;
 
   if (tipo in NO_DISPONIBLE) return null;
-  if (tipo === 'serie' || tipo === 'banda' || tipo === 'motor_serie') {
+  if (tipo === 'serie' || tipo === 'confianza' || tipo === 'banda' || tipo === 'motor_serie') {
     return lineal(v, x, `${Math.max(v.origin[0] - 3, 2023)}-01-01`, '9999', `historia desde 2023 y ${v.horizon_weeks} semanas de pronóstico`);
   }
   if (tipo === 'seguimiento') {

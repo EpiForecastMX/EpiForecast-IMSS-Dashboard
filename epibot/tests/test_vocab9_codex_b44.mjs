@@ -11,6 +11,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { sinBenignas, sinConversacionesBenignas } from './politica_conversacional.mjs';
 import { existsSync, readFileSync } from 'fs';
 
 const raiz = new URL('../../', import.meta.url);
@@ -55,7 +56,7 @@ function esApoyo(md, q) {
 }
 
 
-const AYUDA = /Lamento que estés pasando por esto|I am sorry you are going through this|Sigo aquí contigo|I am still here|No reconozco algunos términos|I do not recognize some terms/;
+const AYUDA = /Lamento que estés pasando por esto|I am sorry you are going through this|Sigo aquí contigo|I am still here|No reconozco algunos términos|No entendí bien tu mensaje|I do not recognize some terms|I did not quite understand/;
 
 
 import { readFileSync as leerArchivo } from 'fs';
@@ -76,7 +77,7 @@ const SIN_CIFRAS = [
   'asma en Jalisco, aguanto', 'asma en Jalisco, soporto', 'asma en Jalisco, puedo', 'lepra en Sonora, tienes 15 años',
   'asma en Jalisco, que tienes entre 14 y 15 años', 'asma en Jalisco, eres menor de 18 años',
 ];
-for (const q of SIN_CIFRAS) {
+for (const q of sinBenignas(SIN_CIFRAS)) {
   test(`primera y segunda persona y desbordamiento (KB): «${q}» no recibe cifras`, async () => {
     const { handler, md } = await conversa(q);
     if (handler === null) return; // cede a la función RAG (prueba RAG)

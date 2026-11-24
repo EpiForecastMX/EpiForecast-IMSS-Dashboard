@@ -85,18 +85,18 @@ function addCtx(setupQuery, followUp, expectedHandler, mustContain = [], mustNot
 // SECCION 1: SALUDOS (10 tests)
 // =====================================================================
 
-add('hola', 'answerSaludo', ['EpiForecast-MX', 'modelos']);
-add('buenos dias', 'answerSaludo', ['EpiForecast-MX']);
-add('hey que tal', 'answerSaludo', ['EpiForecast-MX']);
+add('hola', 'answerCharla', ['padecimientos'], ['800 911 2000'], {});
+add('buenos dias', 'answerCharla', ['padecimientos'], ['800 911 2000'], {});
+add('hey que tal', 'answerCharla', ['padecimientos'], ['800 911 2000'], {});
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
-add('hola que puedes hacer', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
-add('buenas tardes', 'answerSaludo', ['EpiForecast-MX']);
-add('saludos', 'answerSaludo', ['EpiForecast-MX']);
-add('hola buenos dias', 'answerSaludo', ['EpiForecast-MX']);
-add('que onda', 'answerSaludo', ['EpiForecast-MX']);
-add('buenas noches', 'answerSaludo', ['EpiForecast-MX']);
+add('hola que puedes hacer', 'answerCharla', ['padecimientos'], ['800 911 2000'], {});
+add('buenas tardes', 'answerCharla', ['padecimientos'], ['800 911 2000'], {});
+add('saludos', 'answerCharla', ['padecimientos'], ['800 911 2000'], {});
+add('hola buenos dias', 'answerCharla', ['padecimientos'], ['800 911 2000'], {});
+add('que onda', 'answerCharla', ['padecimientos'], ['800 911 2000'], {});
+add('buenas noches', 'answerCharla', ['padecimientos'], ['800 911 2000'], {});
 // Duodécima auditoría: «estás/estas» y «esté/este» (ambiguas con verbo de 1.ª o 2.ª persona) ya no son vocabulario.
-add('hola como estas', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('hola como estas', 'answerCharla', ['padecimientos'], ['800 911 2000'], {});
 add('EpiForecast-MX', 'answerSaludo', ['Ordename', 'Generalizaci']);
 add('epiforecast', 'answerSaludo', ['Ordename', 'Generalizaci']);
 
@@ -105,15 +105,15 @@ add('epiforecast', 'answerSaludo', ['Ordename', 'Generalizaci']);
 // =====================================================================
 
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
-add('a ti te puede dar parkinson', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('a ti te puede dar parkinson', 'answerPreguntaPersonal', [], ['800 911 2000'], {});
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
-add('a ti tepuede dar parkinson', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('a ti tepuede dar parkinson', 'answerPreguntaPersonal', [], ['800 911 2000'], {});
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
-add('puedes enfermarte de depresion', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('puedes enfermarte de depresion', 'answerPreguntaPersonal', [], ['800 911 2000'], {});
 add('eres humano', 'answerPreguntaPersonal', ['inteligencia artificial']);
 add('tienes sentimientos', 'answerPreguntaPersonal', ['inteligencia artificial']);
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
-add('te puede dar alzheimer', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('te puede dar alzheimer', 'answerPreguntaPersonal', [], ['800 911 2000'], {});
 add('las maquinas se enferman', 'answerPreguntaPersonal', ['inteligencia artificial']);
 
 // =====================================================================
@@ -122,16 +122,16 @@ add('las maquinas se enferman', 'answerPreguntaPersonal', ['inteligencia artific
 
 add('quienes son el equipo', 'answerEquipo', ['Equipo']);
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
-add('quien te creo', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('quien te creo', 'answerEquipo', [], ['800 911 2000'], {});
 // Novena y décima auditorías: una petición o una segunda persona sólo es vocabulario anclada a un sustantivo de datos de la
 // lista cerrada (o una petición de conocimiento sobre un padecimiento no sensible); «fuiste», «dime sobre el equipo», «cómo
 // funcionas» o «dame otro» reciben el apoyo. Undécima auditoría: los verbos de la lista curada también son peticiones y
 // sólo valen anclados; «explica que es…», «dicen que…» o «compara solo la semana 8» reciben el apoyo.
-add('fuiste desarrollado por google', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('fuiste desarrollado por google', 'answerEquipo', [], ['800 911 2000'], {});
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
-add('quien te hizo', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('quien te hizo', 'answerEquipo', [], ['800 911 2000'], {});
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
-add('te crearon', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('te crearon', 'answerEquipo', [], ['800 911 2000'], {});
 add('quien es javier rebull', 'answerEquipo', ['Javier', 'Rebull']);
 add('quien es jar', 'answerEquipo', ['Javier']);
 add('quien es jars', 'answerEquipo', ['Javier', 'JARS']);
@@ -140,7 +140,7 @@ add('quien es jarcos', 'answerEquipo', ['Juan Carlos']);
 add('quien es jerry', 'answerEquipo', ['Luis Gerardo']);
 add('quien es luis gerardo', 'answerEquipo', ['Luis Gerardo']);
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
-add('que hace javier', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('que hace javier', 'answerEquipo', [], ['800 911 2000'], {});
 add('donde trabaja jar', 'answerEquipo', ['Santander']);
 add('quien desarrollo el proyecto', 'answerEquipo', ['Equipo']);
 add('cuantos commits tiene javier', 'answerConteo', ['333']);
@@ -151,11 +151,11 @@ add('quien es el dr falcon', 'answerEquipo', ['Falc']);
 add('quien dirige el proyecto', 'answerEquipo', ['Equipo']);
 add('integrantes del equipo', 'answerEquipo', ['Equipo']);
 add('quien es perez nava', 'answerEquipo', ['Juan Carlos']);
-add('dime sobre el equipo de trabajo', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('dime sobre el equipo de trabajo', 'answerEquipo', [], ['800 911 2000'], {});
 add('quien es falcon morales', 'answerEquipo', ['Falc']);
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
-add('dicen que javi rebull no participo en tu desarrollo', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
-add('juan carlos y luis gerardo dicen que jar no participo', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('dicen que javi rebull no participo en tu desarrollo', 'answerEquipo', [], ['800 911 2000'], {});
+add('juan carlos y luis gerardo dicen que jar no participo', 'answerEquipo', [], ['800 911 2000'], {});
 
 // =====================================================================
 // SECCION 3: TEMPORAL (10 tests)
@@ -164,9 +164,9 @@ add('juan carlos y luis gerardo dicen que jar no participo', 'answerFueraDeVocab
 add('que dia es hoy', 'answerTemporal', ['2026']);
 add('que fecha es', 'answerTemporal', ['2026']);
 // Octava auditoría Codex: primera persona plural fuera del vocabulario cerrado → apoyo fijo.
-add('en que semana epidemiologica estamos', 'answerFueraDeVocabulario', ['800 911 2000'], []);
+add('en que semana epidemiologica estamos', 'answerTemporal', [], ['800 911 2000'], {});
 // Octava auditoría Codex: primera persona plural fuera del vocabulario cerrado → apoyo fijo.
-add('que semana estamos', 'answerFueraDeVocabulario', ['800 911 2000'], []);
+add('que semana estamos', 'answerTemporal', [], ['800 911 2000'], {});
 add('hasta cuando llegan los datos', 'answerTemporal', ['semana']);
 add('cual es la cobertura temporal', 'answerTemporal', ['2014']);
 add('hasta que fecha tienen datos', 'answerTemporal', ['semana']);
@@ -186,12 +186,12 @@ add('informacion sobre parkinson', 'answerQueEsPadecimiento', ['G20'], {}, {pade
 add('que es f32', 'answerQueEsPadecimiento', ['F32'], {}, {padecimiento: 'Depresion'});
 add('que es g20', 'answerQueEsPadecimiento', ['G20'], {}, {padecimiento: 'Parkinson'});
 add('que es g30', 'answerQueEsPadecimiento', ['G30'], {}, {padecimiento: 'Alzheimer'});
-add('explica que es alzheimer', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('explica que es alzheimer', 'answerQueEsPadecimiento', [], ['800 911 2000'], {});
 add('cuales son los efectos de la depresion', 'answerQueEsPadecimiento', ['F32'], {}, {padecimiento: 'Depresion'});
 add('sintomas del parkinson', 'answerQueEsPadecimiento', ['Parkinson'], {}, {padecimiento: 'Parkinson'});
 add('como afecta el alzheimer', 'answerQueEsPadecimiento', ['Alzheimer'], {}, {padecimiento: 'Alzheimer'});
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
-add('que causa la depresion', 'answerFueraDeVocabulario', ['800 911 2000'], [], {padecimiento: 'Depresion'});
+add('que causa la depresion', 'answerQueEsPadecimiento', [], ['800 911 2000'], {padecimiento: 'Depresion'});
 add('cuales son los efectos del parkinson', 'answerQueEsPadecimiento', ['Parkinson'], {}, {padecimiento: 'Parkinson'});
 add('describe el alzheimer', 'answerQueEsPadecimiento', ['G30'], {}, {padecimiento: 'Alzheimer'});
 
@@ -242,7 +242,7 @@ add('alzheimer del 2016 al 2020', 'answerBoletin',
   {padecimiento: 'Alzheimer', _years: [2016,2017,2018,2019,2020]});
 
 // Ultimos N anos
-add('dame los ultimos 5 anos de depresion', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('dame los ultimos 5 anos de depresion', 'answerBoletin', [], ['800 911 2000'], {});
 
 add('tendencia de parkinson ultimos 3 anos', 'answerBoletin',
   ['2023', '2024', '2025'], [],
@@ -293,7 +293,7 @@ add('como se comporta el modelo de parkinson', 'answerComparacionSemanal', ['Par
 add('compara real vs pronostico', 'answerComparacionSemanal', ['Seguimiento del pronóstico', 'Estado del par'], ['SMAPE promedio', 'Precisión', 'excelente', '| Inicio |', 'Acumulado']);
 add('acierto semanal de depresion', 'answerComparacionSemanal', ['Depresión', 'ajuste dentro de muestra'], ['SMAPE promedio', 'Precisión', 'excelente', '| Inicio |', 'Acumulado']);
 // Octava auditoría Codex: primera persona plural fuera del vocabulario cerrado → apoyo fijo.
-add('cuantos llevamos de alzheimer en 2026', 'answerFueraDeVocabulario', ['800 911 2000'], []);
+add('cuantos llevamos de alzheimer en 2026', '*', [], ['800 911 2000'], {});
 
 // =====================================================================
 // SECCION 8: PRONOSTICO (12 tests)
@@ -381,7 +381,7 @@ add('modelo ganador de depresion', 'answerPadecimiento', ['Depresion']);
 add('rendimiento de los modelos de parkinson', 'answerPadecimiento', ['Parkinson', AVISO], SIN_VALORES);
 add('que modelo gana en depresion', 'answerPadecimiento', ['Depresion']);
 // Duodécima auditoría: «estás/estas» y «esté/este» (ambiguas con verbo de 1.ª o 2.ª persona) ya no son vocabulario.
-add('quien ganara en depresion este ano', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('quien ganara en depresion este ano', 'answerPadecimiento', [], ['800 911 2000'], {});
 add('ranking de depresion', 'answerBoletin', ['Depresion']);
 add('que estados tienen mas parkinson', 'answerBoletin', ['Parkinson']);
 add('donde hay mas alzheimer', 'answerBoletin', ['Alzheimer']);
@@ -769,7 +769,7 @@ addCtx('depresion en jalisco', 'diagnosticos', 'answerDiagnosticos', ['overfitti
 // Follow-up a tema nuevo → NO heredar
 addCtx('depresion en jalisco', 'quienes son el equipo', 'answerEquipo', ['Equipo']);
 addCtx('parkinson en cdmx', 'que dia es hoy', 'answerTemporal', ['2026']);
-addCtx('alzheimer general', 'hola', 'answerSaludo', ['EpiForecast-MX']);
+addCtx('alzheimer general', 'hola', 'answerCharla', ['padecimientos'], ['800 911 2000']);
 
 // Follow-up con ano → heredar padecimiento
 addCtx('depresion en jalisco', 'y en 2020', 'answerBoletin', ['2020']);
@@ -784,7 +784,7 @@ addCtx('depresion en jalisco', 'y en california', '*', []);
 addCtx('parkinson en cdmx', 'y en texas', '*', []);
 
 // Follow-up corto sin entidad → deberia caer a Gemini (null)
-addCtx('depresion en jalisco', 'gracias', null, []);
+addCtx('depresion en jalisco', 'gracias', 'answerCharla', ['Con gusto'], ['800 911 2000']);
 addCtx('equipo del proyecto', 'ok entendido', null, []);
 
 // Follow-up que pide comparacion — "y como se compara con sonora" hereda pad, cambia estado
@@ -872,17 +872,17 @@ add('que sabes del alzheimer en jalisco', 'answerSpecificSeries', ['Alzheimer', 
 // =====================================================================
 
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
-add('en que te basas', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('en que te basas', 'answerProyectoMeta', [], ['800 911 2000'], {});
 // Duodécima auditoría: «estás/estas» y «esté/este» (ambiguas con verbo de 1.ª o 2.ª persona) ya no son vocabulario.
-add('en que estas basado', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
-add('como funcionas', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('en que estas basado', 'answerProyectoMeta', [], ['800 911 2000'], {});
+add('como funcionas', 'answerProyectoMeta', [], ['800 911 2000'], {});
 add('de donde sacas los datos', 'answerProyectoMeta', ['SINAVE']);
 add('que modelos usas', 'answerProyectoMeta', ['Prophet', 'DeepAR']);
 add('como generas los pronosticos', 'answerProyectoMeta', ['SINAVE']);
-add('como pronosticas', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
-add('que tecnologia usas', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
-add('en base a que pronosticas', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
-add('como sabes cuantos casos habra', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('como pronosticas', 'answerProyectoMeta', [], ['800 911 2000'], {});
+add('que tecnologia usas', 'answerProyectoMeta', [], ['800 911 2000'], {});
+add('en base a que pronosticas', 'answerProyectoMeta', [], ['800 911 2000'], {});
+add('como sabes cuantos casos habra', 'answerProyectoMeta', [], ['800 911 2000'], {});
 
 // =====================================================================
 // SECCION 37a: DISTRIBUCION / VIOLIN (8 tests)
@@ -916,10 +916,10 @@ add('dame un grafico interesante', 'answerGraficoAleatorio', ['GENCHART']);
 add('sorprendeme con un grafico', 'answerGraficoAleatorio', ['GENCHART']);
 add('grafico aleatorio', 'answerGraficoAleatorio', ['GENCHART']);
 add('dame una grafica interesante', 'answerGraficoAleatorio', ['GENCHART']);
-add('muestrame algo interesante', 'answerFueraDeVocabulario', ['800 911 2000'], [], {});
+add('muestrame algo interesante', 'answerGraficoAleatorio', [], ['800 911 2000'], {});
 add('visualizacion interesante', 'answerGraficoAleatorio', ['GENCHART']);
 addCtx('dame un grafico interesante', 'otro', 'answerGraficoAleatorio', ['GENCHART']);
-addCtx('dame un grafico interesante', 'dame otro', 'answerFueraDeVocabulario', ['800 911 2000'], []);
+addCtx('dame un grafico interesante', 'dame otro', 'answerGraficoAleatorio', [], ['800 911 2000']);
 addCtx('dame un grafico interesante', 'uno mas', 'answerGraficoAleatorio', ['GENCHART']);
 addCtx('sorprendeme con un grafico', 'siguiente', 'answerGraficoAleatorio', ['GENCHART']);
 
@@ -948,7 +948,7 @@ add('tratamiento para la depresion', null, []);
 add('se puede prevenir el alzheimer', null, []);
 add('que medicamento tomar para depresion', null, []);
 // Preguntas personales de salud (conversacionales)
-add('yo puedo ser uno de esos pacientes', null, []);
+add('yo puedo ser uno de esos pacientes', 'answerFueraDeVocabulario', ['800 911 2000'], ['casos']);
 add('yo puedo tener depresion', null, []);
 add('me puede dar parkinson', null, []);
 add('como se si tengo alzheimer', null, []);
@@ -997,7 +997,7 @@ add('dengue en veracruz', 'answerDengue', ['Veracruz'], ['no modela'], {padecimi
 add('dengue en la ciudad de mexico', 'answerDengue', ['no registra'], ['no modela'], {padecimiento: 'Dengue'});
 add('donde golpea mas el dengue', 'answerDengue', ['Jalisco'], ['no modela'], {padecimiento: 'Dengue'});
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
-add('el dengue lo modelan', 'answerFueraDeVocabulario', ['800 911 2000'], [], {padecimiento: 'Dengue'});
+add('el dengue lo modelan', 'answerDengue', [], ['800 911 2000'], {padecimiento: 'Dengue'});
 
 // --- Distribución y rendimiento (2) ---
 // Regresión de G4: sin 'boxplot' ni gráfico, sigue siendo answerSmapeBox.
@@ -1007,12 +1007,12 @@ add('tabla de metricas por padecimiento', 'answerRendimientoPorPadecimiento', [A
 
 // --- Contexto conversacional (35) ---
 // Octava auditoría Codex: primera persona plural fuera del vocabulario cerrado → apoyo fijo.
-addCtx('cuantos casos llegaron esta semana', 'y cuantos habiamos dicho que habria?', 'answerFueraDeVocabulario', ['800 911 2000'], []);
+addCtx('cuantos casos llegaron esta semana', 'y cuantos habiamos dicho que habria?', 'answerComparacionSemanal', [], ['800 911 2000']);
 addCtx('cuantos casos nuevos hay esta semana', 'cuantos se esperaba que hubiera?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
-addCtx('comparalo contra el pronostico', 'compara solo la semana 8', 'answerFueraDeVocabulario', ['800 911 2000'], []);
+addCtx('comparalo contra el pronostico', 'compara solo la semana 8', 'answerComparacionSemanal', [], ['800 911 2000']);
 addCtx('cuantos casos llegaron esta semana', 'compara la semana 8', 'answerComparacionSemanal', ['Observado', 'anterior al corte'], []);
 // Octava auditoría Codex: primera persona plural fuera del vocabulario cerrado → apoyo fijo.
-addCtx('cuantos casos llegaron esta semana de parkinson', 'cuantos habiamos pronosticado?', 'answerFueraDeVocabulario', ['800 911 2000'], []);
+addCtx('cuantos casos llegaron esta semana de parkinson', 'cuantos habiamos pronosticado?', 'answerComparacionSemanal', [], ['800 911 2000']);
 addCtx('cuantos casos hay de depresion en Nuevo Leon', 'y en Jalisco?', 'answerSpecificSeries', ['Jalisco'], []);
 addCtx('pronostico de alzheimer en Ciudad de Mexico', 'y para hombres?', '*', ['hombre'], []);
 addCtx('pronostico de depresion en Sonora', 'y el de mujeres?', '*', ['mujer'], []);
@@ -1022,17 +1022,17 @@ addCtx('incidencia de depresion en Veracruz', 'y que hay de Tabasco?', '*', ['Ta
 addCtx('ranking de entidades por incidencia de depresion', 'pero de alzheimer', '*', ['Alzheimer'], []);
 addCtx('cuantos casos de depresion hay en Sinaloa', 'y en Baja California?', '*', ['Baja California'], []);
 // Octava auditoría Codex: primera persona plural fuera del vocabulario cerrado → apoyo fijo.
-addCtx('cuantos casos llegaron esta semana', 'dijimos que iba a haber mas o menos?', 'answerFueraDeVocabulario', ['800 911 2000'], []);
+addCtx('cuantos casos llegaron esta semana', 'dijimos que iba a haber mas o menos?', 'answerComparacionSemanal', [], ['800 911 2000']);
 addCtx('cuantos casos nuevos hay esta semana de depresion', 'se esperaba mas o menos de lo que llego?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
 addCtx('pronostico de alzheimer en Guerrero', 'que modelo usa?', '*', ['Motor'], []);
 addCtx('cuantos casos de depresion en Puebla para hombres', 'y para el general?', '*', ['general'], []);
 addCtx('pronostico de parkinson en Yucatan', 'y en Quintana Roo?', '*', ['Quintana Roo'], []);
 // Octava auditoría Codex: primera persona plural fuera del vocabulario cerrado → apoyo fijo.
-addCtx('datos de la semana mas reciente', 'cuanto pronosticamos para esa semana?', 'answerFueraDeVocabulario', ['800 911 2000'], []);
+addCtx('datos de la semana mas reciente', 'cuanto pronosticamos para esa semana?', 'answerComparacionSemanal', [], ['800 911 2000']);
 // Séptima auditoría Codex: pronombres, reflexivos y verbos causativos quedan fuera del vocabulario cerrado → apoyo fijo.
-addCtx('cuantos casos llegaron esta semana', 'le atinamos?', 'answerFueraDeVocabulario', ['800 911 2000'], []);
+addCtx('cuantos casos llegaron esta semana', 'le atinamos?', 'answerComparacionSemanal', [], ['800 911 2000']);
 addCtx('depresion en Nuevo Leon', 'y tambien en Tamaulipas?', '*', ['Tamaulipas'], []);
-addCtx('que es la depresion', 'y del parkinson que sabes?', 'answerFueraDeVocabulario', ['800 911 2000'], []);
+addCtx('que es la depresion', 'y del parkinson que sabes?', 'answerPadecimiento', [], ['800 911 2000']);
 addCtx('cuantos casos llegaron esta semana de alzheimer', 'y como va contra el pronostico?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
 addCtx('casos de depresion en Sonora', 'pero en Chihuahua', '*', ['Chihuahua'], []);
 addCtx('pronostico de depresion en Jalisco', 'y para mujeres como va?', '*', ['mujer'], []);
@@ -1041,10 +1041,10 @@ addCtx('modelo de depresion en Guanajuato', 'y en Aguascalientes?', '*', ['Aguas
 addCtx('ultimo dato del boletin', 'el pronostico decia que iban a ser mas?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
 addCtx('cuantos casos de alzheimer en Jalisco', 'y Michoacan?', '*', ['Michoac'], []);
 addCtx('comparar pronostico vs real', 'pero solo semana 8', 'answerComparacionSemanal', ['Observado', 'anterior al corte'], []);
-addCtx('cuantos casos llegaron esta semana', 'comparalo contra lo pronosticado', 'answerFueraDeVocabulario', ['800 911 2000'], []);
+addCtx('cuantos casos llegaron esta semana', 'comparalo contra lo pronosticado', 'answerComparacionSemanal', [], ['800 911 2000']);
 addCtx('pronostico de depresion en Nuevo Leon', 'y en Coahuila que onda?', '*', ['Coahuila'], []);
 // Octava auditoría Codex: primera persona plural fuera del vocabulario cerrado → apoyo fijo.
-addCtx('datos recientes del boletin', 'esperabamos mas o menos casos?', 'answerFueraDeVocabulario', ['800 911 2000'], []);
+addCtx('datos recientes del boletin', 'esperabamos mas o menos casos?', 'answerComparacionSemanal', [], ['800 911 2000']);
 addCtx('casos de parkinson en Veracruz', 'y para depresion en ese estado?', '*', ['Depresion'], []);
 addCtx('cuantos casos nuevos hay esta semana', 'cuanto se pronostico para esa semana?', 'answerComparacionSemanal', ['Observado', 'Pronóstico'], []);
 

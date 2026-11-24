@@ -167,9 +167,9 @@ for (const q of ['intoxicación por alcohol butílico en Jalisco', 'intoxicació
   test(`alcohol calificado (KB y RAG): «${q}» no recibe F10.0`, async () => {
     const { md } = await conversa(q);
     assert.doesNotMatch(md, /<!--INTOX_ALCOHOL_F100:|2,345/, q);
-    assert.match(md, /no modela|No reconozco/i, q);
+    assert.match(md, /no modela|No reconozco|No entendí/i, q);
     const r = String((await ragTurno(q)).answer);
     assert.doesNotMatch(r, /2,345|\bcasos\b/, q);
-    assert.match(r, /no modela|No reconozco/, q);
+    assert.match(r, /no modela|No reconozco|No entendí/, q);
   });
 }

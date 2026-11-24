@@ -7,7 +7,7 @@ import { graficoRondas } from './comparacion_rondas.js?v=3';
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=196';
+import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=197';
 import { detectEntities, norm } from './entities.js?v=87';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
 import { renderMexicoMap } from './mexico-map.js?v=3';
@@ -15,9 +15,9 @@ import { renderTimelapse } from './timelapse.js?v=4';
 import { renderSemaforo } from './semaforo.js?v=3';
 import { renderComparador } from './comparador.js?v=4';
 import { buildComparadorState } from './comparador_data.js?v=1';
-import { graficaObesidad } from './obesidad_charts.js?v=56';
+import { graficaObesidad } from './obesidad_charts.js?v=57';
 import { UNCERTAINTY_LABEL } from './point_only.js?v=1';
-import { MARCADOR_RELEASE, releaseConAlias, releaseDeMarca, releaseDePad } from './release_config.js?v=53';
+import { MARCADOR_RELEASE, RELEASES, releaseConAlias, releaseDeMarca, releaseDePad } from './release_config.js?v=54';
 import { initSTT, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking, toggleMute, isTTSEnabled, onSpeakingStateChange } from './voice.js?v=3';
 
 // ---------------------------------------------------------------------------
@@ -733,16 +733,16 @@ function addWelcome() {
   const hero =
     `<div class="welcome-hero welcome-hero--compact">
        <div class="epi-welcome-kicker">DATOS DEL SINAVE · PRONÓSTICOS PUBLICADOS</div>
-       <div class="welcome-hero-title">¿Qué quieres consultar?</div>
-       <div class="welcome-hero-sub">Pregunta por un padecimiento, una entidad o una semana. EPI te ayuda a explorar lo observado y lo pronosticado, con sus cortes y limitaciones.</div>
+       <div class="welcome-hero-title">¿Qué quieres saber?</div>
+       <div class="welcome-hero-sub">Pregúntame como a una persona. Te digo cómo van ${RELEASES.length + 4} padecimientos en México, por estado y por sexo: si suben o bajan, qué se espera y qué tan confiable es cada cifra.</div>
        <div class="epi-welcome-example">Prueba con una pregunta:</div>
      </div>`;
 
   const suggestions = [
-    { text: 'Depresión en Jalisco', q: 'depresion en Jalisco' },
-    { text: 'Pronóstico de diabetes tipo II', q: 'pronostico diabetes tipo 2' },
-    { text: 'Infecciones intestinales', q: 'infecciones intestinales' },
-    { text: 'Estado de la validación', q: 'validacion semanal' },
+    { text: '¿Cómo va el dengue en Veracruz?', q: '¿cómo va el dengue en Veracruz?' },
+    { text: '¿Sube la diabetes en Nuevo León?', q: '¿está subiendo la diabetes en Nuevo León?' },
+    { text: '¿Qué enfermedades van al alza?', q: '¿qué enfermedades van al alza?' },
+    { text: '¿Qué es la escabiosis?', q: '¿qué es la escabiosis?' },
   ];
 
   addBotMessage(hero, 'local', suggestions);
@@ -973,7 +973,7 @@ async function routeQuery(text, typingEl) {
     }
     if (chartData) lastChartQuery = chartQuery;
     lastAnswerWasRag = false;
-    const suggestions = getSuggestions(text);
+    const suggestions = sugerenciasDeRespuesta(result) || getSuggestions(text);
     removeTyping(typingEl);
     addBotMessage(result, 'local', suggestions, chartData);
     pushHistory(text, result);
@@ -1192,8 +1192,13 @@ function addBotMessage(markdown, source, suggestions, chartData, sources) {
 
   // Normalizar acentos antes de comentarios y render
   const polished = polishSpanish(markdown);
-  const cleanMarkdown = polished.replace(new RegExp(MARCADOR_RELEASE.source, 'g'), '').replace(/<!--SIN_GRAFICA-->/g, '').replace(/<!--COMPARE:.*?-->/g, '').replace(/<!--DISTRIB:.*?-->/g, '').replace(/<!--GENCHART:.*?-->/g, '');
-  const html = sanitizeHtml(marked.parse(cleanMarkdown, { breaks: true }));
+  const conDetalle = polished.replace(new RegExp(MARCADOR_RELEASE.source, 'g'), '').replace(/<!--SIN_GRAFICA-->/g, '').replace(/<!--COMPARE:.*?-->/g, '').replace(/<!--DISTRIB:.*?-->/g, '').replace(/<!--GENCHART:.*?-->/g, '').replace(/\n?<!--SIGUE:.*?-->/g, '');
+  // Rediseño conversacional (24-nov-2026): lo que sigue a <!--DETALLE--> es la ficha técnica; se pliega en «Cómo se
+  // calculó» y la voz no la lee. Cada mitad pasa por el saneador por separado; el envoltorio es fijo.
+  const [cleanMarkdown, detalleMd = ''] = conDetalle.split('<!--DETALLE-->');
+  const html = sanitizeHtml(marked.parse(cleanMarkdown, { breaks: true })) + (detalleMd.trim()
+    ? `<details class="msg-detalle"><summary>Cómo se calculó</summary>${sanitizeHtml(marked.parse(detalleMd, { breaks: true }))}</details>`
+    : '');
   const now = new Date();
   const timeStr = now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
 
@@ -3843,6 +3848,16 @@ function renderChart(canvasId, chartData) {
 // ---------------------------------------------------------------------------
 // Suggestions
 // ---------------------------------------------------------------------------
+
+/** Botones de seguimiento que propone la propia respuesta (<!--SIGUE:[{t, q}]-->), o null. */
+function sugerenciasDeRespuesta(markdown) {
+  const m = String(markdown || '').match(/<!--SIGUE:(\[.*?\])-->/);
+  if (!m) return null;
+  try {
+    const xs = JSON.parse(m[1]).filter((x) => x && typeof x.t === 'string' && typeof x.q === 'string');
+    return xs.length ? xs.slice(0, 4).map((x) => ({ text: x.t, q: x.q })) : null;
+  } catch { return null; }
+}
 
 function getSuggestions(query) {
   const q = norm(query);

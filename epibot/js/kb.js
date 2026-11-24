@@ -10,8 +10,12 @@ import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaN
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=13';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=61';
-import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, respuestaConDatos, salidaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=53';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=62';
+import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano } from './conversacion.js?v=1';
+import { respuestaLlana, confiabilidadLegacy } from './resumen_llano.js?v=1';
+/** Los cuatro originales en lenguaje llano (consulta general), antes de sus handlers específicos. */
+function answerLegacyLlano(q, ent, s, d) { return legacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadLegacy }); }
+import { aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaConDatos, salidaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=54';
 
 let DATA = null;
 
@@ -24,6 +28,35 @@ function isNeuro(p) { return NEURO_PADS.includes(p); }
 // Version de los datos para cache-bust estable (evita re-descargar 1.3 MB por visita).
 // Subir esta constante cuando cambie knowledge.json / zoom_series.json.
 const DATA_VERSION = '20261116';
+
+let _radarPendiente = Promise.resolve();
+let _resumenPendiente = Promise.resolve();
+let _zoomPendiente = Promise.resolve();
+const _vistas = new Map();
+/** Descarga (una sola vez) la vista de un release y la deja en DATA[dataKey]. */
+export function cargaVista(rel) {
+  if (!rel || !DATA) return Promise.resolve();
+  if (!_vistas.has(rel.id)) {
+    _vistas.set(rel.id, fetch(`../publication/${rel.id}/vista.json?v=${DATA_VERSION}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((v) => { if (v && v.schema === 'publication_view.v1') DATA[rel.dataKey] = v; else _vistas.delete(rel.id); })
+      .catch(() => { _vistas.delete(rel.id); }));
+  }
+  return _vistas.get(rel.id);
+}
+/** Carga las vistas que la consulta nombra (y la del padecimiento del contexto) antes de responder. */
+async function cargaVistasDeConsulta(query) {
+  const qn = norm(String(query || ''));
+  const rels = new Set(releasesEnConsulta(qn, { prefijos: true }));
+  const pad = detectEntities(qn).padecimiento || lastEntities.padecimiento;
+  const r = pad ? releaseDePad(pad) : null;
+  if (r) rels.add(r);
+  for (const p of detectEntities(qn).padecimientos || []) { const x = releaseDePad(p); if (x) rels.add(x); }
+  await Promise.all([...rels].map(cargaVista));
+  await _radarPendiente;
+  await _resumenPendiente;
+  if (['Dengue', 'Depresion', 'Parkinson', 'Alzheimer'].includes(pad)) await _zoomPendiente;
+}
 
 export async function loadKnowledge() {
   if (DATA) return DATA;
@@ -42,19 +75,25 @@ export async function loadKnowledge() {
 
   // Precarga en segundo plano el zoom por serie (estado×sexo, 432 series). No bloquea el
   // arranque; cuando llega, queda en DATA.zoom_series y lo usan answerZoom/buildZoomChart.
-  fetch(`./zoom_series.json${cacheBust}`)
+  _zoomPendiente = fetch(`./zoom_series.json${cacheBust}`)
     .then(r => (r.ok ? r.json() : null))
     .then(z => { if (z) DATA.zoom_series = z; })
     .catch(() => {});
-  // Cada release publicado trae su vista (observado + pronóstico + desempeño fuera de muestra),
-  // que vive fuera de knowledge.json y se carga aparte.
+  // Cada release publicado trae su vista (observado + pronóstico + desempeño fuera de muestra), unos 500 KB por
+  // padecimiento. Rediseño conversacional (24-nov-2026): ya no se descargan las 151 vistas (71 MB) al abrir la página;
+  // cada una se pide cuando la consulta la nombra (cargaVistasDeConsulta, antes de los handlers). `obesidad_pendiente`
+  // sigue disponible para las pruebas y herramientas que necesitan todas: al leerlo se cargan.
   // La foto vigente del radar del boletín (la misma de boletin.html) da las cifras notificadas de
-  // los padecimientos que no se modelan; viaja en la misma promesa para que las pruebas la esperen.
-  DATA.obesidad_pendiente = Promise.all([...RELEASES.map((rel) => fetch(`../publication/${rel.id}/vista.json${cacheBust}`)
-    .then(r => (r.ok ? r.json() : null))
-    .then(v => { if (v && v.schema === 'publication_view.v1') DATA[rel.dataKey] = v; })
-    .catch(() => {})),
-  cargaRadar().then((r) => { if (r) DATA.radar_boletin = r; }).catch(() => {})]);
+  // los padecimientos que no se modelan.
+  _resumenPendiente = fetch(`./resumen_padecimientos.json${cacheBust}`)
+    .then((r) => (r.ok ? r.json() : null))
+    .then((x) => { if (x && x.schema === 'resumen_padecimientos.v1') DATA.resumen_padecimientos = x; })
+    .catch(() => {});
+  _radarPendiente = cargaRadar().then((r) => { if (r) DATA.radar_boletin = r; }).catch(() => {});
+  Object.defineProperty(DATA, 'obesidad_pendiente', {
+    configurable: true, enumerable: false,
+    get() { return Promise.all([...RELEASES.map(cargaVista), _radarPendiente]); },
+  });
   return DATA;
 }
 
@@ -845,6 +884,9 @@ function answerSaludo(q, ent, s, d) {
     'hello', 'saludos', 'buen dia', 'que onda', 'que tal', 'hey',
   ];
   if (!any(q, triggers)) return null;
+  // Rediseño conversacional: «hola, ¿cómo va la varicela en Jalisco?» es una pregunta de datos, no un saludo.
+  if (ent.padecimiento || ent.estado || (ent.padecimientos || []).length || q.split(' ').length > 6) return null;
+  if (q.split(' ').length > 0) return saludoConversacional();
 
   const total = s.total_modelos || 333;
   const motor = s.motor_ganador || 'DeepAR';
@@ -5609,7 +5651,7 @@ function answerCodeRequest(q, ent, s, d) {
 
 const HANDLERS = [
   answerComparacionRondas,
-  answerSaludo, answerRadarNombreExacto, answerObesidad, answerDiabetes, answerRadarResumen, answerRadarBoletin, answerPadecimientoNoModelado, answerCategoriaNoReconocida, answerReleasesMixtos, answerConsultaEnInglesSinPadecimiento, answerDengue, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerFechaSemana, answerTemporal, answerProyectoMeta,
+  answerSaludo, answerRadarNombreExacto, answerObesidad, answerDiabetes, answerRadarResumen, answerRadarBoletin, answerPadecimientoNoModelado, answerCategoriaNoReconocida, answerReleasesMixtos, answerConsultaEnInglesSinPadecimiento, answerLegacyLlano, answerDengue, answerLugarDesconocido, answerEdadNoDisponible, answerPreguntaPersonal, answerEquipo, answerFechaSemana, answerTemporal, answerProyectoMeta,
   answerTrainingConfig, answerSemanaActual, answerSemanasBoletin, answerQueEsPadecimiento,
   answerTimelapse, answerSemaforo, answerReportePDF,
   answerComparacionPorSexo,
@@ -5852,7 +5894,8 @@ let _aclaracionPendiente = null;
  * que se deduce del historial antes de cualquier ruta, panorama incluido.
  */
 export function registraEstadoAyuda(estado) {
-  if (estado === 'crisis' || estado === 'apoyo') _crisisActiva = _crisisActiva === 'crisis' ? 'crisis' : estado;
+  // Rediseño conversacional (24-nov-2026): sólo la crisis persiste; un turno no entendido no deja estado.
+  if (estado === 'crisis') _crisisActiva = 'crisis';
 }
 export function estadoDesdeHistorial(turnosUsuario) {
   registraEstadoAyuda(crisisEnTurnos(turnosUsuario.map(normalizaEntrada), nombraPadecimientoNoSensible));
@@ -5861,7 +5904,6 @@ export function estadoDesdeHistorial(turnosUsuario) {
 export function estadoDeRespuesta(texto) {
   const t = String(texto || '');
   if (/Lamento que estés pasando por esto|I am sorry you are going through this|Sigo aquí contigo|I am still here/.test(t)) return 'crisis';
-  if (/No reconozco algunos términos|I do not recognize some terms/.test(t)) return 'apoyo';
   return null;
 }
 
@@ -5914,15 +5956,6 @@ export function guardaInicial(consulta) {
     trace.handler = _crisisActiva === 'apoyo' ? 'answerApoyoSeguimiento' : 'answerCrisisSeguimiento';
     return { response: apoyo, handler: trace.handler };
   }
-  // Cuarta auditoría Codex: lista blanca global; un token fuera del vocabulario cerrado no recibe cifras ni ficha.
-  const fuera = respuestaFueraDeVocabulario(query);
-  if (fuera) {
-    lastEntities = {};
-    _crisisActiva = 'apoyo';
-    _aclaracionPendiente = null;
-    trace.handler = 'answerFueraDeVocabulario';
-    return { response: fuera, handler: trace.handler };
-  }
   // Re-auditoría Codex: un seguimiento sin padecimiento propio tras una respuesta de un id sensible pasa por la misma lista
   // blanca («¿y si me tomo 30?» tras «X60 en Jalisco»).
   const relPrevio = lastEntities.padecimiento ? releaseDePad(lastEntities.padecimiento) : null;
@@ -5932,6 +5965,15 @@ export function guardaInicial(consulta) {
     _crisisActiva = 'crisis';
     trace.handler = 'answerCrisis';
     return { response: respuestaCrisis('quiero morir'), handler: trace.handler };
+  }
+  // Rediseño conversacional (24-nov-2026): una señal débil (sustancias, desbordamiento, escritura no latina) recibe una vez
+  // el «no entendí» con la Línea de la Vida, sin cifras y sin dejar estado persistente. Las guardas fijas sin cifras (D7)
+  // conservan su texto.
+  if (apoyoInmediato(query) && !guardaD7(query)) {
+    lastEntities = {};
+    _aclaracionPendiente = null;
+    trace.handler = 'answerFueraDeVocabulario';
+    return { response: pareceIngles(query) ? APOYO_EN : APOYO_ES, handler: trace.handler };
   }
   _crisisActiva = null;
   return null;
@@ -5946,6 +5988,7 @@ async function _resolve(consulta) {
   const query = sinExclusionG00(consulta);
   const trace = { handler: null };   // por llamada, no global: no puede quedar obsoleto
   const d = await loadKnowledge();
+  await cargaVistasDeConsulta(query);
   const s = d.stats || {};
   // Un seguimiento que nombra otro subtipo de diabetes se resuelve antes de heredar el contexto.
   const guarda = guardaInicial(query);
@@ -6013,6 +6056,17 @@ async function _resolve(consulta) {
   const codeResp = answerCodeRequest(q, ent, s, d);
   if (codeResp) { trace.handler = 'answerCodeRequest'; return { response: codeResp, handler: trace.handler }; }
 
+  // Rediseño conversacional (24-nov-2026): charla, ayuda, síntomas y ranking entre padecimientos responden antes de los
+  // guardas que ceden al modelo; ninguno da cifras inventadas ni consejo médico.
+  for (const h of [answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral]) {
+    const r = h(q, ent, s, d);
+    if (r) {
+      trace.handler = h.name;
+      if (h !== answerSintomas) lastEntities = {};
+      return { response: r, handler: trace.handler };
+    }
+  }
+
   // Guard: temas claramente ajenos (clima, deportes, recetas, etc.) → declinar
   // LOCALMENTE, sin ceder a la IA. Evita además el fuzzy 'clima'→'colima'.
   const offTopic = ['clima', 'pronostico del tiempo', 'pronostico del clima', 'va a llover',
@@ -6023,7 +6077,7 @@ async function _resolve(consulta) {
   if (any(q, offTopic) && !ent.padecimiento && !ent.estado && !ent.modelo) {
     trace.handler = 'answerFueraDeTema';
     return { response: 'Soy **EPI**, asistente de inteligencia epidemiológica de EpiForecast-MX. No respondo temas fuera del proyecto (clima, deportes, recetas, finanzas, etc.).\n\n' +
-      'Puedo ayudarte con pronósticos, métricas y la metodología de **Depresión, Parkinson, Alzheimer y Dengue** en México. Por ejemplo: «métricas globales», «depresión en Jalisco» o «pronóstico de dengue».', handler: trace.handler };
+      `Puedo decirte cómo van **${TOTAL_PUBLICADOS()} padecimientos** en México, por estado y por sexo. Por ejemplo: «¿cómo va el dengue en Veracruz?» o «¿qué enfermedades van al alza?».`, handler: trace.handler };
   }
 
   // Guard: preguntas sobre el PAPER / MICAI / metodología → ceder al RAG, que
@@ -6248,6 +6302,8 @@ async function _resolve(consulta) {
 const HANDLERS_ACLARACION = new Set(['answerAliasAmbiguo', 'answerGuardaD7', 'answerMeningitisTipo',
   'answerSumaSeriesDistintas', 'answerAclaracionPendiente']);
 const HANDLERS_DE_AYUDA = new Set(['answerCrisis', 'answerCrisisSeguimiento', 'answerApoyoSeguimiento', 'answerFueraDeVocabulario']);
+// Rediseño conversacional: charla, ayuda y síntomas responden aunque el turno sea personal y no nombre un dato.
+const HANDLERS_CONVERSACION = new Set(['answerSaludo', 'answerCharla', 'answerSintomas', 'answerRankingPadecimientos', 'answerConfianzaGeneral']);
 // Respuestas fijas sin cifras (aclaraciones, alcance, no modelados, guardas): con un token fuera del vocabulario se
 // conservan si no llevan cifras, porque ya no dan datos de ningún padecimiento.
 const HANDLERS_SIN_DATOS = new Set(['answerAliasAmbiguo', 'answerGuardaD7', 'answerMeningitisTipo', 'answerSumaSeriesDistintas',
@@ -6257,26 +6313,14 @@ const HANDLERS_SIN_DATOS = new Set(['answerAliasAmbiguo', 'answerGuardaD7', 'ans
   'answerQueEsPadecimiento', 'answerPreguntaPersonal', 'answerProyectoMeta']);
 async function _resolveConContexto(query) {
   const r0 = await _resolve(query);
-  // Guarda posterior (cuarta y quinta auditorías Codex): un turno con un token fuera del vocabulario cerrado nunca recibe
-  // cifras ni gráfica, ni la respuesta de datos de un padecimiento que nombra; se sustituye por el apoyo fijo y lo activa.
-  // Sin respuesta local para un turno que nombra un dato y trae un token fuera de vocabulario: también apoyo (no se cede al
-  // modelo).
-  // Séptima auditoría: un turno fuera de vocabulario siempre deja activo el apoyo persistente (también si se cede a la
-  // función RAG, que responde el apoyo fijo); con cifras, gráfica o datos de un padecimiento se sustituye por el apoyo.
-  const fuera = !HANDLERS_DE_AYUDA.has(r0.handler) && fueraDeVocabulario(query);
-  if (fuera) _crisisActiva = _crisisActiva || 'apoyo';
-  const daDatos = r0.response ? (respuestaConDatos(r0.response) ||
-    (tieneFragmentoDeDatos(query) && !HANDLERS_SIN_DATOS.has(r0.handler))) : false;
-  // Re-auditoría Codex de no modelables: con un token fuera del vocabulario nunca sale una respuesta sin la Línea de la Vida
-  // (salidaFueraDeVocabulario): con cifras, gráfica o primera persona, sólo el apoyo; si no, la aclaración sin enlaces y con
-  // el bloque de apoyo.
-  const aApoyo = () => { lastEntities = {}; _crisisActiva = _crisisActiva || 'apoyo'; _aclaracionPendiente = null;
-    return { response: pareceIngles(query) ? APOYO_EN : APOYO_ES, handler: 'answerFueraDeVocabulario' }; };
-  const salida = fuera && r0.response && !daDatos ? salidaFueraDeVocabulario(query, String(r0.response)) : null;
-  // Sin respuesta local se cede a la función RAG, cuya salida con vocabulario desconocido pasa por la misma regla.
-  const r = !fuera || !r0.response ? r0
-    : daDatos || salida === APOYO_ES || salida === APOYO_EN ? aApoyo()
-      : { ...r0, response: salida };
+  // Rediseño conversacional (24-nov-2026, mesa redonda): la lista blanca global ya no bloquea las consultas naturales.
+  // Sólo un turno personal que no nombra ningún dato y trae palabras fuera del vocabulario (apoyoSuave) no recibe cifras,
+  // gráfica ni respuesta del modelo: recibe una vez el «no entendí» con la Línea de la Vida, sin estado persistente.
+  const suave = apoyoSuave(query) && !HANDLERS_DE_AYUDA.has(r0.handler) && !HANDLERS_CONVERSACION.has(r0.handler);
+  const r = suave && (!r0.response || respuestaConDatos(r0.response) || !HANDLERS_SIN_DATOS.has(r0.handler))
+    ? (lastEntities = {}, _aclaracionPendiente = null,
+      { response: pareceIngles(query) ? APOYO_EN : APOYO_ES, handler: 'answerFueraDeVocabulario' })
+    : r0;
   if (HANDLERS_ACLARACION.has(r.handler)) {
     if (r.handler !== 'answerAclaracionPendiente') {
       _aclaracionPendiente = String(r.response || '').replace(/\n?<!--SIN_GRAFICA-->/g, '').trim();

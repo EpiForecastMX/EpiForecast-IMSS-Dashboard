@@ -6,7 +6,8 @@
   #     detecta drift, el deploy FALLA (no se publica un índice desincronizado).
   #   - SIN key: conserva el rag_index.json commiteado y solo avisa (no falla),
   #     para no romper deploys donde la key no esté disponible.
-  command = "npm install && npm run rag:ci"
+  # Rediseño conversacional (24-nov-2026): el resumen nacional del EpiBot se regenera desde las vistas publicadas.
+  command = "npm install && npm run resumen:build && npm run rag:ci"
 
 [functions]
   node_bundler = "esbuild"

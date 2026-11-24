@@ -14,10 +14,11 @@ import { mencionaNoModelada } from './entities.js?v=87';
 import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
-} from './obesidad_charts.js?v=56';
-import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=53';
+} from './obesidad_charts.js?v=57';
+import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=54';
 // Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
 import './avisos_fuente.js?v=5';
+import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion } from './resumen_llano.js?v=1';
 
 const any = (q, ks) => ks.some((k) => q.includes(k));
 const semana = ([a, w]) => `${a}-W${String(w).padStart(2, '0')}`;
@@ -200,7 +201,7 @@ function answerRelease(q, ent, s, d, r) {
   if (mencionaNoModelada(q)) return null;
   const v = d[r.dataKey];
   if (!v) {
-    return `La vista de **${r.etiqueta}** todavía se está cargando. Puedes consultarla completa en ` +
+    return `No pude cargar los datos de **${r.etiqueta}** en este momento. Puedes consultarlos en ` +
       `[la página de ${r.nombre}](../${r.pagina}) o volver a preguntar en unos segundos.`;
   }
   // Sin desglose por sexo (cuello del útero): sólo existe el total de cada entidad.
@@ -312,6 +313,33 @@ function answerRelease(q, ent, s, d, r) {
     return fin([...ficha(v, x, 'acumulado', r), '',
       ...(x.oos.semanas ? [`Acumulado del pronóstico hasta ${semana(v.observation_cutoff)}: ${ent0(total(vistas))} casos; observado: ${ent0(x.oos.observado_total)}.`] : []),
       `Acumulado de las ${v.horizon_weeks} semanas: **${ent0(x.pronostico_52_total)} casos**.`, '', etiqueta]);
+  }
+
+  // Rediseño conversacional (24-nov-2026): la consulta general, la de confiabilidad y la de «qué es» responden primero en
+  // lenguaje llano; la ficha técnica queda plegada después de <!--DETALLE--> («Cómo se calculó»).
+  if (tipo === 'serie' || tipo === 'confianza') {
+    const estadosMismoSexo = Object.values(v.series).filter((y) => y.nivel === 'estado' && y.sexo === x.sexo);
+    const llano = respuestaLlana({ v, x, r, q, esControl: esControl(v), estados: estadosMismoSexo, sinSexo });
+    if (llano) {
+      const qn = q.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+      const defin = /^\W*(que|q) (es|son|significa)\b|\bque es (la|el|una|un)\b|\bsignifica\b|\bdefin/.test(qn);
+      const completo = (v.nombre_completo || '').replace(/\s*\([^()]+\)\s*$/, '').trim();
+      const cie = (v.nombre_completo || '').match(/\(([^()]+)\)\s*$/)?.[1];
+      const arriba = [];
+      if (defin) {
+        arriba.push(`**${r.nombre}** es una de las categorías que notifica el boletín epidemiológico de la Secretaría de Salud` +
+          `${cie ? ` (CIE-10 ${cie})` : ''}${completo && completo.toLowerCase() !== r.nombre.toLowerCase() ? `: ${completo}` : ''}. ` +
+          `Para saber qué es y cómo se atiende, consulta [MedlinePlus en español](${enlaceDefinicion(r.nombre)}) o a tu médico. Así va en el país:`, '');
+      }
+      if (tipo === 'confianza') arriba.push(confiabilidad(v, x, esControl(v)).texto, '');
+      const tecnico = ficha(v, x, '', r);
+      const futurasT = x.pronostico.filter(([ds]) => ds > v.observation_cutoff_ds).slice(0, 4);
+      if (futurasT.length) tecnico.push('', '**Siguientes semanas del pronóstico, aún sin observación publicada:**', ...futurasT.map(([ds, y]) => `- Semana del ${ds}: ${ent0(y)} ${ent0(y) === '1' ? 'caso' : 'casos'}`));
+      tecnico.push('', `Total pronosticado en las ${v.horizon_weeks} semanas: **${ent0(x.pronostico_52_total)} casos**.`, '', etiqueta, `_${v.uncertainty_label}._`);
+      const cuerpo = tipo === 'confianza' ? llano.filter((l) => !/^\*\*Confiabilidad/.test(l)) : llano;
+      return avisoSexo + [...arriba, ...cuerpo].join('\n') + pie + '\n\n<!--DETALLE-->\n' + tecnico.join('\n') +
+        marca(tipo === 'confianza' ? 'serie' : tipo, ent, null, r) + siguientes(r, x, sinSexo);
+    }
   }
 
   const encabezado = { seguimiento: 'zoom semanal', motor_serie: 'motor' }[tipo] || '';

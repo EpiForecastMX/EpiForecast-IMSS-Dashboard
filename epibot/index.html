@@ -14,7 +14,7 @@
   <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.2.4/dist/purify.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-<link rel="stylesheet" href="css/shell.css?v=5">
+<link rel="stylesheet" href="css/shell.css?v=6">
 </head>
 <body><a class="epi-skip" href="#inputField">Saltar a la pregunta</a>
 <!-- site:header:start -->
@@ -90,7 +90,7 @@
         </span>
       </a>
 
-  <button type="button" class="epi-sidebar-close" id="sidebarClose">Cerrar herramientas</button><div class="cc-section epi-primary"><div class="cc-group-label">Tu punto de partida</div><a class="cc-row" href="../boletin.html">Consultar el boletín</a><a class="cc-row" href="../Reports/index.html">Explorar pronósticos</a><a class="cc-row" href="../validacion_semanal.html">Revisar la validación</a><button class="cc-row" data-q="depresion en Jalisco">Preguntar por una entidad</button></div>
+  <button type="button" class="epi-sidebar-close" id="sidebarClose">Cerrar herramientas</button><div class="cc-section epi-primary"><div class="cc-group-label">Tu punto de partida</div><a class="cc-row" href="../boletin.html">Consultar el boletín</a><a class="cc-row" href="../Reports/index.html">Explorar pronósticos</a><a class="cc-row" href="../validacion_semanal.html">Revisar la validación</a><button class="cc-row" data-q="¿qué enfermedades van al alza?">¿Qué enfermedades van al alza?</button><button class="cc-row" data-q="¿qué puedes hacer?">¿Qué puedo preguntarte?</button></div>
     <!-- Panorama / KPIs -->
       <details class="cc-section epi-sidebar-details"><summary>Datos de la cohorte original</summary>
         <div class="cc-kpis">
@@ -115,7 +115,7 @@
       </details>
 
       <!-- Herramientas avanzadas -->
-      <details class="cc-section epi-sidebar-details"><summary>Herramientas avanzadas</summary>
+      <details class="cc-section epi-sidebar-details"><summary>Para especialistas</summary>
         <div class="cc-stack">
           <button class="cc-row" data-q="matriz de rendimiento">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="15" r="3"/><circle cx="16" cy="9" r="2"/><circle cx="18" cy="17" r="1.5"/><line x1="3" y1="21" x2="3" y2="3"/><line x1="3" y1="21" x2="21" y2="21"/></svg>
@@ -153,17 +153,18 @@
       </details>
 
       <!-- Consultas rápidas -->
-      <details class="cc-section epi-sidebar-details"><summary>Más consultas para explorar</summary>
+      <details class="cc-section epi-sidebar-details"><summary>Preguntas frecuentes</summary>
         <div class="cc-chips">
-          <button class="cc-chip" data-q="que es el smape">¿Qué es el SMAPE?</button>
-          <button class="cc-chip" data-q="que es la depresion">Depresión</button>
-          <button class="cc-chip" data-q="que es el parkinson">Parkinson</button>
-          <button class="cc-chip" data-q="que es el alzheimer">Alzheimer</button>
-          <button class="cc-chip" data-q="compara desempeno hombres vs mujeres">Hombres vs mujeres</button>
-          <button class="cc-chip" data-q="validacion semanal">Validación</button>
-          <button class="cc-chip" data-q="composicion de los 333 modelos">333 modelos</button>
+          <button class="cc-chip" data-q="¿cómo va el dengue?">Dengue</button>
+          <button class="cc-chip" data-q="¿cómo va la diabetes?">Diabetes</button>
+          <button class="cc-chip" data-q="¿cómo va la hipertensión?">Hipertensión</button>
+          <button class="cc-chip" data-q="¿cómo va el asma?">Asma</button>
+          <button class="cc-chip" data-q="¿cómo va la varicela?">Varicela</button>
+          <button class="cc-chip" data-q="¿cómo va la depresión?">Depresión</button>
+          <button class="cc-chip" data-q="¿qué tan confiables son sus pronósticos?">¿Qué tan confiable es?</button>
+          <button class="cc-chip" data-q="que es el smape">¿Qué es el sMAPE?</button>
           <button class="cc-chip" data-q="equipo del proyecto">Equipo</button>
-          <button class="cc-chip" data-q="cuales son los hallazgos clave del estudio">Hallazgos (RAG)</button>
+          <button class="cc-chip" data-q="cuales son los hallazgos clave del estudio">Hallazgos del estudio</button>
           <button class="cc-chip" data-q="que ventajas tiene elegir un modelo distinto por cada serie">¿Modelo por serie? (RAG)</button>
         </div>
       </details>
@@ -1064,7 +1065,7 @@
 
   <!-- Panel lateral (cajón en móvil) y acciones rápidas: js/ux.js, un solo manejador. -->
   <script defer src="js/ux.js?v=3"></script>
-  <script type="module" src="js/app.js?v=237"></script>
+  <script type="module" src="js/app.js?v=238"></script>
 <script src="../assets/site/site-nav.js" defer></script>
 </body>
 </html>

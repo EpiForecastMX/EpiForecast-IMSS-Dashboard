@@ -6,7 +6,7 @@
  */
 import './vocab_cerrado.js?v=5';
 import './vocab_consulta.js?v=9';
-import './release_catalog.js?v=53';
+import './release_catalog.js?v=54';
 
 const CATALOGO = globalThis.EPI_CATALOGO;
 
@@ -27,6 +27,8 @@ export const fueraDeListaBlanca = CATALOGO.fueraDeListaBlanca;
 export const IDS_LISTA_BLANCA = CATALOGO.IDS_LISTA_BLANCA;
 export const respuestaFueraDeVocabulario = CATALOGO.respuestaFueraDeVocabulario;
 export const fueraDeVocabulario = CATALOGO.fueraDeVocabulario;
+export const apoyoSuave = CATALOGO.apoyoSuave;
+export const apoyoInmediato = CATALOGO.apoyoInmediato;
 export const respuestaConDatos = CATALOGO.respuestaConDatos;
 export const esRespuestaDeAyuda = CATALOGO.esRespuestaDeAyuda;
 export const salidaFueraDeVocabulario = CATALOGO.salidaFueraDeVocabulario;

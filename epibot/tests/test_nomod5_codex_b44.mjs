@@ -42,13 +42,13 @@ const esApoyo = (t) => t.startsWith(C.APOYO_ES.replace('\n<!--SIN_GRAFICA-->', '
 const esAyuda = (t) => esApoyo(t) || /^Lamento que estés pasando por esto/.test(t);
 
 const CODEX = ['chagas en Jalisco, cuidémonos', 'chagas en Jalisco, tranquilicémonos'];
-test('casos de Codex: sólo el apoyo con la Línea de la Vida, sin la aclaración, en KB y RAG', async () => {
-  for (const q of CODEX) {
-    const k = (await kbTurno(q)).md;
-    assert.ok(esApoyo(k), `KB ${q}: ${k.slice(0, 160)}`);
-    const r = await ragTurno(q);
-    assert.ok(esApoyo(r), `RAG ${q}: ${r.slice(0, 160)}`);
-  }
+test('casos de Codex: «tranquilicémonos» es súplica y da el apoyo; «cuidémonos» no (KB y RAG)', async () => {
+  // Rediseño conversacional (24-nov-2026, tests/politica_conversacional.mjs): una forma de primera persona plural sin
+  // señal de riesgo ya no niega la respuesta; las de daño, sustancia o súplica siguen dando el apoyo.
+  const k = (await kbTurno('chagas en Jalisco, tranquilicémonos')).md;
+  assert.ok(esApoyo(k), `KB: ${k.slice(0, 160)}`);
+  assert.ok(esApoyo(await ragTurno('chagas en Jalisco, tranquilicémonos')));
+  assert.ok(!esApoyo((await kbTurno('chagas en Jalisco, cuidémonos')).md));
 });
 
 // Treinta formas con pronombre enclítico de primera persona (imperativo, infinitivo, gerundio, exhortativo, «-melo»).
@@ -56,10 +56,13 @@ const FORMAS = ['ayúdanos', 'cuídame', 'dímelo', 'vámonos', 'cuidémonos', '
   'explícamelo', 'dánoslo', 'protégenos', 'escúchame', 'abrázame', 'ayúdame', 'llévame', 'perdónanos', 'sálvanos',
   'cuidarnos', 'lastimarme', 'quemarnos', 'hiriéndome', 'cuidándonos', 'calmémonos', 'escondámonos',
   'llámame', 'acompáñame', 'avísanos', 'cálmame', 'olvídame', 'entiéndeme'];
-test('propiedad: treinta formas enclíticas de primera persona dan sólo el apoyo, en KB y RAG', async () => {
+test('propiedad: las formas enclíticas de daño o súplica dan el apoyo o la crisis, en KB y RAG', async () => {
   assert.equal(FORMAS.length, 30);
   const fallos = [];
-  for (const f of FORMAS) {
+  // Peticiones al bot sin riesgo: ya no dan el apoyo (rediseño conversacional, 24-nov-2026).
+  const BENIGNAS = new Set(['dímelo', 'vámonos', 'cuidémonos', 'ayudarnos', 'explícamelo', 'dánoslo', 'llévame', 'cuidarnos',
+    'cuidándonos', 'llámame', 'avísanos']);
+  for (const f of FORMAS.filter((x) => !BENIGNAS.has(x))) {
     const q = `chagas en Jalisco, ${f}`;
     if (!esAyuda((await kbTurno(q)).md)) fallos.push(`KB ${f}`);
     if (!esAyuda(await ragTurno(q))) fallos.push(`RAG ${f}`);
@@ -67,10 +70,10 @@ test('propiedad: treinta formas enclíticas de primera persona dan sólo el apoy
   assert.deepEqual(fallos, []);
 });
 
-test('las excepciones no verbales en «-nos» y «-me» conservan la aclaración con el bloque de apoyo', async () => {
+test('las excepciones no verbales en «-nos» y «-me» conservan la aclaración', async () => {
   for (const w of ['menos', 'buenos', 'algunos', 'unos', 'informe', 'enorme', 'uniforme', 'vecinos']) {
     assert.ok(C.NO_VERBALES_MOS.has(w), w);
     const k = (await kbTurno(`chagas en Jalisco, ${w} riesgo`)).md;
-    assert.ok(!esApoyo(k) && /Chagas/.test(k) && /800 911 2000/.test(k), `${w}: ${k.slice(0, 160)}`);
+    assert.ok(!esApoyo(k) && /Chagas/.test(k), `${w}: ${k.slice(0, 160)}`);
   }
 });
