@@ -3,7 +3,8 @@
 // la Figura 1 de la portada (hero_series.json). Sin release: el pronóstico exploratorio, no validado, de la foto
 // vigente (pronostico_exploratorio.json), con su rótulo, su motivo y su advertencia. No calcula cifras: las lee.
 import { numero } from './celdas.mjs?v=1';
-import { fuentePronostico, desdeVista, desdeLegacy, desdeExploratorio } from './pronostico.mjs?v=10';
+import { fuentePronostico, desdeVista, desdeLegacy, desdeLegacyZoom, desdeExploratorio, LEGACY_ZOOM } from './pronostico.mjs?v=11';
+import { parseAmbito, parseSexo, claveVista, nombreAmbito, ENTIDADES } from './ambitos.mjs?v=1';
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -41,15 +42,36 @@ async function observadoImpreso(e) {
     .filter((p) => p.ds && p.y !== null);
 }
 
+/** Ámbito y sexo elegidos en los controles de la curva (los mismos para la serie y el pronóstico). */
+function seleccion() {
+  return { ambito: parseAmbito($('curveState')?.value), sexo: parseSexo($('curveSex')?.value) };
+}
+
+async function legacy(id, { ambito, sexo }) {
+  if (ambito.tipo === 'nacional' && sexo === 'general') return desdeLegacy(await json('/hero_series.json'), id);
+  const { archivo } = LEGACY_ZOOM[id];
+  const zoom = await json(`/${archivo}`);
+  if (ambito.tipo === 'region') {
+    return { ...desdeLegacyZoom(zoom, id, 'Nacional', sexo),
+      aviso_ambito: 'El carril original usa otras regiones, distintas de las macrorregiones del radar: se muestra la serie nacional. Las entidades sí están disponibles.' };
+  }
+  return desdeLegacyZoom(zoom, id, ambito.tipo === 'estado' ? ENTIDADES[ambito.i] : 'Nacional', sexo);
+}
+
 async function modelo(id) {
+  const sel = seleccion();
   const e = DATA.diseases.find((x) => x.id === id);
   if (!e) return { aviso: 'Esta clasificación histórica no está en la foto vigente del boletín: su serie se conserva en el archivo, pero no tiene pronóstico.' };
   const f = fuentePronostico(e);
   if (!f) return { nombre: e.name, aviso: 'Este bloque es un agregado de subtipos que el catálogo ya cuenta por separado: el pronóstico se consulta en cada subtipo.' };
   if (f.tipo === 'publicado') {
-    return f.legacy ? desdeLegacy(await json('/hero_series.json'), f.id) : desdeVista(await json(`/publication/${f.id}/vista.json`), f.id);
+    return f.legacy ? legacy(f.id, sel) : desdeVista(await json(`/publication/${f.id}/vista.json`), f.id, claveVista(sel.ambito, sel.sexo));
   }
-  return desdeExploratorio(EXPL, e.id, await observadoImpreso(e));
+  const m = desdeExploratorio(EXPL, e.id, await observadoImpreso(e));
+  if (sel.ambito.tipo !== 'nacional' || sel.sexo !== 'general') {
+    m.aviso_ambito = 'El pronóstico exploratorio sólo existe para el total nacional: se muestra el nacional general.';
+  }
+  return m;
 }
 
 function grafica(m) {
@@ -104,13 +126,13 @@ function rotuloHtml(m) {
 
 function pintar(m) {
   const pro = m.pronostico.filter((p) => p.y != null);
-  $('forecastTitle').textContent = `${m.nombre ?? 'Pronóstico'} · Nacional`;
+  $('forecastTitle').textContent = `${m.nombre ?? 'Pronóstico'} · ${m.aviso ? 'Nacional' : m.titulo_ambito ?? 'Nacional'}`;
   if (m.aviso) {
     $('forecastLabel').innerHTML = `<p class="forecast-label" role="note">${esc(m.aviso)}</p>`;
     $('forecastChart').innerHTML = ''; $('forecastStats').innerHTML = ''; $('forecastCaption').textContent = '';
     return;
   }
-  $('forecastLabel').innerHTML = rotuloHtml(m);
+  $('forecastLabel').innerHTML = (m.aviso_ambito ? `<p class="forecast-label forecast-label--ambito" role="note">${esc(m.aviso_ambito)}</p>` : '') + rotuloHtml(m);
   $('forecastStats').innerHTML = [
     ['Tipo', m.tipo === 'exploratorio' ? (m.sin_pronostico ? 'Sin pronóstico' : m.notas ? 'Exploratorio desde las notas, no validado' : m.nivel_reciente ? 'Exploratorio de nivel reciente, no validado' : 'Exploratorio, no validado') : 'Pronóstico publicado'],
     ['Origen', m.origen || 'Sin dato'],
@@ -119,7 +141,18 @@ function pintar(m) {
   ].map(([l, v]) => `<div><span>${l}</span><strong>${esc(v)}</strong></div>`).join('');
   $('forecastChart').innerHTML = grafica(m);
   $('forecastLegend').innerHTML = `<span class="curve-legend-2025">Observado</span>${pro.length ? `<span class="forecast-legend${m.tipo === 'exploratorio' ? ' forecast-legend--exploratorio' : ''}">${m.tipo === 'exploratorio' ? (m.notas ? 'Exploratorio desde las notas, no validado' : m.nivel_reciente ? 'Exploratorio de nivel reciente, no validado' : 'Exploratorio, no validado') : 'Pronóstico publicado'}</span>` : ''}`;
-  $('forecastCaption').textContent = `Ámbito: ${m.serie_nombre}. Fuente: ${m.fuente}.${m.anios?.length ? ` Años base de la media: ${m.anios.join(', ')}.` : ''}${m.base ? ` Semanas base del nivel: ${m.base.periodo}.` : ''} Pronóstico puntual, sin intervalos en esta gráfica. Se muestran hasta ${OBSERVADO_SEMANAS} semanas observadas.${totalPublicado(m)}`;
+  $('forecastCaption').textContent = `Ámbito: ${m.serie_nombre}. Fuente: ${m.fuente}.${m.anios?.length ? ` Años base de la media: ${m.anios.join(', ')}.` : ''}${m.base ? ` Semanas base del nivel: ${m.base.periodo}.` : ''} Pronóstico puntual, sin intervalos en esta gráfica.${notaAmbito(m)} Se muestran hasta ${OBSERVADO_SEMANAS} semanas observadas.${totalPublicado(m)}`;
+}
+
+/** Qué es una serie por sexo o por región del pronóstico publicado: no son cifras impresas del boletín. */
+function notaAmbito(m) {
+  if (m.tipo !== 'publicado' || !m.clave) return '';
+  const [nivel, , sexo] = m.clave.split('|');
+  let t = '';
+  if (sexo !== 'general') t += ' El reparto por sexo de la serie del modelo se estima con los acumulados H/M del boletín y puede incluir semanas imputadas: no son cifras semanales impresas por sexo.';
+  if (nivel === 'region') t += ' La región es una macrorregión de EpiForecast-MX, no oficial del SINAVE: su pronóstico es la suma de los pronósticos estatales.';
+  if (nivel !== 'nacional' || sexo !== 'general') t += ' La validación del release se mide en conjunto, no por ámbito ni por sexo.';
+  return t;
 }
 
 /** Si el total publicado difiere de la suma de las cifras semanales mostradas, se dice por qué. */
@@ -175,6 +208,8 @@ actualId = new URLSearchParams(location.search).get('padecimiento') || null;
 // Cambio de categoría: por el evento que curves.js emite antes de cargar la serie y, además, por el selector mismo,
 // para no depender de que la carga histórica termine bien. render() descarta pedidos superados.
 document.addEventListener('radar:curva', (e) => { if (e.detail.id !== actualId) { actualId = e.detail.id; render(); } });
+// Ámbito y sexo: los mismos controles de la curva gobiernan el pronóstico.
+for (const id of ['curveState', 'curveSex']) $(id)?.addEventListener('change', () => render());
 $('curveDisease').addEventListener('change', (e) => { if (e.target.value && e.target.value !== actualId) { actualId = e.target.value; render(); } });
 $('tabSerie').addEventListener('click', () => fijarModo('serie'));
 $('tabPronostico').addEventListener('click', () => fijarModo('pronostico'));

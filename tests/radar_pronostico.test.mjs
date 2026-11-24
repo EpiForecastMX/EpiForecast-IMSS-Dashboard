@@ -531,7 +531,9 @@ async function bootRadarCompleto(search, falla) {
   const espera = (ms = 120) => new Promise((r) => setTimeout(r, ms));
   await import(`${pathToFileURL(resolve(root, 'assets/boletin/pronostico_vista.mjs')).href}?t=${Math.random()}`);
   const celdas = pathToFileURL(resolve(root, 'assets/boletin/celdas.mjs')).href;
-  new Function(leer('assets/boletin/curves.js').replace("import('/assets/boletin/celdas.mjs?v=1')", `import('${celdas}')`))();
+  const ambitos = pathToFileURL(resolve(root, 'assets/boletin/ambitos.mjs')).href;
+  new Function(leer('assets/boletin/curves.js').replace("import('/assets/boletin/celdas.mjs?v=1')", `import('${celdas}')`)
+    .replace("import('/assets/boletin/ambitos.mjs?v=1')", `import('${ambitos}')`))();
   await espera(400);
   return {
     el, espera,

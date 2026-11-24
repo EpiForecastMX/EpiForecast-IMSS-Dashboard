@@ -12,7 +12,7 @@
 <meta property="og:url" content="https://epiforecast.mx/boletin.html">
 <meta property="og:type" content="website">
 <link rel="stylesheet" href="assets/site/site.css?v=5">
-<link rel="stylesheet" href="/assets/boletin/radar.css?v=20261120r">
+<link rel="stylesheet" href="/assets/boletin/radar.css?v=20261123a">
 </head>
 <body class="boletin-page">
 <a class="skip-link" href="#main">Saltar al contenido</a>
@@ -106,8 +106,8 @@
 
 </section>
 <section id="curvas" aria-labelledby="curvas-heading">
-<div class="section-top"><div><div id="archiveCoverage" class="eyebrow">ARCHIVO HISTÓRICO · DESDE 2013</div><h2 id="curvas-heading">Explora la evolución de un padecimiento.</h2><p>Elige un padecimiento y una entidad. Después ajusta los años o compara dos periodos. La serie muestra notificaciones observadas. La opción «Pronóstico» muestra el pronóstico publicado del padecimiento o, si no lo tiene, un pronóstico exploratorio, no validado.</p></div><a class="button secondary" href="/assets/boletin/history/nacional-2013-2026.csv" download>Descargar histórico nacional CSV</a></div>
-<div class="curve-controls"><label>Padecimiento<select id="curveDisease" disabled aria-label="Padecimiento de la curva"></select></label><label>Ámbito<select id="curveState" disabled aria-label="Entidad de la curva"><option value="-1">Nacional</option></select></label><label>Cifra<select id="curveMetric" disabled aria-label="Métrica de la curva"><option value="0">Casos semanales</option><option value="1">Acumulados del año observado</option><option value="2">En estudio (cuadros históricos de dengue)</option></select></label><label>Vista<select id="curveMode" disabled aria-label="Vista de la curva"><option value="timeline">Secuencia histórica</option><option value="compare">Comparar dos años</option></select></label><label>Desde / Año A<select id="curveStart" disabled aria-label="Año inicial o primer año de comparación"></select></label><label>Hasta / Año B<select id="curveEnd" disabled aria-label="Año final o segundo año de comparación"></select></label></div>
+<div class="section-top"><div><div id="archiveCoverage" class="eyebrow">ARCHIVO HISTÓRICO · DESDE 2013</div><h2 id="curvas-heading">Explora la evolución de un padecimiento.</h2><p>Busca un padecimiento por su nombre o su código y elige el ámbito (nacional, macrorregión o entidad) y el sexo. Después ajusta los años o compara dos periodos. La serie muestra notificaciones observadas. La opción «Pronóstico» muestra el pronóstico publicado del padecimiento o, si no lo tiene, un pronóstico exploratorio, no validado.</p></div><a class="button secondary" href="/assets/boletin/history/nacional-2013-2026.csv" download>Descargar histórico nacional CSV</a></div>
+<div class="curve-controls"><div class="curve-search"><label for="curveSearch" id="curveSearchLabel">Padecimiento <span class="curve-hint">(escribe el nombre o el código CIE)</span></label><div class="combo"><input id="curveSearch" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="curveSearchList" autocomplete="off" autocapitalize="none" spellcheck="false" disabled placeholder="Buscar padecimiento…"><button type="button" id="curveSearchClear" class="combo-borrar" aria-label="Borrar la búsqueda" hidden>×</button><ul id="curveSearchList" role="listbox" aria-labelledby="curveSearchLabel" hidden></ul></div><p id="curveSearchStatus" class="visually-hidden" role="status" aria-live="polite"></p><select id="curveDisease" disabled hidden tabindex="-1" aria-hidden="true"></select></div><label class="curve-ctl-pron">Ámbito<select id="curveState" disabled><option value="nacional">Nacional</option></select></label><label class="curve-ctl-pron">Sexo<select id="curveSex" disabled><option value="general">General</option><option value="hombres">Hombres (sólo acumulados)</option><option value="mujeres">Mujeres (sólo acumulados)</option></select></label><label>Cifra<select id="curveMetric" disabled><option value="0">Casos semanales</option><option value="1">Acumulados del año observado</option><option value="2">En estudio (cuadros históricos de dengue)</option></select></label><label>Vista<select id="curveMode" disabled><option value="timeline">Secuencia histórica</option><option value="compare">Comparar dos años</option></select></label><label>Desde / Año A<select id="curveStart" disabled></select></label><label>Hasta / Año B<select id="curveEnd" disabled></select></label></div>
 <div class="curve-view-tabs" role="tablist" aria-label="Qué mostrar de la categoría"><button type="button" id="tabSerie" role="tab" aria-selected="true" aria-controls="seriePanel" tabindex="0" class="selected">Serie observada</button><button type="button" id="tabPronostico" role="tab" aria-selected="false" aria-controls="forecastPanel" tabindex="-1">Pronóstico</button></div>
 <div id="seriePanel" role="tabpanel" aria-labelledby="tabSerie">
 <p id="curveStatus" class="context-note" role="status">Cargando el archivo histórico…</p>
@@ -409,10 +409,11 @@
 </dialog>
 <div id="error" hidden>
 </div>
-<script type="module" src="/assets/boletin/radar.js?v=20261120s">
+<script type="module" src="/assets/boletin/radar.js?v=20261123a">
 </script>
-<script type="module" src="/assets/boletin/pronostico_vista.mjs?v=18"></script>
-<script src="/assets/boletin/curves.js?v=20261120r" defer></script>
+<script type="module" src="/assets/boletin/pronostico_vista.mjs?v=19"></script>
+<script src="/assets/boletin/curves.js?v=20261123a" defer></script>
+<script type="module" src="/assets/boletin/buscador.mjs?v=1"></script>
 <script src="assets/site/site-nav.js?v=4" defer></script>
 </body>
 </html>

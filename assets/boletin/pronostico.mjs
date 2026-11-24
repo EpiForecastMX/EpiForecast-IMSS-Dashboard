@@ -83,11 +83,29 @@ const suma = (ps) => Math.round(ps.reduce((t, p) => t + (p.y ?? 0), 0) * 10) / 1
 
 const semanaTxt = (yw) => (Array.isArray(yw) ? `${yw[0]}-W${String(yw[1]).padStart(2, '0')}` : '');
 
-/** Modelo de gráfica de un release del runner. Lanza si la vista no trae la serie nacional de 52 semanas. */
-export function desdeVista(v, id) {
+/**
+ * Serie de la vista para una clave «nivel|id|sexo» (ambitos.mjs claveVista). Si el release no tiene desglose por
+ * sexo se usa la general del mismo ámbito; si no tiene el ámbito, la nacional. `aviso` dice qué se sustituyó.
+ */
+export function serieVista(v, clave) {
+  const s = v?.series ?? {};
+  if (!clave || s[clave]) return clave ? { clave, serie: s[clave], aviso: null } : { ...serieNacional(v), aviso: null };
+  const [nivel, id, sexo] = clave.split('|');
+  const general = `${nivel}|${id}|general`;
+  if (sexo !== 'general' && s[general]) {
+    return { clave: general, serie: s[general], aviso: 'Este pronóstico se publica sin desglose por sexo: se muestra la serie general del ámbito.' };
+  }
   const n = serieNacional(v);
+  return n ? { ...n, aviso: 'Este pronóstico no tiene serie para el ámbito elegido: se muestra la nacional.' } : null;
+}
+
+/** Modelo de gráfica de un release del runner. Lanza si la vista no trae la serie de 52 semanas. */
+export function desdeVista(v, id, clave = null) {
+  const n = serieVista(v, clave);
   if (!n || !Array.isArray(n.serie.pronostico) || !n.serie.pronostico.length) throw new Error(`vista sin serie nacional: ${id}`);
   return {
+    aviso_ambito: n.aviso, clave: n.clave,
+    titulo_ambito: `${n.serie.nombre ?? 'Nacional'}${n.serie.sexo && n.serie.sexo !== 'general' ? ` · ${n.serie.sexo_nombre}` : ''}`,
     tipo: 'publicado', fuente: `publication/${id}/vista.json`, pagina: `${id}.html`,
     nombre: v.nombre_completo || v.display_name || id,
     rotulo: rotuloPublicado(v), etiqueta: etiquetaVista(v), incertidumbre: v.uncertainty_label || '',
@@ -114,6 +132,43 @@ export function desdeLegacy(hero, id) {
     incertidumbre: s.intervalo_disponible ? 'Pronóstico puntual; su intervalo se consulta en la ficha' : 'Pronóstico puntual; sin intervalo de incertidumbre',
     origen: s.corte, serie_nombre: 'Nacional · General', observado, pronostico,
     total: suma(pronostico), total_publicado: s.casos ?? null,
+  };
+}
+
+/** Series por entidad y sexo del carril original: los mismos datos de las gráficas de la galería. */
+export const LEGACY_ZOOM = Object.freeze({
+  depresion: { archivo: 'Reports/zoom_data_neuro.json', carpeta: 'Depresión', prefijo: 'Depresión' },
+  parkinson: { archivo: 'Reports/zoom_data_neuro.json', carpeta: 'Parkinson', prefijo: 'Parkinson' },
+  alzheimer: { archivo: 'Reports/zoom_data_neuro.json', carpeta: 'Alzheimer', prefijo: 'Alzheimer' },
+  dengue: { archivo: 'Reports/zoom_data_dengue.json', carpeta: 'dengue', prefijo: 'Dengue', alias: { 'México': 'Estado de México' } },
+});
+
+/** Clave de la galería para un legacy: entidad es «Nacional» o el nombre de un estado. */
+export function claveZoom(id, entidad, sexo = 'general') {
+  const z = LEGACY_ZOOM[id];
+  if (!z) return null;
+  const e = (z.alias?.[entidad] ?? entidad).replaceAll(' ', '_');
+  return `${z.carpeta}/${e}/${z.prefijo}_${e}_${sexo}.png`;
+}
+
+/** Modelo de gráfica de un legacy por entidad y sexo, desde los datos de la galería. Lanza si falta la serie. */
+export function desdeLegacyZoom(zoom, id, entidad, sexo = 'general') {
+  const k = claveZoom(id, entidad, sexo), s = k ? zoom?.[k] : null;
+  if (!s) throw new Error(`la galería no tiene la serie ${entidad} · ${sexo} de ${id}`);
+  const observado = [], pronostico = [];
+  s.d.forEach((ds, i) => {
+    if (s.r[i] != null) observado.push({ ds, y: s.r[i] });
+    if (s.y[i] != null) pronostico.push({ ds, y: s.y[i] });
+  });
+  const corte = s.corte_modelo ? `${s.corte_modelo.anio}-W${String(s.corte_modelo.semana).padStart(2, '0')}` : '';
+  const sx = { general: 'General', hombres: 'Hombres', mujeres: 'Mujeres' }[sexo] ?? sexo;
+  return {
+    tipo: 'publicado', legacy: true, fuente: LEGACY_ZOOM[id].archivo, pagina: LEGACY[id].pagina, nombre: LEGACY[id].nombre,
+    rotulo: `Pronóstico publicado del carril original · motor de la serie ${s.motor} · corte ${corte}`,
+    etiqueta: '', detalle: 'Son los mismos datos de las gráficas por entidad y sexo de la galería de pronósticos.',
+    incertidumbre: s.intervalo_disponible ? 'Pronóstico puntual; su intervalo se consulta en la ficha' : 'Pronóstico puntual; sin intervalo de incertidumbre',
+    origen: corte, serie_nombre: `${entidad} · ${sx}`, titulo_ambito: `${entidad}${sexo !== 'general' ? ` · ${sx}` : ''}`, observado, pronostico,
+    total: suma(pronostico), total_publicado: null,
   };
 }
 

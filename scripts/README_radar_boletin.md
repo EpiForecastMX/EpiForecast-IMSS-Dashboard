@@ -185,6 +185,32 @@ reconstruye): casos semanales por diferencia en el tramo consistente más recien
 - `assets/boletin/2026-w43/` permanece congelada y `assets/boletin/2026-w43-r1/` registra la
   revisión con `correccion.json`.
 
+## Ámbito, sexo y buscador de las curvas
+
+Desde el 23 de noviembre de 2026 la sección de curvas tiene un buscador de padecimientos
+(`assets/boletin/buscador.mjs`, combobox ARIA que busca sin tildes por nombre, código CIE y grupo;
+el `<select id="curveDisease">` oculto sigue siendo la fuente de verdad), el ámbito con las cuatro
+macrorregiones de EpiForecast-MX y el sexo (`assets/boletin/ambitos.mjs`). La URL guarda
+`padecimiento`, `ambito` (`region:norte`, `estado:09`) y `sexo` (`hombres`, `mujeres`).
+
+- **Regiones.** Son la suma de las cifras estatales impresas, no una cifra del boletín ni una región
+  oficial del SINAVE. Si a una entidad de la región le falta la cifra (o imprime un negativo), la
+  semana queda como hueco: nunca se suma parcialmente.
+- **Sexo.** El boletín imprime el sexo sólo en los acumulados del año (H y M; en VIH, por estadio). No
+  hay casos semanales por sexo y no se obtienen por resta. Los acumulados por sexo viven aparte, en
+  `assets/boletin/history/sexo/<id>.json` (`boletin_history_sex.v1`: `{y, w, s, x: [H, M], e: [[H, M] x 32]}`
+  más `sexo/index.json`); las series publicadas no cambian. Se generaron con
+  `scripts/boletin_history_sexo.py`, que relee cada PDF por sha256 y aborta si H + M difiere del
+  acumulado publicado (nacional y por entidad); conserva los guiones impresos. Los 52 boletines de
+  2013 no estaban en local: sus puntos no tienen sexo y la curva los muestra como hueco.
+- **Paso semanal.** `boletin_semana_historia.preparar` agrega también la entrada de sexo de cada
+  punto nuevo, con la misma compuerta H + M; una revisión sustituye la entrada del boletín anterior.
+- **Pronóstico.** El ámbito y el sexo también eligen la serie de la vista publicada
+  (`region|<id>|<sexo>`, `estado|<cve>|<sexo>`); sin desglose por sexo se usa la general con aviso.
+  Los cuatro del carril original leen sus series por entidad y sexo de `Reports/zoom_data_*.json`
+  (sus regiones son otras: con una macrorregión se muestra el nacional con aviso). El exploratorio
+  sólo es nacional.
+
 ## Archivos
 
 | Archivo | Papel |

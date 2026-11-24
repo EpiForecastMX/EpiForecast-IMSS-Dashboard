@@ -18,10 +18,11 @@ from datetime import date, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from boletin_celdas import GUION, es_marcador  # noqa: E402
+from boletin_celdas import GUION, es_marcador, numero, suma  # noqa: E402
 from boletin_semana_extrae import acumulados  # noqa: E402
 
 DIR = 'assets/boletin/history'
+SEXO = 'sexo'  # acumulados por sexo (boletin_history_sexo.py): un archivo por serie, aparte
 
 
 class FalloHistoria(Exception):
@@ -71,6 +72,46 @@ def punto(d: dict, anio: int, semana: int, si: int, estados: list) -> tuple:
     return (y, obs), p
 
 
+def por_sexo(columnas: list, valores: list):
+    """[H, M] de una fila (en VIH, la suma de sus estadios por sexo), o None si el cuadro no separa sexo.
+
+    El guion impreso se conserva («-» si todas las celdas del sexo lo son); un valor no comparable da None.
+    """
+    h = [v for c, v in zip(columnas, valores) if c == 'H' or c.startswith('H estadio ')]
+    m = [v for c, v in zip(columnas, valores) if c == 'M' or c.startswith('M estadio ')]
+    if not h or not m:
+        return None
+    return [suma(h), suma(m)]
+
+
+def punto_sexo(d: dict, p: dict, estados: list):
+    """Entrada de history/sexo/<id>.json para el punto nuevo; None si el cuadro no separa sexo.
+
+    Compuerta: H + M debe ser el acumulado publicado del punto (nacional y cada entidad).
+    """
+    if por_sexo(d['columns'], d['totals']) is None:
+        return None
+    problemas = []
+
+    def comprueba(par, publicado, donde):
+        if par is None or publicado is None:
+            return None
+        a, b, c = numero(par[0]), numero(par[1]), numero(publicado)
+        if a is None or b is None:
+            return None
+        if c is None or a + b != c:
+            problemas.append(dict(id=d['id'], donde=donde, sexo=par, publicado=publicado))
+        return par
+    x = comprueba(por_sexo(d['columns'], d['totals']), p['n'][1], 'nacional')
+    e = None
+    if p['e'] is not None:
+        filas = {s['state']: s['values'] for s in d['states']}
+        e = [comprueba(por_sexo(d['columns'], filas[n]), p['e'][k][1], n) for k, n in enumerate(estados)]
+    if problemas:
+        raise FalloHistoria('Acumulados por sexo distintos del acumulado publicado', problemas)
+    return dict(y=p['y'], w=p['w'], s=p['s'], x=x, e=e)
+
+
 def contar(shard: dict) -> dict:
     ps = shard['points']
     return dict(points=len(ps), state_points=sum(p['e'] is not None for p in ps),
@@ -106,7 +147,7 @@ def csv_nacional(index: dict, shards: dict) -> bytes:
 
 
 def incorporar(index: dict, shards: dict, datos: dict, url: str, sha: str,
-               comprobado: str) -> list:
+               comprobado: str, nuevos: dict | None = None) -> list:
     """Modifica index y shards en memoria; devuelve las identidades con revisión nueva."""
     meta = datos['meta']
     anio, semana = meta['year'], meta['week']
@@ -156,6 +197,8 @@ def incorporar(index: dict, shards: dict, datos: dict, url: str, sha: str,
             revisadas.append(dict(id=d['id'], periodo=list(clave)))
         sh['points'].append(p)
         sh['points'].sort(key=lambda q: (q['y'], q['w']))
+        if nuevos is not None:
+            nuevos[d['id']] = (d, p)
         index['series'][d['id']].update(contar(sh))
     return revisadas
 
@@ -165,14 +208,49 @@ def preparar(raiz: Path, datos: dict, url: str, sha: str, comprobado: str) -> di
     hist = raiz / DIR
     index, shards = cargar(hist)
     antes = {k: compacto(v) for k, v in shards.items()}
-    revisadas = incorporar(index, shards, datos, url, sha, comprobado)
+    nuevos: dict = {}
+    revisadas = incorporar(index, shards, datos, url, sha, comprobado, nuevos)
     plan = {hist / 'index.json': compacto(index).encode('utf-8'),
             hist / 'nacional-2013-2026.csv': csv_nacional(index, shards)}
+    plan.update(plan_sexo(hist, index, shards, nuevos, comprobado))
     for k, sh in shards.items():
         texto = compacto(sh)
         if texto != antes[k]:
             plan[hist / index['series'][k]['path'].rsplit('/', 1)[1]] = texto.encode('utf-8')
     return dict(plan=plan, revisadas=revisadas, puntos=len(datos['diseases']))
+
+
+def plan_sexo(hist: Path, index: dict, shards: dict, nuevos: dict, comprobado: str) -> dict:
+    """Archivos de sexo tocados por la semana nueva; vacío si el histórico aún no tiene sexo."""
+    carpeta = hist / SEXO
+    if not (carpeta / 'index.json').exists():
+        return {}
+    man = json.loads((carpeta / 'index.json').read_text())
+    plan = {}
+    for ident, (d, p) in nuevos.items():
+        entrada = punto_sexo(d, p, index['states'])
+        if entrada is None:
+            continue
+        ruta = carpeta / f'{ident}.json'
+        doc = (json.loads(ruta.read_text()) if ruta.exists()
+               else dict(schema='boletin_history_sex.v1', id=ident, points=[]))
+        # Sólo quedan entradas de puntos vigentes: una revisión sustituye la del boletín anterior.
+        vigentes = {(q['y'], q['w'], q['s']) for q in shards[ident]['points']}
+        pts = [q for q in doc['points'] if (q['y'], q['w'], q['s']) in vigentes and (q['y'], q['w']) != (p['y'], p['w'])]
+        pts.append(entrada)
+        pts.sort(key=lambda q: (q['y'], q['w'], q['s']))
+        doc['points'] = pts
+        plan[ruta] = compacto(doc).encode('utf-8')
+        con = [q for q in pts if q['x'] is not None]
+        man['series'][ident] = dict(path=f'/assets/boletin/history/{SEXO}/{ident}.json', points=len(pts),
+                                    desde=f"{con[0]['y']}-W{con[0]['w']:02d}" if con else None,
+                                    hasta=f"{con[-1]['y']}-W{con[-1]['w']:02d}" if con else None)
+    man['checked'] = comprobado
+    man['source_count'] = len(index['sources'])
+    man['sources_with_sex'] = man.get('sources_with_sex', 0) + 1
+    man['series'] = dict(sorted(man['series'].items()))
+    plan[carpeta / 'index.json'] = compacto(man).encode('utf-8')
+    return plan
 
 
 def aplicar(plan: dict) -> None:
