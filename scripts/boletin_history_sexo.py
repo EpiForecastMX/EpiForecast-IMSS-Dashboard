@@ -16,7 +16,7 @@ Compuertas (cualquier fallo aborta sin escribir):
 No resta acumulados ni produce casos semanales por sexo: el boletín no los publica.
 
 Uso:
-    python3 scripts/boletin_history_sexo.py --pdfs ../EpiForecast-MX/data/raw_PDFs ../planes \\
+    python3 scripts/boletin_history_sexo.py --pdfs ../EpiForecast-MX/data/raw_PDFs ../planes <2013.zip descomprimido> \\
         --trabajo /ruta/temporal [--xml-cache /ruta/con/xml] [--procesos 6]
 """
 from __future__ import annotations
@@ -106,7 +106,7 @@ def suma(par) -> int:
 def localiza(dirs: list, fuentes: list) -> dict:
     """Índice de fuente -> PDF local con el mismo sha256."""
     buscados = {s['sha256']: i for i, s in enumerate(fuentes)}
-    nombres = {s['filename'] for s in fuentes}
+    nombres = {s['filename'] for s in fuentes} | {s['archive_member'] for s in fuentes if s.get('archive_member')}
     hallados = {}
     for d in dirs:
         for p in Path(d).rglob('*.pdf'):

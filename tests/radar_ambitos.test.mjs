@@ -87,6 +87,9 @@ test('archivos de sexo: H + M es el acumulado publicado, el guion se conserva y 
   const man = json('assets/boletin/history/sexo/index.json');
   assert.equal(man.schema, 'boletin_history_sex_index.v1');
   assert.ok(Object.keys(man.series).length >= 200);
+  // 723 de 724 PDF releídos (2013 desde el zip oficial); sólo falta una revisión no graficada de 2023.
+  assert.deepEqual(man.sources_without_local_pdf, ['2023_sem34_vcaa81398.pdf']);
+  assert.ok(json('assets/boletin/history/sexo/p49b1.json').points.some((q) => indice.sources[q.s].year === 2013 && q.x), 'sexo en 2013');
   const num = (v) => (v === '-' ? 0 : v);
   for (const id of ['p70b1', 'p27b1', 'p49b1']) {
     const sx = json(`assets/boletin/history/sexo/${id}.json`);
