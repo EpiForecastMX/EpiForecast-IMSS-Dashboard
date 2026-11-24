@@ -249,7 +249,7 @@ test('cobertura: 100 % de las categorías con opción «Pronóstico», desglosad
   assert.ok(t.includes(`${c.nivel_reciente} con pronóstico exploratorio de nivel reciente sin estacionalidad, no validado`), t);
   assert.ok(t.includes(`${c.notas} con pronóstico exploratorio nacional derivado del acumulado publicado en las notas del boletín, no validado`), t);
   assert.ok(!t.includes('sin ningún pronóstico'), t);
-  assert.match(leer('assets/boletin/radar.js'), /c\.pct_pronostico\.toLocaleString\('es-MX'\)\)\} %<\/strong> de las categorías con pronóstico/);
+  assert.match(leer('assets/boletin/radar.js'), /c\.publicado\/c\.total\*1000\)\/10:0\)\.toLocaleString\('es-MX'\)\)\} %<\/strong> de las categorías con pronóstico publicado; el resto, con pronóstico exploratorio, no validado/);
   assert.match(leer('assets/boletin/radar.js'), /renderForecastCoverage\(\)/);
   assert.match(leer('boletin.html'), /<div id="forecastCoverage" class="forecast-coverage"/);
   // Sin el exploratorio, la cobertura lo dice: las categorías sin release no cuentan como cubiertas.

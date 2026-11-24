@@ -63,6 +63,14 @@ const n = v => v.toLocaleString('es-MX');
 const pctTxt = v => `${v.toLocaleString('es-MX')} %`;
 
 /** Desglose de la cuarta tarjeta del panorama (publicado, exploratorio no validado y sin pronóstico). */
+/** Tarjeta «Pronóstico publicado»: lo publicado primero; lo exploratorio, aparte y rotulado como no validado. */
+export function detallePublicado(p) {
+  const partes = [`De ${n(p.total)} categorías`];
+  if (p.exploratorio) partes.push(`${n(p.exploratorio)} más con pronóstico exploratorio, no validado`);
+  if (p.sin_pronostico) partes.push(`${n(p.sin_pronostico)} sin pronóstico`);
+  return partes.join('; ');
+}
+
 export function detalleTarjeta(p) {
   const partes = [`${n(p.publicado)} con pronóstico publicado`];
   if (p.exploratorio) partes.push(`${n(p.exploratorio)} con pronóstico exploratorio, no validado`);
@@ -136,6 +144,8 @@ function textosDesdeCobertura(data, p) {
     con_pronostico_palabras: numeroEnPalabras(p.con_pronostico, { mayuscula: true }),
     categorias_total: String(p.total),
     categorias_publicadas: String(p.publicado),
+    categorias_publicadas_palabras: numeroEnPalabras(p.publicado, { mayuscula: true }),
+    tarjeta_publicado_detalle: detallePublicado(p),
     exploratorias: String(p.exploratorio),
     sin_pronostico: String(p.sin_pronostico),
     tarjeta_pronostico_detalle: detalleTarjeta(p),

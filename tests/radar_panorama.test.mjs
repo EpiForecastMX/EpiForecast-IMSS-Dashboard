@@ -71,8 +71,10 @@ test('boletin.html: el respaldo estático de la huella coincide con lo calculado
   const panel = html.slice(html.indexOf('HUELLA DE LA PLATAFORMA'), html.indexOf('class="coverage-foot"'));
   assert.doesNotMatch(panel, /Una agenda por ampliar/);
   assert.doesNotMatch(panel, /PUBLICADOS/);
-  assert.match(panel, /<h2><span data-radar="con_pronostico_palabras">[^<]+<\/span> categorías con pronóstico\.<\/h2>/);
-  assert.match(panel, /<small>CON PRONÓSTICO<\/small>/);
+  // Orden del autor (24-nov-2026): el titular destaca lo publicado; lo exploratorio va aparte y rotulado.
+  assert.match(panel, /<h2><span data-radar="categorias_publicadas_palabras">[^<]+<\/span> categorías con pronóstico publicado\.<\/h2>/);
+  assert.match(panel, /<p class="ring-sub">Más <span data-radar="exploratorias">\d+<\/span> con pronóstico exploratorio, no validado: <span data-radar="con_pronostico">\d+<\/span> de <span data-radar="categorias_total">\d+<\/span> tienen la opción «Pronóstico»\.<\/p>/);
+  assert.match(panel, /<span data-radar="categorias_publicadas">\d+<\/span><small>PRONÓSTICO PUBLICADO<\/small>/);
   const ring = panel.match(/<div class="ring"[^>]*>/)?.[0];
   assert.ok(ring, 'anillo');
   assert.match(ring, /role="img"/);
@@ -149,7 +151,7 @@ async function bootRadar({ exploratorio = null, conEstatico = false, mutar = () 
   return { el, errores, controles, est, restaura };
 }
 
-test('radar.js: la cuarta tarjeta es «Categorías con pronóstico» con su desglose; se conserva «Padecimientos publicados»', async () => {
+test('radar.js: la cuarta tarjeta es «Pronóstico publicado» con lo exploratorio aparte; se conserva «Padecimientos publicados»', async () => {
   const { textosPanorama } = await imp('assets/boletin/textos.mjs');
   const t = textosPanorama(data, doc);
   const { el, errores, restaura } = await bootRadar();
@@ -157,7 +159,7 @@ test('radar.js: la cuarta tarjeta es «Categorías con pronóstico» con su desg
   assert.deepEqual(errores, []);
   const m = el('metrics').innerHTML;
   assert.doesNotMatch(m, /sin cobertura/);
-  assert.ok(m.includes(`<div class="metric-label">Categorías con pronóstico</div><strong>${Number(t.con_pronostico).toLocaleString('es-MX')}</strong><small>${t.tarjeta_pronostico_detalle}</small>`), m);
+  assert.ok(m.includes(`<div class="metric-label">Pronóstico publicado</div><strong>${Number(t.categorias_publicadas).toLocaleString('es-MX')}</strong><small>${t.tarjeta_publicado_detalle}</small>`), m);
   assert.match(m, new RegExp(`<div class="metric-label">Padecimientos publicados</div><strong>${new Set(publicadas.map((e) => e.platform_id)).size}</strong>`));
   assert.equal(el('metrics').getAttribute('aria-busy'), 'false');
 });
@@ -187,7 +189,7 @@ test('exploratorio pendiente: métricas, tabla y controles disponibles; tarjeta 
     assert.ok(v.el('rows').innerHTML.includes('<tr>'), 'tabla del catálogo pintada');
     assert.ok(v.controles.every((c) => c.disabled === false), 'controles habilitados');
     const m = v.el('metrics').innerHTML;
-    assert.ok(m.includes(`<div class="metric-label">Categorías con pronóstico</div><strong>${t.con_pronostico}</strong><small>${t.tarjeta_pronostico_detalle}</small>`), m);
+    assert.ok(m.includes(`<div class="metric-label">Pronóstico publicado</div><strong>${t.categorias_publicadas}</strong><small>${t.tarjeta_publicado_detalle}</small>`), m);
     const anillo = v.est['[data-radar-aria]'][0];
     assert.equal(anillo.getAttribute('aria-label'), t.anillo_aria);
     assert.equal(v.est['[data-radar-estilo]'][0].getAttribute('style'), t.anillo_estilo);
@@ -201,7 +203,7 @@ test('exploratorio fallido: queda el respaldo estático coherente, nunca «sin p
   const t = textosPanorama(data, doc);
   const v = await bootRadar({ conEstatico: true, exploratorio: async () => ({ ok: false, json: async () => null }) });
   try {
-    assert.ok(v.el('metrics').innerHTML.includes(`<strong>${t.con_pronostico}</strong><small>${t.tarjeta_pronostico_detalle}</small>`));
+    assert.ok(v.el('metrics').innerHTML.includes(`<strong>${t.categorias_publicadas}</strong><small>${t.tarjeta_publicado_detalle}</small>`));
     assert.doesNotMatch(v.el('metrics').innerHTML, /sin pronóstico/);
     assert.match(v.el('forecastCoverage').innerHTML, /No se pudo cargar el pronóstico exploratorio/);
   } finally { v.restaura(); }
@@ -220,11 +222,11 @@ test('respaldo ausente o incoherente: sólo lo que se sabe sin el exploratorio, 
   const v = await bootRadar({ exploratorio: () => new Promise((r) => { suelta = r; }) });
   try {
     const sin = textosPanorama(data, null);
-    assert.ok(v.el('metrics').innerHTML.includes(`<strong>${sin.con_pronostico}</strong><small>${sin.tarjeta_pronostico_detalle}</small>`));
+    assert.ok(v.el('metrics').innerHTML.includes(`<strong>${sin.categorias_publicadas}</strong><small>${sin.tarjeta_publicado_detalle}</small>`));
     suelta({ ok: true, json: async () => doc });
     await new Promise((r) => setTimeout(r, 50));
     const con = textosPanorama(data, doc);
-    assert.ok(v.el('metrics').innerHTML.includes(`<strong>${con.con_pronostico}</strong><small>${con.tarjeta_pronostico_detalle}</small>`));
+    assert.ok(v.el('metrics').innerHTML.includes(`<strong>${con.categorias_publicadas}</strong><small>${con.tarjeta_publicado_detalle}</small>`));
   } finally { v.restaura(); }
 });
 
@@ -255,6 +257,6 @@ test('respaldo: sólo se aceptan los conteos; anillo, etiqueta y textos se recal
   try {
     assert.equal(v.est['[data-radar-estilo]'][0].getAttribute('style'), esperado.anillo_estilo);
     assert.equal(v.est['[data-radar-aria]'][0].getAttribute('aria-label'), esperado.anillo_aria);
-    assert.ok(v.el('metrics').innerHTML.includes(`<strong>${esperado.con_pronostico}</strong><small>${esperado.tarjeta_pronostico_detalle}</small>`));
+    assert.ok(v.el('metrics').innerHTML.includes(`<strong>${esperado.categorias_publicadas}</strong><small>${esperado.tarjeta_publicado_detalle}</small>`));
   } finally { v.restaura(); }
 });
