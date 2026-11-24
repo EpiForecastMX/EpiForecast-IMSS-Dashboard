@@ -371,3 +371,5 @@ dialog{background:white;border-radius:12px;padding:28px;box-shadow:0 20px 70px #
 .curve-stats strong.stat-texto,#forecastStats strong.stat-texto{font-size:20px;line-height:1.3}
 .coverage-foot-details summary{cursor:pointer;font:600 13px var(--sans);color:var(--accent);min-height:32px}
 .boletin-page .platform-card h3{font-size:20px;letter-spacing:-.01em;line-height:1.25}
+.ring-sub{font:14px/1.6 var(--sans);color:var(--ink-soft);margin:12px 0 0}
+.ring small{font-size:8px}
