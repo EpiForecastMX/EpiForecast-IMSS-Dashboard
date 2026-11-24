@@ -1,0 +1,1478 @@
+[
+ {
+  "turnos": [
+   "Hola, ¿cuántos casos notificados tiene la dengue este semana?"
+  ],
+  "persona": "un taxista de la Ciudad de México que escribe rápido desde el celular",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué está pasando con el número de casos de hipertensión en México?"
+  ],
+  "persona": "un taxista de la Ciudad de México que escribe rápido desde el celular",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Es muy peligroso la escabiosis, ¿qué me dice sobre su gravedad?"
+  ],
+  "persona": "un taxista de la Ciudad de México que escribe rápido desde el celular",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuál es la causa de la obesidad?"
+  ],
+  "persona": "un taxista de la Ciudad de México que escribe rápido desde el celular",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cómo funciona el chatbot para predecir enfermedades?"
+  ],
+  "persona": "un taxista de la Ciudad de México que escribe rápido desde el celular",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Estoy curioso por saber qué tan confiable es este chatbot"
+  ],
+  "persona": "un taxista de la Ciudad de México que escribe rápido desde el celular",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué relación tiene la hepatitis con la diarrea?"
+  ],
+  "persona": "un taxista de la Ciudad de México que escribe rápido desde el celular",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuántos casos notificados tiene la diabetes este mes?"
+  ],
+  "persona": "un taxista de la Ciudad de México que escribe rápido desde el celular",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Me duele la cabeza, ¿qué me dice sobre el dolor de cabeza?"
+  ],
+  "persona": "un taxista de la Ciudad de México que escribe rápido desde el celular",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Puedo hacer una pregunta sobre un estado específico?"
+  ],
+  "persona": "un taxista de la Ciudad de México que escribe rápido desde el celular",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué tan importante es mantener un registro de los casos de infecciones respiratorias?"
+  ],
+  "persona": "un taxista de la Ciudad de México que escribe rápido desde el celular",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Me gustaría saber qué tan efectiva es la vacuna contra la varicela"
+  ],
+  "persona": "un taxista de la Ciudad de México que escribe rápido desde el celular",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Estoy cansado, ¿puedes decirme algo alentador?"
+  ],
+  "persona": "un taxista de la Ciudad de México que escribe rápido desde el celular",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Hola chatbot, ¿cuántos casos de dengue notificados en León este semana?"
+  ],
+  "persona": "una nutrióloga de León, Guanajuato",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuál es el aumento o disminución en los casos de hipertensión en Guanajuato?"
+  ],
+  "persona": "una nutrióloga de León, Guanajuato",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Estoy interesada en saber más sobre la escabiosis, ¿puedes explicar qué es y cómo se transmite?"
+  ],
+  "persona": "una nutrióloga de León, Guanajuato",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuántos hombres y mujeres han sido notificados con diabetes en León este año?"
+  ],
+  "persona": "una nutrióloga de León, Guanajuato",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Puedes darme una comparación entre el número de casos de infecciones respiratorias y varicela en León?"
+  ],
+  "persona": "una nutrióloga de León, Guanajuato",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Estoy preocupada por mi sobrino que tiene obesidad, ¿puedes decirme qué tan importante es mantener un peso saludable?"
+  ],
+  "persona": "una nutrióloga de León, Guanajuato",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuál es la tasa de pronóstico para la hepatitis en México?"
+  ],
+  "persona": "una nutrióloga de León, Guanajuato",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Puedes darme una lista de las enfermedades más comunes en Guanajuato este año?"
+  ],
+  "persona": "una nutrióloga de León, Guanajuato",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué tan confiable es la información que me das sobre los casos notificados?"
+  ],
+  "persona": "una nutrióloga de León, Guanajuato",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Me gustaría saber si hay algún tratamiento efectivo para la depresión sin medicación."
+  ],
+  "persona": "una nutrióloga de León, Guanajuato",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Estoy curiosa por saber cómo se previene el escabiosis, ¿puedes darme algunos consejos?"
+  ],
+  "persona": "una nutrióloga de León, Guanajuato",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuántos recursos existen para personas con diabetes en León?"
+  ],
+  "persona": "una nutrióloga de León, Guanajuato",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Hasta cierto punto, me siento bien pero siento que algo no está bien en mi cuerpo, ¿puedes sugerirme qué hacer?"
+  ],
+  "persona": "una nutrióloga de León, Guanajuato",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Puedes decirme la fecha de nacimiento aproximada del dengue y cómo afecta el pronóstico?"
+  ],
+  "persona": "una nutrióloga de León, Guanajuato",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuál es el rango de edad para personas que se ven más afectadas por las infecciones respiratorias en México?"
+  ],
+  "persona": "una nutrióloga de León, Guanajuato",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Estoy buscando una dieta saludable, ¿puedes recomendarme una guía para comenzar?"
+  ],
+  "persona": "una nutrióloga de León, Guanajuato",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Un amigo me contó sobre un remedio casero para la hepatitis, ¿puedes decirme si es cierto o no?"
+  ],
+  "persona": "una nutrióloga de León, Guanajuato",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Puedes darme un consejo sobre cómo mantener una rutina de ejercicio en Guanajuato?"
+  ],
+  "persona": "una nutrióloga de León, Guanajuato",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿dónde puedo encontrar este chatbot? ¿es gratuito?"
+  ],
+  "persona": "un señor de 55 años con diabetes en Mexicali que desconfía de los médicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "leí 2 casos de diabetes en mi estado, por qué la diabetes no cobra?"
+  ],
+  "persona": "un señor de 55 años con diabetes en Mexicali que desconfía de los médicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿qué es la obesidad? ¿cuál es su gravedad?"
+  ],
+  "persona": "un señor de 55 años con diabetes en Mexicali que desconfía de los médicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿cómo se transmite la dengue? ¿a quién debe evitarla el chatbot?"
+  ],
+  "persona": "un señor de 55 años con diabetes en Mexicali que desconfía de los médicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿de qué enfermedades no hay cura? ¿y cuáles sí lo tienen?"
+  ],
+  "persona": "un señor de 55 años con diabetes en Mexicali que desconfía de los médicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿por qué mi diabetes subió hoy más de 100? ¡Es muy nervioso!"
+  ],
+  "persona": "un señor de 55 años con diabetes en Mexicali que desconfía de los médicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿qué tan confiable es este chatbot mexicano?"
+  ],
+  "persona": "un señor de 55 años con diabetes en Mexicali que desconfía de los médicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿cuántos casos de escabiosis hay en México ahora?"
+  ],
+  "persona": "un señor de 55 años con diabetes en Mexicali que desconfía de los médicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿puedo preguntarle al chatbot si estoy infectado con dengue?"
+  ],
+  "persona": "un señor de 55 años con diabetes en Mexicali que desconfía de los médicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿qué tipo de dieta se recomienda para las personas con diabetes?"
+  ],
+  "persona": "un señor de 55 años con diabetes en Mexicali que desconfía de los médicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "me duele un poco la varicela"
+  ],
+  "persona": "un señor de 55 años con diabetes en Mexicali que desconfía de los médicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿cómo evito que mis hijos contrayan el tétanos?"
+  ],
+  "persona": "un señor de 55 años con diabetes en Mexicali que desconfía de los médicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿qué tal si me dije una pregunta sobre enfermedades y luego te doy tu respuesta? ¡así estaré más tranquilo!"
+  ],
+  "persona": "un señor de 55 años con diabetes en Mexicali que desconfía de los médicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿puedo hacer llamadas telefónicas o puedo solo enviar mensajes? ¿y qué horas son de su atención?"
+  ],
+  "persona": "un señor de 55 años con diabetes en Mexicali que desconfía de los médicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Hola chatbot, ¿cómo estoy?"
+  ],
+  "persona": "una estudiante de medicina de Morelia haciendo su servicio social",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuántos casos de dengue hay en México?"
+  ],
+  "persona": "una estudiante de medicina de Morelia haciendo su servicio social",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Estoy haciendo mi servicio social y quiero saber más sobre la diabetes. ¿Cuántos casos notificados hay cada semana?"
+  ],
+  "persona": "una estudiante de medicina de Morelia haciendo su servicio social",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Mi mamá tiene hipertensión, ¿qué es eso y cómo se trata?"
+  ],
+  "persona": "una estudiante de medicina de Morelia haciendo su servicio social",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuál es la enfermedad que causa las erupciones rojas y verdes en el cuerpo?"
+  ],
+  "persona": "una estudiante de medicina de Morelia haciendo su servicio social",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Soy estudiante de medicina y quiero saber más sobre los casos notificados de infecciones respiratorias. ¿Por qué es importante conocer este dato?"
+  ],
+  "persona": "una estudiante de medicina de Morelia haciendo su servicio social",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Estoy pensando en perder peso, pero no sé si debo hacerlo de manera rápida o lenta. ¿Qué te parece que la obesidad sea un problema grave?"
+  ],
+  "persona": "una estudiante de medicina de Morelia haciendo su servicio social",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuál es el pronóstico para las personas con escabiosis?"
+  ],
+  "persona": "una estudiante de medicina de Morelia haciendo su servicio social",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Mi abuela tiene hepatitis, ¿qué es eso y cómo se puede prevenir?"
+  ],
+  "persona": "una estudiante de medicina de Morelia haciendo su servicio social",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Soy curiosa sobre el varicela, ¿cómo se transmite y cuándo se debe vacunar?"
+  ],
+  "persona": "una estudiante de medicina de Morelia haciendo su servicio social",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuántos casos de depresión hay en México cada semana?"
+  ],
+  "persona": "una estudiante de medicina de Morelia haciendo su servicio social",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Me gustaría saber más sobre las enfermedades que pueden causar la hepatitis. ¿Hay alguna forma de prevenirla?"
+  ],
+  "persona": "una estudiante de medicina de Morelia haciendo su servicio social",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cómo puedo ayudar a mis pacientes a controlar su diabetes si no soy médico?"
+  ],
+  "persona": "una estudiante de medicina de Morelia haciendo su servicio social",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Puedes darme un consejo para mantener una buena salud mientras estoy en mi servicio social?"
+  ],
+  "persona": "una estudiante de medicina de Morelia haciendo su servicio social",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué horarios son los más seguros para realizar prácticas como esta?"
+  ],
+  "persona": "una estudiante de medicina de Morelia haciendo su servicio social",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Hola, ¿cuántos casos de dengue hay notificados en Tabasco este mes?"
+  ],
+  "persona": "un papá en Tabasco preocupado por el dengue en temporada de lluvias",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuál es el pronóstico para esta semana? ¿Vamos a tener más casos?"
+  ],
+  "persona": "un papá en Tabasco preocupado por el dengue en temporada de lluvias",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué es la escabiosis y cómo se transmite?"
+  ],
+  "persona": "un papá en Tabasco preocupado por el dengue en temporada de lluvias",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuánto tiempo dura un caso de dengue?"
+  ],
+  "persona": "un papá en Tabasco preocupado por el dengue en temporada de lluvias",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Es cierto que la diabetes puede causar una mayor propagación del virus de dengue?"
+  ],
+  "persona": "un papá en Tabasco preocupado por el dengue en temporada de lluvias",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Puedes decirme cuál es el mejor método para prevenir la transmisión del dengue?"
+  ],
+  "persona": "un papá en Tabasco preocupado por el dengue en temporada de lluvias",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Estoy preocupado por mis hijos, ¿qué puedo hacer para protegerlos?"
+  ],
+  "persona": "un papá en Tabasco preocupado por el dengue en temporada de lluvias",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuántos casos de infecciones respiratorias hay en Tabasco este año?"
+  ],
+  "persona": "un papá en Tabasco preocupado por el dengue en temporada de lluvias",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué tan confiable son los pronósticos semanales de enfermedades?"
+  ],
+  "persona": "un papá en Tabasco preocupado por el dengue en temporada de lluvias",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Puedes decirme un poco más sobre la obesidad y cómo afecta a la salud?"
+  ],
+  "persona": "un papá en Tabasco preocupado por el dengue en temporada de lluvias",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Me gustaría saber si el dengue es contagioso"
+  ],
+  "persona": "un papá en Tabasco preocupado por el dengue en temporada de lluvias",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuál es el estado con más casos de depresión en México?"
+  ],
+  "persona": "un papá en Tabasco preocupado por el dengue en temporada de lluvias",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Estoy curioso por saber qué enfermedades pueden causar un aumento en la propagación del virus de dengue."
+  ],
+  "persona": "un papá en Tabasco preocupado por el dengue en temporada de lluvias",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Puedes decirme cuándo es la mejor época para realizar análisis de sangre?"
+  ],
+  "persona": "un papá en Tabasco preocupado por el dengue en temporada de lluvias",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Hola, ¿cómo estás? Soy una funcionaria de protección civil en Quintana Roo y estoy usando tu chatbot para estar al tanto de los casos notificados y pronósticos de enfermedades en mi estado. ¿Puedes decirme cuántos casos de dengue se han notificado esta semana?"
+  ],
+  "persona": "una funcionaria de protección civil en Quintana Roo",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué tan confiable es el dato que me das sobre los casos notificados de hipertensión en México?"
+  ],
+  "persona": "una funcionaria de protección civil en Quintana Roo",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Soy estudiante de medicina y estoy interesada en saber más sobre la escabiosis. ¿Cuál es la causa principal de esta enfermedad?"
+  ],
+  "persona": "una funcionaria de protección civil en Quintana Roo",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Mi tía ha sido diagnosticada con diabetes tipo 2. ¿Qué cambios puedo hacer para ayudarla a controlar sus niveles de azúcar en sangre?"
+  ],
+  "persona": "una funcionaria de protección civil en Quintana Roo",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Puedes decirme cuántos casos de infecciones respiratorias se han notificado en Quintana Roo esta semana?"
+  ],
+  "persona": "una funcionaria de protección civil en Quintana Roo",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Me preocupa la obesidad y cómo puede afectar mi salud. ¿Qué consejos puedes darme para perder peso de manera saludable?"
+  ],
+  "persona": "una funcionaria de protección civil en Quintana Roo",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Soy mujer y me pregunto si el chatbot puede darle recomendaciones específicas para mujeres. ¿Puedo proporcionarte más información sobre mi edad, peso, etc. para que puedas darme una respuesta personalizada?"
+  ],
+  "persona": "una funcionaria de protección civil en Quintana Roo",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué es la varicela y cómo se transmite? Me gustaría saber más sobre esta enfermedad."
+  ],
+  "persona": "una funcionaria de protección civil en Quintana Roo",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Mi hijo acaba de ser diagnosticado con escabiosis y me preocupa su salud. ¿Puedes decirme cuál es el tratamiento recomendado para esta enfermedad?"
+  ],
+  "persona": "una funcionaria de protección civil en Quintana Roo",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Puedes proporcionarme información sobre las tendencias del pronóstico de dengue en México durante los últimos años?"
+  ],
+  "persona": "una funcionaria de protección civil en Quintana Roo",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Soy funcionaria y estoy interesada en saber más sobre la importancia de la protección civil en México. ¿Puedes decirme cuántos casos de enfermedades se han notificado en Quintana Roo cada año?"
+  ],
+  "persona": "una funcionaria de protección civil en Quintana Roo",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué es la hepatitis y cómo se transmite? Me gustaría saber más sobre esta enfermedad."
+  ],
+  "persona": "una funcionaria de protección civil en Quintana Roo",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Me pregunto si el chatbot puede darme recomendaciones para ayudar a mi amigo que tiene diabetes tipo 1. ¿Puedo proporcionarte más información sobre su caso para que puedas darme una respuesta personalizada?"
+  ],
+  "persona": "una funcionaria de protección civil en Quintana Roo",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Puedes decirme cuántos casos de depresión se han notificado en Quintana Roo esta semana? ¿Qué podemos hacer para ayudar a las personas que están pasando por este proceso?"
+  ],
+  "persona": "una funcionaria de protección civil en Quintana Roo",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Hola amigo, ¿cuántos casos de dengue notificados en el estado de México este semana?"
+  ],
+  "persona": "un influencer de salud que busca datos llamativos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Disculpa, no entiendo muy bien cómo funciona esto. ¿Puedes decirme cuándo se actualizan los datos?"
+  ],
+  "persona": "un influencer de salud que busca datos llamativos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Estoy investigando sobre la obesidad y quería saber si hay algún tratamiento efectivo para reducir el colesterol"
+  ],
+  "persona": "un influencer de salud que busca datos llamativos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué es la hepatitis? No entiendo bien qué tan contagiosa es"
+  ],
+  "persona": "un influencer de salud que busca datos llamativos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Soy de Durango, ¿cuántos casos de escabiosis notificados en mi estado este semana?"
+  ],
+  "persona": "un influencer de salud que busca datos llamativos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Me gustaría saber cómo se prevene la depresión, ¿tiene algún tratamiento natural efectivo?"
+  ],
+  "persona": "un influencer de salud que busca datos llamativos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Hablo con una persona que tiene diabetes tipo 1 y no puede tomar insulina, ¿sabe algo sobre esa condición?"
+  ],
+  "persona": "un influencer de salud que busca datos llamativos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Estoy interesado en aprender más sobre infecciones respiratorias, ¿cuál es el mejor medicamento para tratarlas?"
+  ],
+  "persona": "un influencer de salud que busca datos llamativos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuántos casos de varicela notificados este semana en México?"
+  ],
+  "persona": "un influencer de salud que busca datos llamativos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Espero que no sea un tonto, pero cómo se calcula la inflamación del cuerpo? Me duele la cabeza"
+  ],
+  "persona": "un influencer de salud que busca datos llamativos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué es la hipertensión y por qué es peligrosa?"
+  ],
+  "persona": "un influencer de salud que busca datos llamativos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Mi hermano tiene una condición llamada 'hiper' y él dice que está bajo control, ¿qué significa eso exactamente?"
+  ],
+  "persona": "un influencer de salud que busca datos llamativos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Tengo curiosidad sobre cómo se prevene el cáncer de colon, ¿tiene algún consejo para mí?"
+  ],
+  "persona": "un influencer de salud que busca datos llamativos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué tal si me dijeras algo interesante sobre México hoy? Estoy un poco aburrido"
+  ],
+  "persona": "un influencer de salud que busca datos llamativos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Hola chatbot, ¿cuántos casos de dengue notificados hubo en Baja California esta semana?"
+  ],
+  "persona": "un migrante centroamericano en Tijuana con poca escolaridad",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué hay con la obesidad? ¿Subió o bajó el número de casos?"
+  ],
+  "persona": "un migrante centroamericano en Tijuana con poca escolaridad",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Tengo una pregunta sobre la escabiosis, ¿qué es eso y cómo se contrata?"
+  ],
+  "persona": "un migrante centroamericano en Tijuana con poca escolaridad",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuál es la enfermedad que más muere por? ¿Es la depresión?"
+  ],
+  "persona": "un migrante centroamericano en Tijuana con poca escolaridad",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Por qué me dice que no puedo encontrar información en inglés si hablo español con usted?"
+  ],
+  "persona": "un migrante centroamericano en Tijuana con poca escolaridad",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Chatbot, ¿cómo funciona su sistema de clasificación de estadísticas por estado?"
+  ],
+  "persona": "un migrante centroamericano en Tijuana con poca escolaridad",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué hay con las infecciones respiratorias? ¿Hubo algún aumento?"
+  ],
+  "persona": "un migrante centroamericano en Tijuana con poca escolaridad",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Me duele la cabeza y creo que es una infección respiratoria, ¿qué puedo hacer?"
+  ],
+  "persona": "un migrante centroamericano en Tijuana con poca escolaridad",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuántos casos de hepatitis hubo en Baja California este mes?"
+  ],
+  "persona": "un migrante centroamericano en Tijuana con poca escolaridad",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Hola, ¿cómo estás? Me siento un poco nervioso con tantas enfermedades"
+  ],
+  "persona": "un migrante centroamericano en Tijuana con poca escolaridad",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Chatbot, ¿cuál es la mejor forma de mantenerme saludable mientras vivo aquí?"
+  ],
+  "persona": "un migrante centroamericano en Tijuana con poca escolaridad",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué es esto que me está molestando por el cuello? ¿Es algún tipo de enfermedad?"
+  ],
+  "persona": "un migrante centroamericano en Tijuana con poca escolaridad",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuántos casos de diabetes notificados hubo en Tijuana esta semana?"
+  ],
+  "persona": "un migrante centroamericano en Tijuana con poca escolaridad",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Chatbot, ¿puedes decirme un poco sobre la hepatitis B y cómo se transmite?"
+  ],
+  "persona": "un migrante centroamericano en Tijuana con poca escolaridad",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Hola, ¿cómo está? Me gustaría obtener algunos datos para mi investigación"
+  ],
+  "persona": "una investigadora del INSP que quiere detalles técnicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuántos casos notificados de dengue hay en México esta semana?"
+  ],
+  "persona": "una investigadora del INSP que quiere detalles técnicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuál es el estado con más casos notificados de diabetes?"
+  ],
+  "persona": "una investigadora del INSP que quiere detalles técnicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Por qué sube la tasa de infecciones respiratorias en los menores de 5 años?"
+  ],
+  "persona": "una investigadora del INSP que quiere detalles técnicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué es la escabiosis y cómo se transmite?"
+  ],
+  "persona": "una investigadora del INSP que quiere detalles técnicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Es segura la vacuna contra la varicela? Me gustaría saber si está actualizada"
+  ],
+  "persona": "una investigadora del INSP que quiere detalles técnicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuál es el promedio de casos notificados de hipertensión en México?"
+  ],
+  "persona": "una investigadora del INSP que quiere detalles técnicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Por qué la obesidad aumenta tanto en las mujeres jóvenes?"
+  ],
+  "persona": "una investigadora del INSP que quiere detalles técnicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuántos casos notificados de depresión hay en cada estado?"
+  ],
+  "persona": "una investigadora del INSP que quiere detalles técnicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué es la hepatitis y cómo se puede prevenir?"
+  ],
+  "persona": "una investigadora del INSP que quiere detalles técnicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cómo puedo obtener los datos de manera más detallada?"
+  ],
+  "persona": "una investigadora del INSP que quiere detalles técnicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Puedo obtener los datos por ciudad o municipio?"
+  ],
+  "persona": "una investigadora del INSP que quiere detalles técnicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Hay algún dato sobre la mortalidad por enfermedades en México?"
+  ],
+  "persona": "una investigadora del INSP que quiere detalles técnicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Puedes darme algunos consejos para mejorar mi investigación en este tema?"
+  ],
+  "persona": "una investigadora del INSP que quiere detalles técnicos",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿qué onda chatbot? puedo saber si la dengue está en aumento este semestre?"
+  ],
+  "persona": "un joven en Zacatecas que pregunta por enfermedades de transmisión sexual con pena",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "acá estoy buscando información sobre la varicela, ¿cómo se transmite?"
+  ],
+  "persona": "un joven en Zacatecas que pregunta por enfermedades de transmisión sexual con pena",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿cuántos casos de hipertensión notificaron en Zacatecas últimamente?"
+  ],
+  "persona": "un joven en Zacatecas que pregunta por enfermedades de transmisión sexual con pena",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "oí que hay una epidemia de escabiosis en algún lugar, ¿es cierto?"
+  ],
+  "persona": "un joven en Zacatecas que pregunta por enfermedades de transmisión sexual con pena",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "mi hermana tiene infecciones respiratorias constantemente, ¿qué la está pasando?"
+  ],
+  "persona": "un joven en Zacatecas que pregunta por enfermedades de transmisión sexual con pena",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿qué es la hepatitis?"
+  ],
+  "persona": "un joven en Zacatecas que pregunta por enfermedades de transmisión sexual con pena",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "estoy preocupado por mi salud, ¿cómo puedo saber si tengo algo?"
+  ],
+  "persona": "un joven en Zacatecas que pregunta por enfermedades de transmisión sexual con pena",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "pero yo me preocupa más la obesidad, ¿qué se puede hacer para perder peso?"
+  ],
+  "persona": "un joven en Zacatecas que pregunta por enfermedades de transmisión sexual con pena",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿cuál es el mejor tratamiento para la depresión?"
+  ],
+  "persona": "un joven en Zacatecas que pregunta por enfermedades de transmisión sexual con pena",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "yo quiero saber si hay algún tratamientos nuevos para la dengue"
+  ],
+  "persona": "un joven en Zacatecas que pregunta por enfermedades de transmisión sexual con pena",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "espero que mi mamá no tenga diabetes, ¿cómo la curas?"
+  ],
+  "persona": "un joven en Zacatecas que pregunta por enfermedades de transmisión sexual con pena",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "sé que hay una curva en los casos de infecciones respiratorias, ¿cuándo sube y cuándo baja?"
+  ],
+  "persona": "un joven en Zacatecas que pregunta por enfermedades de transmisión sexual con pena",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿por qué hay más obesidad en Zacatecas que en otras ciudades?"
+  ],
+  "persona": "un joven en Zacatecas que pregunta por enfermedades de transmisión sexual con pena",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "también quiero saber sobre el embarazo y las enfermedades"
+  ],
+  "persona": "un joven en Zacatecas que pregunta por enfermedades de transmisión sexual con pena",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿qué tipo de medicamentos toman las personas con diabetes?"
+  ],
+  "persona": "un joven en Zacatecas que pregunta por enfermedades de transmisión sexual con pena",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué tipo de datos tiene el chatbot? ¿Es solo epidemiológicos?"
+  ],
+  "persona": "una maestra jubilada en Mérida que pregunta por su presión",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuántos casos de dengue había en Mérida esta semana?"
+  ],
+  "persona": "una maestra jubilada en Mérida que pregunta por su presión",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Estoy interesada en saber si la obesidad es una enfermedad crónica"
+  ],
+  "persona": "una maestra jubilada en Mérida que pregunta por su presión",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cómo se calculan los pronósticos semanales de enfermedades?"
+  ],
+  "persona": "una maestra jubilada en Mérida que pregunta por su presión",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué tipo de datos tiene el chatbot sobre diabetes y hipertensión?"
+  ],
+  "persona": "una maestra jubilada en Mérida que pregunta por su presión",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuántos casos notificados de varicela hay en México?"
+  ],
+  "persona": "una maestra jubilada en Mérida que pregunta por su presión",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Estoy preocupada, ¿qué es la escabiosis?"
+  ],
+  "persona": "una maestra jubilada en Mérida que pregunta por su presión",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuál es la tasa de infecciones respiratorias en la población general?"
+  ],
+  "persona": "una maestra jubilada en Mérida que pregunta por su presión",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cómo se puede comparar el número de casos entre diferentes estados de México?"
+  ],
+  "persona": "una maestra jubilada en Mérida que pregunta por su presión",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Qué tipo de datos tiene el chatbot sobre depresión y cómo lo utiliza?"
+  ],
+  "persona": "una maestra jubilada en Mérida que pregunta por su presión",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Cuántos casos notificados de hepatitis hay en Mérida este mes?"
+  ],
+  "persona": "una maestra jubilada en Mérida que pregunta por su presión",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Mi abuela sufre de escabiosis, ¿puede decirme qué tipo de tratamiento tiene?"
+  ],
+  "persona": "una maestra jubilada en Mérida que pregunta por su presión",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿Puedes darme algún consejo para mantener la salud?"
+  ],
+  "persona": "una maestra jubilada en Mérida que pregunta por su presión",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "Me llamo Ana y tengo 55 años, ¿puedes darme información sobre las enfermedades más comunes en personas de mi edad?"
+  ],
+  "persona": "una maestra jubilada en Mérida que pregunta por su presión",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¡hola! ¿cuántos casos notificados hay de dengue en México este semanal? ¿qué es la dengue y cómo se transmite?"
+  ],
+  "persona": "un usuario que escribe mitad en inglés y mitad en español",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "hasta la hora de mi pregunta, no tienen datos. ¿pueden decirme si hay un aumento o disminución de casos de diabetes en el estado de México?"
+  ],
+  "persona": "un usuario que escribe mitad en inglés y mitad en español",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "tienes información sobre obesidad? ¿cuántos casos notificados hubo durante este semana?"
+  ],
+  "persona": "un usuario que escribe mitad en inglés y mitad en español",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "¿qué tan confiable es esta información? ¿se basa en estudios y datos reales o es solo estimación?"
+  ],
+  "persona": "un usuario que escribe mitad en inglés y mitad en español",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ },
+ {
+  "turnos": [
+   "mi amigo contrajo la escabiosis hace un mes y está tratándose. ¿pueden decirme más sobre esto?"
+  ],
+  "persona": "un usuario que escribe mitad en inglés y mitad en español",
+  "espera": null,
+  "padecimiento": null,
+  "estado": null
+ }
+]

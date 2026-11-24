@@ -524,7 +524,7 @@ add('cuantos modelos de produccion hay', 'answerConteo', ['333']);
 add('que geografias se cubren', '*', []);
 add('fuente de datos del proyecto', 'answerProyectoMeta', ['SINAVE']);
 add('que datos utiliza el proyecto', '*', []);
-add('alcance del proyecto', 'answerProyectoMeta', ['333']);
+add('alcance del proyecto', 'answerProyectoMeta', ['padecimientos', 'confiable']);
 add('como se selecciona el modelo de produccion', '*', []);
 
 // =====================================================================
@@ -587,9 +587,9 @@ add('parkinson en hombres de 50 anos', '*', ['Variable no disponible', 'sexo', '
   {padecimiento: 'Parkinson', sexo: 'hombres', _ageFilter: '50'});
 add('alzheimer en personas de 70 anos', '*', ['Variable no disponible'], [],
   {padecimiento: 'Alzheimer', _ageFilter: '70'});
-add('casos de depresion entre 40 y 45 anos', '*', ['Variable no disponible'], [],
+add('casos de depresion entre 40 y 45 anos', '*', ['no por edad'], [],
   {padecimiento: 'Depresion', _ageFilter: '40-45'});
-add('depresion en mayores de 60 anos', '*', ['Variable no disponible'], [],
+add('depresion en mayores de 60 anos', '*', ['no por edad'], [],
   {padecimiento: 'Depresion', _ageFilter: 'mayores de 60'});
 add('parkinson en adultos de 65 anos', '*', ['Variable no disponible'], [],
   {padecimiento: 'Parkinson', _ageFilter: '65'});
@@ -597,12 +597,12 @@ add('alzheimer en pacientes de 80 anos', '*', ['Variable no disponible'], [],
   {padecimiento: 'Alzheimer', _ageFilter: '80'});
 add('casos de depresion en jovenes de 20 anos', '*', ['Variable no disponible'], [],
   {padecimiento: 'Depresion', _ageFilter: '20'});
-add('depresion en menores de 18 anos', '*', ['Variable no disponible'], [],
+add('depresion en menores de 18 anos', '*', ['no por edad'], [],
   {padecimiento: 'Depresion', _ageFilter: 'menores de 18'});
 add('parkinson en mujeres de 55 anos', '*', [], [],
   {padecimiento: 'Parkinson', sexo: 'mujeres', _ageFilter: '55'});
 // Con ultimos N anos + edad
-add('depresion ultimos 10 anos entre 40 y 45 anos', '*', ['Variable no disponible'], [],
+add('depresion ultimos 10 anos entre 40 y 45 anos', '*', ['no por edad'], [],
   {padecimiento: 'Depresion', _ageFilter: '40-45', _lastNYears: 10});
 add('hombres de 60 anos con alzheimer', '*', [], [],
   {padecimiento: 'Alzheimer', sexo: 'hombres', _ageFilter: '60'});
@@ -940,7 +940,7 @@ add('alzheimer en estados unidos', null, []);
 // Personas especificas con enfermedad
 add('rocky tenia parkinson', null, []);
 add('mohamed ali tuvo parkinson', null, []);
-add('mi abuelo tiene alzheimer', null, []);
+add('mi abuelo tiene alzheimer', 'answerFamiliar', ['Lamento', 'orientación médica'], ['recupere']);
 add('a robin williams le diagnosticaron parkinson', null, []);
 // Consejos medicos
 add('como se cura el parkinson', null, []);

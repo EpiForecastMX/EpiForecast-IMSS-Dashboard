@@ -15,7 +15,7 @@ import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
 } from './obesidad_charts.js?v=57';
-import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=54';
+import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=55';
 // Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
 import './avisos_fuente.js?v=5';
 import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion, indicadores, nombreEstado } from './resumen_llano.js?v=2';

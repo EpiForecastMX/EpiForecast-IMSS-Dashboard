@@ -84,9 +84,32 @@ export async function interpretaConsulta(consulta, releases, generar) {
   const cat = catalogoNlu(releases);
   try {
     const texto = await generar(promptNlu(consulta, cat));
-    const v = validaNlu(texto, cat);
+    let v = validaNlu(texto, cat);
+    // El ranking sólo si la frase lo pide: un término inventado («zombificación») no se convierte en «¿qué va al alza?».
+    const fn = String(consulta).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    if (v && v.intencion === 'ranking' && !/\b(enfermedad\w*|padecimiento\w*|sube\w*|subiendo|alza|aument\w*|mas casos|pega\w*|baja\w*|circulando)\b/.test(fn)) v = null;
     return { consulta: consultaCanonica(v), entendido: v ? { padecimiento: v.pad?.id ?? null, estado: v.estado, sexo: v.sexo, intencion: v.intencion, periodo: v.periodo } : null };
   } catch {
     return { consulta: null, entendido: null };
   }
+}
+
+/**
+ * Generador local para desarrollo: Ollama (`EPI_LLM_LOCAL=http://localhost:11434|llama3.1`). Sólo se usa si la variable
+ * existe; en producción el modo nlu usa Gemini. Devuelve el texto JSON del modelo.
+ */
+export function generadorOllama(spec, { timeoutMs = 20000 } = {}) {
+  const [url, modelo] = String(spec).split('|');
+  return async (prompt) => {
+    const ac = new AbortController();
+    const t = setTimeout(() => ac.abort(), timeoutMs);
+    try {
+      const r = await fetch(`${url.replace(/\/$/, '')}/api/generate`, {
+        method: 'POST', signal: ac.signal, headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: modelo || 'llama3.1', prompt, format: 'json', stream: false, options: { temperature: 0 } }),
+      });
+      if (!r.ok) throw new Error(`ollama ${r.status}`);
+      return (await r.json()).response;
+    } finally { clearTimeout(t); }
+  };
 }

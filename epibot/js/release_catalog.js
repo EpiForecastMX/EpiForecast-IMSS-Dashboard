@@ -2432,7 +2432,7 @@
   }
   const pareceIngles = (raw) => {
     const q = ` ${normLB(raw)} `;
-    return /\b(the|what|how|in|of|and|i|my|is|am|are|you|me|to)\b/.test(q) && !/\b(en|de|del|y|la|el|que|los|las)\b/.test(q);
+    return /\b(the|what|how|in|of|and|i|my|is|am|are|you|me|to)\b/.test(q) && !/\b(en|de|del|y|la|el|que|los|las|con|una|un|por|para|es|esta|estoy|como|mi|tu|se|lo|siento|hola|tengo|quiero)\b/.test(q);
   };
   /** Apoyo fijo ante un turno fuera del vocabulario cerrado, o null. */
   function respuestaFueraDeVocabulario(raw, { siempre = false } = {}) {
@@ -2475,7 +2475,7 @@
   const INGESTION_PROPIA_EN = /\bi (drank|swallowed|ingested|injected|took|consumed|just (took|drank|swallowed|ingested)|(have|ve) (taken|drunk|swallowed|ingested|consumed|injected)|(am|m) (taking|drinking|swallowing|ingesting))\b/;
   function ingestionPropia(q) {
     // Rediseño conversacional: «me tomé la presión», «tomé nota» o «me tomé un café» no son ingestión de riesgo.
-    const n = normLB(q).replace(/\b(me )?(tome|tomo|tomamos|bebi) (la |el |una |un |mi |unos |unas )?(presion|temperatura|nota|notas|foto|fotos|tiempo|glucosa|azucar|muestra|muestras|medida|medidas|en cuenta|decision|vacuna|vacunas|prueba|pruebas|signos vitales)\b/g, ' ');
+    const n = normLB(q).replace(/\b(se|no se|que se|le|les) tomen? (las cosas |la cosa |esto |eso )?(en serio|en cuenta)?/g, ' ').replace(/\b(me )?(tome|tomo|tomamos|bebi) (la |el |una |un |mi |unos |unas )?(presion|temperatura|nota|notas|foto|fotos|tiempo|glucosa|azucar|muestra|muestras|medida|medidas|en cuenta|decision|vacuna|vacunas|prueba|pruebas|signos vitales)\b/g, ' ');
     if (INGESTION_PROPIA_ES.test(n)) return 'es';
     return INGESTION_PROPIA_EN.test(n) ? 'en' : null;
   }
@@ -2625,7 +2625,10 @@
     // Con síntomas («fiebre y tos, ¿qué me tomo?») «tomo» o «tomar» no son señal de ingestión.
     const conSintomas = /\b(fiebre|tos|dolor|gripa|gripe|diarrea|vomito|calentura|ronchas|garganta|cabeza|catarro|resfriado)\b/.test(sin);
     const sinTomar = conSintomas ? sin.replace(/\b(tomo|tomar|me tomo|que me tomo)\b/g, ' ') : sin;
-    return [sinTomar, ...variantesRiesgo(sinTomar)].some((v) => SENAL_DEBIL.test(v.trim()));
+    // Frases hechas sin señal: «no puedo creer», «si no tomo la medicina» (adherencia), «no se tome las cosas en serio».
+    const sinFrases = sinTomar.replace(/\bme siento (un poco |algo |muy )?(nervios[oa]|preocupad[oa]|asustad[oa]|inquiet[oa]) (con|por) (tantas |las |la |los )?(enfermedad\w*|epidemia\w*|brotes?|contagios?|noticias)\b/g, ' ').replace(/\b(lo )?siento (preguntar|molestar|molestarte|la molestia|interrumpir|la tardanza|no saber)\b/g, ' ').replace(/\bno puedo (creer|entender|encontrar|abrir|descargar|ver la|ver el|ver las|ver los)\b/g, ' ')
+      .replace(/\b(si )?no (tomo|tomar|me tomo) (la |el |mi |mis )?(medicina|medicinas|medicamento|medicamentos|tratamiento|insulina)\b/g, ' ');
+    return [sinFrases, ...variantesRiesgo(sinFrases)].some((v) => SENAL_DEBIL.test(v.trim()));
   }
 
   // Una pregunta de datos en tercera persona sobre un tema sensible («¿cuántos casos de violencia intrafamiliar reporta el

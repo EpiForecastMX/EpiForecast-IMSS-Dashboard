@@ -15,7 +15,7 @@
  * Vale para cualquier release publicado: título y color salen de `release_config.js` por
  * `disease_id`. Funciones puras: sin DOM, sin fetch.
  */
-import { RELEASES, releaseDeId } from './release_config.js?v=54';
+import { RELEASES, releaseDeId } from './release_config.js?v=55';
 import { semanaSiguiente } from './calendario_boletin.js?v=2';
 
 const strip = (s) => String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -41,7 +41,7 @@ const REGLAS = [
   ['semaforo', ['semaforo', 'nivel de riesgo', 'alerta epidemiolog']],
   ['pdf', ['reporte pdf', 'reporte ejecutivo', 'pdf', 'exportar', 'descargar']],
   // Rediseño conversacional: «¿qué tan confiable es?» pide la confiabilidad en lenguaje llano, no la banda.
-  ['confianza', ['confiable', 'confiabilidad', 'fiable', 'que tan bueno', 'que tan preciso', 'que tan exacto', 'le atina', 'que tan cierto', 'puedo creer', 'creible']],
+  ['confianza', ['confiable', 'confiabilidad', 'fiable', 'que tan bueno', 'que tan preciso', 'que tan exacto', 'le atina', 'que tan cierto', 'puedo creer', 'creible', 'confiar', 'son precisos', 'son precisas', 'es preciso', 'es precisa', 'son exactos']],
   ['banda', ['corredor', 'confianza', 'banda', 'intervalo', 'incertidumbre']],
   ['heatmap', ['heatmap', 'mapa de calor', 'error semanal', 'diferencias del seguimiento']],
   ['entidades', ['treemap', 'mapa de entidad', 'por entidad', 'panorama', 'casos por estado']],
