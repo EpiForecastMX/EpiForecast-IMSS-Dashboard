@@ -213,7 +213,8 @@ test('catálogo: filtro «Validación» inequívoco y mini-gráficas con el colo
   assert.match(PAGE, /Mini-gráfica: casos observados, últimas 26 semanas/);
   const lines = dom.$('gDiseases').querySelectorAll('polyline');
   assert.equal(lines.length, 152);
-  assert.ok(lines.every((l) => l.getAttribute('stroke') === '#173c33'), 'color de observado, no de pronóstico');
+  // Tema oscuro (24-nov-2026): el trazo va como estilo con var(--c-obs) para seguir al esquema sin redibujar.
+  assert.ok(lines.every((l) => /^var\(--c-obs, #173c33\)$/.test(l.style?.stroke ?? '')), 'color de observado, no de pronóstico');
   const chip = dom.$('gDiseases').querySelector('.g-chip');
   assert.ok(chip.textContent.length < 40, 'chip corto');
 });

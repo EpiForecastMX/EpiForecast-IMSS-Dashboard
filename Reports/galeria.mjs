@@ -72,7 +72,8 @@ function spark(points) {
   const line = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
   line.setAttribute('points', pts);
   line.setAttribute('fill', 'none');
-  line.setAttribute('stroke', obsColor()); // es OBSERVADO (últimas 26 semanas), nunca pronóstico
+  // Es OBSERVADO (últimas 26 semanas), nunca pronóstico. Como estilo con var(): sigue al tema claro u oscuro sin redibujar.
+  line.style.stroke = `var(--c-obs, ${obsColor()})`;
   line.setAttribute('stroke-width', '2');
   line.setAttribute('vector-effect', 'non-scaling-stroke');
   svg.append(line);
@@ -439,7 +440,7 @@ function drawCardChart(canvas) {
       plugins: { legend: { display: false }, tooltip: { enabled: false } },
       scales: {
         x: { ticks: xTicks({ maxTicksLimit: 4 }), grid: { display: false } },
-        y: { beginAtZero: true, ticks: { color: token('--muted', '#5b6f66'), maxTicksLimit: 4 }, grid: { color: token('--line', '#dbe3dc') } },
+        y: { beginAtZero: true, ticks: { color: token('--muted', '#5b6f66'), maxTicksLimit: 4 }, grid: { color: token('--chart-grid', '#dbe3dc') } },
       },
     },
   });
@@ -501,7 +502,7 @@ function showViewerChart(s, entry, titulo) {
     type: 'line',
     data: { labels: s.d, datasets: [
       ...(banda ? [
-        { label: 'Intervalo del motor (superior)', data: s.hi, borderColor: 'transparent', backgroundColor: C.withAlpha(color, 0.15), pointRadius: 0, fill: '+1', tension: 0, order: 4 },
+        { label: 'Intervalo del motor (superior)', data: s.hi, borderColor: 'transparent', backgroundColor: C.withAlpha(color, Number(token('--band-alpha', '0.15')) || 0.15), pointRadius: 0, fill: '+1', tension: 0, order: 4 },
         { label: 'Intervalo del motor (inferior)', data: s.lo, borderColor: 'transparent', backgroundColor: 'transparent', pointRadius: 0, fill: false, tension: 0, order: 4 },
       ] : []),
       { label: corte ? 'Pronóstico desde el corte' : 'Pronóstico', data: yPron, borderColor: color, borderDash: [7, 4], borderWidth: 2.4, pointRadius: 0, tension: 0, order: 2 },
@@ -517,8 +518,8 @@ function showViewerChart(s, entry, titulo) {
           callbacks: { title: tooltipTitle, label: (it) => `${it.dataset.label}: ${C.fmtCasos(it.parsed.y)} casos` } },
       },
       scales: {
-        x: { ticks: xTicks({ autoSkip: true, maxTicksLimit: 10 }), grid: { color: token('--line', '#dbe3dc') } },
-        y: { beginAtZero: true, ticks: { color: token('--muted', '#5b6f66') }, grid: { color: token('--line', '#dbe3dc') }, title: { display: true, text: 'Casos por semana', color: token('--muted', '#5b6f66') } },
+        x: { ticks: xTicks({ autoSkip: true, maxTicksLimit: 10 }), grid: { color: token('--chart-grid', '#dbe3dc') } },
+        y: { beginAtZero: true, ticks: { color: token('--muted', '#5b6f66') }, grid: { color: token('--chart-grid', '#dbe3dc') }, title: { display: true, text: 'Casos por semana', color: token('--muted', '#5b6f66') } },
       },
     },
   });
@@ -735,6 +736,25 @@ async function start() {
   renderCatalog();
   readUrlAndRoute();
 }
+
+// Tema oscuro (24-nov-2026): las gráficas toman los colores de los tokens al construirse; al cambiar el esquema del
+// sistema se vuelven a dibujar la lista y el visor abierto.
+// Con el visor abierto sólo se redibuja el visor y la lista espera a que se cierre, para no quitar del documento el botón
+// que lo abrió; después el foco vuelve a la tarjeta equivalente.
+let temaPendiente = false;
+const esquema = window.matchMedia?.('(prefers-color-scheme: dark)');
+esquema?.addEventListener?.('change', () => {
+  if (!catalog || (mode !== 'detail' && mode !== 'all')) return;
+  if ($('gViewer')?.open && list.length) { openViewer(viewerIndex); temaPendiente = true; return; }
+  renderList();
+});
+$('gViewer')?.addEventListener('close', () => {
+  if (!temaPendiente) return;
+  temaPendiente = false;
+  const enFoco = document.activeElement?.closest?.('#gCards') ? viewerIndex - (page - 1) * C.PAGE_SIZE : null;
+  renderList();
+  if (enFoco != null) $('gCards').querySelectorAll('.g-card__open')[enFoco]?.focus();
+});
 
 bind();
 start();
