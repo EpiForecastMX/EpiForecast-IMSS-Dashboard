@@ -44,6 +44,9 @@ for (const [nombre, t] of [['claro', claro], ['oscuro', oscuro]]) {
 
 test('el tema oscuro sólo vive en la galería y el resto del sitio es «sólo claro»', () => {
   assert.match(site, /color-scheme:\s*only light/);
+  // Más específico que el `:root { color-scheme: light }` de dashboard.css, radar.css y la hoja del EpiBot.
+  assert.match(site, /html:not\(\.tema-galeria\) \{ color-scheme: only light; \}/);
+  assert.match(html, /<meta name="darkreader-lock">/);
   assert.doesNotMatch(site, /prefers-color-scheme/);
   assert.match(html, /<html lang="es" class="tema-galeria">/);
   assert.match(html, /<meta name="color-scheme" content="light dark">/);
@@ -64,4 +67,6 @@ test('las gráficas siguen al esquema: mini-gráficas con var() y redibujo al ca
   assert.match(js, /matchMedia\?\.\('\(prefers-color-scheme: dark\)'\)/);
   assert.match(js, /token\('--band-alpha'/);
   assert.match(js, /token\('--chart-grid'/);
+  assert.match(js, /plugins: \[fondoOpaco\('--paper'\)\]/);
+  assert.match(js, /plugins: \[fondoOpaco\('--surface'\)\]/);
 });
