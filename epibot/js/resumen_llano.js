@@ -16,6 +16,8 @@
  *   estacional, FAIL o sesgo comprobado mayor de 20 % en la serie consultada).
  */
 
+import { preguntaPorBrote } from './calculo/legitimidad.js?v=2';
+
 const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 const ent0 = (n) => (n == null ? '—' : Math.round(n).toLocaleString('es-MX'));
 const pct0 = (n) => `${Math.round(Math.abs(n))} %`;
@@ -138,6 +140,7 @@ function respuestaPeriodo(p, ind, x, lugar0) {
   }
   if (p.tipo === 'pico') {
     if (!ind.pico) return null;
+    if (ind.pico[1] < 0.5) return `**No se espera un pico:** el pronóstico no anticipa casos${lugar} en los próximos 12 meses.`;
     return `**El pico esperado en los próximos 12 meses** es la semana del ${fechaLarga(ind.pico[0])}, con unos **${casos(ind.pico[1])}**${lugar}.`;
   }
   if (p.tipo === 'semana') {
@@ -169,7 +172,8 @@ function respuestaPeriodo(p, ind, x, lugar0) {
 /** ¿La consulta pregunta si sube o si baja? Devuelve 'sube', 'baja' o null. */
 function preguntaDireccion(q) {
   const n = ` ${norm(q).replace(/baja california( sur)?/g, ' ').replace(/[^a-z0-9]+/g, ' ')} `;
-  if (/ (sube|subiendo|subira|va a subir|aumenta|aumentando|aumentara|va a aumentar|crece|creciendo|al alza|empeora|empeorando|repunta|repunte|brote) /.test(n)) return 'sube';
+  // «brote» ya no cuenta como «¿sube?»: «¿hay un brote?» no se contesta «Sí» con una tendencia (mesa agéntica, 25-nov-2026).
+  if (/ (sube|subiendo|subira|va a subir|aumenta|aumentando|aumentara|va a aumentar|crece|creciendo|al alza|empeora|empeorando|repunta|repunte) /.test(n)) return 'sube';
   if (/ (baja|bajando|bajara|va a bajar|disminuye|disminuyendo|disminuira|a la baja|mejora|mejorando|cae|cayendo) /.test(n)) return 'baja';
   return null;
 }
@@ -206,7 +210,7 @@ export function respuestaLlana({ v, x, r, q, esControl, estados, sinSexo, confia
     incierto: `no hay una señal clara de cambio: el pronóstico espera unos ${casos(ind.F4)} en las próximas 4 semanas (${d >= 0 ? '+' : '−'}${pct0((d ?? 0) * 100)} frente a las 4 anteriores), pero en las semanas ya comprobadas se ha ${x.oos.sesgo_pct > 0 ? 'pasado' : 'quedado corto'} por ${pct0(x.oos.sesgo_pct)}, una diferencia de ese mismo tamaño.`,
   }[ind.tendencia];
   let sino = '';
-  if (pidio && !/^\W*por ?que\b/.test(norm(q)) && !['incierto', 'atipico', 'pocos'].includes(ind.tendencia)) sino = ind.tendencia === pidio ? 'Sí. ' : 'No. ';
+  if (pidio && !preguntaPorBrote(norm(q)) && !/^\W*por ?que\b/.test(norm(q)) && !['incierto', 'atipico', 'pocos'].includes(ind.tendencia)) sino = ind.tendencia === pidio ? 'Sí. ' : 'No. ';
   if (x.nivel === 'nacional' && /\bmi (estado|ciudad|municipio|entidad|region|zona)\b/.test(norm(q))) {
     lineas.push('No sé en qué estado estás: dime cuál (por ejemplo, «en Jalisco») y te digo cómo va ahí. Mientras, así va en todo el país:', '');
   }
@@ -214,7 +218,8 @@ export function respuestaLlana({ v, x, r, q, esControl, estados, sinSexo, confia
     lineas.push('_No calculo tasas por 100 mil habitantes: el boletín reporta casos notificados y aquí comparo casos._', '');
   }
   const periodo = respuestaPeriodo(periodoPedido(q), ind, x, lugar);
-  if (periodo) lineas.push(periodo, '');
+  // Con un periodo pedido, la respuesta empieza por el padecimiento para que no quede sin nombrar (batería ciega S).
+  if (periodo) lineas.push(`**${sujeto}**`, '', periodo, '');
   if (ind.F4 != null) lineas.push(`${sino}${periodo ? 'En cuanto a la tendencia, ' : `**${sujeto}:** `}${frase}${['sube', 'baja', 'estable'].includes(ind.tendencia) ? sesgoControl : ''}`);
   lineas.push('');
   const semanaTxt = v.observation_cutoff && v.observation_cutoff[1] >= 4

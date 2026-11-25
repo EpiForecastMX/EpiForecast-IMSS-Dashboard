@@ -7,7 +7,7 @@ import { graficoRondas } from './comparacion_rondas.js?v=3';
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=201';
+import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2 } from './kb.js?v=202';
 import { detectEntities, norm } from './entities.js?v=87';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
 import { renderMexicoMap } from './mexico-map.js?v=3';
@@ -1028,7 +1028,7 @@ async function interpretaConGemini(text) {
 
 async function callRag(text) {
   const typingEl = addTypingIndicator('EPI está consultando la base de conocimiento');
-  let shell = null, acc = '', sources = null, gotMeta = false, streamErr = null, rafPending = false;
+  let shell = null, acc = '', sources = null, gotMeta = false, gotDone = false, streamErr = null, rafPending = false;
   const render = () => {
     if (!shell) return;
     shell.content.innerHTML = sanitizeHtml(marked.parse(polishSpanish(acc), { breaks: true }));
@@ -1065,14 +1065,21 @@ async function callRag(text) {
         if (o.type === 'meta') { gotMeta = true; sources = o.sources || []; removeTyping(typingEl); shell = createBotShell(); }
         else if (o.type === 'delta') { streamed = true; acc += o.text || ''; if (!rafPending) { rafPending = true; requestAnimationFrame(() => { rafPending = false; render(); }); } }
         else if (o.type === 'error') { streamErr = o.error; }
-        else if (o.type === 'done') { /* finalize abajo */ }
-        else if (o.answer !== undefined) { gotMeta = true; sources = o.sources || []; acc = o.answer || ''; } // respuesta no-stream en una línea
+        else if (o.type === 'done') { gotDone = true; }
+        else if (o.type === 'progress') { /* la función sigue viva: el indicador de escritura permanece */ }
+        else if (o.answer !== undefined) { gotMeta = true; gotDone = true; sources = o.sources || []; acc = o.answer || ''; } // respuesta no-stream en una línea, completa
       }
     }
     removeTyping(typingEl);
 
     if (streamErr && !acc.trim()) { if (shell) shell.div.remove(); addBotMessage(`${streamErr}\n\nPrueba «métricas globales» o «equipo del proyecto».`, 'error'); return; }
     if (!gotMeta && !acc.trim()) { if (shell) shell.div.remove(); return await ragNonStream(text); } // no fue streaming → fallback
+    // Sin `done` la conexión se cortó: el texto puede estar incompleto y no se muestra como respuesta (mesa agéntica, 25-nov-2026).
+    if (gotMeta && !gotDone) {
+      if (shell) shell.div.remove();
+      addBotMessage('La respuesta se cortó antes de terminar. Vuelve a intentarlo.', 'error');
+      return;
+    }
 
     const finalText = (acc.replace(STRIP_CIFRAS, '').trim()) || 'Sin respuesta.';
     if (shell) shell.div.remove();

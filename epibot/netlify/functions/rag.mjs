@@ -28,6 +28,8 @@ import { resolverConsultaRag, vistaGroundedAnswer, enriquecerSemanticoVista } fr
 import { crisisEnHistorial, nombraPadecimientoNoSensible } from '../lib/vista_turno.mjs';
 import { respuestaNoModelableRag } from '../lib/radar_no_modelable.mjs';
 import { interpretaConsulta, generadorOllama } from '../lib/nlu.mjs';
+import { proveedorBloqueado, registraFallo, reintentable, mensajeUsuario } from '../lib/proveedor.mjs';
+import { depuraCifras, NOTA_RETIRADA, SIN_CIFRAS_VERIFICABLES } from '../lib/cifras_verificadas.mjs';
 
 const EMBED_MODEL = 'gemini-embedding-001';
 const EMBED_DIM = 768;
@@ -104,7 +106,16 @@ function loadPublishedReleases() {
 
 // Vista oficial de un release y ficha publicada (página .html en la raíz del sitio). netlify.toml debe empaquetar
 // ambas en included_files para que la función las lea en producción.
-const leerVista = (id) => JSON.parse(readDataFile(`../publication/${id}/vista.json`));
+// Caché acotada: cada vista pesa unos 500 KB y se leía y parseaba en cada invocación (mesa agéntica, 25-nov-2026).
+const VISTAS_MAX = 20;
+const vistasCache = new Map();
+const leerVista = (id) => {
+  if (vistasCache.has(id)) { const v = vistasCache.get(id); vistasCache.delete(id); vistasCache.set(id, v); return v; }
+  const v = JSON.parse(readDataFile(`../publication/${id}/vista.json`));
+  vistasCache.set(id, v);
+  if (vistasCache.size > VISTAS_MAX) vistasCache.delete(vistasCache.keys().next().value);
+  return v;
+};
 // Foto vigente del radar del boletín (la misma de boletin.html y del EpiBot): categorías sin pronóstico.
 let radarCache = null;
 function leerRadar() {
@@ -287,7 +298,7 @@ async function retrieve(genAI, query, expandedText, index, foco = []) {
       semScores = normalize(raw);
       mode = 'semantic';
     } catch (err) {
-      console.warn('Embedding de consulta falló, uso léxico:', err.message);
+      console.warn(`Embedding de consulta falló (${registraFallo(err)}), uso léxico`);
     } finally {
       a.done();
     }
@@ -756,7 +767,7 @@ function focusedFacts(kb, query) {
 // ---------------------------------------------------------------------------
 
 async function contextualizeQuery(genAI, query, history) {
-  if (!history || !history.length) return query;
+  if (!genAI || !history || !history.length) return query;
   const qn = stripAccents(query);
   const isFollowUp = query.split(/\s+/).length <= 6 || /^(y|pero|ademas|entonces|ok|tambien)\b/.test(qn) || /\b(eso|ese|esa|ahi|alli|ahí|el mismo|la misma|y en|y para|que tal)\b/.test(qn);
   if (!isFollowUp) return query;
@@ -768,13 +779,14 @@ async function contextualizeQuery(genAI, query, history) {
     const r = await model.generateContent(prompt, { signal: a.signal });
     const t = (r.response.text() || '').trim().split('\n')[0].slice(0, 200);
     return t && t.length > 3 ? t : query;
-  } catch { return query; } finally { a.done(); }
+  } catch (err) { registraFallo(err); return query; } finally { a.done(); }
 }
 
 /** Reranker LLM: reordena los candidatos por relevancia y devuelve TOP_K.
  *  Usa 2.5-flash-lite (rápido). Si devuelve pocos índices, rellena
  *  con el orden híbrido para no encoger por debajo de TOP_K. */
 async function rerank(genAI, query, candidates) {
+  if (!genAI) return null;
   const a = withAbort(T_FAST);
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-3.1-flash-lite' });
@@ -792,7 +804,7 @@ async function rerank(genAI, query, candidates) {
     for (const n of order) { if (!seen.has(n)) { seen.add(n); ordered.push(candidates[n]); } }
     for (let i = 0; i < candidates.length; i++) { if (!seen.has(i)) { seen.add(i); ordered.push(candidates[i]); } }
     return ordered;
-  } catch { return null; } finally { a.done(); }
+  } catch (err) { registraFallo(err); return null; } finally { a.done(); }
 }
 
 /** Selección con diversidad (MMR-lite): toma los mejores respetando un máximo
@@ -1058,7 +1070,7 @@ async function handlerInterno(req) {
     if (process.env.EPI_LLM_LOCAL) {
       return json(await interpretaConsulta(String(body.query || ''), globalThis.EPI_CATALOGO.releases, generadorOllama(process.env.EPI_LLM_LOCAL)), 200, cors);
     }
-    if (!apiKey) return json({ consulta: null, entendido: null }, 200, cors);
+    if (!apiKey || proveedorBloqueado()) return json({ consulta: null, entendido: null }, 200, cors);
     const rlNlu = checkRateLimit(getClientIp(req));
     if (!rlNlu.ok) return json({ consulta: null, entendido: null }, 200, cors);
     const genAINlu = new GoogleGenerativeAI(apiKey);
@@ -1068,7 +1080,7 @@ async function handlerInterno(req) {
         const model = genAINlu.getGenerativeModel({ model: GEN_MODELS[0], generationConfig: { responseMimeType: 'application/json', temperature: 0 } });
         const r = await model.generateContent(prompt, { signal: a.signal });
         return r.response.text();
-      } finally { a.done(); }
+      } catch (err) { registraFallo(err); throw err; } finally { a.done(); }
     };
     return json(await interpretaConsulta(String(body.query || ''), globalThis.EPI_CATALOGO.releases, generar), 200, cors);
   }
@@ -1156,7 +1168,8 @@ async function handlerInterno(req) {
   if (verified?.unavailable) return json({ error: verified.error }, 503, cors);
   if (verified) return json(verified, 200, cors);
 
-  const genAI = new GoogleGenerativeAI(apiKey);
+  // Con el interruptor abierto (clave, facturación o cuota) no se llama al proveedor: recuperación léxica y error claro.
+  const genAI = proveedorBloqueado() ? null : new GoogleGenerativeAI(apiKey);
 
   // 0. Multi-turno: reescribe el seguimiento como pregunta autónoma (solo si aplica)
   const searchQuery = turno.contextualizada || await contextualizeQuery(genAI, query, history);
@@ -1193,7 +1206,8 @@ async function handlerInterno(req) {
   const lowConfidence = mode === 'semantic' && topSim < SIM_MIN && !facts;
 
   // Observabilidad: log de consulta (anónimo, sin IP) para detectar huecos
-  console.log(`[RAG] q="${query.slice(0, 120)}" topSim=${topSim.toFixed(3)} mode=${mode} facts=${!!facts} lowConf=${lowConfidence}`);
+  // Sin el texto de la consulta: sólo su longitud (mesa agéntica, 25-nov-2026: los registros no guardan lo que la gente escribe).
+  console.log(`[RAG] len=${query.length} topSim=${topSim.toFixed(3)} mode=${mode} facts=${!!facts} lowConf=${lowConfidence}`);
 
   // Bloque de contexto: datos exactos + pasajes numerados + cifras clave
   const passages = hits.map((h, i) =>
@@ -1221,72 +1235,55 @@ async function handlerInterno(req) {
   }
   contents.push({ role: 'user', parts: [{ text: query }] });
 
-  const CIFRAS_RE = /\s*\[\s*(cifras?\s*clave|datos del proyecto)\s*\]/gi;
-
-  // ── Modo STREAMING (NDJSON): meta → deltas → done ──────────────────────────
+  // La respuesta se genera completa y se verifica ANTES de mostrarla: toda cifra debe estar en el contexto que recibió el
+  // modelo o en la pregunta (cifras_verificadas.mjs). En streaming se envía primero un aviso de progreso para mantener viva la
+  // conexión y después meta, el texto ya verificado y done.
+  const fuentes = [contextBlock, query, searchQuery];
   if (body.stream === true) {
     const encoder = new TextEncoder();
     const streamBody = new ReadableStream({
       async start(controller) {
         const enq = (obj) => controller.enqueue(encoder.encode(JSON.stringify(obj) + '\n'));
+        enq({ type: 'progress', text: 'Consultando los datos publicados' });
+        const out = await generaVerificado(genAI, systemMsg, contents, fuentes, searchQuery);
         enq({ type: 'meta', retrieval: mode, reranked, sources });
-        let ok = false, usedModel = null, lastE = null, generado = '';
-        for (const modelName of GEN_MODELS) {
-          const a = withAbort(T_GEN);
-          try {
-            const model = genAI.getGenerativeModel({ model: modelName, systemInstruction: systemMsg });
-            const result = await model.generateContentStream({ contents }, { signal: a.signal });
-            for await (const chunk of result.stream) {
-              const t = typeof chunk.text === 'function' ? chunk.text() : '';
-              if (t) { generado += t; enq({ type: 'delta', text: t }); }
-            }
-            const nota = notaD7Rag(searchQuery, generado);
-            if (nota) enq({ type: 'delta', text: nota });
-            ok = true; usedModel = modelName; break;
-          } catch (err) {
-            lastE = err;
-            if (/API[_\s]?KEY|permission|unauthor|forbidden/i.test(String(err?.message || ''))) break;
-            console.warn(`Gemini stream ${modelName} falló:`, err.message);
-          } finally {
-            a.done();
-          }
-        }
-        if (!ok) {
-          const m = String(lastE?.message || '');
-          enq({ type: 'error', error: /quota|rate|429/i.test(m) ? 'Se alcanzó el límite de consultas de IA. Intenta de nuevo en un momento.' : 'No pude generar la respuesta en este momento.' });
-        }
-        enq({ type: 'done', model: usedModel });
+        if (out.error) enq({ type: 'error', error: out.error });
+        else enq({ type: 'delta', text: out.texto });
+        enq({ type: 'done', model: out.modelo || null });
         controller.close();
       },
     });
     return new Response(streamBody, { status: 200, headers: { ...cors, 'Content-Type': 'application/x-ndjson; charset=utf-8', 'Cache-Control': 'no-cache' } });
   }
 
-  // ── Modo NO-streaming (fallback / compatibilidad) ──────────────────────────
-  let lastErr = null;
+  const out = await generaVerificado(genAI, systemMsg, contents, fuentes, searchQuery);
+  if (out.error) return json({ error: out.error }, 500, cors);
+  return json({ answer: out.texto, model: out.modelo, retrieval: mode, reranked, sources }, 200, cors);
+}
+
+const CIFRAS_RE = /\s*\[\s*(cifras?\s*clave|datos del proyecto)\s*\]/gi;
+
+/** Genera con el primer modelo que responda y retira las oraciones con cifras sin respaldo en `fuentes`. */
+async function generaVerificado(genAI, systemMsg, contents, fuentes, searchQuery) {
+  if (!genAI) return { error: mensajeUsuario('fatal') };
+  let tipo = null;
   for (const modelName of GEN_MODELS) {
     const a = withAbort(T_GEN);
     try {
       const model = genAI.getGenerativeModel({ model: modelName, systemInstruction: systemMsg });
       const result = await model.generateContent({ contents }, { signal: a.signal });
-      const generado = (result.response.text() || '').replace(CIFRAS_RE, '');
-      const text = generado + notaD7Rag(searchQuery, generado);
-      return json({ answer: text, model: modelName, retrieval: mode, reranked, sources }, 200, cors);
+      const bruto = (result.response.text() || '').replace(CIFRAS_RE, '');
+      const { texto, retiradas } = depuraCifras(bruto, ...fuentes);
+      if (retiradas.length) console.warn(`[RAG] cifras sin respaldo retiradas: ${retiradas.length}`);
+      const base = texto ? texto + (retiradas.length ? NOTA_RETIRADA : '') : SIN_CIFRAS_VERIFICABLES;
+      return { texto: base + notaD7Rag(searchQuery, base), modelo: modelName };
     } catch (err) {
-      lastErr = err;
-      const msg = String(err?.message || '');
-      if (/API[_\s]?KEY|permission|unauthor|forbidden/i.test(msg)) break;
-      console.warn(`Gemini ${modelName} falló:`, msg);
+      tipo = registraFallo(err);
+      console.warn(`Gemini ${modelName} falló (${tipo})`);
+      if (!reintentable(tipo)) break;
     } finally {
       a.done();
     }
   }
-
-  // No filtrar el error crudo de Gemini al cliente; queda en los logs del servidor.
-  const m = String(lastErr?.message || '');
-  console.error('RAG error final:', m);
-  let userMsg = 'No pude consultar a la IA en este momento. Vuelve a intentarlo en unos minutos.';
-  if (/quota|rate|429/i.test(m)) userMsg = 'Se alcanzó el límite de consultas de IA. Intenta de nuevo en un momento.';
-  else if (/network|fetch|timeout|abort/i.test(m)) userMsg = 'Hubo un problema de conexión con la IA. Verifica tu red.';
-  return json({ error: userMsg }, 500, cors);
+  return { error: mensajeUsuario(tipo) };
 }
