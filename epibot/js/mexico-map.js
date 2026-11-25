@@ -64,18 +64,23 @@ export function renderMexicoMap(container, stateData, opts = {}) {
     metric = 'casos',
   } = opts;
 
-  const values = Object.values(stateData).map(d => d.value).filter(v => v != null);
-  const vMin = Math.min(...values);
-  const vMax = Math.max(...values);
-  const range = vMax - vMin || 1;
-
+  // Mesa de gráficas (25-nov-2026): escala secuencial de un solo tono, de claro (pocos) a oscuro (muchos) sobre el fondo
+  // claro, en cinco clases por cuantiles. Con la escala lineal anterior, un estado grande dejaba a 28 de 32 en el mismo
+  // color, y el extremo «bajo» era oscuro. Sin dato: gris claro. `lowColor`, `highColor` y `noDataColor` quedan por compatibilidad.
+  void lowColor; void highColor; void noDataColor;
+  const RAMPA = ['#e3efe9', '#b6d5c6', '#7fb39b', '#3f8a6a', '#17644d'];
+  const SIN_DATO = '#f1f2f1';
+  const values = Object.values(stateData).map(d => d.value).filter(v => v != null).sort((a, b) => a - b);
+  const vMin = values[0];
+  const vMax = values[values.length - 1];
+  const clases = Math.min(RAMPA.length, new Set(values).size || 1);
+  // Cortes por cuantiles: el límite superior de cada clase es el valor en la posición k·n/clases.
+  const cortes = Array.from({ length: clases }, (_, k) => values[Math.min(values.length - 1, Math.ceil(((k + 1) * values.length) / clases) - 1)]);
+  const paso = RAMPA.length / clases;
+  function claseDe(val) { const k = cortes.findIndex((c) => val <= c); return k < 0 ? clases - 1 : k; }
   function interpolateColor(val) {
-    if (val == null) return noDataColor;
-    const t = (val - vMin) / range;
-    const r = Math.round(lowColor[0] + t * (highColor[0] - lowColor[0]));
-    const g = Math.round(lowColor[1] + t * (highColor[1] - lowColor[1]));
-    const b = Math.round(lowColor[2] + t * (highColor[2] - lowColor[2]));
-    return 'rgb(' + r + ',' + g + ',' + b + ')';
+    if (val == null) return SIN_DATO;
+    return RAMPA[Math.min(RAMPA.length - 1, Math.round((claseDe(val) + 1) * paso) - 1)];
   }
 
   const wrapper = document.createElement('div');
@@ -108,7 +113,7 @@ export function renderMexicoMap(container, stateData, opts = {}) {
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     path.setAttribute('d', pathD);
     path.setAttribute('fill', fill);
-    path.setAttribute('stroke', 'rgba(91,141,239,0.25)');
+    path.setAttribute('stroke', '#ffffff');
     path.setAttribute('stroke-width', '0.8');
     path.setAttribute('data-state', name);
     path.style.transition = 'fill 0.2s, stroke-width 0.2s, stroke 0.2s';
@@ -119,7 +124,7 @@ export function renderMexicoMap(container, stateData, opts = {}) {
     path.setAttribute('aria-label', dn(name) + ': ' + (data ? data.label : 'sin datos'));
 
     const muestra = () => {
-      path.setAttribute('stroke', '#5B8DEF');
+      path.setAttribute('stroke', '#173c33');
       path.setAttribute('stroke-width', '2.5');
       path.parentNode.appendChild(path); // bring to front
       const label = data ? data.label : 'Sin datos';
@@ -135,7 +140,7 @@ export function renderMexicoMap(container, stateData, opts = {}) {
     path.addEventListener('focus', () => { muestra(); ubicaEnElEstado(); });
     path.addEventListener('click', () => { muestra(); ubicaEnElEstado(); });
     path.addEventListener('blur', () => {
-      path.setAttribute('stroke', 'rgba(91,141,239,0.25)');
+      path.setAttribute('stroke', '#ffffff');
       path.setAttribute('stroke-width', '0.8');
       tooltipEl.style.display = 'none';
     });
@@ -145,7 +150,7 @@ export function renderMexicoMap(container, stateData, opts = {}) {
       tooltipEl.style.top = (e.clientY - rect.top - 36) + 'px';
     });
     path.addEventListener('mouseleave', () => {
-      path.setAttribute('stroke', 'rgba(91,141,239,0.25)');
+      path.setAttribute('stroke', '#ffffff');
       path.setAttribute('stroke-width', '0.8');
       tooltipEl.style.display = 'none';
     });
@@ -157,18 +162,16 @@ export function renderMexicoMap(container, stateData, opts = {}) {
   const legend = document.createElement('div');
   legend.className = 'mexico-map-legend';
 
-  let barHtml = '<div class="mexico-map-legend-bar">';
-  for (let i = 0; i <= 5; i++) {
-    const t = i / 5;
-    const v = vMin + t * range;
-    barHtml += '<span style="background:' + interpolateColor(v) + '"></span>';
+  // Leyenda por clases: un cuadro por clase con su rango, y la advertencia de que son casos sin ajustar por población.
+  const fmt = (x) => (x == null ? '—' : Math.round(x).toLocaleString('es-MX'));
+  let barHtml = '<div class="mexico-map-clases">';
+  for (let k = 0; k < clases; k++) {
+    const desde = k === 0 ? vMin : cortes[k - 1];
+    const color = RAMPA[Math.min(RAMPA.length - 1, Math.round((k + 1) * paso) - 1)];
+    barHtml += '<span class="mexico-map-clase"><i style="background:' + color + '"></i>' + fmt(desde) + (k === 0 ? '' : '+') + '–' + fmt(cortes[k]) + '</span>';
   }
-  barHtml += '</div>';
-  barHtml += '<div class="mexico-map-legend-labels">'
-    + '<span>' + vMin.toLocaleString() + '</span>'
-    + '<span>' + metric + '</span>'
-    + '<span>' + vMax.toLocaleString() + '</span>'
-    + '</div>';
+  barHtml += '</div><div class="mexico-map-nota">' + metric + ' por estado · cinco grupos con el mismo número de estados'
+    + (metric === 'casos' ? ' · casos notificados, sin ajustar por población' : '') + '</div>';
   legend.innerHTML = barHtml;
   wrapper.appendChild(legend);
 

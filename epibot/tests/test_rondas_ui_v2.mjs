@@ -44,10 +44,10 @@ test('zoom ajusta el eje a los datos y el gráfico de año conserva el origen ce
 
 test('las leyendas son breves; motor y origen permanecen en texto y tooltips',()=>{
   const chart=graficoRondas(data,'Depresion');
-  assert.deepEqual(chart.datasets.map(s=>s.label),['Observado','Ronda anterior','Actual · W37']);
+  assert.deepEqual(chart.datasets.map(s=>s.label),['Observado','Anterior: retrospectiva','Anterior: archivada','Actual · W37']);
   assert.equal(chart.options.plugins.legend.position,'bottom');
   assert.ok(chart.options.plugins.title.text.every(t=>t.length<=28));
-  assert.equal(chart.options.plugins.tooltip.callbacks.label({dataset:chart.datasets[1],parsed:{y:2972.45}}),'Ronda anterior (deepar): 2,972');
+  assert.equal(chart.options.plugins.tooltip.callbacks.label({dataset:chart.datasets[2],parsed:{y:2972.45}}),'Anterior: archivada (deepar): 2,972');
 });
 
 globalThis.fetch=async url=>({ok:true,json:async()=>structuredClone(String(url).includes('comparacion_rondas')?data:knowledge)});

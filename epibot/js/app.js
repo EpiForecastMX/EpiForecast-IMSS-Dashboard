@@ -1,4 +1,4 @@
-import { graficoRondas } from './comparacion_rondas.js?v=3';
+import { graficoRondas } from './comparacion_rondas.js?v=4';
 /**
  * app.js - UI conversacional EpiForecast-MX con graficas en vivo.
  *
@@ -7,16 +7,16 @@ import { graficoRondas } from './comparacion_rondas.js?v=3';
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2, contextoActual, reiniciaContexto } from './kb.js?v=204';
+import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2, contextoActual, reiniciaContexto } from './kb.js?v=205';
 import { detectEntities, norm } from './entities.js?v=88';
 import { pareceVariosPedidos, respuestaDePlan } from './agente.js?v=1';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
-import { renderMexicoMap } from './mexico-map.js?v=4';
+import { renderMexicoMap } from './mexico-map.js?v=5';
 import { renderTimelapse } from './timelapse.js?v=4';
 import { renderSemaforo } from './semaforo.js?v=3';
 import { renderComparador } from './comparador.js?v=4';
 import { buildComparadorState } from './comparador_data.js?v=1';
-import { graficaObesidad } from './obesidad_charts.js?v=59';
+import { graficaObesidad } from './obesidad_charts.js?v=60';
 import { UNCERTAINTY_LABEL } from './point_only.js?v=1';
 import { MARCADOR_RELEASE, RELEASES, releaseConAlias, releaseDeMarca, releaseDePad, releasesEnConsulta } from './release_config.js?v=58';
 import { initSTT, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking, toggleMute, isTTSEnabled, onSpeakingStateChange, desbloqueaVoz } from './voice.js?v=4';
@@ -236,6 +236,35 @@ const epiGlowPlugin = {
     const ds = chart.data.datasets[args.index];
     const t = ds.type || chart.config.type;
     if (t === 'line' && ds.borderWidth && !(ds._grad && ds._grad.kind === 'area')) chart.ctx.restore();
+  },
+};
+
+// Línea del corte (mesa de gráficas, 25-nov-2026): marca la última semana observada y rotula lo que sigue como pronóstico.
+const epiCortePlugin = {
+  id: 'epiCorte',
+  afterDatasetsDraw(chart, _args, opts) {
+    const corte = opts?.corte;
+    const labels = chart.data.labels || [];
+    const i = corte ? labels.indexOf(corte) : -1;
+    if (i < 0 || i >= labels.length - 1 || !chart.scales.x) return;
+    const { ctx, chartArea } = chart;
+    const x = chart.scales.x.getPixelForValue(i);
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(x, chartArea.top);
+    ctx.lineTo(x, chartArea.bottom);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#8a9690';
+    ctx.stroke();
+    ctx.font = '600 11px system-ui';
+    ctx.fillStyle = '#40594f';
+    ctx.textBaseline = 'top';
+    const izq = ctx.measureText('último dato').width;
+    const der = ctx.measureText('pronóstico →').width;
+    if (x - chartArea.left > izq + 8) ctx.fillText('último dato', x - izq - 6, chartArea.top + 2);
+    // Si no cabe a la derecha del corte (pantallas angostas), se omite: los guiones ya distinguen el pronóstico.
+    if (chartArea.right - x > der + 8) ctx.fillText('pronóstico →', x + 6, chartArea.top + 2);
+    ctx.restore();
   },
 };
 
@@ -973,7 +1002,10 @@ async function routeQuery(text, typingEl) {
     if (needsCtx) {
       const parts = [];
       if (!ent.padecimiento && lastPad) parts.push(lastPad);
-      if (!ent.estado && lastEst && (isShortFollowUp || ent.padecimiento)) parts.push(`en ${lastEst}`);
+      // Mesa de gráficas (25-nov-2026): el estado heredado sólo si el texto de la respuesta también es de ese estado; si no, la
+      // gráfica era de Veracruz bajo un texto nacional.
+      const estadoEnTexto = lastEst && norm(result).includes(norm(lastEst));
+      if (!ent.estado && lastEst && estadoEnTexto && (isShortFollowUp || ent.padecimiento)) parts.push(`en ${lastEst}`);
       if (parts.length) chartQuery = `${parts.join(' ')} ${text}`;
     }
     if (ent.padecimiento) lastPad = ent.padecimiento;
@@ -1913,7 +1945,7 @@ function buildMexicoMap(data, qn) {
     }
     if (!Object.keys(stateData).length) return null;
     return { _mapChart: true, stateData, opts: {
-      title: 'Dengue (ambos sexos) - casos 52 sem',
+      title: 'Dengue (ambos sexos): casos pronosticados en 52 semanas',
       lowColor: [30, 60, 50], highColor: [244, 114, 182], metric: 'casos' } };
   }
 
@@ -1959,7 +1991,7 @@ function buildMexicoMap(data, qn) {
       : { lowColor: [30, 60, 50], highColor: [91, 141, 239], metric: 'casos' };
     const titleMode = mode === 'smape'
       ? 'SMAPE: ' + padLabel + ' (' + sexLabel + ')'
-      : padLabel + ' (' + sexLabel + ') - casos 52 sem';
+      : padLabel + ' (' + sexLabel + '): casos pronosticados en 52 semanas';
 
     return { _mapChart: true, stateData, opts: { title: titleMode, ...colorOpts } };
   }
@@ -2156,31 +2188,36 @@ function buildErrorHeatmap(data, qn) {
   const labels = seg0.map(w => `Sem ${w.semana} (h=${w.horizonte})`);
   const padColors = { Depresion: '#17644d', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
 
+  // Con un solo padecimiento, el color dice el signo (mesa de gráficas): naranja si el pronóstico quedó arriba de lo
+  // observado, azul si quedó abajo. Con varios, cada uno conserva su color.
+  const unico = filtered.length === 1;
   const datasets = filtered.map(pad => {
     const seg = semanasDeFase(wc[pad], 'seguimiento');
     const color = padColors[pad] || '#17644d';
+    const data = seg0.map(w0 => {
+      const w = seg.find(x => x.semana === w0.semana);
+      return w && w.estado === 'par' ? w.diferencia : null;  // un ausente queda vacío, no en cero
+    });
+    const porSigno = data.map((d) => (d == null ? '#c9d6cd' : d >= 0 ? '#eb6834' : '#2a78d6'));
     return {
-      label: pad,
-      data: seg0.map(w0 => {
-        const w = seg.find(x => x.semana === w0.semana);
-        return w && w.estado === 'par' ? w.diferencia : null;  // un ausente queda vacío, no en cero
-      }),
-      backgroundColor: color + '99',
-      borderColor: color,
-      borderWidth: 1.5,
+      label: unico ? `${dn(pad)}: pronóstico − observado` : dn(pad),
+      data,
+      backgroundColor: unico ? porSigno : color,
+      borderWidth: 0,
       borderRadius: 3,
     };
   });
 
   return {
     type: 'bar',
-    title: `${tituloSeguimiento(wc[filtered[0]])}: pronóstico − observado (nacional; diagnóstico, sin calificar)`,
+    title: [`${unico ? dn(filtered[0]) + ' · ' : ''}${tituloSeguimiento(wc[filtered[0]])}: pronóstico − observado (nacional)`,
+      unico ? 'Naranja: el pronóstico quedó arriba de lo observado · azul: quedó abajo · diagnóstico, sin calificar' : 'Diagnóstico, sin calificar'],
     labels,
     datasets,
     options: {
       scales: {
         x: { ticks: { font: { size: 10 } } },
-        y: { title: { display: true, text: 'Casos (pron. − obs.)', font: { size: 11, family: 'system-ui' }, color: '#7E92B6' } },
+        y: { title: { display: true, text: 'Casos: pronóstico − observado' } },
       },
     },
   };
@@ -2197,7 +2234,8 @@ function buildSeriesZoom(s, pad, estado, sexo) {
   const color = padColors[pad] || '#17644d';
   const estadoLbl = norm(estado) === 'mexico' ? 'Estado de México' : dn(estado);
   const sexoLbl = sexo === 'general' ? 'ambos sexos' : sexo;
-  const labels = s.d.map(iso => { const p = iso.split('-'); return `${p[1]}/${p[2].slice(0, 2)} ${p[0].slice(2)}`; });
+  const MESES_CORTOS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  const labels = s.d.map(iso => { const p = iso.split('-'); return `${Number(p[2].slice(0, 2))} ${MESES_CORTOS[Number(p[1]) - 1]} ${p[0].slice(2)}`; });
   const lastRealIdx = s.r.reduce((acc, v, i) => (v != null ? i : acc), -1);
   // Semana del boletín de la última observación, desde el seguimiento (el ISO del ds legado no lo es).
   const seg = Array.isArray(s.seguimiento) ? s.seguimiento : [];
@@ -2214,8 +2252,9 @@ function buildSeriesZoom(s, pad, estado, sexo) {
     // Banda del motor: el dataset superior rellena hacia el inferior (_lo). Ambos ocultos
     // de leyenda/tooltip (prefijo '_').
     datasets.push(
-      { label: '_hi', data: s.hi, borderColor: 'transparent', backgroundColor: color + '22', pointRadius: 0, fill: '+1', tension: 0.3, order: 4 },
-      { label: '_lo', data: s.lo, borderColor: 'transparent', backgroundColor: 'transparent', pointRadius: 0, fill: false, tension: 0.3, order: 4 },
+      // La banda se nombra en la leyenda (mesa de gráficas); en el tooltip no, para no leer el límite como un pronóstico.
+      { label: `Intervalo del motor (${Math.round((s.intervalo_nivel_nominal || 0.9) * 100)} % nominal)`, _banda: true, data: s.hi, borderColor: 'transparent', backgroundColor: color + '33', pointRadius: 0, fill: '+1', tension: 0, order: 4 },
+      { label: '_lo', _banda: true, data: s.lo, borderColor: 'transparent', backgroundColor: 'transparent', pointRadius: 0, fill: false, tension: 0, order: 4 },
     );
   }
   datasets.push(
@@ -2391,11 +2430,14 @@ function buildTrendChart(data, qn) {
   // Semanas reales disponibles en 2026
   const semsReales = Object.values(wc)[0]?.semanas?.filter(s => s.real != null).length || 0;
 
-  // Labels: 2014...2025, "2026 (proy.)", "Ene 2027"
+  // Labels: 2014...2025, "2026 (proy.)", "Ene 2027". Sin proyección (series estatales), el año en curso se rotula como parcial
+  // para que no se lea como una caída (mesa de gráficas, 25-nov-2026).
+  const ult = data.boletin?.ultima_semana;
+  const parcial = ult && String(ult.anio) === lastYear ? lastYear : null;
   const yearsComplete = hasProjection ? allYears.slice(0, -1) : [...allYears];
   const labels = hasProjection
     ? [...yearsComplete, `2026 (vamos S${String(semsReales).padStart(2,'0')})`, 'Ene 2027']
-    : [...allYears];
+    : allYears.map((y) => (y === parcial ? `${y} (parcial, hasta sem. ${ult.semana})` : y));
   const iProj26 = yearsComplete.length;     // "2026 (vamos S08)"
   const iEnd27  = yearsComplete.length + 1; // "Ene 2027"
   const nLabels = labels.length;
@@ -2419,9 +2461,9 @@ function buildTrendChart(data, qn) {
         data: solidData,
         borderColor: color,
         backgroundColor: color + '22',
-        fill: true,
-        tension: 0.3,
-        borderWidth: 3,
+        fill: false,
+        tension: 0,
+        borderWidth: 2,
         pointRadius: 4,
         pointBackgroundColor: color,
         spanGaps: false,
@@ -2438,9 +2480,9 @@ function buildTrendChart(data, qn) {
         data: dashedData,
         borderColor: color,
         backgroundColor: color + '0A',
-        fill: '-1',
-        tension: 0.3,
-        borderWidth: 3,
+        fill: false,
+        tension: 0,
+        borderWidth: 2,
         borderDash: [10, 6],
         pointRadius: dashedData.map((v, j) => {
           if (j === iProj26) return 6;
@@ -2454,20 +2496,37 @@ function buildTrendChart(data, qn) {
       });
     } else {
       datasets.push({
-        label: pad,
-        data: allYears.map(y => padData[y] || 0),
+        label: dn(pad),
+        data: allYears.map(y => padData[y] ?? null),
         borderColor: color,
         backgroundColor: color + '22',
-        fill: true,
-        tension: 0.4,
-        borderWidth: 3,
-        pointRadius: 4,
-        pointBackgroundColor: color,
+        fill: false,
+        tension: 0,
+        borderWidth: 2,
+        pointRadius: allYears.map((y) => (y === parcial ? 6 : 4)),
+        pointBackgroundColor: allYears.map((y) => (y === parcial ? '#ffffff' : color)),
+        pointBorderColor: color,
+        segment: { borderDash: (ctx) => (allYears[ctx.p1DataIndex] === parcial ? [6, 4] : undefined) },
       });
     }
   });
 
-  return { type: 'line', title: `Evolución histórica de incidencia${estadoLabel ? ' — ' + estadoLabel : ''}`, labels, datasets };
+  return { type: 'line', title: `Casos notificados por año${estadoLabel ? ' — ' + estadoLabel : ' — nacional'}${parcial ? ` (${parcial} hasta la semana ${ult.semana})` : ''}`, labels, datasets,
+    options: { scales: { y: { beginAtZero: true, title: { display: true, text: 'Casos notificados en el año' } } } } };
+}
+
+/** Reparto de motores productivos de la cohorte neurológica: una sola variable, un solo color. */
+function distribucionMotores(data) {
+  const dm = Object.entries(data?.stats?.dist_motor || {}).sort((a, b) => b[1] - a[1]);
+  if (!dm.length) return null;
+  const total = dm.reduce((a, [, n]) => a + n, 0);
+  return {
+    type: 'bar',
+    title: `Series productivas por motor (Depresión, Parkinson y Alzheimer: ${total} series)`,
+    labels: dm.map(([m]) => m),
+    datasets: [{ label: 'Series', data: dm.map(([, n]) => n), backgroundColor: '#2a78d6', borderRadius: 6 }],
+    options: { scales: { y: { beginAtZero: true, title: { display: true, text: 'Series' } } } },
+  };
 }
 
 /**
@@ -2934,12 +2993,14 @@ function buildDengueAnual(data) {
   if (!anual) return null;
   const years = Object.keys(anual).sort();
   if (!years.length) return null;
-  const peak = new Set(['2014', '2019', '2024']);
-  const colors = years.map((y) => (peak.has(y) ? '#F472B6' : '#2DD4BF'));
+  // Un solo color (los años de brote en rosa no tenían leyenda) y el año en curso, más claro y rotulado como parcial.
+  const ult = data.boletin?.ultima_semana;
+  const parcial = ult && years.includes(String(ult.anio)) ? String(ult.anio) : null;
+  const colors = years.map((y) => (y === parcial ? '#9cc0ea' : '#2a78d6'));
   return {
     type: 'bar',
-    title: 'Dengue confirmado por año en México (2014-2026)',
-    labels: years,
+    title: `Dengue confirmado por año en México (${years[0]}-${years.at(-1)})${parcial ? ` · ${parcial} hasta la semana ${ult.semana}` : ''}`,
+    labels: years.map((y) => (y === parcial ? `${y} (parcial)` : y)),
     datasets: [{
       label: 'Casos confirmados en el año',
       data: years.map((y) => anual[y]),
@@ -3114,20 +3175,8 @@ function extractChartData(markdown, query) {
   if (qn.includes('comparativa') || qn.includes('motor') && (qn.includes('gana') || qn.includes('comparar'))) {
     const pm = s.por_motor;
     // Retiradas: en vez del SMAPE por motor, las series en que cada motor quedó productivo.
-    if (metricasRetiradas(data) && s.dist_motor && Object.keys(s.dist_motor).length) {
-      const dm = Object.entries(s.dist_motor).sort((a, b) => b[1] - a[1]);
-      return {
-        type: 'bar',
-        title: 'Series productivas por motor',
-        labels: dm.map(([m]) => m),
-        datasets: [{
-          label: 'Series',
-          data: dm.map(([, n]) => n),
-          backgroundColor: CHART_COLORS.slice(0, dm.length),
-          borderRadius: 6,
-        }],
-      };
-    }
+    const dist = metricasRetiradas(data) ? distribucionMotores(data) : null;
+    if (dist) return dist;
     if (!metricasRetiradas(data) && pm && Object.keys(pm).length) {
       return {
         type: 'bar',
@@ -3167,7 +3216,7 @@ function extractChartData(markdown, query) {
       return {
         type: 'bar',
         horizontal: true,
-        title: 'Top 10 entidades por incidencia',
+        title: 'Top 10 entidades por casos pronosticados (sin ajustar por población)',
         labels: top10.map(r => r.entidad),
         datasets: [{
           label: 'Casos',
@@ -3232,6 +3281,9 @@ function extractChartData(markdown, query) {
       (qn.includes('mejor motor') || qn.includes('cual motor'))) {
     const chart = buildRadarChart(data);
     if (chart) return chart;
+    // Con las métricas retiradas no hay radar: se muestra el reparto de motores, nunca otra gráfica (antes caía en la tendencia).
+    const dist = distribucionMotores(data);
+    return dist || null;
   }
 
   // Matriz de rendimiento (bubble)
@@ -3781,18 +3833,19 @@ function extractChartData(markdown, query) {
 function tablaDeGrafica(canvas, chartData) {
   const cont = canvas.parentNode;
   if (!cont || cont.nextElementSibling?.classList?.contains('chart-datos')) return;
-  const ds = (chartData.datasets || []).filter((d) => !String(d.label || '').startsWith('_') && Array.isArray(d.data));
+  const nombreSerie = (d) => (d._banda && d.label !== '_lo' ? 'Límite superior del intervalo del motor' : d.label === '_lo' ? 'Límite inferior del intervalo del motor' : String(d.label || 'Valor'));
+  const ds = (chartData.datasets || []).filter((d) => (!String(d.label || '').startsWith('_') || ['_hi', '_lo'].includes(d.label)) && Array.isArray(d.data));
   const labels = Array.isArray(chartData.labels) ? chartData.labels : [];
   if (!ds.length || !labels.length || ['bubble', 'scatter'].includes(chartData.type)) return;
   const fmt = (v) => { const y = v && typeof v === 'object' ? v.y : v; return typeof y === 'number' && Number.isFinite(y) ? y.toLocaleString('es-MX', { maximumFractionDigits: 1 }) : '—'; };
-  const filas = labels.map((l, i) => [String(l), ...ds.map((d) => fmt(d.data[i]))]).slice(-120);
+  const filas = labels.map((l, i) => [String(l), ...ds.map((d) => fmt(d.data[i]))]);
   const det = document.createElement('details');
   det.className = 'chart-datos';
   const sum = document.createElement('summary');
   sum.textContent = 'Ver los datos de la gráfica en tabla';
   const tabla = document.createElement('table');
   const thead = tabla.createTHead().insertRow();
-  for (const h of ['', ...ds.map((d) => String(d.label || 'Valor'))]) { const th = document.createElement('th'); th.textContent = h; thead.appendChild(th); }
+  for (const h of ['', ...ds.map(nombreSerie)]) { const th = document.createElement('th'); th.textContent = h; thead.appendChild(th); }
   const tb = tabla.createTBody();
   for (const f of filas) { const tr = tb.insertRow(); f.forEach((x) => { tr.insertCell().textContent = x; }); }
   det.append(sum, tabla);
@@ -3815,7 +3868,8 @@ function renderChart(canvasId, chartData) {
   const config = {
     type: chartData.type,
     data: { labels: chartData.labels, datasets: chartData.datasets },
-    plugins: [epiGradientPlugin, epiGlowPlugin, epiCrosshairPlugin, epiDoughnutCenterPlugin, epiBoxPlotPlugin],
+    // Sin resplandor bajo las líneas (mesa de gráficas, 25-nov-2026: engrosaba el trazo y restaba nitidez).
+    plugins: [epiGradientPlugin, epiCrosshairPlugin, epiDoughnutCenterPlugin, epiBoxPlotPlugin, epiCortePlugin],
     options: {
       responsive: true,
       maintainAspectRatio: false,  // Llenan el contenedor; canvas controla el tamaño vía CSS
@@ -3823,7 +3877,7 @@ function renderChart(canvasId, chartData) {
       interaction: (chartData.type === 'bubble' || chartData.type === 'scatter')
         ? { mode: 'nearest', intersect: true }
         : { mode: 'index', intersect: false },
-      animation: { duration: 850, easing: 'easeOutQuart' },
+      animation: (typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches) ? false : { duration: 600, easing: 'easeOutQuart' },
       plugins: {
         title: {
           display: true,
@@ -3848,13 +3902,14 @@ function renderChart(canvasId, chartData) {
           },
         },
         tooltip: {
-          filter: (item) => !String((item.dataset && item.dataset.label) || '').startsWith('_'),
-          backgroundColor: 'rgba(14, 20, 36, 0.96)',
-          titleColor: '#3c8267',
+          filter: (item) => !String((item.dataset && item.dataset.label) || '').startsWith('_') && !(item.dataset && item.dataset._banda),
+          // Tooltip claro con tinta oscura (antes fondo casi negro con letra verde oscura: ilegible).
+          backgroundColor: '#ffffff',
+          titleColor: '#173c33',
           titleFont: { size: 13, weight: '700', family: 'system-ui' },
           bodyColor: '#173c33',
           bodyFont: { size: 12, family: 'system-ui' },
-          borderColor: 'rgba(91, 141, 239, 0.45)',
+          borderColor: '#c9d6cd',
           borderWidth: 1,
           cornerRadius: 10,
           padding: 12,
@@ -3952,7 +4007,8 @@ function renderChart(canvasId, chartData) {
       if (ds.borderWidth == null) ds.borderWidth = 2.5;
       if (ds.pointRadius == null) ds.pointRadius = 0;
       if (ds.pointHoverRadius == null) ds.pointHoverRadius = 6;
-      if (ds.tension == null) ds.tension = 0.32;
+      // Sin suavizado: una curva entre semanas dibuja valores que no existen (mesa de gráficas).
+      if (ds.tension == null) ds.tension = 0;
       if (ds.borderCapStyle == null) ds.borderCapStyle = 'round';
       if (ds.borderJoinStyle == null) ds.borderJoinStyle = 'round';
       if (ds.pointHoverBackgroundColor == null) ds.pointHoverBackgroundColor = ds.borderColor;
@@ -3983,8 +4039,8 @@ function renderChart(canvasId, chartData) {
         if (opts.title) {
           target.title = {
             ...opts.title,
-            font: { size: 12, family: 'system-ui' },
-            color: '#7E92B6',
+            font: { size: 12, family: 'system-ui', weight: '600' },
+            color: '#40594f',
           };
         }
       }
@@ -3998,6 +4054,35 @@ function renderChart(canvasId, chartData) {
       Object.assign(config.options.plugins, chartData.options.plugins);
     }
   }
+  // Tinta del sitio en títulos aunque el constructor traiga otra (los del runner traían un gris casi blanco del tema oscuro).
+  const tt = config.options.plugins.title;
+  if (tt) { tt.color = '#173c33'; tt.font = { size: 14, weight: '700', ...(tt.font || {}), family: 'system-ui' }; }
+  const lg = config.options.plugins.legend;
+  if (lg?.labels) lg.labels.color = '#40594f';
+  // Fechas ISO en el eje: «ene 2025» al inicio de cada mes (cada 2, 3 o 6 meses en series largas), sin girar.
+  const fechas = Array.isArray(chartData.labels) && chartData.labels.length > 12 && chartData.labels.every((l) => /^\d{4}-\d{2}-\d{2}$/.test(String(l)));
+  if (fechas && !isHorizontal && config.options.scales.x) {
+    const MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    const meses = new Set(chartData.labels.map((l) => l.slice(0, 7))).size;
+    const paso = meses > 30 ? 6 : meses > 14 ? 3 : meses > 6 ? 2 : 1;
+    // Índices a rotular, calculados una vez: inicio de mes (cada `paso` meses) y nunca dos rótulos a menos de 1/14 del eje.
+    const L = chartData.labels;
+    const ancho = (canvas.parentNode && canvas.parentNode.clientWidth) || 640;
+    const separacion = Math.max(2, Math.ceil(L.length / Math.max(3, Math.floor(ancho / 72))));
+    const rotulos = new Map();
+    let ultimoI = -Infinity;
+    L.forEach((l, i) => {
+      if (i > 0 && L[i - 1].slice(0, 7) === l.slice(0, 7)) return;
+      const m = Number(l.slice(5, 7)) - 1;
+      if (m % paso !== 0 || i - ultimoI < separacion || L.length - 1 - i < separacion / 2) return;
+      rotulos.set(i, `${MES[m]} ${l.slice(0, 4)}`);
+      ultimoI = i;
+    });
+    const xs = config.options.scales.x;
+    xs.ticks = { ...(xs.ticks || {}), autoSkip: false, maxRotation: 0, callback: (v, i) => rotulos.get(i) || '' };
+  }
+  if (chartData.corte) config.options.plugins.epiCorte = { corte: chartData.corte };
+  if (chartData.altura && canvas.parentNode) canvas.parentNode.style.height = `${chartData.altura}px`;
 
   new Chart(canvas, config);
 }

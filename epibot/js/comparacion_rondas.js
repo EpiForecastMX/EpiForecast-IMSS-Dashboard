@@ -35,14 +35,19 @@ export function graficoRondas(data, pad, ventana = 'anio') {
   return {
     type: 'line', title: `${pad === 'Depresion' ? 'Depresión' : pad} · comparación de rondas`,
     labels: rows.map(w => `Sem ${w.semana}`),
+    // Mesa de gráficas (25-nov-2026): la «ronda anterior» une dos cosas distintas y se separan: W7–W23 es una reconstrucción
+    // retrospectiva (sin archivo emitido) y W24 en adelante el pronóstico archivado el 5 de junio. Dengue sólo tiene archivo.
     datasets: [
-      { label: 'Observado', data: rows.map(w => w.real), borderColor: '#5B8DEF',
-        backgroundColor: '#5B8DEF', pointRadius: 3, tension: 0, spanGaps: false },
-      { label: 'Ronda anterior', motor: s.motor_anterior,
-        data: rows.map(w => w.anterior), borderColor: '#E7B65A', backgroundColor: '#E7B65A',
-        borderDash: [6,4], pointRadius: 2, tension: 0, spanGaps: false },
+      { label: 'Observado', data: rows.map(w => w.real), borderColor: '#2a78d6',
+        backgroundColor: '#2a78d6', pointRadius: 3, borderWidth: 2, tension: 0, spanGaps: false },
+      ...(pad === 'Dengue' ? [] : [{ label: 'Anterior: retrospectiva', motor: s.motor_anterior,
+        data: rows.map(w => (w.semana <= 23 ? w.anterior : null)), borderColor: '#9a5a3c', backgroundColor: '#9a5a3c',
+        borderDash: [2, 3], pointRadius: 2, borderWidth: 2, tension: 0, spanGaps: false }]),
+      { label: 'Anterior: archivada', motor: s.motor_anterior,
+        data: rows.map(w => (pad === 'Dengue' || w.semana >= 24 ? w.anterior : null)), borderColor: '#eb6834', backgroundColor: '#eb6834',
+        borderDash: [6,4], pointRadius: 2, borderWidth: 2, tension: 0, spanGaps: false },
       { label: 'Actual · W37', motor: s.motor_actual, data: rows.map(w => w.actual),
-        borderColor: '#2DD4BF', backgroundColor: '#2DD4BF', pointRadius: 6, borderWidth: 3,
+        borderColor: '#1baf7a', backgroundColor: '#1baf7a', pointRadius: 3, borderWidth: 2,
         tension: 0, spanGaps: false },
     ],
     options: {
@@ -50,10 +55,10 @@ export function graficoRondas(data, pad, ventana = 'anio') {
         ...rangoGrafico(rows.flatMap(w=>[w.real,w.anterior,w.actual]),ventana==='actual'),
         ticks:{precision:0,callback:formatoCasos} } },
       plugins: {
-        title:{display:true,text:[`${pad === 'Depresion' ? 'Depresión' : pad} · nacional`, 'Comparación de rondas 2026'],
-          color:'#E7ECF5',font:{size:14,weight:'700',family:'Outfit'},align:'start',padding:{bottom:8}},
-        legend:{position:'bottom',align:'start',labels:{color:'#B8C8E2',usePointStyle:true,
-          boxWidth:8,padding:10,font:{size:11,family:'Outfit'}}},
+        title:{display:true,text:[`${pad === 'Depresion' ? 'Depresión' : pad} · nacional`, 'Comparación de rondas 2026', pad === 'Dengue' ? 'Anterior: archivo de junio' : 'Retro W7–23 · archivo W24+'],
+          color:'#173c33',font:{size:14,weight:'700',family:'system-ui'},align:'start',padding:{bottom:8}},
+        legend:{position:'bottom',align:'start',labels:{color:'#40594f',usePointStyle:false,
+          boxWidth:22,padding:10,font:{size:12,family:'system-ui'}}},
         tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}${ctx.dataset.motor ? ` (${ctx.dataset.motor})` : ''}: ${formatoCasos(ctx.parsed.y)}`}},
       },
     },

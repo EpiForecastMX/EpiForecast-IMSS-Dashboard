@@ -47,9 +47,14 @@ test('las fechas del horizonte son las oficiales, sin desplazar el corte al últ
 
 test('el gráfico marca W38–W44 y no conecta ausencias ni muestra ajuste W1–W37', () => {
   const c=graficoRondas(data,'Depresion');
-  assert.equal(c.datasets[2].data.filter(Number.isFinite).length,7);
-  assert.equal(c.datasets[2].pointRadius,6);
-  assert.equal(c.datasets[2].spanGaps,false);
+  const actual=c.datasets.find(d=>d.label==='Actual · W37');
+  assert.equal(actual.data.filter(Number.isFinite).length,7);
+  assert.ok(actual.pointRadius<=4, 'marcadores discretos (mesa de gráficas)');
+  assert.equal(actual.spanGaps,false);
+  // Mesa de gráficas (25-nov-2026): la ronda anterior se separa en reconstrucción retrospectiva (W7–W23) y archivo (W24+).
+  const retro=c.datasets.find(d=>d.label==='Anterior: retrospectiva'), arch=c.datasets.find(d=>d.label==='Anterior: archivada');
+  assert.ok(retro && arch);
+  c.labels.forEach((l,i)=>{ const w=Number(l.replace('Sem ','')); if(w>=24) assert.equal(retro.data[i],null); if(w<=23) assert.equal(arch.data[i],null); });
   assert.deepEqual(graficoRondas(data,'Depresion','actual').labels,['Sem 38','Sem 39','Sem 40','Sem 41','Sem 42','Sem 43','Sem 44']);
 });
 

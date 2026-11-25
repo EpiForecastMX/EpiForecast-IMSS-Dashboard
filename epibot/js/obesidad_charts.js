@@ -109,7 +109,22 @@ export const ALTERNATIVAS = alternativas(RELEASES[0]);
 // --- utilidades -------------------------------------------------------------
 
 const SEXO_NOMBRE = { general: 'ambos sexos', hombres: 'hombres', mujeres: 'mujeres' };
-const PALETA = ['#F59E0B', '#5B8DEF', '#2DD4BF', '#F472B6', '#A78BFA', '#FF8F4F'];
+// Paleta categórica validada para fondo claro (mesa de gráficas, 25-nov-2026; validate_palette.js: CVD y visión normal PASS,
+// tres tonos bajo 3:1 compensados con leyenda y tabla). Orden fijo: el color sigue a la entidad, nunca al rango.
+const PALETA = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300'];
+/** Un color de trazo con contraste de al menos 3:1 sobre blanco: los tonos claros del catálogo (lima, rosa) se oscurecen. */
+export function legible(hex, minimo = 3) {
+  const m = /^#?([0-9a-f]{6})/i.exec(String(hex || ''));
+  if (!m) return hex;
+  let [r, g, b] = [0, 2, 4].map((i) => parseInt(m[1].slice(i, i + 2), 16));
+  const lum = (c) => { const x = c / 255; return x <= 0.03928 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4; };
+  const contraste = () => 1.05 / (0.2126 * lum(r) + 0.7152 * lum(g) + 0.0722 * lum(b) + 0.05);
+  for (let i = 0; i < 20 && contraste() < minimo; i++) { r = Math.round(r * 0.9); g = Math.round(g * 0.9); b = Math.round(b * 0.9); }
+  return `#${[r, g, b].map((c) => c.toString(16).padStart(2, '0')).join('')}`;
+}
+const GRIS_CONTROL = '#6b6f73';
+/** Control estacional: el portafolio se rechazó y se publica lo ocurrido un año antes (nunca validado). */
+const esControlV = (v) => !!v?.caida_al_control || v?.portafolio_igual_al_control === true;
 
 function estados(v, sexo) {
   return Object.values(v.series).filter((x) => x.nivel === 'estado' && x.sexo === sexo);
@@ -143,13 +158,18 @@ export function estadosEnConsulta(v, qn) {
 }
 
 const et = (v) => (releaseDeId(v.disease_id) || RELEASES[0]).etiqueta;
-const colorDe = (v) => releaseDeId(v.disease_id)?.color || v.color || PALETA[0];
+const colorDe = (v) => legible(releaseDeId(v.disease_id)?.color || v.color || PALETA[0]);
 const lugarDe = (x) => (x.nivel === 'nacional' ? 'Nacional' : x.nombre);
 const semana = ([a, w]) => `${a}-W${String(w).padStart(2, '0')}`;
 
+// Título en tinta oscura (antes un gris casi blanco del tema oscuro, invisible sobre el fondo claro del EpiBot).
 function titulo(lineas) {
-  return { title: { display: true, text: lineas, font: { size: 13, weight: '700', family: 'Outfit' }, color: '#E7ECF5', align: 'start', padding: { bottom: 10, top: 4 } } };
+  return { title: { display: true, text: lineas, font: { size: 13, weight: '700', family: 'system-ui' }, color: '#173c33', align: 'start', padding: { bottom: 10, top: 4 } } };
 }
+const EJE_Y_SEMANAL = { y: { title: { display: true, text: 'Casos notificados por semana' } } };
+// Leyenda corta (en celular la larga se cortaba); la explicación completa va en la tercera línea del título.
+const leyendaPron = (v) => (esControlV(v) ? 'Control, no validado' : `Pronóstico (origen ${semana(v.origin)})`);
+const notaPron = (v) => (esControlV(v) ? 'Control estacional (repite el año anterior), no validado · sin intervalos' : 'Pronóstico puntual, sin intervalos');
 
 function lineaObsPron(v, x, desde, hasta, color) {
   const obs = new Map(x.observado);
@@ -158,36 +178,38 @@ function lineaObsPron(v, x, desde, hasta, color) {
   return {
     labels,
     datasets: [
-      { label: 'Observado', data: labels.map((d) => obs.get(d) ?? null), borderColor: color, backgroundColor: color + '22', borderWidth: 2.5, pointRadius: 0, tension: 0.25, spanGaps: false, order: 1 },
-      { label: `Pronóstico congelado (origen ${semana(v.origin)})`, data: labels.map((d) => pron.get(d) ?? null), borderColor: color + '99', borderDash: [8, 5], borderWidth: 2, pointRadius: 0, tension: 0.25, spanGaps: false, order: 2 },
+      { label: 'Observado', data: labels.map((d) => obs.get(d) ?? null), borderColor: color, backgroundColor: color + '22', borderWidth: 2, pointRadius: 0, tension: 0, spanGaps: false, order: 1 },
+      { label: leyendaPron(v), data: labels.map((d) => pron.get(d) ?? null), borderColor: esControlV(v) ? GRIS_CONTROL : color, borderDash: [7, 5], borderWidth: 2, pointRadius: 0, tension: 0, spanGaps: false, order: 2 },
     ],
+    corte: x.observado.length ? x.observado.at(-1)[0] : null,
   };
 }
 
 function lineal(v, x, desde, hasta, encabezado) {
   const color = colorDe(v);
-  const { labels, datasets } = lineaObsPron(v, x, desde, hasta, color);
+  const { labels, datasets, corte } = lineaObsPron(v, x, desde, hasta, color);
   return {
     type: 'line',
     title: `${et(v)} · ${lugarDe(x)} · ${x.sexo_nombre}: ${encabezado}`,
     labels,
     datasets,
-    options: { plugins: titulo([`${et(v)} · ${lugarDe(x)} · ${x.sexo_nombre}`, encabezado, 'Pronóstico puntual, sin intervalos']) },
+    corte,
+    options: { plugins: titulo([`${et(v)} · ${lugarDe(x)} · ${x.sexo_nombre}`, encabezado, notaPron(v)]), scales: EJE_Y_SEMANAL },
   };
 }
 
-function barrasEstados(v, filas, valor, etiqueta, encabezado, color) {
+// Una sola serie, un solo color (los tres colores por umbral no tenían leyenda). Los 32 nombres se ven: altura por fila.
+function barrasEstados(v, filas, valor, etiqueta, encabezado, nota) {
   return {
     type: 'bar',
     horizontal: true,
     title: `${et(v)}: ${encabezado}`,
-    labels: filas.map((x) => x.nombre),
-    datasets: [{ label: etiqueta, data: filas.map(valor), backgroundColor: filas.map((x) => (color ? color(x) : PALETA[0]) + 'CC'), borderColor: filas.map((x) => (color ? color(x) : PALETA[0])), borderWidth: 1, borderRadius: 4 }],
-    options: { plugins: titulo([`${et(v)}: ${encabezado}`]) },
+    labels: filas.map((x) => (x.nombre === 'México' ? 'Estado de México' : x.nombre)),
+    datasets: [{ label: etiqueta, data: filas.map(valor), backgroundColor: PALETA[0], borderWidth: 0, borderRadius: 4 }],
+    altura: filas.length * 22 + 110,
+    options: { plugins: titulo([`${et(v)}: ${encabezado}`, ...(nota ? [nota] : [])]), scales: { y: { ticks: { autoSkip: false } }, x: { title: { display: true, text: etiqueta } } } },
   };
 }
-
-const colorError = (s) => (s <= 20 ? '#5B8DEF' : s <= 40 ? '#2DD4BF' : '#F472B6');
 
 // --- constructor ------------------------------------------------------------
 
@@ -229,17 +251,20 @@ export function graficaObesidad(v, qn, ent = {}, opciones = {}) {
       };
     }
     return { _mapChart: true, stateData, opts: {
-      title: error ? `${et(v)}, ${SEXO_NOMBRE[sexo]}: sMAPE ${oos}` : `${et(v)}, ${SEXO_NOMBRE[sexo]}: casos pronosticados en ${v.horizon_weeks} semanas`,
-      lowColor: [30, 60, 50], highColor: error ? [244, 114, 182] : [245, 158, 11], metric: error ? 'sMAPE %' : 'casos' } };
+      title: error ? `${et(v)}, ${SEXO_NOMBRE[sexo]}: sMAPE ${oos}`
+        : `${et(v)}, ${SEXO_NOMBRE[sexo]}: casos ${esControlV(v) ? 'del control estacional' : 'pronosticados'} en ${v.horizon_weeks} semanas (sin ajustar por población)`,
+      metric: error ? 'sMAPE %' : 'casos' } };
   }
   if (tipo === 'entidades') {
     const filas = estados(v, sexo).sort((a, b) => b.pronostico_52_total - a.pronostico_52_total);
-    return barrasEstados(v, filas, (e) => Math.round(e.pronostico_52_total), `Casos (${v.horizon_weeks} sem)`, `casos pronosticados por estado, ${SEXO_NOMBRE[sexo]}`);
+    return barrasEstados(v, filas, (e) => Math.round(e.pronostico_52_total), `Casos en ${v.horizon_weeks} semanas`, `casos ${esControlV(v) ? 'del control estacional' : 'pronosticados'} por estado, ${SEXO_NOMBRE[sexo]}`, 'Casos notificados, sin ajustar por población');
   }
   if (tipo === 'ranking') {
     const filas = estados(v, sexo).filter((e) => e.oos.smape != null).sort((a, b) => a.oos.smape - b.oos.smape);
     if (!filas.length) return null;
-    return barrasEstados(v, filas, (e) => e.oos.smape, 'sMAPE %', `sMAPE por estado (${oos}), ${SEXO_NOMBRE[sexo]}`, (e) => colorError(e.oos.smape));
+    const n = Math.max(...filas.map((e) => e.oos.semanas || 0));
+    return barrasEstados(v, filas, (e) => e.oos.smape, 'sMAPE (%)', `sMAPE por estado (${oos}), ${SEXO_NOMBRE[sexo]}`,
+      `Error de ${n} ${n === 1 ? 'semana comprobada' : 'semanas comprobadas'}${n < 4 ? ': muy pocas para ordenar con seguridad' : ''}; menor es mejor`);
   }
   if (tipo === 'calibracion' || tipo === 'volumen_error') {
     const filas = estados(v, sexo).filter((e) => e.oos.semanas);
@@ -248,7 +273,7 @@ export function graficaObesidad(v, qn, ent = {}, opciones = {}) {
     const puntos = filas.map((e) => (cal ? { x: e.oos.pronostico_total, y: e.oos.observado_total, nombre: e.nombre } : { x: e.oos.observado_total, y: e.oos.smape, nombre: e.nombre }));
     const datasets = [{ label: 'Estados', data: puntos, backgroundColor: colorDe(v) + 'AA', borderColor: colorDe(v), pointRadius: 5, pointHoverRadius: 8 }];
     const lim = Math.max(...puntos.map((p) => Math.max(p.x, p.y))) * 1.05;
-    if (cal) datasets.push({ label: 'Pronóstico perfecto', type: 'line', data: [{ x: 0, y: 0 }, { x: lim, y: lim }], borderColor: 'rgba(226, 232, 245, 0.5)', borderDash: [6, 6], borderWidth: 1.5, pointRadius: 0, showLine: true, fill: false });
+    if (cal) datasets.push({ label: 'Pronóstico perfecto', type: 'line', data: [{ x: 0, y: 0 }, { x: lim, y: lim }], borderColor: '#8a9690', borderDash: [6, 6], borderWidth: 1.5, pointRadius: 0, showLine: true, fill: false });
     const enc = cal ? `calibración por estado (${oos})` : `volumen observado frente a sMAPE (${oos})`;
     return {
       type: 'scatter', title: `${et(v)}: ${enc}`, datasets,
@@ -258,35 +283,65 @@ export function graficaObesidad(v, qn, ent = {}, opciones = {}) {
     };
   }
   if (tipo === 'acumulado') {
-    const obs = new Map(x.observado);
-    // Los puntos vienen a un decimal: se acumulan en décimas enteras para que el último punto sea
-    // exactamente el total publicado (pronostico_52_total), sin error de coma flotante.
-    let a = 0; let b = 0;
-    const labels = x.pronostico.map(([d]) => d);
-    const pron = x.pronostico.map(([, y]) => Math.round((a += Math.round(y * 10)) / 10));
-    const real = labels.map((d) => (obs.has(d) ? Math.round((b += obs.get(d))) : null));
+    // Mesa de gráficas: «acumulado de 2026» dibujaba el acumulado del pronóstico hasta 2027 y el observado quedaba invisible.
+    // Ahora: el año pedido (o el del último dato), observado acumulado desde el 1 de enero hasta el último dato (sólido) y su
+    // continuación con el pronóstico hasta fin de ese año (guiones). Décimas enteras para no arrastrar error de coma flotante.
+    const ultimo = x.observado.at(-1)?.[0];
+    const anioQ = (String(qn).match(/\b(202[3-9])\b/) || [])[1];
+    // Sin año en la pregunta, el texto da el acumulado del pronóstico desde el origen: la gráfica dice lo mismo.
+    if (!anioQ) {
+      const obs = new Map(x.observado);
+      let a0 = 0; let b0 = 0;
+      const labels0 = x.pronostico.map(([d]) => d);
+      const pron0 = x.pronostico.map(([, y]) => Math.round((a0 += Math.round(y * 10)) / 10));
+      const real0 = labels0.map((d) => (obs.has(d) ? Math.round((b0 += obs.get(d))) : null));
+      const nObs = real0.filter((y) => y != null).length;
+      const color0 = colorDe(v);
+      return {
+        type: 'line', title: `${et(v)} · ${lugarDe(x)} · ${x.sexo_nombre}: acumulado desde el origen`, labels: labels0,
+        corte: nObs ? labels0[real0.map((y) => y != null).lastIndexOf(true)] : null,
+        datasets: [
+          ...(nObs ? [{ label: 'Observado acumulado', data: real0, borderColor: color0, borderWidth: 2, pointRadius: nObs < 4 ? 4 : 0, tension: 0, spanGaps: false }] : []),
+          { label: esControlV(v) ? 'Control estacional acumulado (no validado)' : 'Pronóstico acumulado', data: pron0, borderColor: esControlV(v) ? GRIS_CONTROL : color0, borderDash: [7, 5], borderWidth: 2, pointRadius: 0, tension: 0 },
+        ],
+        options: { plugins: titulo([`${et(v)} · ${lugarDe(x)} · ${x.sexo_nombre}`, `Acumulado de ${v.horizon_weeks} semanas desde ${labels0[0]}`, notaPron(v)]),
+          scales: { y: { beginAtZero: true, title: { display: true, text: 'Casos acumulados' } } } },
+      };
+    }
+    const anio = anioQ;
+    const obsAnio = x.observado.filter(([d]) => d.startsWith(anio));
+    const pronResto = x.pronostico.filter(([d]) => d.startsWith(anio) && (!ultimo || d > ultimo));
+    if (!obsAnio.length && !pronResto.length) return null;
+    const labels = [...obsAnio.map(([d]) => d), ...pronResto.map(([d]) => d)];
+    let a = 0;
+    const real = obsAnio.map(([, y]) => Math.round((a += Math.round(y * 10)) / 10));
+    const cont = [...new Array(Math.max(obsAnio.length - 1, 0)).fill(null), ...(obsAnio.length ? [real.at(-1)] : []),
+      ...pronResto.map(([, y]) => Math.round((a += Math.round(y * 10)) / 10))];
     const color = colorDe(v);
     return {
-      type: 'line', title: `${et(v)} · ${lugarDe(x)} · ${x.sexo_nombre}: acumulado desde el origen`, labels,
+      type: 'line', title: `${et(v)} · ${lugarDe(x)} · ${x.sexo_nombre}: casos acumulados en ${anio}`, labels,
+      corte: obsAnio.length ? obsAnio.at(-1)[0] : null,
       datasets: [
-        { label: 'Observado acumulado', data: real, borderColor: color, borderWidth: 2.5, pointRadius: 0, spanGaps: false },
-        { label: 'Pronóstico acumulado', data: pron, borderColor: color + '99', borderDash: [8, 5], borderWidth: 2, pointRadius: 0 },
+        { label: `Observado acumulado en ${anio}`, data: [...real, ...pronResto.map(() => null)], borderColor: color, borderWidth: 2, pointRadius: 0, tension: 0, spanGaps: false },
+        ...(pronResto.length ? [{ label: `${esControlV(v) ? 'Con el control estacional' : 'Con el pronóstico'} hasta fin de año`, data: cont, borderColor: esControlV(v) ? GRIS_CONTROL : color, borderDash: [7, 5], borderWidth: 2, pointRadius: 0, tension: 0 }] : []),
       ],
-      options: { plugins: titulo([`${et(v)} · ${lugarDe(x)} · ${x.sexo_nombre}`, `Acumulado desde ${labels[0]}`]) },
+      options: { plugins: titulo([`${et(v)} · ${lugarDe(x)} · ${x.sexo_nombre}`, `Casos acumulados en ${anio}: ${real.at(-1)?.toLocaleString('es-MX') ?? 0} observados${pronResto.length ? ` y unos ${(cont.at(-1) - (real.at(-1) || 0)).toLocaleString('es-MX')} más esperados hasta fin de año` : ''}`, notaPron(v)]),
+        scales: { y: { beginAtZero: true, title: { display: true, text: 'Casos acumulados' } } } },
     };
   }
   if (tipo === 'sexo') {
     const base = x.nivel === 'nacional' ? 'nacional|mx' : `estado|${x.id}`;
     const charts = ['hombres', 'mujeres'].map((sx, i) => {
       const s = v.series[`${base}|${sx}`];
-      const { labels, datasets } = lineaObsPron(v, s, '2025-01-01', '9999', PALETA[i + 1]);
+      const { labels, datasets } = lineaObsPron(v, s, '2025-01-01', '9999', PALETA[i]);
       datasets.forEach((d) => { d.label = `${s.sexo_nombre}: ${d.label[0].toLowerCase()}${d.label.slice(1)}`; });
       return { labels, datasets };
     });
     return {
       type: 'line', title: `${et(v)} · ${lugarDe(x)}: hombres y mujeres`, labels: charts[0].labels,
       datasets: [...charts[0].datasets, ...charts[1].datasets],
-      options: { plugins: titulo([`${et(v)} · ${lugarDe(x)}`, 'Hombres y mujeres, observado y pronóstico congelado']) },
+      corte: x.observado.at(-1)?.[0] || null,
+      options: { plugins: titulo([`${et(v)} · ${lugarDe(x)}`, 'Hombres y mujeres: línea continua observado, guiones ' + (esControlV(v) ? 'control estacional (no validado)' : 'pronóstico'), notaPron(v)]), scales: EJE_Y_SEMANAL },
     };
   }
   if (tipo === 'motores') {
@@ -305,14 +360,16 @@ export function graficaObesidad(v, qn, ent = {}, opciones = {}) {
     const labels = [...new Set(series.flatMap((s) => [...s.observado.map(([d]) => d), ...s.pronostico.map(([d]) => d)]))].filter((d) => d >= '2025-01-01').sort();
     const datasets = series.flatMap((s, i) => {
       const o = new Map(s.observado); const p = new Map(s.pronostico); const c = PALETA[i % PALETA.length];
+      const nombre = s.nombre === 'México' ? 'Estado de México' : s.nombre;
       return [
-        { label: s.nombre, data: labels.map((d) => o.get(d) ?? null), borderColor: c, borderWidth: 2, pointRadius: 0, spanGaps: false },
-        { label: `${s.nombre} (pronóstico)`, data: labels.map((d) => p.get(d) ?? null), borderColor: c + '99', borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0, spanGaps: false },
+        { label: nombre, data: labels.map((d) => o.get(d) ?? null), borderColor: c, borderWidth: 2, pointRadius: 0, tension: 0, spanGaps: false },
+        { label: `${nombre} (${esControlV(v) ? 'control' : 'pronóstico'})`, data: labels.map((d) => p.get(d) ?? null), borderColor: c, borderDash: [6, 4], borderWidth: 1.5, pointRadius: 0, tension: 0, spanGaps: false },
       ];
     });
     return {
       type: 'line', title: `${et(v)}: comparación de estados, ${SEXO_NOMBRE[sexo]}`, labels, datasets,
-      options: { plugins: titulo([`${et(v)}: ${series.map((s) => s.nombre).join(', ')}`, `${SEXO_NOMBRE[sexo]} · línea continua observado, punteada pronóstico`]) },
+      corte: series[0]?.observado.at(-1)?.[0] || null,
+      options: { plugins: titulo([`${et(v)}: ${series.map((s) => (s.nombre === 'México' ? 'Estado de México' : s.nombre)).join(', ')}`, `${SEXO_NOMBRE[sexo]} · línea continua observado, guiones ${esControlV(v) ? 'control estacional (no validado)' : 'pronóstico'}`]), scales: EJE_Y_SEMANAL },
     };
   }
   return null;
