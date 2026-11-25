@@ -2,7 +2,7 @@ import { dn } from './display.js?v=1';
 // timelapse.js — Animated timelapse choropleth map of Mexico (52 weeks)
 // Imports state paths and viewBox from mexico-map.js
 
-import { STATES, VIEWBOX } from './mexico-map.js?v=2';
+import { STATES, VIEWBOX } from './mexico-map.js?v=3';
 
 function interpolateColor(val, vMin, vMax, range, lowColor, highColor, noDataColor) {
   if (val == null) return noDataColor;

@@ -774,3 +774,13 @@ body.keyboard-open .cc-topbar{display:flex}.input-wrapper .prompt-toggle,.input-
   .msg-content table.tabla-tarjetas td { border: 0; padding: 2px 0; text-align: left; }
   .msg-content table.tabla-tarjetas td[data-label]::before { content: attr(data-label) ": "; font-weight: 700; color: #40594f; }
 }
+
+/* Mapa: leyenda por clases sobre fondo claro (mesa de gráficas, 25-nov-2026) */
+.mexico-map-wrapper { background: #fff; }
+.mexico-map-title { color: #173c33; font-weight: 700; }
+.mexico-map-clases { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 8px; font-size: 12px; color: #40594f; }
+.mexico-map-clase { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+.mexico-map-clase i { width: 14px; height: 14px; border-radius: 3px; border: 1px solid #c9d6cd; display: inline-block; }
+.mexico-map-nota { margin-top: 4px; font-size: 12px; color: #53675e; }
+.mexico-map-tooltip { background: #fff !important; color: #173c33 !important; border: 1px solid #c9d6cd !important; }
+.chart-datos summary { min-height: 44px; }

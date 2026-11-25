@@ -1,4 +1,4 @@
-import { filasComparacion, resumenPares, graficoRondas, formatoCasos, rangoGrafico } from './comparacion_rondas.js?v=3';
+import { filasComparacion, resumenPares, graficoRondas, formatoCasos, rangoGrafico } from './comparacion_rondas.js?v=4';
 const $ = id => document.getElementById(id);
 const num = formatoCasos;
 let data;

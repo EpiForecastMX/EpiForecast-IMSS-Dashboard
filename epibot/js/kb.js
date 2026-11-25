@@ -7,10 +7,10 @@
  */
 
 import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=88';
-import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
+import { comparacionRondasMd } from './comparacion_rondas.js?v=4';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=13';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=67';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=68';
 import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion } from './conversacion.js?v=13';
 import { respuestaLlana, confiabilidadLegacy, indicadores as indicadoresLlano } from './resumen_llano.js?v=4';
 import { answerNegativaRazonada, answerEstacionalidad, answerExplicaGrafica, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=2';
@@ -2502,7 +2502,7 @@ function answerMapaMexico(q, ent, s, d) {
     if (isSmape) {
       lines.push('Color: verde (buen SMAPE) a rojo (alto SMAPE).\n');
     } else {
-      lines.push('Color: mas oscuro = menor incidencia, mas claro = mayor incidencia.\n');
+      lines.push('Color: más claro = menos casos, más oscuro = más casos (cinco grupos con el mismo número de estados; casos notificados, sin ajustar por población).\n');
     }
     lines.push('**Top 5 entidades**:');
     if (retiradas) {
@@ -2524,7 +2524,7 @@ function answerMapaMexico(q, ent, s, d) {
     if (isSmape) {
       lines.push('Color: verde (buen SMAPE) a rojo (alto SMAPE).\n');
     } else {
-      lines.push('Color: mas oscuro = menor incidencia, mas claro = mayor incidencia.\n');
+      lines.push('Color: más claro = menos casos, más oscuro = más casos (cinco grupos con el mismo número de estados; casos notificados, sin ajustar por población).\n');
     }
     for (const pad of pads) {
       const sorted = aggregateMap(pad, filterSexo);
@@ -3249,7 +3249,7 @@ function answerComparativaEstados(q, ent, s, d) {
   // Insights
   lines.push('\n**Hallazgos:**');
   const sorted = [...comparisons].sort((a, b) => b.totalCasos - a.totalCasos);
-  lines.push(`- Mayor incidencia pronosticada: **${sorted[0].estado}** (${fmt(sorted[0].totalCasos)} casos)`);
+  lines.push(`- Más casos pronosticados: **${sorted[0].estado}** (${fmt(sorted[0].totalCasos)} casos, sin ajustar por población)`);
   lines.push(`- Menor incidencia pronosticada: **${sorted[sorted.length - 1].estado}** (${fmt(sorted[sorted.length - 1].totalCasos)} casos)`);
 
   if (sorted[0].totalCasos > 0 && sorted[sorted.length - 1].totalCasos > 0) {
@@ -5135,17 +5135,19 @@ function answerSemaforo(q, ent, s, d) {
 
   const sorted = Object.entries(byEnt).sort((a, b) => b[1].casos - a[1].casos);
   const lines = [];
-  lines.push('**Semáforo epidemiologico**: clasificación de riesgo por entidad federativa.\n');
-  lines.push(`| Nivel | Rango (casos 52 sem) | Estados |`);
+  // Mesa de gráficas (25-nov-2026): son cuartiles de casos pronosticados (carga), no riesgo; los límites, como en el código.
+  lines.push('**Semáforo de carga pronosticada** (Depresión, Parkinson y Alzheimer, próximas 52 semanas): cuatro grupos de estados según el número de casos pronosticados.\n');
+  lines.push('_No mide riesgo: son casos notificados sin ajustar por población, así que un estado con más habitantes tiene más casos._\n');
+  lines.push(`| Grupo | Casos en 52 semanas | Estados |`);
   lines.push(`|-------|---------------------:|--------:|`);
-  lines.push(`| Rojo | > ${fmt(p75)} | ${rojo} |`);
-  lines.push(`| Naranja | ${fmt(p50)} - ${fmt(p75)} | ${naranja} |`);
-  lines.push(`| Amarillo | ${fmt(p25)} - ${fmt(p50)} | ${amarillo} |`);
-  lines.push(`| Verde | < ${fmt(p25)} | ${verde} |`);
+  lines.push(`| Rojo (cuartil más alto) | ${fmt(p75)} o más | ${rojo} |`);
+  lines.push(`| Naranja | ${fmt(p50)} a menos de ${fmt(p75)} | ${naranja} |`);
+  lines.push(`| Amarillo | ${fmt(p25)} a menos de ${fmt(p50)} | ${amarillo} |`);
+  lines.push(`| Verde (cuartil más bajo) | menos de ${fmt(p25)} | ${verde} |`);
 
-  // Top alertas
+  // Los tres estados con más casos pronosticados
   const alerts = sorted.slice(0, 3);
-  lines.push('\n**Alertas (mayor incidencia):**');
+  lines.push('\n**Más casos pronosticados:**');
   for (const [e, data] of alerts) {
     const topPad = Object.entries(data.pads).sort((a, b) => b[1] - a[1])[0];
     lines.push(`- **${e}**: ${fmt(data.casos)} casos (principal: ${topPad ? topPad[0] : '?'})`);
