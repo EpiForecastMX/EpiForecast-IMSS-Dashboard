@@ -1026,6 +1026,12 @@ async function interpretaConGemini(text) {
   } catch { return null; } finally { clearTimeout(t); }
 }
 
+/** Error de la IA con una sugerencia que el bot sí puede contestar sin ella (si el mensaje no trae ya una). */
+function conSugerencia(msg) {
+  return /pregúntame|por ejemplo/i.test(msg) ? msg
+    : `${msg}\n\nMientras tanto puedo responderte con los datos publicados; por ejemplo, «¿cómo va el dengue en Veracruz?» o «¿qué enfermedades van al alza?».`;
+}
+
 async function callRag(text) {
   const typingEl = addTypingIndicator('EPI está consultando la base de conocimiento');
   let shell = null, acc = '', sources = null, gotMeta = false, gotDone = false, streamErr = null, rafPending = false;
@@ -1044,7 +1050,7 @@ async function callRag(text) {
       removeTyping(typingEl);
       const errData = await resp.json().catch(() => ({}));
       console.warn('RAG response error:', resp.status, errData);
-      addBotMessage(`${errData.error || 'No pude consultar la IA en este momento.'}\n\nMientras tanto, prueba «métricas globales» o «equipo del proyecto».`, 'error');
+      addBotMessage(conSugerencia(errData.error || 'No pude consultar la IA en este momento.'), 'error');
       return;
     }
     if (!resp.body || !resp.body.getReader) { removeTyping(typingEl); return await ragNonStream(text, resp); }
@@ -1072,7 +1078,7 @@ async function callRag(text) {
     }
     removeTyping(typingEl);
 
-    if (streamErr && !acc.trim()) { if (shell) shell.div.remove(); addBotMessage(`${streamErr}\n\nPrueba «métricas globales» o «equipo del proyecto».`, 'error'); return; }
+    if (streamErr && !acc.trim()) { if (shell) shell.div.remove(); addBotMessage(conSugerencia(streamErr), 'error'); return; }
     if (!gotMeta && !acc.trim()) { if (shell) shell.div.remove(); return await ragNonStream(text); } // no fue streaming → fallback
     // Sin `done` la conexión se cortó: el texto puede estar incompleto y no se muestra como respuesta (mesa agéntica, 25-nov-2026).
     if (gotMeta && !gotDone) {
