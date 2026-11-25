@@ -49,10 +49,13 @@ y `docs/PLAN_EPIBOT_AGENTICO_2026-11-25.md`; actas en `/Users/haowei/Documents/I
 - **Gráficas:** seguir el «Sistema común de gráficas» del README; fechas de `zoom_series.json` sólo con `fechaBoletinLegacy`;
   un cambio visible se revisa recapturando en el navegador a 1280 y 375 px.
 - **Bandera y respaldo:** el planificador va detrás de `?agente=1` (o `localStorage.epibot_agente=1`) y no mostró ganancia
-  medida en la batería ciega *dev* (187 frente a 187); su activación requiere la fase 5 del plan. El respaldo con Ollama
-  (`EPI_LLM_RESPALDO`) queda apagado: los dos modelos probados cometieron errores clínicos. En Netlify no definir
-  `EPI_LLM_RESPALDO` ni `EPI_LLM_LOCAL`. La clave de la API de Gemini probada el 25-nov responde 402 (la de producción no
-  se ha verificado); el plan Ultra del autor sí cubre Antigravity (`agy`).
+  medida en la batería ciega *dev* (187 frente a 187); su activación requiere la fase 5 del plan. Respaldo cuando Gemini
+  falla por clave, facturación o cuota (`netlify/lib/respaldo.mjs`): primero DeepSeek si existe `DEEPSEEK_API_KEY`
+  (`EPI_DEEPSEEK_MODELO`, por omisión `deepseek-flash`; la clave la pone el autor en Netlify), después Ollama
+  (`EPI_LLM_RESPALDO`, sólo desarrollo: los dos modelos probados cometieron errores clínicos). En Netlify no definir
+  `EPI_LLM_RESPALDO` ni `EPI_LLM_LOCAL`. Toda respuesta de respaldo pasa por el verificador de cifras y se rotula. La clave
+  de la API de Gemini probada el 25-nov responde 402 (la de producción no se ha verificado); el plan Ultra del autor sí cubre
+  Antigravity (`agy`).
 - **Al publicar un padecimiento:** su definición en `epibot/js/definiciones.js` si no es sensible (lo exige `tests/test_nlu.mjs`)
   y su área clínica en `assets/site/areas.mjs` (lo exige `tests/areas.test.mjs`). Tras el paso semanal, `npm run
   resumen:build` en `epibot/`.
