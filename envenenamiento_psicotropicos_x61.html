@@ -7,7 +7,7 @@
   <title>EpiForecast-MX — Envenenamiento autoinfligido intencionalmente por drogas antiepilépticas, sedantes, hipnóticas, antiparkinsonianas y psicotrópicas (X61) · Pronóstico semanal</title>
   <meta name="description" content="Pronóstico semanal de casos de envenenamiento autoinfligido intencionalmente por drogas antiepilépticas, sedantes, hipnóticas, antiparkinsonianas y psicotrópicas (CIE-10 X61) reportados al SINAVE para las 32 entidades de México, por sexo, a 52 semanas. Validación prospectiva en curso, sin intervalos de incertidumbre." />
 <link rel="stylesheet" href="assets/site/site.css?v=5">
-<link rel="stylesheet" href="disease.css?v=20261112h3">
+<link rel="stylesheet" href="disease.css?v=20261125u1">
 
 </head>
 <body class="disease-page">
@@ -76,6 +76,9 @@
     <div class="wrap">
       <div class="eyebrow">Pronósticos por padecimiento</div>
       <h1>Envenenamiento autoinfligido intencionalmente por drogas antiepilépticas, sedantes, hipnóticas, antiparkinsonianas y psicotrópicas (X61) · Pronóstico semanal</h1>
+      <aside class="callout" role="note" aria-label="Línea de ayuda">
+        <p><strong>Si tú o alguien cercano necesita apoyo:</strong> la <strong>Línea de la Vida</strong> atiende gratis, las 24 horas, todos los días, en el <a href="tel:8009112000">800 911 2000</a>. Si alguien está en peligro inmediato, llama al <a href="tel:911">911</a>. Esta página sólo presenta conteos agregados de casos notificados al sistema de vigilancia: no describe métodos ni sustituye la atención de un profesional.</p>
+      </aside>
       <p class="lead">EpiForecast-MX incorpora el <strong>envenenamiento autoinfligido intencionalmente por drogas antiepilépticas, sedantes, hipnóticas, antiparkinsonianas y psicotrópicas (CIE-10 X61)</strong>. Pronosticamos los casos semanales que reporta el Boletín Epidemiológico del SINAVE para las <strong>32 entidades, por sexo</strong>, con un horizonte de <strong>52 semanas</strong>. El pronóstico está <strong>congelado</strong>: se emitió una sola vez y, desde el siguiente boletín, se comparará semana a semana con lo observado. Superó la prueba de 2026 frente al control estacional.</p>
 
       <div class="status-card" id="statusCard">
@@ -90,9 +93,6 @@
         </ul>
       </div>
 
-      <aside class="callout" role="note" aria-label="Línea de ayuda">
-        <p><strong>Si tú o alguien cercano necesita apoyo:</strong> la <strong>Línea de la Vida</strong> atiende gratis, las 24 horas, todos los días, en el <a href="tel:8009112000">800 911 2000</a>. Si alguien está en peligro inmediato, llama al <a href="tel:911">911</a>. Esta página sólo presenta conteos agregados de casos notificados al sistema de vigilancia: no describe métodos ni sustituye la atención de un profesional.</p>
-      </aside>
 
       <div class="stats" id="heroStats">
         <div class="stat"><div class="v" id="stModels">64</div><div class="l">Modelos finales</div></div>
@@ -143,6 +143,7 @@
         <div class="metric"><div class="mv" id="mTotal">—</div><div class="ml">Casos pronosticados en 52 semanas</div></div>
       </div>
       <p class="engine-line">Motor de esta serie: <strong id="mEngine">—</strong></p>
+      <p class="metric-help"><strong>sMAPE:</strong> error porcentual entre lo pronosticado y lo observado (0 % sería perfecto). <strong>Sesgo:</strong> negativo si el pronóstico quedó por debajo de lo observado. <a href="validacion_semanal.html">Cómo se valida cada semana</a>.</p>
     </div>
   </section>
 
@@ -381,6 +382,7 @@
       const [a, w] = V.observation_cutoff;
       $('cutoffTxt').textContent = `semana epidemiológica ${w} de ${a} (semana del ${fechaLarga(V.observation_cutoff_ds)}), publicada en el boletín de la semana ${EpiEstadoFicha.semanaMas(a, w, 1)[1]}`;
       $('stModels').textContent = V.models;
+      EpiEstadoFicha.cifras?.(document, V);
       $('stProducts').textContent = V.products;
       $('mtProducts').textContent = V.products;
       const nac = V.series['nacional|mx|general'];

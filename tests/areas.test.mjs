@@ -40,13 +40,29 @@ test('el sprite: cada icono de área existe, viewBox 24, sólo primitivas, color
   assert.ok(sprite.length < 40000, 'sprite de menos de 40 KB');
 });
 
-test('el control estacional nunca usa el icono de validado ni el de validación en curso', () => {
-  const galeria = leer('Reports/galeria.mjs');
+test('un solo mapa de iconos de estado (galería, Dashboard y fichas) y el control nunca con icono de validado', async () => {
+  const { ICONO_ESTADO } = await import('../assets/site/estado.mjs');
+  assert.equal(ICONO_ESTADO.control, 'i-estado-control');
+  for (const k of Object.keys(ICONO_ESTADO)) assert.ok(simbolos.has(ICONO_ESTADO[k]), k);
+  assert.match(leer('Reports/galeria.mjs'), /from '\.\.\/assets\/site\/estado\.mjs/);
+  assert.match(leer('assets/dashboard/dashboard.mjs'), /from '\.\.\/site\/estado\.mjs'/);
+  // La ficha (script clásico) repite la tabla: debe coincidir con el módulo.
   const ficha = leer('assets/site/estado-ficha.js');
-  assert.match(galeria, /control: 'i-estado-control'/);
-  assert.match(ficha, /control: 'i-estado-control'/);
-  assert.doesNotMatch(galeria, /control: 'i-estado-(validado|en-validacion)'/);
+  for (const k of ['pass', 'pending', 'control']) assert.match(ficha, new RegExp(`${k}: '${ICONO_ESTADO[k]}'`), k);
   assert.doesNotMatch(ficha, /control: 'i-estado-(validado|en-validacion)'/);
+});
+
+test('fichas: los controles dicen su método y no «Modelos finales»; microdefiniciones; Línea de la Vida arriba en las sensibles', () => {
+  const ficha = leer('assets/site/estado-ficha.js');
+  assert.match(ficha, /Método: repite los casos de 52 semanas antes/);
+  const v = leer('varicela_b01.html');
+  assert.match(v, /EpiEstadoFicha\.cifras\?\.\(document, V\)/);
+  assert.match(v, /class="metric-help"/);
+  for (const id of idsDeArea('apoyo')) {
+    const h = leer(`${id}.html`);
+    assert.ok(h.indexOf('aria-label="Línea de ayuda"') < h.indexOf('id="statusCard"'), `${id}: la Línea va antes del estado`);
+    assert.ok(h.indexOf('aria-label="Línea de ayuda"') > h.indexOf('<h1>'), id);
+  }
 });
 
 test('la portada usa las mismas áreas clínicas en su filtro y en cada tarjeta', () => {

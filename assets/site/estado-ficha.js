@@ -90,5 +90,16 @@
     return [a, Math.floor((t - inicioAnio(a)) / (7 * DIA)) + 1];
   }
 
-  g.EpiEstadoFicha = { CORTO: CORTO, SIN_ALTERNATIVA: SIN_ALTERNATIVA, etiqueta: etiqueta, tipo: tipo, detalle: detalle, aplica: aplica, semanaMas: semanaMas, semanasDelAnio: semanasDelAnio };
+  /* Mesa de expertos (24-nov-2026): en un control estacional «64 Modelos finales» sugería un modelado validado. Se dice el
+   * método real; la cifra de series publicadas y el error medido se conservan. */
+  function cifras(d, v) {
+    if (tipo(v) !== 'control') return;
+    var val = d.getElementById('stModels');
+    if (!val) return;
+    val.textContent = 'Control';
+    var lab = val.parentNode && val.parentNode.querySelector ? val.parentNode.querySelector('.l') : null;
+    if (lab) lab.textContent = 'Método: repite los casos de 52 semanas antes';
+  }
+
+  g.EpiEstadoFicha = { CORTO: CORTO, SIN_ALTERNATIVA: SIN_ALTERNATIVA, etiqueta: etiqueta, tipo: tipo, detalle: detalle, aplica: aplica, cifras: cifras, semanaMas: semanaMas, semanasDelAnio: semanasDelAnio };
 })(typeof window !== 'undefined' ? window : globalThis);

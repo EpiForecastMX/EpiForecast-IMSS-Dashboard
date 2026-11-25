@@ -573,3 +573,6 @@ code { font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; 
   .table-scroll { overflow: visible; border: 0; }
   .hero { background: none; }
 }
+
+/* Icono de estado del sprite común (mesa de expertos, 24-nov-2026). */
+.badge__ico { width: 13px; height: 13px; margin-right: 4px; vertical-align: -2px; flex: none; }

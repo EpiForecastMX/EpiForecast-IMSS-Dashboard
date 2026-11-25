@@ -202,3 +202,16 @@
 @media (max-width: 460px) {
   .preview { padding: 14px; }
 }
+
+/* Mesa de expertos (24-nov-2026). Buscador de la portada hacia la Galería. */
+.home-hero__search { display: grid; gap: 6px; margin-top: 18px; max-width: 520px; font-size: 14px; font-weight: 650; color: var(--body); }
+.home-hero__search-row { display: flex; gap: 8px; }
+.home-hero__search input { flex: 1; min-width: 0; min-height: 46px; padding: 9px 12px; border: 1px solid var(--control-border); border-radius: 8px; background: var(--surface); font-size: 16px; }
+/* Primera pintura ligera: con JavaScript disponible, sólo las 8 primeras tarjetas hasta que home.js toma el control; sin
+   JavaScript se ven todas. */
+@media (scripting: enabled) {
+  .condition-grid:not([data-listo]) > .condition-card:nth-child(n+9) { display: none; }
+}
+/* Áreas clínicas con nombres largos: el selector y el buscador no rebasan su columna en celular. */
+#catalogControls label { min-width: 0; }
+#catalogControls select, #catalogControls input { width: 100%; min-width: 0; max-width: 100%; }
