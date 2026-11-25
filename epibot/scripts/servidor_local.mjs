@@ -2,8 +2,8 @@
  * servidor_local.mjs — el sitio y la función RAG en una sola máquina, para probar el EpiBot completo sin Netlify (25-nov-2026).
  *
  * Sirve los archivos estáticos de la raíz del repositorio y atiende POST /.netlify/functions/rag con el mismo manejador de
- * netlify/functions/rag.mjs (incluido el streaming NDJSON). Las variables (GEMINI_API_KEY, EPI_LLM_RESPALDO, EPI_LLM_LOCAL) se
- * leen del entorno; la clave nunca se imprime. Uso:
+ * netlify/functions/rag.mjs (incluido el streaming NDJSON). Las variables (GEMINI_API_KEY, DEEPSEEK_API_KEY, EPI_LLM_RESPALDO,
+ * EPI_LLM_LOCAL) se leen del entorno; las claves nunca se imprimen. Uso:
  *   EPI_LLM_RESPALDO="http://localhost:11434|llama3.1" node epibot/scripts/servidor_local.mjs [puerto]
  */
 import { createServer } from 'node:http';
@@ -39,4 +39,4 @@ createServer(async (req, res) => {
     res.writeHead(err?.code === 'ENOENT' ? 404 : 500);
     res.end();
   }
-}).listen(PUERTO, () => console.log(`EpiBot local en http://localhost:${PUERTO}/epibot/ · respaldo: ${process.env.EPI_LLM_RESPALDO ? 'Ollama' : 'ninguno'} · Gemini: ${process.env.GEMINI_API_KEY ? 'con clave' : 'sin clave'}`));
+}).listen(PUERTO, () => console.log(`EpiBot local en http://localhost:${PUERTO}/epibot/ · respaldo: ${[process.env.DEEPSEEK_API_KEY && 'DeepSeek', process.env.EPI_LLM_RESPALDO && 'Ollama'].filter(Boolean).join(' y ') || 'ninguno'} · Gemini: ${process.env.GEMINI_API_KEY ? 'con clave' : 'sin clave'}`));

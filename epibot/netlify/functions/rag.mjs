@@ -30,7 +30,7 @@ import { respuestaNoModelableRag } from '../lib/radar_no_modelable.mjs';
 import { interpretaConsulta, interpretaPlan, generadorOllama } from '../lib/nlu.mjs';
 import { proveedorBloqueado, registraFallo, reintentable, mensajeUsuario } from '../lib/proveedor.mjs';
 import { depuraCifras, NOTA_RETIRADA, SIN_CIFRAS_VERIFICABLES } from '../lib/cifras_verificadas.mjs';
-import { specRespaldo, generaConOllama, nluConOllama } from '../lib/respaldo_ollama.mjs';
+import { respaldos, etiqueta, generaConRespaldo, nluConRespaldo, AVISOS } from '../lib/respaldo.mjs';
 
 const EMBED_MODEL = 'gemini-embedding-001';
 const EMBED_DIM = 768;
@@ -1076,9 +1076,10 @@ async function handlerInterno(req) {
     if (process.env.EPI_LLM_LOCAL) {
       return json(await interpreta(String(body.query || ''), globalThis.EPI_CATALOGO.releases, generadorOllama(process.env.EPI_LLM_LOCAL, { timeoutMs: esPlan ? 60000 : 20000 })), 200, cors);
     }
-    // Respaldo (25-nov-2026): sin clave o con Gemini apagado por 402/cuota, clasifica Ollama si EPI_LLM_RESPALDO existe.
-    const respaldoNlu = specRespaldo();
-    if ((!apiKey || proveedorBloqueado()) && !respaldoNlu) return json(vacio, 200, cors);
+    // Respaldo (25-nov-2026): sin clave o con Gemini apagado por 402/cuota, clasifica DeepSeek (DEEPSEEK_API_KEY) y, en
+    // desarrollo, Ollama (EPI_LLM_RESPALDO), en ese orden (netlify/lib/respaldo.mjs).
+    const respaldosNlu = respaldos();
+    if ((!apiKey || proveedorBloqueado()) && !respaldosNlu.length) return json(vacio, 200, cors);
     const rlNlu = checkRateLimit(getClientIp(req));
     if (!rlNlu.ok) return json(vacio, 200, cors);
     const genAINlu = apiKey && !proveedorBloqueado() ? new GoogleGenerativeAI(apiKey) : null;
@@ -1091,10 +1092,18 @@ async function handlerInterno(req) {
       } catch (err) { registraFallo(err); throw err; } finally { a.done(); }
     };
     const generar = async (prompt) => {
+      let error = null;
       if (genAINlu && !proveedorBloqueado()) {
-        try { return await generarGemini(prompt); } catch (err) { if (!respaldoNlu) throw err; }
+        try { return await generarGemini(prompt); } catch (err) { error = err; }
       }
-      return nluConOllama(respaldoNlu, { timeoutMs: esPlan ? 60000 : 20000 })(prompt);
+      for (const spec of respaldosNlu) {
+        const timeoutMs = spec.tipo === 'ollama' ? (esPlan ? 60000 : 20000) : (esPlan ? 15000 : 8000);
+        try { return await nluConRespaldo(spec, { timeoutMs })(prompt); } catch (err) {
+          error = err;
+          console.warn(`[RAG] el respaldo ${etiqueta(spec)} falló en ${body.modo}: ${String(err?.message || err).slice(0, 80)}`);
+        }
+      }
+      throw error || new Error('sin modelo');
     };
     return json(await interpreta(String(body.query || ''), globalThis.EPI_CATALOGO.releases, generar), 200, cors);
   }
@@ -1162,7 +1171,7 @@ async function handlerInterno(req) {
     if (estado) return json({ ...estado, retrieval: 'vista' }, 200, cors);
   }
 
-  if (!apiKey && !specRespaldo()) return json({ error: 'GEMINI_API_KEY no configurada' }, 500, cors);
+  if (!apiKey && !respaldos().length) return json({ error: 'GEMINI_API_KEY no configurada' }, 500, cors);
 
   const ip = getClientIp(req);
   const rl = checkRateLimit(ip);
@@ -1275,7 +1284,7 @@ async function handlerInterno(req) {
   return json({ answer: out.texto, model: out.modelo, retrieval: mode, reranked, sources }, 200, cors);
 }
 
-export const AVISO_RESPALDO = '\n\n_Esta respuesta la redactó un modelo local de respaldo, menos preciso, porque la IA principal no está disponible. Las cifras se verificaron con los datos publicados; para información clínica consulta fuentes oficiales como MedlinePlus o la Secretaría de Salud._';
+export const AVISO_RESPALDO = AVISOS.ollama;
 const CIFRAS_RE = /\s*\[\s*(cifras?\s*clave|datos del proyecto)\s*\]/gi;
 
 /** Texto verificado: retira las oraciones con cifras sin respaldo en `fuentes` y añade la nota D7 si aplica. */
@@ -1287,22 +1296,21 @@ function verificado(bruto0, fuentes, searchQuery) {
   return base + notaD7Rag(searchQuery, base);
 }
 
-/** Genera con el primer modelo que responda (Gemini y, si falla por clave, facturación o cuota, el respaldo de Ollama). */
+/** Genera con el primer modelo que responda: Gemini y, si falla por clave, facturación o cuota, DeepSeek y después Ollama. */
 async function generaVerificado(genAI, systemMsg, contents, fuentes, searchQuery) {
   const out = genAI ? await generaGemini(genAI, systemMsg, contents, fuentes, searchQuery) : { error: mensajeUsuario('fatal'), tipo: 'fatal' };
   if (!out.error) return out;
-  const respaldo = specRespaldo();
-  if (respaldo) {
+  for (const spec of respaldos()) {
     try {
-      const bruto = await generaConOllama(respaldo, systemMsg, contents);
+      const bruto = await generaConRespaldo(spec, systemMsg, contents);
       if (bruto.trim()) {
-        console.warn(`[RAG] respuesta del respaldo ${respaldo.modelo} (Gemini: ${out.tipo || 'sin clave'})`);
-        // La prueba del 25-nov-2026 mostró errores clínicos de llama3.1 que el verificador de cifras no detecta (no son números):
-        // la respuesta del respaldo se rotula siempre.
-        return { texto: `${verificado(bruto, fuentes, searchQuery)}${AVISO_RESPALDO}`, modelo: `ollama:${respaldo.modelo}` };
+        console.warn(`[RAG] respuesta del respaldo ${etiqueta(spec)} (Gemini: ${out.tipo || 'sin clave'})`);
+        // El verificador de cifras no detecta errores clínicos (no son números; prueba del 25-nov-2026 con llama3.1): la
+        // respuesta de todo respaldo se rotula siempre.
+        return { texto: `${verificado(bruto, fuentes, searchQuery)}${AVISOS[spec.tipo]}`, modelo: etiqueta(spec) };
       }
     } catch (err) {
-      console.warn(`[RAG] el respaldo ${respaldo.modelo} falló: ${String(err?.message || err).slice(0, 80)}`);
+      console.warn(`[RAG] el respaldo ${etiqueta(spec)} falló: ${String(err?.message || err).slice(0, 80)}`);
     }
   }
   // Sin ningún modelo no se muestran pasajes sueltos: con búsqueda sólo léxica no contestaban la pregunta (prueba del 25-nov-2026).

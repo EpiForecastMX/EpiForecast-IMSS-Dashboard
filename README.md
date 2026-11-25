@@ -201,7 +201,7 @@ epibot/
 │   └── point_only.js, calendario_boletin.js, comparacion_rondas*.js
 ├── netlify/functions/rag.mjs   # RAG con Gemini (recuperación, rerank y generación verificada) y modos nlu y plan
 ├── netlify/lib/            # nlu.mjs (comprensión y planificador), proveedor.mjs (interruptor ante 402/cuota),
-│                           # cifras_verificadas.mjs (ninguna cifra sin respaldo), respaldo_ollama.mjs, grounding de vistas
+│                           # cifras_verificadas.mjs (ninguna cifra sin respaldo), respaldo.mjs (DeepSeek y Ollama), vistas
 ├── eval/                   # califica.mjs (etiquetas + oráculo), califica_s.mjs (batería ciega S), compara_agente.mjs
 ├── scripts/                # rag:build, resumen:build, servidor_local.mjs, install_publication.mjs, verify_deploy.mjs
 └── tests/                  # Pruebas unitarias, de conversación, de estrés, de crisis y de gráficas (npm test)
@@ -612,10 +612,18 @@ node epibot/scripts/servidor_local.mjs 8810
 # EpiBot: http://localhost:8810/epibot/ · planificador: http://localhost:8810/epibot/?agente=1
 ```
 
-Sólo para experimentos locales, `EPI_LLM_RESPALDO="http://localhost:11434|modelo"` hace que la función use Ollama cuando
-Gemini no responde; no definirla en Netlify: los modelos probados el 25-nov cometieron errores clínicos (veredicto en
-`/Users/haowei/Documents/Integrador/planes/mesa_epibot_agentico_2026-11-25/respaldo_ollama/VEREDICTO.md`). Pruebas y
-evaluación:
+Cuando Gemini no responde (clave, facturación o cuota), la función usa un respaldo (`netlify/lib/respaldo.mjs`), con el
+mismo verificador de cifras y una nota que lo rotula:
+
+- **DeepSeek**, si existe `DEEPSEEK_API_KEY` (modelo `EPI_DEEPSEEK_MODELO`, por omisión `deepseek-flash`). En la comparación
+  del 25-nov con nueve prompts reales respondió tan bien como Gemini, en 3 a 6 segundos (veredicto en
+  `/Users/haowei/Documents/Integrador/planes/mesa_epibot_agentico_2026-11-25/respaldo_ollama/comparacion_modelos/VEREDICTO_PROVEEDORES.md`).
+  DeepSeek procesa los datos en China y no ofrece embeddings: sin Gemini, la recuperación es léxica.
+- **Ollama**, sólo para experimentos locales (`EPI_LLM_RESPALDO="http://localhost:11434|modelo"`); no definirla en Netlify:
+  los modelos probados el 25-nov cometieron errores clínicos
+  (`/Users/haowei/Documents/Integrador/planes/mesa_epibot_agentico_2026-11-25/respaldo_ollama/VEREDICTO.md`).
+
+Pruebas y evaluación:
 
 ```bash
 cd epibot && npm test && npm run eval:etiquetas
