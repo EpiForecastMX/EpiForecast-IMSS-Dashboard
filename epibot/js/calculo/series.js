@@ -32,6 +32,18 @@ export function serieDeVista(v, { estado = null, sexo = 'general' } = {}) {
   };
 }
 
+/**
+ * Fecha del boletín de un punto de zoom_series.json (cuatro originales). `d` es la fecha interna del motor (un lunes) y el
+ * periodo del boletín empieza 13 días después (el domingo de la semana epidemiológica): comprobado en las 3,017 semanas
+ * observadas y las 3,024 pronosticadas del seguimiento de todas las series (mesa de gráficas, 25-nov-2026). Antes se
+ * mostraba `d` y las gráficas y el texto quedaban unas dos semanas atrás («hasta la del 19 de octubre» por la semana 44).
+ */
+export const DIAS_A_BOLETIN = 13;
+export function fechaBoletinLegacy(d) {
+  const t = Date.parse(`${d}T00:00:00Z`);
+  return Number.isFinite(t) ? new Date(t + DIAS_A_BOLETIN * 864e5).toISOString().slice(0, 10) : d;
+}
+
 const LEGACY = { Dengue: 'dengue', Depresion: 'depresion', Parkinson: 'parkinson', Alzheimer: 'alzheimer' };
 export const esLegacy = (pad) => !!LEGACY[pad];
 
@@ -43,9 +55,9 @@ export function serieLegacy(zoom, pad, { estado = null, sexo = 'general' } = {})
   const zz = zoom[`${LEGACY[pad]}|${geo}|${sexo}`] || zoom[`${LEGACY[pad]}|${geo}|general`];
   if (!zz || !Array.isArray(zz.d)) return null;
   return {
-    observado: zz.d.map((ds, i) => [ds, zz.r[i]]).filter(([ds, r]) => r != null && ds <= zz.last_real),
-    pronostico: zz.d.map((ds, i) => [ds, zz.y[i]]).filter(([, y]) => y != null),
+    observado: zz.d.map((ds, i) => [ds, zz.r[i]]).filter(([ds, r]) => r != null && ds <= zz.last_real).map(([ds, r]) => [fechaBoletinLegacy(ds), r]),
+    pronostico: zz.d.map((ds, i) => [fechaBoletinLegacy(ds), zz.y[i]]).filter(([, y]) => y != null),
     tipo: 'original', lugar: estado ? nombreEstado(estado) : 'el país', sexo,
-    corte: zz.last_real || null, sinIntervalo: !zz.intervalo_disponible,
+    corte: zz.last_real ? fechaBoletinLegacy(zz.last_real) : null, sinIntervalo: !zz.intervalo_disponible,
   };
 }

@@ -79,3 +79,23 @@ test('renderizador común, mapas y rutas', () => {
   assert.match(fuente('../js/kb.js'), /Semáforo de carga pronosticada/);
   assert.doesNotMatch(fuente('../js/kb.js'), /mas oscuro = menor incidencia/);
 });
+
+test('originales: cada punto lleva la fecha de su semana del boletín (fecha interna + 13 días), en todas las series', async () => {
+  const { fechaBoletinLegacy, serieLegacy } = await import('../js/calculo/series.js');
+  const z = JSON.parse(readFileSync(new URL('epibot/zoom_series.json', raiz), 'utf-8'));
+  let pares = 0;
+  for (const [k, s] of Object.entries(z)) {
+    const pos = new Map(s.d.map((d, i) => [fechaBoletinLegacy(d), i]));
+    for (const w of s.seguimiento || []) {
+      const i = pos.get(w.periodo_inicio);
+      assert.ok(i != null, `${k} ${w.etiqueta}: sin punto para ${w.periodo_inicio}`);
+      if (w.real != null) { assert.equal(s.r[i], w.real, `${k} ${w.etiqueta}`); pares++; }
+    }
+  }
+  assert.ok(pares > 3000);
+  // La serie normalizada (texto y calculadora) usa las mismas fechas: su último observado es el inicio de la última semana.
+  const s = serieLegacy(z, 'Dengue', { estado: 'Veracruz' });
+  const ult = z['dengue|veracruz|general'].seguimiento.filter((w) => w.real != null).at(-1);
+  assert.equal(s.observado.at(-1)[0], ult.periodo_inicio);
+  assert.match(fuente('../js/app.js'), /fechaBoletinLegacy\(iso\)/);
+});

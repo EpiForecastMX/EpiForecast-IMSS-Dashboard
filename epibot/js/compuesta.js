@@ -12,7 +12,7 @@
  * Los manejadores reciben `ctx = { lastEntities, releaseDePad, releasesEnConsulta }` desde kb.js para no duplicar módulos.
  */
 import { crecimiento, estacionalidad, rasgosGrafica, compararRitmo } from './calculo/operaciones.js?v=2';
-import { serieDeVista, serieLegacy, esLegacy } from './calculo/series.js?v=1';
+import { serieDeVista, serieLegacy, esLegacy } from './calculo/series.js?v=2';
 import { negativaRazonada, negativaRiesgo } from './calculo/legitimidad.js?v=2';
 
 const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
