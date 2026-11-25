@@ -7,6 +7,7 @@
  * genera scripts/build_resumen_padecimientos.mjs desde las vistas publicadas.
  */
 import { RELEASES } from './release_config.js?v=58';
+import { fechaBoletinLegacy } from './calculo/series.js?v=2';
 
 const LEGACY = 4;
 export const TOTAL_PUBLICADOS = () => RELEASES.length + LEGACY;
@@ -198,8 +199,9 @@ const norm0 = (t) => String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').to
 function serieLegacy(z, pad, geo, sexo) {
   const zz = z[`${LEGACY_PAD[pad]}|${geo}|${sexo}`];
   if (!zz || !Array.isArray(zz.d)) return null;
-  const observado = zz.d.map((ds, i) => [ds, zz.r[i]]).filter(([ds, r]) => r != null && ds <= zz.last_real);
-  const pronostico = zz.d.map((ds, i) => [ds, zz.y[i]]).filter(([, y]) => y != null);
+  // Fechas del boletín (d + 13 días), no la fecha interna del motor: ver fechaBoletinLegacy.
+  const observado = zz.d.map((ds, i) => [ds, zz.r[i]]).filter(([ds, r]) => r != null && ds <= zz.last_real).map(([ds, r]) => [fechaBoletinLegacy(ds), r]);
+  const pronostico = zz.d.map((ds, i) => [fechaBoletinLegacy(ds), zz.y[i]]).filter(([, y]) => y != null);
   const seg = (zz.seguimiento || []).filter((x) => x.estado === 'par' && x.real != null && x.pronostico != null);
   const O = seg.reduce((a, x) => a + x.real, 0);
   const P = seg.reduce((a, x) => a + x.pronostico, 0);
