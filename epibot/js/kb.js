@@ -5948,6 +5948,27 @@ export function estadoDeRespuesta(texto) {
   return null;
 }
 
+/**
+ * Ficha de la conversación (mesa agéntica, fase 2): padecimiento, lugar y sexo que el bot está usando, para mostrarlos en la
+ * interfaz. Nada si hay una crisis activa o el padecimiento es sensible.
+ */
+export function contextoActual() {
+  if (_crisisActiva) return null;
+  const p = lastEntities.padecimiento;
+  if (!p) return lastEntities.estado ? { padecimiento: null, consulta: null, estado: lastEntities.estado, sexo: null } : null;
+  const r = releaseDePad(p);
+  if (r?.sensible) return null;
+  const LEG = { Dengue: 'Dengue', Depresion: 'Depresión', Parkinson: 'Parkinson', Alzheimer: 'Alzheimer' };
+  return {
+    padecimiento: r ? (r.nombreCorto || r.nombre) : (LEG[p] || p),
+    consulta: r ? (r.consultaVisible || r.consulta) : norm(p),
+    estado: lastEntities.estado || null,
+    sexo: lastEntities.sexo && lastEntities.sexo !== 'general' ? lastEntities.sexo : null,
+  };
+}
+/** «Nueva consulta»: el bot olvida el contexto (antes sólo se vaciaba la pantalla). */
+export function reiniciaContexto() { _resetContext(); }
+
 /** Reset conversacional — solo para tests. */
 export function _resetContext() {
   _comparacionPrevia = null;

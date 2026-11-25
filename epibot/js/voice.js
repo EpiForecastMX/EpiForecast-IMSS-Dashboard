@@ -33,6 +33,7 @@ export function initSTT(btn, inputField, onResult) {
   if (!STT_SUPPORTED) { btn.style.display = 'none'; return; }
 
   micBtn = btn;
+  placeholderOriginal = inputField.placeholder;
   let sent = false; // guard: only fire onResult once per session
 
   recognition = new SpeechRecognition();
@@ -60,6 +61,9 @@ export function initSTT(btn, inputField, onResult) {
     if (final && !sent) {
       sent = true;
       stopSTT(inputField);
+      // Mesa agéntica, fase 2: si el navegador duda de lo que oyó, no se envía solo; se deja para revisar.
+      const conf = event.results[event.results.length - 1][0].confidence;
+      if (conf > 0 && conf < UMBRAL_DUDA) { avisaDuda(inputField); return; }
       onResult(final.trim());
     }
   };
@@ -85,9 +89,13 @@ export function initSTT(btn, inputField, onResult) {
   };
 
   btn.addEventListener('click', () => {
+    // El toque del micrófono interrumpe la lectura en curso y, en ese mismo gesto, habilita la voz en iPhone.
+    stopSpeaking();
+    desbloqueaVoz();
     if (listening) stopSTT(inputField);
     else startSTT(inputField);
   });
+  inputField.addEventListener('input', () => quitaDuda(inputField));
 }
 
 function startSTT(inputField) {
@@ -98,10 +106,25 @@ function startSTT(inputField) {
   } catch (_) { /* already started */ }
 }
 
+const UMBRAL_DUDA = 0.55;
+let placeholderOriginal = '';
+function avisaDuda(inputField) {
+  quitaDuda(inputField);
+  const p = document.createElement('p');
+  p.className = 'voz-duda';
+  p.setAttribute('role', 'status');
+  p.textContent = 'No estoy seguro de haber entendido. Revisa el texto y pulsa Enviar.';
+  inputField.closest('.input-wrapper')?.after(p);
+  inputField.focus();
+}
+function quitaDuda(inputField) {
+  inputField?.closest('.input-bar')?.querySelectorAll('.voz-duda').forEach((x) => x.remove());
+}
+
 function stopSTT(inputField) {
   listening = false;
   if (micBtn) micBtn.classList.remove('mic-active');
-  if (inputField) inputField.placeholder = 'Escribe o habla tu pregunta...';
+  if (inputField) inputField.placeholder = placeholderOriginal || inputField.placeholder;
   try { recognition.stop(); } catch (_) { /* not started */ }
 }
 
@@ -244,18 +267,50 @@ function setSpeaking(val) {
  * @param {string} markdown - The bot response in markdown
  * @param {HTMLElement} [speakerBtn] - Optional button to toggle animation
  */
-export function speak(markdown, speakerBtn) {
+/** Recorta en la última oración completa antes de `max` caracteres. */
+function hastaOracion(texto, max) {
+  if (texto.length <= max) return { texto, cortado: false };
+  const corte = texto.slice(0, max);
+  const fin = Math.max(corte.lastIndexOf('. '), corte.lastIndexOf('? '), corte.lastIndexOf(': '));
+  return { texto: fin > max / 4 ? corte.slice(0, fin + 1) : `${corte.replace(/\s+\S*$/, '')}…`, cortado: true };
+}
+
+/**
+ * Lo que se dice en voz alta (mesa agéntica, fase 2): tras una pregunta por voz, sólo el veredicto (lo que va antes de la
+ * primera lista, unas 25 a 50 palabras); con el botón de escuchar, la respuesta completa hasta 1,500 caracteres, siempre
+ * cortada en una oración entera y nunca a media palabra.
+ */
+export function textoHablado(markdown, completo = false) {
+  const todo = cleanForTTS(markdown);
+  if (completo) {
+    const r = hastaOracion(todo, 1500);
+    return r.cortado ? `${r.texto} El resto está en pantalla.` : r.texto;
+  }
+  const veredicto = cleanForTTS(String(markdown).split(/\n\s*[-*] /)[0]);
+  const base = veredicto.length >= 40 ? veredicto : todo;
+  const r = hastaOracion(base, 320);
+  return r.cortado || base !== todo ? `${r.texto} El detalle está en pantalla.` : r.texto;
+}
+
+let vozDesbloqueada = false;
+/** iOS sólo deja hablar si la síntesis se inició dentro de un gesto: una frase muda en el toque la habilita. */
+export function desbloqueaVoz() {
+  if (!TTS_SUPPORTED || vozDesbloqueada) return;
+  try {
+    const u = new SpeechSynthesisUtterance(' ');
+    u.volume = 0;
+    synth.speak(u);
+    vozDesbloqueada = true;
+  } catch (_) { /* sin síntesis */ }
+}
+
+export function speak(markdown, speakerBtn, { completo = false } = {}) {
   if (!TTS_SUPPORTED || !ttsEnabled) return;
 
   synth.cancel();
 
-  const plain = cleanForTTS(markdown);
-  if (!plain) return;
-
-  const maxChars = 600;
-  const text = plain.length > maxChars
-    ? plain.substring(0, maxChars) + '... Consulta el texto completo en pantalla.'
-    : plain;
+  const text = textoHablado(markdown, completo);
+  if (!text) return;
 
   // Ensure we have a Spanish voice — never speak in English
   const voice = ensureVoice();

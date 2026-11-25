@@ -15,7 +15,7 @@
   <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.2.4/dist/purify.min.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-<link rel="stylesheet" href="css/shell.css?v=7">
+<link rel="stylesheet" href="css/shell.css?v=8">
 </head>
 <body><a class="epi-skip" href="#inputField">Saltar a la pregunta</a>
 <!-- site:header:start -->
@@ -230,6 +230,9 @@
           </button>
         </div>
       </header>
+
+      <!-- Ficha de la conversación (mesa agéntica, fase 2) -->
+      <div class="ficha-turno" id="fichaTurno" hidden aria-live="polite" aria-label="Contexto de la conversación"></div>
 
       <!-- Chat area -->
       <div class="chat-area" id="chatArea" role="log" aria-live="polite" aria-relevant="additions" aria-label="Conversación con EPI">
@@ -1066,7 +1069,7 @@
 
   <!-- Panel lateral (cajón en móvil) y acciones rápidas: js/ux.js, un solo manejador. -->
   <script defer src="js/ux.js?v=3"></script>
-  <script type="module" src="js/app.js?v=244"></script>
+  <script type="module" src="js/app.js?v=245"></script>
 <script src="../assets/site/site-nav.js" defer></script>
 </body>
 </html>

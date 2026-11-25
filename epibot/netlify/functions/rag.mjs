@@ -27,7 +27,7 @@ import { micaiGroundedAnswer } from '../lib/micai_grounding.mjs';
 import { resolverConsultaRag, vistaGroundedAnswer, enriquecerSemanticoVista } from '../lib/vista_grounding.mjs';
 import { crisisEnHistorial, nombraPadecimientoNoSensible } from '../lib/vista_turno.mjs';
 import { respuestaNoModelableRag } from '../lib/radar_no_modelable.mjs';
-import { interpretaConsulta, generadorOllama } from '../lib/nlu.mjs';
+import { interpretaConsulta, interpretaPlan, generadorOllama } from '../lib/nlu.mjs';
 import { proveedorBloqueado, registraFallo, reintentable, mensajeUsuario } from '../lib/proveedor.mjs';
 import { depuraCifras, NOTA_RETIRADA, SIN_CIFRAS_VERIFICABLES } from '../lib/cifras_verificadas.mjs';
 import { specRespaldo, generaConOllama, nluConOllama } from '../lib/respaldo_ollama.mjs';
@@ -1066,19 +1066,24 @@ async function handlerInterno(req) {
   if (mixta) return json({ answer: mixta.replace('\n<!--SIN_GRAFICA-->', ''), sources: [], retrieval: 'none', guarda: 'mixta_sensible' }, 200, cors);
   // Rediseño conversacional (24-nov-2026): respaldo de comprensión. Después de la crisis y de las guardas de sensibles, Gemini
   // sólo clasifica la frase contra listas cerradas (netlify/lib/nlu.mjs); el cliente responde la consulta canónica con su KB.
-  if (body.modo === 'nlu') {
+  // Mesa agéntica, fase 3: «plan» divide una frase con varios pedidos en pasos validados (netlify/lib/nlu.mjs); mismas guardas y
+  // mismo respaldo que «nlu».
+  if (body.modo === 'nlu' || body.modo === 'plan') {
+    const esPlan = body.modo === 'plan';
+    const interpreta = esPlan ? interpretaPlan : interpretaConsulta;
+    const vacio = esPlan ? { consultas: [] } : { consulta: null, entendido: null };
     // Desarrollo local: con EPI_LLM_LOCAL («url|modelo» de Ollama) clasifica un modelo local en lugar de Gemini.
     if (process.env.EPI_LLM_LOCAL) {
-      return json(await interpretaConsulta(String(body.query || ''), globalThis.EPI_CATALOGO.releases, generadorOllama(process.env.EPI_LLM_LOCAL)), 200, cors);
+      return json(await interpreta(String(body.query || ''), globalThis.EPI_CATALOGO.releases, generadorOllama(process.env.EPI_LLM_LOCAL, { timeoutMs: esPlan ? 60000 : 20000 })), 200, cors);
     }
     // Respaldo (25-nov-2026): sin clave o con Gemini apagado por 402/cuota, clasifica Ollama si EPI_LLM_RESPALDO existe.
     const respaldoNlu = specRespaldo();
-    if ((!apiKey || proveedorBloqueado()) && !respaldoNlu) return json({ consulta: null, entendido: null }, 200, cors);
+    if ((!apiKey || proveedorBloqueado()) && !respaldoNlu) return json(vacio, 200, cors);
     const rlNlu = checkRateLimit(getClientIp(req));
-    if (!rlNlu.ok) return json({ consulta: null, entendido: null }, 200, cors);
+    if (!rlNlu.ok) return json(vacio, 200, cors);
     const genAINlu = apiKey && !proveedorBloqueado() ? new GoogleGenerativeAI(apiKey) : null;
     const generarGemini = async (prompt) => {
-      const a = withAbort(T_NLU);
+      const a = withAbort(esPlan ? 2 * T_NLU : T_NLU);
       try {
         const model = genAINlu.getGenerativeModel({ model: GEN_MODELS[0], generationConfig: { responseMimeType: 'application/json', temperature: 0 } });
         const r = await model.generateContent(prompt, { signal: a.signal });
@@ -1089,9 +1094,9 @@ async function handlerInterno(req) {
       if (genAINlu && !proveedorBloqueado()) {
         try { return await generarGemini(prompt); } catch (err) { if (!respaldoNlu) throw err; }
       }
-      return nluConOllama(respaldoNlu)(prompt);
+      return nluConOllama(respaldoNlu, { timeoutMs: esPlan ? 60000 : 20000 })(prompt);
     };
-    return json(await interpretaConsulta(String(body.query || ''), globalThis.EPI_CATALOGO.releases, generar), 200, cors);
+    return json(await interpreta(String(body.query || ''), globalThis.EPI_CATALOGO.releases, generar), 200, cors);
   }
   const d7 = guardaD7Rag(body.query);
   if (d7) return json({ answer: d7, sources: [], retrieval: 'none', guarda: 'd7' }, 200, cors);
