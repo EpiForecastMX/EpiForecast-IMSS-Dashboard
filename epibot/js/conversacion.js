@@ -210,7 +210,7 @@ function serieLegacy(z, pad, geo, sexo) {
 }
 
 /** Dos o más estados de un padecimiento original («dengue en Jalisco vs Tamaulipas»): cuál tendrá más casos y cada uno. */
-export function answerLegacyComparacion(q, ent, s, d, { indicadores }) {
+export function answerLegacyComparacion(q, ent, s, d, { indicadores, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA, serieLegacy: serieCalc }) {
   const pad = ent.padecimiento;
   if (!LEGACY_PAD[pad] || (ent.padecimientos || []).length > 1 || !d?.zoom_series) return null;
   const n = ` ${norm0(q).replace(/[^a-z0-9]+/g, ' ')} `;
@@ -228,7 +228,11 @@ export function answerLegacyComparacion(q, ent, s, d, { indicadores }) {
   if (filas.length < 2) return null;
   const TEND = { sube: 'va a subir', baja: 'va a bajar', estable: 'estable', incierto: 'sin señal clara', atipico: 'notificación atípica', pocos: 'muy pocos casos' };
   const orden = [...filas].sort((a, b) => b.ind.F4 - a.ind.F4);
+  // «¿Cuál sube más rápido?» se contesta primero con el ritmo de cambio (mesa agéntica, fase 1), no con «más casos».
+  const bajaR = !!RAPIDEZ_BAJA?.test(n);
+  const ritmo = lineaRitmo && (bajaR || RAPIDEZ?.test(n)) ? lineaRitmo(filas.map((f) => ({ nombre: f.nombre, serie: serieCalc(z, pad, { estado: f.nombre, sexo }) })).filter((f) => f.serie), bajaR ? 'baja' : 'sube') : null;
   return [`**${LEGACY_NOMBRE[pad]}: comparación de estados${sexo === 'general' ? '' : ` (${sexo})`}**`, '',
+    ...(ritmo ? [ritmo, ''] : []),
     `**Más casos esperados:** ${orden[0].nombre} (unos ${ent0(orden[0].ind.F4)} en las próximas 4 semanas, frente a ${ent0(orden[1].ind.F4)} en ${orden[1].nombre}).`, '',
     ...filas.map((f) => `- **${f.nombre}**: ${ent0(f.ind.O4)} casos en las últimas 4 semanas; se esperan unos ${ent0(f.ind.F4)} en las próximas 4 (${TEND[f.ind.tendencia] || 'estable'}).`),
     '', '_Casos notificados, sin ajustar por población._', '<!--SIN_GRAFICA-->'].join('\n');
@@ -342,6 +346,9 @@ export function ciudadesAEstados(raw) {
   const notas = [];
   for (const [estado, ciudad, re] of CIUDAD_RE) {
     if (re.test(t)) {
+      // «la zona metropolitana de Monterrey» es Nuevo León: «metropolitana» suelta se leía como la región Metropolitana del
+      // dengue y la respuesta salía nacional pese a la nota (oráculo de la mesa agéntica, 25-nov-2026).
+      t = t.replace(new RegExp(`\\b(la |el )?(zona|area|region) (metropolitana|conurbada|conurbana) (de |del )?(?=${re.source.replace(/^\\b|\\b$/g, '')})`), '');
       t = t.replace(re, estado.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase());
       if (!notas.some((n) => n.estado === estado)) notas.push({ ciudad: CIUDAD_ACENTOS[ciudad] || NOMBRE_CIUDAD(ciudad), estado });
     }
@@ -511,9 +518,11 @@ export function reescribeConsulta(raw) {
   }
   if (premisa) t = t.replace(premisa[0], ' ').replace(/\b(que tan grave es|es grave|que hago|que hacemos)\b/g, 'como va');
   // «¿Cuál estado tiene más casos de X: Chihuahua o Nuevo León?»: con dos estados nombrados es una comparación, no el ranking.
+  // Se marca con «vs» y no con «compara»: un verbo de petición añadido por la reescritura junto a «picaduras» o «mordedura»
+  // activaba la respuesta de crisis (batería ciega S, mesa agéntica, 25-nov-2026).
   const estadosEn = Object.keys(ESTADOS_NOMBRE).filter((e) => new RegExp(`\\b${e}\\b`).test(t) && !(e === 'baja california' && /\bbaja california sur\b/.test(t)));
   if (estadosEn.length >= 2 && /\b(cual|donde|que estado|en cual)\b.*\b(mas|menos|peor|mejor)\b/.test(t)) {
-    t = `${t.replace(/\b(cual|que) (estado|de los dos|de los estados) tiene (mas|menos)( casos)?( de)?\b|\bdonde hay (mas|menos)\b|\bcual tiene (mas|menos)( casos)?\b|\ben cual hay (mas|menos)\b/g, ' ')} compara`;
+    t = `${t.replace(/\b(cual|que) (estado|de los dos|de los estados) tiene (mas|menos)( casos)?( de)?\b|\bdonde hay (mas|menos)\b|\bcual tiene (mas|menos)( casos)?\b|\ben cual hay (mas|menos)\b/g, ' ')} vs`;
   }
   // Los dos sexos en el mismo turno («¿es igual en hombres y mujeres?», «tanto para hombres como para mujeres», «varones y
   // hembras») piden la comparación por sexo, no sólo el primero que aparece.

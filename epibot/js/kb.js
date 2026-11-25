@@ -10,12 +10,16 @@ import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaN
 import { comparacionRondasMd } from './comparacion_rondas.js?v=3';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=13';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=64';
-import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion } from './conversacion.js?v=11';
-import { respuestaLlana, confiabilidadLegacy, indicadores as indicadoresLlano } from './resumen_llano.js?v=3';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=65';
+import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion } from './conversacion.js?v=12';
+import { respuestaLlana, confiabilidadLegacy, indicadores as indicadoresLlano } from './resumen_llano.js?v=4';
+import { answerNegativaRazonada, answerEstacionalidad, answerExplicaGrafica, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=2';
+import { notasDeLegitimidad } from './calculo/legitimidad.js?v=2';
+import { serieLegacy as serieLegacyCalc } from './calculo/series.js?v=1';
+import { answerPresentacion, conLugarRecordado } from './memoria.js?v=1';
 /** Los cuatro originales en lenguaje llano (consulta general), antes de sus handlers específicos. */
 function answerLegacyLlano(q, ent, s, d) {
-  return legacyComparacion(q, ent, s, d, { indicadores: indicadoresLlano }) || legacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadLegacy });
+  return legacyComparacion(q, ent, s, d, { indicadores: indicadoresLlano, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA, serieLegacy: serieLegacyCalc }) || legacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadLegacy });
 }
 import { MARCADOR_RELEASE, releaseDeMarca, aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaTemaSensible, respuestaConDatos, salidaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=57';
 
@@ -6110,6 +6114,19 @@ async function _resolve(consulta) {
     trace.handler = 'answerVago';
     return { response: `El resumen de ${lastEntities.estado} es para ambos sexos. Dime un padecimiento y te doy mujeres y hombres por separado; por ejemplo, «diabetes en ${lastEntities.estado} mujeres».\n<!--SIN_GRAFICA-->`, handler: trace.handler };
   }
+  // Mesa agéntica, fase 1 (25-nov-2026): preguntas compuestas con la calculadora determinista (js/calculo/) y plantillas.
+  // Van después de las guardas (crisis, sensibles, D7, inyección) y antes de los manejadores de un solo padecimiento.
+  const ctxComp = { lastEntities, releaseDePad, releasesEnConsulta };
+  for (const h of [answerPresentacion, answerNegativaRazonada, answerEstacionalidad, answerExplicaGrafica]) {
+    const r = h(q, ent, s, d, ctxComp);
+    if (r) {
+      trace.handler = h.name;
+      if (h === answerPresentacion) lastEntities = { estado: ent.estado, _resumenEstado: true };
+      else if (h === answerNegativaRazonada) lastEntities = {};
+      else if (h === answerEstacionalidad && ent.padecimiento) lastEntities = { padecimiento: ent.padecimiento, ...(ent.estado ? { estado: ent.estado } : {}), ...(ent.sexo ? { sexo: ent.sexo } : {}) };
+      return { response: r, handler: trace.handler };
+    }
+  }
   for (const h of [answerCharla, answerQueja, answerVago, answerFamiliar, answerAmbiguoColoquial, answerSemanaFutura, answerNoReportado, answerFueraDeAlcance, answerSintomas, answerFAQ, answerRankingPadecimientos, answerConfianzaGeneral, answerViaje, answerEstadoLlano]) {
     if (h === answerConfianzaGeneral && lastEntities.padecimiento) continue;
     // Con un padecimiento en el contexto, «¿y en Sonora?» es un seguimiento de ese padecimiento, no el resumen del estado.
@@ -6118,7 +6135,7 @@ async function _resolve(consulta) {
     const r = h(q, ent, s, d);
     if (r) {
       trace.handler = h.name;
-      if (h === answerEstadoLlano) lastEntities = { estado: ent.estado, _resumenEstado: true };
+      if (h === answerEstadoLlano || (h === answerViaje && ent.estado)) lastEntities = { estado: ent.estado, _resumenEstado: true };
       else if (h === answerFamiliar) lastEntities = { padecimiento: ent.padecimiento, ...(ent.estado ? { estado: ent.estado } : {}) };
       else if (h !== answerSintomas) lastEntities = {};
       return { response: r, handler: trace.handler };
@@ -6410,6 +6427,9 @@ function seguimientoConContexto(texto) {
   const CORRIGE = /\b(quise decir|me equivoque|perdon|no era|me referia|me refiero|hablaba de|digo|corrijo)\b/;
   const sexoPrev = lastEntities.sexo && lastEntities.sexo !== 'general' && !ent.sexo && !/\b(general|total|ambos sexos|todos|en conjunto)\b/.test(qn)
     ? ` ${lastEntities.sexo}` : '';
+  // Memoria de lugar (mesa agéntica, fase 1): «en mi estado» y el padecimiento que sigue a una conversación sobre un estado.
+  const recordado = conLugarRecordado(qn, ent, lastEntities);
+  if (recordado) return recordado;
   // «¿Cuál de las dos…?» tras nombrar dos padecimientos.
   if (/\bcual (de (las|los) dos|(va|esta|anda) (peor|mejor)|sube mas|tiene mas( casos)?|es peor|es mas grave)\b/.test(qn) && (lastEntities._padsPrevios || []).length >= 2 && !ent.padecimiento) {
     const sx = ent.sexo || (lastEntities.sexo && lastEntities.sexo !== 'general' ? lastEntities.sexo : '');
@@ -6424,6 +6444,11 @@ function seguimientoConContexto(texto) {
   }
   // El sexo pedido en un turno anterior («¿y en mujeres?») se conserva en los seguimientos hasta que se cambie (sexoPrev).
   // «Olvídalo, mejor dime la varicela» o «perdón, quise decir parotiditis»: nuevo padecimiento, mismo estado (y sexo si corrige).
+  // «No te pregunté por otra cosa, tuberculosis»: una queja que repite el padecimiento conserva el lugar y el sexo (oráculo de la
+  // mesa agéntica, 25-nov-2026: el estado se perdía y la respuesta salía nacional).
+  if (ent.padecimiento && !ent.estado && lastEntities.estado && /\b(no te pregunte|te pregunte por|eso no (es|era)|no es lo que|no me entendiste|ya te dije|te dije que)\b/.test(qn)) {
+    return `${texto} en ${lastEntities.estado}${sexoPrev}`;
+  }
   if (ent.padecimiento && !ent.estado && lastEntities.estado && (/\b(olvidalo|mejor|ahora|y ahora|cambiando de tema)\b/.test(qn) || CORRIGE.test(qn))) {
     return `${texto} en ${lastEntities.estado}${CORRIGE.test(qn) ? sexoPrev : ''}`;
   }
@@ -6538,6 +6563,12 @@ async function _resolveConContexto(query) {
   if (!lastEntities.estado && detectEntities(norm(texto)).estado) lastEntities = { ...lastEntities, estado: detectEntities(norm(texto)).estado };
   const sint = notaSintomas(norm(query));
   if (sint && r.response && !HANDLERS_DE_AYUDA.has(r.handler) && r.handler !== 'answerSintomas') notas.unshift(sint.replace(/^_|_$/g, '').replace(/\.$/, ''));
+  // Salvedades de legitimidad (mesa agéntica, fase 1): significancia, brote, causas, aciertos y riesgo, ante cualquier respuesta
+  // con cifras. Una sola fuente (calculo/legitimidad.js) para todos los manejadores.
+  if (r.response && /\d/.test(r.response) && !HANDLERS_DE_AYUDA.has(r.handler) && r.handler !== 'answerNegativaRazonada') {
+    const legit = notasDeLegitimidad(norm(query)).map((x) => x.replace(/^_|_$/g, '')).filter((x) => !String(r.response).includes(x.slice(0, 40)));
+    notas.unshift(...legit);
+  }
   if (!notas.length || !r.response || HANDLERS_DE_AYUDA.has(r.handler)) return r;
   // Cada nota en su propia línea, en cursiva.
   return { ...r, response: `${notas.map((n) => `_${n.replace(/\.$/, '')}._`).join('\n')}\n\n${r.response}` };

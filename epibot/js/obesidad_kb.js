@@ -18,7 +18,9 @@ import {
 import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=57';
 // Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
 import './avisos_fuente.js?v=5';
-import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion, indicadores, nombreEstado } from './resumen_llano.js?v=3';
+import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion, indicadores, nombreEstado } from './resumen_llano.js?v=4';
+import { lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=2';
+import { serieDeVista } from './calculo/series.js?v=1';
 import { DEFINICIONES } from './definiciones.js?v=1';
 
 const any = (q, ks) => ks.some((k) => q.includes(k));
@@ -229,7 +231,9 @@ function answerRelease(q, ent, s, d, r) {
     .sort((a, b) => b.length - a.length).reduce((acc, a) => (a && a.length > 3 ? acc.split(a).join(' ') : acc), q);
   let tipoPedido = tipoEfectivo(qTipo, ent);
   // Dos estados nombrados («compárame candidiasis entre CDMX y Edomex») piden la comparación.
-  if (tipoPedido === 'serie' && estadosEnConsulta(v, q).length >= 2) tipoPedido = 'comparador';
+  // Con dos o más estados nombrados, también «¿en qué estado baja más rápido, en Yucatán, Veracruz o Tabasco?» (que pedía los
+  // estados con más casos de todo el país) es una comparación entre ellos (batería ciega S, mesa agéntica).
+  if ((tipoPedido === 'serie' || tipoPedido === 'mapa' || tipoPedido === 'entidades') && estadosEnConsulta(v, q).length >= 2) tipoPedido = 'comparador';
   const pidioSexo = sinSexo && ((ent.sexo && ent.sexo !== 'general') || tipoPedido === 'sexo');
   if (sinSexo) ent = { ...ent, sexo: undefined };
   const tipo = pidioSexo && tipoPedido === 'sexo' ? tipoEfectivo('', ent) : tipoPedido;
@@ -336,8 +340,11 @@ function answerRelease(q, ent, s, d, r) {
     };
     // Con dos o más estados nombrados, primero el veredicto: cuál tendrá más casos.
     const conF = filas.map((x) => ({ x, ind: indicadores(v, x) })).filter((y) => y.ind && y.ind.F4 != null).sort((p, q2) => q2.ind.F4 - p.ind.F4);
+    // «¿Dónde sube más rápido?»: primero el ritmo de cambio (mesa agéntica, fase 1), luego cuál tendrá más casos.
+    const baja = RAPIDEZ_BAJA.test(q);
+    const ritmo = !top && (baja || RAPIDEZ.test(q)) ? lineaRitmo(filas.map((x) => ({ nombre: nombreEstado(x.nombre), serie: serieDeVista(v, { estado: x.nombre, sexo }) })).filter((f) => f.serie), baja ? 'baja' : 'sube') : null;
     const veredicto = !top && conF.length >= 2
-      ? [`**Más casos esperados:** ${nombreEstado(conF[0].x.nombre)} (unos ${ent0(conF[0].ind.F4)} en las próximas 4 semanas, frente a ${ent0(conF[1].ind.F4)} en ${nombreEstado(conF[1].x.nombre)}).`, '']
+      ? [...(ritmo ? [ritmo, ''] : []), `**Más casos esperados:** ${nombreEstado(conF[0].x.nombre)} (unos ${ent0(conF[0].ind.F4)} en las próximas 4 semanas, frente a ${ent0(conF[1].ind.F4)} en ${nombreEstado(conF[1].x.nombre)}).`, '']
       : [];
     return fin([`**${r.etiqueta}: comparación de estados, ${sexoTxt}**${top ? ' (los cinco con más casos esperados; nombra dos o más estados para compararlos)' : ''}`, '',
       ...veredicto, ...filas.map(llana), '', '_Casos notificados, sin ajustar por población. Pregunta «¿qué tan confiable es?» para ver el detalle de la confiabilidad._', '<!--DETALLE-->',
