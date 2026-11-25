@@ -70,3 +70,17 @@ test('las gráficas siguen al esquema: mini-gráficas con var() y redibujo al ca
   assert.match(js, /plugins: \[fondoOpaco\('--paper'\)\]/);
   assert.match(js, /plugins: \[fondoOpaco\('--surface'\)\]/);
 });
+
+test('toda página que usa site.css declara su esquema de color (salvo la página sellada del WCP)', async () => {
+  const { readdirSync } = await import('fs');
+  const raiz = new URL('../', import.meta.url);
+  const paginas = [...readdirSync(raiz).filter((f) => f.endsWith('.html')), ...readdirSync(new URL('Reports/', raiz)).filter((f) => f.endsWith('.html')).map((f) => `Reports/${f}`), 'epibot/index.html'];
+  const faltan = [];
+  for (const p of paginas) {
+    const h = leer(p);
+    if (!/assets\/site\/site\.css/.test(h) || p === 'wcp2026.html') continue;
+    const esperado = p === 'Reports/index.html' ? 'light dark' : 'only light';
+    if (!new RegExp(`<meta name="color-scheme" content="${esperado}"`).test(h)) faltan.push(p);
+  }
+  assert.deepEqual(faltan, []);
+});

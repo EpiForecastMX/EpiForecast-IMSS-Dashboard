@@ -525,7 +525,9 @@ function showViewerChart(s, entry, titulo) {
       responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { labels: { color: token('--ink', '#173c33'), filter: (it) => it.text !== 'Intervalo del motor (inferior)', usePointStyle: true, boxWidth: 8 } },
-        tooltip: { filter: (it) => it.dataset.label !== 'Intervalo del motor (inferior)',
+        // Tooltip con los tokens del tema (claro u oscuro), no con el negro por defecto de Chart.js.
+        tooltip: { backgroundColor: token('--surface', '#ffffff'), titleColor: token('--ink', '#173c33'), bodyColor: token('--body', '#40594f'),
+          borderColor: token('--control-border', '#6f8579'), borderWidth: 1, filter: (it) => it.dataset.label !== 'Intervalo del motor (inferior)',
           callbacks: { title: tooltipTitle, label: (it) => `${it.dataset.label}: ${C.fmtCasos(it.parsed.y)} casos` } },
       },
       scales: {

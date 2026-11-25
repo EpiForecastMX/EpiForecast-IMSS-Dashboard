@@ -123,6 +123,12 @@ html.tema-galeria :is(.g-card__media img, .g-viewer__stage img) { background: #f
 .g-view[aria-pressed="true"] { background: var(--green); border-color: var(--green); color: var(--on-accent); }
 .g-view:disabled { background: var(--tint); color: var(--muted); border-style: dashed; cursor: not-allowed; }
 .g-views .g-reason { margin-top: 6px; }
+/* Accesibilidad (mesa de expertos, Astra): la vista activa se distingue también por forma, no sólo por color, y los enlaces
+   de contenido van subrayados en ambos temas. */
+.g-view[aria-pressed="true"]::before { content: ""; display: inline-block; width: .9em; height: .9em; margin-right: 6px; vertical-align: -1px;
+  background: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 8.5l4 4 8-9' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 8.5l4 4 8-9' fill='none' stroke='black' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain; }
+:is(.g-inline-link, .g-card__link, .g-detail__links a, .g-viewer__links a, .meta-details a) { text-decoration: underline; text-decoration-color: var(--control-border); text-underline-offset: 3px; }
+:is(.g-inline-link, .g-card__link, .g-detail__links a, .g-viewer__links a, .meta-details a):hover { text-decoration-color: currentColor; }
 
 .g-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin: 12px 0 0; padding: 0; list-style: none; }
 .g-card { display: flex; flex-direction: column; height: 100%; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
