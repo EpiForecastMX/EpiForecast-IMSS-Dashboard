@@ -9,6 +9,7 @@ import { validateCatalog } from '../assets/dashboard/unified.mjs';
 import { statusText } from '../assets/dashboard/units.mjs';
 import { COHORTS } from '../assets/dashboard/data.mjs';
 import { releaseDeId } from '../epibot/js/release_config.js?v=54';
+import { AREAS, areaDe } from '../assets/site/areas.mjs?v=1';
 
 const $ = (id) => document.getElementById(id);
 const CATALOG_URL = '../assets/dashboard/catalog.json';
@@ -58,6 +59,20 @@ const logError = (what, err) => console.warn(`[galería] ${what}:`, err);
 // ── Catálogo ─────────────────────────────────────────────────────────────────
 const ensureCatalog = () => load(CATALOG_URL, validateCatalog, 'catalogo').then((c) => { catalog = c; return c; });
 
+// Iconos del sprite común (mesa de expertos, 24-nov-2026): siempre decorativos y con texto visible al lado.
+const SPRITE = '../assets/site/icons.svg';
+const ICONO_ESTADO = { pass: 'i-estado-validado', pending: 'i-estado-en-validacion', control: 'i-estado-control', legacy: 'i-estado-previo' };
+function ico(nombre, clase = 'g-ico') {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  svg.setAttribute('class', clase);
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('focusable', 'false');
+  const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+  use.setAttribute('href', `${SPRITE}#${nombre}`);
+  svg.append(use);
+  return svg;
+}
+
 function spark(points) {
   const vals = points.map((p) => p[1]);
   if (vals.length < 2) return null;
@@ -90,7 +105,8 @@ function renderSummary() {
 function renderCatalog() {
   const q = $('gSearch').value;
   const st = $('gStatus').value;
-  const items = catalog.diseases.filter((d) => (!st || d.status.kind === st)
+  const ar = $('gArea')?.value ?? '';
+  const items = catalog.diseases.filter((d) => (!st || d.status.kind === st) && (!ar || areaDe(d.id)?.id === ar)
     && C.matchesQuery(`${d.label} ${d.labelShort} ${d.cie ?? ''} ${d.group} ${d.id.replace(/_/g, ' ')}`, q));
   $('gDiseases').replaceChildren(...items.map((d) => {
     const f = C.entryFacts(d);
@@ -100,12 +116,13 @@ function renderCatalog() {
       el('article', { class: `g-disease g-disease--${d.status.kind}` },
         el('div', { class: 'g-disease__top' },
           el('h3', {}, btn),
-          el('span', { class: `g-chip g-chip--${d.status.kind}` }, f.estadoCorto)),
+          el('span', { class: `g-chip g-chip--${d.status.kind}` }, ICONO_ESTADO[d.status.kind] ? ico(ICONO_ESTADO[d.status.kind], 'g-ico g-ico--chip') : null, f.estadoCorto)),
+        areaDe(d.id) ? el('p', { class: 'g-disease__area' }, ico(areaDe(d.id).icono), areaDe(d.id).nombre) : null,
         el('p', { class: 'g-disease__facts' }, [d.cie ? `CIE-10 ${d.cie}` : null, `${NF.format(d.nSeries)} series`, `observado hasta la ${f.observado}`].filter(Boolean).join(' · ')),
         nat ? spark(nat.spark) : null));
   }));
   $('gDiseasesEmpty').hidden = items.length > 0;
-  $('gCatalogCount').textContent = q || st ? `${items.length} de ${catalog.diseases.length}` : '';
+  $('gCatalogCount').textContent = q || st || ar ? `${items.length} de ${catalog.diseases.length}` : '';
 }
 
 // ── Avisos de URL ────────────────────────────────────────────────────────────
@@ -697,6 +714,11 @@ function showAllDetail(res) {
 function bind() {
   $('gSearch').addEventListener('input', () => { if (catalog) renderCatalog(); });
   $('gStatus').addEventListener('change', () => { if (catalog) renderCatalog(); });
+  const selArea = $('gArea');
+  if (selArea) {
+    selArea.replaceChildren(el('option', { value: '' }, 'Todas las áreas clínicas'), ...AREAS.map((a) => el('option', { value: a.id }, a.nombre)));
+    selArea.addEventListener('change', () => { if (catalog) renderCatalog(); });
+  }
   $('gCatalogRetry').addEventListener('click', start);
   $('gDetailRetry').addEventListener('click', () => {
     if (mode === 'all') loadAllSeries();
@@ -745,6 +767,10 @@ async function start() {
     return;
   }
   $('gCatalogLoading').hidden = true;
+  // Búsqueda que llega desde la portada u otra página: ?q=… y ?area=… prellenan el catálogo.
+  const qs = new URLSearchParams(location.search);
+  if (qs.get('q') && !$('gSearch').value) $('gSearch').value = qs.get('q').slice(0, 80);
+  if (qs.get('area') && AREAS.some((a) => a.id === qs.get('area')) && $('gArea')) $('gArea').value = qs.get('area');
   renderSummary();
   renderCatalog();
   readUrlAndRoute();

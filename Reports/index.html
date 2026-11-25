@@ -11,7 +11,7 @@
 <meta name="description" content="Explora los pronósticos epidemiológicos de EpiForecast-MX por padecimiento, entidad y sexo. Consulta sus cortes, gráficas y seguimiento.">
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../assets/site/site.css?v=5">
-<link rel="stylesheet" href="gallery.css?v=20261124t3">
+<link rel="stylesheet" href="gallery.css?v=20261124t4">
 <link rel="modulepreload" href="../assets/dashboard/data.mjs">
 <link rel="modulepreload" href="../assets/dashboard/unified.mjs">
 <link rel="modulepreload" href="galeria_core.mjs?v=2">
@@ -88,6 +88,11 @@
           <option value="pending">Validación prospectiva en curso</option>
           <option value="control">Control estacional publicado</option>
           <option value="legacy">Cohorte original</option>
+        </select>
+      </label>
+      <label for="gArea">Área clínica
+        <select id="gArea">
+          <option value="">Todas las áreas clínicas</option>
         </select>
       </label>
     </div>
@@ -280,7 +285,7 @@ const REGION_META = {
 };
 window.REGION_META = REGION_META;
 </script>
-<script type="module" src="galeria.mjs?v=9"></script>
+<script type="module" src="galeria.mjs?v=10"></script>
 <script src="../assets/site/site-nav.js?v=4"></script>
 </body>
 </html>
