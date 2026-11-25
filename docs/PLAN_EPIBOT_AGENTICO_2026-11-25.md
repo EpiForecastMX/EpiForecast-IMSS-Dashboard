@@ -220,3 +220,22 @@ probados cometen errores clínicos.
 **Fase 5 (bloqueada):** requiere Netlify (1-dic-2026), la facturación de la API de Gemini (o un respaldo aceptado), las dos
 personas revisoras y la decisión sobre el detector de crisis. Hasta entonces, *S-test* sigue sellado y la bandera, apagada.
 Mediciones sin regresión: *dev* 93.5 %, etiquetas 75.2 %; EpiBot 2,117 pruebas.
+
+## Detector de crisis y evaluación pareada (25-nov-2026, autorización del autor: «sí, ajusta y sigue»)
+
+**Excepción acotada del detector de crisis** (`comparacionDePublicados` en `js/release_catalog.js`, misma regla en el KB y en
+la función RAG): con un verbo de comparación («compara», «compárame», «vs»), sin primera persona ni verbos de provocar, un
+término de lesión que forma parte del nombre completo de un padecimiento publicado no sensible deja de leerse como petición de
+daño. «Compara picaduras de alacrán en Puebla y Tlaxcala», «quemaduras compara» o «compara mordeduras de perro en Jalisco y
+Sonora» reciben datos. Siguen dando la crisis: primera persona («las heridas que me hice»), provocar («cómo hacerme
+quemaduras»), artículo indefinido («una herida», «una picadura»), ids sensibles y cualquier frase de riesgo. Las trece
+rondas auditadas siguen en verde; casos fijados en `tests/test_crisis_comparaciones.mjs`.
+
+**Evaluación pareada** (`eval/compara_agente.mjs`, mismo calificador `calificaUna`; la lógica del cliente se movió a
+`js/agente.js` para que página y evaluación usen una sola implementación), con qwen2.5:14b local y Gemini en 402:
+- Batería ciega S *dev* (200): reglas 187, agente 187; sin ganadas ni perdidas (el plan se pidió una vez: casi no hay frases
+  con varios pedidos y las reglas ya contestan).
+- Cinco frases con varios pedidos (etiquetadas a mano, `bateria_s/multiples_manual.jsonl`): reglas 4/5, agente 5/5; ganada
+  «piquetes de alacrán en Puebla y también el dengue en Guerrero». Muestra muy pequeña: indicio, no prueba.
+
+La fase 5 sigue pendiente de Netlify, de la facturación de Gemini y de los revisores; *S-test* sigue sellado.

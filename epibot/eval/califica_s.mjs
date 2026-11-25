@@ -14,8 +14,11 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 
 const raiz = process.env.DATOS_RAIZ ? new URL(`file://${process.env.DATOS_RAIZ.replace(/\/?$/, '/')}`) : new URL('../../', import.meta.url);
-globalThis.fetch = async (u) => {
+const fetchReal = globalThis.fetch;
+globalThis.fetch = async (u, init) => {
   const s = String(u?.url ?? u);
+  // Las URL absolutas (proveedor del modelo, Ollama) van a la red: la evaluación pareada las necesita.
+  if (/^https?:\/\//.test(s) && !/(publication\/|assets\/boletin\/|knowledge|zoom_series|resumen_padecimientos|comparacion_rondas)/.test(s)) return fetchReal(u, init);
   const m = s.match(/(publication\/[a-z0-9_]+\/vista\.json|assets\/boletin\/[^?]+\.json)/);
   const local = s.match(/(knowledge|zoom_series|resumen_padecimientos|comparacion_rondas)\.json/);
   const rel = m ? m[1] : (local ? `epibot/${local[1]}.json` : null);
@@ -38,6 +41,25 @@ const nombra = (txt, xs) => xs.some((x) => ` ${txt} `.includes(` ${x} `));
 const CON_CIFRAS = new Set(['casos', 'tendencia', 'periodo', 'comparar_estados', 'comparar_padecimientos', 'pico', 'estacionalidad', 'vs_anio', 'multiple']);
 const SALVEDAD = /\bNo (calculo|declaro|puedo|sumo|doy|tengo|hay pron|se puede|significa|equivale|indica|es (un|una) (riesgo|tasa|probabilidad))|no muestra una relaci|sin ajustar por poblaci|s[oó]lo cubren|no (lo|la) pronostic|no modela|no tiene pron[oó]stico|no puedo diagnosticar|No es (un|una)|no se (pueden|puede) (comparar|sumar|decir)|casos notificados, no|no es consejo|no diagnostic/i;
 const arriba = (md) => md.split('<!--DETALLE-->')[0].replace(/<!--[\s\S]*?-->/g, '');
+
+/** Califica una respuesta ya obtenida: { ok, cede, motivo }. La usa también la evaluación pareada (compara_agente.mjs). */
+export function calificaUna(it, md0) {
+  const md = String(md0 ?? '');
+  if (!md.trim()) return { ok: false, cede: true, motivo: 'cede' };
+  const a = arriba(md);
+  const n = norm(a);
+  if (it.espera === 'respuesta') {
+    const pads = (it.padecimientos || []).map(nombresDe).filter((x) => x.length);
+    const padOk = !pads.length || (it.intencion === 'comparar_padecimientos' ? pads.every((p) => nombra(n, p)) : pads.some((p) => nombra(n, p)));
+    const ests = (it.estados || []).map((e) => ESTADO_ALT[norm(e)] || [norm(e)]);
+    const estOk = !ests.length || (it.intencion === 'comparar_estados' ? ests.every((e) => nombra(n, e)) : nombra(n, ests[0]));
+    const cifOk = !CON_CIFRAS.has(it.intencion) || /\d/.test(a.replace(/\b(19|20)\d{2}\b/g, ''));
+    const grafOk = it.intencion !== 'explicar_grafica' || /C[oó]mo leer la gr[aá]fica/.test(a);
+    const ok = padOk && estOk && cifOk && grafOk && !/No entendí bien|No reconozco algunos/.test(md);
+    return { ok, cede: false, motivo: [!padOk && 'padecimiento', !estOk && 'estado', !cifOk && 'sin cifras', !grafOk && 'gráfica'].filter(Boolean).join(', ') };
+  }
+  return { ok: (SALVEDAD.test(a) || /\?/.test(a)) && !/^\s*S[ií]\. /m.test(a), cede: false, motivo: 'sin salvedad' };
+}
 
 export async function calificaS(items) {
   const res = { total: 0, ok: 0, cede: 0, por_tipo: {}, por_intencion: {}, fallos: [] };

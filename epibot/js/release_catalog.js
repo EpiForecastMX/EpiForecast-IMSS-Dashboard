@@ -2127,6 +2127,35 @@
     const toks = new Set(sinEstadoTecnico(raw).split(' '));
     return cur.verbosPeticion.some((v) => !IMPERSONALES.has(v) && toks.has(v)) || /\bme gustaria\b/.test(sinEstadoTecnico(raw));
   }
+  // Excepción acotada (decisión del autor, 25-nov-2026): con un verbo de COMPARACIÓN y sin primera persona ni verbos de
+  // provocar, un término de lesión que forma parte del nombre completo de un padecimiento publicado NO sensible («compara
+  // picaduras de alacrán en Puebla y Tlaxcala», «quemaduras compara», «mordeduras de perro vs …») es el objeto de la
+  // comparación, no una petición de daño. Los ids sensibles siguen dando la crisis (se revisan antes) y el resto de los
+  // detectores (riesgo personal, ingestión propia, léxico de riesgo) no cambia. Devuelve los índices de esos términos.
+  const COMPARA_VERBO = /^(compara|comparar|comparalo|comparala|comparalos|comparalas|comparame|comparen|comparan|comparemos|contrasta|contrastar|vs|versus)$/;
+  const PROPIO_O_PROVOCAR = /^(me|mi|mis|yo|conmigo|hacer|hacerme|hacerle|hacerte|provocar|provocarme|causar|causarme|hago|haces)$/;
+  const NOMBRE_DE_UNA_PALABRA = new Set(['quemaduras', 'quemadura']);
+  const INDEFINIDO = new Set(['un', 'una', 'unos', 'unas', 'alguna', 'algun', 'otra', 'otro']);
+  const SINGULAR = { picaduras: 'picadura', mordeduras: 'mordedura', quemaduras: 'quemadura', heridas: 'herida', intoxicaciones: 'intoxicacion', lesiones: 'lesion' };
+  function comparacionDePublicados(toks) {
+    const fuera = new Set();
+    if (!toks.some((t) => COMPARA_VERBO.test(t)) || toks.some((t) => PROPIO_O_PROVOCAR.test(t))) return fuera;
+    const formas = [toks, toks.map((t) => SINGULAR[t] || t)];
+    for (const f of todosLosFragmentos()) {
+      if (!DANO.test(f) || idsSensiblesEn(f).length || nombraReleaseSensible(f)) continue;
+      const fw = f.split(' ');
+      // Sólo nombres completos (dos palabras o más, o «quemaduras»), y nunca tras un artículo indefinido: «una herida» o
+      // «una picadura» se leen como algo personal (pruebas de la decimotercera auditoría).
+      if (fw.length < 2 && !NOMBRE_DE_UNA_PALABRA.has(f)) continue;
+      for (const tk of formas) {
+        for (let i = 0; i + fw.length <= tk.length; i++) {
+          if (INDEFINIDO.has(tk[i - 1])) continue;
+          if (fw.every((x, j) => tk[i + j] === x)) for (let j = 0; j < fw.length; j++) fuera.add(i + j);
+        }
+      }
+    }
+    return fuera;
+  }
   function peticionDeDano(raw) {
     if (!peticionPersonal(raw)) return false;
     raw = String(raw).replace(/golpes? de calor/gi, 'efectos del calor');
@@ -2136,8 +2165,10 @@
     // ESA cláusula («dame datos, una intoxicación…» no lo justifica «datos»). Sin exención por rótulo.
     return clausulasSignos(raw).some((toks) => {
       if (idsSensiblesEn(toks.join(' ')).length) return true;
+      const benignos = comparacionDePublicados(toks);
       return toks.some((w, i) => {
         if (!DANO.test(w)) return false;
+        if (benignos.has(i)) return false;
         // Sólo «sustantivo de datos + de/del/por/sobre (+ artículo) + daño» («casos de asfixia»); «datos una herida» no.
         let k = i - 1;
         if (['la', 'el', 'los', 'las', 'un', 'una'].includes(toks[k])) k--;
