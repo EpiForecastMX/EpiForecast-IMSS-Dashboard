@@ -19,6 +19,13 @@
   --control-border: #6f8579; /* borde de controles interactivos: ≥ 3:1 sobre blanco, papel y mint */
   --paper: #fafbf7;
   --white: #fff;
+  /* Tema oscuro de la galería (24-nov-2026): superficie y texto sobre acento separados de --white, y el sitio se
+     declara «sólo claro» para que el oscurecimiento forzado del navegador no rompa las gráficas; una página que
+     tenga tema oscuro propio lo anula en su hoja (Reports/gallery.css). */
+  --surface: #fff;
+  --on-accent: #fff;
+  --header-bg: rgb(250 251 247 / 94%);
+  color-scheme: only light;
   --gold: #d9b864;
   --brand-gold: #d9b864; /* nombre propio del shell: algunas apps redefinen --gold */
   --gold-soft: #f7f0dc;
@@ -58,7 +65,7 @@ a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 3px; 
 [hidden] { display: none !important; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
-.skip { position: fixed; top: -100px; left: 16px; z-index: 200; padding: 10px 14px; background: var(--white); color: var(--ink); border: 2px solid var(--green); border-radius: var(--radius-sm); }
+.skip { position: fixed; top: -100px; left: 16px; z-index: 200; padding: 10px 14px; background: var(--surface); color: var(--ink); border: 2px solid var(--green); border-radius: var(--radius-sm); }
 .skip:focus { top: 12px; }
 
 .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter); }
@@ -66,9 +73,9 @@ a { color: inherit; text-decoration-thickness: 1px; text-underline-offset: 3px; 
 .serif-em { font-family: var(--serif); font-style: italic; font-weight: 400; color: var(--green); letter-spacing: -.01em; }
 
 .btn { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 10px 18px; border: 1px solid transparent; border-radius: 999px; font-weight: 650; text-decoration: none; cursor: pointer; transition: background-color .15s, color .15s, border-color .15s; }
-.btn--primary { background: var(--green); color: var(--white); }
+.btn--primary { background: var(--green); color: var(--on-accent); }
 .btn--primary:hover { background: var(--green-dark); }
-.btn--ghost { background: var(--white); color: var(--green-dark); border-color: var(--control-border); }
+.btn--ghost { background: var(--surface); color: var(--green-dark); border-color: var(--control-border); }
 .btn--ghost:hover { background: var(--mint); }
 .btn:disabled, .btn[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
 .text-link { color: var(--green-dark); font-weight: 650; text-decoration: underline; text-decoration-color: var(--control-border); }
@@ -77,11 +84,11 @@ summary { min-height: 44px; }
 .text-link:hover { text-decoration-color: currentColor; }
 
 /* ── Cabecera común ───────────────────────────────────────────────────────── */
-.site-header { position: static; z-index: 50; background: rgb(250 251 247 / 94%); border-bottom: 1px solid var(--line); backdrop-filter: saturate(1.2) blur(8px); }
+.site-header { position: static; z-index: 50; background: var(--header-bg); border-bottom: 1px solid var(--line); backdrop-filter: saturate(1.2) blur(8px); }
 .site-header[data-enhanced] { position: sticky; top: 0; }
 .site-header__inner { display: flex; align-items: center; gap: 20px; max-width: var(--wrap); min-height: 68px; margin: 0 auto; padding: 0 var(--gutter); }
 .site-brand { display: inline-flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; flex: none; min-height: 44px; }
-.site-brand__symbol { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 9px; background: var(--green); color: var(--white); font-weight: 800; font-size: 17px; line-height: 1; }
+.site-brand__symbol { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 9px; background: var(--green); color: var(--on-accent); font-weight: 800; font-size: 17px; line-height: 1; }
 .site-brand__symbol span { position: absolute; top: 3px; right: 4px; color: var(--brand-gold); font-size: 11px; line-height: 1; }
 .site-brand__name { display: flex; flex-direction: column; font-weight: 800; letter-spacing: -.02em; line-height: 1.1; }
 .site-brand__word { white-space: nowrap; }
@@ -96,16 +103,16 @@ summary { min-height: 44px; }
 .nav-menu > li > a:is([aria-current="page"], [aria-current="true"]), .nav-group__toggle[data-current] { color: var(--green-dark); box-shadow: inset 0 -3px 0 var(--green); border-radius: 8px 8px 0 0; }
 .nav-group__toggle::after { content: ""; width: 7px; height: 7px; margin-left: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: translateY(-2px) rotate(45deg); }
 .nav-group__toggle[aria-expanded="true"]::after { transform: translateY(2px) rotate(-135deg); }
-.nav-group__list { position: absolute; right: 0; top: calc(100% + 6px); min-width: 250px; margin: 0; padding: 8px; list-style: none; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); display: none; }
+.nav-group__list { position: absolute; right: 0; top: calc(100% + 6px); min-width: 250px; margin: 0; padding: 8px; list-style: none; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); display: none; }
 .nav-group__list a { display: block; padding: 10px 12px; border-radius: 6px; color: var(--ink); text-decoration: none; font-weight: 550; }
 .nav-group__list a:hover { background: var(--mint); }
 .site-header:not([data-enhanced]) .nav-group:hover .nav-group__list,
 .site-header:not([data-enhanced]) .nav-group:focus-within .nav-group__list,
 .site-header[data-enhanced] .nav-group.is-open .nav-group__list { display: block; }
 
-.site-nav__toggle { display: none; align-items: center; gap: 8px; min-height: 44px; margin-left: auto; padding: 8px 14px; border: 1px solid var(--control-border); border-radius: 999px; background: var(--white); color: var(--ink); font-weight: 650; cursor: pointer; }
+.site-nav__toggle { display: none; align-items: center; gap: 8px; min-height: 44px; margin-left: auto; padding: 8px 14px; border: 1px solid var(--control-border); border-radius: 999px; background: var(--surface); color: var(--ink); font-weight: 650; cursor: pointer; }
 .site-nav__toggle-icon { width: 16px; height: 2px; background: currentColor; box-shadow: 0 -5px 0 currentColor, 0 5px 0 currentColor; }
-.site-nav__mobile { display: none; border-top: 1px solid var(--line); background: var(--white); }
+.site-nav__mobile { display: none; border-top: 1px solid var(--line); background: var(--surface); }
 /* Dentro del header sticky: nunca más alto que el viewport; desplazamiento propio (360×640, zoom 200 %). */
 .site-header[data-enhanced] .site-nav__mobile { max-height: calc(100vh - var(--site-header-h, 68px)); max-height: calc(100dvh - var(--site-header-h, 68px)); overflow-y: auto; overscroll-behavior: contain; }
 .nav-mobile-items { display: flex; flex-direction: column; max-width: var(--wrap); margin: 0 auto; padding: 10px var(--gutter) 18px; }
@@ -154,6 +161,7 @@ summary { min-height: 44px; }
 #nav.site-header, footer.site-footer {
   --ink: #173c33; --body: #40594f; --muted: #5b6f66; --green: #17644d; --green-dark: #0f4938;
   --mint: #e8f1e9; --tint: #f1f6ef; --line: #dbe3dc; --line-strong: #bdcebf; --paper: #fafbf7; --white: #fff;
+  --surface: #fff; --on-accent: #fff; --header-bg: rgb(250 251 247 / 94%);
   --control-border: #6f8579; --focus: #b28224; --brand-gold: #d9b864;
   --sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-family: var(--sans);
@@ -161,7 +169,7 @@ summary { min-height: 44px; }
 #nav.site-header {
   display: block; min-height: 0; padding: 0; gap: 0; flex-wrap: nowrap;
   justify-content: normal; align-items: normal; color: var(--ink);
-  background: rgb(250 251 247 / 94%); border-bottom: 1px solid var(--line);
+  background: var(--header-bg); border-bottom: 1px solid var(--line);
 }
 #nav.site-header .site-nav { gap: 0; font-size: inherit; font-weight: inherit; }
 #nav.site-header:not([data-enhanced]) .site-nav, #nav.site-header[data-enhanced]:not([data-collapsed]) .site-nav { display: flex; }
