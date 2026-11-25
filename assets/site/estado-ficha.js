@@ -42,6 +42,21 @@
     return corto && label.indexOf(corto) === 0 ? label.slice(corto.length).replace(/^[\s·:,-]+/, '') : label;
   }
 
+  /* Mesa de expertos sobre iconografía (24-nov-2026): el icono del estado sale del sprite común. El control estacional
+   * lleva el ciclo de repetición, nunca el reloj (que se leía como «validación en curso») ni la palomita. */
+  var ICONO = { pass: 'i-estado-validado', pending: 'i-estado-en-validacion', control: 'i-estado-control' };
+  function icono(card, kind, d) {
+    var svg = card.querySelector && card.querySelector('.status-badge svg');
+    if (!svg || !ICONO[kind] || !d.createElementNS) return;
+    var ns = 'http://www.w3.org/2000/svg';
+    var use = d.createElementNS(ns, 'use');
+    use.setAttribute('href', 'assets/site/icons.svg#' + ICONO[kind]);
+    while (svg.firstChild) svg.removeChild(svg.firstChild);
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('data-icono', ICONO[kind]);
+    svg.appendChild(use);
+  }
+
   function aplica(card, v, doc) {
     var d = doc || g.document;
     var kind = tipo(v);
@@ -54,6 +69,7 @@
     var l = d.getElementById('pubLabel');
     if (k) { k.textContent = corto; k.hidden = !corto; }
     if (l) l.textContent = k && corto ? detalle(corto, label) : label;
+    icono(card, kind, d);
     return kind;
   }
 

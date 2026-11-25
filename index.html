@@ -287,11 +287,26 @@
       <label for="conditionGroup">Área de salud
         <select id="conditionGroup">
                 <option value="">Todas las áreas</option>
-                <option>Salud mental y neurología</option>
-                <option>Metabólicos</option>
+                <option>Respiratorias</option>
+                <option>Tuberculosis y micobacterias</option>
+                <option>Intestinales y por alimentos</option>
+                <option>Parasitosis por helmintos</option>
+                <option>Hígado y hepatitis</option>
+                <option>Vectores y zoonosis</option>
+                <option>Prevenibles por vacunación y exantemáticas</option>
+                <option>Infecciones invasivas y meníngeas</option>
+                <option>Piel, ojos, oídos y boca</option>
+                <option>Salud sexual y VIH</option>
+                <option>Embarazo y congénitas</option>
                 <option>Cardiovasculares</option>
-                <option>Oncología</option>
-                <option>Otros padecimientos</option>
+                <option>Metabólicas y nutrición</option>
+                <option>Tumores malignos y displasias</option>
+                <option>Salud mental y neurología</option>
+                <option>Digestivas y urinarias</option>
+                <option>Accidentes y quemaduras</option>
+                <option>Lesiones autoinfligidas y violencia</option>
+                <option>Picaduras y mordeduras</option>
+                <option>Intoxicaciones y ambiente</option>
         </select>
       </label>
     </div>
@@ -319,14 +334,14 @@
             <a class="condition-gallery" href="Reports/index.html?p=alzheimer">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Ultra-baja incidencia, donde un caso de diferencia pesa mucho en el error porcentual. Con la selección fuera de muestra (semanas 28 a 37 de 2026): Stacking 47, Prophet 31, Ensemble 30, DeepAR 3.</p></details>
           </article>
-          <article class="condition-card" data-p="dengue" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="dengue" data-group="Vectores y zoonosis">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="dengue.html">Dengue<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A97 · DeepAR + Prophet · 99 series productivas · 2018-2026</p>
             <a class="condition-gallery" href="Reports/index.html?p=dengue">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Cuarto padecimiento y primera arbovirosis (transmitida por mosquito), con estacionalidad climática y grandes brotes cada cuatro a cinco años, ligados a <strong>El Niño</strong>. Se modela en conteos absolutos; en producción quedan <strong>DeepAR y Prophet</strong>, con pronóstico a 52 semanas. NB-GLM queda suspendido en esta ronda por inestabilidad de su predicción recursiva a horizontes largos.</p></details>
           </article>
-          <article class="condition-card" data-p="obesidad" data-group="Metabólicos">
+          <article class="condition-card" data-p="obesidad" data-group="Metabólicas y nutrición">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="obesidad.html">Obesidad<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: E66 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
@@ -361,1001 +376,1001 @@
             <a class="condition-gallery" href="Reports/index.html?p=cerebrovascular_i60">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 1,300 casos semanales en todo el país. Su portafolio no superó la prueba de 2025, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="intestinales_a04" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="intestinales_a04" data-group="Intestinales y por alimentos">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="intestinales_a04.html">Infecciones intestinales por otros organismos y las mal definidas<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A04, A08-A09 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=intestinales_a04">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 70 mil casos semanales en todo el país. Su portafolio superó la prueba de 2025. Usa datos hasta la semana 41 de 2026, se emitió el 8 de noviembre y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="ira_j00" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="ira_j00" data-group="Respiratorias">
             <span class="status control">Control estacional</span>
             <h3><a href="ira_j00.html">Infecciones respiratorias agudas<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: J00-J06, J20, J21 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=ira_j00">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 300 mil casos semanales en todo el país. Su portafolio no superó la prueba de 2025, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="ivu_n39" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="ivu_n39" data-group="Digestivas y urinarias">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="ivu_n39.html">Infección de vías urinarias<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: N30, N34, N39.0 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=ivu_n39">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 70 mil casos semanales en todo el país. Su portafolio superó la prueba de 2025. Usa datos hasta la semana 41 de 2026, se emitió el 8 de noviembre y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="gingivitis_k05" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="gingivitis_k05" data-group="Piel, ojos, oídos y boca">
             <span class="status control">Control estacional</span>
             <h3><a href="gingivitis_k05.html">Gingivitis y enfermedad periodontal<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: K05 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=gingivitis_k05">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 23 mil casos semanales en todo el país. Su portafolio no superó la prueba de 2025, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="ulceras_k25" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="ulceras_k25" data-group="Digestivas y urinarias">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="ulceras_k25.html">Úlceras, gastritis y duodenitis<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: K25-K29 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=ulceras_k25">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 17 mil casos semanales en todo el país. Su portafolio superó la prueba de 2025. Usa datos hasta la semana 41 de 2026, se emitió el 8 de noviembre y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="asma_j45" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="asma_j45" data-group="Respiratorias">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="asma_j45.html">Asma<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: J45, J46 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=asma_j45">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 2,300 casos semanales en todo el país en 2026. Su portafolio superó la prueba de 2025. Usa datos hasta la semana 41 de 2026, se emitió el 9 de noviembre y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="neumonias_j12" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="neumonias_j12" data-group="Respiratorias">
             <span class="status control">Control estacional</span>
             <h3><a href="neumonias_j12.html">Neumonías y bronconeumonías<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: J12-J18 excepto J18.2, J13 y J14 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=neumonias_j12">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 3,000 casos semanales en todo el país en 2026. Su portafolio no superó la prueba de 2025 en el total nacional, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="otitis_h65" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="otitis_h65" data-group="Piel, ojos, oídos y boca">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="otitis_h65.html">Otitis media aguda<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: H65.0-H65.1 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=otitis_h65">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 11 mil casos semanales en todo el país en 2026. Su portafolio superó la prueba de 2025. Usa datos hasta la semana 42 de 2026, se emitió el 12 de noviembre y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="conjuntivitis_h10" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="conjuntivitis_h10" data-group="Piel, ojos, oídos y boca">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="conjuntivitis_h10.html">Conjuntivitis<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: H10 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=conjuntivitis_h10">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 15 mil casos semanales en todo el país en 2026. Su portafolio superó la prueba de 2025. Usa datos hasta la semana 42 de 2026, se emitió el 12 de noviembre y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="amebiasis_a06" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="amebiasis_a06" data-group="Intestinales y por alimentos">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="amebiasis_a06.html">Amebiasis intestinal<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A06.0-A06.3, A06.9 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=amebiasis_a06">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 1,600 casos semanales en todo el país en 2026. Su portafolio superó la prueba de 2025. Usa datos hasta la semana 42 de 2026, se emitió el 12 de noviembre y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="vehiculos_v20" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="vehiculos_v20" data-group="Accidentes y quemaduras">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="vehiculos_v20.html">Accidente de transporte en vehículos con motor<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: V20-V29, V40-V79 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=vehiculos_v20">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 5 mil casos semanales en todo el país en 2026. Su portafolio superó la prueba de 2025. Usa datos hasta la semana 42 de 2026, se emitió el 12 de noviembre y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="embarazo_hipertensivos_o10" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="embarazo_hipertensivos_o10" data-group="Embarazo y congénitas">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="embarazo_hipertensivos_o10.html">Edema, proteinuria y trastornos hipertensivos en el embarazo, parto y puerperio<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: O10-O16 · 32 modelos · 37 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=embarazo_hipertensivos_o10">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 1,200 casos semanales en todo el país en 2026. Su portafolio superó la prueba de 2025. Usa datos hasta la semana 42 de 2026, se emitió el 12 de noviembre y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="alimentaria_a05" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="alimentaria_a05" data-group="Intestinales y por alimentos">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="alimentaria_a05.html">Intoxicación alimentaria bacteriana<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A05 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=alimentaria_a05">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 400 casos semanales en todo el país en 2026. Su portafolio superó la prueba de 2025 con la política de cinco motores estacionales, sin ETS ni regresión armónica, por decisión del autor del 12 de noviembre. Usa datos hasta la semana 42 de 2026, se emitió el 12 de noviembre y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="shigelosis_a03" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="shigelosis_a03" data-group="Intestinales y por alimentos">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="shigelosis_a03.html">Shigelosis<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A03 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=shigelosis_a03">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 20 casos semanales en todo el país en 2026. Su portafolio superó la prueba de 2025 con la política de cinco motores estacionales, sin ETS ni regresión armónica, por decisión del autor del 12 de noviembre. Usa datos hasta la semana 42 de 2026, se emitió el 12 de noviembre y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="erisipela_a46" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="erisipela_a46" data-group="Piel, ojos, oídos y boca">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="erisipela_a46.html">Erisipela<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A46 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=erisipela_a46">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 140 casos semanales en todo el país en 2026. Su portafolio superó la prueba de 2025 con la política de cinco motores estacionales, sin ETS ni regresión armónica, por decisión del autor del 12 de noviembre. Usa datos hasta la semana 42 de 2026, se emitió el 12 de noviembre y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="candidiasis_b37" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="candidiasis_b37" data-group="Salud sexual y VIH">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="candidiasis_b37.html">Candidiasis urogenital<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: B37.3-B37.4 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=candidiasis_b37">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 2,100 casos semanales en todo el país en 2026. Su portafolio superó la prueba de 2025 con la política de cinco motores estacionales, sin ETS ni regresión armónica, por decisión del autor del 12 de noviembre. Usa datos hasta la semana 42 de 2026, se emitió el 12 de noviembre y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="embarazo_diabetes_o24" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="embarazo_diabetes_o24" data-group="Embarazo y congénitas">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="embarazo_diabetes_o24.html">Diabetes mellitus en el embarazo<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: O24.4 · 32 modelos · 37 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=embarazo_diabetes_o24">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 440 casos semanales en todo el país en 2026. Su portafolio superó la prueba de 2025 con la política de cinco motores estacionales, sin ETS ni regresión armónica, por decisión del autor del 12 de noviembre. Usa datos hasta la semana 42 de 2026, se emitió el 12 de noviembre y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="quemaduras_t20" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="quemaduras_t20" data-group="Accidentes y quemaduras">
             <span class="status control">Control estacional</span>
             <h3><a href="quemaduras_t20.html">Quemaduras<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: T20-T32 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=quemaduras_t20">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 1,400 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="ivp_i87" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="ivp_i87" data-group="Cardiovasculares">
             <span class="status control">Control estacional</span>
             <h3><a href="ivp_i87.html">Insuficiencia venosa periférica<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: I87.2 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=ivp_i87">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 4,200 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="hiperplasia_prostata_n40" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="hiperplasia_prostata_n40" data-group="Digestivas y urinarias">
             <span class="status control">Control estacional</span>
             <h3><a href="hiperplasia_prostata_n40.html">Hiperplasia de la próstata<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: N40 · control estacional · 37 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=hiperplasia_prostata_n40">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 2,300 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="escabiosis_b86" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="escabiosis_b86" data-group="Piel, ojos, oídos y boca">
             <span class="status control">Control estacional</span>
             <h3><a href="escabiosis_b86.html">Escabiosis<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: B86 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=escabiosis_b86">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 500 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="protozoarios_a07" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="protozoarios_a07" data-group="Intestinales y por alimentos">
             <span class="status control">Control estacional</span>
             <h3><a href="protozoarios_a07.html">Otras infecciones intestinales debidas a protozoarios<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A07.0, A07.2, A07.9 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=protozoarios_a07">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 920 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="faringitis_j02" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="faringitis_j02" data-group="Respiratorias">
             <span class="status control">Control estacional</span>
             <h3><a href="faringitis_j02.html">Faringitis y amigdalitis estreptocócicas<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: J02.0, J03.0 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=faringitis_j02">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 4,800 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en las series por estado y el total nacional; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="peaton_v01" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="peaton_v01" data-group="Accidentes y quemaduras">
             <span class="status control">Control estacional</span>
             <h3><a href="peaton_v01.html">Peatón lesionado en accidente de transporte<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: V01-V09 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=peaton_v01">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 460 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="displasia_leve_n87" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="displasia_leve_n87" data-group="Tumores malignos y displasias">
             <span class="status control">Control estacional</span>
             <h3><a href="displasia_leve_n87.html">Displasia cervical leve y moderada<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: N87.0-N87.1 · control estacional · 37 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=displasia_leve_n87">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 660 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el conjunto de las series y el total nacional; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="varicela_b01" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="varicela_b01" data-group="Prevenibles por vacunación y exantemáticas">
             <span class="status control">Control estacional</span>
             <h3><a href="varicela_b01.html">Varicela<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: B01 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=varicela_b01">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 1,100 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el conjunto de las series y el total nacional; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="parotiditis_b26" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="parotiditis_b26" data-group="Prevenibles por vacunación y exantemáticas">
             <span class="status control">Control estacional</span>
             <h3><a href="parotiditis_b26.html">Parotiditis infecciosa<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: B26 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=parotiditis_b26">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 94 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="ascariasis_b77" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="ascariasis_b77" data-group="Parasitosis por helmintos">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="ascariasis_b77.html">Ascariasis<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: B77 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=ascariasis_b77">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 330 casos semanales en todo el país en 2026. Su portafolio superó la prueba de 2025 con la política de cinco motores estacionales, sin ETS ni regresión armónica, por decisión del autor del 12 de noviembre. Usa datos hasta la semana 42 de 2026, se emitió el 12 de noviembre y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="hepatitis_a_b15" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="hepatitis_a_b15" data-group="Hígado y hepatitis">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="hepatitis_a_b15.html">Hepatitis vírica A<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: B15 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=hepatitis_a_b15">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 53 casos semanales en todo el país en 2026. Su portafolio superó la prueba de 2025 con la política de cinco motores estacionales, sin ETS ni regresión armónica, por decisión del autor del 12 de noviembre. Usa datos hasta la semana 42 de 2026, se emitió el 12 de noviembre y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="calor_t67" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="calor_t67" data-group="Intoxicaciones y ambiente">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="calor_t67.html">Efectos del calor y de la luz<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: T67, X30 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=calor_t67">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 110 casos semanales en todo el país en 2026. Su portafolio superó la prueba de 2025 con la política de cinco motores estacionales, sin ETS ni regresión armónica, por decisión del autor del 12 de noviembre. Usa datos hasta la semana 42 de 2026, se emitió el 12 de noviembre y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="otras_hepatitis_b17" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="otras_hepatitis_b17" data-group="Hígado y hepatitis">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="otras_hepatitis_b17.html">Otras hepatitis víricas<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: B17.0, B17.2-B17.9, B18.0-B18.1, B18.8-B18.9, B19 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=otras_hepatitis_b17">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 33 casos semanales en todo el país en 2026. Su portafolio superó la prueba de 2025 con la política de cinco motores estacionales, sin ETS ni regresión armónica, por decisión del autor del 12 de noviembre. Usa datos hasta la semana 42 de 2026, se emitió el 12 de noviembre y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="desnutricion_leve_e441" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="desnutricion_leve_e441" data-group="Metabólicas y nutrición">
             <span class="status control">Control estacional</span>
             <h3><a href="desnutricion_leve_e441.html">Desnutrición leve<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: E44.1 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=desnutricion_leve_e441">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 920 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="salmonelosis_a02" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="salmonelosis_a02" data-group="Intestinales y por alimentos">
             <span class="status control">Control estacional</span>
             <h3><a href="salmonelosis_a02.html">Otras salmonelosis<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A02 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=salmonelosis_a02">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 390 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="tifoidea_a01" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="tifoidea_a01" data-group="Intestinales y por alimentos">
             <span class="status control">Control estacional</span>
             <h3><a href="tifoidea_a01.html">Fiebre tifoidea<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A01.0 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=tifoidea_a01">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 110 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="escarlatina_a38" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="escarlatina_a38" data-group="Prevenibles por vacunación y exantemáticas">
             <span class="status control">Control estacional</span>
             <h3><a href="escarlatina_a38.html">Escarlatina<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A38 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=escarlatina_a38">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 33 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="hepatitis_c_b17" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="hepatitis_c_b17" data-group="Hígado y hepatitis">
             <span class="status control">Control estacional</span>
             <h3><a href="hepatitis_c_b17.html">Hepatitis vírica C<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: B17.1, B18.2 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=hepatitis_c_b17">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 120 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="displasia_severa_n87" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="displasia_severa_n87" data-group="Tumores malignos y displasias">
             <span class="status control">Control estacional</span>
             <h3><a href="displasia_severa_n87.html">Displasia cervical severa y CaCu in situ<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: N87.2, D06 · control estacional · 37 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=displasia_severa_n87">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 96 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="brucelosis_a23" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="brucelosis_a23" data-group="Vectores y zoonosis">
             <span class="status control">Control estacional</span>
             <h3><a href="brucelosis_a23.html">Brucelosis<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A23 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=brucelosis_a23">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 25 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional; por un dictamen tomado bajo delegación del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="reumatica_i00" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="reumatica_i00" data-group="Cardiovasculares">
             <span class="status control">Control estacional</span>
             <h3><a href="reumatica_i00.html">Fiebre reumática aguda<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: I00-I02 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=reumatica_i00">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 19 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional; por un dictamen tomado bajo delegación del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="bocio_e01" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="bocio_e01" data-group="Metabólicas y nutrición">
             <span class="status control">Control estacional</span>
             <h3><a href="bocio_e01.html">Bocio endémico<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: E01 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=bocio_e01">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 14 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional; por un dictamen tomado bajo delegación del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="hepatitis_b_b16" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="hepatitis_b_b16" data-group="Hígado y hepatitis">
             <span class="status control">Control estacional</span>
             <h3><a href="hepatitis_b_b16.html">Hepatitis vírica B<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: B16 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=hepatitis_b_b16">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 15 casos semanales en todo el país. Sólo la hepatitis B aguda (B16); la crónica se cuenta en otras hepatitis víricas. Su portafolio no superó la prueba de 2025 en el total nacional; por un dictamen tomado bajo delegación del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="rotavirus_a080" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="rotavirus_a080" data-group="Intestinales y por alimentos">
             <span class="status control">Control estacional</span>
             <h3><a href="rotavirus_a080.html">Enteritis debida a rotavirus<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A08.0 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=rotavirus_a080">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 12 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional; por un dictamen tomado bajo delegación del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="absceso_hepatico_a064" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="absceso_hepatico_a064" data-group="Intestinales y por alimentos">
             <span class="status control">Control estacional</span>
             <h3><a href="absceso_hepatico_a064.html">Absceso hepático amebiano<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A06.4 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=absceso_hepatico_a064">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 14 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional; por un dictamen tomado bajo delegación del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="leptospirosis_a27" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="leptospirosis_a27" data-group="Vectores y zoonosis">
             <span class="status control">Control estacional</span>
             <h3><a href="leptospirosis_a27.html">Leptospirosis<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A27 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=leptospirosis_a27">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 11 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional; por un dictamen tomado bajo delegación del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="helmintiasis_b65" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="helmintiasis_b65" data-group="Parasitosis por helmintos">
             <span class="status control">Control estacional</span>
             <h3><a href="helmintiasis_b65.html">Otras helmintiasis<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: B65-B67, B70-B72, B74, B76, B78-B79, B81-B83 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=helmintiasis_b65">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 1,900 casos semanales en todo el país. La ascariasis y la enterobiasis tienen bloque propio. Su portafolio no superó la prueba de 2025 en el total nacional; por un dictamen tomado bajo delegación del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="desnutricion_moderada_e440" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="desnutricion_moderada_e440" data-group="Metabólicas y nutrición">
             <span class="status control">Control estacional</span>
             <h3><a href="desnutricion_moderada_e440.html">Desnutrición moderada<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: E44.0 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=desnutricion_moderada_e440">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 230 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional; por un dictamen tomado bajo delegación del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="desnutricion_severa_e40" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="desnutricion_severa_e40" data-group="Metabólicas y nutrición">
             <span class="status control">Control estacional</span>
             <h3><a href="desnutricion_severa_e40.html">Desnutrición severa<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: E40-E43 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=desnutricion_severa_e40">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 110 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional; por un dictamen tomado bajo delegación del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="enterobiasis_b80" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="enterobiasis_b80" data-group="Parasitosis por helmintos">
             <span class="status control">Control estacional</span>
             <h3><a href="enterobiasis_b80.html">Enterobiasis<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: B80 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=enterobiasis_b80">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 190 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional; por un dictamen tomado bajo delegación del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="giardiasis_a071" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="giardiasis_a071" data-group="Intestinales y por alimentos">
             <span class="status control">Control estacional</span>
             <h3><a href="giardiasis_a071.html">Giardiasis<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A07.1 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=giardiasis_a071">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 120 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional; por un dictamen tomado bajo delegación del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="paratifoidea_a011" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="paratifoidea_a011" data-group="Intestinales y por alimentos">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="paratifoidea_a011.html">Fiebre paratifoidea<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A01.1-A01.4 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=paratifoidea_a011">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 58 casos semanales en todo el país en 2026. Su portafolio superó la prueba de 2025 con la política de cinco motores estacionales, sin ETS ni regresión armónica, por un dictamen tomado bajo delegación del autor del 15 de noviembre. Usa datos hasta la semana 42 de 2026, se emitió el 15 de noviembre y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="mal_del_pinto_a67" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="mal_del_pinto_a67" data-group="Piel, ojos, oídos y boca">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="mal_del_pinto_a67.html">Mal del pinto<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A67 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=mal_del_pinto_a67">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 2 casos semanales en todo el país en 2026. Su portafolio superó la prueba de 2025 con la política de cinco motores estacionales, sin ETS ni regresión armónica, por un dictamen tomado bajo delegación del autor del 15 de noviembre; superarla significa no empeorar al control, y su error sigue siendo alto. Usa datos hasta la semana 42 de 2026, se emitió el 15 de noviembre y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="vulvovaginitis_n76" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="vulvovaginitis_n76" data-group="Salud sexual y VIH">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="vulvovaginitis_n76.html">Vulvovaginitis<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: N76 · 32 modelos · 37 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=vulvovaginitis_n76">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 12,000 casos semanales en todo el país en 2026. Su portafolio superó la prueba de 2025 con la política de siete motores. El boletín no la desglosa por sexo. Usa datos hasta la semana 42 de 2026, se emitió el 15 de noviembre y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="coqueluchoide_u99" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="coqueluchoide_u99" data-group="Respiratorias">
             <span class="status control">Control estacional</span>
             <h3><a href="coqueluchoide_u99.html">Síndrome coqueluchoide<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: U99 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=coqueluchoide_u99">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 28 casos semanales en todo el país. Es una definición sindrómica, distinta de la tos ferina (A37). Su portafolio no superó la prueba de 2025 en el total nacional; por un dictamen tomado bajo delegación del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="plaguicidas_t60" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="plaguicidas_t60" data-group="Intoxicaciones y ambiente">
             <span class="status control">Control estacional</span>
             <h3><a href="plaguicidas_t60.html">Intoxicación por plaguicidas<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: T60 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=plaguicidas_t60">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 52 casos semanales en todo el país. La serie no distingue intención. Su portafolio no superó la prueba de 2025 en el total nacional; por un dictamen tomado bajo delegación del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="tos_ferina_a37" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="tos_ferina_a37" data-group="Prevenibles por vacunación y exantemáticas">
             <span class="status control">Control estacional</span>
             <h3><a href="tos_ferina_a37.html">Tos ferina<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A37 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=tos_ferina_a37">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 5 casos semanales en todo el país. Serie escasa; el control no anticipa brotes. Su portafolio no superó la prueba de 2025 en el total nacional; por un dictamen tomado bajo delegación del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="sindrome_meningeo_g00" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="sindrome_meningeo_g00" data-group="Infecciones invasivas y meníngeas">
             <span class="status control">Control estacional</span>
             <h3><a href="sindrome_meningeo_g00.html">Síndrome meníngeo<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: G00-G03, excepto G00.0 y G00.1 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=sindrome_meningeo_g00">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 18 casos semanales en todo el país. No es el total de meningitis. Su portafolio no superó la prueba de 2025 en el total nacional; por un dictamen tomado bajo delegación del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="monoxido_t58" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="monoxido_t58" data-group="Intoxicaciones y ambiente">
             <span class="status control">Control estacional</span>
             <h3><a href="monoxido_t58.html">Intoxicación por monóxido de carbono<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: T58 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=monoxido_t58">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 9 casos semanales en todo el país. La serie no distingue intención. Su portafolio no superó la prueba de 2025 en el total nacional; por un dictamen tomado bajo delegación del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="sifilis_adquirida_a51" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="sifilis_adquirida_a51" data-group="Salud sexual y VIH">
             <span class="status control">Control estacional</span>
             <h3><a href="sifilis_adquirida_a51.html">Sífilis adquirida<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A51-A53 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=sifilis_adquirida_a51">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 450 casos semanales en todo el país (sin desglose por edad ni embarazo; excluye A50 y O98.1). Su portafolio no superó su única prueba de 2025 en el total nacional; por autorización nominal del autor posterior al rechazo se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 42 de 2026 (boletín 43) para 52 semanas desde el origen; el boletín 44 ya era público antes de emitirlo, así que 2026-W43 no es prospectiva respecto de la información.</p></details>
           </article>
-          <article class="condition-card" data-p="cancer_mama_c50" data-group="Oncología">
+          <article class="condition-card" data-p="cancer_mama_c50" data-group="Tumores malignos y displasias">
             <span class="status control">Control estacional</span>
             <h3><a href="cancer_mama_c50.html">Tumor maligno de la mama<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: C50 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=cancer_mama_c50">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 470 casos semanales en todo el país. Su portafolio no superó la prueba de 2025 en el total nacional, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="cancer_cuello_utero_c53" data-group="Oncología">
+          <article class="condition-card" data-p="cancer_cuello_utero_c53" data-group="Tumores malignos y displasias">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="cancer_cuello_utero_c53.html">Tumor maligno del cuello del útero<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: C53 · 32 modelos · 37 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=cancer_cuello_utero_c53">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 70 casos semanales en todo el país. Su portafolio superó la prueba de 2025. El boletín no lo desglosa por sexo: se pronostica el total de cada entidad. Usa datos hasta la semana 41 de 2026 y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="cancer_pulmon_c33" data-group="Oncología">
+          <article class="condition-card" data-p="cancer_pulmon_c33" data-group="Tumores malignos y displasias">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="cancer_pulmon_c33.html">Tumor maligno de tráquea, bronquios y pulmón<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: C33-C34 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=cancer_pulmon_c33">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 47 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026. Validación prospectiva en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="cancer_estomago_c16" data-group="Oncología">
+          <article class="condition-card" data-p="cancer_estomago_c16" data-group="Tumores malignos y displasias">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="cancer_estomago_c16.html">Tumor maligno del estómago<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: C16 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=cancer_estomago_c16">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 43 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026. Validación prospectiva en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="cancer_colon_c18" data-group="Oncología">
+          <article class="condition-card" data-p="cancer_colon_c18" data-group="Tumores malignos y displasias">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="cancer_colon_c18.html">Tumor maligno del colon y recto<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: C18-C21 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=cancer_colon_c18">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 126 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026. Validación prospectiva en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="linfoma_hodgkin_c81" data-group="Oncología">
+          <article class="condition-card" data-p="linfoma_hodgkin_c81" data-group="Tumores malignos y displasias">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="linfoma_hodgkin_c81.html">Linfoma de Hodgkin<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: C81 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=linfoma_hodgkin_c81">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 22 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026. Validación prospectiva en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="linfoma_no_hodgkin_c82" data-group="Oncología">
+          <article class="condition-card" data-p="linfoma_no_hodgkin_c82" data-group="Tumores malignos y displasias">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="linfoma_no_hodgkin_c82.html">Linfoma no Hodgkin<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: C82-C85 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=linfoma_no_hodgkin_c82">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 52 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026. Validación prospectiva en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="leucemia_c91" data-group="Oncología">
+          <article class="condition-card" data-p="leucemia_c91" data-group="Tumores malignos y displasias">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="leucemia_c91.html">Leucemia<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: C91-C95 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=leucemia_c91">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 49 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026. Validación prospectiva en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="cancer_pancreas_c26" data-group="Oncología">
+          <article class="condition-card" data-p="cancer_pancreas_c26" data-group="Tumores malignos y displasias">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="cancer_pancreas_c26.html">Tumor maligno del páncreas<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: C26 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=cancer_pancreas_c26">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 35 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026. Validación prospectiva en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="cancer_encefalo_c70" data-group="Oncología">
+          <article class="condition-card" data-p="cancer_encefalo_c70" data-group="Tumores malignos y displasias">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="cancer_encefalo_c70.html">Tumores malignos del encéfalo y del sistema nervioso central<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: C70-C72 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=cancer_encefalo_c70">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 23 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026. Validación prospectiva en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="cancer_cuerpo_utero_c54" data-group="Oncología">
+          <article class="condition-card" data-p="cancer_cuerpo_utero_c54" data-group="Tumores malignos y displasias">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="cancer_cuerpo_utero_c54.html">Tumor maligno del cuerpo del útero<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: C54 · 32 modelos · 37 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=cancer_cuerpo_utero_c54">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 59 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026; el boletín no lo desglosa por sexo. Validación prospectiva en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="cancer_ovario_c56" data-group="Oncología">
+          <article class="condition-card" data-p="cancer_ovario_c56" data-group="Tumores malignos y displasias">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="cancer_ovario_c56.html">Tumor maligno del ovario<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: C56 · 32 modelos · 37 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=cancer_ovario_c56">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 63 casos semanales en todo el país. Su serie empieza en 2023 y superó la prueba de las semanas 1 a 41 de 2026; el boletín no lo desglosa por sexo. Validación prospectiva en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="cancer_rinon_c64" data-group="Oncología">
+          <article class="condition-card" data-p="cancer_rinon_c64" data-group="Tumores malignos y displasias">
             <span class="status control">Control estacional</span>
             <h3><a href="cancer_rinon_c64.html">Tumor maligno del riñón<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: C64 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=cancer_rinon_c64">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 54 casos semanales en todo el país. Su serie empieza en 2023 y su portafolio no superó la prueba de 2026, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="cancer_prostata_c61" data-group="Oncología">
+          <article class="condition-card" data-p="cancer_prostata_c61" data-group="Tumores malignos y displasias">
             <span class="status control">Control estacional</span>
             <h3><a href="cancer_prostata_c61.html">Tumor maligno de la próstata<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: C61 · control estacional · 37 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=cancer_prostata_c61">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 151 casos semanales en todo el país. Su serie empieza en 2023 y su portafolio no superó la prueba de 2026, así que se publica el control estacional, que repite los casos de 52 semanas antes; el boletín no lo desglosa por sexo.</p></details>
           </article>
-          <article class="condition-card" data-p="cancer_huesos_c40" data-group="Oncología">
+          <article class="condition-card" data-p="cancer_huesos_c40" data-group="Tumores malignos y displasias">
             <span class="status control">Control estacional</span>
             <h3><a href="cancer_huesos_c40.html">Tumores malignos de los huesos y de los cartílagos articulares<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: C40-C41 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=cancer_huesos_c40">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 21 casos semanales en todo el país. Su serie empieza en 2023 y su portafolio no superó la prueba de 2026, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="cancer_higado_c22" data-group="Oncología">
+          <article class="condition-card" data-p="cancer_higado_c22" data-group="Tumores malignos y displasias">
             <span class="status control">Control estacional</span>
             <h3><a href="cancer_higado_c22.html">Tumor maligno del hígado y de las vías biliares intrahepáticas<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: C22 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=cancer_higado_c22">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 34 casos semanales en todo el país. Su serie empieza en 2023 y su portafolio no superó la prueba de 2026, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="cancer_esofago_c15" data-group="Oncología">
+          <article class="condition-card" data-p="cancer_esofago_c15" data-group="Tumores malignos y displasias">
             <span class="status control">Control estacional</span>
             <h3><a href="cancer_esofago_c15.html">Tumor maligno del esófago<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: C15 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=cancer_esofago_c15">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 11 casos semanales en todo el país. Su serie empieza en 2023 y su portafolio no superó la prueba de 2026, así que se publica el control estacional, que repite los casos de 52 semanas antes.</p></details>
           </article>
-          <article class="condition-card" data-p="diabetes_t1" data-group="Metabólicos">
+          <article class="condition-card" data-p="diabetes_t1" data-group="Metabólicas y nutrición">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="diabetes_t1.html">Diabetes tipo I<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: E10 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=diabetes_t1">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Diabetes mellitus insulinodependiente, con unos 80 casos semanales en todo el país. Por sus pocos casos compite un portafolio de motores estacionales. El pronóstico usa datos hasta la semana 41 de 2026, se emitió el 5 de noviembre y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="diabetes_t2" data-group="Metabólicos">
+          <article class="condition-card" data-p="diabetes_t2" data-group="Metabólicas y nutrición">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="diabetes_t2.html">Diabetes tipo II<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: E11-E14 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=diabetes_t2">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Diabetes mellitus no insulinodependiente, con unos 11 mil casos semanales en todo el país. Se modelan 64 series de estado y sexo. El pronóstico usa datos hasta la semana 41 de 2026, se emitió el 5 de noviembre y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="alacran_t63" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="alacran_t63" data-group="Picaduras y mordeduras">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="alacran_t63.html">Intoxicación por picadura de alacrán<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: T63.2, X22 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=alacran_t63">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 5,400 casos semanales en todo el país. Su portafolio superó su prueba única de 2025. Usa datos hasta la semana 43 de 2026 y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="mordedura_perro_w54" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="mordedura_perro_w54" data-group="Picaduras y mordeduras">
             <span class="status control">Control estacional</span>
             <h3><a href="mordedura_perro_w54.html">Mordeduras por perro<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: W54 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=mordedura_perro_w54">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 2,500 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="mordedura_mamiferos_w55" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="mordedura_mamiferos_w55" data-group="Picaduras y mordeduras">
             <span class="status control">Control estacional</span>
             <h3><a href="mordedura_mamiferos_w55.html">Mordeduras por otros mamíferos<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: W55 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=mordedura_mamiferos_w55">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 340 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="toxoplasmosis_b58" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="toxoplasmosis_b58" data-group="Vectores y zoonosis">
             <span class="status control">Control estacional</span>
             <h3><a href="toxoplasmosis_b58.html">Toxoplasmosis<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: B58 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=toxoplasmosis_b58">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 3 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 42 de 2026; el boletín 44 ya era público antes de emitirlo, así que la semana 43 de 2026 no es prospectiva respecto de la información.</p></details>
           </article>
-          <article class="condition-card" data-p="teniasis_b68" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="teniasis_b68" data-group="Parasitosis por helmintos">
             <span class="status control">Control estacional</span>
             <h3><a href="teniasis_b68.html">Teniasis<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: B68 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=teniasis_b68">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 5 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 42 de 2026; el boletín 44 ya era público antes de emitirlo, así que la semana 43 de 2026 no es prospectiva respecto de la información.</p></details>
           </article>
-          <article class="condition-card" data-p="cisticercosis_b69" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="cisticercosis_b69" data-group="Parasitosis por helmintos">
             <span class="status control">Control estacional</span>
             <h3><a href="cisticercosis_b69.html">Cisticercosis<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: B69 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=cisticercosis_b69">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 4 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 42 de 2026; el boletín 44 ya era público antes de emitirlo, así que la semana 43 de 2026 no es prospectiva respecto de la información.</p></details>
           </article>
-          <article class="condition-card" data-p="triquinosis_b75" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="triquinosis_b75" data-group="Parasitosis por helmintos">
             <span class="status control">Control estacional</span>
             <h3><a href="triquinosis_b75.html">Triquinosis<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: B75 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=triquinosis_b75">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Menos de un caso semanal en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 42 de 2026; el boletín 44 ya era público antes de emitirlo, así que la semana 43 de 2026 no es prospectiva respecto de la información.</p></details>
           </article>
-          <article class="condition-card" data-p="conjuntivitis_hemorragica_b303" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="conjuntivitis_hemorragica_b303" data-group="Piel, ojos, oídos y boca">
             <span class="status control">Control estacional</span>
             <h3><a href="conjuntivitis_hemorragica_b303.html">Conjuntivitis epidémica aguda hemorrágica<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: B30.3 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=conjuntivitis_hemorragica_b303">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 5 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 42 de 2026; el boletín 44 ya era público antes de emitirlo, así que la semana 43 de 2026 no es prospectiva respecto de la información.</p></details>
           </article>
-          <article class="condition-card" data-p="tracoma_a71" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="tracoma_a71" data-group="Piel, ojos, oídos y boca">
             <span class="status control">Control estacional</span>
             <h3><a href="tracoma_a71.html">Tracoma<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A71 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=tracoma_a71">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Menos de un caso semanal en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 42 de 2026; el boletín 44 ya era público antes de emitirlo, así que la semana 43 de 2026 no es prospectiva respecto de la información.</p></details>
           </article>
-          <article class="condition-card" data-p="hipotermia_t68" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="hipotermia_t68" data-group="Intoxicaciones y ambiente">
             <span class="status control">Control estacional</span>
             <h3><a href="hipotermia_t68.html">Hipotermia<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: T68 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=hipotermia_t68">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 5 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 42 de 2026; el boletín 44 ya era público antes de emitirlo, así que la semana 43 de 2026 no es prospectiva respecto de la información.</p></details>
           </article>
-          <article class="condition-card" data-p="tetanos_a34" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="tetanos_a34" data-group="Prevenibles por vacunación y exantemáticas">
             <span class="status control">Control estacional</span>
             <h3><a href="tetanos_a34.html">Tétanos<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A34, A35 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=tetanos_a34">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Menos de un caso semanal en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 44 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="viruela_simica_b04" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="viruela_simica_b04" data-group="Prevenibles por vacunación y exantemáticas">
             <span class="status control">Control estacional</span>
             <h3><a href="viruela_simica_b04.html">Viruela símica<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: B04 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=viruela_simica_b04">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 3 casos semanales en todo el país. Su portafolio no superó su prueba única de las semanas 1 a 41 de 2026; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 44 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="vph_b97" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="vph_b97" data-group="Salud sexual y VIH">
             <span class="status control">Control estacional</span>
             <h3><a href="vph_b97.html">Infección por virus de papiloma humano<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: B97.7 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=vph_b97">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 370 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="gonococica_a54" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="gonococica_a54" data-group="Salud sexual y VIH">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="gonococica_a54.html">Infección gonocócica del tracto genitourinario<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A54.0-A54.2 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=gonococica_a54">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 99 casos semanales en todo el país. Su portafolio superó su prueba única de 2025. Usa datos hasta la semana 43 de 2026 y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="linfogranuloma_a55" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="linfogranuloma_a55" data-group="Salud sexual y VIH">
             <span class="status control">Control estacional</span>
             <h3><a href="linfogranuloma_a55.html">Linfogranuloma venéreo por Clamidias<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A55 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=linfogranuloma_a55">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 8 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="chancro_blando_a57" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="chancro_blando_a57" data-group="Salud sexual y VIH">
             <span class="status control">Control estacional</span>
             <h3><a href="chancro_blando_a57.html">Chancro blando<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A57 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=chancro_blando_a57">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 12 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="herpes_genital_a600" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="herpes_genital_a600" data-group="Salud sexual y VIH">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="herpes_genital_a600.html">Herpes genital<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A60.0 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=herpes_genital_a600">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 110 casos semanales en todo el país. Su portafolio superó su prueba única de 2025. Usa datos hasta la semana 43 de 2026 y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="tricomoniasis_a590" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="tricomoniasis_a590" data-group="Salud sexual y VIH">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="tricomoniasis_a590.html">Tricomoniasis urogenital<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A59.0 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=tricomoniasis_a590">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 260 casos semanales en todo el país. Su portafolio superó su prueba única de 2025. Usa datos hasta la semana 43 de 2026 y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="paralisis_flacida_u98" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="paralisis_flacida_u98" data-group="Prevenibles por vacunación y exantemáticas">
             <span class="status control">Control estacional</span>
             <h3><a href="paralisis_flacida_u98.html">Parálisis flácida aguda (menores de 15 años)<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: U98 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=paralisis_flacida_u98">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 8 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 44 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="iaas_sc" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="iaas_sc" data-group="Infecciones invasivas y meníngeas">
             <span class="status control">Control estacional</span>
             <h3><a href="iaas_sc.html">Infección asociada a la atención de la salud<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: sin código · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=iaas_sc">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 2,100 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="intox_alcohol_f100" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="intox_alcohol_f100" data-group="Intoxicaciones y ambiente">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="intox_alcohol_f100.html">Intoxicación aguda por alcohol<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: F10.0 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=intox_alcohol_f100">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 390 casos semanales en todo el país. Su portafolio superó su prueba única de 2025. Usa datos hasta la semana 43 de 2026 y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="alcoholica_higado_k70" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="alcoholica_higado_k70" data-group="Hígado y hepatitis">
             <span class="status control">Control estacional</span>
             <h3><a href="alcoholica_higado_k70.html">Enfermedad alcohólica del hígado<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: K70 excepto K70.3 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=alcoholica_higado_k70">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 94 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="anencefalia_q00" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="anencefalia_q00" data-group="Embarazo y congénitas">
             <span class="status control">Control estacional</span>
             <h3><a href="anencefalia_q00.html">Anencefalia<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: Q00 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=anencefalia_q00">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 2 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="encefalocele_q01" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="encefalocele_q01" data-group="Embarazo y congénitas">
             <span class="status control">Control estacional</span>
             <h3><a href="encefalocele_q01.html">Encefalocele<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: Q01 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=encefalocele_q01">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 3 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="microcefalia_q02" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="microcefalia_q02" data-group="Embarazo y congénitas">
             <span class="status control">Control estacional</span>
             <h3><a href="microcefalia_q02.html">Microcefalia<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: Q02 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=microcefalia_q02">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 7 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="espina_bifida_q05" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="espina_bifida_q05" data-group="Embarazo y congénitas">
             <span class="status control">Control estacional</span>
             <h3><a href="espina_bifida_q05.html">Espina bífida<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: Q05 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=espina_bifida_q05">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 5 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="labio_paladar_q35" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="labio_paladar_q35" data-group="Embarazo y congénitas">
             <span class="status control">Control estacional</span>
             <h3><a href="labio_paladar_q35.html">Labio y paladar hendido<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: Q35-Q37 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=labio_paladar_q35">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 17 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="viuda_negra_u602" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="viuda_negra_u602" data-group="Picaduras y mordeduras">
             <span class="status control">Control estacional</span>
             <h3><a href="viuda_negra_u602.html">Mordedura de araña viuda negra<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: U60.2 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=viuda_negra_u602">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 73 casos semanales en todo el país. Su serie se modela desde 2024: con un año de historia no hubo alternativa que elegir, así que se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="violinista_u603" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="violinista_u603" data-group="Picaduras y mordeduras">
             <span class="status control">Control estacional</span>
             <h3><a href="violinista_u603.html">Mordedura de araña violinista<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: U60.3 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=violinista_u603">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 17 casos semanales en todo el país. Su serie se modela desde 2024: con un año de historia no hubo alternativa que elegir, así que se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="otras_aranas_t633" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="otras_aranas_t633" data-group="Picaduras y mordeduras">
             <span class="status control">Control estacional</span>
             <h3><a href="otras_aranas_t633.html">Mordedura de otras arañas<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: T63.3, X21 excepto U60.2 y U60.3 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=otras_aranas_t633">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 100 casos semanales en todo el país. Su serie se modela desde 2024: con un año de historia no hubo alternativa que elegir, así que se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="abeja_u604" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="abeja_u604" data-group="Picaduras y mordeduras">
             <span class="status control">Control estacional</span>
             <h3><a href="abeja_u604.html">Picadura de abeja<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: U60.4 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=abeja_u604">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 280 casos semanales en todo el país. Su serie se modela desde 2024: con un año de historia no hubo alternativa que elegir, así que se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="avispa_u605" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="avispa_u605" data-group="Picaduras y mordeduras">
             <span class="status control">Control estacional</span>
             <h3><a href="avispa_u605.html">Picadura de avispa<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: U60.5 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=avispa_u605">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 66 casos semanales en todo el país. Su serie se modela desde 2024: con un año de historia no hubo alternativa que elegir, así que se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="otros_artropodos_t634" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="otros_artropodos_t634" data-group="Picaduras y mordeduras">
             <span class="status control">Control estacional</span>
             <h3><a href="otros_artropodos_t634.html">Picadura por otros artrópodos<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: T63.4 excepto U60.4 y U60.5 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=otros_artropodos_t634">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 130 casos semanales en todo el país. Su serie se modela desde 2024: con un año de historia no hubo alternativa que elegir, así que se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="otros_ponzonosos_t631" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="otros_ponzonosos_t631" data-group="Picaduras y mordeduras">
             <span class="status control">Control estacional</span>
             <h3><a href="otros_ponzonosos_t631.html">Picadura o intoxicación por otros animales ponzoñosos<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: T63.1, T63.5-T63.9, X27, U60.8 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=otros_ponzonosos_t631">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 490 casos semanales en todo el país. Su serie se modela desde 2024: con un año de historia no hubo alternativa que elegir, así que se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="mordedura_cascabel_u600" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="mordedura_cascabel_u600" data-group="Picaduras y mordeduras">
             <span class="status control">Control estacional</span>
             <h3><a href="mordedura_cascabel_u600.html">Mordedura por serpiente de cascabel<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: U60.0 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=mordedura_cascabel_u600">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 28 casos semanales en todo el país. Su serie se modela desde 2024: con un año de historia no hubo alternativa que elegir, así que se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="mordedura_coral_u601" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="mordedura_coral_u601" data-group="Picaduras y mordeduras">
             <span class="status control">Control estacional</span>
             <h3><a href="mordedura_coral_u601.html">Mordedura por serpiente coral<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: U60.1 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=mordedura_coral_u601">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 2 casos semanales en todo el país. Su serie se modela desde 2024: con un año de historia no hubo alternativa que elegir, así que se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="mordedura_otras_serpientes_t630" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="mordedura_otras_serpientes_t630" data-group="Picaduras y mordeduras">
             <span class="status control">Control estacional</span>
             <h3><a href="mordedura_otras_serpientes_t630.html">Mordedura por otras serpientes<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: T63.0, X20 excepto U60.0 y U60.1 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=mordedura_otras_serpientes_t630">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 40 casos semanales en todo el país. Su serie se modela desde 2024: con un año de historia no hubo alternativa que elegir, así que se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="cirrosis_alcoholica_k703" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="cirrosis_alcoholica_k703" data-group="Hígado y hepatitis">
             <span class="status control">Control estacional</span>
             <h3><a href="cirrosis_alcoholica_k703.html">Cirrosis hepática alcohólica<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: K70.3 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=cirrosis_alcoholica_k703">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 130 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="chikungunya_a920" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="chikungunya_a920" data-group="Vectores y zoonosis">
             <span class="status control">Control estacional</span>
             <h3><a href="chikungunya_a920.html">Enfermedad por virus Chikungunya<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A92.0 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=chikungunya_a920">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Menos de un caso semanal en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 44 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="envenenamiento_analgesicos_x60" data-group="Salud mental y neurología">
+          <article class="condition-card" data-p="envenenamiento_analgesicos_x60" data-group="Lesiones autoinfligidas y violencia">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="envenenamiento_analgesicos_x60.html">Envenenamiento autoinfligido intencionalmente por analgésicos no narcóticos, antipiréticos y antirreumáticos<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: X60 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=envenenamiento_analgesicos_x60">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 61 casos semanales en todo el país. Su portafolio superó su prueba única de las semanas 1 a 41 de 2026. Usa datos hasta la semana 43 de 2026 y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="envenenamiento_psicotropicos_x61" data-group="Salud mental y neurología">
+          <article class="condition-card" data-p="envenenamiento_psicotropicos_x61" data-group="Lesiones autoinfligidas y violencia">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="envenenamiento_psicotropicos_x61.html">Envenenamiento autoinfligido intencionalmente por drogas antiepilépticas, sedantes, hipnóticas, antiparkinsonianas y psicotrópicas<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: X61 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=envenenamiento_psicotropicos_x61">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 100 casos semanales en todo el país. Su portafolio superó su prueba única de las semanas 1 a 41 de 2026. Usa datos hasta la semana 43 de 2026 y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="ahorcamiento_x70" data-group="Salud mental y neurología">
+          <article class="condition-card" data-p="ahorcamiento_x70" data-group="Lesiones autoinfligidas y violencia">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="ahorcamiento_x70.html">Lesión autoinfligida intencionalmente por ahorcamiento, estrangulamiento o sofocación<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: X70 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=ahorcamiento_x70">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 16 casos semanales en todo el país. Su portafolio superó su prueba única de las semanas 1 a 41 de 2026. Usa datos hasta la semana 43 de 2026 y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="disparo_arma_corta_x72" data-group="Salud mental y neurología">
+          <article class="condition-card" data-p="disparo_arma_corta_x72" data-group="Lesiones autoinfligidas y violencia">
             <span class="status control">Control estacional</span>
             <h3><a href="disparo_arma_corta_x72.html">Lesión autoinfligida intencionalmente por disparo de arma corta<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: X72 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=disparo_arma_corta_x72">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 4 casos semanales en todo el país. Su portafolio no superó su prueba única de las semanas 1 a 41 de 2026; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="objeto_cortante_x78" data-group="Salud mental y neurología">
+          <article class="condition-card" data-p="objeto_cortante_x78" data-group="Lesiones autoinfligidas y violencia">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="objeto_cortante_x78.html">Lesión autoinfligida intencionalmente por objeto cortante<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: X78 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=objeto_cortante_x78">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 37 casos semanales en todo el país. Su portafolio superó su prueba única de las semanas 1 a 41 de 2026. Usa datos hasta la semana 43 de 2026 y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="salto_lugar_elevado_x80" data-group="Salud mental y neurología">
+          <article class="condition-card" data-p="salto_lugar_elevado_x80" data-group="Lesiones autoinfligidas y violencia">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="salto_lugar_elevado_x80.html">Lesión autoinfligida intencionalmente al saltar desde un lugar elevado<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: X80 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=salto_lugar_elevado_x80">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 5 casos semanales en todo el país. Su portafolio superó su prueba única de las semanas 1 a 41 de 2026. Usa datos hasta la semana 43 de 2026 y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="intento_suicidio_z915" data-group="Salud mental y neurología">
+          <article class="condition-card" data-p="intento_suicidio_z915" data-group="Lesiones autoinfligidas y violencia">
             <span class="status control">Control estacional</span>
             <h3><a href="intento_suicidio_z915.html">Historia personal de lesión autoinfligida intencionalmente (intento de suicidio)<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: Z91.5 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=intento_suicidio_z915">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 89 casos semanales en todo el país. Su portafolio no superó su prueba única de las semanas 1 a 41 de 2026; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="ideacion_suicida_r458" data-group="Salud mental y neurología">
+          <article class="condition-card" data-p="ideacion_suicida_r458" data-group="Lesiones autoinfligidas y violencia">
             <span class="status control">Control estacional</span>
             <h3><a href="ideacion_suicida_r458.html">Otros síntomas y signos que involucran el estado emocional (ideación suicida)<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: R45.8 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=ideacion_suicida_r458">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 150 casos semanales en todo el país. Su portafolio no superó su prueba única de las semanas 1 a 41 de 2026; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 43 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="violencia_intrafamiliar_y07" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="violencia_intrafamiliar_y07" data-group="Lesiones autoinfligidas y violencia">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="violencia_intrafamiliar_y07.html">Violencia intrafamiliar<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: Y07.0-Y07.2 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=violencia_intrafamiliar_y07">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 800 casos semanales en todo el país. Su portafolio superó su prueba única de 2025. Usa datos hasta la semana 43 de 2026 y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="tuberculosis_otras_formas_a171" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="tuberculosis_otras_formas_a171" data-group="Tuberculosis y micobacterias">
             <span class="status control">Control estacional</span>
             <h3><a href="tuberculosis_otras_formas_a171.html">Tuberculosis otras formas<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A17.1, A17.8, A17.9, A18-A19 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=tuberculosis_otras_formas_a171">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 80 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 44 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="chagas_aguda_b570" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="chagas_aguda_b570" data-group="Vectores y zoonosis">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="chagas_aguda_b570.html">Tripanosomiasis americana (enfermedad de Chagas) aguda<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: B57.0-B57.1 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=chagas_aguda_b570">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 1 caso semanal en todo el país. Su portafolio superó su prueba única de 2025. Usa datos hasta la semana 44 de 2026 y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="tifo_murino_a752" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="tifo_murino_a752" data-group="Vectores y zoonosis">
             <span class="status control">Control estacional</span>
             <h3><a href="tifo_murino_a752.html">Tifo murino<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A75.2 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=tifo_murino_a752">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Menos de un caso semanal en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 44 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="sifilis_congenita_a50" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="sifilis_congenita_a50" data-group="Embarazo y congénitas">
             <span class="status control">Control estacional</span>
             <h3><a href="sifilis_congenita_a50.html">Sífilis congénita<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A50 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=sifilis_congenita_a50">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 12 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 44 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="esavi_y58" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="esavi_y58" data-group="Prevenibles por vacunación y exantemáticas">
             <span class="status control">Control estacional</span>
             <h3><a href="esavi_y58.html">Eventos supuestamente asociados a la vacunación (ESAVI)<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: Y58, Y59 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=esavi_y58">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 84 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 44 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="meningococica_a39" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="meningococica_a39" data-group="Infecciones invasivas y meníngeas">
             <span class="status control">Control estacional</span>
             <h3><a href="meningococica_a39.html">Meningitis meningocócica<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A39.0 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=meningococica_a39">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Menos de un caso semanal en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 44 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="neumococo_a40" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="neumococo_a40" data-group="Infecciones invasivas y meníngeas">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="neumococo_a40.html">Enfermedad invasiva por neumococo<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A40.3, G00.1, J13 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=neumococo_a40">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 3 casos semanales en todo el país. Su portafolio superó su prueba única de 2025. Usa datos hasta la semana 44 de 2026 y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="haemophilus_a41" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="haemophilus_a41" data-group="Infecciones invasivas y meníngeas">
             <span class="status control">Control estacional</span>
             <h3><a href="haemophilus_a41.html">Infecciones invasivas por Haemophilus influenzae<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A41.3, G00.0, J14 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=haemophilus_a41">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 2 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 44 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="herida_arma_fuego_w32" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="herida_arma_fuego_w32" data-group="Lesiones autoinfligidas y violencia">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="herida_arma_fuego_w32.html">Herida por arma de fuego<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: W32-W34 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=herida_arma_fuego_w32">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 820 casos semanales en todo el país. Su portafolio superó su prueba única de 2025. Usa datos hasta la semana 43 de 2026 y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="chagas_cronica_b572" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="chagas_cronica_b572" data-group="Vectores y zoonosis">
             <span class="status control">Control estacional</span>
             <h3><a href="chagas_cronica_b572.html">Tripanosomiasis americana (enfermedad de Chagas) crónica<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: B57.2-B57.5 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=chagas_cronica_b572">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 11 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 44 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="vih_b20" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="vih_b20" data-group="Salud sexual y VIH">
             <span class="status control">Control estacional</span>
             <h3><a href="vih_b20.html">Infección por el virus de la inmunodeficiencia humana<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: B20-B24, Z21 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=vih_b20">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 350 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 44 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="tuberculosis_respiratoria_a15" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="tuberculosis_respiratoria_a15" data-group="Tuberculosis y micobacterias">
             <span class="status">Pronóstico publicado</span>
             <h3><a href="tuberculosis_respiratoria_a15.html">Tuberculosis respiratoria<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A15-A16 · 64 modelos · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=tuberculosis_respiratoria_a15">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 370 casos semanales en todo el país. Su portafolio superó su prueba única de 2025. Usa datos hasta la semana 44 de 2026 y su validación prospectiva está en curso.</p></details>
           </article>
-          <article class="condition-card" data-p="meningitis_tuberculosa_a170" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="meningitis_tuberculosa_a170" data-group="Tuberculosis y micobacterias">
             <span class="status control">Control estacional</span>
             <h3><a href="meningitis_tuberculosa_a170.html">Meningitis tuberculosa<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A17.0 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=meningitis_tuberculosa_a170">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 10 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 44 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="lepra_a30" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="lepra_a30" data-group="Tuberculosis y micobacterias">
             <span class="status control">Control estacional</span>
             <h3><a href="lepra_a30.html">Lepra<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A30 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=lepra_a30">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 2 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 44 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="otras_rickettsiosis_a79" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="otras_rickettsiosis_a79" data-group="Vectores y zoonosis">
             <span class="status control">Control estacional</span>
             <h3><a href="otras_rickettsiosis_a79.html">Otras rickettsiosis<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A79 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=otras_rickettsiosis_a79">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 12 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 44 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="fiebre_manchada_a770" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="fiebre_manchada_a770" data-group="Vectores y zoonosis">
             <span class="status control">Control estacional</span>
             <h3><a href="fiebre_manchada_a770.html">Fiebre manchada<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: A77.0 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=fiebre_manchada_a770">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 5 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 44 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="leishmaniasis_cutanea_b551" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="leishmaniasis_cutanea_b551" data-group="Vectores y zoonosis">
             <span class="status control">Control estacional</span>
             <h3><a href="leishmaniasis_cutanea_b551.html">Leishmaniasis cutánea<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: B55.1 · control estacional · 111 series publicadas · pronóstico puntual</p>
             <a class="condition-gallery" href="Reports/index.html?p=leishmaniasis_cutanea_b551">Ver en la galería</a>
             <details><summary>Cómo se obtuvo</summary><p>Unos 12 casos semanales en todo el país. Su portafolio no superó su prueba única de 2025; por autorización del autor se publica el control estacional, no validado, que repite los casos de 52 semanas antes. Usa datos hasta la semana 44 de 2026.</p></details>
           </article>
-          <article class="condition-card" data-p="paludismo_vivax_b51" data-group="Otros padecimientos">
+          <article class="condition-card" data-p="paludismo_vivax_b51" data-group="Vectores y zoonosis">
             <span class="status control">Control estacional</span>
             <h3><a href="paludismo_vivax_b51.html">Paludismo por Plasmodium vivax<span aria-hidden="true">↗</span></a></h3>
             <p class="condition-meta">CIE-10: B51 · control estacional · 37 series publicadas · pronóstico puntual</p>
