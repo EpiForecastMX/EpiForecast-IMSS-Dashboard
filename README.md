@@ -9,11 +9,35 @@ principal (`Congresos/Mundial/ESTADO_ACTUAL_WCP.md`); este README describe el si
 
 ---
 
-## Versión candidata alta_b44 (boletín 44, 19-nov-2026)
+## EpiBot y sitio: estado al 25-nov-2026
 
-Prevalece en conteos sobre las secciones inferiores, que quedan como historia. **Versión candidata, sin desplegar:** la
-producción servida sigue con la versión anterior hasta la revisión final, la integración en `main` y la comprobación del
-contenido servido. Conteos del catálogo (`publication/catalog.json`, 148 releases visibles y `published`):
+**Lo servido**, sitio y EpiBot, es el PR #112 (`edbff2c`, `app.js?v=238`). **Integrado en `main` y sin desplegar:** los PR
+#113 a #131 (`main` `01604977`, `app.js?v=248`). No hay despliegues desde el 24-nov-2026 a las 5:41 (hora del este) y,
+según el autor, Netlify no tendrá servicio hasta el 1-dic-2026; hasta entonces un push a `main` no publica. Pendiente:
+
+- **EpiBot conversacional** (PR #113 a #118; el #112, con la guarda relajada y la respuesta llana, ya está servido):
+  definiciones, ciudades → estado, pruebas de estrés y de conversación, contexto de varios turnos.
+- **Mesa agéntica** (plan en `docs/PLAN_EPIBOT_AGENTICO_2026-11-25.md`; PR #124, #126, #128, #129): calculadora
+  determinista (`epibot/js/calculo/`), preguntas compuestas (`epibot/js/compuesta.js`), memoria de lugar, verificador de
+  cifras e interruptor del proveedor en la función RAG, ficha «Hablando de», voz y accesibilidad; planificador detrás de
+  `?agente=1` y respaldo con Ollama, ambos apagados por omisión.
+- **Gráficas** (PR #130 y #131): sistema común validado por la mesa de ocho expertos (ver «Sistema común de gráficas»).
+- **Sitio** (PR #119 a #123 y #125): galería con tema oscuro real (el resto, «sólo claro»), áreas clínicas e iconos SVG
+  dibujados por Gemini, mini-gráficas y tendencia en la galería, buscador en la portada. El PR #127 sólo documenta que
+  `LuisMNA.jpeg` se reemplazó por una copia sin atributos de macOS.
+
+Al volver Netlify: desplegar `main`, comprobar por contenido la versión servida (`epibot/index.html` con `app.js?v=248` o la
+vigente) y probar en vivo una pregunta de cada tipo. La clave de la API de Gemini probada el 25-nov responde «402 Payment
+Required» (la de producción no se ha verificado). Sin IA, el EpiBot de `main` sigue contestando con sus datos y, ante una
+pregunta abierta, avisa que la IA de respaldo no está disponible; la versión servida (PR #112) no tiene ese interruptor.
+
+---
+
+## Lote alta_b44 publicado (boletín 44, 19/20-nov-2026)
+
+Prevalece en conteos sobre las secciones inferiores, que quedan como historia. Publicado y verificado el 19/20-nov-2026
+(catálogo servido byte a byte en el frontend `4a9fdba1`, PR #102); la frase «versión candidata, sin desplegar» de este
+bloque quedó superada. Lo que este bloque diga de la lista blanca global es historia: ver el checkpoint del 24/25-nov. Conteos del catálogo (`publication/catalog.json`, 148 releases visibles y `published`):
 
 - **152 padecimientos en el sitio** = 4 del carril original + **148 releases del runner** (82 previos, 59 del lote
   alta_b44, 6 del lote 6: tuberculosis respiratoria, aceptada, y cinco controles estacionales tras rechazo por orden
@@ -58,7 +82,7 @@ Esta versión incorpora —como **versión candidata** previa al despliegue efec
 
 ---
 
-## Estado: 15 de noviembre de 2026
+## Estado: 15 de noviembre de 2026 (historia; los conteos vigentes están en «Lote alta_b44 publicado»)
 
 | | |
 |---|---|
@@ -103,13 +127,13 @@ clave.** Una vista nueva que imprima nombres tiene que importar `display.js`; `c
 
 Dashboard interactivo del proyecto **EpiForecast-MX**, desarrollado en colaboración entre el
 **Tecnológico de Monterrey** y el **Instituto Mexicano del Seguro Social (IMSS)**. Cubre
-**ochenta y cinco padecimientos**:
+**152 padecimientos** (desde alta_b44, 19/20-nov-2026):
 
 - **Carril original (cuatro):** Depresión (F32), enfermedad de Parkinson (G20), enfermedad de
   Alzheimer (G30) y Dengue (A97). Los tres neurológicos son la cohorte de 333 modelos; Dengue tiene
   su propio pipeline de conteos y página en `dengue.html` (pronóstico a un año; la proyección NB-GLM a
   cinco años se retiró en W37).
-- **Releases del runner genérico (ochenta y uno):** publicados desde releases sellados
+- **Releases del runner genérico (148 desde alta_b44):** publicados desde releases sellados
   (`publication/catalog.json`): obesidad, diabetes tipo I y II, anorexia y bulimia, hipertensión,
   enfermedad isquémica y cerebrovascular, seis padecimientos del radar del boletín (el sexto, asma),
   neumonías y bronconeumonías, diecisiete cánceres y, desde el 12-nov-2026, otitis media aguda,
@@ -144,7 +168,7 @@ epidemiológico.
 
 El componente principal del dashboard es **EpiBot** (`epibot/`), un asistente conversacional que
 responde con datos reales de los 333 modelos neurológicos, de **Dengue** (handler `answerDengue`,
-alimentado por la sección `dengue` de `knowledge.json`) y de los **ochenta y un padecimientos del
+alimentado por la sección `dengue` de `knowledge.json`) y de los **148 padecimientos del
 runner**, cuyos alias, marcadores de gráfica y páginas salen de `js/release_catalog.js` y cuyas cifras
 salen de `publication/<id>/vista.json`.
 
@@ -158,8 +182,15 @@ epibot/
 ├── rag_sources/            # Fuentes del corpus (paper MICAI)
 ├── css/style.css           # Estilos Clinical Indigo
 ├── js/
-│   ├── app.js              # UI principal, gráficas y mensajes (~4,200 líneas)
-│   ├── kb.js               # Base de conocimiento: handlers en cadena de prioridad (~5,900 líneas)
+│   ├── app.js              # UI principal, gráficas, ficha de la conversación y mensajes (~4,500 líneas)
+│   ├── kb.js               # Base de conocimiento: guardas y handlers en cadena de prioridad (~6,600 líneas)
+│   ├── conversacion.js     # Charla, ranking, síntomas, ciudades → estado, originales en lenguaje llano
+│   ├── resumen_llano.js    # Respuesta llana: tendencia, frente al año anterior, pico y confiabilidad
+│   ├── definiciones.js     # «¿Qué es…?» (136 definiciones; los temas sensibles no llevan)
+│   ├── calculo/            # Calculadora determinista: series.js, operaciones.js, legitimidad.js
+│   ├── compuesta.js        # Ritmo de cambio, «explícame la gráfica», meses con más casos, negativas razonadas
+│   ├── memoria.js          # Memoria de lugar («soy enfermera en Mexicali», «en mi estado»)
+│   ├── agente.js           # Planificador en el cliente (bandera ?agente=1)
 │   ├── entities.js         # Detección de entidades (estados, padecimientos, sexo, motores)
 │   ├── release_catalog.js  # Catálogo único de los releases del runner y de los no modelados
 │   ├── release_config.js   # Alias, VOCAB, padMap y marcadores derivados del catálogo
@@ -168,9 +199,12 @@ epibot/
 │   ├── display.js          # Nombres para pantalla (dn) y polishSpanish
 │   ├── comparador.js, comparador_data.js, mexico-map.js, timelapse.js, semaforo.js, voice.js
 │   └── point_only.js, calendario_boletin.js, comparacion_rondas*.js
-├── netlify/functions/rag.mjs   # RAG con Gemini (recuperación, rerank y generación)
-├── scripts/                # rag:build, install_publication.mjs, picos_heredados.mjs, verify_deploy.mjs
-└── tests/                  # Pruebas unitarias y de conversación
+├── netlify/functions/rag.mjs   # RAG con Gemini (recuperación, rerank y generación verificada) y modos nlu y plan
+├── netlify/lib/            # nlu.mjs (comprensión y planificador), proveedor.mjs (interruptor ante 402/cuota),
+│                           # cifras_verificadas.mjs (ninguna cifra sin respaldo), respaldo_ollama.mjs, grounding de vistas
+├── eval/                   # califica.mjs (etiquetas + oráculo), califica_s.mjs (batería ciega S), compara_agente.mjs
+├── scripts/                # rag:build, resumen:build, servidor_local.mjs, install_publication.mjs, verify_deploy.mjs
+└── tests/                  # Pruebas unitarias, de conversación, de estrés, de crisis y de gráficas (npm test)
 ```
 
 ### Base de conocimiento (kb.js)
@@ -191,6 +225,25 @@ epibot/
   **afuera**), no sólo el `?v` interno del import de `kb.js`. `/epibot/js/*` se sirve con
   `max-age=300` y `knowledge.json` con `max-age=3600` (`netlify.toml` de la raíz).
 
+### Reglas de respuesta (24 y 25-nov-2026)
+
+- **Ninguna cifra generada se muestra sin respaldo.** Las respuestas calculadas salen de las vistas, de `knowledge.json`,
+  del radar o de la calculadora determinista. En la ruta generativa, `netlify/lib/cifras_verificadas.mjs` retira toda
+  oración con una cifra que no esté en el contexto o en la pregunta (salvo enteros de 0 a 12, años y códigos) y el texto se
+  envía ya verificado; el filtro comprueba números, no el sentido de la afirmación.
+- **Crisis primero.** Ideación suicida, autolesión, ingestión y violencia vividas en primera persona reciben la respuesta de
+  crisis antes de cualquier otra cosa; los 12 releases sensibles dan cifras sólo con vocabulario técnico cerrado. Excepción acotada (decisión del autor,
+  25-nov): comparar padecimientos publicados no sensibles cuyo nombre lleva un término de lesión («compara picaduras de
+  alacrán en Puebla y Tlaxcala») recibe datos; la primera persona, provocar, «una herida» y los ids sensibles siguen
+  dando la crisis (`tests/test_crisis_comparaciones.mjs`).
+- **Un control estacional nunca se presenta como validado**, ni en el texto ni en la gráfica («Control, no validado»).
+- **Negativas razonadas** (`js/calculo/legitimidad.js`): tasas, significancia, brotes, causas, relación entre
+  padecimientos, sumarlos y riesgo personal reciben una salvedad o una negativa con su motivo, no una cifra inventada.
+- **Evaluación**: `npm run eval:etiquetas` califica si la respuesta acierta (padecimiento, estado y cifras contra un oráculo
+  independiente), no sólo si «no falla». La batería ciega S vive fuera del repositorio con su sello SHA-256: el conjunto de
+  desarrollo (*dev*) ya se usó para ajustar y el de prueba (*test*) se abre una sola vez. Medición pareada reglas frente al
+  planificador: 187 frente a 187 en *dev*; 4/5 frente a 5/5 en cinco frases con varios pedidos (indicio, no prueba).
+
 ### RAG (rag_index.json + netlify/functions/rag.mjs)
 
 Para preguntas de conocimiento (metodología, decisiones de diseño, el paper MICAI, «por qué», «cómo
@@ -200,7 +253,7 @@ funciona»), EpiBot usa **Retrieval-Augmented Generation** con grounding y citas
   español que lo resumen, notas y reportes HTML del proyecto, tarjetas estructuradas de
   `knowledge.json` y el corpus de cada release publicado según `publication/pointers.json` (horizonte,
   corte de datos, desempeño fuera de muestra, motores, avisos de control y de picos heredados de la
-  fuente). Chunking consciente de secciones. ~560 chunks.
+  fuente). Chunking consciente de secciones. Unos 1,140 fragmentos (1,143 al 25-nov-2026).
 - **Indexado incremental** (`npm run rag:build`): embeddings con **gemini-embedding-001** (768
   dimensiones vía MRL) en `rag_index.json` (~4.6 MB). Caché por hash (sólo reembebe lo nuevo) y
   reconstrucción en cada deploy (`rag:ci`, con `GEMINI_API_KEY` en el entorno de build).
@@ -232,7 +285,7 @@ npm run rag:verify         # falla si el índice está desincronizado del corpus
 ### Detección de entidades (entities.js)
 
 - **32 estados** y regiones con alias (CDMX, Edomex, etc.).
-- Los cuatro padecimientos originales y los alias y códigos CIE-10 de los ochenta y un releases del
+- Los cuatro padecimientos originales y los alias y códigos CIE-10 de los 148 releases del
   runner (`release_catalog.js`), comparados al inicio de palabra; los no modelados salen de la lista
   única `noModeladas`.
 - **Sexo** (hombres, mujeres, general) con variantes.
@@ -259,6 +312,20 @@ npm run rag:verify         # falla si el índice está desincronizado del corpus
 
 ## Visualizaciones interactivas
 
+### Sistema común de gráficas (mesa de ocho expertos, 25-nov-2026)
+
+- Títulos, leyendas y descripciones emergentes en tinta oscura sobre fondo claro; sin suavizado (`tension: 0`) ni resplandor; eje Y con
+  unidad («Casos notificados por semana»); fechas «ene 2025» sin girar y sin choques según el ancho real.
+- Línea «último dato | pronóstico →» en el corte; el control estacional en gris con «Control, no validado».
+- Colores de trazo con contraste de al menos 3:1 (`legible()` en `js/obesidad_charts.js`) y paleta categórica validada
+  para daltonismo; mapas con rampa clara → oscura en cinco cuantiles, leyenda por clases y «sin ajustar por población».
+- La gráfica responde lo mismo que el texto: hereda el estado de la conversación sólo si el texto también es de ese
+  estado. El año en curso se rotula como parcial. Toda gráfica y mapa tiene tabla equivalente («Ver los datos…»).
+- Fechas de los cuatro originales: `zoom_series.json` guarda la fecha interna del motor y la semana del boletín empieza
+  13 días después; se muestran con `fechaBoletinLegacy` (`js/calculo/series.js`).
+- Pruebas en `epibot/tests/test_graficas_mesa.mjs`. La revisión cubrió 22 preguntas capturadas del bot real; acta y capturas
+  antes y después en `/Users/haowei/Documents/Integrador/planes/mesa_graficas_epibot_2026-11-25/` (fuera de los repositorios).
+
 ### Gráficas en el chat (Chart.js)
 
 EpiBot genera gráficas dentro del chat cuando detecta contexto numérico, con acabado unificado
@@ -282,7 +349,7 @@ global.
 
 ### Semáforo epidemiológico (semaforo.js)
 
-Clasificación de riesgo por estado basada en percentiles: cuatro niveles, 32 tarjetas ordenadas,
+Carga pronosticada por estado (no riesgo: casos sin ajustar por población), basada en percentiles: cuatro niveles, 32 tarjetas ordenadas,
 tendencia, casos y desglose por padecimiento.
 
 ### Comparador de estados (comparador.js)
@@ -538,20 +605,31 @@ python3 -m http.server 8080
 # Sitio: http://localhost:8080 · EpiBot: http://localhost:8080/epibot/
 ```
 
-Para la función RAG en local se requiere Netlify CLI:
+Para el EpiBot completo con su función RAG sin Netlify (la clave se lee del entorno y nunca se imprime):
 
 ```bash
-npm install
-netlify dev
+node epibot/scripts/servidor_local.mjs 8810
+# EpiBot: http://localhost:8810/epibot/ · planificador: http://localhost:8810/epibot/?agente=1
 ```
+
+Sólo para experimentos locales, `EPI_LLM_RESPALDO="http://localhost:11434|modelo"` hace que la función use Ollama cuando
+Gemini no responde; no definirla en Netlify: los modelos probados el 25-nov cometieron errores clínicos (veredicto en
+`/Users/haowei/Documents/Integrador/planes/mesa_epibot_agentico_2026-11-25/respaldo_ollama/VEREDICTO.md`). Pruebas y
+evaluación:
+
+```bash
+cd epibot && npm test && npm run eval:etiquetas
+```
+
+También funciona `netlify dev` con Netlify CLI.
 
 ---
 
 ## Despliegue
 
-Netlify despliega en cada push a `main` tras correr el comando de build de `netlify.toml` (pruebas
-del radar, contrato de cifras, nota de picos y gates de cifras y RAG). Si cualquiera falla, el
-despliegue no se publica.
+Cuando Netlify tiene servicio, despliega cada push a `main` tras correr el comando de build de `netlify.toml` (pruebas del
+sitio, del tablero y del radar, `resumen:build`, `npm test` del EpiBot, contrato de cifras y `deploy:verify`). Si cualquiera
+falla, el despliegue no se publica. Desde el 24-nov-2026 no hay despliegues (ver «EpiBot y sitio: estado al 25-nov-2026»).
 
 ---
 

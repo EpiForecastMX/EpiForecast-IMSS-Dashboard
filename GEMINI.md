@@ -28,11 +28,47 @@ que terminaban dejando el checkout en una rama de trabajo.
 
 # GEMINI.md — Contexto operativo de EpiForecast-IMSS-Dashboard
 
-## Versión candidata alta_b44 (boletín 44, 19-nov-2026)
+## EpiBot y sitio: checkpoint 24/25-nov-2026 (en `main`, sin desplegar)
 
-Prevalece en conteos sobre las secciones inferiores, que quedan como historia. **Versión candidata, sin desplegar:** la
-producción servida sigue con la versión anterior hasta la revisión final, la integración en `main` y la comprobación del
-contenido servido. Conteos del catálogo (`publication/catalog.json`, 148 releases visibles y `published`):
+Prevalece sobre las secciones inferiores del EpiBot. **Lo servido**, sitio y EpiBot, es el PR #112 (`edbff2c`, `app.js?v=238`).
+**Integrado y sin desplegar:** PR #113 a #131 (`main` `01604977`, `app.js?v=248`): no hay despliegues desde el 24-nov-2026 a
+las 5:41 (hora del este) y, según el autor, Netlify no tendrá servicio hasta el 1-dic-2026; hasta entonces un push a `main`
+no publica. Al volver, desplegar `main` y comprobar por contenido la versión servida. Planes: `docs/PLAN_EPIBOT_CONVERSACIONAL_2026-11-24.md`
+y `docs/PLAN_EPIBOT_AGENTICO_2026-11-25.md`; actas en `/Users/haowei/Documents/Integrador/planes/mesa_*_2026-11-2*/` (carpeta del espacio de trabajo, fuera de ambos repositorios).
+
+- **Vocabulario:** desde el PR #112 la lista blanca global ya no bloquea un turno natural (deroga lo que se diga de ella en
+  alta_b44 y secciones inferiores): sólo `apoyoSuave` y `apoyoInmediato` dan el «no entendí» con la Línea de la Vida y sólo
+  la crisis persiste. Los 12 releases sensibles conservan su guarda (cifras sólo con vocabulario técnico cerrado). No
+  restaurar la lista global sin orden del autor.
+- **Crisis:** las guardas corren antes que todo. Única excepción nueva, autorizada por el autor el 25-nov («sí, ajusta y
+  sigue»): comparar padecimientos publicados no sensibles cuyo nombre lleva un término de lesión (`comparacionDePublicados`
+  en `epibot/js/release_catalog.js`); no cubre primera persona, verbos de provocar, artículo indefinido ni ids sensibles.
+  Cualquier otro cambio al detector se pregunta al autor; casos en `epibot/tests/test_crisis*.mjs`.
+- **Cifras:** las respuestas calculadas salen de `epibot/js/calculo/` y de plantillas (`epibot/js/compuesta.js`); en la ruta
+  generativa, ninguna cifra se muestra sin respaldo en el contexto (`epibot/netlify/lib/cifras_verificadas.mjs`, con
+  excepciones para enteros de 0 a 12, años y códigos).
+- **Controles:** nunca como modelo validado, tampoco en las gráficas («Control, no validado», en gris).
+- **Gráficas:** seguir el «Sistema común de gráficas» del README; fechas de `zoom_series.json` sólo con `fechaBoletinLegacy`;
+  un cambio visible se revisa recapturando en el navegador a 1280 y 375 px.
+- **Bandera y respaldo:** el planificador va detrás de `?agente=1` (o `localStorage.epibot_agente=1`) y no mostró ganancia
+  medida en la batería ciega *dev* (187 frente a 187); su activación requiere la fase 5 del plan. El respaldo con Ollama
+  (`EPI_LLM_RESPALDO`) queda apagado: los dos modelos probados cometieron errores clínicos. En Netlify no definir
+  `EPI_LLM_RESPALDO` ni `EPI_LLM_LOCAL`. La clave de la API de Gemini probada el 25-nov responde 402 (la de producción no
+  se ha verificado); el plan Ultra del autor sí cubre Antigravity (`agy`).
+- **Al publicar un padecimiento:** su definición en `epibot/js/definiciones.js` si no es sensible (lo exige `tests/test_nlu.mjs`)
+  y su área clínica en `assets/site/areas.mjs` (lo exige `tests/areas.test.mjs`). Tras el paso semanal, `npm run
+  resumen:build` en `epibot/`.
+- **Evaluación:** `npm test` (más de 2,100 pruebas) y `npm run eval:etiquetas` en `epibot/`. La batería ciega S vive en las
+  actas: el conjunto de desarrollo (*dev*) ya se usó para ajustar; el de prueba (*test*) se abre una sola vez; le falta la
+  parte escrita por personas.
+- **Caché:** al cambiar un módulo, subir su `?v=` en todos los que lo importan y `app.js?v=` en `epibot/index.html`.
+- **Prueba local completa:** `node epibot/scripts/servidor_local.mjs 8810` sirve el sitio y la función RAG.
+
+## Lote alta_b44 publicado (boletín 44, 19/20-nov-2026)
+
+Prevalece en conteos sobre las secciones inferiores, que quedan como historia. Publicado y verificado el 19/20-nov-2026
+(catálogo servido byte a byte en el frontend `4a9fdba1`, PR #102); la frase «versión candidata, sin desplegar» de este
+bloque quedó superada. Lo que este bloque diga de la lista blanca global es historia: ver el checkpoint del 24/25-nov. Conteos del catálogo (`publication/catalog.json`, 148 releases visibles y `published`):
 
 - **152 padecimientos en el sitio** = 4 del carril original + **148 releases del runner** (82 previos, 59 del lote
   alta_b44, 6 del lote 6: tuberculosis respiratoria, aceptada, y cinco controles estacionales tras rechazo por orden
