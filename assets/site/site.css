@@ -54,6 +54,9 @@
   font-synthesis: none;
 }
 
+/* Más específico que el `:root { color-scheme: light }` de dashboard.css, radar.css y la hoja del EpiBot: «light» a secas no
+   impide el oscurecimiento forzado del navegador; «only light» sí. La galería (html.tema-galeria) tiene tema oscuro propio. */
+html:not(.tema-galeria) { color-scheme: only light; }
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 88px; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

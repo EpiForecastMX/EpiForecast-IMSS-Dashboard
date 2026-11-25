@@ -418,6 +418,15 @@ function renderList() {
 
 // ── Gráficas vivas ───────────────────────────────────────────────────────────
 const chartReady = () => typeof window.Chart === 'function';
+// Fondo opaco dentro del canvas (mesa de expertos, Grok): si un navegador oscurece la página a la fuerza sin activar el tema
+// oscuro, la gráfica queda como un recuadro legible en vez de líneas oscuras sobre fondo oscuro.
+const fondoOpaco = (fondo) => ({
+  id: 'fondoOpaco',
+  beforeDraw(chart) {
+    const { ctx, width, height } = chart;
+    ctx.save(); ctx.globalCompositeOperation = 'destination-over'; ctx.fillStyle = token(fondo, '#fafbf7'); ctx.fillRect(0, 0, width, height); ctx.restore();
+  },
+});
 const mes = (iso) => new Date(`${iso}T12:00:00Z`).toLocaleDateString('es-MX', { month: 'short', year: '2-digit', timeZone: 'UTC' });
 // Etiquetas ISO completas; el mes sólo en las marcas del eje, la semana exacta en el tooltip.
 const xTicks = (extra = {}) => ({ color: token('--muted', '#5b6f66'), maxRotation: 0, ...extra, callback(v) { return mes(this.getLabelForValue(v)); } });
@@ -431,6 +440,7 @@ function drawCardChart(canvas) {
   const w = C.ventana(s, state.grafica);
   return new window.Chart(canvas, {
     type: 'line',
+    plugins: [fondoOpaco('--paper')],
     data: { labels: w.d, datasets: [
       { label: 'Observado', data: w.r, borderColor: obsColor(), borderWidth: 1.6, pointRadius: 0, tension: 0, spanGaps: false },
       { label: 'Pronóstico', data: w.y, borderColor: colorOf(src.entry), borderDash: [6, 4], borderWidth: 1.8, pointRadius: 0, tension: 0, spanGaps: false },
@@ -500,6 +510,7 @@ function showViewerChart(s, entry, titulo) {
   $('gViewerChart').setAttribute('aria-label', `${titulo}: casos notificados por semana, observado y pronóstico${banda ? ' con el intervalo que produce el motor' : ''}.`);
   viewerChart = new window.Chart($('gViewerChart'), {
     type: 'line',
+    plugins: [fondoOpaco('--surface')],
     data: { labels: s.d, datasets: [
       ...(banda ? [
         { label: 'Intervalo del motor (superior)', data: s.hi, borderColor: 'transparent', backgroundColor: C.withAlpha(color, Number(token('--band-alpha', '0.15')) || 0.15), pointRadius: 0, fill: '+1', tension: 0, order: 4 },

@@ -27,7 +27,7 @@ html.tema-galeria :is(.g-card__media img, .g-viewer__stage img) { background: #f
     --series-5: #a892e6; --series-6: #f08782; --series-7: #8fc45c; --series-8: #5fb3de;
     --notice-border: #6b5620; --error-bg: #3a1a1b; --error-border: #7a3a3a; --chip-ink: #b9e2cb;
     --chip-pass-bg: #173a2a; --chip-pass-ink: #a9e0c1; --chip-legacy-bg: #1c2c44; --chip-legacy-ink: #b7cdf0;
-    --backdrop: rgb(0 0 0 / 65%); --band-alpha: .28; --chart-grid: #46594f;
+    --backdrop: rgb(0 0 0 / 65%); --band-alpha: .28; --chart-grid: #5e7b70;
   }
   html.tema-galeria #nav.site-header { color: var(--ink); }
 }
