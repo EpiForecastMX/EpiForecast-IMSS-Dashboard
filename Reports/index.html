@@ -11,7 +11,7 @@
 <meta name="description" content="Explora los pronósticos epidemiológicos de EpiForecast-MX por padecimiento, entidad y sexo. Consulta sus cortes, gráficas y seguimiento.">
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../assets/site/site.css?v=5">
-<link rel="stylesheet" href="gallery.css?v=20261124t4">
+<link rel="stylesheet" href="gallery.css?v=20261125u2">
 <link rel="modulepreload" href="../assets/dashboard/data.mjs">
 <link rel="modulepreload" href="../assets/dashboard/unified.mjs">
 <link rel="modulepreload" href="galeria_core.mjs?v=2">
@@ -119,7 +119,7 @@
     <h2 id="gCatalogTitle">Padecimientos</h2>
     <p id="gCatalogCount" class="g-count" role="status"></p>
   </div>
-  <p class="g-legend g-legend--spark"><i class="g-key g-key--obs" aria-hidden="true"></i>Mini-gráfica: casos observados, últimas 26 semanas (total nacional).</p>
+  <p class="g-legend g-legend--spark"><i class="g-key g-key--obs" aria-hidden="true"></i>Mini-gráfica: casos observados, últimas 26 semanas (total nacional), con el eje desde cero.</p>
   <div class="g-loading" id="gCatalogLoading" role="status">Cargando el catálogo…</div>
   <div class="g-error" id="gCatalogError" role="alert" hidden><p id="gCatalogErrorMsg"></p><button type="button" class="btn btn--ghost" id="gCatalogRetry">Reintentar</button></div>
   <ul class="g-diseases" id="gDiseases" aria-label="Padecimientos publicados"></ul>
@@ -285,7 +285,7 @@ const REGION_META = {
 };
 window.REGION_META = REGION_META;
 </script>
-<script type="module" src="galeria.mjs?v=10"></script>
+<script type="module" src="galeria.mjs?v=11"></script>
 <script src="../assets/site/site-nav.js?v=4"></script>
 </body>
 </html>

@@ -10,6 +10,7 @@ import { statusText } from '../assets/dashboard/units.mjs';
 import { COHORTS } from '../assets/dashboard/data.mjs';
 import { releaseDeId } from '../epibot/js/release_config.js?v=54';
 import { AREAS, areaDe } from '../assets/site/areas.mjs?v=1';
+import { ICONO_ESTADO, iconoSvg } from '../assets/site/estado.mjs?v=1';
 
 const $ = (id) => document.getElementById(id);
 const CATALOG_URL = '../assets/dashboard/catalog.json';
@@ -61,22 +62,13 @@ const ensureCatalog = () => load(CATALOG_URL, validateCatalog, 'catalogo').then(
 
 // Iconos del sprite común (mesa de expertos, 24-nov-2026): siempre decorativos y con texto visible al lado.
 const SPRITE = '../assets/site/icons.svg';
-const ICONO_ESTADO = { pass: 'i-estado-validado', pending: 'i-estado-en-validacion', control: 'i-estado-control', legacy: 'i-estado-previo' };
-function ico(nombre, clase = 'g-ico') {
-  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('class', clase);
-  svg.setAttribute('aria-hidden', 'true');
-  svg.setAttribute('focusable', 'false');
-  const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
-  use.setAttribute('href', `${SPRITE}#${nombre}`);
-  svg.append(use);
-  return svg;
-}
+const ico = (nombre, clase = 'g-ico') => iconoSvg(document, SPRITE, nombre, clase);
 
 function spark(points) {
   const vals = points.map((p) => p[1]);
   if (vals.length < 2) return null;
-  const mn = Math.min(...vals), mx = Math.max(...vals);
+  // Anclada en cero (mesa de expertos): con 0 a 3 casos el ruido ya no parece un brote.
+  const mn = 0, mx = Math.max(...vals, 1);
   const W = 120, H = 28;
   const pts = vals.map((v, i) => `${(i / (vals.length - 1) * W).toFixed(1)},${(H - 2 - (mx === mn ? 0.5 : (v - mn) / (mx - mn)) * (H - 4)).toFixed(1)}`).join(' ');
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -93,6 +85,21 @@ function spark(points) {
   line.setAttribute('vector-effect', 'non-scaling-stroke');
   svg.append(line);
   return svg;
+}
+
+/** Tendencia observada de la mini-gráfica: últimas 4 semanas frente a las 4 anteriores, en texto y con flecha. */
+function tendenciaObservada(points) {
+  const v = points.map((p) => p[1]).filter((x) => Number.isFinite(x));
+  if (v.length < 8) return null;
+  const o4 = v.slice(-4).reduce((a, b) => a + b, 0);
+  const p4 = v.slice(-8, -4).reduce((a, b) => a + b, 0);
+  const max = Math.max(...v);
+  const pie = ` · máx. ${NF.format(max)} por semana`;
+  if (Math.max(o4, p4) < 10) return el('p', { class: 'g-trend' }, `Observado: pocos casos en las últimas semanas${pie}`);
+  const d = p4 > 0 ? o4 / p4 - 1 : 1;
+  const [icono, texto] = Math.abs(d) < 0.1 ? ['i-tendencia-estable', 'parecido a las 4 anteriores']
+    : d > 0 ? ['i-tendencia-sube', `${Math.round(d * 100)} % más que las 4 anteriores`] : ['i-tendencia-baja', `${Math.round(-d * 100)} % menos que las 4 anteriores`];
+  return el('p', { class: 'g-trend' }, ico(icono, 'g-ico g-ico--trend'), `Observado, últimas 4 semanas: ${texto}${pie}`);
 }
 
 function renderSummary() {
@@ -119,6 +126,7 @@ function renderCatalog() {
           el('span', { class: `g-chip g-chip--${d.status.kind}` }, ICONO_ESTADO[d.status.kind] ? ico(ICONO_ESTADO[d.status.kind], 'g-ico g-ico--chip') : null, f.estadoCorto)),
         areaDe(d.id) ? el('p', { class: 'g-disease__area' }, ico(areaDe(d.id).icono), areaDe(d.id).nombre) : null,
         el('p', { class: 'g-disease__facts' }, [d.cie ? `CIE-10 ${d.cie}` : null, `${NF.format(d.nSeries)} series`, `observado hasta la ${f.observado}`].filter(Boolean).join(' · ')),
+        nat ? tendenciaObservada(nat.spark) : null,
         nat ? spark(nat.spark) : null));
   }));
   $('gDiseasesEmpty').hidden = items.length > 0;

@@ -7,7 +7,7 @@
   <title>EpiForecast-MX — Parotiditis infecciosa (B26) · Pronóstico semanal</title>
   <meta name="description" content="Pronóstico semanal de casos de parotiditis infecciosa (CIE-10 B26) reportados al SINAVE para las 32 entidades de México, por sexo, a 52 semanas. Se publica el control estacional, no validado, sin intervalos de incertidumbre." />
 <link rel="stylesheet" href="assets/site/site.css?v=5">
-<link rel="stylesheet" href="disease.css?v=20261112h3">
+<link rel="stylesheet" href="disease.css?v=20261125u1">
 
 </head>
 <body class="disease-page">
@@ -140,6 +140,7 @@
         <div class="metric"><div class="mv" id="mTotal">—</div><div class="ml">Casos pronosticados en 52 semanas</div></div>
       </div>
       <p class="engine-line">Motor de esta serie: <strong id="mEngine">—</strong></p>
+      <p class="metric-help"><strong>sMAPE:</strong> error porcentual entre lo pronosticado y lo observado (0 % sería perfecto). <strong>Sesgo:</strong> negativo si el pronóstico quedó por debajo de lo observado. <a href="validacion_semanal.html">Cómo se valida cada semana</a>.</p>
     </div>
   </section>
 
@@ -378,6 +379,7 @@
       const [a, w] = V.observation_cutoff;
       $('cutoffTxt').textContent = `semana epidemiológica ${w} de ${a} (semana del ${fechaLarga(V.observation_cutoff_ds)}), publicada en el boletín de la semana ${EpiEstadoFicha.semanaMas(a, w, 1)[1]}`;
       $('stModels').textContent = V.models;
+      EpiEstadoFicha.cifras?.(document, V);
       $('stProducts').textContent = V.products;
       $('mtProducts').textContent = V.products;
       const nac = V.series['nacional|mx|general'];

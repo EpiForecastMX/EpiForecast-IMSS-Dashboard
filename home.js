@@ -85,6 +85,8 @@
     none.hidden = matching.length !== 0;
   }
   document.getElementById('catalogControls').hidden = false;
+  var grid = document.getElementById('conditionGrid');
+  if (grid) grid.setAttribute('data-listo', '');
   input.addEventListener('input', render);
   group.addEventListener('change', render);
   more.addEventListener('click', function () {

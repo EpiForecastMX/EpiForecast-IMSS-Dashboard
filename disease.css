@@ -171,3 +171,7 @@ h3.subh svg { width: 20px; height: 20px; flex: none; color: var(--gold-ink); }
 .ficha-colophon { padding: 22px 0; border-top: 1px solid var(--line); background: var(--tint); text-align: center; }
 .ficha-colophon .t { color: var(--ink); font-weight: 700; }
 .ficha-colophon .s { margin-top: 4px; color: var(--muted); font-size: 14px; }
+
+/* Mesa de expertos (24-nov-2026): microdefiniciones de las métricas, en lenguaje llano. */
+.metric-help { margin-top: 8px; max-width: 80ch; font-size: 14px; color: var(--muted); }
+.metric-help a { color: var(--green-dark); }

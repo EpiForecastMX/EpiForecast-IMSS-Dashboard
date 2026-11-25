@@ -10,6 +10,7 @@ import {
   filterByFase, paginate,
 } from './data.mjs';
 import { validateCatalog, normalizeDataset, datasetSexes, resolveDatasetSex } from './unified.mjs';
+import { ICONO_ESTADO, iconoSvg } from '../site/estado.mjs';
 import { buildComparison, comparisonCSV, temporalProfile } from './analytics.mjs';
 import { layoutSvgExport } from './svg_export.mjs';
 import {
@@ -425,7 +426,8 @@ function nationalSummary(d) {
 
 function statusBadge(d) {
   const k = statusKind(d);
-  return el('span', { class: `badge badge--${k}` }, STATUS_SHORT[k]);
+  // Icono del sprite común además del color y el texto (mesa de expertos, 24-nov-2026).
+  return el('span', { class: `badge badge--${k}` }, ICONO_ESTADO[k] ? iconoSvg(document, 'assets/site/icons.svg', ICONO_ESTADO[k], 'badge__ico') : null, STATUS_SHORT[k]);
 }
 
 function weeksText(st) {

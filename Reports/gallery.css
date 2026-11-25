@@ -63,11 +63,16 @@ html.tema-galeria :is(.g-card__media img, .g-viewer__stage img) { background: #f
 .g-catalog { padding-top: 32px; padding-bottom: 48px; }
 .g-controls, .g-filters { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; margin-bottom: 18px; }
 .g-controls { grid-template-columns: 2fr 1fr 1fr; }
+/* Las áreas clínicas tienen nombres largos: el selector nunca rebasa su columna (en celular desbordaba 24 px). */
+.g-controls label, .g-filters label { min-width: 0; }
+.g-controls select, .g-controls input { width: 100%; min-width: 0; max-width: 100%; }
 /* Iconos del sprite común: heredan el color del texto (claro y oscuro). */
 .g-ico { width: 18px; height: 18px; flex: none; }
 .g-ico--chip { width: 13px; height: 13px; margin-right: 4px; vertical-align: -2px; }
 .g-disease__area { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
 .g-disease__area .g-ico { color: var(--green); }
+.g-trend { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 13px; color: var(--body); }
+.g-ico--trend { width: 15px; height: 15px; color: var(--ink); }
 .g-controls label, .g-filters label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 650; color: var(--body); }
 .g-controls input, .g-controls select, .g-filters input, .g-filters select { min-height: 46px; padding: 9px 12px; border: 1px solid var(--control-border); border-radius: 8px; background: var(--surface); font-size: 16px; }
 .g-filters select:disabled, .g-filters input:disabled { background: var(--tint); color: var(--muted); }
@@ -184,7 +189,7 @@ html.tema-galeria :is(.g-card__media img, .g-viewer__stage img) { background: #f
   .g-spark { grid-column: 2; grid-row: 1 / span 2; height: 32px; }
   .g-disease__facts { font-size: 13px; }
   .g-controls, .g-filters, .g-facts { grid-template-columns: 1fr; }
-  .g-disease__area { grid-column: 1; }
+  .g-disease__area, .g-trend { grid-column: 1; }
   .g-filters .g-filter-q { grid-column: auto; }
   .g-viewer { padding: 12px; }
   .g-viewer__links { margin-left: 0; }

@@ -30,7 +30,7 @@
   <meta name="theme-color" content="#123F35" />
 
   <link rel="stylesheet" href="assets/site/site.css?v=5">
-  <link rel="stylesheet" href="home.css?v=6">
+  <link rel="stylesheet" href="home.css?v=8">
 <script defer src="epibot/js/release_catalog.js?v=54"></script>
 </head>
 <body class="home">
@@ -100,6 +100,14 @@
         <a class="btn btn--primary btn--lg" href="Reports/index.html">Explorar pronósticos <span aria-hidden="true">→</span></a>
         <a class="text-link text-link--target" href="#diseases">Buscar un padecimiento</a>
       </div>
+      <!-- Mesa de expertos (24-nov-2026): buscar desde la portada lleva directo a la Galería (también sin JavaScript). -->
+      <form class="home-hero__search" action="Reports/index.html" method="get" role="search">
+        <label for="heroQ">Buscar por nombre o código CIE-10</label>
+        <span class="home-hero__search-row">
+          <input id="heroQ" name="q" type="search" autocomplete="off" maxlength="80" placeholder="Ej. dengue, diabetes, C50…">
+          <button class="btn btn--primary" type="submit">Buscar</button>
+        </span>
+      </form>
       <ul class="home-hero__facts">
         <li><b id="countPadecimientos">152</b><span>padecimientos</span></li>
         <li><b>32</b><span>entidades</span></li>
@@ -1555,6 +1563,6 @@
   <script defer src="assets/site/nota-ancla.js?v=1"></script>
   <script defer src="assets/site/site-nav.js?v=4"></script>
   <script defer src="home-preview.js?v=4"></script>
-  <script defer src="home.js?v=3"></script>
+  <script defer src="home.js?v=4"></script>
 </body>
 </html>
