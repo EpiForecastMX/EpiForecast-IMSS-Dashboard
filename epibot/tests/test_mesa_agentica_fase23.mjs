@@ -101,5 +101,6 @@ test('planificador en el cliente: detrás de la bandera, con control de padecimi
   const app = fuente('../js/app.js');
   assert.match(app, /get\('agente'\) === '1' \|\| localStorage\.getItem\('epibot_agente'\) === '1'/);
   assert.match(app, /if \(AGENTE && \(!result \|\| pareceVariosPedidos\(text\)\)\)/);
-  assert.match(app, /function corrigePlan\(consultas, padsTexto\)/);
+  assert.match(app, /respuestaDePlan\(await planConIA\(text\), text, !!result, answer\)/);
+  assert.match(fuente('../js/agente.js'), /export function corrigePlan\(consultas, padsTexto\)/);
 });

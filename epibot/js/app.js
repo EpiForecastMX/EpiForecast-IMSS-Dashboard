@@ -7,17 +7,18 @@ import { graficoRondas } from './comparacion_rondas.js?v=3';
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2, contextoActual, reiniciaContexto } from './kb.js?v=203';
-import { detectEntities, norm } from './entities.js?v=87';
+import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2, contextoActual, reiniciaContexto } from './kb.js?v=204';
+import { detectEntities, norm } from './entities.js?v=88';
+import { pareceVariosPedidos, respuestaDePlan } from './agente.js?v=1';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
 import { renderMexicoMap } from './mexico-map.js?v=4';
 import { renderTimelapse } from './timelapse.js?v=4';
 import { renderSemaforo } from './semaforo.js?v=3';
 import { renderComparador } from './comparador.js?v=4';
 import { buildComparadorState } from './comparador_data.js?v=1';
-import { graficaObesidad } from './obesidad_charts.js?v=58';
+import { graficaObesidad } from './obesidad_charts.js?v=59';
 import { UNCERTAINTY_LABEL } from './point_only.js?v=1';
-import { MARCADOR_RELEASE, RELEASES, releaseConAlias, releaseDeMarca, releaseDePad, releasesEnConsulta } from './release_config.js?v=57';
+import { MARCADOR_RELEASE, RELEASES, releaseConAlias, releaseDeMarca, releaseDePad, releasesEnConsulta } from './release_config.js?v=58';
 import { initSTT, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking, toggleMute, isTTSEnabled, onSpeakingStateChange, desbloqueaVoz } from './voice.js?v=4';
 
 // ---------------------------------------------------------------------------
@@ -942,27 +943,8 @@ async function routeQuery(text, typingEl) {
   // Mesa agéntica, fase 3 (sólo con la bandera ?agente=1 o localStorage epibot_agente=1): una frase con varios pedidos, o que
   // el KB no entiende, se divide en pasos validados; cada paso lo contesta el KB con sus datos y plantillas.
   if (AGENTE && (!result || pareceVariosPedidos(text))) {
-    const plan = await planConIA(text);
-    // Control determinista: si la frase nombra padecimientos que el KB reconoce, un paso con otro padecimiento se descarta
-    // (en la prueba con qwen2.5:14b, «piquetes de alacrán» se volvió «mordedura de araña viuda negra»).
-    const padsTexto = padsReconocidos(text);
-    const consultas = corrigePlan(plan.consultas, padsTexto);
-    const descartados = plan.descartados + plan.consultas.length - consultas.length;
-    if (consultas.length >= 2 || (!result && consultas.length === 1)) {
-      const partes = [];
-      for (const c of consultas) {
-        let r = null;
-        try { r = await answer(c); } catch (err) { console.error('KB error:', err); }
-        if (r && !/No entendí bien|Lamento que estés|Sigo aquí contigo/.test(r)) partes.push({ c, r });
-      }
-      const aviso = descartados ? `\n\n_No entendí ${descartados === 1 ? 'una parte' : `${descartados} partes`} de tu pregunta; pregúntamela por separado._` : '';
-      if (partes.length === 1) result = `_Entendí: «${partes[0].c}»._\n\n${partes[0].r}${aviso}`;
-      else if (partes.length > 1) {
-        result = `_Lo dividí en ${partes.length} preguntas:_\n\n` +
-          partes.map((x, i) => `**${i + 1}. ${x.c}**\n\n${parteDePlan(x.r)}`).join('\n\n---\n\n') + aviso +
-          (partes.some((x) => DESCARGO_LLANO.test(x.r)) ? `\n\n${partes.map((x) => x.r.match(DESCARGO_LLANO)?.[0].trim()).find(Boolean)}` : '') + '\n<!--SIN_GRAFICA-->';
-      }
-    }
+    const compuesta = await respuestaDePlan(await planConIA(text), text, !!result, answer);
+    if (compuesta) result = compuesta;
   }
 
   // Rediseño conversacional (24-nov-2026): si el KB no reconoce ningún padecimiento, Gemini sólo clasifica la frase contra
@@ -1044,45 +1026,6 @@ function debeInterpretar(text) {
 const AGENTE = (() => {
   try { return new URLSearchParams(location.search).get('agente') === '1' || localStorage.getItem('epibot_agente') === '1'; } catch { return false; }
 })();
-/** ¿La frase pide varias cosas? («… y además …», «… también dime …», dos signos de interrogación). */
-function pareceVariosPedidos(text) {
-  const t = norm(text);
-  return /\b(y ademas|ademas de eso|y tambien|tambien dime|y luego|y de paso|aparte dime|y otra cosa)\b/.test(t) || (String(text).match(/\?/g) || []).length >= 2;
-}
-/** Respuesta de un paso dentro de una respuesta compuesta: sin ficha técnica, botones ni marcas de gráfica. */
-const DESCARGO_LLANO = /\n*_Son casos notificados al boletín epidemiológico[^\n]*_/;
-function parteDePlan(md) {
-  return String(md).split('<!--DETALLE-->')[0].replace(/\n?<!--SIGUE:.*?-->/g, '').replace(/<!--SIN_GRAFICA-->/g, '').replace(DESCARGO_LLANO, '').trim();
-}
-/**
- * Pasos cuyo padecimiento la frase no nombra: si queda exactamente un padecimiento nombrado sin paso, se usa ése (con el mismo
- * lugar e intención); si no, el paso se descarta. Si el KB no reconoce ningún padecimiento en la frase, el plan queda igual.
- */
-function corrigePlan(consultas, padsTexto) {
-  if (!padsTexto.size) return consultas;
-  const ajenos = (c) => [...padsReconocidos(c)].filter((p) => !padsTexto.has(p));
-  const cubiertos = new Set(consultas.flatMap((c) => [...padsReconocidos(c)].filter((p) => padsTexto.has(p))));
-  const libres = [...padsTexto].filter((p) => !cubiertos.has(p));
-  const malos = consultas.filter((c) => ajenos(c).length);
-  return consultas.map((c) => {
-    const x = ajenos(c);
-    if (!x.length) return c;
-    if (malos.length !== 1 || libres.length !== 1 || x.length !== 1) return null;
-    const malo = RELEASES.find((r) => r.id === x[0]);
-    const bueno = RELEASES.find((r) => r.id === libres[0]);
-    if (!malo || !bueno || bueno.sensible) return null;
-    const viejo = [malo.consultaVisible, malo.consulta].find((t) => t && c.includes(t));
-    return viejo ? c.replace(viejo, bueno.consultaVisible || bueno.consulta) : null;
-  }).filter(Boolean);
-}
-
-/** Padecimientos que el propio KB reconoce en un texto (ids de release y nombres de los cuatro originales). */
-function padsReconocidos(t) {
-  const n = norm(t);
-  const ent = detectEntities(t);
-  return new Set([...releasesEnConsulta(n, { prefijos: true }).map((r) => r.id),
-    ...[ent.padecimiento, ...(ent.padecimientos || [])].filter(Boolean).map((p) => releaseDePad(p)?.id || p)]);
-}
 /** Pide a la función RAG (modo plan) los pasos de una frase compuesta; sin pasos si no entiende, tarda o falla. */
 async function planConIA(text) {
   const ac = new AbortController();
