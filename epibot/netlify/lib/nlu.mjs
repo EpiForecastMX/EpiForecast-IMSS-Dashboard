@@ -113,3 +113,106 @@ export function generadorOllama(spec, { timeoutMs = 20000 } = {}) {
     } finally { clearTimeout(t); }
   };
 }
+
+// ── Planificador (mesa agéntica, fase 3, 25-nov-2026) ───────────────────────────────────────────────────────────────────
+// Divide una frase con varios pedidos («cómo va el dengue en Yucatán y además en qué meses hay más varicela») en hasta tres
+// pasos, cada uno validado contra las mismas listas cerradas que el modo nlu. El modelo no responde ni da cifras: cada paso se
+// convierte en una consulta canónica que el KB del cliente contesta con sus datos y plantillas. Va detrás de una bandera.
+export const INTENCIONES_PLAN = ['estado_actual', 'tendencia', 'confiabilidad', 'definicion', 'ranking', 'comparar_estados',
+  'comparar_padecimientos', 'estacionalidad', 'pico', 'vs_anio'];
+export const MAX_PASOS = 3;
+
+export function promptPlan(consulta, cat) {
+  return 'Eres el planificador de un chatbot de epidemiología de México. NO respondas la pregunta: divídela en pasos.\n' +
+    'Devuelve EXCLUSIVAMENTE un objeto JSON {"pasos": [ … ]} con 1 a 3 pasos, uno por cada cosa distinta que pide la frase, con estas claves:\n' +
+    '{"intencion": uno de ' + JSON.stringify(INTENCIONES_PLAN) + ', "padecimientos": [ids de la lista], "estados": [nombres exactos], ' +
+    '"sexo": "hombres" | "mujeres" | null, "periodo": "semana_pasada" | "proximo_mes" | nombre de un mes | año de cuatro cifras | null, ' +
+    '"rapidez": true si pregunta qué sube o baja más rápido, si no false}\n' +
+    'Reglas: comparar_estados lleva un padecimiento y 2 o 3 estados; comparar_padecimientos lleva 2 o 3 padecimientos y a lo más un estado; ' +
+    'las demás llevan un padecimiento (ranking ninguno). Elige un padecimiento sólo si la frase lo nombra o lo describe sin ambigüedad ' +
+    '(sinónimos coloquiales, errores de escritura); una ciudad se traduce a su estado. Si la frase no pide nada de esto, {"pasos": []}.\n' +
+    `PADECIMIENTOS (id: nombre): ${cat.map((c) => `${c.id}: ${c.nombre}`).join('; ')}\n` +
+    `ESTADOS: ${ESTADOS_32.join('; ')}\n` +
+    `FRASE: ${JSON.stringify(String(consulta).slice(0, 300))}`;
+}
+
+/** Id del catálogo a partir de lo que escribió el modelo: exacto, o el único id que empieza con «x_» («varicela» → varicela_b01). */
+export function idDelCatalogo(x, cat) {
+  const exacto = cat.find((c) => c.id === x);
+  if (exacto) return exacto;
+  const base = String(x || '').toLowerCase();
+  const pref = cat.filter((c) => base.length >= 4 && c.id.startsWith(`${base}_`));
+  return pref.length === 1 ? pref[0] : null;
+}
+
+/**
+ * Normaliza la salida del modelo antes de validar, con reglas fijas: un paso de un solo padecimiento con varios se divide en
+ * varios pasos, y una tendencia sin padecimiento es el ranking («¿qué enfermedades van al alza?»).
+ */
+export function normalizaPasos(pasos) {
+  const out = [];
+  for (const p of Array.isArray(pasos) ? pasos : []) {
+    if (!p || typeof p !== 'object') { out.push(p); continue; }
+    const ids = Array.isArray(p.padecimientos) ? p.padecimientos : p.padecimiento != null ? [p.padecimiento] : [];
+    if (!ids.length && ['tendencia', 'estado_actual'].includes(p.intencion) && !(p.estados || []).length) { out.push({ intencion: 'ranking' }); continue; }
+    if (ids.length > 1 && !['comparar_estados', 'comparar_padecimientos'].includes(p.intencion)) {
+      for (const id of ids) out.push({ ...p, padecimientos: [id] });
+      continue;
+    }
+    out.push(p);
+  }
+  return out;
+}
+
+/** Valida un paso contra las listas cerradas; null si no cumple. */
+export function validaPaso(o, cat) {
+  if (!o || typeof o !== 'object' || Array.isArray(o)) return null;
+  const intencion = INTENCIONES_PLAN.includes(o.intencion) ? o.intencion : null;
+  if (!intencion) return null;
+  const ids = Array.isArray(o.padecimientos) ? o.padecimientos : o.padecimiento != null ? [o.padecimiento] : [];
+  const pads = ids.map((id) => idDelCatalogo(id, cat)).filter(Boolean);
+  if (pads.length !== ids.length) return null;
+  const nombres = Array.isArray(o.estados) ? o.estados : o.estado != null ? [o.estado] : [];
+  const estados = nombres.map((e) => ESTADOS_32.find((x) => x === e)).filter(Boolean);
+  if (estados.length !== nombres.length) return null;
+  const sexo = ['hombres', 'mujeres'].includes(o.sexo) ? o.sexo : null;
+  const p = o.periodo == null ? null : String(o.periodo).toLowerCase();
+  const periodo = p && (['semana_pasada', 'proximo_mes'].includes(p) || MESES.includes(p) || /^20[2-3]\d$/.test(p)) ? p : null;
+  const rapidez = o.rapidez === true;
+  if (intencion === 'ranking') return { intencion, pads: [], estados: [], sexo: null, periodo: null, rapidez: false };
+  if (intencion === 'comparar_estados' && (pads.length !== 1 || estados.length < 2 || estados.length > 3)) return null;
+  if (intencion === 'comparar_padecimientos' && (pads.length < 2 || pads.length > 3 || estados.length > 1)) return null;
+  if (!['comparar_estados', 'comparar_padecimientos'].includes(intencion) && (pads.length !== 1 || estados.length > 1)) return null;
+  return { intencion, pads, estados, sexo, periodo, rapidez };
+}
+
+/** Consulta canónica de un paso. «vs» y no «compara»: junto a «picaduras» o «mordedura» el verbo activaba la crisis. */
+export function consultaDePaso(v) {
+  if (!v) return null;
+  if (v.intencion === 'ranking') return '¿qué enfermedades van al alza?';
+  const base = v.pads[0].consulta;
+  const lugar = v.estados[0] ? ` en ${v.estados[0]}` : '';
+  const sexo = v.sexo ? ` ${v.sexo}` : '';
+  if (v.intencion === 'comparar_estados') return `${base} en ${v.estados.join(' vs ')}${sexo}${v.rapidez ? ' ¿dónde sube más rápido?' : ''}`;
+  if (v.intencion === 'comparar_padecimientos') return `${v.pads.map((p) => p.consulta).join(' vs ')}${lugar}${sexo}${v.rapidez ? ' ¿cuál sube más rápido?' : ''}`;
+  if (v.intencion === 'estacionalidad') return `¿en qué meses hay más casos de ${base}${lugar}?`;
+  if (v.intencion === 'pico') return `¿cuándo es el pico de ${base}${lugar}${sexo}?`;
+  if (v.intencion === 'vs_anio') return `${base}${lugar}${sexo} comparado con el año pasado`;
+  return consultaCanonica({ pad: v.pads[0], estado: v.estados[0] || null, sexo: v.sexo, intencion: v.intencion, periodo: v.periodo });
+}
+
+/** Plan validado: { consultas: [..] } (vacío si la salida no valida o falla el modelo). */
+export async function interpretaPlan(consulta, releases, generar) {
+  const cat = catalogoNlu(releases);
+  try {
+    let o = await generar(promptPlan(consulta, cat));
+    if (typeof o === 'string') o = JSON.parse(o.replace(/^```(?:json)?\s*|\s*```$/g, ''));
+    const crudos = normalizaPasos(o?.pasos).slice(0, MAX_PASOS);
+    const pasos = crudos.map((p) => validaPaso(p, cat));
+    const validos = pasos.filter(Boolean);
+    // Los pasos que no validan se descartan y se dice cuántos: mejor una respuesta parcial avisada que inventar el resto.
+    return { consultas: [...new Set(validos.map(consultaDePaso))], descartados: pasos.length - validos.length };
+  } catch {
+    return { consultas: [] };
+  }
+}

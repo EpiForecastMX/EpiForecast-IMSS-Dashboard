@@ -751,3 +751,26 @@ body.keyboard-open .cc-topbar{display:flex}.input-wrapper .prompt-toggle,.input-
 .msg-detalle[open]>summary::before{content:'\2212'}
 .msg-detalle>:not(summary){padding:0 14px}
 .msg-detalle p,.msg-detalle li{font-size:13px;line-height:1.7;color:#40594f}
+
+/* Mesa agéntica, fase 2 (25-nov-2026) */
+.input-wrapper textarea, .input-wrapper input { font-size: 16px; } /* iOS no amplía la página al escribir */
+.ficha-turno { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px 20px; border-bottom: 1px solid #dbe3dc; background: #f3f6f2; font-size: 13px; color: #40594f; }
+.ficha-turno__titulo { font-weight: 700; margin-right: 2px; }
+.ficha-chip { display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border: 1px solid #c9d6cd; border-radius: 999px; background: #fff; color: #173c33; font-weight: 600; }
+.ficha-chip__quitar { min-width: 28px; min-height: 28px; margin: -6px -8px -6px 0; border: 0; border-radius: 999px; background: transparent; color: #40594f; font-size: 16px; line-height: 1; cursor: pointer; }
+.ficha-chip__quitar:hover, .ficha-chip__quitar:focus-visible { background: #e3ebe5; color: #173c33; }
+.voz-duda { margin: 6px 4px 0; font-size: 13px; color: #8a5a00; }
+.chart-datos { margin: 8px 0 0; font-size: 13px; }
+.chart-datos summary { cursor: pointer; color: #17644d; font-weight: 600; min-height: 32px; display: flex; align-items: center; }
+.chart-datos table { border-collapse: collapse; margin-top: 6px; max-height: 320px; display: block; overflow: auto; }
+.chart-datos th, .chart-datos td { padding: 3px 10px; border-bottom: 1px solid #e3ebe5; text-align: right; white-space: nowrap; }
+.chart-datos th:first-child, .chart-datos td:first-child { text-align: left; }
+.mexico-map-svg path:focus-visible { outline: none; stroke: #a87b27; stroke-width: 3; }
+@media (max-width: 600px) {
+  .ficha-turno { padding: 6px 12px; }
+  .msg-content table.tabla-tarjetas, .msg-content table.tabla-tarjetas tbody, .msg-content table.tabla-tarjetas tr, .msg-content table.tabla-tarjetas td { display: block; width: auto; }
+  .msg-content table.tabla-tarjetas thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  .msg-content table.tabla-tarjetas tr { margin: 0 0 8px; padding: 6px 10px; border: 1px solid #dbe3dc; border-radius: 8px; background: #fff; }
+  .msg-content table.tabla-tarjetas td { border: 0; padding: 2px 0; text-align: left; }
+  .msg-content table.tabla-tarjetas td[data-label]::before { content: attr(data-label) ": "; font-weight: 700; color: #40594f; }
+}

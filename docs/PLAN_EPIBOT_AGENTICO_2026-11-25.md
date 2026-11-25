@@ -171,3 +171,52 @@ versión servida.
 4. **Conversaciones reales para la fase sombra**: sólo anonimizadas y sin turnos de crisis, o se queda en reproducción
    local de baterías.
 5. **Dos personas** (salud y periodismo) para escribir parte de la batería sellada y la revisión humana.
+
+## Implementado: fases 0 y 1 (25-nov-2026, Dashboard PR #124, `main` `c9da766d`)
+
+Sin desplegar (Netlify sin servicio hasta el 1-dic-2026). Mediciones en `medicion/`; batería ciega sellada en `bateria_s/`
+(*dev* 200, *test* 400 sin abrir; hashes en `bateria_s/SELLO.md`).
+
+| Medida | Antes | Después |
+|---|---|---|
+| Batería ciega S, *dev* (usada para iterar) | 82.5 % | 93.5 % |
+| Etiquetas de las 813 preguntas curadas (`eval/califica.mjs`) | 73.1 % | 75.2 % |
+| «Explícame la gráfica» (S *dev*) | 0/10 | 9/10 |
+| Trampas (S *dev*) | 29/40 | 37/40 |
+
+Defectos encontrados por la medición y corregidos: respuesta nacional pese a decir «te respondo para Nuevo León» (zona
+metropolitana), estado perdido tras una queja, «¿hay un brote?» contestado «Sí», respuesta de crisis por la palabra
+«compara» que añadía la reescritura junto a «picaduras» o «mordedura», el lugar dicho en una presentación o un viaje.
+
+Decisiones nuevas para el autor (no se tocaron porque son guardas de seguridad auditadas):
+- El detector de crisis da la respuesta de crisis a «compara picaduras de alacrán en Puebla y Tlaxcala», «quemaduras
+  compara» o «mordeduras de perro compara» (verbo de petición + término de lesión sin «casos de» delante, regla de la
+  decimotercera auditoría Codex). La reescritura ya no lo provoca, pero la persona que escribe «compara» sí.
+- «No entiendo los números de abajo, ¿me explicas qué estoy viendo?» recibe el «no entendí» de `apoyoInmediato`.
+
+Siguen pendientes las fases 2 a 5 y las decisiones de la sección anterior (proveedor y presupuesto, redacción libre,
+población e intervalos en el backend, conversaciones reales, revisores humanos).
+
+## Implementado: fases 2 y 3 (25-nov-2026)
+
+**Fase 2 (celular, voz y accesibilidad), activa para todos:** ficha «Hablando de» con el padecimiento, el lugar y el sexo que
+usa el bot, y un toque para quitar el lugar o el sexo; «Nueva consulta» ahora sí borra la memoria del bot (antes sólo la
+pantalla); botones de seguimiento en lenguaje de usuario («¿Dónde hay más casos?», «¿En qué meses hay más?», «Explícame la
+gráfica»); tras una pregunta por voz se dice sólo el veredicto, cortado en una oración entera; el botón de escuchar lee hasta
+1,500 caracteres; el micrófono interrumpe la lectura y habilita la voz en iPhone en el mismo toque; si el navegador duda de
+lo que oyó, no envía y pide revisar; campo de texto a 16 px; mapa con teclado, toque y etiqueta por estado; tabla equivalente
+para cada gráfica y mapa; tablas como tarjetas a 600 px o menos.
+
+**Fase 3 (planificador), detrás de la bandera `?agente=1`:** modo `plan` en la función (Gemini y, si falla, el respaldo de
+Ollama) que divide una frase en hasta tres pasos validados con listas cerradas; reglas fijas de reparación (id único por
+prefijo, un paso por padecimiento, tendencia sin padecimiento = ranking); el cliente descarta o corrige un paso cuyo
+padecimiento la frase no nombra y contesta cada paso con el KB. Prueba con qwen2.5:14b (Gemini en 402): 5 de 5 frases
+compuestas bien divididas tras las reparaciones (antes 2 de 5); el error «piquetes de alacrán → viuda negra» lo corrige el
+control del cliente. Unos 8 a 9 s por plan con qwen en local.
+
+**Fase 4 (redacción con marcadores):** no se hace. Las plantillas cubren las preguntas compuestas y los modelos locales
+probados cometen errores clínicos.
+
+**Fase 5 (bloqueada):** requiere Netlify (1-dic-2026), la facturación de la API de Gemini (o un respaldo aceptado), las dos
+personas revisoras y la decisión sobre el detector de crisis. Hasta entonces, *S-test* sigue sellado y la bandera, apagada.
+Mediciones sin regresión: *dev* 93.5 %, etiquetas 75.2 %; EpiBot 2,117 pruebas.

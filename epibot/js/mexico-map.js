@@ -113,14 +113,31 @@ export function renderMexicoMap(container, stateData, opts = {}) {
     path.setAttribute('data-state', name);
     path.style.transition = 'fill 0.2s, stroke-width 0.2s, stroke 0.2s';
     path.style.cursor = 'pointer';
+    // Mesa agéntica, fase 2: cada estado se alcanza con el teclado y con un toque, y dice su cifra al lector de pantalla.
+    path.setAttribute('tabindex', '0');
+    path.setAttribute('role', 'button');
+    path.setAttribute('aria-label', dn(name) + ': ' + (data ? data.label : 'sin datos'));
 
-    path.addEventListener('mouseenter', () => {
+    const muestra = () => {
       path.setAttribute('stroke', '#5B8DEF');
       path.setAttribute('stroke-width', '2.5');
       path.parentNode.appendChild(path); // bring to front
       const label = data ? data.label : 'Sin datos';
       tooltipEl.innerHTML = '<strong>' + dn(name) + '</strong><br>' + label;
       tooltipEl.style.display = 'block';
+    };
+    const ubicaEnElEstado = () => {
+      const r = path.getBoundingClientRect(), rect = wrapper.getBoundingClientRect();
+      tooltipEl.style.left = (r.left + r.width / 2 - rect.left + 8) + 'px';
+      tooltipEl.style.top = (r.top - rect.top - 36) + 'px';
+    };
+    path.addEventListener('mouseenter', muestra);
+    path.addEventListener('focus', () => { muestra(); ubicaEnElEstado(); });
+    path.addEventListener('click', () => { muestra(); ubicaEnElEstado(); });
+    path.addEventListener('blur', () => {
+      path.setAttribute('stroke', 'rgba(91,141,239,0.25)');
+      path.setAttribute('stroke-width', '0.8');
+      tooltipEl.style.display = 'none';
     });
     path.addEventListener('mousemove', (e) => {
       const rect = wrapper.getBoundingClientRect();
@@ -154,6 +171,22 @@ export function renderMexicoMap(container, stateData, opts = {}) {
     + '</div>';
   legend.innerHTML = barHtml;
   wrapper.appendChild(legend);
+
+  // Tabla equivalente, ordenada de mayor a menor.
+  const filas = Object.entries(stateData).filter(([, d]) => d && d.value != null).sort((a, b) => b[1].value - a[1].value);
+  if (filas.length) {
+    const det = document.createElement('details');
+    det.className = 'chart-datos';
+    const sum = document.createElement('summary');
+    sum.textContent = 'Ver los datos del mapa en tabla';
+    const tabla = document.createElement('table');
+    const h = tabla.createTHead().insertRow();
+    for (const t of ['Estado', metric]) { const th = document.createElement('th'); th.textContent = t; h.appendChild(th); }
+    const tb = tabla.createTBody();
+    for (const [n, d] of filas) { const tr = tb.insertRow(); tr.insertCell().textContent = dn(n); tr.insertCell().textContent = d.label; }
+    det.append(sum, tabla);
+    wrapper.appendChild(det);
+  }
 
   container.appendChild(wrapper);
 }
