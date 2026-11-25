@@ -112,3 +112,42 @@ test('RAG: el registro no guarda el texto de la consulta', () => {
   const fuente = readFileSync(new URL('../netlify/functions/rag.mjs', import.meta.url), 'utf8');
   assert.doesNotMatch(fuente, /q="\$\{query/);
 });
+
+// Respaldo con Ollama (25-nov-2026): con Gemini en 402 responde el modelo local, con el mismo verificador de cifras y rotulado.
+test('respaldo: con Gemini en 402 responde Ollama, sin cifras inventadas y con aviso; sin respaldo, error claro', async () => {
+  _reiniciaProveedor();
+  const previa = globalThis.fetch, clave = process.env.GEMINI_API_KEY, resp = process.env.EPI_LLM_RESPALDO;
+  const llamadas = [];
+  globalThis.fetch = async (u, init) => {
+    const url = String(u?.url ?? u);
+    llamadas.push(url);
+    if (url.includes('googleapis')) return new Response(JSON.stringify({ error: { code: 402, message: 'Payment Required' } }), { status: 402, statusText: 'Payment Required' });
+    if (url.endsWith('/api/chat')) {
+      const body = JSON.parse(init.body);
+      assert.equal(body.messages[0].role, 'system');
+      return new Response(JSON.stringify({ message: { content: 'El proyecto valida con datos reales. Hubo 424,242 casos inventados.' } }), { status: 200 });
+    }
+    throw new Error(`fetch inesperado: ${url}`);
+  };
+  process.env.GEMINI_API_KEY = 'clave-de-prueba';
+  try {
+    process.env.EPI_LLM_RESPALDO = 'http://localhost:11434|llama3.1';
+    const q = '¿qué metodología usa el proyecto para validar sus pronósticos?';
+    const pide = async () => (await rag.default(new Request('http://x/.netlify/functions/rag', { method: 'POST', headers: { 'content-type': 'application/json', 'x-nf-client-connection-ip': `r-${Math.random()}` }, body: JSON.stringify({ query: q }) }))).json();
+    const a = await pide();
+    assert.equal(a.model, 'ollama:llama3.1');
+    assert.match(a.answer, /valida con datos reales/);
+    assert.doesNotMatch(a.answer, /424/);
+    assert.match(a.answer, /modelo local de respaldo, menos preciso/);
+    assert.ok(llamadas.some((u) => u.endsWith('/api/chat')));
+    delete process.env.EPI_LLM_RESPALDO;
+    _reiniciaProveedor();
+    const b = await pide();
+    assert.ok(b.error && !/402|Payment/.test(b.error), JSON.stringify(b));
+  } finally {
+    globalThis.fetch = previa;
+    if (clave === undefined) delete process.env.GEMINI_API_KEY; else process.env.GEMINI_API_KEY = clave;
+    if (resp === undefined) delete process.env.EPI_LLM_RESPALDO; else process.env.EPI_LLM_RESPALDO = resp;
+    _reiniciaProveedor();
+  }
+});

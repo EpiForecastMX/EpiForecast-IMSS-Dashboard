@@ -30,6 +30,7 @@ import { respuestaNoModelableRag } from '../lib/radar_no_modelable.mjs';
 import { interpretaConsulta, generadorOllama } from '../lib/nlu.mjs';
 import { proveedorBloqueado, registraFallo, reintentable, mensajeUsuario } from '../lib/proveedor.mjs';
 import { depuraCifras, NOTA_RETIRADA, SIN_CIFRAS_VERIFICABLES } from '../lib/cifras_verificadas.mjs';
+import { specRespaldo, generaConOllama, nluConOllama } from '../lib/respaldo_ollama.mjs';
 
 const EMBED_MODEL = 'gemini-embedding-001';
 const EMBED_DIM = 768;
@@ -1070,17 +1071,25 @@ async function handlerInterno(req) {
     if (process.env.EPI_LLM_LOCAL) {
       return json(await interpretaConsulta(String(body.query || ''), globalThis.EPI_CATALOGO.releases, generadorOllama(process.env.EPI_LLM_LOCAL)), 200, cors);
     }
-    if (!apiKey || proveedorBloqueado()) return json({ consulta: null, entendido: null }, 200, cors);
+    // Respaldo (25-nov-2026): sin clave o con Gemini apagado por 402/cuota, clasifica Ollama si EPI_LLM_RESPALDO existe.
+    const respaldoNlu = specRespaldo();
+    if ((!apiKey || proveedorBloqueado()) && !respaldoNlu) return json({ consulta: null, entendido: null }, 200, cors);
     const rlNlu = checkRateLimit(getClientIp(req));
     if (!rlNlu.ok) return json({ consulta: null, entendido: null }, 200, cors);
-    const genAINlu = new GoogleGenerativeAI(apiKey);
-    const generar = async (prompt) => {
+    const genAINlu = apiKey && !proveedorBloqueado() ? new GoogleGenerativeAI(apiKey) : null;
+    const generarGemini = async (prompt) => {
       const a = withAbort(T_NLU);
       try {
         const model = genAINlu.getGenerativeModel({ model: GEN_MODELS[0], generationConfig: { responseMimeType: 'application/json', temperature: 0 } });
         const r = await model.generateContent(prompt, { signal: a.signal });
         return r.response.text();
       } catch (err) { registraFallo(err); throw err; } finally { a.done(); }
+    };
+    const generar = async (prompt) => {
+      if (genAINlu && !proveedorBloqueado()) {
+        try { return await generarGemini(prompt); } catch (err) { if (!respaldoNlu) throw err; }
+      }
+      return nluConOllama(respaldoNlu)(prompt);
     };
     return json(await interpretaConsulta(String(body.query || ''), globalThis.EPI_CATALOGO.releases, generar), 200, cors);
   }
@@ -1148,7 +1157,7 @@ async function handlerInterno(req) {
     if (estado) return json({ ...estado, retrieval: 'vista' }, 200, cors);
   }
 
-  if (!apiKey) return json({ error: 'GEMINI_API_KEY no configurada' }, 500, cors);
+  if (!apiKey && !specRespaldo()) return json({ error: 'GEMINI_API_KEY no configurada' }, 500, cors);
 
   const ip = getClientIp(req);
   const rl = checkRateLimit(ip);
@@ -1169,7 +1178,7 @@ async function handlerInterno(req) {
   if (verified) return json(verified, 200, cors);
 
   // Con el interruptor abierto (clave, facturación o cuota) no se llama al proveedor: recuperación léxica y error claro.
-  const genAI = proveedorBloqueado() ? null : new GoogleGenerativeAI(apiKey);
+  const genAI = !apiKey || proveedorBloqueado() ? null : new GoogleGenerativeAI(apiKey);
 
   // 0. Multi-turno: reescribe el seguimiento como pregunta autónoma (solo si aplica)
   const searchQuery = turno.contextualizada || await contextualizeQuery(genAI, query, history);
@@ -1261,22 +1270,48 @@ async function handlerInterno(req) {
   return json({ answer: out.texto, model: out.modelo, retrieval: mode, reranked, sources }, 200, cors);
 }
 
+export const AVISO_RESPALDO = '\n\n_Esta respuesta la redactó un modelo local de respaldo, menos preciso, porque la IA principal no está disponible. Las cifras se verificaron con los datos publicados; para información clínica consulta fuentes oficiales como MedlinePlus o la Secretaría de Salud._';
 const CIFRAS_RE = /\s*\[\s*(cifras?\s*clave|datos del proyecto)\s*\]/gi;
 
-/** Genera con el primer modelo que responda y retira las oraciones con cifras sin respaldo en `fuentes`. */
+/** Texto verificado: retira las oraciones con cifras sin respaldo en `fuentes` y añade la nota D7 si aplica. */
+function verificado(bruto0, fuentes, searchQuery) {
+  const bruto = bruto0.replace(CIFRAS_RE, '');
+  const { texto, retiradas } = depuraCifras(bruto, ...fuentes);
+  if (retiradas.length) console.warn(`[RAG] cifras sin respaldo retiradas: ${retiradas.length}`);
+  const base = texto ? texto + (retiradas.length ? NOTA_RETIRADA : '') : SIN_CIFRAS_VERIFICABLES;
+  return base + notaD7Rag(searchQuery, base);
+}
+
+/** Genera con el primer modelo que responda (Gemini y, si falla por clave, facturación o cuota, el respaldo de Ollama). */
 async function generaVerificado(genAI, systemMsg, contents, fuentes, searchQuery) {
-  if (!genAI) return { error: mensajeUsuario('fatal') };
+  const out = genAI ? await generaGemini(genAI, systemMsg, contents, fuentes, searchQuery) : { error: mensajeUsuario('fatal'), tipo: 'fatal' };
+  if (!out.error) return out;
+  const respaldo = specRespaldo();
+  if (respaldo) {
+    try {
+      const bruto = await generaConOllama(respaldo, systemMsg, contents);
+      if (bruto.trim()) {
+        console.warn(`[RAG] respuesta del respaldo ${respaldo.modelo} (Gemini: ${out.tipo || 'sin clave'})`);
+        // La prueba del 25-nov-2026 mostró errores clínicos de llama3.1 que el verificador de cifras no detecta (no son números):
+        // la respuesta del respaldo se rotula siempre.
+        return { texto: `${verificado(bruto, fuentes, searchQuery)}${AVISO_RESPALDO}`, modelo: `ollama:${respaldo.modelo}` };
+      }
+    } catch (err) {
+      console.warn(`[RAG] el respaldo ${respaldo.modelo} falló: ${String(err?.message || err).slice(0, 80)}`);
+    }
+  }
+  // Sin ningún modelo no se muestran pasajes sueltos: con búsqueda sólo léxica no contestaban la pregunta (prueba del 25-nov-2026).
+  return out;
+}
+
+async function generaGemini(genAI, systemMsg, contents, fuentes, searchQuery) {
   let tipo = null;
   for (const modelName of GEN_MODELS) {
     const a = withAbort(T_GEN);
     try {
       const model = genAI.getGenerativeModel({ model: modelName, systemInstruction: systemMsg });
       const result = await model.generateContent({ contents }, { signal: a.signal });
-      const bruto = (result.response.text() || '').replace(CIFRAS_RE, '');
-      const { texto, retiradas } = depuraCifras(bruto, ...fuentes);
-      if (retiradas.length) console.warn(`[RAG] cifras sin respaldo retiradas: ${retiradas.length}`);
-      const base = texto ? texto + (retiradas.length ? NOTA_RETIRADA : '') : SIN_CIFRAS_VERIFICABLES;
-      return { texto: base + notaD7Rag(searchQuery, base), modelo: modelName };
+      return { texto: verificado(result.response.text() || '', fuentes, searchQuery), modelo: modelName };
     } catch (err) {
       tipo = registraFallo(err);
       console.warn(`Gemini ${modelName} falló (${tipo})`);
@@ -1285,5 +1320,5 @@ async function generaVerificado(genAI, systemMsg, contents, fuentes, searchQuery
       a.done();
     }
   }
-  return { error: mensajeUsuario(tipo) };
+  return { error: mensajeUsuario(tipo), tipo };
 }
