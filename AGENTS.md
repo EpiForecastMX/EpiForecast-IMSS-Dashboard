@@ -94,9 +94,10 @@ archivos servidos byte iguales y navegador real. La nota D7 se añade de forma d
 (`notaD7Rag`) porque el modelo puede omitirla; meningitis de tipo nombrado y G00.0/G00.1 reciben texto fijo
 (`epibot/tests/test_meningitis_d7_rag.mjs`, `test_d7_guardas_alta20c.mjs`, `test_fable_pub5.mjs`). Tocar
 `obesidad_kb.js` obliga a subir la cadena de caché `obesidad_kb.js` → `kb.js` → `app.js`, y
-`tests/herramientas.test.mjs` fija la versión de `app.js`. Limitación ambiental: en este checkout, `npm run test:site`
-da 106/107 porque `LuisMNA.jpeg` lleva un atributo de privacidad de macOS y el caso 101 de `tests/site_shell.test.mjs`
-no puede copiarlo (EPERM); el mismo árbol da 107/107 en copia hermética. No tocar el archivo ni la prueba.
+`tests/herramientas.test.mjs` fija la versión de `app.js`. `LuisMNA.jpeg` venía de WhatsApp con atributos de macOS
+(`com.apple.quarantine`, `com.apple.macl`) que a veces impedían leerlo y hacían fallar con EPERM la copia de
+`tests/site_shell.test.mjs`. El 25-nov-2026 se reemplazó por una copia idéntica byte a byte (sha256 `c6c736ad…`) sin esos
+atributos; si el EPERM vuelve, revisar `xattr -l` del archivo antes de tocar la prueba.
 Mantenimiento pendiente, no ejecutado: O1 a O3 de la revisión final (`docs/DEUDAS_VIGENTES.md` del backend).
 
 ## Checkpoint — lote alta10b publicado — 12-nov-2026
