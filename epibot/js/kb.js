@@ -10,8 +10,8 @@ import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaN
 import { comparacionRondasMd } from './comparacion_rondas.js?v=4';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=13';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=78';
-import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion, answerConsejoMedico, DUDA_MEDICAMENTO, VIAJE_SEGURIDAD, NOTA_VIAJE } from './conversacion.js?v=21';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=79';
+import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion, answerConsejoMedico, DUDA_MEDICAMENTO, VIAJE_SEGURIDAD, NOTA_VIAJE } from './conversacion.js?v=22';
 import { respuestaLlana, confiabilidadLegacy, indicadores as indicadoresLlano, semanaTxt } from './resumen_llano.js?v=8';
 import { answerNegativaRazonada, answerEstacionalidad, answerExplicaGrafica, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=5';
 import { crecimiento } from './calculo/operaciones.js?v=2';
@@ -59,8 +59,12 @@ function rankingRitmoLegacy(q, ent, d) {
   return [veredicto, '',
     ...orden.map(({ nombre, c }) => `- **${nombre}**: de ${fmt(Math.round(c.O4))} a unos ${fmt(Math.round(c.F4))} casos en las próximas 4 semanas (${pct(c.delta)})${c.dentroDelRuido ? ', dentro de la variación normal de los conteos' : ''}.`), '',
     `_Ordeno por cambio porcentual, no por número de casos${fuera ? `; quedan fuera ${fuera} ${fuera === 1 ? 'estado' : 'estados'} con menos de 10 casos de base, donde un porcentaje engaña` : ''}. Casos notificados, sin ajustar por población. Cada estado tiene su propio modelo: un salto grande es lo que proyecta ese modelo, sin validación propia de esta semana._`,
-    '', '_Es información estadística, no consejo médico._'].join('\n');
+    '', '_Es información estadística, no consejo médico._',
+    // Plan canónico 2.2: la gráfica dibuja estas mismas filas, en este orden.
+    marcaEstados({ modo: 'ritmo', baja, titulo: `${LEGACY_TITULO[pad]}: dónde ${verbo} más rápido, ${sexoTxt}`, filas: orden.map(({ nombre, c }) => [nombre, Math.round(c.delta * 100)]) })].join('\n');
 }
+/** Marcador de la gráfica de estados (plan canónico 2.2): las filas que dice el texto, para que la gráfica no elija otras. */
+function marcaEstados(m) { return m.filas?.length ? `<!--ESTADOS:${JSON.stringify(m)}-->` : ''; }
 
 function answerLegacyLlano(q, ent, s, d) {
   return rankingRitmoLegacy(q, ent, d) || legacyComparacion(q, ent, s, d, { indicadores: indicadoresLlano, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA, serieLegacy: serieLegacyCalc }) || legacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadLegacy });
@@ -1787,7 +1791,8 @@ function answerDengue(q, ent, s, d) {
             ? ['', `_Cada estado tiene su propio modelo y el total nacional otro, así que no suman lo mismo: los estados dan unos ${fmt(Math.round(sumaEst))} casos y el modelo nacional ${fmt(Math.round(f4))}. Un salto grande frente a las semanas anteriores (como en los primeros de la lista) es lo que proyecta el modelo de ese estado, sin validación propia de esta semana._`]
             : [];
         })(),
-        '', '_Es información estadística, no consejo médico._'].join('\n');
+        '', '_Es información estadística, no consejo médico._',
+        marcaEstados({ modo: 'f4', destacados: top.length, titulo: 'Dengue: casos esperados en las próximas 4 semanas por estado, ambos sexos', filas: filas.map((x) => [x.nombre, Math.round(x.f)]) })].join('\n');
     }
   }
 

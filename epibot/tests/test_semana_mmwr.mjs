@@ -51,10 +51,10 @@ function conOrigen(origen, corte) {
 
 test('el rótulo «fuera de muestra» de las gráficas arranca en la semana MMWR siguiente al origen', () => {
   const casos = [
-    [[2026, 52], [2027, 2], '2027-W01–2027-W02'],
-    [[2025, 53], [2026, 2], '2026-W01–2026-W02'],
-    [[2025, 52], [2026, 1], '2025-W53–2026-W01'],
-    [[2026, 43], [2026, 44], '2026-W44–2026-W44'],
+    [[2026, 52], [2027, 2], 'semanas 1 a 2 de 2027'],
+    [[2025, 53], [2026, 2], 'semanas 1 a 2 de 2026'],
+    [[2025, 52], [2026, 1], 'semana 53 de 2025 a semana 1 de 2026'],
+    [[2026, 43], [2026, 44], 'semana 44 de 2026'],
   ];
   for (const [origen, corte, rango] of casos) {
     const v = conOrigen(origen, corte);
