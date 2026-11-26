@@ -4,8 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="color-scheme" content="only light" />
-  <title>EpiForecast-MX — Sífilis adquirida (A51-A53) · Pronóstico semanal</title>
+  <title>EpiForecast-MX — Sífilis adquirida (A51-A53) · Control estacional semanal, no validado</title>
   <meta name="description" content="Control estacional semanal de casos de sífilis adquirida (CIE-10 A51-A53) reportados al SINAVE para las 32 entidades de México, por sexo, a 52 semanas. Control no validado autorizado por el autor tras el rechazo del portafolio en la prueba de 2025, sin intervalos de incertidumbre." />
+  <link rel="canonical" href="https://epiforecast.mx/sifilis_adquirida_a51.html" />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://epiforecast.mx/sifilis_adquirida_a51.html" />
+  <meta property="og:title" content="EpiForecast-MX — Sífilis adquirida (A51-A53) · Control estacional semanal, no validado" />
+  <meta property="og:description" content="Control estacional semanal de casos de sífilis adquirida (CIE-10 A51-A53) reportados al SINAVE para las 32 entidades de México, por sexo, a 52 semanas. Control no validado autorizado por el autor tras el rechazo del portafolio en la prueba de 2025, sin intervalos de incertidumbre." />
+  <meta property="og:image" content="https://epiforecast.mx/og-image.png" />
+  <meta property="og:locale" content="es_MX" />
+  <meta name="twitter:card" content="summary_large_image" />
 <link rel="stylesheet" href="assets/site/site.css?v=5">
 <link rel="stylesheet" href="disease.css?v=20261125u1">
 
@@ -67,7 +75,7 @@
 <nav class="ficha-context" aria-label="Sífilis adquirida en otras herramientas">
   <div class="wrap ficha-context__inner">
     <a href="Reports/index.html">Padecimientos</a><span aria-hidden="true">/</span><span aria-current="page">Sífilis adquirida</span>
-    <span class="ficha-context__links"><a href="Reports/index.html?p=sifilis_adquirida_a51&amp;s=general&amp;t=nacional">Ver en la Galería</a><a href="EpiDashboard.html?vista=explorar&amp;p=sifilis_adquirida_a51&amp;s=general&amp;t=nacional">Abrir en el Dashboard</a></span>
+    <span class="ficha-context__links"><a href="Reports/index.html?p=sifilis_adquirida_a51&amp;s=general&amp;t=nacional">Ver en la Galería</a><a href="EpiDashboard.html?vista=explorar&amp;p=sifilis_adquirida_a51&amp;s=general&amp;t=nacional">Abrir en el Dashboard</a><a href="boletin.html?plataforma=sifilis_adquirida_a51#curvas">Ver en el radar</a></span>
   </div>
 </nav>
 
@@ -75,7 +83,7 @@
   <header class="hero">
     <div class="wrap">
       <div class="eyebrow">Pronósticos por padecimiento</div>
-      <h1>Sífilis adquirida (A51-A53) · Pronóstico semanal</h1>
+      <h1>Sífilis adquirida (A51-A53) · Control estacional semanal</h1>
       <p class="lead">EpiForecast-MX incorpora la <strong>sífilis adquirida (CIE-10 A51-A53)</strong>. Publicamos los casos semanales esperados para las <strong>32 entidades, por sexo</strong> (sin estratificación por edad ni por embarazo), con un horizonte de <strong>52 semanas desde el origen</strong> (<code>2026-W43</code> a <code>2027-W42</code>, no 52 semanas futuras). <strong>Es un control estacional, no validado:</strong> cada semana repite los casos de 52 semanas antes (<code>seasonal_naive_lag52</code>), porque el portafolio de modelos fue rechazado en su única prueba de 2025 y el autor autorizó publicar el control mediante orden nominal posterior al rechazo. No cubre la sífilis congénita (A50) ni la sífilis en el embarazo (O98.1). En el último año observado se notificaron en promedio unos <span id="casosSemana">—</span> casos por semana en todo el país<span id="casosSemanaPeriodo"></span>.</p>
 
       <div class="status-card" id="statusCard" data-no-prospectivas="2026-W43">
