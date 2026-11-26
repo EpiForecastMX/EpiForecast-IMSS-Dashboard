@@ -477,8 +477,11 @@ function forecastLine(d, nat) {
     : (d.kind === 'legacy' ? totalSourceLabel('suma_json_visual_redondeado') : totalSourceLabel(null));
   const unit = valueUnit(d.kind, nat.sex);
   const span = nat.start && nat.end ? `, índice del ${formatDate(nat.start)} al ${formatDate(nat.end)}` : '';
+  // Mesa de la plataforma (25-nov-2026): un control no es un pronóstico; su total es la repetición del año anterior.
+  const control = statusKind(d) === 'control';
   return el('p', { class: 'pcard__fc' },
-    `Pronóstico nacional ${sexLabel(nat.sex).toLowerCase()}: `,
+    control ? `Referencia del control (repite los casos de 52 semanas antes), nacional ${sexLabel(nat.sex).toLowerCase()}: `
+      : `Pronóstico nacional ${sexLabel(nat.sex).toLowerCase()}: `,
     el('strong', {}, isNum(nat.forecastTotal) ? `${formatInt(nat.forecastTotal)} ${unit.short}` : 'sin dato'),
     ` en ${NF.format(nat.forecastN ?? 0)} semanas${span} (${source}).`);
 }

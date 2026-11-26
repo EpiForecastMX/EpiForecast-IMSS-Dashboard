@@ -20,7 +20,7 @@ import { buildComparadorState } from './comparador_data.js?v=1';
 import { graficaObesidad } from './obesidad_charts.js?v=60';
 import { UNCERTAINTY_LABEL } from './point_only.js?v=1';
 import { MARCADOR_RELEASE, RELEASES, releaseConAlias, releaseDeMarca, releaseDePad, releasesEnConsulta } from './release_config.js?v=58';
-import { initSTT, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking, toggleMute, isTTSEnabled, onSpeakingStateChange, desbloqueaVoz } from './voice.js?v=4';
+import { initSTT, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking, toggleMute, isTTSEnabled, onSpeakingStateChange, desbloqueaVoz } from './voice.js?v=5';
 
 // ---------------------------------------------------------------------------
 // DOM refs
@@ -1102,7 +1102,7 @@ async function callRag(text) {
   let shell = null, acc = '', sources = null, gotMeta = false, gotDone = false, streamErr = null, rafPending = false;
   const render = () => {
     if (!shell) return;
-    shell.content.innerHTML = sanitizeHtml(marked.parse(polishSpanish(acc), { breaks: true }));
+    shell.content.innerHTML = sanitizeHtml(mdHtml(polishSpanish(acc)));
     scrollToBottom();
   };
   try {
@@ -1310,8 +1310,8 @@ function addBotMessage(markdown, source, suggestions, chartData, sources) {
   // Rediseño conversacional (24-nov-2026): lo que sigue a <!--DETALLE--> es la ficha técnica; se pliega en «Cómo se
   // calculó» y la voz no la lee. Cada mitad pasa por el saneador por separado; el envoltorio es fijo.
   const [cleanMarkdown, detalleMd = ''] = conDetalle.split('<!--DETALLE-->');
-  const html = sanitizeHtml(marked.parse(cleanMarkdown, { breaks: true })) + (detalleMd.trim()
-    ? `<details class="msg-detalle"><summary>Cómo se calculó</summary>${sanitizeHtml(marked.parse(detalleMd, { breaks: true }))}</details>`
+  const html = sanitizeHtml(mdHtml(cleanMarkdown)) + (detalleMd.trim()
+    ? `<details class="msg-detalle"><summary>Cómo se calculó</summary>${sanitizeHtml(mdHtml(detalleMd))}</details>`
     : '');
   const now = new Date();
   const timeStr = now.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
@@ -4240,6 +4240,19 @@ function scrollToBottom(force = false) {
     return;
   }
   requestAnimationFrame(() => { chatArea.scrollTop = chatArea.scrollHeight; });
+}
+
+/* Mesa de la plataforma (25-nov-2026, Codex Astra): marked viene de un CDN; si no carga, la respuesta se muestra igual
+ * con un Markdown mínimo (párrafos, saltos, negritas, cursivas y listas) en vez de romper el chat y culpar a los datos. */
+export function mdHtml(md) {
+  const M = globalThis.marked;
+  if (M && typeof M.parse === 'function') return M.parse(md, { breaks: true });
+  return String(md || '').split(/\n{2,}/).map((bloque) => {
+    const lineas = bloque.split('\n');
+    const enLinea = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/(^|[^*])\*([^*\s][^*]*)\*/g, '$1<em>$2</em>');
+    if (lineas.every((l) => /^\s*[-*] /.test(l))) return `<ul>${lineas.map((l) => `<li>${enLinea(l.replace(/^\s*[-*] /, ''))}</li>`).join('')}</ul>`;
+    return `<p>${lineas.map(enLinea).join('<br>')}</p>`;
+  }).join('');
 }
 
 function escapeHtml(text) {

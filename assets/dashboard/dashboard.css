@@ -82,6 +82,12 @@ code { font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; 
   display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; overscroll-behavior-x: contain;
 }
 .toolnav [role="tablist"]::-webkit-scrollbar { display: none; }
+/* Mesa de la plataforma (25-nov-2026, Neon): a 375 px «Perfil temporal» y «Vigilancia» quedaban fuera de la vista sin
+ * ninguna señal. En celular las pestañas pasan a dos renglones y todas se ven. */
+@media (max-width: 760px) {
+  .toolnav [role="tablist"] { flex-wrap: wrap; overflow-x: visible; }
+  .toolnav [role="tab"] { min-height: 44px; padding: 8px 12px; }
+}
 .toolnav [role="tab"] {
   flex: 0 0 auto; min-height: 48px; padding: 10px 16px; border: 0; background: none; cursor: pointer;
   font-size: 14px; font-weight: 600; color: var(--body); white-space: nowrap;
