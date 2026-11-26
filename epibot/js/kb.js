@@ -6091,6 +6091,15 @@ export function contextoActual() {
 /** «Nueva consulta»: el bot olvida el contexto (antes sólo se vaciaba la pantalla). */
 export function reiniciaContexto() { _resetContext(); }
 
+/**
+ * Foto del estado conversacional — sólo para pruebas (plan canónico 3.1: la comparación pareada compara respuesta, manejador
+ * y contexto turno por turno). `_lastHandlerFn` se reporta por nombre.
+ */
+export function _contexto() {
+  return JSON.parse(JSON.stringify({ lastEntities, _comparacionPrevia, _estadosComparados, _lastDistribMetric, _lastChartHandler,
+    _lastHandlerFn: _lastHandlerFn?.name || null, _crisisActiva, _aclaracionPendiente, _opcionesPendientes, _ultimaFicha }));
+}
+
 /** Reset conversacional — solo para tests. */
 export function _resetContext() {
   _comparacionPrevia = null; _estadosComparados = null;
