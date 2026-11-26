@@ -46,3 +46,19 @@ test('dictado: un error o un permiso negado conserva el borrador; el fin sin dic
   rec.onresult({ resultIndex: 0, results: Object.assign([Object.assign([{ transcript: 'asma en Jalisco', confidence: 0.9 }], { isFinal: true })], {}) });
   assert.deepEqual(enviados, ['asma en Jalisco']);
 });
+
+test('«¿qué enfermedades van al alza?» trae gráfica: alzas en ocre, bajas en verde, casos de ambas ventanas en la etiqueta', async () => {
+  const src = app.match(/export function graficaAlza\(g\) \{[\s\S]*?\n\}\n/)[0].replace('export ', '');
+  const ctx = vm.createContext({});
+  vm.runInContext(`${src}; globalThis.graficaAlza = graficaAlza;`, ctx);
+  const g = ctx.graficaAlza({ modo: 'cambio', filas: [{ n: 'Hepatitis vírica A', o: 193, f: 325, d: 0.68, c: 'media' }, { n: 'Leptospirosis', o: 53, f: 170, d: 2.21, c: 'baja' }, { n: 'Shigelosis', o: 139, f: 77, d: -0.45, c: 'media' }] });
+  assert.equal(g.horizontal, true);
+  assert.deepEqual([...g.datasets[0].data], [68, 221, -45]);
+  assert.deepEqual([...g.datasets[0].backgroundColor], ['#b4541e', '#b4541e', '#17644d']);
+  assert.equal(g.labels[0], 'Hepatitis vírica A (193 → 325)');
+  assert.match(g.labels[1], /· confiabilidad baja$/);
+  assert.match(g.options.scales.x.title.text, /sin ajustar por población/);
+  assert.equal(ctx.graficaAlza({ filas: [] }), null);
+  assert.match(app, /\.replace\(\/<!--ALZA:\.\*\?-->\/g, ''\)/, 'la marca no se ve en el texto');
+  assert.match(readFileSync(new URL('../js/conversacion.js', import.meta.url), 'utf-8'), /lineas\.push\(`<!--ALZA:\$\{JSON\.stringify\(graf\)\}-->`\)/);
+});

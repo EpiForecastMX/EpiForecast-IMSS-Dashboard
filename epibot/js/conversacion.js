@@ -176,7 +176,13 @@ export function answerRankingPadecimientos(q, ent, s, d) {
   }
   lineas.push('', `Comparo ${res.padecimientos.length} padecimientos con datos hasta la semana del ${fecha(res.corte)}; dejo fuera los de menos de 50 casos, donde un cambio porcentual engaña, ` +
     'y los temas sensibles. «Confiabilidad baja» quiere decir que el pronóstico repite el patrón del año pasado o que ya se ha desviado.',
-  '', '_Son casos notificados al boletín epidemiológico; no es consejo médico._', '<!--SIN_GRAFICA-->');
+  '', '_Son casos notificados al boletín epidemiológico; no es consejo médico._');
+  // Pedido del autor (26-nov-2026): la lista lleva su gráfica. Las filas son las mismas del texto (app.js las dibuja).
+  const graf = masCasos
+    ? { modo: 'casos', filas: [...res.padecimientos].sort((a, b) => b.F4 - a.F4).slice(0, 8).map((x) => ({ n: x.nombre, o: x.O4, f: x.F4 })) }
+    : { modo: 'cambio', filas: (pideBaja ? bajan : [...suben, ...bajan]).map((x) => ({ n: x.nombre, o: x.O4, f: x.F4, d: x.delta, c: x.confiabilidad })) };
+  if (graf.filas.length) lineas.push(`<!--ALZA:${JSON.stringify(graf)}-->`);
+  else lineas.push('<!--SIN_GRAFICA-->');
   const sig = suben.slice(0, 3).map((x) => ({ t: `¿Cómo va ${x.nombre.toLowerCase()}?`, q: `¿cómo va ${x.consulta}?` }));
   return lineas.join('\n') + (sig.length ? sigue(sig) : '');
 }

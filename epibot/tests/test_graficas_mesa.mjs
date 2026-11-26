@@ -123,4 +123,12 @@ test('originales: la fecha de cada dato es su semana epidemiológica (semana del
   const { LEGACY_META } = await import('../../assets/dashboard/unified.mjs');
   for (const [id, pad] of Object.entries(PAD)) assert.equal(LEGACY_META[id].rezago, REZAGO_LEGACY[pad], id);
   assert.match(readFileSync(new URL('home-preview.js', raiz), 'utf-8'), /var REZAGO = \{ depresion: 1, parkinson: 1, alzheimer: 1, dengue: 0 \};/);
+  // Galería (26-nov-2026): los originales se dibujan en vivo con la misma regla de fechas.
+  const G = await import('../../Reports/galeria_core.mjs');
+  for (const [id, pad] of Object.entries(PAD)) assert.equal(G.REZAGO_LEGACY[id], REZAGO_LEGACY[pad], `galería ${id}`);
+  const zn = JSON.parse(readFileSync(new URL('Reports/zoom_data_neuro.json', raiz), 'utf-8'));
+  const viva = G.serieLegacyViva(zn['Parkinson/Nacional/Parkinson_Nacional_general.png'], 'parkinson');
+  const iu = viva.r.map((v, i) => (v != null ? i : -1)).filter((i) => i >= 0).at(-1);
+  const pk = foto.diseases.find((d) => d.platform_id === 'parkinson');
+  assert.deepEqual([viva.d[iu], viva.r[iu]], [serieLegacy(z, 'Parkinson', {}).observado.at(-1)[0], pk.weekly], 'galería y EpiBot: misma semana y cifra');
 });

@@ -155,19 +155,20 @@ test('M3: si fallan todas las fuentes de la lista completa se informa el error, 
   assert.match(dom.$('gAllStatus').textContent, /0 de 152 padecimientos cargados · 152 con error/);
 });
 
-test('M1: si falla la lámina de Zoom no se sustituye en silencio por el histórico', async () => {
-  await boot({ search: '?p=depresion&s=general&t=nacional&grafica=zoom' });
-  dom.imgFails.add('Depresión_Nacional_general_zoom.png');
+test('M1: si falla la lámina de Zoom 5 años no se sustituye en silencio por el histórico', async () => {
+  // Desde el 26-nov-2026 los originales dibujan en vivo «Histórico» y «Zoom 52 semanas»; «Zoom 5 años» sigue siendo lámina.
+  await boot({ search: '?p=depresion&s=general&t=nacional&grafica=zoom5' });
+  dom.imgFails.add('Depresión_Nacional_general_zoom5.png');
   dom.$('gViews').children.find((b) => b.dataset.view === 'full').click();
-  dom.$('gViews').children.find((b) => b.dataset.view === 'zoom').click();
+  dom.$('gViews').children.find((b) => b.dataset.view === 'zoom5').click();
   await tick(10);
   const art = dom.$('gCards').querySelector('article');
   const img = art.querySelector('img');
-  assert.match(decodeURI(img.src), /_zoom\.png$/, 'no se cambió a la base');
+  assert.match(decodeURI(img.src), /_zoom5\.png$/, 'no se cambió a la base');
   assert.equal(img.hidden, true);
   const err = art.querySelector('.g-card__imgerr');
   assert.ok(err, 'aviso visible');
-  assert.match(err.textContent, /No se pudo cargar la lámina «Zoom 52 semanas»/);
+  assert.match(err.textContent, /No se pudo cargar la lámina «Zoom 5 años»/);
   const ver = err.querySelectorAll('button').find((b) => b.textContent === 'Ver el histórico');
   ver.click();
   assert.match(decodeURI(img.src), /_general\.png$/);
@@ -299,5 +300,7 @@ test('P5 cronología genérica y sin regresión: asma muestra su cronología; co
   assert.equal(dom.$('gDetailStatus').querySelector('.g-status__cronologia'), null, 'cohorte original sin cronología');
   assert.equal(dom.$('gDetailStatus').querySelector('.g-chip').textContent, 'Cohorte original');
   assert.match(dom.$('gDetailStatus').textContent, /pronóstico a 52 semanas desde el corte, con valores redondeados/);
-  assert.equal(dom.requests.some((u) => u.endsWith('.csv') || u.includes('zoom_data_')), false, 'sin pedidos CSV ni zoom extra');
+  // La tarjeta del original se dibuja en vivo con su cohorte (26-nov-2026): sólo ese archivo, ningún CSV.
+  assert.equal(dom.requests.some((u) => u.endsWith('.csv')), false, 'sin pedidos CSV');
+  assert.equal(dom.requests.filter((u) => u.includes('zoom_data_')).every((u) => u.includes('zoom_data_neuro.json')), true, 'sólo la cohorte de depresión');
 });

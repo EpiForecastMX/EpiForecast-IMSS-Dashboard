@@ -313,6 +313,23 @@ export function ventana(serie, grafica) {
   return { ...meta, d: d.slice(from), r: cut(serie.r), y: cut(serie.y), lo: cut(serie.lo), hi: cut(serie.hi) };
 }
 
+/*
+ * Originales en vivo (pedido del autor, 26-nov-2026: la galería dibujaba láminas PNG oscuras para dengue, depresión,
+ * Parkinson y Alzheimer y una gráfica clara para los demás). Sus series de cohorte (Reports/zoom_data_*.json) guardan la fecha
+ * interna del motor: la semana del boletín empieza 13 días después y el dato es de la semana epidemiológica anterior en los
+ * neurológicos (cuadro 17; dengue, cuadro 7.2, la misma). Misma regla que fechaEpiLegacy de epibot/js/calculo/series.js.
+ */
+export const REZAGO_LEGACY = Object.freeze({ depresion: 1, parkinson: 1, alzheimer: 1, dengue: 0 });
+/** Vistas que un original puede dibujar en vivo; «Zoom 5 años» y «Comparar modelos» sólo existen como lámina. */
+export const LEGACY_VIVO = Object.freeze(['full', 'zoom']);
+export function serieLegacyViva(serie, id) {
+  if (!serie || !Array.isArray(serie.d)) return null;
+  const dias = 13 - 7 * (REZAGO_LEGACY[id] ?? 0);
+  const mueve = (ds) => (typeof ds === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(ds)
+    ? new Date(Date.parse(`${ds}T00:00:00Z`) + dias * 864e5).toISOString().slice(0, 10) : ds);
+  return { ...serie, d: serie.d.map(mueve), ds_corte: serie.ds_corte ? mueve(serie.ds_corte) : null, last_real: serie.last_real ? mueve(serie.last_real) : null };
+}
+
 /** ¿Se puede dibujar banda? Sólo con bandera explícita y valores presentes. */
 export function bandaPermitida(serie) {
   if (!serie || serie.intervalo_disponible !== true) return false;
