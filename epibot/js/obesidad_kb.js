@@ -18,7 +18,7 @@ import {
 import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=59';
 // Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
 import './avisos_fuente.js?v=5';
-import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion, indicadores, nombreEstado } from './resumen_llano.js?v=4';
+import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion, indicadores, nombreEstado } from './resumen_llano.js?v=5';
 import { lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=3';
 import { serieDeVista } from './calculo/series.js?v=2';
 import { DEFINICIONES } from './definiciones.js?v=1';
