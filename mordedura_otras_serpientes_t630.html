@@ -66,7 +66,7 @@
 <!-- site:header:end -->
 <nav class="ficha-context" aria-label="Mordedura por otras serpientes en otras herramientas">
   <div class="wrap ficha-context__inner">
-    <a href="index.html#diseases">Padecimientos</a><span aria-hidden="true">/</span><span aria-current="page">Mordedura por otras serpientes</span>
+    <a href="Reports/index.html">Padecimientos</a><span aria-hidden="true">/</span><span aria-current="page">Mordedura por otras serpientes</span>
     <span class="ficha-context__links"><a href="Reports/index.html?p=mordedura_otras_serpientes_t630&amp;s=general&amp;t=nacional">Ver en la Galería</a><a href="EpiDashboard.html?vista=explorar&amp;p=mordedura_otras_serpientes_t630&amp;s=general&amp;t=nacional">Abrir en el Dashboard</a></span>
   </div>
 </nav>
@@ -86,7 +86,7 @@
         <ul class="status-notes">
           <li><strong>Pronóstico congelado:</strong> usa datos hasta la <span id="originTxt">W43 de 2026</span> y se emitió el <span id="emitTxt">19 de noviembre de 2026</span>; no se ha reentrenado ni ajustado con datos posteriores.</li>
           <li><strong>Sin contraste prospectivo:</strong> nuestra validación compara cada pronóstico con este mismo control, así que aquí no hay nada que aprobar. Sólo se registrará su error con cada boletín.</li>
-          <li><strong>Sin intervalos de incertidumbre:</strong> es un pronóstico puntual. La gráfica no dibuja bandas porque este release no las tiene.</li>
+          <li><strong>Sin intervalos de incertidumbre:</strong> es un pronóstico puntual. La gráfica no dibuja bandas porque este pronóstico publicado no las tiene.</li>
           <li>Datos observados hasta la <strong id="cutoffTxt">—</strong>.</li>
         </ul>
       </div>
@@ -123,7 +123,7 @@
 
       <div class="chart-card">
         <div class="chart-title" id="chartTitle">—</div>
-        <div class="chart-box"><canvas id="chartObesidad" aria-label="Casos semanales de mordedura por otras serpientes observados y pronosticados"></canvas></div>
+        <div class="chart-box"><canvas id="chartObesidad" role="img" aria-label="Casos semanales de mordedura por otras serpientes observados y pronosticados"></canvas></div>
         <div class="legend">
           <span><i class="sw sw-obs"></i>Observado (boletín SINAVE)</span>
           <span><i class="sw sw-fc"></i>Pronóstico congelado</span>
@@ -148,7 +148,7 @@
     <div class="wrap">
       <div class="label">Por entidad</div>
       <h2>Las 32 entidades</h2>
-      <p>Serie General de cada entidad. El sMAPE fuera de muestra se calcula sólo sobre las semanas posteriores al origen con dato observado, así que estará vacío hasta que lleguen. Un sesgo negativo indica que el pronóstico quedó por debajo de lo observado. Haz clic en una fila para verla en el explorador.</p>
+      <p>Serie General de cada entidad. El sMAPE fuera de muestra se calcula sólo sobre las semanas posteriores al origen con dato observado, así que estará vacío hasta que lleguen. Un sesgo negativo indica que el pronóstico quedó por debajo de lo observado. Las entidades van de más a menos casos. Haz clic en una fila, o elígela con el teclado, para verla en el explorador.</p>
       <div class="table-scroll">
         <table>
           <thead><tr><th>Entidad</th><th>Motor</th><th>sMAPE</th><th>Sesgo</th><th>Observado</th><th>Pronosticado</th></tr></thead>
@@ -215,7 +215,7 @@
 <!-- site:footer:end -->
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-  <script src="assets/site/estado-ficha.js?v=3"></script>
+  <script src="assets/site/estado-ficha.js?v=4"></script>
   <script>
   (function () {
     'use strict';
@@ -236,7 +236,7 @@
     // en una región o en el nacional, la suma de las series estatales.
     function motorDe(s, corto = false) {
       if (s.motor !== 'portfolio') return MOTORES[s.motor] || s.motor;
-      if (s.nivel !== 'estado') return MOTORES.portfolio;
+      if (s.nivel !== 'estado') return EpiEstadoFicha.agregado(V) || MOTORES.portfolio;
       const h = V.series[`estado|${s.id}|hombres`], m = V.series[`estado|${s.id}|mujeres`];
       if (h.motor === m.motor) return `Suma de hombres y mujeres (${motor(h.motor)})`;
       if (corto) return `H: ${motor(h.motor)} · M: ${motor(m.motor)}`;
@@ -295,6 +295,7 @@
     function dibujar() {
       const s = V.series[`${geo}|${sexo}`];
       if (!s) return;
+      const T = EpiEstadoFicha.trazo(V);
       const etiquetas = [...new Set([...s.observado.map((p) => p[0]), ...s.pronostico.map((p) => p[0])])].sort();
       const idx = new Map(etiquetas.map((d, i) => [d, i]));
       const obs = etiquetas.map(() => null), fc = etiquetas.map(() => null);
@@ -304,23 +305,24 @@
       const corte = idx.has(V.observation_cutoff_ds) ? idx.get(V.observation_cutoff_ds) : null;
 
       $('chartTitle').textContent = `${s.nombre} · ${s.sexo_nombre}`;
+      $('chartObesidad').setAttribute('aria-label', EpiEstadoFicha.resumenGrafica(s, V, nf0));
       const o = s.oos;
-      $('mSmape').textContent = pct(o.smape);
+      $('mSmape').textContent = EpiEstadoFicha.errorOos(o, pct);
       $('mSmapeL').textContent = o.semanas ? `sMAPE fuera de muestra (${o.semanas} ${o.semanas === 1 ? 'semana' : 'semanas'})` : 'sMAPE fuera de muestra (sin semanas aún)';
       $('mMae').textContent = o.mae === null ? '—' : nf0.format(o.mae);
       $('mBias').textContent = signo(o.sesgo_pct);
       $('mTotal').textContent = nf0.format(s.pronostico_52_total);
       $('mEngine').textContent = motorDe(s);
       $('chartCap').textContent = o.semanas
-        ? `${o.semanas === 1 ? 'En la semana ya observada' : `En las ${o.semanas} semanas ya observadas`} se reportaron ${nf0.format(o.observado_total)} casos y el pronóstico congelado estimaba ${nf0.format(o.pronostico_total)}.`
+        ? `${o.semanas === 1 ? 'En la semana ya observada' : `En las ${o.semanas} semanas ya observadas`} se reportaron ${nf0.format(o.observado_total)} casos y ${T.control ? 'el control' : 'el pronóstico congelado'} estimaba ${nf0.format(o.pronostico_total)}.`
         : 'Aún no hay semanas observadas después del origen: la comparación empezará con el siguiente boletín.';
 
       if (!window.Chart) { $('chartCap').textContent = 'No se pudo cargar la librería de gráficos.'; return; }
       const datos = {
         labels: etiquetas,
         datasets: [
-          { label: 'Observado', data: obs, borderColor: '#667d8f', backgroundColor: '#667d8f', borderWidth: 2, pointRadius: 0, spanGaps: false, tension: 0.15 },
-          { label: 'Control estacional congelado', data: fc, borderColor: '#17644d', backgroundColor: '#17644d', borderDash: [6, 4], borderWidth: 2.5, pointRadius: 0, tension: 0.15 },
+          { label: 'Observado', data: obs, borderColor: T.obs, backgroundColor: T.obs, borderWidth: 2, pointRadius: 0, spanGaps: false, tension: 0 },
+          { label: T.etiqueta, data: fc, borderColor: T.color, backgroundColor: T.color, borderDash: [6, 4], borderWidth: 2.5, pointRadius: 0, tension: 0 },
         ],
       };
       const opciones = {
@@ -338,7 +340,7 @@
           },
         },
         scales: {
-          x: { grid: { color: 'rgba(97,117,108,0.16)' }, ticks: { color: '#61756c', maxRotation: 0, autoSkip: true, maxTicksLimit: 9, callback(v) { return fechaCorta(this.getLabelForValue(v)).replace(/^\d+ /, ''); } } },
+          x: { grid: { color: 'rgba(97,117,108,0.16)' }, ticks: { color: '#61756c', maxRotation: 0, autoSkip: true, maxTicksLimit: window.innerWidth < 600 ? 5 : 9, callback(v) { return fechaCorta(this.getLabelForValue(v)).replace(/^\d+ /, ''); } } },
           y: { beginAtZero: true, grid: { color: 'rgba(97,117,108,0.16)' }, ticks: { color: '#61756c', callback: (v) => nf0.format(v) }, title: { display: true, text: 'Casos por semana', color: '#61756c' } },
         },
       };
@@ -350,14 +352,15 @@
 
     function tabla() {
       const filas = Object.values(V.series).filter((s) => s.nivel === 'estado' && s.sexo === 'general')
-        .sort((a, b) => (a.oos.smape ?? 1e9) - (b.oos.smape ?? 1e9) || b.pronostico_52_total - a.pronostico_52_total);
+        .sort((a, b) => (b.oos.semanas ? b.oos.observado_total : b.pronostico_52_total) - (a.oos.semanas ? a.oos.observado_total : a.pronostico_52_total) || a.nombre.localeCompare(b.nombre, 'es'));
       const tb = $('tablaEstados');
       tb.innerHTML = '';
       for (const s of filas) {
         const tr = document.createElement('tr');
         tr.dataset.geo = `estado|${s.id}`;
+        EpiEstadoFicha.filaTeclado(tr, s.nombre);
         const celdas = s.oos.semanas
-          ? [s.nombre, motorDe(s, true), pct(s.oos.smape), signo(s.oos.sesgo_pct), nf0.format(s.oos.observado_total), nf0.format(s.oos.pronostico_total)]
+          ? [s.nombre, motorDe(s, true), EpiEstadoFicha.errorOos(s.oos, pct), signo(s.oos.sesgo_pct), nf0.format(s.oos.observado_total), nf0.format(s.oos.pronostico_total)]
           : [s.nombre, motorDe(s, true), '—', '—', '—', nf0.format(s.pronostico_52_total)];
         celdas.forEach((t, i) => { const td = document.createElement('td'); td.textContent = t; if (i === 1) td.className = 'motor'; tr.appendChild(td); });
         tr.addEventListener('click', () => { geo = tr.dataset.geo; $('selGeo').value = geo; dibujar(); $('explorador').scrollIntoView({ behavior: 'smooth' }); });
@@ -384,7 +387,7 @@
       $('stProducts').textContent = V.products;
       $('mtProducts').textContent = V.products;
       const nac = V.series['nacional|mx|general'];
-      $('stOos').textContent = nac.oos.semanas ? pct(nac.oos.smape) : 'Sin observar';
+      $('stOos').textContent = nac.oos.semanas ? EpiEstadoFicha.errorOos(nac.oos, pct) : 'Sin observar';
       $('stWeeks').textContent = nac.oos.semanas;
       $('mtEngines').textContent = Object.keys(V.engines).map(motor).join(', ');
       {
