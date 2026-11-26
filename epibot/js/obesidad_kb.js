@@ -18,7 +18,7 @@ import {
 import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=59';
 // Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
 import './avisos_fuente.js?v=5';
-import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion, indicadores, nombreEstado } from './resumen_llano.js?v=6';
+import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion, indicadores, nombreEstado } from './resumen_llano.js?v=7';
 import { lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=4';
 import { serieDeVista } from './calculo/series.js?v=4';
 import { DEFINICIONES } from './definiciones.js?v=1';
@@ -461,7 +461,7 @@ function answerRelease(q, ent, s, d, r) {
             `${cie ? ` (CIE-10 ${cie})` : ''}${completo && completo.toLowerCase() !== r.nombre.toLowerCase() ? `: ${completo}` : ''}.`, '',
           `_Información general, no sustituye la consulta médica. Para saber más: [MedlinePlus en español](${enlaceDefinicion(r.nombre)})._ Así va:`, '');
       }
-      if (tipo === 'confianza') arriba.push(confiabilidad(v, x, esControl(v)).texto, '');
+      if (tipo === 'confianza') arriba.push(confiabilidad(v, x, esControl(v), r).texto, '');
       // Plan canónico 1.1: «¿está validado?» y el error fuera de muestra se contestan en la primera línea.
       const ranura = ranuraPedida(qn, v, x, r);
       if (ranura && tipo !== 'confianza') arriba.push(ranura, '');

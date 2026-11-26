@@ -7,7 +7,7 @@ import { graficoRondas } from './comparacion_rondas.js?v=4';
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2, contextoActual, reiniciaContexto, cargaZoom } from './kb.js?v=216';
+import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2, contextoActual, reiniciaContexto, cargaZoom } from './kb.js?v=217';
 import { detectEntities, norm } from './entities.js?v=88';
 import { pareceVariosPedidos, respuestaDePlan } from './agente.js?v=1';
 import { fechaEpiLegacy, REZAGO_LEGACY } from './calculo/series.js?v=4';
@@ -3024,9 +3024,10 @@ function buildDengueAnual(data) {
 }
 
 /**
- * Barras horizontales de «qué va al alza / a la baja»: cambio esperado en las próximas 4 semanas frente a las 4 anteriores
- * (alzas en ocre, bajas en verde, cero al centro) o, en «más casos», los casos esperados. Cada etiqueta lleva los casos de
- * las dos ventanas, para que el porcentaje no se lea solo. Los de confiabilidad baja lo dicen en la etiqueta.
+ * «¿Qué va al alza?» (plan canónico 1.3, mesa del 26-nov-2026): pequeños múltiplos, una mini serie por padecimiento con 12
+ * semanas observadas (línea continua) y 4 pronosticadas (guiones), cada una con su eje desde cero. Las barras de porcentaje
+ * premiaban las series pequeñas y los controles (+221 % sobre 53 casos era la barra más larga). Alzas en ocre, bajas en verde
+ * y controles en gris («Control, no validado»). «Más casos» sigue en barras de casos esperados.
  */
 export function graficaAlza(g) {
   const filas = (g?.filas || []).filter((x) => x && x.n);
@@ -3042,20 +3043,88 @@ export function graficaAlza(g) {
       options: { scales: { y: { ticks: { autoSkip: false } }, x: { beginAtZero: true, title: { display: true, text: 'Casos notificados esperados' } } } },
     };
   }
-  const SUBE = '#b4541e', BAJA = '#17644d';
-  return {
-    type: 'bar', horizontal: true,
-    title: 'Cambio esperado en las próximas 4 semanas frente a las 4 anteriores',
-    labels: filas.map((x) => `${x.n} (${nf(x.o)} → ${nf(x.f)})${x.c === 'baja' ? ' · confiabilidad baja' : ''}`),
-    datasets: [{
-      label: 'Cambio esperado (%)',
-      data: filas.map((x) => Math.round(x.d * 100)),
-      backgroundColor: filas.map((x) => (x.d >= 0 ? SUBE : BAJA)),
-      borderWidth: 0, borderRadius: 4,
-    }],
-    altura: filas.length * 30 + 120,
-    options: { scales: { y: { ticks: { autoSkip: false } }, x: { title: { display: true, text: 'Cambio esperado (%); casos notificados, sin ajustar por población' } } } },
-  };
+  const mas7 = (ds, k) => new Date(Date.parse(`${ds}T00:00:00Z`) + 7 * k * 864e5).toISOString().slice(0, 10);
+  const items = filas.filter((x) => x.serie && Array.isArray(x.serie.o) && x.serie.o.length).map((x) => {
+    const o = x.serie.o, f = x.serie.f || [];
+    const labels = [...o.map((_, i) => mas7(x.serie.ini, i)), ...f.map((_, i) => mas7(x.serie.ini, o.length + i))];
+    const signo = x.d >= 0 ? '+' : '−';
+    return {
+      titulo: x.n,
+      sub: `${nf(x.o)} → ${nf(x.f)} en 4 semanas (${signo}${Math.round(Math.abs(x.d) * 100)} %)${x.control ? ' · control, no validado' : x.c === 'baja' ? ' · confiabilidad baja' : ''}`,
+      labels,
+      obs: [...o, ...f.map(() => null)],
+      // El pronóstico arranca en el último observado para que la línea no quede suelta.
+      pron: [...o.map((v, i) => (i === o.length - 1 ? v : null)), ...f],
+      color: x.control ? '#6b6f73' : x.d >= 0 ? '#b4541e' : '#17644d',
+      control: !!x.control, o: x.o, f: x.f, d: x.d, c: x.c,
+    };
+  });
+  if (!items.length) return null;
+  return { type: 'multiples', title: 'Lo que más se espera que suba y baje: últimas 12 semanas y las 4 del pronóstico', items };
+}
+
+/** Dibuja los pequeños múltiplos de graficaAlza con su tabla equivalente. */
+function renderMultiples(canvas, cd) {
+  const cont = canvas.parentNode;
+  if (!cont) return;
+  cont.style.height = 'auto';
+  canvas.hidden = true;
+  canvas.setAttribute('aria-hidden', 'true');
+  const titulo = document.createElement('p');
+  titulo.className = 'alza-titulo';
+  titulo.textContent = cd.title;
+  const grid = document.createElement('div');
+  grid.className = 'alza-grid';
+  for (const it of cd.items) {
+    const fig = document.createElement('figure');
+    fig.className = `alza-mini${it.control ? ' alza-mini--control' : ''}`;
+    const cap = document.createElement('figcaption');
+    const b = document.createElement('strong'); b.textContent = it.titulo;
+    const sp = document.createElement('span'); sp.textContent = it.sub;
+    cap.append(b, sp);
+    const caja = document.createElement('div'); caja.className = 'alza-mini__chart';
+    const c = document.createElement('canvas');
+    c.setAttribute('role', 'img');
+    c.setAttribute('aria-label', `${it.titulo}: ${it.sub}. Las cifras están en la tabla.`);
+    caja.appendChild(c);
+    fig.append(cap, caja);
+    grid.appendChild(fig);
+    if (typeof Chart === 'undefined') continue;
+    new Chart(c, {
+      type: 'line',
+      data: { labels: it.labels, datasets: [
+        { label: 'Observado', data: it.obs, borderColor: '#173c33', backgroundColor: '#173c33', borderWidth: 1.8, pointRadius: 0, tension: 0, spanGaps: false },
+        { label: it.control ? 'Control, no validado' : 'Pronóstico', data: it.pron, borderColor: it.color, backgroundColor: it.color, borderDash: [5, 4], borderWidth: 2, pointRadius: 0, tension: 0, spanGaps: false },
+      ] },
+      options: {
+        responsive: true, maintainAspectRatio: false, animation: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { display: false }, title: { display: false },
+          tooltip: { backgroundColor: '#ffffff', titleColor: '#173c33', bodyColor: '#173c33', borderColor: '#c9d6cd', borderWidth: 1,
+            callbacks: { title: (xs) => (xs[0] ? `Semana del ${xs[0].label}` : ''), label: (x) => (x.raw == null ? null : `${x.dataset.label}: ${Math.round(x.raw).toLocaleString('es-MX')} casos`) } } },
+        scales: { x: { ticks: { display: false }, grid: { display: false } },
+          y: { beginAtZero: true, ticks: { maxTicksLimit: 3, color: '#5b6f66', font: { size: 11 } }, grid: { color: 'rgba(97,117,108,0.16)' } } },
+      },
+    });
+  }
+  const ley = document.createElement('p');
+  ley.className = 'alza-leyenda';
+  ley.textContent = 'Línea continua: casos notificados de las últimas 12 semanas. Guiones: las 4 semanas del pronóstico (ocre si sube, verde si baja, gris si es un control estacional, no validado). Cada mini gráfica tiene su propia escala, desde cero.';
+  const det = document.createElement('details');
+  det.className = 'chart-datos';
+  const sum = document.createElement('summary'); sum.textContent = 'Ver los datos de la gráfica en tabla';
+  const tabla = document.createElement('table');
+  const head = tabla.createTHead().insertRow();
+  for (const h of ['Padecimiento', '4 semanas anteriores', 'Próximas 4 semanas', 'Cambio', 'Estado']) { const th = document.createElement('th'); th.textContent = h; head.appendChild(th); }
+  const tb = tabla.createTBody();
+  for (const it of cd.items) {
+    const tr = tb.insertRow();
+    [it.titulo, Math.round(it.o).toLocaleString('es-MX'), Math.round(it.f).toLocaleString('es-MX'), `${it.d >= 0 ? '+' : '−'}${Math.round(Math.abs(it.d) * 100)} %`,
+      it.control ? 'Control estacional, no validado' : `Confiabilidad ${it.c || 'media'}`].forEach((v) => { tr.insertCell().textContent = v; });
+  }
+  det.append(sum, tabla);
+  cont.append(titulo, grid, ley);
+  cont.after(det);
 }
 
 function extractChartData(markdown, query) {
@@ -3908,6 +3977,7 @@ function tablaDeGrafica(canvas, chartData) {
 function renderChart(canvasId, chartData) {
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
+  if (chartData && chartData.type === 'multiples') { renderMultiples(canvas, chartData); return; }
   try { tablaDeGrafica(canvas, chartData); } catch (_) { /* la gráfica se dibuja aunque falle la tabla */ }
 
   // Anti-leak: si el canvas ya tiene una instancia Chart.js, destruirla antes

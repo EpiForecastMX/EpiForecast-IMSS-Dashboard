@@ -45,6 +45,9 @@ for (const r of RELEASES) {
     delta: ind.delta == null ? null : Math.round(ind.delta * 1000) / 1000, tendencia: ind.tendencia,
     ytd: Math.round(ind.ytd), ytdPrevio: ind.ytdPrevio == null ? null : Math.round(ind.ytdPrevio),
     confiabilidad: confiabilidad(v, x, control).nivel, control, ultimo: ind.ultimo,
+    // Plan canónico 1.3: 12 semanas observadas y 4 pronosticadas para los pequeños múltiplos de «qué va al alza».
+    serie: { ini: x.observado.slice(-12)[0][0], o: x.observado.slice(-12).map(([, y]) => Math.round(y)),
+      f: ind.fut.slice(0, 4).map(([, y]) => Math.round(y * 10) / 10) },
   });
 }
 filas.sort((a, b) => a.id.localeCompare(b.id));

@@ -47,18 +47,25 @@ test('dictado: un error o un permiso negado conserva el borrador; el fin sin dic
   assert.deepEqual(enviados, ['asma en Jalisco']);
 });
 
-test('«¿qué enfermedades van al alza?» trae gráfica: alzas en ocre, bajas en verde, casos de ambas ventanas en la etiqueta', async () => {
+test('«¿qué enfermedades van al alza?» trae pequeños múltiplos (plan canónico 1.3): mini serie por padecimiento, controles en gris', async () => {
   const src = app.match(/export function graficaAlza\(g\) \{[\s\S]*?\n\}\n/)[0].replace('export ', '');
   const ctx = vm.createContext({});
   vm.runInContext(`${src}; globalThis.graficaAlza = graficaAlza;`, ctx);
-  const g = ctx.graficaAlza({ modo: 'cambio', filas: [{ n: 'Hepatitis vírica A', o: 193, f: 325, d: 0.68, c: 'media' }, { n: 'Leptospirosis', o: 53, f: 170, d: 2.21, c: 'baja' }, { n: 'Shigelosis', o: 139, f: 77, d: -0.45, c: 'media' }] });
-  assert.equal(g.horizontal, true);
-  assert.deepEqual([...g.datasets[0].data], [68, 221, -45]);
-  assert.deepEqual([...g.datasets[0].backgroundColor], ['#b4541e', '#b4541e', '#17644d']);
-  assert.equal(g.labels[0], 'Hepatitis vírica A (193 → 325)');
-  assert.match(g.labels[1], /· confiabilidad baja$/);
-  assert.match(g.options.scales.x.title.text, /sin ajustar por población/);
+  const serie = { ini: '2026-08-10', o: [10, 12, 11, 13, 12, 14, 13, 15, 14, 16, 15, 17], f: [18, 19, 20, 21] };
+  const g = ctx.graficaAlza({ modo: 'cambio', filas: [
+    { n: 'Asma', o: 10545, f: 12854, d: 0.22, c: 'media', control: false, serie },
+    { n: 'Shigelosis', o: 139, f: 77, d: -0.45, c: 'media', control: false, serie },
+    { n: 'Varicela', o: 3896, f: 4594, d: 0.18, c: 'baja', control: true, serie },
+  ] });
+  assert.equal(g.type, 'multiples');
+  assert.equal(g.items.length, 3);
+  assert.deepEqual(g.items.map((x) => x.color), ['#b4541e', '#17644d', '#6b6f73']);
+  assert.equal(g.items[0].labels.length, 16);
+  assert.equal(g.items[0].labels[12], '2026-11-02');
+  assert.equal(g.items[0].pron[11], 17, 'el pronóstico arranca en el último observado');
+  assert.match(g.items[0].sub, /^10,545 → 12,854 en 4 semanas \(\+22 %\)$/);
+  assert.match(g.items[2].sub, /control, no validado$/);
   assert.equal(ctx.graficaAlza({ filas: [] }), null);
+  assert.match(app, /if \(chartData && chartData\.type === 'multiples'\) \{ renderMultiples\(canvas, chartData\); return; \}/);
   assert.match(app, /\.replace\(\/<!--ALZA:\.\*\?-->\/g, ''\)/, 'la marca no se ve en el texto');
-  assert.match(readFileSync(new URL('../js/conversacion.js', import.meta.url), 'utf-8'), /lineas\.push\(`<!--ALZA:\$\{JSON\.stringify\(graf\)\}-->`\)/);
 });
