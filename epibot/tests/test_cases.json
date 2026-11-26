@@ -6087,9 +6087,14 @@
   {
     "id": 546,
     "query": "que medicamento tomar para depresion",
-    "expectedHandler": null,
-    "mustContain": [],
-    "mustNotContain": [],
+    "expectedHandler": "answerConsejoMedico",
+    "mustContain": [
+      "No doy consejo médico",
+      "911"
+    ],
+    "mustNotContain": [
+      "casos"
+    ],
     "checkEntities": {}
   },
   {

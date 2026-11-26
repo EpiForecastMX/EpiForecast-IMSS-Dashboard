@@ -34,6 +34,17 @@ export function fechaLarga(ds) {
 }
 const norm = (q) => String(q || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
+/* Semana epidemiológica (domingo a sábado, regla del 4 de enero) de una fecha de la serie: las vistas fechan el lunes y los
+ * originales el domingo; ambos caen en la misma semana. */
+const inicioAnioEpi = (y) => { const j4 = Date.UTC(y, 0, 4); return j4 - new Date(j4).getUTCDay() * DIA; };
+export function semanaEpi(ds) {
+  const t = Date.parse(`${ds}T00:00:00Z`);
+  const dom = t - new Date(t).getUTCDay() * DIA;
+  let y = new Date(dom).getUTCFullYear() + 1;
+  while (inicioAnioEpi(y) > dom) y--;
+  return [y, Math.floor((dom - inicioAnioEpi(y)) / (7 * DIA)) + 1];
+}
+
 /** Indicadores de una serie de la vista. */
 export function indicadores(v, x) {
   const obs = x.observado || [];
@@ -42,16 +53,20 @@ export function indicadores(v, x) {
   const mapa = new Map(obs);
   const ult4 = obs.slice(-4);
   const O4 = suma(ult4);
-  const previas = ult4.map(([ds]) => mapa.get(isoMenos(ds, 364)));
+  // Plan canónico 1.4 (26-nov-2026, Codex Sol): el año anterior se compara por semana epidemiológica homóloga, no restando
+  // 364 días (2025 tuvo 53 semanas y la resta comparaba W40–W43 de 2026 con W41–W44 de 2025).
+  const porSemana = new Map(obs.map(([ds, y]) => [semanaEpi(ds).join('-'), y]));
+  const previas = ult4.map(([ds]) => { const [a, w] = semanaEpi(ds); return porSemana.get(`${a - 1}-${w}`); });
   const O4py = previas.every((y) => y != null) ? previas.reduce((a, y) => a + y, 0) : null;
   const fut = (x.pronostico || []).filter(([ds]) => ds > ultimo);
   const F4 = fut.length >= 4 ? suma(fut.slice(0, 4)) : null;
-  const anio = ultimo.slice(0, 4);
-  const ytd = suma(obs.filter(([ds]) => ds.startsWith(anio)));
-  const inicioPrevio = `${Number(anio) - 1}-01-01`;
-  const finPrevio = isoMenos(ultimo, 364);
-  const enRangoPrevio = obs.filter(([ds]) => ds >= inicioPrevio && ds <= finPrevio);
-  const ytdPrevio = obs[0][0] <= `${Number(anio) - 1}-01-07` ? suma(enRangoPrevio) : null;
+  const [anioEpi, semUlt] = semanaEpi(ultimo);
+  const anio = String(anioEpi);
+  const ytd = suma(obs.filter(([ds]) => semanaEpi(ds)[0] === anioEpi));
+  const tienePrevioCompleto = porSemana.has(`${anioEpi - 1}-1`);
+  const ytdPrevio = tienePrevioCompleto
+    ? suma(obs.filter(([ds]) => { const [a, w] = semanaEpi(ds); return a === anioEpi - 1 && w <= semUlt; }))
+    : null;
   let tendencia = 'estable';
   let delta = null;
   if (F4 != null) {
@@ -168,7 +183,8 @@ function respuestaPeriodo(p, ind, x, lugar0) {
     return null;
   }
   if (p.tipo === 'horizonte') {
-    const pr = x.pronostico || [];
+    // Originales: sólo el horizonte posterior al corte del modelo (antes es el ajuste histórico, no pronóstico).
+    const pr = (x.pronostico || []).filter(([ds]) => !x.dsCorte || ds > x.dsCorte);
     if (!pr.length) return null;
     const total = Number.isFinite(x.pronostico_52_total) ? x.pronostico_52_total : suma(pr);
     return `**En las ${pr.length} semanas del pronóstico** (de la semana del ${fechaLarga(pr[0][0])} a la del ${fechaLarga(pr.at(-1)[0])}) se esperan unos **${casos(total)}**${lugar}.`;
@@ -238,7 +254,11 @@ export function respuestaLlana({ v, x, r, q, esControl, estados, sinSexo, confia
     incierto: `no hay una señal clara de cambio: el pronóstico espera unos ${casos(ind.F4)} en las próximas 4 semanas (${d >= 0 ? '+' : '−'}${pct0((d ?? 0) * 100)} frente a las 4 anteriores), pero en las semanas ya comprobadas se ha ${x.oos.sesgo_pct > 0 ? 'pasado' : 'quedado corto'} por ${pct0(x.oos.sesgo_pct)}, una diferencia de ese mismo tamaño.`,
   }[ind.tendencia];
   let sino = '';
-  if (pidio && !preguntaPorBrote(norm(q)) && !/^\W*por ?que\b/.test(norm(q)) && !['incierto', 'atipico', 'pocos'].includes(ind.tendencia)) sino = ind.tendencia === pidio ? 'Sí. ' : 'No. ';
+  // Plan canónico 1.1 (26-nov-2026): «Sí.» o «No.» sólo contesta una pregunta de sí o no («¿sube…?»), nunca «¿dónde…?»,
+  // «¿cuántos…?» o «¿qué estados…?», y nunca con un control estacional ni con confiabilidad baja (no hay certeza que dar).
+  const abierta = /\b(donde|cuantos?|cuantas?|cuales?|que estados?|en que|cuando|como|por ?que|que tan)\b/.test(norm(q));
+  const certeza = !c && confiabilidad(v, x, esControl).nivel !== 'baja';
+  if (pidio && !abierta && certeza && !preguntaPorBrote(norm(q)) && !['incierto', 'atipico', 'pocos'].includes(ind.tendencia)) sino = ind.tendencia === pidio ? 'Sí. ' : 'No. ';
   if (x.nivel === 'nacional' && /\bmi (estado|ciudad|municipio|entidad|region|zona)\b/.test(norm(q))) {
     lineas.push('No sé en qué estado estás: dime cuál (por ejemplo, «en Jalisco») y te digo cómo va ahí. Mientras, así va en todo el país:', '');
   }

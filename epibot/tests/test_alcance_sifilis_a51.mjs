@@ -532,7 +532,8 @@ test('no consejo médico individual y prioridad de crisis', async () => {
   for (const q of ['creo que tengo sífilis adquirida', 'cómo se cura la sífilis adquirida', 'tratamiento para sífilis adquirida',
     'qué medicamento tomar para sífilis adquirida']) {
     const r = await conversa(q);
-    assert.equal(r.handler, null, q);
+    // Plan canónico 1.6 (26-nov-2026): la duda de medicamento recibe en local la respuesta fija de consejo médico.
+    assert.ok(r.handler === null || (r.handler === 'answerConsejoMedico' && /medicamento/.test(q)), `${q}: ${r.handler}`);
     SIN_CIFRAS_A51(r.md, q);
   }
   const c = await conversa('me quiero morir porque tengo sífilis adquirida');

@@ -10,12 +10,12 @@ import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaN
 import { comparacionRondasMd } from './comparacion_rondas.js?v=4';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=13';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=74';
-import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion } from './conversacion.js?v=17';
-import { respuestaLlana, confiabilidadLegacy, indicadores as indicadoresLlano } from './resumen_llano.js?v=5';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=75';
+import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion, answerConsejoMedico, DUDA_MEDICAMENTO, VIAJE_SEGURIDAD, NOTA_VIAJE } from './conversacion.js?v=19';
+import { respuestaLlana, confiabilidadLegacy, indicadores as indicadoresLlano, fechaLarga as fechaLargaLlano } from './resumen_llano.js?v=6';
 import { answerNegativaRazonada, answerEstacionalidad, answerExplicaGrafica, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=4';
 import { notasDeLegitimidad } from './calculo/legitimidad.js?v=2';
-import { serieLegacy as serieLegacyCalc } from './calculo/series.js?v=3';
+import { serieLegacy as serieLegacyCalc } from './calculo/series.js?v=4';
 import { answerPresentacion, conLugarRecordado } from './memoria.js?v=1';
 /** Los cuatro originales en lenguaje llano (consulta general), antes de sus handlers específicos. */
 function answerLegacyLlano(q, ent, s, d) {
@@ -729,7 +729,13 @@ function answerRadarBoletin(q, ent, s, d) {
   if (!encontradas.length) return null;
   const definicion = /\b(que es|que son|sintomas?|como se (contagia|transmite|previene)|tratamiento|causas?)\b/.test(q);
   if (definicion && !ent.estado && !any(q, ['caso', 'cuanto', 'cifra', 'dato'])) return null;
-  return respuestaRadar(encontradas, d.radar_boletin, ent.estado || null);
+  // Plan canónico 1.1: si preguntan por el pico o el pronóstico de algo que no se modela, la primera línea lo dice.
+  const pidePronostico = /\b(pico|temporada|cuando (sube|aumenta|hay mas)|pronostic\w*|se espera\w*|va a (subir|bajar)|subira|bajara|proxim\w+ (semanas|mes))\b/.test(q);
+  const nombre = encontradas.length === 1 ? encontradas[0].name : 'estas categorías';
+  const previo = pidePronostico
+    ? `**No hay pronóstico ni pico esperado para ${nombre}:** EpiForecast-MX no lo modela, así que no puedo decir cuándo subirá. Sí tengo las cifras que imprime el boletín:\n\n`
+    : '';
+  return previo + respuestaRadar(encontradas, d.radar_boletin, ent.estado || null);
 }
 
 /**
@@ -1708,6 +1714,39 @@ function answerDengue(q, ent, s, d) {
   const info = d.padecimiento_info?.Dengue;
   const num = (n) => (n == null ? '?' : fmt(n));
 
+  // Plan canónico 1.2 (26-nov-2026): «¿qué estados tendrán más casos de dengue el próximo mes?» recibía el total nacional de
+  // 52 semanas. Ahora: los estados con más casos esperados en las próximas 4 semanas, con el corte y sin ajustar por población.
+  const pideEstados = !ent.estado && (/\b(que|cuales|en que) estados?\b|\bestados con mas\b|\bdonde (habra|hay|habran|tendra|tendran|va a haber)\b|\b(ranking|top) de estados\b/.test(q));
+  if (pideEstados && d.zoom_series) {
+    const filas = Object.keys(d.zoom_series).filter((k) => /^dengue\|[^|]+\|general$/.test(k) && k !== 'dengue|nacional|general')
+      .map((k) => {
+        const est = k.split('|')[1];
+        const sl = serieLegacyCalc(d.zoom_series, 'Dengue', { estado: est });
+        if (!sl || !sl.observado.length) return null;
+        const ult = sl.observado.at(-1)[0];
+        const fut = sl.pronostico.filter(([ds]) => ds > ult).slice(0, 4);
+        const ant = sl.observado.slice(-4).reduce((a, [, y]) => a + y, 0);
+        const nombre = est === 'mexico' ? 'Estado de México' : (ESTADOS_NOMBRE[est] || sl.lugar);
+        return fut.length === 4 ? { nombre, f: fut.reduce((a, [, y]) => a + y, 0), o: ant, ult, ini: fut[0][0] } : null;
+      }).filter(Boolean).sort((a, b) => b.f - a.f);
+    if (filas.length) {
+      const top = filas.slice(0, 5);
+      return [`**Estados con más casos de dengue esperados en las próximas 4 semanas** (desde la semana del ${fechaLargaLlano(top[0].ini)}):`, '',
+        ...top.map((x) => `- **${x.nombre}**: unos ${fmt(Math.round(x.f))} casos (${fmt(Math.round(x.o))} en las 4 semanas anteriores)`), '',
+        `Datos observados hasta la semana del ${fechaLargaLlano(top[0].ult)}. Son casos notificados, sin ajustar por población: un estado más poblado tiende a tener más casos aunque su riesgo no sea mayor. «El próximo mes» se toma como las próximas 4 semanas del pronóstico.`,
+        ...(() => {
+          const nac = serieLegacyCalc(d.zoom_series, 'Dengue', {});
+          const u = nac?.observado.at(-1)?.[0];
+          const f4 = nac ? nac.pronostico.filter(([ds]) => ds > u).slice(0, 4).reduce((a, [, y]) => a + y, 0) : null;
+          const sumaEst = filas.reduce((a, x) => a + x.f, 0);
+          return f4 != null && Math.abs(sumaEst - f4) > 0.2 * f4
+            ? ['', `_Cada estado tiene su propio modelo y el total nacional otro, así que no suman lo mismo: los estados dan unos ${fmt(Math.round(sumaEst))} casos y el modelo nacional ${fmt(Math.round(f4))}. Un salto grande frente a las semanas anteriores (como en los primeros de la lista) es lo que proyecta el modelo de ese estado, sin validación propia de esta semana._`]
+            : [];
+        })(),
+        '', '_Es información estadística, no consejo médico._'].join('\n');
+    }
+  }
+
   // Pronóstico / proyección
   if (any(q, ['pronostic', 'forecast', 'prediccion', 'predice', 'predecir', 'se espera', 'se esperan', 'proxim', 'a futuro', 'proyeccion', 'nino', 'enso', 'climatolog', 'brote'])) {
     // Ronda W37: sólo se publica el pronóstico a 52 semanas. La proyección NB-GLM multi-año y el
@@ -1719,7 +1758,8 @@ function answerDengue(q, ent, s, d) {
       '**Pronóstico de dengue para el próximo año**', '',
       `${fut ? `En las 52 semanas que cubre el pronóstico se esperan alrededor de **${num(fut)} casos** de dengue en todo el país.` : 'El pronóstico cubre 52 semanas.'}${obs ? ` Los casos reales llegan hasta la ${semanaLegible(obs)}.` : ''} Para ver cómo va ahora, pregúntame «¿cómo va el dengue?» o por tu estado.`, '',
       'No hacemos pronósticos a varios años: con pocas epidemias en los datos, no se puede anticipar con confianza cuándo ni de qué tamaño será el próximo gran brote.', '',
-      `Los grandes brotes de ${(dg.anios_epidemicos || [2014, 2019, 2024]).join(', ')} coincidieron con años de **El Niño**; por eso el modelo usa esa señal del clima.`,
+      // Plan canónico 1.2: el motor nacional (DeepAR) no usa El Niño; sólo Prophet (config/models/prophet.yaml, enso_regressor).
+      `Los grandes brotes de ${(dg.anios_epidemicos || [2014, 2019, 2024]).join(', ')} coincidieron con años de **El Niño**. De los motores en producción, sólo Prophet usa esa señal del clima; el del total nacional (${dg.motor_nacional}) no la usa.`,
       '<!--DETALLE-->',
       `Modelo nacional: **${dg.motor_nacional}**; ${dg.horizonte_semanas || 52} semanas desde el corte de los modelos (${corte}). La cifra es la media prevista del modelo nacional.`,
     ].join('\n');
@@ -6056,7 +6096,10 @@ export function guardaInicial(consulta) {
     trace.handler = 'answerTemaSensible';
     return { response: tema, handler: trace.handler };
   }
-  if (apoyoInmediato(query) && !guardaD7(query)) {
+  // Plan canónico 1.6: «¿qué tomo para el dengue?» es una duda de medicamento sobre un padecimiento no sensible: la contesta la
+  // ruta de consejo médico, no el «no entendí» con la Línea de la Vida. La crisis ya se comprobó arriba.
+  const dudaMedicamento = DUDA_MEDICAMENTO(norm(query)) && nombraPadecimientoNoSensible(norm(query));
+  if (apoyoInmediato(query) && !guardaD7(query) && !dudaMedicamento) {
     lastEntities = {};
     _aclaracionPendiente = null;
     trace.handler = 'answerFueraDeVocabulario';
@@ -6078,6 +6121,12 @@ async function _resolve(consulta) {
   // así que la respuesta fija no depende de la red (antes un fallo de fetch la convertía en excepción).
   const guarda = guardaInicial(query);
   if (guarda) return guarda;
+  // Plan canónico 1.6: consejo médico (medicamentos, dosis, vacunas, gravedad, embarazo) antes de cualquier ruta de datos.
+  // Las guardas D7 (dosis, letalidad o método con intoxicaciones sensibles) conservan su texto fijo, y un padecimiento sensible
+  // nombrado sigue su ruta propia.
+  const padSensible = detectEntities(norm(query)).padecimiento && !nombraPadecimientoNoSensible(norm(query));
+  const consejo = !guardaD7(query) && !padSensible ? answerConsejoMedico(norm(query)) : null;
+  if (consejo) { lastEntities = {}; return { response: consejo, handler: 'answerConsejoMedico' }; }
   const d = await loadKnowledge();
   await cargaVistasDeConsulta(query);
   const s = d.stats || {};
@@ -6434,7 +6483,7 @@ async function _resolve(consulta) {
  */
 const HANDLERS_ACLARACION = new Set(['answerAliasAmbiguo', 'answerGuardaD7', 'answerMeningitisTipo',
   'answerSumaSeriesDistintas', 'answerAclaracionPendiente']);
-const HANDLERS_DE_AYUDA = new Set(['answerCrisis', 'answerCrisisSeguimiento', 'answerApoyoSeguimiento', 'answerFueraDeVocabulario', 'answerTemaSensible']);
+const HANDLERS_DE_AYUDA = new Set(['answerConsejoMedico', 'answerCrisis', 'answerCrisisSeguimiento', 'answerApoyoSeguimiento', 'answerFueraDeVocabulario', 'answerTemaSensible']);
 // Rediseño conversacional: charla, ayuda y síntomas responden aunque el turno sea personal y no nombre un dato.
 const HANDLERS_CONVERSACION = new Set(['answerSaludo', 'answerCharla', 'answerQueja', 'answerVago', 'answerFamiliar', 'answerAmbiguoColoquial', 'answerSemanaFutura', 'answerNoReportado', 'answerFueraDeAlcance', 'answerFAQ', 'answerSintomas', 'answerRankingPadecimientos', 'answerConfianzaGeneral', 'answerViaje', 'answerEstadoLlano']);
 // Respuestas fijas sin cifras (aclaraciones, alcance, no modelados, guardas): con un token fuera del vocabulario se
@@ -6600,6 +6649,8 @@ async function _resolveConContexto(query) {
   }
   if (!lastEntities._padAnterior && padAnteriorPrev && lastEntities.padecimiento) lastEntities = { ...lastEntities, _padAnterior: padAnteriorPrev };
   if (!lastEntities.estado && detectEntities(norm(texto)).estado) lastEntities = { ...lastEntities, estado: detectEntities(norm(texto)).estado };
+  // Plan canónico 1.6: «¿es seguro viajar a … por el dengue?» nunca abre con una tendencia como si fuera una respuesta de seguridad.
+  if (VIAJE_SEGURIDAD.test(norm(query)) && r.response && /\d/.test(r.response) && !HANDLERS_DE_AYUDA.has(r.handler)) notas.unshift(NOTA_VIAJE);
   const sint = notaSintomas(norm(query));
   if (sint && r.response && !HANDLERS_DE_AYUDA.has(r.handler) && r.handler !== 'answerSintomas') notas.unshift(sint.replace(/^_|_$/g, '').replace(/\.$/, ''));
   // Salvedades de legitimidad (mesa agéntica, fase 1): significancia, brote, causas, aciertos y riesgo, ante cualquier respuesta

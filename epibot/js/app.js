@@ -7,10 +7,10 @@ import { graficoRondas } from './comparacion_rondas.js?v=4';
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2, contextoActual, reiniciaContexto, cargaZoom } from './kb.js?v=215';
+import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2, contextoActual, reiniciaContexto, cargaZoom } from './kb.js?v=216';
 import { detectEntities, norm } from './entities.js?v=88';
 import { pareceVariosPedidos, respuestaDePlan } from './agente.js?v=1';
-import { fechaEpiLegacy, REZAGO_LEGACY } from './calculo/series.js?v=3';
+import { fechaEpiLegacy, REZAGO_LEGACY } from './calculo/series.js?v=4';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
 import { renderMexicoMap } from './mexico-map.js?v=5';
 import { renderTimelapse } from './timelapse.js?v=4';
