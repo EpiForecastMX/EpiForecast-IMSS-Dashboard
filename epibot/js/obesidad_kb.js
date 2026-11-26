@@ -280,7 +280,7 @@ export function answerReleasesMixtos(q, ent, s, d) {
   return [...veredicto, 'Cada padecimiento tiene su propio pronóstico, así que los doy por separado:', '', ...filas, '<!--SIN_GRAFICA-->'].join('\n');
 }
 
-const PREGUNTA_ERROR = /\b(error\w*|smape|atinad\w*|acert\w*|precision|precis[oa]|que tan bien|le fue|confiab\w*|desvi\w*|fallo|se equivoc\w*)\b/;
+export const PREGUNTA_ERROR = /\b(error\w*|smape|atinad\w*|acert\w*|precision|precis[oa]|que tan bien|le fue|confiab\w*|desvi\w*|fallo|se equivoc\w*)\b/;
 function answerRelease(q, ent, s, d, r) {
   // Si la pregunta nombra además otro padecimiento, modelado o no, la responde su handler.
   if (ent.padecimiento && ent.padecimiento !== r.pad) return null;

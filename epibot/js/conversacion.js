@@ -268,6 +268,11 @@ export function answerLegacyComparacion(q, ent, s, d, { indicadores, lineaRitmo,
     `<!--ESTADOS:${JSON.stringify({ modo: 'comparacion', titulo: `${LEGACY_NOMBRE[pad]}: comparación de estados, ${sexo === 'general' ? 'ambos sexos' : sexo}`, filas: filas.map((f) => [f.nombre, Math.round(f.ind.O4), Math.round(f.ind.F4)]) })}-->`].join('\n');
 }
 
+// Plan canónico 2.2 para los originales: una pregunta por el error o la confiabilidad lleva el zoom de seguimiento (observado
+// frente al pronóstico desde el corte), no la serie larga. Misma expresión que PREGUNTA_ERROR de obesidad_kb.js (una prueba lo
+// comprueba); aquí se repite para no crear una dependencia circular.
+export const PREGUNTA_ERROR_LEGACY = /\b(error\w*|smape|atinad\w*|acert\w*|precision|precis[oa]|que tan bien|le fue|confiab\w*|desvi\w*|fallo|se equivoc\w*)\b/;
+
 export function answerLegacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadLegacy }) {
   const pad = ent.padecimiento;
   if (!LEGACY_PAD[pad] || (ent.padecimientos || []).length > 1) return null;
@@ -299,6 +304,8 @@ export function answerLegacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadL
   ];
   return lineas.join('\n') + `\n\n<!--DETALLE-->\n${(lineas.aparte || []).join('\n')}\n\nMotor productivo de esta serie: **${base.zz.motor}**, elegido por su error con datos que no vio (semanas 28 a 37 de 2026). Pronóstico emitido con datos hasta la ${/^\d{4}-W\d+$/.test(base.zz.corte) ? semanaDeEtiqueta(base.zz.corte) : `semana ${base.zz.corte}`}; ` +
     `la comparación con lo observado se actualiza con cada boletín.${base.zz.intervalo_disponible ? '' : ' Pronóstico puntual, sin intervalo de incertidumbre.'}` +
+    (PREGUNTA_ERROR_LEGACY.test(n) && (base.zz.seguimiento || []).some((w) => w.real != null)
+      ? `\n<!--ZOOM_SEGUIMIENTO:${JSON.stringify({ clave: `${LEGACY_PAD[pad]}|${geo}|${sexo}`, pad, estado: nombreGeo, sexo })}-->` : '') +
     `\n<!--SIGUE:${JSON.stringify(sig.slice(0, 4))}-->`;
 }
 
