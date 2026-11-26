@@ -8,10 +8,10 @@
  * siguen en sus handlers y los temas sensibles (autolesiones, ideación suicida, violencias) en la
  * respuesta de crisis, que no da cifras.
  */
-import { summarizeCoverage, coberturaPanorama } from '../../assets/boletin/coverage.mjs?v=3';
+import { summarizeCoverage, coberturaPanorama } from '../../assets/boletin/coverage.mjs?v=17';
 import { ESTADO_NO_MODELABLE, GRUPOS_NO_MODELABLES, codigoEnConsulta, grupoNoModelable } from '../../assets/boletin/no_modelables.mjs?v=2';
 import { GUION, esMarcador, guionNoPublicado, suma } from '../../assets/boletin/celdas.mjs?v=1';
-import { referenciaExploratoria } from '../../assets/boletin/pronostico.mjs?v=10';
+import { referenciaExploratoria } from '../../assets/boletin/pronostico.mjs?v=13';
 import { nombreVisible } from '../../assets/boletin/nombres.mjs?v=1';
 
 // Opción «Pronóstico» del radar (alta_b44): se menciona sin cifras y con el método real de cada categoría, leído de
@@ -291,7 +291,9 @@ export function respuestaRadar(encontradas, radar, estado) {
 /** Línea de cobertura de pronóstico: publicado y exploratorio no validado, sólo con su conteo. */
 function lineaPronostico(p, c) {
   if (p?.exploratorio) {
-    const sin = p.sin_pronostico ? `; ${fmt(p.sin_pronostico)} siguen sin pronóstico` : '';
+    // Plan canónico 3.3: influenza, COVID-19 y febril exantemática muestran sólo los casos impresos, sin modelo.
+    const solo = Math.min(p.solo_observado ?? 0, p.sin_pronostico ?? 0), resto = (p.sin_pronostico ?? 0) - solo;
+    const sin = `${solo ? `; ${fmt(solo)} ${solo === 1 ? 'muestra' : 'muestran'} sólo los casos impresos en el boletín, sin modelo` : ''}${resto ? `; ${fmt(resto)} siguen sin pronóstico` : ''}`;
     return `- Categorías con pronóstico: **${fmt(p.con_pronostico)} de ${fmt(p.total)}**: ${fmt(p.publicado)} con pronóstico publicado y ` +
       `${fmt(p.exploratorio)} con pronóstico exploratorio, no validado, que no es un pronóstico de EpiForecast-MX${sin}.`;
   }

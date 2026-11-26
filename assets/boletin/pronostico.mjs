@@ -19,6 +19,17 @@ export const ADVERTENCIA_NOTAS = 'El cuadro estatal no publica esta cifra; las n
   'valor plano igual a su media de las últimas semanas (hasta ocho). Sin estacionalidad, prueba de desempeño ni intervalos; ' +
   'no es un pronóstico de EpiForecast-MX.';
 
+// Plan canónico del EpiBot 3.3 (26-nov-2026): influenza, COVID-19 y enfermedad febril exantemática muestran sólo los casos
+// impresos, en gris, sin referencia exploratoria: sus brotes cambian mucho de un año a otro y una media de años anteriores
+// podría leerse como un pronóstico.
+export const ROTULO_SOLO_OBSERVADO = 'Casos impresos en el boletín, sin modelo';
+export const METODO_SOLO_OBSERVADO = 'solo_observado';
+export const SOLO_OBSERVADO = Object.freeze([/^influenza$/, /^covid[\s-]*19$/, /^enfermedad febril\s+exantematica$/]);
+export const MOTIVO_SOLO_OBSERVADO = 'El radar muestra sólo los casos impresos en el boletín, sin modelo: sus brotes cambian mucho de un año a otro y una media de años anteriores podría leerse como un pronóstico.';
+const sinTildes = (t) => String(t ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+/** Categoría del radar que muestra sólo los casos impresos (por su nombre impreso). */
+export const esSoloObservado = (e) => SOLO_OBSERVADO.some((re) => re.test(sinTildes(e?.nombre_impreso ?? e?.name)));
+
 export const ESTADOS_PUBLICADOS = Object.freeze(['Publicada', 'Control publicado']);
 export const LEGACY = Object.freeze({
   depresion: { pagina: 'Reports/index.html', nombre: 'Depresión' },
@@ -186,7 +197,7 @@ export function desdeExploratorio(doc, id, observado = []) {
   if (!c) throw new Error(`pronóstico exploratorio sin la categoría: ${id}`);
   return {
     tipo: 'exploratorio', fuente: 'pronostico_exploratorio.json', nombre: c.nombre,
-    metodo: c.metodo ?? null, nivel_reciente: c.metodo === 'nivel_reciente_sin_estacionalidad',
+    metodo: c.metodo ?? null, nivel_reciente: c.metodo === 'nivel_reciente_sin_estacionalidad', solo_observado: c.metodo === METODO_SOLO_OBSERVADO,
     notas: c.metodo === 'nivel_reciente_acumulado_de_notas', fuente_notas: c.fuente_notas ?? null,
     rotulo: c.rotulo ?? ROTULO_EXPLORATORIO,
     advertencia: { nivel_reciente_sin_estacionalidad: ADVERTENCIA_NIVEL_RECIENTE, nivel_reciente_acumulado_de_notas: ADVERTENCIA_NOTAS }[c.metodo] ?? ADVERTENCIA_EXPLORATORIO,
@@ -205,7 +216,7 @@ export function desdeExploratorio(doc, id, observado = []) {
 /** Cobertura de la opción Pronóstico sobre las categorías no agregadas de la foto. */
 export function coberturaPronostico(diseases, doc) {
   const cats = diseases.filter((e) => !e.aggregate);
-  let publicado = 0, exploratorio = 0, nivel = 0, notas = 0, sinHistoria = 0, sinOpcion = 0;
+  let publicado = 0, exploratorio = 0, nivel = 0, notas = 0, solo = 0, sinHistoria = 0, sinOpcion = 0;
   for (const e of cats) {
     const f = fuentePronostico(e);
     if (f.tipo === 'publicado') publicado++;
@@ -213,12 +224,13 @@ export function coberturaPronostico(diseases, doc) {
       const met = doc.categorias[e.id].metodo;
       if (met === 'nivel_reciente_sin_estacionalidad') nivel++; else if (met === 'nivel_reciente_acumulado_de_notas') notas++; else exploratorio++;
     }
+    else if (doc?.categorias?.[e.id]?.metodo === METODO_SOLO_OBSERVADO) solo++;
     else if (doc?.categorias?.[e.id]) sinHistoria++;
     else sinOpcion++;
   }
   const total = cats.length, con = total - sinOpcion, conPronostico = publicado + exploratorio + nivel + notas;
   // exploratorio = referencia estacional; nivel_reciente = respaldo plano; sin_historia = sin ningún pronóstico.
-  return { total, publicado, exploratorio, nivel_reciente: nivel, notas, sin_historia: sinHistoria, sin_opcion: sinOpcion,
+  return { total, publicado, exploratorio, nivel_reciente: nivel, notas, solo_observado: solo, sin_historia: sinHistoria, sin_opcion: sinOpcion,
     con_opcion: con, con_pronostico: conPronostico,
     pct: total ? Math.round((con / total) * 1000) / 10 : 0,
     pct_pronostico: total ? Math.round((conPronostico / total) * 1000) / 10 : 0 };
@@ -241,6 +253,9 @@ export function descripcionMetodo(c) {
  * `c` es su registro de pronostico_exploratorio.json (o null si no se cargó); `radar` es el enlace al radar.
  */
 export function referenciaExploratoria(c, radar = 'Radar del boletín') {
+  if (c?.metodo === METODO_SOLO_OBSERVADO) {
+    return `En su opción «Pronóstico», el ${radar} muestra sólo los casos impresos en el boletín, sin modelo ni referencia exploratoria.`;
+  }
   const d = descripcionMetodo(c);
   if (d) {
     const sin = c.metodo === 'media_estacional_misma_semana' ? 'sin prueba de desempeño ni intervalos' : 'sin estacionalidad, prueba de desempeño ni intervalos';

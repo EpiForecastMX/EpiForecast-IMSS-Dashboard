@@ -13,7 +13,7 @@
 <meta property="og:url" content="https://epiforecast.mx/boletin.html">
 <meta property="og:type" content="website">
 <link rel="stylesheet" href="assets/site/site.css?v=5">
-<link rel="stylesheet" href="/assets/boletin/radar.css?v=20261125g">
+<link rel="stylesheet" href="/assets/boletin/radar.css?v=20261126a">
 </head>
 <body class="boletin-page">
 <a class="skip-link" href="#main">Saltar al contenido</a>
@@ -126,7 +126,7 @@
 <div id="forecastPanel" role="tabpanel" aria-labelledby="tabPronostico" hidden>
 <p id="forecastStatus" class="context-note" role="status">Elige un padecimiento para ver su pronóstico.</p>
 <div class="curve-panel forecast-panel" id="forecastBody" hidden><div class="curve-chart-head"><h3 id="forecastTitle">Pronóstico</h3><div id="forecastLegend" class="curve-legend"></div></div><div id="forecastLabel"></div><div id="forecastStats" class="curve-stats"></div><div id="forecastChart" class="curve-chart"></div><p id="forecastCaption" class="caption"></p></div>
-<p class="context-note">Pronóstico de 52 semanas. Un padecimiento publicado muestra la serie de su release para el ámbito y el sexo elegidos, cuando los publica (en el carril original, la portada y la galería), con su etiqueta de validación. Una categoría sin pronóstico publicado muestra un «Pronóstico exploratorio, no validado»: la media de la misma semana en los años anteriores impresos (hasta tres), sin prueba de desempeño ni intervalos. Si esa media no tiene base, un respaldo rotulado «Pronóstico exploratorio, no validado: nivel reciente sin estacionalidad» repite la media de las últimas semanas con cifra impresa (hasta ocho). Nunca se rellena con ceros.</p>
+<p class="context-note">Pronóstico de 52 semanas. Un padecimiento publicado muestra la serie de su release para el ámbito y el sexo elegidos, cuando los publica (en el carril original, la portada y la galería), con su etiqueta de validación. Una categoría sin pronóstico publicado muestra un «Pronóstico exploratorio, no validado»: la media de la misma semana en los años anteriores impresos (hasta tres), sin prueba de desempeño ni intervalos. Si esa media no tiene base, un respaldo rotulado «Pronóstico exploratorio, no validado: nivel reciente sin estacionalidad» repite la media de las últimas semanas con cifra impresa (hasta ocho). Nunca se rellena con ceros. Influenza, COVID-19 y enfermedad febril exantemática muestran sólo sus casos impresos, en gris y rotulados «Casos impresos en el boletín, sin modelo»: sus brotes cambian mucho de un año a otro y una media de años anteriores podría leerse como un pronóstico.</p>
 <details class="method-details"><summary>Cómo se construye el pronóstico exploratorio</summary><p>Lo genera <code>scripts/radar_pronostico_exploratorio.mjs</code> con cada foto semanal, desde la serie nacional semanal impresa del archivo histórico. Origen: el último periodo impreso de la categoría, que debe tener cifra. Para cada una de las 52 semanas siguientes se promedia la misma semana epidemiológica de los tres años anteriores que la tengan impresa; con un solo año disponible, se repite esa semana. Un guion cuenta como cero sólo cuando la simbología del boletín lo define así; una cifra no publicada, «n.d.» o un hueco no cuentan. Si alguna de las 52 semanas no tiene ningún año base, o el último periodo no tiene cifra, se usa el respaldo de nivel reciente: un valor plano de 52 semanas igual a la media de las últimas semanas con cifra de toda la serie impresa (hasta ocho), con las semanas usadas declaradas. Para sarampión y paludismo por P. falciparum, cuyo cuadro estatal no publica la cifra, se usa el acumulado nacional que imprimen las notas del boletín (<code>assets/boletin/history/notas_acumulados.json</code>, con archivo, página y frase de cada boletín): los casos semanales salen de la diferencia de acumulados en el tramo más reciente de boletines consecutivos del mismo año sin que el acumulado baje, rotulados «Pronóstico exploratorio, no validado: nacional, derivado del acumulado publicado en las notas del boletín (no del cuadro estatal)». Sólo una categoría que nunca tuvo una cifra semanal impresa quedaría sin pronóstico exploratorio, y se explicaría por qué. No es un modelo de EpiForecast-MX ni se evaluó fuera de muestra.</p><a data-radar-enlace="pronostico" href="/assets/boletin/2026-w44/pronostico_exploratorio.json" download>Pronóstico exploratorio JSON ↓</a></details>
 </div>
 </section>
@@ -154,17 +154,17 @@
 <article class="coverage-panel">
 <div class="eyebrow">HUELLA DE LA PLATAFORMA</div>
 <h2><span data-radar="categorias_publicadas_palabras">Ciento cincuenta y cuatro</span> categorías con pronóstico publicado.</h2>
-<p class="ring-sub">Más <span data-radar="exploratorias">33</span> con pronóstico exploratorio, no validado: <span data-radar="con_pronostico">187</span> de <span data-radar="categorias_total">187</span> tienen la opción «Pronóstico».</p>
+<p class="ring-sub">Más <span data-radar="exploratorias">30</span> con pronóstico exploratorio, no validado: <span data-radar="con_pronostico">184</span> de <span data-radar="categorias_total">187</span> tienen la opción «Pronóstico».</p>
 <div class="ring-wrap">
-<div class="ring" id="ringPronostico" role="img" data-radar-aria="anillo_aria" aria-label="187 de 187 categorías con pronóstico: 154 con pronóstico publicado (82.4 %) y 33 con pronóstico exploratorio, no validado (17.6 %)." data-radar-estilo="anillo_estilo" style="--publicado:82.4%;--con-pronostico:100%">
+<div class="ring" id="ringPronostico" role="img" data-radar-aria="anillo_aria" aria-label="184 de 187 categorías con pronóstico: 154 con pronóstico publicado (82.4 %) y 30 con pronóstico exploratorio, no validado (16 %); 3 sólo con los casos impresos, sin modelo." data-radar-estilo="anillo_estilo" style="--publicado:82.4%;--con-pronostico:98.4%">
 <span aria-hidden="true"><span data-radar="categorias_publicadas">154</span><small>PRONÓSTICO PUBLICADO</small></span>
 </div>
 <ul class="ring-legend" aria-label="Leyenda del anillo">
 <li class="ring-legend-publicado"><b><span data-radar="categorias_publicadas">154</span></b> con pronóstico publicado</li>
-<li class="ring-legend-exploratorio"><b><span data-radar="exploratorias">33</span></b> con pronóstico exploratorio, no validado</li>
+<li class="ring-legend-exploratorio"><b><span data-radar="exploratorias">30</span></b> con pronóstico exploratorio, no validado</li>
 </ul>
 </div>
-<p><span data-radar="panorama_resumen">152 padecimientos publicados cubren 154 categorías del boletín. Dengue se reporta en tres formas clínicas. Las 33 restantes no tienen modelo validado (32 no son modelables con el método actual y 1 fue rechazada en su prueba): muestran un pronóstico exploratorio, no validado, que no es un pronóstico de EpiForecast-MX.</span></p>
+<p><span data-radar="panorama_resumen">152 padecimientos publicados cubren 154 categorías del boletín. Dengue se reporta en tres formas clínicas. Las 33 restantes no tienen modelo validado (32 no son modelables con el método actual y 1 fue rechazada en su prueba): 30 muestran un pronóstico exploratorio, no validado, que no es un pronóstico de EpiForecast-MX, y 3 muestran sólo los casos impresos en el boletín, sin modelo.</span></p>
 <a href="no_modelables.html" class="text-link">Ver las categorías sin modelo validado →</a><br>
 <a href="#cobertura" class="text-link">Revisar cobertura y excepciones →</a>
 <details class="coverage-foot-details"><summary>Excepciones de publicación</summary><div class="coverage-foot">F50, isquémica, cerebrovascular, IRA, gingivitis y cáncer de mama: control estacional publicado.<br>Cuello del útero: publicado sin desglose por sexo.<br>Diez cánceres desde 2023: publicados con la política de historia corta.<br>Riñón, próstata, huesos, hígado y esófago: control estacional publicado.<br>Covid-19: rechazado, solo en <a href="rechazados.html">su sección de evidencia</a>.<br><span data-radar="no_modelables_palabras">Treinta y dos</span> categorías no son modelables con el método actual (sin modelo validado): <a href="no_modelables.html">motivo medido y cifras impresas de cada una</a>. Sin pronóstico publicado: tienen un pronóstico exploratorio, no validado, en el radar.</div></details>
@@ -418,9 +418,9 @@
 </dialog>
 <div id="error" hidden>
 </div>
-<script type="module" src="/assets/boletin/radar.js?v=20261125a">
+<script type="module" src="/assets/boletin/radar.js?v=20261126a">
 </script>
-<script type="module" src="/assets/boletin/pronostico_vista.mjs?v=23"></script>
+<script type="module" src="/assets/boletin/pronostico_vista.mjs?v=24"></script>
 <script src="/assets/boletin/curves.js?v=20261125b" defer></script>
 <script type="module" src="/assets/boletin/buscador.mjs?v=2"></script>
 <script src="assets/site/site-nav.js?v=4" defer></script>

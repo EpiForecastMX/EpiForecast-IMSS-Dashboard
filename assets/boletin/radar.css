@@ -274,6 +274,7 @@ dialog{background:white;border-radius:12px;padding:28px;box-shadow:0 20px 70px #
 .forecast-line--exploratorio{stroke:#98621c;stroke-dasharray:7 5}
 .forecast-origin{stroke:var(--ink-mut);stroke-width:1;stroke-dasharray:3 4}
 .forecast-watermark{fill:#805c16;font:600 13px var(--sans)}
+.curve-line--sin-modelo{stroke:#6b7280}.curve-legend-sin-modelo::before{background:#6b7280}.forecast-watermark--sin-modelo{fill:#4b5563}
 .forecast-legend::before{background:#315e91!important}
 .forecast-legend--exploratorio::before{background:none!important;height:0!important;border-top:3px dashed #98621c}
 .forecast-label{font-size:14px;line-height:1.6;background:rgba(106,160,255,.07);border-left:3px solid #315e91;padding:12px 15px;margin:16px 0 0}

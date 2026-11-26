@@ -135,6 +135,14 @@ test('exploratorio: archivo al día, método declarado, 52 semanas consecutivas 
     const v = independiente(e);
     const puntos = json(indice.series[e.id].path.slice(1)).points;
     const conCifra = puntos.filter((p) => v.get(`${p.y}-${p.w}`) != null);
+    if (c.metodo === 'solo_observado') {
+      // Plan canónico del EpiBot 3.3: sólo los casos impresos, por decisión y no por falta de cifras.
+      assert.ok(['p12b2', 'p23b2', 'p46b1'].includes(e.id), `${e.id}: sólo observado fuera de la lista`);
+      assert.equal(c.pronostico, null);
+      assert.equal(c.rotulo, 'Casos impresos en el boletín, sin modelo');
+      assert.match(c.sin_pronostico, /^El radar muestra sólo los casos impresos en el boletín, sin modelo/);
+      continue;
+    }
     if (!c.pronostico) {
       // Sólo sin pronóstico si nunca hubo una cifra semanal en toda la historia del radar.
       assert.equal(conCifra.length, 0, `${e.id}: tiene cifras y quedó sin pronóstico`);
@@ -185,13 +193,16 @@ test('exploratorio: archivo al día, método declarado, 52 semanas consecutivas 
   assert.equal(doc.respaldo.nombre, 'nivel_reciente_sin_estacionalidad');
   assert.equal(doc.respaldo.rotulo, ROTULO_NIVEL);
   assert.equal(doc.respaldo.max_semanas, 8);
-  assert.deepEqual(Object.entries(doc.categorias).filter(([, c]) => !c.pronostico).map(([k]) => k), []);
+  // Plan canónico 3.3: sólo influenza, COVID-19 y febril exantemática quedan sin referencia, por decisión.
+  assert.deepEqual(Object.entries(doc.categorias).filter(([, c]) => !c.pronostico).map(([k]) => k).sort(), ['p12b2', 'p23b2', 'p46b1']);
   assert.deepEqual(Object.entries(doc.categorias).filter(([, c]) => c.metodo === 'nivel_reciente_sin_estacionalidad').map(([k]) => k).sort(),
     ['p80b1', 'p80b2', 'p80b3']);
   assert.deepEqual(Object.entries(doc.categorias).filter(([, c]) => c.metodo === 'nivel_reciente_acumulado_de_notas').map(([k]) => k).sort(),
     ['p10b2', 'p33b1']);
   assert.equal(doc.conteo.con_pronostico, doc.conteo.estacional + doc.conteo.nivel_reciente + doc.conteo.notas);
-  assert.equal(doc.conteo.sin_pronostico, 0);
+  assert.equal(doc.conteo.sin_pronostico, doc.conteo.solo_observado);
+  assert.equal(doc.conteo.solo_observado, 3);
+  assert.equal(doc.solo_observado.rotulo, 'Casos impresos en el boletín, sin modelo');
 });
 
 test('exploratorio: el rótulo obligatorio aparece en la gráfica, la ficha, la cobertura y la página', async () => {
@@ -225,7 +236,7 @@ test('exploratorio: el rótulo obligatorio aparece en la gráfica, la ficha, la 
   assert.match(leer('boletin.html'), /«Pronóstico exploratorio, no validado: nivel reciente sin estacionalidad»/);
 });
 
-test('cobertura: 100 % de las categorías con opción «Pronóstico», desglosada en publicado, exploratorio y sin historia', async () => {
+test('cobertura: 100 % con opción «Pronóstico», desglosada en publicado, exploratorio, sólo observado y sin historia', async () => {
   const { coberturaPronostico, textoCoberturaPronostico, summarizeCoverage } = await imp('assets/boletin/coverage.mjs');
   const doc = json(`${actual.carpeta}/pronostico_exploratorio.json`);
   const c = coberturaPronostico(data.diseases, doc);
@@ -236,20 +247,22 @@ test('cobertura: 100 % de las categorías con opción «Pronóstico», desglosad
   assert.equal(c.publicado, summarizeCoverage(data.diseases).covered);
   assert.equal(c.exploratorio, doc.conteo.estacional);
   assert.equal(c.nivel_reciente, doc.conteo.nivel_reciente);
-  assert.equal(c.sin_historia, doc.conteo.sin_pronostico);
   assert.equal(c.notas, doc.conteo.notas);
-  assert.equal(c.publicado + c.exploratorio + c.nivel_reciente + c.notas + c.sin_historia, c.total);
-  assert.equal(c.con_pronostico, c.total, 'todas las categorías con pronóstico');
-  assert.equal(c.pct_pronostico, 100);
+  assert.equal(c.solo_observado, doc.conteo.solo_observado);
+  assert.equal(c.solo_observado, 3, 'influenza, COVID-19 y febril exantemática');
+  assert.equal(c.sin_historia, doc.conteo.sin_pronostico - doc.conteo.solo_observado);
+  assert.equal(c.publicado + c.exploratorio + c.nivel_reciente + c.notas + c.solo_observado + c.sin_historia, c.total);
+  assert.equal(c.con_pronostico, c.total - c.solo_observado, 'todas con pronóstico salvo las de sólo casos impresos');
   assert.equal(c.sin_historia, 0);
   const t = textoCoberturaPronostico(c);
+  assert.ok(t.includes(`${c.solo_observado} sólo con los casos impresos en el boletín, sin modelo`), t);
   assert.ok(t.startsWith(`${c.total} de ${c.total} categorías (100 %) tienen la opción «Pronóstico»`), t);
   assert.ok(t.includes(`${c.publicado} con pronóstico publicado`), t);
   assert.ok(t.includes(`${c.exploratorio} con pronóstico exploratorio estacional, no validado`), t);
   assert.ok(t.includes(`${c.nivel_reciente} con pronóstico exploratorio de nivel reciente sin estacionalidad, no validado`), t);
   assert.ok(t.includes(`${c.notas} con pronóstico exploratorio nacional derivado del acumulado publicado en las notas del boletín, no validado`), t);
   assert.ok(!t.includes('sin ningún pronóstico'), t);
-  assert.match(leer('assets/boletin/radar.js'), /c\.publicado\/c\.total\*1000\)\/10:0\)\.toLocaleString\('es-MX'\)\)\} %<\/strong> de las categorías con pronóstico publicado; el resto, con pronóstico exploratorio, no validado/);
+  assert.match(leer('assets/boletin/radar.js'), /c\.publicado\/c\.total\*1000\)\/10:0\)\.toLocaleString\('es-MX'\)\)\} %<\/strong> de las categorías con pronóstico publicado; el resto, con pronóstico exploratorio, no validado, o sólo con los casos impresos/);
   assert.match(leer('assets/boletin/radar.js'), /renderForecastCoverage\(\)/);
   assert.match(leer('boletin.html'), /<div id="forecastCoverage" class="forecast-coverage"/);
   // Sin el exploratorio, la cobertura lo dice: las categorías sin release no cuentan como cubiertas.
@@ -266,12 +279,16 @@ test('el generador semanal regenera el exploratorio al activar cada foto', () =>
 test('EpiBot: menciona la referencia exploratoria de una no modelable sin dar sus cifras', async () => {
   const { respuestaNoModelableRag } = await imp('epibot/netlify/lib/radar_no_modelable.mjs');
   const doc = json(`${actual.carpeta}/pronostico_exploratorio.json`);
-  const e = data.diseases.find((x) => x.id === 'p12b2');
-  const r = respuestaNoModelableRag('influenza J09-J11', data, { exploratorio: doc });
+  const e = data.diseases.find((x) => x.id === 'p58b2');
+  const r = respuestaNoModelableRag(`${e.name} ${e.code}`, data, { exploratorio: doc });
   assert.ok(r && r.includes(`«${ROTULO}»`), r);
   assert.match(r, /no tiene modelo validado, pronóstico publicado ni control estacional/);
   const total = Math.round(doc.categorias[e.id].pronostico.reduce((t, s) => t + s.valor, 0)).toLocaleString('es-MX');
   assert.ok(!r.includes(total), 'sin cifras del exploratorio');
+  // Plan canónico 3.3: influenza no ofrece referencia exploratoria; dice que el radar muestra sólo los casos impresos.
+  const flu = respuestaNoModelableRag('influenza J09-J11', data, { exploratorio: doc });
+  assert.ok(flu.includes('muestra sólo los casos impresos en el boletín, sin modelo ni referencia exploratoria'), flu);
+  assert.ok(!flu.includes(`«${ROTULO}»`), flu);
   const bot = leer('epibot/js/radar_boletin.js');
   assert.match(bot, /'\[Categorías sin modelo validado\]\(\.\.\/no_modelables\.html\)\. ' \+ referencia\(e, radar\)/);
 });
@@ -449,7 +466,7 @@ test('Codex 2: EpiBot y RAG nombran el método real de cada categoría, leído d
   const casos = [
     ['sarampión B05', 'p10b2', /media de los casos semanales recientes que salen del acumulado nacional publicado en las notas del boletín \(no del cuadro estatal\), sin estacionalidad/, ROTULO_NOTAS],
     ['asfixia W75-W84', 'p80b1', /un valor plano igual a la media de las últimas semanas con cifra impresa, sin estacionalidad/, ROTULO_NIVEL],
-    ['influenza J09-J11', 'p12b2', /la media de la misma semana epidemiológica en los años anteriores impresos/, ROTULO],
+    ['rubéola B06', 'p10b3', /la media de la misma semana epidemiológica en los años anteriores impresos/, ROTULO],
   ];
   for (const [q, id, metodo, rotulo] of casos) {
     const c = doc.categorias[id];
