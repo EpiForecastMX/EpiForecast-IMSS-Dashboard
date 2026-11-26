@@ -10,6 +10,10 @@
  *   en las próximas 4 semanas») con una implementación propia, sin importar código del bot.
  * - Las demás categorías se califican con reglas de texto declaradas abajo (heurísticas, reportadas aparte).
  *
+ * Plan canónico 1.8 (26-nov-2026, Codex Astra e Hydrogen): una respuesta vacía (la consulta pasa al RAG) ya no cuenta como
+ * acierto en definición, metodología o alcance: se reporta aparte como «derivada», porque sin Gemini nadie la contesta. Y si
+ * el oráculo tiene las próximas 4 semanas, la respuesta llana debe traerlas (antes bastaba con no traerlas).
+ *
  * Uso: node eval/califica.mjs [salida.json] [bateria …]   (sin red; lee las vistas del repositorio)
  */
 import { existsSync, readFileSync, writeFileSync } from 'fs';
@@ -71,9 +75,9 @@ const REGLAS = {
   no_modelado: (md) => /no (se )?modela|no tiene pron[oó]stico|sin pron[oó]stico|no est[aá] modelad|no (lo |la )?pronostic|cifras impresas|bolet[ií]n/i.test(md),
   ranking: (md, h) => h === 'answerRankingPadecimientos' || /al alza|van subiendo|suben m[aá]s|m[aá]s casos/i.test(md),
   confiabilidad: (md) => /confiab/i.test(md),
-  definicion: (md) => md === '' || /\bes (una|un|el|la|cuando)\b|MedlinePlus|se (le )?llama|consiste/i.test(md),
-  metodologia: (md) => md === '' || /modelo|m[eé]todo|valid|prueba|control|sMAPE|motor/i.test(md),
-  alcance: (md) => md === '' || /no |s[oó]lo|solamente|plataforma|publica/i.test(md),
+  definicion: (md) => /\bes (una|un|el|la|cuando)\b|MedlinePlus|se (le )?llama|consiste/i.test(md),
+  metodologia: (md) => /modelo|m[eé]todo|valid|prueba|control|sMAPE|motor/i.test(md),
+  alcance: (md) => /no |s[oó]lo|solamente|plataforma|publica/i.test(md),
   charla: (md) => md !== '' && !/\d{3,}/.test(md),
   fuera_de_tema: (md) => /no respondo|fuera del proyecto|no (puedo|tengo)|s[oó]lo (respondo|puedo)|EpiForecast/i.test(md),
   sintomas: (md) => /diagnostic|acude|unidad de salud|911|m[eé]dic/i.test(md),
@@ -83,7 +87,7 @@ const REGLAS = {
 const arriba = (md) => md.split('<!--DETALLE-->')[0].replace(/<!--[\s\S]*?-->/g, '');
 
 export async function califica(items) {
-  const res = { total: 0, aciertos: 0, por_espera: {}, datos: { n: 0, padecimiento_ok: 0, estado_ok: 0, cifras_ok: 0, todo_ok: 0, sin_oraculo_pad: 0, oraculo_comparado: 0, oraculo_ok: 0 }, fallos: [] };
+  const res = { total: 0, aciertos: 0, derivadas: 0, por_espera: {}, datos: { n: 0, padecimiento_ok: 0, estado_ok: 0, cifras_ok: 0, todo_ok: 0, sin_oraculo_pad: 0, oraculo_comparado: 0, oraculo_ok: 0 }, fallos: [] };
   for (const it of items) {
     if (!it.espera) continue;
     kb._resetContext();
@@ -121,11 +125,15 @@ export async function califica(items) {
         if (o) {
           D.oraculo_comparado++;
           const f4 = a.match(/unos ([\d,  ]+) casos? (esperados )?en las pr[oó]ximas 4/);
-          const bien = entero(ahora[1]) === o.O4 && (!f4 || o.F4 == null || entero(f4[1]) === o.F4);
+          const ninguno = /ninguno esperado en las pr[oó]ximas 4/.test(a);
+          const bien = entero(ahora[1]) === o.O4 && (o.F4 == null || (f4 ? entero(f4[1]) === o.F4 : ninguno && o.F4 === 0));
           if (bien) D.oraculo_ok++;
           else { ok = false; motivo = `cifra: dice ${ahora[1]}${f4 ? `/${f4[1]}` : ''}, oráculo ${o.O4}/${o.F4}`; }
         }
       }
+    } else if (a.trim() === '') {
+      // Sin respuesta local: la consulta pasa al RAG. No es acierto del motor local; se cuenta aparte.
+      ok = false; motivo = 'derivada al RAG'; res.derivadas++;
     } else {
       const regla = REGLAS[it.espera];
       ok = regla ? !!regla(a.trim(), r.handler) && !/No entendí bien|No reconozco algunos/.test(md) : true;
@@ -145,10 +153,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     informe[b] = await califica(items);
     const x = informe[b];
     const D = x.datos;
-    console.log(`${b}: ${x.aciertos}/${x.total} aciertos (${(100 * x.aciertos / x.total).toFixed(1)} %) · datos ${D.todo_ok}/${D.n} ` +
+    console.log(`${b}: ${x.aciertos}/${x.total} aciertos (${(100 * x.aciertos / x.total).toFixed(1)} %; ${x.derivadas} derivadas al RAG) · datos ${D.todo_ok}/${D.n} ` +
       `(padecimiento ${D.padecimiento_ok}, estado ${D.estado_ok}, cifras ${D.cifras_ok}, oráculo ${D.oraculo_ok}/${D.oraculo_comparado})`);
   }
-  const tot = Object.values(informe).reduce((a, x) => ({ n: a.n + x.total, ok: a.ok + x.aciertos }), { n: 0, ok: 0 });
-  console.log(`TOTAL: ${tot.ok}/${tot.n} (${(100 * tot.ok / tot.n).toFixed(1)} %)`);
+  const tot = Object.values(informe).reduce((a, x) => ({ n: a.n + x.total, ok: a.ok + x.aciertos, der: a.der + x.derivadas }), { n: 0, ok: 0, der: 0 });
+  console.log(`TOTAL: ${tot.ok}/${tot.n} (${(100 * tot.ok / tot.n).toFixed(1)} %) · ${tot.der} derivadas al RAG`);
   if (salida) writeFileSync(salida, JSON.stringify(informe, null, 1));
 }

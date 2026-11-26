@@ -6074,12 +6074,13 @@ export function guardaInicial(consulta) {
 async function _resolve(consulta) {
   const query = sinExclusionG00(consulta);
   const trace = { handler: null };   // por llamada, no global: no puede quedar obsoleto
+  // Plan canónico 1.7 (26-nov-2026, Codex Astra): la crisis y los temas sensibles se contestan antes de esperar datos,
+  // así que la respuesta fija no depende de la red (antes un fallo de fetch la convertía en excepción).
+  const guarda = guardaInicial(query);
+  if (guarda) return guarda;
   const d = await loadKnowledge();
   await cargaVistasDeConsulta(query);
   const s = d.stats || {};
-  // Un seguimiento que nombra otro subtipo de diabetes se resuelve antes de heredar el contexto.
-  const guarda = guardaInicial(query);
-  if (guarda) return guarda;
   // Consulta mixta con un id sensible y sin riesgo: no se combinan cifras.
   const mixta = respuestaMixtaSensible(norm(query));
   if (mixta) {
