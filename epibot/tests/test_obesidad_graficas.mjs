@@ -158,10 +158,10 @@ test('las sugerencias tras una consulta de Obesidad son de Obesidad', () => {
   }
 });
 
-test('las etiquetas conservan la semana en mayúscula', async () => {
+test('las etiquetas dicen la semana del origen en palabras, sin la etiqueta ISO (plan canónico 2.3)', async () => {
   const { chart } = await responde('obesidad por sexo');
-  for (const ds of chart.datasets) assert.doesNotMatch(ds.label, /-w\d/, ds.label);
-  assert.ok(chart.datasets.some((ds) => ds.label.includes(`origen ${VISTA.origin[0]}-W${VISTA.origin[1]}`)));
+  for (const ds of chart.datasets) assert.doesNotMatch(ds.label, /-w\d/i, ds.label);
+  assert.ok(chart.datasets.some((ds) => ds.label.includes(`datos hasta la semana ${VISTA.origin[1]} de ${VISTA.origin[0]}`)));
 });
 
 // ── Auditoría C7.7 (4-nov-2026) ─────────────────────────────────────────────────────────────

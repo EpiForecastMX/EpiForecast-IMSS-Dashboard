@@ -14,7 +14,7 @@ import { mencionaNoModelada } from './entities.js?v=88';
 import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
-} from './obesidad_charts.js?v=61';
+} from './obesidad_charts.js?v=62';
 import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=59';
 // Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
 import './avisos_fuente.js?v=5';
@@ -216,7 +216,8 @@ const desempeno = (x, v) => (x.oos.semanas
   : `${ent0(x.pronostico_52_total)} casos pronosticados en ${v.horizon_weeks} semanas`);
 
 /** Marcador para app.js: la gráfica sigue al texto aunque la consulta cruda no diga «obesidad». */
-const marca = (tipo, ent, estados, r) => `\n<!--${r.marca}:${JSON.stringify({ tipo, estado: ent.estado || null, sexo: ent.sexo || null, estados: estados || null })}-->`;
+// Plan canónico 2.2: `extra` lleva la ventana y los valores que el texto ya calculó, para que la gráfica diga lo mismo.
+const marca = (tipo, ent, estados, r, extra = {}) => `\n<!--${r.marca}:${JSON.stringify({ tipo, estado: ent.estado || null, sexo: ent.sexo || null, estados: estados || null, ...extra })}-->`;
 
 export function answerObesidad(q, ent, s, d) {
   // El release con alias lo nombra la consulta o lo trae el contexto (follow-up) o la corrección
@@ -279,6 +280,7 @@ export function answerReleasesMixtos(q, ent, s, d) {
   return [...veredicto, 'Cada padecimiento tiene su propio pronóstico, así que los doy por separado:', '', ...filas, '<!--SIN_GRAFICA-->'].join('\n');
 }
 
+const PREGUNTA_ERROR = /\b(error\w*|smape|atinad\w*|acert\w*|precision|precis[oa]|que tan bien|le fue|confiab\w*|desvi\w*|fallo|se equivoc\w*)\b/;
 function answerRelease(q, ent, s, d, r) {
   // Si la pregunta nombra además otro padecimiento, modelado o no, la responde su handler.
   if (ent.padecimiento && ent.padecimiento !== r.pad) return null;
@@ -312,7 +314,7 @@ function answerRelease(q, ent, s, d, r) {
   const est = Object.values(v.series).filter((x) => x.nivel === 'estado' && x.sexo === sexo && x.oos.smape != null);
   const nOos = est[0]?.oos.semanas ?? 0;
   const oosTxt = `${nOos === 1 ? '1 semana observada' : `${nOos} semanas observadas`} desde el origen, en la ${semana(v.origin)}`;
-  const fin = (lineas, estados) => avisoSexo + lineas.join('\n') + pie + marca(tipo, ent, estados, r);
+  const fin = (lineas, estados, extra) => avisoSexo + lineas.join('\n') + pie + marca(tipo, ent, estados, r, extra);
   const conOos = est.length > 0;
   const pideError = any(q, ['error', 'smape', 'precision', 'sesgo', 'desempeno']);
 
@@ -368,7 +370,7 @@ function answerRelease(q, ent, s, d, r) {
       return fin([veredicto, '', ...ordenR.map(filaR), '',
         `_Ordeno por cambio porcentual, no por número de casos${fuera ? `; quedan fuera ${fuera} ${fuera === 1 ? 'estado' : 'estados'} con menos de 10 casos de base, donde un porcentaje engaña` : ''}. Casos notificados, sin ajustar por población.${esControl(v) ? ' Es un control estacional: el cambio que se espera es el que hubo en estas semanas el año pasado.' : ''}_`,
         '<!--DETALLE-->', `Total nacional pronosticado en ${v.horizon_weeks} semanas: **${ent0(v.series[`nacional|mx|${sexo}`].pronostico_52_total)} casos**.`, '', etiqueta],
-      ordenR.map((y) => y.x.nombre));
+      ordenR.map((y) => y.x.nombre), { ventana: 'ritmo', baja, valores: ordenR.map((y) => [y.x.nombre, Math.round(y.c.delta * 100)]) });
     }
     const pideAumento = /\b(incremento|aumento|subiendo|suben|crece|crecen)\b/.test(q);
     const pideAcum = /\b(acumulad\w*|en lo que va|este ano|en el ano)\b/.test(q);
@@ -383,7 +385,12 @@ function answerRelease(q, ent, s, d, r) {
     return fin([`**${r.etiqueta}: ${titulo}, ${sexoTxt}**`, '', ...orden.map(fila), '',
       '_Casos notificados, sin ajustar por población: un estado más poblado tiene más casos aunque su riesgo no sea mayor._',
       '<!--DETALLE-->', `Total nacional pronosticado en ${v.horizon_weeks} semanas: **${ent0(nac.pronostico_52_total)} casos**.`, '', etiqueta, `_${v.uncertainty_label}._`],
-    orden.map((y) => y.x.nombre));
+    orden.map((y) => y.x.nombre), (() => {
+      const valor = pideAumento ? (y) => Math.round(y.ind.F4 - y.ind.O4) : pideAcum ? (y) => Math.round(y.ind.ytd) : (y) => Math.round(y.ind.F4);
+      const todosOrd = [...todos].sort((a, b) => valor(b) - valor(a));
+      return { ventana: pideAumento ? 'aumento' : pideAcum ? 'ytd' : 'f4', anio: orden[0]?.ind.anio, destacados: orden.length,
+        valores: todosOrd.map((y) => [y.x.nombre, valor(y)]) };
+    })());
   }
 
   if (tipo === 'calibracion' || tipo === 'volumen_error') {
@@ -503,7 +510,9 @@ function answerRelease(q, ent, s, d, r) {
           '**800 911 2000**; si alguien está en peligro inmediato, llama al **911**.');
       }
       return avisoSexo + [...arriba, ...cuerpo].join('\n') + pie + '\n\n<!--DETALLE-->\n' + tecnico.join('\n') +
-        marca(tipo === 'confianza' ? 'serie' : tipo, ent, null, r) + siguientes(r, x, sinSexo);
+        // Plan canónico 2.2: una pregunta por el error o la confiabilidad lleva el zoom de seguimiento (observado frente al
+        // pronóstico desde el origen), no la serie larga desde 2023.
+        marca(PREGUNTA_ERROR.test(q) && x.oos?.semanas ? 'seguimiento' : (tipo === 'confianza' ? 'serie' : tipo), ent, null, r) + siguientes(r, x, sinSexo);
     }
   }
 

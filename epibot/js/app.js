@@ -7,7 +7,7 @@ import { graficoRondas } from './comparacion_rondas.js?v=4';
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2, contextoActual, reiniciaContexto, cargaZoom } from './kb.js?v=219';
+import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2, contextoActual, reiniciaContexto, cargaZoom } from './kb.js?v=220';
 import { detectEntities, norm } from './entities.js?v=88';
 import { pareceVariosPedidos, respuestaDePlan } from './agente.js?v=1';
 import { fechaEpiLegacy, REZAGO_LEGACY } from './calculo/series.js?v=4';
@@ -17,7 +17,7 @@ import { renderTimelapse } from './timelapse.js?v=6';
 import { renderSemaforo } from './semaforo.js?v=3';
 import { renderComparador } from './comparador.js?v=4';
 import { buildComparadorState } from './comparador_data.js?v=1';
-import { graficaObesidad } from './obesidad_charts.js?v=61';
+import { graficaObesidad } from './obesidad_charts.js?v=62';
 import { UNCERTAINTY_LABEL } from './point_only.js?v=1';
 import { MARCADOR_RELEASE, RELEASES, releaseConAlias, releaseDeMarca, releaseDePad, releasesEnConsulta } from './release_config.js?v=59';
 import { initSTT, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking, toggleMute, isTTSEnabled, onSpeakingStateChange, desbloqueaVoz } from './voice.js?v=6';
@@ -1307,7 +1307,7 @@ function addBotMessage(markdown, source, suggestions, chartData, sources) {
 
   // Normalizar acentos antes de comentarios y render
   const polished = polishSpanish(markdown);
-  const conDetalle = polished.replace(new RegExp(MARCADOR_RELEASE.source, 'g'), '').replace(/<!--SIN_GRAFICA-->/g, '').replace(/<!--COMPARE:.*?-->/g, '').replace(/<!--DISTRIB:.*?-->/g, '').replace(/<!--ALZA:.*?-->/g, '').replace(/<!--GENCHART:.*?-->/g, '').replace(/\n?<!--SIGUE:.*?-->/g, '');
+  const conDetalle = polished.replace(new RegExp(MARCADOR_RELEASE.source, 'g'), '').replace(/<!--SIN_GRAFICA-->/g, '').replace(/<!--COMPARE:.*?-->/g, '').replace(/<!--DISTRIB:.*?-->/g, '').replace(/<!--ALZA:.*?-->/g, '').replace(/<!--ESTADOS:.*?-->/g, '').replace(/<!--GENCHART:.*?-->/g, '').replace(/\n?<!--SIGUE:.*?-->/g, '');
   // Rediseño conversacional (24-nov-2026): lo que sigue a <!--DETALLE--> es la ficha técnica; se pliega en «Cómo se
   // calculó» y la voz no la lee. Cada mitad pasa por el saneador por separado; el envoltorio es fijo.
   const [cleanMarkdown, detalleMd = ''] = conDetalle.split('<!--DETALLE-->');
@@ -3029,6 +3029,47 @@ function buildDengueAnual(data) {
  * premiaban las series pequeñas y los controles (+221 % sobre 53 casos era la barra más larga). Alzas en ocre, bajas en verde
  * y controles en gris («Control, no validado»). «Más casos» sigue en barras de casos esperados.
  */
+/**
+ * Plan canónico 2.2 (26-nov-2026): la gráfica de un ranking o comparación de estados de los originales dibuja las mismas filas,
+ * en el mismo orden y con la misma ventana que el texto. Modos: «ritmo» (cambio porcentual), «f4» (casos de las próximas 4
+ * semanas, con los que nombra el texto en color y el resto en gris) y «comparacion» (últimas 4 frente a próximas 4).
+ */
+export function graficaEstadosTexto(m) {
+  const filas = Array.isArray(m?.filas) ? m.filas : [];
+  if (!filas.length) return null;
+  const labels = filas.map(([n]) => n);
+  const ejeY = { ticks: { autoSkip: false } };
+  if (m.modo === 'comparacion') {
+    return {
+      type: 'bar', title: m.titulo, labels,
+      datasets: [
+        { label: 'Últimas 4 semanas (observado)', data: filas.map((f) => f[1]), backgroundColor: '#8a9690', borderWidth: 0, borderRadius: 4 },
+        { label: 'Próximas 4 semanas (pronóstico)', data: filas.map((f) => f[2]), backgroundColor: '#17644d', borderWidth: 0, borderRadius: 4 },
+      ],
+      options: { plugins: { title: { display: true, text: [m.titulo, 'Casos notificados, sin ajustar por población'] } },
+        scales: { y: { beginAtZero: true, title: { display: true, text: 'Casos' } } } },
+    };
+  }
+  if (m.modo === 'ritmo') {
+    const etq = 'Cambio esperado (%)';
+    return {
+      type: 'bar', horizontal: true, title: m.titulo, labels, altura: filas.length * 28 + 110,
+      datasets: [{ label: etq, data: filas.map(([, p]) => p), backgroundColor: m.baja ? '#17644d' : '#b4541e', borderWidth: 0, borderRadius: 4 }],
+      options: { plugins: { title: { display: true, text: [m.titulo, 'Próximas 4 semanas frente a las 4 anteriores; sólo estados con al menos 10 casos de base'] } },
+        scales: { y: ejeY, x: { title: { display: true, text: etq } } } },
+    };
+  }
+  const n = m.destacados || 5;
+  const top = filas.slice(0, Math.max(10, n));
+  const etq = 'Casos esperados en las próximas 4 semanas';
+  return {
+    type: 'bar', horizontal: true, title: m.titulo, labels: top.map(([x]) => x), altura: top.length * 26 + 110,
+    datasets: [{ label: etq, data: top.map(([, y]) => y), backgroundColor: top.map((_, i) => (i < n ? '#17644d' : '#c9d1cd')), borderWidth: 0, borderRadius: 4 }],
+    options: { plugins: { title: { display: true, text: [m.titulo, `Los ${top.length} con más casos; en color, los ${n} que nombra el texto. Casos notificados, sin ajustar por población`] } },
+      scales: { y: ejeY, x: { title: { display: true, text: etq } } } },
+  };
+}
+
 export function graficaAlza(g) {
   const filas = (g?.filas || []).filter((x) => x && x.n);
   if (!filas.length) return null;
@@ -3150,6 +3191,12 @@ function extractChartData(markdown, query) {
   const alza = markdown.match(/<!--ALZA:(.*?)-->/);
   if (alza) {
     try { return graficaAlza(JSON.parse(alza[1])); } catch (e) { console.warn('Gráfica de alzas no disponible', e); }
+  }
+
+  // Plan canónico 2.2: rankings y comparaciones de estados de los originales, con las filas del texto.
+  const estadosM = markdown.match(/<!--ESTADOS:(.*?)-->/);
+  if (estadosM) {
+    try { return graficaEstadosTexto(JSON.parse(estadosM[1])); } catch (e) { console.warn('Gráfica de estados no disponible', e); return null; }
   }
 
   // Obesidad (E66) tampoco vive en prod_models/weekly_comparison: sus gráficas salen de su vista

@@ -17,6 +17,7 @@
  */
 import { RELEASES, releaseDeId } from './release_config.js?v=59';
 import { semanaSiguiente } from './calendario_boletin.js?v=2';
+import { semanaTxt } from './resumen_llano.js?v=8';
 
 const strip = (s) => String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 const has = (q, ks) => ks.some((k) => q.includes(k));
@@ -162,7 +163,10 @@ export function estadosEnConsulta(v, qn) {
 const et = (v) => (releaseDeId(v.disease_id) || RELEASES[0]).etiqueta;
 const colorDe = (v) => legible(releaseDeId(v.disease_id)?.color || v.color || PALETA[0]);
 const lugarDe = (x) => (x.nivel === 'nacional' ? 'Nacional' : x.nombre);
-const semana = ([a, w]) => `${a}-W${String(w).padStart(2, '0')}`;
+const semana = ([a, w]) => `semana ${w} de ${a}`;
+/** Plan canónico 2.3: «semanas 42 a 43 de 2026», «semana 44 de 2026» o «semana 53 de 2025 a semana 1 de 2026», sin la etiqueta ISO. */
+const rangoSemanas = ([a1, w1], [a2, w2]) => (a1 === a2 && w1 === w2 ? semana([a1, w1])
+  : a1 === a2 ? `semanas ${w1} a ${w2} de ${a1}` : `${semana([a1, w1])} a ${semana([a2, w2])}`);
 
 // Título en tinta oscura (antes un gris casi blanco del tema oscuro, invisible sobre el fondo claro del EpiBot).
 function titulo(lineas) {
@@ -170,7 +174,7 @@ function titulo(lineas) {
 }
 const EJE_Y_SEMANAL = { y: { title: { display: true, text: 'Casos notificados por semana' } } };
 // Leyenda corta (en celular la larga se cortaba); la explicación completa va en la tercera línea del título.
-const leyendaPron = (v) => (esControlV(v) ? 'Control, no validado' : `Pronóstico (origen ${semana(v.origin)})`);
+const leyendaPron = (v) => (esControlV(v) ? 'Control, no validado' : `Pronóstico (datos hasta la ${semana(v.origin)})`);
 const notaPron = (v) => (esControlV(v) ? 'Control estacional (repite el año anterior), no validado · sin intervalos' : 'Pronóstico puntual, sin intervalos');
 
 function lineaObsPron(v, x, desde, hasta, color) {
@@ -213,6 +217,41 @@ function barrasEstados(v, filas, valor, etiqueta, encabezado, nota) {
   };
 }
 
+/**
+ * Plan canónico 2.2 (26-nov-2026): la gráfica de estados con la misma ventana, el mismo orden y los mismos valores que el
+ * texto (que los deja en el marcador). Antes el texto daba las próximas 4 semanas y la gráfica el total de 52, en otro orden.
+ * En el ranking por volumen se destacan los estados que nombra el texto y el resto va en gris; en el ritmo, sólo los que el
+ * texto compara, con el cambio porcentual.
+ */
+function barrasDelTexto(v, sexo, m) {
+  const nombre = (n) => (n === 'México' ? 'Estado de México' : n);
+  const filas = m.valores;
+  const ctrl = esControlV(v) ? ' (control estacional, no validado)' : '';
+  if (m.ventana === 'ritmo') {
+    const enc = `dónde ${m.baja ? 'baja' : 'sube'} más rápido, ${SEXO_NOMBRE[sexo]}${ctrl}`;
+    return {
+      type: 'bar', horizontal: true, title: `${et(v)}: ${enc}`,
+      labels: filas.map(([n]) => nombre(n)),
+      datasets: [{ label: 'Cambio esperado (%)', data: filas.map(([, p]) => p), backgroundColor: esControlV(v) ? '#6b6f73' : (m.baja ? '#17644d' : '#b4541e'), borderWidth: 0, borderRadius: 4 }],
+      altura: filas.length * 28 + 110,
+      options: { plugins: titulo([`${et(v)}: ${enc}`, 'Próximas 4 semanas frente a las 4 anteriores; sólo estados con al menos 10 casos de base']),
+        scales: { y: { ticks: { autoSkip: false } }, x: { title: { display: true, text: 'Cambio esperado (%)' } } } },
+    };
+  }
+  const n = m.destacados || 5;
+  const top = filas.slice(0, Math.max(10, n));
+  const etiqueta = { f4: 'Casos esperados en las próximas 4 semanas', aumento: 'Aumento esperado (casos, próximas 4 semanas frente a las 4 anteriores)', ytd: `Casos en lo que va de ${m.anio || 'el año'}` }[m.ventana] || 'Casos';
+  const enc = `${{ f4: 'estados con más casos esperados', aumento: 'estados donde más se espera que aumente', ytd: 'estados con más casos en lo que va del año' }[m.ventana] || 'estados'}, ${SEXO_NOMBRE[sexo]}${ctrl}`;
+  return {
+    type: 'bar', horizontal: true, title: `${et(v)}: ${enc}`,
+    labels: top.map(([x]) => nombre(x)),
+    datasets: [{ label: etiqueta, data: top.map(([, y]) => y), backgroundColor: top.map((_, i) => (i < n ? (esControlV(v) ? '#6b6f73' : colorDe(v)) : '#c9d1cd')), borderWidth: 0, borderRadius: 4 }],
+    altura: top.length * 26 + 110,
+    options: { plugins: titulo([`${et(v)}: ${enc}`, `Los ${top.length} con más casos; en color, los ${n} que nombra el texto. Casos notificados, sin ajustar por población`]),
+      scales: { y: { ticks: { autoSkip: false } }, x: { title: { display: true, text: etiqueta } } } },
+  };
+}
+
 // --- constructor ------------------------------------------------------------
 
 /**
@@ -225,7 +264,7 @@ export function graficaObesidad(v, qn, ent = {}, opciones = {}) {
   const sexo = ent.sexo || 'general';
   const x = serieObesidad(v, ent);
   // Primera semana fuera de muestra = la siguiente al origen en el calendario MMWR (52 o 53 semanas).
-  const oos = `fuera de muestra, ${semana(semanaSiguiente(v.origin[0], v.origin[1], 1))}–${semana(v.observation_cutoff)}`;
+  const oos = `fuera de muestra, ${rangoSemanas(semanaSiguiente(v.origin[0], v.origin[1], 1), v.observation_cutoff)}`;
   if (!x) return null;
 
   if (tipo in NO_DISPONIBLE) return null;
@@ -237,12 +276,21 @@ export function graficaObesidad(v, qn, ent = {}, opciones = {}) {
     const desde = new Date(Date.parse(ini) - 13 * 7 * 864e5).toISOString().slice(0, 10);
     const hasta = (x.pronostico.find(([d]) => d > v.observation_cutoff_ds) || x.pronostico.at(-1))[0];
     const fin = x.pronostico[Math.min(x.pronostico.findIndex(([d]) => d === hasta) + 7, x.pronostico.length - 1)][0];
-    return lineal(v, x, desde, fin, `zoom semanal: observado frente al pronóstico desde ${x.pronostico[0][0]}`);
+    return lineal(v, x, desde, fin, `zoom semanal: observado frente al pronóstico desde la ${semanaTxt(x.pronostico[0][0])}`);
   }
   if (tipo === 'mapa') {
     const error = has(strip(qn), ['error', 'smape', 'precision', 'sesgo', 'desempeno']);
     if (error && !estados(v, sexo).some((e) => e.oos.smape != null)) return null;
     const stateData = {};
+    // Plan canónico 2.2: si el texto dio un ranking (próximas 4 semanas, aumento o acumulado), el mapa pinta esos mismos valores.
+    const VENTANA_MAPA = { f4: ['casos en las próximas 4 semanas', 'casos esperados en las próximas 4 semanas'], aumento: ['casos más que en las 4 anteriores', 'aumento esperado en las próximas 4 semanas'], ytd: [`casos en lo que va de ${opciones.anio || 'el año'}`, `casos en lo que va de ${opciones.anio || 'el año'}`] };
+    if (!error && Array.isArray(opciones.valores) && VENTANA_MAPA[opciones.ventana]) {
+      const [lbl, enc] = VENTANA_MAPA[opciones.ventana];
+      for (const [n, val] of opciones.valores) {
+        stateData[n.normalize('NFD').replace(/[\u0300-\u036f]/g, '')] = { value: val, label: `${Math.round(val).toLocaleString('es-MX')} ${lbl}` };
+      }
+      return { _mapChart: true, stateData, opts: { title: `${et(v)}, ${SEXO_NOMBRE[sexo]}: ${enc}${esControlV(v) ? ' (control estacional, no validado)' : ''} (sin ajustar por población)`, metric: 'casos' } };
+    }
     for (const e of estados(v, sexo)) {
       const val = error ? e.oos.smape : e.pronostico_52_total;
       if (val == null) continue;
@@ -257,6 +305,7 @@ export function graficaObesidad(v, qn, ent = {}, opciones = {}) {
         : `${et(v)}, ${SEXO_NOMBRE[sexo]}: casos ${esControlV(v) ? 'del control estacional' : 'pronosticados'} en ${v.horizon_weeks} semanas (sin ajustar por población)`,
       metric: error ? 'sMAPE %' : 'casos' } };
   }
+  if (tipo === 'entidades' && Array.isArray(opciones.valores) && opciones.valores.length) return barrasDelTexto(v, sexo, opciones);
   if (tipo === 'entidades') {
     const filas = estados(v, sexo).sort((a, b) => b.pronostico_52_total - a.pronostico_52_total);
     return barrasEstados(v, filas, (e) => Math.round(e.pronostico_52_total), `Casos en ${v.horizon_weeks} semanas`, `casos ${esControlV(v) ? 'del control estacional' : 'pronosticados'} por estado, ${SEXO_NOMBRE[sexo]}`, 'Casos notificados, sin ajustar por población');

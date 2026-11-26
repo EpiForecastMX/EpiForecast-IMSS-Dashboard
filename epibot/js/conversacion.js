@@ -258,7 +258,9 @@ export function answerLegacyComparacion(q, ent, s, d, { indicadores, lineaRitmo,
     ...(ritmo ? [ritmo, ''] : []),
     `**Más casos esperados:** ${orden[0].nombre} (unos ${ent0(orden[0].ind.F4)} en las próximas 4 semanas, frente a ${ent0(orden[1].ind.F4)} en ${orden[1].nombre}).`, '',
     ...filas.map((f) => `- **${f.nombre}**: ${ent0(f.ind.O4)} casos en las últimas 4 semanas; se esperan unos ${ent0(f.ind.F4)} en las próximas 4 (${TEND[f.ind.tendencia] || 'estable'}).`),
-    '', '_Casos notificados, sin ajustar por población._', '<!--SIN_GRAFICA-->'].join('\n');
+    '', '_Casos notificados, sin ajustar por población._',
+    // Plan canónico 2.2: la gráfica compara los mismos estados, últimas 4 semanas frente a las próximas 4.
+    `<!--ESTADOS:${JSON.stringify({ modo: 'comparacion', titulo: `${LEGACY_NOMBRE[pad]}: comparación de estados, ${sexo === 'general' ? 'ambos sexos' : sexo}`, filas: filas.map((f) => [f.nombre, Math.round(f.ind.O4), Math.round(f.ind.F4)]) })}-->`].join('\n');
 }
 
 export function answerLegacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadLegacy }) {
