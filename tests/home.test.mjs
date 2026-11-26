@@ -181,7 +181,7 @@ test('enlaces relativos de la portada: todos llevan a un archivo existente', () 
   const rotos = [];
   for (const m of HOME.matchAll(/(?:href|src)="([^"]+)"/g)) {
     const u = m[1];
-    if (/^(https?:|mailto:|#)/.test(u)) continue;
+    if (/^(https?:|mailto:|tel:|#)/.test(u)) continue;
     const file = decodeURIComponent(u.split('#')[0].split('?')[0]).replace(/^\//, '');
     if (!existsSync(resolve(root, file))) rotos.push(u);
   }

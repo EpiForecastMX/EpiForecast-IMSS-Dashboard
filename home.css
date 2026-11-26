@@ -77,6 +77,31 @@
 .radar-row__text { color: var(--body); }
 .radar-row__go { font-size: 20px; color: var(--gold-ink); }
 .radar-row:hover b { text-decoration: underline; }
+/* Señales del boletín en la portada (decisión del autor, 25-nov-2026; scripts/home_senales.mjs). */
+.home-senales { margin-top: 14px; padding-top: 18px; border-top: 1px solid rgb(125 95 23 / 25%); }
+.home-senales__titulo { margin: 0 0 6px; font-size: clamp(20px, 3vw, 24px); color: var(--ink); }
+.home-senales__nota { margin: 0 0 16px; max-width: 80ch; font-size: 15px; color: var(--body); }
+.home-senales__nota a { color: var(--gold-ink); }
+.home-senales__cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 32px; }
+.home-senales__col h3 { margin: 0 0 8px; font-size: 14px; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; color: var(--gold-ink); }
+.home-senales ol { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.home-senales li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 10px 12px; background: var(--white); border: 1px solid var(--line); border-radius: var(--radius-sm); }
+.home-senales__nombre { font-weight: 650; color: var(--ink); }
+.home-senales__cambio { font-weight: 750; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.home-senales__cambio--sube { color: var(--danger); }
+.home-senales__cambio--baja { color: var(--green-dark); }
+.home-senales__cifras { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.home-senales__estado { justify-self: end; align-self: center; padding: 2px 8px; border-radius: 999px; font-size: 13px; font-weight: 650; white-space: nowrap; }
+.home-senales__estado--pronostico { background: var(--mint); color: var(--green-dark); }
+.home-senales__estado--control { background: var(--gold-soft); color: var(--gold-ink); border: 1px solid rgb(125 95 23 / 30%); }
+.home-senales__estado--sin-modelo { background: #eef1f3; color: #44525c; }
+.home-senales__ayuda { margin: 14px 0 0; font-size: 15px; color: var(--body); }
+.home-hero__mezcla { margin: 12px 0 0; font-size: 15px; color: var(--body); max-width: 52ch; }
+@media (max-width: 760px) {
+  .home-senales__cols { grid-template-columns: 1fr; }
+  .home-senales li { grid-template-columns: 1fr; }
+  .home-senales__estado { justify-self: start; }
+}
 
 /* ── Noticias (bloque #newsBannerRow: contrato con build_news_weekly.py) ───── */
 .home-news { padding: 48px 0; border-bottom: 1px solid var(--line); background: var(--white); }
