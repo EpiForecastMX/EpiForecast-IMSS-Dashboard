@@ -27,7 +27,7 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { numero } from '../assets/boletin/celdas.mjs';
 import { GRUPOS_NO_MODELABLES, grupoNoModelable } from '../assets/boletin/no_modelables.mjs';
-import { ROTULO_EXPLORATORIO, ADVERTENCIA_EXPLORATORIO, ROTULO_NIVEL_RECIENTE, ADVERTENCIA_NIVEL_RECIENTE, ROTULO_NOTAS, ADVERTENCIA_NOTAS } from '../assets/boletin/pronostico.mjs';
+import { ROTULO_EXPLORATORIO, ADVERTENCIA_EXPLORATORIO, ROTULO_NIVEL_RECIENTE, ADVERTENCIA_NIVEL_RECIENTE, ROTULO_NOTAS, ADVERTENCIA_NOTAS, ROTULO_SOLO_OBSERVADO, METODO_SOLO_OBSERVADO, SOLO_OBSERVADO, MOTIVO_SOLO_OBSERVADO, esSoloObservado } from '../assets/boletin/pronostico.mjs';
 import { ARCHIVO as ARCHIVO_NOTAS, SERIES as SERIES_NOTAS } from './radar_notas_acumulados.mjs';
 
 export const ARCHIVO = 'pronostico_exploratorio.json';
@@ -72,6 +72,9 @@ export function pronosticarSerie(e, puntos) {
   const base = {
     id: e.id, nombre: e.name, codigo: e.code, estado_radar: e.status, motivo_sin_modelo: motivoSinModelo(e),
   };
+  if (esSoloObservado(e)) {
+    return { ...base, metodo: METODO_SOLO_OBSERVADO, rotulo: ROTULO_SOLO_OBSERVADO, pronostico: null, sin_pronostico: MOTIVO_SOLO_OBSERVADO };
+  }
   if (!puntos.length) {
     return { ...base, pronostico: null, sin_pronostico: 'La serie nacional semanal impresa no tiene periodos en el archivo histórico.' };
   }
@@ -194,13 +197,14 @@ export function construir(data, indice, leerSerie, notasDoc = null) {
     const ref = indice.series?.[e.id];
     const puntos = ref ? leerSerie(ref.path).points : [];
     // Cuadro sin cifra semanal publicada pero acumulado nacional en las notas: se usa esa vía (no el cuadro).
-    const viaNotas = porCategoria[e.id] && puntos.length ? nivelNotas(e, puntos, porCategoria[e.id]) : null;
+    const viaNotas = porCategoria[e.id] && puntos.length && !esSoloObservado(e) ? nivelNotas(e, puntos, porCategoria[e.id]) : null;
     categorias[e.id] = viaNotas ?? pronosticarSerie(e, puntos);
   }
   const vals = Object.values(categorias);
   const con = vals.filter((c) => c.pronostico).length;
   const nivel = vals.filter((c) => c.metodo === METODO_NIVEL).length;
   const notas = vals.filter((c) => c.metodo === METODO_NOTAS).length;
+  const solo = vals.filter((c) => c.metodo === METODO_SOLO_OBSERVADO).length;
   return {
     schema: 'radar_pronostico_exploratorio.v3',
     rotulo: ROTULO_EXPLORATORIO,
@@ -211,6 +215,12 @@ export function construir(data, indice, leerSerie, notasDoc = null) {
       advertencia: ADVERTENCIA_NOTAS,
       descripcion: `Cuando el cuadro estatal no publica la cifra pero las notas del boletín imprimen un acumulado nacional (${ARCHIVO_NOTAS}): casos semanales por diferencia de acumulados en el tramo consistente más reciente (boletines consecutivos del mismo año, sin que el acumulado baje) y pronóstico plano igual a la media de las últimas ${MAX_SEMANAS_NIVEL} semanas derivadas. Dentro de un solo año no hay la misma semana de años anteriores, así que no se puede aplicar la referencia estacional.`,
       categorias: Object.fromEntries(Object.entries(SERIES_NOTAS).map(([k, s]) => [s.categoria, k])),
+    },
+    solo_observado: {
+      nombre: METODO_SOLO_OBSERVADO,
+      rotulo: ROTULO_SOLO_OBSERVADO,
+      descripcion: MOTIVO_SOLO_OBSERVADO,
+      categorias: SOLO_OBSERVADO.map((re) => re.source),
     },
     respaldo: {
       nombre: METODO_NIVEL,
@@ -234,7 +244,7 @@ export function construir(data, indice, leerSerie, notasDoc = null) {
       historia_comprobada: indice.checked ?? null,
       historia_fuentes: indice.source_count ?? null,
     },
-    conteo: { categorias: cats.length, con_pronostico: con, estacional: con - nivel - notas, nivel_reciente: nivel, notas, sin_pronostico: cats.length - con },
+    conteo: { categorias: cats.length, con_pronostico: con, estacional: con - nivel - notas, nivel_reciente: nivel, notas, solo_observado: solo, sin_pronostico: cats.length - con },
     categorias,
   };
 }

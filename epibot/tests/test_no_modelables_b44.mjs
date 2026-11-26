@@ -107,7 +107,8 @@ test('resumen del radar: cuántas no son modelables y dónde está su motivo', a
   const r = await conversa('radar del boletín');
   assert.equal(r.handler, 'answerRadarResumen');
   assert.match(r.md, /De las 33 sin modelo validado, \*\*32\*\* no son modelables con el método actual/);
-  assert.match(r.md, /Categorías con pronóstico: \*\*187 de 187\*\*: 154 con pronóstico publicado y 33 con pronóstico exploratorio, no validado/);
+  // Plan canónico 3.3 (26-nov-2026): influenza, COVID-19 y febril exantemática muestran sólo los casos impresos, sin modelo.
+  assert.match(r.md, /Categorías con pronóstico: \*\*184 de 187\*\*: 154 con pronóstico publicado y 30 con pronóstico exploratorio, no validado, que no es un pronóstico de EpiForecast-MX; 3 muestran sólo los casos impresos en el boletín, sin modelo\./);
 });
 
 // Nombres de categorías que rozan el léxico de daño: con cualquier señal de riesgo gana la crisis (texto fijo, sin cifras).

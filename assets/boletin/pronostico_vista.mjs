@@ -3,7 +3,7 @@
 // la Figura 1 de la portada (hero_series.json). Sin release: el pronóstico exploratorio, no validado, de la foto
 // vigente (pronostico_exploratorio.json), con su rótulo, su motivo y su advertencia. No calcula cifras: las lee.
 import { numero } from './celdas.mjs?v=1';
-import { fuentePronostico, desdeVista, desdeLegacy, desdeLegacyZoom, desdeExploratorio, LEGACY_ZOOM } from './pronostico.mjs?v=12';
+import { fuentePronostico, desdeVista, desdeLegacy, desdeLegacyZoom, desdeExploratorio, LEGACY_ZOOM, ROTULO_SOLO_OBSERVADO } from './pronostico.mjs?v=13';
 import { parseAmbito, parseSexo, claveVista, nombreAmbito, ENTIDADES } from './ambitos.mjs?v=1';
 import { nombreVisible } from './nombres.mjs?v=1';
 
@@ -71,7 +71,8 @@ async function modelo(id) {
   const m = desdeExploratorio(EXPL, e.id, await observadoImpreso(e));
   m.nombre = nombreVisible(e.id, m.nombre ?? e.name);
   if (sel.ambito.tipo !== 'nacional' || sel.sexo !== 'general') {
-    m.aviso_ambito = 'El pronóstico exploratorio sólo existe para el total nacional: se muestra el nacional general.';
+    m.aviso_ambito = m.solo_observado ? 'Esta vista muestra la serie nacional impresa: por entidad o sexo, usa «Serie observada».'
+      : 'El pronóstico exploratorio sólo existe para el total nacional: se muestra el nacional general.';
   }
   return m;
 }
@@ -104,7 +105,11 @@ function grafica(m) {
   for (const [a, ds] of anios) svg += `<text x="${X(ds)}" y="${H - B + 24}" text-anchor="middle" class="curve-tick">${a}</text>`;
   if (pro.length) svg += `<line x1="${X(pro[0].ds)}" y1="${T}" x2="${X(pro[0].ds)}" y2="${T + ph}" class="forecast-origin"/>`;
   svg += `<text x="${W / 2}" y="${H - 8}" text-anchor="middle" class="curve-axis">Inicio de la semana epidemiológica</text><text transform="translate(16 ${T + ph / 2}) rotate(-90)" text-anchor="middle" class="curve-axis">Casos por semana</text>`;
-  if (obs.length) svg += `<path d="${ruta(obs)}" class="curve-line curve-year-2025"/>`;
+  // Plan canónico 3.3: sin modelo, la serie impresa va en gris y con su leyenda dentro de la gráfica.
+  if (obs.length) svg += `<path d="${ruta(obs)}" class="curve-line ${m.solo_observado ? 'curve-line--sin-modelo' : 'curve-year-2025'}"/>`;
+  if (m.solo_observado && obs.length) {
+    svg += `<text x="${W - R}" y="${T + 14}" text-anchor="end" class="forecast-watermark forecast-watermark--sin-modelo">${esc(ROTULO_SOLO_OBSERVADO)}</text>`;
+  }
   if (pro.length) svg += `<path d="${ruta(pro)}" class="${clase}"/>`;
   if (m.tipo === 'exploratorio' && pro.length) {
     // Rótulo completo dentro de la gráfica; si es largo, en dos renglones partidos tras «no validado:».
@@ -118,6 +123,9 @@ const minuscula = (t) => String(t ?? '').charAt(0).toLowerCase() + String(t ?? '
 const enlaceHtml = (m) => (m.enlace ? `<a href="/${esc(m.enlace.href)}">${esc(m.enlace.texto)}</a>.` : '');
 
 function rotuloHtml(m) {
+  if (m.tipo === 'exploratorio' && m.solo_observado) {
+    return `<p class="forecast-label forecast-label--sin" role="note"><b>${esc(ROTULO_SOLO_OBSERVADO)}.</b> ${esc(m.sin_pronostico)} Motivo por el que no tiene modelo: ${esc(m.motivo)} ${enlaceHtml(m)}</p>`;
+  }
   if (m.tipo === 'exploratorio' && m.sin_pronostico) {
     return `<p class="forecast-label forecast-label--sin" role="note"><b>Sin pronóstico exploratorio.</b> ${esc(m.sin_pronostico)} Se muestra sólo la serie observada. Motivo por el que no tiene modelo: ${esc(m.motivo)} ${enlaceHtml(m)}</p>`;
   }
@@ -138,16 +146,27 @@ function pintar(m) {
     return;
   }
   $('forecastLabel').innerHTML = (m.aviso_ambito ? `<p class="forecast-label forecast-label--ambito" role="note">${esc(m.aviso_ambito)}</p>` : '') + rotuloHtml(m);
-  $('forecastStats').innerHTML = [
-    ['Tipo', m.tipo === 'exploratorio' ? (m.sin_pronostico ? 'Sin pronóstico' : m.notas ? 'Exploratorio desde las notas, no validado' : m.nivel_reciente ? 'Exploratorio de nivel reciente, no validado' : 'Exploratorio, no validado') : 'Pronóstico publicado'],
+  // Plan canónico 3.3: sin modelo, las tarjetas describen la serie impresa, no un pronóstico vacío.
+  const obsVisibles = m.observado.slice(-OBSERVADO_SEMANAS);
+  $('forecastStats').innerHTML = (m.solo_observado ? [
+    ['Tipo', ROTULO_SOLO_OBSERVADO],
+    ['Última semana impresa', obsVisibles.length ? `Semana del ${fechaLegible(obsVisibles.at(-1).ds)}` : 'Sin dato'],
+    ['Semanas mostradas', String(obsVisibles.length)],
+    ['Casos en las semanas mostradas', fmt(obsVisibles.reduce((t, p) => t + p.y, 0))],
+  ] : [
+    ['Tipo', m.tipo === 'exploratorio' ? (m.solo_observado ? ROTULO_SOLO_OBSERVADO : m.sin_pronostico ? 'Sin pronóstico' : m.notas ? 'Exploratorio desde las notas, no validado' : m.nivel_reciente ? 'Exploratorio de nivel reciente, no validado' : 'Exploratorio, no validado') : 'Pronóstico publicado'],
     ['Origen', semanaLegible(m.origen) || 'Sin dato'],
     ['Semanas pronosticadas', String(pro.length)],
     ['Suma de las semanas mostradas', m.total == null ? 'Sin dato' : Number.isInteger(m.total) ? fmt(m.total) : `≈ ${Math.round(m.total).toLocaleString('es-MX')}`],
-  ].map(([l, v]) => `<div><span>${l}</span><strong${String(v).length > 16 ? ' class="stat-texto"' : ''}>${esc(v)}</strong></div>`).join('');
+  ]).map(([l, v]) => `<div><span>${l}</span><strong${String(v).length > 16 ? ' class="stat-texto"' : ''}>${esc(v)}</strong></div>`).join('');
   $('forecastChart').innerHTML = grafica(m);
-  $('forecastLegend').innerHTML = `<span class="curve-legend-2025">Observado</span>${pro.length ? `<span class="forecast-legend${m.tipo === 'exploratorio' ? ' forecast-legend--exploratorio' : ''}">${m.tipo === 'exploratorio' ? (m.notas ? 'Exploratorio desde las notas, no validado' : m.nivel_reciente ? 'Exploratorio de nivel reciente, no validado' : 'Exploratorio, no validado') : 'Pronóstico publicado'}</span>` : ''}`;
-  $('forecastCaption').textContent = `Ámbito: ${m.serie_nombre}. Fuente: ${fuenteLegible(m)}.${m.anios?.length ? ` Años base de la media: ${m.anios.join(', ')}.` : ''}${m.base ? ` Semanas base del nivel: ${m.base.periodo}.` : ''} Pronóstico puntual, sin intervalos en esta gráfica.${notaAmbito(m)} Se muestran hasta ${OBSERVADO_SEMANAS} semanas observadas.${totalPublicado(m)}`;
+  $('forecastLegend').innerHTML = m.solo_observado ? `<span class="curve-legend-sin-modelo">${esc(ROTULO_SOLO_OBSERVADO)}</span>` : `<span class="curve-legend-2025">Observado</span>${pro.length ? `<span class="forecast-legend${m.tipo === 'exploratorio' ? ' forecast-legend--exploratorio' : ''}">${m.tipo === 'exploratorio' ? (m.notas ? 'Exploratorio desde las notas, no validado' : m.nivel_reciente ? 'Exploratorio de nivel reciente, no validado' : 'Exploratorio, no validado') : 'Pronóstico publicado'}</span>` : ''}`;
+  $('forecastCaption').textContent = m.solo_observado ? `Ámbito: ${m.serie_nombre}. Fuente: cifras semanales impresas en el boletín, sin modelo ni pronóstico.${notaAmbito(m)} Se muestran hasta ${OBSERVADO_SEMANAS} semanas.` : `Ámbito: ${m.serie_nombre}. Fuente: ${fuenteLegible(m)}.${m.anios?.length ? ` Años base de la media: ${m.anios.join(', ')}.` : ''}${m.base ? ` Semanas base del nivel: ${m.base.periodo}.` : ''} Pronóstico puntual, sin intervalos en esta gráfica.${notaAmbito(m)} Se muestran hasta ${OBSERVADO_SEMANAS} semanas observadas.${totalPublicado(m)}`;
 }
+
+const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+/** «2026-10-25» → «25 de octubre de 2026» (sólo presentación). */
+const fechaLegible = (ds) => { const [y, mm, d] = String(ds).split('-').map(Number); return `${d} de ${MESES[mm - 1]} de ${y}`; };
 
 /** «2026-W41» → «Semana 41 de 2026» (sólo presentación). */
 const semanaLegible = (t) => String(t ?? '').replace(/^(\d{4})-W0?(\d{1,2})$/, (s, y, w) => `Semana ${w} de ${y}`);

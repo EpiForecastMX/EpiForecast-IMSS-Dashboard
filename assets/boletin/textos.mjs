@@ -1,7 +1,7 @@
 // Textos de la página del radar que dependen de la foto semanal vigente.
 // Única implementación: radar.js los aplica en el navegador y scripts/boletin_semana_activa.py
 // los escribe en el HTML estático (sin JavaScript y para buscadores) llamando a este módulo.
-import { summarizeCoverage, coberturaPanorama } from './coverage.mjs';
+import { summarizeCoverage, coberturaPanorama } from './coverage.mjs?v=17';
 import {
   CLAVES_PROYECCION_MIASIS,
   COLUMNAS_CONTEO_MIASIS,
@@ -64,17 +64,24 @@ const pctTxt = v => `${v.toLocaleString('es-MX')} %`;
 
 /** Desglose de la cuarta tarjeta del panorama (publicado, exploratorio no validado y sin pronóstico). */
 /** Tarjeta «Pronóstico publicado»: lo publicado primero; lo exploratorio, aparte y rotulado como no validado. */
+/** Plan canónico 3.3: las que muestran sólo los casos impresos se nombran así; el resto, «sin pronóstico». */
+function sinPronostico(p) {
+  const solo = Math.min(p.solo_observado ?? 0, p.sin_pronostico);
+  const resto = p.sin_pronostico - solo;
+  return [solo ? `${n(solo)} sólo con los casos impresos, sin modelo` : '', resto ? `${n(resto)} sin pronóstico` : ''].filter(Boolean);
+}
+
 export function detallePublicado(p) {
   const partes = [`De ${n(p.total)} categorías`];
   if (p.exploratorio) partes.push(`${n(p.exploratorio)} más con pronóstico exploratorio, no validado`);
-  if (p.sin_pronostico) partes.push(`${n(p.sin_pronostico)} sin pronóstico`);
+  partes.push(...sinPronostico(p));
   return partes.join('; ');
 }
 
 export function detalleTarjeta(p) {
   const partes = [`${n(p.publicado)} con pronóstico publicado`];
   if (p.exploratorio) partes.push(`${n(p.exploratorio)} con pronóstico exploratorio, no validado`);
-  if (p.sin_pronostico) partes.push(`${n(p.sin_pronostico)} sin pronóstico`);
+  partes.push(...sinPronostico(p));
   return `De ${n(p.total)}: ${partes.join('; ')}`;
 }
 
@@ -101,7 +108,7 @@ export function panoramaDesdeRespaldo(doc, data) {
 function coberturaConExploratorias(base, exploratorio) {
   const con = base.publicado + exploratorio;
   const pct = v => (base.total ? Math.round((v / base.total) * 1000) / 10 : 0);
-  return { ...base, exploratorio, con_pronostico: con, sin_pronostico: base.total - con,
+  return { ...base, exploratorio, con_pronostico: con, sin_pronostico: base.total - con, solo_observado: base.solo_observado,
     completo: base.total > 0 && con === base.total, pct_con_pronostico: pct(con) };
 }
 
@@ -134,7 +141,11 @@ function textosDesdeCobertura(data, p) {
     if (p.exploratorio === sinRelease.length) {
       restantes = ` ${sujeto}: ${sinRelease.length === 1 ? 'muestra' : 'muestran'} un pronóstico exploratorio, no validado, que no es un pronóstico de EpiForecast-MX.`;
     } else if (p.exploratorio) {
-      restantes = ` ${sujeto}: ${n(p.exploratorio)} ${p.exploratorio === 1 ? 'muestra' : 'muestran'} un pronóstico exploratorio, no validado, que no es un pronóstico de EpiForecast-MX, y ${n(p.sin_pronostico)} ${p.sin_pronostico === 1 ? 'sigue' : 'siguen'} sin pronóstico.`;
+      // Plan canónico 3.3: las que muestran sólo los casos impresos (influenza, COVID-19, febril exantemática) se nombran así.
+      const resto = p.solo_observado && p.solo_observado === p.sin_pronostico
+        ? `${n(p.sin_pronostico)} ${p.sin_pronostico === 1 ? 'muestra' : 'muestran'} sólo los casos impresos en el boletín, sin modelo`
+        : `${n(p.sin_pronostico)} ${p.sin_pronostico === 1 ? 'sigue' : 'siguen'} sin pronóstico`;
+      restantes = ` ${sujeto}: ${n(p.exploratorio)} ${p.exploratorio === 1 ? 'muestra' : 'muestran'} un pronóstico exploratorio, no validado, que no es un pronóstico de EpiForecast-MX, y ${resto}.`;
     } else {
       restantes = ` ${sujeto} ni pronóstico.`;
     }
@@ -153,7 +164,7 @@ function textosDesdeCobertura(data, p) {
     anillo_estilo: `--publicado:${p.pct_publicado}%;--con-pronostico:${p.pct_con_pronostico}%`,
     anillo_aria: `${n(p.con_pronostico)} de ${n(p.total)} categorías con pronóstico: ${n(p.publicado)} con pronóstico publicado (${pctTxt(p.pct_publicado)})` +
       (p.exploratorio ? ` y ${n(p.exploratorio)} con pronóstico exploratorio, no validado (${pctTxt(pctExpl)})` : '') +
-      (p.sin_pronostico ? `; ${n(p.sin_pronostico)} sin pronóstico` : '') + '.',
+      (p.sin_pronostico ? `; ${sinPronostico(p).join('; ')}` : '') + '.',
   };
 }
 

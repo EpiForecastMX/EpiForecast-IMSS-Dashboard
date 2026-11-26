@@ -9,7 +9,7 @@
 import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=88';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=4';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
-import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=14';
+import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=15';
 import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=82';
 import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion, answerConsejoMedico, DUDA_MEDICAMENTO, VIAJE_SEGURIDAD, NOTA_VIAJE } from './conversacion.js?v=26';
 import { respuestaLlana, confiabilidadLegacy, indicadores as indicadoresLlano, semanaTxt } from './resumen_llano.js?v=9';

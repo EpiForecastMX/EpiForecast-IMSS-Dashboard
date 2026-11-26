@@ -37,7 +37,7 @@ export function predictorDescription(disease) {
 
 // Opción «Pronóstico» del radar (alta_b44, 20-nov-2026): toda categoría no agregada la tiene, con pronóstico
 // publicado, con pronóstico exploratorio no validado o, si su historia semanal no alcanza, con la serie y el motivo.
-import { coberturaPronostico } from './pronostico.mjs?v=12';
+import { coberturaPronostico, esSoloObservado } from './pronostico.mjs?v=13';
 export { coberturaPronostico };
 
 const pct = (n, t) => `${(t ? Math.round((n / t) * 1000) / 10 : 0).toLocaleString('es-MX')} %`;
@@ -50,6 +50,7 @@ export function textoCoberturaPronostico(c) {
   ];
   if (c.nivel_reciente) partes.push(`${c.nivel_reciente.toLocaleString('es-MX')} con pronóstico exploratorio de nivel reciente sin estacionalidad, no validado (${pct(c.nivel_reciente, c.total)})`);
   if (c.notas) partes.push(`${c.notas.toLocaleString('es-MX')} con pronóstico exploratorio nacional derivado del acumulado publicado en las notas del boletín, no validado (${pct(c.notas, c.total)})`);
+  if (c.solo_observado) partes.push(`${c.solo_observado.toLocaleString('es-MX')} sólo con los casos impresos en el boletín, sin modelo (${pct(c.solo_observado, c.total)})`);
   if (c.sin_historia) partes.push(`${c.sin_historia.toLocaleString('es-MX')} sin ningún pronóstico porque nunca se imprimió una cifra semanal; ${c.sin_historia === 1 ? 'muestra' : 'muestran'} su serie y el motivo (${pct(c.sin_historia, c.total)})`);
   const lista = partes.length > 2 ? `${partes.slice(0, -1).join(', ')} y ${partes.at(-1)}` : partes.join(' y ');
   const faltan = c.sin_opcion ? ` Faltan ${c.sin_opcion} sin opción.` : '';
@@ -74,6 +75,8 @@ export function coberturaPanorama(diseases, doc) {
     controles: s.controls,
     exploratorio,
     sin_pronostico: c.total - c.con_pronostico,
+    // Sin el exploratorio cargado se cuentan por nombre (pronostico.mjs): el respaldo estático dice lo mismo que la página viva.
+    solo_observado: doc ? c.solo_observado : diseases.filter((e) => !e.aggregate && !(e.platform_id && ['Publicada', 'Control publicado'].includes(e.status)) && esSoloObservado(e)).length,
     completo: c.total > 0 && c.con_pronostico === c.total,
     pct_publicado: p(c.publicado),
     pct_con_pronostico: p(c.con_pronostico),

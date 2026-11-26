@@ -21,44 +21,53 @@ const cats = data.diseases.filter((e) => !e.aggregate);
 const publicadas = cats.filter((e) => e.platform_id && ['Publicada', 'Control publicado'].includes(e.status));
 const unesc = (s) => s.replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
 
-test('coberturaPanorama: 100 % con pronóstico, publicado y exploratorio por separado, desde los datos', async () => {
+// Plan canónico del EpiBot 3.3 (26-nov-2026): influenza, COVID-19 y febril exantemática muestran sólo los casos impresos, sin
+// modelo; el resto de las categorías sin release conserva su pronóstico exploratorio.
+const S = doc.conteo.solo_observado;
+test('coberturaPanorama: publicado, exploratorio y sólo observado por separado, desde los datos', async () => {
   const { coberturaPanorama } = await imp('assets/boletin/coverage.mjs');
   const p = coberturaPanorama(data.diseases, doc);
+  assert.equal(S, 3);
   assert.equal(p.total, cats.length);
   assert.equal(p.publicado, publicadas.length);
   assert.equal(p.publicados, new Set(publicadas.map((e) => e.platform_id)).size);
   assert.equal(p.exploratorio, doc.conteo.con_pronostico);
-  assert.equal(p.publicado + p.exploratorio, p.total);
-  assert.equal(p.con_pronostico, p.total);
-  assert.equal(p.sin_pronostico, 0);
-  assert.equal(p.completo, true);
-  assert.equal(p.pct_con_pronostico, 100);
+  assert.equal(p.publicado + p.exploratorio + S, p.total);
+  assert.equal(p.con_pronostico, p.total - S);
+  assert.equal(p.sin_pronostico, S);
+  assert.equal(p.solo_observado, S);
+  assert.equal(p.completo, false);
+  assert.equal(p.pct_con_pronostico, Math.round(((p.total - S) / p.total) * 1000) / 10);
   assert.equal(p.pct_publicado, Math.round((publicadas.length / cats.length) * 1000) / 10);
   // Sin el exploratorio sólo cuenta lo publicado: nunca se presenta como completo.
   const sin = coberturaPanorama(data.diseases, null);
   assert.equal(sin.con_pronostico, publicadas.length);
   assert.equal(sin.completo, false);
   assert.equal(sin.sin_pronostico, cats.length - publicadas.length);
+  assert.equal(sin.solo_observado, S, 'sin el exploratorio se cuentan por nombre');
 });
 
 test('textosPanorama: titular, tarjeta, párrafo y anillo sin decir «publicados» para todas', async () => {
   const { textosPanorama, numeroEnPalabras } = await imp('assets/boletin/textos.mjs');
   const t = textosPanorama(data, doc);
-  const P = publicadas.length, E = cats.length - P, N = new Set(publicadas.map((e) => e.platform_id)).size;
-  assert.equal(t.con_pronostico, String(cats.length));
-  assert.equal(t.con_pronostico_palabras, numeroEnPalabras(cats.length, { mayuscula: true }));
-  assert.equal(t.tarjeta_pronostico_detalle, `De ${cats.length}: ${P} con pronóstico publicado; ${E} con pronóstico exploratorio, no validado`);
+  const P = publicadas.length, E = cats.length - P - S, N = new Set(publicadas.map((e) => e.platform_id)).size;
+  assert.equal(t.con_pronostico, String(cats.length - S));
+  assert.equal(t.con_pronostico_palabras, numeroEnPalabras(cats.length - S, { mayuscula: true }));
+  assert.equal(t.tarjeta_pronostico_detalle, `De ${cats.length}: ${P} con pronóstico publicado; ${E} con pronóstico exploratorio, no validado; ${S} sólo con los casos impresos, sin modelo`);
   assert.ok(t.panorama_resumen.startsWith(`${N} padecimientos publicados cubren ${P} categorías del boletín.`), t.panorama_resumen);
-  assert.ok(t.panorama_resumen.includes(`Las ${E} restantes no tienen modelo validado`), t.panorama_resumen);
+  assert.ok(t.panorama_resumen.includes(`Las ${E + S} restantes no tienen modelo validado`), t.panorama_resumen);
   assert.ok(t.panorama_resumen.includes('pronóstico exploratorio, no validado, que no es un pronóstico de EpiForecast-MX'), t.panorama_resumen);
-  assert.doesNotMatch(t.panorama_resumen, /agenda por ampliar/);
-  assert.match(t.anillo_estilo, /^--publicado:[\d.]+%;--con-pronostico:100%$/);
-  assert.ok(t.anillo_aria.startsWith(`${cats.length} de ${cats.length} categorías con pronóstico: ${P} con pronóstico publicado`), t.anillo_aria);
+  assert.ok(t.panorama_resumen.includes(`y ${S} muestran sólo los casos impresos en el boletín, sin modelo.`), t.panorama_resumen);
+  assert.doesNotMatch(t.panorama_resumen, /agenda por ampliar|sin pronóstico/);
+  assert.match(t.anillo_estilo, /^--publicado:[\d.]+%;--con-pronostico:[\d.]+%$/);
+  assert.doesNotMatch(t.anillo_estilo, /--con-pronostico:100%/);
+  assert.ok(t.anillo_aria.startsWith(`${cats.length - S} de ${cats.length} categorías con pronóstico: ${P} con pronóstico publicado`), t.anillo_aria);
   assert.ok(t.anillo_aria.includes(`y ${E} con pronóstico exploratorio, no validado`), t.anillo_aria);
+  assert.ok(t.anillo_aria.endsWith(`; ${S} sólo con los casos impresos, sin modelo.`), t.anillo_aria);
   // Sin exploratorio: el titular baja a lo publicado y el párrafo no promete pronóstico a las restantes.
   const s = textosPanorama(data, null);
   assert.equal(s.con_pronostico, String(P));
-  assert.match(s.tarjeta_pronostico_detalle, new RegExp(`; ${E} sin pronóstico$`));
+  assert.match(s.tarjeta_pronostico_detalle, new RegExp(`; ${S} sólo con los casos impresos, sin modelo; ${E} sin pronóstico$`));
   assert.doesNotMatch(s.panorama_resumen, /exploratorio/);
   assert.match(s.anillo_estilo, /--con-pronostico:[\d.]+%$/);
   assert.doesNotMatch(s.anillo_estilo, /--con-pronostico:100%/);
@@ -166,14 +175,14 @@ test('radar.js: la cuarta tarjeta es «Pronóstico publicado» con lo explorator
 
 test('EpiBot: la línea de cobertura dice lo mismo, sin cifras del exploratorio más allá del conteo', async () => {
   const { compactaRadar, resumenRadar } = await imp('epibot/js/radar_boletin.js');
-  const P = publicadas.length, E = cats.length - P;
+  const P = publicadas.length, E = cats.length - P - S;
   const r = resumenRadar(compactaRadar(actual, data, doc));
   assert.doesNotMatch(r, /sin cobertura/);
-  assert.ok(r.includes(`- Categorías con pronóstico: **${cats.length} de ${cats.length}**: ${P} con pronóstico publicado y ${E} con pronóstico exploratorio, no validado, que no es un pronóstico de EpiForecast-MX.`), r);
+  assert.ok(r.includes(`- Categorías con pronóstico: **${cats.length - S} de ${cats.length}**: ${P} con pronóstico publicado y ${E} con pronóstico exploratorio, no validado, que no es un pronóstico de EpiForecast-MX; ${S} muestran sólo los casos impresos en el boletín, sin modelo.`), r);
   assert.doesNotMatch(r, /referencia estacional|media de la misma semana|valor plano/, 'sin método ni cifras del exploratorio');
   // Sin el exploratorio no presume cobertura total.
   const s = resumenRadar(compactaRadar(actual, data, null));
-  assert.ok(s.includes(`- Categorías sin pronóstico publicado: **${E}**`), s);
+  assert.ok(s.includes(`- Categorías sin pronóstico publicado: **${E + S}**`), s);
   assert.doesNotMatch(s, /exploratorio/);
 });
 
