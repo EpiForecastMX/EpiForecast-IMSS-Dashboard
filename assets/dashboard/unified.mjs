@@ -146,10 +146,16 @@ const CONTROL_RE = /control estacional/i;
  */
 export const ETIQUETA_SIN_ALTERNATIVA = 'Control estacional publicado: con un año de historia no hubo alternativa que elegir, no validado y sin validación prospectiva propia · pronóstico puntual sin intervalos';
 
-/** Etiqueta visible de una vista: la sellada, salvo un portafolio igual al control. */
+/** Sin jerga interna en el texto público (misma regla que llano() de assets/site/estado-ficha.js; mesa del 25-nov-2026). */
+export function llano(t) {
+  return String(t || '').replace(/el gate de aceptación/g, 'la prueba de aceptación de 2025')
+    .replace(/gate de aceptación/g, 'prueba de aceptación de 2025').replace(/este release/g, 'este pronóstico publicado');
+}
+
+/** Etiqueta visible de una vista: la sellada (en lenguaje llano), salvo un portafolio igual al control. */
 export function etiquetaVisible(view) {
   if (view?.portafolio_igual_al_control === true) return ETIQUETA_SIN_ALTERNATIVA;
-  return typeof view?.publication_label === 'string' ? view.publication_label : '';
+  return typeof view?.publication_label === 'string' ? llano(view.publication_label) : '';
 }
 
 /** Estado visible desde LA VISTA actual. FAIL o veredictos desconocidos lanzan. */

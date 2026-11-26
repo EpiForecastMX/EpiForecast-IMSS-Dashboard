@@ -324,7 +324,9 @@ test('CONTROL_ONLY is accepted as control, never pass, preserving literal verdic
   const v = makeView({ id: 'pass_e66', verdict: 'CONTROL_ONLY', weeks: 4, label: CONTROL_LABEL });
   const c = u.makeCatalog({ legacy: LEGACY, publication, views: { ...views, pass_e66: v } });
   const e = u.catalogEntry(c, 'pass_e66');
-  assert.deepEqual(e.status, { kind: 'control', label: CONTROL_LABEL, verdict: 'CONTROL_ONLY', weeksAvailable: 4, weeksRequired: 4 });
+  // La etiqueta se muestra en lenguaje llano (sin «gate» ni «release»; mesa de la plataforma, 25-nov-2026).
+  assert.deepEqual(e.status, { kind: 'control', label: u.llano(CONTROL_LABEL), verdict: 'CONTROL_ONLY', weeksAvailable: 4, weeksRequired: 4 });
+  assert.doesNotMatch(e.status.label, /\bgate\b/);
   assert.deepEqual(c.summary.statusCounts, { legacy: 4, control: 2, pending: 2, pass: 0 });
   const ds = u.normalizeDataset(e, v);
   assert.equal(ds.metadata.status.kind, 'control');

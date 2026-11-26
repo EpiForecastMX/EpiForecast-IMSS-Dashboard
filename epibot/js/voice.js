@@ -49,6 +49,7 @@ export function initSTT(btn, inputField, onResult) {
   };
 
   recognition.onresult = (event) => {
+    recibido = true;
     let interim = '';
     let final = '';
     for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -72,12 +73,24 @@ export function initSTT(btn, inputField, onResult) {
     if (event.error !== 'no-speech' && event.error !== 'aborted') {
       console.warn('SpeechRecognition error:', event.error);
     }
+    // Mesa de la plataforma (25-nov-2026): un error o un permiso negado nunca borra lo que la persona ya había escrito.
+    if (!recibido) inputField.value = borrador;
+    if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+      micBtn.title = 'El micrófono no está disponible en este navegador o en este sitio';
+      micBtn.setAttribute('aria-disabled', 'true');
+    }
     stopSTT(inputField);
   };
 
   // Safari: isFinal may never be true. When recognition ends,
   // send whatever text is in the input field.
   recognition.onend = () => {
+    // Sólo se envía lo dictado, nunca un borrador escrito antes de pulsar el micrófono.
+    if (!recibido) {
+      if (inputField.value !== borrador) inputField.value = borrador;
+      if (listening) stopSTT(inputField);
+      return;
+    }
     if (!sent && inputField.value.trim()) {
       sent = true;
       const text = inputField.value.trim();
@@ -100,13 +113,16 @@ export function initSTT(btn, inputField, onResult) {
 
 function startSTT(inputField) {
   if (!recognition || listening) return;
+  borrador = inputField.value;
+  recibido = false;
   try {
-    inputField.value = '';
     recognition.start();
-  } catch (_) { /* already started */ }
+  } catch (_) { inputField.value = borrador; /* already started */ }
 }
 
 const UMBRAL_DUDA = 0.55;
+let borrador = '';
+let recibido = false;
 let placeholderOriginal = '';
 function avisaDuda(inputField) {
   quitaDuda(inputField);
