@@ -78,10 +78,11 @@ const REGLAS = {
   definicion: (md) => /\bes (una|un|el|la|cuando)\b|MedlinePlus|se (le )?llama|consiste/i.test(md),
   metodologia: (md) => /modelo|m[eé]todo|valid|prueba|control|sMAPE|motor/i.test(md),
   alcance: (md) => /no |s[oó]lo|solamente|plataforma|publica/i.test(md),
-  charla: (md) => md !== '' && !/\d{3,}/.test(md),
+  // Plan canónico 3.2 (Hydrogen): el total de padecimientos del catálogo («152 padecimientos») no es una cifra de datos.
+  charla: (md) => md !== '' && !/\d{3,}/.test(md.replace(/\b\d+ padecimientos\b/g, '')),
   fuera_de_tema: (md) => /no respondo|fuera del proyecto|no (puedo|tengo)|s[oó]lo (respondo|puedo)|EpiForecast/i.test(md),
   sintomas: (md) => /diagnostic|acude|unidad de salud|911|m[eé]dic/i.test(md),
-  aclaracion: (md) => /\?|dime|precisa|cu[aá]l de|aclara/i.test(md),
+  aclaracion: (md) => /\?|dime|precisa|cu[aá]l de|aclara|hasta saber cu[aá]l/i.test(md),
 };
 
 const arriba = (md) => md.split('<!--DETALLE-->')[0].replace(/<!--[\s\S]*?-->/g, '');

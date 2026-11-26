@@ -11,7 +11,8 @@ import { comparacionRondasMd } from './comparacion_rondas.js?v=4';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=15';
 import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=83';
-import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion, answerConsejoMedico, DUDA_MEDICAMENTO, VIAJE_SEGURIDAD, NOTA_VIAJE } from './conversacion.js?v=27';
+import { corrigeTexto } from './corrector.js?v=1';
+import { answerCharla, palabraConocida, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion, answerConsejoMedico, DUDA_MEDICAMENTO, VIAJE_SEGURIDAD, NOTA_VIAJE } from './conversacion.js?v=28';
 import { respuestaLlana, confiabilidadLegacy, indicadores as indicadoresLlano, semanaTxt } from './resumen_llano.js?v=10';
 import { answerNegativaRazonada, answerEstacionalidad, answerExplicaGrafica, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=7';
 import { crecimiento } from './calculo/operaciones.js?v=2';
@@ -1553,6 +1554,8 @@ function answerProyectoMeta(q, ent, s, d) {
   const basisTriggers = [
     'en que te basa', 'en que estas basado', 'en que se basa', 'en que esta basado',
     'como funciona', 'como funcionas', 'como trabaja', 'como opera',
+    'como hacen el pronostico', 'como hacen los pronosticos', 'como se hace el pronostico', 'como se hacen los pronosticos',
+    'como calculan el pronostico', 'como sacan el pronostico',
     'cual es la metodologia', 'metodologia', 'metodo que usa',
     'de donde sacas', 'de donde saca', 'de donde obtienes', 'de donde obtiene',
     'como sabes', 'como sabe', 'de donde sale',
@@ -4334,27 +4337,8 @@ function answerDefinicion(q, ent, s, d) {
 }
 
 // ---------------------------------------------------------------------------
-// Correcci\u00f3n fuzzy (Levenshtein) para typos
+// Corrección de erratas del último recurso: el corrector único (js/corrector.js) contra el vocabulario de rutas
 // ---------------------------------------------------------------------------
-
-function levenshtein(a, b) {
-  const m = a.length, n = b.length;
-  if (m === 0) return n;
-  if (n === 0) return m;
-  const dp = [];
-  for (let i = 0; i <= m; i++) { dp[i] = [i]; }
-  for (let j = 1; j <= n; j++) { dp[0][j] = j; }
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      dp[i][j] = Math.min(
-        dp[i - 1][j] + 1,
-        dp[i][j - 1] + 1,
-        dp[i - 1][j - 1] + (a[i - 1] !== b[j - 1] ? 1 : 0)
-      );
-    }
-  }
-  return dp[m][n];
-}
 
 /** Vocabulario conocido del proyecto: palabras clave que los handlers reconocen. */
 const VOCAB = [
@@ -4448,30 +4432,18 @@ function palabrasPublicadas() {
   return _palabrasPublicadas;
 }
 function fuzzyCorrect(q) {
-  const words = q.split(' ');
-  let changed = false;
-  const fixed = words.map(w => {
-    if (w.length <= 3) return w;         // No corregir palabras muy cortas («tan» no es «san»)
-    if (VOCAB.includes(w)) return w;     // Ya esta bien
-    if (STOP_WORDS.has(w)) return w;     // Palabra comun, no corregir
-    if (palabrasPublicadas().has(w)) return w;
-    // Buscar la palabra m\u00e1s cercana en el vocabulario
-    let best = w, bestDist = Infinity;
-    for (const known of VOCAB) {
-      // Solo comparar con palabras de longitud similar (+/- 2)
-      if (Math.abs(known.length - w.length) > 2) continue;
-      const dist = levenshtein(w, known);
-      // Aceptar si distancia <= 2 Y menor al 40% de la longitud
-      if (dist < bestDist && dist <= 2 && dist < w.length * 0.4) {
-        bestDist = dist;
-        best = known;
-      }
-    }
-    if (best !== w) changed = true;
-    return best;
+  // Plan canónico 3.2: el corrector único, sólo por sonido («metricaz», «pronostiko»). Antes era Levenshtein ≤ 2 sin mirar la
+  // primera letra, y su vocabulario de rutas es de palabras comunes: «cólera» → «Colima», «cantidad» → «calidad», «junto» →
+  // «junio», «corregir» → «corredor».
+  const { texto, cambios } = corrigeTexto(q, {
+    objetivos: VOCAB.filter((w) => !w.includes(' ')),
+    conocida: (w) => VOCAB.includes(w) || STOP_WORDS.has(w) || palabrasPublicadas().has(w) || palabraConocida(w),
+    soloFonetica: true,
   });
-  return changed ? fixed.join(' ') : null;
+  return cambios.length ? texto : null;
 }
+/** Sólo para pruebas: el corrector del último recurso. */
+export { fuzzyCorrect as _fuzzyCorrect };
 
 // ---------------------------------------------------------------------------
 // Handler: Seguimiento del pronóstico con corte (antes «comparación semanal 2026»)
@@ -5893,7 +5865,7 @@ function isOffTopic(q, ent) {
     'weather', 'futbol', 'soccer', 'basket', 'deporte', 'olimpi',
     'formula 1', 'formula uno', ' f1 ', 'la f1', 'nascar', 'motogp',
     'champions', 'mundial', 'liga mx', 'premier league', 'nba', 'nfl', 'mlb',
-    'pelicula', 'netflix', 'musica', 'cancion', 'concierto', 'serie de tv',
+    'pelicula', 'netflix', 'musica', 'cancion', 'concierto', 'serie de tv', 'una peli', 'pelis',
     'receta', 'cocina', 'restaurante',
     'bitcoin', 'crypto', 'bolsa de valores', 'acciones de',
     'vuelo', 'hotel', 'turismo', 'airbnb',
@@ -6358,7 +6330,7 @@ async function _resolve(consulta) {
     'lluvia manana', 'que tiempo hara', 'tiempo atmosferico', 'temperatura ambiente',
     'horoscopo', 'signo zodiacal', 'receta', 'pozole', 'cocina', 'futbol', 'mundial',
     'champions', 'liga mx', 'chiste', 'bitcoin', 'criptomoneda', 'precio de las acciones',
-    'pelicula', 'netflix', 'horario de', 'vuelos a', 'hotel en'];
+    'pelicula', 'una peli', 'pelis', 'netflix', 'horario de', 'vuelos a', 'hotel en'];
   if (any(q, offTopic) && !ent.padecimiento && !ent.estado && !ent.modelo) {
     trace.handler = 'answerFueraDeTema';
     return { response: 'Soy **EpiBot**, asistente de inteligencia epidemiológica de EpiForecast-MX. No respondo temas fuera del proyecto (clima, deportes, recetas, finanzas, etc.).\n\n' +
@@ -6674,6 +6646,13 @@ function seguimientoConContexto(texto) {
   }
   const pad = lastEntities.padecimiento;
   if (!pad) return texto;
+  // Plan canónico 3.2: tras «diabetes en Puebla» (que se toma como tipo 2), «tipo 1» o «la tipo 2» cambia de tipo y conserva
+  // el lugar y el sexo.
+  const tipoDiab = qn.match(/^(y )?(la |el |de |en )?(diabetes )?tipo (1|2|i|ii|uno|dos)$/);
+  if (tipoDiab && /diabetes/.test(norm(pad))) {
+    const n = { 1: '1', i: '1', uno: '1', 2: '2', ii: '2', dos: '2' }[tipoDiab[4]];
+    return `diabetes tipo ${n}${lastEntities.estado ? ` en ${lastEntities.estado}` : ''}${sexoPrev}`;
+  }
   if (ent.padecimiento || (ent.padecimientos || []).length) return texto;
   const relCtx = releaseDePad(pad);
   const nombreCtx = relCtx ? (relCtx.consultaVisible || relCtx.consulta) : norm(pad);

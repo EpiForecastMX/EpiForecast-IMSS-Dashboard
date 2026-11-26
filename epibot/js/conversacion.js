@@ -10,6 +10,7 @@ import { RELEASES } from './release_config.js?v=59';
 import { LINEA_ALARMA, SIGNOS_ALARMA_GENERALES } from './clinica.js?v=2';
 import { fechaEpiLegacy } from './calculo/series.js?v=4';
 import { semanaTxt, semanaDeEtiqueta, botonesPeriodo, BOTON_NOTA } from './resumen_llano.js?v=10';
+import { corrigeTexto } from './corrector.js?v=1';
 
 const LEGACY = 4;
 export const TOTAL_PUBLICADOS = () => RELEASES.length + LEGACY;
@@ -134,7 +135,7 @@ export function answerSintomas(q, ent) {
 }
 
 // «¿Qué enfermedades van al alza?», «¿qué está subiendo?», «¿qué padecimientos tienen más casos?».
-const RANKING = /\b(enfermedad|enfermedades|padecimiento|padecimientos|infecciones|males)\b.*\b(alza|aumentar|aumentando|aumentan|aumento|en aumento|incremento|suben|subiendo|subir|subio|crecen|creciendo|crecio|repuntan|preocupar|preocupantes|mas casos|bajan|bajando|bajaron|bajado|bajo|disminuyen|disminuyendo|disminuyo|pegando)\b|\b(que|cuales?)\b.*\b(enfermedades|padecimientos)\b.*\b(alza|aumentar|aumentando|aumentan|suben|subiendo|subir|crecen|creciendo|repuntan|preocupar|preocupantes|mas casos|bajan|bajando|disminuyen)\b|\b(que esta subiendo|que va al alza|que sube|que esta aumentando|que esta bajando|lo que sube|lo que mas sube|que esta pegando|que pega mas|que anda (mas )?fuerte|que esta circulando|que circula mas|que hay mas|vamos a tener mas casos|pronostico (para|de) esta semana|pronostico general|enfermedad mas comun|enfermedades mas comunes|enfermedad mas frecuente|enfermedad\w* (ha|han|que han|que ha) aumentado)\b/;
+const RANKING = /\b(enfermedad|enfermedades|padecimiento|padecimientos|infecciones|males)\b.*\b(alza|aumentar|aumentando|aumentan|aumento|en aumento|incremento|suben|subiendo|subir|subio|crecen|creciendo|crecio|repuntan|preocupar|preocupantes|mas casos|bajan|bajando|bajaron|bajado|bajo|disminuyen|disminuyendo|disminuyo|pegando)\b|\b(que|cuales?)\b.*\b(enfermedades|padecimientos)\b.*\b(alza|aumentar|aumentando|aumentan|suben|subiendo|subir|crecen|creciendo|repuntan|preocupar|preocupantes|mas casos|bajan|bajando|disminuyen)\b|\b(que esta subiendo|que va al alza|que sube|que esta aumentando|que esta bajando|lo que sube|lo que mas sube|que esta pegando|que pega mas|que anda (mas )?fuerte|que esta circulando|que circula mas|que hay mas|vamos a tener mas casos|pronostico (para|de) esta semana|pronostico general|enfermedad mas comun|enfermedades mas comunes|enfermedad mas frecuente|enfermedad\w* (ha|han|que han|que ha) aumentado|que (enfermedad|padecimiento)\w* (pega|da|anda|hay|se da|esta dando) mas|(enfermedad|padecimiento)\w* (que )?mas (da|pega|hay|se da)|top \d+ (de )?(las )?(enfermedades|padecimientos)|que van? subiendo|lo que mas (da|pega|hay))\b/;
 
 const RESUMEN_NACIONAL = /\b(resumen|panorama general|situacion epidemiologica|como esta el pais|como va el pais|que esta pasando en el pais)\b/;
 export function answerRankingPadecimientos(q, ent, s, d) {
@@ -456,51 +457,41 @@ function objetivosErratas() {
   for (const r of RELEASES.filter((x) => !x.sensible)) {
     for (const t of [r.nombre, r.consultaVisible || r.consulta, ...(r.alias || [])]) {
       // Sólo palabras en español: las de los alias en inglés («gestational», «paratyphoid») no son destino.
-      for (const w of norm0(t || '').split(/[^a-z0-9]+/)) if (w.length >= 5 && !/\d/.test(w) && !NO_OBJETIVO.has(w) && !/tion|ous|ph|th|ck|sh|w|k|y/.test(w)) _objetivos.add(w);
+      for (const w of norm0(t || '').split(/[^a-z0-9]+/)) if (w.length >= 5 && !/\d/.test(w) && !NO_OBJETIVO.has(w) && !/tion|ous|ph|th|ck|sh|ss|w|k|y/.test(w)) _objetivos.add(w);
     }
   }
   return _objetivos;
 }
-/** Distancia de edición con transposiciones (OSA), cortada en 3. */
-function distancia(a, b) {
-  if (Math.abs(a.length - b.length) > 2) return 3;
-  const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
-  for (let j = 1; j <= b.length; j++) d[0][j] = j;
-  for (let i = 1; i <= a.length; i++) {
-    for (let j = 1; j <= b.length; j++) {
-      const c = a[i - 1] === b[j - 1] ? 0 : 1;
-      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + c);
-      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+/** Palabra conocida: vocabulario cerrado del boletín, palabras de consulta, estados y destinos de corrección. */
+export function palabraConocida(w) {
+  const vc = globalThis.EPI_VOCAB_CONSULTA;
+  if (!_fragmentos && Array.isArray(globalThis.EPI_FRAGMENTOS)) _fragmentos = new Set(globalThis.EPI_FRAGMENTOS.flatMap((f) => f.split(' ')));
+  return objetivosErratas().has(w) || !!vc?.palabras?.has(w) || !!vc?.verbosCurados?.has?.(w) || ESTADOS_PALABRAS.has(w) || !!_fragmentos?.has(w);
+}
+// Plan canónico 3.2: los estados también son destino («tlaxcla», «chiapaz», «michuacan»); los de seis letras sólo por sonido
+// («pueblo» no es «Puebla», «colina» no es «Colima»).
+const ESTADOS_DESTINO = [...ESTADOS_PALABRAS].filter((w) => w.length >= 5);
+// La nota «Entendí…» dice la palabra como se escribe («hipertensión», «Michoacán»), no la forma normalizada.
+let _visibles = null;
+function formaVisible(w) {
+  if (!_visibles) {
+    _visibles = new Map();
+    const fuentes = [...Object.values(ESTADOS_NOMBRE), ...RELEASES.filter((x) => !x.sensible).flatMap((r) => [r.consultaVisible || r.consulta, r.nombre])];
+    for (const t of fuentes) {
+      for (const p of String(t || '').split(/[^\p{L}]+/u)) {
+        const k = norm0(p);
+        if (k && !_visibles.has(k)) _visibles.set(k, /^\p{Lu}/u.test(p) && ESTADOS_PALABRAS.has(k) ? p : p.toLowerCase());
+      }
     }
   }
-  return d[a.length][b.length];
+  return _visibles.get(w) || w;
 }
 function corrigeErratas(t) {
   // En inglés no se corrige («pertussis like syndrome» no es «síndrome»).
   if (/\b(the|of|in|is|how|what|like|acute|and|with|for|cases|disease)\b/.test(t)) return { texto: t, cambios: [] };
-  const objetivos = objetivosErratas();
-  const vc = globalThis.EPI_VOCAB_CONSULTA;
-  // Toda palabra del vocabulario cerrado del boletín (nombres del radar, no modelados, geografía, catálogo) es conocida.
-  if (!_fragmentos && Array.isArray(globalThis.EPI_FRAGMENTOS)) _fragmentos = new Set(globalThis.EPI_FRAGMENTOS.flatMap((f) => f.split(' ')));
-  const conocidas = (w) => objetivos.has(w) || vc?.palabras?.has(w) || vc?.verbosCurados?.has?.(w) || ESTADOS_PALABRAS.has(w) || _fragmentos?.has(w);
-  const cambios = [];
-  const texto = t.split(' ').map((w) => {
-    if (w.length < 5 || /\d/.test(w) || conocidas(w)) return w;
-    let mejor = null; let dMin = w.length >= 9 ? 2 : 1; let empate = false;
-    for (const o of objetivos) {
-      if (o[0] !== w[0]) continue; // casi toda errata conserva la primera letra
-      // Una diferencia sólo en la terminación es otra palabra («candidiásica» no es «candidiasis», «paratyphi» no es
-      // «paratyphoid»), salvo la última letra repetida («graciass»).
-      let pre = 0; while (pre < w.length && pre < o.length && w[pre] === o[pre]) pre++;
-      if (pre >= Math.min(w.length, o.length) - 2 && w !== o + o.at(-1)) continue;
-      const dd = distancia(w, o);
-      if (dd < dMin || (dd === dMin && !mejor)) { if (dd < dMin) empate = false; mejor = o; dMin = dd; } else if (dd === dMin && mejor && o !== mejor) empate = true;
-    }
-    if (!mejor || empate || distancia(w, mejor) > (w.length >= 9 ? 2 : 1)) return w;
-    cambios.push(mejor);
-    return mejor;
-  }).join(' ');
-  return { texto, cambios };
+  const a = corrigeTexto(t, { objetivos: objetivosErratas(), conocida: palabraConocida });
+  const b = corrigeTexto(a.texto, { objetivos: ESTADOS_DESTINO, conocida: palabraConocida, curadas: false });
+  return { texto: b.texto, cambios: [...a.cambios, ...b.cambios].map(formaVisible) };
 }
 
 export function reescribeConsulta(raw) {
@@ -660,7 +651,7 @@ const FAQ = [
     'No: son **pronósticos puntuales, sin intervalos** de predicción. Por eso cada respuesta dice qué tan confiable es el pronóstico y cuánto se ha desviado en las semanas ya comprobadas.'],
   [/\bsmape (de|del|en|igual a|=)? ?\d+/,
     'El **sMAPE** mide el error porcentual promedio entre lo pronosticado y lo observado (0 % sería perfecto). Como guía práctica: menos de 20 % es bueno, de 20 a 50 % es moderado y más de 50 % es alto; en series con muy pocos casos el sMAPE se dispara aunque el error en casos sea pequeño. Por eso en cada respuesta doy la confiabilidad en palabras.'],
-  [/\b(eres (un )?(doctor|medico|maquina|robot|chatgpt|gemini)|es una maquina|es usted doctor|usted es doctor|eres chatgpt)\b/,
+  [/\b(eres (un |una )?(doctor|medico|maquina|robot|bot|chatbot|ia|inteligencia artificial|chatgpt|gemini)|es una maquina|es usted doctor|usted es doctor|eres chatgpt)\b/,
     'Soy **EpiBot**, un asistente automático: no soy una persona ni un médico. Las cifras salen siempre de los datos publicados del boletín epidemiológico; para preguntas abiertas me apoyo en un modelo de lenguaje (Gemini de Google y, de respaldo, DeepSeek), pero nunca para inventar números.'],
   [/\b(quien paga|quien lo paga|lo hizo el imss|es del imss|es del gobierno|4t|marketing|propaganda|lo recomienda la sep|avalado|patrocin\w*)\b/,
     'EpiForecast-MX es un **proyecto académico** de la Maestría en Inteligencia Artificial Aplicada del Tecnológico de Monterrey, hecho para la salud pública en México. No es un producto del gobierno ni de un partido, y no está avalado por la Secretaría de Salud ni por la SEP. Los datos son los del boletín oficial; los pronósticos son del proyecto.'],
