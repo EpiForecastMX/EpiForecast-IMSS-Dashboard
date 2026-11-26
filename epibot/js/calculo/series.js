@@ -44,6 +44,21 @@ export function fechaBoletinLegacy(d) {
   return Number.isFinite(t) ? new Date(t + DIAS_A_BOLETIN * 864e5).toISOString().slice(0, 10) : d;
 }
 
+/**
+ * Rezago impreso de cada original (mesa de la plataforma, 25-nov-2026, Codex Sol): el boletín N trae Dengue «hasta la semana
+ * N» (cuadro 7.2) y Depresión, Parkinson y Alzheimer «hasta la semana N−1» (cuadro 17). zoom_series.json rotula cada punto
+ * con la semana del boletín; la semana epidemiológica del dato es esa menos el rezago. Lo comprueba tests/test_graficas_mesa.mjs
+ * contra el encabezado del cuadro en la foto vigente del radar.
+ */
+export const REZAGO_LEGACY = { Dengue: 0, Depresion: 1, Parkinson: 1, Alzheimer: 1 };
+
+/** Inicio (domingo) de la semana epidemiológica del dato de un original: semana del boletín menos su rezago. */
+export function fechaEpiLegacy(d, pad) {
+  const b = fechaBoletinLegacy(d), k = REZAGO_LEGACY[pad] ?? 0;
+  if (!k || b === d) return b;
+  return new Date(Date.parse(`${b}T00:00:00Z`) - 7 * k * 864e5).toISOString().slice(0, 10);
+}
+
 const LEGACY = { Dengue: 'dengue', Depresion: 'depresion', Parkinson: 'parkinson', Alzheimer: 'alzheimer' };
 export const esLegacy = (pad) => !!LEGACY[pad];
 
@@ -55,9 +70,9 @@ export function serieLegacy(zoom, pad, { estado = null, sexo = 'general' } = {})
   const zz = zoom[`${LEGACY[pad]}|${geo}|${sexo}`] || zoom[`${LEGACY[pad]}|${geo}|general`];
   if (!zz || !Array.isArray(zz.d)) return null;
   return {
-    observado: zz.d.map((ds, i) => [ds, zz.r[i]]).filter(([ds, r]) => r != null && ds <= zz.last_real).map(([ds, r]) => [fechaBoletinLegacy(ds), r]),
-    pronostico: zz.d.map((ds, i) => [fechaBoletinLegacy(ds), zz.y[i]]).filter(([, y]) => y != null),
+    observado: zz.d.map((ds, i) => [ds, zz.r[i]]).filter(([ds, r]) => r != null && ds <= zz.last_real).map(([ds, r]) => [fechaEpiLegacy(ds, pad), r]),
+    pronostico: zz.d.map((ds, i) => [fechaEpiLegacy(ds, pad), zz.y[i]]).filter(([, y]) => y != null),
     tipo: 'original', lugar: estado ? nombreEstado(estado) : 'el país', sexo,
-    corte: zz.last_real ? fechaBoletinLegacy(zz.last_real) : null, sinIntervalo: !zz.intervalo_disponible,
+    corte: zz.last_real ? fechaEpiLegacy(zz.last_real, pad) : null, sinIntervalo: !zz.intervalo_disponible,
   };
 }

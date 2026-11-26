@@ -21,8 +21,10 @@ const pide = async (q) => { kb._resetContext?.(); return JSON.stringify(await kb
 const primera = (t) => JSON.parse(t).response?.split('\n').filter((l) => l.trim() && !l.startsWith('_') && !/^\*\*[^*]+\*\*$/.test(l.trim()))[0] ?? t;
 
 test('semana N de AAAA: se contesta esa semana, con su rango de fechas', async () => {
-  const dep = await pide('¿Cuántos casos de depresión hubo en la semana 44 de 2026?');
-  assert.match(dep, /\*\*En la semana 44 de 2026\*\* \(del 1 al 7 de noviembre de 2026\) se notificaron \*\*3,293 casos\*\*/);
+  // El cuadro 17 del boletín 44 llega hasta la semana 43: los 3,293 casos de depresión son de la semana 43 (25 al 31 de octubre).
+  const dep = await pide('¿Cuántos casos de depresión hubo en la semana 43 de 2026?');
+  assert.match(dep, /\*\*En la semana 43 de 2026\*\* \(del 25 al 31 de octubre de 2026\) se notificaron \*\*3,293 casos\*\*/);
+  assert.match(await pide('depresión en la semana 44 de 2026'), /\*\*La semana 44 de 2026\*\* \(del 1 al 7 de noviembre de 2026\) \*\*aún no tiene dato\*\*/);
   const den = await pide('dengue en la semana 44 de 2026');
   assert.match(den, /se notificaron \*\*575 casos\*\*/);
   // Una semana sin dato todavía: se dice y se da lo esperado, sin inventar un observado.

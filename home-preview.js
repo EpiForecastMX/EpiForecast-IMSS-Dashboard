@@ -44,6 +44,19 @@
     return m ? 'semana ' + Number(m[2]) + ' de ' + m[1] : 'sin dato';
   }
 
+  /* Rezago impreso de cada original (mesa de la plataforma, 25-nov-2026): hero_series.json rotula el último dato con la
+   * semana del boletín; el cuadro 17 (Depresión, Parkinson, Alzheimer) llega hasta la semana anterior. Misma regla que
+   * REZAGO_LEGACY de epibot/js/calculo/series.js y LEGACY_META de assets/dashboard/unified.mjs. */
+  var REZAGO = { depresion: 1, parkinson: 1, alzheimer: 1, dengue: 0 };
+  function semanaMenos(etq, k) {
+    var m = /^(\d{4})-W(\d{2})$/.exec(etq || '');
+    if (!m || !k) return etq;
+    var a = Number(m[1]), w = Number(m[2]) - k;
+    var ini = function (y) { var j4 = Date.UTC(y, 0, 4); return j4 - new Date(j4).getUTCDay() * 864e5; };
+    while (w < 1) { a -= 1; w += Math.round((ini(a + 1) - ini(a)) / (7 * 864e5)); }
+    return a + '-W' + (w < 10 ? '0' : '') + w;
+  }
+
   /** Serie de la cohorte original (hero_series.json) con sus metadatos de presentación. */
   function serieLegacy(s) {
     return {
@@ -51,7 +64,7 @@
       motor: s.motor,
       estado: 'Cohorte original · motor nacional ' + s.motor,
       corte: s.corte, corteRotulo: 'Corte del modelo',
-      ultima_observada: s.ultima_observada,
+      ultima_observada: semanaMenos(s.ultima_observada, REZAGO[s.key] || 0),
       casos: s.casos, casosTexto: 'en 52 semanas desde el corte (modelo nacional)',
       emitido: null,
       fuente: 'hero_series.json',
