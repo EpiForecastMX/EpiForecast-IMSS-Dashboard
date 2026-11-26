@@ -78,7 +78,10 @@ export function indicadores(v, x) {
     } else if (F4 >= 5) {
       tendencia = 'sube';
     }
-    const s = x.oos?.semanas >= 2 ? x.oos.sesgo_pct : null;
+    // Plan canónico 1.5: con una sola semana comprobada también cuenta, si suma al menos 20 casos (hepatitis A se pasó 136 % en
+    // su única semana y su +68 % previsto no es una señal confiable).
+    const o1 = x.oos || {};
+    const s = o1.semanas >= 2 || (o1.semanas === 1 && (o1.observado_total || 0) + (o1.pronostico_total || 0) >= 20) ? o1.sesgo_pct : null;
     if (tendencia !== 'estable' && s != null && delta != null && Math.sign(s) === Math.sign(delta) && Math.abs(s) >= Math.abs(delta * 100)) {
       tendencia = 'incierto';
     }
@@ -97,7 +100,7 @@ export function indicadores(v, x) {
 }
 
 /** Confiabilidad en tres niveles, con su explicación en lenguaje llano. */
-export function confiabilidad(v, x, esControl) {
+export function confiabilidad(v, x, esControl, r = null) {
   const o = x.oos || {};
   const comprobado = o.semanas
     ? ` En ${o.semanas === 1 ? 'la semana ya comprobada' : `las ${o.semanas} semanas ya comprobadas`} esperaba ${casos(o.pronostico_total)} y llegaron ${ent0(o.observado_total)}` +
@@ -114,18 +117,25 @@ export function confiabilidad(v, x, esControl) {
   if (v.verdict === 'FAIL') {
     return { nivel: 'baja', texto: `**Confiabilidad: baja.** No superó la comprobación con datos reales posteriores a su emisión.${comprobado}${sinRango}` };
   }
-  if (o.semanas >= 2 && Math.abs(o.sesgo_pct) > 20 && Math.max(o.observado_total, o.pronostico_total) >= 10) {
+  // Plan canónico 1.5: también con una sola semana, si el desvío es grande (más de 50 %) y hay al menos 20 casos.
+  const desvio2 = o.semanas >= 2 && Math.abs(o.sesgo_pct) > 20 && Math.max(o.observado_total, o.pronostico_total) >= 10;
+  const desvio1 = o.semanas === 1 && Math.abs(o.sesgo_pct) > 50 && (o.observado_total || 0) + (o.pronostico_total || 0) >= 20;
+  if (desvio2 || desvio1) {
     return {
       nivel: 'baja',
       texto: `**Confiabilidad: baja aquí.** El modelo superó su prueba de aceptación, pero en esta serie se ha desviado.${comprobado}${sinRango}`,
     };
   }
   if (v.verdict === 'PASS') {
-    return { nivel: 'alta', texto: `**Confiabilidad: alta.** Superó su prueba de aceptación y acertó en las ${v.weeks_required} semanas reales que siguieron a su emisión.${comprobado}${sinRango}` };
+    // PASS significa que no fue peor que el control en las 4 semanas, no que acertara (dictamen de Fable).
+    return { nivel: 'alta', texto: `**Confiabilidad: alta.** Superó su prueba de aceptación y, en las ${v.weeks_required} semanas reales que siguieron a su emisión, no fue peor que el control estacional.${comprobado}${sinRango}` };
   }
+  const np = r?.no_prospectivas?.length
+    ? ` De ellas, ${r.no_prospectivas.join(', ')} ${r.no_prospectivas.length === 1 ? 'ya era pública al emitir y no cuenta como prospectiva' : 'ya eran públicas al emitir y no cuentan como prospectivas'}.`
+    : '';
   return {
     nivel: 'media',
-    texto: `**Confiabilidad: media.** Superó su prueba de aceptación con datos que no vio; la comprobación con datos reales va en ${v.weeks_available} de ${v.weeks_required} semanas.${comprobado}${sinRango}`,
+    texto: `**Confiabilidad: media.** Superó su prueba de aceptación con datos que no vio; la comprobación con datos reales va en ${v.weeks_available} de ${v.weeks_required} semanas.${np}${comprobado}${sinRango}`,
   };
 }
 
@@ -251,7 +261,7 @@ export function respuestaLlana({ v, x, r, q, esControl, estados, sinSexo, confia
     estable: `${si}se espera que **se mantenga estable**: unos ${casos(ind.F4)} en las próximas 4 semanas, frente a ${ent0(ind.O4)} en las 4 anteriores.`,
     pocos: `hay **muy pocos casos**: ${casos(ind.O4)} en las últimas 4 semanas y ${Math.round(ind.F4) === 0 ? 'ninguno esperado' : `unos ${casos(ind.F4)} esperados`} en las próximas 4; con números tan pequeños no se puede hablar de una tendencia.`,
     atipico: `las últimas 4 semanas vienen **muy por debajo de lo habitual** (${ent0(ind.O4)} casos frente a unos ${ent0(ind.habitual)} en las 4 semanas típicas previas); puede deberse a un retraso o a un cambio en la notificación, así que no afirmo una tendencia. El pronóstico espera unos ${casos(ind.F4)} en las próximas 4 semanas, más cerca de lo habitual.`,
-    incierto: `no hay una señal clara de cambio: el pronóstico espera unos ${casos(ind.F4)} en las próximas 4 semanas (${d >= 0 ? '+' : '−'}${pct0((d ?? 0) * 100)} frente a las 4 anteriores), pero en las semanas ya comprobadas se ha ${x.oos.sesgo_pct > 0 ? 'pasado' : 'quedado corto'} por ${pct0(x.oos.sesgo_pct)}, una diferencia de ese mismo tamaño.`,
+    incierto: `no hay una señal clara de cambio: el pronóstico espera unos ${casos(ind.F4)} en las próximas 4 semanas (${d >= 0 ? '+' : '−'}${pct0((d ?? 0) * 100)} frente a las 4 anteriores), pero en ${x.oos.semanas === 1 ? 'la semana ya comprobada' : 'las semanas ya comprobadas'} se ha ${x.oos.sesgo_pct > 0 ? 'pasado' : 'quedado corto'} por ${pct0(x.oos.sesgo_pct)}, una diferencia de ese mismo tamaño.`,
   }[ind.tendencia];
   let sino = '';
   // Plan canónico 1.1 (26-nov-2026): «Sí.» o «No.» sólo contesta una pregunta de sí o no («¿sube…?»), nunca «¿dónde…?»,
@@ -294,7 +304,7 @@ export function respuestaLlana({ v, x, r, q, esControl, estados, sinSexo, confia
       if (top.length) lineas.push(`- **Dónde hay más:** ${top.map((y) => `${nombreEstado(y.e.nombre)} (${ent0(y.f)})`).join(', ')}; casos esperados en 4 semanas, sin ajustar por población.`);
     }
   }
-  lineas.push('', confianzaTexto || confiabilidad(v, x, esControl).texto, '',
+  lineas.push('', confianzaTexto || confiabilidad(v, x, esControl, r).texto, '',
     '_Son casos notificados al boletín epidemiológico (no todos los enfermos se diagnostican ni se reportan) y las últimas semanas pueden corregirse. Es información estadística, no consejo médico._');
   return lineas;
 }

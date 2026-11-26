@@ -146,8 +146,13 @@ export function answerRankingPadecimientos(q, ent, s, d) {
   }
   const relevantes = res.padecimientos.filter((x) => Math.max(x.O4, x.F4) >= 50);
   const orden = (xs) => [...xs].sort((a, b) => (a.confiabilidad === 'baja') - (b.confiabilidad === 'baja') || Math.abs(b.delta) - Math.abs(a.delta));
-  const suben = orden(relevantes.filter((x) => x.tendencia === 'sube')).slice(0, 6);
-  const bajan = orden(relevantes.filter((x) => x.tendencia === 'baja')).slice(0, 4);
+  // Plan canónico 1.3 (26-nov-2026): un control estacional repite el año pasado; no entra en «se espera que suba o baje».
+  // Va en un bloque aparte. Los modelos ya desviados quedan fuera porque su tendencia pasa a «incierto» (resumen_llano.js).
+  const modelos = relevantes.filter((x) => !x.control);
+  const controles = relevantes.filter((x) => x.control);
+  const suben = orden(modelos.filter((x) => x.tendencia === 'sube')).slice(0, 6);
+  const bajan = orden(modelos.filter((x) => x.tendencia === 'baja')).slice(0, 4);
+  const ctrlSuben = orden(controles.filter((x) => x.tendencia === 'sube')).slice(0, 3);
   const masCasos = /\bmas casos\b/.test(q) && !resumen;
   const pideBaja = /\b(bajan|bajando|bajaron|bajado|bajo|disminuyen|disminuyendo|disminuyo|a la baja)\b/.test(q);
   const etq = (x) => (x.confiabilidad === 'baja' ? ' · _confiabilidad baja_' : x.confiabilidad === 'alta' ? ' · confiabilidad alta' : ' · confiabilidad media');
@@ -167,6 +172,10 @@ export function answerRankingPadecimientos(q, ent, s, d) {
     } else {
       lineas.push(...suben.map(fila));
       if (bajan.length) lineas.push('', '**Lo que más se espera que baje:**', '', ...bajan.map(fila));
+      if (ctrlSuben.length) {
+        lineas.push('', '**Controles estacionales, sin modelo validado:** si se repite lo del año pasado, estos subirían. No es una expectativa de un modelo, es el eco del año anterior:', '',
+          ...ctrlSuben.map((x) => `- ${x.nombre}: de ${ent0(x.O4)} a unos ${ent0(x.F4)} casos en 4 semanas.`));
+      }
     }
   }
   if (resumen) {
@@ -174,13 +183,18 @@ export function answerRankingPadecimientos(q, ent, s, d) {
     lineas.unshift(`**Panorama nacional** (casos notificados al boletín epidemiológico, datos hasta la semana del ${fecha(res.corte)})`, '');
     lineas.push('', '**Los que más casos tendrán:**', '', ...top.map((x) => `- **${x.nombre}**: unos ${ent0(x.F4)} casos en las próximas 4 semanas.`));
   }
-  lineas.push('', `Comparo ${res.padecimientos.length} padecimientos con datos hasta la semana del ${fecha(res.corte)}; dejo fuera los de menos de 50 casos, donde un cambio porcentual engaña, ` +
-    'y los temas sensibles. «Confiabilidad baja» quiere decir que el pronóstico repite el patrón del año pasado o que ya se ha desviado.',
+  // Cada padecimiento tiene su propio corte (114 llegan a una semana y 22 a la siguiente): se dice, no se presenta uno común.
+  const cortes = Object.entries(res.padecimientos.reduce((a, x) => ({ ...a, [x.ultimo]: (a[x.ultimo] || 0) + 1 }), {})).sort();
+  const corteTxt = cortes.length > 1
+    ? cortes.map(([ds, n]) => `${n} con datos hasta la semana del ${fecha(ds)}`).join(' y ')
+    : `datos hasta la semana del ${fecha(res.corte)}`;
+  lineas.push('', `Comparo ${res.padecimientos.length} padecimientos (${corteTxt}); dejo fuera los de menos de 50 casos, donde un cambio porcentual engaña, ` +
+    'los temas sensibles y los modelos que ya se desviaron más de lo que prevén. «Confiabilidad baja» quiere decir que el pronóstico repite el patrón del año pasado o que ya se ha desviado.',
   '', '_Son casos notificados al boletín epidemiológico; no es consejo médico._');
   // Pedido del autor (26-nov-2026): la lista lleva su gráfica. Las filas son las mismas del texto (app.js las dibuja).
   const graf = masCasos
     ? { modo: 'casos', filas: [...res.padecimientos].sort((a, b) => b.F4 - a.F4).slice(0, 8).map((x) => ({ n: x.nombre, o: x.O4, f: x.F4 })) }
-    : { modo: 'cambio', filas: (pideBaja ? bajan : [...suben, ...bajan]).map((x) => ({ n: x.nombre, o: x.O4, f: x.F4, d: x.delta, c: x.confiabilidad })) };
+    : { modo: 'cambio', filas: (pideBaja ? bajan : [...suben, ...bajan, ...ctrlSuben]).map((x) => ({ n: x.nombre, o: x.O4, f: x.F4, d: x.delta, c: x.confiabilidad, control: !!x.control, serie: x.serie || null })) };
   if (graf.filas.length) lineas.push(`<!--ALZA:${JSON.stringify(graf)}-->`);
   else lineas.push('<!--SIN_GRAFICA-->');
   const sig = suben.slice(0, 3).map((x) => ({ t: `¿Cómo va ${x.nombre.toLowerCase()}?`, q: `¿cómo va ${x.consulta}?` }));
