@@ -391,6 +391,8 @@ export function botonesPeriodo(q, c, x) {
 }
 
 /** Botones de seguimiento según la serie consultada (marcador SIGUE que lee app.js). */
+export const BOTON_NOTA = Object.freeze({ t: 'Resumen para nota', q: 'para nota' });
+
 export function siguientes(r, x, sinSexo, q = '') {
   const c = r.consultaVisible || r.consulta;
   const s = [...botonesPeriodo(q, c, x)];
@@ -399,7 +401,8 @@ export function siguientes(r, x, sinSexo, q = '') {
   if (!sinSexo && x.sexo === 'general') s.push({ t: '¿Y en mujeres?', q: `${c}${x.nivel === 'estado' ? ` en ${nombreEstado(x.nombre)}` : ''} mujeres` });
   s.push({ t: 'Semana a semana', q: `zoom ${c}${x.nivel === 'estado' ? ` en ${nombreEstado(x.nombre)}` : ''}` });
   s.push({ t: '¿Qué tan confiable es?', q: `que tan confiable es el pronostico de ${c}` });
-  return `\n<!--SIGUE:${JSON.stringify(s.slice(0, 4))}-->`;
+  // Plan canónico 3.4: el cuarto botón lleva a los cierres por perfil (para nota, para junta, en corto).
+  return `\n<!--SIGUE:${JSON.stringify([...s.slice(0, 3), BOTON_NOTA])}-->`;
 }
 
 /** Enlace a MedlinePlus en español para saber qué es un padecimiento (fuente pública de la Biblioteca Nacional de Medicina de EE. UU.). */

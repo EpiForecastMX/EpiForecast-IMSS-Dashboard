@@ -14,7 +14,7 @@
 import { crecimiento, estacionalidad, rasgosGrafica, compararRitmo } from './calculo/operaciones.js?v=2';
 import { serieDeVista, serieLegacy, esLegacy } from './calculo/series.js?v=4';
 import { negativaRazonada, negativaRiesgo } from './calculo/legitimidad.js?v=2';
-import { semanaTxt } from './resumen_llano.js?v=9';
+import { semanaTxt } from './resumen_llano.js?v=10';
 
 const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 const LEGACY_NOMBRE = { Dengue: 'Dengue', Depresion: 'Depresión', Parkinson: 'Parkinson', Alzheimer: 'Alzheimer' };

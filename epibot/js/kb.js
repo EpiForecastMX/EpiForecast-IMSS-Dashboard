@@ -10,15 +10,16 @@ import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaN
 import { comparacionRondasMd } from './comparacion_rondas.js?v=4';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=15';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=82';
-import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion, answerConsejoMedico, DUDA_MEDICAMENTO, VIAJE_SEGURIDAD, NOTA_VIAJE } from './conversacion.js?v=26';
-import { respuestaLlana, confiabilidadLegacy, indicadores as indicadoresLlano, semanaTxt } from './resumen_llano.js?v=9';
-import { answerNegativaRazonada, answerEstacionalidad, answerExplicaGrafica, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=6';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=83';
+import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion, answerConsejoMedico, DUDA_MEDICAMENTO, VIAJE_SEGURIDAD, NOTA_VIAJE } from './conversacion.js?v=27';
+import { respuestaLlana, confiabilidadLegacy, indicadores as indicadoresLlano, semanaTxt } from './resumen_llano.js?v=10';
+import { answerNegativaRazonada, answerEstacionalidad, answerExplicaGrafica, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=7';
 import { crecimiento } from './calculo/operaciones.js?v=2';
 import { notasDeLegitimidad } from './calculo/legitimidad.js?v=2';
 import { serieLegacy as serieLegacyCalc } from './calculo/series.js?v=4';
 import { answerPresentacion, conLugarRecordado } from './memoria.js?v=1';
 import { temaClinico, respuestaClinica } from './clinica.js?v=2';
+import { tipoCierre, quitaCierre, cierreDe, esFichaDeDatos, SIN_BASE_CIERRE } from './cierres.js?v=1';
 /** Los cuatro originales en lenguaje llano (consulta general), antes de sus handlers específicos. */
 const LEGACY_CLAVE = { Dengue: 'dengue', Depresion: 'depresion', Parkinson: 'parkinson', Alzheimer: 'alzheimer' };
 const LEGACY_TITULO = { Dengue: 'Dengue', Depresion: 'Depresión', Parkinson: 'Parkinson', Alzheimer: 'Alzheimer' };
@@ -6122,7 +6123,7 @@ export function reiniciaContexto() { _resetContext(); }
 export function _resetContext() {
   _comparacionPrevia = null; _estadosComparados = null;
   lastEntities = {}; _lastDistribMetric = null; _lastChartHandler = null; _lastHandlerFn = null;
-  _crisisActiva = null; _aclaracionPendiente = null; _opcionesPendientes = null;
+  _crisisActiva = null; _aclaracionPendiente = null; _opcionesPendientes = null; _ultimaFicha = null;
 }
 
 /** La consulta nombra por sí misma un padecimiento que no es sensible (legacy, release o no modelado). */
@@ -6863,10 +6864,36 @@ async function _resolveConContextoBase(consulta) {
 // Decimoquinta auditoría: NFKC UNA vez en el punto de entrada; entidades, guardas, geografía, consultas mixtas y handlers
 // ven el mismo texto.
 export async function answer(query) {
-  return (await _resolveConContexto(normalizaEntrada(query))).response;
+  return (await _resolveConCierre(normalizaEntrada(query))).response;
 }
 
 /** API diagnóstica para pruebas: MISMO núcleo, con la identidad del handler observado. */
 export async function answerWithTrace(query) {
-  return _resolveConContexto(normalizaEntrada(query));
+  return _resolveConCierre(normalizaEntrada(query));
+}
+
+// Plan canónico 3.4: «en corto», «para nota» y «para junta» reescriben la última respuesta de datos (js/cierres.js), sin cifras
+// nuevas. Si la consulta nombra además un padecimiento («dengue en Veracruz para nota»), primero se responde esa consulta.
+let _ultimaFicha = null;
+const HANDLERS_SIN_CIERRE = new Set(['answerConsejoMedico', 'answerClinica', 'answerCrisis', 'answerCrisisSeguimiento', 'answerApoyoSeguimiento', 'answerTemaSensible']);
+function recuerdaFicha(r) {
+  // Tras crisis, tema sensible o consejo médico no queda nada que resumir: el cierre nunca devuelve cifras a ese hilo.
+  if (HANDLERS_SIN_CIERRE.has(r?.handler) || _crisisActiva) _ultimaFicha = null;
+  else if (r?.response && esFichaDeDatos(r.response)) _ultimaFicha = r.response;
+  return r;
+}
+async function _resolveConCierre(query) {
+  const tipo = respuestaCrisis(query) || _crisisActiva ? null : tipoCierre(query);
+  if (!tipo) return recuerdaFicha(await _resolveConContexto(query));
+  const resto = quitaCierre(query);
+  let base = _ultimaFicha;
+  // Si la frase trae otra pregunta («resumen nacional para una nota», «¿puedo usar sus gráficas para la junta?»), se responde
+  // esa pregunta y sólo se resume si el resultado es una ficha de datos; el cierre directo es para «en corto», «para nota»…
+  if (resto.split(/\s+/).filter((w) => w.length > 2 && !/^(y|lo|la|el|me|eso|esto|asi|así|ahora|por|favor|porfa)$/i.test(w)).length) {
+    const r = recuerdaFicha(await _resolveConContexto(nombraPadecimientoNoSensible(resto) ? resto : query));
+    if (!esFichaDeDatos(r.response)) return r;
+    base = r.response;
+  }
+  const cierre = base ? cierreDe(base, tipo) : null;
+  return { response: cierre || SIN_BASE_CIERRE, handler: 'answerCierre' };
 }
