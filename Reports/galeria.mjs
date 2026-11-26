@@ -4,7 +4,7 @@
 // como marcado y los href pasan por safeHref (sólo rutas del sitio). No se pintan métricas de error.
 // ?v= en el import: subir el número junto con el de Reports/index.html (import y modulepreload).
 // Probado con DOM simulado en tests/galeria_controller.test.mjs.
-import * as C from './galeria_core.mjs?v=2';
+import * as C from './galeria_core.mjs?v=3';
 import { validateCatalog } from '../assets/dashboard/unified.mjs';
 import { statusText } from '../assets/dashboard/units.mjs';
 import { COHORTS } from '../assets/dashboard/data.mjs';
@@ -284,6 +284,22 @@ function territoryOptions() {
 }
 
 /** Fuente validada y cacheada; un error (HTTP o esquema) no queda en caché. */
+// Series de cohorte de los originales (una descarga por cohorte, compartida por tarjetas y visor).
+const cohortes = new Map();
+function cohorte(entry) {
+  const url = `../${COHORTS[entry.cohort]}`;
+  if (!cohortes.has(url)) {
+    cohortes.set(url, load(url, (z) => { if (!z || typeof z !== 'object') throw new Error('archivo de cohorte inválido'); return z; }, 'cohorte')
+      .catch((err) => { cohortes.delete(url); throw err; }));
+  }
+  return cohortes.get(url);
+}
+const cohorteLista = new Map(); // url → datos ya descargados (para dibujar sin esperar)
+function serieViva(entry, item) {
+  const z = cohorteLista.get(`../${COHORTS[entry.cohort]}`);
+  return z && item ? C.serieLegacyViva(z[item.f], entry.id) : null;
+}
+
 function loadSource(entry) {
   if (entry.kind === 'legacy') return Promise.resolve().then(() => C.legacySource(entry, DATA));
   return load(C.sourceUrl(entry), (v) => C.releaseSource(entry, v), `fuente:${entry.id}`);
@@ -389,7 +405,7 @@ function card(it, index) {
   const title = mode === 'all' ? `${entry.labelShort} · ${label}` : label;
   let art = null;
   const mediaBox = el('span', { class: 'g-card__media' });
-  if (entry.kind === 'legacy') {
+  if (entry.kind === 'legacy' && !C.LEGACY_VIVO.includes(state.grafica)) {
     const item = src.item(it.key);
     mediaBox.append(pngImage(item, state.grafica, '', cardImgError(() => art, item, state.grafica)));
   } else {
@@ -459,8 +475,16 @@ const tooltipTitle = (items) => (items.length ? C.fechaSemana(items[0].label) : 
 
 function drawCardChart(canvas) {
   const src = mode === 'all' ? allSources.get(canvas.dataset.entry) : source;
-  const s = src?.item(canvas.dataset.key);
-  if (!s) return null;
+  const it0 = src?.item(canvas.dataset.key);
+  const s = src?.entry?.kind === 'legacy' ? serieViva(src.entry, it0) : it0;
+  if (!s) {
+    if (src?.entry?.kind === 'legacy') {
+      // La serie de cohorte aún no llega: se pide y la página se vuelve a dibujar al recibirla.
+      cohorte(src.entry).then((z) => { cohorteLista.set(`../${COHORTS[src.entry.cohort]}`, z); renderList(); })
+        .catch((err) => { logError('archivo de la cohorte', err); canvas.replaceWith(el('span', { class: 'g-card__fallback' }, 'No se pudo cargar la serie de este padecimiento.')); });
+    }
+    return null;
+  }
   if (!chartReady()) { canvas.replaceWith(el('span', { class: 'g-card__fallback' }, 'Gráfica no disponible: no cargó la librería de gráficas.')); return null; }
   const w = C.ventana(s, state.grafica);
   return new window.Chart(canvas, {
@@ -583,21 +607,23 @@ function openViewer(index, from) {
     links.unshift(el('a', { class: 'text-link', href: encodeURI(C.pngFor(item, state.grafica)) }, 'Abrir la lámina PNG'));
     links.push(el('a', { class: 'text-link', href: `../${entry.page}` }, 'Método'));
     $('gViewerMeta').textContent = `${g.label} · ${f.origen} · último observado: ${f.observado}`;
-    if (state.grafica === 'zoom') {
+    if (C.LEGACY_VIVO.includes(state.grafica)) {
       viewerState('Cargando la gráfica…');
-      load(`../${COHORTS[entry.cohort]}`, (z) => { if (!z || typeof z !== 'object') throw new Error('archivo de cohorte inválido'); return z; }, 'cohorte').then((zoom) => {
+      cohorte(entry).then((zoom) => {
         if (!viewerLatest.isCurrent(tok)) return;
-        const s = zoom[item.f];
+        cohorteLista.set(`../${COHORTS[entry.cohort]}`, zoom);
+        const s = C.serieLegacyViva(zoom[item.f], entry.id);
         viewerState('');
         if (s && Array.isArray(s.d) && s.d.length) {
-          $('gViewerMeta').textContent = `${g.label} · motor ${s.motor} · ${f.origen} · ${C.bandaPermitida(s) ? 'con el intervalo que produce el motor' : 'sin intervalo'}`;
-          showViewerChart(s, entry, titulo);
-        } else showViewerImg(item, 'zoom', titulo, tok);
+          $('gViewerMeta').textContent = `${g.label} · motor ${s.motor} · ${f.origen} · ${C.bandaPermitida(s) ? 'con el intervalo que produce el motor' : 'sin intervalo'}`
+            + (state.grafica === 'full' ? ' · desde octubre de 2025; la historia desde 2014 está en la lámina PNG' : '');
+          showViewerChart(C.ventana(s, state.grafica), entry, titulo);
+        } else showViewerImg(item, state.grafica, titulo, tok);
       }).catch((err) => {
         if (!viewerLatest.isCurrent(tok)) return;
         logError('archivo de la cohorte', err);
-        viewerState('No se pudo cargar la gráfica interactiva; se muestra la lámina del mismo zoom.');
-        showViewerImg(item, 'zoom', titulo, tok);
+        viewerState('No se pudo cargar la gráfica interactiva; se muestra la lámina.');
+        showViewerImg(item, state.grafica, titulo, tok);
       });
     } else showViewerImg(item, state.grafica, `${titulo} · ${g.label}`, tok);
   } else {

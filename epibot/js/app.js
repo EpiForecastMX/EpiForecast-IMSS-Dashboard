@@ -7,7 +7,7 @@ import { graficoRondas } from './comparacion_rondas.js?v=4';
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2, contextoActual, reiniciaContexto, cargaZoom } from './kb.js?v=213';
+import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2, contextoActual, reiniciaContexto, cargaZoom } from './kb.js?v=214';
 import { detectEntities, norm } from './entities.js?v=88';
 import { pareceVariosPedidos, respuestaDePlan } from './agente.js?v=1';
 import { fechaEpiLegacy, REZAGO_LEGACY } from './calculo/series.js?v=3';
@@ -1307,7 +1307,7 @@ function addBotMessage(markdown, source, suggestions, chartData, sources) {
 
   // Normalizar acentos antes de comentarios y render
   const polished = polishSpanish(markdown);
-  const conDetalle = polished.replace(new RegExp(MARCADOR_RELEASE.source, 'g'), '').replace(/<!--SIN_GRAFICA-->/g, '').replace(/<!--COMPARE:.*?-->/g, '').replace(/<!--DISTRIB:.*?-->/g, '').replace(/<!--GENCHART:.*?-->/g, '').replace(/\n?<!--SIGUE:.*?-->/g, '');
+  const conDetalle = polished.replace(new RegExp(MARCADOR_RELEASE.source, 'g'), '').replace(/<!--SIN_GRAFICA-->/g, '').replace(/<!--COMPARE:.*?-->/g, '').replace(/<!--DISTRIB:.*?-->/g, '').replace(/<!--ALZA:.*?-->/g, '').replace(/<!--GENCHART:.*?-->/g, '').replace(/\n?<!--SIGUE:.*?-->/g, '');
   // Rediseño conversacional (24-nov-2026): lo que sigue a <!--DETALLE--> es la ficha técnica; se pliega en «Cómo se
   // calculó» y la voz no la lee. Cada mitad pasa por el saneador por separado; el envoltorio es fijo.
   const [cleanMarkdown, detalleMd = ''] = conDetalle.split('<!--DETALLE-->');
@@ -3023,6 +3023,41 @@ function buildDengueAnual(data) {
   };
 }
 
+/**
+ * Barras horizontales de «qué va al alza / a la baja»: cambio esperado en las próximas 4 semanas frente a las 4 anteriores
+ * (alzas en ocre, bajas en verde, cero al centro) o, en «más casos», los casos esperados. Cada etiqueta lleva los casos de
+ * las dos ventanas, para que el porcentaje no se lea solo. Los de confiabilidad baja lo dicen en la etiqueta.
+ */
+export function graficaAlza(g) {
+  const filas = (g?.filas || []).filter((x) => x && x.n);
+  if (!filas.length) return null;
+  const nf = (n) => Math.round(n).toLocaleString('es-MX');
+  if (g.modo === 'casos') {
+    return {
+      type: 'bar', horizontal: true,
+      title: 'Padecimientos con más casos esperados en el país (próximas 4 semanas)',
+      labels: filas.map((x) => x.n),
+      datasets: [{ label: 'Casos esperados en 4 semanas', data: filas.map((x) => Math.round(x.f)), backgroundColor: '#2a78d6', borderWidth: 0, borderRadius: 4 }],
+      altura: filas.length * 30 + 110,
+      options: { scales: { y: { ticks: { autoSkip: false } }, x: { beginAtZero: true, title: { display: true, text: 'Casos notificados esperados' } } } },
+    };
+  }
+  const SUBE = '#b4541e', BAJA = '#17644d';
+  return {
+    type: 'bar', horizontal: true,
+    title: 'Cambio esperado en las próximas 4 semanas frente a las 4 anteriores',
+    labels: filas.map((x) => `${x.n} (${nf(x.o)} → ${nf(x.f)})${x.c === 'baja' ? ' · confiabilidad baja' : ''}`),
+    datasets: [{
+      label: 'Cambio esperado (%)',
+      data: filas.map((x) => Math.round(x.d * 100)),
+      backgroundColor: filas.map((x) => (x.d >= 0 ? SUBE : BAJA)),
+      borderWidth: 0, borderRadius: 4,
+    }],
+    altura: filas.length * 30 + 120,
+    options: { scales: { y: { ticks: { autoSkip: false } }, x: { title: { display: true, text: 'Cambio esperado (%); casos notificados, sin ajustar por población' } } } },
+  };
+}
+
 function extractChartData(markdown, query) {
   const data = getData();
   if (!data) return null;
@@ -3040,6 +3075,12 @@ function extractChartData(markdown, query) {
   if (rondas && data.comparacion_rondas) {
     try { return graficoRondas(data.comparacion_rondas, JSON.parse(rondas[1]).pad); }
     catch (e) { console.warn('Comparación de rondas no disponible', e); }
+  }
+
+  // «¿Qué enfermedades van al alza?» (pedido del autor, 26-nov-2026): las mismas filas del texto, en barras horizontales.
+  const alza = markdown.match(/<!--ALZA:(.*?)-->/);
+  if (alza) {
+    try { return graficaAlza(JSON.parse(alza[1])); } catch (e) { console.warn('Gráfica de alzas no disponible', e); }
   }
 
   // Obesidad (E66) tampoco vive en prod_models/weekly_comparison: sus gráficas salen de su vista
