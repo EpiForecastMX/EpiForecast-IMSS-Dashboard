@@ -4418,9 +4418,8 @@ function generatePDFReport(data) {
 <meta charset="utf-8">
 <title>Reporte Ejecutivo - EpiForecast-MX</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Inter', sans-serif; color: #1a1a1a; padding: 40px; max-width: 900px; margin: 0 auto; line-height: 1.5; }
+  body { font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; color: #1a1a1a; padding: 40px; max-width: 900px; margin: 0 auto; line-height: 1.5; }
   @media print { body { padding: 20px; } .no-print { display: none; } }
   .header { border-bottom: 3px solid #12513e; padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; }
   .header h1 { font-size: 22px; color: #12513e; }
@@ -4443,7 +4442,7 @@ function generatePDFReport(data) {
 </style>
 </head>
 <body>
-<button class="print-btn no-print" onclick="window.print()">Imprimir / Guardar PDF</button>
+<button class="print-btn no-print" type="button">Imprimir / Guardar PDF</button>
 
 <div class="header">
   <div>
@@ -4510,5 +4509,7 @@ ${notaMetricas}
   if (reportWindow) {
     reportWindow.document.write(reportHtml);
     reportWindow.document.close();
+    // Sin manejadores en línea (la CSP del EpiBot no los permite y la ventana la hereda): el botón se conecta desde aquí.
+    reportWindow.document.querySelector('.print-btn')?.addEventListener('click', () => reportWindow.print());
   }
 }
