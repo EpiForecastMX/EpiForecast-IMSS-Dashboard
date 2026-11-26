@@ -945,7 +945,8 @@ add('a robin williams le diagnosticaron parkinson', null, []);
 // Consejos medicos
 add('como se cura el parkinson', null, []);
 add('tratamiento para la depresion', null, []);
-add('se puede prevenir el alzheimer', null, []);
+// Plan canónico 2.5, escalón 1 (26-nov-2026): la prevención recibe el texto fijo con la fuente oficial, nunca el modelo.
+add('se puede prevenir el alzheimer', 'answerClinica', ['fuente oficial', '911', 'la lista no es completa']);
 // Plan canónico 1.6 (26-nov-2026): las dudas de medicamento se contestan en local sin consejo médico, nunca con el modelo.
 add('que medicamento tomar para depresion', 'answerConsejoMedico', ['No doy consejo médico', '911'], ['casos']);
 // Preguntas personales de salud (conversacionales)

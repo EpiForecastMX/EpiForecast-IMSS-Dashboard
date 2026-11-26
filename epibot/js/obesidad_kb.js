@@ -487,14 +487,17 @@ function answerRelease(q, ent, s, d, r) {
       const cie = (v.nombre_completo || '').match(/\(([^()]+)\)\s*$/)?.[1];
       const arriba = [];
       if (defin) {
-        // Rediseño conversacional: definición propia en lenguaje llano (js/definiciones.js, revisada por un médico),
-        // con la aclaración de que es informativa y el enlace a MedlinePlus en español para saber más.
+        // Rediseño conversacional: definición propia en lenguaje llano (js/definiciones.js, redactada con ayuda de IA y sin
+        // revisión de personal de salud, como lo dice el pie), con el enlace a MedlinePlus en español para saber más.
         const def = DEFINICIONES[r.id];
         arriba.push(def
           ? `**${r.nombre}**${cie ? ` (CIE-10 ${cie})` : ''}. ${def}`
           : `**${r.nombre}** es una de las categorías que notifica el boletín epidemiológico de la Secretaría de Salud` +
             `${cie ? ` (CIE-10 ${cie})` : ''}${completo && completo.toLowerCase() !== r.nombre.toLowerCase() ? `: ${completo}` : ''}.`, '',
-          `_Información general, no sustituye la consulta médica. Para saber más: [MedlinePlus en español](${enlaceDefinicion(r.nombre)})._ Así va:`, '');
+          // Plan canónico 2.5 (acta de la mesa del 26-nov-2026): rótulo visible de la definición; el pie llano ya dice «No es
+          // consejo médico».
+          def ? `_Redactada con ayuda de IA; no revisada por personal de salud. [Más en MedlinePlus](${enlaceDefinicion(r.nombre)})._`
+            : `_Información general. [Más en MedlinePlus](${enlaceDefinicion(r.nombre)})._`, '');
       }
       if (tipo === 'confianza') arriba.push(confiabilidad(v, x, esControl(v), r).texto, '');
       // Plan canónico 1.1: «¿está validado?» y el error fuera de muestra se contestan en la primera línea.

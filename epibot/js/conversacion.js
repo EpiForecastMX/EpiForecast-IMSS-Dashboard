@@ -7,6 +7,7 @@
  * genera scripts/build_resumen_padecimientos.mjs desde las vistas publicadas.
  */
 import { RELEASES } from './release_config.js?v=59';
+import { LINEA_ALARMA, SIGNOS_ALARMA_GENERALES } from './clinica.js?v=1';
 import { fechaEpiLegacy } from './calculo/series.js?v=4';
 import { semanaTxt, semanaDeEtiqueta, botonesPeriodo } from './resumen_llano.js?v=9';
 
@@ -90,7 +91,7 @@ export function notaSintomas(q) {
     return '_En el embarazo, la presión alta con dolor de cabeza intenso, visión borrosa, zumbido de oídos o hinchazón es una urgencia: acude a urgencias o llama al 911._';
   }
   return SINTOMA.test(q) && PERSONAL.test(q)
-    ? '_No puedo diagnosticar. Si hay fiebre muy alta, dificultad para respirar, sangrado o deshidratación, acude a urgencias o llama al 911._'
+    ? `_No puedo diagnosticar. Si hay signos de alarma, como ${SIGNOS_ALARMA_GENERALES} (la lista no es completa), acude a urgencias o llama al 911._`
     : null;
 }
 
@@ -125,7 +126,7 @@ export function answerSintomas(q, ent) {
     ? `\n\nSi te sirve, puedo decirte cómo van los casos de ${pad.toLowerCase()} en tu estado.`
     : '\n\nSi te sirve, puedo decirte qué padecimientos están circulando más en tu estado.';
   return 'No puedo diagnosticarte ni recomendarte un tratamiento: soy un asistente de datos epidemiológicos.\n\n' +
-    '- Si hay **fiebre muy alta, dificultad para respirar, sangrado, dolor intenso, confusión o deshidratación**, acude a urgencias o llama al **911**.\n' +
+    `- Si hay signos de alarma, como **${SIGNOS_ALARMA_GENERALES}** (la lista no es completa), acude a urgencias o llama al **911**.\n` +
     '- Si los síntomas son leves, consulta en tu unidad de salud o con tu médico; evita automedicarte.' + oferta +
     '\n<!--SIN_GRAFICA-->' + sigue(pad
     ? [{ t: `¿Cómo va ${pad.toLowerCase()}?`, q: `¿cómo va ${pad.toLowerCase()}?` }]
@@ -653,11 +654,11 @@ const FAQ = [
   [/\bsmape (de|del|en|igual a|=)? ?\d+/,
     'El **sMAPE** mide el error porcentual promedio entre lo pronosticado y lo observado (0 % sería perfecto). Como guía práctica: menos de 20 % es bueno, de 20 a 50 % es moderado y más de 50 % es alto; en series con muy pocos casos el sMAPE se dispara aunque el error en casos sea pequeño. Por eso en cada respuesta doy la confiabilidad en palabras.'],
   [/\b(eres (un )?(doctor|medico|maquina|robot|chatgpt|gemini)|es una maquina|es usted doctor|usted es doctor|eres chatgpt)\b/,
-    'Soy **EpiBot**, un asistente automático: no soy una persona ni un médico. Las cifras salen siempre de los datos publicados del boletín epidemiológico; para preguntas abiertas me apoyo en un modelo de lenguaje (Gemini de Google), pero nunca para inventar números.'],
+    'Soy **EpiBot**, un asistente automático: no soy una persona ni un médico. Las cifras salen siempre de los datos publicados del boletín epidemiológico; para preguntas abiertas me apoyo en un modelo de lenguaje (Gemini de Google y, de respaldo, DeepSeek), pero nunca para inventar números.'],
   [/\b(quien paga|quien lo paga|lo hizo el imss|es del imss|es del gobierno|4t|marketing|propaganda|lo recomienda la sep|avalado|patrocin\w*)\b/,
     'EpiForecast-MX es un **proyecto académico** de la Maestría en Inteligencia Artificial Aplicada del Tecnológico de Monterrey, hecho para la salud pública en México. No es un producto del gobierno ni de un partido, y no está avalado por la Secretaría de Salud ni por la SEP. Los datos son los del boletín oficial; los pronósticos son del proyecto.'],
   [/\b(mis datos|datos personales|que guardan|guardan lo que|vendieron|privacidad|me espian|rastrean)\b/,
-    'No te pido datos personales. Cuando una pregunta necesita el modelo de lenguaje, su texto se envía a Google Gemini para generar la respuesta, así que no escribas nombres, teléfonos ni datos que te identifiquen.'],
+    'No te pido datos personales. Cuando una pregunta necesita el modelo de lenguaje, su texto se envía a Google Gemini o, si Gemini no está disponible, a DeepSeek, su respaldo, para generar la respuesta; así que no escribas nombres, teléfonos ni datos que te identifiquen.'],
   [/\b(quien se hace responsable|quien es responsable|me equivoco por sus|si me equivoco|responsabilidad)\b/,
     'Es información estadística orientativa: no es consejo médico ni una cifra oficial. Cada respuesta dice qué tan confiable es el pronóstico; para decisiones de salud o de servicios, contrástalo con tu médico o con la información de tu jurisdicción.'],
   [/\b(inventan|inventados|inventadas|son reales los|numeros falsos|datos falsos)\b/,
@@ -742,7 +743,7 @@ const FUERA = [
   [/\b(recomiendas un (doctor|medico)|un doctor en|un medico en|buen doctor|buen medico|hospital mas cercano|clinica mas cercana|a que hora abre|horario|donde queda|direccion del|telefono del|centro de salud mas cercano|farmacia)\b/,
     'No tengo un directorio de hospitales ni de centros de salud. En una urgencia llama al **911**; para ubicar tu unidad, consulta la página de tu institución (IMSS, ISSSTE o la Secretaría de Salud de tu estado).'],
   [/\b(paracetamol|ibuprofeno|aspirina|antibiotico|antibioticos|vaporub|remedio|remedios|que medicina|que medicamento|que le doy|que me tomo|dosis|jarabe|te de)\b/,
-    'No recomiendo medicamentos ni remedios: consulta a tu médico o a tu farmacéutico. Si hay datos de alarma (fiebre muy alta, dificultad para respirar, sangrado, deshidratación), acude a urgencias o llama al **911**.'],
+    `No recomiendo medicamentos ni remedios: consulta a tu médico o a tu farmacéutico. ${LINEA_ALARMA}`],
   [/\b(presupuesto|recorte|gobierno|presidente|presidenta|secretario de salud|politica|partido politico|elecciones|opinas|que opina)\b/,
     'No opino de política ni de decisiones de gobierno: sólo doy datos de casos notificados y sus pronósticos.'],
   [/\b(america|chivas|pumas|cruz azul|partido|gano|beisbol|dolar|tipo de cambio|tortas|pozole|comida favorita|te gusta la comida|te gustan las)\b/,
@@ -830,8 +831,8 @@ export function answerConsejoMedico(q) {
     gravedad: 'No valoro la gravedad ni el riesgo de una persona: EpiForecast-MX cuenta casos notificados al boletín, no defunciones ni la evolución de cada paciente.',
   }[tipo];
   return [`**${primera}**`, '',
-    'Consulta a tu médico o acude a tu unidad de salud. Si hay signos de alarma (dificultad para respirar, sangrado, somnolencia o confusión, dolor intenso o vómito persistente), llama al **911**.', '',
-    '_Información general y revisada en [MedlinePlus en español](https://medlineplus.gov/spanish/). Si quieres, te doy las cifras: por ejemplo, «¿cómo va el dengue en Veracruz?»._',
+    `Consulta a tu médico o acude a tu unidad de salud. ${LINEA_ALARMA}`, '',
+    '_Para información general, consulta [MedlinePlus en español](https://medlineplus.gov/spanish/). Si quieres, te doy las cifras: por ejemplo, «¿cómo va el dengue en Veracruz?»._',
     '<!--SIN_GRAFICA-->'].join('\n');
 }
 

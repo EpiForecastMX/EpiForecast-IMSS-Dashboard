@@ -1,8 +1,9 @@
 /**
  * definiciones.js — definiciones en lenguaje llano de los padecimientos publicados del runner (rediseño conversacional,
- * 24-nov-2026). Redactadas por tres redactores médicos en paralelo y revisadas por un médico revisor independiente (17 de
- * 136 corregidas: alcance del código CIE-10, cifras, tratamientos y redacción). Información general, sin cifras, sin
- * tratamientos ni consejo individual. Los padecimientos sensibles no tienen definición aquí a propósito.
+ * 24-nov-2026). Redactadas y revisadas por asistentes de IA con perfil médico (17 de 136 corregidas en la revisión: alcance
+ * del código CIE-10, cifras, tratamientos y redacción). Ningún profesional de la salud las ha revisado (acta de la mesa del
+ * 26-nov-2026, planes/mesa_fichas_clinicas_2026-11-26/ACTA.md). Información general, sin cifras, sin tratamientos ni consejo
+ * individual. Los padecimientos sensibles no tienen definición aquí a propósito.
  * Escritas a mano: no las genera ningún script. Al publicar un padecimiento nuevo, añade su definición y su prueba pasa.
  */
 export const DEFINICIONES = Object.freeze({
