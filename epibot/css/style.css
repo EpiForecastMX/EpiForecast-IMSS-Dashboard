@@ -1938,11 +1938,13 @@ body::after {
   scrollbar-color: var(--border-accent) transparent;
 }
 
-/* Enlaces de las respuestas: contraste y foco sobre las tarjetas oscuras. */
-.msg-content a { color: #A9C8FF; text-decoration: underline; text-underline-offset: .18em; }
-.msg-content a:visited { color: #BED2FF; }
-.msg-content a:hover { color: #FFFFFF; }
-.msg-content a:focus-visible { outline: 2px solid #A9C8FF; outline-offset: 3px; border-radius: 3px; }
+/* Enlaces de las respuestas sobre la burbuja blanca (plan canónico 2.7, 26-nov-2026): el visitado y el hover eran los del
+   tema oscuro anterior (#BED2FF y blanco, contraste 1.5:1 y 1:1); ahora todos superan 4.5:1 y el visitado se distingue. */
+.msg-content a { color: #17644d; text-decoration: underline; text-underline-offset: .18em; }
+.msg-content a:visited { color: #5a3d7a; }
+.msg-content a:hover { color: #0d3f30; text-decoration-thickness: 2px; }
+.msg-content a:focus-visible { outline: 2px solid #17644d; outline-offset: 3px; border-radius: 3px; }
+
 
 /* Pequeños múltiplos de «¿qué va al alza?» (plan canónico 1.3, 26-nov-2026). */
 .alza-titulo { margin: 0 0 10px; font-weight: 800; font-size: 15px; color: #173c33; }

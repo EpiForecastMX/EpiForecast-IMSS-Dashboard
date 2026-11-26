@@ -49,6 +49,14 @@ function centroid(pathStr) {
   return [sx/n, sy/n];
 }
 
+/** Coloca el tooltip junto al punto sin salirse del contenedor (plan canónico 2.7, 26-nov-2026). */
+export function ubicaTooltip(tooltipEl, wrapper, x, y) {
+  const ancho = wrapper.clientWidth || wrapper.getBoundingClientRect().width;
+  const w = tooltipEl.offsetWidth || 0;
+  tooltipEl.style.left = Math.max(4, Math.min(x + 14, ancho - w - 4)) + 'px';
+  tooltipEl.style.top = Math.max(4, y - 36) + 'px';
+}
+
 /**
  * Render a choropleth map of Mexico inside the given container.
  * @param {HTMLElement} container - DOM element to append the map to
@@ -133,8 +141,7 @@ export function renderMexicoMap(container, stateData, opts = {}) {
     };
     const ubicaEnElEstado = () => {
       const r = path.getBoundingClientRect(), rect = wrapper.getBoundingClientRect();
-      tooltipEl.style.left = (r.left + r.width / 2 - rect.left + 8) + 'px';
-      tooltipEl.style.top = (r.top - rect.top - 36) + 'px';
+      ubicaTooltip(tooltipEl, wrapper, r.left + r.width / 2 - rect.left, r.top - rect.top);
     };
     path.addEventListener('mouseenter', muestra);
     path.addEventListener('focus', () => { muestra(); ubicaEnElEstado(); });
@@ -146,8 +153,7 @@ export function renderMexicoMap(container, stateData, opts = {}) {
     });
     path.addEventListener('mousemove', (e) => {
       const rect = wrapper.getBoundingClientRect();
-      tooltipEl.style.left = (e.clientX - rect.left + 14) + 'px';
-      tooltipEl.style.top = (e.clientY - rect.top - 36) + 'px';
+      ubicaTooltip(tooltipEl, wrapper, e.clientX - rect.left, e.clientY - rect.top);
     });
     path.addEventListener('mouseleave', () => {
       path.setAttribute('stroke', '#ffffff');

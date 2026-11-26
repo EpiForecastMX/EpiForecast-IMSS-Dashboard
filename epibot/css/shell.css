@@ -783,4 +783,19 @@ body.keyboard-open .cc-topbar{display:flex}.input-wrapper .prompt-toggle,.input-
 .mexico-map-clase i { width: 14px; height: 14px; border-radius: 3px; border: 1px solid #c9d6cd; display: inline-block; }
 .mexico-map-nota { margin-top: 4px; font-size: 12px; color: #53675e; }
 .mexico-map-tooltip { background: #fff !important; color: #173c33 !important; border: 1px solid #c9d6cd !important; }
+/* Plan canónico 2.7: el tooltip del mapa y del timelapse nunca es más ancho que la pantalla (antes, nowrap lo sacaba a 375 px). */
+.mexico-map-tooltip { max-width: min(260px, calc(100vw - 32px)); white-space: normal; overflow-wrap: anywhere; box-shadow: 0 4px 14px rgba(23, 60, 51, 0.12); }
 .chart-datos summary { min-height: 44px; }
+
+/* Objetivos táctiles de 44 px en pantallas táctiles (plan canónico 2.7); van al final para ganar a las reglas compactas. */
+@media (pointer: coarse) {
+  .msg-action-btn, .msg-suggestions button, .msg-source-chip .src-ask, .timelapse-btn, .timelapse-speed button,
+  .msg-chart-container summary, .msg-detalle > summary { min-height: 44px; min-width: 44px; }
+}
+
+/* Comparador apilado en pantallas angostas (plan canónico 2.7): dos columnas de 170 px no se leían a 375 px. */
+@media (max-width: 600px) {
+  .comparador-split { flex-direction: column; gap: 10px; }
+  .comparador-col + .comparador-col { border-left: 0; border-top: 1px solid #dbe3dc; padding-top: 14px; }
+  .comparador-vs-label { width: 56px; }
+}
