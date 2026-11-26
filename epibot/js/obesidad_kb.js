@@ -57,6 +57,8 @@ function ficha(v, x, encabezado, r) {
     `- sMAPE: **${num1(x.oos.smape)} %**`,
     `- Error medio absoluto: ${ent0(x.oos.mae)} casos por semana`,
     `- Sesgo: ${num1(x.oos.sesgo_pct)} % (observados ${ent0(x.oos.observado_total)} frente a ${ent0(x.oos.pronostico_total)} pronosticados)`,
+    // Decisión del autor (25-nov-2026): con pocas semanas o pocos casos se muestran ambos, con el aviso.
+    ...(pocosOos(x.oos) ? ['- Con menos de 4 semanas o menos de 20 casos, el sMAPE varía mucho: léelo junto a los casos observados y pronosticados.'] : []),
     ...avisosFuente(v.disease_id),
   ];
 }
@@ -146,8 +148,9 @@ export function errorDelControl(c, anio, sinSexo, estatalPocoInformativo = false
 const enCurso = (v) => (esControl(v) ? avisoDeControl(v) : `**Validación prospectiva en curso** (${v.weeks_available} de ${v.weeks_required} semanas): todavía no hay semanas observadas después del origen, así que aún no se publica su desempeño fuera de muestra.`);
 
 /** Desempeño de una fila, o lo que hay mientras no exista ninguna semana observada. */
+const pocosOos = (o) => !!o && o.semanas > 0 && (o.semanas < 4 || (o.observado_total || 0) + (o.pronostico_total || 0) < 20);
 const desempeno = (x, v) => (x.oos.semanas
-  ? `sMAPE ${num1(x.oos.smape)} %, sesgo ${num1(x.oos.sesgo_pct)} %, ${ent0(x.pronostico_52_total)} casos en ${v.horizon_weeks} semanas`
+  ? `sMAPE ${num1(x.oos.smape)} % (${ent0(x.oos.observado_total)} observados frente a ${ent0(x.oos.pronostico_total)} pronosticados en ${x.oos.semanas === 1 ? '1 semana' : `${x.oos.semanas} semanas`}), sesgo ${num1(x.oos.sesgo_pct)} %, ${ent0(x.pronostico_52_total)} casos en ${v.horizon_weeks} semanas`
   : `${ent0(x.pronostico_52_total)} casos pronosticados en ${v.horizon_weeks} semanas`);
 
 /** Marcador para app.js: la gráfica sigue al texto aunque la consulta cruda no diga «obesidad». */

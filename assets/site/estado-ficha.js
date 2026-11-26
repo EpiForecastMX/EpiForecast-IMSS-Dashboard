@@ -136,6 +136,19 @@
     return sinCasos(o) ? 'sin casos' : fmt(o.smape);
   }
 
+  /* Decisión del autor (25-nov-2026, «muestra los dos»): el sMAPE se muestra siempre junto a los casos observados y
+   * esperados de las semanas que mide; con menos de 4 semanas o menos de 20 casos lleva además el aviso de que varía mucho. */
+  var NF0 = typeof Intl !== 'undefined' ? new Intl.NumberFormat('es-MX', { maximumFractionDigits: 0 }) : { format: String };
+  function pocos(o) {
+    return !!o && o.semanas > 0 && (o.semanas < 4 || (o.observado_total || 0) + (o.pronostico_total || 0) < 20);
+  }
+  function rotuloOos(o, base) {
+    if (!o || !o.semanas) return base + ' (sin semanas aún)';
+    var t = base + ' · ' + o.semanas + (o.semanas === 1 ? ' semana: ' : ' semanas: ') + NF0.format(o.observado_total) +
+      ' observados frente a ' + NF0.format(o.pronostico_total) + ' esperados';
+    return pocos(o) ? t + ' (pocas semanas o pocos casos: varía mucho)' : t;
+  }
+
   function texto(d, sel, t) {
     var el = d.querySelector ? d.querySelector(sel) : null;
     if (el) el.textContent = t;
@@ -148,7 +161,7 @@
     var n = nac && nac.oos ? nac.oos.semanas : 0;
     var st = d.getElementById && d.getElementById('stOos');
     var lab = st && st.parentNode && st.parentNode.querySelector ? st.parentNode.querySelector('.l') : null;
-    if (lab && n) lab.textContent = 'sMAPE nacional fuera de muestra (' + n + (n === 1 ? ' semana)' : ' semanas)');
+    if (lab && n) lab.textContent = rotuloOos(nac.oos, 'sMAPE nacional fuera de muestra');
     if (st && sinCasos(nac && nac.oos)) st.textContent = 'Sin casos';
     if (tipo(v) !== 'control' || !d.querySelector) return;
     texto(d, '#explorador h2', 'Control estacional frente a lo observado');
@@ -209,5 +222,5 @@
     g.document.addEventListener('DOMContentLoaded', function () { radiogrupo(g.document.getElementById('segSexo')); });
   }
 
-  g.EpiEstadoFicha = { CORTO: CORTO, SIN_ALTERNATIVA: SIN_ALTERNATIVA, GRIS_CONTROL: GRIS_CONTROL, llano: llano, etiqueta: etiqueta, tipo: tipo, detalle: detalle, aplica: aplica, cifras: cifras, rotulos: rotulos, trazo: trazo, agregado: agregado, sinCasos: sinCasos, errorOos: errorOos, radiogrupo: radiogrupo, filaTeclado: filaTeclado, resumenGrafica: resumenGrafica, semanaMas: semanaMas, semanasDelAnio: semanasDelAnio };
+  g.EpiEstadoFicha = { CORTO: CORTO, SIN_ALTERNATIVA: SIN_ALTERNATIVA, GRIS_CONTROL: GRIS_CONTROL, llano: llano, etiqueta: etiqueta, tipo: tipo, detalle: detalle, aplica: aplica, cifras: cifras, rotulos: rotulos, trazo: trazo, agregado: agregado, sinCasos: sinCasos, errorOos: errorOos, pocos: pocos, rotuloOos: rotuloOos, radiogrupo: radiogrupo, filaTeclado: filaTeclado, resumenGrafica: resumenGrafica, semanaMas: semanaMas, semanasDelAnio: semanasDelAnio };
 })(typeof window !== 'undefined' ? window : globalThis);

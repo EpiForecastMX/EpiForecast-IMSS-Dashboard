@@ -188,6 +188,12 @@ def activar(raiz: Path, carpeta: str | None = None, pdf: str | None = None,
         if r.returncode != 0:
             raise SystemExit('ERROR: no se pudo generar el pronóstico exploratorio del radar: '
                              + ((r.stderr or r.stdout).strip() or 'sin detalle'))
+        # Portada: proporción de lo publicado y señales del boletín recién activado (scripts/home_senales.mjs).
+        r = subprocess.run(['node', str(RAIZ / 'scripts/home_senales.mjs'), '--root', str(raiz)],
+                           capture_output=True, text=True)
+        if r.returncode != 0:
+            raise SystemExit('ERROR: no se pudieron actualizar las señales de la portada: '
+                             + ((r.stderr or r.stdout).strip() or 'sin detalle'))
         # El texto estático de la huella cuenta el exploratorio recién generado: se resincroniza la página.
         valores = calcular(raiz, actual)
         nuevo, faltan = sincronizar_html(pagina.read_text(encoding='utf-8'), valores['textos'],

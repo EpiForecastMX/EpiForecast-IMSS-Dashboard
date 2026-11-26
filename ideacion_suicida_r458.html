@@ -221,7 +221,7 @@
 <!-- site:footer:end -->
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-  <script src="assets/site/estado-ficha.js?v=4"></script>
+  <script src="assets/site/estado-ficha.js?v=5"></script>
   <script>
   (function () {
     'use strict';
@@ -314,7 +314,7 @@
       $('chartObesidad').setAttribute('aria-label', EpiEstadoFicha.resumenGrafica(s, V, nf0));
       const o = s.oos;
       $('mSmape').textContent = EpiEstadoFicha.errorOos(o, pct);
-      $('mSmapeL').textContent = o.semanas ? `sMAPE fuera de muestra (${o.semanas} ${o.semanas === 1 ? 'semana' : 'semanas'})` : 'sMAPE fuera de muestra (sin semanas aún)';
+      $('mSmapeL').textContent = EpiEstadoFicha.rotuloOos(o, 'sMAPE fuera de muestra');
       $('mMae').textContent = o.mae === null ? '—' : nf0.format(o.mae);
       $('mBias').textContent = signo(o.sesgo_pct);
       $('mTotal').textContent = nf0.format(s.pronostico_52_total);

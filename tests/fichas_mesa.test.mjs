@@ -79,12 +79,22 @@ test('rótulos: el sMAPE nacional dice con cuántas semanas; en un control, tít
   mk('#metodologia .step:nth-child(2) h4', '64 modelos, uno por serie base');
   const d = { getElementById: (x) => nodos[`#${x}`], querySelector: (s) => nodos[s] || null };
   E.rotulos(d, vista('varicela_b01'));
-  assert.equal(lab.textContent, 'sMAPE nacional fuera de muestra (1 semana)');
+  // Decisión del autor (25-nov-2026): el sMAPE va junto a observados y esperados, con aviso si hay pocas semanas o casos.
+  const nac = vista('varicela_b01').series['nacional|mx|general'].oos;
+  assert.equal(lab.textContent, `sMAPE nacional fuera de muestra · 1 semana: ${new Intl.NumberFormat('es-MX').format(nac.observado_total)} observados frente a ${new Intl.NumberFormat('es-MX', { maximumFractionDigits: 0 }).format(nac.pronostico_total)} esperados (pocas semanas o pocos casos: varía mucho)`);
   assert.equal(nodos['#explorador h2'].textContent, 'Control estacional frente a lo observado');
   assert.equal(nodos['.legend .sw-fc:txt'].textContent, 'Control, no validado');
   assert.equal(nodos['.legend .sw-band:txt'].textContent, 'Semanas ya observadas del control');
   assert.equal(nodos['#metodologia .step:nth-child(2) h4'].textContent, 'Una serie base por entidad y sexo');
   assert.match(nodos['#explorador > .wrap > p'].textContent, /gris discontinua, el control estacional/);
+});
+
+test('rótulo del error: sin semanas, con pocas y con cuatro o más; las 148 fichas lo usan', () => {
+  assert.equal(E.rotuloOos({ semanas: 0 }, 'sMAPE'), 'sMAPE (sin semanas aún)');
+  assert.equal(E.rotuloOos({ semanas: 2, observado_total: 5402, pronostico_total: 6128.5 }, 'sMAPE'), 'sMAPE · 2 semanas: 5,402 observados frente a 6,129 esperados (pocas semanas o pocos casos: varía mucho)');
+  assert.equal(E.rotuloOos({ semanas: 4, observado_total: 9, pronostico_total: 8 }, 'sMAPE'), 'sMAPE · 4 semanas: 9 observados frente a 8 esperados (pocas semanas o pocos casos: varía mucho)');
+  assert.equal(E.rotuloOos({ semanas: 17, observado_total: 253617, pronostico_total: 282612 }, 'sMAPE'), 'sMAPE · 17 semanas: 253,617 observados frente a 282,612 esperados');
+  for (const { page } of RELEASES) assert.match(leer(page), /EpiEstadoFicha\.rotuloOos\(o, 'sMAPE fuera de muestra'\)/, page);
 });
 
 test('resumen accesible de la gráfica: serie, último observado y total del control o del pronóstico', () => {
