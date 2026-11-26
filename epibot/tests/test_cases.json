@@ -6079,8 +6079,12 @@
   {
     "id": 545,
     "query": "se puede prevenir el alzheimer",
-    "expectedHandler": null,
-    "mustContain": [],
+    "expectedHandler": "answerClinica",
+    "mustContain": [
+      "fuente oficial",
+      "911",
+      "la lista no es completa"
+    ],
     "mustNotContain": [],
     "checkEntities": {}
   },

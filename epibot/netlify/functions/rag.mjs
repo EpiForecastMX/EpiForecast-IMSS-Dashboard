@@ -31,6 +31,7 @@ import { interpretaConsulta, interpretaPlan, generadorOllama } from '../lib/nlu.
 import { proveedorBloqueado, registraFallo, reintentable, mensajeUsuario } from '../lib/proveedor.mjs';
 import { depuraCifras, NOTA_RETIRADA, SIN_CIFRAS_VERIFICABLES } from '../lib/cifras_verificadas.mjs';
 import { respaldos, etiqueta, generaConRespaldo, nluConRespaldo, AVISOS } from '../lib/respaldo.mjs';
+import { respuestaClinica } from '../../js/clinica.js';
 
 const EMBED_MODEL = 'gemini-embedding-001';
 const EMBED_DIM = 768;
@@ -1064,6 +1065,15 @@ async function handlerInterno(req) {
   // Re-auditoría Codex: consulta mixta con un id sensible y sin riesgo; no se combinan cifras.
   const mixta = globalThis.EPI_CATALOGO.respuestaMixtaSensible(String(body.query || ''));
   if (mixta) return json({ answer: mixta.replace('\n<!--SIN_GRAFICA-->', ''), sources: [], retrieval: 'none', guarda: 'mixta_sensible' }, 200, cors);
+  // Plan canónico 2.5, escalón 1 (acta de la mesa del 26-nov-2026): contagio, prevención, signos de alarma y «cuándo acudir»
+  // reciben el texto fijo de js/clinica.js antes de cualquier modelo (Gemini, DeepSeek, planificador y «nlu»), aunque la
+  // petición llegue directo a la función. En «nlu» y «plan» no se interpreta nada: el cliente ya responde con el mismo texto.
+  const clinica = guardaD7Rag(body.query) ? null : respuestaClinica(String(body.query || ''));
+  if (clinica) {
+    if (body.modo === 'nlu') return json({ consulta: null, entendido: null, guarda: 'clinica' }, 200, cors);
+    if (body.modo === 'plan') return json({ consultas: [], guarda: 'clinica' }, 200, cors);
+    return json({ answer: clinica, sources: [], retrieval: 'none', guarda: 'clinica' }, 200, cors);
+  }
   // Rediseño conversacional (24-nov-2026): respaldo de comprensión. Después de la crisis y de las guardas de sensibles, Gemini
   // sólo clasifica la frase contra listas cerradas (netlify/lib/nlu.mjs); el cliente responde la consulta canónica con su KB.
   // Mesa agéntica, fase 3: «plan» divide una frase con varios pedidos en pasos validados (netlify/lib/nlu.mjs); mismas guardas y

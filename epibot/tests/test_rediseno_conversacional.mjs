@@ -257,10 +257,12 @@ test('«¿siguen creciendo los casos en Tabasco?» responde con el panorama del 
 });
 test('una pregunta clínica sobre un padecimiento va al RAG; la de datos se queda en el KB', async () => {
   for (const q of ['¿Cuál es la causa de la obesidad?', '¿qué tipo de dieta se recomienda para las personas con diabetes?',
-    '¿Qué es la hepatitis y cómo se transmite?', '¿Cuánto tiempo dura un caso de dengue?', '¿Qué hace que la escabiosis sea tan contagiosa?']) {
+    '¿Cuánto tiempo dura un caso de dengue?', '¿Qué hace que la escabiosis sea tan contagiosa?']) {
     const { md } = await conversa(q);
     assert.equal(md, '', q);
   }
+  // Plan canónico 2.5, escalón 1: el contagio ya no va al modelo; recibe el texto fijo con la fuente oficial.
+  assert.match((await conversa('¿Qué es la hepatitis y cómo se transmite?')).md, /consulta la fuente oficial: \[Hepatitis, OPS\/OMS\]/);
   for (const q of ['¿Cuántos hombres tienen obesidad?', '¿cuántos casos de escabiosis hay en Sonora?', 'que causa la depresion']) {
     const { md } = await conversa(q);
     assert.ok(md, q);

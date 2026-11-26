@@ -10,14 +10,15 @@ import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaN
 import { comparacionRondasMd } from './comparacion_rondas.js?v=4';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=14';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=80';
-import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion, answerConsejoMedico, DUDA_MEDICAMENTO, VIAJE_SEGURIDAD, NOTA_VIAJE } from './conversacion.js?v=23';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=81';
+import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion, answerConsejoMedico, DUDA_MEDICAMENTO, VIAJE_SEGURIDAD, NOTA_VIAJE } from './conversacion.js?v=24';
 import { respuestaLlana, confiabilidadLegacy, indicadores as indicadoresLlano, semanaTxt } from './resumen_llano.js?v=9';
 import { answerNegativaRazonada, answerEstacionalidad, answerExplicaGrafica, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=6';
 import { crecimiento } from './calculo/operaciones.js?v=2';
 import { notasDeLegitimidad } from './calculo/legitimidad.js?v=2';
 import { serieLegacy as serieLegacyCalc } from './calculo/series.js?v=4';
 import { answerPresentacion, conLugarRecordado } from './memoria.js?v=1';
+import { temaClinico, respuestaClinica } from './clinica.js?v=1';
 /** Los cuatro originales en lenguaje llano (consulta general), antes de sus handlers específicos. */
 const LEGACY_CLAVE = { Dengue: 'dengue', Depresion: 'depresion', Parkinson: 'parkinson', Alzheimer: 'alzheimer' };
 const LEGACY_TITULO = { Dengue: 'Dengue', Depresion: 'Depresión', Parkinson: 'Parkinson', Alzheimer: 'Alzheimer' };
@@ -6200,6 +6201,28 @@ export function guardaInicial(consulta) {
   return null;
 }
 
+const NOMBRE_LEGACY = { Dengue: 'dengue', Depresion: 'depresión', Parkinson: 'Parkinson', Alzheimer: 'Alzheimer' };
+/** Plan canónico 2.5, escalón 1: respuesta clínica fija (js/clinica.js) con el nombre del padecimiento y la oferta de cifras. */
+function answerClinica(query) {
+  if (!temaClinico(query)) return null;
+  const nq = norm(query);
+  const ent = detectEntities(nq);
+  // Síntomas presentes («tengo fiebre, ¿cuándo voy al médico?») o una urgencia: manda el texto fijo de síntomas.
+  const sintomas = answerSintomas(nq, ent);
+  if (sintomas && (/\burgencia\*\*/.test(sintomas) || /\b(tengo|tiene|tienen|me duele|le duele|me siento|se siente|ando con|anda con|estoy con|amaneci|me salio|le salio|me salieron)\b/.test(nq))) {
+    return { response: sintomas, handler: 'answerSintomas' };
+  }
+  const pad = ent.padecimiento || lastEntities?.padecimiento || null;
+  const rel = pad ? releaseDePad(pad) : null;
+  // Nombre oficial en minúscula inicial («hepatitis vírica A»), salvo siglas; la búsqueda en MedlinePlus usa el nombre corto.
+  const enFrase = (t) => (/^[A-ZÁÉÍÓÚÑ]{2}/.test(t) ? t : t.charAt(0).toLowerCase() + t.slice(1));
+  const nombre = rel ? enFrase(rel.nombreCorto || rel.nombre) : (NOMBRE_LEGACY[pad] || null);
+  const texto = respuestaClinica(query, nombre, rel ? (rel.consultaVisible || rel.consulta) : nombre);
+  if (!texto) return null;
+  const boton = nombre ? [{ t: `¿Cómo va ${nombre}?`, q: `¿cómo va ${nombre}?` }] : [{ t: '¿Qué enfermedades van al alza?', q: '¿qué enfermedades van al alza?' }];
+  return { response: `${texto}\n<!--SIN_GRAFICA-->\n<!--SIGUE:${JSON.stringify(boton)}-->`, handler: 'answerClinica' };
+}
+
 /**
  * Núcleo ÚNICO de resolución: devuelve la respuesta y la identidad de quien la produjo.
  * `answer()` delega aquí y expone sólo la respuesta, así que no hay una segunda ruta de producción
@@ -6218,6 +6241,11 @@ async function _resolve(consulta) {
   const padSensible = detectEntities(norm(query)).padecimiento && !nombraPadecimientoNoSensible(norm(query));
   const consejo = !guardaD7(query) && !padSensible ? answerConsejoMedico(norm(query)) : null;
   if (consejo) { lastEntities = {}; return { response: consejo, handler: 'answerConsejoMedico' }; }
+  // Plan canónico 2.5, escalón 1 (acta de la mesa del 26-nov-2026): contagio, prevención, signos de alarma y «cuándo acudir»
+  // reciben un texto fijo con la fuente oficial; ninguna ruta los manda al modelo generativo. Los síntomas personales y las
+  // urgencias conservan su propio texto fijo.
+  const clinica = !guardaD7(query) && !padSensible ? answerClinica(query) : null;
+  if (clinica) return clinica;
   const d = await loadKnowledge();
   await cargaVistasDeConsulta(query);
   const s = d.stats || {};
@@ -6576,7 +6604,7 @@ async function _resolve(consulta) {
  */
 const HANDLERS_ACLARACION = new Set(['answerAliasAmbiguo', 'answerGuardaD7', 'answerMeningitisTipo',
   'answerSumaSeriesDistintas', 'answerAclaracionPendiente']);
-const HANDLERS_DE_AYUDA = new Set(['answerConsejoMedico', 'answerCrisis', 'answerCrisisSeguimiento', 'answerApoyoSeguimiento', 'answerFueraDeVocabulario', 'answerTemaSensible']);
+const HANDLERS_DE_AYUDA = new Set(['answerConsejoMedico', 'answerClinica', 'answerCrisis', 'answerCrisisSeguimiento', 'answerApoyoSeguimiento', 'answerFueraDeVocabulario', 'answerTemaSensible']);
 // Rediseño conversacional: charla, ayuda y síntomas responden aunque el turno sea personal y no nombre un dato.
 const HANDLERS_CONVERSACION = new Set(['answerSaludo', 'answerCharla', 'answerQueja', 'answerVago', 'answerFamiliar', 'answerAmbiguoColoquial', 'answerSemanaFutura', 'answerNoReportado', 'answerFueraDeAlcance', 'answerFAQ', 'answerSintomas', 'answerRankingPadecimientos', 'answerConfianzaGeneral', 'answerViaje', 'answerEstadoLlano']);
 // Respuestas fijas sin cifras (aclaraciones, alcance, no modelados, guardas): con un token fuera del vocabulario se

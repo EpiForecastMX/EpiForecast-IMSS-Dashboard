@@ -55,7 +55,7 @@ test('la función RAG en modo nlu: crisis primero y sin clave no clasifica', asy
   assert.equal(sinClave.consulta, null);
 });
 
-// Definiciones en lenguaje llano (js/definiciones.js), revisadas por un médico.
+// Definiciones en lenguaje llano (js/definiciones.js), redactadas con ayuda de IA; ningún profesional de la salud las ha revisado.
 test('cada padecimiento no sensible tiene definición y ningún sensible la tiene', async () => {
   const { DEFINICIONES } = await import('../js/definiciones.js');
   for (const r of C.releases) {
