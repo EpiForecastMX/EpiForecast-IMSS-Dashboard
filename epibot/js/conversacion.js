@@ -7,7 +7,7 @@
  * genera scripts/build_resumen_padecimientos.mjs desde las vistas publicadas.
  */
 import { RELEASES } from './release_config.js?v=59';
-import { LINEA_ALARMA, SIGNOS_ALARMA_GENERALES } from './clinica.js?v=1';
+import { LINEA_ALARMA, SIGNOS_ALARMA_GENERALES } from './clinica.js?v=2';
 import { fechaEpiLegacy } from './calculo/series.js?v=4';
 import { semanaTxt, semanaDeEtiqueta, botonesPeriodo } from './resumen_llano.js?v=9';
 

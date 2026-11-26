@@ -48,9 +48,10 @@ test('2.5 escalón 1: treinta preguntas clínicas se responden en local, con el 
     const r = await traza(q);
     assert.equal(r.handler, 'answerClinica', `${q} → ${r.handler}`);
     const t = String(r.response);
-    assert.match(t, /consulta la fuente oficial: \[[^\]]+\]\(https:\/\//, q);
+    // Escalón 1 (texto fijo con la fuente) o escalón 2 (ficha de cita auditada, con su rótulo y su fuente).
+    assert.match(t, /consulta la fuente oficial: \[[^\]]+\]\(https:\/\/|^\*\*Cita textual de [^\n]+No la ha revisado personal de salud[\s\S]+Fuente: \[[^\]]+\]\(https:\/\//, q);
     assert.match(t, /\(la lista no es completa\), llama al \*\*911\*\*/, q);
-    assert.match(t, /No doy información clínica/, q);
+    assert.match(t, /No doy información clínica|^\*\*Cita textual/, q);
     assert.match(t, /<!--SIN_GRAFICA-->/, q);
     assert.doesNotMatch(t, /\d+ casos|casos notificados en/, `${q}: no lleva cifras`);
   }
@@ -58,7 +59,7 @@ test('2.5 escalón 1: treinta preguntas clínicas se responden en local, con el 
 
 test('2.5 escalón 1: enlaces oficiales comprobados, MedlinePlus sólo como búsqueda y nombre del padecimiento', async () => {
   for (const [, , url] of clinica.ENLACES_OFICIALES) assert.match(url, /^https:\/\/www\.(gob\.mx\/salud|paho\.org\/es|who\.int\/es)\//);
-  assert.match(String((await traza('¿cómo prevengo el dengue?')).response), /\[Dengue, Secretaría de Salud\]\(https:\/\/www\.gob\.mx\/salud\//);
+  assert.match(String((await traza('¿cómo prevengo el dengue?')).response), /\[Información General sobre el Dengue\]\(https:\/\/www\.gob\.mx\/salud\//);
   assert.match(String((await traza('¿es contagiosa la hepatitis A?')).response), /\[Hepatitis A, OMS\]/);
   const varicela = String((await traza('¿cómo se contagia la varicela?')).response);
   assert.match(varicela, /\[Varicela en MedlinePlus en español\]\(https:\/\/vsearch\.nlm\.nih\.gov\//);
@@ -112,7 +113,7 @@ test('2.5 escalón 1: la función de Netlify contesta las treinta sin llamar a G
     for (const q of CLINICAS) {
       const r = await post({ query: q });
       assert.equal(r.guarda, 'clinica', q);
-      assert.match(String(r.answer), /consulta la fuente oficial/, q);
+      assert.match(String(r.answer), /consulta la fuente oficial|^\*\*Cita textual de/, q);
       assert.match(String(r.answer), /\(la lista no es completa\), llama al \*\*911\*\*/, q);
       assert.deepEqual(r.sources, []);
       const nlu = await post({ query: q, modo: 'nlu' });
