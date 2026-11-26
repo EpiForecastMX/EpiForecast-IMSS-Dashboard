@@ -7,7 +7,7 @@
  * genera scripts/build_resumen_padecimientos.mjs desde las vistas publicadas.
  */
 import { RELEASES } from './release_config.js?v=59';
-import { fechaEpiLegacy } from './calculo/series.js?v=3';
+import { fechaEpiLegacy } from './calculo/series.js?v=4';
 
 const LEGACY = 4;
 export const TOTAL_PUBLICADOS = () => RELEASES.length + LEGACY;
@@ -212,7 +212,7 @@ function serieLegacy(z, pad, geo, sexo) {
   const O = seg.reduce((a, x) => a + x.real, 0);
   const P = seg.reduce((a, x) => a + x.pronostico, 0);
   return {
-    zz, observado, pronostico,
+    zz, observado, pronostico, dsCorte: zz.ds_corte ? fechaEpiLegacy(zz.ds_corte, pad) : null,
     oos: { semanas: seg.length, observado_total: O, pronostico_total: P, sesgo_pct: O > 0 ? (P - O) / O * 100 : 0 },
   };
 }
@@ -787,6 +787,34 @@ export function answerViaje(q, ent, s, d) {
   const intro = /\balerta\b/.test(q) ? 'No emito alertas sanitarias (las oficiales las publica la Secretaría de Salud), pero esto es lo que muestran los casos notificados:' : 'No doy recomendaciones de viaje, pero esto es lo que muestran los casos notificados:';
   return `${intro}\n\n${resumen}`;
 }
+
+// ── Consejo médico (plan canónico 1.6, 26-nov-2026; dictamen de Fable) ──────────────────────────────────────────────────
+// Medicamentos, dosis, vacunas, letalidad y embarazo reciben una respuesta fija: no se da consejo médico, se remite a la unidad
+// de salud o al 911 y se ofrece la cifra. Antes recibían la tendencia nacional, el radar o «No entendí» con la Línea de la Vida.
+const MEDICAMENTO = /\b(puedo tomar|se puede tomar|es bueno tomar|me tomo|que (me )?tomo|que tomar|que le (doy|puedo dar)|que medicina\w*|que medicamento\w*|medicamento para|que dosis|paracetamol|ibuprofeno|aspirina|naproxeno|antibiotic\w*|ivermectina|antiviral\w*|automedic\w*)\b/;
+/** Duda explícita de medicamento, sin palabras de riesgo (la guarda de sustancias la deja pasar a la ruta de consejo). */
+export const DUDA_MEDICAMENTO = (q) => MEDICAMENTO.test(q) && /\b(que (me )?tomo|que tomar|que le (doy|puedo dar)|que medicina\w*|que medicamento\w*|medicamento para|puedo tomar|se puede tomar|es bueno tomar)\b/.test(q) && !/\b(ingerir|ingeri|todas|muchas|sobredosis|letal|morir|matar\w*|no despertar|caja|frasco)\b/.test(q);
+const VACUNA_CONSEJO = /\b(debo|deberia|tengo que|me conviene|conviene|es recomendable|puedo|me (pongo|vacuno|aplico)|sirve|es segura?|es buena?)\b[^?.]*\bvacun\w*|\bvacun\w*[^?.]*\b(debo|deberia|me conviene|es segura?|sirve|donde me|cuando me)\b/;
+const LETALIDAD = /\b(mata|matar|es mortal|mortalidad|me (puedo|voy a) morir de|se muere|te mueres|es grave|es peligros[oa]|que tan peligros[oa]|letal\w*)\b/;
+const EMBARAZO = /\b(embarazad\w*|embarazo|lactancia|amamant\w*|mi bebe|recien nacid\w*)\b[^?.]*\b(que hago|puedo|riesgo|peligro|afecta|pasa|debo)\b|\b(que hago|puedo|riesgo|afecta|debo)\b[^?.]*\b(embarazad\w*|embarazo|lactancia|amamant\w*)\b/;
+export function answerConsejoMedico(q) {
+  const tipo = MEDICAMENTO.test(q) ? 'medicamento' : VACUNA_CONSEJO.test(q) ? 'vacuna' : EMBARAZO.test(q) ? 'embarazo' : LETALIDAD.test(q) ? 'gravedad' : null;
+  if (!tipo) return null;
+  const primera = {
+    medicamento: 'No doy consejo médico: no puedo decirte qué medicamento tomar, en qué dosis ni si te conviene.',
+    vacuna: 'No doy consejo médico: no puedo decirte si debes vacunarte ni cuándo; eso lo decide el personal de salud con tu historia.',
+    embarazo: 'No doy consejo médico: durante el embarazo o la lactancia, cualquier duda sobre una enfermedad o un medicamento la debe valorar tu médico.',
+    gravedad: 'No valoro la gravedad ni el riesgo de una persona: EpiForecast-MX cuenta casos notificados al boletín, no defunciones ni la evolución de cada paciente.',
+  }[tipo];
+  return [`**${primera}**`, '',
+    'Consulta a tu médico o acude a tu unidad de salud. Si hay signos de alarma (dificultad para respirar, sangrado, somnolencia o confusión, dolor intenso o vómito persistente), llama al **911**.', '',
+    '_Información general y revisada en [MedlinePlus en español](https://medlineplus.gov/spanish/). Si quieres, te doy las cifras: por ejemplo, «¿cómo va el dengue en Veracruz?»._',
+    '<!--SIN_GRAFICA-->'].join('\n');
+}
+
+/** Viaje con un padecimiento nombrado: la primera línea dice que no se valora la seguridad (plan canónico 1.6). */
+export const VIAJE_SEGURIDAD = /\b(es seguro|seguro (ir|viajar)|conviene|recomiendas?|me recomiendas|debo|puedo)\b[^?]*\b(viajar|viaje|ir a|ir de|vacaciones|visitar)\b|\b(viajar|viaje|ir a|vacaciones|visitar)\b[^?]*\b(es seguro|conviene|peligroso|riesgo)\b/;
+export const NOTA_VIAJE = 'No digo si es seguro viajar ni doy fechas para ir: depende de tu situación y de las recomendaciones oficiales de la Secretaría de Salud. Esto es lo que muestran los casos notificados';
 
 // ── Nombres coloquiales que abarcan dos padecimientos publicados: se pregunta cuál, con botones ───────────────────────
 const AMBIGUOS_COLOQUIALES = [

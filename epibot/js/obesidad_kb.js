@@ -18,9 +18,9 @@ import {
 import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=59';
 // Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
 import './avisos_fuente.js?v=5';
-import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion, indicadores, nombreEstado } from './resumen_llano.js?v=5';
+import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion, indicadores, nombreEstado } from './resumen_llano.js?v=6';
 import { lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=4';
-import { serieDeVista } from './calculo/series.js?v=3';
+import { serieDeVista } from './calculo/series.js?v=4';
 import { DEFINICIONES } from './definiciones.js?v=1';
 
 const any = (q, ks) => ks.some((k) => q.includes(k));
@@ -181,6 +181,31 @@ function lineaProspectivas(v, x, np) {
     : ' Aún no hay semanas prospectivas.';
   return `- ${np.join(', ')} ${una ? 'ya era pública' : 'ya eran públicas'} al emitir el pronóstico: ${una ? 'cuenta' : 'cuentan'} como observada${una ? '' : 's'}, no como prospectiva${una ? '' : 's'}.${cola}`;
 }
+
+/** Primera línea para «¿está validado?» o «¿cuál es el sMAPE / el error?» (plan canónico 1.1). */
+function ranuraPedida(qn, v, x, r) {
+  if (/\b(validad[oa]s?|validacion|valido|valida)\b/.test(qn)) {
+    if (esControl(v)) {
+      const motivo = v.portafolio_igual_al_control === true
+        ? 'con un año de historia no hubo otro modelo que elegir'
+        : 'el modelo probado no superó su prueba de aceptación de 2025';
+      return `**¿Está validado?** No. ${r.nombre} se publica como **control estacional**: repite los casos de las mismas semanas del año anterior, porque ${motivo}. No tiene validación propia.`;
+    }
+    if (v.verdict === 'PASS') return `**¿Está validado?** Sí: superó su prueba de aceptación de 2025 y su validación con datos reales posteriores a su emisión (${v.weeks_available} de ${v.weeks_required} semanas).`;
+    const np = r.no_prospectivas?.length ? ` De las semanas observadas, ${np2(r.no_prospectivas)}.` : '';
+    return `**¿Está validado?** Todavía no del todo: superó su prueba de aceptación de 2025 y la validación con datos reales posteriores a su emisión va en ${v.weeks_available} de ${v.weeks_required} semanas.${np}`;
+  }
+  if (/\b(smape|mase|wape|error fuera de muestra|error del pronostico|error de pronostico|margen de error|que tanto (se equivoca|falla))\b/.test(qn)) {
+    const o = x.oos || {};
+    if (!o.semanas) return '**Error fuera de muestra:** todavía no hay semanas observadas después de su emisión, así que aún no se puede medir.';
+    const quien = esControl(v) ? ' del control estacional' : '';
+    const sem = o.semanas === 1 ? '1 semana' : `${o.semanas} semanas`;
+    const cuidado = pocosOos(o) ? ' Con tan pocas semanas o casos, esa cifra varía mucho.' : '';
+    return `**Error fuera de muestra${quien} (sMAPE):** ${num1(o.smape)} % en ${sem}, con ${ent0(o.observado_total)} casos observados frente a ${ent0(o.pronostico_total)} esperados.${cuidado}`;
+  }
+  return null;
+}
+const np2 = (np) => `${np.join(', ')} ${np.length === 1 ? 'ya era pública al emitir y no cuenta como prospectiva' : 'ya eran públicas al emitir y no cuentan como prospectivas'}`;
 
 const pocosOos = (o) => !!o && o.semanas > 0 && (o.semanas < 4 || (o.observado_total || 0) + (o.pronostico_total || 0) < 20);
 const desempeno = (x, v) => (x.oos.semanas
@@ -437,6 +462,9 @@ function answerRelease(q, ent, s, d, r) {
           `_Información general, no sustituye la consulta médica. Para saber más: [MedlinePlus en español](${enlaceDefinicion(r.nombre)})._ Así va:`, '');
       }
       if (tipo === 'confianza') arriba.push(confiabilidad(v, x, esControl(v)).texto, '');
+      // Plan canónico 1.1: «¿está validado?» y el error fuera de muestra se contestan en la primera línea.
+      const ranura = ranuraPedida(qn, v, x, r);
+      if (ranura && tipo !== 'confianza') arriba.push(ranura, '');
       const tecnico = ficha(v, x, '', r);
       const futurasT = x.pronostico.filter(([ds]) => ds > v.observation_cutoff_ds).slice(0, 4);
       if (futurasT.length) tecnico.push('', '**Siguientes semanas del pronóstico, aún sin observación publicada:**', ...futurasT.map(([ds, y]) => `- Semana del ${ds}: ${ent0(y)} ${ent0(y) === '1' ? 'caso' : 'casos'}`));

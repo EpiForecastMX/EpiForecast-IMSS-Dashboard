@@ -74,5 +74,7 @@ export function serieLegacy(zoom, pad, { estado = null, sexo = 'general' } = {})
     pronostico: zz.d.map((ds, i) => [fechaEpiLegacy(ds, pad), zz.y[i]]).filter(([, y]) => y != null),
     tipo: 'original', lugar: estado ? nombreEstado(estado) : 'el país', sexo,
     corte: zz.last_real ? fechaEpiLegacy(zz.last_real, pad) : null, sinIntervalo: !zz.intervalo_disponible,
+    // Corte del modelo: antes de él, «pronóstico» es el ajuste histórico; el horizonte publicado empieza después.
+    dsCorte: zz.ds_corte ? fechaEpiLegacy(zz.ds_corte, pad) : null,
   };
 }

@@ -946,7 +946,8 @@ add('a robin williams le diagnosticaron parkinson', null, []);
 add('como se cura el parkinson', null, []);
 add('tratamiento para la depresion', null, []);
 add('se puede prevenir el alzheimer', null, []);
-add('que medicamento tomar para depresion', null, []);
+// Plan canónico 1.6 (26-nov-2026): las dudas de medicamento se contestan en local sin consejo médico, nunca con el modelo.
+add('que medicamento tomar para depresion', 'answerConsejoMedico', ['No doy consejo médico', '911'], ['casos']);
 // Preguntas personales de salud (conversacionales)
 add('yo puedo ser uno de esos pacientes', 'answerFueraDeVocabulario', ['800 911 2000'], ['casos']);
 add('yo puedo tener depresion', null, []);
