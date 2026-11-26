@@ -158,6 +158,16 @@ export function etiquetaVisible(view) {
   return typeof view?.publication_label === 'string' ? llano(view.publication_label) : '';
 }
 
+/**
+ * Desvío reciente de una serie (decisión del autor, 25-nov-2026): lo ya medido en las semanas observadas después del origen,
+ * tal como lo publica la vista (oos): casos observados, esperados y sesgo en porcentaje. null si aún no hay semanas.
+ */
+export function recentOf(oos) {
+  if (!oos || !Number.isInteger(oos.semanas) || oos.semanas < 1) return null;
+  if (![oos.observado_total, oos.pronostico_total].every(isNum)) return null;
+  return { weeks: oos.semanas, observed: oos.observado_total, expected: oos.pronostico_total, biasPct: isNum(oos.sesgo_pct) ? oos.sesgo_pct : null };
+}
+
 /** Estado visible desde LA VISTA actual. FAIL o veredictos desconocidos lanzan. */
 export function statusFromView(view) {
   const verdict = view?.verdict;
@@ -313,6 +323,7 @@ function releaseEntry(member, view) {
         forecastTotalSource: canonical ? TOTAL_SOURCES.canonical : TOTAL_SOURCES.sum,
         motor: typeof s.motor === 'string' ? s.motor : 'Sin dato',
         spark: sparkOf(s.observado),
+        recent: recentOf(s.oos),
       };
     }
   }
@@ -436,6 +447,7 @@ export function validateCatalog(catalog) {
       if (!n || (n.forecastTotal !== null && !isNum(n.forecastTotal)) || !Number.isInteger(n.forecastN)
         || !Array.isArray(n.spark)) fail(`${where}: national.${sx} inválido`);
       if (n.spark.some((p) => !Array.isArray(p) || !isIso(p[0]) || !isNum(p[1]))) fail(`${where}: spark inválido`);
+      if (n.recent != null && (!Number.isInteger(n.recent.weeks) || !isNum(n.recent.observed) || !isNum(n.recent.expected))) fail(`${where}: recent inválido`);
     }
     if (d.sourceSha256 !== undefined && !/^[0-9a-f]{64}$/.test(d.sourceSha256)) fail(`${where}: sourceSha256 inválido`);
   }
