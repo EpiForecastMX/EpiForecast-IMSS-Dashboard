@@ -50,7 +50,9 @@ const REGLAS = [
   // casos» piden estados con más casos, no precisión.
   ['ranking', ['precis', 'acierta', 'falla', 'mejores y peores', 'mas preciso', 'menos preciso']],
   ['entidades', ['que estado', 'cual estado', 'cuales estados', 'que estados', 'mas casos', 'mayor numero', 'donde hay mas', 'estados con', 'entidades con',
-    'entidades por', 'estados por', 'ranking de entidades', 'ranking de estados', 'top 5 estados', 'top 10 estados', 'mayor incremento', 'mas aumento']],
+    'entidades por', 'estados por', 'ranking de entidades', 'ranking de estados', 'top 5 estados', 'top 10 estados', 'mayor incremento', 'mas aumento',
+    // Plan canónico 2.1: «¿dónde sube más rápido?» pide estados ordenados por cambio, no el total nacional.
+    'donde sube', 'donde aumenta', 'donde crece', 'donde baja', 'donde disminuye', 'en que estado sube', 'en que estados sube']],
   // «¿está peor?» pregunta por la tendencia, no por la precisión: «mejor» y «peor» sólo cuentan referidos a estados o modelos.
   ['ranking', ['mejores y peores', 'ranking', 'top ', 'mejores estados', 'peores estados', 'estado mejor', 'estado peor', 'mejor pronostic', 'peor pronostic', 'precis', 'acierta', 'falla']],
   ['calibracion', ['calibracion', 'calibrado', 'real vs pronostico', 'observado vs pronostico']],

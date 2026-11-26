@@ -14,13 +14,14 @@ import { mencionaNoModelada } from './entities.js?v=88';
 import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
-} from './obesidad_charts.js?v=60';
+} from './obesidad_charts.js?v=61';
 import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=59';
 // Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
 import './avisos_fuente.js?v=5';
 import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion, indicadores, nombreEstado } from './resumen_llano.js?v=7';
 import { lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=4';
 import { serieDeVista } from './calculo/series.js?v=4';
+import { crecimiento } from './calculo/operaciones.js?v=2';
 import { DEFINICIONES } from './definiciones.js?v=1';
 
 const any = (q, ks) => ks.some((k) => q.includes(k));
@@ -344,6 +345,29 @@ function answerRelease(q, ent, s, d, r) {
     // Rediseño conversacional: los estados con más casos esperados (o con mayor aumento, si se pide), con lo observado.
     const todos = Object.values(v.series).filter((x) => x.nivel === 'estado' && x.sexo === sexo)
       .map((x) => ({ x, ind: indicadores(v, x) })).filter((y) => y.ind && y.ind.F4 != null);
+    // Plan canónico 2.1 (26-nov-2026): «¿dónde sube (o baja) más rápido?» ordena por cambio porcentual con base suficiente
+    // (calculadora: 10 casos de base y 20 en alguna ventana); los de base pequeña quedan fuera y se dice cuántos.
+    if (RAPIDEZ.test(q) || RAPIDEZ_BAJA.test(q) || /\bdonde (sube|aumenta|crece|baja|disminuye)\b/.test(q)) {
+      const baja = RAPIDEZ_BAJA.test(q) || /\bdonde (baja|disminuye)\b/.test(q);
+      const conC = todos.map(({ x }) => ({ x, c: crecimiento(serieDeVista(v, { estado: x.nombre, sexo })) })).filter((y) => y.c);
+      const comparables = conC.filter((y) => !y.c.basePequena && y.c.delta != null);
+      const ordenR = [...comparables].filter((y) => (baja ? y.c.delta < 0 : y.c.delta > 0))
+        .sort((a, b) => (baja ? a.c.delta - b.c.delta : b.c.delta - a.c.delta)).slice(0, 5);
+      const pctR = (d) => `${d >= 0 ? '+' : '−'}${Math.round(Math.abs(d) * 100)} %`;
+      const filaR = ({ x, c }) => `- **${nombreEstado(x.nombre)}**: de ${ent0(c.O4)} a unos ${ent0(c.F4)} casos en las próximas 4 semanas (${pctR(c.delta)})${c.dentroDelRuido ? ', dentro de la variación normal de los conteos' : ''}.`;
+      const fuera = conC.length - comparables.length;
+      const primero = ordenR[0];
+      const cab = `**${r.etiqueta}, ${sexoTxt}:`;
+      const verbo = baja ? 'baja' : 'sube';
+      const veredicto = !primero ? `${cab}** no lo puedo decir: ningún estado tiene casos suficientes para comparar porcentajes.`
+        : (baja ? primero.c.delta >= -0.1 : primero.c.delta <= 0.1)
+          ? `${cab}** ningún estado ${verbo} de forma clara en las próximas 4 semanas frente a las 4 anteriores.`
+          : `${cab} ${verbo} más rápido en ${nombreEstado(primero.x.nombre)}** (${pctR(primero.c.delta)} en las próximas 4 semanas frente a las 4 anteriores).`;
+      return fin([veredicto, '', ...ordenR.map(filaR), '',
+        `_Ordeno por cambio porcentual, no por número de casos${fuera ? `; quedan fuera ${fuera} ${fuera === 1 ? 'estado' : 'estados'} con menos de 10 casos de base, donde un porcentaje engaña` : ''}. Casos notificados, sin ajustar por población.${esControl(v) ? ' Es un control estacional: el cambio que se espera es el que hubo en estas semanas el año pasado.' : ''}_`,
+        '<!--DETALLE-->', `Total nacional pronosticado en ${v.horizon_weeks} semanas: **${ent0(v.series[`nacional|mx|${sexo}`].pronostico_52_total)} casos**.`, '', etiqueta],
+      ordenR.map((y) => y.x.nombre));
+    }
     const pideAumento = /\b(incremento|aumento|subiendo|suben|crece|crecen)\b/.test(q);
     const pideAcum = /\b(acumulad\w*|en lo que va|este ano|en el ano)\b/.test(q);
     const orden = [...todos].sort(pideAumento
@@ -351,7 +375,7 @@ function answerRelease(q, ent, s, d, r) {
       : pideAcum ? (a, b) => b.ind.ytd - a.ind.ytd : (a, b) => b.ind.F4 - a.ind.F4).slice(0, /top 10/.test(q) ? 10 : 5);
     const fila = ({ x, ind }) => pideAcum
       ? `- **${nombreEstado(x.nombre)}**: ${ent0(ind.ytd)} casos en lo que va de ${ind.anio}.`
-      : `- **${nombreEstado(x.nombre)}**: unos ${ent0(ind.F4)} casos en las próximas 4 semanas (${ent0(ind.O4)} en las 4 anteriores).`;
+      : `- **${nombreEstado(x.nombre)}**: unos ${ent0(ind.F4)} casos en las próximas 4 semanas (${ent0(ind.O4)} en las 4 anteriores${ind.O4 < 10 ? '; base muy pequeña, el salto puede ser ruido' : ''}).`;
     const titulo = pideAumento ? 'estados donde más se espera que aumente' : pideAcum ? 'estados con más casos en lo que va del año' : 'estados con más casos esperados';
     const nac = v.series[`nacional|mx|${sexo}`];
     return fin([`**${r.etiqueta}: ${titulo}, ${sexoTxt}**`, '', ...orden.map(fila), '',

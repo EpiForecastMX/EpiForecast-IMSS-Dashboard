@@ -10,16 +10,60 @@ import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaN
 import { comparacionRondasMd } from './comparacion_rondas.js?v=4';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=13';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=76';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=77';
 import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion, answerConsejoMedico, DUDA_MEDICAMENTO, VIAJE_SEGURIDAD, NOTA_VIAJE } from './conversacion.js?v=20';
 import { respuestaLlana, confiabilidadLegacy, indicadores as indicadoresLlano, fechaLarga as fechaLargaLlano } from './resumen_llano.js?v=7';
 import { answerNegativaRazonada, answerEstacionalidad, answerExplicaGrafica, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=4';
+import { crecimiento } from './calculo/operaciones.js?v=2';
 import { notasDeLegitimidad } from './calculo/legitimidad.js?v=2';
 import { serieLegacy as serieLegacyCalc } from './calculo/series.js?v=4';
 import { answerPresentacion, conLugarRecordado } from './memoria.js?v=1';
 /** Los cuatro originales en lenguaje llano (consulta general), antes de sus handlers específicos. */
+const LEGACY_CLAVE = { Dengue: 'dengue', Depresion: 'depresion', Parkinson: 'parkinson', Alzheimer: 'alzheimer' };
+const LEGACY_TITULO = { Dengue: 'Dengue', Depresion: 'Depresión', Parkinson: 'Parkinson', Alzheimer: 'Alzheimer' };
+/**
+ * Plan canónico 2.1 (26-nov-2026): «¿en qué estado sube (o baja) más rápido?» en los cuatro originales. Ordena por cambio
+ * porcentual entre los estados con base suficiente (calculadora: 10 casos de base y 20 en alguna ventana), sólo los que van
+ * en el sentido pedido, y dice cuántos quedaron fuera. Antes recibía el ranking por volumen o el resumen nacional.
+ */
+function rankingRitmoLegacy(q, ent, d) {
+  const pad = ent.padecimiento;
+  const clave = LEGACY_CLAVE[pad];
+  const z = d?.zoom_series;
+  if (!clave || !z || ent.estado || (ent.padecimientos || []).length > 1) return null;
+  const pideEstados = /\b(que|cuales|en que) estados?\b|\bdonde\b|\b(ranking|top) de estados\b/.test(q);
+  if (!pideEstados || !(RAPIDEZ.test(q) || RAPIDEZ_BAJA.test(q) || /\bdonde (sube|aumenta|crece|baja|disminuye)\b/.test(q))) return null;
+  const baja = RAPIDEZ_BAJA.test(q) || /\bdonde (baja|disminuye)\b/.test(q);
+  const verbo = baja ? 'baja' : 'sube';
+  const sexo = ent.sexo && ent.sexo !== 'general' ? ent.sexo : 'general';
+  const sexoTxt = sexo === 'hombres' ? 'hombres' : sexo === 'mujeres' ? 'mujeres' : 'ambos sexos';
+  const re = new RegExp(`^${clave}\\|([^|]+)\\|${sexo}$`);
+  const conC = Object.keys(z).map((k) => k.match(re)?.[1]).filter((g) => g && g !== 'nacional' && !g.startsWith('region'))
+    .filter((g) => !(g === 'mexico' && z[`${clave}|estado de mexico|${sexo}`]))
+    .map((g) => {
+      const c = crecimiento(serieLegacyCalc(z, pad, { estado: g, sexo }));
+      const nombre = g === 'mexico' || g === 'estado de mexico' ? 'Estado de México' : (ESTADOS_NOMBRE[g] || g);
+      return c ? { nombre, c } : null;
+    }).filter(Boolean);
+  if (!conC.length) return null;
+  const comparables = conC.filter((y) => !y.c.basePequena && y.c.delta != null);
+  const orden = comparables.filter((y) => (baja ? y.c.delta < 0 : y.c.delta > 0))
+    .sort((a, b) => (baja ? a.c.delta - b.c.delta : b.c.delta - a.c.delta)).slice(0, 5);
+  const pct = (x) => `${x >= 0 ? '+' : '−'}${fmt(Math.round(Math.abs(x) * 100))} %`;
+  const primero = orden[0];
+  const fuera = conC.length - comparables.length;
+  const cab = `**${LEGACY_TITULO[pad]}, ${sexoTxt}:`;
+  const veredicto = !comparables.length ? `${cab}** no lo puedo decir: ningún estado tiene casos suficientes para comparar porcentajes.`
+    : !primero ? `${cab}** ningún estado con casos suficientes ${verbo} en las próximas 4 semanas frente a las 4 anteriores.`
+    : `${cab} ${verbo} más rápido en ${primero.nombre}** (${pct(primero.c.delta)} en las próximas 4 semanas frente a las 4 anteriores).`;
+  return [veredicto, '',
+    ...orden.map(({ nombre, c }) => `- **${nombre}**: de ${fmt(Math.round(c.O4))} a unos ${fmt(Math.round(c.F4))} casos en las próximas 4 semanas (${pct(c.delta)})${c.dentroDelRuido ? ', dentro de la variación normal de los conteos' : ''}.`), '',
+    `_Ordeno por cambio porcentual, no por número de casos${fuera ? `; quedan fuera ${fuera} ${fuera === 1 ? 'estado' : 'estados'} con menos de 10 casos de base, donde un porcentaje engaña` : ''}. Casos notificados, sin ajustar por población. Cada estado tiene su propio modelo: un salto grande es lo que proyecta ese modelo, sin validación propia de esta semana._`,
+    '', '_Es información estadística, no consejo médico._'].join('\n');
+}
+
 function answerLegacyLlano(q, ent, s, d) {
-  return legacyComparacion(q, ent, s, d, { indicadores: indicadoresLlano, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA, serieLegacy: serieLegacyCalc }) || legacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadLegacy });
+  return rankingRitmoLegacy(q, ent, d) || legacyComparacion(q, ent, s, d, { indicadores: indicadoresLlano, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA, serieLegacy: serieLegacyCalc }) || legacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadLegacy });
 }
 import { MARCADOR_RELEASE, releaseDeMarca, aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaTemaSensible, respuestaConDatos, salidaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=59';
 
