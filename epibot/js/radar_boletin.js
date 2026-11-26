@@ -170,6 +170,15 @@ function estadoPlataforma(e, radar) {
   return 'Estado en la plataforma: **por incorporar**. No hay modelo ni pronóstico.';
 }
 
+/** Una línea, a la vista: por qué no hay pronóstico (el motivo medido completo va plegado). */
+function estadoBreve(e) {
+  if (e.status === 'Rechazada') return 'EpiForecast-MX **no modela** este padecimiento: se **rechazó** en la prueba de 2025 y no hay pronóstico publicado.';
+  if (e.status === 'Agregado') return 'Es un **agregado** del boletín que suma varias categorías; no se modela.';
+  const g = grupoNoModelable(e);
+  if (g) return `EpiForecast-MX **no modela** este padecimiento: es **no modelable** (${GRUPOS_NO_MODELABLES[g].etiqueta.toLowerCase()}) y no hay pronóstico.`;
+  return 'EpiForecast-MX **no modela** este padecimiento todavía: no hay modelo ni pronóstico.';
+}
+
 function filaEstado(e, estado) {
   const n = normaliza(estado);
   return (e.states || []).find((s) => normaliza(s.state) === n) || null;
@@ -220,9 +229,10 @@ export function respuestaRadar(encontradas, radar, estado) {
     'Son casos notificados tal como los imprime el boletín, sin modelo validado ni pronóstico publicado de EpiForecast-MX.';
   if (encontradas.length === 1) {
     const e = encontradas[0];
-    const lines = [`**${e.name} (${e.code})** · ${cab}\n`,
-      `EpiForecast-MX **no modela** este padecimiento. ${estadoPlataforma(e, radar)}\n`,
-      `**Nacional**, hasta la semana ${e.observed_week} de ${m.year}:`,
+    // Plan canónico 2.4: primero la cifra (la de la entidad, si se pidió) y después, en una línea, por qué no hay pronóstico;
+    // el motivo medido completo y la fecha del boletín quedan plegados en «Cómo se calculó». La voz lee así la cifra.
+    const lines = [`**${e.name} (${e.code})** · Boletín Epidemiológico ${m.week} de ${m.year}\n`];
+    const nacional = [`**Nacional**, hasta la semana ${e.observed_week} de ${m.year}:`,
       `- Casos de la semana: **${celda(e.weekly, e, m.year)}**`,
       `- Acumulado ${m.year}: **${celda(e.cumulative, e, m.year)}**`,
       `- Acumulado comparable ${m.year - 1}: **${celda(e.previous, e, m.year)}**`];
@@ -230,18 +240,22 @@ export function respuestaRadar(encontradas, radar, estado) {
     if (estado && estado !== 'Nacional') {
       const fila = filaEstado(e, estado);
       if (!(e.states || []).length) {
-        lines.push(`\nEl boletín imprime esta categoría solo en el resumen nacional; no hay cifra de ${estado}.`);
+        lines.push(`El boletín imprime esta categoría solo en el resumen nacional; no hay cifra de ${estado}.\n`);
       } else if (!fila) {
-        lines.push(`\n${estado} no aparece en el cuadro de esta categoría; no se imputan ceros.`);
+        lines.push(`${estado} no aparece en el cuadro de esta categoría; no se imputan ceros.\n`);
       } else {
-        lines.push(`\n**${fila.state}** (cifras originales del cuadro):`);
+        lines.push(`**${fila.state}** (cifras originales del cuadro):`);
         e.columns.forEach((c, k) => lines.push(`- ${ROTULO_COLUMNA[c] || c}: **${celda(fila.values[k], e, m.year)}**`));
+        lines.push('');
         mostrados.push(...fila.values);
       }
     }
+    lines.push(...nacional, '', estadoBreve(e));
     const nota = notaGuion(e, radar, mostrados);
     if (nota) lines.push(`\n${nota}`);
-    lines.push(pie);
+    lines.push(`\nCurva semanal desde 2013 y las 32 entidades en el [Radar del boletín](../boletin.html).`,
+      '\n<!--DETALLE-->', `${cab}.`, '', `EpiForecast-MX **no modela** este padecimiento. ${estadoPlataforma(e, radar)}`, '',
+      'Son casos notificados tal como los imprime el boletín, sin modelo validado ni pronóstico publicado de EpiForecast-MX.');
     return lines.join('\n');
   }
   const conEstado = estado && estado !== 'Nacional';

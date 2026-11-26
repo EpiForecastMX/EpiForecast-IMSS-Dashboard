@@ -45,7 +45,7 @@ test('1.2 dengue: «qué estados… próximo mes» da el ranking a 4 semanas; el
 });
 
 test('1.4 el año anterior se compara por semana epidemiológica homóloga (2025 tuvo 53 semanas)', async () => {
-  assert.match((await pide('q onda con la azucar en puebla')).t, /1,425 casos en las semanas 40 a 43 de 2026, 9 % más que en las mismas semanas de 2025 \(1,302\)/);
+  assert.match((await pide('q onda con la azucar en puebla')).t, /frente a 1,425 en las 4 anteriores[\s\S]*\*\*Frente a 2025:\*\* 9 % más que en las mismas 4 semanas de 2025 \(1,302\)/);
   assert.match((await pide('obesidad en el país')).t, /718,581 casos, 24 % más que a la misma fecha de 2025/);
   const { semanaEpi } = await import('../js/resumen_llano.js');
   assert.deepEqual(semanaEpi('2026-10-26'), [2026, 43]);

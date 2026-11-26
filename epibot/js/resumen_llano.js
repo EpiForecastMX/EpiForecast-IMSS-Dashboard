@@ -122,44 +122,52 @@ export function indicadores(v, x) {
   return { ultimo, O4, O4py, F4, ytd, ytdPrevio, anio, tendencia, delta, fut, pico, promedioFut, mapa, habitual };
 }
 
+/**
+ * «Esperaba N casos y llegaron M (se pasó X %).» Plan canónico 2.4: un desvío de más de 300 % se dice sólo en casos («esperaba
+ * 68 y llegaron 2»), porque un porcentaje así no se entiende.
+ */
+export function comprobadoTxt(o, cuando) {
+  const p = Math.abs(o.sesgo_pct);
+  const cola = o.observado_total < 10 && o.pronostico_total < 10 ? '.'
+    : p > 300 ? '.'
+      : p >= 1 ? ` (${o.sesgo_pct > 0 ? 'se pasó' : 'se quedó corto'} ${pct0(o.sesgo_pct)}).` : ', prácticamente lo mismo.';
+  return `${cuando} esperaba ${casos(o.pronostico_total)} y llegaron ${ent0(o.observado_total)}${cola}`;
+}
+
 /** Confiabilidad en tres niveles, con su explicación en lenguaje llano. */
 export function confiabilidad(v, x, esControl, r = null) {
   const o = x.oos || {};
-  const comprobado = o.semanas
-    ? ` En ${o.semanas === 1 ? 'la semana ya comprobada' : `las ${o.semanas} semanas ya comprobadas`} esperaba ${casos(o.pronostico_total)} y llegaron ${ent0(o.observado_total)}` +
-      (o.observado_total < 10 && o.pronostico_total < 10 ? '.'
-        : Math.abs(o.sesgo_pct) >= 1 ? ` (${o.sesgo_pct > 0 ? 'se pasó' : 'se quedó corto'} ${pct0(o.sesgo_pct)}).` : ', prácticamente lo mismo.')
-    : '';
+  const comprobado = o.semanas ? ` ${comprobadoTxt(o, `En ${o.semanas === 1 ? 'la semana ya comprobada' : `las ${o.semanas} semanas ya comprobadas`}`)}` : '';
   const sinRango = /sin interval/i.test(v.uncertainty_label || '') ? ' Es una cifra única, sin rango de error.' : '';
+  // Plan canónico 2.4: la parte llana lleva la versión breve (nivel, motivo corto y lo comprobado); la explicación completa
+  // queda para «¿qué tan confiable es?» y la cifra única, sin rango, para la ficha plegada.
+  const conBreve = (nivel, texto, motivo) => ({ nivel, texto, breve: `**Confiabilidad: ${nivel}.**${motivo ? ` ${motivo}` : ''}${comprobado}` });
   if (esControl) {
-    return {
-      nivel: 'baja',
-      texto: `**Confiabilidad: baja.** No es un modelo validado: repite lo ocurrido en las mismas semanas del año anterior, porque el modelo probado no lo mejoró en su prueba de aceptación.${comprobado}${sinRango}`,
-    };
+    return conBreve('baja', `**Confiabilidad: baja.** No es un modelo validado: repite lo ocurrido en las mismas semanas del año anterior, porque el modelo probado no lo mejoró en su prueba de aceptación.${comprobado}${sinRango}`,
+      'No es un modelo validado: repite el año anterior.');
   }
   if (v.verdict === 'FAIL') {
-    return { nivel: 'baja', texto: `**Confiabilidad: baja.** No superó la comprobación con datos reales posteriores a su emisión.${comprobado}${sinRango}` };
+    return conBreve('baja', `**Confiabilidad: baja.** No superó la comprobación con datos reales posteriores a su emisión.${comprobado}${sinRango}`,
+      'No superó la comprobación con datos reales.');
   }
   // Plan canónico 1.5: también con una sola semana, si el desvío es grande (más de 50 %) y hay al menos 20 casos.
   const desvio2 = o.semanas >= 2 && Math.abs(o.sesgo_pct) > 20 && Math.max(o.observado_total, o.pronostico_total) >= 10;
   const desvio1 = o.semanas === 1 && Math.abs(o.sesgo_pct) > 50 && (o.observado_total || 0) + (o.pronostico_total || 0) >= 20;
   if (desvio2 || desvio1) {
-    return {
-      nivel: 'baja',
-      texto: `**Confiabilidad: baja aquí.** El modelo superó su prueba de aceptación, pero en esta serie se ha desviado.${comprobado}${sinRango}`,
-    };
+    const r0 = conBreve('baja', `**Confiabilidad: baja aquí.** El modelo superó su prueba de aceptación, pero en esta serie se ha desviado.${comprobado}${sinRango}`,
+      'El modelo superó su prueba, pero en esta serie se ha desviado.');
+    return { ...r0, breve: r0.breve.replace('**Confiabilidad: baja.**', '**Confiabilidad: baja aquí.**') };
   }
   if (v.verdict === 'PASS') {
     // PASS significa que no fue peor que el control en las 4 semanas, no que acertara (dictamen de Fable).
-    return { nivel: 'alta', texto: `**Confiabilidad: alta.** Superó su prueba de aceptación y, en las ${v.weeks_required} semanas reales que siguieron a su emisión, no fue peor que el control estacional.${comprobado}${sinRango}` };
+    return conBreve('alta', `**Confiabilidad: alta.** Superó su prueba de aceptación y, en las ${v.weeks_required} semanas reales que siguieron a su emisión, no fue peor que el control estacional.${comprobado}${sinRango}`,
+      'Superó su prueba de aceptación y, con datos reales, no fue peor que el control estacional.');
   }
   const np = r?.no_prospectivas?.length
     ? ` De ellas, la ${r.no_prospectivas.map(semanaDeEtiqueta).join(', la ')} ${r.no_prospectivas.length === 1 ? 'ya era pública al emitir y no cuenta como prospectiva' : 'ya eran públicas al emitir y no cuentan como prospectivas'}.`
     : '';
-  return {
-    nivel: 'media',
-    texto: `**Confiabilidad: media.** Superó su prueba de aceptación con datos que no vio; la comprobación con datos reales va en ${v.weeks_available} de ${v.weeks_required} semanas.${np}${comprobado}${sinRango}`,
-  };
+  return conBreve('media', `**Confiabilidad: media.** Superó su prueba de aceptación con datos que no vio; la comprobación con datos reales va en ${v.weeks_available} de ${v.weeks_required} semanas.${np}${comprobado}${sinRango}`,
+    `Superó su prueba de aceptación (comprobación: ${v.weeks_available} de ${v.weeks_required} semanas).`);
 }
 
 /** Periodo pedido en la consulta: semana pasada, un mes, un año o el año en curso. */
@@ -258,7 +266,7 @@ function preguntaDireccion(q) {
  * Líneas de la respuesta llana (markdown). `r` es el release, `x` la serie consultada, `estados` las series estatales del
  * mismo sexo para ubicar el lugar del estado o los estados con más casos.
  */
-export function respuestaLlana({ v, x, r, q, esControl, estados, sinSexo, confianzaTexto }) {
+export function respuestaLlana({ v, x, r, q, esControl, estados, sinSexo, confianzaTexto, compacto = false }) {
   const ind = indicadores(v, x);
   if (!ind) return null;
   const nombre = r.nombre;
@@ -283,7 +291,7 @@ export function respuestaLlana({ v, x, r, q, esControl, estados, sinSexo, confia
     estable: `${si}se espera que **se mantenga estable**: unos ${casos(ind.F4)} en las próximas 4 semanas, frente a ${ent0(ind.O4)} en las 4 anteriores.`,
     pocos: `hay **muy pocos casos**: ${casos(ind.O4)} en las últimas 4 semanas y ${Math.round(ind.F4) === 0 ? 'ninguno esperado' : `unos ${casos(ind.F4)} esperados`} en las próximas 4; con números tan pequeños no se puede hablar de una tendencia.`,
     atipico: `las últimas 4 semanas vienen **muy por debajo de lo habitual** (${ent0(ind.O4)} casos frente a unos ${ent0(ind.habitual)} en las 4 semanas típicas previas); puede deberse a un retraso o a un cambio en la notificación, así que no afirmo una tendencia. El pronóstico espera unos ${casos(ind.F4)} en las próximas 4 semanas, más cerca de lo habitual.`,
-    incierto: `no hay una señal clara de cambio: el pronóstico espera unos ${casos(ind.F4)} en las próximas 4 semanas (${d >= 0 ? '+' : '−'}${pct0((d ?? 0) * 100)} frente a las 4 anteriores), pero en ${x.oos.semanas === 1 ? 'la semana ya comprobada' : 'las semanas ya comprobadas'} se ha ${x.oos.sesgo_pct > 0 ? 'pasado' : 'quedado corto'} por ${pct0(x.oos.sesgo_pct)}, una diferencia de ese mismo tamaño.`,
+    incierto: `no hay una señal clara de cambio: el pronóstico espera unos ${casos(ind.F4)} en las próximas 4 semanas (${d >= 0 ? '+' : '−'}${pct0((d ?? 0) * 100)}), pero en ${x.oos.semanas === 1 ? 'la semana ya comprobada' : 'las semanas ya comprobadas'} ${Math.abs(x.oos.sesgo_pct) > 300 ? `esperaba ${casos(x.oos.pronostico_total)} y llegaron ${ent0(x.oos.observado_total)}, un desvío mayor que ese cambio` : `se ha ${x.oos.sesgo_pct > 0 ? 'pasado' : 'quedado corto'} por ${pct0(x.oos.sesgo_pct)}, tanto como ese cambio`}.`,
   }[ind.tendencia];
   let sino = '';
   // Plan canónico 1.1 (26-nov-2026): «Sí.» o «No.» sólo contesta una pregunta de sí o no («¿sube…?»), nunca «¿dónde…?»,
@@ -302,52 +310,90 @@ export function respuestaLlana({ v, x, r, q, esControl, estados, sinSexo, confia
   if (periodo) lineas.push(`**${sujeto}**`, '', periodo, '');
   if (ind.F4 != null) lineas.push(`${sino}${periodo ? 'En cuanto a la tendencia, ' : `**${sujeto}:** `}${frase}${['sube', 'baja', 'estable'].includes(ind.tendencia) ? sesgoControl : ''}`);
   lineas.push('');
+  // Plan canónico 2.4: si la pregunta ya tiene su respuesta arriba (un periodo pedido o «¿qué es…?»), las viñetas pasan a la
+  // ficha plegada y a la vista quedan la respuesta, la tendencia y la confiabilidad.
+  const inicioVinetas = lineas.length;
+  const compactar = compacto || !!periodo;
   const ventanaTxt = v.observation_cutoff && v.observation_cutoff[1] >= 4
     ? `semanas ${v.observation_cutoff[1] - 3} a ${v.observation_cutoff[1]} de ${v.observation_cutoff[0]}`
-    : `últimas 4 semanas con datos (hasta la ${semanaTxt(ind.ultimo)})`;
+    : `4 semanas hasta la ${semanaTxt(ind.ultimo)}`;
   const vsPrevio = ind.O4py != null && ind.O4py > 0
     ? (Math.abs(ind.O4 / ind.O4py - 1) < 0.005 ? `, igual que en las mismas semanas de ${Number(ind.anio) - 1}`
       : `, ${ind.O4 >= ind.O4py ? `${pct0((ind.O4 / ind.O4py - 1) * 100)} más` : `${pct0((1 - ind.O4 / ind.O4py) * 100)} menos`} que en las mismas semanas de ${Number(ind.anio) - 1} (${ent0(ind.O4py)})`)
     : '';
-  lineas.push(`- **Ahora:** ${casos(ind.O4)} en las ${ventanaTxt}${vsPrevio}.`);
+  // Plan canónico 2.4: la frase principal ya da los casos de las 4 semanas anteriores; «Ahora» sólo los repite cuando la frase
+  // no los dice («sin señal clara») y, si no, da la ventana y la comparación con el año anterior.
+  const repite = ['sube', 'baja', 'estable', 'pocos', 'atipico'].includes(ind.tendencia) && ind.F4 != null;
+  lineas.push(repite
+    ? (ind.O4py > 0 ? `- **Frente a ${Number(ind.anio) - 1}:** ${vsPrevio.replace(/^, /, '').replace('en las mismas semanas', 'en las mismas 4 semanas')}.` : `- **Datos hasta:** la ${semanaTxt(ind.ultimo)}.`)
+    : `- **Ahora:** ${casos(ind.O4)} en las ${ventanaTxt}${vsPrevio}.`);
   const vsYtd = ind.ytdPrevio ? `, ${ind.ytd >= ind.ytdPrevio ? `${pct0((ind.ytd / ind.ytdPrevio - 1) * 100)} más` : `${pct0((1 - ind.ytd / ind.ytdPrevio) * 100)} menos`} que a la misma fecha de ${Number(ind.anio) - 1}` : '';
-  lineas.push(`- **En lo que va de ${ind.anio}:** ${casos(ind.ytd)}${vsYtd} (suma de las semanas de la serie).`);
+  // Plan canónico 2.4: a la vista, tres viñetas como máximo (ahora, el año y dónde); el pico esperado y la aclaración de que el
+  // año es la suma de las semanas de la serie pasan a la ficha plegada (`lineas.aparte`).
+  lineas.push(`- **En lo que va de ${ind.anio}:** ${casos(ind.ytd)}${vsYtd}.`);
+  const aparte = [];
   if (ind.pico && ind.promedioFut > 0 && ind.pico[1] >= 1.25 * ind.promedioFut && ind.pico[1] >= 10 && ind.pico[0] > isoMenos(ind.fut[Math.min(4, ind.fut.length - 1)][0], 0)) {
-    lineas.push(`- **Pico esperado en los próximos 12 meses:** la ${semanaTxt(ind.pico[0])}, con unos ${casos(ind.pico[1])}.`);
+    aparte.push(`- **Pico esperado en los próximos 12 meses:** la ${semanaTxt(ind.pico[0])}, con unos ${casos(ind.pico[1])}.`);
   }
+  aparte.push(`- «En lo que va de ${ind.anio}» es la suma de las semanas de la serie publicada; el acumulado que imprime el boletín puede diferir un poco por correcciones.`,
+    '- No todos los enfermos se diagnostican ni se reportan: son casos notificados al sistema de vigilancia.');
   if (estados && estados.length) {
     const conF4 = estados.map((e) => ({ e, f: suma((e.pronostico || []).filter(([ds]) => ds > ind.ultimo).slice(0, 4)) }))
       .sort((a, b) => b.f - a.f);
     if (x.nivel === 'estado') {
       const i = conF4.findIndex((y) => y.e.id === x.id);
-      if (i >= 0 && conF4[0].f > 0) lineas.push(`- **Lugar en el país:** ${i + 1}.º de ${conF4.length} estados por casos esperados (sin ajustar por población).`);
+      if (i >= 0 && conF4[0].f > 0) lineas.push(`- **Lugar en el país:** ${i + 1}.º de ${conF4.length} por casos esperados, sin ajustar por población.`);
     } else if (x.nivel === 'nacional') {
       const top = conF4.filter((y) => y.f > 0).slice(0, 3);
-      if (top.length) lineas.push(`- **Dónde hay más:** ${top.map((y) => `${nombreEstado(y.e.nombre)} (${ent0(y.f)})`).join(', ')}; casos esperados en 4 semanas, sin ajustar por población.`);
+      if (top.length) lineas.push(`- **Dónde se esperan más:** ${top.map((y) => `${nombreEstado(y.e.nombre)} (${ent0(y.f)})`).join(', ')}, sin ajustar por población.`);
     }
   }
-  lineas.push('', confianzaTexto || confiabilidad(v, x, esControl, r).texto, '',
-    '_Son casos notificados al boletín epidemiológico (no todos los enfermos se diagnostican ni se reportan) y las últimas semanas pueden corregirse. Es información estadística, no consejo médico._');
+  if (compactar) aparte.unshift(...lineas.splice(inicioVinetas).filter((l) => l.startsWith('- ')), '');
+  const conf = confiabilidad(v, x, esControl, r);
+  lineas.push(...(compactar ? [] : ['']), confianzaTexto || conf.breve || conf.texto, '', PIE_LLANO);
+  lineas.aparte = aparte;
   return lineas;
 }
 
+/** El único pie de la respuesta llana (plan canónico 2.4). */
+export const PIE_LLANO = '_Casos notificados al boletín; las últimas semanas pueden corregirse. No es consejo médico._';
+
 /** Confiabilidad de una serie de los cuatro originales: motor elegido fuera de muestra y su seguimiento semanal. */
-export function confiabilidadLegacy(x, zz) {
+export function confiabilidadLegacy(x, zz, completo = false) {
   const o = x.oos;
-  const comprobado = o.semanas
-    ? ` Desde que se emitió, en ${o.semanas === 1 ? 'la semana comprobada' : `las ${o.semanas} semanas comprobadas`} esperaba ${casos(o.pronostico_total)} y llegaron ${ent0(o.observado_total)}` +
-      (o.observado_total < 10 && o.pronostico_total < 10 ? '.'
-        : Math.abs(o.sesgo_pct) >= 1 ? ` (${o.sesgo_pct > 0 ? 'se pasó' : 'se quedó corto'} ${pct0(o.sesgo_pct)}).` : ', prácticamente lo mismo.')
-    : '';
+  const comprobado = o.semanas ? ` ${comprobadoTxt(o, `Desde que se emitió, en ${o.semanas === 1 ? 'la semana comprobada' : `las ${o.semanas} semanas comprobadas`}`)}` : '';
   const nivel = o.semanas >= 2 && Math.abs(o.sesgo_pct) > 20 && Math.max(o.observado_total, o.pronostico_total) >= 10 ? 'baja' : 'media';
   const sinRango = zz.intervalo_disponible ? '' : ' Es una cifra única, sin rango de error.';
+  // Plan canónico 2.4: en la parte llana basta el nivel y lo comprobado; cómo se eligió el motor y la cifra única van en la
+  // ficha plegada («Cómo se calculó»), salvo que se pida la versión completa.
+  if (!completo) return `**Confiabilidad: ${nivel}.**${comprobado}`;
   return `**Confiabilidad: ${nivel}.** El motor de esta serie se eligió por su error con datos que no vio (semanas 28 a 37 de 2026).${comprobado}${sinRango}`;
 }
 
+/**
+ * Plan canónico 2.6: «¿cuántos casos habrá?» sin periodo se contesta con las próximas 4 semanas (lo dice la respuesta) y
+ * ofrece dos botones para el otro sentido posible: las 52 semanas del pronóstico y el mes siguiente.
+ */
+export function botonesPeriodo(q, c, x) {
+  const n = ` ${norm(q || '').replace(/[^a-z0-9]+/g, ' ')} `;
+  if (!/ (cuantos|cuantas|habra|habran|va a haber|van a haber|se esperan?|pronostico|pronostican|cuanto) /.test(n) || periodoPedido(q)) return [];
+  const lugar = x.nivel === 'estado' ? ` en ${nombreEstado(x.nombre)}` : '';
+  const sexo = x.sexo === 'hombres' || x.sexo === 'mujeres' ? ` ${x.sexo}` : '';
+  const ult = x.observado?.at(-1)?.[0];
+  const ini = (x.pronostico || []).find(([ds]) => !ult || ds > ult)?.[0];
+  const out = [{ t: 'En las 52 semanas', q: `cuantos casos de ${c}${lugar}${sexo} se pronostican en 52 semanas` }];
+  if (ini) {
+    const [a, m] = ini.split('-').map(Number);
+    const mes = m % 12, anio = m === 12 ? a + 1 : a;
+    out.push({ t: `En ${MESES[mes]}`, q: `cuantos casos de ${c}${lugar}${sexo} en ${MESES[mes]} de ${anio}` });
+  }
+  return out;
+}
+
 /** Botones de seguimiento según la serie consultada (marcador SIGUE que lee app.js). */
-export function siguientes(r, x, sinSexo) {
+export function siguientes(r, x, sinSexo, q = '') {
   const c = r.consultaVisible || r.consulta;
-  const s = [];
+  const s = [...botonesPeriodo(q, c, x)];
   if (x.nivel === 'nacional') s.push({ t: '¿Dónde hay más casos?', q: `estados con mas casos de ${c}` });
   else s.push({ t: 'Ver el total nacional', q: `${c} nacional` });
   if (!sinSexo && x.sexo === 'general') s.push({ t: '¿Y en mujeres?', q: `${c}${x.nivel === 'estado' ? ` en ${nombreEstado(x.nombre)}` : ''} mujeres` });
