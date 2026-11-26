@@ -15,7 +15,7 @@ import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
 } from './obesidad_charts.js?v=60';
-import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=58';
+import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=59';
 // Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
 import './avisos_fuente.js?v=5';
 import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion, indicadores, nombreEstado } from './resumen_llano.js?v=4';
@@ -59,6 +59,7 @@ function ficha(v, x, encabezado, r) {
     `- Sesgo: ${num1(x.oos.sesgo_pct)} % (observados ${ent0(x.oos.observado_total)} frente a ${ent0(x.oos.pronostico_total)} pronosticados)`,
     // Decisión del autor (25-nov-2026): con pocas semanas o pocos casos se muestran ambos, con el aviso.
     ...(pocosOos(x.oos) ? ['- Con menos de 4 semanas o menos de 20 casos, el sMAPE varía mucho: léelo junto a los casos observados y pronosticados.'] : []),
+    ...(r?.no_prospectivas?.length ? [lineaProspectivas(v, x, r.no_prospectivas)] : []),
     ...avisosFuente(v.disease_id),
   ];
 }
@@ -148,6 +149,39 @@ export function errorDelControl(c, anio, sinSexo, estatalPocoInformativo = false
 const enCurso = (v) => (esControl(v) ? avisoDeControl(v) : `**Validación prospectiva en curso** (${v.weeks_available} de ${v.weeks_required} semanas): todavía no hay semanas observadas después del origen, así que aún no se publica su desempeño fuera de muestra.`);
 
 /** Desempeño de una fila, o lo que hay mientras no exista ninguna semana observada. */
+/* Decisión del autor (25-nov-2026): las semanas cuyo boletín ya era público al emitir (no_prospectivas en release_catalog.js)
+ * cuentan como observadas, nunca como prospectivas; el error de las prospectivas se da aparte, con la misma fórmula del sMAPE
+ * y la misma regla que assets/site/estado-ficha.js. */
+const DIA = 86400000;
+const inicioAnio = (y) => { const j4 = Date.UTC(y, 0, 4); return j4 - new Date(j4).getUTCDay() * DIA; };
+function dsDeSemana(v, etiqueta) {
+  const m = /^(\d{4})-W(\d{2})$/.exec(etiqueta);
+  if (!m) return null;
+  const ini = (y, w) => inicioAnio(y) + (w - 1) * 7 * DIA;
+  const t = Date.parse(`${v.observation_cutoff_ds}T00:00:00Z`) + ini(+m[1], +m[2]) - ini(v.observation_cutoff[0], v.observation_cutoff[1]);
+  return new Date(t).toISOString().slice(0, 10);
+}
+export function soloProspectivas(v, x, np) {
+  const fuera = new Set(np.map((e) => dsDeSemana(v, e)));
+  const obs = new Map(x.observado.filter(([, y]) => y != null));
+  let n = 0, suma = 0, o = 0, f = 0;
+  for (const [ds, b] of x.pronostico) {
+    if (fuera.has(ds) || !obs.has(ds) || b == null) continue;
+    const a = obs.get(ds);
+    n++; o += a; f += b;
+    suma += a === 0 && b === 0 ? 0 : (2 * Math.abs(b - a)) / (Math.abs(a) + Math.abs(b));
+  }
+  return { semanas: n, observado_total: o, pronostico_total: f, smape: n ? (suma / n) * 100 : null };
+}
+function lineaProspectivas(v, x, np) {
+  const una = np.length === 1;
+  const p = soloProspectivas(v, x, np);
+  const cola = p.semanas
+    ? ` Sólo las prospectivas (${p.semanas}): sMAPE **${num1(p.smape)} %** (${ent0(p.observado_total)} observados frente a ${ent0(p.pronostico_total)} pronosticados).`
+    : ' Aún no hay semanas prospectivas.';
+  return `- ${np.join(', ')} ${una ? 'ya era pública' : 'ya eran públicas'} al emitir el pronóstico: ${una ? 'cuenta' : 'cuentan'} como observada${una ? '' : 's'}, no como prospectiva${una ? '' : 's'}.${cola}`;
+}
+
 const pocosOos = (o) => !!o && o.semanas > 0 && (o.semanas < 4 || (o.observado_total || 0) + (o.pronostico_total || 0) < 20);
 const desempeno = (x, v) => (x.oos.semanas
   ? `sMAPE ${num1(x.oos.smape)} % (${ent0(x.oos.observado_total)} observados frente a ${ent0(x.oos.pronostico_total)} pronosticados en ${x.oos.semanas === 1 ? '1 semana' : `${x.oos.semanas} semanas`}), sesgo ${num1(x.oos.sesgo_pct)} %, ${ent0(x.pronostico_52_total)} casos en ${v.horizon_weeks} semanas`

@@ -3,7 +3,7 @@
  * la evaluación pareada (eval/compara_agente.mjs). Sin DOM ni red: recibe el plan ya pedido y la función `answer` del KB.
  */
 import { detectEntities, norm } from './entities.js?v=88';
-import { RELEASES, releaseDePad, releasesEnConsulta } from './release_config.js?v=58';
+import { RELEASES, releaseDePad, releasesEnConsulta } from './release_config.js?v=59';
 
 /** ¿La frase pide varias cosas? («… y además …», «… también dime …», dos signos de interrogación). */
 export function pareceVariosPedidos(text) {

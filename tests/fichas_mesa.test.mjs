@@ -94,7 +94,7 @@ test('rótulo del error: sin semanas, con pocas y con cuatro o más; las 148 fic
   assert.equal(E.rotuloOos({ semanas: 2, observado_total: 5402, pronostico_total: 6128.5 }, 'sMAPE'), 'sMAPE · 2 semanas: 5,402 observados frente a 6,129 esperados (pocas semanas o pocos casos: varía mucho)');
   assert.equal(E.rotuloOos({ semanas: 4, observado_total: 9, pronostico_total: 8 }, 'sMAPE'), 'sMAPE · 4 semanas: 9 observados frente a 8 esperados (pocas semanas o pocos casos: varía mucho)');
   assert.equal(E.rotuloOos({ semanas: 17, observado_total: 253617, pronostico_total: 282612 }, 'sMAPE'), 'sMAPE · 17 semanas: 253,617 observados frente a 282,612 esperados');
-  for (const { page } of RELEASES) assert.match(leer(page), /EpiEstadoFicha\.rotuloOos\(o, 'sMAPE fuera de muestra'\)/, page);
+  for (const { page } of RELEASES) assert.match(leer(page), /EpiEstadoFicha\.rotuloOos\(o, 'sMAPE fuera de muestra', s, V\)/, page);
 });
 
 test('resumen accesible de la gráfica: serie, último observado y total del control o del pronóstico', () => {
@@ -103,4 +103,28 @@ test('resumen accesible de la gráfica: serie, último observado y total del con
   const r = E.resumenGrafica(s, v, nf);
   assert.match(r, /^Nacional, General\. Último observado: [\d,]+ casos/);
   assert.match(r, /Control estacional, no validado: [\d,]+ casos en 52 semanas\./);
+});
+
+test('semanas no prospectivas: la ficha y el catálogo del EpiBot declaran las mismas; el rótulo las separa y mide sólo las prospectivas', async () => {
+  await import('../epibot/js/release_catalog.js');
+  const cat = globalThis.EPI_CATALOGO.releases;
+  let con = 0;
+  for (const r of cat) {
+    const t = leer(r.pagina);
+    const attr = (t.match(/id="statusCard" data-no-prospectivas="([^"]+)"/) || [])[1] ?? null;
+    assert.equal(attr, r.no_prospectivas ? r.no_prospectivas.join(',') : null, r.id);
+    if (r.no_prospectivas) {
+      con++;
+      assert.match(r.cronologia || '', /prospectiv|público antes de emitir/i, `${r.id}: la cronología lo explica`);
+    }
+  }
+  assert.equal(con, 9);
+  const v = vista('asma_j45'), s = v.series['nacional|mx|general'];
+  E.aplica({ getAttribute: () => '2026-W42', setAttribute() {}, removeAttribute() {} }, v, { getElementById: () => null });
+  assert.deepEqual([...E.noProspectivas()], ['2026-W42']);
+  const p = E.soloProspectivas(s, v);
+  assert.deepEqual([p.semanas, p.observado_total, p.pronostico_total, Math.round(p.smape * 10) / 10], [1, 2702, 3191, 16.6]);
+  assert.match(E.rotuloOos(s.oos, 'sMAPE', s, v), /2026-W42 ya era pública al emitir, no es prospectiva; sólo las prospectivas \(1\): sMAPE 16\.6 %$/);
+  E.aplica({ getAttribute: () => null, setAttribute() {}, removeAttribute() {} }, v, { getElementById: () => null });
+  assert.doesNotMatch(E.rotuloOos(s.oos, 'sMAPE', s, v), /prospectiva/);
 });

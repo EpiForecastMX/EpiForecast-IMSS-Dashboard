@@ -78,7 +78,7 @@
       <h1>Asma (J45, J46) · Pronóstico semanal</h1>
       <p class="lead">EpiForecast-MX incorpora el <strong>asma (CIE-10 J45, J46)</strong>. Pronosticamos los casos semanales que reporta el Boletín Epidemiológico del SINAVE para las <strong>32 entidades, por sexo</strong>, con un horizonte de <strong>52 semanas</strong>. El pronóstico está <strong>congelado</strong>: se emitió una sola vez y, desde el siguiente boletín, se comparará semana a semana con lo observado. Superó la prueba de 2025 frente al control estacional.</p>
 
-      <div class="status-card" id="statusCard">
+      <div class="status-card" id="statusCard" data-no-prospectivas="2026-W42">
         <div class="status-badge">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           <span class="status-text"><strong id="pubKind" class="status-kind" hidden></strong> <span id="pubLabel">Cargando el estado de la validación…</span></span>
@@ -214,7 +214,7 @@
 <!-- site:footer:end -->
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-  <script src="assets/site/estado-ficha.js?v=5"></script>
+  <script src="assets/site/estado-ficha.js?v=6"></script>
   <script>
   (function () {
     'use strict';
@@ -306,7 +306,7 @@
       $('chartObesidad').setAttribute('aria-label', EpiEstadoFicha.resumenGrafica(s, V, nf0));
       const o = s.oos;
       $('mSmape').textContent = EpiEstadoFicha.errorOos(o, pct);
-      $('mSmapeL').textContent = EpiEstadoFicha.rotuloOos(o, 'sMAPE fuera de muestra');
+      $('mSmapeL').textContent = EpiEstadoFicha.rotuloOos(o, 'sMAPE fuera de muestra', s, V);
       $('mMae').textContent = o.mae === null ? '—' : nf0.format(o.mae);
       $('mBias').textContent = signo(o.sesgo_pct);
       $('mTotal').textContent = nf0.format(s.pronostico_52_total);

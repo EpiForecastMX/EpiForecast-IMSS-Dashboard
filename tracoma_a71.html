@@ -78,7 +78,7 @@
       <h1>Tracoma (A71) · Pronóstico semanal</h1>
       <p class="lead">EpiForecast-MX incorpora el <strong>tracoma (CIE-10 A71)</strong>. Publicamos los casos semanales esperados para las <strong>32 entidades, por sexo</strong>, con un horizonte de <strong>52 semanas</strong>. <strong>Es un control estacional, no validado:</strong> cada semana repite los casos de 52 semanas antes, porque el portafolio de modelos no superó la prueba de 2025 y el autor autorizó publicar el control. En el último año observado se notificaron en promedio unos <span id="casosSemana">—</span> casos por semana en todo el país<span id="casosSemanaPeriodo"></span>.</p>
 
-      <div class="status-card" id="statusCard">
+      <div class="status-card" id="statusCard" data-no-prospectivas="2026-W43">
         <div class="status-badge">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           <span class="status-text"><strong id="pubKind" class="status-kind" hidden></strong> <span id="pubLabel">Cargando el estado…</span></span>
@@ -215,7 +215,7 @@
 <!-- site:footer:end -->
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-  <script src="assets/site/estado-ficha.js?v=5"></script>
+  <script src="assets/site/estado-ficha.js?v=6"></script>
   <script>
   (function () {
     'use strict';
@@ -308,7 +308,7 @@
       $('chartObesidad').setAttribute('aria-label', EpiEstadoFicha.resumenGrafica(s, V, nf0));
       const o = s.oos;
       $('mSmape').textContent = EpiEstadoFicha.errorOos(o, pct);
-      $('mSmapeL').textContent = EpiEstadoFicha.rotuloOos(o, 'sMAPE fuera de muestra');
+      $('mSmapeL').textContent = EpiEstadoFicha.rotuloOos(o, 'sMAPE fuera de muestra', s, V);
       $('mMae').textContent = o.mae === null ? '—' : nf0.format(o.mae);
       $('mBias').textContent = signo(o.sesgo_pct);
       $('mTotal').textContent = nf0.format(s.pronostico_52_total);

@@ -64,8 +64,16 @@
     svg.appendChild(use);
   }
 
+  /* Decisión del autor (25-nov-2026): semanas observadas cuyo boletín ya era público al emitir el pronóstico. Las declara
+   * la ficha en data-no-prospectivas="2026-W42" (mismo dato que no_prospectivas en epibot/js/release_catalog.js, tomado de
+   * bulletin_provenance.json del backend). Cuentan como observadas, nunca como prospectivas. */
+  var NP = [];
+  function noProspectivas() { return NP.slice(); }
+
   function aplica(card, v, doc) {
     var d = doc || g.document;
+    var attr = card && card.getAttribute ? card.getAttribute('data-no-prospectivas') : '';
+    NP = String(attr || '').split(',').map(function (x) { return x.trim(); }).filter(function (x) { return /^\d{4}-W\d{2}$/.test(x); });
     var kind = tipo(v);
     var label = etiqueta(v);
     card.setAttribute('data-verdict', String((v && v.verdict) || ''));
@@ -97,6 +105,32 @@
     var t = inicioAnio(y) + (w - 1 + d) * 7 * DIA, a = new Date(t).getUTCFullYear() + 1;
     while (inicioAnio(a) > t) a--;
     return [a, Math.floor((t - inicioAnio(a)) / (7 * DIA)) + 1];
+  }
+
+  /* Fecha de la serie para una semana «AAAA-Www», alineada con el corte de la vista (sus fechas no son el domingo MMWR). */
+  function dsDeSemana(v, etiqueta) {
+    var m = /^(\d{4})-W(\d{2})$/.exec(etiqueta);
+    if (!m || !v || !v.observation_cutoff_ds || !v.observation_cutoff) return null;
+    var ini = function (y, w) { return inicioAnio(y) + (w - 1) * 7 * DIA; };
+    var base = Date.parse(v.observation_cutoff_ds + 'T00:00:00Z');
+    var t = base + ini(Number(m[1]), Number(m[2])) - ini(v.observation_cutoff[0], v.observation_cutoff[1]);
+    return new Date(t).toISOString().slice(0, 10);
+  }
+
+  /** Error de las semanas prospectivas de una serie (excluye las ya públicas al emitir), con la misma fórmula del sMAPE. */
+  function soloProspectivas(s, v) {
+    var fuera = {};
+    NP.forEach(function (e) { var ds = dsDeSemana(v, e); if (ds) fuera[ds] = true; });
+    var obs = {};
+    (s.observado || []).forEach(function (p) { if (p[1] != null) obs[p[0]] = p[1]; });
+    var n = 0, suma = 0, o = 0, f = 0;
+    (s.pronostico || []).forEach(function (p) {
+      if (fuera[p[0]] || !(p[0] in obs) || p[1] == null) return;
+      var a = obs[p[0]], b = p[1];
+      n++; o += a; f += b;
+      suma += (a === 0 && b === 0) ? 0 : 2 * Math.abs(b - a) / (Math.abs(a) + Math.abs(b));
+    });
+    return { semanas: n, observado_total: o, pronostico_total: f, smape: n ? (suma / n) * 100 : null };
   }
 
   /* Mesa de expertos (24-nov-2026): en un control estacional «64 Modelos finales» sugería un modelado validado. Se dice el
@@ -142,11 +176,18 @@
   function pocos(o) {
     return !!o && o.semanas > 0 && (o.semanas < 4 || (o.observado_total || 0) + (o.pronostico_total || 0) < 20);
   }
-  function rotuloOos(o, base) {
+  function rotuloOos(o, base, s, v) {
     if (!o || !o.semanas) return base + ' (sin semanas aún)';
     var t = base + ' · ' + o.semanas + (o.semanas === 1 ? ' semana: ' : ' semanas: ') + NF0.format(o.observado_total) +
       ' observados frente a ' + NF0.format(o.pronostico_total) + ' esperados';
-    return pocos(o) ? t + ' (pocas semanas o pocos casos: varía mucho)' : t;
+    if (pocos(o)) t += ' (pocas semanas o pocos casos: varía mucho)';
+    if (!NP.length) return t;
+    t += '. ' + NP.join(', ') + (NP.length === 1 ? ' ya era pública al emitir, no es prospectiva' : ' ya eran públicas al emitir, no son prospectivas');
+    if (!s) return t;
+    var p = soloProspectivas(s, v);
+    if (!p.semanas) return t + '; aún no hay semanas prospectivas';
+    var nf1 = typeof Intl !== 'undefined' ? new Intl.NumberFormat('es-MX', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : { format: String };
+    return t + '; sólo las prospectivas (' + p.semanas + '): sMAPE ' + nf1.format(p.smape) + ' %';
   }
 
   function texto(d, sel, t) {
@@ -161,7 +202,13 @@
     var n = nac && nac.oos ? nac.oos.semanas : 0;
     var st = d.getElementById && d.getElementById('stOos');
     var lab = st && st.parentNode && st.parentNode.querySelector ? st.parentNode.querySelector('.l') : null;
-    if (lab && n) lab.textContent = rotuloOos(nac.oos, 'sMAPE nacional fuera de muestra');
+    if (lab && n) lab.textContent = rotuloOos(nac.oos, 'sMAPE nacional fuera de muestra', nac, v);
+    var stw = d.getElementById && d.getElementById('stWeeks');
+    var labW = stw && stw.parentNode && stw.parentNode.querySelector ? stw.parentNode.querySelector('.l') : null;
+    if (labW && NP.length && n) {
+      var pr = Math.max(0, n - NP.length);
+      labW.textContent = 'Semanas ya observadas (' + pr + (pr === 1 ? ' prospectiva)' : ' prospectivas)');
+    }
     if (st && sinCasos(nac && nac.oos)) st.textContent = 'Sin casos';
     if (tipo(v) !== 'control' || !d.querySelector) return;
     texto(d, '#explorador h2', 'Control estacional frente a lo observado');
@@ -222,5 +269,5 @@
     g.document.addEventListener('DOMContentLoaded', function () { radiogrupo(g.document.getElementById('segSexo')); });
   }
 
-  g.EpiEstadoFicha = { CORTO: CORTO, SIN_ALTERNATIVA: SIN_ALTERNATIVA, GRIS_CONTROL: GRIS_CONTROL, llano: llano, etiqueta: etiqueta, tipo: tipo, detalle: detalle, aplica: aplica, cifras: cifras, rotulos: rotulos, trazo: trazo, agregado: agregado, sinCasos: sinCasos, errorOos: errorOos, pocos: pocos, rotuloOos: rotuloOos, radiogrupo: radiogrupo, filaTeclado: filaTeclado, resumenGrafica: resumenGrafica, semanaMas: semanaMas, semanasDelAnio: semanasDelAnio };
+  g.EpiEstadoFicha = { CORTO: CORTO, SIN_ALTERNATIVA: SIN_ALTERNATIVA, GRIS_CONTROL: GRIS_CONTROL, llano: llano, etiqueta: etiqueta, tipo: tipo, detalle: detalle, aplica: aplica, cifras: cifras, rotulos: rotulos, trazo: trazo, agregado: agregado, sinCasos: sinCasos, errorOos: errorOos, pocos: pocos, rotuloOos: rotuloOos, noProspectivas: noProspectivas, soloProspectivas: soloProspectivas, dsDeSemana: dsDeSemana, radiogrupo: radiogrupo, filaTeclado: filaTeclado, resumenGrafica: resumenGrafica, semanaMas: semanaMas, semanasDelAnio: semanasDelAnio };
 })(typeof window !== 'undefined' ? window : globalThis);

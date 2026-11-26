@@ -15,7 +15,7 @@
  * Vale para cualquier release publicado: título y color salen de `release_config.js` por
  * `disease_id`. Funciones puras: sin DOM, sin fetch.
  */
-import { RELEASES, releaseDeId } from './release_config.js?v=58';
+import { RELEASES, releaseDeId } from './release_config.js?v=59';
 import { semanaSiguiente } from './calendario_boletin.js?v=2';
 
 const strip = (s) => String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
