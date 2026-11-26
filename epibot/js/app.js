@@ -7,7 +7,7 @@ import { graficoRondas } from './comparacion_rondas.js?v=4';
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2, contextoActual, reiniciaContexto, cargaZoom } from './kb.js?v=223';
+import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2, contextoActual, reiniciaContexto, cargaZoom } from './kb.js?v=224';
 import { detectEntities, norm } from './entities.js?v=88';
 import { pareceVariosPedidos, respuestaDePlan } from './agente.js?v=1';
 import { fechaEpiLegacy, REZAGO_LEGACY } from './calculo/series.js?v=4';
@@ -1307,7 +1307,7 @@ function addBotMessage(markdown, source, suggestions, chartData, sources) {
 
   // Normalizar acentos antes de comentarios y render
   const polished = polishSpanish(markdown);
-  const conDetalle = polished.replace(new RegExp(MARCADOR_RELEASE.source, 'g'), '').replace(/<!--SIN_GRAFICA-->/g, '').replace(/<!--COMPARE:.*?-->/g, '').replace(/<!--DISTRIB:.*?-->/g, '').replace(/<!--ALZA:.*?-->/g, '').replace(/<!--ESTADOS:.*?-->/g, '').replace(/<!--GENCHART:.*?-->/g, '').replace(/\n?<!--SIGUE:.*?-->/g, '');
+  const conDetalle = polished.replace(new RegExp(MARCADOR_RELEASE.source, 'g'), '').replace(/<!--SIN_GRAFICA-->/g, '').replace(/<!--COMPARE:.*?-->/g, '').replace(/<!--DISTRIB:.*?-->/g, '').replace(/<!--ALZA:.*?-->/g, '').replace(/<!--ESTADOS:.*?-->/g, '').replace(/<!--ZOOM_SEGUIMIENTO:.*?-->/g, '').replace(/<!--GENCHART:.*?-->/g, '').replace(/\n?<!--SIGUE:.*?-->/g, '');
   // Rediseño conversacional (24-nov-2026): lo que sigue a <!--DETALLE--> es la ficha técnica; se pliega en «Cómo se
   // calculó» y la voz no la lee. Cada mitad pasa por el saneador por separado; el envoltorio es fijo.
   const [cleanMarkdown, detalleMd = ''] = conDetalle.split('<!--DETALLE-->');
@@ -2231,7 +2231,10 @@ function buildErrorHeatmap(data, qn) {
  */
 // Chart de zoom para UNA serie (estado × sexo) desde data.zoom_series: real vs pronostico
 // solapados hasta la semana vigente + pronostico al futuro.
-function buildSeriesZoom(s, pad, estado, sexo) {
+function buildSeriesZoom(s0, pad, estado, sexo, ventana = null) {
+  // Plan canónico 2.2 (originales): con `ventana: 'seguimiento'`, sólo de 13 semanas antes del corte a 7 después de la última
+  // observada, como el zoom de seguimiento de los releases.
+  const s = ventana === 'seguimiento' ? ventanaSeguimiento(s0) : s0;
   const padColors = { Depresion: '#17644d', Parkinson: '#2DD4BF', Alzheimer: '#F472B6', Dengue: '#F59E0B' };
   const color = padColors[pad] || '#17644d';
   const estadoLbl = norm(estado) === 'mexico' ? 'Estado de México' : dn(estado);
@@ -2278,10 +2281,21 @@ function buildSeriesZoom(s, pad, estado, sexo) {
   );
   return {
     type: 'line',
-    title: `${dn(pad)} — ${estadoLbl} (${sexoLbl})  ·  observado y pronóstico${s.corte ? ' con corte ' + String(s.corte).replace(/^\d{4}-/, '') : ''}${wk != null ? ' (última observada: sem ' + wk + ')' : ''}${conIntervalo ? '' : '  ·  ' + UNCERTAINTY_LABEL}`,
+    title: `${dn(pad)} — ${estadoLbl} (${sexoLbl})  ·  ${ventana === 'seguimiento' ? 'zoom semanal: observado frente al pronóstico' : 'observado y pronóstico'}${s.corte ? ' con corte ' + String(s.corte).replace(/^\d{4}-/, '') : ''}${wk != null ? ' (última observada: sem ' + wk + ')' : ''}${conIntervalo ? '' : '  ·  ' + UNCERTAINTY_LABEL}`,
     labels, datasets,
     options: { scales: { x: { ticks: { maxRotation: 90, font: { size: 9 }, autoSkip: true, maxTicksLimit: 18 } }, y: { beginAtZero: true } } },
   };
+}
+
+/** Recorta una serie de zoom_series a la ventana de seguimiento: 13 semanas antes del corte y 7 después de la última observada. */
+export function ventanaSeguimiento(s) {
+  const i0 = s.ds_corte ? s.d.findIndex((iso) => iso > s.ds_corte) : -1;
+  if (i0 < 0) return s;
+  const ultima = s.r.reduce((acc, v, i) => (v != null ? i : acc), -1);
+  const a = Math.max(0, i0 - 13);
+  const b = Math.min(s.d.length, Math.max(ultima, i0) + 8);
+  const corta = (xs) => (Array.isArray(xs) && xs.length === s.d.length ? xs.slice(a, b) : xs);
+  return { ...s, d: corta(s.d), r: corta(s.r), y: corta(s.y), lo: corta(s.lo), hi: corta(s.hi) };
 }
 
 function buildZoomChart(data, qn, ent) {
@@ -3194,6 +3208,15 @@ function extractChartData(markdown, query) {
   }
 
   // Plan canónico 2.2: rankings y comparaciones de estados de los originales, con las filas del texto.
+  // Plan canónico 2.2 (originales): una pregunta por el error lleva el zoom de seguimiento de la serie de la respuesta.
+  const segM = markdown.match(/<!--ZOOM_SEGUIMIENTO:(.*?)-->/);
+  if (segM) {
+    try {
+      const o = JSON.parse(segM[1]);
+      const serie = data.zoom_series?.[o.clave];
+      return serie?.d?.length ? buildSeriesZoom(serie, o.pad, o.estado, o.sexo, 'seguimiento') : null;
+    } catch (e) { console.warn('Zoom de seguimiento no disponible', e); return null; }
+  }
   const estadosM = markdown.match(/<!--ESTADOS:(.*?)-->/);
   if (estadosM) {
     try { return graficaEstadosTexto(JSON.parse(estadosM[1])); } catch (e) { console.warn('Gráfica de estados no disponible', e); return null; }
