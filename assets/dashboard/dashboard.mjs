@@ -78,6 +78,7 @@ const DTF = new Intl.DateTimeFormat('es-MX', {
   day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'UTC',
 });
 const NF = new Intl.NumberFormat('es-MX');
+const NF1 = new Intl.NumberFormat('es-MX', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 function formatEmission(iso) {
   if (!iso) return null;
   const d = new Date(iso);
@@ -376,6 +377,30 @@ function renderPanoramaSummary(nDis, nSeries) {
   for (const [n, label] of items) list.append(el('li', {}, el('strong', {}, n), ` ${label}`));
 }
 
+/* Orden «Mayor desvío reciente» (decisión del autor, 25-nov-2026): sólo cuenta lo ya medido en la serie nacional general
+ * después del origen. Primero, por |sesgo %|, las que suman al menos 20 casos entre observados y esperados; después las de
+ * pocos casos (su porcentaje varía mucho); al final las que aún no tienen semanas medidas y las series históricas. */
+const DESVIO_MIN_CASOS = 20;
+function recentOfDisease(d) {
+  return d?.national?.general?.recent ?? null;
+}
+function desvioKey(d) {
+  const r = recentOfDisease(d);
+  if (!r || !isNum(r.biasPct)) return -2;
+  if (r.observed + r.expected < DESVIO_MIN_CASOS) return -1 + Math.min(Math.abs(r.biasPct), 1e6) / 1e7;
+  return Math.abs(r.biasPct);
+}
+function recentLine(d) {
+  const r = recentOfDisease(d);
+  if (!r) return null;
+  const quien = statusKind(d) === 'control' ? 'el control' : 'el pronóstico';
+  const semanas = r.weeks === 1 ? '1 semana' : `${NF.format(r.weeks)} semanas`;
+  const dir = !isNum(r.biasPct) || Math.abs(r.biasPct) < 0.05 ? `${quien} coincidió con lo observado`
+    : `${quien} quedó ${(Math.abs(r.biasPct) >= 100 ? NF : NF1).format(Math.abs(r.biasPct) >= 100 ? Math.round(Math.abs(r.biasPct)) : Math.abs(r.biasPct))} % ${r.biasPct > 0 ? 'por encima' : 'por debajo'} de lo observado`;
+  const pocos = r.observed + r.expected < DESVIO_MIN_CASOS ? '; pocos casos, varía mucho' : '';
+  return `Desvío reciente: ${dir} (${formatInt(r.observed)} observados frente a ${formatInt(r.expected)} esperados en ${semanas}${pocos}).`;
+}
+
 function panoramaList() {
   const q = normName(pano.q);
   let list = catalog.diseases.filter((d) => {
@@ -390,6 +415,7 @@ function panoramaList() {
     estado: (a, b) => (STATUS_ORDER[statusKind(a)] - STATUS_ORDER[statusKind(b)]) || byName(a, b),
     origen: (a, b) => (weekKey(b.origin) - weekKey(a.origin)) || byName(a, b),
     observacion: (a, b) => (weekKey(b.lastObservation) - weekKey(a.lastObservation)) || byName(a, b),
+    desvio: (a, b) => (desvioKey(b) - desvioKey(a)) || byName(a, b),
   };
   list = [...list].sort(sorters[pano.orden] ?? byName);
   return list;
@@ -465,6 +491,7 @@ function panoramaCard(d) {
     el('p', { class: 'pcard__status' }, statusLine(d.status) || STATUS_SHORT[k]),
     sparkline(d, nat),
     nat ? forecastLine(d, nat) : el('p', { class: 'pcard__fc' }, 'Sin serie nacional en el catálogo.'),
+    recentLine(d) ? el('p', { class: 'pcard__desvio' }, recentLine(d)) : null,
     meta,
     el('div', { class: 'pcard__actions', role: 'group', 'aria-label': `Acciones para ${name}` },
       explore, compare, profile,
@@ -518,6 +545,7 @@ function panoramaRow(d) {
     el('td', { class: 'wrap-cell' }, statusBadge(d), ' ', statusLine(d.status)),
     el('td', {}, formatWeek(d.origin)),
     el('td', {}, formatWeek(d.lastObservation)),
+    el('td', { class: 'wrap-cell' }, recentLine(d)?.replace(/^Desvío reciente: /, '') ?? 'Sin semanas medidas'),
     el('td', {}, formatEmission(d.emittedAt) ?? 'no declarada'),
     el('td', { class: 'num' }, NF.format(d.nSeries ?? 0)),
     el('td', {}, (d.sexes ?? []).map(sexLabel).join(', ')),
