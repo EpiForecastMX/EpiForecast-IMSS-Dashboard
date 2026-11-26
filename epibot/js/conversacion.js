@@ -32,7 +32,7 @@ const DESPEDIDA = /^(adios|bye|hasta luego|hasta pronto|nos vemos|chao|chau|me v
 const AYUDA = /\b(como le hago|como veo|como busco|como se escribe|como pregunto|como lo uso|que puedes hacer|que sabes hacer|que haces|en que me ayudas|en que me puedes ayudar|como te uso|como funciona esto|ayuda|help|que te puedo preguntar|que puedo preguntar|para que sirves|instrucciones)\b/;
 
 export function saludo() {
-  return `¡Hola! Soy **EPI**. Te digo cómo van **${TOTAL_PUBLICADOS()} padecimientos** en México, por estado y por sexo, con los datos ` +
+  return `¡Hola! Soy **EpiBot**. Te digo cómo van **${TOTAL_PUBLICADOS()} padecimientos** en México, por estado y por sexo, con los datos ` +
     'del boletín epidemiológico de la Secretaría de Salud: cuántos casos hay, si suben o bajan, qué se espera en las próximas ' +
     'semanas y qué tan confiable es cada pronóstico.\n\n' +
     'Pregúntame como le preguntarías a una persona, por ejemplo:\n' +
@@ -624,7 +624,7 @@ const FAQ = [
   [/\bsmape (de|del|en|igual a|=)? ?\d+/,
     'El **sMAPE** mide el error porcentual promedio entre lo pronosticado y lo observado (0 % sería perfecto). Como guía práctica: menos de 20 % es bueno, de 20 a 50 % es moderado y más de 50 % es alto; en series con muy pocos casos el sMAPE se dispara aunque el error en casos sea pequeño. Por eso en cada respuesta doy la confiabilidad en palabras.'],
   [/\b(eres (un )?(doctor|medico|maquina|robot|chatgpt|gemini)|es una maquina|es usted doctor|usted es doctor|eres chatgpt)\b/,
-    'Soy **EPI**, un asistente automático: no soy una persona ni un médico. Las cifras salen siempre de los datos publicados del boletín epidemiológico; para preguntas abiertas me apoyo en un modelo de lenguaje (Gemini de Google), pero nunca para inventar números.'],
+    'Soy **EpiBot**, un asistente automático: no soy una persona ni un médico. Las cifras salen siempre de los datos publicados del boletín epidemiológico; para preguntas abiertas me apoyo en un modelo de lenguaje (Gemini de Google), pero nunca para inventar números.'],
   [/\b(quien paga|quien lo paga|lo hizo el imss|es del imss|es del gobierno|4t|marketing|propaganda|lo recomienda la sep|avalado|patrocin\w*)\b/,
     'EpiForecast-MX es un **proyecto académico** de la Maestría en Inteligencia Artificial Aplicada del Tecnológico de Monterrey, hecho para la salud pública en México. No es un producto del gobierno ni de un partido, y no está avalado por la Secretaría de Salud ni por la SEP. Los datos son los del boletín oficial; los pronósticos son del proyecto.'],
   [/\b(mis datos|datos personales|que guardan|guardan lo que|vendieron|privacidad|me espian|rastrean)\b/,
@@ -717,7 +717,7 @@ const FUERA = [
   [/\b(presupuesto|recorte|gobierno|presidente|presidenta|secretario de salud|politica|partido politico|elecciones|opinas|que opina)\b/,
     'No opino de política ni de decisiones de gobierno: sólo doy datos de casos notificados y sus pronósticos.'],
   [/\b(america|chivas|pumas|cruz azul|partido|gano|beisbol|dolar|tipo de cambio|tortas|pozole|comida favorita|te gusta la comida|te gustan las)\b/,
-    () => `Soy **EPI** y no respondo temas fuera del proyecto: sólo hablo de cómo van ${TOTAL_PUBLICADOS()} padecimientos en México. Pregúntame, por ejemplo, «¿cómo va el dengue en Veracruz?».`],
+    () => `Soy **EpiBot** y no respondo temas fuera del proyecto: sólo hablo de cómo van ${TOTAL_PUBLICADOS()} padecimientos en México. Pregúntame, por ejemplo, «¿cómo va el dengue en Veracruz?».`],
   [/\b(mas sano para vivir|mejor estado para vivir|donde vivir|estado mas sano|mas saludable|estado mas saludable)\b/,
     'No hago esa recomendación: los casos notificados dependen de la población y de cuánto se diagnostica en cada estado. Sí puedo decirte cómo va un padecimiento en un estado o qué está subiendo ahí.'],
 ];

@@ -7,7 +7,7 @@ import { graficoRondas } from './comparacion_rondas.js?v=4';
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2, contextoActual, reiniciaContexto } from './kb.js?v=207';
+import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2, contextoActual, reiniciaContexto } from './kb.js?v=208';
 import { detectEntities, norm } from './entities.js?v=88';
 import { pareceVariosPedidos, respuestaDePlan } from './agente.js?v=1';
 import { fechaBoletinLegacy } from './calculo/series.js?v=2';
@@ -415,7 +415,7 @@ async function init() {
     const chatEl = document.getElementById('chatArea');
     if (chatEl) {
       const panel = document.createElement('div'); panel.className = 'epi-load-error'; panel.setAttribute('role','alert');
-      const title = document.createElement('h2'); title.textContent = 'No pudimos cargar los datos de EPI';
+      const title = document.createElement('h2'); title.textContent = 'No pudimos cargar los datos del EpiBot';
       const description = document.createElement('p'); description.textContent = 'Comprueba tu conexión y vuelve a intentarlo. También puedes consultar el boletín directamente.';
       const retry = document.createElement('button'); retry.type = 'button'; retry.textContent = 'Reintentar'; retry.addEventListener('click', () => location.reload());
       const radar = document.createElement('a'); radar.href = '../boletin.html'; radar.textContent = 'Abrir el radar del boletín';
@@ -1098,7 +1098,7 @@ function conSugerencia(msg) {
 }
 
 async function callRag(text) {
-  const typingEl = addTypingIndicator('EPI está consultando la base de conocimiento');
+  const typingEl = addTypingIndicator('El EpiBot está consultando la base de conocimiento');
   let shell = null, acc = '', sources = null, gotMeta = false, gotDone = false, streamErr = null, rafPending = false;
   const render = () => {
     if (!shell) return;
@@ -1542,7 +1542,7 @@ function addTypingIndicator(label) {
   const div = document.createElement('div');
   div.className = 'msg msg-bot';
   div.id = 'typing-indicator';
-  const txt = label || 'EPI está pensando';
+  const txt = label || 'El EpiBot está pensando';
   div.innerHTML = `
     <div class="msg-avatar">
       <img src="EpiBot_v2_avatar.png" alt="EpiForecast-MX" />

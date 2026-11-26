@@ -11,7 +11,7 @@ import { comparacionRondasMd } from './comparacion_rondas.js?v=4';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=13';
 import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=71';
-import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion } from './conversacion.js?v=14';
+import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion } from './conversacion.js?v=15';
 import { respuestaLlana, confiabilidadLegacy, indicadores as indicadoresLlano } from './resumen_llano.js?v=4';
 import { answerNegativaRazonada, answerEstacionalidad, answerExplicaGrafica, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=3';
 import { notasDeLegitimidad } from './calculo/legitimidad.js?v=2';
@@ -781,7 +781,7 @@ function answerPadecimientoNoModelado(q, ent, s, d) {
         ? `${LINEA_DE_LA_VIDA}\n\n`
         : '') +
       (violencia
-        ? 'No tiene modelo ni pronóstico en la plataforma y EPI no da sus cifras. Sus notificaciones semanales por entidad aparecen en el boletín y se consultan, sin modelo, en el [Radar del boletín](../boletin.html). ' +
+        ? 'No tiene modelo ni pronóstico en la plataforma y el EpiBot no da sus cifras. Sus notificaciones semanales por entidad aparecen en el boletín y se consultan, sin modelo, en el [Radar del boletín](../boletin.html). ' +
           'Dos categorías relacionadas sí tienen página propia y se consultan por su nombre técnico: [Violencia intrafamiliar (Y07.0-Y07.2)](../violencia_intrafamiliar_y07.html) y [Herida por arma de fuego (W32-W34)](../herida_arma_fuego_w32.html).\n\n'
         : '') +
       (cardiaco
@@ -5646,7 +5646,7 @@ function answerCodeRequest(q, ent, s, d) {
   if (any(q, legit)) return null;
 
   const lines = [];
-  lines.push('Soy **EPI**, el asistente de inteligencia epidemiológica de EpiForecast-MX. No genero código a la medida ni funciono como asistente de programación general.');
+  lines.push('Soy **EpiBot**, el asistente de inteligencia epidemiológica de EpiForecast-MX. No genero código a la medida ni funciono como asistente de programación general.');
   lines.push('\nEn cambio, puedo ayudarte con:');
   const retiradas = metricasRetiradas(d);
   lines.push(retiradas
@@ -6174,7 +6174,7 @@ async function _resolve(consulta) {
     'pelicula', 'netflix', 'horario de', 'vuelos a', 'hotel en'];
   if (any(q, offTopic) && !ent.padecimiento && !ent.estado && !ent.modelo) {
     trace.handler = 'answerFueraDeTema';
-    return { response: 'Soy **EPI**, asistente de inteligencia epidemiológica de EpiForecast-MX. No respondo temas fuera del proyecto (clima, deportes, recetas, finanzas, etc.).\n\n' +
+    return { response: 'Soy **EpiBot**, asistente de inteligencia epidemiológica de EpiForecast-MX. No respondo temas fuera del proyecto (clima, deportes, recetas, finanzas, etc.).\n\n' +
       `Puedo decirte cómo van **${TOTAL_PUBLICADOS()} padecimientos** en México, por estado y por sexo. Por ejemplo: «¿cómo va el dengue en Veracruz?» o «¿qué enfermedades van al alza?».`, handler: trace.handler };
   }
 
