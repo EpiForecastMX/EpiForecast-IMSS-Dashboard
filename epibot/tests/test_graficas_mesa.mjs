@@ -97,5 +97,29 @@ test('originales: cada punto lleva la fecha de su semana del boletín (fecha int
   const s = serieLegacy(z, 'Dengue', { estado: 'Veracruz' });
   const ult = z['dengue|veracruz|general'].seguimiento.filter((w) => w.real != null).at(-1);
   assert.equal(s.observado.at(-1)[0], ult.periodo_inicio);
-  assert.match(fuente('../js/app.js'), /fechaBoletinLegacy\(iso\)/);
+  assert.match(fuente('../js/app.js'), /fechaEpiLegacy\(iso, pad\)/);
+});
+
+test('originales: la fecha de cada dato es su semana epidemiológica (semana del boletín menos el rezago del cuadro)', async () => {
+  const { serieLegacy, REZAGO_LEGACY } = await import('../js/calculo/series.js');
+  const z = JSON.parse(readFileSync(new URL('epibot/zoom_series.json', raiz), 'utf-8'));
+  // El rezago sale del encabezado del cuadro en la foto vigente del radar: «hasta la semana N» frente al boletín N.
+  const actual = JSON.parse(readFileSync(new URL('assets/boletin/actual.json', raiz), 'utf-8'));
+  const foto = JSON.parse(readFileSync(new URL(`${actual.carpeta}/data.json`, raiz), 'utf-8'));
+  const PAD = { depresion: 'Depresion', parkinson: 'Parkinson', alzheimer: 'Alzheimer', dengue: 'Dengue' };
+  for (const [id, pad] of Object.entries(PAD)) {
+    const fila = foto.diseases.find((d) => d.platform_id === id);
+    assert.equal(REZAGO_LEGACY[pad], foto.meta.week - fila.observed_week, `${pad}: rezago del cuadro`);
+    const ult = z[`${id}|nacional|general`].seguimiento.filter((w) => w.real != null).at(-1);
+    const s = serieLegacy(z, pad, {});
+    const esperado = new Date(Date.parse(`${ult.periodo_inicio}T00:00:00Z`) - 7 * REZAGO_LEGACY[pad] * 864e5).toISOString().slice(0, 10);
+    assert.equal(s.observado.at(-1)[0], esperado, pad);
+    // Dengue suma sus tres formas (A97.0, A97.1 y A97.2).
+    const semanal = foto.diseases.filter((d) => d.platform_id === id).reduce((a, d) => a + d.weekly, 0);
+    assert.equal(s.observado.at(-1)[1], semanal, `${pad}: el último dato es la cifra semanal del cuadro`);
+  }
+  // Las otras dos copias de la regla dicen lo mismo.
+  const { LEGACY_META } = await import('../../assets/dashboard/unified.mjs');
+  for (const [id, pad] of Object.entries(PAD)) assert.equal(LEGACY_META[id].rezago, REZAGO_LEGACY[pad], id);
+  assert.match(readFileSync(new URL('home-preview.js', raiz), 'utf-8'), /var REZAGO = \{ depresion: 1, parkinson: 1, alzheimer: 1, dengue: 0 \};/);
 });

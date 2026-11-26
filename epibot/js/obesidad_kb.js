@@ -19,8 +19,8 @@ import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?
 // Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
 import './avisos_fuente.js?v=5';
 import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion, indicadores, nombreEstado } from './resumen_llano.js?v=5';
-import { lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=3';
-import { serieDeVista } from './calculo/series.js?v=2';
+import { lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=4';
+import { serieDeVista } from './calculo/series.js?v=3';
 import { DEFINICIONES } from './definiciones.js?v=1';
 
 const any = (q, ks) => ks.some((k) => q.includes(k));

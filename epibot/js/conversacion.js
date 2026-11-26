@@ -7,7 +7,7 @@
  * genera scripts/build_resumen_padecimientos.mjs desde las vistas publicadas.
  */
 import { RELEASES } from './release_config.js?v=59';
-import { fechaBoletinLegacy } from './calculo/series.js?v=2';
+import { fechaEpiLegacy } from './calculo/series.js?v=3';
 
 const LEGACY = 4;
 export const TOTAL_PUBLICADOS = () => RELEASES.length + LEGACY;
@@ -199,9 +199,9 @@ const norm0 = (t) => String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').to
 function serieLegacy(z, pad, geo, sexo) {
   const zz = z[`${LEGACY_PAD[pad]}|${geo}|${sexo}`];
   if (!zz || !Array.isArray(zz.d)) return null;
-  // Fechas del boletín (d + 13 días), no la fecha interna del motor: ver fechaBoletinLegacy.
-  const observado = zz.d.map((ds, i) => [ds, zz.r[i]]).filter(([ds, r]) => r != null && ds <= zz.last_real).map(([ds, r]) => [fechaBoletinLegacy(ds), r]);
-  const pronostico = zz.d.map((ds, i) => [fechaBoletinLegacy(ds), zz.y[i]]).filter(([, y]) => y != null);
+  // Semana epidemiológica del dato (semana del boletín menos el rezago impreso), no la fecha interna del motor: ver fechaEpiLegacy.
+  const observado = zz.d.map((ds, i) => [ds, zz.r[i]]).filter(([ds, r]) => r != null && ds <= zz.last_real).map(([ds, r]) => [fechaEpiLegacy(ds, pad), r]);
+  const pronostico = zz.d.map((ds, i) => [fechaEpiLegacy(ds, pad), zz.y[i]]).filter(([, y]) => y != null);
   const seg = (zz.seguimiento || []).filter((x) => x.estado === 'par' && x.real != null && x.pronostico != null);
   const O = seg.reduce((a, x) => a + x.real, 0);
   const P = seg.reduce((a, x) => a + x.pronostico, 0);

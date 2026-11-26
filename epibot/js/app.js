@@ -7,10 +7,10 @@ import { graficoRondas } from './comparacion_rondas.js?v=4';
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2, contextoActual, reiniciaContexto } from './kb.js?v=210';
+import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2, contextoActual, reiniciaContexto } from './kb.js?v=211';
 import { detectEntities, norm } from './entities.js?v=88';
 import { pareceVariosPedidos, respuestaDePlan } from './agente.js?v=1';
-import { fechaBoletinLegacy } from './calculo/series.js?v=2';
+import { fechaEpiLegacy } from './calculo/series.js?v=3';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
 import { renderMexicoMap } from './mexico-map.js?v=5';
 import { renderTimelapse } from './timelapse.js?v=4';
@@ -2236,8 +2236,9 @@ function buildSeriesZoom(s, pad, estado, sexo) {
   const estadoLbl = norm(estado) === 'mexico' ? 'Estado de México' : dn(estado);
   const sexoLbl = sexo === 'general' ? 'ambos sexos' : sexo;
   const MESES_CORTOS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
-  // Cada punto se rotula con el inicio de su semana del boletín (d + 13 días; ver fechaBoletinLegacy en calculo/series.js).
-  const labels = s.d.map(iso => { const p = fechaBoletinLegacy(iso).split('-'); return `${Number(p[2])} ${MESES_CORTOS[Number(p[1]) - 1]} ${p[0].slice(2)}`; });
+  // Cada punto se rotula con el inicio de su semana epidemiológica (semana del boletín menos el rezago impreso; ver
+  // fechaEpiLegacy en calculo/series.js).
+  const labels = s.d.map(iso => { const p = fechaEpiLegacy(iso, pad).split('-'); return `${Number(p[2])} ${MESES_CORTOS[Number(p[1]) - 1]} ${p[0].slice(2)}`; });
   const lastRealIdx = s.r.reduce((acc, v, i) => (v != null ? i : acc), -1);
   // Semana del boletín de la última observación, desde el seguimiento (el ISO del ds legado no lo es).
   const seg = Array.isArray(s.seguimiento) ? s.seguimiento : [];

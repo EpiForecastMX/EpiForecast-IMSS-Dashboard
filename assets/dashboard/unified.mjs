@@ -29,11 +29,28 @@ const ID_RE = /^[a-z0-9_]{1,80}$/;
 
 /** Datos fijos de los cuatro padecimientos legacy (labels/CIE ya publicados en el sitio). */
 export const LEGACY_META = Object.freeze({
-  depresion: Object.freeze({ cie: 'F32', page: 'bitacora_modelado.html' }),
-  parkinson: Object.freeze({ cie: 'G20', page: 'bitacora_modelado.html' }),
-  alzheimer: Object.freeze({ cie: 'G30', page: 'bitacora_modelado.html' }),
-  dengue: Object.freeze({ cie: 'A97', page: 'dengue.html' }),
+  depresion: Object.freeze({ cie: 'F32', page: 'bitacora_modelado.html', rezago: 1 }),
+  parkinson: Object.freeze({ cie: 'G20', page: 'bitacora_modelado.html', rezago: 1 }),
+  alzheimer: Object.freeze({ cie: 'G30', page: 'bitacora_modelado.html', rezago: 1 }),
+  dengue: Object.freeze({ cie: 'A97', page: 'dengue.html', rezago: 0 }),
 });
+
+/*
+ * Mesa de la plataforma (25-nov-2026, Codex Sol): los originales rotulan su último dato con la semana del boletín
+ * (ultima_semana_boletin). El cuadro 17 (Depresión, Parkinson, Alzheimer) llega «hasta la semana N−1» y el 7.2 (Dengue)
+ * «hasta la N»: la última semana observada es la del boletín menos ese rezago (`rezago` arriba; misma regla que
+ * REZAGO_LEGACY de epibot/js/calculo/series.js y que home-preview.js).
+ */
+function semanasDelAnio(y) {
+  const ini = (a) => { const j4 = Date.UTC(a, 0, 4); return j4 - new Date(j4).getUTCDay() * 864e5; };
+  return Math.round((ini(y + 1) - ini(y)) / (7 * 864e5));
+}
+export function semanaMenos(w, k) {
+  if (!w || !k) return w;
+  let anio = w.anio, semana = w.semana - k;
+  while (semana < 1) { anio -= 1; semana += semanasDelAnio(anio); }
+  return { anio, semana };
+}
 
 export const LEGACY_STATUS_LABEL =
   'Publicación previa: pronóstico de 52 semanas desde el JSON visual (valores redondeados), sin validación prospectiva en este tablero';
@@ -284,7 +301,7 @@ function legacyEntry(pad, raw) {
     sexes: SEX_IDS.filter((s) => sexes.has(s)),
     status: { kind: 'legacy', label: LEGACY_STATUS_LABEL, verdict: null, weeksAvailable: null, weeksRequired: null },
     origin: ref.corteModelo,
-    lastObservation: ref.ultimaSemanaBoletin,
+    lastObservation: semanaMenos(ref.ultimaSemanaBoletin, LEGACY_META[pad.id]?.rezago ?? 0),
     lastIndex: ref.lastReal,
     emittedAt: null,
     valuesRounded: true,

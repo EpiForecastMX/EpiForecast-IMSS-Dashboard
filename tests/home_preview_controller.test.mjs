@@ -98,7 +98,8 @@ test('rótulos: corte y último observado distintos; total con su periodo; emisi
   await boot();
   assert.equal($('pvCorteRot').textContent, 'Corte del modelo');
   assert.equal($('pvCorte').textContent, 'semana 37 de 2026');
-  assert.equal($('pvObs').textContent, 'semana 44 de 2026');
+  // Depresión: el cuadro 17 del boletín 44 llega hasta la semana 43 (mesa de la plataforma, 25-nov-2026).
+  assert.equal($('pvObs').textContent, 'semana 43 de 2026');
   assert.match($('pvCasos').textContent, /casos en 52 semanas desde el corte/);
   assert.equal($('pvEmision').textContent, 'fecha no documentada');
   assert.doesNotMatch(HOME, /<dt>Horizonte<\/dt>/);
