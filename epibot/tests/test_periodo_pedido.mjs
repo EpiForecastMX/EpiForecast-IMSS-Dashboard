@@ -41,5 +41,7 @@ test('en 52 semanas: el total del horizonte encabeza, con su periodo', async () 
 test('en lo que va del año: se aclara que es la suma de las semanas de la serie', async () => {
   const r = await pide('casos de varicela en lo que va de 2026');
   assert.match(r, /\*\*En lo que va de 2026\*\* se han notificado \*\*46,525 casos\*\* en el país \(suma de las semanas de la serie publicada/);
-  assert.match(r, /- \*\*En lo que va de 2026:\*\* 46,525 casos[^.]*\(suma de las semanas de la serie\)\./);
+  // Plan canónico 2.4: la viñeta ya no lleva la aclaración; va, igual de explícita, en la ficha plegada.
+  const [, detalle] = r.split('<!--DETALLE-->');
+  assert.match(detalle, /«En lo que va de 2026» es la suma de las semanas de la serie publicada/);
 });

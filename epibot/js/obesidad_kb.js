@@ -14,12 +14,12 @@ import { mencionaNoModelada } from './entities.js?v=88';
 import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
-} from './obesidad_charts.js?v=62';
+} from './obesidad_charts.js?v=63';
 import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=59';
 // Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
 import './avisos_fuente.js?v=5';
-import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion, indicadores, nombreEstado, semanaDeEtiqueta, semanaTxt } from './resumen_llano.js?v=8';
-import { lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=5';
+import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion, indicadores, nombreEstado, semanaDeEtiqueta, semanaTxt } from './resumen_llano.js?v=9';
+import { lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=6';
 import { serieDeVista } from './calculo/series.js?v=4';
 import { crecimiento } from './calculo/operaciones.js?v=2';
 import { DEFINICIONES } from './definiciones.js?v=1';
@@ -232,7 +232,7 @@ export function answerDiabetes(q, ent, s, d) {
   if (!r || r.alias.length) return null;
   const respuesta = answerRelease(q, ent, s, d, r);
   if (!respuesta || !ent._diabetesGenerica) return respuesta;
-  return `Tomo «diabetes» como **${r.etiqueta}**, que concentra la gran mayoría de los casos notificados. Para tipo 1, pregunta por «diabetes tipo 1».\n\n${respuesta}`;
+  return `Tomo «diabetes» como **${r.etiqueta}**, la de casi todos los casos notificados; para tipo 1, pide «diabetes tipo 1».\n\n${respuesta}`;
 }
 
 /**
@@ -308,7 +308,7 @@ function answerRelease(q, ent, s, d, r) {
   const avisoSexo = pidioSexo
     ? `El boletín publica **${r.etiqueta}** sin desglose por sexo: se pronostica el total de cada entidad.\n\n`
     : '';
-  const pie = `\n\nGráfica interactiva por estado${sinSexo ? '' : ' y sexo'}: [${r.nombre} · pronóstico semanal](../${r.pagina}).`;
+  const pie = `\n\nGráfica interactiva por estado${sinSexo ? '' : ' y sexo'}: [${r.nombre}](../${r.pagina}).`;
   const sexo = ent.sexo || 'general';
   const sexoTxt = SEXO_TXT[sexo];
   const est = Object.values(v.series).filter((x) => x.nivel === 'estado' && x.sexo === sexo && x.oos.smape != null);
@@ -379,8 +379,8 @@ function answerRelease(q, ent, s, d, r) {
       : pideAcum ? (a, b) => b.ind.ytd - a.ind.ytd : (a, b) => b.ind.F4 - a.ind.F4).slice(0, /top 10/.test(q) ? 10 : 5);
     const fila = ({ x, ind }) => pideAcum
       ? `- **${nombreEstado(x.nombre)}**: ${ent0(ind.ytd)} casos en lo que va de ${ind.anio}.`
-      : `- **${nombreEstado(x.nombre)}**: unos ${ent0(ind.F4)} casos en las próximas 4 semanas (${ent0(ind.O4)} en las 4 anteriores${ind.O4 < 10 ? '; base muy pequeña, el salto puede ser ruido' : ''}).`;
-    const titulo = pideAumento ? 'estados donde más se espera que aumente' : pideAcum ? 'estados con más casos en lo que va del año' : 'estados con más casos esperados';
+      : `- **${nombreEstado(x.nombre)}**: unos ${ent0(ind.F4)} casos (${ent0(ind.O4)} en las 4 anteriores${ind.O4 < 10 ? '; base muy pequeña, el salto puede ser ruido' : ''}).`;
+    const titulo = pideAumento ? 'estados donde más se espera que aumente en las próximas 4 semanas' : pideAcum ? 'estados con más casos en lo que va del año' : 'estados con más casos esperados en las próximas 4 semanas';
     const nac = v.series[`nacional|mx|${sexo}`];
     return fin([`**${r.etiqueta}: ${titulo}, ${sexoTxt}**`, '', ...orden.map(fila), '',
       '_Casos notificados, sin ajustar por población: un estado más poblado tiene más casos aunque su riesgo no sea mayor._',
@@ -477,10 +477,12 @@ function answerRelease(q, ent, s, d, r) {
   // lenguaje llano; la ficha técnica queda plegada después de <!--DETALLE--> («Cómo se calculó»).
   if (tipo === 'serie' || tipo === 'confianza') {
     const estadosMismoSexo = Object.values(v.series).filter((y) => y.nivel === 'estado' && y.sexo === x.sexo);
-    const llano = respuestaLlana({ v, x, r, q, esControl: esControl(v), estados: estadosMismoSexo, sinSexo });
+    const qn = q.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    const defin = /^\W*(que|q) (es|son|significa)\b|\bque es (la|el|una|un)\b|\bsignifica\b|\bdefin|\bque (incluye|abarca|comprende)\b|\bcodigos? (cie|de la cie)\b|\bque codigos?\b/.test(qn);
+    // Plan canónico 2.4: si arriba ya va la respuesta pedida (definición, confiabilidad, validación o error), las viñetas se pliegan.
+    const ranura = ranuraPedida(qn, v, x, r);
+    const llano = respuestaLlana({ v, x, r, q, esControl: esControl(v), estados: estadosMismoSexo, sinSexo, compacto: defin || !!ranura || tipo === 'confianza' });
     if (llano) {
-      const qn = q.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-      const defin = /^\W*(que|q) (es|son|significa)\b|\bque es (la|el|una|un)\b|\bsignifica\b|\bdefin/.test(qn);
       const completo = (v.nombre_completo || '').replace(/\s*\([^()]+\)\s*$/, '').trim();
       const cie = (v.nombre_completo || '').match(/\(([^()]+)\)\s*$/)?.[1];
       const arriba = [];
@@ -496,9 +498,8 @@ function answerRelease(q, ent, s, d, r) {
       }
       if (tipo === 'confianza') arriba.push(confiabilidad(v, x, esControl(v), r).texto, '');
       // Plan canónico 1.1: «¿está validado?» y el error fuera de muestra se contestan en la primera línea.
-      const ranura = ranuraPedida(qn, v, x, r);
       if (ranura && tipo !== 'confianza') arriba.push(ranura, '');
-      const tecnico = ficha(v, x, '', r);
+      const tecnico = [...(llano.aparte?.length ? [...llano.aparte, ''] : []), ...ficha(v, x, '', r)];
       const futurasT = x.pronostico.filter(([ds]) => ds > v.observation_cutoff_ds).slice(0, 4);
       if (futurasT.length) tecnico.push('', '**Siguientes semanas del pronóstico, aún sin observación publicada:**', ...futurasT.map(([ds, y]) => `- ${Semana(ds)}: ${ent0(y)} ${ent0(y) === '1' ? 'caso' : 'casos'}`));
       tecnico.push('', `Total pronosticado en las ${v.horizon_weeks} semanas: **${ent0(x.pronostico_52_total)} casos**.`, '', etiqueta, `_${v.uncertainty_label}._`);
@@ -512,7 +513,7 @@ function answerRelease(q, ent, s, d, r) {
       return avisoSexo + [...arriba, ...cuerpo].join('\n') + pie + '\n\n<!--DETALLE-->\n' + tecnico.join('\n') +
         // Plan canónico 2.2: una pregunta por el error o la confiabilidad lleva el zoom de seguimiento (observado frente al
         // pronóstico desde el origen), no la serie larga desde 2023.
-        marca(PREGUNTA_ERROR.test(q) && x.oos?.semanas ? 'seguimiento' : (tipo === 'confianza' ? 'serie' : tipo), ent, null, r) + siguientes(r, x, sinSexo);
+        marca(PREGUNTA_ERROR.test(q) && x.oos?.semanas ? 'seguimiento' : (tipo === 'confianza' ? 'serie' : tipo), ent, null, r) + siguientes(r, x, sinSexo, q);
     }
   }
 

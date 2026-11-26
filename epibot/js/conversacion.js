@@ -8,7 +8,7 @@
  */
 import { RELEASES } from './release_config.js?v=59';
 import { fechaEpiLegacy } from './calculo/series.js?v=4';
-import { semanaTxt } from './resumen_llano.js?v=8';
+import { semanaTxt, semanaDeEtiqueta, botonesPeriodo } from './resumen_llano.js?v=9';
 
 const LEGACY = 4;
 export const TOTAL_PUBLICADOS = () => RELEASES.length + LEGACY;
@@ -151,13 +151,15 @@ export function answerRankingPadecimientos(q, ent, s, d) {
   // Va en un bloque aparte. Los modelos ya desviados quedan fuera porque su tendencia pasa a «incierto» (resumen_llano.js).
   const modelos = relevantes.filter((x) => !x.control);
   const controles = relevantes.filter((x) => x.control);
-  const suben = orden(modelos.filter((x) => x.tendencia === 'sube')).slice(0, 6);
-  const bajan = orden(modelos.filter((x) => x.tendencia === 'baja')).slice(0, 4);
-  const ctrlSuben = orden(controles.filter((x) => x.tendencia === 'sube')).slice(0, 3);
+  // Plan canónico 2.4: tres por bloque a la vista (dos controles); la gráfica lleva las mismas filas.
+  const suben = orden(modelos.filter((x) => x.tendencia === 'sube')).slice(0, 3);
+  const bajan = orden(modelos.filter((x) => x.tendencia === 'baja')).slice(0, 3);
+  const ctrlSuben = orden(controles.filter((x) => x.tendencia === 'sube')).slice(0, 2);
   const masCasos = /\bmas casos\b/.test(q) && !resumen;
   const pideBaja = /\b(bajan|bajando|bajaron|bajado|bajo|disminuyen|disminuyendo|disminuyo|a la baja)\b/.test(q);
-  const etq = (x) => (x.confiabilidad === 'baja' ? ' · _confiabilidad baja_' : x.confiabilidad === 'alta' ? ' · confiabilidad alta' : ' · confiabilidad media');
-  const fila = (x) => `- **${x.nombre}**: unos ${ent0(x.F4)} casos en las próximas 4 semanas, ${x.delta >= 0 ? `${pct0(x.delta)} más` : `${pct0(x.delta)} menos`} que en las 4 anteriores (${ent0(x.O4)})${etq(x)}.`;
+  // La confiabilidad media es la habitual: sólo se marca la baja y la alta (la escala se explica en «Cómo se calculó»).
+  const etq = (x) => (x.confiabilidad === 'baja' ? ' · _confiabilidad baja_' : x.confiabilidad === 'alta' ? ' · confiabilidad alta' : '');
+  const fila = (x) => `- **${x.nombre}**: de ${ent0(x.O4)} a unos ${ent0(x.F4)} casos (${x.delta >= 0 ? '+' : '−'}${pct0(x.delta)})${etq(x)}.`;
   const lineas = [];
   if (masCasos) {
     const top = [...res.padecimientos].sort((a, b) => b.F4 - a.F4).slice(0, 8);
@@ -174,24 +176,26 @@ export function answerRankingPadecimientos(q, ent, s, d) {
       lineas.push(...suben.map(fila));
       if (bajan.length) lineas.push('', '**Lo que más se espera que baje:**', '', ...bajan.map(fila));
       if (ctrlSuben.length) {
-        lineas.push('', '**Controles estacionales, sin modelo validado:** si se repite lo del año pasado, estos subirían. No es una expectativa de un modelo, es el eco del año anterior:', '',
-          ...ctrlSuben.map((x) => `- ${x.nombre}: de ${ent0(x.O4)} a unos ${ent0(x.F4)} casos en 4 semanas.`));
+        lineas.push('', '**Controles estacionales, sin modelo validado:** subirían sólo si se repite el año pasado:', '',
+          ...ctrlSuben.map((x) => `- ${x.nombre}: de ${ent0(x.O4)} a unos ${ent0(x.F4)} casos.`));
       }
     }
   }
   if (resumen) {
-    const top = [...res.padecimientos].sort((a, b) => b.F4 - a.F4).slice(0, 5);
+    const top = [...res.padecimientos].sort((a, b) => b.F4 - a.F4).slice(0, 3);
     lineas.unshift(`**Panorama nacional:** casos notificados al boletín epidemiológico, con datos hasta la ${semanaTxt(res.corte)}.`, '');
-    lineas.push('', '**Los que más casos tendrán:**', '', ...top.map((x) => `- **${x.nombre}**: unos ${ent0(x.F4)} casos en las próximas 4 semanas.`));
+    const y = (xs) => (xs.length > 1 ? `${xs.slice(0, -1).join(', ')} y ${xs.at(-1)}` : xs[0]);
+    lineas.push('', `**Los que más casos tendrán:** ${y(top.map((x) => `${x.nombre.charAt(0).toLowerCase()}${x.nombre.slice(1)} (unos ${ent0(x.F4)})`))}.`);
   }
   // Cada padecimiento tiene su propio corte (114 llegan a una semana y 22 a la siguiente): se dice, no se presenta uno común.
   const cortes = Object.entries(res.padecimientos.reduce((a, x) => ({ ...a, [x.ultimo]: (a[x.ultimo] || 0) + 1 }), {})).sort();
   const corteTxt = cortes.length > 1
     ? cortes.map(([ds, n]) => `${n} con datos hasta la ${semanaTxt(ds)}`).join(' y ')
     : `datos hasta la ${semanaTxt(res.corte)}`;
-  lineas.push('', `Comparo ${res.padecimientos.length} padecimientos, ${corteTxt}. Dejo fuera los de menos de 50 casos, donde un cambio porcentual engaña, ` +
-    'los temas sensibles y los modelos que ya se desviaron más de lo que prevén. «Confiabilidad baja» quiere decir que el pronóstico repite el patrón del año pasado o que ya se ha desviado.',
-  '', '_Son casos notificados al boletín epidemiológico; no es consejo médico._');
+  // Plan canónico 2.4: un solo pie a la vista; el método (cortes, exclusiones y la escala de confiabilidad) va plegado.
+  lineas.push('', '_Casos notificados al boletín epidemiológico, próximas 4 semanas frente a las 4 anteriores; sin marca, la confiabilidad es media. No es consejo médico._',
+    '<!--DETALLE-->', `Comparo ${res.padecimientos.length} padecimientos, ${corteTxt}. Dejo fuera los de menos de 50 casos, donde un cambio porcentual engaña, ` +
+    'los temas sensibles y los modelos que ya se desviaron más de lo que prevén. Sin marca, la confiabilidad es media; «confiabilidad baja» quiere decir que el pronóstico repite el patrón del año pasado o que ya se ha desviado.');
   // Pedido del autor (26-nov-2026): la lista lleva su gráfica. Las filas son las mismas del texto (app.js las dibuja).
   const graf = masCasos
     ? { modo: 'casos', filas: [...res.padecimientos].sort((a, b) => b.F4 - a.F4).slice(0, 8).map((x) => ({ n: x.nombre, o: x.O4, f: x.F4 })) }
@@ -286,12 +290,13 @@ export function answerLegacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadL
   const lineas = respuestaLlana({ v, x, r, q, esControl: false, estados, sinSexo: false, confianzaTexto: confiabilidadLegacy(x, base.zz) });
   if (!lineas) return null;
   const sig = [
+    ...botonesPeriodo(q, r.consulta, x),
     geo === 'nacional' ? { t: '¿Dónde hay más casos?', q: `mapa de ${r.consulta}` } : { t: 'Ver el total nacional', q: `${r.consulta} nacional` },
     ...(sexo === 'general' ? [{ t: '¿Y en mujeres?', q: `${r.consulta}${geo === 'nacional' ? '' : ` en ${ent.estado}`} mujeres` }] : []),
     { t: 'Semana a semana', q: `zoom ${r.consulta}${geo === 'nacional' ? '' : ` en ${ent.estado}`}` },
     ...(pad === 'Dengue' ? [{ t: 'Histórico del dengue', q: 'historico de dengue' }] : [{ t: `¿Qué es ${r.nombre.toLowerCase()}?`, q: `que es ${r.consulta}` }]),
   ];
-  return lineas.join('\n') + `\n\n<!--DETALLE-->\nMotor productivo de esta serie: **${base.zz.motor}**. Pronóstico emitido con datos hasta la semana ${base.zz.corte}; ` +
+  return lineas.join('\n') + `\n\n<!--DETALLE-->\n${(lineas.aparte || []).join('\n')}\n\nMotor productivo de esta serie: **${base.zz.motor}**, elegido por su error con datos que no vio (semanas 28 a 37 de 2026). Pronóstico emitido con datos hasta la ${/^\d{4}-W\d+$/.test(base.zz.corte) ? semanaDeEtiqueta(base.zz.corte) : `semana ${base.zz.corte}`}; ` +
     `la comparación con lo observado se actualiza con cada boletín.${base.zz.intervalo_disponible ? '' : ' Pronóstico puntual, sin intervalo de incertidumbre.'}` +
     `\n<!--SIGUE:${JSON.stringify(sig.slice(0, 4))}-->`;
 }
@@ -588,14 +593,15 @@ export function answerEstadoLlano(q, ent, s, d, { forzar = false, transmisibles 
     .filter((y) => !transmisibles || !NO_TRANSMISIBLE.test(y.x.nombre.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()));
   if (!filas.length) return null;
   const suben = filas.filter((y) => y.e[2] === 'sube' && Math.max(y.e[0], y.e[1]) >= 20)
-    .sort((a, b) => (b.e[1] / Math.max(1, b.e[0])) - (a.e[1] / Math.max(1, a.e[0]))).slice(0, 5);
-  const mas = [...filas].sort((a, b) => b.e[1] - a.e[1]).slice(0, 5);
-  const pct = (y) => (y.e[0] > 0 ? ` (${Math.round((y.e[1] / y.e[0] - 1) * 100)} % más que en las 4 anteriores)` : '');
+    .sort((a, b) => (b.e[1] / Math.max(1, b.e[0])) - (a.e[1] / Math.max(1, a.e[0]))).slice(0, 3);
+  const mas = [...filas].sort((a, b) => b.e[1] - a.e[1]).slice(0, 3);
+  const pct = (y) => (y.e[0] > 0 ? ` (+${Math.round((y.e[1] / y.e[0] - 1) * 100)} %)` : '');
   const lineas = [`**${est}: lo que se espera en las próximas 4 semanas${transmisibles ? ' (enfermedades transmisibles)' : ''}**`, ''];
   lineas.push(suben.length ? '**Lo que más se espera que suba:**' : 'Ningún padecimiento con al menos 20 casos muestra un aumento claro ahí.', '');
   lineas.push(...suben.map((y) => `- **${y.x.nombre}**: unos ${ent0(y.e[1])} casos${pct(y)}${y.x.confiabilidad === 'baja' ? ' · _confiabilidad baja_' : ''}.`));
   lineas.push('', '**Los que tendrán más casos:**', '', ...mas.map((y) => `- **${y.x.nombre}**: unos ${ent0(y.e[1])} casos.`));
-  lineas.push('', `Pregúntame por uno en particular («¿cómo va ${mas[0].x.consulta} en ${est}?») o por dengue, depresión, Parkinson o Alzheimer, que se publican aparte. Datos hasta la ${semanaTxt(res.corte)}; no incluye temas sensibles.`, '<!--SIN_GRAFICA-->');
+  lineas.push('', `¿Quieres el detalle de uno? Pregúntame, por ejemplo, «¿cómo va ${mas[0].x.consulta} en ${est}?».`, '',
+    `_Frente a las 4 semanas anteriores, con datos hasta la ${semanaTxt(res.corte)}; sin temas sensibles. Dengue, depresión, Parkinson y Alzheimer se publican aparte._`, '<!--SIN_GRAFICA-->');
   const sig = [...suben, ...mas].slice(0, 3).map((y) => ({ t: `${y.x.nombre} en ${est}`, q: `¿cómo va ${y.x.consulta} en ${est}?` }));
   return lineas.join('\n') + sigue(sig);
 }

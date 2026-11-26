@@ -9,11 +9,11 @@
 import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaNoModelada } from './entities.js?v=88';
 import { comparacionRondasMd } from './comparacion_rondas.js?v=4';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
-import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=13';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=79';
-import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion, answerConsejoMedico, DUDA_MEDICAMENTO, VIAJE_SEGURIDAD, NOTA_VIAJE } from './conversacion.js?v=22';
-import { respuestaLlana, confiabilidadLegacy, indicadores as indicadoresLlano, semanaTxt } from './resumen_llano.js?v=8';
-import { answerNegativaRazonada, answerEstacionalidad, answerExplicaGrafica, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=5';
+import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=14';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=80';
+import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion, answerConsejoMedico, DUDA_MEDICAMENTO, VIAJE_SEGURIDAD, NOTA_VIAJE } from './conversacion.js?v=23';
+import { respuestaLlana, confiabilidadLegacy, indicadores as indicadoresLlano, semanaTxt } from './resumen_llano.js?v=9';
+import { answerNegativaRazonada, answerEstacionalidad, answerExplicaGrafica, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=6';
 import { crecimiento } from './calculo/operaciones.js?v=2';
 import { notasDeLegitimidad } from './calculo/legitimidad.js?v=2';
 import { serieLegacy as serieLegacyCalc } from './calculo/series.js?v=4';
@@ -1779,19 +1779,20 @@ function answerDengue(q, ent, s, d) {
       }).filter(Boolean).sort((a, b) => b.f - a.f);
     if (filas.length) {
       const top = filas.slice(0, 5);
+      // Plan canónico 2.4: a la vista, la lista, el aviso de un salto grande y un solo pie; lo demás va plegado.
+      const salto = top.find((x) => x.o >= 10 && x.f > 3 * x.o) || top.find((x) => x.o < 10 && x.f >= 50);
+      const nac = serieLegacyCalc(d.zoom_series, 'Dengue', {});
+      const u = nac?.observado.at(-1)?.[0];
+      const f4 = nac ? nac.pronostico.filter(([ds]) => ds > u).slice(0, 4).reduce((a, [, y]) => a + y, 0) : null;
+      const sumaEst = filas.reduce((a, x) => a + x.f, 0);
       return [`**Estados con más casos de dengue esperados en las próximas 4 semanas**, desde la ${semanaTxt(top[0].ini)}:`, '',
         ...top.map((x) => `- **${x.nombre}**: unos ${fmt(Math.round(x.f))} casos (${fmt(Math.round(x.o))} en las 4 semanas anteriores)`), '',
-        `Datos observados hasta la ${semanaTxt(top[0].ult)}. Son casos notificados, sin ajustar por población: un estado más poblado tiende a tener más casos aunque su riesgo no sea mayor. «El próximo mes» se toma como las próximas 4 semanas del pronóstico.`,
-        ...(() => {
-          const nac = serieLegacyCalc(d.zoom_series, 'Dengue', {});
-          const u = nac?.observado.at(-1)?.[0];
-          const f4 = nac ? nac.pronostico.filter(([ds]) => ds > u).slice(0, 4).reduce((a, [, y]) => a + y, 0) : null;
-          const sumaEst = filas.reduce((a, x) => a + x.f, 0);
-          return f4 != null && Math.abs(sumaEst - f4) > 0.2 * f4
-            ? ['', `_Cada estado tiene su propio modelo y el total nacional otro, así que no suman lo mismo: los estados dan unos ${fmt(Math.round(sumaEst))} casos y el modelo nacional ${fmt(Math.round(f4))}. Un salto grande frente a las semanas anteriores (como en los primeros de la lista) es lo que proyecta el modelo de ese estado, sin validación propia de esta semana._`]
-            : [];
-        })(),
-        '', '_Es información estadística, no consejo médico._',
+        `_Casos notificados, sin ajustar por población, con datos hasta la ${semanaTxt(top[0].ult)}.${salto ? ` Un salto grande, como en ${salto.nombre}, es lo que proyecta el modelo de ese estado, sin validación propia.` : ''} No es consejo médico._`,
+        '<!--DETALLE-->',
+        '«El próximo mes» se toma como las próximas 4 semanas del pronóstico. Un estado más poblado tiende a tener más casos aunque su riesgo no sea mayor.',
+        ...(f4 != null && Math.abs(sumaEst - f4) > 0.2 * f4
+          ? ['', `Cada estado tiene su propio modelo y el total nacional otro, así que no suman lo mismo: los estados dan unos ${fmt(Math.round(sumaEst))} casos y el modelo nacional ${fmt(Math.round(f4))}.`]
+          : []),
         marcaEstados({ modo: 'f4', destacados: top.length, titulo: 'Dengue: casos esperados en las próximas 4 semanas por estado, ambos sexos', filas: filas.map((x) => [x.nombre, Math.round(x.f)]) })].join('\n');
     }
   }
@@ -6035,6 +6036,45 @@ let _crisisActiva = null;   // 'crisis', 'apoyo' o null
 // Tras una aclaración sin cifras (nombre genérico, subtipo, guarda fija), «¿y en Sonora?» no hereda nada: se repite
 // la petición de precisar en vez de caer en la tabla neuro del estado.
 let _aclaracionPendiente = null;
+// Plan canónico 2.6: las opciones de la última aclaración (bloques publicados que nombra) con el estado y el sexo de la
+// pregunta, para que «la A», «la segunda» u «otras» respondan sin volver a escribir todo.
+let _opcionesPendientes = null;
+const ORDINAL = { primera: 0, primero: 0, segunda: 1, segundo: 1, tercera: 2, tercero: 2, cuarta: 3, cuarto: 3 };
+
+/** Los bloques publicados que nombra una aclaración entre comillas latinas, en su orden. */
+function opcionesDeAclaracion(texto) {
+  return [...new Set([...String(texto).matchAll(/«([^»]+)»/g)].map((m) => m[1]))]
+    .filter((n) => RELEASES.some((r) => (r.consultaVisible || r.consulta) === n)).slice(0, 4);
+}
+
+/** Si la consulta elige una de las opciones pendientes, la reescribe completa («la A» → «hepatitis vírica a en Jalisco mujeres»). */
+function eligeOpcion(query) {
+  const p = _opcionesPendientes;
+  if (!p || !p.opciones.length) return null;
+  const qn = norm(String(query || '')).replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!qn || qn.split(' ').length > 7) return null;
+  const ent = detectEntities(qn);
+  const ops = p.opciones.map((o) => ({ o, w: norm(o).split(' ') }));
+  const resto = qn.replace(/^(y|pues|ok|bueno|entonces|mejor)\b ?/, '').replace(/\b(la|el|las|los|de|del|tipo|hepatitis|virica|viral|en|a ver|quiero|dame|mujeres|hombres|ambos sexos|por favor|porfa)\b/g, ' ')
+    .replace(/\s+/g, ' ').trim();
+  const sinLugar = ent.estado ? resto.replace(new RegExp(`\\b${norm(ent.estado)}\\b`), '').trim() : resto;
+  let elegida = null;
+  const ordinal = sinLugar.match(/^(primera|primero|segunda|segundo|tercera|tercero|cuarta|cuarto|ultima|ultimo)$/);
+  if (ordinal) elegida = ops[/^ultim/.test(ordinal[1]) ? ops.length - 1 : ORDINAL[ordinal[1]]];
+  else if (/^[a-e]( [a-z]+)?$/.test(sinLugar)) {
+    const [letra, extra] = sinLugar.split(' ');
+    const conLetra = ops.filter(({ w }) => w.includes(letra));
+    elegida = conLetra.length === 1 ? conLetra[0] : conLetra.find(({ w }) => extra && w.includes(extra)) || null;
+  } else if (sinLugar) {
+    const palabras = sinLugar.split(' ');
+    const cumplen = ops.filter(({ w }) => palabras.every((x) => w.some((y) => y.startsWith(x.slice(0, 5)))));
+    if (cumplen.length === 1) elegida = cumplen[0];
+  }
+  if (!elegida) return null;
+  const estado = ent.estado || p.estado;
+  const sexo = ent.sexo && ent.sexo !== 'general' ? ent.sexo : p.sexo;
+  return `${elegida.o}${estado ? ` en ${estado}` : ''}${sexo && sexo !== 'general' ? ` ${sexo}` : ''}`;
+}
 
 /**
  * Séptima auditoría Codex: la interfaz incorpora el estado que devuelve la función RAG (respuesta de apoyo o crisis) y el
@@ -6061,14 +6101,16 @@ export function estadoDeRespuesta(texto) {
 export function contextoActual() {
   if (_crisisActiva) return null;
   const p = lastEntities.padecimiento;
-  if (!p) return lastEntities.estado ? { padecimiento: null, consulta: null, estado: lastEntities.estado, sexo: null } : null;
+  // El estado se muestra con su nombre escrito («Ciudad de México», no «Ciudad de Mexico» como lo guarda el contexto).
+  const est = lastEntities.estado ? (ESTADOS_NOMBRE[norm(lastEntities.estado).replace(/^mexico$/, 'estado de mexico')] || lastEntities.estado) : null;
+  if (!p) return est ? { padecimiento: null, consulta: null, estado: est, sexo: null } : null;
   const r = releaseDePad(p);
   if (r?.sensible) return null;
   const LEG = { Dengue: 'Dengue', Depresion: 'Depresión', Parkinson: 'Parkinson', Alzheimer: 'Alzheimer' };
   return {
     padecimiento: r ? (r.nombreCorto || r.nombre) : (LEG[p] || p),
     consulta: r ? (r.consultaVisible || r.consulta) : norm(p),
-    estado: lastEntities.estado || null,
+    estado: est,
     sexo: lastEntities.sexo && lastEntities.sexo !== 'general' ? lastEntities.sexo : null,
   };
 }
@@ -6077,9 +6119,9 @@ export function reiniciaContexto() { _resetContext(); }
 
 /** Reset conversacional — solo para tests. */
 export function _resetContext() {
-  _comparacionPrevia = null;
+  _comparacionPrevia = null; _estadosComparados = null;
   lastEntities = {}; _lastDistribMetric = null; _lastChartHandler = null; _lastHandlerFn = null;
-  _crisisActiva = null; _aclaracionPendiente = null;
+  _crisisActiva = null; _aclaracionPendiente = null; _opcionesPendientes = null;
 }
 
 /** La consulta nombra por sí misma un padecimiento que no es sensible (legacy, release o no modelado). */
@@ -6230,9 +6272,11 @@ async function _resolve(consulta) {
   // El bloque hermano nombrado por familia puede ser a su vez genérico («¿y la B?» tras hepatitis A: aguda o crónica).
   const ambiguoFamilia = viaFamilia ? aliasAmbiguo(q) : null;
   if (ambiguoFamilia) {
+    // Plan canónico 2.6: «¿y la B?» tras «hepatitis A en Jalisco» conserva Jalisco en los botones de la aclaración.
+    const lugarPrevio = detectEntities(q).estado || lastEntities.estado;
     lastEntities = {};
     trace.handler = 'answerAliasAmbiguo';
-    return { response: `${ambiguoFamilia.texto}\n<!--SIN_GRAFICA-->`, handler: trace.handler };
+    return { response: `${ambiguoFamilia.texto}\n<!--SIN_GRAFICA-->${botonesDeOpciones(ambiguoFamilia.texto, lugarPrevio)}`, handler: trace.handler };
   }
   const ent = detectEntities(q === norm(query) ? query : q);
 
@@ -6550,14 +6594,15 @@ const HANDLERS_SIN_DATOS = new Set(['answerAliasAmbiguo', 'answerGuardaD7', 'ans
 const SEGUIMIENTO_CTX = /^(y |pero |entonces |ok |oye )?(es mucho|es poco|esta peor|esta mejor|y el ano pasado|el ano pasado|comparado con|compara(lo)? con|como se compara con|y comparado con|vs |contra |que tan confiable|es confiable|cuando (es|va a ser|sera) el pico|y el pico|el pico|pronostico (de las )?proximas|las proximas|proximas \d+ semanas|tiene estacionalidad|esta subiendo|va a subir|sube o baja|y en la misma ventana|y la semana pasada|y este ano|y en (hombres|mujeres)|cual es el smape|smape|el error|que error|ese pronostico|este pronostico|esta peor|esta mejor|subio o bajo|sube o baja|o sea|y el pronostico|que tan seguro|es seguro el|(en )?(las |los )?(mujeres|hombres)$|y en (las |los )?(mujeres|hombres)|por sexo|se pronostica|puro humo|esta chido|semana que viene|proxima semana|la que viene|hay brote|hay muchos casos|y hay brote|hay muchos casos asi|casos asi|hay diferencia entre (hombres|mujeres)|diferencia (por|entre) sexo|(hombres|mujeres) (y|o|vs|contra) (hombres|mujeres)|(y )?cuando es su pico|(y )?su pico|en que (mes|meses|semana)|es estacional|que estado tiene mas|cual estado|en que estado|donde hay mas|donde esta peor|que estados)/;
 /** Botones con las opciones que nombra una aclaración («hepatitis vírica A», «hepatitis C»…), conservando el estado. */
 function botonesDeOpciones(texto, estado) {
-  const nombres = [...new Set([...String(texto).matchAll(/«([^»]+)»/g)].map((m) => m[1]))]
-    .filter((n) => RELEASES.some((r) => (r.consultaVisible || r.consulta) === n)).slice(0, 4);
+  const nombres = opcionesDeAclaracion(texto);
   if (!nombres.length) return '';
   const lugar = estado ? ` en ${estado}` : '';
   return `\n<!--SIGUE:${JSON.stringify(nombres.map((n) => ({ t: `${n.charAt(0).toUpperCase()}${n.slice(1).replace(/ ([abcde])\b/g, (m, l) => ` ${l.toUpperCase()}`)}${lugar}`, q: `${n}${lugar}` })))}-->`;
 }
 
 let _comparacionPrevia = null;
+// Plan canónico 2.6: los estados de la última comparación entre estados, para que «¿y Nuevo León?» los sume a la comparación.
+let _estadosComparados = null;
 function seguimientoConContexto(texto) {
   const qn = norm(texto);
   const ent = detectEntities(qn);
@@ -6571,6 +6616,15 @@ function seguimientoConContexto(texto) {
   if (/\bcual (de (las|los) dos|(va|esta|anda) (peor|mejor)|sube mas|tiene mas( casos)?|es peor|es mas grave)\b/.test(qn) && (lastEntities._padsPrevios || []).length >= 2 && !ent.padecimiento) {
     const sx = ent.sexo || (lastEntities.sexo && lastEntities.sexo !== 'general' ? lastEntities.sexo : '');
     return `${lastEntities._padsPrevios.join(' y ')}${ent.estado ? ` en ${ent.estado}` : lastEntities.estado ? ` en ${lastEntities.estado}` : ''}${sx ? ` ${sx}` : ''} ${qn.match(/\b(peor|mejor|sube mas|tiene mas|mas grave)\b/)?.[0] || 'cual'}`;
+  }
+  // Tras comparar estados, «¿y Nuevo León?» suma ese estado a la comparación (con el mismo padecimiento y sexo).
+  if (_estadosComparados && !ent.padecimiento && !(ent.padecimientos || []).length && ent.estado && qn.split(' ').length <= 6 &&
+    !/\b(solo|nada mas|unicamente|en vez de|en lugar de)\b/.test(qn)) {
+    const lista = [..._estadosComparados.estados];
+    if (!lista.some((e) => norm(e) === norm(ent.estado))) lista.push(ent.estado);
+    const ult = lista.slice(-5);
+    const sx = ent.sexo && ent.sexo !== 'general' ? ent.sexo : (_estadosComparados.sexo || '');
+    return `${_estadosComparados.pad} en ${ult.slice(0, -1).join(', ')} y ${ult.at(-1)}${sx ? ` ${sx}` : ''}`;
   }
   // Tras comparar dos padecimientos, «¿y en total?», «¿y en hombres?» o «¿y en Jalisco?» repiten la comparación.
   if (_comparacionPrevia && !ent.padecimiento && !(ent.padecimientos || []).length && qn.split(' ').length <= 6 &&
@@ -6680,6 +6734,25 @@ async function _resolveConContexto(query) {
     try { meta = JSON.parse(mr[2]); } catch { /* sin metadatos */ }
     if (rel) lastEntities = { ...lastEntities, padecimiento: rel.pad, ...(meta.estado ? { estado: meta.estado } : {}) };
   }
+  _estadosComparados = null;
+  if (mr && /"tipo":"comparador"/.test(mr[2])) {
+    const rel = releaseDeMarca(mr[1]);
+    let meta = {};
+    try { meta = JSON.parse(mr[2]); } catch { /* sin metadatos */ }
+    if (rel && (meta.estados || []).length >= 2) {
+      _estadosComparados = { pad: rel.consultaVisible || rel.consulta, estados: meta.estados, sexo: meta.sexo && meta.sexo !== 'general' ? meta.sexo : null };
+    }
+  }
+  const mEst = String(r.response || '').match(/<!--ESTADOS:(\{"modo":"comparacion"[\s\S]*?\})-->/);
+  if (mEst && lastEntities.padecimiento) {
+    try {
+      const j = JSON.parse(mEst[1]);
+      const rr = releaseDePad(lastEntities.padecimiento);
+      const sx = detectEntities(norm(texto)).sexo;
+      _estadosComparados = { pad: rr ? (rr.consultaVisible || rr.consulta) : norm(lastEntities.padecimiento), estados: j.filas.map((f) => f[0]),
+        sexo: sx && sx !== 'general' ? sx : null };
+    } catch { /* sin filas */ }
+  }
   // «hombres y mujeres» compara ambos sexos: no deja un sexo fijo para los turnos siguientes.
   if (/\bhombres\b/.test(norm(texto)) && /\bmujeres\b/.test(norm(texto))) lastEntities = { ...lastEntities, sexo: null };
   const padsTurno = detectEntities(norm(texto)).padecimientos || [];
@@ -6713,7 +6786,10 @@ async function _resolveConContexto(query) {
   return { ...r, response: `${notas.map((n) => `_${n.replace(/\.$/, '')}._`).join('\n')}\n\n${r.response}` };
 }
 
-async function _resolveConContextoBase(query) {
+async function _resolveConContextoBase(consulta) {
+  // Plan canónico 2.6: «la A» tras «hepatitis en Jalisco» se contesta como «hepatitis vírica a en Jalisco».
+  const query = eligeOpcion(consulta) || consulta;
+  const previo = { estado: lastEntities.estado || null, sexo: lastEntities.sexo || null };
   const r0 = await _resolve(query);
   // Rediseño conversacional (24-nov-2026, mesa redonda): la lista blanca global ya no bloquea las consultas naturales.
   // Sólo un turno personal que no nombra ningún dato y trae palabras fuera del vocabulario (apoyoSuave) no recibe cifras,
@@ -6725,10 +6801,16 @@ async function _resolveConContextoBase(query) {
     : r0;
   if (HANDLERS_ACLARACION.has(r.handler)) {
     if (r.handler !== 'answerAclaracionPendiente') {
-      _aclaracionPendiente = String(r.response || '').replace(/\n?<!--SIN_GRAFICA-->/g, '').trim();
+      _aclaracionPendiente = String(r.response || '').replace(/\n?<!--SIN_GRAFICA-->/g, '').replace(/\n?<!--SIGUE:[\s\S]*?-->/g, '').trim();
+      // Un seguimiento («¿y la B?») hereda el estado y el sexo del turno anterior; una pregunta nueva, sólo los suyos.
+      const e = detectEntities(norm(query));
+      const hereda = /^\W*(y|pero|tambien|ahora|que tal|que hay de)\b/.test(norm(query));
+      _opcionesPendientes = { opciones: opcionesDeAclaracion(r.response), estado: e.estado || (hereda ? previo.estado : null),
+        sexo: e.sexo || (hereda ? previo.sexo : null) };
     }
   } else {
     _aclaracionPendiente = null;
+    _opcionesPendientes = null;
   }
   if (r.handler === 'answerRadarResumen') return { ...r, response: `${r.response}\n<!--SIN_GRAFICA-->` };
   if (r.handler === 'answerCategoriaNoReconocida') {
