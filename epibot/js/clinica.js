@@ -11,6 +11,8 @@
  * padecimiento (escalón 3, sólo con la firma de un profesional con cédula) son entregas aparte.
  */
 
+import { fichaPara, rotuloFicha, citaFicha, FUENTES_CITA } from './fichas_cita.js';
+
 /** Lista genérica de signos de alarma: la única del EpiBot. Se presenta siempre como no completa y con el 911. */
 export const SIGNOS_ALARMA_GENERALES = 'fiebre muy alta, dificultad para respirar, sangrado, somnolencia o confusión, dolor intenso, vómito persistente o deshidratación';
 export const LINEA_ALARMA = `Si hay signos de alarma, como ${SIGNOS_ALARMA_GENERALES} (la lista no es completa), llama al **911** o acude a urgencias.`;
@@ -86,6 +88,14 @@ export function respuestaClinica(consulta, nombre = null, busqueda = nombre) {
   const tema = temaClinico(consulta);
   if (!tema) return null;
   const q = normalizaClinica(consulta);
+  // Escalón 2: una ficha de cita auditada (js/fichas_cita.js) para contagio o prevención; rótulo primero y en la voz.
+  const ficha = fichaPara(tema, `${q} ${normalizaClinica(nombre)} ${normalizaClinica(busqueda)}`);
+  if (ficha) {
+    const lineasFicha = [rotuloFicha(ficha), '', citaFicha(ficha), '', LINEA_ALARMA, '', nombre
+      ? `Si quieres, te digo cómo van los casos de ${nombre} en tu estado.`
+      : 'Si quieres, te digo cómo van los casos en tu estado.'];
+    return `${lineasFicha.join('\n')}\n<!--VOZ:${vozFicha(ficha)}-->`;
+  }
   const lineas = [
     `**${INICIO[tema]}, consulta la fuente oficial: ${enlaceClinico(consulta, nombre, busqueda)}.** No doy información clínica (cómo se contagia o se previene, signos de alarma ni cuándo acudir): sólo cifras de casos notificados.`,
     '',
@@ -98,4 +108,13 @@ export function respuestaClinica(consulta, nombre = null, busqueda = nombre) {
     ? `Si quieres, te digo cómo van los casos de ${nombre} en tu estado.`
     : 'Si quieres, te digo cómo van los casos de un padecimiento en tu estado.');
   return lineas.join('\n');
+}
+
+/** Lo que dice la voz con una ficha: el rótulo, la cita completa y el 911 (la voz no lee la cita en bloque por su cuenta). */
+function vozFicha(ficha) {
+  const f = FUENTES_CITA[ficha.fuente];
+  return `Cita textual de ${f.institucion}, «${f.titulo}». La eligió y la cotejó con la fuente un proceso asistido por ` +
+    `inteligencia artificial; no la ha revisado personal de salud. ${ficha.encabezado ? `${ficha.encabezado} ` : ''}` +
+    `«${ficha.pasaje.join(' ')}» Es información general y no sustituye la consulta médica. Si hay signos de alarma, ` +
+    'la lista no es completa: llama al 911 o acude a urgencias.';
 }

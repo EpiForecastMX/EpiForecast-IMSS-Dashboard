@@ -257,6 +257,7 @@ function cleanForTTS(md) {
     .replace(/`([^`]+)`/g, '$1')
     .replace(/\s+·\s+/g, ', ')
     .replace(/#{1,6}\s*/g, '')
+    .replace(/^\s*>\s?/gm, '')
     .replace(/\|[^\n]+\|/g, '')
     .replace(/^\s*[-*]\s+/gm, ', ')
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
@@ -318,6 +319,12 @@ const esNota = (p) => p.split('\n').every((l) => /^\s*_.*_\s*$/.test(l)) || /^\s
  * 911 y se avisa si hay una tabla en pantalla (plan canónico 2.7).
  */
 export function textoHablado(markdown, completo = false) {
+  // Plan canónico 2.5, escalón 2: una ficha de cita trae su propio texto para la voz (rótulo, cita completa y 911).
+  const voz = String(markdown).match(/<!--VOZ:([\s\S]*?)-->/);
+  if (voz) {
+    const r = hastaOracion(voz[1].trim(), completo ? 1500 : 900);
+    return `${r.texto}${r.cortado ? ' El resto está en pantalla.' : ''}`;
+  }
   const md = String(markdown).split('<!--DETALLE-->')[0].replace(/<!--[\s\S]*?-->/g, '');
   const tabla = TABLA.test(md);
   const cierre = (texto, cortado) => {
