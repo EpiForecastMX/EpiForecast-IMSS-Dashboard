@@ -121,6 +121,11 @@ function periodoPedido(q) {
   if (/ (pico|temporada alta|cuando (sube|aumenta|hay) mas|cuando es la temporada|en que mes|estacionalidad|estacional|temporada) /.test(n)) return { tipo: 'pico' };
   if (/ (semana pasada|ultima semana|esta semana|semana anterior) /.test(n)) return { tipo: 'semana' };
   if (/ (proximo mes|siguiente mes|el mes que viene|proximas semanas|proximas 4 semanas) /.test(n)) return { tipo: 'proximo' };
+  // Mesa de la plataforma (25-nov-2026, Codex Sol): «semana 44 de 2026» encabezaba con el total del año y «en 52 semanas» con
+  // las próximas 4. Ahora se contesta primero el periodo pedido.
+  const sem = n.match(/ semana (?:epidemiologica )?(\d{1,2})(?: (?:de|del) (?:ano )?(20\d\d))? /);
+  if (sem && Number(sem[1]) >= 1 && Number(sem[1]) <= 53) return { tipo: 'semana_n', semana: Number(sem[1]), anio: sem[2] ? Number(sem[2]) : null };
+  if (/ (52 semanas|proximos 12 meses|proximo ano|siguiente ano|todo el horizonte) /.test(n)) return { tipo: 'horizonte' };
   if (/ (este ano|en lo que va del ano|en lo que va de) /.test(n)) return { tipo: 'anio_actual' };
   const anio = n.match(/ (202[3-7]) /);
   const mes = MESES.findIndex((m) => n.includes(` ${m} `));
@@ -147,8 +152,31 @@ function respuestaPeriodo(p, ind, x, lugar0) {
     const [ds, y] = x.observado.at(-1);
     return `**En la última semana con datos** (la del ${fechaLarga(ds)}) se notificaron **${casos(y)}**${lugar}.`;
   }
+  if (p.tipo === 'semana_n') {
+    // Semana epidemiológica de domingo a sábado (regla del 4 de enero); las fechas de la serie caen dentro de ella.
+    const a = p.anio ?? Number(ind.anio);
+    const j4 = Date.UTC(a, 0, 4), ini = j4 - new Date(j4).getUTCDay() * DIA + (p.semana - 1) * 7 * DIA;
+    const d0 = new Date(ini).toISOString().slice(0, 10), d6 = new Date(ini + 6 * DIA).toISOString().slice(0, 10);
+    const enSemana = ([ds]) => ds >= d0 && ds <= d6;
+    const mismoMes = d0.slice(0, 7) === d6.slice(0, 7);
+    const rango = mismoMes ? `del ${Number(d0.slice(8))} al ${fechaLarga(d6)}` : `del ${fechaLarga(d0).replace(/ de \d{4}$/, '')} al ${fechaLarga(d6)}`;
+    const o = (x.observado || []).find(enSemana);
+    if (o && o[1] != null) return `**En la semana ${p.semana} de ${a}** (${rango}) se notificaron **${casos(o[1])}**${lugar}.`;
+    const f = (x.pronostico || []).find(enSemana);
+    const ultimo = x.observado.at(-1)[0];
+    if (f && f[0] > ultimo) return `**La semana ${p.semana} de ${a}** (${rango}) **aún no tiene dato** en el boletín: la última con datos es la del ${fechaLarga(ultimo)}. Para esa semana se esperan unos **${casos(f[1])}**${lugar}.`;
+    return null;
+  }
+  if (p.tipo === 'horizonte') {
+    const pr = x.pronostico || [];
+    if (!pr.length) return null;
+    const total = Number.isFinite(x.pronostico_52_total) ? x.pronostico_52_total : suma(pr);
+    return `**En las ${pr.length} semanas del pronóstico** (de la semana del ${fechaLarga(pr[0][0])} a la del ${fechaLarga(pr.at(-1)[0])}) se esperan unos **${casos(total)}**${lugar}.`;
+  }
   // «El próximo mes» lo responde la línea de tendencia, que ya da las próximas 4 semanas.
-  if (p.tipo === 'anio_actual') return `**En lo que va de ${ind.anio}** se han notificado **${casos(ind.ytd)}**${lugar}.`;
+  // Mesa de la plataforma (Codex Sol): es la suma de las semanas de la serie publicada, no el acumulado impreso del boletín
+  // (que el radar muestra y puede diferir por correcciones); se dice cuál es.
+  if (p.tipo === 'anio_actual') return `**En lo que va de ${ind.anio}** se han notificado **${casos(ind.ytd)}**${lugar} (suma de las semanas de la serie publicada; el acumulado que imprime el boletín puede diferir un poco por correcciones).`;
   if (p.tipo === 'anio') {
     const obs = x.observado.filter(([ds]) => ds.startsWith(String(p.anio)));
     const fut = ind.fut.filter(([ds]) => ds.startsWith(String(p.anio)));
@@ -231,7 +259,7 @@ export function respuestaLlana({ v, x, r, q, esControl, estados, sinSexo, confia
     : '';
   lineas.push(`- **Ahora:** ${casos(ind.O4)} en las ${semanaTxt}${vsPrevio}.`);
   const vsYtd = ind.ytdPrevio ? `, ${ind.ytd >= ind.ytdPrevio ? `${pct0((ind.ytd / ind.ytdPrevio - 1) * 100)} más` : `${pct0((1 - ind.ytd / ind.ytdPrevio) * 100)} menos`} que a la misma fecha de ${Number(ind.anio) - 1}` : '';
-  lineas.push(`- **En lo que va de ${ind.anio}:** ${casos(ind.ytd)}${vsYtd}.`);
+  lineas.push(`- **En lo que va de ${ind.anio}:** ${casos(ind.ytd)}${vsYtd} (suma de las semanas de la serie).`);
   if (ind.pico && ind.promedioFut > 0 && ind.pico[1] >= 1.25 * ind.promedioFut && ind.pico[1] >= 10 && ind.pico[0] > isoMenos(ind.fut[Math.min(4, ind.fut.length - 1)][0], 0)) {
     lineas.push(`- **Pico esperado en los próximos 12 meses:** la semana del ${fechaLarga(ind.pico[0])}, con unos ${casos(ind.pico[1])}.`);
   }
