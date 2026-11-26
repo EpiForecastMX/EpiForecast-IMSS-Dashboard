@@ -18,7 +18,8 @@
     source_state_label_missing: 'La fuente omite el rótulo de una entidad. Su fila sin identificar no se asigna a un estado.',
     source_cut_conflict: 'El encabezado de la fuente tiene un corte contradictorio. Este punto queda como hueco en la curva.'
   };
-  let index, catalog, selected, sequence = 0, current = [], view = [], C, A, N, cambioCifra = false;
+  let index, catalog, selected, sequence = 0, current = [], view = [], C, A, N, cambioCifra = false, RANGOS = {};
+  const rangoTxt = (id) => { const r = RANGOS[id]; if (!r) return ''; return `, ${r.desde === r.hasta ? r.desde : `${r.desde} a ${r.hasta}`} (${r.semanas} ${r.semanas === 1 ? 'semana' : 'semanas'})`; };
   // Valor mostrado = lo impreso (cifra o guion); valor graficado = boletin/celdas.mjs: un guion
   // vale 0 sólo bajo la simbología; una cifra no publicada queda como hueco, nunca como 0.
   const cat = () => catalog.find(d => d.id === selected.id) || {};
@@ -245,6 +246,9 @@
       const a=await fetch('/assets/boletin/history/index.json');
       if(!a.ok)throw new Error('No se pudo cargar el archivo histórico.');
       index=await a.json();
+      // Años de cada clasificación histórica: distinguen las variantes de OCR que comparten nombre (mesa del 25-nov-2026).
+      const rg=await fetch('/assets/boletin/history/rangos_historicos.json').then(r=>r.ok?r.json():null).catch(()=>null);
+      RANGOS=rg?.rangos||{};
       C=await import('/assets/boletin/celdas.mjs?v=1');
       A=await import('/assets/boletin/ambitos.mjs?v=1');
       N=await import('/assets/boletin/nombres.mjs?v=1');
@@ -262,12 +266,21 @@
       $('archiveCoverage').textContent=`ARCHIVO HISTÓRICO · ${index.source_count} PDF · ${years[0]}–${years.at(-1)}`;
       for(const id of ['curveStart','curveEnd'])$(id).innerHTML=years.map(y=>`<option value="${y}">${y}</option>`).join('');
       $('curveStart').value=String(years[0]);$('curveEnd').value=String(years.at(-1));
-      $('curveDisease').innerHTML=[...catalog].sort((a,b)=>a.name.localeCompare(b.name,'es')).map(d=>`<option value="${d.id}" data-impreso="${esc(d.impreso)}">${esc(d.name)} · ${esc(d.code)}${d.aggregate?' (agregado)':''}${d.historical?' · clasificación histórica':''}</option>`).join('');
+      $('curveDisease').innerHTML=[...catalog].sort((a,b)=>a.name.localeCompare(b.name,'es')).map(d=>`<option value="${d.id}" data-impreso="${esc(d.impreso)}">${esc(d.name)} · ${esc(d.code)}${d.aggregate?' (agregado)':''}${d.historical?' · clasificación histórica'+rangoTxt(d.id):''}</option>`).join('');
       const regiones=A.estadosCompatibles(index.states)?`<optgroup label="Macrorregiones (suma de entidades)">${A.REGIONES.map(r=>`<option value="region:${r.id}">Región ${esc(r.nombre)} (${r.claves.length} entidades)</option>`).join('')}</optgroup>`:'';
       $('curveState').innerHTML='<option value="nacional">Nacional</option>'+regiones+`<optgroup label="Entidades federativas">${index.states.map((s,i)=>`<option value="estado:${A.clave(i)}">${esc(s)}</option>`).join('')}</optgroup>`;
       aplicaAmbito(new URLSearchParams(location.search));
       controls.forEach(id=>$(id).disabled=false);
-      const initial=new URLSearchParams(location.search).get('padecimiento');
+      const qs=new URLSearchParams(location.search);
+      // ?plataforma=<id del padecimiento publicado> (enlace de cada ficha, estable entre boletines): su primera categoría en la
+      // foto vigente. ?padecimiento=<id del radar> sigue funcionando y tiene prioridad.
+      const plat=qs.get('plataforma');let dePlat=null;
+      if(plat&&/^[a-z][a-z0-9_]*$/.test(plat)&&!qs.get('padecimiento')){
+        // El catálogo del archivo no trae el padecimiento publicado: se toma de la foto vigente del boletín.
+        try{const act=await (await fetch('/assets/boletin/actual.json')).json();const foto=await (await fetch(`/${act.carpeta}/data.json`)).json();
+          dePlat=foto.diseases.find(d=>d.platform_id===plat&&index.series[d.id])?.id??null;}catch(_){dePlat=null;}
+      }
+      const initial=qs.get('padecimiento')||dePlat;
       await choose(index.series[initial]?initial:'p70b1');if(location.hash==='#curvas')$('curvas').scrollIntoView({block:'start'});
     }catch(e){$('curveStatus').textContent=e.message;}
   }

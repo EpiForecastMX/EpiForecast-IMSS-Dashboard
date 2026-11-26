@@ -128,3 +128,28 @@ test('semanas no prospectivas: la ficha y el catálogo del EpiBot declaran las m
   E.aplica({ getAttribute: () => null, setAttribute() {}, removeAttribute() {} }, v, { getElementById: () => null });
   assert.doesNotMatch(E.rotuloOos(s.oos, 'sMAPE', s, v), /prospectiva/);
 });
+
+test('lote técnico: enlace al radar, canonical y Open Graph en las 148 fichas; un control no se titula «Pronóstico semanal»', () => {
+  for (const { id, page } of RELEASES) {
+    const t = leer(page);
+    assert.match(t, new RegExp(`<a href="boletin\\.html\\?plataforma=${id}#curvas">Ver en el radar</a>`), page);
+    assert.match(t, new RegExp(`<link rel="canonical" href="https://epiforecast\\.mx/${page.replace('.', '\\.')}" />`), page);
+    for (const p of ['og:type', 'og:url', 'og:title', 'og:description', 'og:image']) assert.match(t, new RegExp(`property="${p}" content="[^"]+"`), `${page}: ${p}`);
+    const titulo = t.match(/<title>([^<]+)<\/title>/)[1];
+    assert.equal(t.match(/property="og:title" content="([^"]+)"/)[1], titulo, `${page}: og:title = title`);
+    if (E.tipo(vista(id)) === 'control') {
+      assert.doesNotMatch(titulo, /Pronóstico semanal/, page);
+      assert.doesNotMatch(t.match(/<h1>[^<]+<\/h1>/)[0], /Pronóstico semanal/, page);
+      assert.doesNotMatch(t.match(/name="description" content="([^"]+)"/)[1], /^Pronóstico semanal/, page);
+    }
+  }
+});
+
+test('radar: ?plataforma= abre la curva del padecimiento y las clasificaciones históricas llevan su periodo', () => {
+  const curves = leer('assets/boletin/curves.js');
+  assert.match(curves, /foto\.diseases\.find\(d=>d\.platform_id===plat&&index\.series\[d\.id\]\)/);
+  assert.match(curves, /' · clasificación histórica'\+rangoTxt\(d\.id\)/);
+  const r = JSON.parse(leer('assets/boletin/history/rangos_historicos.json')).rangos;
+  const idx = JSON.parse(leer('assets/boletin/history/index.json'));
+  for (const c of idx.categories.filter((x) => x.historical)) assert.ok(r[c.id]?.semanas > 0, c.id);
+});

@@ -1,0 +1,290 @@
+{
+ "schema": "radar_rangos_historicos.v2",
+ "rangos": {
+  "historical-009da2c66e70": {
+   "desde": "2017-W01",
+   "hasta": "2024-W51",
+   "semanas": 156
+  },
+  "historical-05da5f7c3ed1": {
+   "desde": "2023-W07",
+   "hasta": "2023-W52",
+   "semanas": 46
+  },
+  "historical-0f83a9a53fac": {
+   "desde": "2013-W01",
+   "hasta": "2014-W01",
+   "semanas": 53
+  },
+  "historical-123e6bada488": {
+   "desde": "2013-W01",
+   "hasta": "2014-W01",
+   "semanas": 53
+  },
+  "historical-18dddf6262a8": {
+   "desde": "2013-W05",
+   "hasta": "2016-W52",
+   "semanas": 169
+  },
+  "historical-1e2f33d2fbac": {
+   "desde": "2013-W01",
+   "hasta": "2023-W06",
+   "semanas": 528
+  },
+  "historical-240974384036": {
+   "desde": "2014-W18",
+   "hasta": "2023-W52",
+   "semanas": 404
+  },
+  "historical-2adfbbeb225c": {
+   "desde": "2013-W01",
+   "hasta": "2014-W01",
+   "semanas": 53
+  },
+  "historical-2af2ca166756": {
+   "desde": "2013-W05",
+   "hasta": "2016-W52",
+   "semanas": 169
+  },
+  "historical-2c97a90e2907": {
+   "desde": "2014-W01",
+   "hasta": "2016-W52",
+   "semanas": 157
+  },
+  "historical-2ca61f83c518": {
+   "desde": "2013-W01",
+   "hasta": "2020-W26",
+   "semanas": 391
+  },
+  "historical-36aae9449acf": {
+   "desde": "2014-W01",
+   "hasta": "2014-W47",
+   "semanas": 42
+  },
+  "historical-43bc1dd8024f": {
+   "desde": "2014-W01",
+   "hasta": "2017-W01",
+   "semanas": 157
+  },
+  "historical-500f9284c815": {
+   "desde": "2014-W01",
+   "hasta": "2016-W52",
+   "semanas": 157
+  },
+  "historical-51908bd8eefe": {
+   "desde": "2014-W02",
+   "hasta": "2014-W43",
+   "semanas": 42
+  },
+  "historical-557b5b330aeb": {
+   "desde": "2019-W49",
+   "hasta": "2022-W02",
+   "semanas": 2
+  },
+  "historical-617c46de37bb": {
+   "desde": "2014-W01",
+   "hasta": "2023-W52",
+   "semanas": 522
+  },
+  "historical-6366ab495c8d": {
+   "desde": "2014-W08",
+   "hasta": "2016-W52",
+   "semanas": 149
+  },
+  "historical-6a8ae1adc74a": {
+   "desde": "2019-W11",
+   "hasta": "2024-W04",
+   "semanas": 188
+  },
+  "historical-6d15c7ebf2c0": {
+   "desde": "2013-W01",
+   "hasta": "2016-W30",
+   "semanas": 187
+  },
+  "historical-730ec3321214": {
+   "desde": "2013-W01",
+   "hasta": "2013-W52",
+   "semanas": 52
+  },
+  "historical-7b181a81c783": {
+   "desde": "2013-W01",
+   "hasta": "2013-W51",
+   "semanas": 40
+  },
+  "historical-7d31b6c064a9": {
+   "desde": "2019-W09",
+   "hasta": "2019-W09",
+   "semanas": 1
+  },
+  "historical-7deb8ebb1ca4": {
+   "desde": "2013-W01",
+   "hasta": "2013-W52",
+   "semanas": 52
+  },
+  "historical-7ebf35776da7": {
+   "desde": "2013-W05",
+   "hasta": "2013-W52",
+   "semanas": 12
+  },
+  "historical-7f2f4f412830": {
+   "desde": "2013-W05",
+   "hasta": "2013-W52",
+   "semanas": 12
+  },
+  "historical-84fec161d95f": {
+   "desde": "2013-W01",
+   "hasta": "2013-W52",
+   "semanas": 52
+  },
+  "historical-8633e788c953": {
+   "desde": "2014-W01",
+   "hasta": "2024-W04",
+   "semanas": 462
+  },
+  "historical-89ccccf7b8a2": {
+   "desde": "2013-W05",
+   "hasta": "2013-W52",
+   "semanas": 12
+  },
+  "historical-996bae91353f": {
+   "desde": "2020-W17",
+   "hasta": "2020-W17",
+   "semanas": 1
+  },
+  "historical-9e3c371dbf32": {
+   "desde": "2014-W01",
+   "hasta": "2016-W52",
+   "semanas": 157
+  },
+  "historical-9fe429d016b3": {
+   "desde": "2014-W01",
+   "hasta": "2016-W28",
+   "semanas": 118
+  },
+  "historical-a044b8c3c5ff": {
+   "desde": "2013-W01",
+   "hasta": "2014-W01",
+   "semanas": 53
+  },
+  "historical-a165ca2a40fb": {
+   "desde": "2013-W05",
+   "hasta": "2013-W52",
+   "semanas": 12
+  },
+  "historical-a56520552352": {
+   "desde": "2013-W01",
+   "hasta": "2013-W52",
+   "semanas": 52
+  },
+  "historical-ab2345c3f77c": {
+   "desde": "2014-W01",
+   "hasta": "2014-W53",
+   "semanas": 44
+  },
+  "historical-acbcff362250": {
+   "desde": "2013-W05",
+   "hasta": "2013-W52",
+   "semanas": 12
+  },
+  "historical-ad114359911c": {
+   "desde": "2013-W01",
+   "hasta": "2016-W30",
+   "semanas": 187
+  },
+  "historical-ae0eb9b849f8": {
+   "desde": "2015-W47",
+   "hasta": "2016-W01",
+   "semanas": 7
+  },
+  "historical-cb68f248d9c7": {
+   "desde": "2019-W48",
+   "hasta": "2023-W48",
+   "semanas": 39
+  },
+  "historical-d63d03493b6a": {
+   "desde": "2014-W01",
+   "hasta": "2018-W13",
+   "semanas": 222
+  },
+  "historical-d9f3d7ec70ed": {
+   "desde": "2019-W06",
+   "hasta": "2019-W14",
+   "semanas": 4
+  },
+  "historical-da11d391f4ba": {
+   "desde": "2014-W01",
+   "hasta": "2014-W22",
+   "semanas": 21
+  },
+  "historical-dbc4a0961dd3": {
+   "desde": "2013-W05",
+   "hasta": "2013-W52",
+   "semanas": 12
+  },
+  "historical-dd7507146b52": {
+   "desde": "2013-W01",
+   "hasta": "2014-W25",
+   "semanas": 60
+  },
+  "historical-dengue-a90-no-grave": {
+   "desde": "2016-W31",
+   "hasta": "2018-W26",
+   "semanas": 100
+  },
+  "historical-dengue-a91-alarma-grave": {
+   "desde": "2016-W31",
+   "hasta": "2016-W52",
+   "semanas": 22
+  },
+  "historical-dengue-a91-grave": {
+   "desde": "2017-W01",
+   "hasta": "2018-W26",
+   "semanas": 78
+  },
+  "historical-dengue-alarma-sc": {
+   "desde": "2017-W01",
+   "hasta": "2018-W26",
+   "semanas": 78
+  },
+  "historical-e085ca24bf4f": {
+   "desde": "2014-W01",
+   "hasta": "2016-W52",
+   "semanas": 157
+  },
+  "historical-e4379450a6a4": {
+   "desde": "2014-W18",
+   "hasta": "2016-W52",
+   "semanas": 115
+  },
+  "historical-e6f93c33520b": {
+   "desde": "2019-W10",
+   "hasta": "2019-W46",
+   "semanas": 23
+  },
+  "historical-e88e270614c5": {
+   "desde": "2013-W01",
+   "hasta": "2020-W26",
+   "semanas": 390
+  },
+  "historical-efd86544ff98": {
+   "desde": "2013-W05",
+   "hasta": "2014-W25",
+   "semanas": 20
+  },
+  "historical-f6e961063eaf": {
+   "desde": "2022-W41",
+   "hasta": "2023-W20",
+   "semanas": 2
+  },
+  "historical-fa8e6c7552fd": {
+   "desde": "2013-W01",
+   "hasta": "2022-W52",
+   "semanas": 520
+  },
+  "historical-sida-estadios-2020": {
+   "desde": "2020-W27",
+   "hasta": "2020-W27",
+   "semanas": 1
+  }
+ }
+}
