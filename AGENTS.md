@@ -29,10 +29,11 @@ que terminaban dejando el checkout en una rama de trabajo.
 ## EpiBot y sitio: checkpoint 24/25-nov-2026 (en `main`, sin desplegar)
 
 Prevalece sobre las secciones inferiores del EpiBot. **Lo servido**, sitio y EpiBot, es el PR #112 (`edbff2c`, `app.js?v=238`).
-**Integrado y sin desplegar:** PR #113 a #131 (`main` `01604977`, `app.js?v=248`): no hay despliegues desde el 24-nov-2026 a
+**Integrado y sin desplegar:** PR #113 a #146 (`main` `5bf4a787`, `app.js?v=259`): no hay despliegues desde el 24-nov-2026 a
 las 5:41 (hora del este) y, según el autor, Netlify no tendrá servicio hasta el 1-dic-2026; hasta entonces un push a `main`
-no publica. Al volver, desplegar `main` y comprobar por contenido la versión servida. Planes: `docs/PLAN_EPIBOT_CONVERSACIONAL_2026-11-24.md`
-y `docs/PLAN_EPIBOT_AGENTICO_2026-11-25.md`; actas en `/Users/haowei/Documents/Integrador/planes/mesa_*_2026-11-2*/` (carpeta del espacio de trabajo, fuera de ambos repositorios).
+no publica. Al volver, desplegar `main` y comprobar por contenido la versión servida. **Plan vigente del EpiBot:**
+`docs/PLAN_EPIBOT_CANON_2026-11-26.md` (mesa de ocho del 26-nov); `docs/PLAN_EPIBOT_CONVERSACIONAL_2026-11-24.md` y
+`docs/PLAN_EPIBOT_AGENTICO_2026-11-25.md` son historia; actas en `/Users/haowei/Documents/Integrador/planes/mesa_*_2026-11-2*/` (carpeta del espacio de trabajo, fuera de ambos repositorios).
 
 - **Vocabulario:** desde el PR #112 la lista blanca global ya no bloquea un turno natural (deroga lo que se diga de ella en
   alta_b44 y secciones inferiores): sólo `apoyoSuave` y `apoyoInmediato` dan el «no entendí» con la Línea de la Vida y sólo
