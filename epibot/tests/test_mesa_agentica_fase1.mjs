@@ -64,14 +64,14 @@ test('«explícame la gráfica» explica la serie del contexto, con fechas y pic
   assert.match(md, /Cómo leer la gráfica de Varicela en Jalisco/);
   const x = Object.values(vista('varicela_b01').series).find((s) => s.nivel === 'estado' && s.sexo === 'general' && s.nombre === 'Jalisco');
   const ult = x.observado.at(-1)[0];
-  const [a, mes, d] = ult.split('-').map(Number);
-  assert.ok(md.includes(`${d} de`) && md.includes(String(a)), 'menciona la última semana observada');
+  // Plan canónico 2.3: la semana se dice como «semana 43 (25 al 31 de octubre de 2026)».
+  const { semanaTxt } = await import('../js/resumen_llano.js');
+  assert.ok(md.includes(semanaTxt(ult)), 'menciona la última semana observada');
   const fut = x.pronostico.filter(([ds]) => ds > ult);
   const pico = fut.reduce((p, q) => (q[1] > p[1] ? q : p));
   assert.ok(md.includes(Math.round(pico[1]).toLocaleString('es-MX')), 'pico del pronóstico');
   assert.match(md, /No es un modelo validado/);
   assert.match(md, /Lo que no muestra/);
-  void mes;
 });
 
 test('«¿en qué meses hay más casos?» da el perfil mensual de años completos (oráculo)', async () => {

@@ -8,6 +8,7 @@
  */
 import { RELEASES } from './release_config.js?v=59';
 import { fechaEpiLegacy } from './calculo/series.js?v=4';
+import { semanaTxt } from './resumen_llano.js?v=8';
 
 const LEGACY = 4;
 export const TOTAL_PUBLICADOS = () => RELEASES.length + LEGACY;
@@ -180,15 +181,15 @@ export function answerRankingPadecimientos(q, ent, s, d) {
   }
   if (resumen) {
     const top = [...res.padecimientos].sort((a, b) => b.F4 - a.F4).slice(0, 5);
-    lineas.unshift(`**Panorama nacional** (casos notificados al boletín epidemiológico, datos hasta la semana del ${fecha(res.corte)})`, '');
+    lineas.unshift(`**Panorama nacional:** casos notificados al boletín epidemiológico, con datos hasta la ${semanaTxt(res.corte)}.`, '');
     lineas.push('', '**Los que más casos tendrán:**', '', ...top.map((x) => `- **${x.nombre}**: unos ${ent0(x.F4)} casos en las próximas 4 semanas.`));
   }
   // Cada padecimiento tiene su propio corte (114 llegan a una semana y 22 a la siguiente): se dice, no se presenta uno común.
   const cortes = Object.entries(res.padecimientos.reduce((a, x) => ({ ...a, [x.ultimo]: (a[x.ultimo] || 0) + 1 }), {})).sort();
   const corteTxt = cortes.length > 1
-    ? cortes.map(([ds, n]) => `${n} con datos hasta la semana del ${fecha(ds)}`).join(' y ')
-    : `datos hasta la semana del ${fecha(res.corte)}`;
-  lineas.push('', `Comparo ${res.padecimientos.length} padecimientos (${corteTxt}); dejo fuera los de menos de 50 casos, donde un cambio porcentual engaña, ` +
+    ? cortes.map(([ds, n]) => `${n} con datos hasta la ${semanaTxt(ds)}`).join(' y ')
+    : `datos hasta la ${semanaTxt(res.corte)}`;
+  lineas.push('', `Comparo ${res.padecimientos.length} padecimientos, ${corteTxt}. Dejo fuera los de menos de 50 casos, donde un cambio porcentual engaña, ` +
     'los temas sensibles y los modelos que ya se desviaron más de lo que prevén. «Confiabilidad baja» quiere decir que el pronóstico repite el patrón del año pasado o que ya se ha desviado.',
   '', '_Son casos notificados al boletín epidemiológico; no es consejo médico._');
   // Pedido del autor (26-nov-2026): la lista lleva su gráfica. Las filas son las mismas del texto (app.js las dibuja).
@@ -592,7 +593,7 @@ export function answerEstadoLlano(q, ent, s, d, { forzar = false, transmisibles 
   lineas.push(suben.length ? '**Lo que más se espera que suba:**' : 'Ningún padecimiento con al menos 20 casos muestra un aumento claro ahí.', '');
   lineas.push(...suben.map((y) => `- **${y.x.nombre}**: unos ${ent0(y.e[1])} casos${pct(y)}${y.x.confiabilidad === 'baja' ? ' · _confiabilidad baja_' : ''}.`));
   lineas.push('', '**Los que tendrán más casos:**', '', ...mas.map((y) => `- **${y.x.nombre}**: unos ${ent0(y.e[1])} casos.`));
-  lineas.push('', `Pregúntame por uno en particular («¿cómo va ${mas[0].x.consulta} en ${est}?») o por dengue, depresión, Parkinson o Alzheimer, que se publican aparte. Datos hasta la semana del ${fecha(res.corte)}; no incluye temas sensibles.`, '<!--SIN_GRAFICA-->');
+  lineas.push('', `Pregúntame por uno en particular («¿cómo va ${mas[0].x.consulta} en ${est}?») o por dengue, depresión, Parkinson o Alzheimer, que se publican aparte. Datos hasta la ${semanaTxt(res.corte)}; no incluye temas sensibles.`, '<!--SIN_GRAFICA-->');
   const sig = [...suben, ...mas].slice(0, 3).map((y) => ({ t: `${y.x.nombre} en ${est}`, q: `¿cómo va ${y.x.consulta} en ${est}?` }));
   return lineas.join('\n') + sigue(sig);
 }

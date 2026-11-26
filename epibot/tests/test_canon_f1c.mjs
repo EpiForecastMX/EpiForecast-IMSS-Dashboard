@@ -28,7 +28,7 @@ test('1.3 ningún control ni modelo desviado en «lo que más se espera que suba
   for (const n of controles) assert.doesNotMatch(sube, new RegExp(`\\*\\*${n.replace(/[()]/g, '\\$&')}\\*\\*`), `control en el bloque de alzas: ${n}`);
   assert.doesNotMatch(sube, /Leptospirosis|Hepatitis vírica A/);
   assert.match(t, /\*\*Controles estacionales, sin modelo validado:\*\*/);
-  assert.match(t, /\(114 con datos hasta la semana del 26 de octubre de 2026 y 22 con datos hasta la semana del 2 de noviembre de 2026\)/);
+  assert.match(t, /Comparo 136 padecimientos, 114 con datos hasta la semana 43 \(25 al 31 de octubre de 2026\) y 22 con datos hasta la semana 44 \(1 al 7 de noviembre de 2026\)\. Dejo fuera/);
   const g = JSON.parse(t.match(/<!--ALZA:(.*?)-->/)[1]);
   assert.equal(g.modo, 'cambio');
   assert.ok(g.filas.every((x) => x.serie && x.serie.o.length === 12 && x.serie.f.length === 4));
@@ -40,5 +40,5 @@ test('1.5 confiabilidad coherente: desvío grande con una semana baja la confiab
   const ob = await pide('obesidad en el país');
   assert.match(ob, /no fue peor que el control estacional/);
   assert.doesNotMatch(ob, /acertó/);
-  assert.match(await pide('¿qué tan confiable es el pronóstico de asma?'), /va en 2 de 4 semanas\. De ellas, 2026-W42 ya era pública al emitir y no cuenta como prospectiva\./);
+  assert.match(await pide('¿qué tan confiable es el pronóstico de asma?'), /va en 2 de 4 semanas\. De ellas, la semana 42 \(18 al 24 de octubre de 2026\) ya era pública al emitir y no cuenta como prospectiva\./);
 });

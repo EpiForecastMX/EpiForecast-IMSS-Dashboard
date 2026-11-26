@@ -25,7 +25,7 @@ const primera = (t) => t.replace(/<!--[\s\S]*?-->/g, '').split('\n').map((l) => 
 test('1.1 la primera línea contesta: validación, sMAPE, pico de un no modelado; sin «Sí.» en preguntas abiertas ni con controles', async () => {
   assert.match(primera((await pide('¿la varicela está validada?')).t), /^\*\*¿Está validado\?\*\* No\. Varicela se publica como \*\*control estacional\*\*/);
   assert.match(primera((await pide('¿cuál es el sMAPE de hipertensión fuera de muestra?')).t), /^\*\*Error fuera de muestra \(sMAPE\):\*\* 1\.9 % en 2 semanas/);
-  assert.match(primera((await pide('¿está validado el pronóstico de asma?')).t), /^\*\*¿Está validado\?\*\* Todavía no del todo.*2026-W42 ya era pública al emitir/);
+  assert.match(primera((await pide('¿está validado el pronóstico de asma?')).t), /^\*\*¿Está validado\?\*\* Todavía no del todo.*la semana 42 \(18 al 24 de octubre de 2026\) ya era pública al emitir/);
   assert.match(primera((await pide('¿cuál es el pico esperado de influenza?')).t), /^\*\*No hay pronóstico ni pico esperado para Influenza:\*\*/);
   for (const q of ['¿dónde sube más rápido la hepatitis A?', '¿la leptospirosis va a subir?']) {
     assert.doesNotMatch(primera((await pide(q)).t), /^(Sí|No)\. /, q);

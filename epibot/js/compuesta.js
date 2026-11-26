@@ -14,16 +14,13 @@
 import { crecimiento, estacionalidad, rasgosGrafica, compararRitmo } from './calculo/operaciones.js?v=2';
 import { serieDeVista, serieLegacy, esLegacy } from './calculo/series.js?v=4';
 import { negativaRazonada, negativaRiesgo } from './calculo/legitimidad.js?v=2';
+import { semanaTxt } from './resumen_llano.js?v=8';
 
 const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 const LEGACY_NOMBRE = { Dengue: 'Dengue', Depresion: 'Depresión', Parkinson: 'Parkinson', Alzheimer: 'Alzheimer' };
 const ent0 = (n) => Math.round(n).toLocaleString('es-MX');
 const casos = (n) => `${ent0(n)} ${Math.round(n) === 1 ? 'caso' : 'casos'}`;
 const pct = (d) => `${d >= 0 ? '+' : '−'}${Math.round(Math.abs(d) * 100)} %`;
-function fechaLarga(ds) {
-  const [a, m, d] = ds.split('-').map(Number);
-  return `${d} de ${MESES[m - 1]} de ${a}`;
-}
 const lista = (xs) => (xs.length <= 1 ? xs.join('') : `${xs.slice(0, -1).join(', ')} y ${xs.at(-1)}`);
 
 export const RAPIDEZ_BAJA = /\b(baja mas rapido|bajan mas rapido|descenso mas rapido|descenso mas fuerte|cae mas rapido|caen mas rapido|disminuye mas|disminuyen mas|mayor descenso|mayor caida|baja mas|bajan mas)\b/;
@@ -124,10 +121,10 @@ export function answerExplicaGrafica(q, ent, s, d, ctx) {
     : `no se espera un cambio claro: unos ${casos(c.F4)} en las próximas 4 semanas, frente a ${ent0(c.O4)} en las 4 anteriores${c.basePequena ? ' (son muy pocos casos para hablar de tendencia)' : ''}.`;
   return [`**Cómo leer la gráfica de ${titulo(x.nombre, x.s)}**`, '',
     '- **Qué mide:** casos notificados por semana al boletín epidemiológico (no todos los enfermos se diagnostican ni se reportan), sin ajustar por población.',
-    `- **Lo observado** llega hasta la semana del ${fechaLarga(g.ultimoObs)}; las últimas semanas pueden corregirse cuando llegan notificaciones tardías.`,
-    g.primeroPron ? `- **El pronóstico** cubre ${g.semanasPron} semanas, de la semana del ${fechaLarga(g.primeroPron)} a la del ${fechaLarga(g.ultimoPron)}. ${metodo}` : null,
-    g.maxReciente ? `- **Lo más alto del último año:** ${casos(g.maxReciente[1])}, la semana del ${fechaLarga(g.maxReciente[0])}.` : null,
-    g.picoPron ? `- **Pico del pronóstico:** unos ${casos(g.picoPron[1])}, la semana del ${fechaLarga(g.picoPron[0])}.` : null,
+    `- **Lo observado** llega hasta la ${semanaTxt(g.ultimoObs)}; las últimas semanas pueden corregirse cuando llegan notificaciones tardías.`,
+    g.primeroPron ? `- **El pronóstico** cubre ${g.semanasPron} semanas, de la ${semanaTxt(g.primeroPron)} a la ${semanaTxt(g.ultimoPron)}. ${metodo}` : null,
+    g.maxReciente ? `- **Lo más alto del último año:** ${casos(g.maxReciente[1])}, la ${semanaTxt(g.maxReciente[0])}.` : null,
+    g.picoPron ? `- **Pico del pronóstico:** unos ${casos(g.picoPron[1])}, la ${semanaTxt(g.picoPron[0])}.` : null,
     ahora ? `- **Ahora:** ${ahora}` : null,
     '- **Lo que no muestra:** un rango de error (cada semana es una cifra única), tasas por población ni las causas de los cambios.',
     '<!--SIN_GRAFICA-->'].filter((l) => l != null).join('\n');

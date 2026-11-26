@@ -46,6 +46,6 @@ test('la respuesta del EpiBot sobre asma separa la semana no prospectiva', async
   const r = await kb.answerWithTrace('pronóstico de asma nacional');
   const texto = JSON.stringify(r);
   assert.match(texto, /sMAPE/, 'la ficha del EpiBot trae el desempeño');
-  assert.match(texto, /2026-W42 ya era pública al emitir el pronóstico/);
+  assert.match(texto, /La semana 42 \(18 al 24 de octubre de 2026\) ya era pública al emitir el pronóstico/);
   assert.match(texto, /Sólo las prospectivas \(1\): sMAPE \*\*16\.6 %\*\*/);
 });
