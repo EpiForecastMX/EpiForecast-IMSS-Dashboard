@@ -7,10 +7,10 @@ import { graficoRondas } from './comparacion_rondas.js?v=4';
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2, contextoActual, reiniciaContexto } from './kb.js?v=211';
+import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2, contextoActual, reiniciaContexto, cargaZoom } from './kb.js?v=213';
 import { detectEntities, norm } from './entities.js?v=88';
 import { pareceVariosPedidos, respuestaDePlan } from './agente.js?v=1';
-import { fechaEpiLegacy } from './calculo/series.js?v=3';
+import { fechaEpiLegacy, REZAGO_LEGACY } from './calculo/series.js?v=3';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
 import { renderMexicoMap } from './mexico-map.js?v=5';
 import { renderTimelapse } from './timelapse.js?v=4';
@@ -755,6 +755,7 @@ function heroCaption(data, padObj) {
 function whenZoomReady(data, cb, tries) {
   tries = tries == null ? 60 : tries;
   if (data.zoom_series) { cb(data.zoom_series); return; }
+  if (tries === 60) cargaZoom();
   if (tries <= 0) { cb(null); return; }
   setTimeout(() => whenZoomReady(data, cb, tries - 1), 120);
 }
@@ -2437,10 +2438,16 @@ function buildTrendChart(data, qn) {
   // para que no se lea como una caída (mesa de gráficas, 25-nov-2026).
   const ult = data.boletin?.ultima_semana;
   const parcial = ult && String(ult.anio) === lastYear ? lastYear : null;
+  // ultima_semana es la del boletín; el dato de los neurológicos llega una semana antes (REZAGO_LEGACY). Si la gráfica mezcla
+  // originales con rezagos distintos, se nombra el boletín (mesa de la plataforma, 25-nov-2026).
+  const rezagos = new Set(filteredPads.map((p) => REZAGO_LEGACY[p] ?? 0));
+  const semDato = ult && rezagos.size === 1 ? ult.semana - [...rezagos][0] : null;
+  const hastaTxt = semDato >= 1 ? `hasta la semana ${semDato}` : `hasta el boletín ${ult?.semana}`;
+  const hastaCorto = semDato >= 1 ? `hasta sem. ${semDato}` : `hasta el boletín ${ult?.semana}`;
   const yearsComplete = hasProjection ? allYears.slice(0, -1) : [...allYears];
   const labels = hasProjection
     ? [...yearsComplete, `2026 (vamos S${String(semsReales).padStart(2,'0')})`, 'Ene 2027']
-    : allYears.map((y) => (y === parcial ? `${y} (parcial, hasta sem. ${ult.semana})` : y));
+    : allYears.map((y) => (y === parcial ? `${y} (parcial, ${hastaCorto})` : y));
   const iProj26 = yearsComplete.length;     // "2026 (vamos S08)"
   const iEnd27  = yearsComplete.length + 1; // "Ene 2027"
   const nLabels = labels.length;
@@ -2514,7 +2521,7 @@ function buildTrendChart(data, qn) {
     }
   });
 
-  return { type: 'line', title: `Casos notificados por año${estadoLabel ? ' — ' + estadoLabel : ' — nacional'}${parcial ? ` (${parcial} hasta la semana ${ult.semana})` : ''}`, labels, datasets,
+  return { type: 'line', title: `Casos notificados por año${estadoLabel ? ' — ' + estadoLabel : ' — nacional'}${parcial ? ` (${parcial} ${hastaTxt})` : ''}`, labels, datasets,
     options: { scales: { y: { beginAtZero: true, title: { display: true, text: 'Casos notificados en el año' } } } } };
 }
 

@@ -72,7 +72,8 @@ test('renderizador común, mapas y rutas', () => {
   // La gráfica sólo hereda el estado del contexto si el texto también es de ese estado.
   assert.match(app, /const estadoEnTexto = lastEst && norm\(result\)\.includes\(norm\(lastEst\)\);/);
   // Año parcial rotulado en las series anuales.
-  assert.match(app, /\(parcial, hasta sem\. \$\{ult\.semana\}\)/);
+  assert.match(app, /\(parcial, \$\{hastaCorto\}\)/);
+  assert.match(app, /const semDato = ult && rezagos\.size === 1 \? ult\.semana - \[\.\.\.rezagos\]\[0\] : null;/);
   const mapa = fuente('../js/mexico-map.js');
   assert.match(mapa, /const RAMPA = \['#e3efe9', '#b6d5c6', '#7fb39b', '#3f8a6a', '#17644d'\];/);
   assert.match(mapa, /sin ajustar por población/);

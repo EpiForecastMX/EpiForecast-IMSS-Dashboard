@@ -37,7 +37,21 @@ const DATA_VERSION = '20261116';
 
 let _radarPendiente = Promise.resolve();
 let _resumenPendiente = Promise.resolve();
-let _zoomPendiente = Promise.resolve();
+let _zoomPendiente = null;
+/* Mesa de la plataforma (25-nov-2026, Codex Astra): zoom_series.json (1.85 MB, las 432 series de los cuatro originales) ya no
+ * se descarga al abrir la página. Se pide cuando el navegador queda libre o con la primera consulta que lo necesita; la
+ * petición se comparte y, si falla, la siguiente consulta la reintenta en lugar de quedarse sin datos. */
+export function cargaZoom() {
+  if (!DATA) return Promise.resolve();
+  if (DATA.zoom_series) return Promise.resolve(DATA.zoom_series);
+  if (!_zoomPendiente) {
+    _zoomPendiente = fetch(`./zoom_series.json?v=${DATA_VERSION}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((z) => { if (z) DATA.zoom_series = z; else _zoomPendiente = null; return z; })
+      .catch(() => { _zoomPendiente = null; return null; });
+  }
+  return _zoomPendiente;
+}
 const _vistas = new Map();
 /** Descarga (una sola vez) la vista de un release y la deja en DATA[dataKey]. */
 export function cargaVista(rel) {
@@ -61,7 +75,9 @@ async function cargaVistasDeConsulta(query) {
   await Promise.all([...rels].map(cargaVista));
   await _radarPendiente;
   await _resumenPendiente;
-  if (['Dengue', 'Depresion', 'Parkinson', 'Alzheimer'].includes(pad)) await _zoomPendiente;
+  // Los originales necesitan sus series; cualquier otra consulta pone en marcha la descarga sin esperarla.
+  if (['Dengue', 'Depresion', 'Parkinson', 'Alzheimer'].includes(pad)) await cargaZoom();
+  else cargaZoom();
 }
 
 export async function loadKnowledge() {
@@ -79,12 +95,8 @@ export async function loadKnowledge() {
     }
   } catch { /* La comparación ausente se explica localmente, sin llamar al RAG. */ }
 
-  // Precarga en segundo plano el zoom por serie (estado×sexo, 432 series). No bloquea el
-  // arranque; cuando llega, queda en DATA.zoom_series y lo usan answerZoom/buildZoomChart.
-  _zoomPendiente = fetch(`./zoom_series.json${cacheBust}`)
-    .then(r => (r.ok ? r.json() : null))
-    .then(z => { if (z) DATA.zoom_series = z; })
-    .catch(() => {});
+  // El zoom por serie (estado×sexo, 432 series) se pide cuando el navegador queda libre (cargaZoom); no compite con el
+  // arranque. Cuando llega, queda en DATA.zoom_series y lo usan answerZoom/buildZoomChart.
   // Cada release publicado trae su vista (observado + pronóstico + desempeño fuera de muestra), unos 500 KB por
   // padecimiento. Rediseño conversacional (24-nov-2026): ya no se descargan las 151 vistas (71 MB) al abrir la página;
   // cada una se pide cuando la consulta la nombra (cargaVistasDeConsulta, antes de los handlers). `obesidad_pendiente`
@@ -96,6 +108,9 @@ export async function loadKnowledge() {
     .then((x) => { if (x && x.schema === 'resumen_padecimientos.v1') DATA.resumen_padecimientos = x; })
     .catch(() => {});
   _radarPendiente = cargaRadar().then((r) => { if (r) DATA.radar_boletin = r; }).catch(() => {});
+  // Después de lo que usan casi todas las respuestas (radar y resumen), cuando el navegador queda libre.
+  const ocioso = globalThis.requestIdleCallback || ((f) => setTimeout(f, 1500));
+  Promise.allSettled([_radarPendiente, _resumenPendiente]).then(() => ocioso(() => { cargaZoom(); }, { timeout: 4000 }));
   Object.defineProperty(DATA, 'obesidad_pendiente', {
     configurable: true, enumerable: false,
     get() { return Promise.all([...RELEASES.map(cargaVista), _radarPendiente]); },
