@@ -252,13 +252,18 @@ function cleanForTTS(md) {
     .replace(/<!--.*?-->/gs, '')
     .replace(/\*\*([^*]+)\*\*/g, '$1')
     .replace(/\*([^*]+)\*/g, '$1')
+    // Plan canónico 2.7: las cursivas con guion bajo (`_nota_`) se leían «guion bajo».
+    .replace(/(^|[\s(«"])_([^_\n]+)_(?=$|[\s.,;:)»"])/gm, '$1$2')
     .replace(/`([^`]+)`/g, '$1')
+    .replace(/\s+·\s+/g, ', ')
     .replace(/#{1,6}\s*/g, '')
     .replace(/\|[^\n]+\|/g, '')
-    .replace(/[-*]\s+/g, ', ')
+    .replace(/^\s*[-*]\s+/gm, ', ')
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
     .replace(/\n{2,}/g, '. ')
     .replace(/\n/g, ', ')
+    .replace(/([.:;?!])\s*[.,]+/g, '$1')
+    .replace(/^[\s.,]+|[\s,]+$/g, '')
     .replace(/\s{2,}/g, ' ')
     .trim();
 }
@@ -287,25 +292,60 @@ function setSpeaking(val) {
 function hastaOracion(texto, max) {
   if (texto.length <= max) return { texto, cortado: false };
   const corte = texto.slice(0, max);
-  const fin = Math.max(corte.lastIndexOf('. '), corte.lastIndexOf('? '), corte.lastIndexOf(': '));
+  const fin = Math.max(corte.lastIndexOf('. '), corte.lastIndexOf('? '));
   return { texto: fin > max / 4 ? corte.slice(0, fin + 1) : `${corte.replace(/\s+\S*$/, '')}…`, cortado: true };
 }
 
+/** La frase que trae el 911 (síntomas de alarma, crisis): nunca se omite al hablar. */
+function frase911(md) {
+  const linea = String(md).split('\n').find((l) => /\b911\b/.test(l));
+  if (!linea) return '';
+  const t = cleanForTTS(linea).replace(/^[,\s]+/, '');
+  const f = t.split(/(?<=[.?!])\s+/).find((x) => /\b911\b/.test(x)) || t;
+  return /[.?!]$/.test(f) ? f : `${f}.`;
+}
+
+const TABLA = /^\s*\|.*\|\s*$/m;
+/** Una cifra que se dice: casos, porcentaje o un número entre paréntesis (no basta «4 semanas» ni el año). */
+export const CIFRA = /\d[\d,.]*\s*(casos?|%)|\(\d[\d,.]*\)|:\s*\d[\d,.]*\b(?!\s*de\s+\w+\s+de\s+\d{4})/;
+/** Notas del principio que no son la respuesta: cursivas (alias, lugar) o la interpretación del término («Tomo…», «Por…»). */
+const esNota = (p) => p.split('\n').every((l) => /^\s*_.*_\s*$/.test(l)) || /^\s*(Tomo|Por) «/.test(p);
+
 /**
- * Lo que se dice en voz alta (mesa agéntica, fase 2): tras una pregunta por voz, sólo el veredicto (lo que va antes de la
- * primera lista, unas 25 a 50 palabras); con el botón de escuchar, la respuesta completa hasta 1,500 caracteres, siempre
- * cortada en una oración entera y nunca a media palabra.
+ * Lo que se dice en voz alta. Tras una pregunta por voz, sólo el veredicto: lo que va antes de la primera lista, sin las notas
+ * en cursiva del principio (alias, lugar) y, si no trae ninguna cifra, con la primera viñeta. Con el botón de escuchar, la
+ * respuesta completa hasta 1,500 caracteres. En ambos casos se corta en una oración entera, se conserva siempre la frase del
+ * 911 y se avisa si hay una tabla en pantalla (plan canónico 2.7).
  */
 export function textoHablado(markdown, completo = false) {
-  const todo = cleanForTTS(markdown);
+  const md = String(markdown).split('<!--DETALLE-->')[0].replace(/<!--[\s\S]*?-->/g, '');
+  const tabla = TABLA.test(md);
+  const cierre = (texto, cortado) => {
+    const ayuda = /\b911\b/.test(md) && !/\b911\b/.test(texto) ? ` ${frase911(md)}` : '';
+    const aviso = tabla ? ' La tabla y el detalle están en pantalla.' : (cortado ? ` ${completo ? 'El resto' : 'El detalle'} está en pantalla.` : '');
+    return `${texto}${ayuda}${aviso}`;
+  };
+  const todo = cleanForTTS(md);
   if (completo) {
     const r = hastaOracion(todo, 1500);
-    return r.cortado ? `${r.texto} El resto está en pantalla.` : r.texto;
+    return cierre(r.texto, r.cortado);
   }
-  const veredicto = cleanForTTS(String(markdown).split(/\n\s*[-*] /)[0]);
+  const parrafos = md.split(/\n\s*\n/).filter((x) => x.trim());
+  let i = 0;
+  while (i < parrafos.length - 1 && esNota(parrafos[i])) i++;
+  const resto = parrafos.slice(i).join('\n\n');
+  let veredicto = cleanForTTS(resto.split(/\n\s*[-*] /)[0]);
+  // Sin cifra de casos, o si es sólo un título o termina en «:», se completa con la primera viñeta.
+  if (!CIFRA.test(veredicto) || /:$/.test(veredicto) || !/[.?!]$/.test(veredicto)) {
+    const item = resto.match(/\n\s*[-*] (.+)/);
+    const unir = /[.?!]$/.test(veredicto) ? `${veredicto} ` : `${veredicto.replace(/[\s:.,]*$/, ':')} `;
+    if (item) veredicto = `${unir}${cleanForTTS(item[1]).replace(/[^.?!]$/, '$&.')}`;
+  }
+  // Los paréntesis largos sin cifra (fuente, fecha de corte) se quedan en pantalla: la voz va al dato.
+  veredicto = veredicto.replace(/\s*\(([^()]{40,})\)/g, (m, dentro) => (CIFRA.test(dentro) ? m : ''));
   const base = veredicto.length >= 40 ? veredicto : todo;
   const r = hastaOracion(base, 320);
-  return r.cortado || base !== todo ? `${r.texto} El detalle está en pantalla.` : r.texto;
+  return cierre(r.texto, r.cortado || base !== todo);
 }
 
 let vozDesbloqueada = false;

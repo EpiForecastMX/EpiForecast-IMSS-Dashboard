@@ -2,24 +2,15 @@ import { dn } from './display.js?v=1';
 // timelapse.js — Animated timelapse choropleth map of Mexico (52 weeks)
 // Imports state paths and viewBox from mexico-map.js
 
-import { STATES, VIEWBOX } from './mexico-map.js?v=3';
+import { STATES, VIEWBOX, ubicaTooltip } from './mexico-map.js?v=6';
 
-function interpolateColor(val, vMin, vMax, range, lowColor, highColor, noDataColor) {
-  if (val == null) return noDataColor;
-  const t = (val - vMin) / range;
-  const r = Math.round(lowColor[0] + t * (highColor[0] - lowColor[0]));
-  const g = Math.round(lowColor[1] + t * (highColor[1] - lowColor[1]));
-  const b = Math.round(lowColor[2] + t * (highColor[2] - lowColor[2]));
-  return 'rgb(' + r + ',' + g + ',' + b + ')';
-}
-
-const PLAY_ICON = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">'
-  + '<path d="M3 1.5L12 7L3 12.5V1.5Z" fill="#E7ECF5"/>'
+const PLAY_ICON = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
+  + '<path d="M3 1.5L12 7L3 12.5V1.5Z" fill="currentColor"/>'
   + '</svg>';
 
-const PAUSE_ICON = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">'
-  + '<rect x="2.5" y="1.5" width="3" height="11" rx="0.5" fill="#E7ECF5"/>'
-  + '<rect x="8.5" y="1.5" width="3" height="11" rx="0.5" fill="#E7ECF5"/>'
+const PAUSE_ICON = '<svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">'
+  + '<rect x="2.5" y="1.5" width="3" height="11" rx="0.5" fill="currentColor"/>'
+  + '<rect x="8.5" y="1.5" width="3" height="11" rx="0.5" fill="currentColor"/>'
   + '</svg>';
 
 const SPEED_OPTIONS = [
@@ -46,22 +37,28 @@ export function renderTimelapse(container, timelapseData, opts = {}) {
   const frames = timelapseData.frames;
   const totalFrames = frames.length;
 
-  // Compute global min/max across ALL frames for consistent color scale
-  let globalMin = Infinity;
-  let globalMax = -Infinity;
+  // Plan canónico 2.7 (26-nov-2026): la misma escala del mapa, de un solo tono, de claro (pocos) a oscuro (muchos) sobre el
+  // fondo claro, en cinco clases por cuantiles de todos los cuadros (la escala no cambia al avanzar). La anterior era
+  // oscura (fondo azul marino y extremo bajo verde oscuro). `lowColor`, `highColor` y `noDataColor` quedan por compatibilidad.
+  void lowColor; void highColor; void noDataColor;
+  const RAMPA = ['#e3efe9', '#b6d5c6', '#7fb39b', '#3f8a6a', '#17644d'];
+  const SIN_DATO = '#f1f2f1';
+  const todos = [];
   for (let f = 0; f < totalFrames; f++) {
-    const sd = frames[f].stateData;
-    for (const key of Object.keys(sd)) {
-      const v = sd[key].value;
-      if (v != null) {
-        if (v < globalMin) globalMin = v;
-        if (v > globalMax) globalMax = v;
-      }
-    }
+    for (const d of Object.values(frames[f].stateData)) if (d && d.value != null) todos.push(d.value);
   }
-  if (!isFinite(globalMin)) globalMin = 0;
-  if (!isFinite(globalMax)) globalMax = 1;
-  const globalRange = globalMax - globalMin || 1;
+  todos.sort((a, b) => a - b);
+  const globalMin = todos.length ? todos[0] : 0;
+  const globalMax = todos.length ? todos[todos.length - 1] : 1;
+  const clases = Math.min(RAMPA.length, new Set(todos).size || 1);
+  const cortes = Array.from({ length: clases }, (_, k) => todos[Math.min(todos.length - 1, Math.ceil(((k + 1) * todos.length) / clases) - 1)]);
+  const paso = RAMPA.length / clases;
+  const colorClase = (k) => RAMPA[Math.min(RAMPA.length - 1, Math.round((k + 1) * paso) - 1)];
+  const colorDe = (val) => {
+    if (val == null) return SIN_DATO;
+    const k = cortes.findIndex((c) => val <= c);
+    return colorClase(k < 0 ? clases - 1 : k);
+  };
 
   // State
   let currentFrame = 0;
@@ -98,35 +95,49 @@ export function renderTimelapse(container, timelapseData, opts = {}) {
 
   // Build state paths and store references for fast updates
   const pathElements = {};
+  const etiqueta = (name) => {
+    const fd = frames[currentFrame].stateData[name];
+    return dn(name) + ': ' + (fd ? fd.label : 'sin datos');
+  };
   for (const [name, pathD] of Object.entries(STATES)) {
     const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     path.setAttribute('d', pathD);
-    path.setAttribute('fill', noDataColor);
-    path.setAttribute('stroke', 'rgba(91,141,239,0.25)');
+    path.setAttribute('fill', SIN_DATO);
+    path.setAttribute('stroke', '#ffffff');
     path.setAttribute('stroke-width', '0.8');
     path.setAttribute('data-state', name);
     path.style.transition = 'fill 0.15s';
     path.style.cursor = 'pointer';
+    // Como en el mapa: cada estado se alcanza con el teclado y con un toque, y dice su cifra al lector de pantalla.
+    path.setAttribute('tabindex', '0');
+    path.setAttribute('role', 'button');
 
-    path.addEventListener('mouseenter', () => {
-      path.setAttribute('stroke', '#5B8DEF');
+    const muestra = () => {
+      path.setAttribute('stroke', '#173c33');
       path.setAttribute('stroke-width', '2.5');
       path.parentNode.appendChild(path);
       const frameData = frames[currentFrame].stateData[name];
-      const label = frameData ? frameData.label : 'Sin datos';
-      tooltipEl.innerHTML = '<strong>' + dn(name) + '</strong><br>' + label;
+      tooltipEl.innerHTML = '<strong>' + dn(name) + '</strong><br>' + (frameData ? frameData.label : 'Sin datos');
       tooltipEl.style.display = 'block';
-    });
-    path.addEventListener('mousemove', (e) => {
-      const rect = wrapper.getBoundingClientRect();
-      tooltipEl.style.left = (e.clientX - rect.left + 14) + 'px';
-      tooltipEl.style.top = (e.clientY - rect.top - 36) + 'px';
-    });
-    path.addEventListener('mouseleave', () => {
-      path.setAttribute('stroke', 'rgba(91,141,239,0.25)');
+    };
+    const oculta = () => {
+      path.setAttribute('stroke', '#ffffff');
       path.setAttribute('stroke-width', '0.8');
       tooltipEl.style.display = 'none';
+    };
+    const enElEstado = () => {
+      const r = path.getBoundingClientRect(), rect = wrapper.getBoundingClientRect();
+      ubicaTooltip(tooltipEl, wrapper, r.left + r.width / 2 - rect.left, r.top - rect.top);
+    };
+    path.addEventListener('mouseenter', muestra);
+    path.addEventListener('focus', () => { muestra(); enElEstado(); });
+    path.addEventListener('click', () => { muestra(); enElEstado(); });
+    path.addEventListener('blur', oculta);
+    path.addEventListener('mousemove', (e) => {
+      const rect = wrapper.getBoundingClientRect();
+      ubicaTooltip(tooltipEl, wrapper, e.clientX - rect.left, e.clientY - rect.top);
     });
+    path.addEventListener('mouseleave', oculta);
 
     svg.appendChild(path);
     pathElements[name] = path;
@@ -144,6 +155,7 @@ export function renderTimelapse(container, timelapseData, opts = {}) {
   slider.min = '0';
   slider.max = String(totalFrames - 1);
   slider.value = '0';
+  slider.setAttribute('aria-label', 'Semana del pronóstico');
   wrapper.appendChild(slider);
 
   // Controls bar
@@ -153,7 +165,9 @@ export function renderTimelapse(container, timelapseData, opts = {}) {
   // Play/Pause button
   const playBtn = document.createElement('button');
   playBtn.className = 'timelapse-btn';
+  playBtn.type = 'button';
   playBtn.innerHTML = PLAY_ICON;
+  playBtn.setAttribute('aria-label', 'Reproducir');
   controls.appendChild(playBtn);
 
   // Speed buttons: el CSS espera `.timelapse-speed button`, así que los
@@ -165,7 +179,10 @@ export function renderTimelapse(container, timelapseData, opts = {}) {
   for (let i = 0; i < SPEED_OPTIONS.length; i++) {
     const btn = document.createElement('button');
     btn.className = i === 0 ? 'active' : '';
+    btn.type = 'button';
     btn.textContent = SPEED_OPTIONS[i].label;
+    btn.setAttribute('aria-label', 'Velocidad ' + SPEED_OPTIONS[i].label);
+    btn.setAttribute('aria-pressed', i === 0 ? 'true' : 'false');
     btn.dataset.index = String(i);
     speedWrap.appendChild(btn);
     speedButtons.push(btn);
@@ -178,19 +195,16 @@ export function renderTimelapse(container, timelapseData, opts = {}) {
   const legend = document.createElement('div');
   legend.className = 'mexico-map-legend';
 
+  const fmtN = (x) => Math.round(x).toLocaleString('es-MX');
   let barHtml = '<div class="mexico-map-legend-bar">';
-  for (let i = 0; i <= 5; i++) {
-    const t = i / 5;
-    const v = globalMin + t * globalRange;
-    const color = interpolateColor(v, globalMin, globalMax, globalRange, lowColor, highColor, noDataColor);
-    barHtml += '<span style="background:' + color + '"></span>';
-  }
+  for (let k = 0; k < clases; k++) barHtml += '<span style="background:' + colorClase(k) + '"></span>';
   barHtml += '</div>';
   barHtml += '<div class="mexico-map-legend-labels">'
-    + '<span>' + globalMin.toLocaleString() + '</span>'
+    + '<span>' + fmtN(globalMin) + '</span>'
     + '<span>' + metric + '</span>'
-    + '<span>' + globalMax.toLocaleString() + '</span>'
-    + '</div>';
+    + '<span>' + fmtN(globalMax) + '</span>'
+    + '</div>'
+    + '<div class="mexico-map-nota">Casos notificados, sin ajustar por población.</div>';
   legend.innerHTML = barHtml;
   wrapper.appendChild(legend);
 
@@ -207,8 +221,8 @@ export function renderTimelapse(container, timelapseData, opts = {}) {
     for (const [name, pathEl] of Object.entries(pathElements)) {
       const sd = frame.stateData[name];
       const val = sd ? sd.value : null;
-      const fill = interpolateColor(val, globalMin, globalMax, globalRange, lowColor, highColor, noDataColor);
-      pathEl.setAttribute('fill', fill);
+      pathEl.setAttribute('fill', colorDe(val));
+      pathEl.setAttribute('aria-label', etiqueta(name));
     }
 
     // Update week display
@@ -217,6 +231,7 @@ export function renderTimelapse(container, timelapseData, opts = {}) {
 
     // Update slider
     slider.value = String(index);
+    slider.setAttribute('aria-valuetext', weekDisplay.textContent);
   }
 
   function tick() {
@@ -241,6 +256,7 @@ export function renderTimelapse(container, timelapseData, opts = {}) {
     if (playing) return;
     playing = true;
     playBtn.innerHTML = PAUSE_ICON;
+    playBtn.setAttribute('aria-label', 'Pausar');
     intervalId = setInterval(tick, speedMs);
   }
 
@@ -248,6 +264,7 @@ export function renderTimelapse(container, timelapseData, opts = {}) {
     if (!playing) return;
     playing = false;
     playBtn.innerHTML = PLAY_ICON;
+    playBtn.setAttribute('aria-label', 'Reproducir');
     if (intervalId != null) {
       clearInterval(intervalId);
       intervalId = null;
@@ -286,8 +303,10 @@ export function renderTimelapse(container, timelapseData, opts = {}) {
       speedMs = SPEED_OPTIONS[idx].ms;
       for (const b of speedButtons) {
         b.classList.remove('active');
+        b.setAttribute('aria-pressed', 'false');
       }
       btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
       restartInterval();
     });
   }

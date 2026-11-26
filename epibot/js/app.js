@@ -12,15 +12,15 @@ import { detectEntities, norm } from './entities.js?v=88';
 import { pareceVariosPedidos, respuestaDePlan } from './agente.js?v=1';
 import { fechaEpiLegacy, REZAGO_LEGACY } from './calculo/series.js?v=4';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
-import { renderMexicoMap } from './mexico-map.js?v=5';
-import { renderTimelapse } from './timelapse.js?v=4';
+import { renderMexicoMap } from './mexico-map.js?v=6';
+import { renderTimelapse } from './timelapse.js?v=6';
 import { renderSemaforo } from './semaforo.js?v=3';
 import { renderComparador } from './comparador.js?v=4';
 import { buildComparadorState } from './comparador_data.js?v=1';
 import { graficaObesidad } from './obesidad_charts.js?v=61';
 import { UNCERTAINTY_LABEL } from './point_only.js?v=1';
 import { MARCADOR_RELEASE, RELEASES, releaseConAlias, releaseDeMarca, releaseDePad, releasesEnConsulta } from './release_config.js?v=59';
-import { initSTT, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking, toggleMute, isTTSEnabled, onSpeakingStateChange, desbloqueaVoz } from './voice.js?v=5';
+import { initSTT, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking, toggleMute, isTTSEnabled, onSpeakingStateChange, desbloqueaVoz } from './voice.js?v=6';
 
 // ---------------------------------------------------------------------------
 // DOM refs
