@@ -12,6 +12,7 @@ import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_bole
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=15';
 import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=83';
 import { corrigeTexto } from './corrector.js?v=1';
+import { any, needsGeminiReasoning, needsGeneralKnowledge, needsMedicalAdvice, answerInjectionGuard, INJECTION_RESPONSE, answerEquipo, isOffTopic } from './rutas_fijas.js?v=1';
 import { answerCharla, palabraConocida, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion, answerConsejoMedico, DUDA_MEDICAMENTO, VIAJE_SEGURIDAD, NOTA_VIAJE } from './conversacion.js?v=28';
 import { respuestaLlana, confiabilidadLegacy, indicadores as indicadoresLlano, semanaTxt } from './resumen_llano.js?v=10';
 import { answerNegativaRazonada, answerEstacionalidad, answerExplicaGrafica, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=7';
@@ -86,46 +87,62 @@ function isNeuro(p) { return NEURO_PADS.includes(p); }
 // Subir esta constante cuando cambie knowledge.json / zoom_series.json.
 const DATA_VERSION = '20261116';
 
-let _radarPendiente = Promise.resolve();
-let _resumenPendiente = Promise.resolve();
-let _zoomPendiente = null;
-/* Mesa de la plataforma (25-nov-2026, Codex Astra): zoom_series.json (1.85 MB, las 432 series de los cuatro originales) ya no
- * se descarga al abrir la página. Se pide cuando el navegador queda libre o con la primera consulta que lo necesita; la
- * petición se comparte y, si falla, la siguiente consulta la reintenta en lugar de quedarse sin datos. */
+/*
+ * Peticiones compartidas con reintento (mesa de la plataforma, 25-nov-2026, y plan canónico 3.1, Codex Astra). Mientras una
+ * descarga está en curso, todas las consultas esperan la misma; si falla o trae un esquema inválido, se olvida y la siguiente
+ * consulta la repite. Antes sólo el zoom y las vistas reintentaban: el radar y el resumen se pedían una vez al abrir y, si esa
+ * petición fallaba, ninguna consulta los volvía a pedir.
+ */
+const _pendientes = new Map();
+/** `pedir` devuelve el valor cargado, o null si no sirve. */
+function compartida(clave, pedir) {
+  if (!_pendientes.has(clave)) {
+    _pendientes.set(clave, pedir().then(
+      (v) => { if (v == null) _pendientes.delete(clave); return v; },
+      () => { _pendientes.delete(clave); return null; }));
+  }
+  return _pendientes.get(clave);
+}
+const pideJson = (url) => fetch(url).then((r) => (r.ok ? r.json() : null));
+/* zoom_series.json (1.85 MB, las 432 series de los cuatro originales) no se descarga al abrir la página: se pide cuando el
+ * navegador queda libre o con la primera consulta que lo necesita. */
 export function cargaZoom() {
   if (!DATA) return Promise.resolve();
   if (DATA.zoom_series) return Promise.resolve(DATA.zoom_series);
-  if (!_zoomPendiente) {
-    _zoomPendiente = fetch(`./zoom_series.json?v=${DATA_VERSION}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((z) => { if (z) DATA.zoom_series = z; else _zoomPendiente = null; return z; })
-      .catch(() => { _zoomPendiente = null; return null; });
-  }
-  return _zoomPendiente;
+  return compartida('zoom', () => pideJson(`./zoom_series.json?v=${DATA_VERSION}`)
+    .then((z) => { if (z) DATA.zoom_series = z; return z || null; }));
 }
-const _vistas = new Map();
 /** Descarga (una sola vez) la vista de un release y la deja en DATA[dataKey]. */
 export function cargaVista(rel) {
   if (!rel || !DATA) return Promise.resolve();
-  if (!_vistas.has(rel.id)) {
-    _vistas.set(rel.id, fetch(`../publication/${rel.id}/vista.json?v=${DATA_VERSION}`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((v) => { if (v && v.schema === 'publication_view.v1') DATA[rel.dataKey] = v; else _vistas.delete(rel.id); })
-      .catch(() => { _vistas.delete(rel.id); }));
-  }
-  return _vistas.get(rel.id);
+  return compartida(`vista:${rel.id}`, () => pideJson(`../publication/${rel.id}/vista.json?v=${DATA_VERSION}`)
+    .then((v) => { if (v && v.schema === 'publication_view.v1') { DATA[rel.dataKey] = v; return true; } return null; }));
+}
+/** La foto vigente del radar del boletín (la misma de boletin.html): cifras notificadas de lo que no se modela. */
+export function cargaRadarDatos() {
+  if (!DATA) return Promise.resolve();
+  if (DATA.radar_boletin) return Promise.resolve(DATA.radar_boletin);
+  return compartida('radar', () => cargaRadar().then((r) => { if (r) DATA.radar_boletin = r; return r || null; }));
+}
+/** El resumen de padecimientos que usan las respuestas llanas. */
+export function cargaResumen() {
+  if (!DATA) return Promise.resolve();
+  if (DATA.resumen_padecimientos) return Promise.resolve(DATA.resumen_padecimientos);
+  return compartida('resumen', () => pideJson(`./resumen_padecimientos.json?v=${DATA_VERSION}`)
+    .then((x) => { if (x && x.schema === 'resumen_padecimientos.v1') { DATA.resumen_padecimientos = x; return x; } return null; }));
 }
 /** Carga las vistas que la consulta nombra (y la del padecimiento del contexto) antes de responder. */
 async function cargaVistasDeConsulta(query) {
   const qn = norm(String(query || ''));
   const rels = new Set(releasesEnConsulta(qn, { prefijos: true }));
-  const pad = detectEntities(qn).padecimiento || lastEntities.padecimiento;
+  const ent = detectEntities(qn);
+  const pad = ent.padecimiento || lastEntities.padecimiento;
   const r = pad ? releaseDePad(pad) : null;
   if (r) rels.add(r);
-  for (const p of detectEntities(qn).padecimientos || []) { const x = releaseDePad(p); if (x) rels.add(x); }
+  for (const p of ent.padecimientos || []) { const x = releaseDePad(p); if (x) rels.add(x); }
   await Promise.all([...rels].map(cargaVista));
-  await _radarPendiente;
-  await _resumenPendiente;
+  await cargaRadarDatos();
+  await cargaResumen();
   // Los originales necesitan sus series; cualquier otra consulta pone en marcha la descarga sin esperarla.
   if (['Dengue', 'Depresion', 'Parkinson', 'Alzheimer'].includes(pad)) await cargaZoom();
   else cargaZoom();
@@ -154,17 +171,14 @@ export async function loadKnowledge() {
   // sigue disponible para las pruebas y herramientas que necesitan todas: al leerlo se cargan.
   // La foto vigente del radar del boletín (la misma de boletin.html) da las cifras notificadas de
   // los padecimientos que no se modelan.
-  _resumenPendiente = fetch(`./resumen_padecimientos.json${cacheBust}`)
-    .then((r) => (r.ok ? r.json() : null))
-    .then((x) => { if (x && x.schema === 'resumen_padecimientos.v1') DATA.resumen_padecimientos = x; })
-    .catch(() => {});
-  _radarPendiente = cargaRadar().then((r) => { if (r) DATA.radar_boletin = r; }).catch(() => {});
+  const radar = cargaRadarDatos();
+  const resumen = cargaResumen();
   // Después de lo que usan casi todas las respuestas (radar y resumen), cuando el navegador queda libre.
   const ocioso = globalThis.requestIdleCallback || ((f) => setTimeout(f, 1500));
-  Promise.allSettled([_radarPendiente, _resumenPendiente]).then(() => ocioso(() => { cargaZoom(); }, { timeout: 4000 }));
+  Promise.allSettled([radar, resumen]).then(() => ocioso(() => { cargaZoom(); }, { timeout: 4000 }));
   Object.defineProperty(DATA, 'obesidad_pendiente', {
     configurable: true, enumerable: false,
-    get() { return Promise.all([...RELEASES.map(cargaVista), _radarPendiente]); },
+    get() { return Promise.all([...RELEASES.map(cargaVista), cargaRadarDatos()]); },
   });
   return DATA;
 }
@@ -315,7 +329,6 @@ function fmt(n) {
 
 function pct(n) { return n == null ? '?' : `${n}%`; }
 
-function any(q, triggers) { return triggers.some(t => q.includes(t)); }
 
 const MONTH_NAMES = [
   'enero','febrero','marzo','abril','mayo','junio',
@@ -532,173 +545,6 @@ function getISOWeek(date) {
   return { year: d.getFullYear(), week };
 }
 
-// ---------------------------------------------------------------------------
-// Detecta si la query requiere razonamiento temporal fino (diario)
-// ---------------------------------------------------------------------------
-
-function needsGeminiReasoning(q) {
-  const dailyMarkers = [
-    'ayer', 'hoy', 'manana', 'anteayer', 'pasado manana',
-    'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado', 'domingo',
-    'dia de', 'al dia', 'por dia', 'diario', 'diaria', 'diariamente',
-  ];
-  const dataContext = ['caso', 'pronostico', 'forecast', 'prediccion', 'cuanto', 'estimacion'];
-  return dailyMarkers.some(m => q.includes(m)) && dataContext.some(w => q.includes(w));
-}
-
-// ---------------------------------------------------------------------------
-// Detecta preguntas de conocimiento general sobre padecimientos
-// que el proyecto NO puede responder (ceder a Gemini)
-// ---------------------------------------------------------------------------
-
-function needsGeneralKnowledge(q) {
-  // Personajes famosos, celebridades
-  const famousKw = [
-    'famoso', 'famosa', 'celebridad', 'celebridades', 'personaje',
-    'persona conocida', 'gente conocida', 'artista', 'actor', 'actriz',
-    'cantante', 'deportista', 'politico', 'presidente',
-    'quien tiene', 'quien padece', 'quien sufre', 'quien tuvo',
-    'quien ha tenido', 'alguien famoso',
-  ];
-  if (any(q, famousKw)) return true;
-
-  // Preguntas sobre paises (el proyecto solo cubre Mexico)
-  const countryKw = [
-    'que pais', 'paises', 'pais con mas', 'pais tiene', 'a nivel mundial',
-    'en el mundo', 'mundial', 'globalmente', 'global',
-    'latinoamerica', 'europa', 'asia', 'africa', 'norteamerica', 'sudamerica',
-    'estados unidos', 'espana', 'argentina', 'colombia', 'chile', 'peru',
-    'canada', 'brasil', 'francia', 'alemania', 'china', 'india', 'japon',
-  ];
-  // Palabra completa: «asia» aparecía dentro de «hiperplasia» y «displasia» y mandaba la consulta al RAG.
-  if (countryKw.some((k) => new RegExp(`\\b${k}\\b`).test(q))) return true;
-
-  // Preguntas sobre si alguien tuvo/tiene una enfermedad (persona especifica)
-  // "rocky tenia parkinson", "mohamed ali tuvo parkinson", "mi abuelo tiene alzheimer"
-  const personalDiseaseVerbs = [
-    'tuvo ', 'tenia ', 'tiene ', 'padecio ', 'padecia ', 'sufrio ',
-    'sufria ', 'murio de ', 'murio por ', 'fallecio de ', 'fallecio por ',
-    'le diagnosticaron', 'le dieron', 'le detectaron',
-  ];
-  // Solo aplicar si NO hay keywords de datos/proyecto
-  const dataKwCheck = ['caso', 'cuanto', 'pronostico', 'metrica', 'smape', 'modelo', 'semana',
-    'boletin', 'historico', 'tendencia', 'ranking', 'motor', 'grafico',
-    'estado', 'entidad', 'region', 'nacional', 'incidencia', 'dato'];
-  if (any(q, personalDiseaseVerbs) && !any(q, dataKwCheck)) return true;
-
-  // Preguntas personales de salud ("yo puedo ser paciente?", "me puede dar?")
-  const personalHealthKw = [
-    'yo puedo tener', 'yo puedo ser paciente', 'puedo ser paciente',
-    'puedo ser uno de esos', 'me puede dar', 'me puedo enfermar',
-    'puedo enfermarme', 'estoy en riesgo', 'tengo riesgo',
-    'soy propenso', 'soy propensa', 'como se si tengo',
-    'como saber si tengo', 'tengo sintomas', 'creo que tengo',
-    'yo tengo', 'me da miedo tener', 'me preocupa tener',
-  ];
-  if (any(q, personalHealthKw)) return true;
-
-  // Consejos medicos, tratamientos, curas
-  const medicalKw = [
-    'cura para', 'tiene cura', 'se puede curar', 'como se cura',
-    'como tratar', 'como se trata', 'tratamiento para',
-    'medicamento para', 'medicina para', 'farmaco para',
-    'que tomar', 'medicamento', 'como prevenir', 'se puede prevenir',
-    'como evitar', 'como detectar', 'como diagnosticar',
-    'donde atender', 'donde tratan', 'a que medico', 'que doctor',
-  ];
-  if (any(q, medicalKw)) return true;
-
-  return false;
-}
-
-// ---------------------------------------------------------------------------
-// Detecta consejo clinico / recomendacion DIRIGIDA a una persona
-// ("que le recomiendas a un depresivo", "como curar la depresion").
-// EPI no es asesor medico: estas preguntas se ceden a Gemini, que responde
-// con contexto general y el disclaimer "no constituye consejo medico".
-// Se evalua ANTES del fuzzy/handlers, sin depender de que se haya detectado
-// un padecimiento (el fuzzy podria inventar uno y volcar estadisticas).
-// ---------------------------------------------------------------------------
-
-function needsMedicalAdvice(q) {
-  // Vocabulario de DATOS / proyecto INEQUIVOCO: si aparece, es una consulta
-  // sobre los modelos/series, no consejo clinico personal. Protege casos como
-  // "que modelo me recomiendas para depresion". Se omiten terminos ambiguos
-  // (tendencia, casos, incidencia): "tendencias a la psicosis" es clinico, no
-  // un pedido de tendencia de datos. Esta exclusion solo aplica cuando ademas
-  // hay verbo de consejo, asi que basta cubrir el vocabulario fuerte.
-  const dataIntent = [
-    'modelo', 'motor', 'pronostic', 'forecast', 'prediccion', 'smape', 'mase',
-    'rmse', 'metrica', 'grafic', 'ranking', 'validacion', 'heatmap', 'dataset',
-    'sinave', 'mapa de calor', 'serie de tiempo', 'entrena', 'hiperparametr',
-    'overfitting', 'tableau',
-  ];
-  if (any(q, dataIntent)) return false;
-
-  // Termino clinico/salud real (no jerga ambigua de datos).
-  const clinical = [
-    'depresi', 'depre', 'deprim', 'parkinson', 'alzheimer', 'psicosis',
-    'psicotic', 'psicos', 'psiquiatr', 'narcis', 'narcic', 'suicid', 'ansiedad',
-    'ansios', 'bipolar', 'esquizofren', 'demencia', 'salud mental', 'trastorno',
-    'sintoma', 'temblor', 'rigidez', 'olvido', 'perdida de memoria', 'animo',
-    'autoestima', 'emocional', 'panico', 'angustia', 'estres', 'insomnio',
-    'enfermo', 'enferma', 'paciente', 'diagnostic',
-  ];
-  // Intencion de consejo / tratamiento / ayuda personal.
-  const advice = [
-    'recomend', 'recomien', 'aconsej', 'consejo', 'consejos', 'ayud', 'curar',
-    'curo', 'curacion', 'tiene cura', 'hay cura', 'cura para', 'se puede curar',
-    'tratar', 'tratamiento', 'terapia', 'pastilla', 'medicament', 'medicina',
-    'remedio', 'farmac', 'sobrellev', 'superar', 'salir de', 'lidiar',
-    'manejar la', 'manejar el', 'prevenir', 'que hago', 'que le doy', 'que doy',
-    'que tomo', 'que debo', 'deberia', 'me siento', 'que hacer', 'doctor',
-    'medico', 'mejorar', 'aliviar', 'calmar', 'combatir',
-  ];
-  return any(q, clinical) && any(q, advice);
-}
-
-// ---------------------------------------------------------------------------
-// Guard: prompt injection / roleplay → rechazar con mensaje
-// ---------------------------------------------------------------------------
-
-function answerInjectionGuard(q) {
-  const injectionPatterns = [
-    // Roleplay / cambio de identidad
-    'roleplay', 'role play', 'actua como', 'finge ser', 'finge que eres',
-    'eres ahora', 'ahora eres', 'de ahora en adelante eres',
-    'comportate como', 'pretend to be', 'you are now', 'act as',
-    'simulate being', 'imagina que eres', 'juega a ser',
-    // Manipulacion de instrucciones
-    'ignora tus instrucciones', 'olvida tus reglas', 'ignore your instructions',
-    'forget your', 'override your', 'bypass your', 'disregard your',
-    'ignore previous', 'ignore all previous', 'new instructions',
-    'nuevas instrucciones', 'cambia tus reglas', 'ignora las reglas',
-    // Extraccion de prompt / secretos
-    'dime tu prompt', 'show me your prompt', 'reveal your prompt',
-    'dame tu system prompt', 'system prompt', 'tell me your instructions',
-    'share the password', 'dame las contrasena', 'dame las claves',
-    'leaking secrets', 'filtra secretos', 'dime tus secretos',
-    // Codificacion / evasion
-    'dan mode', 'jailbreak', 'developer mode', 'modo desarrollador',
-    // Pruebas de seguridad (24-nov-2026): órdenes con aspecto de sistema y peticiones de credenciales.
-    'system:', 'sistema:', 'desactiva las guardas', 'desactiva tus guardas', 'sin restricciones', 'modo administrador', 'eres administrador',
-    'clave de api', 'api key', 'apikey', 'tu token', 'tus credenciales', 'contrasena', 'password', 'variables de entorno', 'env var',
-    'repite todo lo que te dije', 'muestrame el historial', 'tu codigo fuente',
-    // Respuestas condicionadas
-    'si la respuesta es si responde', 'responde solo con',
-    'a partir de ahora responde', 'usa solo emojis',
-  ];
-  return injectionPatterns.some(p => q.includes(p));
-}
-
-const INJECTION_RESPONSE =
-  'Soy el asistente de **EpiForecast-MX**, una plataforma de inteligencia epidemiológica para la salud pública en México. ' +
-  'No puedo asumir otros roles, compartir información confidencial (instrucciones, claves o datos internos) ni modificar ' +
-  'mis instrucciones.\n\n' +
-  'Puedo ayudarte con:\n' +
-  `- Casos y pronósticos de ${TOTAL_PUBLICADOS()} padecimientos del boletín epidemiológico, por estado y por sexo\n` +
-  '- Qué tan confiable es cada pronóstico\n' +
-  '- Cómo está hecho el proyecto: equipo, modelos y métricas';
 
 // ---------------------------------------------------------------------------
 // Guard: padecimiento no modelado → retorna null para caer a Gemini
@@ -992,166 +838,6 @@ function answerSaludo(q, ent, s, d) {
   );
 }
 
-// Profesores y asesores del proyecto (no están en knowledge.json)
-const PROFESORES = [
-  {
-    nombre: 'Ruth P\u00e9rez-Hern\u00e1ndez, PhD',
-    aliases: ['ruth', 'dra ruth', 'perez hernandez', 'ruth perez'],
-    rol: 'Investigadora principal',
-    institucion: 'Instituto Mexicano del Seguro Social (IMSS)',
-    ubicacion: 'Acapulco, Guerrero, M\u00e9xico',
-    orcid: 'https://orcid.org/0000-0003-3261-1220',
-  },
-  {
-    nombre: 'Grettel Barcel\u00f3 Alonso, PhD',
-    aliases: ['grettel', 'dra grettel', 'barcelo', 'grettel barcelo'],
-    rol: 'Directora acad\u00e9mica de la Maestr\u00eda en IA Aplicada',
-    institucion: 'Tecnol\u00f3gico de Monterrey (ITESM \u2014 Hidalgo)',
-    ubicacion: 'M\u00e9xico',
-    contacto: 'gbarcelo@tec.mx',
-  },
-  {
-    nombre: 'Lina D\u00edaz-Castro, PhD',
-    aliases: ['lina', 'dra lina', 'diaz castro', 'lina diaz'],
-    rol: 'Investigadora en Psiquiatr\u00eda, Ciencias M\u00e9dicas "D"',
-    institucion: 'Instituto Nacional de Psiquiatr\u00eda Ram\u00f3n de la Fuente Mu\u00f1iz',
-    ubicacion: 'M\u00e9xico',
-    contacto: 'dralina@inprf.gob.mx',
-  },
-  {
-    nombre: 'Mar\u00eda Jes\u00fas R\u00edos Blancas, PhD',
-    aliases: ['maria jesus', 'rios blancas', 'dra rios', 'dra maria'],
-    rol: 'Coautora del art\u00edculo',
-    institucion: '',
-    ubicacion: '',
-  },
-  {
-    nombre: 'Luis Eduardo Falc\u00f3n-Morales, PhD',
-    aliases: ['falcon', 'dr falcon', 'falcon morales', 'luis falcon', 'luis eduardo falcon'],
-    rol: 'Director de la Maestr\u00eda en Inteligencia Artificial Aplicada (MNA)',
-    institucion: 'Tecnol\u00f3gico de Monterrey (ITESM)',
-    ubicacion: 'M\u00e9xico',
-    bio: 'Matem\u00e1tico con l\u00edneas de investigaci\u00f3n en \u00c1lgebra Geom\u00e9trica Conforme y Machine Learning aplicado a visi\u00f3n rob\u00f3tica, im\u00e1genes omnidireccionales, im\u00e1genes m\u00e9dicas y sistemas de recomendaci\u00f3n en redes sociales. En a\u00f1os recientes, investiga algoritmos de Deep Learning para problemas de seguridad social, generaci\u00f3n de texto (NLP) e im\u00e1genes m\u00e9dicas, generando m\u00faltiples tesis de posgrado y propuestas de innovaci\u00f3n. Ha participado en proyectos CONACYT con PYMES de Jalisco.',
-  },
-];
-
-function answerEquipo(q, ent, s, d) {
-  const equipoTriggers = [
-    'equipo', 'integrantes', 'miembros', 'quienes son', 'quienes hicieron',
-    'quienes crearon', 'quienes desarrollaron', 'quien desarrollo', 'quien dirigio',
-    'quien dirige', 'autores', 'creadores',
-    'quien te creo', 'quien te hizo', 'quien te desarrollo', 'quien te programo',
-    'quien te diseno', 'quien te construyo',
-    'fuiste creado', 'fuiste desarrollado', 'fuiste hecho', 'fuiste programado',
-    'te crearon', 'te desarrollaron', 'te hicieron', 'te programaron',
-    'te creo', 'te hizo', 'te desarrollo',
-  ];
-  if (any(q, equipoTriggers)) {
-    const eq = d.equipo || [];
-    const lines = [
-      '**Equipo EpiForecast-MX (Equipo 01)**\n',
-      'Maestr\u00eda en Inteligencia Artificial Aplicada \u00b7 Tecnol\u00f3gico de Monterrey\n',
-      '**Directivos, asesores y coautores:**\n',
-    ];
-    for (const p of PROFESORES) {
-      lines.push(`- **${p.nombre}** \u00b7 ${p.rol}${p.institucion ? ` \u00b7 ${p.institucion}` : ''}`);
-    }
-    lines.push('\n**Equipo de desarrollo:**\n');
-    for (const m of eq) {
-      lines.push(
-        `- **${m.nombre}** (${m.apodo}) \u00b7 ${m.matricula}\n` +
-        `  ${m.rol} \u00b7 ${m.empleo}\n` +
-        `  ${m.commits} commits` +
-        (m.orcid ? `\n  ORCID: https://orcid.org/${m.orcid}` : '')
-      );
-    }
-    lines.push(
-      '\n**Proyecto:** Generalizaci\u00f3n de modelos nacionales de pron\u00f3stico epidemiol\u00f3gico ' +
-      'hacia un enfoque modular con desagregaci\u00f3n por sexo y entidad federativa en M\u00e9xico (EpiForecast-MX). ' +
-      'Pron\u00f3stico multi-modelo de Depresi\u00f3n (F32), Parkinson (G20) y Alzheimer (G30) para la salud p\u00fablica en M\u00e9xico.'
-    );
-    return lines.join('\n');
-  }
-
-  // Buscar profesores por alias
-  for (const p of PROFESORES) {
-    if (p.aliases.some(a => q.includes(a))) {
-      const lines = [`**${p.nombre}**\n`];
-      lines.push(`- **Rol:** ${p.rol}`);
-      if (p.institucion) lines.push(`- **Instituci\u00f3n:** ${p.institucion}`);
-      if (p.ubicacion) lines.push(`- **Ubicaci\u00f3n:** ${p.ubicacion}`);
-      if (p.orcid) lines.push(`- **ORCID:** ${p.orcid}`);
-      if (p.contacto) lines.push(`- **Contacto:** ${p.contacto}`);
-      if (p.bio) lines.push(`\n${p.bio}`);
-      lines.push(`\nParticipa en el proyecto EpiForecast-MX y el art\u00edculo *"De los datos a la predicci\u00f3n: un marco metodol\u00f3gico para la salud digital basado en la inteligencia artificial"*.`);
-      return lines.join('\n');
-    }
-  }
-
-  // Buscar miembros del equipo por alias
-  const personTriggers = [
-    'quien es', 'quien fue', 'que hace', 'que hizo', 'conoces a',
-    'dime de', 'dime sobre', 'hablame de', 'cuentame de', 'cuentame sobre',
-  ];
-  // Detectar claims sobre participacion/desarrollo del equipo
-  const participationKw = [
-    'no participo', 'no desarrollo', 'no trabajo', 'no hizo',
-    'participo en', 'desarrollo en', 'trabajo en',
-    'si participo', 'contribuyo', 'tu desarrollo', 'tu implementacion',
-    'dicen que', 'no es parte', 'no formo parte', 'formo parte',
-  ];
-  const isPerson = any(q, personTriggers);
-  const isParticipation = any(q, participationKw);
-
-  // Count how many team members are mentioned
-  let mentionedMembers = 0;
-  for (const m of (d.equipo || [])) {
-    for (const alias of (m.aliases || [])) {
-      if (q.includes(alias)) { mentionedMembers++; break; }
-    }
-  }
-
-  // If 2+ team members mentioned with participation context → show full team
-  if (isParticipation && mentionedMembers >= 2) {
-    const eq = d.equipo || [];
-    const lines = [
-      'Los **3 integrantes** del equipo de desarrollo participaron activamente en el proyecto:\n',
-    ];
-    for (const m of eq) {
-      lines.push(
-        `- **${m.nombre}** (${m.apodo}) \u00b7 ${m.commits} commits \u00b7 ${m.rol}`
-      );
-    }
-    lines.push(
-      '\nTodos los integrantes contribuyeron al dise\u00f1o, desarrollo, entrenamiento de modelos y despliegue de la plataforma EpiForecast-MX.'
-    );
-    return lines.join('\n');
-  }
-
-  // Guard: mencionan a un integrante pero la pregunta es sobre el NOMBRE del proyecto → dejar pasar
-  const aboutProjectName = any(q, ['se llama ', 'el nombre es ', 'el nombre del proyecto', 'el proyecto se llama', 'esto se llama']);
-  if (aboutProjectName) return null;
-
-  if (!isPerson && !isParticipation && q.split(' ').length > 3) return null;
-
-  let bestInfo = null, bestLen = 0;
-  for (const m of (d.equipo || [])) {
-    for (const alias of (m.aliases || [])) {
-      if (q.includes(alias) && alias.length > bestLen) { bestLen = alias.length; bestInfo = m; }
-    }
-  }
-  if (bestInfo) {
-    return (
-      `**${bestInfo.nombre}**\n\n` +
-      `- **Apodo:** ${bestInfo.apodo}\n` +
-      `- **Matr\u00edcula:** ${bestInfo.matricula}\n` +
-      `- **Rol:** ${bestInfo.rol}\n` +
-      `- **Empleo actual:** ${bestInfo.empleo}\n` +
-      `- **Commits:** ${bestInfo.commits}`
-    );
-  }
-  return null;
-}
 
 // ---------------------------------------------------------------------------
 // Fecha de una semana epidemiologica especifica.
@@ -5810,89 +5496,6 @@ function runHandlers(q, ent, s, d, trace = null) {
   return null;
 }
 
-// ---------------------------------------------------------------------------
-// Guard: tema fuera de alcance → ceder a Gemini
-// ---------------------------------------------------------------------------
-
-function isOffTopic(q, ent) {
-  // Clima / meteorología → fuera de alcance (y evita el fuzzy 'clima'→'colima')
-  if (any(q, ['clima', 'pronostico del tiempo', 'pronostico del clima', 'va a llover', 'lluvia manana', 'que tiempo hara', 'tiempo atmosferico'])) return true;
-
-  // Si detectamos entidades del dominio, no es off-topic
-  if (ent.padecimiento || ent.estado || ent.modelo) return false;
-
-  // Temas PERMITIDOS que Gemini puede responder (no bloquear):
-  // - AI/ML: deep learning, redes neuronales, prophet, deepar, smape, etc.
-  // - Salud: depresion, parkinson, alzheimer, imss, epidemiologia, etc.
-  // - Ciencia de datos: python, modelos, metricas, overfitting, etc.
-  const allowedTerms = [
-    // AI / ML / Data Science
-    'inteligencia artificial', 'machine learning', 'deep learning', 'red neuronal',
-    'redes neuronales', 'modelo', 'algoritmo', 'entrenamiento', 'epoch', 'batch',
-    'overfitting', 'underfitting', 'cross validation', 'validacion cruzada',
-    'smape', 'rmse', 'mae', 'mase', 'mape', 'metrica', 'accuracy', 'precision',
-    'prophet', 'deepar', 'xgboost', 'lightgbm', 'ridge', 'ensemble', 'stacking',
-    'serie temporal', 'series de tiempo', 'time series', 'forecast', 'pronostico',
-    'transformer', 'lstm', 'gru', 'autoregresivo', 'estacionari',
-    'feature', 'hiperparametro', 'regularizacion', 'dropout', 'learning rate',
-    'gradient', 'backpropagation', 'loss', 'optimizador', 'adam', 'sgd',
-    'pytorch', 'tensorflow', 'gluonts', 'scikit', 'pandas', 'numpy',
-    'python', 'sagemaker', 'aws', 'mlflow', 'mlops', 'pipeline',
-    'regression', 'clasificacion', 'clustering', 'nlp', 'rag',
-    // Salud / Epidemiologia / IMSS
-    'salud', 'epidemiologia', 'epidemiologico', 'boletin', 'sinave',
-    'imss', 'seguro social', 'ssa', 'secretaria de salud',
-    'enfermedad', 'padecimiento', 'diagnostico', 'cie-10', 'cie10',
-    'incidencia', 'prevalencia', 'mortalidad', 'morbilidad',
-    'vacuna', 'tratamiento', 'terapia', 'farmaco', 'medicamento',
-    'neurologia', 'psiquiatria', 'neurodegenerativ', 'mental',
-    'sintoma', 'factor de riesgo', 'prevencion', 'deteccion',
-    'semana epidemiologica', 'vigilancia', 'brote', 'pandemia',
-    'diabetes', 'cancer', 'covid', 'influenza', 'obesidad',
-    'hipertension', 'ansiedad', 'esquizofrenia',
-    // Proyecto / Temporalidad / Equipo (handlers propios)
-    'equipo', 'integrante', 'quien es', 'quienes', 'proyecto',
-    'fecha', 'semana', 'que dia', 'que ano', 'cobertura', 'periodo',
-    'dato', 'caso', 'cuantos', 'cuantas', 'ranking', 'mejor', 'peor',
-    'sexo', 'hombre', 'mujer', 'genero',
-    'validacion', 'test', 'infraestructura', 'arquitectura',
-    'definicion', 'que significa', 'que quiere decir',
-  ];
-  if (allowedTerms.some(t => q.includes(t))) return false;
-
-  // Solo bloquear temas claramente irrelevantes al proyecto
-  const blockedTerms = [
-    'weather', 'futbol', 'soccer', 'basket', 'deporte', 'olimpi',
-    'formula 1', 'formula uno', ' f1 ', 'la f1', 'nascar', 'motogp',
-    'champions', 'mundial', 'liga mx', 'premier league', 'nba', 'nfl', 'mlb',
-    'pelicula', 'netflix', 'musica', 'cancion', 'concierto', 'serie de tv', 'una peli', 'pelis',
-    'receta', 'cocina', 'restaurante',
-    'bitcoin', 'crypto', 'bolsa de valores', 'acciones de',
-    'vuelo', 'hotel', 'turismo', 'airbnb',
-    'mascota', 'perro', 'gato',
-    'chiste', 'joke', 'broma', 'meme',
-    'horoscopo', 'signo zodiacal', 'tarot',
-    'pokemon', 'videojuego', 'playstation', 'xbox', 'nintendo',
-  ];
-
-  // Bloquear si usan triggers ambiguos con temas bloqueados
-  const ambiguousTriggers = ['pronostico', 'prediccion', 'cuantos', 'cuantas', 'quien gana', 'quien va a ganar', 'quien ganara', 'va a ganar'];
-  const hasAmbiguous = ambiguousTriggers.some(t => q.includes(t));
-  if (hasAmbiguous && blockedTerms.some(t => q.includes(t))) return true;
-
-  // Detectar "f1" como Formula 1 (no confundir con codigos CIE F1x)
-  if (/\bf1\b/.test(q) && any(q, ['gana', 'campeon', 'carrera', 'piloto', 'constructor', 'temporada', 'verstappen', 'hamilton'])) return true;
-
-  // Preguntas puramente triviales o de entretenimiento
-  const trivial = [
-    'dime un chiste', 'cuenta un chiste', 'que hora es',
-    'horoscopo', 'signo zodiacal',
-    'quien va a ganar', 'quien ganara',
-  ];
-  if (trivial.some(t => q.includes(t))) return true;
-
-  return false;
-}
 
 // ---------------------------------------------------------------------------
 // Guardas deterministas de la revisión focal de Fable (FABLE_CONTROLES5_PUBLICACION_REVISION, M3 y B3).
@@ -6217,64 +5820,45 @@ async function _resolve(consulta) {
   // así que la respuesta fija no depende de la red (antes un fallo de fetch la convertía en excepción).
   const guarda = guardaInicial(query);
   if (guarda) return guarda;
+  // Respuesta fija que olvida el contexto (guardas, aclaraciones y textos sin datos): una sola forma para todas.
+  const fija = (handler, response) => { lastEntities = {}; trace.handler = handler; return { response, handler }; };
+  const qn0 = norm(query);
+  const entQuery = detectEntities(qn0);
+  const d7 = guardaD7(query);
   // Plan canónico 1.6: consejo médico (medicamentos, dosis, vacunas, gravedad, embarazo) antes de cualquier ruta de datos.
   // Las guardas D7 (dosis, letalidad o método con intoxicaciones sensibles) conservan su texto fijo, y un padecimiento sensible
   // nombrado sigue su ruta propia.
-  const padSensible = detectEntities(norm(query)).padecimiento && !nombraPadecimientoNoSensible(norm(query));
-  const consejo = !guardaD7(query) && !padSensible ? answerConsejoMedico(norm(query)) : null;
-  if (consejo) { lastEntities = {}; return { response: consejo, handler: 'answerConsejoMedico' }; }
+  const padSensible = entQuery.padecimiento && !nombraPadecimientoNoSensible(qn0);
+  const consejo = !d7 && !padSensible ? answerConsejoMedico(qn0) : null;
+  if (consejo) return fija('answerConsejoMedico', consejo);
   // Plan canónico 2.5, escalón 1 (acta de la mesa del 26-nov-2026): contagio, prevención, signos de alarma y «cuándo acudir»
   // reciben un texto fijo con la fuente oficial; ninguna ruta los manda al modelo generativo. Los síntomas personales y las
   // urgencias conservan su propio texto fijo.
-  const clinica = !guardaD7(query) && !padSensible ? answerClinica(query) : null;
+  const clinica = !d7 && !padSensible ? answerClinica(query) : null;
   if (clinica) return clinica;
   const d = await loadKnowledge();
   await cargaVistasDeConsulta(query);
   const s = d.stats || {};
   // Consulta mixta con un id sensible y sin riesgo: no se combinan cifras.
-  const mixta = respuestaMixtaSensible(norm(query));
-  if (mixta) {
-    lastEntities = {};
-    trace.handler = 'answerMixtaSensible';
-    return { response: mixta, handler: trace.handler };
-  }
+  const mixta = respuestaMixtaSensible(qn0);
+  if (mixta) return fija('answerMixtaSensible', mixta);
   if (_aclaracionPendiente && esSeguimientoSinPadecimiento(query)) {
-    lastEntities = {};
-    trace.handler = 'answerAclaracionPendiente';
-    return { response: `Todavía no sé qué padecimiento consultas, así que no doy cifras. ${_aclaracionPendiente}\n<!--SIN_GRAFICA-->`,
-      handler: trace.handler };
+    return fija('answerAclaracionPendiente', `Todavía no sé qué padecimiento consultas, así que no doy cifras. ${_aclaracionPendiente}\n<!--SIN_GRAFICA-->`);
   }
-  const d7 = guardaD7(query);
-  if (d7) {
-    lastEntities = {};
-    trace.handler = 'answerGuardaD7';
-    return { response: `${d7}\n<!--SIN_GRAFICA-->`, handler: trace.handler };
-  }
+  if (d7) return fija('answerGuardaD7', `${d7}\n<!--SIN_GRAFICA-->`);
   const meningitis = guardaMeningitisTipo(query);
-  if (meningitis) {
-    lastEntities = {};
-    trace.handler = 'answerMeningitisTipo';
-    return { response: `${meningitis}\n<!--SIN_GRAFICA-->`, handler: trace.handler };
-  }
+  if (meningitis) return fija('answerMeningitisTipo', `${meningitis}\n<!--SIN_GRAFICA-->`);
   const suma = guardaSumaA37U99(query);
-  if (suma) {
-    lastEntities = {};
-    trace.handler = 'answerSumaSeriesDistintas';
-    return { response: `${suma}\n<!--SIN_GRAFICA-->`, handler: trace.handler };
-  }
+  if (suma) return fija('answerSumaSeriesDistintas', `${suma}\n<!--SIN_GRAFICA-->`);
   // Un nombre genérico («otitis», «amebiasis») abarca más que el bloque publicado: se aclara y no se
   // dan cifras hasta que la consulta nombre el bloque.
-  const ambiguo = aliasAmbiguo(norm(query));
+  const ambiguo = aliasAmbiguo(qn0);
   // Una pregunta clínica sobre un nombre genérico («¿qué es la hepatitis y cómo se transmite?») va al RAG, sin aclaración de bloques.
-  if (ambiguo && esPreguntaClinica(norm(query))) return { response: null, handler: null };
-  if (ambiguo) {
-    lastEntities = {};
-    trace.handler = 'answerAliasAmbiguo';
-    return { response: `${ambiguo.texto}\n<!--SIN_GRAFICA-->${botonesDeOpciones(ambiguo.texto, detectEntities(norm(query)).estado)}`, handler: trace.handler };
-  }
+  if (ambiguo && esPreguntaClinica(qn0)) return { response: null, handler: null };
+  if (ambiguo) return fija('answerAliasAmbiguo', `${ambiguo.texto}\n<!--SIN_GRAFICA-->${botonesDeOpciones(ambiguo.texto, entQuery.estado)}`);
   // Un seguimiento que nombra otro subtipo o categoría se resuelve antes de heredar el contexto.
   const qBase = conHipertensionNombrada(
-    conDiabetesNombrada(norm(query), lastEntities.padecimiento), lastEntities.padecimiento);
+    conDiabetesNombrada(qn0, lastEntities.padecimiento), lastEntities.padecimiento);
   const q = conFamiliaNombrada(qBase, lastEntities.padecimiento);
   // El seguimiento reescrito por familia («¿y la C?» → «y hepatitis virica c») nombra un bloque publicado:
   // la búsqueda del radar por primera palabra («hepatitis» → hepatitis B, sin publicar) no lo vuelve no modelado.
@@ -6284,11 +5868,11 @@ async function _resolve(consulta) {
   if (ambiguoFamilia) {
     // Plan canónico 2.6: «¿y la B?» tras «hepatitis A en Jalisco» conserva Jalisco en los botones de la aclaración.
     const lugarPrevio = detectEntities(q).estado || lastEntities.estado;
-    lastEntities = {};
-    trace.handler = 'answerAliasAmbiguo';
-    return { response: `${ambiguoFamilia.texto}\n<!--SIN_GRAFICA-->${botonesDeOpciones(ambiguoFamilia.texto, lugarPrevio)}`, handler: trace.handler };
+    return fija('answerAliasAmbiguo', `${ambiguoFamilia.texto}\n<!--SIN_GRAFICA-->${botonesDeOpciones(ambiguoFamilia.texto, lugarPrevio)}`);
   }
-  const ent = detectEntities(q === norm(query) ? query : q);
+  const ent = detectEntities(q === qn0 ? query : q);
+  // La consulta nombra una categoría del boletín o un no modelado (se consulta en varias rutas; se calcula una vez).
+  const nombraNoModelado = !!mencionaNoModelada(q) || enRadar(q).length > 0;
 
   // Guard: prompt injection / roleplay → rechazar inmediatamente
   if (answerInjectionGuard(q)) { trace.handler = 'answerInjectionGuard'; return { response: INJECTION_RESPONSE, handler: trace.handler }; }
@@ -6321,7 +5905,7 @@ async function _resolve(consulta) {
   for (const h of [answerCharla, answerQueja, answerVago, answerFamiliar, answerAmbiguoColoquial, answerSemanaFutura, answerNoReportado, answerFueraDeAlcance, answerSintomas, answerFAQ, answerRankingPadecimientos, answerConfianzaGeneral, answerViaje, answerEstadoLlano]) {
     if (h === answerConfianzaGeneral && lastEntities.padecimiento) continue;
     // Con un padecimiento en el contexto, «¿y en Sonora?» es un seguimiento de ese padecimiento, no el resumen del estado.
-    if ((h === answerEstadoLlano || h === answerFAQ || h === answerViaje) && (mencionaNoModelada(q) || enRadar(q).length)) continue;
+    if ((h === answerEstadoLlano || h === answerFAQ || h === answerViaje) && nombraNoModelado) continue;
     if ((h === answerEstadoLlano || h === answerViaje) && lastEntities.padecimiento) continue;
     const r = h(q, ent, s, d);
     if (r) {
@@ -6434,7 +6018,7 @@ async function _resolve(consulta) {
   // no debe heredar estado y sexo hacia la tabla neuro del estado. Sigue en el padecimiento no
   // modelado, salvo que la consulta nombre uno modelado («y depresión?») u otro no modelado.
   const previoNoModelado = lastEntities._noModelado;
-  if (previoNoModelado && !ent.padecimiento && !mencionaNoModelada(q) && !enRadar(q).length &&
+  if (previoNoModelado && !ent.padecimiento && !nombraNoModelado &&
       (/^y \w/.test(q) || /^(pero|tambien|que hay de|ahora) /.test(q))) {
     const entCtx = { ...ent, estado: ent.estado || lastEntities.estado, sexo: ent.sexo || lastEntities.sexo };
     const radar = answerRadarBoletin(`${q} ${previoNoModelado}`, entCtx, s, d);
@@ -6469,36 +6053,44 @@ async function _resolve(consulta) {
     if (merged._lastNYears == null && lastEntities._lastNYears != null) merged._lastNYears = lastEntities._lastNYears;
     return merged;   // helper de entidades: devuelve el merge, no una resolución
   }
+  // Responde con el contexto heredado si el merge aporta algo (padecimiento, estado, sexo, estados, años; meses si se pide).
+  function conContexto(conMeses) {
+    const merged = mergeWithContext(ent);
+    const hasExtra = merged.padecimiento !== ent.padecimiento || merged.estado !== ent.estado ||
+                     merged.sexo !== ent.sexo ||
+                     (conMeses && (merged._months || []).length !== (ent._months || []).length) ||
+                     (merged._estados && !ent._estados) ||
+                     (merged._lastNYears != null && ent._lastNYears == null);
+    if (!hasExtra) return null;
+    const resultCtx = runHandlers(q, merged, s, d, trace);
+    if (!resultCtx) return null;
+    const ctx = [merged.padecimiento, merged.estado, merged.sexo].filter(Boolean).join(' / ');
+    lastEntities = merged;
+    return { response: `*(Contexto: ${ctx})*\n\n${resultCtx}`, handler: trace.handler };
+  }
 
   // Pre-calcular corrección fuzzy
   const corrected = fuzzyCorrect(q);
   // Una consulta que ya nombra una categoría del boletín o un no modelado no se «corrige»: «cólera»
   // se volvía «colima», «depleción» «depresión» y «faringitis» «laringitis» (la IRA publicada).
-  const nombraBoletin = !!mencionaNoModelada(q) || enRadar(q).length > 0;
-  const hasFuzzy = corrected && corrected !== q && !nombraBoletin;
+  const hasFuzzy = corrected && corrected !== q && !nombraNoModelado;
+  // La respuesta sobre la consulta corregida, con el aviso «¿Quisiste decir…?».
+  function conCorreccion(entFixed) {
+    const resultFixed = runHandlers(corrected, entFixed, s, d, trace);
+    if (!resultFixed) return null;
+    lastEntities = entFixed;
+    return { response: `*(¿Quisiste decir «${corrected}»?)*\n\n${resultFixed}`, handler: trace.handler };
+  }
 
   // Si es follow-up, intentar con contexto heredado PRIMERO
   // PERO: si la query menciona un padecimiento no modelado, NO heredar — dejar que
   // answerPadecimientoNoModelado lo maneje con el query original
   if (isFollowUp) {
     // Inicio de palabra (mencionaNoModelada): «obesidad» contiene «sida» y «demencia» es Alzheimer.
-    const mentionsUnmodeled = !(viaFamilia && ent.padecimiento) && (!!mencionaNoModelada(q) || enRadar(q).length > 0);
-
+    const mentionsUnmodeled = !(viaFamilia && ent.padecimiento) && nombraNoModelado;
     if (!mentionsUnmodeled) {
-      const merged = mergeWithContext(ent);
-      const hasExtra = merged.padecimiento !== ent.padecimiento || merged.estado !== ent.estado ||
-                       merged.sexo !== ent.sexo ||
-                       (merged._months || []).length !== (ent._months || []).length ||
-                       (merged._estados && !ent._estados) ||
-                       (merged._lastNYears != null && ent._lastNYears == null);
-      if (hasExtra) {
-        const resultCtx = runHandlers(q, merged, s, d, trace);
-        if (resultCtx) {
-          const ctx = [merged.padecimiento, merged.estado, merged.sexo].filter(Boolean).join(' / ');
-          lastEntities = merged;
-          return { response: `*(Contexto: ${ctx})*\n\n${resultCtx}`, handler: trace.handler };
-        }
-      }
+      const r = conContexto(true);
+      if (r) return r;
     }
   }
 
@@ -6509,13 +6101,8 @@ async function _resolve(consulta) {
       (!ent.padecimiento && entFixed.padecimiento) ||
       (!ent.estado && entFixed.estado) ||
       (!ent.modelo && entFixed.modelo);
-    if (moreEntities) {
-      const resultFixed = runHandlers(corrected, entFixed, s, d, trace);
-      if (resultFixed) {
-        lastEntities = entFixed;
-        return { response: `*(¿Quisiste decir «${corrected}»?)*\n\n${resultFixed}`, handler: trace.handler };
-      }
-    }
+    const r = moreEntities ? conCorreccion(entFixed) : null;
+    if (r) return r;
   }
 
   // Intento normal: query original
@@ -6527,12 +6114,8 @@ async function _resolve(consulta) {
 
   // Corrección fuzzy completa
   if (hasFuzzy) {
-    const entFixed = detectEntities(corrected);
-    const resultFixed = runHandlers(corrected, entFixed, s, d, trace);
-    if (resultFixed) {
-      lastEntities = entFixed;
-      return { response: `*(¿Quisiste decir «${corrected}»?)*\n\n${resultFixed}`, handler: trace.handler };
-    }
+    const r = conCorreccion(detectEntities(corrected));
+    if (r) return r;
   }
 
   // Último intento: heredar contexto (para queries sin prefijo de follow-up)
@@ -6549,9 +6132,7 @@ async function _resolve(consulta) {
   const isNewTopic = newTopicSignals.some(t => q.includes(t));
 
   // No heredar contexto si menciona un padecimiento no modelado
-  const mentionsUnmodeledCtx = !!mencionaNoModelada(q) || enRadar(q).length > 0;
-
-  if (!isFollowUp && !isNewTopic && !mentionsUnmodeledCtx && (lastEntities.padecimiento || lastEntities.estado)) {
+  if (!isFollowUp && !isNewTopic && !nombraNoModelado && (lastEntities.padecimiento || lastEntities.estado)) {
     // Solo heredar si la query tiene keywords de datos/epidemiologia
     const dataKeywords = ['caso', 'cuantos', 'cuantas', 'incidencia', 'dato', 'grafico', 'grafica',
       'pronostico', 'prediccion', 'historico', 'historica', 'tendencia', 'semana', 'ano',
@@ -6560,19 +6141,8 @@ async function _resolve(consulta) {
     const hasDataContext = dataKeywords.some(t => q.includes(t));
 
     if (hasDataContext) {
-      const merged = mergeWithContext(ent);
-      const hasExtra = merged.padecimiento !== ent.padecimiento || merged.estado !== ent.estado ||
-                       merged.sexo !== ent.sexo ||
-                       (merged._estados && !ent._estados) ||
-                       (merged._lastNYears != null && ent._lastNYears == null);
-      if (hasExtra) {
-        const resultCtx = runHandlers(q, merged, s, d, trace);
-        if (resultCtx) {
-          const ctx = [merged.padecimiento, merged.estado, merged.sexo].filter(Boolean).join(' / ');
-          lastEntities = merged;
-          return { response: `*(Contexto: ${ctx})*\n\n${resultCtx}`, handler: trace.handler };
-        }
-      }
+      const r = conContexto(false);
+      if (r) return r;
     }
   }
 
@@ -6740,6 +6310,8 @@ async function _resolveConContexto(query) {
   if (comentario) return comentario;
   const { texto: texto0, notas } = reescribeConsulta(query);
   const texto = seguimientoConContexto(texto0);
+  // Las entidades del texto del turno se detectan una vez (antes se recalculaban hasta cinco veces).
+  const entTurno = detectEntities(norm(texto));
   const padAntes = lastEntities.padecimiento;
   const padAnteriorPrev = lastEntities._padAnterior;
   const r = await _resolveConContextoBase(texto);
@@ -6765,15 +6337,14 @@ async function _resolveConContexto(query) {
     try {
       const j = JSON.parse(mEst[1]);
       const rr = releaseDePad(lastEntities.padecimiento);
-      const sx = detectEntities(norm(texto)).sexo;
+      const sx = entTurno.sexo;
       _estadosComparados = { pad: rr ? (rr.consultaVisible || rr.consulta) : norm(lastEntities.padecimiento), estados: j.filas.map((f) => f[0]),
         sexo: sx && sx !== 'general' ? sx : null };
     } catch { /* sin filas */ }
   }
   // «hombres y mujeres» compara ambos sexos: no deja un sexo fijo para los turnos siguientes.
   if (/\bhombres\b/.test(norm(texto)) && /\bmujeres\b/.test(norm(texto))) lastEntities = { ...lastEntities, sexo: null };
-  const padsTurno = detectEntities(norm(texto)).padecimientos || [];
-  const entTurno = detectEntities(norm(texto));
+  const padsTurno = entTurno.padecimientos || [];
   _comparacionPrevia = r.handler === 'answerReleasesMixtos' && padsTurno.length >= 2
     ? { pads: padsTurno.map((p) => { const rr = releaseDePad(p); return rr ? (rr.consultaVisible || rr.consulta) : norm(p); }), estado: entTurno.estado || null, sexo: entTurno.sexo && entTurno.sexo !== 'general' ? entTurno.sexo : null }
     : null;
@@ -6787,7 +6358,7 @@ async function _resolveConContexto(query) {
     lastEntities = { ...lastEntities, _padAnterior: nombreCtx(padAntes) };
   }
   if (!lastEntities._padAnterior && padAnteriorPrev && lastEntities.padecimiento) lastEntities = { ...lastEntities, _padAnterior: padAnteriorPrev };
-  if (!lastEntities.estado && detectEntities(norm(texto)).estado) lastEntities = { ...lastEntities, estado: detectEntities(norm(texto)).estado };
+  if (!lastEntities.estado && entTurno.estado) lastEntities = { ...lastEntities, estado: entTurno.estado };
   // Plan canónico 1.6: «¿es seguro viajar a … por el dengue?» nunca abre con una tendencia como si fuera una respuesta de seguridad.
   if (VIAJE_SEGURIDAD.test(norm(query)) && r.response && /\d/.test(r.response) && !HANDLERS_DE_AYUDA.has(r.handler)) notas.unshift(NOTA_VIAJE);
   const sint = notaSintomas(norm(query));
