@@ -9,7 +9,7 @@
 import { RELEASES } from './release_config.js?v=59';
 import { LINEA_ALARMA, SIGNOS_ALARMA_GENERALES } from './clinica.js?v=2';
 import { fechaEpiLegacy } from './calculo/series.js?v=4';
-import { semanaTxt, semanaDeEtiqueta, botonesPeriodo } from './resumen_llano.js?v=9';
+import { semanaTxt, semanaDeEtiqueta, botonesPeriodo, BOTON_NOTA } from './resumen_llano.js?v=10';
 
 const LEGACY = 4;
 export const TOTAL_PUBLICADOS = () => RELEASES.length + LEGACY;
@@ -306,7 +306,7 @@ export function answerLegacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadL
     `la comparación con lo observado se actualiza con cada boletín.${base.zz.intervalo_disponible ? '' : ' Pronóstico puntual, sin intervalo de incertidumbre.'}` +
     (PREGUNTA_ERROR_LEGACY.test(n) && (base.zz.seguimiento || []).some((w) => w.real != null)
       ? `\n<!--ZOOM_SEGUIMIENTO:${JSON.stringify({ clave: `${LEGACY_PAD[pad]}|${geo}|${sexo}`, pad, estado: nombreGeo, sexo })}-->` : '') +
-    `\n<!--SIGUE:${JSON.stringify(sig.slice(0, 4))}-->`;
+    `\n<!--SIGUE:${JSON.stringify([...sig.slice(0, 3), BOTON_NOTA])}-->`;
 }
 
 // «¿Qué tan confiables son sus pronósticos?» sin padecimiento: la escala de tres niveles y cuántos hay en cada uno.

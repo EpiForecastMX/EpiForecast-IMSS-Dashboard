@@ -17,7 +17,7 @@
  */
 import { RELEASES, releaseDeId } from './release_config.js?v=59';
 import { semanaSiguiente } from './calendario_boletin.js?v=2';
-import { semanaTxt } from './resumen_llano.js?v=9';
+import { semanaTxt } from './resumen_llano.js?v=10';
 
 const strip = (s) => String(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 const has = (q, ks) => ks.some((k) => q.includes(k));
