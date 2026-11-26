@@ -46,7 +46,7 @@ y `docs/PLAN_EPIBOT_AGENTICO_2026-11-25.md`; actas en `/Users/haowei/Documents/I
   generativa, ninguna cifra se muestra sin respaldo en el contexto (`epibot/netlify/lib/cifras_verificadas.mjs`, con
   excepciones para enteros de 0 a 12, años y códigos).
 - **Controles:** nunca como modelo validado, tampoco en las gráficas («Control, no validado», en gris).
-- **Gráficas:** seguir el «Sistema común de gráficas» del README; fechas de `zoom_series.json` sólo con `fechaBoletinLegacy`;
+- **Gráficas:** seguir el «Sistema común de gráficas» del README; fechas de `zoom_series.json` sólo con `fechaEpiLegacy(d, pad)` (semana del boletín menos el rezago del cuadro: neurológicos 1, dengue 0);
   un cambio visible se revisa recapturando en el navegador a 1280 y 375 px.
 - **Bandera y respaldo:** el planificador va detrás de `?agente=1` (o `localStorage.epibot_agente=1`) y no mostró ganancia
   medida en la batería ciega *dev* (187 frente a 187); su activación requiere la fase 5 del plan. El respaldo con Ollama

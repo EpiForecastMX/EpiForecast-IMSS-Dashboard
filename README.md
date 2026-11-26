@@ -322,7 +322,9 @@ npm run rag:verify         # falla si el índice está desincronizado del corpus
 - La gráfica responde lo mismo que el texto: hereda el estado de la conversación sólo si el texto también es de ese
   estado. El año en curso se rotula como parcial. Toda gráfica y mapa tiene tabla equivalente («Ver los datos…»).
 - Fechas de los cuatro originales: `zoom_series.json` guarda la fecha interna del motor y la semana del boletín empieza
-  13 días después; se muestran con `fechaBoletinLegacy` (`js/calculo/series.js`).
+  13 días después (`fechaBoletinLegacy`). Como el cuadro 17 llega sólo hasta la semana anterior a la del boletín, Depresión,
+  Parkinson y Alzheimer se muestran en su semana epidemiológica con `fechaEpiLegacy(d, pad)` (rezago 1; Dengue, 0), en
+  `js/calculo/series.js`; la galería, el tablero y la portada aplican el mismo rezago al «último observado».
 - Pruebas en `epibot/tests/test_graficas_mesa.mjs`. La revisión cubrió 22 preguntas capturadas del bot real; acta y capturas
   antes y después en `/Users/haowei/Documents/Integrador/planes/mesa_graficas_epibot_2026-11-25/` (fuera de los repositorios).
 
