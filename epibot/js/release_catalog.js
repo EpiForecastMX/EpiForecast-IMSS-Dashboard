@@ -128,6 +128,8 @@
     },
     {
       id: 'asma_j45', pad: 'Asma', nombre: 'Asma', nombreCorto: 'Asma',
+      // Semanas observadas cuyo boletín ya era público al emitir (bulletin_provenance.json): no son prospectivas.
+      no_prospectivas: ['2026-W42'],
       etiqueta: 'Asma (J45, J46)', dataKey: 'asma_j45', marca: 'ASMA_J45', pagina: 'asma_j45.html',
       consulta: 'asma', cie: 'J45, J46', color: '#7DD3FC',
       alias: ['asma', 'asmatico', 'asmatica', 'asmaticos', 'asmaticas', 'estado asmatico',
@@ -762,6 +764,8 @@
     // nunca validado, sin validación prospectiva propia.
     {
       id: 'sifilis_adquirida_a51', pad: 'Sífilis adquirida', nombre: 'Sífilis adquirida',
+      // Semanas observadas cuyo boletín ya era público al emitir (bulletin_provenance.json): no son prospectivas.
+      no_prospectivas: ['2026-W43'],
       nombreCorto: 'Sífilis adquirida', etiqueta: 'Sífilis adquirida (A51-A53)',
       dataKey: 'sifilis_adquirida_a51', marca: 'SIFILIS_ADQUIRIDA_A51', pagina: 'sifilis_adquirida_a51.html',
       consulta: 'sifilis adquirida', cie: 'A51-A53', color: '#0F766E',
@@ -816,42 +820,56 @@
     },
     {
       id: 'toxoplasmosis_b58', pad: 'Toxoplasmosis', nombre: 'Toxoplasmosis', nombreCorto: 'Toxoplasmosis', etiqueta: 'Toxoplasmosis (B58)', dataKey: 'toxoplasmosis_b58', marca: 'TOXOPLASMOSIS_B58', pagina: 'toxoplasmosis_b58.html', consulta: 'toxoplasmosis', cie: 'B58', color: '#854D0E',
+      // Semanas observadas cuyo boletín ya era público al emitir (bulletin_provenance.json): no son prospectivas.
+      no_prospectivas: ['2026-W43'],
       alias: ['toxoplasmosis', 'b58'],
       prefijos: ['toxoplasm'],
       cronologia: 'Se entrenó con datos hasta 2026-W42 y su único pronóstico congelado se creó el 2026-11-19T13:29:16.735688+00:00 (19 de noviembre de 2026 en Ciudad de México). El boletín 44 (semana 2026-W43, primera disponibilidad verificable 2026-11-17T01:23:31.237010+00:00 UTC) ya era público antes de emitir: no se usó para entrenar y se registró por separado en toxoplasmosis_b58_57c2305d7e99, así que el primer objetivo (2026-W43) no es prospectivo respecto de la información. Como control estacional no tiene validación prospectiva propia: el registro técnico de cuatro semanas (1/4 INCOMPLETE al corte del boletín 44) pasa a CONTROL_ONLY al reunir las cuatro observaciones, sin obtener nunca aprobación prospectiva.',
     },
     {
       id: 'teniasis_b68', pad: 'Teniasis', nombre: 'Teniasis', nombreCorto: 'Teniasis', etiqueta: 'Teniasis (B68)', dataKey: 'teniasis_b68', marca: 'TENIASIS_B68', pagina: 'teniasis_b68.html', consulta: 'teniasis', cie: 'B68', color: '#3F6212',
+      // Semanas observadas cuyo boletín ya era público al emitir (bulletin_provenance.json): no son prospectivas.
+      no_prospectivas: ['2026-W43'],
       alias: ['teniasis', 'taeniasis', 'b68'],
       prefijos: ['teniasis', 'taeniasis'],
       cronologia: 'Se entrenó con datos hasta 2026-W42 y su único pronóstico congelado se creó el 2026-11-19T13:29:30.068368+00:00 (19 de noviembre de 2026 en Ciudad de México). El boletín 44 (semana 2026-W43, primera disponibilidad verificable 2026-11-17T01:23:31.237010+00:00 UTC) ya era público antes de emitir: no se usó para entrenar y se registró por separado en teniasis_b68_5df03584bac6, así que el primer objetivo (2026-W43) no es prospectivo respecto de la información. Como control estacional no tiene validación prospectiva propia: el registro técnico de cuatro semanas (1/4 INCOMPLETE al corte del boletín 44) pasa a CONTROL_ONLY al reunir las cuatro observaciones, sin obtener nunca aprobación prospectiva.',
     },
     {
       id: 'cisticercosis_b69', pad: 'Cisticercosis', nombre: 'Cisticercosis', nombreCorto: 'Cisticercosis', etiqueta: 'Cisticercosis (B69)', dataKey: 'cisticercosis_b69', marca: 'CISTICERCOSIS_B69', pagina: 'cisticercosis_b69.html', consulta: 'cisticercosis', cie: 'B69', color: '#166534',
+      // Semanas observadas cuyo boletín ya era público al emitir (bulletin_provenance.json): no son prospectivas.
+      no_prospectivas: ['2026-W43'],
       alias: ['cisticercosis', 'neurocisticercosis', 'b69', 'cysticercosis'],
       prefijos: ['cisticercosis', 'neurocisticercosis', 'cysticercosis'],
       cronologia: 'Se entrenó con datos hasta 2026-W42 y su único pronóstico congelado se creó el 2026-11-19T13:29:21.600870+00:00 (19 de noviembre de 2026 en Ciudad de México). El boletín 44 (semana 2026-W43, primera disponibilidad verificable 2026-11-17T01:23:31.237010+00:00 UTC) ya era público antes de emitir: no se usó para entrenar y se registró por separado en cisticercosis_b69_fe1c2b19bed3, así que el primer objetivo (2026-W43) no es prospectivo respecto de la información. Como control estacional no tiene validación prospectiva propia: el registro técnico de cuatro semanas (1/4 INCOMPLETE al corte del boletín 44) pasa a CONTROL_ONLY al reunir las cuatro observaciones, sin obtener nunca aprobación prospectiva.',
     },
     {
       id: 'triquinosis_b75', pad: 'Triquinosis', nombre: 'Triquinosis', nombreCorto: 'Triquinosis', etiqueta: 'Triquinosis (B75)', dataKey: 'triquinosis_b75', marca: 'TRIQUINOSIS_B75', pagina: 'triquinosis_b75.html', consulta: 'triquinosis', cie: 'B75', color: '#7F1D1D',
+      // Semanas observadas cuyo boletín ya era público al emitir (bulletin_provenance.json): no son prospectivas.
+      no_prospectivas: ['2026-W43'],
       alias: ['triquinosis', 'triquinelosis', 'b75', 'trichinosis', 'trichinellosis'],
       prefijos: ['triquinosis', 'triquinelosis', 'trichinosis', 'trichinellosis'],
       cronologia: 'Se entrenó con datos hasta 2026-W42 y su único pronóstico congelado se creó el 2026-11-19T13:29:34.120104+00:00 (19 de noviembre de 2026 en Ciudad de México). El boletín 44 (semana 2026-W43, primera disponibilidad verificable 2026-11-17T01:23:31.237010+00:00 UTC) ya era público antes de emitir: no se usó para entrenar y se registró por separado en triquinosis_b75_248ad10f21a7, así que el primer objetivo (2026-W43) no es prospectivo respecto de la información. Como control estacional no tiene validación prospectiva propia: el registro técnico de cuatro semanas (1/4 INCOMPLETE al corte del boletín 44) pasa a CONTROL_ONLY al reunir las cuatro observaciones, sin obtener nunca aprobación prospectiva.',
     },
     {
       id: 'conjuntivitis_hemorragica_b303', pad: 'Conjuntivitis epidémica aguda hemorrágica', nombre: 'Conjuntivitis epidémica aguda hemorrágica', nombreCorto: 'Conjuntivitis epidémica aguda hemorrágica', etiqueta: 'Conjuntivitis epidémica aguda hemorrágica (B30.3)', dataKey: 'conjuntivitis_hemorragica_b303', marca: 'CONJUNTIVITIS_HEMORRAGICA_B303', pagina: 'conjuntivitis_hemorragica_b303.html', consulta: 'hemorragica conjuntival epidemica', cie: 'B30.3', color: '#BE185D',
+      // Semanas observadas cuyo boletín ya era público al emitir (bulletin_provenance.json): no son prospectivas.
+      no_prospectivas: ['2026-W43'],
       alias: ['hemorragica conjuntival epidemica', 'b30 3'],
       prefijos: ['hemorragica conjuntival epidemica'],
       cronologia: 'Se entrenó con datos hasta 2026-W42 y su único pronóstico congelado se creó el 2026-11-19T13:29:11.713796+00:00 (19 de noviembre de 2026 en Ciudad de México). El boletín 44 (semana 2026-W43, primera disponibilidad verificable 2026-11-17T01:23:31.237010+00:00 UTC) ya era público antes de emitir: no se usó para entrenar y se registró por separado en conjuntivitis_hemorragica_b303_f0c4a3215b7e, así que el primer objetivo (2026-W43) no es prospectivo respecto de la información. Como control estacional no tiene validación prospectiva propia: el registro técnico de cuatro semanas (1/4 INCOMPLETE al corte del boletín 44) pasa a CONTROL_ONLY al reunir las cuatro observaciones, sin obtener nunca aprobación prospectiva.',
     },
     {
       id: 'tracoma_a71', pad: 'Tracoma', nombre: 'Tracoma', nombreCorto: 'Tracoma', etiqueta: 'Tracoma (A71)', dataKey: 'tracoma_a71', marca: 'TRACOMA_A71', pagina: 'tracoma_a71.html', consulta: 'tracoma', cie: 'A71', color: '#4338CA',
+      // Semanas observadas cuyo boletín ya era público al emitir (bulletin_provenance.json): no son prospectivas.
+      no_prospectivas: ['2026-W43'],
       alias: ['tracoma', 'a71', 'trachoma'],
       prefijos: ['tracoma', 'trachoma'],
       cronologia: 'Se entrenó con datos hasta 2026-W42 y su único pronóstico congelado se creó el 2026-11-19T13:29:38.036780+00:00 (19 de noviembre de 2026 en Ciudad de México). El boletín 44 (semana 2026-W43, primera disponibilidad verificable 2026-11-17T01:23:31.237010+00:00 UTC) ya era público antes de emitir: no se usó para entrenar y se registró por separado en tracoma_a71_e19dc92ac6d6, así que el primer objetivo (2026-W43) no es prospectivo respecto de la información. Como control estacional no tiene validación prospectiva propia: el registro técnico de cuatro semanas (1/4 INCOMPLETE al corte del boletín 44) pasa a CONTROL_ONLY al reunir las cuatro observaciones, sin obtener nunca aprobación prospectiva.',
     },
     {
       id: 'hipotermia_t68', pad: 'Hipotermia', nombre: 'Hipotermia', nombreCorto: 'Hipotermia', etiqueta: 'Hipotermia (T68)', dataKey: 'hipotermia_t68', marca: 'HIPOTERMIA_T68', pagina: 'hipotermia_t68.html', consulta: 'hipotermia', cie: 'T68', color: '#1E40AF',
+      // Semanas observadas cuyo boletín ya era público al emitir (bulletin_provenance.json): no son prospectivas.
+      no_prospectivas: ['2026-W43'],
       alias: ['hipotermia', 't68', 'hypothermia'],
       prefijos: ['hipotermia', 'hypothermia'],
       cronologia: 'Se entrenó con datos hasta 2026-W42 y su único pronóstico congelado se creó el 2026-11-19T13:29:25.994619+00:00 (19 de noviembre de 2026 en Ciudad de México). El boletín 44 (semana 2026-W43, primera disponibilidad verificable 2026-11-17T01:23:31.237010+00:00 UTC) ya era público antes de emitir: no se usó para entrenar y se registró por separado en hipotermia_t68_18d7d58ccaa7, así que el primer objetivo (2026-W43) no es prospectivo respecto de la información. Como control estacional no tiene validación prospectiva propia: el registro técnico de cuatro semanas (1/4 INCOMPLETE al corte del boletín 44) pasa a CONTROL_ONLY al reunir las cuatro observaciones, sin obtener nunca aprobación prospectiva.',

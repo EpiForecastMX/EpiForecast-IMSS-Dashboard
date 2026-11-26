@@ -216,7 +216,7 @@
 <!-- site:footer:end -->
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-  <script src="assets/site/estado-ficha.js?v=5"></script>
+  <script src="assets/site/estado-ficha.js?v=6"></script>
   <script>
   (function () {
     'use strict';
@@ -309,7 +309,7 @@
       $('chartObesidad').setAttribute('aria-label', EpiEstadoFicha.resumenGrafica(s, V, nf0));
       const o = s.oos;
       $('mSmape').textContent = EpiEstadoFicha.errorOos(o, pct);
-      $('mSmapeL').textContent = EpiEstadoFicha.rotuloOos(o, 'sMAPE fuera de muestra');
+      $('mSmapeL').textContent = EpiEstadoFicha.rotuloOos(o, 'sMAPE fuera de muestra', s, V);
       $('mMae').textContent = o.mae === null ? '—' : nf0.format(o.mae);
       $('mBias').textContent = signo(o.sesgo_pct);
       $('mTotal').textContent = nf0.format(s.pronostico_52_total);

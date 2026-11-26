@@ -8,7 +8,7 @@ import * as C from './galeria_core.mjs?v=2';
 import { validateCatalog } from '../assets/dashboard/unified.mjs';
 import { statusText } from '../assets/dashboard/units.mjs';
 import { COHORTS } from '../assets/dashboard/data.mjs';
-import { releaseDeId } from '../epibot/js/release_config.js?v=54';
+import { releaseDeId } from '../epibot/js/release_config.js?v=59';
 import { AREAS, areaDe } from '../assets/site/areas.mjs?v=1';
 import { ICONO_ESTADO, iconoSvg } from '../assets/site/estado.mjs?v=1';
 
