@@ -617,7 +617,7 @@ test('ficha sifilis_adquirida_a51.html (B1/B2): shell común, cronología real s
   const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1]).join('\n');
   const ids = new Set([...scripts.matchAll(/(?:getElementById\(|\$\()'([A-Za-z][\w-]*)'\)/g)].map((m) => m[1]));
   for (const id of ids) assert.ok(html.includes(`id="${id}"`), `falta #${id}`);
-  assert.match(html, /estado-ficha\.js\?v=3"/);
+  assert.match(html, /estado-ficha\.js\?v=\d+"/);
   assert.match(html, /EpiEstadoFicha\.aplica\(\$\('statusCard'\), V\);/);
   assert.match(html, /semanaMas\(a, w, 1\)/);
 

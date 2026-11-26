@@ -124,6 +124,12 @@ test('pronóstico por ámbito y sexo: release sin sexo usa la general con aviso;
   const d = P.desdeLegacyZoom(zoom, 'depresion', 'Jalisco', 'mujeres');
   assert.equal(d.titulo_ambito, 'Jalisco · Mujeres');
   assert.ok(d.pronostico.length >= 52);
+  // Mesa del 25-nov-2026 (Codex Sol): sólo el horizonte posterior al corte; antes sumaba el ajuste histórico (97 semanas).
+  const jal = P.desdeLegacyZoom(zoom, 'depresion', 'Jalisco', 'general');
+  const z = zoom['Depresión/Jalisco/Depresión_Jalisco_general.png'];
+  assert.equal(jal.pronostico.length, z.d.filter((ds, i) => z.y[i] != null && ds > z.ds_corte).length);
+  assert.ok(jal.pronostico.every((p) => p.ds > z.ds_corte));
+  assert.ok(jal.pronostico.length <= 53, `${jal.pronostico.length} semanas`);
   assert.ok(P.desdeLegacyZoom(json('Reports/zoom_data_dengue.json'), 'dengue', 'México', 'hombres').pronostico.length > 0);
 });
 

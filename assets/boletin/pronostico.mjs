@@ -41,9 +41,15 @@ export function fuentePronostico(e) {
 }
 
 /** Etiqueta literal de la vista (como estado-ficha.js). */
+/** Sin jerga interna en el texto público (misma regla que llano() de assets/site/estado-ficha.js; mesa del 25-nov-2026). */
+export function llano(t) {
+  return String(t || '').replace(/el gate de aceptación/g, 'la prueba de aceptación de 2025')
+    .replace(/gate de aceptación/g, 'prueba de aceptación de 2025').replace(/este release/g, 'este pronóstico publicado');
+}
+
 export function etiquetaVista(v) {
   if (v && v.portafolio_igual_al_control === true) return SIN_ALTERNATIVA;
-  return v && typeof v.publication_label === 'string' ? v.publication_label : '';
+  return v && typeof v.publication_label === 'string' ? llano(v.publication_label) : '';
 }
 
 /** pass | pending | control | null, con la semántica de estado-ficha.js tipo(). */
@@ -158,7 +164,9 @@ export function desdeLegacyZoom(zoom, id, entidad, sexo = 'general') {
   const observado = [], pronostico = [];
   s.d.forEach((ds, i) => {
     if (s.r[i] != null) observado.push({ ds, y: s.r[i] });
-    if (s.y[i] != null) pronostico.push({ ds, y: s.y[i] });
+    // Sólo el horizonte posterior al corte del modelo, como la galería (galeria_core.mjs): antes del corte, «y» es el
+    // ajuste histórico y sumarlo duplicaba el total (Depresión · Jalisco: 97 semanas en vez de 52; mesa del 25-nov-2026).
+    if (s.y[i] != null && (!s.ds_corte || ds > s.ds_corte)) pronostico.push({ ds, y: s.y[i] });
   });
   const corte = s.corte_modelo ? `${s.corte_modelo.anio}-W${String(s.corte_modelo.semana).padStart(2, '0')}` : '';
   const sx = { general: 'General', hombres: 'Hombres', mujeres: 'Mujeres' }[sexo] ?? sexo;

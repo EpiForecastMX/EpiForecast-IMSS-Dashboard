@@ -84,7 +84,8 @@ test('estado: el script lo toma de la vista actual (misma regla que Dashboard/Ga
     const card = { setAttribute: (k, v) => { attrs[k] = v; }, removeAttribute: (k) => { delete attrs[k]; } };
     assert.equal(E.aplica(card, vista, { getElementById: (x) => nodos[x] }), esperado, id);
     assert.deepEqual(attrs, { 'data-verdict': vista.verdict, 'data-publication-kind': esperado }, id);
-    assert.equal(nodos.pubKind.textContent, STATUS_SHORT[esperado], id);
+    // Con detalle, el rótulo corto lleva dos puntos (mesa de la plataforma, 25-nov-2026).
+    assert.equal(nodos.pubKind.textContent, STATUS_SHORT[esperado] + (nodos.pubLabel.textContent && !nodos.pubLabel.textContent.startsWith('(') ? ':' : ''), id);
     assert.equal(nodos.pubKind.hidden, false, id);
     assert.equal(`${nodos.pubKind.textContent} ${nodos.pubLabel.textContent}`.replace(/\s+/g, ' ').trim().length > 0, true);
     // El detalle es parte literal de la etiqueta visible: la sellada, salvo un portafolio igual al control (un año de
@@ -93,7 +94,8 @@ test('estado: el script lo toma de la vista actual (misma regla que Dashboard/Ga
     if (vista.portafolio_igual_al_control === true) {
       assert.equal(esperado, 'control', `${id}: portafolio igual al control se presenta como control`);
       assert.equal(E.etiqueta(vista), E.SIN_ALTERNATIVA, id);
-    } else assert.equal(E.etiqueta(vista), vista.publication_label, id);
+    } else assert.equal(E.etiqueta(vista), E.llano(vista.publication_label), id);
+    assert.doesNotMatch(E.etiqueta(vista), /\bgate\b|\brelease\b/, `${id}: sin jerga interna en el rótulo visible`);
     visto[id] = esperado;
   }
   // Casos de la auditoría: control por caída al control (veredicto INCOMPLETE) ≠ PENDING genuino.
