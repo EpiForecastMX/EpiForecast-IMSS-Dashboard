@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="color-scheme" content="only light">
+  <!-- Mesa de la plataforma (25-nov-2026): bibliotecas servidas desde el sitio y CSP sin scripts de terceros ni en línea.
+       Los estilos en línea se permiten porque el mapa, el semáforo y el comparador los generan. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
   <meta name="theme-color" content="#fafbf7">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="description" content="EpiBot: pregunta con tus palabras cómo van los padecimientos que publica EpiForecast-MX en México, por estado y por sexo. Responde con los datos publicados y cita sus fuentes; no es consejo médico.">
@@ -12,9 +15,10 @@
   <link rel="apple-touch-icon" href="EpiBot_v2_avatar.png?v=2">
   <link rel="stylesheet" href="../assets/site/site.css">
   <link rel="stylesheet" href="css/style.css?v=50">
-  <script defer src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/dompurify@3.2.4/dist/purify.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script defer src="../assets/vendor/marked-18.3.0/marked.umd.js"></script>
+  <script defer src="../assets/vendor/dompurify-3.2.4/purify.min.js"></script>
+  <script defer src="../assets/vendor/chart.js-4.4.7/chart.umd.js"></script>
+  <script defer src="js/chart_defaults.js?v=1"></script>
 <link rel="stylesheet" href="css/shell.css?v=9">
 </head>
 <body><a class="epi-skip" href="#inputField">Saltar a la pregunta</a>
@@ -1051,25 +1055,10 @@
   </div><!-- /cc -->
 
   <!-- ═══════════ CHART.JS DARK THEME DEFAULTS ═══════════ -->
-  <script>
-    // Override Chart.js defaults for dark theme.
-    // chart.umd se carga con defer: aplicar los defaults hasta DOMContentLoaded,
-    // cuando los scripts diferidos ya se ejecutaron (y antes de que app.js,
-    // que es module y también diferido pero posterior en el documento, dibuje).
-    document.addEventListener('DOMContentLoaded', function () {
-      if (typeof Chart !== 'undefined') {
-        Chart.defaults.color = '#40594f';
-        Chart.defaults.borderColor = 'rgba(91, 141, 239, 0.12)';
-        Chart.defaults.plugins.title.color = '#173c33';
-        Chart.defaults.plugins.legend.labels.color = '#40594f';
-        Chart.defaults.scale = Chart.defaults.scale || {};
-      }
-    });
-  </script>
 
   <!-- Panel lateral (cajón en móvil) y acciones rápidas: js/ux.js, un solo manejador. -->
   <script defer src="js/ux.js?v=3"></script>
-  <script type="module" src="js/app.js?v=252"></script>
+  <script type="module" src="js/app.js?v=253"></script>
 <script src="../assets/site/site-nav.js" defer></script>
 </body>
 </html>

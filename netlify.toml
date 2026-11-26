@@ -53,6 +53,12 @@ command = "npm run test:dashboard && npm run test:boletin && npm run test:site &
   [headers.values]
     Cache-Control = "public, max-age=300"
 
+# Bibliotecas servidas desde el sitio (mesa de la plataforma, 25-nov-2026): la ruta lleva la versión, así que no cambian.
+[[headers]]
+  for = "/assets/vendor/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
 # Cabeceras de seguridad para todo el sitio.
 [[headers]]
   for = "/*"
