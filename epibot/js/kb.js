@@ -10,10 +10,10 @@ import { norm, detectEntities, canonEstado, ENFERMEDADES_NO_MODELADAS, mencionaN
 import { comparacionRondasMd } from './comparacion_rondas.js?v=4';
 import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_boletin.js?v=2';
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=13';
-import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=77';
-import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion, answerConsejoMedico, DUDA_MEDICAMENTO, VIAJE_SEGURIDAD, NOTA_VIAJE } from './conversacion.js?v=20';
-import { respuestaLlana, confiabilidadLegacy, indicadores as indicadoresLlano, fechaLarga as fechaLargaLlano } from './resumen_llano.js?v=7';
-import { answerNegativaRazonada, answerEstacionalidad, answerExplicaGrafica, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=4';
+import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=78';
+import { answerCharla, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion, answerConsejoMedico, DUDA_MEDICAMENTO, VIAJE_SEGURIDAD, NOTA_VIAJE } from './conversacion.js?v=21';
+import { respuestaLlana, confiabilidadLegacy, indicadores as indicadoresLlano, semanaTxt } from './resumen_llano.js?v=8';
+import { answerNegativaRazonada, answerEstacionalidad, answerExplicaGrafica, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=5';
 import { crecimiento } from './calculo/operaciones.js?v=2';
 import { notasDeLegitimidad } from './calculo/legitimidad.js?v=2';
 import { serieLegacy as serieLegacyCalc } from './calculo/series.js?v=4';
@@ -1775,9 +1775,9 @@ function answerDengue(q, ent, s, d) {
       }).filter(Boolean).sort((a, b) => b.f - a.f);
     if (filas.length) {
       const top = filas.slice(0, 5);
-      return [`**Estados con más casos de dengue esperados en las próximas 4 semanas** (desde la semana del ${fechaLargaLlano(top[0].ini)}):`, '',
+      return [`**Estados con más casos de dengue esperados en las próximas 4 semanas**, desde la ${semanaTxt(top[0].ini)}:`, '',
         ...top.map((x) => `- **${x.nombre}**: unos ${fmt(Math.round(x.f))} casos (${fmt(Math.round(x.o))} en las 4 semanas anteriores)`), '',
-        `Datos observados hasta la semana del ${fechaLargaLlano(top[0].ult)}. Son casos notificados, sin ajustar por población: un estado más poblado tiende a tener más casos aunque su riesgo no sea mayor. «El próximo mes» se toma como las próximas 4 semanas del pronóstico.`,
+        `Datos observados hasta la ${semanaTxt(top[0].ult)}. Son casos notificados, sin ajustar por población: un estado más poblado tiende a tener más casos aunque su riesgo no sea mayor. «El próximo mes» se toma como las próximas 4 semanas del pronóstico.`,
         ...(() => {
           const nac = serieLegacyCalc(d.zoom_series, 'Dengue', {});
           const u = nac?.observado.at(-1)?.[0];

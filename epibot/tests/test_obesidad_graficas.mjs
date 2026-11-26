@@ -232,7 +232,7 @@ test('acumulado: la gráfica termina en el mismo total que el texto, en las 111 
 test('la ficha dice cuándo se emitió el pronóstico y no lo sitúa en la semana de origen', async () => {
   const { md } = await responde('pronóstico de obesidad');
   assert.ok(VISTA.forecast_emitted_at, 'la vista trae la fecha de emisión');
-  assert.match(md, /datos hasta 2026-W26, emitido el 24 de julio de 2026/);
+  assert.match(md, /datos hasta la semana 26 \(28 de junio al 4 de julio de 2026\), emitido el 24 de julio de 2026/);
   for (const q of ['motores de obesidad', 'radar obesidad']) {
     assert.doesNotMatch((await responde(q)).md, /antes del origen/, q);
   }

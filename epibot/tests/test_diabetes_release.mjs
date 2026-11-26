@@ -77,7 +77,7 @@ test('tipo I responde con su etiqueta, su marcador y su corte', async () => {
   const r = await conversa('diabetes tipo 1 en jalisco mujeres');
   assert.match(r.md, /Diabetes tipo I \(E10\) · Jalisco · Mujeres/);
   assert.match(r.md, /<!--DIABETES_T1:/);
-  assert.match(r.md, /datos hasta 2026-W41/);
+  assert.match(r.md, /datos hasta la semana 41 \(11 al 17 de octubre de 2026\)/);
   assert.doesNotMatch(r.md, /Obesidad/);
 });
 

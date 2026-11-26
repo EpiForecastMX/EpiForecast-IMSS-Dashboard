@@ -45,6 +45,29 @@ export function semanaEpi(ds) {
   return [y, Math.floor((dom - inicioAnioEpi(y)) / (7 * DIA)) + 1];
 }
 
+const isoDe = (t) => new Date(t).toISOString().slice(0, 10);
+/** «25 al 31 de octubre de 2026», «29 de noviembre al 5 de diciembre de 2026» o «27 de diciembre de 2026 al 2 de enero de 2027». */
+export function rangoSemana(d0, d6) {
+  if (d0.slice(0, 7) === d6.slice(0, 7)) return `${Number(d0.slice(8))} al ${fechaLarga(d6)}`;
+  if (d0.slice(0, 4) === d6.slice(0, 4)) return `${fechaLarga(d0).replace(/ de \d{4}$/, '')} al ${fechaLarga(d6)}`;
+  return `${fechaLarga(d0)} al ${fechaLarga(d6)}`;
+}
+/**
+ * Plan canónico 2.3 (26-nov-2026): un solo formato de semana en el texto, «semana 43 (25 al 31 de octubre de 2026)», para la
+ * semana epidemiológica que contiene `ds`. El año epidemiológico se dice sólo si no es el del último día de la semana.
+ */
+export function semanaTxt(ds) {
+  const [y, n] = semanaEpi(ds);
+  const ini = inicioAnioEpi(y) + (n - 1) * 7 * DIA;
+  const d0 = isoDe(ini), d6 = isoDe(ini + 6 * DIA);
+  return `semana ${n}${Number(d6.slice(0, 4)) === y ? '' : ` de ${y}`} (${rangoSemana(d0, d6)})`;
+}
+/** «2026-W42» (etiqueta interna MMWR) → «semana 42 (18 al 24 de octubre de 2026)»; otra cosa queda igual. */
+export function semanaDeEtiqueta(et) {
+  const m = String(et).match(/^(\d{4})-W(\d{1,2})$/);
+  return m ? semanaTxt(isoDe(inicioAnioEpi(Number(m[1])) + (Number(m[2]) - 1) * 7 * DIA)) : String(et);
+}
+
 /** Indicadores de una serie de la vista. */
 export function indicadores(v, x) {
   const obs = x.observado || [];
@@ -131,7 +154,7 @@ export function confiabilidad(v, x, esControl, r = null) {
     return { nivel: 'alta', texto: `**Confiabilidad: alta.** Superó su prueba de aceptación y, en las ${v.weeks_required} semanas reales que siguieron a su emisión, no fue peor que el control estacional.${comprobado}${sinRango}` };
   }
   const np = r?.no_prospectivas?.length
-    ? ` De ellas, ${r.no_prospectivas.join(', ')} ${r.no_prospectivas.length === 1 ? 'ya era pública al emitir y no cuenta como prospectiva' : 'ya eran públicas al emitir y no cuentan como prospectivas'}.`
+    ? ` De ellas, la ${r.no_prospectivas.map(semanaDeEtiqueta).join(', la ')} ${r.no_prospectivas.length === 1 ? 'ya era pública al emitir y no cuenta como prospectiva' : 'ya eran públicas al emitir y no cuentan como prospectivas'}.`
     : '';
   return {
     nivel: 'media',
@@ -171,11 +194,11 @@ function respuestaPeriodo(p, ind, x, lugar0) {
   if (p.tipo === 'pico') {
     if (!ind.pico) return null;
     if (ind.pico[1] < 0.5) return `**No se espera un pico:** el pronóstico no anticipa casos${lugar} en los próximos 12 meses.`;
-    return `**El pico esperado en los próximos 12 meses** es la semana del ${fechaLarga(ind.pico[0])}, con unos **${casos(ind.pico[1])}**${lugar}.`;
+    return `**El pico esperado en los próximos 12 meses** es la ${semanaTxt(ind.pico[0])}, con unos **${casos(ind.pico[1])}**${lugar}.`;
   }
   if (p.tipo === 'semana') {
     const [ds, y] = x.observado.at(-1);
-    return `**En la última semana con datos** (la del ${fechaLarga(ds)}) se notificaron **${casos(y)}**${lugar}.`;
+    return `**En la última semana con datos** (la ${semanaTxt(ds)}) se notificaron **${casos(y)}**${lugar}.`;
   }
   if (p.tipo === 'semana_n') {
     // Semana epidemiológica de domingo a sábado (regla del 4 de enero); las fechas de la serie caen dentro de ella.
@@ -183,13 +206,12 @@ function respuestaPeriodo(p, ind, x, lugar0) {
     const j4 = Date.UTC(a, 0, 4), ini = j4 - new Date(j4).getUTCDay() * DIA + (p.semana - 1) * 7 * DIA;
     const d0 = new Date(ini).toISOString().slice(0, 10), d6 = new Date(ini + 6 * DIA).toISOString().slice(0, 10);
     const enSemana = ([ds]) => ds >= d0 && ds <= d6;
-    const mismoMes = d0.slice(0, 7) === d6.slice(0, 7);
-    const rango = mismoMes ? `del ${Number(d0.slice(8))} al ${fechaLarga(d6)}` : `del ${fechaLarga(d0).replace(/ de \d{4}$/, '')} al ${fechaLarga(d6)}`;
+    const rango = rangoSemana(d0, d6);
     const o = (x.observado || []).find(enSemana);
     if (o && o[1] != null) return `**En la semana ${p.semana} de ${a}** (${rango}) se notificaron **${casos(o[1])}**${lugar}.`;
     const f = (x.pronostico || []).find(enSemana);
     const ultimo = x.observado.at(-1)[0];
-    if (f && f[0] > ultimo) return `**La semana ${p.semana} de ${a}** (${rango}) **aún no tiene dato** en el boletín: la última con datos es la del ${fechaLarga(ultimo)}. Para esa semana se esperan unos **${casos(f[1])}**${lugar}.`;
+    if (f && f[0] > ultimo) return `**La semana ${p.semana} de ${a}** (${rango}) **aún no tiene dato** en el boletín: la última con datos es la ${semanaTxt(ultimo)}. Para esa semana se esperan unos **${casos(f[1])}**${lugar}.`;
     return null;
   }
   if (p.tipo === 'horizonte') {
@@ -197,7 +219,7 @@ function respuestaPeriodo(p, ind, x, lugar0) {
     const pr = (x.pronostico || []).filter(([ds]) => !x.dsCorte || ds > x.dsCorte);
     if (!pr.length) return null;
     const total = Number.isFinite(x.pronostico_52_total) ? x.pronostico_52_total : suma(pr);
-    return `**En las ${pr.length} semanas del pronóstico** (de la semana del ${fechaLarga(pr[0][0])} a la del ${fechaLarga(pr.at(-1)[0])}) se esperan unos **${casos(total)}**${lugar}.`;
+    return `**En las ${pr.length} semanas del pronóstico**, de la ${semanaTxt(pr[0][0])} a la ${semanaTxt(pr.at(-1)[0])}, se esperan unos **${casos(total)}**${lugar}.`;
   }
   // «El próximo mes» lo responde la línea de tendencia, que ya da las próximas 4 semanas.
   // Mesa de la plataforma (Codex Sol): es la suma de las semanas de la serie publicada, no el acumulado impreso del boletín
@@ -280,18 +302,18 @@ export function respuestaLlana({ v, x, r, q, esControl, estados, sinSexo, confia
   if (periodo) lineas.push(`**${sujeto}**`, '', periodo, '');
   if (ind.F4 != null) lineas.push(`${sino}${periodo ? 'En cuanto a la tendencia, ' : `**${sujeto}:** `}${frase}${['sube', 'baja', 'estable'].includes(ind.tendencia) ? sesgoControl : ''}`);
   lineas.push('');
-  const semanaTxt = v.observation_cutoff && v.observation_cutoff[1] >= 4
+  const ventanaTxt = v.observation_cutoff && v.observation_cutoff[1] >= 4
     ? `semanas ${v.observation_cutoff[1] - 3} a ${v.observation_cutoff[1]} de ${v.observation_cutoff[0]}`
-    : `últimas 4 semanas con datos (hasta la del ${fechaLarga(ind.ultimo)})`;
+    : `últimas 4 semanas con datos (hasta la ${semanaTxt(ind.ultimo)})`;
   const vsPrevio = ind.O4py != null && ind.O4py > 0
     ? (Math.abs(ind.O4 / ind.O4py - 1) < 0.005 ? `, igual que en las mismas semanas de ${Number(ind.anio) - 1}`
       : `, ${ind.O4 >= ind.O4py ? `${pct0((ind.O4 / ind.O4py - 1) * 100)} más` : `${pct0((1 - ind.O4 / ind.O4py) * 100)} menos`} que en las mismas semanas de ${Number(ind.anio) - 1} (${ent0(ind.O4py)})`)
     : '';
-  lineas.push(`- **Ahora:** ${casos(ind.O4)} en las ${semanaTxt}${vsPrevio}.`);
+  lineas.push(`- **Ahora:** ${casos(ind.O4)} en las ${ventanaTxt}${vsPrevio}.`);
   const vsYtd = ind.ytdPrevio ? `, ${ind.ytd >= ind.ytdPrevio ? `${pct0((ind.ytd / ind.ytdPrevio - 1) * 100)} más` : `${pct0((1 - ind.ytd / ind.ytdPrevio) * 100)} menos`} que a la misma fecha de ${Number(ind.anio) - 1}` : '';
   lineas.push(`- **En lo que va de ${ind.anio}:** ${casos(ind.ytd)}${vsYtd} (suma de las semanas de la serie).`);
   if (ind.pico && ind.promedioFut > 0 && ind.pico[1] >= 1.25 * ind.promedioFut && ind.pico[1] >= 10 && ind.pico[0] > isoMenos(ind.fut[Math.min(4, ind.fut.length - 1)][0], 0)) {
-    lineas.push(`- **Pico esperado en los próximos 12 meses:** la semana del ${fechaLarga(ind.pico[0])}, con unos ${casos(ind.pico[1])}.`);
+    lineas.push(`- **Pico esperado en los próximos 12 meses:** la ${semanaTxt(ind.pico[0])}, con unos ${casos(ind.pico[1])}.`);
   }
   if (estados && estados.length) {
     const conF4 = estados.map((e) => ({ e, f: suma((e.pronostico || []).filter(([ds]) => ds > ind.ultimo).slice(0, 4)) }))

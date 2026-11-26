@@ -18,14 +18,16 @@ import {
 import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=59';
 // Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
 import './avisos_fuente.js?v=5';
-import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion, indicadores, nombreEstado } from './resumen_llano.js?v=7';
-import { lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=4';
+import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion, indicadores, nombreEstado, semanaDeEtiqueta, semanaTxt } from './resumen_llano.js?v=8';
+import { lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=5';
 import { serieDeVista } from './calculo/series.js?v=4';
 import { crecimiento } from './calculo/operaciones.js?v=2';
 import { DEFINICIONES } from './definiciones.js?v=1';
 
 const any = (q, ks) => ks.some((k) => q.includes(k));
-const semana = ([a, w]) => `${a}-W${String(w).padStart(2, '0')}`;
+// Plan canónico 2.3: «semana 41 (11 al 17 de octubre de 2026)», no la etiqueta interna «2026-W41».
+const semana = ([a, w]) => semanaDeEtiqueta(`${a}-W${String(w).padStart(2, '0')}`);
+const Semana = (ds) => { const t = semanaTxt(ds); return t[0].toUpperCase() + t.slice(1); };
 const num1 = (n) => (n == null ? '—' : Number(n).toLocaleString('es-MX', { maximumFractionDigits: 1, minimumFractionDigits: 1 }));
 const ent0 = (n) => (n == null ? '—' : Math.round(n).toLocaleString('es-MX'));
 const mediana = (xs) => { const o = [...xs].sort((a, b) => a - b); const m = o.length >> 1; return o.length % 2 ? o[m] : (o[m - 1] + o[m]) / 2; };
@@ -45,7 +47,7 @@ function ficha(v, x, encabezado, r) {
   const inicio = [
     `**${r.etiqueta} · ${lugar} · ${x.sexo_nombre}${encabezado ? ` · ${encabezado}` : ''}**`,
     '',
-    `Pronóstico **congelado**: datos hasta ${semana(v.origin)}, ${emisionTxt(v)}, ${v.horizon_weeks} semanas, sin reentrenar; motor: ${motorDe(v, x)}.`,
+    `Pronóstico **congelado**: datos hasta la ${semana(v.origin)}, ${emisionTxt(v)}, ${v.horizon_weeks} semanas, sin reentrenar; motor: ${motorDe(v, x)}.`,
     '',
     // Lo que acota la afirmación prospectiva de este release (p. ej. un boletín ya público al emitir).
     ...(r.cronologia ? [r.cronologia, ''] : []),
@@ -54,7 +56,7 @@ function ficha(v, x, encabezado, r) {
   return [
     ...inicio,
     ...(esControl(v) ? [avisoDeControl(v), ''] : []),
-    `**Cómo le ha ido fuera de muestra** (${x.oos.semanas === 1 ? '1 semana observada' : `${x.oos.semanas} semanas observadas`}, hasta ${semana(v.observation_cutoff)}):`,
+    `**Cómo le ha ido fuera de muestra**, en ${x.oos.semanas === 1 ? '1 semana observada' : `${x.oos.semanas} semanas observadas`} hasta la ${semana(v.observation_cutoff)}:`,
     `- sMAPE: **${num1(x.oos.smape)} %**`,
     `- Error medio absoluto: ${ent0(x.oos.mae)} casos por semana`,
     `- Sesgo: ${num1(x.oos.sesgo_pct)} % (observados ${ent0(x.oos.observado_total)} frente a ${ent0(x.oos.pronostico_total)} pronosticados)`,
@@ -180,7 +182,7 @@ function lineaProspectivas(v, x, np) {
   const cola = p.semanas
     ? ` Sólo las prospectivas (${p.semanas}): sMAPE **${num1(p.smape)} %** (${ent0(p.observado_total)} observados frente a ${ent0(p.pronostico_total)} pronosticados).`
     : ' Aún no hay semanas prospectivas.';
-  return `- ${np.join(', ')} ${una ? 'ya era pública' : 'ya eran públicas'} al emitir el pronóstico: ${una ? 'cuenta' : 'cuentan'} como observada${una ? '' : 's'}, no como prospectiva${una ? '' : 's'}.${cola}`;
+  return `- La ${np.map(semanaDeEtiqueta).join(', la ')} ${una ? 'ya era pública' : 'ya eran públicas'} al emitir el pronóstico: ${una ? 'cuenta' : 'cuentan'} como observada${una ? '' : 's'}, no como prospectiva${una ? '' : 's'}.${cola}`;
 }
 
 /** Primera línea para «¿está validado?» o «¿cuál es el sMAPE / el error?» (plan canónico 1.1). */
@@ -206,7 +208,7 @@ function ranuraPedida(qn, v, x, r) {
   }
   return null;
 }
-const np2 = (np) => `${np.join(', ')} ${np.length === 1 ? 'ya era pública al emitir y no cuenta como prospectiva' : 'ya eran públicas al emitir y no cuentan como prospectivas'}`;
+const np2 = (np) => `la ${np.map(semanaDeEtiqueta).join(', la ')} ${np.length === 1 ? 'ya era pública al emitir y no cuenta como prospectiva' : 'ya eran públicas al emitir y no cuentan como prospectivas'}`;
 
 const pocosOos = (o) => !!o && o.semanas > 0 && (o.semanas < 4 || (o.observado_total || 0) + (o.pronostico_total || 0) < 20);
 const desempeno = (x, v) => (x.oos.semanas
@@ -309,7 +311,7 @@ function answerRelease(q, ent, s, d, r) {
   const sexoTxt = SEXO_TXT[sexo];
   const est = Object.values(v.series).filter((x) => x.nivel === 'estado' && x.sexo === sexo && x.oos.smape != null);
   const nOos = est[0]?.oos.semanas ?? 0;
-  const oosTxt = `${nOos === 1 ? '1 semana observada' : `${nOos} semanas observadas`} tras el origen ${semana(v.origin)}`;
+  const oosTxt = `${nOos === 1 ? '1 semana observada' : `${nOos} semanas observadas`} desde el origen, en la ${semana(v.origin)}`;
   const fin = (lineas, estados) => avisoSexo + lineas.join('\n') + pie + marca(tipo, ent, estados, r);
   const conOos = est.length > 0;
   const pideError = any(q, ['error', 'smape', 'precision', 'sesgo', 'desempeno']);
@@ -328,7 +330,7 @@ function answerRelease(q, ent, s, d, r) {
     const orden = [...est].sort((a, b) => a.oos.smape - b.oos.smape);
     const linea = (x, i) => `${i + 1}. **${x.nombre}**: sMAPE ${num1(x.oos.smape)} % (sesgo ${num1(x.oos.sesgo_pct)} %)`;
     return fin([
-      `**${r.etiqueta}: desempeño fuera de muestra por estado, ${sexoTxt}** (${oosTxt}).`, '',
+      `**${r.etiqueta}: desempeño fuera de muestra por estado, ${sexoTxt}**: ${oosTxt}.`, '',
       '**Más precisos:**', ...orden.slice(0, 5).map(linea),
       '', '**Menos precisos:**', ...orden.slice(-5).reverse().map((x, i) => linea(x, orden.length - 1 - i)),
       '', etiqueta,
@@ -338,7 +340,7 @@ function answerRelease(q, ent, s, d, r) {
   if (tipo === 'mapa' || tipo === 'entidades') {
     if (tipo === 'mapa' && pideError) {
       const orden = [...est].sort((a, b) => b.oos.smape - a.oos.smape).slice(0, 5);
-      return fin([`**${r.etiqueta}: mapa del sMAPE fuera de muestra, ${sexoTxt}** (${oosTxt}).`, '',
+      return fin([`**${r.etiqueta}: mapa del sMAPE fuera de muestra, ${sexoTxt}**: ${oosTxt}.`, '',
         `Mediana estatal: **${num1(mediana(est.map((x) => x.oos.smape)))} %**. Estados con mayor error:`,
         ...orden.map((x) => `- **${x.nombre}**: ${num1(x.oos.smape)} %`), '', etiqueta]);
     }
@@ -388,7 +390,7 @@ function answerRelease(q, ent, s, d, r) {
     const bajo = est.filter((x) => x.oos.sesgo_pct < 0).length;
     const nac = v.series[`nacional|mx|${sexo}`];
     const cal = tipo === 'calibracion';
-    return fin([`**${r.etiqueta}: ${cal ? 'calibración por estado' : 'volumen observado frente a error'}, ${sexoTxt}** (${oosTxt}).`, '',
+    return fin([`**${r.etiqueta}: ${cal ? 'calibración por estado' : 'volumen observado frente a error'}, ${sexoTxt}**: ${oosTxt}.`, '',
       `- Nacional: sMAPE **${num1(nac.oos.smape)} %**, sesgo ${num1(nac.oos.sesgo_pct)} %.`,
       `- Mediana estatal del sMAPE: ${num1(mediana(est.map((x) => x.oos.smape)))} %.`,
       `- El pronóstico acumulado queda por debajo de lo observado en **${bajo} de ${est.length}** estados.`,
@@ -491,7 +493,7 @@ function answerRelease(q, ent, s, d, r) {
       if (ranura && tipo !== 'confianza') arriba.push(ranura, '');
       const tecnico = ficha(v, x, '', r);
       const futurasT = x.pronostico.filter(([ds]) => ds > v.observation_cutoff_ds).slice(0, 4);
-      if (futurasT.length) tecnico.push('', '**Siguientes semanas del pronóstico, aún sin observación publicada:**', ...futurasT.map(([ds, y]) => `- Semana del ${ds}: ${ent0(y)} ${ent0(y) === '1' ? 'caso' : 'casos'}`));
+      if (futurasT.length) tecnico.push('', '**Siguientes semanas del pronóstico, aún sin observación publicada:**', ...futurasT.map(([ds, y]) => `- ${Semana(ds)}: ${ent0(y)} ${ent0(y) === '1' ? 'caso' : 'casos'}`));
       tecnico.push('', `Total pronosticado en las ${v.horizon_weeks} semanas: **${ent0(x.pronostico_52_total)} casos**.`, '', etiqueta, `_${v.uncertainty_label}._`);
       const cuerpo = tipo === 'confianza' ? llano.filter((l) => !/^\*\*Confiabilidad/.test(l)) : llano;
       // Tema sensible: el aviso con la Línea de la Vida va siempre a la vista, nunca plegado en la ficha técnica.
@@ -511,11 +513,11 @@ function answerRelease(q, ent, s, d, r) {
   if (tipo === 'seguimiento') {
     const obs = new Map(x.observado);
     const ult = x.pronostico.filter(([ds]) => obs.has(ds)).slice(-4);
-    if (ult.length) lineas.push('', '**Últimas semanas observadas frente al pronóstico:**', ...ult.map(([ds, y]) => `- Semana del ${ds}: observado ${ent0(obs.get(ds))}, pronóstico ${ent0(y)}`));
+    if (ult.length) lineas.push('', '**Últimas semanas observadas frente al pronóstico:**', ...ult.map(([ds, y]) => `- ${Semana(ds)}: observado ${ent0(obs.get(ds))}, pronóstico ${ent0(y)}`));
   }
   const futuras = x.pronostico.filter(([ds]) => ds > v.observation_cutoff_ds).slice(0, 4);
   if (futuras.length) {
-    lineas.push('', '**Siguientes semanas del pronóstico, aún sin observación publicada:**', ...futuras.map(([ds, y]) => `- Semana del ${ds}: ${ent0(y)} ${ent0(y) === '1' ? 'caso' : 'casos'}`));
+    lineas.push('', '**Siguientes semanas del pronóstico, aún sin observación publicada:**', ...futuras.map(([ds, y]) => `- ${Semana(ds)}: ${ent0(y)} ${ent0(y) === '1' ? 'caso' : 'casos'}`));
   }
   lineas.push('', `Total pronosticado en las ${v.horizon_weeks} semanas: **${ent0(x.pronostico_52_total)} casos**.`, '', etiqueta, `_${v.uncertainty_label}._`);
   if (tipo === 'banda') lineas.push('', `${r.nombre} se publica **sin intervalos**: la gráfica muestra sólo el pronóstico puntual, no un corredor ni una banda de confianza.`);

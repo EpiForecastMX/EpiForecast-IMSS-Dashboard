@@ -23,18 +23,18 @@ const primera = (t) => JSON.parse(t).response?.split('\n').filter((l) => l.trim(
 test('semana N de AAAA: se contesta esa semana, con su rango de fechas', async () => {
   // El cuadro 17 del boletín 44 llega hasta la semana 43: los 3,293 casos de depresión son de la semana 43 (25 al 31 de octubre).
   const dep = await pide('¿Cuántos casos de depresión hubo en la semana 43 de 2026?');
-  assert.match(dep, /\*\*En la semana 43 de 2026\*\* \(del 25 al 31 de octubre de 2026\) se notificaron \*\*3,293 casos\*\*/);
-  assert.match(await pide('depresión en la semana 44 de 2026'), /\*\*La semana 44 de 2026\*\* \(del 1 al 7 de noviembre de 2026\) \*\*aún no tiene dato\*\*/);
+  assert.match(dep, /\*\*En la semana 43 de 2026\*\* \(25 al 31 de octubre de 2026\) se notificaron \*\*3,293 casos\*\*/);
+  assert.match(await pide('depresión en la semana 44 de 2026'), /\*\*La semana 44 de 2026\*\* \(1 al 7 de noviembre de 2026\) \*\*aún no tiene dato\*\*/);
   const den = await pide('dengue en la semana 44 de 2026');
   assert.match(den, /se notificaron \*\*575 casos\*\*/);
   // Una semana sin dato todavía: se dice y se da lo esperado, sin inventar un observado.
   const vari = await pide('varicela en la semana 44');
-  assert.match(vari, /\*\*La semana 44 de 2026\*\* \(del 1 al 7 de noviembre de 2026\) \*\*aún no tiene dato\*\*/);
+  assert.match(vari, /\*\*La semana 44 de 2026\*\* \(1 al 7 de noviembre de 2026\) \*\*aún no tiene dato\*\*/);
 });
 
 test('en 52 semanas: el total del horizonte encabeza, con su periodo', async () => {
   const r = await pide('¿Cuántos casos de asma se pronostican en México en 52 semanas?');
-  assert.match(r, /\*\*En las 52 semanas del pronóstico\*\* \(de la semana del [^)]+\) se esperan unos \*\*131,068 casos\*\*/);
+  assert.match(r, /\*\*En las 52 semanas del pronóstico\*\*, de la semana \d+ \([^)]+\) a la semana \d+ \([^)]+\), se esperan unos \*\*131,068 casos\*\*/);
   assert.ok(r.indexOf('131,068') < r.indexOf('12,854'), 'el total de 52 semanas va antes que las próximas 4');
 });
 
