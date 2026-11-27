@@ -17,6 +17,7 @@
  */
 
 import { preguntaPorBrote } from './calculo/legitimidad.js?v=2';
+import { periodoPedido, lineaMes } from './mes_calendario.js?v=1';
 
 const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 const ent0 = (n) => (n == null ? '—' : Math.round(n).toLocaleString('es-MX'));
@@ -170,26 +171,6 @@ export function confiabilidad(v, x, esControl, r = null) {
     `Superó su prueba de aceptación (comprobación: ${v.weeks_available} de ${v.weeks_required} semanas).`);
 }
 
-/** Periodo pedido en la consulta: semana pasada, un mes, un año o el año en curso. */
-function periodoPedido(q) {
-  const n = ` ${norm(q).replace(/[^a-z0-9]+/g, ' ')} `;
-  if (/ (mucho o poco|es mucho|es poco|esta peor|esta mejor|el ano pasado|ano anterior|comparado con el ano|misma ventana) /.test(n)) return { tipo: 'vsanio' };
-  if (/ (pico|temporada alta|cuando (sube|aumenta|hay) mas|cuando es la temporada|en que mes|estacionalidad|estacional|temporada) /.test(n)) return { tipo: 'pico' };
-  if (/ (semana pasada|ultima semana|esta semana|semana anterior) /.test(n)) return { tipo: 'semana' };
-  if (/ (proximo mes|siguiente mes|el mes que viene|proximas semanas|proximas 4 semanas) /.test(n)) return { tipo: 'proximo' };
-  // Mesa de la plataforma (25-nov-2026, Codex Sol): «semana 44 de 2026» encabezaba con el total del año y «en 52 semanas» con
-  // las próximas 4. Ahora se contesta primero el periodo pedido.
-  const sem = n.match(/ semana (?:epidemiologica )?(\d{1,2})(?: (?:de|del) (?:ano )?(20\d\d))? /);
-  if (sem && Number(sem[1]) >= 1 && Number(sem[1]) <= 53) return { tipo: 'semana_n', semana: Number(sem[1]), anio: sem[2] ? Number(sem[2]) : null };
-  if (/ (52 semanas|proximos 12 meses|proximo ano|siguiente ano|todo el horizonte) /.test(n)) return { tipo: 'horizonte' };
-  if (/ (este ano|en lo que va del ano|en lo que va de) /.test(n)) return { tipo: 'anio_actual' };
-  const anio = n.match(/ (202[3-7]) /);
-  const mes = MESES.findIndex((m) => n.includes(` ${m} `));
-  if (mes >= 0) return { tipo: 'mes', mes, anio: anio ? Number(anio[1]) : null };
-  if (anio) return Number(anio[1]) === new Date().getUTCFullYear() ? { tipo: 'anio_actual' } : { tipo: 'anio', anio: Number(anio[1]) };
-  return null;
-}
-
 function respuestaPeriodo(p, ind, x, lugar0) {
   if (!p) return null;
   const lugar = `${lugar0}${x?.sexo && x.sexo !== 'general' ? ` (${x.sexo})` : ''}`;
@@ -240,25 +221,8 @@ function respuestaPeriodo(p, ind, x, lugar0) {
     if (p.anio > Number(ind.anio) && fut.length) return `**En ${p.anio}** el pronóstico cubre ${fut.length} semanas, con unos **${casos(suma(fut))}**${lugar}.`;
     return null;
   }
-  // Decisión 4 (26-nov-2026): un mes calendario son las semanas epidemiológicas que EMPIEZAN en él (domingo dentro del mes),
-  // propuesta de Codex Sol; así ninguna semana se cuenta en dos meses. La respuesta lo dice.
-  if (p.tipo === 'mes') {
-    // Cuarta ronda (Codex Sol): las vistas del runner rotulan la semana con su lunes y las legacy con su domingo; el mes se
-    // decide por el DOMINGO de inicio (el día ds o el domingo anterior), así «2026-06-01» (lunes) cuenta en mayo.
-    const inicio = (ds) => { const d = new Date(`${ds.slice(0, 10)}T00:00:00Z`); d.setUTCDate(d.getUTCDate() - d.getUTCDay()); return d.toISOString().slice(0, 10); };
-    const clave = (ds) => { const i = inicio(ds); return Number(i.slice(5, 7)) - 1 === p.mes && (!p.anio || i.startsWith(String(p.anio))); };
-    const fut = ind.fut.filter(([ds]) => clave(ds));
-    if (fut.length) {
-      const a = inicio(fut[0][0]).slice(0, 4);
-      // Mes en curso (tercera ronda, Fable): las semanas del mes ya observadas se dicen aparte, para que el total no parezca
-      // el del mes completo.
-      const ya = x.observado.filter(([ds]) => clave(ds) && inicio(ds).startsWith(a));
-      const aparte = ya.length ? `; además, ${ya.length === 1 ? 'una semana ya notificada' : `${ya.length} semanas ya notificadas`} con **${casos(suma(ya))}**` : '';
-      return `**En ${MESES[p.mes]} de ${a}** se esperan unos **${casos(suma(fut))}**${lugar} (las ${fut.length} semanas de pronóstico que empiezan en ${MESES[p.mes]}${aparte}).`;
-    }
-    const obs = x.observado.filter(([ds]) => clave(ds)).filter(([ds]) => inicio(ds).startsWith(p.anio ? String(p.anio) : ind.anio));
-    if (obs.length) return `**En ${MESES[p.mes]} de ${inicio(obs[0][0]).slice(0, 4)}** se notificaron **${casos(suma(obs))}**${lugar} (las ${obs.length} semanas que empiezan en ${MESES[p.mes]}).`;
-  }
+  // Decisión 4: mes calendario por el domingo de inicio. Módulo compartido con la función RAG (deuda del detector, 27-nov-2026).
+  if (p.tipo === 'mes') return lineaMes(p, ind.fut, x.observado, ind.anio, lugar);
   return null;
 }
 

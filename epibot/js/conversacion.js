@@ -6,10 +6,10 @@
  * la cadena de kb.js. Ninguno da consejo médico ni cifras inventadas: el ranking sale de resumen_padecimientos.json, que
  * genera scripts/build_resumen_padecimientos.mjs desde las vistas publicadas.
  */
-import { RELEASES } from './release_config.js?v=60';
+import { RELEASES } from './release_config.js?v=61';
 import { LINEA_ALARMA, SIGNOS_ALARMA_GENERALES } from './clinica.js?v=2';
 import { fechaEpiLegacy } from './calculo/series.js?v=4';
-import { semanaTxt, semanaDeEtiqueta, botonesPeriodo, BOTON_NOTA } from './resumen_llano.js?v=11';
+import { semanaTxt, semanaDeEtiqueta, botonesPeriodo, BOTON_NOTA } from './resumen_llano.js?v=12';
 import { corrigeTexto } from './corrector.js?v=1';
 
 const LEGACY = 4;

@@ -1851,6 +1851,10 @@
   }
 
   const CRISIS_ES = /\b(suicidarme|suicidarse|matarme|matarse|quitarme la vida|quitarse la vida|acabar con mi vida|terminar con mi vida|(me|se) quier[eo] (morir|matar|suicidar)|me voy a (matar|morir|suicidar)|quiero (morir|morirme)|quisiera (morir|morirme|estar muert)|ganas de (morir|morirme|matarme|suicidarme)|(ya )?no quiero (vivir|seguir viviendo|seguir con vida|estar viv[oa]s?|seguir viv[oa]s?|existir)|no vale la pena vivir|hacerme dano|lastimarme|cortarme las venas|autolesionarme|(tengo|con) (pensamientos|ideas) suicidas|tengo ideacion suicida)\b/;
+  // Deuda del detector (b): riesgo dicho de otra persona o sin la primera persona de la lista («mi compañera dice que no
+  // quiere llegar a mañana», «no está a salvo», «she is not safe tonight»). Sólo añade crisis.
+  const RIESGO_TERCERO_ES = /\b((ya )?no (quiere|quieren|queria|querian|quisiera) (llegar a manana|llegar al dia siguiente|ver el dia de manana|amanecer|despertar|despertarse|seguir aqui|seguir viv[oa]s?|seguir con vida|vivir|vivir mas|estar viv[oa]s?|estar aqui|existir)|no (esta|estan|este|esten|estaba|estoy|estamos|estas) a salvo|(quiere|quieren|piensa|piensan|planea|planean) (quitarse la vida|acabar con su vida|terminar con su vida|desaparecer para siempre))\b/;
+  const RIESGO_TERCERO_EN = /\b((is|are|am|s|re|m|feel|feels|isn t|aren t|not) (not )?safe (tonight|today|now|at home|anymore|right now)|(he|she|they|i|we|you) (is|are|am|s|re|m|feel|feels) not safe|(isn t|aren t|im not|i m not) safe|(doesn t|does not|don t|do not) want to (live|be alive|wake up|be here|exist|see tomorrow|make it to tomorrow)|(wants|want) to (die|end it all|end (his|her|their) life|kill (himself|herself|themselves)))\b/;
   const CRISIS_EN = /\b(kill(ing)? myself|want to die|wanna die|end my life|take my own life|hurt myself|harm myself|suicidal thoughts|im suicidal|i am suicidal)\b/;
   // alta_b44 (19-nov-2026): violencia vivida en primera persona («me pegan», «mi pareja me golpea»).
   const VIOLENCIA_ES = /\b(me (pega|pegan|pego|pegaron|golpea|golpean|golpeo|golpearon|maltrata|maltratan|amenaza|amenazan|viola|violan|violo|violaron|abusa|abusan|abuso|abusaron|lastima|lastiman|agrede|agreden|encierra|encierran)|(abusa|abusan|abuso|abusaron) de mi|me (esta|estan|estaba|estaban) (pegando|golpeando|maltratando|lastimando|amenazando|violando|abusando|agrediendo|madreando)|me (madrea|madrean|madreo|madrearon|putea|putean|puteo|partio la madre|partieron la madre|surte|surten|cachetea|cachetean|patea|patean|pateo|ahorca|ahorco)|sufro (violencia|maltrato|abuso)|vivo violencia|tengo miedo de mi (pareja|esposo|esposa|novio|novia|papa|mama|padre|madre))\b/;
@@ -1952,7 +1956,16 @@
    * historial antes de cualquier otra cosa; el catálogo la repite (idempotente) para quien lo llame directamente. */
   // Rediseño conversacional (24-nov-2026): los caracteres de ancho cero se retiran tras NFKC; una palabra partida con ellos
   // («ma\u200btar») queda unida y el detector de riesgo la ve.
-  const normalizaEntrada = (t) => String(t ?? '').normalize('NFKC').replace(/[\u00AD\u180E\u200B-\u200F\u2060-\u2064\uFEFF]/g, '');
+  // Deuda del detector (27-nov-2026, deuda a′ del PR #163): si se retiró alguno, se deja al final la marca « ¡», que la
+  // gramática estricta de la variante neutra y de su seguimiento rechaza (falla hacia la crisis completa) y que el resto de
+  // las rutas ignora. Idempotente: una segunda pasada ya no encuentra invisibles y conserva la marca.
+  const INVISIBLES = /[\u00AD\u180E\u200B-\u200F\u2060-\u2064\uFEFF]/g;
+  const MARCA_INVISIBLE = ' ¡';
+  const normalizaEntrada = (t) => {
+    const s = String(t ?? '').normalize('NFKC');
+    const limpio = s.replace(INVISIBLES, '');
+    return limpio === s ? s : `${limpio}${MARCA_INVISIBLE}`;
+  };
   // Decimocuarta auditoría: NFKC antes de todo (ancho completo y formas compatibles pasan a ASCII y el riesgo las ve).
   const sinTildeMin2 = (t) => String(t).normalize('NFKC').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   // Vocabulario técnico: palabras de los rótulos, nombres y alias de todos los releases y de los cuatro legacy.
@@ -2646,8 +2659,10 @@
     const plano = (t) => t.replace(/[^a-z0-9]+/g, ' ').trim();
     const unidas = (t) => ` ${t} `.replace(/(?: [a-z](?= [a-z] ))+ [a-z](?= )/g, (m) => ` ${m.replace(/ /g, '')}`).trim();
     const colapsa = (t) => t.replace(/([a-z])\1+/g, '$1');
+    // Deuda del detector: erratas de «suicidio» («suisidio», «suizidio», «sucidio», «suicidio» con «y»).
+    const errata = (t) => t.replace(/su[iy]?(?:ss|sc|zc|s|z|c)[iy]d/g, 'suicid');
     const v1 = plano(leet);
-    return [...new Set([v1, unidas(v1), colapsa(v1), colapsa(unidas(v1))])];
+    return [...new Set([v1, unidas(v1), colapsa(v1), colapsa(unidas(v1)), errata(v1), errata(colapsa(unidas(v1)))])];
   }
   function riesgoAmpliado(raw) {
     // Los rótulos técnicos completos («intento de suicidio», «envenenamiento autoinfligido…») no son señal.
@@ -2765,13 +2780,20 @@
   // Signos permitidos en una consulta neutra; cualquier otro (emoticonos, «...», «!!», «-_-», emojis) conserva la crisis.
   const SOLO_TEXTO = (raw) => /^[\p{L}\p{M}\d\s¿?.,]*$/u.test(raw) && !/[.?,¿]{2,}|suicid[oó]\p{M}|suicidió|suicidó/u.test(raw) &&
     !/[^\s]\.[^\s]|(^|\s)[.,]/u.test(raw.trim().replace(/[.?]$/, ''));
+  // Deuda a′ del PR #163: en la gramática estricta, toda palabra con tilde o diéresis debe ser una forma bien escrita del
+  // vocabulario de la plantilla («cuántos», «ideación», «Querétaro»). Una tilde fuera de lugar («suicidío», «mujéres»)
+  // deja el turno fuera de la gramática y conserva la crisis completa.
+  const ACENTUADAS_T = new Set(['cuántos', 'cuántas', 'número', 'pronóstico', 'ideación', 'autolesión', 'méxico', 'república', 'país',
+    'qué', 'año', ...ESTADOS.flatMap(([, n]) => n.toLowerCase().split(' '))].filter((w) => /[áéíóúü]/.test(w)));
+  const acentosEnSuSitio = (crudo) => String(crudo).normalize('NFC').toLowerCase().split(/[^\p{L}\p{M}]+/u)
+    .every((w) => !/[\p{M}áéíóúüàèìòùâêîôûäëïö]/u.test(w) || ACENTUADAS_T.has(w));
   const normTercera = (raw) => String(raw).normalize('NFKC').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, ' ').trim();
   // Décima ronda: una sola oración, sin coma («Autolesión. En Jalisco», «suicidio, en Jalisco» son el tema solo y un lugar).
   const unaOracion = (crudo) => !/[\r\n\t\u2028\u2029\u0085\v\f]/.test(crudo) && !/[.,;!?¿¡]/.test(crudo.trim().replace(/^¿/, '').replace(/[.?]$/, ''));
   function soloTemaEnTercera(raw) {
     const crudo = String(raw).normalize('NFKC').toLowerCase();
-    if (!SOLO_TEXTO(crudo) || !unaOracion(crudo) || simbolosNoTecnicos(raw) || EMOJI_RIESGO.test(raw)) return false;
+    if (!SOLO_TEXTO(crudo) || !unaOracion(crudo) || simbolosNoTecnicos(raw) || EMOJI_RIESGO.test(raw) || !acentosEnSuSitio(crudo)) return false;
     // Duodécima ronda (Fable): «él» e «intentó» con tilde son pronombre y verbo, no artículo ni sustantivo.
     if (/(^|[^\p{L}])(él|intentó)($|[^\p{L}])/u.test(crudo)) return false;
     const q = normTercera(raw);
@@ -2851,16 +2873,18 @@
   // Tras la variante neutra, el seguimiento neutro sólo para un turno técnico de la misma gramática (otro lugar, sexo o año);
   // la cortesía recibe el seguimiento personal; CUALQUIER otro turno («con pastillas», «de un compañero», «I do not feel
   // safe», «esta noche») es una señal y recibe la crisis completa, que sube el estado a 'crisis'.
-  const RE_SIGUE_TERCERA = new RegExp('^(y |and |what about |y que tal )?((en|in|entre|among) )?' +
-    '(' + LUGAR_T.slice(1, -1) + '|hombres|mujeres|men|women|nacional|' + ANIOS_T + '|el ano pasado|last year)' +
-    '( (en|in) ' + ANIOS_T + ')?$');
+  // Deuda a′ del PR #163: un año suelto («2008», «1999») puede ser una fecha de nacimiento o una edad, no un filtro: sólo
+  // cuenta con «en», «in», «durante» o «el año» delante; solo, recibe la crisis completa.
+  const RE_SIGUE_TERCERA = new RegExp('^(y |and |what about |y que tal )?(((en|in|entre|among) )?' +
+    '(' + LUGAR_T.slice(1, -1) + '|hombres|mujeres|men|women|nacional|el ano pasado|last year)' +
+    '( (en|in) ' + ANIOS_T + ')?|(en|in|durante|during) (el )?(ano )?' + ANIOS_T + ')$');
   const ACEPTA_OFERTA = new RegExp('^(si|claro|si por favor|yes|sure|yes please)( (en|in) (el estado de )?' +
     LUGAR_T + ')?$');
   const RE_CORTESIA = /^(ok|okay|vale|va|no|no gracias|no thanks|no thank you|mejor no|gracias|muchas gracias|thanks|thank you|entendido|de acuerdo|bien|listo|perfecto|entiendo|ya veo)$/;
   // Decimotercera ronda: el seguimiento y la cortesía rechazan «él» con tilde, emojis y letras de otro alfabeto.
   const textoLimpio = (raw) => { const c = String(raw).normalize('NFKC').toLowerCase();
     return !/(^|[^\p{L}])él($|[^\p{L}])/u.test(c) && !simbolosNoTecnicos(raw) && !EMOJI_RIESGO.test(raw) && /^[a-záéíóúüñ0-9\s¿?.,]*$/.test(c); };
-  const sigueTercera = (raw) => textoLimpio(raw) && SOLO_TEXTO(String(raw).normalize('NFKC').toLowerCase()) &&
+  const sigueTercera = (raw) => textoLimpio(raw) && SOLO_TEXTO(String(raw).normalize('NFKC').toLowerCase()) && acentosEnSuSitio(raw) &&
     unaOracion(String(raw).normalize('NFKC').toLowerCase()) && RE_SIGUE_TERCERA.test(normTercera(raw));
   const cortesia = (raw) => textoLimpio(raw) && SOLO_TEXTO(String(raw).normalize('NFKC').toLowerCase()) && RE_CORTESIA.test(normTercera(raw));
   function respuestaCrisisBase(qn) {
@@ -2885,8 +2909,8 @@
       (sensibleFuera(raw, q) && !preguntaDeDatosSensible(raw) ? idioma() : null);
     if (riesgo === 'es') return CRISIS_TEXTO_ES;
     if (riesgo === 'en') return CRISIS_TEXTO_EN;
-    if (CRISIS_ES.test(q) || VIOLENCIA_ES.test(q)) return CRISIS_TEXTO_ES;
-    if (CRISIS_EN.test(q) || VIOLENCIA_EN.test(q)) return CRISIS_TEXTO_EN;
+    if (CRISIS_ES.test(q) || VIOLENCIA_ES.test(q) || RIESGO_TERCERO_ES.test(q)) return CRISIS_TEXTO_ES;
+    if (CRISIS_EN.test(q) || VIOLENCIA_EN.test(q) || RIESGO_TERCERO_EN.test(q)) return CRISIS_TEXTO_EN;
     if (nombraReleaseSensible(q)) return null;
     if (SENSIBLE_ES.test(q)) return CRISIS_TEXTO_ES;
     return SENSIBLE_EN.test(q) ? CRISIS_TEXTO_EN : null;
@@ -2933,6 +2957,24 @@
     'In Mexico, **Línea de la Vida** is free and open 24 hours a day, every day: **800 911 2000**. ' +
     'A mental health professional answers.\n<!--SIN_GRAFICA-->';
   const TURNO_EN = /^\s*(and|what|how|in|for|about|men|women|last|next|show)\b/;
+  // Deuda a′ del PR #163: un lugar, un año o un «no» aislados no tienen idioma; el seguimiento usa el del turno anterior más
+  // reciente que lo tenga (la crisis o la variante que lo abrió).
+  const SIN_IDIOMA = new RegExp('^(' + LUGAR_T.slice(1, -1) + '|nacional|cdmx|' + ANIOS_T + '|\\d+|no|ok|okay)$');
+  const MARCAS_EN = /\b(i|im|ive|my|myself|the|is|are|am|have|has|and|in|of|what|how|about|men|women|not|safe|tonight|today|want|die|kill|help|please|thanks|suicide|suicidal|self|harm|depressed|depression|anxiety|cases|last|year|she|he|they|you|scared|alone|feel)\b/g;
+  const MARCAS_ES = /\b(yo|mi|mis|el|la|los|las|en|de|del|y|que|tengo|estoy|quiero|esta|estas|noche|hoy|ayuda|por|con|para|hombres|mujeres|suicidio|suicidarme|morir|casos|ano|pasado|ella|el|ellos|siento|solo|sola|miedo|gracias)\b/g;
+  /** Idioma de un turno por sus palabras exclusivas de cada lengua, o null si no tiene ninguna (lugar, año, «no»). */
+  function idiomaDeTurno(t) {
+    const q = normTercera(t);
+    if (!q || SIN_IDIOMA.test(q)) return null;
+    const en = (q.match(MARCAS_EN) || []).length, es = (q.match(MARCAS_ES) || []).length;
+    return en > es ? 'en' : es > en ? 'es' : null;
+  }
+  /** Idioma del seguimiento: el del turno si lo tiene; si es un lugar, año o cortesía aislados, el del turno previo. */
+  function idiomaSeguimiento(qn, previos, enTurno) {
+    if (!SIN_IDIOMA.test(normTercera(qn))) return enTurno;
+    for (const t of [...(previos || [])].reverse()) { const i = idiomaDeTurno(t); if (i) return i === 'en'; }
+    return enTurno;
+  }
   /**
    * Estado de crisis tras una secuencia de turnos del usuario (del más antiguo al más reciente). Una señal de riesgo lo
    * activa; sólo lo desactiva un turno que nombra por sí mismo un padecimiento no sensible (`nombraPadLimpio`).
@@ -2953,10 +2995,16 @@
       // Cuarta ronda: el apoyo de salud mental deja 'apoyo_sm', que no se levanta; un turno que no es técnico, otra revelación
       // ni la aceptación de la oferta, o que nombra un id sensible, sube a 'crisis'.
       else if (estado === 'apoyo_sm') {
-        if (respuestaCrisisSeguimiento(t, 'apoyo_sm', nombraPadLimpio, previos.slice(0, -1))) estado = 'crisis';
+        // El cierre fijo tras una cortesía no sube el estado; sólo la crisis completa.
+        if (esCrisisCompleta(respuestaCrisisSeguimiento(t, 'apoyo_sm', nombraPadLimpio, previos.slice(0, -1)) || '')) estado = 'crisis';
+      } else if (estado === 'tema_cerrado') {
+        // Deuda del detector (b): tras levantar la variante neutra, el tema y los ids sensibles siguen cerrados.
+        if (respuestaCrisisSeguimiento(t, 'tema_cerrado', nombraPadLimpio, previos.slice(0, -1))) estado = 'crisis';
+        else if (sm?.apoyo || sm?.prefijo) estado = 'apoyo_sm';
       } else if (!estado && (sm?.apoyo || sm?.prefijo)) estado = 'apoyo_sm';
-      // Sexta ronda: levantar una crisis personal deja el apoyo ('apoyo_sm', que cierra ids sensibles); la neutra se levanta.
-      else if (estado && levantaCrisis(t, nombraPadLimpio)) estado = estado === 'crisis' ? 'apoyo_sm' : null;
+      // Sexta ronda: levantar una crisis personal deja el apoyo ('apoyo_sm', que cierra ids sensibles). Deuda del detector
+      // (b): levantar la neutra deja 'tema_cerrado', que mantiene cerrados el tema y los ids sensibles sin más restricciones.
+      else if (estado && levantaCrisis(t, nombraPadLimpio)) estado = estado === 'crisis' ? 'apoyo_sm' : 'tema_cerrado';
       // Tercera ronda: tras la variante neutra, un turno que no es técnico ni cortesía es una señal: sube a 'crisis'.
       else if (estado === 'crisis_tercera' && !sigueTercera(t)) estado = 'crisis';
     }
@@ -2975,10 +3023,25 @@
     return turnoTecnico(t) && !peticionEn(t) && !idsSensiblesEn(t).length && !nombraReleaseSensible(normLB(t)) && !respuestaCrisis(t) &&
       !SALUD_MENTAL_NOMBRE.test(normTercera(t)) && nombraPadLimpio(t);
   }
+  // Deuda del detector (b): tras el apoyo de salud mental, una cortesía o un «no» reciben un cierre fijo (antes llegaban al
+  // generador). Sin cifras ni contenido clínico.
+  const CIERRE_APOYO_ES = 'Está bien. Aquí sigo si más adelante quieres consultar datos de algún padecimiento.\n\n' +
+    'Si lo necesitas, la **Línea de la Vida** atiende gratis, las 24 horas: **800 911 2000**. Si estás en peligro, llama al **911**.\n<!--SIN_GRAFICA-->';
+  const CIERRE_APOYO_EN = 'All right. I am here if you want to look up data on a condition later.\n\n' +
+    'If you need it, **Línea de la Vida** is free and open 24 hours: **800 911 2000**. If you are in danger, call **911**.\n<!--SIN_GRAFICA-->';
+  const esCierreApoyo = (t) => t === CIERRE_APOYO_ES || t === CIERRE_APOYO_EN;
+  /** Turno que reabre un tema cerrado: el tema, un id sensible o una causa externa que puede ser método (T, X, W32-W34). */
+  function reabreSensible(qn) {
+    const q = normTercera(qn);
+    return idsSensiblesEn(qn).length > 0 || nombraReleaseSensible(normLB(qn)) ||
+      /\b(suicid|autolesi|autoinflig|self harm|intoxicacion|envenenamiento|plaguicida|monoxido|poisoning)/.test(q) ||
+      variantesRiesgo(qn).some((v) => /suicid/.test(v)) ||
+      releasesEnConsulta(normLB(qn), { prefijos: true }).some((r) => /^(T|X|W3[2-4])/i.test(String(r.cie || '')));
+  }
   function respuestaCrisisSeguimiento(qn, crisisPrevia, nombraPadLimpio, previos = []) {
     if (!crisisPrevia) return null;
     const q = String(qn).normalize('NFKC').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9 ]+/g, ' ');
-    const en = TURNO_EN.test(q) || pareceIngles(qn) || /\b(not|safe|thanks|thank|please|help|scared|afraid|alone|tonight|pills|friend|feel|want|die)\b/.test(q) && !/\b(que|no|se|mi|tu|ya|es|hago|tengo|estoy)\b/.test(q);
+    const en = idiomaSeguimiento(qn, previos, TURNO_EN.test(q) || pareceIngles(qn) || /\b(not|safe|thanks|thank|please|help|scared|afraid|alone|tonight|pills|friend|feel|want|die)\b/.test(q) && !/\b(que|no|se|mi|tu|ya|es|hago|tengo|estoy)\b/.test(q));
     // Decisión 2, cuarta y quinta ronda: tras el apoyo de salud mental, un id sensible, el tema, una intoxicación que puede ser
     // método, un emoticono, o un seguimiento sin padecimiento propio cuando antes se nombró un id sensible, dan la crisis
     // completa (aunque el turno nombre un padecimiento no sensible); una consulta técnica con ancla, otra revelación, un
@@ -2992,10 +3055,14 @@
           ((previos || []).some((t) => idsSensiblesEn(t).length) && !nombraPadLimpio(qn) && !saludMentalPropia(qn))) {
         return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
       }
-      if (saludMentalPropia(qn) || cortesia(qn) || SALUDO.test(normTercera(qn)) || ACEPTA_OFERTA.test(normTercera(qn)) || sigueTercera(qn) ||
+      if (cortesia(qn)) return en ? CIERRE_APOYO_EN : CIERRE_APOYO_ES;
+      if (saludMentalPropia(qn) || SALUDO.test(normTercera(qn)) || ACEPTA_OFERTA.test(normTercera(qn)) || sigueTercera(qn) ||
         (turnoTecnico(qn) && conAncla(qn) && !SENAL_PREVIA.test(normTercera(qn))) ||
         /^(en corto|para nota|para junta|resumen|resumelo|mas corto|y)$/.test(normTercera(qn))) return null;
       return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
+    }
+    if (crisisPrevia === 'tema_cerrado') {
+      return reabreSensible(qn) ? (en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES) : null;
     }
     if (levantaCrisis(qn, nombraPadLimpio)) return null;
     // Decisión 1: el seguimiento neutro sólo para un turno técnico sin primera persona ni petición; cualquier otro
@@ -3151,7 +3218,10 @@
       .replace(/\b(tengo|tenia|i have) (una |unas |un |a )?(preguntas?|dudas?|consultas?|tareas?|trabajos?|questions?)\b/g, ' ')
       .replace(/\b(soy|i am|i m|im) (un |una |a |an )?(medic[oa]|doctor|doctora|enfermer[oa]|estudiante|investigador|investigadora|maestr[oa]|profesor|profesora|periodista|psicolog[oa]|epidemiolog[oa]|student|nurse|researcher|teacher|journalist)\b/g, ' ')
       .replace(/\b((quiero|quisiera|me gustaria) saber|me (puedes|podrias|dices|das|muestras|interesa|interesan|ayudas))\b/g, ' ');
-    const verbo = VERBO_1A.test(r);
+    // Deuda del detector (b): la revelación elíptica («depressed af», «been depressed for months», «super deprimida») cuenta
+    // como primera persona.
+    const eliptica = /^ (?:(?:super|muy|bien|re|so|really|very|pretty|kinda|still|lately|ultimamente|todavia|aun|been|feeling|sintiendome) )*(?:deprimid[oa]|depressed|ansios[oa]|anxious)\b/.test(r);
+    const verbo = VERBO_1A.test(r) || eliptica;
     // Sin primera persona: consulta de datos, salvo que traiga palabras fuera del vocabulario técnico y de datos («con
     // depresión y con un plan»); entonces falla hacia la crisis.
     if (!verbo && !/\b(me|mi|mis|my)\b/.test(r)) {
@@ -3162,12 +3232,13 @@
         !PREGUNTA_SM.has(w) && !/^\d+$/.test(w));
       return raros.some((w) => RIESGO_SUELTO.has(w)) ? { crisis: CRISIS_TEXTO_ES } : null;
     }
-    const en = /\b(i|im|ive|my|got)\b/.test(r);
+    const en = /\b(i|im|ive|my|got)\b/.test(r) || (/\b(depressed|anxious|depression|anxiety|been|af)\b/.test(r) && !/\b(estoy|tengo|me|mi|con|de|la|el|y|ando)\b/.test(r));
     const crisis = { crisis: en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES };
     if (DESESPERANZA_SM.test(q) || (verbo && (simbolosSM(crudo0) || simbolosNoTecnicos(raw) || EMOJI_RIESGO.test(raw)))) return crisis;
     let resto = r.replace(new RegExp(SM_PALABRA.source, 'g'), ' ').replace(DURACION_SM, ' ');
     for (const [e] of ESTADOS) resto = resto.split(` ${e} `).join(' ');
-    const toks = resto.split(' ').filter((w) => w && w !== 'zzfin' && !AUX_1A.has(w) && !RELLENO_SM.has(w) && !DATOS_SM.has(w) && !PREGUNTA_SM.has(w));
+    const toks = resto.split(' ').filter((w) => w && w !== 'zzfin' && !AUX_1A.has(w) && !RELLENO_SM.has(w) && !DATOS_SM.has(w) &&
+      !PREGUNTA_SM.has(w) && !ADVERBIO_SM_INV.has(w));
     // Sexta ronda (corpus de estrés): la inversión sólo AÑADE crisis ante una señal concreta (plan, carta, pastillas, edad de
     // menor…); con otras palabras la consulta sigue su curso, como antes del parche.
     if (toks.some((w) => RIESGO_SUELTO.has(w)) || EDAD_MENOR.test(q)) return crisis;
@@ -3175,6 +3246,12 @@
     if (PIDE_DATOS_SM.test(resto)) return { prefijo: en ? PREFIJO_SM_EN : PREFIJO_SM };
     return { apoyo: apoyoSaludMental(q, en) };
   }
+  // Deuda del detector (b): adverbios y modificadores que acompañan una revelación sin señal («estoy sola con depresión»,
+  // «depressed af», «sigo deprimido todavía»). Sólo los usa el disparador INVERTIDO, cuyo resultado sin ellos era dejar pasar
+  // las cifras: con ellos da el apoyo. No tocan la lista de relleno del disparador directo, así que nunca rebajan una crisis.
+  const ADVERBIO_SM_INV = new Set(('sola solo solas solos todavia aun otra vez de nuevo nuevo ya siempre seguido constantemente veces ' +
+    'hoy ultimamente mucho tanto bastante demasiado horrible fatal terrible re bien super af still again always lately today ' +
+    'kinda kind sort pretty really so very too as hell been for feeling sintiendome').split(' '));
   const DESESPERANZA_SM = /\b(no hay (nada|salida|remedio|esperanza|solucion)|nada que hacer|ya no (puedo|aguanto|quiero|tiene)|sin salida|no tiene salida|no vale la pena|nada mas|no tiene sentido|no le veo|no puedo (hacer nada|mas|seguir|con nada|con esto|con todo|con mi vida|con la vida)|ya no puedo|no aguanto|no (como|duermo|me levanto|salgo)|(ya )?no se (que|como) hacer|no se que mas|hopeless|no way out|no point|nothing left|give up|me rindo)\b/;
   function saludMentalPropia(raw) {
     const crudo0 = String(raw || '').normalize('NFKC').toLowerCase().replace(/[\u2018\u2019\u02bc]/g, "'");
@@ -3247,7 +3324,7 @@
   g.EPI_CATALOGO = Object.freeze({
     ETIQUETA_SIN_ALTERNATIVA, textoSinAlternativa,
     releases, diabetesEnConsulta, conDiabetesNombrada, conFamiliaNombrada, canonClinico, nombraAlias, noModeladas,
-    mencionaNoModelada, conHipertensionNombrada, respuestaCrisis, esCrisisTercera, esCrisisCompleta, crisisTextoDe, crisisPersonalDe, saludMentalPropia, consultaSinRevelacion, consultaOferta, nombraReleaseSensible, normLB, subtipoAjeno, aliasAmbiguo,
+    mencionaNoModelada, conHipertensionNombrada, respuestaCrisis, esCrisisTercera, esCierreApoyo, esCrisisCompleta, crisisTextoDe, crisisPersonalDe, saludMentalPropia, consultaSinRevelacion, consultaOferta, nombraReleaseSensible, normLB, subtipoAjeno, aliasAmbiguo,
     motivoRechazo, crisisEnTurnos, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, idsSensiblesEn,
     alcoholCalificado, IDS_LISTA_BLANCA, _VOCAB_TECNICO: VOCAB_TECNICO, _FRAGMENTOS_GUARDAS: FRAGMENTOS_GUARDAS, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaTemaSensible, respuestaFueraDeVocabulario,
     restoFuera, tieneFragmentoDeDatos, respuestaConDatos, esRespuestaDeAyuda, salidaFueraDeVocabulario, APOYO_ES, APOYO_EN, pareceIngles, normalizaEntrada,

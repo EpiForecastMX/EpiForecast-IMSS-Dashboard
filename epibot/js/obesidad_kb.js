@@ -15,10 +15,10 @@ import {
   MOTOR_NOMBRE as OBESIDAD_MOTOR, tipoEfectivo, NO_DISPONIBLE,
   serieObesidad, estadosEnConsulta, emisionTxt, noDisponible, alternativas,
 } from './obesidad_charts.js?v=64';
-import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=60';
+import { releaseConAlias, releaseDePad, releaseDeId } from './release_config.js?v=61';
 // Avisos de la fuente de los doce controles de alta20c (generado por avisos_controles12.py del backend).
 import './avisos_fuente.js?v=5';
-import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion, indicadores, nombreEstado, semanaDeEtiqueta, semanaTxt } from './resumen_llano.js?v=11';
+import { respuestaLlana, siguientes, confiabilidad, enlaceDefinicion, indicadores, nombreEstado, semanaDeEtiqueta, semanaTxt } from './resumen_llano.js?v=12';
 import { lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=7';
 import { serieDeVista } from './calculo/series.js?v=4';
 import { crecimiento } from './calculo/operaciones.js?v=2';

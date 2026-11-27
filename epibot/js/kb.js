@@ -14,7 +14,7 @@ import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad
 import { corrigeTexto } from './corrector.js?v=1';
 import { any, needsGeminiReasoning, needsGeneralKnowledge, needsMedicalAdvice, answerInjectionGuard, INJECTION_RESPONSE, answerEquipo, isOffTopic } from './rutas_fijas.js?v=2';
 import { answerCharla, palabraConocida, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion, answerConsejoMedico, DUDA_MEDICAMENTO, VIAJE_SEGURIDAD, NOTA_VIAJE } from './conversacion.js?v=28';
-import { respuestaLlana, confiabilidadLegacy, indicadores as indicadoresLlano, semanaTxt } from './resumen_llano.js?v=11';
+import { respuestaLlana, confiabilidadLegacy, indicadores as indicadoresLlano, semanaTxt } from './resumen_llano.js?v=12';
 import { answerNegativaRazonada, answerEstacionalidad, answerExplicaGrafica, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=7';
 import { crecimiento } from './calculo/operaciones.js?v=2';
 import { notasDeLegitimidad } from './calculo/legitimidad.js?v=2';
@@ -73,7 +73,7 @@ function marcaEstados(m) { return m.filas?.length ? `<!--ESTADOS:${JSON.stringif
 function answerLegacyLlano(q, ent, s, d) {
   return rankingRitmoLegacy(q, ent, d) || legacyComparacion(q, ent, s, d, { indicadores: indicadoresLlano, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA, serieLegacy: serieLegacyCalc }) || legacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadLegacy });
 }
-import { MARCADOR_RELEASE, releaseDeMarca, aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, esCrisisTercera, esCrisisCompleta, crisisTextoDe, idsSensiblesEnTurno, crisisPersonalDe, saludMentalPropia, consultaOferta, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaTemaSensible, respuestaConDatos, salidaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=60';
+import { MARCADOR_RELEASE, releaseDeMarca, aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, esCrisisTercera, esCierreApoyo, esCrisisCompleta, crisisTextoDe, idsSensiblesEnTurno, crisisPersonalDe, saludMentalPropia, consultaOferta, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaTemaSensible, respuestaConDatos, salidaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=61';
 
 let DATA = null;
 
@@ -5609,12 +5609,12 @@ let _lastChartHandler = null;    // nombre del ultimo handler que genero grafico
 let _lastHandlerFn = null;       // referencia al ultimo handler que respondio
 // Auditoría Codex de alta_b44 (19-nov-2026): tras una respuesta de crisis, los seguimientos que no nombran por sí mismos
 // un padecimiento no sensible reciben apoyo, sin cifras ni herencia de padecimiento o estado.
-let _crisisActiva = null;   // 'crisis', 'crisis_tercera' (decisión 1), 'apoyo_sm' (decisión 2), 'apoyo' o null
+let _crisisActiva = null;   // 'crisis', 'crisis_tercera' (decisión 1), 'apoyo_sm' (decisión 2), 'tema_cerrado', 'apoyo' o null
 // Cuarta ronda: turnos previos del usuario, para dar la variante neutra sólo en una conversación de turnos técnicos.
 let _turnosPrevios = [];
 let _registradoPorGuarda = null;
 // Una crisis (personal o neutra) cierra cifras, cierres y ficha; el apoyo de salud mental (decisión 2) no.
-const crisisDura = () => Boolean(_crisisActiva) && _crisisActiva !== 'apoyo_sm';
+const crisisDura = () => Boolean(_crisisActiva) && _crisisActiva !== 'apoyo_sm' && _crisisActiva !== 'tema_cerrado';
 // Tras una aclaración sin cifras (nombre genérico, subtipo, guarda fija), «¿y en Sonora?» no hereda nada: se repite
 // la petición de precisar en vez de caer en la tabla neuro del estado.
 let _aclaracionPendiente = null;
@@ -5668,7 +5668,9 @@ export function registraEstadoAyuda(estado) {
   // Decisión 1: la variante neutra persiste igual, sin rebajar una crisis personal ya activa.
   else if (estado === 'crisis_tercera' && _crisisActiva !== 'crisis') _crisisActiva = 'crisis_tercera';
   // Decisión 2: el apoyo de salud mental persiste (cierra cifras sensibles y sube a crisis ante un turno no técnico).
-  else if (estado === 'apoyo_sm' && !_crisisActiva) _crisisActiva = 'apoyo_sm';
+  else if (estado === 'apoyo_sm' && (!_crisisActiva || _crisisActiva === 'tema_cerrado')) _crisisActiva = 'apoyo_sm';
+  // Deuda del detector: tras levantar la variante neutra, el tema y los ids sensibles siguen cerrados.
+  else if (estado === 'tema_cerrado' && !_crisisActiva) _crisisActiva = 'tema_cerrado';
 }
 export function estadoDesdeHistorial(turnosUsuario) {
   // Octava ronda (Fable): el historial de la interfaz puede omitir un turno cuya consulta a RAG falló; se UNE al registro del
@@ -5756,7 +5758,7 @@ function esSeguimientoSinPadecimiento(query) {
 // seguimiento, tema sensible) invalida la ficha previa, para que «en corto» nunca recupere cifras de antes del apoyo.
 export function guardaInicial(consulta, registrar = true) {
   const r = _guardaInicialBase(consulta, registrar);
-  if (r && (HANDLERS_SIN_CIERRE.has(r.handler) || _crisisActiva)) _ultimaFicha = null;
+  if (r && (HANDLERS_SIN_CIERRE.has(r.handler) || (_crisisActiva && _crisisActiva !== 'tema_cerrado'))) _ultimaFicha = null;
   return r;
 }
 function _guardaInicialBase(consulta, registrar = true) {
@@ -5805,7 +5807,7 @@ function _guardaInicialBase(consulta, registrar = true) {
     }
     // Tras la variante neutra, el seguimiento personal (cortesía) sube el estado a crisis, igual que el historial.
     if (_crisisActiva === 'crisis_tercera' && estadoDeRespuesta(apoyo) === 'crisis') _crisisActiva = 'crisis';
-    trace.handler = _crisisActiva === 'apoyo' ? 'answerApoyoSeguimiento' : 'answerCrisisSeguimiento';
+    trace.handler = esCierreApoyo(apoyo) ? 'answerSaludMentalPropia' : _crisisActiva === 'apoyo' ? 'answerApoyoSeguimiento' : 'answerCrisisSeguimiento';
     return { response: apoyo, handler: trace.handler };
   }
   // Séptima ronda (Fable): tras la ficha de un id sensible, una revelación de salud mental recibe la crisis completa.
@@ -5820,7 +5822,7 @@ function _guardaInicialBase(consulta, registrar = true) {
   if (mental?.apoyo) {
     lastEntities = {};
     _aclaracionPendiente = null;
-    if (!_crisisActiva) _crisisActiva = 'apoyo_sm';
+    if (!_crisisActiva || _crisisActiva === 'tema_cerrado') _crisisActiva = 'apoyo_sm';
     return { response: mental.apoyo, handler: 'answerSaludMentalPropia' };
   }
   // Re-auditoría Codex: un seguimiento sin padecimiento propio tras una respuesta de un id sensible pasa por la misma lista
@@ -5854,7 +5856,9 @@ function _guardaInicialBase(consulta, registrar = true) {
   }
   // El apoyo de salud mental (decisión 2) persiste en la conversación. Sexta ronda: levantar una crisis personal deja ese
   // apoyo (cierra ids sensibles); la variante neutra se levanta del todo.
-  _crisisActiva = _crisisActiva === 'crisis' || _crisisActiva === 'apoyo_sm' ? 'apoyo_sm' : null;
+  // Deuda del detector: levantar la variante neutra deja 'tema_cerrado' (tema e ids sensibles cerrados).
+  _crisisActiva = _crisisActiva === 'crisis' || _crisisActiva === 'apoyo_sm' ? 'apoyo_sm'
+    : _crisisActiva === 'crisis_tercera' || _crisisActiva === 'tema_cerrado' ? 'tema_cerrado' : null;
   return null;
 }
 
@@ -6377,7 +6381,14 @@ function respuestaComentario(query) {
 
 async function _resolveConContexto(query) {
   // Crisis primero sobre el texto original; después sinónimos, abreviaturas y ciudades.
-  if (respuestaCrisis(normalizaEntrada(query))) return _resolveConContextoBase(query);
+  // Deuda del detector (27-nov-2026): con una crisis o un apoyo activos, el seguimiento se evalúa sobre el turno ORIGINAL;
+  // la reescritura podía vaciarlo («en 2008» queda en blanco porque los datos empiezan en 2014) y el KB y la función RAG
+  // respondían distinto.
+  const q0 = normalizaEntrada(query);
+  if (respuestaCrisis(q0) || saludMentalPropia(q0)?.crisis ||
+      (_crisisActiva && respuestaCrisisSeguimiento(q0, _crisisActiva, nombraPadecimientoNoSensible, _turnosPrevios.slice(0, -1)))) {
+    return _resolveConContextoBase(query);
+  }
   const comentario = respuestaComentario(query);
   if (comentario) return comentario;
   const { texto: texto0, notas } = reescribeConsulta(query);
@@ -6528,7 +6539,7 @@ async function _resolveConCierre(query) {
   const r = await _resolveConCierreBase(query);
   // Toda respuesta de datos (la ficha, el mes, el ranking) lleva la línea de apoyo; nunca se antepone a un texto de crisis.
   if (mental?.prefijo && r?.response && !/^(Lamento|I am sorry|Sigo aquí|I am still|Es un tema|This is a sensitive|Por el tema|Because of the topic)/.test(r.response)) {
-    if (!_crisisActiva) _crisisActiva = 'apoyo_sm';
+    if (!_crisisActiva || _crisisActiva === 'tema_cerrado') _crisisActiva = 'apoyo_sm';
     return { ...r, response: mental.prefijo + r.response };
   }
   return r;
