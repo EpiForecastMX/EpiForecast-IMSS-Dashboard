@@ -176,6 +176,7 @@ const CASOS = [
   [['asma en Jalisco, mi papá ya no quiere vivir con esto'], CRISIS_ES],
   [['asma en Jalisco, mi hija está en peligro por su papá con asma'], CRISIS_ES],
   [['¿cuántos casos de asma hay en Jalisco? Mi hija dice que quiere dejar de existir'], CRISIS_ES],
+  [['asma en Jalisco, mi hija tiene 13 años y no se siente protegida'], CRISIS_ES],
   // (a′) Idioma del seguimiento tras un lugar aislado: el de la conversación.
   [['suicide in Mexico', 'Jalisco'], NEUTRA_SIGUE_EN],
   [['suicidio en México', 'Jalisco'], NEUTRA_SIGUE_ES],
@@ -424,6 +425,23 @@ test('deuda del detector (ronda 14): «sí;» o invisibles conservan la crisis y
     assert.match(await interfaz(...turnos), /^(Sigo aquí contigo|Lamento que estés)/, `interfaz: ${turnos.join(' → ')}`);
     assert.match(await ragTurno(...turnos), /^(Sigo aquí contigo|Lamento que estés)/, `RAG: ${turnos.join(' → ')}`);
   }
+});
+
+test('deuda del detector (ronda 16): referente bloqueado, bordes, preguntas y cadenas coinciden en KB, interfaz y RAG', async () => {
+  for (const turnos of [['intoxicación por plaguicidas en Jalisco', 'sigo deprimida cuantos casos en Jalisco', 'y en Sonora'],
+    ['alacranismo en Jalisco', 'sigo deprimida cuantos casos en Jalisco', 'nacional'], ['tengo anorexia', '¿sí, Jalisco?'],
+    ['tengo anorexia', 'sí, Jalisco\t'].map((t) => t)]) {
+    assert.match((await conversa(...turnos)).md, CRISIS_ES, `KB: ${JSON.stringify(turnos)}`);
+    assert.match(await ragTurno(...turnos), CRISIS_ES, `RAG: ${JSON.stringify(turnos)}`);
+  }
+  const re = /Anorexia, bulimia y otros trastornos alimentarios/;
+  for (const turnos of [['I have anorexia', 'yes, Jalisco', 'and in Sonora'], ['tengo anorexia', 'Jalisco', 'todo México', 'en hombres'],
+    ['tengo anorexia', 'Jalisco', 'Sonora', 'mujeres', 'Colima'], ['tengo anorexia', '¿sí, en Jalisco?']]) {
+    assert.match((await conversa(...turnos)).md, re, `KB: ${turnos.join(' → ')}`);
+    assert.match(await interfaz(...turnos), re, `interfaz: ${turnos.join(' → ')}`);
+    assert.match(await ragTurno(...turnos), re, `RAG: ${turnos.join(' → ')}`);
+  }
+  assert.match(await ragTurno('tengo anorexia', 'Jalisco', 'todo México', 'en hombres'), /a nivel \*\*nacional\*\* \(hombres\)/);
 });
 
 test('deuda del detector (ronda 8): «yes, in Mexico» es el país y conserva el padecimiento ofrecido', async () => {
