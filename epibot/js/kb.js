@@ -5613,6 +5613,9 @@ let _crisisActiva = null;   // 'crisis', 'crisis_tercera' (decisión 1), 'apoyo_
 // Cuarta ronda: turnos previos del usuario, para dar la variante neutra sólo en una conversación de turnos técnicos.
 let _turnosPrevios = [];
 let _registradoPorGuarda = null;
+// Ronda 18 (Codex Sol): turno original del usuario mientras se resuelve; la guarda de seguimiento lo usa en lugar del texto
+// reescrito («todo México» → «asma todo nacional»), igual que la función RAG.
+let _turnoOriginal = null;
 // Una crisis (personal o neutra) cierra cifras, cierres y ficha; el apoyo de salud mental (decisión 2) no.
 const crisisDura = () => Boolean(_crisisActiva) && _crisisActiva !== 'apoyo_sm' && _crisisActiva !== 'tema_cerrado';
 // Tras una aclaración sin cifras (nombre genérico, subtipo, guarda fija), «¿y en Sonora?» no hereda nada: se repite
@@ -5795,7 +5798,7 @@ function _guardaInicialBase(consulta, registrar = true) {
     _aclaracionPendiente = null;
     return { response: mental.crisis, handler: 'answerCrisis' };
   }
-  const apoyo = respuestaCrisisSeguimiento(query, _crisisActiva, nombraPadecimientoNoSensible, previos);
+  const apoyo = respuestaCrisisSeguimiento(!registrar && _turnoOriginal ? _turnoOriginal : query, _crisisActiva, nombraPadecimientoNoSensible, previos);
   if (apoyo) {
     // Ronda 13 (Codex Sol y Fable): el cierre fijo tras «no» conserva el contexto, como en origin/main y como RAG lo hereda.
     if (!esCierreApoyo(apoyo)) lastEntities = {};
@@ -6389,6 +6392,7 @@ async function _resolveConContexto(query) {
   // la reescritura podía vaciarlo («en 2008» queda en blanco porque los datos empiezan en 2014) y el KB y la función RAG
   // respondían distinto.
   const q0 = normalizaEntrada(query);
+  _turnoOriginal = q0;
   if (respuestaCrisis(q0) || saludMentalPropia(q0)?.crisis ||
       (_crisisActiva && respuestaCrisisSeguimiento(q0, _crisisActiva, nombraPadecimientoNoSensible, _turnosPrevios.slice(0, -1)))) {
     return _resolveConContextoBase(query);
@@ -6529,6 +6533,7 @@ function recuerdaFicha(r) {
   return r;
 }
 async function _resolveConCierre(query) {
+  _turnoOriginal = null;
   // Decisión 2, quinta ronda: «sí» o «sí, en Jalisco» tras el apoyo continúan la oferta («depresión en Jalisco»).
   if (_registradoPorGuarda === query && _turnosPrevios.at(-1) === query) _registradoPorGuarda = null;
   else { _turnosPrevios.push(query); _registradoPorGuarda = null; }

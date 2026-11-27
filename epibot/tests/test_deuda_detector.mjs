@@ -224,7 +224,7 @@ test('deuda del detector (ronda 1): consultas benignas sin falsos positivos del 
     ['alguien quiere desaparecer el dengue'], ['asma en Jalisco, mi papá no quiere despertarse de la siesta'],
     ['estamos en peligro con tantos casos de dengue'], ['are we in danger in Jalisco from dengue'],
     ['asma en Jalisco. Ellos no quieren vivir juntos.'], ['are we in danger in Jalisco with dengue?'],
-    ['asma en Jalisco, mi mamá no aguanta más el ruido']]) {
+    ['asma en Jalisco, mi mamá no aguanta más el ruido'], ['asma en Jalisco, mi hijo no está seguro de volver a vacunarse']]) {
     const k = await conversa(...turnos);
     assert.doesNotMatch(k.md, /^(Lamento que estés|I am sorry you are)/, turnos.join(' → '));
     assert.match(k.md, /\d/, turnos.join(' → '));
@@ -463,6 +463,23 @@ test('deuda del detector (ronda 17): referente bloqueado sólo si es el más rec
   }
   assert.match((await conversa('quemaduras en Jalisco', 'tengo depresión', 'no gracias')).md, CIERRE_ES);
   assert.match(await ragTurno('tengo anorexia', 'en Sonora', 'no', 'en Jalisco por sexo'), /\(hombres\)/);
+});
+
+test('deuda del detector (ronda 18): «¡si Jalisco!» conserva la crisis; el cambio de ámbito nacional coincide en las tres rutas', async () => {
+  for (const turnos of [['tengo anorexia', '¡si Jalisco!'], ['tengo anorexia', '¡si mujeres!']]) {
+    assert.match((await conversa(...turnos)).md, CRISIS_ES, `KB: ${turnos.join(' → ')}`);
+    assert.match(await interfaz(...turnos), CRISIS_ES, `interfaz: ${turnos.join(' → ')}`);
+    assert.match(await ragTurno(...turnos), CRISIS_ES, `RAG: ${turnos.join(' → ')}`);
+  }
+  for (const tercero of ['todo México', 'a nivel nacional']) {
+    const turnos = ['estoy sola con depresión', 'asma en Jalisco', tercero];
+    assert.match((await conversa(...turnos)).md, /Asma|México/, `KB: ${tercero}`);
+    assert.match(await interfaz(...turnos), /Asma|México/, `interfaz: ${tercero}`);
+    assert.match(await ragTurno(...turnos), /Asma \(J45, J46\)\*\* a nivel \*\*nacional/, `RAG: ${tercero}`);
+  }
+  const turnos = ['estoy sola con depresión', 'asma en Jalisco', 'todo México', 'X60 en Jalisco'];
+  assert.match((await conversa(...turnos)).md, CRISIS_ES);
+  assert.match(await ragTurno(...turnos), CRISIS_ES);
 });
 
 test('deuda del detector (ronda 8): «yes, in Mexico» es el país y conserva el padecimiento ofrecido', async () => {
