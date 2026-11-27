@@ -1866,7 +1866,9 @@
     'varicela|neumonia|rotavirus|rubeola|paperas|parotiditis|tosferina|bronquitis|infeccion|infecciones|bacteria|bacterias|parasitos?|chagas|lepra|vih|sida|cancer|measles|pneumonia|' +
     'neumonias|infecciones|contaminacion|smog|humo|polvo|polen|disease|diseases|outbreak|flu|epidemic|pandemic|heat|mosquitos?|zancudos?|moscos?|mosquitoes|(que )?(me |nos |le |les )?(contagi|enferm|infect)[a-z]*)\\b';
   // Ronda 11 (Fable): la enfermedad puede venir unas palabras después («con tantos casos de dengue», «in Jalisco from dengue»).
-  const NO_ENF_ES = '(?!( en [a-z]+( [a-z]+){0,3})? (de|del|por|con|ante|frente a)( [a-z]+){0,3} ' + ENF_T + ')';
+  // Las palabras intermedias no pueden nombrar a una persona («en peligro por su papá con asma» es riesgo).
+  const PERSONA_INTERMEDIA = '(?!(papa|mama|padre|madre|pareja|esposo|esposa|novio|novia|hermano|hermana|tio|tia|abuelo|abuela|padrastro|madrastra|ex|jefe|maestro|maestra|vecino|vecina|hijo|hija|primo|prima|amigo|amiga|el|ella)\\b)';
+  const NO_ENF_ES = '(?!( en [a-z]+( [a-z]+){0,3})? (de|del|por|con|ante|frente a)( ' + PERSONA_INTERMEDIA + '[a-z]+){0,3} ' + ENF_T + ')';
   const NO_ENF_EN = '(?!( in [a-z]+( [a-z]+){0,2})? (from|of|due to|because of)( [a-z]+){0,2} ' + ENF_T + ')';
   const PERSONA_T = '(mi|mis|tu|tus|su|sus|my|your|his|her|their) ' + NO_PERSONA + '[a-z]+( [a-z]+){0,4}';
   const SUJETO_T = '(' + PERSONA_T + '|ella|alguien|she|he|they|someone|somebody)';
@@ -3124,19 +3126,21 @@
           ((previos || []).some((t) => idsSensiblesEn(t).length) && !nombraPadLimpio(qn) && !saludMentalPropia(qn))) {
         return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
       }
-      if (cortesia(qn)) return en ? CIERRE_APOYO_EN : CIERRE_APOYO_ES;
+      // Ronda 12: un «sí» suelto sin oferta pendiente es una cortesía: recibe el cierre fijo.
+      if (cortesia(qn) || (textoLimpio(qn) && /^(si|yes|claro|sure)$/.test(normTercera(qn)) && !ofertaPendiente(qn, previos || []))) return en ? CIERRE_APOYO_EN : CIERRE_APOYO_ES;
       // Ronda 4 (Codex Sol): tras una crisis personal en la conversación, otra revelación recibe la crisis completa.
       const smOtra0 = saludMentalPropia(qn);
       // El recorrido ya cuenta la crisis del detector base (deja el estado en 'crisis').
       const crisisPersonalAntes = () => hubo ?? huboCrisisEnTurnos(previos || [], nombraPadLimpio);
       const smOtra = smOtra0 && !crisisPersonalAntes() ? smOtra0 : null;
       // Ronda 2 (Codex Sol): un año solo («en 2008») tras el apoyo puede ser un año de nacimiento: crisis en KB y RAG.
-      const anioSolo = /^(y |and )?((en|in) (19|20)\d\d|el ano pasado|last year)$/.test(normTercera(qn));
+      const anioSolo = /^(y |and )?((en|in) (19|20)\d\d|(en )?el ano pasado|(in )?last year)$/.test(normTercera(qn));
       // Ronda 11 (Fable): una frase que termina en conector («Jalisco y») está cortada: crisis.
       if (normTercera(qn) !== 'y' && /\b(en|de|del|para|in|of|for|y|and|entre|among|con|a|que|pero|but)$/.test(normTercera(qn))) return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
       // Ronda 7 (Codex Sol y Fable): la continuación de la oferta pasa la guarda con el mismo criterio con que se resuelve.
       if (ofertaPendiente(qn, previos || [])) return null;
-      if ((smOtra && !smOtra.laxa) || SALUDO.test(normTercera(qn)) || ACEPTA_OFERTA.test(normTercera(qn)) || (sigueTercera(qn) && !anioSolo) ||
+      // Ronda 12 (Fable): la aceptación de la oferta pasa sólo por `ofertaPendiente` (arriba), no por un patrón suelto.
+      if ((smOtra && !smOtra.laxa) || SALUDO.test(normTercera(qn)) || (sigueTercera(qn) && !anioSolo) ||
         (turnoTecnico(qn) && conAncla(qn) && !SENAL_PREVIA.test(normTercera(qn))) ||
         /^(en corto|para nota|para junta|resumen|resumelo|mas corto|y)$/.test(normTercera(qn))) return null;
       return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
@@ -3387,13 +3391,16 @@
   // estado (antes el KB abría la ficha nacional y RAG pedía el padecimiento). Ronda 6 (Codex Sol y Fable): tras esa pregunta,
   // «sí, en Jalisco», «Jalisco», «nacional», «todo México» o un sexo continúan la oferta; otro «sí» a secas, no.
   const LUGAR_SOLO = new RegExp('^(y )?(en |in |de |del |para |for )?(el estado de )?' + LUGAR_T + '$');
-  const NACIONAL_SOLO = /^(y )?(a nivel |en |in )?(nacional|todo (el pais|mexico)|el pais|mexico|la republica( mexicana)?|nationwide|nationally|the country)$/;
+  const NACIONAL_SOLO = /^(y )?(a nivel |en |in |de |del |of |para )?(nacional|todo (el pais|mexico)|el pais|mexico|la republica( mexicana)?|nationwide|nationally|the country)$/;
   function ofertaPendiente(qn, previos, encadenada = true) {
     if (simbolosSM(String(qn)) || simbolosNoTecnicos(qn) || EMOJI_RIESGO.test(qn)) return null;
     // Ronda 11 (Codex Sol y Fable): la continuación es texto limpio en una sola oración (sólo admite la coma tras «sí»), sin
     // «él» con tilde ni turnos vacíos de contenido («?», «.»).
-    const crudo = String(qn).normalize('NFKC').toLowerCase().trim().replace(/^(sí|si|claro|yes|sure)\s*,\s*/u, '$1 ');
-    if (!textoLimpio(qn) || !SOLO_TEXTO(crudo) || !unaOracion(crudo) || !normTercera(qn)) return null;
+    // Ronda 12 (Codex Sol y Fable): se admite la puntuación habitual de una respuesta («¡sí!», «sí, por favor, en Jalisco»,
+    // «sí. en Jalisco», «en Jalisco.»), nada más: el resto debe ser una sola oración de texto limpio.
+    const crudo = String(qn).normalize('NFKC').toLowerCase().trim().replace(/^¡\s*/u, '').replace(/\s*[.!]+$/u, '')
+      .replace(/^(sí|si|claro|yes|sure)(\s*,?\s*(por favor|please))?\s*[,.;:!]?\s*/u, '$1 $3 ').replace(/\s+/g, ' ').trim();
+    if (!textoLimpio(crudo) || !SOLO_TEXTO(crudo) || !unaOracion(crudo) || !normTercera(qn)) return null;
     // Ronda 8 (Fable): «Jalisco, México» es Jalisco (el país como apellido del estado), no el Estado de México.
     const q = normTercera(qn).replace(/^(.*?\b(?!mexico\b)[a-z]+) (mexico|mx)$/, (m, a) => (ESTADOS.some(([e]) => ` ${a} `.includes(` ${e} `) && e !== 'mexico') ? a : m));
     const ofertaDe = (t) => (t && saludMentalPropia(t)?.apoyo ? OFERTA_SM.find((x) => x.re.test(normTercera(t))) : null);
@@ -3409,12 +3416,13 @@
     const trasPregunta = trasPregunta0 || (trasContinuacion ? trasContinuacion.o : null);
     const o = inmediata || trasPregunta;
     if (!o) return null;
-    const conAcepta = ACEPTA_OFERTA.test(q) || /^(si por favor|yes please|si|claro|yes|sure) /.test(q);
+    const conAcepta = ACEPTA_OFERTA.test(q) || /^(si por favor|yes please|si|claro|yes|sure)( |$)/.test(q);
     // Ronda 8 (Codex Sol): «sí, en México» o «yes, in Mexico» se resuelven con la misma lógica que el lugar solo.
     let q2 = q;
     if (conAcepta) {
-      q2 = q.replace(/^(si por favor|yes please|si|claro|yes|sure)\b\s*/, '');
-      if (!q2) return trasPregunta ? null : { o, lugar: null };
+      q2 = q.replace(/^(si|claro|yes|sure)( por favor| please)?\b\s*/, '');
+      // Otro «sí» tras la pregunta la repite (no abre cifras ni las cierra).
+      if (!q2) return { o, lugar: null };
     }
     // Ronda 10 (Codex Sol): una frase que termina en preposición o conector está cortada («mujeres en»): no continúa.
     if (/\b(en|de|del|para|in|of|for|y|and|entre|among|con|a)$/.test(q2)) return null;

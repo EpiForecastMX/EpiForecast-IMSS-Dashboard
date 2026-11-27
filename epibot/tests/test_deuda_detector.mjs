@@ -174,6 +174,7 @@ const CASOS = [
   [['has intentado suicidarte'], CRISIS_ES],
   [['mi hija dice que no quiere despertar mañana'], CRISIS_ES],
   [['asma en Jalisco, mi papá ya no quiere vivir con esto'], CRISIS_ES],
+  [['asma en Jalisco, mi hija está en peligro por su papá con asma'], CRISIS_ES],
   // (a′) Idioma del seguimiento tras un lugar aislado: el de la conversación.
   [['suicide in Mexico', 'Jalisco'], NEUTRA_SIGUE_EN],
   [['suicidio en México', 'Jalisco'], NEUTRA_SIGUE_ES],
@@ -278,7 +279,7 @@ test('deuda del detector (ronda 6): tras la pregunta por el estado, la oferta co
   }
   // La depresión es de los padecimientos originales: el KB da la ficha y la función RAG, sin esos datos, remite.
   assert.match((await conversa('tengo depresión', 'sí', 'sí, en Jalisco')).md, /Depresión en Jalisco/);
-  assert.doesNotMatch((await conversa('tengo depresión', 'sí', 'sí')).md, /\d{2}/);
+  assert.match((await conversa('tengo depresión', 'sí', 'sí')).md, /^¿En qué estado\?/);
 });
 
 test('deuda del detector (ronda 6): la petición con otro padecimiento tras una revelación se resuelve igual en KB y RAG', async () => {
@@ -352,7 +353,7 @@ test('deuda del detector (ronda 9): tras una revelación laxa, lugar, ámbito y 
 
 test('deuda del detector (ronda 11): la continuación es texto limpio de una oración y sigue igual en KB, interfaz y RAG', async () => {
   for (const turnos of [['tengo anorexia', 'sí, él. Estado de México'], ['tengo depresión', '?'], ['tengo anorexia', '?'],
-    ['tengo anorexia', 'sí', '?'], ['tengo anorexia', 'el año pasado'], ['tengo anorexia', 'Jalisco y'], ['tengo anorexia', 'sí. Jalisco']]) {
+    ['tengo anorexia', 'sí', '?'], ['tengo anorexia', 'el año pasado'], ['tengo anorexia', 'Jalisco y']]) {
     assert.match((await conversa(...turnos)).md, CRISIS_ES, `KB: ${turnos.join(' → ')}`);
     assert.match(await interfaz(...turnos), CRISIS_ES, `interfaz: ${turnos.join(' → ')}`);
     assert.match(await ragTurno(...turnos), CRISIS_ES, `RAG: ${turnos.join(' → ')}`);
@@ -364,6 +365,25 @@ test('deuda del detector (ronda 11): la continuación es texto limpio de una ora
     assert.match(await interfaz(...turnos), re, `interfaz: ${turnos.join(' → ')}`);
     assert.match(await ragTurno(...turnos), /Anorexia, bulimia y otros trastornos alimentarios/, `RAG: ${turnos.join(' → ')}`);
   }
+});
+
+test('deuda del detector (ronda 12): la aceptación con puntuación habitual coincide en KB, interfaz y RAG', async () => {
+  const re = /Anorexia, bulimia y otros trastornos alimentarios/;
+  for (const segundo of ['sí, en Jalisco!', '¡sí, en Jalisco!', 'sí. en Jalisco', 'sí, por favor, en Jalisco', 'yes, please, in Jalisco', 'de México']) {
+    const turnos = ['tengo anorexia', segundo];
+    assert.match((await conversa(...turnos)).md, re, `KB: ${segundo}`);
+    assert.match(await interfaz(...turnos), re, `interfaz: ${segundo}`);
+    assert.match(await ragTurno(...turnos), re, `RAG: ${segundo}`);
+  }
+  for (const segundo of ['sí!', '¡sí!', 'claro!']) {
+    const turnos = ['tengo depresión', segundo];
+    assert.match((await conversa(...turnos)).md, /^¿En qué estado\?/, `KB: ${segundo}`);
+    assert.match(await ragTurno(...turnos), /^¿En qué estado\?/, `RAG: ${segundo}`);
+  }
+  const turnos = ['tengo anorexia', 'Jalisco', 'todo México', 'mujeres'];
+  assert.match((await conversa(...turnos)).md, /en el país \(mujeres\)/);
+  assert.match((await conversa('tengo depresión', 'en el año pasado')).md, CRISIS_ES);
+  assert.match(await ragTurno('tengo depresión', 'en el año pasado'), CRISIS_ES);
 });
 
 test('deuda del detector (ronda 8): «yes, in Mexico» es el país y conserva el padecimiento ofrecido', async () => {
