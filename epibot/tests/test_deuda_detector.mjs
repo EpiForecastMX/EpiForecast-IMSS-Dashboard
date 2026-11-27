@@ -173,6 +173,7 @@ const CASOS = [
   [['he tenido ideación suicida'], CRISIS_ES],
   [['has intentado suicidarte'], CRISIS_ES],
   [['mi hija dice que no quiere despertar mañana'], CRISIS_ES],
+  [['asma en Jalisco, mi papá ya no quiere vivir con esto'], CRISIS_ES],
   // (a′) Idioma del seguimiento tras un lugar aislado: el de la conversación.
   [['suicide in Mexico', 'Jalisco'], NEUTRA_SIGUE_EN],
   [['suicidio en México', 'Jalisco'], NEUTRA_SIGUE_ES],
@@ -215,7 +216,8 @@ test('deuda del detector (ronda 1): consultas benignas sin falsos positivos del 
     // Ronda 8: contaminación, trabajo, filtros, risa.
     ['¿Cuántos casos de asma habrá en Jalisco? Mi mamá no aguanta más la contaminación.'], ['mi jefe ya no puede más con los reportes de dengue'],
     ['alguien quiere morir de risa con el dengue'], ['asma en Jalisco, mi hija no quiere despertar mañana temprano'],
-    ['alguien quiere desaparecer el dengue']]) {
+    ['alguien quiere desaparecer el dengue'], ['asma en Jalisco, mi papá no quiere despertarse de la siesta'],
+    ['estamos en peligro con tantos casos de dengue'], ['are we in danger in Jalisco from dengue']]) {
     const k = await conversa(...turnos);
     assert.doesNotMatch(k.md, /^(Lamento que estés|I am sorry you are)/, turnos.join(' → '));
     assert.match(k.md, /\d/, turnos.join(' → '));
@@ -345,6 +347,22 @@ test('deuda del detector (ronda 9): tras una revelación laxa, lugar, ámbito y 
   for (const turnos of [['tengo anorexia', 'mujeres en'], ['tengo anorexia', 'en mujeres de']]) {
     assert.match((await conversa(...turnos)).md, CRISIS_ES, turnos.join(' → '));
     assert.match(await ragTurno(...turnos), CRISIS_ES, turnos.join(' → '));
+  }
+});
+
+test('deuda del detector (ronda 11): la continuación es texto limpio de una oración y sigue igual en KB, interfaz y RAG', async () => {
+  for (const turnos of [['tengo anorexia', 'sí, él. Estado de México'], ['tengo depresión', '?'], ['tengo anorexia', '?'],
+    ['tengo anorexia', 'sí', '?'], ['tengo anorexia', 'el año pasado'], ['tengo anorexia', 'Jalisco y'], ['tengo anorexia', 'sí. Jalisco']]) {
+    assert.match((await conversa(...turnos)).md, CRISIS_ES, `KB: ${turnos.join(' → ')}`);
+    assert.match(await interfaz(...turnos), CRISIS_ES, `interfaz: ${turnos.join(' → ')}`);
+    assert.match(await ragTurno(...turnos), CRISIS_ES, `RAG: ${turnos.join(' → ')}`);
+  }
+  for (const [turnos, re] of [[['tengo anorexia', 'Jalisco', 'sí en Sonora'], /trastornos alimentarios en Sonora/],
+    [['tengo anorexia', 'Jalisco', 'mujeres'], /trastornos alimentarios en Jalisco \(mujeres\)/],
+    [['tengo anorexia', 'sí, en el Estado de México'], /trastornos alimentarios en Estado de México/]]) {
+    assert.match((await conversa(...turnos)).md, re, `KB: ${turnos.join(' → ')}`);
+    assert.match(await interfaz(...turnos), re, `interfaz: ${turnos.join(' → ')}`);
+    assert.match(await ragTurno(...turnos), /Anorexia, bulimia y otros trastornos alimentarios/, `RAG: ${turnos.join(' → ')}`);
   }
 });
 

@@ -1865,13 +1865,14 @@
     'enfermedades|contagio|contagios|tos|tos ferina|sarampion|zika|chikungunya|paludismo|malaria|tuberculosis|hepatitis|diabetes|asma|calor|pandemia|' +
     'varicela|neumonia|rotavirus|rubeola|paperas|parotiditis|tosferina|bronquitis|infeccion|infecciones|bacteria|bacterias|parasitos?|chagas|lepra|vih|sida|cancer|measles|pneumonia|' +
     'neumonias|infecciones|contaminacion|smog|humo|polvo|polen|disease|diseases|outbreak|flu|epidemic|pandemic|heat|mosquitos?|zancudos?|moscos?|mosquitoes|(que )?(me |nos |le |les )?(contagi|enferm|infect)[a-z]*)\\b';
-  const NO_ENF_ES = '(?!( en [a-z]+( [a-z]+){0,3})? (de|del|por|con|ante|frente a) ' + ENF_T + ')';
-  const NO_ENF_EN = '(?! (from|of|due to|because of) ' + ENF_T + ')';
+  // Ronda 11 (Fable): la enfermedad puede venir unas palabras después («con tantos casos de dengue», «in Jalisco from dengue»).
+  const NO_ENF_ES = '(?!( en [a-z]+( [a-z]+){0,3})? (de|del|por|con|ante|frente a)( [a-z]+){0,3} ' + ENF_T + ')';
+  const NO_ENF_EN = '(?!( in [a-z]+( [a-z]+){0,2})? (from|of|due to|because of)( [a-z]+){0,2} ' + ENF_T + ')';
   const PERSONA_T = '(mi|mis|tu|tus|su|sus|my|your|his|her|their) ' + NO_PERSONA + '[a-z]+( [a-z]+){0,4}';
   const SUJETO_T = '(' + PERSONA_T + '|ella|alguien|she|he|they|someone|somebody)';
-  const RIESGO_TERCERO_ES = new RegExp('\\b((ya )?no (quiere|quieren|queria|querian|quisiera|quiero|queremos) (llegar a manana|llegar al dia siguiente|ver el dia de manana|amanecer|despertar(se)?(?! (temprano|tarde|manana (temprano|tarde|a las|a la)|a|al|a la|a los|a las)\\b)(?! (por|con) ' + ENF_T + ')|seguir aqui|seguir viv[oa]s?|seguir viviendo|seguir con vida|vivir(?! (en|con|cerca|lejos|solo|sola|conmigo|contigo)\\b)(?!( aqui| ahi| alla)? (por|con) ' + ENF_T + ')|vivir mas|estar viv[oa]s?|estar aqui|existir)\\b|' +
+  const RIESGO_TERCERO_ES = new RegExp('\\b((ya )?no (quiere|quieren|queria|querian|quisiera|quiero|queremos) (llegar a manana|llegar al dia siguiente|ver el dia de manana|amanecer|despertar(se)?(?! (temprano|tarde|manana (temprano|tarde|a las|a la)|de la siesta|de su siesta|a|al|a la|a los|a las)\\b)(?! (por|con) ' + ENF_T + ')|seguir aqui|seguir viv[oa]s?|seguir viviendo|seguir con vida|vivir(?! (en|cerca|lejos|solo|sola|conmigo|contigo)\\b)(?! con (mi|su|sus|mis|tu|tus|el|la|los|las) (familia|mama|papa|madre|padre|abuel[a-z]*|ti[oa]s?|herman[a-z]*|novi[oa]|espos[oa]|pareja|amig[a-z]*|suegr[a-z]*|hij[oa]s?)\\b)(?!( aqui| ahi| alla)? (por|con) ' + ENF_T + ')|vivir mas|estar viv[oa]s?|estar aqui|existir)\\b|' +
     '(?:(?<=^ )|(?<= (que|yo|y|ya|hoy|creo|siento|pienso|neta|verdad)) |' + SUJETO_T + ' )(ya )?no ((llega|llegara|llego|llegue) a manana|(voy|vamos) a (llegar a manana|amanecer))\\b(?! (el|la|los|las|este|esta|con) )|no (le|me|les|nos) (queda|quedan) (razones|ganas|fuerzas|motivos)( para| de)? (seguir|vivir)\\b|(?<!(datos|informacion|archivos|registros|cifras|numeros|data|resultados|curva|grafica|serie|modelo|pronostico) )no (esta|estan|este|esten|estaba|estoy|estamos|estas) a salvo' + NO_ENF_ES + '|no me siento (a salvo|segur[oa](?! (de|del|si|que)\\b(?! (seguir|querer|estar) (viv|con vida|aqui)))(?! con (el|la|los|las|este|esta|estos|estas|ese|esa) (pronostico|modelo|dato|datos|grafica|resultado|resultados|cifra|cifras|informacion|reporte|boletin)\\b))\\b|(estoy|estamos) en peligro' + NO_ENF_ES + '|' +
-    '(quiere|quieren|piensa|piensan|planea|planean) (quitarse la vida|acabar con su vida|terminar con su vida)\\b|se va a (matar|suicidar|quitar la vida)\\b|' +
+    '(quiere|quieren|piensa|piensan|planea|planean) (quitarse la vida|acabar con su vida|terminar con su vida)\\b|se va a (matar|suicidar|quitar la vida)\\b(?! (trabajando|estudiando|de risa|de hambre|corriendo)\\b)|' +
     SUJETO_T + ' (ya )?no (aguanta|aguantan|puede|pueden) mas\\b(?!( con)? ' + ENF_T + ')(?! con (el|la|los|las) (reporte|reportes|trabajo|tarea|tareas|dato|datos|informe|informes|carga|pendientes|cuentas)\\b)|' + SUJETO_T + ' (quiere|quieren) desaparecer\\b(?! ' + ENF_T + ')(?! (el|la|los|las|un|una) (grafica|dato|datos|archivo|archivos|registro|registros|reporte|tabla|boton|pagina|pronostico|modelo|columna|fila|filtro|filtros|mapa|linea)\\b)|' + SUJETO_T + ' no (quiere|quieren) seguir( adelante| asi)? $|' +
     // Ronda 5 (Fable): «quiere morir», «se corta», «puede hacerse daño» y «ella está en peligro» de alguien cercano.
     SUJETO_T + ' (quiere|quieren) (morir|morirse|matarse|hacerse dano|lastimarse|suicidarse)\\b(?! de (risa|ganas|hambre|sueno|frio|calor|aburrimiento|envidia)\\b)|' + SUJETO_T + ' se (haga|hagan|vaya a hacer|pueda hacer) dano\\b|' + SUJETO_T + ' se (corta|cortan|lastima|lastiman|hace dano|hacen dano|quiere hacer dano)\\b(?! (el |la |las |los |su |sus )?(pelo|cabello|unas|barba|fleco|flequillo|luz|senal|internet|conexion|llamada|video|leche|salsa|mayonesa|pagina|sesion)\\b)' +
@@ -3130,7 +3131,9 @@
       const crisisPersonalAntes = () => hubo ?? huboCrisisEnTurnos(previos || [], nombraPadLimpio);
       const smOtra = smOtra0 && !crisisPersonalAntes() ? smOtra0 : null;
       // Ronda 2 (Codex Sol): un año solo («en 2008») tras el apoyo puede ser un año de nacimiento: crisis en KB y RAG.
-      const anioSolo = /^(y |and )?(en|in) (19|20)\d\d$/.test(normTercera(qn));
+      const anioSolo = /^(y |and )?((en|in) (19|20)\d\d|el ano pasado|last year)$/.test(normTercera(qn));
+      // Ronda 11 (Fable): una frase que termina en conector («Jalisco y») está cortada: crisis.
+      if (normTercera(qn) !== 'y' && /\b(en|de|del|para|in|of|for|y|and|entre|among|con|a|que|pero|but)$/.test(normTercera(qn))) return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
       // Ronda 7 (Codex Sol y Fable): la continuación de la oferta pasa la guarda con el mismo criterio con que se resuelve.
       if (ofertaPendiente(qn, previos || [])) return null;
       if ((smOtra && !smOtra.laxa) || SALUDO.test(normTercera(qn)) || ACEPTA_OFERTA.test(normTercera(qn)) || (sigueTercera(qn) && !anioSolo) ||
@@ -3385,8 +3388,12 @@
   // «sí, en Jalisco», «Jalisco», «nacional», «todo México» o un sexo continúan la oferta; otro «sí» a secas, no.
   const LUGAR_SOLO = new RegExp('^(y )?(en |in |de |del |para |for )?(el estado de )?' + LUGAR_T + '$');
   const NACIONAL_SOLO = /^(y )?(a nivel |en |in )?(nacional|todo (el pais|mexico)|el pais|mexico|la republica( mexicana)?|nationwide|nationally|the country)$/;
-  function ofertaPendiente(qn, previos) {
+  function ofertaPendiente(qn, previos, encadenada = true) {
     if (simbolosSM(String(qn)) || simbolosNoTecnicos(qn) || EMOJI_RIESGO.test(qn)) return null;
+    // Ronda 11 (Codex Sol y Fable): la continuación es texto limpio en una sola oración (sólo admite la coma tras «sí»), sin
+    // «él» con tilde ni turnos vacíos de contenido («?», «.»).
+    const crudo = String(qn).normalize('NFKC').toLowerCase().trim().replace(/^(sí|si|claro|yes|sure)\s*,\s*/u, '$1 ');
+    if (!textoLimpio(qn) || !SOLO_TEXTO(crudo) || !unaOracion(crudo) || !normTercera(qn)) return null;
     // Ronda 8 (Fable): «Jalisco, México» es Jalisco (el país como apellido del estado), no el Estado de México.
     const q = normTercera(qn).replace(/^(.*?\b(?!mexico\b)[a-z]+) (mexico|mx)$/, (m, a) => (ESTADOS.some(([e]) => ` ${a} `.includes(` ${e} `) && e !== 'mexico') ? a : m));
     const ofertaDe = (t) => (t && saludMentalPropia(t)?.apoyo ? OFERTA_SM.find((x) => x.re.test(normTercera(t))) : null);
@@ -3394,7 +3401,12 @@
     const p = normTercera(previos.at(-1) || '');
     // Octava ronda (Fable): la oferta vale sólo en el turno inmediato al apoyo, o en el siguiente a la pregunta por el estado.
     const inmediata = ofertaDe(previos.at(-1));
-    const trasPregunta = !inmediata && ACEPTA_OFERTA.test(p) && !lugarDe(p) ? ofertaDe(previos.at(-2)) : null;
+    const trasPregunta0 = !inmediata && ACEPTA_OFERTA.test(p) && !lugarDe(p) ? ofertaDe(previos.at(-2)) : null;
+    // Ronda 11 (Fable): tras una continuación ya resuelta («tengo anorexia» → «Jalisco»), el turno siguiente con otro lugar o
+    // sexo («sí en Sonora», «mujeres») sigue con el mismo padecimiento, como RAG lo hereda del historial (un solo eslabón).
+    const trasContinuacion = !inmediata && !trasPregunta0 && encadenada && previos.length >= 2 &&
+      ofertaPendiente(previos.at(-1), previos.slice(0, -1), false);
+    const trasPregunta = trasPregunta0 || (trasContinuacion ? trasContinuacion.o : null);
     const o = inmediata || trasPregunta;
     if (!o) return null;
     const conAcepta = ACEPTA_OFERTA.test(q) || /^(si por favor|yes please|si|claro|yes|sure) /.test(q);
@@ -3412,10 +3424,12 @@
     const sexo = sexos.length ? (/^(hombres|men)$/.test(sexos[0]) ? 'hombres' : 'mujeres') : null;
     const resto = sexo ? q2.replace(/(^|\b)(y )?((en|entre|in|among) )?(hombres|mujeres|men|women)( (de|del|en|in|of))?\b/, ' ').replace(/\s+/g, ' ').trim() : q2;
     // Ronda 9 (Codex Sol): en el turno inmediato al apoyo también continúan la oferta un lugar, el ámbito nacional o un sexo.
-    if (!resto) return { o, ambito: 'nacional', sexo };
+    // Tras una continuación, el sexo solo conserva su lugar y el lugar solo conserva su sexo, como la herencia de RAG.
+    const antes = trasContinuacion || {};
+    if (!resto) return sexo ? (antes.lugar ? { o, lugar: antes.lugar, sexo } : { o, ambito: 'nacional', sexo }) : null;
     // «México» o «todo el país» es el ámbito nacional, no el Estado de México.
     if (NACIONAL_SOLO.test(resto)) return { o, ambito: 'nacional', sexo };
-    if (LUGAR_SOLO.test(resto) && lugarDe(resto)) return { o, lugar: lugarDe(resto), sexo };
+    if (LUGAR_SOLO.test(resto) && lugarDe(resto)) return { o, lugar: lugarDe(resto), sexo: sexo || antes.sexo || null };
     return null;
   }
   function consultaOferta(qn, previos = []) {
