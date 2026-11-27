@@ -113,7 +113,7 @@ export function vistaGroundedAnswer(query, history, {
     // Ronda 5 (Codex Sol): sólo con una geografía y un sexo, como el KB (que compara sin línea de mes).
     if (pMes?.tipo !== 'mes' || !(s.observado || []).length || anios.some((a) => Number(a) !== pMes.anio) ||
         geos.length > 1 || estado.sexo === 'ambos' || /\b(por (sexo|sexos|genero|generos)|by (sex|gender)|ambos sexos|hombres y mujeres|men and women)\b/i.test(normPal(String(query))) ||
-        /(?![0-9])\p{Nd}/u.test(String(query)) || /\b(de|del|of) \d{2}\b/i.test(normPal(String(query)))) return null;
+        /(?![0-9])\p{Nd}/u.test(String(query)) || /\b(de|del|of)( ano| year)? \d{2}\b/i.test(normPal(String(query)))) return null;
     const ultimo = s.observado.at(-1)[0];
     const mie = new Date(`${ultimo.slice(0, 10)}T00:00:00Z`);
     mie.setUTCDate(mie.getUTCDate() - mie.getUTCDay() + 3);

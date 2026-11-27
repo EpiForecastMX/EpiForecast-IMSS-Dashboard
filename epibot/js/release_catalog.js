@@ -1869,12 +1869,12 @@
   const NO_ENF_EN = '(?! (from|of|due to|because of) ' + ENF_T + ')';
   const PERSONA_T = '(mi|mis|tu|tus|su|sus|my|your|his|her|their) ' + NO_PERSONA + '[a-z]+( [a-z]+){0,4}';
   const SUJETO_T = '(' + PERSONA_T + '|ella|alguien|she|he|they|someone|somebody)';
-  const RIESGO_TERCERO_ES = new RegExp('\\b((ya )?no (quiere|quieren|queria|querian|quisiera|quiero|queremos) (llegar a manana|llegar al dia siguiente|ver el dia de manana|amanecer|despertar(se)?(?! (temprano|tarde|a|al|a la|a los|a las)\\b)(?! (por|con) ' + ENF_T + ')|seguir aqui|seguir viv[oa]s?|seguir viviendo|seguir con vida|vivir(?! (en|con|cerca|lejos|solo|sola|conmigo|contigo)\\b)(?!( aqui| ahi| alla)? (por|con) ' + ENF_T + ')|vivir mas|estar viv[oa]s?|estar aqui|existir)\\b|' +
+  const RIESGO_TERCERO_ES = new RegExp('\\b((ya )?no (quiere|quieren|queria|querian|quisiera|quiero|queremos) (llegar a manana|llegar al dia siguiente|ver el dia de manana|amanecer|despertar(se)?(?! (temprano|tarde|manana|a|al|a la|a los|a las)\\b)(?! (por|con) ' + ENF_T + ')|seguir aqui|seguir viv[oa]s?|seguir viviendo|seguir con vida|vivir(?! (en|con|cerca|lejos|solo|sola|conmigo|contigo)\\b)(?!( aqui| ahi| alla)? (por|con) ' + ENF_T + ')|vivir mas|estar viv[oa]s?|estar aqui|existir)\\b|' +
     '(?:(?<=^ )|(?<= (que|yo|y|ya|hoy|creo|siento|pienso|neta|verdad)) |' + SUJETO_T + ' )(ya )?no ((llega|llegara|llego|llegue) a manana|(voy|vamos) a (llegar a manana|amanecer))\\b(?! (el|la|los|las|este|esta|con) )|no (le|me|les|nos) (queda|quedan) (razones|ganas|fuerzas|motivos)( para| de)? (seguir|vivir)\\b|(?<!(datos|informacion|archivos|registros|cifras|numeros|data|resultados|curva|grafica|serie|modelo|pronostico) )no (esta|estan|este|esten|estaba|estoy|estamos|estas) a salvo' + NO_ENF_ES + '|no me siento (a salvo|segur[oa](?! (de|del|si|que)\\b(?! (seguir|querer|estar) (viv|con vida|aqui)))(?! con (el|la|los|las|este|esta|estos|estas|ese|esa) (pronostico|modelo|dato|datos|grafica|resultado|resultados|cifra|cifras|informacion|reporte|boletin)\\b))\\b|(estoy|estamos) en peligro' + NO_ENF_ES + '|' +
     '(quiere|quieren|piensa|piensan|planea|planean) (quitarse la vida|acabar con su vida|terminar con su vida)\\b|se va a (matar|suicidar|quitar la vida)\\b|' +
     SUJETO_T + ' (ya )?no (aguanta|aguantan|puede|pueden) mas\\b(?!( con)? ' + ENF_T + ')(?! con (el|la|los|las) (reporte|reportes|trabajo|tarea|tareas|dato|datos|informe|informes|carga|pendientes|cuentas)\\b)|' + SUJETO_T + ' (quiere|quieren) desaparecer\\b(?! (el|la|los|las|un|una) (grafica|dato|datos|archivo|archivos|registro|registros|reporte|tabla|boton|pagina|pronostico|modelo|columna|fila|filtro|filtros|mapa|linea)\\b)|' + SUJETO_T + ' no (quiere|quieren) seguir( adelante| asi)? $|' +
     // Ronda 5 (Fable): «quiere morir», «se corta», «puede hacerse daño» y «ella está en peligro» de alguien cercano.
-    SUJETO_T + ' (quiere|quieren) (morir|morirse|matarse|hacerse dano|lastimarse|suicidarse)\\b(?! de (risa|ganas|hambre|sueno|frio|calor|aburrimiento|envidia)\\b)|' + SUJETO_T + ' se (corta|cortan|lastima|lastiman|hace dano|hacen dano|quiere hacer dano)\\b(?! (el |la |las |los |su |sus )?(pelo|cabello|unas|barba|fleco|flequillo|luz|senal|internet|conexion|llamada|video|leche|salsa|mayonesa|pagina|sesion)\\b)' +
+    SUJETO_T + ' (quiere|quieren) (morir|morirse|matarse|hacerse dano|lastimarse|suicidarse)\\b(?! de (risa|ganas|hambre|sueno|frio|calor|aburrimiento|envidia)\\b)|' + SUJETO_T + ' se (haga|hagan|vaya a hacer|pueda hacer) dano\\b|' + SUJETO_T + ' se (corta|cortan|lastima|lastiman|hace dano|hacen dano|quiere hacer dano)\\b(?! (el |la |las |los |su |sus )?(pelo|cabello|unas|barba|fleco|flequillo|luz|senal|internet|conexion|llamada|video|leche|salsa|mayonesa|pagina|sesion)\\b)' +
     '(?! (jugando|haciendo|entrenando|al (jugar|correr|caer|cocinar)|en (el|la) (cancha|escuela|partido)|con (papel|una hoja|un papel|el papel))\\b)|' +
     '(puede|pueden|podria|podrian) hacerse dano\\b(?! (el|la|los|las|en|con)\\b)|' +
     SUJETO_T + ' (esta|estan|corre|corren|anda) (en )?peligro' + NO_ENF_ES + '\\b|' + PERSONA_T + ' no (esta|se siente|estan|se sienten) (segur[oa]s?(?! (de|del|si|que)\\b(?! (seguir|querer|estar) (viv|con vida|aqui)))(?! con (el|la|los|las|este|esta|estos|estas|ese|esa) (pronostico|modelo|dato|datos|grafica|resultado|resultados|cifra|cifras|informacion|reporte|boletin)\\b)|a salvo' + NO_ENF_ES + ')\\b)');
@@ -2768,7 +2768,9 @@
   }
   /** Texto fijo ante una señal de riesgo personal, o null. No pasa por ningún modelo. */
   function respuestaCrisis(qn, previos = []) {
-    const r = respuestaCrisisBase(qn);
+    let r = respuestaCrisisBase(qn);
+    // Ronda 9 (Codex Sol): el idioma de la crisis completa sigue las palabras del turno («suicide in Mexico» con un invisible).
+    if (r === CRISIS_TEXTO_ES && idiomaDeTurno(qn) === 'en') r = CRISIS_TEXTO_EN;
     if (r !== CRISIS_TEXTO_ES && r !== CRISIS_TEXTO_EN) return r;
     const idioma = soloTemaEnTercera(String(qn));
     if (!idioma) return r;
@@ -2988,8 +2990,8 @@
   // Deuda a′ del PR #163: un lugar, un año o un «no» aislados no tienen idioma; el seguimiento usa el del turno anterior más
   // reciente que lo tenga (la crisis o la variante que lo abrió).
   const SIN_IDIOMA = new RegExp('^(' + LUGAR_T.slice(1, -1) + '|nacional|cdmx|' + ANIOS_T + '|\\d+|no|ok|okay)$');
-  const MARCAS_EN = /\b(i|im|ive|my|myself|the|is|are|am|have|has|and|in|of|what|how|about|men|women|not|safe|tonight|today|want|die|kill|help|please|thanks|suicide|suicidal|self|harm|depressed|depression|anxiety|cases|last|year|she|he|they|you|scared|alone|feel)\b/g;
-  const MARCAS_ES = /\b(yo|mi|mis|el|la|los|las|en|de|del|y|que|tengo|estoy|quiero|esta|estas|noche|hoy|ayuda|por|con|para|hombres|mujeres|suicidio|suicidarme|morir|casos|ano|pasado|ella|el|ellos|siento|solo|sola|miedo|gracias)\b/g;
+  const MARCAS_EN = /\b(i|im|ive|my|myself|the|is|are|am|have|has|and|in|of|what|how|about|men|women|not|safe|tonight|today|want|die|kill|help|please|thanks|suicide|suicidal|self|harm|depressed|depression|anxiety|cases|last|year|she|they|you|scared|alone|feel|talks|has)\b/g;
+  const MARCAS_ES = /\b(yo|mi|mis|el|la|los|las|en|de|del|y|que|tengo|estoy|quiero|esta|estas|noche|hoy|ayuda|por|con|para|hombres|mujeres|suicidio|suicidarme|morir|casos|ano|pasado|ella|el|ellos|siento|solo|sola|miedo|gracias|he|tenido|ideacion|pensado|sigo|hoy)\b/g;
   /** Idioma de un turno por sus palabras exclusivas de cada lengua, o null si no tiene ninguna (lugar, año, «no»). */
   function idiomaDeTurno(t) {
     const q = normTercera(t);
@@ -3077,7 +3079,9 @@
     // Décima auditoría: un turno con una petición al bot nunca levanta la crisis, aunque la petición sea válida.
     // Cuarta ronda (Fable): un padecimiento de salud mental (depresión, ansiedad, anorexia…) no levanta la crisis: suele ser
     // el mismo que la persona acaba de revelar.
-    return turnoTecnico(t) && !peticionEn(t) && !idsSensiblesEn(t).length && !nombraReleaseSensible(normLB(t)) && !respuestaCrisis(t) &&
+    // Ronda 9 (Fable): una intoxicación que puede ser método (T36-T65 salvo T63), una lesión autoinfligida o un arma no levantan
+    // ninguna crisis; antes la crisis personal resultaba más permisiva que el apoyo.
+    return turnoTecnico(t) && !peticionEn(t) && !idsSensiblesEn(t).length && !nombraReleaseSensible(normLB(t)) && !respuestaCrisis(t) && !reabreSensible(t) &&
       !SALUD_MENTAL_NOMBRE.test(normTercera(t)) && nombraPadLimpio(t);
   }
   // Deuda del detector (b): tras el apoyo de salud mental, una cortesía o un «no» reciben un cierre fijo (antes llegaban al
@@ -3403,10 +3407,10 @@
     if (sexos.length > 1) return null;
     const sexo = sexos.length ? (/^(hombres|men)$/.test(sexos[0]) ? 'hombres' : 'mujeres') : null;
     const resto = sexo ? q.replace(/(^|\b)(y )?((en|entre|in|among) )?(hombres|mujeres|men|women)( (de|del|en|in|of))?\b/, ' ').replace(/\s+/g, ' ').trim() : q;
-    if (sexo && inmediata) return null;
-    if (!resto) return inmediata ? null : { o, ambito: 'nacional', sexo };
+    // Ronda 9 (Codex Sol): en el turno inmediato al apoyo también continúan la oferta un lugar, el ámbito nacional o un sexo.
+    if (!resto) return { o, ambito: 'nacional', sexo };
     // «México» o «todo el país» es el ámbito nacional, no el Estado de México.
-    if (NACIONAL_SOLO.test(resto)) return inmediata ? null : { o, ambito: 'nacional', sexo };
+    if (NACIONAL_SOLO.test(resto)) return { o, ambito: 'nacional', sexo };
     if (LUGAR_SOLO.test(resto) && lugarDe(resto)) return { o, lugar: lugarDe(resto), sexo };
     return null;
   }

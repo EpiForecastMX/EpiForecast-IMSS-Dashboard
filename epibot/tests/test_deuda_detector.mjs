@@ -163,6 +163,14 @@ const CASOS = [
   [['no me siento segura con mi pareja'], CRISIS_ES],
   [['mi hijo quiere desaparecer un rato'], CRISIS_ES],
   [['la verdad no llego a mañana'], CRISIS_ES],
+  // Ronda 9 (Fable y Codex Sol): una intoxicación que puede ser método no levanta una crisis; tercero que se haga daño; idioma.
+  [['tengo depresión', 'en 2020', 'intoxicación por plaguicidas en Jalisco'], /^Sigo aquí contigo/],
+  [['quiero morir', 'intoxicación por plaguicidas en Jalisco'], /^Sigo aquí contigo/],
+  [['suicidio en México', 'intoxicación por plaguicidas en Jalisco'], CRISIS_ES],
+  [['asma en Jalisco, me preocupa que mi hija se haga daño'], CRISIS_ES],
+  [['tengo anorexia', 'suicide in Mexico\u200B'], CRISIS_EN],
+  [['suicide tonight'], CRISIS_EN],
+  [['he tenido ideación suicida'], CRISIS_ES],
   // (a′) Idioma del seguimiento tras un lugar aislado: el de la conversación.
   [['suicide in Mexico', 'Jalisco'], NEUTRA_SIGUE_EN],
   [['suicidio en México', 'Jalisco'], NEUTRA_SIGUE_ES],
@@ -204,7 +212,7 @@ test('deuda del detector (ronda 1): consultas benignas sin falsos positivos del 
     ['asma en Jalisco, no vamos a llegar a mañana con el informe'], ['mi abuelo está en peligro por neumonía?'],
     // Ronda 8: contaminación, trabajo, filtros, risa.
     ['¿Cuántos casos de asma habrá en Jalisco? Mi mamá no aguanta más la contaminación.'], ['mi jefe ya no puede más con los reportes de dengue'],
-    ['alguien quiere morir de risa con el dengue']]) {
+    ['alguien quiere morir de risa con el dengue'], ['asma en Jalisco, mi hija no quiere despertar mañana temprano']]) {
     const k = await conversa(...turnos);
     assert.doesNotMatch(k.md, /^(Lamento que estés|I am sorry you are)/, turnos.join(' → '));
     assert.match(k.md, /\d/, turnos.join(' → '));
@@ -307,6 +315,17 @@ test('deuda del detector (ronda 7): la continuación de la oferta coincide en KB
     assert.match(await interfaz(...turnos), CRISIS_ES, `interfaz: ${tercero}`);
     assert.match(await ragTurno(...turnos), CRISIS_ES, `RAG: ${tercero}`);
   }
+});
+
+test('deuda del detector (ronda 9): tras una revelación laxa, lugar, ámbito y sexo continúan la oferta en KB y RAG', async () => {
+  for (const turnos of [['ando sola con anorexia', 'todo México', 'Jalisco'], ['ando sola con anorexia', 'en mujeres de Jalisco']]) {
+    const re = /Anorexia, bulimia y otros trastornos alimentarios/;
+    assert.match((await conversa(...turnos)).md, re, turnos.join(' → '));
+    assert.match(await interfaz(...turnos), re, turnos.join(' → '));
+    assert.match(await ragTurno(...turnos), re, turnos.join(' → '));
+  }
+  // Un padecimiento que no puede ser método sí levanta la crisis.
+  assert.match((await conversa('quiero morir', 'alacranismo en Jalisco')).md, /alacrán/);
 });
 
 test('deuda del detector (ronda 8): «yes, in Mexico» es el país y conserva el padecimiento ofrecido', async () => {
