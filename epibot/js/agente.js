@@ -3,7 +3,7 @@
  * la evaluación pareada (eval/compara_agente.mjs). Sin DOM ni red: recibe el plan ya pedido y la función `answer` del KB.
  */
 import { detectEntities, norm } from './entities.js?v=88';
-import { RELEASES, releaseDePad, releasesEnConsulta } from './release_config.js?v=59';
+import { RELEASES, releaseDePad, releasesEnConsulta } from './release_config.js?v=60';
 
 /** ¿La frase pide varias cosas? («… y además …», «… también dime …», dos signos de interrogación). */
 export function pareceVariosPedidos(text) {
@@ -60,7 +60,7 @@ export async function respuestaDePlan(plan, text, yaRespondio, answer) {
       for (const c of consultas) {
         let r = null;
         try { r = await answer(c); } catch (err) { console.error('KB error:', err); }
-        if (r && !/No entendí bien|Lamento que estés|Sigo aquí contigo/.test(r)) partes.push({ c, r });
+        if (r && !/No entendí bien|Lamento que estés|Sigo aquí contigo|Es un tema delicado|Por el tema que tocamos|Gracias por contármelo|I did not quite understand|I am sorry you are|I am still here|This is a sensitive topic|Because of the topic|Thank you for telling me/.test(r)) partes.push({ c, r });
       }
       const aviso = descartados ? `\n\n_No entendí ${descartados === 1 ? 'una parte' : `${descartados} partes`} de tu pregunta; pregúntamela por separado._` : '';
       if (partes.length === 1) return `_Entendí: «${partes[0].c}»._\n\n${partes[0].r}${aviso}`;

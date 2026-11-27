@@ -12,16 +12,16 @@ import { semanaBoletin, estadoHorizonte, rezagoBoletin } from './calendario_bole
 import { cargaRadar, buscaEnRadar, nombreCompletoEnRadar, respuestaRadar, resumenRadar } from './radar_boletin.js?v=15';
 import { answerObesidad, answerDiabetes, answerReleasesMixtos } from './obesidad_kb.js?v=83';
 import { corrigeTexto } from './corrector.js?v=1';
-import { any, needsGeminiReasoning, needsGeneralKnowledge, needsMedicalAdvice, answerInjectionGuard, INJECTION_RESPONSE, answerEquipo, isOffTopic } from './rutas_fijas.js?v=1';
+import { any, needsGeminiReasoning, needsGeneralKnowledge, needsMedicalAdvice, answerInjectionGuard, INJECTION_RESPONSE, answerEquipo, isOffTopic } from './rutas_fijas.js?v=2';
 import { answerCharla, palabraConocida, answerSintomas, answerRankingPadecimientos, answerConfianzaGeneral, TOTAL_PUBLICADOS, saludo as saludoConversacional, answerLegacyLlano as legacyLlano, reescribeConsulta, answerEstadoLlano, answerQueja, answerFAQ, answerFueraDeAlcance, answerVago, answerNoReportado, notaSintomas, answerSemanaFutura, lineaUltimoBoletin, answerViaje, answerAmbiguoColoquial, answerFamiliar, ESTADOS_NOMBRE, answerLegacyComparacion as legacyComparacion, answerConsejoMedico, DUDA_MEDICAMENTO, VIAJE_SEGURIDAD, NOTA_VIAJE } from './conversacion.js?v=28';
-import { respuestaLlana, confiabilidadLegacy, indicadores as indicadoresLlano, semanaTxt } from './resumen_llano.js?v=10';
+import { respuestaLlana, confiabilidadLegacy, indicadores as indicadoresLlano, semanaTxt } from './resumen_llano.js?v=11';
 import { answerNegativaRazonada, answerEstacionalidad, answerExplicaGrafica, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA } from './compuesta.js?v=7';
 import { crecimiento } from './calculo/operaciones.js?v=2';
 import { notasDeLegitimidad } from './calculo/legitimidad.js?v=2';
 import { serieLegacy as serieLegacyCalc } from './calculo/series.js?v=4';
 import { answerPresentacion, conLugarRecordado } from './memoria.js?v=1';
 import { temaClinico, respuestaClinica } from './clinica.js?v=2';
-import { tipoCierre, quitaCierre, cierreDe, esFichaDeDatos, SIN_BASE_CIERRE } from './cierres.js?v=1';
+import { tipoCierre, quitaCierre, cierreDe, esFichaDeDatos, SIN_BASE_CIERRE } from './cierres.js?v=2';
 /** Los cuatro originales en lenguaje llano (consulta general), antes de sus handlers específicos. */
 const LEGACY_CLAVE = { Dengue: 'dengue', Depresion: 'depresion', Parkinson: 'parkinson', Alzheimer: 'alzheimer' };
 const LEGACY_TITULO = { Dengue: 'Dengue', Depresion: 'Depresión', Parkinson: 'Parkinson', Alzheimer: 'Alzheimer' };
@@ -73,7 +73,7 @@ function marcaEstados(m) { return m.filas?.length ? `<!--ESTADOS:${JSON.stringif
 function answerLegacyLlano(q, ent, s, d) {
   return rankingRitmoLegacy(q, ent, d) || legacyComparacion(q, ent, s, d, { indicadores: indicadoresLlano, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA, serieLegacy: serieLegacyCalc }) || legacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadLegacy });
 }
-import { MARCADOR_RELEASE, releaseDeMarca, aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaTemaSensible, respuestaConDatos, salidaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=59';
+import { MARCADOR_RELEASE, releaseDeMarca, aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, esCrisisTercera, esCrisisCompleta, crisisTextoDe, idsSensiblesEnTurno, crisisPersonalDe, saludMentalPropia, consultaOferta, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaTemaSensible, respuestaConDatos, salidaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=60';
 
 let DATA = null;
 
@@ -5609,7 +5609,12 @@ let _lastChartHandler = null;    // nombre del ultimo handler que genero grafico
 let _lastHandlerFn = null;       // referencia al ultimo handler que respondio
 // Auditoría Codex de alta_b44 (19-nov-2026): tras una respuesta de crisis, los seguimientos que no nombran por sí mismos
 // un padecimiento no sensible reciben apoyo, sin cifras ni herencia de padecimiento o estado.
-let _crisisActiva = null;   // 'crisis', 'apoyo' o null
+let _crisisActiva = null;   // 'crisis', 'crisis_tercera' (decisión 1), 'apoyo_sm' (decisión 2), 'apoyo' o null
+// Cuarta ronda: turnos previos del usuario, para dar la variante neutra sólo en una conversación de turnos técnicos.
+let _turnosPrevios = [];
+let _registradoPorGuarda = null;
+// Una crisis (personal o neutra) cierra cifras, cierres y ficha; el apoyo de salud mental (decisión 2) no.
+const crisisDura = () => Boolean(_crisisActiva) && _crisisActiva !== 'apoyo_sm';
 // Tras una aclaración sin cifras (nombre genérico, subtipo, guarda fija), «¿y en Sonora?» no hereda nada: se repite
 // la petición de precisar en vez de caer en la tabla neuro del estado.
 let _aclaracionPendiente = null;
@@ -5660,14 +5665,24 @@ function eligeOpcion(query) {
 export function registraEstadoAyuda(estado) {
   // Rediseño conversacional (24-nov-2026): sólo la crisis persiste; un turno no entendido no deja estado.
   if (estado === 'crisis') _crisisActiva = 'crisis';
+  // Decisión 1: la variante neutra persiste igual, sin rebajar una crisis personal ya activa.
+  else if (estado === 'crisis_tercera' && _crisisActiva !== 'crisis') _crisisActiva = 'crisis_tercera';
+  // Decisión 2: el apoyo de salud mental persiste (cierra cifras sensibles y sube a crisis ante un turno no técnico).
+  else if (estado === 'apoyo_sm' && !_crisisActiva) _crisisActiva = 'apoyo_sm';
 }
 export function estadoDesdeHistorial(turnosUsuario) {
-  registraEstadoAyuda(crisisEnTurnos(turnosUsuario.map(normalizaEntrada), nombraPadecimientoNoSensible));
+  // Octava ronda (Fable): el historial de la interfaz puede omitir un turno cuya consulta a RAG falló; se UNE al registro del
+  // KB (que ya vio ese turno en la guarda), nunca lo reemplaza.
+  const hist = turnosUsuario.map(normalizaEntrada);
+  _turnosPrevios = [..._turnosPrevios, ...hist.filter((t) => !_turnosPrevios.includes(t))];
+  registraEstadoAyuda(crisisEnTurnos(hist, nombraPadecimientoNoSensible));
 }
 /** Respuesta de la función RAG que es apoyo o crisis (texto fijo con la Línea de la Vida), con su estado, o null. */
 export function estadoDeRespuesta(texto) {
   const t = String(texto || '');
   if (/Lamento que estés pasando por esto|I am sorry you are going through this|Sigo aquí contigo|I am still here/.test(t)) return 'crisis';
+  if (/^(Es un tema delicado: sobre él no muestro|This is a sensitive topic: I do not show|Por el tema que tocamos, en esta|Because of the topic we touched on)/.test(t)) return 'crisis_tercera';
+  if (/^_?(Gracias por contármelo|Thank you for telling me)/.test(t)) return 'apoyo_sm';
   return null;
 }
 
@@ -5676,7 +5691,7 @@ export function estadoDeRespuesta(texto) {
  * interfaz. Nada si hay una crisis activa o el padecimiento es sensible.
  */
 export function contextoActual() {
-  if (_crisisActiva) return null;
+  if (crisisDura()) return null;
   const p = lastEntities.padecimiento;
   // El estado se muestra con su nombre escrito («Ciudad de México», no «Ciudad de Mexico» como lo guarda el contexto).
   const est = lastEntities.estado ? (ESTADOS_NOMBRE[norm(lastEntities.estado).replace(/^mexico$/, 'estado de mexico')] || lastEntities.estado) : null;
@@ -5704,10 +5719,12 @@ export function _contexto() {
 }
 
 /** Reset conversacional — solo para tests. */
+/** Para pruebas: los turnos del usuario que la guarda tiene registrados. */
+export const _turnosRegistrados = () => _turnosPrevios.slice();
 export function _resetContext() {
   _comparacionPrevia = null; _estadosComparados = null;
   lastEntities = {}; _lastDistribMetric = null; _lastChartHandler = null; _lastHandlerFn = null;
-  _crisisActiva = null; _aclaracionPendiente = null; _opcionesPendientes = null; _ultimaFicha = null;
+  _crisisActiva = null; _aclaracionPendiente = null; _opcionesPendientes = null; _ultimaFicha = null; _turnosPrevios = []; _registradoPorGuarda = null;
 }
 
 /** La consulta nombra por sí misma un padecimiento que no es sensible (legacy, release o no modelado). */
@@ -5735,23 +5752,76 @@ function esSeguimientoSinPadecimiento(query) {
  * crisis/apoyo persistente, lista blanca global y lista blanca de sensibles. Quinta auditoría Codex: «panorama» llamaba a
  * cifras sin pasar por aquí. Devuelve { response, handler } o null.
  */
-export function guardaInicial(consulta) {
+// Quinta ronda (Codex Sol): la interfaz responde directo con la guarda; cualquier respuesta de la guarda (crisis, apoyo,
+// seguimiento, tema sensible) invalida la ficha previa, para que «en corto» nunca recupere cifras de antes del apoyo.
+export function guardaInicial(consulta, registrar = true) {
+  const r = _guardaInicialBase(consulta, registrar);
+  if (r && (HANDLERS_SIN_CIERRE.has(r.handler) || _crisisActiva)) _ultimaFicha = null;
+  return r;
+}
+function _guardaInicialBase(consulta, registrar = true) {
   const query = sinExclusionG00(normalizaEntrada(consulta));
   const trace = { handler: null };
   // Sin normalizar: emojis y símbolos cuentan en la lista blanca (tercera auditoría Codex).
-  const crisis = respuestaCrisis(query);
+  // Undécima ronda: se registra el turno ORIGINAL del usuario una sola vez (app.js lo hace al llamar la guarda; answer() y
+  // answerWithTrace en _resolveConCierre); las llamadas internas con la consulta ya reescrita («dengue y en Sonora») no
+  // registran y ven como previos todo menos el turno en curso.
+  // Duodécima ronda (Codex Sol): se cuentan turnos, no textos; dos «sí» seguidos son dos turnos. La interfaz llama a la guarda
+  // y luego a answer() con el mismo texto: la marca _registradoPorGuarda evita registrarlo dos veces.
+  let previos;
+  if (registrar) {
+    previos = _turnosPrevios.slice();
+    _turnosPrevios.push(query);
+    _registradoPorGuarda = query;
+  } else previos = _turnosPrevios.slice(0, -1);
+  let crisis = respuestaCrisis(query, previos);
+  // Decisión 1: con una crisis personal ya activa, el tema en tercera persona conserva el texto de crisis completo.
+  if (crisis && esCrisisTercera(crisis) && (_crisisActiva === 'crisis' || _crisisActiva === 'apoyo_sm')) crisis = crisisPersonalDe(crisis);
   if (crisis) {
     lastEntities = {};
-    _crisisActiva = 'crisis';
+    _crisisActiva = esCrisisTercera(crisis) && _crisisActiva !== 'crisis' ? 'crisis_tercera' : 'crisis';
     _aclaracionPendiente = null;
     trace.handler = 'answerCrisis';
     return { response: crisis, handler: trace.handler };
   }
-  const apoyo = respuestaCrisisSeguimiento(query, _crisisActiva, nombraPadecimientoNoSensible);
+  // Decisión 2: primera persona con un padecimiento de salud mental (apoyo, o crisis completa si hay algo más que relleno).
+  // La crisis va ANTES del seguimiento (segunda ronda, Fable): tras la variante neutra, un riesgo personal sube el estado.
+  const mental = saludMentalPropia(query);
+  if (mental?.crisis) {
+    lastEntities = {};
+    _crisisActiva = 'crisis';
+    _aclaracionPendiente = null;
+    return { response: mental.crisis, handler: 'answerCrisis' };
+  }
+  const apoyo = respuestaCrisisSeguimiento(query, _crisisActiva, nombraPadecimientoNoSensible, previos);
   if (apoyo) {
     lastEntities = {};
+    // Tercera ronda: tras la variante neutra, un turno que no es técnico ni cortesía recibe la crisis completa y sube el estado.
+    if (esCrisisCompleta(apoyo)) {
+      _crisisActiva = 'crisis';
+      _aclaracionPendiente = null;
+      trace.handler = 'answerCrisis';
+      return { response: apoyo, handler: trace.handler };
+    }
+    // Tras la variante neutra, el seguimiento personal (cortesía) sube el estado a crisis, igual que el historial.
+    if (_crisisActiva === 'crisis_tercera' && estadoDeRespuesta(apoyo) === 'crisis') _crisisActiva = 'crisis';
     trace.handler = _crisisActiva === 'apoyo' ? 'answerApoyoSeguimiento' : 'answerCrisisSeguimiento';
     return { response: apoyo, handler: trace.handler };
+  }
+  // Séptima ronda (Fable): tras la ficha de un id sensible, una revelación de salud mental recibe la crisis completa.
+  const sensiblePrevio = (lastEntities.padecimiento && releaseDePad(lastEntities.padecimiento)?.sensible) ||
+    previos.some((t) => idsSensiblesEnTurno(t));
+  if ((mental?.apoyo || mental?.prefijo) && sensiblePrevio) {
+    lastEntities = {};
+    _crisisActiva = 'crisis';
+    _aclaracionPendiente = null;
+    return { response: crisisTextoDe(pareceIngles(query)), handler: 'answerCrisis' };
+  }
+  if (mental?.apoyo) {
+    lastEntities = {};
+    _aclaracionPendiente = null;
+    if (!_crisisActiva) _crisisActiva = 'apoyo_sm';
+    return { response: mental.apoyo, handler: 'answerSaludMentalPropia' };
   }
   // Re-auditoría Codex: un seguimiento sin padecimiento propio tras una respuesta de un id sensible pasa por la misma lista
   // blanca («¿y si me tomo 30?» tras «X60 en Jalisco»).
@@ -5782,7 +5852,9 @@ export function guardaInicial(consulta) {
     trace.handler = 'answerFueraDeVocabulario';
     return { response: pareceIngles(query) ? APOYO_EN : APOYO_ES, handler: trace.handler };
   }
-  _crisisActiva = null;
+  // El apoyo de salud mental (decisión 2) persiste en la conversación. Sexta ronda: levantar una crisis personal deja ese
+  // apoyo (cierra ids sensibles); la variante neutra se levanta del todo.
+  _crisisActiva = _crisisActiva === 'crisis' || _crisisActiva === 'apoyo_sm' ? 'apoyo_sm' : null;
   return null;
 }
 
@@ -5818,7 +5890,7 @@ async function _resolve(consulta) {
   const trace = { handler: null };   // por llamada, no global: no puede quedar obsoleto
   // Plan canónico 1.7 (26-nov-2026, Codex Astra): la crisis y los temas sensibles se contestan antes de esperar datos,
   // así que la respuesta fija no depende de la red (antes un fallo de fetch la convertía en excepción).
-  const guarda = guardaInicial(query);
+  const guarda = guardaInicial(query, false);
   if (guarda) return guarda;
   // Respuesta fija que olvida el contexto (guardas, aclaraciones y textos sin datos): una sola forma para todas.
   const fija = (handler, response) => { lastEntities = {}; trace.handler = handler; return { response, handler }; };
@@ -6434,15 +6506,35 @@ export async function answerWithTrace(query) {
 // Plan canónico 3.4: «en corto», «para nota» y «para junta» reescriben la última respuesta de datos (js/cierres.js), sin cifras
 // nuevas. Si la consulta nombra además un padecimiento («dengue en Veracruz para nota»), primero se responde esa consulta.
 let _ultimaFicha = null;
-const HANDLERS_SIN_CIERRE = new Set(['answerConsejoMedico', 'answerClinica', 'answerCrisis', 'answerCrisisSeguimiento', 'answerApoyoSeguimiento', 'answerTemaSensible']);
+const HANDLERS_SIN_CIERRE = new Set(['answerSaludMentalPropia', 'answerConsejoMedico', 'answerClinica', 'answerCrisis', 'answerCrisisSeguimiento', 'answerApoyoSeguimiento', 'answerTemaSensible']);
 function recuerdaFicha(r) {
   // Tras crisis, tema sensible o consejo médico no queda nada que resumir: el cierre nunca devuelve cifras a ese hilo.
-  if (HANDLERS_SIN_CIERRE.has(r?.handler) || _crisisActiva) _ultimaFicha = null;
+  if (HANDLERS_SIN_CIERRE.has(r?.handler) || crisisDura()) _ultimaFicha = null;
   else if (r?.response && esFichaDeDatos(r.response)) _ultimaFicha = r.response;
   return r;
 }
 async function _resolveConCierre(query) {
-  const tipo = respuestaCrisis(query) || _crisisActiva ? null : tipoCierre(query);
+  // Decisión 2, quinta ronda: «sí» o «sí, en Jalisco» tras el apoyo continúan la oferta («depresión en Jalisco»).
+  if (_registradoPorGuarda === query && _turnosPrevios.at(-1) === query) _registradoPorGuarda = null;
+  else { _turnosPrevios.push(query); _registradoPorGuarda = null; }
+  if (_crisisActiva === 'apoyo_sm') {
+    const oferta = consultaOferta(query, _turnosPrevios.slice(0, -1));
+    if (oferta) query = oferta;
+  }
+  // Decisión 2: si la frase de salud mental ya pide datos, la ficha lleva antes una línea de apoyo (el apoyo y la crisis los
+  // da guardaInicial).
+  const mental = respuestaCrisis(query) || crisisDura() ? null : saludMentalPropia(query);
+  if (mental?.crisis || mental?.apoyo) return recuerdaFicha(guardaInicial(query, false));
+  const r = await _resolveConCierreBase(query);
+  // Toda respuesta de datos (la ficha, el mes, el ranking) lleva la línea de apoyo; nunca se antepone a un texto de crisis.
+  if (mental?.prefijo && r?.response && !/^(Lamento|I am sorry|Sigo aquí|I am still|Es un tema|This is a sensitive|Por el tema|Because of the topic)/.test(r.response)) {
+    if (!_crisisActiva) _crisisActiva = 'apoyo_sm';
+    return { ...r, response: mental.prefijo + r.response };
+  }
+  return r;
+}
+async function _resolveConCierreBase(query) {
+  const tipo = respuestaCrisis(query) || crisisDura() ? null : tipoCierre(query);
   if (!tipo) return recuerdaFicha(await _resolveConContexto(query));
   const resto = quitaCierre(query);
   let base = _ultimaFicha;
