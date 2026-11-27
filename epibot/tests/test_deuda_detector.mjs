@@ -171,6 +171,8 @@ const CASOS = [
   [['tengo anorexia', 'suicide in Mexico\u200B'], CRISIS_EN],
   [['suicide tonight'], CRISIS_EN],
   [['he tenido ideación suicida'], CRISIS_ES],
+  [['has intentado suicidarte'], CRISIS_ES],
+  [['mi hija dice que no quiere despertar mañana'], CRISIS_ES],
   // (a′) Idioma del seguimiento tras un lugar aislado: el de la conversación.
   [['suicide in Mexico', 'Jalisco'], NEUTRA_SIGUE_EN],
   [['suicidio en México', 'Jalisco'], NEUTRA_SIGUE_ES],
@@ -212,7 +214,8 @@ test('deuda del detector (ronda 1): consultas benignas sin falsos positivos del 
     ['asma en Jalisco, no vamos a llegar a mañana con el informe'], ['mi abuelo está en peligro por neumonía?'],
     // Ronda 8: contaminación, trabajo, filtros, risa.
     ['¿Cuántos casos de asma habrá en Jalisco? Mi mamá no aguanta más la contaminación.'], ['mi jefe ya no puede más con los reportes de dengue'],
-    ['alguien quiere morir de risa con el dengue'], ['asma en Jalisco, mi hija no quiere despertar mañana temprano']]) {
+    ['alguien quiere morir de risa con el dengue'], ['asma en Jalisco, mi hija no quiere despertar mañana temprano'],
+    ['alguien quiere desaparecer el dengue']]) {
     const k = await conversa(...turnos);
     assert.doesNotMatch(k.md, /^(Lamento que estés|I am sorry you are)/, turnos.join(' → '));
     assert.match(k.md, /\d/, turnos.join(' → '));
@@ -324,8 +327,25 @@ test('deuda del detector (ronda 9): tras una revelación laxa, lugar, ámbito y 
     assert.match(await interfaz(...turnos), re, turnos.join(' → '));
     assert.match(await ragTurno(...turnos), re, turnos.join(' → '));
   }
-  // Un padecimiento que no puede ser método sí levanta la crisis.
-  assert.match((await conversa('quiero morir', 'alacranismo en Jalisco')).md, /alacrán/);
+  // Ronda 10 (Fable): un padecimiento técnico que pasa la guarda del apoyo levanta la crisis personal; lo que el apoyo bloquea
+  // (quemaduras, alacrán, emoticonos) ya no, en KB, interfaz y RAG.
+  assert.match((await conversa('quiero morir', 'asma en Jalisco')).md, /Asma en Jalisco/);
+  for (const turnos of [['quiero morir', 'alacranismo en Jalisco'], ['tengo depresión', 'en 2020', 'quemaduras en Jalisco'],
+    ['tengo depresión', 'en 2020', 'asma en Jalisco :)']]) {
+    assert.match((await conversa(...turnos)).md, /^Sigo aquí contigo/, turnos.join(' → '));
+    assert.match(await interfaz(...turnos), /^(Sigo aquí contigo|Lamento que estés)/, turnos.join(' → '));
+    assert.match(await ragTurno(...turnos), /^Sigo aquí contigo/, turnos.join(' → '));
+  }
+  // Ronda 10 (Codex Sol): «de Jalisco» o «sí, en mujeres» tras una revelación laxa conservan el padecimiento; una frase cortada no.
+  for (const turnos of [['ando sola con anorexia', 'de Jalisco'], ['ando sola con anorexia', 'sí, en mujeres']]) {
+    const re = /Anorexia, bulimia y otros trastornos alimentarios/;
+    assert.match((await conversa(...turnos)).md, re, turnos.join(' → '));
+    assert.match(await ragTurno(...turnos), re, turnos.join(' → '));
+  }
+  for (const turnos of [['tengo anorexia', 'mujeres en'], ['tengo anorexia', 'en mujeres de']]) {
+    assert.match((await conversa(...turnos)).md, CRISIS_ES, turnos.join(' → '));
+    assert.match(await ragTurno(...turnos), CRISIS_ES, turnos.join(' → '));
+  }
 });
 
 test('deuda del detector (ronda 8): «yes, in Mexico» es el país y conserva el padecimiento ofrecido', async () => {
