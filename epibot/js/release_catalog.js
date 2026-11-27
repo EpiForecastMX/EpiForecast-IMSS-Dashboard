@@ -1869,12 +1869,12 @@
   // Las palabras intermedias no pueden nombrar a una persona («en peligro por su papá con asma» es riesgo).
   const PERSONA_INTERMEDIA = '(?!(papa|mama|padre|madre|pareja|esposo|esposa|novio|novia|hermano|hermana|tio|tia|abuelo|abuela|padrastro|madrastra|ex|jefe|maestro|maestra|vecino|vecina|hijo|hija|primo|prima|amigo|amiga|el|ella)\\b)';
   const NO_ENF_ES = '(?!( en [a-z]+( [a-z]+){0,3})? (de|del|por|con|ante|frente a)( ' + PERSONA_INTERMEDIA + '[a-z]+){0,3} ' + ENF_T + ')';
-  const NO_ENF_EN = '(?!( in [a-z]+( [a-z]+){0,2})? (from|of|due to|because of)( [a-z]+){0,2} ' + ENF_T + ')';
+  const NO_ENF_EN = '(?!( in [a-z]+( [a-z]+){0,2})? (from|of|with|due to|because of)( [a-z]+){0,2} ' + ENF_T + ')';
   const PERSONA_T = '(mi|mis|tu|tus|su|sus|my|your|his|her|their) ' + NO_PERSONA + '[a-z]+( [a-z]+){0,4}';
   const SUJETO_T = '(' + PERSONA_T + '|ella|alguien|she|he|they|someone|somebody)';
-  const RIESGO_TERCERO_ES = new RegExp('\\b((ya )?no (quiere|quieren|queria|querian|quisiera|quiero|queremos) (llegar a manana|llegar al dia siguiente|ver el dia de manana|amanecer|despertar(se)?(?! (temprano|tarde|manana (temprano|tarde|a las|a la)|de la siesta|de su siesta|a|al|a la|a los|a las)\\b)(?! (por|con) ' + ENF_T + ')|seguir aqui|seguir viv[oa]s?|seguir viviendo|seguir con vida|vivir(?! (en|cerca|lejos|solo|sola|conmigo|contigo)\\b)(?! con (mi|su|sus|mis|tu|tus|el|la|los|las) (familia|mama|papa|madre|padre|abuel[a-z]*|ti[oa]s?|herman[a-z]*|novi[oa]|espos[oa]|pareja|amig[a-z]*|suegr[a-z]*|hij[oa]s?)\\b)(?!( aqui| ahi| alla)? (por|con) ' + ENF_T + ')|vivir mas|estar viv[oa]s?|estar aqui|existir)\\b|' +
+  const RIESGO_TERCERO_ES = new RegExp('\\b((ya )?no (quiere|quieren|queria|querian|quisiera|quiero|queremos) (llegar a manana|llegar al dia siguiente|ver el dia de manana|amanecer|despertar(se)?(?! (temprano|tarde|manana (temprano|tarde|a las|a la)|de la siesta|de su siesta|a|al|a la|a los|a las)\\b)(?! (por|con) ' + ENF_T + ')|seguir aqui|seguir viv[oa]s?|seguir viviendo|seguir con vida|vivir(?! (en|cerca|lejos|solo|sola|conmigo|contigo|juntos|juntas)\\b)(?! con (mi|su|sus|mis|tu|tus|el|la|los|las) (familia|mama|papa|madre|padre|abuel[a-z]*|ti[oa]s?|herman[a-z]*|novi[oa]|espos[oa]|pareja|amig[a-z]*|suegr[a-z]*|hij[oa]s?)\\b)(?!( aqui| ahi| alla)? (por|con) ' + ENF_T + ')|vivir mas|estar viv[oa]s?|estar aqui|existir)\\b|' +
     '(?:(?<=^ )|(?<= (que|yo|y|ya|hoy|creo|siento|pienso|neta|verdad)) |' + SUJETO_T + ' )(ya )?no ((llega|llegara|llego|llegue) a manana|(voy|vamos) a (llegar a manana|amanecer))\\b(?! (el|la|los|las|este|esta|con) )|no (le|me|les|nos) (queda|quedan) (razones|ganas|fuerzas|motivos)( para| de)? (seguir|vivir)\\b|(?<!(datos|informacion|archivos|registros|cifras|numeros|data|resultados|curva|grafica|serie|modelo|pronostico) )no (esta|estan|este|esten|estaba|estoy|estamos|estas) a salvo' + NO_ENF_ES + '|no me siento (a salvo|segur[oa](?! (de|del|si|que)\\b(?! (seguir|querer|estar) (viv|con vida|aqui)))(?! con (el|la|los|las|este|esta|estos|estas|ese|esa) (pronostico|modelo|dato|datos|grafica|resultado|resultados|cifra|cifras|informacion|reporte|boletin)\\b))\\b|(estoy|estamos) en peligro' + NO_ENF_ES + '|' +
-    '(quiere|quieren|piensa|piensan|planea|planean) (quitarse la vida|acabar con su vida|terminar con su vida)\\b|se va a (matar|suicidar|quitar la vida)\\b(?! (trabajando|estudiando|de risa|de hambre|corriendo)\\b)|' +
+    '(quiere|quieren|piensa|piensan|planea|planean) (quitarse la vida|acabar con su vida|terminar con su vida)\\b|(quiere|quieren|quiero) dejar de (existir|vivir)\\b|se va a (matar|suicidar|quitar la vida)\\b(?! (trabajando|estudiando|de risa|de hambre|corriendo)\\b)|' +
     SUJETO_T + ' (ya )?no (aguanta|aguantan|puede|pueden) mas\\b(?!( con)? ' + ENF_T + ')(?! con (el|la|los|las) (reporte|reportes|trabajo|tarea|tareas|dato|datos|informe|informes|carga|pendientes|cuentas)\\b)|' + SUJETO_T + ' (quiere|quieren) desaparecer\\b(?! ' + ENF_T + ')(?! (el|la|los|las|un|una) (grafica|dato|datos|archivo|archivos|registro|registros|reporte|tabla|boton|pagina|pronostico|modelo|columna|fila|filtro|filtros|mapa|linea)\\b)|' + SUJETO_T + ' no (quiere|quieren) seguir( adelante| asi)? $|' +
     // Ronda 5 (Fable): «quiere morir», «se corta», «puede hacerse daño» y «ella está en peligro» de alguien cercano.
     SUJETO_T + ' (quiere|quieren) (morir|morirse|matarse|hacerse dano|lastimarse|suicidarse)\\b(?! de (risa|ganas|hambre|sueno|frio|calor|aburrimiento|envidia)\\b)|' + SUJETO_T + ' se (haga|hagan|vaya a hacer|pueda hacer) dano\\b|' + SUJETO_T + ' se (corta|cortan|lastima|lastiman|hace dano|hacen dano|quiere hacer dano)\\b(?! (el |la |las |los |su |sus )?(pelo|cabello|unas|barba|fleco|flequillo|luz|senal|internet|conexion|llamada|video|leche|salsa|mayonesa|pagina|sesion)\\b)' +
@@ -3400,6 +3400,8 @@
     // «sí. en Jalisco», «en Jalisco.»), nada más: el resto debe ser una sola oración de texto limpio.
     const crudo = String(qn).normalize('NFKC').toLowerCase().trim().replace(/^¡\s*/u, '').replace(/\s*[.!]+$/u, '')
       .replace(/^(sí|si|claro|yes|sure)(\s*,?\s*(por favor|please))?\s*[,.;:!]?\s*/u, '$1 $3 ').replace(/\s+/g, ' ').trim();
+    // Ronda 13 (Codex Sol): una sola línea y tildes en su sitio, comprobadas sobre el turno original («sí;\nSonora», «mujéres»).
+    if (/[\r\n\t\v\f\u2028\u2029\u0085]/.test(String(qn)) || !acentosEnSuSitio(String(qn).replace(/(^|[^\p{L}])sí(?=$|[^\p{L}])/giu, '$1si'))) return null;
     if (!textoLimpio(crudo) || !SOLO_TEXTO(crudo) || !unaOracion(crudo) || !normTercera(qn)) return null;
     // Ronda 8 (Fable): «Jalisco, México» es Jalisco (el país como apellido del estado), no el Estado de México.
     const q = normTercera(qn).replace(/^(.*?\b(?!mexico\b)[a-z]+) (mexico|mx)$/, (m, a) => (ESTADOS.some(([e]) => ` ${a} `.includes(` ${e} `) && e !== 'mexico') ? a : m));
@@ -3454,7 +3456,8 @@
   function ofertaSinEstado(qn, previos = []) {
     const r = ofertaPendiente(qn, previos);
     if (!r || r.lugar || r.ambito) return null;
-    const en = /\b(i|im|my|depression|depressed|eating)\b/.test(normTercera(previos.at(-1) || '')) && !/\b(tengo|estoy|mi)\b/.test(normTercera(previos.at(-1) || ''));
+    // Ronda 13 (Codex Sol): el idioma de la conversación, también cuando la pregunta se repite («yes» → «yes»).
+    const en = (idiomaDeTurno(qn) || [...previos].reverse().map(idiomaDeTurno).find(Boolean) || 'es') === 'en';
     return (en ? `Which state? Tell me (for example, «in Jalisco») and I will tell you how ${r.o.en} cases are going there.`
       : `¿En qué estado? Dímelo (por ejemplo, «en Jalisco») y te digo cómo van los casos de ${r.o.es} ahí.`) + '\n<!--SIN_GRAFICA-->';
   }

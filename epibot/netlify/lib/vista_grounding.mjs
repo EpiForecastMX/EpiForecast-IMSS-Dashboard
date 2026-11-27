@@ -114,7 +114,8 @@ export function vistaGroundedAnswer(query, history, {
     if (pMes?.tipo !== 'mes' || !(s.observado || []).length || anios.some((a) => Number(a) !== pMes.anio) ||
         geos.length > 1 || estado.sexo === 'ambos' || /\b(por (sexo|sexos|genero|generos)|by (sex|gender)|ambos sexos|hombres y mujeres|men and women)\b/i.test(normPal(String(query))) ||
         /(?![0-9])\p{Nd}/u.test(String(query)) || /\b(de|del|of)( ano| year)? \d{2}\b/i.test(normPal(String(query))) ||
-        /\b(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre) \d{2}\b/.test(normPal(String(query)))) return null;
+        /\b(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre) \d{2}\b/.test(normPal(String(query))) ||
+        /\b(ano pasado|year before|last year|ano anterior)\b/.test(normPal(String(query)))) return null;
     const ultimo = s.observado.at(-1)[0];
     const mie = new Date(`${ultimo.slice(0, 10)}T00:00:00Z`);
     mie.setUTCDate(mie.getUTCDate() - mie.getUTCDay() + 3);

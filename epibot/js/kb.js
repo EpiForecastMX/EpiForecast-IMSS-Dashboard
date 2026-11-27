@@ -5797,7 +5797,8 @@ function _guardaInicialBase(consulta, registrar = true) {
   }
   const apoyo = respuestaCrisisSeguimiento(query, _crisisActiva, nombraPadecimientoNoSensible, previos);
   if (apoyo) {
-    lastEntities = {};
+    // Ronda 13 (Codex Sol y Fable): el cierre fijo tras «no» conserva el contexto, como en origin/main y como RAG lo hereda.
+    if (!esCierreApoyo(apoyo)) lastEntities = {};
     // Tercera ronda: tras la variante neutra, un turno que no es técnico ni cortesía recibe la crisis completa y sube el estado.
     if (esCrisisCompleta(apoyo)) {
       _crisisActiva = 'crisis';
