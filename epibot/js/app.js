@@ -907,8 +907,10 @@ function setSendBusy(value) {
 
 async function handleSend() {
   desbloqueaVoz();
-  const text = inputField.value.trim();
-  if (!text || busy) return;
+  // Deuda del detector, ronda 15 (Codex Sol): sólo se recortan espacios y saltos; un invisible al borde (U+FEFF) llega a la
+  // guarda, que lo trata igual que el KB y la función RAG.
+  const text = inputField.value.replace(/^[ \t\n\r]+|[ \t\n\r]+$/g, '');
+  if (!text.trim() || busy) return;
   setSendBusy(true);
   inputField.value = '';
   addUserMessage(text);

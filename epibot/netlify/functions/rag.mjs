@@ -1123,8 +1123,10 @@ async function handlerInterno(req) {
     }
     // Decimocuarta ronda (Codex Sol y Fable): la revelación se SUSTITUYE por la consulta sin primera persona (el padecimiento
     // sigue como contexto técnico), y en este estado ninguna respuesta sale del generador.
+    // Ronda 15: la revelación que pide datos sin nombrar un padecimiento sale del contexto, como en el KB (que conserva el
+    // referente anterior); las demás se sustituyen por la consulta sin primera persona.
     body = { ...body, _sinGenerador: true, history: (body.history || []).map((x) => (x && x.role === 'user' && C1.saludMentalPropia(String(x.text || ''))
-      ? { ...x, text: C1.consultaSinRevelacion(String(x.text || '')) } : x)) };
+      ? { ...x, text: C1.revelacionSinPadecimiento(String(x.text || '')) ? '' : C1.consultaSinRevelacion(String(x.text || '')) } : x)) };
   }
   // Séptima ronda (Fable): tras un id sensible en el historial, la revelación recibe la crisis completa, no el apoyo.
   if ((mental?.apoyo || mental?.prefijo) && previosUsuario.some((t) => globalThis.EPI_CATALOGO.idsSensiblesEn(t).length ||

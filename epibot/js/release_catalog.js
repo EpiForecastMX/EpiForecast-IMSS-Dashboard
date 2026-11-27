@@ -1883,7 +1883,7 @@
     '(puede|pueden|podria|podrian) hacerse dano\\b(?! (el|la|los|las|en|con)\\b)|' +
     SUJETO_T + ' (esta|estan|corre|corren|anda) (en )?peligro' + NO_ENF_ES + '\\b|' + PERSONA_T + ' no (esta|se siente|estan|se sienten) (segur[oa]s?(?! (de|del|si|que)\\b(?! (seguir|querer|estar) (viv|con vida|aqui)))(?! con (el|la|los|las|este|esta|estos|estas|ese|esa) (pronostico|modelo|dato|datos|grafica|resultado|resultados|cifra|cifras|informacion|reporte|boletin)\\b)|a salvo' + NO_ENF_ES + ')\\b)');
   const RIESGO_TERCERO_EN = new RegExp('\\b(((i|i m|im|he|she|they|we|you|someone|somebody)|' + PERSONA_T + ')( is| are| am| m| s| re| feel| feels| was| were)? (not safe|unsafe|in danger)' + NO_ENF_EN + '|' +
-    '(' + SUJETO_T + ' (isn t|isnt|aren t|wasn t)|im not|i m not) safe' + NO_ENF_EN + '|(don t|dont|do not|doesn t|does not) feel safe|(doesn t|does not|don t|do not) want to (live(?! (in|with|near) )|be alive|wake up(?! (the|my|her|his|their|early|at|in)\\b)|be here|exist|see tomorrow|make it to tomorrow)|' +
+    '(' + SUJETO_T + ' (isn t|isnt|aren t|wasn t)|im not|i m not) safe' + NO_ENF_EN + '|(don t|dont|do not|doesn t|does not) feel safe|(doesn t|does not|don t|do not) want to (live(?! (in|with|near) )|be alive|wake up(?! (the|my|her|his|their|early|late|at|in)\\b)|be here|exist|see tomorrow|make it to tomorrow)|' +
     '(wants|want) to (die|end it all|end (his|her|their) life|kill (himself|herself|themselves)|disappear(?! (the|a|this|that|my|her|his) ))|(is|are|s|re) going to kill (himself|herself|themselves))\\b');
   const CRISIS_EN = /\b(kill(ing)? myself|want to die|wanna die|end my life|take my own life|hurt myself|harm myself|suicidal thoughts|im suicidal|i am suicidal)\b/;
   // alta_b44 (19-nov-2026): violencia vivida en primera persona («me pegan», «mi pareja me golpea»).
@@ -3141,10 +3141,6 @@
       if (String(qn).endsWith(MARCA_INVISIBLE) && ofertaPendiente(String(qn).slice(0, -MARCA_INVISIBLE.length), previos || [])) {
         return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
       }
-      // Ronda 14 (Fable): tras la aclaración («necesito el padecimiento y el estado»), un fragmento que tampoco nombra un
-      // padecimiento recibe la misma aclaración en KB y RAG (antes, panorama en el KB y generador en RAG).
-      const aclara = aclaracionPendiente(qn, previos || [], en);
-      if (aclara) return aclara;
       // Ronda 11 (Fable): una frase que termina en conector («Jalisco y») está cortada: crisis.
       if (normTercera(qn) !== 'y' && /\b(en|de|del|para|in|of|for|y|and|entre|among|con|a|que|pero|but)$/.test(normTercera(qn))) return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
       // Ronda 7 (Codex Sol y Fable): la continuación de la oferta pasa la guarda con el mismo criterio con que se resuelve.
@@ -3409,8 +3405,8 @@
     // Ronda 12 (Codex Sol y Fable): se admite la puntuación habitual de una respuesta («¡sí!», «sí, por favor, en Jalisco»,
     // «en Jalisco.»), nada más: el resto debe ser una sola oración de texto limpio. Ronda 14 (Codex Sol): tras «sí» sólo la
     // coma; «sí; Sonora» o «sí. Jalisco» son dos oraciones y conservan la crisis, como en origin/main.
-    const crudo = String(qn).normalize('NFKC').toLowerCase().trim().replace(/^¡\s*/u, '').replace(/\s*[.!]+$/u, '')
-      .replace(/^(sí|si|claro|yes|sure)(\s*,?\s*(por favor|please))?\s*[,!]?\s*/u, '$1 $3 ').replace(/\s+/g, ' ').trim();
+    const crudo = String(qn).normalize('NFKC').toLowerCase().trim().replace(/^[¡¿]\s*/u, '').replace(/\s*([.!]+|\?)$/u, '')
+      .replace(/^(sí|si|claro|yes|sure)(\s*,?\s*(por favor|please))?\s*,?\s*/u, '$1 $3 ').replace(/\s+/g, ' ').trim();
     // Ronda 13 (Codex Sol): una sola línea y tildes en su sitio, comprobadas sobre el turno original («sí;\nSonora», «mujéres»).
     if (/[\r\n\t\v\f\u2028\u2029\u0085]/.test(String(qn)) || !acentosEnSuSitio(String(qn).replace(/(^|[^\p{L}])sí(?=$|[^\p{L}])/giu, '$1si'))) return null;
     if (!textoLimpio(crudo) || !SOLO_TEXTO(crudo) || !unaOracion(crudo) || !normTercera(qn)) return null;
@@ -3460,15 +3456,12 @@
     return r.lugar ? `${base} en ${r.lugar[1]}${r.sexo ? ` en ${r.sexo}` : ''}` : `cuantos casos de ${base} hay en el pais${r.sexo ? ` en ${r.sexo}` : ''}`;
   }
   /** Ronda 8 (Fable): padecimiento ofrecido cuando se pregunta por el estado; el KB lo deja como contexto, como RAG lo hereda. */
-  const ACLARA_ES = 'Para darte cifras necesito el padecimiento y el estado, por ejemplo «depresión en Jalisco».\n<!--SIN_GRAFICA-->';
-  const ACLARA_EN = 'To give you figures I need the condition and the state, for example «depression in Jalisco».\n<!--SIN_GRAFICA-->';
-  const nombraPadecimiento = (t) => padecimientosEnConsulta(t).length > 0 || releasesEnConsulta(normLB(t), { prefijos: true }).length > 0;
-  /** La aclaración fija vuelve a darse si el turno previo la recibió y éste tampoco nombra un padecimiento (sólo texto limpio). */
-  function aclaracionPendiente(qn, previos, en) {
-    const prev = previos.at(-1);
-    if (!prev || !saludMentalPropia(prev)?.prefijo || nombraPadecimiento(prev) || peticionSinRevelacion(prev)) return null;
-    if (nombraPadecimiento(qn) || saludMentalPropia(qn) || !textoLimpio(qn) || !turnoTecnico(qn)) return null;
-    return en ? ACLARA_EN : ACLARA_ES;
+  /** Ronda 15: revelación que pide datos sin nombrar un padecimiento («sigo deprimida cuantos casos en Jalisco»): el KB no la
+   * usa como contexto y RAG la quita del historial, para que ambos hereden el mismo referente. */
+  function revelacionSinPadecimiento(t) {
+    if (!saludMentalPropia(t)?.prefijo) return false;
+    const p = padecimientosEnConsulta(t);
+    return !(p.legacy || []).length && !(p.releases || []).length && !releasesEnConsulta(normLB(t), { prefijos: true }).length;
   }
   /** Ronda 10 (Codex Sol): padecimiento que ofrece el apoyo a una revelación (el KB lo deja como contexto, RAG lo hereda). */
   function padDeRevelacion(qn) { const o = saludMentalPropia(qn)?.apoyo ? OFERTA_SM.find((x) => x.re.test(normTercera(qn))) : null; return o ? o.pad : null; }
@@ -3503,7 +3496,7 @@
   g.EPI_CATALOGO = Object.freeze({
     ETIQUETA_SIN_ALTERNATIVA, textoSinAlternativa,
     releases, diabetesEnConsulta, conDiabetesNombrada, conFamiliaNombrada, canonClinico, nombraAlias, noModeladas,
-    mencionaNoModelada, conHipertensionNombrada, respuestaCrisis, esCrisisTercera, esCierreApoyo, esCrisisCompleta, crisisTextoDe, crisisPersonalDe, saludMentalPropia, consultaSinRevelacion, consultaOferta, ofertaSinEstado, padDeOferta, padDeRevelacion, huboCrisisEnTurnos, peticionSinRevelacion, nombraReleaseSensible, normLB, subtipoAjeno, aliasAmbiguo,
+    mencionaNoModelada, conHipertensionNombrada, respuestaCrisis, esCrisisTercera, esCierreApoyo, esCrisisCompleta, crisisTextoDe, crisisPersonalDe, saludMentalPropia, consultaSinRevelacion, consultaOferta, ofertaSinEstado, padDeOferta, padDeRevelacion, revelacionSinPadecimiento, huboCrisisEnTurnos, peticionSinRevelacion, nombraReleaseSensible, normLB, subtipoAjeno, aliasAmbiguo,
     motivoRechazo, crisisEnTurnos, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, idsSensiblesEn,
     alcoholCalificado, IDS_LISTA_BLANCA, _VOCAB_TECNICO: VOCAB_TECNICO, _FRAGMENTOS_GUARDAS: FRAGMENTOS_GUARDAS, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaTemaSensible, respuestaFueraDeVocabulario,
     restoFuera, tieneFragmentoDeDatos, respuestaConDatos, esRespuestaDeAyuda, salidaFueraDeVocabulario, APOYO_ES, APOYO_EN, pareceIngles, normalizaEntrada,

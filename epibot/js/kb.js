@@ -5808,7 +5808,7 @@ function _guardaInicialBase(consulta, registrar = true) {
     }
     // Tras la variante neutra, el seguimiento personal (cortesía) sube el estado a crisis, igual que el historial.
     if (_crisisActiva === 'crisis_tercera' && estadoDeRespuesta(apoyo) === 'crisis') _crisisActiva = 'crisis';
-    trace.handler = esCierreApoyo(apoyo) || /^(Para darte cifras necesito|To give you figures I need)/.test(apoyo) ? 'answerSaludMentalPropia' : _crisisActiva === 'apoyo' ? 'answerApoyoSeguimiento' : 'answerCrisisSeguimiento';
+    trace.handler = esCierreApoyo(apoyo) ? 'answerSaludMentalPropia' : _crisisActiva === 'apoyo' ? 'answerApoyoSeguimiento' : 'answerCrisisSeguimiento';
     return { response: apoyo, handler: trace.handler };
   }
   // Séptima ronda (Fable): tras la ficha de un id sensible, una revelación de salud mental recibe la crisis completa.
@@ -6560,7 +6560,8 @@ async function _resolveConCierre(query) {
   // Ronda 3 (Codex Sol y Fable): si el turno no nombra un padecimiento (sólo «deprimida», «sigo bastante deprimida»), el KB
   // pide el padecimiento y el estado con el mismo texto fijo que la función RAG, en lugar de deducirlo o heredar el anterior.
   if (mental?.prefijo && !detectEntities(norm(query)).padecimiento) {
-    lastEntities = {};
+    // Ronda 15 (Codex Sol y Fable): la aclaración no borra el contexto; los turnos siguientes lo heredan en el KB igual que en
+    // RAG («y en Sonora» tras «asma en Jalisco» sigue siendo asma, como en origin/main).
     // Ronda 4 (Codex Sol y Fable): la aclaración deja el estado de apoyo, igual que la ficha con la línea de apoyo.
     if (!_crisisActiva || _crisisActiva === 'tema_cerrado') _crisisActiva = 'apoyo_sm';
     const en = mental.prefijo.startsWith('_Thank');

@@ -411,14 +411,19 @@ test('deuda del detector (ronda 14): «sí;» o invisibles conservan la crisis y
     assert.match(await interfaz(...turnos), CRISIS_ES, `interfaz: ${JSON.stringify(turnos)}`);
     assert.match(await ragTurno(...turnos), CRISIS_ES, `RAG: ${JSON.stringify(turnos)}`);
   }
-  for (const tercero of ['y en Sonora', 'Jalisco', 'hombres', 'nacional', 'tendencia']) {
-    const turnos = ['asma en Jalisco', 'sigo bastante deprimida cuantos casos en Jalisco', tercero];
-    const re = /^Para darte cifras necesito el padecimiento y el estado/;
-    assert.match((await conversa(...turnos)).md, re, `KB: ${tercero}`);
-    assert.match(await interfaz(...turnos), re, `interfaz: ${tercero}`);
-    assert.match(await ragTurno(...turnos), re, `RAG: ${tercero}`);
+  // Ronda 15 (Codex Sol y Fable): la aclaración no borra el contexto; los turnos siguientes heredan el asma en las tres rutas,
+  // como en origin/main, y una señal posterior conserva la crisis.
+  for (const resto of [['y en Sonora'], ['y en Sonora', 'nacional'], ['Jalisco!']]) {
+    const turnos = ['asma en Jalisco', 'sigo bastante deprimida cuantos casos en Jalisco', ...resto];
+    assert.match((await conversa(...turnos)).md, /Asma/, `KB: ${resto.join(' → ')}`);
+    assert.match(await interfaz(...turnos), /Asma/, `interfaz: ${resto.join(' → ')}`);
+    assert.match(await ragTurno(...turnos), /Asma/, `RAG: ${resto.join(' → ')}`);
   }
-  assert.match((await conversa('asma en Jalisco', 'sigo bastante deprimida cuantos casos en Jalisco', 'asma en Sonora')).md, /Asma en Sonora/);
+  for (const turnos of [['estoy deprimido cuantos casos hay', 'es menor', 'nacional'], ['tengo anorexia', 'sí! Sonora']]) {
+    assert.match((await conversa(...turnos)).md, /^(Sigo aquí contigo|Lamento que estés)/, `KB: ${turnos.join(' → ')}`);
+    assert.match(await interfaz(...turnos), /^(Sigo aquí contigo|Lamento que estés)/, `interfaz: ${turnos.join(' → ')}`);
+    assert.match(await ragTurno(...turnos), /^(Sigo aquí contigo|Lamento que estés)/, `RAG: ${turnos.join(' → ')}`);
+  }
 });
 
 test('deuda del detector (ronda 8): «yes, in Mexico» es el país y conserva el padecimiento ofrecido', async () => {
