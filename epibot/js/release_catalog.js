@@ -1864,19 +1864,19 @@
   const ENF_T = '(el |la |los |las |the |a |an )?(dengue|covid|coronavirus|influenza|gripa|gripe|virus|epidemia|brote|brotes|enfermedad|' +
     'enfermedades|contagio|contagios|tos|tos ferina|sarampion|zika|chikungunya|paludismo|malaria|tuberculosis|hepatitis|diabetes|asma|calor|pandemia|' +
     'varicela|neumonia|rotavirus|rubeola|paperas|parotiditis|tosferina|bronquitis|infeccion|infecciones|bacteria|bacterias|parasitos?|chagas|lepra|vih|sida|cancer|measles|pneumonia|' +
-    'disease|diseases|outbreak|flu|epidemic|pandemic|heat|mosquitos?|zancudos?|moscos?|mosquitoes|(que )?(me |nos |le |les )?(contagi|enferm|infect)[a-z]*)\\b';
+    'neumonias|infecciones|disease|diseases|outbreak|flu|epidemic|pandemic|heat|mosquitos?|zancudos?|moscos?|mosquitoes|(que )?(me |nos |le |les )?(contagi|enferm|infect)[a-z]*)\\b';
   const NO_ENF_ES = '(?!( en [a-z]+( [a-z]+){0,3})? (de|del|por|con|ante|frente a) ' + ENF_T + ')';
   const NO_ENF_EN = '(?! (from|of|due to|because of) ' + ENF_T + ')';
   const PERSONA_T = '(mi|mis|tu|tus|su|sus|my|your|his|her|their) ' + NO_PERSONA + '[a-z]+( [a-z]+){0,4}';
   const SUJETO_T = '(' + PERSONA_T + '|ella|alguien|she|he|they|someone|somebody)';
   const RIESGO_TERCERO_ES = new RegExp('\\b((ya )?no (quiere|quieren|queria|querian|quisiera|quiero|queremos) (llegar a manana|llegar al dia siguiente|ver el dia de manana|amanecer|despertar(se)?(?! (temprano|tarde|a|al|a la|a los|a las)\\b)(?! (por|con) ' + ENF_T + ')|seguir aqui|seguir viv[oa]s?|seguir viviendo|seguir con vida|vivir(?! (en|con|cerca|lejos|solo|sola|conmigo|contigo)\\b)(?!( aqui| ahi| alla)? (por|con) ' + ENF_T + ')|vivir mas|estar viv[oa]s?|estar aqui|existir)\\b|' +
-    '(?:(?<=^ )|(?<= (que|yo|y|ya|hoy|creo|siento|pienso|neta)) |' + SUJETO_T + ' )(ya )?no (llega|llegara|llego|llegue) a manana\\b|no (voy|va|vamos) a (llegar a manana|amanecer)\\b|no (le|me|les|nos) (queda|quedan) (razones|ganas|fuerzas|motivos)( para| de)? (seguir|vivir)\\b|(?<!(datos|informacion|archivos|registros|cifras|numeros|data|resultados) )no (esta|estan|este|esten|estaba|estoy|estamos|estas) a salvo' + NO_ENF_ES + '|no me siento (a salvo|segur[oa](?! (de|del|si|que|con)\\b(?! (seguir|querer|estar) (viv|con vida|aqui))))\\b|(estoy|estamos) en peligro' + NO_ENF_ES + '|' +
+    '(?:(?<=^ )|(?<= (que|yo|y|ya|hoy|creo|siento|pienso|neta|verdad)) |' + SUJETO_T + ' )(ya )?no ((llega|llegara|llego|llegue) a manana|(voy|vamos) a (llegar a manana|amanecer))\\b(?! (el|la|los|las|este|esta|con) )|no (le|me|les|nos) (queda|quedan) (razones|ganas|fuerzas|motivos)( para| de)? (seguir|vivir)\\b|(?<!(datos|informacion|archivos|registros|cifras|numeros|data|resultados) )no (esta|estan|este|esten|estaba|estoy|estamos|estas) a salvo' + NO_ENF_ES + '|no me siento (a salvo|segur[oa](?! (de|del|si|que)\\b(?! (seguir|querer|estar) (viv|con vida|aqui)))(?! con (el|la|los|las|este|esta|estos|estas|ese|esa) (pronostico|modelo|dato|datos|grafica|resultado|resultados|cifra|cifras|informacion|reporte|boletin)\\b))\\b|(estoy|estamos) en peligro' + NO_ENF_ES + '|' +
     '(quiere|quieren|piensa|piensan|planea|planean) (quitarse la vida|acabar con su vida|terminar con su vida)\\b|se va a (matar|suicidar|quitar la vida)\\b|' +
-    SUJETO_T + ' (ya )?no (aguanta|aguantan|puede|pueden) mas\\b(?!( con)? ' + ENF_T + ')|' + SUJETO_T + ' (quiere|quieren) desaparecer\\b(?! (el|la|los|las|un|una)\\b)|' + SUJETO_T + ' no (quiere|quieren) seguir( adelante| asi)? $|' +
+    SUJETO_T + ' (ya )?no (aguanta|aguantan|puede|pueden) mas\\b(?!( con)? ' + ENF_T + ')|' + SUJETO_T + ' (quiere|quieren) desaparecer\\b(?! (el|la|los|las|un|una) (grafica|dato|datos|archivo|archivos|registro|registros|reporte|tabla|boton|pagina|pronostico|modelo|columna|fila)\\b)|' + SUJETO_T + ' no (quiere|quieren) seguir( adelante| asi)? $|' +
     // Ronda 5 (Fable): «quiere morir», «se corta», «puede hacerse daño» y «ella está en peligro» de alguien cercano.
-    SUJETO_T + ' (quiere|quieren) (morir|morirse|matarse|hacerse dano|lastimarse|suicidarse)\\b|' + SUJETO_T + ' se (corta|cortan|lastima|lastiman|hace dano|hacen dano|quiere hacer dano)\\b(?! (el|la|las|los|un|una|su|sus|cuando|mucho|seguido|de)\\b)|' +
+    SUJETO_T + ' (quiere|quieren) (morir|morirse|matarse|hacerse dano|lastimarse|suicidarse)\\b|' + SUJETO_T + ' se (corta|cortan|lastima|lastiman|hace dano|hacen dano|quiere hacer dano)\\b(?! (el |la |las |los |su |sus )?(pelo|cabello|unas|barba|fleco|flequillo|luz|senal|internet|conexion|llamada|video|leche|salsa|mayonesa|pagina|sesion)\\b)|' +
     '(puede|pueden|podria|podrian) hacerse dano\\b(?! (el|la|los|las|en|con)\\b)|' +
-    SUJETO_T + ' (esta|estan|corre|corren|anda) (en )?peligro' + NO_ENF_ES + '\\b|' + PERSONA_T + ' no (esta|se siente|estan|se sienten) (segur[oa]s?(?! (de|del|si|que|con)\\b(?! (seguir|querer|estar) (viv|con vida|aqui)))|a salvo' + NO_ENF_ES + ')\\b)');
+    SUJETO_T + ' (esta|estan|corre|corren|anda) (en )?peligro' + NO_ENF_ES + '\\b|' + PERSONA_T + ' no (esta|se siente|estan|se sienten) (segur[oa]s?(?! (de|del|si|que)\\b(?! (seguir|querer|estar) (viv|con vida|aqui)))(?! con (el|la|los|las|este|esta|estos|estas|ese|esa) (pronostico|modelo|dato|datos|grafica|resultado|resultados|cifra|cifras|informacion|reporte|boletin)\\b)|a salvo' + NO_ENF_ES + ')\\b)');
   const RIESGO_TERCERO_EN = new RegExp('\\b(((i|i m|im|he|she|they|we|you|someone|somebody)|' + PERSONA_T + ')( is| are| am| m| s| re| feel| feels| was| were)? (not safe|unsafe|in danger)' + NO_ENF_EN + '|' +
     '(' + SUJETO_T + ' (isn t|isnt|aren t|wasn t)|im not|i m not) safe' + NO_ENF_EN + '|(don t|dont|do not|doesn t|does not) feel safe|(doesn t|does not|don t|do not) want to (live(?! (in|with|near) )|be alive|wake up(?! (the|my|her|his|their|early|at|in)\\b)|be here|exist|see tomorrow|make it to tomorrow)|' +
     '(wants|want) to (die|end it all|end (his|her|their) life|kill (himself|herself|themselves)|disappear)|(is|are|s|re) going to kill (himself|herself|themselves))\\b');
@@ -3021,11 +3021,12 @@
   function huboCrisisEnTurnos(turnos, nombraPadLimpio) {
     if (!MEMOS_HUBO.has(nombraPadLimpio)) MEMOS_HUBO.set(nombraPadLimpio, new Map());
     const MEMO_HUBO = MEMOS_HUBO.get(nombraPadLimpio);
-    const clave = (n) => turnos.slice(0, n).join('\u0001');
+    const clave = (n) => JSON.stringify(turnos.slice(0, n));
     if (MEMO_HUBO.has(clave(turnos.length))) return MEMO_HUBO.get(clave(turnos.length)).hubo;
+    // Ronda 7 (Fable): se vacía ANTES de elegir el prefijo, para no reanudar desde un estado que ya no está.
+    if (MEMO_HUBO.size > 400) MEMO_HUBO.clear();
     let desde = turnos.length - 1;
     while (desde > 0 && !MEMO_HUBO.has(clave(desde))) desde--;
-    if (MEMO_HUBO.size > 400) MEMO_HUBO.clear();
     // Cada prefijo recorrido queda en la memoria, así el turno siguiente sólo da un paso.
     const v = recorreTurnos(turnos, nombraPadLimpio, desde, desde ? MEMO_HUBO.get(clave(desde)) : null,
       (n, e) => MEMO_HUBO.set(clave(n), e));
@@ -3122,6 +3123,8 @@
       const smOtra = smOtra0 && !crisisPersonalAntes() ? smOtra0 : null;
       // Ronda 2 (Codex Sol): un año solo («en 2008») tras el apoyo puede ser un año de nacimiento: crisis en KB y RAG.
       const anioSolo = /^(y |and )?(en|in) (19|20)\d\d$/.test(normTercera(qn));
+      // Ronda 7 (Codex Sol y Fable): la continuación de la oferta pasa la guarda con el mismo criterio con que se resuelve.
+      if (ofertaPendiente(qn, previos || [])) return null;
       if ((smOtra && !smOtra.laxa) || SALUDO.test(normTercera(qn)) || ACEPTA_OFERTA.test(normTercera(qn)) || (sigueTercera(qn) && !anioSolo) ||
         (turnoTecnico(qn) && conAncla(qn) && !SENAL_PREVIA.test(normTercera(qn))) ||
         /^(en corto|para nota|para junta|resumen|resumelo|mas corto|y)$/.test(normTercera(qn))) return null;
@@ -3374,7 +3377,6 @@
   // «sí, en Jalisco», «Jalisco», «nacional», «todo México» o un sexo continúan la oferta; otro «sí» a secas, no.
   const LUGAR_SOLO = new RegExp('^(y )?(en |in )?(el estado de )?' + LUGAR_T + '$');
   const NACIONAL_SOLO = /^(y )?(a nivel |en )?(nacional|todo (el pais|mexico)|el pais|mexico|la republica( mexicana)?|nationwide|nationally|mexico)$/;
-  const SEXO_SOLO = /^(y )?(en |entre |in |among )?(hombres|mujeres|men|women)$/;
   function ofertaPendiente(qn, previos) {
     if (simbolosSM(String(qn)) || simbolosNoTecnicos(qn) || EMOJI_RIESGO.test(qn)) return null;
     const q = normTercera(qn);
@@ -3388,18 +3390,23 @@
     if (!o) return null;
     const conAcepta = ACEPTA_OFERTA.test(q);
     if (conAcepta) return lugarDe(q) || !trasPregunta ? { o, lugar: lugarDe(q) } : null;
+    // Ronda 7 (Codex Sol): sexo y estado juntos («en mujeres de Jalisco», «Jalisco mujeres»).
+    const sexos = q.match(/\b(hombres|mujeres|men|women)\b/g) || [];
+    if (sexos.length > 1) return null;
+    const sexo = sexos.length ? (/^(hombres|men)$/.test(sexos[0]) ? 'hombres' : 'mujeres') : null;
+    const resto = sexo ? q.replace(/(^|\b)(y )?((en|entre|in|among) )?(hombres|mujeres|men|women)( (de|del|en|in|of))?\b/, ' ').replace(/\s+/g, ' ').trim() : q;
+    if (sexo && inmediata) return null;
+    if (!resto) return inmediata ? null : { o, ambito: 'nacional', sexo };
     // «México» o «todo el país» es el ámbito nacional, no el Estado de México.
-    if (NACIONAL_SOLO.test(q)) return inmediata ? null : { o, ambito: 'nacional' };
-    if (LUGAR_SOLO.test(q) && lugarDe(q)) return { o, lugar: lugarDe(q) };
-    if (inmediata) return null;
-    if (SEXO_SOLO.test(q)) return { o, ambito: 'nacional', sexo: /hombres|men\b/.test(q) && !/mujeres|women/.test(q) ? 'hombres' : 'mujeres' };
+    if (NACIONAL_SOLO.test(resto)) return inmediata ? null : { o, ambito: 'nacional', sexo };
+    if (LUGAR_SOLO.test(resto) && lugarDe(resto)) return { o, lugar: lugarDe(resto), sexo };
     return null;
   }
   function consultaOferta(qn, previos = []) {
     const r = ofertaPendiente(qn, previos);
     if (!r || (!r.lugar && !r.ambito)) return null;
     const base = r.o.q.replace(/^¿cómo va la |\?$/g, '');
-    return r.lugar ? `${base} en ${r.lugar[1]}` : `cuantos casos de ${base} hay en el pais${r.sexo ? ` en ${r.sexo}` : ''}`;
+    return r.lugar ? `${base} en ${r.lugar[1]}${r.sexo ? ` en ${r.sexo}` : ''}` : `cuantos casos de ${base} hay en el pais${r.sexo ? ` en ${r.sexo}` : ''}`;
   }
   /** «sí» a la oferta sin decir el estado: pregunta fija por el estado, en el idioma de la revelación. */
   function ofertaSinEstado(qn, previos = []) {

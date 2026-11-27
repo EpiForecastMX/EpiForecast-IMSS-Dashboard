@@ -157,6 +157,12 @@ const CASOS = [
   [['mi hija no está segura de querer vivir'], CRISIS_ES],
   // Ronda 6 (Codex Sol y Fable): riesgo en primera persona dentro de una consulta; «se corta» de una persona.
   [['asma en Jalisco, no voy a llegar a mañana'], CRISIS_ES],
+  // Ronda 7 (Fable): autolesión y miedo a una persona dichos con objeto o complemento.
+  [['mi hija se corta las venas'], CRISIS_ES],
+  [['mi hija se corta cuando está triste'], CRISIS_ES],
+  [['no me siento segura con mi pareja'], CRISIS_ES],
+  [['mi hijo quiere desaparecer un rato'], CRISIS_ES],
+  [['la verdad no llego a mañana'], CRISIS_ES],
   // (a′) Idioma del seguimiento tras un lugar aislado: el de la conversación.
   [['suicide in Mexico', 'Jalisco'], NEUTRA_SIGUE_EN],
   [['suicidio en México', 'Jalisco'], NEUTRA_SIGUE_ES],
@@ -193,7 +199,9 @@ test('deuda del detector (ronda 1): consultas benignas sin falsos positivos del 
     // Ronda 5: datos que no están a salvo de cambios; dos padecimientos en la misma petición.
     ['asma en Jalisco, los datos no están a salvo de cambios'],
     // Ronda 6: objetos que se cortan, órganos, gráficas, entregas y enfermedades fuera de la primera lista.
-    ['asma en Jalisco, mi hija se corta el pelo'], ['mi internet se corta cuando consulto dengue'], ['el dengue no llega a mañana en Jalisco']]) {
+    ['asma en Jalisco, mi hija se corta el pelo'], ['mi internet se corta cuando consulto dengue'], ['el dengue no llega a mañana en Jalisco'],
+    // Ronda 7: plazos de trabajo, sujeto pospuesto y plural de la enfermedad.
+    ['asma en Jalisco, no vamos a llegar a mañana con el informe'], ['mi abuelo está en peligro por neumonía?']]) {
     const k = await conversa(...turnos);
     assert.doesNotMatch(k.md, /^(Lamento que estés|I am sorry you are)/, turnos.join(' → '));
     assert.match(k.md, /\d/, turnos.join(' → '));
@@ -265,6 +273,43 @@ test('deuda del detector (ronda 6): la petición con otro padecimiento tras una 
 
 test('deuda del detector (ronda 6): RAG no da la línea del mes ante «por sexo»', async () => {
   assert.doesNotMatch(await ragTurno('cuantos casos de asma por sexo en Jalisco en marzo de 2027'), /^\*\*En marzo/);
+});
+
+/** Secuencia de la interfaz (app.js): historial al KB, guarda inicial y, si no responde, answer(). */
+async function interfaz(...turnos) {
+  kb._resetContext();
+  let md = '';
+  for (let i = 0; i < turnos.length; i++) {
+    kb.estadoDesdeHistorial(turnos.slice(0, i));
+    const g = kb.guardaInicial(turnos[i]);
+    md = g ? String(g.response ?? '') : String((await kb.answer(turnos[i])) ?? '');
+  }
+  kb._resetContext();
+  return md;
+}
+
+test('deuda del detector (ronda 7): la continuación de la oferta coincide en KB, interfaz y RAG', async () => {
+  for (const tercero of ['a nivel nacional', 'nationwide', 'en mujeres de Jalisco', 'Jalisco mujeres', 'hombres', 'sí, en Jalisco']) {
+    const turnos = ['tengo anorexia', 'sí', tercero];
+    const re = /Anorexia, bulimia y otros trastornos alimentarios/;
+    assert.match((await conversa(...turnos)).md, re, `KB: ${tercero}`);
+    assert.match(await interfaz(...turnos), re, `interfaz: ${tercero}`);
+    assert.match(await ragTurno(...turnos), re, `RAG: ${tercero}`);
+  }
+  for (const tercero of ['mujeres como yo', 'hombres y mujeres', 'Jalisco esta noche']) {
+    const turnos = ['tengo anorexia', 'sí', tercero];
+    assert.match((await conversa(...turnos)).md, CRISIS_ES, `KB: ${tercero}`);
+    assert.match(await interfaz(...turnos), CRISIS_ES, `interfaz: ${tercero}`);
+    assert.match(await ragTurno(...turnos), CRISIS_ES, `RAG: ${tercero}`);
+  }
+});
+
+test('deuda del detector (ronda 7): la memoria del recorrido se vacía sin perder el estado de partida', () => {
+  const C = globalThis.EPI_CATALOGO;
+  const f = () => true;
+  assert.equal(C.huboCrisisEnTurnos(['quiero morir', 'asma en Jalisco'], f), true);
+  for (let i = 0; i < 405; i++) C.huboCrisisEnTurnos([`dengue en Jalisco ${i}`], f);
+  assert.equal(C.huboCrisisEnTurnos(['quiero morir', 'asma en Jalisco', 'dengue en Sonora'], f), true);
 });
 
 test('deuda del detector: invisibles en una consulta benigna no cambian la respuesta', async () => {
