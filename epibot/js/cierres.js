@@ -6,8 +6,8 @@
  *   «para junta»  qué mirar, qué tan firme es y qué no decidir con esto (para directivos).
  *
  * Regla: ninguna cifra nueva. Todo número del cierre sale del texto de la respuesta de origen (una prueba lo comprueba), el
- * motor no se menciona y la nota queda como copia en el chat: no se publica en ninguna parte (decisión 7 del plan, pendiente
- * del autor; mientras, la opción conservadora). Sin dependencias: sólo transforma el markdown.
+ * motor no se menciona y la nota queda como copia en el chat: no se publica en ninguna parte (decisión 7 del plan, tomada el
+ * 26-nov-2026 por delegación del autor: copia para el usuario; publicarla exigiría guardar preguntas, que el sitio no hace). Sin dependencias: sólo transforma el markdown.
  */
 
 const sinTildes = (t) => String(t ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();

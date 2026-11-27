@@ -240,15 +240,24 @@ function respuestaPeriodo(p, ind, x, lugar0) {
     if (p.anio > Number(ind.anio) && fut.length) return `**En ${p.anio}** el pronóstico cubre ${fut.length} semanas, con unos **${casos(suma(fut))}**${lugar}.`;
     return null;
   }
+  // Decisión 4 (26-nov-2026): un mes calendario son las semanas epidemiológicas que EMPIEZAN en él (domingo dentro del mes),
+  // propuesta de Codex Sol; así ninguna semana se cuenta en dos meses. La respuesta lo dice.
   if (p.tipo === 'mes') {
-    const clave = (ds) => Number(ds.slice(5, 7)) - 1 === p.mes && (!p.anio || ds.startsWith(String(p.anio)));
+    // Cuarta ronda (Codex Sol): las vistas del runner rotulan la semana con su lunes y las legacy con su domingo; el mes se
+    // decide por el DOMINGO de inicio (el día ds o el domingo anterior), así «2026-06-01» (lunes) cuenta en mayo.
+    const inicio = (ds) => { const d = new Date(`${ds.slice(0, 10)}T00:00:00Z`); d.setUTCDate(d.getUTCDate() - d.getUTCDay()); return d.toISOString().slice(0, 10); };
+    const clave = (ds) => { const i = inicio(ds); return Number(i.slice(5, 7)) - 1 === p.mes && (!p.anio || i.startsWith(String(p.anio))); };
     const fut = ind.fut.filter(([ds]) => clave(ds));
     if (fut.length) {
-      const a = fut[0][0].slice(0, 4);
-      return `**En ${MESES[p.mes]} de ${a}** se esperan unos **${casos(suma(fut))}**${lugar} (${fut.length} semanas de pronóstico).`;
+      const a = inicio(fut[0][0]).slice(0, 4);
+      // Mes en curso (tercera ronda, Fable): las semanas del mes ya observadas se dicen aparte, para que el total no parezca
+      // el del mes completo.
+      const ya = x.observado.filter(([ds]) => clave(ds) && inicio(ds).startsWith(a));
+      const aparte = ya.length ? `; además, ${ya.length === 1 ? 'una semana ya notificada' : `${ya.length} semanas ya notificadas`} con **${casos(suma(ya))}**` : '';
+      return `**En ${MESES[p.mes]} de ${a}** se esperan unos **${casos(suma(fut))}**${lugar} (las ${fut.length} semanas de pronóstico que empiezan en ${MESES[p.mes]}${aparte}).`;
     }
-    const obs = x.observado.filter(([ds]) => clave(ds)).filter(([ds]) => ds.startsWith(p.anio ? String(p.anio) : ind.anio));
-    if (obs.length) return `**En ${MESES[p.mes]} de ${obs[0][0].slice(0, 4)}** se notificaron **${casos(suma(obs))}**${lugar}.`;
+    const obs = x.observado.filter(([ds]) => clave(ds)).filter(([ds]) => inicio(ds).startsWith(p.anio ? String(p.anio) : ind.anio));
+    if (obs.length) return `**En ${MESES[p.mes]} de ${inicio(obs[0][0]).slice(0, 4)}** se notificaron **${casos(suma(obs))}**${lugar} (las ${obs.length} semanas que empiezan en ${MESES[p.mes]}).`;
   }
   return null;
 }

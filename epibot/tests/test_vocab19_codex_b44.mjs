@@ -111,7 +111,8 @@ test('turnoTecnico y levantaCrisis: un número suelto tras un código nunca leva
   for (const t of ['J450 99 en Sonora', 'J45 30 en Sonora', 'X600 30 en Sonora', 'A54.0 15 en Jalisco']) {
     assert.equal(C.crisisEnTurnos(['me quiero morir', t], () => true), 'crisis', t);
   }
-  assert.equal(C.crisisEnTurnos(['me quiero morir', 'J45 en Sonora'], () => true), null, 'el código limpio sí levanta');
+  // Decisiones del plan canónico, sexta ronda: levantar una crisis personal deja el apoyo ('apoyo_sm'), que cierra los ids sensibles.
+  assert.equal(C.crisisEnTurnos(['me quiero morir', 'J45 en Sonora'], () => true), 'apoyo_sm', 'el código limpio levanta la crisis al apoyo');
 });
 for (const [q, marca] of [['A54.0 en Jalisco', 'GONOCOCICA_A54'], ['a540 en Jalisco', 'GONOCOCICA_A54'], ['J450 en Jalisco', 'ASMA_J45'],
   ['asma en Jalisco 2026', 'ASMA_J45'], ['asma en Jalisco semana 30', null]]) {

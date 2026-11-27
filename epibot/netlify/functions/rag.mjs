@@ -1001,7 +1001,11 @@ Responde ahora, citando los pasajes que uses con [n].`;
  * ni modelo); cualquier otra (vista, recuperación semántica, Gemini o error) se sustituye por el apoyo fijo con la Línea de
  * la Vida. Así una consulta libre («hola, no quiero estar vivo») nunca recibe cifras ni una respuesta generada.
  */
+// Undécima ronda (Fable): la marca de consulta ya reescrita es un argumento interno, no un campo que un cliente pueda enviar.
 export default async function handler(req) {
+  return handlerExterno(req, false);
+}
+async function handlerExterno(req, reescrita) {
   if (req.method !== 'POST') return handlerInterno(req);
   let body = null;
   try { body = JSON.parse(await req.clone().text()); } catch { return handlerInterno(req); }
@@ -1015,6 +1019,43 @@ export default async function handler(req) {
     req = new Request(req.url, { method: 'POST', headers: req.headers, body: JSON.stringify(body) });
   }
   const q = typeof body?.query === 'string' ? body.query : '';
+  // Decisión 2, cuarta ronda (Codex Sol): si la revelación de salud mental ya pide datos, el resto de la función ve la consulta
+  // sin la primera persona (ningún modelo recibe la revelación) y la respuesta lleva antes la línea fija de apoyo.
+  // Quinta ronda: «sí» o «sí, en Jalisco» tras el apoyo continúan la oferta con una consulta fija.
+  const histUsuario = Array.isArray(body?.history) ? body.history.filter((x) => x && x.role === 'user' && typeof x.text === 'string').map((x) => x.text) : [];
+  const estadoHist = q && body.health !== true && !reescrita ? crisisEnHistorial(body.history) : null;
+  const oferta = estadoHist === 'apoyo_sm' ? C.consultaOferta(q, histUsuario) : null;
+  if (oferta) {
+    // Séptima ronda (Codex Sol): la oferta aceptada sólo devuelve una ficha determinista; nunca texto generado.
+    const resO = await handlerExterno(new Request(req.url, { method: 'POST', headers: req.headers, body: JSON.stringify({ ...body, query: oferta, stream: false }) }), true);
+    const dO = await resO.clone().json().catch(() => null);
+    if (resO.status === 200 && dO && typeof dO.answer === 'string' && (dO.retrieval === 'vista' || dO.retrieval === 'none')) return resO;
+    const enO = C.pareceIngles(q);
+    return json({ answer: enO ? `You can see it by asking «${oferta}» in the chat; I will answer with the published data.`
+      : `Puedes verlo preguntando «${oferta}» en el chat; te respondo con los datos publicados.`, sources: [], retrieval: 'none', guarda: 'salud_mental' }, 200, corsHeaders(req));
+  }
+  // Sexta ronda (Codex Sol y Fable): la reescritura sólo sin crisis en el historial y sin ids sensibles previos (si no, la
+  // consulta original pasa por las guardas de seguimiento), y una sola vez (sin recursión).
+  const smPermitida = q && body.health !== true && !reescrita && !['crisis', 'crisis_tercera'].includes(estadoHist) &&
+    !histUsuario.some((t) => C.idsSensiblesEn(t).length) && !C.respuestaCrisis(q, histUsuario);
+  const sm = smPermitida ? C.saludMentalPropia(q) : null;
+  if (sm?.prefijo) {
+    const res = await handlerExterno(new Request(req.url, { method: 'POST', headers: req.headers,
+      body: JSON.stringify({ ...body, query: C.consultaSinRevelacion(q), stream: false }) }), true);
+    const datos = await res.clone().json().catch(() => null);
+    // Octava ronda (Codex Sol): primero la procedencia; sólo una respuesta determinista (vista o texto fijo) se devuelve. Si es
+    // una crisis o ayuda fija, va tal cual; si es una ficha, tras la línea de apoyo. Nunca texto generado.
+    // Las crisis fijas de las guardas no llevan «retrieval»; la ruta generativa siempre lo lleva.
+    const crisisFija = datos && typeof datos.answer === 'string' && !('retrieval' in datos) && !(datos.sources || []).length &&
+      /^(Lamento que estés pasando|I am sorry you are going|Sigo aquí contigo|I am still here|Es un tema delicado|This is a sensitive topic|Por el tema que tocamos|Because of the topic)/.test(datos.answer);
+    const determinista = res.status === 200 && datos && typeof datos.answer === 'string' && (datos.retrieval === 'vista' || datos.retrieval === 'none' || crisisFija);
+    if (determinista && (C.esRespuestaDeAyuda(datos.answer) ||
+        /^(Lamento|I am sorry|Sigo aquí|I am still|Es un tema|This is a sensitive|Por el tema|Because of the topic)/.test(datos.answer))) return res;
+    if (determinista) return json({ ...datos, answer: sm.prefijo + datos.answer }, 200, corsHeaders(req));
+    const en = sm.prefijo.startsWith('_Thank');
+    return json({ answer: sm.prefijo + (en ? 'To give you figures I need the condition and the state, for example «depression in Jalisco».'
+      : 'Para darte cifras necesito el padecimiento y el estado, por ejemplo «depresión en Jalisco».'), sources: [], retrieval: 'none', guarda: 'salud_mental' }, 200, corsHeaders(req));
+  }
   if (!q || body.health === true || !C.apoyoSuave(q) || guardaD7Rag(q)) return handlerInterno(req);
   const res = await handlerInterno(new Request(req.url, { method: 'POST', headers: req.headers, body: JSON.stringify({ ...body, stream: false }) }));
   const datos = await res.clone().json().catch(() => null);
@@ -1040,6 +1081,8 @@ async function handlerInterno(req) {
   let body;
   try { body = await req.json(); } catch { return json({ error: 'Body inválido' }, 400, cors); }
   if (typeof body?.query === 'string') body = { ...body, query: sinExclusionG00Rag(body.query) };
+  // La marca interna de «sin generador» no se acepta del cliente.
+  if (body && typeof body === 'object') body = { ...body, _sinGenerador: false };
 
   if (body.health === true) {
     const idx = loadIndex();
@@ -1048,13 +1091,44 @@ async function handlerInterno(req) {
 
   // Antes de la clave y del límite de consultas: esta respuesta no depende de ningún modelo.
   // Sin normalizar: emojis y símbolos cuentan en la lista blanca (tercera auditoría Codex).
-  const crisis = globalThis.EPI_CATALOGO.respuestaCrisis(String(body.query || ''));
+  const previosUsuario = (Array.isArray(body.history) ? body.history : []).filter((x) => x && x.role === 'user' && typeof x.text === 'string')
+    .map((x) => x.text);
+  let crisis = globalThis.EPI_CATALOGO.respuestaCrisis(String(body.query || ''), previosUsuario);
+  // Decisión 1: con una crisis personal en el historial, el tema en tercera persona conserva el texto de crisis completo.
+  if (crisis && globalThis.EPI_CATALOGO.esCrisisTercera(crisis) && ['crisis', 'apoyo_sm'].includes(crisisEnHistorial(body.history))) {
+    crisis = globalThis.EPI_CATALOGO.crisisPersonalDe(crisis);
+  }
   if (crisis) return json({ answer: crisis.replace('\n<!--SIN_GRAFICA-->', ''), sources: [] }, 200, cors);
   // La crisis persiste: tras una respuesta de crisis en el historial, un seguimiento sin padecimiento no sensible propio
   // recibe apoyo, sin vista, recuperación, modelo ni cifras.
+  // Decisión 2: primera persona con un padecimiento de salud mental: apoyo fijo o crisis completa, sin modelo ni cifras.
+  // La crisis va antes del seguimiento, igual que en el KB.
+  const mental = globalThis.EPI_CATALOGO.saludMentalPropia(String(body.query || ''));
+  if (mental?.crisis) return json({ answer: mental.crisis.replace('\n<!--SIN_GRAFICA-->', ''), sources: [] }, 200, cors);
   const apoyo = globalThis.EPI_CATALOGO.respuestaCrisisSeguimiento(String(body.query || ''),
-    crisisEnHistorial(body.history), nombraPadecimientoNoSensible);
+    crisisEnHistorial(body.history), nombraPadecimientoNoSensible, previosUsuario);
   if (apoyo) return json({ answer: apoyo.replace('\n<!--SIN_GRAFICA-->', ''), sources: [], retrieval: 'none', guarda: 'crisis' }, 200, cors);
+  // Quinta ronda (Codex Sol y Fable): tras el apoyo de salud mental, un seguimiento sin padecimiento propio no hereda un id
+  // sensible de turnos anteriores (crisis completa), y ninguna revelación del historial llega a la recuperación ni al modelo.
+  if (crisisEnHistorial(body.history) === 'apoyo_sm') {
+    const C1 = globalThis.EPI_CATALOGO;
+    const previos = (body.history || []).filter((x) => x && x.role === 'user' && typeof x.text === 'string').map((x) => x.text);
+    if (previos.some((t) => C1.idsSensiblesEn(t).length) && !nombraPadecimientoNoSensible(String(body.query || ''))) {
+      return json({ answer: C1.crisisTextoDe(C1.pareceIngles(String(body.query || ''))).replace('\n<!--SIN_GRAFICA-->', ''), sources: [] }, 200, cors);
+    }
+    // Decimocuarta ronda (Codex Sol y Fable): la revelación se SUSTITUYE por la consulta sin primera persona (el padecimiento
+    // sigue como contexto técnico), y en este estado ninguna respuesta sale del generador.
+    body = { ...body, _sinGenerador: true, history: (body.history || []).map((x) => (x && x.role === 'user' && C1.saludMentalPropia(String(x.text || ''))
+      ? { ...x, text: C1.consultaSinRevelacion(String(x.text || '')) } : x)) };
+  }
+  // Séptima ronda (Fable): tras un id sensible en el historial, la revelación recibe la crisis completa, no el apoyo.
+  if ((mental?.apoyo || mental?.prefijo) && previosUsuario.some((t) => globalThis.EPI_CATALOGO.idsSensiblesEn(t).length ||
+      globalThis.EPI_CATALOGO.nombraReleaseSensible(globalThis.EPI_CATALOGO.normLB(t)))) {
+    return json({ answer: globalThis.EPI_CATALOGO.crisisTextoDe(globalThis.EPI_CATALOGO.pareceIngles(String(body.query || ''))).replace('\n<!--SIN_GRAFICA-->', ''), sources: [] }, 200, cors);
+  }
+  if (mental?.apoyo) {
+    return json({ answer: mental.apoyo.replace(/\n<!--[\s\S]*?-->/g, ''), sources: [], retrieval: 'none', guarda: 'salud_mental' }, 200, cors);
+  }
   // Rediseño conversacional (24-nov-2026): sólo una señal débil o una escritura no latina recibe aquí el «no entendí» con la
   // Línea de la Vida; la lista blanca global ya no bloquea las consultas naturales.
   const C0 = globalThis.EPI_CATALOGO;
@@ -1272,6 +1346,12 @@ async function handlerInterno(req) {
   // modelo o en la pregunta (cifras_verificadas.mjs). En streaming se envía primero un aviso de progreso para mantener viva la
   // conexión y después meta, el texto ya verificado y done.
   const fuentes = [contextBlock, query, searchQuery];
+  // Tras el apoyo de salud mental (decimocuarta ronda): texto fijo, nunca generado.
+  if (body._sinGenerador === true) {
+    const enSG = globalThis.EPI_CATALOGO.pareceIngles(String(body.query || ''));
+    return json({ answer: enSG ? 'For figures, tell me the condition and the state, for example «depression in Jalisco».'
+      : 'Para darte cifras, dime el padecimiento y el estado, por ejemplo «depresión en Jalisco».', sources: [], retrieval: 'none', guarda: 'salud_mental' }, 200, cors);
+  }
   if (body.stream === true) {
     const encoder = new TextEncoder();
     const streamBody = new ReadableStream({
