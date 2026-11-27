@@ -73,7 +73,7 @@ function marcaEstados(m) { return m.filas?.length ? `<!--ESTADOS:${JSON.stringif
 function answerLegacyLlano(q, ent, s, d) {
   return rankingRitmoLegacy(q, ent, d) || legacyComparacion(q, ent, s, d, { indicadores: indicadoresLlano, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA, serieLegacy: serieLegacyCalc }) || legacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadLegacy });
 }
-import { MARCADOR_RELEASE, releaseDeMarca, aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, esCrisisTercera, esCierreApoyo, esCrisisCompleta, crisisTextoDe, idsSensiblesEnTurno, crisisPersonalDe, saludMentalPropia, consultaOferta, ofertaSinEstado, peticionSinRevelacion, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaTemaSensible, respuestaConDatos, salidaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=61';
+import { MARCADOR_RELEASE, releaseDeMarca, aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, esCrisisTercera, esCierreApoyo, esCrisisCompleta, crisisTextoDe, idsSensiblesEnTurno, crisisPersonalDe, saludMentalPropia, consultaOferta, ofertaSinEstado, padDeOferta, peticionSinRevelacion, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaTemaSensible, respuestaConDatos, salidaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=61';
 
 let DATA = null;
 
@@ -6532,7 +6532,13 @@ async function _resolveConCierre(query) {
   if (_crisisActiva === 'apoyo_sm') {
     // Ronda 5 (Codex Sol): «sí» sin estado recibe la pregunta fija por el estado, igual que en la función RAG.
     const sinEstado = ofertaSinEstado(query, _turnosPrevios.slice(0, -1));
-    if (sinEstado) { lastEntities = {}; return { response: sinEstado, handler: 'answerSaludMentalPropia' }; }
+    if (sinEstado) {
+      // Ronda 8 (Fable): el padecimiento ofrecido queda como contexto mientras la pregunta está pendiente, así «de Jalisco»
+      // o «Jalisco por sexo» lo heredan en el KB igual que en RAG (que lo toma del historial).
+      const pad = padDeOferta(query, _turnosPrevios.slice(0, -1));
+      lastEntities = pad ? { padecimiento: pad } : {};
+      return { response: sinEstado, handler: 'answerSaludMentalPropia' };
+    }
     const oferta = consultaOferta(query, _turnosPrevios.slice(0, -1));
     if (oferta) query = oferta;
   }

@@ -201,7 +201,10 @@ test('deuda del detector (ronda 1): consultas benignas sin falsos positivos del 
     // Ronda 6: objetos que se cortan, órganos, gráficas, entregas y enfermedades fuera de la primera lista.
     ['asma en Jalisco, mi hija se corta el pelo'], ['mi internet se corta cuando consulto dengue'], ['el dengue no llega a mañana en Jalisco'],
     // Ronda 7: plazos de trabajo, sujeto pospuesto y plural de la enfermedad.
-    ['asma en Jalisco, no vamos a llegar a mañana con el informe'], ['mi abuelo está en peligro por neumonía?']]) {
+    ['asma en Jalisco, no vamos a llegar a mañana con el informe'], ['mi abuelo está en peligro por neumonía?'],
+    // Ronda 8: contaminación, trabajo, filtros, risa.
+    ['¿Cuántos casos de asma habrá en Jalisco? Mi mamá no aguanta más la contaminación.'], ['mi jefe ya no puede más con los reportes de dengue'],
+    ['alguien quiere morir de risa con el dengue']]) {
     const k = await conversa(...turnos);
     assert.doesNotMatch(k.md, /^(Lamento que estés|I am sorry you are)/, turnos.join(' → '));
     assert.match(k.md, /\d/, turnos.join(' → '));
@@ -289,19 +292,27 @@ async function interfaz(...turnos) {
 }
 
 test('deuda del detector (ronda 7): la continuación de la oferta coincide en KB, interfaz y RAG', async () => {
-  for (const tercero of ['a nivel nacional', 'nationwide', 'en mujeres de Jalisco', 'Jalisco mujeres', 'hombres', 'sí, en Jalisco']) {
+  for (const tercero of ['a nivel nacional', 'nationwide', 'en mujeres de Jalisco', 'Jalisco mujeres', 'hombres', 'sí, en Jalisco',
+    // Ronda 8 (Codex Sol y Fable): el padecimiento ofrecido queda como contexto mientras la pregunta está pendiente.
+    'de Jalisco', 'para Jalisco', 'Jalisco por sexo', 'en Jalisco de mujeres', 'Jalisco, México', 'mujeres del país']) {
     const turnos = ['tengo anorexia', 'sí', tercero];
     const re = /Anorexia, bulimia y otros trastornos alimentarios/;
     assert.match((await conversa(...turnos)).md, re, `KB: ${tercero}`);
     assert.match(await interfaz(...turnos), re, `interfaz: ${tercero}`);
     assert.match(await ragTurno(...turnos), re, `RAG: ${tercero}`);
   }
-  for (const tercero of ['mujeres como yo', 'hombres y mujeres', 'Jalisco esta noche']) {
+  for (const tercero of ['mujeres como yo', 'hombres y mujeres', 'Jalisco esta noche', 'en 2020', 'X60 en Jalisco']) {
     const turnos = ['tengo anorexia', 'sí', tercero];
     assert.match((await conversa(...turnos)).md, CRISIS_ES, `KB: ${tercero}`);
     assert.match(await interfaz(...turnos), CRISIS_ES, `interfaz: ${tercero}`);
     assert.match(await ragTurno(...turnos), CRISIS_ES, `RAG: ${tercero}`);
   }
+});
+
+test('deuda del detector (ronda 8): «yes, in Mexico» es el país y conserva el padecimiento ofrecido', async () => {
+  const turnos = ['I have anorexia', 'yes', 'yes, in Mexico'];
+  assert.match((await conversa(...turnos)).md, /Anorexia, bulimia y otros trastornos alimentarios en el país/);
+  assert.match(await ragTurno(...turnos), /Anorexia, bulimia y otros trastornos alimentarios/);
 });
 
 test('deuda del detector (ronda 7): la memoria del recorrido se vacía sin perder el estado de partida', () => {

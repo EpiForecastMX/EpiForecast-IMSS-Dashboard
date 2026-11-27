@@ -1864,22 +1864,23 @@
   const ENF_T = '(el |la |los |las |the |a |an )?(dengue|covid|coronavirus|influenza|gripa|gripe|virus|epidemia|brote|brotes|enfermedad|' +
     'enfermedades|contagio|contagios|tos|tos ferina|sarampion|zika|chikungunya|paludismo|malaria|tuberculosis|hepatitis|diabetes|asma|calor|pandemia|' +
     'varicela|neumonia|rotavirus|rubeola|paperas|parotiditis|tosferina|bronquitis|infeccion|infecciones|bacteria|bacterias|parasitos?|chagas|lepra|vih|sida|cancer|measles|pneumonia|' +
-    'neumonias|infecciones|disease|diseases|outbreak|flu|epidemic|pandemic|heat|mosquitos?|zancudos?|moscos?|mosquitoes|(que )?(me |nos |le |les )?(contagi|enferm|infect)[a-z]*)\\b';
+    'neumonias|infecciones|contaminacion|smog|humo|polvo|polen|disease|diseases|outbreak|flu|epidemic|pandemic|heat|mosquitos?|zancudos?|moscos?|mosquitoes|(que )?(me |nos |le |les )?(contagi|enferm|infect)[a-z]*)\\b';
   const NO_ENF_ES = '(?!( en [a-z]+( [a-z]+){0,3})? (de|del|por|con|ante|frente a) ' + ENF_T + ')';
   const NO_ENF_EN = '(?! (from|of|due to|because of) ' + ENF_T + ')';
   const PERSONA_T = '(mi|mis|tu|tus|su|sus|my|your|his|her|their) ' + NO_PERSONA + '[a-z]+( [a-z]+){0,4}';
   const SUJETO_T = '(' + PERSONA_T + '|ella|alguien|she|he|they|someone|somebody)';
   const RIESGO_TERCERO_ES = new RegExp('\\b((ya )?no (quiere|quieren|queria|querian|quisiera|quiero|queremos) (llegar a manana|llegar al dia siguiente|ver el dia de manana|amanecer|despertar(se)?(?! (temprano|tarde|a|al|a la|a los|a las)\\b)(?! (por|con) ' + ENF_T + ')|seguir aqui|seguir viv[oa]s?|seguir viviendo|seguir con vida|vivir(?! (en|con|cerca|lejos|solo|sola|conmigo|contigo)\\b)(?!( aqui| ahi| alla)? (por|con) ' + ENF_T + ')|vivir mas|estar viv[oa]s?|estar aqui|existir)\\b|' +
-    '(?:(?<=^ )|(?<= (que|yo|y|ya|hoy|creo|siento|pienso|neta|verdad)) |' + SUJETO_T + ' )(ya )?no ((llega|llegara|llego|llegue) a manana|(voy|vamos) a (llegar a manana|amanecer))\\b(?! (el|la|los|las|este|esta|con) )|no (le|me|les|nos) (queda|quedan) (razones|ganas|fuerzas|motivos)( para| de)? (seguir|vivir)\\b|(?<!(datos|informacion|archivos|registros|cifras|numeros|data|resultados) )no (esta|estan|este|esten|estaba|estoy|estamos|estas) a salvo' + NO_ENF_ES + '|no me siento (a salvo|segur[oa](?! (de|del|si|que)\\b(?! (seguir|querer|estar) (viv|con vida|aqui)))(?! con (el|la|los|las|este|esta|estos|estas|ese|esa) (pronostico|modelo|dato|datos|grafica|resultado|resultados|cifra|cifras|informacion|reporte|boletin)\\b))\\b|(estoy|estamos) en peligro' + NO_ENF_ES + '|' +
+    '(?:(?<=^ )|(?<= (que|yo|y|ya|hoy|creo|siento|pienso|neta|verdad)) |' + SUJETO_T + ' )(ya )?no ((llega|llegara|llego|llegue) a manana|(voy|vamos) a (llegar a manana|amanecer))\\b(?! (el|la|los|las|este|esta|con) )|no (le|me|les|nos) (queda|quedan) (razones|ganas|fuerzas|motivos)( para| de)? (seguir|vivir)\\b|(?<!(datos|informacion|archivos|registros|cifras|numeros|data|resultados|curva|grafica|serie|modelo|pronostico) )no (esta|estan|este|esten|estaba|estoy|estamos|estas) a salvo' + NO_ENF_ES + '|no me siento (a salvo|segur[oa](?! (de|del|si|que)\\b(?! (seguir|querer|estar) (viv|con vida|aqui)))(?! con (el|la|los|las|este|esta|estos|estas|ese|esa) (pronostico|modelo|dato|datos|grafica|resultado|resultados|cifra|cifras|informacion|reporte|boletin)\\b))\\b|(estoy|estamos) en peligro' + NO_ENF_ES + '|' +
     '(quiere|quieren|piensa|piensan|planea|planean) (quitarse la vida|acabar con su vida|terminar con su vida)\\b|se va a (matar|suicidar|quitar la vida)\\b|' +
-    SUJETO_T + ' (ya )?no (aguanta|aguantan|puede|pueden) mas\\b(?!( con)? ' + ENF_T + ')|' + SUJETO_T + ' (quiere|quieren) desaparecer\\b(?! (el|la|los|las|un|una) (grafica|dato|datos|archivo|archivos|registro|registros|reporte|tabla|boton|pagina|pronostico|modelo|columna|fila)\\b)|' + SUJETO_T + ' no (quiere|quieren) seguir( adelante| asi)? $|' +
+    SUJETO_T + ' (ya )?no (aguanta|aguantan|puede|pueden) mas\\b(?!( con)? ' + ENF_T + ')(?! con (el|la|los|las) (reporte|reportes|trabajo|tarea|tareas|dato|datos|informe|informes|carga|pendientes|cuentas)\\b)|' + SUJETO_T + ' (quiere|quieren) desaparecer\\b(?! (el|la|los|las|un|una) (grafica|dato|datos|archivo|archivos|registro|registros|reporte|tabla|boton|pagina|pronostico|modelo|columna|fila|filtro|filtros|mapa|linea)\\b)|' + SUJETO_T + ' no (quiere|quieren) seguir( adelante| asi)? $|' +
     // Ronda 5 (Fable): «quiere morir», «se corta», «puede hacerse daño» y «ella está en peligro» de alguien cercano.
-    SUJETO_T + ' (quiere|quieren) (morir|morirse|matarse|hacerse dano|lastimarse|suicidarse)\\b|' + SUJETO_T + ' se (corta|cortan|lastima|lastiman|hace dano|hacen dano|quiere hacer dano)\\b(?! (el |la |las |los |su |sus )?(pelo|cabello|unas|barba|fleco|flequillo|luz|senal|internet|conexion|llamada|video|leche|salsa|mayonesa|pagina|sesion)\\b)|' +
+    SUJETO_T + ' (quiere|quieren) (morir|morirse|matarse|hacerse dano|lastimarse|suicidarse)\\b(?! de (risa|ganas|hambre|sueno|frio|calor|aburrimiento|envidia)\\b)|' + SUJETO_T + ' se (corta|cortan|lastima|lastiman|hace dano|hacen dano|quiere hacer dano)\\b(?! (el |la |las |los |su |sus )?(pelo|cabello|unas|barba|fleco|flequillo|luz|senal|internet|conexion|llamada|video|leche|salsa|mayonesa|pagina|sesion)\\b)' +
+    '(?! (jugando|haciendo|entrenando|al (jugar|correr|caer|cocinar)|en (el|la) (cancha|escuela|partido)|con (papel|una hoja|un papel|el papel))\\b)|' +
     '(puede|pueden|podria|podrian) hacerse dano\\b(?! (el|la|los|las|en|con)\\b)|' +
     SUJETO_T + ' (esta|estan|corre|corren|anda) (en )?peligro' + NO_ENF_ES + '\\b|' + PERSONA_T + ' no (esta|se siente|estan|se sienten) (segur[oa]s?(?! (de|del|si|que)\\b(?! (seguir|querer|estar) (viv|con vida|aqui)))(?! con (el|la|los|las|este|esta|estos|estas|ese|esa) (pronostico|modelo|dato|datos|grafica|resultado|resultados|cifra|cifras|informacion|reporte|boletin)\\b)|a salvo' + NO_ENF_ES + ')\\b)');
   const RIESGO_TERCERO_EN = new RegExp('\\b(((i|i m|im|he|she|they|we|you|someone|somebody)|' + PERSONA_T + ')( is| are| am| m| s| re| feel| feels| was| were)? (not safe|unsafe|in danger)' + NO_ENF_EN + '|' +
     '(' + SUJETO_T + ' (isn t|isnt|aren t|wasn t)|im not|i m not) safe' + NO_ENF_EN + '|(don t|dont|do not|doesn t|does not) feel safe|(doesn t|does not|don t|do not) want to (live(?! (in|with|near) )|be alive|wake up(?! (the|my|her|his|their|early|at|in)\\b)|be here|exist|see tomorrow|make it to tomorrow)|' +
-    '(wants|want) to (die|end it all|end (his|her|their) life|kill (himself|herself|themselves)|disappear)|(is|are|s|re) going to kill (himself|herself|themselves))\\b');
+    '(wants|want) to (die|end it all|end (his|her|their) life|kill (himself|herself|themselves)|disappear(?! (the|a|this|that|my|her|his) ))|(is|are|s|re) going to kill (himself|herself|themselves))\\b');
   const CRISIS_EN = /\b(kill(ing)? myself|want to die|wanna die|end my life|take my own life|hurt myself|harm myself|suicidal thoughts|im suicidal|i am suicidal)\b/;
   // alta_b44 (19-nov-2026): violencia vivida en primera persona («me pegan», «mi pareja me golpea»).
   const VIOLENCIA_ES = /\b(me (pega|pegan|pego|pegaron|golpea|golpean|golpeo|golpearon|maltrata|maltratan|amenaza|amenazan|viola|violan|violo|violaron|abusa|abusan|abuso|abusaron|lastima|lastiman|agrede|agreden|encierra|encierran)|(abusa|abusan|abuso|abusaron) de mi|me (esta|estan|estaba|estaban) (pegando|golpeando|maltratando|lastimando|amenazando|violando|abusando|agrediendo|madreando)|me (madrea|madrean|madreo|madrearon|putea|putean|puteo|partio la madre|partieron la madre|surte|surten|cachetea|cachetean|patea|patean|pateo|ahorca|ahorco)|sufro (violencia|maltrato|abuso)|vivo violencia|tengo miedo de mi (pareja|esposo|esposa|novio|novia|papa|mama|padre|madre))\b/;
@@ -3221,9 +3222,9 @@
     'january february march april may june july august september october november december').split(' '));
   const PIDE_DATOS_SM = /\b(cuantos|cuantas|casos|pronostico|tendencia|cifras|datos|estadisticas|numero|como (va|van|anda|esta)|how many|cases|forecast|trend|data)\b/;
   const OFERTA_SM = [
-    { re: /\b(depresion|deprimid[oa]|depre|depression|depressed)\b/, es: 'depresión', en: 'depression', t: 'Depresión', q: '¿cómo va la depresión?' },
+    { re: /\b(depresion|deprimid[oa]|depre|depression|depressed)\b/, es: 'depresión', en: 'depression', t: 'Depresión', q: '¿cómo va la depresión?', pad: 'Depresion' },
     { re: /\b(anorexia|bulimia|alimentari[oa]|eating disorder)\b/, es: 'anorexia, bulimia y otros trastornos alimentarios',
-      en: 'anorexia, bulimia and other eating disorders', t: 'Trastornos alimentarios', q: '¿cómo va la anorexia?' },
+      en: 'anorexia, bulimia and other eating disorders', t: 'Trastornos alimentarios', q: '¿cómo va la anorexia?', pad: 'Anorexia F50' },
   ];
   const PREFIJO_SM = '_Gracias por contármelo. Si lo necesitas, la Línea de la Vida atiende gratis, las 24 horas: 800 911 2000._\n\n';
   const PREFIJO_SM_EN = '_Thank you for telling me. If you need it, Línea de la Vida is free and open 24 hours: 800 911 2000._\n\n';
@@ -3376,10 +3377,11 @@
   // estado (antes el KB abría la ficha nacional y RAG pedía el padecimiento). Ronda 6 (Codex Sol y Fable): tras esa pregunta,
   // «sí, en Jalisco», «Jalisco», «nacional», «todo México» o un sexo continúan la oferta; otro «sí» a secas, no.
   const LUGAR_SOLO = new RegExp('^(y )?(en |in )?(el estado de )?' + LUGAR_T + '$');
-  const NACIONAL_SOLO = /^(y )?(a nivel |en )?(nacional|todo (el pais|mexico)|el pais|mexico|la republica( mexicana)?|nationwide|nationally|mexico)$/;
+  const NACIONAL_SOLO = /^(y )?(a nivel |en |in )?(nacional|todo (el pais|mexico)|el pais|mexico|la republica( mexicana)?|nationwide|nationally|the country)$/;
   function ofertaPendiente(qn, previos) {
     if (simbolosSM(String(qn)) || simbolosNoTecnicos(qn) || EMOJI_RIESGO.test(qn)) return null;
-    const q = normTercera(qn);
+    // Ronda 8 (Fable): «Jalisco, México» es Jalisco (el país como apellido del estado), no el Estado de México.
+    const q = normTercera(qn).replace(/^(.*?\b(?!mexico\b)[a-z]+) (mexico|mx)$/, (m, a) => (ESTADOS.some(([e]) => ` ${a} `.includes(` ${e} `) && e !== 'mexico') ? a : m));
     const ofertaDe = (t) => (t && saludMentalPropia(t)?.apoyo ? OFERTA_SM.find((x) => x.re.test(normTercera(t))) : null);
     const lugarDe = (t) => ESTADOS.find(([e]) => ` ${t} `.includes(` ${e} `));
     const p = normTercera(previos.at(-1) || '');
@@ -3389,7 +3391,13 @@
     const o = inmediata || trasPregunta;
     if (!o) return null;
     const conAcepta = ACEPTA_OFERTA.test(q);
-    if (conAcepta) return lugarDe(q) || !trasPregunta ? { o, lugar: lugarDe(q) } : null;
+    // Ronda 8 (Codex Sol): «sí, en México» o «yes, in Mexico» se resuelven con la misma lógica que el lugar solo.
+    if (conAcepta) {
+      const sinSi = q.replace(/^(si por favor|yes please|si|claro|yes|sure)\b\s*/, '');
+      if (!sinSi) return trasPregunta ? null : { o, lugar: null };
+      if (NACIONAL_SOLO.test(sinSi)) return { o, ambito: 'nacional' };
+      return lugarDe(sinSi) ? { o, lugar: lugarDe(sinSi) } : (trasPregunta ? null : { o, lugar: null });
+    }
     // Ronda 7 (Codex Sol): sexo y estado juntos («en mujeres de Jalisco», «Jalisco mujeres»).
     const sexos = q.match(/\b(hombres|mujeres|men|women)\b/g) || [];
     if (sexos.length > 1) return null;
@@ -3408,6 +3416,8 @@
     const base = r.o.q.replace(/^¿cómo va la |\?$/g, '');
     return r.lugar ? `${base} en ${r.lugar[1]}${r.sexo ? ` en ${r.sexo}` : ''}` : `cuantos casos de ${base} hay en el pais${r.sexo ? ` en ${r.sexo}` : ''}`;
   }
+  /** Ronda 8 (Fable): padecimiento ofrecido cuando se pregunta por el estado; el KB lo deja como contexto, como RAG lo hereda. */
+  function padDeOferta(qn, previos = []) { const r = ofertaPendiente(qn, previos); return r && !r.lugar && !r.ambito ? r.o.pad : null; }
   /** «sí» a la oferta sin decir el estado: pregunta fija por el estado, en el idioma de la revelación. */
   function ofertaSinEstado(qn, previos = []) {
     const r = ofertaPendiente(qn, previos);
@@ -3437,7 +3447,7 @@
   g.EPI_CATALOGO = Object.freeze({
     ETIQUETA_SIN_ALTERNATIVA, textoSinAlternativa,
     releases, diabetesEnConsulta, conDiabetesNombrada, conFamiliaNombrada, canonClinico, nombraAlias, noModeladas,
-    mencionaNoModelada, conHipertensionNombrada, respuestaCrisis, esCrisisTercera, esCierreApoyo, esCrisisCompleta, crisisTextoDe, crisisPersonalDe, saludMentalPropia, consultaSinRevelacion, consultaOferta, ofertaSinEstado, huboCrisisEnTurnos, peticionSinRevelacion, nombraReleaseSensible, normLB, subtipoAjeno, aliasAmbiguo,
+    mencionaNoModelada, conHipertensionNombrada, respuestaCrisis, esCrisisTercera, esCierreApoyo, esCrisisCompleta, crisisTextoDe, crisisPersonalDe, saludMentalPropia, consultaSinRevelacion, consultaOferta, ofertaSinEstado, padDeOferta, huboCrisisEnTurnos, peticionSinRevelacion, nombraReleaseSensible, normLB, subtipoAjeno, aliasAmbiguo,
     motivoRechazo, crisisEnTurnos, respuestaCrisisSeguimiento, respuestaMixtaSensible, fueraDeListaBlanca, idsSensiblesEn,
     alcoholCalificado, IDS_LISTA_BLANCA, _VOCAB_TECNICO: VOCAB_TECNICO, _FRAGMENTOS_GUARDAS: FRAGMENTOS_GUARDAS, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaTemaSensible, respuestaFueraDeVocabulario,
     restoFuera, tieneFragmentoDeDatos, respuestaConDatos, esRespuestaDeAyuda, salidaFueraDeVocabulario, APOYO_ES, APOYO_EN, pareceIngles, normalizaEntrada,
