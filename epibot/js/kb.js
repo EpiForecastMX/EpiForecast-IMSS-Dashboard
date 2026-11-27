@@ -73,7 +73,7 @@ function marcaEstados(m) { return m.filas?.length ? `<!--ESTADOS:${JSON.stringif
 function answerLegacyLlano(q, ent, s, d) {
   return rankingRitmoLegacy(q, ent, d) || legacyComparacion(q, ent, s, d, { indicadores: indicadoresLlano, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA, serieLegacy: serieLegacyCalc }) || legacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadLegacy });
 }
-import { MARCADOR_RELEASE, releaseDeMarca, aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, esCrisisTercera, esCierreApoyo, esCrisisCompleta, crisisTextoDe, idsSensiblesEnTurno, crisisPersonalDe, saludMentalPropia, consultaOferta, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaTemaSensible, respuestaConDatos, salidaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=61';
+import { MARCADOR_RELEASE, releaseDeMarca, aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, esCrisisTercera, esCierreApoyo, esCrisisCompleta, crisisTextoDe, idsSensiblesEnTurno, crisisPersonalDe, saludMentalPropia, consultaSinRevelacion, consultaOferta, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaTemaSensible, respuestaConDatos, salidaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=61';
 
 let DATA = null;
 
@@ -6232,7 +6232,8 @@ async function _resolve(consulta) {
  */
 const HANDLERS_ACLARACION = new Set(['answerAliasAmbiguo', 'answerGuardaD7', 'answerMeningitisTipo',
   'answerSumaSeriesDistintas', 'answerAclaracionPendiente']);
-const HANDLERS_DE_AYUDA = new Set(['answerConsejoMedico', 'answerClinica', 'answerCrisis', 'answerCrisisSeguimiento', 'answerApoyoSeguimiento', 'answerFueraDeVocabulario', 'answerTemaSensible']);
+// Ronda 2 (Fable): el apoyo de salud mental tampoco lleva notas de datos delante («Los datos empiezan en 2014…»).
+const HANDLERS_DE_AYUDA = new Set(['answerConsejoMedico', 'answerClinica', 'answerCrisis', 'answerCrisisSeguimiento', 'answerApoyoSeguimiento', 'answerFueraDeVocabulario', 'answerTemaSensible', 'answerSaludMentalPropia']);
 // Rediseño conversacional: charla, ayuda y síntomas responden aunque el turno sea personal y no nombre un dato.
 const HANDLERS_CONVERSACION = new Set(['answerSaludo', 'answerCharla', 'answerQueja', 'answerVago', 'answerFamiliar', 'answerAmbiguoColoquial', 'answerSemanaFutura', 'answerNoReportado', 'answerFueraDeAlcance', 'answerFAQ', 'answerSintomas', 'answerRankingPadecimientos', 'answerConfianzaGeneral', 'answerViaje', 'answerEstadoLlano']);
 // Respuestas fijas sin cifras (aclaraciones, alcance, no modelados, guardas): con un token fuera del vocabulario se
@@ -6536,7 +6537,15 @@ async function _resolveConCierre(query) {
   // da guardaInicial).
   const mental = respuestaCrisis(query) || crisisDura() ? null : saludMentalPropia(query);
   if (mental?.crisis || mental?.apoyo) return recuerdaFicha(guardaInicial(query, false));
-  const r = await _resolveConCierreBase(query);
+  // Ronda 2 (Codex Sol): con una revelación que pide datos, el KB responde la consulta sin la primera persona, igual que la
+  // función RAG; así el referente es el padecimiento revelado y no el del turno anterior («asma en Jalisco» → «sigo bastante
+  // deprimida cuantos casos en Jalisco»).
+  // Antes de reescribir, la guarda ve el turno original (tras un id sensible, la revelación es crisis).
+  if (mental?.prefijo) {
+    const g = guardaInicial(query, false);
+    if (g) return recuerdaFicha(g);
+  }
+  const r = await _resolveConCierreBase(mental?.prefijo ? consultaSinRevelacion(query) : query);
   // Toda respuesta de datos (la ficha, el mes, el ranking) lleva la línea de apoyo; nunca se antepone a un texto de crisis.
   if (mental?.prefijo && r?.response && !/^(Lamento|I am sorry|Sigo aquí|I am still|Es un tema|This is a sensitive|Por el tema|Because of the topic)/.test(r.response)) {
     if (!_crisisActiva || _crisisActiva === 'tema_cerrado') _crisisActiva = 'apoyo_sm';

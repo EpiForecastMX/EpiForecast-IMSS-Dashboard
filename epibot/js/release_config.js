@@ -23,6 +23,7 @@ export const respuestaCrisis = CATALOGO.respuestaCrisis;
 export const respuestaCrisisSeguimiento = CATALOGO.respuestaCrisisSeguimiento;
 export const esCrisisTercera = CATALOGO.esCrisisTercera;
 export const esCierreApoyo = CATALOGO.esCierreApoyo;
+export const consultaSinRevelacion = CATALOGO.consultaSinRevelacion;
 export const crisisPersonalDe = CATALOGO.crisisPersonalDe;
 export const esCrisisCompleta = CATALOGO.esCrisisCompleta;
 export const consultaOferta = CATALOGO.consultaOferta;

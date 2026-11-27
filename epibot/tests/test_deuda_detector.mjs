@@ -115,6 +115,17 @@ const CASOS = [
   [['she is unsafe'], CRISIS_EN],
   [['suicidio en México', 'dengue en Jalisco', 'intoxicación por plaguicidas en Jalisco'], CRISIS_ES],
   [['im depressed', 'no thanks'], /^All right\. I am here if/],
+  // Ronda 2 (Codex Sol y Fable): un año solo con «en» tras el apoyo; primera persona y terceros dichos de otras formas.
+  [['estoy sola con depresión', 'en 2008'], CRISIS_ES],
+  [['tengo depresión', 'en 2020'], CRISIS_ES],
+  [['no quiero llegar a mañana'], CRISIS_ES],
+  [['no me siento a salvo'], CRISIS_ES],
+  [['estoy en peligro'], CRISIS_ES],
+  [['mi amigo se va a matar'], CRISIS_ES],
+  [['cuantos casos de asma en Jalisco, mi hija dice que ya no le quedan razones para seguir'], CRISIS_ES],
+  [["I don't feel safe"], CRISIS_EN],
+  [['my friend is going to kill herself'], CRISIS_EN],
+  [['my daughter isnt safe'], CRISIS_EN],
   // (a′) Idioma del seguimiento tras un lugar aislado: el de la conversación.
   [['suicide in Mexico', 'Jalisco'], NEUTRA_SIGUE_EN],
   [['suicidio en México', 'Jalisco'], NEUTRA_SIGUE_ES],
@@ -132,7 +143,13 @@ test('deuda del detector: tras levantar la variante neutra, el padecimiento no s
 
 test('deuda del detector (ronda 1): consultas benignas sin falsos positivos del riesgo de terceros ni del tema cerrado', async () => {
   for (const turnos of [['asthma in Jalisco, the air is safe now'], ['no estamos a salvo del dengue'], ['dengue is not safe'],
-    ['suicidio en México', 'dengue en Jalisco', 'alacranismo en Jalisco'], ['suicidio en México', 'dengue en Jalisco', 'efectos del calor en Sonora']]) {
+    ['suicidio en México', 'dengue en Jalisco', 'alacranismo en Jalisco'], ['suicidio en México', 'dengue en Jalisco', 'efectos del calor en Sonora'],
+    // Ronda 2 (Fable): lugares, instituciones, datos y el propio padecimiento no son una persona en riesgo.
+    ["asma en Jalisco, the air isn't safe due to pollution"], ['asma en Jalisco, no puede más el sistema de salud'],
+    ['los hospitales no pueden más con el dengue'], ['el dengue quiere desaparecer'], ['are we in danger of dengue in Jalisco'],
+    ['you are not safe from dengue'], ['mi pueblo está en peligro por el dengue'],
+    ['suicidio en México', 'dengue en Jalisco', 'intoxicación por picadura de alacrán en Jalisco'],
+    ['suicidio en México', 'dengue en Jalisco', 'intoxicación alimentaria en Jalisco']]) {
     const k = await conversa(...turnos);
     assert.doesNotMatch(k.md, /^(Lamento que estés|I am sorry you are)/, turnos.join(' → '));
     assert.match(k.md, /\d/, turnos.join(' → '));
@@ -141,6 +158,21 @@ test('deuda del detector (ronda 1): consultas benignas sin falsos positivos del 
 
 test('deuda del detector (ronda 1): RAG no sustituye un año fuera del horizonte por otro mes', async () => {
   assert.doesNotMatch(await ragTurno('asma en Jalisco para marzo de 2028'), /^\*\*En marzo de 2027\*\*/);
+});
+
+test('deuda del detector (ronda 2): RAG no da la línea del mes si la consulta trae otro año', async () => {
+  assert.doesNotMatch(await ragTurno('cuantos casos de asma en Jalisco en marzo de 2028 comparado con 2027'), /^\*\*En marzo/);
+});
+
+test('deuda del detector (ronda 2): la revelación que pide datos responde el padecimiento revelado, no el anterior', async () => {
+  const k = await conversa('asma en Jalisco', 'sigo bastante deprimida cuantos casos en Jalisco');
+  assert.match(k.md, /^_Gracias por contármelo/);
+  assert.doesNotMatch(k.md, /Asma/);
+  assert.match(k.md, /Depresión/);
+});
+
+test('deuda del detector (ronda 2): «síntomas de depresión» dentro del apoyo sigue siendo otra revelación', async () => {
+  assert.match((await conversa('tengo depresión', 'tengo síntomas de depresión')).md, APOYO_ES);
 });
 
 test('deuda del detector: invisibles en una consulta benigna no cambian la respuesta', async () => {

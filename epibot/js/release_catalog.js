@@ -1855,14 +1855,20 @@
   // quiere llegar a mañana», «no está a salvo», «she is not safe tonight»). Sólo añade crisis.
   // Ronda 1 (Codex Sol y Fable): «a salvo del dengue», «vivir en Jalisco» y «the water is safe now» no son señal; «no aguanta
   // más», «quiere desaparecer», «no quiere seguir», «está en peligro» o «is unsafe» de alguien cercano sí.
-  const PERSONA_T = '(mi|mis|tu|tus|su|sus|my|your|his|her|their) (?!(estado|ciudad|municipio|pais|region|zona|comunidad|colonia|casa|state|city|country|town|area|home)\\b)[a-z]+( [a-z]+){0,4}';
-  const RIESGO_TERCERO_ES = new RegExp('\\b((ya )?no (quiere|quieren|queria|querian|quisiera) (llegar a manana|llegar al dia siguiente|ver el dia de manana|amanecer|despertar|despertarse|seguir aqui|seguir viv[oa]s?|seguir con vida|vivir(?! (en|con|cerca|lejos|aqui|alla|ahi|solo|sola) )|vivir mas|estar viv[oa]s?|estar aqui|existir)\\b|' +
-    'no (esta|estan|este|esten|estaba|estoy|estamos|estas) a salvo(?! (de|del|ante|frente) )|(quiere|quieren|piensa|piensan|planea|planean) (quitarse la vida|acabar con su vida|terminar con su vida|desaparecer)\\b|' +
-    '(ya )?no (aguanta|aguantan|puede|pueden) mas\\b|no (quiere|quieren) seguir( adelante| asi)? $|' +
-    PERSONA_T + ' (esta|estan|corre|corren|anda) (en )?peligro\\b|' + PERSONA_T + ' no (esta|se siente|estan|se sienten) (segur[oa]s?|a salvo)\\b)');
-  const RIESGO_TERCERO_EN = new RegExp('\\b(((i|i m|im|he|she|they|we|you|someone|somebody)|' + PERSONA_T + ')( is| are| am| m| s| re| feel| feels| was| were)? (not safe|unsafe|in danger)|' +
-    '(isn t|aren t|wasn t|im not|i m not) safe|(doesn t|does not|don t|do not) want to (live|be alive|wake up|be here|exist|see tomorrow|make it to tomorrow)|' +
-    '(wants|want) to (die|end it all|end (his|her|their) life|kill (himself|herself|themselves)|disappear))\\b');
+  // Ronda 2 (Fable): la persona excluye lugares, instituciones, datos y animales («mi estado», «mis datos», «mi pueblo»).
+  const NO_PERSONA = '(?!(estado|ciudad|municipio|pais|region|zona|comunidad|colonia|casa|pueblo|poblacion|gente|datos|informacion|' +
+    'pronostico|modelo|perro|perra|gato|gata|mascota|hospital|clinica|sistema|state|city|country|town|area|home|data|information|forecast|model|' +
+    'dog|cat|pet|hospital|people)\\b)';
+  const PERSONA_T = '(mi|mis|tu|tus|su|sus|my|your|his|her|their) ' + NO_PERSONA + '[a-z]+( [a-z]+){0,4}';
+  const SUJETO_T = '(' + PERSONA_T + '|ella|alguien|she|he|they|someone|somebody)';
+  const RIESGO_TERCERO_ES = new RegExp('\\b((ya )?no (quiere|quieren|queria|querian|quisiera|quiero|queremos) (llegar a manana|llegar al dia siguiente|ver el dia de manana|amanecer|despertar(?! temprano| tarde| a las)|despertarse|seguir aqui|seguir viv[oa]s?|seguir viviendo|seguir con vida|vivir(?! (en|con|cerca|lejos|solo|sola) )|vivir mas|estar viv[oa]s?|estar aqui|existir)\\b|' +
+    'no (llega|llegara|llego) a manana\\b|no (le|me|les|nos) (queda|quedan) (razones|ganas|fuerzas|motivos)( para| de)? (seguir|vivir)\\b|no (esta|estan|este|esten|estaba|estoy|estamos|estas) a salvo(?! (de|del|ante|frente) )|no me siento (a salvo|segur[oa])\\b|(estoy|estamos) en peligro(?! (de|del|por) )|' +
+    '(quiere|quieren|piensa|piensan|planea|planean) (quitarse la vida|acabar con su vida|terminar con su vida)\\b|se va a (matar|suicidar|quitar la vida)\\b|' +
+    SUJETO_T + ' (ya )?no (aguanta|aguantan|puede|pueden) mas\\b|' + SUJETO_T + ' (quiere|quieren) desaparecer\\b|' + SUJETO_T + ' no (quiere|quieren) seguir( adelante| asi)? $|' +
+    PERSONA_T + ' (esta|estan|corre|corren|anda) (en )?peligro(?! (de|del|por) )\\b|' + PERSONA_T + ' no (esta|se siente|estan|se sienten) (segur[oa]s?|a salvo)(?! (de|del) )\\b)');
+  const RIESGO_TERCERO_EN = new RegExp('\\b(((i|i m|im|he|she|they|we|you|someone|somebody)|' + PERSONA_T + ')( is| are| am| m| s| re| feel| feels| was| were)? (not safe|unsafe|in danger)(?! (from|of|due|because) )|' +
+    '(' + SUJETO_T + ' (isn t|isnt|aren t|wasn t)|im not|i m not) safe(?! (from|of|due|because) )|(don t|dont|do not|doesn t|does not) feel safe|(doesn t|does not|don t|do not) want to (live(?! (in|with|near) )|be alive|wake up|be here|exist|see tomorrow|make it to tomorrow)|' +
+    '(wants|want) to (die|end it all|end (his|her|their) life|kill (himself|herself|themselves)|disappear)|(is|are|s|re) going to kill (himself|herself|themselves))\\b');
   const CRISIS_EN = /\b(kill(ing)? myself|want to die|wanna die|end my life|take my own life|hurt myself|harm myself|suicidal thoughts|im suicidal|i am suicidal)\b/;
   // alta_b44 (19-nov-2026): violencia vivida en primera persona («me pegan», «mi pareja me golpea»).
   const VIOLENCIA_ES = /\b(me (pega|pegan|pego|pegaron|golpea|golpean|golpeo|golpearon|maltrata|maltratan|amenaza|amenazan|viola|violan|violo|violaron|abusa|abusan|abuso|abusaron|lastima|lastiman|agrede|agreden|encierra|encierran)|(abusa|abusan|abuso|abusaron) de mi|me (esta|estan|estaba|estaban) (pegando|golpeando|maltratando|lastimando|amenazando|violando|abusando|agrediendo|madreando)|me (madrea|madrean|madreo|madrearon|putea|putean|puteo|partio la madre|partieron la madre|surte|surten|cachetea|cachetean|patea|patean|pateo|ahorca|ahorco)|sufro (violencia|maltrato|abuso)|vivo violencia|tengo miedo de mi (pareja|esposo|esposa|novio|novia|papa|mama|padre|madre))\b/;
@@ -3044,7 +3050,9 @@
   function reabreSensible(qn) {
     const q = normTercera(qn);
     return idsSensiblesEn(qn).length > 0 || nombraReleaseSensible(normLB(qn)) ||
-      /\b(suicid|autolesi|autoinflig|self harm|intoxicacion|envenenamiento|plaguicida|monoxido|poisoning)/.test(q) ||
+      // Ronda 2 (Fable): «intoxicación» a secas no reabre («intoxicación alimentaria», «por picadura de alacrán»); lo deciden
+      // los códigos.
+      /\b(suicid|autolesi|autoinflig|self harm|plaguicida|monoxido)/.test(q) ||
       variantesRiesgo(qn).some((v) => /suicid/.test(v)) ||
       // Ronda 1 (Fable): sólo lo que puede ser método (lesiones autoinfligidas X, armas W32-W34 e intoxicaciones T36-T65 salvo
       // animales venenosos T63); alacrán, calor o quemaduras siguen su curso.
@@ -3069,7 +3077,9 @@
       }
       if (cortesia(qn)) return en ? CIERRE_APOYO_EN : CIERRE_APOYO_ES;
       const smOtra = saludMentalPropia(qn);
-      if ((smOtra && !smOtra.laxa) || SALUDO.test(normTercera(qn)) || ACEPTA_OFERTA.test(normTercera(qn)) || sigueTercera(qn) ||
+      // Ronda 2 (Codex Sol): un año solo («en 2008») tras el apoyo puede ser un año de nacimiento: crisis en KB y RAG.
+      const anioSolo = /^(y |and )?(en|in) (19|20)\d\d$/.test(normTercera(qn));
+      if ((smOtra && !smOtra.laxa) || SALUDO.test(normTercera(qn)) || ACEPTA_OFERTA.test(normTercera(qn)) || (sigueTercera(qn) && !anioSolo) ||
         (turnoTecnico(qn) && conAncla(qn) && !SENAL_PREVIA.test(normTercera(qn))) ||
         /^(en corto|para nota|para junta|resumen|resumelo|mas corto|y)$/.test(normTercera(qn))) return null;
       return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
@@ -3265,7 +3275,7 @@
   // Deuda del detector (b): adverbios y modificadores que acompañan una revelación sin señal («estoy sola con depresión»,
   // «depressed af», «sigo deprimido todavía»). Sólo los usa el disparador INVERTIDO, cuyo resultado sin ellos era dejar pasar
   // las cifras: con ellos da el apoyo. No tocan la lista de relleno del disparador directo, así que nunca rebajan una crisis.
-  const ADVERBIO_SM_INV = new Set(('sola solo solas solos todavia aun otra vez de nuevo nuevo ya siempre seguido constantemente veces ' +
+  const ADVERBIO_SM_INV = new Set(('sola solo solas solos todavia aun otra vez nuevo ya siempre seguido constantemente veces ' +
     'hoy ultimamente mucho tanto bastante demasiado horrible fatal terrible re bien super af still again always lately today ' +
     'kinda kind sort pretty really so very too as hell been for feeling sintiendome').split(' '));
   const DESESPERANZA_SM = /\b(no hay (nada|salida|remedio|esperanza|solucion)|nada que hacer|ya no (puedo|aguanto|quiero|tiene)|sin salida|no tiene salida|no vale la pena|nada mas|no tiene sentido|no le veo|no puedo (hacer nada|mas|seguir|con nada|con esto|con todo|con mi vida|con la vida)|ya no puedo|no aguanto|no (como|duermo|me levanto|salgo)|(ya )?no se (que|como) hacer|no se que mas|hopeless|no way out|no point|nothing left|give up|me rindo)\b/;

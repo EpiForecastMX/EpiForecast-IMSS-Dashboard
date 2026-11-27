@@ -107,7 +107,9 @@ export function vistaGroundedAnswer(query, history, {
   const pMes = periodoPedido(query);
   const mesDe = (s, sx) => {
     // Ronda 1 (Codex Sol): un año que el periodo no reconoce («marzo de 2028», fuera del horizonte) no se sustituye por otro.
-    if (pMes?.tipo !== 'mes' || !(s.observado || []).length || (!pMes.anio && /\b(19|20)\d\d\b/.test(String(query)))) return null;
+    // Ronda 2 (Codex Sol): tampoco si junto al año reconocido hay otro («marzo de 2028 comparado con 2027»).
+    const anios = String(query).match(/\b(19|20)\d\d\b/g) || [];
+    if (pMes?.tipo !== 'mes' || !(s.observado || []).length || anios.some((a) => Number(a) !== pMes.anio)) return null;
     const ultimo = s.observado.at(-1)[0];
     const mie = new Date(`${ultimo.slice(0, 10)}T00:00:00Z`);
     mie.setUTCDate(mie.getUTCDate() - mie.getUTCDay() + 3);
