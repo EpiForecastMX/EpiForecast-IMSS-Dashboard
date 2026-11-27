@@ -1874,14 +1874,14 @@
   const PERSONA_T = '(mi|mis|tu|tus|su|sus|my|your|his|her|their) ' + NO_PERSONA + '[a-z]+( [a-z0-9]+){0,4}';
   const SUJETO_T = '(' + PERSONA_T + '|ella|alguien|she|he|they|someone|somebody)';
   const RIESGO_TERCERO_ES = new RegExp('\\b((ya )?no (quiere|quieren|queria|querian|quisiera|quiero|queremos) (llegar a manana|llegar al dia siguiente|ver el dia de manana|amanecer|despertar(se)?(?! (temprano|tarde|manana (temprano|tarde|a las|a la)|de la siesta|de su siesta|a|al|a la|a los|a las)\\b)(?! (por|con) ' + ENF_T + ')|seguir aqui(?! con)|seguir viv[oa]s?|seguir viviendo|seguir con vida|vivir(?! (en|cerca|lejos|solo|sola|conmigo|contigo|juntos|juntas)\\b)(?! con (mi|su|sus|mis|tu|tus|el|la|los|las) (familia|mama|papa|madre|padre|abuel[a-z]*|ti[oa]s?|herman[a-z]*|novi[oa]|espos[oa]|pareja|amig[a-z]*|suegr[a-z]*|hij[oa]s?)\\b)(?!( aqui| ahi| alla)? (por|con) ' + ENF_T + ')|vivir mas|estar viv[oa]s?|estar aqui|existir)\\b|' +
-    '(?:(?<=^ )|(?<= (que|yo|y|ya|hoy|creo|siento|pienso|neta|verdad)) |' + SUJETO_T + ' )(ya )?no ((llega|llegara|llego|llegue) a manana|(voy|vamos) a (llegar a manana|amanecer))\\b(?! (el|la|los|las|este|esta|con) )|no (le|me|les|nos) (queda|quedan) (razones|ganas|fuerzas|motivos)( para| de)? (seguir|vivir)\\b|(?<!(datos|informacion|archivos|registros|cifras|numeros|data|resultados|curva|grafica|serie|modelo|pronostico) )no (esta|estan|este|esten|estaba|estoy|estamos|estas) a salvo' + NO_ENF_ES + '|no me siento (a salvo|segur[oa](?! (de|del|si|que)\\b(?! (seguir|querer|estar) (viv|con vida|aqui)))(?! con (el|la|los|las|este|esta|estos|estas|ese|esa) (pronostico|modelo|dato|datos|grafica|resultado|resultados|cifra|cifras|informacion|reporte|boletin)\\b))\\b|(estoy|estamos) en peligro' + NO_ENF_ES + '|' +
+    '(?:(?<=^ )|(?<= (que|yo|y|ya|hoy|creo|siento|pienso|neta|verdad)) |' + SUJETO_T + ' )(ya )?no ((llega|llegara|llego|llegue) a manana|(voy|vamos) a (llegar a manana|amanecer))\\b(?! (el|la|los|las|este|esta|con) )|no (le|me|les|nos) (queda|quedan) (razones|ganas|fuerzas|motivos)( para| de)? (seguir|vivir)\\b|(?<!(datos|informacion|archivos|registros|cifras|numeros|data|resultados|curva|grafica|serie|modelo|pronostico) )no (esta|estan|este|esten|estaba|estoy|estamos|estas) a salvo' + NO_ENF_ES + '|no me siento (a salvo|segur[oa](?! (de|del|si|que)\\b(?! (seguir|querer|estar) (viv|con vida|aqui))(?! (volver|regresar) ))(?! con (el|la|los|las|este|esta|estos|estas|ese|esa) (pronostico|modelo|dato|datos|grafica|resultado|resultados|cifra|cifras|informacion|reporte|boletin)\\b))\\b|(estoy|estamos) en peligro' + NO_ENF_ES + '|' +
     '(quiere|quieren|piensa|piensan|planea|planean) (quitarse la vida|acabar con su vida|terminar con su vida)\\b|(quiere|quieren|quiero) dejar de (existir|vivir)\\b|se va a (matar|suicidar|quitar la vida)\\b(?! (trabajando|estudiando|de risa|de hambre|corriendo)\\b)|' +
-    SUJETO_T + ' (ya )?no (aguanta|aguantan|puede|pueden) mas\\b(?!( con)? ' + ENF_T + ')(?! con (el|la|los|las) (reporte|reportes|trabajo|tarea|tareas|dato|datos|informe|informes|carga|pendientes|cuentas|tramites|papeleo|deudas)\\b)|' + SUJETO_T + ' (quiere|quieren) desaparecer\\b(?! ' + ENF_T + ')(?! (el|la|los|las|un|una) (grafica|dato|datos|archivo|archivos|registro|registros|reporte|tabla|boton|pagina|pronostico|modelo|columna|fila|filtro|filtros|mapa|linea)\\b)|' + SUJETO_T + ' no (quiere|quieren) seguir( adelante| asi)? $|' +
+    SUJETO_T + ' (ya )?no (aguanta|aguantan|puede|pueden) mas\\b(?!( con)? ' + ENF_T + ')(?! (el|la|los) (ruido|trafico|frio|sol|olor|polvo)\\b)(?! con (el|la|los|las) (reporte|reportes|trabajo|tarea|tareas|dato|datos|informe|informes|carga|pendientes|cuentas|tramites|papeleo)\\b)|' + SUJETO_T + ' (quiere|quieren) desaparecer\\b(?! ' + ENF_T + ')(?! (el|la|los|las|un|una) (grafica|dato|datos|archivo|archivos|registro|registros|reporte|tabla|boton|pagina|pronostico|modelo|columna|fila|filtro|filtros|mapa|linea)\\b)|' + SUJETO_T + ' no (quiere|quieren) seguir( adelante| asi)? $|' +
     // Ronda 5 (Fable): «quiere morir», «se corta», «puede hacerse daño» y «ella está en peligro» de alguien cercano.
     SUJETO_T + ' (quiere|quieren) (morir|morirse|matarse|hacerse dano|lastimarse|suicidarse)\\b(?! de (risa|ganas|hambre|sueno|frio|calor|aburrimiento|envidia)\\b)|' + SUJETO_T + ' se (haga|hagan|vaya a hacer|pueda hacer) dano\\b|' + SUJETO_T + ' se (corta|cortan|lastima|lastiman|hace dano|hacen dano|quiere hacer dano)\\b(?! (el |la |las |los |su |sus )?(pelo|cabello|unas|barba|fleco|flequillo|luz|senal|internet|conexion|llamada|video|leche|salsa|mayonesa|pagina|sesion)\\b)' +
     '(?! (jugando|haciendo|entrenando|al (jugar|correr|caer|cocinar)|en (el|la) (cancha|escuela|partido)|con (papel|una hoja|un papel|el papel))\\b)|' +
     '(puede|pueden|podria|podrian) hacerse dano\\b(?! (el|la|los|las|en|con)\\b)|' +
-    SUJETO_T + ' (esta|estan|corre|corren|anda) (en )?peligro' + NO_ENF_ES + '\\b|' + PERSONA_T + ' no (esta|se siente|estan|se sienten) (protegid[oa]s?|segur[oa]s?(?! (de|del|si|que)\\b(?! (seguir|querer|estar) (viv|con vida|aqui)))(?! con (el|la|los|las|este|esta|estos|estas|ese|esa) (pronostico|modelo|dato|datos|grafica|resultado|resultados|cifra|cifras|informacion|reporte|boletin)\\b)|a salvo' + NO_ENF_ES + ')\\b)');
+    SUJETO_T + ' (esta|estan|corre|corren|anda) (en )?peligro' + NO_ENF_ES + '\\b|' + PERSONA_T + ' no (esta|se siente|estan|se sienten) (segur[oa]s?(?! (de|del|si|que)\\b(?! (seguir|querer|estar) (viv|con vida|aqui))(?! (volver|regresar) ))(?! con (el|la|los|las|este|esta|estos|estas|ese|esa) (pronostico|modelo|dato|datos|grafica|resultado|resultados|cifra|cifras|informacion|reporte|boletin)\\b)|a salvo' + NO_ENF_ES + ')\\b)|' + PERSONA_T + ' no (se siente|se sienten|se sentia) protegid[oa]s?\\b');
   const RIESGO_TERCERO_EN = new RegExp('\\b(((i|i m|im|he|she|they|we|you|someone|somebody)|' + PERSONA_T + ')( is| are| am| m| s| re| feel| feels| was| were)? (not safe|unsafe|in danger)' + NO_ENF_EN + '|' +
     '(' + SUJETO_T + ' (isn t|isnt|aren t|wasn t)|im not|i m not) safe' + NO_ENF_EN + '|(don t|dont|do not|doesn t|does not) feel safe|(doesn t|does not|don t|do not) want to (live(?! (in|with|near) )|be alive|wake up(?! (the|my|her|his|their|early|late|at|in)\\b)|be here|exist|see tomorrow|make it to tomorrow)|' +
     '(wants|want) to (die|end it all|end (his|her|their) life|kill (himself|herself|themselves)|disappear(?! (the|a|this|that|my|her|his) ))|(is|are|s|re) going to kill (himself|herself|themselves))\\b');
@@ -3110,6 +3110,16 @@
       // animales venenosos T63); alacrán, calor o quemaduras siguen su curso.
       releasesEnConsulta(normLB(qn), { prefijos: true }).some((r) => /^(X|W3[2-4]|T3[6-9]|T[45]\d|T6[0-25])/i.test(String(r.cie || '')));
   }
+  /** El turno previo más reciente que nombra un padecimiento nombra uno que el apoyo bloquea (T, X, W32-W34). */
+  function referenteBloqueado(previos) {
+    for (const t of [...previos].reverse()) {
+      const rels = releasesEnConsulta(normLB(t), { prefijos: true });
+      const leg = (padecimientosEnConsulta(t).legacy || []).length;
+      if (!rels.length && !leg) continue;
+      return rels.some((r) => /^(T|X|W3[2-4])/i.test(String(r.cie || '')));
+    }
+    return false;
+  }
   function respuestaCrisisSeguimiento(qn, crisisPrevia, nombraPadLimpio, previos = [], hubo = undefined) {
     if (!crisisPrevia) return null;
     const q = String(qn).normalize('NFKC').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9 ]+/g, ' ');
@@ -3124,9 +3134,7 @@
           // Décima ronda: intoxicaciones, quemaduras, efectos de agentes externos (CIE T), lesiones autoinfligidas (X) y armas de
           // fuego (W32-W34), por alias, código o inglés. Una mordedura de perro u otra causa externa no es un método.
           releasesEnConsulta(normLB(qn), { prefijos: true }).some((r) => /^(T|X|W3[2-4])/i.test(String(r.cie || ''))) ||
-          // Ronda 16 (Fable): tampoco se hereda un padecimiento que el apoyo bloquea (códigos T, X y W32-W34) nombrado antes.
-          ((previos || []).some((t) => idsSensiblesEn(t).length || releasesEnConsulta(normLB(t), { prefijos: true }).some((r) => /^(T|X|W3[2-4])/i.test(String(r.cie || '')))) &&
-            !nombraPadLimpio(qn) && !saludMentalPropia(qn))) {
+          ((previos || []).some((t) => idsSensiblesEn(t).length) && !nombraPadLimpio(qn) && !saludMentalPropia(qn))) {
         return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
       }
       // Ronda 12: un «sí» suelto sin oferta pendiente es una cortesía: recibe el cierre fijo.
@@ -3147,6 +3155,9 @@
       if (normTercera(qn) !== 'y' && /\b(en|de|del|para|in|of|for|y|and|entre|among|con|a|que|pero|but)$/.test(normTercera(qn))) return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
       // Ronda 7 (Codex Sol y Fable): la continuación de la oferta pasa la guarda con el mismo criterio con que se resuelve.
       if (ofertaPendiente(qn, previos || [])) return null;
+      // Ronda 16 (Fable): tampoco se hereda un padecimiento que el apoyo bloquea (códigos T, X y W32-W34). Ronda 17 (Fable): sólo
+      // si es el referente más reciente, y después de la oferta y la cortesía, que traen su propio referente.
+      if (!nombraPadLimpio(qn) && !saludMentalPropia(qn) && referenteBloqueado(previos || [])) return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
       // Ronda 12 (Fable): la aceptación de la oferta pasa sólo por `ofertaPendiente` (arriba), no por un patrón suelto.
       if ((smOtra && !smOtra.laxa) || SALUDO.test(normTercera(qn)) || (sigueTercera(qn) && !anioSolo) ||
         (turnoTecnico(qn) && conAncla(qn) && !SENAL_PREVIA.test(normTercera(qn))) ||
@@ -3411,8 +3422,12 @@
     // «en Jalisco.»), nada más: el resto debe ser una sola oración de texto limpio. Ronda 14 (Codex Sol): tras «sí» sólo la
     // coma; «sí; Sonora» o «sí. Jalisco» son dos oraciones y conservan la crisis, como en origin/main.
     // Ronda 16 (Codex Sol): entre signos de pregunta sólo vale con «en» («¿sí, en Jalisco?»); «¿sí, Jalisco?» es ambigua.
-    const pregunta = /^\s*¿|\?\s*$/u.test(String(qn));
+    // Ronda 17 (Codex Sol y Fable): cualquier «?» o «¿» cuenta como pregunta («sí, Jalisco?!»); un «¿» sin cerrar está cortado;
+    // «si» sin tilde ni coma puede ser un condicional («si Jalisco»): también exige «en».
+    const pregunta = /[¿?]/u.test(String(qn));
     if (pregunta && !/\b(en|in)\s+\S/iu.test(String(qn))) return null;
+    if (/¿/u.test(String(qn)) && !/\?/u.test(String(qn))) return null;
+    if (/^\s*si\s+(?!(en|in|por favor)\b)/iu.test(String(qn))) return null;
     const crudo = String(qn).normalize('NFKC').toLowerCase().trim().replace(/^[¡¿]\s*/u, '').replace(/\s*([.!]+|\?)$/u, '')
       .replace(/^(sí|si|claro|yes|sure)(\s*,?\s*(por favor|please))?\s*,?\s*/u, '$1 $3 ').replace(/\s+/g, ' ').trim();
     // Ronda 13 (Codex Sol): una sola línea y tildes en su sitio, comprobadas sobre el turno original («sí;\nSonora», «mujéres»).

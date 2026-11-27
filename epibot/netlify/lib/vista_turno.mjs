@@ -95,7 +95,8 @@ export function detectarSexo(query) {
   const q = normPal(query);
   const h = /\b(hombres?|masculin[oa]s?|varones?|men|man|males?)\b/.test(q);
   const m = /\b(mujeres?|femenin[oa]s?|women|woman|females?)\b/.test(q);
-  if (h && m) return 'ambos';
+  // Deuda del detector, ronda 17 (Codex Sol): «por sexo» pide ambas series, como en el KB.
+  if ((h && m) || /\b(por (sexo|sexos|genero)|by (sex|gender))\b/.test(q)) return 'ambos';
   if (h) return 'hombres';
   if (m) return 'mujeres';
   return /\b(general|ambos sexos|total general)\b/.test(q) ? 'general' : null;
