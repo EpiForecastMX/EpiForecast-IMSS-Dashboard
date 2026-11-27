@@ -69,6 +69,7 @@ const CASOS = [
   [['mi amigo ya no quiere vivir'], CRISIS_ES],
   [['my daughter has depression and she is not safe tonight'], CRISIS_EN],
   [['my friend does not want to wake up'], CRISIS_EN],
+  [['my mom is not safe'], CRISIS_EN],
   // (b) Revelaciones con adverbios o elípticas: apoyo, sin cifras.
   [['estoy sola con depresión'], APOYO_ES],
   [['super deprimida'], APOYO_ES],
@@ -97,6 +98,23 @@ const CASOS = [
   // El año con «en» sigue siendo un filtro: seguimiento neutro, igual en el KB y en RAG (la reescritura lo vaciaba en el KB).
   [['suicidio en México', 'en 2008'], NEUTRA_SIGUE_ES],
   [['suicide in Mexico', 'in 2020'], NEUTRA_SIGUE_EN],
+  // Ronda 1 de la auditoría ciega (Codex Sol y Fable): «durante» o «el año» con un año no son seguimiento; una revelación
+  // laxa dentro del apoyo no es «otra revelación»; riesgo de alguien cercano dicho de otras formas.
+  [['tengo depresión', 'durante 2020'], CRISIS_ES],
+  [['tengo depresión', 'en el año 2020'], CRISIS_ES],
+  [['suicidio en México', 'durante 2020'], CRISIS_ES],
+  [['suicidio en México', 'en el 2010'], CRISIS_ES],
+  [['quiero morir', 'dengue en Jalisco', 'estoy sola con depresión'], CRISIS_ES],
+  [['tengo depresión', 'depressed af'], CRISIS_ES],
+  [['mi hija está deprimida y no aguanta más, asma en Jalisco'], CRISIS_ES],
+  [['mi hijo quiere desaparecer'], CRISIS_ES],
+  [['mi amigo no quiere seguir'], CRISIS_ES],
+  [['mi hija no está segura'], CRISIS_ES],
+  [['mi hijo corre peligro'], CRISIS_ES],
+  [['my friend is in danger'], CRISIS_EN],
+  [['she is unsafe'], CRISIS_EN],
+  [['suicidio en México', 'dengue en Jalisco', 'intoxicación por plaguicidas en Jalisco'], CRISIS_ES],
+  [['im depressed', 'no thanks'], /^All right\. I am here if/],
   // (a′) Idioma del seguimiento tras un lugar aislado: el de la conversación.
   [['suicide in Mexico', 'Jalisco'], NEUTRA_SIGUE_EN],
   [['suicidio en México', 'Jalisco'], NEUTRA_SIGUE_ES],
@@ -110,6 +128,19 @@ test('deuda del detector: tras levantar la variante neutra, el padecimiento no s
   const k = await conversa('suicidio en México', 'dengue en Jalisco');
   assert.match(k.md, /Dengue en Jalisco/);
   assert.match(k.md, /\d/);
+});
+
+test('deuda del detector (ronda 1): consultas benignas sin falsos positivos del riesgo de terceros ni del tema cerrado', async () => {
+  for (const turnos of [['asthma in Jalisco, the air is safe now'], ['no estamos a salvo del dengue'], ['dengue is not safe'],
+    ['suicidio en México', 'dengue en Jalisco', 'alacranismo en Jalisco'], ['suicidio en México', 'dengue en Jalisco', 'efectos del calor en Sonora']]) {
+    const k = await conversa(...turnos);
+    assert.doesNotMatch(k.md, /^(Lamento que estés|I am sorry you are)/, turnos.join(' → '));
+    assert.match(k.md, /\d/, turnos.join(' → '));
+  }
+});
+
+test('deuda del detector (ronda 1): RAG no sustituye un año fuera del horizonte por otro mes', async () => {
+  assert.doesNotMatch(await ragTurno('asma en Jalisco para marzo de 2028'), /^\*\*En marzo de 2027\*\*/);
 });
 
 test('deuda del detector: invisibles en una consulta benigna no cambian la respuesta', async () => {

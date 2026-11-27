@@ -1853,8 +1853,16 @@
   const CRISIS_ES = /\b(suicidarme|suicidarse|matarme|matarse|quitarme la vida|quitarse la vida|acabar con mi vida|terminar con mi vida|(me|se) quier[eo] (morir|matar|suicidar)|me voy a (matar|morir|suicidar)|quiero (morir|morirme)|quisiera (morir|morirme|estar muert)|ganas de (morir|morirme|matarme|suicidarme)|(ya )?no quiero (vivir|seguir viviendo|seguir con vida|estar viv[oa]s?|seguir viv[oa]s?|existir)|no vale la pena vivir|hacerme dano|lastimarme|cortarme las venas|autolesionarme|(tengo|con) (pensamientos|ideas) suicidas|tengo ideacion suicida)\b/;
   // Deuda del detector (b): riesgo dicho de otra persona o sin la primera persona de la lista («mi compañera dice que no
   // quiere llegar a mañana», «no está a salvo», «she is not safe tonight»). Sólo añade crisis.
-  const RIESGO_TERCERO_ES = /\b((ya )?no (quiere|quieren|queria|querian|quisiera) (llegar a manana|llegar al dia siguiente|ver el dia de manana|amanecer|despertar|despertarse|seguir aqui|seguir viv[oa]s?|seguir con vida|vivir|vivir mas|estar viv[oa]s?|estar aqui|existir)|no (esta|estan|este|esten|estaba|estoy|estamos|estas) a salvo|(quiere|quieren|piensa|piensan|planea|planean) (quitarse la vida|acabar con su vida|terminar con su vida|desaparecer para siempre))\b/;
-  const RIESGO_TERCERO_EN = /\b((is|are|am|s|re|m|feel|feels|isn t|aren t|not) (not )?safe (tonight|today|now|at home|anymore|right now)|(he|she|they|i|we|you) (is|are|am|s|re|m|feel|feels) not safe|(isn t|aren t|im not|i m not) safe|(doesn t|does not|don t|do not) want to (live|be alive|wake up|be here|exist|see tomorrow|make it to tomorrow)|(wants|want) to (die|end it all|end (his|her|their) life|kill (himself|herself|themselves)))\b/;
+  // Ronda 1 (Codex Sol y Fable): «a salvo del dengue», «vivir en Jalisco» y «the water is safe now» no son señal; «no aguanta
+  // más», «quiere desaparecer», «no quiere seguir», «está en peligro» o «is unsafe» de alguien cercano sí.
+  const PERSONA_T = '(mi|mis|tu|tus|su|sus|my|your|his|her|their) (?!(estado|ciudad|municipio|pais|region|zona|comunidad|colonia|casa|state|city|country|town|area|home)\\b)[a-z]+( [a-z]+){0,4}';
+  const RIESGO_TERCERO_ES = new RegExp('\\b((ya )?no (quiere|quieren|queria|querian|quisiera) (llegar a manana|llegar al dia siguiente|ver el dia de manana|amanecer|despertar|despertarse|seguir aqui|seguir viv[oa]s?|seguir con vida|vivir(?! (en|con|cerca|lejos|aqui|alla|ahi|solo|sola) )|vivir mas|estar viv[oa]s?|estar aqui|existir)\\b|' +
+    'no (esta|estan|este|esten|estaba|estoy|estamos|estas) a salvo(?! (de|del|ante|frente) )|(quiere|quieren|piensa|piensan|planea|planean) (quitarse la vida|acabar con su vida|terminar con su vida|desaparecer)\\b|' +
+    '(ya )?no (aguanta|aguantan|puede|pueden) mas\\b|no (quiere|quieren) seguir( adelante| asi)? $|' +
+    PERSONA_T + ' (esta|estan|corre|corren|anda) (en )?peligro\\b|' + PERSONA_T + ' no (esta|se siente|estan|se sienten) (segur[oa]s?|a salvo)\\b)');
+  const RIESGO_TERCERO_EN = new RegExp('\\b(((i|i m|im|he|she|they|we|you|someone|somebody)|' + PERSONA_T + ')( is| are| am| m| s| re| feel| feels| was| were)? (not safe|unsafe|in danger)|' +
+    '(isn t|aren t|wasn t|im not|i m not) safe|(doesn t|does not|don t|do not) want to (live|be alive|wake up|be here|exist|see tomorrow|make it to tomorrow)|' +
+    '(wants|want) to (die|end it all|end (his|her|their) life|kill (himself|herself|themselves)|disappear))\\b');
   const CRISIS_EN = /\b(kill(ing)? myself|want to die|wanna die|end my life|take my own life|hurt myself|harm myself|suicidal thoughts|im suicidal|i am suicidal)\b/;
   // alta_b44 (19-nov-2026): violencia vivida en primera persona («me pegan», «mi pareja me golpea»).
   const VIOLENCIA_ES = /\b(me (pega|pegan|pego|pegaron|golpea|golpean|golpeo|golpearon|maltrata|maltratan|amenaza|amenazan|viola|violan|violo|violaron|abusa|abusan|abuso|abusaron|lastima|lastiman|agrede|agreden|encierra|encierran)|(abusa|abusan|abuso|abusaron) de mi|me (esta|estan|estaba|estaban) (pegando|golpeando|maltratando|lastimando|amenazando|violando|abusando|agrediendo|madreando)|me (madrea|madrean|madreo|madrearon|putea|putean|puteo|partio la madre|partieron la madre|surte|surten|cachetea|cachetean|patea|patean|pateo|ahorca|ahorco)|sufro (violencia|maltrato|abuso)|vivo violencia|tengo miedo de mi (pareja|esposo|esposa|novio|novia|papa|mama|padre|madre))\b/;
@@ -2874,10 +2882,11 @@
   // la cortesía recibe el seguimiento personal; CUALQUIER otro turno («con pastillas», «de un compañero», «I do not feel
   // safe», «esta noche») es una señal y recibe la crisis completa, que sube el estado a 'crisis'.
   // Deuda a′ del PR #163: un año suelto («2008», «1999») puede ser una fecha de nacimiento o una edad, no un filtro: sólo
-  // cuenta con «en», «in», «durante» o «el año» delante; solo, recibe la crisis completa.
+  // cuenta con «en» o «in» delante (como antes); solo, recibe la crisis completa. Ronda 1 de la auditoría (Codex Sol y
+  // Fable): «durante 2020» o «en el año 2020» no se añaden.
   const RE_SIGUE_TERCERA = new RegExp('^(y |and |what about |y que tal )?(((en|in|entre|among) )?' +
     '(' + LUGAR_T.slice(1, -1) + '|hombres|mujeres|men|women|nacional|el ano pasado|last year)' +
-    '( (en|in) ' + ANIOS_T + ')?|(en|in|durante|during) (el )?(ano )?' + ANIOS_T + ')$');
+    '( (en|in) ' + ANIOS_T + ')?|(en|in) ' + ANIOS_T + ')$');
   const ACEPTA_OFERTA = new RegExp('^(si|claro|si por favor|yes|sure|yes please)( (en|in) (el estado de )?' +
     LUGAR_T + ')?$');
   const RE_CORTESIA = /^(ok|okay|vale|va|no|no gracias|no thanks|no thank you|mejor no|gracias|muchas gracias|thanks|thank you|entendido|de acuerdo|bien|listo|perfecto|entiendo|ya veo)$/;
@@ -2971,7 +2980,8 @@
   }
   /** Idioma del seguimiento: el del turno si lo tiene; si es un lugar, año o cortesía aislados, el del turno previo. */
   function idiomaSeguimiento(qn, previos, enTurno) {
-    if (!SIN_IDIOMA.test(normTercera(qn))) return enTurno;
+    // Ronda 1 (Fable): «no thanks» es inglés aunque empiece por «no».
+    if (!SIN_IDIOMA.test(normTercera(qn))) return cortesia(qn) && idiomaDeTurno(qn) ? idiomaDeTurno(qn) === 'en' : enTurno;
     for (const t of [...(previos || [])].reverse()) { const i = idiomaDeTurno(t); if (i) return i === 'en'; }
     return enTurno;
   }
@@ -3036,7 +3046,9 @@
     return idsSensiblesEn(qn).length > 0 || nombraReleaseSensible(normLB(qn)) ||
       /\b(suicid|autolesi|autoinflig|self harm|intoxicacion|envenenamiento|plaguicida|monoxido|poisoning)/.test(q) ||
       variantesRiesgo(qn).some((v) => /suicid/.test(v)) ||
-      releasesEnConsulta(normLB(qn), { prefijos: true }).some((r) => /^(T|X|W3[2-4])/i.test(String(r.cie || '')));
+      // Ronda 1 (Fable): sólo lo que puede ser método (lesiones autoinfligidas X, armas W32-W34 e intoxicaciones T36-T65 salvo
+      // animales venenosos T63); alacrán, calor o quemaduras siguen su curso.
+      releasesEnConsulta(normLB(qn), { prefijos: true }).some((r) => /^(X|W3[2-4]|T3[6-9]|T[45]\d|T6[0-25])/i.test(String(r.cie || '')));
   }
   function respuestaCrisisSeguimiento(qn, crisisPrevia, nombraPadLimpio, previos = []) {
     if (!crisisPrevia) return null;
@@ -3056,7 +3068,8 @@
         return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
       }
       if (cortesia(qn)) return en ? CIERRE_APOYO_EN : CIERRE_APOYO_ES;
-      if (saludMentalPropia(qn) || SALUDO.test(normTercera(qn)) || ACEPTA_OFERTA.test(normTercera(qn)) || sigueTercera(qn) ||
+      const smOtra = saludMentalPropia(qn);
+      if ((smOtra && !smOtra.laxa) || SALUDO.test(normTercera(qn)) || ACEPTA_OFERTA.test(normTercera(qn)) || sigueTercera(qn) ||
         (turnoTecnico(qn) && conAncla(qn) && !SENAL_PREVIA.test(normTercera(qn))) ||
         /^(en corto|para nota|para junta|resumen|resumelo|mas corto|y)$/.test(normTercera(qn))) return null;
       return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
@@ -3243,8 +3256,11 @@
     // menor…); con otras palabras la consulta sigue su curso, como antes del parche.
     if (toks.some((w) => RIESGO_SUELTO.has(w)) || EDAD_MENOR.test(q)) return crisis;
     if (toks.length || !verbo) return null;
-    if (PIDE_DATOS_SM.test(resto)) return { prefijo: en ? PREFIJO_SM_EN : PREFIJO_SM };
-    return { apoyo: apoyoSaludMental(q, en) };
+    // Ronda 1 (Fable): la revelación que sólo se reconoce por un adverbio o por la forma elíptica es «laxa»: da el apoyo
+    // como primer turno, pero no cuenta como «otra revelación» dentro del apoyo (ahí recibe la crisis completa, como antes).
+    const laxa = eliptica && !VERBO_1A.test(r) || resto.split(' ').some((w) => ADVERBIO_SM_INV.has(w));
+    if (PIDE_DATOS_SM.test(resto)) return { prefijo: en ? PREFIJO_SM_EN : PREFIJO_SM, laxa };
+    return { apoyo: apoyoSaludMental(q, en), laxa };
   }
   // Deuda del detector (b): adverbios y modificadores que acompañan una revelación sin señal («estoy sola con depresión»,
   // «depressed af», «sigo deprimido todavía»). Sólo los usa el disparador INVERTIDO, cuyo resultado sin ellos era dejar pasar

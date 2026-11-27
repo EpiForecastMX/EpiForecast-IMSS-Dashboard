@@ -106,11 +106,12 @@ export function vistaGroundedAnswer(query, history, {
   // módulo); antes la función daba sólo el total del horizonte.
   const pMes = periodoPedido(query);
   const mesDe = (s, sx) => {
-    if (pMes?.tipo !== 'mes' || !(s.observado || []).length) return null;
+    // Ronda 1 (Codex Sol): un año que el periodo no reconoce («marzo de 2028», fuera del horizonte) no se sustituye por otro.
+    if (pMes?.tipo !== 'mes' || !(s.observado || []).length || (!pMes.anio && /\b(19|20)\d\d\b/.test(String(query)))) return null;
     const ultimo = s.observado.at(-1)[0];
     const mie = new Date(`${ultimo.slice(0, 10)}T00:00:00Z`);
     mie.setUTCDate(mie.getUTCDate() - mie.getUTCDay() + 3);
-    const lugar = s.nivel === 'nacional' ? ' en el país' : s.nivel === 'estado' ? ` en ${s.nombre === 'México' ? 'Estado de México' : s.nombre}` : ` en la región ${s.nombre}`;
+    const lugar = s.nivel === 'nacional' ? ' en el país' : s.nivel === 'estado' ? ` en ${s.nombre === 'México' ? 'Estado de México' : s.nombre}` : ` en la ${/^regi[oó]n /i.test(s.nombre) ? s.nombre.replace(/^R/, 'r') : `región ${s.nombre}`}`;
     return lineaMes(pMes, (s.pronostico || []).filter(([ds]) => ds > ultimo), s.observado, String(mie.getUTCFullYear()),
       `${lugar}${sx && sx !== 'general' ? ` (${sx})` : ''}`);
   };
