@@ -55,8 +55,8 @@ const PIDE_METRICA_ERROR = /\b(error\w*|smape)\b/;
 const PIDE_ESTADO_RE = /\b(validad\w*|valida|validacion|confiab\w*|fiable|confiar|aceptad\w*|rechaz\w*|calidad|precis\w*|exactitud|que tan (bueno|exacto|preciso)|error\w*|smape|sirve)\b/;
 const PIDE_CIFRAS_ESTRICTO = /\b(cuantos?|cuantas?|total(es)?|pronostican|pronosticad[oa]s?|esperan|esperad[oa]s?|previst[oa]s?|proyecta\w*|52 semanas|horizonte|observad\w*|fuera de muestra|202\d ?w\d{1,2}|semana \d{1,2}|boletin \d{1,2}|mae|sesgo|bias|how many|forecasted|expected)\b/;
 const PIDE_PRONOSTICO_DIRECTO = /^(?:el |un |ver |dame |deme |mostrar |muestrame |consultar )?(?:pronostico|prediccion|forecast)\b|\b(?:cual es|cuales son|dame|deme|ver|mostrar|muestrame|consultar|hay|existe|is there|what is)\s+(?:el\s+|un\s+|la\s+|a\s+|the\s+)?(?:pronostico|prediccion|forecast|prediction)\b|\bcasos\s+(?:de|en|para|del)\b/;
-// Deuda del detector, ronda 18 (Codex Sol): «todo México» y «la república» también son el ámbito nacional, como en el KB.
-const PIDE_NACIONAL = /\b(nacional(es)?|a nivel nacional|total nacional|en mexico|de mexico|todo el pais|todo mexico|en el pais|el pais|la republica|republica mexicana|nationwide|nationally|in mexico|the country)\b/;
+// Deuda del detector, ronda 18 (Codex Sol): «todo México» también es el ámbito nacional, como en el KB.
+const PIDE_NACIONAL = /\b(nacional(es)?|a nivel nacional|total nacional|en mexico|de mexico|todo el pais|todo mexico|en el pais|republica mexicana|nationwide|in mexico)\b/;
 const MOD_FAMILIA = /\b(congenit[a-z]*|neonatal\w*|connatal\w*|perinatal\w*|vertical|fetal\w*|mortinat\w*|stillbirth\w*|gestacional|gestational|gestantes?|matern[ao]s?|maternal|embaraz\w*|pregnan\w*|puerper\w*|parto|childbirth|recien nacid[oa]s?|newborns?|bebes?|babies|baby|lactantes?|infants?|nin[oa]s?|children|child|menores?|adolescentes?|pediatric[oa]?s?|tipo (?:1|2|i|ii|uno|dos)|pulmonar)\b/;
 const SUMA_SEGUIMIENTO = /\b(sum\w*|junt[oa]s?|combinad[oa]s?|mas el|mas la)\b/;
 

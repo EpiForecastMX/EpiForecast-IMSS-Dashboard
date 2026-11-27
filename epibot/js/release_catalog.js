@@ -3110,6 +3110,23 @@
       // animales venenosos T63); alacrán, calor o quemaduras siguen su curso.
       releasesEnConsulta(normLB(qn), { prefijos: true }).some((r) => /^(X|W3[2-4]|T3[6-9]|T[45]\d|T6[0-25])/i.test(String(r.cie || '')));
   }
+  // Ronda 19 (Codex Sol y Fable): el cambio de ámbito nacional dentro del apoyo sólo en las formas en español que el KB
+  // resuelve y con un referente previo heredable (un padecimiento no sensible ni bloqueado); si no, conserva la crisis.
+  const AMBITO_NACIONAL_ES = /^(y )?(a nivel nacional|todo mexico|en todo mexico)$/;
+  function referenteHeredable(previos) {
+    for (const t of [...previos].reverse()) {
+      // La revelación que pide datos sin padecimiento no es referente (KB y RAG la saltan); la que ofrece datos lo es sólo si
+      // ofrece un padecimiento publicado («tengo ansiedad» corta la herencia).
+      const sm = saludMentalPropia(t);
+      if (sm?.prefijo && revelacionSinPadecimiento(t)) continue;
+      if (sm?.apoyo) return Boolean(padDeRevelacion(t));
+      const rels = releasesEnConsulta(normLB(t), { prefijos: true });
+      const leg = (padecimientosEnConsulta(t).legacy || []).length;
+      if (!rels.length && !leg) continue;
+      return !idsSensiblesEn(t).length && !rels.some((r) => r.sensible || /^(T|X|W3[2-4])/i.test(String(r.cie || '')));
+    }
+    return false;
+  }
   /** El turno previo más reciente que nombra un padecimiento nombra uno que el apoyo bloquea (T, X, W32-W34). */
   function referenteBloqueado(previos) {
     for (const t of [...previos].reverse()) {
@@ -3160,7 +3177,7 @@
       if (!nombraPadLimpio(qn) && !saludMentalPropia(qn) && referenteBloqueado(previos || [])) return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
       // Ronda 12 (Fable): la aceptación de la oferta pasa sólo por `ofertaPendiente` (arriba), no por un patrón suelto.
       // Ronda 18 (Codex Sol): un cambio de ámbito nacional («a nivel nacional», «todo México») es técnico como «nacional».
-      if ((smOtra && !smOtra.laxa) || SALUDO.test(normTercera(qn)) || (sigueTercera(qn) && !anioSolo) || (textoLimpio(qn) && NACIONAL_SOLO.test(normTercera(qn))) ||
+      if ((smOtra && !smOtra.laxa) || SALUDO.test(normTercera(qn)) || (sigueTercera(qn) && !anioSolo && referenteHeredable(previos || [])) || (textoLimpio(qn) && AMBITO_NACIONAL_ES.test(normTercera(qn)) && referenteHeredable(previos || [])) ||
         (turnoTecnico(qn) && conAncla(qn) && !SENAL_PREVIA.test(normTercera(qn))) ||
         /^(en corto|para nota|para junta|resumen|resumelo|mas corto|y)$/.test(normTercera(qn))) return null;
       return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
@@ -3428,6 +3445,8 @@
     const pregunta = /[¿?]/u.test(String(qn));
     if (pregunta && !/\b(en|in)\s+\S/iu.test(String(qn))) return null;
     if (/¿/u.test(String(qn)) && !/\?/u.test(String(qn))) return null;
+    // Ronda 19 (Codex Sol): un «¡» sin cerrar también está cortado («¡sí Jalisco»).
+    if (/¡/u.test(String(qn)) && !/!/u.test(String(qn))) return null;
     if (/^\s*[¡¿]?\s*si\s+(?!(en|in|por favor)\b)/iu.test(String(qn))) return null;
     const crudo = String(qn).normalize('NFKC').toLowerCase().trim().replace(/^[¡¿]\s*/u, '').replace(/\s*([.!]+|\?)$/u, '')
       .replace(/^(sí|si|claro|yes|sure)(\s*,?\s*(por favor|please))?\s*,?\s*/u, '$1 $3 ').replace(/\s+/g, ' ').trim();
