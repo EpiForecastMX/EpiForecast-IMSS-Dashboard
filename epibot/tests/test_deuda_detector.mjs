@@ -133,6 +133,14 @@ const CASOS = [
   [['suicidio en México', 'en 2008', 'dengue en Jalisco', 'asma en Jalisco, mi hijo está en peligro por mi pareja'], CRISIS_ES],
   [['mi hija no está a salvo de su papá'], CRISIS_ES],
   [['mi hijo está en peligro de muerte'], CRISIS_ES],
+  // Ronda 4 (Codex Sol y Fable): la aclaración deja el estado de apoyo; tras una crisis personal, otra revelación es crisis.
+  [['sigo bastante deprimida cuantos casos en Jalisco', 'X60 en Jalisco'], CRISIS_ES],
+  [['estoy deprimido cuantos casos hay', 'X60 en Jalisco'], CRISIS_ES],
+  [['tengo ansiedad cuantos casos hay', 'violencia intrafamiliar en Jalisco'], CRISIS_ES],
+  [['estoy deprimido cuantos casos hay', 'esta noche'], CRISIS_ES],
+  [['quiero morir', 'asma en Jalisco', 'sigo deprimida cuántos casos hay en Jalisco'], CRISIS_ES],
+  [['no llego a mañana'], CRISIS_ES],
+  [['tengo depresión', 'thanks'], CIERRE_ES],
   // (a′) Idioma del seguimiento tras un lugar aislado: el de la conversación.
   [['suicide in Mexico', 'Jalisco'], NEUTRA_SIGUE_EN],
   [['suicidio en México', 'Jalisco'], NEUTRA_SIGUE_ES],
@@ -159,7 +167,13 @@ test('deuda del detector (ronda 1): consultas benignas sin falsos positivos del 
     ['suicidio en México', 'dengue en Jalisco', 'intoxicación alimentaria en Jalisco'],
     // Ronda 3: «despertarse temprano», «wake up the baby» y el peligro de una enfermedad no son señal.
     ['asma en Jalisco. Mis alumnos no quieren despertarse temprano.'], ["Asthma in Jalisco. We don't want to wake up the baby."],
-    ['¿estamos en peligro en Jalisco por el dengue?'], ['mi familia está en peligro con el dengue'], ['la gente ya no quiere vivir aquí por el dengue']]) {
+    ['¿estamos en peligro en Jalisco por el dengue?'], ['mi familia está en peligro con el dengue'], ['la gente ya no quiere vivir aquí por el dengue'],
+    // Ronda 4: despertar a otra persona, certeza («segura de»), equipos, el calor, los mosquitos, «susidios».
+    ['cuántos casos de asma en Jalisco, no quiero despertar a mi hijo'], ['asma en Jalisco, mi hermana no está segura de si tiene asma'],
+    ['el pronóstico no llega a mañana, dengue en Jalisco'], ['¿cuántos casos de dengue hay en Jalisco? mis hijos no están seguros de ir'],
+    ['mi equipo no puede más con la carga de trabajo, dengue en Jalisco'], ['dengue en Jalisco, mi mamá ya no aguanta más el calor'],
+    ['los niños no quieren despertar por el dengue en Jalisco'], ['estoy en peligro de que me contagien dengue en Jalisco'],
+    ['dengue en Jalisco. Estoy en peligro por los mosquitos?'], ['los susidios de salud en Jalisco y el dengue']]) {
     const k = await conversa(...turnos);
     assert.doesNotMatch(k.md, /^(Lamento que estés|I am sorry you are)/, turnos.join(' → '));
     assert.match(k.md, /\d/, turnos.join(' → '));
@@ -187,6 +201,7 @@ test('deuda del detector (rondas 2 y 3): la revelación que pide datos sin nombr
 
 test('deuda del detector (ronda 3): RAG no da la línea del mes con cifras de otro sistema de numeración', async () => {
   assert.doesNotMatch(await ragTurno('asma en Jalisco en marzo ٢٠٢٨'), /^\*\*En marzo/);
+  assert.doesNotMatch(await ragTurno('asma en Jalisco en marzo de 2100'), /^\*\*En marzo/);
 });
 
 test('deuda del detector (ronda 2): «síntomas de depresión» dentro del apoyo sigue siendo otra revelación', async () => {

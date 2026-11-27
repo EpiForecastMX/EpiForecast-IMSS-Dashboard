@@ -6549,6 +6549,8 @@ async function _resolveConCierre(query) {
   // pide el padecimiento y el estado con el mismo texto fijo que la función RAG, en lugar de deducirlo o heredar el anterior.
   if (mental?.prefijo && !detectEntities(norm(query)).padecimiento) {
     lastEntities = {};
+    // Ronda 4 (Codex Sol y Fable): la aclaración deja el estado de apoyo, igual que la ficha con la línea de apoyo.
+    if (!_crisisActiva || _crisisActiva === 'tema_cerrado') _crisisActiva = 'apoyo_sm';
     const en = mental.prefijo.startsWith('_Thank');
     return { response: mental.prefijo + (en ? 'To give you figures I need the condition and the state, for example «depression in Jalisco».'
       : 'Para darte cifras necesito el padecimiento y el estado, por ejemplo «depresión en Jalisco».') + '\n<!--SIN_GRAFICA-->', handler: 'answerSaludMentalPropia' };

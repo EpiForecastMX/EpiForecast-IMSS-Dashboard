@@ -1858,21 +1858,21 @@
   // Ronda 2 (Fable): la persona excluye lugares, instituciones, datos y animales («mi estado», «mis datos», «mi pueblo»).
   const NO_PERSONA = '(?!(estado|ciudad|municipio|pais|region|zona|comunidad|colonia|casa|pueblo|poblacion|gente|datos|informacion|' +
     'pronostico|modelo|perro|perra|gato|gata|mascota|hospital|clinica|sistema|state|city|country|town|area|home|data|information|forecast|model|' +
-    'dog|cat|pet|hospital|people|tendencia|curva|grafica|serie|casos|trend|chart)\\b)';
+    'dog|cat|pet|hospital|people|tendencia|curva|grafica|serie|casos|trend|chart|equipo|trabajo|empresa|team|job)\\b)';
   // Ronda 3 (Codex Sol y Fable): «de/del/por» sólo excluyen el peligro cuando sigue una enfermedad («a salvo del dengue»); «en
   // peligro por mi pareja» o «a salvo de su papá» son riesgo.
   const ENF_T = '(el |la |los |las |the |a |an )?(dengue|covid|coronavirus|influenza|gripa|gripe|virus|epidemia|brote|brotes|enfermedad|' +
     'enfermedades|contagio|contagios|sarampion|zika|chikungunya|paludismo|malaria|tuberculosis|hepatitis|diabetes|asma|calor|pandemia|' +
-    'disease|diseases|outbreak|flu|epidemic|pandemic|heat)\\b';
+    'disease|diseases|outbreak|flu|epidemic|pandemic|heat|mosquitos?|zancudos?|moscos?|mosquitoes|(que )?(me |nos |le |les )?(contagi|enferm|infect)[a-z]*)\\b';
   const NO_ENF_ES = '(?!( en [a-z]+( [a-z]+){0,3})? (de|del|por|con|ante|frente a) ' + ENF_T + ')';
   const NO_ENF_EN = '(?! (from|of|due to|because of) ' + ENF_T + ')';
   const PERSONA_T = '(mi|mis|tu|tus|su|sus|my|your|his|her|their) ' + NO_PERSONA + '[a-z]+( [a-z]+){0,4}';
   const SUJETO_T = '(' + PERSONA_T + '|ella|alguien|she|he|they|someone|somebody)';
-  const RIESGO_TERCERO_ES = new RegExp('\\b((ya )?no (quiere|quieren|queria|querian|quisiera|quiero|queremos) (llegar a manana|llegar al dia siguiente|ver el dia de manana|amanecer|despertar(se)?(?! (temprano|tarde|a las|al|a la|a los)\\b)|seguir aqui|seguir viv[oa]s?|seguir viviendo|seguir con vida|vivir(?! (en|con|cerca|lejos|solo|sola|conmigo|contigo)\\b)(?!( aqui| ahi| alla)? (por|con) ' + ENF_T + ')|vivir mas|estar viv[oa]s?|estar aqui|existir)\\b|' +
-    'no (llega|llegara|llego) a manana\\b|no (le|me|les|nos) (queda|quedan) (razones|ganas|fuerzas|motivos)( para| de)? (seguir|vivir)\\b|no (esta|estan|este|esten|estaba|estoy|estamos|estas) a salvo' + NO_ENF_ES + '|no me siento (a salvo|segur[oa])\\b|(estoy|estamos) en peligro' + NO_ENF_ES + '|' +
+  const RIESGO_TERCERO_ES = new RegExp('\\b((ya )?no (quiere|quieren|queria|querian|quisiera|quiero|queremos) (llegar a manana|llegar al dia siguiente|ver el dia de manana|amanecer|despertar(se)?(?! (temprano|tarde|a|al|a la|a los|a las)\\b)(?! (por|con) ' + ENF_T + ')|seguir aqui|seguir viv[oa]s?|seguir viviendo|seguir con vida|vivir(?! (en|con|cerca|lejos|solo|sola|conmigo|contigo)\\b)(?!( aqui| ahi| alla)? (por|con) ' + ENF_T + ')|vivir mas|estar viv[oa]s?|estar aqui|existir)\\b|' +
+    '(?:(?<=^ )|' + SUJETO_T + ' )(ya )?no (llega|llegara|llego) a manana\\b|no (le|me|les|nos) (queda|quedan) (razones|ganas|fuerzas|motivos)( para| de)? (seguir|vivir)\\b|no (esta|estan|este|esten|estaba|estoy|estamos|estas) a salvo' + NO_ENF_ES + '|no me siento (a salvo|segur[oa](?! (de|del|si|que)\\b))\\b|(estoy|estamos) en peligro' + NO_ENF_ES + '|' +
     '(quiere|quieren|piensa|piensan|planea|planean) (quitarse la vida|acabar con su vida|terminar con su vida)\\b|se va a (matar|suicidar|quitar la vida)\\b|' +
-    SUJETO_T + ' (ya )?no (aguanta|aguantan|puede|pueden) mas\\b|' + SUJETO_T + ' (quiere|quieren) desaparecer\\b|' + SUJETO_T + ' no (quiere|quieren) seguir( adelante| asi)? $|' +
-    PERSONA_T + ' (esta|estan|corre|corren|anda) (en )?peligro' + NO_ENF_ES + '\\b|' + PERSONA_T + ' no (esta|se siente|estan|se sienten) (segur[oa]s?|a salvo)' + NO_ENF_ES + '\\b)');
+    SUJETO_T + ' (ya )?no (aguanta|aguantan|puede|pueden) mas\\b(?!( con)? ' + ENF_T + ')|' + SUJETO_T + ' (quiere|quieren) desaparecer\\b|' + SUJETO_T + ' no (quiere|quieren) seguir( adelante| asi)? $|' +
+    PERSONA_T + ' (esta|estan|corre|corren|anda) (en )?peligro' + NO_ENF_ES + '\\b|' + PERSONA_T + ' no (esta|se siente|estan|se sienten) (segur[oa]s?(?! (de|del|si|que)\\b)|a salvo' + NO_ENF_ES + ')\\b)');
   const RIESGO_TERCERO_EN = new RegExp('\\b(((i|i m|im|he|she|they|we|you|someone|somebody)|' + PERSONA_T + ')( is| are| am| m| s| re| feel| feels| was| were)? (not safe|unsafe|in danger)' + NO_ENF_EN + '|' +
     '(' + SUJETO_T + ' (isn t|isnt|aren t|wasn t)|im not|i m not) safe' + NO_ENF_EN + '|(don t|dont|do not|doesn t|does not) feel safe|(doesn t|does not|don t|do not) want to (live(?! (in|with|near) )|be alive|wake up(?! (the|my|her|his|their|early|at|in)\\b)|be here|exist|see tomorrow|make it to tomorrow)|' +
     '(wants|want) to (die|end it all|end (his|her|their) life|kill (himself|herself|themselves)|disappear)|(is|are|s|re) going to kill (himself|herself|themselves))\\b');
@@ -2681,7 +2681,8 @@
     const unidas = (t) => ` ${t} `.replace(/(?: [a-z](?= [a-z] ))+ [a-z](?= )/g, (m) => ` ${m.replace(/ /g, '')}`).trim();
     const colapsa = (t) => t.replace(/([a-z])\1+/g, '$1');
     // Deuda del detector: erratas de «suicidio» («suisidio», «suizidio», «sucidio», «suicidio» con «y»).
-    const errata = (t) => t.replace(/su[iy]?(?:ss|sc|zc|s|z|c)[iy]d/g, 'suicid');
+    // Ronda 4 (Fable): «susidios» no es errata de «suicidio» (la «i» tras «su» es obligatoria salvo en «sucidio» y «suscidio»).
+    const errata = (t) => t.replace(/su[iy](?:ss|sc|zc|s|z|c)[iy]d|suc[iy]d|susc[iy]d/g, 'suicid');
     const v1 = plano(leet);
     return [...new Set([v1, unidas(v1), colapsa(v1), colapsa(unidas(v1)), errata(v1), errata(colapsa(unidas(v1)))])];
   }
@@ -2994,7 +2995,12 @@
   /** Idioma del seguimiento: el del turno si lo tiene; si es un lugar, año o cortesía aislados, el del turno previo. */
   function idiomaSeguimiento(qn, previos, enTurno) {
     // Ronda 1 (Fable): «no thanks» es inglés aunque empiece por «no».
-    if (!SIN_IDIOMA.test(normTercera(qn))) return cortesia(qn) && idiomaDeTurno(qn) ? idiomaDeTurno(qn) === 'en' : enTurno;
+    // Ronda 4 (Fable): una cortesía («thanks», «no thanks») toma el idioma de la conversación; sin él, el suyo.
+    if (cortesia(qn)) {
+      for (const t of [...(previos || [])].reverse()) { const i = idiomaDeTurno(t); if (i) return i === 'en'; }
+      return idiomaDeTurno(qn) ? idiomaDeTurno(qn) === 'en' : enTurno;
+    }
+    if (!SIN_IDIOMA.test(normTercera(qn))) return enTurno;
     for (const t of [...(previos || [])].reverse()) { const i = idiomaDeTurno(t); if (i) return i === 'en'; }
     return enTurno;
   }
@@ -3083,7 +3089,9 @@
         return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
       }
       if (cortesia(qn)) return en ? CIERRE_APOYO_EN : CIERRE_APOYO_ES;
-      const smOtra = saludMentalPropia(qn);
+      // Ronda 4 (Codex Sol): tras una crisis personal en la conversación, otra revelación recibe la crisis completa.
+      const crisisPersonalAntes = (previos || []).some((t) => respuestaCrisisBase(t) && !soloTemaEnTercera(t));
+      const smOtra = crisisPersonalAntes ? null : saludMentalPropia(qn);
       // Ronda 2 (Codex Sol): un año solo («en 2008») tras el apoyo puede ser un año de nacimiento: crisis en KB y RAG.
       const anioSolo = /^(y |and )?(en|in) (19|20)\d\d$/.test(normTercera(qn));
       if ((smOtra && !smOtra.laxa) || SALUDO.test(normTercera(qn)) || ACEPTA_OFERTA.test(normTercera(qn)) || (sigueTercera(qn) && !anioSolo) ||

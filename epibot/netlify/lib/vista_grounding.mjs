@@ -108,7 +108,7 @@ export function vistaGroundedAnswer(query, history, {
   const mesDe = (s, sx) => {
     // Ronda 1 (Codex Sol): un año que el periodo no reconoce («marzo de 2028», fuera del horizonte) no se sustituye por otro.
     // Ronda 2 (Codex Sol): tampoco si junto al año reconocido hay otro («marzo de 2028 comparado con 2027»).
-    const anios = String(query).match(/\b(19|20)\d\d\b/g) || [];
+    const anios = String(query).match(/\b\d{4}\b/g) || [];
     // Ronda 3 (Codex Sol): cifras de otros sistemas de numeración («٢٠٢٨») tampoco se leen como si no hubiera año.
     if (pMes?.tipo !== 'mes' || !(s.observado || []).length || anios.some((a) => Number(a) !== pMes.anio) ||
         /(?![0-9])\p{Nd}/u.test(String(query))) return null;
