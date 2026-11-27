@@ -471,7 +471,7 @@ test('deuda del detector (ronda 18): «¡si Jalisco!» conserva la crisis; el ca
     assert.match(await interfaz(...turnos), CRISIS_ES, `interfaz: ${turnos.join(' → ')}`);
     assert.match(await ragTurno(...turnos), CRISIS_ES, `RAG: ${turnos.join(' → ')}`);
   }
-  for (const tercero of ['todo México', 'a nivel nacional']) {
+  for (const tercero of ['todo México']) {
     const turnos = ['estoy sola con depresión', 'asma en Jalisco', tercero];
     assert.match((await conversa(...turnos)).md, /Asma|México/, `KB: ${tercero}`);
     assert.match(await interfaz(...turnos), /Asma|México/, `interfaz: ${tercero}`);
@@ -489,10 +489,23 @@ test('deuda del detector (ronda 19): el ámbito nacional dentro del apoyo exige 
     assert.match(await interfaz(...turnos), /^(Lamento que estés|I am sorry you are)/, `interfaz: ${turnos.join(' → ')}`);
     assert.match(await ragTurno(...turnos), /^(Lamento que estés|I am sorry you are)/, `RAG: ${turnos.join(' → ')}`);
   }
-  for (const turnos of [['estoy sola con depresión', 'asma en Jalisco', 'a nivel nacional'], ['tengo anorexia', 'asma en Jalisco', 'todo México']]) {
+  for (const turnos of [['tengo ansiedad', 'asma en Jalisco', 'todo México'], ['tengo anorexia', 'asma en Jalisco', 'todo México']]) {
     assert.match((await conversa(...turnos)).md, /Asma|México/, `KB: ${turnos.join(' → ')}`);
     assert.match(await ragTurno(...turnos), /Asma \(J45, J46\)\*\* a nivel \*\*nacional/, `RAG: ${turnos.join(' → ')}`);
   }
+});
+
+test('deuda del detector (ronda 20): sin referente del runner, lugar o ámbito dentro del apoyo conservan la crisis en las tres rutas', async () => {
+  for (const turnos of [['tengo ansiedad', 'asma en Jalisco', 'a nivel nacional'], ['tengo ansiedad', 'dengue en Jalisco', 'a nivel nacional'],
+    ['tengo ansiedad', 'de México'], ['obesidad en Jalisco', 'tengo ansiedad', 'de México'], ['tengo depresión', 'no', 'a nivel nacional'],
+    ['tengo ansiedad', 'asma en Jalisco y Sonora', 'a nivel nacional']]) {
+    assert.match((await conversa(...turnos)).md, CRISIS_ES, `KB: ${turnos.join(' → ')}`);
+    assert.match(await interfaz(...turnos), CRISIS_ES, `interfaz: ${turnos.join(' → ')}`);
+    assert.match(await ragTurno(...turnos), CRISIS_ES, `RAG: ${turnos.join(' → ')}`);
+  }
+  const turnos = ['tengo ansiedad', 'asma en Jalisco', 'Sonora'];
+  assert.match((await conversa(...turnos)).md, /Asma en Sonora/);
+  assert.match(await ragTurno(...turnos), /Asma \(J45, J46\)\*\* para \*\*Sonora/);
 });
 
 test('deuda del detector (ronda 8): «yes, in Mexico» es el país y conserva el padecimiento ofrecido', async () => {

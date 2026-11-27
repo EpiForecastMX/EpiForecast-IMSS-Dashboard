@@ -3110,9 +3110,8 @@
       // animales venenosos T63); alacrán, calor o quemaduras siguen su curso.
       releasesEnConsulta(normLB(qn), { prefijos: true }).some((r) => /^(X|W3[2-4]|T3[6-9]|T[45]\d|T6[0-25])/i.test(String(r.cie || '')));
   }
-  // Ronda 19 (Codex Sol y Fable): el cambio de ámbito nacional dentro del apoyo sólo en las formas en español que el KB
-  // resuelve y con un referente previo heredable (un padecimiento no sensible ni bloqueado); si no, conserva la crisis.
-  const AMBITO_NACIONAL_ES = /^(y )?(a nivel nacional|todo mexico|en todo mexico)$/;
+  // Rondas 19 y 20 (Codex Sol y Fable): referente previo heredable: un único padecimiento, no sensible ni bloqueado (dos a la vez
+  // no se resuelven igual en KB y RAG). Los cuatro originales cuentan, como en origin/main tras levantar una crisis.
   function referenteHeredable(previos) {
     for (const t of [...previos].reverse()) {
       // La revelación que pide datos sin padecimiento no es referente (KB y RAG la saltan); la que ofrece datos lo es sólo si
@@ -3123,7 +3122,7 @@
       const rels = releasesEnConsulta(normLB(t), { prefijos: true });
       const leg = (padecimientosEnConsulta(t).legacy || []).length;
       if (!rels.length && !leg) continue;
-      return !idsSensiblesEn(t).length && !rels.some((r) => r.sensible || /^(T|X|W3[2-4])/i.test(String(r.cie || '')));
+      return rels.length + leg === 1 && !idsSensiblesEn(t).length && !rels.some((r) => r.sensible || /^(T|X|W3[2-4])/i.test(String(r.cie || '')));
     }
     return false;
   }
@@ -3176,9 +3175,12 @@
       // si es el referente más reciente, y después de la oferta y la cortesía, que traen su propio referente.
       if (!nombraPadLimpio(qn) && !saludMentalPropia(qn) && referenteBloqueado(previos || [])) return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
       // Ronda 12 (Fable): la aceptación de la oferta pasa sólo por `ofertaPendiente` (arriba), no por un patrón suelto.
-      // Ronda 18 (Codex Sol): un cambio de ámbito nacional («a nivel nacional», «todo México») es técnico como «nacional».
-      if ((smOtra && !smOtra.laxa) || SALUDO.test(normTercera(qn)) || (sigueTercera(qn) && !anioSolo && referenteHeredable(previos || [])) || (textoLimpio(qn) && AMBITO_NACIONAL_ES.test(normTercera(qn)) && referenteHeredable(previos || [])) ||
-        (turnoTecnico(qn) && conAncla(qn) && !SENAL_PREVIA.test(normTercera(qn))) ||
+      // Ronda 20 (Codex Sol y Fable): un fragmento sólo de lugar o de ámbito («Jalisco», «de México», «todo México») pasa como
+      // técnico únicamente con un referente previo que KB y RAG puedan heredar; sin él conserva la crisis por cualquier vía.
+      const soloLugar = LUGAR_SOLO.test(normTercera(qn)) || NACIONAL_SOLO.test(normTercera(qn));
+      const conReferente = !soloLugar || referenteHeredable(previos || []);
+      if ((smOtra && !smOtra.laxa) || SALUDO.test(normTercera(qn)) || (sigueTercera(qn) && !anioSolo && referenteHeredable(previos || [])) ||
+        (turnoTecnico(qn) && conAncla(qn) && !SENAL_PREVIA.test(normTercera(qn)) && conReferente) ||
         /^(en corto|para nota|para junta|resumen|resumelo|mas corto|y)$/.test(normTercera(qn))) return null;
       return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
     }
