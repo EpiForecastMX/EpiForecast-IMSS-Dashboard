@@ -1037,7 +1037,9 @@ async function handlerExterno(req, reescrita) {
   // Sexta ronda (Codex Sol y Fable): la reescritura sólo sin crisis en el historial y sin ids sensibles previos (si no, la
   // consulta original pasa por las guardas de seguimiento), y una sola vez (sin recursión).
   const smPermitida = q && body.health !== true && !reescrita && !['crisis', 'crisis_tercera'].includes(estadoHist) &&
-    !histUsuario.some((t) => C.idsSensiblesEn(t).length) && !C.respuestaCrisis(q, histUsuario);
+    !histUsuario.some((t) => C.idsSensiblesEn(t).length) && !C.respuestaCrisis(q, histUsuario) &&
+    // Ronda 3 (Codex Sol): la guarda de seguimiento ve el turno original antes de la reescritura, igual que el KB.
+    !(estadoHist && C.respuestaCrisisSeguimiento(q, estadoHist, nombraPadecimientoNoSensible, histUsuario));
   const sm = smPermitida ? C.saludMentalPropia(q) : null;
   if (sm?.prefijo) {
     const res = await handlerExterno(new Request(req.url, { method: 'POST', headers: req.headers,
@@ -1349,8 +1351,9 @@ async function handlerInterno(req) {
   // Tras el apoyo de salud mental (decimocuarta ronda): texto fijo, nunca generado.
   if (body._sinGenerador === true) {
     const enSG = globalThis.EPI_CATALOGO.pareceIngles(String(body.query || ''));
-    return json({ answer: enSG ? 'For figures, tell me the condition and the state, for example «depression in Jalisco».'
-      : 'Para darte cifras, dime el padecimiento y el estado, por ejemplo «depresión en Jalisco».', sources: [], retrieval: 'none', guarda: 'salud_mental' }, 200, cors);
+    // Ronda 3: el mismo texto que el KB y que la reescritura con petición de datos.
+    return json({ answer: enSG ? 'To give you figures I need the condition and the state, for example «depression in Jalisco».'
+      : 'Para darte cifras necesito el padecimiento y el estado, por ejemplo «depresión en Jalisco».', sources: [], retrieval: 'none', guarda: 'salud_mental' }, 200, cors);
   }
   if (body.stream === true) {
     const encoder = new TextEncoder();
