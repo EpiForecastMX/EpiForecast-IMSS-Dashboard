@@ -243,7 +243,10 @@ test('quinta ronda: en la interfaz, el apoyo invalida la ficha previa; la oferta
   assert.ok(sinCifras(corto.response), corto.response);
   kb._resetContext();
   assert.match((await conversa('tengo depresión', 'sí, en Jalisco')).md, /Depresión en Jalisco/);
-  assert.match((await conversa('tengo depresión', 'sí')).md, /Depresión/);
+  // Deuda del detector, ronda 5 (Codex Sol): la oferta dice «en tu estado»; un «sí» sin estado recibe la pregunta fija por el
+  // estado (antes, la ficha nacional en el KB y otro texto en RAG), y el estado en el turno siguiente la continúa.
+  assert.match((await conversa('tengo depresión', 'sí')).md, /^¿En qué estado\?[\s\S]*casos de depresión/);
+  assert.match((await conversa('tengo depresión', 'sí', 'en Jalisco')).md, /Depresión en Jalisco/);
   for (const q of ['cuántos casos de depresión hay en mi estado', 'tengo una pregunta sobre la depresión en Jalisco', 'depresión en adolescentes de Jalisco']) {
     assert.doesNotMatch((await conversa(q)).md, PERSONAL, q);
   }

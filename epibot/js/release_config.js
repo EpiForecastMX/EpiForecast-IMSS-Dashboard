@@ -27,6 +27,7 @@ export const consultaSinRevelacion = CATALOGO.consultaSinRevelacion;
 export const crisisPersonalDe = CATALOGO.crisisPersonalDe;
 export const esCrisisCompleta = CATALOGO.esCrisisCompleta;
 export const consultaOferta = CATALOGO.consultaOferta;
+export const ofertaSinEstado = CATALOGO.ofertaSinEstado;
 export const crisisTextoDe = CATALOGO.crisisTextoDe;
 export const idsSensiblesEnTurno = (t) => CATALOGO.idsSensiblesEn(t).length > 0 || CATALOGO.nombraReleaseSensible(CATALOGO.normLB(t));
 export const saludMentalPropia = CATALOGO.saludMentalPropia;

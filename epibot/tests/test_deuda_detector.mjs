@@ -141,6 +141,20 @@ const CASOS = [
   [['quiero morir', 'asma en Jalisco', 'sigo deprimida cuántos casos hay en Jalisco'], CRISIS_ES],
   [['no llego a mañana'], CRISIS_ES],
   [['tengo depresión', 'thanks'], CIERRE_ES],
+  // Ronda 5 (Codex Sol y Fable): crisis previa por revelación o por seguimiento; oferta sin estado; terceros.
+  [['tengo depresión y no sé qué hacer', 'asma en Jalisco', 'sigo deprimida cuántos casos hay en Jalisco'], CRISIS_ES],
+  [['tengo depresión', 'no, no', 'asma en Jalisco', 'sigo deprimida cuántos casos hay en Jalisco'], CRISIS_ES],
+  [['estoy sola con depresión', 'sí'], /^¿En qué estado\? Dímelo/],
+  [['I have depression', 'yes'], /^Which state\? Tell me/],
+  [['mi amigo quiere morir'], CRISIS_ES],
+  [['mi hija se quiere hacer daño'], CRISIS_ES],
+  [['mi hija se corta'], CRISIS_ES],
+  [['mi hija puede hacerse daño esta noche'], CRISIS_ES],
+  [['ella está en peligro por mi pareja'], CRISIS_ES],
+  [['siento que no llego a mañana'], CRISIS_ES],
+  [['asma en Jalisco y no llego a mañana'], CRISIS_ES],
+  [['no me siento segura de seguir viva'], CRISIS_ES],
+  [['mi hija no está segura de querer vivir'], CRISIS_ES],
   // (a′) Idioma del seguimiento tras un lugar aislado: el de la conversación.
   [['suicide in Mexico', 'Jalisco'], NEUTRA_SIGUE_EN],
   [['suicidio en México', 'Jalisco'], NEUTRA_SIGUE_ES],
@@ -173,7 +187,9 @@ test('deuda del detector (ronda 1): consultas benignas sin falsos positivos del 
     ['el pronóstico no llega a mañana, dengue en Jalisco'], ['¿cuántos casos de dengue hay en Jalisco? mis hijos no están seguros de ir'],
     ['mi equipo no puede más con la carga de trabajo, dengue en Jalisco'], ['dengue en Jalisco, mi mamá ya no aguanta más el calor'],
     ['los niños no quieren despertar por el dengue en Jalisco'], ['estoy en peligro de que me contagien dengue en Jalisco'],
-    ['dengue en Jalisco. Estoy en peligro por los mosquitos?'], ['los susidios de salud en Jalisco y el dengue']]) {
+    ['dengue en Jalisco. Estoy en peligro por los mosquitos?'], ['los susidios de salud en Jalisco y el dengue'],
+    // Ronda 5: datos que no están a salvo de cambios; dos padecimientos en la misma petición.
+    ['asma en Jalisco, los datos no están a salvo de cambios']]) {
     const k = await conversa(...turnos);
     assert.doesNotMatch(k.md, /^(Lamento que estés|I am sorry you are)/, turnos.join(' → '));
     assert.match(k.md, /\d/, turnos.join(' → '));
@@ -206,6 +222,20 @@ test('deuda del detector (ronda 3): RAG no da la línea del mes con cifras de ot
 
 test('deuda del detector (ronda 2): «síntomas de depresión» dentro del apoyo sigue siendo otra revelación', async () => {
   assert.match((await conversa('tengo depresión', 'tengo síntomas de depresión')).md, APOYO_ES);
+});
+
+test('deuda del detector (ronda 5): la petición que nombra otro padecimiento conserva su referente en KB y RAG', async () => {
+  const q = 'sigo demasiado deprimida cuántos casos de anorexia hay en Jalisco';
+  const k = await conversa(q);
+  const r = await ragTurno(q);
+  assert.match(k.md, /^_Gracias por contármelo[\s\S]*(Anorexia|anorexia)/);
+  assert.match(r, /^_Gracias por contármelo[\s\S]*(Anorexia|anorexia)/);
+});
+
+test('deuda del detector (ronda 5): RAG no da la línea del mes con dos sexos o dos estados, como el KB', async () => {
+  for (const q of ['cuántos casos de asma hay en Jalisco para hombres y mujeres en marzo', 'asma en Jalisco y Sonora en marzo']) {
+    assert.doesNotMatch(await ragTurno(q), /^\*\*En marzo/, q);
+  }
 });
 
 test('deuda del detector: invisibles en una consulta benigna no cambian la respuesta', async () => {

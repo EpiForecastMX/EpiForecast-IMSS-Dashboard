@@ -1024,6 +1024,9 @@ async function handlerExterno(req, reescrita) {
   // Quinta ronda: «sí» o «sí, en Jalisco» tras el apoyo continúan la oferta con una consulta fija.
   const histUsuario = Array.isArray(body?.history) ? body.history.filter((x) => x && x.role === 'user' && typeof x.text === 'string').map((x) => x.text) : [];
   const estadoHist = q && body.health !== true && !reescrita ? crisisEnHistorial(body.history) : null;
+  // Ronda 5 (Codex Sol): «sí» sin estado recibe la misma pregunta fija por el estado que en el KB.
+  const sinEstado = estadoHist === 'apoyo_sm' ? C.ofertaSinEstado(q, histUsuario) : null;
+  if (sinEstado) return json({ answer: sinEstado.replace(/\n<!--[\s\S]*?-->/g, ''), sources: [], retrieval: 'none', guarda: 'salud_mental' }, 200, corsHeaders(req));
   const oferta = estadoHist === 'apoyo_sm' ? C.consultaOferta(q, histUsuario) : null;
   if (oferta) {
     // Séptima ronda (Codex Sol): la oferta aceptada sólo devuelve una ficha determinista; nunca texto generado.
