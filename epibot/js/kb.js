@@ -73,7 +73,7 @@ function marcaEstados(m) { return m.filas?.length ? `<!--ESTADOS:${JSON.stringif
 function answerLegacyLlano(q, ent, s, d) {
   return rankingRitmoLegacy(q, ent, d) || legacyComparacion(q, ent, s, d, { indicadores: indicadoresLlano, lineaRitmo, RAPIDEZ, RAPIDEZ_BAJA, serieLegacy: serieLegacyCalc }) || legacyLlano(q, ent, s, d, { respuestaLlana, confiabilidadLegacy });
 }
-import { MARCADOR_RELEASE, releaseDeMarca, aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, esCrisisTercera, esCierreApoyo, esCrisisCompleta, crisisTextoDe, idsSensiblesEnTurno, crisisPersonalDe, saludMentalPropia, consultaOferta, ofertaSinEstado, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaTemaSensible, respuestaConDatos, salidaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=61';
+import { MARCADOR_RELEASE, releaseDeMarca, aliasAmbiguo, conDiabetesNombrada, conFamiliaNombrada, conHipertensionNombrada, releasesEnConsulta, RELEASES, releaseDePad, respuestaCrisis, esCrisisTercera, esCierreApoyo, esCrisisCompleta, crisisTextoDe, idsSensiblesEnTurno, crisisPersonalDe, saludMentalPropia, consultaOferta, ofertaSinEstado, peticionSinRevelacion, respuestaCrisisSeguimiento, crisisEnTurnos, respuestaMixtaSensible, fueraDeListaBlanca, IDS_LISTA_BLANCA, respuestaFueraDeVocabulario, fueraDeVocabulario, apoyoSuave, apoyoInmediato, respuestaTemaSensible, respuestaConDatos, salidaFueraDeVocabulario, tieneFragmentoDeDatos, pareceIngles, APOYO_ES, APOYO_EN, subtipoAjeno, VOCAB_RELEASES, normalizaEntrada } from './release_config.js?v=61';
 
 let DATA = null;
 
@@ -6558,7 +6558,9 @@ async function _resolveConCierre(query) {
     return { response: mental.prefijo + (en ? 'To give you figures I need the condition and the state, for example «depression in Jalisco».'
       : 'Para darte cifras necesito el padecimiento y el estado, por ejemplo «depresión en Jalisco».') + '\n<!--SIN_GRAFICA-->', handler: 'answerSaludMentalPropia' };
   }
-  const r = await _resolveConCierreBase(query);
+  // Ronda 6 (Fable): si la petición nombra otro padecimiento, el KB la resuelve sin la revelación, como RAG.
+  const otraPeticion = mental?.prefijo ? peticionSinRevelacion(query) : null;
+  const r = await _resolveConCierreBase(otraPeticion || query);
   // Toda respuesta de datos (la ficha, el mes, el ranking) lleva la línea de apoyo; nunca se antepone a un texto de crisis.
   if (mental?.prefijo && r?.response && !/^(Lamento|I am sorry|Sigo aquí|I am still|Es un tema|This is a sensitive|Por el tema|Because of the topic)/.test(r.response)) {
     if (!_crisisActiva || _crisisActiva === 'tema_cerrado') _crisisActiva = 'apoyo_sm';

@@ -155,6 +155,8 @@ const CASOS = [
   [['asma en Jalisco y no llego a mañana'], CRISIS_ES],
   [['no me siento segura de seguir viva'], CRISIS_ES],
   [['mi hija no está segura de querer vivir'], CRISIS_ES],
+  // Ronda 6 (Codex Sol y Fable): riesgo en primera persona dentro de una consulta; «se corta» de una persona.
+  [['asma en Jalisco, no voy a llegar a mañana'], CRISIS_ES],
   // (a′) Idioma del seguimiento tras un lugar aislado: el de la conversación.
   [['suicide in Mexico', 'Jalisco'], NEUTRA_SIGUE_EN],
   [['suicidio en México', 'Jalisco'], NEUTRA_SIGUE_ES],
@@ -189,7 +191,9 @@ test('deuda del detector (ronda 1): consultas benignas sin falsos positivos del 
     ['los niños no quieren despertar por el dengue en Jalisco'], ['estoy en peligro de que me contagien dengue en Jalisco'],
     ['dengue en Jalisco. Estoy en peligro por los mosquitos?'], ['los susidios de salud en Jalisco y el dengue'],
     // Ronda 5: datos que no están a salvo de cambios; dos padecimientos en la misma petición.
-    ['asma en Jalisco, los datos no están a salvo de cambios']]) {
+    ['asma en Jalisco, los datos no están a salvo de cambios'],
+    // Ronda 6: objetos que se cortan, órganos, gráficas, entregas y enfermedades fuera de la primera lista.
+    ['asma en Jalisco, mi hija se corta el pelo'], ['mi internet se corta cuando consulto dengue'], ['el dengue no llega a mañana en Jalisco']]) {
     const k = await conversa(...turnos);
     assert.doesNotMatch(k.md, /^(Lamento que estés|I am sorry you are)/, turnos.join(' → '));
     assert.match(k.md, /\d/, turnos.join(' → '));
@@ -236,6 +240,31 @@ test('deuda del detector (ronda 5): RAG no da la línea del mes con dos sexos o 
   for (const q of ['cuántos casos de asma hay en Jalisco para hombres y mujeres en marzo', 'asma en Jalisco y Sonora en marzo']) {
     assert.doesNotMatch(await ragTurno(q), /^\*\*En marzo/, q);
   }
+});
+
+test('deuda del detector (ronda 6): tras la pregunta por el estado, la oferta continúa igual en KB y RAG', async () => {
+  for (const [turnos, re] of [[['tengo anorexia', 'sí', 'sí, en Jalisco'], /Anorexia, bulimia y otros trastornos alimentarios/],
+    [['tengo anorexia', 'sí', 'nacional'], /Anorexia, bulimia y otros trastornos alimentarios/],
+    [['tengo anorexia', 'sí', 'todo México'], /Anorexia, bulimia y otros trastornos alimentarios/],
+    [['tengo anorexia', 'sí', 'hombres'], /Anorexia, bulimia y otros trastornos alimentarios/]]) {
+    const k = await conversa(...turnos);
+    const r = await ragTurno(...turnos);
+    assert.match(k.md, re, turnos.join(' → '));
+    assert.match(r, re, turnos.join(' → '));
+  }
+  // La depresión es de los padecimientos originales: el KB da la ficha y la función RAG, sin esos datos, remite.
+  assert.match((await conversa('tengo depresión', 'sí', 'sí, en Jalisco')).md, /Depresión en Jalisco/);
+  assert.doesNotMatch((await conversa('tengo depresión', 'sí', 'sí')).md, /\d{2}/);
+});
+
+test('deuda del detector (ronda 6): la petición con otro padecimiento tras una revelación se resuelve igual en KB y RAG', async () => {
+  const q = 'llevo meses con ansiedad cuantos casos de bulimia hay en Sonora';
+  assert.match((await conversa(q)).md, /^_Gracias por contármelo[\s\S]*Anorexia, bulimia/);
+  assert.match(await ragTurno(q), /^_Gracias por contármelo[\s\S]*Anorexia, bulimia/);
+});
+
+test('deuda del detector (ronda 6): RAG no da la línea del mes ante «por sexo»', async () => {
+  assert.doesNotMatch(await ragTurno('cuantos casos de asma por sexo en Jalisco en marzo de 2027'), /^\*\*En marzo/);
 });
 
 test('deuda del detector: invisibles en una consulta benigna no cambian la respuesta', async () => {
