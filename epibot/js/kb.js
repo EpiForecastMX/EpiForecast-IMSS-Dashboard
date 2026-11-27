@@ -5808,7 +5808,7 @@ function _guardaInicialBase(consulta, registrar = true) {
     }
     // Tras la variante neutra, el seguimiento personal (cortesía) sube el estado a crisis, igual que el historial.
     if (_crisisActiva === 'crisis_tercera' && estadoDeRespuesta(apoyo) === 'crisis') _crisisActiva = 'crisis';
-    trace.handler = esCierreApoyo(apoyo) ? 'answerSaludMentalPropia' : _crisisActiva === 'apoyo' ? 'answerApoyoSeguimiento' : 'answerCrisisSeguimiento';
+    trace.handler = esCierreApoyo(apoyo) || /^(Para darte cifras necesito|To give you figures I need)/.test(apoyo) ? 'answerSaludMentalPropia' : _crisisActiva === 'apoyo' ? 'answerApoyoSeguimiento' : 'answerCrisisSeguimiento';
     return { response: apoyo, handler: trace.handler };
   }
   // Séptima ronda (Fable): tras la ficha de un id sensible, una revelación de salud mental recibe la crisis completa.

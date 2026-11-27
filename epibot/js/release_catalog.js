@@ -1858,12 +1858,13 @@
   // Ronda 2 (Fable): la persona excluye lugares, instituciones, datos y animales («mi estado», «mis datos», «mi pueblo»).
   const NO_PERSONA = '(?!(estado|ciudad|municipio|pais|region|zona|comunidad|colonia|casa|pueblo|poblacion|gente|datos|informacion|' +
     'pronostico|modelo|perro|perra|gato|gata|mascota|hospital|clinica|sistema|state|city|country|town|area|home|data|information|forecast|model|' +
-    'dog|cat|pet|hospital|people|tendencia|curva|grafica|serie|casos|trend|chart|equipo|trabajo|empresa|team|job|escuela|internet|conexion|senal|luz|school|connection)\\b)';
+    'dog|cat|pet|hospital|people|tendencia|curva|grafica|serie|casos|trend|chart|equipo|trabajo|empresa|team|job|escuela|internet|conexion|senal|luz|school|connection|' +
+    'computadora|compu|laptop|celular|telefono|maquina|computer|phone)\\b)';
   // Ronda 3 (Codex Sol y Fable): «de/del/por» sólo excluyen el peligro cuando sigue una enfermedad («a salvo del dengue»); «en
   // peligro por mi pareja» o «a salvo de su papá» son riesgo.
   const ENF_T = '(el |la |los |las |un |una |the |a |an )?(brote de |brotes de )?(dengue|covid|coronavirus|influenza|gripa|gripe|virus|epidemia|brote|brotes|enfermedad|' +
     'enfermedades|contagio|contagios|tos|tos ferina|sarampion|zika|chikungunya|paludismo|malaria|tuberculosis|hepatitis|diabetes|asma|calor|pandemia|' +
-    'varicela|neumonia|rotavirus|rubeola|paperas|parotiditis|tosferina|bronquitis|infeccion|infecciones|bacteria|bacterias|parasitos?|chagas|lepra|vih|sida|cancer|measles|pneumonia|' +
+    'varicela|neumonia|rotavirus|desnutricion|frio|invierno|rubeola|paperas|parotiditis|tosferina|bronquitis|infeccion|infecciones|bacteria|bacterias|parasitos?|chagas|lepra|vih|sida|cancer|measles|pneumonia|' +
     'neumonias|infecciones|contaminacion|smog|humo|polvo|polen|disease|diseases|outbreak|flu|epidemic|pandemic|heat|mosquitos?|zancudos?|moscos?|mosquitoes|(que )?(me |nos |le |les )?(contagi|enferm|infect)[a-z]*)\\b';
   // Ronda 11 (Fable): la enfermedad puede venir unas palabras después («con tantos casos de dengue», «in Jalisco from dengue»).
   // Las palabras intermedias no pueden nombrar a una persona («en peligro por su papá con asma» es riesgo).
@@ -1872,7 +1873,7 @@
   const NO_ENF_EN = '(?!( in [a-z]+( [a-z]+){0,2})? (from|of|with|due to|because of)( [a-z]+){0,2} ' + ENF_T + ')';
   const PERSONA_T = '(mi|mis|tu|tus|su|sus|my|your|his|her|their) ' + NO_PERSONA + '[a-z]+( [a-z]+){0,4}';
   const SUJETO_T = '(' + PERSONA_T + '|ella|alguien|she|he|they|someone|somebody)';
-  const RIESGO_TERCERO_ES = new RegExp('\\b((ya )?no (quiere|quieren|queria|querian|quisiera|quiero|queremos) (llegar a manana|llegar al dia siguiente|ver el dia de manana|amanecer|despertar(se)?(?! (temprano|tarde|manana (temprano|tarde|a las|a la)|de la siesta|de su siesta|a|al|a la|a los|a las)\\b)(?! (por|con) ' + ENF_T + ')|seguir aqui|seguir viv[oa]s?|seguir viviendo|seguir con vida|vivir(?! (en|cerca|lejos|solo|sola|conmigo|contigo|juntos|juntas)\\b)(?! con (mi|su|sus|mis|tu|tus|el|la|los|las) (familia|mama|papa|madre|padre|abuel[a-z]*|ti[oa]s?|herman[a-z]*|novi[oa]|espos[oa]|pareja|amig[a-z]*|suegr[a-z]*|hij[oa]s?)\\b)(?!( aqui| ahi| alla)? (por|con) ' + ENF_T + ')|vivir mas|estar viv[oa]s?|estar aqui|existir)\\b|' +
+  const RIESGO_TERCERO_ES = new RegExp('\\b((ya )?no (quiere|quieren|queria|querian|quisiera|quiero|queremos) (llegar a manana|llegar al dia siguiente|ver el dia de manana|amanecer|despertar(se)?(?! (temprano|tarde|manana (temprano|tarde|a las|a la)|de la siesta|de su siesta|a|al|a la|a los|a las)\\b)(?! (por|con) ' + ENF_T + ')|seguir aqui(?! con)|seguir viv[oa]s?|seguir viviendo|seguir con vida|vivir(?! (en|cerca|lejos|solo|sola|conmigo|contigo|juntos|juntas)\\b)(?! con (mi|su|sus|mis|tu|tus|el|la|los|las) (familia|mama|papa|madre|padre|abuel[a-z]*|ti[oa]s?|herman[a-z]*|novi[oa]|espos[oa]|pareja|amig[a-z]*|suegr[a-z]*|hij[oa]s?)\\b)(?!( aqui| ahi| alla)? (por|con) ' + ENF_T + ')|vivir mas|estar viv[oa]s?|estar aqui|existir)\\b|' +
     '(?:(?<=^ )|(?<= (que|yo|y|ya|hoy|creo|siento|pienso|neta|verdad)) |' + SUJETO_T + ' )(ya )?no ((llega|llegara|llego|llegue) a manana|(voy|vamos) a (llegar a manana|amanecer))\\b(?! (el|la|los|las|este|esta|con) )|no (le|me|les|nos) (queda|quedan) (razones|ganas|fuerzas|motivos)( para| de)? (seguir|vivir)\\b|(?<!(datos|informacion|archivos|registros|cifras|numeros|data|resultados|curva|grafica|serie|modelo|pronostico) )no (esta|estan|este|esten|estaba|estoy|estamos|estas) a salvo' + NO_ENF_ES + '|no me siento (a salvo|segur[oa](?! (de|del|si|que)\\b(?! (seguir|querer|estar) (viv|con vida|aqui)))(?! con (el|la|los|las|este|esta|estos|estas|ese|esa) (pronostico|modelo|dato|datos|grafica|resultado|resultados|cifra|cifras|informacion|reporte|boletin)\\b))\\b|(estoy|estamos) en peligro' + NO_ENF_ES + '|' +
     '(quiere|quieren|piensa|piensan|planea|planean) (quitarse la vida|acabar con su vida|terminar con su vida)\\b|(quiere|quieren|quiero) dejar de (existir|vivir)\\b|se va a (matar|suicidar|quitar la vida)\\b(?! (trabajando|estudiando|de risa|de hambre|corriendo)\\b)|' +
     SUJETO_T + ' (ya )?no (aguanta|aguantan|puede|pueden) mas\\b(?!( con)? ' + ENF_T + ')(?! con (el|la|los|las) (reporte|reportes|trabajo|tarea|tareas|dato|datos|informe|informes|carga|pendientes|cuentas)\\b)|' + SUJETO_T + ' (quiere|quieren) desaparecer\\b(?! ' + ENF_T + ')(?! (el|la|los|las|un|una) (grafica|dato|datos|archivo|archivos|registro|registros|reporte|tabla|boton|pagina|pronostico|modelo|columna|fila|filtro|filtros|mapa|linea)\\b)|' + SUJETO_T + ' no (quiere|quieren) seguir( adelante| asi)? $|' +
@@ -3135,6 +3136,15 @@
       const smOtra = smOtra0 && !crisisPersonalAntes() ? smOtra0 : null;
       // Ronda 2 (Codex Sol): un año solo («en 2008») tras el apoyo puede ser un año de nacimiento: crisis en KB y RAG.
       const anioSolo = /^(y |and )?((en|in) (19|20)\d\d|(en )?el ano pasado|(in )?last year)$/.test(normTercera(qn));
+      // Ronda 14 (Codex Sol): una continuación de la oferta con caracteres invisibles conserva la crisis (una consulta técnica
+      // con un invisible sigue siendo benigna, como fija la política conversacional).
+      if (String(qn).endsWith(MARCA_INVISIBLE) && ofertaPendiente(String(qn).slice(0, -MARCA_INVISIBLE.length), previos || [])) {
+        return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
+      }
+      // Ronda 14 (Fable): tras la aclaración («necesito el padecimiento y el estado»), un fragmento que tampoco nombra un
+      // padecimiento recibe la misma aclaración en KB y RAG (antes, panorama en el KB y generador en RAG).
+      const aclara = aclaracionPendiente(qn, previos || [], en);
+      if (aclara) return aclara;
       // Ronda 11 (Fable): una frase que termina en conector («Jalisco y») está cortada: crisis.
       if (normTercera(qn) !== 'y' && /\b(en|de|del|para|in|of|for|y|and|entre|among|con|a|que|pero|but)$/.test(normTercera(qn))) return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
       // Ronda 7 (Codex Sol y Fable): la continuación de la oferta pasa la guarda con el mismo criterio con que se resuelve.
@@ -3397,9 +3407,10 @@
     // Ronda 11 (Codex Sol y Fable): la continuación es texto limpio en una sola oración (sólo admite la coma tras «sí»), sin
     // «él» con tilde ni turnos vacíos de contenido («?», «.»).
     // Ronda 12 (Codex Sol y Fable): se admite la puntuación habitual de una respuesta («¡sí!», «sí, por favor, en Jalisco»,
-    // «sí. en Jalisco», «en Jalisco.»), nada más: el resto debe ser una sola oración de texto limpio.
+    // «en Jalisco.»), nada más: el resto debe ser una sola oración de texto limpio. Ronda 14 (Codex Sol): tras «sí» sólo la
+    // coma; «sí; Sonora» o «sí. Jalisco» son dos oraciones y conservan la crisis, como en origin/main.
     const crudo = String(qn).normalize('NFKC').toLowerCase().trim().replace(/^¡\s*/u, '').replace(/\s*[.!]+$/u, '')
-      .replace(/^(sí|si|claro|yes|sure)(\s*,?\s*(por favor|please))?\s*[,.;:!]?\s*/u, '$1 $3 ').replace(/\s+/g, ' ').trim();
+      .replace(/^(sí|si|claro|yes|sure)(\s*,?\s*(por favor|please))?\s*[,!]?\s*/u, '$1 $3 ').replace(/\s+/g, ' ').trim();
     // Ronda 13 (Codex Sol): una sola línea y tildes en su sitio, comprobadas sobre el turno original («sí;\nSonora», «mujéres»).
     if (/[\r\n\t\v\f\u2028\u2029\u0085]/.test(String(qn)) || !acentosEnSuSitio(String(qn).replace(/(^|[^\p{L}])sí(?=$|[^\p{L}])/giu, '$1si'))) return null;
     if (!textoLimpio(crudo) || !SOLO_TEXTO(crudo) || !unaOracion(crudo) || !normTercera(qn)) return null;
@@ -3449,6 +3460,16 @@
     return r.lugar ? `${base} en ${r.lugar[1]}${r.sexo ? ` en ${r.sexo}` : ''}` : `cuantos casos de ${base} hay en el pais${r.sexo ? ` en ${r.sexo}` : ''}`;
   }
   /** Ronda 8 (Fable): padecimiento ofrecido cuando se pregunta por el estado; el KB lo deja como contexto, como RAG lo hereda. */
+  const ACLARA_ES = 'Para darte cifras necesito el padecimiento y el estado, por ejemplo «depresión en Jalisco».\n<!--SIN_GRAFICA-->';
+  const ACLARA_EN = 'To give you figures I need the condition and the state, for example «depression in Jalisco».\n<!--SIN_GRAFICA-->';
+  const nombraPadecimiento = (t) => padecimientosEnConsulta(t).length > 0 || releasesEnConsulta(normLB(t), { prefijos: true }).length > 0;
+  /** La aclaración fija vuelve a darse si el turno previo la recibió y éste tampoco nombra un padecimiento (sólo texto limpio). */
+  function aclaracionPendiente(qn, previos, en) {
+    const prev = previos.at(-1);
+    if (!prev || !saludMentalPropia(prev)?.prefijo || nombraPadecimiento(prev) || peticionSinRevelacion(prev)) return null;
+    if (nombraPadecimiento(qn) || saludMentalPropia(qn) || !textoLimpio(qn) || !turnoTecnico(qn)) return null;
+    return en ? ACLARA_EN : ACLARA_ES;
+  }
   /** Ronda 10 (Codex Sol): padecimiento que ofrece el apoyo a una revelación (el KB lo deja como contexto, RAG lo hereda). */
   function padDeRevelacion(qn) { const o = saludMentalPropia(qn)?.apoyo ? OFERTA_SM.find((x) => x.re.test(normTercera(qn))) : null; return o ? o.pad : null; }
   function padDeOferta(qn, previos = []) { const r = ofertaPendiente(qn, previos); return r && !r.lugar && !r.ambito ? r.o.pad : null; }
