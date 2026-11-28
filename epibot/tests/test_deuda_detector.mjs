@@ -180,6 +180,7 @@ const CASOS = [
   [['asma en Jalisco, mi hija no se siente segura de volver a casa'], CRISIS_ES],
   [['asma en Jalisco, mi mamá ya no puede más con las deudas'], CRISIS_ES],
   [['asma en Jalisco, mi hija no quiere seguir y necesita ayuda'], CRISIS_ES],
+  [['i dont want to be here'], CRISIS_EN],
   // (a′) Idioma del seguimiento tras un lugar aislado: el de la conversación.
   [['suicide in Mexico', 'Jalisco'], NEUTRA_SIGUE_EN],
   [['suicidio en México', 'Jalisco'], NEUTRA_SIGUE_ES],
@@ -226,7 +227,7 @@ test('deuda del detector (ronda 1): consultas benignas sin falsos positivos del 
     ['estamos en peligro con tantos casos de dengue'], ['are we in danger in Jalisco from dengue'],
     ['asma en Jalisco. Ellos no quieren vivir juntos.'], ['are we in danger in Jalisco with dengue?'],
     ['asma en Jalisco, mi mamá no aguanta más el ruido'], ['asma en Jalisco, mi hijo no está seguro de volver a vacunarse'],
-    ['asma en Jalisco, she does not want to be here in this meeting']]) {
+    ['asma en Jalisco, she does not want to be here in this meeting'], ['Asma en Jalisco, no quiero amanecer con tos']]) {
     const k = await conversa(...turnos);
     assert.doesNotMatch(k.md, /^(Lamento que estés|I am sorry you are)/, turnos.join(' → '));
     assert.match(k.md, /\d/, turnos.join(' → '));
@@ -522,6 +523,22 @@ test('deuda del detector (ronda 21): RAG no hereda un padecimiento bloqueado tra
   }
   assert.match(await ragTurno('asthma in Jalisco by gender, women only'), /\(mujeres\)/);
   assert.doesNotMatch(await ragTurno('asthma in Jalisco by gender, women only'), /\(hombres\)/);
+});
+
+test('deuda del detector (ronda 22): conector intermedio, «Jalisco de México» y herencia tras una revelación sin oferta', async () => {
+  for (const turnos of [['tengo anorexia', 'sí, mujeres de y en Jalisco'], ['tengo anorexia', 'sí, entre mujeres y Jalisco'],
+    ['asma en Jalisco', 'muy ansiosa', 'casos en Sonora'], ['asma en Jalisco', 'so anxious', 'cuántos casos en Sonora']]) {
+    assert.match((await conversa(...turnos)).md, /^(Lamento que estés|I am sorry you are)/, `KB: ${turnos.join(' → ')}`);
+    assert.match(await interfaz(...turnos), /^(Lamento que estés|I am sorry you are)/, `interfaz: ${turnos.join(' → ')}`);
+    assert.match(await ragTurno(...turnos), /^(Lamento que estés|I am sorry you are)/, `RAG: ${turnos.join(' → ')}`);
+  }
+  const re = /Anorexia, bulimia y otros trastornos alimentarios/;
+  for (const turnos of [['tengo anorexia', 'Jalisco de México'], ['tengo anorexia', 'y en Jalisco']]) {
+    assert.match((await conversa(...turnos)).md, /trastornos alimentarios en Jalisco/, `KB: ${turnos.join(' → ')}`);
+    assert.match(await interfaz(...turnos), /trastornos alimentarios en Jalisco/, `interfaz: ${turnos.join(' → ')}`);
+    assert.match(await ragTurno(...turnos), re, `RAG: ${turnos.join(' → ')}`);
+  }
+  assert.match((await conversa('tengo depresión', 'asma en Jalisco', 'y en Sonora')).md, /Asma en Sonora/);
 });
 
 test('deuda del detector (ronda 8): «yes, in Mexico» es el país y conserva el padecimiento ofrecido', async () => {
