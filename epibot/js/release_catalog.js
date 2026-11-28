@@ -3191,8 +3191,13 @@
       const otroEstado = ESTADOS.some(([e]) => !/mexico/.test(e) && qt.includes(` ${e} `));
       if (!nombraPadLimpio(qn) && /\bmexico\b/.test(normTercera(qn)) && !otroEstado) return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
       const conReferente = !pideHerencia || referenteHeredable(previos || []);
-      if ((smOtra && !smOtra.laxa) || SALUDO.test(normTercera(qn)) || (sigueTercera(qn) && !anioSolo && referenteHeredable(previos || [])) ||
-        (turnoTecnico(qn) && conAncla(qn) && !SENAL_PREVIA.test(normTercera(qn)) && conReferente) ||
+      // Se toleran un «.» o «!» final (sin pregunta) y «(de) México» tras otro estado («Michoacán de México»).
+      const sinCola = String(qn).replace(/\s*[.!]+$/u, '').replace(/(?<!\b(estado|ciudad))(,\s*|\s+)((de|del)\s+)?m[eé]xico$/iu, '');
+      const sigue = sigueTercera(qn) || (!/[¿?]/u.test(String(qn)) && sinCola !== String(qn) && sigueTercera(sinCola));
+      if ((smOtra && !smOtra.laxa) || SALUDO.test(normTercera(qn)) || (sigue && !anioSolo && referenteHeredable(previos || [])) ||
+        // Ronda 25 (Codex Sol y Fable): sin padecimiento propio, sólo hereda la gramática estricta de seguimiento (arriba, que KB y
+        // RAG resuelven igual: «y en Sonora», «Jalisco», «hombres», «nacional»); el resto del turno técnico debe nombrar el suyo.
+        (turnoTecnico(qn) && conAncla(qn) && !SENAL_PREVIA.test(normTercera(qn)) && conReferente && nombraPadLimpio(qn)) ||
         /^(en corto|para nota|para junta|resumen|resumelo|mas corto|y)$/.test(normTercera(qn))) return null;
       return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
     }
@@ -3441,8 +3446,9 @@
   // Ronda 5 (Codex Sol): la oferta dice «en tu estado»; un «sí» sin estado recibe en KB y RAG la misma pregunta fija por el
   // estado (antes el KB abría la ficha nacional y RAG pedía el padecimiento). Ronda 6 (Codex Sol y Fable): tras esa pregunta,
   // «sí, en Jalisco», «Jalisco», «nacional», «todo México» o un sexo continúan la oferta; otro «sí» a secas, no.
-  const LUGAR_SOLO = new RegExp('^((y|and) )?(en |in |de |del |para |for )?(el estado de )?' + LUGAR_T + '$');
-  const NACIONAL_SOLO = /^((y|and) )?(a nivel |en |in |de |del |of |para )?(nacional|todo (el pais|mexico)|el pais|mexico|la republica( mexicana)?|nationwide|nationally|the country)$/;
+  // Ronda 25: con una petición de datos delante («pronóstico para Jalisco», «casos en Sonora») sigue siendo el lugar de la oferta.
+  const LUGAR_SOLO = new RegExp('^((y|and) )?((cuantos casos|casos|pronostico|datos|cifras|tendencia)( hay)? )?(en |in |de |del |para |for )?(el estado de )?' + LUGAR_T + '$');
+  const NACIONAL_SOLO = /^((y|and) )?(a nivel |en |in |de |del |of |para )?(nacional|pais|todo (el pais|mexico)|el pais|mexico|la republica( mexicana)?|nationwide|nationally|the country)$/;
   function ofertaPendiente(qn0, previos, profundidad = 4) {
     // Ronda 16 (Codex Sol): espacios y saltos al borde se toleran igual en el KB, la interfaz y RAG; un tabulador conserva la
     // crisis en las tres, como en origin/main.
@@ -3463,7 +3469,7 @@
     if (/¡/u.test(String(qn)) && !/!/u.test(String(qn))) return null;
     if (/^\s*[¡¿]?\s*si\s+(?!(en|in|por favor)\b)/iu.test(String(qn))) return null;
     const crudo = String(qn).normalize('NFKC').toLowerCase().trim().replace(/^[¡¿]\s*/u, '').replace(/\s*([.!]+|\?)$/u, '')
-      .replace(/^(sí|si|claro|yes|sure)(\s*,?\s*(por favor|please))?\s*,?\s*/u, '$1 $3 ').replace(/\s+/g, ' ').trim();
+      .replace(/^(sí|si|claro|yes|sure)(\s*,?\s*(por favor|please))?\s*,?\s*/u, '$1 $3 ').replace(/,\s*((de|del)\s+)?m[eé]xico$/u, ' de méxico').replace(/\s+/g, ' ').trim();
     // Ronda 13 (Codex Sol): una sola línea y tildes en su sitio, comprobadas sobre el turno original («sí;\nSonora», «mujéres»).
     if (/[\r\n\t\v\f\u2028\u2029\u0085]/.test(String(qn)) || !acentosEnSuSitio(String(qn).replace(/(^|[^\p{L}])sí(?=$|[^\p{L}])/giu, '$1si'))) return null;
     if (!textoLimpio(crudo) || !SOLO_TEXTO(crudo) || !unaOracion(crudo) || !normTercera(qn)) return null;
@@ -3492,32 +3498,35 @@
       if (!q2) return { o, lugar: null };
     }
     // Ronda 24 (Codex Sol): «de» delante del sexo («de mujeres en Jalisco») es una frase mal formada: no continúa.
-    if (/^(de|del|of) (hombres|mujeres|men|women)\b/.test(q2)) return null;
+    if (/^((y|and) )?(de|del|of) (hombres|mujeres|men|women)\b/.test(q2)) return null;
     // Ronda 22 (Codex Sol): un conector en medio («mujeres de y en Jalisco», «entre mujeres y Jalisco») tampoco.
     if (/ (y|and|e) /.test(` ${q2.replace(/^(y|and) /, '')} `.slice(1))) return null;
     // Ronda 21 (Codex Sol): dos preposiciones seguidas («mujeres de en Jalisco») son una frase mal formada: no continúa.
     if (/\b(de|del|en|in|of|para|for)\s+(de|del|en|in|of|para|for)\b/.test(q2)) return null;
     // Ronda 10 (Codex Sol): una frase que termina en preposición o conector está cortada («mujeres en»): no continúa.
     if (/\b(en|de|del|para|in|of|for|y|and|entre|among|con|a)$/.test(q2)) return null;
+    // Ronda 25: «por sexo» pide ambas series del padecimiento ofrecido («Jalisco por sexo»).
+    const porSexo = / por (sexo|sexos|genero|generos)$/.test(q2);
+    if (porSexo) q2 = q2.replace(/ por (sexo|sexos|genero|generos)$/, '').trim();
     // Ronda 7 (Codex Sol): sexo y estado juntos («en mujeres de Jalisco», «Jalisco mujeres»).
     const sexos = q2.match(/\b(hombres|mujeres|men|women)\b/g) || [];
     if (sexos.length > 1) return null;
     const sexo = sexos.length ? (/^(hombres|men)$/.test(sexos[0]) ? 'hombres' : 'mujeres') : null;
-    const resto = sexo ? q2.replace(/(^|\b)(y )?((en|entre|in|among) )?(hombres|mujeres|men|women)( (de|del|en|in|of))?\b/, ' ').replace(/^(y|and) /, '').replace(/\s+/g, ' ').trim() : q2;
+    const resto = sexo ? q2.replace(/(^|\b)(y )?((en|entre|in|among) )?(hombres|mujeres|men|women)( (de|del|en|in|of))?\b/, ' ').replace(/^(y|and) /, '').replace(/\s+/g, ' ').trim().replace(/ (de|del|en|in|of)$/, '') : q2;
     // Ronda 9 (Codex Sol): en el turno inmediato al apoyo también continúan la oferta un lugar, el ámbito nacional o un sexo.
     // Tras una continuación, el sexo solo conserva su lugar y el lugar solo conserva su sexo, como la herencia de RAG.
     const antes = trasContinuacion || {};
     if (!resto) return sexo ? (antes.lugar ? { o, lugar: antes.lugar, sexo } : { o, ambito: 'nacional', sexo }) : null;
     // «México» o «todo el país» es el ámbito nacional, no el Estado de México.
     if (NACIONAL_SOLO.test(resto)) return { o, ambito: 'nacional', sexo };
-    if (LUGAR_SOLO.test(resto) && lugarDe(resto)) return { o, lugar: lugarDe(resto), sexo: sexo || antes.sexo || null };
+    if (LUGAR_SOLO.test(resto) && lugarDe(resto)) return { o, lugar: lugarDe(resto), sexo: porSexo ? 'por sexo' : (sexo || antes.sexo || null) };
     return null;
   }
   function consultaOferta(qn, previos = []) {
     const r = ofertaPendiente(qn, previos);
     if (!r || (!r.lugar && !r.ambito)) return null;
     const base = r.o.q.replace(/^¿cómo va la |\?$/g, '');
-    return r.lugar ? `${base} en ${r.lugar[1]}${r.sexo ? ` en ${r.sexo}` : ''}` : `cuantos casos de ${base} hay en el pais${r.sexo ? ` en ${r.sexo}` : ''}`;
+    return r.lugar ? `${base} en ${r.lugar[1]}${r.sexo === 'por sexo' ? ' por sexo' : r.sexo ? ` en ${r.sexo}` : ''}` : `cuantos casos de ${base} hay en el pais${r.sexo ? ` en ${r.sexo}` : ''}`;
   }
   /** Ronda 8 (Fable): padecimiento ofrecido cuando se pregunta por el estado; el KB lo deja como contexto, como RAG lo hereda. */
   /** Ronda 15: revelación que pide datos sin nombrar un padecimiento («sigo deprimida cuantos casos en Jalisco»): el KB no la

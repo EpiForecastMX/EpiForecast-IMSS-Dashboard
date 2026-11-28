@@ -565,9 +565,25 @@ test('deuda del detector (ronda 24): «México» ambiguo dentro del apoyo, cierr
     assert.match(await interfaz(...turnos), CRISIS_ES, `interfaz: ${turnos.join(' → ')}`);
     assert.match(await ragTurno(...turnos), CRISIS_ES, `RAG: ${turnos.join(' → ')}`);
   }
-  assert.doesNotMatch((await conversa('tengo anorexia', 'no', 'tendencia')).md, /\d{2}/);
+  assert.ok(sinCifras((await conversa('tengo anorexia', 'no', 'tendencia')).md));
   assert.doesNotMatch(await ragTurno('asma en Jalisco por sexo', 'Sonora'), /\(hombres\)/);
   assert.match((await conversa('tengo anorexia', 'no thanks')).md, /^All right\. I am here if/);
+});
+
+test('deuda del detector (ronda 25): dentro del apoyo sólo hereda la gramática estricta de seguimiento', async () => {
+  for (const turnos of [['tengo anorexia', 'de México de Jalisco'], ['tengo anorexia', 'pronóstico de México de Jalisco'],
+    ['quiero morir', 'asma en Jalisco', 'de México, Jalisco'], ['tengo anorexia', 'sí', 'de México y Sonora'], ['tengo anorexia', 'sí, y de mujeres en Jalisco'],
+    ['tengo depresión', 'asma en Jalisco', 'casos en Sonora']]) {
+    assert.match((await conversa(...turnos)).md, CRISIS_ES, `KB: ${turnos.join(' → ')}`);
+    assert.match(await interfaz(...turnos), CRISIS_ES, `interfaz: ${turnos.join(' → ')}`);
+    assert.match(await ragTurno(...turnos), CRISIS_ES, `RAG: ${turnos.join(' → ')}`);
+  }
+  for (const [turnos, re] of [[['tengo depresión', 'asma en Jalisco', 'y en Sonora'], /Asma/], [['tengo depresión', 'asma en Jalisco', 'hombres'], /Asma/],
+    [['tengo anorexia', 'sí', 'Jalisco por sexo'], /trastornos alimentarios/]]) {
+    assert.match((await conversa(...turnos)).md, re, `KB: ${turnos.join(' → ')}`);
+    assert.match(await ragTurno(...turnos), re, `RAG: ${turnos.join(' → ')}`);
+  }
+  assert.doesNotMatch(await ragTurno('asthma in Jalisco by gender'), /\(hombres\)/);
 });
 
 test('deuda del detector (ronda 8): «yes, in Mexico» es el país y conserva el padecimiento ofrecido', async () => {

@@ -100,7 +100,8 @@ export function detectarSexo(query) {
   if (h && m) return 'ambos';
   if (h) return 'hombres';
   if (m) return 'mujeres';
-  if (/\b(por (sexo|sexos|genero|generos)|by (sex|gender))\b/.test(q)) return 'ambos';
+  // Sólo las formas en español que el KB también desglosa (ronda 25: «by gender» lo resolvían distinto).
+  if (/\bpor (sexo|sexos|genero|generos)\b/.test(q)) return 'ambos';
   return /\b(general|ambos sexos|total general)\b/.test(q) ? 'general' : null;
 }
 
