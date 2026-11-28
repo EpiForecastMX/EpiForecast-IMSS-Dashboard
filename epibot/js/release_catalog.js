@@ -1876,14 +1876,14 @@
   const RIESGO_TERCERO_ES = new RegExp('\\b((ya )?no (quiere|quieren|queria|querian|quisiera|quiero|queremos) (llegar a manana|llegar al dia siguiente|ver el dia de manana|amanecer|despertar(se)?(?! (temprano|tarde|manana (temprano|tarde|a las|a la)|de la siesta|de su siesta|a|al|a la|a los|a las)\\b)(?! (por|con) ' + ENF_T + ')|seguir aqui(?! con)|seguir viv[oa]s?|seguir viviendo|seguir con vida|vivir(?! (en|cerca|lejos|solo|sola|conmigo|contigo|juntos|juntas)\\b)(?! con (mi|su|sus|mis|tu|tus|el|la|los|las) (familia|mama|papa|madre|padre|abuel[a-z]*|ti[oa]s?|herman[a-z]*|novi[oa]|espos[oa]|pareja|amig[a-z]*|suegr[a-z]*|hij[oa]s?)\\b)(?!( aqui| ahi| alla)? (por|con) ' + ENF_T + ')|vivir mas|estar viv[oa]s?|estar aqui|existir)\\b|' +
     '(?:(?<=^ )|(?<= (que|yo|y|ya|hoy|creo|siento|pienso|neta|verdad)) |' + SUJETO_T + ' )(ya )?no ((llega|llegara|llego|llegue) a manana|(voy|vamos) a (llegar a manana|amanecer))\\b(?! (el|la|los|las|este|esta|con) )|no (le|me|les|nos) (queda|quedan) (razones|ganas|fuerzas|motivos)( para| de)? (seguir|vivir)\\b|(?<!(datos|informacion|archivos|registros|cifras|numeros|data|resultados|curva|grafica|serie|modelo|pronostico) )no (esta|estan|este|esten|estaba|estoy|estamos|estas) a salvo' + NO_ENF_ES + '|no me siento (a salvo|segur[oa](?! (de|del|si|que)\\b(?! (seguir|querer|estar) (viv|con vida|aqui))(?!(?<=sient[ea]n? segur[oa]s? de) (volver|regresar) ))(?! con (el|la|los|las|este|esta|estos|estas|ese|esa) (pronostico|modelo|dato|datos|grafica|resultado|resultados|cifra|cifras|informacion|reporte|boletin)\\b))\\b|(estoy|estamos) en peligro' + NO_ENF_ES + '|' +
     '(quiere|quieren|piensa|piensan|planea|planean) (quitarse la vida|acabar con su vida|terminar con su vida)\\b|(quiere|quieren|quiero) dejar de (existir|vivir)\\b|se va a (matar|suicidar|quitar la vida)\\b(?! (trabajando|estudiando|de risa|de hambre|corriendo)\\b)|' +
-    SUJETO_T + ' (ya )?no (aguanta|aguantan|puede|pueden) mas\\b(?!( con)? ' + ENF_T + ')(?! (el|la|los) (ruido|trafico|frio|sol|olor|polvo)\\b)(?! con (el|la|los|las) (reporte|reportes|trabajo|tarea|tareas|dato|datos|informe|informes|carga|pendientes|cuentas|tramites|papeleo)\\b)|' + SUJETO_T + ' (quiere|quieren) desaparecer\\b(?! ' + ENF_T + ')(?! (el|la|los|las|un|una) (grafica|dato|datos|archivo|archivos|registro|registros|reporte|tabla|boton|pagina|pronostico|modelo|columna|fila|filtro|filtros|mapa|linea)\\b)|' + SUJETO_T + ' no (quiere|quieren) seguir( adelante| asi)? $|' +
+    SUJETO_T + ' (ya )?no (aguanta|aguantan|puede|pueden) mas\\b(?!( con)? ' + ENF_T + ')(?! (el|la|los) (ruido|trafico|frio|sol|olor|polvo)\\b)(?! con (el|la|los|las) (reporte|reportes|trabajo|tarea|tareas|dato|datos|informe|informes|carga|pendientes|cuentas|tramites|papeleo)\\b)|' + SUJETO_T + ' (quiere|quieren) desaparecer\\b(?! ' + ENF_T + ')(?! (el|la|los|las|un|una) (grafica|dato|datos|archivo|archivos|registro|registros|reporte|tabla|boton|pagina|pronostico|modelo|columna|fila|filtro|filtros|mapa|linea)\\b)|' + SUJETO_T + ' no (quiere|quieren) seguir( adelante| asi)?( $| y )|' +
     // Ronda 5 (Fable): «quiere morir», «se corta», «puede hacerse daño» y «ella está en peligro» de alguien cercano.
     SUJETO_T + ' (quiere|quieren) (morir|morirse|matarse|hacerse dano|lastimarse|suicidarse)\\b(?! de (risa|ganas|hambre|sueno|frio|calor|aburrimiento|envidia)\\b)|' + SUJETO_T + ' se (haga|hagan|vaya a hacer|pueda hacer) dano\\b|' + SUJETO_T + ' se (corta|cortan|lastima|lastiman|hace dano|hacen dano|quiere hacer dano)\\b(?! (el |la |las |los |su |sus )?(pelo|cabello|unas|barba|fleco|flequillo|luz|senal|internet|conexion|llamada|video|leche|salsa|mayonesa|pagina|sesion)\\b)' +
     '(?! (jugando|haciendo|entrenando|al (jugar|correr|caer|cocinar)|en (el|la) (cancha|escuela|partido)|con (papel|una hoja|un papel|el papel))\\b)|' +
     '(puede|pueden|podria|podrian) hacerse dano\\b(?! (el|la|los|las|en|con)\\b)|' +
     SUJETO_T + ' (esta|estan|corre|corren|anda) (en )?peligro' + NO_ENF_ES + '\\b|' + PERSONA_T + ' no (esta|se siente|estan|se sienten) (segur[oa]s?(?! (de|del|si|que)\\b(?! (seguir|querer|estar) (viv|con vida|aqui))(?!(?<=sient[ea]n? segur[oa]s? de) (volver|regresar) ))(?! con (el|la|los|las|este|esta|estos|estas|ese|esa) (pronostico|modelo|dato|datos|grafica|resultado|resultados|cifra|cifras|informacion|reporte|boletin)\\b)|a salvo' + NO_ENF_ES + ')\\b)|' + PERSONA_T + ' no (se siente|se sienten|se sentia) protegid[oa]s?\\b');
   const RIESGO_TERCERO_EN = new RegExp('\\b(((i|i m|im|he|she|they|we|you|someone|somebody)|' + PERSONA_T + ')( is| are| am| m| s| re| feel| feels| was| were)? (not safe|unsafe|in danger)' + NO_ENF_EN + '|' +
-    '(' + SUJETO_T + ' (isn t|isnt|aren t|wasn t)|im not|i m not) safe' + NO_ENF_EN + '|(don t|dont|do not|doesn t|does not) feel safe|(doesn t|does not|don t|do not) want to (live(?! (in|with|near) )|be alive|wake up(?! (the|my|her|his|their|early|late|at|in)\\b)|be here|exist|see tomorrow|make it to tomorrow)|' +
+    '(' + SUJETO_T + ' (isn t|isnt|aren t|wasn t)|im not|i m not) safe' + NO_ENF_EN + '|(don t|dont|do not|doesn t|does not) feel safe|(doesn t|does not|don t|do not) want to (live(?! (in|with|near) )|be alive|be here(?! (in|at) (this|the|our|my) (meeting|class|room|office|party|place|city|job)\\b)|wake up(?! (the|my|her|his|their|early|late|at|in)\\b)|exist|see tomorrow|make it to tomorrow)|' +
     '(wants|want) to (die|end it all|end (his|her|their) life|kill (himself|herself|themselves)|disappear(?! (the|a|this|that|my|her|his) ))|(is|are|s|re) going to kill (himself|herself|themselves))\\b');
   const CRISIS_EN = /\b(kill(ing)? myself|want to die|wanna die|end my life|take my own life|hurt myself|harm myself|suicidal thoughts|im suicidal|i am suicidal)\b/;
   // alta_b44 (19-nov-2026): violencia vivida en primera persona («me pegan», «mi pareja me golpea»).
@@ -3478,6 +3478,8 @@
       // Otro «sí» tras la pregunta la repite (no abre cifras ni las cierra).
       if (!q2) return { o, lugar: null };
     }
+    // Ronda 21 (Codex Sol): dos preposiciones seguidas («mujeres de en Jalisco») son una frase mal formada: no continúa.
+    if (/\b(de|del|en|in|of|para|for)\s+(de|del|en|in|of|para|for)\b/.test(q2)) return null;
     // Ronda 10 (Codex Sol): una frase que termina en preposición o conector está cortada («mujeres en»): no continúa.
     if (/\b(en|de|del|para|in|of|for|y|and|entre|among|con|a)$/.test(q2)) return null;
     // Ronda 7 (Codex Sol): sexo y estado juntos («en mujeres de Jalisco», «Jalisco mujeres»).
@@ -3533,8 +3535,9 @@
     const cond = new RegExp(CONDICION_MENTAL);
     return q.replace(/\b(en |de |in )?(mi|my) (estado|ciudad|municipio|state|city)\b/g, ' ').replace(MENTAL_PROPIA, (m) => ` ${(m.match(cond) || [''])[0]} `)
       .replace(ANIMO_PROPIO, (m) => (/ansios|anxious|ansiedad/.test(m) ? ' ansiedad ' : ' depresion '))
-      .split(' ').filter((w) => !AUX_1A.has(w) || w === 'de').join(' ').replace(/\b(deprimid[oa]s?|deprim[a-z]*|depresiv[oa]s?|depre)\b/g, 'depresion')
-      .replace(/\bansios[oa]s?\b/g, 'ansiedad')
+      .split(' ').filter((w) => !AUX_1A.has(w) || w === 'de').join(' ').replace(/\b(deprimid[oa]s?|deprim[a-z]*|depresiv[oa]s?|depre|depressed|depressive)\b/g, 'depresion')
+      // Ronda 21 (Fable): también las formas elípticas en inglés, para que RAG vea el padecimiento revelado y no herede otro.
+      .replace(/\b(ansios[oa]s?|anxious)\b/g, 'ansiedad')
       .replace(/\s+/g, ' ').trim();
   }
 

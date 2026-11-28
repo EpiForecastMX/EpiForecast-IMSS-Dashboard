@@ -96,10 +96,11 @@ export function detectarSexo(query) {
   const q = normPal(query);
   const h = /\b(hombres?|masculin[oa]s?|varones?|men|man|males?)\b/.test(q);
   const m = /\b(mujeres?|femenin[oa]s?|women|woman|females?)\b/.test(q);
-  // Deuda del detector, ronda 17 (Codex Sol): «por sexo» pide ambas series, como en el KB.
-  if ((h && m) || /\b(por (sexo|sexos|genero)|by (sex|gender))\b/.test(q)) return 'ambos';
+  // Deuda del detector, rondas 17 y 21 (Codex Sol): «por sexo» pide ambas series, salvo que se nombre un solo sexo.
+  if (h && m) return 'ambos';
   if (h) return 'hombres';
   if (m) return 'mujeres';
+  if (/\b(por (sexo|sexos|genero|generos)|by (sex|gender))\b/.test(q)) return 'ambos';
   return /\b(general|ambos sexos|total general)\b/.test(q) ? 'general' : null;
 }
 
@@ -143,7 +144,9 @@ function analizarTurno(t, prev) {
   const qs = strip(evalTxt);
   const qp = normPal(evalTxt);
   if (CORTESIA_O_CIERRE.test(qp)) return { tipo: 'cortesia', query: t };
-  if (NOMBRA_LEGACY_DOC.test(qs)) return { tipo: 'legacy', query: evalTxt };
+  // Deuda del detector, ronda 21 (Fable): los alias de los cuatro originales que reconoce el KB («depre») también cuentan, para
+  // no heredar un padecimiento anterior que el KB ya no usa.
+  if (NOMBRA_LEGACY_DOC.test(qs) || (C && (C.padecimientosEnConsulta(evalTxt).legacy || []).length)) return { tipo: 'legacy', query: evalTxt };
   if (C?.subtipoAjeno(qs)) return { tipo: 'ajeno', query: evalTxt };
   if (C?.aliasAmbiguo(qs)) return { tipo: 'ambiguo', query: evalTxt };
   if (C?.mencionaNoModelada(qs)) return { tipo: 'noModelada', query: evalTxt, termino: C.mencionaNoModelada(qs) };

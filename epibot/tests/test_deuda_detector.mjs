@@ -179,6 +179,7 @@ const CASOS = [
   [['asma en Jalisco, mi hija tiene 13 años y no se siente protegida'], CRISIS_ES],
   [['asma en Jalisco, mi hija no se siente segura de volver a casa'], CRISIS_ES],
   [['asma en Jalisco, mi mamá ya no puede más con las deudas'], CRISIS_ES],
+  [['asma en Jalisco, mi hija no quiere seguir y necesita ayuda'], CRISIS_ES],
   // (a′) Idioma del seguimiento tras un lugar aislado: el de la conversación.
   [['suicide in Mexico', 'Jalisco'], NEUTRA_SIGUE_EN],
   [['suicidio en México', 'Jalisco'], NEUTRA_SIGUE_ES],
@@ -224,7 +225,8 @@ test('deuda del detector (ronda 1): consultas benignas sin falsos positivos del 
     ['alguien quiere desaparecer el dengue'], ['asma en Jalisco, mi papá no quiere despertarse de la siesta'],
     ['estamos en peligro con tantos casos de dengue'], ['are we in danger in Jalisco from dengue'],
     ['asma en Jalisco. Ellos no quieren vivir juntos.'], ['are we in danger in Jalisco with dengue?'],
-    ['asma en Jalisco, mi mamá no aguanta más el ruido'], ['asma en Jalisco, mi hijo no está seguro de volver a vacunarse']]) {
+    ['asma en Jalisco, mi mamá no aguanta más el ruido'], ['asma en Jalisco, mi hijo no está seguro de volver a vacunarse'],
+    ['asma en Jalisco, she does not want to be here in this meeting']]) {
     const k = await conversa(...turnos);
     assert.doesNotMatch(k.md, /^(Lamento que estés|I am sorry you are)/, turnos.join(' → '));
     assert.match(k.md, /\d/, turnos.join(' → '));
@@ -506,6 +508,20 @@ test('deuda del detector (ronda 20): sin referente del runner, lugar o ámbito d
   const turnos = ['tengo ansiedad', 'asma en Jalisco', 'Sonora'];
   assert.match((await conversa(...turnos)).md, /Asma en Sonora/);
   assert.match(await ragTurno(...turnos), /Asma \(J45, J46\)\*\* para \*\*Sonora/);
+});
+
+test('deuda del detector (ronda 21): RAG no hereda un padecimiento bloqueado tras una revelación elíptica; oferta mal formada', async () => {
+  for (const turnos of [['intoxicación por plaguicidas en Jalisco', 'depressed af', 'sigo deprimida cuantos casos en Jalisco', 'Sonora'],
+    ['intoxicación por plaguicidas en Jalisco', 'depre', 'sigo deprimida cuantos casos en Jalisco', 'Sonora'],
+    ['quemaduras en Jalisco', 'depressed af', 'no', 'Sonora']]) {
+    assert.doesNotMatch(await ragTurno(...turnos), /plaguicidas|Quemaduras/i, `RAG: ${turnos.join(' → ')}`);
+  }
+  for (const turnos of [['tengo anorexia', 'sí, mujeres de en Jalisco']]) {
+    assert.match((await conversa(...turnos)).md, CRISIS_ES, `KB: ${turnos.join(' → ')}`);
+    assert.match(await ragTurno(...turnos), CRISIS_ES, `RAG: ${turnos.join(' → ')}`);
+  }
+  assert.match(await ragTurno('asthma in Jalisco by gender, women only'), /\(mujeres\)/);
+  assert.doesNotMatch(await ragTurno('asthma in Jalisco by gender, women only'), /\(hombres\)/);
 });
 
 test('deuda del detector (ronda 8): «yes, in Mexico» es el país y conserva el padecimiento ofrecido', async () => {
