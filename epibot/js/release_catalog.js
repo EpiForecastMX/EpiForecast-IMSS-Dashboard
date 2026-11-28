@@ -2773,6 +2773,9 @@
   /** Texto fijo ante una señal de riesgo personal, o null. No pasa por ningún modelo. */
   function respuestaCrisis(qn, previos = []) {
     let r = respuestaCrisisBase(qn);
+    // Ronda 27: una revelación que sólo se reconoce al quitar muletillas o años sueltos («sigo bastante deprimida casos en
+    // Jalisco wey», «super deprimida wey») recibe la crisis completa en KB, interfaz y RAG por igual.
+    if (!r && revelacionConRelleno(qn)) r = idiomaDeTurno(qn) === 'en' || pareceIngles(qn) ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
     // Ronda 9 (Codex Sol): el idioma de la crisis completa sigue las palabras del turno («suicide in Mexico» con un invisible).
     if (r === CRISIS_TEXTO_ES && idiomaDeTurno(qn) === 'en') r = CRISIS_TEXTO_EN;
     if (r !== CRISIS_TEXTO_ES && r !== CRISIS_TEXTO_EN) return r;
@@ -2922,7 +2925,10 @@
   const textoLimpio = (raw) => { const c = String(raw).normalize('NFKC').toLowerCase();
     return !/(^|[^\p{L}])él($|[^\p{L}])/u.test(c) && !simbolosNoTecnicos(raw) && !EMOJI_RIESGO.test(raw) && /^[a-záéíóúüñ0-9\s¿?.,]*$/.test(c); };
   const sigueTercera = (raw) => textoLimpio(raw) && SOLO_TEXTO(String(raw).normalize('NFKC').toLowerCase()) && acentosEnSuSitio(raw) &&
-    unaOracion(String(raw).normalize('NFKC').toLowerCase()) && RE_SIGUE_TERCERA.test(normTercera(raw));
+    unaOracion(String(raw).normalize('NFKC').toLowerCase()) && RE_SIGUE_TERCERA.test(normTercera(raw)) &&
+    // Ronda 27 (Fable): un año anterior a los datos (2014) no es un filtro, como en `origin/main`, cuyo KB lo vaciaba y daba la
+    // crisis completa; ahora la dan el KB y RAG por igual.
+    !/\b(19\d\d|200\d|201[0-3])\b/.test(normTercera(raw));
   const cortesia = (raw) => textoLimpio(raw) && SOLO_TEXTO(String(raw).normalize('NFKC').toLowerCase()) && RE_CORTESIA.test(normTercera(raw));
   function respuestaCrisisBase(qn) {
     const r = respuestaCrisisTexto(String(qn));
@@ -3044,14 +3050,14 @@
       (n, e) => MEMO_HUBO.set(clave(n), e));
     return v.hubo;
   }
-  // Ronda 26: el KB reconoce la revelación tras quitar muletillas y años sueltos («super deprimida wey», «deprimida 2008»); el
-  // recorrido del historial también, para que el estado de apoyo sea el mismo en KB y RAG.
+  // Ronda 26/27: muletillas y años sueltos que el KB quita al reescribir («super deprimida wey», «deprimida 2008»).
   const MULETILLA_SM = /(^|[^\p{L}\d])(plis|pls|porfis|xfa|xfavor|xd|jaja\p{L}*|jeje\p{L}*|ntp|alv|wey|we|neta|(19|20)\d\d)(?=$|[^\p{L}\d])/giu;
-  function saludMentalTurno(t) {
-    const sm = saludMentalPropia(t);
-    if (sm) return sm;
+  function revelacionConRelleno(t) {
+    if (!MULETILLA_SM.test(String(t ?? ''))) { MULETILLA_SM.lastIndex = 0; return false; }
+    MULETILLA_SM.lastIndex = 0;
+    if (saludMentalPropia(t)) return false;
     const limpio = String(t).replace(MULETILLA_SM, '$1 ').replace(/\s+/g, ' ').trim();
-    return limpio && limpio !== String(t).trim() ? saludMentalPropia(limpio) : null;
+    return Boolean(limpio && limpio !== String(t).trim() && saludMentalPropia(limpio));
   }
   function recorreTurnos(turnos, nombraPadLimpio, desde = 0, inicio = null, anota = null) {
     // Estado: 'crisis' (señal de riesgo), 'apoyo' (turno fuera del vocabulario cerrado) o null.
@@ -3059,7 +3065,7 @@
     let hubo = inicio ? inicio.hubo : false;
     const previos = turnos.slice(0, desde);
     for (const t of turnos.slice(desde)) {
-      const sm = saludMentalTurno(t);
+      const sm = saludMentalPropia(t);
       // Séptima ronda: tras un id sensible, una revelación de salud mental es crisis, igual que en el KB.
       const sensiblePrevio = (sm?.apoyo || sm?.prefijo) && previos.some((x) => idsSensiblesEn(x).length || nombraReleaseSensible(normLB(x)));
       const rc = respuestaCrisis(t, previos) || sm?.crisis || (sensiblePrevio ? CRISIS_TEXTO_ES : null);
@@ -3201,6 +3207,9 @@
       // «diabetes» genérica: el KB la toma como tipo II y la función RAG no la reconoce como padecimiento propio (hereda el
       // ofrecido); como no se resuelven igual, dentro del apoyo no cuenta como padecimiento propio.
       const padPropio = nombraPadLimpio(qn) && !diabetesEnConsulta(nt)?.generica;
+      // Ronda 27 (Fable): tras una revelación que pide datos sin padecimiento («estoy deprimido cuántos casos hay en Jalisco»),
+      // ningún seguimiento sin padecimiento propio hereda el referente anterior: crisis completa, como en `origin/main`.
+      if (!padPropio && !saludMentalPropia(qn) && (previos || []).some((t) => revelacionSinPadecimiento(t))) return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
       if (!padPropio && !saludMentalPropia(qn) && !SALUDO.test(nt) && !ofertaInmediata &&
           !/^(en corto|para nota|para junta|resumen|resumelo|mas corto|y)$/.test(nt) &&
           !(textoLimpio(qn) && acentosEnSuSitio(qn) && /^¿?[\p{L}\p{M}\s]*\??$/u.test(String(qn).trim()) && RE_SIGUE_APOYO.test(nt))) {
@@ -3469,7 +3478,9 @@
     if (toks.every((w) => RELLENO_SM.has(w) || ((w === 'vivo' || w === 'radico' || w === 'live') && lugar))) {
       return { apoyo: apoyoSaludMental(q, en) };
     }
-    if (PIDE_DATOS_SM.test(resto) && toks.every((w) => RELLENO_SM.has(w) || DATOS_SM.has(w))) return { prefijo: en ? PREFIJO_SM_EN : PREFIJO_SM };
+    // Ronda 27 (Codex Sol): con «México» en la petición (país o estado, «Jalisco de México»), el KB de `origin/main` daba la
+    // crisis completa; ahora la dan el KB y RAG por igual.
+    if (PIDE_DATOS_SM.test(resto) && toks.every((w) => RELLENO_SM.has(w) || DATOS_SM.has(w))) return / mexico /.test(q) ? crisis : { prefijo: en ? PREFIJO_SM_EN : PREFIJO_SM };
     return crisis;
   }
 

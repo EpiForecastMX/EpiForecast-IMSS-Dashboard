@@ -6542,6 +6542,12 @@ async function _resolveConCierre(query) {
   // la crisis completa sobre el original, igual que la función RAG.
   const crisisOrig = _crisisActiva === 'apoyo_sm' ?
     respuestaCrisisSeguimiento(normalizaEntrada(query), 'apoyo_sm', nombraPadecimientoNoSensible, _turnosPrevios.slice(0, -1)) : null;
+  // Ronda 27: si la guarda da la crisis completa sobre el turno original, el KB la devuelve ya, como la interfaz; ningún cierre
+  // («en corto») ni reescritura posterior llega a resumir una ficha anterior.
+  if (crisisOrig && esCrisisCompleta(crisisOrig)) {
+    const g = guardaInicial(query, false);
+    if (g) return recuerdaFicha(g);
+  }
   if (_crisisActiva === 'apoyo_sm' && !(crisisOrig && esCrisisCompleta(crisisOrig))) {
     // Ronda 5 (Codex Sol): «sí» sin estado recibe la pregunta fija por el estado, igual que en la función RAG.
     const sinEstado = ofertaSinEstado(query, _turnosPrevios.slice(0, -1));
