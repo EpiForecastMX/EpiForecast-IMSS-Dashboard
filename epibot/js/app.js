@@ -7,9 +7,9 @@ import { graficoRondas } from './comparacion_rondas.js?v=4';
  * y fallback a Gemini via Netlify Function.
  */
 
-import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2, contextoActual, reiniciaContexto, cargaZoom } from './kb.js?v=229';
+import { loadKnowledge, getStats, getData, answer, guardaInicial, estadoDesdeHistorial, registraEstadoAyuda, estadoDeRespuesta, metricasRetiradas, rotuloMetricas, semanasConPronostico, semanasDeFase, tituloSeguimiento, tituloSeguimientoMin, periodoBoletin, weeklyV2, contextoActual, reiniciaContexto, cargaZoom } from './kb.js?v=230';
 import { detectEntities, norm } from './entities.js?v=88';
-import { pareceVariosPedidos, respuestaDePlan } from './agente.js?v=2';
+import { pareceVariosPedidos, respuestaDePlan } from './agente.js?v=3';
 import { fechaEpiLegacy, REZAGO_LEGACY } from './calculo/series.js?v=4';
 import { dn, DISPLAY_NAMES } from './display.js?v=1';
 import { renderMexicoMap } from './mexico-map.js?v=6';
@@ -19,7 +19,7 @@ import { renderComparador } from './comparador.js?v=4';
 import { buildComparadorState } from './comparador_data.js?v=1';
 import { graficaObesidad } from './obesidad_charts.js?v=64';
 import { UNCERTAINTY_LABEL } from './point_only.js?v=1';
-import { MARCADOR_RELEASE, RELEASES, releaseConAlias, releaseDeMarca, releaseDePad, releasesEnConsulta } from './release_config.js?v=60';
+import { MARCADOR_RELEASE, RELEASES, releaseConAlias, releaseDeMarca, releaseDePad, releasesEnConsulta } from './release_config.js?v=61';
 import { initSTT, TTS_SUPPORTED, setVoiceQuery, wasVoiceQuery, speak, stopSpeaking, toggleMute, isTTSEnabled, onSpeakingStateChange, desbloqueaVoz } from './voice.js?v=7';
 
 // ---------------------------------------------------------------------------
@@ -907,8 +907,10 @@ function setSendBusy(value) {
 
 async function handleSend() {
   desbloqueaVoz();
-  const text = inputField.value.trim();
-  if (!text || busy) return;
+  // Deuda del detector, rondas 15 y 16 (Codex Sol): sólo se recortan espacios y saltos; un invisible o un tabulador al borde
+  // llegan a la guarda, que los trata igual que el KB y la función RAG.
+  const text = inputField.value.replace(/^[ \n\r]+|[ \n\r]+$/g, '');
+  if (!text.trim() || busy) return;
   setSendBusy(true);
   inputField.value = '';
   addUserMessage(text);
@@ -986,7 +988,7 @@ async function routeQuery(text, typingEl) {
     if (consultaNlu) {
       let r2 = null;
       try { r2 = await answer(consultaNlu); } catch (err) { console.error('KB error:', err); }
-      if (r2 && !/No entendí bien|Lamento que estés|Sigo aquí contigo|Es un tema delicado|Por el tema que tocamos|Gracias por contármelo|I did not quite understand|I am sorry you are|I am still here|This is a sensitive topic|Because of the topic|Thank you for telling me/.test(r2)) result = `_Entendí: «${consultaNlu}»._\n\n${r2}`;
+      if (r2 && !/No entendí bien|Lamento que estés|Sigo aquí contigo|Es un tema delicado|Por el tema que tocamos|Gracias por contármelo|Está bien. Aquí sigo si|All right. I am here if|I did not quite understand|I am sorry you are|I am still here|This is a sensitive topic|Because of the topic|Thank you for telling me/.test(r2)) result = `_Entendí: «${consultaNlu}»._\n\n${r2}`;
       else consultaNlu = null;
     }
   }

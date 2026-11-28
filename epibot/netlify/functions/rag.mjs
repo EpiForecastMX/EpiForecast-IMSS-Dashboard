@@ -1024,7 +1024,13 @@ async function handlerExterno(req, reescrita) {
   // Quinta ronda: «sí» o «sí, en Jalisco» tras el apoyo continúan la oferta con una consulta fija.
   const histUsuario = Array.isArray(body?.history) ? body.history.filter((x) => x && x.role === 'user' && typeof x.text === 'string').map((x) => x.text) : [];
   const estadoHist = q && body.health !== true && !reescrita ? crisisEnHistorial(body.history) : null;
-  const oferta = estadoHist === 'apoyo_sm' ? C.consultaOferta(q, histUsuario) : null;
+  // Ronda 5 (Codex Sol): «sí» sin estado recibe la misma pregunta fija por el estado que en el KB.
+  // Ronda 26 (condición dura del autor): la oferta sólo se continúa si el turno original pasa la guarda, igual que en el KB.
+  const crisisOrig = estadoHist === 'apoyo_sm' ? C.respuestaCrisisSeguimiento(q, 'apoyo_sm', nombraPadecimientoNoSensible, histUsuario) : null;
+  const ofertaPosible = estadoHist === 'apoyo_sm' && !(crisisOrig && C.esCrisisCompleta(crisisOrig));
+  const sinEstado = ofertaPosible ? C.ofertaSinEstado(q, histUsuario) : null;
+  if (sinEstado) return json({ answer: sinEstado.replace(/\n<!--[\s\S]*?-->/g, ''), sources: [], retrieval: 'none', guarda: 'salud_mental' }, 200, corsHeaders(req));
+  const oferta = ofertaPosible ? C.consultaOferta(q, histUsuario) : null;
   if (oferta) {
     // Séptima ronda (Codex Sol): la oferta aceptada sólo devuelve una ficha determinista; nunca texto generado.
     const resO = await handlerExterno(new Request(req.url, { method: 'POST', headers: req.headers, body: JSON.stringify({ ...body, query: oferta, stream: false }) }), true);
@@ -1037,7 +1043,9 @@ async function handlerExterno(req, reescrita) {
   // Sexta ronda (Codex Sol y Fable): la reescritura sólo sin crisis en el historial y sin ids sensibles previos (si no, la
   // consulta original pasa por las guardas de seguimiento), y una sola vez (sin recursión).
   const smPermitida = q && body.health !== true && !reescrita && !['crisis', 'crisis_tercera'].includes(estadoHist) &&
-    !histUsuario.some((t) => C.idsSensiblesEn(t).length) && !C.respuestaCrisis(q, histUsuario);
+    !histUsuario.some((t) => C.idsSensiblesEn(t).length) && !C.respuestaCrisis(q, histUsuario) &&
+    // Ronda 3 (Codex Sol): la guarda de seguimiento ve el turno original antes de la reescritura, igual que el KB.
+    !(estadoHist && C.respuestaCrisisSeguimiento(q, estadoHist, nombraPadecimientoNoSensible, histUsuario));
   const sm = smPermitida ? C.saludMentalPropia(q) : null;
   if (sm?.prefijo) {
     const res = await handlerExterno(new Request(req.url, { method: 'POST', headers: req.headers,
@@ -1118,8 +1126,10 @@ async function handlerInterno(req) {
     }
     // Decimocuarta ronda (Codex Sol y Fable): la revelación se SUSTITUYE por la consulta sin primera persona (el padecimiento
     // sigue como contexto técnico), y en este estado ninguna respuesta sale del generador.
+    // Ronda 15: la revelación que pide datos sin nombrar un padecimiento sale del contexto, como en el KB (que conserva el
+    // referente anterior); las demás se sustituyen por la consulta sin primera persona.
     body = { ...body, _sinGenerador: true, history: (body.history || []).map((x) => (x && x.role === 'user' && C1.saludMentalPropia(String(x.text || ''))
-      ? { ...x, text: C1.consultaSinRevelacion(String(x.text || '')) } : x)) };
+      ? { ...x, text: C1.revelacionSinPadecimiento(String(x.text || '')) ? '' : C1.consultaSinRevelacion(String(x.text || '')) } : x)) };
   }
   // Séptima ronda (Fable): tras un id sensible en el historial, la revelación recibe la crisis completa, no el apoyo.
   if ((mental?.apoyo || mental?.prefijo) && previosUsuario.some((t) => globalThis.EPI_CATALOGO.idsSensiblesEn(t).length ||
@@ -1349,8 +1359,9 @@ async function handlerInterno(req) {
   // Tras el apoyo de salud mental (decimocuarta ronda): texto fijo, nunca generado.
   if (body._sinGenerador === true) {
     const enSG = globalThis.EPI_CATALOGO.pareceIngles(String(body.query || ''));
-    return json({ answer: enSG ? 'For figures, tell me the condition and the state, for example «depression in Jalisco».'
-      : 'Para darte cifras, dime el padecimiento y el estado, por ejemplo «depresión en Jalisco».', sources: [], retrieval: 'none', guarda: 'salud_mental' }, 200, cors);
+    // Ronda 3: el mismo texto que el KB y que la reescritura con petición de datos.
+    return json({ answer: enSG ? 'To give you figures I need the condition and the state, for example «depression in Jalisco».'
+      : 'Para darte cifras necesito el padecimiento y el estado, por ejemplo «depresión en Jalisco».', sources: [], retrieval: 'none', guarda: 'salud_mental' }, 200, cors);
   }
   if (body.stream === true) {
     const encoder = new TextEncoder();

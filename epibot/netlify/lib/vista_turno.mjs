@@ -55,7 +55,8 @@ const PIDE_METRICA_ERROR = /\b(error\w*|smape)\b/;
 const PIDE_ESTADO_RE = /\b(validad\w*|valida|validacion|confiab\w*|fiable|confiar|aceptad\w*|rechaz\w*|calidad|precis\w*|exactitud|que tan (bueno|exacto|preciso)|error\w*|smape|sirve)\b/;
 const PIDE_CIFRAS_ESTRICTO = /\b(cuantos?|cuantas?|total(es)?|pronostican|pronosticad[oa]s?|esperan|esperad[oa]s?|previst[oa]s?|proyecta\w*|52 semanas|horizonte|observad\w*|fuera de muestra|202\d ?w\d{1,2}|semana \d{1,2}|boletin \d{1,2}|mae|sesgo|bias|how many|forecasted|expected)\b/;
 const PIDE_PRONOSTICO_DIRECTO = /^(?:el |un |ver |dame |deme |mostrar |muestrame |consultar )?(?:pronostico|prediccion|forecast)\b|\b(?:cual es|cuales son|dame|deme|ver|mostrar|muestrame|consultar|hay|existe|is there|what is)\s+(?:el\s+|un\s+|la\s+|a\s+|the\s+)?(?:pronostico|prediccion|forecast|prediction)\b|\bcasos\s+(?:de|en|para|del)\b/;
-const PIDE_NACIONAL = /\b(nacional(es)?|a nivel nacional|total nacional|en mexico|de mexico|todo el pais|en el pais|republica mexicana|nationwide|in mexico)\b/;
+// Deuda del detector, ronda 18 (Codex Sol): «todo México» también es el ámbito nacional, como en el KB.
+const PIDE_NACIONAL = /\b(nacional(es)?|a nivel nacional|total nacional|en mexico|de mexico|todo el pais|todo mexico|en el pais|republica mexicana|nationwide|in mexico)\b/;
 const MOD_FAMILIA = /\b(congenit[a-z]*|neonatal\w*|connatal\w*|perinatal\w*|vertical|fetal\w*|mortinat\w*|stillbirth\w*|gestacional|gestational|gestantes?|matern[ao]s?|maternal|embaraz\w*|pregnan\w*|puerper\w*|parto|childbirth|recien nacid[oa]s?|newborns?|bebes?|babies|baby|lactantes?|infants?|nin[oa]s?|children|child|menores?|adolescentes?|pediatric[oa]?s?|tipo (?:1|2|i|ii|uno|dos)|pulmonar)\b/;
 const SUMA_SEGUIMIENTO = /\b(sum\w*|junt[oa]s?|combinad[oa]s?|mas el|mas la)\b/;
 
@@ -95,9 +96,12 @@ export function detectarSexo(query) {
   const q = normPal(query);
   const h = /\b(hombres?|masculin[oa]s?|varones?|men|man|males?)\b/.test(q);
   const m = /\b(mujeres?|femenin[oa]s?|women|woman|females?)\b/.test(q);
+  // Deuda del detector, rondas 17 y 21 (Codex Sol): «por sexo» pide ambas series, salvo que se nombre un solo sexo.
   if (h && m) return 'ambos';
   if (h) return 'hombres';
   if (m) return 'mujeres';
+  // Sólo las formas en español que el KB también desglosa (ronda 25: «by gender» lo resolvían distinto).
+  if (/\bpor (sexo|sexos|genero|generos)\b/.test(q)) return 'ambos';
   return /\b(general|ambos sexos|total general)\b/.test(q) ? 'general' : null;
 }
 
@@ -141,7 +145,9 @@ function analizarTurno(t, prev) {
   const qs = strip(evalTxt);
   const qp = normPal(evalTxt);
   if (CORTESIA_O_CIERRE.test(qp)) return { tipo: 'cortesia', query: t };
-  if (NOMBRA_LEGACY_DOC.test(qs)) return { tipo: 'legacy', query: evalTxt };
+  // Deuda del detector, ronda 21 (Fable): los alias de los cuatro originales que reconoce el KB («depre») también cuentan, para
+  // no heredar un padecimiento anterior que el KB ya no usa.
+  if (NOMBRA_LEGACY_DOC.test(qs) || (C && !releasesEn(evalTxt).length && (C.padecimientosEnConsulta(evalTxt, { parcial: false }).legacy || []).length)) return { tipo: 'legacy', query: evalTxt };
   if (C?.subtipoAjeno(qs)) return { tipo: 'ajeno', query: evalTxt };
   if (C?.aliasAmbiguo(qs)) return { tipo: 'ambiguo', query: evalTxt };
   if (C?.mencionaNoModelada(qs)) return { tipo: 'noModelada', query: evalTxt, termino: C.mencionaNoModelada(qs) };
@@ -195,7 +201,8 @@ function analizarTurno(t, prev) {
     ...prev,
     geos: newGeo ? ownGeos : prev.geos,
     nacional: newGeo ? (ownNac && !ownGeos.length) : prev.nacional,
-    sexo: ownSexo || prev.sexo,
+    // Deuda del detector, ronda 24 (Codex Sol): «ambos sexos» no se hereda al cambiar de lugar, como en el KB.
+    sexo: ownSexo || (prev.sexo === 'ambos' ? null : prev.sexo),
     estratoEdad: ownEdad,
     pideEstado: !ownMetodo && ownEst,
     esMetodologica: ownMetodo,

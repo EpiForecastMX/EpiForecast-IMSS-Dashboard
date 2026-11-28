@@ -24,6 +24,7 @@ import {
   resumenOosCorto,
   tieneValor,
 } from './vista_formato.mjs';
+import { periodoPedido, lineaMes } from '../../js/mes_calendario.js';
 
 export { esIntencionMetodologica, rangoOos, resolverConsultaRag };
 
@@ -101,6 +102,27 @@ export function vistaGroundedAnswer(query, history, {
 
   const sexos = estado.sexo === 'ambos' ? ['hombres', 'mujeres'] : [estado.sexo || 'general'];
   const bloques = [];
+  // Deuda del detector (27-nov-2026): con un mes pedido, la respuesta empieza por ese mes, igual que el KB (decisión 4, mismo
+  // módulo); antes la función daba sólo el total del horizonte.
+  const pMes = periodoPedido(query);
+  const mesDe = (s, sx) => {
+    // Ronda 1 (Codex Sol): un año que el periodo no reconoce («marzo de 2028», fuera del horizonte) no se sustituye por otro.
+    // Ronda 2 (Codex Sol): tampoco si junto al año reconocido hay otro («marzo de 2028 comparado con 2027»).
+    const anios = String(query).match(/\b\d{4}\b/g) || [];
+    // Ronda 3 (Codex Sol): cifras de otros sistemas de numeración («٢٠٢٨») tampoco se leen como si no hubiera año.
+    // Ronda 5 (Codex Sol): sólo con una geografía y un sexo, como el KB (que compara sin línea de mes).
+    if (pMes?.tipo !== 'mes' || !(s.observado || []).length || anios.some((a) => Number(a) !== pMes.anio) ||
+        geos.length > 1 || estado.sexo === 'ambos' || /\b(por (sexo|sexos|genero|generos)|by (sex|gender)|ambos sexos|hombres y mujeres|men and women)\b/i.test(normPal(String(query))) ||
+        /(?![0-9])\p{Nd}/u.test(String(query)) || /\b(de|del|of)( ano| year)? \d{2}\b/i.test(normPal(String(query))) ||
+        /\b(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|setiembre|octubre|noviembre|diciembre) \d{2}\b/.test(normPal(String(query))) ||
+        /\b(ano pasado|year before|last year|ano anterior)\b/.test(normPal(String(query)))) return null;
+    const ultimo = s.observado.at(-1)[0];
+    const mie = new Date(`${ultimo.slice(0, 10)}T00:00:00Z`);
+    mie.setUTCDate(mie.getUTCDate() - mie.getUTCDay() + 3);
+    const lugar = s.nivel === 'nacional' ? ' en el país' : s.nivel === 'estado' ? ` en ${s.nombre === 'México' ? 'Estado de México' : s.nombre}` : ` en la ${/^regi[oó]n /i.test(s.nombre) ? s.nombre.replace(/^R/, 'r') : `región ${s.nombre}`}`;
+    return lineaMes(pMes, (s.pronostico || []).filter(([ds]) => ds > ultimo), s.observado, String(mie.getUTCFullYear()),
+      `${lugar}${sx && sx !== 'general' ? ` (${sx})` : ''}`);
+  };
   const elegidas = [];
   for (const g of geos) {
     for (const sx of sexos) {
@@ -108,7 +130,8 @@ export function vistaGroundedAnswer(query, history, {
       if (!s || !tieneValor(s.pronostico_52_total)) continue;
       elegidas.push(s);
       const lugar = s.nivel === 'nacional' ? `a nivel **nacional** (${sx})` : `para **${geoEtiqueta(s)}** (${sx})`;
-      let txt = `El pronóstico de **${m.nombre}** ${lugar} en el horizonte de ${v.horizon_weeks} semanas desde el origen (**${m.wIni}** a **${m.wFin}**, entrenado con datos hasta **${m.wOr}**${emitido}) es de **${ent(s.pronostico_52_total)} casos** (${incert}) [1].`;
+      const linMes = mesDe(s, sx);
+      let txt = `${linMes ? `${linMes}\n\n` : ''}El pronóstico de **${m.nombre}** ${lugar} en el horizonte de ${v.horizon_weeks} semanas desde el origen (**${m.wIni}** a **${m.wFin}**, entrenado con datos hasta **${m.wOr}**${emitido}) es de **${ent(s.pronostico_52_total)} casos** (${incert}) [1].`;
       if (s.oos?.semanas > 0) {
         const wOos = rangoOos(v.origin, s.oos.semanas, ' a ');
         const obsLbl = s.oos.semanas === 1

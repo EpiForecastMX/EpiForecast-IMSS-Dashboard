@@ -6,7 +6,7 @@
  */
 import './vocab_cerrado.js?v=5';
 import './vocab_consulta.js?v=9';
-import './release_catalog.js?v=60';
+import './release_catalog.js?v=61';
 
 const CATALOGO = globalThis.EPI_CATALOGO;
 
@@ -22,9 +22,15 @@ export const mencionaNoModelada = CATALOGO.mencionaNoModelada;
 export const respuestaCrisis = CATALOGO.respuestaCrisis;
 export const respuestaCrisisSeguimiento = CATALOGO.respuestaCrisisSeguimiento;
 export const esCrisisTercera = CATALOGO.esCrisisTercera;
+export const esCierreApoyo = CATALOGO.esCierreApoyo;
+export const consultaSinRevelacion = CATALOGO.consultaSinRevelacion;
 export const crisisPersonalDe = CATALOGO.crisisPersonalDe;
 export const esCrisisCompleta = CATALOGO.esCrisisCompleta;
 export const consultaOferta = CATALOGO.consultaOferta;
+export const ofertaSinEstado = CATALOGO.ofertaSinEstado;
+export const padDeOferta = CATALOGO.padDeOferta;
+export const padDeRevelacion = CATALOGO.padDeRevelacion;
+export const peticionSinRevelacion = CATALOGO.peticionSinRevelacion;
 export const crisisTextoDe = CATALOGO.crisisTextoDe;
 export const idsSensiblesEnTurno = (t) => CATALOGO.idsSensiblesEn(t).length > 0 || CATALOGO.nombraReleaseSensible(CATALOGO.normLB(t));
 export const saludMentalPropia = CATALOGO.saludMentalPropia;
