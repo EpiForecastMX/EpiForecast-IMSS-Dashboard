@@ -5800,8 +5800,9 @@ function _guardaInicialBase(consulta, registrar = true) {
   }
   const apoyo = respuestaCrisisSeguimiento(!registrar && _turnoOriginal ? _turnoOriginal : query, _crisisActiva, nombraPadecimientoNoSensible, previos);
   if (apoyo) {
-    // Ronda 13 (Codex Sol y Fable): el cierre fijo tras «no» conserva el contexto, como en origin/main y como RAG lo hereda.
-    if (!esCierreApoyo(apoyo)) lastEntities = {};
+    // Ronda 24 (Fable): el cierre tras «no» borra el contexto (no se muestran cifras del padecimiento rechazado); tras el rechazo,
+    // la guarda ya no deja que un fragmento herede el padecimiento ofrecido (ronda 23), así que KB y RAG coinciden.
+    lastEntities = {};
     // Tercera ronda: tras la variante neutra, un turno que no es técnico ni cortesía recibe la crisis completa y sube el estado.
     if (esCrisisCompleta(apoyo)) {
       _crisisActiva = 'crisis';

@@ -200,7 +200,8 @@ function analizarTurno(t, prev) {
     ...prev,
     geos: newGeo ? ownGeos : prev.geos,
     nacional: newGeo ? (ownNac && !ownGeos.length) : prev.nacional,
-    sexo: ownSexo || prev.sexo,
+    // Deuda del detector, ronda 24 (Codex Sol): «ambos sexos» no se hereda al cambiar de lugar, como en el KB.
+    sexo: ownSexo || (prev.sexo === 'ambos' ? null : prev.sexo),
     estratoEdad: ownEdad,
     pideEstado: !ownMetodo && ownEst,
     esMetodologica: ownMetodo,

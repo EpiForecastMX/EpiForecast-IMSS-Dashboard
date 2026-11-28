@@ -3006,10 +3006,12 @@
   /** Idioma del seguimiento: el del turno si lo tiene; si es un lugar, año o cortesía aislados, el del turno previo. */
   function idiomaSeguimiento(qn, previos, enTurno) {
     // Ronda 1 (Fable): «no thanks» es inglés aunque empiece por «no».
-    // Ronda 4 (Fable): una cortesía («thanks», «no thanks») toma el idioma de la conversación; sin él, el suyo.
+    // Ronda 4 (Fable): una cortesía sin idioma propio («no», «ok») toma el de la conversación. Ronda 24 (Codex Sol): si la
+    // tiene («no thanks», «gracias»), manda la suya.
     if (cortesia(qn)) {
+      if (/^(no thanks|no thank you|no gracias|mejor no)$/.test(normTercera(qn))) return idiomaDeTurno(qn) === 'en';
       for (const t of [...(previos || [])].reverse()) { const i = idiomaDeTurno(t); if (i) return i === 'en'; }
-      return idiomaDeTurno(qn) ? idiomaDeTurno(qn) === 'en' : enTurno;
+      return enTurno;
     }
     if (!SIN_IDIOMA.test(normTercera(qn))) return enTurno;
     for (const t of [...(previos || [])].reverse()) { const i = idiomaDeTurno(t); if (i) return i === 'en'; }
@@ -3183,7 +3185,11 @@
       // referente; sin uno heredable por KB y RAG conserva la crisis.
       const qt = ` ${normTercera(qn)} `;
       const pideHerencia = LUGAR_SOLO.test(normTercera(qn)) || NACIONAL_SOLO.test(normTercera(qn)) ||
-        (!nombraPadLimpio(qn) && (ESTADOS.some(([e]) => qt.includes(` ${e} `)) || / (hombres|mujeres|men|women|nacional|pais|mexico) /.test(qt)));
+        (!nombraPadLimpio(qn) && (ESTADOS.some(([e]) => qt.includes(` ${e} `)) || / (hombres|mujeres|men|women|nacional|pais|mexico|sexo|sexos|genero|gender|sex) /.test(qt)));
+      // Ronda 24 (Fable): sin padecimiento propio, «México» es ambiguo (país o estado) y el KB y RAG lo resuelven distinto:
+      // dentro del apoyo conserva la crisis salvo en la continuación de la oferta (arriba).
+      const otroEstado = ESTADOS.some(([e]) => !/mexico/.test(e) && qt.includes(` ${e} `));
+      if (!nombraPadLimpio(qn) && /\bmexico\b/.test(normTercera(qn)) && !otroEstado) return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
       const conReferente = !pideHerencia || referenteHeredable(previos || []);
       if ((smOtra && !smOtra.laxa) || SALUDO.test(normTercera(qn)) || (sigueTercera(qn) && !anioSolo && referenteHeredable(previos || [])) ||
         (turnoTecnico(qn) && conAncla(qn) && !SENAL_PREVIA.test(normTercera(qn)) && conReferente) ||
@@ -3485,6 +3491,8 @@
       // Otro «sí» tras la pregunta la repite (no abre cifras ni las cierra).
       if (!q2) return { o, lugar: null };
     }
+    // Ronda 24 (Codex Sol): «de» delante del sexo («de mujeres en Jalisco») es una frase mal formada: no continúa.
+    if (/^(de|del|of) (hombres|mujeres|men|women)\b/.test(q2)) return null;
     // Ronda 22 (Codex Sol): un conector en medio («mujeres de y en Jalisco», «entre mujeres y Jalisco») tampoco.
     if (/ (y|and|e) /.test(` ${q2.replace(/^(y|and) /, '')} `.slice(1))) return null;
     // Ronda 21 (Codex Sol): dos preposiciones seguidas («mujeres de en Jalisco») son una frase mal formada: no continúa.
