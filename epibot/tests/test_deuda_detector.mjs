@@ -277,18 +277,11 @@ test('deuda del detector (ronda 5): RAG no da la línea del mes con dos sexos o 
 });
 
 test('deuda del detector (ronda 6): tras la pregunta por el estado, la oferta continúa igual en KB y RAG', async () => {
-  for (const [turnos, re] of [[['tengo anorexia', 'sí', 'sí, en Jalisco'], /Anorexia, bulimia y otros trastornos alimentarios/],
-    [['tengo anorexia', 'sí', 'nacional'], /Anorexia, bulimia y otros trastornos alimentarios/],
-    [['tengo anorexia', 'sí', 'todo México'], /Anorexia, bulimia y otros trastornos alimentarios/],
-    [['tengo anorexia', 'sí', 'hombres'], /Anorexia, bulimia y otros trastornos alimentarios/]]) {
-    const k = await conversa(...turnos);
-    const r = await ragTurno(...turnos);
-    assert.match(k.md, re, turnos.join(' → '));
-    assert.match(r, re, turnos.join(' → '));
-  }
-  // La depresión es de los padecimientos originales: el KB da la ficha y la función RAG, sin esos datos, remite.
-  assert.match((await conversa('tengo depresión', 'sí', 'sí, en Jalisco')).md, /Depresión en Jalisco/);
-  assert.match((await conversa('tengo depresión', 'sí', 'sí')).md, /^¿En qué estado\?/);
+  for (const tercero of ['nacional', 'hombres', 'Jalisco', 'en Jalisco']) await tres(['tengo anorexia', 'sí', tercero], F50);
+  // Ronda 26 (condición dura del autor): tras la pregunta por el estado, otra aceptación o «todo México» dan la crisis completa,
+  // como en origin/main.
+  for (const turnos of [['tengo anorexia', 'sí', 'sí, en Jalisco'], ['tengo anorexia', 'sí', 'todo México'],
+    ['tengo depresión', 'sí', 'sí, en Jalisco'], ['tengo depresión', 'sí', 'sí']]) await tres(turnos, CRISIS_TRES);
 });
 
 test('deuda del detector (ronda 6): la petición con otro padecimiento tras una revelación se resuelve igual en KB y RAG', async () => {
@@ -314,15 +307,22 @@ async function interfaz(...turnos) {
   return md;
 }
 
+/** Ronda 26: KB, interfaz y RAG dan la misma clase de respuesta (`re`) para la conversación. */
+async function tres(turnos, re) {
+  const t = turnos.join(' → ');
+  assert.match((await conversa(...turnos)).md, re, `KB: ${t}`);
+  assert.match(await interfaz(...turnos), re, `interfaz: ${t}`);
+  assert.match(await ragTurno(...turnos), re, `RAG: ${t}`);
+}
+const CRISIS_TRES = /^(Lamento que estés|I am sorry you are|Sigo aquí contigo|I am still here)/;
+const F50 = /Anorexia, bulimia y otros trastornos alimentarios/;
+
 test('deuda del detector (ronda 7): la continuación de la oferta coincide en KB, interfaz y RAG', async () => {
-  for (const tercero of ['a nivel nacional', 'nationwide', 'en mujeres de Jalisco', 'Jalisco mujeres', 'hombres', 'sí, en Jalisco',
-    // Ronda 8 (Codex Sol y Fable): el padecimiento ofrecido queda como contexto mientras la pregunta está pendiente.
-    'de Jalisco', 'para Jalisco', 'Jalisco por sexo', 'en Jalisco de mujeres', 'Jalisco, México', 'mujeres del país']) {
-    const turnos = ['tengo anorexia', 'sí', tercero];
-    const re = /Anorexia, bulimia y otros trastornos alimentarios/;
-    assert.match((await conversa(...turnos)).md, re, `KB: ${tercero}`);
-    assert.match(await interfaz(...turnos), re, `interfaz: ${tercero}`);
-    assert.match(await ragTurno(...turnos), re, `RAG: ${tercero}`);
+  // Ronda 26: el padecimiento ofrecido sigue como contexto, pero sólo la gramática mínima lo hereda.
+  for (const tercero of ['hombres', 'mujeres', 'Jalisco', 'y en Sonora']) await tres(['tengo anorexia', 'sí', tercero], F50);
+  for (const tercero of ['a nivel nacional', 'nationwide', 'en mujeres de Jalisco', 'Jalisco mujeres', 'sí, en Jalisco', 'de Jalisco',
+    'para Jalisco', 'Jalisco por sexo', 'en Jalisco de mujeres', 'Jalisco, México', 'mujeres del país']) {
+    await tres(['tengo anorexia', 'sí', tercero], CRISIS_TRES);
   }
   for (const tercero of ['mujeres como yo', 'hombres y mujeres', 'Jalisco esta noche', 'en 2020', 'X60 en Jalisco']) {
     const turnos = ['tengo anorexia', 'sí', tercero];
@@ -333,12 +333,10 @@ test('deuda del detector (ronda 7): la continuación de la oferta coincide en KB
 });
 
 test('deuda del detector (ronda 9): tras una revelación laxa, lugar, ámbito y sexo continúan la oferta en KB y RAG', async () => {
-  for (const turnos of [['ando sola con anorexia', 'todo México', 'Jalisco'], ['ando sola con anorexia', 'en mujeres de Jalisco']]) {
-    const re = /Anorexia, bulimia y otros trastornos alimentarios/;
-    assert.match((await conversa(...turnos)).md, re, turnos.join(' → '));
-    assert.match(await interfaz(...turnos), re, turnos.join(' → '));
-    assert.match(await ragTurno(...turnos), re, turnos.join(' → '));
-  }
+  await tres(['ando sola con anorexia', 'Jalisco'], F50);
+  // Ronda 26: «todo México», «de Jalisco» o «sí, en mujeres» tras una revelación laxa dan la crisis completa.
+  for (const turnos of [['ando sola con anorexia', 'todo México', 'Jalisco'], ['ando sola con anorexia', 'en mujeres de Jalisco'],
+    ['ando sola con anorexia', 'de Jalisco'], ['ando sola con anorexia', 'sí, en mujeres']]) await tres(turnos, CRISIS_TRES);
   // Ronda 10 (Fable): un padecimiento técnico que pasa la guarda del apoyo levanta la crisis personal; lo que el apoyo bloquea
   // (quemaduras, alacrán, emoticonos) ya no, en KB, interfaz y RAG.
   assert.match((await conversa('quiero morir', 'asma en Jalisco')).md, /Asma en Jalisco/);
@@ -348,12 +346,7 @@ test('deuda del detector (ronda 9): tras una revelación laxa, lugar, ámbito y 
     assert.match(await interfaz(...turnos), /^(Sigo aquí contigo|Lamento que estés)/, turnos.join(' → '));
     assert.match(await ragTurno(...turnos), /^Sigo aquí contigo/, turnos.join(' → '));
   }
-  // Ronda 10 (Codex Sol): «de Jalisco» o «sí, en mujeres» tras una revelación laxa conservan el padecimiento; una frase cortada no.
-  for (const turnos of [['ando sola con anorexia', 'de Jalisco'], ['ando sola con anorexia', 'sí, en mujeres']]) {
-    const re = /Anorexia, bulimia y otros trastornos alimentarios/;
-    assert.match((await conversa(...turnos)).md, re, turnos.join(' → '));
-    assert.match(await ragTurno(...turnos), re, turnos.join(' → '));
-  }
+  // Ronda 10 (Codex Sol): una frase cortada conserva la crisis.
   for (const turnos of [['tengo anorexia', 'mujeres en'], ['tengo anorexia', 'en mujeres de']]) {
     assert.match((await conversa(...turnos)).md, CRISIS_ES, turnos.join(' → '));
     assert.match(await ragTurno(...turnos), CRISIS_ES, turnos.join(' → '));
@@ -367,18 +360,16 @@ test('deuda del detector (ronda 11): la continuación es texto limpio de una ora
     assert.match(await interfaz(...turnos), CRISIS_ES, `interfaz: ${turnos.join(' → ')}`);
     assert.match(await ragTurno(...turnos), CRISIS_ES, `RAG: ${turnos.join(' → ')}`);
   }
-  for (const [turnos, re] of [[['tengo anorexia', 'Jalisco', 'sí en Sonora'], /trastornos alimentarios en Sonora/],
-    [['tengo anorexia', 'Jalisco', 'mujeres'], /trastornos alimentarios en Jalisco \(mujeres\)/],
-    [['tengo anorexia', 'sí, en el Estado de México'], /trastornos alimentarios en Estado de México/]]) {
-    assert.match((await conversa(...turnos)).md, re, `KB: ${turnos.join(' → ')}`);
-    assert.match(await interfaz(...turnos), re, `interfaz: ${turnos.join(' → ')}`);
-    assert.match(await ragTurno(...turnos), /Anorexia, bulimia y otros trastornos alimentarios/, `RAG: ${turnos.join(' → ')}`);
-  }
+  assert.match((await conversa('tengo anorexia', 'Jalisco', 'mujeres')).md, /trastornos alimentarios en Jalisco \(mujeres\)/);
+  await tres(['tengo anorexia', 'Jalisco', 'mujeres'], F50);
+  // Ronda 26: una aceptación que no sigue a la oferta, o con «México», da la crisis completa.
+  for (const turnos of [['tengo anorexia', 'Jalisco', 'sí en Sonora'], ['tengo anorexia', 'sí, en el Estado de México']]) await tres(turnos, CRISIS_TRES);
 });
 
 test('deuda del detector (ronda 12): la aceptación con puntuación habitual coincide en KB, interfaz y RAG', async () => {
   const re = /Anorexia, bulimia y otros trastornos alimentarios/;
-  for (const segundo of ['sí, en Jalisco!', '¡sí, en Jalisco!', 'sí, por favor, en Jalisco', 'yes, please, in Jalisco', 'de México']) {
+  await tres(['tengo anorexia', 'de México'], CRISIS_TRES);
+  for (const segundo of ['sí, en Jalisco!', '¡sí, en Jalisco!', 'sí, por favor, en Jalisco', 'yes, please, in Jalisco']) {
     const turnos = ['tengo anorexia', segundo];
     assert.match((await conversa(...turnos)).md, re, `KB: ${segundo}`);
     assert.match(await interfaz(...turnos), re, `interfaz: ${segundo}`);
@@ -389,8 +380,7 @@ test('deuda del detector (ronda 12): la aceptación con puntuación habitual coi
     assert.match((await conversa(...turnos)).md, /^¿En qué estado\?/, `KB: ${segundo}`);
     assert.match(await ragTurno(...turnos), /^¿En qué estado\?/, `RAG: ${segundo}`);
   }
-  const turnos = ['tengo anorexia', 'Jalisco', 'todo México', 'mujeres'];
-  assert.match((await conversa(...turnos)).md, /en el país \(mujeres\)/);
+  await tres(['tengo anorexia', 'Jalisco', 'todo México', 'mujeres'], CRISIS_TRES);
   assert.match((await conversa('tengo depresión', 'en el año pasado')).md, CRISIS_ES);
   assert.match(await ragTurno('tengo depresión', 'en el año pasado'), CRISIS_ES);
 });
@@ -410,7 +400,7 @@ test('deuda del detector (ronda 13): el cierre conserva el contexto y la oferta 
     assert.match(await interfaz(...turnos), CRISIS_ES, `interfaz: ${JSON.stringify(turnos)}`);
     assert.match(await ragTurno(...turnos), CRISIS_ES, `RAG: ${JSON.stringify(turnos)}`);
   }
-  assert.match((await conversa('I have anorexia', 'yes', 'yes')).md, /^Which state\?/);
+  await tres(['I have anorexia', 'yes', 'yes'], CRISIS_TRES);
   assert.match((await conversa('tengo anorexia', 'sí', 'no', 'X60 en Jalisco')).md, CRISIS_ES);
 });
 
@@ -422,7 +412,8 @@ test('deuda del detector (ronda 14): «sí;» o invisibles conservan la crisis y
   }
   // Ronda 15 (Codex Sol y Fable): la aclaración no borra el contexto; los turnos siguientes heredan el asma en las tres rutas,
   // como en origin/main, y una señal posterior conserva la crisis.
-  for (const resto of [['y en Sonora'], ['y en Sonora', 'nacional'], ['Jalisco!']]) {
+  await tres(['asma en Jalisco', 'sigo bastante deprimida cuantos casos en Jalisco', 'Jalisco!'], CRISIS_TRES);
+  for (const resto of [['y en Sonora'], ['y en Sonora', 'nacional'], ['Jalisco']]) {
     const turnos = ['asma en Jalisco', 'sigo bastante deprimida cuantos casos en Jalisco', ...resto];
     assert.match((await conversa(...turnos)).md, /Asma/, `KB: ${resto.join(' → ')}`);
     assert.match(await interfaz(...turnos), /Asma/, `interfaz: ${resto.join(' → ')}`);
@@ -443,13 +434,14 @@ test('deuda del detector (ronda 16): referente bloqueado, bordes, preguntas y ca
     assert.match(await ragTurno(...turnos), CRISIS_ES, `RAG: ${JSON.stringify(turnos)}`);
   }
   const re = /Anorexia, bulimia y otros trastornos alimentarios/;
-  for (const turnos of [['I have anorexia', 'yes, Jalisco', 'and in Sonora'], ['tengo anorexia', 'Jalisco', 'todo México', 'en hombres'],
-    ['tengo anorexia', 'Jalisco', 'Sonora', 'mujeres', 'Colima'], ['tengo anorexia', '¿sí, en Jalisco?']]) {
+  for (const turnos of [['I have anorexia', 'yes, Jalisco', 'and in Sonora'], ['tengo anorexia', 'Jalisco', 'todo México', 'en hombres']]) {
+    await tres(turnos, CRISIS_TRES);
+  }
+  for (const turnos of [['tengo anorexia', 'Jalisco', 'Sonora', 'mujeres', 'Colima'], ['tengo anorexia', '¿sí, en Jalisco?']]) {
     assert.match((await conversa(...turnos)).md, re, `KB: ${turnos.join(' → ')}`);
     assert.match(await interfaz(...turnos), re, `interfaz: ${turnos.join(' → ')}`);
     assert.match(await ragTurno(...turnos), re, `RAG: ${turnos.join(' → ')}`);
   }
-  assert.match(await ragTurno('tengo anorexia', 'Jalisco', 'todo México', 'en hombres'), /a nivel \*\*nacional\*\* \(hombres\)/);
 });
 
 test('deuda del detector (ronda 17): referente bloqueado sólo si es el más reciente; preguntas y «si» ambiguos conservan la crisis', async () => {
@@ -470,7 +462,7 @@ test('deuda del detector (ronda 17): referente bloqueado sólo si es el más rec
   // Ronda 23: tras el rechazo («no») ya no hay referente; «en Jalisco por sexo» conserva la crisis en KB y RAG.
   assert.match((await conversa('tengo anorexia', 'en Sonora', 'no', 'en Jalisco por sexo')).md, CRISIS_ES);
   assert.match(await ragTurno('tengo anorexia', 'en Sonora', 'no', 'en Jalisco por sexo'), CRISIS_ES);
-  assert.match(await ragTurno('tengo anorexia', 'en Sonora', 'en Jalisco por sexo'), /\(hombres\)/);
+  await tres(['tengo anorexia', 'en Sonora', 'en Jalisco por sexo'], CRISIS_TRES);
 });
 
 test('deuda del detector (ronda 18): «¡si Jalisco!» conserva la crisis; el cambio de ámbito nacional coincide en las tres rutas', async () => {
@@ -539,7 +531,8 @@ test('deuda del detector (ronda 22): conector intermedio, «Jalisco de México»
     assert.match(await ragTurno(...turnos), /^(Lamento que estés|I am sorry you are)/, `RAG: ${turnos.join(' → ')}`);
   }
   const re = /Anorexia, bulimia y otros trastornos alimentarios/;
-  for (const turnos of [['tengo anorexia', 'Jalisco de México'], ['tengo anorexia', 'y en Jalisco']]) {
+  await tres(['tengo anorexia', 'Jalisco de México'], CRISIS_TRES);
+  for (const turnos of [['tengo anorexia', 'y en Jalisco']]) {
     assert.match((await conversa(...turnos)).md, /trastornos alimentarios en Jalisco/, `KB: ${turnos.join(' → ')}`);
     assert.match(await interfaz(...turnos), /trastornos alimentarios en Jalisco/, `interfaz: ${turnos.join(' → ')}`);
     assert.match(await ragTurno(...turnos), re, `RAG: ${turnos.join(' → ')}`);
@@ -548,9 +541,10 @@ test('deuda del detector (ronda 22): conector intermedio, «Jalisco de México»
 });
 
 test('deuda del detector (ronda 23): «‹estado› de México» es el estado; un alias original no anula otro padecimiento en RAG', async () => {
-  for (const [turnos, re] of [[['tengo anorexia', 'pronóstico para Jalisco de México'], /trastornos alimentarios en Jalisco/],
-    [['tengo anorexia', 'Yucatán, de México'], /trastornos alimentarios en Yucatán/], [['quiero morir', 'asma en Jalisco', 'Michoacán de México'], /Asma en Michoacán/],
-    [['pronóstico de asma en Yucatán, México'], /Asma en Yucatán/]]) {
+  // Ronda 26: dentro del apoyo, «‹estado› de México» sin padecimiento propio da la crisis completa, como en origin/main.
+  for (const turnos of [['tengo anorexia', 'pronóstico para Jalisco de México'], ['tengo anorexia', 'Yucatán, de México'],
+    ['quiero morir', 'asma en Jalisco', 'Michoacán de México']]) await tres(turnos, CRISIS_TRES);
+  for (const [turnos, re] of [[['pronóstico de asma en Yucatán, México'], /Asma en Yucatán/]]) {
     assert.match((await conversa(...turnos)).md, re, `KB: ${turnos.join(' → ')}`);
     assert.match(await interfaz(...turnos), re, `interfaz: ${turnos.join(' → ')}`);
   }
@@ -579,17 +573,16 @@ test('deuda del detector (ronda 25): dentro del apoyo sólo hereda la gramática
     assert.match(await ragTurno(...turnos), CRISIS_ES, `RAG: ${turnos.join(' → ')}`);
   }
   for (const [turnos, re] of [[['tengo depresión', 'asma en Jalisco', 'y en Sonora'], /Asma/], [['tengo depresión', 'asma en Jalisco', 'hombres'], /Asma/],
-    [['tengo anorexia', 'sí', 'Jalisco por sexo'], /trastornos alimentarios/]]) {
+    [['tengo anorexia', 'sí', 'Jalisco'], /trastornos alimentarios/]]) {
     assert.match((await conversa(...turnos)).md, re, `KB: ${turnos.join(' → ')}`);
     assert.match(await ragTurno(...turnos), re, `RAG: ${turnos.join(' → ')}`);
   }
   assert.doesNotMatch(await ragTurno('asthma in Jalisco by gender'), /\(hombres\)/);
 });
 
-test('deuda del detector (ronda 8): «yes, in Mexico» es el país y conserva el padecimiento ofrecido', async () => {
-  const turnos = ['I have anorexia', 'yes', 'yes, in Mexico'];
-  assert.match((await conversa(...turnos)).md, /Anorexia, bulimia y otros trastornos alimentarios en el país/);
-  assert.match(await ragTurno(...turnos), /Anorexia, bulimia y otros trastornos alimentarios/);
+test('deuda del detector (ronda 8, revisada en la 26): «yes, in Mexico» tras la pregunta da la crisis en las tres rutas', async () => {
+  await tres(['I have anorexia', 'yes', 'yes, in Mexico'], CRISIS_TRES);
+  await tres(['I have anorexia', 'yes', 'Jalisco'], F50);
 });
 
 test('deuda del detector (ronda 7): la memoria del recorrido se vacía sin perder el estado de partida', () => {
@@ -620,4 +613,21 @@ test('deuda del detector: la función RAG responde el mes pedido, igual que el K
   const linea = k.md.match(/\*\*En marzo de \d{4}\*\* se esperan unos \*\*[\d,]+ casos\*\*/)?.[0];
   assert.ok(linea, k.md.slice(0, 200));
   assert.ok(r.startsWith(linea), r.slice(0, 200));
+});
+
+test('deuda del detector (ronda 26): condición dura del autor, nada de cifras donde origin/main daba la crisis', async () => {
+  for (const turnos of [['quiero morir', 'asma en Jalisco', 'entre Jalisco'], ['quiero morir', 'asma en Jalisco', 'y qué tal Sonora'],
+    ['tengo anorexia', 'sí, en Jalisco por sexo.'], ['tengo anorexia', 'what about Jalisco, Mexico'], ['tengo anorexia', 'what about Sonora!'],
+    ['tengo anorexia', 'sí, Jalisco'], ['tengo depresión', 'nationwide'], ['tengo anorexia', 'Michoacán de México'],
+    ['super deprimida wey', 'X60 en Jalisco'], ['deprimida 2008', 'X60 en Jalisco']]) {
+    await tres(turnos, CRISIS_TRES);
+  }
+  // «diabetes» genérica: el KB la toma como tipo II y RAG hereda el padecimiento ofrecido; dentro del apoyo, crisis en las tres.
+  for (const turnos of [['tengo anorexia', 'diabetes en Sonora'], ['tengo depresión', 'Diabetes II en Sonora']]) await tres(turnos, CRISIS_TRES);
+  await tres(['tengo anorexia', 'diabetes tipo 1 en Sonora'], /tipo I\b/);
+  // Tampoco levanta la crisis ni la variante neutra; con el tipo explícito sí, igual en las tres rutas.
+  for (const turnos of [['quiero morir', 'diabetes en Sonora'], ['cuántos suicidios hay en Jalisco', 'y en Sonora', 'diabetes en Sonora']]) {
+    await tres(turnos, CRISIS_TRES);
+  }
+  await tres(['quiero morir', 'diabetes tipo 2 en Sonora'], /tipo II/);
 });

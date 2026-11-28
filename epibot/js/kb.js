@@ -6538,7 +6538,11 @@ async function _resolveConCierre(query) {
   // Decisión 2, quinta ronda: «sí» o «sí, en Jalisco» tras el apoyo continúan la oferta («depresión en Jalisco»).
   if (_registradoPorGuarda === query && _turnosPrevios.at(-1) === query) _registradoPorGuarda = null;
   else { _turnosPrevios.push(query); _registradoPorGuarda = null; }
-  if (_crisisActiva === 'apoyo_sm') {
+  // Ronda 26 (condición dura del autor): la oferta sólo se reescribe si el turno original pasa la guarda; si no, la guarda da
+  // la crisis completa sobre el original, igual que la función RAG.
+  const crisisOrig = _crisisActiva === 'apoyo_sm' ?
+    respuestaCrisisSeguimiento(normalizaEntrada(query), 'apoyo_sm', nombraPadecimientoNoSensible, _turnosPrevios.slice(0, -1)) : null;
+  if (_crisisActiva === 'apoyo_sm' && !(crisisOrig && esCrisisCompleta(crisisOrig))) {
     // Ronda 5 (Codex Sol): «sí» sin estado recibe la pregunta fija por el estado, igual que en la función RAG.
     const sinEstado = ofertaSinEstado(query, _turnosPrevios.slice(0, -1));
     if (sinEstado) {

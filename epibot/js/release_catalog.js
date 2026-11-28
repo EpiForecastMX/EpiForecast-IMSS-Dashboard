@@ -2912,6 +2912,9 @@
   const RE_SIGUE_TERCERA = new RegExp('^(y |and |what about |y que tal )?(((en|in|entre|among) )?' +
     '(' + LUGAR_T.slice(1, -1) + '|hombres|mujeres|men|women|nacional|el ano pasado|last year)' +
     '( (en|in) ' + ANIOS_T + ')?|(en|in) ' + ANIOS_T + ')$');
+  // Ronda 26: seguimiento mínimo dentro del apoyo de salud mental (sin «México», años ni conectores amplios).
+  const RE_SIGUE_APOYO = new RegExp('^(y |and )?(((en|in) )?(' + ESTADOS.map(([e]) => e).filter((e) => !/mexico/.test(e)).join('|') +
+    '|hombres|mujeres|men|women)|nacional)$');
   const ACEPTA_OFERTA = new RegExp('^(si|claro|si por favor|yes|sure|yes please)( (en|in) (el estado de )?' +
     LUGAR_T + ')?$');
   const RE_CORTESIA = /^(ok|okay|vale|va|no|no gracias|no thanks|no thank you|mejor no|gracias|muchas gracias|thanks|thank you|entendido|de acuerdo|bien|listo|perfecto|entiendo|ya veo)$/;
@@ -3041,13 +3044,22 @@
       (n, e) => MEMO_HUBO.set(clave(n), e));
     return v.hubo;
   }
+  // Ronda 26: el KB reconoce la revelación tras quitar muletillas y años sueltos («super deprimida wey», «deprimida 2008»); el
+  // recorrido del historial también, para que el estado de apoyo sea el mismo en KB y RAG.
+  const MULETILLA_SM = /(^|[^\p{L}\d])(plis|pls|porfis|xfa|xfavor|xd|jaja\p{L}*|jeje\p{L}*|ntp|alv|wey|we|neta|(19|20)\d\d)(?=$|[^\p{L}\d])/giu;
+  function saludMentalTurno(t) {
+    const sm = saludMentalPropia(t);
+    if (sm) return sm;
+    const limpio = String(t).replace(MULETILLA_SM, '$1 ').replace(/\s+/g, ' ').trim();
+    return limpio && limpio !== String(t).trim() ? saludMentalPropia(limpio) : null;
+  }
   function recorreTurnos(turnos, nombraPadLimpio, desde = 0, inicio = null, anota = null) {
     // Estado: 'crisis' (señal de riesgo), 'apoyo' (turno fuera del vocabulario cerrado) o null.
     let estado = inicio ? inicio.estado : null;
     let hubo = inicio ? inicio.hubo : false;
     const previos = turnos.slice(0, desde);
     for (const t of turnos.slice(desde)) {
-      const sm = saludMentalPropia(t);
+      const sm = saludMentalTurno(t);
       // Séptima ronda: tras un id sensible, una revelación de salud mental es crisis, igual que en el KB.
       const sensiblePrevio = (sm?.apoyo || sm?.prefijo) && previos.some((x) => idsSensiblesEn(x).length || nombraReleaseSensible(normLB(x)));
       const rc = respuestaCrisis(t, previos) || sm?.crisis || (sensiblePrevio ? CRISIS_TEXTO_ES : null);
@@ -3091,7 +3103,8 @@
     // Ronda 9 (Fable): una intoxicación que puede ser método (T36-T65 salvo T63), una lesión autoinfligida o un arma no levantan
     // ninguna crisis; antes la crisis personal resultaba más permisiva que el apoyo.
     return turnoTecnico(t) && !peticionEn(t) && !idsSensiblesEn(t).length && !nombraReleaseSensible(normLB(t)) && !respuestaCrisis(t) && !reabreSensible(t) &&
-      !SALUD_MENTAL_NOMBRE.test(normTercera(t)) && nombraPadLimpio(t);
+      // Ronda 26: la «diabetes» genérica tampoco levanta la crisis (el KB la resuelve y la función RAG no).
+      !SALUD_MENTAL_NOMBRE.test(normTercera(t)) && !diabetesEnConsulta(normTercera(t))?.generica && nombraPadLimpio(t);
   }
   // Deuda del detector (b): tras el apoyo de salud mental, una cortesía o un «no» reciben un cierre fijo (antes llegaban al
   // generador). Sin cifras ni contenido clínico.
@@ -3173,6 +3186,26 @@
       }
       // Ronda 11 (Fable): una frase que termina en conector («Jalisco y») está cortada: crisis.
       if (normTercera(qn) !== 'y' && /\b(en|de|del|para|in|of|for|y|and|entre|among|con|a|que|pero|but)$/.test(normTercera(qn))) return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
+      // Ronda 26, condición dura del autor: dentro del apoyo, un seguimiento sólo pasa sin crisis si además cumple la gramática
+      // con que `origin/main` (86c40876) lo dejaba pasar; cualquier forma más amplia («sí, Jalisco», «Jalisco de México»,
+      // «nationwide», «what about Sonora!») conserva la crisis completa, aunque la rama sepa resolverla.
+      const comoMain = saludMentalPropia(qn) || SALUDO.test(normTercera(qn)) || ACEPTA_OFERTA.test(normTercera(qn)) || sigueTercera(qn) ||
+        (turnoTecnico(qn) && conAncla(qn) && !SENAL_PREVIA.test(normTercera(qn))) ||
+        /^(en corto|para nota|para junta|resumen|resumelo|mas corto|y)$/.test(normTercera(qn));
+      if (!comoMain) return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
+      // Sin padecimiento propio, sólo pasa la gramática mínima que KB y RAG resuelven igual y que `origin/main` respondía con
+      // datos: «(y) (en) Jalisco», «(en) hombres», «nacional», la aceptación de la oferta en el turno inmediato o un cierre. Nada
+      // con «México» (país o estado), años, «entre», «what about», «y qué tal» ni colas de puntuación.
+      const nt = normTercera(qn);
+      const ofertaInmediata = saludMentalPropia(String((previos || []).at(-1) ?? ''))?.apoyo && ACEPTA_OFERTA.test(nt) && !/\bmexico\b/.test(nt);
+      // «diabetes» genérica: el KB la toma como tipo II y la función RAG no la reconoce como padecimiento propio (hereda el
+      // ofrecido); como no se resuelven igual, dentro del apoyo no cuenta como padecimiento propio.
+      const padPropio = nombraPadLimpio(qn) && !diabetesEnConsulta(nt)?.generica;
+      if (!padPropio && !saludMentalPropia(qn) && !SALUDO.test(nt) && !ofertaInmediata &&
+          !/^(en corto|para nota|para junta|resumen|resumelo|mas corto|y)$/.test(nt) &&
+          !(textoLimpio(qn) && acentosEnSuSitio(qn) && /^¿?[\p{L}\p{M}\s]*\??$/u.test(String(qn).trim()) && RE_SIGUE_APOYO.test(nt))) {
+        return en ? CRISIS_TEXTO_EN : CRISIS_TEXTO_ES;
+      }
       // Ronda 7 (Codex Sol y Fable): la continuación de la oferta pasa la guarda con el mismo criterio con que se resuelve.
       if (ofertaPendiente(qn, previos || [])) return null;
       // Ronda 16 (Fable): tampoco se hereda un padecimiento que el apoyo bloquea (códigos T, X y W32-W34). Ronda 17 (Fable): sólo
