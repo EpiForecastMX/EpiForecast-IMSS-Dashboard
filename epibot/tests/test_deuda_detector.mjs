@@ -396,12 +396,14 @@ test('deuda del detector (ronda 12): la aceptación con puntuación habitual coi
 });
 
 test('deuda del detector (ronda 13): el cierre conserva el contexto y la oferta rechaza varias líneas y tildes fuera de lugar', async () => {
-  const re = /Anorexia, bulimia y otros trastornos alimentarios/;
+  // Ronda 23 (Codex Sol): tras rechazar la oferta o una cortesía, la revelación ya no deja referente: un lugar suelto conserva
+  // la crisis en las tres rutas (antes, ronda 13, heredaba el padecimiento ofrecido).
   for (const turnos of [['tengo anorexia', 'sí', 'no', 'Jalisco'], ['tengo anorexia', 'sí', 'mejor no', 'cuántos casos hay en Jalisco'],
-    ['estoy sola con anorexia', 'no', 'cuántos casos en Jalisco'], ['i have anorexia', 'yes', 'no', 'Jalisco']]) {
-    assert.match((await conversa(...turnos)).md, re, `KB: ${turnos.join(' → ')}`);
-    assert.match(await interfaz(...turnos), re, `interfaz: ${turnos.join(' → ')}`);
-    assert.match(await ragTurno(...turnos), re, `RAG: ${turnos.join(' → ')}`);
+    ['estoy sola con anorexia', 'no', 'cuántos casos en Jalisco'], ['i have anorexia', 'yes', 'no', 'Jalisco'], ['tengo anorexia', 'gracias', 'para Jalisco'],
+    ['tengo anorexia', 'no', 'todo México']]) {
+    assert.match((await conversa(...turnos)).md, /^(Lamento que estés|I am sorry you are)/, `KB: ${turnos.join(' → ')}`);
+    assert.match(await interfaz(...turnos), /^(Lamento que estés|I am sorry you are)/, `interfaz: ${turnos.join(' → ')}`);
+    assert.match(await ragTurno(...turnos), /^(Lamento que estés|I am sorry you are)/, `RAG: ${turnos.join(' → ')}`);
   }
   for (const turnos of [['tengo anorexia', 'sí', 'sí;\nSonora'], ['tengo anorexia', 'sí, mujéres']]) {
     assert.match((await conversa(...turnos)).md, CRISIS_ES, `KB: ${JSON.stringify(turnos)}`);
@@ -465,7 +467,10 @@ test('deuda del detector (ronda 17): referente bloqueado sólo si es el más rec
     assert.match(await ragTurno(...turnos), CRISIS_ES, `RAG: ${turnos.join(' → ')}`);
   }
   assert.match((await conversa('quemaduras en Jalisco', 'tengo depresión', 'no gracias')).md, CIERRE_ES);
-  assert.match(await ragTurno('tengo anorexia', 'en Sonora', 'no', 'en Jalisco por sexo'), /\(hombres\)/);
+  // Ronda 23: tras el rechazo («no») ya no hay referente; «en Jalisco por sexo» conserva la crisis en KB y RAG.
+  assert.match((await conversa('tengo anorexia', 'en Sonora', 'no', 'en Jalisco por sexo')).md, CRISIS_ES);
+  assert.match(await ragTurno('tengo anorexia', 'en Sonora', 'no', 'en Jalisco por sexo'), CRISIS_ES);
+  assert.match(await ragTurno('tengo anorexia', 'en Sonora', 'en Jalisco por sexo'), /\(hombres\)/);
 });
 
 test('deuda del detector (ronda 18): «¡si Jalisco!» conserva la crisis; el cambio de ámbito nacional coincide en las tres rutas', async () => {
@@ -539,6 +544,17 @@ test('deuda del detector (ronda 22): conector intermedio, «Jalisco de México»
     assert.match(await ragTurno(...turnos), re, `RAG: ${turnos.join(' → ')}`);
   }
   assert.match((await conversa('tengo depresión', 'asma en Jalisco', 'y en Sonora')).md, /Asma en Sonora/);
+});
+
+test('deuda del detector (ronda 23): «‹estado› de México» es el estado; un alias original no anula otro padecimiento en RAG', async () => {
+  for (const [turnos, re] of [[['tengo anorexia', 'pronóstico para Jalisco de México'], /trastornos alimentarios en Jalisco/],
+    [['tengo anorexia', 'Yucatán, de México'], /trastornos alimentarios en Yucatán/], [['quiero morir', 'asma en Jalisco', 'Michoacán de México'], /Asma en Michoacán/],
+    [['pronóstico de asma en Yucatán, México'], /Asma en Yucatán/]]) {
+    assert.match((await conversa(...turnos)).md, re, `KB: ${turnos.join(' → ')}`);
+    assert.match(await interfaz(...turnos), re, `interfaz: ${turnos.join(' → ')}`);
+  }
+  assert.match(await ragTurno('casos de asma y demencia en Jalisco'), /Asma \(J45, J46\)\*\* para \*\*Jalisco/);
+  assert.match((await conversa('dengue en Jalisco y Estado de México')).md, /comparación de estados/);
 });
 
 test('deuda del detector (ronda 8): «yes, in Mexico» es el país y conserva el padecimiento ofrecido', async () => {

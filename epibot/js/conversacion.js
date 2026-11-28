@@ -559,6 +559,11 @@ export function reescribeConsulta(raw) {
   if (/\b(hombres|varones|hombre)\b/.test(t) && /\b(mujeres|hembras|mujer)\b/.test(t) && !/\b(hombres|mujeres) o (hombres|mujeres) (tienen|padecen|sufren)\b/.test(t)) {
     t = `${t.replace(/\b(tanto )?(para |en |entre |los |las |de )?(hombres|varones|hombre|mujeres|hembras|mujer)\b( (y|o|como|vs|que) (para |en |los |las |de )?)?/g, ' ')} por sexo`.replace(/\s+/g, ' ');
   }
+  // Deuda del detector, ronda 23 (Fable): con otro estado nombrado, «(de) México» es el apellido del estado («pronóstico para
+  // Jalisco de México», «Yucatán, de México»), no el país: se retira.
+  if (estadosEn.some((e) => !/mexico/.test(e))) {
+    t = t.replace(/(?<!\b(estado|ciudad|edo|valle|nuevo|gobierno|universidad))(,\s*(de\s+|del\s+)?|\s+(de|del)\s+)mexico\b(?!\s*(de|del)\b)/g, ' ').replace(/\s+/g, ' ').trim();
+  }
   // «en México» a secas es el país; el Estado de México se nombra completo («Estado de México», «Edomex»).
   const conPais = t.replace(/(^|[^a-z])((?:en|para|todo|toda|de|del) )mexico\b/g, (m, pre, prep, off, str) =>
     (/\b(estado|edo|ciudad|valle|gobierno|universidad|nuevo) $/.test(str.slice(0, off + pre.length)) ? m : `${pre}${prep === 'de ' || prep === 'del ' ? 'a nivel ' : prep}nacional`));

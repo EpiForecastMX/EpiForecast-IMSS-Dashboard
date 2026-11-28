@@ -146,7 +146,7 @@ function analizarTurno(t, prev) {
   if (CORTESIA_O_CIERRE.test(qp)) return { tipo: 'cortesia', query: t };
   // Deuda del detector, ronda 21 (Fable): los alias de los cuatro originales que reconoce el KB («depre») también cuentan, para
   // no heredar un padecimiento anterior que el KB ya no usa.
-  if (NOMBRA_LEGACY_DOC.test(qs) || (C && (C.padecimientosEnConsulta(evalTxt, { parcial: false }).legacy || []).length)) return { tipo: 'legacy', query: evalTxt };
+  if (NOMBRA_LEGACY_DOC.test(qs) || (C && !releasesEn(evalTxt).length && (C.padecimientosEnConsulta(evalTxt, { parcial: false }).legacy || []).length)) return { tipo: 'legacy', query: evalTxt };
   if (C?.subtipoAjeno(qs)) return { tipo: 'ajeno', query: evalTxt };
   if (C?.aliasAmbiguo(qs)) return { tipo: 'ambiguo', query: evalTxt };
   if (C?.mencionaNoModelada(qs)) return { tipo: 'noModelada', query: evalTxt, termino: C.mencionaNoModelada(qs) };

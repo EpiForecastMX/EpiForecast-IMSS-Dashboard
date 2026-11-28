@@ -3114,6 +3114,8 @@
   // no se resuelven igual en KB y RAG). Los cuatro originales cuentan, como en origin/main tras levantar una crisis.
   function referenteHeredable(previos) {
     for (const t of [...previos].reverse()) {
+      // Ronda 23 (Codex Sol): tras rechazar la oferta o una cortesía («no», «gracias»), la revelación ya no deja referente.
+      if (cortesia(t) || /^(no|no gracias|mejor no|no thanks)$/.test(normTercera(t))) return false;
       // La revelación que pide datos sin padecimiento no es referente (KB y RAG la saltan); la que ofrece datos lo es sólo si
       // ofrece un padecimiento publicado («tengo ansiedad» corta la herencia).
       const sm = saludMentalPropia(t);
